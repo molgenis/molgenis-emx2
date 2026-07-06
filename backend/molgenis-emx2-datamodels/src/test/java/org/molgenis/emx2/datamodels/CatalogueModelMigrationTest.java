@@ -2,6 +2,7 @@ package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -41,6 +42,9 @@ public class CatalogueModelMigrationTest {
   private static final String ID = "id";
   private static final String HELD_BY = "held by";
   private static final String INFRASTRUCTURAL_CAPABILITIES = "infrastructural capabilities";
+  private static final String IMPORTED_FROM = "imported from";
+  private static final String SOURCE = "source";
+  private static final String BBMRI_ERIC_DIRECTORY = "bbmri-eric-directory";
 
   private Database database;
   private Schema schema;
@@ -102,8 +106,9 @@ public class CatalogueModelMigrationTest {
     // Each count is the real loaded number and must be > 0: the round-trip test cannot catch
     // an emptied table because 0 == 0 stays "stable" after export/import.
     // Organisations is the polymorphic supertype: its row count still includes the 5 Biobanks
-    // subtype rows (a Biobank IS an Organisation), so the total stays 76 (71 base + 5 biobanks).
-    assertEquals(76, schema.getTable(ORGANISATIONS).retrieveRows().size());
+    // subtype rows (a Biobank IS an Organisation). Base rows are 72 (71 + the new BBMRI-ERIC
+    // Directory org, the R6 'imported from' upstream), so the total is 77 (72 base + 5 biobanks).
+    assertEquals(77, schema.getTable(ORGANISATIONS).retrieveRows().size());
     assertEquals(5, schema.getTable(BIOBANKS).retrieveRows().size());
     assertEquals(188, schema.getTable("Organisation roles").retrieveRows().size());
     assertEquals(106, schema.getTable(COLLECTIONS).retrieveRows().size());
@@ -153,6 +158,37 @@ public class CatalogueModelMigrationTest {
         1,
         schema.getTable(ORGANISATIONS).where(f(ID, EQUALS, partOf)).retrieveRows().size(),
         "part of must resolve to a real legal-entity Organisations id");
+
+    // R6: 'imported from' marks the immediate upstream (the BBMRI-ERIC Directory) that migrated
+    // this record, distinct from 'source' (the original owner, the national node).
+    assertEquals(
+        BBMRI_ERIC_DIRECTORY,
+        biobankRows.get(0).getString(IMPORTED_FROM),
+        "Qatar Biobank must carry 'imported from' = the BBMRI-ERIC Directory");
+    assertEquals(
+        "directory_nn_EXT",
+        biobankRows.get(0).getString(SOURCE),
+        "Qatar Biobank must keep its existing 'source' = the national node");
+
+    // A native, pre-existing catalogue Collection must NOT be tagged as directory-migrated.
+    List<Row> nativeCollectionRows =
+        schema.getTable(COLLECTIONS).where(f(ID, EQUALS, "RAINE")).retrieveRows();
+    assertEquals(1, nativeCollectionRows.size());
+    assertNull(
+        nativeCollectionRows.get(0).getString(IMPORTED_FROM),
+        "a native catalogue Collection must have an empty 'imported from'");
+
+    // A directory-migrated Collection must carry 'imported from'.
+    List<Row> migratedCollectionRows =
+        schema
+            .getTable(COLLECTIONS)
+            .where(f(ID, EQUALS, "bbmri-eric:ID:EXT_QBB:collection:covid19"))
+            .retrieveRows();
+    assertEquals(1, migratedCollectionRows.size());
+    assertEquals(
+        BBMRI_ERIC_DIRECTORY,
+        migratedCollectionRows.get(0).getString(IMPORTED_FROM),
+        "a directory-migrated Collection must carry 'imported from'");
 
     // The biobank-operation capability columns moved down from the Organisations base to Biobanks.
     assertTrue(

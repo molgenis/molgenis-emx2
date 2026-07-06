@@ -13,6 +13,7 @@ Resources,,name,text,3,TRUE,,,,,,"dcterms:title,foaf:name",Name used in internat
 Resources,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogueFlat,CohortsStaging,RWEStaging",,,
 Resources,,acronym,,,,,,,,,dcterms:alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Resources,,source,ref,,,,Organisations,,,,,Owning catalogue or national node this record originates from (federation and provenance). Global identity is namespaced as source:localid and is never rewritten on merge.,DataCatalogueFlat,,,
+Resources,,imported from,ref,,,,Organisations,,,,,"The catalogue or node this record was imported from (immediate upstream; distinct from source, which is the original owner).",DataCatalogueFlat,,,
 Resources,,location,string,,,,,,,,,Location (e.g. city or site) of this resource,DataCatalogueFlat,,,
 Resources,,latitude,decimal,,,,,,,,SIO:000319,Latitude of this resource's location,DataCatalogueFlat,,,
 Resources,,longitude,decimal,,,,,,,,SIO:000318,Longitude of this resource's location,DataCatalogueFlat,,,
