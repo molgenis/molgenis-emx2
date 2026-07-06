@@ -154,6 +154,7 @@ module.exports = {
       backgroundImage: {
         "sidebar-gradient": "var(--background-image-sidebar-gradient)",
         "base-gradient": "var(--background-image-base-gradient)",
+        "bulk-gradient": "var(--background-image-bulk-gradient)",
         "collapsible-listitem-line":
           "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjQnIHZpZXdCb3g9JzAgMCAyMCAyMicgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMSAxVjIxJyBzdHJva2U9JyM4QkM1RkYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgc3Ryb2tlLWRhc2hhcnJheT0nNCA0Jy8+PC9zdmc+Cg==)",
       },

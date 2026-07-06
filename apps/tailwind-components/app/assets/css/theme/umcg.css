@@ -23,6 +23,11 @@
     #e3eff8 133.81%
   );
 
+  --background-color-bulk-gradient: linear-gradient(
+    #ffffff 100%,
+    rgba(255, 255, 255, 0) 100%
+  );
+
   --opacity-background-gradient: 0;
 
   --background-color-button-primary: var(--color-orange-500);

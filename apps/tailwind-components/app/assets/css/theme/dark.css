@@ -13,6 +13,11 @@
     var(--color-gray-800) 133.81%
   );
 
+  --background-color-bulk-gradient: linear-gradient(
+    90deg,
+    var(--color-gray-800)
+  );
+
   --background-color-button-tree-node-toggle: var(--color-green-200);
 
   --text-color-logo-text: var(--color-green-500);

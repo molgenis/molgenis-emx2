@@ -345,7 +345,7 @@ import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Checkbox from "../input/Checkbox.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
-import RowControles from "./control/RowControles.vue";
+import RowControles from "./control/RowControls.vue";
 import DeleteRows from "./control/DeleteRows.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
