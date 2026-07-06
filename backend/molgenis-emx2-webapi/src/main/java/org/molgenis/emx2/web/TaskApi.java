@@ -237,10 +237,13 @@ public class TaskApi {
     if (!isAdminRequest(ctx)) {
       throw new MolgenisException("Unable to cancel task: can only be done by admin");
     }
-    Task task = taskService.getTask(ctx.pathParam("id"));
-    if (task == null) {
+    Task task;
+    try {
+      task = taskService.getTask(ctx.pathParam("id"));
+    } catch (MolgenisException e) {
       throw new MolgenisException("Task with id '" + ctx.pathParam("id") + "' not found");
     }
+
     taskService.cancel(task.getId());
 
     ctx.result("cancelled task " + task.getId());

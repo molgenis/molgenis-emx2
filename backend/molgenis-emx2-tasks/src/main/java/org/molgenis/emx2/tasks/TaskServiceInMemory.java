@@ -1,6 +1,7 @@
 package org.molgenis.emx2.tasks;
 
 import static org.molgenis.emx2.tasks.TaskStatus.RUNNING;
+import static org.molgenis.emx2.tasks.TaskStatus.WAITING;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -48,7 +49,7 @@ public class TaskServiceInMemory implements TaskService {
     if (task == null) {
       throw new MolgenisException("Task with id '" + taskId + "' not found");
     }
-    if (task.getStatus() != RUNNING) {
+    if (!RUNNING.equals(task.getStatus()) && !WAITING.equals(task.getStatus())) {
       throw new MolgenisException("Cannot cancel task with status: " + task.getStatus());
     }
 
