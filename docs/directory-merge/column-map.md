@@ -172,6 +172,8 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 | number_of_donors | `Collections.number of participants` (existing) | | ⎇ or facts measure |
 | order_of_magnitude* / combined_* / biobank_label | — | | ⌫ derived |
 
+Proposal: rename 'areas of information' to 'data categories'.
+
 > **Confirmed against the model (MIABIS audit):** existing — `design`, `type`, `status`, `population disease`, `number of participants`, `inclusion criteria`, `data use conditions`, `biospecimen collected` (=materials), `areas of information` (=data_categories); **net-new normal columns** — `sex`, `age low/high unit`, `storage temperatures`, `sample source`, `sample collection setting`, `body part`, `imaging modality`, `number of samples`, `location`/`lat`/`long` (summary on `Collections`; per-slice detail in `Collection facts`).
 
 ---
