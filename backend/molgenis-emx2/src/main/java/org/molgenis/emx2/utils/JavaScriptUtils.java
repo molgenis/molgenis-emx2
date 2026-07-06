@@ -2,6 +2,9 @@ package org.molgenis.emx2.utils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -48,19 +51,18 @@ public class JavaScriptUtils {
 
   public static Object executeJavascriptOnMap(
       String script, Map<String, Object> values, Class clazz) {
-    try {
-      final Context context =
-          Context.newBuilder("js")
-              .allowHostAccess(SAFE_HOST_ACCESS)
-              .allowHostClassLookup(className -> false)
-              .allowHostClassLoading(false)
-              .allowCreateProcess(false)
-              .allowCreateThread(false)
-              .allowNativeAccess(false)
-              .allowIO(IOAccess.NONE)
-              .allowEnvironmentAccess(EnvironmentAccess.NONE)
-              .engine(engine)
-              .build();
+    try (Context context =
+        Context.newBuilder("js")
+            .allowHostAccess(SAFE_HOST_ACCESS)
+            .allowHostClassLookup(className -> false)
+            .allowHostClassLoading(false)
+            .allowCreateProcess(false)
+            .allowCreateThread(false)
+            .allowNativeAccess(false)
+            .allowIO(IOAccess.NONE)
+            .allowEnvironmentAccess(EnvironmentAccess.NONE)
+            .engine(engine)
+            .build()) {
       Value bindings = context.getBindings("js");
       if (values != null) {
         for (Map.Entry<String, Object> entry : values.entrySet()) {
@@ -74,9 +76,30 @@ public class JavaScriptUtils {
         }
       }
       String scriptWithFixedRegex = script.replace("\\\\", "\\");
-      return context.eval("js", scriptWithFixedRegex).as(clazz);
+      // Detach the result into plain Java before the try-with-resources closes the context: a
+      // Value-backed List/Map view throws once its context is closed, so it must be materialized.
+      return detachFromContext(context.eval("js", scriptWithFixedRegex).as(clazz));
     } catch (Exception e) {
       throw new MolgenisException("script failed: " + e.getMessage());
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Object detachFromContext(Object value) {
+    if (value instanceof Map) {
+      Map<Object, Object> copy = new LinkedHashMap<>();
+      for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
+        copy.put(entry.getKey(), detachFromContext(entry.getValue()));
+      }
+      return copy;
+    }
+    if (value instanceof List) {
+      List<Object> copy = new ArrayList<>();
+      for (Object item : (List<Object>) value) {
+        copy.add(detachFromContext(item));
+      }
+      return copy;
+    }
+    return value;
   }
 }

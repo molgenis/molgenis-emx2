@@ -6,6 +6,7 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -36,5 +37,24 @@ class TestJavaScriptUtils {
     Object result = executeJavascriptOnMap(expression, Map.of("date", date));
     String expectedResult = "The date is: 2024-01-22";
     assertEquals(expectedResult, result);
+  }
+
+  // Objects/arrays must be detached from the polyglot context before it is closed; without that,
+  // any access to the result below throws 'The Context is already closed'.
+  @Test
+  void testComputedReturningNestedObjectsIsUsableAfterEvaluation() {
+    Object result = executeJavascriptOnMap("[{name: 'x', nested: {n: 1}}, {name: 'y'}]", Map.of());
+    List<?> list = (List<?>) result;
+    assertEquals(2, list.size());
+    Map<?, ?> first = (Map<?, ?>) list.get(0);
+    assertEquals("x", first.get("name"));
+    assertEquals(1, ((Map<?, ?>) first.get("nested")).get("n"));
+    assertEquals("y", ((Map<?, ?>) list.get(1)).get("name"));
+  }
+
+  @Test
+  void testComputedReturningListAsListClass() {
+    Object result = executeJavascriptOnMap("['a', 'b'].concat(['c'])", Map.of(), List.class);
+    assertEquals(List.of("a", "b", "c"), result);
   }
 }
