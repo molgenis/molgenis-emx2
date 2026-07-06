@@ -21,7 +21,7 @@ See [proposed-changes.md](proposed-changes.md). In one line: split organisation 
 - **Nested sub-collections (`parent_collection`)** are re-expressed by intent → **`Collection facts`** (default aggregate), **`Collection events`** (timepoints), **`Subpopulations`** (site arms), or a promoted **`Collections`** — human-in-the-loop where ambiguous.
 - **CollectionFacts → `Collection facts`** (the dimensioned sex × age × sample-type × disease aggregate).
 - **`juridical_person` (free text) → minted legal-entity `Organisations`**, linked via **`part of`** (self-ref).
-- **Persons → `Contacts`**, **Networks → a `Networks` container managed by an `Organisations`** (a Network is not itself an `Organisations`), **Studies → typed `Collections` + `Linkages`**, **QualityInfo → `Quality info`**, **Services → `Services`**, **national nodes → a `Networks` grouping managed by a host `Organisations` + `source`**.
+- **Persons → `Contacts`**, **Networks → a `Networks` container managed by an `Organisations`** (a Network is not itself an `Organisations`), **Studies → typed `Collections` + `Linkages`**, **QualityInfo → `Quality info`**, **Services → `Services`**, **national nodes → an `Organisations` identity used as `source`**.
 
 Full per-column detail: see `column-map.md`; the mapping rationale is in `proposed-changes.md`.
 

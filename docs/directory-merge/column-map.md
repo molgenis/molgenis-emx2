@@ -23,7 +23,7 @@ Every table in the directory dump has a target; nothing is dropped silently.
 | Studies | `Collections` (typed study) + `Linkages` | `wasDerivedFrom` |
 | Persons | `Contacts` | |
 | Networks | `Networks` + coordinating (host) `Organisations` | |
-| NationalNodes | `Networks` (managed by a host `Organisations`) + `source` | node = network + host org |
+| NationalNodes | → `Organisations` (national-node identity) via `source` | node = an owning/stewarding org, not a grouping |
 | ContactPersonsNationalNodes | `Contacts` | 0 rows |
 | Organisations | `Organisations` (identity) | |
 | Publishers | `Organisations` (publisher identity) | `Resources.publisher` → it |
@@ -58,7 +58,7 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 | `Services` | **[NEW]** `extends Resources` | biobank services | Services |
 | `DataServices` | **[NEW]** | data services | DataServices |
 | `Linkages` | +typed ✎ | collection relationships | Studies↔Collections, derived |
-| `Networks`, `Catalogues` | **unchanged** containers (managed by an `Organisations`) | grouping / published catalog | Networks, Catalogs, NationalNodes |
+| `Networks`, `Catalogues` | **unchanged** containers (managed by an `Organisations`) | grouping / published catalog | Networks, Catalogs |
 | `External identifiers`, `Endpoint` | reused | alt-ids / FDP endpoints | AlsoKnownIn, Endpoints |
 
 **Net-new columns:** `Collections.held by` / `sex` / `age low+high unit` / `storage temperatures` / `body part` / `imaging modality` / `number of samples` / `sample source` / `sample collection setting`; `Organisations.part of` + *capabilities* (infra/org/bioprocessing); `Networks.status` + `common collaboration topics`; `Resources.source`/`location`/`latitude`/`longitude`/`last data refresh`/`withdrawn`; `Collection facts.anatomy`; `Linkages.relationship type`+`source selection`; `Contacts.phone`; `Organisations.email`+`phone`. *(materials → existing `biospecimen collected`; data_categories → existing `areas of information` — not new.)*
@@ -236,9 +236,9 @@ The source collection sees derived studies via the **refback** `Resources.linked
 | AlsoKnownIn | `External identifiers`: `resource` (`ref → Resources`) | name_system → type, pid, url, label |
 | Endpoints | `Endpoint` (existing) | 1:1 |
 | Publishers / directory-Organisations / Address | `Organisations` identity | `Resources.publisher ref → Organisations`; mbox → `Organisations.email` ✎; address inline on identity |
-| **NationalNodes** / ContactPersons | a **`Networks` grouping** managed by a host **`Organisations`** (the coordinating body) + the **`source`** role; migrated records' `source` `ref →` the host org and belong to the node `Networks` | a national node **is a `Networks`** (not an `Organisations` type — 2026-07-06 decision); the coordinating body that manages it is an `Organisations`. Contact persons → `Contacts`. data_refresh → `Resources.last data refresh` ✎ |
+| **NationalNodes** / ContactPersons | **an `Organisations` identity** (the national-node coordinating body); migrated records' `source` `ref →` it | a national node **is an `Organisations`** used as the record's `source` — the federation *owner/steward* (an Agent), not a content-grouping (2026-07-06). Contact persons → `Contacts`. data_refresh → `Resources.last data refresh` ✎ |
 
-*(Networks / Catalogs are unchanged containers — no column detail; the only change is that a container's **managing/coordinating body is an `Organisations`** (a Network/node is not itself an `Organisations`) and a catalogue's maintainer = its `publisher`.)*
+*(Networks / Catalogs are unchanged containers — no column detail; the only change is that a container's **managing/coordinating body is an `Organisations`** (a Network is not itself an `Organisations`) and a catalogue's maintainer = its `publisher`.)*
 
 ---
 
