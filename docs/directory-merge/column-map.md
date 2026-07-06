@@ -65,6 +65,43 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 
 ---
 
+## Row-mapping rules (read first)
+
+*How each directory **row** becomes catalogue rows. Column-level detail is in §B–§K below.*
+
+### 1) Biobanks — which directory Biobank rows become what (triage by collection count)
+
+| directory Biobank | → catalogue | note |
+|---|---|---|
+| 0 collections | a `Biobanks` row that holds nothing | bare registration |
+| 2+ collections | a `Biobanks` row holding N `Collections` (via `held by`) | umbrella org |
+| 1 collection (1:1), **attribute-poor** (no services/quality) | **collapse** → ONE `Collections` held by its legal-entity `Organisations` (**no** `Biobanks` minted) | the main judgement call — flagged for review |
+| 1 collection (1:1), **real org-unit** (has services/quality) | a `Biobanks` row holding its one `Collections` | flagged for review |
+| `juridical_person` | a legal-entity `Organisations`, linked via `Biobanks.part of` | mint + curator dedup |
+
+### 2) Collections & Studies
+
+| directory row | → catalogue |
+|---|---|
+| Collection | a `Collections` row, **`held by`** its biobank (custody) |
+| Study | a typed `Collections` **+** a `Linkages` (`wasDerivedFrom`) to its source collection |
+
+### 3) Sub-collections (`parent_collection` children) — re-expression rules
+
+Classified by what varies across sibling children (measured over **1,319 sub-collections**):
+
+| Child varies by | → catalogue | Count | Auto? |
+|---|---|---|---|
+| facts-dimensions only (sample type / disease / sex / age / anatomy) | **`Collection facts`** | 934 (71%) | ✅ automatic |
+| institute only (site arm, e.g. `DIA-UMCG` / `DIA-AMC`) | **`Subpopulations`** | 92 | needs abbreviation-aware detection |
+| timepoint / wave | **`Collection events`** | 38 | |
+| distinct study (`type` varies) | promoted **`Collections`** + `Linkages` | 35 | |
+| ambiguous / single-child / duplicate / mixed | **review (human)** | 220 | |
+
+**The 220 review cases:** duplicates (38 → drop/merge), near-facts (34 → restore to facts), single-child (46 → 19 losslessly mergeable / 27 keep), facts×wave (83 → events + per-event facts), name-only (19 → manual).
+
+---
+
 ## B. `Agents` → `Contacts` + `Organisation roles` (the identity/attribution split)
 
 `Agents` (one polymorphic per-resource person|org role table) is **discontinued**; nothing is lost:
