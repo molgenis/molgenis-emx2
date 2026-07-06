@@ -113,14 +113,21 @@ public class ServeStaticFile {
     return false;
   }
 
-  // Serve internal file
+  // Serve internal file (classpath resource under the internal apps root)
   public static void serve(Context ctx, String path) {
+    Path internalRoot = Path.of(INTERNAL_APP_FOLDER).normalize();
+    Path resolved = Path.of(path).normalize();
+    if (!resolved.startsWith(internalRoot)) {
+      ctx.status(403).result("Forbidden");
+      return;
+    }
+    String resourcePath = convertWindowsPathToJarPath(resolved.toString());
 
-    try (InputStream in = ServeStaticFile.class.getResourceAsStream(path)) {
-      String mimeType = URLConnection.guessContentTypeFromName(path);
+    try (InputStream in = ServeStaticFile.class.getResourceAsStream(resourcePath)) {
+      String mimeType = URLConnection.guessContentTypeFromName(resourcePath);
 
       if (mimeType == null) {
-        mimeType = Files.probeContentType(Path.of(path));
+        mimeType = Files.probeContentType(resolved);
       }
       send(ctx, in, mimeType);
     } catch (Exception e) {
