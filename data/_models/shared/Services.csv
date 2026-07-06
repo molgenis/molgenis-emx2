@@ -1,3 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Services,Resources,,,,,,,,,,,"Services offered by an organisation, such as biobank services",DataCatalogueFlat
-Services,,provider,ref,,TRUE,,Organisations,,,,,Organisation that provides this service,DataCatalogueFlat

@@ -32,13 +32,15 @@ public class CatalogueModelMigrationTest {
 
   private static final String SCHEMA = "CatalogueModelMigrationTest";
   private static final String ROUND_TRIP_SCHEMA = "CatalogueModelMigrationRoundTrip";
-  private static final int EXPECTED_TABLE_COUNT = 30;
+  private static final int EXPECTED_TABLE_COUNT = 31;
 
   private static final String ORGANISATIONS = "Organisations";
+  private static final String BIOBANKS = "Biobanks";
   private static final String COLLECTIONS = "Collections";
   private static final String COLLECTION_FACTS = "Collection facts";
   private static final String ID = "id";
   private static final String HELD_BY = "held by";
+  private static final String INFRASTRUCTURAL_CAPABILITIES = "infrastructural capabilities";
 
   private Database database;
   private Schema schema;
@@ -99,7 +101,10 @@ public class CatalogueModelMigrationTest {
     // Exact row counts of the migration-affected tables, guarding against silent data loss.
     // Each count is the real loaded number and must be > 0: the round-trip test cannot catch
     // an emptied table because 0 == 0 stays "stable" after export/import.
+    // Organisations is the polymorphic supertype: its row count still includes the 5 Biobanks
+    // subtype rows (a Biobank IS an Organisation), so the total stays 76 (71 base + 5 biobanks).
     assertEquals(76, schema.getTable(ORGANISATIONS).retrieveRows().size());
+    assertEquals(5, schema.getTable(BIOBANKS).retrieveRows().size());
     assertEquals(188, schema.getTable("Organisation roles").retrieveRows().size());
     assertEquals(106, schema.getTable(COLLECTIONS).retrieveRows().size());
     assertEquals(20, schema.getTable(COLLECTION_FACTS).retrieveRows().size());
@@ -125,17 +130,45 @@ public class CatalogueModelMigrationTest {
         schema.getTable(ORGANISATIONS).where(f(ID, EQUALS, heldBy[0])).retrieveRows().size(),
         "held by must resolve to a real Organisations id");
 
-    // Organisations identity from the Phase-3 directory slice carries its new 'part of' column:
-    // Qatar Biobank is part of a legal entity that itself exists as an Organisations record.
-    List<Row> orgRows =
-        schema.getTable(ORGANISATIONS).where(f(ID, EQUALS, "bbmri-eric:ID:EXT_QBB")).retrieveRows();
-    assertEquals(1, orgRows.size());
-    String partOf = orgRows.get(0).getString("part of");
+    // Qatar Biobank is now a Biobanks subtype row: query it from the Biobanks table and confirm it
+    // carries the inherited 'part of' column (a legal entity that itself is an Organisations
+    // record).
+    List<Row> biobankRows =
+        schema.getTable(BIOBANKS).where(f(ID, EQUALS, "bbmri-eric:ID:EXT_QBB")).retrieveRows();
+    assertEquals(1, biobankRows.size());
+    String partOf = biobankRows.get(0).getString("part of");
     assertEquals("directory_le_0014", partOf, "Qatar Biobank must reference its legal entity");
+
+    // The same row stays reachable through the polymorphic Organisations supertype (a Biobank IS
+    // an Organisation), so refs to Organisations still resolve to it.
+    assertEquals(
+        1,
+        schema
+            .getTable(ORGANISATIONS)
+            .where(f(ID, EQUALS, "bbmri-eric:ID:EXT_QBB"))
+            .retrieveRows()
+            .size(),
+        "Biobank must remain reachable via the Organisations supertype");
     assertEquals(
         1,
         schema.getTable(ORGANISATIONS).where(f(ID, EQUALS, partOf)).retrieveRows().size(),
         "part of must resolve to a real legal-entity Organisations id");
+
+    // The biobank-operation capability columns moved down from the Organisations base to Biobanks.
+    assertTrue(
+        schema
+            .getTable(BIOBANKS)
+            .getMetadata()
+            .getColumnNames()
+            .contains(INFRASTRUCTURAL_CAPABILITIES),
+        "capability column must now live on the Biobanks subtype");
+    assertTrue(
+        !schema
+            .getTable(ORGANISATIONS)
+            .getMetadata()
+            .getColumnNames()
+            .contains(INFRASTRUCTURAL_CAPABILITIES),
+        "capability column must no longer live on the Organisations base");
 
     // Collection facts (new table): a row carries a dimension (sex) plus a measure (donor count).
     List<Row> factRows =
