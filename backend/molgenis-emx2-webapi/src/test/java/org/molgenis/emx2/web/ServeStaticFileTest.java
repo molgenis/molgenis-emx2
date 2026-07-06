@@ -14,24 +14,56 @@ class ServeStaticFileTest {
   @Test
   void testServe_FileExists() {
     Context ctx = mock(Context.class);
-    String path = "/test.txt";
+    // serve(ctx, path) only serves resources under the internal apps root
+    String path = "/public_html/apps/test-app/test-assets/styling.css";
 
     ServeStaticFile.serve(ctx, path);
 
-    verify(ctx).header("Content-Type", "text/plain");
-    verify(ctx).result("test".getBytes());
+    verify(ctx).header("Content-Type", "text/css");
+
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(ctx).result(captor.capture());
+    String served = new String(captor.getValue(), StandardCharsets.UTF_8);
+    assertTrue(served.contains("color:red"));
   }
 
   @Test
   void testServe_FileNotFound() {
     Context ctx = mock(Context.class);
-    String path = "/non-existent-file.css";
+    // in-contract path (under the internal root) but no such resource
+    String path = "/public_html/apps/non-existent-file.css";
     when(ctx.status(404)).thenReturn(ctx);
 
     ServeStaticFile.serve(ctx, path);
 
     verify(ctx).status(404);
     verify(ctx).result(NOT_FOUND + ctx.path());
+  }
+
+  @Test
+  void testServe_RejectsPathResolvingOutsideRoot() {
+    Context ctx = mock(Context.class);
+    when(ctx.status(anyInt())).thenReturn(ctx);
+    // normalizes to /test.txt, which resolves outside the internal apps root
+    String path = "/public_html/apps/../../test.txt";
+
+    ServeStaticFile.serve(ctx, path);
+
+    verify(ctx).status(403);
+    verify(ctx).result("Forbidden");
+  }
+
+  @Test
+  void testServe_RejectsPathOutsideRoot() {
+    Context ctx = mock(Context.class);
+    when(ctx.status(anyInt())).thenReturn(ctx);
+    // this resource exists on the classpath, but is not under the internal root
+    String path = "/test.txt";
+
+    ServeStaticFile.serve(ctx, path);
+
+    verify(ctx).status(403);
+    verify(ctx).result("Forbidden");
   }
 
   @Test
