@@ -10,6 +10,7 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.EnvironmentAccess;
 import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.ResourceLimits;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.io.IOAccess;
 import org.molgenis.emx2.MolgenisException;
@@ -32,6 +33,9 @@ public class JavaScriptUtils {
           .allowBigIntegerNumberAccess(true)
           .allowAccessAnnotatedBy(HostAccess.Export.class)
           .build();
+
+  private static final ResourceLimits RESOURCE_LIMITS =
+      ResourceLimits.newBuilder().statementLimit(1_000_000, null).build();
 
   private JavaScriptUtils() {
     // hide constructor
@@ -61,6 +65,7 @@ public class JavaScriptUtils {
             .allowNativeAccess(false)
             .allowIO(IOAccess.NONE)
             .allowEnvironmentAccess(EnvironmentAccess.NONE)
+            .resourceLimits(RESOURCE_LIMITS)
             .engine(engine)
             .build()) {
       Value bindings = context.getBindings("js");

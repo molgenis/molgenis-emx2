@@ -51,6 +51,15 @@ class TestJavaScriptSandbox {
   }
 
   @Test
+  void infiniteLoopIsAbortedByStatementLimit() {
+    // A runaway script must not hang the request thread indefinitely; the statement limit aborts
+    // it.
+    assertThrows(
+        MolgenisException.class,
+        () -> executeJavascriptOnMap("while (true) { let i = 1; }", Map.of()));
+  }
+
+  @Test
   void legitimateExpressionsStillWork() {
     // arithmetic and string templates on auto-converted scalar bindings
     assertEquals(12, executeJavascriptOnMap("5 + 7", Map.of()));
