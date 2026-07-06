@@ -14,9 +14,11 @@ export default async (
   );
 
   if (!tableMetadata) {
+    const message = `Could not find table: ${tableId} in schema: ${schemaId}. Might you need to sign in or ask permission?`;
+    console.error(message);
     throw createError({
-      message: `Could not find table: ${tableId} in schema: ${schemaId}. Might you need to sign in or ask permission?`,
-      status: 400,
+      message,
+      status: 404,
     });
   } else {
     return tableMetadata;
