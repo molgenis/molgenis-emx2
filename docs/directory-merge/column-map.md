@@ -9,7 +9,38 @@
 
 > **Phase-1 reconciliation (2026-07-05) — read before using this map for Phase 2/3.** Several targets below were refined by implementation; the canonical delta list is in `proposed-changes.md` → "Phase-1 implementation reconciliation". Highlights: identity **key = `id`** (inherited from Resources), not `name`; `held by` is **soft-required** (Option C — R3 by data), and its migration source is the old **custody role, not `publisher`**; **no separate `Resources.source id`** column (`id` doubles as the local id — the "(+ Resources.source id ✎)" in §C/§D rows is stale); `organisations involved` → **`Organisation roles`** refback, not the identity; **`DataServices [NEW]`** deferred to Phase 2; `Linkages.relationship type` is **string** for now (ontology → Phase 2).
 
-## A. Table-level map — what changes
+## A. Table-level map
+
+### A.1 Complete directory dump → catalogue (all 22 dump tables)
+
+Every table in the directory dump has a target; nothing is dropped silently.
+
+| Directory table | → Catalogue | Note |
+|---|---|---|
+| Biobanks | `Biobanks` (extends `Organisations`) | subtype; 1:1 triage; `juridical_person` → `part of` legal-entity `Organisations` |
+| Collections | `Collections` (+ `held by`) | `parent_collection` → facts/events/subpopulations/promoted |
+| CollectionFacts | `Collection facts` | dimensioned aggregate |
+| Studies | `Collections` (typed study) + `Linkages` | `wasDerivedFrom` |
+| Persons | `Contacts` | |
+| Networks | `Networks` + coordinating (host) `Organisations` | |
+| NationalNodes | `Networks` (managed by a host `Organisations`) + `source` | node = network + host org |
+| ContactPersonsNationalNodes | `Contacts` | 0 rows |
+| Organisations | `Organisations` (identity) | |
+| Publishers | `Organisations` (publisher identity) | `Resources.publisher` → it |
+| Address | inline on `Organisations` (`address`) | no separate table |
+| Services | `Services` (extends `Resources`) | `provider` → `Organisations` |
+| DataServices | `DataServices` — DEFERRED (not built in Phase 1) | 0 rows |
+| QualityInfoBiobanks | `Quality info` (`resource` → biobank) | **3 → 1 polymorphic** |
+| QualityInfoCollections | `Quality info` (`resource` → collection) | |
+| QualityInfoServices | `Quality info` (`resource` → service) | |
+| Catalogs | `Catalogues` | |
+| Endpoints | `Endpoint` | FDP |
+| AlsoKnownIn | `External identifiers` | alt-ids |
+| molgenis / molgenis_members / molgenis_settings | — (schema / permissions / UI settings) | system metadata, dropped |
+
+**`Quality info` applies to any `Resource` (`resource → Resources`), so the directory's three quality tables (Biobanks/Collections/Services) collapse into one — removing that duplication.**
+
+### A.2 Touched catalogue tables — what changes
 
 Only the tables below are touched; every other catalogue table is unchanged and not mentioned here.
 
@@ -110,6 +141,8 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 | distinct study (`type` varies) | few | promoted `Collections` + `Linkages` (`wasDerivedFrom`) |
 | single-child (46) / no-vary (15) | — | review (artifacts/duplicates) |
 
+> **Site-arm subpopulations are name-coded (corrected finding).** ~92 sub-collections (across 14 parents) are disease cohorts split per recruiting Dutch academic hospital (`DIA-AMC` / `DIA-UMCG` / `DIA-VUMC` …) → `Subpopulations`. A naive site regex (matching English words like `centre|hospital`) misses these institutional **abbreviations** and wrongly reported site-arms as absent — so site detection must be **abbreviation-aware**. This supersedes the earlier "subpopulation unused" reading.
+
 **Relations (EMX2):**
 - **`Collections.held by`** (`ref_array → Organisations`, **required**) — custody = `dcterms:rightsHolder`; refback `Organisations.holds`. From directory `Collections.biobank`.
 - **membership** — the `Networks` container lists the collection (existing container ref). From directory `Collections.network`. Distinct from custody.
@@ -195,7 +228,7 @@ The source collection sees derived studies via the **refback** `Resources.linked
 
 | directory | catalogue (EMX2) | note |
 |---|---|---|
-| QualityInfo{Biobanks,Collections,Services} | `Quality info` **[NEW]**: `resource` (`ref → Resources`); refback `Resources.quality` | one polymorphic table replaces three; **quality is a refback on Resources, not an FK column on Organisations** |
+| QualityInfo{Biobanks,Collections,Services} | `Quality info` **[NEW]**: `resource` (`ref → Resources`); refback `Resources.quality` | **3 → 1 polymorphic**: `resource → Resources` lets one table serve biobank, collection and service quality — the directory's three separate quality tables collapse into one. **Quality is a refback on Resources, not an FK column on Organisations.** |
 | Services | `Services` **[NEW]** `extends Resources`: `provider` (`ref → Organisations`); refback `Organisations.services` | a Service is a Resource subtype (inherits id/name/provenance); 32-type MIABIS enum + TRL / unit of access / device |
 | DataServices | `DataServices` **[NEW]**: `catalogue` (`ref → Catalogues`); refback | |
 | AlsoKnownIn | `External identifiers`: `resource` (`ref → Resources`) | name_system → type, pid, url, label |
