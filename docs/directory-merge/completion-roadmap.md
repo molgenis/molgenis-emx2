@@ -81,17 +81,26 @@ The full-scale in-database load is **done and passed**: the entire migrated outp
 
 When merging with the live catalogue, dedup the existing **~871** per-resource org rows → **~319** identities against the minted directory orgs.
 
-## 8. RDF `prov:qualifiedAttribution` (deferred generator enhancement)
+## 8. Federation & provenance model (future — pairs with diamond/multiple-inheritance)
+
+The PoC keeps provenance minimal (node = an `Organisations` identity used as `source`); the full federation model is future work:
+
+- **`source` vs `imported from` (R6 gap).** `source` = the record's *original* owner (e.g. an institute like UMCG running its own catalogue) — **single-valued, never rewritten** as higher levels aggregate; this is what lets a central catalogue link back to the original source (R5). `imported from` = the *immediate* upstream a catalogue imported the record from (e.g. BBMRI.nl at the Directory level) — a **separate** field, **not yet in the model** (R6 anticipates it). Together they give origin + path without a per-record multi-hop chain.
+- **The institute → national-node → central chain** is a **hierarchy among the sources** (each source has an aggregator/parent), NOT a per-record chain.
+- **A national node is multi-facet:** an `Organisations` (owner/steward = `source`, and the coordinating/host body) **and** a `Networks` (a grouping that lists all its collections **and organisations**, for browsing). Diamond inheritance unifies these; until then it is two linked rows (the `Networks.publisher` = the `Organisations`). The PoC keeps it simple — node = `Organisations` used as `source`, and you still get "everything in node X" by querying `source = X`.
+- **Custody vs stewardship** (both already in the model): who *holds/manages the data* (the institute) = `held by`; who *stewards the record in the federation* (the node) = `source`.
+
+## 9. RDF `prov:qualifiedAttribution` (deferred generator enhancement)
 
 Emit reified attribution (`Organisation roles` → `prov:Attribution`, `.role` → `dcat:hadRole`) + give the role-ontology terms `dcat:Role` URIs. The model already enables it.
 
-## 9. Retire the Directory app + codebase
+## 10. Retire the Directory app + codebase
 
 Once the production migration lands (the end goal).
 
 ## Sequencing
 
-Item 1 (ontology) unblocks item 2 (faithful demo) and reduces the emptied fields; items 3–4 are curation/tuning and item 5 is a model decision; items 6–7 are execution; 8–9 are cleanup/decommission.
+Item 1 (ontology) unblocks item 2 (faithful demo) and reduces the emptied fields; items 3–4 are curation/tuning and item 5 is a model decision; items 6–7 are execution; item 8 is future federation architecture; 9–10 are cleanup/decommission.
 
 ## Related / out-of-scope
 
