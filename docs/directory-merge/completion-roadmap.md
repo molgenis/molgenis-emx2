@@ -92,3 +92,7 @@ Once the production migration lands (the end goal).
 ## Sequencing
 
 Item 1 (ontology) unblocks item 2 (faithful demo) and reduces the emptied fields; items 3–4 are curation/tuning and item 5 is a model decision; items 6–7 are execution; 8–9 are cleanup/decommission.
+
+## Related / out-of-scope
+
+**Test-infra — flaky full-module runs (pre-existing, unrelated to this feature).** The `molgenis-emx2-datamodels` module runs the `@Tag("slow")` `TestLoaders`-based tests in **parallel JVM forks** (`build.gradle` `maxParallelForks`) against a **single Postgres DB** with identically-named schemas, and `TestLoaders.setup()` drops `catalogue` **before** dropping `RWEStaging` (which has a cross-schema FK into `catalogue.Variables`) with **no teardown**. Result: flaky cross-schema drop-order cascades (Beacon/Directory/Pages/staging NPEs) on a full-module run. A reliable green currently needs a clean DB + forced single-fork. Fix separately — e.g. per-fork schema namespacing, or correct the drop order + add teardown. CI on a fresh DB largely masks it; local/repeat runs hit it.
