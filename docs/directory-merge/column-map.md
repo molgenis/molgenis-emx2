@@ -15,7 +15,8 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 
 | catalogue table | status | role (DCAT/PROV) | fed by (directory) |
 |---|---|---|---|
-| `Organisations` | **replaced** → now `extends Resources` | **top level** legal-entity identity (`foaf:Agent`) | Biobanks, Networks (coordinating body), Publishers, directory-Organisations, `juridical_person`, NationalNodes |
+| `Organisations` | **replaced** → now `extends Resources` | **top level** legal-entity identity (`foaf:Agent`) | Networks (managing/coordinating body), Publishers, directory-Organisations, `juridical_person` |
+| `Biobanks` | **[NEW]** `extends Organisations` | biobank identity + capabilities (`foaf:Agent` subtype) | Biobanks |
 | `Organisation roles` | **renamed** ← old `Organisations` table | per-resource **attribution** (`prov:qualifiedAttribution`) | org role-links on any resource |
 | `ROR` ontology | **renamed** ← `Organisations` ontology | external-id reference | — |
 | `Agents` | **discontinued** | → split to `Contacts` + `Organisation roles` | — |
@@ -26,7 +27,7 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 | `Services` | **[NEW]** `extends Resources` | biobank services | Services |
 | `DataServices` | **[NEW]** | data services | DataServices |
 | `Linkages` | +typed ✎ | collection relationships | Studies↔Collections, derived |
-| `Networks`, `Catalogues` | **unchanged** containers | grouping / published catalog | Networks, Catalogs |
+| `Networks`, `Catalogues` | **unchanged** containers (managed by an `Organisations`) | grouping / published catalog | Networks, Catalogs, NationalNodes |
 | `External identifiers`, `Endpoint` | reused | alt-ids / FDP endpoints | AlsoKnownIn, Endpoints |
 
 **Net-new columns:** `Collections.held by` / `sex` / `age low+high unit` / `storage temperatures` / `body part` / `imaging modality` / `number of samples` / `sample source` / `sample collection setting`; `Organisations.part of` + *capabilities* (infra/org/bioprocessing); `Networks.status` + `common collaboration topics`; `Resources.source`/`location`/`latitude`/`longitude`/`last data refresh`/`withdrawn`; `Collection facts.anatomy`; `Linkages.relationship type`+`source selection`; `Contacts.phone`; `Organisations.email`+`phone`. *(materials → existing `biospecimen collected`; data_categories → existing `areas of information` — not new.)*
@@ -57,7 +58,9 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 
 ---
 
-## C. Biobanks → `Organisations` identity
+## C. Biobanks → `Biobanks` (extends `Organisations`)
+
+> **A biobank is a `Biobanks extends Organisations` subtype row** (2026-07-06 decision) — a real "Biobanks" table directory users recognise. It shares the Resources PK; the *capability* columns live on `Biobanks`, the identity fields on the `Organisations` base; refs to `Organisations` polymorphically accept it. Below, "biobank-`Organisations`" means such a `Biobanks` row.
 
 **Scenarios** (counts from analysis §1):
 
@@ -198,9 +201,9 @@ The source collection sees derived studies via the **refback** `Resources.linked
 | AlsoKnownIn | `External identifiers`: `resource` (`ref → Resources`) | name_system → type, pid, url, label |
 | Endpoints | `Endpoint` (existing) | 1:1 |
 | Publishers / directory-Organisations / Address | `Organisations` identity | `Resources.publisher ref → Organisations`; mbox → `Organisations.email` ✎; address inline on identity |
-| **NationalNodes** / ContactPersons | **an `Organisations` identity** (the national-node coordinating body); migrated records' `source`/`publisher` `ref →` it | a national node **is an `Organisations`** (+ a `Networks` container, option 2 — not a subtype). Contact persons → `Contacts`. data_refresh → `Resources.last data refresh` ✎ |
+| **NationalNodes** / ContactPersons | a **`Networks` grouping** managed by a host **`Organisations`** (the coordinating body) + the **`source`** role; migrated records' `source` `ref →` the host org and belong to the node `Networks` | a national node **is a `Networks`** (not an `Organisations` type — 2026-07-06 decision); the coordinating body that manages it is an `Organisations`. Contact persons → `Contacts`. data_refresh → `Resources.last data refresh` ✎ |
 
-*(Networks / Catalogs are unchanged containers — no column detail; the only change is a coordinating body → an `Organisations` identity and a catalogue's maintainer = its `publisher`.)*
+*(Networks / Catalogs are unchanged containers — no column detail; the only change is that a container's **managing/coordinating body is an `Organisations`** (a Network/node is not itself an `Organisations`) and a catalogue's maintainer = its `publisher`.)*
 
 ---
 

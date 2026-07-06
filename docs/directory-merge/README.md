@@ -16,12 +16,12 @@ See [requirements.md](requirements.md). The change is driven by:
 See [proposed-changes.md](proposed-changes.md). In one line: split organisation **identity** (`Organisations extends Resources`) from **attribution** (`Organisation roles`), add new tables `Collection facts`, `Services` and `Quality info`, rename the ROR code-list ontology `Organisations → ROR`, and add `Collections.held by` (custody/rights-holder). The formal DCAT agent columns (`publisher`/`creator`) and the new `held by` all resolve to the one stable `Organisations` identity, which is what makes the RDF serialisation clean.
 
 ## How the Directory maps onto the catalogue
-- **Biobank → an `Organisations` identity** that **holds** its datasets — optionally a **`Biobanks extends Organisations`** subtype where biobank-operation attributes warrant it (not required now; the base identity carries id/provenance and links to `Services`/`Quality info`).
+- **Biobank → a `Biobanks` (extends `Organisations`) row** that **holds** its datasets — a real subtype (shares the Resources PK; capability columns on `Biobanks`, identity fields on the `Organisations` base; refs to `Organisations` polymorphically accept `Biobanks`).
 - **Collection → a `Collections` row, `held by`** that org (custody). A 1:1 biobank that is really just its one dataset collapses to a single `Collections` held by its legal entity (no org minted).
 - **Nested sub-collections (`parent_collection`)** are re-expressed by intent → **`Collection facts`** (default aggregate), **`Collection events`** (timepoints), **`Subpopulations`** (site arms), or a promoted **`Collections`** — human-in-the-loop where ambiguous.
 - **CollectionFacts → `Collection facts`** (the dimensioned sex × age × sample-type × disease aggregate).
 - **`juridical_person` (free text) → minted legal-entity `Organisations`**, linked via **`part of`** (self-ref).
-- **Persons → `Contacts`**, **Networks → a `Networks` container + an `Organisations` coordinating body**, **Studies → typed `Collections` + `Linkages`**, **QualityInfo → `Quality info`**, **Services → `Services`**, **national nodes → `Organisations` identities** (used as `source`).
+- **Persons → `Contacts`**, **Networks → a `Networks` container managed by an `Organisations`** (a Network is not itself an `Organisations`), **Studies → typed `Collections` + `Linkages`**, **QualityInfo → `Quality info`**, **Services → `Services`**, **national nodes → a `Networks` grouping managed by a host `Organisations` + `source`**.
 
 Full per-column detail: see `column-map.md`; the mapping rationale is in `proposed-changes.md`.
 
