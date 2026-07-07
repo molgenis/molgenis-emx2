@@ -403,7 +403,7 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-export type TableRow = {
+type TableRow = {
   _rowId: Record<string, columnValue>;
   _rowIdString: string;
 } & Record<string, columnValue>;
