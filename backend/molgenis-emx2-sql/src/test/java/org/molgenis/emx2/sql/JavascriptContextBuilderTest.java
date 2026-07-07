@@ -1,4 +1,4 @@
-package org.molgenis.emx2.sql.processors;
+package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
@@ -15,10 +15,8 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.JavascriptContextBuilder;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class JavascriptContextTest {
+class JavascriptContextBuilderTest {
 
   private static Schema schema;
 
@@ -26,7 +24,7 @@ class JavascriptContextTest {
   static void setUp() {
     schema =
         TestDatabaseFactory.getTestDatabase()
-            .dropCreateSchema(JavascriptContextTest.class.getSimpleName());
+            .dropCreateSchema(JavascriptContextBuilderTest.class.getSimpleName());
     schema.create(table("Category", column("id", ColumnType.INT).setPkey()));
     schema.create(
         table(
