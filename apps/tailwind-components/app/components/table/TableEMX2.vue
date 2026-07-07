@@ -309,6 +309,7 @@ import { computed, onMounted, onUnmounted, ref, useId, watch } from "vue";
 import type {
   columnValue,
   IColumn,
+  IRow,
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
@@ -376,7 +377,7 @@ const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const showDeleteMultipleModal = ref<boolean>(false);
-const rowDataForModal = ref();
+const rowDataForModal = ref<IRow>();
 const showModal = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
@@ -724,13 +725,16 @@ function handleCellClick(payload: cellPayload) {
   showModal.value = true;
 }
 
-function onShowDeleteModal(row: Record<string, columnValue>) {
+function onShowDeleteModal(row: TableRow) {
   rowDataForModal.value = row;
   showDeleteModal.value = true;
 }
 
-function onShowEditModal(row: Record<string, columnValue>) {
-  rowDataForModal.value = row;
+function onShowEditModal(row: TableRow) {
+  const clone: IRow = structuredClone(row);
+  delete clone._rowId;
+  delete clone._rowIdString;
+  rowDataForModal.value = clone;
   showEditModal.value = true;
 }
 
