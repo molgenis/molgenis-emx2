@@ -185,7 +185,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
               });
       getDatabase().getListener().schemaChanged(getName());
-      if(settings.containsKey(SETTING_SEMANTIC_PREFIXES)) update();
+      if (settings.containsKey(SETTING_SEMANTIC_PREFIXES)) update();
       return this;
     } else {
       throw new MolgenisException(
