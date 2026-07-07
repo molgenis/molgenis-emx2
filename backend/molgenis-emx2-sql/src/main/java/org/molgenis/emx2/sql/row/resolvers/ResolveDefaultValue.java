@@ -14,27 +14,26 @@ public class ResolveDefaultValue {
     // hide constructor
   }
 
-  public static void apply(Map<String, Object> contextGraph, Column column, Row row) {
+  public static void apply(Map<String, Object> context, Column column, Row row) {
     if (isComputed(column)) {
-      applyComputedDefaultValue(row, column, contextGraph);
+      applyComputedDefaultValue(row, column, context);
     } else {
       row.set(column.getName(), column.getDefaultValue());
     }
   }
 
   private static void applyComputedDefaultValue(
-      Row row, Column column, Map<String, Object> contextGraph) {
+      Row row, Column column, Map<String, Object> context) {
     String expression = column.getDefaultValue().substring(1);
     try {
       if (column.isRefArray()) {
         List<Map<String, Object>> result =
-            (List<Map<String, Object>>)
-                executeJavascriptOnMap(expression, contextGraph, List.class);
+            (List<Map<String, Object>>) executeJavascriptOnMap(expression, context, List.class);
         TypeUtils.convertRefArrayToRow(result, row, column);
       } else if (column.isRef()) {
         Map<String, Object> result =
             (Map<String, Object>)
-                executeJavascriptOnMap("(" + expression + ")", contextGraph, Map.class);
+                executeJavascriptOnMap("(" + expression + ")", context, Map.class);
         TypeUtils.convertRefToRow(result, row, column);
       } else {
         row.set(column.getName(), executeJavascript(expression));
