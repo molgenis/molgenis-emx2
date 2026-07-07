@@ -14,10 +14,12 @@ export default async (
     },
     signal: options?.signal,
   }).catch((error) => {
-    console.error(`Could not fetch metadata for schema ${schemaId}, `, error);
+    const message = `Could not fetch metadata for schema ${schemaId}. Might you need to sign in or ask permission?`;
+    console.error(message, error);
     throw createError({
       ...error,
-      statusMessage: `Could not fetch graphql for schema ${schemaId}`,
+      message,
+      status: 404,
     });
   });
 

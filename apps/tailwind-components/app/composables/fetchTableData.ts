@@ -54,7 +54,7 @@ export default async (
       variables: { filter, orderby },
     },
   }).catch((error) => {
-    const message = `Could not fetch data for table: ${tableId} in schema: ${schemaId}. \nMight you need to sign in or ask permission?`;
+    const message = `Could not fetch data for table: ${tableId} in schema: ${schemaId}. Might you need to sign in or ask permission?`;
     console.error(message, error);
     throw createError({
       ...error,

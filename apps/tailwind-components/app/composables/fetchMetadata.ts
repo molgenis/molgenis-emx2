@@ -19,7 +19,7 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
     console.error(`Could not fetch metadata for schema ${schemaId}, `, error);
     throw createError({
       ...error,
-      message: `Could not fetch schema: ${schemaId}. \nMight you need to sign in or ask permission?`,
+      message: `Could not fetch schema: ${schemaId}. Might you need to sign in or ask permission?`,
       status: 404,
     });
   });
