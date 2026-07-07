@@ -1,3 +1,38 @@
+<script setup lang="ts">
+import { ref } from "vue";
+
+import Breadcrumbs from "../components/breadcrumbs.vue";
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
+
+import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations.js";
+import type { IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
+
+interface IOrganisationsExtended extends IOrganisations {
+  id: string;
+}
+
+const error = ref<Error>();
+const providers = ref<IOrganisationsExtended[]>();
+
+async function loadData() {
+  const data = await getOrganisations("../api/graphql");
+  providers.value = data
+    .filter((row: IOrganisations) => row.hasSchema)
+    .map((row: IOrganisations) => {
+      const id = row.providerInformation
+        ? row.providerInformation[0].providerIdentifier
+        : row.name;
+      return { id: id, ...row };
+    })
+    .sort((current: IOrganisations, next: IOrganisations) => {
+      return current.name.localeCompare(next.name);
+    });
+}
+
+loadData().catch((err: Error) => (error.value = err));
+</script>
+
 <template>
   <Page>
     <PageHeader
@@ -46,46 +81,6 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup>
-import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-import Breadcrumbs from "../components/breadcrumbs.vue";
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
-import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
-
-let error = ref(false);
-let providers = ref([]);
-
-async function getOrganisations() {
-  const query = gql`
-    {
-      Organisations(filter: { hasSchema: { equals: true } }) {
-        name
-        city
-        country
-        providerInformation {
-          providerIdentifier
-        }
-        schemaName
-      }
-    }
-  `;
-
-  const response = await request("../api/graphql", query);
-  providers.value = response.Organisations.map((row) => {
-    return {
-      id: row.providerInformation[0].providerIdentifier,
-      ...row,
-    };
-  }).sort((current, next) => (current.name < next.name ? -1 : 1));
-}
-
-onMounted(() => {
-  getOrganisations().catch((err) => (error.value = err));
-});
-</script>
 
 <style lang="scss">
 $borderRadius: 24pt;
