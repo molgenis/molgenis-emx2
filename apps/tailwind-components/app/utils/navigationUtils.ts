@@ -1,7 +1,7 @@
 import type { nonEmptyColumnValue } from "../../../metadata-utils/src/types";
 
 /**
- * Generates human readable key from KeyObject, one way only, only used for readability
+ * Generates human readable key from keyObject, one way only, only used for readability
  */
 export function keySlug(
   keyObject: Record<string, nonEmptyColumnValue> | nonEmptyColumnValue
