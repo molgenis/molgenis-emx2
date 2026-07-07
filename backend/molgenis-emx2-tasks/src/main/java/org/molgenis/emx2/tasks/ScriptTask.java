@@ -136,7 +136,9 @@ public class ScriptTask extends Task {
             this.handleOutput(tempOutputFile.toFile());
             this.output = Files.readAllBytes(tempOutputFile);
           }
-          this.complete();
+          if (!TaskStatus.CANCELLED.equals(getStatus())) {
+            this.complete();
+          }
         }
       } finally {
         if (tempDir != null) {
