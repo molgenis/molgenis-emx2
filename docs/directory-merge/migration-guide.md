@@ -1,8 +1,8 @@
-# Directory → Catalogue — Data Manager's Mapping Manual
+# Directory → Catalogue — Migration Guide
 
 **What this is.** The data manager's reference for where every BBMRI-ERIC Directory table, row and column lands in the catalogue — and what is automatic vs. what needs curation afterward. The plan is **load-then-curate**: migrate everything automatically first (it loads clean), then curate the flagged judgement-calls inside the catalogue, per source.
 
-Legend: **⎇** choose target (rule given) · **✎** new column · **⌫** drop (derived/system, no info loss) · **[NEW]** net-new table. Relations are EMX2 `ref` / `refback`: a `ref` / `ref_array` column sits on the *child* pointing at the parent; the parent sees it back as a `refback`.
+Legend: **⎇** choose target (rule given) · **✎** new column · **⌫** drop (derived/system, no info loss) · **[NEW]** net-new table. Relations are EMX2 `ref` / `refback`: a `ref` / `ref_array` column sits on the *child* pointing at the parent; the parent sees it back as a `refback`. The **MIABIS v3** column in the tables below names the MIABIS (Minimum Information About BIobank data Sharing) Core v3 attribute each field preserves.
 
 > **Already reconciled with the Phase-1 build:** identity **key = `id`** (not `name`); `held by` is soft-required and migrated from the old **custody role** (not `publisher`); there is **no separate `source id`** column (`id` is the local id); `organisations involved` → `Organisation roles`; `DataServices` is deferred; `Linkages.relationship type` is a string for now.
 
@@ -10,26 +10,39 @@ Legend: **⎇** choose target (rule given) · **✎** new column · **⌫** drop
 
 **Goal.** A **one-shot** migration of the BBMRI-ERIC Directory (biobanks + collections) into the catalogue, after which the Directory app is **retired** — done so it is also the first step toward a **federated, multi-catalogue** future (many catalogues merging records into central servers, each still maintaining its own). Not an ongoing sync.
 
-| # | Requirement |
-|---|---|
-| R1 | Model change + one-shot migration; no ongoing directory sync. |
-| R2 | Existing catalogue data migrates automatically; directory records migrate automatically where deterministic, curation allowed for genuinely ambiguous cases. |
-| R3 | Every Collection has ≥1 legal **holder** organisation (custody/controller). |
-| R4 | Organisations are **global identities** — one row referenced by many resources, not re-declared per resource. Prerequisite for R3/R5/R6. |
-| R5 | Federation-ready ids: every record carries a `source` + a stable local id; global id = `source:id`; a merging instance **never rewrites another's ids**. |
-| R6 | Provenance: every record carries `source` / `imported from` so merged records stay attributable to their origin. |
-| R7 | Lossy only where safe: collapse empty/duplicate 1:1 biobank↔collection; re-express nested sub-collections losslessly; human-in-the-loop where automation can't. |
-| R8 | Directory app + code retired after migration. |
-| R9 | End-users manage their own records (submit/edit); a record is stewarded by its `source`, distinct from the dataset's `creator`/`publisher`. |
-| R10 | Target model is **MIABIS Core v3 feature-complete** (every v3 attribute has a home). Audit: §J. |
+| # | Requirement                                                                                                                                                             |
+|---|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| R1 | Model change + one-shot migration; no ongoing directory sync.                                                                                                           |
+| R2 | Existing catalogue data migrates automatically; directory records migrate automatically where deterministic, curation allowed afterwards for genuinely ambiguous cases. |
+| R3 | Every Collection has ≥1 legal **holder** organisation (custody/controller).                                                                                             |
+| R4 | Organisations are **global identities** — one row referenced by many resources, not re-declared per resource. Prerequisite for R3/R5/R6.                                |
+| R5 | Federation-ready ids: every record carries a `source` + a stable local id; global id = `source:id`; a merging instance **never rewrites another's ids**.                |
+| R6 | Provenance: every record carries `source` / `imported from` so merged records stay attributable to their origin.                                                        |
+| R7 | Lossy only where safe: collapse empty/duplicate 1:1 biobank↔collection; re-express nested sub-collections losslessly; human-in-the-loop where automation can't.         |
+| R8 | Directory app + code retired after migration.                                                                                                                           |
+| R9 | End-users manage their own records (submit/edit); a record is stewarded by its `source`, distinct from the dataset's `creator`/`publisher`.                             |
+| R10 | Target model is **MIABIS Core v3 feature-complete** (every v3 attribute has a home). Audit: §J.                                                                         |
 
 ## The mapping ledger
 
-Every one of the 29,013 Directory records is mapped case-by-case in **`mapping_ledger.csv`**. Headline: **94% map automatically, 3% need curation, 3% are dropped** (orphan persons with no resource to attach to). Each row gives the source record (`directory_table` / `id` / `name`), where it lands (`catalogue_table` / `id`), the rule applied (`mapping_rule`), and its `disposition` — `auto`, `needs_curation`, or `dropped`. Advisory columns flag data-quality issues (`data_quality_error` — ~1,084 rows: a person in `juridical_person`, placeholder text, malformed IDs, bad geo-coords) and biobank-fold hints (`collections_fold_review`, `part_of_possible_facts_fold`).
+Every one of the 29,013 Directory records is mapped case-by-case in **`mapping_ledger.csv`**. Headline: **94% map automatically, 3% need curation, 3% are dropped** (orphan persons with no resource to attach to). Each row gives the source record (`directory_table` / `id` / `name`), where it lands (`catalogue_table` / `id`), the rule applied (`mapping_rule`), its `disposition` — `auto`, `needs_curation`, or `dropped` — and `flag_reason` (why a human is needed, e.g. the 1:1 "is-it-a-real-org?" triage). A separate, **orthogonal** `data_quality_error` flag (with `data_quality_reason`; ~1,084 rows: a person in `juridical_person`, placeholder text, malformed IDs, bad geo-coords) marks bad *values* — it fires **independently of `disposition`**, so many `auto` rows still carry it. Biobank-fold hints (`collections_fold_review` / `name_coherence` / `part_of_possible_facts_fold`) advise where a multi-collection biobank's collections are really facts slices.
 
-**Using it:** filter `disposition = needs_curation` for the curation worklist, or `from_UMCG = TRUE` to fix issues at your own source.
+**Two worklists, both needed:** (1) `disposition = needs_curation` — structural judgement-calls; (2) `data_quality_error = TRUE` — bad values to clean. To work only your own records, filter `source = <your national node>` (`from_UMCG` is UMCG-specific demo scaffolding). All fixes are made **in the catalogue after migration**, not in the retired Directory.
 
 **Where the human effort concentrates.** Measured over the real dumps, ~60% of the hard structural decisions automate cleanly. Curation focuses on two things: (a) **organisation / legal-entity dedup** (fuzzy name-matching — the single biggest automated-migration correctness risk, the 871→319 existing-catalogue collapse plus the ~500 minted `juridical_person` entities), and (b) the **~118 of 206 `parent_collection` parents** whose sub-collections aren't a clean facts-fold. Everything else is deterministic.
+
+## Curation — your worklist and how to action it
+
+Curation happens **inside the catalogue after the load**, in the normal record-editing UI — each national node works only its own records (`source = your node`). There is no re-import from the (retired) Directory. The one task without a plain-UI path today is **merging duplicate `Organisations`** (dedup), which needs a merge tool that re-points references — planned, not yet built.
+
+| Worklist | Count | Find it by | Action |
+|---|---|---|---|
+| Biobank "is it a real org?" (1:1) | ~475 | `flag_reason` = is-it-a-real-org? | confirm **collapse** to a `Collections` vs **mint** a `Biobanks` |
+| Legal-entity dedup | ~31 fuzzy pairs (of ~500 minted + the 871→319 existing-org collapse) | near-duplicate `Organisations` names | **merge** duplicates (merge tool) |
+| Ambiguous sub-collections | 220 rows, across ~118 of 206 parent groups | `curation status = unresolved-subcollection` | **fold** into `Collection facts` / `Subpopulations` / `Collection events` |
+| Data-quality | ~1,084 | `data_quality_error = TRUE` | **clean** bad values (placeholder text, bad geo-coords, person in `juridical_person`) |
+
+The "220 rows vs ~118 parents" are two views of the same work: 220 ambiguous *child* rows span ~118 of the 206 *parent* collections. Un-curated records stay loaded and visible; set `withdrawn` / `mg_draft` if a record must be hidden until fixed.
 
 ## A. Table-level map
 
@@ -56,11 +69,11 @@ Every table in the directory dump has a target; nothing is dropped silently.
 | QualityInfoCollections                          | `Quality info` (`resource` → collection) | |
 | QualityInfoServices                             | `Quality info` (`resource` → service) | |
 | Catalogs                                        | `Catalogues` | |
-| Endpoints                                       | `Endpoint` | FDP |
+| Endpoints                                       | `Endpoint` | FDP (FAIR Data Point) |
 | AlsoKnownIn                                     | `External identifiers` | alt-ids |
 | molgenis / molgenis_members / molgenis_settings | — (schema / permissions / UI settings) | system metadata, dropped |
 
-(*) **Collections are triaged** (see §D): **~83%** are auto-classified — a top-level `Collections`, or folded into `Collection facts` / `Subpopulations` / `Collection events`. The **~17%** ambiguous tail lands as a temporary `Collections` (`type = subcollection`) linked to its parent via `Linkages`, and is folded during curation.
+(*) **Collections are triaged** (see §D): **~83%** are auto-classified — a top-level `Collections`, or folded into `Collection facts` / `Subpopulations` / `Collection events`. The **~17%** ambiguous tail lands as a temporary `Collections`, flagged `curation status = unresolved-subcollection` and linked to its parent via `Linkages`, then folded during curation.
 
 **`Quality info` applies to any `Resource` (`resource → Resources`), so the directory's three quality tables (Biobanks/Collections/Services) collapse into one — removing that duplication.**
 
@@ -73,7 +86,7 @@ Only the tables below change; every other catalogue table is untouched. Each cha
 - `Organisations` — **replaced**: now `extends Resources`; becomes the top-level legal-entity identity (`foaf:Agent`). Fed by directory Organisations, Publishers, Networks' host body, and `juridical_person`.
 - `Biobanks` — **[NEW]** `extends Organisations`: biobank identity + capabilities. Fed by directory Biobanks.
 - `Organisation roles` — **renamed** from the old `Organisations` table: per-resource attribution (`prov:qualifiedAttribution`).
-- `ROR` — **renamed** from the old `Organisations` ontology: external-id reference.
+- `ROR` (Research Organization Registry) — **renamed** from the old `Organisations` ontology: external-id reference.
 - `Agents` — **discontinued**: split into `Contacts` (persons) + `Organisation roles` (orgs).
 - `Collections` — **+ new columns** (below), incl. `held by`. Fed by directory Collections + Studies.
 - `Collection facts` — **[NEW]**: dimensioned aggregate. Fed by CollectionFacts + folded sub-collections.
@@ -89,7 +102,7 @@ Only the tables below change; every other catalogue table is untouched. Each cha
 
 - `Collections`: `held by`, `sex`, `age low unit`, `age high unit`, `storage temperatures`, `body part`, `imaging modality`, `number of samples`, `sample source`, `sample collection setting`.
 - `Organisations`: `part of`, `email`, `phone`, + capabilities (infrastructural / organisational / bioprocessing-&-analytical).
-- `Networks`: `status`, `common collaboration topics`.
+- `Networks`: `status`, `common collaboration topics`, `member organisations` (proposed — `ref_array → Organisations`, for biobank/org membership; see Open decisions #8).
 - `Resources` (inherited by all subtypes): `source`, `imported from`, `location`, `latitude`, `longitude`, `last data refresh`, `withdrawn`. (`source` = original owner = the national node; `imported from` = immediate upstream = the Directory; both `ref → Organisations`.)
 - `Linkages`: `relationship type`, `source selection`.
 
@@ -97,9 +110,9 @@ Only the tables below change; every other catalogue table is untouched. Each cha
 
 ---
 
-## B. Identity vs attribution — `Agents` → `Contacts` + `Organisation roles`
+## B. Identity vs attribution — discontinue `Agents` → `Contacts` + `Organisation roles`
 
-**The core model change:** separate an organisation's **identity** (one global `Organisations` row per real-world org) from its **attribution** (a per-resource `Organisation roles` row — "org X did role Y on resource Z"). Everything else follows from that split. Today an org is re-declared once per resource it touches (keyed `(resource, id)`); the split gives one stable identity that many resources reference — the prerequisite for global ids, holders and provenance (R4). This rename touches `Organisations` referenced by name across **nine profiles** + every `publisher`/`creator` ref — the main migration risk the PoC validates.
+**The core model change:** separate an organisation's **identity** (one global `Organisations` row per real-world org) from its **attribution** (a per-resource role — "org X did role Y on resource Z"). The old per-resource `Organisations` table is renamed to **`Organisation roles`** (attribution); a **new `Organisations` identity table** is created — so 'attribution' is no longer confused with 'identity'. Everything else follows from that split. This rename touches `Organisations` referenced by name across **nine profiles** + every `publisher`/`creator` ref — the main migration risk the PoC validates.
 
 `Agents` (one polymorphic per-resource person|org role table) is **discontinued**; nothing is lost:
 
@@ -115,7 +128,7 @@ Only the tables below change; every other catalogue table is untouched. Each cha
 | `organisation name`/`pid`/`website` (copied-from-ROR) | — | ⌫ derived; RDF reads from the identity row |
 
 **EMX2 shape after the split:**
-- **`Organisations`** (top level identity) `extends Resources`; key = `name` (+`ror id` `ref → ROR`). Refback `Resources.organisation roles`, `Organisations.holds` (from `Collections.held by`), `Organisations.part of` (self-`ref`, legal entity).
+- **`Organisations`** (top level identity) `extends Resources`; primary key = the inherited `Resources.id`, with `name` a required secondary-unique (+`ror id` `ref → ROR`). Refbacks: `Resources.organisations involved` (its `Organisation roles`) and `Organisations.holds` (from `Collections.held by`); plus the forward self-`ref` `Organisations.part of` (legal entity).
 - **`Organisation roles`**: `resource` (`ref → Resources`), `organisation` (`ref → Organisations`), `role` (ontology, pruned), `department`/org-unit (text).
 - **Repoint** (were `→ Agents`): `Endpoint.publisher`, `Endpoint.contact`, and the identity refs `Resources.publisher`/`creator`/`organisations involved`, `Contacts.organisation` → new `Organisations`.
 
@@ -135,7 +148,7 @@ Only the tables below change; every other catalogue table is untouched. Each cha
 | 1 collection, has services/quality (part of the 475) | a **`Biobanks`** row holding its one `Collections` | a real biobank unit — flagged to confirm |
 | 1 collection, attribute-poor (most of the 475) | **collapse** → just a `Collections`, held by its legal-entity `Organisations` — **no `Biobanks` row** | the record is really only its collection — the main judgement call, flagged |
 | 0 collections (102) | an **`Organisations`** identity — **no `Biobanks` row** | bare registration, nothing to hold |
-| every `juridical_person` value | a legal-entity **`Organisations`**, linked via `Biobanks.part of` | mint one per distinct value; curator dedups |
+| every `juridical_person` value | a legal-entity **`Organisations`**, linked via `Organisations.part of` | mint one per distinct value; curator dedups |
 
 **So: only 2+‑collection biobanks and attribute-rich 1:1 biobanks become `Biobanks`. 0‑collection biobanks → `Organisations`; attribute-poor 1:1 biobanks collapse into a `Collections`.**
 
@@ -151,11 +164,11 @@ Only the tables below change; every other catalogue table is untouched. Each cha
 | country | `Resources.countries[]` | Country | ⎇ single → array-of-one |
 | head / contact | `Contacts` (`Contacts.resource ref →` this org; `role`) | Contact information | ⎇ person → Contacts |
 | **juridical_person** | `Organisations.part of` `ref →` a legal-entity `Organisations` ✎ | Juristic Person | **upgrade text → identity** (see note); mint ~500 legal entities |
-| network | membership — the `Networks` container lists it | | biobank ∈ ≥1 network |
+| network | the biobank's `Collections` list under `data resources` (`dcat:dataset`); the **biobank itself** joins via a proposed `Networks.member organisations` `ref → Organisations` (an org *is* a `Resources`, but `data resources` is `dcat:dataset`-typed to `Collections`) | | see Open decisions #8 |
 | collections | refback `Organisations.holds` (via `Collections.held by`) | | inverse |
 | services | refback `Organisations.services` (via `Services.provider ref → Organisations`) [NEW] | Capabilities | |
 | quality | refback `Resources.quality` (via `Quality info.resource ref → Resources`) [NEW] | Quality Management standard | |
-| collaboration_commercial / _non_for_profit | `Collections.data use conditions` (DUO) ⎇ or `Organisations.*` bool | Use & access conditions | ⎇ audit |
+| collaboration_commercial / _non_for_profit | `Collections.data use conditions` (DUO — Data Use Ontology) ⎇ or `Organisations.*` bool | Use & access conditions | ⎇ audit |
 | also_known | `External identifiers` (`ref → Resources`) | | |
 | national_node | `Organisations` identity (the node org) via `Resources.source` ✎ | | provenance (R6); §H |
 | withdrawn / mg_draft | `Resources.withdrawn` ✎ / system | Status (v3) → `Collections.status` exists | |
@@ -169,7 +182,7 @@ Only the tables below change; every other catalogue table is untouched. Each cha
 
 ## D. Collections → `Collections` (+ facts / events / subpops)
 
-Each Directory `Collection` → a `Collections` row, **`held by`** its biobank (custody). A Directory **sub-collection** (a `parent_collection` child) is usually **not** its own resource — the catalogue expresses a collection's internal structure as `Collection facts` / `Subpopulations` / `Collection events`, not nested collections. Each sub-collection is triaged automatically by **what varies across its sibling children** (measured over **1,319 sub-collections**):
+Each Directory `Collection` → a `Collections` row, **`held by`** its biobank (custody). A Directory **sub-collection** (a `parent_collection` child) is usually **not** its own resource — the catalogue expresses a collection's internal structure as `Collection facts` / `Subpopulations` / `Collection events`, not nested collections (*folding* a sub-collection = collapsing its rows into one of those aggregates of the parent, instead of keeping a separate nested collection). Each sub-collection is triaged automatically by **what varies across its sibling children** (measured over **1,319 sub-collections**):
 
 | Child varies by | → catalogue | Count | Automatic? |
 |---|---|---|---|
@@ -177,14 +190,14 @@ Each Directory `Collection` → a `Collections` row, **`held by`** its biobank (
 | institute only (site arm, e.g. `DIA-UMCG` / `DIA-AMC`) | **`Subpopulations`** | 92 | ✅ (abbreviation-aware) |
 | timepoint / wave | **`Collection events`** | 38 | ✅ |
 | distinct study (`type` varies) | promoted **`Collections`** + `Linkages` | 35 | ✅ |
-| ambiguous / single-child / duplicate / mixed | **temporary `Collections`** (`type = subcollection`) + parent `Linkages`, flagged | 220 | ✅ lands losslessly, folded in curation |
+| ambiguous / single-child / duplicate / mixed | **temporary `Collections`**, flagged `curation status = unresolved-subcollection` + parent `Linkages` | 220 | ✅ lands losslessly, folded in curation |
 
 So ~83% resolve to their real target automatically; the ~17% ambiguous tail lands losslessly as a flagged sub-collection (a **default, not a guess**) and is folded during curation — never a permanent `Subcollection` type. During curation the 220 fold as: duplicates (38 → drop/merge), near-facts (34 → restore to facts), single-child (46 → 19 losslessly mergeable / 27 keep), facts×wave (83 → events + per-event facts), name-only (19 → manual).
 
 > **Site-arm subpopulations are name-coded (corrected finding).** ~92 sub-collections (across 14 parents) are disease cohorts split per recruiting Dutch academic hospital (`DIA-AMC` / `DIA-UMCG` / `DIA-VUMC` …) → `Subpopulations`. A naive site regex (matching English words like `centre|hospital`) misses these institutional **abbreviations** and wrongly reported site-arms as absent — so site detection must be **abbreviation-aware**.
 
 **Relations (EMX2):**
-- **`Collections.held by`** (`ref_array → Organisations`, soft-required) — custody = `dcterms:rightsHolder`; refback `Organisations.holds`. From directory `Collections.biobank`.
+- **`Collections.held by`** (`ref_array → Organisations`, soft-required) — custody = `dcterms:rightsHolder`; refback `Organisations.holds`. From directory `Collections.biobank`. *Soft-required = enforced by migration + curation, not a DB constraint (an empty holder set still loads), so the curation pass must actively find holderless collections (R3).*
 - **membership** — the `Networks` container lists the collection (existing container ref). From directory `Collections.network`. Distinct from custody.
 - **facts** — `Collection facts.collection` (`ref → Collections`); refback `Collections.facts`.
 - **studies** — see §G (refback from the study end).
@@ -226,7 +239,7 @@ Profiled the real `CollectionFacts` export: **19,581 rows**, star schema, 4 **nu
 |---|---|---|
 | id | string, key | directory `id` — preserve for round-trip |
 | collection | `ref → Collections`, required, key | directory `collection`; refback `Collections.facts` |
-| sex | ontology → Genders (nullable) | FEMALE 9133 / MALE 8737 / …; `*`+empty → null |
+| sex | ontology → Sex (nullable) | FEMALE 9133 / MALE 8737 / …; `*`+empty → null. NB: the `Sex` ontology ships Male/Female only — BBMRI Unknown/Other need adding |
 | age group | ontology → **Age groups** (nullable) | reuse the ontology `Resource counts` uses |
 | sample type | ontology → Sample types (nullable) | DNA 11.9k / SERUM / PLASMA / … (19 distinct) |
 | disease | ontology → Diseases (nullable) | 2,282 distinct ORPHA/ICD; empty+`*` → null |
@@ -259,7 +272,7 @@ Profiled the real `CollectionFacts` export: **19,581 rows**, star schema, 4 **nu
 
 A directory `Studies` row is a **MIABIS *Research resource*** — *"a set of samples and/or data items used and/or analyzed in a common context in past or current research; may combine material from multiple collections and from multiple biobanks."* It is **not** a "sub-study" of one collection.
 
-Directory `Studies` (365) → each a `Collections` row (`type` = a study type, `status` = Study status). Because a Research resource may draw on **several source collections across several biobanks**, its `wasDerivedFrom` relation is **many** (one `Linkages` row **per source collection**), authored **from the study end**:
+Directory `Studies` (135) → each a `Collections` row (`type` = a study type, `status` = Study status). Because a Research resource may draw on **several source collections across several biobanks**, its `wasDerivedFrom` relation is **many** (one `Linkages` row **per source collection**), authored **from the study end**:
 - `Linkages.resource` (`ref → Resources`) = the study `Collections`,
 - `Linkages.linked resource` (`ref → Resources`) = each source `Collections`,
 - `Linkages.relationship type` = `wasDerivedFrom` ✎, `Linkages.source selection` (text) ✎ = which slice.
@@ -289,7 +302,7 @@ Each source collection sees the derived research resources via the **refback** `
 **Goal (R10):** the target model has a home for **every** MIABIS Core v3 attribute (70 across the 4 entities), even where the Directory doesn't populate it — so the migration is a *superset-ready step toward MIABIS v3*, the key stakeholder-acceptance message. **Result — of 70 v3 attributes: 49 already HAVE a home, 2 via planned new tables, 19 need a net-new column (12 distinct).**
 
 - **Already exist (no new column):** *sample type* → `biospecimen collected`, *dataset type* → `areas of information`, *disease* → `population disease`, *status* → `Collections.status`, *inclusion criteria*, *use & access* → `data use conditions`, *design* → `Collections.design`, *publications* → `Resources.publications`, network *type* & *members* → `network type` / `data resources`.
-- **Planned new tables:** *Quality Management standard* → `Quality info`; *Contact information* → `Contacts`.
+- **Planned new table:** *Quality Management standard* → `Quality info`. (*Contact information* → `Contacts`, which is **reused** — `phone` is the only net-new column.)
 - **Net-new columns (the 12):** Organisations — infrastructural / organisational / bioprocessing-&-analytical *capabilities* (*juristic person* = the `part of` ref); Collections — *sample source*, *sex*, *age low/high unit*, *storage temperature*, *sample collection setting*; Networks — *status*, *common collaboration topics*. **All 12 are in scope.**
 
 **Flags for stakeholders:** `age_unit` is **mislabelled** in the Directory (tagged *Description*, should be *Age Unit*); `location`/`latitude`/`longitude` are **not** MIABIS (Directory extras — MIABIS has *Country* only); the Study/Research-resource token differs across MIABIS source sheets (same entity).
@@ -307,12 +320,25 @@ This is the canonical DCAT-AP 3 / HealthDCAT-AP shape, and it only works because
 
 ---
 
+## Migration-script notes (for implementers)
+
+Load-time data-integrity points the mapping tables above don't surface (from the SQL review, 2026-07-08):
+
+- **Org dedup — repoint *every* `ref → Organisations` before deleting a merged org**, or the delete is blocked: `publisher`, `creator`, `held by`, `part of`, `Organisation roles.organisation`, `source`, `imported from`, `Services.provider`, `Collection facts.source`, `Contacts.organisation`, `Endpoint.publisher`/`contact`. `held by` and `creator` are `ref_array` → array-replace **and** de-dup, then delete.
+- **Composite keys.** `Organisation roles` PK = `(resource, organisation)` → fold multiple same-org rows (e.g. two departments) into **one** role row (`role` is an array; `department` is not in the key). `Linkages` PK = `(resource, linked resource)` → one linkage per pair (`relationship type` is not in the key).
+- **`Collections.type` is required** → every migrated `Collections` (incl. Studies-as-Collections and the temporary sub-collections) must carry ≥1 `Resource types` term; supply a default for type-less directory collections.
+- **Insert ordering.** Insert identities (national nodes, legal-entity parents, orgs/biobanks) before rows that reference them; the self/forward refs `part of` / `source` / `imported from` need ordering or deferred constraints.
+- **`name` (and `pid`) are global-unique** across all `Resources` subtypes — see Open decisions #6.
+
+---
+
 ## Open decisions
 
 1. **`creator` — DECIDED: organisation-only** for now (`Resources.creator` = `ref_array → Organisations`). Person-creators (`dcterms:creator` may range over any Agent) can be added later as `creator → Contacts` or a Contact role=creator; not in this change. `creator` = the *dataset's* creator, distinct from the record steward (`source`, R9).
 2. `juridical_person` → legal-entity identities: fuzzy-dedup of the 500 distinct values (curator).
 3. `data_categories` target + MIABIS *Dataset type* value crosswalk (§D).
-4. Value-level ontology cross-walks (types, materials→sample types, diseases, age groups).
+4. **Value-level ontology cross-walks (a workstream of its own).** e.g. Diseases ~8,015 distinct ICD/ORPHA codes; `Biospecimens` ships **no** term file today; `Sample types` has only 5 terms (BBMRI materials need ~14+ added); ~118 SNOMED anatomy codes; countries ISO→names. Until extended, unmapped values load null (~120k value-occurrences over the full dump).
 5. Role-ontology terms need URIs (a `dcat:Role`/SKOS concept each) so `Organisation roles` serialises as `dcat:hadRole`.
-6. `name` uniqueness — BBMRI names aren't unique; append id-suffix on collision.
+6. **`name` uniqueness (a load prerequisite, not just open).** `Resources.name` is a **global required-unique** key across *all* subtypes (Collections, Organisations, Biobanks, Networks…), so collisions are cross-type — notably the 1:1 biobank+collection that keep both rows under the same name, the ~500 minted `juridical_person` orgs, and the 871→319 dedup. Disambiguation (id-suffix) must be computed **globally over the whole `Resources` table at load**, or inserts abort on the unique-key violation. (`pid` (KEY2) is likewise globally unique, but nullable.)
 7. commercial/collaboration flags: `Organisations` bool vs `Collections` DUO — pick one home.
+8. **Network membership of organisations/biobanks.** A biobank is an `Organisations` (a `Resources`), but `Networks.data resources` is `dcat:dataset`-typed to `Collections`, and an org isn't a dataset. Add a dedicated `Networks.member organisations` (`ref_array → Organisations`) — DCAT-clean — rather than broadening `data resources` to `→ Resources` (which would also admit networks/catalogues). **Recommend the dedicated ref.**

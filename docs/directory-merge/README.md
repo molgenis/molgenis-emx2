@@ -4,7 +4,7 @@ A one-shot migration of the BBMRI-ERIC Directory (biobanks + their collections) 
 
 ## Start here
 
-- **[column-map.md](column-map.md) — the mapping manual.** The single reference: goal + requirements, where every directory table/column/row lands, the model change, RDF, and what needs curation. **Everyone starts here.**
+- **[migration-guide.md](migration-guide.md) — the migration guide.** The single reference: goal + requirements, where every directory table/column/row lands, the model change, RDF, and what needs curation. **Everyone starts here.**
 - **[mapping_ledger.csv](mapping_ledger.csv) — every directory record, case by case** (29,013 rows). Each row's target table/id, the rule applied, and its `disposition` (`auto` / `needs_curation` / `dropped`). Filter `disposition = needs_curation` for the worklist, or `from_UMCG = TRUE` to fix at your own source.
 
 ## Proof-of-concept status — what is proven
