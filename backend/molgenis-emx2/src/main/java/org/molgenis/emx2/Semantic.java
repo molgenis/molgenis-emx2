@@ -4,7 +4,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.rdf4j.model.util.Values;
 
 /**
  * Represents a semantic field and splits up a sequence path into its individual components.
@@ -93,7 +92,7 @@ public class Semantic {
    * @see org.eclipse.rdf4j.model.impl.SimpleIRI
    */
   private String validateIri(final String semanticPart) {
-    if(semanticPart.substring(1, semanticPart.length() - 1).indexOf(':') < 0)
+    if (semanticPart.substring(1, semanticPart.length() - 1).indexOf(':') < 0)
       throw new MolgenisException("Found malformed IRI:" + semanticPart);
     return semanticPart;
   }
