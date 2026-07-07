@@ -196,7 +196,7 @@
                           aria-haspopup="dialog"
                           :aria-expanded="showDeleteModal"
                         >
-                          {{ JSON.stringify(row._rowId) }}
+                          {{ row._rowIdString }}
                         </Button>
                         <Button
                           v-if="isEditable"
@@ -210,7 +210,7 @@
                           aria-haspopup="dialog"
                           :aria-expanded="showEditModal"
                         >
-                          {{ JSON.stringify(row._rowId) }}
+                          {{ row._rowIdString }}
                         </Button>
 
                         <slot name="additional-row-actions" :row="row" />
@@ -623,13 +623,6 @@ const sortedColumns = computed(() => {
 const sortedVisibleColumns = computed(() =>
   sortedColumns.value.filter((col) => col.visible !== "false")
 );
-
-const allRowsSelected = computed(() => {
-  return (
-    rows.value.length > 0 &&
-    rows.value.every((row) => selectedRows.value.has(row._rowIdString))
-  );
-});
 
 const numberOfSelectedRows = computed(() => selectedRows.value.size);
 
