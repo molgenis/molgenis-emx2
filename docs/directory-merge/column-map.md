@@ -20,7 +20,7 @@ Every table in the directory dump has a target; nothing is dropped silently.
 | Biobanks | `Biobanks` (extends `Organisations`) | subtype; 1:1 triage; `juridical_person` → `part of` legal-entity `Organisations` |
 | Collections | `Collections` (+ `held by`) | `parent_collection` → facts/events/subpopulations/promoted |
 | CollectionFacts | `Collection facts` | dimensioned aggregate |
-| Studies | `Collections` (typed study) + `Linkages` | `wasDerivedFrom` |
+| Studies | `Collections` (typed) + `Linkages` | MIABIS *Research resource*; `wasDerivedFrom` — many source collections/biobanks |
 | Persons | `Contacts` | |
 | Networks | `Networks` + coordinating (host) `Organisations` | |
 | NationalNodes | → `Organisations` (national-node identity) via `source` | node = an owning/stewarding org, not a grouping |
@@ -69,7 +69,7 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 
 *How each directory **row** becomes catalogue rows. Column-level detail is in §B–§K below.*
 
-> **`mapping_ledger.csv`** — the **case-by-case mapping of every directory record** (29,013 rows: one per source record + minted legal entities). Columns: `directory_table`, `directory_id`, `directory_name`, `catalogue_table`, `catalogue_id`, `mapping_rule`, `disposition` (`auto` / `needs_curation` / `dropped`), `flag_reason`, `from_UMCG`. Headline **94% auto / 3.2% needs-curation / 2.9% dropped**. Filter `disposition = needs_curation` for the curation worklist, or `from_UMCG = TRUE` for fix-at-source. Summary in `mapping_ledger_summary.md`.
+> **`mapping_ledger.csv`** — the **case-by-case mapping of every directory record** (29,013 rows: one per source record + minted legal entities). Columns: `directory_table`, `directory_id`, `directory_name`, `catalogue_table`, `catalogue_id`, `mapping_rule`, `disposition` (`auto` / `needs_curation` / `dropped`), `flag_reason`, `from_UMCG`, `data_quality_error`, `data_quality_reason`. Headline **94% auto / 3.2% needs-curation / 2.9% dropped**. **`data_quality_error`/`data_quality_reason`** flag where a record violates a BBMRI-ERIC Directory Manual §5 data-quality check (e.g. `juridical_person` is a person not a legal entity, placeholder/blank content, malformed IDs, bad geo-coords) — **~1,084 rows (3.7%) flagged**; see `data_quality_summary.md`. Filter `disposition = needs_curation` for the curation worklist, or `from_UMCG = TRUE` for fix-at-source. Summary in `mapping_ledger_summary.md`.
 
 ### 1) Biobanks — which directory Biobank rows become what (triage by collection count)
 
@@ -86,7 +86,7 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 | directory row | → catalogue |
 |---|---|
 | Collection | a `Collections` row, **`held by`** its biobank (custody) |
-| Study | a typed `Collections` **+** a `Linkages` (`wasDerivedFrom`) to its source collection |
+| Study (MIABIS *Research resource*) | a typed `Collections` **+** a `Linkages` (`wasDerivedFrom`) to **each** source collection (may span multiple collections/biobanks) |
 
 ### 3) Sub-collections (`parent_collection` children) — re-expression rules
 
@@ -254,14 +254,16 @@ Profiled the real `CollectionFacts` export: **19,581 rows**, star schema, 4 **nu
 
 ---
 
-## G. Studies → `Collections` (typed study) + `Linkages` (refback from the study end)
+## G. Studies (MIABIS *Research resources*) → `Collections` (typed) + `Linkages`
 
-Directory `Studies` (365) → each a `Collections` row (`type` = a study type, `status` = Study status). The `Studies.collections` relation is authored **once, from the study end**, as a `Linkages` row:
+A directory `Studies` row is a **MIABIS *Research resource*** — *"a set of samples and/or data items used and/or analyzed in a common context in past or current research; may combine material from multiple collections and from multiple biobanks."* It is **not** a "sub-study" of one collection.
+
+Directory `Studies` (365) → each a `Collections` row (`type` = a study type, `status` = Study status). Because a Research resource may draw on **several source collections across several biobanks**, its `wasDerivedFrom` relation is **many** (one `Linkages` row **per source collection**), authored **from the study end**:
 - `Linkages.resource` (`ref → Resources`) = the study `Collections`,
-- `Linkages.linked resource` (`ref → Resources`) = the source `Collections`,
+- `Linkages.linked resource` (`ref → Resources`) = each source `Collections`,
 - `Linkages.relationship type` = `wasDerivedFrom` ✎, `Linkages.source selection` (text) ✎ = which slice.
 
-The source collection sees derived studies via the **refback** `Resources.linked resources`. (Generalises `Linkages` from record-linkage-only to typed — orthogonal.) MIABIS: Study = Research resource entity (sparsely tagged in the Directory; the MIABIS token differs across source sheets — same entity).
+Each source collection sees the derived research resources via the **refback** `Resources.linked resources`. (Generalises `Linkages` from record-linkage-only to typed — orthogonal.) MIABIS: Study = **Research resource** entity (sparsely tagged in the Directory; the MIABIS token differs across source sheets — same entity).
 
 ---
 

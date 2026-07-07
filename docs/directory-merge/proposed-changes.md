@@ -60,6 +60,7 @@ Resources.publisher / creator / organisations involved → Organisations (per-re
 - **Biobank** → a `Biobanks` (extends `Organisations`) row; its datasets → `Collections` **held by** it.
 - **National node** → an `Organisations` identity used as the record's `source`. (`source` is the record's owning/stewarding node — an Agent role, so it must ref an `Organisations` (`foaf:Agent`), not a `Networks` grouping.)
 - A "biobank" that is really *just its one dataset* → drop the org, keep a `Collection` **held by** its parent organisation.
+- **Study** → a typed `Collections` (a MIABIS *Research resource* — may span **multiple collections and multiple biobanks**) + `Linkages` (`wasDerivedFrom`, **many** — one per source collection, not one-to-one). See column map §G.
 - **Nested sub-collections** → `CollectionFacts` (default) / `Collection events` / `Subpopulations` / a promoted `Collection` — **human-in-the-loop where ambiguous** (a key thing the PoC measures).
 - Every resulting `Collection` gets ≥1 `held by` (R3).
 
