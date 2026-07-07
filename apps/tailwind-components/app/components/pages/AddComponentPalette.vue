@@ -38,8 +38,16 @@ const handleDragEvent = (event: DragEvent) => {
       >
         <strong>Component palette</strong>
       </div>
-      <DraggableComponent icon="view-table" componentName="Header" @dragging="handleDragEvent" />
-      <DraggableComponent icon="globe" componentName="Image" @dragging="handleDragEvent" />
+      <DraggableComponent
+        icon="view-table"
+        componentName="Header"
+        @dragging="handleDragEvent"
+      />
+      <DraggableComponent
+        icon="globe"
+        componentName="Image"
+        @dragging="handleDragEvent"
+      />
       <DraggableComponent
         icon="format-align-left"
         componentName="Paragraph"

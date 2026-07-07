@@ -19,7 +19,6 @@ const dragging = ref<boolean>(false);
 const { componentName, componentType, icon } = props;
 const emit = defineEmits(["dragging"]);
 
-
 const startDrag = (event: DragEvent, componentInfo: DSVRowAny) => {
   emit("dragging", { dragging: true, ...componentInfo });
   dragging.value = true;
@@ -30,23 +29,21 @@ const startDrag = (event: DragEvent, componentInfo: DSVRowAny) => {
 const endDrag = (event: DragEvent, componentInfo: any) => {
   console.log("endDrag", event.pageX, event.pageY, event);
   emit("dragging", { dragging: false, ...componentInfo });
-  dragging.value = false; 
+  dragging.value = false;
 };
-
-
 </script>
 
 <template>
-    <Button
-      class="!justify-start"
-      draggable="true"
-      @dragstart="startDrag($event, { componentName, componentType })"
-      @dragend="endDrag($event, { componentName, componentType })"
-      type="secondary"
-      size="tiny"
-      :icon="icon"
-      icon-position="left"
-    >
-      {{ props.componentName }}
-    </Button>
+  <Button
+    class="!justify-start"
+    draggable="true"
+    @dragstart="startDrag($event, { componentName, componentType })"
+    @dragend="endDrag($event, { componentName, componentType })"
+    type="secondary"
+    size="tiny"
+    :icon="icon"
+    icon-position="left"
+  >
+    {{ props.componentName }}
+  </Button>
 </template>
