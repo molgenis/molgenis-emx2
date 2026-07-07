@@ -1,3 +1,12 @@
+<script setup lang="ts">
+import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
+import {
+  InformationCircleIcon,
+  PresentationChartLineIcon,
+  BuildingOffice2Icon,
+} from "@heroicons/vue/24/outline";
+</script>
+
 <template>
   <Page id="page-home">
     <PageHeader
@@ -62,12 +71,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
-import {
-  InformationCircleIcon,
-  PresentationChartLineIcon,
-  BuildingOffice2Icon,
-} from "@heroicons/vue/24/outline";
-</script>
