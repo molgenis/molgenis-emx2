@@ -26,7 +26,7 @@ const { data } = await useFetch(`/${schema}/graphql`, {
 });
 
 const dataset = computed(() => {
-  return data.value.data.Datasets[0];
+  return data.value.data.Tables[0];
 });
 
 const items: IDefinitionListItem[] = [];

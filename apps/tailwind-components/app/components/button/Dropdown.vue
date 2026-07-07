@@ -33,8 +33,12 @@ withDefaults(
       :label="label"
       >{{ label }}</Button
     >
+      {{ label }}
+    </Button>
     <template #popper>
-      <slot></slot>
+      <div class="bg-dropdown text-dropdown">
+        <slot />
+      </div>
     </template>
   </Dropdown>
 </template>

@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export default gql`
-  query Datasets($resource: String, $name: String) {
-    Datasets(
+  query Tables($resource: String, $name: String) {
+    Tables(
       filter: {
         resource: { id: { equals: [$resource] } }
         name: { equals: [$name] }

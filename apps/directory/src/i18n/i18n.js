@@ -12,7 +12,6 @@ export const i18n = {
     remove: "Remove",
     remove_all: "Remove all",
     send_to_negotiator: "Send to the Negotiator",
-    send_to_podium: "Send to Podium",
     card_biobank_details: "Organisation",
     card_collections_details: "Collections",
     match_option1: "Match all",
