@@ -1,3 +1,103 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import {
+  Page,
+  PageHeader,
+  PageSection,
+  Dashboard,
+  DashboardRow,
+  DashboardChart,
+  LoadingScreen,
+  MessageBox,
+  WorldGeoJson,
+  GeoMercator,
+  DataTable,
+  PieChart2,
+} from "molgenis-viz";
+
+import Breadcrumbs from "../components/breadcrumbs.vue";
+import { getComponentStats } from "../../../metadata-utils/src/viz/getErnDashboardComponent.js";
+import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations.js";
+import { asDataObject } from "../../../tailwind-components/app/utils/viz";
+import type { IRecordStringNumber } from "../../../metadata-utils/src/viz/types.js";
+import type {
+  IComponents,
+  IStatistics,
+  IOrganisations,
+} from "../../../metadata-utils/src/viz/ErnDashboard.js";
+
+interface IWorkstreamTable {
+  workstream: string;
+  total: string;
+  percent: string;
+}
+
+const loading = ref<boolean>(true);
+const error = ref<Error | string>();
+const patientsByWorksteamChart = ref<IComponents>();
+const patientsByWorksteamData = ref<IWorkstreamTable[]>();
+const sexAtBirthChart = ref<IComponents>();
+const sexAtBirthData = ref<IRecordStringNumber>();
+const providersData = ref<IOrganisations[]>();
+
+async function getData() {
+  const workstreamResponse = await getComponentStats(
+    "../api/graphql",
+    "patients-by-workstream"
+  );
+
+  const sexAtBirthResponse = await getComponentStats(
+    "../api/graphql",
+    "patients-sex-at-birth"
+  );
+
+  const providersResponse = await getOrganisations("../api/graphql");
+
+  patientsByWorksteamChart.value = workstreamResponse[0];
+  sexAtBirthChart.value = sexAtBirthResponse[0];
+  providersData.value = providersResponse;
+}
+
+function prepareData() {
+  sexAtBirthData.value = asDataObject(
+    sexAtBirthChart.value?.statistics as IStatistics[],
+    "label",
+    "value",
+    true
+  );
+
+  patientsByWorksteamData.value = patientsByWorksteamChart.value?.statistics
+    ?.map((row: IStatistics) => {
+      const percent = `${Math.round(
+        parseFloat(row.value as unknown as string) * 100
+      )}%`;
+      return {
+        workstream: row.label as string,
+        total: row.description as string,
+        percent: percent,
+      };
+    })
+    .sort((current: IWorkstreamTable, next: IWorkstreamTable) => {
+      return current.workstream.localeCompare(next.workstream);
+    });
+
+  providersData.value = providersData.value?.map((row: IOrganisations) => {
+    let status: string = "No Data";
+    if (row.providerInformation) {
+      status = row.providerInformation[0].hasSubmittedData
+        ? "Data Submitted"
+        : "No Data";
+    }
+    return { ...row, hasSubmittedData: status };
+  });
+}
+
+getData()
+  .then(() => prepareData())
+  .catch((err) => (error.value = err))
+  .finally(() => (loading.value = false));
+</script>
+
 <template>
   <Page class="page-dashboard">
     <PageHeader
@@ -24,7 +124,7 @@
           <DataTable
             tableId="workstreamSummary"
             caption="Percentage of patients by workstream"
-            :data="workstreamSummary"
+            :data="patientsByWorksteamData"
             :columnOrder="['workstream', 'total', 'percent']"
           />
         </DashboardChart>
@@ -32,7 +132,7 @@
           <PieChart2
             chartId="cranio-sex-at-birth"
             title="Patients by sex at birth"
-            :chartData="sexAtBirth"
+            :chartData="sexAtBirthData"
             :asDonutChart="true"
             :enableLegendHovering="true"
             :chartHeight="185"
@@ -50,7 +150,7 @@
             chartId="data-providers-map"
             title="Data Providers"
             :geojson="WorldGeoJson"
-            :chartData="providers"
+            :chartData="providersData"
             rowId="code"
             latitude="latitude"
             longitude="longitude"
@@ -60,7 +160,7 @@
               'No Data': '#f0f0f0',
             }"
             :tooltipTemplate="
-              (row) => {
+              (row: IOrganisations) => {
                 return `<p class='title'>${row.name}</p><p class='location'>${row.city}, ${row.country}</p>`;
               }
             "
@@ -83,120 +183,6 @@
     </Dashboard>
   </Page>
 </template>
-
-<script setup>
-import { ref, onMounted } from "vue";
-import {
-  Page,
-  PageHeader,
-  PageSection,
-  Dashboard,
-  DashboardRow,
-  DashboardChart,
-  LoadingScreen,
-  MessageBox,
-  WorldGeoJson,
-  GeoMercator,
-  DataTable,
-  PieChart2,
-  asDataObject,
-  renameKey,
-} from "molgenis-viz";
-
-import Breadcrumbs from "../components/breadcrumbs.vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-
-let loading = ref(true);
-let error = ref(false);
-let stats = ref([]);
-let providers = ref([]);
-let workstreamSummary = ref([]);
-let sexAtBirth = ref({});
-
-async function getStatsByComponent() {
-  const query = gql`
-    {
-      Components {
-        name
-        statistics {
-          id
-          value
-          label
-          valueOrder
-          description
-        }
-      }
-    }
-  `;
-
-  const response = await request("../api/graphql", query);
-  const data = response.Components;
-  stats.value = data;
-}
-
-async function getOrganisations() {
-  const query = `{
-    Organisations {
-      name
-      code
-      city
-      country
-      latitude
-      longitude
-      providerInformation {
-        providerIdentifier
-        hasSubmittedData
-      }
-    }
-  }`;
-
-  const response = await request("../api/graphql", query);
-  const data = response.Organisations.map((row) => {
-    return {
-      ...row,
-      hasSubmittedData: row.providerInformation[0].hasSubmittedData
-        ? "Data Submitted"
-        : "No Data",
-    };
-  });
-  providers.value = data;
-}
-
-async function loadData() {
-  await getStatsByComponent();
-  await getOrganisations();
-}
-
-onMounted(() => {
-  loadData()
-    .then(() => {
-      const workstreamComponent = stats.value.filter(
-        (row) => row.name === "patients-by-workstream"
-      )[0];
-      workstreamSummary.value = workstreamComponent.statistics
-        .map((row) => {
-          return {
-            ...row,
-            value: `${Math.round(parseFloat(row.value) * 100)}%`,
-          };
-        })
-        .sort((current, next) => (current.label < next.label ? -1 : 1));
-      renameKey(workstreamSummary.value, "label", "workstream");
-      renameKey(workstreamSummary.value, "value", "percent");
-      renameKey(workstreamSummary.value, "description", "total");
-
-      const sexAtBirthStats = stats.value
-        .filter((row) => row.name === "patients-sex-at-birth")[0]
-        .statistics.sort((current, next) =>
-          current.valueOrder < next.valueOrder ? -1 : 1
-        );
-      sexAtBirth.value = asDataObject(sexAtBirthStats, "label", "value");
-    })
-    .then(() => (loading.value = false))
-    .catch((err) => (error.value = err));
-});
-</script>
 
 <style lang="scss">
 #cranioPublicDashboard {
