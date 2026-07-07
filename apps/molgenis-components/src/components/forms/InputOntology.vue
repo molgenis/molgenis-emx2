@@ -116,6 +116,7 @@ import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
+import MessageWarning from "./MessageWarning.vue";
 //@ts-ignore
 import vClickOutside from "click-outside-vue3";
 import Spinner from "../layout/Spinner.vue";
@@ -476,7 +477,7 @@ export default {
       },
     },
     data() {
-      if (!this.data) {
+      if (!this.data || !this.data.length) {
         this.loading = false;
         this.warning = `Ontology '${this.tableId}' in schema '${this.schemaId}' is empty`;
       } else {
