@@ -74,9 +74,6 @@ public class JavascriptContextBuilder {
       Map<String, Object> result = new LinkedHashMap<>();
       for (Reference ref : c.getReferences()) {
         if (!ref.isOverlapping()) {
-          List<String> path = new ArrayList();
-          path.add(c.getIdentifier());
-          path.addAll(ref.getPath());
           putMap(result, ref.getPath(), row.get(ref.getColumnName(), ref.getPrimitiveType()));
         }
       }
