@@ -31,14 +31,17 @@ export default defineComponent({
       loading: true,
       error: false,
       timeoutId: null as ReturnType<typeof setTimeout> | null,
+      isMonitoring: false,
     };
   },
   methods: {
     async startMonitorTask() {
+      this.isMonitoring = true;
       while (
-        (!this.error && !this.task) ||
-        (this.task &&
-          !["COMPLETED", "ERROR", "CANCELLED"].includes(this.task.status))
+        this.isMonitoring &&
+        ((!this.error && !this.task) ||
+          (this.task &&
+            !["COMPLETED", "ERROR", "CANCELLED"].includes(this.task.status)))
       ) {
         const query = `{
           _tasks(id:"${this.taskId}")
@@ -79,7 +82,7 @@ export default defineComponent({
     this.startMonitorTask();
   },
   beforeUnmount() {
-    this.stopped = true;
+    this.isMonitoring = false;
     if (this.timeoutId) {
       clearTimeout(this.timeoutId);
       this.timeoutId = null;
