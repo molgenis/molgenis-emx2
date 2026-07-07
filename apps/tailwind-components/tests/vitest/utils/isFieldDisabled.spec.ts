@@ -1,5 +1,6 @@
 import { expect, it, describe } from "vitest";
 import { isFieldDisabled } from "../../../app/utils/isFieldDisabled";
+import type { IColumn } from "../../../../metadata-utils/src/types";
 
 describe("isFieldDisabled", () => {
   it("should return true if column is readonly", () => {
@@ -10,7 +11,7 @@ describe("isFieldDisabled", () => {
       key: 0,
       columnType: "TEXT",
       label: "col label",
-    };
+    } as IColumn;
     expect(isFieldDisabled(rowKey, column)).toBe(true);
   });
 
@@ -22,7 +23,7 @@ describe("isFieldDisabled", () => {
       key: 0,
       columnType: "AUTO_ID",
       label: "col label",
-    };
+    } as IColumn;
     expect(isFieldDisabled(rowKey, column)).toBe(true);
   });
 
@@ -34,7 +35,7 @@ describe("isFieldDisabled", () => {
       key: 1,
       columnType: "TEXT",
       label: "col label",
-    };
+    } as IColumn;
     expect(isFieldDisabled(rowKey, column)).toBe(true);
   });
 
@@ -46,7 +47,7 @@ describe("isFieldDisabled", () => {
       key: 0,
       columnType: "TEXT",
       label: "col label",
-    };
+    } as IColumn;
     expect(isFieldDisabled(rowKey, column)).toBe(false);
   });
 
@@ -58,7 +59,7 @@ describe("isFieldDisabled", () => {
       key: 1,
       columnType: "TEXT",
       label: "col label",
-    };
+    } as IColumn;
     expect(isFieldDisabled(rowKey, column)).toBe(false);
   });
 });

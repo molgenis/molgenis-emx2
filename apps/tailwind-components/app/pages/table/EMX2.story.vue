@@ -10,6 +10,7 @@ const tableSettings = ref<ITableSettings>({
   pageSize: 10,
   orderby: { column: "", direction: "ASC" },
   search: "",
+  orderedColumnsIds: [],
 });
 
 const router = useRouter();
@@ -50,6 +51,7 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
         :schema-id="schemaId"
         :table-id="tableId ?? ''"
         :is-editable="isEditable"
+        :enable-filters="true"
       />
     </div>
   </div>

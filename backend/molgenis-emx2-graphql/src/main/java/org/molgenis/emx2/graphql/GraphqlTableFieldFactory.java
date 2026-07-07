@@ -12,7 +12,6 @@ import static org.molgenis.emx2.sql.SqlQuery.*;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPrimaryKeyRows;
 
 import graphql.Scalars;
-import graphql.language.*;
 import graphql.schema.*;
 import java.util.*;
 import java.util.function.Function;
@@ -572,19 +571,19 @@ public class GraphqlTableFieldFactory {
       case JSON:
         return GraphQLJsonAsString;
       case DATE,
-          DATETIME,
-          PERIOD,
-          STRING,
-          TEXT,
-          UUID,
-          FILE,
-          DATE_ARRAY,
-          DATETIME_ARRAY,
-          PERIOD_ARRAY,
-          STRING_ARRAY,
-          TEXT_ARRAY,
-          EMAIL_ARRAY,
-          HYPERLINK_ARRAY:
+      DATETIME,
+      PERIOD,
+      STRING,
+      TEXT,
+      UUID,
+      FILE,
+      DATE_ARRAY,
+      DATETIME_ARRAY,
+      PERIOD_ARRAY,
+      STRING_ARRAY,
+      TEXT_ARRAY,
+      EMAIL_ARRAY,
+      HYPERLINK_ARRAY:
       case UUID_ARRAY:
         return Scalars.GraphQLString;
       case REF_ARRAY, REF, REFBACK:
@@ -659,7 +658,7 @@ public class GraphqlTableFieldFactory {
                   + entry.getKey()
                   + " unknown in table "
                   + table.getTableName());
-        Map value = (Map) entry.getValue();
+        Map value = new LinkedHashMap<>((Map) entry.getValue());
         // although nested, this should apply on this level, not sublevel
         if (value.containsKey(FILTER_MATCH_INCLUDING_CHILDREN)) {
           subFilters.add(

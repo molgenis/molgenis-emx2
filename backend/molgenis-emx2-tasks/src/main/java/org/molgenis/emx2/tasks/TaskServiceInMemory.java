@@ -44,7 +44,7 @@ public class TaskServiceInMemory implements TaskService {
   }
 
   @Override
-  public String submitTaskFromName(String name, String parameters) {
+  public ScriptTask getScript(String name) {
     throw new UnsupportedOperationException("Not supported when using in memory task service");
   }
 

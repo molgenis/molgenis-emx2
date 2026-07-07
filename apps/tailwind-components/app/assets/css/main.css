@@ -114,7 +114,7 @@
     --background-color-navigation-dynamic: var(--color-white);
     --background-color-navigation-sticky: var(--background-color-navigation);
     --background-color-search-results-view-tabs: var(--color-blue-800);
-    --background-color-search-filter-group-toggle: var(--color-blue-800);
+    --background-color-search-filter-group-toggle: var(--color-blue-50);
     --background-color-pagination: var(--color-white);
     --background-color-pagination-hover: var(--color-white);
     --background-color-pagination-input: var(--color-white);
@@ -135,6 +135,7 @@
     --background-color-notification: var(--color-red-700);
     --background-color-code-output: var(--color-gray-100);
     --background-color-ref-dropdown-toolbar: var(--color-gray-100);
+    --background-color-dropdown: var(--color-white);
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
@@ -179,14 +180,14 @@
     --text-color-search-results-view-tabs: var(--color-blue-500);
     --text-color-search-results-view-tabs-hover: var(--color-blue-800);
     --text-color-search-filter-title: var(--text-color-title);
-    --text-color-search-filter-expand: var(--color-yellow-500);
-    --text-color-search-filter-expand-mobile: var(--text-color-title);
+    --text-color-search-filter-action: var(--color-blue-500);
+    --text-color-search-filter-action-mobile: var(--text-color-title);
     --text-color-search-filter-group-title: var(--text-color-title);
     --text-color-search-filter-group-title-mobile: var(--color-black);
     --text-color-search-filter-group-checkbox: var(--color-yellow-500);
     --text-color-search-filter-group-toggle: var(--text-color-title);
     --text-color-search-filter-title-inverted: var(--color-back);
-    --text-color-search-filter-expand-inverted: var(--color-yellow-500);
+    --text-color-search-filter-action-inverted: var(--color-yellow-500);
     --text-color-search-filter-group-title-inverted: var(--color-black);
     --text-color-search-filter-group-checkbox-inverted: var(--color-yellow-500);
     --text-color-search-filter-group-toggle-inverted: var(--color-black);
@@ -214,6 +215,7 @@
     --text-code-output: var(--color-gray-800);
     --text-color-required: var(--color-gray-600);
     --text-content-required: "*";
+    --text-color-dropdown: var(--color-black);
 
     --border-color-theme: var(--color-gray-200);
     --border-color-button-primary: var(--color-blue-500);
@@ -240,6 +242,7 @@
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
     --border-color-footer: var(--border-color-theme);
+    --border-color-filter-divider: var(--color-gray-200);
 
     --border-width-theme: 1px;
     --border-width-form-required: 1px;
@@ -282,6 +285,8 @@
     --border-color-button-switch-selected: var(--color-gray-400);
     --border-color-button-switch-hover: var(--color-blue-900);
 
+    --skeleton-bar-base: 60%;
+
     /** labels */
     --background-color-label-draft: var(--color-gray-400);
     --text-color-label-draft: var(--color-white);
@@ -319,4 +324,64 @@
   grid-template-areas:
     "context"
     "chart";
+}
+
+/* Popper.js settings */
+.v-popper--theme-dropdown .v-popper__inner {
+  background: none;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.v-popper__popper--no-positioning {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  width: 100%;
+}
+
+.v-popper_fullscreen .v-popper__popper--no-positioning {
+  width: 100%;
+  max-width: none;
+}
+
+.v-popper_right .v-popper__popper--no-positioning {
+  left: auto;
+  right: 0;
+}
+
+.v-popper__popper--no-positioning .v-popper__backdrop {
+  display: block;
+  background: rgba(0 0 0 / 60%);
+}
+
+.v-popper__popper--no-positioning .v-popper__wrapper {
+  width: 100%;
+  pointer-events: auto;
+  transition: transform 0.15s ease-out;
+}
+
+.v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
+  transform: translateX(-100%);
+}
+
+.v-popper_right
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
+  transform: translateX(100%);
+}
+
+.v-popper_bottom .v-popper__popper--no-positioning {
+  top: auto;
+  bottom: 0;
+}
+
+.v-popper_bottom
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
+  transform: translateY(100%);
 }

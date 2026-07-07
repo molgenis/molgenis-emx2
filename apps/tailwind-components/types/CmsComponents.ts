@@ -23,3 +23,5 @@ export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;
   metadata?: ITableMetaData[];
 }
+
+export type ICmsJsFetchPriority = "high" | "low" | "auto";

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 //@ts-ignore
 import { PageFooter, UnorderedList } from "molgenis-viz";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/20/solid";
 </script>
 
 <template>
@@ -20,6 +21,7 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
                 rel="noopener"
               >
                 About
+                <ArrowTopRightOnSquareIcon class="heroicons" />
               </a>
             </li>
             <li>
@@ -35,6 +37,7 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
                 rel="noopener"
               >
                 Transparency Statement
+                <ArrowTopRightOnSquareIcon class="heroicons" />
               </a>
             </li>
 
@@ -45,6 +48,7 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
                 rel="noopener"
               >
                 Projects & Publications
+                <ArrowTopRightOnSquareIcon class="heroicons" />
               </a>
             </li>
             <!-- more links here -->
@@ -128,9 +132,9 @@ import { PageFooter, UnorderedList } from "molgenis-viz";
 
     .heroicons {
       position: absolute;
-      top: 0;
+      top: 0.25em;
       margin-left: 3px;
-      $size: 15px;
+      $size: 16px;
       width: $size;
       height: $size;
     }
