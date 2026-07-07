@@ -95,7 +95,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   /**
-   * @return {@code false} if null or empty list, otherwise {@code true}.
+   * @return {@code false} if null or empty, otherwise {@code true}.
    */
   public boolean hasSemantics() {
     return semantics != null && semantics.length > 0;

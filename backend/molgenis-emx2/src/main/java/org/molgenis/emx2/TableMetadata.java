@@ -40,7 +40,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String[] profiles;
 
   /**
-   * @return {@code false} if null or empty list, otherwise {@code true}.
+   * @return {@code false} if null or empty, otherwise {@code true}.
    */
   public boolean hasSemantics() {
     return semantics != null && semantics.length > 0;

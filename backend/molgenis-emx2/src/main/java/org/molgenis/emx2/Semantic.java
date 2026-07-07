@@ -87,12 +87,14 @@ public class Semantic {
     return sequencePath;
   }
 
+  /**
+   * Check if IRI is valid similar to RDF4J's SimpleIRI
+   *
+   * @see org.eclipse.rdf4j.model.impl.SimpleIRI
+   */
   private String validateIri(final String semanticPart) {
-    try {
-      Values.iri(semanticPart.substring(1, semanticPart.length() - 1));
-    } catch (IllegalArgumentException e) {
-      throw new MolgenisException("Found malformed IRI:" + semanticPart, e);
-    }
+    if(semanticPart.substring(1, semanticPart.length() - 1).indexOf(':') < 0)
+      throw new MolgenisException("Found malformed IRI:" + semanticPart);
     return semanticPart;
   }
 

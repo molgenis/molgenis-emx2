@@ -144,4 +144,12 @@ class SemanticTest {
                         "<http://purl.org/dc/terms/temporal>/<http://www.w3.org/2006/time#hasBeginning>/<http://www.w3.org/2006/time#inXSDDate>")
                     .getSequencePath()));
   }
+
+  /** Ensure {@link #toString()} reproduces input exactly. */
+  @Test
+  void testToString() {
+    String semanticString =
+        "<http://purl.org/dc/terms/temporal>/time:hasBeginning/<http://www.w3.org/2006/time#inXSDDate>";
+    assertEquals(semanticString, new Semantic(semanticString).toString());
+  }
 }
