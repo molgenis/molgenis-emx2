@@ -273,7 +273,6 @@
 
   <DeleteRows
     v-if="data?.tableMetadata && showDeleteMultipleModal"
-    :showButton="false"
     :schemaId="props.schemaId"
     :metadata="data.tableMetadata"
     :keys="new Set(selectedRows.values())"
