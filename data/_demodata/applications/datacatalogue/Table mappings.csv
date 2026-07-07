@@ -1,4 +1,4 @@
-source,source dataset,target,target dataset,order,description,syntax,mg_draft
+source,source table,target,target table,order,description,syntax,mg_draft
 DHL,CPA1,OOM,EVENTS,,,,
 VCN,VCN,OOM,VACCINES,,"For each record:
 ● Create a record of VACCINES
