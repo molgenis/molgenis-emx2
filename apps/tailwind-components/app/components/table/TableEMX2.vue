@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex mb-[30px] justify-between h-50px">
-      <RowControles
+      <RowControls
         :number-of-selected-rows="numberOfSelectedRows"
         :all-rows-selected="
           numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
@@ -344,7 +344,7 @@ import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Checkbox from "../input/Checkbox.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
-import RowControles from "./control/RowControls.vue";
+import RowControls from "./control/RowControls.vue";
 import DeleteRows from "./control/DeleteRows.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
