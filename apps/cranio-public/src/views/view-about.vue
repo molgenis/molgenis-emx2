@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
 import Breadcrumbs from "../components/breadcrumbs.vue";
 </script>

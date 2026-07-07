@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
+// @ts-ignore
 import { Molgenis } from "molgenis-components";
+// @ts-ignore
 import { AppFooter } from "molgenis-viz";
 
 const session = ref(null);
@@ -9,9 +11,10 @@ const page = ref(null);
 
 <template>
   <Molgenis id="__top" v-model="session">
-    <div>
-      <router-view :session="session" :page="page" />
-      <AppFooter>
+    <router-view :session="session" :page="page" />
+      <AppFooter id="ernSkinFooter"
+      first-column-title="ERN CRANIO"
+      second-column-title="For members">
         <template #column-links-1>
           <li>
             <router-link :to="{ name: 'home' }"> Home </router-link>
@@ -42,22 +45,7 @@ const page = ref(null);
               />
             </router-link>
           </li>
-          <li>
-            <a href="https://www.molgenis.org">
-              <span class="visually-hidden">
-                visit the molgenis website to learn more
-              </span>
-              <li>
-                <img
-                  src="/img/molgenis-logo-blue-text.png"
-                  class="molgenis-logo"
-                  alt="molgenis open source data platform"
-                />
-              </li>
-            </a>
-          </li>
         </template>
       </AppFooter>
-    </div>
   </Molgenis>
 </template>

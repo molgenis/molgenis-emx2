@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
-
-import Breadcrumbs from "../components/breadcrumbs.vue";
+// @ts-ignore
 import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
 import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
 
+import Breadcrumbs from "../components/breadcrumbs.vue";
 import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations.js";
 import type { IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
 
@@ -82,101 +82,107 @@ loadData().catch((err: Error) => (error.value = err));
   </Page>
 </template>
 
-<style lang="scss">
-$borderRadius: 24pt;
-
+<style lang="css">
 .provider-listings {
+  --border-radius: 24pt;
   padding: 1em 0;
+}
 
-  .provider {
-    display: grid;
-    justify-content: flex-start;
-    align-items: center;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-areas:
-      "name name"
-      "city country"
-      "link link";
-    gap: 1em;
-    background-color: $gray-000;
-    border-radius: $borderRadius;
-    box-sizing: content-box;
-    padding: 1em 1.5em;
-    margin-bottom: 1.3em;
+.provider-listings .provider {
+  display: grid;
+  justify-content: flex-start;
+  align-items: center;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-areas:
+    "name name"
+    "city country"
+    "link link";
+  gap: 0.25em;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-sizing: content-box;
+  padding: 1em 1.5em;
+  margin-bottom: 1.3em;
+}
 
-    &:last-child {
-      margin-bottom: 0;
-    }
+.provider-listings .provider:last-child {
+  margin-bottom: 0;
+}
 
-    .provider-data {
-      flex-grow: 1;
-      font-size: 13pt;
-      p {
-        margin-bottom: 0;
-      }
-    }
+.provider-listings .provider .provider-data {
+  flex-grow: 1;
+  font-size: 13pt;
+}
 
-    .name {
-      grid-area: name;
-      word-break: break-word;
+.provider-listings .provider .provider-data p {
+  margin-bottom: 0;
+}
 
-      h3 {
-        font-size: 13pt;
-        color: $blue-800;
-      }
-    }
+.provider-listings .provider .name {
+  grid-area: name;
+  word-break: break-word;
+}
 
-    .city {
-      grid-area: city;
-      text-align: right;
-    }
+.provider-listings .provider .name h3 {
+  font-size: 13pt;
+  color: var(--blue-800);
+}
 
-    .country {
-      grid-area: country;
-    }
+.provider-listings .provider .city {
+  grid-area: city;
+  text-align: right;
+}
 
-    .link {
-      grid-area: link;
+.provider-listings .provider .country {
+  grid-area: country;
+}
 
-      a {
-        display: block;
-        text-align: center;
-        border-radius: $borderRadius;
-        background-color: $ern-cranio-primary;
-        padding: 0.6em 0.2em;
-        color: $gray-000;
-        @include textTransform(bold);
-        font-size: 0.85rem;
-        text-decoration: none;
+.provider-listings .provider .link {
+  grid-area: link;
+}
 
-        svg {
-          margin-top: -2px;
-          width: 12px;
-          height: 12px;
-          path {
-            stroke-width: 5px;
-          }
-        }
-      }
-    }
+.provider-listings .provider .link a {
+  flex-grow: 1;
+  display: block;
+  text-align: center;
+  border-radius: var(--border-radius);
+  background-color: var(--cranio-primary);
+  padding: 0.6em 0.2em;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
 
-    @media (min-width: 636px) {
-      grid-template-columns: 2fr 1fr 1fr 100px;
-      grid-template-areas: "name city country link";
-      gap: 0.2em;
-      .name {
-        h3 {
-          text-align: left;
-        }
-      }
-      .city {
-        text-align: center;
-      }
+.provider-listings .provider .link svg {
+  margin-top: -2px;
+  width: 12px;
+  height: 12px;
+}
 
-      .country {
-        text-align: center;
-      }
-    }
+.provider-listings .provider .link svg path {
+  stroke-width: 5px;
+}
+
+@media (min-width: 636px) {
+  .provider-listings .provider {
+    grid-template-columns: 2fr 1fr 1fr 100px;
+    grid-template-areas: "name city country link";
+    gap: 0.2em;
+  }
+  
+  .provider-listings .provider .name h3 {
+    text-align: left;
+  }
+  
+  .provider-listings .provider .city {
+    text-align: center;
+  }
+  
+  .provider-listings .provider .country {
+    text-align: center;
   }
 }
 </style>

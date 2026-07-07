@@ -13,6 +13,7 @@ import {
   GeoMercator,
   DataTable,
   PieChart2,
+  // @ts-ignore
 } from "molgenis-viz";
 
 import Breadcrumbs from "../components/breadcrumbs.vue";
@@ -135,7 +136,7 @@ getData()
             :chartData="sexAtBirthData"
             :asDonutChart="true"
             :enableLegendHovering="true"
-            :chartHeight="185"
+            :chartHeight="225"
             legendPosition="bottom"
           />
         </DashboardChart>
@@ -184,7 +185,7 @@ getData()
   </Page>
 </template>
 
-<style lang="scss">
+<!-- <style lang="scss">
 #cranioPublicDashboard {
   .dashboard-content {
     .dashboard-box {
@@ -262,4 +263,4 @@ getData()
     }
   }
 }
-</style>
+</style> -->

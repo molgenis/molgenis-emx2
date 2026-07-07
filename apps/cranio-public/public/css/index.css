@@ -1,0 +1,203 @@
+.app-page,
+.app-footer {
+  --gray-900: #0a0a0a;
+  --gray-800: #252525;
+  --gray-700: #404040;
+  --gray-600: #5c5c5c;
+  --gray-100: #e4e4e4;
+  --gray-050: #f6f6f6;
+  --blue-800: #2d5095;
+  --blue-050: #e4e9f3;
+  --cranio-primary: #f3833b;
+  --cranio-primary-alt: hsl(23, 88%, 83%);
+  --max-width: 60vw;
+  --viz-chart-title-font-size: 1.2rem;
+
+  font-size: 14pt !important;
+  font-family: Helvetica, sans-serif;
+}
+
+.app-page .page-header {
+  height: 15em;
+}
+
+.app-page .ern-header .page-header {
+  height: 21em;
+}
+
+.app-page .ern-header .page-header .header-content .header-title {
+  color: var(--gray-800);
+  font-size: 18pt;
+}
+
+.app-page .ern-header .page-header .header-content .header-subtitle {
+  color: var(--gray-900);
+}
+
+.app-page .ern-header .page-header .background-image-filter {
+  background-color: var(--cranio-primary-alt);
+  opacity: 0.1;
+}
+
+.bg-blue-050 {
+  background-color: var(--blue-050);
+}
+
+.bg-gray-050 {
+  background-color: var(--gray-050);
+}
+
+.app-page .page-section.section-text-center {
+  text-align: center;
+}
+
+.app-page .page-section .button-link {
+  display: block;
+  width: 300px;
+  padding: 0.6em 0;
+  background-color: var(--cranio-primary) !important;
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 11pt;
+  font-weight: 400;
+  letter-spacing: 3px;
+  color: white;
+  border-radius: 32pt;
+  margin: 0 auto;
+  margin-top: 1em;
+}
+
+.app-page .page-section a .heroicons,
+.app-page .page-section p .heroicons,
+.app-page .page-section li .heroicons {
+  width: 18pt;
+  height: 18pt;
+}
+
+.message-box-container {
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.quicklink-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2em;
+}
+
+.quicklink-cards .link-card {
+  flex-grow: 1;
+  padding: 1em;
+  background-color: white;
+  color: currentColor;
+  border-radius: 12pt;
+  text-align: center;
+}
+
+.quicklink-cards .link-card .card-content svg {
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 1.5em;
+  height: 26pt;
+  width: 26pt;
+}
+
+.quicklink-cards .link-card .card-content svg path {
+    stroke: var(--cranio-primary);
+}
+
+.quicklink-cards .link-card .card-content h3 {
+  font-size: 1.1rem;
+}
+
+.quicklink-cards .link-card .card-content p {
+  margin: 0;
+  color: var(--gray-600);
+  font-size: 1.1rem;
+}
+
+.quicklink-cards .link-card .card-content a {
+  display: block;
+  width: 100%;
+  padding: 0.6em 0;
+  background-color: var(--cranio-primary);
+  text-align: center;
+  border-radius: 12pt;
+  margin-top: 1em;
+  font-size: 0.85rem;
+}
+
+.d3-viz.d3-pie .chart-context,
+.d3-viz.d3-geo-mercator .chart-context {
+  text-align: center;
+}
+
+.d3-viz.d3-pie .chart-context .chart-title,
+.d3-viz.d3-geo-mercator .chart-context .chart-title,
+.d3-viz.d3-table caption {
+  font-size: var(--viz-chart-title-font-size);
+  padding: 0;
+  margin: 0.75em 0;
+  text-align: center;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend {
+  padding: 0.6em 0.8em;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend label {
+  margin-bottom: 0;
+}
+
+.d3-pie > .chart-legend .legend-item .item-label {
+  font-size: 0.9rem;
+}
+
+.d3-viz.d3-table thead th,
+.d3-viz.d3-table tbody td {
+  font-size: 0.9rem;
+  padding: 0.6em 0.3em;
+}
+
+#cranioPublicDashboard .dashboard-content,
+#cranioPublicDashboard .dashboard-content .dashboard-chart-layout {
+  gap: 1em;
+}
+
+#sexAtBirthChart .d3-pie .chart-legend d.legend-item .text-item .item-label {
+  font-size: 0.9rem;
+}
+
+#sexAtBirthChart .d3-pie .chart .chart-area .pie-labels .pie-label-text {
+  font-size: 0.8rem !important;
+}
+
+#sexAtBirthChart .d3-pie {
+  height: 100%;
+}
+
+#data-providers-map + .d3-viz-legend {
+  top: auto;
+  bottom: 0;
+  box-shadow: 4px -2px 4px 2px hsla(0, 0%, 0%, 0.2);
+}
+
+@media screen and (min-width: 812px) {
+  .quicklink-cards {
+    flex-wrap: nowrap;
+  }
+
+  #workstreamSummary .column-header-percent,
+  #workstreamSummary .column-percent {
+    text-align: right;
+  }
+}
+
+@media screen and (min-width: 1500px) {
+  .app-page .page-header {
+    height: 34em;
+  }
+}

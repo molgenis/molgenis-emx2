@@ -9,16 +9,10 @@ interface IBreadcrumbs {
 }
 
 const route = useRoute();
-const breadcrumbs = computed<IBreadcrumbs[]>(() => {
-  const crumbs = [{ name: "home", label: "Home" }];
+const breadcrumbs = computed<IBreadcrumbs[] | undefined>(() => {
   if (route.meta.breadcrumbs) {
-    (route.meta.breadcrumbs as IBreadcrumbs[]).map(
-      (breadcrumb: IBreadcrumbs) => {
-        crumbs.push(breadcrumb);
-      }
-    );
+    return route.meta.breadcrumbs as IBreadcrumbs[];
   }
-  return crumbs;
 });
 </script>
 
@@ -26,13 +20,16 @@ const breadcrumbs = computed<IBreadcrumbs[]>(() => {
   <div class="breadcrumbs-container page-section">
     <nav class="breadcrumbs page-section-content width-medium">
       <ul>
-        <li v-for="crumb in breadcrumbs">
-          <router-link :to="{ name: crumb.name }" v-if="crumb.name === 'home'">
+        <li>
+          <router-link :to="{ name: 'home' }">
+            <span class="visually-hidden">Go to home page</span>
             <HomeIcon class="heroicons heroicons-outline heroicons-home" />
           </router-link>
-          <router-link :to="{ name: crumb.name }" v-else>{{
-            crumb.label
-          }}</router-link>
+        </li>
+        <li v-for="crumb in breadcrumbs">
+          <router-link :to="{ name: crumb.name }">
+            {{ crumb.label }}
+          </router-link>
         </li>
       </ul>
     </nav>
@@ -64,12 +61,13 @@ const breadcrumbs = computed<IBreadcrumbs[]>(() => {
   margin-top: -3px;
 }
 
-.breadcrumbs-container .breadcrumbs ul li .heroicons::after {
+.breadcrumbs-container .breadcrumbs ul li::after {
   content: "/";
   margin-left: 1em;
+  color: var(--gray-600);
 }
 
-.breadcrumbs-container .breadcrumbs ul li .heroicons:last-child::after {
+.breadcrumbs-container .breadcrumbs ul li:last-child::after {
   content: none;
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
 import {
   InformationCircleIcon,
@@ -45,7 +46,9 @@ import {
           <PresentationChartLineIcon />
           <h3>Registry Dashboard</h3>
           <p>View a summary of the entire registry</p>
-          <router-link :to="{ name: 'dashboard' }">View Dashboard</router-link>
+          <router-link :to="{ name: 'dashboard' }">
+            View Dashboard
+          </router-link>
         </LinkCard>
         <LinkCard id="quicklink-dashboard">
           <BuildingOffice2Icon />
@@ -64,10 +67,10 @@ import {
       <p>
         In case of any questions regarding the ERN CRANIO registry, please send
         us an email.
-        <a href="mailto:ern-cranioregistry@erasmusmc.nl" class="button-link">
-          Contact Us </a
-        >.
       </p>
+      <a href="mailto:ern-cranioregistry@erasmusmc.nl" class="button-link">
+        Contact Us
+      </a>
     </PageSection>
   </Page>
 </template>
