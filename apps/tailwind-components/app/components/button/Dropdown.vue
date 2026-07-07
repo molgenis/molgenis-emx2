@@ -2,7 +2,6 @@
 import { useId } from "vue";
 import Button from "../Button.vue";
 import { Dropdown, type Placement } from "floating-vue";
-import type { P } from "vitest/dist/chunks/environment.d8YfPkTm.js";
 
 const ariaId = useId();
 
@@ -31,10 +30,9 @@ withDefaults(
       :icon-position="iconPosition"
       :icon-only="iconOnly"
       :label="label"
-      >{{ label }}</Button
-    >
-      {{ label }}
+      >{{ label }}
     </Button>
+
     <template #popper>
       <div class="bg-dropdown text-dropdown">
         <slot />
