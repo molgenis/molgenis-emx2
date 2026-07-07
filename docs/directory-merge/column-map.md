@@ -69,6 +69,8 @@ Only the tables below are touched; every other catalogue table is unchanged and 
 
 *How each directory **row** becomes catalogue rows. Column-level detail is in §B–§K below.*
 
+> **`mapping_ledger.csv`** — the **case-by-case mapping of every directory record** (29,013 rows: one per source record + minted legal entities). Columns: `directory_table`, `directory_id`, `directory_name`, `catalogue_table`, `catalogue_id`, `mapping_rule`, `disposition` (`auto` / `needs_curation` / `dropped`), `flag_reason`, `from_UMCG`. Headline **94% auto / 3.2% needs-curation / 2.9% dropped**. Filter `disposition = needs_curation` for the curation worklist, or `from_UMCG = TRUE` for fix-at-source. Summary in `mapping_ledger_summary.md`.
+
 ### 1) Biobanks — which directory Biobank rows become what (triage by collection count)
 
 | directory Biobank | → catalogue | note |
@@ -246,7 +248,7 @@ Profiled the real `CollectionFacts` export: **19,581 rows**, star schema, 4 **nu
 | title_before / title_after | `title` / `prefix` | | ⎇ partial |
 | email / phone | `email` / `phone` ✎ | Contact: email / phone | |
 | role | `role` (→ Contribution types) + `role description` | | ⎇ map free-text, else `Other` |
-| biobanks / collections / networks | `Contacts.resource` (reverse) | | unlinked person still valid |
+| biobanks / collections / networks | `Contacts.resource` (reverse) | | **orphan persons DROPPED** — `Contacts.resource` is required (it's the key), so a Contact must attach to a resource; unlinked persons cannot be stored (whole-dump migration drops ~824 such orphans) |
 | address / zip / city / country | — | Contact: address | ⌫ per docx |
 | national_node | `Resources.source` | | provenance |
 

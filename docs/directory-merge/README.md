@@ -5,6 +5,7 @@ A one-shot migration of the BBMRI-ERIC Directory (biobanks + their collections) 
 ## Start here — the docs
 
 - **[column-map.md](column-map.md) — THE column map + row-mapping rules.** How every directory table, column and row becomes catalogue rows: Biobanks triage, Collections & Studies, sub-collection re-expression. **Data managers start here.**
+- **[mapping_ledger.csv](mapping_ledger.csv) — the case-by-case mapping of every directory record** (29,013 rows: one per source record + minted legal entities). Columns: `directory_table`, `directory_id`, `directory_name`, `catalogue_table`, `catalogue_id`, `mapping_rule`, `disposition` (`auto` / `needs_curation` / `dropped`), `flag_reason`, `from_UMCG`. Headline **94% auto / 3.2% needs-curation / 2.9% dropped**. Filter `disposition = needs_curation` for the curation worklist, or `from_UMCG = TRUE` for fix-at-source. Summary in [mapping_ledger_summary.md](mapping_ledger_summary.md).
 - **[proposed-changes.md](proposed-changes.md) — the model change.** The C1–C13 changes + Phase-1 implementation reconciliation.
 - **[requirements.md](requirements.md) — why / what must be true.** R1–R10.
 - **[analysis.md](analysis.md) — data analysis & migration risk.** Measured over the real dumps: where automation stops and curation starts.
