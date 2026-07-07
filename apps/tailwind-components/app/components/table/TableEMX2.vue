@@ -310,7 +310,6 @@ import { computed, onMounted, onUnmounted, ref, useId, watch } from "vue";
 import type {
   columnValue,
   IColumn,
-  IRow,
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
