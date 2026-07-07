@@ -645,27 +645,40 @@ function handleRowAction(payload: { action: string }) {
       selectedRows.value.size === 1
         ? rows.value.find((row) => selectedRows.value.has(row._rowIdString))
         : null;
-    if (action === "delete-selection" && singleRowSelected) {
-      onShowDeleteModal(singleRowSelected);
-    } else if (action === "edit-selection" && singleRowSelected) {
-      onShowEditModal(singleRowSelected);
-    } else if (action === "view-details" && singleRowSelected) {
-      emit("view-details", singleRowSelected);
-    } else if (action === "delete-selection" && selectedRows.value.size > 1) {
-      showDeleteMultipleModal.value = true;
-    } else if (action === "select-all-on-page") {
-      rows.value.forEach((row) => {
-        selectedRows.value.set(row._rowIdString, row._rowId);
-      });
-    } else if (action === "select-none") {
-      selectedRows.value.clear();
-    } else if (action === "select-drafts") {
-      selectedRows.value.clear();
-      rows.value.forEach((row) => {
-        if (row.mg_draft === true) {
-          selectedRows.value.set(row._rowIdString, row._rowId);
+    switch (action) {
+      case "delete-selection":
+        if (singleRowSelected) {
+          onShowDeleteModal(singleRowSelected);
+        } else if (selectedRows.value.size > 1) {
+          showDeleteMultipleModal.value = true;
         }
-      });
+        break;
+      case "edit-selection":
+        if (singleRowSelected) {
+          onShowEditModal(singleRowSelected);
+        }
+        break;
+      case "view-details":
+        if (singleRowSelected) {
+          emit("view-details", singleRowSelected);
+        }
+        break;
+      case "select-all-on-page":
+        rows.value.forEach((row) => {
+          selectedRows.value.set(row._rowIdString, row._rowId);
+        });
+        break;
+      case "select-none":
+        selectedRows.value.clear();
+        break;
+      case "select-drafts":
+        selectedRows.value.clear();
+        rows.value.forEach((row) => {
+          if (row.mg_draft === true) {
+            selectedRows.value.set(row._rowIdString, row._rowId);
+          }
+        });
+        break;
     }
   }
 }
