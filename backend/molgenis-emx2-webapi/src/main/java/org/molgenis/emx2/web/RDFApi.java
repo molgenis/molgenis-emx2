@@ -26,11 +26,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.rdf.PrimaryKey;
-import org.molgenis.emx2.rdf.RdfRootService;
-import org.molgenis.emx2.rdf.RdfSchemaService;
-import org.molgenis.emx2.rdf.RdfSchemaValidationService;
-import org.molgenis.emx2.rdf.RdfService;
+import org.molgenis.emx2.rdf.*;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.shacl.ShaclSelector;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
@@ -74,6 +70,7 @@ public class RDFApi {
     defineApiRoutes(app, prefix, API_JSONLD, RDFFormat.JSONLD);
   }
 
+  // todo: discuss if root api should also support this (multi-schema behaviour)
   private static void defineApiRoutes(
       Javalin app, String prefix, String apiLocation, RDFFormat format) {
     app.get(prefix + apiLocation, (ctx) -> databaseGet(ctx, format));
@@ -182,35 +179,47 @@ public class RDFApi {
 
   private static void rdfForSchema(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
-    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
+    Method method =
+        RdfApiGenerator.class.getDeclaredMethod(
+            "generate", Schema.class, TableColumnsSelector.class);
     Schema schema = getSchema(ctx);
-    runRdfService(ctx, schema, format, method, schema);
+    TableColumnsSelector selector = generateSelector(ctx, schema);
+    runRdfService(ctx, schema, format, method, schema, selector);
   }
 
   private static void shaclForSchema(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
-    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
+    Method method =
+        RdfApiGenerator.class.getDeclaredMethod(
+            "generate", Schema.class, TableColumnsSelector.class);
     Schema schema = getSchema(ctx);
+    TableColumnsSelector selector = generateSelector(ctx, schema);
     ShaclSet shaclSet = retrieveShaclSet(ctx, sanitize(ctx.queryParam("validate")));
-    runRdfValidationService(ctx, schema, format, shaclSet, method, schema);
+    runRdfValidationService(ctx, schema, format, shaclSet, method, schema, selector);
   }
 
   private static void rdfForTable(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
-    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class);
+    Method method =
+        RdfApiGenerator.class.getDeclaredMethod(
+            "generate", Table.class, TableColumnsSelector.class);
     Table table = getTableByIdOrName(ctx);
-    runRdfService(ctx, table.getSchema(), format, method, table);
+    TableColumnsSelector selector = generateSelector(ctx, table.getSchema());
+    runRdfService(ctx, table.getSchema(), format, method, table, selector);
   }
 
   private static void rdfForRow(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
     Method method =
-        RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class);
+        RdfApiGenerator.class.getDeclaredMethod(
+            "generate", Table.class, TableColumnsSelector.class, PrimaryKey.class);
     Table table = getTableByIdOrName(ctx);
+    TableColumnsSelector selector = generateSelector(ctx, table.getSchema());
     PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, sanitize(ctx.pathParam("row")));
-    runRdfService(ctx, table.getSchema(), format, method, table, primaryKey);
+    runRdfService(ctx, table.getSchema(), format, method, table, selector, primaryKey);
   }
 
+  // todo: look if selector version should be implemented here
   private static void rdfForColumn(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, Column.class);
@@ -309,5 +318,23 @@ public class RDFApi {
               + acceptedMediaTypes.stream().map(MediaType::toString).toList());
     }
     return mediaTypeRdfFormatMap.get(mediaType);
+  }
+
+  /**
+   * Expects {@code columns} parameter to contain a value of the format {@code
+   * tableId1.colId1,tableId1.colId2,tableId2.colId1}
+   */
+  public static TableColumnsSelector generateSelector(Context ctx, Schema schema) {
+    TableColumnsSelector selector = new TableColumnsSelector();
+    String colString = sanitize(ctx.queryParam("columns"));
+
+    if (colString != null) {
+      for (String item : colString.trim().split(",")) {
+        String[] tableColumnPair = item.split("\\.");
+        selector.addColumn(schema.getTableById(tableColumnPair[0]), tableColumnPair[1]);
+      }
+    }
+
+    return selector;
   }
 }

@@ -7,6 +7,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
+import org.molgenis.emx2.rdf.TableColumnsSelector;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
@@ -18,19 +19,23 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
   }
 
   @Override
-  public void generate(Table table, PrimaryKey primaryKey) {
+  public void generate(Table table, TableColumnsSelector selector, PrimaryKey primaryKey) {
     Set<Table> tables = tablesToDescribe(table.getSchema(), table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
     NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
 
     generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
     generateCustomRdf(table.getSchema());
-    tables.forEach(i -> processRows(namespaces, rdfMapData, i, primaryKey));
+    tables.forEach(i -> processRows(namespaces, rdfMapData, i, selector, primaryKey));
   }
 
   protected void processRows(
-      NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
-    List<Row> rows = getRows(table, primaryKey);
+      NamespaceMapper namespaces,
+      RdfMapData rdfMapData,
+      Table table,
+      TableColumnsSelector selector,
+      PrimaryKey primaryKey) {
+    List<Row> rows = getRows(table, selector, primaryKey);
 
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(rdfMapData, table, row));
