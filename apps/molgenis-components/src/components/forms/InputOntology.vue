@@ -7,6 +7,7 @@
     :errorMessage="errorMessage"
   >
     <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
     <div
       class="p-0 m-0"
       :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
@@ -168,6 +169,7 @@ export default {
   data() {
     return {
       error: null,
+      warning: null,
       // used for drop down focus state
       focus: false,
       //huge object with all the terms, flattened
@@ -474,7 +476,11 @@ export default {
       },
     },
     data() {
-      if (this.data) {
+      if (!this.data) {
+        this.loading = false;
+        this.warning = `Ontology '${this.tableId}' in schema '${this.schemaId}' is empty`;
+      } else {
+        this.warning = null;
         this.searchResultCount = 0;
 
         //convert to tree of terms
