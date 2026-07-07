@@ -19,6 +19,8 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class ServeStaticFile {
 
+  private static final String FORBIDDEN = "Forbidden";
+
   private record AppsPath(boolean isFile, boolean isUi, String mimeType, String path) {
 
     public static AppsPath fromContext(Context ctx) {
@@ -118,7 +120,7 @@ public class ServeStaticFile {
     Path internalRoot = Path.of(INTERNAL_APP_FOLDER).normalize();
     Path resolved = Path.of(path).normalize();
     if (!resolved.startsWith(internalRoot)) {
-      ctx.status(403).result("Forbidden");
+      ctx.status(403).result(FORBIDDEN);
       return;
     }
     String resourcePath = convertWindowsPathToJarPath(resolved.toString());
@@ -151,7 +153,7 @@ public class ServeStaticFile {
         internalAppsDirectory.resolve(fallbackFileBase).normalize().toString();
 
     if (!requestedInternalFilePath.startsWith(internalAppsDirectory.toString())) {
-      ctx.status(403).result("Forbidden");
+      ctx.status(403).result(FORBIDDEN);
       return;
     }
 
@@ -182,7 +184,7 @@ public class ServeStaticFile {
 
     if (!requestedExternalFilePath.startsWith(externalAppsDirectory)) {
       // Suspected path traversal: reject the request
-      ctx.status(403).result("Forbidden");
+      ctx.status(403).result(FORBIDDEN);
       return;
     }
 
