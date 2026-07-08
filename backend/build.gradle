@@ -149,11 +149,8 @@ subprojects {
         }
     }
 
-    tasks.withType(Test) {
-        ['MOLGENIS_POSTGRES_URI', 'MOLGENIS_POSTGRES_USER', 'MOLGENIS_POSTGRES_PASS'].each { p ->
-            if (System.getProperty(p) != null) systemProperty p, System.getProperty(p)
-        }
-    }
+    tasks.withType(Test).configureEach { rootProject.ext.forwardMolgenisPostgresProps(it) }
+    tasks.withType(JavaExec).configureEach { rootProject.ext.forwardMolgenisPostgresProps(it) }
 
     test.dependsOn ":backend:molgenis-emx2-sql:initDatabase"
 

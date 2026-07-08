@@ -59,6 +59,7 @@ psql -p 5433 -f .circleci/initdb.sql
 Then point the backend (and tests) at it via the `MOLGENIS_POSTGRES_URI` system property, which is forwarded to the forked test/`dev`/`cleandb` JVMs:
 
 ```console
+./gradlew run -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
 ./gradlew dev -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
 ./gradlew :backend:molgenis-emx2-sql:test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
 ```
