@@ -148,6 +148,10 @@ subprojects {
             showStandardStreams = false
         }
     }
+
+    tasks.withType(Test).configureEach { rootProject.ext.forwardMolgenisPostgresProps(it) }
+    tasks.withType(JavaExec).configureEach { rootProject.ext.forwardMolgenisPostgresProps(it) }
+
     test.dependsOn ":backend:molgenis-emx2-sql:initDatabase"
 
     tasks.register('testFast', Test) {
