@@ -43,7 +43,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     generateCustomRdf(schema);
     describeRoot();
     describeSchema(schema);
-    tables.forEach(i -> describeTable(i));
+    tables.forEach(this::describeTable);
     tables.forEach(i -> describeColumns(i, null));
     tables.forEach(i -> processRows(rdfMapData, i, null));
   }
@@ -226,18 +226,20 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
   protected void dataRowToRdf(final RdfMapData rdfMapData, final Table table, final Row row) {
     if (row.isDraft()) return;
 
-    final IRI tableIRI = tableIRI(getBaseURL(), table);
     final IRI subject = rowIRI(getBaseURL(), table, row);
+    processDataRowGenerics(table, row, subject);
+    processDataRowTable(table, subject);
+    table
+        .getMetadata()
+        .getColumns()
+        .forEach(column -> processDataRowColumn(rdfMapData, table, row, column, subject));
+  }
+
+  private void processDataRowGenerics(final Table table, final Row row, final IRI subject) {
+    final IRI tableIRI = tableIRI(getBaseURL(), table);
 
     getWriter().processTriple(subject, RDF.TYPE, tableIRI);
     getWriter().processTriple(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION);
-    if (table.getMetadata().hasSemantics()) {
-      for (Semantic semantic : table.getMetadata().getSemantics()) {
-        IRI object =
-            table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
-        getWriter().processTriple(subject, RDF.TYPE, object);
-      }
-    }
     getWriter()
         .processTriple(subject, DCAT.ENDPOINT_URL, schemaIRI(getBaseURL(), table.getSchema()));
     getWriter().processTriple(subject, BasicIRI.FDP_METADATAIDENTIFIER, subject);
@@ -245,43 +247,49 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     getWriter()
         .processTriple(
             subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
-    for (final Column column : table.getMetadata().getColumns()) {
-      // Exclude the system columns that refer to specific users
-      if (column.isSystemAddUpdateByUserColumn()) {
-        continue;
-      }
-      IRI columnIRI = columnIRI(getBaseURL(), column);
+  }
 
-      // Non-default behaviour for non-semantic values to ontology table.
-      if (column.getColumnType().equals(ColumnType.ONTOLOGY)
-          || column.getColumnType().equals(ColumnType.ONTOLOGY_ARRAY)) {
-        retrieveValues(rdfMapData, row, column, ColumnTypeRdfMapper.RdfColumnType.REFERENCE)
-            .forEach(value -> getWriter().processTriple(subject, columnIRI, value));
-      }
+  private void processDataRowColumn(
+      final RdfMapData rdfMapData,
+      final Table table,
+      final Row row,
+      final Column column,
+      final IRI subject) {
+    // Exclude the system columns that refer to specific users
+    if (column.isSystemAddUpdateByUserColumn()) {
+      return;
+    }
+    IRI columnIRI = columnIRI(getBaseURL(), column);
 
-      for (final Value value : retrieveValues(rdfMapData, row, column)) {
-        if (column.hasSemantics()) {
-          for (Semantic semantic : column.getSemantics()) {
-            IRI predicate =
-                table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
-            getWriter().processTriple(subject, predicate, value);
-          }
+    // Non-default behaviour for non-semantic values to ontology table.
+    if (column.getColumnType().equals(ColumnType.ONTOLOGY)
+        || column.getColumnType().equals(ColumnType.ONTOLOGY_ARRAY)) {
+      retrieveValues(rdfMapData, row, column, ColumnTypeRdfMapper.RdfColumnType.REFERENCE)
+          .forEach(value -> getWriter().processTriple(subject, columnIRI, value));
+    }
+
+    for (final Value value : retrieveValues(rdfMapData, row, column)) {
+      if (column.hasSemantics()) {
+        for (Semantic semantic : column.getSemantics()) {
+          IRI predicate =
+              table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
+          getWriter().processTriple(subject, predicate, value);
         }
+      }
 
-        switch (column.getColumnType()) {
-          case ONTOLOGY, ONTOLOGY_ARRAY -> {} // skipped due to custom behaviour above
-          case HYPERLINK, HYPERLINK_ARRAY -> {
-            getWriter().processTriple(subject, columnIRI, value);
-            IRI resource = Values.iri(value.stringValue());
-            getWriter().processTriple(resource, RDFS.LABEL, Values.literal(value.stringValue()));
-          }
-          case FILE -> {
-            getWriter().processTriple(subject, columnIRI, value);
-            generateFileTriples((IRI) value, row, column);
-          }
-          default -> {
-            getWriter().processTriple(subject, columnIRI, value);
-          }
+      switch (column.getColumnType()) {
+        case ONTOLOGY, ONTOLOGY_ARRAY -> {} // skipped due to custom behaviour above
+        case HYPERLINK, HYPERLINK_ARRAY -> {
+          getWriter().processTriple(subject, columnIRI, value);
+          IRI resource = Values.iri(value.stringValue());
+          getWriter().processTriple(resource, RDFS.LABEL, Values.literal(value.stringValue()));
+        }
+        case FILE -> {
+          getWriter().processTriple(subject, columnIRI, value);
+          generateFileTriples((IRI) value, row, column);
+        }
+        default -> {
+          getWriter().processTriple(subject, columnIRI, value);
         }
       }
     }

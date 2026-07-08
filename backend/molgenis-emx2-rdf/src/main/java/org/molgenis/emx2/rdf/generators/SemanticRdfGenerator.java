@@ -1,16 +1,13 @@
 package org.molgenis.emx2.rdf.generators;
 
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
-import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
+import static org.molgenis.emx2.rdf.IriGenerator.*;
 
 import java.util.List;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
-import org.eclipse.rdf4j.model.vocabulary.OWL;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.RDFS;
-import org.eclipse.rdf4j.model.vocabulary.SKOS;
+import org.eclipse.rdf4j.model.vocabulary.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
@@ -66,28 +63,30 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
     if (row.isDraft()) return;
 
     final IRI subject = rowIRI(getBaseURL(), table, row);
+    processDataRowTable(table, subject);
+    table
+        .getMetadata()
+        .getColumns()
+        .forEach(column -> processDataRowColumn(rdfMapData, table, row, column, subject));
+  }
 
-    if (table.getMetadata().hasSemantics()) {
-      for (Semantic semantic : table.getMetadata().getSemantics()) {
-        IRI object =
+  private void processDataRowColumn(
+      final RdfMapData rdfMapData,
+      final Table table,
+      final Row row,
+      final Column column,
+      final IRI subject) {
+    if (!column.hasSemantics()) return;
+
+    for (final Value value : retrieveValues(rdfMapData, row, column)) {
+      for (Semantic semantic : column.getSemantics()) {
+        IRI predicate =
             table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
-        getWriter().processTriple(subject, RDF.TYPE, object);
+        getWriter().processTriple(subject, predicate, value);
       }
-    }
 
-    for (final Column column : table.getMetadata().getColumns()) {
-      if (column.hasSemantics()) {
-        for (final Value value : retrieveValues(rdfMapData, row, column)) {
-          for (Semantic semantic : column.getSemantics()) {
-            IRI predicate =
-                table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
-            getWriter().processTriple(subject, predicate, value);
-          }
-
-          if (column.getColumnType().isFile()) {
-            generateFileTriples((IRI) value, row, column);
-          }
-        }
+      if (column.getColumnType().isFile()) {
+        generateFileTriples((IRI) value, row, column);
       }
     }
   }

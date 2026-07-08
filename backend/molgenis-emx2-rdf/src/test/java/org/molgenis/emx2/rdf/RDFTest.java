@@ -1376,7 +1376,7 @@ public class RDFTest {
   }
 
   @Test
-  void testMissingIriSemanticPrefixesSetting() throws IOException {
+  void testMissingIriSemanticPrefixesSetting() {
     final String customPrefixes = "examplePrefix,exampleName";
 
     try {

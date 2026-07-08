@@ -33,7 +33,7 @@ public class Semantic {
   }
 
   private List<String> split(final String semantic) {
-    List<String> sequencePath = new ArrayList<>();
+    List<String> processedPath = new ArrayList<>();
 
     int sequenceItemStart = 0;
     boolean foundIri = false;
@@ -56,7 +56,7 @@ public class Semantic {
             throw new MolgenisException(
                 "Missing sequence path separator ('/') after IRI closing bracket ('>'): "
                     + semantic);
-          sequencePath.add(validateIri(semantic.substring(sequenceItemStart, i + 1)));
+          processedPath.add(validateIri(semantic.substring(sequenceItemStart, i + 1)));
           sequenceItemStart = i + 2;
           i++;
           foundIri = false;
@@ -67,10 +67,11 @@ public class Semantic {
               throw new MolgenisException(
                   "Found '/' after ':' outside of brackets ('<' & '>'): " + semantic);
             }
-            sequencePath.add(validatePrefixedName(semantic.substring(sequenceItemStart, i)));
+            processedPath.add(validatePrefixedName(semantic.substring(sequenceItemStart, i)));
             sequenceItemStart = i + 1;
           }
         }
+        default -> {}
       }
     }
     // Ensure last item is processed
@@ -79,11 +80,11 @@ public class Semantic {
         throw new MolgenisException(
             "Invalid semantic: Missing closing bracket ('>') for opening bracket ('<').");
       } else {
-        sequencePath.add(validatePrefixedName(semantic.substring(sequenceItemStart, length)));
+        processedPath.add(validatePrefixedName(semantic.substring(sequenceItemStart, length)));
       }
     }
 
-    return sequencePath;
+    return processedPath;
   }
 
   /**

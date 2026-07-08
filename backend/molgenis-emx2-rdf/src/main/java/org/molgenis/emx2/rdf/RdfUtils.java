@@ -4,7 +4,6 @@ import static org.molgenis.emx2.rdf.IriGenerator.schemaIRI;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;

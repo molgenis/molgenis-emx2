@@ -9,7 +9,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.junit.jupiter.api.Test;
 
 class SemanticPrefixesTest {
-  SemanticPrefixes prefixes =
+  SemanticPrefixes prefixesSimple =
       new SemanticPrefixes(
           List.of(
               Values.namespace("dcterms", "http://purl.org/dc/terms/"),
@@ -33,13 +33,13 @@ class SemanticPrefixesTest {
         () ->
             assertEquals(
                 expectedIris,
-                prefixes.mapAsIri(
+                prefixesSimple.mapAsIri(
                     new Semantic(
                         "<http://purl.org/dc/terms/temporal>/<http://www.w3.org/2006/time#hasBeginning>/<http://www.w3.org/2006/time#inXSDDate>"))),
         () ->
             assertEquals(
                 expectedIris,
-                prefixes.mapAsIri(
+                prefixesSimple.mapAsIri(
                     new Semantic(
                         "dcterms:temporal/<http://www.w3.org/2006/time#hasBeginning>/time:inXSDDate"))),
         () ->
@@ -59,7 +59,7 @@ class SemanticPrefixesTest {
             assertThrows(
                 MolgenisException.class,
                 () ->
-                    prefixes.mapAsIri(
+                    prefixesSimple.mapAsIri(
                         new Semantic(
                             "<http://purl.org/dc/terms/temporal>/:hasBeginning/<http://www.w3.org/2006/time#inXSDDate>"))));
   }
@@ -72,7 +72,7 @@ class SemanticPrefixesTest {
             "<http://purl.org/dc/terms/temporal>",
             "time:hasBeginning",
             "<http://www.w3.org/2006/time#inXSDDate>"),
-        prefixes.mapAsString(
+        prefixesSimple.mapAsString(
             new Semantic(
                 "<http://purl.org/dc/terms/temporal>/time:hasBeginning/<http://www.w3.org/2006/time#inXSDDate>")));
   }

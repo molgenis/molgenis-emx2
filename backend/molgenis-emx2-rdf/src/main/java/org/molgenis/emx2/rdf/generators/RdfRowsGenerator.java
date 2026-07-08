@@ -2,8 +2,11 @@ package org.molgenis.emx2.rdf.generators;
 
 import java.util.List;
 import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
@@ -33,6 +36,16 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
       case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(rdfMapData, table, row));
       case DATA -> rows.forEach(row -> dataRowToRdf(rdfMapData, table, row));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
+    }
+  }
+
+  protected void processDataRowTable(final Table table, final IRI subject) {
+    if (!table.getMetadata().hasSemantics()) return;
+
+    for (Semantic semantic : table.getMetadata().getSemantics()) {
+      IRI object =
+          table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
+      getWriter().processTriple(subject, RDF.TYPE, object);
     }
   }
 
