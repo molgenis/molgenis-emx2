@@ -1,5 +1,7 @@
 # Plan: Unified Discriminator-Driven Composition (Diamond Inheritance + Modules)
 
+> **COMMIT STATUS (2026-06-14):** all phases A,B,C0–C6,E0–E8,F0–F2/F2b are **COMMITTED** on this branch. The per-section "STAGED, NOT committed" labels below are HISTORICAL (accurate when written, kept for the staging timeline) — do not read them as current. NEXT = Phase H (scalar MODULE + experiment demo), then F3/F5/F6.
+
 ## Context
 
 EMX2 today supports only **single, linear table inheritance** (`extends`): a table has one
@@ -413,6 +415,53 @@ equals the module's local column id (so the expanded selection resolves). (2) co
 appear in the `_schema.tables` payload the tailwind metadata query receives (catalog-visible per C2). (3) confirm a
 column's owning-table identity is derivable frontend-side (resolve via MODULE_ARRAY `values`→table, not a per-column
 `table` field, per D4).
+
+---
+
+## Phase H (NEXT — owner-requested 2026-06-14) — Scalar `MODULE` discriminator + `experiment` demo
+
+**STATUS (2026-06-14):** H.1 BACKEND **DONE & green, STAGED not committed** (24 scalar + 5 graphql + 2 io + 62 rdf green; TestModuleArrayDiscriminator 42 / TestDiamondInheritance 13 / TestInherits 2 byte-identical). Two emergent fixes beyond the change list: `ColumnTypeRdfMapper` gained `MODULE→SKIP` (was NPE on a DATA table carrying a MODULE discriminator); a scalar-ENUM arm added to GraphqlTableFieldFactory. NEXT = **H.2 (experiment demo)** then **H.3 (frontend wire-up)**.
+
+**Goal:** add a scalar `MODULE` column type (single-choice composition discriminator) mirroring `MODULE_ARRAY` but single-valued, and exercise it with an `experiment` table in the demo. Owner wants THIS as the first next phase (type=MODULE column + experiment demo together).
+
+**Current state (verified 2026-06-14):** scalar `MODULE` does NOT exist in the backend — `ColumnType.java:79` has only `MODULE_ARRAY(ENUM_ARRAY)`; `Column.isDiscriminator()` (Column.java:724) = `MODULE_ARRAY` only; `getDiscriminatorColumns()` (TableMetadata.java:850) filters that. Frontend has a STUB only: `Input.vue` `MODULE → InputEnum` arm + `MODULE` in the type union, but `activeModules` (moduleColumns.ts) reads `MODULE_ARRAY` only. So this is a real backend feature + a tiny frontend wire-up.
+
+### Design decision — derived-default `values` (owner-agreed 2026-06-14)
+- A `MODULE` column's allowed set **DEFAULTS to all direct + indirect `tableType=MODULE` subclasses** of the declaring (root) table, **computed at READ-TIME** (live via `getModuleSubtypeTables()`, NOT frozen at creation — a module added later just appears).
+- Explicit `values` **OVERRIDES** the default — used to restrict/exclude subclasses, and (required) to **partition modules across multiple discriminator columns** on one table (auto-default can't partition; every axis would offer every subclass, breaking the one-module↔one-axis rule O-5).
+- Transitive (direct+indirect) is intentional: picking a more-specific module (e.g. `RNAseq extends RNA`) activates its ancestor chain via the existing module-extends-module write path. Trade-off noted: a flat picker mixes specificity levels — acceptable ("generic or specific").
+- Derived set surfaces in a NEW `Column.getEffectiveValues()` (owner 2026-06-14, see decisions.md) — `getValues()` stays the RAW declared field so CSV export (`Emx2.java:323`) + JSON save-back (`json/Column.java:114`) never FREEZE the derived set on round-trip (preserving "live, not frozen"). The frontend picker (GraphQL `_schema` OUTPUT) AND the write-time enum-membership check read `getEffectiveValues()` so they share one set; serializers read `getValues()`.
+- **Symmetry (LOCKED 2026-06-14):** scalar `MODULE` ONLY for now — `MODULE_ARRAY` keeps requiring explicit `values` (untouched). Revisit MODULE_ARRAY symmetry later.
+
+### Backend (mirror the MODULE_ARRAY engine, single-valued)
+- `ColumnType.MODULE(ENUM)` (scalar; MODULE_ARRAY is ENUM_ARRAY).
+- `isDiscriminator()` → `MODULE_ARRAY || MODULE`; `getDiscriminatorColumns()` picks up both automatically.
+- DDL: `MODULE` = `varchar` scalar (vs MODULE_ARRAY `varchar[]`).
+- `values`: derived-default (via `getEffectiveValues()`, raw `getValues()` unchanged) + explicit override; validation = each value is a `MODULE` extending the root + one-axis (reuse `validateModuleArrayValues` logic, read effective set); enum membership on write (the single value ∈ effective values, when non-empty/derived).
+- Active-module resolution: generalise the per-row discriminator read so the active set = the array (MODULE_ARRAY) OR `{value}`/`{}` (MODULE). Write routing (C3), upsert, and C6 hard-delete then work unchanged in shape; changing a MODULE value deactivates the old module (hard-delete) + activates the new.
+- Query projection (C4) + `_schema` serialization (F2b): NO change — modules are collected structurally via the root-anchored `getModuleSubtypeTables()`, independent of MODULE vs MODULE_ARRAY.
+- IO/CSV/RDF/GraphQL input+output: `MODULE` columnType round-trips (mirror MODULE_ARRAY, which is done).
+- Tests (mirror TestModuleArrayDiscriminator for scalar): DDL+reload; validation rejects non-module / non-root-extending / out-of-set; insert activates the chosen module row; change-value deactivates old + activates new (C6); query projects active / nulls inactive; **derived-default values** (empty values → subclasses live; explicit override restricts); enum membership; is-a + MODULE_ARRAY suites stay green.
+
+### Frontend (tiny — gate already generalises)
+- `activeModules` (metadata-utils/moduleColumns.ts): also collect from `MODULE` (scalar) columns — add the single string value to the active set (currently MODULE_ARRAY-only at lines 21,76). `isModuleColumn` + the useForm visibility gate then work unchanged (module cols tagged by `col.table`).
+- `Input.vue` `MODULE → InputEnum` arm already exists; verify it renders the picker over derived `values` + writes the scalar discriminator. Display `value/EMX2.vue` MODULE arm (single) if needed.
+- Tests: vitest — `activeModules` includes a scalar MODULE value; a module col visible⇔its scalar value selected; deselect/clear hides.
+
+### Demo data — `experiment` in `diamond_showcase` (`data/diamond_showcase/molgenis.csv`)
+- `experiment` (DATA) with `experimentType` `MODULE` column (allowed set DERIVES from the RNA/DNA modules, or explicit list RNA,DNA).
+- `RNA` (`tableType=MODULE` extends `experiment`) + a few RNA-specific columns.
+- `DNA` (`tableType=MODULE` extends `experiment`) + a few DNA-specific columns.
+- Extend `DiamondShowcaseTest` / loader to cover the MODULE scalar end-to-end (load + query the chosen module's cols).
+
+### LOCKED DECISIONS (owner, 2026-06-14)
+1. **`experiment` = STANDALONE** in `diamond_showcase` (no Subject ref; keeps focus on the scalar MODULE feature; linkage can come later).
+2. **Derived-default = scalar MODULE ONLY** for now. `MODULE_ARRAY` stays explicit-`values` (untouched — zero regression risk to the committed diamond Subject demo). Symmetry revisited later.
+3. **RNA/DNA columns = proposed set:** RNA = {libraryStrategy, platform, RIN, readLength, strandedness}; DNA = {platform, captureKit, referenceGenome, meanCoverage, readLength}.
+4. **Discriminator naming = LEAVE AS-IS** (`getDiscriminatorColumns`/`isDiscriminator`). Spec/code in sync; no rename.
+
+### Sequencing after Phase H
+F3 (bootstrap UI safe-degrade — spec rows 112-113), F5 (schema editor MODULE/MODULE_ARRAY authoring + the `col.table===self` editor-local filter — rows 114-115), F6 (visual matrix). All already in the spec.
 
 ---
 

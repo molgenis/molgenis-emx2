@@ -731,7 +731,14 @@ public class SqlTable implements Table {
       String pkKey = buildPkKey(record, pkCols);
       Map<String, String[]> discMap = new LinkedHashMap<>();
       for (Column disc : discriminators) {
-        discMap.put(disc.getName(), record.get(disc.getName(), String[].class));
+        if (disc.isArray()) {
+          discMap.put(disc.getName(), record.get(disc.getName(), String[].class));
+        } else {
+          String scalarVal = record.get(disc.getName(), String.class);
+          discMap.put(
+              disc.getName(),
+              scalarVal != null && !scalarVal.isBlank() ? new String[] {scalarVal} : new String[0]);
+        }
       }
       result.put(pkKey, discMap);
     }

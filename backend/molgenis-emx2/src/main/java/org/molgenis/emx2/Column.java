@@ -722,7 +722,16 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public boolean isDiscriminator() {
-    return this.getColumnType() == MODULE_ARRAY;
+    return this.getColumnType() == MODULE_ARRAY || this.getColumnType() == MODULE;
+  }
+
+  public List<String> getEffectiveValues() {
+    if (this.getColumnType() == MODULE && (values == null || values.isEmpty()) && table != null) {
+      return table.getModuleSubtypeTables().stream()
+          .map(TableMetadata::getTableName)
+          .collect(Collectors.toList());
+    }
+    return values;
   }
 
   public String getRootTableName() {

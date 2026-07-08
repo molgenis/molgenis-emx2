@@ -111,8 +111,8 @@ public class Column {
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics = column.getSemantics();
-    this.values =
-        column.getValues() != null && !column.getValues().isEmpty() ? column.getValues() : null;
+    List<String> effectiveVals = column.getEffectiveValues();
+    this.values = effectiveVals != null && !effectiveVals.isEmpty() ? effectiveVals : null;
     this.visible = column.getVisible();
     this.computed = column.getComputed();
     this.profiles = column.getProfiles();

@@ -437,8 +437,8 @@ public class SqlColumnExecutor {
                   c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
         }
       }
-      if (c.getColumnType() == MODULE_ARRAY && hasDatabase(c)) {
-        validateModuleArrayValues(c);
+      if ((c.getColumnType() == MODULE_ARRAY || c.getColumnType() == MODULE) && hasDatabase(c)) {
+        validateModuleDiscriminatorValues(c);
       }
       // fix required
       if (c.getKey() == 1 && !c.isRequired()) {
@@ -456,8 +456,8 @@ public class SqlColumnExecutor {
         && c.getTable().getSchema().getDatabase() != null;
   }
 
-  private static void validateModuleArrayValues(Column c) {
-    List<String> moduleValues = c.getValues();
+  private static void validateModuleDiscriminatorValues(Column c) {
+    List<String> moduleValues = c.getEffectiveValues();
     if (moduleValues == null || moduleValues.isEmpty()) {
       return;
     }
@@ -465,13 +465,14 @@ public class SqlColumnExecutor {
     TableMetadata declaringTable = c.getTable();
     String currentSchemaName = declaringTable.getSchemaName();
     TableMetadata declaringRoot = declaringTable.getRootTable();
+    String columnTypeName = c.getColumnType().name();
 
     if (!declaringTable.getTableName().equals(declaringRoot.getTableName())
         || !declaringTable.getSchemaName().equals(declaringRoot.getSchemaName())) {
       throw new MolgenisException(
           "Column '"
               + c.getName()
-              + "' of type MODULE_ARRAY must be declared on the root table '"
+              + "' of type MODULE/MODULE_ARRAY must be declared on the root table '"
               + declaringRoot.getTableName()
               + "', not on subtype '"
               + declaringTable.getTableName()
@@ -487,7 +488,7 @@ public class SqlColumnExecutor {
                 + c.getTableName()
                 + "."
                 + c.getName()
-                + "' failed: MODULE_ARRAY value must not be empty or blank");
+                + "' failed: MODULE/MODULE_ARRAY value must not be empty or blank");
       }
       if (declaredValue.contains(".")) {
         throw new MolgenisException(
@@ -495,7 +496,9 @@ public class SqlColumnExecutor {
                 + c.getTableName()
                 + "."
                 + c.getName()
-                + "' failed: MODULE_ARRAY value '"
+                + "' failed: "
+                + columnTypeName
+                + " value '"
                 + declaredValue
                 + "' must be a bare table name referring to a MODULE in the same schema; "
                 + "schema-qualified ('schema.Table') values are not supported.");
@@ -520,7 +523,7 @@ public class SqlColumnExecutor {
                 + c.getName()
                 + "' failed: table '"
                 + declaredValue
-                + "' referenced by MODULE_ARRAY values does not exist");
+                + "' referenced by MODULE/MODULE_ARRAY values does not exist");
       }
       TableMetadata referencedMeta = referencedTable.getMetadata();
       if (!referencedMeta.getTableType().isModule()) {
@@ -561,7 +564,7 @@ public class SqlColumnExecutor {
       if (existing.getName().equals(newColumn.getName())) {
         continue;
       }
-      List<String> existingValues = existing.getValues();
+      List<String> existingValues = existing.getEffectiveValues();
       if (existingValues == null) {
         continue;
       }
@@ -576,7 +579,7 @@ public class SqlColumnExecutor {
                   + newValue
                   + "' is already assigned to axis '"
                   + existing.getName()
-                  + "'. A module may appear in at most one MODULE_ARRAY axis per table.");
+                  + "'. A module may appear in at most one MODULE/MODULE_ARRAY axis per table.");
         }
       }
     }

@@ -193,6 +193,7 @@ public class GraphqlTableFieldFactory {
       case PERIOD:
       case EMAIL:
       case HYPERLINK:
+      case ENUM:
         tableBuilder.field(
             GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
         break;
@@ -579,6 +580,7 @@ public class GraphqlTableFieldFactory {
           TEXT,
           UUID,
           FILE,
+          ENUM,
           DATE_ARRAY,
           DATETIME_ARRAY,
           PERIOD_ARRAY,
@@ -1066,7 +1068,7 @@ public class GraphqlTableFieldFactory {
       case INT -> Scalars.GraphQLInt;
       case LONG -> GraphQLLong;
       case DECIMAL -> Scalars.GraphQLFloat;
-      case UUID, STRING, TEXT, DATE, DATETIME, PERIOD -> Scalars.GraphQLString;
+      case UUID, STRING, TEXT, DATE, DATETIME, PERIOD, ENUM -> Scalars.GraphQLString;
       case BOOL_ARRAY -> GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);

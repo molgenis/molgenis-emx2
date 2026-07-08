@@ -324,6 +324,7 @@ public class TypeUtils {
       case UUID -> ColumnType.UUID_ARRAY;
       case STRING -> ColumnType.STRING_ARRAY;
       case ENUM -> ColumnType.ENUM_ARRAY;
+      case MODULE -> ColumnType.MODULE_ARRAY;
       case BOOL -> ColumnType.BOOL_ARRAY;
       case INT -> ColumnType.INT_ARRAY;
       case NON_NEGATIVE_INT -> ColumnType.NON_NEGATIVE_INT_ARRAY;
@@ -535,7 +536,7 @@ public class TypeUtils {
   }
 
   public static void checkEnumMembership(Column column, Object value) {
-    List<String> allowedValues = column.getValues();
+    List<String> allowedValues = column.getEffectiveValues();
     if (value == null
         || !column.getColumnType().isEnum()
         || allowedValues == null
