@@ -83,6 +83,13 @@ export function isRefArrayColumn(columnType: string): boolean {
   return REF_ARRAY_COLUMN_TYPES.includes(columnType);
 }
 
+export function isDataListColumn(col: IColumn): boolean {
+  return (
+    (col.columnType === "REFBACK" || isRefArrayColumn(col.columnType)) &&
+    !!col.refTableId
+  );
+}
+
 export function getDetailColumns(
   columns: IColumn[],
   data: Record<string, any>
@@ -181,6 +188,7 @@ export function getListColumns(
   let result = columns.filter(
     (c) =>
       c.role !== "INTERNAL" &&
+      c.role !== "LOGO" &&
       c.columnType !== "SECTION" &&
       c.columnType !== "HEADING" &&
       !c.id.startsWith("mg_") &&
@@ -197,7 +205,8 @@ export function getListColumns(
       const titleCols = result.filter((c) => c.role === "TITLE");
       const descCols = result.filter((c) => c.role === "DESCRIPTION");
       const detailCols = result.filter((c) => c.role === "DETAIL");
-      const slotsUsed = titleCols.length + descCols.length;
+      const titleSlots = titleCols.length > 0 ? 1 : 0;
+      const slotsUsed = titleSlots + descCols.length;
       const remaining = 5 - slotsUsed;
       const shownDetailCols = detailCols.slice(0, remaining);
       const fallbackCols = result.filter(

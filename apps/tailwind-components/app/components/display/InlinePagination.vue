@@ -35,18 +35,18 @@ function goNext() {
     <button
       type="button"
       :disabled="!canGoPrev"
-      class="px-2 py-1 text-link hover:text-link-hover hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-default transition-colors"
+      class="px-2 py-1 text-link hover:text-link-hover hover:underline disabled:text-disabled disabled:no-underline disabled:cursor-default transition-colors"
       @click="goPrev"
     >
       ← Prev
     </button>
-    <span class="text-gray-600 dark:text-gray-400">
+    <span class="text-title-contrast">
       {{ currentPage }} / {{ totalPages }}
     </span>
     <button
       type="button"
       :disabled="!canGoNext"
-      class="px-2 py-1 text-link hover:text-link-hover hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-default transition-colors"
+      class="px-2 py-1 text-link hover:text-link-hover hover:underline disabled:text-disabled disabled:no-underline disabled:cursor-default transition-colors"
       @click="goNext"
     >
       Next →

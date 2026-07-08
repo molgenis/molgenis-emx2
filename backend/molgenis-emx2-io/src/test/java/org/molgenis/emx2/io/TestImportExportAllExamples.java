@@ -80,11 +80,13 @@ public class TestImportExportAllExamples {
     SchemaMetadata schema1 = new SchemaMetadata(prefix + "10");
     schema1.create(
         table(
-            "test",
-            column("id").setPkey(),
-            column("summaryField").setRole(ColumnRole.DETAIL),
-            column("displayField").setDisplay(DisplayType.CARDS)));
+                "test",
+                column("id").setPkey(),
+                column("summaryField").setRole(ColumnRole.DETAIL),
+                column("displayField").setDisplay(DisplayType.CARDS))
+            .setRole(TableRole.DETAIL));
     Schema result = executeCompare(schema1);
+    assertEquals(TableRole.DETAIL, result.getMetadata().getTableMetadata("test").getRole());
     assertEquals(
         ColumnRole.DETAIL,
         result.getMetadata().getTableMetadata("test").getColumn("summaryField").getRole());

@@ -5,6 +5,7 @@ import {
   buildRefbackFilter,
   isRefColumn,
   isRefArrayColumn,
+  isDataListColumn,
   hasOntologyHierarchy,
   getListColumns,
 } from "../../utils/displayUtils";
@@ -42,12 +43,7 @@ const refArrayFilter = ref<Record<string, any> | undefined>();
 const refTableColumns = ref<IColumn[]>([]);
 
 watchEffect(async () => {
-  const type = props.column.columnType;
-  if (
-    (type !== "REFBACK" && !isRefArrayColumn(type)) ||
-    !props.column.refTableId ||
-    !props.schemaId
-  ) {
+  if (!isDataListColumn(props.column) || !props.schemaId) {
     refArrayFilter.value = undefined;
     refTableColumns.value = [];
     return;
@@ -83,8 +79,7 @@ watchEffect(async () => {
 
 const showDataList = computed(() => {
   const type = props.column.columnType;
-  if (type !== "REFBACK" && !isRefArrayColumn(type)) return false;
-  if (!props.column.refTableId || !props.schemaId) return false;
+  if (!isDataListColumn(props.column) || !props.schemaId) return false;
   if (Array.isArray(props.value)) return true;
   if (type === "REFBACK" && props.column.refBackId && props.parentRowId)
     return true;
@@ -145,7 +140,7 @@ function handleRefClick() {
   ></template>
   <span
     v-else-if="isEmptyValue(value) && showEmpty && !showDataList"
-    class="text-gray-400 italic"
+    class="text-disabled italic"
   >
     not provided
   </span>

@@ -26,3 +26,13 @@
 **ALSO:** Re-merged `origin/master` (now `ed1e18055`; HEAD was 76 ahead / 18 behind) — ZERO conflicts (4 files clean 3-way auto-merge: TableEMX2.vue, Column.java, TableMetadata.java, use_schema.md), ancestry OK, no reverted master content. Merge commit `63ccdb43d`.
 **VERIFIED:** Object.vue fix + Modal `<h2>` chain confirmed by lead code-read; NOT live-run (local env broken) — CI is authoritative. Merge sanity: `git diff origin/master --name-only` = branch-domain files only.
 **OWNER:** mswertz
+
+## 2026-07-05 — tableRole: keep as landing-page grouping capability, showcase in catalogue demo
+**WHAT:** Review found tableRole (MAIN/DETAIL) documented in use_schema.md and fully wired in backend (roundtrip bugs fixed same day) but unused by any model CSV. Owner resolution (in owner's words): tableRole "is another use case meant for allowing change to the tailwind landing page to group tables in a useful way. So then we should keep it as such but then also apply it in catalogue-demo to showcase it."
+**DECISION:** Keep the feature + its documentation. Apply `role=detail` to the nested detail tables in the shared catalogue model (Collection events, Subpopulations — the same tables whose sidebar links were removed in 6a0a75ced) so the DataCatalogue-profile demo showcases DETAIL tables being hidden/grouped on the landing page. Current landing impl (apps/ui [schema]/index.vue) filters DETAIL out of the DATA and ONTOLOGIES lists; richer visual grouping is possible future work, not in scope now.
+**OWNER:** mswertz
+
+## 2026-07-05 — landing page now GROUPS by tableRole (supersedes same-day "grouping = future work" note)
+**WHAT:** Owner: "also group the tables on the landing page by role." Implemented same day: apps/ui [schema]/index.vue no longer hides role=DETAIL tables — four ContentBlocks in DOM order: "data tables", "detail tables" (v-if non-empty), "ontologies" (v-if), "detail ontologies" (v-if); search filters all groups; per-group alphabetical sort. Pure util filterTablesByTypeAndRole in apps/tailwind-components/app/utils/groupTablesByRole.ts, 10 vitest cases (911/911 green). Side effect resolved: staging profiles (CohortsStaging etc.) sharing the Collection events/Subpopulations rows now SHOW those tables grouped instead of losing them.
+**WHY:** Hiding DETAIL tables was the placeholder behavior; owner intent for tableRole is useful landing-page grouping.
+**OWNER:** mswertz

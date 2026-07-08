@@ -46,6 +46,8 @@ const showEditModal = ref(false);
 const showDeleteModal = ref(false);
 const recordViewKey = ref(0);
 
+const editModalKey = `edit-modal-${useId()}`;
+
 function afterEditClosed() {
   showEditModal.value = false;
   refresh();
@@ -130,7 +132,7 @@ function handleCellClick(event: cellPayload) {
 
   <EditModal
     v-if="tableMetadata && rowData && showEditModal"
-    :key="`edit-modal-${useId()}`"
+    :key="editModalKey"
     :showButton="false"
     :schemaId="schemaId"
     :metadata="tableMetadata"

@@ -79,6 +79,35 @@ const REF_TYPES = [
 ];
 const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
 
+function buildScalarFieldGql(col: IColumn): string {
+  if (ONTOLOGY_TYPES.includes(col.columnType)) {
+    return (
+      " " +
+      col.id +
+      " {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order}}}}"
+    );
+  } else if (col.columnType === "FILE") {
+    return ` ${col.id} { id, size, filename, extension, url }`;
+  } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
+    return ` ${col.id}`;
+  }
+  return "";
+}
+
+function buildRefFieldGql(
+  col: IColumn,
+  subFields: string,
+  rootLevel: boolean,
+  nestedLimit: number | undefined
+): string {
+  const isCollection = rootLevel && COLLECTION_TYPES.includes(col.columnType);
+  const limitArg =
+    isCollection && nestedLimit != null ? `(limit: ${nestedLimit})` : "";
+  let result = ` ${col.id}${limitArg} {${subFields} }`;
+  if (isCollection) result += ` ${col.id}_agg { count }`;
+  return result;
+}
+
 export function buildColumnGql(
   columns: IColumn[],
   columnsForTable: (tableId: string) => IColumn[],
@@ -101,23 +130,9 @@ export function buildColumnGql(
           expandLevel - 1,
           undefined
         );
-        const isCollection =
-          rootLevel && COLLECTION_TYPES.includes(col.columnType);
-        const limitArg =
-          isCollection && nestedLimit != null ? `(limit: ${nestedLimit})` : "";
-        gqlFields += ` ${col.id}${limitArg} {${subFields} }`;
-        if (isCollection) {
-          gqlFields += ` ${col.id}_agg { count }`;
-        }
-      } else if (ONTOLOGY_TYPES.includes(col.columnType)) {
-        gqlFields +=
-          " " +
-          col.id +
-          " {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order}}}}";
-      } else if (col.columnType === "FILE") {
-        gqlFields += ` ${col.id} { id, size, filename, extension, url }`;
-      } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
-        gqlFields += ` ${col.id}`;
+        gqlFields += buildRefFieldGql(col, subFields, rootLevel, nestedLimit);
+      } else {
+        gqlFields += buildScalarFieldGql(col);
       }
     }
   }
@@ -189,23 +204,9 @@ async function buildColumnGqlAsync(
           expandLevel - 1,
           undefined
         );
-        const isCollection =
-          rootLevel && COLLECTION_TYPES.includes(col.columnType);
-        const limitArg =
-          isCollection && nestedLimit != null ? `(limit: ${nestedLimit})` : "";
-        gqlFields += ` ${col.id}${limitArg} {${subFields} }`;
-        if (isCollection) {
-          gqlFields += ` ${col.id}_agg { count }`;
-        }
-      } else if (ONTOLOGY_TYPES.includes(col.columnType)) {
-        gqlFields +=
-          " " +
-          col.id +
-          " {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order}}}}";
-      } else if (col.columnType === "FILE") {
-        gqlFields += ` ${col.id} { id, size, filename, extension, url }`;
-      } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
-        gqlFields += ` ${col.id}`;
+        gqlFields += buildRefFieldGql(col, subFields, rootLevel, nestedLimit);
+      } else {
+        gqlFields += buildScalarFieldGql(col);
       }
     }
   }

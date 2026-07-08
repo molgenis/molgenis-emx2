@@ -36,13 +36,13 @@ When a detail page shows REF_ARRAY/REFBACK columns, nested records render as a D
 3. DETAIL role columns (in metadata order)
 4. Fallback columns (in metadata order)
 
-## Affected Components
-- `displayUtils.ts` — `getListColumns()` needs to enforce max 5 columns for all layouts (not just non-TABLE), flatten TITLE into first position
-- `DataTable.vue` — title column detection already uses `role=TITLE` (line 37), already bold+clickable
-- `DataCards.vue` — uses `getDetailColumns()`, `getDescriptionColumn()`, already supports description layout
-- `DataList.vue` — default pageSize stays 10, search already shown in smart+TABLE mode
+## Behaviors
 
-## Key Changes Needed
-1. `getListColumns()`: for TABLE layout, also limit to 5 columns using role-based selection (currently shows all)
-2. `getListColumns()`: ensure TITLE columns count as 1 in the cap
-3. `DataList.vue`: show search for all layouts when >10 rows (currently TABLE only)
+| Behavior | Component | Test | Visual |
+|----------|-----------|------|--------|
+| Search shown for ALL layouts (not just TABLE) when >10 rows | `DataList.vue` | `DataList.spec.ts` "shows search box in non-TABLE layout (CARDS) when truncated and paginated" | — |
+| `role=LOGO` excluded from list columns | `displayUtils.ts` `getListColumns()` | `displayUtils.spec.ts` "excludes LOGO role columns from the result" | — |
+| Multiple TITLE columns collectively count as 1 slot in the 5-slot cap | `displayUtils.ts` `getListColumns()` | `displayUtils.spec.ts` "multiple TITLE columns count as 1 toward the 5-column limit" | — |
+| MULTISELECT/CHECKBOX with `refTableId` render as full-width DataList — single shared predicate governs DetailSection placement and DetailColumn rendering | `displayUtils.ts` `isDataListColumn()`, `DetailSection.vue`, `DetailColumn.vue` | `displayUtils.spec.ts` "isDataListColumn" block (6 tests) | — |
+| Title column detection via `role=TITLE`, bold+clickable | `DataTable.vue` | — | visual check |
+| Description layout: title → description → detail fields | `DataCards.vue` (`getDetailColumns()`, `getDescriptionColumn()`) | — | visual check |

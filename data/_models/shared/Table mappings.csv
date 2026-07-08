@@ -1,11 +1,11 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Table mappings,,,,,,,,,,,,Mappings from collected or source tables to harmonised or target tables,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
-Table mappings,,source,ref,1,TRUE,,Resources,,,,,Id of the resource being mapped from,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
-Table mappings,,source table,ref,1,TRUE,,Tables,source,,,,Name of the table being mapped from,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
-Table mappings,,target,ref,1,TRUE,,Resources,,,,,Network being mapped to,"DataCatalogueFlat,RWEStaging,StudiesStaging",
-Table mappings,,target table,ref,1,TRUE,,Tables,target,,,,"Name of the table being mapped to, or harmonised with","DataCatalogueFlat,RWEStaging,StudiesStaging",
-Table mappings,,target,ref,1,TRUE,catalogue,Resources,,,,,"Name of the variable being mapped to, or harmonised with",CohortsStaging,
-Table mappings,,target table,ref,1,TRUE,catalogue,Tables,target,,,,"Name of the table being mapped to, or harmonised with",CohortsStaging,
-Table mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
-Table mappings,,description,text,,,,,,,,,Human readible description of the mapping,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
-Table mappings,,syntax,text,,,,,,,,,"Formal definition of the mapping, ideally in executable code","DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,defaultValue,display,role
+Table mappings,,,,,,,,,,,,Mappings from collected or source tables to harmonised or target tables,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,detail
+Table mappings,,source,ref,1,TRUE,,Resources,,,,,Id of the resource being mapped from,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,
+Table mappings,,source table,ref,1,TRUE,,Tables,source,,,,Name of the table being mapped from,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,
+Table mappings,,target,ref,1,TRUE,,Resources,,,,,Network being mapped to,"DataCatalogueFlat,RWEStaging,StudiesStaging",,,
+Table mappings,,target table,ref,1,TRUE,,Tables,target,,,,"Name of the table being mapped to, or harmonised with","DataCatalogueFlat,RWEStaging,StudiesStaging",,,
+Table mappings,,target,ref,1,TRUE,catalogue,Resources,,,,,"Name of the variable being mapped to, or harmonised with",CohortsStaging,,,
+Table mappings,,target table,ref,1,TRUE,catalogue,Tables,target,,,,"Name of the table being mapped to, or harmonised with",CohortsStaging,,,
+Table mappings,,order,int,,,,,,,,,Order in which table ETLs should be executed for this source-target combination,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,
+Table mappings,,description,text,,,,,,,,,Human readible description of the mapping,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,
+Table mappings,,syntax,text,,,,,,,,,"Formal definition of the mapping, ideally in executable code","DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,

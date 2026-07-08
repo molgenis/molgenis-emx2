@@ -261,7 +261,6 @@ public class Emx2 {
       row.setString(TABLE_EXTENDS, table.getInheritName());
       row.setString(
           TABLE_TYPE, table.getTableType().equals(TableType.ONTOLOGIES) ? "ONTOLOGIES" : null);
-      if (table.getRole() != null) row.setString(ROLE, table.getRole().name().toLowerCase());
       row.setString(COLUMN_NAME, null);
       row.setString(COLUMN_FORM_LABEL, null);
       row.setString(COLUMN_TYPE, null);
@@ -280,6 +279,7 @@ public class Emx2 {
       row.setString(COMPUTED, null);
       if (table.getSemantics() != null) row.setStringArray(SEMANTICS, table.getSemantics());
       if (table.getProfiles() != null) row.setStringArray(PROFILES, table.getProfiles());
+      if (table.getRole() != null) row.setString(ROLE, table.getRole().name().toLowerCase());
       for (Map.Entry<String, String> entry : table.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {
           row.set(LABEL, entry.getValue());

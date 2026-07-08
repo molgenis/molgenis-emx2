@@ -30,5 +30,5 @@ function rowKey(row: Record<string, any>): string {
       <span v-else>{{ getRowLabel(row, rowLabelTemplate) }}</span>
     </li>
   </ul>
-  <p v-else class="text-gray-400 dark:text-gray-500 italic">No items</p>
+  <p v-else class="text-disabled italic">No items</p>
 </template>

@@ -61,9 +61,7 @@ const page = ref(1);
 const searchTerms = ref("");
 
 const showSearch = computed(
-  () =>
-    (effectiveSmartMode.value || hasTruncatedData.value) &&
-    props.layout === "TABLE"
+  () => effectiveSmartMode.value || hasTruncatedData.value
 );
 
 watch(searchTerms, (val) => {
@@ -150,7 +148,7 @@ const effectiveShowPagination = computed(() =>
 </script>
 
 <template>
-  <div v-if="effectiveSmartMode">
+  <div>
     <InputSearch
       v-if="showSearch && effectiveShowPagination"
       :id="searchInputId"
@@ -161,95 +159,44 @@ const effectiveShowPagination = computed(() =>
     />
     <LoadingContent
       :id="`list-${schemaId}-${tableId}`"
-      :status="status"
+      :status="effectiveSmartMode ? status : 'success'"
       loading-text="Loading..."
-      :error-text="errorText"
+      :error-text="effectiveSmartMode ? errorText : undefined"
       :show-slot-on-error="false"
     >
-      <div>
-        <DataTable
-          v-if="layout === 'TABLE'"
-          :columns="effectiveColumns"
-          :rows="effectiveRows"
-          :schema-id="schemaId"
-          :table-id="tableId"
-        />
-        <DataCards
-          v-else-if="layout === 'CARDS'"
-          :rows="effectiveRows"
-          :columns="effectiveColumns"
-          :grid-columns="2"
-          :row-label-template="rowLabelTemplate"
-          :schema-id="schemaId"
-          :table-id="tableId"
-        />
-        <DataCards
-          v-else-if="layout === 'LIST'"
-          :rows="effectiveRows"
-          :columns="effectiveColumns"
-          :grid-columns="1"
-          :row-label-template="rowLabelTemplate"
-          :schema-id="schemaId"
-          :table-id="tableId"
-        />
-        <DataLinks
-          v-else-if="layout === 'LINKS'"
-          :rows="effectiveRows"
-          :row-label-template="rowLabelTemplate"
-          :schema-id="schemaId"
-          :table-id="tableId"
-        />
-      </div>
+      <DataTable
+        v-if="layout === 'TABLE'"
+        :columns="effectiveColumns"
+        :rows="effectiveRows"
+        :schema-id="schemaId"
+        :table-id="tableId"
+      />
+      <DataCards
+        v-else-if="layout === 'CARDS'"
+        :rows="effectiveRows"
+        :columns="effectiveColumns"
+        :grid-columns="2"
+        :row-label-template="rowLabelTemplate"
+        :schema-id="schemaId"
+        :table-id="tableId"
+      />
+      <DataCards
+        v-else-if="layout === 'LIST'"
+        :rows="effectiveRows"
+        :columns="effectiveColumns"
+        :grid-columns="1"
+        :row-label-template="rowLabelTemplate"
+        :schema-id="schemaId"
+        :table-id="tableId"
+      />
+      <DataLinks
+        v-else-if="layout === 'LINKS'"
+        :rows="effectiveRows"
+        :row-label-template="rowLabelTemplate"
+        :schema-id="schemaId"
+        :table-id="tableId"
+      />
     </LoadingContent>
-    <InlinePagination
-      v-if="effectiveShowPagination"
-      :current-page="page"
-      :total-pages="effectiveTotalPages"
-      class="mt-4"
-      @update:page="page = $event"
-    />
-  </div>
-  <div v-else>
-    <InputSearch
-      v-if="showSearch && effectiveShowPagination"
-      :id="searchInputId"
-      v-model="searchTerms"
-      placeholder="Search..."
-      size="small"
-      class="mb-4"
-    />
-    <DataTable
-      v-if="layout === 'TABLE'"
-      :columns="effectiveColumns"
-      :rows="effectiveRows"
-      :schema-id="schemaId"
-      :table-id="tableId"
-    />
-    <DataCards
-      v-else-if="layout === 'CARDS'"
-      :rows="effectiveRows"
-      :columns="effectiveColumns"
-      :grid-columns="2"
-      :row-label-template="rowLabelTemplate"
-      :schema-id="schemaId"
-      :table-id="tableId"
-    />
-    <DataCards
-      v-else-if="layout === 'LIST'"
-      :rows="effectiveRows"
-      :columns="effectiveColumns"
-      :grid-columns="1"
-      :row-label-template="rowLabelTemplate"
-      :schema-id="schemaId"
-      :table-id="tableId"
-    />
-    <DataLinks
-      v-else-if="layout === 'LINKS'"
-      :rows="effectiveRows"
-      :row-label-template="rowLabelTemplate"
-      :schema-id="schemaId"
-      :table-id="tableId"
-    />
     <InlinePagination
       v-if="effectiveShowPagination"
       :current-page="page"

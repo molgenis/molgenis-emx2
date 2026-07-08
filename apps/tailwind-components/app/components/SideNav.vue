@@ -34,11 +34,7 @@ function activeClass(hash: string) {
       <NuxtLink
         v-else
         :to="{ ...route, hash: headerTarget }"
-        style="
-          overflow-wrap: break-word;
-          word-wrap: break-word;
-          white-space: normal;
-        "
+        class="break-words whitespace-normal"
       >
         {{ title }}
       </NuxtLink>

@@ -40,7 +40,6 @@ const props = withDefaults(
     showEmpty: false,
     showSideNav: true,
     expandLevel: 2,
-    nestedLimit: 5,
   }
 );
 

@@ -24,9 +24,15 @@ vi.mock("../../../../app/composables/useTableData", () => ({
   useTableData: (...args: any[]) => useTableDataMock(...args),
 }));
 
-vi.mock("../../../../app/utils/displayUtils", () => ({
-  getListColumns: vi.fn().mockReturnValue([]),
-}));
+vi.mock("../../../../app/utils/displayUtils", async (importOriginal) => {
+  const actual = await importOriginal<
+    typeof import("../../../../app/utils/displayUtils")
+  >();
+  return {
+    ...actual,
+    getListColumns: vi.fn().mockReturnValue([]),
+  };
+});
 
 function makeRows(count: number): Record<string, any>[] {
   return Array.from({ length: count }, (_, index) => ({ id: `row-${index}` }));
@@ -204,6 +210,23 @@ describe("DataList — one-way switch to smart mode on search", () => {
         tableId: "myTable",
         pageSize: 5,
         layout: "TABLE",
+      },
+    });
+    await flushPromises();
+
+    expect(wrapper.find("input").exists()).toBe(true);
+  });
+
+  it("shows search box in non-TABLE layout (CARDS) when truncated and paginated", async () => {
+    const rows = makeRows(5);
+    const wrapper = mount(DataList, {
+      props: {
+        rows,
+        totalCount: 20,
+        schemaId: "mySchema",
+        tableId: "myTable",
+        pageSize: 5,
+        layout: "CARDS",
       },
     });
     await flushPromises();

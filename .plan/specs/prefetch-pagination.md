@@ -233,6 +233,7 @@ const effectiveShowPagination = computed(() =>
 | All prefetched → no search box shown | DataList | `DataList — one-way switch > does not show search box when all data prefetched` | - |
 | Pagination shows correct total pages from totalCount | DataList | `DataList — one-way switch on pagination > shows totalCount / 4 pages in pagination` | visual check |
 | Page beyond prefetched range → switch to smart | DataList | `DataList — one-way switch on pagination > effectiveSchemaId resolves to mySchema when hasSwitchedToSmart` | visual check |
+| No implicit `nestedLimit` — omitted = all rows; `fetchRowData` and `DetailView` carry NO default; callers opt in explicitly (catalogue sample pages pass `:nested-limit="5"`; apps/ui entity page passes none = unlimited) | fetchRowData.ts, DetailView.vue | `fetchTableData.spec.ts` limit emission (no limit when undefined) | - |
 
 ## Implementation decisions
 

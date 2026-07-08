@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,defaultValue,display,role
-Collection events,,,,,,,,,,,,Definition of a collection event for a resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",,,
+Collection events,,,,,,,,,,,,Definition of a collection event for a resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",,,detail
 Collection events,,resource,ref,1,TRUE,,Resources,,,,dcterms:source,Resource this collection event is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",,,
 Collection events,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",,,
 Collection events,,name,,1,TRUE,,,,,,dcterms:title,Name of the collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",,,title

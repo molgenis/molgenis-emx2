@@ -210,10 +210,10 @@ Example:
 | tableName | columnName | columnType | refTable | refBack | display |
 |-----------|------------|------------|----------|---------|---------|
 | Resources | organisations involved | refback | Organisations | resource | cards |
-| Resources | datasets | refback | Datasets | resource | |
+| Resources | tables | refback | Tables | resource | |
 | Resources | collection events | refback | Collection events | resource | |
 
-In this example, organisations are shown as cards while datasets and collection events use the default table layout.
+In this example, organisations are shown as cards while tables and collection events use the default table layout.
 
 ### tableRole
 

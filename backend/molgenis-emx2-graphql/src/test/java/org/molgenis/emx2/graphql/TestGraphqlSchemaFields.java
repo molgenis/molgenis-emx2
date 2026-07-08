@@ -678,10 +678,18 @@ class TestGraphqlSchemaFields {
   @Test
   public void testSummaryAndDisplayInSchemaMetadata() throws IOException {
     execute(
-        "mutation{change(tables:[{name:\"SummaryDisplayTest\",columns:[{name:\"id\",key:1},{name:\"summaryCol\",role:\"DETAIL\"},{name:\"displayCol\",display:\"cards\"}]}]){message}}");
-    String result = execute("{_schema{tables{name,columns{name,role,display}}}}").toString();
+        "mutation{change(tables:[{name:\"SummaryDisplayTest\",role:\"detail\",columns:[{name:\"id\",key:1},{name:\"summaryCol\",role:\"DETAIL\"},{name:\"displayCol\",display:\"cards\"}]}]){message}}");
+    JsonNode node = execute("{_schema{tables{name,role,columns{name,role,display}}}}");
+    String result = node.toString();
     assertTrue(result.contains("\"role\":\"DETAIL\""));
     assertTrue(result.contains("\"display\":\"CARDS\""));
+    String tableRole = null;
+    for (JsonNode table : node.at("/_schema/tables")) {
+      if ("SummaryDisplayTest".equals(table.get("name").asText())) {
+        tableRole = table.get("role").asText();
+      }
+    }
+    assertEquals("DETAIL", tableRole);
     execute("mutation{drop(tables:\"SummaryDisplayTest\"){message}}");
   }
 

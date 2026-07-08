@@ -85,9 +85,15 @@ composables/
 provideRecordNavigation({ navigateToRecord: myHandler })
 ```
 
-## Status: DONE
+## Status: DONE — full review 2026-07-05 found open issues, see `.plan/notes/review-2026-07-05.md`
 
 All phases complete. Stories sufficient. Visual testing sufficient for now.
+
+### Review 2026-07-05 (vs origin/master, pre-merge)
+- 4 frontend CRITICALs: DataList search TABLE-only (spec: all layouts), LOGO not excluded in getListColumns, MULTISELECT/CHECKBOX layout mismatch in DetailSection, useId() in template (ui [entity].vue:133)
+- Backend: json/Table.setRole case-sensitive; TableRole roundtrip untested
+- Docs: use_schema.md "Datasets"→"Tables"; tableRole documented but unused in model CSVs
+- Spec drift on nested-datalist-roles.md: search-all-layouts, LOGO exclusion, TITLE-counts-as-1 cap unimplemented
 
 ### Decisions
 - Backend JUnit test for column role/display persistence — wontfix (metadata persistence covered by existing integration tests)

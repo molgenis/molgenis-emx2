@@ -98,7 +98,5 @@ function cardLogoUrl(row: Record<string, any>): string | undefined {
       </div>
     </li>
   </ul>
-  <p v-if="rows.length === 0" class="text-gray-400 dark:text-gray-500 italic">
-    No items
-  </p>
+  <p v-if="rows.length === 0" class="text-disabled italic">No items</p>
 </template>

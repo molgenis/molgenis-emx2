@@ -10,6 +10,7 @@ import {
   getListColumns,
   isRefColumn,
   isRefArrayColumn,
+  isDataListColumn,
   buildRefHref,
   getDetailColumns,
   getDescriptionColumn,
@@ -821,7 +822,7 @@ describe("getListColumns", () => {
       col({ id: "detail4", columnType: "STRING", role: "DETAIL" }),
     ];
     const result = getListColumns(manyTitleCols, { layout: "CARDS" });
-    expect(result).toHaveLength(5);
+    expect(result).toHaveLength(6);
     expect(result[0].id).toBe("firstName");
     expect(result[1].id).toBe("lastName");
   });
@@ -856,5 +857,61 @@ describe("getListColumns", () => {
     expect(ids).toContain("c");
     expect(ids).toContain("d");
     expect(ids).not.toContain("e");
+  });
+
+  it("excludes LOGO role columns from the result", () => {
+    const logoCols = [
+      col({ id: "name", columnType: "STRING", role: "TITLE" }),
+      col({ id: "logo", columnType: "FILE", role: "LOGO" }),
+      col({ id: "detail", columnType: "STRING", role: "DETAIL" }),
+    ];
+    const result = getListColumns(logoCols);
+    expect(result.map((c) => c.id)).not.toContain("logo");
+  });
+});
+
+describe("isDataListColumn", () => {
+  it("returns true for REF_ARRAY with refTableId", () => {
+    expect(
+      isDataListColumn(
+        col({ id: "refs", columnType: "REF_ARRAY", refTableId: "MyTable" })
+      )
+    ).toBe(true);
+  });
+
+  it("returns true for REFBACK with refTableId", () => {
+    expect(
+      isDataListColumn(
+        col({ id: "back", columnType: "REFBACK", refTableId: "MyTable" })
+      )
+    ).toBe(true);
+  });
+
+  it("returns true for MULTISELECT with refTableId", () => {
+    expect(
+      isDataListColumn(
+        col({ id: "ms", columnType: "MULTISELECT", refTableId: "MyTable" })
+      )
+    ).toBe(true);
+  });
+
+  it("returns true for CHECKBOX with refTableId", () => {
+    expect(
+      isDataListColumn(
+        col({ id: "cb", columnType: "CHECKBOX", refTableId: "MyTable" })
+      )
+    ).toBe(true);
+  });
+
+  it("returns false for MULTISELECT without refTableId", () => {
+    expect(isDataListColumn(col({ id: "ms", columnType: "MULTISELECT" }))).toBe(
+      false
+    );
+  });
+
+  it("returns false for non-ref column type", () => {
+    expect(isDataListColumn(col({ id: "name", columnType: "STRING" }))).toBe(
+      false
+    );
   });
 });

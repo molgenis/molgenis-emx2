@@ -43,7 +43,7 @@ const toggleCollapse = () => {
         <BaseIcon
           name="collapsible-list-item"
           :width="20"
-          class="text-gray-400"
+          class="text-disabled"
           :class="{ invisible: isRootNode }"
         />
       </span>

@@ -2,7 +2,11 @@
 import { computed } from "vue";
 import type { ISectionField, cellPayload } from "../../../types/types";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import { isEmptyValue, isTopSection } from "../../utils/displayUtils";
+import {
+  isEmptyValue,
+  isTopSection,
+  isDataListColumn,
+} from "../../utils/displayUtils";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListTerm from "../DefinitionListTerm.vue";
 import DefinitionListDefinition from "../DefinitionListDefinition.vue";
@@ -40,18 +44,12 @@ const visibleColumns = computed(() => {
   return cols.filter((col) => !isEmptyValue(col.value));
 });
 
-function isListColumn(col: ISectionField): boolean {
-  const type = col.meta.columnType;
-  if (type === "REF_ARRAY" || type === "REFBACK") return true;
-  return false;
-}
-
 const regularColumns = computed(() =>
-  visibleColumns.value.filter((col) => !isListColumn(col))
+  visibleColumns.value.filter((col) => !isDataListColumn(col.meta))
 );
 
 const listColumns = computed(() =>
-  visibleColumns.value.filter((col) => isListColumn(col))
+  visibleColumns.value.filter((col) => isDataListColumn(col.meta))
 );
 
 const sectionHeading = computed(() => {
@@ -126,7 +124,7 @@ const isSingleListSection = computed(
 
     <p
       v-else-if="!visibleColumns.length && showEmpty"
-      class="text-gray-400 italic"
+      class="text-disabled italic"
     >
       No columns to display
     </p>
