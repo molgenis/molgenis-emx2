@@ -631,4 +631,71 @@ describe("useForm", () => {
       expect(isValid()).toBe(true);
     });
   });
+
+  describe("module column visibility via scalar MODULE discriminator", () => {
+    const scalarModuleMeta = ref<ITableMetaData>({
+      id: "Experiment",
+      name: "Experiment",
+      schemaId: "testSchema",
+      label: "Experiment",
+      tableType: "DATA",
+      columns: [
+        {
+          columnType: "STRING",
+          id: "id",
+          label: "ID",
+          key: 1,
+          required: true,
+          table: "Experiment",
+          inherited: false,
+        },
+        {
+          columnType: "MODULE",
+          id: "experimentType",
+          label: "Experiment type",
+          values: ["RNA", "DNA"],
+          table: "Experiment",
+          inherited: false,
+        },
+        {
+          columnType: "STRING",
+          id: "rootCol",
+          label: "Root column",
+          table: "Experiment",
+          inherited: false,
+        },
+        {
+          columnType: "STRING",
+          id: "readCount",
+          label: "RNA read count",
+          table: "RNA",
+          inherited: false,
+        },
+      ],
+    });
+
+    test("module col hidden when scalar discriminator unset, visible when chosen, hidden again when cleared", () => {
+      const formValues = ref<Record<string, columnValue>>({
+        experimentType: null,
+      });
+      const { visibleColumns } = useForm(scalarModuleMeta, formValues);
+
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("readCount");
+
+      formValues.value["experimentType"] = "RNA";
+      expect(visibleColumns.value.map((c) => c.id)).toContain("readCount");
+
+      formValues.value["experimentType"] = null;
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("readCount");
+    });
+
+    test("module col of a different module stays hidden while another scalar module value is active", () => {
+      const formValues = ref<Record<string, columnValue>>({
+        experimentType: "DNA",
+      });
+      const { visibleColumns } = useForm(scalarModuleMeta, formValues);
+
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("readCount");
+    });
+  });
 });

@@ -21,9 +21,7 @@
       </div>
 
       <div>
-        <h3 class="text-heading-lg mb-2">
-          MODULE — single select (placeholder, no backend type yet)
-        </h3>
+        <h3 class="text-heading-lg mb-2">MODULE — single select</h3>
         <InputLabel for="module-single" class="block mb-1 pl-0">
           Select experiment type
         </InputLabel>

@@ -88,5 +88,16 @@ export function activeModules(
     }
   }
 
+  const moduleColumns = rootTable.columns.filter(
+    (col) => col.columnType === "MODULE"
+  );
+
+  for (const axisColumn of moduleColumns) {
+    const discriminatorValue = row[axisColumn.id];
+    if (typeof discriminatorValue === "string" && discriminatorValue !== "") {
+      active.add(discriminatorValue);
+    }
+  }
+
   return active;
 }

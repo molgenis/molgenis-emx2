@@ -6,7 +6,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   : "/apps/ui/";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(`${route}diamond_demo/Subject`);
+  await page.goto(`${route}diamond_test/Subject`);
   // Wait for page to fully load
   await page.waitForLoadState("networkidle");
 });
@@ -19,7 +19,7 @@ test.describe("Diamond MODULE_ARRAY Add-record form interactions", () => {
   test("PRECONDITION: Form renders and Add Subject control is visible", async ({
     page,
   }) => {
-    console.log(`\nVerifying page loaded with diamond_demo/Subject...`);
+    console.log(`\nVerifying page loaded with diamond_test/Subject...`);
 
     // Capture console messages for debugging
     const consoleLogs: string[] = [];
@@ -133,12 +133,16 @@ test.describe("Diamond MODULE_ARRAY Add-record form interactions", () => {
     fieldIds.forEach((id) => console.log(`   - ${id}`));
 
     // Find tags input by id pattern
-    const tagsInput = page.locator('[id*="tags"][id*="form-field-input"]').first();
+    const tagsInput = page
+      .locator('[id*="tags"][id*="form-field-input"]')
+      .first();
     const tagsVisible = await tagsInput.isVisible().catch(() => false);
 
     if (!tagsVisible) {
       console.log("\n   tags field not visible in form");
-      console.log("   (May not be included in Add form due to field configuration)");
+      console.log(
+        "   (May not be included in Add form due to field configuration)"
+      );
 
       // Take a screenshot to document the form state
       await page.screenshot({ path: "diamond-form-visible-fields.png" });
@@ -150,12 +154,20 @@ test.describe("Diamond MODULE_ARRAY Add-record form interactions", () => {
 
     // The checkboxes use custom SVG renderers, so click the label/container instead
     // Find the first label that wraps a checkbox
-    const checkboxLabel = page.locator('[id*="tags-form-field-input-checkbox-group"]').first().locator("..").first();
+    const checkboxLabel = page
+      .locator('[id*="tags-form-field-input-checkbox-group"]')
+      .first()
+      .locator("..")
+      .first();
     const initialText = await checkboxLabel.textContent();
     console.log(`3. First checkbox label text: "${initialText}"`);
 
     // Get initial state from aria-checked or the SVG data-checked attribute
-    const checkboxInput = page.locator('[id*="tags-form-field-input-checkbox-group"] input[type="checkbox"]').first();
+    const checkboxInput = page
+      .locator(
+        '[id*="tags-form-field-input-checkbox-group"] input[type="checkbox"]'
+      )
+      .first();
     const beforeChecked = await checkboxInput.isChecked();
     console.log(`4. Before click: checked=${beforeChecked}`);
 
@@ -180,89 +192,27 @@ test.describe("Diamond MODULE_ARRAY Add-record form interactions", () => {
       page.getByRole("heading", { name: "Add Subject" })
     ).toBeVisible();
 
-    console.log("\n1. Searching for subgroups01 MODULE_ARRAY field...");
-
-    // Scroll the modal to reveal all fields
-    const modal = page.locator('[role="dialog"]');
-    if (await modal.isVisible()) {
-      await modal.evaluate((el) => (el.scrollTop = el.scrollHeight));
-      await page.waitForTimeout(500);
-    }
-
-    // Find subgroups01 by id pattern
-    const subgroupsInput = page.locator('[id*="subgroups01"]').first();
-    const subgroupsVisible = await subgroupsInput.isVisible().catch(() => false);
-
-    if (!subgroupsVisible) {
-      console.log("   subgroups01 field not visible even after scrolling");
-      // Debug: list all form fields to see what's in the form
-      const allFields = page.locator('[id*="form-field-input"]');
-      const count = await allFields.count();
-      console.log(`   Total fields in form: ${count}`);
-
-      // Look for subgroups by checking raw element existence (even if off-screen)
-      const raw = page.locator('[id*="subgroups"]');
-      const rawCount = await raw.count();
-      console.log(`   Subgroups elements in DOM (any): ${rawCount}`);
-
-      test.skip();
-      return;
-    }
-
-    console.log("   Found subgroups01 MODULE_ARRAY input");
-
-    // Find checkboxes within subgroups01 section
-    const checkboxes = page.locator('[id*="subgroups01"] input[type="checkbox"]');
-    const count = await checkboxes.count();
-    console.log(`2. Found ${count} module checkboxes`);
-
-    if (count === 0) {
-      console.log("   WARNING: No checkboxes found for subgroups01");
-      test.skip();
-      return;
-    }
-
-    // Find CockayneSyndrome checkbox if possible
-    let targetCheckbox = null;
-    let targetLabel = "";
-    for (let i = 0; i < count; i++) {
-      const id = await checkboxes.nth(i).getAttribute("id") || "";
-      const value = await checkboxes.nth(i).getAttribute("value") || "";
-      if (id.toLowerCase().includes("cockayne") || value.toLowerCase().includes("cockayne")) {
-        targetCheckbox = checkboxes.nth(i);
-        targetLabel = value;
-        console.log(`3. Found CockayneSyndrome module checkbox`);
-        break;
-      }
-    }
-
-    // Fall back to first if not found
-    if (!targetCheckbox) {
-      targetCheckbox = checkboxes.first();
-      targetLabel = await targetCheckbox.getAttribute("value") || "Module";
-      console.log(`3. Using first module: "${targetLabel}"`);
-    }
+    // Locate by accessible role/name, scoped to the modal, so the query
+    // can't collide with the same-named sort button in the background table.
+    const modal = page.getByRole("dialog");
+    const targetCheckbox = modal.getByRole("checkbox", {
+      name: "CockayneSyndrome",
+    });
+    await expect(targetCheckbox).toBeVisible();
 
     const beforeChecked = await targetCheckbox.isChecked();
-    console.log(`4. Module checkbox initial state: checked=${beforeChecked}`);
+    console.log(`1. Module checkbox initial state: checked=${beforeChecked}`);
 
-    // Click via SVG like we did for tags
-    const checkboxContainer = targetCheckbox.locator("..");
-    const svgIcon = checkboxContainer.locator("svg").first();
-    const svgExists = await svgIcon.count() > 0;
-
-    if (svgExists) {
-      await svgIcon.click({ force: true });
-    } else {
-      await targetCheckbox.click({ force: true });
-    }
+    // Checkbox uses a custom SVG renderer; click the icon inside its label.
+    await targetCheckbox
+      .locator("..")
+      .locator("svg")
+      .first()
+      .click({ force: true });
     await page.waitForTimeout(300);
 
     const afterChecked = await targetCheckbox.isChecked();
-    console.log(`5. After click: checked=${afterChecked}`);
-
-    // Take screenshot after module selection
-    await page.screenshot({ path: "diamond-form-after-module.png" });
+    console.log(`2. After click: checked=${afterChecked}`);
 
     expect(afterChecked).not.toBe(beforeChecked);
     console.log("✓ subgroups01 toggle works");
@@ -278,82 +228,34 @@ test.describe("Diamond MODULE_ARRAY Add-record form interactions", () => {
 
     console.log("\nTesting MODULE CONTENT REVEAL (F2b)");
 
-    // Scroll the modal to reveal all fields
-    const modal = page.locator('[role="dialog"]');
-    if (await modal.isVisible()) {
-      await modal.evaluate((el) => (el.scrollTop = el.scrollHeight));
-      await page.waitForTimeout(500);
-    }
+    const modal = page.getByRole("dialog");
+    const cockaynCheckbox = modal.getByRole("checkbox", {
+      name: "CockayneSyndrome",
+    });
+    await expect(cockaynCheckbox).toBeVisible();
 
-    // Find subgroups01 MODULE_ARRAY
-    const subgroupsInput = page.locator('[id*="subgroups01"]').first();
-    const subgroupsVisible = await subgroupsInput.isVisible().catch(() => false);
-
-    if (!subgroupsVisible) {
-      console.log("SKIP: subgroups01 field not visible");
-      test.skip();
-      return;
-    }
-
-    console.log("1. Found subgroups01 MODULE_ARRAY");
-
-    // Find CockayneSyndrome checkbox
-    const checkboxes = page.locator('[id*="subgroups01"] input[type="checkbox"]');
-    const count = await checkboxes.count();
-
-    if (count === 0) {
-      console.log("SKIP: No module checkboxes to test");
-      test.skip();
-      return;
-    }
-
-    let cockaynCheckbox = null;
-    for (let i = 0; i < count; i++) {
-      const value = await checkboxes.nth(i).getAttribute("value") || "";
-      if (value.toLowerCase().includes("cockayne")) {
-        cockaynCheckbox = checkboxes.nth(i);
-        console.log("2. Found CockayneSyndrome checkbox");
-        break;
-      }
-    }
-
-    if (!cockaynCheckbox) {
-      console.log("SKIP: CockayneSyndrome checkbox not found");
-      test.skip();
-      return;
-    }
+    const svgIcon = cockaynCheckbox.locator("..").locator("svg").first();
 
     // Select CockayneSyndrome
-    const checkboxContainer = cockaynCheckbox.locator("..");
-    const svgIcon = checkboxContainer.locator("svg").first();
-    const svgExists = await svgIcon.count() > 0;
-
-    if (svgExists) {
-      await svgIcon.click({ force: true });
-    } else {
-      await cockaynCheckbox.click({ force: true });
-    }
+    await svgIcon.click({ force: true });
     await page.waitForLoadState("networkidle");
 
     // Assert relevantmedhistory is visible after selection
     const contentField = page.getByLabel("relevantmedhistory");
     await expect(contentField).toBeVisible({ timeout: 5000 });
-    console.log("3. relevantmedhistory field is visible after selecting CockayneSyndrome");
-
-    // Take screenshot showing the revealed content
-    await page.screenshot({ path: "diamond-form-module-reveal.png" });
+    console.log(
+      "1. relevantmedhistory field is visible after selecting CockayneSyndrome"
+    );
 
     // Deselect CockayneSyndrome
-    if (svgExists) {
-      await svgIcon.click({ force: true });
-    } else {
-      await cockaynCheckbox.click({ force: true });
-    }
+    await svgIcon.click({ force: true });
     await page.waitForLoadState("networkidle");
 
     // Assert relevantmedhistory is hidden after deselection
     await expect(contentField).not.toBeVisible({ timeout: 5000 });
-    console.log("4. relevantmedhistory field is hidden after deselecting CockayneSyndrome");
+    console.log(
+      "2. relevantmedhistory field is hidden after deselecting CockayneSyndrome"
+    );
   });
 
   test("diseaseGroup MODULE_ARRAY: click module checkbox toggles selection", async ({
@@ -364,41 +266,124 @@ test.describe("Diamond MODULE_ARRAY Add-record form interactions", () => {
       page.getByRole("heading", { name: "Add Subject" })
     ).toBeVisible();
 
-    // Find diseaseGroup MODULE_ARRAY by label
-    const diseaseGroupLabel = page.getByLabel("diseaseGroup");
-    const isVisible = await diseaseGroupLabel.isVisible().catch(() => false);
+    // "diseaseGroup" is the checkbox-group section heading, not a <label for>
+    // target, so getByLabel never matches it; query the checkbox by role/name
+    // scoped to the modal instead.
+    const modal = page.getByRole("dialog");
+    const firstCheckbox = modal.getByRole("checkbox", {
+      name: "EpidermolysisBullosa",
+    });
+    await expect(firstCheckbox).toBeVisible();
 
-    if (!isVisible) {
-      console.log("WARNING: diseaseGroup field not visible");
-      test.skip();
-      return;
-    }
+    console.log("\n1. diseaseGroup MODULE_ARRAY checkbox found and visible");
 
-    console.log("\n1. diseaseGroup MODULE_ARRAY input found and visible");
+    const beforeChecked = await firstCheckbox.isChecked();
+    console.log(`2. Initial state: checked=${beforeChecked}`);
 
-    // Look for module checkboxes
-    const diseaseGroupContainer = diseaseGroupLabel.locator("..");
-    const checkboxes = diseaseGroupContainer.locator('[role="checkbox"]');
-    const count = await checkboxes.count();
-    console.log(`2. Found ${count} disease group checkboxes`);
+    await firstCheckbox
+      .locator("..")
+      .locator("svg")
+      .first()
+      .click({ force: true });
+    await page.waitForTimeout(300);
 
-    if (count > 0) {
-      const firstCheckbox = checkboxes.first();
-      const text = await firstCheckbox.textContent();
-      console.log(`3. First option: "${text}"`);
+    const afterChecked = await firstCheckbox.isChecked();
+    console.log(`3. After click: checked=${afterChecked}`);
 
-      const beforeChecked = await firstCheckbox.isChecked();
-      console.log(`4. Initial state: checked=${beforeChecked}`);
+    expect(afterChecked).not.toBe(beforeChecked);
+  });
+});
 
-      await firstCheckbox.click();
-      await page.waitForTimeout(300);
+test.describe("Diamond scalar MODULE Add-record form interactions", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto(`${route}diamond_test/Experiment`);
+    await page.waitForLoadState("networkidle");
+  });
 
-      const afterChecked = await firstCheckbox.isChecked();
-      console.log(`5. After click: checked=${afterChecked}`);
+  test("experimentType MODULE: selecting RNA reveals RNA fields; selecting DNA swaps to DNA fields", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: "Add Experiment" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Add Experiment" })
+    ).toBeVisible();
 
-      expect(afterChecked).not.toBe(beforeChecked);
-    } else {
-      console.log("WARNING: No disease group checkboxes found");
-    }
+    const modal = page.getByRole("dialog");
+    const experimentTypeCombobox = modal
+      .locator('[role="combobox"][id*="experimentType"]')
+      .first();
+    await expect(experimentTypeCombobox).toBeVisible();
+
+    // Select RNA
+    await experimentTypeCombobox.click();
+    await page.waitForTimeout(300);
+    await modal.getByRole("option", { name: "RNA", exact: true }).click();
+    await page.waitForLoadState("networkidle");
+
+    // Combobox reflects the selection (regression guard for the
+    // defineModel()-stale-getter bug in Listbox.vue: a redundant manual
+    // emit() clobbered the correct value with the pre-selection state).
+    await expect(experimentTypeCombobox).toHaveText("RNA");
+
+    // RNA module fields revealed
+    await expect(modal.getByLabel("rnaConcentration")).toBeVisible({
+      timeout: 5000,
+    });
+    await expect(modal.getByLabel("libraryPrep")).toBeVisible();
+    await expect(modal.getByLabel("readCount")).toBeVisible();
+
+    // DNA module fields not shown
+    await expect(modal.getByLabel("dnaConcentration")).not.toBeVisible();
+
+    // Switch to DNA
+    await experimentTypeCombobox.click();
+    await page.waitForTimeout(300);
+    await modal.getByRole("option", { name: "DNA", exact: true }).click();
+    await page.waitForLoadState("networkidle");
+
+    await expect(experimentTypeCombobox).toHaveText("DNA");
+
+    // DNA module fields revealed
+    await expect(modal.getByLabel("dnaConcentration")).toBeVisible({
+      timeout: 5000,
+    });
+    await expect(modal.getByLabel("sequencingPlatform")).toBeVisible();
+    await expect(modal.getByLabel("coverage")).toBeVisible();
+
+    // RNA module fields no longer shown
+    await expect(modal.getByLabel("rnaConcentration")).not.toBeVisible();
+  });
+
+  test("experimentId PK field is fillable exactly once and required-PK validation does not block save", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: "Add Experiment" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Add Experiment" })
+    ).toBeVisible();
+
+    const modal = page.getByRole("dialog");
+    const experimentIdInput = modal.getByRole("textbox", {
+      name: "experimentId Required",
+    });
+
+    // Regression guard: experimentId must appear exactly once in the DOM.
+    // TableMetadata.getColumnsIncludingModules() previously duplicated the
+    // shared root PK once per module subtype table (RNA, DNA), producing
+    // colliding v-model bindings and a required-PK validation that could
+    // never be satisfied.
+    await expect(experimentIdInput).toHaveCount(1);
+    await expect(experimentIdInput).toBeVisible();
+
+    const uniqueId = `exp-pk-check-${Date.now()}`;
+    await experimentIdInput.fill(uniqueId);
+    await expect(experimentIdInput).toHaveValue(uniqueId);
+
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.waitForLoadState("networkidle");
+
+    await expect(
+      page.getByRole("heading", { name: "Add Experiment" })
+    ).not.toBeVisible();
   });
 });

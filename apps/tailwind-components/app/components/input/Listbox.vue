@@ -259,7 +259,6 @@ function updateModelValue(
     displayText.value = updateDisplayText(selection.value as string);
   }
   selectedElementId.value = selection.elemId;
-  emit("update:modelValue", modelValue.value);
 
   if (enableToggling) {
     openCloseListbox();
@@ -270,7 +269,6 @@ function resetModelValue() {
   updateCounter(0);
   displayText.value = updateDisplayText("");
   modelValue.value = undefined;
-  emit("update:modelValue", modelValue.value);
 
   if (isExpanded.value) {
     openCloseListbox();

@@ -421,6 +421,53 @@ describe("omitInactiveModuleValues", () => {
     expect(result["mg_draft"]).toBe(true);
     expect(Object.keys(result)).not.toContain("modxCol");
   });
+
+  const experimentTable: ITableMetaData = {
+    id: "Experiment",
+    name: "Experiment",
+    schemaId: "test",
+    label: "Experiment",
+    tableType: "DATA",
+    columns: [
+      {
+        columnType: "STRING",
+        id: "id",
+        label: "ID",
+        table: "Experiment",
+        inherited: false,
+      },
+      {
+        columnType: "MODULE",
+        id: "experimentType",
+        label: "Experiment Type",
+        values: ["RNA", "DNA"],
+        table: "Experiment",
+        inherited: false,
+      },
+      {
+        columnType: "STRING",
+        id: "readCount",
+        label: "Read count",
+        table: "RNA",
+        inherited: false,
+      },
+    ],
+  };
+
+  it("drops a scalar-module content col when its module is inactive (using activeModules from a scalar MODULE row)", () => {
+    const row = { id: "e1", experimentType: "DNA", readCount: 42 };
+    const active = activeModules(row, experimentTable);
+    const result = omitInactiveModuleValues(row, experimentTable, active);
+    expect(Object.keys(result)).not.toContain("readCount");
+  });
+
+  it("keeps a scalar-module content col when its module is active (using activeModules from a scalar MODULE row)", () => {
+    const row = { id: "e1", experimentType: "RNA", readCount: 42 };
+    const active = activeModules(row, experimentTable);
+    const result = omitInactiveModuleValues(row, experimentTable, active);
+    expect(Object.keys(result)).toContain("readCount");
+    expect(result["readCount"]).toBe(42);
+  });
 });
 
 describe("activeModules", () => {
@@ -473,5 +520,81 @@ describe("activeModules", () => {
     };
     const result = activeModules(row, rootTable);
     expect(result.has("NonExistentModule")).toBe(true);
+  });
+
+  const rootWithScalarModule: ITableMetaData = {
+    id: "Experiment",
+    name: "Experiment",
+    schemaId: "test",
+    label: "Experiment",
+    tableType: "DATA",
+    columns: [
+      { id: "id", label: "ID", columnType: "STRING" as const, key: 1 },
+      {
+        id: "experimentType",
+        label: "Experiment Type",
+        columnType: "MODULE" as const,
+        values: ["RNA", "DNA"],
+      },
+    ],
+  };
+
+  it("collects a scalar MODULE single value when set", () => {
+    const row = { id: "e1", experimentType: "RNA" };
+    const result = activeModules(row, rootWithScalarModule);
+    expect(result.has("RNA")).toBe(true);
+    expect(result.has("DNA")).toBe(false);
+    expect(result.size).toBe(1);
+  });
+
+  it("does not collect a scalar MODULE value when unset (null/undefined/empty string)", () => {
+    expect(
+      activeModules({ id: "e1", experimentType: null }, rootWithScalarModule)
+        .size
+    ).toBe(0);
+    expect(
+      activeModules(
+        { id: "e1", experimentType: undefined },
+        rootWithScalarModule
+      ).size
+    ).toBe(0);
+    expect(
+      activeModules({ id: "e1", experimentType: "" }, rootWithScalarModule).size
+    ).toBe(0);
+  });
+
+  const rootWithBothAxisTypes: ITableMetaData = {
+    id: "Subject",
+    name: "Subject",
+    schemaId: "test",
+    label: "Subject",
+    tableType: "DATA",
+    columns: [
+      { id: "id", label: "ID", columnType: "STRING" as const, key: 1 },
+      {
+        id: "measurements",
+        label: "Measurements",
+        columnType: "MODULE_ARRAY" as const,
+        values: ["BodyMeasurements", "BloodPressure"],
+      },
+      {
+        id: "experimentType",
+        label: "Experiment Type",
+        columnType: "MODULE" as const,
+        values: ["RNA", "DNA"],
+      },
+    ],
+  };
+
+  it("unions a scalar MODULE axis and a MODULE_ARRAY axis coexisting on one table", () => {
+    const row = {
+      id: "s1",
+      measurements: ["BodyMeasurements"],
+      experimentType: "RNA",
+    };
+    const result = activeModules(row, rootWithBothAxisTypes);
+    expect(result.has("BodyMeasurements")).toBe(true);
+    expect(result.has("RNA")).toBe(true);
+    expect(result.size).toBe(2);
   });
 });
