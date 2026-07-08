@@ -14,6 +14,9 @@ import java.util.HashMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
@@ -71,6 +74,19 @@ public class BeaconAuthorityTests extends TestLoaders {
     queryEntryType.query(patientRegistry);
 
     assertEquals(VIEWER_TEST_USER, database.getActiveUser());
+  }
+
+  @Test
+  public void templateLookupRunsInsideTransaction() {
+    database.becomeAdmin();
+    Schema spySchema = Mockito.spy(database.getSchema(PATIENT_REGISTRY));
+    Database spyDatabase = Mockito.spy(spySchema.getDatabase());
+    Mockito.doReturn(spyDatabase).when(spySchema).getDatabase();
+
+    Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+    new QueryEntryType(new BeaconRequestBody(request)).query(spySchema);
+
+    Mockito.verify(spyDatabase, Mockito.atLeastOnce()).tx(Mockito.any());
   }
 
   @Test
