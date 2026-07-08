@@ -1241,6 +1241,230 @@ public class RDFTest {
   }
 
   @Test
+  void activeModuleEmitsRdfTypeForModuleArrayAxis() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("ModuleTypeArrayRdfTest");
+      schema.create(
+          table(
+              "Experiment",
+              column("id").setType(ColumnType.STRING).setPkey(),
+              column("expCol").setType(ColumnType.STRING)));
+      schema.create(
+          table("RNA", column("rnaCol").setType(ColumnType.STRING))
+              .setTableType(TableType.MODULE)
+              .setInheritNames("Experiment"));
+      schema
+          .getTable("Experiment")
+          .getMetadata()
+          .add(column("expType").setType(ColumnType.MODULE_ARRAY).setValues("RNA"));
+
+      schema
+          .getTable("Experiment")
+          .insert(row("id", "active", "expCol", "val", "expType", "RNA", "rnaCol", "rnaVal"));
+      schema.getTable("Experiment").insert(row("id", "inactive", "expCol", "other"));
+
+      InMemoryRDFHandler handler = parseTableRdf(schema, "Experiment");
+
+      IRI activeSubject = Values.iri(getApi(schema) + "Experiment/id=active");
+      IRI inactiveSubject = Values.iri(getApi(schema) + "Experiment/id=inactive");
+      IRI rnaTypeIRI = Values.iri(getApi(schema) + "RNA");
+
+      Map<IRI, Set<Value>> activeTriples = handler.resources.get(activeSubject);
+      assertNotNull(activeTriples, "active row must appear in RDF output");
+      assertTrue(
+          activeTriples.getOrDefault(RDF.TYPE, Set.of()).contains(rnaTypeIRI),
+          "active row must emit rdf:type <RNA> for the activated MODULE_ARRAY module");
+
+      Map<IRI, Set<Value>> inactiveTriples = handler.resources.get(inactiveSubject);
+      assertNotNull(inactiveTriples, "inactive row must appear in RDF output");
+      assertFalse(
+          inactiveTriples.getOrDefault(RDF.TYPE, Set.of()).contains(rnaTypeIRI),
+          "inactive row must NOT emit rdf:type <RNA>");
+    } finally {
+      database.dropSchemaIfExists("ModuleTypeArrayRdfTest");
+    }
+  }
+
+  @Test
+  void activeModuleEmitsRdfTypeForScalarModuleAxis() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("ModuleTypeScalarRdfTest");
+      schema.create(
+          table(
+              "Sample",
+              column("id").setType(ColumnType.STRING).setPkey(),
+              column("sampleCol").setType(ColumnType.STRING)));
+      schema.create(
+          table("DNA", column("dnaCol").setType(ColumnType.STRING))
+              .setTableType(TableType.MODULE)
+              .setInheritNames("Sample"));
+      schema
+          .getTable("Sample")
+          .getMetadata()
+          .add(column("sampleType").setType(ColumnType.MODULE).setValues("DNA"));
+
+      schema
+          .getTable("Sample")
+          .insert(row("id", "active", "sampleCol", "val", "sampleType", "DNA", "dnaCol", "dnaVal"));
+      schema.getTable("Sample").insert(row("id", "inactive", "sampleCol", "other"));
+
+      InMemoryRDFHandler handler = parseTableRdf(schema, "Sample");
+
+      IRI activeSubject = Values.iri(getApi(schema) + "Sample/id=active");
+      IRI inactiveSubject = Values.iri(getApi(schema) + "Sample/id=inactive");
+      IRI dnaTypeIRI = Values.iri(getApi(schema) + "DNA");
+
+      Map<IRI, Set<Value>> activeTriples = handler.resources.get(activeSubject);
+      assertNotNull(activeTriples, "active row must appear in RDF output");
+      assertTrue(
+          activeTriples.getOrDefault(RDF.TYPE, Set.of()).contains(dnaTypeIRI),
+          "active row must emit rdf:type <DNA> for the activated scalar MODULE");
+
+      Map<IRI, Set<Value>> inactiveTriples = handler.resources.get(inactiveSubject);
+      assertNotNull(inactiveTriples, "inactive row must appear in RDF output");
+      assertFalse(
+          inactiveTriples.getOrDefault(RDF.TYPE, Set.of()).contains(dnaTypeIRI),
+          "inactive row must NOT emit rdf:type <DNA>");
+    } finally {
+      database.dropSchemaIfExists("ModuleTypeScalarRdfTest");
+    }
+  }
+
+  @Test
+  void activeModuleExtendsModuleEmitsFullAncestorChainAsRdfType() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("ModuleTypeChainRdfTest");
+      schema.create(
+          table(
+              "Study",
+              column("id").setType(ColumnType.STRING).setPkey(),
+              column("studyCol").setType(ColumnType.STRING)));
+      schema.create(
+          table("RNA", column("rnaCol").setType(ColumnType.STRING))
+              .setTableType(TableType.MODULE)
+              .setInheritNames("Study"));
+      schema.create(
+          table("RNAseq", column("seqCol").setType(ColumnType.STRING))
+              .setTableType(TableType.MODULE)
+              .setInheritNames("RNA"));
+      schema
+          .getTable("Study")
+          .getMetadata()
+          .add(column("studyType").setType(ColumnType.MODULE_ARRAY).setValues("RNA", "RNAseq"));
+
+      schema
+          .getTable("Study")
+          .insert(
+              row(
+                  "id", "deep",
+                  "studyCol", "val",
+                  "studyType", "RNAseq",
+                  "rnaCol", "rnaVal",
+                  "seqCol", "seqVal"));
+      schema
+          .getTable("Study")
+          .insert(row("id", "shallow", "studyCol", "val", "studyType", "RNA", "rnaCol", "rnaVal"));
+      schema.getTable("Study").insert(row("id", "none", "studyCol", "other"));
+
+      InMemoryRDFHandler handler = parseTableRdf(schema, "Study");
+
+      IRI deepSubject = Values.iri(getApi(schema) + "Study/id=deep");
+      IRI shallowSubject = Values.iri(getApi(schema) + "Study/id=shallow");
+      IRI noneSubject = Values.iri(getApi(schema) + "Study/id=none");
+      IRI rnaTypeIRI = Values.iri(getApi(schema) + "RNA");
+      IRI rnaseqTypeIRI = Values.iri(getApi(schema) + "RNAseq");
+      IRI studyTypeIRI = Values.iri(getApi(schema) + "Study");
+
+      Map<IRI, Set<Value>> deepTriples = handler.resources.get(deepSubject);
+      assertNotNull(deepTriples, "deep-activated row must appear in RDF output");
+      Set<Value> deepTypes = deepTriples.getOrDefault(RDF.TYPE, Set.of());
+      assertTrue(deepTypes.contains(rnaseqTypeIRI), "deep row must emit rdf:type <RNAseq>");
+      assertTrue(
+          deepTypes.contains(rnaTypeIRI), "deep row must emit rdf:type <RNA> (module ancestor)");
+      assertTrue(
+          deepTypes.contains(studyTypeIRI),
+          "Study is the root table — rdf:type <Study> is emitted by the existing table-type triple");
+
+      Map<IRI, Set<Value>> shallowTriples = handler.resources.get(shallowSubject);
+      assertNotNull(shallowTriples, "shallow-activated row must appear in RDF output");
+      Set<Value> shallowTypes = shallowTriples.getOrDefault(RDF.TYPE, Set.of());
+      assertTrue(shallowTypes.contains(rnaTypeIRI), "shallow row must emit rdf:type <RNA>");
+      assertFalse(
+          shallowTypes.contains(rnaseqTypeIRI), "shallow row must NOT emit rdf:type <RNAseq>");
+
+      Map<IRI, Set<Value>> noneTriples = handler.resources.get(noneSubject);
+      assertNotNull(noneTriples, "non-activating row must appear in RDF output");
+      Set<Value> noneTypes = noneTriples.getOrDefault(RDF.TYPE, Set.of());
+      assertFalse(
+          noneTypes.contains(rnaTypeIRI), "non-activating row must NOT emit rdf:type <RNA>");
+      assertFalse(
+          noneTypes.contains(rnaseqTypeIRI), "non-activating row must NOT emit rdf:type <RNAseq>");
+    } finally {
+      database.dropSchemaIfExists("ModuleTypeChainRdfTest");
+    }
+  }
+
+  @Test
+  void moduleColumnContentStillEmitsAsTripleAfterPerTableTypingRefactor() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("ModuleE4RegressionTest");
+      schema.create(
+          table(
+              "Item",
+              column("id").setType(ColumnType.STRING).setPkey(),
+              column("itemCol").setType(ColumnType.STRING)));
+      schema.create(
+          table("Extra", column("extraCol").setType(ColumnType.STRING))
+              .setTableType(TableType.MODULE)
+              .setInheritNames("Item"));
+      schema
+          .getTable("Item")
+          .getMetadata()
+          .add(column("extras").setType(ColumnType.MODULE_ARRAY).setValues("Extra"));
+
+      schema
+          .getTable("Item")
+          .insert(
+              row(
+                  "id", "active",
+                  "itemCol", "itemValue",
+                  "extras", "Extra",
+                  "extraCol", "extraValue"));
+      schema.getTable("Item").insert(row("id", "inactive", "itemCol", "itemValue2"));
+
+      InMemoryRDFHandler handler = parseTableRdf(schema, "Item");
+
+      IRI activeSubject = Values.iri(getApi(schema) + "Item/id=active");
+      IRI inactiveSubject = Values.iri(getApi(schema) + "Item/id=inactive");
+      IRI extraColPredicate = Values.iri(getApi(schema) + "Extra/column/extraCol");
+      IRI extraTypeIRI = Values.iri(getApi(schema) + "Extra");
+
+      Map<IRI, Set<Value>> activeTriples = handler.resources.get(activeSubject);
+      assertNotNull(activeTriples, "active row must appear in RDF output");
+      assertTrue(
+          activeTriples.containsKey(extraColPredicate),
+          "E4 regression: root row must still emit module content column triple when active");
+      assertTrue(
+          activeTriples.get(extraColPredicate).contains(Values.literal("extraValue")),
+          "E4 regression: module content column triple must carry the inserted value");
+      assertTrue(
+          activeTriples.getOrDefault(RDF.TYPE, Set.of()).contains(extraTypeIRI),
+          "per-table typing: active row must also emit rdf:type <Extra>");
+
+      Map<IRI, Set<Value>> inactiveTriples = handler.resources.get(inactiveSubject);
+      assertNotNull(inactiveTriples, "inactive row must appear in RDF output");
+      assertFalse(
+          inactiveTriples.containsKey(extraColPredicate),
+          "E4 regression: inactive row must NOT emit module content column triple");
+      assertFalse(
+          inactiveTriples.getOrDefault(RDF.TYPE, Set.of()).contains(extraTypeIRI),
+          "per-table typing: inactive row must NOT emit rdf:type <Extra>");
+    } finally {
+      database.dropSchemaIfExists("ModuleE4RegressionTest");
+    }
+  }
+
+  @Test
   void testThatURLColumnsAreObjectProperties() throws IOException {
     Schema schema = database.dropCreateSchema("Website");
     Table table =
