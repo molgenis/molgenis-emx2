@@ -56,15 +56,29 @@ To isolate a dev database from the default one on `:5432` without Docker, run a 
 psql -p 5433 -f .circleci/initdb.sql
 ```
 
-Then point the backend (and tests) at it via the `MOLGENIS_POSTGRES_URI` system property, which is forwarded to the forked test/`dev`/`cleandb` JVMs:
+Then point the backend (and tests) at it. The simplest way is a `.env` file at the repo root: Gradle auto-reads it (straight from disk at configuration time, so it is daemon-safe) and forwards `MOLGENIS_POSTGRES_URI`/`USER`/`PASS` to the forked test/`dev`/`cleandb`/`run` JVMs. Create `.env` with:
+
+```
+MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
+MOLGENIS_POSTGRES_USER=molgenis
+MOLGENIS_POSTGRES_PASS=molgenis
+```
+
+Now the tasks pick it up with no extra flags:
+
+```console
+./gradlew run
+./gradlew dev
+./gradlew :backend:molgenis-emx2-sql:test
+```
+
+A `-D` system property overrides the `.env` value for a single run (handy to hit a different port without editing `.env`):
 
 ```console
 ./gradlew run -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
-./gradlew dev -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
-./gradlew :backend:molgenis-emx2-sql:test -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
 ```
 
-Add `-DMOLGENIS_POSTGRES_USER=...` and `-DMOLGENIS_POSTGRES_PASS=...` if your credentials differ from the `molgenis`/`molgenis` default. Prefer `-D` over `source .env`: a running Gradle daemon can hold a stale environment and ignore exported env vars, whereas `-D` system properties are passed through per build. See `.env-example` for a ready-made template.
+Add `MOLGENIS_POSTGRES_USER=...`/`MOLGENIS_POSTGRES_PASS=...` (in `.env`) or `-DMOLGENIS_POSTGRES_USER=...`/`-DMOLGENIS_POSTGRES_PASS=...` if your credentials differ from the `molgenis`/`molgenis` default. See `.env-example` for a ready-made template. The `.env` file is gitignored.
 
 **Start developing using gradle**
 
