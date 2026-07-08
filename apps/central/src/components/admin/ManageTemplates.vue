@@ -11,6 +11,7 @@
         :template="slotProps.row.template"
         :schema="slotProps.row.schema"
         :api="slotProps.row.endpoint"
+        :tableName="slotProps.row.tableName"
         type="update"
       />
     </template>

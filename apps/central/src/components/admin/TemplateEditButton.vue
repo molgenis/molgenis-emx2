@@ -26,6 +26,16 @@
             :options="apis"
             :readonly="action === 'update'"
           ></InputSelect>
+          <InputSelect
+            v-if="tables.length"
+            id="template-create-table"
+            label="Table"
+            description="Optional: table this endpoint should query. Leave empty to use the entry type's default table."
+            v-model="selectedTable"
+            :options="tables"
+            :required="false"
+            placeholder="Use default table"
+          ></InputSelect>
           <FormGroup label="Template">
             <div
               class="border rounded"
@@ -92,6 +102,10 @@ export default {
       type: String,
       required: false,
     },
+    tableName: {
+      type: String,
+      required: false,
+    },
     type: {
       type: String,
       required: true,
@@ -110,6 +124,8 @@ export default {
       isModalShown: false,
       selectedSchema: this.schema,
       schemas: [],
+      selectedTable: this.tableName,
+      tables: [],
       selectedApi: this.api,
       apis: [
         "beacon_individuals",
@@ -137,6 +153,7 @@ export default {
   },
   created() {
     this.getSchemaList();
+    this.getTableList(this.selectedSchema);
     if (this.selectedSchema === "default") {
       this.action = "insert";
     }
@@ -151,12 +168,13 @@ export default {
         "_SYSTEM_/graphql",
         "mutation " +
           this.action +
-          "($endpoint:String, $schema:String, $template:String) { " +
+          "($endpoint:String, $schema:String, $tableName:String, $template:String) { " +
           this.action +
-          "(Templates: { endpoint: $endpoint, schema: $schema, template: $template }) { message } }",
+          "(Templates: { endpoint: $endpoint, schema: $schema, tableName: $tableName, template: $template }) { message } }",
         {
           endpoint: this.selectedApi,
           schema: this.selectedSchema,
+          tableName: this.selectedTable || null,
           template: this.jsltTemplate,
         }
       )
@@ -189,6 +207,22 @@ export default {
           this.loading = false;
         });
     },
+    getTableList(schemaId) {
+      // the "default" schema is a placeholder and has no real tables
+      if (!schemaId || schemaId === "default") {
+        this.tables = [];
+        return;
+      }
+      request(schemaId + "/graphql", `{_schema{tables{name}}}`)
+        .then((data) => {
+          // store the table name (matches MOLGENIS.table_metadata.table_name, used by the reference)
+          this.tables = data._schema.tables.map((table) => table.name);
+        })
+        .catch((error) => {
+          console.error("could not load tables for schema " + schemaId, error);
+          this.tables = [];
+        });
+    },
     initializeMonaco() {
       this.editor = editor.create(this.$refs.monacoEditor, {
         value: this.jsltTemplate,
@@ -214,6 +248,13 @@ export default {
         this.$nextTick(() => {
           this.initializeMonaco();
         });
+      }
+    },
+    selectedSchema(newVal, oldVal) {
+      // when the user picks a different schema, reload its tables and reset the selection
+      if (newVal !== oldVal) {
+        this.selectedTable = null;
+        this.getTableList(newVal);
       }
     },
   },
