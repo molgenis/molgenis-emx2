@@ -13,6 +13,7 @@ target/
 .settings/
 .project
 .classpath
+.claude
 examplefiles
 *.iml
 *.ipr
@@ -20,6 +21,7 @@ examplefiles
 *.DS_Store
 git.properties
 psql_data
+/.env
 */data/elasticsearch/
 /data/elasticsearch/
 test-output/

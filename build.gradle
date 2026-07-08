@@ -16,6 +16,16 @@ ext {
     javaVersion = JavaVersion.VERSION_21
 }
 
+// MOLGENIS_POSTGRES_URI/USER/PASS are read inside the Java code
+// (EnvironmentProperty.getParameter, used by SqlDatabase). A running Gradle daemon does
+// not pass command-line -D system properties to forked JVMs, so forward them explicitly
+// onto every forked Test/JavaExec task (test, run, dev, cleandb, generateTypes).
+ext.forwardMolgenisPostgresProps = { task ->
+    ['MOLGENIS_POSTGRES_URI', 'MOLGENIS_POSTGRES_USER', 'MOLGENIS_POSTGRES_PASS'].each { p ->
+        if (System.getProperty(p) != null) task.systemProperty p, System.getProperty(p)
+    }
+}
+
 allprojects {
     if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
         version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
@@ -166,6 +176,8 @@ String getGitHash() {
 application {
     mainClass.set(javaMainClass)
 }
+
+tasks.withType(JavaExec).configureEach { forwardMolgenisPostgresProps(it) }
 
 jar {
     reproducibleFileOrder = true
