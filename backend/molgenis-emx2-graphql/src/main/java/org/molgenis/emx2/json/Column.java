@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.ColumnRole;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.DisplayType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
@@ -24,7 +25,7 @@ public class Column {
   private String required = null;
   private Boolean readonly = false;
   private ColumnRole role = null;
-  private org.molgenis.emx2.DisplayType display = null;
+  private DisplayType display = null;
   private String defaultValue;
   private String refSchemaId = null;
   private String refSchemaName = null;
@@ -354,15 +355,12 @@ public class Column {
     this.role = role != null ? ColumnRole.valueOf(role.toUpperCase().trim()) : null;
   }
 
-  public org.molgenis.emx2.DisplayType getDisplay() {
+  public DisplayType getDisplay() {
     return display;
   }
 
   public void setDisplay(String display) {
-    this.display =
-        display != null
-            ? org.molgenis.emx2.DisplayType.valueOf(display.toUpperCase().trim())
-            : null;
+    this.display = display != null ? DisplayType.valueOf(display.toUpperCase().trim()) : null;
   }
 
   public void setComputed(String computed) {

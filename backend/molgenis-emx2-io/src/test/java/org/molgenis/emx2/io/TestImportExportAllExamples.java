@@ -76,20 +76,20 @@ public class TestImportExportAllExamples {
   }
 
   @Test
-  public void testSummaryAndDisplayColumnProperties() {
+  public void testRoleAndDisplayColumnProperties() {
     SchemaMetadata schema1 = new SchemaMetadata(prefix + "10");
     schema1.create(
         table(
                 "test",
                 column("id").setPkey(),
-                column("summaryField").setRole(ColumnRole.DETAIL),
+                column("roleField").setRole(ColumnRole.DETAIL),
                 column("displayField").setDisplay(DisplayType.CARDS))
             .setRole(TableRole.DETAIL));
     Schema result = executeCompare(schema1);
     assertEquals(TableRole.DETAIL, result.getMetadata().getTableMetadata("test").getRole());
     assertEquals(
         ColumnRole.DETAIL,
-        result.getMetadata().getTableMetadata("test").getColumn("summaryField").getRole());
+        result.getMetadata().getTableMetadata("test").getColumn("roleField").getRole());
     assertEquals(
         DisplayType.CARDS,
         result.getMetadata().getTableMetadata("test").getColumn("displayField").getDisplay());

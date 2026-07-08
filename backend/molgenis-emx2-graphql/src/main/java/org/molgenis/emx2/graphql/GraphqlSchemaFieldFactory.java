@@ -335,10 +335,7 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(READONLY)
                   .type(Scalars.GraphQLBoolean))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(COLUMN_ROLE)
-                  .type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name(DISPLAY).type(Scalars.GraphQLString))
           .field(
@@ -405,10 +402,7 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(TABLE_ROLE)
-                  .type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(ROLE).type(Scalars.GraphQLString))
           .build();
 
   private final GraphQLInputObjectType inputMembersMetadataType =
@@ -502,9 +496,7 @@ public class GraphqlSchemaFieldFactory {
                   .name(READONLY)
                   .type(Scalars.GraphQLBoolean))
           .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(COLUMN_ROLE)
-                  .type(Scalars.GraphQLString))
+              GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DISPLAY)
@@ -562,9 +554,7 @@ public class GraphqlSchemaFieldFactory {
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(TABLE_ROLE)
-                  .type(Scalars.GraphQLString))
+              GraphQLInputObjectField.newInputObjectField().name(ROLE).type(Scalars.GraphQLString))
           .build();
 
   public GraphqlSchemaFieldFactory() {
