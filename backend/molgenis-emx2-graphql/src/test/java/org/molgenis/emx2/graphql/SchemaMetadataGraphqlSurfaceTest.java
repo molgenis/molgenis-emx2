@@ -309,6 +309,87 @@ class SchemaMetadataGraphqlSurfaceTest {
             + colNames);
   }
 
+  @Test
+  void moduleColumnMergeDoesNotDuplicateSharedRootPrimaryKeyForModuleArray() throws IOException {
+    schema.create(
+        table("DupArrRoot")
+            .add(column("dupArrId").setType(STRING).setPkey())
+            .add(column("rootOnlyCol").setType(STRING)));
+    schema.create(
+        table("DupArrModA")
+            .setTableType(MODULE)
+            .setInheritNames("DupArrRoot")
+            .add(column("modACol").setType(STRING)));
+    schema.create(
+        table("DupArrModB")
+            .setTableType(MODULE)
+            .setInheritNames("DupArrRoot")
+            .add(column("modBCol").setType(STRING)));
+    schema
+        .getTable("DupArrRoot")
+        .getMetadata()
+        .add(column("axis").setType(MODULE_ARRAY).setValues("DupArrModA", "DupArrModB"));
+
+    JsonNode schemaNode = execute("{_schema{tables{name,columns{name,table}}}}");
+    JsonNode tables = schemaNode.at("/_schema/tables");
+    JsonNode rootTable = findTableByName(tables, "DupArrRoot");
+    assertNotNull(rootTable, "DupArrRoot must appear in _schema");
+
+    int pkOccurrences = 0;
+    for (JsonNode col : rootTable.at("/columns")) {
+      if ("dupArrId".equals(col.at("/name").asText())) {
+        pkOccurrences++;
+      }
+    }
+    assertEquals(
+        1,
+        pkOccurrences,
+        "shared root PK 'dupArrId' must appear exactly once in _schema.columns (MODULE_ARRAY axis), got: "
+            + pkOccurrences);
+  }
+
+  @Test
+  void moduleColumnMergeDoesNotDuplicateSharedRootPrimaryKeyForScalarModule() throws IOException {
+    schema.create(
+        table("DupScalarRoot")
+            .add(column("dupScalarId").setType(STRING).setPkey())
+            .add(column("rootOnlyCol2").setType(STRING)));
+    schema.create(
+        table("DupScalarModA")
+            .setTableType(MODULE)
+            .setInheritNames("DupScalarRoot")
+            .add(column("scalarModACol").setType(STRING)));
+    schema.create(
+        table("DupScalarModB")
+            .setTableType(MODULE)
+            .setInheritNames("DupScalarRoot")
+            .add(column("scalarModBCol").setType(STRING)));
+    schema
+        .getTable("DupScalarRoot")
+        .getMetadata()
+        .add(
+            column("scalarAxis")
+                .setType(ColumnType.MODULE)
+                .setValues("DupScalarModA", "DupScalarModB"));
+
+    JsonNode schemaNode = execute("{_schema{tables{name,columns{name,table}}}}");
+    JsonNode tables = schemaNode.at("/_schema/tables");
+    JsonNode rootTable = findTableByName(tables, "DupScalarRoot");
+    assertNotNull(rootTable, "DupScalarRoot must appear in _schema");
+
+    int pkOccurrences = 0;
+    for (JsonNode col : rootTable.at("/columns")) {
+      if ("dupScalarId".equals(col.at("/name").asText())) {
+        pkOccurrences++;
+      }
+    }
+    assertEquals(
+        1,
+        pkOccurrences,
+        "shared root PK 'dupScalarId' must appear exactly once in _schema.columns (scalar MODULE axis), got: "
+            + pkOccurrences);
+  }
+
   private JsonNode findTableByName(JsonNode tables, String name) {
     for (JsonNode table : tables) {
       if (name.equals(table.at("/name").asText())) {

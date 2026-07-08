@@ -766,6 +766,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     if (moduleTables.isEmpty()) {
       return base;
     }
+    Set<String> rootColumnNames = base.stream().map(Column::getName).collect(Collectors.toSet());
     List<Column> nonSystem = new ArrayList<>();
     List<Column> system = new ArrayList<>();
     for (Column c : base) {
@@ -777,7 +778,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     }
     for (TableMetadata moduleTable : moduleTables) {
       for (Column c : moduleTable.getLocalColumns()) {
-        if (!c.isSystemColumn() && !c.isHeading()) {
+        // module's inherited copy of the shared root PK/columns is already in
+        // 'base'; only add columns genuinely local to the module itself
+        if (!c.isSystemColumn() && !c.isHeading() && !rootColumnNames.contains(c.getName())) {
           nonSystem.add(c);
         }
       }
@@ -793,8 +796,13 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getColumnsIncludingSubclassesAndModules() {
     List<Column> result = new ArrayList<>(getColumnsIncludingSubclasses());
+    Set<String> rootColumnNames = result.stream().map(Column::getName).collect(Collectors.toSet());
     for (TableMetadata moduleTable : getModuleSubtypeTables()) {
-      result.addAll(moduleTable.getLocalColumns());
+      for (Column c : moduleTable.getLocalColumns()) {
+        if (!rootColumnNames.contains(c.getName())) {
+          result.add(c);
+        }
+      }
     }
     return result;
   }
