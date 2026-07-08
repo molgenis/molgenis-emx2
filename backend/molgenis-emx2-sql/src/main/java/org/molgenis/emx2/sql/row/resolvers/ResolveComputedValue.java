@@ -16,21 +16,21 @@ public class ResolveComputedValue {
     // hide constructor
   }
 
-  public static void apply(Map<String, Object> contextGraph, Column column, Row row) {
-    apply(contextGraph, List.of(column), row);
+  public static void apply(Map<String, Object> context, Column column, Row row) {
+    apply(context, List.of(column), row);
   }
 
   public static void apply(List<Column> columns, List<Row> rows) {
     for (Row row : rows) {
-      Map<String, Object> javascriptContext = JavascriptContextBuilder.fromRow(columns, row);
-      apply(javascriptContext, columns, row);
+      Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
+      apply(context, columns, row);
     }
   }
 
-  public static void apply(Map<String, Object> contextGraph, List<Column> columns, Row row) {
+  public static void apply(Map<String, Object> javascriptContext, List<Column> columns, Row row) {
     for (Column column : columns) {
       if (!AUTO_ID.equals(column.getColumnType()) && column.getComputed() != null) {
-        Object computedValue = executeJavascriptOnMap(column.getComputed(), contextGraph);
+        Object computedValue = executeJavascriptOnMap(column.getComputed(), javascriptContext);
         TypeUtils.addFieldObjectToRow(column, computedValue, row);
       }
     }
