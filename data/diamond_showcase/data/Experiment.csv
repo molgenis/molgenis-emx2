@@ -1,0 +1,4 @@
+experimentId,experimentType,runDate,rnaConcentration,libraryPrep,readCount,dnaConcentration,sequencingPlatform,coverage
+EXP001,RNA,2024-01-15,120.5,TruSeq Stranded mRNA,45000000,,,
+EXP002,DNA,2024-02-20,,,,85.3,Illumina NovaSeq,30
+EXP003,,2024-03-10,,,,,,

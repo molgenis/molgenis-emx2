@@ -31,6 +31,14 @@ class DiamondShowcaseTest {
   private static final String SUBGROUPS01 = "subgroups01";
   private static final String DISEASE_GROUP = "diseaseGroup";
 
+  private static final String EXPERIMENT = "Experiment";
+  private static final String RNA = "RNA";
+  private static final String DNA = "DNA";
+  private static final String EXPERIMENT_TYPE = "experimentType";
+  private static final String EXPERIMENT_ID = "experimentId";
+  private static final String RNA_CONCENTRATION = "rnaConcentration";
+  private static final String DNA_CONCENTRATION = "dnaConcentration";
+
   private static Schema schema;
 
   @BeforeAll
@@ -175,5 +183,96 @@ class DiamondShowcaseTest {
     List<Row> subjectRows = schema.getTable(SUBJECT).retrieveRows();
     assertFalse(subjectRows.isEmpty(), "Subject table must have demo rows loaded");
     assertTrue(subjectRows.size() >= 7, "At least 7 Subject demo rows expected");
+  }
+
+  @Test
+  void experimentIsStandaloneDataRoot() {
+    Table experiment = schema.getTable(EXPERIMENT);
+    assertNotNull(experiment, "Experiment table must exist");
+    assertEquals(
+        TableType.DATA, experiment.getMetadata().getTableType(), "Experiment must be DATA type");
+    assertEquals(
+        EXPERIMENT,
+        experiment.getMetadata().getRootTable().getTableName(),
+        "Experiment must be its OWN root (standalone, not extending Subject)");
+  }
+
+  @Test
+  void experimentTypeIsScalarModuleWithDerivedValues() {
+    Column experimentTypeCol = schema.getTable(EXPERIMENT).getMetadata().getColumn(EXPERIMENT_TYPE);
+    assertNotNull(experimentTypeCol, "experimentType column must exist on Experiment");
+    assertEquals(
+        ColumnType.MODULE,
+        experimentTypeCol.getColumnType(),
+        "experimentType must be a scalar MODULE column");
+
+    List<String> effectiveValues = experimentTypeCol.getEffectiveValues();
+    assertNotNull(effectiveValues, "experimentType effective values must not be null");
+    assertTrue(effectiveValues.contains(RNA), "derived effective values must contain RNA");
+    assertTrue(effectiveValues.contains(DNA), "derived effective values must contain DNA");
+
+    List<String> rawValues = experimentTypeCol.getValues();
+    assertTrue(
+        rawValues == null || rawValues.isEmpty(),
+        "raw getValues() must stay empty (derivation, not frozen)");
+  }
+
+  @Test
+  void rnaDnaAreModuleTablesRootedAtExperiment() {
+    for (String moduleName : List.of(RNA, DNA)) {
+      Table table = schema.getTable(moduleName);
+      assertNotNull(table, moduleName + " MODULE table must exist");
+      assertEquals(
+          TableType.MODULE,
+          table.getMetadata().getTableType(),
+          moduleName + " must have tableType=MODULE");
+      assertEquals(
+          EXPERIMENT,
+          table.getMetadata().getRootTable().getTableName(),
+          moduleName + " must root at Experiment");
+    }
+  }
+
+  @Test
+  void activeScalarModuleColumnProjectsChosenAssay() {
+    List<Row> rnaRows =
+        schema
+            .getTable(EXPERIMENT)
+            .query()
+            .select(
+                s(EXPERIMENT_ID), s(EXPERIMENT_TYPE), s(RNA_CONCENTRATION), s(DNA_CONCENTRATION))
+            .where(f(EXPERIMENT_ID, EQUALS, "EXP001"))
+            .retrieveRows();
+    assertEquals(1, rnaRows.size(), "EXP001 must be found");
+    Row rnaRow = rnaRows.get(0);
+    assertNotNull(
+        rnaRow.getString(RNA_CONCENTRATION),
+        "active RNA module column rnaConcentration must project non-null for EXP001");
+    assertNull(
+        rnaRow.getString(DNA_CONCENTRATION),
+        "inactive DNA module column dnaConcentration must project null for EXP001");
+
+    List<Row> dnaRows =
+        schema
+            .getTable(EXPERIMENT)
+            .query()
+            .select(
+                s(EXPERIMENT_ID), s(EXPERIMENT_TYPE), s(RNA_CONCENTRATION), s(DNA_CONCENTRATION))
+            .where(f(EXPERIMENT_ID, EQUALS, "EXP002"))
+            .retrieveRows();
+    assertEquals(1, dnaRows.size(), "EXP002 must be found");
+    Row dnaRow = dnaRows.get(0);
+    assertNotNull(
+        dnaRow.getString(DNA_CONCENTRATION),
+        "active DNA module column dnaConcentration must project non-null for EXP002");
+    assertNull(
+        dnaRow.getString(RNA_CONCENTRATION),
+        "inactive RNA module column rnaConcentration must project null for EXP002");
+  }
+
+  @Test
+  void experimentDemoDataLoadedWithExpectedRowCount() {
+    List<Row> experimentRows = schema.getTable(EXPERIMENT).retrieveRows();
+    assertEquals(3, experimentRows.size(), "Experiment table must have 3 demo rows loaded");
   }
 }

@@ -34,3 +34,15 @@ ResearchSubject,,,biobanked,STRING,,,,,Biobanked sample available
 ResearchSubject,,,consentFormId,STRING,,,,,Signed consent form identifier
 ClinicalResearchSubject,"ClinicalSubject,ResearchSubject",DATA,,,,,,,
 ClinicalResearchSubject,,,trialEnrolment,STRING,,,,,Clinical trial enrolment code
+Experiment,,DATA,,,,,,,
+Experiment,,,experimentId,STRING,1,TRUE,,,Experiment identifier
+Experiment,,,experimentType,MODULE,,,,,Assay type (single choice; RNA or DNA)
+Experiment,,,runDate,DATE,,,,,Date the experiment was run
+RNA,Experiment,MODULE,,,,,,,
+RNA,,,rnaConcentration,DECIMAL,,,,,RNA concentration (ng/uL)
+RNA,,,libraryPrep,STRING,,,,,Library preparation kit
+RNA,,,readCount,INT,,,,,Total sequencing reads
+DNA,Experiment,MODULE,,,,,,,
+DNA,,,dnaConcentration,DECIMAL,,,,,DNA concentration (ng/uL)
+DNA,,,sequencingPlatform,STRING,,,,,Sequencing platform
+DNA,,,coverage,INT,,,,,Mean coverage depth
