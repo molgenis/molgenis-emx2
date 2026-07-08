@@ -3,10 +3,9 @@ import { useTemplateRef } from "vue";
 import type { IInputProps, ButtonSize } from "../../../types/types";
 import BaseIcon from "../BaseIcon.vue";
 
-const modelValue = defineModel<string | number>();
-const search = useTemplateRef<HTMLInputElement>("search");
+const model = defineModel<string>();
 
-withDefaults(
+const props = withDefaults(
   defineProps<
     IInputProps & {
       type?: string;
@@ -18,17 +17,14 @@ withDefaults(
   }
 );
 
+const search = useTemplateRef<HTMLInputElement>("search");
+
 defineExpose({ search });
 
-const emit = defineEmits(["update:modelValue", "focus", "blur"]);
-
-let timeoutID: number | NodeJS.Timeout | undefined = undefined;
-function handleInput(input: string) {
-  clearTimeout(timeoutID);
-  timeoutID = setTimeout(() => {
-    emit("update:modelValue", input);
-  }, 500);
-}
+defineEmits<{
+  focus: [event: FocusEvent];
+  blur: [event: FocusEvent];
+}>();
 </script>
 <template>
   <div
@@ -68,10 +64,9 @@ function handleInput(input: string) {
       :id="id"
       ref="search"
       type="search"
-      :value="modelValue"
+      v-model="model"
       :placeholder="placeholder"
       :disabled="disabled"
-      @input="(event) => handleInput((event.target as HTMLInputElement).value)"
       class="w-full h-[100%] pr-4 pl-2 outline-none text-current bg-transparent"
       :class="{
         'cursor-not-allowed': disabled,

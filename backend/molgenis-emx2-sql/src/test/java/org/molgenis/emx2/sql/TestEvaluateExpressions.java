@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.checkValidation;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
@@ -96,15 +95,16 @@ class TestEvaluateExpressions {
   void testCheckValidationSuccess() {
     String validation = "true && true";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
-    assertDoesNotThrow(() -> applyValidationAndComputed(tableMetadata.getColumns(), new Row()));
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+    assertDoesNotThrow(() -> rowProcessor.validateAndCompute(new Row()));
   }
 
   @Test
   void testCheckValidationWithCapitalColumnNameSuccess() {
     String validation = "name === 'pietje'";
     TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
-    assertDoesNotThrow(
-        () -> applyValidationAndComputed(tableMetadata.getColumns(), new Row("Name", "pietje")));
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+    assertDoesNotThrow(() -> rowProcessor.validateAndCompute(new Row("Name", "pietje")));
   }
 
   @Test
@@ -113,7 +113,8 @@ class TestEvaluateExpressions {
     TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
     List<Column> columns = tableMetadata.getColumns();
     Row row = new Row("Name", "piet");
-    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, row));
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(columns);
+    assertThrows(MolgenisException.class, () -> rowProcessor.validateAndCompute(row));
   }
 
   @Tag("windowsFail")
@@ -128,7 +129,8 @@ class TestEvaluateExpressions {
         this is very invalid\\n
              ^\\n,
         """;
-    assertThrows(MolgenisException.class, () -> applyValidationAndComputed(columns, row), expected);
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(columns);
+    assertThrows(MolgenisException.class, () -> rowProcessor.validateAndCompute(row), expected);
   }
 
   @Test
@@ -136,7 +138,8 @@ class TestEvaluateExpressions {
     String validation = "false";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
-      applyValidationAndComputed(tableMetadata.getColumns(), new Row("name", "test"));
+      SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+      rowProcessor.validateAndCompute(new Row("name", "test"));
     } catch (MolgenisException exception) {
       assertEquals("Validation error on column 'name': false.", exception.getMessage());
     }

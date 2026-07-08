@@ -21,8 +21,8 @@ Loading a database with a beacon profile will make the Beacon API available, com
 The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing a Beacon data template for your database. More
 information about how to create a database is found [here](use_database.md).
 This will add a number of tables that define the content of your Beacon v2, for
-example [Analyses](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Analyses.csv)
-and [Biosamples](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Biosamples.csv).
+example [Analyses](<https://github.com/molgenis/molgenis-emx2/blob/master/data/_demodata/applications/patient_registry/Variant interpretation analyses.csv>)
+and [Individuals](https://github.com/molgenis/molgenis-emx2/blob/master/data/_demodata/applications/patient_registry/Individuals.csv).
 Using the 'PATIENT_REGISTRY' template including the example data will result in an instantly working Beacon v2 API.
 The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
 
@@ -34,13 +34,13 @@ API is located at `https://emx2.test.molgenis.org/fdp/api/beacon`.
 
 All beacon-compliant templates include an **Endpoint table**. This table contains the organizational data for the
 endpoints displayed in your beacon's informational endpoints. You can edit this data using
-the [Table Explorer](use_quickstart.md#7-view-tables-data).
+the [Table Explorer](use_quickstart?id=_7-view-tables-data).
 
 #### Load data
 
 There are several ways to [load data](use_quickstart?id=_8-enter-data) in MOLGENIS EMX2. You can download the database
 model in csv files (inside a zip container), or xls format. Edit these files and upload them again as
-explained [here](http://localhost:8080/apps/docs/#/molgenis/use_quickstart?id=_8-enter-data)
+explained [here](use_quickstart?id=_9-download-your-data-schema)
 
 ### Endpoints
 
@@ -63,10 +63,6 @@ Model endpoints for which record-level GET and POST requests are implemented are
 
 - `/analyses` for entry type [Analyses](https://docs.genomebeacons.org/schemas-md/analyses_defaultSchema/). Data is
   retrieved from the _Analyses_ table.
-- `/biosamples` for entry type [Biosamples](https://docs.genomebeacons.org/schemas-md/biosamples_defaultSchema/). Data
-  is retrieved from the _Biosamples_ table.
-- `/cohorts` for entry type [Cohorts](https://docs.genomebeacons.org/schemas-md/cohorts_defaultSchema/). Data is
-  retrieved from the _Cohorts_ table.
 - `/datasets` for entry type [Datasets](https://docs.genomebeacons.org/schemas-md/datasets_defaultSchema/). Returns the
   names and timestamps of available database schemas.
 - `/g_variants` for entry
@@ -156,8 +152,6 @@ The identifier can be supplied in the URL path as follows:
 For instance:
 
 - `<server>/<database>/api/beacon/analyses/A01`
-- `<server>/<database>/api/beacon/biosamples/Sample0001`
-- `<server>/<database>/api/beacon/cohorts/Cohort0001`
 - `<server>/<database>/api/beacon/individuals/Ind001`
 - `<server>/<database>/api/beacon/runs/SRR10903401`
 
@@ -169,10 +163,6 @@ List of available links:
 
 - `/analyses/<analysis-id>`
 - `/analyses/<analysis-id>/g_variants`
-- `/biosamples/<sample-id>`
-- `/biosamples/<sample-id>/analyses`
-- `/biosamples/<sample-id>/g_variants`
-- `/biosamples/<sample-id>/runs`
 - `/individuals/<individual-id>`
 - `/individuals/<individual-id>/analyses`
 - `/individuals/<individual-id>/biosamples`
@@ -188,12 +178,12 @@ On genomic variation, a number of different genomic queries are accepted via GET
 endpoint.
 
 - Sequence
-  query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=32936732&referenceName=13&referenceBases=G&alternateBases=C)
+  query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?start=32936732&referenceName=13&referenceBases=G&alternateBases=C)
 - Bracket
-  query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=2347952&end=2547955&referenceName=20)
+  query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?start=2347952&end=2547955&referenceName=20)
 - Range
-  query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13)
-- Gene query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?geneId=TERC)
+  query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13)
+- Gene query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?geneId=TERC)
 
 ### Templates
 
@@ -219,12 +209,12 @@ your specific use cases.
 ### Semantics
 
 All tables and columns of the Beacon
-v2 [EMX2 model](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/molgenis.csv) are coded
+v2 [EMX2 model](https://github.com/molgenis/molgenis-emx2/blob/master/data/_models/shared) are coded
 with ontologies.
 References to predefined lookup lists, such as _platformModel_ in _Runs_, point to OntologyTables such
-as [SequencingInstrumentModels](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/ontologies/SequencingInstrumentModels.csv).
+as [SequencingInstrumentModels](<https://github.com/molgenis/molgenis-emx2/blob/master/data/_ontologies/Sequencing instrument models.csv>).
 The complete list of ontology lookups can be
-found [here](https://github.com/molgenis/molgenis-emx2/tree/master/data/fairdatahub/ontologies).
+found [here](https://github.com/molgenis/molgenis-emx2/tree/master/data/_ontologies/).
 These semantics help to disambiguate terms and facilitate interoperability, for instance by exporting the data via the
 RDF API.
 
@@ -254,7 +244,7 @@ queries and assess how performance scales as the dataset size increases.
 
 #### Dataset
 
-[VKGL_public_consensus_apr](https://vkgl-emx2.molgeniscloud.org/)
+[VKGL Public Consensus](https://vkgl.molgeniscloud.org/Public/tables/#/PublicConsensus)
 
 #### Software
 
