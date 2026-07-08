@@ -172,15 +172,15 @@ loadData().catch((err: Error) => (error.value = err));
     grid-template-areas: "name city country link";
     gap: 0.2em;
   }
-  
+
   .provider-listings .provider .name h3 {
     text-align: left;
   }
-  
+
   .provider-listings .provider .city {
     text-align: center;
   }
-  
+
   .provider-listings .provider .country {
     text-align: center;
   }
