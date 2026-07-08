@@ -7,6 +7,7 @@ import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -46,6 +47,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return semantics != null && semantics.length > 0;
   }
 
+  @Nullable
   public Semantic[] getSemantics() {
     return semantics;
   }

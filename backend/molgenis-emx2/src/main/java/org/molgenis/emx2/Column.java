@@ -8,6 +8,7 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
 import org.jooq.Field;
@@ -101,6 +102,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return semantics != null && semantics.length > 0;
   }
 
+  @Nullable
   public Semantic[] getSemantics() {
     return semantics;
   }

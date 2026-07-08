@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.util.Values;
@@ -39,6 +40,13 @@ public class SemanticPrefixes {
           .addColumn(SEMANTIC_PREFIXES_NAME_IRI)
           .build();
 
+  /**
+   * @param schema The schema to retrieve custom semantic prefixes from (if they exist)
+   * @return {@code null} if the {@link SchemaMetadata} has no {@link
+   *     Constants#SETTING_SEMANTIC_PREFIXES} setting, otherwise the defined {@link Namespace}{@code
+   *     s} (which can be empty if the setting has an empty value).
+   */
+  @Nullable
   private static Set<Namespace> getCustomPrefixes(SchemaMetadata schema) {
     if (!schema.getSettings().containsKey(SETTING_SEMANTIC_PREFIXES)) {
       return null;
