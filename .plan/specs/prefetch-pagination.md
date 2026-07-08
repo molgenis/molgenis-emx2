@@ -1,5 +1,7 @@
 # Spec: Prefetched DataList pagination — limit + count + smart fallback
 
+> **UPDATE 2026-07-08 (decisions.md item 1):** `nestedLimit` is no longer a per-caller prop. It is now the module constant `DEFAULT_NESTED_LIMIT = 5` in `fetchTableData.ts`, applied UNCONDITIONALLY to root-level collections (nested levels stay uncapped). Wherever rows below say "nestedLimit" / "opt-in prop" / "omitted = all rows", read it as "the constant 5, always applied at root". The prefetch/count/smart-fallback mechanism itself is unchanged.
+
 ## Problem
 
 The REFBACK prefetch optimization (F6) fetches ALL nested rows in the main query. For small datasets this is fine, but a REFBACK with 10,000 rows would bloat the main query response. We need:
@@ -233,7 +235,7 @@ const effectiveShowPagination = computed(() =>
 | All prefetched → no search box shown | DataList | `DataList — one-way switch > does not show search box when all data prefetched` | - |
 | Pagination shows correct total pages from totalCount | DataList | `DataList — one-way switch on pagination > shows totalCount / 4 pages in pagination` | visual check |
 | Page beyond prefetched range → switch to smart | DataList | `DataList — one-way switch on pagination > effectiveSchemaId resolves to mySchema when hasSwitchedToSmart` | visual check |
-| No implicit `nestedLimit` — omitted = all rows; `fetchRowData` and `DetailView` carry NO default; callers opt in explicitly (catalogue sample pages pass `:nested-limit="5"`; apps/ui entity page passes none = unlimited) | fetchRowData.ts, DetailView.vue | `fetchTableData.spec.ts` limit emission (no limit when undefined) | - |
+| Root-level collections ALWAYS capped at `DEFAULT_NESTED_LIMIT = 5` (const in fetchTableData.ts); no per-caller `nestedLimit` param anymore; nested levels stay uncapped; `_agg { count }` still emitted for total (2026-07-08, decisions.md item 1) | fetchTableData.ts | `fetchTableData.spec.ts` — root collections carry `(limit: 5)` always; no `(limit:)` at non-root | - |
 
 ## Implementation decisions
 
@@ -243,8 +245,8 @@ const effectiveShowPagination = computed(() =>
 
 ## Edge cases
 
-- **REFBACK with < nestedLimit rows (or no limit set)**: count equals array length, no smart fallback ever needed. Pure dumb mode with client-side search.
-- **REFBACK with > nestedLimit rows**: first N prefetched, count shows total. Initial pages use prefetched data. Search or page-beyond triggers permanent smart fallback.
+- **REFBACK with ≤ DEFAULT_NESTED_LIMIT (5) rows**: count equals array length, no smart fallback ever needed. Pure dumb mode with client-side search.
+- **REFBACK with > DEFAULT_NESTED_LIMIT (5) rows**: first 5 prefetched, count shows total. Initial pages use prefetched data. Search or page-beyond triggers permanent smart fallback.
 - **Empty REFBACK**: count = 0, empty array. Dumb DataList shows "No items".
 - **No nestedLimit set (default)**: all rows fetched, `_agg{count}` still included. DataList knows total = array length, never needs smart fallback.
 - **Smart fallback filter**: The REFBACK filter from `watchEffect` scopes queries to the parent record. Available after first metadata fetch (cached, fast).

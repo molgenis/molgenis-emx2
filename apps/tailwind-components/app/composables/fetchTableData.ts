@@ -3,6 +3,8 @@ import { fetchMetadata } from "#imports";
 import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 
+export const DEFAULT_NESTED_LIMIT = 5;
+
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];
   count: number;
@@ -28,8 +30,7 @@ export default async (
     tableId,
     expandLevel,
     properties?.columns,
-    true,
-    properties?.nestedLimit
+    true
   );
   const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
@@ -97,12 +98,10 @@ function buildScalarFieldGql(col: IColumn): string {
 function buildRefFieldGql(
   col: IColumn,
   subFields: string,
-  rootLevel: boolean,
-  nestedLimit: number | undefined
+  rootLevel: boolean
 ): string {
   const isCollection = rootLevel && COLLECTION_TYPES.includes(col.columnType);
-  const limitArg =
-    isCollection && nestedLimit != null ? `(limit: ${nestedLimit})` : "";
+  const limitArg = isCollection ? `(limit: ${DEFAULT_NESTED_LIMIT})` : "";
   let result = ` ${col.id}${limitArg} {${subFields} }`;
   if (isCollection) result += ` ${col.id}_agg { count }`;
   return result;
@@ -112,8 +111,7 @@ export function buildColumnGql(
   columns: IColumn[],
   columnsForTable: (tableId: string) => IColumn[],
   rootLevel: boolean,
-  expandLevel: number,
-  nestedLimit: number | undefined
+  expandLevel: number
 ): string {
   let gqlFields = "";
 
@@ -127,10 +125,9 @@ export function buildColumnGql(
           subColumns,
           columnsForTable,
           false,
-          expandLevel - 1,
-          undefined
+          expandLevel - 1
         );
-        gqlFields += buildRefFieldGql(col, subFields, rootLevel, nestedLimit);
+        gqlFields += buildRefFieldGql(col, subFields, rootLevel);
       } else {
         gqlFields += buildScalarFieldGql(col);
       }
@@ -145,8 +142,7 @@ export const getColumnIds = async (
   tableId: string,
   expandLevel: number,
   columnFilter: IColumn[] = [],
-  rootLevel = true,
-  nestedLimit?: number
+  rootLevel = true
 ) => {
   const metadata = await fetchMetadata(schemaId);
 
@@ -170,8 +166,7 @@ export const getColumnIds = async (
     schemaId,
     tableId,
     rootLevel,
-    expandLevel,
-    nestedLimit
+    expandLevel
   );
 };
 
@@ -181,8 +176,7 @@ async function buildColumnGqlAsync(
   schemaId: string,
   tableId: string,
   rootLevel: boolean,
-  expandLevel: number,
-  nestedLimit: number | undefined
+  expandLevel: number
 ): Promise<string> {
   let gqlFields = "";
 
@@ -201,10 +195,9 @@ async function buildColumnGqlAsync(
           col.refSchemaId || schemaId,
           col.refTableId || tableId,
           false,
-          expandLevel - 1,
-          undefined
+          expandLevel - 1
         );
-        gqlFields += buildRefFieldGql(col, subFields, rootLevel, nestedLimit);
+        gqlFields += buildRefFieldGql(col, subFields, rootLevel);
       } else {
         gqlFields += buildScalarFieldGql(col);
       }

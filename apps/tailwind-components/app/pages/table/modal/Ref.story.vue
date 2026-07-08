@@ -7,7 +7,7 @@
     :metadata="refTableColumn"
     :row="refTableRow"
     schema="pet store"
-    sourceTableId="Order"
+    tableId="Order"
     :showDataOwner="false"
   />
 </template>

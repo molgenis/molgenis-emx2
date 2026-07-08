@@ -90,32 +90,33 @@ export function isDataListColumn(col: IColumn): boolean {
   );
 }
 
-export function getDetailColumns(
-  columns: IColumn[],
-  data: Record<string, any>
-): IColumn[] {
-  const explicit = columns.filter(
-    (c) => c.role === "DETAIL" && data[c.id] != null
-  );
-  if (explicit.length > 0) return explicit;
-  return columns
-    .filter(
-      (c) =>
-        !c.role &&
-        (!c.key || c.key === 0) &&
-        c.columnType !== "HEADING" &&
-        c.columnType !== "SECTION" &&
-        !c.id.startsWith("mg_") &&
-        data[c.id] != null
-    )
-    .slice(0, 5);
+export interface CardColumnClassification {
+  descriptionColumn?: IColumn;
+  detailColumns: IColumn[];
+  logoColumn?: IColumn;
 }
 
-export function getDescriptionColumn(
-  columns: IColumn[],
-  data: Record<string, any>
-): IColumn | undefined {
-  return columns.find((c) => c.role === "DESCRIPTION" && data[c.id] != null);
+export function classifyCardColumns(
+  columns: IColumn[]
+): CardColumnClassification {
+  return {
+    descriptionColumn: columns.find((c) => c.role === "DESCRIPTION"),
+    detailColumns: (() => {
+      const explicit = columns.filter((c) => c.role === "DETAIL");
+      if (explicit.length > 0) return explicit;
+      return columns
+        .filter(
+          (c) =>
+            !c.role &&
+            (!c.key || c.key === 0) &&
+            c.columnType !== "HEADING" &&
+            c.columnType !== "SECTION" &&
+            !c.id.startsWith("mg_")
+        )
+        .slice(0, 5);
+    })(),
+    logoColumn: columns.find((c) => c.role === "LOGO"),
+  };
 }
 
 export function getLogoColumn(

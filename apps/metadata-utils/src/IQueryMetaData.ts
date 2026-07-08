@@ -9,5 +9,4 @@ export interface IQueryMetaData {
   expandLevel?: number;
   columns?: IColumn[];
   includeSubclassColumns?: boolean;
-  nestedLimit?: number;
 }

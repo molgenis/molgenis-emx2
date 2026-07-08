@@ -22,7 +22,6 @@
       :row-id="rowId"
       :show-side-nav="true"
       :expand-level="2"
-      :nested-limit="5"
       :row-transform="aggregateCollectionEvents"
       :column-transform="injectMergedColumns"
     />

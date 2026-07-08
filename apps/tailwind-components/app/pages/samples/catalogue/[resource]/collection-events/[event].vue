@@ -7,7 +7,6 @@
       :row-id="rowId"
       :show-side-nav="true"
       :expand-level="3"
-      :nested-limit="5"
     />
   </div>
 </template>

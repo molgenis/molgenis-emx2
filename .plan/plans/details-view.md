@@ -99,9 +99,28 @@ All phases complete. Stories sufficient. Visual testing sufficient for now.
 - Backend JUnit test for column role/display persistence — wontfix (metadata persistence covered by existing integration tests)
 - HEADING columns in more catalogue data models — future work, separate PR
 
+## Phase 13: Review cleanup (2026-07-08) — PLANNED, awaiting go
+Six owner-approved items from branch review (rationale in `.plan/decisions.md` 2026-07-08).
+
+| # | Task | Files (primary) | Test |
+|---|------|-----------------|------|
+| 13a | `nestedLimit` → `DEFAULT_NESTED_LIMIT=5` constant; drop prop plumbing + 3 literals | fetchTableData.ts, fetchRowData.ts, IQueryMetaData.ts, DetailView.vue, 3 catalogue pages | fetchTableData.spec.ts (assert limit arg from constant; uncapped path unchanged) |
+| 13b | `sourceTableId` → `tableId` (rename only — `table?`/`inherited?` KEPT: live readers in Picker.vue:167 + apps/schema) | metadata-utils/types.ts, getSubclassColumns.ts, Ref.story.vue | getSubclassColumns.spec.ts (rename asserts) |
+| 13c | Add `ontologyValueObject` (+ isOntologyValueObject/Array guards) in metadata-utils; use in ContentTypeOntologyArray/RefBack; point IOntologyItem/IOntologyNode at it where cheap | metadata-utils/types.ts, content/type/*.vue | types guard test if present; typecheck |
+| 13d | `DataCards.gridColumns` → `maxColumns`; update DataList LIST/CARDS dispatch | DataCards.vue, DataList.vue, DataCards.story.vue | DataCards.story checklist; DataList behavior |
+| 13e | ~~Make DataCards dumb (split props)~~ → REVERSED 2026-07-20 (decisions.md): DataCards keeps `columns`+`rows` API (like DataTable), calls pure `classifyCardColumns(columns)` internally; per-row `isEmptyValue` skip. Kept: classifyCardColumns + 13 tests. | DataCards.vue, DataList.vue, displayUtils.ts | `displayUtils.spec.ts` classifyCardColumns (13) |
+| 13f | Consistency check: DataTable/DataLinks stay dumb; optional pure-helper extraction of DetailView header selection (getDetailViewColumns) for testability | DetailView.vue (opt) | displayUtils.spec.ts |
+
+**Decision (2): keep `display` + `role` as two metadata columns — orthogonal, co-occur (role=DETAIL + display=CARDS). No code change.**
+
+Ordering: 13a/13b/13c independent (parallel). 13d before 13e (rename first, then behavior). 13e depends on 13d. 13f last (verification + optional extract). Backend untouched (all frontend).
+
 ## Deferred (separate PRs)
 - HEADING columns in more catalogue data models
 - DATA_NESTED table type (TableRole=DETAIL covers it for now)
 - Catalogue detail pages demo (needs HEADINGs in all models)
 - Generic list/search page framework
 - Landing pages, harmonisation, shopping cart — out of scope
+- **Phase 13 follow-ups (from 2026-07-08 review):**
+  - LOGO in cards via DataList: `getListColumns` strips `role=LOGO`, so `classifyCardColumns` (fed the filtered set by DataList) never finds a logo → card logos don't render via the smart path. Pre-existing (old code had the same dead path); fix = classify logo from raw metadata columns, needs visual verification. Not a regression.
+  - Alias catalogue `IOntologyItem` (+ `IOntologyNode` in cms.ts) to the new `ontologyValueObject` — deferred (20+ cross-app refs; cms.ts is generated + has extra fields).

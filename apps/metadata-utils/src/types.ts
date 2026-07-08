@@ -82,7 +82,7 @@ export interface IColumn {
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
-  sourceTableId?: string;
+  tableId?: string;
 }
 
 export interface IRefColumn extends IColumn {
@@ -168,6 +168,37 @@ export function isColumnValueObjectArray(
         typeof item === "object" && item !== null && !Array.isArray(item)
     )
   );
+}
+
+export interface ontologyValueObject {
+  name: string;
+  label?: string;
+  code?: string;
+  codesystem?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  order?: number;
+  tags?: string[];
+  parent?: ontologyValueObject;
+  children?: ontologyValueObject[];
+}
+
+export function isOntologyValueObject(
+  value: unknown
+): value is ontologyValueObject {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    "name" in value &&
+    typeof (value as Record<string, unknown>).name === "string"
+  );
+}
+
+export function isOntologyValueObjectArray(
+  value: unknown
+): value is ontologyValueObject[] {
+  return Array.isArray(value) && value.every(isOntologyValueObject);
 }
 
 export type fileValue = {

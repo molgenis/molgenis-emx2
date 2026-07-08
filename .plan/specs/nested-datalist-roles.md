@@ -23,7 +23,7 @@ When a detail page shows REF_ARRAY/REFBACK columns, nested records render as a D
 |--------|-------------------|-----------------|
 | **TABLE** | Header row = column label/name, data in rows. Title column first, bold+clickable. | Same but description column included after title. |
 | **CARDS** | Title bold+clickable on top. Detail fields side-by-side: label/name above, value below. | Title on top, description below title, detail fields side-by-side below. |
-| **LIST** | Same as CARDS but single column (gridColumns=1). | Same as CARDS with description, single column. |
+| **LIST** | Same as CARDS but single column (maxColumns=1). | Same as CARDS with description, single column. |
 | **LINKS** | Bulleted list of clickable title values. | Same (no detail/description shown). |
 
 ### Pagination & Search
@@ -45,4 +45,6 @@ When a detail page shows REF_ARRAY/REFBACK columns, nested records render as a D
 | Multiple TITLE columns collectively count as 1 slot in the 5-slot cap | `displayUtils.ts` `getListColumns()` | `displayUtils.spec.ts` "multiple TITLE columns count as 1 toward the 5-column limit" | — |
 | MULTISELECT/CHECKBOX with `refTableId` render as full-width DataList — single shared predicate governs DetailSection placement and DetailColumn rendering | `displayUtils.ts` `isDataListColumn()`, `DetailSection.vue`, `DetailColumn.vue` | `displayUtils.spec.ts` "isDataListColumn" block (6 tests) | — |
 | Title column detection via `role=TITLE`, bold+clickable | `DataTable.vue` | — | visual check |
-| Description layout: title → description → detail fields | `DataCards.vue` (`getDetailColumns()`, `getDescriptionColumn()`) | — | visual check |
+| Role→column classification (description/detail/logo) via single pure fn `classifyCardColumns(columns)`, called INSIDE DataCards (DataCards takes `columns`+`rows` like DataTable) | `displayUtils.ts` `classifyCardColumns()`, `DataCards.vue` | `displayUtils.spec.ts` `classifyCardColumns` block (13 tests) | — |
+| Description layout: title → description → detail fields (DataCards skips per-row empty values via `isEmptyValue`) | `DataCards.vue` | — | visual check |
+| KNOWN LIMITATION (pre-existing, deferred): `role=LOGO` is stripped by `getListColumns`, so `logoColumn` is undefined when DataCards is driven by DataList → card logos don't render via the smart path. Fix needs visual verification; tracked as follow-up. | `displayUtils.ts`, `DataList.vue` | — | follow-up |

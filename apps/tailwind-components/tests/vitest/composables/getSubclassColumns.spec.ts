@@ -58,10 +58,10 @@ describe("getSubclassColumns — direct subclass", () => {
     expect(result.map((c) => c.id)).not.toContain("name");
   });
 
-  it("annotates each column with sourceTableId of the subclass", () => {
+  it("annotates each column with tableId of the subclass", () => {
     const result = getSubclassColumns("Animal", tables);
     const breedCol = result.find((c) => c.id === "breed");
-    expect(breedCol?.sourceTableId).toBe("Dog");
+    expect(breedCol?.tableId).toBe("Dog");
   });
 });
 
@@ -109,10 +109,10 @@ describe("getSubclassColumns — recursive (sub-subclasses)", () => {
     expect(ids).not.toContain("name");
   });
 
-  it("sets sourceTableId to the subclass that introduced the column", () => {
+  it("sets tableId to the subclass that introduced the column", () => {
     const result = getSubclassColumns("Animal", tables);
     const colorCol = result.find((c) => c.id === "color");
-    expect(colorCol?.sourceTableId).toBe("Labrador");
+    expect(colorCol?.tableId).toBe("Labrador");
   });
 
   it("does not duplicate breed even though Labrador also has it", () => {

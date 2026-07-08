@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
 import {
   getRowLabel,
-  getDetailColumns,
-  getDescriptionColumn,
-  getLogoColumn,
+  isEmptyValue,
+  classifyCardColumns,
 } from "../../utils/displayUtils";
 import { useRecordNavigation } from "../../composables/useRecordNavigation";
 
@@ -13,14 +13,18 @@ const props = withDefaults(
   defineProps<{
     rows: Record<string, any>[];
     columns?: IColumn[];
-    gridColumns?: 1 | 2;
+    maxColumns?: 1 | 2;
     rowLabelTemplate?: string;
     schemaId?: string;
     tableId?: string;
   }>(),
   {
-    gridColumns: 2,
+    maxColumns: 2,
   }
+);
+
+const cardClassification = computed(() =>
+  classifyCardColumns(props.columns ?? [])
 );
 
 function rowKey(row: Record<string, any>): string {
@@ -33,24 +37,29 @@ function cardTitle(row: Record<string, any>): string {
   return getRowLabel(row, props.rowLabelTemplate);
 }
 
-function cardDescription(row: Record<string, any>): string | undefined {
-  const col = getDescriptionColumn(props.columns ?? [], row);
-  return col ? row[col.id] : undefined;
-}
-
-function cardDetailColumns(row: Record<string, any>): IColumn[] {
-  return getDetailColumns(props.columns ?? [], row);
-}
-
-function cardLogoUrl(row: Record<string, any>): string | undefined {
-  const col = getLogoColumn(props.columns ?? [], row);
+function visibleDescription(row: Record<string, any>): string | undefined {
+  const col = cardClassification.value.descriptionColumn;
   if (!col) return undefined;
-  return row[col.id]?.url;
+  const value = row[col.id];
+  return !isEmptyValue(value) ? value : undefined;
+}
+
+function visibleDetailColumns(row: Record<string, any>): IColumn[] {
+  return cardClassification.value.detailColumns.filter(
+    (col) => !isEmptyValue(row[col.id])
+  );
+}
+
+function visibleLogoUrl(row: Record<string, any>): string | undefined {
+  const col = cardClassification.value.logoColumn;
+  if (!col) return undefined;
+  const value = row[col.id];
+  return !isEmptyValue(value) ? value?.url : undefined;
 }
 </script>
 
 <template>
-  <ul class="grid grid-cols-1" :class="{ 'lg:grid-cols-2': gridColumns === 2 }">
+  <ul class="grid grid-cols-1" :class="{ 'lg:grid-cols-2': maxColumns === 2 }">
     <li
       v-for="(row, index) in rows"
       :key="rowKey(row) || index"
@@ -58,8 +67,8 @@ function cardLogoUrl(row: Record<string, any>): string | undefined {
     >
       <div class="flex items-start flex-col h-full">
         <img
-          v-if="cardLogoUrl(row)"
-          :src="cardLogoUrl(row)"
+          v-if="visibleLogoUrl(row)"
+          :src="visibleLogoUrl(row)"
           :alt="cardTitle(row)"
           class="max-h-16 max-w-full mb-2 object-contain"
         />
@@ -75,15 +84,15 @@ function cardLogoUrl(row: Record<string, any>): string | undefined {
           <span v-else class="font-bold">{{ cardTitle(row) }}</span>
         </span>
         <p
-          v-if="cardDescription(row)"
+          v-if="visibleDescription(row)"
           class="mt-1 line-clamp-2"
-          :title="cardDescription(row)"
+          :title="visibleDescription(row)"
         >
-          {{ cardDescription(row) }}
+          {{ visibleDescription(row) }}
         </p>
-        <dl v-if="cardDetailColumns(row).length" class="mt-3 grid gap-1">
+        <dl v-if="visibleDetailColumns(row).length" class="mt-3 grid gap-1">
           <div
-            v-for="col in cardDetailColumns(row)"
+            v-for="col in visibleDetailColumns(row)"
             :key="col.id"
             class="flex gap-2"
           >

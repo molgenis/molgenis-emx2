@@ -7,8 +7,7 @@ export default async (
   schemaId: string,
   tableId: string,
   rowId: IRow,
-  expandLevel: number = 2,
-  nestedLimit?: number
+  expandLevel: number = 2
 ): Promise<Record<string, columnValue>> => {
   const metadata = await fetchTableMetadata(schemaId, tableId);
   const filter = getRowFilter(metadata.columns, rowId);
@@ -18,7 +17,6 @@ export default async (
     expandLevel,
     limit: 1,
     offset: 0,
-    nestedLimit,
   });
 
   if (resp.rows.length === 0) {

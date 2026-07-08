@@ -56,7 +56,7 @@ const minimalRows = [{ name: "Simple Entry" }, { name: "Another Entry" }];
 const spec = `
 ## Features
 - Renders a grid of cards from a rows array
-- Inlines title, description, and detail fields per row
+- Inlines title, description, and detail fields per row (role-based, via classifyCardColumns internally)
 - Supports 1- or 2-column grid layout
 - Optional href links per row via schemaId + tableId
 - Shows "No items" when rows is empty
@@ -66,20 +66,20 @@ const spec = `
 |------|------|---------|
 | rows | Record<string, any>[] | required |
 | columns | IColumn[] | undefined |
-| gridColumns | 1 \| 2 | 2 |
+| maxColumns | 1 \\| 2 | 2 |
 | rowLabelTemplate | string | undefined |
 | schemaId | string | undefined |
 | tableId | string | undefined |
 
 ## Test Checklist
 - [ ] Cards render in 2-col grid by default
-- [ ] Cards render in 1-col grid when gridColumns=1
+- [ ] Cards render in 1-col grid when maxColumns=1
 - [ ] Title links when schemaId + tableId provided
 - [ ] Title plain text when no schemaId/tableId
-- [ ] Description shown when DESCRIPTION column present
+- [ ] Description shown when DESCRIPTION role column present and row has value
 - [ ] Detail columns shown as label-value pairs
 - [ ] Ref object values render correctly
-- [ ] No dl rendered when no columns
+- [ ] No dl rendered when no columns passed
 - [ ] "No items" shown for empty rows
 `;
 </script>
@@ -125,7 +125,7 @@ const spec = `
           <h2 class="text-xl font-semibold text-record-heading">
             Single column layout
           </h2>
-          <DataCards :rows="rows" :columns="columns" :grid-columns="1" />
+          <DataCards :rows="rows" :columns="columns" :max-columns="1" />
         </div>
 
         <div class="space-y-4">

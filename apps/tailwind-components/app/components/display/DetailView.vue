@@ -33,7 +33,6 @@ const props = withDefaults(
     showSideNav?: boolean;
     columnTransform?: (columns: IColumn[]) => IColumn[];
     expandLevel?: number;
-    nestedLimit?: number;
     rowTransform?: (row: recordValue) => recordValue;
   }>(),
   {
@@ -71,8 +70,7 @@ const {
       props.schemaId!,
       props.tableId!,
       props.rowId!,
-      props.expandLevel,
-      props.nestedLimit
+      props.expandLevel
     ),
   {
     watch: [() => props.schemaId, () => props.tableId, () => props.rowId],
