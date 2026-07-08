@@ -20,9 +20,34 @@ ext {
 // (EnvironmentProperty.getParameter, used by SqlDatabase). A running Gradle daemon does
 // not pass command-line -D system properties to forked JVMs, so forward them explicitly
 // onto every forked Test/JavaExec task (test, run, dev, cleandb, generateTypes).
+// Values may also come from a repo-root .env file, read straight from disk once at
+// configuration time (daemon-safe, no `source` needed). Precedence: a -D CLI system
+// property wins; otherwise the .env value; otherwise nothing (Java default applies).
+ext.molgenisDotenv = { ->
+    def envFile = new File(rootDir, '.env')
+    def result = [:]
+    if (envFile.exists()) {
+        envFile.eachLine { line ->
+            def trimmed = line.trim()
+            if (trimmed.isEmpty() || trimmed.startsWith('#')) return
+            def idx = trimmed.indexOf('=')
+            if (idx < 0) return
+            def key = trimmed.substring(0, idx).trim()
+            def value = trimmed.substring(idx + 1).trim()
+            if (value.length() >= 2 &&
+                    ((value.startsWith('"') && value.endsWith('"')) ||
+                     (value.startsWith("'") && value.endsWith("'")))) {
+                value = value.substring(1, value.length() - 1)
+            }
+            result[key] = value
+        }
+    }
+    result
+}()
 ext.forwardMolgenisPostgresProps = { task ->
     ['MOLGENIS_POSTGRES_URI', 'MOLGENIS_POSTGRES_USER', 'MOLGENIS_POSTGRES_PASS'].each { p ->
-        if (System.getProperty(p) != null) task.systemProperty p, System.getProperty(p)
+        def v = System.getProperty(p) ?: rootProject.molgenisDotenv[p]
+        if (v != null) task.systemProperty p, v
     }
 }
 
