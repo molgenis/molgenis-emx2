@@ -22,12 +22,8 @@ const emit = defineEmits(["dragging"]);
 const startDrag = (event: DragEvent, componentInfo: DSVRowAny) => {
   emit("dragging", { dragging: true, ...componentInfo });
   dragging.value = true;
-  fromX.value = event.pageX;
-  fromY.value = event.pageY;
-  console.log("startDrag", event.pageX, event.pageY, event);
 };
 const endDrag = (event: DragEvent, componentInfo: any) => {
-  console.log("endDrag", event.pageX, event.pageY, event);
   emit("dragging", { dragging: false, ...componentInfo });
   dragging.value = false;
 };

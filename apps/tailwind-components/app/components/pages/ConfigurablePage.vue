@@ -33,6 +33,8 @@ const draggingInfo = ref<{
     <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
       <ComponentDropZone
         :draggingInfo="draggingInfo"
+        :component="orderedBlock.block"
+        :block="orderedBlock.block.id"
         componentType="Block"
         v-if="isEditable"
       />
@@ -50,6 +52,8 @@ const draggingInfo = ref<{
       >
         <ComponentDropZone
           :draggingInfo="draggingInfo"
+          :component="orderedBlock.block.componentOrder[0]"
+          :block="orderedBlock.block.id"
           componentType="Component"
           v-if="isEditable"
         />
@@ -65,6 +69,9 @@ const draggingInfo = ref<{
           />
           <ComponentDropZone
             :draggingInfo="draggingInfo"
+            :component="orderedComponent.component"
+            :addBelow="true"
+            :block="orderedBlock.block.id"
             componentType="Component"
             v-if="isEditable"
           />

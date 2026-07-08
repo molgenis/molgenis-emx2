@@ -4,6 +4,7 @@ import { useElementBounding } from "@vueuse/core";
 import { computed, ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn } from "@vueuse/core";
+import { addComponent } from "~/utils/cms";
 
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
@@ -14,13 +15,18 @@ const { y } = useElementBounding(dropzone);
 const props = withDefaults(
   defineProps<{
     componentType: string;
+    component: any;
+    addBelow?: boolean;
+    block: string;
     draggingInfo: {
       dragging: boolean;
       componentName: string;
       componentType: string;
     };
   }>(),
-  {}
+  {
+    addBelow: false,
+  }
 );
 
 const maxDistance = 50;
@@ -39,6 +45,20 @@ useRafFn(() => {
     0
   );
 });
+
+function addComponentToBlock() {
+  console.log(`Adding ${props.draggingInfo.componentName}`, props.component);
+  // NOTE: temporary test
+  addComponent(
+    props.component.mg_tableclass.split(".")[0],
+    props.draggingInfo.componentName + "-" + Math.floor(Math.random() * 10000),
+    props.block,
+    0,
+    props.draggingInfo.componentName
+  );
+  // TODO: get some useful order
+  // TODO: reload page data after adding component
+}
 </script>
 
 <template>
@@ -47,6 +67,8 @@ useRafFn(() => {
       <div class="border-t border-button-primary border-dashed"></div>
       <div class="-translate-y-1/2">
         <div
+          @dragover.prevent
+          @drop="addComponentToBlock"
           ref="dropzone"
           :class="{ border: distance > 0 }"
           class="border-button-primary border-dashed rounded-lg overflow-hidden flex items-center justify-center bg-dashboard-dropzone text-center"

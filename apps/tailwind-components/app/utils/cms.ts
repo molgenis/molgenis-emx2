@@ -45,6 +45,68 @@ export async function getPage(
   return { page: currentPage, metadata: data._schema.tables };
 }
 
+export async function addComponent(
+  schema: string,
+  id: string,
+  parentBlock: string,
+  order: number,
+  componentType: string
+) {
+  console.log("addComponent", schema, id, parentBlock, order, componentType);
+  if (componentType === "Paragraph") {
+    await AddParagraph(schema, id, order, parentBlock);
+  }
+  // TODO: do we need to redo the order numbers?
+}
+
+export async function AddParagraph(
+  schema: string,
+  id: string,
+  order: number,
+  parentBlock: string
+): Promise<boolean> {
+  // add the paragraph component
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[ParagraphsInput]){insert(Paragraphs:$value){message}}`,
+      variables: {
+        value: [
+          {
+            paragraphIsCentered: false,
+            text: "add your text here",
+            id: `${id}`,
+          },
+        ],
+      },
+    },
+  });
+  console.log("AddParagraph", data);
+  // add the order and location
+  const { data_order } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[ComponentOrdersInput]){insert(ComponentOrders:$value){message}}`,
+      variables: {
+        value: [
+          {
+            id: `${id}-order`,
+            block: {
+              id: parentBlock,
+            },
+            component: {
+              id: `${id}`,
+            },
+            order: order,
+          },
+        ],
+      },
+    },
+  });
+  console.log("AddParagraph order", data_order);
+  return true;
+}
+
 export function generateHtmlPreview(
   content: IDeveloperPages,
   ref: HTMLDivElement
