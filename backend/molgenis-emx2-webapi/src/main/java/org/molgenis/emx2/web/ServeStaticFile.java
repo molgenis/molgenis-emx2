@@ -4,6 +4,8 @@ import static org.molgenis.emx2.ColumnType.STRING;
 
 import com.google.common.io.ByteStreams;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URLConnection;
@@ -18,8 +20,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class ServeStaticFile {
-
-  private static final String FORBIDDEN = "Forbidden";
 
   private record AppsPath(boolean isFile, boolean isUi, String mimeType, String path) {
 
@@ -120,7 +120,7 @@ public class ServeStaticFile {
     Path internalRoot = Path.of(INTERNAL_APP_FOLDER).normalize();
     Path resolved = Path.of(path).normalize();
     if (!resolved.startsWith(internalRoot)) {
-      ctx.status(403).result(FORBIDDEN);
+      ctx.status(HttpStatus.FORBIDDEN).result(HttpStatus.FORBIDDEN.getMessage());
       return;
     }
     String resourcePath = convertWindowsPathToJarPath(resolved.toString());
@@ -153,7 +153,7 @@ public class ServeStaticFile {
         internalAppsDirectory.resolve(fallbackFileBase).normalize().toString();
 
     if (!requestedInternalFilePath.startsWith(internalAppsDirectory.toString())) {
-      ctx.status(403).result(FORBIDDEN);
+      ctx.status(HttpStatus.FORBIDDEN).result(HttpStatus.FORBIDDEN.getMessage());
       return;
     }
 
@@ -184,7 +184,7 @@ public class ServeStaticFile {
 
     if (!requestedExternalFilePath.startsWith(externalAppsDirectory)) {
       // Suspected path traversal: reject the request
-      ctx.status(403).result(FORBIDDEN);
+      ctx.status(HttpStatus.FORBIDDEN).result(HttpStatus.FORBIDDEN.getMessage());
       return;
     }
 
