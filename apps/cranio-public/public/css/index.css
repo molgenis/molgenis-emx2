@@ -106,7 +106,7 @@
 }
 
 .quicklink-cards .link-card .card-content svg path {
-    stroke: var(--cranio-primary);
+  stroke: var(--cranio-primary);
 }
 
 .quicklink-cards .link-card .card-content h3 {
@@ -190,8 +190,8 @@
     flex-wrap: nowrap;
   }
 
-  #workstreamSummary .column-header-percent,
-  #workstreamSummary .column-percent {
+  #workstreamSummary th[data-column-name="percent"],
+  #workstreamSummary td[data-column-name="percent"] {
     text-align: right;
   }
 }
