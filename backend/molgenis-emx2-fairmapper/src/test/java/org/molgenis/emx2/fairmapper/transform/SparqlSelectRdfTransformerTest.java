@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -17,11 +16,11 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
-import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
+import org.molgenis.emx2.fairmapper.RdfFileReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.rdf.generators.query.FileBasedQueryGenerator;
@@ -66,7 +65,7 @@ class SparqlSelectRdfTransformerTest {
             database.getSchema(schemaName).getMetadata(),
             List.of("Pet"));
 
-    SailRepository repository = readPetStoreTtl();
+    SailRepository repository = RdfFileReader.readFile("transform/petstore.ttl");
     TableStore store = transformer.transform(repository);
 
     StringWriter writer = new StringWriter();
@@ -75,19 +74,6 @@ class SparqlSelectRdfTransformerTest {
 
     String expected = readPetsCsv();
     assertEquals(expected, writer.toString());
-  }
-
-  private SailRepository readPetStoreTtl() {
-    SailRepository repository = new SailRepository(new MemoryStore());
-    try (SailRepositoryConnection connection = repository.getConnection()) {
-      URL url = SparqlSelectRdfTransformerTest.class.getResource("petstore.ttl");
-      connection.add(url, RDFFormat.TURTLE);
-      connection.commit();
-    } catch (IOException e) {
-      fail("Unable to set up SailRepository for petstore.ttl", e);
-    }
-
-    return repository;
   }
 
   @Nested
