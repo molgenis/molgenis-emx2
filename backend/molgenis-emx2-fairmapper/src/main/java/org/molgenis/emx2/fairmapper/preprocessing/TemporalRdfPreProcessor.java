@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper.enrich;
+package org.molgenis.emx2.fairmapper.preprocessing;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -21,7 +21,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
  * <p>The enrichment is idempotent: running it multiple times on the same repository produces the
  * same result.
  */
-public class TemporalRdfEnricher implements RdfEnricher {
+public class TemporalRdfPreProcessor implements RdfPreProcessor {
 
   private static final String CONSTRUCT =
       """
@@ -48,7 +48,7 @@ public class TemporalRdfEnricher implements RdfEnricher {
       """;
 
   @Override
-  public void enrich(SailRepository repository) {
+  public void process(SailRepository repository) {
     try (SailRepositoryConnection conn = repository.getConnection()) {
       constructForIri(conn, DCAT.DATASET);
       constructForIri(conn, DCAT.CATALOG);
