@@ -14,6 +14,9 @@ tasks.register('cleandb', JavaExec) {
     group = 'application'
     classpath = sourceSets.main.runtimeClasspath
     mainClass.set('org.molgenis.emx2.sql.AToolToCleanDatabase')
+    ['MOLGENIS_POSTGRES_URI', 'MOLGENIS_POSTGRES_USER', 'MOLGENIS_POSTGRES_PASS'].each { p ->
+        if (System.getProperty(p) != null) systemProperty p, System.getProperty(p)
+    }
 }
 
 // Task to initialize database for tests
