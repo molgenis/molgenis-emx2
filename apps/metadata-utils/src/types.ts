@@ -127,6 +127,7 @@ export interface LegendSection extends LegendItem {
 }
 export interface LegendHeading extends LegendItem {
   type: "HEADING";
+  children?: LegendHeading[];
 }
 
 export type columnId = string;

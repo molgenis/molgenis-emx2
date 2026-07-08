@@ -1,3 +1,47 @@
+<script setup lang="ts">
+import { ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import BackgroundGradient from "../components/BackgroundGradient.vue";
+import BaseIcon from "../components/BaseIcon.vue";
+import FormLegend from "../components/form/Legend.vue";
+import { buildDocsTree } from "../utils/docsNav";
+
+const menuIsOpen = ref<boolean>(true);
+const navQuery = ref("");
+
+const modules = import.meta.glob("../**/*.story.vue", {
+  import: "default",
+  eager: true,
+});
+
+const route = useRoute();
+const router = useRouter();
+
+const legendSections = computed(() =>
+  buildDocsTree(Object.keys(modules), route.path, navQuery.value)
+);
+
+function handleGoToSection(id: string) {
+  if (id) router.push(id);
+}
+
+const storyName = computed(() => {
+  const pathParts = route.path.split("/").filter(Boolean);
+  const capitalizedParts = pathParts.map(
+    (part) => part.charAt(0).toUpperCase() + part.slice(1)
+  );
+  return capitalizedParts.join("").replace(".story", "");
+});
+
+const storyRef = ref<{ $el: HTMLElement } | null>(null);
+
+function scrollToTop() {
+  if (storyRef.value?.$el) {
+    storyRef.value.$el.scrollTo(0, 0);
+  }
+}
+</script>
+
 <template>
   <div
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden"
@@ -7,58 +51,56 @@
     >
       <BackgroundGradient class="z-10" />
     </div>
-    <div class="z-30 relative min-h-screen flex flex-col">
-      <Header>
-        <template #logo>
-          <Logo link="/" :image="logoUrl" />
-        </template>
-        <template #nav>
-          <Navigation :navigation="userMenuItems" />
-        </template>
-
-        <template #account>
-          <AccountMenu
-            :has-custom-content="hasAccountDropdownSlot"
-            :isSignedIn="isSignedIn"
-            :email="session?.email"
-            @signOut="signOut"
-          >
-            <slot name="account-dropdown" />
-          </AccountMenu>
-        </template>
-        <template #logo-mobile>
-          <LogoMobile link="/" :image="logoUrl" />
-        </template>
-        <template #nav-mobile>
-          <Navigation :navigation="menuItems" />
-        </template>
-      </Header>
-
-      <main>
-        <slot />
-      </main>
-
-      <FooterComponent class="mt-[7.8125rem]">
-        <FooterVersion />
-      </FooterComponent>
+    <div class="z-30 relative mt-[54px] h-[calc(100vh-54px)] overflow-hidden">
+      <div id="header-place-holder"></div>
+      <div
+        class="grid xl:grid-cols-1 h-full"
+        :class="{
+          'xl:grid-cols-[300px_1fr]': menuIsOpen,
+        }"
+      >
+        <aside
+          class="grow hidden xl:flex xl:flex-col overflow-hidden h-full"
+          :class="{
+            'xl:hidden': !menuIsOpen,
+          }"
+        >
+          <div class="px-4 py-3 shrink-0">
+            <label for="docs-nav-search" class="sr-only"
+              >Filter navigation</label
+            >
+            <InputSearch
+              id="docs-nav-search"
+              v-model="navQuery"
+              placeholder="Search..."
+              size="small"
+            />
+          </div>
+          <div class="overflow-y-auto grow">
+            <FormLegend
+              :sections="legendSections"
+              collapsible
+              :expand-all="navQuery.trim().length > 0"
+              @go-to-section="handleGoToSection"
+            />
+          </div>
+        </aside>
+        <Story
+          ref="storyRef"
+          :title="storyName"
+          class="min-h-0 h-full overflow-hidden"
+        >
+          <slot></slot>
+        </Story>
+      </div>
+    </div>
+    <div
+      class="hidden z-40 fixed bottom-0 left-0 w-[100%] md:flex justify-end px-6 pb-4"
+    >
+      <Button size="small" type="outline" id="scrollToTop" @click="scrollToTop">
+        <BaseIcon name="ArrowUp" :width="24" />
+        <span class="sr-only">scroll to top</span>
+      </Button>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, useSlots } from "vue";
-import BackgroundGradient from "../components/BackgroundGradient.vue";
-import Header from "../components/Header.vue";
-import Logo from "../components/Logo.vue";
-import LogoMobile from "../components/LogoMobile.vue";
-import Navigation from "../components/Navigation.vue";
-import FooterComponent from "../components/FooterComponent.vue";
-import FooterVersion from "../components/FooterVersion.vue";
-import AccountMenu from "../components/AccountMenu.vue";
-import { useLayoutState } from "../composables/useLayoutState.js";
-
-const { isSignedIn, logoUrl, menuItems, session, signOut, userMenuItems } =
-  await useLayoutState();
-const slots = useSlots();
-const hasAccountDropdownSlot = computed(() => !!slots["account-dropdown"]);
-</script>

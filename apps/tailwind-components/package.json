@@ -4,10 +4,10 @@
   "type": "module",
   "scripts": {
     "lint": "nuxi typecheck",
-    "generate-source-map": "node ./app/utils/generateSourceMap.js",
-    "build": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
-    "build-showcase": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
-    "dev": "pnpm run generate-source-map && nuxt dev",
+    "generate-component-meta": "node ./app/utils/generateComponentMeta.mjs",
+    "build": "pnpm run generate-component-meta && cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
+    "build-showcase": "pnpm run generate-component-meta && cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
+    "dev": "pnpm run generate-component-meta && nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
@@ -41,6 +41,7 @@
     "vue-router": "5.0.3"
   },
   "devDependencies": {
+    "@vue/compiler-dom": "3.5.22",
     "@nuxt/test-utils": "4.0.3",
     "@nuxtjs/tailwindcss": "6.14.0",
     "@playwright/test": "1.61.0",
@@ -59,6 +60,7 @@
     "tailwindcss": "3.4.17",
     "typescript": "5.6.2",
     "vitest": "4.1.8",
+    "vue-component-meta": "2.2.0",
     "vue-tsc": "3.2.1"
   }
 }
