@@ -779,8 +779,11 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     for (TableMetadata moduleTable : moduleTables) {
       for (Column c : moduleTable.getLocalColumns()) {
         // module's inherited copy of the shared root PK/columns is already in
-        // 'base'; only add columns genuinely local to the module itself
-        if (!c.isSystemColumn() && !c.isHeading() && !rootColumnNames.contains(c.getName())) {
+        // 'base'; only add columns genuinely local to the module itself.
+        // HEADING/SECTION columns flow through like any other module column,
+        // just as root headings do; the SQL default-select drops them at its
+        // select site (SqlQuery: !isHeading()).
+        if (!c.isSystemColumn() && !rootColumnNames.contains(c.getName())) {
           nonSystem.add(c);
         }
       }

@@ -275,4 +275,27 @@ class DiamondShowcaseTest {
     List<Row> experimentRows = schema.getTable(EXPERIMENT).retrieveRows();
     assertEquals(3, experimentRows.size(), "Experiment table must have 3 demo rows loaded");
   }
+
+  @Test
+  void experimentModuleColumnsIncludeAssayHeadings() {
+    List<Column> cols = schema.getTable(EXPERIMENT).getMetadata().getColumnsIncludingModules();
+
+    Column rnaHeading = findHeadingForTable(cols, RNA);
+    assertNotNull(
+        rnaHeading,
+        "RNA HEADING column must appear in Experiment module-inclusive columns tagged table=RNA");
+
+    Column dnaHeading = findHeadingForTable(cols, DNA);
+    assertNotNull(
+        dnaHeading,
+        "DNA HEADING column must appear in Experiment module-inclusive columns tagged table=DNA");
+  }
+
+  private Column findHeadingForTable(List<Column> cols, String tableName) {
+    return cols.stream()
+        .filter(col -> col.getColumnType() == ColumnType.HEADING)
+        .filter(col -> tableName.equals(col.getTableName()))
+        .findFirst()
+        .orElse(null);
+  }
 }

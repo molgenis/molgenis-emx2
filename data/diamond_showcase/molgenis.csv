@@ -7,21 +7,26 @@ Subject,,,tags,ENUM_ARRAY,,,"research,clinical,rare",,Administrative tags
 Subject,,,subgroups01,MODULE_ARRAY,,,"CockayneSyndrome,XerodermaPigmentosum,Trichothiodystrophy",,Disease subgroup memberships
 Subject,,,diseaseGroup,MODULE_ARRAY,,,"EpidermolysisBullosa",,Disease group memberships
 CockayneSyndrome,Subject,MODULE,,,,,,,
+CockayneSyndrome,,,cockayneHeading,HEADING,,,,Cockayne syndrome,
 CockayneSyndrome,,,relevantmedhistory,TEXT,,,,, Has the patient had any relevant medical history?
 CockayneSyndrome,,,ageOfDiagnose,STRING,,,,,Age of Diagnosis (YY/MM)
 CockayneSyndrome,,,dateAssessment,DATE,,,,,Date of assessment
 CockayneSyndrome,,,weight,DECIMAL,,,,,Weight (kg)
 XerodermaPigmentosum,Subject,MODULE,,,,,,,
+XerodermaPigmentosum,,,xerodermaHeading,HEADING,,,,Xeroderma pigmentosum,
 XerodermaPigmentosum,,,skinSymptoms,STRING,,,,,Skin symptoms present
 XerodermaPigmentosum,,,eyeInvolvement,STRING,,,,,Eye involvement
 XerodermaPigmentosum,,,totalSkin,INT,,,,,Total skin severity scale (max 10 points)
 Trichothiodystrophy,Subject,MODULE,,,,,,,
+Trichothiodystrophy,,,trichoHeading,HEADING,,,,Trichothiodystrophy,
 Trichothiodystrophy,,,lowSulphur,STRING,,,,,Low sulphur hair content
 Trichothiodystrophy,,,sensorineuralHearingLoss,STRING,,,,,Sensorineural hearing loss
 Trichothiodystrophy,,,otherendo,TEXT,,,,,Other endocrinologic anomalies
 AdvancedCockayne,CockayneSyndrome,MODULE,,,,,,,
+AdvancedCockayne,,,advancedCockayneHeading,HEADING,,,,Advanced Cockayne,
 AdvancedCockayne,,,neuroDegradationScore,INT,,,,,Neurodegradation severity score (0-10)
 EpidermolysisBullosa,Subject,MODULE,,,,,,,
+EpidermolysisBullosa,,,epidermolysisHeading,HEADING,,,,Epidermolysis bullosa,
 EpidermolysisBullosa,,,eBType,STRING,,,,,Type of Epidermolysis Bullosa
 EpidermolysisBullosa,,,anemicHemoglobine,INT,,,,,Anemic hemoglobine (g/dl)
 EpidermolysisBullosa,,,crp,INT,,,,,CRP (mg/L)
@@ -39,10 +44,12 @@ Experiment,,,experimentId,STRING,1,TRUE,,,Experiment identifier
 Experiment,,,experimentType,MODULE,,,,,Assay type (single choice; RNA or DNA)
 Experiment,,,runDate,DATE,,,,,Date the experiment was run
 RNA,Experiment,MODULE,,,,,,,
+RNA,,,rnaHeading,HEADING,,,,RNA assay,
 RNA,,,rnaConcentration,DECIMAL,,,,,RNA concentration (ng/uL)
 RNA,,,libraryPrep,STRING,,,,,Library preparation kit
 RNA,,,readCount,INT,,,,,Total sequencing reads
 DNA,Experiment,MODULE,,,,,,,
+DNA,,,dnaHeading,HEADING,,,,DNA assay,
 DNA,,,dnaConcentration,DECIMAL,,,,,DNA concentration (ng/uL)
 DNA,,,sequencingPlatform,STRING,,,,,Sequencing platform
 DNA,,,coverage,INT,,,,,Mean coverage depth

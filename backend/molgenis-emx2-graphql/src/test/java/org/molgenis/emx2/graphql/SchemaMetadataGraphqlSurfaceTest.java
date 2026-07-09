@@ -226,20 +226,24 @@ class SchemaMetadataGraphqlSurfaceTest {
   }
 
   @Test
-  void moduleSectionAndHeadingColumnsDoNotCorruptRootSectionAssignment() throws IOException {
+  void moduleHeadingAndSectionColumnsAppearOrderedByPosition() throws IOException {
+    // Realistic layout: the module's SECTION/HEADING sit at the START of the
+    // module's own column block, so they section only the module's own columns.
+    // The root data column sits BEFORE the module block, so it keeps its root
+    // section (proving section assignment follows POSITION, not a blanket skip).
     SchemaMetadata source = new SchemaMetadata();
     source.create(
         table("SecRoot")
             .add(column("secRootId").setType(STRING).setPkey().setPosition(1))
-            .add(column("secA").setType(SECTION).setPosition(2))
-            .add(column("afterModuleCol").setType(STRING).setPosition(4)));
+            .add(column("rootSection").setType(SECTION).setPosition(2))
+            .add(column("rootDataCol").setType(STRING).setPosition(3)));
     source.create(
         table("SecMod")
             .setTableType(MODULE)
             .setInheritNames("SecRoot")
-            .add(column("modSection").setType(SECTION).setPosition(3))
-            .add(column("modHeading").setType(HEADING).setPosition(3))
-            .add(column("modDataCol").setType(STRING).setPosition(3)));
+            .add(column("modSection").setType(SECTION).setPosition(4))
+            .add(column("modHeading").setType(HEADING).setPosition(5))
+            .add(column("modDataCol").setType(STRING).setPosition(6)));
 
     org.molgenis.emx2.json.Table jsonTable =
         new org.molgenis.emx2.json.Table(source.getTableMetadata("SecRoot"));
@@ -247,25 +251,59 @@ class SchemaMetadataGraphqlSurfaceTest {
     List<org.molgenis.emx2.json.Column> cols =
         (List<org.molgenis.emx2.json.Column>) jsonTable.getColumns();
 
-    org.molgenis.emx2.json.Column afterModuleJsonCol =
-        cols.stream().filter(c -> "afterModuleCol".equals(c.getName())).findFirst().orElse(null);
-    assertNotNull(afterModuleJsonCol, "afterModuleCol must appear in SecRoot serialized columns");
+    // Module HEADING/SECTION columns DO appear now (reversal of the F2b skip).
+    org.molgenis.emx2.json.Column modSectionCol =
+        cols.stream().filter(c -> "modSection".equals(c.getName())).findFirst().orElse(null);
+    org.molgenis.emx2.json.Column modHeadingCol =
+        cols.stream().filter(c -> "modHeading".equals(c.getName())).findFirst().orElse(null);
+    assertNotNull(modSectionCol, "module SECTION col must appear in root serialized columns");
+    assertNotNull(modHeadingCol, "module HEADING col must appear in root serialized columns");
 
-    String sectionForAfterModuleCol = afterModuleJsonCol.getSection();
-    org.molgenis.emx2.json.Column secAJsonCol =
-        cols.stream().filter(c -> "secA".equals(c.getName())).findFirst().orElse(null);
-    assertNotNull(secAJsonCol, "secA SECTION col must appear in SecRoot serialized columns");
+    // Ordered by position: rootSection < rootDataCol < modSection < modHeading < modDataCol.
+    List<String> names = cols.stream().map(org.molgenis.emx2.json.Column::getName).toList();
+    assertTrue(
+        names.indexOf("rootDataCol") < names.indexOf("modSection")
+            && names.indexOf("modSection") < names.indexOf("modHeading")
+            && names.indexOf("modHeading") < names.indexOf("modDataCol"),
+        "columns must be ordered by position, got: " + names);
+
+    // Root data column keeps its ROOT section (it is positioned before the module block).
+    org.molgenis.emx2.json.Column rootSectionCol =
+        cols.stream().filter(c -> "rootSection".equals(c.getName())).findFirst().orElse(null);
+    org.molgenis.emx2.json.Column rootDataCol =
+        cols.stream().filter(c -> "rootDataCol".equals(c.getName())).findFirst().orElse(null);
+    assertNotNull(rootSectionCol, "rootSection col must appear in root serialized columns");
+    assertNotNull(rootDataCol, "rootDataCol must appear in root serialized columns");
     assertEquals(
-        secAJsonCol.getId(),
-        sectionForAfterModuleCol,
-        "afterModuleCol must retain root secA section, not be hijacked by module SECTION col");
+        rootSectionCol.getId(),
+        rootDataCol.getSection(),
+        "rootDataCol must keep its root section (positioned before the module block)");
 
-    boolean containsModSection = cols.stream().anyMatch(c -> "modSection".equals(c.getName()));
-    boolean containsModHeading = cols.stream().anyMatch(c -> "modHeading".equals(c.getName()));
-    assertFalse(
-        containsModSection, "module SECTION col must NOT appear in root serialized columns");
-    assertFalse(
-        containsModHeading, "module HEADING col must NOT appear in root serialized columns");
+    // Module data column falls under the module SECTION + HEADING (by position).
+    assertEquals(
+        modSectionCol.getId(),
+        modDataColSection(cols),
+        "modDataCol must fall under the module SECTION (positioned after it)");
+    assertEquals(
+        modHeadingCol.getId(),
+        modDataColHeading(cols),
+        "modDataCol must fall under the module HEADING (positioned after it)");
+  }
+
+  private String modDataColSection(List<org.molgenis.emx2.json.Column> cols) {
+    return cols.stream()
+        .filter(c -> "modDataCol".equals(c.getName()))
+        .map(org.molgenis.emx2.json.Column::getSection)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private String modDataColHeading(List<org.molgenis.emx2.json.Column> cols) {
+    return cols.stream()
+        .filter(c -> "modDataCol".equals(c.getName()))
+        .map(org.molgenis.emx2.json.Column::getHeading)
+        .findFirst()
+        .orElse(null);
   }
 
   @Test
