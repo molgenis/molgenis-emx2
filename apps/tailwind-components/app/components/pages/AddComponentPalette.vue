@@ -38,14 +38,14 @@ const handleDragEvent = (event: DragEvent) => {
       >
         <strong>Component palette</strong>
       </div>
+      <div
+        class="px-1 h-6 text-body-sm rounded text-center inline-block bg-dashboard-dropzone text-title-contrast"
+      >
+        Components
+      </div>
       <DraggableComponent
-        icon="view-table"
-        componentName="Header"
-        @dragging="handleDragEvent"
-      />
-      <DraggableComponent
-        icon="globe"
-        componentName="Image"
+        icon="format-align-left"
+        componentName="Heading"
         @dragging="handleDragEvent"
       />
       <DraggableComponent
@@ -54,6 +54,24 @@ const handleDragEvent = (event: DragEvent) => {
         @dragging="handleDragEvent"
       />
       <DraggableComponent
+        icon="globe"
+        componentName="Image"
+        @dragging="handleDragEvent"
+      />
+      <div
+        class="px-1 h-6 text-body-sm rounded text-center inline-block bg-dashboard-dropzone text-title-contrast"
+      >
+        Blocks
+      </div>
+      <DraggableComponent
+        class="line-through"
+        icon="view-table"
+        componentName="Header"
+        componentType="Block"
+        @dragging="handleDragEvent"
+      />
+      <DraggableComponent
+        class="line-through"
         icon="view-normal"
         componentName="Section"
         componentType="Block"

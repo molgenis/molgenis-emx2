@@ -53,20 +53,87 @@ export async function addComponent(
   componentType: string
 ) {
   console.log("addComponent", schema, id, parentBlock, order, componentType);
+  await prepareOrder(schema, order, parentBlock);
   if (componentType === "Paragraph") {
-    await prepareOrder(schema, order, parentBlock);
-    await AddParagraph(schema, id, order, parentBlock);
+    await AddParagraph(schema, id);
   }
-  console.log("addComponent done");
-  // TODO: do we need to redo the order numbers?
+  if (componentType === "Heading") {
+    await AddHeader(schema, id);
+  }
+  if (componentType === "Image") {
+    await AddImage(schema, id);
+  }
+  await AddOrder(schema, id, order, parentBlock);
 }
 
-export async function prepareOrder(
-  schema: string,
-  order: number,
-  block: string
-) {
-  // get every component in block with order >= order and increment their order by 1
+async function AddImage(schema: string, id: string) {
+  // add the paragraph component
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[ImagesInput]){insert(Images:$value){message}}`,
+      variables: {
+        value: [
+          {
+            image: {
+              id: "93489539b9004e98a078ee164ad0c578",
+              size: 317451,
+              filename: "penguins.jpg",
+              extension: "jpg",
+              url: "/cms/api/file/Images/image/93489539b9004e98a078ee164ad0c578",
+            },
+            alt: "Two penguins walking in the grass",
+            width: "425px",
+            imageIsCentered: true,
+            id: `${id}`,
+          },
+        ],
+      },
+    },
+  });
+}
+
+async function AddHeader(schema: string, id: string) {
+  // add the paragraph component
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[HeadingsInput]){insert(Headings:$value){message}}`,
+      variables: {
+        value: [
+          {
+            id: `${id}`,
+            headingIsCentered: false,
+            headingIsHidden: false,
+            text: "Heading",
+            level: 2,
+          },
+        ],
+      },
+    },
+  });
+}
+
+async function AddParagraph(schema: string, id: string) {
+  // add the paragraph component
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[ParagraphsInput]){insert(Paragraphs:$value){message}}`,
+      variables: {
+        value: [
+          {
+            paragraphIsCentered: false,
+            text: "add your text here",
+            id: `${id}`,
+          },
+        ],
+      },
+    },
+  });
+}
+
+async function prepareOrder(schema: string, order: number, block: string) {
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -80,7 +147,6 @@ export async function prepareOrder(
       },
     },
   });
-  console.log("prepareOrder", data);
 
   const componentsToUpdate = data.ComponentOrders as {
     id: string;
@@ -104,33 +170,14 @@ export async function prepareOrder(
       },
     });
   }
-  //
 }
 
-export async function AddParagraph(
+async function AddOrder(
   schema: string,
   id: string,
   order: number,
   parentBlock: string
-): Promise<boolean> {
-  // add the paragraph component
-  const { data } = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation insert($value:[ParagraphsInput]){insert(Paragraphs:$value){message}}`,
-      variables: {
-        value: [
-          {
-            paragraphIsCentered: false,
-            text: "add your text here",
-            id: `${id}`,
-          },
-        ],
-      },
-    },
-  });
-  console.log("AddParagraph", data);
-  // add the order and location
+) {
   const { data_order } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -151,7 +198,6 @@ export async function AddParagraph(
       },
     },
   });
-  console.log("AddParagraph order", data_order);
   return true;
 }
 

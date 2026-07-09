@@ -33,21 +33,21 @@ const draggingInfo = ref<{
 <template>
   <div>
     <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
-      <!--      <ComponentDropZone
-        :draggingInfo="draggingInfo"
-        :component="orderedBlock"
-        :block="orderedBlock"
-        componentType="Block"
+      <ComponentDropZone
         v-if="isEditable"
+        :draggingInfo="draggingInfo"
+        :addBelow="true"
+        :block="orderedBlock"
+        :component="orderedBlock"
+        componentType="Block"
+        @update-page="$emit('updatePage')"
       />
-      -->
       <PageComponent
         v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
         :mg_tableclass="orderedBlock.block.mg_tableclass"
         :component="orderedBlock.block"
         :is-editable="isEditable"
         :metadata="metadata"
-        @update-page="$emit('updatePage')"
       />
       <PageComponent
         v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
@@ -55,15 +55,15 @@ const draggingInfo = ref<{
         :component="orderedBlock.block"
         @update-page="$emit('updatePage')"
       >
-        <!--
         <ComponentDropZone
+          v-if="isEditable"
           :draggingInfo="draggingInfo"
           :component="orderedBlock.block.componentOrder[0]"
+          :addBelow="true"
           :block="orderedBlock"
           componentType="Component"
-          v-if="isEditable"
+          @update-page="$emit('updatePage')"
         />
-        -->
         <template
           v-for="orderedComponent in orderedBlock.block.componentOrder"
           :key="orderedComponent.id"
