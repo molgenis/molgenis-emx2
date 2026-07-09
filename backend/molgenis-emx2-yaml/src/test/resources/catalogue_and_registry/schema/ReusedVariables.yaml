@@ -1,0 +1,15 @@
+---
+table:
+  table: Reused variables
+  description: Listing of variables from another resource that are re-used by a resource
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource reusing the variable
+    refTable: Resources
+  - name: variable
+    type: ref
+    key: 1
+    description: Variable from another resource that is reused
+    refTable: Variables

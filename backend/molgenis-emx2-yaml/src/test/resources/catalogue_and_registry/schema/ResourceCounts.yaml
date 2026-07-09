@@ -1,0 +1,45 @@
+---
+table:
+  table: Resource counts
+  description: Quantitative information on the resource
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource id
+    refTable: Resources
+  - name: age group
+    type: ontology
+    key: 1
+    description: Select the relevant age group for this quantitative information
+    refTable: Age groups
+    refSchema: CatalogueOntologies
+  - name: population size
+    type: int
+    description: "Total number of unique individuals with records captured in the\
+      \ data source (most recent count). In the catalogue, this will accommodate counts\
+      \ per year"
+  - name: active size
+    type: int
+    description: "Number of unique, active, or currently registered individuals with\
+      \ records captured in the data source (most recent count). In the catalogue,\
+      \ this will accommodate counts per year"
+  - name: no individuals with samples
+    type: int
+    description: "Number of unique individuals with records of biological samples\
+      \ (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate\
+      \ counts per year"
+  - name: mean observation years
+    type: int
+    description: Median years for which unique individuals with records captured in
+      the data source are observable (most recent count)
+  - name: mean years active
+    type: int
+    description: Median time for which unique individuals with records captured in
+      the data source are observable (most recent count)
+  - name: median age
+    type: int
+    description: Median age of individuals within data source
+  - name: proportion female
+    type: int
+    description: Proportion of females in the data source

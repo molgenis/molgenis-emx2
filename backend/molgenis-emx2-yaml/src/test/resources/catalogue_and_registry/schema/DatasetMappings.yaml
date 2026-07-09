@@ -1,0 +1,36 @@
+---
+table:
+  table: Dataset mappings
+  description: Mappings from collected or source datasets to harmonised or target
+    datasets
+  columns:
+  - name: source
+    type: ref
+    key: 1
+    description: Id of the resource being mapped from
+    refTable: Resources
+  - name: source dataset
+    type: ref
+    key: 1
+    description: Name of the dataset being mapped from
+    refTable: Datasets
+  - name: target
+    type: ref
+    key: 1
+    description: Network being mapped to
+    refTable: Resources
+  - name: target dataset
+    type: ref
+    key: 1
+    description: "Name of the dataset being mapped to, or harmonised with"
+    refTable: Datasets
+  - name: order
+    type: int
+    description: Order in which table ETLs should be executed for this source-target
+      combination
+  - name: description
+    type: text
+    description: Human readible description of the mapping
+  - name: syntax
+    type: text
+    description: "Formal definition of the mapping, ideally in executable code"

@@ -1,0 +1,39 @@
+---
+table:
+  table: File storage location
+  description: "The storage location where a file is stored (e.g., server, building,\
+    \ filing cabinet, etc.)"
+  columns:
+  - name: name
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C42614
+    description: The name that identifies the file storage location
+  - name: type
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000081
+    description: The classification of a file storage location based on its physical
+      or digital nature
+    refTable: File storage locations
+    refSchema: CatalogueOntologies
+  - name: owner
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C42704
+    description: The person responsible of or primary contact for the file storage
+      location
+    refTable: Contacts
+  - name: organisation
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0000245
+    description: The organisation where the the file storage is located
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+  - name: access protocol
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C51820
+    description: The protocol used for accessing and retrieving files from the storage
+      location

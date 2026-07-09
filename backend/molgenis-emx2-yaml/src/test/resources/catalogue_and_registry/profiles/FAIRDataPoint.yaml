@@ -1,0 +1,21 @@
+---
+schema:
+- import: ../catalogue_and_registry.yaml
+  include:
+  - table: Endpoint
+    columns:
+    - id
+    - type
+    - name
+    - description
+    - publisher
+    - language
+    - license
+    - conformsTo
+    - rights
+    - accessRights
+    - keyword
+    - theme
+    - endPointDescription
+    - EJP_RD_personalData
+    - EJP_RD_vpConnection

@@ -1,0 +1,77 @@
+---
+table:
+  table: Contacts
+  description: Listing of contact persons per resource
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource the contact is affiliated with
+    refTable: Resources
+  - name: role
+    type: ontology_array
+    semantics:
+    - vcard:hasRole
+    description: Type(s) of contribution or role in the resource
+    refTable: Contribution types
+    refSchema: CatalogueOntologies
+  - name: role description
+    type: text
+    description: Description of the role
+  - name: first name
+    key: 1
+    semantics:
+    - foaf:firstName
+    description: First name of the contact person
+  - name: last name
+    key: 1
+    semantics:
+    - foaf:familyName
+    description: Last name of the contact person
+  - name: display name
+    semantics:
+    - foaf:name
+    - vcard:hasName
+    - vcard:fn
+    description: Display name of the contact person
+  - name: prefix
+    description: "Surname prefix, if applicable"
+  - name: initials
+    description: Initials of the contact person
+  - name: title
+    type: ontology
+    semantics:
+    - foaf:title
+    description: Title of the contact person
+    refTable: Titles
+    refSchema: CatalogueOntologies
+  - name: organisation
+    type: ref
+    semantics:
+    - foaf:Organization
+    description: Affiliated organisation of the contact person
+    refTable: Organisations
+  - name: email
+    type: email
+    semantics:
+    - vcard:hasEmail
+    - foaf:mbox
+    description: Contact's email address
+  - name: orcid
+    semantics:
+    - dcterms:identifier
+    description: Orcid of the contact person
+  - name: homepage
+    type: hyperlink
+    semantics:
+    - vcard:url
+    - foaf:workplaceHomepage
+    - vcard:hasURL
+    description: Link to contact's homepage
+  - name: photo
+    type: file
+    semantics:
+    - foaf:img
+    description: Contact's photograph
+  - name: expertise
+    description: Description of contact's expertise

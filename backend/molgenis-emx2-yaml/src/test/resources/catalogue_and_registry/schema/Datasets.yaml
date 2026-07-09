@@ -1,0 +1,51 @@
+---
+table:
+  table: Datasets
+  description: Definition of a dataset
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource of which the dataset is part
+    refTable: Resources
+  - name: name
+    key: 1
+    description: Unique dataset name in the model
+  - name: label
+    description: Short human readable description
+  - name: dataset type
+    type: ontology_array
+    description: "Defines the type of dataset, e.g. genomic"
+    refTable: Dataset types
+    refSchema: CatalogueOntologies
+  - name: unit of observation
+    type: ontology
+    description: Defines what each record in this table describes
+    refTable: Observation targets
+    refSchema: CatalogueOntologies
+  - name: keywords
+    type: ontology_array
+    description: Enables grouping of table list by topic and to display tables in
+      a tree
+    refTable: Keywords
+    refSchema: CatalogueOntologies
+  - name: description
+    type: text
+    description: Description of the role/function of this table
+  - name: number of rows
+    type: int
+    description: Count of the number of records in this table
+  - name: mapped to
+    type: refback
+    description: Common dataset models this dataset has been mapped into
+    refTable: Dataset mappings
+    refBack: source dataset
+  - name: mapped from
+    type: refback
+    description: Source datasets that have been mapped to this harmonised dataset
+    refTable: Dataset mappings
+    refBack: target dataset
+  - name: since version
+    description: "When this dataset was introduced, if applicable"
+  - name: until version
+    description: "When this dataset was removed, if applicable"
