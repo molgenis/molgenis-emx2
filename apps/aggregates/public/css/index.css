@@ -1,0 +1,303 @@
+main.container-fluid,
+main.container-fluid.p-3 {
+  padding: 0;
+}
+
+.app-page,
+.page-footer {
+  --gray-600: #5c5c5c;
+  --gray-300: #adadad;
+  --gray-050: #f6f6f6;
+  --blue-900: #163d89;
+  --blue-100: #cdd6e7;
+  --blue-050: #e4e9f3;
+  --blue-green-900: #309bc2;
+  --blue-green-100: #daeef5;
+  --blue-green-050: #eff8fb;
+  --gray-transparent-100: hsla(0, 0%, 0%, 0.1);
+  --viz-chart-title-font-size: 13pt;
+  --gap: 0.75em;
+  font-family: Helvetica, sans-serif;
+  position: relative;
+}
+
+.app-page p svg {
+  width: 16pt;
+}
+
+.app-page .dashboard-container {
+  background-color: var(--gray-050);
+}
+
+.app-page .dashboard-container .dashboard-content,
+.app-page .dashboard-container .dashboard-chart-layout {
+  padding-top: 0;
+  gap: var(--gap);
+}
+
+.dashboard-container .dashboard-row-offset {
+  grid-template-columns: 1fr;
+}
+
+.dashboard-container .dashboard-box .loading-screen {
+  width: 100%;
+  height: 100%;
+  background-color: var(--blue-green-050);
+}
+
+.dashboard-container
+  .dashboard-box
+  .loading-screen
+  .loading-screen-content
+  .loading-message {
+  display: none;
+}
+
+.dashboard-container .dashboard-box.chart-overflow {
+  padding-top: 0;
+  overflow-y: auto;
+  max-height: 60%;
+}
+
+.dashboard-container .dashboard-box.chart-overflow caption {
+  margin-top: 1em;
+}
+
+.dashboard-container .dashboard-box.chart-overflow .d3-table {
+  position: relative;
+}
+
+.dashboard-container .dashboard-box.chart-overflow .d3-table thead {
+  position: sticky;
+  top: 0;
+  background-color: white;
+}
+
+.dashboard-container .dashboard-box.chart-overflow .d3-table thead th {
+  padding: 0.6em;
+}
+
+.dashboard-container .dashboard-box h3,
+.dashboard-container .dashboard-box .d3-viz .chart-title {
+  font-size: var(--viz-chart-title-font-size);
+  font-weight: 400;
+}
+
+.dashboard-container .dashboard-box p {
+  margin-bottom: 0;
+}
+
+.d3-viz.d3-pie .chart-legend .legend-item .text-item .item-label {
+  font-size: 0.9rem;
+}
+
+.d3-viz.d3-pie .chart .chart-area .pie-labels .pie-label-text {
+  font-size: 0.5rem;
+}
+
+.d3-viz.d3-table caption {
+  font-size: var(--viz-chart-title-font-size);
+  padding: 0;
+  margin-bottom: 0.5em;
+  text-align: left;
+}
+
+.d3-viz.d3-table thead th,
+.d3-viz.d3-table tbody td {
+  font-size: 0.8rem;
+  padding: 0.6em 0.4em;
+}
+
+.d3-viz.d3-table.table-row-highlighting tbody tr:nth-child(2n) {
+  background-color: var(--blue-050);
+}
+
+.d3-viz.d3-table.table-row-highlighting tbody tr:hover {
+  background-color: hsl(172, 42%, 80%);
+}
+
+.filters-form {
+  position: sticky;
+  top: 0;
+  padding: 1em;
+  padding-bottom: 0.5em;
+  background-color: var(--gray-050);
+  z-index: 2;
+}
+
+.filters-form .filters-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: var(--gap);
+}
+
+.filters-form .filters-container .filter-item .filter-context {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  gap: 4px;
+}
+
+.filters-form .filters-container .filter-item .filter-context button {
+  width: auto;
+}
+
+.filters-form .filters-container .filter-item label,
+.filters-form .filters-container .filter-item legend {
+  margin: 0;
+  font-size: var(--viz-chart-title-font-size);
+  width: auto;
+}
+
+.filters-form .filters-container .filter-item select {
+  width: 100%;
+  padding: 0.65em;
+  background-color: white;
+  box-shadow: inset 0 0 4px 3px var(--gray-transparent-100);
+  background-color: white;
+  border: 1px solid var(--gray-300);
+  border-radius: 8px;
+}
+
+.filters-form .filters-container button {
+  border: none;
+  background: none;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  gap: 0.25em;
+}
+
+.heroicons {
+  width: 21px;
+  height: 21px;
+}
+
+.filters-form .filters-container .heroicons {
+  margin-top: -3px;
+}
+
+.filters-form .filters-container button .heroicons path {
+  stroke: currentColor;
+}
+
+.filters-form .filters-container .filter-buttons {
+  display: flex;
+  justify-self: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35em;
+  flex-grow: 1;
+  border: 1px solid var(--gray-300);
+  padding: 0.5em;
+  border-radius: 8px;
+  box-shadow: inset 0 0 4px 3px var(--gray-transparent-100);
+  background-color: white;
+  min-height: 2.5em;
+}
+
+.filters-form .filters-container .filter-buttons .filter-button {
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  color: var(--blue-900);
+  background-color: var(--blue-green-100);
+  padding: 0.2em 1em;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.filters-form
+  .filters-container
+  .filter-buttons
+  .filter-button
+  .heroicons
+  path {
+  stroke: var(--blue-900);
+}
+
+.filters-form .filters-container .filter-buttons .filter-button p {
+  margin: 0;
+  padding: 0;
+}
+
+.filters-form .filters-container .filter-action {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--gap);
+  padding-top: 1em;
+}
+
+.filters-form .filters-container .filter-action button {
+  padding: 0.4em;
+  border-radius: 8px;
+  font-size: var(--viz-chart-title-font-size);
+  justify-content: center;
+  margin-top: 9px;
+  height: 47.5px;
+}
+
+.filters-form .filters-container .filter-action button:hover,
+.filters-form .filters-container .filter-action button:focus {
+  filter: brightness(1.3);
+}
+
+.resource-total-cases {
+  font-size: var(--viz-chart-title-font-size);
+  color: var(--gray-600);
+  margin-bottom: 0;
+}
+
+#resetFilters {
+  background-color: white;
+  border: 1px solid var(--gray-300);
+}
+
+#runQuery {
+  background-color: var(--blue-900);
+  color: white;
+}
+
+#filterTooltipContent {
+  position: absolute;
+  width: 90%;
+  top: 100%;
+  left: 0;
+  padding: 1em;
+  background-color: white;
+  font-size: 11pt;
+  box-shadow: 0 0 4px 3px var(--gray-transparent-100);
+}
+
+#filterTooltipContent h4 {
+  font-size: var(--viz-chart-title-font-size);
+  text-align: left;
+  margin-bottom: 0.5em;
+}
+
+#filterTooltipContent p {
+  margin-bottom: 0;
+}
+
+@media (min-width: 812px) {
+  .filters-form .filters-container {
+    grid-template-columns: 2fr 300px;
+  }
+
+  #filterTooltipContent {
+    width: 45vw;
+    max-width: 800px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-container .dashboard-row-offset {
+    grid-template-columns: 2fr 1fr;
+  }
+}
