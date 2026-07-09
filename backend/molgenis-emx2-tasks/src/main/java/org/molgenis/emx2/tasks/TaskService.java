@@ -9,7 +9,7 @@ public interface TaskService {
 
   String submit(Task task);
 
-  String cancel(String taskId);
+  Task cancel(String taskId);
 
   ScriptTask getScript(String name);
 

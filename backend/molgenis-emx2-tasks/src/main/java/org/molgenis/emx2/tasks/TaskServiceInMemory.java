@@ -44,7 +44,7 @@ public class TaskServiceInMemory implements TaskService {
     return task.getId();
   }
 
-  public String cancel(String taskId) {
+  public Task cancel(String taskId) {
     Task task = tasks.get(taskId);
     if (task == null) {
       throw new MolgenisException("Task with id '" + taskId + "' not found");
@@ -57,7 +57,7 @@ public class TaskServiceInMemory implements TaskService {
     task.stop();
 
     logger.info("Cancelled task " + taskId);
-    return task.getId();
+    return task;
   }
 
   @Override

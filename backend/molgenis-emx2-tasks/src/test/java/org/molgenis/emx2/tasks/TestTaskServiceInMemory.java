@@ -24,9 +24,9 @@ public class TestTaskServiceInMemory {
     task.setStatus(RUNNING);
     taskService.submit(task);
 
-    String cancelledTaskId = taskService.cancel(task.getId());
+    Task cancelledTask = taskService.cancel(task.getId());
 
-    assertEquals(task.getId(), cancelledTaskId);
+    assertEquals(task, cancelledTask);
     assertEquals(CANCELLED, task.getStatus());
     assertTrue(task.isStopped());
   }

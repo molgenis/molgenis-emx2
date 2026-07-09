@@ -42,7 +42,7 @@ public class TaskApi {
     app.get("/api/tasks/{id}", TaskApi::getTask);
     app.get("/api/tasks/{id}/output", TaskApi::getTaskOutput);
 
-    app.post("/api/tasks/{id}/cancel", TaskApi::handleCancel); // cancel a running task
+    app.post("/api/tasks/{id}/cancel", TaskApi::cancelTask); // cancel a running task
 
     // convenient delete
     app.delete("/api/tasks/{id}", TaskApi::deleteTask);
@@ -59,7 +59,7 @@ public class TaskApi {
         "/{schema}/api/scripts/{name}",
         TaskApi::postScript); // run async, using parameters as body and returning task status
     app.get("/{schema}/api/tasks/{id}/output", TaskApi::getTaskOutput);
-    app.post("/{schema}/api/tasks/{id}/cancel", TaskApi::handleCancel); // cancel a running task
+    app.post("/{schema}/api/tasks/{id}/cancel", TaskApi::cancelTask); // cancel a running task
 
     // convenient delete
     app.delete("/{schema}/{app}/api/tasks/{id}", TaskApi::deleteTask);
@@ -69,8 +69,7 @@ public class TaskApi {
     app.get("/{schema}/{app}/api/tasks", TaskApi::listTasks);
     app.get("/{schema}/{app}/api/tasks/clear", TaskApi::clearTasks);
     app.get("/{schema}/{app}/api/tasks/{id}", TaskApi::getTask);
-    app.post(
-        "/{schema}/{app}/api/tasks/{id}/cancel", TaskApi::handleCancel); // cancel a running task
+    app.post("/{schema}/{app}/api/tasks/{id}/cancel", TaskApi::cancelTask); // cancel a running task
   }
 
   private static void viewScheduledTasks(Context ctx) throws JsonProcessingException {
@@ -233,7 +232,7 @@ public class TaskApi {
     return taskService.submit(task);
   }
 
-  public static void handleCancel(Context ctx) {
+  private static void cancelTask(Context ctx) {
     if (!isAdminRequest(ctx)) {
       throw new MolgenisException("Unable to cancel task: can only be done by admin");
     }
