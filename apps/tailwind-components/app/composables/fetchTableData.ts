@@ -59,6 +59,7 @@ export default async (
     throw createError({
       ...error,
       message,
+      status: error.status === 500 ? 404 : error.status,
     });
   });
 
