@@ -153,19 +153,20 @@ async function prepareOrder(schema: string, order: number, block: string) {
     order: number;
   }[];
 
-  // TODO: combine the updates into a single mutation instead of doing one per component
+  let values: { id: string; order: number }[] = [];
   for (const component of componentsToUpdate) {
+    values.push({
+      id: component.id,
+      order: component.order + 1,
+    });
+  }
+  if (values.length > 0) {
     await $fetch(`/${schema}/graphql`, {
       method: "POST",
       body: {
         query: `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`,
         variables: {
-          value: [
-            {
-              id: component.id,
-              order: component.order + 1,
-            },
-          ],
+          value: values,
         },
       },
     });
