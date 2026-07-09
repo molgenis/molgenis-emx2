@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 
@@ -22,7 +22,8 @@ const page = route.params.page as string;
 
 useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
 
-const pageData = await getPage(schema as string, page);
+//
+const pageData = ref(await getPage(schema as string, page));
 
 const crumbs: Crumb[] = [
   { label: schema as string, url: `/${schema}` },
@@ -37,6 +38,14 @@ const enableEditing = computed(() => {
     isAdmin.value
   );
 });
+
+async function updatePage() {
+  console.log("Updating page data for", schema, page);
+  const updatedPageData = await getPage(schema as string, page);
+  pageData.value.page = updatedPageData.page;
+  pageData.value.metadata = updatedPageData.metadata;
+  return updatedPageData;
+}
 </script>
 
 <template>
@@ -47,5 +56,6 @@ const enableEditing = computed(() => {
     :content="(pageData.page as IConfigurablePages)"
     :metadata="(pageData.metadata as ITableMetaData[])"
     :is-editable="enableEditing"
+    @updatePage="updatePage"
   />
 </template>

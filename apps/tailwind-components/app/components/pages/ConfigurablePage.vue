@@ -18,6 +18,8 @@ const props = withDefaults(
     isEditable: false,
   }
 );
+
+const emit = defineEmits(["updatePage"]);
 const handleDragEvent = (value: any) => {
   draggingInfo.value = value;
 };
@@ -31,32 +33,37 @@ const draggingInfo = ref<{
 <template>
   <div>
     <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
-      <ComponentDropZone
+<!--      <ComponentDropZone
         :draggingInfo="draggingInfo"
-        :component="orderedBlock.block"
-        :block="orderedBlock.block.id"
+        :component="orderedBlock"
+        :block="orderedBlock"
         componentType="Block"
         v-if="isEditable"
       />
+      -->
       <PageComponent
         v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
         :mg_tableclass="orderedBlock.block.mg_tableclass"
         :component="orderedBlock.block"
         :is-editable="isEditable"
         :metadata="metadata"
+            @update-page="$emit('updatePage')"
       />
       <PageComponent
         v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
         :mg_tableclass="orderedBlock.block.mg_tableclass"
         :component="orderedBlock.block"
+            @update-page="$emit('updatePage')"
       >
+      <!--
         <ComponentDropZone
           :draggingInfo="draggingInfo"
           :component="orderedBlock.block.componentOrder[0]"
-          :block="orderedBlock.block.id"
+          :block="orderedBlock"
           componentType="Component"
           v-if="isEditable"
         />
+        -->
         <template
           v-for="orderedComponent in orderedBlock.block.componentOrder"
           :key="orderedComponent.id"
@@ -66,14 +73,16 @@ const draggingInfo = ref<{
             :component="orderedComponent.component"
             :is-editable="isEditable"
             :metadata="metadata"
+            @update-page="$emit('updatePage')"
           />
           <ComponentDropZone
-            :draggingInfo="draggingInfo"
-            :component="orderedComponent.component"
-            :addBelow="true"
-            :block="orderedBlock.block.id"
-            componentType="Component"
             v-if="isEditable"
+            :draggingInfo="draggingInfo"
+            :component="orderedComponent"
+            :addBelow="true"
+            :block="orderedBlock"
+            componentType="Component"
+            @update-page="$emit('updatePage')"
           />
         </template>
       </PageComponent>

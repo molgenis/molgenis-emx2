@@ -54,9 +54,57 @@ export async function addComponent(
 ) {
   console.log("addComponent", schema, id, parentBlock, order, componentType);
   if (componentType === "Paragraph") {
+    await prepareOrder(schema, order, parentBlock);
     await AddParagraph(schema, id, order, parentBlock);
   }
+  console.log("addComponent done");
   // TODO: do we need to redo the order numbers?
+}
+
+export async function prepareOrder(
+  schema: string,
+  order: number,
+  block: string,
+) {
+  // get every component in block with order >= order and increment their order by 1
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query getComponents($filter: ComponentOrdersFilter){ComponentOrders(filter:$filter){id,order}}`,
+      variables: {
+        filter: {
+          block: { id: { equals: block } },
+          order: {between: [order, null]},
+        },
+        orderby: [{order: "ASC"}]
+      },
+    },
+  });
+  console.log("prepareOrder", data);
+
+  const componentsToUpdate = data.ComponentOrders as {
+    id: string;
+    order: number;
+  }[];
+
+  // TODO: combine the updates into a single mutation instead of doing one per component
+  for (const component of componentsToUpdate) {
+    await $fetch(`/${schema}/graphql`, {
+      method: "POST",
+      body: {
+        query: `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`,
+        variables: {
+          value: [
+            {
+              id: component.id,
+              order: component.order + 1,
+            },
+          ],
+        },
+      },
+    });
+  }
+  // 
 }
 
 export async function AddParagraph(

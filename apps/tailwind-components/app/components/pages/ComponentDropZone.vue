@@ -5,7 +5,7 @@ import { computed, ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn } from "@vueuse/core";
 import { addComponent } from "~/utils/cms";
-
+import type { IComponentOrders, IBlockOrders } from "../../../types/cms";
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
 
@@ -15,9 +15,9 @@ const { y } = useElementBounding(dropzone);
 const props = withDefaults(
   defineProps<{
     componentType: string;
-    component: any;
+    component: IComponentOrders;
+    block: IBlockOrders;
     addBelow?: boolean;
-    block: string;
     draggingInfo: {
       dragging: boolean;
       componentName: string;
@@ -29,6 +29,8 @@ const props = withDefaults(
   }
 );
 
+// emit update page
+const emit = defineEmits(["updatePage"]);
 const maxDistance = 50;
 const distance = ref<number>(Infinity);
 const canPlace = ref<boolean>(false);
@@ -46,18 +48,18 @@ useRafFn(() => {
   );
 });
 
-function addComponentToBlock() {
-  console.log(`Adding ${props.draggingInfo.componentName}`, props.component);
+async function addComponentToBlock() {
+  console.log(`Adding ${props.draggingInfo.componentName}`, props.component, props.block);
   // NOTE: temporary test
-  addComponent(
-    props.component.mg_tableclass.split(".")[0],
+  const order = props.component.order||0;
+  await addComponent(
+    props.component.component.mg_tableclass.split(".")[0],
     props.draggingInfo.componentName + "-" + Math.floor(Math.random() * 10000),
-    props.block,
-    0,
+    props.block.block.id,
+    props.addBelow ? order + 1 : order,
     props.draggingInfo.componentName
   );
-  // TODO: get some useful order
-  // TODO: reload page data after adding component
+  emit("updatePage");
 }
 </script>
 
