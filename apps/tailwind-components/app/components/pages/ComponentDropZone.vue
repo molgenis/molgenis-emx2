@@ -49,9 +49,13 @@ useRafFn(() => {
 });
 
 async function addComponentToBlock() {
-  console.log(`Adding ${props.draggingInfo.componentName}`, props.component, props.block);
+  console.log(
+    `Adding ${props.draggingInfo.componentName}`,
+    props.component,
+    props.block
+  );
   // NOTE: temporary test
-  const order = props.component.order||0;
+  const order = props.component.order || 0;
   await addComponent(
     props.component.component.mg_tableclass.split(".")[0],
     props.draggingInfo.componentName + "-" + Math.floor(Math.random() * 10000),

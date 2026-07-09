@@ -64,7 +64,7 @@ export async function addComponent(
 export async function prepareOrder(
   schema: string,
   order: number,
-  block: string,
+  block: string
 ) {
   // get every component in block with order >= order and increment their order by 1
   const { data } = await $fetch(`/${schema}/graphql`, {
@@ -74,9 +74,9 @@ export async function prepareOrder(
       variables: {
         filter: {
           block: { id: { equals: block } },
-          order: {between: [order, null]},
+          order: { between: [order, null] },
         },
-        orderby: [{order: "ASC"}]
+        orderby: [{ order: "ASC" }],
       },
     },
   });
@@ -104,7 +104,7 @@ export async function prepareOrder(
       },
     });
   }
-  // 
+  //
 }
 
 export async function AddParagraph(
