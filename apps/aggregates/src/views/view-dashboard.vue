@@ -192,15 +192,31 @@
 import { ref, onMounted, computed, watch } from "vue";
 
 // @ts-ignore
-// prettier-ignore
-import { Page, PageSection, Accordion, MessageBox, Dashboard, DashboardChart, DashboardRow, DataTable, BarChart, PieChart2, ColumnChart, LoadingScreen } from "molgenis-viz";
+import {
+  Page,
+  PageSection,
+  Accordion,
+  MessageBox,
+  Dashboard,
+  DashboardChart,
+  DashboardRow,
+  DataTable,
+  BarChart,
+  PieChart2,
+  ColumnChart,
+  LoadingScreen,
+  // @ts-expect-error
+} from "molgenis-viz";
 
 import {
   MinusCircleIcon,
   ChevronRightIcon,
   TrashIcon,
 } from "@heroicons/vue/24/outline";
+
+// @ts-ignore
 import { schemeGnBu as scheme } from "d3-scale-chromatic";
+
 import {
   getChartData,
   renameKey,

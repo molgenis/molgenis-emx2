@@ -44,7 +44,7 @@ import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vu
 import TableContent from "../../../../components/table/Content.vue";
 import VariableDisplay from "../../../../components/VariableDisplay.vue";
 import collectionEventsQuery from "../../../../gql/collectionEvents";
-import datasetQuery from "../../../../gql/datasets";
+import tablesQuery from "../../../../gql/tables";
 import fileFragment from "../../../../gql/fragments/file";
 import ontologyFragment from "../../../../gql/fragments/ontology";
 import subpopulationsQuery from "../../../../gql/subpopulations";
@@ -211,7 +211,7 @@ const resourceQuery = `
         url
         file ${moduleToString(fileFragment)}
       }
-      datasets {
+      tables {
         name
       }
       partOfNetworks {
@@ -311,7 +311,7 @@ function collectionEventMapper(item: any) {
   };
 }
 
-function datasetMapper(item: { name: string; description?: string }) {
+function tableMapper(item: { name: string; description?: string }) {
   return {
     id: {
       name: item.name,
@@ -339,7 +339,7 @@ function variableMapper(variable: IVariables) {
   return {
     id: key,
     name: variable.name,
-    dataset: variable.dataset.name,
+    table: variable.table.name,
     _renderComponent: "VariableDisplay",
     _path: `/${route.params.catalogue}/${route.params.resourceType}/${
       route.params.resource
@@ -347,33 +347,33 @@ function variableMapper(variable: IVariables) {
   };
 }
 
-const datasetOptions = ref<Array<{ name: string }>>([{ name: "All datasets" }]);
-const datasetFilter = ref<string>("All datasets");
+const tableOptions = ref<Array<{ name: string }>>([{ name: "All tables" }]);
+const tableFilter = ref<string>("All tables");
 const variableSearchValue = ref<string>("");
 
 const variablesFilter = computed(() => {
   return {
     filter: {
       resource: { id: { equals: route.params.resource } },
-      dataset:
-        datasetFilter.value === "All datasets"
+      table:
+        tableFilter.value === "All tables"
           ? undefined
-          : { name: { equals: datasetFilter.value } },
+          : { name: { equals: tableFilter.value } },
     },
   };
 });
 
 async function fetchDatasetOptions() {
   const query = `
-    query DatasetOptions($id: String) {
-      Datasets(filter: { resource: { id: { equals: [$id] } } }) {
+    query TableOptions($id: String) {
+      Tables(filter: { resource: { id: { equals: [$id] } } }) {
         name
       }
     }
   `;
   const variables = { id: route.params.resource };
   const { data, error } = await useFetch<
-    { data: { Datasets: { name: string }[] } },
+    { data: { Tables: { name: string }[] } },
     IMgError
   >(`/${schema}/graphql`, {
     method: "POST",
@@ -381,12 +381,12 @@ async function fetchDatasetOptions() {
   });
 
   if (error.value) {
-    logError(error.value, "Error fetching dataset options");
+    logError(error.value, "Error fetching table options");
   }
 
-  datasetOptions.value = data.value?.data?.Datasets
-    ? [...datasetOptions.value, ...data.value?.data?.Datasets]
-    : datasetOptions.value;
+  tableOptions.value = data.value?.data?.Tables
+    ? [...tableOptions.value, ...data.value?.data?.Tables]
+    : tableOptions.value;
 }
 
 fetchDatasetOptions();
@@ -445,9 +445,12 @@ const tocItems = computed(() => {
   }
 
   if (variableCount.value ?? 0 > 0) {
-    tableOffContents.push({ label: "Dataset variables", id: "DataVariables" });
-  } else if (resource.value?.datasets?.length) {
-    tableOffContents.push({ label: "Datasets", id: "Datasets" });
+    tableOffContents.push({
+      label: "Data dictionaries",
+      id: "DataDictionaries",
+    });
+  } else if (resource.value?.tables?.length) {
+    tableOffContents.push({ label: "Tables", id: "Tables" });
   }
 
   if (subpopulationCount.value ?? 0 > 0) {
@@ -802,17 +805,17 @@ const showPopulation = computed(
         />
 
         <TableContent
-          v-if="resource?.datasets && !variableCount"
-          id="Datasets"
-          title="Datasets"
+          v-if="resource?.tables && !variableCount"
+          id="Tables"
+          title="Tables"
           :headers="[
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description', singleLine: true },
           ]"
-          type="Datasets"
-          :query="datasetQuery"
+          type="Tables"
+          :query="tablesQuery"
           :filter="{ id: route.params.resource }"
-          :rowMapper="datasetMapper"
+          :rowMapper="tableMapper"
           v-slot="slotProps"
         >
           <DatasetDisplay
@@ -822,24 +825,24 @@ const showPopulation = computed(
         </TableContent>
 
         <ContentBlock
-          title="Dataset variables"
-          id="DataVariables"
+          title="Data dictionaries"
+          id="DataDictionaries"
           v-if="variableCount ?? 0 > 0"
         >
           <TableContent
-            v-if="resource?.datasets"
-            id="Datasets"
-            title="Datasets"
-            description="Datasets and their description"
+            v-if="resource?.tables"
+            id="Tables"
+            title="Tables"
+            description="Tables and their description"
             :wrapper-component="false"
             :headers="[
               { id: 'name', label: 'Name' },
               { id: 'description', label: 'Description', singleLine: true },
             ]"
-            type="Datasets"
-            :query="datasetQuery"
+            type="Tables"
+            :query="tablesQuery"
             :filter="{ id: route.params.resource }"
-            :rowMapper="datasetMapper"
+            :rowMapper="tableMapper"
             v-slot="slotProps"
           >
             <DatasetDisplay
@@ -851,12 +854,12 @@ const showPopulation = computed(
           <TableContent
             class="mt-11"
             :wrapper-component="false"
-            title="Dataset variables"
+            title="Variables"
             id="Variables"
-            description="Dataset variables and their description"
+            description="Variables and their description"
             :headers="[
-              { id: 'name', label: 'variable' },
-              { id: 'dataset', label: 'Dataset' },
+              { id: 'name', label: 'Variable' },
+              { id: 'table', label: 'Table' },
             ]"
             type="Variables"
             :query="variablesQuery"
@@ -870,14 +873,14 @@ const showPopulation = computed(
                   class="block absolute text-body-xs top-2 left-6 pointer-events-none"
                   for="filter-by-data-set"
                 >
-                  Filter by dataset
+                  Filter by table
                 </label>
                 <select
-                  v-model="datasetFilter"
+                  v-model="tableFilter"
                   name="filter-by-data-set"
                   class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
                 >
-                  <option v-for="option in datasetOptions" :value="option.name">
+                  <option v-for="option in tableOptions" :value="option.name">
                     {{ option.name }}
                   </option>
                 </select>
