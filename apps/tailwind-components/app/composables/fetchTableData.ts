@@ -1,7 +1,8 @@
 import { createError } from "nuxt/app";
-import fetchMetadata from "./fetchMetadata";
-import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
+import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
+import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
+import fetchMetadata from "./fetchMetadata";
 
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];
@@ -54,7 +55,7 @@ export default async (
       variables: { filter, orderby },
     },
   }).catch((error) => {
-    const message = `Could not fetch data for table: ${tableId} in schema: ${schemaId}. Might you need to sign in or ask permission?`;
+    const message = `Could not fetch data for table: ${tableId} in schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
     console.error(message, error);
     throw createError({
       ...error,

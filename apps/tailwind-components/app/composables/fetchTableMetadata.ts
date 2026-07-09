@@ -1,6 +1,7 @@
-import type { ITableMetaData } from "../../../metadata-utils/src/types";
-import fetchMetadata from "./fetchMetadata";
 import { createError } from "nuxt/app";
+import type { ITableMetaData } from "../../../metadata-utils/src/types";
+import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
+import fetchMetadata from "./fetchMetadata";
 
 export default async (
   schemaId: string,
@@ -12,7 +13,7 @@ export default async (
   );
 
   if (!tableMetadata) {
-    const message = `Could not find table: ${tableId} in schema: ${schemaId}. Might you need to sign in or ask permission?`;
+    const message = `Could not find table: ${tableId} in schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
     console.error(message);
     throw createError({
       message,

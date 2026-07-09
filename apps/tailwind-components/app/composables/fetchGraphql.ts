@@ -1,4 +1,5 @@
-import { createError } from "#imports";
+import { createError } from "nuxt/app";
+import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
 
 export default async (
   schemaId: string,
@@ -14,7 +15,7 @@ export default async (
     },
     signal: options?.signal,
   }).catch((error) => {
-    const message = `Could not fetch graphql for schema ${schemaId}. Might you need to sign in or ask permission?`;
+    const message = `Could not fetch graphql for schema ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
     console.error(message, error);
     throw createError({
       ...error,
