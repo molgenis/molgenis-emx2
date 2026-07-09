@@ -31,7 +31,7 @@ class HarvestingSpike {
     TableQueryGenerator queryGenerator = new TableQueryGenerator();
     SchemaMetadata schema = database.getSchema("harvesting").getMetadata();
     RdfTransformer transformer =
-        new SparqlSelectRdfTransformer(queryGenerator, schema, List.of("Collections"));
+        new SparqlSelectRdfTransformer(queryGenerator, schema, List.of("Contacts", "Collections"));
     TableStore tableStore = transformer.transform(repository);
 
     postProcess(tableStore, schema);
@@ -49,7 +49,22 @@ class HarvestingSpike {
     addIdField(tableStore);
     addType(tableStore);
     resolveOntologies(tableStore, schema);
+    resolveContactPoint(tableStore, schema);
+
     removeSubjectFromStoreRows(tableStore);
+  }
+
+  private void resolveContactPoint(TableStore tableStore, SchemaMetadata schema) {
+    tableStore.processTable(
+        "Collections",
+        (iterator, source) ->
+            iterator.forEachRemaining(
+                row -> {
+                  if (row.containsName("contact point.first name")
+                      && row.containsName("contact point.last name")) {
+                    row.set("contact point.resource", row.getString("id"));
+                  }
+                }));
   }
 
   /** Adds id field from acronym */
