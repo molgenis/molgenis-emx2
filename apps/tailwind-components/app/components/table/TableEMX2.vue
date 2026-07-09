@@ -83,7 +83,7 @@
 
         <div
           ref="tableContainer"
-          class="relative overflow-auto overflow-y-hidden rounded-base rounded-b-alt border border-theme border-color-theme"
+          class="relative overflow-auto overflow-y-hidden rounded-t-base rounded-b-alt border border-theme border-color-theme"
         >
           <div
             v-if="guideX !== null"
