@@ -83,7 +83,7 @@
 
         <div
           ref="tableContainer"
-          class="relative overflow-auto overflow-y-hidden rounded-b-theme border border-theme border-color-theme"
+          class="relative overflow-auto overflow-y-hidden rounded-base rounded-b-alt border border-theme border-color-theme"
         >
           <div
             v-if="guideX !== null"
@@ -92,7 +92,7 @@
           />
 
           <div
-            class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px"
+            class="overflow-x-auto overscroll-x-contain bg-table rounded-t-base"
             v-on:scroll.native="handleStickyHeaderOffset"
           >
             <div
