@@ -4,9 +4,7 @@
 
 <script setup lang="ts">
 import { type NuxtError } from "nuxt/app";
-import Error from "./layouts/error.vue";
+import Error from "./pages/Error.vue";
 
-const props = defineProps({
-  error: Object as () => NuxtError,
-});
+const props = defineProps<{ error: NuxtError }>();
 </script>

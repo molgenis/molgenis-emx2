@@ -6,9 +6,7 @@ export default async (
   schemaId: string,
   tableId: string
 ): Promise<ITableMetaData> => {
-  const schemaMetadata = await fetchMetadata(schemaId).catch((error) => {
-    throw error;
-  });
+  const schemaMetadata = await fetchMetadata(schemaId);
   const tableMetadata = schemaMetadata.tables.find(
     (table) => table.id === tableId
   );

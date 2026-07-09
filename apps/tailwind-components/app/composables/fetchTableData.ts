@@ -59,7 +59,6 @@ export default async (
     throw createError({
       ...error,
       message,
-      status: 404,
     });
   });
 
