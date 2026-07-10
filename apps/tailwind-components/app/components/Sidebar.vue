@@ -1,7 +1,7 @@
 <template>
   <div
     ref="panelRef"
-    class="relative shrink-0 w-80 xl:w-96 bg-sidebar-gradient rounded-t-3px rounded-b-theme transition-[margin-left] duration-default motion-reduce:transition-none"
+    class="relative shrink-0 w-80 xl:w-96 bg-sidebar-gradient rounded-t-base rounded-b-alt transition-[margin-left] duration-default motion-reduce:transition-none"
     :class="[
       collapsed ? 'panel-slide-collapsed' : 'panel-expanded',
       { 'cursor-pointer': collapsed },

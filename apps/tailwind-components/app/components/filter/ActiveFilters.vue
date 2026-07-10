@@ -24,7 +24,7 @@ const hasAnyContent = computed(
 <template>
   <div
     v-if="hasAnyContent"
-    class="flex flex-wrap items-center gap-3 bg-sidebar-gradient rounded-input px-3 py-2 mb-2"
+    class="flex flex-wrap items-center gap-3 bg-sidebar-gradient rounded-alt px-3 py-2 mb-2"
   >
     <span
       class="text-search-filter-group-title text-body-sm whitespace-nowrap mr-1"
