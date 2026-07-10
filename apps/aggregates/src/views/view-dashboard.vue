@@ -3,7 +3,7 @@
     <form class="page-section filters-form">
       <fieldset class="page-section-content width-full filters-container">
         <div class="filter-item selected-filters">
-          <div class="filter-context">
+          <div class="filter-context relative">
             <legend>Selected Filters</legend>
           </div>
           <div class="filter-buttons">
@@ -18,7 +18,7 @@
                 <p>{{ value }}</p>
                 <button
                   :id="`filter-${key}-${value}`"
-                  @click="removeFilter(key, value)"
+                  @click.prevent="removeFilter(key, value)"
                 >
                   <span class="visually-hidden">remove {{ value }}</span>
                   <MinusCircleIcon class="heroicons" />
@@ -29,6 +29,14 @@
         </div>
         <div class="filter-item filter-action">
           <button
+            id="runQuery"
+            @click="renderCharts"
+            @click.prevent="onClickPrevent"
+          >
+            <span>Apply filters</span>
+            <ChevronRightIcon class="heroicons" />
+          </button>
+          <button
             id="resetFilters"
             @click="resetFilters"
             @click.prevent="onClickPrevent"
@@ -36,25 +44,19 @@
             <span>Remove all</span>
             <TrashIcon class="heroicons" />
           </button>
-          <button
-            id="runQuery"
-            @click="renderCharts"
-            @click.prevent="onClickPrevent"
-          >
-            <span>Apply Filters</span>
-            <ChevronRightIcon class="heroicons" />
-          </button>
         </div>
       </fieldset>
-      <Accordion title="How to use this dashboard" id="dashboard-instructions">
+      <Accordion title="How to use this dashboard" id="dashboardInstructions">
+        <h4>Selecting filters and updating the charts</h4>
         <p>
           To filter data, click on one or more elements in the charts below. For
-          example, a row in a table or a column in a bar chart. Filters will
-          appear in the "selected filters" list below. When you are satisfied
-          with your selection, click the "Apply Filters" button to update the
-          charts. Click the "remove all" button to clear all filters and reset
-          the charts. A filter can also be removed by clicking the "remove icon"
-          (<MinusCircleIcon />). Doing so will automatically update the charts.
+          example, click a row in a table or a column in a bar chart. As an
+          element is clicked, a filter will appear in the "selected filters"
+          list. When you are satisfied with your selection, click the "Apply
+          filters" button to update the charts. Click the "Remove all" button to
+          clear all filters and reset the charts. A filter can also be removed
+          by clicking the "remove icon" (<MinusCircleIcon />). Doing so will
+          automatically update the charts.
         </p>
       </Accordion>
     </form>
@@ -212,6 +214,7 @@ import {
   MinusCircleIcon,
   ChevronRightIcon,
   TrashIcon,
+  InformationCircleIcon,
 } from "@heroicons/vue/24/outline";
 
 // @ts-ignore
