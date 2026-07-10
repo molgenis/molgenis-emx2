@@ -314,6 +314,7 @@ export type IFilterCondition = {
 
 export interface IOntologyFilter extends IAbstractFilter {
   conditions: IFilterCondition[];
+  options?: IOntologyRespItem[];
   config: IOntologyFilterConfig;
 }
 

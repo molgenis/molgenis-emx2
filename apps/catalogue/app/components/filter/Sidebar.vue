@@ -75,6 +75,7 @@ function handleFilerUpdate(filter: IFilter) {
           :filter="filter.config.filter || {}"
           :mobileDisplay="mobileDisplay"
           :filterLabel="filter.config.label"
+          :options="(filter as IOntologyFilter).options"
           :model-value="(filter as IOntologyFilter).conditions "
           @update:model-value="(value: IFilterCondition[]) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
         />

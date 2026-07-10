@@ -43,6 +43,7 @@ import {
   mergeWithPageDefaults,
   toPathQueryConditions,
 } from "../../../utils/filterUtils";
+import { fetchOntology } from "../../../composables/fetchOntology";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
@@ -116,9 +117,31 @@ const pageFilterTemplate: IFilter[] = [
       type: "ONTOLOGY",
       ontologyTableId: "Keywords",
       ontologySchema: "CatalogueOntologies",
-      columnId: "keywords",
       initialCollapsed: true,
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => {
+        return  {
+          ...filterBuilder,
+          ...{
+            _or: [
+              {
+                keywords: {
+                  equals: conditions,
+                },
+              },
+              {
+                generated_keywords: {
+                  equals: conditions,
+                },
+              },
+            ],
+          },
+        };
+      },
     },
+    options: fetchKeywordOptions,
     conditions: [],
   },
   {
@@ -151,6 +174,13 @@ const pageFilterTemplate: IFilter[] = [
     conditions: [],
   },
 ];
+
+async function fetchKeywordOptions(): Promise<INode[]> {
+      // fetch the ontology data for the keywords
+       fetchOntology("Keywords", )
+      // fetch generated keywords from variables table OR are these the same as the keywords in the ontology? If they are the same, we can just use the ontology data. If they are different, we need to fetch them separately and combine them into a single list.
+      combine into single list and return as INode[]
+}
 
 async function fetchResourceOptions(): Promise<INode[]> {
   const { data, error } = await $fetch(`/${schema}/graphql`, {
@@ -312,53 +342,53 @@ const fetchData = async () => {
         },
       }
     : undefined;
-  const variables = scoped
-    ? {
-        variablesFilter: {
-          ...filter.value,
-          ...variableResourceFilter,
-          ...{
-            _or: [
-              { resource: { id: { equals: catalogueRouteParam } } },
-              {
-                resource: {
-                  parentNetworks: { id: { equals: catalogueRouteParam } },
-                },
-              },
-              {
-                reusedInResources: {
-                  _or: [
-                    { resource: { id: { equals: catalogueRouteParam } } },
-                    {
-                      resource: {
-                        parentNetworks: {
-                          id: { equals: catalogueRouteParam },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
+
+  const scopedResourceFilter = {
+    _or: [
+      { resource: { id: { equals: catalogueRouteParam } } },
+      {
+        resource: {
+          parentNetworks: { id: { equals: catalogueRouteParam } },
         },
-        resourcesFilter,
-      }
-    : {
-        variablesFilter: {
-          ...filter.value,
-          ...variableResourceFilter,
-          ...{
-            resource: {
-              _or: [
-                { mg_tableclass: { equals: `${schema}.Networks` } },
-                { mg_tableclass: { equals: `${schema}.Catalogues` } },
-              ],
+      },
+      {
+        reusedInResources: {
+          _or: [
+            { resource: { id: { equals: catalogueRouteParam } } },
+            {
+              resource: {
+                parentNetworks: {
+                  id: { equals: catalogueRouteParam },
+                },
+              },
             },
-          },
+          ],
         },
-        resourcesFilter,
-      };
+      },
+    ],
+  };
+
+  const nonScopedResourceFilter = {
+    resource: {
+      _or: [
+        { mg_tableclass: { equals: `${schema}.Networks` } },
+        { mg_tableclass: { equals: `${schema}.Catalogues` } },
+      ],
+    },
+  };
+
+  const variables = {
+    variablesFilter: {
+      _and: [
+        filter.value,
+        ...(variableResourceFilter ? [variableResourceFilter] : []),
+        ...(scoped
+          ? [scopedResourceFilter]
+          : [nonScopedResourceFilter])
+      ],
+    },
+    resourcesFilter,
+  };
 
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
