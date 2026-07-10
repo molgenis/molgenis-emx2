@@ -18,7 +18,7 @@ import {
   //@ts-expect-error
 } from "molgenis-viz";
 
-import * as NlGeoJson from "../data/nl.geo.json";
+import * as NlGeoJson from "../../../molgenis-viz/src/data/nl.geo.json";
 import { IAxisTickData } from "../types";
 import { generateAxisTickData } from "../utils/generateAxisTicks";
 
