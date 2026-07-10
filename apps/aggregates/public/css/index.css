@@ -14,9 +14,12 @@ main.container-fluid.p-3 {
   --blue-green-900: #309bc2;
   --blue-green-100: #daeef5;
   --blue-green-050: #eff8fb;
+  --molgenis-blue-800: hsl(218, 98%, 52%);
   --gray-transparent-100: hsla(0, 0%, 0%, 0.1);
   --viz-chart-title-font-size: 13pt;
   --gap: 0.75em;
+  --radius: 8px;
+
   font-family: Helvetica, sans-serif;
   position: relative;
 }
@@ -152,16 +155,6 @@ main.container-fluid.p-3 {
   width: auto;
 }
 
-.filters-form .filters-container .filter-item select {
-  width: 100%;
-  padding: 0.65em;
-  background-color: white;
-  box-shadow: inset 0 0 4px 3px var(--gray-transparent-100);
-  background-color: white;
-  border: 1px solid var(--gray-300);
-  border-radius: 8px;
-}
-
 .filters-form .filters-container button {
   border: none;
   background: none;
@@ -189,14 +182,15 @@ main.container-fluid.p-3 {
   justify-self: flex-start;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35em;
   flex-grow: 1;
-  border: 1px solid var(--gray-300);
-  padding: 0.5em;
-  border-radius: 8px;
-  box-shadow: inset 0 0 4px 3px var(--gray-transparent-100);
-  background-color: white;
+  gap: 0.35em;
+  width: 100%;
   min-height: 2.5em;
+  padding: 0.4em;
+  background-color: white;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 3px 2px var(--gray-transparent-100);
 }
 
 .filters-form .filters-container .filter-buttons .filter-button {
@@ -206,7 +200,7 @@ main.container-fluid.p-3 {
   color: var(--blue-900);
   background-color: var(--blue-green-100);
   padding: 0.2em 1em;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 0.9rem;
 }
 
@@ -235,12 +229,12 @@ main.container-fluid.p-3 {
 }
 
 .filters-form .filters-container .filter-action button {
-  padding: 0.4em;
-  border-radius: 8px;
+  padding: 0.6em;
+  border-radius: var(--radius);
   font-size: var(--viz-chart-title-font-size);
   justify-content: center;
-  margin-top: 9px;
-  height: 47.5px;
+  margin-top: 7px;
+  height: 50px;
 }
 
 .filters-form .filters-container .filter-action button:hover,
@@ -260,28 +254,63 @@ main.container-fluid.p-3 {
 }
 
 #runQuery {
-  background-color: var(--blue-900);
+  background-color: var(--blue-green-900);
   color: white;
 }
 
-#filterTooltipContent {
+#accordion-dashboardInstructions {
+  position: relative;
+  border: none;
+  font-size: var(--viz-chart-title-font-size);
+  margin: 0;
+  margin-top: 0.75em;
+}
+
+#accordion-dashboardInstructions .accordion-heading {
+  background-color: transparent;
+  font-size: inherit;
+  border: none;
+  padding: 0;
+  color: var(--molgenis-blue-800);
+}
+
+#accordion-dashboardInstructions .accordion-toggle {
+  align-items: flex-start;
+}
+
+#accordion-dashboardInstructions .accordion-toggle .toggle-label {
+  width: auto;
+  border-bottom: 1px solid transparent;
+}
+
+#accordion-dashboardInstructions .accordion-toggle .toggle-icon {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+#accordion-dashboardInstructions .accordion-heading:hover .toggle-label,
+#accordion-dashboardInstructions .accordion-heading:focus .toggle-label {
+  border-bottom-color: currentColor;
+}
+
+#accordion-dashboardInstructions .accordion-content {
   position: absolute;
-  width: 90%;
   top: 100%;
-  left: 0;
+  width: auto;
+  margin-top: 10px;
   padding: 1em;
   background-color: white;
-  font-size: 11pt;
   box-shadow: 0 0 4px 3px var(--gray-transparent-100);
+  border-radius: var(--radius);
 }
 
-#filterTooltipContent h4 {
+#accordion-dashboardInstructions .accordion-content h4 {
   font-size: var(--viz-chart-title-font-size);
-  text-align: left;
-  margin-bottom: 0.5em;
+  font-weight: bold;
 }
 
-#filterTooltipContent p {
+#accordion-dashboardInstructions .accordion-content p {
   margin-bottom: 0;
 }
 
@@ -290,8 +319,8 @@ main.container-fluid.p-3 {
     grid-template-columns: 2fr 300px;
   }
 
-  #filterTooltipContent {
-    width: 45vw;
+  #accordion-dashboardInstructions .accordion-content {
+    width: 100%;
     max-width: 800px;
   }
 }
