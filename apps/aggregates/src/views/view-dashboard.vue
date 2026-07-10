@@ -81,8 +81,8 @@
             :chartData="researchCenters"
             xvar="_sum"
             yvar="researchCenter"
-            :xMax="researchCenterAxis.ymax"
-            :xTickValues="researchCenterAxis.ticks"
+            :xMax="researchCenterAxis?.limit"
+            :xTickValues="researchCenterAxis?.ticks"
             yAxisLineBreaker=" "
             :chartHeight="400"
             :barFill="palette[3]"
@@ -145,14 +145,14 @@
             :chartData="yearOfDiagnosis"
             xvar="yearOfDiagnosis"
             yvar="_sum"
-            :yTickValues="yearOfDiagnosisAxis.ticks"
-            :yMax="yearOfDiagnosisAxis.ymax"
+            :yTickValues="yearOfDiagnosisAxis?.ticks"
+            :yMax="yearOfDiagnosisAxis?.limit"
             :columnFill="palette[5]"
             :columnHoverFill="palette[3]"
             :chartHeight="250"
             :chartMargins="{
-              top: 15,
-              right: 10,
+              top: 30,
+              right: 5,
               bottom: 30,
               left: 60,
             }"
@@ -192,8 +192,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
-
-// @ts-ignore
 import {
   Page,
   PageSection,
@@ -207,6 +205,7 @@ import {
   PieChart2,
   ColumnChart,
   LoadingScreen,
+  renameKey,
   // @ts-expect-error
 } from "molgenis-viz";
 
@@ -214,20 +213,14 @@ import {
   MinusCircleIcon,
   ChevronRightIcon,
   TrashIcon,
-  InformationCircleIcon,
 } from "@heroicons/vue/24/outline";
 
 // @ts-ignore
 import { schemeGnBu as scheme } from "d3-scale-chromatic";
+import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
+import { getChartData, gqlPrepareSubSelectionFilter } from "../utils/index";
 
-import {
-  getChartData,
-  renameKey,
-  seqAlongBy,
-  calculateIncrement,
-  gqlPrepareSubSelectionFilter,
-} from "../utils/index";
-
+import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
 import type {
   selectedFiltersIF,
   researchCentersIF,
@@ -235,22 +228,21 @@ import type {
   metastasisIF,
   yearOfDiagnosisIF,
   sexCasesIF,
-  chartAxisSettingsIF,
   selectedFiltersQueryIF,
   vizChartFilters,
 } from "../interfaces/types";
 
-const palette = ref(scheme[6]);
-const loading = ref(true);
-const error = ref(false);
+const palette = ref<string[]>(scheme[6]);
+const loading = ref<boolean>(true);
+const error = ref<boolean>(false);
 
 const researchCenters = ref<researchCentersIF[]>([]);
 const primaryTumorSite = ref<primaryTumorSiteIF[]>([]);
 const metastasis = ref<metastasisIF[]>([]);
 const yearOfDiagnosis = ref<yearOfDiagnosisIF[]>([]);
 const sexCases = ref<sexCasesIF>();
-const researchCenterAxis = ref<chartAxisSettingsIF>({ ticks: [], ymax: null });
-const yearOfDiagnosisAxis = ref<chartAxisSettingsIF>({ ticks: [], ymax: null });
+const researchCenterAxis = ref<NumericAxisTickData>();
+const yearOfDiagnosisAxis = ref<NumericAxisTickData>();
 
 const queryFilters = ref({ filter: {} });
 const selectedFilters = ref<selectedFiltersIF>({
@@ -261,9 +253,9 @@ const selectedFilters = ref<selectedFiltersIF>({
   sex: [],
 });
 
-const totalNumberOfCases = computed(() => {
+const totalNumberOfCases = computed<number>(() => {
   return researchCenters.value.reduce(
-    (sum: number, row: Record<string, any>) => row._sum + sum,
+    (sum: number, row: researchCentersIF) => row._sum + sum,
     0
   );
 });
@@ -326,7 +318,9 @@ async function getResearchCentersData() {
   });
 
   researchCenters.value = researchCenters.value
-    .sort((curr, next) => curr._sum - next._sum)
+    .sort((curr: researchCentersIF, next: researchCentersIF) => {
+      return curr._sum - next._sum;
+    })
     .reverse();
 }
 
@@ -339,9 +333,11 @@ async function getPrimaryTumorSiteData() {
     filters: queryFilters.value.filter,
   });
 
-  primaryTumorSite.value = primaryTumorSite.value.map((row) => {
-    return { ...row, "primary tumor site": row.primaryTumorSite };
-  });
+  primaryTumorSite.value = primaryTumorSite.value.map(
+    (row: primaryTumorSiteIF) => {
+      return { ...row, "primary tumor site": row.primaryTumorSite };
+    }
+  );
   renameKey(primaryTumorSite.value, "_sum", "sum");
 }
 
@@ -397,26 +393,13 @@ async function getSexData() {
 }
 
 watch([researchCenters], () => {
-  const centerMax = Math.max(...researchCenters.value.map((d) => d._sum));
-  const centerStep = calculateIncrement(centerMax);
-  researchCenterAxis.value.ymax =
-    Math.ceil(centerMax / centerStep) * centerStep;
-  researchCenterAxis.value.ticks = seqAlongBy(
-    0,
-    researchCenterAxis.value.ymax,
-    centerStep
-  );
+  const centerAxisData = generateAxisTickData(researchCenters.value, "_sum");
+  researchCenterAxis.value = centerAxisData;
 });
 
 watch([yearOfDiagnosis], () => {
-  const allMaxValues: number[] = yearOfDiagnosis.value.map(
-    (row: Record<string, any>) => row._sum
-  );
-  const maxValue = Math.max(...allMaxValues);
-  const step = calculateIncrement(maxValue);
-  const max = Math.ceil(maxValue / step) * step;
-  yearOfDiagnosisAxis.value.ymax = max;
-  yearOfDiagnosisAxis.value.ticks = seqAlongBy(0, max, step);
+  const yearAxisData = generateAxisTickData(yearOfDiagnosis.value, "_sum");
+  yearOfDiagnosisAxis.value = yearAxisData;
 });
 
 function resetFilters() {
