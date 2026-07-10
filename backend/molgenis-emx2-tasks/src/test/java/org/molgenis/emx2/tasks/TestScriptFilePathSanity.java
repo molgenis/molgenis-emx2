@@ -11,24 +11,22 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 
 class TestScriptFilePathSanity {
-  private static Row extraFile(String filename) {
-    return new Row(
+  @Test
+  void rejectsExtraFileResolvingOutsideTempDir() {
+    Row scriptMetadata = new Row(
         "extraFile",
         "attachment",
         "extraFile_filename",
-        filename,
+        "../attachment.csv",
         "extraFile_extension",
         "csv",
         "extraFile_contents",
         new byte[] {1, 2, 3});
-  }
 
-  @Test
-  void rejectsExtraFileResolvingOutsideTempDir() {
     ScriptTask task =
         new ScriptTask("extra file outside temp dir")
             .type(PYTHON)
-            .extraFile(extraFile("../attachment.csv"))
+            .extraFile(scriptMetadata)
             .script("print('never runs')");
 
     // setup fails before the script is executed, so run() reports the error and re-throws
