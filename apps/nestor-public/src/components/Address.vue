@@ -42,7 +42,7 @@ const cssClassNames = computed(() => {
   line-height: 1.3;
 
   strong {
-    color: #0a0a0a;
+    color: var(--gray-900);
   }
 
   span {

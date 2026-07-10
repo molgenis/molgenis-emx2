@@ -355,9 +355,9 @@ loadData();
 
       &[data-value="Undetermined"],
       &[data-value="Undetermined"] + td {
-        background-color: #ffffff;
+        background-color: var(--white);
         span {
-          color: #929292;
+          color: var(--gray-400);
         }
       }
     }
