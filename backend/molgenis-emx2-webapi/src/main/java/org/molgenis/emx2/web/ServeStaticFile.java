@@ -5,7 +5,6 @@ import static org.molgenis.emx2.ColumnType.STRING;
 import com.google.common.io.ByteStreams;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URLConnection;

@@ -13,15 +13,16 @@ import org.molgenis.emx2.Row;
 class TestScriptFilePathSanity {
   @Test
   void rejectsExtraFileResolvingOutsideTempDir() {
-    Row scriptMetadata = new Row(
-        "extraFile",
-        "attachment",
-        "extraFile_filename",
-        "../attachment.csv",
-        "extraFile_extension",
-        "csv",
-        "extraFile_contents",
-        new byte[] {1, 2, 3});
+    Row scriptMetadata =
+        new Row(
+            "extraFile",
+            "attachment",
+            "extraFile_filename",
+            "../attachment.csv",
+            "extraFile_extension",
+            "csv",
+            "extraFile_contents",
+            new byte[] {1, 2, 3});
 
     ScriptTask task =
         new ScriptTask("extra file outside temp dir")
