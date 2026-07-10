@@ -3,6 +3,7 @@ package org.molgenis.emx2.graphql;
 import static java.util.function.Predicate.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLFieldDefinition;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +35,9 @@ class GraphqlSchemaFieldFactoryTest {
       schema.addMember("test-user", privilege.toString());
       schema.getDatabase().setActiveUser("test-user");
 
-      GraphQLFieldDefinition.Builder builder = new GraphqlSchemaFieldFactory().schemaQuery(schema);
+      GraphQLFieldDefinition.Builder builder =
+          new GraphqlSchemaFieldFactory()
+              .schemaQuery(schema, GraphQLCodeRegistry.newCodeRegistry());
       GraphQLFieldDefinition definition = builder.build();
       assertTrue(
           definitionContainsMembersField(definition),
@@ -50,7 +53,9 @@ class GraphqlSchemaFieldFactoryTest {
       schema.addMember("test-user", privilege.toString());
       schema.getDatabase().setActiveUser("test-user");
 
-      GraphQLFieldDefinition.Builder builder = new GraphqlSchemaFieldFactory().schemaQuery(schema);
+      GraphQLFieldDefinition.Builder builder =
+          new GraphqlSchemaFieldFactory()
+              .schemaQuery(schema, GraphQLCodeRegistry.newCodeRegistry());
       GraphQLFieldDefinition definition = builder.build();
       assertFalse(
           definitionContainsMembersField(definition),

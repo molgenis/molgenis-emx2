@@ -53,7 +53,8 @@ public class GraphqlAdminFieldFactory {
           .build();
 
   // retrieve user list, user count
-  public static GraphQLFieldDefinition queryAdminField(Database db) {
+  public static GraphQLFieldDefinition queryAdminField(
+      Database db, GraphQLCodeRegistry.Builder codeRegistry) {
     String userCount = "userCount";
     GraphQLOutputType adminType =
         GraphQLObjectType.newObject()
@@ -73,9 +74,9 @@ public class GraphqlAdminFieldFactory {
                     .build())
             .build();
 
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_admin")
-        .dataFetcher(
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_admin"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               Map<String, Object> result = new LinkedHashMap<>();
               // check for parameters
@@ -89,9 +90,8 @@ public class GraphqlAdminFieldFactory {
                 }
               }
               return result;
-            })
-        .type(adminType)
-        .build();
+            });
+    return GraphQLFieldDefinition.newFieldDefinition().name("_admin").type(adminType).build();
   }
 
   private static Object getUsers(SelectedField selectedField, Database db) {
@@ -108,34 +108,40 @@ public class GraphqlAdminFieldFactory {
     }
   }
 
-  public static GraphQLFieldDefinition removeUser(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("removeUser")
-        .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
-        .dataFetcher(
+  public static GraphQLFieldDefinition removeUser(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "removeUser"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String email = dataFetchingEnvironment.getArgument(EMAIL);
               database.removeUser(email);
               return new GraphqlApiMutationResult(SUCCESS, "User %s removed", email);
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("removeUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .build();
   }
 
-  public static GraphQLFieldDefinition setEnabledUser(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("setEnabledUser")
-        .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
-        .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
-        .dataFetcher(
+  public static GraphQLFieldDefinition setEnabledUser(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "setEnabledUser"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String email = dataFetchingEnvironment.getArgument(EMAIL);
               boolean enabled = dataFetchingEnvironment.getArgument(ENABLED);
               database.setEnabledUser(email, enabled);
               return new GraphqlApiMutationResult(
                   SUCCESS, "User %s %s ", email, enabled ? "Enabled" : "Disabled");
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("setEnabledUser")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(ENABLED).type(Scalars.GraphQLBoolean))
         .build();
   }
 
@@ -174,13 +180,16 @@ public class GraphqlAdminFieldFactory {
         .toList();
   }
 
-  public static GraphQLFieldDefinition updateUser(Database database) {
+  public static GraphQLFieldDefinition updateUser(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", UPDATE_USER),
+        (DataFetcher<?>)
+            dataFetchingEnvironment -> executeUpdateUser(database, dataFetchingEnvironment));
     return GraphQLFieldDefinition.newFieldDefinition()
         .name(UPDATE_USER)
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(UPDATE_USER).type(updateUserType))
-        .dataFetcher(
-            dataFetchingEnvironment -> executeUpdateUser(database, dataFetchingEnvironment))
         .build();
   }
 
