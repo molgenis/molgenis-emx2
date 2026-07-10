@@ -7,10 +7,13 @@ image:
   repository: "molgenis/molgenis-emx2"
   tag: "latest"
   pullPolicy: Always
-  resourceLimitMemory: "4Gi"
-  resourceRequestMemory: "2Gi"
-  pgResourceLimitMemory: "2Gi"
-  pgResourceRequestMemory: "1Gi"
+  resourceLimitMemory: 4Gi
+  resourceRequestMemory: 2Gi
+  pgResourceLimitMemory: 2Gi
+  pgResourceRequestMemory: 1Gi
+
+# EMX2 application configuration
+replicaCount: 1  # KEDA will override this
 
 database:
   name: molgenis
@@ -66,3 +69,38 @@ ssrCatalogue:
     siteTitle: "Data catalogue"
     analyticsKey: "6005657"
     schema: "catalogue-demo"
+
+
+
+# Wake Proxy configuratie
+wakeProxy:
+  enabled: true # Set to false to disable wake-proxy and route directly to EMX2
+  
+  image:
+    repository: molgenis/emx2-proxy
+    tag: 0.3 
+    pullPolicy: IfNotPresent
+  
+  previewName: "EMX2 Preview"
+  targetPort: 80  # Service port, NOT container port!
+
+  
+  resources:
+    requests:
+      memory: "128i"
+      cpu: "10m"
+    limits:
+      memory: "256Mi"
+      cpu: "50m"
+
+autoscaling:
+  enabled: true
+  minReplicas: 0
+  maxReplicas: 1
+  pollingInterval: 10 
+  cooldownPeriod: 300 #5h
+  prometheus:
+    serverAddress: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"
+    timeWindow: 1m
+    threshold: "0.001"
+    activationThreshold: "0.001"
