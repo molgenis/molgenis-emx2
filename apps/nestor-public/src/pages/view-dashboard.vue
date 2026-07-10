@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { request } from "graphql-request";
-import gql from "graphql-tag";
 import { ref } from "vue";
 
 import {
@@ -18,176 +16,120 @@ import {
   //@ts-expect-error
 } from "molgenis-viz";
 
+import type {
+  IComponents,
+  IOrganisations,
+  IStatistics,
+} from "../../../metadata-utils/src/viz/ErnDashboard";
+import { getComponentStats } from "../../../metadata-utils/src/viz/getErnDashboardComponent";
+import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations";
+import type { IRecordStringNumber } from "../../../metadata-utils/src/viz/types";
 import * as NlGeoJson from "../../../molgenis-viz/src/data/nl.geo.json";
-import { IAxisTickData } from "../types";
-import { generateAxisTickData } from "../utils/generateAxisTicks";
-
-interface IProviderInformation {
-  providerIdentifier: string;
-  hasSubmittedData: boolean;
-}
-
-interface IOrganisations {
-  name: string;
-  code: string;
-  city: string;
-  country: string;
-  latitude: number;
-  longitude: number;
-  providerInformation: IProviderInformation[];
-}
-
-interface IStatistics {
-  id: string;
-  name: string;
-  label: string;
-  value: number;
-  valueOrder: number;
-}
-
-interface IComponent {
-  name: string;
-  statistics: IStatistics[];
-}
-
-interface IKeyValuePairs {
-  [key: string]: number;
-}
-
-interface IOrganisationsResponse {
-  Organisations: IOrganisations[];
-}
-
-interface IComponentsResponse {
-  Components: IComponent[];
-}
+import {
+  asDataObject,
+  generateAxisTickData,
+} from "../../../tailwind-components/app/utils/viz";
+import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
 
 const loading = ref<boolean>(true);
 const error = ref<Error | null>(null);
-const registryHighlights = ref<IKeyValuePairs>({});
-const sexAtBirth = ref<IKeyValuePairs>({});
-const ageAtInclusion = ref<IStatistics[]>([]);
-const ageAtInclusionYAxis = ref<IAxisTickData>({
-  limit: 0,
-  ticks: [],
-});
-const enrollmentData = ref<IStatistics[]>([]);
-const organisations = ref<IOrganisations[]>([]);
+const highlightsChart = ref<IComponents>();
+const highlightsData = ref<IRecordStringNumber>();
+const sexAtBirthChart = ref<IComponents>();
+const sexAtBirthData = ref<IRecordStringNumber>();
+const ageAtInclusionChart = ref<IComponents>();
+const ageAtInclusionData = ref<IStatistics[]>();
+const ageAtInclusionAxis = ref<NumericAxisTickData>();
+const enrollmentChart = ref<IComponents>();
+const enrollmentData = ref<IStatistics[]>();
+const organisationsData = ref<IOrganisations[]>([]);
 
 const orgGroupMapping = {
   "Data Submitted": "#E9724C",
   "No Data": "#F0F0F0",
 };
 
-async function getOrganisations() {
-  const query = gql`
-    {
-      Organisations {
-        name
-        code
-        city
-        country
-        latitude
-        longitude
-        providerInformation {
-          providerIdentifier
-          hasSubmittedData
-        }
-      }
-    }
-  `;
-  const response: IOrganisationsResponse = await request(
-    "../api/graphql",
-    query
-  );
-  const data: IOrganisations[] = response.Organisations.map(
-    (row: IOrganisations) => {
-      const status = row.providerInformation[0].hasSubmittedData
-        ? "Data Submitted"
-        : "No Data";
-      return { ...row, hasSubmittedData: status };
-    }
-  );
-  organisations.value = data;
-}
-
-async function getStats() {
-  const query = gql`
-    {
-      Components {
-        name
-        statistics {
-          id
-          label
-          value
-          valueOrder
-        }
-      }
-    }
-  `;
-  const response: IComponentsResponse = await request("../api/graphql", query);
-  const data: IComponent[] = response.Components;
-
-  // get data highlights
-  const highlights = data.filter(
-    (row: IComponent) => row.name === "data-highlights"
-  );
-  registryHighlights.value = Object.fromEntries(
-    highlights[0]["statistics"].map((row: IStatistics) => [
-      row.label,
-      row.value,
-    ])
-  );
-
-  // prepare data for pie chart
-  const sexData = data.filter(
-    (row: IComponent) => row.name === "pie-sex-at-birth"
-  );
-  sexAtBirth.value = Object.fromEntries(
-    sexData[0]["statistics"]
-      .map((row: IStatistics) => [row.label, row.value])
-      .sort((current: any[], next: any[]) => (current[1] < next[1] ? 1 : -1))
-  );
-
-  // prepare data for age at last follow up chart
-  const age = data.filter((row: IComponent) => row.name === "barchart-age");
-  ageAtInclusion.value = age[0]["statistics"];
-  ageAtInclusionYAxis.value = generateAxisTickData(
-    ageAtInclusion.value!,
-    "value"
-  );
-
-  // prepare enrollment data by thematic disease group
-  enrollmentData.value = data
-    .filter(
-      (row: IComponent) => row.name === "table-enrollment-disease-group"
-    )[0]
-    ["statistics"].filter(
-      (row: IStatistics) => row.label !== "Undetermined" && row.value !== 0
-    )
-    .sort((current: IStatistics, next: IStatistics) => {
-      return current.valueOrder < next.valueOrder ? -1 : 1;
-    })
-    .map((row: IStatistics) => {
-      return {
-        ...row,
-        "Thematic Disease Group": row.label,
-        "Number of Patients": row.value,
-      };
-    });
-}
+loadData().then(prepareData);
 
 async function loadData() {
   try {
-    await getOrganisations();
-    await getStats();
+    const organisationsResponse = await getOrganisations("../api/graphql");
+    const highlightsResponse = await getComponentStats(
+      "../api/graphql",
+      "data-highlights"
+    );
+    const sexAtBirthResponse = await getComponentStats(
+      "../api/graphql",
+      "pie-sex-at-birth"
+    );
+    const ageResponse = await getComponentStats(
+      "../api/graphql",
+      "barchart-age"
+    );
+    const enrollmentResponse = await getComponentStats(
+      "../api/graphql",
+      "table-enrollment-disease-group"
+    );
+
+    highlightsChart.value = highlightsResponse[0];
+    sexAtBirthChart.value = sexAtBirthResponse[0];
+    ageAtInclusionChart.value = ageResponse[0];
+    enrollmentChart.value = enrollmentResponse[0];
+    organisationsData.value = organisationsResponse;
+    // await getStats();
   } catch (err) {
     error.value = err as Error;
   }
   loading.value = false;
 }
 
-loadData();
+function prepareData() {
+  highlightsData.value = asDataObject(
+    highlightsChart.value?.statistics as IStatistics[],
+    "label",
+    "value"
+  );
+
+  sexAtBirthData.value = asDataObject(
+    sexAtBirthChart.value?.statistics as IStatistics[],
+    "label",
+    "value",
+    true
+  );
+
+  ageAtInclusionData.value = ageAtInclusionChart.value?.statistics;
+  ageAtInclusionAxis.value = generateAxisTickData(
+    ageAtInclusionData.value as IStatistics[],
+    "value"
+  );
+
+  enrollmentData.value = (enrollmentChart.value?.statistics as IStatistics[])
+    .map((row: IStatistics) => {
+      return {
+        ...row,
+        "Thematic Disease Group": row.label,
+        "Number of Patients": row.value,
+      };
+    })
+    .sort((current: IStatistics, next: IStatistics) => {
+      return (current.valueOrder as number) < (next.valueOrder as number)
+        ? -1
+        : 1;
+    });
+
+  organisationsData.value = organisationsData.value?.map(
+    (row: IOrganisations) => {
+      let submissionStatus: string = "No Data";
+      if (
+        row.providerInformation &&
+        row.providerInformation[0].hasSubmittedData
+      ) {
+        submissionStatus = "Data Submitted";
+      }
+      return { ...row, hasSubmittedData: submissionStatus };
+    }
+  );
+}
 </script>
 
 <template>
@@ -207,7 +149,7 @@ loadData();
       <DashboardRow id="registryHighlights" :columns="1">
         <DataValueHighlights
           title="NESTOR Registry at a glance"
-          :data="registryHighlights"
+          :data="highlightsData"
         />
       </DashboardRow>
       <DashboardRow :columns="2">
@@ -215,7 +157,7 @@ loadData();
           <GeoMercator
             chartId="registryInstitutionsMap"
             title="Status of data by healthcare provider"
-            :chartData="organisations"
+            :chartData="organisationsData"
             rowId="code"
             longitude="longitude"
             latitude="latitude"
@@ -264,7 +206,7 @@ loadData();
           <PieChart2
             chartId="sexAtBirthChart"
             title="Sex at birth"
-            :chartData="sexAtBirth"
+            :chartData="sexAtBirthData"
             legendPosition="bottom"
             :chartHeight="150"
             :asDonutChart="true"
@@ -276,12 +218,12 @@ loadData();
           <ColumnChart
             chartId="registry-age-at-inclusion"
             title="Age at last follow-up"
-            :chartData="ageAtInclusion"
+            :chartData="ageAtInclusionData"
             xvar="label"
             yvar="value"
             :yMin="0"
-            :yMax="ageAtInclusionYAxis.limit"
-            :yTickValues="ageAtInclusionYAxis.ticks"
+            :yMax="ageAtInclusionAxis?.limit"
+            :yTickValues="ageAtInclusionAxis?.ticks"
             xAxisLabel="Age groups"
             yAxisLabel="Number of patients"
             :chartHeight="225"
