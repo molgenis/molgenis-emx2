@@ -1,16 +1,3 @@
-<template>
-  <address :class="cssClassNames">
-    <span><strong>University Medical Centre Groningen</strong></span>
-    <span>NESTOR Registry</span>
-    <span>Department of Medical Genetics</span>
-    <span>Antonius Deusinglaan 1, 9713 AV Groningen</span>
-    <span>The Netherlands</span>
-    <a href="mailto:support@molgenis.org" v-if="showEmail">
-      support@molgenis.org
-    </a>
-  </address>
-</template>
-
 <script setup lang="ts">
 import { computed } from "vue";
 
@@ -33,6 +20,19 @@ const cssClassNames = computed(() => {
   return css.join(" ");
 });
 </script>
+
+<template>
+  <address :class="cssClassNames">
+    <span><strong>University Medical Centre Groningen</strong></span>
+    <span>NESTOR Registry</span>
+    <span>Department of Medical Genetics</span>
+    <span>Antonius Deusinglaan 1, 9713 AV Groningen</span>
+    <span>The Netherlands</span>
+    <a href="mailto:support@molgenis.org" v-if="showEmail">
+      support@molgenis.org
+    </a>
+  </address>
+</template>
 
 <style>
 .address {
