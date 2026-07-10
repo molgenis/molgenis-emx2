@@ -30,7 +30,7 @@ withDefaults(
   </nav>
 </template>
 
-<style lang="scss">
+<style>
 .quick-links {
   .quick-links-nav {
     display: flex;

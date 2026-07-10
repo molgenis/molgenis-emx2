@@ -294,21 +294,27 @@ loadData();
   </Page>
 </template>
 
-<style lang="scss">
+<style>
 .d3-viz {
   &.d3-pie,
   &.d3-geo-mercator {
     .chart-context {
       text-align: center;
       .chart-title {
-        @include setChartTitle;
+        font-size: 1.1rem;
+        padding: 0;
+        margin-bottom: 0.5em;
+        text-align: center;
       }
     }
   }
 
   &.d3-column-chart {
     .chart-title {
-      @include setChartTitle;
+      font-size: 1.1rem;
+      padding: 0;
+      margin-bottom: 0.5em;
+      text-align: center;
     }
   }
 }
@@ -332,7 +338,10 @@ loadData();
 
 #diseaseGroupEnrollment {
   caption {
-    @include setChartTitle;
+    font-size: 1.1rem;
+    padding: 0;
+    margin-bottom: 0.5em;
+    text-align: center;
   }
   thead {
     th {
@@ -346,9 +355,9 @@ loadData();
 
       &[data-value="Undetermined"],
       &[data-value="Undetermined"] + td {
-        background-color: $gray-000;
+        background-color: #ffffff;
         span {
-          color: $gray-400;
+          color: #929292;
         }
       }
     }

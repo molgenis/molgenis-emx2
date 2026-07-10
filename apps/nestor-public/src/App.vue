@@ -2,7 +2,8 @@
 import { ref } from "vue";
 //@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import AppFooter from "./components/AppFooter.vue";
+//@ts-expect-error
+import { AppFooter } from "molgenis-viz";
 
 const session = ref(null);
 const page = ref(null);

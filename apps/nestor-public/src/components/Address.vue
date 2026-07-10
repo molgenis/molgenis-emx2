@@ -34,7 +34,7 @@ const cssClassNames = computed(() => {
 });
 </script>
 
-<style lang="scss">
+<style>
 .address {
   font-style: normal;
   font-size: 14pt;
@@ -42,7 +42,7 @@ const cssClassNames = computed(() => {
   line-height: 1.3;
 
   strong {
-    color: $gray-900;
+    color: #0a0a0a;
   }
 
   span {

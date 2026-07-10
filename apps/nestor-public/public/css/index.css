@@ -1,16 +1,16 @@
 .app-page,
 .app-footer {
   font-size: 14pt;
-  font-family: $font-family;
+  font-family: Helvetica, sans-serif;
 }
 
 .app-page {
   .page-header {
-    background: $brand-green-050;
+    background: hsl(177, 63%, 90%);
     .header-content {
       .header-title,
       .header-subtitle {
-        color: $brand-green-800;
+        color: hsl(177, 64%, 27%);
       }
     }
   }
@@ -74,20 +74,20 @@
 
     &:nth-child(1) {
       .link-card {
-        background-color: $brand-green;
+        background-color: hsl(177, 63%, 35%);
       }
     }
 
     &:nth-child(2) {
       .card-background-filter {
-        background-color: $brand-green;
+        background-color: hsl(177, 63%, 35%);
         opacity: 0.6;
       }
     }
 
     &:nth-child(3) {
       .card-background-filter {
-        background-color: $brand-orange;
+        background-color: #f2846e;
         opacity: 0.65;
       }
     }
@@ -104,7 +104,10 @@
 
     .d3-viz {
       .chart-title {
-        @include setChartTitle;
+        font-size: 1.1rem;
+        padding: 0;
+        margin-bottom: 0.5em;
+        text-align: center;
       }
     }
 
@@ -126,7 +129,7 @@
         tbody {
           tr {
             &:hover {
-              background-color: $brand-green-050;
+              background-color: hsl(177, 63%, 90%);
             }
           }
         }
