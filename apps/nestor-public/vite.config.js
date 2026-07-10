@@ -9,7 +9,7 @@ dotenv.config({ path: "./.env" });
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig((command) => {
+export default defineConfig(({ command }) => {
   return {
     resolve: {
       alias: {
@@ -20,7 +20,7 @@ export default defineConfig((command) => {
       },
     },
     plugins: [vue()],
-    base: ["dev", "serve"].includes(command) ? "/" : "apps/cranio-public/",
+    base: ["dev", "serve"].includes(command) ? "/" : "apps/nestor-public/",
     server: {
       proxy: devProxy,
     },
