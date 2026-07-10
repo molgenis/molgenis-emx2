@@ -1,3 +1,8 @@
+<script setup lang="ts">
+// @ts-expect-error
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+</script>
+
 <template>
   <Page>
     <PageHeader
@@ -15,8 +20,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-expect-error
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
-</script>

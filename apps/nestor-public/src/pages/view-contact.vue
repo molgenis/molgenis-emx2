@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// @ts-expect-error
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+import Address from "../components/Address.vue";
+</script>
+
 <template>
   <Page>
     <PageHeader
@@ -13,10 +19,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-expect-error
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-// @ts-expect-error
-import Address from "../components/Address.vue";
-</script>

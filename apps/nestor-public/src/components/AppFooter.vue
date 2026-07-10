@@ -1,3 +1,53 @@
+<script setup lang="ts">
+import { ref, onBeforeMount } from "vue";
+import gql from "graphql-tag";
+import { request } from "graphql-request";
+
+withDefaults(
+  defineProps<{
+    //  @param firstColumnTitle Set the title of the first set of navigation links
+    firstColumnTitle?: string;
+
+    // Set the title of the second set of navigation links
+    secondColumnTitle?: string;
+
+    // If True (default), the footer area for project citations
+    showProjectCitation?: boolean;
+  }>(),
+  {
+    firstColumnTitle: "My Project",
+    secondColumnTitle: "For Members",
+    showProjectCitation: true,
+  }
+);
+
+interface IManifestSelection {
+  SpecificationVersion?: string;
+  ImplementationVersion?: string;
+}
+
+interface IManifestResponse {
+  _manifest?: IManifestSelection;
+}
+
+const manifest = ref<IManifestSelection>();
+
+async function getManifest() {
+  const query = gql`
+    {
+      _manifest {
+        ImplementationVersion
+        SpecificationVersion
+      }
+    }
+  `;
+  const response: IManifestResponse = await request("/api/graphql", query);
+  manifest.value = response._manifest;
+}
+
+onBeforeMount(() => getManifest());
+</script>
+
 <template>
   <footer class="app-footer">
     <div class="links-container">
@@ -88,56 +138,6 @@
     </div>
   </footer>
 </template>
-
-<script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-
-withDefaults(
-  defineProps<{
-    //  @param firstColumnTitle Set the title of the first set of navigation links
-    firstColumnTitle?: string;
-
-    // Set the title of the second set of navigation links
-    secondColumnTitle?: string;
-
-    // If True (default), the footer area for project citations
-    showProjectCitation?: boolean;
-  }>(),
-  {
-    firstColumnTitle: "My Project",
-    secondColumnTitle: "For Members",
-    showProjectCitation: true,
-  }
-);
-
-interface IManifestSelection {
-  SpecificationVersion?: string;
-  ImplementationVersion?: string;
-}
-
-interface IManifestResponse {
-  _manifest?: IManifestSelection;
-}
-
-const manifest = ref<IManifestSelection>();
-
-async function getManifest() {
-  const query = gql`
-    {
-      _manifest {
-        ImplementationVersion
-        SpecificationVersion
-      }
-    }
-  `;
-  const response: IManifestResponse = await request("/api/graphql", query);
-  manifest.value = response._manifest;
-}
-
-onBeforeMount(() => getManifest());
-</script>
 
 <style lang="scss">
 .app-footer {

@@ -1,129 +1,26 @@
-<template>
-  <Page id="page-dashboard">
-    <LoadingScreen v-if="loading" />
-    <div class="page-section padding-h-2" v-else-if="!loading && error">
-      <MessageBox type="error">
-        <p>Unable to retrieve data {{ error }}</p>
-      </MessageBox>
-    </div>
-    <Dashboard
-      id="nestorPublicDashboard"
-      :verticalPadding="0"
-      :horizontalPadding="2"
-      v-else
-    >
-      <DashboardRow id="registryHighlights" :columns="1">
-        <DataValueHighlights
-          title="NESTOR Registry at a glance"
-          :data="registryHighlights"
-        />
-      </DashboardRow>
-      <DashboardRow :columns="2">
-        <DashboardChart>
-          <GeoMercator
-            chartId="registryInstitutionsMap"
-            title="Status of data by healthcare provider"
-            :chartData="organisations"
-            rowId="code"
-            longitude="longitude"
-            latitude="latitude"
-            :geojson="NlGeoJson"
-            group="hasSubmittedData"
-            :groupColorMappings="orgGroupMapping"
-            :legendData="orgGroupMapping"
-            :chartSize="114"
-            :chartHeight="350"
-            :mapCenter="{
-              // centroid of the Netherlands
-              latitude: 5.291266,
-              longitude: 52.132633,
-            }"
-            :mapColors="{
-              land: '#185f5b',
-              border: '#08211F',
-              water: '#D8DDE9',
-            }"
-            :pointRadius="6"
-            :tooltipTemplate="
-              (row: IOrganisations) => {
-                return `
-                <p class='title'>${row.name}</p>
-                <p class='location'>${row.city}, ${row.country}</p>
-            `;
-              }
-            "
-            :chartScale="10"
-            :zoomLimits="[0, 10]"
-            :enableLegendClicks="true"
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <DataTable
-            tableId="diseaseGroupEnrollment"
-            caption="Summary of patients enrolled by thematic disease group"
-            :data="enrollmentData"
-            :columnOrder="['Thematic Disease Group', 'Number of Patients']"
-            :enableRowHighlighting="true"
-          />
-        </DashboardChart>
-      </DashboardRow>
-      <DashboardRow :columns="2">
-        <DashboardChart>
-          <PieChart2
-            chartId="sexAtBirthChart"
-            title="Sex at birth"
-            :chartData="sexAtBirth"
-            legendPosition="bottom"
-            :chartHeight="150"
-            :asDonutChart="true"
-            :enableLegendHovering="true"
-            :chartMargins="10"
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <ColumnChart
-            chartId="registry-age-at-inclusion"
-            title="Age at last follow-up"
-            :chartData="ageAtInclusion"
-            xvar="label"
-            yvar="value"
-            :yMin="0"
-            :yMax="ageAtInclusionYAxis.limit"
-            :yTickValues="ageAtInclusionYAxis.ticks"
-            xAxisLabel="Age groups"
-            yAxisLabel="Number of patients"
-            :chartHeight="225"
-            :chartMargins="{ top: 10, right: 0, bottom: 60, left: 60 }"
-            :columnPaddingInner="0.2"
-          />
-        </DashboardChart>
-      </DashboardRow>
-    </Dashboard>
-  </Page>
-</template>
-
 <script setup lang="ts">
-import { ref } from "vue";
-import gql from "graphql-tag";
 import { request } from "graphql-request";
+import gql from "graphql-tag";
+import { ref } from "vue";
 
 import {
-  Page,
-  Dashboard,
-  DashboardRow,
-  DashboardChart,
-  LoadingScreen,
-  MessageBox,
-  GeoMercator,
-  PieChart2,
   ColumnChart,
+  Dashboard,
+  DashboardChart,
+  DashboardRow,
   DataTable,
   DataValueHighlights,
-  // @ts-ignore
+  GeoMercator,
+  LoadingScreen,
+  MessageBox,
+  Page,
+  PieChart2,
+  //@ts-expect-error
 } from "molgenis-viz";
 
-import { generateAxisTickData } from "../utils/generateAxisTicks";
 import * as NlGeoJson from "../data/nl.geo.json";
+import { IAxisTickData } from "../types";
+import { generateAxisTickData } from "../utils/generateAxisTicks";
 
 interface IProviderInformation {
   providerIdentifier: string;
@@ -170,7 +67,10 @@ const error = ref<Error | null>(null);
 const registryHighlights = ref<IKeyValuePairs>({});
 const sexAtBirth = ref<IKeyValuePairs>({});
 const ageAtInclusion = ref<IStatistics[]>([]);
-const ageAtInclusionYAxis = ref<IKeyValuePairs>({});
+const ageAtInclusionYAxis = ref<IAxisTickData>({
+  limit: 0,
+  ticks: [],
+});
 const enrollmentData = ref<IStatistics[]>([]);
 const organisations = ref<IOrganisations[]>([]);
 
@@ -289,6 +189,110 @@ async function loadData() {
 
 loadData();
 </script>
+
+<template>
+  <Page id="page-dashboard">
+    <LoadingScreen v-if="loading" />
+    <div class="page-section padding-h-2" v-else-if="!loading && error">
+      <MessageBox type="error">
+        <p>Unable to retrieve data {{ error }}</p>
+      </MessageBox>
+    </div>
+    <Dashboard
+      id="nestorPublicDashboard"
+      :verticalPadding="0"
+      :horizontalPadding="2"
+      v-else
+    >
+      <DashboardRow id="registryHighlights" :columns="1">
+        <DataValueHighlights
+          title="NESTOR Registry at a glance"
+          :data="registryHighlights"
+        />
+      </DashboardRow>
+      <DashboardRow :columns="2">
+        <DashboardChart>
+          <GeoMercator
+            chartId="registryInstitutionsMap"
+            title="Status of data by healthcare provider"
+            :chartData="organisations"
+            rowId="code"
+            longitude="longitude"
+            latitude="latitude"
+            :geojson="NlGeoJson"
+            group="hasSubmittedData"
+            :groupColorMappings="orgGroupMapping"
+            :legendData="orgGroupMapping"
+            :chartSize="114"
+            :chartHeight="350"
+            :mapCenter="{
+              // centroid of the Netherlands
+              latitude: 5.291266,
+              longitude: 52.132633,
+            }"
+            :mapColors="{
+              land: '#185f5b',
+              border: '#08211F',
+              water: '#D8DDE9',
+            }"
+            :pointRadius="6"
+            :tooltipTemplate="
+              (row: IOrganisations) => {
+                return `
+                <p class='title'>${row.name}</p>
+                <p class='location'>${row.city}, ${row.country}</p>
+            `;
+              }
+            "
+            :chartScale="10"
+            :zoomLimits="[0, 10]"
+            :enableLegendClicks="true"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <DataTable
+            tableId="diseaseGroupEnrollment"
+            caption="Summary of patients enrolled by thematic disease group"
+            :data="enrollmentData"
+            :columnOrder="['Thematic Disease Group', 'Number of Patients']"
+            :enableRowHighlighting="true"
+          />
+        </DashboardChart>
+      </DashboardRow>
+      <DashboardRow :columns="2">
+        <DashboardChart>
+          <PieChart2
+            chartId="sexAtBirthChart"
+            title="Sex at birth"
+            :chartData="sexAtBirth"
+            legendPosition="bottom"
+            :chartHeight="150"
+            :asDonutChart="true"
+            :enableLegendHovering="true"
+            :chartMargins="10"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <ColumnChart
+            chartId="registry-age-at-inclusion"
+            title="Age at last follow-up"
+            :chartData="ageAtInclusion"
+            xvar="label"
+            yvar="value"
+            :yMin="0"
+            :yMax="ageAtInclusionYAxis.limit"
+            :yTickValues="ageAtInclusionYAxis.ticks"
+            xAxisLabel="Age groups"
+            yAxisLabel="Number of patients"
+            :chartHeight="225"
+            :chartMargins="{ top: 10, right: 0, bottom: 60, left: 60 }"
+            :columnPaddingInner="0.2"
+          />
+        </DashboardChart>
+      </DashboardRow>
+    </Dashboard>
+  </Page>
+</template>
 
 <style lang="scss">
 .d3-viz {

@@ -1,17 +1,3 @@
-<template>
-  <nav class="quick-links">
-    <ol class="quick-links-nav">
-      <li class="nav-item" v-for="row in data">
-        <LinkCard :imageSrc="imageSrc ? row[imageSrc] : null" :height="height">
-          <router-link :to="{ name: row[name] }">{{ row[label] }}</router-link>
-        </LinkCard>
-      </li>
-      <!-- Slot for displaying additional links -->
-      <slot></slot>
-    </ol>
-  </nav>
-</template>
-
 <script setup lang="ts">
 // @ts-expect-error
 import { LinkCard } from "molgenis-viz";
@@ -29,6 +15,20 @@ withDefaults(
   }
 );
 </script>
+
+<template>
+  <nav class="quick-links">
+    <ol class="quick-links-nav">
+      <li class="nav-item" v-for="row in data">
+        <LinkCard :imageSrc="imageSrc ? row[imageSrc] : null" :height="height">
+          <router-link :to="{ name: row[name] }">{{ row[label] }}</router-link>
+        </LinkCard>
+      </li>
+      <!-- Slot for displaying additional links -->
+      <slot></slot>
+    </ol>
+  </nav>
+</template>
 
 <style lang="scss">
 .quick-links {

@@ -1,3 +1,10 @@
+<script setup lang="ts">
+//@ts-expect-error
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+import QuickLinks from "../components/QuickLinks.vue";
+import Address from "../components/Address.vue";
+</script>
+
 <template>
   <Page id="page-home">
     <PageHeader
@@ -128,9 +135,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup>
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-import QuickLinks from "../components/QuickLinks.vue";
-import Address from "../components/Address.vue";
-</script>
