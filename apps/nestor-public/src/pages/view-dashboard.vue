@@ -76,7 +76,6 @@ async function loadData() {
     ageAtInclusionChart.value = ageResponse[0];
     enrollmentChart.value = enrollmentResponse[0];
     organisationsData.value = organisationsResponse;
-    // await getStats();
   } catch (err) {
     error.value = err as Error;
   }
