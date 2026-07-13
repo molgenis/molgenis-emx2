@@ -84,12 +84,7 @@ Good semantic html practices covers a lot of areas. In principle, it is importan
 
 For additional information and examples, please consult the [ARIA Patterns guide](https://www.w3.org/WAI/ARIA/apg/patterns/) and the [a11y project](https://www.a11yproject.com).
 
-### 6. Other guidelines
-
-Types of refs:
-```const myprop = ref<"option1" | "option2">("option2")```
-
-### 7. Naming conventions
+### 6. Naming conventions
 
 **Type-like identifiers (type aliases, interfaces, enums) are PascalCase.**
 
@@ -110,6 +105,16 @@ Properties that the frontend synthesizes onto row/data objects (i.e. that do not
 Note that this does not conflict with the "leading underscore means unused" idiom: that idiom (and how linters interpret it, e.g. `argsIgnorePattern: "^_"`) applies to *bindings* such as function parameters and variables, never to object property names.
 
 For comparison: system columns that are physically stored in tables use the `mg_` prefix (`mg_insertedBy`, `mg_draft`, ...); the `_` prefix is reserved for values that exist only in the API or the client.
+
+### 7. Refs with a fixed set of values are explicitly typed
+
+When a ref may only hold a restricted set of values, pass those values as a union of string literals in the type argument, instead of relying on type inference:
+
+```ts
+const layout = ref<"list" | "grid">("grid");
+```
+
+Without the type argument, `ref("grid")` is inferred as `Ref<string>`, so any string can be assigned without a compile error. With the union type, the compiler rejects everything except the listed values — a lightweight alternative to an enum, and the set of allowed values is documented right where the ref is declared.
 
 ## For java development
 
