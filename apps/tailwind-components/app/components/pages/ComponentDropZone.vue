@@ -4,7 +4,7 @@ import { useElementBounding } from "@vueuse/core";
 import { computed, ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn } from "@vueuse/core";
-import { addComponent } from "~/utils/cms";
+import { addBlock, addComponent } from "../../utils/cms";
 import type { IComponentOrders, IBlockOrders } from "../../../types/cms";
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
@@ -14,6 +14,7 @@ const { y } = useElementBounding(dropzone);
 
 const props = withDefaults(
   defineProps<{
+    pageName: string;
     componentType: string;
     component: IComponentOrders;
     block: IBlockOrders;
@@ -52,17 +53,32 @@ async function addComponentToBlock() {
   console.log(
     `Adding ${props.draggingInfo.componentName}`,
     props.component,
-    props.block
+    props.block,
+    props.draggingInfo
   );
   // NOTE: temporary test
   const order = props.component.order || 0;
-  await addComponent(
-    props.component.component.mg_tableclass.split(".")[0],
-    props.draggingInfo.componentName + "-" + Math.floor(Math.random() * 10000),
-    props.block.block.id,
-    props.addBelow ? order + 1 : order,
-    props.draggingInfo.componentName
-  );
+  if (props.draggingInfo.componentType === "Component") {
+    await addComponent(
+      props.component.component.mg_tableclass.split(".")[0],
+      props.draggingInfo.componentName +
+        "-" +
+        Math.floor(Math.random() * 1000000),
+      props.block.block.id,
+      props.addBelow ? order + 1 : order,
+      props.draggingInfo.componentName
+    );
+  } else {
+    await addBlock(
+      props.block.block.mg_tableclass.split(".")[0],
+      props.draggingInfo.componentName +
+        "-" +
+        Math.floor(Math.random() * 1000000),
+      props.pageName,
+      order,
+      props.draggingInfo.componentName
+    );
+  }
   emit("updatePage");
 }
 </script>

@@ -64,14 +64,12 @@ const handleDragEvent = (event: DragEvent) => {
         Blocks
       </div>
       <DraggableComponent
-        class="line-through"
         icon="view-table"
         componentName="Header"
         componentType="Block"
         @dragging="handleDragEvent"
       />
       <DraggableComponent
-        class="line-through"
         icon="view-normal"
         componentName="Section"
         componentType="Block"
