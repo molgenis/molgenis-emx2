@@ -118,7 +118,9 @@ const tag = computed(() => (props.href ? "a" : "button"));
       :class="`${type === 'text' ? TEXT_STYLING : ''} ${
         iconOnly ? 'sr-only' : ''
       }`"
-      >{{ label }}<slot
-    /></span>
+    >
+      {{ label }}
+      <slot />
+    </span>
   </component>
 </template>
