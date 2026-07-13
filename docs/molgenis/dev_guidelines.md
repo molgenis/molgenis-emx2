@@ -41,7 +41,7 @@ Make sure the `tsconfig.json` file is available in your app and typescript is en
 
 ### 3. All typescript interfaces are defined in the component file
 
-Component interfaces should have a clear and unique name. Interfaces should be prefixed with `I`.
+Component interfaces should have a clear and unique name.
 
 ```vue
 <script setup lang="ts">
@@ -86,25 +86,23 @@ For additional information and examples, please consult the [ARIA Patterns guide
 
 ### 6. Naming conventions
 
-**Type-like identifiers (type aliases, interfaces, enums) are PascalCase.**
+**Types, interfaces and enums: PascalCase.**
 
-```diff
-- export type tableRow = { ... };
-+ export type TableRow = { ... };
+```ts
+export type TableRow = { _rowId: string };
 ```
 
-This follows the standard TypeScript convention (typescript-eslint `naming-convention`, selector `typeLike`). Interfaces may additionally carry the `I` prefix (see guideline 3), which is also PascalCase: `ITableSettings`. This rule is enforced by ESLint (`apps/eslint.config.mjs`); a handful of pre-existing lowercase type names are grandfathered there and should be renamed over time, not imitated.
+**Interfaces: `I` prefix.** (House style; the broader TypeScript ecosystem has dropped this prefix.)
 
-**Client-side internal data properties are prefixed with a single underscore.**
+```ts
+interface ITableSettings { ... }
+```
 
-Properties that the frontend synthesizes onto row/data objects (i.e. that do not correspond to a user-defined column) use a `_` prefix, for example `_rowId`. This is safe and unambiguous because:
+**Prop and event bindings: camelCase.** Kebab-case only for HTML-native attributes such as `aria-*` and `data-*`.
 
-- EMX2 column names must start with a letter (see `COLUMN_NAME_REGEX` in the backend `Constants.java`), so a `_`-prefixed property can never collide with real data.
-- The GraphQL API already uses this namespace for its own meta fields (`_agg`, `_groupBy`, `_settings`, `_session`, ...).
-
-Note that this does not conflict with the "leading underscore means unused" idiom: that idiom (and how linters interpret it, e.g. `argsIgnorePattern: "^_"`) applies to *bindings* such as function parameters and variables, never to object property names.
-
-For comparison: system columns that are physically stored in tables use the `mg_` prefix (`mg_insertedBy`, `mg_draft`, ...); the `_` prefix is reserved for values that exist only in the API or the client.
+```vue
+<TableEMX2 :schemaId="schemaId" @rowSelected="onRowSelect" />
+```
 
 ### 7. Refs with a fixed set of values are explicitly typed
 
