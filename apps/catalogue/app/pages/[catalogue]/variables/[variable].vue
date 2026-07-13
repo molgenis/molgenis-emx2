@@ -158,11 +158,9 @@ useHead({
                 content: variable?.unit?.name,
               },
               {
-                label: 'Dataset',
+                label: 'Table',
                 content:
-                  variable?.dataset?.resource.id +
-                  ' - ' +
-                  variable?.dataset?.name,
+                  variable?.table?.resource.id + ' - ' + variable?.table?.name,
               },
             ]"
           >

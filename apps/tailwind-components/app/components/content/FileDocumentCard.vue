@@ -14,7 +14,7 @@ withDefaults(
 
 <template>
   <a
-    class="border rounded-3px p-5 flex items-center hover:shadow-md transition-shadow"
+    class="border rounded-base p-5 flex items-center hover:shadow-md transition-shadow"
     :href="url"
     :target="isExternal ? '_blank' : '_self'"
   >
