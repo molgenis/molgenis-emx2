@@ -1,42 +1,3 @@
-<template>
-  <Molgenis id="__top" v-model="session">
-    <Page>
-      <LoadingScreen v-if="loading && !error" />
-      <div class="message-box-container" v-else-if="!loading && error">
-        <MessageBox type="error">
-          <p>{{ error }}</p>
-        </MessageBox>
-      </div>
-      <div v-else>
-        <PageHeader
-          title="ERN CRANIO Registry"
-          :subtitle="currentOrganisation?.name"
-          :imageSrc="
-            currentOrganisation?.image
-              ? `${currentOrganisation?.image.url}`
-              : 'img/banner-diagnoses.jpg'
-          "
-        />
-        <Dashboard class="provider-dashboard-container" :horizontalPadding="2">
-          <ProviderSidebar />
-          <router-view
-            :organisation="currentOrganisation"
-            :schemaNames="cranioSchemas"
-            :api="{
-              graphql: {
-                current: `/${currentOrganisation?.schemaName}/api/graphql`,
-                public: `/${cranioSchemas?.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
-                providers: `/${cranioSchemas?.CRANIO_PROVIDER_SCHEMA}/api/graphql`,
-              },
-            }"
-          ></router-view>
-        </Dashboard>
-      </div>
-    </Page>
-    <AppFooter :publicSchema="cranioSchemas?.CRANIO_PUBLIC_SCHEMA" />
-  </Molgenis>
-</template>
-
 <script setup lang="ts">
 import { ref, onBeforeMount } from "vue";
 import { getCranioSchemaNames } from "./utils/getCranioSchemaNames";
@@ -93,3 +54,42 @@ onBeforeMount(async () => {
   }
 });
 </script>
+
+<template>
+  <Molgenis id="__top" v-model="session">
+    <Page>
+      <LoadingScreen v-if="loading && !error" />
+      <div class="message-box-container" v-else-if="!loading && error">
+        <MessageBox type="error">
+          <p>{{ error }}</p>
+        </MessageBox>
+      </div>
+      <div v-else>
+        <PageHeader
+          title="ERN CRANIO Registry"
+          :subtitle="currentOrganisation?.name"
+          :imageSrc="
+            currentOrganisation?.image
+              ? `${currentOrganisation?.image.url}`
+              : 'img/banner-diagnoses.jpg'
+          "
+        />
+        <Dashboard class="provider-dashboard-container" :horizontalPadding="2">
+          <ProviderSidebar />
+          <router-view
+            :organisation="currentOrganisation"
+            :schemaNames="cranioSchemas"
+            :api="{
+              graphql: {
+                current: `/${currentOrganisation?.schemaName}/api/graphql`,
+                public: `/${cranioSchemas?.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
+                providers: `/${cranioSchemas?.CRANIO_PROVIDER_SCHEMA}/api/graphql`,
+              },
+            }"
+          ></router-view>
+        </Dashboard>
+      </div>
+    </Page>
+    <AppFooter :publicSchema="cranioSchemas?.CRANIO_PUBLIC_SCHEMA" />
+  </Molgenis>
+</template>
