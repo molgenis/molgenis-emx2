@@ -273,7 +273,8 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
 
     if isinstance(data, pd.DataFrame):
         data_for_csv = data.copy() # Do not modify the original data
-        data_for_csv = data_for_csv.map(array_to_csv_string)
+        object_columns = data_for_csv.select_dtypes(include=['object', 'string']).columns
+        data_for_csv[object_columns] = data[object_columns].map(array_to_csv_string)
         if filename:
             data_for_csv.to_csv(path_or_buf=filename, index=False, quoting=csv.QUOTE_NONNUMERIC)
             return None
