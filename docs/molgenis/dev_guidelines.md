@@ -83,6 +83,28 @@ For additional information and examples, please consult the [ARIA Patterns guide
 Types of refs:
 ```const myprop = ref<"option1" | "option2">("option2")```
 
+### 7. Naming conventions
+
+**Type-like identifiers (type aliases, interfaces, enums) are PascalCase.**
+
+```diff
+- export type tableRow = { ... };
++ export type TableRow = { ... };
+```
+
+This follows the standard TypeScript convention (typescript-eslint `naming-convention`, selector `typeLike`). Interfaces may additionally carry the `I` prefix (see guideline 3), which is also PascalCase: `ITableSettings`. This rule is enforced by ESLint (`apps/eslint.config.mjs`); a handful of pre-existing lowercase type names are grandfathered there and should be renamed over time, not imitated.
+
+**Client-side internal data properties are prefixed with a single underscore.**
+
+Properties that the frontend synthesizes onto row/data objects (i.e. that do not correspond to a user-defined column) use a `_` prefix, for example `_rowId`. This is safe and unambiguous because:
+
+- EMX2 column names must start with a letter (see `COLUMN_NAME_REGEX` in the backend `Constants.java`), so a `_`-prefixed property can never collide with real data.
+- The GraphQL API already uses this namespace for its own meta fields (`_agg`, `_groupBy`, `_settings`, `_session`, ...).
+
+Note that this does not conflict with the "leading underscore means unused" idiom: that idiom (and how linters interpret it, e.g. `argsIgnorePattern: "^_"`) applies to *bindings* such as function parameters and variables, never to object property names.
+
+For comparison: system columns that are physically stored in tables use the `mg_` prefix (`mg_insertedBy`, `mg_draft`, ...); the `_` prefix is reserved for values that exist only in the API or the client.
+
 ## For java development
 
 ### We don't use var
