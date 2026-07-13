@@ -4,7 +4,7 @@
 
 To ensure consistency in the MOLGENIS interfaces, we would also like components to follow the same structure. Please follow these guidelines when developing components or creating new ones.
 
-### 1. Component files should start with the template
+### 1. Component files start with the script
 
 All component files should start with the script first, then the template, and finally the style block. This follows the common Vue 3 `<script setup>` convention.
 
@@ -39,9 +39,9 @@ const count = ref<number>(0);
 
 Make sure the `tsconfig.json` file is available in your app and typescript is enabled in your IDE.
 
-### 3. All typescript interfaces should be defined in the component file
+### 3. All typescript interfaces are defined in the component file
 
-Component interfaces should have a clear and unique name. Interfaces should also be prefixed with `I`.
+Component interfaces should have a clear and unique name. Interfaces should be prefixed with `I`.
 
 ```vue
 <script setup lang="ts">
@@ -62,7 +62,7 @@ const props = withDefaults(
 
 If your interface is used in more than one component, then add it to the `src/types` folder. Rather than storing all interfaces in one large file, save them into themed files. For example, if you have an interface that is used in more than visualization component, then store it in `types/viz.ts`.
 
-### 4. Components should be styled using the configured tailwind classes
+### 4. Components are styled using the configured tailwind classes
 
 We would like all components to work any theme. A number of classes are available in the `tailwind.config.js` file. Please use these when building components. For example, suppose you want to style text as an error. Instead of setting the color of the text to `text-red-500`, use the class `text-invalid`.
 
@@ -73,7 +73,7 @@ We would like all components to work any theme. A number of classes are availabl
 
 If a specific style is not available, define it in the `assets/css/main.css` and configure it in the `tailwind.config.js` file.
 
-### 5. All components must follow good semantic HTML practices and should be built with accessibility in mind
+### 5. All components follow good semantic HTML practices and are built with accessibility in mind
 
 Good semantic html practices covers a lot of areas. In principle, it is important to make sure the appropriate elements are used so that HTML elements properly render and are accesible. For example, it is fairly common to see buttons that redirects users to another page. Buttons should only perform an action and not act as link. Instead, it would be better to use the anchor element and style it as a button.
 
