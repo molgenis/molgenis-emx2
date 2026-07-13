@@ -146,23 +146,31 @@ print('unreachable')
 
     ClassLoader classLoader = getClass().getClassLoader();
     Path path =
-        new File(Objects.requireNonNull(classLoader.getResource("TestScriptTask")).getFile())
+        new File(Objects.requireNonNull(classLoader.getResource("TestScriptTaskFail")).getFile())
             .toPath();
     ImportDirectoryTask importDirectoryTask = new ImportDirectoryTask(path, schema, false);
     importDirectoryTask.run();
 
-    Task venvTask =
+    Task fileFailTask =
         taskService.getTask(
-            taskService.submit(taskService.getScript("Invalid filename test").parameters("")));
-    TaskStatus venvTaskStatus = venvTask.getStatus();
-    while (venvTaskStatus != COMPLETED && venvTaskStatus != ERROR) {
+            taskService.submit(taskService.getScript("Filename fail test").parameters("")));
+    TaskStatus fileFailTaskStatus = fileFailTask.getStatus();
+    while (fileFailTaskStatus != COMPLETED && fileFailTaskStatus != ERROR) {
       Thread.sleep(1000);
-      venvTaskStatus = venvTask.getStatus();
+      fileFailTaskStatus = fileFailTask.getStatus();
     }
-    assertTrue(
-        venvTask
-            .getDescription()
-            .contains(
-                "Script failed: Invalid file name 'venv.zip'. Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'."));
+    assertEquals(ERROR, fileFailTask.getStatus());
+    assertTrue(fileFailTask.getDescription().contains("Extra file name cannot be 'script.py'."));
+
+    Task emptyScriptFailTask =
+        taskService.getTask(
+            taskService.submit(taskService.getScript("Empty script test").parameters("")));
+    TaskStatus emptyScriptFailTaskStatus = emptyScriptFailTask.getStatus();
+    while (emptyScriptFailTaskStatus != COMPLETED && emptyScriptFailTaskStatus != ERROR) {
+      Thread.sleep(1000);
+      emptyScriptFailTaskStatus = emptyScriptFailTask.getStatus();
+    }
+    assertEquals(ERROR, emptyScriptFailTask.getStatus());
+    assertTrue(emptyScriptFailTask.getDescription().contains("Script is required"));
   }
 }

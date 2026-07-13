@@ -1,7 +1,7 @@
 FROM eclipse-temurin:21-jre-noble
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3 python3-pip python3-venv && \
+    apt-get install -y --no-install-recommends python3 && \
     rm -rf /var/lib/apt/lists/* && \
     useradd -m molgenis
 
@@ -15,3 +15,5 @@ USER molgenis
 EXPOSE 8080
 ENTRYPOINT ["java"]
 CMD ["-cp", "/app/lib/*", "org.molgenis.emx2.RunMolgenisEmx2"]
+
+COPY --from=ghcr.io/astral-sh/uv:0.11.25 /uv /uvx /usr/local/bin/

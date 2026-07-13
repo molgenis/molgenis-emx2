@@ -1,0 +1,5 @@
+name,type,script,dependencies,extraFile,extraFile_filename,outputFileExtension,disabled,failureAddress,cron,mg_draft
+Filename fail test,python,"""""""
+                          Empty script.
+                          """"""",,script,script.py,,,,,
+Empty script test,python,,,,,,,,,
