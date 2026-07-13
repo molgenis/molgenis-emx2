@@ -433,16 +433,8 @@ module.exports = {
         "chart-paths": "var(--chart-paths)",
       }),
       borderRadius: {
-        theme: "var(--border-radius-theme)",
-        "3px": "var(--border-radius-3px)",
-        "50px": "var(--border-radius-50px)",
-        input: "var(--border-radius-input)",
-        "textarea-input": "var(--border-radius-textarea-input)",
-        "search-input": "var(--border-radius-search-input)",
-        "search-button": "var(--border-radius-search-button)",
-        pagination: "var(--border-radius-pagination)",
-        landing: "var(--border-radius-landing)",
-        "form-required": "var(--border-radius-form-required)",
+        base: "var(--border-radius-base)",
+        alt: "var(--border-radius-alt)",
       },
       borderWidth: {
         "form-required": "var(--border-width-form-required)",

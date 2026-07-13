@@ -137,15 +137,7 @@
   --border-color-pagination: var(--color-transparent);
   --border-color-input-inverted: var(--color-gray-600);
 
-  --border-radius-theme: 50px;
-  --border-radius-3px: 3px;
-  --border-radius-50px: 50px;
-  --border-radius-input: 28px;
-  --border-radius-textarea-input: 20px;
-  --border-radius-search-input: 9999px;
-  --border-radius-search-button: 9999px;
-  --border-radius-pagination: 9999px;
-  --border-radius-landing: 50px;
+  --border-radius-alt: var(--radius-alt);
 
   --border-width-theme: 0px;
   --border-color-footer: var(--background-color-footer);

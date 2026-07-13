@@ -43,7 +43,7 @@ const active = "underline";
       v-if="subButtons.length > 0 && showMoreButton"
     >
       <button
-        class="flex items-center gap-1 pt-3 pb-2 pl-4 pr-2 -mt-3 -ml-4 tracking-widest transition-colors duration-300 translate-y-1 border border-b-0 border-transparent rounded-t-3px font-display text-heading-xl hover:border-white"
+        class="flex items-center gap-1 pt-3 pb-2 pl-4 pr-2 -mt-3 -ml-4 tracking-widest transition-colors duration-300 translate-y-1 border border-b-0 border-transparent rounded-t-base font-display text-heading-xl hover:border-white"
         :class="invert ? 'text-sub-menu' : 'text-menu'"
       >
         More
@@ -52,7 +52,7 @@ const active = "underline";
 
       <template #popper>
         <ol
-          class="flex flex-col gap-1.5 bg-white text-body-base rounded-3px rounded-tr-none shadow-xl p-6"
+          class="flex flex-col gap-1.5 bg-white text-body-base rounded-base rounded-tr-none shadow-xl p-6"
         >
           <li v-for="button in subButtons">
             <a
