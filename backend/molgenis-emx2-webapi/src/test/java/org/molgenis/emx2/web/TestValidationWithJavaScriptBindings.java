@@ -89,4 +89,82 @@ public class TestValidationWithJavaScriptBindings {
     assertThrows(
         MolgenisException.class, () -> table2.insert(row("id", 2, "name", "jan", "age", 11)));
   }
+
+  // The variables argument is converted from GraalJS values to plain Java (JavaScriptBindings
+  // asMap/toJava); this passes every value shape that conversion distinguishes. Undeclared
+  // variables are ignored by GraphQL, so only the conversion itself is exercised.
+  @Test
+  public void testSimplePostClientConvertsAllVariableShapes() {
+    String validationScript =
+        """
+        (function () {
+          let result = simplePostClient(
+            `query Test1( $filter:Test1Filter ) {
+               Test1( filter:$filter ) { name age }
+            }`,
+            {
+              filter: { age: { equals: age } },
+              extra: {
+                int: 42,
+                long: 2**40,
+                decimal: 1.5,
+                bool: true,
+                string: 'txt',
+                nothing: null,
+                array: [1, 'a', [true]],
+                nested: { x: { y: 2 } },
+                symbol: Symbol('x')
+              }
+            }, "%s"
+          );
+          return result.Test1 == null;
+        })()
+        """
+            .formatted(schemaName);
+    Table table4 =
+        schema.create(
+            table(
+                "Test4",
+                column("id").setPkey(),
+                column("age").setValidation(validationScript).setType(ColumnType.INT)));
+    table4.insert(row("id", 1, "age", 10));
+    assertThrows(MolgenisException.class, () -> table4.insert(row("id", 2, "age", 11)));
+  }
+
+  // A non-object variables argument falls back to an empty variables map
+  @Test
+  public void testSimplePostClientWithNonObjectVariables() {
+    String validationScript =
+        """
+        (function () {
+          let result = simplePostClient(
+            `query { Test1 { name age } }`, 42, "%s"
+          );
+          return result.Test1 != null;
+        })()
+        """
+            .formatted(schemaName);
+    Table table5 =
+        schema.create(
+            table(
+                "Test5",
+                column("id").setPkey(),
+                column("age").setValidation(validationScript).setType(ColumnType.INT)));
+    table5.insert(row("id", 1, "age", 10));
+  }
+
+  // Without arguments query/variables/schemaId fall back to null/empty; the schema lookup then
+  // rejects the null schemaId, so the validation script fails instead of NPE-ing.
+  @Test
+  public void testSimplePostClientWithoutArgumentsFailsValidation() {
+    Table table3 =
+        schema.create(
+            table(
+                "Test3",
+                column("id").setPkey(),
+                column("age")
+                    .setValidation("(function () { simplePostClient(); return true; })()")
+                    .setType(ColumnType.INT)));
+    assertThrows(MolgenisException.class, () -> table3.insert(row("id", 1, "age", 1)));
+  }
 }
