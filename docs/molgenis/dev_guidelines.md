@@ -6,20 +6,26 @@ To ensure consistency in the MOLGENIS interfaces, we would also like components 
 
 ### 1. Component files should start with the template
 
-All component files should start with the template markup first and then the script. This allows other developers to clearly see the aim of the component. Make sure vue component files are structured like so.
+All component files should start with the script first, then the template, and finally the style block. This follows the common Vue 3 `<script setup>` convention.
 
 ```vue
 <!-- MyComponent.vue -->
+<script>
+  ...
+</script>
+
 <template>
   ...
 </template>
 
-<script>
+<style>
   ...
-</script>
+</style>
 ```
 
-### 2. All scripts should use composition API and have typescript enabled
+Note: older apps and code may have deviating orders as they have not all been updated to this convention
+
+### 2. All scripts use composition API and have typescript enabled
 
 We prefer to use the [composition API](https://vuejs.org/api/composition-api-setup.html) for all EMX2 components. Typescript should also be enabled.
 
