@@ -21,7 +21,6 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
     throw createError({
       ...error,
       message: `Could not fetch schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`,
-      status: error.status === 500 ? 404 : error.status,
     });
   });
 
