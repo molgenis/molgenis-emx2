@@ -268,7 +268,8 @@ Before building the source, the package `build` needs to be installed.
 ## Test
 
 Tests for the Pyclient have been created with the Pytest framework.
-In order to test the functionality of the Pyclient copy the '.env-example' file to '.env' and modify the parameters for the server you want to test on.
+In order to test the functionality of the Pyclient copy the '.env-example' file to '.env'
+and modify the parameters for the server you want to test on.
 
 Then execute the following to run all the tests
 
