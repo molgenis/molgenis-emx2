@@ -13,7 +13,7 @@ export default async (
   );
 
   if (!tableMetadata) {
-    const message = `Could not find table: ${tableId} in schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
+    const message = `Could not find table "${tableId}" in schema "${schemaId}". ${DATA_NOT_FOUND_ERROR}`;
     console.error(message);
     throw createError({
       message,
