@@ -18,7 +18,6 @@ test.beforeEach(async ({ page, goto }) => {
 
 test("the row should be removed from the table after deletion", async ({
   page,
-  goto,
 }) => {
   await page.getByRole("checkbox", { name: "Is Editable:" }).check();
   await expect(
@@ -37,12 +36,9 @@ test("the row should be removed from the table after deletion", async ({
   await page
     .getByRole("searchbox", { name: "Search Category" })
     .fill("deltest");
-  // header is in row 0, so row with deltest is row 1
-  await page.getByRole("row").nth(1).hover();
-  await page
-    .getByRole("button", { name: 'delete{"name":"deltest"}' })
-    .nth(0)
-    .click();
+
+  await page.getByRole("cell", { name: "deltest" }).hover();
+  await page.getByRole("button", { name: 'delete {"name":"deltest"}' }).click();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(
     page.getByRole("cell", { name: "view row details deltest" })

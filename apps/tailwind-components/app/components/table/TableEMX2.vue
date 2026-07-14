@@ -186,7 +186,7 @@
                       >
                         <Button
                           v-if="isEditable"
-                          :id="useId()"
+                          :id="`delete-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
                           icon="trash"
@@ -200,7 +200,7 @@
                         </Button>
                         <Button
                           v-if="isEditable"
-                          :id="useId()"
+                          :id="`edit-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
                           icon="edit"
@@ -282,7 +282,7 @@
 
   <EditModal
     v-if="data?.tableMetadata && showEditModal"
-    :key="`edit-modal-${useId()}`"
+    :key="`edit-modal-${rowDataForModal?._rowIdString}`"
     :showButton="false"
     :schemaId="schemaId"
     :metadata="data.tableMetadata"
@@ -294,7 +294,7 @@
 
   <EditModal
     v-if="data?.tableMetadata && showAddModal"
-    :key="`add-modal-${useId()}`"
+    :key="`add-modal-${tableId}`"
     :showButton="false"
     :schemaId="schemaId"
     :metadata="data.tableMetadata"
@@ -305,7 +305,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useId, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import type {
   columnValue,
   IColumn,
