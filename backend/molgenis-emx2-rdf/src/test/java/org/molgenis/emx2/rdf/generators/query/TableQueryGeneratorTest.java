@@ -208,12 +208,13 @@ class TableQueryGeneratorTest {
 
     assertEquals(
         """
-        SELECT ?_subject_ ?id ?product__name
+        SELECT ?_subject_ ?id ?_subject_product ?product__name
         WHERE { ?_subject_ ?anyPredicate ?anyObject .
         ?_subject_ xsd:id ?id .
         ?_subject_ xsd:product ?product .
+        BIND( ?product AS ?_subject_product )
         ?product xsd:name ?product__name . }
-        GROUP BY ?_subject_ ?id ?product__name
+        GROUP BY ?_subject_ ?id ?_subject_product ?product__name
         """,
         removePrefixesFromQuery(query));
   }
