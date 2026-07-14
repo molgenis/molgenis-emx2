@@ -160,7 +160,6 @@ health-activity:SURVEILLANCE
         dct:spatial                     <http://publications.europa.eu/resource/authority/country/FIN>;
         dct:temporal                    <urn:uuid:a0ee8f75-3ed9-45ed-a109-84cceb966fb5>;
         dct:title                       "Core";
-        dct:creator                     <urn:uuid:f949ecf4-5bdc-4127-b667-a13bc00eb295>;
         dct:type                        dataset-type:RELEASE;
         adms:identifier                 <https://doi.org/10.1093/ije/dyab109>;
         dcat:contactPoint               <urn:uuid:274850ac-29c8-452d-b29c-f01977b91b42>;

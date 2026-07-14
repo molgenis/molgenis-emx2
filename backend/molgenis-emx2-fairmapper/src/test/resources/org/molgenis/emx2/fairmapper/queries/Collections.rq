@@ -64,6 +64,7 @@ SELECT
 ( GROUP_CONCAT( DISTINCT STR( ?theme_single ) ; SEPARATOR = ',' ) AS ?theme )
 ( GROUP_CONCAT( DISTINCT STR( ?applicable___legislation_single ) ; SEPARATOR = ',' ) AS ?applicable___legislation )
 ?_subject_publisher
+?_subject_creator
 
 WHERE {
     ?_subject_ a dcat:Dataset .
@@ -98,7 +99,10 @@ WHERE {
         ?_subject_ dcterms:publisher ?publisher .
         BIND(?publisher as ?_subject_publisher)
     }
-    OPTIONAL { ?_subject_ dcterms:creator ?creator . }
+    OPTIONAL {
+        ?_subject_ dcterms:creator ?creator .
+        BIND(?creator as ?_subject_creator)
+    }
     OPTIONAL {
         ?_subject_ dcat:contactPoint ?contact___point .
         BIND(?contact___point as ?_subject_contact___point)
@@ -138,3 +142,4 @@ GROUP BY
     ?release___type
     ?provenance___statement
     ?_subject_publisher
+    ?_subject_creator

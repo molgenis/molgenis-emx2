@@ -67,25 +67,78 @@ class HarvestingSpike {
   }
 
   private void postProcess(TableStore tableStore, SchemaMetadata schema) {
+    // Base id field off of acronym
     addIdField(tableStore);
+
+    // Set type of collections to a hardcoded value
     addType(tableStore);
+
+    // Resolve semantic uri of ontologies to their designated names
     resolveOntologies(tableStore, schema);
 
+    // Resolve organisation id's from their subject iri's
+    resolveOrganisationsId(tableStore);
+
+    // Resolve circular 1-to-1 dependencies from collections
     resolveContactPoint(tableStore);
     resolvePublisher(tableStore);
+    resolveCreator(tableStore);
 
+    // The query fetches too many organisations, filter out the ones that don't hold a reference to
+    // a resource, as those are unneeded
+    filterUnreferencedOrganisations(tableStore);
+
+    // Drop _subject_ fields as those aren't in the schema
     removeSubjectFromStoreRows(tableStore);
+  }
+
+  private void filterUnreferencedOrganisations(TableStore tableStore) {
+    List<Row> rows =
+        StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
+            .filter(row -> row.containsName("resource"))
+            .toList();
+
+    if (rows.isEmpty()) {
+      tableStore.writeTable("Organisations", List.of(), List.of());
+    } else {
+      tableStore.writeTable(
+          "Organisations", rows.getFirst().getColumnNames().stream().toList(), rows);
+    }
+  }
+
+  private void resolveOrganisationsId(TableStore tableStore) {
+    tableStore.processTable(
+        "Organisations",
+        (iterator, source) ->
+            iterator.forEachRemaining(
+                row -> row.setString("id", row.getString("organisation name"))));
+  }
+
+  private void resolveCreator(TableStore tableStore) {
+    Map<String, Row> organisations =
+        StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
+            .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
+
+    tableStore.processTable(
+        "Collections",
+        (iterator, source) ->
+            iterator.forEachRemaining(
+                row -> {
+                  String[] split = row.getString("_subject_creator").split(",");
+                  for (String creatorIRI : split) {
+                    Row creator = organisations.get(creatorIRI);
+                    creator.setString("resource", row.getString("id"));
+
+                    row.set("creator.resource", row.getString("id"));
+                    row.set("creator.id", creator.getString("id"));
+                  }
+                }));
   }
 
   private void resolvePublisher(TableStore tableStore) {
     Map<String, Row> organisations =
         StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
             .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
-
-    tableStore.processTable(
-        "Organisations",
-        (iterator, source) ->
-            iterator.forEachRemaining(row -> row.setString("id", row.getString("_subject_"))));
 
     tableStore.processTable(
         "Collections",
@@ -98,15 +151,6 @@ class HarvestingSpike {
                   row.set("publisher.resource", row.getString("id"));
                   row.set("publisher.id", publisher.getString("id"));
                 }));
-
-    List<Row> rows =
-        organisations.values().stream().filter(row -> row.containsName("resource")).toList();
-    if (rows.isEmpty()) {
-      tableStore.writeTable("Organisations", List.of(), List.of());
-    } else {
-      tableStore.writeTable(
-          "Organisations", rows.getFirst().getColumnNames().stream().toList(), rows);
-    }
   }
 
   private void resolveContactPoint(TableStore tableStore) {
