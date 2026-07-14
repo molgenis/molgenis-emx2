@@ -1,0 +1,125 @@
+PREFIX afr: <http://purl.allotrope.org/ontologies/result#>
+PREFIX afrl: <http://purl.allotrope.org/ontologies/role#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcatap: <http://data.europa.eu/r5r/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX edam: <http://edamontology.org/>
+PREFIX efo: <http://www.ebi.ac.uk/efo/>
+PREFIX ejp: <https://w3id.org/ejp-rd/vocabulary#>
+PREFIX ensembl: <http://ensembl.org/glossary/>
+PREFIX fdp-o: <https://w3id.org/fdp/fdp-o#>
+PREFIX fg: <https://w3id.org/fair-genomes/resource/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX healthdcatap: <http://healthdataportal.eu/ns/health#>
+PREFIX hl7: <http://purl.bioontology.org/ontology/HL7/>
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+PREFIX lnc: <http://purl.bioontology.org/ontology/LNC/>
+PREFIX mesh: <http://purl.bioontology.org/ontology/MESH/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX ordo: <http://www.orpha.net/ORDO/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX sio: <http://semanticscience.org/resource/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT
+    ?_subject_
+    ?fdp___endpoint__id
+    ?ldp___membership___relation
+    ?pid
+    ?name
+    ?local___name
+    ?acronym
+    ?website
+    ?description
+    ?start___year
+    ?end___year
+    ?conforms___to
+    ?has___member___relation
+    ?issued
+    ?modified
+    ( GROUP_CONCAT( DISTINCT STR( ?countries_single ) ; SEPARATOR = ',' ) AS ?countries )
+    ( GROUP_CONCAT( DISTINCT STR( ?continents_single ) ; SEPARATOR = ',' ) AS ?continents )
+    ?contact___point__first___name
+    ?contact___point__last___name
+    ( GROUP_CONCAT( DISTINCT STR( ?applicable___legislation_single ) ; SEPARATOR = ',' ) AS ?applicable___legislation )
+WHERE {
+    ?_subject_ a dcat:Catalog .
+    OPTIONAL { ?_subject_ ldp:membershipResource ?fdp___endpoint .
+    OPTIONAL { OPTIONAL { ?fdp___endpoint schema:identifier ?fdp___endpoint__id0 . }
+    OPTIONAL { ?fdp___endpoint dcterms:identifier ?fdp___endpoint__id1 . }
+    BIND( COALESCE( ?fdp___endpoint__id0, ?fdp___endpoint__id1 ) AS ?fdp___endpoint__id ) }
+    FILTER ( BOUND( ?fdp___endpoint__id ) ) }
+    OPTIONAL { ?_subject_ ldp:hasMemberRelation ?ldp___membership___relation . }
+    OPTIONAL { ?_subject_ dcterms:identifier ?pid . }
+    ?_subject_ dcterms:title ?name .
+    OPTIONAL { ?_subject_ rdfs:label ?local___name . }
+    OPTIONAL { ?_subject_ dcterms:alternative ?acronym . }
+    OPTIONAL { OPTIONAL { ?_subject_ dcat:landingPage ?website0 . }
+    OPTIONAL { ?_subject_ foaf:homepage ?website1 . }
+    BIND( COALESCE( ?website0, ?website1 ) AS ?website ) }
+    OPTIONAL { ?_subject_ dcterms:description ?description . }
+    OPTIONAL { ?_subject_ dcat:startDate ?start___year . }
+    OPTIONAL { ?_subject_ dcat:endDate ?end___year . }
+    OPTIONAL { ?_subject_ dcterms:conformsTo ?conforms___to . }
+    OPTIONAL { OPTIONAL { ?_subject_ ldp:hasMemberRelation ?has___member___relation0 . }
+    OPTIONAL { ?_subject_ dcat:record ?has___member___relation1 . }
+    BIND( COALESCE( ?has___member___relation0, ?has___member___relation1 ) AS ?has___member___relation ) }
+    OPTIONAL { OPTIONAL { ?_subject_ dcterms:issued ?issued0 . }
+    OPTIONAL { ?_subject_ fdp-o:metadataIssued ?issued1 . }
+    BIND( COALESCE( ?issued0, ?issued1 ) AS ?issued ) }
+    OPTIONAL { OPTIONAL { ?_subject_ dcterms:modified ?modified0 . }
+    OPTIONAL { ?_subject_ fdp-o:metadataModified ?modified1 . }
+    BIND( COALESCE( ?modified0, ?modified1 ) AS ?modified ) }
+    OPTIONAL { ?_subject_ dcat:dataset ?data___resources . }
+    OPTIONAL { ?_subject_ dcterms:spatial ?countries_single . }
+    OPTIONAL { ?_subject_ dcterms:spatial ?continents_single . }
+    OPTIONAL {
+        ?_subject_ dcterms:publisher ?publisher .
+        BIND(?publisher as ?_subject_publisher)
+    }
+    OPTIONAL {
+        ?_subject_ dcterms:creator ?creator .
+        BIND(?creator as ?_subject_creator)
+    }
+    OPTIONAL {
+        ?_subject_ dcat:contactPoint ?contact___point .
+        BIND(?contact___point as ?_subject_contact___point)
+        ?contact___point foaf:firstName ?contact___point__first___name .
+        ?contact___point foaf:familyName ?contact___point__last___name .
+    }
+    OPTIONAL { ?_subject_ dcat:catalog ?child___networks . }
+    OPTIONAL { ?_subject_ dcatap:applicableLegislation ?applicable___legislation_single . }
+}
+GROUP BY
+    ?_subject_
+    ?fdp___endpoint__id
+    ?ldp___membership___relation
+    ?pid
+    ?name
+    ?local___name
+    ?acronym
+    ?website
+    ?description
+    ?start___year
+    ?end___year
+    ?conforms___to
+    ?has___member___relation
+    ?issued
+    ?modified
+    ?contact___point__first___name
+    ?contact___point__last___name
+    ?_subject_contact___point
+    ?_subject_publisher
+    ?_subject_creator

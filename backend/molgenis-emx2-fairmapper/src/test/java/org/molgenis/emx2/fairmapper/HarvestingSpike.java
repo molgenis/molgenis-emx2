@@ -24,7 +24,7 @@ class HarvestingSpike {
 
   @Test
   void shouldHarvest() throws InterruptedException {
-    SailRepository repository = RdfFileReader.readFile("stage/Dataset.ttl");
+    SailRepository repository = RdfFileReader.readFiles("stage/Dataset.ttl", "stage/Catalog.ttl");
 
     RdfPreProcessor temporalPreProcessor = new TemporalRdfPreProcessor();
     temporalPreProcessor.process(repository);
@@ -35,7 +35,6 @@ class HarvestingSpike {
 
     Database database = TestDatabaseFactory.getTestDatabase();
 
-    //    TableQueryGenerator tqueryGenerator = new TableQueryGenerator();
     QueryGenerator queryGenerator =
         new FileBasedQueryGenerator(
             Map.of(
@@ -44,19 +43,22 @@ class HarvestingSpike {
                 "Organisations",
                 Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Organisations.rq"),
                 "Collections",
-                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Collections.rq")));
+                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Collections.rq"),
+                "Catalogues",
+                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Catalogues.rq")));
 
     Schema schema = database.getSchema("harvesting");
     RdfTransformer transformer =
         new SparqlSelectRdfTransformer(
             queryGenerator,
             schema.getMetadata(),
-            List.of("Organisations", "Contacts", "Collections"));
+            List.of("Organisations", "Contacts", "Collections", "Catalogues"));
     TableStore tableStore = transformer.transform(repository);
 
     postProcess(tableStore, schema.getMetadata());
     ImportSchemaTask tasks =
-        new ImportSchemaTask(tableStore, schema, false, "Organisations", "Contacts", "Collections")
+        new ImportSchemaTask(
+                tableStore, schema, false, "Organisations", "Contacts", "Collections", "Catalogues")
             .setFilter(ImportSchemaTask.Filter.DATA_ONLY);
 
     tasks.run();
@@ -119,20 +121,28 @@ class HarvestingSpike {
         StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
             .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
 
-    tableStore.processTable(
-        "Collections",
-        (iterator, source) ->
-            iterator.forEachRemaining(
-                row -> {
-                  String[] split = row.getString("_subject_creator").split(",");
-                  for (String creatorIRI : split) {
-                    Row creator = organisations.get(creatorIRI);
-                    creator.setString("resource", row.getString("id"));
+    List<String> tables = List.of("Collections", "Catalogues");
 
-                    row.set("creator.resource", row.getString("id"));
-                    row.set("creator.id", creator.getString("id"));
-                  }
-                }));
+    for (String table : tables) {
+      tableStore.processTable(
+          table,
+          (iterator, source) ->
+              iterator.forEachRemaining(
+                  row -> {
+                    if (!row.containsName("_subject_creator")) {
+                      return;
+                    }
+
+                    String[] split = row.getString("_subject_creator").split(",");
+                    for (String creatorIRI : split) {
+                      Row creator = organisations.get(creatorIRI);
+                      creator.setString("resource", row.getString("id"));
+
+                      row.set("creator.resource", row.getString("id"));
+                      row.set("creator.id", creator.getString("id"));
+                    }
+                  }));
+    }
   }
 
   private void resolvePublisher(TableStore tableStore) {
@@ -140,17 +150,25 @@ class HarvestingSpike {
         StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
             .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
 
-    tableStore.processTable(
-        "Collections",
-        (iterator, source) ->
-            iterator.forEachRemaining(
-                row -> {
-                  Row publisher = organisations.get(row.getString("_subject_publisher"));
-                  publisher.setString("resource", row.getString("id"));
+    List<String> tables = List.of("Collections", "Catalogues");
 
-                  row.set("publisher.resource", row.getString("id"));
-                  row.set("publisher.id", publisher.getString("id"));
-                }));
+    for (String table : tables) {
+      tableStore.processTable(
+          table,
+          (iterator, source) ->
+              iterator.forEachRemaining(
+                  row -> {
+                    if (!row.containsName("_subject_publisher")) {
+                      return;
+                    }
+
+                    Row publisher = organisations.get(row.getString("_subject_publisher"));
+                    publisher.setString("resource", row.getString("id"));
+
+                    row.set("publisher.resource", row.getString("id"));
+                    row.set("publisher.id", publisher.getString("id"));
+                  }));
+    }
   }
 
   private void resolveContactPoint(TableStore tableStore) {
@@ -158,71 +176,90 @@ class HarvestingSpike {
         StreamSupport.stream(tableStore.readTable("Contacts").spliterator(), false)
             .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
 
-    tableStore.processTable(
-        "Collections",
-        (iterator, source) ->
-            iterator.forEachRemaining(
-                row -> {
-                  if (row.containsName("contact point.first name")
-                      && row.containsName("contact point.last name")
-                      && row.containsName("_subject_contact point")) {
-                    row.set("contact point.resource", row.getString("id"));
-                    // We already have first name and last name because they are annotated
+    List<String> tables = List.of("Collections", "Catalogues");
 
-                    Row contactRow = contacts.get(row.getString("_subject_contact point"));
-                    contactRow.set("resource", row.getString("id"));
-                  }
-                }));
+    for (String table : tables) {
+      tableStore.processTable(
+          table,
+          (iterator, source) ->
+              iterator.forEachRemaining(
+                  row -> {
+                    if (row.containsName("contact point.first name")
+                        && row.containsName("contact point.last name")
+                        && row.containsName("_subject_contact point")) {
+                      row.set("contact point.resource", row.getString("id"));
+                      // We already have first name and last name because they are annotated
 
-    tableStore.processTable(
-        "Contacts",
-        (iterator, source) ->
-            iterator.forEachRemaining(
-                row ->
-                    row.set(
-                        "resource",
-                        contacts.get(row.getString("_subject_")).getString("resource"))));
+                      Row contactRow = contacts.get(row.getString("_subject_contact point"));
+                      contactRow.set("resource", row.getString("id"));
+                    }
+                  }));
+
+      tableStore.processTable(
+          "Contacts",
+          (iterator, source) ->
+              iterator.forEachRemaining(
+                  row ->
+                      row.set(
+                          "resource",
+                          contacts.get(row.getString("_subject_")).getString("resource"))));
+    }
   }
 
   /** Adds id field from acronym */
   private void addIdField(TableStore tableStore) {
-    tableStore.processTable(
-        "Collections",
-        (iterator, source) ->
-            iterator.forEachRemaining(
-                row -> {
-                  if (!row.containsName("acronym")) {
-                    throw new MolgenisException("Expected acronym for row: " + row);
-                  }
+    List<String> tables = List.of("Collections", "Catalogues");
 
-                  row.set("id", row.getString("acronym"));
-                }));
+    for (String table : tables) {
+      tableStore.processTable(
+          table,
+          (iterator, source) ->
+              iterator.forEachRemaining(
+                  row -> {
+                    if (row.getString("acronym") != null) {
+                      row.set("id", row.getString("acronym"));
+                    } else if (row.getString("name") != null) {
+                      row.set("id", row.getString("name"));
+                    } else {
+                      throw new MolgenisException("Expected acronym for row: " + row);
+                    }
+                  }));
+    }
   }
 
   /** Hardcode collections type to "Cohort study" semantic URI */
   private void addType(TableStore tableStore) {
-    tableStore.processTable(
-        "Collections",
-        (iterator, source) ->
-            iterator.forEachRemaining(
-                row -> {
-                  if (!row.containsName("type")) {
-                    row.set("type", "http://semanticscience.org/resource/SIO_001067");
-                  }
-                }));
+    List<String> tables = List.of("Collections", "Catalogues");
+
+    for (String table : tables) {
+      tableStore.processTable(
+          table,
+          (iterator, source) ->
+              iterator.forEachRemaining(
+                  row -> {
+                    if (!row.containsName("type")) {
+                      row.set("type", "http://semanticscience.org/resource/SIO_001067");
+                    }
+                  }));
+    }
   }
 
   private void resolveOntologies(TableStore tableStore, SchemaMetadata schema) {
     OntologyResolver resolver = new OntologyResolver();
-    Iterable<Row> rows = tableStore.readTable("Collections");
-    for (Column column : schema.getTableMetadata("Collections").getColumns()) {
-      if (!column.isOntology()) {
-        continue;
-      }
 
-      for (Row row : rows) {
-        if (row.containsName(column.getName())) {
-          resolver.resolve(column, row);
+    List<String> tables = List.of("Collections", "Catalogues");
+
+    for (String table : tables) {
+      Iterable<Row> rows = tableStore.readTable(table);
+      for (Column column : schema.getTableMetadata(table).getColumns()) {
+        if (!column.isOntology()) {
+          continue;
+        }
+
+        for (Row row : rows) {
+          if (row.containsName(column.getName())) {
+            resolver.resolve(column, row);
+          }
         }
       }
     }

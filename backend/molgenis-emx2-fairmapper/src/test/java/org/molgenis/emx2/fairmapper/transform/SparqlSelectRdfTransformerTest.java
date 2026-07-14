@@ -65,7 +65,7 @@ class SparqlSelectRdfTransformerTest {
             database.getSchema(schemaName).getMetadata(),
             List.of("Pet"));
 
-    SailRepository repository = RdfFileReader.readFile("transform/petstore.ttl");
+    SailRepository repository = RdfFileReader.readFiles("transform/petstore.ttl");
     TableStore store = transformer.transform(repository);
 
     StringWriter writer = new StringWriter();
