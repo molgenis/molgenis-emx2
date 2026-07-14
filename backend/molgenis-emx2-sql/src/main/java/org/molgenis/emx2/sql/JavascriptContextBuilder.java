@@ -56,9 +56,10 @@ public class JavascriptContextBuilder {
       for (Reference ref : c.getReferences()) {
         if (!ref.isOverlapping()) {
           // must be a list
-          if (row.getValueMap().get(ref.getColumnName()) != null) {
+          Object values = row.get(ref.getColumnName(), ref.getPrimitiveType());
+          if (values != null) {
             int i = 0;
-            for (Object value : (Object[]) row.get(ref.getColumnName(), ref.getPrimitiveType())) {
+            for (Object value : (Object[]) values) {
               if (i == result.size()) {
                 result.add(new LinkedHashMap<>());
               }
