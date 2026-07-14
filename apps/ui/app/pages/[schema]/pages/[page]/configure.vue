@@ -54,6 +54,7 @@ async function updatePage() {
     :content="(pageData.page as IConfigurablePages)"
     :metadata="(pageData.metadata as ITableMetaData[])"
     :is-editable="enableEditing"
+    :schema="schema || ''"
     @updatePage="updatePage"
   />
 </template>

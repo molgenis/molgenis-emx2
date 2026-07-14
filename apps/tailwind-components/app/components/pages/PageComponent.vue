@@ -93,7 +93,7 @@ function onEdit(component?: string, value?: IPageComponent) {
     :id="component.id"
     :heading-is-centered="component.headingIsCentered"
     :level="component.level"
-    class="mb-5 inline-flex"
+    class="mb-5"
     :text="parsePageText(component.text)"
     :is-editable="editingIsEnabled"
     @edit="onEdit"

@@ -13,6 +13,7 @@ const props = withDefaults(
     content: IConfigurablePages;
     isEditable: boolean;
     metadata: ITableMetaData[];
+    schema: string;
   }>(),
   {
     isEditable: false,
@@ -35,11 +36,9 @@ const draggingInfo = ref<{
     <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
       <ComponentDropZone
         v-if="isEditable"
-        :pageName="content.name"
+        :parent="content.name"
         :draggingInfo="draggingInfo"
-        :addBelow="true"
-        :block="orderedBlock"
-        :component="orderedBlock"
+        :schema="schema"
         componentType="Block"
         @update-page="$emit('updatePage')"
       />
@@ -58,11 +57,14 @@ const draggingInfo = ref<{
       >
         <ComponentDropZone
           v-if="isEditable"
-          :pageName="content.name"
           :draggingInfo="draggingInfo"
-          :component="orderedBlock.block.componentOrder[0]"
-          :addBelow="true"
-          :block="orderedBlock"
+          :schema="schema"
+          :order="
+            orderedBlock.block?.componentOrder
+              ? orderedBlock.block.componentOrder[0].order
+              : orderedBlock.block.order
+          "
+          :parent="orderedBlock.block.id"
           componentType="Component"
           @update-page="$emit('updatePage')"
         />
@@ -79,11 +81,10 @@ const draggingInfo = ref<{
           />
           <ComponentDropZone
             v-if="isEditable"
-            :pageName="content.name"
             :draggingInfo="draggingInfo"
-            :component="orderedComponent"
-            :addBelow="true"
-            :block="orderedBlock"
+            :schema="schema"
+            :order="orderedComponent.order + 1"
+            :parent="orderedBlock.block.id"
             componentType="Component"
             @update-page="$emit('updatePage')"
           />
@@ -93,6 +94,16 @@ const draggingInfo = ref<{
         v-else
         id="block-does-not-exist-message"
         :text="`Block ${orderedBlock.block.mg_tableclass} is not yet supported.`"
+      />
+      <ComponentDropZone
+        v-if="isEditable"
+        :pageName="content.name"
+        :draggingInfo="draggingInfo"
+        :schema="schema"
+        :order="orderedBlock.order ? orderedBlock.order + 1 : 0"
+        :parent="content.name"
+        componentType="Block"
+        @update-page="$emit('updatePage')"
       />
     </template>
     <AddComponentPalette

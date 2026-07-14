@@ -52,7 +52,6 @@ export async function addComponent(
   order: number,
   componentType: string
 ) {
-  console.log("addComponent", schema, id, parentBlock, order, componentType);
   await prepareOrder(schema, order, parentBlock);
   if (componentType === "Paragraph") {
     await AddParagraph(schema, id);
@@ -73,7 +72,6 @@ export async function addBlock(
   order: number,
   componentType: string
 ) {
-  console.log("addBlock", schema, id, page, order, componentType);
   await prepareBlockOrder(schema, order, page);
   if (componentType === "Header") {
     await AddHeader(schema, id);
@@ -153,7 +151,7 @@ async function AddImage(schema: string, id: string) {
               extension: "jpg",
               url: "/cms/api/file/Images/image/93489539b9004e98a078ee164ad0c578",
             },
-            alt: "Two penguins walking in the grass",
+            alt: "two penguins walking in the grass",
             width: "425px",
             imageIsCentered: true,
             id: `${id}`,
@@ -195,7 +193,7 @@ async function AddParagraph(schema: string, id: string) {
         value: [
           {
             paragraphIsCentered: false,
-            text: "add your text here",
+            text: "Add your text here.",
             id: `${id}`,
           },
         ],
@@ -218,29 +216,30 @@ async function prepareOrder(schema: string, order: number, block: string) {
       },
     },
   });
+  if (data?.ComponentOrders) {
+    const componentsToUpdate = data.ComponentOrders as {
+      id: string;
+      order: number;
+    }[];
 
-  const componentsToUpdate = data.ComponentOrders as {
-    id: string;
-    order: number;
-  }[];
-
-  let values: { id: string; order: number }[] = [];
-  for (const component of componentsToUpdate) {
-    values.push({
-      id: component.id,
-      order: component.order + 1,
-    });
-  }
-  if (values.length > 0) {
-    await $fetch(`/${schema}/graphql`, {
-      method: "POST",
-      body: {
-        query: `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`,
-        variables: {
-          value: values,
+    let values: { id: string; order: number }[] = [];
+    for (const component of componentsToUpdate) {
+      values.push({
+        id: component.id,
+        order: component.order + 1,
+      });
+    }
+    if (values.length > 0) {
+      await $fetch(`/${schema}/graphql`, {
+        method: "POST",
+        body: {
+          query: `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`,
+          variables: {
+            value: values,
+          },
         },
-      },
-    });
+      });
+    }
   }
 }
 
@@ -259,28 +258,30 @@ async function prepareBlockOrder(schema: string, order: number, page: string) {
     },
   });
 
-  const blocksToUpdate = data.BlockOrders as {
-    id: string;
-    order: number;
-  }[];
+  if (data?.BlockOrders) {
+    const blocksToUpdate = data.BlockOrders as {
+      id: string;
+      order: number;
+    }[];
 
-  let values: { id: string; order: number }[] = [];
-  for (const block of blocksToUpdate) {
-    values.push({
-      id: block.id,
-      order: block.order + 1,
-    });
-  }
-  if (values.length > 0) {
-    await $fetch(`/${schema}/graphql`, {
-      method: "POST",
-      body: {
-        query: `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`,
-        variables: {
-          value: values,
+    let values: { id: string; order: number }[] = [];
+    for (const block of blocksToUpdate) {
+      values.push({
+        id: block.id,
+        order: block.order + 1,
+      });
+    }
+    if (values.length > 0) {
+      await $fetch(`/${schema}/graphql`, {
+        method: "POST",
+        body: {
+          query: `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`,
+          variables: {
+            value: values,
+          },
         },
-      },
-    });
+      });
+    }
   }
 }
 
