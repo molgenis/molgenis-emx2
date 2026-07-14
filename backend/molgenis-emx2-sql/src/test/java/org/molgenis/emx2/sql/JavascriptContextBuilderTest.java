@@ -5,10 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
@@ -111,5 +108,16 @@ class JavascriptContextBuilderTest {
         () -> assertEquals(1, ((Map<?, ?>) list.get(0)).get("id")),
         () -> assertEquals(2, ((Map<?, ?>) list.get(1)).get("id")),
         () -> assertEquals(3, ((Map<?, ?>) list.get(2)).get("id")));
+  }
+
+  @Test
+  void testEmptyStringMapsToNull() {
+    Column column = schema.getTable("Item").getMetadata().getColumn("tags");
+    Row row = row("tags", "");
+
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(List.of(column), row);
+    Map<String, Object> tags = new HashMap<>();
+    tags.put("tags", new ArrayList<>());
+    assertEquals(tags, context);
   }
 }
