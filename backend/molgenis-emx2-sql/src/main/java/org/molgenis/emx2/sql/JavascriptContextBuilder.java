@@ -87,10 +87,8 @@ public class JavascriptContextBuilder {
     if (path.size() == 1) {
       result.put(path.get(0), value);
     } else {
-      if (result.get(path.get(0)) == null) {
-        result.put(path.get(0), new LinkedHashMap<>());
-      }
-      putMap((Map) result.get(path.get(0)), path.subList(1, path.size()), value);
+      result.computeIfAbsent(path.getFirst(), k -> new LinkedHashMap<>());
+      putMap((Map) result.get(path.getFirst()), path.subList(1, path.size()), value);
     }
   }
 
@@ -102,8 +100,9 @@ public class JavascriptContextBuilder {
     if (column.getSchema().getDatabase() == null) return;
     Map<String, Supplier<Object>> bindings =
         column.getSchema().getDatabase().getJavaScriptBindings();
-    for (String key : bindings.keySet()) {
-      context.put(key, bindings.get(key).get());
+
+    for (Map.Entry<String, Supplier<Object>> entry : bindings.entrySet()) {
+      context.put(entry.getKey(), entry.getValue().get());
     }
   }
 }
