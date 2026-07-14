@@ -46,15 +46,17 @@ class HarvestingSpike {
                 "Collections",
                 Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Collections.rq")));
 
-    Schema schema = database.getSchema("testupload");
+    Schema schema = database.getSchema("harvesting");
     RdfTransformer transformer =
         new SparqlSelectRdfTransformer(
-            queryGenerator, schema.getMetadata(), List.of("Contacts", "Collections"));
+            queryGenerator,
+            schema.getMetadata(),
+            List.of("Organisations", "Contacts", "Collections"));
     TableStore tableStore = transformer.transform(repository);
 
     postProcess(tableStore, schema.getMetadata());
     ImportSchemaTask tasks =
-        new ImportSchemaTask(tableStore, schema, false, "Contacts", "Collections")
+        new ImportSchemaTask(tableStore, schema, false, "Organisations", "Contacts", "Collections")
             .setFilter(ImportSchemaTask.Filter.DATA_ONLY);
 
     tasks.run();
@@ -70,7 +72,7 @@ class HarvestingSpike {
     resolveOntologies(tableStore, schema);
 
     resolveContactPoint(tableStore);
-    //    resolvePublisher(tableStore);
+    resolvePublisher(tableStore);
 
     removeSubjectFromStoreRows(tableStore);
   }
@@ -96,6 +98,15 @@ class HarvestingSpike {
                   row.set("publisher.resource", row.getString("id"));
                   row.set("publisher.id", publisher.getString("id"));
                 }));
+
+    List<Row> rows =
+        organisations.values().stream().filter(row -> row.containsName("resource")).toList();
+    if (rows.isEmpty()) {
+      tableStore.writeTable("Organisations", List.of(), List.of());
+    } else {
+      tableStore.writeTable(
+          "Organisations", rows.getFirst().getColumnNames().stream().toList(), rows);
+    }
   }
 
   private void resolveContactPoint(TableStore tableStore) {
