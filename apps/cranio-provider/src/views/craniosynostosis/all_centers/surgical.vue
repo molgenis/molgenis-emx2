@@ -1,142 +1,3 @@
-<template>
-  <ProviderDashboard>
-    <h2 class="dashboard-h2">Surgical overview for all centers</h2>
-    <h3 class="dashboard-h3">Overview of all surgical interventions</h3>
-    <DashboardRow :columns="2" class="dashboard-boxes-width-2-1">
-      <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
-        <ColumnChart
-          v-else
-          :chartId="surgeryTypesChart?.chartId"
-          :title="surgeryTypesChart?.chartTitle"
-          :description="surgeryTypesChart?.chartSubtitle"
-          :chartData="surgeryTypesChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
-          :xAxisLabel="surgeryTypesChart?.xAxisLabel"
-          :yAxisLabel="surgeryTypesChart?.yAxisLabel"
-          xAxisLineBreaker=" "
-          :yMin="0"
-          :yMax="surgeryTypesChart?.yAxisMaxValue"
-          :yTickValues="surgeryTypesChart?.yAxisTicks"
-          :chartHeight="250"
-          :chartMargins="{
-            top: surgeryTypesChart?.topMargin,
-            right: surgeryTypesChart?.rightMargin,
-            bottom: surgeryTypesChart?.bottomMargin,
-            left: surgeryTypesChart?.leftMargin,
-          }"
-          :enableClicks="true"
-          @column-clicked="onSurgeryTypesChartClick"
-        />
-      </DashboardChart>
-      <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
-        <MessageBox
-          v-else-if="!loading && !hasComplicationsData"
-          type="warning"
-        >
-          <span>Not enough data to show chart</span>
-        </MessageBox>
-        <PieChart2
-          v-else
-          :chartId="complicationsChart?.chartId"
-          :title="`${selectedSurgeryType?.split(' ')[0]} complications`"
-          :description="complicationsChart?.chartSubtitle"
-          :chartData="complicationsChartData"
-          :chartColors="complicationsChartPalette"
-          :valuesArePercents="false"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :enableClicks="true"
-          :chartHeight="200"
-          :chartScale="0.85"
-        />
-      </DashboardChart>
-    </DashboardRow>
-    <DashboardRow :columns="1">
-      <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
-      <DashboardChart>
-        <InputLabel id="diagnosisInput" label="Select a diagnosis" />
-        <select
-          id="diagnosisInput"
-          class="inputs select"
-          v-model="selectedDiagnosis"
-          @change="
-            updateInterventionsChart();
-            updateSurgeryAgeChart();
-          "
-        >
-          <option v-for="diagnosis in diagnoses" :value="diagnosis.value">
-            {{ diagnosis.label }}
-          </option>
-        </select>
-      </DashboardChart>
-    </DashboardRow>
-    <DashboardRow :columns="2">
-      <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 215px" />
-        <MessageBox
-          v-else-if="!loading && !hasInterventionsData"
-          type="warning"
-        >
-          <span>Not enough data to show chart</span>
-        </MessageBox>
-        <PieChart2
-          v-else
-          :chartId="interventionsChart?.chartId"
-          :title="interventionsChart?.chartTitle"
-          :description="interventionsChart?.chartSubtitle"
-          :chartData="interventionsChartData"
-          :chartColors="{
-            'First surgery': '#4e79a7',
-            'Additional planned surgery according to protocol': '#f28e2c',
-            'Unwanted reoperation due to complications': '#e15759',
-          }"
-          :valuesArePercents="false"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :stackLegend="true"
-          :enableClicks="true"
-          :chartHeight="200"
-          :chartScale="0.85"
-        />
-      </DashboardChart>
-      <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 215px" />
-        <MessageBox v-else-if="!loading && !hasSurgeryAgeData" type="warning">
-          <span>Not enough data to show chart</span>
-        </MessageBox>
-        <ColumnChart
-          v-else
-          :chartId="surgeryAgeChart?.chartId"
-          :title="surgeryAgeChart?.chartTitle"
-          :description="surgeryAgeChart?.chartSubtitle"
-          :chartData="surgeryAgeChartData"
-          xvar="dataPointTime"
-          yvar="dataPointValue"
-          :xAxisLabel="surgeryAgeChart?.xAxisLabel"
-          :yAxisLabel="surgeryAgeChart?.yAxisLabel"
-          :yMin="0"
-          :yMax="surgeryAgeChart?.yAxisMaxValue"
-          :yTickValues="surgeryAgeChart?.yAxisTicks"
-          columnFill="#2a8f64"
-          columnHoverFill="#ed7b23"
-          :chartHeight="275"
-          :chartMargins="{
-            top: surgeryAgeChart?.topMargin,
-            right: surgeryAgeChart?.rightMargin,
-            bottom: surgeryAgeChart?.bottomMargin,
-            left: surgeryAgeChart?.leftMargin,
-          }"
-        />
-      </DashboardChart>
-    </DashboardRow>
-  </ProviderDashboard>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import {
@@ -307,3 +168,142 @@ onMounted(() => {
     .finally(() => (loading.value = false));
 });
 </script>
+
+<template>
+  <ProviderDashboard>
+    <h2 class="dashboard-h2">Surgical overview for all centers</h2>
+    <h3 class="dashboard-h3">Overview of all surgical interventions</h3>
+    <DashboardRow :columns="2" class="dashboard-boxes-width-2-1">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <ColumnChart
+          v-else
+          :chartId="surgeryTypesChart?.chartId"
+          :title="surgeryTypesChart?.chartTitle"
+          :description="surgeryTypesChart?.chartSubtitle"
+          :chartData="surgeryTypesChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="surgeryTypesChart?.xAxisLabel"
+          :yAxisLabel="surgeryTypesChart?.yAxisLabel"
+          xAxisLineBreaker=" "
+          :yMin="0"
+          :yMax="surgeryTypesChart?.yAxisMaxValue"
+          :yTickValues="surgeryTypesChart?.yAxisTicks"
+          :chartHeight="250"
+          :chartMargins="{
+            top: surgeryTypesChart?.topMargin,
+            right: surgeryTypesChart?.rightMargin,
+            bottom: surgeryTypesChart?.bottomMargin,
+            left: surgeryTypesChart?.leftMargin,
+          }"
+          :enableClicks="true"
+          @column-clicked="onSurgeryTypesChartClick"
+        />
+      </DashboardChart>
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <MessageBox
+          v-else-if="!loading && !hasComplicationsData"
+          type="warning"
+        >
+          <span>Not enough data to show chart</span>
+        </MessageBox>
+        <PieChart2
+          v-else
+          :chartId="complicationsChart?.chartId"
+          :title="`${selectedSurgeryType?.split(' ')[0]} complications`"
+          :description="complicationsChart?.chartSubtitle"
+          :chartData="complicationsChartData"
+          :chartColors="complicationsChartPalette"
+          :valuesArePercents="false"
+          :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :enableClicks="true"
+          :chartHeight="200"
+          :chartScale="0.85"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
+      <DashboardChart>
+        <InputLabel id="diagnosisInput" label="Select a diagnosis" />
+        <select
+          id="diagnosisInput"
+          class="inputs select"
+          v-model="selectedDiagnosis"
+          @change="
+            updateInterventionsChart();
+            updateSurgeryAgeChart();
+          "
+        >
+          <option v-for="diagnosis in diagnoses" :value="diagnosis.value">
+            {{ diagnosis.label }}
+          </option>
+        </select>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="2">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 215px" />
+        <MessageBox
+          v-else-if="!loading && !hasInterventionsData"
+          type="warning"
+        >
+          <span>Not enough data to show chart</span>
+        </MessageBox>
+        <PieChart2
+          v-else
+          :chartId="interventionsChart?.chartId"
+          :title="interventionsChart?.chartTitle"
+          :description="interventionsChart?.chartSubtitle"
+          :chartData="interventionsChartData"
+          :chartColors="{
+            'First surgery': '#4e79a7',
+            'Additional planned surgery according to protocol': '#f28e2c',
+            'Unwanted reoperation due to complications': '#e15759',
+          }"
+          :valuesArePercents="false"
+          :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :stackLegend="true"
+          :enableClicks="true"
+          :chartHeight="200"
+          :chartScale="0.85"
+        />
+      </DashboardChart>
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 215px" />
+        <MessageBox v-else-if="!loading && !hasSurgeryAgeData" type="warning">
+          <span>Not enough data to show chart</span>
+        </MessageBox>
+        <ColumnChart
+          v-else
+          :chartId="surgeryAgeChart?.chartId"
+          :title="surgeryAgeChart?.chartTitle"
+          :description="surgeryAgeChart?.chartSubtitle"
+          :chartData="surgeryAgeChartData"
+          xvar="dataPointTime"
+          yvar="dataPointValue"
+          :xAxisLabel="surgeryAgeChart?.xAxisLabel"
+          :yAxisLabel="surgeryAgeChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="surgeryAgeChart?.yAxisMaxValue"
+          :yTickValues="surgeryAgeChart?.yAxisTicks"
+          columnFill="#2a8f64"
+          columnHoverFill="#ed7b23"
+          :chartHeight="275"
+          :chartMargins="{
+            top: surgeryAgeChart?.topMargin,
+            right: surgeryAgeChart?.rightMargin,
+            bottom: surgeryAgeChart?.bottomMargin,
+            left: surgeryAgeChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+  </ProviderDashboard>
+</template>

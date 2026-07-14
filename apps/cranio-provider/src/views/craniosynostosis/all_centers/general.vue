@@ -1,140 +1,3 @@
-<template>
-  <ProviderDashboard>
-    <h2 class="dashboard-h2">General overview for all centers</h2>
-    <DashboardRow :columns="1">
-      <DashboardChart>
-        <InputLabel
-          id="yearOfBirthFilter"
-          label="Filter data by year of birth"
-        />
-        <select
-          class="inputs select"
-          id="yearOfBirthFilter"
-          v-model="selectedAgeGroup"
-          @change="updateChartsByAgeGroup"
-        >
-          <option v-for="ageGroup in ageGroups" :value="ageGroup">
-            {{ ageGroup }}
-          </option>
-        </select>
-      </DashboardChart>
-    </DashboardRow>
-    <DashboardRow :columns="1">
-      <DashboardChart id="type-of-craniosynostosis">
-        <LoadingScreen v-if="loading" />
-        <ColumnChart
-          v-else
-          :chartId="cranioTypeChart?.chartId"
-          :title="cranioTypeChart?.chartTitle"
-          :description="cranioTypeChart?.chartSubtitle"
-          :chartData="cranioTypeChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
-          :yMax="cranioTypeChart?.yAxisMaxValue"
-          :yTickValues="cranioTypeChart?.yAxisTicks"
-          :xAxisLabel="cranioTypeChart?.xAxisLabel"
-          :yAxisLAbel="cranioTypeChart?.yAxisLabel"
-          columnFill="#B98DAF"
-          columnHoverFill="#EE7032"
-          :chartHeight="225"
-          :chartMargins="{
-            top: cranioTypeChart?.topMargin,
-            right: cranioTypeChart?.rightMargin,
-            bottom: cranioTypeChart?.bottomMargin,
-            left: cranioTypeChart?.leftMargin,
-          }"
-        />
-      </DashboardChart>
-    </DashboardRow>
-    <h3 class="dashboard-h3">Suture Overview</h3>
-    <DashboardRow :columns="2">
-      <DashboardChart>
-        <LoadingScreen v-if="loading" />
-        <ColumnChart
-          v-else
-          class="chart-axis-x-angled-text"
-          :chartId="affectedSutureChart?.chartId"
-          :title="affectedSutureChart?.chartTitle"
-          :description="affectedSutureChart?.chartSubtitle"
-          :chartData="affectedSutureChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
-          :yMin="0"
-          :yMax="affectedSutureChart?.yAxisMaxValue"
-          :yTickValues="affectedSutureChart?.yAxisTicks"
-          :xAxisLabel="affectedSutureChart?.xAxisLabel"
-          :yAxisLabel="affectedSutureChart?.yAxisLabel"
-          columnFill="#B98DAF"
-          columnHoverFill="#EE7032"
-          :chartHeight="275"
-          :chartMargins="{
-            top: affectedSutureChart?.topMargin,
-            right: affectedSutureChart?.rightMargin,
-            bottom: affectedSutureChart?.bottomMargin,
-            left: affectedSutureChart?.leftMargin,
-          }"
-        />
-      </DashboardChart>
-      <DashboardChart>
-        <LoadingScreen v-if="loading" />
-        <ColumnChart
-          v-else
-          :chartId="multipleSutureChart?.chartId"
-          class="chart-axis-x-angled-text"
-          :title="multipleSutureChart?.chartTitle"
-          :description="multipleSutureChart?.chartSubtitle"
-          :chartData="multipleSutureChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
-          :xAxisLabel="multipleSutureChart?.xAxisLabel"
-          :yAxisLabel="multipleSutureChart?.yAxisLabel"
-          :yMin="0"
-          :yMax="multipleSutureChart?.yAxisMaxValue"
-          :yTickValues="multipleSutureChart?.yAxisTicks"
-          columnFill="#B98DAF"
-          columnHoverFill="#EE7032"
-          :chartHeight="275"
-          :chartMargins="{
-            top: multipleSutureChart?.topMargin,
-            right: multipleSutureChart?.rightMargin,
-            bottom: multipleSutureChart?.bottomMargin,
-            left: multipleSutureChart?.leftMargin,
-          }"
-        />
-      </DashboardChart>
-    </DashboardRow>
-    <h3 class="dashboard-h3">Patients Overview</h3>
-    <DashboardRow :columns="1">
-      <DashboardChart>
-        <LoadingScreen v-if="loading" />
-        <ColumnChart
-          v-else
-          :chartId="patientsByCountryChart?.chartId"
-          :title="patientsByCountryChart?.chartTitle"
-          :description="patientsByCountryChart?.chartSubtitle"
-          :chartData="patientsByCountryChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
-          :xAxisLabel="patientsByCountryChart?.xAxisLabel"
-          :yAxisLabel="patientsByCountryChart?.yAxisLabel"
-          :yMin="0"
-          :yMax="patientsByCountryChart?.yAxisMaxValue"
-          :yTickValues="patientsByCountryChart?.yAxisTicks"
-          columnFill="#B98DAF"
-          columnHoverFill="#EE7032"
-          :chartHeight="275"
-          :chartMargins="{
-            top: patientsByCountryChart?.topMargin,
-            right: patientsByCountryChart?.rightMargin,
-            bottom: patientsByCountryChart?.bottomMargin,
-            left: patientsByCountryChart?.leftMargin,
-          }"
-        />
-      </DashboardChart>
-    </DashboardRow>
-  </ProviderDashboard>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import {
@@ -322,3 +185,140 @@ onMounted(() => {
     .finally(() => (loading.value = false));
 });
 </script>
+
+<template>
+  <ProviderDashboard>
+    <h2 class="dashboard-h2">General overview for all centers</h2>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <InputLabel
+          id="yearOfBirthFilter"
+          label="Filter data by year of birth"
+        />
+        <select
+          class="inputs select"
+          id="yearOfBirthFilter"
+          v-model="selectedAgeGroup"
+          @change="updateChartsByAgeGroup"
+        >
+          <option v-for="ageGroup in ageGroups" :value="ageGroup">
+            {{ ageGroup }}
+          </option>
+        </select>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart id="type-of-craniosynostosis">
+        <LoadingScreen v-if="loading" />
+        <ColumnChart
+          v-else
+          :chartId="cranioTypeChart?.chartId"
+          :title="cranioTypeChart?.chartTitle"
+          :description="cranioTypeChart?.chartSubtitle"
+          :chartData="cranioTypeChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :yMax="cranioTypeChart?.yAxisMaxValue"
+          :yTickValues="cranioTypeChart?.yAxisTicks"
+          :xAxisLabel="cranioTypeChart?.xAxisLabel"
+          :yAxisLAbel="cranioTypeChart?.yAxisLabel"
+          columnFill="#B98DAF"
+          columnHoverFill="#EE7032"
+          :chartHeight="225"
+          :chartMargins="{
+            top: cranioTypeChart?.topMargin,
+            right: cranioTypeChart?.rightMargin,
+            bottom: cranioTypeChart?.bottomMargin,
+            left: cranioTypeChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <h3 class="dashboard-h3">Suture Overview</h3>
+    <DashboardRow :columns="2">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" />
+        <ColumnChart
+          v-else
+          class="chart-axis-x-angled-text"
+          :chartId="affectedSutureChart?.chartId"
+          :title="affectedSutureChart?.chartTitle"
+          :description="affectedSutureChart?.chartSubtitle"
+          :chartData="affectedSutureChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :yMin="0"
+          :yMax="affectedSutureChart?.yAxisMaxValue"
+          :yTickValues="affectedSutureChart?.yAxisTicks"
+          :xAxisLabel="affectedSutureChart?.xAxisLabel"
+          :yAxisLabel="affectedSutureChart?.yAxisLabel"
+          columnFill="#B98DAF"
+          columnHoverFill="#EE7032"
+          :chartHeight="275"
+          :chartMargins="{
+            top: affectedSutureChart?.topMargin,
+            right: affectedSutureChart?.rightMargin,
+            bottom: affectedSutureChart?.bottomMargin,
+            left: affectedSutureChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+      <DashboardChart>
+        <LoadingScreen v-if="loading" />
+        <ColumnChart
+          v-else
+          :chartId="multipleSutureChart?.chartId"
+          class="chart-axis-x-angled-text"
+          :title="multipleSutureChart?.chartTitle"
+          :description="multipleSutureChart?.chartSubtitle"
+          :chartData="multipleSutureChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="multipleSutureChart?.xAxisLabel"
+          :yAxisLabel="multipleSutureChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="multipleSutureChart?.yAxisMaxValue"
+          :yTickValues="multipleSutureChart?.yAxisTicks"
+          columnFill="#B98DAF"
+          columnHoverFill="#EE7032"
+          :chartHeight="275"
+          :chartMargins="{
+            top: multipleSutureChart?.topMargin,
+            right: multipleSutureChart?.rightMargin,
+            bottom: multipleSutureChart?.bottomMargin,
+            left: multipleSutureChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <h3 class="dashboard-h3">Patients Overview</h3>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" />
+        <ColumnChart
+          v-else
+          :chartId="patientsByCountryChart?.chartId"
+          :title="patientsByCountryChart?.chartTitle"
+          :description="patientsByCountryChart?.chartSubtitle"
+          :chartData="patientsByCountryChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="patientsByCountryChart?.xAxisLabel"
+          :yAxisLabel="patientsByCountryChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="patientsByCountryChart?.yAxisMaxValue"
+          :yTickValues="patientsByCountryChart?.yAxisTicks"
+          columnFill="#B98DAF"
+          columnHoverFill="#EE7032"
+          :chartHeight="275"
+          :chartMargins="{
+            top: patientsByCountryChart?.topMargin,
+            right: patientsByCountryChart?.rightMargin,
+            bottom: patientsByCountryChart?.bottomMargin,
+            left: patientsByCountryChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+  </ProviderDashboard>
+</template>
