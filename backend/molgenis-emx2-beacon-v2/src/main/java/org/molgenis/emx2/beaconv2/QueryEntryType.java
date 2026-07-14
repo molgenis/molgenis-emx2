@@ -11,6 +11,7 @@ import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
@@ -137,18 +138,22 @@ public class QueryEntryType {
   private ObjectNode getJsltResponse(ObjectNode response) {
     ArrayNode resultSets = response.withArray("resultSets");
 
-    String template = null;
+    Optional<String> template = null;
     if (database != null && schema != null) {
       template = readSchemaTemplate();
     }
 
-    Expression jslt;
-    if (template != null) {
-      jslt = Parser.compileString(template);
-    } else {
-      String jsltPath = "entry-types/" + entryType.getName().toLowerCase() + ".jslt";
-      jslt = Parser.compileResource(jsltPath);
-    }
+    Expression jslt =
+        template
+            .map(Parser::compileString)
+            .orElseGet(
+                () ->
+                    Parser.compileResource(
+                        "entry-types/"
+                            + "entry-types/"
+                            + entryType.getName().toLowerCase()
+                            + ".jslt"));
+    ;
 
     ObjectNode jsltResponse = (ObjectNode) jslt.apply(response);
 
@@ -159,7 +164,7 @@ public class QueryEntryType {
     return jsltResponse;
   }
 
-  private String readSchemaTemplate() {
+  private Optional<String> readSchemaTemplate() {
     AtomicReference<String> template = new AtomicReference<>();
     database.tx(
         tx -> {
@@ -180,7 +185,7 @@ public class QueryEntryType {
             tx.setActiveUser(activeUser);
           }
         });
-    return template.get();
+    return Optional.ofNullable(template.get());
   }
 
   private void addEmptyResultSet(ObjectNode jsltResponse) {
