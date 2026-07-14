@@ -174,10 +174,7 @@ public class QueryEntryType {
             Table templatesTable = tx.getSchema(SYSTEM_SCHEMA).getTable("Templates");
             template.set(
                 templatesTable.retrieveRows().stream()
-                    .filter(
-                        r ->
-                            r.getString("schema").equals(schema.getName())
-                                && r.getString("endpoint").equals("beacon_" + entryType.getName()))
+                    .filter(this::isTemplateForCurrentRequest)
                     .map(r -> r.get("template", String.class))
                     .findFirst()
                     .orElse(null));
@@ -186,6 +183,11 @@ public class QueryEntryType {
           }
         });
     return Optional.ofNullable(template.get());
+  }
+
+  private boolean isTemplateForCurrentRequest(Row row) {
+    return row.getString("schema").equals(schema.getName())
+        && row.getString("endpoint").equals("beacon_" + entryType.getName());
   }
 
   private void addEmptyResultSet(ObjectNode jsltResponse) {
