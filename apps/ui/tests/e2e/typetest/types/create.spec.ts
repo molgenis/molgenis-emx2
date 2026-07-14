@@ -100,7 +100,7 @@ test.describe("Insert type record with only required fields", () => {
     await page.getByRole("searchbox", { name: "Search Types" }).fill("foobar");
     await page.getByRole("row").nth(1).hover();
     await page
-      .getByRole("button", { name: 'delete{"stringType":"foobar' })
+      .getByRole("button", { name: 'delete {"stringType":"foobar' })
       .click();
     await page.getByRole("button", { name: "Delete", exact: true }).click();
   });

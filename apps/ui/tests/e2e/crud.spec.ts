@@ -25,7 +25,7 @@ test.afterEach(async ({ page }) => {
   await page.getByRole("searchbox", { name: "Search Pet" }).click();
   await page.getByRole("searchbox", { name: "Search Pet" }).fill("e2e");
   await page.getByRole("row").nth(1).hover();
-  await page.getByRole("button", { name: 'delete{"name":"e2e"}' }).click();
+  await page.getByRole("button", { name: 'delete {"name":"e2e"}' }).click();
   await page.getByRole("button", { name: "Delete", exact: true }).click();
 });
 
