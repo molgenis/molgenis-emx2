@@ -16,7 +16,7 @@
                 <Logo />
               </div>
               <div class="font-display text-heading-7xl">
-                Oops! something went wrong.
+                {{ errorText }}
               </div>
               <div v-if="error?.message" class="py-5 text-heading-4xl">
                 <p>{{ error?.message }}</p>
@@ -35,10 +35,23 @@
 </template>
 
 <script setup lang="ts">
-import Button from "../components/Button.vue";
 import { clearError, type NuxtError } from "nuxt/app";
+import { computed } from "vue";
+import Button from "../components/Button.vue";
 
 const props = defineProps<{ error: NuxtError }>();
+
+const errorText = computed(() => {
+  const status = props.error?.status;
+  switch (status) {
+    case 404:
+      return "The requested page could not be found.";
+    case 500:
+      return "An internal server error occurred.";
+    default:
+      return "Oops! something went wrong.";
+  }
+});
 
 const handleError = () => clearError({ redirect: "/" });
 </script>
