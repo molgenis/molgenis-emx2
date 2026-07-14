@@ -51,7 +51,8 @@ access:PUBLIC  rdf:type  dct:RightsStatement;
 <urn:uuid:274850ac-29c8-452d-b29c-f01977b91b42>
         rdf:type        vcard:Kind;
         foaf:firstName  "Jan Hendrik";
-        foaf:familyName   "Haanstra";
+        foaf:familyName "Haanstra";
+        foaf:name       "jhhaanstra";
         vcard:hasEmail  "john.doe@oulu.fi";
         vcard:hasURL    <https://example.com> .
 

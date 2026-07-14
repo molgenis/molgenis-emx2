@@ -1,0 +1,140 @@
+PREFIX afr: <http://purl.allotrope.org/ontologies/result#>
+PREFIX afrl: <http://purl.allotrope.org/ontologies/role#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcatap: <http://data.europa.eu/r5r/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX edam: <http://edamontology.org/>
+PREFIX efo: <http://www.ebi.ac.uk/efo/>
+PREFIX ejp: <https://w3id.org/ejp-rd/vocabulary#>
+PREFIX ensembl: <http://ensembl.org/glossary/>
+PREFIX fdp-o: <https://w3id.org/fdp/fdp-o#>
+PREFIX fg: <https://w3id.org/fair-genomes/resource/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX healthdcatap: <http://healthdataportal.eu/ns/health#>
+PREFIX hl7: <http://purl.bioontology.org/ontology/HL7/>
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+PREFIX lnc: <http://purl.bioontology.org/ontology/LNC/>
+PREFIX mesh: <http://purl.bioontology.org/ontology/MESH/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX ordo: <http://www.orpha.net/ORDO/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX sio: <http://semanticscience.org/resource/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT
+?_subject_
+?pid
+?name
+?local___name
+?acronym
+?website
+?description
+( GROUP_CONCAT( DISTINCT STR( ?keywords_single ) ; SEPARATOR = ',' ) AS ?keywords )
+?start___year
+?end___year
+?issued
+?modified
+?design___description
+?data___collection___description
+?reason___sustained
+?number___of___participants
+?underlying___population
+( GROUP_CONCAT( DISTINCT STR( ?countries_single ) ; SEPARATOR = ',' ) AS ?countries )
+( GROUP_CONCAT( DISTINCT STR( ?continents_single ) ; SEPARATOR = ',' ) AS ?continents )
+( GROUP_CONCAT( DISTINCT STR( ?regions_single ) ; SEPARATOR = ',' ) AS ?regions )
+?age___min
+?age___max
+?_subject_contact___point
+?contact___point__first___name
+?contact___point__last___name
+?access___rights
+?release___type
+?provenance___statement
+( GROUP_CONCAT( DISTINCT STR( ?theme_single ) ; SEPARATOR = ',' ) AS ?theme )
+( GROUP_CONCAT( DISTINCT STR( ?applicable___legislation_single ) ; SEPARATOR = ',' ) AS ?applicable___legislation )
+?_subject_publisher
+
+WHERE {
+    ?_subject_ a dcat:Dataset .
+    OPTIONAL { ?_subject_ dcterms:identifier ?pid . }
+    ?_subject_ dcterms:title ?name .
+    OPTIONAL { ?_subject_ rdfs:label ?local___name . }
+    OPTIONAL { ?_subject_ dcterms:alternative ?acronym . }
+    OPTIONAL { OPTIONAL { ?_subject_ dcat:landingPage ?website0 . }
+    OPTIONAL { ?_subject_ foaf:homepage ?website1 . }
+    BIND( COALESCE( ?website0, ?website1 ) AS ?website ) }
+    OPTIONAL { ?_subject_ dcterms:description ?description . }
+    OPTIONAL { ?_subject_ dcat:keyword ?keywords_single . }
+    OPTIONAL { ?_subject_ dcat:startDate ?start___year . }
+    OPTIONAL { ?_subject_ dcat:endDate ?end___year . }
+    OPTIONAL { OPTIONAL { ?_subject_ dcterms:issued ?issued0 . }
+    OPTIONAL { ?_subject_ fdp-o:metadataIssued ?issued1 . }
+    BIND( COALESCE( ?issued0, ?issued1 ) AS ?issued ) }
+    OPTIONAL { OPTIONAL { ?_subject_ dcterms:modified ?modified0 . }
+    OPTIONAL { ?_subject_ fdp-o:metadataModified ?modified1 . }
+    BIND( COALESCE( ?modified0, ?modified1 ) AS ?modified ) }
+    OPTIONAL { ?_subject_ dcterms:provenance ?design___description . }
+    OPTIONAL { ?_subject_ dcterms:provenance ?data___collection___description . }
+    OPTIONAL { ?_subject_ dcterms:provenance ?reason___sustained . }
+    OPTIONAL { ?_subject_ healthdcatap:numberOfUniqueIndividuals ?number___of___participants . }
+    OPTIONAL { ?_subject_ healthdcatap:populationCoverage ?underlying___population . }
+    OPTIONAL { ?_subject_ dcterms:spatial ?countries_single . }
+    OPTIONAL { ?_subject_ dcterms:spatial ?continents_single . }
+    OPTIONAL { ?_subject_ dcterms:spatial ?regions_single . }
+    OPTIONAL { ?_subject_ healthdcatap:minimumTypicalAge ?age___min . }
+    OPTIONAL { ?_subject_ healthdcatap:maximumTypicalAge ?age___max . }
+    OPTIONAL {
+        ?_subject_ dcterms:publisher ?publisher .
+        BIND(?publisher as ?_subject_publisher)
+    }
+    OPTIONAL { ?_subject_ dcterms:creator ?creator . }
+    OPTIONAL {
+        ?_subject_ dcat:contactPoint ?contact___point .
+        BIND(?contact___point as ?_subject_contact___point)
+        ?contact___point foaf:firstName ?contact___point__first___name .
+        ?contact___point foaf:familyName ?contact___point__last___name .
+    }
+    OPTIONAL { ?_subject_ dcterms:accessRights ?access___rights . }
+    OPTIONAL { ?_subject_ dcterms:accrualPeriodicity ?release___type . }
+    OPTIONAL { ?_subject_ dcterms:provenance ?provenance___statement . }
+    OPTIONAL { ?_subject_ dcat:theme ?theme_single . }
+    OPTIONAL { ?_subject_ dcatap:applicableLegislation ?applicable___legislation_single . }
+}
+
+GROUP BY
+    ?_subject_
+    ?pid
+    ?name
+    ?local___name
+    ?acronym
+    ?website
+    ?description
+    ?start___year
+    ?end___year
+    ?issued
+    ?modified
+    ?design___description
+    ?data___collection___description
+    ?reason___sustained
+    ?number___of___participants
+    ?underlying___population
+    ?age___min
+    ?age___max
+    ?_subject_contact___point
+    ?contact___point__first___name
+    ?contact___point__last___name
+    ?access___rights
+    ?release___type
+    ?provenance___statement
+    ?_subject_publisher

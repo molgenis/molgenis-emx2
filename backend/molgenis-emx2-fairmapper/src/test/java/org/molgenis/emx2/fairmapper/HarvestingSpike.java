@@ -1,6 +1,11 @@
 package org.molgenis.emx2.fairmapper;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -9,9 +14,10 @@ import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
-import org.molgenis.emx2.io.ImportTableTask;
+import org.molgenis.emx2.io.ImportSchemaTask;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.FileBasedQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.QueryGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class HarvestingSpike {
@@ -28,16 +34,29 @@ class HarvestingSpike {
     agePreprocessor.process(repository);
 
     Database database = TestDatabaseFactory.getTestDatabase();
-    TableQueryGenerator queryGenerator = new TableQueryGenerator();
-    SchemaMetadata schema = database.getSchema("harvesting").getMetadata();
+
+    //    TableQueryGenerator tqueryGenerator = new TableQueryGenerator();
+    QueryGenerator queryGenerator =
+        new FileBasedQueryGenerator(
+            Map.of(
+                "Contacts",
+                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Contacts.rq"),
+                "Organisations",
+                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Organisations.rq"),
+                "Collections",
+                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Collections.rq")));
+
+    Schema schema = database.getSchema("testupload");
     RdfTransformer transformer =
-        new SparqlSelectRdfTransformer(queryGenerator, schema, List.of("Contacts", "Collections"));
+        new SparqlSelectRdfTransformer(
+            queryGenerator, schema.getMetadata(), List.of("Contacts", "Collections"));
     TableStore tableStore = transformer.transform(repository);
 
-    postProcess(tableStore, schema);
+    postProcess(tableStore, schema.getMetadata());
+    ImportSchemaTask tasks =
+        new ImportSchemaTask(tableStore, schema, false, "Contacts", "Collections")
+            .setFilter(ImportSchemaTask.Filter.DATA_ONLY);
 
-    ImportTableTask tasks =
-        new ImportTableTask(tableStore, schema.getTableMetadata("Collections").getTable(), true);
     tasks.run();
     while (tasks.isRunning()) {
       System.out.println("waiting...");
@@ -49,22 +68,65 @@ class HarvestingSpike {
     addIdField(tableStore);
     addType(tableStore);
     resolveOntologies(tableStore, schema);
-    resolveContactPoint(tableStore, schema);
+
+    resolveContactPoint(tableStore);
+    //    resolvePublisher(tableStore);
 
     removeSubjectFromStoreRows(tableStore);
   }
 
-  private void resolveContactPoint(TableStore tableStore, SchemaMetadata schema) {
+  private void resolvePublisher(TableStore tableStore) {
+    Map<String, Row> organisations =
+        StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
+            .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
+
+    tableStore.processTable(
+        "Organisations",
+        (iterator, source) ->
+            iterator.forEachRemaining(row -> row.setString("id", row.getString("_subject_"))));
+
+    tableStore.processTable(
+        "Collections",
+        (iterator, source) ->
+            iterator.forEachRemaining(
+                row -> {
+                  Row publisher = organisations.get(row.getString("_subject_publisher"));
+                  publisher.setString("resource", row.getString("id"));
+
+                  row.set("publisher.resource", row.getString("id"));
+                  row.set("publisher.id", publisher.getString("id"));
+                }));
+  }
+
+  private void resolveContactPoint(TableStore tableStore) {
+    Map<String, Row> contacts =
+        StreamSupport.stream(tableStore.readTable("Contacts").spliterator(), false)
+            .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
+
     tableStore.processTable(
         "Collections",
         (iterator, source) ->
             iterator.forEachRemaining(
                 row -> {
                   if (row.containsName("contact point.first name")
-                      && row.containsName("contact point.last name")) {
+                      && row.containsName("contact point.last name")
+                      && row.containsName("_subject_contact point")) {
                     row.set("contact point.resource", row.getString("id"));
+                    // We already have first name and last name because they are annotated
+
+                    Row contactRow = contacts.get(row.getString("_subject_contact point"));
+                    contactRow.set("resource", row.getString("id"));
                   }
                 }));
+
+    tableStore.processTable(
+        "Contacts",
+        (iterator, source) ->
+            iterator.forEachRemaining(
+                row ->
+                    row.set(
+                        "resource",
+                        contacts.get(row.getString("_subject_")).getString("resource"))));
   }
 
   /** Adds id field from acronym */
@@ -114,8 +176,16 @@ class HarvestingSpike {
   /** Remove _subject from the rows at the end of post-processing */
   private void removeSubjectFromStoreRows(TableStore tableStore) {
     for (String tableName : tableStore.getTableNames()) {
+      Row first = tableStore.readTable(tableName).iterator().next();
+      Set<String> subjectColumns =
+          first.getColumnNames().stream()
+              .filter(row -> row.startsWith("_subject_"))
+              .collect(Collectors.toSet());
+
       tableStore.processTable(
-          tableName, (iterator, source) -> iterator.forEachRemaining(row -> row.clear("_subject")));
+          tableName,
+          (iterator, source) ->
+              iterator.forEachRemaining(row -> subjectColumns.forEach(row::clear)));
     }
   }
 }

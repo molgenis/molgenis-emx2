@@ -1,0 +1,68 @@
+PREFIX afr: <http://purl.allotrope.org/ontologies/result#>
+PREFIX afrl: <http://purl.allotrope.org/ontologies/role#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcatap: <http://data.europa.eu/r5r/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX edam: <http://edamontology.org/>
+PREFIX efo: <http://www.ebi.ac.uk/efo/>
+PREFIX ejp: <https://w3id.org/ejp-rd/vocabulary#>
+PREFIX ensembl: <http://ensembl.org/glossary/>
+PREFIX fdp-o: <https://w3id.org/fdp/fdp-o#>
+PREFIX fg: <https://w3id.org/fair-genomes/resource/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX healthdcatap: <http://healthdataportal.eu/ns/health#>
+PREFIX hl7: <http://purl.bioontology.org/ontology/HL7/>
+PREFIX ldp: <http://www.w3.org/ns/ldp#>
+PREFIX lnc: <http://purl.bioontology.org/ontology/LNC/>
+PREFIX mesh: <http://purl.bioontology.org/ontology/MESH/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
+PREFIX odrl: <http://www.w3.org/ns/odrl/2/>
+PREFIX ordo: <http://www.orpha.net/ORDO/>
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX sio: <http://semanticscience.org/resource/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/>
+PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT
+?_subject_
+( GROUP_CONCAT( DISTINCT STR( ?role_single ) ; SEPARATOR = ',' ) AS ?role )
+?first___name
+?last___name
+?display___name
+?title
+?email
+?orcid
+?homepage
+?photo
+WHERE {
+    ?_subject_ a vcard:Kind .
+    OPTIONAL { ?_subject_ vcard:hasRole ?role_single . }
+    ?_subject_ foaf:firstName ?first___name .
+    ?_subject_ foaf:familyName ?last___name .
+    OPTIONAL { OPTIONAL { ?_subject_ foaf:name ?display___name0 . }
+    OPTIONAL { ?_subject_ vcard:hasName ?display___name1 . }
+    OPTIONAL { ?_subject_ vcard:fn ?display___name2 . }
+    BIND( COALESCE( ?display___name0, ?display___name1, ?display___name2 ) AS ?display___name ) }
+    FILTER ( BOUND( ?display___name ) )
+    OPTIONAL { ?_subject_ foaf:title ?title . }
+    OPTIONAL { ?_subject_ foaf:Organization ?organisation . }
+    OPTIONAL { OPTIONAL { ?_subject_ vcard:hasEmail ?email0 . }
+    OPTIONAL { ?_subject_ foaf:mbox ?email1 . }
+    BIND( COALESCE( ?email0, ?email1 ) AS ?email ) }
+    OPTIONAL { ?_subject_ dcterms:identifier ?orcid . }
+    OPTIONAL { OPTIONAL { ?_subject_ vcard:url ?homepage0 . }
+    OPTIONAL { ?_subject_ foaf:workplaceHomepage ?homepage1 . }
+    OPTIONAL { ?_subject_ vcard:hasURL ?homepage2 . }
+    BIND( COALESCE( ?homepage0, ?homepage1, ?homepage2 ) AS ?homepage ) }
+    OPTIONAL { ?_subject_ foaf:img ?photo . }
+}
+GROUP BY ?_subject_ ?first___name ?last___name ?display___name ?title ?email ?orcid ?homepage ?photo
