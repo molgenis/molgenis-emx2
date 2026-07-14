@@ -1,4 +1,5 @@
-import type { IChartData } from "../types/schema";
+// import type { IChartData } from "../types/schema";
+import type { IChartData } from "../../../metadata-utils/src/viz/UiDashboard";
 import type { IValueLabel } from "../types";
 
 /**
@@ -11,12 +12,11 @@ import type { IValueLabel } from "../types";
 export function filterAgeAtSurgeryData(data: IChartData[], diagnosis: string) {
   return data
     .filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === diagnosis;
+      return row.primaryCategory === diagnosis;
     })
     .sort((a: IChartData, b: IChartData) => {
       return (
-        (a.dataPointTime as unknown as number) -
-        (b.dataPointTime as unknown as number)
+        (a.timeValue as unknown as number) - (b.timeValue as unknown as number)
       );
     });
 }
@@ -33,8 +33,8 @@ export function filterAgeAtSurgeryData(data: IChartData[], diagnosis: string) {
 export function prepareDiagnosisFilters(data: IChartData[]): IValueLabel[] {
   const diagnoses = data.map((row: IChartData) => {
     return {
-      value: row.dataPointPrimaryCategory,
-      label: row.dataPointPrimaryCategoryLabel || row.dataPointPrimaryCategory,
+      value: row.primaryCategory,
+      label: row.primaryCategoryLabel || row.primaryCategory,
     };
   }) as IValueLabel[];
 

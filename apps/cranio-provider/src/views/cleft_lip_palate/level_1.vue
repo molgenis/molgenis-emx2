@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import LevelTemplate from "../../components/LevelTemplate.vue";
+import { getDashboardChart } from "../../../../metadata-utils/src/viz/getUiDashboardCharts";
 
-import { getDashboardChart } from "../../utils/getDashboardData.js";
-
-import type { ICharts, IChartData } from "../../types/schema.js";
-import type { IAppPage } from "../../types/app";
 import type {
-  ICleftTypes,
-  ISiteErnCleftTypeCounts,
-} from "../../types/index.js";
+  ICharts,
+  IChartData,
+} from "../../../../metadata-utils/src/viz/UiDashboard.js";
+import type { IAppPage } from "../../types/app";
+import type { ISiteErnCleftTypeCounts } from "../../types/index";
 
 const props = defineProps<IAppPage>();
 const patientsByCleftType = ref<ISiteErnCleftTypeCounts>({
@@ -43,7 +42,7 @@ async function getData() {
 
   if (centerCounts.dataPoints) {
     const centerCountValues = centerCounts.dataPoints.map((row: IChartData) => {
-      return [row.dataPointName, row.dataPointValue];
+      return [row.name, row.value];
     });
 
     patientsByCleftType.value.center = Object.fromEntries(centerCountValues);
@@ -51,7 +50,7 @@ async function getData() {
 
   if (ernCounts.dataPoints) {
     const ernCountValues = ernCounts.dataPoints.map((row: IChartData) => {
-      return [row.dataPointName, row.dataPointValue];
+      return [row.name, row.value];
     });
     patientsByCleftType.value.ern = Object.fromEntries(ernCountValues);
   }
@@ -65,7 +64,7 @@ getData();
     name="Cleft lip and palate level 1"
     :props="props"
     :enable-filter="true"
-    filter-property="dataPointPrimaryCategory"
+    filter-property="primaryCategory"
     filter-title="Filter chart by cleft type"
     :number-of-patients-by-cleft-type="patientsByCleftType"
   />

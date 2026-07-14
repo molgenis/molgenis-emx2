@@ -1,5 +1,5 @@
 import type { IKeyValuePair } from "../types/index";
-import type { IChartData } from "../types/schema";
+import type { IChartData } from "../../../metadata-utils/src/viz/UiDashboard";
 
 /**
  * @name asKeyValuePairs
@@ -100,16 +100,16 @@ export const ernCenterPalette: IKeyValuePair = {
  */
 export function sortByDataPointName(data: IChartData[]) {
   return data.sort((a: IChartData, b: IChartData) => {
-    return a.dataPointName?.localeCompare(b.dataPointName as string) as number;
+    return a.name?.localeCompare(b.name as string) as number;
   });
 }
 
 export function sortByDataPointOrder(data: IChartData[]) {
   return data.sort((a: IChartData, b: IChartData) => {
     return (
-      (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
-      (b.dataPointSecondaryCategory as string).localeCompare(
-        a.dataPointSecondaryCategory as string
+      (a.sortOrder as number) - (b.sortOrder as number) ||
+      (b.secondaryCategory as string).localeCompare(
+        a.secondaryCategory as string
       )
     );
   });

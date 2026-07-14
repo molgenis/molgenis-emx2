@@ -12,7 +12,8 @@ import {
 } from "molgenis-viz";
 import ProviderDashboard from "../../../components/ProviderDashboard.vue";
 
-import { generateAxisTickData } from "../../../utils/generateAxisTicks";
+import { generateAxisTickData } from "../../../../../tailwind-components/app/utils/viz.js";
+import { getDashboardChart } from "../../../../../metadata-utils/src/viz/getUiDashboardCharts";
 import {
   asKeyValuePairs,
   uniqueValues,
@@ -20,17 +21,19 @@ import {
   sumObjectValues,
   ernCenterPalette,
 } from "../../../utils";
-import { getDashboardChart } from "../../../utils/getDashboardData";
 import {
   filterAgeAtSurgeryData,
   prepareDiagnosisFilters,
 } from "../../../utils/csSurgicalUtils";
 
-import type { ICharts, IChartData } from "../../../types/schema";
+import type {
+  ICharts,
+  IChartData,
+} from "../../../../../metadata-utils/src/viz/UiDashboard";
 import type { IAppPage } from "../../../types/app";
 import type { IKeyValuePair, IValueLabel } from "../../../types/index";
-const props = defineProps<IAppPage>();
 
+const props = defineProps<IAppPage>();
 const loading = ref<boolean>(true);
 const surgeryTypes = ref<string[]>();
 const selectedSurgeryType = ref<string>();
@@ -89,32 +92,30 @@ async function getPageData() {
 function updateComplicationsChart() {
   complicationsChartData.value = complicationsChart.value?.dataPoints?.filter(
     (row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedSurgeryType.value;
+      return row.primaryCategory === selectedSurgeryType.value;
     }
   );
 
   const chartAxis = generateAxisTickData(
-    complicationsChartData.value!,
-    "dataPointValue"
+    complicationsChartData.value as IChartData[],
+    "value"
   );
   (complicationsChart.value as ICharts).yAxisMaxValue = chartAxis.limit;
   (complicationsChart.value as ICharts).yAxisTicks = chartAxis.ticks;
-
-  hasComplicationsData.value =
-    sum(complicationsChartData.value, "dataPointValue") > 0;
+  hasComplicationsData.value = sum(complicationsChartData.value, "value") > 0;
 }
 
 function updateInterventionsChart() {
   const filteredData = interventionsChart.value?.dataPoints?.filter(
     (row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedDiagnosis.value;
+      return row.primaryCategory === selectedDiagnosis.value;
     }
   );
 
   interventionsChartData.value = asKeyValuePairs(
     filteredData,
-    "dataPointValueLabel",
-    "dataPointValue"
+    "valueLabel",
+    "value"
   );
 
   const sum: number = sumObjectValues(interventionsChartData.value);
@@ -123,19 +124,18 @@ function updateInterventionsChart() {
 
 function updateSurgeryAgeChart() {
   surgeryAgeChartData.value = filterAgeAtSurgeryData(
-    surgeryAgeChart.value?.dataPoints!,
-    selectedDiagnosis.value!
+    surgeryAgeChart.value?.dataPoints as IChartData[],
+    selectedDiagnosis.value as string
   );
 
   const chartAxis = generateAxisTickData(
-    surgeryAgeChartData.value!,
-    "dataPointValue"
+    surgeryAgeChartData.value as IChartData[],
+    "value"
   );
 
   (surgeryAgeChart.value as ICharts).yAxisMaxValue = chartAxis.limit;
   (surgeryAgeChart.value as ICharts).yAxisTicks = chartAxis.ticks;
-
-  const total: number = sum(surgeryAgeChartData.value, "dataPointValue");
+  const total: number = sum(surgeryAgeChartData.value, "value");
   hasSurgeryAgeData.value = total > 0;
 }
 
@@ -146,28 +146,24 @@ onMounted(() => {
       (complicationsChart.value as ICharts).dataPoints = (
         complicationsChart.value as ICharts
       ).dataPoints?.sort((a: IChartData, b: IChartData) => {
-        return a.dataPointName?.localeCompare(
-          b.dataPointName as string
-        ) as number;
+        return (a.name as string).localeCompare(b.name as string) as number;
       });
 
       (interventionsChart.value as ICharts).dataPoints = (
         interventionsChart.value as ICharts
       ).dataPoints?.sort((a: IChartData, b: IChartData) => {
-        return a.dataPointName?.localeCompare(
-          b.dataPointName as string
-        ) as number;
+        return (a.name as string).localeCompare(b.name as string) as number;
       });
 
       // get surgery types and set starting value
       surgeryTypes.value = uniqueValues(
         (complicationsChart.value as ICharts).dataPoints,
-        "dataPointPrimaryCategory"
+        "primaryCategory"
       );
       selectedSurgeryType.value = surgeryTypes.value[0];
 
       diagnoses.value = prepareDiagnosisFilters(
-        interventionsChart.value?.dataPoints!
+        interventionsChart.value?.dataPoints as IChartData[]
       );
       selectedDiagnosis.value = diagnoses.value[0].value;
     })
@@ -219,9 +215,9 @@ onMounted(() => {
           :title="complicationsChart?.chartTitle"
           :description="complicationsChart?.chartSubtitle"
           :chartData="complicationsChartData"
-          xvar="dataPointSecondaryCategory"
-          yvar="dataPointValue"
-          group="dataPointName"
+          xvar="secondaryCategory"
+          yvar="value"
+          group="name"
           :columnColorPalette="ernCenterPalette"
           :xAxisLabel="complicationsChart?.xAxisLabel"
           :yAxisLabel="complicationsChart?.yAxisLabel"
@@ -300,9 +296,9 @@ onMounted(() => {
           :title="surgeryAgeChart?.chartTitle"
           :description="surgeryAgeChart?.chartSubtitle"
           :chartData="surgeryAgeChartData"
-          xvar="dataPointSecondaryCategory"
-          yvar="dataPointValue"
-          group="dataPointTime"
+          xvar="secondaryCategory"
+          yvar="value"
+          group="timeValue"
           :columnColorPalette="ernCenterPalette"
           :xAxisLabel="surgeryAgeChart?.xAxisLabel"
           :yAxisLabel="surgeryAgeChart?.yAxisLabel"

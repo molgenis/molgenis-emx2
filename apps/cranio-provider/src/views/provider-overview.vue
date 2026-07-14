@@ -16,13 +16,16 @@ import ValueShowcase from "../components/ValueShowcase.vue";
 
 import { asKeyValuePairs, uniqueValues } from "../utils";
 import { generateColorPalette } from "../utils/generateColorPalette";
-import { getDashboardChart } from "../utils/getDashboardData";
-import { generateAxisTickData } from "../utils/generateAxisTicks";
+import { getDashboardChart } from "../../../metadata-utils/src/viz/getUiDashboardCharts";
+import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz.js";
 import { parseChartTitle } from "../utils/parseChartTitle";
 
-import type { ICharts, IChartData } from "../types/schema";
+import type {
+  ICharts,
+  IChartData,
+} from "../../../metadata-utils/src/viz/UiDashboard.js";
 import type { IAppPage } from "../types/app";
-import type { IKeyValuePair } from "../types/index";
+import type { IKeyValuePair } from "../types/index.js";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
@@ -69,18 +72,16 @@ function updateSexByWorkstream(value: string) {
   selectedWorkstream.value = selection;
   const filteredData = sexByWorkstreamChart.value?.dataPoints
     ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selection.dataPointName;
+      return row.primaryCategory === selection.name;
     })
-    .sort((current, next) => {
-      return (
-        (next.dataPointValue as number) - (current.dataPointValue as number)
-      );
+    .sort((current: IChartData, next: IChartData) => {
+      return (next.value as number) - (current.value as number);
     });
 
   sexByWorkstreamChartData.value = asKeyValuePairs(
     filteredData,
-    "dataPointName",
-    "dataPointValue"
+    "name",
+    "value"
   );
 }
 
@@ -94,7 +95,7 @@ onMounted(() => {
       ) {
         numberOfPatientsSubmitted.value.chartTitle = parseChartTitle(
           numberOfPatientsSubmitted.value.chartTitle,
-          numberOfPatientsSubmitted.value.dataPoints[0].dataPointValue!
+          numberOfPatientsSubmitted.value.dataPoints[0].value!
         );
       }
 
@@ -104,7 +105,7 @@ onMounted(() => {
       ) {
         patientsSubmittedByTime.value.chartTitle = parseChartTitle(
           patientsSubmittedByTime.value.chartTitle,
-          patientsSubmittedByTime.value.dataPoints[0].dataPointValue!
+          patientsSubmittedByTime.value.dataPoints[0].value!
         );
       }
 
@@ -112,18 +113,18 @@ onMounted(() => {
       patientsByWorkstreamChartData.value =
         patientsByWorkstreamChart.value!.dataPoints?.sort(
           (a: IChartData, b: IChartData) =>
-            (a.dataPointOrder as number) - (b.dataPointOrder as number)
+            (a.sortOrder as number) - (b.sortOrder as number)
         );
 
       const workstreams = uniqueValues(
         patientsByWorkstreamChartData.value,
-        "dataPointName"
+        "name"
       );
       patientsByWorkstreamPalette.value = generateColorPalette(workstreams);
 
       const chartTicks = generateAxisTickData(
         patientsByWorkstreamChartData.value!,
-        "dataPointValue"
+        "value"
       );
       patientsByWorkstreamChart.value!.yAxisMaxValue = chartTicks.limit;
       patientsByWorkstreamChart.value!.yAxisTicks = chartTicks.ticks;
@@ -131,7 +132,7 @@ onMounted(() => {
       // prepare sex at birth chart
       const uniqueSexAtBirthCategories = uniqueValues(
         sexByWorkstreamChart.value?.dataPoints,
-        "dataPointName"
+        "name"
       );
       sexByWorkstreamPalette.value = generateColorPalette(
         uniqueSexAtBirthCategories
@@ -181,7 +182,7 @@ onMounted(() => {
       <DashboardChart id="provider-overview-patients-by-workstream">
         <LoadingScreen v-if="loading" style="height: 215px" />
         <MessageBox
-          v-else-if="!loading && numberOfPatientsSubmitted!.dataPoints![0].dataPointValue === 0"
+          v-else-if="!loading && numberOfPatientsSubmitted!.dataPoints![0].value === 0"
         >
           <span>Not enough data to show chart</span>
         </MessageBox>
@@ -191,8 +192,8 @@ onMounted(() => {
           :title="patientsByWorkstreamChart.chartTitle"
           :description="patientsByWorkstreamChart.chartSubtitle"
           :chartData="patientsByWorkstreamChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="patientsByWorkstreamChart.xAxisLabel"
           :yAxisLabel="patientsByWorkstreamChart.yAxisLabel"
           :yMin="0"
@@ -214,7 +215,7 @@ onMounted(() => {
       <DashboardChart v-if="selectedWorkstream" style="min-height: 200px">
         <PieChart2
           :chartId="sexByWorkstreamChart?.chartId"
-          :title="`${sexByWorkstreamChart?.chartTitle} for ${selectedWorkstream.dataPointName} patients`"
+          :title="`${sexByWorkstreamChart?.chartTitle} for ${selectedWorkstream.name} patients`"
           :description="sexByWorkstreamChart?.chartSubtitle"
           :chartData="sexByWorkstreamChartData"
           :chartColors="sexByWorkstreamPalette"
