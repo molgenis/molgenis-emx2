@@ -29,7 +29,6 @@ export const useSchemaSettings = async (
       throw createError({
         ...error,
         message: `Could not fetch schema settings for schema ${schema.value}.`,
-        status: error.status === 500 ? 404 : error.status,
       });
     });
 
