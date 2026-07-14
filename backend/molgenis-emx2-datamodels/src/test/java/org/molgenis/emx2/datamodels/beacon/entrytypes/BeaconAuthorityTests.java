@@ -22,13 +22,13 @@ import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.datamodels.TestLoaders;
 
-public class BeaconAuthorityTests extends TestLoaders {
+class BeaconAuthorityTests extends TestLoaders {
 
-  public static final String VIEWER_TEST_USER = "VIEWER_TEST_USER";
-  public static final String AGGREGATOR_TEST_USER = "AGGREGATOR_TEST_USER";
-  public static final String COUNT_TEST_USER = "COUNT_TEST_USER";
-  public static final String EXISTS_TEST_USER = "EXISTS_TEST_USER";
-  public static final String RANGE_TEST_USER = "RANGE_TEST_USER";
+  static final String VIEWER_TEST_USER = "VIEWER_TEST_USER";
+  static final String AGGREGATOR_TEST_USER = "AGGREGATOR_TEST_USER";
+  static final String COUNT_TEST_USER = "COUNT_TEST_USER";
+  static final String EXISTS_TEST_USER = "EXISTS_TEST_USER";
+  static final String RANGE_TEST_USER = "RANGE_TEST_USER";
 
   @BeforeAll
   public void setup() {
@@ -50,7 +50,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void testRecordQueryAsViewerUser_tenRecords() {
+  void testRecordQueryAsViewerUser_tenRecords() {
     database.setActiveUser(VIEWER_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
@@ -64,7 +64,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void queryRestoresSharedDatabase() {
+  void queryRestoresSharedDatabase() {
     database.setActiveUser(VIEWER_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     assertFalse(database.isAdmin());
@@ -77,7 +77,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void templateLookupRunsInsideTransaction() {
+  void templateLookupRunsInsideTransaction() {
     database.becomeAdmin();
     Schema spySchema = Mockito.spy(database.getSchema(PATIENT_REGISTRY));
     Database spyDatabase = Mockito.spy(spySchema.getDatabase());
@@ -90,7 +90,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void testRecordQueryAsAggregateUser_noRecords() {
+  void testRecordQueryAsAggregateUser_noRecords() {
     database.setActiveUser(AGGREGATOR_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
@@ -104,7 +104,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void testCountQueryAsAggregatorUser() throws JsonProcessingException {
+  void testCountQueryAsAggregatorUser() throws JsonProcessingException {
     database.setActiveUser(AGGREGATOR_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequest =
@@ -123,8 +123,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void testCountQueryAsExistsUser_noRecords()
-      throws JsonProcessingException, InterruptedException {
+  void testCountQueryAsExistsUser_noRecords() throws JsonProcessingException, InterruptedException {
     database.setActiveUser(EXISTS_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequest =
@@ -142,7 +141,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void testExistsQueryAsExistsUser_true() throws JsonProcessingException {
+  void testExistsQueryAsExistsUser_true() throws JsonProcessingException {
     database.setActiveUser(EXISTS_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequest =
@@ -161,7 +160,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void testRecordQueryAsExistsUser_noRecords() {
+  void testRecordQueryAsExistsUser_noRecords() {
     database.setActiveUser(EXISTS_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
@@ -175,7 +174,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void testCountQueryAsRangeUser_range() throws JsonProcessingException {
+  void testCountQueryAsRangeUser_range() throws JsonProcessingException {
     database.setActiveUser(RANGE_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequestBody =
@@ -199,7 +198,7 @@ public class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  public void testCountQueryAsCountUser_fiveResults() throws JsonProcessingException {
+  void testCountQueryAsCountUser_fiveResults() throws JsonProcessingException {
     database.setActiveUser(COUNT_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequestBody =
