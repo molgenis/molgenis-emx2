@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.SETTING_SEMANTIC_PREFIXES;
-import static org.molgenis.emx2.Semantic.isIllegalPrefix;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -61,27 +60,30 @@ public class SemanticPrefixes {
             .readValues(schema.getSetting(SETTING_SEMANTIC_PREFIXES))) {
 
       iterator.forEachRemaining(
-          i -> {
-            Namespace namespace =
-                Values.namespace(
-                    i.get(SEMANTIC_PREFIXES_NAME_PREFIX), i.get(SEMANTIC_PREFIXES_NAME_IRI));
-            if (isIllegalPrefix(namespace.getPrefix()))
-              throw new MolgenisException(
-                  "semantic_prefixes contains an illegal prefix (http/https/urn/tag not allowed).");
-            try {
-              Values.iri(namespace, "test");
-            } catch (Exception e) {
-              throw new MolgenisException(
-                  "Unusable IRI found in custom_prefixes of %s: %s,%s"
-                      .formatted(schema.getName(), namespace.getPrefix(), namespace.getName()));
-            }
-            namespaces.add(namespace);
+          row -> {
+            namespaces.add(
+                validateNamespace(
+                    schema,
+                    Values.namespace(
+                        row.get(SEMANTIC_PREFIXES_NAME_PREFIX),
+                        row.get(SEMANTIC_PREFIXES_NAME_IRI))));
           });
     } catch (IOException e) {
       logger.error("Failed to retrieve custom prefixes, falling back to default", e);
       return null;
     }
     return namespaces;
+  }
+
+  private static Namespace validateNamespace(SchemaMetadata schema, Namespace namespace) {
+    try {
+      Values.iri(namespace, "test");
+    } catch (Exception e) {
+      throw new MolgenisException(
+          "Unusable IRI found in custom_prefixes of %s: %s,%s"
+              .formatted(schema.getName(), namespace.getPrefix(), namespace.getName()));
+    }
+    return namespace;
   }
 
   private final Map<String, Namespace> namespaces;
@@ -116,10 +118,6 @@ public class SemanticPrefixes {
                           "Prefix already exists: " + namespace1.getPrefix());
                     },
                     HashMap::new));
-  }
-
-  public SemanticPrefixes(Schema schema) {
-    this(schema.getMetadata());
   }
 
   public SemanticPrefixes(SchemaMetadata schemaMetadata) {
