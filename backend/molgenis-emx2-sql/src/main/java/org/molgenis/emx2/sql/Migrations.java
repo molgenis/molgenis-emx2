@@ -194,16 +194,15 @@ public class Migrations {
           if (version < 32) {
             executeMigrationFile(tdb, "migration31.sql", "add mg_generate_autoid function");
           }
+          if (version < 33) {
+            executeMigrationFile(
+                tdb, "migration32.sql", "add 'cancel' job status, if job table exists");
+          }
           if (version < 34) {
             executeMigrationFile(
                 tdb,
                 "migration33.sql",
                 "changed semantic field to store SPARQL-like sequence path");
-          }
-
-          if (version < 33) {
-            executeMigrationFile(
-                tdb, "migration32.sql", "add 'cancel' job status, if job table exists");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
