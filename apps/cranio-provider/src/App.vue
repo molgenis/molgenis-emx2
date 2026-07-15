@@ -5,7 +5,7 @@ import { getSchemaName } from "./utils/getSchemaName";
 import { getOrganisation } from "./utils/getOrganisation";
 
 import type { IMgErrorResponse, ICranioSchemas } from "./types";
-import type { IOrganisations } from "./types/ErnDashboard";
+import type { IOrganisations } from "../../metadata-utils/src/viz/ErnDashboard";
 
 // @ts-ignore
 import { Molgenis } from "molgenis-components";
@@ -34,6 +34,7 @@ onBeforeMount(async () => {
   try {
     cranioSchemas.value = await getCranioSchemaNames();
     currentSchemaName.value = await getSchemaName();
+
     currentOrganisation.value = await getOrganisation(
       `/${cranioSchemas.value?.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
       currentSchemaName.value

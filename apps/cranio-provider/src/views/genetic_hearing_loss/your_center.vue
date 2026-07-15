@@ -11,15 +11,17 @@ import {
 } from "molgenis-viz";
 
 import ProviderDashboard from "../../components/ProviderDashboard.vue";
-
-import { generateAxisTickData } from "../../utils/generateAxisTicks";
+import { generateAxisTickData } from "../../../../tailwind-components/app/utils/viz.js";
 import { getGeneticLossData } from "../../utils/getGeneticHearingLossData";
-import type { ICharts, IChartData } from "../../types/schema";
-import type { IAppPage } from "../../types/app";
+
+import type {
+  ICharts,
+  IChartData,
+} from "../../../../metadata-utils/src/viz/UiDashboard.js";
+import type { IAppPage } from "../../types";
 
 const props = defineProps<IAppPage>();
 const loading = ref<boolean>(true);
-
 const hearingLossTypeLeftChart = ref<ICharts>();
 const hearingLossTypeRightChart = ref<ICharts>();
 const hearingLossSeverityChart = ref<ICharts>();
@@ -49,7 +51,7 @@ onMounted(async () => {
   // create data for type of hearing loss chart left
   const hearingLossLeftAxis = generateAxisTickData(
     hearingLossTypeLeftChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
+    "value"
   );
 
   if (hearingLossTypeLeftChart.value) {
@@ -60,7 +62,7 @@ onMounted(async () => {
   // create data for type of hearing loss chart right
   const hearingLossRightAxis = generateAxisTickData(
     hearingLossTypeRightChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
+    "value"
   );
 
   if (hearingLossTypeRightChart.value) {
@@ -71,21 +73,23 @@ onMounted(async () => {
   // prep chart for severity of hearing loss
   const serverityAxis = generateAxisTickData(
     hearingLossSeverityChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
+    "value"
   );
 
   if (hearingLossSeverityChart.value) {
     hearingLossSeverityChart.value.yAxisMaxValue = serverityAxis.limit;
     hearingLossSeverityChart.value.yAxisTicks = serverityAxis.ticks;
     hearingLossSeverityChart.value.dataPoints =
-      hearingLossSeverityChart.value.dataPoints?.sort((a, b) => {
-        return (
-          (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
-          (b.dataPointPrimaryCategory as string).localeCompare(
-            a.dataPointPrimaryCategory as string
-          )
-        );
-      });
+      hearingLossSeverityChart.value.dataPoints?.sort(
+        (a: IChartData, b: IChartData) => {
+          return (
+            (a.sortOrder as number) - (b.sortOrder as number) ||
+            (b.primaryCategory as string).localeCompare(
+              a.primaryCategory as string
+            )
+          );
+        }
+      );
   }
 
   // genes
@@ -95,21 +99,19 @@ onMounted(async () => {
         ?.map((row: IChartData) => {
           return {
             ...row,
-            Gene: row.dataPointName,
-            Total: row.dataPointValue,
+            Gene: row.name,
+            Total: row.value,
           };
         })
-        .sort((a, b) => {
-          return (a.dataPointName as string).localeCompare(
-            b.dataPointName as string
-          );
+        .sort((a: IChartData, b: IChartData) => {
+          return (a.name as string).localeCompare(b.name as string);
         });
   }
 
   // age of onset prep
   const onsetAxis = generateAxisTickData(
     hearingLossOnsetChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
+    "value"
   );
   if (hearingLossOnsetChart.value) {
     hearingLossOnsetChart.value.yAxisMaxValue = onsetAxis.limit;
@@ -118,8 +120,8 @@ onMounted(async () => {
     hearingLossOnsetChart.value.dataPoints =
       hearingLossOnsetChart.value.dataPoints?.sort((a, b) => {
         return (
-          (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
-          (a.dataPointName as string).localeCompare(b.dataPointName as string)
+          (a.sortOrder as number) - (b.sortOrder as number) ||
+          (a.name as string).localeCompare(b.name as string)
         );
       });
   }
@@ -127,7 +129,7 @@ onMounted(async () => {
   // prep genetic diagnosis type
   const dxTypeAxis = generateAxisTickData(
     geneticDiagnosisTypeChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
+    "value"
   );
 
   if (geneticDiagnosisTypeChart.value) {
@@ -138,7 +140,7 @@ onMounted(async () => {
   // prep etiology chart
   const etiologyAxis = generateAxisTickData(
     etiologyChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
+    "value"
   );
   if (etiologyChart.value) {
     etiologyChart.value.yAxisMaxValue = etiologyAxis.limit;
@@ -148,7 +150,7 @@ onMounted(async () => {
   // prep syndromic classification chart
   const syndomicAxis = generateAxisTickData(
     syndromicClassifcationChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
+    "value"
   );
   if (syndromicClassifcationChart.value) {
     syndromicClassifcationChart.value.yAxisMaxValue = syndomicAxis.limit;
@@ -158,7 +160,7 @@ onMounted(async () => {
   // prep rehabilitation type chart
   const rehabilitationTypeAxis = generateAxisTickData(
     rehabilitationTypeChart.value?.dataPoints as IChartData[],
-    "dataPointValue"
+    "value"
   );
   if (rehabilitationTypeChart.value) {
     rehabilitationTypeChart.value.yAxisMaxValue = rehabilitationTypeAxis.limit;
@@ -181,8 +183,8 @@ onMounted(async () => {
           :title="hearingLossTypeLeftChart?.chartTitle"
           :description="hearingLossTypeLeftChart?.chartSubtitle"
           :chartData="hearingLossTypeLeftChart?.dataPoints"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="hearingLossTypeLeftChart?.xAxisLabel"
           :yAxisLabel="hearingLossTypeLeftChart?.yAxisLabel"
           :yMin="0"
@@ -207,8 +209,8 @@ onMounted(async () => {
           :title="hearingLossTypeRightChart?.chartTitle"
           :description="hearingLossTypeRightChart?.chartSubtitle"
           :chartData="hearingLossTypeRightChart?.dataPoints"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="hearingLossTypeRightChart?.xAxisLabel"
           :yAxisLabel="hearingLossTypeRightChart?.yAxisLabel"
           :yMin="0"
@@ -235,9 +237,9 @@ onMounted(async () => {
           :title="hearingLossSeverityChart?.chartTitle"
           :description="hearingLossSeverityChart?.chartSubtitle"
           :chartData="hearingLossSeverityChart?.dataPoints"
-          xvar="dataPointName"
-          yvar="dataPointValue"
-          group="dataPointPrimaryCategory"
+          xvar="name"
+          yvar="value"
+          group="primaryCategory"
           :xAxisLabel="hearingLossSeverityChart?.xAxisLabel"
           :yAxisLabel="hearingLossSeverityChart?.yAxisLabel"
           :yMin="0"
@@ -269,8 +271,8 @@ onMounted(async () => {
           :title="hearingLossOnsetChart?.chartTitle"
           :description="hearingLossOnsetChart?.chartSubtitle"
           :chartData="hearingLossOnsetChart?.dataPoints"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="hearingLossOnsetChart?.xAxisLabel"
           :yAxisLabel="hearingLossOnsetChart?.yAxisLabel"
           :yMin="0"
@@ -308,8 +310,8 @@ onMounted(async () => {
           :title="geneticDiagnosisTypeChart?.chartTitle"
           :description="geneticDiagnosisTypeChart?.chartSubtitle"
           :chartData="geneticDiagnosisTypeChart?.dataPoints"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="geneticDiagnosisTypeChart?.xAxisLabel"
           :yAxisLabel="geneticDiagnosisTypeChart?.yAxisLabel"
           :yMin="0"
@@ -336,8 +338,8 @@ onMounted(async () => {
           :title="etiologyChart?.chartTitle"
           :description="etiologyChart?.chartSubtitle"
           :chartData="etiologyChart?.dataPoints"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="etiologyChart?.xAxisLabel"
           :yAxisLabel="etiologyChart?.yAxisLabel"
           :yMin="0"
@@ -363,8 +365,8 @@ onMounted(async () => {
           :title="syndromicClassifcationChart?.chartTitle"
           :description="syndromicClassifcationChart?.chartSubtitle"
           :chartData="syndromicClassifcationChart?.dataPoints"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="syndromicClassifcationChart?.xAxisLabel"
           :yAxisLabel="syndromicClassifcationChart?.yAxisLabel"
           :yMin="0"
@@ -391,8 +393,8 @@ onMounted(async () => {
           :title="rehabilitationTypeChart?.chartTitle"
           :description="rehabilitationTypeChart?.chartSubtitle"
           :chartData="rehabilitationTypeChart?.dataPoints"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="rehabilitationTypeChart?.xAxisLabel"
           :yAxisLabel="rehabilitationTypeChart?.yAxisLabel"
           :yMin="0"
