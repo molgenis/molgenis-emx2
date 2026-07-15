@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  */
 public class Semantic {
   // Matches with Strings like "urn:" & "urn:uuid:", but allows variations such as "urnamespace:"
-  public static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
+  private static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
 
   private final String sequencePath;
 
@@ -40,14 +40,14 @@ public class Semantic {
    * @param semantic a prefixed name as defined <a
    *     href="https://www.w3.org/TR/turtle/#prefixed-name">here</a>
    */
-  public static boolean hasIllegalPrefix(String semantic) {
+  private static boolean hasIllegalPrefix(String semantic) {
     return ILLEGAL_PREFIX.matcher(semantic).find();
   }
 
   /**
    * @param prefix the prefix WITHOUT ':' or anything after that
    */
-  public static boolean isIllegalPrefix(String prefix) {
+  private static boolean isIllegalPrefix(String prefix) {
     return hasIllegalPrefix(prefix + ':');
   }
 
