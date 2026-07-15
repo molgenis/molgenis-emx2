@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper.enrich;
+package org.molgenis.emx2.fairmapper.preprocessing;
 
 import static org.eclipse.rdf4j.model.util.Statements.statement;
 import static org.eclipse.rdf4j.model.util.Values.bnode;
@@ -19,7 +19,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.*;
 
-class TemporalRdfEnricherTest {
+class TemporalRdfPreProcessorTest {
 
   private static final IRI DATASET_SUBJECT = iri("https://example.com/dataset/1");
   private static final IRI CATALOG_SUBJECT = iri("https://example.com/catalog/1");
@@ -43,7 +43,7 @@ class TemporalRdfEnricherTest {
       conn.commit();
     }
 
-    new TemporalRdfEnricher().enrich(repository);
+    new TemporalRdfPreProcessor().process(repository);
   }
 
   @Test
@@ -85,7 +85,7 @@ class TemporalRdfEnricherTest {
   @Test
   void enrichmentShouldBeIdempotent() {
     long countBefore = countAllStatements();
-    new TemporalRdfEnricher().enrich(repository);
+    new TemporalRdfPreProcessor().process(repository);
     assertEquals(countBefore, countAllStatements());
   }
 

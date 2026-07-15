@@ -1,118 +1,3 @@
-<template>
-  <Page id="skinPublicDashboard">
-    <LoadingScreen v-if="loading" />
-    <div class="page-section padding-h-2" v-else-if="!loading && error">
-      <MessageBox type="error">
-        <p>Unable to retrieve data. {{ error }}</p>
-      </MessageBox>
-    </div>
-    <Dashboard
-      class="bg-blue-100"
-      :verticalPadding="0"
-      :horizontalPadding="2"
-      v-else
-    >
-      <DashboardRow :columns="1">
-        <DataValueHighlights
-          id="skinRegistryHighlights"
-          title="ERN Skin at a glance"
-          :data="highlightsData"
-        />
-      </DashboardRow>
-      <DashboardRow :columns="2">
-        <DashboardChart>
-          <GeoMercator
-            chartId="ernSkinOrganisationsMap"
-            title="Status of data by healthcare provider"
-            :geojson="WorldGeoJson"
-            :chartData="organisationsData"
-            rowId="code"
-            latitude="latitude"
-            longitude="longitude"
-            group="hasSubmittedData"
-            :mapCenter="{
-              latitude: 3,
-              longitude: 51,
-            }"
-            :pointRadius="6"
-            :groupColorMappings="{
-              'Not Submitted': '#F1FAEE',
-              Submitted: '#FFA69E',
-            }"
-            :legendData="{
-              'Not Submitted': '#F1FAEE',
-              Submitted: '#FFA69E',
-            }"
-            :mapColors="{
-              land: '#709190',
-              border: '#061428',
-              water: '#061428',
-            }"
-            :tooltipTemplate="
-              (row: IDataProviders) => {
-                return `
-              <p class='title'>
-                ${row.name}
-              </p>
-              <p class='center-info'>
-                ${row.providerIdentifier}
-              </p>
-              <p class='center-location'>
-                <span class='location-city'>${row.city}</span>
-                <span class='location-country'>${row.country}</span>
-              </p>
-              `;
-            }
-            "
-            :zoomLimits="[0.3, 10]"
-            :enableLegendClicks="true"
-            :chartHeight="440"
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <DataTable
-            tableId="registryPatientsByGroup"
-            caption=" Summary of patients enrolled by thematic disease group"
-            :data="patientsByGroupData"
-            :columnOrder="['thematic disease group', 'patients']"
-          />
-        </DashboardChart>
-      </DashboardRow>
-      <DashboardRow :columns="2">
-        <DashboardChart>
-          <ColumnChart
-            chartId="registryPatientsByAgeGroup"
-            title="Number of patients by age category"
-            :chartData="ageGroupData"
-            columnFill="#02818a"
-            xvar="category"
-            yvar="value"
-            xAxisLineBreaker=";"
-            :yMin="0"
-            :yMax="ageGroupAxis?.limit"
-            :yTickValues="ageGroupAxis?.ticks"
-            :chartHeight="225"
-            :chartMargins="{ top: 25, right: 2, bottom: 40, left: 25 }"
-            :columnPaddingInner="0.2"
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <PieChart2
-            chartId="registryPatientsBySexAtBirth"
-            title="Sex at birth"
-            :chartData="sexAtBirthData"
-            legendPosition="bottom"
-            :chartHeight="165"
-            :asDonutChart="true"
-            :enableLegendHovering="true"
-            :chartMargins="5"
-          />
-        </DashboardChart>
-      </DashboardRow>
-    </Dashboard>
-  </Page>
-</template>
-
 <script setup lang="ts">
 import { ref } from "vue";
 import {
@@ -245,3 +130,118 @@ loadData()
   .catch((err) => (error.value = err))
   .finally(() => (loading.value = false));
 </script>
+
+<template>
+  <Page id="skinPublicDashboard">
+    <LoadingScreen v-if="loading" />
+    <div class="page-section padding-h-2" v-else-if="!loading && error">
+      <MessageBox type="error">
+        <p>Unable to retrieve data. {{ error }}</p>
+      </MessageBox>
+    </div>
+    <Dashboard
+      class="bg-blue-100"
+      :verticalPadding="0"
+      :horizontalPadding="2"
+      v-else
+    >
+      <DashboardRow :columns="1">
+        <DataValueHighlights
+          id="skinRegistryHighlights"
+          title="ERN Skin at a glance"
+          :data="highlightsData"
+        />
+      </DashboardRow>
+      <DashboardRow :columns="2">
+        <DashboardChart>
+          <GeoMercator
+            chartId="ernSkinOrganisationsMap"
+            title="Status of data by healthcare provider"
+            :geojson="WorldGeoJson"
+            :chartData="organisationsData"
+            rowId="code"
+            latitude="latitude"
+            longitude="longitude"
+            group="hasSubmittedData"
+            :mapCenter="{
+              latitude: 3,
+              longitude: 51,
+            }"
+            :pointRadius="6"
+            :groupColorMappings="{
+              'Not Submitted': '#F1FAEE',
+              Submitted: '#FFA69E',
+            }"
+            :legendData="{
+              'Not Submitted': '#F1FAEE',
+              Submitted: '#FFA69E',
+            }"
+            :mapColors="{
+              land: '#709190',
+              border: '#061428',
+              water: '#061428',
+            }"
+            :tooltipTemplate="
+              (row: IDataProviders) => {
+                return `
+              <p class='title'>
+                ${row.name}
+              </p>
+              <p class='center-info'>
+                ${row.providerIdentifier}
+              </p>
+              <p class='center-location'>
+                <span class='location-city'>${row.city}</span>
+                <span class='location-country'>${row.country}</span>
+              </p>
+              `;
+            }
+            "
+            :zoomLimits="[0.3, 10]"
+            :enableLegendClicks="true"
+            :chartHeight="440"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <DataTable
+            tableId="registryPatientsByGroup"
+            caption=" Summary of patients enrolled by thematic disease group"
+            :data="patientsByGroupData"
+            :columnOrder="['thematic disease group', 'patients']"
+          />
+        </DashboardChart>
+      </DashboardRow>
+      <DashboardRow :columns="2">
+        <DashboardChart>
+          <ColumnChart
+            chartId="registryPatientsByAgeGroup"
+            title="Number of patients by age category"
+            :chartData="ageGroupData"
+            columnFill="#02818a"
+            xvar="category"
+            yvar="value"
+            xAxisLineBreaker=";"
+            :yMin="0"
+            :yMax="ageGroupAxis?.limit"
+            :yTickValues="ageGroupAxis?.ticks"
+            :chartHeight="225"
+            :chartMargins="{ top: 25, right: 2, bottom: 40, left: 25 }"
+            :columnPaddingInner="0.2"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <PieChart2
+            chartId="registryPatientsBySexAtBirth"
+            title="Sex at birth"
+            :chartData="sexAtBirthData"
+            legendPosition="bottom"
+            :chartHeight="165"
+            :asDonutChart="true"
+            :enableLegendHovering="true"
+            :chartMargins="5"
+          />
+        </DashboardChart>
+      </DashboardRow>
+    </Dashboard>
+  </Page>
+</template>

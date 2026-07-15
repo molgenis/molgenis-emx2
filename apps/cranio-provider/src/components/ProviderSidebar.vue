@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Accordion } from "molgenis-viz";
+import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
+</script>
+
 <template>
   <aside class="sidebar">
     <h2>Dashboards</h2>
@@ -141,12 +147,6 @@
     </a>
   </aside>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Accordion } from "molgenis-viz";
-import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
-</script>
 
 <style lang="scss">
 .sidebar {

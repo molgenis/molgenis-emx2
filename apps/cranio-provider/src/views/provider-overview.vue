@@ -1,90 +1,3 @@
-<template>
-  <ProviderDashboard>
-    <DashboardRow :columns="1">
-      <DashboardChart id="provider-overview-welcome">
-        <h2 class="dashboard-title">
-          Welcome to <span>{{ organisation?.name }}'s</span> dashboard!
-        </h2>
-        <p>
-          Here you can view an overview of patients your centre has submitted to
-          the ERN Cranio registry and compare the results of your centre against
-          the entire registry. On the current page, you will find a snapshot of
-          your centre and the patients submitted as of today. All visualisations
-          are updated daily.
-        </p>
-      </DashboardChart>
-    </DashboardRow>
-    <DashboardRow :columns="1">
-      <DashboardChart
-        id="provider-overview-patients-submitted"
-        class="center-showcase"
-      >
-        <LoadingScreen v-if="loading" style="height: auto" />
-        <ValueShowcase
-          v-else
-          :title="(numberOfPatientsSubmitted?.chartTitle as string)"
-          :description="(patientsSubmittedByTime?.chartTitle as string)"
-        >
-          <template v-slot:icon>
-            <UserCircleIcon />
-          </template>
-        </ValueShowcase>
-      </DashboardChart>
-    </DashboardRow>
-    <DashboardRow :columns="1">
-      <DashboardChart id="provider-overview-patients-by-workstream">
-        <LoadingScreen v-if="loading" style="height: 215px" />
-        <MessageBox
-          v-else-if="!loading && numberOfPatientsSubmitted!.dataPoints![0].dataPointValue === 0"
-        >
-          <span>Not enough data to show chart</span>
-        </MessageBox>
-        <ColumnChart
-          v-else-if="patientsByWorkstreamChart"
-          :chartId="patientsByWorkstreamChart.chartId"
-          :title="patientsByWorkstreamChart.chartTitle"
-          :description="patientsByWorkstreamChart.chartSubtitle"
-          :chartData="patientsByWorkstreamChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
-          :xAxisLabel="patientsByWorkstreamChart.xAxisLabel"
-          :yAxisLabel="patientsByWorkstreamChart.yAxisLabel"
-          :yMin="0"
-          :yMax="patientsByWorkstreamChart.yAxisMaxValue"
-          :yTickValues="patientsByWorkstreamChart.yAxisTicks"
-          xAxisLineBreaker=" "
-          :columnColorPalette="patientsByWorkstreamPalette"
-          :chartHeight="300"
-          :chartMargins="{
-            top: patientsByWorkstreamChart.topMargin,
-            right: patientsByWorkstreamChart.rightMargin,
-            bottom: patientsByWorkstreamChart.bottomMargin,
-            left: patientsByWorkstreamChart.leftMargin,
-          }"
-          :enableClicks="true"
-          @columnClicked="updateSexByWorkstream"
-        />
-      </DashboardChart>
-      <DashboardChart v-if="selectedWorkstream" style="min-height: 200px">
-        <PieChart2
-          :chartId="sexByWorkstreamChart?.chartId"
-          :title="`${sexByWorkstreamChart?.chartTitle} for ${selectedWorkstream.dataPointName} patients`"
-          :description="sexByWorkstreamChart?.chartSubtitle"
-          :chartData="sexByWorkstreamChartData"
-          :chartColors="sexByWorkstreamPalette"
-          :valuesArePercents="false"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :enableClicks="true"
-          :chartHeight="200"
-          :chartScale="0.9"
-        />
-      </DashboardChart>
-    </DashboardRow>
-  </ProviderDashboard>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { UserCircleIcon } from "@heroicons/vue/24/outline";
@@ -230,3 +143,90 @@ onMounted(() => {
     .finally(() => (loading.value = false));
 });
 </script>
+
+<template>
+  <ProviderDashboard>
+    <DashboardRow :columns="1">
+      <DashboardChart id="provider-overview-welcome">
+        <h2 class="dashboard-title">
+          Welcome to <span>{{ organisation?.name }}'s</span> dashboard!
+        </h2>
+        <p>
+          Here you can view an overview of patients your centre has submitted to
+          the ERN Cranio registry and compare the results of your centre against
+          the entire registry. On the current page, you will find a snapshot of
+          your centre and the patients submitted as of today. All visualisations
+          are updated daily.
+        </p>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart
+        id="provider-overview-patients-submitted"
+        class="center-showcase"
+      >
+        <LoadingScreen v-if="loading" style="height: auto" />
+        <ValueShowcase
+          v-else
+          :title="(numberOfPatientsSubmitted?.chartTitle as string)"
+          :description="(patientsSubmittedByTime?.chartTitle as string)"
+        >
+          <template v-slot:icon>
+            <UserCircleIcon />
+          </template>
+        </ValueShowcase>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart id="provider-overview-patients-by-workstream">
+        <LoadingScreen v-if="loading" style="height: 215px" />
+        <MessageBox
+          v-else-if="!loading && numberOfPatientsSubmitted!.dataPoints![0].dataPointValue === 0"
+        >
+          <span>Not enough data to show chart</span>
+        </MessageBox>
+        <ColumnChart
+          v-else-if="patientsByWorkstreamChart"
+          :chartId="patientsByWorkstreamChart.chartId"
+          :title="patientsByWorkstreamChart.chartTitle"
+          :description="patientsByWorkstreamChart.chartSubtitle"
+          :chartData="patientsByWorkstreamChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="patientsByWorkstreamChart.xAxisLabel"
+          :yAxisLabel="patientsByWorkstreamChart.yAxisLabel"
+          :yMin="0"
+          :yMax="patientsByWorkstreamChart.yAxisMaxValue"
+          :yTickValues="patientsByWorkstreamChart.yAxisTicks"
+          xAxisLineBreaker=" "
+          :columnColorPalette="patientsByWorkstreamPalette"
+          :chartHeight="300"
+          :chartMargins="{
+            top: patientsByWorkstreamChart.topMargin,
+            right: patientsByWorkstreamChart.rightMargin,
+            bottom: patientsByWorkstreamChart.bottomMargin,
+            left: patientsByWorkstreamChart.leftMargin,
+          }"
+          :enableClicks="true"
+          @columnClicked="updateSexByWorkstream"
+        />
+      </DashboardChart>
+      <DashboardChart v-if="selectedWorkstream" style="min-height: 200px">
+        <PieChart2
+          :chartId="sexByWorkstreamChart?.chartId"
+          :title="`${sexByWorkstreamChart?.chartTitle} for ${selectedWorkstream.dataPointName} patients`"
+          :description="sexByWorkstreamChart?.chartSubtitle"
+          :chartData="sexByWorkstreamChartData"
+          :chartColors="sexByWorkstreamPalette"
+          :valuesArePercents="false"
+          :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :enableClicks="true"
+          :chartHeight="200"
+          :chartScale="0.9"
+        />
+      </DashboardChart>
+    </DashboardRow>
+  </ProviderDashboard>
+</template>

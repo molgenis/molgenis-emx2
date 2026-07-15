@@ -1,83 +1,3 @@
-<template>
-  <ProviderDashboard>
-    <h2 class="dashboard-h2">Overview of Cleft lip and palate patients</h2>
-    <DashboardRow :columns="1">
-      <DashboardChart id="clp-patients-by-phenotype">
-        <LoadingScreen v-if="loading" style="height: 250px" />
-        <ColumnChart
-          v-else
-          :chartId="patientsByPhenotypeChart?.chartId"
-          :title="patientsByPhenotypeChart?.chartTitle"
-          :description="patientsByPhenotypeChart?.chartSubtitle"
-          :chartData="patientsByPhenotypeChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
-          :xAxisLabel="patientsByPhenotypeChart?.xAxisLabel"
-          :yAxisLabel="patientsByPhenotypeChart?.yAxisLabel"
-          :yMin="0"
-          :yMax="patientsByPhenotypeChart?.yAxisMaxValue"
-          :yTickValues="patientsByPhenotypeChart?.yAxisTicks"
-          :columnColorPalette="patientsByPhenotypePalette"
-          columnHoverFill="#708fb4"
-          :chartHeight="250"
-          :chartMargins="{
-            top: patientsByPhenotypeChart?.topMargin,
-            right: patientsByPhenotypeChart?.rightMargin,
-            bottom: patientsByPhenotypeChart?.bottomMargin,
-            left: patientsByPhenotypeChart?.leftMargin,
-          }"
-        />
-      </DashboardChart>
-    </DashboardRow>
-    <LoadingBlock :loading="loading">
-      <h2 class="dashboard-h2">
-        Overview of {{ selectedCleftType }} patients (n={{
-          selectedCleftTypePatients
-        }})
-      </h2>
-    </LoadingBlock>
-    <DashboardRow :columns="1">
-      <DashboardChart>
-        <h3 class="visually-hidden">Options</h3>
-        <InputLabel
-          id="clpYourCentreOverviewFilter"
-          label="Select cleft type"
-        />
-        <select
-          class="inputs select"
-          id="clpYourCentreOverviewFilter"
-          v-model="selectedCleftType"
-          @change="updateCharts"
-        >
-          <option v-for="cleftType in cleftTypeOptions" :value="cleftType">
-            {{ cleftType }}
-          </option>
-        </select>
-      </DashboardChart>
-    </DashboardRow>
-    <DashboardRow :columns="1">
-      <DashboardChart>
-        <LoadingScreen v-if="loading" style="height: 250px" />
-        <PieChart2
-          v-else
-          :chartId="patientsByGenderChart?.chartId"
-          :title="patientsByGenderChart?.chartTitle"
-          :description="patientsByGenderChart?.chartSubtitle"
-          :chartData="patientsByGenderChartData"
-          :chartColors="patientsByGenderPalette"
-          :valuesArePercents="false"
-          :asDonutChart="true"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :enableClicks="true"
-          :chartHeight="215"
-          :chartScale="0.85"
-        />
-      </DashboardChart>
-    </DashboardRow>
-  </ProviderDashboard>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import {
@@ -205,3 +125,83 @@ onMounted(() => {
     });
 });
 </script>
+
+<template>
+  <ProviderDashboard>
+    <h2 class="dashboard-h2">Overview of Cleft lip and palate patients</h2>
+    <DashboardRow :columns="1">
+      <DashboardChart id="clp-patients-by-phenotype">
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <ColumnChart
+          v-else
+          :chartId="patientsByPhenotypeChart?.chartId"
+          :title="patientsByPhenotypeChart?.chartTitle"
+          :description="patientsByPhenotypeChart?.chartSubtitle"
+          :chartData="patientsByPhenotypeChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="patientsByPhenotypeChart?.xAxisLabel"
+          :yAxisLabel="patientsByPhenotypeChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="patientsByPhenotypeChart?.yAxisMaxValue"
+          :yTickValues="patientsByPhenotypeChart?.yAxisTicks"
+          :columnColorPalette="patientsByPhenotypePalette"
+          columnHoverFill="#708fb4"
+          :chartHeight="250"
+          :chartMargins="{
+            top: patientsByPhenotypeChart?.topMargin,
+            right: patientsByPhenotypeChart?.rightMargin,
+            bottom: patientsByPhenotypeChart?.bottomMargin,
+            left: patientsByPhenotypeChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <LoadingBlock :loading="loading">
+      <h2 class="dashboard-h2">
+        Overview of {{ selectedCleftType }} patients (n={{
+          selectedCleftTypePatients
+        }})
+      </h2>
+    </LoadingBlock>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <h3 class="visually-hidden">Options</h3>
+        <InputLabel
+          id="clpYourCentreOverviewFilter"
+          label="Select cleft type"
+        />
+        <select
+          class="inputs select"
+          id="clpYourCentreOverviewFilter"
+          v-model="selectedCleftType"
+          @change="updateCharts"
+        >
+          <option v-for="cleftType in cleftTypeOptions" :value="cleftType">
+            {{ cleftType }}
+          </option>
+        </select>
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <PieChart2
+          v-else
+          :chartId="patientsByGenderChart?.chartId"
+          :title="patientsByGenderChart?.chartTitle"
+          :description="patientsByGenderChart?.chartSubtitle"
+          :chartData="patientsByGenderChartData"
+          :chartColors="patientsByGenderPalette"
+          :valuesArePercents="false"
+          :asDonutChart="true"
+          :enableLegendHovering="true"
+          legendPosition="bottom"
+          :enableClicks="true"
+          :chartHeight="215"
+          :chartScale="0.85"
+        />
+      </DashboardChart>
+    </DashboardRow>
+  </ProviderDashboard>
+</template>

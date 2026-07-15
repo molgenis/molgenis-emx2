@@ -1,3 +1,12 @@
+<script setup lang="ts">
+// @ts-ignore
+import { PageFooter, UnorderedList } from "molgenis-viz";
+
+defineProps<{
+  publicSchema?: string;
+}>();
+</script>
+
 <template>
   <PageFooter>
     <div class="footer-container width-full">
@@ -63,15 +72,6 @@
     </div>
   </PageFooter>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { PageFooter, UnorderedList } from "molgenis-viz";
-
-defineProps<{
-  publicSchema?: string;
-}>();
-</script>
 
 <style lang="scss">
 .page-footer {
