@@ -2,7 +2,6 @@ package org.molgenis.emx2;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -16,7 +15,7 @@ public class Semantic {
   // Matches with Strings like "urn:" & "urn:uuid:", but allows variations such as "urnamespace:"
   public static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
 
-  private final List<String> sequencePath;
+  private final String sequencePath;
 
   Semantic(String semantic) {
     if (!semantic.contains(":")) throw new MolgenisException("Invalid semantic: " + semantic);
@@ -30,10 +29,10 @@ public class Semantic {
       }
       if (isIllegalPrefix(semantic)) throw new MolgenisException("Invalid semantic: " + semantic);
     }
-    this.sequencePath = List.of((requireNonNull(semantic)));
+    this.sequencePath = requireNonNull(semantic);
   }
 
-  List<String> getSequencePath() {
+  String get() {
     return sequencePath;
   }
 

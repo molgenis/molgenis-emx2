@@ -80,8 +80,7 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
 
     for (final Value value : retrieveValues(rdfMapData, row, column)) {
       for (Semantic semantic : column.getSemantics()) {
-        IRI predicate =
-            table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
+        IRI predicate = table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic);
         getWriter().processTriple(subject, predicate, value);
       }
 

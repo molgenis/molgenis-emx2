@@ -71,7 +71,6 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
             .getSchema()
             .getSemanticPrefixes()
             .mapAsString(column.getSemantics()[0])
-            .getFirst()
             .transform(semanticString -> () -> semanticString);
     GraphPattern pattern = GraphPatterns.tp(subject, predicate, object);
 
@@ -90,7 +89,6 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
               .getSchema()
               .getSemanticPrefixes()
               .mapAsString(semantic)
-              .getFirst()
               .transform(semanticString -> () -> semanticString);
       GraphPattern pattern = GraphPatterns.tp(subject, predicate, alias).optional();
       semanticPatterns.add(pattern);

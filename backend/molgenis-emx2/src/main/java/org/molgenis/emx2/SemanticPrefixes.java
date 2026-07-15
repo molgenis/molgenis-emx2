@@ -135,18 +135,13 @@ public class SemanticPrefixes {
    * @return a {@link List}{@code <R>} with the parsed values
    * @param <R> the return type of {@code iriOperator} and {@code prefixedNameOperator}
    */
-  private <R> List<R> map(
+  private <R> R map(
       final Semantic semantic,
       final Function<String, R> iriOperator,
       final Function<String, R> prefixedNameOperator) {
-    return semantic.getSequencePath().stream()
-        .map(
-            sequencePathItem ->
-                sequencePathItem.startsWith("<")
-                    ? iriOperator.apply(
-                        sequencePathItem.substring(1, sequencePathItem.length() - 1))
-                    : prefixedNameOperator.apply(sequencePathItem))
-        .toList();
+    return semantic.get().startsWith("<")
+        ? iriOperator.apply(semantic.get().substring(1, semantic.get().length() - 1))
+        : prefixedNameOperator.apply(semantic.get());
   }
 
   private Namespace getNamespace(final String prefix) {
@@ -157,7 +152,7 @@ public class SemanticPrefixes {
   }
 
   /** Maps a semantic to a list of {@link IRI}{@code s} that represent a sequence path. */
-  public List<IRI> mapAsIri(final Semantic semantic) {
+  public IRI mapAsIri(final Semantic semantic) {
     return map(
         semantic,
         Values::iri,
@@ -168,7 +163,7 @@ public class SemanticPrefixes {
   }
 
   /** Maps a semantic to a list of {@link String}{@code s} that represent a sequence path. */
-  public List<String> mapAsString(final Semantic semantic) {
+  public String mapAsString(final Semantic semantic) {
     return map(
         semantic,
         "<%s>"::formatted,

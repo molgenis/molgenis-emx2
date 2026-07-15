@@ -91,12 +91,7 @@ public class TableQueryGenerator implements QueryGenerator {
             .map(
                 semantic ->
                     (RdfValue)
-                        () ->
-                            tableMetadata
-                                .getSchema()
-                                .getSemanticPrefixes()
-                                .mapAsString(semantic)
-                                .getFirst())
+                        () -> tableMetadata.getSchema().getSemanticPrefixes().mapAsString(semantic))
             .toArray(RdfValue[]::new);
 
     if (semantics.length == 1) {

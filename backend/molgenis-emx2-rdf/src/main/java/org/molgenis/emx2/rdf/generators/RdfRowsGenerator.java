@@ -43,8 +43,7 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
     if (!table.getMetadata().hasSemantics()) return;
 
     for (Semantic semantic : table.getMetadata().getSemantics()) {
-      IRI object =
-          table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic).getFirst();
+      IRI object = table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic);
       getWriter().processTriple(subject, RDF.TYPE, object);
     }
   }
