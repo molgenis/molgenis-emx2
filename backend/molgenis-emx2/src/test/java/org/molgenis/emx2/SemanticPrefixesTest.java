@@ -23,58 +23,22 @@ class SemanticPrefixesTest {
 
   @Test
   void testMapping() {
-    List<IRI> expectedIris =
-        List.of(
-            Values.iri("http://purl.org/dc/terms/temporal"),
-            Values.iri("http://www.w3.org/2006/time#hasBeginning"),
-            Values.iri("http://www.w3.org/2006/time#inXSDDate"));
+    IRI expectedIri = Values.iri("http://purl.org/dc/terms/temporal");
 
     assertAll(
         () ->
             assertEquals(
-                expectedIris,
-                prefixesSimple.mapAsIri(
-                    new Semantic(
-                        "<http://purl.org/dc/terms/temporal>/<http://www.w3.org/2006/time#hasBeginning>/<http://www.w3.org/2006/time#inXSDDate>"))),
-        () ->
-            assertEquals(
-                expectedIris,
-                prefixesSimple.mapAsIri(
-                    new Semantic(
-                        "dcterms:temporal/<http://www.w3.org/2006/time#hasBeginning>/time:inXSDDate"))),
-        () ->
-            assertEquals(
-                expectedIris,
-                prefixesWithEmpty.mapAsIri(
-                    new Semantic(
-                        "<http://purl.org/dc/terms/temporal>/:hasBeginning/<http://www.w3.org/2006/time#inXSDDate>"))),
-        () ->
-            assertThrows(
-                MolgenisException.class,
-                () ->
-                    prefixesWithEmpty.mapAsIri(
-                        new Semantic(
-                            "<http://purl.org/dc/terms/temporal>/time:hasBeginning/<http://www.w3.org/2006/time#inXSDDate>"))),
-        () ->
-            assertThrows(
-                MolgenisException.class,
-                () ->
-                    prefixesSimple.mapAsIri(
-                        new Semantic(
-                            "<http://purl.org/dc/terms/temporal>/:hasBeginning/<http://www.w3.org/2006/time#inXSDDate>"))));
+                expectedIri,
+                prefixesSimple.mapAsIri(new Semantic("<http://purl.org/dc/terms/temporal>"))),
+        () -> assertEquals(expectedIri, prefixesSimple.mapAsIri(new Semantic("dcterms:temporal"))));
   }
 
   @Test
   void testSemanticMappingString() {
     // As most logic is shared with mapAsIri, only validate the output format.
     assertEquals(
-        List.of(
-            "<http://purl.org/dc/terms/temporal>",
-            "time:hasBeginning",
-            "<http://www.w3.org/2006/time#inXSDDate>"),
-        prefixesSimple.mapAsString(
-            new Semantic(
-                "<http://purl.org/dc/terms/temporal>/time:hasBeginning/<http://www.w3.org/2006/time#inXSDDate>")));
+        "<http://purl.org/dc/terms/temporal>",
+        prefixesSimple.mapAsString(new Semantic("<http://purl.org/dc/terms/temporal>")));
   }
 
   @Test
