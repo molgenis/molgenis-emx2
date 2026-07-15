@@ -105,6 +105,7 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import {
   ITableMetaData,
@@ -140,7 +141,7 @@ export default {
       selection: deepClone(this.modelValue),
       count: 0,
       tableMetadata: null as null | ITableMetaData,
-      tablePermission: undefined as undefined | ITablePermission,
+      tablePermission: undefined as ITablePermission | undefined,
       loading: false,
     };
   },
@@ -177,7 +178,7 @@ export default {
       default: () => false,
     },
     tablePermissions: {
-      type: Array,
+      type: Array as PropType<ITablePermission[]>,
       required: false,
       default: () => [],
     },
@@ -278,7 +279,7 @@ export default {
       this.tablePermission = await resolveTablePermission(
         this.schemaId,
         this.tableId,
-        this.tablePermissions as ITablePermission[]
+        this.tablePermissions
       );
     },
   },
