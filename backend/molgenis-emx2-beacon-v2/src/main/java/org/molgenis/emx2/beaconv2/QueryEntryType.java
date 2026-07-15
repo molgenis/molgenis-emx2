@@ -149,10 +149,7 @@ public class QueryEntryType {
             .orElseGet(
                 () ->
                     Parser.compileResource(
-                        "entry-types/"
-                            + "entry-types/"
-                            + entryType.getName().toLowerCase()
-                            + ".jslt"));
+                        "entry-types/" + entryType.getName().toLowerCase() + ".jslt"));
     ;
 
     ObjectNode jsltResponse = (ObjectNode) jslt.apply(response);
