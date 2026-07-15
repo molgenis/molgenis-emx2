@@ -2,111 +2,54 @@ package org.molgenis.emx2;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
- * Represents a semantic field and splits up a sequence path into its individual components.
- * Examples of allowed semantic fields are:
+ * Represents a semantic field and stores it in a list of 1 element. Full IRI's are surrounded by a
+ * {@code <} and {@code >}, while a prefixed name is simply {@code prefix:localName}.
  *
- * <ul>
- *   <li>
- *       <pre><code><http://example.com/first>/<http://example.com/second></code></pre>
- *   <li>
- *       <pre><code>myPrefix:first/myPrefix:second</code></pre>
- *   <li>
- *       <pre><code><http://example.com/first>/myPrefix:second</code></pre>
- * </ul>
- *
- * A {@link Semantic} object should be processed by a {@link SchemaMetadata}-specific {@link
+ * <p>A {@link Semantic} object should be processed by a {@link SchemaMetadata}-specific {@link
  * SemanticPrefixes} to ensure the correct prefixes are applied before further usage.
  */
 public class Semantic {
+  // Matches with Strings like "urn:" & "urn:uuid:", but allows variations such as "urnamespace:"
+  public static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
+
   private final List<String> sequencePath;
 
   Semantic(String semantic) {
-    this.sequencePath = split(requireNonNull(semantic));
+    if (!semantic.contains(":")) throw new MolgenisException("Invalid semantic: " + semantic);
+    if (semantic.startsWith("<")) {
+      if (!semantic.endsWith(">")) {
+        throw new MolgenisException("Invalid semantic IRI: " + semantic);
+      }
+    } else {
+      if (semantic.substring(semantic.indexOf(':') + 1).isEmpty()) {
+        throw new MolgenisException("Prefixed name misses local part: " + semantic);
+      }
+      if (isIllegalPrefix(semantic)) throw new MolgenisException("Invalid semantic: " + semantic);
+    }
+    this.sequencePath = List.of((requireNonNull(semantic)));
   }
 
   List<String> getSequencePath() {
     return sequencePath;
   }
 
-  private List<String> split(final String semantic) {
-    List<String> processedPath = new ArrayList<>();
-
-    int sequenceItemStart = 0;
-    boolean foundIri = false;
-    int length = semantic.length();
-    for (int i = 0; i < length; i++) {
-      char curChar = semantic.charAt(i);
-
-      switch (curChar) {
-        case '<' -> {
-          if (foundIri)
-            throw new MolgenisException(
-                "Found new IRI opening bracket ('<') before previous IRI was closed: " + semantic);
-          foundIri = true;
-        }
-        case '>' -> {
-          if (!foundIri)
-            throw new MolgenisException(
-                "IRI closing bracket ('>') without opening bracket ('<'): " + semantic);
-          if (i + 1 != length && semantic.charAt(i + 1) != '/')
-            throw new MolgenisException(
-                "Missing sequence path separator ('/') after IRI closing bracket ('>'): "
-                    + semantic);
-          processedPath.add(validateIri(semantic.substring(sequenceItemStart, i + 1)));
-          sequenceItemStart = i + 2;
-          i++;
-          foundIri = false;
-        }
-        case '/' -> {
-          if (!foundIri) {
-            if (semantic.charAt(i - 1) == ':') {
-              throw new MolgenisException(
-                  "Found '/' after ':' outside of brackets ('<' & '>'): " + semantic);
-            }
-            processedPath.add(validatePrefixedName(semantic.substring(sequenceItemStart, i)));
-            sequenceItemStart = i + 1;
-          }
-        }
-        default -> {}
-      }
-    }
-    // Ensure last item is processed
-    if (semantic.charAt(length - 1) != '>') {
-      if (foundIri) {
-        throw new MolgenisException(
-            "Invalid semantic: Missing closing bracket ('>') for opening bracket ('<').");
-      } else {
-        processedPath.add(validatePrefixedName(semantic.substring(sequenceItemStart, length)));
-      }
-    }
-
-    return processedPath;
+  /**
+   * @param semantic a prefixed name as defined <a
+   *     href="https://www.w3.org/TR/turtle/#prefixed-name">here</a>
+   */
+  public static boolean hasIllegalPrefix(String semantic) {
+    return ILLEGAL_PREFIX.matcher(semantic).find();
   }
 
   /**
-   * Check if IRI is valid similar to RDF4J's SimpleIRI
-   *
-   * @see org.eclipse.rdf4j.model.impl.SimpleIRI
+   * @param prefix the prefix WITHOUT ':' or anything after that
    */
-  private String validateIri(final String semanticPart) {
-    if (semanticPart.substring(1, semanticPart.length() - 1).indexOf(':') < 0)
-      throw new MolgenisException("Found malformed IRI:" + semanticPart);
-    return semanticPart;
-  }
-
-  /** Only validates formatting, not whether the used prefix is valid. */
-  private String validatePrefixedName(final String semanticPart) {
-    String[] prefixedNameSplit = semanticPart.split(":");
-    if (prefixedNameSplit.length != 2)
-      throw new MolgenisException(
-          "Could not split prefixed name into prefix label & local part: " + semanticPart);
-    if (prefixedNameSplit[1].isEmpty())
-      throw new MolgenisException("Local part of prefixed name must not be empty: " + semanticPart);
-    return semanticPart;
+  public static boolean isIllegalPrefix(String prefix) {
+    return hasIllegalPrefix(prefix + ':');
   }
 
   /**
