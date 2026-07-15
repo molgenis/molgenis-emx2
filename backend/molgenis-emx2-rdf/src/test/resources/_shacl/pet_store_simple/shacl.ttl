@@ -1,4 +1,4 @@
-@prefix PetStoreNr1: <http://localhost:8080/petStoreNr1/api/rdf/> .
+@prefix PetStoreTest: <http://localhost:8080/PetStoreTest/api/rdf/> .
 @prefix schema: <http://schema.org/> .
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -7,7 +7,7 @@ schema:UserShape
     a sh:NodeShape ;
     sh:targetClass foaf:Person ;
     sh:property [
-        sh:path <http://localhost:8080/petStoreNr1/api/rdf/User/column/username> ;
+        sh:path <http://localhost:8080/PetStoreTest/api/rdf/User/column/username> ;
         sh:datatype xsd:string ;
         sh:name "username" ;
         sh:minCount 1 ;
