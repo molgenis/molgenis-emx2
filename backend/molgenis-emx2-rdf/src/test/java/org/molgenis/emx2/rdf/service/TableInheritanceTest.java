@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.integration;
+package org.molgenis.emx2.rdf.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;

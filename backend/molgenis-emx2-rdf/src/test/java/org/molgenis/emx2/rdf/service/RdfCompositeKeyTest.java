@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.integration;
+package org.molgenis.emx2.rdf.service;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
