@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.SETTING_SEMANTIC_PREFIXES;
+import static org.molgenis.emx2.Semantic.isIllegalPrefix;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -64,6 +65,9 @@ public class SemanticPrefixes {
             Namespace namespace =
                 Values.namespace(
                     i.get(SEMANTIC_PREFIXES_NAME_PREFIX), i.get(SEMANTIC_PREFIXES_NAME_IRI));
+            if (isIllegalPrefix(namespace.getPrefix()))
+              throw new MolgenisException(
+                  "semantic_prefixes contains an illegal prefix (http/https/urn/tag not allowed).");
             try {
               Values.iri(namespace, "test");
             } catch (Exception e) {

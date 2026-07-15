@@ -45,9 +45,11 @@ public class Semantic {
   }
 
   /**
-   * @param prefix the prefix WITHOUT ':' or anything after that
+   * @param prefix the prefix WITHOUT ':' or anything after that. While needed in {@link
+   *     SemanticPrefixes}, it will be deprecated right away so not worth creating Utils class (only
+   *     exists due to splitting up sequence path into separate PR).
    */
-  private static boolean isIllegalPrefix(String prefix) {
+  static boolean isIllegalPrefix(String prefix) {
     return hasIllegalPrefix(prefix + ':');
   }
 
