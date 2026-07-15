@@ -194,10 +194,10 @@ public class Migrations {
           if (version < 32) {
             executeMigrationFile(tdb, "migration31.sql", "add mg_generate_autoid function");
           }
-          if (version < 33) {
+          if (version < 34) {
             executeMigrationFile(
                 tdb,
-                "migration32.sql",
+                "migration33.sql",
                 "changed semantic field to store SPARQL-like sequence path");
           }
 
