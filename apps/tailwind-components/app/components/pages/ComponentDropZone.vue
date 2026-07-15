@@ -99,7 +99,7 @@ async function addComponentToBlock() {
             'border-dashed': !hover,
             'bg-dashboard-dropzone-hover': hover,
           }"
-          class="border-button-primary rounded-lg overflow-hidden flex items-center justify-center bg-dashboard-dropzone text-center"
+          class="border-button-primary rounded-lg overflow-hidden flex items-center justify-center bg-dashboard-dropzone text-center shadow-dashboard-palette"
           :style="{ height: distance + 'px' }"
         >
           <p class="text-title-contrast pointer-events-none">
