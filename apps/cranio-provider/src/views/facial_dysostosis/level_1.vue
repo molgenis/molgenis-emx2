@@ -4,7 +4,7 @@ import LevelTemplate from "../../components/LevelTemplate.vue";
 
 import { getDashboardChart } from "../../../../metadata-utils/src/viz/getUiDashboardCharts";
 import type { IChartData } from "../../../../metadata-utils/src/viz/UiDashboard.js";
-import type { IAppPage } from "../../types/app.js";
+import type { IAppPage } from "../../types";
 
 const props = defineProps<IAppPage>();
 const siteCfm = ref<IChartData>();

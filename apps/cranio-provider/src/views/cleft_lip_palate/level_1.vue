@@ -7,8 +7,7 @@ import type {
   ICharts,
   IChartData,
 } from "../../../../metadata-utils/src/viz/UiDashboard.js";
-import type { IAppPage } from "../../types/app";
-import type { ISiteErnCleftTypeCounts } from "../../types/index";
+import type { IAppPage, ISiteErnCleftTypeCounts } from "../../types";
 
 const props = defineProps<IAppPage>();
 const patientsByCleftType = ref<ISiteErnCleftTypeCounts>({

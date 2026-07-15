@@ -1,4 +1,3 @@
-// import type { IChartData } from "../types/schema";
 import type { IChartData } from "../../../metadata-utils/src/viz/UiDashboard";
 import type { IValueLabel } from "../types";
 

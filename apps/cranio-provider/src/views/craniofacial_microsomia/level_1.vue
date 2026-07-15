@@ -3,9 +3,8 @@ import { ref, computed } from "vue";
 import LevelTemplate from "../../components/LevelTemplate.vue";
 
 import { getDashboardChart } from "../../../../metadata-utils/src/viz/getUiDashboardCharts.js";
-
 import { IChartData } from "../../../../metadata-utils/src/viz/UiDashboard";
-import type { IAppPage } from "../../types/app.js";
+import type { IAppPage } from "../../types";
 
 const props = defineProps<IAppPage>();
 const siteCfm = ref<IChartData>();

@@ -19,8 +19,7 @@ import type {
   ICharts,
   IChartData,
 } from "../../../../../metadata-utils/src/viz/UiDashboard";
-import type { IKeyValuePair } from "../../../types";
-import type { IAppPage } from "../../../types/app";
+import type { IAppPage, IKeyValuePair } from "../../../types";
 
 const props = defineProps<IAppPage>();
 const loading = ref<boolean>(true);

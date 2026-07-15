@@ -11,7 +11,7 @@ import type {
   IDashboardPages,
   ICharts,
 } from "../../../metadata-utils/src/viz/UiDashboard";
-import type { IAppPage } from "../types/app";
+import type { IAppPage } from "../types";
 import type { ISiteErnCleftTypeCounts } from "../types/index.js";
 
 interface LevelTemplateProps {

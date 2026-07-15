@@ -22,7 +22,7 @@ import type {
   ICharts,
   IChartData,
 } from "../../../../metadata-utils/src/viz/UiDashboard.js";
-import type { IAppPage } from "../../types/app";
+import type { IAppPage } from "../../types";
 
 const props = defineProps<IAppPage>();
 const loading = ref<boolean>(true);

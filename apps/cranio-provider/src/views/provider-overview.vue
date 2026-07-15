@@ -24,10 +24,9 @@ import type {
   ICharts,
   IChartData,
 } from "../../../metadata-utils/src/viz/UiDashboard.js";
-import type { IAppPage } from "../types/app";
-import type { IKeyValuePair } from "../types/index.js";
-const props = defineProps<IAppPage>();
+import type { IAppPage, IKeyValuePair } from "../types";
 
+const props = defineProps<IAppPage>();
 const loading = ref<boolean>(true);
 const numberOfPatientsSubmitted = ref<ICharts>();
 const patientsSubmittedByTime = ref<ICharts>();
