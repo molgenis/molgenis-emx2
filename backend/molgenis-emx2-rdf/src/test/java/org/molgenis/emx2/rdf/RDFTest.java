@@ -1395,8 +1395,9 @@ public class RDFTest {
 
     try {
       Schema schema = database.dropCreateSchema("PrefixesIllegalPrefix");
-      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
+      assertThrows(
+          MolgenisException.class,
+          () -> schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes));
     } finally {
       database.dropSchemaIfExists("PrefixesIllegalPrefix");
     }
