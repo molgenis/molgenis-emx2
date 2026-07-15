@@ -1,205 +1,188 @@
-@prefix access:          <http://publications.europa.eu/resource/authority/access-right/> .
-@prefix adms:            <http://www.w3.org/ns/adms#> .
-@prefix availability:    <http://publications.europa.eu/resource/authority/planned-availability/> .
-@prefix corp:            <http://publications.europa.eu/resource/authority/corporate-body/> .
-@prefix country:         <http://publications.europa.eu/resource/authority/country/> .
-@prefix csvw:            <http://www.w3.org/ns/csvw#> .
-@prefix dataset-type:    <http://publications.europa.eu/resource/authority/dataset-type/> .
-@prefix dcat:            <http://www.w3.org/ns/dcat#> .
-@prefix dcatap:          <http://data.europa.eu/r5r/> .
-@prefix dct:             <http://purl.org/dc/terms/> .
-@prefix dpv:             <https://w3id.org/dpv#> .
-@prefix dpv-pd:          <https://w3id.org/dpv/dpv-pd#> .
-@prefix dqv:             <http://www.w3.org/ns/dqv#> .
-@prefix eli:             <http://data.europa.eu/eli/ontology#> .
-@prefix file:            <http://publications.europa.eu/resource/authority/file-type/> .
-@prefix foaf:            <http://xmlns.com/foaf/0.1/> .
-@prefix frequency:       <http://publications.europa.eu/resource/authority/frequency/> .
-@prefix health-activity: <http://13.81.34.152:1101/resource/authority/health-activity/> .
-@prefix health-cat:      <http://13.81.34.152:1101/resource/authority/healthcategories/> .
-@prefix health-theme:    <http://13.81.34.152:1101/resource/authority/health-theme/> .
-@prefix healthdcatap:    <http://healthdataportal.eu/ns/health#> .
-@prefix lang:            <http://publications.europa.eu/resource/authority/language/> .
-@prefix prov:            <http://www.w3.org/ns/prov#> .
-@prefix rdf:             <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs:            <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix skos:            <http://www.w3.org/2004/02/skos/core#> .
-@prefix theme:           <http://publications.europa.eu/resource/authority/data-theme/> .
-@prefix vcard:           <http://www.w3.org/2006/vcard/ns#> .
-@prefix xsd:             <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
 
-health-activity:OBSERVATIONAL_DATA
-        rdf:type  prov:Activity .
+<http://publications.europa.eu/resource/authority/country/TUR> a dcterms:Location .
 
-health-activity:EHEALTH_APPLICATION
-        rdf:type  prov:Activity .
+<https://www.srdc.com.tr/en/> a foaf:Document .
 
-health-cat:EHRS  rdf:type  skos:Concept;
-        skos:prefLabel  "LIFECOURSE_HEALTH" .
+<http://publications.europa.eu/resource/authority/language/ENG> a dcterms:LinguisticSystem .
 
-<https://www.wikidata.org/entity/Q19597236>
-        rdf:type  dct:Standard .
+<https://eur-lex.europa.eu/eli/reg/2025/327/oj> a <http://data.europa.eu/eli/ontology#LegalResource> .
 
-access:PUBLIC  rdf:type  dct:RightsStatement;
-        rdfs:label  "PUBLIC" .
+<https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9>
+  a dcat:Resource, dcat:Dataset;
+  <http://www.w3.org/2000/01/rdf-schema#label> "Abacus FHIR Dataset Analytics";
+  dcterms:title "Abacus FHIR Dataset";
+  dcterms:description "FHIR-based health dataset from the Abacus study, combining structured clinical observations and questionnaire responses. Includes cognitive assessments (Stroop, Digit Span, PVT, Spatial Memory, Word Recall, PaSMO), fall reports, daily routines, body metrics, GPS activity data, and Life-Space Mobility (LSM) questionnaires.";
+  dcat:version "1.0.0";
+  dcterms:publisher [ a foaf:Agent;
+      dcterms:description "The publisher provides this dataset metadata without warranties of any kind.";
+      foaf:name "SRDC Software Research & Development and Consultancy Corp.";
+      dcat:contactPoint [ a <http://www.w3.org/2006/vcard/ns#Kind>;
+          <http://www.w3.org/2006/vcard/ns#hasEmail> <mailto:info@srdc.com.tr>;
+          <http://www.w3.org/2006/vcard/ns#hasURL> <https://www.srdc.com.tr/contact/>;
+          foaf:firstName "foo";
+          foaf:familyName "bar"
+        ];
+      <http://healthdataportal.eu/ns/health#trustedDataHolder> true;
+      dcterms:type <http://publications.europa.eu/resource/authority/corporate-body/EUI>
+    ];
+  dcat:contactPoint [ a <http://www.w3.org/2006/vcard/ns#Kind>;
+      <http://www.w3.org/2006/vcard/ns#hasEmail> <mailto:info@srdc.com.tr>;
+      <http://www.w3.org/2006/vcard/ns#hasURL> <https://www.srdc.com.tr/contact/>
+    ];
+  <https://w3id.org/fdp/fdp-o#metadataIdentifier> <https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9#identifier>;
+  dcterms:identifier "https://www.srdc.com.tr/abacus/fhir-dataset"^^xsd:anyURI;
+  dcterms:language <http://publications.europa.eu/resource/authority/language/ENG>;
+  dcterms:license <http://purl.org/NET/rdflicense/cc-zero1.0>;
+  dcterms:accessRights <http://publications.europa.eu/resource/authority/access-right/PUBLIC>;
+  <http://semanticscience.org/resource/SIO_000628> <https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9/metrics/445c0a70d1e214e545b261559e2842f4>,
+    <https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9/metrics/5d27e854a9e78eb3f663331cd47cdc13>;
+  <https://w3id.org/fdp/fdp-o#metadataIssued> "2026-04-30T07:24:32.818291662Z"^^xsd:dateTime;
+  <https://w3id.org/fdp/fdp-o#metadataModified> "2026-04-30T07:24:34.072898909Z"^^xsd:dateTime;
+  dcterms:isPartOf <https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded>;
+  dcterms:issued "2026-01-01"^^xsd:date;
+  dcterms:modified "2026-04-30"^^xsd:date;
+  dcat:theme <http://publications.europa.eu/resource/authority/data-theme/HEAL>;
+  dcat:keyword "questionnaire responses", "clinical observations", "fhir", "health data",
+    "cognitive assessment", "gps", "pvt", "abacus", "stroop test", "digit span", "fall report",
+    "healthy aging", "life-space mobility";
+  dcat:distribution <https://kroniq.srdc.com.tr/stage-fdp-api/distribution/62b0a1ca-fc45-4826-b0f6-110b02db29df>;
+  dcterms:conformsTo <https://www.wikidata.org/entity/Q19597236>, <https://kroniq.srdc.com.tr/stage-fdp-api/profile/2f08228e-1789-40f8-84cd-28e3288c3604>;
+  <http://data.europa.eu/r5r/applicableLegislation> <https://eur-lex.europa.eu/eli/reg/2025/327/oj>;
+  dcterms:creator [ a foaf:Agent;
+      foaf:name "SRDC Software Research & Development and Consultancy Corp.";
+      <http://www.w3.org/2006/vcard/ns#hasEmail> <mailto:info@srdc.com.tr>
+    ];
+  dcterms:spatial <http://publications.europa.eu/resource/authority/country/TUR>;
+  dcterms:temporal [ a dcterms:PeriodOfTime;
+      dcat:endDate "2026-03-31"^^xsd:date;
+      dcat:startDate "2026-03-31"^^xsd:date
+    ];
+  <http://healthdataportal.eu/ns/health#hasCodeValues> [ a <http://www.w3.org/2004/02/skos/core#Concept>;
+      <http://www.w3.org/2004/02/skos/core#prefLabel> "Life-Space Mobility"@en;
+      <http://www.w3.org/2004/02/skos/core#inScheme> <http://stage-healthyaging.eu/fhir/ValueSet/questionnaire>;
+      <http://www.w3.org/2004/02/skos/core#notation> "lsm"
+    ], [ a <http://www.w3.org/2004/02/skos/core#Concept>;
+      <http://www.w3.org/2004/02/skos/core#prefLabel> "Fall Report"@en;
+      <http://www.w3.org/2004/02/skos/core#inScheme> <http://stage-healthyaging.eu/fhir/CodeSystem/observation-code>;
+      <http://www.w3.org/2004/02/skos/core#notation> "fall-report"
+    ], [ a <http://www.w3.org/2004/02/skos/core#Concept>;
+      <http://www.w3.org/2004/02/skos/core#prefLabel> "Waist Circumference"@en;
+      <http://www.w3.org/2004/02/skos/core#inScheme> <http://loinc.org>;
+      <http://www.w3.org/2004/02/skos/core#notation> "56086-2"
+    ], [ a <http://www.w3.org/2004/02/skos/core#Concept>;
+      <http://www.w3.org/2004/02/skos/core#prefLabel> "Stroop Test"@en;
+      <http://www.w3.org/2004/02/skos/core#inScheme> <http://stage-healthyaging.eu/fhir/CodeSystem/observation-code>;
+      <http://www.w3.org/2004/02/skos/core#notation> "stroop-test"
+    ];
+  <http://healthdataportal.eu/ns/health#hasCodingSystem> <http://stage-healthyaging.eu/fhir/ValueSet/questionnaire>,
+    <http://stage-healthyaging.eu/fhir/CodeSystem/observation-code>, <http://loinc.org>,
+    <http://unitsofmeasure.org>, <http://stage-healthyaging.eu/fhir/CodeSystem/spatial-memory-test-variables>,
+    <http://stage-healthyaging.eu/fhir/CodeSystem/stroop-test-variables>, <https://stage-healthyageing.eu/CodeSystem/fall-location>,
+    <https://stage-healthyageing.eu/CodeSystem/fall-report-code>, <https://stage-healthyageing.eu/CodeSystem/fall-type>,
+    <https://stage-healthyageing.eu/CodeSystem/activity-before-fall>, <https://stage-healthyageing.eu/CodeSystem/injury-severity>,
+    <http://stage-healthyaging.eu/fhir/CodeSystem/routine-event-code>, <http://stage-healthyaging.eu/fhir/CodeSystem/digit-span-assessment>,
+    <http://terminology.hl7.org/CodeSystem/observation-category>, <http://stage-healthyaging.eu/fhir/CodeSystem/word-list-recall>,
+    <https://stage-healthyageing.eu/CodeSystem/location-type>, <http://stage-healthy-aging.eu/fhir/CodeSystem/pvt-variables>,
+    <http://stage-healthyaging.eu/fhir/CodeSystem/pasmo>;
+  <http://healthdataportal.eu/ns/health#hdab> [ a foaf:Agent;
+      foaf:name "SRDC Software Research & Development and Consultancy Corp.";
+      dcat:contactPoint [ a <http://www.w3.org/2006/vcard/ns#Kind>;
+          <http://www.w3.org/2006/vcard/ns#hasEmail> <mailto:info@srdc.com.tr>;
+          <http://www.w3.org/2006/vcard/ns#hasURL> <https://www.srdc.com.tr/contact/>
+        ];
+      dcterms:type <http://publications.europa.eu/resource/authority/corporate-body/EUI>
+    ];
+  dcterms:type <http://publications.europa.eu/resource/authority/dataset-type/RELEASE>;
+  <http://healthdataportal.eu/ns/health#healthCategory> <http://13.81.34.152:1101/resource/authority/healthcategories/EHRS>;
+  <http://healthdataportal.eu/ns/health#healthTheme> <http://13.81.34.152:1101/resource/authority/health-theme/LIFECOURSE_HEALTH>;
+  <http://healthdataportal.eu/ns/health#maxTypicalAge> "66"^^xsd:nonNegativeInteger;
+  <http://healthdataportal.eu/ns/health#minTypicalAge> "66"^^xsd:nonNegativeInteger;
+  <http://healthdataportal.eu/ns/health#numberOfRecords> "1"^^xsd:nonNegativeInteger;
+  <http://healthdataportal.eu/ns/health#numberOfUniqueIndividuals> "1"^^xsd:nonNegativeInteger;
+  <http://healthdataportal.eu/ns/health#populationCoverage> "Adult (25-44 years), Middle-aged (45-64 years), Elderly (65+ years)";
+  <http://healthdataportal.eu/ns/health#retentionPeriod> [ a dcterms:PeriodOfTime;
+      dcat:endDate "2034-01-01"^^xsd:date;
+      dcat:startDate "2024-01-01"^^xsd:date
+    ];
+  dcterms:accrualPeriodicity <http://publications.europa.eu/resource/authority/frequency/BIMONTHLY>;
+  dcterms:provenance "Data collected via mobile applications and clinical devices, transformed from FHIR Observation and QuestionnaireResponse resources within the Abacus study.";
+  dcterms:relation [ a dcat:Distribution;
+      dcterms:title "Abacus FHIR Dataset Analytics";
+      <http://data.europa.eu/r5r/applicableLegislation> <http://eur-lex.europa.eu/eli/reg/2025/327/oj>;
+      dcat:accessURL <https://www.srdc.com.tr/abacus/fhir-dataset/analytics.pdf>;
+      dcterms:format <http://publications.europa.eu/resource/authority/file-type/PDF>
+    ];
+  <http://www.w3.org/ns/adms#sample> [ a dcat:Distribution;
+      dcterms:title "Abacus FHIR Dataset Samples";
+      <http://data.europa.eu/r5r/applicableLegislation> <http://eur-lex.europa.eu/eli/reg/2025/327/oj>;
+      dcat:accessURL <https://www.srdc.com.tr/abacus/fhir-dataset/sample.csv>;
+      dcterms:format <http://publications.europa.eu/resource/authority/file-type/CSV>
+    ];
+  dcat:landingPage <https://www.srdc.com.tr/en/>;
+  dcat:temporalResolution "P1Y"^^xsd:duration;
+  <http://www.w3.org/ns/prov#qualifiedAttribution> [ a <http://www.w3.org/ns/prov#Attribution>;
+      dcat:hadRole <https://kroniq.srdc.com.tr/stage-fdp-api/dataset/sponsor>;
+      <http://www.w3.org/ns/prov#agent> [ a foaf:Agent;
+          foaf:name "SRDC Software Research & Development and Consultancy Corp."
+        ]
+    ];
+  <http://www.w3.org/ns/prov#wasGeneratedBy> <http://13.81.34.152:1101/resource/authority/health-activity/EHEALTH_APPLICATION>,
+    <http://13.81.34.152:1101/resource/authority/health-activity/SURVEILLANCE>, <http://13.81.34.152:1101/resource/authority/health-activity/OBSERVATIONAL_DATA>;
+  foaf:page <https://www.srdc.com.tr/ehealth/>;
+  <https://w3id.org/dpv#hasPersonalData> <https://w3id.org/dpv/pd#Age>, <https://w3id.org/dpv/pd#BirthDate>,
+    <https://w3id.org/dpv/pd#Gender>;
+  <https://w3id.org/dpv#hasPurpose> "The data are processed to support clinical research on healthy aging, cognitive assessment, fall prevention, mobility analysis, and population-level health research." .
 
-<urn:uuid:039f6abb-74c3-4d45-b147-19dcc513738b>
-        rdf:type        vcard:Kind;
-        vcard:hasEmail  "info@oulu.edu.fi";
-        vcard:hasURL    <https://oulu.fi> .
+<http://13.81.34.152:1101/resource/authority/health-activity/EHEALTH_APPLICATION>
+  a <http://www.w3.org/ns/prov#Activity> .
 
-<urn:uuid:274850ac-29c8-452d-b29c-f01977b91b42>
-        rdf:type        vcard:Kind;
-        foaf:firstName  "Jan Hendrik";
-        foaf:familyName "Haanstra";
-        foaf:name       "jhhaanstra";
-        vcard:hasEmail  "john.doe@oulu.fi";
-        vcard:hasURL    <https://example.com> .
+<http://13.81.34.152:1101/resource/authority/healthcategories/EHRS> a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "EHRS"@en .
 
-health-theme:LIFECOURSE_HEALTH
-        rdf:type        skos:Concept;
-        skos:prefLabel  "Life-course health: maternal, newborn, child, adolescent ageing" .
+<https://www.wikidata.org/entity/Q19597236> a dcterms:Standard .
 
-<urn:uuid:781b3770-2938-4a38-acbb-48cc73338272>
-        rdf:type        dct:PeriodOfTime;
-        dcat:endDate    "2030-01-01"^^xsd:date;
-        dcat:startDate  "2015-01-01"^^xsd:date .
+<http://publications.europa.eu/resource/authority/file-type/CSV> a dcterms:MediaTypeOrExtent .
 
-<https://doi.org/10.1093/ije/dyab109>
-        rdf:type       adms:Identifier;
-        skos:notation  "https://doi.org/10.1093/ije/dyab109" .
+<http://publications.europa.eu/resource/authority/access-right/PUBLIC> a dcterms:RightsStatement .
 
-<urn:uuid:ab965fb2-4b49-4d10-88ae-28d72dc0f8dd>
-        rdf:type                        foaf:Agent;
-        healthdcatap:trustedDataHolder  true;
-        dct:description                 "The publisher provides this dataset metadata without warranties of any kind. The publisher shall not be liable for any use of the data beyond the conditions defined by the applicable access and reuse policies.";
-        dct:alternative                 "The publisher provides this dataset metadata without warranties of any kind. The publisher shall not be liable for any use of the data beyond the conditions defined by the applicable access and reuse policies.";
-        dct:type                        corp:EUI;
-        dcat:contactPoint               <urn:uuid:039f6abb-74c3-4d45-b147-19dcc513738b>;
-        dct:title                       "OULU" ;
-        foaf:name                       "OULU" .
+<http://eur-lex.europa.eu/eli/reg/2025/327/oj> a <http://data.europa.eu/eli/ontology#LegalResource> .
 
-<http://www.wikidata.org/entity/Q45127>
-        rdf:type  skos:ConceptScheme .
+<http://13.81.34.152:1101/resource/authority/health-theme/LIFECOURSE_HEALTH> a <http://www.w3.org/2004/02/skos/core#Concept>;
+  <http://www.w3.org/2004/02/skos/core#prefLabel> "LIFECOURSE HEALTH"@en .
 
-lang:FIN  rdf:type  dct:LinguisticSystem .
+<http://publications.europa.eu/resource/authority/frequency/BIMONTHLY> a dcterms:Frequency .
 
-frequency:BIMONTHLY  rdf:type  dct:Frequency .
+<http://13.81.34.152:1101/resource/authority/health-activity/SURVEILLANCE> a <http://www.w3.org/ns/prov#Activity> .
 
-dataset-type:RELEASE  rdf:type  skos:Concept;
-        skos:prefLabel  "Release" .
+<http://publications.europa.eu/resource/authority/file-type/PDF> a dcterms:MediaTypeOrExtent .
 
-<https://www.oulu.fi/en/university/faculties-and-units/faculty-medicine/northern-finland-birth-cohorts-and-arctic-biobank/nfbc-aineistopyynto>
-        rdf:type  foaf:Document .
+<https://www.srdc.com.tr/ehealth/> a foaf:Document .
 
-theme:HEAL  rdf:type    skos:Concept;
-        skos:prefLabel  "Health" .
+<http://13.81.34.152:1101/resource/authority/health-activity/OBSERVATIONAL_DATA> a
+    <http://www.w3.org/ns/prov#Activity> .
 
-<urn:uuid:a298f77e-14d2-4a98-b455-69c86d8acb7d>
-        rdf:type   foaf:Agent;
-        dct:type   <john.doe@oulu.fi>;
-        foaf:name  "John Doe" .
+<https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9#identifier>
+  a <http://purl.org/spar/datacite/Identifier>;
+  dcterms:identifier "https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9" .
 
-health-activity:SURVEILLANCE
-        rdf:type  prov:Activity .
+<https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9/metrics/445c0a70d1e214e545b261559e2842f4>
+  <http://semanticscience.org/resource/SIO_000628> <https://www.ietf.org/rfc/rfc3986.txt>;
+  <http://semanticscience.org/resource/SIO_000332> <https://www.ietf.org/rfc/rfc3986.txt> .
 
-<urn:uuid:10eafc64-b494-467b-8902-c69a9e1c2145>
-        rdf:type         dpv:Purpose;
-        dct:description  "The data are processed to support clinical research and population-level health analysis." .
+<https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9/metrics/5d27e854a9e78eb3f663331cd47cdc13>
+  <http://semanticscience.org/resource/SIO_000628> <https://www.wikidata.org/wiki/Q8777>;
+  <http://semanticscience.org/resource/SIO_000332> <https://www.wikidata.org/wiki/Q8777> .
 
-<urn:uuid:4cef389a-9ad5-4a5f-bec9-7efc29283d96>
-        rdf:type        skos:Concept;
-        skos:inScheme   <http://www.wikidata.org/entity/Q45127>;
-        skos:notation   "Y59.0";
-        skos:prefLabel  "Viral Vaccines" .
+<https://kroniq.srdc.com.tr/stage-fdp-api/distribution/> a ldp:DirectContainer;
+  dcterms:title "Distributions";
+  ldp:membershipResource <https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9>;
+  ldp:hasMemberRelation dcat:distribution;
+  ldp:contains <https://kroniq.srdc.com.tr/stage-fdp-api/distribution/62b0a1ca-fc45-4826-b0f6-110b02db29df> .
 
-<https://www.wikidata.org/wiki/Q502480>
-        rdf:type  skos:ConceptScheme .
-
-<https://eur-lex.europa.eu/eli/reg/2025/327/oj>
-        rdf:type  eli:LegalResource .
-
-<urn:uuid:ca29d3e5-24b1-4d30-a52e-b5c22312f286>
-        rdf:type        skos:Concept;
-        skos:inScheme   <https://www.wikidata.org/wiki/Q502480>;
-        skos:notation   "8480-6";
-        skos:prefLabel  "Systolic Blood Pressure" .
-
-<urn:uuid:536e3217-d8de-4eca-bb88-63fb8855f0b0>
-        rdf:type        vcard:Kind;
-        vcard:hasEmail  "info@oulu.edu.fi";
-        vcard:hasURL    <https://oulu.fi> .
-
-<urn:uuid:f949ecf4-5bdc-4127-b667-a13bc00eb295>
-        rdf:type                        dcat:Dataset;
-        dcatap:applicableLegislation    <https://eur-lex.europa.eu/eli/reg/2025/327/oj>;
-        healthdcatap:hasCodeValues      <urn:uuid:ca29d3e5-24b1-4d30-a52e-b5c22312f286> , <urn:uuid:0d3bbeeb-a459-4b72-bf21-95bd1f61dab9> , <urn:uuid:4cef389a-9ad5-4a5f-bec9-7efc29283d96>;
-        healthdcatap:hasCodingSystem    <http://www.wikidata.org/entity/Q45127> , <https://www.wikidata.org/wiki/Q502480>;
-        healthdcatap:hdab               <urn:uuid:18ae5098-af64-4b28-95ee-c5b77602a3ca>;
-        healthdcatap:healthCategory     health-cat:EHRS;
-        healthdcatap:healthTheme        health-theme:LIFECOURSE_HEALTH;
-        healthdcatap:maxTypicalAge      "20"^^xsd:nonNegativeInteger;
-        healthdcatap:minTypicalAge      "80"^^xsd:nonNegativeInteger;
-        healthdcatap:numberOfRecords    "2000"^^xsd:nonNegativeInteger;
-        healthdcatap:numberOfUniqueIndividuals "200"^^xsd:nonNegativeInteger;
-        healthdcatap:populationCoverage "Prenatal, Infant (0-23 months), Child (2-12 years), Adolescent (13-17 years), Young adult (18-24 years), Adult (25-44 years)";
-        healthdcatap:retentionPeriod    <urn:uuid:781b3770-2938-4a38-acbb-48cc73338272>;
-        dct:accessRights                access:PUBLIC;
-        dct:accrualPeriodicity          frequency:BIMONTHLY;
-        dct:alternative                 "Northern Finland Birth Cohorts and Arctic Biobank";
-        dct:conformsTo                  <https://www.wikidata.org/entity/Q19597236>;
-        dct:creator                     <urn:uuid:a298f77e-14d2-4a98-b455-69c86d8acb7d>;
-        dct:description                 "NFBC1986 is a longitudinal one-year birth cohort study from an unselected population. The cohort included all the mothers (N=9362) with children whose expected date of birth felt between July 1st 1985 - June 30th 1986 in the two northernmost provinces on Finland (Oulu and Lapland).";
-        dct:hasVersion                  "1.0.0";
-        dct:identifier                  "http://oulu.fi/NFBC1986/core"^^xsd:anyURI;
-        dct:issued                      "2016-01-01"^^xsd:date;
-        dct:language                    lang:FIN;
-        dct:modified                    "2025-10-01"^^xsd:date;
-        dct:provenance                  "The original data have been supplemented by data collected with postal questionnaires at the ages of 7, 8 and 16 years and various hospital records and statistical register data. The latest data collection with clinical examinations and questionnaires was at the age of 33 years.";
-        dct:publisher                   <urn:uuid:ab965fb2-4b49-4d10-88ae-28d72dc0f8dd>;
-        dct:spatial                     <http://publications.europa.eu/resource/authority/country/FIN>;
-        dct:temporal                    <urn:uuid:a0ee8f75-3ed9-45ed-a109-84cceb966fb5>;
-        dct:title                       "Core";
-        dct:type                        dataset-type:RELEASE;
-        adms:identifier                 <https://doi.org/10.1093/ije/dyab109>;
-        dcat:contactPoint               <urn:uuid:274850ac-29c8-452d-b29c-f01977b91b42>;
-        dcat:keyword                    "lapland" , "adult" , "prenatal" , "child" , "young adult" , "birth cohort" , "infant" , "finland" , "adolescent";
-        dcat:landingPage                <https://www.oulu.fi/en/university/faculties-and-units/faculty-medicine/northern-finland-birth-cohorts-and-arctic-biobank/nfbc-aineistopyynto>;
-        dcat:spatialResolutionInMeters  "20"^^xsd:decimal;
-        dcat:temporalResolution         "P1Y"^^xsd:duration;
-        dcat:theme                      theme:HEAL;
-        prov:qualifiedAttribution       <urn:uuid:ed6775f3-5cd2-42d4-83c1-813bd6ccf89c>;
-        prov:wasGeneratedBy             health-activity:SURVEILLANCE , health-activity:EHEALTH_APPLICATION , health-activity:OBSERVATIONAL_DATA;
-        foaf:page                       <https://www.oulu.fi/en/university/faculties-and-units/faculty-medicine/northern-finland-birth-cohorts-and-arctic-biobank/nfbc-user-policies>;
-        dpv:hasPersonalData             <https://w3c.github.io/dpv/2.0/pd#Age> , <https://w3c.github.io/dpv/2.0/pd#Gender> , <https://w3c.github.io/dpv/2.0/pd#BirthDate>;
-        dpv:hasPurpose                  <urn:uuid:10eafc64-b494-467b-8902-c69a9e1c2145> .
-  <urn:uuid:f949ecf4-5bdc-4127-b667-a13bc00eb295> <http://www.w3.org/ns/dcat#endDate> 2025 ;
-	<http://www.w3.org/ns/dcat#startDate> 1968 .      
-
-
-country:FIN  rdf:type  dct:Location .
-
-<urn:uuid:a0ee8f75-3ed9-45ed-a109-84cceb966fb5>
-        rdf:type        dct:PeriodOfTime;
-        dcat:endDate    "2025-01-01"^^xsd:date .
-
-<urn:uuid:0d3bbeeb-a459-4b72-bf21-95bd1f61dab9>
-        rdf:type        skos:Concept;
-        skos:inScheme   <https://www.wikidata.org/wiki/Q502480>;
-        skos:notation   "8462-4";
-        skos:prefLabel  "Diastolic Blood Pressure" .
-
-<urn:uuid:18ae5098-af64-4b28-95ee-c5b77602a3ca>
-        rdf:type                        foaf:Agent;
-        healthdcatap:trustedDataHolder  false;
-        dct:type                        corp:EUI;
-        dcat:contactPoint               <urn:uuid:536e3217-d8de-4eca-bb88-63fb8855f0b0>;
-        foaf:name                       "OULU" .
-
-<https://www.oulu.fi/en/university/faculties-and-units/faculty-medicine/northern-finland-birth-cohorts-and-arctic-biobank/nfbc-user-policies>
-        rdf:type  foaf:Document .
-
-<urn:uuid:ed6775f3-5cd2-42d4-83c1-813bd6ccf89c>
-        rdf:type      prov:Attribution;
-        dcat:hadRole  <https://standards.iso.org/iso/19115/resources/Codelists/gml/CI_RoleCode.xml#sponsor>;
-        foaf:name     "Jane Doe" .
+<https://kroniq.srdc.com.tr/stage-fdp-api/profile/2f08228e-1789-40f8-84cd-28e3288c3604>
+  <http://www.w3.org/2000/01/rdf-schema#label> "Dataset Profile" .

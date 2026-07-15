@@ -1,88 +1,82 @@
-@prefix access:          <http://publications.europa.eu/resource/authority/access-right/> .
-@prefix adms:            <http://www.w3.org/ns/adms#> .
-@prefix availability:    <http://publications.europa.eu/resource/authority/planned-availability/> .
-@prefix corp:            <http://publications.europa.eu/resource/authority/corporate-body/> .
-@prefix country:         <http://publications.europa.eu/resource/authority/country/> .
-@prefix csvw:            <http://www.w3.org/ns/csvw#> .
-@prefix dataset-type:    <http://publications.europa.eu/resource/authority/dataset-type/> .
-@prefix dcat:            <http://www.w3.org/ns/dcat#> .
-@prefix dcatap:          <http://data.europa.eu/r5r/> .
-@prefix dct:             <http://purl.org/dc/terms/> .
-@prefix dpv:             <https://w3id.org/dpv#> .
-@prefix dpv-pd:          <https://w3id.org/dpv/dpv-pd#> .
-@prefix dqv:             <http://www.w3.org/ns/dqv#> .
-@prefix eli:             <http://data.europa.eu/eli/ontology#> .
-@prefix file:            <http://publications.europa.eu/resource/authority/file-type/> .
-@prefix foaf:            <http://xmlns.com/foaf/0.1/> .
-@prefix frequency:       <http://publications.europa.eu/resource/authority/frequency/> .
-@prefix health-activity: <http://13.81.34.152:1101/resource/authority/health-activity/> .
-@prefix health-cat:      <http://13.81.34.152:1101/resource/authority/healthcategories/> .
-@prefix health-theme:    <http://13.81.34.152:1101/resource/authority/health-theme/> .
-@prefix healthdcatap:    <http://healthdataportal.eu/ns/health#> .
-@prefix lang:            <http://publications.europa.eu/resource/authority/language/> .
-@prefix prov:            <http://www.w3.org/ns/prov#> .
-@prefix rdf:             <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs:            <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix skos:            <http://www.w3.org/2004/02/skos/core#> .
-@prefix theme:           <http://publications.europa.eu/resource/authority/data-theme/> .
-@prefix vcard:           <http://www.w3.org/2006/vcard/ns#> .
-@prefix xsd:             <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
 
-<urn:uuid:ecdb2a8f-a471-44ad-b981-7cb21591a32c>
-        rdf:type   foaf:Agent;
-        foaf:name  "STAGE" .
+<https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded>
+  a dcat:Resource, dcat:Catalog;
+  <http://www.w3.org/2000/01/rdf-schema#label> "Abacus FHIR Data Catalog";
+  dcterms:title "Abacus FHIR Data Catalog";
+  dcterms:description "FAIRful metadata catalog for FHIR-based health datasets collected within the Abacus study";
+  dcterms:publisher [ a foaf:Agent;
+      foaf:name "SRDC Software Research & Development and Consultancy Corp.";
+      dcat:contactPoint [ a <http://www.w3.org/2006/vcard/ns#Kind>;
+          <http://www.w3.org/2006/vcard/ns#hasEmail> <mailto:info@srdc.com.tr>;
+          <http://www.w3.org/2006/vcard/ns#hasURL> <https://www.srdc.com.tr/contact/>
+        ];
+      <http://healthdataportal.eu/ns/health#trustedDataHolder> true
+    ];
+  <https://w3id.org/fdp/fdp-o#metadataIdentifier> <https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded#identifier>;
+  dcterms:language <http://publications.europa.eu/resource/authority/language/ENG>;
+  dcterms:license <http://creativecommons.org/licenses/by/4.0/>;
+  dcterms:accessRights <https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded#accessRights>;
+  <http://semanticscience.org/resource/SIO_000628> <https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded/metrics/445c0a70d1e214e545b261559e2842f4>,
+    <https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded/metrics/5d27e854a9e78eb3f663331cd47cdc13>;
+  <https://w3id.org/fdp/fdp-o#metadataIssued> "2026-04-30T07:24:32.225364769Z"^^xsd:dateTime;
+  <https://w3id.org/fdp/fdp-o#metadataModified> "2026-04-30T07:24:34.131000212Z"^^xsd:dateTime;
+  dcterms:isPartOf <https://kroniq.srdc.com.tr/stage-fdp-api>;
+  dcterms:issued "2026-04-30T07:24:32.225364769Z"^^xsd:dateTime;
+  dcterms:modified "2026-04-30T07:24:32.225364769Z"^^xsd:dateTime;
+  dcat:dataset <https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9>;
+  dcat:theme <http://publications.europa.eu/resource/authority/data-theme/HEAL>;
+  <http://data.europa.eu/r5r/applicableLegislation> <https://eur-lex.europa.eu/eli/reg/2025/327/oj>;
+  dcterms:creator [ a foaf:Agent;
+      foaf:name "SRDC Software Research & Development and Consultancy Corp."
+    ];
+  dcterms:rights [ a dcterms:RightsStatement;
+      dcterms:description "This catalog provides descriptive metadata only. Reuse of metadata is permitted with attribution. Access to and reuse of the referenced health datasets may require authorization and is governed by applicable health data protection, ethical approval, and national legislation."
+    ];
+  dcterms:spatial <http://publications.europa.eu/resource/authority/country/TUR>;
+  dcterms:temporal [ a dcterms:PeriodOfTime;
+      dcat:endDate "2026-03-31"^^xsd:date;
+      dcat:startDate "2026-03-31"^^xsd:date
+    ];
+  foaf:homepage <https://www.srdc.com.tr/en/>;
+  dcat:themeTaxonomy <http://publications.europa.eu/resource/authority/data-theme/HEAL>;
+  dcterms:conformsTo <https://kroniq.srdc.com.tr/stage-fdp-api/profile/a0949e72-4466-4d53-8900-9436d1049a4b> .
 
-country:FIN  rdf:type  dct:Location .
+<http://publications.europa.eu/resource/authority/country/TUR> a dcterms:Location .
 
-<urn:uuid:b606d730-b4d7-4cc3-ab7c-ccbb80a6207e>
-        rdf:type        dct:PeriodOfTime;
-        dcat:endDate    "2026-01-01"^^xsd:date;
-        dcat:startDate  "1986-01-01"^^xsd:date .
+<http://creativecommons.org/licenses/by/4.0/> a dcterms:LicenseDocument .
 
-<http://creativecommons.org/licenses/by/4.0/>
-        rdf:type  dct:LicenseDocument .
+<https://www.srdc.com.tr/en/> a foaf:Document .
 
-<https://stage-healthyaging.eu>
-        rdf:type  foaf:Document .
+<http://publications.europa.eu/resource/authority/language/ENG> a dcterms:LinguisticSystem .
 
-lang:ENG  rdf:type  dct:LinguisticSystem .
+<https://eur-lex.europa.eu/eli/reg/2025/327/oj> a <http://data.europa.eu/eli/ontology#LegalResource> .
 
-<urn:uuid:743edbee-48a6-462d-8ea8-d80366c50ef8>
-        rdf:type                      dcat:Catalog;
-        dcatap:applicableLegislation  <https://eur-lex.europa.eu/eli/reg/2025/327/oj>;
-        dct:creator                   <urn:uuid:ecdb2a8f-a471-44ad-b981-7cb21591a32c>;
-        dct:description               "FAIRful metadata catalog for the datasets collected in the scope of STAGE project";
-        dct:issued                    "2026-01-01"^^xsd:date;
-        dct:language                  lang:ENG;
-        dct:license                   <http://creativecommons.org/licenses/by/4.0/>;
-        dct:modified                  "2025-10-10"^^xsd:date;
-        dct:publisher                 <urn:uuid:199dffaf-838e-4631-b833-59feda7fdcbd>;
-        dct:rights                    <urn:uuid:cd11590e-af6a-48f7-93d8-b354110edf7f>;
-        dct:spatial                   country:DNK , country:FIN , country:DEU;
-        dct:temporal                  <urn:uuid:b606d730-b4d7-4cc3-ab7c-ccbb80a6207e>;
-        dct:title                     "STAGE Data Catalog";
-        dcat:theme                    theme:HEAL;
-        foaf:homepage                 <https://stage-healthyaging.eu> .
+<https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded#identifier>
+  a <http://purl.org/spar/datacite/Identifier>;
+  dcterms:identifier "https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded" .
 
-country:DNK  rdf:type  dct:Location .
+<https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded#accessRights>
+  a dcterms:RightsStatement;
+  dcterms:description "This resource has no access restriction" .
 
-country:DEU  rdf:type  dct:Location .
+<https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded/metrics/445c0a70d1e214e545b261559e2842f4>
+  <http://semanticscience.org/resource/SIO_000628> <https://www.ietf.org/rfc/rfc3986.txt>;
+  <http://semanticscience.org/resource/SIO_000332> <https://www.ietf.org/rfc/rfc3986.txt> .
 
-<urn:uuid:cd11590e-af6a-48f7-93d8-b354110edf7f>
-        rdf:type    dct:RightsStatement;
-        rdfs:label  "This catalog provides descriptive metadata only. Reuse of metadata is permitted with attribution. Access to and reuse of the referenced health datasets may require authorization and is governed by applicable health data protection, ethical approval, and national legislation." .
+<https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded/metrics/5d27e854a9e78eb3f663331cd47cdc13>
+  <http://semanticscience.org/resource/SIO_000628> <https://www.wikidata.org/wiki/Q8777>;
+  <http://semanticscience.org/resource/SIO_000332> <https://www.wikidata.org/wiki/Q8777> .
 
-<https://eur-lex.europa.eu/eli/reg/2025/327/oj>
-        rdf:type  eli:LegalResource .
+<https://kroniq.srdc.com.tr/stage-fdp-api/dataset/> a ldp:DirectContainer;
+  dcterms:title "Datasets";
+  ldp:membershipResource <https://kroniq.srdc.com.tr/stage-fdp-api/catalog/e0c94efe-4891-4f4f-89d3-74b89c20cded>;
+  ldp:hasMemberRelation dcat:dataset;
+  ldp:contains <https://kroniq.srdc.com.tr/stage-fdp-api/dataset/425d5580-11ad-4772-b65f-aac8b8b4c7e9> .
 
-<urn:uuid:199dffaf-838e-4631-b833-59feda7fdcbd>
-        rdf:type                        foaf:Agent;
-        healthdcatap:trustedDataHolder  true;
-        dct:description                 "The catalog is maintained and published by the STAGE consortium";
-        dcat:contactPoint               <urn:uuid:c7dd6857-1448-4f0d-8564-59abfaf77d43>;
-        foaf:name                       "STAGE" .
-
-<urn:uuid:c7dd6857-1448-4f0d-8564-59abfaf77d43>
-        rdf:type        vcard:Kind;
-        vcard:hasEmail  "sylvain.sebert@oulu.fi";
-        vcard:hasURL    <https://stage-healthyageing.eu/contact> .
+<https://kroniq.srdc.com.tr/stage-fdp-api/profile/a0949e72-4466-4d53-8900-9436d1049a4b>
+  <http://www.w3.org/2000/01/rdf-schema#label> "Catalog Profile" .

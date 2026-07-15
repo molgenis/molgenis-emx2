@@ -1,6 +1,7 @@
 package org.molgenis.emx2.fairmapper;
 
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,9 +83,12 @@ class HarvestingSpike {
     resolveOrganisationsId(tableStore);
 
     // Resolve circular 1-to-1 dependencies from collections
-    resolveContactPoint(tableStore);
     resolvePublisher(tableStore);
     resolveCreator(tableStore);
+
+    // Either clear or resolve contactPoint
+    clearContactPoint(tableStore);
+    //    resolveContactPoint(tableStore);
 
     // The query fetches too many organisations, filter out the ones that don't hold a reference to
     // a resource, as those are unneeded
@@ -189,7 +193,6 @@ class HarvestingSpike {
                         && row.containsName("_subject_contact point")) {
                       row.set("contact point.resource", row.getString("id"));
                       // We already have first name and last name because they are annotated
-
                       Row contactRow = contacts.get(row.getString("_subject_contact point"));
                       contactRow.set("resource", row.getString("id"));
                     }
@@ -203,6 +206,22 @@ class HarvestingSpike {
                       row.set(
                           "resource",
                           contacts.get(row.getString("_subject_")).getString("resource"))));
+    }
+  }
+
+  private void clearContactPoint(TableStore tableStore) {
+    List<String> tables = List.of("Collections", "Catalogues");
+
+    for (String table : tables) {
+      tableStore.processTable(
+          table,
+          (iterator, source) ->
+              iterator.forEachRemaining(
+                  row -> {
+                    row.clear("contact point.first name");
+                    row.clear("contact point.last name");
+                    row.clear("contact point.resource");
+                  }));
     }
   }
 
@@ -268,7 +287,12 @@ class HarvestingSpike {
   /** Remove _subject from the rows at the end of post-processing */
   private void removeSubjectFromStoreRows(TableStore tableStore) {
     for (String tableName : tableStore.getTableNames()) {
-      Row first = tableStore.readTable(tableName).iterator().next();
+      Iterator<Row> rows = tableStore.readTable(tableName).iterator();
+      if (!rows.hasNext()) {
+        continue;
+      }
+
+      Row first = rows.next();
       Set<String> subjectColumns =
           first.getColumnNames().stream()
               .filter(row -> row.startsWith("_subject_"))
