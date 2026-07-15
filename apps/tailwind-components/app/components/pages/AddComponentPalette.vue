@@ -44,17 +44,17 @@ const handleDragEvent = (event: DragEvent) => {
         Components
       </div>
       <DraggableComponent
-        icon="format-align-left"
+        icon="title"
         componentName="Heading"
         @dragging="handleDragEvent"
       />
       <DraggableComponent
-        icon="format-align-left"
+        icon="paragraph"
         componentName="Paragraph"
         @dragging="handleDragEvent"
       />
       <DraggableComponent
-        icon="globe"
+        icon="image"
         componentName="Image"
         @dragging="handleDragEvent"
       />
@@ -64,7 +64,7 @@ const handleDragEvent = (event: DragEvent) => {
         Blocks
       </div>
       <DraggableComponent
-        icon="view-table"
+        icon="header"
         componentName="Header"
         componentType="Block"
         @dragging="handleDragEvent"
