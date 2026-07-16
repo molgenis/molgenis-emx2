@@ -11,7 +11,7 @@ class ColumnNameSparqlEncoderTest {
   @Test
   void shouldDecodeSparqlVariable() {
     Column column = Column.column("order_id");
-    assertEquals("order_id", ColumnNameSparqlEncoder.encodeSparqlVariable(column));
+    assertEquals("order_id", ColumnNameSparqlEncoder.encodeSparqlVariable(column).getVarName());
   }
 
   @Test
