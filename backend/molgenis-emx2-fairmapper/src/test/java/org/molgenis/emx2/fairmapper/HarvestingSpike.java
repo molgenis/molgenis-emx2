@@ -27,25 +27,21 @@ class HarvestingSpike {
 
   @Test
   void shouldHarvest() throws InterruptedException {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.getSchema("harvesting");
+
     SailRepository repository = RdfFileReader.readFiles(DATA_FILES);
 
-    RdfPreProcessor temporalPreProcessor = new TemporalRdfPreProcessor();
-    temporalPreProcessor.process(repository);
+    preprocess(repository);
 
-    // This one is new, but also very obvious
-    RdfPreProcessor agePreprocessor = new TypicalAgeRdfPreProcessor();
-    agePreprocessor.process(repository);
-
-    Database database = TestDatabaseFactory.getTestDatabase();
-
-    QueryGenerator queryGenerator = new TableQueryGenerator();
-
-    Schema schema = database.getSchema("harvesting");
-    RdfTransformer transformer =
-        new SparqlSelectRdfTransformer(queryGenerator, schema.getMetadata(), List.of(TABLES));
-    TableStore tableStore = transformer.transform(repository);
+    TableStore tableStore = transform(repository, schema.getMetadata());
 
     postProcess(tableStore, schema.getMetadata());
+
+    load(tableStore, schema);
+  }
+
+  private static void load(TableStore tableStore, Schema schema) throws InterruptedException {
     ImportSchemaTask tasks =
         new ImportSchemaTask(tableStore, schema, false, TABLES)
             .setFilter(ImportSchemaTask.Filter.DATA_ONLY);
@@ -55,6 +51,22 @@ class HarvestingSpike {
       System.out.println("waiting...");
       Thread.sleep(1000);
     }
+  }
+
+  private static TableStore transform(SailRepository repository, SchemaMetadata schema) {
+    QueryGenerator queryGenerator = new TableQueryGenerator();
+    RdfTransformer transformer =
+        new SparqlSelectRdfTransformer(queryGenerator, schema, List.of(TABLES));
+    return transformer.transform(repository);
+  }
+
+  private static void preprocess(SailRepository repository) {
+    RdfPreProcessor temporalPreProcessor = new TemporalRdfPreProcessor();
+    temporalPreProcessor.process(repository);
+
+    // This one is new, but also very obvious
+    RdfPreProcessor agePreprocessor = new TypicalAgeRdfPreProcessor();
+    agePreprocessor.process(repository);
   }
 
   private void postProcess(TableStore tableStore, SchemaMetadata schema) {
@@ -75,18 +87,20 @@ class HarvestingSpike {
         new MissingReferencePrimaryKeyResolver(schema);
     primaryKeyResolver.resolve(tableStore, TABLES);
 
-    // The query fetches too many organisations, filter out the ones that don't hold a reference to
-    // a resource, as those are unneeded
-    filterUnreferencedOrganisations(tableStore);
-
     // Drop _subject_ fields as those aren't in the schema
     new SubjectColumnRemover().remove(tableStore);
+
+    // The query fetches too many organisations, filter out the ones that don't hold a reference to
+    // a resource, as those are unneeded
+    deduplicate(tableStore);
   }
 
-  private void filterUnreferencedOrganisations(TableStore tableStore) {
+  private void deduplicate(TableStore tableStore) {
     List<Row> rows =
         StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
-            .filter(row -> row.containsName("resource"))
+            .map(Row::getValueMap)
+            .distinct()
+            .map(Row::new)
             .toList();
 
     if (rows.isEmpty()) {
