@@ -137,3 +137,98 @@
     }
   }
 }
+
+.d3-viz {
+  &.d3-pie,
+  &.d3-geo-mercator {
+    .chart-context {
+      text-align: center;
+      .chart-title {
+        font-size: 1.1rem;
+        padding: 0;
+        margin-bottom: 0.5em;
+        text-align: center;
+      }
+    }
+  }
+
+  &.d3-column-chart {
+    .chart-title {
+      font-size: 1.1rem;
+      padding: 0;
+      margin-bottom: 0.5em;
+      text-align: center;
+    }
+  }
+}
+
+#sexAtBirthChart {
+  .chart-area {
+    .pie-labels {
+      .pie-label-text {
+        font-size: 0.7rem !important;
+      }
+    }
+  }
+}
+
+#registryInstitutionsMap + .d3-viz-legend {
+  padding: 0.6em 0.8em;
+  label {
+    margin-bottom: 0;
+  }
+}
+
+#diseaseGroupEnrollment {
+  caption {
+    font-size: 1.1rem;
+    padding: 0;
+    margin-bottom: 0.5em;
+    text-align: center;
+  }
+  thead {
+    th {
+      font-size: 0.8rem;
+    }
+  }
+  tbody {
+    td {
+      font-size: 0.9rem;
+      padding: 0.6em 0.2em;
+
+      &[data-value="Undetermined"],
+      &[data-value="Undetermined"] + td {
+        background-color: var(--white);
+        span {
+          color: var(--gray-400);
+        }
+      }
+    }
+  }
+}
+
+#registryHighlights {
+  .data-highlights {
+    .data-highlight {
+      padding: 0.8em 1em;
+      .data-label {
+        margin-bottom: 0.15em;
+        font-size: 0.75rem;
+      }
+
+      .data-value {
+        &::after {
+          font-size: 1.8rem;
+        }
+      }
+    }
+  }
+}
+
+#nestorPublicDashboard {
+  .dashboard-content {
+    @media (min-width: 1800px) {
+      max-width: 60vw;
+    }
+  }
+}
