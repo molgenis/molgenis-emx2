@@ -16,13 +16,13 @@ class ColumnNameSparqlEncoderTest {
 
   @Test
   void shouldReplaceSpace() {
-    String actual = ColumnNameSparqlEncoder.encodeSparqlVariable("delivery method");
+    String actual = ColumnNameSparqlEncoder.encodeSparqlVariable("delivery method").getVarName();
     assertEquals("delivery___method", actual);
   }
 
   @Test
   void shouldReplaceDot() {
-    String actual = ColumnNameSparqlEncoder.encodeSparqlVariable("delivery.method");
+    String actual = ColumnNameSparqlEncoder.encodeSparqlVariable("delivery.method").getVarName();
     assertEquals("delivery__method", actual);
   }
 

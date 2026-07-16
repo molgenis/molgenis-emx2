@@ -30,10 +30,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
 
   public LiteralColumnSparqlQueryGenerator(Variable subject, Column column) {
     this(
-        subject,
-        column,
-        SparqlBuilder.var(ColumnNameSparqlEncoder.encodeSparqlVariable(column)),
-        column.isRequired());
+        subject, column, ColumnNameSparqlEncoder.encodeSparqlVariable(column), column.isRequired());
   }
 
   public LiteralColumnSparqlQueryGenerator(
