@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // @ts-expect-error
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-import Address from "../components/Address.vue";
+import { Address, Page, PageHeader, PageSection } from "molgenis-viz";
 </script>
 
 <template>
@@ -15,7 +14,19 @@ import Address from "../components/Address.vue";
     />
     <PageSection aria-labelledby="contact-us-section-title">
       <h2 id="contact-us-section-title">Contact Us</h2>
-      <Address :showEmail="true" :centerText="true" />
+      <Address
+        name="University Medical Centre Groningen"
+        email="support@molgenis.org"
+        :centerText="true"
+        :showEmail="true"
+        :address="[
+          'NESTOR registry',
+          'Department of Medical Genetics',
+          'Antonius Deusinglaan 1',
+          '9713 AV Groningen',
+          'The Netherlands',
+        ]"
+      />
     </PageSection>
   </Page>
 </template>

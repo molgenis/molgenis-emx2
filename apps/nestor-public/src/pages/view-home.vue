@@ -1,8 +1,12 @@
 <script setup lang="ts">
-//@ts-expect-error
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-import QuickLinks from "../components/QuickLinks.vue";
-import Address from "../components/Address.vue";
+import {
+  Address,
+  LinkCardGroup,
+  Page,
+  PageHeader,
+  PageSection,
+  //@ts-expect-error
+} from "molgenis-viz";
 </script>
 
 <template>
@@ -44,10 +48,8 @@ import Address from "../components/Address.vue";
       <h2 class="visually-hidden" id="quicklinks-card-title">
         quick links: learn more about KWF NESTOR
       </h2>
-      <QuickLinks
-        id="quickLinks"
-        aria-labelledby="quicklinks-card-title"
-        :data="[
+      <LinkCardGroup
+        :linkCards="[
           { name: 'about', label: 'About Us' },
           {
             name: 'documents',
@@ -60,9 +62,6 @@ import Address from "../components/Address.vue";
             image: 'img/bg-dashboard.jpg',
           },
         ]"
-        name="name"
-        label="label"
-        imageSrc="image"
       />
     </PageSection>
     <PageSection
@@ -131,7 +130,17 @@ import Address from "../components/Address.vue";
         <a href="mailto:support@molgenis.org">support@molgenis.org</a> or at the
         following address.
       </p>
-      <Address :centerText="true" />
+      <Address
+        name="University Medical Centre Groningen"
+        :centerText="true"
+        :address="[
+          'NESTOR registry',
+          'Department of Medical Genetics',
+          'Antonius Deusinglaan 1',
+          '9713 AV Groningen',
+          'The Netherlands',
+        ]"
+      />
     </PageSection>
   </Page>
 </template>
