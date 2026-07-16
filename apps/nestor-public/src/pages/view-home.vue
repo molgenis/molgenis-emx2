@@ -49,17 +49,18 @@ import {
         quick links: learn more about KWF NESTOR
       </h2>
       <LinkCardGroup
+        height="medium"
         :linkCards="[
           { name: 'about', label: 'About Us' },
           {
             name: 'documents',
             label: 'Documents',
-            image: 'img/bg-documents.jpg',
+            imageSrc: 'img/bg-documents.jpg',
           },
           {
             name: 'dashboard',
             label: 'Dashboard',
-            image: 'img/bg-dashboard.jpg',
+            imageSrc: 'img/bg-dashboard.jpg',
           },
         ]"
       />
