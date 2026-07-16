@@ -1,5 +1,6 @@
 package org.molgenis.emx2.fairmapper;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -23,9 +24,13 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class HarvestingSpike {
 
+  private static final String[] DATA_FILES = {"stage/Dataset.ttl", "stage/Catalog.ttl"};
+
+  private static final String[] TABLES = {"Organisations", "Contacts", "Collections", "Catalogues"};
+
   @Test
   void shouldHarvest() throws InterruptedException {
-    SailRepository repository = RdfFileReader.readFiles("stage/Dataset.ttl", "stage/Catalog.ttl");
+    SailRepository repository = RdfFileReader.readFiles(DATA_FILES);
 
     RdfPreProcessor temporalPreProcessor = new TemporalRdfPreProcessor();
     temporalPreProcessor.process(repository);
@@ -40,16 +45,12 @@ class HarvestingSpike {
 
     Schema schema = database.getSchema("harvesting");
     RdfTransformer transformer =
-        new SparqlSelectRdfTransformer(
-            queryGenerator,
-            schema.getMetadata(),
-            List.of("Organisations", "Contacts", "Collections", "Catalogues"));
+        new SparqlSelectRdfTransformer(queryGenerator, schema.getMetadata(), List.of(TABLES));
     TableStore tableStore = transformer.transform(repository);
 
     postProcess(tableStore, schema.getMetadata());
     ImportSchemaTask tasks =
-        new ImportSchemaTask(
-                tableStore, schema, false, "Organisations", "Contacts", "Collections", "Catalogues")
+        new ImportSchemaTask(tableStore, schema, false, TABLES)
             .setFilter(ImportSchemaTask.Filter.DATA_ONLY);
 
     tasks.run();
@@ -76,7 +77,7 @@ class HarvestingSpike {
     MissingReferencePrimaryKeyResolver primaryKeyResolver =
         new MissingReferencePrimaryKeyResolver(schema);
     primaryKeyResolver.resolve(
-        tableStore, "Organisations", "Contacts", "Collections", "Catalogues");
+        tableStore, TABLES);
 
     // The query fetches too many organisations, filter out the ones that don't hold a reference to
     // a resource, as those are unneeded
