@@ -1,15 +1,14 @@
 package org.molgenis.emx2.fairmapper;
 
-import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.fairmapper.postprocessing.MissingReferencePrimaryKeyResolver;
 import org.molgenis.emx2.fairmapper.postprocessing.OntologyResolver;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
@@ -18,8 +17,8 @@ import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
 import org.molgenis.emx2.io.ImportSchemaTask;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.rdf.generators.query.FileBasedQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.QueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class HarvestingSpike {
@@ -37,17 +36,7 @@ class HarvestingSpike {
 
     Database database = TestDatabaseFactory.getTestDatabase();
 
-    QueryGenerator queryGenerator =
-        new FileBasedQueryGenerator(
-            Map.of(
-                "Contacts",
-                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Contacts.rq"),
-                "Organisations",
-                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Organisations.rq"),
-                "Collections",
-                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Collections.rq"),
-                "Catalogues",
-                Path.of("src/test/resources/org/molgenis/emx2/fairmapper/queries/Catalogues.rq")));
+    QueryGenerator queryGenerator = new TableQueryGenerator();
 
     Schema schema = database.getSchema("harvesting");
     RdfTransformer transformer =
@@ -84,12 +73,10 @@ class HarvestingSpike {
     resolveOrganisationsId(tableStore);
 
     // Resolve circular 1-to-1 dependencies from collections
-    resolvePublisher(tableStore);
-    resolveCreator(tableStore);
-
-    // Either clear or resolve contactPoint
-    clearContactPoint(tableStore);
-    //    resolveContactPoint(tableStore);
+    MissingReferencePrimaryKeyResolver primaryKeyResolver =
+        new MissingReferencePrimaryKeyResolver(schema);
+    primaryKeyResolver.resolve(
+        tableStore, "Organisations", "Contacts", "Collections", "Catalogues");
 
     // The query fetches too many organisations, filter out the ones that don't hold a reference to
     // a resource, as those are unneeded
@@ -119,111 +106,6 @@ class HarvestingSpike {
         (iterator, source) ->
             iterator.forEachRemaining(
                 row -> row.setString("id", row.getString("organisation name"))));
-  }
-
-  private void resolveCreator(TableStore tableStore) {
-    Map<String, Row> organisations =
-        StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
-            .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
-
-    List<String> tables = List.of("Collections", "Catalogues");
-
-    for (String table : tables) {
-      tableStore.processTable(
-          table,
-          (iterator, source) ->
-              iterator.forEachRemaining(
-                  row -> {
-                    if (!row.containsName("_subject_creator")) {
-                      return;
-                    }
-
-                    String[] split = row.getString("_subject_creator").split(",");
-                    for (String creatorIRI : split) {
-                      Row creator = organisations.get(creatorIRI);
-                      creator.setString("resource", row.getString("id"));
-
-                      row.set("creator.resource", row.getString("id"));
-                      row.set("creator.id", creator.getString("id"));
-                    }
-                  }));
-    }
-  }
-
-  private void resolvePublisher(TableStore tableStore) {
-    Map<String, Row> organisations =
-        StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
-            .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
-
-    List<String> tables = List.of("Collections", "Catalogues");
-
-    for (String table : tables) {
-      tableStore.processTable(
-          table,
-          (iterator, source) ->
-              iterator.forEachRemaining(
-                  row -> {
-                    if (!row.containsName("_subject_publisher")) {
-                      return;
-                    }
-
-                    Row publisher = organisations.get(row.getString("_subject_publisher"));
-                    publisher.setString("resource", row.getString("id"));
-
-                    row.set("publisher.resource", row.getString("id"));
-                    row.set("publisher.id", publisher.getString("id"));
-                  }));
-    }
-  }
-
-  private void resolveContactPoint(TableStore tableStore) {
-    Map<String, Row> contacts =
-        StreamSupport.stream(tableStore.readTable("Contacts").spliterator(), false)
-            .collect(Collectors.toMap(r -> r.getString("_subject_"), r -> r));
-
-    List<String> tables = List.of("Collections", "Catalogues");
-
-    for (String table : tables) {
-      tableStore.processTable(
-          table,
-          (iterator, source) ->
-              iterator.forEachRemaining(
-                  row -> {
-                    if (row.containsName("contact point.first name")
-                        && row.containsName("contact point.last name")
-                        && row.containsName("_subject_contact point")) {
-                      row.set("contact point.resource", row.getString("id"));
-                      // We already have first name and last name because they are annotated
-                      Row contactRow = contacts.get(row.getString("_subject_contact point"));
-                      contactRow.set("resource", row.getString("id"));
-                    }
-                  }));
-
-      tableStore.processTable(
-          "Contacts",
-          (iterator, source) ->
-              iterator.forEachRemaining(
-                  row ->
-                      row.set(
-                          "resource",
-                          contacts.get(row.getString("_subject_")).getString("resource"))));
-    }
-  }
-
-  private void clearContactPoint(TableStore tableStore) {
-    List<String> tables = List.of("Collections", "Catalogues");
-
-    for (String table : tables) {
-      tableStore.processTable(
-          table,
-          (iterator, source) ->
-              iterator.forEachRemaining(
-                  row -> {
-                    row.clear("contact point.first name");
-                    row.clear("contact point.last name");
-                    row.clear("contact point.resource");
-                  }));
-    }
   }
 
   /** Adds id field from acronym */
