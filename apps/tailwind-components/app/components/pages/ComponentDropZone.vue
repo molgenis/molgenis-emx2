@@ -5,6 +5,7 @@ import { ref, useId, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn } from "@vueuse/core";
 import { addBlock, addComponent } from "../../utils/cms";
+import type { IDraggingInfo } from "../../../types/cms";
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
 
@@ -17,11 +18,7 @@ const props = withDefaults(
     schema: string;
     order?: number;
     parent: string;
-    draggingInfo: {
-      dragging: boolean;
-      componentName: string;
-      componentType: string;
-    };
+    draggingInfo: IDraggingInfo;
   }>(),
   {
     order: 0,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DSVRowAny } from "d3";
+import type { IDraggingInfo } from "../../../types/cms";
 import Button from "../Button.vue";
 import { ref } from "vue";
 
@@ -18,12 +18,12 @@ const props = withDefaults(
 const dragging = ref<boolean>(false);
 const emit = defineEmits(["dragging"]);
 
-const startDrag = (event: DragEvent, componentInfo: DSVRowAny) => {
-  emit("dragging", { dragging: true, ...componentInfo });
+const startDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
+  emit("dragging", componentInfo);
   dragging.value = true;
 };
-const endDrag = (event: DragEvent, componentInfo: any) => {
-  emit("dragging", { dragging: false, ...componentInfo });
+const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
+  emit("dragging", componentInfo);
   dragging.value = false;
 };
 </script>
@@ -32,8 +32,12 @@ const endDrag = (event: DragEvent, componentInfo: any) => {
   <Button
     class="!justify-start"
     draggable="true"
-    @dragstart="startDrag($event, { componentName, componentType })"
-    @dragend="endDrag($event, { componentName, componentType })"
+    @dragstart="
+      startDrag($event, { dragging: true, componentName, componentType })
+    "
+    @dragend="
+      endDrag($event, { dragging: false, componentName, componentType })
+    "
     type="secondary"
     size="tiny"
     :icon="icon"

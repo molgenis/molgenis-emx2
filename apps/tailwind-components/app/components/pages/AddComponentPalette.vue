@@ -12,7 +12,7 @@ const props = withDefaults(
   {}
 );
 
-const { width, height } = useWindowSize();
+const { width } = useWindowSize();
 const handle = useTemplateRef("handle");
 
 const handleDragEvent = (event: DragEvent) => {
@@ -43,38 +43,52 @@ const handleDragEvent = (event: DragEvent) => {
       >
         Components
       </h3>
-      <DraggableComponent
-        icon="title"
-        componentName="Heading"
-        @dragging="handleDragEvent"
-      />
-      <DraggableComponent
-        icon="paragraph"
-        componentName="Paragraph"
-        @dragging="handleDragEvent"
-      />
-      <DraggableComponent
-        icon="image"
-        componentName="Image"
-        @dragging="handleDragEvent"
-      />
+      <ul>
+        <li>
+          <DraggableComponent
+            icon="title"
+            componentName="Heading"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="paragraph"
+            componentName="Paragraph"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="image"
+            componentName="Image"
+            @dragging="handleDragEvent"
+          />
+        </li>
+      </ul>
       <h3
         class="px-1 h-6 text-body-sm rounded text-center inline-block bg-dashboard-dropzone text-title-contrast"
       >
         Blocks
       </h3>
-      <DraggableComponent
-        icon="header"
-        componentName="Header"
-        componentType="Block"
-        @dragging="handleDragEvent"
-      />
-      <DraggableComponent
-        icon="view-normal"
-        componentName="Section"
-        componentType="Block"
-        @dragging="handleDragEvent"
-      />
+      <ul>
+        <li>
+          <DraggableComponent
+            icon="header"
+            componentName="Header"
+            componentType="Block"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="view-normal"
+            componentName="Section"
+            componentType="Block"
+            @dragging="handleDragEvent"
+          />
+        </li>
+      </ul>
     </div>
   </UseDraggable>
 </template>

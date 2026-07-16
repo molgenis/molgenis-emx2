@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IConfigurablePages } from "../../../types/cms";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
+import type { IDraggingInfo } from "../../../types/cms";
 
 import PageComponent from "./PageComponent.vue";
 import TextParagraph from "./Paragraph.vue";
@@ -21,14 +22,14 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["updatePage"]);
-const handleDragEvent = (value: any) => {
+const handleDragEvent = (value: IDraggingInfo) => {
   draggingInfo.value = value;
 };
-const draggingInfo = ref<{
-  dragging: boolean;
-  componentName: string;
-  componentType: string;
-}>({ dragging: false, componentName: "", componentType: "" });
+const draggingInfo = ref<IDraggingInfo>({
+  dragging: false,
+  componentName: "",
+  componentType: "",
+});
 </script>
 
 <template>
