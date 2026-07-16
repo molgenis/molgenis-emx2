@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMouse } from "@vueuse/core";
 import { useElementBounding } from "@vueuse/core";
-import { ref, useId, useTemplateRef } from "vue";
+import { ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn } from "@vueuse/core";
 import { addBlock, addComponent } from "../../utils/cms";
@@ -37,17 +37,17 @@ useRafFn(() => {
   canPlace.value =
     props.draggingInfo.dragging &&
     props.draggingInfo.componentType === props.componentType;
+
+  // In pixels from center of element
+  const distanceFromMouse = Math.abs(
+    mouse.y.value - scroll.y.value - (y.value + maxSize * 0.5)
+  );
+  // [0 to 1] factor based on maxDistance
+  const normalizedDistanceFromMouse =
+    (maxDistance - Math.min(distanceFromMouse, maxDistance)) / maxDistance;
+  // distance with small fudging factor stop animation when close to the element
   distance.value = Math.max(
-    Math.min(
-      ((maxDistance -
-        Math.min(
-          Math.abs(mouse.y.value - scroll.y.value - (y.value + maxSize * 0.5)),
-          maxDistance
-        )) /
-        maxDistance) *
-        1.5,
-      1
-    ) * maxSize,
+    Math.min(normalizedDistanceFromMouse * 1.5, 1) * maxSize,
     0
   );
 });
@@ -56,7 +56,7 @@ async function addComponentToBlock() {
   if (props.draggingInfo.componentType === "Component") {
     await addComponent(
       props.schema,
-      props.draggingInfo.componentName + "-" + useId(),
+      props.draggingInfo.componentName + "-" + crypto.randomUUID(),
       props.parent,
       props.order,
       props.draggingInfo.componentName
@@ -64,7 +64,7 @@ async function addComponentToBlock() {
   } else {
     await addBlock(
       props.schema,
-      props.draggingInfo.componentName + "-" + useId(),
+      props.draggingInfo.componentName + "-" + crypto.randomUUID(),
       props.parent,
       props.order,
       props.draggingInfo.componentName

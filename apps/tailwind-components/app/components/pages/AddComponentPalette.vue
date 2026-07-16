@@ -46,7 +46,7 @@ const handleDragEvent = (event: DragEvent) => {
       <ul>
         <li>
           <DraggableComponent
-            icon="title"
+            icon="heading"
             componentName="Heading"
             @dragging="handleDragEvent"
           />

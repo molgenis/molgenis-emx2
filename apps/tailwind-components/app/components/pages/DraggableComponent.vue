@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { IDraggingInfo } from "../../../types/cms";
 import Button from "../Button.vue";
-import { ref } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -15,16 +14,12 @@ const props = withDefaults(
   }
 );
 
-const dragging = ref<boolean>(false);
 const emit = defineEmits(["dragging"]);
-
 const startDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
   emit("dragging", componentInfo);
-  dragging.value = true;
 };
 const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
   emit("dragging", componentInfo);
-  dragging.value = false;
 };
 </script>
 
