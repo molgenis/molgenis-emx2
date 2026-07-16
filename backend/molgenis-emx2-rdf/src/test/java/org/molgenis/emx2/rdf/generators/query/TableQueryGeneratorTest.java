@@ -99,7 +99,7 @@ class TableQueryGeneratorTest {
         SELECT ?_subject_ ?name
         WHERE { ?_subject_ a ?_type_ .
         ?_subject_ xsd:name ?name . }
-        GROUP BY ?_subject_ ?name
+        GROUP BY ?_type_ ?_subject_ ?name
         VALUES ?_type_ {
           xsd:foo\s
           xsd:bar\s

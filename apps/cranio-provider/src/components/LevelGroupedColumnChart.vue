@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue";
-
 import {
   LoadingScreen,
   GroupedColumnChart,
@@ -8,10 +7,13 @@ import {
   MessageBox,
   // @ts-expect-error
 } from "molgenis-viz";
-import { generateAxisTickData } from "../utils/generateAxisTicks";
+import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
 import { ernYourCenterPalette } from "../utils/variables";
 
-import type { ICharts, IChartData } from "../types/schema";
+import type {
+  ICharts,
+  IChartData,
+} from "../../../metadata-utils/src/viz/UiDashboard";
 import type {
   IAxisTickData,
   ICleftTypes,
@@ -40,13 +42,13 @@ const chartData = computed<IChartData[]>(() => {
   let data = props.chart.dataPoints as IChartData[];
 
   if (props.ernLevelData) {
-    const ernData = props.ernLevelData.map((row) => {
-      row.dataPointSecondaryCategory = "ERN";
+    const ernData = props.ernLevelData.map((row: IChartData) => {
+      row.secondaryCategory = "ERN";
       return row;
     });
     data = data.concat(ernData as IChartData[]);
     data = data.sort((a: IChartData, b: IChartData) => {
-      return (a.dataPointOrder as number) - (b.dataPointOrder as number);
+      return (a.sortOrder as number) - (b.sortOrder as number);
     });
   }
 
@@ -82,7 +84,7 @@ const filteredData = computed<IChartData[]>(() => {
   );
 });
 
-chartTicks.value = generateAxisTickData(chartData.value, "dataPointValue");
+chartTicks.value = generateAxisTickData(chartData.value, "value");
 
 if (props.enableFilter) {
   chartFilters.value = [
@@ -115,9 +117,9 @@ if (props.chart.dataPoints) {
       :title="chart.chartTitle"
       :description="chartDescription"
       :chartData="filteredData"
-      xvar="dataPointSecondaryCategory"
-      yvar="dataPointValue"
-      group="dataPointName"
+      xvar="secondaryCategory"
+      yvar="value"
+      group="name"
       :xAxisLabel="chart.xAxisLabel"
       :yAxisLabel="chart.yAxisLabel"
       :yMin="0"
