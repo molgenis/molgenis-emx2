@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMouse } from "@vueuse/core";
 import { useElementBounding } from "@vueuse/core";
-import { ref, useTemplateRef } from "vue";
+import { ref, useId, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn } from "@vueuse/core";
 import { addBlock, addComponent } from "../../utils/cms";
@@ -59,9 +59,7 @@ async function addComponentToBlock() {
   if (props.draggingInfo.componentType === "Component") {
     await addComponent(
       props.schema,
-      props.draggingInfo.componentName +
-        "-" +
-        Math.floor(Math.random() * 100000000),
+      props.draggingInfo.componentName + "-" + useId(),
       props.parent,
       props.order,
       props.draggingInfo.componentName
@@ -69,9 +67,7 @@ async function addComponentToBlock() {
   } else {
     await addBlock(
       props.schema,
-      props.draggingInfo.componentName +
-        "-" +
-        Math.floor(Math.random() * 100000000),
+      props.draggingInfo.componentName + "-" + useId(),
       props.parent,
       props.order,
       props.draggingInfo.componentName
@@ -99,7 +95,7 @@ async function addComponentToBlock() {
             'border-dashed': !hover,
             'bg-dashboard-dropzone-hover': hover,
           }"
-          class="border-button-primary rounded-lg overflow-hidden flex items-center justify-center bg-dashboard-dropzone text-center shadow-dashboard-palette"
+          class="border-button-primary rounded-base overflow-hidden flex items-center justify-center bg-dashboard-dropzone text-center shadow-dashboard-palette"
           :style="{ height: distance + 'px' }"
         >
           <p class="text-title-contrast pointer-events-none">

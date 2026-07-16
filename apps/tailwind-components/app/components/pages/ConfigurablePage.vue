@@ -34,14 +34,6 @@ const draggingInfo = ref<{
 <template>
   <div>
     <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
-      <ComponentDropZone
-        v-if="isEditable"
-        :parent="content.name"
-        :draggingInfo="draggingInfo"
-        :schema="schema"
-        componentType="Block"
-        @update-page="$emit('updatePage')"
-      />
       <PageComponent
         v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
         :mg_tableclass="orderedBlock.block.mg_tableclass"

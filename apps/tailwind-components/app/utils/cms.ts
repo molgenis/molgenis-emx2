@@ -229,7 +229,7 @@ async function prepareOrder(schema: string, order: number, block: string) {
         order: component.order + 1,
       });
     }
-    if (values.length > 0) {
+    if (values.length) {
       await $fetch(`/${schema}/graphql`, {
         method: "POST",
         body: {
@@ -271,7 +271,7 @@ async function prepareBlockOrder(schema: string, order: number, page: string) {
         order: block.order + 1,
       });
     }
-    if (values.length > 0) {
+    if (values.length) {
       await $fetch(`/${schema}/graphql`, {
         method: "POST",
         body: {

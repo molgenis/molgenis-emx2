@@ -16,7 +16,6 @@ const props = withDefaults(
 );
 
 const dragging = ref<boolean>(false);
-const { componentName, componentType, icon } = props;
 const emit = defineEmits(["dragging"]);
 
 const startDrag = (event: DragEvent, componentInfo: DSVRowAny) => {
