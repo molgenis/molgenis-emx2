@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 
 public class MissingReferencePrimaryKeyResolver {
 
-  private static final Logger logger = LoggerFactory.getLogger(MissingReferencePrimaryKeyResolver.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(MissingReferencePrimaryKeyResolver.class);
 
   private static final String SUBJECT_VARIABLE = "_subject_";
 
@@ -25,11 +26,9 @@ public class MissingReferencePrimaryKeyResolver {
 
   public MissingReferencePrimaryKeyResolver(SchemaMetadata schema) {
     this.schema = schema;
-
   }
 
   public void resolve(TableStore tableStore, String... tableNames) {
-
 
     for (String tableName : tableNames) {
       TableMetadata table = schema.getTableMetadata(tableName);
@@ -67,9 +66,7 @@ public class MissingReferencePrimaryKeyResolver {
 
     // Multiple references are a composite key, so that's fine
     List<Row> referenceTableRows =
-        StreamSupport.stream(
-                tableStore.readTable(targetTable).spliterator(), false)
-            .toList();
+        StreamSupport.stream(tableStore.readTable(targetTable).spliterator(), false).toList();
 
     // Only array reference columns hold multiple comma-separated subject IRIs; a singular
     // reference's IRI may itself legally contain a comma, so it must not be split.

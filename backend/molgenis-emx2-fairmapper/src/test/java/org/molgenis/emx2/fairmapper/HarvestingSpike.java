@@ -1,16 +1,13 @@
 package org.molgenis.emx2.fairmapper;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.fairmapper.postprocessing.MissingReferencePrimaryKeyResolver;
 import org.molgenis.emx2.fairmapper.postprocessing.OntologyResolver;
+import org.molgenis.emx2.fairmapper.postprocessing.SubjectColumnRemover;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
@@ -76,15 +73,14 @@ class HarvestingSpike {
     // Resolve circular 1-to-1 dependencies from collections
     MissingReferencePrimaryKeyResolver primaryKeyResolver =
         new MissingReferencePrimaryKeyResolver(schema);
-    primaryKeyResolver.resolve(
-        tableStore, TABLES);
+    primaryKeyResolver.resolve(tableStore, TABLES);
 
     // The query fetches too many organisations, filter out the ones that don't hold a reference to
     // a resource, as those are unneeded
     filterUnreferencedOrganisations(tableStore);
 
     // Drop _subject_ fields as those aren't in the schema
-    removeSubjectFromStoreRows(tableStore);
+    new SubjectColumnRemover().remove(tableStore);
   }
 
   private void filterUnreferencedOrganisations(TableStore tableStore) {
@@ -165,27 +161,6 @@ class HarvestingSpike {
           }
         }
       }
-    }
-  }
-
-  /** Remove _subject from the rows at the end of post-processing */
-  private void removeSubjectFromStoreRows(TableStore tableStore) {
-    for (String tableName : tableStore.getTableNames()) {
-      Iterator<Row> rows = tableStore.readTable(tableName).iterator();
-      if (!rows.hasNext()) {
-        continue;
-      }
-
-      Row first = rows.next();
-      Set<String> subjectColumns =
-          first.getColumnNames().stream()
-              .filter(row -> row.startsWith("_subject_"))
-              .collect(Collectors.toSet());
-
-      tableStore.processTable(
-          tableName,
-          (iterator, source) ->
-              iterator.forEachRemaining(row -> subjectColumns.forEach(row::clear)));
     }
   }
 }
