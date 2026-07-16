@@ -1,9 +1,3 @@
-<template>
-  <div class="dashboard-chart-layout" :class="`columns-${columns}`">
-    <slot></slot>
-  </div>
-</template>
-
 <script setup lang="ts">
 withDefaults(
   defineProps<{
@@ -14,6 +8,12 @@ withDefaults(
   }
 );
 </script>
+
+<template>
+  <div class="dashboard-chart-layout" :class="`columns-${columns}`">
+    <slot></slot>
+  </div>
+</template>
 
 <style lang="scss">
 .dashboard-chart-layout {

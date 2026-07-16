@@ -100,7 +100,8 @@ public class TableQueryGenerator implements QueryGenerator {
 
       select
           .where(SUBJECT_VARIABLE.isA(TYPE_VARIABLE))
-          .values(value -> value.variables(TYPE_VARIABLE).values(semantics));
+          .values(value -> value.variables(TYPE_VARIABLE).values(semantics))
+          .groupBy(TYPE_VARIABLE);
     }
   }
 

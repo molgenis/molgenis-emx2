@@ -67,6 +67,9 @@
     --box-shadow-pagination-gray: 0px 10px 20px rgba(0, 0, 0, 0.1);
     --box-shadow-no-background-modal: 0.1rem 0.1rem 6px rgba(0, 0, 0, 0.1);
 
+    --radius-base: 3px;
+    --radius-alt: 50px;
+
     --background-image-sidebar-gradient: linear-gradient(
       180deg,
       var(--color-gray-50) -24.76%,
@@ -77,6 +80,12 @@
       180deg,
       #ffffff,
       #ffffff 133.81%
+    );
+
+    --background-color-bulk-gradient: linear-gradient(
+      90deg,
+      #ffffff 0%,
+      #ffffff 100%
     );
 
     --opacity-background-gradient: 0;
@@ -139,7 +148,8 @@
     --text-color-button-tertiary-hover: var(--color-blue-800);
     --text-color-button-outline: var(--color-blue-500);
     --text-color-button-outline-hover: var(--color-blue-700);
-    --text-color-button-disabled: var(--color-gray-600);
+    --text-color-button-inline: var(--text-color-button-outline);
+    --text-color-button-disabled: var(--color-gray-400);
     --text-color-button-disabled-hover: var(--color-gray-600);
     --text-color-button-filter: var(--color-blue-800);
     --text-color-button-tree-node-toggle: var(--color-blue-800);
@@ -238,18 +248,13 @@
     --border-color-footer: var(--border-color-theme);
     --border-color-filter-divider: var(--color-gray-200);
 
+    --accent-color: var(---color-blue-500);
+
     --border-width-theme: 1px;
     --border-width-form-required: 1px;
 
-    --border-radius-theme: 3px;
-    --border-radius-3px: 3px;
-    --border-radius-50px: 50px;
-    --border-radius-input: 3px;
-    --border-radius-textarea-input: var(--border-radius-input);
-    --border-radius-search-input: 9999px;
-    --border-radius-search-button: 9999px;
-    --border-radius-pagination: 9999px;
-    --border-radius-landing: 50px;
+    --border-radius-base: var(--radius-base);
+    --border-radius-alt: var(--border-radius-base);
 
     --outline-color-select: var(--color-gray-200);
 
@@ -265,6 +270,7 @@
     --height-input: 3.5rem;
     --height-input-tiny: 2rem;
     --height-input-small: 2.5rem;
+    --height-input-medium: 3.125rem;
     --height-input-large: 4.5rem;
 
     /** input switch styles */

@@ -1,6 +1,6 @@
 import { request, gql } from "graphql-request";
-import type { IOrganisations } from "../types/ErnDashboard";
-import type { IOrganisationsResponse } from "../types/app";
+import type { IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
+import type { IOrganisationsResponse } from "../types";
 
 export async function getOrganisation(
   url: string,
