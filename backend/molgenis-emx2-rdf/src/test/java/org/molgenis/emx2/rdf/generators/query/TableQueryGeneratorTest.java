@@ -15,6 +15,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -32,9 +33,14 @@ class TableQueryGeneratorTest {
   @BeforeEach
   void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(getClass().getSimpleName()).getMetadata();
+    schema = database.createSchema(getClass().getSimpleName()).getMetadata();
     schema.create(productTableWithSemantics("xsd:name"));
     order = schema.create(orderTable(true));
+  }
+
+  @AfterEach
+  void tearDown() {
+    database.dropSchemaIfExists(getClass().getSimpleName());
   }
 
   @Test

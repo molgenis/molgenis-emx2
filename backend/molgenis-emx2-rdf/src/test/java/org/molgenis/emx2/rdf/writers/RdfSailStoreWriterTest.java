@@ -10,10 +10,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.DataModels;
@@ -21,6 +18,7 @@ import org.molgenis.emx2.rdf.generators.SemanticRdfGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class RdfSailStoreWriterTest {
+  private static final String SCHEMA_NAME = RdfSailStoreWriterTest.class.getSimpleName();
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
   static final String BASE_URL = "http://localhost:8080";
@@ -32,12 +30,8 @@ class RdfSailStoreWriterTest {
   @BeforeAll
   static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
-    database.dropSchemaIfExists(RdfSailStoreWriterTest.class.getSimpleName() + "_petStore");
-    DataModels.Profile.PET_STORE
-        .getImportTask(
-            database, RdfSailStoreWriterTest.class.getSimpleName() + "_petStore", "", true)
-        .run();
-    petStore = database.getSchema(RdfSailStoreWriterTest.class.getSimpleName() + "_petStore");
+    DataModels.Profile.PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();
+    petStore = database.getSchema(SCHEMA_NAME);
   }
 
   @BeforeEach
@@ -50,6 +44,11 @@ class RdfSailStoreWriterTest {
   @AfterEach
   void tearDown() {
     repository.shutDown();
+  }
+
+  @AfterAll
+  static void afterAll() {
+    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test
@@ -68,7 +67,7 @@ class RdfSailStoreWriterTest {
                 statements.contains(
                     valueFactory.createStatement(
                         Values.iri(
-                            "http://localhost:8080/RdfSailStoreWriterTest_petStore/api/rdf/Tag/name=red"),
+                            "http://localhost:8080/RdfSailStoreWriterTest/api/rdf/Tag/name=red"),
                         Values.iri("http://www.w3.org/2000/01/rdf-schema#label"),
                         Values.literal("red")))),
         () ->
@@ -76,7 +75,7 @@ class RdfSailStoreWriterTest {
                 statements.contains(
                     valueFactory.createStatement(
                         Values.iri(
-                            "http://localhost:8080/RdfSailStoreWriterTest_petStore/api/rdf/Tag/name=red"),
+                            "http://localhost:8080/RdfSailStoreWriterTest/api/rdf/Tag/name=red"),
                         Values.iri("http://www.w3.org/2002/07/owl#sameAs"),
                         Values.iri("https://dbpedia.org/page/Red")))));
   }
