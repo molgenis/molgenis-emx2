@@ -22,7 +22,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
-public class SemanticTest extends RdfServiceTest {
+class SemanticTest extends RdfServiceTest {
   private static final String SCHEMA_NAME = SemanticTest.class.getSimpleName();
 
   static Schema semanticTest;
@@ -107,7 +107,7 @@ public class SemanticTest extends RdfServiceTest {
   }
 
   @Test
-  void testMissingIriSemanticPrefixesSetting() throws IOException {
+  void testMissingIriSemanticPrefixesSetting() {
     final String customPrefixes = "example,example";
 
     try {
@@ -120,7 +120,7 @@ public class SemanticTest extends RdfServiceTest {
   }
 
   @Test
-  void testIllegalPrefixSemanticPrefixesSetting() throws IOException {
+  void testIllegalPrefixSemanticPrefixesSetting() {
     final String customPrefixes = "urn,http://example.com";
 
     try {

@@ -21,7 +21,7 @@ import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
 /** Tests specific for {@link org.molgenis.emx2.rdf.generators.Emx2RdfGenerator} */
-public class Emx2RdfsPetStoreTest extends PetStoreTest {
+class Emx2RdfsPetStoreTest extends PetStoreTest {
   private static final String SCHEMA_NAME_PREFIX = Emx2RdfsPetStoreTest.class.getSimpleName() + "_";
 
   /**
@@ -169,8 +169,8 @@ public class Emx2RdfsPetStoreTest extends PetStoreTest {
 
   @Test
   void testThatColumnPredicatesAreNotSubClasses() throws IOException {
-    IRI database_column = Values.iri("http://semanticscience.org/resource/SIO_000757");
-    IRI measure_property = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
+    IRI databaseColumn = Values.iri("http://semanticscience.org/resource/SIO_000757");
+    IRI measureProperty = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
     InMemoryRDFHandler handler = parseColumnRdf(petStoreTest, "Pet", "name");
 
     assertFalse(handler.resources.keySet().isEmpty());
@@ -179,8 +179,8 @@ public class Emx2RdfsPetStoreTest extends PetStoreTest {
         Set<Value> subclasses =
             handler.resources.get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
         assertFalse(
-            subclasses.contains(database_column), "We don't model as a SIO database column.");
-        assertFalse(subclasses.contains(measure_property), "Measure property should not be used");
+            subclasses.contains(databaseColumn), "We don't model as a SIO database column.");
+        assertFalse(subclasses.contains(measureProperty), "Measure property should not be used");
         assertTrue(subclasses.isEmpty(), "Predicates are not classes but properties.");
       }
     }
@@ -188,14 +188,14 @@ public class Emx2RdfsPetStoreTest extends PetStoreTest {
 
   @Test
   void testThatInstancesAreNotASIODatabaseRow() throws IOException {
-    IRI database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
+    IRI databaseRow = Values.iri("http://semanticscience.org/resource/SIO_001187");
     InMemoryRDFHandler handler = parseRowRdf(petStoreTest, "Pet", POOKY_ROWID);
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (Resource subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith(POOKY_ROWID)) {
         Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
-        assertFalse(types.contains(database_row), "We don't model as a SIO database row.");
+        assertFalse(types.contains(databaseRow), "We don't model as a SIO database row.");
       }
     }
   }

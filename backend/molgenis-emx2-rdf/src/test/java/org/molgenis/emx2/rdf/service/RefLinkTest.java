@@ -18,7 +18,7 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
-public class RefLinkTest extends RdfServiceTest {
+class RefLinkTest extends RdfServiceTest {
   private static final String SCHEMA_NAME = RefLinkTest.class.getSimpleName();
 
   static Schema refLinkTest;
@@ -68,8 +68,7 @@ public class RefLinkTest extends RdfServiceTest {
   }
 
   @Test
-  void testRefLinkWorks() throws IOException {
-    InMemoryRDFHandler handler = new InMemoryRDFHandler() {};
+  void testRefLinkWorks() {
     assertDoesNotThrow(() -> parseSchemaRdf(refLinkTest));
   }
 

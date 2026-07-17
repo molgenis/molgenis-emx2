@@ -19,7 +19,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
-public class OntologyTest extends RdfServiceTest {
+class OntologyTest extends RdfServiceTest {
   private static final String SCHEMA_NAME = RdfCompositeKeyTest.class.getSimpleName();
   private static final String CROSS_SCHEMA_NAME = SCHEMA_NAME + "_cross_schema";
 

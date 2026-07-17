@@ -17,7 +17,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 import org.molgenis.emx2.rdf.RdfValidator;
 
-public class RdfCompositeKeyTest extends RdfServiceTest {
+class RdfCompositeKeyTest extends RdfServiceTest {
   private static final String SCHEMA_NAME = RdfCompositeKeyTest.class.getSimpleName();
 
   static Schema compositeKeyTest;
