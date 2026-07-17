@@ -1,6 +1,9 @@
 package org.molgenis.emx2.fairmapper;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.jupiter.api.Test;
@@ -56,7 +59,10 @@ class HarvestingSpike {
   private static TableStore transform(SailRepository repository, SchemaMetadata schema) {
     QueryGenerator queryGenerator = new TableQueryGenerator();
     RdfTransformer transformer =
-        new SparqlSelectRdfTransformer(queryGenerator, schema, List.of(TABLES));
+        new SparqlSelectRdfTransformer(
+            queryGenerator,
+            schema,
+            List.of("Contacts", "Collections", "Catalogues", "Organisations"));
     return transformer.transform(repository);
   }
 
@@ -81,6 +87,7 @@ class HarvestingSpike {
 
     // Resolve organisation id's from their subject iri's
     resolveOrganisationsId(tableStore);
+    resolveOrganisationResource(tableStore);
 
     // Resolve circular 1-to-1 dependencies from collections
     MissingReferencePrimaryKeyResolver primaryKeyResolver =
@@ -89,10 +96,50 @@ class HarvestingSpike {
 
     // Drop _subject_ fields as those aren't in the schema
     new SubjectColumnRemover().remove(tableStore);
+  }
 
-    // The query fetches too many organisations, filter out the ones that don't hold a reference to
-    // a resource, as those are unneeded
-    deduplicate(tableStore);
+  private void resolveOrganisationResource(TableStore tableStore) {
+    Map<String, Row> organisations =
+        StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
+            .collect(Collectors.toMap(row -> row.getString("_subject_"), Function.identity()));
+
+    for (String tableName : List.of("Collections", "Catalogues")) {
+      tableStore.processTable(
+          tableName,
+          (iterator, source) ->
+              iterator.forEachRemaining(
+                  row -> {
+                    if (row.containsName("_subject_creator")) {
+                      String creator = row.getString("_subject_creator");
+                      Row organisationRow = organisations.get(creator);
+                      if (organisationRow != null) {
+                        organisationRow.setString("resource", row.getString("id"));
+                      }
+                    }
+
+                    if (row.containsName("_subject_publisher")) {
+                      String creator = row.getString("_subject_publisher");
+                      Row organisationRow = organisations.get(creator);
+                      if (organisationRow != null) {
+                        organisationRow.setString("resource", row.getString("id"));
+                      }
+                    }
+                  }));
+    }
+
+    List<Row> organisationRows =
+        organisations.values().stream()
+            .filter(row -> row.containsName("_subject_resource"))
+            .toList();
+
+    if (organisationRows.isEmpty()) {
+      tableStore.writeTable("Organisations", List.of(), List.of());
+    } else {
+      tableStore.writeTable(
+          "Organisations",
+          organisationRows.getFirst().getColumnNames().stream().toList(),
+          organisationRows);
+    }
   }
 
   private void deduplicate(TableStore tableStore) {
