@@ -18,7 +18,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 import org.molgenis.emx2.rdf.RdfValidator;
 
-public class TableInheritanceTest extends RdfTestLoaders {
+public class TableInheritanceTest extends RdfServiceTest {
   private static final String SCHEMA_NAME = TableInheritanceTest.class.getSimpleName();
   private static final String EXTERNAL_SCHEMA_NAME = SCHEMA_NAME + "_EXTERNAL";
 

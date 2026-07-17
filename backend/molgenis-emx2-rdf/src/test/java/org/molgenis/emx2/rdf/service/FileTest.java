@@ -20,7 +20,7 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
-public class FileTest extends RdfTestLoaders {
+public class FileTest extends RdfServiceTest {
   private static final String SCHEMA_NAME = FileTest.class.getSimpleName();
 
   static Schema fileTest;

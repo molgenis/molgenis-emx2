@@ -17,7 +17,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
 /** Uses own schema due to pet store using auto id */
-public class RefBackTest extends RdfTestLoaders {
+public class RefBackTest extends RdfServiceTest {
   private static final String SCHEMA_NAME = RefLinkTest.class.getSimpleName();
 
   static Schema refBackTest;

@@ -30,7 +30,7 @@ import org.molgenis.emx2.rdf.writers.RdfStreamWriter;
 import org.molgenis.emx2.rdf.writers.ShaclResultWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-public class PetStoreTest extends RdfTestLoaders {
+public class PetStoreTest extends RdfServiceTest {
   private static final String SCHEMA_NAME = PetStoreTest.class.getSimpleName();
   private static final String SCHEMA_NAME_SECOND = SCHEMA_NAME + "_SECOND";
 

@@ -18,7 +18,7 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
-public class RefLinkTest extends RdfTestLoaders {
+public class RefLinkTest extends RdfServiceTest {
   private static final String SCHEMA_NAME = RefLinkTest.class.getSimpleName();
 
   static Schema refLinkTest;
