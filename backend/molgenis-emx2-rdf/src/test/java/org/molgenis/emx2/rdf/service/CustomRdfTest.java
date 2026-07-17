@@ -16,7 +16,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
-class CustomRdfTest extends RdfServiceTest {
+class CustomRdfTest extends RdfServiceTestRunner {
   private static final String SCHEMA_NAME_PREFIX = RefLinkTest.class.getSimpleName() + "_";
 
   @Test

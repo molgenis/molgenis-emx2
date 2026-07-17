@@ -22,7 +22,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
-class SemanticTest extends RdfServiceTest {
+class SemanticTest extends RdfServiceTestRunner {
   private static final String SCHEMA_NAME = SemanticTest.class.getSimpleName();
 
   static Schema semanticTest;

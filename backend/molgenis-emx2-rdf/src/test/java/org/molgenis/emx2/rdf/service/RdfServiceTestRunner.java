@@ -32,7 +32,7 @@ import org.molgenis.emx2.rdf.writers.OutputStreamWriterFactory;
 import org.molgenis.emx2.rdf.writers.RdfOutputStreamWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-abstract class RdfServiceTest {
+abstract class RdfServiceTestRunner {
   static final String BASE_URL = "http://localhost:8080";
   static final String RDF_API_LOCATION = "/api/rdf";
 
