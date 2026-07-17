@@ -13,7 +13,10 @@ import Address from "../components/Address.vue";
       titlePositionY="center"
       height="medium"
     />
-    <PageSection aria-labelledby="contact-us-section-title">
+    <PageSection
+      aria-labelledby="contact-us-section-title"
+      :verticalPadding="2"
+    >
       <h2 id="contact-us-section-title">Contact Us</h2>
       <Address :showEmail="true" :centerText="true" />
     </PageSection>

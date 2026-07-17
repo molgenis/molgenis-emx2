@@ -12,7 +12,10 @@ import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
       titlePositionY="center"
       height="medium"
     />
-    <PageSection aria-labelledby="disclaimer-section-title">
+    <PageSection
+      aria-labelledby="disclaimer-section-title"
+      :verticalPadding="2"
+    >
       <h2 id="disclaimer-section-title">Disclaimer statement</h2>
       <MessageBox type="warning">
         <span>This page is under construction.</span>

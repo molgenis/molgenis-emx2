@@ -12,7 +12,7 @@ import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
       titlePositionY="center"
       height="medium"
     />
-    <PageSection aria-labelledby="about-us-section-title">
+    <PageSection aria-labelledby="about-us-section-title" :verticalPadding="2">
       <h2 id="about-us-section-title">About the NESTOR Registry</h2>
       <p>
         The NESTOR Registry is a web-based platform that facilitates and

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 //@ts-expect-error
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-import QuickLinks from "../components/QuickLinks.vue";
+import { Page, PageHeader, PageSection, LinkCardGroup } from "molgenis-viz";
 import Address from "../components/Address.vue";
 </script>
 
@@ -22,7 +21,7 @@ import Address from "../components/Address.vue";
     >
       <img
         src="/img/nestor-logo.png"
-        class="logo logo-medium logo-center"
+        class="nestor-logo"
         alt="KWF NESTOR logo will go here"
       />
       <h2 id="section-welcome-title">Welcome to the NESTOR Registry</h2>
@@ -44,25 +43,20 @@ import Address from "../components/Address.vue";
       <h2 class="visually-hidden" id="quicklinks-card-title">
         quick links: learn more about KWF NESTOR
       </h2>
-      <QuickLinks
-        id="quickLinks"
-        aria-labelledby="quicklinks-card-title"
-        :data="[
+      <LinkCardGroup
+        :linkCards="[
           { name: 'about', label: 'About Us' },
           {
             name: 'documents',
             label: 'Documents',
-            image: 'img/bg-documents.jpg',
+            imageSrc: 'img/bg-documents.jpg',
           },
           {
             name: 'dashboard',
             label: 'Dashboard',
-            image: 'img/bg-dashboard.jpg',
+            imageSrc: 'img/bg-dashboard.jpg',
           },
         ]"
-        name="name"
-        label="label"
-        imageSrc="image"
       />
     </PageSection>
     <PageSection
