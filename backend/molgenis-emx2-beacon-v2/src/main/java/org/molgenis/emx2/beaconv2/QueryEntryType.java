@@ -138,7 +138,7 @@ public class QueryEntryType {
   private ObjectNode getJsltResponse(ObjectNode response) {
     ArrayNode resultSets = response.withArray("resultSets");
 
-    Optional<String> template = null;
+    Optional<String> template = Optional.empty();
     if (database != null && schema != null) {
       template = readSchemaTemplate();
     }
@@ -150,7 +150,6 @@ public class QueryEntryType {
                 () ->
                     Parser.compileResource(
                         "entry-types/" + entryType.getName().toLowerCase() + ".jslt"));
-    ;
 
     ObjectNode jsltResponse = (ObjectNode) jslt.apply(response);
 
