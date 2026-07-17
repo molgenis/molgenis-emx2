@@ -13,13 +13,17 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
 public class FileTest extends RdfTestLoaders {
   private static final String SCHEMA_NAME = FileTest.class.getSimpleName();
+
+  static Schema fileTest;
 
   @BeforeAll
   static void beforeAll() {
@@ -31,6 +35,11 @@ public class FileTest extends RdfTestLoaders {
             column("file").setType(ColumnType.FILE)));
 
     fileTest.getTable("myFiles").insert(row("id", "1", "file", getFile("testfiles/molgenis.png")));
+  }
+
+  @AfterAll
+  static void afterAll() {
+    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test

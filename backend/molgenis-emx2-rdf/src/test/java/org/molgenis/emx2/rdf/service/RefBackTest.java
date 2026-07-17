@@ -9,14 +9,18 @@ import java.io.IOException;
 import java.util.Set;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
 /** Uses own schema due to pet store using auto id */
 public class RefBackTest extends RdfTestLoaders {
   private static final String SCHEMA_NAME = RefLinkTest.class.getSimpleName();
+
+  static Schema refBackTest;
 
   @BeforeAll
   static void beforeAll() {
@@ -38,6 +42,11 @@ public class RefBackTest extends RdfTestLoaders {
 
     refBackTest.getTable("tableRefBack").insert(row("id", "a"));
     refBackTest.getTable("tableRef").insert(row("id", "1", "link", "a"));
+  }
+
+  @AfterAll
+  static void afterAll() {
+    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test

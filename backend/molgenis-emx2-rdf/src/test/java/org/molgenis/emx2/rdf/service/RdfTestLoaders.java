@@ -16,7 +16,6 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
@@ -41,37 +40,10 @@ public class RdfTestLoaders {
       DefaultNamespace.streamAll().collect(Collectors.toSet());
 
   static Database database;
-  static List<Schema> petStoreSchemas;
-  static Schema petStore_nr1;
-  static Schema petStore_nr2;
-  static Schema compositeKeyTest;
-  static Schema ontologyTest;
-  static Schema ontologyCrossSchemaTest;
-  static Schema tableInherTest;
-  static Schema tableInherExtTest;
-  static Schema fileTest;
-  static Schema refBackTest;
-  static Schema refLinkTest;
-  static Schema semanticTest;
 
   @BeforeAll
   static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
-  }
-
-  @AfterAll
-  public static void tearDown() {
-    //    database.dropSchemaIfExists(petStore_nr1.getName());
-    //    database.dropSchemaIfExists(petStore_nr2.getName());
-    //    database.dropSchemaIfExists(compositeKeyTest.getName());
-    //    database.dropSchemaIfExists(ontologyCrossSchemaTest.getName());
-    //    database.dropSchemaIfExists(ontologyTest.getName());
-    //    database.dropSchemaIfExists(tableInherExtTest.getName());
-    //    database.dropSchemaIfExists(tableInherTest.getName());
-    //    database.dropSchemaIfExists(fileTest.getName());
-    //    database.dropSchemaIfExists(refBackTest.getName());
-    //    database.dropSchemaIfExists(refLinkTest.getName());
-    //    database.dropSchemaIfExists(semanticTest.getName());
   }
 
   static String getApi(String schemaName, boolean trailingSlash) {

@@ -9,14 +9,18 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Triple;
 import org.eclipse.rdf4j.model.Value;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 import org.molgenis.emx2.rdf.RdfValidator;
 
 public class RdfCompositeKeyTest extends RdfTestLoaders {
   private static final String SCHEMA_NAME = RdfCompositeKeyTest.class.getSimpleName();
+
+  static Schema compositeKeyTest;
 
   private static final Resource COMP_ROOT1_FIRST =
       getIri("Root1/r1.c1a=c1a_first&r1.c1b.gc1a=gc1a_first&r1.c1b.gc1b=gc1b_first");
@@ -129,6 +133,11 @@ public class RdfCompositeKeyTest extends RdfTestLoaders {
                 "gc1a_first",
                 "r2b.c1b.gc1b",
                 "gc1b_first"));
+  }
+
+  @AfterAll
+  static void afterAll() {
+    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test

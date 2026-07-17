@@ -11,13 +11,17 @@ import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
 public class RefLinkTest extends RdfTestLoaders {
   private static final String SCHEMA_NAME = RefLinkTest.class.getSimpleName();
+
+  static Schema refLinkTest;
 
   @BeforeAll
   static void beforeAll() {
@@ -56,6 +60,11 @@ public class RefLinkTest extends RdfTestLoaders {
                 "t2Second",
                 "ref_array",
                 "t2Third,t2Fourth"));
+  }
+
+  @AfterAll
+  static void afterAll() {
+    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test

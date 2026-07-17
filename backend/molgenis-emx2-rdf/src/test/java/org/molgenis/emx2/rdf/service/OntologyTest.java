@@ -1,6 +1,6 @@
 package org.molgenis.emx2.rdf.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -11,9 +11,11 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
@@ -21,10 +23,11 @@ public class OntologyTest extends RdfTestLoaders {
   private static final String SCHEMA_NAME = RdfCompositeKeyTest.class.getSimpleName();
   private static final String CROSS_SCHEMA_NAME = SCHEMA_NAME + "_cross_schema";
 
+  static Schema ontologyTest;
+  static Schema ontologyCrossSchemaTest;
+
   @BeforeAll
   static void beforeAll() {
-    database.dropSchemaIfExists(CROSS_SCHEMA_NAME); // in case tearDown fails
-
     ontologyTest = database.dropCreateSchema(SCHEMA_NAME);
     ontologyTest.create(table("Diseases").setTableType(TableType.ONTOLOGIES));
     ontologyTest.create(
@@ -116,6 +119,12 @@ public class OntologyTest extends RdfTestLoaders {
                 "pim",
                 "diseases",
                 "\"U07\", \"C00-C14 Malignant neoplasms of lip, oral cavity and pharynx\""));
+  }
+
+  @AfterAll
+  static void afterAll() {
+    database.dropSchemaIfExists(CROSS_SCHEMA_NAME);
+    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test

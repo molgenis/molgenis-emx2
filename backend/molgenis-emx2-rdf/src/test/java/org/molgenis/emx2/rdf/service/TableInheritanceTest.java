@@ -10,15 +10,20 @@ import java.io.IOException;
 import java.util.List;
 import org.eclipse.rdf4j.model.Triple;
 import org.eclipse.rdf4j.model.util.Values;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 import org.molgenis.emx2.rdf.RdfValidator;
 
 public class TableInheritanceTest extends RdfTestLoaders {
   private static final String SCHEMA_NAME = TableInheritanceTest.class.getSimpleName();
   private static final String EXTERNAL_SCHEMA_NAME = SCHEMA_NAME + "_EXTERNAL";
+
+  static Schema tableInherTest;
+  static Schema tableInherExtTest;
 
   private static final Triple INHER_ID1 =
       getTriple(SCHEMA_NAME, "Root/id=1", "Root/column/rootColumn", "id1 data");
@@ -73,8 +78,6 @@ public class TableInheritanceTest extends RdfTestLoaders {
   @BeforeAll
   static void beforeAll() {
     // Use example from the catalogue schema since this has all the different issues.
-    database.dropSchemaIfExists(EXTERNAL_SCHEMA_NAME); // in case tearDown fails
-
     tableInherTest = database.dropCreateSchema(SCHEMA_NAME);
     tableInherTest.create(
         table(
@@ -128,6 +131,12 @@ public class TableInheritanceTest extends RdfTestLoaders {
     tableInherExtTest
         .getTable("ExternalUnrelated")
         .insert(row("id", "a", "externalUnrelatedColumn", "unrelated data"));
+  }
+
+  @AfterAll
+  static void afterAll() {
+    database.dropSchemaIfExists(EXTERNAL_SCHEMA_NAME);
+    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test

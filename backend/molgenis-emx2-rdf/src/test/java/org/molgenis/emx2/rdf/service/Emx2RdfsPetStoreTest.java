@@ -15,13 +15,15 @@ import org.eclipse.rdf4j.model.vocabulary.DCAT;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
-import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
-public class RDFTest extends RdfTestLoaders {
+/** Tests specific for {@link org.molgenis.emx2.rdf.generators.Emx2RdfGenerator} */
+public class Emx2RdfsPetStoreTest extends PetStoreTest {
+  private static final String SCHEMA_NAME_PREFIX = Emx2RdfsPetStoreTest.class.getSimpleName() + "_";
+
   /**
    * Encoded id for the Pet pooky. The id string is composed by base64 encoding the id columns and
    * their values separately. Column names and values are separated by an ampersand and multiple
@@ -29,10 +31,9 @@ public class RDFTest extends RdfTestLoaders {
    */
   public static final String POOKY_ROWID = "name=pooky";
 
-  // Old selective output tests.
   @Test
   void testThatColumnsAreAProperty() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
 
     assertFalse(handler.resources.entrySet().isEmpty());
     for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
@@ -51,7 +52,7 @@ public class RDFTest extends RdfTestLoaders {
 
   @Test
   void testThatTablesAreClasses() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
 
     assertFalse(handler.resources.entrySet().isEmpty());
     for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
@@ -67,7 +68,7 @@ public class RDFTest extends RdfTestLoaders {
 
   @Test
   void testThatClassesDoNotHaveRangeOrDomain() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
 
     assertFalse(handler.resources.entrySet().isEmpty());
     for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
@@ -87,7 +88,7 @@ public class RDFTest extends RdfTestLoaders {
 
   @Test
   void testThatColumnsHaveARangeAndDomain() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
 
     assertFalse(handler.resources.entrySet().isEmpty());
     for (Map.Entry<Resource, Map<IRI, Set<Value>>> resource : handler.resources.entrySet()) {
@@ -101,21 +102,8 @@ public class RDFTest extends RdfTestLoaders {
   }
 
   @Test
-  void testThatRDFOnlyIncludesRequestedSchema() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
-
-    assertFalse(handler.resources.keySet().isEmpty());
-
-    for (Resource resource : handler.resources.keySet()) {
-      assertFalse(
-          resource.toString().contains("petStoreNr2"),
-          "No resources within the petStoreNr2 schema should be included.");
-    }
-  }
-
-  @Test
   void testThatRDFforColumnOnlyContainsMetadata() throws IOException {
-    InMemoryRDFHandler handler = parseColumnRdf(petStore_nr1, "Pet", "name");
+    InMemoryRDFHandler handler = parseColumnRdf(petStoreTest, "Pet", "name");
     List<Value> allowedTypes =
         List.of(
             OWL.CLASS,
@@ -147,23 +135,23 @@ public class RDFTest extends RdfTestLoaders {
 
   @Test
   void testCorrectEndpointIRI() throws IOException {
-    InMemoryRDFHandler handler = parseRowRdf(petStore_nr1, "Pet", POOKY_ROWID);
+    InMemoryRDFHandler handler = parseRowRdf(petStoreTest, "Pet", POOKY_ROWID);
 
     Set<Value> endpointIris =
         handler
             .resources
-            .get(Values.iri(getApi(petStore_nr1) + "Pet/" + POOKY_ROWID))
+            .get(Values.iri(getApi(petStoreTest) + "Pet/" + POOKY_ROWID))
             .get(Values.iri(DCAT.ENDPOINT_URL.stringValue()));
     assertAll(
         () -> assertEquals(1, endpointIris.size()),
         () ->
             assertEquals(
-                Values.iri(getApi(petStore_nr1, false)), endpointIris.stream().findFirst().get()));
+                Values.iri(getApi(petStoreTest, false)), endpointIris.stream().findFirst().get()));
   }
 
   @Test
   void testThatInstancesUseReferToDatasetWithTheRightPredicate() throws IOException {
-    InMemoryRDFHandler handler = parseRowRdf(petStore_nr1, "Pet", POOKY_ROWID);
+    InMemoryRDFHandler handler = parseRowRdf(petStoreTest, "Pet", POOKY_ROWID);
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (Resource iri : handler.resources.keySet()) {
@@ -183,7 +171,7 @@ public class RDFTest extends RdfTestLoaders {
   void testThatColumnPredicatesAreNotSubClasses() throws IOException {
     IRI database_column = Values.iri("http://semanticscience.org/resource/SIO_000757");
     IRI measure_property = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
-    InMemoryRDFHandler handler = parseColumnRdf(petStore_nr1, "Pet", "name");
+    InMemoryRDFHandler handler = parseColumnRdf(petStoreTest, "Pet", "name");
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (Resource subject : handler.resources.keySet()) {
@@ -201,54 +189,13 @@ public class RDFTest extends RdfTestLoaders {
   @Test
   void testThatInstancesAreNotASIODatabaseRow() throws IOException {
     IRI database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
-    InMemoryRDFHandler handler = parseRowRdf(petStore_nr1, "Pet", POOKY_ROWID);
+    InMemoryRDFHandler handler = parseRowRdf(petStoreTest, "Pet", POOKY_ROWID);
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (Resource subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith(POOKY_ROWID)) {
         Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
         assertFalse(types.contains(database_row), "We don't model as a SIO database row.");
-      }
-    }
-  }
-
-  /**
-   * Ontology tables are describing classes.
-   *
-   * @see <a href="https://github.com/molgenis/molgenis-emx2/issues/2984">Issue #2997</a>
-   * @throws IOException
-   */
-  @Test
-  void testThatOntologyTermsAreClasses() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
-
-    assertFalse(handler.resources.keySet().isEmpty());
-    for (Resource subject : handler.resources.keySet()) {
-      if (subject.stringValue().endsWith("/Diseases/U07.1")) {
-        Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
-        assertTrue(types.contains(OWL.CLASS), "Ontology tables define classes");
-      }
-    }
-  }
-
-  @Test
-  void testThatOntologyTermsUseRDFSchema() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
-
-    assertFalse(handler.resources.keySet().isEmpty());
-    for (Resource subject : handler.resources.keySet()) {
-      if (subject.stringValue().endsWith("/Diseases/U07.1")) {
-        Map<IRI, Set<Value>> data = handler.resources.get(subject);
-        assertTrue(data.containsKey(RDFS.LABEL), "The class should have a label");
-        assertTrue(
-            data.containsKey(RDFS.SUBCLASSOF),
-            "Children should be defined as a subClass of a parent Class");
-        assertTrue(
-            data.containsKey(OWL.SAMEAS),
-            "URLs to the canonical version should be defined a owl:sameAs");
-        assertTrue(
-            data.containsKey(RDFS.ISDEFINEDBY), "Definition should be given as rdsf:isDefinedBy");
-        assertTrue(data.containsKey(SKOS.NOTATION), "Code should be defined as a skos:Notation");
       }
     }
   }
@@ -261,7 +208,7 @@ public class RDFTest extends RdfTestLoaders {
    */
   @Test
   void testThatOntologyTermsDonNotDefineColumnsAsPredicates() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(petStore_nr1, "Tag");
+    InMemoryRDFHandler handler = parseTableRdf(petStoreTest, "Tag");
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (Resource subject : handler.resources.keySet()) {
@@ -308,7 +255,7 @@ public class RDFTest extends RdfTestLoaders {
 
   @Test
   void testThatAllInstancesHaveALabel() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
     int instancesWithOutALabel = 0;
 
     assertFalse(handler.resources.keySet().isEmpty());
@@ -325,51 +272,63 @@ public class RDFTest extends RdfTestLoaders {
 
   @Test
   void testSubClassesForInheritedTable() throws IOException {
-    Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_InheritTable");
-    Table root = schema.create(table("root", column("id").setPkey()));
-    Table child = schema.create(table("child", column("name")).setInheritName("root"));
-    InMemoryRDFHandler handler = parseTableRdf(schema, child.getName());
-    IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
-    IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
-    IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
-    Set<Value> subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
-    assertEquals(
-        2,
-        subclasses.size(),
-        "Tables that inherit from another table are expected to be only a subclass of that table and DataSet.\n"
-            + "Actual result: "
-            + subclasses);
-    assertTrue(subclasses.contains(rootIRI), "Table is expected to be a subclass of it's parent");
-    assertFalse(
-        subclasses.contains(OWL.THING),
-        "Subclasses are not expected to be a direct subclass of owl:Thing");
-    assertTrue(
-        subclasses.contains(cubeDataSetIRI),
-        "Subclasses are expected to be a subclass of cube@DataSet");
+    final String schemaName = SCHEMA_NAME_PREFIX + "InheritTable";
+
+    try {
+      Schema schema = database.dropCreateSchema(schemaName);
+      Table root = schema.create(table("root", column("id").setPkey()));
+      Table child = schema.create(table("child", column("name")).setInheritName("root"));
+      InMemoryRDFHandler handler = parseTableRdf(schema, child.getName());
+      IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
+      IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
+      IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
+      Set<Value> subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
+      assertEquals(
+          2,
+          subclasses.size(),
+          "Tables that inherit from another table are expected to be only a subclass of that table and DataSet.\n"
+              + "Actual result: "
+              + subclasses);
+      assertTrue(subclasses.contains(rootIRI), "Table is expected to be a subclass of it's parent");
+      assertFalse(
+          subclasses.contains(OWL.THING),
+          "Subclasses are not expected to be a direct subclass of owl:Thing");
+      assertTrue(
+          subclasses.contains(cubeDataSetIRI),
+          "Subclasses are expected to be a subclass of cube@DataSet");
+    } finally {
+      database.dropSchemaIfExists(schemaName);
+    }
   }
 
   @Test
   void testSubClassRootTables() throws IOException {
-    Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_RootTable");
-    Table root = schema.create(table("root", column("id").setPkey()));
-    Table child = schema.create(table("child", column("name")).setInheritName("root"));
-    InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());
-    IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
-    IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
-    IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
-    Set<Value> subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
-    assertEquals(
-        2,
-        subclasses.size(),
-        "Tables that do not inherit from another table are expected to be only a subclass owl:Thing and cube#DataSet.\n"
-            + "Actual result: "
-            + subclasses);
-    assertFalse(subclasses.contains(rootIRI), "Table can't be its own parent.");
-    assertTrue(
-        subclasses.contains(OWL.THING),
-        "Subclasses are not expected to be a direct subclass of owl:Thing");
-    assertTrue(
-        subclasses.contains(cubeDataSetIRI),
-        "Subclasses are expected to be a subclass of cube@DataSet");
+    final String schemaName = SCHEMA_NAME_PREFIX + "RootTable";
+
+    try {
+      Schema schema = database.dropCreateSchema(schemaName);
+      Table root = schema.create(table("root", column("id").setPkey()));
+      Table child = schema.create(table("child", column("name")).setInheritName("root"));
+      InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());
+      IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
+      IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
+      IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
+      Set<Value> subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
+      assertEquals(
+          2,
+          subclasses.size(),
+          "Tables that do not inherit from another table are expected to be only a subclass owl:Thing and cube#DataSet.\n"
+              + "Actual result: "
+              + subclasses);
+      assertFalse(subclasses.contains(rootIRI), "Table can't be its own parent.");
+      assertTrue(
+          subclasses.contains(OWL.THING),
+          "Subclasses are not expected to be a direct subclass of owl:Thing");
+      assertTrue(
+          subclasses.contains(cubeDataSetIRI),
+          "Subclasses are expected to be a subclass of cube@DataSet");
+    } finally {
+      database.dropSchemaIfExists(schemaName);
+    }
   }
 }

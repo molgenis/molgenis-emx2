@@ -9,8 +9,10 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Schema;
@@ -30,18 +32,26 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class PetStoreTest extends RdfTestLoaders {
   private static final String SCHEMA_NAME = PetStoreTest.class.getSimpleName();
-  private static final String SECOND_SCHEMA_NAME = SCHEMA_NAME + "_SECOND";
+  private static final String SCHEMA_NAME_SECOND = SCHEMA_NAME + "_SECOND";
+
+  static Schema petStoreTest;
+  static Schema petStoreSecondTest;
 
   @BeforeAll
   static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(SCHEMA_NAME);
-    database.dropSchemaIfExists(SECOND_SCHEMA_NAME);
+    database.dropSchemaIfExists(SCHEMA_NAME_SECOND);
     DataModels.Profile.PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();
-    DataModels.Profile.PET_STORE.getImportTask(database, SECOND_SCHEMA_NAME, "", true).run();
-    petStore_nr1 = database.getSchema(SCHEMA_NAME);
-    petStore_nr2 = database.getSchema(SECOND_SCHEMA_NAME);
-    petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
+    DataModels.Profile.PET_STORE.getImportTask(database, SCHEMA_NAME_SECOND, "", true).run();
+    petStoreTest = database.getSchema(SCHEMA_NAME);
+    petStoreSecondTest = database.getSchema(SCHEMA_NAME_SECOND);
+  }
+
+  @AfterAll
+  static void afterAll() {
+    database.dropSchemaIfExists(SCHEMA_NAME);
+    database.dropSchemaIfExists(SCHEMA_NAME_SECOND);
   }
 
   @Test
@@ -51,7 +61,7 @@ public class PetStoreTest extends RdfTestLoaders {
         RdfModelWriter.class,
         Emx2RdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
-        petStore_nr1);
+        petStoreTest);
   }
 
   @Test
@@ -61,7 +71,7 @@ public class PetStoreTest extends RdfTestLoaders {
         RdfStreamWriter.class,
         Emx2RdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
-        petStore_nr1);
+        petStoreTest);
   }
 
   @Test
@@ -71,7 +81,7 @@ public class PetStoreTest extends RdfTestLoaders {
         RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
-        petStore_nr1);
+        petStoreTest);
   }
 
   @Test
@@ -81,7 +91,7 @@ public class PetStoreTest extends RdfTestLoaders {
         RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
-        petStore_nr1.getTable("Tag"));
+        petStoreTest.getTable("Tag"));
   }
 
   @Test
@@ -91,12 +101,12 @@ public class PetStoreTest extends RdfTestLoaders {
         RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
-        petStore_nr1.getTable("User"));
+        petStoreTest.getTable("User"));
   }
 
   @Test
   void testPetStoreRdfSemanticRow() throws IOException, NoSuchMethodException {
-    Table table = petStore_nr1.getTable("Pet");
+    Table table = petStoreTest.getTable("Pet");
 
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/row_fire_ant.ttl",
@@ -120,7 +130,7 @@ public class PetStoreTest extends RdfTestLoaders {
         Arrays.asList(null, RDFFormat.TURTLE, shaclSet),
         Emx2RdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
-        petStore_nr1);
+        petStoreTest);
   }
 
   @Test
@@ -136,7 +146,7 @@ public class PetStoreTest extends RdfTestLoaders {
         Arrays.asList(null, RDFFormat.TURTLE, shaclSet),
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
-        petStore_nr1);
+        petStoreTest);
   }
 
   private void compareToValidationFile(
@@ -177,20 +187,33 @@ public class PetStoreTest extends RdfTestLoaders {
 
   @Test
   void testDraftRowsAreExcludedEmx2Generator() throws IOException {
-    testDraftRowExcluded(parseSchemaRdf(RdfApiGeneratorFactory.EMX2, petStore_nr1));
+    testDraftRowExcluded(parseSchemaRdf(RdfApiGeneratorFactory.EMX2, petStoreTest));
   }
 
   @Test
   void testDraftRowsAreExcludedSemanticGenerator() throws IOException {
-    testDraftRowExcluded(parseSchemaRdf(RdfApiGeneratorFactory.SEMANTIC, petStore_nr1));
+    testDraftRowExcluded(parseSchemaRdf(RdfApiGeneratorFactory.SEMANTIC, petStoreTest));
   }
 
   private void testDraftRowExcluded(InMemoryRDFHandler handler) {
-    IRI nonDraftRowSubject = Values.iri(getApi(petStore_nr1) + "Pet/name=pooky");
-    IRI draftRowSubject = Values.iri(getApi(petStore_nr1) + "Pet/name=yakul");
+    IRI nonDraftRowSubject = Values.iri(getApi(petStoreTest) + "Pet/name=pooky");
+    IRI draftRowSubject = Values.iri(getApi(petStoreTest) + "Pet/name=yakul");
 
     assertAll(
         () -> assertNotNull(handler.resources.get(nonDraftRowSubject)),
         () -> assertNull(handler.resources.get(draftRowSubject)));
+  }
+
+  @Test
+  void testThatRDFOnlyIncludesRequestedSchema() throws IOException {
+    InMemoryRDFHandler handler = parseSchemaRdf(petStoreTest);
+
+    assertFalse(handler.resources.keySet().isEmpty());
+
+    for (Resource resource : handler.resources.keySet()) {
+      assertFalse(
+          resource.toString().contains(SCHEMA_NAME_SECOND),
+          "No resources from the second pet store schema should be included.");
+    }
   }
 }

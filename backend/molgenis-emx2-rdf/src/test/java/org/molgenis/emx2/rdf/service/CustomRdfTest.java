@@ -17,12 +17,18 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 
 public class CustomRdfTest extends RdfTestLoaders {
+  private static final String SCHEMA_NAME_PREFIX = RefLinkTest.class.getSimpleName() + "_";
+
   @Test
   void testCustomRdfSetting() throws IOException {
+    final String schemaName = SCHEMA_NAME_PREFIX + "CustomRdfEdit";
+
     final Set<Namespace> defaultNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("CustomRdfEdit", BASE_URL + "/CustomRdfEdit/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "RefLinkTest_CustomRdfEdit", BASE_URL + "/RefLinkTest_CustomRdfEdit/api/rdf/"));
             addAll(DEFAULT_NAMESPACES);
           }
         };
@@ -34,7 +40,7 @@ public class CustomRdfTest extends RdfTestLoaders {
       """;
 
     try {
-      Schema schema = database.dropCreateSchema("CustomRdfEdit");
+      Schema schema = database.dropCreateSchema(schemaName);
       // Test default behaviour.
       assertFalse(schema.hasSetting(SETTING_CUSTOM_RDF));
       InMemoryRDFHandler handlerBefore = parseSchemaRdf(schema);
@@ -55,42 +61,44 @@ public class CustomRdfTest extends RdfTestLoaders {
               .contains(Values.literal("Molgenis")));
 
     } finally {
-      database.dropSchemaIfExists("CustomRdfEdit");
+      database.dropSchemaIfExists(schemaName);
     }
   }
 
   /**
    * While setting the custom_RDF does not validate, trying to use the RDF API will result in an
    * error if invalid RDF is given. In this case a dot is missing to indicate the end of the triple.
-   *
-   * @throws IOException
    */
   @Test
-  void testInvalidCustomRdfSetting() throws IOException {
+  void testInvalidCustomRdfSetting() {
+    final String schemaName = SCHEMA_NAME_PREFIX + "CustomRdfInvalid";
+
     final String customRdf =
         """
       <https://molgenis.org/> <http://purl.org/dc/terms/title> "Molgenis"
       """;
 
     try {
-      Schema schema = database.dropCreateSchema("CustomRdfInvalid");
+      Schema schema = database.dropCreateSchema(schemaName);
       schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
       assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
     } finally {
-      database.dropSchemaIfExists("CustomRdfInvalid");
+      database.dropSchemaIfExists(schemaName);
     }
   }
 
   @Test
-  void testEmptyCustomRdfSetting() throws IOException {
+  void testEmptyCustomRdfSetting() {
+    final String schemaName = SCHEMA_NAME_PREFIX + "CustomRdfEmpty";
+
     final String customRdf = "";
 
     try {
-      Schema schema = database.dropCreateSchema("CustomRdfEmpty");
+      Schema schema = database.dropCreateSchema(schemaName);
       schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
       assertDoesNotThrow(() -> parseSchemaRdf(schema));
     } finally {
-      database.dropSchemaIfExists("CustomRdfEmpty");
+      database.dropSchemaIfExists(schemaName);
     }
   }
 }
