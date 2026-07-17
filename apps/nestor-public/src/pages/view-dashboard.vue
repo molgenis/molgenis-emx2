@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from "vue";
-
 import {
   ColumnChart,
   Dashboard,
@@ -16,20 +15,21 @@ import {
   //@ts-expect-error
 } from "molgenis-viz";
 
-import type {
-  IComponents,
-  IOrganisations,
-  IStatistics,
-} from "../../../metadata-utils/src/viz/ErnDashboard";
 import { getComponentStats } from "../../../metadata-utils/src/viz/getErnDashboardComponent";
 import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations";
-import type { IRecordStringNumber } from "../../../metadata-utils/src/viz/types";
 import * as NlGeoJson from "../../../molgenis-viz/src/data/nl.geo.json";
 import {
   asDataObject,
   generateAxisTickData,
 } from "../../../tailwind-components/app/utils/viz";
+
+import type { IRecordStringNumber } from "../../../metadata-utils/src/viz/types";
 import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
+import type {
+  IComponents,
+  IOrganisations,
+  IStatistics,
+} from "../../../metadata-utils/src/viz/ErnDashboard";
 
 const loading = ref<boolean>(true);
 const error = ref<Error | null>(null);
@@ -44,42 +44,35 @@ const enrollmentChart = ref<IComponents>();
 const enrollmentData = ref<IStatistics[]>();
 const organisationsData = ref<IOrganisations[]>([]);
 
-const orgGroupMapping = {
-  "Data Submitted": "#E9724C",
-  "No Data": "#F0F0F0",
-};
-
-loadData().then(prepareData);
+loadData()
+  .then(() => prepareData())
+  .catch((err) => (err.value = err))
+  .finally(() => (loading.value = false));
 
 async function loadData() {
-  try {
-    const organisationsResponse = await getOrganisations("../api/graphql");
-    const highlightsResponse = await getComponentStats(
-      "../api/graphql",
-      "data-highlights"
-    );
-    const sexAtBirthResponse = await getComponentStats(
-      "../api/graphql",
-      "pie-sex-at-birth"
-    );
-    const ageResponse = await getComponentStats(
-      "../api/graphql",
-      "barchart-age"
-    );
-    const enrollmentResponse = await getComponentStats(
-      "../api/graphql",
-      "table-enrollment-disease-group"
-    );
+  const highlightsResponse = await getComponentStats(
+    "../api/graphql",
+    "dataHighlights"
+  );
+  const sexAtBirthResponse = await getComponentStats(
+    "../api/graphql",
+    "sexAtBirth"
+  );
+  const ageResponse = await getComponentStats(
+    "../api/graphql",
+    "ageAtLastFollowUp"
+  );
+  const enrollmentResponse = await getComponentStats(
+    "../api/graphql",
+    "enrollmentByDiseaseGroup"
+  );
+  const organisationsResponse = await getOrganisations("../api/graphql");
 
-    highlightsChart.value = highlightsResponse[0];
-    sexAtBirthChart.value = sexAtBirthResponse[0];
-    ageAtInclusionChart.value = ageResponse[0];
-    enrollmentChart.value = enrollmentResponse[0];
-    organisationsData.value = organisationsResponse;
-  } catch (err) {
-    error.value = err as Error;
-  }
-  loading.value = false;
+  highlightsChart.value = highlightsResponse[0];
+  sexAtBirthChart.value = sexAtBirthResponse[0];
+  ageAtInclusionChart.value = ageResponse[0];
+  enrollmentChart.value = enrollmentResponse[0];
+  organisationsData.value = organisationsResponse;
 }
 
 function prepareData() {
@@ -132,7 +125,7 @@ function prepareData() {
 </script>
 
 <template>
-  <Page id="page-dashboard">
+  <Page id="nestorPublicDashboard">
     <LoadingScreen v-if="loading" />
     <div class="page-section padding-h-2" v-else-if="!loading && error">
       <MessageBox type="error">
@@ -162,9 +155,14 @@ function prepareData() {
             latitude="latitude"
             :geojson="NlGeoJson"
             group="hasSubmittedData"
-            :groupColorMappings="orgGroupMapping"
-            :legendData="orgGroupMapping"
-            :chartSize="114"
+            :groupColorMappings="{
+              'Data Submitted': '#f2846e',
+              'No Data': '#F0F0F0',
+            }"
+            :legendData="{
+              'Data Submitted': '#f2846e',
+              'No Data': '#F0F0F0',
+            }"
             :chartHeight="350"
             :mapCenter="{
               // centroid of the Netherlands
@@ -225,6 +223,8 @@ function prepareData() {
             :yTickValues="ageAtInclusionAxis?.ticks"
             xAxisLabel="Age groups"
             yAxisLabel="Number of patients"
+            columnFill="#185f5b"
+            columnHoverFill="#f2846e"
             :chartHeight="225"
             :chartMargins="{ top: 10, right: 0, bottom: 60, left: 60 }"
             :columnPaddingInner="0.2"
@@ -234,100 +234,3 @@ function prepareData() {
     </Dashboard>
   </Page>
 </template>
-
-<style>
-.d3-viz {
-  &.d3-pie,
-  &.d3-geo-mercator {
-    .chart-context {
-      text-align: center;
-      .chart-title {
-        font-size: 1.1rem;
-        padding: 0;
-        margin-bottom: 0.5em;
-        text-align: center;
-      }
-    }
-  }
-
-  &.d3-column-chart {
-    .chart-title {
-      font-size: 1.1rem;
-      padding: 0;
-      margin-bottom: 0.5em;
-      text-align: center;
-    }
-  }
-}
-
-#sexAtBirthChart {
-  .chart-area {
-    .pie-labels {
-      .pie-label-text {
-        font-size: 0.7rem !important;
-      }
-    }
-  }
-}
-
-#registryInstitutionsMap + .d3-viz-legend {
-  padding: 0.6em 0.8em;
-  label {
-    margin-bottom: 0;
-  }
-}
-
-#diseaseGroupEnrollment {
-  caption {
-    font-size: 1.1rem;
-    padding: 0;
-    margin-bottom: 0.5em;
-    text-align: center;
-  }
-  thead {
-    th {
-      font-size: 0.8rem;
-    }
-  }
-  tbody {
-    td {
-      font-size: 0.9rem;
-      padding: 0.6em 0.2em;
-
-      &[data-value="Undetermined"],
-      &[data-value="Undetermined"] + td {
-        background-color: var(--white);
-        span {
-          color: var(--gray-400);
-        }
-      }
-    }
-  }
-}
-
-#registryHighlights {
-  .data-highlights {
-    .data-highlight {
-      padding: 0.8em 1em;
-      .data-label {
-        margin-bottom: 0.15em;
-        font-size: 0.75rem;
-      }
-
-      .data-value {
-        &::after {
-          font-size: 1.8rem;
-        }
-      }
-    }
-  }
-}
-
-#nestorPublicDashboard {
-  .dashboard-content {
-    @media (min-width: 1800px) {
-      max-width: 60vw;
-    }
-  }
-}
-</style>

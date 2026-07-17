@@ -13,10 +13,9 @@ const page = ref(null);
   <Molgenis id="__top" v-model="session">
     <router-view :session="session" :page="page" />
     <AppFooter
-      id="project-foooter"
+      id="nestorFooter"
       first-column-title="KWF Nestor"
       second-column-title="For members"
-      :show-project-citation="true"
     >
       <template v-slot:column-links-1>
         <li>
@@ -44,14 +43,14 @@ const page = ref(null);
         <li id="project-funding-logo">
           <img
             src="/img/kwf_supported_by_logo.png"
-            class="logo logo-small"
+            class="nestor-logo"
             alt="NESTOR Registry funded by the KWF"
           />
         </li>
         <li id="project-logo-link">
           <img
             src="/img/nestor-logo.png"
-            class="logo logo-small"
+            class="nestor-logo"
             alt="The Nestor Registry"
           />
         </li>
