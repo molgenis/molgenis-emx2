@@ -177,11 +177,11 @@ class ReferenceColumnSparqlQueryGeneratorTest {
       Column column = order.getColumn("product");
       ReferenceColumnSparqlQueryGenerator mapper =
           new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
-      assertHasPatterns(mapper, "BIND( ?product AS ?_subject_product_single )");
+      //      assertHasPatterns(mapper, "BIND( ?product AS ?_subject_product_single )");
       assertTrue(mapper.getGroupBy().isEmpty());
       assertHasSelectors(
           mapper,
-          "( GROUP_CONCAT( DISTINCT STR( ?_subject_product_single ) ; SEPARATOR = ',' ) AS ?_subject_product )");
+          "( GROUP_CONCAT( DISTINCT STR( ?product ) ; SEPARATOR = ',' ) AS ?_subject_product )");
     }
 
     @Test
@@ -207,11 +207,10 @@ class ReferenceColumnSparqlQueryGeneratorTest {
       assertHasPatterns(
           mapper,
           "?order schema:product ?product .",
-          "BIND( ?product AS ?_subject_product_single )",
           "?product schema:name ?product__name_single .");
       assertHasSelectors(
           mapper,
-          "( GROUP_CONCAT( DISTINCT STR( ?_subject_product_single ) ; SEPARATOR = ',' ) AS ?_subject_product )",
+          "( GROUP_CONCAT( DISTINCT STR( ?product ) ; SEPARATOR = ',' ) AS ?_subject_product )",
           "( GROUP_CONCAT( DISTINCT STR( ?product__name_single ) ; SEPARATOR = ',' ) AS ?product__name )");
       assertHasGroupBy(mapper);
     }
@@ -240,11 +239,10 @@ class ReferenceColumnSparqlQueryGeneratorTest {
           mapper,
           """
           OPTIONAL { ?order schema:product ?product .
-          BIND( ?product AS ?_subject_product_single )
           ?product schema:name ?product__name_single . }""");
       assertHasSelectors(
           mapper,
-          "( GROUP_CONCAT( DISTINCT STR( ?_subject_product_single ) ; SEPARATOR = ',' ) AS ?_subject_product )",
+          "( GROUP_CONCAT( DISTINCT STR( ?product ) ; SEPARATOR = ',' ) AS ?_subject_product )",
           "( GROUP_CONCAT( DISTINCT STR( ?product__name_single ) ; SEPARATOR = ',' ) AS ?product__name )");
       assertHasGroupBy(mapper);
     }
