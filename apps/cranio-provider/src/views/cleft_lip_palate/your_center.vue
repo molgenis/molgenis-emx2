@@ -9,9 +9,8 @@ import {
   LoadingScreen,
   // @ts-expect-error
 } from "molgenis-viz";
-import LoadingBlock from "../../components/LoadingBlock.vue";
-import ProviderDashboard from "../../components/ProviderDashboard.vue";
 
+import ProviderDashboard from "../../components/ProviderDashboard.vue";
 import { generateAxisTickData } from "../../../../tailwind-components/app/utils/viz";
 import { asKeyValuePairs, uniqueValues } from "../../utils";
 import { generateColorPalette } from "../../utils/generateColorPalette";
@@ -26,7 +25,7 @@ import type { IAppPage, IKeyValuePair } from "../../types";
 const props = defineProps<IAppPage>();
 const loading = ref<boolean>(true);
 const cleftTypeOptions = ref<string[]>();
-const selectedCleftType = ref<string>();
+const selectedCleftType = ref<string>("");
 const selectedCleftTypePatients = computed<number>(() => {
   if (selectedCleftType.value) {
     const newCleftType = patientsByPhenotypeChartData.value?.filter(
@@ -159,13 +158,11 @@ onMounted(() => {
         />
       </DashboardChart>
     </DashboardRow>
-    <LoadingBlock :loading="loading">
-      <h2 class="dashboard-h2">
-        Overview of {{ selectedCleftType }} patients (n={{
-          selectedCleftTypePatients
-        }})
-      </h2>
-    </LoadingBlock>
+    <h2 class="dashboard-h2">
+      Overview of {{ selectedCleftType }} patients (n={{
+        selectedCleftTypePatients
+      }})
+    </h2>
     <DashboardRow :columns="1">
       <DashboardChart>
         <h3 class="visually-hidden">Options</h3>
