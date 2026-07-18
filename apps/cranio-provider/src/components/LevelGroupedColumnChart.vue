@@ -14,11 +14,8 @@ import type {
   ICharts,
   IChartData,
 } from "../../../metadata-utils/src/viz/UiDashboard";
-import type {
-  IAxisTickData,
-  ICleftTypes,
-  ISiteErnCleftTypeCounts,
-} from "../types";
+import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
+import type { ICleftTypes, ISiteErnCleftTypeCounts } from "../types";
 
 const props = withDefaults(
   defineProps<{
@@ -73,7 +70,7 @@ const chartDescription = computed<string>(() => {
   }
 });
 
-const chartTicks = ref<IAxisTickData>();
+const chartTicks = ref<NumericAxisTickData>();
 const chartFilters = ref<string[]>();
 const selectedFilter = ref<string>();
 

@@ -1,28 +1,7 @@
 import type { IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
-import type {
-  IDashboardPages,
-  ICharts,
-} from "../../../metadata-utils/src/viz/UiDashboard";
 
 export interface IKeyValuePair {
   [key: string]: string;
-}
-
-export interface ISettings {
-  key: string;
-  value?: string;
-}
-
-export interface ISettingsResponse {
-  _settings: ISettings[];
-}
-
-export interface ISchema {
-  name: string;
-}
-
-export interface ISchemaResponse {
-  _schema: ISchema;
 }
 
 export interface IMgError {
@@ -38,11 +17,6 @@ export interface IMgErrorResponse {
 export interface ICranioSchemas {
   CRANIO_PUBLIC_SCHEMA: string;
   CRANIO_PROVIDER_SCHEMA: string;
-}
-
-export interface IAxisTickData {
-  limit: number;
-  ticks: number[];
 }
 
 export interface IValueLabel {
@@ -76,12 +50,4 @@ export interface IAppPage {
 
 export interface IOrganisationsResponse {
   Organisations: IOrganisations[];
-}
-
-export interface IDashboardPagesResponse {
-  DashboardPages: IDashboardPages[];
-}
-
-export interface IChartsResponse {
-  Charts: ICharts[];
 }
