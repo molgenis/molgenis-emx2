@@ -8,7 +8,7 @@ import {
   // @ts-expect-error
 } from "molgenis-viz";
 import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
-import { ernYourCenterPalette } from "../utils/variables";
+import { ernYourCenterPalette, columnHoverFillColor } from "../utils/variables";
 
 import type {
   ICharts,
@@ -123,7 +123,7 @@ if (props.chart.dataPoints) {
       :yMax="chartTicks?.limit"
       :yTickValues="chartTicks?.ticks"
       :columnColorPalette="ernYourCenterPalette"
-      columnHoverFill="#EE7032"
+      :columnHoverFill="columnHoverFillColor"
       :chartHeight="250"
       :chartMargins="{
         top: chart.topMargin,

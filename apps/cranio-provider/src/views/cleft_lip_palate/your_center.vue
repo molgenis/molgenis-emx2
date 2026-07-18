@@ -15,6 +15,10 @@ import { generateAxisTickData } from "../../../../tailwind-components/app/utils/
 import { asKeyValuePairs, uniqueValues } from "../../utils";
 import { generateColorPalette } from "../../utils/generateColorPalette";
 import { getDashboardChart } from "../../../../metadata-utils/src/viz/getUiDashboardCharts";
+import {
+  ernYourCenterPalette,
+  columnHoverFillColor,
+} from "../../utils/variables";
 
 import type {
   ICharts,
@@ -146,8 +150,8 @@ onMounted(() => {
           :yMin="0"
           :yMax="patientsByPhenotypeChart?.yAxisMaxValue"
           :yTickValues="patientsByPhenotypeChart?.yAxisTicks"
-          :columnColorPalette="patientsByPhenotypePalette"
-          columnHoverFill="#708fb4"
+          :columnFill="ernYourCenterPalette['Your center']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="250"
           :chartMargins="{
             top: patientsByPhenotypeChart?.topMargin,

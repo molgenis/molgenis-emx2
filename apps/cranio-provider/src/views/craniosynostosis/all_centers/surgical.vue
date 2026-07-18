@@ -20,6 +20,10 @@ import {
   filterAgeAtSurgeryData,
   prepareDiagnosisFilters,
 } from "../../../utils/csSurgicalUtils";
+import {
+  ernYourCenterPalette,
+  columnHoverFillColor,
+} from "../../../utils/variables";
 
 import type {
   ICharts,
@@ -189,6 +193,8 @@ onMounted(() => {
           :yMin="0"
           :yMax="surgeryTypesChart?.yAxisMaxValue"
           :yTickValues="surgeryTypesChart?.yAxisTicks"
+          :columnFill="ernYourCenterPalette['ERN']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="250"
           :chartMargins="{
             top: surgeryTypesChart?.topMargin,
@@ -292,8 +298,8 @@ onMounted(() => {
           :yMin="0"
           :yMax="surgeryAgeChart?.yAxisMaxValue"
           :yTickValues="surgeryAgeChart?.yAxisTicks"
-          columnFill="#2a8f64"
-          columnHoverFill="#ed7b23"
+          :columnFill="ernYourCenterPalette['ERN']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="275"
           :chartMargins="{
             top: surgeryAgeChart?.topMargin,

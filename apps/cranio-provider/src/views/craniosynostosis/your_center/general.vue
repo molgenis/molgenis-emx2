@@ -14,6 +14,10 @@ import { generateAxisTickData } from "../../../../../tailwind-components/app/uti
 import { getDashboardChart } from "../../../../../metadata-utils/src/viz/getUiDashboardCharts";
 import { generateColorPalette } from "../../../utils/generateColorPalette";
 import { uniqueValues, uniqueAgeGroups } from "../../../utils";
+import {
+  ernYourCenterPalette,
+  columnHoverFillColor,
+} from "../../../utils/variables";
 
 import type {
   ICharts,
@@ -189,7 +193,8 @@ onMounted(() => {
           :yTickValues="cranioTypeChart?.yAxisTicks"
           :xAxisLabel="cranioTypeChart?.xAxisLabel"
           :yAxisLAbel="cranioTypeChart?.yAxisLabel"
-          :columnColorPalette="cranioTypeChartPalette"
+          :columnFill="ernYourCenterPalette['Your center']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="225"
           :chartMargins="{
             top: cranioTypeChart?.topMargin,
@@ -218,7 +223,8 @@ onMounted(() => {
           :yTickValues="affectedSutureChart?.yAxisTicks"
           :xAxisLabel="affectedSutureChart?.xAxisLabel"
           :yAxisLabel="affectedSutureChart?.yAxisLabel"
-          :columnColorPalette="affectedSutureChartPalette"
+          :columnFill="ernYourCenterPalette['Your center']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="275"
           :chartMargins="{
             top: affectedSutureChart?.topMargin,
@@ -244,7 +250,8 @@ onMounted(() => {
           :yMin="0"
           :yMax="multipleSutureChart?.yAxisMaxValue"
           :yTickValues="multipleSutureChart?.yAxisTicks"
-          :columnColorPalette="multipleSuturePalette"
+          :columnFill="ernYourCenterPalette['Your center']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="275"
           :chartMargins="{
             top: multipleSutureChart?.topMargin,
