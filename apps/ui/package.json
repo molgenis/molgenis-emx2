@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "nuxi typecheck",
+    "lint": "nuxi typecheck && eslint .",
     "build": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
     "dev": "nuxt dev",
     "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",

@@ -12,5 +12,10 @@
   },
   "dependencies": {
     "turbo": "2.9.14"
+  },
+  "devDependencies": {
+    "eslint": "9.39.1",
+    "typescript-eslint": "^8.63.0",
+    "vue-eslint-parser": "^10.4.1"
   }
 }
