@@ -148,109 +148,117 @@ import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
   </aside>
 </template>
 
-<style lang="scss">
+<style lang="css">
 .sidebar {
-  background-color: $gray-000;
+  background-color: white;
   box-sizing: content-box;
   padding: 2em 1.5em;
-  box-shadow: $box-shadow;
+  box-shadow: var(--box-shadow);
   border-radius: 8px;
 
-  nav {
-    padding: 0;
-    margin-top: 1em;
-    margin-bottom: 1.5em;
+  --link-font-size: 12pt;
+}
 
-    $link-font-size: 12pt;
+.sidebar nav {
+  padding: 0;
+  margin-top: 1em;
+  margin-bottom: 1.5em;
+}
 
-    ul,
-    ul li ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      width: 100%;
-    }
+.sidebar nav ul,
+.sidebar nav ul li ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
 
-    .accordion {
-      margin: 0;
-      border: none;
+.sidebar nav .accordion {
+  margin: 0;
+  border: none;
+}
 
-      .accordion-heading {
-        padding: 0;
-        background-color: transparent;
+.sidebar nav .accordion .accordion-heading {
+  padding: 0;
+  background-color: transparent;
+}
 
-        .toggle-label {
-          font-size: $link-font-size;
-        }
-      }
-      .accordion-content {
-        padding: 0;
-      }
-    }
+.sidebar nav .accordion .accordion-heading .toggle-label {
+  font-size: var(--link-font-size);
+}
 
-    li {
-      margin: 0.6em 0;
-      border-left: 3px solid transparent;
-      padding-left: 1em;
+.sidebar nav .accordion .accordion-content {
+  padding: 0;
+}
 
-      a,
-      p {
-        font-size: $link-font-size;
-        margin: 0;
-        line-height: 1;
-      }
+.sidebar nav li {
+  margin: 0.6em 0;
+  border-left: 3px solid transparent;
+  padding-left: 1em;
+}
 
-      p {
-        @include textTransform;
-        margin-top: 24px;
-        padding-left: 1.5em;
-        color: $gray-400;
-      }
+.sidebar nav li a,
+.sidebar nav li p {
+  font-size: var(--link-font-size);
+  margin: 0;
+  line-height: 1;
+}
 
-      a {
-        color: currentColor;
+.sidebar nav li p {
+  text-transform: uppercase;
+  font-size: 11pt;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  margin-top: 24px;
+  padding-left: 1.5em;
+  color: var(--gray-400);
+}
 
-        &:hover,
-        &:focus {
-          color: $cranio-primary;
-        }
-      }
+.sidebar nav li a {
+  color: currentColor;
+}
 
-      &.link-selected {
-        border-left-color: $cranio-primary;
-        a {
-          color: $cranio-primary;
-        }
-      }
-    }
-  }
+.sidebar nav li a:hover,
+.sidebar nav li a:focus {
+  color: var(--cranio-primary);
+}
+
+.sidebar nav li.link-selected {
+  border-left-color: var(--cranio-primary);
+}
+.sidebar nav li.link-selected a {
+  color: var(--cranio-primary);
 }
 
 #btnSubmitPatient {
-  @include buttonLink;
-  @include textTransform;
+  display: block;
+  width: 100%;
+  padding: 0.6em 0;
+  text-align: center;
+  color: var(--cranio-orange-050);
+  background-color: var(--cranio-orange);
+  border-radius: 12px;
+}
 
-  color: $cranio-orange-050;
-  background-color: $cranio-orange;
+#btnSubmitPatient span {
+  letter-spacing: 0.15em;
+  border-bottom: 2px solid transparent;
+}
 
-  span {
-    letter-spacing: 0.15em;
-    border-bottom: 2px solid transparent;
-  }
-  &:hover,
-  &:focus {
-    text-decoration: none;
-    filter: brightness(110%);
-  }
+#btnSubmitPatient span:hover,
+#btnSubmitPatient span:focus {
+  text-decoration: none;
+  filter: brightness(110%);
+}
 
-  svg {
-    position: relative;
-    width: 18px;
-    margin-left: 4px;
-    margin-top: -4px;
-    path {
-      stroke-width: 2;
-    }
-  }
+#btnSubmitPatient svg {
+  position: relative;
+  width: 18px;
+  margin-left: 4px;
+  margin-top: -4px;
+}
+
+#btnSubmitPatient svg path {
+  stroke-width: 2;
 }
 </style>
