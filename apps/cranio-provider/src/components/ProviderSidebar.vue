@@ -235,18 +235,20 @@ import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
   width: 100%;
   padding: 0.6em 0;
   text-align: center;
-  color: var(--cranio-orange-050);
+  color: white;
   background-color: var(--cranio-orange);
-  border-radius: 12px;
+  border-radius: 32pt;
 }
 
 #btnSubmitPatient span {
+  text-transform: uppercase;
+  font-size: 11pt;
   letter-spacing: 0.15em;
   border-bottom: 2px solid transparent;
 }
 
-#btnSubmitPatient span:hover,
-#btnSubmitPatient span:focus {
+#btnSubmitPatient:hover,
+#btnSubmitPatient:focus {
   text-decoration: none;
   filter: brightness(110%);
 }
