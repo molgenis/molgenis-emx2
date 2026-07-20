@@ -1,4 +1,5 @@
-import { defineStore } from "pinia";
+/// <reference types="vite/client" />
+import { acceptHMRUpdate, defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import type { IResources } from "../../interfaces/catalogue";
 import {
@@ -86,3 +87,7 @@ export const useCartStore = defineStore("cart", () => {
     resourceIsInCart,
   };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useCartStore, import.meta.hot));
+}

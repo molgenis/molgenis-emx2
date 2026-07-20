@@ -10,7 +10,27 @@
     <ContentBlockModal title="Collections">
       <template v-if="Object.keys(cartStore.datasets).length">
         <p class="mb-2">Review selected collections and linked datasets</p>
-        <CartModalResourceList />
+        <ul class="list-style-none">
+          <li
+            v-for="resource in cartStore.datasets"
+            :key="resource.id"
+            class="border-b-[1px] mb-2 last:border-none last:mb-none"
+          >
+            <div class="flex justify-center items-start">
+              <div class="grow mb-2 self-center">
+                <span class="block font-bold">{{ resource.name }}</span>
+              </div>
+              <div>
+                <IconButton
+                  icon="trash"
+                  @click="() => cartStore.removeFromCart(resource.id)"
+                  class="text-button-remove mb-2"
+                  label="remove collection from cart"
+                />
+              </div>
+            </div>
+          </li>
+        </ul>
       </template>
       <p v-else>Cart is empty</p>
       <FormError v-if="error" :message="error" :showPrevNextButtons="false" />
@@ -33,7 +53,7 @@ import SideModal from "../../../../tailwind-components/app/components/SideModal.
 import ContentBlockModal from "../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 import FormError from "../../../../tailwind-components/app/components/form/Error.vue";
 import { useCartStore } from "../../stores/useCartStore";
-import CartModalResourceList from "./ModalResourceList.vue";
+import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
 
 const cartStore = useCartStore();
 
