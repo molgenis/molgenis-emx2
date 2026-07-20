@@ -182,8 +182,8 @@ public class QueryEntryType {
   }
 
   private boolean isTemplateForCurrentRequest(Row row) {
-    return row.getString("schema").equals(schema.getName())
-        && row.getString("endpoint").equals("beacon_" + entryType.getName());
+    return schema.getName().equals(row.getString("schema"))
+        && ("beacon_" + entryType.getName()).equals(row.getString("endpoint"));
   }
 
   private void addEmptyResultSet(ObjectNode jsltResponse) {
