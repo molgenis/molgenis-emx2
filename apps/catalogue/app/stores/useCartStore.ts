@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { reactive, ref } from "vue";
-import type { IResources } from "../../interfaces/catalogue";
+import { computed, reactive, ref } from "vue";
+import type { ICart, ICartItem } from "../../interfaces/types";
 import {
   doNegotiatorV3Request,
   handleNegotiatorV3Error,
@@ -9,7 +9,7 @@ import {
 import { getCatalogueStoreConfig } from "./util/catalogueStoreConfig";
 
 export const useCartStore = defineStore("cart", () => {
-  const datasets = reactive<Record<string, IResources>>({});
+  const cart = reactive<ICart>(new Map());
   const isEnabled = ref<boolean>(false);
   const catalogueStoreUrl = ref<string>("");
   const catalogueStoreVersion = ref<string>("");
@@ -23,32 +23,43 @@ export const useCartStore = defineStore("cart", () => {
     catalogueStoreVersion.value = version;
   }
 
-  function addToCart(resource: IResources) {
-    datasets[resource.id as keyof IResources] = resource;
+  const cartItems = computed(() => [...cart.values()]);
+
+  const resourcesInCart = computed(() =>
+    cartItems.value.filter(
+      (item): item is Extract<ICartItem, { type: "resource" }> =>
+        item.type === "resource"
+    )
+  );
+
+  function addToCart(item: ICartItem) {
+    cart.set(item.id, item);
   }
 
-  function removeFromCart(resourceId: string) {
-    delete datasets[resourceId as keyof IResources];
+  function removeFromCart(itemId: string) {
+    cart.delete(itemId);
   }
 
-  function resourceIsInCart(resourceId: string) {
-    return !!datasets[resourceId as keyof IResources];
+  function isInCart(itemId: string) {
+    return cart.has(itemId);
+  }
+
+  function isEmpty() {
+    return cart.size === 0;
   }
 
   function clearCart() {
-    for (const key in datasets) {
-      delete datasets[key as keyof IResources];
-    }
+    cart.clear();
   }
 
   async function doCartRequest() {
-    if (!Object.keys(datasets).length) {
+    if (!resourcesInCart.value.length) {
       return;
     }
 
     switch (catalogueStoreVersion.value) {
       case "negotiatorV3":
-        return await doNegotiatorV3Request(datasets, catalogueStoreUrl.value)
+        return await doNegotiatorV3Request(cartItems.value, catalogueStoreUrl.value)
           .then(async (response: Response) => {
             if (response.ok) {
               clearCart();
@@ -76,15 +87,17 @@ export const useCartStore = defineStore("cart", () => {
   }
 
   return {
-    datasets,
+    cart,
+    cartItems,
+    resourcesInCart,
     isEnabled,
-    catalogueStoreVersion,
     addToCart,
     clearCart,
     doCartRequest,
     getVersionText,
     removeFromCart,
-    resourceIsInCart,
+    isInCart,
+    isEmpty
   };
 });
 

@@ -1,51 +1,3 @@
-<template>
-  <SideModal
-    :show="show"
-    :slideInRight="true"
-    :fullScreen="false"
-    :includeFooter="true"
-    buttonAlignment="left"
-    @close="onClose"
-  >
-    <ContentBlockModal title="Collections">
-      <template v-if="Object.keys(cartStore.datasets).length">
-        <p class="mb-2">Review selected collections and linked datasets</p>
-        <ul class="list-style-none">
-          <li
-            v-for="resource in cartStore.datasets"
-            :key="resource.id"
-            class="border-b-[1px] mb-2 last:border-none last:mb-none"
-          >
-            <div class="flex justify-center items-start">
-              <div class="grow mb-2 self-center">
-                <span class="block font-bold">{{ resource.name }}</span>
-              </div>
-              <div>
-                <IconButton
-                  icon="trash"
-                  @click="() => cartStore.removeFromCart(resource.id)"
-                  class="text-button-remove mb-2"
-                  label="remove collection from cart"
-                />
-              </div>
-            </div>
-          </li>
-        </ul>
-      </template>
-      <p v-else>Cart is empty</p>
-      <FormError v-if="error" :message="error" :showPrevNextButtons="false" />
-    </ContentBlockModal>
-    <template #footer>
-      <Button
-        :label="`Request from ${cartStore.getVersionText()}`"
-        :disabled="!Object.keys(cartStore.datasets).length"
-        icon="external-link"
-        @click="sendToStore"
-      />
-    </template>
-  </SideModal>
-</template>
-
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
@@ -90,3 +42,54 @@ async function sendToStore() {
   }
 }
 </script>
+
+<template>
+  <SideModal
+    :show="show"
+    :slideInRight="true"
+    :fullScreen="false"
+    :includeFooter="true"
+    buttonAlignment="left"
+    @close="onClose"
+  >
+    <ContentBlockModal title="Shopping cart">
+      <template v-if="!cartStore.isEmpty()">
+        <p class="mb-2">Review your selection</p>
+        <ul class="list-style-none">
+          <li
+            v-for="item in cartStore.cartItems"
+            :key="item.id"
+            class="border-b-[1px] mb-2 last:border-none last:mb-none"
+          >
+            <div class="flex justify-center items-start">
+              <div class="grow mb-2 self-center">
+                <span class="block font-bold">{{ item.label }}</span>
+              </div>
+              <div>
+                <IconButton
+                  icon="trash"
+                  @click="() => cartStore.removeFromCart(item.id)"
+                  class="text-button-remove mb-2"
+                  :label="`remove ${item.type} from cart`"
+                />
+              </div>
+            </div>
+          </li>
+        </ul>
+      </template>
+      <p v-else>Cart is empty</p>
+      <p v-if="!cartStore.isEmpty() && !cartStore.resourcesInCart.length">
+        Select at least one collection to send a request.
+      </p>
+      <FormError v-if="error" :message="error" :showPrevNextButtons="false" />
+    </ContentBlockModal>
+    <template #footer>
+      <Button
+        :label="`Request from ${cartStore.getVersionText()}`"
+        :disabled="!cartStore.resourcesInCart.length"
+        icon="external-link"
+        @click="sendToStore"
+      />
+    </template>
+  </SideModal>
+</template>

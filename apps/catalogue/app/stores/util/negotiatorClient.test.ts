@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  getHumanReadableString,
+  doNegotiatorV3Request,
   handleNegotiatorV3Error,
-  toNegotiatorFormat,
 } from "./negotiatorClient";
-import type { IResources } from "~~/interfaces/catalogue";
+import type { IResources, IVariables } from "~~/interfaces/catalogue";
+import type { ICartItem } from "~~/interfaces/types";
 
 describe("handleNegotiatorV3Error", () => {
   it("should return a 400 error with the details message", async () => {
@@ -77,27 +77,54 @@ describe("handleNegotiatorV3Error", () => {
   });
 });
 
-describe("toNegotiatorFormat", () => {
-  it("should convert datasets to the negotiator format", () => {
-    const datasets = {
-      dataset1: { pid: "pid1", name: "Dataset 1" } as IResources,
-      dataset2: { pid: "pid2", name: "Dataset 2" } as IResources,
-    };
-    const result = toNegotiatorFormat(datasets);
-    expect(result).toEqual([
-      { id: "pid1", name: "Dataset 1" },
-      { id: "pid2", name: "Dataset 2" },
-    ]);
-  });
-});
+describe("doNegotiatorV3Request", () => {
+  const resourceItem: ICartItem = {
+    id: "resource:res1",
+    label: "res1",
+    type: "resource",
+    data: { id: "res1", pid: "pid1", name: "Dataset 1" } as IResources,
+  };
+  const variableItem: ICartItem = {
+    id: "variable:network1:cohort1:core:height",
+    label: "network1: core.height",
+    type: "variable",
+    data: { name: "height" } as IVariables,
+  };
 
-describe("getHumanReadableString", () => {
-  it("should convert datasets to a human readable string", () => {
-    const datasets = {
-      dataset1: { pid: "pid1", name: "Dataset 1" } as IResources,
-      dataset2: { pid: "pid2", name: "Dataset 2" } as IResources,
-    };
-    const result = getHumanReadableString(datasets);
-    expect(result).toEqual("Dataset 1 (pid1), Dataset 2 (pid2)");
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should post only resources, with variables in the human readable text", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await doNegotiatorV3Request(
+      [resourceItem, variableItem],
+      "https://negotiator.example/api"
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, options] = fetchMock.mock.calls[0]!;
+    expect(url).toEqual("https://negotiator.example/api");
+    expect(options.method).toEqual("POST");
+
+    const body = JSON.parse(options.body);
+    expect(body.url).toEqual(window.location.origin);
+    expect(body.humanReadable).toEqual(
+      "Resources: Dataset 1 (pid1); Variables: network1: core.height"
+    );
+    expect(body.resources).toEqual([{ id: "pid1", name: "Dataset 1" }]);
+  });
+
+  it("should not produce resources for a variables-only cart", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await doNegotiatorV3Request([variableItem], "https://negotiator.example/api");
+
+    const body = JSON.parse(fetchMock.mock.calls[0]![1].body);
+    expect(body.resources).toEqual([]);
+    expect(body.humanReadable).toEqual("Variables: network1: core.height");
   });
 });

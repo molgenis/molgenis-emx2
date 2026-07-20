@@ -5,14 +5,22 @@ import type { IResources, IVariables } from "../../../interfaces/catalogue";
 import { calcAggregatedHarmonisationStatus } from "~/utils/harmonisation";
 import { getKey } from "../../utils/variableUtils";
 import { resourceIdPath } from "../../utils/urlHelpers";
+import {
+  resourceToCartItem,
+  variableToCartItem,
+} from "../../utils/cartItem";
+import { useCartStore } from "../../stores/useCartStore";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import TableSticky from "../table/Sticky.vue";
 import HarmonisationTableCellAvailableIcon from "./HarmonisationTableCellAvailableIcon.vue";
 import VariableDisplay from "../VariableDisplay.vue";
 import type { IVariableMappings } from "~~/interfaces/types";
+import Checkbox from "../../../../tailwind-components/app/components/input/Checkbox.vue";
+import CartButton from "../cart/CartButton.vue";
 
 const route = useRoute();
+const cartStore = useCartStore();
 
 const props = defineProps<{
   variables: (IVariables & IVariableMappings)[];
@@ -57,6 +65,11 @@ let activeVariablePath = computed(() =>
           <div
             class="hover:bg-gray-100 text-link font-normal min-w-[2rem] rotate-180 [writing-mode:vertical-lr] max-h-title min-h-title hover:max-h-none truncate hover:text-clip hover:overflow-visible"
           >
+          <CartButton
+            v-if="cartStore.isEnabled"
+            :item="resourceToCartItem(columnProps.value)"
+            :compact="true"
+          />
             <span
               class="hover:bg-gray-100 hover:flex items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
             >
@@ -70,6 +83,12 @@ let activeVariablePath = computed(() =>
             class="text-body-base text-link font-normal hover:underline px-2 cursor-pointer truncate hover:text-clip hover:overflow-visible"
             @click="activeRowIndex = rowProps.value.rowIndex"
           >
+            <CartButton
+              v-if="cartStore.isEnabled"
+              :item="variableToCartItem(rowProps.value.row)"
+              :compact="true"
+              @click.stop
+            />
             <span
               class="hover:bg-gray-100 hover:inline-block hover:border-r hover:pr-3 z-50"
             >

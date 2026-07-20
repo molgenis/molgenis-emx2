@@ -40,6 +40,7 @@ import ReferenceCard from "../../../../components/ReferenceCard.vue";
 import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
 import SideNavigation from "../../../../components/SideNavigation.vue";
 import CartButton from "../../../../components/cart/CartButton.vue";
+import { resourceToCartItem } from "../../../../utils/cartItem";
 import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
 import TableContent from "../../../../components/table/Content.vue";
 import VariableDisplay from "../../../../components/VariableDisplay.vue";
@@ -759,9 +760,8 @@ const showPopulation = computed(
         >
           <CartButton
             v-if="resource && cartStore.isEnabled"
-            :resource="resource"
+            :item="resourceToCartItem(resource)"
             :compact="false"
-            :invert="false"
             :isButton="true"
           />
         </ContentBlockIntro>

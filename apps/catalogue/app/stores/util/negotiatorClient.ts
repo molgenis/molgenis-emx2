@@ -1,15 +1,15 @@
-import type { IResources } from "../../../interfaces/catalogue";
+import type { ICartItem } from "~~/interfaces/types";
 
 export async function doNegotiatorV3Request(
-  datasets: Record<string, IResources>,
-  catalogueStoreUrl: string
+  cartItems: ICartItem[],
+  storeUrl: string
 ) {
   const url = window.location.origin;
-  const humanReadable = getHumanReadableString(datasets);
-  const resources = toNegotiatorFormat(datasets);
+  const humanReadable = toHumanReadableString(cartItems);
+  const resources = toNegotiatorFormat(cartItems);
   const payload: Record<string, any> = { url, humanReadable, resources };
 
-  return await fetch(catalogueStoreUrl, {
+  return await fetch(storeUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -50,15 +50,37 @@ export async function handleNegotiatorV3Error(response: Response) {
   }
 }
 
-export function toNegotiatorFormat(datasets: Record<string, IResources>) {
-  return Object.values(datasets).map((table) => ({
-    id: table.pid,
-    name: table.name,
-  }));
+function toNegotiatorFormat(cartItems: ICartItem[]) {
+  return cartItems
+    .filter(
+      (i): i is Extract<ICartItem, { type: "resource" }> =>
+        i.type === "resource"
+    )
+    .map((item) => {
+      return { id: item.data.pid, name: item.data.name };
+    });
 }
 
-export function getHumanReadableString(datasets: Record<string, IResources>) {
-  return Object.values(datasets)
-    .map((table) => `${table.name} (${table.pid})`)
-    .join(", ");
+function toHumanReadableString(cartItems: ICartItem[]) {
+  const resources = cartItems.filter(
+    (i): i is Extract<ICartItem, { type: "resource" }> => i.type === "resource"
+  );
+  const variables = cartItems.filter(
+    (i): i is Extract<ICartItem, { type: "variable" }> => i.type === "variable"
+  );
+  const parts = [];
+  if (resources.length > 0) {
+    parts.push(
+      "Resources: " +
+        resources
+          .map((resource) => `${resource.data.name} (${resource.data.pid})`)
+          .join(", ")
+    );
+  }
+  if (variables.length > 0) {
+    parts.push(
+      "Variables: " + variables.map((variable) => variable.label).join(", ")
+    );
+  }
+  return parts.join("; ");
 }

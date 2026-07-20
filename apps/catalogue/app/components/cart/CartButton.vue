@@ -2,12 +2,12 @@
 import { computed } from "vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
-import type { IResources } from "../../../interfaces/catalogue";
+import type { ICartItem } from "../../../interfaces/types";
 import { useCartStore } from "../../stores/useCartStore";
 
 const props = withDefaults(
   defineProps<{
-    resource: IResources;
+    item: ICartItem;
     compact?: boolean;
     isButton?: boolean;
   }>(),
@@ -18,24 +18,24 @@ const props = withDefaults(
 
 const cartStore = useCartStore();
 
-const isInShoppingCart = computed(() =>
-  cartStore.resourceIsInCart(props.resource.id)
-);
+const isInCart = computed(() => {
+  return cartStore.isInCart(props.item.id);
+});
 
 function onInput() {
-  if (isInShoppingCart.value) {
-    cartStore.removeFromCart(props.resource.id);
+  if (isInCart.value) {
+    cartStore.removeFromCart(props.item.id);
   } else {
-    cartStore.addToCart(props.resource);
+    cartStore.addToCart(props.item);
   }
 }
 </script>
 <template>
   <span v-if="isButton">
     <Button
-      :type="isInShoppingCart ? 'secondary' : 'primary'"
-      :label="isInShoppingCart ? 'Remove from cart' : 'Add to cart'"
-      :icon="isInShoppingCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
+      :type="isInCart ? 'secondary' : 'primary'"
+      :label="isInCart ? 'Remove from cart' : 'Add to cart'"
+      :icon="isInCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
       size="medium"
       buttonAlignment="right"
       @click="onInput"
@@ -43,24 +43,24 @@ function onInput() {
   </span>
   <label
     v-else
-    :for="`${resource.id}-shopping-cart-input`"
+    :for="`${item.id}-shopping-cart-input`"
     class="xl:flex xl:justify-end px-2 py-1 rounded-base cursor-pointer items-baseline xl:items-center mt-0.5 xl:mt-0"
     :class="{
       'text-button-cart-add hover:text-button-cart-add-hover':
-        !isInShoppingCart,
-      'text-button-cart-remove bg-button-cart-remove': isInShoppingCart,
+        !isInCart,
+      'text-button-cart-remove bg-button-cart-remove': isInCart,
     }"
   >
     <BaseIcon
-      :name="isInShoppingCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
+      :name="isInCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
       :width="21"
     />
     <span class="sr-only">Add to cart</span>
     <input
       type="checkbox"
-      :id="`${resource.id}-shopping-cart-input`"
+      :id="`${item.id}-shopping-cart-input`"
       class="sr-only"
-      :modelValue="isInShoppingCart"
+      :modelValue="isInCart"
       @input="onInput"
     />
   </label>

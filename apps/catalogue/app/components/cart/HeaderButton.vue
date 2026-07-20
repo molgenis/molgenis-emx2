@@ -25,11 +25,7 @@ const cartStore = useCartStore();
 defineEmits<{ (e: "click"): void }>();
 
 const numberOfItemsInStore = computed<number | string>(() => {
-  const count = Object.keys(cartStore.datasets).length;
-  if (count > 99) {
-    return "99+";
-  } else {
-    return count;
-  }
+  const count = cartStore.cart.size;
+  return count > 99 ? "99+" : count;
 });
 </script>

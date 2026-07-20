@@ -6,6 +6,7 @@ import IconButton from "../../../tailwind-components/app/components/button/IconB
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import type { IResources } from "../../interfaces/catalogue";
 import dateUtils from "../utils/dateUtils";
+import { resourceToCartItem } from "../utils/cartItem";
 import CartButton from "./cart/CartButton.vue";
 
 const cartStore = useCartStore();
@@ -68,7 +69,7 @@ const headerClasses = computed(() => {
       <div class="flex self-start">
         <CartButton
           v-if="cartStore.isEnabled"
-          :resource="resource"
+          :item="resourceToCartItem(resource)"
           :compact="props.compact"
         />
         <NuxtLink :to="`/${catalogue}/resources/${resource.id}`">
