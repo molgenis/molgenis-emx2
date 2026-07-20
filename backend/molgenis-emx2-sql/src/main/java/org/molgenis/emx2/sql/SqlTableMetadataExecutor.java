@@ -216,7 +216,7 @@ class SqlTableMetadataExecutor {
                 keyColumn -> {
                   if (keyColumn.isReference()) {
                     return keyColumn.getReferences().stream()
-                        .map(ref -> "OLD." + name(ref.getName()))
+                        .map(ref -> "OLD." + name(ref.getColumnName()))
                         .collect(Collectors.joining("||','||"));
                   } else {
                     return "OLD." + name(keyColumn.getName());
@@ -330,6 +330,9 @@ class SqlTableMetadataExecutor {
           ChangeLogUtils.buildProcessAuditFunctionRemove(
               table.getSchema().getName(), table.getTableName()));
 
+      // drop RLS policies before columns, as policies may depend on the mg_roles column
+      SqlRoleManager.dropRlsPolicies(jooq, getJooqTable(table));
+
       // drop all triggers from all columns
       List<Column> columns = table.getStoredColumns();
       sortColumnsByDependency(columns);
@@ -369,7 +372,7 @@ class SqlTableMetadataExecutor {
         } else if (c.isReference()) {
           for (Reference r : c.getReferences()) {
             mgSearchVector.append(
-                String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getName()));
+                String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getColumnName()));
           }
         } else {
           mgSearchVector.append(
@@ -461,7 +464,7 @@ class SqlTableMetadataExecutor {
       String columnName, TableMetadata tm, DSLContext jooq) {
     // nb: key=1 columns are copied between subclasses so excluded from collision check.
     String recursiveQuerySql =
-        """
+"""
 WITH RECURSIVE inherited_columns AS (
 SELECT\s
   a.table_schema,

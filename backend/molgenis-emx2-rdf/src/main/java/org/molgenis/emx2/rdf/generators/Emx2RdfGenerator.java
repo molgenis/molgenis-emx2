@@ -324,7 +324,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     for (Column column : metadata.getPrimaryKeyColumns()) {
       if (column.isReference()) {
         for (final Reference reference : column.getReferences()) {
-          final String value = row.getString(reference.getName());
+          final String value = row.getString(reference.getColumnName());
           primaryKeyValues.add(value);
         }
       } else {

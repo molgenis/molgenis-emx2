@@ -471,4 +471,165 @@ public class TestCompositeForeignKeys {
         ((Map<String, String>) map.get("Person_groupBy").get(0).get("cousins")).get("firstName"));
     assertEquals(1, map.get("Person_groupBy").get(1).get("count"));
   }
+
+  @Test
+  public void testGroupByWithCompositeRefKey() throws JsonProcessingException {
+    Schema schema =
+        database.dropCreateSchema(
+            TestCompositeForeignKeys.class.getSimpleName() + "GroupByCompositeRef");
+
+    schema.create(
+        table("Resource", column("name").setPkey()),
+        table("Tag", column("name").setPkey()),
+        table(
+            "Event",
+            column("resource", REF).setRefTable("Resource").setPkey(),
+            column("name").setPkey(),
+            column("tags", REF_ARRAY).setRefTable("Tag")));
+
+    schema.getTable("Resource").insert(row("name", "hall"), row("name", "field"));
+
+    schema
+        .getTable("Tag")
+        .insert(row("name", "fun"), row("name", "outdoor"), row("name", "indoor"));
+
+    Table events = schema.getTable("Event");
+    events.insert(
+        new Row()
+            .setString("resource", "hall")
+            .setString("name", "game1")
+            .setStringArray("tags", "fun", "outdoor"));
+    events.insert(
+        new Row()
+            .setString("resource", "hall")
+            .setString("name", "game2")
+            .setStringArray("tags", "indoor"));
+    events.insert(
+        new Row()
+            .setString("resource", "field")
+            .setString("name", "concert1")
+            .setStringArray("tags", "fun"));
+
+    ObjectMapper mapper = new ObjectMapper();
+    String result = schema.groupBy("Event").select(s("count"), s("tags", s("name"))).retrieveJSON();
+
+    Map<String, List<Map<String, Object>>> map = mapper.readValue(result, Map.class);
+    List<Map<String, Object>> rows = map.get("Event_groupBy");
+
+    assertEquals(3, rows.size());
+    assertEquals(2, rows.get(0).get("count"));
+    assertEquals("fun", ((Map<String, String>) rows.get(0).get("tags")).get("name"));
+    assertEquals(1, rows.get(1).get("count"));
+    assertEquals("indoor", ((Map<String, String>) rows.get(1).get("tags")).get("name"));
+    assertEquals(1, rows.get(2).get("count"));
+    assertEquals("outdoor", ((Map<String, String>) rows.get(2).get("tags")).get("name"));
+
+    schema.create(
+        table(
+            "Agent",
+            column("resource", REF).setRefTable("Resource").setPkey(),
+            column("agentId").setPkey()));
+
+    schema
+        .getTable("Agent")
+        .insert(
+            new Row().setString("resource", "hall").setString("agentId", "alice"),
+            new Row().setString("resource", "hall").setString("agentId", "bob"),
+            new Row().setString("resource", "field").setString("agentId", "carol"));
+
+    schema.create(
+        table(
+            "Event2",
+            column("resource", REF).setRefTable("Resource").setPkey(),
+            column("name").setPkey(),
+            column("creators", REF_ARRAY).setRefTable("Agent")));
+
+    Table events2 = schema.getTable("Event2");
+    events2.insert(
+        new Row()
+            .setString("resource", "hall")
+            .setString("name", "party")
+            .setStringArray("creators.resource", "hall", "hall")
+            .setStringArray("creators.agentId", "alice", "bob"));
+    events2.insert(
+        new Row()
+            .setString("resource", "field")
+            .setString("name", "race")
+            .setStringArray("creators.resource", "field", "hall")
+            .setStringArray("creators.agentId", "carol", "alice"));
+
+    String result2 =
+        schema
+            .groupBy("Event2")
+            .select(s("count"), s("creators", s("resource", s("name")), s("agentId")))
+            .retrieveJSON();
+
+    Map<String, List<Map<String, Object>>> map2 = mapper.readValue(result2, Map.class);
+    List<Map<String, Object>> rows2 = map2.get("Event2_groupBy");
+
+    assertEquals(3, rows2.size());
+    assertEquals(2, rows2.get(0).get("count"));
+    assertEquals("alice", ((Map<String, String>) rows2.get(0).get("creators")).get("agentId"));
+    assertEquals(1, rows2.get(1).get("count"));
+    assertEquals("bob", ((Map<String, String>) rows2.get(1).get("creators")).get("agentId"));
+    assertEquals(1, rows2.get(2).get("count"));
+    assertEquals("carol", ((Map<String, String>) rows2.get(2).get("creators")).get("agentId"));
+
+    schema.create(
+        table(
+            "Organisation",
+            column("resource", REF).setRefTable("Resource").setPkey(),
+            column("orgId").setPkey()));
+
+    schema
+        .getTable("Organisation")
+        .insert(
+            new Row().setString("resource", "hall").setString("orgId", "orgA"),
+            new Row().setString("resource", "hall").setString("orgId", "orgB"),
+            new Row().setString("resource", "field").setString("orgId", "orgC"));
+
+    schema.create(
+        table(
+            "Event3",
+            column("resource", REF).setRefTable("Resource").setPkey(),
+            column("name").setPkey(),
+            column("orgs", REF_ARRAY).setRefTable("Organisation")));
+
+    Table events3 = schema.getTable("Event3");
+    events3.insert(
+        new Row()
+            .setString("resource", "hall")
+            .setString("name", "meeting")
+            .setStringArray("orgs.resource", "hall", "hall")
+            .setStringArray("orgs.orgId", "orgA", "orgB"));
+    events3.insert(
+        new Row()
+            .setString("resource", "hall")
+            .setString("name", "party")
+            .setStringArray("orgs.resource", "hall")
+            .setStringArray("orgs.orgId", "orgA"));
+    events3.insert(
+        new Row()
+            .setString("resource", "field")
+            .setString("name", "outdoor")
+            .setStringArray("orgs.resource", "field")
+            .setStringArray("orgs.orgId", "orgC"));
+
+    String result3 =
+        schema
+            .groupBy("Event3")
+            .select(s("count"), s("orgs", s("resource", s("name")), s("orgId")))
+            .retrieveJSON();
+
+    Map<String, List<Map<String, Object>>> map3 = mapper.readValue(result3, Map.class);
+    List<Map<String, Object>> rows3 = map3.get("Event3_groupBy");
+
+    assertEquals(3, rows3.size());
+    assertEquals(2, rows3.get(0).get("count"));
+    assertEquals("orgA", ((Map<String, String>) rows3.get(0).get("orgs")).get("orgId"));
+    assertEquals(1, rows3.get(1).get("count"));
+    assertEquals("orgB", ((Map<String, String>) rows3.get(1).get("orgs")).get("orgId"));
+    assertEquals(1, rows3.get(2).get("count"));
+    assertEquals("orgC", ((Map<String, String>) rows3.get(2).get("orgs")).get("orgId"));
+  }
 }

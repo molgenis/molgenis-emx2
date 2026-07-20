@@ -5,7 +5,6 @@ import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 import java.io.StringReader;
@@ -124,6 +123,7 @@ public class SqlTable implements Table {
 
   @Override
   public int insert(Iterable<Row> rows) {
+    validateMgRoles(rows);
     try {
       return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
     } catch (Exception e) {
@@ -138,6 +138,7 @@ public class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
+    validateMgRoles(rows);
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
     } catch (Exception e) {
@@ -152,10 +153,47 @@ public class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
+    validateMgRoles(rows);
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
       throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
+    }
+  }
+
+  private void validateMgRoles(Iterable<Row> rows) {
+    if (PermissionEvaluator.canManage(getSchema())) return;
+    if (metadata.getColumn(MG_ROLES) == null) return;
+
+    List<String> userRoles = getSchema().getInheritedRolesForActiveUser();
+    List<String> rolesInSchema = getSchema().getRoles();
+
+    for (Row row : rows) {
+      String[] mgRoles = row.getStringArray(MG_ROLES);
+      if (mgRoles == null || mgRoles.length == 0) continue;
+
+      if (mgRoles.length > 1) {
+        throw new MolgenisException(
+            "mg_roles can only contain a single role, multiple were provided: "
+                + Arrays.toString(mgRoles));
+      }
+
+      String requestedRole = mgRoles[0];
+      if (!rolesInSchema.contains(requestedRole)) {
+        throw new MolgenisException(
+            "mg_roles value '"
+                + requestedRole
+                + "' is not a valid custom role in schema '"
+                + metadata.getSchemaName()
+                + "'");
+      }
+
+      if (!userRoles.contains(requestedRole)) {
+        throw new MolgenisException(
+            "Permission denied: you must be Manager or hold the role '"
+                + requestedRole
+                + "' to set mg_roles");
+      }
     }
   }
 
@@ -353,11 +391,12 @@ public class SqlTable implements Table {
       SqlTable entry, List<Column> baseColumns, List<Row> rows, boolean isInsert) {
     List<Column> discriminatorColumns = entry.getMetadata().getDiscriminatorColumns();
     if (discriminatorColumns.isEmpty()) {
-      return applyValidationAndComputed(baseColumns, rows);
+      new SqlRowProcessor(baseColumns).validateAndCompute(rows);
+      return rows;
     }
     for (Row row : rows) {
       List<Column> union = buildValidationUnion(entry, baseColumns, row, isInsert);
-      applyValidationAndComputed(union, row);
+      new SqlRowProcessor(union).validateAndCompute(row);
     }
     return rows;
   }
@@ -388,7 +427,7 @@ public class SqlTable implements Table {
                 !c.isRefback()
                     || (c.isReference()
                         && c.getReferences().stream()
-                            .anyMatch(r -> columnsProvided.contains(r.getName()))))
+                            .anyMatch(r -> columnsProvided.contains(r.getColumnName()))))
         .toList();
   }
 
@@ -402,7 +441,7 @@ public class SqlTable implements Table {
                     || c.getComputed() != null
                     || (c.isReference()
                         ? c.getReferences().stream()
-                            .anyMatch(r -> columnsProvided.contains(r.getName()))
+                            .anyMatch(r -> columnsProvided.contains(r.getColumnName()))
                         : columnsProvided.contains(c.getName())))
         .toList();
   }
@@ -872,7 +911,7 @@ public class SqlTable implements Table {
     for (Column key : pkeyFields) {
       if (key.isReference()) {
         for (Reference ref : key.getReferences()) {
-          result.add(ref.getJooqField().eq(row.get(ref.getName(), ref.getPrimitiveType())));
+          result.add(ref.getJooqField().eq(row.get(ref.getColumnName(), ref.getPrimitiveType())));
         }
       } else {
         result.add(key.getJooqField().eq(row.get(key)));
@@ -1015,7 +1054,9 @@ public class SqlTable implements Table {
         if (!ref.isOverlapping()) {
           columnCondition.add(
               ref.getJooqField()
-                  .eq(cast(r.get(ref.getName(), ref.getPrimitiveType()), ref.getJooqField())));
+                  .eq(
+                      cast(
+                          r.get(ref.getColumnName(), ref.getPrimitiveType()), ref.getJooqField())));
         }
       }
     } else if (key.isRefback()) {

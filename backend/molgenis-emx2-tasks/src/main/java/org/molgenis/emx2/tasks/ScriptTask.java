@@ -136,7 +136,9 @@ public class ScriptTask extends Task {
             this.handleOutput(tempOutputFile.toFile());
             this.output = Files.readAllBytes(tempOutputFile);
           }
-          this.complete();
+          if (!TaskStatus.CANCELLED.equals(getStatus())) {
+            this.complete();
+          }
         }
       } finally {
         if (tempDir != null) {
@@ -148,8 +150,10 @@ public class ScriptTask extends Task {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     } catch (Exception e) {
-      this.setError("Script failed: " + e.getMessage());
-      throw new MolgenisException("Script execution failed", e);
+      if (!TaskStatus.CANCELLED.equals(getStatus())) {
+        this.setError("Script failed: " + e.getMessage());
+        throw new MolgenisException("Script execution failed", e);
+      }
     } finally {
       if (getStatus() == TaskStatus.ERROR) {
         this.sendFailureMail();
@@ -178,6 +182,7 @@ public class ScriptTask extends Task {
       byte[] extraFileContent = (byte[]) this.extraFile.get(EXTRA_FILE_CONTENTS);
       Object extraFileExtension = this.extraFile.get(EXTRA_FILE_EXTENSION);
       Path extraFilePath = tempDir.resolve(extraFileName);
+      checkForZipSlip(tempDir, extraFilePath.toFile());
 
       try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
         fos.write(extraFileContent);
@@ -322,9 +327,11 @@ public class ScriptTask extends Task {
   public void stop() {
     if (this.process != null && this.process.isAlive()) {
       this.process.destroy();
-      this.logger.warn("stopping script " + name);
+      logger.warn("stopping script %s".formatted(name));
+      this.setStatus(TaskStatus.CANCELLED);
+    } else {
+      logger.warn("script %s is not running".formatted(name));
     }
-    this.setError("process has been stopped");
   }
 
   @JsonIgnore

@@ -4,6 +4,7 @@ import static org.molgenis.emx2.ColumnType.STRING;
 
 import com.google.common.io.ByteStreams;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URLConnection;
@@ -74,6 +75,7 @@ public class ServeStaticFile {
       } else {
         // Running from IDE/CLI (classes folder)
         Path emx2Home = jarPath.getParent();
+
         do {
           emx2Home = emx2Home.getParent();
         } while (!emx2Home.toString().endsWith("backend"));
@@ -112,14 +114,21 @@ public class ServeStaticFile {
     return false;
   }
 
-  // Serve internal file
+  // Serve internal file (classpath resource under the internal apps root)
   public static void serve(Context ctx, String path) {
+    Path internalRoot = Path.of(INTERNAL_APP_FOLDER).normalize();
+    Path resolved = Path.of(path).normalize();
+    if (!resolved.startsWith(internalRoot)) {
+      ctx.status(HttpStatus.FORBIDDEN).result(HttpStatus.FORBIDDEN.getMessage());
+      return;
+    }
+    String resourcePath = convertWindowsPathToJarPath(resolved.toString());
 
-    try (InputStream in = ServeStaticFile.class.getResourceAsStream(path)) {
-      String mimeType = URLConnection.guessContentTypeFromName(path);
+    try (InputStream in = ServeStaticFile.class.getResourceAsStream(resourcePath)) {
+      String mimeType = URLConnection.guessContentTypeFromName(resourcePath);
 
       if (mimeType == null) {
-        mimeType = Files.probeContentType(Path.of(path));
+        mimeType = Files.probeContentType(resolved);
       }
       send(ctx, in, mimeType);
     } catch (Exception e) {
@@ -143,7 +152,7 @@ public class ServeStaticFile {
         internalAppsDirectory.resolve(fallbackFileBase).normalize().toString();
 
     if (!requestedInternalFilePath.startsWith(internalAppsDirectory.toString())) {
-      ctx.status(403).result("Forbidden");
+      ctx.status(HttpStatus.FORBIDDEN).result(HttpStatus.FORBIDDEN.getMessage());
       return;
     }
 
@@ -174,7 +183,7 @@ public class ServeStaticFile {
 
     if (!requestedExternalFilePath.startsWith(externalAppsDirectory)) {
       // Suspected path traversal: reject the request
-      ctx.status(403).result("Forbidden");
+      ctx.status(HttpStatus.FORBIDDEN).result(HttpStatus.FORBIDDEN.getMessage());
       return;
     }
 

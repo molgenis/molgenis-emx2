@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -19,7 +20,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
-public class TestTableQueriesWithInheritance {
+class TestTableQueriesWithInheritance {
   private static final String schemaName = TestTableQueriesWithInheritance.class.getSimpleName();
   private static GraphqlExecutor grapql;
   private static Database database;
@@ -27,23 +28,40 @@ public class TestTableQueriesWithInheritance {
   private static Schema schema;
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(schemaName);
     schema.create(table("Person", column("name").setPkey()));
     schema.create(
         table("Employee", column("salary").setType(ColumnType.INT)).setInheritNames("Person"));
     schema.getTable("Employee").insert(row("name", "pooky", "salary", 1000));
+
+    // table with a file column, with a row that has no file uploaded
+    schema.create(
+        table("Document", column("title").setPkey(), column("file").setType(ColumnType.FILE)));
+    schema.getTable("Document").insert(row("title", "hello"));
+
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlExecutor(schema, taskService);
   }
 
   @Test
-  public void testQueriesIncludingSubclassColumns() throws IOException {
+  void testQueriesIncludingSubclassColumns() throws IOException {
     JsonNode result =
         execute(
             "{Person{name,salary}}"); // note, Person.salary doesn't exist, but Employee.salary does
     assertEquals(1000, result.at("/Person/0/salary").asInt());
+  }
+
+  @Test
+  void testEmptyFileFieldIsNullNotEmptyObject() throws IOException {
+    JsonNode documentRow = execute("{Document{title, file{url}}}").at("/Document/0");
+    // sanity: the row's own column is present
+    assertEquals("hello", documentRow.get("title").asText());
+    // an empty file field must be null, not an empty object holding nulls for its subfields
+    assertTrue(
+        documentRow.path("file").isNull() || !documentRow.has("file"),
+        "empty file field should be null, got: " + documentRow);
   }
 
   private JsonNode execute(String query) throws IOException {

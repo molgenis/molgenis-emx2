@@ -117,7 +117,7 @@ const submitForm = async () => {
     : `Contact request for ${fields.senderName.fieldValue}`;
 
   try {
-    isSendSuccess = await sendContactForm({
+    isSendSuccess = !!(await sendContactForm({
       recipientsFilter: props.contactMessageFilter || "",
       subject,
       body: `
@@ -126,8 +126,9 @@ const submitForm = async () => {
       \nOrganization: ${fields.organization.fieldValue}
       \nTopic: ${fields.topic.fieldValue}
       \nMessage: ${fields.senderMessage.fieldValue}
+      \nMessage originated from: ${window?.location?.origin || "Unknown origin"}
     `,
-    });
+    }));
   } catch (error) {
     console.log(error);
   }
@@ -160,7 +161,7 @@ const submitForm = async () => {
 
 <template>
   <section
-    class="bg-white py-9 lg:px-12.5 px-5 text-gray-900 xl:rounded-3px shadow-primary xl:border-b-0 border-b-[1px]"
+    class="bg-white py-9 lg:px-12.5 px-5 text-gray-900 xl:rounded-base shadow-primary xl:border-b-0 border-b-[1px]"
   >
     <div class="flex flex-col items-center justify-center gap-11 md:flex-row">
       <img v-if="image" class="max-h-11" :src="image" />

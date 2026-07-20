@@ -1,4 +1,4 @@
-import type { Link, Menu } from "../../types/types";
+import type { Link, Menu, MgError } from "../../types/types";
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnValue,
@@ -219,6 +219,33 @@ function isEmptyObject(column: columnValue) {
   );
 }
 
+export function isMgError(error: unknown): error is MgError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as any).message === "string" &&
+    "statusCode" in error &&
+    typeof (error as any).statusCode === "number" &&
+    "data" in error &&
+    typeof (error as any).data === "object" &&
+    (error as any).data !== null &&
+    "errors" in (error as any).data &&
+    Array.isArray((error as any).data.errors) &&
+    (error as any).data.errors.every(
+      (err: any) =>
+        typeof err === "object" &&
+        err !== null &&
+        "message" in err &&
+        typeof err.message === "string"
+    )
+  );
+}
+
+export function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
 export function isLink(value: unknown): value is Link {
   return (
     typeof value === "object" &&
@@ -239,4 +266,14 @@ export function parseLinkSetting(linkSetting: string): Link {
       linkSettingObject.isSpaLink === "true" ||
       linkSettingObject.isSpaLink === true,
   };
+}
+
+export function getIntInput(inputValue?: string | number | null) {
+  if ((typeof inputValue !== "number" && !inputValue) || inputValue === "-") {
+    return inputValue;
+  } else {
+    const numericValue =
+      typeof inputValue === "string" ? Number.parseInt(inputValue) : inputValue;
+    return numericValue;
+  }
 }

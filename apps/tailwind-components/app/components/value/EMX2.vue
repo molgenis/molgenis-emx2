@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
-import type {
-  ColumnPayload,
-  ListPayload,
-  RefPayload,
-} from "../../../types/types";
+import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { cellPayload } from "../../../types/types";
 import { toRefColumn } from "../../utils/typeUtils";
 import ValueBool from "./Bool.vue";
+import ValueDate from "./Date.vue";
+import ValueDateTime from "./DateTime.vue";
 import ValueDecimal from "./Decimal.vue";
 import ValueEmail from "./Email.vue";
 import ValueFile from "./File.vue";
@@ -19,8 +17,6 @@ import ValueRef from "./Ref.vue";
 import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
-import ValueDate from "./Date.vue";
-import ValueDateTime from "./DateTime.vue";
 
 withDefaults(
   defineProps<{
@@ -34,7 +30,7 @@ withDefaults(
 );
 
 defineEmits<{
-  (e: "valueClick", payload: RefPayload | ColumnPayload | ListPayload): void;
+  (e: "valueClick", payload: cellPayload): void;
 }>();
 </script>
 
@@ -91,7 +87,7 @@ defineEmits<{
 
   <ValueRef
     v-else-if="['REF', 'RADIO', 'SELECT'].includes(metadata.columnType)"
-    :metadata="metadata as IRefColumn"
+    :metadata="toRefColumn(metadata)"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
   />

@@ -1,25 +1,15 @@
-import { request, gql } from "graphql-request";
-import type { IOrganisations } from "../types/ErnDashboard";
-import type { IOrganisationsResponse } from "../types/app";
+import type { IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
 
 export async function getOrganisation(
   url: string,
   organisationId: string
 ): Promise<IOrganisations> {
-  const query = gql`query {
-      Organisations(filter: {
-      providerInformation: {
-        providerIdentifier: {
-          equals: "${organisationId}"
-        }
-      }
-    }) {
+  const query = `query getOrganisations($filter: OrganisationsFilter){
+      Organisations(filter:$filter) {
         name
         code
         city
         country
-        latitude
-        longitude
         image {
           filename
           extension
@@ -30,14 +20,21 @@ export async function getOrganisation(
         }
         schemaName
       }
-    }
-  `;
-
-  const result: IOrganisationsResponse = await request(url, query, {
-    providerInformation: {
-      providerIdentifier: { equals: `${organisationId}` },
-    },
+  }`;
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify({
+      query: query,
+      variables: {
+        filter: {
+          providerInformation: {
+            providerIdentifier: { equals: `${organisationId}` },
+          },
+        },
+      },
+    }),
   });
 
-  return result.Organisations[0];
+  const responseJson = await response.json();
+  return responseJson.data.Organisations[0];
 }

@@ -147,6 +147,7 @@ class TestTableRoleManagement {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("PartialRevokeRole");
+    // Grant SELECT + INSERT
     schema.grant("PartialRevokeRole", new TablePermission(TABLE_A).select(true).insert(true));
     schema.addMember(USER_EDITOR, "PartialRevokeRole");
 
@@ -170,7 +171,13 @@ class TestTableRoleManagement {
                 .getTable(TABLE_A)
                 .insert(new Row().setString("id", "r_partial2").setString("value", "v")));
 
+    // Verify SELECT still works
     assertDoesNotThrow(() -> database.getSchema(SCHEMA).getTable(TABLE_A).retrieveRows());
+
+    database.becomeAdmin();
+    schema.getTable(TABLE_A).delete(new Row().setString("id", "r_partial"));
+    schema.removeMember(USER_EDITOR);
+    schema.deleteRole("PartialRevokeRole");
   }
 
   @Test

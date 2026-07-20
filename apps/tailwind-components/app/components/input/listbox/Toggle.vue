@@ -8,7 +8,7 @@
     :aria-expanded="isExpanded"
     :aria-activedescendant="selectedElementId"
     :aria-describedby="describedBy || undefined"
-    class="flex justify-start items-center h-input w-full text-left pl-4 border rounded-input"
+    class="flex justify-start items-center h-input w-full text-left pl-4 border rounded-alt"
     :class="{
       'bg-input border-invalid text-invalid': invalid && !disabled,
       'bg-input border-valid text-valid': valid && !disabled,

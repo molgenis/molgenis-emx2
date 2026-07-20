@@ -7,6 +7,7 @@ import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 import java.util.*;
 import org.jooq.*;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.User;
 import org.slf4j.Logger;
@@ -28,6 +29,10 @@ public class MetadataUtils {
   public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
+  public static final org.jooq.Table<Record> PG_AUTH_MEMBERS =
+      table(name("pg_catalog", "pg_auth_members"));
+  public static final org.jooq.Table<Record> PG_CATALOG_ROLES =
+      table(name("pg_catalog", "pg_roles"));
 
   // deprecated table/clumn, to be delete on next major upgrade
   private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));

@@ -87,6 +87,9 @@ module.exports = {
       },
     },
     extend: {
+      accentColor: {
+        theme: "var(--accent-color)",
+      },
       boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
         "no-background-modal": "var(--box-shadow-no-background-modal)",
@@ -113,12 +116,14 @@ module.exports = {
       }),
       height: () => ({
         input: "var(--height-input)",
-      }),
-      height: () => ({
-        input: "var(--height-input)",
         "input-tiny": "var(--height-input-tiny)",
         "input-small": "var(--height-input-small)",
+        "input-medium": "var(--height-input-medium)",
         "input-large": "var(--height-input-large)",
+        "button-tiny": "2rem",
+        "button-small": "2.625rem",
+        "button-default": "3.125rem",
+        "button-large": "3.5rem",
       }),
       width: {
         "button-switch": "var(--width-button-switch)",
@@ -149,6 +154,7 @@ module.exports = {
       backgroundImage: {
         "sidebar-gradient": "var(--background-image-sidebar-gradient)",
         "base-gradient": "var(--background-image-base-gradient)",
+        "bulk-gradient": "var(--background-image-bulk-gradient)",
         "collapsible-listitem-line":
           "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjQnIHZpZXdCb3g9JzAgMCAyMCAyMicgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMSAxVjIxJyBzdHJva2U9JyM4QkM1RkYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgc3Ryb2tlLWRhc2hhcnJheT0nNCA0Jy8+PC9zdmc+Cg==)",
       },
@@ -234,6 +240,7 @@ module.exports = {
         "label-available": "var(--background-color-label-available)",
         "label-available-hover":
           "var(--background-color-label-available-hover)",
+        dropdown: "var(--background-color-dropdown)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -248,6 +255,7 @@ module.exports = {
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
         "button-filter": "var(--text-color-button-filter)",
         "button-text": "var(--text-color-button-text)",
+        "button-inline": "var(--text-color-button-inline)",
         "button-icon": "var(--text-color-button-icon)",
         "button-icon-hover": "var(--text-color-button-icon-hover)",
         "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
@@ -277,9 +285,9 @@ module.exports = {
         "search-results-view-tabs-hover":
           "var(--text-color-search-results-view-tabs-hover)",
         "search-filter-title": "var(--text-color-search-filter-title)",
-        "search-filter-expand": "var(--text-color-search-filter-expand)",
-        "search-filter-expand-mobile":
-          "var(--text-color-search-filter-expand-mobile)",
+        "search-filter-action": "var(--text-color-search-filter-action)",
+        "search-filter-action-mobile":
+          "var(--text-color-search-filter-action-mobile)",
         "search-filter-group-title":
           "var(--text-color-search-filter-group-title)",
         "search-filter-group-title-mobile":
@@ -290,8 +298,8 @@ module.exports = {
           "var(--text-color-search-filter-group-toggle)",
         "search-filter-title-inverted":
           "var(--text-color-search-filter-title-inverted)",
-        "search-filter-expand-inverted":
-          "var(--text-color-search-filter-expand-inverted)",
+        "search-filter-action-inverted":
+          "var(--text-color-search-filter-action-inverted)",
         "search-filter-group-title-inverted":
           "var(--text-color-search-filter-group-title-inverted)",
         "search-filter-group-checkbox-inverted":
@@ -348,6 +356,7 @@ module.exports = {
         "icon-neutral": "var(--text-color-icon-neutral)",
         "label-available": "var(--text-color-label-available)",
         "chart-text": "var(--chart-text)",
+        dropdown: "var(--text-color-dropdown)",
       }),
       borderColor: () => ({
         theme: "var(--border-color-theme)",
@@ -387,6 +396,7 @@ module.exports = {
         "button-switch-selected": "var(--border-color-button-switch-selected)",
         "button-switch-hover": "var(--border-color-button-switch-hover)",
         footer: "var(--border-color-footer)",
+        "filter-divider": "var(--border-color-filter-divider)",
       }),
       stroke: () => ({
         input: "var(--border-color-input)",
@@ -423,16 +433,8 @@ module.exports = {
         "chart-paths": "var(--chart-paths)",
       }),
       borderRadius: {
-        theme: "var(--border-radius-theme)",
-        "3px": "var(--border-radius-3px)",
-        "50px": "var(--border-radius-50px)",
-        input: "var(--border-radius-input)",
-        "textarea-input": "var(--border-radius-textarea-input)",
-        "search-input": "var(--border-radius-search-input)",
-        "search-button": "var(--border-radius-search-button)",
-        pagination: "var(--border-radius-pagination)",
-        landing: "var(--border-radius-landing)",
-        "form-required": "var(--border-radius-form-required)",
+        base: "var(--border-radius-base)",
+        alt: "var(--border-radius-alt)",
       },
       borderWidth: {
         "form-required": "var(--border-width-form-required)",

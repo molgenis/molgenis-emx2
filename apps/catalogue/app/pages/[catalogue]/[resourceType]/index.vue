@@ -255,7 +255,7 @@ const query = computed(() => {
       networkType {
           name
       }
-      datasets {
+      tables {
         name
         label
       }

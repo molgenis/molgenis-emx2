@@ -6,10 +6,10 @@ export const getKey = (variable: IVariables) => {
     resource: {
       id: variable.resource.id,
     },
-    dataset: {
-      name: variable.dataset.name,
+    table: {
+      name: variable.table.name,
       resource: {
-        id: variable.dataset.resource.id,
+        id: variable.table.resource.id,
       },
     },
   };

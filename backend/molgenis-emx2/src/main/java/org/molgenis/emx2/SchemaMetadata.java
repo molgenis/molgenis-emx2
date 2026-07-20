@@ -122,6 +122,10 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     return result;
   }
 
+  public List<TableMetadata> getRootTables() {
+    return getTables().stream().filter(table -> table.getInheritNames().isEmpty()).toList();
+  }
+
   public Database getDatabase() {
     return database;
   }

@@ -1596,7 +1596,7 @@ public class RDFTest {
         };
 
     final String customRdf =
-        """
+"""
 @prefix example: <http://example.com/> .
 <https://molgenis.org/> example:test "Molgenis" .
 """;
@@ -1636,7 +1636,7 @@ public class RDFTest {
   @Test
   void testInvalidCustomRdfSetting() throws IOException {
     final String customRdf =
-        """
+"""
 <https://molgenis.org/> <http://purl.org/dc/terms/title> "Molgenis"
 """;
 
@@ -1768,12 +1768,12 @@ public class RDFTest {
         };
 
     final String customPrefixes1 =
-        """
+"""
 dcterms,http://purl.org/dc/terms/
 """;
 
     final String customPrefixes2 =
-        """
+"""
 dcterms,http://purl.org/dc/terms/
 """;
 
@@ -1801,12 +1801,12 @@ dcterms,http://purl.org/dc/terms/
         };
 
     final String customPrefixes1 =
-        """
+"""
 dcterms1,http://purl.org/dc/terms/
 """;
 
     final String customPrefixes2 =
-        """
+"""
 dcterms2,http://purl.org/dc/terms/
 """;
 
@@ -1835,12 +1835,12 @@ dcterms2,http://purl.org/dc/terms/
         };
 
     final String customPrefixes1 =
-        """
+"""
 name,http://purl.org/dc/terms/
     """;
 
     final String customPrefixes2 =
-        """
+"""
 name,http://www.w3.org/2000/01/rdf-schema#
     """;
 
@@ -1864,7 +1864,7 @@ name,http://www.w3.org/2000/01/rdf-schema#
         };
 
     final String customPrefixes1 =
-        """
+"""
 example,http://example.com/
     """;
 

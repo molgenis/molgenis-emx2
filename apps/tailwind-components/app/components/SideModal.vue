@@ -63,8 +63,8 @@ watch(
 );
 
 const roundedClass = props.slideInRight
-  ? "rounded-l-theme right-0"
-  : "rounded-r-theme";
+  ? "rounded-l-alt right-0"
+  : "rounded-r-alt";
 
 const fullScreenClass = computed(() =>
   props.fullScreen ? "w-[95vw]" : "lg:w-[33vw] md:w-[50vw] w-[95vw]"
@@ -147,53 +147,6 @@ const bgClass = computed(() => {
 <style>
 .calc-remaining-max-height {
   max-height: calc(100vh - 4rem);
-}
-
-.v-popper--theme-dropdown .v-popper__inner {
-  background: none;
-  border-radius: 0;
-  border: 0;
-  box-shadow: none;
-}
-
-.v-popper__popper--no-positioning {
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  height: 100%;
-  display: flex;
-  width: 100%;
-}
-
-.v-popper_fullscreen .v-popper__popper--no-positioning {
-  width: 100%;
-  max-width: none;
-}
-
-.v-popper_right .v-popper__popper--no-positioning {
-  left: auto;
-  right: 0;
-}
-
-.v-popper__popper--no-positioning .v-popper__backdrop {
-  display: block;
-  background: rgba(0 0 0 / 60%);
-}
-
-.v-popper__popper--no-positioning .v-popper__wrapper {
-  width: 100%;
-  pointer-events: auto;
-  transition: transform 0.15s ease-out;
-}
-
-.v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
-  transform: translateX(-100%);
-}
-.v-popper_right
-  .v-popper__popper--no-positioning.v-popper__popper--hidden
-  .v-popper__wrapper {
-  transform: translateX(100%);
 }
 
 body.no-scroll {

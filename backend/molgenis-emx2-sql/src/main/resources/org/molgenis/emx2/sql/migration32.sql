@@ -1,2 +1,14 @@
-ALTER TABLE "MOLGENIS".table_metadata ALTER COLUMN table_inherits TYPE VARCHAR[] USING (CASE WHEN table_inherits IS NULL THEN NULL ELSE ARRAY[table_inherits] END);
-ALTER TABLE "MOLGENIS".column_metadata ADD COLUMN IF NOT EXISTS "values" VARCHAR[];
+DO $$
+    BEGIN
+        IF EXISTS (
+            SELECT 1
+            FROM information_schema.tables
+            WHERE table_schema = '_SYSTEM_'
+              AND table_name = 'JobStatus'
+        ) THEN
+            INSERT INTO
+                "_SYSTEM_"."JobStatus" ("name", "JobStatus_TEXT_SEARCH_COLUMN")
+            VALUES ('CANCELLED', 'The job has been cancelled.')
+            ON CONFLICT ("name") DO NOTHING;
+        END IF;
+    END $$;

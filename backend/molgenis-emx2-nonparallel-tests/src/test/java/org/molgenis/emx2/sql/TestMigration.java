@@ -108,7 +108,7 @@ public class TestMigration {
   @Test
   @Tag("slow")
   @Tag("windowsFail")
-  void testMigration32() {
+  void testMigration33() {
     SqlDatabase sqlDatabase = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
     DSLContext jooq = sqlDatabase.getJooq();
 
@@ -143,7 +143,7 @@ public class TestMigration {
 
     executeMigrationFile(
         sqlDatabase,
-        "migration32.sql",
+        "migration33.sql",
         "convert table_inherits to VARCHAR[] and add column values array to metadata");
 
     assertEquals(

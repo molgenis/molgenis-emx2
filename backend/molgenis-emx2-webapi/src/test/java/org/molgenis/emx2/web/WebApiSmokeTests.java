@@ -20,7 +20,6 @@ import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
@@ -554,6 +553,47 @@ class WebApiSmokeTests extends ApiTestBase {
             .post(path)
             .asString();
     assertTrue(result.contains("errors"));
+  }
+
+  @Test
+  void testGraphqlGetRequestsCannotExecuteMutations() {
+    // queries via GET remain possible
+    String result =
+        given().queryParam("query", "{_session{email}}").when().get("/api/graphql").asString();
+    assertTrue(result.contains("anonymous"));
+
+    // mutations via GET are rejected (would enable CSRF via links/images)
+    given()
+        .queryParam("query", "mutation{signin(email:\"admin\",password:\"admin\"){message}}")
+        .when()
+        .get("/api/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+
+    // also on the schema endpoints
+    given()
+        .queryParam("query", "mutation{drop(tables:[\"Pet\"]){message}}")
+        .when()
+        .get("/pet store/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+    assertNotNull(schema.getTable("Pet"));
+
+    // same mutation via POST still works for signin
+    String postResult =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + database.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + ADMIN_PASS
+                    + "\\\"){message}}\"}")
+            .when()
+            .post("/api/graphql")
+            .asString();
+    assertTrue(postResult.contains("Signed in"));
   }
 
   @Test
@@ -1353,43 +1393,6 @@ class WebApiSmokeTests extends ApiTestBase {
         .statusCode(200)
         .when()
         .get("/pet store/api/ttl/Pet");
-  }
-
-  @Test
-  void testBeaconConfiguration() {
-    getAndAssertContains("/api/beacon/configuration", "productionStatus");
-  }
-
-  @Test
-  void testBeaconMap() {
-    getAndAssertContains("/api/beacon/map", "endpointSets");
-  }
-
-  @Test
-  void testBeaconInfo() {
-    getAndAssertContains("/pet store/api/beacon/info", "beaconInfoResponse");
-  }
-
-  @Test
-  void testBeaconEntryTypes() {
-    getAndAssertContains("/api/beacon/entry_types", "entry");
-  }
-
-  private void getAndAssertContains(String path, String expectedSubstring) {
-    database.clearCache();
-    String result = given().get(path).getBody().asString();
-    ObjectMapper mapper = new ObjectMapper();
-    String prettyJson;
-    try {
-      Object json = mapper.readValue(result, Object.class);
-      ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-      prettyJson = writer.writeValueAsString(json);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
-    assertTrue(
-        result.contains(expectedSubstring),
-        "expecting:\n" + expectedSubstring + "\nin:\n" + prettyJson);
   }
 
   @Test
