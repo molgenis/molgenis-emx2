@@ -93,8 +93,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     if (rootColumn.isArray()) {
       selectors.add(SparqlVariableUtil.concatAs(encodedColumnPath(), subjectVariable));
     } else {
-      patterns.add(SparqlVariableUtil.bindAs(columnVariable, subjectVariable));
-      selectors.add(subjectVariable);
+      selectors.add(columnVariable.as(subjectVariable));
       groupBy.add(subjectVariable);
     }
   }
