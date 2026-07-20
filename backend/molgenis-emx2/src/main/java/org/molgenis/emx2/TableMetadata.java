@@ -234,7 +234,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
         for (Reference ref : c.getReferences()) {
           if (!ref.isOverlapping()) { // only add overlapping once
             // use old name to find original column
-            result.put(ref.getName(), ref.toPrimitiveColumn().setOldName(c.getName()));
+            result.put(ref.getColumnName(), ref.toPrimitiveColumn().setOldName(c.getName()));
           }
         }
       } else {
@@ -441,10 +441,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return null;
   }
 
-  public void enableRowLevelSecurity() {
-    throw new UnsupportedOperationException();
-  }
-
   public String toString() {
     StringBuilder builder = new StringBuilder();
     String name = getTableName();
@@ -502,7 +498,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     for (Column c : getKey(key)) {
       if (c.isReference()) {
         for (Reference ref : c.getReferences()) {
-          result.put(ref.getName(), ref.getJooqField());
+          result.put(ref.getColumnName(), ref.getJooqField());
         }
       } else {
         result.put(c.getName(), c.getJooqField());

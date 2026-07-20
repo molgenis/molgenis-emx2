@@ -1,4 +1,4 @@
-resource,dataset,name,useExternalDefinition.resource,useExternalDefinition.dataset,useExternalDefinition.name,label,description,collection event,format,unit,since version,until version,repeat unit,repeat min,repeat max,example values,keywords,vocabularies,notes
+resource,table,name,useExternalDefinition.resource,useExternalDefinition.table,useExternalDefinition.name,label,description,collection event,format,unit,since version,until version,repeat unit,repeat min,repeat max,example values,keywords,vocabularies,notes
 testNetwork,testTable,region_birth,,,,Region of birth,"Region of birth, adapted from the World Bank classification",c1,categorical,,1.0.0,,,,,,,,
 testNetwork,testTable,edu,,,,Own education,Education of the study participant. Provide repeated measures in long format with corresponding age in years.,c2,categorical,,1.0.0,,,,,,,,
 testNetwork,testTable,study_id,,,,Study id,Unique identifier number for the study,c1,categorical,,1.0.0,,,,,,,,

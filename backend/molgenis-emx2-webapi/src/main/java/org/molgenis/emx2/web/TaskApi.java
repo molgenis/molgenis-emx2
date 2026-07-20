@@ -33,7 +33,7 @@ public class TaskApi {
 
   public static void create(Javalin app) {
     app.get("/api/tasks", TaskApi::listTasks);
-    app.get("/api/tasks/clear", TaskApi::clearTasks);
+    app.post("/api/tasks/clear", TaskApi::clearTasks);
     app.get("/api/tasks/scheduled", TaskApi::viewScheduledTasks);
     app.get("/api/scripts/{name}", TaskApi::getScript); // run synchronously, with parameters on url
     app.post(
@@ -42,13 +42,15 @@ public class TaskApi {
     app.get("/api/tasks/{id}", TaskApi::getTask);
     app.get("/api/tasks/{id}/output", TaskApi::getTaskOutput);
 
+    app.post("/api/tasks/{id}/cancel", TaskApi::cancelTask); // cancel a running task
+
     // convenient delete
     app.delete("/api/tasks/{id}", TaskApi::deleteTask);
     app.get("/api/tasks/{id}/delete", TaskApi::deleteTask);
 
     // also works in context schema
     app.get("/{schema}/api/tasks", TaskApi::listTasks);
-    app.get("/{schema}/api/tasks/clear", TaskApi::clearTasks);
+    app.post("/{schema}/api/tasks/clear", TaskApi::clearTasks);
     app.get("/{schema}/api/tasks/{id}", TaskApi::getTask);
     app.get(
         "/{schema}/api/scripts/{name}",
@@ -57,6 +59,7 @@ public class TaskApi {
         "/{schema}/api/scripts/{name}",
         TaskApi::postScript); // run async, using parameters as body and returning task status
     app.get("/{schema}/api/tasks/{id}/output", TaskApi::getTaskOutput);
+    app.post("/{schema}/api/tasks/{id}/cancel", TaskApi::cancelTask); // cancel a running task
 
     // convenient delete
     app.delete("/{schema}/{app}/api/tasks/{id}", TaskApi::deleteTask);
@@ -64,8 +67,9 @@ public class TaskApi {
 
     // also in app
     app.get("/{schema}/{app}/api/tasks", TaskApi::listTasks);
-    app.get("/{schema}/{app}/api/tasks/clear", TaskApi::clearTasks);
+    app.post("/{schema}/{app}/api/tasks/clear", TaskApi::clearTasks);
     app.get("/{schema}/{app}/api/tasks/{id}", TaskApi::getTask);
+    app.post("/{schema}/{app}/api/tasks/{id}/cancel", TaskApi::cancelTask); // cancel a running task
   }
 
   private static void viewScheduledTasks(Context ctx) throws JsonProcessingException {
@@ -226,6 +230,22 @@ public class TaskApi {
 
   public static String submit(Task task) {
     return taskService.submit(task);
+  }
+
+  private static void cancelTask(Context ctx) {
+    if (!isAdminRequest(ctx)) {
+      throw new MolgenisException("Unable to cancel task: can only be done by admin");
+    }
+    Task task;
+    try {
+      task = taskService.getTask(ctx.pathParam("id"));
+    } catch (MolgenisException e) {
+      throw new MolgenisException("Task with id '" + ctx.pathParam("id") + "' not found");
+    }
+
+    taskService.cancel(task.getId());
+
+    ctx.result("cancelled task " + task.getId());
   }
 
   public static String submit(Task task, String parentTaskId) {

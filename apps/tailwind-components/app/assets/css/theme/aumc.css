@@ -35,11 +35,12 @@
   --background-color-button-primary: var(--color-orange-500);
   --background-color-button-primary-hover: var(--color-orange-200);
   --background-color-search-results-view-tabs: var(--color-blue-300);
+  --background-color-search-filter-group-toggle: var(--color-blue-500);
 
   --background-color-footer: var(--color-blue-800);
   --background-color-modal-footer: var(--color-blue-800);
 
-  --text-color-link: var(--color-white);
+  --text-color-link: var(--color-orange-500);
   --text-color-button-primary: var(--color-white);
   --text-color-button-primary-hover: var(--color-black);
   --text-color-button-text: var(--color-white);
@@ -50,17 +51,12 @@
   --text-color-breadcrumb-arrow: var(--text-color-title);
   --text-color-search-results-view-tabs: var(--color-blue-300);
   --text-color-search-results-view-tabs-hover: var(--color-blue-800);
+  --text-color-search-filter-action: var(--color-white);
   --text-color-search-filter-group-title: var(--text-color-title);
   --text-color-pagination: var(--text-color-title);
   --text-color-pagination-input: var(--color-blue-800);
 
-  --border-radius-3px: 3px;
-  --border-radius-50px: 50px;
-  --border-radius-input: 28px;
-  --border-radius-textarea-input: 20px;
-  --border-radius-search-input: 9999px;
-  --border-radius-search-button: 9999px;
-  --border-radius-landing: 50px;
+  --border-radius-alt: var(--radius-alt);
 
   --border-width-theme: 0px;
 

@@ -1,3 +1,38 @@
+<script setup lang="ts">
+import { ref } from "vue";
+// @ts-ignore
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
+
+import Breadcrumbs from "../components/breadcrumbs.vue";
+import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations.js";
+import type { IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
+
+interface IOrganisationsExtended extends IOrganisations {
+  id: string;
+}
+
+const error = ref<Error>();
+const providers = ref<IOrganisationsExtended[]>();
+
+async function loadData() {
+  const data = await getOrganisations("../api/graphql");
+  providers.value = data
+    .filter((row: IOrganisations) => row.hasSchema)
+    .map((row: IOrganisations) => {
+      const id = row.providerInformation
+        ? row.providerInformation[0].providerIdentifier
+        : row.name;
+      return { id: id, ...row };
+    })
+    .sort((current: IOrganisations, next: IOrganisations) => {
+      return current.name.localeCompare(next.name);
+    });
+}
+
+loadData().catch((err: Error) => (error.value = err));
+</script>
+
 <template>
   <Page>
     <PageHeader
@@ -47,141 +82,107 @@
   </Page>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-import Breadcrumbs from "../components/breadcrumbs.vue";
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
-import { ChevronRightIcon as LinkIcon } from "@heroicons/vue/24/outline";
-
-let error = ref(false);
-let providers = ref([]);
-
-async function getOrganisations() {
-  const query = gql`
-    {
-      Organisations(filter: { hasSchema: { equals: true } }) {
-        name
-        city
-        country
-        providerInformation {
-          providerIdentifier
-        }
-        schemaName
-      }
-    }
-  `;
-
-  const response = await request("../api/graphql", query);
-  providers.value = response.Organisations.map((row) => {
-    return {
-      id: row.providerInformation[0].providerIdentifier,
-      ...row,
-    };
-  }).sort((current, next) => (current.name < next.name ? -1 : 1));
+<style lang="css">
+.provider-listings {
+  --border-radius: 24pt;
+  padding: 1em 0;
 }
 
-onMounted(() => {
-  getOrganisations().catch((err) => (error.value = err));
-});
-</script>
+.provider-listings .provider {
+  display: grid;
+  justify-content: flex-start;
+  align-items: center;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-areas:
+    "name name"
+    "city country"
+    "link link";
+  gap: 0.25em;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-sizing: content-box;
+  padding: 1em 1.5em;
+  margin-bottom: 1.3em;
+}
 
-<style lang="scss">
-$borderRadius: 24pt;
+.provider-listings .provider:last-child {
+  margin-bottom: 0;
+}
 
-.provider-listings {
-  padding: 1em 0;
+.provider-listings .provider .provider-data {
+  flex-grow: 1;
+  font-size: 13pt;
+}
 
-  .provider {
-    display: grid;
-    justify-content: flex-start;
-    align-items: center;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-areas:
-      "name name"
-      "city country"
-      "link link";
-    gap: 1em;
-    background-color: $gray-000;
-    border-radius: $borderRadius;
-    box-sizing: content-box;
-    padding: 1em 1.5em;
-    margin-bottom: 1.3em;
+.provider-listings .provider .provider-data p {
+  margin-bottom: 0;
+}
 
-    &:last-child {
-      margin-bottom: 0;
-    }
+.provider-listings .provider .name {
+  grid-area: name;
+  word-break: break-word;
+}
 
-    .provider-data {
-      flex-grow: 1;
-      font-size: 13pt;
-      p {
-        margin-bottom: 0;
-      }
-    }
+.provider-listings .provider .name h3 {
+  font-size: 13pt;
+  color: var(--blue-800);
+}
 
-    .name {
-      grid-area: name;
-      word-break: break-word;
+.provider-listings .provider .city {
+  grid-area: city;
+  text-align: right;
+}
 
-      h3 {
-        font-size: 13pt;
-        color: $blue-800;
-      }
-    }
+.provider-listings .provider .country {
+  grid-area: country;
+}
 
-    .city {
-      grid-area: city;
-      text-align: right;
-    }
+.provider-listings .provider .link {
+  grid-area: link;
+}
 
-    .country {
-      grid-area: country;
-    }
+.provider-listings .provider .link a {
+  flex-grow: 1;
+  display: block;
+  text-align: center;
+  border-radius: var(--border-radius);
+  background-color: var(--cranio-primary);
+  padding: 0.6em 0.2em;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
 
-    .link {
-      grid-area: link;
+.provider-listings .provider .link svg {
+  margin-top: -2px;
+  width: 12px;
+  height: 12px;
+}
 
-      a {
-        display: block;
-        text-align: center;
-        border-radius: $borderRadius;
-        background-color: $ern-cranio-primary;
-        padding: 0.6em 0.2em;
-        color: $gray-000;
-        @include textTransform(bold);
-        font-size: 0.85rem;
-        text-decoration: none;
+.provider-listings .provider .link svg path {
+  stroke-width: 5px;
+}
 
-        svg {
-          margin-top: -2px;
-          width: 12px;
-          height: 12px;
-          path {
-            stroke-width: 5px;
-          }
-        }
-      }
-    }
+@media (min-width: 636px) {
+  .provider-listings .provider {
+    grid-template-columns: 2fr 1fr 1fr 100px;
+    grid-template-areas: "name city country link";
+    gap: 0.2em;
+  }
 
-    @media (min-width: 636px) {
-      grid-template-columns: 2fr 1fr 1fr 100px;
-      grid-template-areas: "name city country link";
-      gap: 0.2em;
-      .name {
-        h3 {
-          text-align: left;
-        }
-      }
-      .city {
-        text-align: center;
-      }
+  .provider-listings .provider .name h3 {
+    text-align: left;
+  }
 
-      .country {
-        text-align: center;
-      }
-    }
+  .provider-listings .provider .city {
+    text-align: center;
+  }
+
+  .provider-listings .provider .country {
+    text-align: center;
   }
 }
 </style>
