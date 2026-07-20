@@ -19,13 +19,12 @@ def build_data_model(path, profile):
             data_model = pd.concat([data_model, df])
     data_model.to_csv("molgenis_" + profile + ".csv", index=None)
 
-async def clear_schemas(client):
+
+async def clear_schemas(client, schema, staging_schema):
     """Delete existing testing schemas and create empty new ones"""
     profile = "DataCatalogueFlat"
     staging_profile = "CohortsStaging"
     path = os.path.join(os.getcwd(), "data/_models/shared/")
-    schema = "directory-catalogue-integration"
-    staging_schema = schema + "-staging"
     build_data_model(path, profile)
     build_data_model(path, staging_profile)
     if schema in client.schema_names:
@@ -42,17 +41,50 @@ async def clear_schemas(client):
     os.unlink(schema_csv)
     os.unlink(staging_schema_csv)
 
+
+def get_directory_data():
+    """Get Directory data"""
+    data = {}
+    tables = ["Biobanks"]  # , "Collections"]
+    with pyclient.Client(url="https://directory.bbmri-eric.eu", schema="ERIC") as client:
+        for table in tables:
+            data[table] = client.get(table, as_df=True)
+    return data
+
+
+def convert_biobanks_to_biobanks(bb):
+    """Convert Biobanks table"""
+    # Deal with duplicate names
+    bb.loc[(bb["name"].duplicated(keep=False)) & (bb["withdrawn"]), "name"] += " (withdrawn)"
+    bb.loc[(bb["name"].duplicated(keep="first")), "name"] += " (2)"
+    return bb
+
+
 async def main():
     """Main function"""
     load_dotenv()
     server = os.environ.get("SERVER")
     token = os.environ.get("TOKEN")
     reset = False
-    if os.environ.get("RESET").strip().lower() == 'true':
+    schema = "directory-catalogue-integration"
+    staging_schema = schema + "-staging"
+    if os.environ.get("RESET").strip().lower() == "true":
         reset = True
     with pyclient.Client(url=server, token=token) as client:
         if reset:
-            await clear_schemas(client)
+            await clear_schemas(client, schema, staging_schema)
+        # Get data
+        data = get_directory_data()
+        # Convert data
+        biobanks = convert_biobanks_to_biobanks(data["Biobanks"].copy())
+        biobanks = biobanks.reindex(
+            columns=[
+                "id",
+                "name",
+            ]
+        )
+        # Upload data
+        client.save_table(table="Biobanks", schema=schema, data=biobanks)
         pass
 
 
