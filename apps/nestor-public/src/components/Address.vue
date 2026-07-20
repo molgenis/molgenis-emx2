@@ -19,5 +19,6 @@ withDefaults(defineProps<{ showEmail?: boolean; centerText?: boolean }>(), {
     ]"
     :showEmail="showEmail"
     email="support@molgenis.org"
+    :centerText="centerText"
   />
 </template>

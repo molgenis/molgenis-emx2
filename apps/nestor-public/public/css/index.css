@@ -146,6 +146,6 @@
 
 @media screen and (min-width: 1800px) {
   #nestorPublicDashboard .dashboard-content {
-    max-width: 60vw;
+    max-width: var(--max-width);
   }
 }

@@ -46,7 +46,7 @@ const organisationsData = ref<IOrganisations[]>([]);
 
 loadData()
   .then(() => prepareData())
-  .catch((err) => (err.value = err))
+  .catch((err) => (error.value = err))
   .finally(() => (loading.value = false));
 
 async function loadData() {
@@ -114,7 +114,7 @@ function prepareData() {
       let submissionStatus: string = "No Data";
       if (
         row.providerInformation &&
-        row.providerInformation[0].hasSubmittedData
+        row.providerInformation?.[0]?.hasSubmittedData
       ) {
         submissionStatus = "Data Submitted";
       }
