@@ -1,6 +1,11 @@
 package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.Privileges.RANGE;
@@ -16,7 +21,6 @@ import java.util.HashMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -35,8 +39,7 @@ class BeaconAuthorityTests extends TestLoaders {
   static final String RANGE_TEST_USER = "RANGE_TEST_USER";
 
   @BeforeAll
-  public void setup() {
-    super.setup();
+  void addTestUsers() {
     patientRegistry.addMember(VIEWER_TEST_USER, VIEWER.toString());
     patientRegistry.addMember(AGGREGATOR_TEST_USER, AGGREGATOR.toString());
     patientRegistry.addMember(COUNT_TEST_USER, COUNT.toString());
@@ -47,7 +50,7 @@ class BeaconAuthorityTests extends TestLoaders {
   }
 
   @AfterAll
-  public void after() {
+  void after() {
     database.becomeAdmin();
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     patientRegistry.addMember(ANONYMOUS, VIEWER.toString());
@@ -83,14 +86,14 @@ class BeaconAuthorityTests extends TestLoaders {
   @Test
   void templateLookupRunsInsideTransaction() {
     database.becomeAdmin();
-    Schema spySchema = Mockito.spy(database.getSchema(PATIENT_REGISTRY));
-    Database spyDatabase = Mockito.spy(spySchema.getDatabase());
-    Mockito.doReturn(spyDatabase).when(spySchema).getDatabase();
+    Schema spySchema = spy(database.getSchema(PATIENT_REGISTRY));
+    Database spyDatabase = spy(spySchema.getDatabase());
+    doReturn(spyDatabase).when(spySchema).getDatabase();
 
     Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     new QueryEntryType(new BeaconRequestBody(request)).query(spySchema);
 
-    Mockito.verify(spyDatabase, Mockito.atLeastOnce()).tx(Mockito.any());
+    verify(spyDatabase, atLeastOnce()).tx(any());
   }
 
   @Test
@@ -158,7 +161,7 @@ class BeaconAuthorityTests extends TestLoaders {
   }
 
   @Test
-  void testCountQueryAsExistsUser_noRecords() throws JsonProcessingException, InterruptedException {
+  void testCountQueryAsExistsUser_noRecords() throws JsonProcessingException {
     database.setActiveUser(EXISTS_TEST_USER);
     patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequest =
