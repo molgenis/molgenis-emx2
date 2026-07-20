@@ -52,8 +52,13 @@ def get_directory_data():
     return data
 
 
-def convert_biobanks_to_biobanks(bb):
+def convert_biobanks_to_biobanks(bb, mappings):
     """Convert Biobanks table"""
+    # Select only those directory Biobanks which will be converted to catalogue Biobanks
+    biobank_ids = mappings.loc[
+        mappings["mapping_rule"].str.contains("-> Biobanks holding"), "directory_id"
+    ]
+    bb = bb.loc[bb["id"].isin(biobank_ids)]
     # Deal with duplicate names
     bb.loc[(bb["name"].duplicated(keep=False)) & (bb["withdrawn"]), "name"] += " (withdrawn)"
     bb.loc[(bb["name"].duplicated(keep="first")), "name"] += " (2)"
@@ -66,24 +71,32 @@ async def main():
     server = os.environ.get("SERVER")
     token = os.environ.get("TOKEN")
     reset = False
-    schema = "directory-catalogue-integration"
-    staging_schema = schema + "-staging"
     if os.environ.get("RESET").strip().lower() == "true":
         reset = True
+    truncate = False
+    if os.environ.get("TRUNCATE").strip().lower() == "true":
+        truncate = True
+    schema = "directory-catalogue-integration"
+    staging_schema = schema + "-staging"
+    # Get mappings
+    mappings = pd.read_csv(os.path.join(os.getcwd(), "docs/directory-merge/mapping_ledger.csv"))
     with pyclient.Client(url=server, token=token) as client:
         if reset:
             await clear_schemas(client, schema, staging_schema)
         # Get data
         data = get_directory_data()
         # Convert data
-        biobanks = convert_biobanks_to_biobanks(data["Biobanks"].copy())
+        biobank_mappings = mappings.loc[mappings["directory_table"] == "Biobanks"]
+        biobanks = convert_biobanks_to_biobanks(data["Biobanks"].copy(), biobank_mappings)
         biobanks = biobanks.reindex(
             columns=[
                 "id",
                 "name",
             ]
         )
-        # Upload data
+        # Clear and upload data
+        if truncate:
+            client.truncate(table="Biobanks", schema=schema)
         client.save_table(table="Biobanks", schema=schema, data=biobanks)
         pass
 
