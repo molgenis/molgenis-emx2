@@ -23,6 +23,11 @@
     #e3eff8 133.81%
   );
 
+  --background-color-bulk-gradient: linear-gradient(
+    #ffffff 100%,
+    rgba(255, 255, 255, 0) 100%
+  );
+
   --opacity-background-gradient: 0;
 
   --background-color-button-primary: var(--color-orange-500);
@@ -109,14 +114,7 @@
   --border-color-checkbox: #cccccc;
   --border-color-footer: var(--background-color-footer);
 
-  --border-radius-3px: 3px;
-  --border-radius-50px: 50px;
-  --border-radius-input: 28px;
-  --border-radius-textarea-input: 20px;
-  --border-radius-search-input: 3px;
-  --border-radius-search-button: 0px 3px 3px 0px;
-  --border-radius-pagination: 3px;
-  --border-radius-landing: 3px;
+  --border-radius-alt: var(--radius-alt);
 
   --border-width-theme: 0px;
 

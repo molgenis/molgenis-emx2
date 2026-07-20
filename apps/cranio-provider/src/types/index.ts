@@ -1,3 +1,9 @@
+import type { IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
+import type {
+  IDashboardPages,
+  ICharts,
+} from "../../../metadata-utils/src/viz/UiDashboard";
+
 export interface IKeyValuePair {
   [key: string]: string;
 }
@@ -54,4 +60,28 @@ export interface ICleftTypes {
 export interface ISiteErnCleftTypeCounts {
   center: ICleftTypes;
   ern: ICleftTypes;
+}
+
+export interface IAppPage {
+  organisation: IOrganisations;
+  schemaNames: ICranioSchemas;
+  api: {
+    graphql: {
+      current: string;
+      public: string;
+      providers: string;
+    };
+  };
+}
+
+export interface IOrganisationsResponse {
+  Organisations: IOrganisations[];
+}
+
+export interface IDashboardPagesResponse {
+  DashboardPages: IDashboardPages[];
+}
+
+export interface IChartsResponse {
+  Charts: ICharts[];
 }

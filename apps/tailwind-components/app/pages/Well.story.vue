@@ -15,7 +15,7 @@ import Well from "../components/Well.vue";
 const spec = `
 ## Features
 - Presentational pill/badge component for labels and tags
-- Uses theme-aware filter tokens (bg-button-filter, text-button-filter, rounded-input)
+- Uses theme-aware filter tokens (bg-button-filter, text-button-filter, rounded-base, rounded-alt)
 - Non-interactive — wrap in Button for click behavior
 - Slot-based content
 
@@ -25,7 +25,7 @@ None — pure slot component
 ## Test Checklist
 - [ ] Renders across all 5 themes (Light, Dark, Molgenis, UMCG, AUMC)
 - [ ] Text content displays correctly
-- [ ] Rounded-input applies theme-specific border radius
+- [ ] Rounded-base applies theme-specific border radius
 - [ ] Colors match filterWell button variant
 `;
 </script>

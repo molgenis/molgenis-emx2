@@ -1,6 +1,7 @@
 <template>
   <thead>
     <tr>
+      <TableHeadCell class="sticky left-0 bg-table z-20 w-12"> </TableHeadCell>
       <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
         <TableHeaderAction
           :column="{ id: 'mg_draft', label: 'Draft' }"

@@ -1,9 +1,5 @@
 import { request, gql } from "graphql-request";
-import type {
-  ISettings,
-  ISettingsResponse,
-  ICranioSchemas,
-} from "../types/index";
+import type { ISettings, ISettingsResponse, ICranioSchemas } from "../types";
 
 /**
 @name getCranioSchemas

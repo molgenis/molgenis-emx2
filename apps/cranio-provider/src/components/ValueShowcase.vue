@@ -1,3 +1,10 @@
+<script setup lang="ts">
+defineProps<{
+  title: string;
+  description: string;
+}>();
+</script>
+
 <template>
   <div class="value-showcase">
     <div class="icon">
@@ -7,13 +14,6 @@
     <p class="description">{{ description }}</p>
   </div>
 </template>
-
-<script setup lang="ts">
-defineProps<{
-  title: string;
-  description: string;
-}>();
-</script>
 
 <style lang="scss">
 .value-showcase {
