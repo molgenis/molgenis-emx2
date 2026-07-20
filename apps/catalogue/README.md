@@ -25,7 +25,7 @@ pnpm dev
 Set a non-default (api)proxy target with `NUXT_PUBLIC_API_BASE`, for example:
 
 ```bash
-NUXT_PUBLIC_API_BASE=https://emx2.dev.molgenis.org pnpm dev
+NUXT_PUBLIC_API_BASE=http://localhost:8080 pnpm dev
 ```
 
 ## Production
