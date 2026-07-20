@@ -121,7 +121,7 @@ Collections,,biospecimen collected,ontology_array,,,CatalogueOntologies,Biospeci
 Collections,,body part,ontology_array,,,CatalogueOntologies,Anatomical location,,,,,Body part(s) examined or sampled in this collection,DataCatalogueFlat,,,
 Collections,,imaging modality,string_array,,,,,,,,,Imaging modality or modalities used in this collection,DataCatalogueFlat,,,
 Collections,,storage temperatures,ontology_array,,,CatalogueOntologies,Storage conditions,,,,,Storage temperatures or conditions applied to the samples in this collection,DataCatalogueFlat,,,
-Collections,,sample source,string,,,,,,,,,Source of the samples in this collection (e.g. human, animal or environmental),DataCatalogueFlat,,,
+Collections,,sample source,string,,,,,,,,,"Source of the samples in this collection (e.g. human, animal or environmental)",DataCatalogueFlat,,,
 Collections,,sample collection setting,string,,,,,,,,,Setting in which the samples of this collection were collected,DataCatalogueFlat,,,
 Collections,,number of samples,non_negative_int,,,,,,,,,Total number of samples in this collection,DataCatalogueFlat,,,
 Collections,,languages,ontology_array,,,CatalogueOntologies,Languages,,,,,Languages that the records are recorded in (ISO 639),"DataCatalogueFlat,EMA,RWEStaging",,,
