@@ -21,7 +21,7 @@ export interface IVariableBase {
   resource: {
     id: string;
   };
-  dataset: {
+  table: {
     name: string;
     resource: {
       id: string;
@@ -158,14 +158,14 @@ export interface IMapping {
     mg_tableclass: string;
   };
   repeats: string;
-  sourceDataset: {
+  sourceTable: {
     resource: {
       id: string;
     };
     name: string;
   };
   sourceVariables: IVariableBase[] | IVariables[];
-  sourceVariablesOtherDatasets: IVariableBase[] | IVariables[];
+  sourceVariablesOtherTables: IVariableBase[] | IVariables[];
   targetVariable: IVariableBase | IVariables;
 }
 
@@ -277,6 +277,9 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   filter?: Record<string, IFilter>;
   columnId: string;
   refFields?: filterRefField;
+  // optional function to build the filter based on the selected options
+  // if empty the default builder will be used
+  buildFilterFunction?: Function;
 }
 
 export interface IRefArrayFilterAbstractConfig extends IFilterConfig {
@@ -367,6 +370,8 @@ export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
 
 export interface UIResource {
   id: string;
+  name: string;
+  acronym?: string;
   logo: { url: string };
 }
 

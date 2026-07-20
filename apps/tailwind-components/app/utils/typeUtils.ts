@@ -1,3 +1,4 @@
+import type { Link, Menu, MgError } from "../../types/types";
 import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnValue,
@@ -163,6 +164,42 @@ export function assertRefColumnValue(
   }
 }
 
+export function assertMenu(menu: unknown): asserts menu is Menu {
+  if (!Array.isArray(menu)) {
+    throw new Error(`Expected menu to be an array, but got ${typeof menu}`);
+  }
+  menu.forEach((item, index) => {
+    if (typeof item.label !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'label' property`
+      );
+    }
+    if (typeof item.link !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'link' property`
+      );
+    }
+    if (item.role && typeof item.role !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'role' property`
+      );
+    }
+    if (item.key && typeof item.key !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'key' property`
+      );
+    }
+    if (item.submenu && item.submenu && !Array.isArray(item.submenu)) {
+      throw new Error(
+        `Expected menu item at index ${index} to have an array 'submenu' property`
+      );
+    }
+    if (item.submenu) {
+      assertMenu(item.submenu);
+    }
+  });
+}
+
 export function toRefColumn(column: IColumn): IRefColumn {
   assertRefColumn(column);
   return column;
@@ -180,4 +217,63 @@ function isEmptyObject(column: columnValue) {
     !Array.isArray(column) &&
     Object.keys(column).length === 0
   );
+}
+
+export function isMgError(error: unknown): error is MgError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as any).message === "string" &&
+    "statusCode" in error &&
+    typeof (error as any).statusCode === "number" &&
+    "data" in error &&
+    typeof (error as any).data === "object" &&
+    (error as any).data !== null &&
+    "errors" in (error as any).data &&
+    Array.isArray((error as any).data.errors) &&
+    (error as any).data.errors.every(
+      (err: any) =>
+        typeof err === "object" &&
+        err !== null &&
+        "message" in err &&
+        typeof err.message === "string"
+    )
+  );
+}
+
+export function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
+export function isLink(value: unknown): value is Link {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "link" in value &&
+    typeof (value as Link).link === "string" &&
+    (typeof (value as Link).isSpaLink === "boolean" ||
+      (value as Link).isSpaLink === undefined)
+  );
+}
+
+export function parseLinkSetting(linkSetting: string): Link {
+  const linkSettingObject = JSON.parse(linkSetting);
+  isLink(linkSettingObject);
+  return {
+    link: linkSettingObject.link,
+    isSpaLink:
+      linkSettingObject.isSpaLink === "true" ||
+      linkSettingObject.isSpaLink === true,
+  };
+}
+
+export function getIntInput(inputValue?: string | number | null) {
+  if ((typeof inputValue !== "number" && !inputValue) || inputValue === "-") {
+    return inputValue;
+  } else {
+    const numericValue =
+      typeof inputValue === "string" ? Number.parseInt(inputValue) : inputValue;
+    return numericValue;
+  }
 }

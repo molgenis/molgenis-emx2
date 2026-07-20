@@ -4,10 +4,6 @@ description: "This catalogue contains metadata on data banks and the variables t
 
 profileTags: RWEStaging
 
-# demoData: _demodata/applications/datacatalogue
-
-# settings: _settings/datacatalogue
-
 # special options
 setViewPermission: anonymous
 ontologiesToFixedSchema: CatalogueOntologies

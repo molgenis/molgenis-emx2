@@ -55,14 +55,20 @@
     --color-disabled-foreground: var(--color-gray-400);
     --color-disabled-background: var(--color-gray-100);
 
-    --text-color-logo-text: var(--color-white);
-    --text-color-logo-text-inverted: var(--color-blue-500);
+    --text-color-logo-text: var(--color-blue-500);
+    --text-color-logo-text-inverted: var(--color-white);
+    --background-color-logo: var(--color-white);
+    --logo-icon-primary: var(--color-blue-700);
+    --logo-icon-secondary: var(--color-blue-500);
 
     --box-shadow-primary: 0px 10px 20px rgba(0, 0, 0, 0.1);
     --box-shadow-input-hover: inset 0 0 1px 1px var(--color-blue-700);
     --box-shadow-search-input: none;
     --box-shadow-pagination-gray: 0px 10px 20px rgba(0, 0, 0, 0.1);
     --box-shadow-no-background-modal: 0.1rem 0.1rem 6px rgba(0, 0, 0, 0.1);
+
+    --radius-base: 3px;
+    --radius-alt: 50px;
 
     --background-image-sidebar-gradient: linear-gradient(
       180deg,
@@ -74,6 +80,12 @@
       180deg,
       #ffffff,
       #ffffff 133.81%
+    );
+
+    --background-color-bulk-gradient: linear-gradient(
+      90deg,
+      #ffffff 0%,
+      #ffffff 100%
     );
 
     --opacity-background-gradient: 0;
@@ -96,6 +108,8 @@
     --background-color-button-filter-hover: var(--color-white);
     --background-color-button-tree-node-toggle: var(--color-blue-800);
     --background-color-button-inline-hover: var(--color-gray-200);
+    --background-color-button-cart-remove: var(--color-blue-500);
+    --background-color-button-cart-count: var(--color-white);
 
     --background-color-app-wrapper: var(--color-white);
     --background-color-content: var(--color-white);
@@ -103,7 +117,7 @@
     --background-color-navigation-dynamic: var(--color-white);
     --background-color-navigation-sticky: var(--background-color-navigation);
     --background-color-search-results-view-tabs: var(--color-blue-800);
-    --background-color-search-filter-group-toggle: var(--color-blue-800);
+    --background-color-search-filter-group-toggle: var(--color-blue-50);
     --background-color-pagination: var(--color-white);
     --background-color-pagination-hover: var(--color-white);
     --background-color-pagination-input: var(--color-white);
@@ -124,6 +138,7 @@
     --background-color-notification: var(--color-red-700);
     --background-color-code-output: var(--color-gray-100);
     --background-color-ref-dropdown-toolbar: var(--color-gray-100);
+    --background-color-dropdown: var(--color-white);
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
@@ -133,13 +148,19 @@
     --text-color-button-tertiary-hover: var(--color-blue-800);
     --text-color-button-outline: var(--color-blue-500);
     --text-color-button-outline-hover: var(--color-blue-700);
-    --text-color-button-disabled: var(--color-gray-600);
+    --text-color-button-inline: var(--text-color-button-outline);
+    --text-color-button-disabled: var(--color-gray-400);
     --text-color-button-disabled-hover: var(--color-gray-600);
     --text-color-button-filter: var(--color-blue-800);
     --text-color-button-tree-node-toggle: var(--color-blue-800);
     --text-color-button-tree-node-toggle-hover: var(--color-white);
     --text-color-button-toggle-active: var(--text-color-button-secondary);
     --text-color-button-toggle-inactive: var(--color-blue-200);
+    --text-color-button-remove: var(--color-red-500);
+    --text-color-button-cart-add: var(--color-blue-500);
+    --text-color-button-cart-add-hover: var(--color-blue-800);
+    --text-color-button-cart-remove: var(--color-white);
+    --text-color-button-cart-count: var(--color-black);
 
     --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
@@ -163,14 +184,14 @@
     --text-color-search-results-view-tabs: var(--color-blue-500);
     --text-color-search-results-view-tabs-hover: var(--color-blue-800);
     --text-color-search-filter-title: var(--text-color-title);
-    --text-color-search-filter-expand: var(--color-yellow-500);
-    --text-color-search-filter-expand-mobile: var(--text-color-title);
+    --text-color-search-filter-action: var(--color-blue-500);
+    --text-color-search-filter-action-mobile: var(--text-color-title);
     --text-color-search-filter-group-title: var(--text-color-title);
     --text-color-search-filter-group-title-mobile: var(--color-black);
     --text-color-search-filter-group-checkbox: var(--color-yellow-500);
     --text-color-search-filter-group-toggle: var(--text-color-title);
     --text-color-search-filter-title-inverted: var(--color-back);
-    --text-color-search-filter-expand-inverted: var(--color-yellow-500);
+    --text-color-search-filter-action-inverted: var(--color-yellow-500);
     --text-color-search-filter-group-title-inverted: var(--color-black);
     --text-color-search-filter-group-checkbox-inverted: var(--color-yellow-500);
     --text-color-search-filter-group-toggle-inverted: var(--color-black);
@@ -198,6 +219,7 @@
     --text-code-output: var(--color-gray-800);
     --text-color-required: var(--color-gray-600);
     --text-content-required: "*";
+    --text-color-dropdown: var(--color-black);
 
     --border-color-theme: var(--color-gray-200);
     --border-color-button-primary: var(--color-blue-500);
@@ -223,19 +245,16 @@
     --border-color-input-hover: var(--color-blue-500);
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
+    --border-color-footer: var(--border-color-theme);
+    --border-color-filter-divider: var(--color-gray-200);
+
+    --accent-color: var(---color-blue-500);
 
     --border-width-theme: 1px;
     --border-width-form-required: 1px;
 
-    --border-radius-theme: 3px;
-    --border-radius-3px: 3px;
-    --border-radius-50px: 50px;
-    --border-radius-input: 3px;
-    --border-radius-textarea-input: var(--border-radius-input);
-    --border-radius-search-input: 9999px;
-    --border-radius-search-button: 9999px;
-    --border-radius-pagination: 9999px;
-    --border-radius-landing: 50px;
+    --border-radius-base: var(--radius-base);
+    --border-radius-alt: var(--border-radius-base);
 
     --outline-color-select: var(--color-gray-200);
 
@@ -251,6 +270,7 @@
     --height-input: 3.5rem;
     --height-input-tiny: 2rem;
     --height-input-small: 2.5rem;
+    --height-input-medium: 3.125rem;
     --height-input-large: 4.5rem;
 
     /** input switch styles */
@@ -264,6 +284,8 @@
     --border-color-button-switch: var(--color-blue-900);
     --border-color-button-switch-selected: var(--color-gray-400);
     --border-color-button-switch-hover: var(--color-blue-900);
+
+    --skeleton-bar-base: 60%;
 
     /** labels */
     --background-color-label-draft: var(--color-gray-400);
@@ -302,4 +324,64 @@
   grid-template-areas:
     "context"
     "chart";
+}
+
+/* Popper.js settings */
+.v-popper--theme-dropdown .v-popper__inner {
+  background: none;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.v-popper__popper--no-positioning {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  width: 100%;
+}
+
+.v-popper_fullscreen .v-popper__popper--no-positioning {
+  width: 100%;
+  max-width: none;
+}
+
+.v-popper_right .v-popper__popper--no-positioning {
+  left: auto;
+  right: 0;
+}
+
+.v-popper__popper--no-positioning .v-popper__backdrop {
+  display: block;
+  background: rgba(0 0 0 / 60%);
+}
+
+.v-popper__popper--no-positioning .v-popper__wrapper {
+  width: 100%;
+  pointer-events: auto;
+  transition: transform 0.15s ease-out;
+}
+
+.v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
+  transform: translateX(-100%);
+}
+
+.v-popper_right
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
+  transform: translateX(100%);
+}
+
+.v-popper_bottom .v-popper__popper--no-positioning {
+  top: auto;
+  bottom: 0;
+}
+
+.v-popper_bottom
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
+  transform: translateY(100%);
 }

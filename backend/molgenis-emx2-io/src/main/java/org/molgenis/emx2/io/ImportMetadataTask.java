@@ -11,8 +11,8 @@ import org.molgenis.emx2.tasks.Task;
 
 public class ImportMetadataTask extends Task {
   public static final String MOLGENIS = "molgenis";
-  private TableStore store;
-  private Schema schema;
+  private final TableStore store;
+  private final Schema schema;
 
   public ImportMetadataTask(Schema schema, TableStore store, boolean strict) {
     super("Import metadata", strict);
@@ -41,7 +41,8 @@ public class ImportMetadataTask extends Task {
 
         if (store.containsTable("molgenis_members")) {
           int count = Emx2Members.inputRoles(store, schema);
-          this.addSubTask("Loaded " + count + " members from 'molgenis_members' sheet").complete();
+          this.addSubTask("Loaded %s members from 'molgenis_members' sheet".formatted(count))
+              .complete();
         } else {
           this.addSubTask(
                   "Members loading skipped: 'molgenis_members' sheet not included in the file")

@@ -1,5 +1,5 @@
 <template>
-  <FooterComponent />
+  <FooterComponent><FooterVersion /></FooterComponent>
 
   <hr class="my-3" />
 

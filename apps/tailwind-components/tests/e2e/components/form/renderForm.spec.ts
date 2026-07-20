@@ -2,11 +2,11 @@ import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
-  ? ""
+  ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
 test.beforeEach(async ({ page }, testInfo) => {
-  await page.goto(`${route}Form.story?schema=catalogue-demo&table=Resources`);
+  await page.goto(`${route}Form.story?schema=catalogue-demo&table=Collections`);
   testInfo.setTimeout(testInfo.timeout + 30_000);
 });
 

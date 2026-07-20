@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
-  ? ""
+  ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
 test.beforeEach(async ({ page }) => {
@@ -72,4 +72,7 @@ test("should disable selection of nodes with invisible children in case of searc
 }) => {
   await page.getByRole("link", { name: "InputTree" }).click();
   await page.getByRole("button", { name: "Search for options" }).click();
+  await expect(
+    page.getByPlaceholder("Type to search in options...")
+  ).toBeVisible();
 });

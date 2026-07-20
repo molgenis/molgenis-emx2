@@ -260,6 +260,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
       final RdfMapData rdfMapData,
       final Table table,
       final Row row) {
+    if (row.isDraft()) return;
+
     final IRI tableIRI = tableIRI(getBaseURL(), table);
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
@@ -322,7 +324,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     for (Column column : metadata.getPrimaryKeyColumns()) {
       if (column.isReference()) {
         for (final Reference reference : column.getReferences()) {
-          final String value = row.getString(reference.getName());
+          final String value = row.getString(reference.getColumnName());
           primaryKeyValues.add(value);
         }
       } else {

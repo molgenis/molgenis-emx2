@@ -31,7 +31,7 @@ public class GraphqlFactory {
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
     queryBuilder.field(db.schemasQuery(database));
     queryBuilder.field(db.settingsQueryField(database));
-    queryBuilder.field(db.tasksQueryField(taskService));
+    queryBuilder.field(db.tasksQueryField(taskService, database));
     if (database.isAdmin()) {
       queryBuilder.field(db.lastUpdateQuery(database));
     }
@@ -77,7 +77,7 @@ public class GraphqlFactory {
     queryBuilder.field(schemaFields.schemaReportsField(schema));
 
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
-    queryBuilder.field(db.tasksQueryField(taskService));
+    queryBuilder.field(db.tasksQueryField(taskService, schema.getDatabase()));
 
     GraphqlSessionFieldFactory sessionFieldFactory = new GraphqlSessionFieldFactory();
     queryBuilder.field(sessionFieldFactory.sessionQueryField(schema.getDatabase(), schema));
@@ -94,9 +94,7 @@ public class GraphqlFactory {
     mutationBuilder.field(schemaFields.dropMutation(schema));
     mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
 
-    if ((schema.getRoleForActiveUser() != null
-            && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))
-        || schema.getDatabase().isAdmin()) {
+    if (PermissionEvaluator.canManage(schema)) {
       queryBuilder.field(schemaFields.changeLogQuery(schema));
       queryBuilder.field(schemaFields.changeLogCountQuery(schema));
     }

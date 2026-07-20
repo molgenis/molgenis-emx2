@@ -10,29 +10,38 @@ const config = useRuntimeConfig();
 const showThemeSwitch =
   config.public?.emx2Theme === "" ||
   !["light", "dark"].includes(config.public?.emx2Theme as string);
+
+const props = withDefaults(
+  defineProps<{
+    wide?: boolean;
+  }>(),
+  {
+    wide: false,
+  }
+);
 </script>
 <template>
   <header
     class="antialiased px-5 lg:px-0 xl:bg-navigation border-b-theme border-color-theme box-border"
   >
-    <Container>
+    <Container :wide="props.wide">
       <div class="items-center hidden xl:flex h-20">
         <slot name="logo"></slot>
-        <div class="items-center justify-between hidden pl-8 xl:flex xl:grow">
-          <slot name="nav"></slot>
 
-          <div class="w-[450px]">
-            <!-- <SearchBar /> -->
+        <div class="flex justify-between items-center w-full">
+          <div class="items-center hidden pl-8 xl:flex">
+            <slot name="nav"></slot>
           </div>
-
           <slot name="admin" />
 
-          <ThemeSwitch v-if="showThemeSwitch" />
+          <div class="flex items-center gap-4">
+            <ThemeSwitch v-if="showThemeSwitch" />
 
-          <slot name="account">
-            <!-- <HeaderButton label="Favorites" icon="star" /> -->
-            <HeaderButton label="Account" icon="user" />
-          </slot>
+            <slot name="account">
+              <!-- <HeaderButton label="Favorites" icon="star" /> -->
+              <HeaderButton label="Account" icon="user" />
+            </slot>
+          </div>
         </div>
       </div>
 

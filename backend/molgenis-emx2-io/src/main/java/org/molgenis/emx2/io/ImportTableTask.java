@@ -8,11 +8,11 @@ import org.molgenis.emx2.io.tablestore.processor.ValidatePkeyProcessor;
 import org.molgenis.emx2.tasks.Task;
 
 public class ImportTableTask extends Task {
-  private Table table;
-  private TableStore source;
+  private final Table table;
+  private final TableStore source;
 
   public ImportTableTask(TableStore source, Table table, boolean strict) {
-    super("Import table " + table.getName(), strict);
+    super("Import table %s".formatted(table.getName()), strict);
     Objects.requireNonNull(source, "tableStore cannot be null");
     Objects.requireNonNull(table, "table cannot be null");
     this.table = table;
@@ -25,12 +25,13 @@ public class ImportTableTask extends Task {
 
     // validate uniqueness of the keys in the set
     this.setDescription(
-        "Table " + table.getName() + ": Counting rows & checking that all key columns are unique");
+        "Table %s: Counting rows & checking that all key columns are unique"
+            .formatted(table.getName()));
     source.processTable(table.getName(), new ValidatePkeyProcessor(table.getMetadata(), this));
 
     // execute the actual loading, we can use index to find the size
     this.setTotal(this.getProgress());
-    this.setDescription("Importing rows into " + table.getName());
+    this.setDescription("Importing rows into %s".formatted(table.getName()));
 
     try {
       source.processTable(table.getName(), new ImportRowProcessor(table, this));
@@ -41,9 +42,9 @@ public class ImportTableTask extends Task {
 
     // done
     if (getProgress() > 0) {
-      this.complete(String.format("Modified %s rows in %s", getProgress(), table.getName()));
+      this.complete("Modified %s rows in %s".formatted(getProgress(), table.getName()));
     } else {
-      this.setSkipped(String.format("Skipped table %s : sheet was empty", table.getName()));
+      this.setSkipped("Skipped table %s: sheet was empty".formatted(table.getName()));
     }
   }
 }

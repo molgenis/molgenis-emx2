@@ -1,2 +1,4 @@
-id,in block,display name,image,image is centered
-molgenis-default-banner-img,,,molgenis-banner,
+id,in block,display name,alt,width,height,image,image is centered
+molgenis-default-banner-img,,,a person pointing at a computer screen,,,molgenis-banner,
+molgenis-logo,,,MOLGENIS open source software,,,molgenis-logo-blue-text,
+penguins,,,two penguins walking in the grass,"425px",,penguins,true

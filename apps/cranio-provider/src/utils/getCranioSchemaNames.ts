@@ -1,9 +1,5 @@
-import { request, gql } from "graphql-request";
-import type {
-  ISettings,
-  ISettingsResponse,
-  ICranioSchemas,
-} from "../types/index";
+import { ISetting } from "../../../metadata-utils/src/types";
+import type { ICranioSchemas } from "../types";
 
 /**
 @name getCranioSchemas
@@ -18,21 +14,21 @@ export async function getCranioSchemaNames(): Promise<ICranioSchemas> {
     "CRANIO_PROVIDER_SCHEMA",
   ];
 
-  const query = gql`
-    {
-      _settings {
-        key
-        value
-      }
-    }
-  `;
-  const response: ISettingsResponse = await request("../api/graphql", query);
-  const results: ISettings[] = response._settings.filter((row: ISettings) => {
-    return targetSchemas.includes(row.key);
+  const query: string = `{ _settings { key value }}`;
+  const response = await fetch("../api/graphql", {
+    method: "POST",
+    body: JSON.stringify({ query: query }),
   });
 
+  const responseJson = await response.json();
+  const results: ISetting[] = responseJson.data._settings.filter(
+    (row: ISetting) => {
+      return targetSchemas.includes(row.key);
+    }
+  );
+
   const schemaNames = Object.fromEntries(
-    results.map((result: ISettings) => {
+    results.map((result: ISetting) => {
       return Object.values(result);
     })
   );

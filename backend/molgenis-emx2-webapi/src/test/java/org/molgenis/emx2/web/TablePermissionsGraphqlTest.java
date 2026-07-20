@@ -143,6 +143,10 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
   void customUserSessionShowsTablePermissionsAfterMembership() {
     database.becomeAdmin();
     database.getSchema(SCHEMA).addMember(CUSTOM_USER, "ReaderA");
+    // setup ran on the standalone test database, which does not invalidate the web-layer
+    // ApplicationCachePerUser caches (the GraphQL change mutation would). Clear them so the
+    // per-user request below sees the fresh role/permission state instead of a stale cache.
+    ApplicationCachePerUser.getInstance().clearAllCaches();
     login(CUSTOM_USER, CUSTOM_PASS);
 
     String body =
@@ -394,6 +398,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     schema.createRole("EmptyGqlRole");
     schema.addMember(CUSTOM_USER, "EmptyGqlRole");
 
+    // backend setup does not invalidate the web-layer caches; clear them before querying
+    ApplicationCachePerUser.getInstance().clearAllCaches();
     login(CUSTOM_USER, CUSTOM_PASS);
     String body =
         given()
@@ -428,6 +434,8 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     schema.grant("FalseTestRole", new TablePermission(TABLE_A).insert(false));
     schema.addMember(CUSTOM_USER, "FalseTestRole");
 
+    // backend setup does not invalidate the web-layer caches; clear them before querying
+    ApplicationCachePerUser.getInstance().clearAllCaches();
     login(CUSTOM_USER, CUSTOM_PASS);
     String body =
         given()

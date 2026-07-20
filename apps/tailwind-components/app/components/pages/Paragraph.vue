@@ -1,16 +1,51 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import EditButton from "./EditButton.vue";
+import { renderTextUrls } from "../../utils/cms";
 import type { IParagraphs } from "../../../types/cms";
 
-withDefaults(defineProps<IParagraphs>(), {
-  paragraphIsCentered: false,
+const props = withDefaults(
+  defineProps<IParagraphs & { isEditable?: boolean }>(),
+  {
+    paragraphIsCentered: false,
+    isEditable: false,
+  }
+);
+
+const renderedText = computed<string | undefined>(() => {
+  if (props.text) {
+    return renderTextUrls(props.text);
+  }
 });
+
+const emit = defineEmits<{
+  (e: "edit"): void;
+}>();
 </script>
 
 <template>
   <p
+    :id="id"
     class="text-title-contrast"
-    :class="{ 'text-center': paragraphIsCentered }"
+    :class="{
+      'text-center': paragraphIsCentered,
+      'text-left': !paragraphIsCentered,
+    }"
   >
-    <slot />
+    <EditButton
+      v-if="isEditable"
+      @click="emit('edit')"
+      :class="{
+        'text-center': paragraphIsCentered,
+        'text-left': !paragraphIsCentered,
+      }"
+    >
+      <span class="sr-only">edit paragraph: </span>
+      <span
+        class="group-hover:underline group-focus:underline"
+        v-html="renderedText"
+      />
+    </EditButton>
+    <span v-else v-html="renderedText" />
   </p>
 </template>

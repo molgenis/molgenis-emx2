@@ -1,10 +1,16 @@
 import type {
+  IConfigurablePages,
   IDeveloperPages,
-  IDependencies,
   IDependenciesCSS,
   IDependenciesJS,
-  IConfigurablePages,
 } from "../../types/cms";
+
+import { getContainersQuery } from "../gql/cmsPages";
+
+import type {
+  IContainerMetadata,
+  ICmsJsFetchPriority,
+} from "../../types/CmsComponents";
 
 export function newDeveloperPage(): IDeveloperPages {
   return {
@@ -21,160 +27,40 @@ export function newDeveloperPage(): IDeveloperPages {
   };
 }
 
-const pageQuery = `query getContainers($filter:ContainersFilter) {
-    Containers(filter:$filter) {
-        
-        # Containers
-        name
-        description
-        mg_tableclass
-        
-        # Developer pages
-        html
-        css
-        javascript
-        dependencies {
-            mg_tableclass
-            name
-            url
-            defer
-            async
-            fetchPriority {
-                name
-            }
-        }
-        enableBaseStyles
-        enableButtonStyles
-        enableFullScreen
-        
-        # Configurable pages
-        blockOrder(orderby: { order: ASC } ) {
-            id
-            order
-            block {
-                id
-                enableFullScreenWidth
-                mg_tableclass
-                
-                # page headings
-                title
-                subtitle
-                backgroundImage {
-                    image {
-                        id
-                        url
-                    }
-                }
-                titleIsCentered
-                
-                # components
-                componentOrder(orderby: {order:ASC}) {
-                    order
-                    component {
-                        id
-                        mg_tableclass
-                        
-                        # TextElements
-                        text
-                        
-                        # Headings
-                        level
-                        headingIsCentered
-                        
-                        # Paragraphs
-                        paragraphIsCentered
-                        
-                        # images
-                        displayName
-                        image {
-                            id
-                            size
-                            filename
-                            extension
-                            url
-                        }
-                        alt
-                        width
-                        height
-                        imageIsCentered
-                        
-                        # navigation groups and cards
-                        links {
-                            id
-                            title
-                            description
-                            url
-                            urlLabel
-                            urlIsExternal
-                        }
-                        
-                    }
-                }
-            }
-        }
-    }
-}`;
-
 export async function getPage(
   schema: string,
   page: string
-): Promise<IDeveloperPages | IConfigurablePages> {
+): Promise<IContainerMetadata> {
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: pageQuery,
+      query: getContainersQuery,
       variables: { filter: { name: { equals: page } } },
     },
   });
 
-  const currentPage = data.Containers[0];
-  return currentPage;
+  const currentPage = data.Containers[0] as
+    | IConfigurablePages
+    | IDeveloperPages;
+  return { page: currentPage, metadata: data._schema.tables };
 }
 
 export function generateHtmlPreview(
   content: IDeveloperPages,
   ref: HTMLDivElement
 ) {
+  const parser = new DOMParser();
+
   if (content && typeof content === "object" && Object.keys(content).length) {
     ref.replaceChildren();
 
-    const parser = new DOMParser();
     const documentHead = document.getElementsByTagName(
       "head"
     )[0] as HTMLHeadElement;
 
-    (content.dependencies as IDependencies[])?.forEach(
-      (dependency: IDependenciesCSS | IDependenciesJS) => {
-        if (dependency.mg_tableclass?.endsWith("CSS") && dependency.url) {
-          const elem = document.createElement("link");
-          elem.href = dependency.url;
-          elem.rel = "stylesheet";
-          documentHead.appendChild(elem);
-        }
-
-        if (dependency.mg_tableclass?.endsWith("JS") && dependency.url) {
-          const jsDependency = dependency as IDependenciesJS;
-
-          const elem = document.createElement("script") as HTMLScriptElement;
-          elem.src = jsDependency.url as string;
-
-          if (elem.src && jsDependency.async) {
-            elem.async = jsDependency.async as boolean;
-          }
-
-          if (elem.src && !jsDependency.async && jsDependency.defer) {
-            elem.defer = jsDependency.defer as boolean;
-          }
-
-          if (elem.src && jsDependency.fetchPriority) {
-            elem.fetchPriority = jsDependency.fetchPriority.name as
-              | "high"
-              | "low"
-              | "auto";
-          }
-        }
-      }
-    );
+    if (content.dependencies) {
+      renderHtmlPreviewDependencies(documentHead, content.dependencies);
+    }
 
     if (content.html) {
       const doc = parser.parseFromString(content.html, "text/html");
@@ -199,27 +85,68 @@ export function generateHtmlPreview(
       ref.appendChild(scriptElement);
     }
   } else {
-    const parser = new DOMParser();
-    const htmlString: string = content as unknown as string;
-    const doc = parser.parseFromString(htmlString, "text/html");
-    /** Loop over the just parsed html items, and add them */
-    Array.from(doc.body.children).forEach((el) => {
-      if (el.tagName !== "SCRIPT") {
-        ref.appendChild(el);
-      } else {
-        /** Script tags need a special treatment, else they will not execute. **/
-        const scriptEl = document.createElement("script");
-        if ((el as HTMLScriptElement).src) {
-          /** If we have an external script. */
-          scriptEl.src = (el as HTMLScriptElement).src;
-        } else {
-          /** Regular inline script */
-          scriptEl.textContent = el.textContent;
-        }
-        ref.appendChild(scriptEl);
-      }
-    });
+    generateLegacyHtmlPreview(parser, ref, content);
   }
+}
+
+function renderHtmlPreviewDependencies(
+  documentHead: HTMLHeadElement,
+  dependencies: IDependenciesCSS[] | IDependenciesJS[]
+) {
+  dependencies.forEach((dependency: IDependenciesCSS | IDependenciesJS) => {
+    if (dependency.mg_tableclass?.endsWith("CSS") && dependency.url) {
+      const elem = document.createElement("link");
+      elem.href = dependency.url;
+      elem.rel = "stylesheet";
+      documentHead.appendChild(elem);
+    }
+
+    if (dependency.mg_tableclass?.endsWith("JS") && dependency.url) {
+      const jsDependency = dependency as IDependenciesJS;
+
+      const elem = document.createElement("script") as HTMLScriptElement;
+      elem.src = jsDependency.url as string;
+
+      if (elem.src && jsDependency.async) {
+        elem.async = jsDependency.async as boolean;
+      }
+
+      if (elem.src && !jsDependency.async && jsDependency.defer) {
+        elem.defer = jsDependency.defer as boolean;
+      }
+
+      if (elem.src && jsDependency.fetchPriority) {
+        elem.fetchPriority = jsDependency.fetchPriority
+          .name as ICmsJsFetchPriority;
+      }
+    }
+  });
+}
+
+function generateLegacyHtmlPreview(
+  parser: DOMParser,
+  ref: HTMLDivElement,
+  content: IDeveloperPages
+) {
+  const htmlString: string = content as unknown as string;
+  const doc = parser.parseFromString(htmlString, "text/html");
+  /** Loop over the just parsed html items and add them */
+  Array.from(doc.body.children).forEach((el) => {
+    if (el.tagName !== "SCRIPT") {
+      ref.appendChild(el);
+    } else {
+      /** Script tags need a special treatment, else they will not execute. **/
+      const scriptEl = document.createElement("script");
+      if ((el as HTMLScriptElement).src) {
+        /** If we have an external script. */
+        scriptEl.src = (el as HTMLScriptElement).src;
+      } else {
+        /** Regular inline script */
+        scriptEl.textContent = el.textContent;
+      }
+      ref.appendChild(scriptEl);
+    }
+  });
 }
 
 export function parsePageText(value?: string): string {
@@ -230,4 +157,14 @@ export function parsePageText(value?: string): string {
 export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
+}
+
+export function renderTextUrls(string: string): string {
+  let paragraph = string;
+  const urlPattern = /\[(.*?)\]\((.*?)\)/g;
+  paragraph = paragraph.replaceAll(
+    urlPattern,
+    '<a href="$2" class="underline decoration-solid">$1</a>'
+  );
+  return paragraph;
 }

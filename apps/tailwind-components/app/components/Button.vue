@@ -1,5 +1,5 @@
 <script setup lang="ts">
-//todo: refactor each button shape/flavor in seperate easy to understand components so we get rid of weird mappings.
+//todo: refactor each button shape/flavor in separate easy to understand components so we get rid of weird mappings.
 //similar to polymorphism in the inputs.
 
 import { computed, watchEffect } from "vue";
@@ -20,6 +20,7 @@ const props = withDefaults(
     disabled?: boolean;
     iconOnly?: boolean;
     tooltip?: string;
+    href?: string;
   }>(),
   {
     type: "primary",
@@ -37,42 +38,40 @@ watchEffect(() => {
   }
 });
 
-const COLOR_MAPPING = {
+const COLOR_MAPPING: Record<ButtonType, string> = {
   primary:
-    "tracking-widest uppercase rounded-input font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover",
+    "tracking-widest uppercase rounded-alt font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover",
   secondary:
-    "tracking-widest uppercase rounded-input font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover",
+    "tracking-widest uppercase rounded-alt font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover",
   tertiary:
-    "tracking-widest uppercase rounded-input font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover",
+    "tracking-widest uppercase rounded-alt font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover",
   text: "group pl-0 pr-0 flex items-center text-button-text hover:bg-hover hover:text-link-hover cursor-pointer disabled:cursor-not-allowed disabled:text-disabled border-none h-auto",
   outline:
-    "tracking-widest uppercase rounded-input font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
-  disabled:
-    "tracking-widest uppercase rounded-input font-display bg-button-disabled text-button-disabled border-button-disabled cursor-not-allowed hover:bg-button-disabled-hover hover:text-button-disabled-hover hover:border-button-disabled-hover",
+    "tracking-widest uppercase rounded-alt font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
   filterWell:
-    "whitespace-nowrap bg-button-filter rounded-input text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover focus:bg-button-filter-hover focus:border-button-filter-hover",
+    "whitespace-nowrap bg-button-filter rounded-alt text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover focus:bg-button-filter-hover focus:border-button-filter-hover",
   inline:
-    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover",
+    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover disabled:bg-none disabled:text-button-disabled disabled:border-0 !disabled:hover:bg-none disabled:hover:text-button-disabled",
 };
 
 const TEXT_STYLING = "text-button-text hover:bg-hover hover:text-link-hover";
 
 const SIZE_MAPPING = {
-  tiny: "h-8 p-2 text-heading-sm gap-2",
-  small: "h-10.5 px-5 text-heading-lg gap-3",
-  medium: "h-14 px-7.5 text-heading-xl gap-4",
-  large: "h-18 px-8.75 text-heading-xl gap-5",
+  tiny: "h-button-tiny p-2 text-heading-sm gap-2",
+  small: "h-button-small px-5 text-heading-lg gap-3",
+  medium: "h-button-default px-7.5 text-heading-xl gap-4",
+  large: "h-button-large px-8.75 text-heading-xl gap-5",
 };
 
 const ICON_ONLY_SIZE_MAPPING = {
-  tiny: "p-[8px] h-8 w-8",
-  small: "p-[5px] h-10 w-10",
-  medium: "p-[8px] h-14 w-14",
-  large: "p-[8px] h-18 w-18",
+  tiny: "p-[7px] h-button-tiny w-button-tiny",
+  small: "p-[11px] h-button-small w-button-small",
+  medium: "p-[12px] h-button-default w-button-default",
+  large: "p-[9px] h-button-large w-button-large",
 };
 
 const ICON_SIZE_MAPPING = {
-  tiny: 12,
+  tiny: 16,
   small: 18,
   medium: 24,
   large: 36,
@@ -82,10 +81,6 @@ const ICON_POSITION_MAPPING = {
   left: "",
   right: "flex-row-reverse",
 };
-
-const colorClasses = computed(() => {
-  return props.disabled ? COLOR_MAPPING["disabled"] : COLOR_MAPPING[props.type];
-});
 
 const sizeClasses = computed(() => {
   return props.iconOnly
@@ -104,20 +99,28 @@ const iconSize = computed(() => {
 const tooltipText = computed(() => {
   return props.tooltip || props.iconOnly ? props.label : "";
 });
+
+const tag = computed(() => (props.href ? "a" : "button"));
 </script>
 
 <template>
-  <button
+  <component
+    :is="tag"
+    :href="props.href"
     v-tooltip.bottom="tooltipText"
-    class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
-    :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
+    class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-alt group-[.button-bar]:last:rounded-r-alt duration-default ease-in-out"
+    :class="`${
+      COLOR_MAPPING[props.type]
+    } ${sizeClasses} ${iconPositionClass} transition-colors`"
   >
     <BaseIcon v-if="icon" :name="icon" :width="iconSize" />
     <span
       :class="`${type === 'text' ? TEXT_STYLING : ''} ${
         iconOnly ? 'sr-only' : ''
       }`"
-      >{{ label }}<slot
-    /></span>
-  </button>
+    >
+      {{ label }}
+      <slot />
+    </span>
+  </component>
 </template>

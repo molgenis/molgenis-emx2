@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Accordion } from "molgenis-viz";
+import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
+</script>
+
 <template>
   <aside class="sidebar">
     <h2>Dashboards</h2>
@@ -52,6 +58,64 @@
                   Your center's overview
                 </router-link>
               </li>
+              <li>
+                <router-link :to="{ name: 'provider-clp-level-1' }">
+                  Level 1
+                </router-link>
+              </li>
+              <li>
+                <router-link :to="{ name: 'provider-clp-level-2' }">
+                  Level 2
+                </router-link>
+              </li>
+            </ul>
+          </Accordion>
+        </li>
+        <li>
+          <Accordion
+            id="facial-dysostosis-nav"
+            title="Facial Dysostosis"
+            :isOpenByDefault="true"
+          >
+            <ul>
+              <li>
+                <router-link
+                  :to="{ name: 'provider-facial-dysostosis-level-1' }"
+                >
+                  Level 1
+                </router-link>
+              </li>
+              <li>
+                <router-link
+                  :to="{ name: 'provider-facial-dysostosis-level-2' }"
+                >
+                  Level 2
+                </router-link>
+              </li>
+            </ul>
+          </Accordion>
+        </li>
+        <li>
+          <Accordion
+            id="craniofacial-microsomia-nav"
+            title="Craniofacial Microsomia"
+            :isOpenByDefault="true"
+          >
+            <ul>
+              <li>
+                <router-link
+                  :to="{ name: 'provider-craniofacial-microsomia-level-1' }"
+                >
+                  Level 1
+                </router-link>
+              </li>
+              <li>
+                <router-link
+                  :to="{ name: 'provider-craniofacial-microsomia-level-2' }"
+                >
+                  Level 2
+                </router-link>
+              </li>
             </ul>
           </Accordion>
         </li>
@@ -83,12 +147,6 @@
     </a>
   </aside>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Accordion } from "molgenis-viz";
-import { ArrowUpTrayIcon } from "@heroicons/vue/24/outline";
-</script>
 
 <style lang="scss">
 .sidebar {

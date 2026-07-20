@@ -13,7 +13,18 @@
     var(--color-gray-800) 133.81%
   );
 
+  --background-color-bulk-gradient: linear-gradient(
+    90deg,
+    var(--color-gray-800)
+  );
+
   --background-color-button-tree-node-toggle: var(--color-green-200);
+
+  --text-color-logo-text: var(--color-green-500);
+  --text-color-logo-text-inverted: var(--color-white);
+  --background-color-logo: var(--color-gray-700);
+  --logo-icon-primary: var(--color-green-800);
+  --logo-icon-secondary: var(--color-green-500);
 
   --color-valid-foreground: var(--color-green-200);
   --color-valid-background: var(--color-green-900);
@@ -32,6 +43,9 @@
   --background-color-button-outline: var(--color-gray-900);
   --background-color-button-outline-hover: var(--color-gray-900);
 
+  --text-color-menu: var(--text-color-title);
+  --text-color-sub-menu: var(--color-green-500);
+  --text-color-sub-menu-hover: var(--color-white);
   --background-color-content: var(--color-gray-700);
   --background-color-form: var(--color-gray-900);
   --background-color-form-legend: var(--color-gray-900);
@@ -44,13 +58,17 @@
   --background-color-pagination: var(--color-gray-600);
   --background-color-pagination-hover: var(--color-gray-700);
   --background-color-hover: var(--color-gray-900);
+  --background-color-search-filter-group-toggle: var(--color-gray-900);
   --background-color-input: var(--color-gray-600);
   --background-color-table: var(--color-gray-700);
   --background-color-ref-dropdown-toolbar: var(--color-gray-900);
   --background-color-code-output: var(--color-gray-600);
+  --background-color-dropdown: var(--color-gray-900);
 
+  --text-color-search-filter-action: var(--color-green-500);
   --text-color-link: var(--color-green-500);
   --text-color-link-inverted: var(--color-green-500);
+  --text-color-button-input-toggle: var(--color-gray-400);
   --text-color-button-primary: var(--color-gray-800);
   --text-color-button-primary-hover: var(--color-gray-800);
   --text-color-button-secondary: var(--color-green-500);
@@ -58,12 +76,15 @@
   --text-color-button-outline: var(--color-green-500);
   --text-color-button-outline-hover: var(--color-green-200);
   --text-color-button-text: var(--color-green-500);
+  --text-color-button-inline: var(--text-color-button-outline);
+  --text-color-button-disabled: var(--color-gray-400);
   --text-color-button-icon: var(--color-green-500);
   --text-color-button-icon-hover: var(--color-green-200);
   --text-color-button-tree-node-toggle: var(--color-white);
   --text-color-button-tree-node-toggle-hover: var(--color-gray-800);
   --text-color-title: var(--color-white);
   --text-color-breadcrumb: var(--color-green-500);
+  --text-color-dropdown: var(--color-white);
 
   --text-color-title-contrast: var(--text-color-title);
   --text-color-table-column-header: var(--color-gray-400);
@@ -101,6 +122,7 @@
   --border-radius-pagination: 3px;
 
   --border-color-form-required: var(--color-gray-300);
+  --border-color-footer: var(--background-color-footer);
   --border-width-form-required: 1px;
   --background-color-form-required: var(--color-gray-900);
   --background-color-form-required-btn: var(--color-gray-900);
@@ -118,6 +140,7 @@
   --border-color-button-switch: var(--color-gray-900);
   --border-color-button-switch-selected: var(--color-green-200);
   --border-color-button-switch-hover: var(--color-green-200);
+  --accent-color: var(--background-color-button-primary);
 
   /** labels */
   --background-color-label-draft: var(--color-stroke-light);

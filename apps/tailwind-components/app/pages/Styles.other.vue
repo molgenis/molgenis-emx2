@@ -221,6 +221,9 @@
       <ColorTile color="menu" type="text" />
     </li>
     <li>
+      <ColorTile color="button-remove" type="text" />
+    </li>
+    <li>
       <ColorTile color="sub-menu" type="text" />
     </li>
     <li>
@@ -263,10 +266,10 @@
       <ColorTile color="search-filter-title" type="text" />
     </li>
     <li>
-      <ColorTile color="search-filter-expand" type="text" />
+      <ColorTile color="search-filter-action" type="text" />
     </li>
     <li>
-      <ColorTile color="search-filter-expand-mobile" type="text" />
+      <ColorTile color="search-filter-action-mobile" type="text" />
     </li>
     <li>
       <ColorTile color="search-filter-group-title" type="text" />
@@ -284,7 +287,7 @@
       <ColorTile color="search-filter-title-inverted" type="text" />
     </li>
     <li>
-      <ColorTile color="search-filter-expand-inverted" type="text" />
+      <ColorTile color="search-filter-action-inverted" type="text" />
     </li>
     <li>
       <ColorTile color="search-filter-group-title-inverted" type="text" />

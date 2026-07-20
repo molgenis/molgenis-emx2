@@ -533,7 +533,7 @@ public class RDFTest {
 
   private void compareToValidationFile(
       String validationFilePath,
-      Class<? extends RdfWriter> rdfWriterClass,
+      Class<? extends RdfOutputStreamWriter> rdfWriterClass,
       Class<? extends RdfGenerator> generatorClass,
       Method method,
       Object... methodArgs)
@@ -550,7 +550,7 @@ public class RDFTest {
 
   private void compareToValidationFile(
       String validationFilePath,
-      Class<? extends RdfWriter> rdfWriterClass,
+      Class<? extends RdfOutputStreamWriter> rdfWriterClass,
       List<Class> writerArgClasses,
       List<Object> writerArgs,
       Class<? extends RdfGenerator> generatorClass,
@@ -1191,6 +1191,25 @@ public class RDFTest {
   }
 
   @Test
+  void testDraftRowsAreExcludedEmx2Generator() throws IOException {
+    testDraftRowExcluded(parseSchemaRdf(RdfApiGeneratorFactory.EMX2, petStore_nr1));
+  }
+
+  @Test
+  void testDraftRowsAreExcludedSemanticGenerator() throws IOException {
+    testDraftRowExcluded(parseSchemaRdf(RdfApiGeneratorFactory.SEMANTIC, petStore_nr1));
+  }
+
+  private void testDraftRowExcluded(InMemoryRDFHandler handler) {
+    IRI nonDraftRowSubject = Values.iri(getApi(petStore_nr1) + "Pet/name=pooky");
+    IRI draftRowSubject = Values.iri(getApi(petStore_nr1) + "Pet/name=yakul");
+
+    assertAll(
+        () -> assertNotNull(handler.resources.get(nonDraftRowSubject)),
+        () -> assertNull(handler.resources.get(draftRowSubject)));
+  }
+
+  @Test
   void testSubClassesForInheritedTable() throws IOException {
     Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_InheritTable");
     Table root = schema.create(table("root", column("id").setPkey()));
@@ -1251,7 +1270,7 @@ public class RDFTest {
         };
 
     final String customRdf =
-        """
+"""
 @prefix example: <http://example.com/> .
 <https://molgenis.org/> example:test "Molgenis" .
 """;
@@ -1291,7 +1310,7 @@ public class RDFTest {
   @Test
   void testInvalidCustomRdfSetting() throws IOException {
     final String customRdf =
-        """
+"""
 <https://molgenis.org/> <http://purl.org/dc/terms/title> "Molgenis"
 """;
 
@@ -1423,12 +1442,12 @@ public class RDFTest {
         };
 
     final String customPrefixes1 =
-        """
+"""
 dcterms,http://purl.org/dc/terms/
 """;
 
     final String customPrefixes2 =
-        """
+"""
 dcterms,http://purl.org/dc/terms/
 """;
 
@@ -1456,12 +1475,12 @@ dcterms,http://purl.org/dc/terms/
         };
 
     final String customPrefixes1 =
-        """
+"""
 dcterms1,http://purl.org/dc/terms/
 """;
 
     final String customPrefixes2 =
-        """
+"""
 dcterms2,http://purl.org/dc/terms/
 """;
 
@@ -1490,12 +1509,12 @@ dcterms2,http://purl.org/dc/terms/
         };
 
     final String customPrefixes1 =
-        """
+"""
 name,http://purl.org/dc/terms/
     """;
 
     final String customPrefixes2 =
-        """
+"""
 name,http://www.w3.org/2000/01/rdf-schema#
     """;
 
@@ -1519,7 +1538,7 @@ name,http://www.w3.org/2000/01/rdf-schema#
         };
 
     final String customPrefixes1 =
-        """
+"""
 example,http://example.com/
     """;
 
@@ -1669,14 +1688,24 @@ example,http://example.com/
 
   private InMemoryRDFHandler parseSchemaRdf(Schema schema) throws IOException {
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
-    parseSchemaRdf(handler, schema);
+    parseSchemaRdf(RdfApiGeneratorFactory.EMX2, handler, schema);
     return handler;
   }
 
-  private void parseSchemaRdf(RDFHandler handler, Schema schema) throws IOException {
+  private InMemoryRDFHandler parseSchemaRdf(RdfApiGeneratorFactory generatorFactory, Schema schema)
+      throws IOException {
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseSchemaRdf(generatorFactory, handler, schema);
+    return handler;
+  }
+
+  private void parseSchemaRdf(
+      RdfApiGeneratorFactory generatorFactory, RDFHandler handler, Schema schema)
+      throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
-        Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
+      try (RdfOutputStreamWriter writer =
+          OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+        RdfApiGenerator generator = generatorFactory.create(writer, BASE_URL);
         generator.generate(schema);
       }
       parseString(handler, outputStream.toString());
@@ -1688,7 +1717,8 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+      try (RdfOutputStreamWriter writer =
+          OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
         generator.generate(table);
       }
@@ -1704,7 +1734,8 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+      try (RdfOutputStreamWriter writer =
+          OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
         generator.generate(table, primaryKey);
       }
@@ -1720,7 +1751,8 @@ example,http://example.com/
 
     InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfWriter writer = WriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
+      try (RdfOutputStreamWriter writer =
+          OutputStreamWriterFactory.STREAM.create(outputStream, RDFFormat.TURTLE)) {
         Emx2RdfGenerator generator = new Emx2RdfGenerator(writer, BASE_URL);
         generator.generate(table, column);
       }

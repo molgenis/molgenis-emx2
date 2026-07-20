@@ -10,6 +10,7 @@ const tableSettings = ref<ITableSettings>({
   pageSize: 10,
   orderby: { column: "", direction: "ASC" },
   search: "",
+  orderedColumnsIds: [],
 });
 
 const router = useRouter();
@@ -31,22 +32,27 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
 </script>
 
 <template>
-  <div class="py-5 space-y-2">
-    <DemoDataControls
-      v-model:metadata="metadata"
-      v-model:schemaId="schemaId"
-      v-model:tableId="tableId"
-    />
-    <label class="text-title font-bold" for="is-editable">Is Editable: </label>
-    <InputCheckbox id="is-editable" v-model="isEditable" name="is-editable" />
-    <div class="py-10" />
+  <div class="overflow-auto">
+    <div class="py-5 space-y-2">
+      <DemoDataControls
+        v-model:metadata="metadata"
+        v-model:schemaId="schemaId"
+        v-model:tableId="tableId"
+      />
+      <label class="text-title font-bold" for="is-editable"
+        >Is Editable:
+      </label>
+      <InputCheckbox id="is-editable" v-model="isEditable" name="is-editable" />
+      <div class="py-10" />
 
-    <TableEMX2
-      v-model:settings="tableSettings"
-      :key="`${schemaId}-${tableId}`"
-      :schema-id="schemaId"
-      :table-id="tableId ?? ''"
-      :is-editable="isEditable"
-    />
+      <TableEMX2
+        v-model:settings="tableSettings"
+        :key="`${schemaId}-${tableId}`"
+        :schema-id="schemaId"
+        :table-id="tableId ?? ''"
+        :is-editable="isEditable"
+        :enable-filters="true"
+      />
+    </div>
   </div>
 </template>

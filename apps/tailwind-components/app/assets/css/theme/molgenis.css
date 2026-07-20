@@ -14,7 +14,16 @@
     #0163c6 133.81%
   );
 
+  --background-color-bulk-gradient: linear-gradient(
+    90deg,
+    #0164c7 0%,
+    #0164c7 100%
+  );
+
   --opacity-background-gradient: 100;
+
+  --text-color-logo-text: var(--color-white);
+  --text-color-logo-text-inverted: var(--color-blue-500);
 
   --background-color-button-primary: var(--color-yellow-500);
   --background-color-button-primary-hover: var(--color-yellow-200);
@@ -50,7 +59,7 @@
   --text-color-button-primary: var(--color-gray-900);
   --text-color-button-primary-hover: var(--color-gray-900);
   --text-color-button-secondary: var(--color-white);
-  --text-color-button-secondary-hover: var(--color-white);
+  --text-color-button-secondary-hover: var(--color-gray-900);
   --text-color-button-tertiary: var(--color-white);
   --text-color-button-tertiary-hover: var(--color-white);
   --text-color-button-outline: var(--color-blue-500);
@@ -59,6 +68,7 @@
   --text-color-button-disabled-hover: var(--color-gray-600);
   --text-color-button-text: var(--color-white);
   --text-color-button-tree-node-toggle: var(--color-white);
+  --text-color-button-inline: var(--color-white);
   --text-color-menu: var(--color-white);
   --text-color-sub-menu: var(--color-blue-500);
   --text-color-sub-menu-hover: var(--color-blue-700);
@@ -79,14 +89,14 @@
   --text-color-search-results-view-tabs: var(--color-blue-500);
   --text-color-search-results-view-tabs-hover: var(--color-blue-800);
   --text-color-search-filter-title: var(--color-white);
-  --text-color-search-filter-expand: var(--color-yellow-500);
-  --text-color-search-filter-expand-mobile: var(--color-blue-800);
+  --text-color-search-filter-action: var(--color-yellow-500);
+  --text-color-search-filter-action-mobile: var(--color-blue-800);
   --text-color-search-filter-group-title: var(--color-white);
   --text-color-search-filter-group-title-mobile: var(--color-black);
   --text-color-search-filter-group-checkbox: var(--color-yellow-500);
   --text-color-search-filter-group-toggle: var(--color-white);
   --text-color-search-filter-title-inverted: var(--color-back);
-  --text-color-search-filter-expand-inverted: var(--color-yellow-500);
+  --text-color-search-filter-action-inverted: var(--color-yellow-500);
   --text-color-search-filter-group-title-inverted: var(--color-black);
   --text-color-search-filter-group-checkbox-inverted: var(--color-yellow-500);
   --text-color-search-filter-group-toggle-inverted: var(--color-black);
@@ -101,6 +111,7 @@
   --text-color-link: var(--color-blue-500);
   --text-color-link-inverted: var(--color-yellow-500);
   --text-color-table-column-header: var(--color-gray-600);
+  --text-color-label-available: var(--color-white);
 
   --text-color-invalid: var(--color-red-700);
   --text-color-valid: var(--color-green-900);
@@ -126,17 +137,11 @@
   --border-color-pagination: var(--color-transparent);
   --border-color-input-inverted: var(--color-gray-600);
 
-  --border-radius-theme: 50px;
-  --border-radius-3px: 3px;
-  --border-radius-50px: 50px;
-  --border-radius-input: 28px;
-  --border-radius-textarea-input: 20px;
-  --border-radius-search-input: 9999px;
-  --border-radius-search-button: 9999px;
-  --border-radius-pagination: 9999px;
-  --border-radius-landing: 50px;
+  --border-radius-alt: var(--radius-alt);
 
   --border-width-theme: 0px;
+  --border-color-footer: var(--background-color-footer);
+  --border-color-filter-divider: rgba(51, 51, 51, 0.1);
 
   --outline-color-select: var(--color-gray-200);
 

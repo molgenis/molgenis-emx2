@@ -171,7 +171,7 @@ public class ChangeLogExecutor {
                   STAMP,
                   USERID,
                   TABLENAME,
-                  inline(schemasWithChangeLog.get(1)).as(SCHEMA_NAME))
+                  inline(schemasWithChangeLog.get(i)).as(SCHEMA_NAME))
               .from(table(name(schemasWithChangeLog.get(i), Constants.CHANGELOG_TABLE)))
               .orderBy(STAMP.desc())
               .limit(1));

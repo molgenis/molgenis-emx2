@@ -6,6 +6,10 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
+import graphql.language.Document;
+import graphql.language.OperationDefinition;
+import graphql.parser.InvalidSyntaxException;
+import graphql.parser.Parser;
 import graphql.parser.ParserOptions;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -16,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.tasks.TaskService;
+import org.molgenis.emx2.tasks.TaskServiceInMemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +65,6 @@ public class GraphqlExecutor {
     this.graphqlQueryFragments = new LinkedHashMap<>();
   }
 
-  public GraphqlExecutor(Database database) {
-    this(database, null);
-  }
-
   public GraphqlExecutor(Schema schema, TaskService taskService) {
     init();
     this.graphql = GraphqlFactory.forSchema(schema, taskService);
@@ -71,7 +72,7 @@ public class GraphqlExecutor {
   }
 
   public GraphqlExecutor(Schema schema) {
-    this(schema, null);
+    this(schema, new TaskServiceInMemory());
   }
 
   public @NotNull ExecutionResult executeWithoutSession(String query) {
@@ -81,6 +82,28 @@ public class GraphqlExecutor {
   public @NotNull ExecutionResult executeWithoutSession(
       String query, Map<String, Object> variables) {
     return execute(query, variables, new DummySessionHandler());
+  }
+
+  public @NotNull ExecutionResult executeReadOnly(
+      String query, Map<String, Object> variables, GraphqlSessionHandlerInterface sessionManager) {
+    rejectMutations(query);
+    return execute(query, variables, sessionManager);
+  }
+
+  private static void rejectMutations(String query) {
+    Document document;
+    try {
+      document = Parser.parse(query);
+    } catch (InvalidSyntaxException e) {
+      // let execute() report the syntax error in the standard graphql response format
+      return;
+    }
+    for (OperationDefinition operation : document.getDefinitionsOfType(OperationDefinition.class)) {
+      if (!OperationDefinition.Operation.QUERY.equals(operation.getOperation())) {
+        throw new GraphqlException(
+            "Only query operations are allowed via HTTP GET. Use a POST request to execute mutations.");
+      }
+    }
   }
 
   public @NotNull ExecutionResult execute(

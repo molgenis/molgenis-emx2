@@ -4,7 +4,13 @@
     "config:base"
   ],
   "packageRules": [ 
-      {
+    {
+      "matchUpdateTypes": ["security"],
+      "prPriority": 100,
+      "prConcurrentLimit": 0,
+      "prCreation": "immediate"
+    },
+    {
       "matchManagers": ["gradle"],
       "matchPackagePatterns": [".*","!jooq"],
       "matchUpdateTypes": ["minor", "patch"],

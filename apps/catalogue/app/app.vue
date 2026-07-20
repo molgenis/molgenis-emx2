@@ -11,8 +11,7 @@ const config = useRuntimeConfig();
 const theme = await useTheme();
 const { initialize } = useGtag();
 
-const datasetStore = useDatasetStore();
-await datasetStore.isDatastoreEnabled();
+useDatasetStore();
 
 const GOOGLE_ANALYTICS: analyticsService = "google-analytics";
 const SITE_IMPROVE: analyticsService = "site-improve";
@@ -106,7 +105,7 @@ useHead({
           button-alignment="right"
         >
           <section
-            class="bg-white py-9 lg:px-12.5 px-4 text-gray-900 xl:rounded-3px"
+            class="bg-white py-9 lg:px-12.5 px-4 text-gray-900 xl:rounded-base"
           >
             <h2 class="mb-5 uppercase text-heading-4xl font-display">
               Cookies 🍪🍪🍪

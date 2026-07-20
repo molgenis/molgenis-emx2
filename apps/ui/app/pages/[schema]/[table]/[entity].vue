@@ -1,26 +1,29 @@
 <script setup lang="ts">
+import { useAsyncData } from "#app";
 import { useRoute, useRouter } from "#app/composables/router";
-import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
+import { computed, ref, useId } from "vue";
 import type {
   columnValue,
   IColumn,
   IRow,
 } from "../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
-import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
-import { computed, ref, useId } from "vue";
-import DefinitionList from "../../../../../tailwind-components/app/components/DefinitionList.vue";
-import DefinitionListTerm from "../../../../../tailwind-components/app/components/DefinitionListTerm.vue";
-import DefinitionListDefinition from "../../../../../tailwind-components/app/components/DefinitionListDefinition.vue";
-import ValueEMX2 from "../../../../../tailwind-components/app/components/value/EMX2.vue";
-import InputSearch from "../../../../../tailwind-components/app/components/input/Search.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import ContentBlock from "../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
+import DefinitionList from "../../../../../tailwind-components/app/components/DefinitionList.vue";
+import DefinitionListDefinition from "../../../../../tailwind-components/app/components/DefinitionListDefinition.vue";
+import DefinitionListTerm from "../../../../../tailwind-components/app/components/DefinitionListTerm.vue";
 import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
-import { useAsyncData } from "#app";
+import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
+import InputSearch from "../../../../../tailwind-components/app/components/input/Search.vue";
+import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
+import ValueEMX2 from "../../../../../tailwind-components/app/components/value/EMX2.vue";
+import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
+import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
+import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
+import type { cellPayload } from "../../../../../tailwind-components/types/types";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -29,6 +32,9 @@ const tableId = route.params.table as string;
 const entityId = route.params.entity as string;
 const keys = route.query.keys as string | undefined;
 let entityKeysObject: IRow = {};
+
+const showModal = ref(false);
+const cellDetailPayload = ref<cellPayload>();
 
 try {
   if (keys) {
@@ -122,9 +128,15 @@ const enableEditing = computed(() => {
 const enableDeleting = computed(() => {
   return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
 });
+
+function handleCellClick(event: cellPayload) {
+  cellDetailPayload.value = event;
+  showModal.value = true;
+}
 </script>
+
 <template>
-  <section class="mx-auto lg:px-[30px] px-0">
+  <Container>
     <PageHeader :title="entityId" align="left">
       <template #prefix>
         <BreadCrumbs
@@ -158,7 +170,8 @@ const enableDeleting = computed(() => {
           icon="trash"
           @click="showDeleteModal = true"
           v-if="enableDeleting"
-          >Delete
+        >
+          Delete
         </Button>
       </div>
     </div>
@@ -181,17 +194,29 @@ const enableDeleting = computed(() => {
         </h3>
         <DefinitionList :compact="false">
           <template v-for="field in section.fields">
-            <DefinitionListTerm class="text-title-contrast"
-              >{{ field.metadata.label }}
+            <DefinitionListTerm class="text-title-contrast">
+              {{ field.metadata.label }}
             </DefinitionListTerm>
             <DefinitionListDefinition class="text-title-contrast">
-              <ValueEMX2 :data="field.value" :metadata="field.metadata" />
+              <ValueEMX2
+                :data="field.value"
+                :metadata="field.metadata"
+                @valueClick="handleCellClick($event)"
+              />
             </DefinitionListDefinition>
           </template>
         </DefinitionList>
       </section>
     </ContentBlock>
-  </section>
+  </Container>
+
+  <CellDetailModal
+    v-if="cellDetailPayload"
+    :payload="cellDetailPayload"
+    :schemaId="schemaId"
+    v-model:showModal="showModal"
+    @update:cellDetailPayload="cellDetailPayload = $event"
+  />
 
   <DeleteModal
     v-if="tableMetadata && rowData && showDeleteModal"

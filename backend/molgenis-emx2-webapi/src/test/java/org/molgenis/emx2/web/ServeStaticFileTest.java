@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -14,24 +15,56 @@ class ServeStaticFileTest {
   @Test
   void testServe_FileExists() {
     Context ctx = mock(Context.class);
-    String path = "/test.txt";
+    // serve(ctx, path) only serves resources under the internal apps root
+    String path = "/public_html/apps/test-app/test-assets/styling.css";
 
     ServeStaticFile.serve(ctx, path);
 
-    verify(ctx).contentType("text/plain");
-    verify(ctx).result("test".getBytes());
+    verify(ctx).header("Content-Type", "text/css");
+
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(ctx).result(captor.capture());
+    String served = new String(captor.getValue(), StandardCharsets.UTF_8);
+    assertTrue(served.contains("color:red"));
   }
 
   @Test
   void testServe_FileNotFound() {
     Context ctx = mock(Context.class);
-    String path = "/non-existent-file.css";
+    // in-contract path (under the internal root) but no such resource
+    String path = "/public_html/apps/non-existent-file.css";
     when(ctx.status(404)).thenReturn(ctx);
 
     ServeStaticFile.serve(ctx, path);
 
     verify(ctx).status(404);
     verify(ctx).result(NOT_FOUND + ctx.path());
+  }
+
+  @Test
+  void testServe_RejectsPathResolvingOutsideRoot() {
+    Context ctx = mock(Context.class);
+    when(ctx.status(HttpStatus.FORBIDDEN)).thenReturn(ctx);
+    // normalizes to /test.txt, which resolves outside the internal apps root
+    String path = "/public_html/apps/../../test.txt";
+
+    ServeStaticFile.serve(ctx, path);
+
+    verify(ctx).status(HttpStatus.FORBIDDEN);
+    verify(ctx).result("Forbidden");
+  }
+
+  @Test
+  void testServe_RejectsPathOutsideRoot() {
+    Context ctx = mock(Context.class);
+    when(ctx.status(HttpStatus.FORBIDDEN)).thenReturn(ctx);
+    // this resource exists on the classpath, but is not under the internal root
+    String path = "/test.txt";
+
+    ServeStaticFile.serve(ctx, path);
+
+    verify(ctx).status(HttpStatus.FORBIDDEN);
+    verify(ctx).result("Forbidden");
   }
 
   @Test
@@ -42,7 +75,7 @@ class ServeStaticFileTest {
 
     ServeStaticFile.serve(ctx);
 
-    verify(ctx).contentType("text/css");
+    verify(ctx).header("Content-Type", "text/css");
   }
 
   @Test
@@ -84,13 +117,13 @@ class ServeStaticFileTest {
   }
 
   @Test
-  void testServeOnlyContext_NotFoundOnPathTraversalAttempt() {
+  void testServeOnlyContext_ForbiddenOnPathTraversalAttempt() {
     Context ctx = mock(Context.class);
-    when(ctx.status(anyInt())).thenReturn(ctx);
+    when(ctx.status(HttpStatus.FORBIDDEN)).thenReturn(ctx);
     when(ctx.path()).thenReturn("/apps/../../example-app");
 
     ServeStaticFile.serve(ctx);
-    verify(ctx).status(403);
+    verify(ctx).status(HttpStatus.FORBIDDEN);
   }
 
   @Test

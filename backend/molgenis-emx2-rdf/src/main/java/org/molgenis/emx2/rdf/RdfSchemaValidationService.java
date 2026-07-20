@@ -8,12 +8,12 @@ import org.molgenis.emx2.rdf.config.RdfConfig;
 import org.molgenis.emx2.rdf.config.RdfConfigReader;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
-import org.molgenis.emx2.rdf.writers.RdfWriter;
+import org.molgenis.emx2.rdf.writers.RdfOutputStreamWriter;
 import org.molgenis.emx2.rdf.writers.ShaclResultWriter;
 
 public class RdfSchemaValidationService implements RdfService<RdfApiGenerator> {
   private final RdfConfig config;
-  private final RdfWriter writer;
+  private final RdfOutputStreamWriter writer;
   private final RdfApiGenerator generator;
 
   public RdfSchemaValidationService(

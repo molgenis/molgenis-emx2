@@ -46,21 +46,13 @@ function toggleSelect(node: INode) {
             :name="node.name"
             :checked="modelValue.includes(node.name)"
             @click.stop="toggleSelect(node)"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 indeterminate:accent-yellow-500 border border-checkbox hover:cursor-pointer"
+            class="w-5 h-5 rounded-base ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 indeterminate:accent-yellow-500 border border-checkbox hover:cursor-pointer"
           />
         </div>
         <label :for="node.name" class="hover:cursor-pointer text-body-sm group">
           <span class="group-hover:underline">{{ node.name }}</span>
         </label>
         <div class="inline-flex items-center whitespace-nowrap">
-          <!--
-          <span
-            v-if="node?.result?.count"
-            class="inline-block mr-2 text-icon-neutral group-hover:underline decoration-blue-200 fill-black"
-            hoverColor="white"
-            >&nbsp;- {{ node.result.count }}
-          </span>
-          -->
           <div class="inline-block pl-1">
             <CustomTooltip
               v-if="node.description"

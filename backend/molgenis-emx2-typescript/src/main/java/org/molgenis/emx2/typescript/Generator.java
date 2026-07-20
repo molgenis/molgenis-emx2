@@ -8,7 +8,9 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.molgenis.emx2.*;
 
 public class Generator {
@@ -92,15 +94,10 @@ public class Generator {
                   : table.getSchemaName() + '_' + table.getTableName());
       writer.println(String.format("export interface I%s extends IMgTableClass {", tableName));
 
-      for (Column column : table.getColumns()) {
-        if (column.getColumnType().isHeading()) {
-          continue;
-        }
-        if (column.isSystemColumn()) {
-          continue;
-        }
-
+      Set<String> seenColumns = new LinkedHashSet<>();
+      for (Column column : table.getColumnsIncludingSubclasses()) {
         String columnName = convertToCamelCase(column.getName());
+        if (shouldSkipColumn(column, seenColumns, columnName)) continue;
         String fieldValue = toTypeScriptInterfaceFieldValue(schema, column);
         String optional = column.isRequired() ? "" : "?";
         writer.println(String.format("    %s%s: %s;", columnName, optional, fieldValue));
@@ -120,6 +117,12 @@ public class Generator {
     writer.close();
   }
 
+  private boolean shouldSkipColumn(Column column, Set<String> seenColumns, String columnName) {
+    return column.getColumnType().isHeading()
+        || column.isSystemColumn()
+        || !seenColumns.add(columnName);
+  }
+
   private String toTypeScriptInterfaceFieldValue(Schema schema, Column column) {
     ColumnType columnType = column.getColumnType();
 
@@ -128,13 +131,13 @@ public class Generator {
       case BOOL_ARRAY -> "boolean[]";
       case EMAIL, STRING, TEXT, DATE, DATETIME, UUID, AUTO_ID, HYPERLINK, LONG -> "string";
       case EMAIL_ARRAY,
-              STRING_ARRAY,
-              TEXT_ARRAY,
-              DATE_ARRAY,
-              DATETIME_ARRAY,
-              UUID_ARRAY,
-              HYPERLINK_ARRAY,
-              LONG_ARRAY ->
+          STRING_ARRAY,
+          TEXT_ARRAY,
+          DATE_ARRAY,
+          DATETIME_ARRAY,
+          UUID_ARRAY,
+          HYPERLINK_ARRAY,
+          LONG_ARRAY ->
           "string[]";
       case INT, DECIMAL, NON_NEGATIVE_INT -> "number";
       case INT_ARRAY, DECIMAL_ARRAY, NON_NEGATIVE_INT_ARRAY -> "number[]";

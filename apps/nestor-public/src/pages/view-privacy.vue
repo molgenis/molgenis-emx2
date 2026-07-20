@@ -1,3 +1,8 @@
+<script setup lang="ts">
+// @ts-expect-error
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+</script>
+
 <template>
   <Page>
     <PageHeader
@@ -7,7 +12,7 @@
       titlePositionY="center"
       height="medium"
     />
-    <PageSection aria-labelledby="privacy-section-title">
+    <PageSection aria-labelledby="privacy-section-title" :verticalPadding="2">
       <h2 id="privacy-section-title">Privacy Policy</h2>
       <MessageBox type="warning">
         <span>This page is under construction.</span>
@@ -15,8 +20,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-expect-error
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
-</script>

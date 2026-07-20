@@ -31,12 +31,16 @@ class SqlColumnRefArrayExecutor {
 
   static void removeRefArrayConstraints(DSLContext jooq, Column ref) {
     jooq.execute(
-        "DROP TRIGGER {0} ON {1}", name(getReferenceExistsCheckName(ref)), ref.getJooqTable());
-    jooq.execute("DROP FUNCTION {0} ", name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
+        "DROP TRIGGER IF EXISTS {0} ON {1}",
+        name(getReferenceExistsCheckName(ref)), ref.getJooqTable());
     jooq.execute(
-        "DROP TRIGGER {0} ON {1}",
+        "DROP FUNCTION IF EXISTS {0} ",
+        name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
+    jooq.execute(
+        "DROP TRIGGER IF EXISTS {0} ON {1}",
         name(getReferedCheckName(ref)), ref.getRefTable().getJooqTable());
-    jooq.execute("DROP FUNCTION {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
+    jooq.execute(
+        "DROP FUNCTION IF EXISTS {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
   }
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
@@ -92,9 +96,12 @@ class SqlColumnRefArrayExecutor {
                 r -> {
                   // can be overlapping with non_array reference
                   if (r.isOverlappingRef()) {
-                    return name(r.getName()) + " AS " + name(r.getRefTo());
+                    return name(r.getColumnName()) + " AS " + name(r.getReferencedColumnName());
                   } else {
-                    return "UNNEST(" + name(r.getName()) + ") AS " + name(r.getRefTo());
+                    return "UNNEST("
+                        + name(r.getColumnName())
+                        + ") AS "
+                        + name(r.getReferencedColumnName());
                   }
                 })
             .collect(Collectors.joining(","));
@@ -105,34 +112,53 @@ class SqlColumnRefArrayExecutor {
                 r -> {
                   // can be overlapping with non_array reference
                   if (r.isOverlappingRef()) {
-                    return "OLD." + name(r.getRefTo()) + "=" + name(r.getName());
+                    return "OLD."
+                        + name(r.getReferencedColumnName())
+                        + "="
+                        + name(r.getColumnName());
                   } else {
-                    return "OLD." + name(r.getRefTo()) + "=ANY(" + name(r.getName()) + ")";
+                    return "OLD."
+                        + name(r.getReferencedColumnName())
+                        + "=ANY("
+                        + name(r.getColumnName())
+                        + ")";
                   }
                 })
             .collect(Collectors.joining(" AND "));
 
     String keyColumns =
         references.stream()
-            .map(r -> name(r.getRefTo()).toString())
+            .map(r -> name(r.getReferencedColumnName()).toString())
             .collect(Collectors.joining(","));
 
     String oldEqualsTo =
         references.stream()
-            .map(r -> "OLD." + name(r.getRefTo()) + "= " + name(r.getRefTo()))
+            .map(
+                r ->
+                    "OLD."
+                        + name(r.getReferencedColumnName())
+                        + "= "
+                        + name(r.getReferencedColumnName()))
             .collect(Collectors.joining(" AND "));
 
     String oldValuesAsString =
         references.stream()
-            .map(r -> "OLD." + name(r.getRefTo()))
+            .map(r -> "OLD." + name(r.getReferencedColumnName()))
             .collect(Collectors.joining("||','||"));
 
     String toColumns =
-        references.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
+        references.stream()
+            .map(r -> name(r.getColumnName()).toString())
+            .collect(Collectors.joining(","));
 
     String newNotEqualsOld =
         references.stream()
-            .map(r -> "OLD." + name(r.getRefTo()) + " <> NEW." + name(r.getRefTo()))
+            .map(
+                r ->
+                    "OLD."
+                        + name(r.getReferencedColumnName())
+                        + " <> NEW."
+                        + name(r.getReferencedColumnName()))
             .collect(Collectors.joining(" OR "));
 
     jooq.execute(
@@ -210,16 +236,22 @@ class SqlColumnRefArrayExecutor {
     List<Reference> references = column.getReferences();
 
     String fromColumns =
-        references.stream().map(r -> name(r.getName()).toString()).collect(Collectors.joining(","));
+        references.stream()
+            .map(r -> name(r.getColumnName()).toString())
+            .collect(Collectors.joining(","));
 
     String toColumns =
         references.stream()
-            .map(r -> name(r.getRefTo()).toString())
+            .map(r -> name(r.getReferencedColumnName()).toString())
             .collect(Collectors.joining(","));
 
     String errorColumns =
         references.stream()
-            .map(r -> "COALESCE(error_row." + name(r.getRefTo()).toString() + ",'NULL')")
+            .map(
+                r ->
+                    "COALESCE(error_row."
+                        + name(r.getReferencedColumnName()).toString()
+                        + ",'NULL')")
             .collect(Collectors.joining("||','||"));
 
     String exceptFilter =
@@ -227,9 +259,12 @@ class SqlColumnRefArrayExecutor {
             .map(
                 r -> {
                   if (r.isOverlappingRef()) {
-                    return name(r.getRefTo()) + " = NEW." + name(r.getName());
+                    return name(r.getReferencedColumnName()) + " = NEW." + name(r.getColumnName());
                   } else {
-                    return name(r.getRefTo()) + " = ANY (NEW." + name(r.getName()) + ")";
+                    return name(r.getReferencedColumnName())
+                        + " = ANY (NEW."
+                        + name(r.getColumnName())
+                        + ")";
                   }
                 })
             .collect(Collectors.joining(" AND "));
@@ -240,9 +275,15 @@ class SqlColumnRefArrayExecutor {
                 r -> {
                   // can be overlapping with non_array reference
                   if (r.isOverlappingRef()) {
-                    return "NEW." + name(r.getName()) + " AS " + name(r.getRefTo());
+                    return "NEW."
+                        + name(r.getColumnName())
+                        + " AS "
+                        + name(r.getReferencedColumnName());
                   } else {
-                    return "UNNEST(NEW." + name(r.getName()) + ") AS " + name(r.getRefTo());
+                    return "UNNEST(NEW."
+                        + name(r.getColumnName())
+                        + ") AS "
+                        + name(r.getReferencedColumnName());
                   }
                 })
             .collect(Collectors.joining(","));
@@ -250,7 +291,7 @@ class SqlColumnRefArrayExecutor {
     String nonRefLinkFieldsAreNotNull =
         references.stream()
             .filter(r -> !r.isOverlapping())
-            .map(r2 -> "error_row." + name(r2.getRefTo()) + " IS NOT NULL ")
+            .map(r2 -> "error_row." + name(r2.getReferencedColumnName()) + " IS NOT NULL ")
             .collect(Collectors.joining(" OR "));
 
     jooq.execute(
