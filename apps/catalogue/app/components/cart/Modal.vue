@@ -8,17 +8,17 @@
     @close="onClose"
   >
     <ContentBlockModal title="Collections">
-      <template v-if="Object.keys(datasetStore.datasets).length">
+      <template v-if="Object.keys(cartStore.datasets).length">
         <p class="mb-2">Review selected collections and linked datasets</p>
-        <StoreModalResourceList />
+        <CartModalResourceList />
       </template>
       <p v-else>Cart is empty</p>
       <FormError v-if="error" :message="error" :showPrevNextButtons="false" />
     </ContentBlockModal>
     <template #footer>
       <Button
-        :label="`Request from ${datasetStore.getVersionText()}`"
-        :disabled="!Object.keys(datasetStore.datasets).length"
+        :label="`Request from ${cartStore.getVersionText()}`"
+        :disabled="!Object.keys(cartStore.datasets).length"
         icon="external-link"
         @click="sendToStore"
       />
@@ -32,10 +32,10 @@ import Button from "../../../../tailwind-components/app/components/Button.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import ContentBlockModal from "../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 import FormError from "../../../../tailwind-components/app/components/form/Error.vue";
-import { useDatasetStore } from "../../stores/useDatasetStore";
-import StoreModalResourceList from "./ModalResourceList.vue";
+import { useCartStore } from "../../stores/useCartStore";
+import CartModalResourceList from "./ModalResourceList.vue";
 
-const datasetStore = useDatasetStore();
+const cartStore = useCartStore();
 
 withDefaults(
   defineProps<{
@@ -50,7 +50,7 @@ const error = ref("");
 
 const storeError = computed(
   () =>
-    `An error occurred while communicating with the ${datasetStore.getVersionText()}. Please try again later.`
+    `An error occurred while communicating with the ${cartStore.getVersionText()}. Please try again later.`
 );
 
 const emit = defineEmits<{
@@ -64,7 +64,7 @@ function onClose() {
 
 async function sendToStore() {
   error.value = "";
-  const responseError = await datasetStore.doStoreRequest();
+  const responseError = await cartStore.doCartRequest();
   if (responseError) {
     error.value = storeError.value;
   }

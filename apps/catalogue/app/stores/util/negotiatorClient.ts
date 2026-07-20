@@ -1,7 +1,24 @@
-import type { ISetting } from "../../../../metadata-utils/src";
 import type { IResources } from "../../../interfaces/catalogue";
 
-export async function handleV3Error(response: Response) {
+export async function doNegotiatorV3Request(
+  datasets: Record<string, IResources>,
+  catalogueStoreUrl: string
+) {
+  const url = window.location.origin;
+  const humanReadable = getHumanReadableString(datasets);
+  const resources = toNegotiatorFormat(datasets);
+  const payload: Record<string, any> = { url, humanReadable, resources };
+
+  return await fetch(catalogueStoreUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function handleNegotiatorV3Error(response: Response) {
   const statusCode = response.status;
   const jsonResponse = await response.json();
   const detail = jsonResponse.detail ? ` Detail: ${jsonResponse.detail}` : "";
@@ -44,10 +61,4 @@ export function getHumanReadableString(datasets: Record<string, IResources>) {
   return Object.values(datasets)
     .map((table) => `${table.name} (${table.pid})`)
     .join(", ");
-}
-
-export function findSetting(setting: string, settings: ISetting[]) {
-  return settings.find(
-    (sett: { key: string; value: string }) => sett.key === setting
-  );
 }

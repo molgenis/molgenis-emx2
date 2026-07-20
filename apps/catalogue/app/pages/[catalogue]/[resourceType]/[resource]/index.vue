@@ -4,7 +4,7 @@ import {
   logError,
   moduleToString,
   removeChildIfParentSelected,
-  useDatasetStore,
+  useCartStore,
 } from "#imports";
 import { computed, ref } from "vue";
 import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
@@ -39,7 +39,7 @@ import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
 import ReferenceCard from "../../../../components/ReferenceCard.vue";
 import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
 import SideNavigation from "../../../../components/SideNavigation.vue";
-import CartButton from "../../../../components/store/CartButton.vue";
+import CartButton from "../../../../components/cart/CartButton.vue";
 import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
 import TableContent from "../../../../components/table/Content.vue";
 import VariableDisplay from "../../../../components/VariableDisplay.vue";
@@ -56,7 +56,7 @@ import { getKey } from "../../../../utils/variableUtils";
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = config.public.schema;
-const datasetStore = useDatasetStore();
+const cartStore = useCartStore();
 
 const variables = { id: route.params.resource };
 
@@ -758,7 +758,7 @@ const showPopulation = computed(
           :subject-template="resource.acronym"
         >
           <CartButton
-            v-if="resource && datasetStore.isEnabled"
+            v-if="resource && cartStore.isEnabled"
             :resource="resource"
             :compact="false"
             :invert="false"

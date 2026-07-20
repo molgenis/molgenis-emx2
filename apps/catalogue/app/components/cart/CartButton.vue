@@ -3,7 +3,7 @@ import { computed } from "vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import type { IResources } from "../../../interfaces/catalogue";
-import { useDatasetStore } from "../../stores/useDatasetStore";
+import { useCartStore } from "../../stores/useCartStore";
 
 const props = withDefaults(
   defineProps<{
@@ -16,17 +16,17 @@ const props = withDefaults(
   }
 );
 
-const datasetStore = useDatasetStore();
+const cartStore = useCartStore();
 
 const isInShoppingCart = computed(() =>
-  datasetStore.resourceIsInCart(props.resource.id)
+  cartStore.resourceIsInCart(props.resource.id)
 );
 
 function onInput() {
   if (isInShoppingCart.value) {
-    datasetStore.removeFromCart(props.resource.id);
+    cartStore.removeFromCart(props.resource.id);
   } else {
-    datasetStore.addToCart(props.resource);
+    cartStore.addToCart(props.resource);
   }
 }
 </script>

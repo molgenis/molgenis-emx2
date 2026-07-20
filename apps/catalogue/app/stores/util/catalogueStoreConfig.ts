@@ -1,16 +1,11 @@
-import type { IResources } from "../../../interfaces/catalogue";
 import { fetchSettings } from "../../../../tailwind-components/app/utils/fetchSettings";
-import {
-  findSetting,
-  getHumanReadableString,
-  toNegotiatorFormat,
-} from "./datasetStoreUtils";
+import type { ISetting } from "../../../../metadata-utils/src/types";
 
 const CATALOGUE_STORE_IS_ENABLED = "CATALOGUE_STORE_IS_ENABLED";
 const CATALOGUE_STORE_URL = "CATALOGUE_STORE_URL";
 const CATALOGUE_STORE_VERSION = "CATALOGUE_STORE_VERSION";
 
-export async function getStoreVariables() {
+export async function getCatalogueStoreConfig() {
   const response = await fetchSettings([
     CATALOGUE_STORE_IS_ENABLED,
     CATALOGUE_STORE_URL,
@@ -41,20 +36,8 @@ export async function getStoreVariables() {
   }
 }
 
-export async function doNegotiatorV3Request(
-  datasets: Record<string, IResources>,
-  datasetStoreUrl: string
-) {
-  const url = window.location.origin;
-  const humanReadable = getHumanReadableString(datasets);
-  const resources = toNegotiatorFormat(datasets);
-  const payload: Record<string, any> = { url, humanReadable, resources };
-
-  return await fetch(datasetStoreUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+function findSetting(setting: string, settings: ISetting[]) {
+  return settings.find(
+    (sett: { key: string; value: string }) => sett.key === setting
+  );
 }

@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useRoute } from "#app";
-import { useDatasetStore } from "#imports";
+import { useCartStore } from "#imports";
 import { computed } from "vue";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import type { IResources } from "../../interfaces/catalogue";
 import dateUtils from "../utils/dateUtils";
-import CartButton from "./store/CartButton.vue";
+import CartButton from "./cart/CartButton.vue";
 
-const datasetStore = useDatasetStore();
+const cartStore = useCartStore();
 
 const CUTOFF = 250;
 
@@ -67,7 +67,7 @@ const headerClasses = computed(() => {
       </div>
       <div class="flex self-start">
         <CartButton
-          v-if="datasetStore.isEnabled"
+          v-if="cartStore.isEnabled"
           :resource="resource"
           :compact="props.compact"
         />

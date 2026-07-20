@@ -3,23 +3,23 @@ import { reactive, ref } from "vue";
 import type { IResources } from "../../interfaces/catalogue";
 import {
   doNegotiatorV3Request,
-  getStoreVariables,
-} from "./util/datasetStoreClient";
-import { handleV3Error } from "./util/datasetStoreUtils";
+  handleNegotiatorV3Error,
+} from "./util/negotiatorClient";
+import { getCatalogueStoreConfig } from "./util/catalogueStoreConfig";
 
-export const useDatasetStore = defineStore("datasets", () => {
+export const useCartStore = defineStore("cart", () => {
   const datasets = reactive<Record<string, IResources>>({});
   const isEnabled = ref<boolean>(false);
-  const datasetStoreUrl = ref<string>("");
-  const storeVersion = ref<string>("");
+  const catalogueStoreUrl = ref<string>("");
+  const catalogueStoreVersion = ref<string>("");
 
-  setStoreVariables();
+  setCatalogueStoreVariables();
 
-  async function setStoreVariables() {
-    const { enabled, url, version } = await getStoreVariables();
+  async function setCatalogueStoreVariables() {
+    const { enabled, url, version } = await getCatalogueStoreConfig();
     isEnabled.value = enabled;
-    datasetStoreUrl.value = url;
-    storeVersion.value = version;
+    catalogueStoreUrl.value = url;
+    catalogueStoreVersion.value = version;
   }
 
   function addToCart(resource: IResources) {
@@ -40,21 +40,21 @@ export const useDatasetStore = defineStore("datasets", () => {
     }
   }
 
-  async function doStoreRequest() {
+  async function doCartRequest() {
     if (!Object.keys(datasets).length) {
       return;
     }
 
-    switch (storeVersion.value) {
+    switch (catalogueStoreVersion.value) {
       case "negotiatorV3":
-        return await doNegotiatorV3Request(datasets, datasetStoreUrl.value)
+        return await doNegotiatorV3Request(datasets, catalogueStoreUrl.value)
           .then(async (response: Response) => {
             if (response.ok) {
               clearCart();
               const body = await response.json();
               window.location.href = body.redirectUrl;
             } else {
-              return handleV3Error(response);
+              return handleNegotiatorV3Error(response);
             }
           })
           .catch((error) => {
@@ -66,7 +66,7 @@ export const useDatasetStore = defineStore("datasets", () => {
   }
 
   function getVersionText() {
-    switch (storeVersion.value) {
+    switch (catalogueStoreVersion.value) {
       case "negotiatorV3":
         return "Negotiator";
       default:
@@ -77,10 +77,10 @@ export const useDatasetStore = defineStore("datasets", () => {
   return {
     datasets,
     isEnabled,
-    storeVersion,
+    catalogueStoreVersion,
     addToCart,
     clearCart,
-    doStoreRequest,
+    doCartRequest,
     getVersionText,
     removeFromCart,
     resourceIsInCart,

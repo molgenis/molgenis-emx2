@@ -6,7 +6,7 @@
     <div>
       <IconButton
         icon="trash"
-        @click="() => datasetStore.removeFromCart(resource.id)"
+        @click="() => cartStore.removeFromCart(resource.id)"
         class="text-button-remove mb-2"
         label="remove collection from cart"
       />
@@ -15,12 +15,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useDatasetStore } from "../../stores/useDatasetStore";
+import { useCartStore } from "../../stores/useCartStore";
 import { onMounted, ref } from "vue";
 import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
 import type { ITables, IResources } from "../../../interfaces/catalogue";
 
-const datasetStore = useDatasetStore();
+const cartStore = useCartStore();
 const modelValue = ref<string[]>([]);
 
 const props = defineProps<{
