@@ -1,8 +1,10 @@
 package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.Privileges.RANGE;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.datamodels.beacon.BeaconTestUtil.mockEntryTypeRequestRegular;
 import static org.molgenis.emx2.datamodels.beacon.BeaconTestUtil.mockIndividualsPostRequestRegular;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
@@ -16,7 +18,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
@@ -87,6 +91,37 @@ class BeaconAuthorityTests extends TestLoaders {
     new QueryEntryType(new BeaconRequestBody(request)).query(spySchema);
 
     Mockito.verify(spyDatabase, Mockito.atLeastOnce()).tx(Mockito.any());
+  }
+
+  @Test
+  void queryUsesTemplateMatchingSchemaAndEndpoint() {
+    database.becomeAdmin();
+    Table templates = database.getSchema(SYSTEM_SCHEMA).getTable("Templates");
+    Row otherSchema =
+        row(
+            "endpoint", "beacon_individuals",
+            "schema", "otherSchema",
+            "template", "{\"applied\": \"otherSchema\"}");
+    Row otherEndpoint =
+        row(
+            "endpoint", "beacon_cohorts",
+            "schema", PATIENT_REGISTRY,
+            "template", "{\"applied\": \"otherEndpoint\"}");
+    Row matching =
+        row(
+            "endpoint", "beacon_individuals",
+            "schema", PATIENT_REGISTRY,
+            "template", "{\"applied\": \"schemaTemplate\"}");
+    templates.insert(otherSchema, otherEndpoint, matching);
+    try {
+      patientRegistry = database.getSchema(PATIENT_REGISTRY);
+      Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+      JsonNode json = new QueryEntryType(new BeaconRequestBody(request)).query(patientRegistry);
+
+      assertEquals("schemaTemplate", json.get("applied").textValue());
+    } finally {
+      templates.delete(otherSchema, otherEndpoint, matching);
+    }
   }
 
   @Test
