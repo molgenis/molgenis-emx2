@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import type { ICart, ICartItem } from "../../interfaces/types";
 import {
   doNegotiatorV3Request,
@@ -31,6 +31,25 @@ export const useCartStore = defineStore("cart", () => {
         item.type === "resource"
     )
   );
+
+  const CART_STORAGE_KEY = "emx2-catalogue-cart";
+
+  if (import.meta.client) {
+    try {
+      const saved = window.localStorage.getItem(CART_STORAGE_KEY);
+      if (saved) {
+        for (const item of JSON.parse(saved) as ICartItem[]) {
+          cart.set(item.id, item);
+        }
+      }
+    } catch {
+      window.localStorage.removeItem(CART_STORAGE_KEY);
+    }
+
+    watch(cartItems, (items) => {
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    });
+  }
 
   function addToCart(item: ICartItem) {
     cart.set(item.id, item);
