@@ -43,18 +43,6 @@
   border-radius: 32pt;
 }
 
-.inputs {
-  display: block;
-  width: 100%;
-}
-
-.inputs.select {
-  background-color: transparent;
-  padding: 0.8em 1em;
-  border: 1px solid var(--gray-700);
-  box-shadow: inset 0px 0px 2px 2px var(--gray-100);
-}
-
 .dashboard-container.padding-v-1 {
   padding-top: 0;
 }

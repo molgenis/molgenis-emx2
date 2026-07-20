@@ -200,7 +200,7 @@ onMounted(() => {
           label="Filter data by year of birth"
         />
         <select
-          class="inputs select"
+          class="custom-select"
           id="yearOfBirthFilter"
           v-model="selectedAgeGroup"
           @change="updateChartsByAgeGroup"

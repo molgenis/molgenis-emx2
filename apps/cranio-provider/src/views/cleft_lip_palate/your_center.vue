@@ -175,7 +175,7 @@ onMounted(() => {
           label="Select cleft type"
         />
         <select
-          class="inputs select"
+          class="custom-select"
           id="clpYourCentreOverviewFilter"
           v-model="selectedCleftType"
           @change="updateCharts"

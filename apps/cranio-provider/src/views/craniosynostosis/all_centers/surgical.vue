@@ -237,7 +237,7 @@ onMounted(() => {
         <InputLabel id="diagnosisInput" label="Select a diagnosis" />
         <select
           id="diagnosisInput"
-          class="inputs select"
+          class="custom-select"
           v-model="selectedDiagnosis"
           @change="
             updateInterventionsChart();
