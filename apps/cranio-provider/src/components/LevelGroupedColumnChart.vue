@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue";
-
 import {
   LoadingScreen,
   GroupedColumnChart,
@@ -8,15 +7,15 @@ import {
   MessageBox,
   // @ts-expect-error
 } from "molgenis-viz";
-import { generateAxisTickData } from "../utils/generateAxisTicks";
-import { ernYourCenterPalette } from "../utils/variables";
+import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
+import { ernYourCenterPalette, columnHoverFillColor } from "../utils/variables";
 
-import type { ICharts, IChartData } from "../types/schema";
 import type {
-  IAxisTickData,
-  ICleftTypes,
-  ISiteErnCleftTypeCounts,
-} from "../types";
+  ICharts,
+  IChartData,
+} from "../../../metadata-utils/src/viz/UiDashboard";
+import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
+import type { ICleftTypes, ISiteErnCleftTypeCounts } from "../types";
 
 const props = withDefaults(
   defineProps<{
@@ -40,13 +39,13 @@ const chartData = computed<IChartData[]>(() => {
   let data = props.chart.dataPoints as IChartData[];
 
   if (props.ernLevelData) {
-    const ernData = props.ernLevelData.map((row) => {
-      row.dataPointSecondaryCategory = "ERN";
+    const ernData = props.ernLevelData.map((row: IChartData) => {
+      row.secondaryCategory = "ERN";
       return row;
     });
     data = data.concat(ernData as IChartData[]);
     data = data.sort((a: IChartData, b: IChartData) => {
-      return (a.dataPointOrder as number) - (b.dataPointOrder as number);
+      return (a.sortOrder as number) - (b.sortOrder as number);
     });
   }
 
@@ -71,7 +70,7 @@ const chartDescription = computed<string>(() => {
   }
 });
 
-const chartTicks = ref<IAxisTickData>();
+const chartTicks = ref<NumericAxisTickData>();
 const chartFilters = ref<string[]>();
 const selectedFilter = ref<string>();
 
@@ -82,7 +81,7 @@ const filteredData = computed<IChartData[]>(() => {
   );
 });
 
-chartTicks.value = generateAxisTickData(chartData.value, "dataPointValue");
+chartTicks.value = generateAxisTickData(chartData.value, "value");
 
 if (props.enableFilter) {
   chartFilters.value = [
@@ -115,16 +114,16 @@ if (props.chart.dataPoints) {
       :title="chart.chartTitle"
       :description="chartDescription"
       :chartData="filteredData"
-      xvar="dataPointSecondaryCategory"
-      yvar="dataPointValue"
-      group="dataPointName"
+      xvar="secondaryCategory"
+      yvar="value"
+      group="name"
       :xAxisLabel="chart.xAxisLabel"
       :yAxisLabel="chart.yAxisLabel"
       :yMin="0"
       :yMax="chartTicks?.limit"
       :yTickValues="chartTicks?.ticks"
       :columnColorPalette="ernYourCenterPalette"
-      columnHoverFill="#EE7032"
+      :columnHoverFill="columnHoverFillColor"
       :chartHeight="250"
       :chartMargins="{
         top: chart.topMargin,

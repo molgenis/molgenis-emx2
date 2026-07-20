@@ -1,7 +1,8 @@
-import { createError } from "#app";
-import { fetchMetadata } from "#imports";
-import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
+import { createError } from "nuxt/app";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
+import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
+import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
+import fetchMetadata from "./fetchMetadata";
 
 export const DEFAULT_NESTED_LIMIT = 5;
 
@@ -57,11 +58,11 @@ export default async (
       variables: { filter, orderby },
     },
   }).catch((error) => {
-    const message = `Could not fetch data for table ${tableId} in schema ${schemaId}`;
+    const message = `Could not fetch data for table: ${tableId} in schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
     console.error(message, error);
     throw createError({
       ...error,
-      statusMessage: message,
+      message,
     });
   });
 

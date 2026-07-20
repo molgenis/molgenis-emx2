@@ -1,9 +1,9 @@
 import { StorageSerializers, useSessionStorage } from "@vueuse/core";
-
-import metadataGql from "../../../tailwind-components/app/gql/metadata";
+import { createError } from "nuxt/app";
 import { type ISchemaMetaData } from "../../../metadata-utils/src/types";
-import { createError } from "#app";
-import { moduleToString } from "#imports";
+import metadataGql from "../../../tailwind-components/app/gql/metadata";
+import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
+import { moduleToString } from "../utils/moduleToString";
 
 const query = moduleToString(metadataGql);
 
@@ -36,7 +36,7 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
         );
         throw createError({
           ...error,
-          statusMessage: `Could not fetch metadata for schema ${schemaId}`,
+          message: `Could not fetch schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`,
         });
       })
       .finally(() => {

@@ -6,7 +6,6 @@
       <Button type="secondary" size="large">Secondary</Button>
       <Button type="tertiary" size="large">tertiary</Button>
       <Button type="outline" size="large">outline</Button>
-      <Button type="disabled" size="large">disabled</Button>
       <Button type="filterWell" size="large">filterWell</Button>
     </div>
 
@@ -16,7 +15,6 @@
       <Button type="secondary" size="medium">Secondary</Button>
       <Button type="tertiary" size="medium">tertiary</Button>
       <Button type="outline" size="medium">outline</Button>
-      <Button type="disabled" size="medium">disabled</Button>
       <Button type="filterWell" size="medium">filterWell</Button>
     </div>
 
@@ -26,7 +24,6 @@
       <Button type="secondary" size="small">Secondary</Button>
       <Button type="tertiary" size="small">tertiary</Button>
       <Button type="outline" size="small">outline</Button>
-      <Button type="disabled" size="small">disabled</Button>
       <Button type="filterWell" size="small">filterWell</Button>
     </div>
 
@@ -36,7 +33,6 @@
       <Button type="secondary" size="tiny">Secondary</Button>
       <Button type="tertiary" size="tiny">tertiary</Button>
       <Button type="outline" size="tiny">outline</Button>
-      <Button type="disabled" size="tiny">disabled</Button>
       <Button type="filterWell" size="tiny">filterWell</Button>
     </div>
 
@@ -75,7 +71,7 @@
         />
         <Button iconOnly icon="plus" label="add" type="tertiary" size="large" />
         <Button iconOnly icon="plus" label="add" type="outline" size="large" />
-        <Button iconOnly icon="plus" label="add" type="disabled" size="large" />
+        <Button iconOnly icon="plus" label="add" size="large" />
         <Button
           iconOnly
           icon="plus"
@@ -109,13 +105,7 @@
           type="outline"
           size="medium"
         />
-        <Button
-          iconOnly
-          icon="trash"
-          label="Remove"
-          type="disabled"
-          size="medium"
-        />
+        <Button iconOnly icon="trash" label="Remove" size="medium" />
         <Button
           iconOnly
           icon="trash"
@@ -149,13 +139,7 @@
           type="outline"
           size="small"
         />
-        <Button
-          iconOnly
-          icon="caret-up"
-          label="previous"
-          type="disabled"
-          size="small"
-        />
+        <Button iconOnly icon="caret-up" label="previous" size="small" />
         <Button
           iconOnly
           icon="caret-up"
@@ -189,13 +173,7 @@
           type="outline"
           size="tiny"
         />
-        <Button
-          iconOnly
-          icon="caret-down"
-          label="next"
-          type="disabled"
-          size="tiny"
-        />
+        <Button iconOnly icon="caret-down" label="next" size="tiny" />
         <Button
           iconOnly
           icon="caret-down"

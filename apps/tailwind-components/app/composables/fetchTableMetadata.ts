@@ -1,4 +1,6 @@
+import { createError } from "nuxt/app";
 import type { ITableMetaData } from "../../../metadata-utils/src/types";
+import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
 import fetchMetadata from "./fetchMetadata";
 import { getSubclassColumns } from "./getSubclassColumns";
 
@@ -11,9 +13,16 @@ export default async (
   const tableMetadata = schemaMetadata.tables.find(
     (table) => table.id === tableId
   );
+
   if (!tableMetadata) {
-    return Promise.reject(`Table ${tableId} not found in schema ${schemaId}`);
+    const message = `Could not find table "${tableId}" in schema "${schemaId}". ${DATA_NOT_FOUND_ERROR}`;
+    console.error(message);
+    throw createError({
+      message,
+      status: 404,
+    });
   }
+
   if (options?.includeSubclassColumns) {
     const subclassColumns = getSubclassColumns(
       tableId,
@@ -24,5 +33,6 @@ export default async (
       columns: [...tableMetadata.columns, ...subclassColumns],
     };
   }
+
   return tableMetadata;
 };
