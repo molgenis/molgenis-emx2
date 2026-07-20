@@ -17,9 +17,7 @@ class SparqlVariableUtilTest {
   @Test
   void shouldPrefixWithSubjectVariable() {
     Variable variable = SparqlBuilder.var("foo");
-    assertEquals(
-        TableQueryGenerator.SUBJECT_VARIABLE.getVarName() + "foo",
-        SparqlVariableUtil.subjectVariable(variable).getVarName());
+    assertEquals("_subject_foo", SparqlVariableUtil.subjectVariable(variable).getVarName());
   }
 
   @Test
