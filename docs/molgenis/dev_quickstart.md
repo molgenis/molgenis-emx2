@@ -194,54 +194,20 @@ The per-run override differs per half:
 
 Only keys **present in your `.env`** are affected. `E2E_BASE_URL` is a per-run test knob rather than a stack declaration, so it is never declared in `.env` and still wins in every Playwright config — running e2e against a remote is unchanged. A worktree with **no** `.env` sees no change at all, which is why CI is unaffected; there, and in any un-migrated checkout, Nuxt apps still fall back to their built-in default `https://emx2.dev.molgenis.org/` — the **shared remote**. Give every worktree you still use its own `.env`.
 
-### Step 1 — preflight, before you start anything
+### One `.env`, one backend: the frontend keys must match `MOLGENIS_HTTP_PORT`
 
-`./dev-preflight` resolves the real configuration from both sides — `./gradlew -q printDevConfig` for what Gradle will actually forward and bind, and the apps' own Nuxt/Vite/Playwright config loaders for what the frontends actually resolve — then cross-checks them. Ten checks, about six seconds, non-zero exit with a remedy on any inconsistency:
-
-```console
-$ ./dev-preflight
-dev-preflight — cross-checking the declared stack
-
-  .env         /Users/you/git/molgenis-emx2/feat/my-branch/.env
-  backend      http://localhost:8083 (MOLGENIS_HTTP_PORT)
-  database     jdbc:postgresql://localhost:5435/molgenis — schema version 33 — only a virgin database is verified compatible; ...
-  dev heap     1g
-  catalogue            port 3030   http://localhost:8080/
-  tailwind-components  port 3031   http://localhost:8080/
-  ui                   port 3032   http://localhost:8080/
-  central              port 3033   http://localhost:8083/api
-  ...
-
-  FAIL the shell environment does not shadow .env
-         NUXT_PUBLIC_API_BASE: the shell exports http://localhost:8080/, .env declares http://localhost:8083/ — the shell wins, so every dev server ignores .env
-  FAIL frontends target the backend Gradle will bind
-         tailwind-components resolves apiBase http://localhost:8080/ which targets port 8080, but Gradle will bind http://localhost:8083 (MOLGENIS_HTTP_PORT=8083)
-  ...
-
-FAIL: 8/10 checks in 6.1s
-```
-
-That is the machine-global export from the previous section, caught before a single server started. With it out of the way:
+`MOLGENIS_APPS_HOST` and `NUXT_PUBLIC_API_BASE` say which backend the dev servers talk to, and `MOLGENIS_HTTP_PORT` says which one this worktree starts. Hand-editing makes it easy to leave them disagreeing — every value individually valid, everything starts, and the frontend quietly serves another worktree's data. So when `.env` points a **local** frontend key at a port other than the declared backend, the dev servers refuse to start:
 
 ```console
-$ ./dev-preflight
-  ok   the shell environment does not shadow .env
-  ok   Gradle forwards every .env key to forked JVMs
-  ok   the dev heap honours MOLGENIS_JVM_XMX
-  ok   frontends target the backend Gradle will bind
-  ok   each app binds its own declared port, strictly
-  ok   every declared port is free or held by this worktree
-  ok   no sibling worktree claims a port declared here
-  ok   each e2e server binds the port its Playwright config probes
-  ok   the declared database is reachable
-  ok   the ESM-bundled vite apps build
-
-PASS: 10/10 checks in 6.3s
+$ pnpm dev
+Error: [dev-env] .env is internally inconsistent: MOLGENIS_HTTP_PORT=8083 is the backend this
+stack starts, but MOLGENIS_APPS_HOST=http://localhost:8084 targets local port 8084 — that is
+somebody else's backend.
 ```
 
-A check that reports "could not be verified" counts as a **failure**, not as a pass — for instance when `psql` is not on `PATH`, so the database's schema state is unknown. Green means it was checked, never "no news".
+Pointing those keys at a **remote** backend (`https://emx2.dev.molgenis.org`) is a normal frontend-only workflow, so nothing is compared there — `MOLGENIS_HTTP_PORT` is simply unused when no local backend is targeted.
 
-### Step 2 — the backend, headless
+### Step 1 — the backend, headless
 
 ```console
 ./gradlew :backend:molgenis-emx2-webapi:dev
@@ -264,11 +230,11 @@ $ curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8083/apps/central/
 404
 ```
 
-That 404 is expected, not a broken build: `molgenis-emx2-webapi` has no dependency on `:apps`, so no app bundle is ever collected. Only `molgenis-emx2-run` depends on `:apps`, which is exactly why `./gradlew run` is slow — it pnpm-builds all 27 apps first. In the normal workflow the admin UI (`central`) runs as its own dev server, step 3.
+That 404 is expected, not a broken build: `molgenis-emx2-webapi` has no dependency on `:apps`, so no app bundle is ever collected. Only `molgenis-emx2-run` depends on `:apps`, which is exactly why `./gradlew run` is slow — it pnpm-builds all 27 apps first. In the normal workflow the admin UI (`central`) runs as its own dev server, step 2.
 
 Stale-`dist` caveat for `run`: apps are collected from `apps/*/dist` by the `collectDist` task, so `run` serves whatever was **last built** into those folders, not necessarily your current source. `rm -rf ./apps/*/dist/` forces a rebuild.
 
-### Step 3 — the apps you are working on
+### Step 2 — the apps you are working on
 
 Each app is its own dev server on its own declared port, proxying to the declared backend. Install the workspace once (`cd apps && pnpm install`), then per app:
 
@@ -309,11 +275,11 @@ Three things worth knowing about how that routing works:
 
 A declared port is bound **strictly**: if it is already taken, the dev server errors out with `Unable to find an available port on host "localhost" (tried 3031)` instead of silently walking to `3032` and stealing the next app's port.
 
-### Step 4 — e2e against the running stack
+### Step 3 — e2e against the running stack
 
 Each app's Playwright config resolves its `baseURL` from that app's own `MOLGENIS_PORT_APP_*`, so the tests hit the server you just started instead of whatever happens to sit on `:3000`. The repo-root `e2e/` suite is the exception: it tests the backend directly and resolves from `MOLGENIS_HTTP_PORT`.
 
-The `tailwind-components`, `ui` and `directory` suites start no server of their own, so they run against the dev server from step 3:
+The `tailwind-components`, `ui` and `directory` suites start no server of their own, so they run against the dev server from step 2:
 
 ```console
 $ cd apps/tailwind-components && pnpm exec playwright test buttonBar --project=chromium --reporter=list

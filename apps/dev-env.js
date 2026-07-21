@@ -3,6 +3,9 @@ const path = process.getBuiltinModule("node:path");
 
 const rootEnvPath = path.resolve(__dirname, "..", ".env");
 const ambientOverrideKey = "MOLGENIS_ENV_OVERRIDE";
+const backendPortKey = "MOLGENIS_HTTP_PORT";
+const backendTargetKeys = ["MOLGENIS_APPS_HOST", "NUXT_PUBLIC_API_BASE"];
+const loopbackHostnames = ["localhost", "127.0.0.1", "[::1]"];
 
 function devPort(key, fallback) {
   const port = Number(process.env[key]);
@@ -66,6 +69,32 @@ function announceAmbientKept(key, dotenvValue, ambientValue) {
   );
 }
 
+function loopbackTargetPort(value) {
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+  if (!loopbackHostnames.includes(url.hostname)) return null;
+  if (url.port !== "") return Number(url.port);
+  return url.protocol === "https:" ? 443 : 80;
+}
+
+function assertDeclaredBackendConsistent(declared) {
+  const backendPort = Number(declared[backendPortKey]);
+  if (!Number.isInteger(backendPort) || backendPort <= 0) return;
+  for (const key of backendTargetKeys) {
+    const target = declared[key];
+    if (target === undefined) continue;
+    const targetPort = loopbackTargetPort(target);
+    if (targetPort === null || targetPort === backendPort) continue;
+    throw new Error(
+      `[dev-env] .env is internally inconsistent: ${backendPortKey}=${declared[backendPortKey]} is the backend this stack starts, but ${key}=${target} targets local port ${targetPort} — that is somebody else's backend. Make both agree, or point ${key} at a remote host.`
+    );
+  }
+}
+
 function maskSecret(key, value) {
   return /PASS|SECRET|TOKEN/.test(key.toUpperCase()) ? "<HIDDEN>" : value;
 }
@@ -91,7 +120,7 @@ function stripSurroundingQuotes(value) {
   return quoted ? value.slice(1, -1) : value;
 }
 
-loadRootEnv();
+assertDeclaredBackendConsistent(loadRootEnv());
 
 module.exports = {
   devPort,
@@ -101,4 +130,5 @@ module.exports = {
   e2eBaseUrl,
   loadRootEnv,
   parseDotenv,
+  assertDeclaredBackendConsistent,
 };

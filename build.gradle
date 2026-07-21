@@ -235,12 +235,28 @@ tasks.register('printDevConfig') {
     def devHeap = devTask.maxHeapSize ?: 'unbounded'
     def resolvedHttpPort = rootProject.ext.resolveDotenvValue('MOLGENIS_HTTP_PORT') ?: '8080'
     def resolvedPostgresUri = rootProject.ext.resolveDotenvValue('MOLGENIS_POSTGRES_URI') ?: 'jdbc:postgresql:molgenis'
+    def appsBuildEnvironment = project(':apps').tasks.named('pnpm_build').get().environment.get()
+    def declaredDotenvKeys = rootProject.ext.molgenisDotenv.keySet().sort()
+    def dotenvKeysReachingAppsBuild = declaredDotenvKeys.findAll { appsBuildEnvironment.containsKey(it) }
+    def dotenvKeysMissingFromAppsBuild = declaredDotenvKeys - dotenvKeysReachingAppsBuild
+    def dotenvKeysMissingFromDevTask = declaredDotenvKeys - devSystemProperties.keySet()
+    def declaredHeap = rootProject.ext.resolveDotenvValue('MOLGENIS_JVM_XMX')
     doLast {
         println "molgenis.dotenv.file=${dotenvLocation}"
         devSystemProperties.each { key, value -> println "molgenis.dev.systemProperty.${key}=${value}" }
         println "molgenis.dev.maxHeapSize=${devHeap}"
         println "molgenis.resolved.MOLGENIS_HTTP_PORT=${resolvedHttpPort}"
         println "molgenis.resolved.MOLGENIS_POSTGRES_URI=${resolvedPostgresUri}"
+        println "molgenis.apps.pnpmBuild.dotenvKeys=${dotenvKeysReachingAppsBuild.join(',')}"
+        if (!dotenvKeysMissingFromDevTask.isEmpty()) {
+            throw new GradleException("the dev task does not forward the .env keys ${dotenvKeysMissingFromDevTask.join(', ')}; the backend would fall back to its own defaults (build.gradle must keep forwardDotenvProps on every JavaExec task)")
+        }
+        if (declaredHeap && devHeap != declaredHeap) {
+            throw new GradleException("the dev task runs with maxHeapSize ${devHeap} while .env declares MOLGENIS_JVM_XMX=${declaredHeap}")
+        }
+        if (!dotenvKeysMissingFromAppsBuild.isEmpty()) {
+            throw new GradleException("apps pnpm_build does not receive the .env keys ${dotenvKeysMissingFromAppsBuild.join(', ')}; the turbo build cache stops busting on a .env change (apps/build.gradle must keep environment.putAll(rootProject.ext.molgenisDotenv))")
+        }
     }
 }
 

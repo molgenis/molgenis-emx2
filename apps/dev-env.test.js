@@ -11,6 +11,7 @@ const {
   appsHost,
   e2eBaseUrl,
   loadRootEnv,
+  assertDeclaredBackendConsistent,
 } = require("./dev-env.js");
 
 const injectedKeys = [
@@ -326,6 +327,65 @@ test("loadRootEnv keeps everything after the first equals sign", () => {
         "jdbc:postgresql://localhost:5434/molgenis?a=b"
       );
     }
+  );
+});
+
+test("assertDeclaredBackendConsistent refuses a loopback target on another port", () => {
+  assert.throws(
+    () =>
+      assertDeclaredBackendConsistent({
+        MOLGENIS_HTTP_PORT: "8083",
+        MOLGENIS_APPS_HOST: "http://localhost:8084",
+      }),
+    (error) =>
+      error.message.includes("MOLGENIS_HTTP_PORT=8083") &&
+      error.message.includes("MOLGENIS_APPS_HOST=http://localhost:8084")
+  );
+});
+
+test("assertDeclaredBackendConsistent refuses a 127.0.0.1 apiBase on another port", () => {
+  assert.throws(
+    () =>
+      assertDeclaredBackendConsistent({
+        MOLGENIS_HTTP_PORT: "8083",
+        NUXT_PUBLIC_API_BASE: "http://127.0.0.1:8080/",
+      }),
+    (error) =>
+      error.message.includes("NUXT_PUBLIC_API_BASE=http://127.0.0.1:8080/")
+  );
+});
+
+test("assertDeclaredBackendConsistent accepts loopback targets on the declared port", () => {
+  assert.doesNotThrow(() =>
+    assertDeclaredBackendConsistent({
+      MOLGENIS_HTTP_PORT: "8083",
+      MOLGENIS_APPS_HOST: "http://localhost:8083",
+      NUXT_PUBLIC_API_BASE: "http://localhost:8083/",
+    })
+  );
+});
+
+test("assertDeclaredBackendConsistent ignores a remote target whatever the declared port", () => {
+  assert.doesNotThrow(() =>
+    assertDeclaredBackendConsistent({
+      MOLGENIS_HTTP_PORT: "8083",
+      MOLGENIS_APPS_HOST: "https://emx2.dev.molgenis.org",
+      NUXT_PUBLIC_API_BASE: "https://emx2.dev.molgenis.org/",
+    })
+  );
+});
+
+test("assertDeclaredBackendConsistent skips when the backend port is not declared", () => {
+  assert.doesNotThrow(() =>
+    assertDeclaredBackendConsistent({
+      NUXT_PUBLIC_API_BASE: "http://localhost:8084/",
+    })
+  );
+});
+
+test("assertDeclaredBackendConsistent skips when no target is declared", () => {
+  assert.doesNotThrow(() =>
+    assertDeclaredBackendConsistent({ MOLGENIS_HTTP_PORT: "8083" })
   );
 });
 
