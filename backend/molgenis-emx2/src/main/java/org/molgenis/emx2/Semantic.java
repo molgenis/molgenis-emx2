@@ -6,6 +6,9 @@ import static java.util.Objects.requireNonNull;
  * Represents a semantic field and stores it in a list of 1 element. Full IRI's are surrounded by a
  * {@code <} and {@code >}, while a prefixed name is simply {@code prefix:localName}.
  *
+ * <p>One exception to this is if the semantic starts with http(s). In that case, it will assume the
+ * complete semantic field represents 1 IRI.
+ *
  * <p>A {@link Semantic} object should be processed by a {@link SchemaMetadata}-specific {@link
  * SemanticPrefixes} to ensure the correct prefixes are applied before further usage.
  */
@@ -23,7 +26,12 @@ public class Semantic {
         throw new MolgenisException("Prefixed name misses local part: " + semantic);
       }
     }
-    this.sequencePath = requireNonNull(semantic);
+
+    if (semantic.startsWith("http:") || semantic.startsWith("https:")) {
+      this.sequencePath = "<" + requireNonNull(semantic) + ">";
+    } else {
+      this.sequencePath = requireNonNull(semantic);
+    }
   }
 
   String get() {

@@ -15,12 +15,6 @@ class SemanticPrefixesTest {
               Values.namespace("dcterms", "http://purl.org/dc/terms/"),
               Values.namespace("time", "http://www.w3.org/2006/time#")));
 
-  SemanticPrefixes prefixesWithEmpty =
-      new SemanticPrefixes(
-          List.of(
-              Values.namespace("dcterms", "http://purl.org/dc/terms/"),
-              Values.namespace("", "http://www.w3.org/2006/time#")));
-
   @Test
   void testMapping() {
     IRI expectedIri = Values.iri("http://purl.org/dc/terms/temporal");
@@ -42,13 +36,14 @@ class SemanticPrefixesTest {
   }
 
   @Test
-  void retrieveSemanticPrefixesFromSchema() {
+  void testRetrieveSemanticPrefixesFromSchema() {
     SchemaMetadata schema =
         new SchemaMetadata("mySchema")
             .setSetting(
                 Constants.SETTING_SEMANTIC_PREFIXES,
 """
 rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
+,http://www.w3.org/ns/dcat#
 rdfs,http://www.w3.org/2000/01/rdf-schema#
 """);
     SemanticPrefixes prefixes = new SemanticPrefixes(schema);
@@ -56,12 +51,13 @@ rdfs,http://www.w3.org/2000/01/rdf-schema#
     assertEquals(
         Set.of(
             Values.namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+            Values.namespace("", "http://www.w3.org/ns/dcat#"),
             Values.namespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#")),
         prefixes.getAllNamespaces());
   }
 
   @Test
-  void testInvalidCustomSemanticPrefixes() {
+  void testInvalidDuplicateCustomSemanticPrefixes() {
     assertThrows(
         MolgenisException.class,
         () ->
@@ -69,5 +65,16 @@ rdfs,http://www.w3.org/2000/01/rdf-schema#
                 List.of(
                     Values.namespace("myPrefix", "http://purl.org/dc/terms/"),
                     Values.namespace("myPrefix", "http://www.w3.org/2006/time#"))));
+  }
+
+  @Test
+  void testInvalidHttpCustomSemanticPrefixes() {
+    assertThrows(
+        MolgenisException.class,
+        () ->
+            new SemanticPrefixes(
+                List.of(
+                    Values.namespace("myPrefix", "http://purl.org/dc/terms/"),
+                    Values.namespace("http", "http://example.com/"))));
   }
 }

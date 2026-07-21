@@ -62,11 +62,8 @@ public class SemanticPrefixes {
       iterator.forEachRemaining(
           row -> {
             namespaces.add(
-                validateNamespace(
-                    schema,
-                    Values.namespace(
-                        row.get(SEMANTIC_PREFIXES_NAME_PREFIX),
-                        row.get(SEMANTIC_PREFIXES_NAME_IRI))));
+                Values.namespace(
+                    row.get(SEMANTIC_PREFIXES_NAME_PREFIX), row.get(SEMANTIC_PREFIXES_NAME_IRI)));
           });
     } catch (IOException e) {
       logger.error("Failed to retrieve custom prefixes, falling back to default", e);
@@ -75,13 +72,16 @@ public class SemanticPrefixes {
     return namespaces;
   }
 
-  private static Namespace validateNamespace(SchemaMetadata schema, Namespace namespace) {
+  private static Namespace validateNamespace(Namespace namespace) {
+    if (namespace.getPrefix().equals("http") || namespace.getPrefix().equals("https")) {
+      throw new MolgenisException("http(s) is not allowed as a prefix!");
+    }
     try {
       Values.iri(namespace, "test");
     } catch (Exception e) {
       throw new MolgenisException(
-          "Unusable IRI found in custom_prefixes of %s: %s,%s"
-              .formatted(schema.getName(), namespace.getPrefix(), namespace.getName()));
+          "Unusable IRI found in custom_prefixes: %s,%s"
+              .formatted(namespace.getPrefix(), namespace.getName()));
     }
     return namespace;
   }
@@ -108,6 +108,7 @@ public class SemanticPrefixes {
     defaultNamespaces = false;
     this.namespaces =
         namespaces.stream()
+            .map(SemanticPrefixes::validateNamespace)
             .map(namespace -> Map.entry(namespace.getPrefix(), namespace))
             .collect(
                 Collectors.toMap(

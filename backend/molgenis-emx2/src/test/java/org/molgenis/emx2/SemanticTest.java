@@ -17,8 +17,13 @@ class SemanticTest {
             assertEquals(
                 "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
                 new Semantic("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>").get()),
+        () ->
+            assertEquals(
+                "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
+                new Semantic("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").get()),
         () -> assertEquals("rdf:type", new Semantic("rdf:type").get()),
         () -> assertEquals(":test", new Semantic(":test").get()),
+        () -> assertEquals("httpPrefix:test", new Semantic("httpPrefix:test").get()),
         () -> assertThrows(MolgenisException.class, () -> new Semantic("<invalid>")),
         () -> assertThrows(MolgenisException.class, () -> new Semantic("rdf:")),
         () -> assertThrows(MolgenisException.class, () -> new Semantic("test")),
