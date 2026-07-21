@@ -23,6 +23,30 @@
             :email="session?.email"
             @signOut="signOut"
           >
+            <h2 class="text-2xl text-title font-bold my-5">Theme Styles</h2>
+            <NuxtLink class="hover:underline text-title" to="/Styles.other"
+              >Theme styles</NuxtLink
+            >
+            <h2 class="text-2xl text-title font-bold my-5">Sample pages</h2>
+            <div class="py-2">
+              <NuxtLink class="hover:underline text-title" to="/samples/rowEdit"
+                >Row edit</NuxtLink
+              >
+            </div>
+            <div class="py-2">
+              <NuxtLink
+                class="hover:underline text-title"
+                to="/samples/formModal"
+                >Edit modal</NuxtLink
+              >
+            </div>
+            <div class="py-2">
+              <NuxtLink
+                class="hover:underline text-title"
+                to="/samples/catalogue/LifeCycle"
+                >Catalogue detail</NuxtLink
+              >
+            </div>
             <slot name="account-dropdown" />
           </AccountMenu>
         </template>

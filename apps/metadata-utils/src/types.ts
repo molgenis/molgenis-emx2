@@ -76,10 +76,13 @@ export interface IColumn {
   semantics?: string[];
   validation?: string;
   visible?: string;
+  role?: "TITLE" | "SUBTITLE" | "DESCRIPTION" | "LOGO" | "DETAIL" | "INTERNAL";
+  display?: "TABLE" | "CARDS" | "LIST" | "LINKS";
   table?: string;
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
+  tableId?: string;
 }
 
 export interface IRefColumn extends IColumn {
@@ -100,6 +103,7 @@ export interface ITableMetaData {
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
+  inheritId?: string;
 }
 
 export interface ISchemaMetaData {
@@ -166,6 +170,37 @@ export function isColumnValueObjectArray(
         typeof item === "object" && item !== null && !Array.isArray(item)
     )
   );
+}
+
+export interface ontologyValueObject {
+  name: string;
+  label?: string;
+  code?: string;
+  codesystem?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  order?: number;
+  tags?: string[];
+  parent?: ontologyValueObject;
+  children?: ontologyValueObject[];
+}
+
+export function isOntologyValueObject(
+  value: unknown
+): value is ontologyValueObject {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    "name" in value &&
+    typeof (value as Record<string, unknown>).name === "string"
+  );
+}
+
+export function isOntologyValueObjectArray(
+  value: unknown
+): value is ontologyValueObject[] {
+  return Array.isArray(value) && value.every(isOntologyValueObject);
 }
 
 export type fileValue = {

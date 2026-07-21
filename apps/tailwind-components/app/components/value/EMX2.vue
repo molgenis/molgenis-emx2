@@ -18,16 +18,32 @@ import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
 
-withDefaults(
+import { computed } from "vue";
+
+const props = withDefaults(
   defineProps<{
     metadata: IColumn;
     data: any;
     hideListSeparator?: boolean;
+    maxItems?: number;
   }>(),
   {
     hideListSeparator: false,
   }
 );
+
+const effectiveMaxItems = computed(() => {
+  if (props.maxItems !== undefined) return props.maxItems;
+  const type = props.metadata.columnType;
+  if (
+    type.endsWith("_ARRAY") ||
+    type === "CHECKBOX" ||
+    type === "MULTISELECT"
+  ) {
+    return 5;
+  }
+  return undefined;
+});
 
 defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
@@ -45,6 +61,7 @@ defineEmits<{
     :metadata="metadata"
     :data="data"
     :hideListSeparator="hideListSeparator"
+    :maxItems="effectiveMaxItems"
     @listRefCellClicked="$emit('valueClick', $event)"
   />
 

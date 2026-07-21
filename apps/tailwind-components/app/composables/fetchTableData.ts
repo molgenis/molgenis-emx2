@@ -4,6 +4,8 @@ import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
 import fetchMetadata from "./fetchMetadata";
 
+export const DEFAULT_NESTED_LIMIT = 5;
+
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];
   count: number;
@@ -28,12 +30,13 @@ export default async (
     schemaId,
     tableId,
     expandLevel,
-    properties?.columns
+    properties?.columns,
+    true
   );
   const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
           filter:$filter,
-          limit:${limit}, 
+          limit:${limit},
           offset:${offset}${search},
           orderby:$orderby
           )
@@ -66,10 +69,78 @@ export default async (
   return { rows: data[tableId], count: data[`${tableId}_agg`].count };
 };
 
+const COLLECTION_TYPES = ["REF_ARRAY", "REFBACK", "MULTISELECT", "CHECKBOX"];
+const REF_TYPES = [
+  "REF",
+  "REF_ARRAY",
+  "REFBACK",
+  "MULTISELECT",
+  "CHECKBOX",
+  "SELECT",
+  "RADIO",
+];
+const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
+
+function buildScalarFieldGql(col: IColumn): string {
+  if (ONTOLOGY_TYPES.includes(col.columnType)) {
+    return (
+      " " +
+      col.id +
+      " {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order}}}}"
+    );
+  } else if (col.columnType === "FILE") {
+    return ` ${col.id} { id, size, filename, extension, url }`;
+  } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
+    return ` ${col.id}`;
+  }
+  return "";
+}
+
+function buildRefFieldGql(
+  col: IColumn,
+  subFields: string,
+  rootLevel: boolean
+): string {
+  const isCollection = rootLevel && COLLECTION_TYPES.includes(col.columnType);
+  const limitArg = isCollection ? `(limit: ${DEFAULT_NESTED_LIMIT})` : "";
+  let result = ` ${col.id}${limitArg} {${subFields} }`;
+  if (isCollection) result += ` ${col.id}_agg { count }`;
+  return result;
+}
+
+export function buildColumnGql(
+  columns: IColumn[],
+  columnsForTable: (tableId: string) => IColumn[],
+  rootLevel: boolean,
+  expandLevel: number
+): string {
+  let gqlFields = "";
+
+  for (const col of columns) {
+    if (expandLevel > 0 || col.key) {
+      if (!rootLevel && COLLECTION_TYPES.includes(col.columnType)) {
+        // skip collection types at non-root levels
+      } else if (REF_TYPES.includes(col.columnType)) {
+        const subColumns = columnsForTable(col.refTableId || "");
+        const subFields = buildColumnGql(
+          subColumns,
+          columnsForTable,
+          false,
+          expandLevel - 1
+        );
+        gqlFields += buildRefFieldGql(col, subFields, rootLevel);
+      } else {
+        gqlFields += buildScalarFieldGql(col);
+      }
+    }
+  }
+
+  return gqlFields;
+}
+
 export const getColumnIds = async (
   schemaId: string,
   tableId: string,
-  //allows expansion of ref fields to add their next layer of details.
   expandLevel: number,
   columnFilter: IColumn[] = [],
   rootLevel = true
@@ -80,55 +151,59 @@ export const getColumnIds = async (
     ? columnFilter
     : metadata.tables.find((table) => table.id === tableId)?.columns || [];
 
+  const columnsForTable = async (
+    refSchemaId: string,
+    refTableId: string
+  ): Promise<IColumn[]> => {
+    const refMetadata = await fetchMetadata(refSchemaId);
+    return (
+      refMetadata.tables.find((table) => table.id === refTableId)?.columns || []
+    );
+  };
+
+  return buildColumnGqlAsync(
+    columns,
+    columnsForTable,
+    schemaId,
+    tableId,
+    rootLevel,
+    expandLevel
+  );
+};
+
+async function buildColumnGqlAsync(
+  columns: IColumn[],
+  columnsForTable: (schemaId: string, tableId: string) => Promise<IColumn[]>,
+  schemaId: string,
+  tableId: string,
+  rootLevel: boolean,
+  expandLevel: number
+): Promise<string> {
   let gqlFields = "";
+
   for (const col of columns) {
-    //we always expand the subfields of key, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key) {
-      if (
-        !rootLevel &&
-        [
-          "REF_ARRAY",
-          "REFBACK",
-          "ONTOLOGY_ARRAY",
-          "MULTISELECT",
-          "CHECKBOX",
-        ].includes(col.columnType)
-      ) {
-        //skip
-      } else if (
-        [
-          "REF",
-          "REF_ARRAY",
-          "REFBACK",
-          "MULTISELECT",
-          "CHECKBOX",
-          "SELECT",
-          "RADIO",
-        ].includes(col.columnType)
-      ) {
-        gqlFields =
-          gqlFields +
-          " " +
-          col.id +
-          " {" +
-          (await getColumnIds(
-            col.refSchemaId || schemaId,
-            col.refTableId || tableId,
-            //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
-            expandLevel - 1,
-            [],
-            false
-          )) +
-          " }";
-      } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
-        gqlFields = gqlFields + " " + col.id + " {name, label}";
-      } else if (col.columnType === "FILE") {
-        gqlFields += ` ${col.id} { id, size, filename, extension, url }`;
-      } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
-        gqlFields += ` ${col.id}`;
+      if (!rootLevel && COLLECTION_TYPES.includes(col.columnType)) {
+        // skip collection types at non-root levels
+      } else if (REF_TYPES.includes(col.columnType)) {
+        const subColumns = await columnsForTable(
+          col.refSchemaId || schemaId,
+          col.refTableId || tableId
+        );
+        const subFields = await buildColumnGqlAsync(
+          subColumns,
+          columnsForTable,
+          col.refSchemaId || schemaId,
+          col.refTableId || tableId,
+          false,
+          expandLevel - 1
+        );
+        gqlFields += buildRefFieldGql(col, subFields, rootLevel);
+      } else {
+        gqlFields += buildScalarFieldGql(col);
       }
     }
   }
 
   return gqlFields;
-};
+}

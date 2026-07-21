@@ -15,6 +15,7 @@ import TableHeadRow from "../../../../tailwind-components/app/components/TableHe
 import type { Crumb } from "../../../../tailwind-components/types/types";
 import { definePageMeta } from "#imports";
 import Search from "../../../../tailwind-components/app/components/input/Search.vue";
+import { filterTablesByTypeAndRole } from "../../../../tailwind-components/app/utils/groupTablesByRole";
 
 definePageMeta({
   middleware: ["landing-page"],
@@ -37,6 +38,7 @@ interface Table {
   id: string;
   label: string;
   tableType: TableType;
+  role?: string;
   schemaId: string;
   description: string;
 }
@@ -51,22 +53,26 @@ const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
   key: `fetch-tables-for-${schema}`,
   method: "POST",
   body: {
-    query: `{_schema{id,label,tables{id,label,tableType,description}}}`,
+    query: `{_schema{id,label,tables{id,label,tableType,role,description}}}`,
   },
 });
 
-const tables = computed(
-  () =>
-    data.value?.data?._schema?.tables
-      ?.filter((t) => t.tableType === "DATA")
-      .sort((a, b) => a.label.localeCompare(b.label)) ?? []
+const allTables = computed(() => data.value?.data?._schema?.tables ?? []);
+
+const tables = computed(() =>
+  filterTablesByTypeAndRole(allTables.value, "DATA", "MAIN")
 );
 
-const ontologies = computed(
-  () =>
-    data.value?.data?._schema?.tables
-      ?.filter((t) => t.tableType === "ONTOLOGIES")
-      .sort((a, b) => a.label.localeCompare(b.label)) ?? []
+const detailTables = computed(() =>
+  filterTablesByTypeAndRole(allTables.value, "DATA", "DETAIL")
+);
+
+const ontologies = computed(() =>
+  filterTablesByTypeAndRole(allTables.value, "ONTOLOGIES", "MAIN")
+);
+
+const detailOntologies = computed(() =>
+  filterTablesByTypeAndRole(allTables.value, "ONTOLOGIES", "DETAIL")
 );
 
 const crumbs: Crumb[] = [];
@@ -75,25 +81,26 @@ if (schema) {
 }
 crumbs.push({ label: "tables", url: "" });
 
-const searchPlaceholder = ontologies.value.length
-  ? "Search tables and ontologies..."
-  : "Search tables...";
+const searchPlaceholder = computed(() =>
+  ontologies.value.length || detailOntologies.value.length
+    ? "Search tables and ontologies..."
+    : "Search tables..."
+);
 
 const searchString = ref("");
 
-const filteredTables = computed(() => {
-  if (!searchString.value) return tables.value;
-  return tables.value.filter((table) =>
-    table.label.toLowerCase().includes(searchString.value.toLowerCase())
-  );
-});
+const bySearch = (item: { label: string }) =>
+  !searchString.value ||
+  item.label.toLowerCase().includes(searchString.value.toLowerCase());
 
-const filteredOntologies = computed(() => {
-  if (!searchString.value) return ontologies.value;
-  return ontologies.value.filter((ontology) =>
-    ontology.label.toLowerCase().includes(searchString.value.toLowerCase())
-  );
-});
+const filteredTables = computed(() => tables.value.filter(bySearch));
+const filteredDetailTables = computed(() =>
+  detailTables.value.filter(bySearch)
+);
+const filteredOntologies = computed(() => ontologies.value.filter(bySearch));
+const filteredDetailOntologies = computed(() =>
+  detailOntologies.value.filter(bySearch)
+);
 </script>
 <template>
   <Container>
@@ -130,6 +137,26 @@ const filteredOntologies = computed(() => {
       </Table>
     </ContentBlock>
 
+    <ContentBlock v-if="detailTables.length" class="mt-1" title="detail tables">
+      <Table>
+        <template #head>
+          <TableHeadRow>
+            <TableHead>label</TableHead>
+            <TableHead>description</TableHead>
+          </TableHeadRow>
+        </template>
+        <template #body>
+          <TableRow
+            v-for="table in filteredDetailTables"
+            @click="navigateTo(`${schema}/${table.id}`)"
+          >
+            <TableCell>{{ table.label }}</TableCell>
+            <TableCell>{{ table.description }}</TableCell>
+          </TableRow>
+        </template>
+      </Table>
+    </ContentBlock>
+
     <ContentBlock v-if="ontologies.length" class="mt-1" title="ontologies">
       <Table>
         <template #head>
@@ -141,6 +168,30 @@ const filteredOntologies = computed(() => {
         <template #body>
           <TableRow
             v-for="ontology in filteredOntologies"
+            @click="navigateTo(`${schema}/${ontology.id}`)"
+          >
+            <TableCell>{{ ontology.label }}</TableCell>
+            <TableCell>{{ ontology.description }}</TableCell>
+          </TableRow>
+        </template>
+      </Table>
+    </ContentBlock>
+
+    <ContentBlock
+      v-if="detailOntologies.length"
+      class="mt-1"
+      title="detail ontologies"
+    >
+      <Table>
+        <template #head>
+          <TableHeadRow>
+            <TableHead>label</TableHead>
+            <TableHead>description</TableHead>
+          </TableHeadRow>
+        </template>
+        <template #body>
+          <TableRow
+            v-for="ontology in filteredDetailOntologies"
             @click="navigateTo(`${schema}/${ontology.id}`)"
           >
             <TableCell>{{ ontology.label }}</TableCell>

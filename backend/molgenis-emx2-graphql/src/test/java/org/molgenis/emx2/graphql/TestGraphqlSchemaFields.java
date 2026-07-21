@@ -675,6 +675,24 @@ class TestGraphqlSchemaFields {
     assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
   }
 
+  @Test
+  public void testRoleAndDisplayInSchemaMetadata() throws IOException {
+    execute(
+        "mutation{change(tables:[{name:\"RoleDisplayTest\",role:\"detail\",columns:[{name:\"id\",key:1},{name:\"roleCol\",role:\"DETAIL\"},{name:\"displayCol\",display:\"cards\"}]}]){message}}");
+    JsonNode node = execute("{_schema{tables{name,role,columns{name,role,display}}}}");
+    String result = node.toString();
+    assertTrue(result.contains("\"role\":\"DETAIL\""));
+    assertTrue(result.contains("\"display\":\"CARDS\""));
+    String tableRole = null;
+    for (JsonNode table : node.at("/_schema/tables")) {
+      if ("RoleDisplayTest".equals(table.get("name").asText())) {
+        tableRole = table.get("role").asText();
+      }
+    }
+    assertEquals("DETAIL", tableRole);
+    execute("mutation{drop(tables:\"RoleDisplayTest\"){message}}");
+  }
+
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(graphqlExecutor.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);

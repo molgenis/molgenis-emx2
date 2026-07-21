@@ -13,7 +13,9 @@ test("should show the add modal", async ({ page }) => {
   await expect(page.getByText("Demo data controls")).toBeVisible();
   await page.getByRole("button", { name: "Add Pet" }).click();
   await expect(page.getByRole("link", { name: "_top" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "details" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "details", exact: true })
+  ).toBeVisible();
   await expect(
     page.getByRole("link").filter({ hasText: "Heading2" })
   ).toBeVisible();
