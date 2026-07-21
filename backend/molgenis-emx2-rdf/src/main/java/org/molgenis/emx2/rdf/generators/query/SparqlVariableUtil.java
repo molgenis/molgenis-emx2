@@ -10,6 +10,10 @@ public class SparqlVariableUtil {
 
   public static final String SINGLE = "_single";
 
+  private SparqlVariableUtil() {
+    // Utility class
+  }
+
   public static Variable singleVariable(Variable variable) {
     return SparqlBuilder.var(variable.getVarName() + SINGLE);
   }
