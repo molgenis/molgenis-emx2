@@ -26,8 +26,9 @@ export function expandModuleColumns(
   for (const axisColumn of moduleArrayColumns) {
     const moduleNames = axisColumn.values ?? [];
     for (const moduleName of moduleNames) {
+      // moduleName is a table NAME (from the MODULE_ARRAY discriminator's values), matched against table.name
       const moduleTable = schema.tables.find(
-        (table) => table.id === moduleName || table.name === moduleName
+        (table) => table.name === moduleName
       );
       if (!moduleTable) {
         continue;

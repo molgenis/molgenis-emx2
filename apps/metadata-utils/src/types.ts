@@ -80,7 +80,7 @@ export interface IColumn {
   semantics?: string[];
   validation?: string;
   visible?: string;
-  table?: string;
+  table?: string; // owning table's NAME (not id)
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
