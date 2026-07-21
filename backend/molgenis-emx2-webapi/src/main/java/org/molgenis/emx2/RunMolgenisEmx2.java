@@ -1,14 +1,15 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.ColumnType.BOOL;
-import static org.molgenis.emx2.ColumnType.INT;
 
+import java.util.function.UnaryOperator;
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PatientRegistryDemoLoader;
 import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.web.MolgenisWebservice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,21 +39,41 @@ public class RunMolgenisEmx2 {
           EnvironmentProperty.getParameter(
               Constants.MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO, false, BOOL);
 
+  public static final int DEFAULT_HTTP_PORT = 8080;
+
+  public static String systemPropertyOrEnvironment(String name) {
+    String systemProperty = System.getProperty(name);
+    if (systemProperty != null) {
+      return systemProperty;
+    }
+    return System.getenv(name);
+  }
+
+  public static int resolveHttpPort(String[] args, UnaryOperator<String> environmentLookup) {
+    if (args.length >= 1) {
+      try {
+        return Integer.parseInt(args[0]);
+      } catch (NumberFormatException nonNumericArgument) {
+        logger.warn("Port number should be an integer, but was: {}", args[0]);
+      }
+    }
+    String configuredPort = environmentLookup.apply(Constants.MOLGENIS_HTTP_PORT);
+    if (configuredPort == null) {
+      return DEFAULT_HTTP_PORT;
+    }
+    try {
+      return TypeUtils.toInt(configuredPort);
+    } catch (Exception unreadableConfiguredPort) {
+      throw new MolgenisException(
+          "Startup failed: could not read property/env variable " + Constants.MOLGENIS_HTTP_PORT,
+          unreadableConfiguredPort);
+    }
+  }
+
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
 
-    Integer port;
-    if (args.length >= 1) {
-      try {
-        port = Integer.parseInt(args[0]);
-      } catch (NumberFormatException e) {
-        logger.warn("Port number should be an integer, but was: {}", args[0]);
-        port =
-            (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
-      }
-    } else {
-      port = (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
-    }
+    int port = resolveHttpPort(args, RunMolgenisEmx2::systemPropertyOrEnvironment);
 
     logger.info(
         "with "
