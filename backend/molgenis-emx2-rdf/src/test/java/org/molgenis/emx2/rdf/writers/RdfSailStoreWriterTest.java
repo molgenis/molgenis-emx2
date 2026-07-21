@@ -30,6 +30,7 @@ class RdfSailStoreWriterTest {
   @BeforeAll
   static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
+    database.dropSchemaIfExists(SCHEMA_NAME);
     DataModels.Profile.PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();
     petStore = database.getSchema(SCHEMA_NAME);
   }
@@ -44,11 +45,6 @@ class RdfSailStoreWriterTest {
   @AfterEach
   void tearDown() {
     repository.shutDown();
-  }
-
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test

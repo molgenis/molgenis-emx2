@@ -35,13 +35,9 @@ public class OntologyTableSemanticTest {
   @BeforeAll
   public static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
+    database.dropSchemaIfExists(SCHEMA_NAME);
     PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();
     petStoreSchema = database.getSchema(SCHEMA_NAME);
-  }
-
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test
