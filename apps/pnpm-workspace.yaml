@@ -37,3 +37,4 @@ onlyBuiltDependencies:
 overrides:
   cookie@<0.7.0: '>=0.7.0'
   shell-quote@<1.8.4: '>=1.8.4'
+  tar@<7.5.19: '>=7.5.19'

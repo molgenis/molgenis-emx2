@@ -1,3 +1,263 @@
+<script setup lang="ts">
+import { ref, onMounted, computed, watch } from "vue";
+import {
+  Page,
+  PageSection,
+  Accordion,
+  MessageBox,
+  Dashboard,
+  DashboardChart,
+  DashboardRow,
+  DataTable,
+  BarChart,
+  PieChart2,
+  ColumnChart,
+  LoadingScreen,
+  renameKey,
+  // @ts-expect-error
+} from "molgenis-viz";
+
+import {
+  MinusCircleIcon,
+  ChevronRightIcon,
+  TrashIcon,
+} from "@heroicons/vue/24/outline";
+
+// @ts-ignore
+import { schemeGnBu as scheme } from "d3-scale-chromatic";
+import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
+import { getChartData, gqlPrepareSubSelectionFilter } from "../utils/index";
+
+import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
+import type {
+  selectedFiltersIF,
+  researchCentersIF,
+  primaryTumorSiteIF,
+  metastasisIF,
+  yearOfDiagnosisIF,
+  sexCasesIF,
+  selectedFiltersQueryIF,
+  vizChartFilters,
+} from "../interfaces/types";
+
+const palette = ref<string[]>(scheme[6]);
+const loading = ref<boolean>(true);
+const error = ref<boolean>(false);
+
+const researchCenters = ref<researchCentersIF[]>([]);
+const primaryTumorSite = ref<primaryTumorSiteIF[]>([]);
+const metastasis = ref<metastasisIF[]>([]);
+const yearOfDiagnosis = ref<yearOfDiagnosisIF[]>([]);
+const sexCases = ref<sexCasesIF>();
+const researchCenterAxis = ref<NumericAxisTickData>();
+const yearOfDiagnosisAxis = ref<NumericAxisTickData>();
+
+const queryFilters = ref({ filter: {} });
+const selectedFilters = ref<selectedFiltersIF>({
+  researchCenter: [],
+  primaryTumorSite: [],
+  metastasis: [],
+  yearOfDiagnosis: [],
+  sex: [],
+});
+
+const totalNumberOfCases = computed<number>(() => {
+  return researchCenters.value.reduce(
+    (sum: number, row: researchCentersIF) => row._sum + sum,
+    0
+  );
+});
+
+function onClickPrevent(event: Event) {
+  event.preventDefault();
+}
+
+function removeFilter(key: string, value: String) {
+  selectedFilters.value[key as keyof selectedFiltersIF] = selectedFilters.value[
+    key as keyof selectedFiltersIF
+  ].filter((q: String) => q !== value);
+  updateQueryFilters();
+  renderCharts();
+}
+
+function updateQueryFilters() {
+  const query: vizChartFilters = {};
+  const filterKeys = Object.keys(selectedFilters.value);
+  const filterLength = filterKeys.length;
+
+  for (let i = 0; i < filterLength; i++) {
+    const key = filterKeys[i];
+    const gqlKey = key === "researchCenter" ? "displayName" : "name";
+    const gqlAction = key === "researchCenter" ? "equals" : "equals";
+    const subfilters = selectedFilters.value[key as keyof selectedFiltersIF];
+
+    if (typeof subfilters[0] !== "undefined") {
+      if (subfilters.length === 1) {
+        query[key as keyof selectedFiltersQueryIF] =
+          gqlPrepareSubSelectionFilter(gqlKey, subfilters[0], gqlAction);
+      }
+
+      if (subfilters.length > 1) {
+        if (Object.keys(query).indexOf("_or")) {
+          query._or = [];
+        }
+
+        subfilters.forEach((value: string) => {
+          const newSubFilter: selectedFiltersQueryIF = {};
+          newSubFilter[key as keyof selectedFiltersQueryIF] =
+            gqlPrepareSubSelectionFilter(gqlKey, value, gqlAction);
+          query._or?.push(newSubFilter);
+        });
+      }
+    }
+  }
+
+  queryFilters.value.filter = query;
+}
+
+async function getResearchCentersData() {
+  researchCenters.value = await getChartData({
+    table: "FORCE_NENPatients",
+    sub_attribute: "displayName",
+    labels: "researchCenter",
+    nestedLabelKey: "displayName",
+    values: "_sum",
+    filters: queryFilters.value.filter,
+  });
+
+  researchCenters.value = researchCenters.value
+    .sort((curr: researchCentersIF, next: researchCentersIF) => {
+      return curr._sum - next._sum;
+    })
+    .reverse();
+}
+
+async function getPrimaryTumorSiteData() {
+  primaryTumorSite.value = await getChartData({
+    table: "FORCE_NENPatients",
+    sub_attribute: "name",
+    labels: "primaryTumorSite",
+    values: "_sum",
+    filters: queryFilters.value.filter,
+  });
+
+  primaryTumorSite.value = primaryTumorSite.value.map(
+    (row: primaryTumorSiteIF) => {
+      return { ...row, "primary tumor site": row.primaryTumorSite };
+    }
+  );
+  renameKey(primaryTumorSite.value, "_sum", "sum");
+}
+
+async function getMetastasisData() {
+  metastasis.value = await getChartData({
+    table: "FORCE_NENPatients",
+    sub_attribute: "name",
+    labels: "metastasis",
+    values: "_sum",
+    filters: queryFilters.value.filter,
+    asPieChartData: true,
+  });
+}
+
+async function getYearofDiagnosisData() {
+  yearOfDiagnosis.value = await getChartData({
+    table: "FORCE_NENPatients",
+    sub_attribute: "name",
+    labels: "yearOfDiagnosis",
+    values: "_sum",
+    filters: queryFilters.value.filter,
+  });
+
+  const ordering = [
+    "<1991",
+    "1991-2000",
+    "2001-2005",
+    "2006-2010",
+    "2011-2015",
+    "2016-2020",
+    "2021-2025",
+  ];
+
+  yearOfDiagnosis.value = yearOfDiagnosis.value.sort(
+    (current: Record<string, any>, next: Record<string, any>) => {
+      return (
+        ordering.indexOf(current.yearOfDiagnosis) -
+        ordering.indexOf(next.yearOfDiagnosis)
+      );
+    }
+  );
+}
+
+async function getSexData() {
+  sexCases.value = await getChartData({
+    table: "FORCE_NENPatients",
+    sub_attribute: "name",
+    labels: "sex",
+    values: "_sum",
+    asPieChartData: true,
+    filters: queryFilters.value.filter,
+  });
+}
+
+watch([researchCenters], () => {
+  const centerAxisData = generateAxisTickData(researchCenters.value, "_sum");
+  researchCenterAxis.value = centerAxisData;
+});
+
+watch([yearOfDiagnosis], () => {
+  const yearAxisData = generateAxisTickData(yearOfDiagnosis.value, "_sum");
+  yearOfDiagnosisAxis.value = yearAxisData;
+});
+
+function resetFilters() {
+  selectedFilters.value = {
+    researchCenter: [],
+    primaryTumorSite: [],
+    metastasis: [],
+    yearOfDiagnosis: [],
+    sex: [],
+  };
+  updateQueryFilters();
+  renderCharts();
+}
+
+function onChartClick(
+  data: Record<string, any>,
+  attribute: string,
+  isPieChart: boolean = false
+) {
+  const value = isPieChart
+    ? Object.keys(data)[0]
+    : Object.hasOwn(data, attribute)
+    ? data[attribute]
+    : data;
+  if (
+    selectedFilters.value[attribute as keyof selectedFiltersIF].indexOf(
+      value
+    ) === -1
+  ) {
+    selectedFilters.value[attribute as keyof selectedFiltersIF].push(value);
+    updateQueryFilters();
+  }
+}
+
+function renderCharts() {
+  loading.value = true;
+  Promise.all([
+    getResearchCentersData(),
+    getPrimaryTumorSiteData(),
+    getMetastasisData(),
+    getYearofDiagnosisData(),
+    getSexData(),
+  ])
+    .catch((err) => (error.value = err))
+    .finally(() => (loading.value = false));
+}
+
+onMounted(() => renderCharts());
+</script>
+
 <template>
   <Page>
     <form class="page-section filters-form">
@@ -81,8 +341,8 @@
             :chartData="researchCenters"
             xvar="_sum"
             yvar="researchCenter"
-            :xMax="researchCenterAxis.ymax"
-            :xTickValues="researchCenterAxis.ticks"
+            :xMax="researchCenterAxis?.limit"
+            :xTickValues="researchCenterAxis?.ticks"
             yAxisLineBreaker=" "
             :chartHeight="400"
             :barFill="palette[3]"
@@ -145,14 +405,14 @@
             :chartData="yearOfDiagnosis"
             xvar="yearOfDiagnosis"
             yvar="_sum"
-            :yTickValues="yearOfDiagnosisAxis.ticks"
-            :yMax="yearOfDiagnosisAxis.ymax"
+            :yTickValues="yearOfDiagnosisAxis?.ticks"
+            :yMax="yearOfDiagnosisAxis?.limit"
             :columnFill="palette[5]"
             :columnHoverFill="palette[3]"
             :chartHeight="250"
             :chartMargins="{
-              top: 15,
-              right: 10,
+              top: 30,
+              right: 5,
               bottom: 30,
               left: 60,
             }"
@@ -189,280 +449,3 @@
     </Dashboard>
   </Page>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
-
-// @ts-ignore
-import {
-  Page,
-  PageSection,
-  Accordion,
-  MessageBox,
-  Dashboard,
-  DashboardChart,
-  DashboardRow,
-  DataTable,
-  BarChart,
-  PieChart2,
-  ColumnChart,
-  LoadingScreen,
-  // @ts-expect-error
-} from "molgenis-viz";
-
-import {
-  MinusCircleIcon,
-  ChevronRightIcon,
-  TrashIcon,
-  InformationCircleIcon,
-} from "@heroicons/vue/24/outline";
-
-// @ts-ignore
-import { schemeGnBu as scheme } from "d3-scale-chromatic";
-
-import {
-  getChartData,
-  renameKey,
-  seqAlongBy,
-  calculateIncrement,
-  gqlPrepareSubSelectionFilter,
-} from "../utils/index";
-
-import type {
-  selectedFiltersIF,
-  researchCentersIF,
-  primaryTumorSiteIF,
-  metastasisIF,
-  yearOfDiagnosisIF,
-  sexCasesIF,
-  chartAxisSettingsIF,
-  selectedFiltersQueryIF,
-  vizChartFilters,
-} from "../interfaces/types";
-
-const palette = ref(scheme[6]);
-const loading = ref(true);
-const error = ref(false);
-
-const researchCenters = ref<researchCentersIF[]>([]);
-const primaryTumorSite = ref<primaryTumorSiteIF[]>([]);
-const metastasis = ref<metastasisIF[]>([]);
-const yearOfDiagnosis = ref<yearOfDiagnosisIF[]>([]);
-const sexCases = ref<sexCasesIF>();
-const researchCenterAxis = ref<chartAxisSettingsIF>({ ticks: [], ymax: null });
-const yearOfDiagnosisAxis = ref<chartAxisSettingsIF>({ ticks: [], ymax: null });
-
-const queryFilters = ref({ filter: {} });
-const selectedFilters = ref<selectedFiltersIF>({
-  researchCenter: [],
-  primaryTumorSite: [],
-  metastasis: [],
-  yearOfDiagnosis: [],
-  sex: [],
-});
-
-const totalNumberOfCases = computed(() => {
-  return researchCenters.value.reduce(
-    (sum: number, row: Record<string, any>) => row._sum + sum,
-    0
-  );
-});
-
-function onClickPrevent(event: Event) {
-  event.preventDefault();
-}
-
-function removeFilter(key: string, value: String) {
-  selectedFilters.value[key as keyof selectedFiltersIF] = selectedFilters.value[
-    key as keyof selectedFiltersIF
-  ].filter((q: String) => q !== value);
-  updateQueryFilters();
-  renderCharts();
-}
-
-function updateQueryFilters() {
-  const query: vizChartFilters = {};
-  const filterKeys = Object.keys(selectedFilters.value);
-  const filterLength = filterKeys.length;
-
-  for (let i = 0; i < filterLength; i++) {
-    const key = filterKeys[i];
-    const gqlKey = key === "researchCenter" ? "displayName" : "name";
-    const gqlAction = key === "researchCenter" ? "equals" : "equals";
-    const subfilters = selectedFilters.value[key as keyof selectedFiltersIF];
-
-    if (typeof subfilters[0] !== "undefined") {
-      if (subfilters.length === 1) {
-        query[key as keyof selectedFiltersQueryIF] =
-          gqlPrepareSubSelectionFilter(gqlKey, subfilters[0], gqlAction);
-      }
-
-      if (subfilters.length > 1) {
-        if (Object.keys(query).indexOf("_or")) {
-          query._or = [];
-        }
-
-        subfilters.forEach((value: string) => {
-          const newSubFilter: selectedFiltersQueryIF = {};
-          newSubFilter[key as keyof selectedFiltersQueryIF] =
-            gqlPrepareSubSelectionFilter(gqlKey, value, gqlAction);
-          query._or?.push(newSubFilter);
-        });
-      }
-    }
-  }
-
-  queryFilters.value.filter = query;
-}
-
-async function getResearchCentersData() {
-  researchCenters.value = await getChartData({
-    table: "FORCE_NENPatients",
-    sub_attribute: "displayName",
-    labels: "researchCenter",
-    nestedLabelKey: "displayName",
-    values: "_sum",
-    filters: queryFilters.value.filter,
-  });
-
-  researchCenters.value = researchCenters.value
-    .sort((curr, next) => curr._sum - next._sum)
-    .reverse();
-}
-
-async function getPrimaryTumorSiteData() {
-  primaryTumorSite.value = await getChartData({
-    table: "FORCE_NENPatients",
-    sub_attribute: "name",
-    labels: "primaryTumorSite",
-    values: "_sum",
-    filters: queryFilters.value.filter,
-  });
-
-  primaryTumorSite.value = primaryTumorSite.value.map((row) => {
-    return { ...row, "primary tumor site": row.primaryTumorSite };
-  });
-  renameKey(primaryTumorSite.value, "_sum", "sum");
-}
-
-async function getMetastasisData() {
-  metastasis.value = await getChartData({
-    table: "FORCE_NENPatients",
-    sub_attribute: "name",
-    labels: "metastasis",
-    values: "_sum",
-    filters: queryFilters.value.filter,
-    asPieChartData: true,
-  });
-}
-
-async function getYearofDiagnosisData() {
-  yearOfDiagnosis.value = await getChartData({
-    table: "FORCE_NENPatients",
-    sub_attribute: "name",
-    labels: "yearOfDiagnosis",
-    values: "_sum",
-    filters: queryFilters.value.filter,
-  });
-
-  const ordering = [
-    "<1991",
-    "1991-2000",
-    "2001-2005",
-    "2006-2010",
-    "2011-2015",
-    "2016-2020",
-    "2021-2025",
-  ];
-
-  yearOfDiagnosis.value = yearOfDiagnosis.value.sort(
-    (current: Record<string, any>, next: Record<string, any>) => {
-      return (
-        ordering.indexOf(current.yearOfDiagnosis) -
-        ordering.indexOf(next.yearOfDiagnosis)
-      );
-    }
-  );
-}
-
-async function getSexData() {
-  sexCases.value = await getChartData({
-    table: "FORCE_NENPatients",
-    sub_attribute: "name",
-    labels: "sex",
-    values: "_sum",
-    asPieChartData: true,
-    filters: queryFilters.value.filter,
-  });
-}
-
-watch([researchCenters], () => {
-  const centerMax = Math.max(...researchCenters.value.map((d) => d._sum));
-  const centerStep = calculateIncrement(centerMax);
-  researchCenterAxis.value.ymax =
-    Math.ceil(centerMax / centerStep) * centerStep;
-  researchCenterAxis.value.ticks = seqAlongBy(
-    0,
-    researchCenterAxis.value.ymax,
-    centerStep
-  );
-});
-
-watch([yearOfDiagnosis], () => {
-  const allMaxValues: number[] = yearOfDiagnosis.value.map(
-    (row: Record<string, any>) => row._sum
-  );
-  const maxValue = Math.max(...allMaxValues);
-  const step = calculateIncrement(maxValue);
-  const max = Math.ceil(maxValue / step) * step;
-  yearOfDiagnosisAxis.value.ymax = max;
-  yearOfDiagnosisAxis.value.ticks = seqAlongBy(0, max, step);
-});
-
-function resetFilters() {
-  selectedFilters.value = {
-    researchCenter: [],
-    primaryTumorSite: [],
-    metastasis: [],
-    yearOfDiagnosis: [],
-    sex: [],
-  };
-  updateQueryFilters();
-  renderCharts();
-}
-
-function onChartClick(
-  data: Record<string, any>,
-  attribute: string,
-  isPieChart: boolean = false
-) {
-  const value = isPieChart
-    ? Object.keys(data)[0]
-    : Object.hasOwn(data, attribute)
-    ? data[attribute]
-    : data;
-  if (
-    selectedFilters.value[attribute as keyof selectedFiltersIF].indexOf(
-      value
-    ) === -1
-  ) {
-    selectedFilters.value[attribute as keyof selectedFiltersIF].push(value);
-    updateQueryFilters();
-  }
-}
-
-function renderCharts() {
-  loading.value = true;
-  Promise.all([
-    getResearchCentersData(),
-    getPrimaryTumorSiteData(),
-    getMetastasisData(),
-    getYearofDiagnosisData(),
-    getSexData(),
-  ])
-    .catch((err) => (error.value = err))
-    .finally(() => (loading.value = false));
-}
-
-onMounted(() => renderCharts());
-</script>

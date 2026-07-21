@@ -1,17 +1,3 @@
-<template>
-  <div class="loading__block">
-    <div
-      v-if="loading"
-      class="block__background"
-      ref="loadingRef"
-      :data-loading="loading"
-    ></div>
-    <div class="block__content" ref="contentRef">
-      <slot></slot>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted, onUpdated } from "vue";
 
@@ -38,6 +24,20 @@ function setLoadingBlockHeight() {
 onMounted(() => setLoadingBlockHeight());
 onUpdated(() => setLoadingBlockHeight());
 </script>
+
+<template>
+  <div class="loading__block">
+    <div
+      v-if="loading"
+      class="block__background"
+      ref="loadingRef"
+      :data-loading="loading"
+    ></div>
+    <div class="block__content" ref="contentRef">
+      <slot></slot>
+    </div>
+  </div>
+</template>
 
 <style lang="scss">
 @keyframes pulse {

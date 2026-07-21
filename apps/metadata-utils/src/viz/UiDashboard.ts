@@ -1,4 +1,4 @@
-// Generated (on: 2026-03-12T13:14:59.424968) from Generator.java for schema: Dashboard
+// Generated (on: 2026-07-14T10:28:13.953871) from Generator.java for schema: UiDashboard
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -27,24 +27,34 @@ export interface IOntologyNode extends ITreeNode {
 }
 
 export interface IChartData extends IMgTableClass {
-  dataPointId: string;
-  dataPointName?: string;
-  dataPointValue?: number;
-  dataPointValueLabel?: string;
-  dataPointSeries?: string;
-  dataPointPrimaryCategory?: string;
-  dataPointSecondaryCategory?: string;
-  dataPointPrimaryCategoryLabel?: string;
-  dataPointSecondaryCategoryLabel?: string;
-  dataPointTime?: string;
-  dataPointTimeUnit?: string;
-  dataPointColor?: string;
-  dataPointDescription?: string;
-  dataPointOrder?: number;
+  id: string;
+  name?: string;
+  value?: number;
+  valueLabel?: string;
+  series?: string;
+  primaryCategory?: string;
+  secondaryCategory?: string;
+  primaryCategoryLabel?: string;
+  secondaryCategoryLabel?: string;
+  timeValue?: string;
+  timeUnit?: IOntologyNode;
+  color?: string;
+  description?: string;
+  sortOrder?: number;
   includedInChart?: ICharts;
 }
 
 export interface IChartData_agg {
+  count: number;
+}
+
+export interface IChartPalette extends IMgTableClass {
+  key: string;
+  color: string;
+  includedInChart?: ICharts;
+}
+
+export interface IChartPalette_agg {
   count: number;
 }
 
@@ -78,11 +88,12 @@ export interface ICharts extends IMgTableClass {
   yAxisMinValue?: number;
   yAxisMaxValue?: number;
   yAxisTicks?: number[];
+  colorPalette?: IChartPalette[];
   topMargin?: number;
   rightMargin?: number;
   bottomMargin?: number;
   leftMargin?: number;
-  legendPosition?: string;
+  legendPosition?: IOntologyNode;
   dataPoints?: IChartData[];
   dashboardPage?: IDashboardPages;
 }
@@ -98,5 +109,39 @@ export interface IDashboardPages extends IMgTableClass {
 }
 
 export interface IDashboardPages_agg {
+  count: number;
+}
+
+export interface ILegendPositions extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ILegendPositions;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ILegendPositions[];
+}
+
+export interface ILegendPositions_agg {
+  count: number;
+}
+
+export interface ITimeIntervals extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ITimeIntervals;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ITimeIntervals[];
+}
+
+export interface ITimeIntervals_agg {
   count: number;
 }
