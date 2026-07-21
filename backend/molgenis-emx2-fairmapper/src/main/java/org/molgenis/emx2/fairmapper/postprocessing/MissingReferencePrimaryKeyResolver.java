@@ -1,16 +1,9 @@
 package org.molgenis.emx2.fairmapper.postprocessing;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Reference;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +22,69 @@ public class MissingReferencePrimaryKeyResolver {
   }
 
   public void resolve(TableStore tableStore, String... tableNames) {
-
     for (String tableName : tableNames) {
-      TableMetadata table = schema.getTableMetadata(tableName);
-      for (Column column : table.getColumns()) {
-        if (column.isReference()) {
-          resolveColumn(tableStore, tableName, column);
+      List<Column> referenceColumns =
+          schema.getTableMetadata(tableName).getColumns().stream()
+              .filter(Column::isReference)
+              .toList();
+
+      tableStore.processTable(
+          tableName,
+          (iterator, source) ->
+              iterator.forEachRemaining(row -> resolveRow(tableStore, row, referenceColumns)));
+    }
+  }
+
+  private void resolveRow(TableStore tableStore, Row row, List<Column> columns) {
+    for (Column column : columns) {
+      resolveColumn(tableStore, row, column);
+    }
+  }
+
+  private void resolveColumn(TableStore tableStore, Row row, Column column) {
+    String subject = row.getString(SUBJECT_VARIABLE + column.getName());
+    if (subject == null) {
+      return;
+    }
+
+    Row referringRow = getRowForSubject(tableStore, column.getRefTableName(), subject);
+
+    for (Reference reference : column.getReferences()) {
+      if (row.containsName(reference.getColumnName())) {
+        continue;
+      }
+
+      if (referringRow.containsName(reference.getReferencedColumnName())) {
+        row.set(
+            reference.getColumnName(),
+            referringRow.getValueMap().get(reference.getReferencedColumnName()));
+      } else {
+        List<String> columnTableNames = column.getTable().getAllInheritNames();
+        columnTableNames.add(column.getTableName());
+
+        // When a part of the primary key is missing, and it's a reference to the root row, we
+        // assume it's a one-to-one reference.
+        if (columnTableNames.contains(reference.getTargetTable())) {
+          Object value = row.getValueMap().get(reference.getTargetColumn());
+          referringRow.set(reference.getColumnName(), value);
+          row.set(reference.getColumnName(), value);
         }
       }
     }
+  }
+
+  private static Row getRowForSubject(
+      TableStore tableStore, String targetTable, String referenceSubject) {
+    return StreamSupport.stream(tableStore.readTable(targetTable).spliterator(), false)
+        .filter(row -> row.getString(SUBJECT_VARIABLE).equals(referenceSubject))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new MolgenisException(
+                    "Referencing non-existing row for table:"
+                        + targetTable
+                        + ", for subject: "
+                        + referenceSubject));
   }
 
   private void resolveColumn(TableStore tableStore, String tableName, Column column) {
@@ -49,7 +96,12 @@ public class MissingReferencePrimaryKeyResolver {
     tableStore.processTable(
         tableName,
         (iterator, source) ->
-            iterator.forEachRemaining(row -> resolveRow(source, row, column, subjectColumnName)));
+            iterator.forEachRemaining(
+                row -> {
+                  if (!row.containsName(column.getName())) {
+                    resolveRow(source, row, column, subjectColumnName);
+                  }
+                }));
   }
 
   private void resolveRow(TableStore tableStore, Row row, Column column, String subjectColumnName) {
@@ -62,6 +114,32 @@ public class MissingReferencePrimaryKeyResolver {
     if (references.isEmpty()) {
       return;
     }
+
+    Optional<Row> optReferenceRow =
+        StreamSupport.stream(tableStore.readTable(column.getRefTableName()).spliterator(), false)
+            .filter(r -> r.getString(SUBJECT_VARIABLE).equals(subjectValue))
+            .findFirst();
+
+    if (optReferenceRow.isEmpty()) {
+      throw new MolgenisException(
+          "Cannot find reference for column: "
+              + column.getName()
+              + " with subject: "
+              + subjectValue);
+    }
+
+    Row referenceRow = optReferenceRow.get();
+
+    for (Reference reference : references) {
+      String referencedColumnName = reference.getReferencedColumnName();
+      if (referenceRow.containsName(referencedColumnName)) {
+        row.set(reference.getColumnName(), referenceRow.getValueMap().get(referencedColumnName));
+      } else {
+        // Check for circular reference
+        System.out.println("test");
+      }
+    }
+
     String targetTable = references.getFirst().getTargetTable();
 
     // Multiple references are a composite key, so that's fine
