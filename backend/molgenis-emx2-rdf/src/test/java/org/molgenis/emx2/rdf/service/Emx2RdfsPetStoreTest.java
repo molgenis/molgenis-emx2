@@ -222,36 +222,36 @@ class Emx2RdfsPetStoreTest extends PetStoreTest {
   void testThatURLColumnsAreObjectProperties() throws IOException {
     final String schemaName = SCHEMA_NAME_PREFIX + "Website";
 
-      Schema schema = database.dropCreateSchema(schemaName);
-      Table table =
-          schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
-      table.insert(row("website", "https://www.molgenis.org/"));
-      InMemoryRDFHandler handler = parseTableRdf(schema, table.getName());
-      boolean isObjectProperty = false;
-      boolean linkHasLabel = false;
+    Schema schema = database.dropCreateSchema(schemaName);
+    Table table =
+        schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
+    table.insert(row("website", "https://www.molgenis.org/"));
+    InMemoryRDFHandler handler = parseTableRdf(schema, table.getName());
+    boolean isObjectProperty = false;
+    boolean linkHasLabel = false;
 
-      assertFalse(handler.resources.keySet().isEmpty());
-      for (Resource subject : handler.resources.keySet()) {
-        if (subject.stringValue().contains("/column/website")) {
-          Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
+    assertFalse(handler.resources.keySet().isEmpty());
+    for (Resource subject : handler.resources.keySet()) {
+      if (subject.stringValue().contains("/column/website")) {
+        Set<Value> types = handler.resources.get(subject).get(RDF.TYPE);
 
-          for (Value type : types) {
-            if (type.equals(OWL.OBJECTPROPERTY)) {
-              isObjectProperty = true;
-            }
-          }
-        }
-        if (subject.stringValue().equals("https://www.molgenis.org/")) {
-          Set<Value> labels = handler.resources.get(subject).get(RDFS.LABEL);
-          for (Value label : labels) {
-            if (label.stringValue().equals("https://www.molgenis.org/")) {
-              linkHasLabel = true;
-            }
+        for (Value type : types) {
+          if (type.equals(OWL.OBJECTPROPERTY)) {
+            isObjectProperty = true;
           }
         }
       }
-      assertTrue(linkHasLabel, "The link should have a label to make it easer to read.");
-      assertTrue(isObjectProperty, "The column website should be defined as a Object Property.");
+      if (subject.stringValue().equals("https://www.molgenis.org/")) {
+        Set<Value> labels = handler.resources.get(subject).get(RDFS.LABEL);
+        for (Value label : labels) {
+          if (label.stringValue().equals("https://www.molgenis.org/")) {
+            linkHasLabel = true;
+          }
+        }
+      }
+    }
+    assertTrue(linkHasLabel, "The link should have a label to make it easer to read.");
+    assertTrue(isObjectProperty, "The column website should be defined as a Object Property.");
   }
 
   @Test
@@ -275,53 +275,53 @@ class Emx2RdfsPetStoreTest extends PetStoreTest {
   void testSubClassesForInheritedTable() throws IOException {
     final String schemaName = SCHEMA_NAME_PREFIX + "InheritTable";
 
-      Schema schema = database.dropCreateSchema(schemaName);
-      Table root = schema.create(table("root", column("id").setPkey()));
-      Table child = schema.create(table("child", column("name")).setInheritName("root"));
-      InMemoryRDFHandler handler = parseTableRdf(schema, child.getName());
-      IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
-      IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
-      IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
-      Set<Value> subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
-      assertEquals(
-          2,
-          subclasses.size(),
-          "Tables that inherit from another table are expected to be only a subclass of that table and DataSet.\n"
-              + "Actual result: "
-              + subclasses);
-      assertTrue(subclasses.contains(rootIRI), "Table is expected to be a subclass of it's parent");
-      assertFalse(
-          subclasses.contains(OWL.THING),
-          "Subclasses are not expected to be a direct subclass of owl:Thing");
-      assertTrue(
-          subclasses.contains(cubeDataSetIRI),
-          "Subclasses are expected to be a subclass of cube@DataSet");
+    Schema schema = database.dropCreateSchema(schemaName);
+    Table root = schema.create(table("root", column("id").setPkey()));
+    Table child = schema.create(table("child", column("name")).setInheritName("root"));
+    InMemoryRDFHandler handler = parseTableRdf(schema, child.getName());
+    IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
+    IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
+    IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
+    Set<Value> subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
+    assertEquals(
+        2,
+        subclasses.size(),
+        "Tables that inherit from another table are expected to be only a subclass of that table and DataSet.\n"
+            + "Actual result: "
+            + subclasses);
+    assertTrue(subclasses.contains(rootIRI), "Table is expected to be a subclass of it's parent");
+    assertFalse(
+        subclasses.contains(OWL.THING),
+        "Subclasses are not expected to be a direct subclass of owl:Thing");
+    assertTrue(
+        subclasses.contains(cubeDataSetIRI),
+        "Subclasses are expected to be a subclass of cube@DataSet");
   }
 
   @Test
   void testSubClassRootTables() throws IOException {
     final String schemaName = SCHEMA_NAME_PREFIX + "RootTable";
 
-      Schema schema = database.dropCreateSchema(schemaName);
-      Table root = schema.create(table("root", column("id").setPkey()));
-      Table child = schema.create(table("child", column("name")).setInheritName("root"));
-      InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());
-      IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
-      IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
-      IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
-      Set<Value> subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
-      assertEquals(
-          2,
-          subclasses.size(),
-          "Tables that do not inherit from another table are expected to be only a subclass owl:Thing and cube#DataSet.\n"
-              + "Actual result: "
-              + subclasses);
-      assertFalse(subclasses.contains(rootIRI), "Table can't be its own parent.");
-      assertTrue(
-          subclasses.contains(OWL.THING),
-          "Subclasses are not expected to be a direct subclass of owl:Thing");
-      assertTrue(
-          subclasses.contains(cubeDataSetIRI),
-          "Subclasses are expected to be a subclass of cube@DataSet");
+    Schema schema = database.dropCreateSchema(schemaName);
+    Table root = schema.create(table("root", column("id").setPkey()));
+    Table child = schema.create(table("child", column("name")).setInheritName("root"));
+    InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());
+    IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
+    IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
+    IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
+    Set<Value> subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
+    assertEquals(
+        2,
+        subclasses.size(),
+        "Tables that do not inherit from another table are expected to be only a subclass owl:Thing and cube#DataSet.\n"
+            + "Actual result: "
+            + subclasses);
+    assertFalse(subclasses.contains(rootIRI), "Table can't be its own parent.");
+    assertTrue(
+        subclasses.contains(OWL.THING),
+        "Subclasses are not expected to be a direct subclass of owl:Thing");
+    assertTrue(
+        subclasses.contains(cubeDataSetIRI),
+        "Subclasses are expected to be a subclass of cube@DataSet");
   }
 }

@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.List;
 import org.eclipse.rdf4j.model.Triple;
 import org.eclipse.rdf4j.model.util.Values;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;

@@ -39,25 +39,25 @@ class CustomRdfTest extends RdfServiceTestRunner {
       <https://molgenis.org/> example:test "Molgenis" .
       """;
 
-      Schema schema = database.dropCreateSchema(schemaName);
-      // Test default behaviour.
-      assertFalse(schema.hasSetting(SETTING_CUSTOM_RDF));
-      InMemoryRDFHandler handlerBefore = parseSchemaRdf(schema);
-      assertFalse(handlerBefore.resources.containsKey(Values.iri("https://molgenis.org/")));
+    Schema schema = database.dropCreateSchema(schemaName);
+    // Test default behaviour.
+    assertFalse(schema.hasSetting(SETTING_CUSTOM_RDF));
+    InMemoryRDFHandler handlerBefore = parseSchemaRdf(schema);
+    assertFalse(handlerBefore.resources.containsKey(Values.iri("https://molgenis.org/")));
 
-      // Change setting
-      schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
+    // Change setting
+    schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
 
-      // Test behaviour after changing setting.
-      InMemoryRDFHandler handlerAfter = parseSchemaRdf(schema);
-      assertEquals(
-          defaultNamespaces, handlerAfter.namespaces); // example prefix should NOT be present
-      assertTrue(
-          handlerAfter
-              .resources
-              .get(Values.iri("https://molgenis.org/"))
-              .get(Values.iri("http://example.com/test"))
-              .contains(Values.literal("Molgenis")));
+    // Test behaviour after changing setting.
+    InMemoryRDFHandler handlerAfter = parseSchemaRdf(schema);
+    assertEquals(
+        defaultNamespaces, handlerAfter.namespaces); // example prefix should NOT be present
+    assertTrue(
+        handlerAfter
+            .resources
+            .get(Values.iri("https://molgenis.org/"))
+            .get(Values.iri("http://example.com/test"))
+            .contains(Values.literal("Molgenis")));
   }
 
   /**
@@ -73,9 +73,9 @@ class CustomRdfTest extends RdfServiceTestRunner {
       <https://molgenis.org/> <http://purl.org/dc/terms/title> "Molgenis"
       """;
 
-      Schema schema = database.dropCreateSchema(schemaName);
-      schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
-      assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
+    Schema schema = database.dropCreateSchema(schemaName);
+    schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
+    assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
   }
 
   @Test
@@ -84,8 +84,8 @@ class CustomRdfTest extends RdfServiceTestRunner {
 
     final String customRdf = "";
 
-      Schema schema = database.dropCreateSchema(schemaName);
-      schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
-      assertDoesNotThrow(() -> parseSchemaRdf(schema));
+    Schema schema = database.dropCreateSchema(schemaName);
+    schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
+    assertDoesNotThrow(() -> parseSchemaRdf(schema));
   }
 }
