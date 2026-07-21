@@ -1540,7 +1540,9 @@ class WebApiSmokeTests extends ApiTestBase {
         .when()
         .get("/thisSchemaDoesNotExist/graphql")
         .then()
-        .statusCode(404);
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
 
     // a schema the user cannot see returns the same 404, so the response does
     // not reveal whether a schema exists
