@@ -36,6 +36,18 @@
       <Button type="filterWell" size="tiny">filterWell</Button>
     </div>
 
+    <h3 class="text-2xl text-title">Disabled</h3>
+    <div class="flex items-center gap-4">
+      <Button type="primary" size="medium" disabled>Primary</Button>
+      <Button type="secondary" size="medium" disabled>Secondary</Button>
+      <Button type="tertiary" size="medium" disabled>tertiary</Button>
+      <Button type="outline" size="medium" disabled>outline</Button>
+      <Button type="filterWell" size="medium" disabled>filterWell</Button>
+      <Button type="text" size="medium" disabled>text</Button>
+      <Button type="inline" icon="trash" label="Remove" disabled />
+      <Button iconOnly icon="trash" label="Remove" size="medium" disabled />
+    </div>
+
     <h3 class="text-2xl text-title">Icons</h3>
     <div class="flex gap-4">
       <Button type="primary" size="medium" icon="filter" iconPosition="left">
