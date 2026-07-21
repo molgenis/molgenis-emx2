@@ -1,5 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 import type { ConfigOptions } from "@nuxt/test-utils/playwright";
+import { e2eBaseUrl } from "../dev-env.js";
 
 export default defineConfig<ConfigOptions>({
   testDir: "./tests/e2e",
@@ -19,13 +20,13 @@ export default defineConfig<ConfigOptions>({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.E2E_BASE_URL || "http://localhost:3000/", // change to specific http://localhost:*/, preview, etc.
+    baseURL: e2eBaseUrl("MOLGENIS_PORT_APP_TAILWIND", "http://localhost:3000/"),
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     nuxt: {
       // @ts-ignore
-      host: process.env.E2E_BASE_URL || "http://localhost:3000/",
+      host: e2eBaseUrl("MOLGENIS_PORT_APP_TAILWIND", "http://localhost:3000/"),
       build: false,
     },
   },

@@ -1,4 +1,5 @@
 import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
+import { e2eBaseUrl } from "../dev-env.js";
 
 export default defineConfig<PlaywrightTestConfig>({
   testDir: "./tests",
@@ -10,7 +11,10 @@ export default defineConfig<PlaywrightTestConfig>({
     ? [["list"], ["junit", { outputFile: "results.xml" }]]
     : "html",
   use: {
-    baseURL: process.env.E2E_BASE_URL || "http://localhost:5173/", // change to specific http://localhost:*/, preview, etc.
+    baseURL: e2eBaseUrl(
+      "MOLGENIS_PORT_APP_DIRECTORY",
+      "http://localhost:5173/"
+    ),
     trace: "on-first-retry",
   },
 
