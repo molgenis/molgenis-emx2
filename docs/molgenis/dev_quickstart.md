@@ -13,7 +13,7 @@ git clone git@github.com:molgenis/molgenis-emx2.git
 Optionally, checkout the branch you would like to review:
 
 ```
-cd molgenis-emx
+cd molgenis-emx2
 git checkout <branch name here>
 ```
 

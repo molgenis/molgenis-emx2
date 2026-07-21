@@ -82,11 +82,14 @@ If you would like to add a feature to an existing app or fix something, then the
 
 #### Core MOLGENIS EMX2 applications
 
-In the apps folder, there are several core frontend applications (e.g., settings, table, schema, etc.). These require a molgenis-emx2 backend in order to develop the frontend. You can start the server using docker.
+In the apps folder, there are several core frontend applications (e.g., settings, table, schema, etc.). These require a molgenis-emx2 backend in order to develop the frontend. Start Postgres with docker-compose, then start the backend with gradle.
 
 ```bash
-docker-compose up
+docker-compose up -d postgres
+./gradlew dev
 ```
+
+Start only the `postgres` service. A bare `docker-compose up` also brings up a backend on `:8080` and Postgres on `:5432` — the defaults every other checkout on your machine shares. To give this worktree a database and a port of its own, see [Parallel dev stacks](dev_quickstart.md#parallel-dev-stacks-one-per-worktree).
 
 The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use `pnpm dev`. For example, to preview the app `apps/schema`, run the following command.
 
@@ -115,7 +118,7 @@ cd apps/<your-app>
 pnpm dev
 ```
 
-Once started, the app is served at [http://localhost:5173](http://localhost:5173). If the server is running and the app cannot be found, check the `vite.config.js` file to see if the port has changed.
+Read the port off the dev server's own banner rather than assuming one. An app that declares a `MOLGENIS_PORT_APP_*` key binds that port strictly; an app that declares none gets Vite's default [http://localhost:5173](http://localhost:5173) (Nuxt: `3000`) and walks upwards from there whenever another app already holds it. See [giving your app its own dev-server port](#giving-your-app-its-own-dev-server-port).
 
 ### How do I view my app on the server?
 
@@ -177,7 +180,7 @@ It is possible to run your app against a clean server. We use [gradle](https://g
 ./gradlew run
 ```
 
-Gradle may take some time to build. Once it's ready, the app will be visible on port `8080`
+Gradle may take some time to build. Once it's ready, the app will be visible on the port the backend bound: `MOLGENIS_HTTP_PORT` if your repo-root `.env` declares one, otherwise the `8080` default.
 
 ### I want to display my app by default
 
@@ -261,48 +264,67 @@ Add the `vite.config.js` file to your project
 touch vite.config.js
 ```
 
-Use the `vite.config.js` file to configure how the application is run and built. At a minimum, the following configurations are needed.
+Use the `vite.config.js` file to configure how the application is run and built. At a minimum, the following configurations are needed. This is `apps/schema/vite.config.js` with the folder name changed.
 
 ```js
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import devProxy from "../dev-proxy.config";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: "",
+  base: command === "serve" ? "/" : "apps/my-app/",
   server: {
-    proxy: require("../dev-proxy.config")
-  }
-});
+    proxy: devProxy,
+  },
+}));
 ```
 
-By default, all proxy configurations are stored in the `dev-proxy.config.js` file (located in the `apps` folder). This allows you to point the local dev server to an existing EMX2 instance. This may be useful if you would like to query data from a specific database. You can either change the proxy configs in this file or use a `.env` file to store this information.
+`base` is `/` while the dev server runs and `apps/<app-name>/` in a build, because on a server the app is served from that subpath.
+
+##### Choosing the backend your dev server proxies to
+
+`apps/dev-proxy.config.js` is shared by most of the Vite apps. It routes `/graphql`, `/api`, `/reports`, `/theme.css` and their schema-prefixed variants to the backend named by `MOLGENIS_APPS_HOST`, falling back to the shared remote `https://emx2.dev.molgenis.org` when nothing is declared. `MOLGENIS_APPS_SCHEMA` fills in the schema for the routes that do not carry one (default `pet store`).
+
+**Do not create a per-app `.env`, and do not call `dotenv` inside `vite.config.js`.** Both keys are read from a single gitignored `.env` at the **repo root**, which `apps/dev-env.js` loads as an import side effect. `dev-proxy.config.js` requires `dev-env.js`, so importing the shared proxy already loads it — there is nothing to wire up in your app.
 
 ```sh
-# .env file
-MOLGENIS_APPS_HOST=....
-MOLGENIS_APPS_SCHEMA=....
+# <repo root>/.env
+MOLGENIS_APPS_HOST=http://localhost:8083
+MOLGENIS_APPS_SCHEMA=pet store
 ```
 
-Then, load it into the `vite.config.js` file.
+A per-app `.env` would let one app talk to a backend the checkout never declared, with nothing on screen to reveal the divergence. One file at the root is what keeps every app, the backend and the e2e suites on the same stack. What to put in it: [Parallel dev stacks](dev_quickstart.md#parallel-dev-stacks-one-per-worktree), or [Frontend only](dev_quickstart.md#frontend-only-point-an-app-at-a-backend-you-did-not-start) if you use a backend somebody else runs. Why it works this way: [how the env file reaches each half of the stack](dev_devstacks.md#how-the-env-file-reaches-each-half-of-the-stack), [how the dev-server proxies route](dev_devstacks.md#how-the-dev-server-proxies-route) and [which schema the shared-proxy apps ask for](dev_devstacks.md#which-schema-the-shared-proxy-apps-ask-for).
+
+##### Giving your app its own dev-server port
+
+An app that declares no port gets Vite's default `5173`, and drifts to `5174`, `5175`, … when that one is taken. Most apps are in exactly that position, which is why several of them can each claim `5173` — whichever starts first wins it.
+
+To make your app always bind the same port, add a `MOLGENIS_PORT_APP_<NAME>` key to the repo-root `.env` (and to `.env-example`, so other checkouts see that it exists), then read it with the shared `devPort` resolver. This is `apps/central/vite.config.js`.
 
 ```js
-// vite.config.json with .env file
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
+import { appsHost, devPort } from "../dev-env";
 
-export default defineConfig(() => {
-  require("dotenv").config({ path: `./.env` });
+const declaredPort = devPort("MOLGENIS_PORT_APP_CENTRAL", null);
 
-  return {
-    plugins: [vue()],
-    base: "",
-    server: {
-      proxy: require("../dev-proxy.config")
-    }
-  };
-});
+const declaredPortBinding =
+  declaredPort === null ? {} : { port: declaredPort, strictPort: true };
 ```
+
+Spread it into `server`, ahead of the proxy.
+
+```js
+server: {
+  ...declaredPortBinding,
+  proxy: devProxy,
+},
+```
+
+The spread is deliberate. When the key is **not** declared, `declaredPortBinding` is `{}` and contributes nothing, so the app keeps Vite's default port and today's auto-increment behaviour unchanged. `strictPort: true` is set **only** when the key is declared — then a busy port is a hard error instead of a silent move onto the next app's port. Never set `strictPort` unconditionally.
+
+`apps/directory/vite.config.js` uses the same pattern and one extra: it needs its own URL for a rewrite rule, and writes ``const selfTarget = `http://localhost:${declaredPort ?? 5173}` `` — the `5173` there is the Vite default, used only when no port is declared. Nuxt apps take the same key through a different helper from the same module: `port: strictDevServerPort("MOLGENIS_PORT_APP_UI", 3000)` in `apps/ui/nuxt.config.ts`.
+
+The `<NAME>` part is free-form; the keys that exist today are `MOLGENIS_PORT_APP_CATALOGUE`, `_TAILWIND`, `_UI`, `_CENTRAL` and `_DIRECTORY`. If your app has a Playwright suite, resolve its `baseURL` from the same key with `e2eBaseUrl()` from `apps/dev-env.js`, as the existing suites do, so e2e tests the server you started.
 
 If you are using components for the `molgenis-viz` component library, you will also need import the styles. To use these, add the following configuration after the `server` configuration.
 
@@ -390,7 +412,7 @@ cp ../aggregates/index.html .
 
 Open the index.html file, add update the message with the name of your app. In addition, make sure the script tag points to the `main.ts` file.
 
-By this point, you should have enough to view your app. Run the `pnpm dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
+By this point, you should have enough to view your app. Run the `pnpm dev` command to start the dev server, and open the URL it prints — `http://localhost:5173` unless that port is taken or you declared one, as described in [giving your app its own dev-server port](#giving-your-app-its-own-dev-server-port).
 
 ### Generate typescript types for an app
 
