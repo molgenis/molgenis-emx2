@@ -25,7 +25,9 @@ export async function getDashboardChart(
           rightMargin
           bottomMargin
           leftMargin
-          legendPosition
+          legendPosition {
+            name
+          }
           dataPoints(
             orderby: [
               { primaryCategory: ASC }
@@ -43,7 +45,9 @@ export async function getDashboardChart(
             primaryCategoryLabel
             secondaryCategoryLabel
             timeValue
-            timeUnit
+            timeUnit {
+              name
+            }
             color
             description
             sortOrder
