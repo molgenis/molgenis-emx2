@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
   devServer: {
-    port: strictDevServerPort("MOLGENIS_PORT_CATALOGUE", 3000),
+    port: strictDevServerPort("MOLGENIS_PORT_APP_CATALOGUE", 3000),
   },
   modules: [
     "@nuxt/test-utils/module",

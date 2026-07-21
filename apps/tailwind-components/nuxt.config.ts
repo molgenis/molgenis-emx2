@@ -12,7 +12,7 @@ const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
 export default defineNuxtConfig({
   devtools: { enabled: true },
   devServer: {
-    port: strictDevServerPort("MOLGENIS_PORT_TAILWIND", 3000),
+    port: strictDevServerPort("MOLGENIS_PORT_APP_TAILWIND", 3000),
   },
   experimental: {
     watcher: "parcel",

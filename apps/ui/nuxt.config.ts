@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
   devServer: {
-    port: strictDevServerPort("MOLGENIS_PORT_UI", 3000),
+    port: strictDevServerPort("MOLGENIS_PORT_APP_UI", 3000),
   },
   runtimeConfig: {
     logLevel: 4,
