@@ -89,3 +89,30 @@ Types of refs:
 
 Within our code base we decided to not use the java 'var' syntax but always use explicity typing.
 
+### We don't tear down testing schemas
+
+Any schemas created in tests through `TestDatabaseFactory` aren't removed after the tests are finished.
+This to make debugging more easily.
+Instead, during a `@beforeAll`/`@beforeEach`, any test schema is dropped and created again.
+
+Example:
+```java
+class TestClass {
+  static Database database;
+
+  @BeforeAll
+  public static void beforeAll() {
+    database = TestDatabaseFactory.getTestDatabase();
+    database.dropSchemaIfExists("linkedSchemaThatMustBeRemovedFirst"); // if needed
+    database.dropCreateSchema("mySchemaName");
+    database.dropCreateSchema("linkedSchemaThatMustBeRemovedFirst");
+  }
+  
+  // No `@AfterAll` that removes the schemas!
+  
+  @Test
+  void myTest() {
+    // Do stuff.
+  }
+}
+```
