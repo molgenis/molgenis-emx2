@@ -15,14 +15,13 @@ class MissingPrimaryKeyResolverTest {
 
   private static final String SCHEMA_NAME = MissingPrimaryKeyResolverTest.class.getSimpleName();
 
-  private SchemaMetadata schema;
   private InMemoryTableStore tableStore;
   private MissingReferencePrimaryKeyResolver resolver;
 
   @BeforeEach
   void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(SCHEMA_NAME).getMetadata();
+    SchemaMetadata schema = database.dropCreateSchema(SCHEMA_NAME).getMetadata();
 
     schema.create(
         new TableMetadata("Organisations")
@@ -68,22 +67,12 @@ class MissingPrimaryKeyResolverTest {
   }
 
   @Test
-  void shouldNotSplitASingularSubjectIriThatContainsAComma() {
-    store("Organisations", new Row("_subject_", "urn:org:1,2", "id", "org-1"));
-    store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:1,2"));
-
-    resolver.resolve(tableStore, "Collections");
-
-    assertEquals("org-1", collection().getString("publisher"));
-  }
-
-  @Test
   void shouldFillMissingArrayReferenceUsingCommaSeparatedSubjectIris() {
     store(
         "Organisations",
         new Row("_subject_", "urn:org:1", "id", "org-1"),
         new Row("_subject_", "urn:org:2", "id", "org-2"));
-    store("Collections", new Row("id", "col-1", "_subject_creator", "urn:org:1,urn:org:2"));
+    store("Collections", new Row("id", "col-1", "_subject_creator", "urn:org:1\u001Furn:org:2"));
 
     resolver.resolve(tableStore, "Collections");
 
