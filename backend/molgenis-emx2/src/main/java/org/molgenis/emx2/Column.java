@@ -767,10 +767,6 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return AUTO_ID.equals(getColumnType());
   }
 
-  public boolean isMgEditRoleColumn() {
-    return MG_EDIT_ROLE.equals(this.getName());
-  }
-
   public boolean hasDependencyOn(Column column) {
     boolean onComputed = getComputed() != null && getComputed().contains(column.getName());
     boolean onDefaultValue =
