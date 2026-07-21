@@ -93,17 +93,17 @@ Within our code base we decided to not use the java 'var' syntax but always use 
 
 Any schemas created in tests through `TestDatabaseFactory` aren't removed after the tests are finished.
 This to make debugging more easily.
-Instead, during a `@beforeAll`/`@beforeEach`, any test schema is dropped and created again.
+Instead, during a `@BeforeAll`/`@BeforeEach`, the relevant test schema is dropped and created again.
 
 Example:
 ```java
-class TestClass {
+class MyClassTest {
   static Database database;
 
   @BeforeAll
   public static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
-    database.dropSchemaIfExists("linkedSchemaThatMustBeRemovedFirst"); // if needed
+    database.dropSchemaIfExists("linkedSchemaThatMustBeRemovedFirst"); // Add this if needed.
     database.dropCreateSchema("mySchemaName");
     database.dropCreateSchema("linkedSchemaThatMustBeRemovedFirst");
   }
@@ -111,7 +111,7 @@ class TestClass {
   // No `@AfterAll` that removes the schemas!
   
   @Test
-  void myTest() {
+  void testSomething() {
     // Do stuff.
   }
 }
