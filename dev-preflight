@@ -23,6 +23,8 @@ const { loadRootEnv, parseDotenv } = require("./apps/dev-env.js");
 const { reportPrefix } = require("./apps/dev-app-config.js");
 
 const gradleLinePrefix = "molgenis.";
+const devSystemPropertyPrefix = "dev.systemProperty.";
+const resolvedPrefix = "resolved.";
 const secretKeyPattern = /PASS|SECRET|TOKEN/;
 const appPortKeyPattern = /^MOLGENIS_PORT_APP_/;
 const shadowableKeyPattern = /^(MOLGENIS_|NUXT_PUBLIC_)/;
@@ -37,21 +39,23 @@ async function readGradleDevConfig() {
     ["-q", "--console=plain", "printDevConfig"],
     { cwd: repoRoot, maxBuffer: 8 * 1024 * 1024 }
   );
-  const forwarded = {};
+  const devSystemProperties = {};
   const resolved = {};
   let dotenvFile = "absent";
+  let devMaxHeapSize = "unbounded";
   for (const line of stdout.split("\n")) {
     if (!line.startsWith(gradleLinePrefix)) continue;
     const separator = line.indexOf("=");
     const name = line.slice(gradleLinePrefix.length, separator);
     const value = line.slice(separator + 1);
     if (name === "dotenv.file") dotenvFile = value;
-    else if (name.startsWith("dotenv."))
-      forwarded[name.slice("dotenv.".length)] = value;
-    else if (name.startsWith("resolved."))
-      resolved[name.slice("resolved.".length)] = value;
+    else if (name === "dev.maxHeapSize") devMaxHeapSize = value;
+    else if (name.startsWith(devSystemPropertyPrefix))
+      devSystemProperties[name.slice(devSystemPropertyPrefix.length)] = value;
+    else if (name.startsWith(resolvedPrefix))
+      resolved[name.slice(resolvedPrefix.length)] = value;
   }
-  return { dotenvFile, forwarded, resolved };
+  return { dotenvFile, devSystemProperties, devMaxHeapSize, resolved };
 }
 
 async function readAppConfigs() {
@@ -209,16 +213,17 @@ function checkAmbientShadowing(declared) {
 function checkGradleForwarding(declared, gradleConfig) {
   const failures = [];
   for (const [key, value] of Object.entries(declared)) {
-    if (!(key in gradleConfig.forwarded)) {
+    if (!(key in gradleConfig.devSystemProperties)) {
       failures.push(
-        `${key} is declared in .env but Gradle forwards no such system property`
+        `${key} is declared in .env but the dev task will launch its JVM without a system ` +
+          `property of that name`
       );
       continue;
     }
-    const forwarded = gradleConfig.forwarded[key];
+    const forwarded = gradleConfig.devSystemProperties[key];
     if (forwarded !== maskSecret(key, value) && !secretKeyPattern.test(key)) {
       failures.push(
-        `${key}: Gradle forwards ${forwarded}, .env declares ${value}`
+        `${key}: the dev task will launch with ${forwarded}, .env declares ${value}`
       );
     }
   }
@@ -227,11 +232,12 @@ function checkGradleForwarding(declared, gradleConfig) {
 
 function checkHeap(declared, gradleConfig) {
   const expected = declared.MOLGENIS_JVM_XMX || "unbounded";
-  const resolved = gradleConfig.resolved.maxHeapSize;
-  return resolved === expected
+  const realized = gradleConfig.devMaxHeapSize;
+  return realized === expected
     ? []
     : [
-        `Gradle resolves maxHeapSize=${resolved}, .env declares MOLGENIS_JVM_XMX=${expected}`,
+        `the dev task will launch its JVM with maxHeapSize=${realized}, .env declares ` +
+          `MOLGENIS_JVM_XMX=${expected}`,
       ];
 }
 
@@ -507,7 +513,7 @@ function printHeading(declared, gradleConfig, appConfigs, databaseSummary) {
     `  database     ${gradleConfig.resolved.MOLGENIS_POSTGRES_URI}` +
       (databaseSummary ? ` — ${databaseSummary}` : "")
   );
-  console.log(`  dev heap     ${gradleConfig.resolved.maxHeapSize}`);
+  console.log(`  dev heap     ${gradleConfig.devMaxHeapSize}`);
   for (const app of appConfigs) {
     const target = app.unresolved
       ? `unresolved: ${app.unresolved}`
@@ -558,7 +564,7 @@ async function main() {
       failures: checkAmbientShadowing(declared),
     },
     {
-      name: "Gradle forwards every .env key to forked JVMs",
+      name: "the dev task forwards every .env key to its forked JVM",
       failures: checkGradleForwarding(declared, gradleConfig),
     },
     {

@@ -23,7 +23,8 @@ ext {
 // generateTypes).
 // Every key of a repo-root .env file is forwarded, read straight from disk once at
 // configuration time (daemon-safe, no `source` needed). Precedence per key: a -D CLI system
-// property wins; otherwise the .env value; otherwise nothing (Java default applies).
+// property wins; then the ambient environment but only under MOLGENIS_ENV_OVERRIDE=1;
+// otherwise the .env value; otherwise nothing (Java default applies).
 ext.molgenisDotenv = { ->
     def envFile = new File(rootDir, '.env')
     def result = [:]
@@ -45,14 +46,18 @@ ext.molgenisDotenv = { ->
     }
     result
 }()
+ext.ambientEnvWins = System.getenv('MOLGENIS_ENV_OVERRIDE') == '1'
+ext.ambientEnvOverride = { key ->
+    rootProject.ambientEnvWins ? System.getenv(key) : null
+}
 ext.forwardDotenvProps = { task ->
     rootProject.molgenisDotenv.each { key, dotenvValue ->
-        def value = System.getProperty(key) ?: dotenvValue
+        def value = System.getProperty(key) ?: rootProject.ext.ambientEnvOverride(key) ?: dotenvValue
         if (value != null) task.systemProperty key, value
     }
 }
 ext.resolveDotenvValue = { key ->
-    System.getProperty(key) ?: rootProject.molgenisDotenv[key] ?: System.getenv(key)
+    System.getProperty(key) ?: rootProject.ext.ambientEnvOverride(key) ?: rootProject.molgenisDotenv[key] ?: System.getenv(key)
 }
 ext.applyDotenvHeap = { task ->
     def heap = rootProject.ext.resolveDotenvValue('MOLGENIS_JVM_XMX')
@@ -219,22 +224,23 @@ tasks.named('run') { rootProject.ext.applyDotenvHeap(it) }
 
 tasks.register('printDevConfig') {
     group = 'help'
-    description = 'Prints the dev configuration Gradle resolves from the repo-root .env, without starting the application'
+    description = 'Prints the realized dev task launch configuration plus what the repo-root .env resolves to, without starting the application'
     def dotenvFile = new File(rootDir, '.env')
     def dotenvLocation = dotenvFile.exists() ? dotenvFile.absolutePath : 'absent'
-    def forwardedKeys = new TreeMap<String, String>()
-    rootProject.molgenisDotenv.each { key, dotenvValue ->
-        forwardedKeys[key] = rootProject.ext.maskDotenvSecret(key, System.getProperty(key) ?: dotenvValue)
+    def devTask = project(':backend:molgenis-emx2-webapi').tasks.named('dev', JavaExec).get()
+    def devSystemProperties = new TreeMap<String, String>()
+    devTask.systemProperties.each { key, value ->
+        devSystemProperties[key] = rootProject.ext.maskDotenvSecret(key, String.valueOf(value))
     }
+    def devHeap = devTask.maxHeapSize ?: 'unbounded'
     def resolvedHttpPort = rootProject.ext.resolveDotenvValue('MOLGENIS_HTTP_PORT') ?: '8080'
     def resolvedPostgresUri = rootProject.ext.resolveDotenvValue('MOLGENIS_POSTGRES_URI') ?: 'jdbc:postgresql:molgenis'
-    def resolvedHeap = rootProject.ext.resolveDotenvValue('MOLGENIS_JVM_XMX') ?: 'unbounded'
     doLast {
         println "molgenis.dotenv.file=${dotenvLocation}"
-        forwardedKeys.each { key, value -> println "molgenis.dotenv.${key}=${value}" }
+        devSystemProperties.each { key, value -> println "molgenis.dev.systemProperty.${key}=${value}" }
+        println "molgenis.dev.maxHeapSize=${devHeap}"
         println "molgenis.resolved.MOLGENIS_HTTP_PORT=${resolvedHttpPort}"
         println "molgenis.resolved.MOLGENIS_POSTGRES_URI=${resolvedPostgresUri}"
-        println "molgenis.resolved.maxHeapSize=${resolvedHeap}"
     }
 }
 

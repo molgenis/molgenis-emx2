@@ -172,18 +172,27 @@ There is a second, nastier failure. A database provisioned by a *different branc
 
 Provisioning an instance is scripted internally, but by hand it is `initdb` into a private data directory, `pg_ctl` on a free port, then `psql -p <port> -f .circleci/initdb.sql`. Registering it as an extra server in Postgres.app makes it visible and disposable from the GUI; leave "start on login" off, or every worktree you ever provisioned spins up a postmaster when you log in.
 
-### Precedence, and the one thing that silently breaks it
+### Precedence: `.env` beats your shell
 
-Per key, the order is **shell environment → `.env` → code default**. That is deliberate: `MOLGENIS_HTTP_PORT=9000 ./gradlew dev` must still win for a one-off.
+Per key, the order is **explicit per-run override → `.env` → ambient environment → code default**, and it is the same on both halves of the stack.
 
-It also means a **machine-global export defeats the whole design**. An `export NUXT_PUBLIC_API_BASE=http://localhost:8080/` in `~/.zshrc` overrides the `.env` of *every* worktree at once, so an app you started from a stack declaring `:8083` quietly talks to `:8080` instead — and what you see is a 502 or an empty page that reads exactly like an application bug. Hours have been lost to this. Keep `MOLGENIS_*` and `NUXT_PUBLIC_*` out of your shell profile and put them in each worktree's `.env`.
+`.env` deliberately wins over the ambient environment, because the alternative cost hours: an `export NUXT_PUBLIC_API_BASE=http://localhost:8080/` in `~/.zshrc` overrode the `.env` of *every* worktree at once, so an app started from a stack declaring `:8083` quietly talked to `:8080` and returned a 502 that read exactly like an application bug. That class of failure is now impossible — and when `.env` does override something you exported, the dev server says so in one line:
 
-Two consequences of cleaning your profile:
+```console
+WARN  [dev-env] NUXT_PUBLIC_API_BASE=http://localhost:8083/ from .env overrides the ambient http://localhost:8080/ — set MOLGENIS_ENV_OVERRIDE=1 to keep the ambient value
+```
 
-- A worktree with **no** `.env` no longer gets the export either, and Nuxt apps fall back to their built-in default `https://emx2.dev.molgenis.org/` — the **shared remote**. Give every worktree you still use its own `.env`.
-- Until the profile is clean, prefix dev-server commands with `env -u NUXT_PUBLIC_API_BASE` (as done in the transcript below) so the `.env` value is the one that applies.
+The per-run override differs per half:
 
-`./dev-preflight` fails on exactly this shadowing, so you find out in six seconds instead of an hour.
+- **Gradle** — a `-D` system property beats `.env`: `./gradlew dev -DMOLGENIS_HTTP_PORT=9000`. Note that `MOLGENIS_HTTP_PORT=9000 ./gradlew dev` does **not** work: Gradle forwards every `.env` key onto the forked JVM as a system property, and the Java code reads system properties before environment variables.
+- **Both halves** — `MOLGENIS_ENV_OVERRIDE=1` restores shell-wins for that one run, and announces each key it keeps:
+
+  ```console
+  MOLGENIS_ENV_OVERRIDE=1 MOLGENIS_HTTP_PORT=9000 ./gradlew dev
+  MOLGENIS_ENV_OVERRIDE=1 MOLGENIS_PORT_APP_TAILWIND=3999 pnpm dev
+  ```
+
+Only keys **present in your `.env`** are affected. `E2E_BASE_URL` is a per-run test knob rather than a stack declaration, so it is never declared in `.env` and still wins in every Playwright config — running e2e against a remote is unchanged. A worktree with **no** `.env` sees no change at all, which is why CI is unaffected; there, and in any un-migrated checkout, Nuxt apps still fall back to their built-in default `https://emx2.dev.molgenis.org/` — the **shared remote**. Give every worktree you still use its own `.env`.
 
 ### Step 1 — preflight, before you start anything
 
@@ -264,10 +273,10 @@ Stale-`dist` caveat for `run`: apps are collected from `apps/*/dist` by the `col
 Each app is its own dev server on its own declared port, proxying to the declared backend. Install the workspace once (`cd apps && pnpm install`), then per app:
 
 ```console
-$ cd apps/tailwind-components && env -u NUXT_PUBLIC_API_BASE pnpm dev
+$ cd apps/tailwind-components && pnpm dev
   ➜ Local:    http://localhost:3031/
 
-$ cd apps/central && env -u NUXT_PUBLIC_API_BASE pnpm dev
+$ cd apps/central && pnpm dev
   ➜ Local:    http://localhost:3033/
 ```
 
@@ -307,7 +316,7 @@ Each app's Playwright config resolves its `baseURL` from that app's own `MOLGENI
 The `tailwind-components`, `ui` and `directory` suites start no server of their own, so they run against the dev server from step 3:
 
 ```console
-$ cd apps/tailwind-components && env -u NUXT_PUBLIC_API_BASE pnpm exec playwright test buttonBar --project=chromium --reporter=list
+$ cd apps/tailwind-components && pnpm exec playwright test buttonBar --project=chromium --reporter=list
   ✓  1 [chromium] › tests/e2e/buttonBar.spec.ts:12:1 › ... (670ms)
   1 passed (1.2s)
 ```

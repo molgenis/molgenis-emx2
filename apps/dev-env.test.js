@@ -23,8 +23,10 @@ const injectedKeys = [
 const dotenvKeys = [
   "MOLGENIS_HTTP_PORT",
   "MOLGENIS_POSTGRES_URI",
+  "MOLGENIS_POSTGRES_PASS",
   "MOLGENIS_JVM_XMX",
   "MOLGENIS_APPS_SCHEMA",
+  "MOLGENIS_ENV_OVERRIDE",
 ];
 
 function withInjectedEnv(overrides, assertions) {
@@ -58,9 +60,13 @@ function withEnvFile(contents, shellEnv, assertions) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "dev-env-"));
   const envFilePath = path.join(directory, ".env");
   fs.writeFileSync(envFilePath, contents);
+  const announcements = [];
+  const originalWarn = console.warn;
+  console.warn = (line) => announcements.push(line);
   try {
-    assertions(envFilePath);
+    assertions(envFilePath, announcements);
   } finally {
+    console.warn = originalWarn;
     fs.rmSync(directory, { recursive: true, force: true });
     for (const key of dotenvKeys) {
       if (restore[key] === undefined) delete process.env[key];
@@ -207,13 +213,92 @@ test("e2eBaseUrl returns the fallback when the declared port is not a number", (
   });
 });
 
-test("loadRootEnv keeps an existing shell value", () => {
+test("loadRootEnv overrides an existing shell value", () => {
   withEnvFile(
     "MOLGENIS_HTTP_PORT=8083\n",
     { MOLGENIS_HTTP_PORT: "8080" },
     (envFilePath) => {
       loadRootEnv(envFilePath);
+      assert.equal(process.env.MOLGENIS_HTTP_PORT, "8083");
+    }
+  );
+});
+
+test("loadRootEnv announces the shell value it overrides", () => {
+  withEnvFile(
+    "MOLGENIS_HTTP_PORT=8083\n",
+    { MOLGENIS_HTTP_PORT: "8080" },
+    (envFilePath, announcements) => {
+      loadRootEnv(envFilePath);
+      assert.equal(announcements.length, 1);
+      assert.equal(
+        announcements[0],
+        "[dev-env] MOLGENIS_HTTP_PORT=8083 from .env overrides the ambient 8080 — set MOLGENIS_ENV_OVERRIDE=1 to keep the ambient value"
+      );
+    }
+  );
+});
+
+test("loadRootEnv announces without printing a secret value", () => {
+  withEnvFile(
+    "MOLGENIS_POSTGRES_PASS=dotenv-secret\n",
+    { MOLGENIS_POSTGRES_PASS: "shell-secret" },
+    (envFilePath, announcements) => {
+      loadRootEnv(envFilePath);
+      assert.equal(
+        announcements[0],
+        "[dev-env] MOLGENIS_POSTGRES_PASS=<HIDDEN> from .env overrides the ambient <HIDDEN> — set MOLGENIS_ENV_OVERRIDE=1 to keep the ambient value"
+      );
+    }
+  );
+});
+
+test("loadRootEnv stays silent when the shell already agrees with .env", () => {
+  withEnvFile(
+    "MOLGENIS_HTTP_PORT=8083\n",
+    { MOLGENIS_HTTP_PORT: "8083" },
+    (envFilePath, announcements) => {
+      loadRootEnv(envFilePath);
+      assert.equal(process.env.MOLGENIS_HTTP_PORT, "8083");
+      assert.deepEqual(announcements, []);
+    }
+  );
+});
+
+test("loadRootEnv keeps an existing shell value when MOLGENIS_ENV_OVERRIDE=1", () => {
+  withEnvFile(
+    "MOLGENIS_HTTP_PORT=8083\n",
+    { MOLGENIS_HTTP_PORT: "8080", MOLGENIS_ENV_OVERRIDE: "1" },
+    (envFilePath) => {
+      loadRootEnv(envFilePath);
       assert.equal(process.env.MOLGENIS_HTTP_PORT, "8080");
+    }
+  );
+});
+
+test("loadRootEnv announces the .env value it skips under MOLGENIS_ENV_OVERRIDE=1", () => {
+  withEnvFile(
+    "MOLGENIS_HTTP_PORT=8083\n",
+    { MOLGENIS_HTTP_PORT: "8080", MOLGENIS_ENV_OVERRIDE: "1" },
+    (envFilePath, announcements) => {
+      loadRootEnv(envFilePath);
+      assert.equal(announcements.length, 1);
+      assert.equal(
+        announcements[0],
+        "[dev-env] MOLGENIS_ENV_OVERRIDE=1: MOLGENIS_HTTP_PORT=8080 from the ambient environment overrides the .env value 8083"
+      );
+    }
+  );
+});
+
+test("loadRootEnv still fills an unset key when MOLGENIS_ENV_OVERRIDE=1", () => {
+  withEnvFile(
+    "MOLGENIS_HTTP_PORT=8083\n",
+    { MOLGENIS_ENV_OVERRIDE: "1" },
+    (envFilePath, announcements) => {
+      loadRootEnv(envFilePath);
+      assert.equal(process.env.MOLGENIS_HTTP_PORT, "8083");
+      assert.deepEqual(announcements, []);
     }
   );
 });

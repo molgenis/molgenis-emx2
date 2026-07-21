@@ -2,6 +2,7 @@ const fs = process.getBuiltinModule("node:fs");
 const path = process.getBuiltinModule("node:path");
 
 const rootEnvPath = path.resolve(__dirname, "..", ".env");
+const ambientOverrideKey = "MOLGENIS_ENV_OVERRIDE";
 
 function devPort(key, fallback) {
   const port = Number(process.env[key]);
@@ -31,10 +32,42 @@ function e2eBaseUrl(portKey, fallback) {
 function loadRootEnv(envFilePath = rootEnvPath) {
   if (!fs.existsSync(envFilePath)) return {};
   const parsed = parseDotenv(fs.readFileSync(envFilePath, "utf-8"));
+  const ambientWins = process.env[ambientOverrideKey] === "1";
   for (const [key, value] of Object.entries(parsed)) {
-    if (process.env[key] === undefined) process.env[key] = value;
+    const ambient = process.env[key];
+    if (ambient === value) continue;
+    if (ambient === undefined) {
+      process.env[key] = value;
+      continue;
+    }
+    if (ambientWins) {
+      announceAmbientKept(key, value, ambient);
+      continue;
+    }
+    process.env[key] = value;
+    announceDotenvOverride(key, value, ambient);
   }
   return parsed;
+}
+
+function announceDotenvOverride(key, dotenvValue, ambientValue) {
+  const dotenv = maskSecret(key, dotenvValue);
+  const ambient = maskSecret(key, ambientValue);
+  console.warn(
+    `[dev-env] ${key}=${dotenv} from .env overrides the ambient ${ambient} — set ${ambientOverrideKey}=1 to keep the ambient value`
+  );
+}
+
+function announceAmbientKept(key, dotenvValue, ambientValue) {
+  const dotenv = maskSecret(key, dotenvValue);
+  const ambient = maskSecret(key, ambientValue);
+  console.warn(
+    `[dev-env] ${ambientOverrideKey}=1: ${key}=${ambient} from the ambient environment overrides the .env value ${dotenv}`
+  );
+}
+
+function maskSecret(key, value) {
+  return /PASS|SECRET|TOKEN/.test(key.toUpperCase()) ? "<HIDDEN>" : value;
 }
 
 function parseDotenv(contents) {
