@@ -44,8 +44,6 @@ async function updatePage() {
   pageData.value.metadata = updatedPageData.metadata;
   return updatedPageData;
 }
-
-
 </script>
 
 <template>
@@ -53,7 +51,7 @@ async function updatePage() {
     <bread-crumbs align="left" :crumbs="crumbs" class="my-5" />
   </Container>
 
-    <ConfigurablePage
+  <ConfigurablePage
     :content="(pageData.page as IConfigurablePages)"
     :metadata="(pageData.metadata as ITableMetaData[])"
     :is-editable="enableEditing"

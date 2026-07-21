@@ -11,13 +11,16 @@ const blocksOpen = ref<boolean>(true);
 </script>
 
 <template>
-    <div>
-      <div class="px-5 pt-3 pb-3 flex items-center justify-between">
-        <h2 class="font-display text-heading-3xl text-search-filter-title font-bold uppercase">Component palette</h2>
-      </div>
+  <div>
+    <div class="px-5 pt-3 pb-3 flex items-center justify-between">
+      <h2
+        class="font-display text-heading-3xl text-search-filter-title font-bold uppercase"
+      >
+        Component palette
+      </h2>
+    </div>
 
-
-      <hr class="border-t border-filter-divider mx-5" />
+    <hr class="border-t border-filter-divider mx-5" />
     <div
       class="p-5 flex items-center gap-1 cursor-pointer group"
       role="button"
@@ -26,7 +29,9 @@ const blocksOpen = ref<boolean>(true);
       aria-controls="???"
       @click="componentsOpen = !componentsOpen"
     >
-      <h3 class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words">
+      <h3
+        class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words"
+      >
         Components
       </h3>
       <span
@@ -71,7 +76,9 @@ const blocksOpen = ref<boolean>(true);
       aria-controls="???"
       @click="blocksOpen = !blocksOpen"
     >
-      <h3 class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words">
+      <h3
+        class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words"
+      >
         Blocks
       </h3>
       <span
@@ -100,6 +107,6 @@ const blocksOpen = ref<boolean>(true);
           />
         </li>
       </ul>
-      </div>
     </div>
+  </div>
 </template>
