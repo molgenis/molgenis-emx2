@@ -31,7 +31,7 @@ class SparqlVariableUtilTest {
     Variable toConcat = SparqlBuilder.var("foo");
     Variable as = SparqlBuilder.var("bar");
     assertEquals(
-        "( GROUP_CONCAT( DISTINCT STR( ?foo ) ; SEPARATOR = ',' ) AS ?bar )",
+        "( GROUP_CONCAT( DISTINCT STR( ?foo ) ; SEPARATOR = '\u001F' ) AS ?bar )",
         SparqlVariableUtil.concatAs(toConcat, as).getQueryString());
   }
 
