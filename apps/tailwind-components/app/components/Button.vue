@@ -45,13 +45,13 @@ const COLOR_MAPPING: Record<ButtonType, string> = {
     "tracking-widest uppercase rounded-alt font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover",
   tertiary:
     "tracking-widest uppercase rounded-alt font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover",
-  text: "group pl-0 pr-0 flex items-center text-button-text hover:bg-hover hover:text-link-hover cursor-pointer disabled:cursor-not-allowed disabled:text-disabled border-none h-auto",
+  text: "group pl-0 pr-0 flex items-center text-button-text hover:bg-hover hover:text-link-hover cursor-pointer disabled:cursor-not-allowed disabled:text-button-disabled disabled:hover:bg-transparent border-none h-auto",
   outline:
     "tracking-widest uppercase rounded-alt font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
   filterWell:
     "whitespace-nowrap bg-button-filter rounded-alt text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover focus:bg-button-filter-hover focus:border-button-filter-hover",
   inline:
-    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover disabled:bg-none disabled:text-button-disabled disabled:border-0 !disabled:hover:bg-none disabled:hover:text-button-disabled",
+    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover disabled:text-button-disabled disabled:border-0 disabled:hover:bg-transparent disabled:hover:text-button-disabled",
 };
 
 const TEXT_STYLING = "text-button-text hover:bg-hover hover:text-link-hover";
@@ -129,7 +129,7 @@ const disabledClasses = computed(() => {
   >
     <BaseIcon v-if="icon" :name="icon" :width="iconSize" />
     <span
-      :class="`${type === 'text' ? TEXT_STYLING : ''} ${
+      :class="`${type === 'text' && !disabled ? TEXT_STYLING : ''} ${
         iconOnly ? 'sr-only' : ''
       }`"
     >
