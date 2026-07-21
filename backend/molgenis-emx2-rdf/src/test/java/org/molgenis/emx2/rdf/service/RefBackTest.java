@@ -44,11 +44,6 @@ class RefBackTest extends RdfServiceTestRunner {
     refBackTest.getTable("tableRef").insert(row("id", "1", "link", "a"));
   }
 
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(SCHEMA_NAME);
-  }
-
   @Test
   void refBackInRdf() throws IOException {
     InMemoryRDFHandler handler = parseSchemaRdf(refBackTest);

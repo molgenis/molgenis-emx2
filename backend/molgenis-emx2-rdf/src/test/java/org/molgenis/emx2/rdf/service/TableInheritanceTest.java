@@ -77,6 +77,8 @@ class TableInheritanceTest extends RdfServiceTestRunner {
 
   @BeforeAll
   static void beforeAll() {
+    database.dropSchemaIfExists(EXTERNAL_SCHEMA_NAME); // must be deleted first
+
     // Use example from the catalogue schema since this has all the different issues.
     tableInherTest = database.dropCreateSchema(SCHEMA_NAME);
     tableInherTest.create(
@@ -131,12 +133,6 @@ class TableInheritanceTest extends RdfServiceTestRunner {
     tableInherExtTest
         .getTable("ExternalUnrelated")
         .insert(row("id", "a", "externalUnrelatedColumn", "unrelated data"));
-  }
-
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(EXTERNAL_SCHEMA_NAME);
-    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test

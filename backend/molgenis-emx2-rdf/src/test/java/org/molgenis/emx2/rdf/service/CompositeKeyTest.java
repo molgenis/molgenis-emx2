@@ -135,11 +135,6 @@ class CompositeKeyTest extends RdfServiceTestRunner {
                 "gc1b_first"));
   }
 
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(SCHEMA_NAME);
-  }
-
   @Test
   void testCompositeKeysPresenceOnFullSchema() throws IOException {
     InMemoryRDFHandler handler = parseSchemaRdf(compositeKeyTest);

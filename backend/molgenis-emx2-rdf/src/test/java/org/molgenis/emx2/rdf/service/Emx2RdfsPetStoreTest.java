@@ -222,7 +222,6 @@ class Emx2RdfsPetStoreTest extends PetStoreTest {
   void testThatURLColumnsAreObjectProperties() throws IOException {
     final String schemaName = SCHEMA_NAME_PREFIX + "Website";
 
-    try {
       Schema schema = database.dropCreateSchema(schemaName);
       Table table =
           schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
@@ -253,9 +252,6 @@ class Emx2RdfsPetStoreTest extends PetStoreTest {
       }
       assertTrue(linkHasLabel, "The link should have a label to make it easer to read.");
       assertTrue(isObjectProperty, "The column website should be defined as a Object Property.");
-    } finally {
-      database.dropSchemaIfExists(schemaName);
-    }
   }
 
   @Test
@@ -279,7 +275,6 @@ class Emx2RdfsPetStoreTest extends PetStoreTest {
   void testSubClassesForInheritedTable() throws IOException {
     final String schemaName = SCHEMA_NAME_PREFIX + "InheritTable";
 
-    try {
       Schema schema = database.dropCreateSchema(schemaName);
       Table root = schema.create(table("root", column("id").setPkey()));
       Table child = schema.create(table("child", column("name")).setInheritName("root"));
@@ -301,16 +296,12 @@ class Emx2RdfsPetStoreTest extends PetStoreTest {
       assertTrue(
           subclasses.contains(cubeDataSetIRI),
           "Subclasses are expected to be a subclass of cube@DataSet");
-    } finally {
-      database.dropSchemaIfExists(schemaName);
-    }
   }
 
   @Test
   void testSubClassRootTables() throws IOException {
     final String schemaName = SCHEMA_NAME_PREFIX + "RootTable";
 
-    try {
       Schema schema = database.dropCreateSchema(schemaName);
       Table root = schema.create(table("root", column("id").setPkey()));
       Table child = schema.create(table("child", column("name")).setInheritName("root"));
@@ -332,8 +323,5 @@ class Emx2RdfsPetStoreTest extends PetStoreTest {
       assertTrue(
           subclasses.contains(cubeDataSetIRI),
           "Subclasses are expected to be a subclass of cube@DataSet");
-    } finally {
-      database.dropSchemaIfExists(schemaName);
-    }
   }
 }

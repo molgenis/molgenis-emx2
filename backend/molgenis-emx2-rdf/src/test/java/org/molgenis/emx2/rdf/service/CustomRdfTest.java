@@ -39,7 +39,6 @@ class CustomRdfTest extends RdfServiceTestRunner {
       <https://molgenis.org/> example:test "Molgenis" .
       """;
 
-    try {
       Schema schema = database.dropCreateSchema(schemaName);
       // Test default behaviour.
       assertFalse(schema.hasSetting(SETTING_CUSTOM_RDF));
@@ -59,10 +58,6 @@ class CustomRdfTest extends RdfServiceTestRunner {
               .get(Values.iri("https://molgenis.org/"))
               .get(Values.iri("http://example.com/test"))
               .contains(Values.literal("Molgenis")));
-
-    } finally {
-      database.dropSchemaIfExists(schemaName);
-    }
   }
 
   /**
@@ -78,13 +73,9 @@ class CustomRdfTest extends RdfServiceTestRunner {
       <https://molgenis.org/> <http://purl.org/dc/terms/title> "Molgenis"
       """;
 
-    try {
       Schema schema = database.dropCreateSchema(schemaName);
       schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
       assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
-    } finally {
-      database.dropSchemaIfExists(schemaName);
-    }
   }
 
   @Test
@@ -93,12 +84,8 @@ class CustomRdfTest extends RdfServiceTestRunner {
 
     final String customRdf = "";
 
-    try {
       Schema schema = database.dropCreateSchema(schemaName);
       schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
       assertDoesNotThrow(() -> parseSchemaRdf(schema));
-    } finally {
-      database.dropSchemaIfExists(schemaName);
-    }
   }
 }

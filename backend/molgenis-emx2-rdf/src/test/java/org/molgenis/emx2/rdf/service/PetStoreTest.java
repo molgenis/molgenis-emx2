@@ -48,12 +48,6 @@ class PetStoreTest extends RdfServiceTestRunner {
     petStoreSecondTest = database.getSchema(SCHEMA_NAME_SECOND);
   }
 
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(SCHEMA_NAME);
-    database.dropSchemaIfExists(SCHEMA_NAME_SECOND);
-  }
-
   @Test
   void testPetStoreRdfEmx2SchemaModel() throws IOException, NoSuchMethodException {
     compareToValidationFile(

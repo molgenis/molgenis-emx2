@@ -62,11 +62,6 @@ class RefLinkTest extends RdfServiceTestRunner {
                 "t2Third,t2Fourth"));
   }
 
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(SCHEMA_NAME);
-  }
-
   @Test
   void testRefLinkWorks() {
     assertDoesNotThrow(() -> parseSchemaRdf(refLinkTest));

@@ -58,11 +58,6 @@ class SemanticTest extends RdfServiceTestRunner {
         .setSetting(SETTING_SEMANTIC_PREFIXES, "dcterms,http://purl.org/dc/terms/");
   }
 
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(SCHEMA_NAME);
-  }
-
   @Test
   void testSemanticPrefixesSetting() throws IOException {
     final Set<Namespace> defaultNamespaces =

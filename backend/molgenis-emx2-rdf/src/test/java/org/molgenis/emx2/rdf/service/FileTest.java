@@ -37,11 +37,6 @@ class FileTest extends RdfServiceTestRunner {
     fileTest.getTable("myFiles").insert(row("id", "1", "file", getFile("testfiles/molgenis.png")));
   }
 
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(SCHEMA_NAME);
-  }
-
   @Test
   void testFileMetadataTriples() throws IOException {
     InMemoryRDFHandler handler = parseSchemaRdf(fileTest);

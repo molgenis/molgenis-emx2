@@ -28,6 +28,8 @@ class OntologyTest extends RdfServiceTestRunner {
 
   @BeforeAll
   static void beforeAll() {
+    database.dropSchemaIfExists(CROSS_SCHEMA_NAME); // must be deleted first
+
     ontologyTest = database.dropCreateSchema(SCHEMA_NAME);
     ontologyTest.create(table("Diseases").setTableType(TableType.ONTOLOGIES));
     ontologyTest.create(
@@ -119,12 +121,6 @@ class OntologyTest extends RdfServiceTestRunner {
                 "pim",
                 "diseases",
                 "\"U07\", \"C00-C14 Malignant neoplasms of lip, oral cavity and pharynx\""));
-  }
-
-  @AfterAll
-  static void afterAll() {
-    database.dropSchemaIfExists(CROSS_SCHEMA_NAME);
-    database.dropSchemaIfExists(SCHEMA_NAME);
   }
 
   @Test
