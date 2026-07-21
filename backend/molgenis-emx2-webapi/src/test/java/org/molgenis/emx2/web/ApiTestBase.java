@@ -19,7 +19,7 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
  *
  * <ul>
  *   <li>Setting up a test database
- *   <li>Starting the Molgenis web service on port 8081
+ *   <li>Starting the Molgenis web service on an OS-assigned free port
  *   <li>Providing authentication utilities
  * </ul>
  *
@@ -46,24 +46,33 @@ public abstract class ApiTestBase {
 
   protected static String sessionId;
   protected static Database database;
-  protected static final int PORT = 8081; // other than default so we can see effect
+  private static final int OS_ASSIGNED_PORT = 0;
+  protected static int port;
   private static MolgenisWebservice service;
 
   @BeforeAll
   static void setupService() throws Exception {
     database = TestDatabaseFactory.getTestDatabase();
 
+    service = startWebservice();
+    port = service.getPort();
+
+    // set default rest assured settings
+    RestAssured.port = port;
+    RestAssured.baseURI = "http://localhost";
+  }
+
+  static MolgenisWebservice startWebservice() throws Exception {
+    MolgenisWebservice startedService = new MolgenisWebservice();
+
     // start web service for testing, including env variables
     new EnvironmentVariables(MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
         .execute(
             () -> {
-              service = new MolgenisWebservice();
-              service.start(PORT);
+              startedService.start(OS_ASSIGNED_PORT);
             });
 
-    // set default rest assured settings
-    RestAssured.port = PORT;
-    RestAssured.baseURI = "http://localhost";
+    return startedService;
   }
 
   @AfterAll
