@@ -31,6 +31,7 @@
     - [Developer Guidelines](dev_guidelines.md)
     - [Architecture](dev_architecture.md)
     - [How to build](dev_quickstart.md)
+    - [Dev stacks reference](dev_devstacks.md)
     - [Basic concepts](dev_basics.md)
     - [GraphQL](dev_graphql.md)
     - [Batch API](dev_batchapi.md)

@@ -17,8 +17,14 @@ cd molgenis-emx
 git checkout <branch name here>
 ```
 
-Then you can either build + run the whole molgenis.jar, or use docker-compose to instantiate the backend and only run one app, described below. Or you can run
-it inside IntelliJ.
+Then pick the path that matches what you are doing:
+
+- **Frontend only** — you work on one or two apps and use a backend somebody else runs. No Postgres, no Java, no backend start:
+  jump to [Frontend only: point an app at a backend you did not start](#frontend-only-point-an-app-at-a-backend-you-did-not-start).
+- **Fullstack, one checkout** — build + run the whole molgenis.jar, or use docker-compose for the backend and run one app: continue below. Or run it inside IntelliJ.
+- **Fullstack, several checkouts at once** (a git worktree per branch): [Parallel dev stacks](#parallel-dev-stacks-one-per-worktree) is the primary workflow, and the rest of this page builds up to it.
+
+Why each rule in that workflow exists — the cluster-wide-roles argument, the memory budget, the proxy routing — is kept out of this page, in [Dev stacks: why it works this way](dev_devstacks.md).
 
 ## Build whole system
 
@@ -48,58 +54,9 @@ root-directory)
   rm -rf psql_data
   ```
 
-**Run a dedicated dev database on a custom port**
+**Use a database and an HTTP port that are yours alone**
 
-To isolate a dev database from the default one on `:5432` without Docker, run a second Postgres **instance** on another port (e.g. `5433`). With Postgres.app, add a second server (PostgreSQL 15) on port `5433`; or start a separate PostgreSQL cluster. A separate *database name* on the same server is **not** enough — see [Parallel dev stacks](#parallel-dev-stacks-one-per-worktree) for why. Seed the `molgenis` db/user if it does not exist yet:
-
-```console
-psql -p 5433 -f .circleci/initdb.sql
-```
-
-Then point the backend (and tests) at it. The simplest way is a `.env` file at the repo root: Gradle auto-reads it (straight from disk at configuration time, so it is daemon-safe) and forwards every key in it to the forked test/`dev`/`cleandb`/`run` JVMs as a system property, so it also works for settings behind an environment feature flag. Create `.env` with:
-
-```
-MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
-MOLGENIS_POSTGRES_USER=molgenis
-MOLGENIS_POSTGRES_PASS=molgenis
-```
-
-Now the tasks pick it up with no extra flags:
-
-```console
-./gradlew run
-./gradlew dev
-./gradlew :backend:molgenis-emx2-sql:test
-```
-
-A `-D` system property overrides the `.env` value of that key for a single run (handy to hit a different port without editing `.env`):
-
-```console
-./gradlew run -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
-```
-
-Add `MOLGENIS_POSTGRES_USER=...`/`MOLGENIS_POSTGRES_PASS=...` (in `.env`) or `-DMOLGENIS_POSTGRES_USER=...`/`-DMOLGENIS_POSTGRES_PASS=...` if your credentials differ from the `molgenis`/`molgenis` default. See `.env-example` for a ready-made template. The `.env` file is gitignored.
-
-**Run the backend on a different HTTP port**
-
-The backend binds `:8080` by default, which is a problem as soon as you keep several checkouts (for example git worktrees, one per branch) running at the same time: the second `./gradlew dev` fails to bind the port, and both would write into the same `molgenis` database. `MOLGENIS_HTTP_PORT` is read the same way as the postgres settings, so one `.env` per checkout describes that checkout's whole dev stack:
-
-```
-MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5435/molgenis
-MOLGENIS_POSTGRES_USER=molgenis
-MOLGENIS_POSTGRES_PASS=molgenis
-MOLGENIS_HTTP_PORT=8083
-```
-
-`./gradlew dev` (or `run`) then serves on <http://localhost:8083>, and a `-D` flag still wins for a one-off:
-
-```console
-./gradlew dev -DMOLGENIS_HTTP_PORT=8084
-```
-
-Stay off `8080` (the default, so somebody else's checkout has it) and off `8081` (historically the webapi test port). Give each parallel checkout its own **Postgres instance** as well, not merely its own database name on the shared server — `gradle test` and `cleandb` drop roles that are cluster-wide.
-
-The app dev servers follow along: `MOLGENIS_APPS_HOST` retargets the ~20 Vite apps and `NUXT_PUBLIC_API_BASE` the three Nuxt apps, both read from the same `.env`. That is the primary workflow, described in full below.
+Both defaults — the `molgenis` database on Postgres `:5432` and backend port `:8080` — are shared with every other checkout on your machine. The second `./gradlew dev` fails to bind `:8080`, and both checkouts write into the same database. One gitignored `.env` at the repo root fixes all of it at once, for Gradle and for the frontend dev servers alike: see [Parallel dev stacks](#parallel-dev-stacks-one-per-worktree).
 
 **Start developing using gradle**
 
@@ -142,11 +99,42 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
   Look at the console for the actual port. Apps that declare a `MOLGENIS_PORT_APP_*` key bind that port strictly; the rest fall back to Vite's `5173` or Nuxt's `3000` and drift upwards when it is taken.
 - The admin UI is an app too, so in this workflow `central` runs as its own dev server (`cd apps/central && pnpm dev`) rather than under `/apps/central/`.
 
-The next section turns this into the full per-worktree workflow, including how to point those dev servers at a backend that is not on `:8080`.
+The next two sections turn this into a repeatable workflow, including how to point those dev servers at a backend that is not on `:8080` — at a shared one you did not start, or at your own private stack.
+
+## Frontend only: point an app at a backend you did not start
+
+If you only work on apps, you do not need Postgres, Java or a backend at all. Point the two frontend keys at a backend that already exists — the shared remote, a colleague's server, or a stack running in another checkout — and run the app.
+
+You still need the workspace installed once (`cd apps && pnpm install`). Then create `.env` at the repo root with nothing but a host and the ports of the apps you actually start:
+
+```
+MOLGENIS_APPS_HOST=https://emx2.dev.molgenis.org
+NUXT_PUBLIC_API_BASE=https://emx2.dev.molgenis.org/
+MOLGENIS_PORT_APP_TAILWIND=3031
+MOLGENIS_PORT_APP_CATALOGUE=3030
+```
+
+That is the whole file. **No `MOLGENIS_HTTP_PORT`, no `MOLGENIS_POSTGRES_*`, no `MOLGENIS_JVM_XMX`** — those four describe a backend *you* start, and you are not starting one. `MOLGENIS_HTTP_PORT` is simply **unused** when the declared host is remote: nothing local is listening for the dev servers to reach.
+
+This is also exactly why the `.env` consistency check compares **loopback targets only**. It refuses to start the dev servers when `MOLGENIS_APPS_HOST` or `NUXT_PUBLIC_API_BASE` names `localhost` on a port other than the declared `MOLGENIS_HTTP_PORT` — but a remote host is never compared against anything, so a remote-pointing `.env` like the one above can never be rejected. Details: [why the check only compares loopback targets](dev_devstacks.md#why-the-consistency-check-only-compares-loopback-targets).
+
+Then start the app you are working on, and check the port in its banner:
+
+```console
+$ cd apps/tailwind-components && pnpm dev
+  ➜ Local:    http://localhost:3031/
+```
+
+Two things that still apply to you:
+
+- If you develop against any schema other than `pet store`, set `MOLGENIS_APPS_SCHEMA` — see [which schema the shared-proxy apps ask for](dev_devstacks.md#which-schema-the-shared-proxy-apps-ask-for).
+- e2e against that same remote is `E2E_BASE_URL=https://emx2.dev.molgenis.org/ pnpm e2e`, unchanged.
+
+If you later need your own backend as well, the next section is a superset of this one: same file, more keys.
 
 ## Parallel dev stacks (one per worktree)
 
-Everything above assumes a single checkout. If you keep several — for example one git worktree per branch — every checkout defaults to backend `:8080`, dev servers `:3000` and database `molgenis` on Postgres `:5432`, and they quietly fight over all three. Nuxt and Vite make it worse: a busy port is *auto-incremented* rather than refused, so a dev server can end up on a sibling's port and screenshot, query or drop the wrong thing without a single error message.
+Everything above assumes there is one backend in play. If you keep several checkouts — for example one git worktree per branch — every checkout defaults to backend `:8080`, dev servers `:3000` and database `molgenis` on Postgres `:5432`, and they quietly fight over all three. Nuxt and Vite make it worse: a busy port is *auto-incremented* rather than refused, so a dev server can end up on a sibling's port and screenshot, query or drop the wrong thing without a single error message.
 
 The convention is: **one worktree declares one complete private stack in one gitignored `.env` at the repo root** — its own Postgres instance, its own backend HTTP port, its own heap cap, and its own dev-server port per app. Declaring a stack costs disk, not memory; nothing starts until you start it. Copy `.env-example` and adjust:
 
@@ -162,21 +150,41 @@ cp .env-example .env
 | `MOLGENIS_APPS_HOST` | the backend the ~20 shared-proxy Vite apps, `central` and `directory` talk to |
 | `NUXT_PUBLIC_API_BASE` | the backend the Nuxt apps (`tailwind-components`, `ui`, `catalogue`) talk to |
 | `MOLGENIS_PORT_APP_*` | the port each app's own dev server binds, strictly |
-| `MOLGENIS_APPS_SCHEMA` | the schema the schema-less dev-proxy routes fill in |
+| `MOLGENIS_APPS_SCHEMA` | the schema the schema-less dev-proxy routes fill in ([detail](dev_devstacks.md#which-schema-the-shared-proxy-apps-ask-for)) |
 
-### Why a separate Postgres instance, and not just a separate database
+Pick ports nothing else on your machine uses. Stay off `8080` (the default, so somebody else's checkout has it) and off `8081` (historically the webapi test port).
 
-Postgres roles are **cluster-wide**, and this codebase's role names carry no database name: `MG_ROLE_<schema>/<privilege>` and `MG_USER_<user>`. `cleandb` runs `clean-molgenis-database.sql`, which drops every role in `pg_roles` matching `MG\_%`, `test%` or `user_%`. Test schema names are fixed across checkouts too (`pet store`, `_SYSTEM_`). So `./gradlew cleandb` — or a backend test run — in one checkout destroys roles another checkout's running backend depends on, even when the two use different database names on the same server.
+### Step 0 — a Postgres instance for this worktree
 
-There is a second, nastier failure. A database provisioned by a *different branch* can carry incompatible column types under the same recorded schema version, and the version number stops a migration from repairing it. That really happened here: `MOLGENIS.table_inherits` was `character varying[]` on one instance and `character varying` on another, and every backend test in the second worktree died in `@BeforeAll` with an `ExceptionInInitializerError` that pointed nowhere near the cause. One instance per worktree.
+Give the worktree its **own Postgres instance** — a second server in Postgres.app, or any separate cluster, on its own port. A separate *database name* on the shared `:5432` server is **not** enough: `gradle test` and `cleandb` drop roles that are cluster-wide, so they reach into every checkout using that server. The full argument, and the incident behind it, is in [why a separate Postgres instance, and not just a separate database](dev_devstacks.md#why-a-separate-postgres-instance-and-not-just-a-separate-database); [provisioning one by hand](dev_devstacks.md#provisioning-an-instance-by-hand) is three commands.
 
-Provisioning an instance is scripted internally, but by hand it is `initdb` into a private data directory, `pg_ctl` on a free port, then `psql -p <port> -f .circleci/initdb.sql`. Registering it as an extra server in Postgres.app makes it visible and disposable from the GUI; leave "start on login" off, or every worktree you ever provisioned spins up a postmaster when you log in.
+Seed the `molgenis` database and user in the new instance:
+
+```console
+psql -p 5435 -f .circleci/initdb.sql
+```
+
+Then declare it in `.env`, together with the rest of the stack. The credentials default to `molgenis`/`molgenis`; set `MOLGENIS_POSTGRES_USER` / `MOLGENIS_POSTGRES_PASS` if yours differ. This is the subset used by the walkthrough below — `.env-example` declares a port for **every** app, which is what you want, so that no two checkouts fall back to a shared `5173`:
+
+```
+MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5435/molgenis
+MOLGENIS_POSTGRES_USER=molgenis
+MOLGENIS_POSTGRES_PASS=molgenis
+MOLGENIS_HTTP_PORT=8083
+MOLGENIS_JVM_XMX=1g
+MOLGENIS_APPS_HOST=http://localhost:8083
+NUXT_PUBLIC_API_BASE=http://localhost:8083/
+MOLGENIS_PORT_APP_TAILWIND=3031
+MOLGENIS_PORT_APP_CENTRAL=3033
+```
+
+Every Gradle task in this checkout — `run`, `dev`, `cleandb` and the test tasks — now targets that instance with no extra flags, and so do the dev servers. How that forwarding works: [how the env file reaches each half of the stack](dev_devstacks.md#how-the-env-file-reaches-each-half-of-the-stack). One full stack costs about 1.95 GB of RAM while running ([measured](dev_devstacks.md#what-a-stack-costs-measured)); declared and not started, it costs disk only.
 
 ### Precedence: `.env` beats your shell
 
 Per key, the order is **explicit per-run override → `.env` → ambient environment → code default**, and it is the same on both halves of the stack.
 
-`.env` deliberately wins over the ambient environment, because the alternative cost hours: an `export NUXT_PUBLIC_API_BASE=http://localhost:8080/` in `~/.zshrc` overrode the `.env` of *every* worktree at once, so an app started from a stack declaring `:8083` quietly talked to `:8080` and returned a 502 that read exactly like an application bug. That class of failure is now impossible — and when `.env` does override something you exported, the dev server says so in one line:
+`.env` deliberately wins over the ambient environment — [an exported variable in a shell profile used to silently pin every worktree to the wrong backend](dev_devstacks.md#why-the-env-file-beats-your-shell). When `.env` does override something you exported, the dev server says so in one line:
 
 ```console
 WARN  [dev-env] NUXT_PUBLIC_API_BASE=http://localhost:8083/ from .env overrides the ambient http://localhost:8080/ — set MOLGENIS_ENV_OVERRIDE=1 to keep the ambient value
@@ -184,7 +192,7 @@ WARN  [dev-env] NUXT_PUBLIC_API_BASE=http://localhost:8083/ from .env overrides 
 
 The per-run override differs per half:
 
-- **Gradle** — a `-D` system property beats `.env`: `./gradlew dev -DMOLGENIS_HTTP_PORT=9000`. Note that `MOLGENIS_HTTP_PORT=9000 ./gradlew dev` does **not** work: Gradle forwards every `.env` key onto the forked JVM as a system property, and the Java code reads system properties before environment variables.
+- **Gradle** — a `-D` system property beats `.env`: `./gradlew dev -DMOLGENIS_HTTP_PORT=9000`. A plain `MOLGENIS_HTTP_PORT=9000 ./gradlew dev` does **not** work; [why](dev_devstacks.md#why-the-env-file-beats-your-shell).
 - **Both halves** — `MOLGENIS_ENV_OVERRIDE=1` restores shell-wins for that one run, and announces each key it keeps:
 
   ```console
@@ -192,11 +200,11 @@ The per-run override differs per half:
   MOLGENIS_ENV_OVERRIDE=1 MOLGENIS_PORT_APP_TAILWIND=3999 pnpm dev
   ```
 
-Only keys **present in your `.env`** are affected. `E2E_BASE_URL` is a per-run test knob rather than a stack declaration, so it is never declared in `.env` and still wins in every Playwright config — running e2e against a remote is unchanged. A worktree with **no** `.env` sees no change at all, which is why CI is unaffected; there, and in any un-migrated checkout, Nuxt apps still fall back to their built-in default `https://emx2.dev.molgenis.org/` — the **shared remote**. Give every worktree you still use its own `.env`.
+Only keys **present in your `.env`** are affected, so a worktree with no `.env` behaves exactly as it always did. `E2E_BASE_URL` is a per-run test knob, never a declared key, and still wins in every Playwright config.
 
 ### One `.env`, one backend: the frontend keys must match `MOLGENIS_HTTP_PORT`
 
-`MOLGENIS_APPS_HOST` and `NUXT_PUBLIC_API_BASE` say which backend the dev servers talk to, and `MOLGENIS_HTTP_PORT` says which one this worktree starts. Hand-editing makes it easy to leave them disagreeing — every value individually valid, everything starts, and the frontend quietly serves another worktree's data. So when `.env` points a **local** frontend key at a port other than the declared backend, the dev servers refuse to start:
+Hand-editing makes it easy to leave `MOLGENIS_APPS_HOST` or `NUXT_PUBLIC_API_BASE` pointing at a different local port than the `MOLGENIS_HTTP_PORT` this worktree starts — every value individually valid, everything starts, and the frontend quietly serves another worktree's data. So when `.env` points a **local** frontend key at a port other than the declared backend, the dev servers refuse to start:
 
 ```console
 $ pnpm dev
@@ -205,7 +213,7 @@ stack starts, but MOLGENIS_APPS_HOST=http://localhost:8084 targets local port 80
 somebody else's backend.
 ```
 
-Pointing those keys at a **remote** backend (`https://emx2.dev.molgenis.org`) is a normal frontend-only workflow, so nothing is compared there — `MOLGENIS_HTTP_PORT` is simply unused when no local backend is targeted.
+A **remote** backend is never compared, because [pointing there is a normal frontend-only workflow](#frontend-only-point-an-app-at-a-backend-you-did-not-start).
 
 ### Step 1 — the backend, headless
 
@@ -230,7 +238,7 @@ $ curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8083/apps/central/
 404
 ```
 
-That 404 is expected, not a broken build: `molgenis-emx2-webapi` has no dependency on `:apps`, so no app bundle is ever collected. Only `molgenis-emx2-run` depends on `:apps`, which is exactly why `./gradlew run` is slow — it pnpm-builds all 27 apps first. In the normal workflow the admin UI (`central`) runs as its own dev server, step 2.
+That 404 is expected, not a broken build — no app bundle is ever collected under `dev`, as ["Build one 'app'"](#build-one-app) above explains. In the normal workflow the admin UI (`central`) runs as its own dev server, step 2.
 
 Stale-`dist` caveat for `run`: apps are collected from `apps/*/dist` by the `collectDist` task, so `run` serves whatever was **last built** into those folders, not necessarily your current source. `rm -rf ./apps/*/dist/` forces a rebuild.
 
@@ -267,11 +275,7 @@ The `tailwind-components` dev log confirms the hop, and the port in it is the on
 ℹ to :  http://localhost:8083/pet store/graphql
 ```
 
-Three things worth knowing about how that routing works:
-
-- **The Nuxt apps route through a Nitro server route, and only in `dev`.** `tailwind-components` proxies `/<schema>/graphql` in `server/routes/`, using `NUXT_PUBLIC_API_BASE`. Its `build` is `nuxt generate` with `NUXT_PUBLIC_IS_SSR=false`, which has no server routes at all — so the static build does not proxy anything, and `NUXT_PUBLIC_API_BASE` matters only while `nuxt dev` runs. The Nuxt `dev` scripts pass `--dotenv=../../.env`; a missing file there is silently ignored, so a fresh clone still works.
-- **The Vite apps share `apps/dev-proxy.config.js`**, which sends `/<schema>/graphql` straight to `MOLGENIS_APPS_HOST`. `central` and `directory` keep their own route maps (central's routes are schema-less: `/api/graphql`, `/theme.css`), also parameterized by `MOLGENIS_APPS_HOST`.
-- **`MOLGENIS_APPS_SCHEMA` fills in the schema for the schema-less routes** of those ~20 shared-proxy apps: `/graphql` → `${MOLGENIS_APPS_HOST}/${MOLGENIS_APPS_SCHEMA}/graphql`, and likewise `/reports` and `/theme.css`. It defaults to `pet store` (`directory` defaults to `directory-demo`). If you are developing against any other schema, set it in `.env` — nothing else will point those routes at your data.
+The Nuxt apps and the Vite apps get there by different routes, which matters when one of them does not: [how the dev-server proxies route](dev_devstacks.md#how-the-dev-server-proxies-route). If you develop against a schema other than `pet store`, also set `MOLGENIS_APPS_SCHEMA` — [which schema the shared-proxy apps ask for](dev_devstacks.md#which-schema-the-shared-proxy-apps-ask-for).
 
 A declared port is bound **strictly**: if it is already taken, the dev server errors out with `Unable to find an available port on host "localhost" (tried 3031)` instead of silently walking to `3032` and stealing the next app's port.
 
@@ -287,7 +291,7 @@ $ cd apps/tailwind-components && pnpm exec playwright test buttonBar --project=c
   1 passed (1.2s)
 ```
 
-`pnpm e2e` runs a whole suite. Only `catalogue` starts its own server, and it starts a **built** one (`node .output/server/index.mjs`) with `reuseExistingServer: false` — so run `pnpm build` first, and stop your catalogue dev server, otherwise the port is taken and the run fails loudly instead of silently testing the wrong thing. That silent-wrong-target failure is the reason for all of this: a stray dev server on `:3000` once made Playwright screenshot a different app entirely and produce blank 45913px baselines that read like a theme bug.
+`pnpm e2e` runs a whole suite. Only `catalogue` starts its own server, and it starts a **built** one (`node .output/server/index.mjs`) with `reuseExistingServer: false` — so run `pnpm build` first, and stop your catalogue dev server, otherwise the port is taken and the run [fails loudly instead of silently testing the wrong thing](dev_devstacks.md#how-each-playwright-suite-picks-its-target).
 
 #### Running e2e against a remote — `E2E_BASE_URL`
 
@@ -297,43 +301,11 @@ $ cd apps/tailwind-components && pnpm exec playwright test buttonBar --project=c
 E2E_BASE_URL=https://emx2.dev.molgenis.org/ pnpm e2e
 ```
 
-The full precedence per suite is:
-
-1. `E2E_BASE_URL`, if set — wins over everything;
-2. otherwise the app's own `MOLGENIS_PORT_APP_*` (for the repo-root `e2e/` suite, `MOLGENIS_HTTP_PORT`), if declared;
-3. otherwise the literal fallback that config always had, so a worktree with no `.env` behaves exactly as before. This is also why CI is unaffected: it exports `E2E_BASE_URL` for the suites it drives that way and declares no ports at all.
-
-Grepping the configs for `process.env.E2E_BASE_URL` now finds nothing — that is **not** a removal. The read moved into the shared `e2eBaseUrl()` resolver in `apps/dev-env.js`, where it is the first branch, and all five configs call it.
-
-**One real behaviour change, worth knowing before it surprises you.** `catalogue`'s fallback `baseURL` is the **remote** `https://emx2.dev.molgenis.org/`, not a localhost URL. So in a worktree that declares `MOLGENIS_PORT_APP_CATALOGUE` and does *not* set `E2E_BASE_URL`, catalogue's e2e now runs against **your local port** where it previously went to the remote. That is the intent — tests should hit the stack you declared — but it is a silent switch in target, so set `E2E_BASE_URL` explicitly whenever you mean the remote.
-
-**A papercut when testing against a remote:** `catalogue`'s config has a `webServer` block, and Playwright starts `webServer` regardless of what `baseURL` points at. So a remote catalogue run still boots a local Nitro server first, waits for it, and then tests the remote. This is pre-existing — it did the same on port 3000 before this change — and the cost is a wasted startup, not a wrong target: your remote run really is hitting the remote. (Read from `apps/catalogue/playwright.config.ts`, not executed.)
-
-### What a stack costs
-
-Measured on macOS with the backend serving GraphQL:
-
-| Process | RSS |
-| --- | --- |
-| backend JVM at `-Xmx1g` | ~340 MB |
-| the Gradle daemon hosting it | ~720 MB |
-| one `pnpm dev` Nuxt app (three node processes) | ~885 MB |
-| idle postmaster | ~2 MB |
-| **one full stack** | **≈ 1.95 GB** |
-
-The Gradle daemon is the one people forget — it costs twice what the backend it hosts costs. `-Xmx` caps heap, not RSS: metaspace, code cache, thread stacks and direct buffers add a few hundred MB on top. Idle declared stacks are nearly free (about 50 MB of disk per data directory and nothing in RAM), so declare freely and start sparingly.
+Set it explicitly whenever you mean the remote: `catalogue` in particular now runs against your local port when you declare one, where it used to default to the remote. The full per-suite precedence, that behaviour change and one papercut are in [how each Playwright suite picks its target](dev_devstacks.md#how-each-playwright-suite-picks-its-target).
 
 ### Running from IntelliJ
 
-**IntelliJ bypasses `.env`.** The forwarding is done by Gradle, and it only reaches JVMs that Gradle forks (`JavaExec` and `Test` tasks). An IDE run configuration launches its own JVM, so it gets none of it — and an unconfigured run therefore targets the **default** database on `:5432` and the default port `:8080`, which is very likely someone else's stack.
-
-For `RunMolgenisEmx2Full`, `RunWebApi` or any other IDE-launched main, set `MOLGENIS_HTTP_PORT`, `MOLGENIS_POSTGRES_URI`, `MOLGENIS_POSTGRES_USER` and `MOLGENIS_POSTGRES_PASS` by hand in the run configuration. Either form works — environment variables, or `-D` VM options — because the resolver checks the system property first and falls back to the environment variable:
-
-```
--DMOLGENIS_HTTP_PORT=8083 -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5435/molgenis
-```
-
-The same applies to running tests with the IntelliJ runner instead of the Gradle runner.
+**IntelliJ bypasses `.env`**, for both mains and tests: Gradle's forwarding only reaches JVMs Gradle forks, so an unconfigured IDE run targets the default database on `:5432` and port `:8080` — very likely someone else's stack. Set the four keys by hand in the run configuration, as environment variables or as `-D` VM options: [running from IntelliJ](dev_devstacks.md#running-from-intellij-which-bypasses-the-env-file).
 
 ## Building on Windows
 
@@ -403,7 +375,7 @@ rm -rf ./apps/*/dist/
 If you want to delete all the MOLGENIS generated schemas, roles and users in the postgresql and return to clean state, run
 `gradle cleandb`
 
-This drops roles across the **whole Postgres instance**, not just one database, so it hits every checkout pointed at that instance. See [Parallel dev stacks](#parallel-dev-stacks-one-per-worktree).
+This drops roles across the **whole Postgres instance**, not just one database, so it hits every checkout pointed at that instance — including the ones using a different database name on it. See [why a separate Postgres instance, and not just a separate database](dev_devstacks.md#why-a-separate-postgres-instance-and-not-just-a-separate-database), and [Parallel dev stacks](#parallel-dev-stacks-one-per-worktree) for the workflow that avoids it.
 
 ### Build+test drop/creates schemas in my database
 
