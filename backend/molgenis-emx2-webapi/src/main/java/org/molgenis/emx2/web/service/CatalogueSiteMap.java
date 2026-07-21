@@ -77,7 +77,7 @@ public class CatalogueSiteMap {
 
       if (variableTable != null) {
         variableTable
-            .select(s("name"), s(RESOURCE), s("dataset"))
+            .select(s("name"), s(RESOURCE), s("table"))
             .where(
                 f(
                     RESOURCE,
@@ -142,16 +142,16 @@ public class CatalogueSiteMap {
   private WebSitemapUrl urlForVariable(Row variable) throws MalformedURLException {
     String variableId = variable.getString("name");
     String resource = variable.getString(RESOURCE);
-    String dataset = variable.getString("dataset");
+    String table = variable.getString("table");
 
     // human-readable key
-    String variableIdPathSegment = String.join("-", variableId, resource, dataset, resource);
+    String variableIdPathSegment = String.join("-", variableId, resource, table, resource);
 
     // JSON query parameter value
     String variableIdQueryParamValue =
         String.format(
-            "{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"},\"dataset\":{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"}}}",
-            variableId, resource, dataset, resource);
+            "{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"},\"table\":{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"}}}",
+            variableId, resource, table, resource);
 
     // note segment and query have their own encoding
     return new WebSitemapUrl.Options(

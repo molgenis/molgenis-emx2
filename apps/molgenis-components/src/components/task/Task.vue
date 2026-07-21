@@ -30,13 +30,18 @@ export default defineComponent({
       task: null as ITask | null,
       loading: true,
       error: false,
+      timeoutId: null as ReturnType<typeof setTimeout> | null,
+      isMonitoring: false,
     };
   },
   methods: {
     async startMonitorTask() {
+      this.isMonitoring = true;
       while (
-        (!this.error && !this.task) ||
-        (this.task && !["COMPLETED", "ERROR"].includes(this.task.status))
+        this.isMonitoring &&
+        ((!this.error && !this.task) ||
+          (this.task &&
+            !["COMPLETED", "ERROR", "CANCELLED"].includes(this.task.status)))
       ) {
         const query = `{
           _tasks(id:"${this.taskId}")
@@ -67,18 +72,23 @@ export default defineComponent({
             this.error = error;
             this.loading = false;
           });
-        await sleep(500);
+        await new Promise((resolve) => {
+          this.timeoutId = setTimeout(resolve, 500);
+        });
       }
     },
   },
   created() {
     this.startMonitorTask();
   },
+  beforeUnmount() {
+    this.isMonitoring = false;
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+  },
 });
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 </script>
 
 <docs>

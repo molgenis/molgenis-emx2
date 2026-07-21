@@ -8,6 +8,7 @@ import {
   assertBooleanValue,
   assertFileValue,
   assertListValue,
+  isMgError,
   assertNumberValue,
   assertRefColumn,
   assertRefColumnValue,
@@ -20,7 +21,6 @@ import {
   toRefColumn,
   toRefColumnValue,
 } from "../../../app/utils/typeUtils";
-
 describe("getInitialFormValues", () => {
   it("should return initial form values based on metadata", () => {
     const metadata = {
@@ -273,6 +273,41 @@ describe("reference helpers", () => {
     expect(() => assertRefColumnValue([] as columnValue)).toThrow(
       "Value is not a valid reference column value"
     );
+  });
+});
+
+describe("isMgError", () => {
+  it("returns true for a valid MgError shape", () => {
+    const error = {
+      message: "Request failed",
+      statusCode: 400,
+      data: {
+        errors: [{ message: "Invalid input" }],
+      },
+    };
+
+    expect(isMgError(error)).toBe(true);
+  });
+
+  it("returns false for invalid MgError shapes", () => {
+    expect(isMgError(new Error("boom"))).toBe(false);
+    expect(isMgError({ message: "Missing status", data: { errors: [] } })).toBe(
+      false
+    );
+    expect(
+      isMgError({
+        message: "Bad status",
+        statusCode: "400",
+        data: { errors: [] },
+      })
+    ).toBe(false);
+    expect(
+      isMgError({
+        message: "Bad errors",
+        statusCode: 400,
+        data: { errors: [1] },
+      })
+    ).toBe(false);
   });
 });
 

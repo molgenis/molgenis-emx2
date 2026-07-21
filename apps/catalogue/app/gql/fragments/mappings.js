@@ -10,7 +10,7 @@ export default gql`
       id
       name
     }
-    sourceDataset {
+    sourceTable {
       resource {
         id
       }
@@ -20,16 +20,16 @@ export default gql`
       resource {
         id
       }
-      dataset {
+      table {
         name
         resource {
           id
         }
       }
     }
-    sourceVariablesOtherDatasets {
+    sourceVariablesOtherTables {
       name
-      dataset {
+      table {
         name
         resource {
           id
@@ -37,7 +37,7 @@ export default gql`
       }
     }
     targetVariable {
-      dataset {
+      table {
         resource {
           id
         }

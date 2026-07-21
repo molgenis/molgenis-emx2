@@ -10,7 +10,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class TestTableMetadata {
+class TestTableMetadata {
   @Test
   void testGetColumnsFromSubclasses() {
     SchemaMetadata s =
@@ -31,7 +31,8 @@ public class TestTableMetadata {
     assertEquals(2, result.size());
   }
 
-  public void validTableMetadataName() {
+  @Test
+  void validTableMetadataName() {
     assertAll(
         // valid: 1 or more legal characters
         () -> assertDoesNotThrow(() -> new TableMetadata("a")),
@@ -58,6 +59,62 @@ public class TestTableMetadata {
             assertThrows(
                 MolgenisException.class,
                 () -> new TableMetadata("a2345678901234567890123456789012")));
+  }
+
+  @Test
+  void testColumnsAreSortedByPosition() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(
+        table(
+            "T",
+            column("c").setPosition(2),
+            column("a").setPosition(0),
+            column("b").setPosition(1)));
+
+    List<String> names =
+        schema.getTableMetadata("T").getColumns().stream().map(Column::getName).toList();
+
+    assertEquals(List.of("a", "b", "c"), names);
+  }
+
+  @Test
+  void testEqualPositionsFallBackToAlphabeticalOrder() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(
+        table(
+            "T",
+            column("z").setPosition(1),
+            column("a").setPosition(1),
+            column("m").setPosition(1)));
+
+    List<String> names =
+        schema.getTableMetadata("T").getColumns().stream().map(Column::getName).toList();
+
+    assertEquals(List.of("a", "m", "z"), names);
+  }
+
+  @Test
+  void testSystemColumnsAreReturnedLast() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(table("T", column("mg_system").setPosition(0), column("regular").setPosition(1)));
+
+    List<String> names =
+        schema.getTableMetadata("T").getColumns().stream().map(Column::getName).toList();
+
+    assertEquals(List.of("regular", "mg_system"), names);
+  }
+
+  @Test
+  void testInheritedColumnsAreMergedAndSortedByPosition() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(
+        table("Parent", column("name").setPosition(0), column("age").setPosition(2)),
+        table("Employee", column("salary").setPosition(1)).setInheritName("Parent"));
+
+    List<String> names =
+        schema.getTableMetadata("Employee").getColumns().stream().map(Column::getName).toList();
+
+    assertEquals(List.of("name", "salary", "age"), names);
   }
 
   @Test

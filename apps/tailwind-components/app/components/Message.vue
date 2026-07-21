@@ -1,7 +1,7 @@
 <template>
   <div
     :aria-labelledby="`${id}-state-context`"
-    class="p-3 font-bold flex items-center rounded-input"
+    class="p-3 font-bold flex items-center rounded-alt"
     :class="{
       'bg-invalid text-invalid fill-invalid': invalid,
       'bg-valid text-valid fill-valid': valid,

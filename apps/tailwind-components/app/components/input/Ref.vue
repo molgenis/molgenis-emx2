@@ -297,7 +297,7 @@ const onBlur = useDebounceFn(() => {
   <div
     v-show="!isInitLoading && initialCount"
     :class="{
-      'flex items-center border outline-none rounded-input cursor-pointer':
+      'flex items-center border outline-none rounded-base cursor-pointer':
         displayAsSelect,
       'bg-input ': displayAsSelect && !disabled,
       'border-disabled': displayAsSelect && disabled,
@@ -392,7 +392,7 @@ const onBlur = useDebounceFn(() => {
       <div
         ref="wrapperRef"
         :class="{
-          'max-h-[50vh] top-4 rounded-theme bg-input overflow-y-auto w-full pt-2 pb-6 pl-4 ':
+          'max-h-[50vh] top-4 rounded-alt bg-input overflow-y-auto w-full pt-2 pb-6 pl-4 ':
             displayAsSelect,
         }"
         v-show="(showSelect && !disabled) || !displayAsSelect"
