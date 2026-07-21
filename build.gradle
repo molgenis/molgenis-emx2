@@ -16,12 +16,13 @@ ext {
     javaVersion = JavaVersion.VERSION_21
 }
 
-// MOLGENIS_POSTGRES_URI/USER/PASS are read inside the Java code
-// (EnvironmentProperty.getParameter, used by SqlDatabase). A running Gradle daemon does
-// not pass command-line -D system properties to forked JVMs, so forward them explicitly
-// onto every forked Test/JavaExec task (test, run, dev, cleandb, generateTypes).
-// Values may also come from a repo-root .env file, read straight from disk once at
-// configuration time (daemon-safe, no `source` needed). Precedence: a -D CLI system
+// Settings such as MOLGENIS_POSTGRES_URI/USER/PASS, MOLGENIS_HTTP_PORT or feature flags
+// are read inside the Java code (EnvironmentProperty.getParameter). A running Gradle
+// daemon does not pass command-line -D system properties to forked JVMs, so they are
+// forwarded explicitly onto every forked Test/JavaExec task (test, run, dev, cleandb,
+// generateTypes).
+// Every key of a repo-root .env file is forwarded, read straight from disk once at
+// configuration time (daemon-safe, no `source` needed). Precedence per key: a -D CLI system
 // property wins; otherwise the .env value; otherwise nothing (Java default applies).
 ext.molgenisDotenv = { ->
     def envFile = new File(rootDir, '.env')
@@ -44,11 +45,21 @@ ext.molgenisDotenv = { ->
     }
     result
 }()
-ext.forwardMolgenisPostgresProps = { task ->
-    ['MOLGENIS_POSTGRES_URI', 'MOLGENIS_POSTGRES_USER', 'MOLGENIS_POSTGRES_PASS'].each { p ->
-        def v = System.getProperty(p) ?: rootProject.molgenisDotenv[p]
-        if (v != null) task.systemProperty p, v
+ext.forwardDotenvProps = { task ->
+    rootProject.molgenisDotenv.each { key, dotenvValue ->
+        def value = System.getProperty(key) ?: dotenvValue
+        if (value != null) task.systemProperty key, value
     }
+}
+ext.resolveDotenvValue = { key ->
+    System.getProperty(key) ?: rootProject.molgenisDotenv[key] ?: System.getenv(key)
+}
+ext.applyDotenvHeap = { task ->
+    def heap = rootProject.ext.resolveDotenvValue('MOLGENIS_JVM_XMX')
+    if (heap) task.maxHeapSize = heap
+}
+ext.maskDotenvSecret = { key, value ->
+    key.toUpperCase() =~ /PASS|SECRET|TOKEN/ ? '<HIDDEN>' : value
 }
 
 allprojects {
@@ -202,7 +213,30 @@ application {
     mainClass.set(javaMainClass)
 }
 
-tasks.withType(JavaExec).configureEach { forwardMolgenisPostgresProps(it) }
+tasks.withType(JavaExec).configureEach { forwardDotenvProps(it) }
+
+tasks.named('run') { rootProject.ext.applyDotenvHeap(it) }
+
+tasks.register('printDevConfig') {
+    group = 'help'
+    description = 'Prints the dev configuration Gradle resolves from the repo-root .env, without starting the application'
+    def dotenvFile = new File(rootDir, '.env')
+    def dotenvLocation = dotenvFile.exists() ? dotenvFile.absolutePath : 'absent'
+    def forwardedKeys = new TreeMap<String, String>()
+    rootProject.molgenisDotenv.each { key, dotenvValue ->
+        forwardedKeys[key] = rootProject.ext.maskDotenvSecret(key, System.getProperty(key) ?: dotenvValue)
+    }
+    def resolvedHttpPort = rootProject.ext.resolveDotenvValue('MOLGENIS_HTTP_PORT') ?: '8080'
+    def resolvedPostgresUri = rootProject.ext.resolveDotenvValue('MOLGENIS_POSTGRES_URI') ?: 'jdbc:postgresql:molgenis'
+    def resolvedHeap = rootProject.ext.resolveDotenvValue('MOLGENIS_JVM_XMX') ?: 'unbounded'
+    doLast {
+        println "molgenis.dotenv.file=${dotenvLocation}"
+        forwardedKeys.each { key, value -> println "molgenis.dotenv.${key}=${value}" }
+        println "molgenis.resolved.MOLGENIS_HTTP_PORT=${resolvedHttpPort}"
+        println "molgenis.resolved.MOLGENIS_POSTGRES_URI=${resolvedPostgresUri}"
+        println "molgenis.resolved.maxHeapSize=${resolvedHeap}"
+    }
+}
 
 jar {
     reproducibleFileOrder = true
