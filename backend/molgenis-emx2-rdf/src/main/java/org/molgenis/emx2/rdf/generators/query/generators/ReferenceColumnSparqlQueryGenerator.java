@@ -91,12 +91,9 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
 
   private void addSubjectColumnvariable(Variable subjectVariable, Variable columnVariable) {
     if (rootColumn.isArray()) {
-      Variable single = SparqlVariableUtil.singleVariable(subjectVariable);
-      selectors.add(SparqlVariableUtil.concatAs(single, subjectVariable));
-      patterns.add(SparqlVariableUtil.bindAs(columnVariable, single));
+      selectors.add(SparqlVariableUtil.concatAs(encodedColumnPath(), subjectVariable));
     } else {
-      patterns.add(SparqlVariableUtil.bindAs(columnVariable, subjectVariable));
-      selectors.add(subjectVariable);
+      selectors.add(columnVariable.as(subjectVariable));
       groupBy.add(subjectVariable);
     }
   }

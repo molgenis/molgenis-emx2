@@ -17,9 +17,7 @@ class SparqlVariableUtilTest {
   @Test
   void shouldPrefixWithSubjectVariable() {
     Variable variable = SparqlBuilder.var("foo");
-    assertEquals(
-        TableQueryGenerator.SUBJECT_VARIABLE.getVarName() + "foo",
-        SparqlVariableUtil.subjectVariable(variable).getVarName());
+    assertEquals("_subject_foo", SparqlVariableUtil.subjectVariable(variable).getVarName());
   }
 
   @Test
@@ -33,7 +31,7 @@ class SparqlVariableUtilTest {
     Variable toConcat = SparqlBuilder.var("foo");
     Variable as = SparqlBuilder.var("bar");
     assertEquals(
-        "( GROUP_CONCAT( DISTINCT STR( ?foo ) ; SEPARATOR = ',' ) AS ?bar )",
+        "( GROUP_CONCAT( DISTINCT STR( ?foo ) ; SEPARATOR = '\u001F' ) AS ?bar )",
         SparqlVariableUtil.concatAs(toConcat, as).getQueryString());
   }
 

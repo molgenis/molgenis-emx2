@@ -194,7 +194,7 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-          SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = ',' ) AS ?names )
+          SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = '\u001F' ) AS ?names )
           WHERE { ?_subject_ ?anyPredicate ?anyObject .
           OPTIONAL { ?_subject_ xsd:name ?names_single . } }
           GROUP BY ?_subject_
@@ -208,11 +208,10 @@ class TableQueryGeneratorTest {
 
     assertEquals(
         """
-        SELECT ?_subject_ ?id ?_subject_product ?product__name
+        SELECT ?_subject_ ?id ( ?product AS ?_subject_product ) ?product__name
         WHERE { ?_subject_ ?anyPredicate ?anyObject .
         ?_subject_ xsd:id ?id .
         ?_subject_ xsd:product ?product .
-        BIND( ?product AS ?_subject_product )
         ?product xsd:name ?product__name . }
         GROUP BY ?_subject_ ?id ?_subject_product ?product__name
         """,
