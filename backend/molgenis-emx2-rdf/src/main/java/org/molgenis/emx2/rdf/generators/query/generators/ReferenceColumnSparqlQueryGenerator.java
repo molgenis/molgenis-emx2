@@ -94,7 +94,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
       selectors.add(SparqlVariableUtil.concatAs(encodedColumnPath(), subjectVariable));
     } else {
       selectors.add(columnVariable.as(subjectVariable));
-      groupBy.add(subjectVariable);
+      groupBy.add(columnVariable);
     }
   }
 
