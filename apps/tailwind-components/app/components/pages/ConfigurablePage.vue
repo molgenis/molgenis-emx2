@@ -30,11 +30,36 @@ const draggingInfo = ref<IDraggingInfo>({
   componentName: "",
   componentType: "",
 });
+
+const sidebarCollapsed = ref(false);
+
 </script>
 
 <template>
-  <div>
+          <div
+      :class="{
+        flex: isEditable,
+        'gap-6': isEditable,
+      }"
+    >
+
+  <Sidebar v-if="isEditable" :collapsed="sidebarCollapsed" :active-filter-count="0" @update:collapsed="sidebarCollapsed = $event">
+    <AddComponentPalette
+      @dragging="handleDragEvent"
+    />
+  </Sidebar>
+<div class="flex-1 min-w-0">
     <template v-for="orderedBlock in content.blockOrder" :key="orderedBlock.id">
+      <ComponentDropZone
+        v-if="isEditable && !orderedBlock.block.mg_tableclass.endsWith('.Headers')"
+        :pageName="content.name"
+        :draggingInfo="draggingInfo"
+        :schema="schema"
+        :order="0"
+        :parent="content.name"
+        componentType="Block"
+        @update-page="$emit('updatePage')"
+      />
       <PageComponent
         v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
         :mg_tableclass="orderedBlock.block.mg_tableclass"
@@ -99,11 +124,17 @@ const draggingInfo = ref<IDraggingInfo>({
         @update-page="$emit('updatePage')"
       />
     </template>
-    <AddComponentPalette
-      v-if="isEditable"
-      @dragging="handleDragEvent"
-      :content="content"
-      :metadata="metadata"
-    />
+      <ComponentDropZone
+        v-if="isEditable && !content?.blockOrder"
+        :pageName="content.name"
+        :draggingInfo="draggingInfo"
+        :schema="schema"
+        :order="0"
+        :parent="content.name"
+        componentType="Block"
+        @update-page="$emit('updatePage')"
+      />
+</div>
+
   </div>
 </template>

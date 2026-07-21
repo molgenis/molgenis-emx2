@@ -96,8 +96,6 @@ module.exports = {
         "input-hover": "var(--box-shadow-input-hover)",
         "search-input": "var(--box-shadow-search-input)",
         "pagination-gray": "var(--box-shadow-pagination-gray)",
-        "dashboard-palette": "var(--box-shadow-dashboard-palette)",
-        "dashboard-palette-hover": "var(--box-shadow-dashboard-palette-hover)",
       }),
       spacing: {
         "3px": "3px",

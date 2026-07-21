@@ -25,7 +25,7 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
 
 <template>
   <Button
-    class="!justify-start w-full"
+    class="!justify-start w-full mb-1"
     draggable="true"
     @dragstart="
       startDrag($event, { dragging: true, componentName, componentType })
@@ -33,7 +33,7 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
     @dragend="
       endDrag($event, { dragging: false, componentName, componentType })
     "
-    type="secondary"
+    type="primary"
     size="tiny"
     :icon="icon"
     icon-position="left"

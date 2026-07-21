@@ -1,48 +1,42 @@
 <script setup lang="ts">
-import { UseDraggable } from "@vueuse/components";
-import { useTemplateRef } from "vue";
-import { useWindowSize } from "@vueuse/core";
+import { ref } from "vue";
 import DraggableComponent from "./DraggableComponent.vue";
 const emit = defineEmits(["dragging"]);
-const props = withDefaults(
-  defineProps<{
-    content: any;
-    metadata: any;
-  }>(),
-  {}
-);
-
-const { width } = useWindowSize();
-const handle = useTemplateRef("handle");
-
 const handleDragEvent = (event: DragEvent) => {
   emit("dragging", event);
 };
+
+const componentsOpen = ref<boolean>(true);
+const blocksOpen = ref<boolean>(true);
 </script>
 
 <template>
-  <UseDraggable
-    v-slot="{ isDragging }"
-    class="fixed z-50"
-    :initial-value="{ x: width - 200, y: 200 }"
-    :handle="handle"
-  >
-    <div
-      class="flex flex-col gap-2 p-2 bg-white border rounded-base shadow-dashboard-palette transition-shadow duration-200"
-      :class="{ 'shadow-dashboard-palette-hover': isDragging }"
-    >
-      <div
-        class="cursor-grab select-none border-b pb-1"
-        :class="{ 'cursor-grabbing': isDragging }"
-        ref="handle"
-      >
-        <h2>Component palette</h2>
+    <div>
+      <div class="px-5 pt-3 pb-3 flex items-center justify-between">
+        <h2 class="font-display text-heading-3xl text-search-filter-title font-bold uppercase">Component palette</h2>
       </div>
-      <h3
-        class="px-1 h-6 text-body-sm rounded text-center inline-block bg-dashboard-dropzone text-title-contrast"
-      >
+
+
+      <hr class="border-t border-filter-divider mx-5" />
+    <div
+      class="p-5 flex items-center gap-1 cursor-pointer group"
+      role="button"
+      tabindex="0"
+      :aria-expanded="componentsOpen"
+      aria-controls="???"
+      @click="componentsOpen = !componentsOpen"
+    >
+      <h3 class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words">
         Components
       </h3>
+      <span
+        class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle group-hover:bg-search-filter-group-toggle transition-transform shrink-0"
+        :class="{ 'rotate-180': componentsOpen }"
+      >
+        <BaseIcon name="caret-up" :width="26" />
+      </span>
+    </div>
+    <div v-if="componentsOpen" class="px-5 pb-5">
       <ul>
         <li>
           <DraggableComponent
@@ -66,11 +60,28 @@ const handleDragEvent = (event: DragEvent) => {
           />
         </li>
       </ul>
-      <h3
-        class="px-1 h-6 text-body-sm rounded text-center inline-block bg-dashboard-dropzone text-title-contrast"
-      >
+    </div>
+
+    <hr class="border-t border-filter-divider mx-5" />
+    <div
+      class="p-5 flex items-center gap-1 cursor-pointer group"
+      role="button"
+      tabindex="0"
+      :aria-expanded="blocksOpen"
+      aria-controls="???"
+      @click="blocksOpen = !blocksOpen"
+    >
+      <h3 class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words">
         Blocks
       </h3>
+      <span
+        class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle group-hover:bg-search-filter-group-toggle transition-transform shrink-0"
+        :class="{ 'rotate-180': blocksOpen }"
+      >
+        <BaseIcon name="caret-up" :width="26" />
+      </span>
+    </div>
+    <div v-if="blocksOpen" class="px-5 pb-5">
       <ul>
         <li>
           <DraggableComponent
@@ -89,6 +100,6 @@ const handleDragEvent = (event: DragEvent) => {
           />
         </li>
       </ul>
+      </div>
     </div>
-  </UseDraggable>
 </template>
