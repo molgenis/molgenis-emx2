@@ -52,6 +52,11 @@
       "outputs": [],
       "cache": true
     },
+    "//#test-dev-env": {
+      "inputs": ["dev-env.js", "dev-env.test.js"],
+      "outputs": [],
+      "cache": true
+    },
     "e2e": {
       "outputs": [],
       "cache": true
