@@ -1,7 +1,12 @@
+import { strictDevServerPort } from "../dev-env.js";
+
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   ssr: false,
   devtools: { enabled: true },
+  devServer: {
+    port: strictDevServerPort("MOLGENIS_PORT_UI", 3000),
+  },
   runtimeConfig: {
     logLevel: 4,
   },

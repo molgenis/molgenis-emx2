@@ -6,6 +6,7 @@ const path = require("node:path");
 
 const {
   devPort,
+  strictDevServerPort,
   apiBase,
   appsHost,
   e2eBaseUrl,
@@ -97,6 +98,34 @@ test("devPort reads process.env at call time", () => {
     assert.equal(devPort("MOLGENIS_PORT_TESTAPP", 3000), 3031);
     process.env.MOLGENIS_PORT_TESTAPP = "3032";
     assert.equal(devPort("MOLGENIS_PORT_TESTAPP", 3000), 3032);
+  });
+});
+
+test("strictDevServerPort refuses to drift off the declared port", () => {
+  withInjectedEnv({ MOLGENIS_PORT_TESTAPP: "3031" }, () => {
+    assert.deepEqual(strictDevServerPort("MOLGENIS_PORT_TESTAPP", 3000), {
+      port: 3031,
+      random: false,
+      alternativePortRange: [],
+    });
+  });
+});
+
+test("strictDevServerPort returns the plain fallback when the key is absent", () => {
+  withInjectedEnv({}, () => {
+    assert.strictEqual(
+      strictDevServerPort("MOLGENIS_PORT_TESTAPP", 3000),
+      3000
+    );
+  });
+});
+
+test("strictDevServerPort returns the plain fallback when the value is not a number", () => {
+  withInjectedEnv({ MOLGENIS_PORT_TESTAPP: "not-a-port" }, () => {
+    assert.strictEqual(
+      strictDevServerPort("MOLGENIS_PORT_TESTAPP", 3000),
+      3000
+    );
   });
 });
 

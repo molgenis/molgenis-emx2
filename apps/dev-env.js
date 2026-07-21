@@ -8,6 +8,12 @@ function devPort(key, fallback) {
   return Number.isInteger(port) && port > 0 ? port : fallback;
 }
 
+function strictDevServerPort(key, fallback) {
+  const declared = devPort(key, null);
+  if (declared === null) return fallback;
+  return { port: declared, random: false, alternativePortRange: [] };
+}
+
 function apiBase(fallback) {
   return process.env.NUXT_PUBLIC_API_BASE || fallback;
 }
@@ -56,6 +62,7 @@ loadRootEnv();
 
 module.exports = {
   devPort,
+  strictDevServerPort,
   apiBase,
   appsHost,
   e2eBaseUrl,

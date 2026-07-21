@@ -1,8 +1,12 @@
 import { defineNuxtConfig } from "nuxt/config";
+import { apiBase, strictDevServerPort } from "../dev-env.js";
 
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
+  devServer: {
+    port: strictDevServerPort("MOLGENIS_PORT_CATALOGUE", 3000),
+  },
   modules: [
     "@nuxt/test-utils/module",
     "nuxt-gtag",
@@ -24,8 +28,7 @@ export default defineNuxtConfig({
       analyticsDomain: "",
       cohortOnly: false,
       schema: "catalogue-demo",
-      apiBase:
-        process.env.NUXT_PUBLIC_API_BASE || "https://emx2.dev.molgenis.org/",
+      apiBase: apiBase("https://emx2.dev.molgenis.org/"),
     },
   },
   imports: {
