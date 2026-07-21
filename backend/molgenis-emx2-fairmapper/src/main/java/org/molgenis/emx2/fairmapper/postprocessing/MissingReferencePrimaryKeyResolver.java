@@ -37,11 +37,52 @@ public class MissingReferencePrimaryKeyResolver {
 
   private void resolveRow(TableStore tableStore, Row row, List<Column> columns) {
     for (Column column : columns) {
-      resolveColumn(tableStore, row, column);
+      if (column.isArray()) {
+        resolveArray(tableStore, row, column);
+      } else {
+        resolveSingular(tableStore, row, column);
+      }
     }
   }
 
-  private void resolveColumn(TableStore tableStore, Row row, Column column) {
+  private void resolveArray(TableStore tableStore, Row row, Column column) {
+    String[] subjects = row.getString(SUBJECT_VARIABLE + column.getName()).split(",");
+
+    List<Row> rows =
+        Arrays.stream(subjects)
+            .map(subject -> getRowForSubject(tableStore, column.getRefTableName(), subject))
+            .toList();
+
+    for (Reference reference : column.getReferences()) {
+      if (row.containsName(reference.getColumnName())) {
+        continue;
+      }
+
+      List<Object> values = new ArrayList<>();
+
+      for (Row referringRow : rows) {
+        if (referringRow.containsName(reference.getReferencedColumnName())) {
+          values.add(referringRow.getValueMap().get(reference.getReferencedColumnName()));
+        } else {
+          List<String> columnTableNames = column.getTable().getAllInheritNames();
+          columnTableNames.add(column.getTableName());
+
+          // When a part of the primary key is missing, and it's a reference to the root row, we
+          // assume it's a one-to-one reference.
+          if (columnTableNames.contains(reference.getTargetTable())) {
+            Object value = row.getValueMap().get(reference.getTargetColumn());
+            values.add(value);
+
+            // TODO: Check if array type?
+            referringRow.set(reference.getColumnName(), value);
+          }
+        }
+      }
+      row.setRefArray(reference.getColumnName(), values.toArray());
+    }
+  }
+
+  private void resolveSingular(TableStore tableStore, Row row, Column column) {
     String subject = row.getString(SUBJECT_VARIABLE + column.getName());
     if (subject == null) {
       return;
@@ -81,13 +122,13 @@ public class MissingReferencePrimaryKeyResolver {
         .orElseThrow(
             () ->
                 new MolgenisException(
-                    "Referencing non-existing row for table:"
+                    "Referencing non-existing row for table: "
                         + targetTable
                         + ", for subject: "
                         + referenceSubject));
   }
 
-  private void resolveColumn(TableStore tableStore, String tableName, Column column) {
+  private void resolveSingular(TableStore tableStore, String tableName, Column column) {
     String subjectColumnName = SUBJECT_VARIABLE + column.getName();
 
     //    StreamSupport.stream(tableStore.readTable(tableName).spliterator(), false)

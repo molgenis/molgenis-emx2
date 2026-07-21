@@ -210,6 +210,23 @@ public class CsvApi {
     ctx.result(writer.toString());
   }
 
+  /**
+   * Order -> orderId,pet,quantity,price,complete,status,timestamp,mg_draft
+   * ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919,pooky,1,9.99,true,delivered,2026-01-01 12:34:56.0,
+   * ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b,spike,7,14.99,false,approved,,
+   * ORDER:ZFNY9zyIj2,"""newpet,"","",anotherNewPet,"",tom",23,33.0,,hallo,,false
+   *
+   * <p>Order -> orderId,pet,quantity,price,complete,status,timestamp,mg_draft
+   * ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919,pooky,1,9.99,true,delivered,2026-01-01 12:34:56.0,
+   * ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b,spike,7,14.99,false,approved,,
+   * ORDER:ZFNY9zyIj2,"tom,sylvester,jerry",23,33.0,,hallo,,false
+   *
+   * <p>Order -> orderId,pet,quantity,price,complete,status,timestamp,mg_draft
+   * ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919,pooky,1,9.99,true,delivered,2026-01-01 12:34:56.0,
+   * ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b,spike,7,14.99,false,approved,,
+   * ORDER:ZFNY9zyIj2,"tom,sylvester,jerry",23,33.0,,hallo,,false ORDER:ZFOgJD1flI,"""here, is a new
+   * pet"",""another, new, pet, with commas""",222,222.0,,hallo,,false
+   */
   private static void tableRetrieve(Context ctx) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeparator(ctx));

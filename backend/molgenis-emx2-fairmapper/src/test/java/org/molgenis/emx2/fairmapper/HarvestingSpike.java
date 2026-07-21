@@ -87,7 +87,7 @@ class HarvestingSpike {
 
     // Resolve organisation id's from their subject iri's
     resolveOrganisationsId(tableStore);
-    resolveOrganisationResource(tableStore);
+    //    resolveOrganisationResource(tableStore);
 
     // Resolve circular 1-to-1 dependencies from collections
     MissingReferencePrimaryKeyResolver primaryKeyResolver =

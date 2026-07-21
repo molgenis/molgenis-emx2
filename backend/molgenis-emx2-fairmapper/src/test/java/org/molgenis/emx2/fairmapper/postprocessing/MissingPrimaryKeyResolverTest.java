@@ -7,12 +7,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -125,9 +120,13 @@ class MissingPrimaryKeyResolverTest {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
     store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:unknown"));
 
-    resolver.resolve(tableStore, "Collections");
+    ;
 
-    assertNull(collection().getString("publisher"));
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> resolver.resolve(tableStore, "Collections"));
+    assertEquals(
+        "Referencing non-existing row for table: Organisations, for subject: urn:org:unknown",
+        exception.getMessage());
   }
 
   @Test
