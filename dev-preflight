@@ -1,0 +1,537 @@
+#!/usr/bin/env node
+
+const ambientEnvironment = { ...process.env };
+
+const fs = require("node:fs");
+const path = require("node:path");
+const { execFile, execFileSync } = require("node:child_process");
+const { promisify } = require("node:util");
+
+const execFileAsync = promisify(execFile);
+
+const repoRoot = __dirname;
+const envFilePath = path.join(repoRoot, ".env");
+const appsDir = path.join(repoRoot, "apps");
+const hoistedModulesDir = path.join(
+  appsDir,
+  "node_modules",
+  ".pnpm",
+  "node_modules"
+);
+
+const { loadRootEnv, parseDotenv } = require("./apps/dev-env.js");
+const { reportPrefix } = require("./apps/dev-app-config.js");
+
+const gradleLinePrefix = "molgenis.";
+const secretKeyPattern = /PASS|SECRET|TOKEN/;
+const appPortKeyPattern = /^MOLGENIS_PORT_APP_/;
+const shadowableKeyPattern = /^(MOLGENIS_|NUXT_PUBLIC_)/;
+const loopbackHostnames = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+const esmBundledViteApps = ["@molgenis/emx2-analytics", "graphql-playground"];
+const postgresAppPsql =
+  "/Applications/Postgres.app/Contents/Versions/latest/bin/psql";
+
+async function readGradleDevConfig() {
+  const { stdout } = await execFileAsync(
+    "./gradlew",
+    ["-q", "--console=plain", "printDevConfig"],
+    { cwd: repoRoot, maxBuffer: 8 * 1024 * 1024 }
+  );
+  const forwarded = {};
+  const resolved = {};
+  let dotenvFile = "absent";
+  for (const line of stdout.split("\n")) {
+    if (!line.startsWith(gradleLinePrefix)) continue;
+    const separator = line.indexOf("=");
+    const name = line.slice(gradleLinePrefix.length, separator);
+    const value = line.slice(separator + 1);
+    if (name === "dotenv.file") dotenvFile = value;
+    else if (name.startsWith("dotenv."))
+      forwarded[name.slice("dotenv.".length)] = value;
+    else if (name.startsWith("resolved."))
+      resolved[name.slice("resolved.".length)] = value;
+  }
+  return { dotenvFile, forwarded, resolved };
+}
+
+async function readAppConfigs() {
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [path.join(appsDir, "dev-app-config.js")],
+    {
+      cwd: appsDir,
+      maxBuffer: 8 * 1024 * 1024,
+      env: { ...ambientEnvironment, NODE_PATH: hoistedModulesDir },
+    }
+  );
+  const reportLine = stdout
+    .split("\n")
+    .find((line) => line.startsWith(reportPrefix));
+  if (!reportLine) throw new Error("dev-app-config.js printed no report line");
+  return JSON.parse(reportLine.slice(reportPrefix.length));
+}
+
+async function buildEsmBundledViteApps() {
+  const results = [];
+  for (const app of esmBundledViteApps) {
+    try {
+      await execFileAsync("pnpm", ["--filter", app, "build"], {
+        cwd: appsDir,
+        maxBuffer: 16 * 1024 * 1024,
+        env: { ...ambientEnvironment },
+      });
+      results.push({ app, failure: null });
+    } catch (error) {
+      const output = `${error.stdout || ""}${error.stderr || ""}`
+        .trim()
+        .split("\n")
+        .filter((line) => !/^\s*at /.test(line));
+      results.push({ app, failure: output.slice(-6).join("\n           ") });
+    }
+  }
+  return results;
+}
+
+function runQuietly(command, args) {
+  try {
+    return execFileSync(command, args, {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+  } catch {
+    return "";
+  }
+}
+
+function listeningProcesses(port) {
+  return runQuietly("lsof", ["-nP", `-iTCP:${port}`, "-sTCP:LISTEN", "-t"])
+    .split("\n")
+    .filter(Boolean)
+    .map((processId) => ({
+      processId,
+      command: runQuietly("ps", ["-o", "comm=", "-p", processId]).trim(),
+      workingDirectory: runQuietly("lsof", [
+        "-a",
+        "-p",
+        processId,
+        "-d",
+        "cwd",
+        "-Fn",
+      ])
+        .split("\n")
+        .filter((line) => line.startsWith("n"))
+        .map((line) => line.slice(1))[0],
+    }));
+}
+
+function otherWorktreeEnvFiles() {
+  return runQuietly("git", ["-C", repoRoot, "worktree", "list", "--porcelain"])
+    .split("\n")
+    .filter((line) => line.startsWith("worktree "))
+    .map((line) => path.join(line.slice("worktree ".length), ".env"))
+    .filter(
+      (candidate) => candidate !== envFilePath && fs.existsSync(candidate)
+    );
+}
+
+function parsePostgresUri(uri) {
+  const parsed = /^jdbc:postgresql:\/\/([^:/]+)(?::(\d+))?\/(.+)$/.exec(
+    uri || ""
+  );
+  if (!parsed) return null;
+  return { host: parsed[1], port: parsed[2] || "5432", database: parsed[3] };
+}
+
+function declaredPorts(declared) {
+  const ports = [
+    { key: "MOLGENIS_HTTP_PORT", port: declared.MOLGENIS_HTTP_PORT },
+  ];
+  for (const key of Object.keys(declared).filter((candidate) =>
+    appPortKeyPattern.test(candidate)
+  )) {
+    ports.push({ key, port: declared[key] });
+  }
+  return ports.filter((entry) => entry.port);
+}
+
+function backendMismatch(rawTarget, expectedPort) {
+  let target;
+  try {
+    target = new URL(rawTarget);
+  } catch {
+    return `is not a URL: ${rawTarget}`;
+  }
+  const port = target.port || (target.protocol === "https:" ? "443" : "80");
+  if (!loopbackHostnames.has(target.hostname))
+    return `targets host ${target.host}`;
+  if (port !== String(expectedPort)) return `targets port ${port}`;
+  return null;
+}
+
+function maskSecret(key, value) {
+  return secretKeyPattern.test(key) ? "<HIDDEN>" : value;
+}
+
+function shadowingFailure(key, declared) {
+  const exported = maskSecret(key, ambientEnvironment[key]);
+  const declaredValue = maskSecret(key, declared[key]);
+  return (
+    `${key}: the shell exports ${exported}, .env declares ${declaredValue} — ` +
+    `the shell wins, so every dev server ignores .env`
+  );
+}
+
+function checkAmbientShadowing(declared) {
+  return Object.keys(declared)
+    .filter((key) => shadowableKeyPattern.test(key))
+    .filter(
+      (key) =>
+        ambientEnvironment[key] !== undefined &&
+        ambientEnvironment[key] !== declared[key]
+    )
+    .map((key) => shadowingFailure(key, declared));
+}
+
+function checkGradleForwarding(declared, gradleConfig) {
+  const failures = [];
+  for (const [key, value] of Object.entries(declared)) {
+    if (!(key in gradleConfig.forwarded)) {
+      failures.push(
+        `${key} is declared in .env but Gradle forwards no such system property`
+      );
+      continue;
+    }
+    const forwarded = gradleConfig.forwarded[key];
+    if (forwarded !== maskSecret(key, value) && !secretKeyPattern.test(key)) {
+      failures.push(
+        `${key}: Gradle forwards ${forwarded}, .env declares ${value}`
+      );
+    }
+  }
+  return failures;
+}
+
+function checkHeap(declared, gradleConfig) {
+  const expected = declared.MOLGENIS_JVM_XMX || "unbounded";
+  const resolved = gradleConfig.resolved.maxHeapSize;
+  return resolved === expected
+    ? []
+    : [
+        `Gradle resolves maxHeapSize=${resolved}, .env declares MOLGENIS_JVM_XMX=${expected}`,
+      ];
+}
+
+function checkBackendTargets(appConfigs, backendPort) {
+  const failures = [];
+  const backendOrigin = `http://localhost:${backendPort}`;
+  for (const app of appConfigs) {
+    if (app.error) {
+      failures.push(
+        `${app.name}: its dev config could not be resolved — ${app.error}`
+      );
+      continue;
+    }
+    if (app.apiBase) {
+      const mismatch = backendMismatch(app.apiBase, backendPort);
+      if (mismatch) {
+        failures.push(
+          `${app.name} resolves apiBase ${app.apiBase} which ${mismatch}, but Gradle will bind ` +
+            `${backendOrigin} (MOLGENIS_HTTP_PORT=${backendPort})`
+        );
+      }
+    }
+    for (const { pattern, target } of app.proxyTargets || []) {
+      const mismatch = backendMismatch(target, backendPort);
+      if (mismatch) {
+        failures.push(
+          `${app.name} proxies ${pattern} to ${target} which ${mismatch}, but Gradle will bind ` +
+            `${backendOrigin} (MOLGENIS_HTTP_PORT=${backendPort})`
+        );
+      }
+    }
+  }
+  return failures;
+}
+
+function checkAppPorts(declared, appConfigs, backendPort) {
+  const failures = [];
+  const boundPorts = new Map([
+    ["MOLGENIS_HTTP_PORT (backend)", Number(backendPort)],
+  ]);
+  for (const app of appConfigs) {
+    if (app.error) continue;
+    const declaredPort = declared[app.portKey];
+    if (!declaredPort) continue;
+    if (app.port !== Number(declaredPort)) {
+      failures.push(
+        `${app.name} binds port ${app.port}, but .env declares ${app.portKey}=${declaredPort}`
+      );
+      continue;
+    }
+    if (!app.strictPort) {
+      failures.push(
+        `${app.name} binds ${app.port} without strict binding, so a busy port drifts to another app`
+      );
+    }
+    boundPorts.set(`${app.name} (${app.portKey})`, app.port);
+  }
+  for (const [owner, port] of boundPorts) {
+    for (const [otherOwner, otherPort] of boundPorts) {
+      if (owner < otherOwner && port === otherPort) {
+        failures.push(
+          `${owner} and ${otherOwner} both resolve to port ${port}`
+        );
+      }
+    }
+  }
+  return failures;
+}
+
+function checkPortsAvailable(declared) {
+  const failures = [];
+  for (const { key, port } of declaredPorts(declared)) {
+    for (const holder of listeningProcesses(port)) {
+      const holderDirectory = holder.workingDirectory || "an unknown directory";
+      const ownedByThisWorktree =
+        holder.workingDirectory && holder.workingDirectory.startsWith(repoRoot);
+      if (!ownedByThisWorktree) {
+        failures.push(
+          `${key}=${port} is held by ${holder.command} (pid ${holder.processId}) running in ` +
+            `${holderDirectory}, which is not this worktree`
+        );
+      }
+    }
+  }
+  return failures;
+}
+
+function checkPortClaims(declared) {
+  const failures = [];
+  const mine = new Map(
+    declaredPorts(declared).map(({ key, port }) => [String(port), key])
+  );
+  const postgres = parsePostgresUri(declared.MOLGENIS_POSTGRES_URI);
+  if (postgres) mine.set(postgres.port, "MOLGENIS_POSTGRES_URI");
+  for (const siblingEnvFile of otherWorktreeEnvFiles()) {
+    const sibling = parseDotenv(fs.readFileSync(siblingEnvFile, "utf-8"));
+    const siblingPostgres = parsePostgresUri(sibling.MOLGENIS_POSTGRES_URI);
+    const siblingPorts = declaredPorts(sibling);
+    if (siblingPostgres) {
+      siblingPorts.push({
+        key: "MOLGENIS_POSTGRES_URI",
+        port: siblingPostgres.port,
+      });
+    }
+    for (const { key, port } of siblingPorts) {
+      const myKey = mine.get(String(port));
+      if (myKey) {
+        failures.push(
+          `port ${port} is declared here as ${myKey} but also claimed as ${key} by ${siblingEnvFile}`
+        );
+      }
+    }
+  }
+  return failures;
+}
+
+function psqlCommand() {
+  const onPath = runQuietly("which", ["psql"]).trim();
+  if (onPath) return onPath;
+  return fs.existsSync(postgresAppPsql) ? postgresAppPsql : null;
+}
+
+function readDatabaseState(declared) {
+  const postgres = parsePostgresUri(declared.MOLGENIS_POSTGRES_URI);
+  if (!postgres) {
+    return {
+      failures: [`MOLGENIS_POSTGRES_URI is missing or unparseable in .env`],
+      summary: null,
+    };
+  }
+  if (listeningProcesses(postgres.port).length === 0) {
+    return {
+      failures: [
+        `.env claims postgres on port ${postgres.port} but nothing is listening there — the ` +
+          `cluster was removed or never started, so this stack must be re-provisioned`,
+      ],
+      summary: null,
+    };
+  }
+  const psql = psqlCommand();
+  if (!psql) {
+    return {
+      failures: [],
+      summary: "listening; psql not found, schema state unverified",
+    };
+  }
+  const query =
+    `select case when to_regclass('"MOLGENIS".database_metadata') is null then 'virgin' ` +
+    `else (select 'schema version ' || version from "MOLGENIS".database_metadata limit 1) end`;
+  const state = execFileSyncWithPassword(psql, postgres, declared, query);
+  if (state === null) {
+    return {
+      failures: [
+        `cannot connect to ${declared.MOLGENIS_POSTGRES_URI} as ${declared.MOLGENIS_POSTGRES_USER}`,
+      ],
+      summary: null,
+    };
+  }
+  return {
+    failures: [],
+    summary:
+      state === "virgin"
+        ? "virgin database"
+        : `${state} — only a virgin database is verified compatible; another branch can leave ` +
+          `different column types under the same version number`,
+  };
+}
+
+function execFileSyncWithPassword(psql, postgres, declared, query) {
+  try {
+    return execFileSync(
+      psql,
+      [
+        "-X",
+        "-A",
+        "-t",
+        "-q",
+        "-h",
+        postgres.host,
+        "-p",
+        postgres.port,
+        "-U",
+        declared.MOLGENIS_POSTGRES_USER || "molgenis",
+        "-d",
+        postgres.database,
+        "-c",
+        query,
+      ],
+      {
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "ignore"],
+        env: {
+          ...ambientEnvironment,
+          PGPASSWORD: declared.MOLGENIS_POSTGRES_PASS || "",
+        },
+      }
+    ).trim();
+  } catch {
+    return null;
+  }
+}
+
+function checkEsmBundledBuilds(buildResults) {
+  return buildResults
+    .filter((result) => result.failure)
+    .map(
+      (result) => `${result.app} does not build:\n           ${result.failure}`
+    );
+}
+
+function printHeading(declared, gradleConfig, appConfigs, databaseSummary) {
+  const backendPort = gradleConfig.resolved.MOLGENIS_HTTP_PORT;
+  console.log("dev-preflight — cross-checking the declared stack\n");
+  console.log(`  .env         ${gradleConfig.dotenvFile}`);
+  console.log(
+    `  backend      http://localhost:${backendPort} (MOLGENIS_HTTP_PORT)`
+  );
+  console.log(
+    `  database     ${gradleConfig.resolved.MOLGENIS_POSTGRES_URI}` +
+      (databaseSummary ? ` — ${databaseSummary}` : "")
+  );
+  console.log(`  dev heap     ${gradleConfig.resolved.maxHeapSize}`);
+  for (const app of appConfigs) {
+    const target = app.error
+      ? `unresolved: ${app.error}`
+      : app.apiBase ||
+        (app.proxyTargets || []).map((entry) => entry.target)[0] ||
+        "no backend target";
+    const port = app.error ? "?" : app.port === null ? "-" : app.port;
+    console.log(
+      `  ${app.name.padEnd(20)} port ${String(port).padEnd(6)} ${target}`
+    );
+  }
+  console.log("");
+}
+
+function printResults(results) {
+  for (const { name, failures } of results) {
+    console.log(`  ${failures.length === 0 ? "ok  " : "FAIL"} ${name}`);
+    for (const failure of failures) console.log(`         ${failure}`);
+  }
+}
+
+async function main() {
+  if (!fs.existsSync(envFilePath)) {
+    console.error(
+      "dev-preflight: no .env in this worktree, so no private stack is declared.\n" +
+        "Run the devstack-setup skill before starting a stack."
+    );
+    return 1;
+  }
+  const declared = loadRootEnv();
+  const startedAt = Date.now();
+
+  const [gradleConfig, appConfigs, buildResults] = await Promise.all([
+    readGradleDevConfig(),
+    readAppConfigs(),
+    buildEsmBundledViteApps(),
+  ]);
+
+  const backendPort = gradleConfig.resolved.MOLGENIS_HTTP_PORT;
+  const database = readDatabaseState(declared);
+  printHeading(declared, gradleConfig, appConfigs, database.summary);
+
+  const results = [
+    {
+      name: "the shell environment does not shadow .env",
+      failures: checkAmbientShadowing(declared),
+    },
+    {
+      name: "Gradle forwards every .env key to forked JVMs",
+      failures: checkGradleForwarding(declared, gradleConfig),
+    },
+    {
+      name: "the dev heap honours MOLGENIS_JVM_XMX",
+      failures: checkHeap(declared, gradleConfig),
+    },
+    {
+      name: "frontends target the backend Gradle will bind",
+      failures: checkBackendTargets(appConfigs, backendPort),
+    },
+    {
+      name: "each app binds its own declared port, strictly",
+      failures: checkAppPorts(declared, appConfigs, backendPort),
+    },
+    {
+      name: "every declared port is free or held by this worktree",
+      failures: checkPortsAvailable(declared),
+    },
+    {
+      name: "no sibling worktree claims a port declared here",
+      failures: checkPortClaims(declared),
+    },
+    { name: "the declared database is reachable", failures: database.failures },
+    {
+      name: "the ESM-bundled vite apps build",
+      failures: checkEsmBundledBuilds(buildResults),
+    },
+  ];
+  printResults(results);
+
+  const failed = results.filter((result) => result.failures.length > 0);
+  const seconds = ((Date.now() - startedAt) / 1000).toFixed(1);
+  console.log(
+    `\n${failed.length === 0 ? "PASS" : "FAIL"}: ${
+      results.length - failed.length
+    }/${results.length} checks in ${seconds}s`
+  );
+  return failed.length === 0 ? 0 : 1;
+}
+
+main()
+  .then((exitCode) => process.exit(exitCode))
+  .catch((error) => {
+    console.error(`dev-preflight could not complete: ${error.message}`);
+    process.exit(1);
+  });

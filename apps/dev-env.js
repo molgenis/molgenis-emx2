@@ -67,4 +67,5 @@ module.exports = {
   appsHost,
   e2eBaseUrl,
   loadRootEnv,
+  parseDotenv,
 };
