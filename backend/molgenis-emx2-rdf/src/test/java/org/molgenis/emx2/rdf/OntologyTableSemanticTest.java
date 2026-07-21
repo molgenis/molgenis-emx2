@@ -11,6 +11,7 @@ import java.util.Arrays;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.turtle.TurtleWriter;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -25,19 +26,18 @@ import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.writers.RdfModelWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-public class OntologyTableSemantics {
+public class OntologyTableSemanticTest {
+  private static final String SCHEMA_NAME = OntologyTableSemanticTest.class.getSimpleName();
 
   static Database database;
   static Schema petStoreSchema;
-  static final String RDF_API_LOCATION = "/api/rdf";
 
   @BeforeAll
-  public static void setup() {
+  public static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
-    String schemaName = "semanticPetStore";
-    database.dropSchemaIfExists(schemaName);
-    PET_STORE.getImportTask(database, schemaName, "", true).run();
-    petStoreSchema = database.getSchema("semanticPetStore");
+    database.dropSchemaIfExists(SCHEMA_NAME);
+    PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();
+    petStoreSchema = database.getSchema(SCHEMA_NAME);
   }
 
   @Test
@@ -65,7 +65,7 @@ public class OntologyTableSemantics {
         result.contains("rdfs:subClassOf qb:DataSet, owl:Thing, skos:ConceptScheme;"),
         "Tag should be a subclass of the given classes");
     assertTrue(
-        result.contains("SemanticPetStore:Tag a owl:Class;"),
+        result.contains("OntologyTableSemanticTest:Tag a owl:Class;"),
         "Tag should be an instance of owl:Class");
     assertTrue(
         result.contains("rdfs:isDefinedBy obo:NCIT_C48697;"),
@@ -105,7 +105,7 @@ public class OntologyTableSemantics {
         result.contains("rdfs:subClassOf qb:DataSet, owl:Thing, skos:ConceptScheme;"),
         "Tag should be a subclass of the given classes");
     assertTrue(
-        result.contains("SemanticPetStore:Tag a owl:Class;"),
+        result.contains("OntologyTableSemanticTest:Tag a owl:Class;"),
         "Tag should be an instance of owl:Class");
     assertTrue(
         result.contains("rdfs:isDefinedBy obo:NCIT_C48697, <https://w3id.org/reproduceme#Tag>;"));
