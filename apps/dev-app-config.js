@@ -16,8 +16,20 @@ const nuxtApps = [
 
 const viteApps = [
   { name: "central", portKey: "MOLGENIS_PORT_APP_CENTRAL" },
+  { name: "directory", portKey: "MOLGENIS_PORT_APP_DIRECTORY" },
   { name: "emx2-analytics", portKey: null },
   { name: "graphql-playground", portKey: null },
+];
+
+const playwrightSuites = [
+  { name: "catalogue", configDir: path.join(appsDir, "catalogue") },
+  { name: "directory", configDir: path.join(appsDir, "directory") },
+  {
+    name: "tailwind-components",
+    configDir: path.join(appsDir, "tailwind-components"),
+  },
+  { name: "ui", configDir: path.join(appsDir, "ui") },
+  { name: "e2e", configDir: path.join(appsDir, "..", "e2e") },
 ];
 
 function importFromApp(appDir, specifier) {
@@ -84,21 +96,65 @@ async function resolveViteApp(app) {
   };
 }
 
-async function resolveApp(app, resolver) {
+function playwrightConfigLoader(configDir) {
+  const requireFromConfigDir = createRequire(
+    path.join(configDir, "package.json")
+  );
+  const requireFromPlaywrightTest = createRequire(
+    requireFromConfigDir.resolve("@playwright/test")
+  );
+  const playwrightDir = path.dirname(
+    requireFromPlaywrightTest.resolve("playwright/package.json")
+  );
+  return require(path.join(playwrightDir, "lib", "common", "index.js"))
+    .configLoader;
+}
+
+function firstWebServer(webServer) {
+  if (!webServer) return null;
+  return Array.isArray(webServer) ? webServer[0] : webServer;
+}
+
+async function resolvePlaywrightSuite(suite) {
+  const configPath = path.join(suite.configDir, "playwright.config.ts");
+  const loaded = await playwrightConfigLoader(
+    suite.configDir
+  ).loadConfigFromFile(configPath);
+  const webServer = firstWebServer(loaded.config.webServer);
+  return {
+    name: suite.name,
+    configPath,
+    webServer: webServer
+      ? {
+          url: webServer.url ?? null,
+          envPort:
+            webServer.env && webServer.env.PORT
+              ? String(webServer.env.PORT)
+              : null,
+        }
+      : null,
+  };
+}
+
+async function resolve(subject, resolver) {
   try {
-    return await resolver(app);
+    return await resolver(subject);
   } catch (error) {
-    return { ...app, error: error.message };
+    return { ...subject, unresolved: error.message };
   }
 }
 
 async function main() {
-  const resolved = [];
-  for (const app of nuxtApps)
-    resolved.push(await resolveApp(app, resolveNuxtApp));
-  for (const app of viteApps)
-    resolved.push(await resolveApp(app, resolveViteApp));
-  process.stdout.write(`${reportPrefix}${JSON.stringify(resolved)}\n`);
+  const apps = [];
+  for (const app of nuxtApps) apps.push(await resolve(app, resolveNuxtApp));
+  for (const app of viteApps) apps.push(await resolve(app, resolveViteApp));
+  const playwright = [];
+  for (const suite of playwrightSuites) {
+    playwright.push(await resolve(suite, resolvePlaywrightSuite));
+  }
+  process.stdout.write(
+    `${reportPrefix}${JSON.stringify({ apps, playwright })}\n`
+  );
 }
 
 if (require.main === module) {

@@ -168,6 +168,10 @@ function backendMismatch(rawTarget, expectedPort) {
   return null;
 }
 
+function firstLine(message) {
+  return String(message).split("\n")[0].trim();
+}
+
 function maskSecret(key, value) {
   return secretKeyPattern.test(key) ? "<HIDDEN>" : value;
 }
@@ -179,6 +183,16 @@ function shadowingFailure(key, declared) {
     `${key}: the shell exports ${exported}, .env declares ${declaredValue} — ` +
     `the shell wins, so every dev server ignores .env`
   );
+}
+
+function stackPortDeclarations(declared) {
+  const effective = { ...declared };
+  for (const [key, value] of Object.entries(process.env)) {
+    if (key === "MOLGENIS_HTTP_PORT" || appPortKeyPattern.test(key)) {
+      effective[key] = value;
+    }
+  }
+  return effective;
 }
 
 function checkAmbientShadowing(declared) {
@@ -221,13 +235,26 @@ function checkHeap(declared, gradleConfig) {
       ];
 }
 
+function targetsOwnDevServer(rawTarget, ownPort) {
+  if (ownPort === null || ownPort === undefined) return false;
+  try {
+    const target = new URL(rawTarget);
+    return (
+      loopbackHostnames.has(target.hostname) && target.port === String(ownPort)
+    );
+  } catch {
+    return false;
+  }
+}
+
 function checkBackendTargets(appConfigs, backendPort) {
   const failures = [];
   const backendOrigin = `http://localhost:${backendPort}`;
   for (const app of appConfigs) {
-    if (app.error) {
+    if (app.unresolved) {
       failures.push(
-        `${app.name}: its dev config could not be resolved — ${app.error}`
+        `${app.name} could not be verified: its dev config did not load — ` +
+          `${firstLine(app.unresolved)}`
       );
       continue;
     }
@@ -241,6 +268,7 @@ function checkBackendTargets(appConfigs, backendPort) {
       }
     }
     for (const { pattern, target } of app.proxyTargets || []) {
+      if (targetsOwnDevServer(target, app.port)) continue;
       const mismatch = backendMismatch(target, backendPort);
       if (mismatch) {
         failures.push(
@@ -259,7 +287,7 @@ function checkAppPorts(declared, appConfigs, backendPort) {
     ["MOLGENIS_HTTP_PORT (backend)", Number(backendPort)],
   ]);
   for (const app of appConfigs) {
-    if (app.error) continue;
+    if (app.unresolved) continue;
     const declaredPort = declared[app.portKey];
     if (!declaredPort) continue;
     if (app.port !== Number(declaredPort)) {
@@ -360,8 +388,13 @@ function readDatabaseState(declared) {
   const psql = psqlCommand();
   if (!psql) {
     return {
-      failures: [],
-      summary: "listening; psql not found, schema state unverified",
+      failures: [
+        `could not be verified: psql is not on PATH and is not at ${postgresAppPsql}, so the ` +
+          `schema state of ${declared.MOLGENIS_POSTGRES_URI} is unknown — a database provisioned ` +
+          `by another branch can carry incompatible column types. Put psql on PATH (Postgres.app: ` +
+          `add /Applications/Postgres.app/Contents/Versions/latest/bin) and re-run`,
+      ],
+      summary: "listening; schema state unverified",
     };
   }
   const query =
@@ -428,6 +461,41 @@ function checkEsmBundledBuilds(buildResults) {
     );
 }
 
+function checkPlaywrightWebServers(playwrightSuites) {
+  const failures = [];
+  for (const suite of playwrightSuites) {
+    if (suite.unresolved) {
+      failures.push(
+        `${suite.name} could not be verified: its Playwright config did not load — ` +
+          `${firstLine(
+            suite.unresolved
+          )}. Install the missing dependency where that config ` +
+          `lives (${suite.configDir}) so preflight can read its webServer block`
+      );
+      continue;
+    }
+    if (!suite.webServer) continue;
+    const probedPort = new URL(suite.webServer.url).port;
+    if (suite.webServer.envPort === probedPort) continue;
+    failures.push(
+      `${suite.name} starts its e2e server with PORT=${suite.webServer.envPort} but probes ` +
+        `${suite.webServer.url} (port ${probedPort}), so Playwright waits for a server that ` +
+        `never binds there — ${suite.configPath}`
+    );
+  }
+  return failures;
+}
+
+function playwrightSummary(playwrightSuites) {
+  return playwrightSuites
+    .map((suite) => {
+      if (suite.unresolved) return `${suite.name}: not verifiable`;
+      if (!suite.webServer) return `${suite.name}: no webServer`;
+      return `${suite.name}: PORT=${suite.webServer.envPort} probing ${suite.webServer.url}`;
+    })
+    .join(" · ");
+}
+
 function printHeading(declared, gradleConfig, appConfigs, databaseSummary) {
   const backendPort = gradleConfig.resolved.MOLGENIS_HTTP_PORT;
   console.log("dev-preflight — cross-checking the declared stack\n");
@@ -441,17 +509,16 @@ function printHeading(declared, gradleConfig, appConfigs, databaseSummary) {
   );
   console.log(`  dev heap     ${gradleConfig.resolved.maxHeapSize}`);
   for (const app of appConfigs) {
-    const target = app.error
-      ? `unresolved: ${app.error}`
+    const target = app.unresolved
+      ? `unresolved: ${app.unresolved}`
       : app.apiBase ||
         (app.proxyTargets || []).map((entry) => entry.target)[0] ||
         "no backend target";
-    const port = app.error ? "?" : app.port === null ? "-" : app.port;
+    const port = app.unresolved ? "?" : app.port === null ? "-" : app.port;
     console.log(
       `  ${app.name.padEnd(20)} port ${String(port).padEnd(6)} ${target}`
     );
   }
-  console.log("");
 }
 
 function printResults(results) {
@@ -470,17 +537,20 @@ async function main() {
     return 1;
   }
   const declared = loadRootEnv();
+  const portDeclarations = stackPortDeclarations(declared);
   const startedAt = Date.now();
 
-  const [gradleConfig, appConfigs, buildResults] = await Promise.all([
+  const [gradleConfig, devConfig, buildResults] = await Promise.all([
     readGradleDevConfig(),
     readAppConfigs(),
     buildEsmBundledViteApps(),
   ]);
+  const appConfigs = devConfig.apps;
 
   const backendPort = gradleConfig.resolved.MOLGENIS_HTTP_PORT;
   const database = readDatabaseState(declared);
   printHeading(declared, gradleConfig, appConfigs, database.summary);
+  console.log(`  e2e servers  ${playwrightSummary(devConfig.playwright)}\n`);
 
   const results = [
     {
@@ -501,15 +571,19 @@ async function main() {
     },
     {
       name: "each app binds its own declared port, strictly",
-      failures: checkAppPorts(declared, appConfigs, backendPort),
+      failures: checkAppPorts(portDeclarations, appConfigs, backendPort),
     },
     {
       name: "every declared port is free or held by this worktree",
-      failures: checkPortsAvailable(declared),
+      failures: checkPortsAvailable(portDeclarations),
     },
     {
       name: "no sibling worktree claims a port declared here",
-      failures: checkPortClaims(declared),
+      failures: checkPortClaims(portDeclarations),
+    },
+    {
+      name: "each e2e server binds the port its Playwright config probes",
+      failures: checkPlaywrightWebServers(devConfig.playwright),
     },
     { name: "the declared database is reachable", failures: database.failures },
     {
