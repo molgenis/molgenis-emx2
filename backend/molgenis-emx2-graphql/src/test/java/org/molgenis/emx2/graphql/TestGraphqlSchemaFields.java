@@ -627,6 +627,26 @@ class TestGraphqlSchemaFields {
   }
 
   @Test
+  void testSemantics() throws IOException {
+    JsonNode output = execute("{_schema {id, tables {id, semantics, columns {id, semantics}}}}");
+
+    JsonNode tableSemantics = output.at("/_schema/tables/4/semantics");
+    JsonNode columnSemantics = output.at("/_schema/tables/4/columns/3/semantics");
+
+    assertAll(
+        () -> assertEquals(1, tableSemantics.size()),
+        () -> assertEquals("foaf:Person", tableSemantics.get(0).textValue()),
+        () -> assertEquals(3, columnSemantics.size()),
+        () ->
+            assertEquals(
+                "http://example.com/petstore#hasLastName", columnSemantics.get(0).textValue()),
+        () -> assertEquals("foaf:lastName", columnSemantics.get(1).textValue()),
+        () ->
+            assertEquals(
+                "<http://example.com/petstore#hasFamilyName>", columnSemantics.get(2).textValue()));
+  }
+
+  @Test
   void testMembersOperations() throws IOException {
 
     // list members
