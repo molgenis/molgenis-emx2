@@ -9,30 +9,35 @@ import {
   LoadingScreen,
   // @ts-expect-error
 } from "molgenis-viz";
-import LoadingBlock from "../../components/LoadingBlock.vue";
-import ProviderDashboard from "../../components/ProviderDashboard.vue";
 
-import { generateAxisTickData } from "../../utils/generateAxisTicks";
+import ProviderDashboard from "../../components/ProviderDashboard.vue";
+import { generateAxisTickData } from "../../../../tailwind-components/app/utils/viz";
 import { asKeyValuePairs, uniqueValues } from "../../utils";
 import { generateColorPalette } from "../../utils/generateColorPalette";
-import { getDashboardChart } from "../../utils/getDashboardData";
+import { getDashboardChart } from "../../../../metadata-utils/src/viz/getUiDashboardCharts";
+import {
+  ernYourCenterPalette,
+  columnHoverFillColor,
+} from "../../utils/variables";
 
-import type { ICharts, IChartData } from "../../types/schema";
-import type { IAppPage } from "../../types/app";
-import type { IKeyValuePair } from "../../types/index";
+import type {
+  ICharts,
+  IChartData,
+} from "../../../../metadata-utils/src/viz/UiDashboard";
+import type { IAppPage, IKeyValuePair } from "../../types";
+
 const props = defineProps<IAppPage>();
-
 const loading = ref<boolean>(true);
 const cleftTypeOptions = ref<string[]>();
-const selectedCleftType = ref<string>();
+const selectedCleftType = ref<string>("");
 const selectedCleftTypePatients = computed<number>(() => {
   if (selectedCleftType.value) {
     const newCleftType = patientsByPhenotypeChartData.value?.filter(
       (row: IChartData) => {
-        return row.dataPointName === selectedCleftType.value;
+        return row.name === selectedCleftType.value;
       }
     ) as IChartData[];
-    return newCleftType[0].dataPointValue as number;
+    return newCleftType[0].value as number;
   } else {
     return 0;
   }
@@ -63,16 +68,16 @@ async function getPageData() {
 function updateGenderChart() {
   const filteredData = patientsByGenderChart.value?.dataPoints
     ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedCleftType.value;
+      return row.primaryCategory === selectedCleftType.value;
     })
     .sort((a: IChartData, b: IChartData): number => {
-      return (b.dataPointValue as number) - (a.dataPointValue as number);
+      return (b.value as number) - (a.value as number);
     });
 
   patientsByGenderChartData.value = asKeyValuePairs(
     filteredData,
-    "dataPointName",
-    "dataPointValue"
+    "name",
+    "value"
   );
 }
 
@@ -89,21 +94,21 @@ onMounted(() => {
 
         const chartTicks = generateAxisTickData(
           patientsByPhenotypeChartData.value,
-          "dataPointValue"
+          "value"
         );
 
         patientsByPhenotypeChart.value.yAxisMaxValue = chartTicks.limit;
         patientsByPhenotypeChart.value.yAxisTicks = chartTicks.ticks;
 
         cleftTypeOptions.value = patientsByPhenotypeChart.value?.dataPoints.map(
-          (row: IChartData) => row.dataPointName
+          (row: IChartData) => row.name
         ) as string[];
         selectedCleftType.value = cleftTypeOptions.value[0];
       }
 
       const phenotypeCategories = uniqueValues(
         patientsByPhenotypeChart.value?.dataPoints,
-        "dataPointName"
+        "name"
       );
 
       patientsByPhenotypePalette.value =
@@ -111,7 +116,7 @@ onMounted(() => {
 
       const genderCategories = uniqueValues(
         patientsByGenderChart.value?.dataPoints,
-        "dataPointName"
+        "name"
       );
 
       patientsByGenderPalette.value = generateColorPalette(genderCategories);
@@ -138,15 +143,15 @@ onMounted(() => {
           :title="patientsByPhenotypeChart?.chartTitle"
           :description="patientsByPhenotypeChart?.chartSubtitle"
           :chartData="patientsByPhenotypeChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="patientsByPhenotypeChart?.xAxisLabel"
           :yAxisLabel="patientsByPhenotypeChart?.yAxisLabel"
           :yMin="0"
           :yMax="patientsByPhenotypeChart?.yAxisMaxValue"
           :yTickValues="patientsByPhenotypeChart?.yAxisTicks"
-          :columnColorPalette="patientsByPhenotypePalette"
-          columnHoverFill="#708fb4"
+          :columnFill="ernYourCenterPalette['Your center']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="250"
           :chartMargins="{
             top: patientsByPhenotypeChart?.topMargin,
@@ -157,13 +162,11 @@ onMounted(() => {
         />
       </DashboardChart>
     </DashboardRow>
-    <LoadingBlock :loading="loading">
-      <h2 class="dashboard-h2">
-        Overview of {{ selectedCleftType }} patients (n={{
-          selectedCleftTypePatients
-        }})
-      </h2>
-    </LoadingBlock>
+    <h2 class="dashboard-h2">
+      Overview of {{ selectedCleftType }} patients (n={{
+        selectedCleftTypePatients
+      }})
+    </h2>
     <DashboardRow :columns="1">
       <DashboardChart>
         <h3 class="visually-hidden">Options</h3>

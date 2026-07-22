@@ -49,10 +49,10 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-        SELECT ?_subject ?name
-        WHERE { ?_subject ?anyPredicate ?anyObject .
-        ?_subject xsd:name ?name . }
-        GROUP BY ?_subject ?name
+        SELECT ?_subject_ ?name
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        ?_subject_ xsd:name ?name . }
+        GROUP BY ?_subject_ ?name
         """,
         removePrefixesFromQuery(query));
   }
@@ -72,10 +72,10 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-                  SELECT ?_subject ?name
-                  WHERE { ?_subject ?anyPredicate ?anyObject .
-                  ?_subject xsd:name ?name . }
-                  GROUP BY ?_subject ?name
+                  SELECT ?_subject_ ?name
+                  WHERE { ?_subject_ ?anyPredicate ?anyObject .
+                  ?_subject_ xsd:name ?name . }
+                  GROUP BY ?_subject_ ?name
                   """,
         removePrefixesFromQuery(query));
   }
@@ -95,10 +95,10 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-        SELECT ?_subject ?name
-        WHERE { ?_subject a ?_type_ .
-        ?_subject xsd:name ?name . }
-        GROUP BY ?_subject ?name
+        SELECT ?_subject_ ?name
+        WHERE { ?_subject_ a ?_type_ .
+        ?_subject_ xsd:name ?name . }
+        GROUP BY ?_type_ ?_subject_ ?name
         VALUES ?_type_ {
           xsd:foo\s
           xsd:bar\s
@@ -123,10 +123,10 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-            SELECT ?_subject ?name
-            WHERE { ?_subject a xsd:foo .
-            ?_subject xsd:name ?name . }
-            GROUP BY ?_subject ?name
+            SELECT ?_subject_ ?name
+            WHERE { ?_subject_ a xsd:foo .
+            ?_subject_ xsd:name ?name . }
+            GROUP BY ?_subject_ ?name
             """,
         removePrefixesFromQuery(query));
   }
@@ -150,12 +150,12 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-        SELECT ?_subject ?foo ?bar ?baz
-        WHERE { ?_subject ?anyPredicate ?anyObject .
-        OPTIONAL { ?_subject xsd:foo ?foo . }
-        OPTIONAL { ?_subject xsd:bar ?bar . }
-        ?_subject xsd:baz ?baz . }
-        GROUP BY ?_subject ?foo ?bar ?baz
+        SELECT ?_subject_ ?foo ?bar ?baz
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject_ xsd:foo ?foo . }
+        OPTIONAL { ?_subject_ xsd:bar ?bar . }
+        ?_subject_ xsd:baz ?baz . }
+        GROUP BY ?_subject_ ?foo ?bar ?baz
         """,
         removePrefixesFromQuery(query));
   }
@@ -174,10 +174,10 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-      SELECT ?_subject ?name
-      WHERE { ?_subject ?anyPredicate ?anyObject .
-      ?_subject xsd:name ?name . }
-      GROUP BY ?_subject ?name
+      SELECT ?_subject_ ?name
+      WHERE { ?_subject_ ?anyPredicate ?anyObject .
+      ?_subject_ xsd:name ?name . }
+      GROUP BY ?_subject_ ?name
       """,
         removePrefixesFromQuery(query));
   }
@@ -193,10 +193,10 @@ class TableQueryGeneratorTest {
     String query = new TableQueryGenerator().generate(table);
     assertEquals(
         """
-          SELECT ?_subject ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = ',' ) AS ?names )
-          WHERE { ?_subject ?anyPredicate ?anyObject .
-          OPTIONAL { ?_subject xsd:name ?names_single . } }
-          GROUP BY ?_subject
+          SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?names_single ) ; SEPARATOR = ',' ) AS ?names )
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ xsd:name ?names_single . } }
+          GROUP BY ?_subject_
           """,
         removePrefixesFromQuery(query));
   }
@@ -207,12 +207,12 @@ class TableQueryGeneratorTest {
 
     assertEquals(
         """
-        SELECT ?_subject ?id ?product__name
-        WHERE { ?_subject ?anyPredicate ?anyObject .
-        ?_subject xsd:id ?id .
-        ?_subject xsd:product ?product .
+        SELECT ?_subject_ ?id ( ?product AS ?_subject_product ) ?product__name
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        ?_subject_ xsd:id ?id .
+        ?_subject_ xsd:product ?product .
         ?product xsd:name ?product__name . }
-        GROUP BY ?_subject ?id ?product__name
+        GROUP BY ?_subject_ ?id ?product ?product__name
         """,
         removePrefixesFromQuery(query));
   }

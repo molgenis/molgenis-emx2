@@ -150,6 +150,8 @@
     --text-color-button-outline-hover: var(--color-blue-700);
     --text-color-button-inline: var(--text-color-button-outline);
     --text-color-button-disabled: var(--color-gray-400);
+    --text-color-button-text-disabled: var(--text-color-button-disabled);
+    --text-color-button-inline-disabled: var(--text-color-button-disabled);
     --text-color-button-disabled-hover: var(--color-gray-600);
     --text-color-button-filter: var(--color-blue-800);
     --text-color-button-tree-node-toggle: var(--color-blue-800);

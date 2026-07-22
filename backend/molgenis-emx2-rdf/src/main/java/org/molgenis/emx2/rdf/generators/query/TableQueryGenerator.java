@@ -24,7 +24,7 @@ public class TableQueryGenerator implements QueryGenerator {
   private static final Variable ANY_PREDICATE = SparqlBuilder.var("anyPredicate");
   private static final Variable ANY_OBJECT = SparqlBuilder.var("anyObject");
   private static final Variable TYPE_VARIABLE = SparqlBuilder.var("_type_");
-  private static final Variable SUBJECT_VARIABLE = SparqlBuilder.var("_subject");
+  public static final Variable SUBJECT_VARIABLE = SparqlBuilder.var("_subject_");
 
   @Override
   public String generate(TableMetadata tableMetadata) {
@@ -99,7 +99,8 @@ public class TableQueryGenerator implements QueryGenerator {
     } else {
       select
           .where(SUBJECT_VARIABLE.isA(TYPE_VARIABLE))
-          .values(value -> value.variables(TYPE_VARIABLE).values(semantics));
+          .values(value -> value.variables(TYPE_VARIABLE).values(semantics))
+          .groupBy(TYPE_VARIABLE);
     }
   }
 

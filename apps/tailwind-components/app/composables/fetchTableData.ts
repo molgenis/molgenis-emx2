@@ -1,7 +1,7 @@
-import { createError } from "nuxt/app";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
+import { fetchErrorToNuxtError } from "../utils/fetchErrorToNuxtError";
 import fetchMetadata from "./fetchMetadata";
 
 export interface ITableDataResponse {
@@ -57,10 +57,7 @@ export default async (
   }).catch((error) => {
     const message = `Could not fetch data for table: ${tableId} in schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
     console.error(message, error);
-    throw createError({
-      ...error,
-      message,
-    });
+    throw fetchErrorToNuxtError(error, message);
   });
 
   return { rows: data[tableId], count: data[`${tableId}_agg`].count };
