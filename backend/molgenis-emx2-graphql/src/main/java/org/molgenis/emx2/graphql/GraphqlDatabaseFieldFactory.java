@@ -57,35 +57,27 @@ public class GraphqlDatabaseFieldFactory {
     // no instances
   }
 
-  public GraphQLFieldDefinition.Builder deleteMutation(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("deleteSchema")
-        .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLString))
-        .dataFetcher(
+  public GraphQLFieldDefinition.Builder deleteMutation(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "deleteSchema"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String id = dataFetchingEnvironment.getArgument(ID);
               database.dropSchema(id); // id and name are still equal, might change in future
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s dropped", id);
             });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("deleteSchema")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(ID).type(Scalars.GraphQLString));
   }
 
-  public GraphQLFieldDefinition.Builder createMutation(Database database, TaskService taskService) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("createSchema")
-        .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
-        .argument(GraphQLArgument.newArgument().name(DESCRIPTION).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.TEMPLATE).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.INCLUDE_DEMO_DATA)
-                .type(Scalars.GraphQLBoolean))
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.PARENT_JOB).type(Scalars.GraphQLString))
-        .dataFetcher(
+  public GraphQLFieldDefinition.Builder createMutation(
+      Database database, TaskService taskService, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "createSchema"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
@@ -114,32 +106,45 @@ public class GraphqlDatabaseFieldFactory {
 
               return result;
             });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("createSchema")
+        .type(typeForMutationResult)
+        .argument(
+            GraphQLArgument.newArgument().name(GraphqlConstants.NAME).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(DESCRIPTION).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.TEMPLATE).type(Scalars.GraphQLString))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(Constants.INCLUDE_DEMO_DATA)
+                .type(Scalars.GraphQLBoolean))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.PARENT_JOB).type(Scalars.GraphQLString));
   }
 
-  public GraphQLFieldDefinition.Builder updateMutation(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("updateSchema")
-        .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
-        .argument(GraphQLArgument.newArgument().name(DESCRIPTION).type(Scalars.GraphQLString))
-        .dataFetcher(
+  public GraphQLFieldDefinition.Builder updateMutation(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "updateSchema"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
               database.updateSchema(name, description);
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s updated", name);
             });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("updateSchema")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(NAME).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(DESCRIPTION).type(Scalars.GraphQLString));
   }
 
-  public GraphQLFieldDefinition.Builder settingsQueryField(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_settings")
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.KEYS)
-                .type(GraphQLList.list(Scalars.GraphQLString)))
-        .type(GraphQLList.list(outputSettingsType))
-        .dataFetcher(
+  public GraphQLFieldDefinition.Builder settingsQueryField(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_settings"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               final List<String> selectedKeys =
                   dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
@@ -154,12 +159,20 @@ public class GraphqlDatabaseFieldFactory {
 
               return mapSettingsToGraphql(filtered);
             });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_settings")
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.KEYS)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
+        .type(GraphQLList.list(outputSettingsType));
   }
 
-  public GraphQLFieldDefinition.Builder schemasQuery(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_schemas")
-        .dataFetcher(
+  public GraphQLFieldDefinition.Builder schemasQuery(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_schemas"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               List<Map<String, String>> result = new ArrayList<>();
               for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
@@ -174,7 +187,9 @@ public class GraphqlDatabaseFieldFactory {
                 result.add(fields);
               }
               return result;
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_schemas")
         .type(GraphQLList.list(outputSchemasType));
   }
 
@@ -197,12 +212,11 @@ public class GraphqlDatabaseFieldFactory {
                   .type(GraphQLList.list(GraphQLTypeReference.typeRef("MolgenisTask"))))
           .build();
 
-  public GraphQLFieldDefinition tasksQueryField(TaskService taskService, Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_tasks")
-        .type(GraphQLList.list(outputTaskType))
-        .argument(GraphQLArgument.newArgument().name(TASK_ID).type(Scalars.GraphQLString))
-        .dataFetcher(
+  public GraphQLFieldDefinition tasksQueryField(
+      TaskService taskService, Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_tasks"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String id = dataFetchingEnvironment.getArgument(TASK_ID);
               if (id != null) {
@@ -223,7 +237,11 @@ public class GraphqlDatabaseFieldFactory {
               }
 
               throw new MolgenisException("Listing all tasks is only allowed for admin users");
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_tasks")
+        .type(GraphQLList.list(outputTaskType))
+        .argument(GraphQLArgument.newArgument().name(TASK_ID).type(Scalars.GraphQLString))
         .build();
   }
 
@@ -239,16 +257,11 @@ public class GraphqlDatabaseFieldFactory {
                   .build())
           .build();
 
-  public GraphQLFieldDefinition changeMutation(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("change")
-        .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(USERS).type(GraphQLList.list(inputUserType)))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(SETTINGS)
-                .type(GraphQLList.list(inputSettingsMetadataType)))
-        .dataFetcher(
+  public GraphQLFieldDefinition changeMutation(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "change"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();
               database.tx(
@@ -262,20 +275,23 @@ public class GraphqlDatabaseFieldFactory {
                     }
                   });
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
-            })
-        .build();
-  }
-
-  public GraphQLFieldDefinition dropMutation(Database database) {
+            });
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("drop")
+        .name("change")
         .type(typeForMutationResult)
         .argument(GraphQLArgument.newArgument().name(USERS).type(GraphQLList.list(inputUserType)))
         .argument(
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
-                .type(GraphQLList.list(inputDropSettingType)))
-        .dataFetcher(
+                .type(GraphQLList.list(inputSettingsMetadataType)))
+        .build();
+  }
+
+  public GraphQLFieldDefinition dropMutation(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "drop"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();
               database.tx(
@@ -289,15 +305,26 @@ public class GraphqlDatabaseFieldFactory {
                     }
                   });
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("drop")
+        .type(typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(USERS).type(GraphQLList.list(inputUserType)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(SETTINGS)
+                .type(GraphQLList.list(inputDropSettingType)))
         .build();
   }
 
-  public GraphQLFieldDefinition.Builder lastUpdateQuery(Database database) {
+  public GraphQLFieldDefinition.Builder lastUpdateQuery(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_lastUpdate"),
+        (DataFetcher<?>) dataFetchingEnvironment -> database.getLastUpdated());
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_lastUpdate")
-        .type(GraphQLList.list(lastUpdateMetadataType))
-        .dataFetcher(dataFetchingEnvironment -> database.getLastUpdated());
+        .type(GraphQLList.list(lastUpdateMetadataType));
   }
 
   private static void dropUsers(
