@@ -2,7 +2,7 @@
 import { defineNuxtConfig } from "nuxt/config";
 import * as fs from "fs";
 import { resolve } from "path";
-import { apiBase, strictDevServerPort } from "../dev-env.js";
+import { apiBase } from "../dev-env.js";
 
 const sourceCodeMapPath = resolve("./sourceCodeMap.json");
 const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
@@ -11,9 +11,6 @@ const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  devServer: {
-    port: strictDevServerPort("MOLGENIS_PORT_APP_TAILWIND", 3000),
-  },
   experimental: {
     watcher: "parcel",
   },

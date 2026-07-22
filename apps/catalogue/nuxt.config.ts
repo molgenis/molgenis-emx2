@@ -1,12 +1,9 @@
 import { defineNuxtConfig } from "nuxt/config";
-import { apiBase, strictDevServerPort } from "../dev-env.js";
+import { apiBase } from "../dev-env.js";
 
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
-  devServer: {
-    port: strictDevServerPort("MOLGENIS_PORT_APP_CATALOGUE", 3000),
-  },
   modules: [
     "@nuxt/test-utils/module",
     "nuxt-gtag",

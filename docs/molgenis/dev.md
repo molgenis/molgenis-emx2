@@ -8,7 +8,6 @@ There are a number of guides available to help you get started with EMX2. We enc
     - [MOLGENIS Architecture](./dev_architecture.md)
     - [Developer guidelines](./dev_guidelines.md)
     - [Quickstart](./dev_quickstart.md)
-    - [Dev stacks: why it works this way](./dev_devstacks.md)
     - [Migration guidelines](./dev_migrations.md)
     - [Technologies used](./dev_technologies.md)
 - APIs

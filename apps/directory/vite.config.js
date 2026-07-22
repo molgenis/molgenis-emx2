@@ -3,17 +3,10 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { createHtmlPlugin } from "vite-plugin-html";
 import monacoEditorPlugin from "vite-plugin-monaco-editor";
-import { appsHost, devPort } from "../dev-env";
+import { appsHost } from "../dev-env";
 
 const HOST = appsHost("https://emx2.dev.molgenis.org/");
 const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "directory-demo";
-
-const declaredPort = devPort("MOLGENIS_PORT_APP_DIRECTORY", null);
-
-const declaredPortBinding =
-  declaredPort === null ? {} : { port: declaredPort, strictPort: true };
-
-const selfTarget = `http://localhost:${declaredPort ?? 5173}`;
 
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
@@ -37,7 +30,6 @@ export default defineConfig(({ command }) => ({
     },
   },
   server: {
-    ...declaredPortBinding,
     proxy: {
       "/graphql": {
         target: `${HOST}/${SCHEMA}`,
@@ -58,7 +50,7 @@ export default defineConfig(({ command }) => ({
             /^\/public_html\/apps\/directory/,
             ""
           ) /** removes the part of the url, so this will go straight to /img in public folder */,
-        target: selfTarget,
+        target: "http://localhost:5173",
       },
     },
   },

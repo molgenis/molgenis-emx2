@@ -1,15 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 import type { ConfigOptions } from "@nuxt/test-utils/playwright";
-import { devPort, e2eBaseUrl } from "../dev-env.js";
-
-const serverPort = devPort("MOLGENIS_PORT_APP_CATALOGUE", 3000);
 
 export default defineConfig<ConfigOptions>({
   webServer: {
     command: "node .output/server/index.mjs",
-    url: `http://127.0.0.1:${serverPort}`,
-    env: { PORT: String(serverPort) },
-    reuseExistingServer: false,
+    url: "http://127.0.0.1:3000",
+    reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
   testDir: "./tests",
@@ -30,14 +26,11 @@ export default defineConfig<ConfigOptions>({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: e2eBaseUrl(
-      "MOLGENIS_PORT_APP_CATALOGUE",
-      "https://emx2.dev.molgenis.org/"
-    ),
+    baseURL: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/", // change to specific http://localhost:*/, preview, etc.
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     nuxt: {
-      host: e2eBaseUrl("MOLGENIS_PORT_APP_CATALOGUE", "http://localhost:3000/"),
+      host: process.env.E2E_BASE_URL || "http://localhost:3000/",
       build: false,
     },
   },

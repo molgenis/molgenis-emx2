@@ -1,6 +1,10 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["NUXT_PUBLIC_API_BASE", "MOLGENIS_APPS_HOST"],
+  "globalEnv": [
+    "NUXT_PUBLIC_API_BASE",
+    "MOLGENIS_APPS_HOST",
+    "MOLGENIS_HTTP_PORT"
+  ],
   "globalDependencies": ["dev-env.js", "dev-proxy.config.js"],
   "tasks": {
     "build": {
@@ -53,15 +57,6 @@
       "dependsOn": ["build"],
       "outputs": [],
       "cache": true
-    },
-    "//#test-dev-env": {
-      "inputs": ["dev-env.js", "dev-env.test.js"],
-      "outputs": [],
-      "cache": true
-    },
-    "//#test-build-cache": {
-      "outputs": [],
-      "cache": false
     },
     "e2e": {
       "outputs": [],
