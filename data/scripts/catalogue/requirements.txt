@@ -1,5 +1,5 @@
 certifi==2026.5.20
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
 idna==3.18
 numpy
 python-dateutil==2.9.0
