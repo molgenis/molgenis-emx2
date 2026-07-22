@@ -58,6 +58,7 @@ const page = mount(ConfigurablePage, {
     content: pageData,
     isEditable: false,
     metadata: [] as ITableMetaData[],
+    schema:"",
   },
 });
 
