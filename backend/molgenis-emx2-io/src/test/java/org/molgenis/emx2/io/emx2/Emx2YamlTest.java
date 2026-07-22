@@ -2,6 +2,7 @@ package org.molgenis.emx2.io.emx2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -161,6 +162,43 @@ class Emx2YamlTest {
             || reparsedSubject.getColumn("assay").getValues().isEmpty());
 
     assertEquals(firstExport, Emx2Yaml.toBundleFiles(Emx2Yaml.fromBundleFiles(firstExport)));
+  }
+
+  @Test
+  void headingSplice() throws Exception {
+    Emx2YamlBundle parsed = Emx2Yaml.fromBundle(bundleDir("reuse"));
+    TableMetadata resources = parsed.schema().getTableMetadata("Resources");
+
+    assertEquals(
+        List.of("id", "familyName", "contactDetails", "email", "phone", "orcid", "sex"),
+        nonSystemNames(resources.getColumns()));
+
+    Column heading = resources.getColumn("contactDetails");
+    assertTrue(heading.isHeading());
+    assertEquals("hasContact", heading.getVisible());
+
+    Column email = resources.getColumn("email");
+    assertEquals(ColumnType.EMAIL, email.getColumnType());
+    assertNull(
+        email.getVisible(), "visible cascade is engine behavior, not materialized on columns");
+
+    assertEquals(heading.getPosition() + 1, resources.getColumn("email").getPosition().intValue());
+    assertEquals(
+        resources.getColumn("orcid").getPosition() + 1,
+        resources.getColumn("sex").getPosition().intValue());
+
+    Map<String, String> firstExport = Emx2Yaml.toBundleFiles(parsed);
+    Map<String, String> secondExport =
+        Emx2Yaml.toBundleFiles(Emx2Yaml.fromBundleFiles(firstExport));
+    assertEquals(firstExport, secondExport);
+
+    TableMetadata reparsed =
+        Emx2Yaml.fromBundleFiles(firstExport).schema().getTableMetadata("Resources");
+    assertEquals(
+        List.of("id", "familyName", "contactDetails", "email", "phone", "orcid", "sex"),
+        nonSystemNames(reparsed.getColumns()));
+    assertTrue(reparsed.getColumn("contactDetails").isHeading());
+    assertEquals("hasContact", reparsed.getColumn("contactDetails").getVisible());
   }
 
   @Test

@@ -1,0 +1,5 @@
+formatVersion: 1
+version: 1.0.0
+imports: [shared/common.yaml]
+tables:
+- file: tables/Resources.yaml

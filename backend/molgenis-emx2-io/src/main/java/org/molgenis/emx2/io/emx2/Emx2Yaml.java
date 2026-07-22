@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -64,13 +65,16 @@ public class Emx2Yaml {
   private static final String KEY_MODULES = "modules";
   private static final String KEY_SUBCLASS = "subclass";
   private static final String KEY_MODULE = "module";
+  private static final String KEY_IMPORTS = "imports";
+  private static final String KEY_SECTION = "section";
+  private static final String KEY_HEADING = "heading";
 
   private static final String DEFAULT_LOCALE = "en";
   private static final String BOOLEAN_TRUE = "true";
   private static final String BOOLEAN_FALSE = "false";
 
   private static final Set<String> BUNDLE_KEYS =
-      Set.of(KEY_FORMAT_VERSION, KEY_VERSION, KEY_TABLES, KEY_SETTINGS);
+      Set.of(KEY_FORMAT_VERSION, KEY_VERSION, KEY_TABLES, KEY_SETTINGS, KEY_IMPORTS);
   private static final Set<String> TABLE_ENTRY_KEYS = Set.of(KEY_FILE);
   private static final Set<String> TABLE_KEYS =
       Set.of(
@@ -82,7 +86,18 @@ public class Emx2Yaml {
           KEY_EXTENDS,
           KEY_TABLE_TYPE,
           KEY_SUBCLASSES,
-          KEY_MODULES);
+          KEY_MODULES,
+          KEY_IMPORTS);
+  private static final Set<String> SHARED_FILE_KEYS = Set.of(KEY_COLUMNS);
+  private static final Set<String> HEADING_KEYS =
+      Set.of(
+          KEY_SECTION,
+          KEY_HEADING,
+          KEY_VISIBLE,
+          KEY_LABEL,
+          KEY_DESCRIPTION,
+          KEY_SUBCLASS,
+          KEY_MODULE);
   private static final Set<String> SUBTABLE_KEYS =
       Set.of(KEY_NAME, KEY_EXTENDS, KEY_LABEL, KEY_DESCRIPTION, KEY_TABLE_TYPE);
   private static final Set<String> COLUMN_KEYS =
@@ -114,11 +129,43 @@ public class Emx2Yaml {
       throw new MolgenisException("Bundle is missing '" + MOLGENIS_YAML + "' at: " + directory);
     }
     Map<String, String> files = new LinkedHashMap<>();
-    files.put(MOLGENIS_YAML, Files.readString(molgenisYaml));
-    for (String relativePath : tableFilePaths(files.get(MOLGENIS_YAML))) {
-      files.put(relativePath, Files.readString(directory.resolve(relativePath)));
+    String rootContent = Files.readString(molgenisYaml);
+    files.put(MOLGENIS_YAML, rootContent);
+    readImports(rootContent, "bundle", BUNDLE_KEYS, directory, files);
+    for (String relativePath : tableFilePaths(rootContent)) {
+      String tableContent = Files.readString(directory.resolve(relativePath));
+      files.put(relativePath, tableContent);
+      readImports(tableContent, "table", TABLE_KEYS, directory, files);
     }
     return fromBundleFiles(files);
+  }
+
+  private static void readImports(
+      String content,
+      String label,
+      Set<String> allowedKeys,
+      Path directory,
+      Map<String, String> files)
+      throws IOException {
+    for (String importPath : importPaths(content, label, allowedKeys)) {
+      if (!files.containsKey(importPath)) {
+        files.put(importPath, Files.readString(directory.resolve(importPath)));
+      }
+    }
+  }
+
+  private static List<String> importPaths(String content, String label, Set<String> allowedKeys) {
+    YamlDocumentReader reader = new YamlDocumentReader(label);
+    Node node = reader.compose(content);
+    if (node == null) {
+      return List.of();
+    }
+    LinkedHashMap<String, Node> map = reader.mapping(node, label, allowedKeys);
+    Node importsNode = map.get(KEY_IMPORTS);
+    if (importsNode == null) {
+      return List.of();
+    }
+    return reader.stringList(importsNode, label + "." + KEY_IMPORTS);
   }
 
   public static Emx2YamlBundle fromBundleFiles(Map<String, String> files) {
@@ -140,7 +187,9 @@ public class Emx2Yaml {
     if (settingsNode != null) {
       schema.setSettings(reader.scalarMapping(settingsNode, "bundle." + KEY_SETTINGS));
     }
-    parseTables(root.get(KEY_TABLES), files, schema);
+    List<SharedFile> bundleImports =
+        loadSharedFiles(reader, root.get(KEY_IMPORTS), files, "bundle." + KEY_IMPORTS);
+    parseTables(root.get(KEY_TABLES), files, schema, bundleImports);
 
     String version =
         root.containsKey(KEY_VERSION) ? reader.scalar(root.get(KEY_VERSION), KEY_VERSION) : null;
@@ -191,7 +240,10 @@ public class Emx2Yaml {
   }
 
   private static void parseTables(
-      Node tablesNode, Map<String, String> files, SchemaMetadata schema) {
+      Node tablesNode,
+      Map<String, String> files,
+      SchemaMetadata schema,
+      List<SharedFile> bundleImports) {
     if (tablesNode == null) {
       return;
     }
@@ -207,12 +259,63 @@ public class Emx2Yaml {
       if (content == null) {
         throw reader.error("referenced table file not found: " + relativePath, entry.get(KEY_FILE));
       }
-      parsedFiles.add(parseHierarchyFile(relativePath, content));
+      parsedFiles.add(parseHierarchyFile(relativePath, content, files, bundleImports));
     }
     assemble(parsedFiles, schema);
   }
 
-  private static ParsedFile parseHierarchyFile(String fileLabel, String content) {
+  private static List<SharedFile> loadSharedFiles(
+      YamlDocumentReader reader, Node importsNode, Map<String, String> files, String path) {
+    if (importsNode == null) {
+      return List.of();
+    }
+    List<SharedFile> sharedFiles = new ArrayList<>();
+    for (String importPath : reader.stringList(importsNode, path)) {
+      String content = files.get(importPath);
+      if (content == null) {
+        throw reader.error("imported file not found: " + importPath, importsNode);
+      }
+      sharedFiles.add(parseSharedFile(importPath, content));
+    }
+    return sharedFiles;
+  }
+
+  private static SharedFile parseSharedFile(String fileLabel, String content) {
+    YamlDocumentReader reader = new YamlDocumentReader(fileLabel);
+    Node fileNode = reader.compose(content);
+    if (fileNode == null) {
+      throw new MolgenisException(fileLabel + " is empty");
+    }
+    LinkedHashMap<String, Node> map = reader.mapping(fileNode, "shared", SHARED_FILE_KEYS);
+    List<SharedEntry> entries = new ArrayList<>();
+    Node columnsNode = map.get(KEY_COLUMNS);
+    if (columnsNode != null) {
+      List<Node> nodes = reader.sequence(columnsNode, "shared." + KEY_COLUMNS);
+      for (int index = 0; index < nodes.size(); index++) {
+        String path = fileLabel + " > " + KEY_COLUMNS + "[" + index + "]";
+        Node node = nodes.get(index);
+        if (reader.isScalar(node)) {
+          throw reader.error(
+              "shared file may only define columns and headings, not references", node);
+        }
+        Set<String> keys = reader.mappingKeys(node);
+        if (keys.contains(KEY_SECTION) || keys.contains(KEY_HEADING)) {
+          LinkedHashMap<String, Node> headingMap = reader.mapping(node, path, HEADING_KEYS);
+          int level = keys.contains(KEY_SECTION) ? 0 : 1;
+          Column column = parseHeadingColumn(reader, headingMap, path, level);
+          entries.add(new SharedEntry(column.getName(), level, column));
+        } else {
+          LinkedHashMap<String, Node> columnMap = reader.mapping(node, path, COLUMN_KEYS);
+          Column column = parseColumn(reader, columnMap, path);
+          entries.add(new SharedEntry(column.getName(), null, column));
+        }
+      }
+    }
+    return new SharedFile(fileLabel, entries);
+  }
+
+  private static ParsedFile parseHierarchyFile(
+      String fileLabel, String content, Map<String, String> files, List<SharedFile> bundleImports) {
     YamlDocumentReader reader = new YamlDocumentReader(fileLabel);
     Node fileNode = reader.compose(content);
     if (fileNode == null) {
@@ -250,7 +353,11 @@ public class Emx2Yaml {
     parseSubtables(reader, tableMap.get(KEY_SUBCLASSES), tableName, TableType.DATA, subtables);
     parseSubtables(reader, tableMap.get(KEY_MODULES), tableName, TableType.MODULE, subtables);
 
-    List<ColumnEntry> columns = parseColumns(reader, tableMap.get(KEY_COLUMNS), tableName);
+    List<SharedFile> tableImports =
+        loadSharedFiles(reader, tableMap.get(KEY_IMPORTS), files, tableName + "." + KEY_IMPORTS);
+    ImportScope scope = new ImportScope(tableImports, bundleImports);
+
+    List<ColumnEntry> columns = parseColumns(reader, tableMap.get(KEY_COLUMNS), tableName, scope);
     return new ParsedFile(primary, subtables, columns);
   }
 
@@ -297,7 +404,7 @@ public class Emx2Yaml {
   }
 
   private static List<ColumnEntry> parseColumns(
-      YamlDocumentReader reader, Node columnsNode, String tableName) {
+      YamlDocumentReader reader, Node columnsNode, String tableName, ImportScope scope) {
     List<ColumnEntry> result = new ArrayList<>();
     if (columnsNode == null) {
       return result;
@@ -305,11 +412,84 @@ public class Emx2Yaml {
     List<Node> entries = reader.sequence(columnsNode, tableName + "." + KEY_COLUMNS);
     for (int index = 0; index < entries.size(); index++) {
       String path = tableName + " > " + KEY_COLUMNS + "[" + index + "]";
-      LinkedHashMap<String, Node> columnMap = reader.mapping(entries.get(index), path, COLUMN_KEYS);
-      String target = resolveMarkerTarget(reader, columnMap, tableName, path);
-      result.add(new ColumnEntry(target, parseColumn(reader, columnMap, path)));
+      Node node = entries.get(index);
+      if (reader.isScalar(node)) {
+        String referenceName = reader.scalar(node, path);
+        for (Column spliced : scope.resolve(referenceName, reader, node)) {
+          result.add(new ColumnEntry(tableName, spliced));
+        }
+      } else {
+        result.add(parseDefinedEntry(reader, node, tableName, path, scope));
+      }
     }
+    rejectDuplicatePlacement(reader, result);
     return result;
+  }
+
+  private static ColumnEntry parseDefinedEntry(
+      YamlDocumentReader reader, Node node, String tableName, String path, ImportScope scope) {
+    Set<String> keys = reader.mappingKeys(node);
+    if (keys.contains(KEY_SECTION) || keys.contains(KEY_HEADING)) {
+      LinkedHashMap<String, Node> headingMap = reader.mapping(node, path, HEADING_KEYS);
+      int level = keys.contains(KEY_SECTION) ? 0 : 1;
+      Column column = parseHeadingColumn(reader, headingMap, path, level);
+      rejectReuseOrDefine(reader, scope, column.getName(), node);
+      String target = resolveMarkerTarget(reader, headingMap, tableName, path);
+      return new ColumnEntry(target, column);
+    }
+    LinkedHashMap<String, Node> columnMap = reader.mapping(node, path, COLUMN_KEYS);
+    String target = resolveMarkerTarget(reader, columnMap, tableName, path);
+    Column column = parseColumn(reader, columnMap, path);
+    rejectReuseOrDefine(reader, scope, column.getName(), node);
+    return new ColumnEntry(target, column);
+  }
+
+  private static void rejectReuseOrDefine(
+      YamlDocumentReader reader, ImportScope scope, String name, Node node) {
+    if (scope.defines(name)) {
+      throw reader.error(
+          "'"
+              + name
+              + "' is already defined by an imported shared file; reference it or choose a"
+              + " different name (references cannot be refined)",
+          node);
+    }
+  }
+
+  private static void rejectDuplicatePlacement(
+      YamlDocumentReader reader, List<ColumnEntry> result) {
+    Map<String, Set<String>> placedPerTarget = new HashMap<>();
+    for (ColumnEntry entry : result) {
+      Set<String> placed =
+          placedPerTarget.computeIfAbsent(entry.targetTable(), key -> new HashSet<>());
+      if (!placed.add(entry.column().getName())) {
+        throw new MolgenisException(
+            reader.getFileLabel()
+                + ": duplicate placement of '"
+                + entry.column().getName()
+                + "' in table '"
+                + entry.targetTable()
+                + "'");
+      }
+    }
+  }
+
+  private static Column parseHeadingColumn(
+      YamlDocumentReader reader, LinkedHashMap<String, Node> headingMap, String path, int level) {
+    String levelKey = level == 0 ? KEY_SECTION : KEY_HEADING;
+    Column column = new Column(reader.scalar(headingMap.get(levelKey), path + "." + levelKey));
+    column.setType(level == 0 ? ColumnType.SECTION : ColumnType.HEADING);
+    if (headingMap.containsKey(KEY_VISIBLE)) {
+      column.setVisible(reader.scalar(headingMap.get(KEY_VISIBLE), path + "." + KEY_VISIBLE));
+    }
+    if (headingMap.containsKey(KEY_LABEL)) {
+      column.setLabel(reader.scalar(headingMap.get(KEY_LABEL), path + "." + KEY_LABEL));
+    }
+    if (headingMap.containsKey(KEY_DESCRIPTION)) {
+      column.setDescription(
+          reader.scalar(headingMap.get(KEY_DESCRIPTION), path + "." + KEY_DESCRIPTION));
+    }
+    return column;
   }
 
   private static String resolveMarkerTarget(
@@ -529,6 +709,85 @@ public class Emx2Yaml {
 
   private record ColumnExport(String markerKey, String markerValue, Column column) {}
 
+  private record SharedEntry(String name, Integer level, Column column) {}
+
+  private record SharedFile(String fileLabel, List<SharedEntry> entries) {
+    List<Integer> indicesOf(String name) {
+      List<Integer> indices = new ArrayList<>();
+      for (int index = 0; index < entries.size(); index++) {
+        if (entries.get(index).name().equals(name)) {
+          indices.add(index);
+        }
+      }
+      return indices;
+    }
+
+    List<Column> spliceAt(int index) {
+      SharedEntry entry = entries.get(index);
+      List<Column> spliced = new ArrayList<>();
+      spliced.add(new Column(entry.column()));
+      if (entry.level() != null) {
+        for (int next = index + 1; next < entries.size(); next++) {
+          SharedEntry following = entries.get(next);
+          if (following.level() != null && following.level() <= entry.level()) {
+            break;
+          }
+          spliced.add(new Column(following.column()));
+        }
+      }
+      return spliced;
+    }
+  }
+
+  private record ImportScope(List<SharedFile> tableImports, List<SharedFile> bundleImports) {
+
+    boolean defines(String name) {
+      return matchCount(tableImports, name) > 0 || matchCount(bundleImports, name) > 0;
+    }
+
+    List<Column> resolve(String name, YamlDocumentReader reader, Node node) {
+      List<Column> tableResolved = resolveIn(tableImports, name, reader, node);
+      if (tableResolved != null) {
+        return tableResolved;
+      }
+      List<Column> bundleResolved = resolveIn(bundleImports, name, reader, node);
+      if (bundleResolved != null) {
+        return bundleResolved;
+      }
+      throw reader.error("cannot resolve reference '" + name + "'", node);
+    }
+
+    private static int matchCount(List<SharedFile> scope, String name) {
+      int count = 0;
+      for (SharedFile sharedFile : scope) {
+        count += sharedFile.indicesOf(name).size();
+      }
+      return count;
+    }
+
+    private static List<Column> resolveIn(
+        List<SharedFile> scope, String name, YamlDocumentReader reader, Node node) {
+      SharedFile matchedFile = null;
+      int matchedIndex = -1;
+      int matches = 0;
+      for (SharedFile sharedFile : scope) {
+        for (int index : sharedFile.indicesOf(name)) {
+          matches++;
+          matchedFile = sharedFile;
+          matchedIndex = index;
+        }
+      }
+      if (matches == 0) {
+        return null;
+      }
+      if (matches > 1) {
+        throw reader.error(
+            "reference '" + name + "' is ambiguous: defined by more than one imported file", node);
+      }
+      return matchedFile.spliceAt(matchedIndex);
+    }
+  }
+
   public static Map<String, String> toBundleFiles(Emx2YamlBundle bundle) {
     Map<String, String> files = new LinkedHashMap<>();
     SchemaMetadata schema = bundle.schema();
@@ -675,6 +934,9 @@ public class Emx2Yaml {
 
   private static Map<String, Object> columnToMap(
       Column column, String markerKey, String markerValue) {
+    if (column.isHeading()) {
+      return headingToMap(column, markerKey, markerValue);
+    }
     Map<String, Object> columnMap = new LinkedHashMap<>();
     columnMap.put(KEY_NAME, column.getName());
     if (markerKey != null) {
@@ -721,6 +983,28 @@ public class Emx2Yaml {
       columnMap.put(KEY_COMPUTED, column.getComputed());
     }
     return columnMap;
+  }
+
+  private static Map<String, Object> headingToMap(
+      Column column, String markerKey, String markerValue) {
+    Map<String, Object> headingMap = new LinkedHashMap<>();
+    String levelKey = ColumnType.SECTION.equals(column.getColumnType()) ? KEY_SECTION : KEY_HEADING;
+    headingMap.put(levelKey, column.getName());
+    if (markerKey != null) {
+      headingMap.put(markerKey, markerValue);
+    }
+    String label = column.getLabels().get(DEFAULT_LOCALE);
+    if (label != null) {
+      headingMap.put(KEY_LABEL, label);
+    }
+    String description = column.getDescriptions().get(DEFAULT_LOCALE);
+    if (description != null) {
+      headingMap.put(KEY_DESCRIPTION, description);
+    }
+    if (column.getVisible() != null) {
+      headingMap.put(KEY_VISIBLE, column.getVisible());
+    }
+    return headingMap;
   }
 
   private static void putRequired(Map<String, Object> columnMap, Column column) {

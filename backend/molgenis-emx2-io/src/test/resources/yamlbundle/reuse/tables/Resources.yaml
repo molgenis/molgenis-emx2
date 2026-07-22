@@ -1,0 +1,9 @@
+name: Resources
+columns:
+- name: id
+  key: 1
+- name: familyName
+- contactDetails
+- name: sex
+  type: enum
+  values: [male, female, unknown]

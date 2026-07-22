@@ -52,6 +52,20 @@ public class YamlDocumentReader {
     return result;
   }
 
+  public boolean isScalar(Node node) {
+    return node instanceof ScalarNode;
+  }
+
+  public Set<String> mappingKeys(Node node) {
+    LinkedHashMap<String, Node> keys = new LinkedHashMap<>();
+    if (node instanceof MappingNode mappingNode) {
+      for (NodeTuple tuple : mappingNode.getValue()) {
+        keys.put(scalar(tuple.getKeyNode(), ""), tuple.getKeyNode());
+      }
+    }
+    return keys.keySet();
+  }
+
   public String scalar(Node node, String path) {
     if (!(node instanceof ScalarNode scalarNode)) {
       throw error("expected a scalar value at '" + path + "'", node);
