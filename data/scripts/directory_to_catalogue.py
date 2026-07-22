@@ -60,6 +60,7 @@ def convert_biobanks_to_biobanks(bb, mappings):
         "directory_id",
     ]
     bb = bb.loc[bb["id"].isin(biobank_ids)]
+    bb["part of"] = bb["juridical_person"]
     return bb
 
 
@@ -75,6 +76,18 @@ def convert_biobanks_to_organisations(bb, jp_prefix):
     jp["id"] = jp_prefix + jp.index.astype(str)
     orgs = pd.concat([bb_no_coll, jp])
     return orgs
+
+
+def convert_biobanks_to_collections(bb, mappings):
+    """Convert Biobanks with a single attribute-poor collection to Collections"""
+    collection_ids = mappings.loc[
+        mappings["mapping_rule"].str.startswith("biobank 1:1 attribute-poor"),
+        "directory_id",
+    ]
+    coll = bb.loc[bb["id"].isin(collection_ids)]
+    coll["held by"] = coll["juridical_person"]
+    coll["type"] = "Biobank"
+    return coll
 
 
 async def main():
@@ -106,15 +119,6 @@ async def main():
         ] += " (withdrawn)"
         data["Biobanks"].loc[(data["Biobanks"]["name"].duplicated(keep="first")), "name"] += " (2)"
         # Convert data
-        biobank_mappings = mappings.loc[mappings["directory_table"] == "Biobanks"]
-        biobanks = convert_biobanks_to_biobanks(data["Biobanks"].copy(), biobank_mappings)
-        biobanks = biobanks.reindex(
-            columns=[
-                "id",
-                "name",
-                "juridical_person",
-            ]
-        )
         organisations = convert_biobanks_to_organisations(data["Biobanks"].copy(), jp_prefix)
         organisations = organisations.reindex(
             columns=[
@@ -122,25 +126,47 @@ async def main():
                 "name",
             ]
         )
-        # Post-process data
-        # Link biobanks to their legal-entity organisations
-        jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)]
-        biobanks["part of"] = (
-            jp_orgs.set_index("name").loc[biobanks["juridical_person"], "id"].values
+        biobank_mappings = mappings.loc[mappings["directory_table"] == "Biobanks"]
+        biobanks = convert_biobanks_to_biobanks(data["Biobanks"].copy(), biobank_mappings)
+        biobanks = biobanks.reindex(
+            columns=[
+                "id",
+                "name",
+                "part of",
+            ]
         )
-        del biobanks["juridical_person"]
-        # Ensure newly minted organisations have a distinct name from biobanks
+        collections = convert_biobanks_to_collections(data["Biobanks"].copy(), biobank_mappings)
+        collections = collections.reindex(
+            columns=[
+                "id",
+                "name",
+                "held by",
+                "type",
+            ]
+        )
+        # Post-process data
+        # Link collections to their legal-entity organisations
+        jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)].set_index("name")
+        collections["held by"] = jp_orgs.loc[collections["held by"], "id"].values
+        # Link biobanks to their legal-entity organisations
+        biobanks["part of"] = jp_orgs.loc[biobanks["part of"], "id"].values
+        # Ensure newly minted organisations have a distinct name from biobanks and collections
         organisations.loc[
             organisations["id"].str.startswith(jp_prefix)
-            & (organisations["name"].isin(biobanks["name"])),
+            & (
+                (organisations["name"].isin(biobanks["name"]))
+                | (organisations["name"].isin(collections["name"]))
+            ),
             "name",
         ] += " (juridical person)"
         # Clear and upload data
         if truncate:
+            client.truncate(table="Collections", schema=schema)
             client.truncate(table="Biobanks", schema=schema)
             client.truncate(table="Organisations", schema=schema)
         client.save_table(table="Organisations", schema=schema, data=organisations)
         client.save_table(table="Biobanks", schema=schema, data=biobanks)
+        client.save_table(table="Collections", schema=schema, data=collections)
         pass
 
 
