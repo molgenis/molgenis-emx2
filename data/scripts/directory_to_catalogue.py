@@ -52,16 +52,23 @@ def get_directory_data():
 
 
 def convert_biobanks_to_biobanks(bb, mappings):
-    """Convert Biobanks table"""
-    # Select only those directory Biobanks which will be converted to catalogue Biobanks
+    """Convert Biobanks to Biobanks"""
+    # Select only those directory Biobanks which will be converted to the Biobanks table
     biobank_ids = mappings.loc[
-        mappings["mapping_rule"].str.contains("-> Biobanks holding"), "directory_id"
+        (mappings["mapping_rule"].str.startswith("biobank 2+coll"))
+        | (mappings["mapping_rule"].str.startswith("biobank 1:1 real-org")),
+        "directory_id",
     ]
     bb = bb.loc[bb["id"].isin(biobank_ids)]
-    # Deal with duplicate names
-    bb.loc[(bb["name"].duplicated(keep=False)) & (bb["withdrawn"]), "name"] += " (withdrawn)"
-    bb.loc[(bb["name"].duplicated(keep="first")), "name"] += " (2)"
     return bb
+
+
+def convert_biobanks_to_organisations(bb, mappings):
+    """Convert Biobanks to Organisations"""
+    # Select biobanks without collections
+    bb_no_coll = bb.loc[bb["collections"].isna()]
+    orgs = bb_no_coll
+    return orgs
 
 
 async def main():
@@ -84,6 +91,13 @@ async def main():
             await clear_schemas(client, schema, staging_schema)
         # Get data
         data = get_directory_data()
+        # Prepare data
+        # Deal with duplicate names in Biobanks table
+        data["Biobanks"].loc[
+            (data["Biobanks"]["name"].duplicated(keep=False)) & (data["Biobanks"]["withdrawn"]),
+            "name",
+        ] += " (withdrawn)"
+        data["Biobanks"].loc[(data["Biobanks"]["name"].duplicated(keep="first")), "name"] += " (2)"
         # Convert data
         biobank_mappings = mappings.loc[mappings["directory_table"] == "Biobanks"]
         biobanks = convert_biobanks_to_biobanks(data["Biobanks"].copy(), biobank_mappings)
@@ -93,10 +107,19 @@ async def main():
                 "name",
             ]
         )
+        organisations = convert_biobanks_to_organisations(data["Biobanks"].copy(), mappings)
+        organisations = organisations.reindex(
+            columns=[
+                "id",
+                "name",
+            ]
+        )
         # Clear and upload data
         if truncate:
+            client.truncate(table="Organisations", schema=schema)
             client.truncate(table="Biobanks", schema=schema)
         client.save_table(table="Biobanks", schema=schema, data=biobanks)
+        client.save_table(table="Organisations", schema=schema, data=organisations)
         pass
 
 
