@@ -3,14 +3,15 @@ package org.molgenis.emx2;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Represents a semantic field and stores it in a list of 1 element. Full IRI's are surrounded by a
- * {@code <} and {@code >}, while a prefixed name is simply {@code prefix:localName}.
- *
- * <p>One exception to this is if the semantic starts with http(s). In that case, it will assume the
- * complete semantic field represents 1 IRI.
+ * Represents a semantic field and stores it in a list of 1 element. This can either be:
+ * <ul>
+ *   <li>An IRI that starts with http(s)</li>
+ *   <li>An IRI that is surrounded by {@code <} and {@code >} (can use any IRI scheme)</li>
+ *   <li>A prefixed name (if not starting with http(s) nor with {@code <})</li>
+ * </ul>
  *
  * <p>A {@link Semantic} object should be processed by a {@link SchemaMetadata}-specific {@link
- * SemanticPrefixes} to ensure the correct prefixes are applied before further usage.
+ * SemanticPrefixes} before further processing (unless it's purely for storing/retrieving the data).
  */
 public class Semantic {
   private final String sequencePath;
@@ -22,16 +23,21 @@ public class Semantic {
         throw new MolgenisException("Invalid semantic IRI: " + semantic);
       }
     } else {
-      if (semantic.substring(semantic.indexOf(':') + 1).isEmpty()) {
+      if (isLegacyIri(semantic)) {
+        ColumnType.HYPERLINK.validate(semantic);
+      } else if (semantic.substring(semantic.indexOf(':') + 1).isEmpty()) {
         throw new MolgenisException("Prefixed name misses local part: " + semantic);
       }
     }
+    this.sequencePath = requireNonNull(semantic);
+  }
 
-    if (semantic.startsWith("http:") || semantic.startsWith("https:")) {
-      this.sequencePath = "<" + requireNonNull(semantic) + ">";
-    } else {
-      this.sequencePath = requireNonNull(semantic);
-    }
+  public boolean isLegacyIri() {
+    return isLegacyIri(sequencePath);
+  }
+
+  private boolean isLegacyIri(String semantic) {
+    return semantic.startsWith("http:") || semantic.startsWith("https:");
   }
 
   String get() {

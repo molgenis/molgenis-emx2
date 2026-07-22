@@ -17,17 +17,20 @@ class SemanticTest {
             assertEquals(
                 "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
                 new Semantic("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>").get()),
-        () ->
-            assertEquals(
-                "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>",
-                new Semantic("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").get()),
         () -> assertEquals("rdf:type", new Semantic("rdf:type").get()),
         () -> assertEquals(":test", new Semantic(":test").get()),
         () -> assertEquals("httpPrefix:test", new Semantic("httpPrefix:test").get()),
         () -> assertThrows(MolgenisException.class, () -> new Semantic("<invalid>")),
         () -> assertThrows(MolgenisException.class, () -> new Semantic("rdf:")),
         () -> assertThrows(MolgenisException.class, () -> new Semantic("test")),
-        () -> assertThrows(MolgenisException.class, () -> new Semantic(":")));
+        () -> assertThrows(MolgenisException.class, () -> new Semantic(":")),
+        // Legacy IRI support
+        () ->
+            assertEquals(
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                new Semantic("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").get()),
+        () -> assertThrows(MolgenisException.class, () -> new Semantic("http:")),
+        () -> assertThrows(MolgenisException.class, () -> new Semantic("https://noTLD")));
   }
 
   /** Ensure {@link #toString()} reproduces input exactly. */

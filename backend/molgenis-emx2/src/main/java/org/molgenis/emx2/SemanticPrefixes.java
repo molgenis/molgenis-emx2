@@ -142,9 +142,11 @@ public class SemanticPrefixes {
       final Semantic semantic,
       final Function<String, R> iriOperator,
       final Function<String, R> prefixedNameOperator) {
-    return semantic.get().startsWith("<")
-        ? iriOperator.apply(semantic.get().substring(1, semantic.get().length() - 1))
-        : prefixedNameOperator.apply(semantic.get());
+
+    if (semantic.isLegacyIri()) return iriOperator.apply(semantic.get());
+    if (semantic.get().startsWith("<"))
+      return iriOperator.apply(semantic.get().substring(1, semantic.get().length() - 1));
+    return prefixedNameOperator.apply(semantic.get());
   }
 
   private Namespace getNamespace(final String prefix) {
