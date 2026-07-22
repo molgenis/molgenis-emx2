@@ -219,6 +219,22 @@ tasks.withType(JavaExec).configureEach { forwardDotenvProps(it) }
 
 tasks.named('run') { rootProject.ext.applyDotenvHeap(it) }
 
+// Prints the realized launch configuration of the dev task so a CI step can grep it; that grep is
+// the only automated exercise of the .env path, which is invisible to CI because .env is gitignored.
+tasks.register('printDevConfig') {
+    group = 'help'
+    description = 'Prints the realized dev task system properties and heap without starting the application'
+    def devTask = project(':backend:molgenis-emx2-webapi').tasks.named('dev', JavaExec).get()
+    def devSystemProperties = new TreeMap<String, String>(devTask.systemProperties.collectEntries { key, value ->
+        [key, key.toUpperCase() =~ /PASS|SECRET|TOKEN/ ? '<HIDDEN>' : String.valueOf(value)]
+    })
+    def devHeap = devTask.maxHeapSize ?: 'unbounded'
+    doLast {
+        devSystemProperties.each { key, value -> println "molgenis.dev.systemProperty.${key}=${value}" }
+        println "molgenis.dev.maxHeapSize=${devHeap}"
+    }
+}
+
 jar {
     reproducibleFileOrder = true
     manifest {
