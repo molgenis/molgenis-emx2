@@ -4,22 +4,28 @@
 
 To ensure consistency in the MOLGENIS interfaces, we would also like components to follow the same structure. Please follow these guidelines when developing components or creating new ones.
 
-### 1. Component files should start with the template
+### 1. Component files start with the script
 
-All component files should start with the template markup first and then the script. This allows other developers to clearly see the aim of the component. Make sure vue component files are structured like so.
+The structure of vue files should start with the `script` element first, and then the `template`. If styles are used in a component, then place them at the end of the file in the `style` block. This follows the common Vue 3 `<script setup>` convention.
 
 ```vue
 <!-- MyComponent.vue -->
+<script setup lang="ts">
+  ...
+</script>
+
 <template>
   ...
 </template>
 
-<script>
+<style>
   ...
-</script>
+</style>
 ```
 
-### 2. All scripts should use composition API and have typescript enabled
+Note: older apps and code may have deviating orders as they have not all been updated to this convention
+
+### 2. All scripts use composition API and have typescript enabled
 
 We prefer to use the [composition API](https://vuejs.org/api/composition-api-setup.html) for all EMX2 components. Typescript should also be enabled.
 
@@ -33,9 +39,9 @@ const count = ref<number>(0);
 
 Make sure the `tsconfig.json` file is available in your app and typescript is enabled in your IDE.
 
-### 3. All typescript interfaces should be defined in the component file
+### 3. All typescript interfaces are defined in the component file
 
-Component interfaces should have a clear and unique name. Interfaces should also be prefixed with `I`.
+Component interfaces should have a clear and unique name.
 
 ```vue
 <script setup lang="ts">
@@ -56,7 +62,15 @@ const props = withDefaults(
 
 If your interface is used in more than one component, then add it to the `src/types` folder. Rather than storing all interfaces in one large file, save them into themed files. For example, if you have an interface that is used in more than visualization component, then store it in `types/viz.ts`.
 
-### 4. Components should be styled using the configured tailwind classes
+Interfaces that describe tables in a schema should not be written by hand. Generate them from the schema instead:
+
+```bash
+./gradlew generateTypes --args='<schemaName> <path/to/output.ts>'
+```
+
+See [Generate typescript types for an app](dev_apps.md#generate-typescript-types-for-an-app) for details.
+
+### 4. Components are styled using the configured tailwind classes
 
 We would like all components to work any theme. A number of classes are available in the `tailwind.config.js` file. Please use these when building components. For example, suppose you want to style text as an error. Instead of setting the color of the text to `text-red-500`, use the class `text-invalid`.
 
@@ -67,7 +81,7 @@ We would like all components to work any theme. A number of classes are availabl
 
 If a specific style is not available, define it in the `assets/css/main.css` and configure it in the `tailwind.config.js` file.
 
-### 5. All components must follow good semantic HTML practices and should be built with accessibility in mind
+### 5. All components follow good semantic HTML practices and are built with accessibility in mind
 
 Good semantic html practices covers a lot of areas. In principle, it is important to make sure the appropriate elements are used so that HTML elements properly render and are accesible. For example, it is fairly common to see buttons that redirects users to another page. Buttons should only perform an action and not act as link. Instead, it would be better to use the anchor element and style it as a button.
 
@@ -78,10 +92,47 @@ Good semantic html practices covers a lot of areas. In principle, it is importan
 
 For additional information and examples, please consult the [ARIA Patterns guide](https://www.w3.org/WAI/ARIA/apg/patterns/) and the [a11y project](https://www.a11yproject.com).
 
-### 6. Other guidelines
+### 6. Naming conventions
 
-Types of refs:
-```const myprop = ref<"option1" | "option2">("option2")```
+**Types, interfaces and enums: PascalCase.**
+
+```ts
+export type TableRow = { _rowId: string };
+```
+
+**Interfaces: `I` prefix.** (House style; the broader TypeScript ecosystem has dropped this prefix.)
+
+```ts
+interface ITableSettings { ... }
+```
+
+**Prop and event bindings: camelCase.** Kebab-case only for HTML-native attributes such as `aria-*` and `data-*`.
+
+```vue
+<TableEMX2 :schemaId="schemaId" @rowSelected="onRowSelect" />
+```
+
+### 7. Refs with a fixed set of values are explicitly typed
+
+When a ref may only hold a restricted set of values, pass those values as a union of string literals in the type argument, instead of relying on type inference:
+
+```ts
+const layout = ref<"list" | "grid">("grid");
+```
+
+Without the type argument, `ref("grid")` is inferred as `Ref<string>`, so any string can be assigned without a compile error. With the union type, the compiler rejects everything except the listed values — a lightweight alternative to an enum, and the set of allowed values is documented right where the ref is declared.
+
+If the same set of values is used in more than one component, do not repeat the union inline. Define it as a named type in a shared types file and import it, so other components can use it without casting (`as "list" | "grid"`):
+
+```ts
+// types/layout.ts
+export type Layout = "list" | "grid";
+
+// in the component
+const layout = ref<Layout>("grid");
+```
+
+When a plain string (for example from a route query or setting) must be narrowed to such a type at runtime, use a type guard or assertion function instead of a cast. See `apps/tailwind-components/app/utils/typeUtils.ts` for examples.
 
 ## For java development
 
