@@ -45,6 +45,9 @@ public class JavascriptContextBuilder {
       context.put(column.getIdentifier(), getRefFromRow(row, column));
     } else if (column.isFile()) {
       // skip file
+    } else if (column.isArray()) {
+      Object value = Optional.ofNullable(row.get(column)).orElse(new Object[0]);
+      context.put(column.getIdentifier(), value);
     } else {
       context.put(column.getIdentifier(), row.get(column));
     }

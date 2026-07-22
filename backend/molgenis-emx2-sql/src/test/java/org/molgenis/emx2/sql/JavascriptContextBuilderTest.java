@@ -46,6 +46,18 @@ class JavascriptContextBuilderTest {
   }
 
   @Test
+  void testEmptyPlainArrayMapsToEmptyArray() {
+    List<Column> columns = List.of(column("STRING array", ColumnType.STRING_ARRAY));
+    Row row = row();
+
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
+
+    assertAll(
+        () -> assertNotNull(context.get("sTRINGArray")),
+        () -> assertEquals(0, ((Object[]) context.get("sTRINGArray")).length));
+  }
+
+  @Test
   void testScalarColumnMapsToIdentifier() {
     List<Column> columns = List.of(column("first name", ColumnType.STRING));
     Row row = row("first name", "Alice");
