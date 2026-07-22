@@ -11,8 +11,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
@@ -49,6 +51,7 @@ public class Emx2Yaml {
   private static final String KEY_DESCRIPTION = "description";
   private static final String KEY_COLUMNS = "columns";
   private static final String KEY_TYPE = "type";
+  private static final String KEY_REF_TABLE = "refTable";
   private static final String KEY_KEY = "key";
   private static final String KEY_REQUIRED = "required";
   private static final String KEY_READONLY = "readonly";
@@ -70,6 +73,7 @@ public class Emx2Yaml {
   private static final String KEY_HEADING = "heading";
 
   private static final String DEFAULT_LOCALE = "en";
+  private static final String LOCALE_SUFFIX = String.valueOf(YamlDocumentReader.LOCALE_SEPARATOR);
   private static final String BOOLEAN_TRUE = "true";
   private static final String BOOLEAN_FALSE = "false";
 
@@ -104,6 +108,7 @@ public class Emx2Yaml {
       Set.of(
           KEY_NAME,
           KEY_TYPE,
+          KEY_REF_TABLE,
           KEY_KEY,
           KEY_REQUIRED,
           KEY_READONLY,
@@ -190,6 +195,7 @@ public class Emx2Yaml {
     List<SharedFile> bundleImports =
         loadSharedFiles(reader, root.get(KEY_IMPORTS), files, "bundle." + KEY_IMPORTS);
     parseTables(root.get(KEY_TABLES), files, schema, bundleImports);
+    createImplicitOntologyTables(schema);
 
     String version =
         root.containsKey(KEY_VERSION) ? reader.scalar(root.get(KEY_VERSION), KEY_VERSION) : null;
@@ -237,6 +243,23 @@ public class Emx2Yaml {
       paths.add(reader.scalar(fileNode, KEY_TABLES + "[" + index + "]." + KEY_FILE));
     }
     return paths;
+  }
+
+  private static void createImplicitOntologyTables(SchemaMetadata schema) {
+    Set<String> implicitTables = new LinkedHashSet<>();
+    for (TableMetadata table : schema.getTables()) {
+      for (Column column : table.getColumns()) {
+        if (column.isOntology()
+            && column.getRefTableName() != null
+            && Objects.equals(column.getRefSchemaName(), table.getSchemaName())
+            && schema.getTableMetadata(column.getRefTableName()) == null) {
+          implicitTables.add(column.getRefTableName());
+        }
+      }
+    }
+    for (String name : implicitTables) {
+      schema.create(new TableMetadata(name).setTableType(TableType.ONTOLOGIES));
+    }
   }
 
   private static void parseTables(
@@ -329,13 +352,8 @@ public class Emx2Yaml {
     String tableName = reader.scalar(nameNode, KEY_NAME);
     TableMetadata primary = new TableMetadata(tableName);
 
-    if (tableMap.containsKey(KEY_LABEL)) {
-      primary.setLabel(reader.scalar(tableMap.get(KEY_LABEL), tableName + "." + KEY_LABEL));
-    }
-    if (tableMap.containsKey(KEY_DESCRIPTION)) {
-      primary.setDescription(
-          reader.scalar(tableMap.get(KEY_DESCRIPTION), tableName + "." + KEY_DESCRIPTION));
-    }
+    applyLocalized(reader, tableMap, tableName, KEY_LABEL, primary::setLabel);
+    applyLocalized(reader, tableMap, tableName, KEY_DESCRIPTION, primary::setDescription);
     if (tableMap.containsKey(KEY_SETTINGS)) {
       primary.setSettings(
           reader.scalarMapping(tableMap.get(KEY_SETTINGS), tableName + "." + KEY_SETTINGS));
@@ -392,13 +410,8 @@ public class Emx2Yaml {
       } else {
         subtable.setTableType(defaultType);
       }
-      if (entry.containsKey(KEY_LABEL)) {
-        subtable.setLabel(reader.scalar(entry.get(KEY_LABEL), path + "." + KEY_LABEL));
-      }
-      if (entry.containsKey(KEY_DESCRIPTION)) {
-        subtable.setDescription(
-            reader.scalar(entry.get(KEY_DESCRIPTION), path + "." + KEY_DESCRIPTION));
-      }
+      applyLocalized(reader, entry, path, KEY_LABEL, subtable::setLabel);
+      applyLocalized(reader, entry, path, KEY_DESCRIPTION, subtable::setDescription);
       subtables.add(subtable);
     }
   }
@@ -482,13 +495,8 @@ public class Emx2Yaml {
     if (headingMap.containsKey(KEY_VISIBLE)) {
       column.setVisible(reader.scalar(headingMap.get(KEY_VISIBLE), path + "." + KEY_VISIBLE));
     }
-    if (headingMap.containsKey(KEY_LABEL)) {
-      column.setLabel(reader.scalar(headingMap.get(KEY_LABEL), path + "." + KEY_LABEL));
-    }
-    if (headingMap.containsKey(KEY_DESCRIPTION)) {
-      column.setDescription(
-          reader.scalar(headingMap.get(KEY_DESCRIPTION), path + "." + KEY_DESCRIPTION));
-    }
+    applyLocalized(reader, headingMap, path, KEY_LABEL, column::setLabel);
+    applyLocalized(reader, headingMap, path, KEY_DESCRIPTION, column::setDescription);
     return column;
   }
 
@@ -530,6 +538,10 @@ public class Emx2Yaml {
     if (columnMap.containsKey(KEY_TYPE)) {
       column.setType(parseType(reader, columnMap.get(KEY_TYPE), path));
     }
+    if (columnMap.containsKey(KEY_REF_TABLE)) {
+      applyRefTable(
+          column, reader.scalar(columnMap.get(KEY_REF_TABLE), path + "." + KEY_REF_TABLE));
+    }
     if (columnMap.containsKey(KEY_KEY)) {
       column.setKey(reader.integer(columnMap.get(KEY_KEY), path + "." + KEY_KEY));
     }
@@ -564,18 +576,42 @@ public class Emx2Yaml {
     if (columnMap.containsKey(KEY_VALUES)) {
       column.setValues(reader.stringList(columnMap.get(KEY_VALUES), path + "." + KEY_VALUES));
     }
-    if (columnMap.containsKey(KEY_DESCRIPTION)) {
-      column.setDescription(
-          reader.scalar(columnMap.get(KEY_DESCRIPTION), path + "." + KEY_DESCRIPTION));
-    }
-    if (columnMap.containsKey(KEY_LABEL)) {
-      column.setLabel(reader.scalar(columnMap.get(KEY_LABEL), path + "." + KEY_LABEL));
-    }
+    applyLocalized(reader, columnMap, path, KEY_DESCRIPTION, column::setDescription);
+    applyLocalized(reader, columnMap, path, KEY_LABEL, column::setLabel);
     if (columnMap.containsKey(KEY_FORM_LABEL)) {
       column.setFormLabel(
           reader.scalar(columnMap.get(KEY_FORM_LABEL), path + "." + KEY_FORM_LABEL));
     }
     return column;
+  }
+
+  private static void applyRefTable(Column column, String raw) {
+    int dot = raw.indexOf('.');
+    if (dot > 0) {
+      column.setRefSchemaName(raw.substring(0, dot));
+      column.setRefTable(raw.substring(dot + 1));
+    } else {
+      column.setRefTable(raw);
+    }
+  }
+
+  private static void applyLocalized(
+      YamlDocumentReader reader,
+      LinkedHashMap<String, Node> map,
+      String path,
+      String baseKey,
+      BiConsumer<String, String> setter) {
+    String localePrefix = baseKey + LOCALE_SUFFIX;
+    for (Map.Entry<String, Node> entry : map.entrySet()) {
+      String key = entry.getKey();
+      if (key.equals(baseKey)) {
+        setter.accept(reader.scalar(entry.getValue(), path + "." + key), DEFAULT_LOCALE);
+      } else if (key.startsWith(localePrefix)) {
+        setter.accept(
+            reader.scalar(entry.getValue(), path + "." + key),
+            key.substring(localePrefix.length()));
+      }
+    }
   }
 
   private static ColumnType parseType(YamlDocumentReader reader, Node typeNode, String path) {
@@ -821,14 +857,8 @@ public class Emx2Yaml {
   private static Map<String, Object> tableToMap(TableMetadata table, SchemaMetadata schema) {
     Map<String, Object> tableMap = new LinkedHashMap<>();
     tableMap.put(KEY_NAME, table.getTableName());
-    String label = table.getLabels().get(DEFAULT_LOCALE);
-    if (label != null) {
-      tableMap.put(KEY_LABEL, label);
-    }
-    String description = table.getDescriptions().get(DEFAULT_LOCALE);
-    if (description != null) {
-      tableMap.put(KEY_DESCRIPTION, description);
-    }
+    putLocalized(tableMap, KEY_LABEL, table.getLabels());
+    putLocalized(tableMap, KEY_DESCRIPTION, table.getDescriptions());
     if (!table.getSettings().isEmpty()) {
       tableMap.put(KEY_SETTINGS, new LinkedHashMap<>(table.getSettings()));
     }
@@ -884,14 +914,8 @@ public class Emx2Yaml {
       if (!defaultType.equals(subtable.getTableType())) {
         entry.put(KEY_TABLE_TYPE, subtable.getTableType().toString().toLowerCase());
       }
-      String label = subtable.getLabels().get(DEFAULT_LOCALE);
-      if (label != null) {
-        entry.put(KEY_LABEL, label);
-      }
-      String description = subtable.getDescriptions().get(DEFAULT_LOCALE);
-      if (description != null) {
-        entry.put(KEY_DESCRIPTION, description);
-      }
+      putLocalized(entry, KEY_LABEL, subtable.getLabels());
+      putLocalized(entry, KEY_DESCRIPTION, subtable.getDescriptions());
       block.add(entry);
     }
     return block;
@@ -946,6 +970,10 @@ public class Emx2Yaml {
     if (type != null && !ColumnType.STRING.equals(type)) {
       columnMap.put(KEY_TYPE, type.toString().toLowerCase());
     }
+    String refTableExport = refTableExport(column);
+    if (refTableExport != null) {
+      columnMap.put(KEY_REF_TABLE, refTableExport);
+    }
     if (column.getKey() > 0) {
       columnMap.put(KEY_KEY, column.getKey());
     }
@@ -956,14 +984,8 @@ public class Emx2Yaml {
     if (column.getDefaultValue() != null) {
       columnMap.put(KEY_DEFAULT_VALUE, column.getDefaultValue());
     }
-    String description = column.getDescriptions().get(DEFAULT_LOCALE);
-    if (description != null) {
-      columnMap.put(KEY_DESCRIPTION, description);
-    }
-    String label = column.getLabels().get(DEFAULT_LOCALE);
-    if (label != null) {
-      columnMap.put(KEY_LABEL, label);
-    }
+    putLocalized(columnMap, KEY_DESCRIPTION, column.getDescriptions());
+    putLocalized(columnMap, KEY_LABEL, column.getLabels());
     if (column.getFormLabel() != null) {
       columnMap.put(KEY_FORM_LABEL, column.getFormLabel());
     }
@@ -993,18 +1015,37 @@ public class Emx2Yaml {
     if (markerKey != null) {
       headingMap.put(markerKey, markerValue);
     }
-    String label = column.getLabels().get(DEFAULT_LOCALE);
-    if (label != null) {
-      headingMap.put(KEY_LABEL, label);
-    }
-    String description = column.getDescriptions().get(DEFAULT_LOCALE);
-    if (description != null) {
-      headingMap.put(KEY_DESCRIPTION, description);
-    }
+    putLocalized(headingMap, KEY_LABEL, column.getLabels());
+    putLocalized(headingMap, KEY_DESCRIPTION, column.getDescriptions());
     if (column.getVisible() != null) {
       headingMap.put(KEY_VISIBLE, column.getVisible());
     }
     return headingMap;
+  }
+
+  private static String refTableExport(Column column) {
+    String refTableName = column.getRefTableName();
+    if (refTableName == null) {
+      return null;
+    }
+    String refSchema = column.getRefSchemaName();
+    if (refSchema != null && !refSchema.equals(column.getSchemaName())) {
+      return refSchema + "." + refTableName;
+    }
+    return refTableName;
+  }
+
+  private static void putLocalized(
+      Map<String, Object> target, String baseKey, Map<String, String> values) {
+    String defaultValue = values.get(DEFAULT_LOCALE);
+    if (defaultValue != null) {
+      target.put(baseKey, defaultValue);
+    }
+    for (Map.Entry<String, String> entry : values.entrySet()) {
+      if (!DEFAULT_LOCALE.equals(entry.getKey())) {
+        target.put(baseKey + LOCALE_SUFFIX + entry.getKey(), entry.getValue());
+      }
+    }
   }
 
   private static void putRequired(Map<String, Object> columnMap, Column column) {

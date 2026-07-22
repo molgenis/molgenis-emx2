@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.emx2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,6 +16,7 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.TableType;
 
 class Emx2YamlTest {
 
@@ -199,6 +201,98 @@ class Emx2YamlTest {
         nonSystemNames(reparsed.getColumns()));
     assertTrue(reparsed.getColumn("contactDetails").isHeading());
     assertEquals("hasContact", reparsed.getColumn("contactDetails").getVisible());
+  }
+
+  @Test
+  void dottedRefTable() throws Exception {
+    Emx2YamlBundle parsed = Emx2Yaml.fromBundle(bundleDir("refs"));
+    TableMetadata cohorts = parsed.schema().getTableMetadata("Cohorts");
+
+    // Schema.Table populates both refSchema and refTable
+    Column cohortType = cohorts.getColumn("cohortType");
+    assertEquals("CatalogueOntologies", cohortType.getRefSchemaName());
+    assertEquals("Cohort types", cohortType.getRefTableName());
+
+    // bare name resolves same-schema: refSchema left unset
+    Column keywords = cohorts.getColumn("keywords");
+    assertNull(keywords.getRefSchemaName());
+    assertEquals("Keywords", keywords.getRefTableName());
+
+    // export emits dotted for cross-schema, bare otherwise
+    Map<String, String> export = Emx2Yaml.toBundleFiles(parsed);
+    String cohortsYaml = export.get("tables/Cohorts.yaml");
+    assertTrue(cohortsYaml.contains("CatalogueOntologies.Cohort types"), cohortsYaml);
+    assertTrue(cohortsYaml.contains("refTable: Keywords"), cohortsYaml);
+
+    // second cycle is byte-stable (demo fixture round-trips)
+    assertEquals(export, Emx2Yaml.toBundleFiles(Emx2Yaml.fromBundleFiles(export)));
+
+    // a YAML refSchema key errors as unknown
+    Map<String, String> bad =
+        Map.of(
+            "molgenis.yaml",
+            "tables:\n- file: tables/Bad.yaml\n",
+            "tables/Bad.yaml",
+            "name: Bad\ncolumns:\n- name: id\n  key: 1\n- name: ref\n  refSchema: Other\n"
+                + "  refTable: Thing\n");
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> Emx2Yaml.fromBundleFiles(bad));
+    assertTrue(exception.getMessage().contains("refSchema"), exception.getMessage());
+  }
+
+  @Test
+  void i18nLocaleKeys() throws Exception {
+    Emx2YamlBundle parsed = Emx2Yaml.fromBundle(bundleDir("refs"));
+    TableMetadata cohorts = parsed.schema().getTableMetadata("Cohorts");
+
+    // bare label/description = default (en) locale; @nl variant roundtrips
+    assertEquals("Cohorts", cohorts.getLabels().get("en"));
+    assertEquals("Cohorten", cohorts.getLabels().get("nl"));
+    assertEquals("Study cohorts", cohorts.getDescriptions().get("en"));
+    assertEquals("Studie cohorten", cohorts.getDescriptions().get("nl"));
+
+    // a SchemaMetadata carrying a nl label exports to label@nl (CSV label:nl equivalence)
+    SchemaMetadata manual = new SchemaMetadata();
+    TableMetadata widget = new TableMetadata("Widget");
+    widget.setLabel("Widget");
+    widget.setLabel("Dingetje", "nl");
+    widget.add(new Column("id").setKey(1));
+    manual.create(widget);
+    Map<String, String> exported = Emx2Yaml.toBundleFiles(new Emx2YamlBundle(manual, 1, null));
+    String widgetYaml = exported.get("tables/Widget.yaml");
+    assertTrue(widgetYaml.contains("label@nl"), widgetYaml);
+    SchemaMetadata reparsed = Emx2Yaml.fromBundleFiles(exported).schema();
+    assertEquals("Widget", reparsed.getTableMetadata("Widget").getLabels().get("en"));
+    assertEquals("Dingetje", reparsed.getTableMetadata("Widget").getLabels().get("nl"));
+
+    // a map-valued label errors with path and position
+    Map<String, String> bad =
+        Map.of(
+            "molgenis.yaml",
+            "tables:\n- file: tables/Bad.yaml\n",
+            "tables/Bad.yaml",
+            "name: Bad\ncolumns:\n- name: id\n  key: 1\n- name: broken\n  label:\n"
+                + "    nl: Kapot\n");
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> Emx2Yaml.fromBundleFiles(bad));
+    assertTrue(exception.getMessage().contains("label"), exception.getMessage());
+    assertTrue(exception.getMessage().contains("line"), exception.getMessage());
+  }
+
+  @Test
+  void ontologyTablesNotExported() throws Exception {
+    Emx2YamlBundle parsed = Emx2Yaml.fromBundle(bundleDir("refs"));
+    SchemaMetadata schema = parsed.schema();
+
+    // same-schema ontology_array column auto-creates its refTable on import
+    TableMetadata keywords = schema.getTableMetadata("Keywords");
+    assertNotNull(keywords);
+    assertEquals(TableType.ONTOLOGIES, keywords.getTableType());
+
+    // no ontology table appears in the export
+    Map<String, String> export = Emx2Yaml.toBundleFiles(parsed);
+    assertFalse(export.containsKey("tables/Keywords.yaml"));
+    assertFalse(export.get("molgenis.yaml").contains("Keywords.yaml"));
   }
 
   @Test

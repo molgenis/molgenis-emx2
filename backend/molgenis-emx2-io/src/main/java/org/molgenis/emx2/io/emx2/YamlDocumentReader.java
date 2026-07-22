@@ -22,6 +22,10 @@ import org.yaml.snakeyaml.nodes.SequenceNode;
  */
 public class YamlDocumentReader {
 
+  static final char LOCALE_SEPARATOR = '@';
+  private static final String LABEL = "label";
+  private static final String DESCRIPTION = "description";
+
   private final String fileLabel;
 
   public YamlDocumentReader(String fileLabel) {
@@ -43,13 +47,25 @@ public class YamlDocumentReader {
     LinkedHashMap<String, Node> result = new LinkedHashMap<>();
     for (NodeTuple tuple : mappingNode.getValue()) {
       String key = scalar(tuple.getKeyNode(), path);
-      if (!allowedKeys.contains(key)) {
+      if (!isAllowed(key, allowedKeys)) {
         throw error(
             "unknown attribute '" + key + "' at '" + path + "." + key + "'", tuple.getKeyNode());
       }
       result.put(key, tuple.getValueNode());
     }
     return result;
+  }
+
+  private static boolean isAllowed(String key, Set<String> allowedKeys) {
+    if (allowedKeys.contains(key)) {
+      return true;
+    }
+    int separator = key.indexOf(LOCALE_SEPARATOR);
+    if (separator <= 0) {
+      return false;
+    }
+    String base = key.substring(0, separator);
+    return (LABEL.equals(base) || DESCRIPTION.equals(base)) && allowedKeys.contains(base);
   }
 
   public boolean isScalar(Node node) {
