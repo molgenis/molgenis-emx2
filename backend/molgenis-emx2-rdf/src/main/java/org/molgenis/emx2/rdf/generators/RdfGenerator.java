@@ -131,14 +131,15 @@ public abstract class RdfGenerator {
     // Add custom namespaces.
     schemas.stream()
         .flatMap(schema -> schema.getMetadata().getSemanticPrefixes().getAllNamespaces().stream())
+        .filter(
+            namespace ->
+                !processedPrefixes.contains(namespace.getPrefix())
+                    && !processedNames.contains(namespace.getName()))
         .forEach(
             namespaces -> {
-              if (!processedPrefixes.contains(namespaces.getPrefix())
-                  && !processedNames.contains(namespaces.getName())) {
-                processedPrefixes.add(namespaces.getPrefix());
-                processedNames.add(namespaces.getName());
-                getWriter().processNamespace(namespaces);
-              }
+              processedPrefixes.add(namespaces.getPrefix());
+              processedNames.add(namespaces.getName());
+              getWriter().processNamespace(namespaces);
             });
   }
 
