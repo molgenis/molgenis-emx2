@@ -23,4 +23,5 @@ jobs:
             **Preview:** https://preview-emx2-pr-${{ github.event.number }}.dev.molgenis.org/
 
             The preview is deployed by CircleCI and may take a while to become available after each push.
+            Preview servers don't exist indefinitely. If the preview server is unavailable, then either push a new commit, or contact ops.
             Build progress: [CircleCI pipeline for this branch](https://app.circleci.com/pipelines/github/molgenis/molgenis-emx2?branch=${{ steps.branch.outputs.encoded }})
