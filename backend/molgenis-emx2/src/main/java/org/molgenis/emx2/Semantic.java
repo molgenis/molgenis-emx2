@@ -4,10 +4,11 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a semantic field and stores it in a list of 1 element. This can either be:
+ *
  * <ul>
- *   <li>An IRI that starts with http(s)</li>
- *   <li>An IRI that is surrounded by {@code <} and {@code >} (can use any IRI scheme)</li>
- *   <li>A prefixed name (if not starting with http(s) nor with {@code <})</li>
+ *   <li>An IRI that starts with http(s)
+ *   <li>An IRI that is surrounded by {@code <} and {@code >} (can use any IRI scheme)
+ *   <li>A prefixed name (if not starting with http(s) nor with {@code <})
  * </ul>
  *
  * <p>A {@link Semantic} object should be processed by a {@link SchemaMetadata}-specific {@link
