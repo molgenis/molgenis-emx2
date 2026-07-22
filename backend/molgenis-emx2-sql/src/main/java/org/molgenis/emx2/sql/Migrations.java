@@ -202,7 +202,7 @@ public class Migrations {
             executeMigrationFile(
                 tdb,
                 "migration33.sql",
-                "changed semantic field to store SPARQL-like sequence path");
+                "convert semantic field with urn/tag IRI to new IRI format");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

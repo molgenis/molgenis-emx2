@@ -2,9 +2,7 @@ UPDATE "MOLGENIS"."column_metadata"
 SET "columnSemantics" = (
     SELECT array_agg(
                    CASE
-                       WHEN semantic LIKE 'http:%'
-                           OR semantic LIKE 'https:%'
-                           OR semantic LIKE 'tag:%'
+                       WHEN semantic LIKE 'tag:%'
                            OR semantic LIKE 'urn:%'
                            THEN '<' || semantic || '>'
                        ELSE semantic
@@ -18,9 +16,7 @@ UPDATE "MOLGENIS"."table_metadata"
 SET "table_semantics" = (
     SELECT array_agg(
                    CASE
-                       WHEN semantic LIKE 'http:%'
-                           OR semantic LIKE 'https:%'
-                           OR semantic LIKE 'tag:%'
+                       WHEN semantic LIKE 'tag:%'
                            OR semantic LIKE 'urn:%'
                            THEN '<' || semantic || '>'
                        ELSE semantic
