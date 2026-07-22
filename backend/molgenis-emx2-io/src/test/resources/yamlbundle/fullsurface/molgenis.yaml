@@ -1,0 +1,10 @@
+formatVersion: 1
+version: 3.2.0
+namespaces:
+  schema: "http://schema.org/"
+  dcat: "http://www.w3.org/ns/dcat#"
+tables:
+- file: tables/Resources.yaml
+- file: tables/Contacts.yaml
+settings:
+  menu: main

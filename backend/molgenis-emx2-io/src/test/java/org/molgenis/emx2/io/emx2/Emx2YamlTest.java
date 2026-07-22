@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,8 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
+import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 
 class Emx2YamlTest {
 
@@ -293,6 +298,87 @@ class Emx2YamlTest {
     Map<String, String> export = Emx2Yaml.toBundleFiles(parsed);
     assertFalse(export.containsKey("tables/Keywords.yaml"));
     assertFalse(export.get("molgenis.yaml").contains("Keywords.yaml"));
+  }
+
+  private static String metadataCsv(SchemaMetadata schema) {
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory();
+    Emx2.outputMetadata(store, schema);
+    return store.getCsvString("molgenis");
+  }
+
+  @Test
+  void fullSurfaceCsvParity() throws Exception {
+    SchemaMetadata yamlSchema = Emx2Yaml.fromBundle(bundleDir("fullsurface")).schema();
+
+    Reader csvReader =
+        new InputStreamReader(
+            getClass().getResourceAsStream("/yamlbundle/fullsurface/molgenis.csv"),
+            StandardCharsets.UTF_8);
+    SchemaMetadata csvSchema = Emx2.fromRowList(CsvTableReader.read(csvReader));
+
+    assertEquals(metadataCsv(csvSchema), metadataCsv(yamlSchema));
+  }
+
+  @Test
+  void exportFidelity() throws Exception {
+    Emx2YamlBundle model = Emx2Yaml.fromBundle(bundleDir("fullsurface"));
+    Emx2YamlBundle reparsed = Emx2Yaml.fromBundleFiles(Emx2Yaml.toBundleFiles(model));
+
+    // engine-level column attributes survive parse -> export -> parse
+    TableMetadata resources = reparsed.schema().getTableMetadata("Resources");
+    assertEquals("${contactId}", resources.getColumn("contact").getRefLabel());
+    assertTrue(resources.getColumn("contact").isReadonly());
+    assertEquals("contact", resources.getColumn("altContact").getRefLink());
+    assertEquals("id", resources.getColumn("displayName").getComputed());
+    assertEquals("Display name", resources.getColumn("displayName").getFormLabel());
+    assertEquals("unknown", resources.getColumn("sex").getDefaultValue());
+    assertEquals("sex != null", resources.getColumn("consentGiven").getRequired());
+    assertEquals("sex == 'female'", resources.getColumn("visibleNote").getVisible());
+    assertEquals("value != null", resources.getColumn("visibleNote").getValidation());
+    assertEquals(2, resources.getColumn("orgCode").getKey());
+    assertEquals(2, resources.getColumn("regionCode").getKey());
+    assertEquals("http://schema.org/url", resources.getColumn("homepage").getSemantics()[0]);
+    assertEquals("datacatalogue", resources.getColumn("profiledField").getProfiles()[0]);
+
+    // table-level attributes survive
+    assertEquals("http://schema.org/Dataset", resources.getSemantics()[0]);
+    assertEquals("datacatalogue", resources.getProfiles()[0]);
+
+    // refBack survives on the twin table
+    assertEquals(
+        "contact",
+        reparsed.schema().getTableMetadata("Contacts").getColumn("linkedResources").getRefBack());
+
+    // document-layer attributes survive: namespaces + previousNames
+    assertEquals("http://schema.org/", reparsed.namespaces().get("schema"));
+    assertEquals(
+        List.of("surname", "last_name"),
+        reparsed.previousNames().get("Resources").get("familyName"));
+  }
+
+  @Test
+  void fileConvergence() throws Exception {
+    Map<String, String> firstCycle =
+        Emx2Yaml.toBundleFiles(Emx2Yaml.fromBundle(bundleDir("fullsurface")));
+    Map<String, String> secondCycle = Emx2Yaml.toBundleFiles(Emx2Yaml.fromBundleFiles(firstCycle));
+
+    assertEquals(firstCycle, secondCycle);
+  }
+
+  @Test
+  void singleFileEquivalence() throws Exception {
+    SchemaMetadata inline = Emx2Yaml.fromBundle(bundleDir("singlefile/inline")).schema();
+    // the table-level import resolves inside the inlined form
+    assertEquals(
+        List.of("id", "contactDetails", "email", "phone"),
+        nonSystemNames(inline.getTableMetadata("People").getColumns()));
+
+    Map<String, String> bundleForm =
+        Emx2Yaml.toBundleFiles(Emx2Yaml.fromBundle(bundleDir("singlefile/bundle")));
+    Map<String, String> inlineForm =
+        Emx2Yaml.toBundleFiles(Emx2Yaml.fromBundle(bundleDir("singlefile/inline")));
+
+    assertEquals(bundleForm, inlineForm);
   }
 
   @Test

@@ -1,0 +1,11 @@
+name: Contacts
+label: Contacts
+description: People and organisations
+columns:
+- name: contactId
+  key: 1
+- name: contactName
+- name: linkedResources
+  type: refback
+  refTable: Resources
+  refBack: contact
