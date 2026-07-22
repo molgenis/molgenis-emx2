@@ -47,7 +47,9 @@ const sidebarCollapsed = ref(false);
       :active-filter-count="0"
       @update:collapsed="sidebarCollapsed = $event"
     >
-      <AddComponentPalette @dragging="handleDragEvent" />
+      <div class="sticky top-0">
+        <AddComponentPalette @dragging="handleDragEvent" />
+      </div>
     </Sidebar>
     <div class="flex-1 min-w-0">
       <template
@@ -143,3 +145,19 @@ const sidebarCollapsed = ref(false);
     </div>
   </div>
 </template>
+
+<style scoped>
+   :deep(#filter-sidebar-content){
+    height:100%
+  }
+
+  :deep(div[class*="absolute"]:has(button[aria-label="Hide filters"])){
+    height: 100%;
+    pointer-events: none;    
+  }
+  :deep(button[aria-label="Hide filters"]){
+    position:sticky;
+    top:0.75rem;
+    pointer-events:all;
+  }
+</style>
