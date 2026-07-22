@@ -217,7 +217,18 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
       // other relation
       else if (schema != null) {
-        return schema.getTableMetadata(this.refTable);
+        TableMetadata refTableMetadata = schema.getTableMetadata(this.refTable);
+        if (refTableMetadata == null) {
+          throw new MolgenisException(
+              "refTable '"
+                  + this.refTable
+                  + "' does not exist or permission denied in schema '"
+                  + schema.getName()
+                  + "', referenced by column '"
+                  + this.getQualifiedName()
+                  + "'");
+        }
+        return refTableMetadata;
       }
     }
     throw new MolgenisException(
@@ -404,8 +415,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     }
     // in complex table rename scenarios the refTable might not be available
     // todo, never have to check if null
-    if (this.getRefTable() != null) {
-      for (Column c : this.getRefTable().getColumns()) {
+    TableMetadata refTableMetadata;
+    try {
+      refTableMetadata = this.getRefTable();
+    } catch (MolgenisException refTableNotAvailable) {
+      return null;
+    }
+    if (refTableMetadata != null) {
+      for (Column c : refTableMetadata.getColumns()) {
         if (c.isRefback()
             && c.getRefTableName().equals(this.getTableName())
             && c.getRefSchemaName().equals(this.getSchemaName())
