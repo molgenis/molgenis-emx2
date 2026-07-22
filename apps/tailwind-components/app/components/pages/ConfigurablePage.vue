@@ -147,17 +147,17 @@ const sidebarCollapsed = ref(false);
 </template>
 
 <style scoped>
-   :deep(#filter-sidebar-content){
-    height:100%
-  }
+:deep(#filter-sidebar-content) {
+  height: 100%;
+}
 
-  :deep(div[class*="absolute"]:has(button[aria-label="Hide filters"])){
-    height: 100%;
-    pointer-events: none;    
-  }
-  :deep(button[aria-label="Hide filters"]){
-    position:sticky;
-    top:0.75rem;
-    pointer-events:all;
-  }
+:deep(div[class*="absolute"]:has(button[aria-label="Hide filters"])) {
+  height: 100%;
+  pointer-events: none;
+}
+:deep(button[aria-label="Hide filters"]) {
+  position: sticky;
+  top: 0.75rem;
+  pointer-events: all;
+}
 </style>

@@ -16,7 +16,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["dragging"]);
-const showPleaseDragMe = ref<boolean>(false)
+const showPleaseDragMe = ref<boolean>(false);
 
 const startDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
   emit("dragging", componentInfo);
@@ -32,7 +32,7 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
     class="!justify-start w-full mb-1"
     draggable="true"
     @click="showPleaseDragMe = true"
-    @mouseleave = "showPleaseDragMe = false"
+    @mouseleave="showPleaseDragMe = false"
     @dragstart="
       startDrag($event, { dragging: true, componentName, componentType })
     "
