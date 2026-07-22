@@ -213,7 +213,7 @@ class TableQueryGeneratorTest {
         ?_subject_ xsd:id ?id .
         ?_subject_ xsd:product ?product .
         ?product xsd:name ?product__name . }
-        GROUP BY ?_subject_ ?id ?_subject_product ?product__name
+        GROUP BY ?_subject_ ?id ?product ?product__name
         """,
         removePrefixesFromQuery(query));
   }
