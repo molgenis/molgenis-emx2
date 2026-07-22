@@ -1,5 +1,5 @@
-import { createError } from "nuxt/app";
 import type { ITableMetaData } from "../../../metadata-utils/src/types";
+import { ApiError } from "../utils/apiError";
 import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
 import fetchMetadata from "./fetchMetadata";
 
@@ -15,10 +15,7 @@ export default async (
   if (!tableMetadata) {
     const message = `Could not find table "${tableId}" in schema "${schemaId}". ${DATA_NOT_FOUND_ERROR}`;
     console.error(message);
-    throw createError({
-      message,
-      statusCode: 404,
-    });
+    throw new ApiError(message, 404);
   } else {
     return tableMetadata;
   }

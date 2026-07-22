@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { FetchError } from "ofetch";
-import { fetchErrorToNuxtError } from "../../../app/utils/fetchErrorToNuxtError";
+import { ApiError, toApiError } from "../../../app/utils/apiError";
 
 function fetchError(statusCode: number, backendMessage?: string): FetchError {
   const error = new FetchError("request failed");
@@ -13,14 +13,15 @@ function fetchError(statusCode: number, backendMessage?: string): FetchError {
   return error;
 }
 
-describe("fetchErrorToNuxtError", () => {
+describe("toApiError", () => {
   test("propagates the http status code of a FetchError", () => {
-    const result = fetchErrorToNuxtError(fetchError(404), "fallback");
+    const result = toApiError(fetchError(404), "fallback");
+    expect(result).toBeInstanceOf(ApiError);
     expect(result.statusCode).toBe(404);
   });
 
   test("uses the backend error message when present", () => {
-    const result = fetchErrorToNuxtError(
+    const result = toApiError(
       fetchError(404, "Schema 'foo' unknown. Might you need to sign in?"),
       "fallback"
     );
@@ -30,13 +31,15 @@ describe("fetchErrorToNuxtError", () => {
   });
 
   test("falls back to the given message without a backend message", () => {
-    const result = fetchErrorToNuxtError(fetchError(400), "fallback message");
+    const result = toApiError(fetchError(400), "fallback message");
     expect(result.message).toBe("fallback message");
   });
 
   test("defaults to 500 for non-fetch errors", () => {
-    const result = fetchErrorToNuxtError(new Error("boom"), "fallback");
+    const cause = new Error("boom");
+    const result = toApiError(cause, "fallback");
     expect(result.statusCode).toBe(500);
     expect(result.message).toBe("fallback");
+    expect(result.cause).toBe(cause);
   });
 });

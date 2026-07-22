@@ -1,5 +1,5 @@
 import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
-import { fetchErrorToNuxtError } from "../utils/fetchErrorToNuxtError";
+import { toApiError } from "../utils/apiError";
 
 export default async (
   schemaId: string,
@@ -17,7 +17,7 @@ export default async (
   }).catch((error) => {
     const message = `Could not fetch graphql for schema ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
     console.error(message, error);
-    throw fetchErrorToNuxtError(error, message);
+    throw toApiError(error, message);
   });
 
   return data;
