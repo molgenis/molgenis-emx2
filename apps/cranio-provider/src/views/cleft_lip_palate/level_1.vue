@@ -12,12 +12,14 @@ import type { IAppPage, ISiteErnCleftTypeCounts } from "../../types";
 const props = defineProps<IAppPage>();
 const patientsByCleftType = ref<ISiteErnCleftTypeCounts>({
   center: {
+    "All patients": 0,
     CL: 0,
     CP: 0,
     CLA: 0,
     CLAP: 0,
   },
   ern: {
+    "All patients": 0,
     CL: 0,
     CP: 0,
     CLA: 0,
@@ -36,22 +38,38 @@ async function getData() {
     "clp-all-patients-by-phenotype"
   );
 
+  const totalPatientsAtCenter = await getDashboardChart(
+    props.api.graphql.current,
+    "patients-total"
+  );
+
+  const totalPatientsInErn = await getDashboardChart(
+    props.api.graphql.providers,
+    "patients-total"
+  );
+
   const centerCounts: ICharts = centerCleftTypeCounts[0];
   const ernCounts: ICharts = ernCleftTypeCounts[0];
+  const totalCountAtCenter: ICharts = totalPatientsAtCenter[0];
+  const totalCountInErn: ICharts = totalPatientsInErn[0];
 
-  if (centerCounts.dataPoints) {
+  if (centerCounts.dataPoints && totalCountAtCenter.dataPoints) {
     const centerCountValues = centerCounts.dataPoints.map((row: IChartData) => {
       return [row.name, row.value];
     });
 
     patientsByCleftType.value.center = Object.fromEntries(centerCountValues);
+    patientsByCleftType.value.center["All patients"] = totalCountAtCenter
+      .dataPoints?.[0]?.value as number;
   }
 
-  if (ernCounts.dataPoints) {
+  if (ernCounts.dataPoints && totalCountInErn.dataPoints) {
     const ernCountValues = ernCounts.dataPoints.map((row: IChartData) => {
       return [row.name, row.value];
     });
     patientsByCleftType.value.ern = Object.fromEntries(ernCountValues);
+    patientsByCleftType.value.ern["All patients"] = totalCountInErn
+      .dataPoints?.[0]?.value as number;
   }
 }
 

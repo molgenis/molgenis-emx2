@@ -167,7 +167,7 @@ onMounted(() => {
       <DashboardChart>
         <InputLabel id="yearOfBirthFilter" label="Filter data by age group" />
         <select
-          class="inputs select"
+          class="custom-select"
           id="yearOfBirthFilter"
           v-model="selectedAgeGroup"
           @change="updateChartsByAgeGroup"
