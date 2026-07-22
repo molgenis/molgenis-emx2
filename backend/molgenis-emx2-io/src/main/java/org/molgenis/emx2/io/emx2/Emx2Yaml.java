@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
@@ -24,8 +28,8 @@ import org.yaml.snakeyaml.nodes.Node;
  * {@code tables: - file: ...}, plain columns with basic types, and bundle/table {@code settings:}.
  * Parsing is strict — any key outside the enumerated attribute surface fails with the source
  * position (see {@link YamlDocumentReader}). Later tickets extend the ALLOWED key sets and the
- * mapping in {@link #parseTableFile} / {@link #columnToMap} for inheritance, reuse, dotted refs and
- * i18n; the bundle envelope handling here stays unchanged.
+ * mapping in {@link #parseHierarchyFile} / {@link #columnToMap} for reuse, dotted refs and i18n;
+ * the bundle envelope handling here stays unchanged.
  */
 public class Emx2Yaml {
 
@@ -54,6 +58,12 @@ public class Emx2Yaml {
   private static final String KEY_SEMANTICS = "semantics";
   private static final String KEY_VALUES = "values";
   private static final String KEY_FORM_LABEL = "formLabel";
+  private static final String KEY_EXTENDS = "extends";
+  private static final String KEY_TABLE_TYPE = "tableType";
+  private static final String KEY_SUBCLASSES = "subclasses";
+  private static final String KEY_MODULES = "modules";
+  private static final String KEY_SUBCLASS = "subclass";
+  private static final String KEY_MODULE = "module";
 
   private static final String DEFAULT_LOCALE = "en";
   private static final String BOOLEAN_TRUE = "true";
@@ -63,7 +73,18 @@ public class Emx2Yaml {
       Set.of(KEY_FORMAT_VERSION, KEY_VERSION, KEY_TABLES, KEY_SETTINGS);
   private static final Set<String> TABLE_ENTRY_KEYS = Set.of(KEY_FILE);
   private static final Set<String> TABLE_KEYS =
-      Set.of(KEY_NAME, KEY_LABEL, KEY_DESCRIPTION, KEY_SETTINGS, KEY_COLUMNS);
+      Set.of(
+          KEY_NAME,
+          KEY_LABEL,
+          KEY_DESCRIPTION,
+          KEY_SETTINGS,
+          KEY_COLUMNS,
+          KEY_EXTENDS,
+          KEY_TABLE_TYPE,
+          KEY_SUBCLASSES,
+          KEY_MODULES);
+  private static final Set<String> SUBTABLE_KEYS =
+      Set.of(KEY_NAME, KEY_EXTENDS, KEY_LABEL, KEY_DESCRIPTION, KEY_TABLE_TYPE);
   private static final Set<String> COLUMN_KEYS =
       Set.of(
           KEY_NAME,
@@ -79,7 +100,9 @@ public class Emx2Yaml {
           KEY_VALUES,
           KEY_DESCRIPTION,
           KEY_LABEL,
-          KEY_FORM_LABEL);
+          KEY_FORM_LABEL,
+          KEY_SUBCLASS,
+          KEY_MODULE);
 
   private Emx2Yaml() {}
 
@@ -174,6 +197,7 @@ public class Emx2Yaml {
     }
     YamlDocumentReader reader = new YamlDocumentReader(MOLGENIS_YAML);
     List<Node> entries = reader.sequence(tablesNode, KEY_TABLES);
+    List<ParsedFile> parsedFiles = new ArrayList<>();
     for (int index = 0; index < entries.size(); index++) {
       LinkedHashMap<String, Node> entry =
           reader.mapping(entries.get(index), KEY_TABLES + "[" + index + "]", TABLE_ENTRY_KEYS);
@@ -183,11 +207,12 @@ public class Emx2Yaml {
       if (content == null) {
         throw reader.error("referenced table file not found: " + relativePath, entry.get(KEY_FILE));
       }
-      parseTableFile(relativePath, content, schema);
+      parsedFiles.add(parseHierarchyFile(relativePath, content));
     }
+    assemble(parsedFiles, schema);
   }
 
-  private static void parseTableFile(String fileLabel, String content, SchemaMetadata schema) {
+  private static ParsedFile parseHierarchyFile(String fileLabel, String content) {
     YamlDocumentReader reader = new YamlDocumentReader(fileLabel);
     Node fileNode = reader.compose(content);
     if (fileNode == null) {
@@ -199,45 +224,128 @@ public class Emx2Yaml {
       throw reader.error("table file is missing '" + KEY_NAME + "'", fileNode);
     }
     String tableName = reader.scalar(nameNode, KEY_NAME);
-    TableMetadata table = new TableMetadata(tableName);
+    TableMetadata primary = new TableMetadata(tableName);
 
     if (tableMap.containsKey(KEY_LABEL)) {
-      table.setLabel(reader.scalar(tableMap.get(KEY_LABEL), tableName + "." + KEY_LABEL));
+      primary.setLabel(reader.scalar(tableMap.get(KEY_LABEL), tableName + "." + KEY_LABEL));
     }
     if (tableMap.containsKey(KEY_DESCRIPTION)) {
-      table.setDescription(
+      primary.setDescription(
           reader.scalar(tableMap.get(KEY_DESCRIPTION), tableName + "." + KEY_DESCRIPTION));
     }
     if (tableMap.containsKey(KEY_SETTINGS)) {
-      table.setSettings(
+      primary.setSettings(
           reader.scalarMapping(tableMap.get(KEY_SETTINGS), tableName + "." + KEY_SETTINGS));
     }
-    parseColumns(reader, tableMap.get(KEY_COLUMNS), tableName, table);
+    if (tableMap.containsKey(KEY_EXTENDS)) {
+      primary.setInheritNames(
+          reader.stringList(tableMap.get(KEY_EXTENDS), tableName + "." + KEY_EXTENDS));
+    }
+    if (tableMap.containsKey(KEY_TABLE_TYPE)) {
+      primary.setTableType(
+          parseTableType(reader, tableMap.get(KEY_TABLE_TYPE), tableName + "." + KEY_TABLE_TYPE));
+    }
 
-    schema.create(table);
+    List<TableMetadata> subtables = new ArrayList<>();
+    parseSubtables(reader, tableMap.get(KEY_SUBCLASSES), tableName, TableType.DATA, subtables);
+    parseSubtables(reader, tableMap.get(KEY_MODULES), tableName, TableType.MODULE, subtables);
+
+    List<ColumnEntry> columns = parseColumns(reader, tableMap.get(KEY_COLUMNS), tableName);
+    return new ParsedFile(primary, subtables, columns);
   }
 
-  private static void parseColumns(
-      YamlDocumentReader reader, Node columnsNode, String tableName, TableMetadata table) {
-    if (columnsNode == null) {
+  private static void parseSubtables(
+      YamlDocumentReader reader,
+      Node blockNode,
+      String rootName,
+      TableType defaultType,
+      List<TableMetadata> subtables) {
+    if (blockNode == null) {
       return;
+    }
+    String blockName = TableType.MODULE.equals(defaultType) ? KEY_MODULES : KEY_SUBCLASSES;
+    List<Node> entries = reader.sequence(blockNode, rootName + "." + blockName);
+    for (int index = 0; index < entries.size(); index++) {
+      String path = rootName + "." + blockName + "[" + index + "]";
+      LinkedHashMap<String, Node> entry = reader.mapping(entries.get(index), path, SUBTABLE_KEYS);
+      Node subNameNode = entry.get(KEY_NAME);
+      if (subNameNode == null) {
+        throw reader.error("subtable is missing '" + KEY_NAME + "'", entries.get(index));
+      }
+      TableMetadata subtable = new TableMetadata(reader.scalar(subNameNode, path + "." + KEY_NAME));
+      if (entry.containsKey(KEY_EXTENDS)) {
+        subtable.setInheritNames(
+            reader.stringList(entry.get(KEY_EXTENDS), path + "." + KEY_EXTENDS));
+      } else {
+        subtable.setInheritNames(rootName);
+      }
+      if (entry.containsKey(KEY_TABLE_TYPE)) {
+        subtable.setTableType(
+            parseTableType(reader, entry.get(KEY_TABLE_TYPE), path + "." + KEY_TABLE_TYPE));
+      } else {
+        subtable.setTableType(defaultType);
+      }
+      if (entry.containsKey(KEY_LABEL)) {
+        subtable.setLabel(reader.scalar(entry.get(KEY_LABEL), path + "." + KEY_LABEL));
+      }
+      if (entry.containsKey(KEY_DESCRIPTION)) {
+        subtable.setDescription(
+            reader.scalar(entry.get(KEY_DESCRIPTION), path + "." + KEY_DESCRIPTION));
+      }
+      subtables.add(subtable);
+    }
+  }
+
+  private static List<ColumnEntry> parseColumns(
+      YamlDocumentReader reader, Node columnsNode, String tableName) {
+    List<ColumnEntry> result = new ArrayList<>();
+    if (columnsNode == null) {
+      return result;
     }
     List<Node> entries = reader.sequence(columnsNode, tableName + "." + KEY_COLUMNS);
     for (int index = 0; index < entries.size(); index++) {
       String path = tableName + " > " + KEY_COLUMNS + "[" + index + "]";
       LinkedHashMap<String, Node> columnMap = reader.mapping(entries.get(index), path, COLUMN_KEYS);
-      table.add(parseColumn(reader, columnMap, path, index));
+      String target = resolveMarkerTarget(reader, columnMap, tableName, path);
+      result.add(new ColumnEntry(target, parseColumn(reader, columnMap, path)));
     }
+    return result;
+  }
+
+  private static String resolveMarkerTarget(
+      YamlDocumentReader reader,
+      LinkedHashMap<String, Node> columnMap,
+      String tableName,
+      String path) {
+    Node subclassNode = columnMap.get(KEY_SUBCLASS);
+    Node moduleNode = columnMap.get(KEY_MODULE);
+    if (subclassNode != null && moduleNode != null) {
+      throw reader.error(
+          "column cannot carry both '"
+              + KEY_SUBCLASS
+              + "' and '"
+              + KEY_MODULE
+              + "' at '"
+              + path
+              + "'",
+          columnMap.get(KEY_NAME));
+    }
+    if (subclassNode != null) {
+      return reader.scalar(subclassNode, path + "." + KEY_SUBCLASS);
+    }
+    if (moduleNode != null) {
+      return reader.scalar(moduleNode, path + "." + KEY_MODULE);
+    }
+    return tableName;
   }
 
   private static Column parseColumn(
-      YamlDocumentReader reader, LinkedHashMap<String, Node> columnMap, String path, int position) {
+      YamlDocumentReader reader, LinkedHashMap<String, Node> columnMap, String path) {
     Node nameNode = columnMap.get(KEY_NAME);
     if (nameNode == null) {
       throw new MolgenisException(reader.getFileLabel() + ": column is missing '" + KEY_NAME + "'");
     }
     Column column = new Column(reader.scalar(nameNode, path + "." + KEY_NAME));
-    column.setPosition(position);
 
     if (columnMap.containsKey(KEY_TYPE)) {
       column.setType(parseType(reader, columnMap.get(KEY_TYPE), path));
@@ -300,6 +408,127 @@ public class Emx2Yaml {
     }
   }
 
+  private static TableType parseTableType(YamlDocumentReader reader, Node typeNode, String path) {
+    String raw = reader.scalar(typeNode, path);
+    try {
+      return TableType.valueOf(raw.toUpperCase().trim());
+    } catch (IllegalArgumentException exception) {
+      throw reader.error("unknown tableType '" + raw + "' at '" + path + "'", typeNode);
+    }
+  }
+
+  private static void assemble(List<ParsedFile> parsedFiles, SchemaMetadata schema) {
+    Map<String, Integer> fileOfTable = new HashMap<>();
+    for (int index = 0; index < parsedFiles.size(); index++) {
+      ParsedFile parsedFile = parsedFiles.get(index);
+      fileOfTable.put(parsedFile.primary().getTableName(), index);
+      for (TableMetadata subtable : parsedFile.subtables()) {
+        fileOfTable.put(subtable.getTableName(), index);
+      }
+    }
+
+    List<Integer> order = orderFiles(parsedFiles, fileOfTable);
+
+    for (int fileIndex : order) {
+      ParsedFile parsedFile = parsedFiles.get(fileIndex);
+      schema.create(parsedFile.primary());
+      for (TableMetadata subtable : parsedFile.subtables()) {
+        schema.create(subtable);
+      }
+    }
+
+    int position = 0;
+    for (int fileIndex : order) {
+      for (ColumnEntry entry : parsedFiles.get(fileIndex).columns()) {
+        TableMetadata target = schema.getTableMetadata(entry.targetTable());
+        if (target == null) {
+          throw new MolgenisException(
+              "column '"
+                  + entry.column().getName()
+                  + "' is assigned to unknown subtable '"
+                  + entry.targetTable()
+                  + "'");
+        }
+        entry.column().setPosition(position++);
+        target.add(entry.column());
+      }
+    }
+  }
+
+  private static List<Integer> orderFiles(
+      List<ParsedFile> parsedFiles, Map<String, Integer> fileOfTable) {
+    int count = parsedFiles.size();
+    List<Set<Integer>> adjacency = new ArrayList<>();
+    int[] indegree = new int[count];
+    for (int index = 0; index < count; index++) {
+      adjacency.add(new LinkedHashSet<>());
+    }
+
+    for (int index = 0; index < count; index++) {
+      ParsedFile parsedFile = parsedFiles.get(index);
+      List<TableMetadata> tables = new ArrayList<>();
+      tables.add(parsedFile.primary());
+      tables.addAll(parsedFile.subtables());
+      for (TableMetadata table : tables) {
+        addInheritanceEdges(index, table.getInheritNames(), fileOfTable, adjacency, indegree);
+      }
+    }
+
+    PriorityQueue<Integer> ready = new PriorityQueue<>();
+    for (int index = 0; index < count; index++) {
+      if (indegree[index] == 0) {
+        ready.add(index);
+      }
+    }
+    List<Integer> order = new ArrayList<>();
+    while (!ready.isEmpty()) {
+      int current = ready.poll();
+      order.add(current);
+      for (int next : adjacency.get(current)) {
+        if (--indegree[next] == 0) {
+          ready.add(next);
+        }
+      }
+    }
+    if (order.size() != count) {
+      throw new MolgenisException("cyclic dependency between hierarchy files");
+    }
+    return order;
+  }
+
+  private static void addInheritanceEdges(
+      int childFile,
+      List<String> parents,
+      Map<String, Integer> fileOfTable,
+      List<Set<Integer>> adjacency,
+      int[] indegree) {
+    for (int parentIndex = 0; parentIndex < parents.size(); parentIndex++) {
+      Integer parentFile = fileOfTable.get(parents.get(parentIndex));
+      if (parentFile != null && parentFile != childFile) {
+        addEdge(parentFile, childFile, adjacency, indegree);
+      }
+      if (parentIndex > 0) {
+        Integer previousFile = fileOfTable.get(parents.get(parentIndex - 1));
+        if (previousFile != null && parentFile != null && !previousFile.equals(parentFile)) {
+          addEdge(previousFile, parentFile, adjacency, indegree);
+        }
+      }
+    }
+  }
+
+  private static void addEdge(int from, int to, List<Set<Integer>> adjacency, int[] indegree) {
+    if (adjacency.get(from).add(to)) {
+      indegree[to]++;
+    }
+  }
+
+  private record ParsedFile(
+      TableMetadata primary, List<TableMetadata> subtables, List<ColumnEntry> columns) {}
+
+  private record ColumnEntry(String targetTable, Column column) {}
+
+  private record ColumnExport(String markerKey, String markerValue, Column column) {}
+
   public static Map<String, String> toBundleFiles(Emx2YamlBundle bundle) {
     Map<String, String> files = new LinkedHashMap<>();
     SchemaMetadata schema = bundle.schema();
@@ -318,7 +547,7 @@ public class Emx2Yaml {
       }
       String relativePath = TABLES_DIR + table.getTableName() + ".yaml";
       tableEntries.add(new LinkedHashMap<>(Map.of(KEY_FILE, relativePath)));
-      files.put(relativePath, dump(tableToMap(table)));
+      files.put(relativePath, dump(tableToMap(table, schema)));
     }
     root.put(KEY_TABLES, tableEntries);
 
@@ -330,7 +559,7 @@ public class Emx2Yaml {
     return files;
   }
 
-  private static Map<String, Object> tableToMap(TableMetadata table) {
+  private static Map<String, Object> tableToMap(TableMetadata table, SchemaMetadata schema) {
     Map<String, Object> tableMap = new LinkedHashMap<>();
     tableMap.put(KEY_NAME, table.getTableName());
     String label = table.getLabels().get(DEFAULT_LOCALE);
@@ -344,22 +573,113 @@ public class Emx2Yaml {
     if (!table.getSettings().isEmpty()) {
       tableMap.put(KEY_SETTINGS, new LinkedHashMap<>(table.getSettings()));
     }
-    List<Map<String, Object>> columns = new ArrayList<>();
-    for (Column column : table.getColumns()) {
-      if (column.isSystemColumn()) {
-        continue;
-      }
-      columns.add(columnToMap(column));
+
+    List<TableMetadata> subclasses = new ArrayList<>();
+    List<TableMetadata> modules = new ArrayList<>();
+    collectDescendants(table, schema, subclasses, modules);
+    if (!subclasses.isEmpty()) {
+      tableMap.put(KEY_SUBCLASSES, subtableBlock(subclasses, table.getTableName(), TableType.DATA));
     }
+    if (!modules.isEmpty()) {
+      tableMap.put(KEY_MODULES, subtableBlock(modules, table.getTableName(), TableType.MODULE));
+    }
+
+    List<Map<String, Object>> columns = wovenColumns(table, subclasses, modules);
     if (!columns.isEmpty()) {
       tableMap.put(KEY_COLUMNS, columns);
     }
     return tableMap;
   }
 
-  private static Map<String, Object> columnToMap(Column column) {
+  private static void collectDescendants(
+      TableMetadata root,
+      SchemaMetadata schema,
+      List<TableMetadata> subclasses,
+      List<TableMetadata> modules) {
+    for (TableMetadata candidate : schema.getTables()) {
+      if (candidate.getTableName().equals(root.getTableName())
+          || candidate.getInheritNames().isEmpty()
+          || !root.getTableName().equals(candidate.getRootTable().getTableName())) {
+        continue;
+      }
+      if (candidate.getTableType().isModule()) {
+        modules.add(candidate);
+      } else {
+        subclasses.add(candidate);
+      }
+    }
+    subclasses.sort(Comparator.comparing(TableMetadata::getTableName));
+    modules.sort(Comparator.comparing(TableMetadata::getTableName));
+  }
+
+  private static List<Map<String, Object>> subtableBlock(
+      List<TableMetadata> subtables, String rootName, TableType defaultType) {
+    List<Map<String, Object>> block = new ArrayList<>();
+    for (TableMetadata subtable : subtables) {
+      Map<String, Object> entry = new LinkedHashMap<>();
+      entry.put(KEY_NAME, subtable.getTableName());
+      List<String> parents = subtable.getInheritNames();
+      if (!(parents.size() == 1 && parents.get(0).equals(rootName))) {
+        entry.put(KEY_EXTENDS, new ArrayList<>(parents));
+      }
+      if (!defaultType.equals(subtable.getTableType())) {
+        entry.put(KEY_TABLE_TYPE, subtable.getTableType().toString().toLowerCase());
+      }
+      String label = subtable.getLabels().get(DEFAULT_LOCALE);
+      if (label != null) {
+        entry.put(KEY_LABEL, label);
+      }
+      String description = subtable.getDescriptions().get(DEFAULT_LOCALE);
+      if (description != null) {
+        entry.put(KEY_DESCRIPTION, description);
+      }
+      block.add(entry);
+    }
+    return block;
+  }
+
+  private static List<Map<String, Object>> wovenColumns(
+      TableMetadata root, List<TableMetadata> subclasses, List<TableMetadata> modules) {
+    List<ColumnExport> exports = new ArrayList<>();
+    for (Column column : ownColumns(root)) {
+      exports.add(new ColumnExport(null, null, column));
+    }
+    for (TableMetadata subclass : subclasses) {
+      for (Column column : ownColumns(subclass)) {
+        exports.add(new ColumnExport(KEY_SUBCLASS, subclass.getTableName(), column));
+      }
+    }
+    for (TableMetadata module : modules) {
+      for (Column column : ownColumns(module)) {
+        exports.add(new ColumnExport(KEY_MODULE, module.getTableName(), column));
+      }
+    }
+    exports.sort(
+        Comparator.comparingInt(
+            export ->
+                export.column().getPosition() != null
+                    ? export.column().getPosition()
+                    : Integer.MAX_VALUE));
+    List<Map<String, Object>> columns = new ArrayList<>();
+    for (ColumnExport export : exports) {
+      columns.add(columnToMap(export.column(), export.markerKey(), export.markerValue()));
+    }
+    return columns;
+  }
+
+  private static List<Column> ownColumns(TableMetadata table) {
+    return table.getNonInheritedColumns().stream()
+        .filter(column -> !column.isSystemColumn())
+        .toList();
+  }
+
+  private static Map<String, Object> columnToMap(
+      Column column, String markerKey, String markerValue) {
     Map<String, Object> columnMap = new LinkedHashMap<>();
     columnMap.put(KEY_NAME, column.getName());
+    if (markerKey != null) {
+      columnMap.put(markerKey, markerValue);
+    }
     ColumnType type = column.getColumnType();
     if (type != null && !ColumnType.STRING.equals(type)) {
       columnMap.put(KEY_TYPE, type.toString().toLowerCase());
