@@ -84,6 +84,18 @@ test("an explicit MOLGENIS_APPS_HOST in .env outranks the declared port", () => 
   });
 });
 
+test("a MOLGENIS_HTTP_PORT that is not a positive integer derives nothing", () => {
+  for (const declaredPort of ["abc", "-1", "0"]) {
+    withEnv({}, (envFilePath) => {
+      declareStack(envFilePath, `MOLGENIS_HTTP_PORT=${declaredPort}\n`);
+      assert.equal(
+        apiBase("https://emx2.dev.molgenis.org/"),
+        "https://emx2.dev.molgenis.org/"
+      );
+    });
+  }
+});
+
 test("without a .env file the ambient environment is left untouched", () => {
   withEnv(
     {
@@ -102,6 +114,16 @@ test("without a .env file the ambient environment is left untouched", () => {
       );
     }
   );
+});
+
+test("with nothing declared and nothing ambient each app keeps its own fallback", () => {
+  withEnv({}, () => {
+    assert.equal(
+      apiBase("https://emx2.dev.molgenis.org/"),
+      "https://emx2.dev.molgenis.org/"
+    );
+    assert.equal(appsHost("http://localhost:8080"), "http://localhost:8080");
+  });
 });
 
 test("an ambient NUXT_PUBLIC_API_BASE outranks the caller's fallback", () => {

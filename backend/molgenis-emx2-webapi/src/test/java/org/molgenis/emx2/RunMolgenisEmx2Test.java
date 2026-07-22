@@ -54,6 +54,7 @@ class RunMolgenisEmx2Test {
 
   @Test
   void productionLookupReadsSystemProperty() {
+    String previousPort = System.getProperty(Constants.MOLGENIS_HTTP_PORT);
     System.setProperty(Constants.MOLGENIS_HTTP_PORT, "8087");
     try {
       assertEquals(
@@ -61,7 +62,11 @@ class RunMolgenisEmx2Test {
           RunMolgenisEmx2.resolveHttpPort(
               NO_ARGUMENTS, RunMolgenisEmx2::systemPropertyOrEnvironment));
     } finally {
-      System.clearProperty(Constants.MOLGENIS_HTTP_PORT);
+      if (previousPort == null) {
+        System.clearProperty(Constants.MOLGENIS_HTTP_PORT);
+      } else {
+        System.setProperty(Constants.MOLGENIS_HTTP_PORT, previousPort);
+      }
     }
   }
 }

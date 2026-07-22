@@ -80,7 +80,7 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
   cd molgenis-emx2
   ./gradlew dev
   ```
-  Verify with <http://localhost:8080/api/graphql>, not with an app URL: `dev` serves **no apps**, so `/apps/central/` returns **404**. Only `./gradlew run` bundles apps. The admin UI is an app too, so here you run it yourself with `cd apps/central && pnpm dev`.
+  Verify with `/api/graphql` on whatever port you declared (<http://localhost:8080/api/graphql> if you have no `.env`), not with an app URL: `dev` serves **no apps**, so `/apps/central/` returns **404**. Only `./gradlew run` bundles apps. The admin UI is an app too, so here you run it yourself with `cd apps/central && pnpm dev`.
 - Serve only the app you want to look at
   ```console
   cd molgenis-emx2/apps/<yourapp>

@@ -22,19 +22,23 @@ ext {
 // forwarded explicitly onto every forked Test/JavaExec task (test, run, dev, cleandb,
 // generateTypes).
 // Every key of a repo-root .env file is forwarded, read straight from disk once at
-// configuration time (daemon-safe, no `source` needed). Precedence per key: a -D CLI system
-// property wins; otherwise the .env value; otherwise nothing (Java default applies).
+// configuration time (daemon-safe, no `source` needed), as is every MOLGENIS_ system property
+// given on the command line. Precedence per key: a -D CLI system property wins; otherwise the
+// .env value; otherwise nothing (Java default applies).
+// Whitespace is trimmed the way JavaScript String.trim() does it, so that this parser and the
+// one in apps/dev-env.js read the same keys out of the same file.
+def javascriptTrim = { String text -> text.replaceAll('^[\\s\\u00A0\\uFEFF]+|[\\s\\u00A0\\uFEFF]+$', '') }
 ext.molgenisDotenv = { ->
     def envFile = new File(rootDir, '.env')
     def result = [:]
     if (envFile.exists()) {
         envFile.eachLine { line ->
-            def trimmed = line.trim()
+            def trimmed = javascriptTrim(line)
             if (trimmed.isEmpty() || trimmed.startsWith('#')) return
             def idx = trimmed.indexOf('=')
             if (idx < 0) return
-            def key = trimmed.substring(0, idx).trim()
-            def value = trimmed.substring(idx + 1).trim()
+            def key = javascriptTrim(trimmed.substring(0, idx))
+            def value = javascriptTrim(trimmed.substring(idx + 1))
             if (value.length() >= 2 &&
                     ((value.startsWith('"') && value.endsWith('"')) ||
                      (value.startsWith("'") && value.endsWith("'")))) {
@@ -46,8 +50,9 @@ ext.molgenisDotenv = { ->
     result
 }()
 ext.forwardDotenvProps = { task ->
-    rootProject.molgenisDotenv.each { key, dotenvValue ->
-        def value = System.getProperty(key) ?: dotenvValue
+    def commandLineKeys = System.getProperties().stringPropertyNames().findAll { it.startsWith('MOLGENIS_') }
+    (rootProject.molgenisDotenv.keySet() + commandLineKeys).each { key ->
+        def value = System.getProperty(key) ?: rootProject.molgenisDotenv[key]
         if (value != null) task.systemProperty key, value
     }
 }

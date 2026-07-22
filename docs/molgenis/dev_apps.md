@@ -284,7 +284,7 @@ export default defineConfig(({ command }) => ({
 
 ##### Choosing the backend your dev server proxies to
 
-`apps/dev-proxy.config.js` is shared by most of the Vite apps. It routes `/graphql`, `/api`, `/reports`, `/theme.css` and their schema-prefixed variants to the backend named by `MOLGENIS_APPS_HOST`; when that is not declared it derives `http://localhost:${MOLGENIS_HTTP_PORT}`, and falls back to the shared remote `https://emx2.dev.molgenis.org` only when neither key is declared. `MOLGENIS_APPS_SCHEMA` fills in the schema for the routes that do not carry one (default `pet store`).
+`apps/dev-proxy.config.js` is shared by most of the Vite apps. It routes `/graphql`, `/api`, `/reports`, `/theme.css` and their schema-prefixed variants to the backend named by `MOLGENIS_APPS_HOST` set in `.env`; when that is not declared it derives `http://localhost:${MOLGENIS_HTTP_PORT}` from `.env`, then an ambient `MOLGENIS_APPS_HOST` from the shell, and falls back to the shared remote `https://emx2.dev.molgenis.org` last. `MOLGENIS_APPS_SCHEMA` fills in the schema for the routes that do not carry one (default `pet store`).
 
 **Do not create a per-app `.env`, and do not call `dotenv` inside `vite.config.js`.** Those keys are read from a single gitignored `.env` at the **repo root**, which `apps/dev-env.js` loads as an import side effect. `dev-proxy.config.js` requires `dev-env.js`, so importing the shared proxy already loads it — there is nothing to wire up in your app.
 

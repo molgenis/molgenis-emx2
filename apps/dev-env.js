@@ -22,8 +22,9 @@ function loadRootEnv(envFilePath = rootEnvPath) {
 }
 
 function applyDeclaredBackendTarget(declared) {
-  if (!declared.MOLGENIS_HTTP_PORT) return;
-  const declaredBackendUrl = `http://localhost:${declared.MOLGENIS_HTTP_PORT}`;
+  const declaredPort = Number(declared.MOLGENIS_HTTP_PORT);
+  if (!Number.isInteger(declaredPort) || declaredPort <= 0) return;
+  const declaredBackendUrl = `http://localhost:${declaredPort}`;
   for (const key of ["NUXT_PUBLIC_API_BASE", "MOLGENIS_APPS_HOST"]) {
     if (!declared[key]) process.env[key] = declaredBackendUrl;
   }
