@@ -63,11 +63,17 @@ def convert_biobanks_to_biobanks(bb, mappings):
     return bb
 
 
-def convert_biobanks_to_organisations(bb, mappings):
+def convert_biobanks_to_organisations(bb):
     """Convert Biobanks to Organisations"""
     # Select biobanks without collections
     bb_no_coll = bb.loc[bb["collections"].isna()]
-    orgs = bb_no_coll
+    # Convert juridical persons of all biobanks with collections to organisations
+    jp = bb.loc[bb["collections"].notna()]
+    # Prevent duplicate names
+    jp["name"] = jp["juridical_person"]
+    jp = jp.drop_duplicates(subset="name", ignore_index=True)
+    jp["id"] = "minted_from_juridical_person_" + jp.index.astype(str)
+    orgs = pd.concat([bb_no_coll, jp])
     return orgs
 
 
@@ -91,7 +97,7 @@ async def main():
             await clear_schemas(client, schema, staging_schema)
         # Get data
         data = get_directory_data()
-        # Prepare data
+        # Pre-process data
         # Deal with duplicate names in Biobanks table
         data["Biobanks"].loc[
             (data["Biobanks"]["name"].duplicated(keep=False)) & (data["Biobanks"]["withdrawn"]),
@@ -107,13 +113,19 @@ async def main():
                 "name",
             ]
         )
-        organisations = convert_biobanks_to_organisations(data["Biobanks"].copy(), mappings)
+        organisations = convert_biobanks_to_organisations(data["Biobanks"].copy())
         organisations = organisations.reindex(
             columns=[
                 "id",
                 "name",
             ]
         )
+        # Post-process data
+        # Ensure newly minted organisations have a distinct name from biobanks
+        organisations.loc[
+            organisations["id"].str.startswith("minted_from_juridical_person")
+            & (organisations["name"].isin(biobanks["name"]))
+        ] += " (juridical person)"
         # Clear and upload data
         if truncate:
             client.truncate(table="Organisations", schema=schema)
