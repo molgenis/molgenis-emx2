@@ -13,6 +13,8 @@ class TestColumnCrossSchemaRefMissing {
 
   private static final String MISSING_REF_TABLE = "DoesNotExist";
   private static final String CONTACTS = "Contacts";
+  private static final String UNRESOLVABLE_REF_SCHEMA =
+      TestColumnCrossSchemaRefMissing.class.getSimpleName() + "Unresolvable";
 
   private static Database database;
   private static Schema referencingSchema;
@@ -50,7 +52,22 @@ class TestColumnCrossSchemaRefMissing {
                 exception.getMessage()),
         () ->
             assertFalse(
-                exception.getMessage().contains(referencingSchema.getName()),
+                exception.getMessage().contains("schema '" + referencingSchema.getName() + "'"),
                 exception.getMessage()));
+  }
+
+  @Test
+  void getReferenceRefbackPropagatesWhenRefSchemaUnresolvable() {
+    Column unresolvableSchemaRef =
+        new Column(
+            referencingSchema.getMetadata().getTableMetadata(CONTACTS),
+            column("resource")
+                .setType(REF)
+                .setRefSchemaName(UNRESOLVABLE_REF_SCHEMA)
+                .setRefTable(MISSING_REF_TABLE));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, unresolvableSchemaRef::getReferenceRefback);
+    assertTrue(exception.getMessage().contains(UNRESOLVABLE_REF_SCHEMA), exception.getMessage());
   }
 }

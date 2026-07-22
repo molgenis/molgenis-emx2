@@ -219,7 +219,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       else if (schema != null) {
         TableMetadata refTableMetadata = schema.getTableMetadata(this.refTable);
         if (refTableMetadata == null) {
-          throw new MolgenisException(
+          throw new MissingRefTableException(
               "refTable '"
                   + this.refTable
                   + "' does not exist or permission denied in schema '"
@@ -418,7 +418,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     TableMetadata refTableMetadata;
     try {
       refTableMetadata = this.getRefTable();
-    } catch (MolgenisException refTableNotAvailable) {
+    } catch (MissingRefTableException refTableNotAvailable) {
       return null;
     }
     if (refTableMetadata != null) {
