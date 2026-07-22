@@ -10,6 +10,11 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      - name: URL-encode branch name
+        id: branch
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: echo "encoded=$(jq -rn --arg b "$BRANCH" '$b|@uri')" >> "$GITHUB_OUTPUT"
       - name: Comment preview link on PR
         uses: marocchino/sticky-pull-request-comment@v2
         with:
@@ -18,3 +23,4 @@ jobs:
             **Preview:** https://preview-emx2-pr-${{ github.event.number }}.dev.molgenis.org/
 
             The preview is deployed by CircleCI and may take a while to become available after each push.
+            Build progress: [CircleCI pipeline for this branch](https://app.circleci.com/pipelines/github/molgenis/molgenis-emx2?branch=${{ steps.branch.outputs.encoded }})
