@@ -12,6 +12,8 @@ const {
   e2eBaseUrl,
   loadRootEnv,
   assertDeclaredBackendConsistent,
+  ignoredAppEnvPath,
+  warnAboutIgnoredAppEnv,
 } = require("./dev-env.js");
 
 const injectedKeys = [
@@ -73,6 +75,26 @@ function withEnvFile(contents, shellEnv, assertions) {
       if (restore[key] === undefined) delete process.env[key];
       else process.env[key] = restore[key];
     }
+  }
+}
+
+function withAppTree(appEnvContents, assertions) {
+  const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), "dev-env-tree-"));
+  const appsPath = path.join(repoRoot, "apps");
+  const appPath = path.join(appsPath, "central");
+  fs.mkdirSync(appPath, { recursive: true });
+  fs.writeFileSync(path.join(repoRoot, ".env"), "MOLGENIS_HTTP_PORT=8083\n");
+  if (appEnvContents !== null) {
+    fs.writeFileSync(path.join(appPath, ".env"), appEnvContents);
+  }
+  const announcements = [];
+  const originalWarn = console.warn;
+  console.warn = (line) => announcements.push(line);
+  try {
+    assertions({ repoRoot, appsPath, appPath, announcements });
+  } finally {
+    console.warn = originalWarn;
+    fs.rmSync(repoRoot, { recursive: true, force: true });
   }
 }
 
@@ -400,4 +422,66 @@ test("loadRootEnv strips matching surrounding quotes", () => {
       });
     }
   );
+});
+
+test("ignoredAppEnvPath finds the .env beside the config that loaded the module", () => {
+  withAppTree("MOLGENIS_HTTP_PORT=9099\n", ({ appsPath, appPath }) => {
+    assert.equal(
+      ignoredAppEnvPath(appPath, appsPath),
+      path.join(appPath, ".env")
+    );
+  });
+});
+
+test("ignoredAppEnvPath finds nothing when the app declares no .env", () => {
+  withAppTree(null, ({ appsPath, appPath }) => {
+    assert.equal(ignoredAppEnvPath(appPath, appsPath), null);
+  });
+});
+
+test("ignoredAppEnvPath ignores the repo-root .env itself", () => {
+  withAppTree(null, ({ repoRoot, appsPath }) => {
+    assert.equal(ignoredAppEnvPath(repoRoot, appsPath), null);
+  });
+});
+
+test("ignoredAppEnvPath ignores a working directory outside apps", () => {
+  withAppTree("MOLGENIS_HTTP_PORT=9099\n", ({ appsPath, appPath }) => {
+    assert.equal(
+      ignoredAppEnvPath(path.join(appPath, "nested"), appsPath),
+      null
+    );
+    assert.equal(ignoredAppEnvPath(appsPath, appsPath), null);
+  });
+});
+
+test("warnAboutIgnoredAppEnv names the file once and says what still works", () => {
+  withAppTree(
+    "MOLGENIS_HTTP_PORT=9099\n",
+    ({ appsPath, appPath, announcements }) => {
+      warnAboutIgnoredAppEnv(appPath, appsPath);
+      assert.equal(announcements.length, 1);
+      assert.equal(
+        announcements[0],
+        `[dev-env] ${path.join(
+          appPath,
+          ".env"
+        )} is ignored for stack configuration — MOLGENIS_* and NUXT_PUBLIC_* keys belong in the repo-root .env; VITE_* keys in it still reach import.meta.env through Vite's own loading`
+      );
+    }
+  );
+});
+
+test("warnAboutIgnoredAppEnv stays silent when the app declares no .env", () => {
+  withAppTree(null, ({ appsPath, appPath, announcements }) => {
+    warnAboutIgnoredAppEnv(appPath, appsPath);
+    assert.deepEqual(announcements, []);
+  });
+});
+
+test("warnAboutIgnoredAppEnv stays silent for the repo-root .env itself", () => {
+  withAppTree(null, ({ repoRoot, appsPath, announcements }) => {
+    warnAboutIgnoredAppEnv(repoRoot, appsPath);
+    assert.deepEqual(announcements, []);
+  });
 });

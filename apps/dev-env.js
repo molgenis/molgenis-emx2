@@ -1,6 +1,7 @@
 const fs = process.getBuiltinModule("node:fs");
 const path = process.getBuiltinModule("node:path");
 
+const appsDirectory = __dirname;
 const rootEnvPath = path.resolve(__dirname, "..", ".env");
 const ambientOverrideKey = "MOLGENIS_ENV_OVERRIDE";
 const backendPortKey = "MOLGENIS_HTTP_PORT";
@@ -95,6 +96,27 @@ function assertDeclaredBackendConsistent(declared) {
   }
 }
 
+function warnAboutIgnoredAppEnv(workingDirectory, appsPath) {
+  const appEnvPath = ignoredAppEnvPath(workingDirectory, appsPath);
+  if (appEnvPath === null) return;
+  announceIgnoredAppEnv(appEnvPath);
+}
+
+function ignoredAppEnvPath(
+  workingDirectory = process.cwd(),
+  appsPath = appsDirectory
+) {
+  if (path.dirname(workingDirectory) !== appsPath) return null;
+  const appEnvPath = path.join(workingDirectory, ".env");
+  return fs.existsSync(appEnvPath) ? appEnvPath : null;
+}
+
+function announceIgnoredAppEnv(appEnvPath) {
+  console.warn(
+    `[dev-env] ${appEnvPath} is ignored for stack configuration — MOLGENIS_* and NUXT_PUBLIC_* keys belong in the repo-root .env; VITE_* keys in it still reach import.meta.env through Vite's own loading`
+  );
+}
+
 function maskSecret(key, value) {
   return /PASS|SECRET|TOKEN/.test(key.toUpperCase()) ? "<HIDDEN>" : value;
 }
@@ -121,6 +143,7 @@ function stripSurroundingQuotes(value) {
 }
 
 assertDeclaredBackendConsistent(loadRootEnv());
+warnAboutIgnoredAppEnv();
 
 module.exports = {
   devPort,
@@ -131,4 +154,6 @@ module.exports = {
   loadRootEnv,
   parseDotenv,
   assertDeclaredBackendConsistent,
+  ignoredAppEnvPath,
+  warnAboutIgnoredAppEnv,
 };
