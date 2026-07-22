@@ -36,8 +36,7 @@ async def clear_schemas(client, schema, staging_schema):
     schema_csv = "molgenis_" + profile + ".csv"
     staging_schema_csv = "molgenis_" + staging_profile + ".csv"
     await client.upload_file(file_path=schema_csv, schema=schema)
-    # FIXME: upload main schema instead until issue with creating staging areas is fixed
-    await client.upload_file(file_path=schema_csv, schema=staging_schema)
+    await client.upload_file(file_path=staging_schema_csv, schema=staging_schema)
     os.unlink(schema_csv)
     os.unlink(staging_schema_csv)
 
@@ -81,7 +80,7 @@ async def main():
     # Get mappings
     mappings = pd.read_csv(os.path.join(os.getcwd(), "docs/directory-merge/mapping_ledger.csv"))
     with pyclient.Client(url=server, token=token) as client:
-        if reset:
+        if reset or schema not in client.schema_names or staging_schema not in client.schema_names:
             await clear_schemas(client, schema, staging_schema)
         # Get data
         data = get_directory_data()
