@@ -6,11 +6,11 @@ To ensure consistency in the MOLGENIS interfaces, we would also like components 
 
 ### 1. Component files start with the script
 
-All component files should start with the script first, then the template, and finally the style block. This follows the common Vue 3 `<script setup>` convention.
+The structure of vue files should start with the `script` element first, and then the `template`. If styles are used in a component, then place them at the end of the file in the `style` block. This follows the common Vue 3 `<script setup>` convention.
 
 ```vue
 <!-- MyComponent.vue -->
-<script>
+<script setup lang="ts">
   ...
 </script>
 
@@ -61,6 +61,14 @@ const props = withDefaults(
 ```
 
 If your interface is used in more than one component, then add it to the `src/types` folder. Rather than storing all interfaces in one large file, save them into themed files. For example, if you have an interface that is used in more than visualization component, then store it in `types/viz.ts`.
+
+Interfaces that describe tables in a schema should not be written by hand. Generate them from the schema instead:
+
+```bash
+./gradlew generateTypes --args='<schemaName> <path/to/output.ts>'
+```
+
+See [Generate typescript types for an app](dev_apps.md#generate-typescript-types-for-an-app) for details.
 
 ### 4. Components are styled using the configured tailwind classes
 
@@ -113,6 +121,18 @@ const layout = ref<"list" | "grid">("grid");
 ```
 
 Without the type argument, `ref("grid")` is inferred as `Ref<string>`, so any string can be assigned without a compile error. With the union type, the compiler rejects everything except the listed values — a lightweight alternative to an enum, and the set of allowed values is documented right where the ref is declared.
+
+If the same set of values is used in more than one component, do not repeat the union inline. Define it as a named type in a shared types file and import it, so other components can use it without casting (`as "list" | "grid"`):
+
+```ts
+// types/layout.ts
+export type Layout = "list" | "grid";
+
+// in the component
+const layout = ref<Layout>("grid");
+```
+
+When a plain string (for example from a route query or setting) must be narrowed to such a type at runtime, use a type guard or assertion function instead of a cast. See `apps/tailwind-components/app/utils/typeUtils.ts` for examples.
 
 ## For java development
 
