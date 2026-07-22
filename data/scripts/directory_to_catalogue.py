@@ -63,7 +63,7 @@ def convert_biobanks_to_biobanks(bb, mappings):
     return bb
 
 
-def convert_biobanks_to_organisations(bb):
+def convert_biobanks_to_organisations(bb, jp_prefix):
     """Convert Biobanks to Organisations"""
     # Select biobanks without collections
     bb_no_coll = bb.loc[bb["collections"].isna()]
@@ -72,7 +72,7 @@ def convert_biobanks_to_organisations(bb):
     # Prevent duplicate names
     jp["name"] = jp["juridical_person"]
     jp = jp.drop_duplicates(subset="name", ignore_index=True)
-    jp["id"] = "minted_from_juridical_person_" + jp.index.astype(str)
+    jp["id"] = jp_prefix + jp.index.astype(str)
     orgs = pd.concat([bb_no_coll, jp])
     return orgs
 
@@ -90,6 +90,7 @@ async def main():
         truncate = True
     schema = "directory-catalogue-integration"
     staging_schema = schema + "-staging"
+    jp_prefix = "organisation_minted_from_juridical_person_"
     # Get mappings
     mappings = pd.read_csv(os.path.join(os.getcwd(), "docs/directory-merge/mapping_ledger.csv"))
     with pyclient.Client(url=server, token=token) as client:
@@ -111,9 +112,10 @@ async def main():
             columns=[
                 "id",
                 "name",
+                "juridical_person",
             ]
         )
-        organisations = convert_biobanks_to_organisations(data["Biobanks"].copy())
+        organisations = convert_biobanks_to_organisations(data["Biobanks"].copy(), jp_prefix)
         organisations = organisations.reindex(
             columns=[
                 "id",
@@ -121,17 +123,24 @@ async def main():
             ]
         )
         # Post-process data
+        # Link biobanks to their legal-entity organisations
+        jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)]
+        biobanks["part of"] = (
+            jp_orgs.set_index("name").loc[biobanks["juridical_person"], "id"].values
+        )
+        del biobanks["juridical_person"]
         # Ensure newly minted organisations have a distinct name from biobanks
         organisations.loc[
-            organisations["id"].str.startswith("minted_from_juridical_person")
-            & (organisations["name"].isin(biobanks["name"]))
+            organisations["id"].str.startswith(jp_prefix)
+            & (organisations["name"].isin(biobanks["name"])),
+            "name",
         ] += " (juridical person)"
         # Clear and upload data
         if truncate:
-            client.truncate(table="Organisations", schema=schema)
             client.truncate(table="Biobanks", schema=schema)
-        client.save_table(table="Biobanks", schema=schema, data=biobanks)
+            client.truncate(table="Organisations", schema=schema)
         client.save_table(table="Organisations", schema=schema, data=organisations)
+        client.save_table(table="Biobanks", schema=schema, data=biobanks)
         pass
 
 
