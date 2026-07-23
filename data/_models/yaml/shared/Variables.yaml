@@ -1,0 +1,279 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Variables
+  description: Definition of a variable
+  profiles:
+  - DataCatalogueFlat
+  - RWEStaging
+  - CohortsStaging
+  - StudiesStaging
+  - NetworksStaging
+  - UMCGCohortsStaging
+  - UMCUCohorts
+  columns:
+  - name: resource
+    type: ref
+    refTable: Resources
+    key: 1
+    required: true
+    description: Resource that this variable is part of
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: table
+    type: ref
+    refTable: Tables
+    refLink: resource
+    key: 1
+    required: true
+    description: Table that this variable is part of
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: name
+    key: 1
+    required: true
+    description: Name of the variable, unique within a table
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: useExternalDefinition
+    type: ref
+    refTable: Variables
+    description: Refer to variable definition in other tables
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+  - name: label
+    description: Human readable name, if applicable
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: description
+    type: text
+    description: Description of the variable
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: original language description
+    type: text
+    description: Description of the variable in the original language
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: collection event
+    type: ref_array
+    refTable: Collection events
+    refLink: resource
+    description: In case of protocolised data collection this defines the moment(s) in time this variable is collected on
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: format
+    type: ontology
+    refTable: CatalogueOntologies.Formats
+    description: Data type, e.g. string, integer, decimal, date, datetime, etc.
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: unit
+    type: ontology
+    refTable: CatalogueOntologies.Units
+    description: In case of a continuous variable, the unit that the variable values are expressed in
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: ontology term URI
+    type: hyperlink
+    description: Reference to ontology term that defines this variable
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: since version
+    description: When this variable was introduced
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: until version
+    description: When this variable was removed, if applicable
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: reused in resources
+    type: refback
+    refTable: Reused variables
+    refBack: variable
+    description: Listing of variables from other resources that are reused by this resource
+    profiles:
+    - DataCatalogueFlat
+  - name: repeat unit
+    type: ontology
+    refTable: CatalogueOntologies.Variable repeat units
+    description: The repeat unit, in case the variable was repeatedly collected over time, e.g. month or week
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: repeat min
+    type: int
+    description: The first repeat unit
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: repeat max
+    type: int
+    description: The last repeat unit
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: example values
+    type: string_array
+    description: Example values for this variable
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: permitted values
+    type: refback
+    refTable: Variable values
+    refBack: variable
+    description: Listing of variable values, filled out in Variable values table
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: keywords
+    type: ontology_array
+    refTable: CatalogueOntologies.Keywords
+    description: Keywords that will make the variable easier to find
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: generated_keywords
+    type: ontology_array
+    refTable: CatalogueOntologies.Keywords
+    description: LLM generated keywords, generated based on variable name, label and description
+    profiles:
+    - DataCatalogueFlat
+  - name: vocabularies
+    type: ontology_array
+    refTable: CatalogueOntologies.Vocabularies
+    description: Vocabularies used to express the values of this variable
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: notes
+    type: text
+    description: Any other information on this variable
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+  - name: mappings
+    type: refback
+    refTable: Variable mappings
+    refBack: target variable
+    description: Listing of harmonised variables this variable was mapped to, filled out in Variable mappings table
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts

@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.emx2;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -298,6 +299,47 @@ class Emx2YamlTest {
     Map<String, String> export = Emx2Yaml.toBundleFiles(parsed);
     assertFalse(export.containsKey("tables/Keywords.yaml"));
     assertFalse(export.get("molgenis.yaml").contains("Keywords.yaml"));
+  }
+
+  @Test
+  void headingProfilesRoundtrip() {
+    SchemaMetadata schema = new SchemaMetadata();
+    TableMetadata table = new TableMetadata("Survey");
+    table.add(new Column("id").setKey(1));
+    table.add(
+        new Column("Section A")
+            .setType(ColumnType.HEADING)
+            .setProfiles("ProfileX")
+            .setSemantics("sio:section"));
+    schema.create(table);
+
+    String yaml = Emx2Yaml.toSingleFile(new Emx2YamlBundle(schema, 1, null));
+    SchemaMetadata reparsed = Emx2Yaml.fromBundleFiles(Map.of("molgenis.yaml", yaml)).schema();
+    Column heading = reparsed.getTableMetadata("Survey").getColumn("Section A");
+
+    assertTrue(heading.isHeading());
+    assertArrayEquals(new String[] {"ProfileX"}, heading.getProfiles());
+    assertArrayEquals(new String[] {"sio:section"}, heading.getSemantics());
+  }
+
+  @Test
+  void subclassProfilesRoundtrip() {
+    SchemaMetadata schema = new SchemaMetadata();
+    TableMetadata parent = new TableMetadata("Component");
+    parent.add(new Column("id").setKey(1));
+    schema.create(parent);
+    TableMetadata child = new TableMetadata("Image");
+    child.setInheritNames("Component");
+    child.setProfiles("pages");
+    child.setSemantics("sio:image");
+    schema.create(child);
+
+    String yaml = Emx2Yaml.toSingleFile(new Emx2YamlBundle(schema, 1, null));
+    SchemaMetadata reparsed = Emx2Yaml.fromBundleFiles(Map.of("molgenis.yaml", yaml)).schema();
+    TableMetadata reparsedChild = reparsed.getTableMetadata("Image");
+
+    assertArrayEquals(new String[] {"pages"}, reparsedChild.getProfiles());
+    assertArrayEquals(new String[] {"sio:image"}, reparsedChild.getSemantics());
   }
 
   private static String metadataCsv(SchemaMetadata schema) {

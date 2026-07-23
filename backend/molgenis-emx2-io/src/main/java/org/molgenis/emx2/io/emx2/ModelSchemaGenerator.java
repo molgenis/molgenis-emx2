@@ -136,6 +136,8 @@ public final class ModelSchemaGenerator {
     properties.put("visible", scalarString());
     properties.put(ModelSchemaRules.LABEL, scalarString());
     properties.put(ModelSchemaRules.DESCRIPTION, scalarString());
+    properties.put(ModelSchemaRules.SEMANTICS, stringArray());
+    properties.put(ModelSchemaRules.PROFILES, stringArray());
     properties.put("subclass", scalarString());
     properties.put("module", scalarString());
     verifyCovers(properties.keySet(), Emx2Yaml.HEADING_KEYS, DEF_HEADING);
@@ -157,6 +159,8 @@ public final class ModelSchemaGenerator {
     properties.put(ModelSchemaRules.LABEL, scalarString());
     properties.put(ModelSchemaRules.DESCRIPTION, scalarString());
     properties.put(ModelSchemaRules.TABLE_TYPE, scalarString());
+    properties.put(ModelSchemaRules.SEMANTICS, stringArray());
+    properties.put(ModelSchemaRules.PROFILES, stringArray());
     verifyCovers(properties.keySet(), Emx2Yaml.SUBTABLE_KEYS, DEF_SUBTABLE);
 
     Map<String, Object> definition = new LinkedHashMap<>();
@@ -179,8 +183,8 @@ public final class ModelSchemaGenerator {
     properties.put(ModelSchemaRules.TABLE_TYPE, scalarString());
     properties.put(ModelSchemaRules.SUBCLASSES, arrayOf(ref(DEF_SUBTABLE)));
     properties.put(ModelSchemaRules.MODULES, arrayOf(ref(DEF_SUBTABLE)));
-    properties.put("semantics", stringArray());
-    properties.put("profiles", stringArray());
+    properties.put(ModelSchemaRules.SEMANTICS, stringArray());
+    properties.put(ModelSchemaRules.PROFILES, stringArray());
     properties.put(ModelSchemaRules.IMPORTS, stringArray());
     verifyCovers(properties.keySet(), Emx2Yaml.TABLE_KEYS, DEF_TABLE_FILE);
 

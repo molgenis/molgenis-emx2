@@ -1,0 +1,69 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Subpopulation counts
+  description: Number of participants per cohort age group, optionally divided per sex
+  profiles:
+  - DataCatalogueFlat
+  - CohortsStaging
+  - UMCGCohortsStaging
+  - UMCUCohorts
+  columns:
+  - name: resource
+    type: ref
+    refTable: Resources
+    key: 1
+    required: true
+    description: Resource id
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: subpopulation
+    type: ref
+    refTable: Subpopulations
+    refLink: resource
+    key: 1
+    required: true
+    description: Subpopulations for these counts
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: age group
+    type: ontology
+    refTable: CatalogueOntologies.Age groups
+    key: 1
+    required: true
+    description: Select the age group for these counts
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: N total
+    type: int
+    description: Total number
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: N female
+    type: int
+    description: Number of females
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: N male
+    type: int
+    description: Number of males
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts

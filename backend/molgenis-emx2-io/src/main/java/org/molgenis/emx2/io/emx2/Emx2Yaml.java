@@ -117,10 +117,19 @@ public class Emx2Yaml {
           KEY_VISIBLE,
           KEY_LABEL,
           KEY_DESCRIPTION,
+          KEY_SEMANTICS,
+          KEY_PROFILES,
           KEY_SUBCLASS,
           KEY_MODULE);
   static final Set<String> SUBTABLE_KEYS =
-      Set.of(KEY_NAME, KEY_EXTENDS, KEY_LABEL, KEY_DESCRIPTION, KEY_TABLE_TYPE);
+      Set.of(
+          KEY_NAME,
+          KEY_EXTENDS,
+          KEY_LABEL,
+          KEY_DESCRIPTION,
+          KEY_TABLE_TYPE,
+          KEY_SEMANTICS,
+          KEY_PROFILES);
   static final Set<String> COLUMN_KEYS =
       Set.of(
           KEY_NAME,
@@ -500,6 +509,18 @@ public class Emx2Yaml {
       } else {
         subtable.setTableType(defaultType);
       }
+      if (entry.containsKey(KEY_SEMANTICS)) {
+        subtable.setSemantics(
+            reader
+                .stringList(entry.get(KEY_SEMANTICS), path + "." + KEY_SEMANTICS)
+                .toArray(new String[0]));
+      }
+      if (entry.containsKey(KEY_PROFILES)) {
+        subtable.setProfiles(
+            reader
+                .stringList(entry.get(KEY_PROFILES), path + "." + KEY_PROFILES)
+                .toArray(new String[0]));
+      }
       applyLocalized(reader, entry, path, KEY_LABEL, subtable::setLabel);
       applyLocalized(reader, entry, path, KEY_DESCRIPTION, subtable::setDescription);
       subtables.add(subtable);
@@ -588,6 +609,18 @@ public class Emx2Yaml {
     column.setType(level == 0 ? ColumnType.SECTION : ColumnType.HEADING);
     if (headingMap.containsKey(KEY_VISIBLE)) {
       column.setVisible(reader.scalar(headingMap.get(KEY_VISIBLE), path + "." + KEY_VISIBLE));
+    }
+    if (headingMap.containsKey(KEY_SEMANTICS)) {
+      column.setSemantics(
+          reader
+              .stringList(headingMap.get(KEY_SEMANTICS), path + "." + KEY_SEMANTICS)
+              .toArray(new String[0]));
+    }
+    if (headingMap.containsKey(KEY_PROFILES)) {
+      column.setProfiles(
+          reader
+              .stringList(headingMap.get(KEY_PROFILES), path + "." + KEY_PROFILES)
+              .toArray(new String[0]));
     }
     applyLocalized(reader, headingMap, path, KEY_LABEL, column::setLabel);
     applyLocalized(reader, headingMap, path, KEY_DESCRIPTION, column::setDescription);
@@ -1084,6 +1117,12 @@ public class Emx2Yaml {
       }
       putLocalized(entry, KEY_LABEL, subtable.getLabels());
       putLocalized(entry, KEY_DESCRIPTION, subtable.getDescriptions());
+      if (subtable.getSemantics() != null && subtable.getSemantics().length > 0) {
+        entry.put(KEY_SEMANTICS, List.of(subtable.getSemantics()));
+      }
+      if (subtable.getProfiles() != null && subtable.getProfiles().length > 0) {
+        entry.put(KEY_PROFILES, List.of(subtable.getProfiles()));
+      }
       block.add(entry);
     }
     return block;
@@ -1211,6 +1250,12 @@ public class Emx2Yaml {
     putLocalized(headingMap, KEY_DESCRIPTION, column.getDescriptions());
     if (column.getVisible() != null) {
       headingMap.put(KEY_VISIBLE, column.getVisible());
+    }
+    if (column.getSemantics() != null && column.getSemantics().length > 0) {
+      headingMap.put(KEY_SEMANTICS, List.of(column.getSemantics()));
+    }
+    if (column.getProfiles() != null && column.getProfiles().length > 0) {
+      headingMap.put(KEY_PROFILES, List.of(column.getProfiles()));
     }
     return headingMap;
   }

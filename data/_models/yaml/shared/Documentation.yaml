@@ -1,0 +1,97 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Documentation
+  description: Documentation attached to a resource
+  profiles:
+  - DataCatalogueFlat
+  - CohortsStaging
+  - RWEStaging
+  - NetworksStaging
+  - StudiesStaging
+  - UMCGCohortsStaging
+  - UMCUCohorts
+  - INTEGRATE
+  columns:
+  - name: resource
+    type: ref
+    refTable: Resources
+    key: 1
+    required: true
+    description: The resource this documentation is for
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+  - name: name
+    key: 1
+    required: true
+    description: Document name
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+  - name: type
+    type: ontology
+    refTable: CatalogueOntologies.Document types
+    description: Type of documentation
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+  - name: description
+    type: text
+    description: Description of the document
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+  - name: url
+    type: hyperlink
+    description: Hyperlink to the source of the documentation
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+  - name: file
+    type: file
+    description: Optional file attachment containing the documentation
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE

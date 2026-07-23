@@ -43,6 +43,8 @@ public final class ModelSchemaRules {
   static final String FORMAT_VERSION = "formatVersion";
   static final String LABEL = "label";
   static final String DESCRIPTION = "description";
+  static final String SEMANTICS = "semantics";
+  static final String PROFILES = "profiles";
 
   static final Set<String> REFERENCE_ONLY_ATTRIBUTES =
       Set.of(REF_TABLE, REF_LINK, REF_LABEL, REF_BACK);
@@ -67,9 +69,9 @@ public final class ModelSchemaRules {
     attributes.put("validation", AttributeType.STRING);
     attributes.put("visible", AttributeType.STRING);
     attributes.put("computed", AttributeType.STRING);
-    attributes.put("semantics", AttributeType.STRING_ARRAY);
+    attributes.put(SEMANTICS, AttributeType.STRING_ARRAY);
     attributes.put(VALUES, AttributeType.STRING_ARRAY);
-    attributes.put("profiles", AttributeType.STRING_ARRAY);
+    attributes.put(PROFILES, AttributeType.STRING_ARRAY);
     attributes.put("previousNames", AttributeType.STRING_ARRAY);
     attributes.put(DESCRIPTION, AttributeType.STRING);
     attributes.put(LABEL, AttributeType.STRING);

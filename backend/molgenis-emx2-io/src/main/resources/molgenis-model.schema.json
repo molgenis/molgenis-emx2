@@ -236,6 +236,18 @@
         "description" : {
           "type" : "string"
         },
+        "semantics" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "profiles" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
         "subclass" : {
           "type" : "string"
         },
@@ -276,6 +288,18 @@
         },
         "tableType" : {
           "type" : "string"
+        },
+        "semantics" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "profiles" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
         }
       },
       "patternProperties" : {

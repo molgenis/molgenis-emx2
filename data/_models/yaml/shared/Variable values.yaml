@@ -1,0 +1,134 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Variable values
+  description: Listing of categorical value+label definition in case of a categorical variable
+  profiles:
+  - DataCatalogueFlat
+  - RWEStaging
+  - CohortsStaging
+  - StudiesStaging
+  - NetworksStaging
+  - UMCGCohortsStaging
+  - UMCUCohorts
+  columns:
+  - name: resource
+    type: ref
+    refTable: Resources
+    key: 1
+    required: true
+    description: Resource the variable belongs to
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: table
+    type: ref
+    refTable: Tables
+    refLink: resource
+    key: 1
+    required: true
+    description: Table the variable belongs to
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: variable
+    type: ref
+    refTable: Variables
+    refLink: table
+    key: 1
+    required: true
+    description: Variable name
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: value
+    key: 1
+    required: true
+    description: Variable value, e.g. '1'
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: label
+    required: true
+    description: Variable label, e.g. 'Yes'
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: order
+    type: int
+    description: Order that the variable values should be displayed in
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: is missing
+    type: bool
+    description: Whether this variable value indicates that data is missing, e.g. '-1' for 'NA'
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: ontology term URI
+    type: hyperlink
+    description: Reference to ontology term that defines this categorical value
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: since version
+    description: When this variable value was introduced, if applicable
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: until version
+    description: When this variable value was removed, if applicable
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - NetworksStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts

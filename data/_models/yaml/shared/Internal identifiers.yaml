@@ -1,0 +1,68 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Internal identifiers
+  description: Internal identifier(s) for this resource
+  profiles:
+  - DataCatalogueFlat
+  - EMA
+  - CohortsStaging
+  - RWEStaging
+  - NetworksStaging
+  - StudiesStaging
+  - UMCGCohortsStaging
+  - UMCUCohorts
+  columns:
+  - name: resource
+    type: ref
+    refTable: Resources
+    key: 1
+    required: true
+    description: Resource that this internal identifier belongs to
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: identifier
+    type: text
+    key: 1
+    required: true
+    description: Internal identifier
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: internal identifier type
+    type: ontology
+    refTable: CatalogueOntologies.Internal identifier types
+    description: Internal identifier type
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: internal identifier type other
+    type: text
+    description: If 'other', enter internal identifier type
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts

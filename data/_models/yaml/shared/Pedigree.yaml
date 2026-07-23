@@ -1,0 +1,119 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Pedigree
+  description: Pedigree studies in which the individual is part of.
+  semantics:
+  - obo:NCIT_C27957
+  profiles:
+  - Patient registry
+  - FAIR Genomes
+  columns:
+  - name: id
+    key: 1
+    description: An identifier that is used to identify related pedigree members
+    semantics:
+    - obo:NCIT_C204540
+    profiles:
+    - Patient registry
+    - FAIR Genomes
+  - name: alternate ids
+    type: string_array
+    description: Additional identifiers that identify a pedigree
+    semantics:
+    - obo:NCIT_C90353
+    profiles:
+    - Patient registry
+    - FAIR Genomes
+  - name: disease
+    type: ontology_array
+    refTable: CatalogueOntologies.Diseases
+    semantics:
+    - obo:NCIT_C25209
+    profiles:
+    - Patient registry
+    - FAIR Genomes
+  - name: members
+    type: refback
+    refTable: Pedigree members
+    refBack: pedigree
+    refLabel: ${individual.id}
+    description: List of the family members in the pedigree
+    semantics:
+    - obo:NCIT_C41256
+    profiles:
+    - Patient registry
+    - FAIR Genomes
+  - name: others affected
+    type: bool
+    description: Are there family members, other than the proband, affected by the disease?
+    semantics:
+    - obo:NCIT_C64917
+    profiles:
+    - Patient registry
+  - name: included in resources
+    type: multiselect
+    refTable: Resources
+    description: A reference to one or more resources that organises processes in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)
+    semantics:
+    - obo:HSO_0000370
+    profiles:
+    - Patient registry
+- name: Pedigree members
+  description: Any of the individuals who are descended from a common progenitor, related by marriage or other legal tie, or by a feeling of closeness.
+  semantics:
+  - obo:NCIT_C41256
+  profiles:
+  - Patient registry
+  - FAIR Genomes
+  columns:
+  - name: pedigree
+    type: select
+    refTable: Pedigree
+    key: 1
+    required: true
+    description: Identifier of the family
+    semantics:
+    - obo:NCIT_C25364
+    profiles:
+    - Patient registry
+    - FAIR Genomes
+  - name: individual
+    type: select
+    refTable: Individuals
+    key: 1
+    required: true
+    description: The individual used as a starting point to define a relationship
+    semantics:
+    - obo:NCIT_C25364
+    profiles:
+    - Patient registry
+    - FAIR Genomes
+  - name: relative
+    type: select
+    refTable: Individuals
+    key: 1
+    required: true
+    description: The individual from which a relationship can be determined
+    semantics:
+    - obo:NCIT_C25364
+    profiles:
+    - Patient registry
+    - FAIR Genomes
+  - name: relation
+    type: ontology
+    refTable: CatalogueOntologies.Family relations
+    description: The relationship between two individuals (e.g., proband, mother, father, siblings, etc.)
+    semantics:
+    - obo:NCIT_C198996
+    profiles:
+    - Patient registry
+    - FAIR Genomes
+  - name: affected
+    type: bool
+    description: Is the individual affected by the disease in the pedigree?
+    semantics:
+    - obo:NCIT_C64917
+    profiles:
+    - Patient registry
+    - FAIR Genomes

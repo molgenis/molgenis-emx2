@@ -1,0 +1,146 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Variable mappings
+  description: Mappings from collected or source variables to target or harmonised variables, optionally including ETL syntax
+  profiles:
+  - DataCatalogueFlat
+  - RWEStaging
+  - CohortsStaging
+  - StudiesStaging
+  - UMCGCohortsStaging
+  - UMCUCohorts
+  columns:
+  - name: source
+    type: ref
+    refTable: Resources
+    key: 1
+    required: true
+    description: Id of the resource that contains the source variable(s)
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: source table
+    type: ref
+    refTable: Tables
+    refLink: source
+    key: 1
+    required: true
+    description: Name of the table that contains the source variable(s)
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: source variables
+    type: ref_array
+    refTable: Variables
+    refLink: source table
+    description: Optional, source variable that was mapped from. You may also indicate that a mapping to a target variable was not done and leave this field empty (match = not available)
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: source variables other tables
+    type: ref_array
+    refTable: Variables
+    refLink: source
+    description: Optional, variables from other source tables. Initially one may only define mapping between releases
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: target
+    type: ref
+    refTable: UMCG.Resources
+    key: 1
+    required: true
+    description: Id of the resource that contains the target variable
+    profiles:
+    - UMCGCohortsStaging
+  - name: target table
+    type: ref
+    refTable: UMCG.Tables
+    refLink: target
+    key: 1
+    required: true
+    description: Name of the table that contains the target variable
+    profiles:
+    - UMCGCohortsStaging
+  - name: target variable
+    type: ref
+    refTable: UMCG.Variables
+    refLink: target table
+    key: 1
+    required: true
+    description: Target variable that was mapped to
+    profiles:
+    - UMCGCohortsStaging
+  - name: repeats
+    type: text
+    key: 1
+    required: true
+    defaultValue: NA
+    description: In case of mapping to a repeated variable, specify which repeats were mapped to
+    validation: if(!/^(([0-9]+)((, ?[0-9]+)*)|(NA))$/.test(repeats))'Repeats take the format 1,2,3 or 1, 2, 3 or NA'
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: match
+    type: ontology
+    refTable: CatalogueOntologies.Status details
+    required: true
+    description: Harmonisation match, i.e., complete, partial, na
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: description
+    type: text
+    description: Human readible description of the mapping
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: syntax
+    type: text
+    description: Formal definition of the mapping, ideally in executable code
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+  - name: comments
+    type: text
+    description: Additional notes or comments
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - CohortsStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts

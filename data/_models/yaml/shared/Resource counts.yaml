@@ -1,0 +1,89 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Resource counts
+  description: Quantitative information on the resource
+  profiles:
+  - DataCatalogueFlat
+  - CohortsStaging
+  - RWEStaging
+  - StudiesStaging
+  - INTEGRATE
+  columns:
+  - name: resource
+    type: ref
+    refTable: Resources
+    key: 1
+    description: Resource id
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - StudiesStaging
+    - INTEGRATE
+  - name: age group
+    type: ontology
+    refTable: CatalogueOntologies.Age groups
+    key: 1
+    description: Select the relevant age group for this quantitative information
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - StudiesStaging
+    - INTEGRATE
+  - name: population size
+    type: int
+    description: Total number of unique individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - StudiesStaging
+    - INTEGRATE
+  - name: active size
+    type: int
+    description: Number of unique, active, or currently registered individuals with records captured in the data source (most recent count). In the catalogue, this will accommodate counts per year
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - StudiesStaging
+  - name: no individuals with samples
+    type: int
+    description: Number of unique individuals with records of biological samples (e.g., blood, urine) (most recent count). In the catalogue, this will accommodate counts per year
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - StudiesStaging
+  - name: mean observation years
+    type: int
+    description: Median years for which unique individuals with records captured in the data source are observable (most recent count)
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - StudiesStaging
+  - name: mean years active
+    type: int
+    description: Median time for which unique individuals with records captured in the data source are observable (most recent count)
+    profiles:
+    - DataCatalogueFlat
+    - RWEStaging
+    - StudiesStaging
+  - name: median age
+    type: int
+    description: Median age of individuals within data source
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - StudiesStaging
+    - INTEGRATE
+  - name: proportion female
+    type: int
+    description: Proportion of females in the data source
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - StudiesStaging
+    - INTEGRATE

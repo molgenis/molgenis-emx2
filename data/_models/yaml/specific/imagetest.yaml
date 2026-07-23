@@ -1,0 +1,14 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: User
+  columns:
+  - name: username
+    key: 1
+    required: true
+    profiles:
+    - ImageTest
+  - name: picture
+    type: file
+    profiles:
+    - ImageTest

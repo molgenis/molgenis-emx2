@@ -1,0 +1,232 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Contacts
+  description: Listing of contact persons per resource
+  semantics:
+  - vcard:Kind
+  - vcard:Individual
+  profiles:
+  - DataCatalogueFlat
+  - EMA
+  - CohortsStaging
+  - RWEStaging
+  - NetworksStaging
+  - StudiesStaging
+  - UMCGCohortsStaging
+  - UMCUCohorts
+  - INTEGRATE
+  columns:
+  - name: resource
+    type: ref
+    refTable: Resources
+    key: 1
+    required: true
+    description: Resource the contact is affiliated with
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+  - name: role
+    type: ontology_array
+    refTable: CatalogueOntologies.Contribution types
+    description: Type(s) of contribution or role in the resource
+    semantics:
+    - vcard:hasRole
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+    - FAIR Genomes
+  - name: role description
+    type: text
+    description: Description of the role
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCUCohorts
+    - INTEGRATE
+    - FAIR Genomes
+  - name: first name
+    key: 1
+    required: true
+    description: First name of the contact person
+    semantics:
+    - foaf:firstName
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+    - FAIR Genomes
+  - name: last name
+    key: 1
+    required: true
+    description: Last name of the contact person
+    semantics:
+    - foaf:familyName
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+    - FAIR Genomes
+  - name: display name
+    required: true
+    description: Display name of the contact person
+    semantics:
+    - foaf:name
+    - vcard:hasName
+    - vcard:fn
+    computed: firstName+' '+lastName
+    profiles:
+    - DataCatalogueFlat
+  - name: statement of consent personal data
+    type: bool
+    required: true
+    description: 'Indicate whether this person consents to display the following personal data in the catalogue (which is openly accessible): title, name, email, photo, orcid ID, institute, department, expertise, discipline and role within the resource. These data-items may partly be extracted from the UMCG and/or RUG employee pages. The consent also includes future linkages with other national and international catalogues and platforms to increase visibility and findability (e.g. BBMRI-ERIC, NARCIS) of UMCG-resources. Contributors without a positive statement of consent will not be shown in the UMCG Research Data Catalogue'
+    profiles:
+    - UMCGCohortsStaging
+  - name: prefix
+    description: Surname prefix, if applicable
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+    - FAIR Genomes
+  - name: initials
+    description: Initials of the contact person
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+    - FAIR Genomes
+  - name: title
+    type: ontology
+    refTable: CatalogueOntologies.Titles
+    description: Title of the contact person
+    semantics:
+    - foaf:title
+    profiles:
+    - DataCatalogueFlat
+    - EMA
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+    - FAIR Genomes
+  - name: organisation
+    type: ref
+    refTable: Organisations
+    description: Affiliated organisation of the contact person
+    semantics:
+    - foaf:Organization
+    profiles:
+    - FAIR Genomes
+    - Beacon v2
+  - name: email
+    type: email
+    required: if(resource?.hricore === true) 'This field is mandatory for HRICore compatibility'
+    description: Contact's email address
+    semantics:
+    - vcard:hasEmail
+    - foaf:mbox
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+    - FAIR Genomes
+  - name: orcid
+    description: Orcid of the contact person
+    semantics:
+    - dcterms:identifier
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+  - name: homepage
+    type: hyperlink
+    description: Link to contact's homepage
+    semantics:
+    - vcard:url
+    - foaf:workplaceHomepage
+    - vcard:hasURL
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - UMCUCohorts
+    - INTEGRATE
+  - name: photo
+    type: file
+    description: Contact's photograph
+    semantics:
+    - foaf:img
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+  - name: expertise
+    description: Description of contact's expertise
+    profiles:
+    - DataCatalogueFlat
+    - CohortsStaging
+    - RWEStaging
+    - NetworksStaging
+    - StudiesStaging
+    - UMCGCohortsStaging
+    - INTEGRATE
