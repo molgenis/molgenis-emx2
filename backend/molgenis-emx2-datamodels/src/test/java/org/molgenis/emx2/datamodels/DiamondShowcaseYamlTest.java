@@ -7,12 +7,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DiamondShowcaseYamlTest {
 
+  private static final String DIAMOND_TEMPLATE = "diamond";
   private static final String SCHEMA_NAME = "DiamondShowcaseYamlTest";
   private static final String COMPANION_SCHEMA_NAME = "diamontologies";
 
@@ -33,9 +33,7 @@ class DiamondShowcaseYamlTest {
     database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(SCHEMA_NAME);
     database.dropSchemaIfExists(COMPANION_SCHEMA_NAME);
-    SchemaLoaderSettings settings =
-        new SchemaLoaderSettings(database, SCHEMA_NAME, "Diamond showcase (YAML) smoke test", true);
-    new DiamondShowcaseYamlLoader(settings).run();
+    new YamlWorkspaceLoader().create(database, DIAMOND_TEMPLATE, SCHEMA_NAME, true);
     schema = database.getSchema(SCHEMA_NAME);
     companionSchema = database.getSchema(COMPANION_SCHEMA_NAME);
   }

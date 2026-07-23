@@ -18,6 +18,7 @@ import org.molgenis.emx2.Table;
 class YamlWorkspaceLoaderTest extends TestLoaders {
 
   private static final String CATALOGUE = "catalogue";
+  private static final String DIAMOND = "diamond";
   private static final String RD3 = "rd3";
   private static final String CONTACTS = "Contacts";
   private static final String COLLECTIONS = "Collections";
@@ -52,7 +53,7 @@ class YamlWorkspaceLoaderTest extends TestLoaders {
 
   @Test
   void discoveryFindsBothBundlesAndCreatesBothSchemas() {
-    assertEquals(List.of(CATALOGUE, RD3), loader.templates());
+    assertEquals(List.of(CATALOGUE, DIAMOND, RD3), loader.templates());
     assertNotNull(
         database.getSchema(CATALOGUE_NO_DEMO).getTable(COLLECTIONS),
         "catalogue schema must have Collections");
@@ -101,7 +102,7 @@ class YamlWorkspaceLoaderTest extends TestLoaders {
   void availableTemplatesCarryYamlLabelAndDemoFlag() {
     List<YamlWorkspaceLoader.TemplateInfo> available = loader.availableTemplates();
     assertEquals(
-        List.of(CATALOGUE, RD3),
+        List.of(CATALOGUE, DIAMOND, RD3),
         available.stream().map(YamlWorkspaceLoader.TemplateInfo::name).toList());
     YamlWorkspaceLoader.TemplateInfo catalogue = available.get(0);
     assertEquals(

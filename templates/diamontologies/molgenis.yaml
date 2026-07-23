@@ -3,3 +3,5 @@ version: 1.0.0
 tables:
 - tables/DiseaseCategories.yaml
 - tables/AssayCategories.yaml
+data:
+- data

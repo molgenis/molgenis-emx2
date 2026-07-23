@@ -61,8 +61,7 @@ public class DataModels {
     BIOBANK_DIRECTORY_STAGING(
         (schemaLoaderSettings ->
             new BiobankDirectoryLoader(schemaLoaderSettings).setStaging(true))),
-    DIAMOND_SHOWCASE(DiamondShowcaseLoader::new),
-    DIAMOND_SHOWCASE_YAML(DiamondShowcaseYamlLoader::new);
+    DIAMOND_SHOWCASE(DiamondShowcaseLoader::new);
 
     public static boolean hasRegular(String nameOther) {
       return Arrays.stream(values()).anyMatch(regular -> regular.name().equals(nameOther));
