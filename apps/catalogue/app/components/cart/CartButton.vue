@@ -47,7 +47,7 @@ function onInput() {
   />
   <label
     v-else
-    class="inline-flex items-center px-2 py-1 rounded-base cursor-pointer align-middle"
+    class="inline-flex items-center px-1 py-1 rounded-base cursor-pointer align-middle"
     :class="{
       'text-button-cart-add hover:text-button-cart-add-hover': !isInCart,
       'text-button-cart-remove bg-button-cart-remove': isInCart,
@@ -58,6 +58,11 @@ function onInput() {
       :width="21"
     />
     <span class="sr-only">{{ label }}</span>
-    <input type="checkbox" class="sr-only" :checked="isInCart" @input="onInput" />
+    <input
+      type="checkbox"
+      class="sr-only"
+      :checked="isInCart"
+      @input="onInput"
+    />
   </label>
 </template>

@@ -5,10 +5,7 @@ import type { IResources, IVariables } from "../../../interfaces/catalogue";
 import { calcAggregatedHarmonisationStatus } from "~/utils/harmonisation";
 import { getKey } from "../../utils/variableUtils";
 import { resourceIdPath } from "../../utils/urlHelpers";
-import {
-  resourceToCartItem,
-  variableToCartItem,
-} from "../../utils/cartItem";
+import { resourceToCartItem, variableToCartItem } from "../../utils/cartItem";
 import { useCartStore } from "../../stores/useCartStore";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
@@ -80,7 +77,7 @@ let activeVariablePath = computed(() =>
 
         <template #row="rowProps">
           <div
-            class="flex items-center text-body-base text-link font-normal hover:underline px-2 cursor-pointer"
+            class="flex items-center gap-1 text-body-base text-link font-normal hover:underline px-2 cursor-pointer"
             @click="activeRowIndex = rowProps.value.rowIndex"
           >
             <CartButton
