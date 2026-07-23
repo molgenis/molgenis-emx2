@@ -26,7 +26,7 @@ const blocksOpen = ref<boolean>(true);
       role="button"
       tabindex="0"
       :aria-expanded="componentsOpen"
-      aria-controls="???"
+      aria-controls="draggable-components"
       @click="componentsOpen = !componentsOpen"
     >
       <h3
@@ -41,7 +41,7 @@ const blocksOpen = ref<boolean>(true);
         <BaseIcon name="caret-up" :width="26" />
       </span>
     </div>
-    <div v-if="componentsOpen" class="px-5 pb-5">
+    <div v-if="componentsOpen" class="px-5 pb-5" id="draggable-components">
       <ul>
         <li>
           <DraggableComponent
@@ -73,7 +73,7 @@ const blocksOpen = ref<boolean>(true);
       role="button"
       tabindex="0"
       :aria-expanded="blocksOpen"
-      aria-controls="???"
+      aria-controls="draggable-blocks"
       @click="blocksOpen = !blocksOpen"
     >
       <h3
@@ -88,7 +88,7 @@ const blocksOpen = ref<boolean>(true);
         <BaseIcon name="caret-up" :width="26" />
       </span>
     </div>
-    <div v-if="blocksOpen" class="px-5 pb-5">
+    <div v-if="blocksOpen" class="px-5 pb-5" id="draggable-blocks">
       <ul>
         <li>
           <DraggableComponent
