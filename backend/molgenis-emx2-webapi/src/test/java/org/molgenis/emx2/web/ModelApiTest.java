@@ -28,6 +28,7 @@ class ModelApiTest extends ApiTestBase {
   private static final String ATOMIC_SCHEMA = "ModelApiTestAtomic";
   private static final String ATOMIC_COMPANION = "ModelApiTestAtomicCompanion";
   private static final String TABLE_ADD_SCHEMA = "ModelApiTestTableAdd";
+  private static final String REF_ORDER_SCHEMA = "ModelApiTestRefOrder";
   private static final String PREVIOUS_NAMES_SCHEMA = "ModelApiTestPreviousNames";
   private static final String BUNDLE_REF_SCHEMA = "ModelApiTestBundleRef";
   private static final String RENAME_FALLBACK_SCHEMA = "ModelApiTestRenameFallback";
@@ -345,6 +346,39 @@ class ModelApiTest extends ApiTestBase {
             .filter(column -> !column.isSystemColumn())
             .map(org.molgenis.emx2.Column::getName)
             .toList());
+  }
+
+  @Test
+  void tableAddsWithForwardRefApplyInDependencyOrder() {
+    database.dropCreateSchema(REF_ORDER_SCHEMA);
+
+    // a table that refs another same-schema table declared AFTER it (Endpoint.publisher -> Agents)
+    String bundle =
+        """
+        formatVersion: 1
+        version: 1.0.0
+        tables:
+        - name: Endpoint
+          columns:
+          - name: id
+            key: 1
+          - name: publisher
+            type: ref_array
+            refTable: Agents
+        - name: Agents
+          columns:
+          - name: id
+            key: 1
+        """;
+
+    putModel(REF_ORDER_SCHEMA, bundle, "").then().statusCode(200);
+    database.clearCache();
+    Schema applied = database.getSchema(REF_ORDER_SCHEMA);
+    assertNotNull(applied.getTable("Endpoint"));
+    assertNotNull(applied.getTable("Agents"));
+    assertEquals(
+        "Agents",
+        applied.getTable("Endpoint").getMetadata().getColumn("publisher").getRefTableName());
   }
 
   @Test

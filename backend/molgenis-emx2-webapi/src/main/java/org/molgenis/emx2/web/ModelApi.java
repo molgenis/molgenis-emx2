@@ -306,12 +306,12 @@ public class ModelApi {
   }
 
   private static void applyPlan(Schema txSchema, SchemaMetadata desired, MigrationPlan plan) {
-    Set<String> tablesToAdd = new LinkedHashSet<>();
+    List<TableMetadata> tablesToAdd = new ArrayList<>();
     for (TableRef add : plan.tableAdds()) {
-      tablesToAdd.add(add.table());
+      tablesToAdd.add(desired.getTableMetadata(add.table()));
     }
-    for (String tableName : orderTableAddsByInheritance(desired, tablesToAdd)) {
-      txSchema.create(desired.getTableMetadata(tableName));
+    if (!tablesToAdd.isEmpty()) {
+      txSchema.create(tablesToAdd.toArray(new TableMetadata[0]));
     }
     Set<String> renamedTargets = new LinkedHashSet<>();
     for (ColumnRename rename : plan.columnRenames()) {
@@ -334,35 +334,6 @@ public class ModelApi {
     for (int index = drops.size() - 1; index >= 0; index--) {
       txSchema.dropTable(drops.get(index).table());
     }
-  }
-
-  private static List<String> orderTableAddsByInheritance(
-      SchemaMetadata desired, Set<String> tablesToAdd) {
-    List<String> ordered = new ArrayList<>();
-    Set<String> visited = new LinkedHashSet<>();
-    for (String tableName : desired.getTableNames()) {
-      if (tablesToAdd.contains(tableName)) {
-        visitTableAdd(tableName, desired, tablesToAdd, visited, ordered);
-      }
-    }
-    return ordered;
-  }
-
-  private static void visitTableAdd(
-      String tableName,
-      SchemaMetadata desired,
-      Set<String> tablesToAdd,
-      Set<String> visited,
-      List<String> ordered) {
-    if (!visited.add(tableName)) {
-      return;
-    }
-    for (String parent : desired.getTableMetadata(tableName).getInheritNames()) {
-      if (tablesToAdd.contains(parent)) {
-        visitTableAdd(parent, desired, tablesToAdd, visited, ordered);
-      }
-    }
-    ordered.add(tableName);
   }
 
   private static void applyAttributeChanges(
