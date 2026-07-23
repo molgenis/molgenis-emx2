@@ -147,7 +147,6 @@ async def main():
                 "part of",
             ]
         )
-        # collections = convert_biobanks_to_collections(data["Biobanks"].copy(), biobank_mappings)
         collections = convert_collections_to_collections(data["Collections"].copy(), mappings)
         collections = collections.reindex(
             columns=[
@@ -187,7 +186,7 @@ async def main():
         ] += " (juridical person)"
         # Ensure biobanks have a distinct name from collections
         biobanks.loc[biobanks["name"].isin(collections["name"]), "name"] += " (biobank)"
-        # Ensure organisations derived from 0-collection biobanks have a distinct name from collections
+        # Ensure organisations derived from 0-coll biobanks have a distinct name from collections
         organisations.loc[
             organisations["name"].isin(collections["name"]), "name"
         ] += " (organisation)"
