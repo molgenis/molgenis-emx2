@@ -70,17 +70,23 @@
     --radius-base: 3px;
     --radius-alt: 50px;
 
-    --background-image-sidebar-gradient: linear-gradient(180deg,
-        var(--color-gray-50) -24.76%,
-        var(--color-gray-50) 86.02%);
+    --background-image-sidebar-gradient: linear-gradient(
+      180deg,
+      var(--color-gray-50) -24.76%,
+      var(--color-gray-50) 86.02%
+    );
 
-    --background-image-base-gradient: linear-gradient(180deg,
-        #ffffff,
-        #ffffff 133.81%);
+    --background-image-base-gradient: linear-gradient(
+      180deg,
+      #ffffff,
+      #ffffff 133.81%
+    );
 
-    --background-color-bulk-gradient: linear-gradient(90deg,
-        #ffffff 0%,
-        #ffffff 100%);
+    --background-color-bulk-gradient: linear-gradient(
+      90deg,
+      #ffffff 0%,
+      #ffffff 100%
+    );
 
     --opacity-background-gradient: 0;
 
@@ -363,7 +369,9 @@
   transform: translateX(-100%);
 }
 
-.v-popper_right .v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
+.v-popper_right
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
   transform: translateX(100%);
 }
 
@@ -372,6 +380,8 @@
   bottom: 0;
 }
 
-.v-popper_bottom .v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
+.v-popper_bottom
+  .v-popper__popper--no-positioning.v-popper__popper--hidden
+  .v-popper__wrapper {
   transform: translateY(100%);
 }
