@@ -79,6 +79,8 @@ public class Emx2Yaml {
   private static final String KEY_SECTION = "section";
   private static final String KEY_HEADING = "heading";
   private static final String KEY_DROP = "drop";
+  static final String KEY_DATA = "data";
+  static final String KEY_DEMO = "demo";
 
   private static final Pattern VERSION_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
 
@@ -100,7 +102,9 @@ public class Emx2Yaml {
           KEY_SETTINGS,
           KEY_IMPORTS,
           KEY_NAMESPACES,
-          KEY_ADDITIONAL_SCHEMAS);
+          KEY_ADDITIONAL_SCHEMAS,
+          KEY_DATA,
+          KEY_DEMO);
   static final Set<String> TABLE_KEYS =
       Set.of(
           KEY_NAME,
@@ -291,8 +295,24 @@ public class Emx2Yaml {
           "version '" + version + "' must be numeric MAJOR.MINOR.PATCH (for example 1.0.0)",
           root.get(KEY_VERSION));
     }
+    List<String> dataFiles = bundleFileList(reader, root.get(KEY_DATA), "bundle." + KEY_DATA);
+    List<String> demoFiles = bundleFileList(reader, root.get(KEY_DEMO), "bundle." + KEY_DEMO);
     return new Emx2YamlBundle(
-        schema, formatVersion, version, namespaces, tables.previousNames(), tables.drops());
+        schema,
+        formatVersion,
+        version,
+        namespaces,
+        tables.previousNames(),
+        tables.drops(),
+        dataFiles,
+        demoFiles);
+  }
+
+  private static List<String> bundleFileList(YamlDocumentReader reader, Node node, String path) {
+    if (node == null) {
+      return List.of();
+    }
+    return reader.scalarOrStringList(node, path);
   }
 
   private static int readFormatVersion(

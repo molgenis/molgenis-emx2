@@ -1,0 +1,13 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- shared/Contacts.yaml
+- shared/Organisations.yaml
+- catalogue/tables/Collections.yaml
+additionalSchemas:
+  CatalogueOntologies:
+    bundle: catalogueOntologies/molgenis.yaml
+data:
+- catalogue/data
+demo:
+- catalogue/demo

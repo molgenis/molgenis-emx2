@@ -1,0 +1,8 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- rd3/Contacts.yaml
+- shared/Organisations.yaml
+- rd3/tables/Subjects.yaml
+demo:
+- rd3/demo

@@ -34,6 +34,7 @@ class ModelApiTest extends ApiTestBase {
   private static final String DROP_SCHEMA = "ModelApiTestDrop";
   private static final String PERMISSION_ROOT_SCHEMA = "ModelApiTestPermissionRoot";
   private static final String PERMISSION_COMPANION = "ModelApiTestPermissionOnt";
+  private static final String DATA_DEMO_SCHEMA = "ModelApiTestDataDemo";
 
   @BeforeAll
   static void setup() {
@@ -571,5 +572,41 @@ class ModelApiTest extends ApiTestBase {
     // the merged persisted chain reached ModelDiff: a rename, not a drop + add
     assertTrue(plan.contains("columnRenames"));
     assertTrue(plan.contains("fromColumn"));
+  }
+
+  @Test
+  void dataAndDemoKeysAreIgnoredWithWarning() {
+    createPersonSchema(DATA_DEMO_SCHEMA);
+
+    // a bundle carrying data:/demo: keys is accepted, but those keys are not the model API's job:
+    // they are loaded by templates/loaders, so the API ignores them and warns
+    String bundle =
+        """
+        formatVersion: 1
+        version: 2.0.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+          - name: email
+        data:
+        - catalogue/data
+        demo:
+        - catalogue/demo
+        """;
+
+    Response dryRun = putModel(DATA_DEMO_SCHEMA, bundle, "?dryRun=true");
+    dryRun.then().statusCode(200);
+    String plan = dryRun.body().asString();
+    assertTrue(
+        plan.contains("ignoring 'data' key"), "data: key must surface an ignored-key warning");
+    assertTrue(
+        plan.contains("ignoring 'demo' key"), "demo: key must surface an ignored-key warning");
+
+    // apply still succeeds: the model change lands, the ignored keys never block it
+    putModel(DATA_DEMO_SCHEMA, bundle, "").then().statusCode(200);
+    assertTrue(getModel(DATA_DEMO_SCHEMA).contains("email"));
   }
 }

@@ -44,6 +44,10 @@ public class ModelApi {
   public static final String MG_PREVIOUS_NAMES = "mg_previous_names";
 
   private static final String ROOT_FILE = "molgenis.yaml";
+  private static final String IGNORED_DATA_WARNING =
+      "ignoring 'data' key: bundle data content is loaded by templates/loaders, not the model API";
+  private static final String IGNORED_DEMO_WARNING =
+      "ignoring 'demo' key: bundle demo content is loaded by templates/loaders, not the model API";
   private static final ObjectMapper JSON = new ObjectMapper();
   private static final TypeReference<Map<String, Map<String, List<String>>>> PREVIOUS_NAMES_TYPE =
       new TypeReference<>() {};
@@ -94,6 +98,7 @@ public class ModelApi {
     MigrationPlan plan = ModelDiff.diff(bundle, schema.getMetadata());
     String storedVersion = schema.getMetadata().getSetting(MG_MODEL_VERSION);
     List<String> companionWarnings = companionWarnings(schema.getDatabase(), companions);
+    companionWarnings.addAll(ignoredKeyWarnings(parsed));
 
     if (dryRun) {
       ctx.contentType(ACCEPT_JSON);
@@ -145,6 +150,17 @@ public class ModelApi {
     body.put("plan", plan);
     body.put("companionWarnings", companionWarnings);
     return body;
+  }
+
+  private static List<String> ignoredKeyWarnings(Emx2YamlBundle parsed) {
+    List<String> warnings = new ArrayList<>();
+    if (!parsed.dataFiles().isEmpty()) {
+      warnings.add(IGNORED_DATA_WARNING);
+    }
+    if (!parsed.demoFiles().isEmpty()) {
+      warnings.add(IGNORED_DEMO_WARNING);
+    }
+    return warnings;
   }
 
   private static List<String> companionWarnings(

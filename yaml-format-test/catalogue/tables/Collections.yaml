@@ -1,0 +1,10 @@
+name: Collections
+description: Catalogue collections referencing a companion ontology
+columns:
+- name: collectionId
+  key: 1
+  required: true
+- name: title
+- name: country
+  type: ontology
+  refTable: CatalogueOntologies.Countries

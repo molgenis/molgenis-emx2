@@ -26,8 +26,7 @@ import org.molgenis.emx2.io.emx2.Emx2Yaml;
  */
 public class SchemaFromProfileYaml {
 
-  public static final String SHARED_YAML_DIR = "/_models/yaml/shared";
-  public static final String SPECIFIC_YAML_DIR = "/_models/yaml/specific";
+  public static final String CSV_PARITY_YAML_DIR = "/yaml-format-test/csv-parity";
 
   private static final String MOLGENIS_YAML = "molgenis.yaml";
   private static final String PROFILES = "profiles";
@@ -61,8 +60,7 @@ public class SchemaFromProfileYaml {
     List<String> selected = this.profiles.getProfileTagsList();
     List<Row> keepRows = new ArrayList<>();
     try {
-      keepRows.addAll(sliceModelsInDirectory(SHARED_YAML_DIR, selected));
-      keepRows.addAll(sliceModelsInDirectory(SPECIFIC_YAML_DIR, selected));
+      keepRows.addAll(sliceModelsInDirectory(CSV_PARITY_YAML_DIR, selected));
     } catch (URISyntaxException | IOException exception) {
       throw new MolgenisException(exception.getMessage(), exception);
     }

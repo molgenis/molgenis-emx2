@@ -472,6 +472,32 @@
         },
         "additionalSchemas" : {
           "type" : "object"
+        },
+        "data" : {
+          "anyOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          ]
+        },
+        "demo" : {
+          "anyOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          ]
         }
       },
       "unevaluatedProperties" : false

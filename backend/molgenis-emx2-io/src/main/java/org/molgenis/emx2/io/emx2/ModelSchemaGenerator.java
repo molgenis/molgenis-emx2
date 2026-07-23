@@ -228,6 +228,8 @@ public final class ModelSchemaGenerator {
     properties.put(ModelSchemaRules.IMPORTS, stringArray());
     properties.put(ModelSchemaRules.NAMESPACES, objectSchema());
     properties.put(Emx2Yaml.KEY_ADDITIONAL_SCHEMAS, objectSchema());
+    properties.put(Emx2Yaml.KEY_DATA, stringOrStringArray());
+    properties.put(Emx2Yaml.KEY_DEMO, stringOrStringArray());
     verifyCovers(properties.keySet(), Emx2Yaml.BUNDLE_KEYS, DEF_BUNDLE);
 
     Map<String, Object> definition = new LinkedHashMap<>();

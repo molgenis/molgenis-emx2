@@ -21,24 +21,22 @@ sourceSets {
     }
 }
 
-def corpusModelsDir = file("$rootDir/data/_models")
-def corpusYamlDir = file("$rootDir/data/_models/yaml")
+def workspaceDir = file("$rootDir/yaml-format-test")
 def modelSchemaArtifact = file("$rootDir/backend/molgenis-emx2-io/src/main/resources/molgenis-model.schema.json")
 
-tasks.register('convertModelCorpus', JavaExec) {
-    dependsOn 'classes'
-    mainClass = 'org.molgenis.emx2.datamodels.profiles.Emx2CorpusYamlConverter'
-    classpath = sourceSets.main.runtimeClasspath
-    args corpusModelsDir.absolutePath, corpusYamlDir.absolutePath
+tasks.named('processTestResources') {
+    from(workspaceDir) {
+        into 'yaml-format-test'
+    }
 }
 
-tasks.register('validateModelCorpus', JavaExec) {
+tasks.register('validateYamlWorkspace', JavaExec) {
     dependsOn 'classes'
     mainClass = 'org.molgenis.emx2.io.emx2.ModelSchemaTool'
     classpath = sourceSets.main.runtimeClasspath
-    args 'validate-fixtures', corpusYamlDir.absolutePath, modelSchemaArtifact.absolutePath
+    args 'validate-fixtures', workspaceDir.absolutePath, modelSchemaArtifact.absolutePath
 }
 
 tasks.named('check') {
-    dependsOn 'validateModelCorpus'
+    dependsOn 'validateYamlWorkspace'
 }
