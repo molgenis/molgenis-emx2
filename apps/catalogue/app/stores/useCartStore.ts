@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+import { onNuxtReady } from "#app";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { computed, reactive, ref, watch } from "vue";
 import type { ICart, ICartItem } from "../../interfaces/types";
@@ -34,20 +35,24 @@ export const useCartStore = defineStore("cart", () => {
 
   const CART_STORAGE_KEY = "emx2-catalogue-cart";
 
+  // load after hydration: reading localStorage during setup would make the
+  // first client render differ from the server render
   if (import.meta.client) {
-    try {
-      const saved = window.localStorage.getItem(CART_STORAGE_KEY);
-      if (saved) {
-        for (const item of JSON.parse(saved) as ICartItem[]) {
-          cart.set(item.id, item);
+    onNuxtReady(() => {
+      try {
+        const saved = window.localStorage.getItem(CART_STORAGE_KEY);
+        if (saved) {
+          for (const item of JSON.parse(saved) as ICartItem[]) {
+            cart.set(item.id, item);
+          }
         }
+      } catch {
+        window.localStorage.removeItem(CART_STORAGE_KEY);
       }
-    } catch {
-      window.localStorage.removeItem(CART_STORAGE_KEY);
-    }
 
-    watch(cartItems, (items) => {
-      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      watch(cartItems, (items) => {
+        window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      });
     });
   }
 
