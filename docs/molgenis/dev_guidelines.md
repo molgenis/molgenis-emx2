@@ -211,6 +211,7 @@ This to make debugging more easily.
 Instead, during a `@BeforeAll`/`@BeforeEach`, the relevant test schema is dropped and created again.
 
 Example:
+
 ```java
 class MyClassTest {
   static Database database;
