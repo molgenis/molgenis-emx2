@@ -3,7 +3,7 @@ import { useMouse } from "@vueuse/core";
 import { useElementBounding } from "@vueuse/core";
 import { ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
-import { useRafFn } from "@vueuse/core";
+import { useRafFn as useAnimationFrame } from "@vueuse/core";
 import { addBlock, addComponent } from "../../utils/cms";
 import type { IDraggingInfo } from "../../../types/cms";
 const scroll = useWindowScroll();
@@ -33,7 +33,7 @@ const distance = ref<number>(Infinity);
 const canPlace = ref<boolean>(false);
 const hover = ref<boolean>(false);
 
-useRafFn(() => {
+useAnimationFrame(() => {
   canPlace.value =
     props.draggingInfo.dragging &&
     props.draggingInfo.componentType === props.componentType;

@@ -321,8 +321,3 @@ export interface IDraggingInfo {
   componentName: string;
   componentType: string;
 }
-export interface IDraggingInfo {
-  dragging: boolean;
-  componentName: string;
-  componentType: string;
-}
