@@ -28,7 +28,7 @@ const error = ref("");
 
 const storeError = computed(
   () =>
-    `An error occurred while communicating with the ${cartStore.getVersionText()}. Please try again later.`
+    `An error occurred while communicating with the ${cartStore.versionText}. Please try again later.`
 );
 
 const sections = computed(() => [
@@ -72,7 +72,7 @@ async function sendToStore() {
     @close="onClose"
   >
     <ContentBlockModal title="Shopping cart">
-      <template v-if="!cartStore.isEmpty()">
+      <template v-if="!cartStore.isEmpty">
         <p class="mb-2">Review your selection</p>
         <section
           v-for="section in sections"
@@ -103,14 +103,14 @@ async function sendToStore() {
         </section>
       </template>
       <p v-else>Cart is empty</p>
-      <p v-if="!cartStore.isEmpty() && !cartStore.resourcesInCart.length">
+      <p v-if="!cartStore.isEmpty && !cartStore.resourcesInCart.length">
         Select at least one collection to send a request.
       </p>
       <FormError v-if="error" :message="error" :showPrevNextButtons="false" />
     </ContentBlockModal>
     <template #footer>
       <Button
-        :label="`Request from ${cartStore.getVersionText()}`"
+        :label="`Request from ${cartStore.versionText}`"
         :disabled="!cartStore.resourcesInCart.length"
         icon="external-link"
         @click="sendToStore"

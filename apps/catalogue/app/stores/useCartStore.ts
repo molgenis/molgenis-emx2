@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { onNuxtReady } from "#app";
+import { onNuxtReady, useRuntimeConfig } from "#app";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { computed, reactive, ref, watch } from "vue";
 import type { ICart, ICartItem } from "../../interfaces/types";
@@ -35,7 +35,9 @@ export const useCartStore = defineStore("cart", () => {
     cartItemsOfType(cartItems.value, "variable")
   );
 
-  const CART_STORAGE_KEY = "emx2-catalogue-cart";
+  const CART_STORAGE_KEY = `emx2-catalogue-cart:${
+    useRuntimeConfig().public.schema
+  }`;
 
   // load after hydration: reading localStorage during setup would make the
   // first client render differ from the server render
@@ -77,9 +79,7 @@ export const useCartStore = defineStore("cart", () => {
     return cart.has(itemId);
   }
 
-  function isEmpty() {
-    return cart.size === 0;
-  }
+  const isEmpty = computed(() => cart.size === 0);
 
   function clearCart() {
     cart.clear();
@@ -116,14 +116,14 @@ export const useCartStore = defineStore("cart", () => {
     }
   }
 
-  function getVersionText() {
+  const versionText = computed(() => {
     switch (catalogueStoreVersion.value) {
       case "negotiatorV3":
         return "Negotiator";
       default:
         return "Unknown data store";
     }
-  }
+  });
 
   return {
     cart,
@@ -134,7 +134,7 @@ export const useCartStore = defineStore("cart", () => {
     addToCart,
     clearCart,
     doCartRequest,
-    getVersionText,
+    versionText,
     removeFromCart,
     isInCart,
     isEmpty,
