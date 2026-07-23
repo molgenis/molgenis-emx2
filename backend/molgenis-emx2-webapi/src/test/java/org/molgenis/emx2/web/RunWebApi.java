@@ -15,6 +15,6 @@ public class RunWebApi {
     PET_STORE.getImportTask(db, "pet store", "", true).run();
 
     new MolgenisWebservice()
-        .start(RunMolgenisEmx2.resolveHttpPort(args, RunMolgenisEmx2::systemPropertyOrEnvironment));
+        .start(RunMolgenisEmx2.resolveHttpPort(args, RunMolgenisEmx2::environmentLookup));
   }
 }

@@ -41,12 +41,8 @@ public class RunMolgenisEmx2 {
 
   public static final int DEFAULT_HTTP_PORT = 8080;
 
-  public static String systemPropertyOrEnvironment(String name) {
-    String systemProperty = System.getProperty(name);
-    if (systemProperty != null) {
-      return systemProperty;
-    }
-    return System.getenv(name);
+  public static String environmentLookup(String name) {
+    return (String) EnvironmentProperty.getParameter(name, null, ColumnType.STRING);
   }
 
   public static int resolveHttpPort(String[] args, UnaryOperator<String> environmentLookup) {
@@ -73,7 +69,7 @@ public class RunMolgenisEmx2 {
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
 
-    int port = resolveHttpPort(args, RunMolgenisEmx2::systemPropertyOrEnvironment);
+    int port = resolveHttpPort(args, RunMolgenisEmx2::environmentLookup);
 
     logger.info(
         "with "
