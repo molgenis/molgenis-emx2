@@ -16,7 +16,6 @@ import TableSticky from "../table/Sticky.vue";
 import HarmonisationTableCellAvailableIcon from "./HarmonisationTableCellAvailableIcon.vue";
 import VariableDisplay from "../VariableDisplay.vue";
 import type { IVariableMappings } from "~~/interfaces/types";
-import Checkbox from "../../../../tailwind-components/app/components/input/Checkbox.vue";
 import CartButton from "../cart/CartButton.vue";
 
 const route = useRoute();
@@ -62,35 +61,35 @@ let activeVariablePath = computed(() =>
         class="h-screen overflow-auto"
       >
         <template #column="columnProps">
-          <div
-            class="hover:bg-gray-100 text-link font-normal min-w-[2rem] rotate-180 [writing-mode:vertical-lr] max-h-title min-h-title hover:max-h-none truncate hover:text-clip hover:overflow-visible"
-          >
-          <CartButton
-            v-if="cartStore.isEnabled"
-            :item="resourceToCartItem(columnProps.value)"
-            :compact="true"
-          />
-            <span
-              class="hover:bg-gray-100 hover:flex items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
+          <div class="flex flex-col items-center min-h-title max-h-title">
+            <CartButton
+              v-if="cartStore.isEnabled"
+              :item="resourceToCartItem(columnProps.value)"
+            />
+            <div
+              class="flex-1 min-h-0 hover:bg-gray-100 text-link font-normal min-w-[2rem] rotate-180 [writing-mode:vertical-lr] truncate hover:text-clip hover:overflow-visible"
             >
-              {{ columnProps.value.id }}
-            </span>
+              <span
+                class="hover:bg-gray-100 hover:flex items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
+              >
+                {{ columnProps.value.id }}
+              </span>
+            </div>
           </div>
         </template>
 
         <template #row="rowProps">
           <div
-            class="text-body-base text-link font-normal hover:underline px-2 cursor-pointer truncate hover:text-clip hover:overflow-visible"
+            class="flex items-center text-body-base text-link font-normal hover:underline px-2 cursor-pointer"
             @click="activeRowIndex = rowProps.value.rowIndex"
           >
             <CartButton
               v-if="cartStore.isEnabled"
               :item="variableToCartItem(rowProps.value.row)"
-              :compact="true"
               @click.stop
             />
             <span
-              class="hover:bg-gray-100 hover:inline-block hover:border-r hover:pr-3 z-50"
+              class="min-w-0 truncate hover:text-clip hover:overflow-visible hover:bg-gray-100 hover:border-r hover:pr-3 z-50"
             >
               {{ rowProps.value.row.name }}
             </span>

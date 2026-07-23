@@ -8,11 +8,10 @@ import { useCartStore } from "../../stores/useCartStore";
 const props = withDefaults(
   defineProps<{
     item: ICartItem;
-    compact?: boolean;
-    isButton?: boolean;
+    variant?: "button" | "icon";
   }>(),
   {
-    compact: false,
+    variant: "icon",
   }
 );
 
@@ -21,6 +20,10 @@ const cartStore = useCartStore();
 const isInCart = computed(() => {
   return cartStore.isInCart(props.item.id);
 });
+
+const label = computed(() =>
+  isInCart.value ? "Remove from cart" : "Add to cart"
+);
 
 function onInput() {
   if (isInCart.value) {
@@ -31,23 +34,20 @@ function onInput() {
 }
 </script>
 <template>
-  <span v-if="isButton">
-    <Button
-      :type="isInCart ? 'secondary' : 'primary'"
-      :label="isInCart ? 'Remove from cart' : 'Add to cart'"
-      :icon="isInCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
-      size="medium"
-      buttonAlignment="right"
-      @click="onInput"
-    />
-  </span>
+  <Button
+    v-if="variant === 'button'"
+    :type="isInCart ? 'secondary' : 'primary'"
+    :label="label"
+    :icon="isInCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
+    size="medium"
+    buttonAlignment="right"
+    @click="onInput"
+  />
   <label
     v-else
-    :for="`${item.id}-shopping-cart-input`"
-    class="xl:flex xl:justify-end px-2 py-1 rounded-base cursor-pointer items-baseline xl:items-center mt-0.5 xl:mt-0"
+    class="inline-flex items-center px-2 py-1 rounded-base cursor-pointer align-middle"
     :class="{
-      'text-button-cart-add hover:text-button-cart-add-hover':
-        !isInCart,
+      'text-button-cart-add hover:text-button-cart-add-hover': !isInCart,
       'text-button-cart-remove bg-button-cart-remove': isInCart,
     }"
   >
@@ -55,13 +55,7 @@ function onInput() {
       :name="isInCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
       :width="21"
     />
-    <span class="sr-only">Add to cart</span>
-    <input
-      type="checkbox"
-      :id="`${item.id}-shopping-cart-input`"
-      class="sr-only"
-      :modelValue="isInCart"
-      @input="onInput"
-    />
+    <span class="sr-only">{{ label }}</span>
+    <input type="checkbox" class="sr-only" :checked="isInCart" @input="onInput" />
   </label>
 </template>

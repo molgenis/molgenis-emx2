@@ -66,11 +66,10 @@ const headerClasses = computed(() => {
           {{ resource.acronym ? resource.name : "" }}
         </span>
       </div>
-      <div class="flex self-start">
+      <div class="flex items-center self-start">
         <CartButton
           v-if="cartStore.isEnabled"
           :item="resourceToCartItem(resource)"
-          :compact="props.compact"
         />
         <NuxtLink :to="`/${catalogue}/resources/${resource.id}`">
           <IconButton

@@ -761,8 +761,7 @@ const showPopulation = computed(
           <CartButton
             v-if="resource && cartStore.isEnabled"
             :item="resourceToCartItem(resource)"
-            :compact="false"
-            :isButton="true"
+            variant="button"
           />
         </ContentBlockIntro>
 
