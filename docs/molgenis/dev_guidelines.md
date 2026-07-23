@@ -83,90 +83,15 @@ If a specific style is not available, define it in the `assets/css/main.css` and
 
 ### 5. All components follow good semantic HTML practices and are built with accessibility in mind
 
-Good semantic html practices covers a lot of areas. In principle, it is important to make sure the appropriate elements are used so that HTML elements properly render and are accesible. For example, it is fairly common to see buttons that redirects users to another page. Buttons should only perform an action and not act as link. Instead, it would be better to use the anchor element and style it as a button.
+Good semantic html practices covers a lot of areas. In principle, it is important to-
 
-```diff
-- <button @click="window.location.href='....'">Get started</button>
-+ <a href="path/to/some/page" class="btn btn-primary">Get started</a>
-```
+- Use the appropriate HTML elements (e.g., actions are buttons, links are `<a>` elements, etc.)
+- Interactive elements are accessible using a mouse and keyboard and mouse support. Hover and focus styles are clearly visible and they provide good visual indication that an element is interactive.
+- Elements have sufficient color contrast and are readable in different themes
+- Text elements use clear, concise language. It is recommended to avoid using technical jargon in the UI. When writing text, keep in mind that they are two terms: the internal, technical word and the public-facing term.
+- Error messages clearly describe the issue and inform users how to resolve it. Do not use phrases such as "Oops! Something went wrong".
 
-In addition to good semantic HTML practices, it is important to provide an indication that an HTML element is used to manipulate other HTML elements. For example, a button that opens a form.
-
-```vue
-<template>
-  <button @click="openForm()">Open form</button>
-  <form>
-      ...
-  </form>
-</template>
-```
-
-This "functions" as intended but it only "visually". This markup does not provide context as to which elements are controlled by the button controls and does not indicate the current state of the target elements (i.e., open or closed). In other words, this is not machine-readable and screen reader users will not know what this does. The correct way to mark this up is by using a few aria attributes and providing element IDs.
-
-```vue
-<script setup lang="ts">
-import { ref } from "vue";
-const formIsOpen = ref<boolean>(false);
-</script>
-
-<template>
-  <button
-    id="openFormButton"
-    aria-controls="myForm"
-    :aria-expanded="formIsOpen"
-    @click="formIsOpen = !formIsOpen"
-  >
-    Open form
-  </button>
-
-  <form id="myForm" :class={ 'hidden': !formIsOpen }>
-    <legend>My Form</legend>
-  </form>
-</template>
-```
-
-#### General semantic HTML rules
-
-This following list provides an brief overview on using the correct HTML element.
-
-- Buttons: Use a button if you need to preform an action such as saving a form or signing in.
-- Links: A link are to be used if you need to redirect users to another page&mdash;nothing else.
-- Text: text elements must be written in an HTML text element (e.g., `<h*>`, `<p>`, `<span>`, etc.)
-    - Headings: Do not place a heading in an empty div and style it like a button. Use a heading element and follow proper page hierarchy.
-    - Pages should not have more than one `<h1>` element.
-- Lists: Lists should be used to provide some organisation to a group of related elements. If the order matters, then use the ordered list element (`<ol>`). Otherwise, use an unordered list.
-
-More information can be found in [Mozilla's guide on Semantic HTML](https://developer.mozilla.org/en-US/curriculum/core/semantic-html/).
-
-#### Accessibility guidelines
-
-In addition to good semantic HTML practices, we aim for [WCAG Level AA compliance](https://www.w3.org/WAI/WCAG22/Understanding/conformance) to align with government-, education-, and health organisations. Meeting this criteria can be addresed by following good HTML semantic practices (as noted above) and by following these principles-
-
-- Aria attributes are used appropriately and only in situtations where they are required
-- Elements have sufficient color contrast and content is readable
-- Content is human readable: information is clear and concise, actions are not vague, error messages inform users (in simple language) what the issue is.
-
-For further information and examples, please consult-
-
-- [Web Accessibility Initiative](https://www.w3.org/WAI/standards-guidelines/wcag/)
-- [The ARIA Patterns guide](https://www.w3.org/WAI/ARIA/apg/patterns/)
-- [a11y project](https://www.a11yproject.com).
-- [Richtlijnen NL Design System (NL)](https://nldesignsystem.nl/richtlijnen/)
-- [Digitaal toegankelijk (NL)](https://digitaaltoegankelijk.nl)
-
-#### How to review a PR for compliance
-
-To ensure all frontend code follows good semantic HTML practices and WCAG compliance, follow these steps.
-
-1. Install the [WAVE Browser Extension](https://wave.webaim.org)
-2. Go to the preview and start the WAVE browser extension. Review errors and warnings. Address errors that are related to the aim of the PR. Larger issues should be added to the appropriate epic, story, or in a new issue.
-3. Review the vue component file and check that-
-    i. There are no typescript errors
-    ii. The HTML markup follows the guidelines above and makes sense (e.g., actions a buttons, URLs are links, etc.)
-    iii. Element(s) are properly connected if they are manipulated by another element(s)
-4. If anything is unclear or if you are unsure if a component meets guidelines, ask for an additional review by a developer who is familiar with the guidelines.
-
-**Note**: it is not uncommon that be the case that there are unrelated compliance issues or issues that cannot be resolved. In these situations, it is recommended to open a new issue if one doesn't exist.
+There are additional things to consider. Please refer to the [Accessibility guidelines](docs/molgenis/dev_accessibility.md) page for more information and instructions on how to review PRs.
 
 ### 6. Naming conventions
 
