@@ -6,6 +6,9 @@ You can create complete custom database schemas using the molgenis schema editor
 named `molgenis`. Or create a molgenis.csv or molgenis.tsv sheet and upload it as part of a zip file. Note: you can upload the data in the same file as well.
 For that make sure each Excel sheet or .tsv/.csv file is named in your molgenis metadata sheet.
 
+?> A newer, diff-friendly [YAML model format](use_schema_yaml.md) is the successor to this CSV/Excel
+format; CSV import/export remains supported indefinitely.
+
 ## Example of a 'molgenis' schema
 
 | tableName | columName | type | key | required | description               |
