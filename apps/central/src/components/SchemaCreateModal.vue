@@ -115,7 +115,6 @@ const FALLBACK_TEMPLATES = [
   "TYPE_TEST",
   "PATIENT_REGISTRY_DEMO",
   "DIAMOND_SHOWCASE",
-  "DIAMOND_SHOWCASE_YAML",
 ].map((name) => ({
   name,
   label: name,
