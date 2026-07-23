@@ -83,6 +83,7 @@ public class Emx2Yaml {
   private static final String LOCALE_SUFFIX = String.valueOf(YamlDocumentReader.LOCALE_SEPARATOR);
   private static final String BOOLEAN_TRUE = "true";
   private static final String BOOLEAN_FALSE = "false";
+  private static final String SYSTEM_SETTING_PREFIX = "mg_";
 
   static final Set<String> BUNDLE_KEYS =
       Set.of(
@@ -975,6 +976,41 @@ public class Emx2Yaml {
 
     files.put(MOLGENIS_YAML, dump(root));
     return files;
+  }
+
+  public static String toSingleFile(Emx2YamlBundle bundle) {
+    SchemaMetadata schema = bundle.schema();
+    Map<String, Object> root = new LinkedHashMap<>();
+    root.put(KEY_FORMAT_VERSION, bundle.formatVersion());
+    if (bundle.version() != null) {
+      root.put(KEY_VERSION, bundle.version());
+    }
+    if (!bundle.namespaces().isEmpty()) {
+      root.put(KEY_NAMESPACES, new LinkedHashMap<>(bundle.namespaces()));
+    }
+    List<Map<String, Object>> tableEntries = new ArrayList<>();
+    for (TableMetadata table : schema.getRootTables()) {
+      if (TableType.ONTOLOGIES.equals(table.getTableType())) {
+        continue;
+      }
+      tableEntries.add(tableToMap(table, schema, bundle.previousNames()));
+    }
+    root.put(KEY_TABLES, tableEntries);
+    Map<String, String> exportableSettings = exportableSettings(schema.getSettings());
+    if (!exportableSettings.isEmpty()) {
+      root.put(KEY_SETTINGS, new LinkedHashMap<>(exportableSettings));
+    }
+    return dump(root);
+  }
+
+  private static Map<String, String> exportableSettings(Map<String, String> settings) {
+    Map<String, String> result = new LinkedHashMap<>();
+    for (Map.Entry<String, String> entry : settings.entrySet()) {
+      if (!entry.getKey().startsWith(SYSTEM_SETTING_PREFIX)) {
+        result.put(entry.getKey(), entry.getValue());
+      }
+    }
+    return result;
   }
 
   private static Map<String, Object> tableToMap(
