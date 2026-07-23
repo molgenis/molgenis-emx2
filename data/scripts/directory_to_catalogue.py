@@ -121,6 +121,17 @@ def convert_collections_to_events(events, mappings):
     return events
 
 
+def convert_collections_to_subpopulations(subpop, mappings):
+    """Convert Collections to Subpopulations"""
+    subpop_ids = mappings.loc[
+        (mappings["directory_table"] == "Collections")
+        & (mappings["catalogue_table"] == "Subpopulations"),
+        "directory_id",
+    ]
+    subpop = subpop[subpop["id"].isin(subpop_ids)]
+    subpop["resource"] = subpop["parent_collection"]
+    return subpop
+
 async def main():
     """Main function"""
     load_dotenv()
@@ -187,6 +198,8 @@ async def main():
         collection_facts = collection_facts.reindex(columns=["id", "collection"])
         collection_events = convert_collections_to_events(data["Collections"].copy(), mappings)
         collection_events = collection_events.reindex(columns=["resource", "name"])
+        subpopulations = convert_collections_to_subpopulations(data["Collections"].copy(), mappings)
+        subpopulations = subpopulations.reindex(columns=["resource", "name"])
         # Post-process data
         # Link collections to their newly minted legal-entity organisations
         jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)]
@@ -222,16 +235,20 @@ async def main():
         ] += " (organisation)"
         # Clear and upload data
         if truncate:
+            print("Truncating...")
+            client.truncate(table="Subpopulations", schema=schema)
             client.truncate(table="Collection events", schema=schema)
             client.truncate(table="Collection facts", schema=schema)
             client.truncate(table="Collections", schema=schema)
             client.truncate(table="Biobanks", schema=schema)
             client.truncate(table="Organisations", schema=schema)
+        print("Uploading...")
         client.save_table(table="Organisations", schema=schema, data=organisations)
         client.save_table(table="Biobanks", schema=schema, data=biobanks)
         client.save_table(table="Collections", schema=schema, data=collections)
         client.save_table(table="Collection facts", schema=schema, data=collection_facts)
         client.save_table(table="Collection events", schema=schema, data=collection_events)
+        client.save_table(table="Subpopulations", schema=schema, data=subpopulations)
         pass
 
 
