@@ -55,7 +55,7 @@ public class ModelApi {
   }
 
   public static void create(Javalin app) {
-    final String modelPath = "/{schema}/api/model";
+    final String modelPath = "/{schema}/api/yaml";
     app.get(modelPath, ModelApi::getModel);
     app.put(modelPath, ModelApi::putModel);
   }

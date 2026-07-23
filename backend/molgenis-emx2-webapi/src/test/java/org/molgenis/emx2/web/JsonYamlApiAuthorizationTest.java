@@ -29,7 +29,6 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
           EnvironmentProperty.getParameter(MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, ColumnType.STRING);
 
   private static final String EMPTY_SCHEMA_JSON = "{\"name\":\"" + SCHEMA + "\",\"tables\":[]}";
-  private static final String EMPTY_SCHEMA_YAML = "name: \"" + SCHEMA + "\"\ntables: []\n";
 
   @BeforeAll
   static void setup() {
@@ -92,21 +91,6 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
             .body(EMPTY_SCHEMA_JSON)
             .when()
             .delete("/" + SCHEMA + "/api/json");
-    assertEquals(400, response.getStatusCode());
-  }
-
-  // --- /api/yaml: RestAssured has no encoder for application/x-yaml, so we send the raw body
-  //     without a content type (matches WebApiSmokeTests.testJsonYamlApi).
-
-  @Test
-  void postYamlAsViewer_isRejected() {
-    login(VIEWER, VIEWER);
-    Response response =
-        given()
-            .sessionId(sessionId)
-            .body(EMPTY_SCHEMA_YAML)
-            .when()
-            .post("/" + SCHEMA + "/api/yaml");
     assertEquals(400, response.getStatusCode());
   }
 

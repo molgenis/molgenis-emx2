@@ -2,7 +2,7 @@
 
 The YAML model format is a new bundle format for describing a MOLGENIS [schema](use_schema.md): tables,
 columns, inheritance, composition, reuse and reference data model, in a diff-friendly, file-based shape.
-It is the authoring format, the wire format of the model API (`GET`/`PUT /{schema}/api/model`, with
+It is the authoring format, the wire format of the model API (`GET`/`PUT /{schema}/api/yaml`, with
 dry-run migration plans), and the mental model of the schema editor. It supersedes `molgenis.csv` as the
 primary authoring format; [CSV import/export](use_schema.md) remains supported indefinitely, and existing
 plain JSON/YAML schema export/import (see [Up/download](use_updownload.md#download)) is a separate,
@@ -348,19 +348,19 @@ Dotted `refTable: Schema.Table` references resolve companion-before-instance.
 
 ## Model API
 
-`GET`/`PUT /{schema}/api/model` expose this same format as a schema's live model, using the same parser
+`GET`/`PUT /{schema}/api/yaml` expose this same format as a schema's live model, using the same parser
 and validator as file-based bundles.
 
 ### GET — export
 
-`GET /{schema}/api/model` returns the schema's current model in the [single-file
+`GET /{schema}/api/yaml` returns the schema's current model in the [single-file
 form](#single-file-form) — one YAML document with `formatVersion`/`version` and inlined `tables:`. There
 is no folder/zip response variant, and (per [Ontologies](#ontologies) below) ontology tables appear only
 as metadata-only stubs — never their term rows.
 
 ### PUT — apply and dry-run
 
-`PUT /{schema}/api/model` takes one YAML document as the request body and diffs it, server-side, against
+`PUT /{schema}/api/yaml` takes one YAML document as the request body and diffs it, server-side, against
 the schema's live model (using `previousNames` chains to infer renames, as above).
 
 - **The wire form is single-file, and companions must be INLINED.** The request body is one document

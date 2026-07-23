@@ -27,6 +27,20 @@ public class TemplatesApi {
 
   public static void create(Javalin app) {
     app.get("/api/templates", TemplatesApi::getTemplates);
+    app.get("/api/templates/{name}", TemplatesApi::getTemplate);
+  }
+
+  private static void getTemplate(Context ctx) {
+    String name = ctx.pathParam("name");
+    YamlWorkspaceLoader workspace = new YamlWorkspaceLoader();
+    if (workspace.hasTemplate(name)) {
+      ctx.contentType(Constants.ACCEPT_YAML);
+      ctx.status(200);
+      ctx.result(workspace.toSingleFileWireForm(name));
+      return;
+    }
+    ctx.status(404);
+    ctx.result("no yaml template named '" + name + "'");
   }
 
   private static void getTemplates(Context ctx) {

@@ -337,31 +337,6 @@ class WebApiSmokeTests extends ApiTestBase {
 
     assertEquals(schemaJson, schemaJson2.replace("pet store json", PET_STORE_SCHEMA));
 
-    String schemaYaml = given().sessionId(sessionId).when().get("/pet store/api/yaml").asString();
-
-    database.dropCreateSchema("pet store yaml");
-
-    given()
-        .sessionId(sessionId)
-        .body(schemaYaml)
-        .when()
-        .post("/pet store yaml/api/yaml")
-        .then()
-        .statusCode(200);
-
-    String schemaYaml2 =
-        given().sessionId(sessionId).when().get("/pet store yaml/api/yaml").asString();
-
-    assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
-
-    given()
-        .sessionId(sessionId)
-        .body(schemaYaml2)
-        .when()
-        .delete("/pet store yaml/api/yaml")
-        .then()
-        .statusCode(200);
-
     given()
         .sessionId(sessionId)
         .body(schemaJson2)
@@ -370,7 +345,6 @@ class WebApiSmokeTests extends ApiTestBase {
         .then()
         .statusCode(200);
 
-    database.dropSchemaIfExists("pet store yaml");
     database.dropSchemaIfExists("pet store json");
   }
 

@@ -52,6 +52,17 @@ public class YamlWorkspaceLoader {
     return isAvailable() && templates().contains(template);
   }
 
+  /**
+   * Returns the named template woven into the canonical single-file wire form (imports resolved),
+   * the same export {@code GET /<schema>/api/yaml} produces from a live schema. Data/demo CSVs and
+   * companion bodies are not inlined.
+   */
+  public String toSingleFileWireForm(String template) {
+    String rootContent = readClasspathFile(WORKSPACE + SLASH + template + YAML_SUFFIX);
+    Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, ""));
+    return Emx2Yaml.toSingleFile(bundle);
+  }
+
   public List<String> templates() {
     try {
       String[] entries = new ResourceListing().retrieve(ROOT_PATH);

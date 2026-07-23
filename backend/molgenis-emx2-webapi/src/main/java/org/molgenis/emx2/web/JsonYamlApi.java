@@ -19,42 +19,11 @@ public class JsonYamlApi {
   }
 
   public static void create(Javalin app) {
-    // schema level operations
+    // schema level operations; the /api/yaml route is served by ModelApi (bundle single-file form)
     final String jsonPath = "/{schema}/api/json";
     app.get(jsonPath, JsonYamlApi::getSchemaJSON);
     app.post(jsonPath, JsonYamlApi::postSchemaJSON);
     app.delete(jsonPath, JsonYamlApi::deleteSchemaJSON);
-
-    final String yamlPath = "/{schema}/api/yaml";
-    app.get(yamlPath, JsonYamlApi::getSchemaYAML);
-    app.post(yamlPath, JsonYamlApi::postSchemaYAML);
-    app.delete(yamlPath, JsonYamlApi::deleteSchemaYAML);
-  }
-
-  private static void deleteSchemaYAML(Context ctx) throws IOException {
-    SchemaMetadata schema = yamlToSchema(ctx.body());
-    getSchema(ctx).discard(schema);
-    ctx.status(200);
-    ctx.result("{ \"message\": \"remove metadata success\" }");
-  }
-
-  static void postSchemaYAML(Context ctx) throws IOException {
-    SchemaMetadata otherSchema = yamlToSchema(ctx.body());
-    getSchema(ctx).migrate(otherSchema);
-    ctx.status(200);
-    ctx.result("{ \"message\": \"add/update metadata success\" }");
-  }
-
-  static void getSchemaYAML(Context ctx) throws IOException {
-    Schema schema = getSchema(ctx);
-    String json = schemaToYaml(schema.getMetadata(), true);
-    ctx.contentType(ACCEPT_YAML);
-    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
-    ctx.header(
-        "Content-Disposition",
-        "attachment; filename=\"" + schema.getName() + "_ " + date + ".yaml\"");
-    ctx.status(200);
-    ctx.json(json);
   }
 
   private static void deleteSchemaJSON(Context ctx) throws IOException {

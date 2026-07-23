@@ -50,6 +50,37 @@ class TemplatesApiTest extends ApiTestBase {
   }
 
   @Test
+  void templateDetailReturnsWovenSingleFileWireForm() {
+    Response response = given().sessionId(sessionId).when().get("/api/templates/" + YAML_TEMPLATE);
+    response.then().statusCode(200);
+    response.then().contentType("text/yaml");
+
+    String body = response.body().asString();
+    assertTrue(body.contains("formatVersion"), "wire form must carry the bundle formatVersion key");
+    assertTrue(
+        body.contains("Collections"),
+        "table files must be woven in (root file only references file paths)");
+    assertTrue(
+        body.contains("notes"),
+        "the imported 'notes' column (from shared/AuditColumns.yaml) proves imports were resolved");
+  }
+
+  @Test
+  void templateDetailUnknownNameReturns404() {
+    given().sessionId(sessionId).when().get("/api/templates/does-not-exist").then().statusCode(404);
+  }
+
+  @Test
+  void templateDetailClassicEnumNameReturns404() {
+    given()
+        .sessionId(sessionId)
+        .when()
+        .get("/api/templates/" + CLASSIC_TEMPLATE)
+        .then()
+        .statusCode(404);
+  }
+
+  @Test
   void yamlTemplateIsCreatableByTheReturnedName() {
     Response response = getTemplates();
     response.then().statusCode(200);

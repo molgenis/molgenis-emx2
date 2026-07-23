@@ -38,6 +38,8 @@ class ModelApiTest extends ApiTestBase {
   private static final String ROOT_APPLY_SCHEMA = "ModelApiTestRootApply";
   private static final String MENU_SETTING = "menu";
   private static final String MENU_VALUE = "[{\"label\":\"Home\",\"href\":\"/\"}]";
+  private static final String YAML_GET_SCHEMA = "ModelApiTestYamlGet";
+  private static final String LEGACY_MODEL_SCHEMA = "ModelApiTestLegacyModel";
 
   @BeforeAll
   static void setup() {
@@ -51,7 +53,7 @@ class ModelApiTest extends ApiTestBase {
   }
 
   private static String modelPath(String schemaName) {
-    return "/" + schemaName + "/api/model";
+    return "/" + schemaName + "/api/yaml";
   }
 
   private static String getModel(String schemaName) {
@@ -65,6 +67,27 @@ class ModelApiTest extends ApiTestBase {
   private static String withVersion(String schemaName, String version) {
     String model = getModel(schemaName).replaceFirst("version: .*\n", "");
     return model.replaceFirst("formatVersion: 1\n", "formatVersion: 1\nversion: " + version + "\n");
+  }
+
+  @Test
+  void getAtYamlPathReturnsBundleFormat() {
+    createPersonSchema(YAML_GET_SCHEMA);
+    String yaml =
+        given().sessionId(sessionId).when().get("/" + YAML_GET_SCHEMA + "/api/yaml").asString();
+    assertTrue(
+        yaml.contains("formatVersion"),
+        "GET /<schema>/api/yaml must serve the bundle single-file format (the old yaml had none)");
+  }
+
+  @Test
+  void legacyModelPathIsGone() {
+    createPersonSchema(LEGACY_MODEL_SCHEMA);
+    given()
+        .sessionId(sessionId)
+        .when()
+        .get("/" + LEGACY_MODEL_SCHEMA + "/api/model")
+        .then()
+        .statusCode(404);
   }
 
   @Test
