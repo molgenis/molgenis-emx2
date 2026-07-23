@@ -56,12 +56,12 @@
               id="schema-create-template"
               label="template"
               description="Load existing database template"
-              v-model="template"
-              :options="templates"
+              v-model="selectedLabel"
+              :options="templateLabels"
             />
             <InputBoolean
               id="schema-create-sample-data"
-              v-if="template"
+              v-if="selectedTemplate && selectedTemplate.hasDemoData"
               label="load example data"
               description="Include example data in the template"
               v-model="includeDemoData"
@@ -90,6 +90,39 @@
 
 <script>
 import { request } from "graphql-request";
+
+const FALLBACK_TEMPLATES = [
+  "PET_STORE",
+  "MG_CMS",
+  "DATA_CATALOGUE",
+  "DATA_CATALOGUE_COHORT_STAGING",
+  "DATA_CATALOGUE_NETWORK_STAGING",
+  "DATA_CATALOGUE_RWE_STAGING",
+  "UMCG_COHORT_STAGING",
+  "UMCU_COHORTS_STAGING",
+  "INTEGRATE_COHORTS_STAGING",
+  "PATIENT_REGISTRY",
+  "PATIENT_REGISTRY_ID_BANK",
+  "PATIENT_REGISTRY_STAGING",
+  "FAIR_GENOMES",
+  "ERN_DASHBOARD",
+  "UI_DASHBOARD",
+  "BIOBANK_DIRECTORY",
+  "BIOBANK_DIRECTORY_STAGING",
+  "SHARED_STAGING",
+  "PROJECTMANAGER",
+  "DATA_CATALOGUE_AGGREGATES",
+  "TYPE_TEST",
+  "PATIENT_REGISTRY_DEMO",
+  "DIAMOND_SHOWCASE",
+  "DIAMOND_SHOWCASE_YAML",
+].map((name) => ({
+  name,
+  label: name,
+  description: null,
+  hasDemoData: true,
+  source: "classic",
+}));
 
 import {
   constants,
@@ -135,32 +168,7 @@ export default {
       schemaName: null,
       schemaDescription: null,
       template: null,
-      templates: [
-        "PET_STORE",
-        "MG_CMS",
-        "DATA_CATALOGUE",
-        "DATA_CATALOGUE_COHORT_STAGING",
-        "DATA_CATALOGUE_NETWORK_STAGING",
-        "DATA_CATALOGUE_RWE_STAGING",
-        "UMCG_COHORT_STAGING",
-        "UMCU_COHORTS_STAGING",
-        "INTEGRATE_COHORTS_STAGING",
-        "PATIENT_REGISTRY",
-        "PATIENT_REGISTRY_ID_BANK",
-        "PATIENT_REGISTRY_STAGING",
-        "FAIR_GENOMES",
-        "ERN_DASHBOARD",
-        "UI_DASHBOARD",
-        "BIOBANK_DIRECTORY",
-        "BIOBANK_DIRECTORY_STAGING",
-        "SHARED_STAGING",
-        "PROJECTMANAGER",
-        "DATA_CATALOGUE_AGGREGATES",
-        "TYPE_TEST",
-        "PATIENT_REGISTRY_DEMO",
-        "DIAMOND_SHOWCASE",
-        "DIAMOND_SHOWCASE_YAML",
-      ],
+      templateEntries: FALLBACK_TEMPLATES,
       includeDemoData: false,
     };
   },
@@ -171,6 +179,38 @@ export default {
     endpoint() {
       return "/api/graphql";
     },
+    templateLabels() {
+      return this.templateEntries.map((entry) => entry.label);
+    },
+    selectedTemplate() {
+      return (
+        this.templateEntries.find((entry) => entry.name === this.template) ??
+        null
+      );
+    },
+    selectedLabel: {
+      get() {
+        return this.selectedTemplate ? this.selectedTemplate.label : null;
+      },
+      set(label) {
+        const entry = this.templateEntries.find(
+          (candidate) => candidate.label === label
+        );
+        this.template = entry ? entry.name : null;
+        this.includeDemoData = false;
+      },
+    },
+  },
+  async created() {
+    try {
+      const response = await fetch("/api/templates");
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+      this.templateEntries = await response.json();
+    } catch (error) {
+      console.error("Failed to load templates, using fallback list", error);
+    }
   },
   methods: {
     validate(name) {
