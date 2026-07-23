@@ -70,6 +70,29 @@ class YamlWorkspaceLoaderTest {
   }
 
   @Test
+  void importedTableFileColumnsResolveInWorkspace() {
+    assertNotNull(
+        database
+            .getSchema(CATALOGUE_NO_DEMO)
+            .getTable(COLLECTIONS)
+            .getMetadata()
+            .getColumn("notes"),
+        "Collections must carry the 'notes' column pulled in via the table file's own imports:");
+  }
+
+  @Test
+  void availableTemplatesCarryYamlLabelAndDemoFlag() {
+    List<YamlWorkspaceLoader.TemplateInfo> available = loader.availableTemplates();
+    assertEquals(
+        List.of(CATALOGUE, RD3),
+        available.stream().map(YamlWorkspaceLoader.TemplateInfo::name).toList());
+    YamlWorkspaceLoader.TemplateInfo catalogue = available.get(0);
+    assertEquals(
+        "catalogue yaml", catalogue.label(), "discovered template label carries the yaml suffix");
+    assertTrue(catalogue.hasDemoData(), "the catalogue template carries demo: data");
+  }
+
+  @Test
   void dataLoadsAlwaysDemoLoadsOnlyOnRequest() {
     Schema noDemo = database.getSchema(CATALOGUE_NO_DEMO);
     assertEquals(

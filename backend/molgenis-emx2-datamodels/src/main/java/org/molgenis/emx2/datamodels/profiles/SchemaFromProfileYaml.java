@@ -26,7 +26,7 @@ import org.molgenis.emx2.io.emx2.Emx2Yaml;
  */
 public class SchemaFromProfileYaml {
 
-  public static final String CSV_PARITY_YAML_DIR = "/yaml-format-test/csv-parity";
+  public static final String CSV_PARITY_YAML_DIR = "/templates/csv-parity";
 
   private static final String MOLGENIS_YAML = "molgenis.yaml";
   private static final String PROFILES = "profiles";

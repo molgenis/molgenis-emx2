@@ -81,6 +81,8 @@ public class Emx2Yaml {
   private static final String KEY_DROP = "drop";
   static final String KEY_DATA = "data";
   static final String KEY_DEMO = "demo";
+  static final String KEY_BUNDLE = "bundle";
+  static final String KEY_PERMISSIONS = "permissions";
 
   private static final Pattern VERSION_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
 
@@ -105,6 +107,9 @@ public class Emx2Yaml {
           KEY_ADDITIONAL_SCHEMAS,
           KEY_DATA,
           KEY_DEMO);
+  static final Set<String> COMPANION_KEYS =
+      Set.of(
+          KEY_TABLES, KEY_DATA, KEY_DEMO, KEY_SETTINGS, KEY_VERSION, KEY_PERMISSIONS, KEY_BUNDLE);
   static final Set<String> TABLE_KEYS =
       Set.of(
           KEY_NAME,

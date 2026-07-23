@@ -32,6 +32,7 @@ public final class ModelSchemaGenerator {
   private static final String PATTERN_PROPERTIES = "patternProperties";
   private static final String PATTERN = "pattern";
   private static final String UNEVALUATED = "unevaluatedProperties";
+  private static final String ADDITIONAL_PROPERTIES = "additionalProperties";
   private static final String VERSION_PATTERN = "^\\d+\\.\\d+\\.\\d+$";
 
   private static final String T_STRING = "string";
@@ -47,6 +48,7 @@ public final class ModelSchemaGenerator {
   private static final String DEF_TABLE_FILE = "tableFile";
   private static final String DEF_SHARED_FILE = "sharedFile";
   private static final String DEF_TABLE_ENTRY = "tableEntry";
+  private static final String DEF_COMPANION_ENTRY = "companionEntry";
   private static final String DEF_BUNDLE = "bundle";
 
   private static final String LABEL_PATTERN = "^label@[A-Za-z][A-Za-z0-9-]*$";
@@ -68,6 +70,7 @@ public final class ModelSchemaGenerator {
     defs.put(DEF_TABLE_FILE, tableFile());
     defs.put(DEF_SHARED_FILE, sharedFile());
     defs.put(DEF_TABLE_ENTRY, tableEntry());
+    defs.put(DEF_COMPANION_ENTRY, companionEntry());
     defs.put(DEF_BUNDLE, bundle());
     root.put(DEFS, defs);
 
@@ -219,6 +222,24 @@ public final class ModelSchemaGenerator {
     return entry;
   }
 
+  private static Map<String, Object> companionEntry() {
+    Map<String, Object> properties = new LinkedHashMap<>();
+    properties.put(ModelSchemaRules.TABLES, arrayOf(ref(DEF_TABLE_ENTRY)));
+    properties.put(Emx2Yaml.KEY_DATA, stringOrStringArray());
+    properties.put(Emx2Yaml.KEY_DEMO, stringOrStringArray());
+    properties.put(ModelSchemaRules.SETTINGS, objectSchema());
+    properties.put(ModelSchemaRules.VERSION, versionString());
+    properties.put(Emx2Yaml.KEY_PERMISSIONS, objectSchema());
+    properties.put(Emx2Yaml.KEY_BUNDLE, scalarString());
+    verifyCovers(properties.keySet(), Emx2Yaml.COMPANION_KEYS, DEF_COMPANION_ENTRY);
+
+    Map<String, Object> definition = new LinkedHashMap<>();
+    definition.put(TYPE, T_OBJECT);
+    definition.put(PROPERTIES, properties);
+    definition.put(UNEVALUATED, false);
+    return definition;
+  }
+
   private static Map<String, Object> bundle() {
     Map<String, Object> properties = new LinkedHashMap<>();
     properties.put(ModelSchemaRules.FORMAT_VERSION, integerSchema());
@@ -227,7 +248,7 @@ public final class ModelSchemaGenerator {
     properties.put(ModelSchemaRules.SETTINGS, objectSchema());
     properties.put(ModelSchemaRules.IMPORTS, stringArray());
     properties.put(ModelSchemaRules.NAMESPACES, objectSchema());
-    properties.put(Emx2Yaml.KEY_ADDITIONAL_SCHEMAS, objectSchema());
+    properties.put(Emx2Yaml.KEY_ADDITIONAL_SCHEMAS, mapOf(ref(DEF_COMPANION_ENTRY)));
     properties.put(Emx2Yaml.KEY_DATA, stringOrStringArray());
     properties.put(Emx2Yaml.KEY_DEMO, stringOrStringArray());
     verifyCovers(properties.keySet(), Emx2Yaml.BUNDLE_KEYS, DEF_BUNDLE);
@@ -312,15 +333,44 @@ public final class ModelSchemaGenerator {
   }
 
   private static Map<String, Object> tableTypeEnum() {
+    Map<String, Object> canonical = new LinkedHashMap<>();
+    canonical.put(ENUM, ModelSchemaRules.tableTypeNames());
+    Map<String, Object> caseInsensitive = new LinkedHashMap<>();
+    caseInsensitive.put(TYPE, T_STRING);
+    caseInsensitive.put(PATTERN, caseInsensitivePattern(ModelSchemaRules.tableTypeNames()));
     Map<String, Object> schema = new LinkedHashMap<>();
-    schema.put(ENUM, ModelSchemaRules.tableTypeNames());
+    schema.put(ANY_OF, List.of(canonical, caseInsensitive));
     return schema;
+  }
+
+  private static String caseInsensitivePattern(List<String> values) {
+    StringBuilder pattern = new StringBuilder("^(?:");
+    for (int index = 0; index < values.size(); index++) {
+      if (index > 0) {
+        pattern.append('|');
+      }
+      for (char character : values.get(index).toCharArray()) {
+        pattern
+            .append('[')
+            .append(Character.toLowerCase(character))
+            .append(Character.toUpperCase(character))
+            .append(']');
+      }
+    }
+    return pattern.append(")$").toString();
   }
 
   private static Map<String, Object> arrayOf(Map<String, Object> itemSchema) {
     Map<String, Object> schema = new LinkedHashMap<>();
     schema.put(TYPE, T_ARRAY);
     schema.put(ITEMS, itemSchema);
+    return schema;
+  }
+
+  private static Map<String, Object> mapOf(Map<String, Object> valueSchema) {
+    Map<String, Object> schema = new LinkedHashMap<>();
+    schema.put(TYPE, T_OBJECT);
+    schema.put(ADDITIONAL_PROPERTIES, valueSchema);
     return schema;
   }
 

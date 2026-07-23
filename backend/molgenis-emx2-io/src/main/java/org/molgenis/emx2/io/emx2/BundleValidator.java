@@ -89,10 +89,25 @@ public final class BundleValidator {
       if (KEY_MEMBERS.equals(key)) {
         throw memberError(reader, schemaName, tuple.getKeyNode());
       }
+      if (!Emx2Yaml.COMPANION_KEYS.contains(key)) {
+        throw illegalKeyError(reader, schemaName, key, tuple.getKeyNode());
+      }
       if (KEY_PERMISSIONS.equals(key)) {
         validatePermissions(reader, schemaName, tuple.getValueNode());
       }
     }
+  }
+
+  private static MolgenisException illegalKeyError(
+      YamlDocumentReader reader, String schemaName, String key, Node node) {
+    return reader.error(
+        "companion schema '"
+            + schemaName
+            + "' declares illegal key '"
+            + key
+            + "'; an inline additionalSchemas entry allows only "
+            + new java.util.TreeSet<>(Emx2Yaml.COMPANION_KEYS),
+        node);
   }
 
   private static void validatePermissions(

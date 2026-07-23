@@ -1,5 +1,7 @@
 name: Collections
 description: Catalogue collections referencing a companion ontology
+imports:
+- shared/AuditColumns.yaml
 columns:
 - name: collectionId
   key: 1
@@ -8,3 +10,4 @@ columns:
 - name: country
   type: ontology
   refTable: CatalogueOntologies.Countries
+- notes

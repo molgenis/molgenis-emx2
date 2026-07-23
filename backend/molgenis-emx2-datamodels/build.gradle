@@ -21,22 +21,22 @@ sourceSets {
     }
 }
 
-def workspaceDir = file("$rootDir/yaml-format-test")
+def templatesDir = file("$rootDir/templates")
 def modelSchemaArtifact = file("$rootDir/backend/molgenis-emx2-io/src/main/resources/molgenis-model.schema.json")
 
 tasks.named('processTestResources') {
-    from(workspaceDir) {
-        into 'yaml-format-test'
+    from(templatesDir) {
+        into 'templates'
     }
 }
 
-tasks.register('validateYamlWorkspace', JavaExec) {
+tasks.register('validateTemplates', JavaExec) {
     dependsOn 'classes'
     mainClass = 'org.molgenis.emx2.io.emx2.ModelSchemaTool'
     classpath = sourceSets.main.runtimeClasspath
-    args 'validate-fixtures', workspaceDir.absolutePath, modelSchemaArtifact.absolutePath
+    args 'validate-fixtures', templatesDir.absolutePath, modelSchemaArtifact.absolutePath
 }
 
 tasks.named('check') {
-    dependsOn 'validateYamlWorkspace'
+    dependsOn 'validateTemplates'
 }

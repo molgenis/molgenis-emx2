@@ -297,10 +297,18 @@
           "type" : "string"
         },
         "tableType" : {
-          "enum" : [
-            "data",
-            "module",
-            "ontology"
+          "anyOf" : [
+            {
+              "enum" : [
+                "data",
+                "module",
+                "ontology"
+              ]
+            },
+            {
+              "type" : "string",
+              "pattern" : "^(?:[dD][aA][tT][aA]|[mM][oO][dD][uU][lL][eE]|[oO][nN][tT][oO][lL][oO][gG][yY])$"
+            }
           ]
         },
         "semantics" : {
@@ -367,10 +375,18 @@
           ]
         },
         "tableType" : {
-          "enum" : [
-            "data",
-            "module",
-            "ontology"
+          "anyOf" : [
+            {
+              "enum" : [
+                "data",
+                "module",
+                "ontology"
+              ]
+            },
+            {
+              "type" : "string",
+              "pattern" : "^(?:[dD][aA][tT][aA]|[mM][oO][dD][uU][lL][eE]|[oO][nN][tT][oO][lL][oO][gG][yY])$"
+            }
           ]
         },
         "subclasses" : {
@@ -442,6 +458,57 @@
         }
       ]
     },
+    "companionEntry" : {
+      "type" : "object",
+      "properties" : {
+        "tables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/$defs/tableEntry"
+          }
+        },
+        "data" : {
+          "anyOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          ]
+        },
+        "demo" : {
+          "anyOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          ]
+        },
+        "settings" : {
+          "type" : "object"
+        },
+        "version" : {
+          "type" : "string",
+          "pattern" : "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "permissions" : {
+          "type" : "object"
+        },
+        "bundle" : {
+          "type" : "string"
+        }
+      },
+      "unevaluatedProperties" : false
+    },
     "bundle" : {
       "type" : "object",
       "properties" : {
@@ -471,7 +538,10 @@
           "type" : "object"
         },
         "additionalSchemas" : {
-          "type" : "object"
+          "type" : "object",
+          "additionalProperties" : {
+            "$ref" : "#/$defs/companionEntry"
+          }
         },
         "data" : {
           "anyOf" : [

@@ -19,23 +19,28 @@ import org.molgenis.emx2.io.emx2.Emx2Yaml;
 import org.molgenis.emx2.io.emx2.Emx2YamlBundle;
 
 /**
- * Loads the /yaml-format-test design-validation workspace. Each YAML file at the workspace root is
- * a bundle template, discovered by scanning (no hand registration). A template's {@code data:}
- * content loads on every create; its {@code demo:} content only when demo data is requested. {@code
- * additionalSchemas:} companions are provisioned once and reused.
+ * Loads the /templates workspace of durable YAML model bundles. Each YAML file at the workspace
+ * root is a bundle template, discovered by scanning (no hand registration). A template's {@code
+ * data:} content loads on every create; its {@code demo:} content only when demo data is requested.
+ * {@code additionalSchemas:} companions are provisioned once and reused.
  */
 public class YamlWorkspaceLoader {
 
-  private static final String WORKSPACE = "yaml-format-test";
+  private static final String WORKSPACE = "templates";
   private static final String ROOT_PATH = "/" + WORKSPACE;
   private static final String MOLGENIS_YAML = "molgenis.yaml";
   private static final String YAML_SUFFIX = ".yaml";
+  private static final String LABEL_SUFFIX = " yaml";
   private static final String SLASH = "/";
   private static final String KEY_TABLES = "tables";
+  private static final String KEY_IMPORTS = "imports";
+  private static final String KEY_DEMO = "demo";
   private static final String KEY_ADDITIONAL_SCHEMAS = "additionalSchemas";
   private static final String KEY_BUNDLE = "bundle";
 
   private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
+
+  public record TemplateInfo(String name, String label, boolean hasDemoData) {}
 
   public List<String> templates() {
     try {
@@ -48,6 +53,16 @@ public class YamlWorkspaceLoader {
     } catch (Exception exception) {
       throw new MolgenisException("Failed to discover workspace templates", exception);
     }
+  }
+
+  public List<TemplateInfo> availableTemplates() {
+    return templates().stream().map(this::describeTemplate).toList();
+  }
+
+  private TemplateInfo describeTemplate(String template) {
+    String rootContent = readClasspathFile(WORKSPACE + SLASH + template + YAML_SUFFIX);
+    boolean hasDemoData = parse(rootContent).get(KEY_DEMO) != null;
+    return new TemplateInfo(template, template + LABEL_SUFFIX, hasDemoData);
   }
 
   public Schema create(
@@ -98,12 +113,28 @@ public class YamlWorkspaceLoader {
     if (tables instanceof List<?> entries) {
       for (Object entry : entries) {
         if (entry instanceof String reference) {
-          String resourcePath = base.isEmpty() ? reference : base + SLASH + reference;
-          files.put(reference, readClasspathFile(WORKSPACE + SLASH + resourcePath));
+          gatherFileAndImports(files, reference, base);
         }
       }
     }
     return files;
+  }
+
+  private void gatherFileAndImports(Map<String, String> files, String reference, String base) {
+    if (files.containsKey(reference)) {
+      return;
+    }
+    String resourcePath = base.isEmpty() ? reference : base + SLASH + reference;
+    String content = readClasspathFile(WORKSPACE + SLASH + resourcePath);
+    files.put(reference, content);
+    Object imports = parse(content).get(KEY_IMPORTS);
+    if (imports instanceof List<?> importedFiles) {
+      for (Object imported : importedFiles) {
+        if (imported instanceof String importReference) {
+          gatherFileAndImports(files, importReference, base);
+        }
+      }
+    }
   }
 
   private void loadData(Schema schema, List<String> entries, String base) {

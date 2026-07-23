@@ -152,6 +152,53 @@ class BundleValidatorTest {
   }
 
   @Test
+  void inlineCompanionKeySet() {
+    // an inline entry may carry tables/data/demo/version/settings (permissions covered elsewhere)
+    SchemaMetadata allowed =
+        BundleValidator.validate(
+                Map.of(
+                    "molgenis.yaml",
+                    "tables:\n- name: Person\n  columns:\n  - name: id\n    key: 1\n"
+                        + "additionalSchemas:\n  Inline:\n    version: 1.0.0\n"
+                        + "    settings:\n      theme: dark\n    data:\n    - data\n"
+                        + "    demo:\n    - demo\n    tables:\n    - name: C\n"
+                        + "      columns:\n      - name: id\n        key: 1\n"))
+            .schema();
+    assertEquals(
+        ColumnType.STRING, allowed.getTableMetadata("Person").getColumn("id").getColumnType());
+
+    // nesting additionalSchemas inside a companion is a loud illegal-key error with path + position
+    MolgenisException nested =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                BundleValidator.validate(
+                    Map.of(
+                        "molgenis.yaml",
+                        "tables:\n- name: Person\n  columns:\n  - name: id\n    key: 1\n"
+                            + "additionalSchemas:\n  Inline:\n    additionalSchemas:\n"
+                            + "      Deep:\n        bundle: deep/molgenis.yaml\n"
+                            + "    tables:\n    - name: C\n      columns:\n      - name: id\n        key: 1\n")));
+    assertTrue(nested.getMessage().contains("additionalSchemas"), nested.getMessage());
+    assertTrue(nested.getMessage().contains("Inline"), nested.getMessage());
+    assertTrue(nested.getMessage().contains("line"), nested.getMessage());
+
+    // formatVersion belongs to the outer document, never a companion entry
+    MolgenisException formatVersion =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                BundleValidator.validate(
+                    Map.of(
+                        "molgenis.yaml",
+                        "tables:\n- name: Person\n  columns:\n  - name: id\n    key: 1\n"
+                            + "additionalSchemas:\n  Inline:\n    formatVersion: 1\n"
+                            + "    tables:\n    - name: C\n      columns:\n      - name: id\n        key: 1\n")));
+    assertTrue(formatVersion.getMessage().contains("formatVersion"), formatVersion.getMessage());
+    assertTrue(formatVersion.getMessage().contains("line"), formatVersion.getMessage());
+  }
+
+  @Test
   void companionCycleDetected() {
     MolgenisException cycle =
         assertThrows(

@@ -8,16 +8,17 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Extracts the {@code schemas:} companion declarations from a single-file model upload. On the wire
- * a model is a single YAML document, so companion content must be inlined; a {@code bundle:} path
- * reference cannot be resolved server-side and is carried as {@link CompanionDeclaration#bundleRef}
- * for the apply layer to reject. Cycle and member checks stay in {@link BundleValidator}; this
- * helper only turns each inline companion body into a parsed {@link Emx2YamlBundle}.
+ * Extracts the {@code additionalSchemas:} companion declarations from a single-file model upload.
+ * On the wire a model is a single YAML document, so companion content must be inlined; a {@code
+ * bundle:} path reference cannot be resolved server-side and is carried as {@link
+ * CompanionDeclaration#bundleRef} for the apply layer to reject. Cycle and member checks stay in
+ * {@link BundleValidator}; this helper only turns each inline companion body into a parsed {@link
+ * Emx2YamlBundle}.
  */
 public final class CompanionSchemas {
 
   private static final String MOLGENIS_YAML = "molgenis.yaml";
-  private static final String KEY_SCHEMAS = "additionalSchemas";
+  private static final String KEY_ADDITIONAL_SCHEMAS = "additionalSchemas";
   private static final String KEY_BUNDLE = "bundle";
   private static final String KEY_PERMISSIONS = "permissions";
 
@@ -38,7 +39,7 @@ public final class CompanionSchemas {
     if (!(loaded instanceof Map)) {
       return declarations;
     }
-    Object schemasNode = ((Map<String, Object>) loaded).get(KEY_SCHEMAS);
+    Object schemasNode = ((Map<String, Object>) loaded).get(KEY_ADDITIONAL_SCHEMAS);
     if (!(schemasNode instanceof Map)) {
       return declarations;
     }
