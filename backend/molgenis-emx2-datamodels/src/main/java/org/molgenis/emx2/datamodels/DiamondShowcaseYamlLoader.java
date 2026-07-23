@@ -1,6 +1,8 @@
 package org.molgenis.emx2.datamodels;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.Database;
@@ -78,15 +80,21 @@ public class DiamondShowcaseYamlLoader extends ImportDataModelTask {
   }
 
   private static String readClasspathFile(String resourcePath) {
-    try (InputStreamReader reader =
-        new InputStreamReader(
-            DiamondShowcaseYamlLoader.class.getClassLoader().getResourceAsStream(resourcePath))) {
-      StringBuilder builder = new StringBuilder();
-      int character;
-      while ((character = reader.read()) != -1) {
-        builder.append((char) character);
+    try (InputStream stream =
+        DiamondShowcaseYamlLoader.class.getClassLoader().getResourceAsStream(resourcePath)) {
+      if (stream == null) {
+        throw new MolgenisException("Failed to read model resource: " + resourcePath);
       }
-      return builder.toString();
+      try (InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+        StringBuilder builder = new StringBuilder();
+        int character;
+        while ((character = reader.read()) != -1) {
+          builder.append((char) character);
+        }
+        return builder.toString();
+      }
+    } catch (MolgenisException exception) {
+      throw exception;
     } catch (Exception exception) {
       throw new MolgenisException("Failed to read model resource: " + resourcePath, exception);
     }

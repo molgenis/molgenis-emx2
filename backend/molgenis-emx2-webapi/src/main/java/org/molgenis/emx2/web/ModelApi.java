@@ -76,7 +76,7 @@ public class ModelApi {
             Emx2Yaml.SUPPORTED_FORMAT_VERSION,
             storedVersion,
             Map.of(),
-            prunePreviousNames(loadPreviousNames(schema.getMetadata()), schema.getMetadata()));
+            loadPreviousNames(schema.getMetadata()));
     ctx.contentType(ACCEPT_YAML);
     ctx.status(200);
     ctx.result(Emx2Yaml.toSingleFile(bundle));
@@ -225,27 +225,6 @@ public class ModelApi {
       merged.computeIfAbsent(table.getKey(), key -> new LinkedHashMap<>()).putAll(table.getValue());
     }
     return merged;
-  }
-
-  private static Map<String, Map<String, List<String>>> prunePreviousNames(
-      Map<String, Map<String, List<String>>> previousNames, SchemaMetadata schema) {
-    Map<String, Map<String, List<String>>> pruned = new LinkedHashMap<>();
-    for (Map.Entry<String, Map<String, List<String>>> table : previousNames.entrySet()) {
-      TableMetadata tableMetadata = schema.getTableMetadata(table.getKey());
-      if (tableMetadata == null) {
-        continue;
-      }
-      Map<String, List<String>> columns = new LinkedHashMap<>();
-      for (Map.Entry<String, List<String>> column : table.getValue().entrySet()) {
-        if (tableMetadata.getColumn(column.getKey()) != null) {
-          columns.put(column.getKey(), column.getValue());
-        }
-      }
-      if (!columns.isEmpty()) {
-        pruned.put(table.getKey(), columns);
-      }
-    }
-    return pruned;
   }
 
   private static void persistPreviousNames(

@@ -30,6 +30,7 @@ class ModelApiTest extends ApiTestBase {
   private static final String TABLE_ADD_SCHEMA = "ModelApiTestTableAdd";
   private static final String PREVIOUS_NAMES_SCHEMA = "ModelApiTestPreviousNames";
   private static final String BUNDLE_REF_SCHEMA = "ModelApiTestBundleRef";
+  private static final String RENAME_FALLBACK_SCHEMA = "ModelApiTestRenameFallback";
 
   @BeforeAll
   static void setup() {
@@ -416,5 +417,60 @@ class ModelApiTest extends ApiTestBase {
     Response response = putModel(BUNDLE_REF_SCHEMA, bundle, "");
     response.then().statusCode(400);
     assertTrue(response.body().asString().contains("ExternalCohorts"));
+  }
+
+  @Test
+  void persistedChainDrivesRename() {
+    createPersonSchema(RENAME_FALLBACK_SCHEMA);
+
+    // rename name -> label WITH chain; persists {Person:{label:[name]}}, live now has label
+    String toLabel =
+        """
+        formatVersion: 1
+        version: 1.0.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: label
+            previousNames:
+            - name
+        """;
+    putModel(RENAME_FALLBACK_SCHEMA, toLabel, "").then().statusCode(200);
+
+    // desync: bring column name back WITHOUT a chain -> drop label + add name; chain retained
+    String backToName =
+        """
+        formatVersion: 1
+        version: 1.1.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+        """;
+    putModel(RENAME_FALLBACK_SCHEMA, backToName, "").then().statusCode(200);
+
+    // live now has name and the persisted setting still carries label:[name];
+    // an incoming bundle renaming to label but OMITTING the chain must still plan a RENAME
+    String labelNoChain =
+        """
+        formatVersion: 1
+        version: 1.2.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: label
+        """;
+    Response dryRun = putModel(RENAME_FALLBACK_SCHEMA, labelNoChain, "?dryRun=true");
+    dryRun.then().statusCode(200);
+    String plan = dryRun.body().asString();
+    // the merged persisted chain reached ModelDiff: a rename, not a drop + add
+    assertTrue(plan.contains("columnRenames"));
+    assertTrue(plan.contains("fromColumn"));
   }
 }

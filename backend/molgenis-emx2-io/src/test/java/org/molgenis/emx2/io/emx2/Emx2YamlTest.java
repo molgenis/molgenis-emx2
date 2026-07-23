@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
@@ -23,8 +24,21 @@ import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
+import org.yaml.snakeyaml.Yaml;
 
 class Emx2YamlTest {
+
+  @SuppressWarnings("unchecked")
+  private static Set<String> stubKeys(String rootYaml, String tableName) {
+    Map<String, Object> root = new Yaml().load(rootYaml);
+    for (Object entry : (List<Object>) root.get("tables")) {
+      Map<String, Object> table = (Map<String, Object>) entry;
+      if (tableName.equals(table.get("name"))) {
+        return table.keySet();
+      }
+    }
+    throw new AssertionError("stub not found for table: " + tableName);
+  }
 
   private Path minimalBundleDir() throws Exception {
     return Path.of(getClass().getResource("/yamlbundle/minimal/molgenis.yaml").toURI()).getParent();
@@ -312,6 +326,16 @@ class Emx2YamlTest {
     assertTrue(rootYaml.contains("sio:keyword"), rootYaml);
     assertTrue(rootYaml.contains("catalogue"), rootYaml);
     assertTrue(rootYaml.contains("label@nl: Trefwoorden"), rootYaml);
+
+    // nothing else: the emitted stub mapping carries only allowed metadata keys, no stray settings
+    Set<String> stubKeys = stubKeys(rootYaml, "Keywords");
+    Set<String> allowed =
+        Set.of("name", "tableType", "label", "description", "semantics", "profiles");
+    for (String key : stubKeys) {
+      assertTrue(
+          allowed.contains(key) || key.startsWith("label@") || key.startsWith("description@"),
+          "unexpected stub key: " + key + " in " + stubKeys);
+    }
 
     // the stub round-trips its metadata onto the (auto-created) ontology table, no duplicate error
     SchemaMetadata reparsed = Emx2Yaml.fromBundleFiles(bundle).schema();
