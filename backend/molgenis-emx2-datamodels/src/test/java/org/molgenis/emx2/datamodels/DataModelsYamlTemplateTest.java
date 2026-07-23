@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.tasks.Task;
 
 /**
  * Guards ticket-21's promise that a yaml template is creatable end-to-end by the name {@code
@@ -27,18 +30,26 @@ class DataModelsYamlTemplateTest {
   private static final String COLLECTIONS = "Collections";
   private static final String ORGANISATIONS = "Organisations";
   private static final String SCHEMA_NO_DEMO = "dmYamlCatalogueNoDemo";
+  private static final String SCHEMA_DEMO = "dmYamlCatalogueDemo";
+  private static final String SCHEMA_STEPS = "dmYamlCatalogueSteps";
 
   private static Database database;
 
   @BeforeAll
   void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    database.dropSchemaIfExists(SCHEMA_NO_DEMO);
+    dropSchemas();
   }
 
   @AfterAll
   void cleanup() {
+    dropSchemas();
+  }
+
+  private void dropSchemas() {
     database.dropSchemaIfExists(SCHEMA_NO_DEMO);
+    database.dropSchemaIfExists(SCHEMA_DEMO);
+    database.dropSchemaIfExists(SCHEMA_STEPS);
   }
 
   @Test
@@ -56,6 +67,41 @@ class DataModelsYamlTemplateTest {
     assertTrue(
         schema.getTable(COLLECTIONS).retrieveRows().isEmpty(),
         "includeDemoData=false must not load demo: rows through the seam");
+  }
+
+  @Test
+  void yamlTemplateSeamLoadsDemoRowsWhenRequested() {
+    DataModels.getImportTask(database, SCHEMA_DEMO, "", CATALOGUE_TEMPLATE, true).run();
+    Schema schema = database.getSchema(SCHEMA_DEMO);
+
+    assertEquals(
+        2,
+        schema.getTable(COLLECTIONS).retrieveRows().size(),
+        "includeDemoData=true must load demo: rows through the createSchema seam");
+  }
+
+  @Test
+  void yamlTemplateLoadTaskReportsPerStageAndPerTableSteps() {
+    Task task = DataModels.getImportTask(database, SCHEMA_STEPS, "", CATALOGUE_TEMPLATE, true);
+    task.run();
+
+    List<String> steps = new ArrayList<>();
+    collectDescriptions(task, steps);
+    String log = String.join("\n", steps);
+
+    assertTrue(log.contains("Create schema and metadata"), "task must log a create schema step");
+    assertTrue(log.contains("Import data"), "task must log a data: import step");
+    assertTrue(log.contains("Import demo data"), "task must log a demo: import step");
+    assertTrue(
+        steps.stream().anyMatch(step -> step.contains("Modified") && step.contains(ORGANISATIONS)),
+        "task must surface a per-table row-count line for the data: import");
+  }
+
+  private static void collectDescriptions(Task task, List<String> descriptions) {
+    descriptions.add(task.getDescription());
+    for (Task subTask : task.getSubTasks()) {
+      collectDescriptions(subTask, descriptions);
+    }
   }
 
   @Test

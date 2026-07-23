@@ -14,10 +14,12 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.profiles.ResourceListing;
-import org.molgenis.emx2.io.MolgenisIO;
+import org.molgenis.emx2.io.ImportSchemaTask;
 import org.molgenis.emx2.io.emx2.Emx2Yaml;
 import org.molgenis.emx2.io.emx2.Emx2YamlBundle;
 import org.molgenis.emx2.io.emx2.ModelPermissions;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvFilesClasspath;
+import org.molgenis.emx2.tasks.Task;
 
 /**
  * Loads the /templates workspace of durable YAML model bundles. Each YAML file at the workspace
@@ -39,6 +41,12 @@ public class YamlWorkspaceLoader {
   private static final String KEY_ADDITIONAL_SCHEMAS = "additionalSchemas";
   private static final String KEY_BUNDLE = "bundle";
   private static final String KEY_PERMISSIONS = "permissions";
+  private static final String STEP_CREATE = "Create schema and metadata: ";
+  private static final String STEP_DATA = "Import data: ";
+  private static final String STEP_DEMO = "Import demo data: ";
+  private static final String STEP_COMPANIONS = "Provision companion schemas";
+  private static final String STEP_SETTINGS = "Apply settings and permissions: ";
+  private static final String STEP_COMPANION_DATA = "Import companion data: ";
 
   private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -124,38 +132,73 @@ public class YamlWorkspaceLoader {
 
   public Schema create(
       Database database, String template, String schemaName, boolean includeDemoData) {
+    return create(
+        database,
+        template,
+        schemaName,
+        includeDemoData,
+        new Task("Load yaml template: " + template));
+  }
+
+  /**
+   * Creates a schema from the named workspace template, emitting a visible task step for every
+   * stage (companion provisioning, create schema/metadata, settings/permissions, data: and demo:
+   * imports) so the caller's task tree shows the same per-table row counts and skipped-sheet notes
+   * the classic loaders produce.
+   */
+  public Schema create(
+      Database database,
+      String template,
+      String schemaName,
+      boolean includeDemoData,
+      Task parentTask) {
     String rootContent = readClasspathFile(WORKSPACE + SLASH + template + YAML_SUFFIX);
-    provisionCompanions(database, parse(rootContent));
+    provisionCompanions(database, parse(rootContent), parentTask);
 
     Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, ""));
+    Task schemaTask = parentTask.addSubTask(STEP_CREATE + template).start();
     Schema schema = getOrCreateSchema(database, schemaName, "YAML workspace template " + template);
     schema.migrate(bundle.schema());
+    schemaTask.complete();
+
+    Task settingsTask = parentTask.addSubTask(STEP_SETTINGS + template).start();
     applySettings(schema, bundle.schema().getSettings());
     ModelPermissions.apply(schema, bundle.permissions());
+    settingsTask.complete();
 
-    loadData(schema, bundle.dataFiles(), "");
+    loadData(schema, bundle.dataFiles(), "", parentTask, STEP_DATA + template);
     if (includeDemoData) {
-      loadData(schema, bundle.demoFiles(), "");
+      loadData(schema, bundle.demoFiles(), "", parentTask, STEP_DEMO + template);
     }
     return schema;
   }
 
-  private void provisionCompanions(Database database, Map<String, Object> root) {
+  private void provisionCompanions(Database database, Map<String, Object> root, Task parentTask) {
     Object additionalSchemas = root.get(KEY_ADDITIONAL_SCHEMAS);
     if (!(additionalSchemas instanceof Map<?, ?> companions)) {
       return;
     }
+    Task companionTask = parentTask.addSubTask(STEP_COMPANIONS).start();
     for (Map.Entry<?, ?> companion : companions.entrySet()) {
       String name = String.valueOf(companion.getKey());
       if (companion.getValue() instanceof Map<?, ?> body && body.get(KEY_BUNDLE) != null) {
         provisionCompanion(
-            database, name, String.valueOf(body.get(KEY_BUNDLE)), permissionsOf(body));
+            database,
+            name,
+            String.valueOf(body.get(KEY_BUNDLE)),
+            permissionsOf(body),
+            companionTask);
       }
     }
+    companionTask.complete();
   }
 
   private void provisionCompanion(
-      Database database, String name, String bundleReference, Map<String, String> permissions) {
+      Database database,
+      String name,
+      String bundleReference,
+      Map<String, String> permissions,
+      Task parentTask) {
     String base = parentPath(bundleReference);
     String rootContent = readClasspathFile(WORKSPACE + SLASH + bundleReference);
     Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, base));
@@ -165,7 +208,7 @@ public class YamlWorkspaceLoader {
       companion.migrate(bundle.schema());
       ModelPermissions.apply(companion, permissions);
     }
-    loadData(companion, bundle.dataFiles(), base);
+    loadData(companion, bundle.dataFiles(), base, parentTask, STEP_COMPANION_DATA + name);
   }
 
   private static Map<String, String> permissionsOf(Map<?, ?> companionBody) {
@@ -220,11 +263,22 @@ public class YamlWorkspaceLoader {
     }
   }
 
-  private void loadData(Schema schema, List<String> entries, String base) {
+  private void loadData(
+      Schema schema, List<String> entries, String base, Task parentTask, String label) {
+    if (entries.isEmpty()) {
+      return;
+    }
+    Task dataTask = parentTask.addSubTask(label).start();
     for (String entry : entries) {
       String directory = base.isEmpty() ? entry : base + SLASH + entry;
-      MolgenisIO.fromClasspathDirectory(WORKSPACE + SLASH + directory, schema, false);
+      TableStoreForCsvFilesClasspath store =
+          new TableStoreForCsvFilesClasspath(WORKSPACE + SLASH + directory);
+      ImportSchemaTask importTask =
+          new ImportSchemaTask(store, schema, false).setFilter(ImportSchemaTask.Filter.DATA_ONLY);
+      dataTask.addSubTask(importTask);
+      importTask.run();
     }
+    dataTask.complete();
   }
 
   private static Schema getOrCreateSchema(

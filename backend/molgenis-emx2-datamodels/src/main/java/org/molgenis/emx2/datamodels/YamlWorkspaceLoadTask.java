@@ -29,7 +29,7 @@ public class YamlWorkspaceLoadTask extends Task {
   public void run() {
     this.start();
     try {
-      new YamlWorkspaceLoader().create(database, template, schemaName, includeDemoData);
+      new YamlWorkspaceLoader().create(database, template, schemaName, includeDemoData, this);
       this.complete();
     } catch (Exception exception) {
       this.completeWithError(exception.getMessage());
