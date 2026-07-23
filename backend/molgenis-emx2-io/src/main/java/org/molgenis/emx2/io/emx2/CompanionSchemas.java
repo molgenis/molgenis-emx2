@@ -17,7 +17,7 @@ import org.yaml.snakeyaml.Yaml;
 public final class CompanionSchemas {
 
   private static final String MOLGENIS_YAML = "molgenis.yaml";
-  private static final String KEY_SCHEMAS = "schemas";
+  private static final String KEY_SCHEMAS = "additionalSchemas";
   private static final String KEY_BUNDLE = "bundle";
   private static final String KEY_PERMISSIONS = "permissions";
 

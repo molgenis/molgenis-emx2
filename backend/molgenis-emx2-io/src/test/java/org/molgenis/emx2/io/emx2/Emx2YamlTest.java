@@ -32,9 +32,8 @@ class Emx2YamlTest {
   private static Set<String> stubKeys(String rootYaml, String tableName) {
     Map<String, Object> root = new Yaml().load(rootYaml);
     for (Object entry : (List<Object>) root.get("tables")) {
-      Map<String, Object> table = (Map<String, Object>) entry;
-      if (tableName.equals(table.get("name"))) {
-        return table.keySet();
+      if (entry instanceof Map<?, ?> table && tableName.equals(table.get("name"))) {
+        return (Set<String>) table.keySet();
       }
     }
     throw new AssertionError("stub not found for table: " + tableName);
@@ -82,7 +81,7 @@ class Emx2YamlTest {
   void unknownKeyError() {
     Map<String, String> files =
         Map.of(
-            "molgenis.yaml", "tables:\n- file: tables/Bad.yaml\n",
+            "molgenis.yaml", "tables:\n- tables/Bad.yaml\n",
             "tables/Bad.yaml",
                 "name: Bad\ncolumns:\n- name: id\n  key: 1\n- name: broken\n  refTabel: Something\n");
 
@@ -122,25 +121,45 @@ class Emx2YamlTest {
         nonSystemNames(schema.getTableMetadata("Report").getColumnsIncludingModules()));
   }
 
+  private static List<String> diamondColumns(String childExtends) {
+    Map<String, String> files =
+        Map.of(
+            "molgenis.yaml",
+            "formatVersion: 1\ntables:\n- tables/FilledOutlined.yaml\n- tables/Outlined.yaml\n"
+                + "- tables/Filled.yaml\n- tables/Shape.yaml\n",
+            "tables/Shape.yaml",
+            "name: Shape\ncolumns:\n- name: shapeId\n  key: 1\n- name: shapeName\n",
+            "tables/Filled.yaml",
+            "name: Filled\nextends: [Shape]\ncolumns:\n- name: fillColor\n",
+            "tables/Outlined.yaml",
+            "name: Outlined\nextends: [Shape]\ncolumns:\n- name: strokeColor\n",
+            "tables/FilledOutlined.yaml",
+            "name: FilledOutlined\nextends: "
+                + childExtends
+                + "\ncolumns:\n- name: cornerRadius\n  type: int\n");
+    return nonSystemNames(
+        Emx2Yaml.fromBundleFiles(files).schema().getTableMetadata("FilledOutlined").getColumns());
+  }
+
   @Test
   void diamondMergeOrder() throws Exception {
-    List<String> firstParse =
+    List<String> parse =
         nonSystemNames(
             Emx2Yaml.fromBundle(bundleDir("diamond"))
                 .schema()
                 .getTableMetadata("FilledOutlined")
                 .getColumns());
 
+    // merge order ignores extends order: ancestors come before descendants (topological), ties
+    // broken by the tables: declaration order (Shape, then Outlined before Filled, then the child)
     assertEquals(
-        List.of("shapeId", "shapeName", "fillColor", "strokeColor", "cornerRadius"), firstParse);
+        List.of("shapeId", "shapeName", "strokeColor", "fillColor", "cornerRadius"), parse);
 
-    List<String> secondParse =
-        nonSystemNames(
-            Emx2Yaml.fromBundle(bundleDir("diamond"))
-                .schema()
-                .getTableMetadata("FilledOutlined")
-                .getColumns());
-    assertEquals(firstParse, secondParse);
+    // two extends permutations of the child yield identical column order and metadata
+    List<String> forward = diamondColumns("[Filled, Outlined]");
+    List<String> reversed = diamondColumns("[Outlined, Filled]");
+    assertEquals(parse, forward);
+    assertEquals(forward, reversed);
   }
 
   @Test
@@ -251,7 +270,7 @@ class Emx2YamlTest {
     Map<String, String> bad =
         Map.of(
             "molgenis.yaml",
-            "tables:\n- file: tables/Bad.yaml\n",
+            "tables:\n- tables/Bad.yaml\n",
             "tables/Bad.yaml",
             "name: Bad\ncolumns:\n- name: id\n  key: 1\n- name: ref\n  refSchema: Other\n"
                 + "  refTable: Thing\n");
@@ -289,7 +308,7 @@ class Emx2YamlTest {
     Map<String, String> bad =
         Map.of(
             "molgenis.yaml",
-            "tables:\n- file: tables/Bad.yaml\n",
+            "tables:\n- tables/Bad.yaml\n",
             "tables/Bad.yaml",
             "name: Bad\ncolumns:\n- name: id\n  key: 1\n- name: broken\n  label:\n"
                 + "    nl: Kapot\n");
@@ -321,7 +340,7 @@ class Emx2YamlTest {
     String rootYaml = bundle.get("molgenis.yaml");
     assertFalse(bundle.containsKey("tables/Keywords.yaml"), rootYaml);
     assertTrue(rootYaml.contains("name: Keywords"), rootYaml);
-    assertTrue(rootYaml.contains("tableType: ontologies"), rootYaml);
+    assertTrue(rootYaml.contains("tableType: ontology"), rootYaml);
     assertTrue(rootYaml.contains("Controlled keyword terms"), rootYaml);
     assertTrue(rootYaml.contains("sio:keyword"), rootYaml);
     assertTrue(rootYaml.contains("catalogue"), rootYaml);
@@ -413,6 +432,51 @@ class Emx2YamlTest {
     assertArrayEquals(new String[] {"sio:image"}, reparsedChild.getSemantics());
   }
 
+  @Test
+  void surfaceV2Forms() throws Exception {
+    SchemaMetadata schema = new SchemaMetadata();
+    TableMetadata base = new TableMetadata("Base");
+    base.add(new Column("id").setKey(1));
+    base.add(new Column("note"));
+    schema.create(base);
+    TableMetadata middle = new TableMetadata("Middle");
+    middle.setInheritNames("Base");
+    schema.create(middle);
+    TableMetadata leaf = new TableMetadata("Leaf");
+    leaf.setInheritNames("Middle");
+    schema.create(leaf);
+
+    Map<String, String> export = Emx2Yaml.toBundleFiles(new Emx2YamlBundle(schema, 1, null));
+    String rootYaml = export.get("molgenis.yaml");
+    String baseYaml = export.get("tables/Base.yaml");
+
+    // bundle table entries are bare-string file refs, never a file: mapping key
+    assertTrue(rootYaml.contains("- tables/Base.yaml"), rootYaml);
+    assertFalse(rootYaml.contains("file:"), rootYaml);
+
+    // defaults omitted: string type, unset required, block-implied tableType
+    assertFalse(baseYaml.contains("type:"), baseYaml);
+    assertFalse(baseYaml.contains("required:"), baseYaml);
+    assertFalse(baseYaml.contains("tableType:"), baseYaml);
+
+    // root-implied extends omitted (Middle -> Base), single non-root extends is scalar (Leaf ->
+    // Middle), never a one-element list
+    assertTrue(baseYaml.contains("extends: Middle"), baseYaml);
+    assertFalse(baseYaml.contains("extends: [Middle]"), baseYaml);
+    assertFalse(baseYaml.contains("extends: Base"), baseYaml);
+    assertFalse(baseYaml.contains("extends: [Base]"), baseYaml);
+
+    // multi-parent extends stays a list
+    Map<String, String> diamond = Emx2Yaml.toBundleFiles(Emx2Yaml.fromBundle(bundleDir("diamond")));
+    String shapeYaml = diamond.get("tables/Shape.yaml");
+    assertTrue(shapeYaml.contains("- Filled"), shapeYaml);
+    assertTrue(shapeYaml.contains("- Outlined"), shapeYaml);
+
+    // the old schemas: key no longer parses; additionalSchemas is the surface key
+    Map<String, String> legacy = Map.of("molgenis.yaml", "tables: []\nschemas:\n  other: {}\n");
+    assertThrows(MolgenisException.class, () -> Emx2Yaml.fromBundleFiles(legacy));
+  }
+
   private static String metadataCsv(SchemaMetadata schema) {
     TableStoreForCsvInMemory store = new TableStoreForCsvInMemory();
     Emx2.outputMetadata(store, schema);
@@ -497,7 +561,7 @@ class Emx2YamlTest {
   @Test
   void formatVersionSkew() {
     Map<String, String> files =
-        Map.of("molgenis.yaml", "formatVersion: 999\ntables:\n- file: tables/Missing.yaml\n");
+        Map.of("molgenis.yaml", "formatVersion: 999\ntables:\n- tables/Missing.yaml\n");
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> Emx2Yaml.fromBundleFiles(files));

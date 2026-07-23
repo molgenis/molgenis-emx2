@@ -4,7 +4,7 @@ namespaces:
   schema: "http://schema.org/"
   dcat: "http://www.w3.org/ns/dcat#"
 tables:
-- file: tables/Resources.yaml
-- file: tables/Contacts.yaml
+- tables/Resources.yaml
+- tables/Contacts.yaml
 settings:
   menu: main

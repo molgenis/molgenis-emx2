@@ -275,10 +275,17 @@
           "type" : "string"
         },
         "extends" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
+          "anyOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          ]
         },
         "label" : {
           "type" : "string"
@@ -287,7 +294,11 @@
           "type" : "string"
         },
         "tableType" : {
-          "type" : "string"
+          "enum" : [
+            "data",
+            "module",
+            "ontology"
+          ]
         },
         "semantics" : {
           "type" : "array",
@@ -337,13 +348,24 @@
           }
         },
         "extends" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
+          "anyOf" : [
+            {
+              "type" : "string"
+            },
+            {
+              "type" : "array",
+              "items" : {
+                "type" : "string"
+              }
+            }
+          ]
         },
         "tableType" : {
-          "type" : "string"
+          "enum" : [
+            "data",
+            "module",
+            "ontology"
+          ]
         },
         "subclasses" : {
           "type" : "array",
@@ -404,16 +426,7 @@
     "tableEntry" : {
       "anyOf" : [
         {
-          "type" : "object",
-          "required" : [
-            "file"
-          ],
-          "properties" : {
-            "file" : {
-              "type" : "string"
-            }
-          },
-          "unevaluatedProperties" : false
+          "type" : "string"
         },
         {
           "$ref" : "#/$defs/tableFile"
@@ -447,7 +460,7 @@
         "namespaces" : {
           "type" : "object"
         },
-        "schemas" : {
+        "additionalSchemas" : {
           "type" : "object"
         }
       },

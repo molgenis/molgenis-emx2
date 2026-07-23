@@ -10,7 +10,7 @@ older mechanism.
 
 A bundle's top-level content targets **whatever schema it is loaded into** — a bundle never hardcodes a
 schema name (it is a template, see [Flat root and template semantics](#flat-root-and-template-semantics)
-below); only its `schemas:` companions carry a fixed name.
+below); only its `additionalSchemas:` companions carry a fixed name.
 
 If you already know the CSV/Excel `molgenis` format, start with [Migrating from CSV to YAML](#migrating-from-csv-to-yaml).
 
@@ -19,8 +19,7 @@ If you already know the CSV/Excel `molgenis` format, start with [Migrating from 
 — `reuse/` (imports + heading splice), `woven/` (subclass/module weaving), `axes/` (module discriminator
 axis), `diamond/` (multi-parent extends), `refs/` (dotted cross-schema `refTable`), `singlefile/`
 (single-file/inline form), `fullsurface/` (every attribute, with a CSV twin proving parity),
-`diamondshowcase/` (diamond inheritance combined with a companion schema, see [Worked example: diamond +
-companion schema](#worked-example-diamond--companion-schema) below). Sections
+`diamondshowcase/` (diamond inheritance combined with a companion schema). Sections
 below quote these fixtures directly where practical; the converted production corpus lives at
 [`data/_models/yaml/`](https://github.com/molgenis/molgenis-emx2/tree/master/data/_models/yaml) (see its
 `SKIPPED.md` for the models that don't map cleanly yet — [Profiles](#profiles) below).
@@ -42,8 +41,8 @@ formatVersion: 1
 version: 3.2.0
 imports: [shared/common.yaml]
 tables:
-  - file: tables/resources.yaml     # -> current schema (flat root)
-schemas:                            # fixed-name companions (acyclic)
+  - tables/resources.yaml     # -> current schema (flat root)
+additionalSchemas:                            # fixed-name companions (acyclic)
   CatalogueOntologies:
     bundle: catalogue-ontologies/molgenis.yaml
     permissions: {view: anonymous}  # role-DEFAULTS allowed; member accounts never
@@ -52,8 +51,8 @@ namespaces:
   dcterms: http://purl.org/dc/terms/
 ```
 
-File paths (`file:` entries, `imports:` entries, companion `bundle:` references) resolve relative to the
-file that references them.
+File paths (bare-string `tables:` entries, `imports:` entries, companion `bundle:` references) resolve
+relative to the file that references them.
 
 ### Table files
 
@@ -70,7 +69,7 @@ label@nl: Bronnen                   # one form: flat label@locale keys
 profiles: [datacatalogue]
 subclasses:
   - name: Cohorts
-    extends: [Resources]            # ordered; first = primary parent
+    extends: Resources              # scalar or list; order never matters
 modules:
   - name: QuantitativeInfo
 columns:
@@ -113,8 +112,8 @@ exercises end to end (`Emx2YamlTest#headingSplice`).
 ### Single-file form
 
 The whole bundle can also be written as one file: `tables:` entries carry the table object directly
-(same keys as a table file — `name`, `label`, `columns`, its own `imports:`, …) instead of a `file:`
-pointer. Both forms parse identically, including a table-level `imports:` resolving inside the inlined
+(same keys as a table file — `name`, `label`, `columns`, its own `imports:`, …) instead of a bare-string
+file path. Both forms parse identically, including a table-level `imports:` resolving inside the inlined
 form (`Emx2YamlTest#singleFileEquivalence`, [`singlefile`
 fixture](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-io/src/test/resources/yamlbundle/singlefile)):
 
@@ -137,14 +136,14 @@ companion by `bundle:` pointer, because it is still resolved together with the f
 
 ### Flat root and template semantics
 
-The bundle's top-level content (its `tables:` outside of `schemas:`) is the **flat root**: it applies to
+The bundle's top-level content (its `tables:` outside of `additionalSchemas:`) is the **flat root**: it applies to
 whatever schema it is loaded into. The bundle does not hardcode a schema name, so the same bundle is a
 template — it can be applied to N differently-named schema instances (e.g. one catalogue template
 producing many named catalogues).
 
-### schemas: companions in the root
+### additionalSchemas: companions in the root
 
-`schemas:` declares **companion** schemas: fixed-name, shared schemas that a bundle depends on but does
+`additionalSchemas:` declares **companion** schemas: fixed-name, shared schemas that a bundle depends on but does
 not own. See [Companion schemas](#companion-schemas) below for full semantics.
 
 ### namespaces
@@ -167,8 +166,8 @@ the two ever drift.
 | `formatVersion` | Format-spec revision this bundle is authored against; the parser refuses a bundle newer than it supports. | `formatVersion: 1` |
 | `version` | The model's own version; stamped on the schema at apply. | `version: 3.2.0` |
 | `imports` | Bundle-wide shared files whose named columns/headings become referenceable by bare string anywhere in the bundle (shadowed by a table-level `imports:` of the same name). | `imports: [shared/common.yaml]` |
-| `tables` | This bundle's table files — one entry per hierarchy (root + its woven subclasses/modules). Single-file form inlines the table object in place of `file:`. | `tables: [{file: tables/resources.yaml}]` |
-| `schemas` | Fixed-name companion schemas, inline or by `bundle:` reference, with optional role-default `permissions:`. | `schemas: {CatalogueOntologies: {bundle: catalogue-ontologies/molgenis.yaml}}` |
+| `tables` | This bundle's table files — one entry per hierarchy (root + its woven subclasses/modules), each a bare-string file path. Single-file form inlines the table object in place of the path string. | `tables: [tables/resources.yaml]` |
+| `additionalSchemas` | Fixed-name companion schemas, inline or by `bundle:` reference, with optional role-default `permissions:`. | `additionalSchemas: {CatalogueOntologies: {bundle: catalogue-ontologies/molgenis.yaml}}` |
 | `settings` | Free-form key/value settings map for the schema this bundle applies to (e.g. menu). | `settings: {menu: ...}` |
 | `namespaces` | CURIE prefixes for `semantics:` fields, in addition to/overriding the built-in defaults. | `namespaces: {dcterms: http://purl.org/dc/terms/}` |
 
@@ -179,8 +178,8 @@ Applies to a table file's top-level keys, and to each entry of `tables:`, `subcl
 | Attribute | Meaning | Example |
 |---|---|---|
 | `name` | The table's identifier; unique per schema. | `name: Resources` |
-| `extends` | Ordered parent table name(s); one entry = single inheritance, several = diamond inheritance with the first as primary parent. A `subclasses:`/`modules:` entry may omit `extends:` when the parent is simply this hierarchy file's own root. | `extends: [Resources]` |
-| `tableType` | Marks this table as a `module` composition table; omitted for ordinary/root tables and identity subclasses. | `tableType: module` |
+| `extends` | Parent table name(s) as a scalar or list — one entry = single inheritance, several = diamond inheritance. The list is an unordered set (order never affects the result), so multi-parent parents always share one hierarchy root. A `subclasses:`/`modules:` entry may omit `extends:` when the parent is simply this hierarchy file's own root. | `extends: Resources` |
+| `tableType` | Surface value `data` (default, omitted), `ontology` (reference-data table) or `module` (composition table), case-insensitive. A `subclasses:` entry defaults to `data`, a `modules:` entry to `module`, so `tableType:` is only spelled out to override. | `tableType: module` |
 | `subclasses` | Identity subtables woven into this hierarchy file; their columns join via a `subclass:` marker (see [Weaving](#weaving-and-heading-scope)). | `subclasses: [{name: Cohorts, extends: [Resources]}]` |
 | `modules` | Composition subtables (MODULE tables) woven into this hierarchy file; their columns join via a `module:` marker. | `modules: [{name: QuantitativeInfo}]` |
 | `settings` | Free-form key/value settings map scoped to this table (mirrors bundle-level `settings:`; the format does not mandate specific keys). | `settings: {}` |
@@ -265,39 +264,11 @@ into **one** ordered flat `columns:` list.
 - **Visible cascade**: a `visible:` expression set on a heading/section applies to every column it
   currently scopes, in addition to any `visible:` a column sets for itself.
 - **Cross-file / diamond merge order** (when a hierarchy is split across files, or a subclass has
-  multiple parents): the primary parent's own file order comes first, then the remaining parents in
-  their `extends:` list order, then this file's own woven list — deterministic and stable across
-  repeated parses.
-
-### Positional scope, before and after
-
-Because scope is purely positional, moving a column across a heading boundary is a one-line diff — no
-grouping key changes. Simplified from the shipped [`fullsurface`
-fixture](https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2-io/src/test/resources/yamlbundle/fullsurface/tables/Resources.yaml)
-(which really has `id`, `orgCode` and `regionCode` inside `identity`, then `familyName` after it):
-
-```yaml
-columns:
-- section: identity
-- name: id
-  key: 1
-- name: orgCode
-  key: 2
-- name: familyName          # not in "identity" — it comes after the section's scope ends
-```
-
-Moving `orgCode` out of `identity` (e.g. because it isn't identifying data after all) means moving its
-line past whatever ends the section's scope — nothing about `orgCode` itself, or the section, changes:
-
-```yaml
-columns:
-- section: identity
-- name: id
-  key: 1
-- name: familyName
-- name: orgCode             # now outside "identity" — same column, new position, one-line diff
-  key: 2
-```
+  multiple parents): `extends:` is an unordered set — its order never affects the result. Ancestors are
+  merged before their descendants (topological order), ties are broken by the bundle `tables:`
+  declaration order, and each table's own woven list comes last. Multi-parent parents always share the
+  same hierarchy root, so the inherited key comes from that shared root regardless of parent order —
+  deterministic and stable across repeated parses and across any `extends:` permutation.
 
 ## previousNames, versioning and downgrade
 
@@ -318,7 +289,7 @@ columns:
 
 A companion is a **fixed-name**, shared schema a bundle depends on without owning:
 
-- **Fixed-name**: the key under `schemas:` (e.g. `CatalogueOntologies`) is the companion's actual schema
+- **Fixed-name**: the key under `additionalSchemas:` (e.g. `CatalogueOntologies`) is the companion's actual schema
   name — unlike the flat root, it is not templated per bundle instance.
 - **Provision-if-absent**: the companion is created only if it does not already exist. A second apply of
   a bundle referencing an existing companion leaves that companion untouched; a dry-run warns if the
@@ -332,17 +303,14 @@ A companion is a **fixed-name**, shared schema a bundle depends on without ownin
   the same shape as the bundle root:
 
 ```yaml
-schemas:
+additionalSchemas:
   Lookups:
     tables:
-      - file: tables/lookups.yaml
+      - tables/lookups.yaml
     permissions: {view: anonymous}
 ```
 
 Dotted `refTable: Schema.Table` references resolve companion-before-instance.
-
-See [Worked example: diamond + companion schema](#worked-example-diamond--companion-schema) below for a
-full runnable bundle that combines a companion with diamond inheritance.
 
 ## Model API
 
@@ -362,7 +330,7 @@ as metadata-only stubs — never their term rows.
 the schema's live model (using `previousNames` chains to infer renames, as above).
 
 - **The wire form is single-file, and companions must be INLINED.** The request body is one document
-  with no accompanying file tree, so a companion under `schemas:` cannot use a `bundle:` reference on the
+  with no accompanying file tree, so a companion under `additionalSchemas:` cannot use a `bundle:` reference on the
   wire — `bundle:` stays an authoring-only convenience for the folder form. On `PUT`, a companion carries
   its content inline, in the same shape as the bundle root (`tables:`, optional `version:`, optional
   `permissions:`):
@@ -378,7 +346,7 @@ tables:
       - name: cohortType
         type: ref
         refTable: CatalogueOntologies.Cohort types
-schemas:
+additionalSchemas:
   CatalogueOntologies:
     version: 1.0.0
     permissions:
@@ -408,7 +376,7 @@ schemas:
 
 For `ontology`/`ontology_array` columns, `refTable` is auto-created if it does not already exist in the
 target schema, exactly like the [CSV behavior](use_schema.md#ontologies). An ontology table is exported as
-a **metadata-only stub** — its `name`, `tableType: ontologies`, and any `description`, `label`,
+a **metadata-only stub** — its `name`, `tableType: ontology`, and any `description`, `label`,
 `semantics` and `profiles` — but never its term rows and never its engine-defined columns, so ontology
 *metadata* round-trips while terms stay data, not model (`Emx2YamlTest#ontologyTablesExportAsStubs`). On
 import a declared stub merges cleanly with the auto-created table (no duplicate). Cross-schema ontologies
@@ -432,10 +400,7 @@ columns:
 
 Importing this bundle auto-creates a same-schema `Keywords` ontology table (empty — its terms are loaded
 as data, e.g. via CSV upload); exporting the schema afterwards emits `Keywords` as a metadata-only stub
-(`name`, `tableType: ontologies`, plus any `description`/`semantics`/`profiles`) — never its term rows.
-
-See [Worked example: diamond + companion schema](#worked-example-diamond--companion-schema) below for a
-cross-schema `ontology_array` combined with diamond inheritance.
+(`name`, `tableType: ontology`, plus any `description`/`semantics`/`profiles`) — never its term rows.
 
 ## Profiles
 
@@ -488,9 +453,9 @@ docs](use_schema.md#reflink), expressed as a four-file bundle:
 formatVersion: 1
 version: 1.0.0
 tables:
-  - file: tables/patients.yaml
-  - file: tables/samples.yaml
-  - file: tables/observations.yaml
+  - tables/patients.yaml
+  - tables/samples.yaml
+  - tables/observations.yaml
 ```
 
 ```yaml
@@ -558,108 +523,6 @@ patient,sample
 P1,S1
 ```
 
-## Worked example: diamond + companion schema
-
-The `DIAMOND_SHOWCASE_YAML` template (loaded by
-[`DiamondShowcaseYamlLoader`](https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2-datamodels/src/main/java/org/molgenis/emx2/datamodels/DiamondShowcaseYamlLoader.java),
-sources at
-[`data/diamond_showcase/yaml/`](https://github.com/molgenis/molgenis-emx2/tree/master/data/diamond_showcase/yaml),
-model-only fixture copy at
-[`backend/molgenis-emx2-io/src/test/resources/yamlbundle/diamondshowcase/`](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-io/src/test/resources/yamlbundle/diamondshowcase))
-combines both stories end to end: a diamond inheritance hierarchy whose ontology columns are dotted
-references into a companion schema.
-
-The flat root declares a `Subject` root, two single-parent subclasses, and a diamond child that extends
-both:
-
-```yaml
-# molgenis.yaml
-formatVersion: 1
-version: 1.0.0
-tables:
-  - file: tables/Subject.yaml
-  - file: tables/ClinicalSubject.yaml
-  - file: tables/ResearchSubject.yaml
-  - file: tables/ClinicalResearchSubject.yaml
-schemas:
-  diamontologies:
-    bundle: diamontologies/molgenis.yaml
-    permissions: { view: anonymous }
-```
-
-```yaml
-# tables/Subject.yaml
-name: Subject
-columns:
-  - name: subjectId
-    key: 1
-    type: string
-    required: true
-  - name: diseaseCategory
-    type: ontology_array
-    refTable: diamontologies.Disease categories
-```
-
-```yaml
-# tables/ClinicalSubject.yaml
-name: ClinicalSubject
-extends: [Subject]
-columns:
-  - name: clinicalCentreId
-    type: string
-```
-
-```yaml
-# tables/ResearchSubject.yaml
-name: ResearchSubject
-extends: [Subject]
-columns:
-  - name: biobanked
-    type: string
-```
-
-```yaml
-# tables/ClinicalResearchSubject.yaml
-name: ClinicalResearchSubject
-extends: [ClinicalSubject, ResearchSubject]
-columns:
-  - name: assayCategory
-    type: ontology_array
-    refTable: diamontologies.Assay categories
-```
-
-`ClinicalResearchSubject` is the diamond child: it extends both `ClinicalSubject` and `ResearchSubject`,
-which in turn both extend `Subject` — so `ClinicalSubject` is the primary parent (first in the list) and
-`Subject` remains the single root for the whole hierarchy, exactly as in the
-[`diamond/` fixture](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-io/src/test/resources/yamlbundle/diamond).
-
-The `diamontologies` companion, referenced by `bundle:` from the root, declares two ontology tables as
-metadata-only stubs — no `columns:`, because an ontology table's own columns are engine-defined:
-
-```yaml
-# diamontologies/molgenis.yaml
-formatVersion: 1
-version: 1.0.0
-tables:
-  - file: tables/DiseaseCategories.yaml
-  - file: tables/AssayCategories.yaml
-```
-
-```yaml
-# diamontologies/tables/DiseaseCategories.yaml
-name: Disease categories
-tableType: ontologies
-```
-
-Both `diseaseCategory` (on `Subject`, inherited by every subclass) and `assayCategory` (on the diamond
-child only) use the dotted `refTable: diamontologies.<Table name>` form, resolving into the companion
-rather than the schema the bundle is loaded into. On first load, `diamontologies` is provisioned once as
-its own schema (companion terms are shipped as demo-data CSV rows under `diamontologies/data/`, never as
-model content — see [Ontologies](#ontologies)); loading the template again onto a different schema name
-reuses that same companion instead of re-provisioning it. `DiamondShowcaseYamlLoader` performs this
-provision-if-absent step itself, since applying a `schemas:` companion onto a live database is otherwise a
-server (Model API) concern — see [Companion schemas](#companion-schemas).
-
 ## Migrating from CSV to YAML
 
 | CSV (`molgenis.csv`) | YAML | Notes |
@@ -668,7 +531,7 @@ server (Model API) concern — see [Companion schemas](#companion-schemas).
 | Comma-separated cell (`values=male,female,unknown`, `tableExtends=Parent1,Parent2`) | Native YAML list (`values: [male, female, unknown]`, `extends: [Parent1, Parent2]`) | No more escaping/quoting commas inside a metadata cell. |
 | `label:nl`, `description:fr` column headers | Flat `label@nl:`, `description@fr:` keys next to the default `label:`/`description:` | Same one-value-per-locale idea, different key spelling. |
 | Separate `refSchema` + `refTable` cells | One dotted `refTable: Schema.Table` | Same-schema references stay a bare table name; `refSchema` is retired from the YAML surface. |
-| `tableExtends` | `extends:` (list) | First entry is the primary parent for diamond merge order. |
+| `tableExtends` | `extends:` (scalar or list) | An unordered set of parents; order never matters, so the export normalises to alphabetical. |
 | A `tableType=MODULE` table row | A `modules:` block entry on the hierarchy file, its columns marked `module: <Name>` | The module's columns are woven into the same file instead of a separate table block. |
 | A subclass table row (`tableExtends` naming a non-module parent) | A `subclasses:` block entry, its columns marked `subclass: <Name>` | The whole hierarchy — root, subclasses, modules — lives in one woven file. |
 | A blank-`columnName` row setting table-level metadata | The table file's own top-level keys (`name:`, `description:`, `settings:`, …) | No more "blank row = table row" convention. |

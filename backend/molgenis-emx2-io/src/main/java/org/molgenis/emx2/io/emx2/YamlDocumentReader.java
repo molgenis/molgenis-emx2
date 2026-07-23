@@ -113,6 +113,13 @@ public class YamlDocumentReader {
     return result;
   }
 
+  public List<String> scalarOrStringList(Node node, String path) {
+    if (isScalar(node)) {
+      return List.of(scalar(node, path));
+    }
+    return stringList(node, path);
+  }
+
   public LinkedHashMap<String, String> scalarMapping(Node node, String path) {
     if (!(node instanceof MappingNode mappingNode)) {
       throw error("expected a mapping at '" + path + "'", node);

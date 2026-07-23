@@ -1,4 +1,4 @@
 formatVersion: 1
 version: 1.0.0
 tables:
-- file: tables/People.yaml
+- tables/People.yaml

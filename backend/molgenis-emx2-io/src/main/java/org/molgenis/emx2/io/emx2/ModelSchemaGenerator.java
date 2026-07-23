@@ -155,10 +155,10 @@ public final class ModelSchemaGenerator {
   private static Map<String, Object> subtable() {
     Map<String, Object> properties = new LinkedHashMap<>();
     properties.put(ModelSchemaRules.NAME, scalarString());
-    properties.put(ModelSchemaRules.EXTENDS, stringArray());
+    properties.put(ModelSchemaRules.EXTENDS, stringOrStringArray());
     properties.put(ModelSchemaRules.LABEL, scalarString());
     properties.put(ModelSchemaRules.DESCRIPTION, scalarString());
-    properties.put(ModelSchemaRules.TABLE_TYPE, scalarString());
+    properties.put(ModelSchemaRules.TABLE_TYPE, tableTypeEnum());
     properties.put(ModelSchemaRules.SEMANTICS, stringArray());
     properties.put(ModelSchemaRules.PROFILES, stringArray());
     verifyCovers(properties.keySet(), Emx2Yaml.SUBTABLE_KEYS, DEF_SUBTABLE);
@@ -179,8 +179,8 @@ public final class ModelSchemaGenerator {
     properties.put(ModelSchemaRules.DESCRIPTION, scalarString());
     properties.put(ModelSchemaRules.SETTINGS, objectSchema());
     properties.put(ModelSchemaRules.COLUMNS, arrayOf(ref(DEF_COLUMN_ENTRY)));
-    properties.put(ModelSchemaRules.EXTENDS, stringArray());
-    properties.put(ModelSchemaRules.TABLE_TYPE, scalarString());
+    properties.put(ModelSchemaRules.EXTENDS, stringOrStringArray());
+    properties.put(ModelSchemaRules.TABLE_TYPE, tableTypeEnum());
     properties.put(ModelSchemaRules.SUBCLASSES, arrayOf(ref(DEF_SUBTABLE)));
     properties.put(ModelSchemaRules.MODULES, arrayOf(ref(DEF_SUBTABLE)));
     properties.put(ModelSchemaRules.SEMANTICS, stringArray());
@@ -210,16 +210,8 @@ public final class ModelSchemaGenerator {
   }
 
   private static Map<String, Object> tableEntry() {
-    Map<String, Object> fileProperties = new LinkedHashMap<>();
-    fileProperties.put(ModelSchemaRules.FILE, scalarString());
-    Map<String, Object> fileEntry = new LinkedHashMap<>();
-    fileEntry.put(TYPE, T_OBJECT);
-    fileEntry.put(REQUIRED, List.of(ModelSchemaRules.FILE));
-    fileEntry.put(PROPERTIES, fileProperties);
-    fileEntry.put(UNEVALUATED, false);
-
     Map<String, Object> entry = new LinkedHashMap<>();
-    entry.put(ANY_OF, List.of(fileEntry, ref(DEF_TABLE_FILE)));
+    entry.put(ANY_OF, List.of(scalarString(), ref(DEF_TABLE_FILE)));
     return entry;
   }
 
@@ -231,7 +223,7 @@ public final class ModelSchemaGenerator {
     properties.put(ModelSchemaRules.SETTINGS, objectSchema());
     properties.put(ModelSchemaRules.IMPORTS, stringArray());
     properties.put(ModelSchemaRules.NAMESPACES, objectSchema());
-    properties.put(Emx2Yaml.KEY_SCHEMAS, objectSchema());
+    properties.put(Emx2Yaml.KEY_ADDITIONAL_SCHEMAS, objectSchema());
     verifyCovers(properties.keySet(), Emx2Yaml.BUNDLE_KEYS, DEF_BUNDLE);
 
     Map<String, Object> definition = new LinkedHashMap<>();
@@ -298,6 +290,18 @@ public final class ModelSchemaGenerator {
 
   private static Map<String, Object> stringArray() {
     return arrayOf(scalarString());
+  }
+
+  private static Map<String, Object> stringOrStringArray() {
+    Map<String, Object> schema = new LinkedHashMap<>();
+    schema.put(ANY_OF, List.of(scalarString(), stringArray()));
+    return schema;
+  }
+
+  private static Map<String, Object> tableTypeEnum() {
+    Map<String, Object> schema = new LinkedHashMap<>();
+    schema.put(ENUM, ModelSchemaRules.tableTypeNames());
+    return schema;
   }
 
   private static Map<String, Object> arrayOf(Map<String, Object> itemSchema) {

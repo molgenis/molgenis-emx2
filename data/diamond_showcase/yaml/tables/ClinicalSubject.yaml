@@ -2,7 +2,6 @@ name: ClinicalSubject
 extends: [Subject]
 columns:
 - name: clinicalCentreId
-  type: string
   label: Treating clinical centre identifier
 - name: lastVisitDate
   type: date

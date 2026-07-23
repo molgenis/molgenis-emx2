@@ -75,7 +75,7 @@ public final class BundleValidator {
       return;
     }
     for (NodeTuple entry : schemas.getValue()) {
-      String schemaName = reader.scalar(entry.getKeyNode(), Emx2Yaml.KEY_SCHEMAS);
+      String schemaName = reader.scalar(entry.getKeyNode(), Emx2Yaml.KEY_ADDITIONAL_SCHEMAS);
       if (entry.getValueNode() instanceof MappingNode body) {
         validateSchemaEntry(reader, schemaName, body);
       }
@@ -85,7 +85,7 @@ public final class BundleValidator {
   private static void validateSchemaEntry(
       YamlDocumentReader reader, String schemaName, MappingNode body) {
     for (NodeTuple tuple : body.getValue()) {
-      String key = reader.scalar(tuple.getKeyNode(), Emx2Yaml.KEY_SCHEMAS);
+      String key = reader.scalar(tuple.getKeyNode(), Emx2Yaml.KEY_ADDITIONAL_SCHEMAS);
       if (KEY_MEMBERS.equals(key)) {
         throw memberError(reader, schemaName, tuple.getKeyNode());
       }
@@ -177,7 +177,7 @@ public final class BundleValidator {
   private static MappingNode schemasMapping(YamlDocumentReader reader, String content) {
     Node rootNode = reader.compose(content);
     if (rootNode instanceof MappingNode rootMapping
-        && valueOf(rootMapping, Emx2Yaml.KEY_SCHEMAS) instanceof MappingNode schemas) {
+        && valueOf(rootMapping, Emx2Yaml.KEY_ADDITIONAL_SCHEMAS) instanceof MappingNode schemas) {
       return schemas;
     }
     return null;

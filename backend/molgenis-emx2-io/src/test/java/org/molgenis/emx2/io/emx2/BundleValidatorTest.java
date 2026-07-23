@@ -18,13 +18,12 @@ class BundleValidatorTest {
 
   @Test
   void referenceScoping() {
-    SchemaMetadata shadowed =
+    // a table file's own import resolves inside that file
+    SchemaMetadata resolved =
         Emx2Yaml.fromBundleFiles(
                 Map.of(
                     "molgenis.yaml",
-                    "imports: [shared/wide.yaml]\ntables:\n- file: tables/T.yaml\n",
-                    "shared/wide.yaml",
-                    "columns:\n- name: email\n  type: string\n",
+                    "tables:\n- tables/T.yaml\n",
                     "shared/narrow.yaml",
                     "columns:\n- name: email\n  type: email\n",
                     "tables/T.yaml",
@@ -32,32 +31,49 @@ class BundleValidatorTest {
             .schema();
     assertEquals(
         ColumnType.EMAIL,
-        shadowed.getTableMetadata("T").getColumn("email").getColumnType(),
-        "table-level import must shadow bundle-level for the same name");
+        resolved.getTableMetadata("T").getColumn("email").getColumnType(),
+        "a table file's own import must resolve inside that file");
 
+    // a bundle-level import does NOT resolve inside a table file (per-file import locality)
+    MolgenisException notLocal =
+        parseError(
+            Map.of(
+                "molgenis.yaml",
+                "imports: [shared/narrow.yaml]\ntables:\n- tables/T.yaml\n",
+                "shared/narrow.yaml",
+                "columns:\n- name: email\n  type: email\n",
+                "tables/T.yaml",
+                "name: T\ncolumns:\n- name: id\n  key: 1\n- email\n"));
+    assertTrue(notLocal.getMessage().contains("email"), notLocal.getMessage());
+    assertTrue(notLocal.getMessage().contains("tables/T.yaml"), notLocal.getMessage());
+    assertTrue(notLocal.getMessage().contains("line"), notLocal.getMessage());
+    assertTrue(notLocal.getMessage().contains("column"), notLocal.getMessage());
+
+    // two of the table's own imports defining the same name are ambiguous
     MolgenisException ambiguous =
         parseError(
             Map.of(
                 "molgenis.yaml",
-                "imports: [shared/a.yaml, shared/b.yaml]\ntables:\n- file: tables/T.yaml\n",
+                "tables:\n- tables/T.yaml\n",
                 "shared/a.yaml",
                 "columns:\n- name: email\n  type: email\n",
                 "shared/b.yaml",
                 "columns:\n- name: email\n  type: string\n",
                 "tables/T.yaml",
-                "name: T\ncolumns:\n- name: id\n  key: 1\n- email\n"));
+                "name: T\nimports: [shared/a.yaml, shared/b.yaml]\ncolumns:\n- name: id\n  key: 1\n- email\n"));
     assertTrue(ambiguous.getMessage().contains("email"), ambiguous.getMessage());
     assertTrue(ambiguous.getMessage().toLowerCase().contains("ambiguous"), ambiguous.getMessage());
 
+    // an unresolvable reference names its file, line and column
     MolgenisException unresolvable =
         parseError(
             Map.of(
                 "molgenis.yaml",
-                "imports: [shared/common.yaml]\ntables:\n- file: tables/T.yaml\n",
+                "tables:\n- tables/T.yaml\n",
                 "shared/common.yaml",
                 "columns:\n- name: email\n  type: email\n",
                 "tables/T.yaml",
-                "name: T\ncolumns:\n- name: id\n  key: 1\n- nope\n"));
+                "name: T\nimports: [shared/common.yaml]\ncolumns:\n- name: id\n  key: 1\n- nope\n"));
     assertTrue(unresolvable.getMessage().contains("nope"), unresolvable.getMessage());
     assertTrue(unresolvable.getMessage().contains("tables/T.yaml"), unresolvable.getMessage());
     assertTrue(unresolvable.getMessage().contains("line"), unresolvable.getMessage());
@@ -67,22 +83,22 @@ class BundleValidatorTest {
         parseError(
             Map.of(
                 "molgenis.yaml",
-                "imports: [shared/common.yaml]\ntables:\n- file: tables/T.yaml\n",
+                "tables:\n- tables/T.yaml\n",
                 "shared/common.yaml",
                 "columns:\n- name: email\n  type: email\n",
                 "tables/T.yaml",
-                "name: T\ncolumns:\n- name: id\n  key: 1\n- name: email\n  type: string\n"));
+                "name: T\nimports: [shared/common.yaml]\ncolumns:\n- name: id\n  key: 1\n- name: email\n  type: string\n"));
     assertTrue(collision.getMessage().contains("email"), collision.getMessage());
 
     MolgenisException duplicate =
         parseError(
             Map.of(
                 "molgenis.yaml",
-                "imports: [shared/common.yaml]\ntables:\n- file: tables/T.yaml\n",
+                "tables:\n- tables/T.yaml\n",
                 "shared/common.yaml",
                 "columns:\n- name: email\n  type: email\n",
                 "tables/T.yaml",
-                "name: T\ncolumns:\n- name: id\n  key: 1\n- email\n- email\n"));
+                "name: T\nimports: [shared/common.yaml]\ncolumns:\n- name: id\n  key: 1\n- email\n- email\n"));
     assertTrue(duplicate.getMessage().contains("email"), duplicate.getMessage());
     assertTrue(duplicate.getMessage().contains("tables/T.yaml"), duplicate.getMessage());
     assertTrue(duplicate.getMessage().contains("line"), duplicate.getMessage());
@@ -95,7 +111,7 @@ class BundleValidatorTest {
         BundleValidator.validate(
                 Map.of(
                     "molgenis.yaml",
-                    "tables:\n- file: tables/T.yaml\nschemas:\n  Shared:\n"
+                    "tables:\n- tables/T.yaml\nadditionalSchemas:\n  Shared:\n"
                         + "    bundle: shared/molgenis.yaml\n    permissions:\n      view: anonymous\n",
                     "tables/T.yaml",
                     "name: T\ncolumns:\n- name: id\n  key: 1\n"))
@@ -110,7 +126,7 @@ class BundleValidatorTest {
                 BundleValidator.validate(
                     Map.of(
                         "molgenis.yaml",
-                        "tables:\n- file: tables/T.yaml\nschemas:\n  Shared:\n"
+                        "tables:\n- tables/T.yaml\nadditionalSchemas:\n  Shared:\n"
                             + "    bundle: shared/molgenis.yaml\n    members:\n"
                             + "    - alice@example.com\n",
                         "tables/T.yaml",
@@ -126,7 +142,7 @@ class BundleValidatorTest {
                 BundleValidator.validate(
                     Map.of(
                         "molgenis.yaml",
-                        "tables:\n- file: tables/T.yaml\nschemas:\n  Shared:\n"
+                        "tables:\n- tables/T.yaml\nadditionalSchemas:\n  Shared:\n"
                             + "    bundle: shared/molgenis.yaml\n    permissions:\n"
                             + "      edit: bob@example.com\n",
                         "tables/T.yaml",
@@ -144,12 +160,12 @@ class BundleValidatorTest {
                 BundleValidator.validate(
                     Map.of(
                         "molgenis.yaml",
-                        "tables:\n- file: tables/T.yaml\nschemas:\n  B:\n"
+                        "tables:\n- tables/T.yaml\nadditionalSchemas:\n  B:\n"
                             + "    bundle: b/molgenis.yaml\n",
                         "tables/T.yaml",
                         "name: T\ncolumns:\n- name: id\n  key: 1\n",
                         "b/molgenis.yaml",
-                        "schemas:\n  A:\n    bundle: ../molgenis.yaml\n")));
+                        "additionalSchemas:\n  A:\n    bundle: ../molgenis.yaml\n")));
     assertTrue(cycle.getMessage().toLowerCase().contains("cycle"), cycle.getMessage());
   }
 
@@ -159,11 +175,11 @@ class BundleValidatorTest {
         parseError(
             Map.of(
                 "molgenis.yaml",
-                "imports: [shared/common.yaml]\ntables:\n- file: tables/T.yaml\n",
+                "tables:\n- tables/T.yaml\n",
                 "shared/common.yaml",
                 "columns:\n- heading: contactDetails\n  visible: hasContact\n- name: email\n  type: email\n",
                 "tables/T.yaml",
-                "name: T\ncolumns:\n- name: id\n  key: 1\n- name: contactDetails\n  visible: always\n"));
+                "name: T\nimports: [shared/common.yaml]\ncolumns:\n- name: id\n  key: 1\n- name: contactDetails\n  visible: always\n"));
     assertTrue(refinement.getMessage().contains("contactDetails"), refinement.getMessage());
   }
 }

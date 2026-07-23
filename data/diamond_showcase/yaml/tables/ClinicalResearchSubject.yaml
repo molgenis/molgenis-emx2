@@ -2,7 +2,6 @@ name: ClinicalResearchSubject
 extends: [ClinicalSubject, ResearchSubject]
 columns:
 - name: trialEnrolment
-  type: string
 - name: assayCategory
   type: ontology_array
   refTable: diamontologies.Assay categories

@@ -29,7 +29,6 @@ public final class ModelSchemaRules {
   static final String VALUES = "values";
   static final String SECTION = "section";
   static final String HEADING = "heading";
-  static final String FILE = "file";
   static final String COLUMNS = "columns";
   static final String TABLES = "tables";
   static final String IMPORTS = "imports";
@@ -116,6 +115,10 @@ public final class ModelSchemaRules {
   public static List<String> columnTypeNames() {
     return names(
         columnType -> columnType != ColumnType.HEADING && columnType != ColumnType.SECTION);
+  }
+
+  public static List<String> tableTypeNames() {
+    return List.of("data", "module", "ontology");
   }
 
   public static List<String> referenceTypeNames() {

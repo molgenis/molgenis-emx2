@@ -16,7 +16,7 @@ class CompanionSchemasTest {
     List<CompanionDeclaration> declarations =
         CompanionSchemas.fromSingleFile(
             "tables:\n- name: T\n  columns:\n  - name: id\n    key: 1\n"
-                + "schemas:\n  Shared:\n    bundle: shared/molgenis.yaml\n");
+                + "additionalSchemas:\n  Shared:\n    bundle: shared/molgenis.yaml\n");
 
     assertEquals(1, declarations.size());
     CompanionDeclaration shared = declarations.get(0);
@@ -31,7 +31,7 @@ class CompanionSchemasTest {
   void inlineCompanionCarriesModelNotBundleRef() {
     List<CompanionDeclaration> declarations =
         CompanionSchemas.fromSingleFile(
-            "schemas:\n  Inline:\n    tables:\n    - name: C\n      columns:\n      - name: id\n"
+            "additionalSchemas:\n  Inline:\n    tables:\n    - name: C\n      columns:\n      - name: id\n"
                 + "        key: 1\n");
 
     assertEquals(1, declarations.size());

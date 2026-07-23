@@ -45,7 +45,6 @@ public class Emx2Yaml {
   private static final String KEY_VERSION = "version";
   private static final String KEY_TABLES = "tables";
   private static final String KEY_SETTINGS = "settings";
-  private static final String KEY_FILE = "file";
   private static final String KEY_NAME = "name";
   private static final String KEY_LABEL = "label";
   private static final String KEY_DESCRIPTION = "description";
@@ -68,7 +67,7 @@ public class Emx2Yaml {
   private static final String KEY_PROFILES = "profiles";
   private static final String KEY_PREVIOUS_NAMES = "previousNames";
   private static final String KEY_NAMESPACES = "namespaces";
-  static final String KEY_SCHEMAS = "schemas";
+  static final String KEY_ADDITIONAL_SCHEMAS = "additionalSchemas";
   private static final String KEY_EXTENDS = "extends";
   private static final String KEY_TABLE_TYPE = "tableType";
   private static final String KEY_SUBCLASSES = "subclasses";
@@ -85,6 +84,10 @@ public class Emx2Yaml {
   private static final String BOOLEAN_FALSE = "false";
   private static final String SYSTEM_SETTING_PREFIX = "mg_";
 
+  private static final String TABLE_TYPE_DATA = "data";
+  private static final String TABLE_TYPE_ONTOLOGY = "ontology";
+  private static final String TABLE_TYPE_MODULE = "module";
+
   static final Set<String> BUNDLE_KEYS =
       Set.of(
           KEY_FORMAT_VERSION,
@@ -93,7 +96,7 @@ public class Emx2Yaml {
           KEY_SETTINGS,
           KEY_IMPORTS,
           KEY_NAMESPACES,
-          KEY_SCHEMAS);
+          KEY_ADDITIONAL_SCHEMAS);
   static final Set<String> TABLE_KEYS =
       Set.of(
           KEY_NAME,
@@ -108,7 +111,6 @@ public class Emx2Yaml {
           KEY_SEMANTICS,
           KEY_PROFILES,
           KEY_IMPORTS);
-  static final Set<String> TABLE_ENTRY_KEYS = withKey(TABLE_KEYS, KEY_FILE);
   static final Set<String> SHARED_FILE_KEYS = Set.of(KEY_COLUMNS);
   static final Set<String> HEADING_KEYS =
       Set.of(
@@ -157,12 +159,6 @@ public class Emx2Yaml {
 
   private Emx2Yaml() {}
 
-  private static Set<String> withKey(Set<String> base, String extra) {
-    Set<String> result = new HashSet<>(base);
-    result.add(extra);
-    return Set.copyOf(result);
-  }
-
   public static Emx2YamlBundle fromBundle(Path bundlePathOrDir) throws IOException {
     Path directory =
         Files.isDirectory(bundlePathOrDir) ? bundlePathOrDir : bundlePathOrDir.getParent();
@@ -193,16 +189,16 @@ public class Emx2Yaml {
     List<Node> entries = reader.sequence(tablesNode, KEY_TABLES);
     for (int index = 0; index < entries.size(); index++) {
       String path = KEY_TABLES + "[" + index + "]";
-      LinkedHashMap<String, Node> entry =
-          reader.mapping(entries.get(index), path, TABLE_ENTRY_KEYS);
-      if (entry.containsKey(KEY_FILE)) {
-        String relativePath = reader.scalar(entry.get(KEY_FILE), path + "." + KEY_FILE);
+      Node entryNode = entries.get(index);
+      if (reader.isScalar(entryNode)) {
+        String relativePath = reader.scalar(entryNode, path);
         if (!files.containsKey(relativePath)) {
           String tableContent = Files.readString(directory.resolve(relativePath));
           files.put(relativePath, tableContent);
           readImports(tableContent, "table", TABLE_KEYS, directory, files);
         }
       } else {
+        LinkedHashMap<String, Node> entry = reader.mapping(entryNode, path, TABLE_KEYS);
         loadImportFiles(reader, entry.get(KEY_IMPORTS), path + "." + KEY_IMPORTS, directory, files);
       }
     }
@@ -338,24 +334,13 @@ public class Emx2Yaml {
     for (int index = 0; index < entries.size(); index++) {
       String path = KEY_TABLES + "[" + index + "]";
       Node entryNode = entries.get(index);
-      LinkedHashMap<String, Node> entry = reader.mapping(entryNode, path, TABLE_ENTRY_KEYS);
-      if (entry.containsKey(KEY_FILE)) {
-        if (entry.size() > 1) {
-          throw reader.error(
-              "table entry cannot combine '"
-                  + KEY_FILE
-                  + "' with an inline table definition at '"
-                  + path
-                  + "'",
-              entryNode);
-        }
-        String relativePath = reader.scalar(entry.get(KEY_FILE), path + "." + KEY_FILE);
+      if (reader.isScalar(entryNode)) {
+        String relativePath = reader.scalar(entryNode, path);
         String content = files.get(relativePath);
         if (content == null) {
-          throw reader.error(
-              "referenced table file not found: " + relativePath, entry.get(KEY_FILE));
+          throw reader.error("referenced table file not found: " + relativePath, entryNode);
         }
-        parsedFiles.add(parseHierarchyFile(relativePath, content, files, bundleImports));
+        parsedFiles.add(parseHierarchyFile(relativePath, content, files, List.of()));
       } else {
         LinkedHashMap<String, Node> tableMap = reader.mapping(entryNode, "table", TABLE_KEYS);
         parsedFiles.add(parseTable(reader, tableMap, entryNode, files, bundleImports));
@@ -447,7 +432,8 @@ public class Emx2Yaml {
     }
     if (tableMap.containsKey(KEY_EXTENDS)) {
       primary.setInheritNames(
-          reader.stringList(tableMap.get(KEY_EXTENDS), tableName + "." + KEY_EXTENDS));
+          sortedInheritNames(
+              reader.scalarOrStringList(tableMap.get(KEY_EXTENDS), tableName + "." + KEY_EXTENDS)));
     }
     if (tableMap.containsKey(KEY_TABLE_TYPE)) {
       primary.setTableType(
@@ -499,7 +485,8 @@ public class Emx2Yaml {
       TableMetadata subtable = new TableMetadata(reader.scalar(subNameNode, path + "." + KEY_NAME));
       if (entry.containsKey(KEY_EXTENDS)) {
         subtable.setInheritNames(
-            reader.stringList(entry.get(KEY_EXTENDS), path + "." + KEY_EXTENDS));
+            sortedInheritNames(
+                reader.scalarOrStringList(entry.get(KEY_EXTENDS), path + "." + KEY_EXTENDS)));
       } else {
         subtable.setInheritNames(rootName);
       }
@@ -768,11 +755,44 @@ public class Emx2Yaml {
 
   private static TableType parseTableType(YamlDocumentReader reader, Node typeNode, String path) {
     String raw = reader.scalar(typeNode, path);
-    try {
-      return TableType.valueOf(raw.toUpperCase().trim());
-    } catch (IllegalArgumentException exception) {
-      throw reader.error("unknown tableType '" + raw + "' at '" + path + "'", typeNode);
+    String surface = raw.toLowerCase().trim();
+    if (TABLE_TYPE_DATA.equals(surface)) {
+      return TableType.DATA;
     }
+    if (TABLE_TYPE_ONTOLOGY.equals(surface)) {
+      return TableType.ONTOLOGIES;
+    }
+    if (TABLE_TYPE_MODULE.equals(surface)) {
+      return TableType.MODULE;
+    }
+    throw reader.error(
+        "unknown tableType '"
+            + raw
+            + "' at '"
+            + path
+            + "', expected one of "
+            + TABLE_TYPE_DATA
+            + ", "
+            + TABLE_TYPE_ONTOLOGY
+            + ", "
+            + TABLE_TYPE_MODULE,
+        typeNode);
+  }
+
+  private static List<String> sortedInheritNames(List<String> parents) {
+    List<String> sorted = new ArrayList<>(parents);
+    sorted.sort(Comparator.naturalOrder());
+    return sorted;
+  }
+
+  private static String tableTypeSurface(TableType type) {
+    if (TableType.ONTOLOGIES.equals(type)) {
+      return TABLE_TYPE_ONTOLOGY;
+    }
+    if (TableType.MODULE.equals(type)) {
+      return TABLE_TYPE_MODULE;
+    }
+    return TABLE_TYPE_DATA;
   }
 
   private static void assemble(
@@ -878,16 +898,10 @@ public class Emx2Yaml {
       Map<String, Integer> fileOfTable,
       List<Set<Integer>> adjacency,
       int[] indegree) {
-    for (int parentIndex = 0; parentIndex < parents.size(); parentIndex++) {
-      Integer parentFile = fileOfTable.get(parents.get(parentIndex));
+    for (String parent : parents) {
+      Integer parentFile = fileOfTable.get(parent);
       if (parentFile != null && parentFile != childFile) {
         addEdge(parentFile, childFile, adjacency, indegree);
-      }
-      if (parentIndex > 0) {
-        Integer previousFile = fileOfTable.get(parents.get(parentIndex - 1));
-        if (previousFile != null && parentFile != null && !previousFile.equals(parentFile)) {
-          addEdge(previousFile, parentFile, adjacency, indegree);
-        }
       }
     }
   }
@@ -1005,7 +1019,7 @@ public class Emx2Yaml {
       root.put(KEY_NAMESPACES, new LinkedHashMap<>(bundle.namespaces()));
     }
 
-    List<Map<String, Object>> tableEntries = new ArrayList<>();
+    List<Object> tableEntries = new ArrayList<>();
     List<TableMetadata> rootTables = schema.getRootTables();
     for (TableMetadata table : rootTables) {
       if (TableType.ONTOLOGIES.equals(table.getTableType())) {
@@ -1013,7 +1027,7 @@ public class Emx2Yaml {
         continue;
       }
       String relativePath = TABLES_DIR + table.getTableName() + ".yaml";
-      tableEntries.add(new LinkedHashMap<>(Map.of(KEY_FILE, relativePath)));
+      tableEntries.add(relativePath);
       files.put(relativePath, dump(tableToMap(table, schema, bundle.previousNames())));
     }
     root.put(KEY_TABLES, tableEntries);
@@ -1066,7 +1080,7 @@ public class Emx2Yaml {
   private static Map<String, Object> ontologyStubToMap(TableMetadata table) {
     Map<String, Object> stub = new LinkedHashMap<>();
     stub.put(KEY_NAME, table.getTableName());
-    stub.put(KEY_TABLE_TYPE, table.getTableType().toString().toLowerCase());
+    stub.put(KEY_TABLE_TYPE, tableTypeSurface(table.getTableType()));
     putLocalized(stub, KEY_LABEL, table.getLabels());
     putLocalized(stub, KEY_DESCRIPTION, table.getDescriptions());
     if (table.getSemantics() != null && table.getSemantics().length > 0) {
@@ -1141,12 +1155,12 @@ public class Emx2Yaml {
     for (TableMetadata subtable : subtables) {
       Map<String, Object> entry = new LinkedHashMap<>();
       entry.put(KEY_NAME, subtable.getTableName());
-      List<String> parents = subtable.getInheritNames();
+      List<String> parents = sortedInheritNames(subtable.getInheritNames());
       if (!(parents.size() == 1 && parents.get(0).equals(rootName))) {
-        entry.put(KEY_EXTENDS, new ArrayList<>(parents));
+        entry.put(KEY_EXTENDS, parents.size() == 1 ? parents.get(0) : parents);
       }
       if (!defaultType.equals(subtable.getTableType())) {
-        entry.put(KEY_TABLE_TYPE, subtable.getTableType().toString().toLowerCase());
+        entry.put(KEY_TABLE_TYPE, tableTypeSurface(subtable.getTableType()));
       }
       putLocalized(entry, KEY_LABEL, subtable.getLabels());
       putLocalized(entry, KEY_DESCRIPTION, subtable.getDescriptions());
@@ -1320,13 +1334,11 @@ public class Emx2Yaml {
 
   private static void putRequired(Map<String, Object> columnMap, Column column) {
     String required = column.getRequired();
-    if (required == null) {
+    if (required == null || BOOLEAN_FALSE.equalsIgnoreCase(required)) {
       return;
     }
     if (BOOLEAN_TRUE.equalsIgnoreCase(required)) {
       columnMap.put(KEY_REQUIRED, Boolean.TRUE);
-    } else if (BOOLEAN_FALSE.equalsIgnoreCase(required)) {
-      columnMap.put(KEY_REQUIRED, Boolean.FALSE);
     } else {
       columnMap.put(KEY_REQUIRED, required);
     }

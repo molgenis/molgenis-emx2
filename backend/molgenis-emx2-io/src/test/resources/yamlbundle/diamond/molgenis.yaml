@@ -1,6 +1,6 @@
 formatVersion: 1
 tables:
-- file: tables/FilledOutlined.yaml
-- file: tables/Outlined.yaml
-- file: tables/Filled.yaml
-- file: tables/Shape.yaml
+- tables/FilledOutlined.yaml
+- tables/Outlined.yaml
+- tables/Filled.yaml
+- tables/Shape.yaml

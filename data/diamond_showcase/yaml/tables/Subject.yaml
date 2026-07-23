@@ -4,11 +4,9 @@ description: Diamond inheritance + companion schema showcase root table
 columns:
 - name: subjectId
   key: 1
-  type: string
   required: true
   label: Subject identifier
 - name: name
-  type: string
   label: Full name
 - name: sex
   type: enum
