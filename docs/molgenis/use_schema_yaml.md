@@ -45,7 +45,7 @@ tables:
 additionalSchemas:                            # fixed-name companions (acyclic)
   CatalogueOntologies:
     bundle: catalogue-ontologies/molgenis.yaml
-    permissions: {view: anonymous}  # role-DEFAULTS allowed; member accounts never
+    permissions: {Viewer: anonymous}  # role-DEFAULTS allowed; member accounts never
 settings: {menu: ...}
 namespaces:
   dcterms: http://purl.org/dc/terms/
@@ -164,7 +164,7 @@ the two ever drift.
 | Attribute | Meaning | Example |
 |---|---|---|
 | `formatVersion` | Format-spec revision this bundle is authored against; the parser refuses a bundle newer than it supports. | `formatVersion: 1` |
-| `version` | The model's own version; stamped on the schema at apply. | `version: 3.2.0` |
+| `version` | The model's own version; stamped on the schema at apply. Must be strict numeric `MAJOR.MINOR.PATCH` — any other shape is a validation error. | `version: 3.2.0` |
 | `imports` | Bundle-wide shared files whose named columns/headings become referenceable by bare string anywhere in the bundle (shadowed by a table-level `imports:` of the same name). | `imports: [shared/common.yaml]` |
 | `tables` | This bundle's table files — one entry per hierarchy (root + its woven subclasses/modules), each a bare-string file path. Single-file form inlines the table object in place of the path string. | `tables: [tables/resources.yaml]` |
 | `additionalSchemas` | Fixed-name companion schemas, inline or by `bundle:` reference, with optional role-default `permissions:`. | `additionalSchemas: {CatalogueOntologies: {bundle: catalogue-ontologies/molgenis.yaml}}` |
@@ -278,12 +278,44 @@ into **one** ordered flat `columns:` list.
 - **Live-name collision rule**: if a chain name is both still live in the current schema *and* still
   desired in the bundle, the dry-run refuses to guess and reports an error demanding explicit
   resolution — it never silently drops or mis-renames.
-- **`version`** is stamped on the schema at apply time; a dry-run leaves it unchanged.
-- **Downgrade**: applying a bundle with an older `version` than the schema's current one is refused
-  unless `?force=true` is passed on the `PUT` (see [Model API](#model-api) below). A dry-run always shows
-  the destructive diff before you decide.
+- **`version`** is stamped on the schema at apply time; a dry-run leaves it unchanged. It must be strict
+  numeric `MAJOR.MINOR.PATCH` (e.g. `3.2.0`) — any other shape is a validation error; versions compare
+  numerically, segment by segment.
+- **Downgrade**: applying a bundle whose `version` is older than the schema's current one is a plain
+  refusal (400) — there is no override flag. The only way forward is bumping `version:` in the bundle (or
+  applying it to a fresh schema). A dry-run always shows the destructive diff before you decide.
 - **`formatVersion` skew**: a bundle whose `formatVersion` is newer than the parser supports fails
   loudly before any side effects.
+
+## Apply is additive
+
+Applying a bundle is not "make the schema look exactly like this file" — it is **a series of changes**
+layered on top of whatever the schema already has:
+
+- **Absence means leave alone.** A column or table that simply isn't in the bundle is not touched — not
+  dropped, not renamed, not altered. A bundle can describe just the tables/columns it cares about without
+  re-declaring an entire schema's worth of unrelated structure.
+- **Deletion is explicit.** The only way to remove a column or table is to mark its entry `drop: true`:
+
+```yaml
+columns:
+  - name: legacyStatus
+    drop: true
+```
+
+```yaml
+tables:
+  - name: LegacyLookup
+    drop: true
+```
+
+- **Dry-run reflects exactly the marked drops.** `plan.columnDrops`/`plan.tableDrops` (see [Model
+  API](#model-api) below) list only entries the bundle marks `drop: true` — never everything that happens
+  to be missing from the bundle.
+
+!> `drop: true` matches the schema's **current live name**, not any `previousNames` entry. If the live
+column still carries an old name, either rename it first (a `previousNames:` entry migrates it forward,
+without `drop:`) and drop it in a later apply, or mark that old name itself as the one to drop.
 
 ## Companion schemas
 
@@ -295,9 +327,11 @@ A companion is a **fixed-name**, shared schema a bundle depends on without ownin
   a bundle referencing an existing companion leaves that companion untouched; a dry-run warns if the
   existing companion is older than the one referenced.
 - **Role-default permissions**: the optional `permissions:` map sets default grants for standard [roles](use_permissions.md)
-  when the companion is first provisioned — the keys are `exists`, `range`, `aggregate`, `count`, `view`,
-  `edit`, `manage`, `own` (e.g. `{view: anonymous}` grants default view access to the anonymous role) — it
-  can never carry a specific member or user account.
+  when the companion is first provisioned — the keys are exact-match role names, spelled and cased exactly
+  as the UI shows them: `Exists`, `Range`, `Aggregator`, `Count`, `Viewer`, `Editor`, `Manager`, `Owner`
+  (lowercase spellings like `view`/`edit`/`manage`/`own` are rejected as unknown keys). E.g.
+  `{Viewer: anonymous}` grants default view access to the anonymous role — it can never carry a specific
+  member or user account.
 - **Acyclic**: companion references must not cycle; a cycle is a validation error.
 - Declared either by `bundle:` reference (pointing at another bundle's `molgenis.yaml`) or inline, using
   the same shape as the bundle root:
@@ -307,7 +341,7 @@ additionalSchemas:
   Lookups:
     tables:
       - tables/lookups.yaml
-    permissions: {view: anonymous}
+    permissions: {Viewer: anonymous}
 ```
 
 Dotted `refTable: Schema.Table` references resolve companion-before-instance.
@@ -324,7 +358,7 @@ form](#single-file-form) — one YAML document with `formatVersion`/`version` an
 is no folder/zip response variant, and (per [Ontologies](#ontologies) below) ontology tables appear only
 as metadata-only stubs — never their term rows.
 
-### PUT — apply, dry-run and force
+### PUT — apply and dry-run
 
 `PUT /{schema}/api/model` takes one YAML document as the request body and diffs it, server-side, against
 the schema's live model (using `previousNames` chains to infer renames, as above).
@@ -350,7 +384,7 @@ additionalSchemas:
   CatalogueOntologies:
     version: 1.0.0
     permissions:
-      view: anonymous
+      Viewer: anonymous
     tables:
       - name: Cohort types
         columns:
@@ -362,10 +396,11 @@ additionalSchemas:
   `plan.tableAdds`/`tableDrops`/`tableRenames`, `plan.columnAdds`/`columnDrops`/`columnRenames`,
   `plan.changes` (per-attribute before/after), and `plan.errors`/`plan.warnings` (e.g. a companion whose
   stored version is older than the one referenced). Nothing is written; the stored `version` is left
-  unchanged.
-- **`?force=true`** overrides the [downgrade refusal](#previousnames-versioning-and-downgrade) — without
-  it, `PUT`-ing a bundle whose `version` is older than the schema's stored version fails (400) and nothing
-  changes; with it, the older version is applied and stamped.
+  unchanged. Because [apply is additive](#apply-is-additive), `plan.tableDrops`/`plan.columnDrops` list
+  only entries the bundle marks `drop: true` — never everything merely absent from the bundle.
+- **Downgrade refusal**: `PUT`-ing a bundle whose `version` is older than the schema's stored version
+  fails (400) and nothing changes — there is no override flag. Bump `version:` in the bundle to proceed
+  (see [previousNames, versioning and downgrade](#previousnames-versioning-and-downgrade)).
 - **Version stamping**: a successful (non-dry-run) apply stores the bundle's `version:` on the schema —
   the next `PUT`'s downgrade check and previousNames-chain resolution compare against it, and the next
   `GET` reports it back.
@@ -537,7 +572,7 @@ P1,S1
 | A blank-`columnName` row setting table-level metadata | The table file's own top-level keys (`name:`, `description:`, `settings:`, …) | No more "blank row = table row" convention. |
 | `heading`/`section` columnType rows | `- heading:` / `- section:` layout entries in `columns:` | Same two-level semantics. |
 | `oldName` migration directive | `previousNames:` (list) | `oldName` was a one-shot instruction consumed by a single upload; `previousNames` is a persistent, versioned chain the diff engine consults on every apply, and supports rename **chains** across multiple versions. |
-| `drop` migration flag | *(no direct key)* | A column/table simply absent from the desired bundle, and not matched via `previousNames`, is diffed as an explicit DROP by the model API's dry-run/apply. |
+| `drop` migration flag | `drop: true` on the column/table entry | Explicit, not implied by absence — see [Apply is additive](#apply-is-additive). A column/table simply absent from the bundle is left untouched. |
 
 ### Step by step, on a real model
 
