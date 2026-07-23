@@ -1,0 +1,364 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Options
+  description: A table with options to test the ref/ref-array/radio/select/multiselect columns
+  profiles:
+  - TypeTest
+  columns:
+  - name: option key
+    key: 1
+    required: true
+    profiles:
+    - TypeTest
+  - name: option value
+    profiles:
+    - TypeTest
+- name: Types
+  description: A table containing a column for each column type
+  profiles:
+  - TypeTest
+  columns:
+  - section: String types
+    profiles:
+    - TypeTest
+  - heading: Simple string types
+    profiles:
+    - TypeTest
+  - name: string type
+    key: 1
+    required: true
+    profiles:
+    - TypeTest
+  - name: string array type
+    type: string_array
+    profiles:
+    - TypeTest
+  - name: text type
+    type: text
+    profiles:
+    - TypeTest
+  - name: text array type
+    type: text_array
+    profiles:
+    - TypeTest
+  - heading: Extended string types
+    profiles:
+    - TypeTest
+  - name: auto id type
+    type: auto_id
+    key: 1
+    required: true
+    profiles:
+    - TypeTest
+  - name: json type
+    type: json
+    profiles:
+    - TypeTest
+  - name: email type
+    type: email
+    profiles:
+    - TypeTest
+  - name: email array type
+    type: email_array
+    profiles:
+    - TypeTest
+  - name: hyperlink type
+    type: hyperlink
+    profiles:
+    - TypeTest
+  - name: hyperlink array type
+    type: hyperlink_array
+    profiles:
+    - TypeTest
+  - section: Numeric types
+    profiles:
+    - TypeTest
+  - heading: Simple numeric types
+    profiles:
+    - TypeTest
+  - name: int type
+    type: int
+    profiles:
+    - TypeTest
+  - name: int array type
+    type: int_array
+    profiles:
+    - TypeTest
+  - name: long type
+    type: long
+    profiles:
+    - TypeTest
+  - name: long array type
+    type: long_array
+    profiles:
+    - TypeTest
+  - name: decimal type
+    type: decimal
+    profiles:
+    - TypeTest
+  - name: decimal array type
+    type: decimal_array
+    profiles:
+    - TypeTest
+  - heading: Extended numeric types
+    profiles:
+    - TypeTest
+  - name: non negative int type
+    type: non_negative_int
+    profiles:
+    - TypeTest
+  - name: non negative int array type
+    type: non_negative_int_array
+    profiles:
+    - TypeTest
+  - section: Primitive types
+    profiles:
+    - TypeTest
+  - name: bool type
+    type: bool
+    profiles:
+    - TypeTest
+  - name: bool array type
+    type: bool_array
+    profiles:
+    - TypeTest
+  - name: uuid type
+    type: uuid
+    profiles:
+    - TypeTest
+  - name: uuid array type
+    type: uuid_array
+    profiles:
+    - TypeTest
+  - name: file type
+    type: file
+    profiles:
+    - TypeTest
+  - heading: Date types
+    profiles:
+    - TypeTest
+  - name: date type
+    type: date
+    profiles:
+    - TypeTest
+  - name: date array type
+    type: date_array
+    profiles:
+    - TypeTest
+  - name: datetime type
+    type: datetime
+    profiles:
+    - TypeTest
+  - name: datetime array type
+    type: datetime_array
+    profiles:
+    - TypeTest
+  - name: period type
+    type: period
+    profiles:
+    - TypeTest
+  - name: period array type
+    type: period_array
+    profiles:
+    - TypeTest
+  - section: Relationship types
+    profiles:
+    - TypeTest
+  - name: ref type
+    type: ref
+    refTable: Options
+    profiles:
+    - TypeTest
+  - name: select type
+    type: select
+    refTable: Options
+    profiles:
+    - TypeTest
+  - name: select type Label
+    type: select
+    refTable: Options
+    refLabel: ${optionValue}
+    profiles:
+    - TypeTest
+  - name: radio type
+    type: radio
+    refTable: Options
+    profiles:
+    - TypeTest
+  - name: radio type Label
+    type: radio
+    refTable: Options
+    refLabel: ${optionValue}
+    profiles:
+    - TypeTest
+  - name: ref array type
+    type: ref_array
+    refTable: Options
+    profiles:
+    - TypeTest
+  - name: checkbox type
+    type: checkbox
+    refTable: Options
+    profiles:
+    - TypeTest
+  - name: checkbox type Label
+    type: checkbox
+    refTable: Options
+    refLabel: ${optionValue}
+    profiles:
+    - TypeTest
+  - name: multiselect type
+    type: multiselect
+    refTable: Options
+    profiles:
+    - TypeTest
+  - name: multiselect type Label
+    type: multiselect
+    refTable: Options
+    refLabel: ${optionValue}
+    profiles:
+    - TypeTest
+  - name: ref back type
+    type: ref
+    refTable: Options
+    profiles:
+    - TypeTest
+  - name: ontology small type
+    type: ontology
+    refTable: OntologySmall
+    refLabel: ${label}
+    profiles:
+    - TypeTest
+  - name: ontology large type
+    type: ontology
+    refTable: OntologyLarge
+    refLabel: ${label}
+    profiles:
+    - TypeTest
+  - name: ontology small array type
+    type: ontology_array
+    refTable: OntologySmall
+    refLabel: ${label}
+    profiles:
+    - TypeTest
+  - name: ontology large array type
+    type: ontology_array
+    refTable: OntologyLarge
+    refLabel: ${label}
+    profiles:
+    - TypeTest
+  - name: ontology small tree type
+    type: ontology
+    refTable: OntologySmallTree
+    refLabel: ${label}
+    profiles:
+    - TypeTest
+  - name: ontology large tree type
+    type: ontology
+    refTable: OntologyLargeTree
+    refLabel: ${label}
+    profiles:
+    - TypeTest
+  - name: ontology small tree array type
+    type: ontology_array
+    refTable: OntologySmallTree
+    refLabel: ${label}
+    profiles:
+    - TypeTest
+  - name: ontology large tree array type
+    type: ontology_array
+    refTable: OntologyLargeTree
+    refLabel: ${label}
+    profiles:
+    - TypeTest
+  - section: Conditional required
+    profiles:
+    - TypeTest
+  - name: nameKnown
+    type: bool
+    required: false
+    profiles:
+    - TypeTest
+  - name: nameRequiredIfNameKnownYes
+    required: if(nameKnown) 'Name is required if name is known'
+    profiles:
+    - TypeTest
+  - name: nameNoConditional
+    required: false
+    profiles:
+    - TypeTest
+  - section: validationsVisible
+    label: Validation & visible expressions
+    profiles:
+    - TypeTest
+  - name: year
+    type: int
+    required: false
+    label: Year of Birth (validation between 1600 and current year)
+    validation: var CurrentDate =new Date().getFullYear() + 1; if (parseInt(year)>= CurrentDate || parseInt(year)<=1599) "It appears you have entered a year that is not within the allowed range. Please enter a year between 1600 and the current year."
+    profiles:
+    - TypeTest
+  - name: showVisibleExpressionVariable
+    type: ontology
+    refTable: YesNoUnknown
+    refLabel: ${label}
+    required: false
+    label: If put to yes the test visible expression variable will be shown
+    profiles:
+    - TypeTest
+  - name: testVisible
+    required: false
+    label: Test visible expression (visible if stringKnown is yes)
+    visible: showVisibleExpressionVariable?.name === "yes"
+    profiles:
+    - TypeTest
+  - name: code
+    label: What is the code? (validated min 4 - max 12 characters)
+    validation: if(code.length<4 || code.length>12)'Code should be 4-12 characters long'
+    profiles:
+    - TypeTest
+  - name: additionalInfo
+    type: ontology
+    refTable: YesNoUnknown
+    refLabel: ${label}
+    label: Additional info, if yes a new header will appear.
+    profiles:
+    - TypeTest
+  - heading: additionalInfoHeader
+    label: Additional Information (header visible if additional info known is yes)
+    visible: additionalInfo?.name === "yes"
+    profiles:
+    - TypeTest
+  - name: dateStart
+    type: date
+    label: Date Start (validation between 01-01-1900 and today)
+    validation: var today =new Date(); var dateFormat=today.toISOString().split('T')[0]; var minDate = new Date('1900-01-01'); var minDateFormat=minDate.toISOString().split('T')[0]; if (dateStart>dateFormat || dateStart<minDateFormat)"It appears you have entered a date that is not within the allowed range. Please enter a date that is between 01-01-1900 and today."
+    visible: additionalInfo?.name === "yes"
+    profiles:
+    - TypeTest
+- name: YesNoUnknown
+  tableType: ontologies
+  description: Yes, no, unknown
+  profiles:
+  - TypeTest
+- name: OntologySmall
+  tableType: ontologies
+  description: A table with limited options to test the small ontology like columns
+  profiles:
+  - TypeTest
+- name: OntologySmallTree
+  tableType: ontologies
+  description: A table with options and parents to test the small tree ontology like columns
+  profiles:
+  - TypeTest
+- name: OntologyLarge
+  tableType: ontologies
+  description: A table with options to test the large ontology like columns
+  profiles:
+  - TypeTest
+- name: OntologyLargeTree
+  tableType: ontologies
+  description: A table with options and parents to test the large tree ontology like columns
+  profiles:
+  - TypeTest

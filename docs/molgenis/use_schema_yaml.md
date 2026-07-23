@@ -348,8 +348,8 @@ and validator as file-based bundles.
 
 `GET /{schema}/api/model` returns the schema's current model in the [single-file
 form](#single-file-form) — one YAML document with `formatVersion`/`version` and inlined `tables:`. There
-is no folder/zip response variant, and (per [Ontologies](#ontologies) below) no ontology tables appear in
-it.
+is no folder/zip response variant, and (per [Ontologies](#ontologies) below) ontology tables appear only
+as metadata-only stubs — never their term rows.
 
 ### PUT — apply, dry-run and force
 
@@ -402,11 +402,13 @@ schemas:
 ## Ontologies
 
 For `ontology`/`ontology_array` columns, `refTable` is auto-created if it does not already exist in the
-target schema, exactly like the [CSV behavior](use_schema.md#ontologies) — but ontology tables are never
-part of the exported model: terms are data, not model, so `GET /{schema}/api/model` (and file export)
-never emits them (`Emx2YamlTest#ontologyTablesNotExported`). Cross-schema ontologies use the same dotted
-`refTable: Schema.Table` form as any other reference; same-schema ontologies use a bare table name. From
-the shipped [`refs`
+target schema, exactly like the [CSV behavior](use_schema.md#ontologies). An ontology table is exported as
+a **metadata-only stub** — its `name`, `tableType: ontologies`, and any `description`, `label`,
+`semantics` and `profiles` — but never its term rows and never its engine-defined columns, so ontology
+*metadata* round-trips while terms stay data, not model (`Emx2YamlTest#ontologyTablesExportAsStubs`). On
+import a declared stub merges cleanly with the auto-created table (no duplicate). Cross-schema ontologies
+use the same dotted `refTable: Schema.Table` form as any other reference; same-schema ontologies use a bare
+table name. From the shipped [`refs`
 fixture](https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2-io/src/test/resources/yamlbundle/refs/tables/Cohorts.yaml):
 
 ```yaml
@@ -424,7 +426,8 @@ columns:
 ```
 
 Importing this bundle auto-creates a same-schema `Keywords` ontology table (empty — its terms are loaded
-as data, e.g. via CSV upload); exporting the schema afterwards omits `Keywords` from the model entirely.
+as data, e.g. via CSV upload); exporting the schema afterwards emits `Keywords` as a metadata-only stub
+(`name`, `tableType: ontologies`, plus any `description`/`semantics`/`profiles`) — never its term rows.
 
 ## Profiles
 

@@ -1009,6 +1009,7 @@ public class Emx2Yaml {
     List<TableMetadata> rootTables = schema.getRootTables();
     for (TableMetadata table : rootTables) {
       if (TableType.ONTOLOGIES.equals(table.getTableType())) {
+        tableEntries.add(ontologyStubToMap(table));
         continue;
       }
       String relativePath = TABLES_DIR + table.getTableName() + ".yaml";
@@ -1039,6 +1040,7 @@ public class Emx2Yaml {
     List<Map<String, Object>> tableEntries = new ArrayList<>();
     for (TableMetadata table : schema.getRootTables()) {
       if (TableType.ONTOLOGIES.equals(table.getTableType())) {
+        tableEntries.add(ontologyStubToMap(table));
         continue;
       }
       tableEntries.add(tableToMap(table, schema, bundle.previousNames()));
@@ -1059,6 +1061,21 @@ public class Emx2Yaml {
       }
     }
     return result;
+  }
+
+  private static Map<String, Object> ontologyStubToMap(TableMetadata table) {
+    Map<String, Object> stub = new LinkedHashMap<>();
+    stub.put(KEY_NAME, table.getTableName());
+    stub.put(KEY_TABLE_TYPE, table.getTableType().toString().toLowerCase());
+    putLocalized(stub, KEY_LABEL, table.getLabels());
+    putLocalized(stub, KEY_DESCRIPTION, table.getDescriptions());
+    if (table.getSemantics() != null && table.getSemantics().length > 0) {
+      stub.put(KEY_SEMANTICS, List.of(table.getSemantics()));
+    }
+    if (table.getProfiles() != null && table.getProfiles().length > 0) {
+      stub.put(KEY_PROFILES, List.of(table.getProfiles()));
+    }
+    return stub;
   }
 
   private static Map<String, Object> tableToMap(

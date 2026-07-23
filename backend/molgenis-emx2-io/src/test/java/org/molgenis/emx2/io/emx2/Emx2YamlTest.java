@@ -286,19 +286,43 @@ class Emx2YamlTest {
   }
 
   @Test
-  void ontologyTablesNotExported() throws Exception {
-    Emx2YamlBundle parsed = Emx2Yaml.fromBundle(bundleDir("refs"));
-    SchemaMetadata schema = parsed.schema();
+  void ontologyTablesExportAsStubs() {
+    SchemaMetadata schema = new SchemaMetadata();
+    TableMetadata cohorts = new TableMetadata("Cohorts");
+    cohorts.add(new Column("id").setKey(1));
+    cohorts.add(new Column("keywords").setType(ColumnType.ONTOLOGY_ARRAY).setRefTable("Keywords"));
+    schema.create(cohorts);
+    TableMetadata keywords = new TableMetadata("Keywords");
+    keywords.setTableType(TableType.ONTOLOGIES);
+    keywords.setLabel("Keywords");
+    keywords.setLabel("Trefwoorden", "nl");
+    keywords.setDescription("Controlled keyword terms");
+    keywords.setSemantics("sio:keyword");
+    keywords.setProfiles("catalogue");
+    schema.create(keywords);
 
-    // same-schema ontology_array column auto-creates its refTable on import
-    TableMetadata keywords = schema.getTableMetadata("Keywords");
-    assertNotNull(keywords);
-    assertEquals(TableType.ONTOLOGIES, keywords.getTableType());
+    // the stub carries only metadata: name, tableType, label(+@locale), description, semantics,
+    // profiles -- never a columns: block (its engine columns) and never term rows
+    Map<String, String> bundle = Emx2Yaml.toBundleFiles(new Emx2YamlBundle(schema, 1, null));
+    String rootYaml = bundle.get("molgenis.yaml");
+    assertFalse(bundle.containsKey("tables/Keywords.yaml"), rootYaml);
+    assertTrue(rootYaml.contains("name: Keywords"), rootYaml);
+    assertTrue(rootYaml.contains("tableType: ontologies"), rootYaml);
+    assertTrue(rootYaml.contains("Controlled keyword terms"), rootYaml);
+    assertTrue(rootYaml.contains("sio:keyword"), rootYaml);
+    assertTrue(rootYaml.contains("catalogue"), rootYaml);
+    assertTrue(rootYaml.contains("label@nl: Trefwoorden"), rootYaml);
 
-    // no ontology table appears in the export
-    Map<String, String> export = Emx2Yaml.toBundleFiles(parsed);
-    assertFalse(export.containsKey("tables/Keywords.yaml"));
-    assertFalse(export.get("molgenis.yaml").contains("Keywords.yaml"));
+    // the stub round-trips its metadata onto the (auto-created) ontology table, no duplicate error
+    SchemaMetadata reparsed = Emx2Yaml.fromBundleFiles(bundle).schema();
+    TableMetadata reKeywords = reparsed.getTableMetadata("Keywords");
+    assertNotNull(reKeywords);
+    assertEquals(TableType.ONTOLOGIES, reKeywords.getTableType());
+    assertTrue(reKeywords.getColumns().isEmpty(), "stub must not carry term/engine columns");
+    assertEquals("Controlled keyword terms", reKeywords.getDescriptions().get("en"));
+    assertEquals("Trefwoorden", reKeywords.getLabels().get("nl"));
+    assertArrayEquals(new String[] {"sio:keyword"}, reKeywords.getSemantics());
+    assertArrayEquals(new String[] {"catalogue"}, reKeywords.getProfiles());
   }
 
   @Test

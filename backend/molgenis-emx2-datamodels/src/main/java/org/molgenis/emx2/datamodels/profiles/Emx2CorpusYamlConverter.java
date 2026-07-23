@@ -36,15 +36,14 @@ public class Emx2CorpusYamlConverter {
   private static final String COLUMN_TYPE = "columnType";
   private static final String TABLE_NAME = "tableName";
   private static final String TABLE_TYPE = "tableType";
+  private static final String REQUIRED = "required";
+  private static final String NOT_REQUIRED = "false";
   private static final String TABLE_EXTENDS = "tableExtends";
   private static final String REF_TABLE = "refTable";
   private static final String REF_SCHEMA = "refSchema";
   private static final String ONTOLOGY = "ontology";
   private static final String ONTOLOGY_ARRAY = "ontology_array";
   private static final String ONTOLOGIES = "ONTOLOGIES";
-  private static final String[] ONTOLOGY_METADATA_COLUMNS = {
-    "label", "description", "semantics", "profiles"
-  };
   private static final String CORPUS_VERSION = "1.0.0";
   private static final String CSV_SUFFIX = ".csv";
   private static final String YAML_SUFFIX = ".yaml";
@@ -156,32 +155,7 @@ public class Emx2CorpusYamlConverter {
     if (crossFile != null) {
       return crossFile;
     }
-    String ontologyMetadata = ontologyMetadataReason(rows);
-    if (ontologyMetadata != null) {
-      return ontologyMetadata;
-    }
     return ontologyReferenceReason(rows, dataTables);
-  }
-
-  private String ontologyMetadataReason(List<Row> rows) {
-    TreeSet<String> tables = new TreeSet<>();
-    for (Row row : rows) {
-      if (!isTableDefinition(row) || !ONTOLOGIES.equalsIgnoreCase(row.getString(TABLE_TYPE))) {
-        continue;
-      }
-      for (String metadataColumn : ONTOLOGY_METADATA_COLUMNS) {
-        String value = row.getString(metadataColumn);
-        if (value != null && !value.isBlank()) {
-          tables.add(row.getString(TABLE_NAME));
-        }
-      }
-    }
-    if (tables.isEmpty()) {
-      return null;
-    }
-    return "defines ONTOLOGIES table(s) with label/description/semantics/profiles metadata that "
-        + "the YAML format does not export: "
-        + String.join(", ", tables);
   }
 
   private String ontologyReferenceReason(List<Row> rows, Set<String> dataTables) {
@@ -275,9 +249,10 @@ public class Emx2CorpusYamlConverter {
       StringBuilder line = new StringBuilder();
       for (Map.Entry<String, Object> entry : sorted.entrySet()) {
         String text = render(entry.getValue());
-        if (!text.isEmpty()) {
-          line.append(entry.getKey()).append('=').append(text).append('|');
+        if (text.isEmpty() || (REQUIRED.equals(entry.getKey()) && NOT_REQUIRED.equals(text))) {
+          continue;
         }
+        line.append(entry.getKey()).append('=').append(text).append('|');
       }
       if (!isBareOntologyStub(line.toString())) {
         lines.add(line.toString());
