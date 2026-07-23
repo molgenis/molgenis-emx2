@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
@@ -101,5 +102,35 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
         .body(body)
         .when()
         .post(path);
+  }
+
+  // --- /api/yaml ---
+
+  @Test
+  void putYamlAsManager_succeeds() {
+    login(database.getAdminUserName(), ADMIN_PASS);
+    String schemaYaml =
+        given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/yaml").asString();
+
+    login(MANAGER, MANAGER);
+    assertEquals(200, putYaml("/" + SCHEMA + "/api/yaml", schemaYaml).getStatusCode());
+  }
+
+  @Test
+  void putYamlAsViewer_isRejected() {
+    login(database.getAdminUserName(), ADMIN_PASS);
+    String schemaYaml =
+        given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/yaml").asString();
+
+    login(VIEWER, VIEWER);
+    Response response = putYaml("/" + SCHEMA + "/api/yaml", schemaYaml);
+    assertEquals(400, response.getStatusCode());
+    assertTrue(
+        response.asString().contains("Unauthorized"),
+        "a Viewer PUT of a valid bundle must be rejected with the permission error");
+  }
+
+  private static Response putYaml(String path, String body) {
+    return given().sessionId(sessionId).contentType("text/yaml").body(body).when().put(path);
   }
 }

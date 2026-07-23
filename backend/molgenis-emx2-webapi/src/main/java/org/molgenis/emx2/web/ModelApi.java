@@ -9,7 +9,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -72,6 +74,10 @@ public class ModelApi {
             loadPreviousNames(schema.getMetadata()));
     ctx.contentType(ACCEPT_YAML);
     ctx.status(200);
+    String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
+    ctx.header(
+        "Content-Disposition",
+        "attachment; filename=\"" + schema.getName() + "_ " + date + ".yaml\"");
     ctx.result(Emx2Yaml.toSingleFile(bundle));
   }
 

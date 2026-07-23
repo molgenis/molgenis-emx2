@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.json.JsonUtil.*;
-import static org.molgenis.emx2.web.Constants.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import io.javalin.Javalin;

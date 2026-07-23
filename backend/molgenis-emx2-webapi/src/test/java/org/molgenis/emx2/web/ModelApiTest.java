@@ -81,6 +81,22 @@ class ModelApiTest extends ApiTestBase {
   }
 
   @Test
+  void getModelSetsYamlDownloadFilename() {
+    createPersonSchema(YAML_GET_SCHEMA);
+    String disposition =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("/" + YAML_GET_SCHEMA + "/api/yaml")
+            .getHeader("Content-Disposition");
+    assertNotNull(disposition, "yaml download must carry a Content-Disposition filename");
+    assertTrue(
+        disposition.startsWith("attachment; filename=\"" + YAML_GET_SCHEMA),
+        "download filename must be an attachment named after the schema");
+    assertTrue(disposition.endsWith(".yaml\""), "download filename must carry the .yaml extension");
+  }
+
+  @Test
   void legacyModelPathIsGone() {
     createPersonSchema(LEGACY_MODEL_SCHEMA);
     given()
