@@ -38,3 +38,7 @@ tasks.register('validateModelCorpus', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     args 'validate-fixtures', corpusYamlDir.absolutePath, modelSchemaArtifact.absolutePath
 }
+
+tasks.named('check') {
+    dependsOn 'validateModelCorpus'
+}

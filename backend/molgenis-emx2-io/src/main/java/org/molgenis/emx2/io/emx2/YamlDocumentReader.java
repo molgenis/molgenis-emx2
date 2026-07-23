@@ -125,6 +125,10 @@ public class YamlDocumentReader {
   }
 
   public MolgenisException error(String message, Node node) {
+    return error(fileLabel, message, node);
+  }
+
+  public static MolgenisException error(String fileLabel, String message, Node node) {
     Mark mark = node == null ? null : node.getStartMark();
     int line = mark == null ? -1 : mark.getLine() + 1;
     int column = mark == null ? -1 : mark.getColumn() + 1;

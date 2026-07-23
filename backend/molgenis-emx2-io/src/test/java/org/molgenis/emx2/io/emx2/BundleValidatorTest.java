@@ -84,6 +84,9 @@ class BundleValidatorTest {
                 "tables/T.yaml",
                 "name: T\ncolumns:\n- name: id\n  key: 1\n- email\n- email\n"));
     assertTrue(duplicate.getMessage().contains("email"), duplicate.getMessage());
+    assertTrue(duplicate.getMessage().contains("tables/T.yaml"), duplicate.getMessage());
+    assertTrue(duplicate.getMessage().contains("line"), duplicate.getMessage());
+    assertTrue(duplicate.getMessage().contains("column"), duplicate.getMessage());
   }
 
   @Test

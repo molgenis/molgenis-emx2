@@ -407,7 +407,7 @@ public class Emx2Yaml {
           entries.add(new SharedEntry(column.getName(), level, column));
         } else {
           LinkedHashMap<String, Node> columnMap = reader.mapping(node, path, COLUMN_KEYS);
-          Column column = parseColumn(reader, columnMap, path);
+          Column column = parseColumn(reader, columnMap, path, node);
           entries.add(new SharedEntry(column.getName(), null, column));
         }
       }
@@ -475,7 +475,7 @@ public class Emx2Yaml {
     ImportScope scope = new ImportScope(tableImports, bundleImports);
 
     List<ColumnEntry> columns = parseColumns(reader, tableMap.get(KEY_COLUMNS), tableName, scope);
-    return new ParsedFile(primary, subtables, columns);
+    return new ParsedFile(reader.getFileLabel(), primary, subtables, columns);
   }
 
   private static void parseSubtables(
@@ -540,7 +540,7 @@ public class Emx2Yaml {
       if (reader.isScalar(node)) {
         String referenceName = reader.scalar(node, path);
         for (Column spliced : scope.resolve(referenceName, reader, node)) {
-          result.add(new ColumnEntry(tableName, spliced));
+          result.add(new ColumnEntry(tableName, spliced, node));
         }
       } else {
         result.add(parseDefinedEntry(reader, node, tableName, path, scope));
@@ -559,17 +559,17 @@ public class Emx2Yaml {
       Column column = parseHeadingColumn(reader, headingMap, path, level);
       rejectReuseOrDefine(reader, scope, column.getName(), node);
       String target = resolveMarkerTarget(reader, headingMap, tableName, path);
-      return new ColumnEntry(target, column);
+      return new ColumnEntry(target, column, node);
     }
     LinkedHashMap<String, Node> columnMap = reader.mapping(node, path, COLUMN_KEYS);
     String target = resolveMarkerTarget(reader, columnMap, tableName, path);
-    Column column = parseColumn(reader, columnMap, path);
+    Column column = parseColumn(reader, columnMap, path, node);
     rejectReuseOrDefine(reader, scope, column.getName(), node);
     List<String> previousNames =
         columnMap.containsKey(KEY_PREVIOUS_NAMES)
             ? reader.stringList(columnMap.get(KEY_PREVIOUS_NAMES), path + "." + KEY_PREVIOUS_NAMES)
             : List.of();
-    return new ColumnEntry(target, column, previousNames);
+    return new ColumnEntry(target, column, previousNames, node);
   }
 
   private static void rejectReuseOrDefine(
@@ -591,13 +591,13 @@ public class Emx2Yaml {
       Set<String> placed =
           placedPerTarget.computeIfAbsent(entry.targetTable(), key -> new HashSet<>());
       if (!placed.add(entry.column().getName())) {
-        throw new MolgenisException(
-            reader.getFileLabel()
-                + ": duplicate placement of '"
+        throw reader.error(
+            "duplicate placement of '"
                 + entry.column().getName()
                 + "' in table '"
                 + entry.targetTable()
-                + "'");
+                + "'",
+            entry.node());
       }
     }
   }
@@ -655,10 +655,10 @@ public class Emx2Yaml {
   }
 
   private static Column parseColumn(
-      YamlDocumentReader reader, LinkedHashMap<String, Node> columnMap, String path) {
+      YamlDocumentReader reader, LinkedHashMap<String, Node> columnMap, String path, Node node) {
     Node nameNode = columnMap.get(KEY_NAME);
     if (nameNode == null) {
-      throw new MolgenisException(reader.getFileLabel() + ": column is missing '" + KEY_NAME + "'");
+      throw reader.error("column is missing '" + KEY_NAME + "'", node);
     }
     Column column = new Column(reader.scalar(nameNode, path + "." + KEY_NAME));
 
@@ -800,15 +800,18 @@ public class Emx2Yaml {
 
     int position = 0;
     for (int fileIndex : order) {
-      for (ColumnEntry entry : parsedFiles.get(fileIndex).columns()) {
+      ParsedFile parsedFile = parsedFiles.get(fileIndex);
+      for (ColumnEntry entry : parsedFile.columns()) {
         TableMetadata target = schema.getTableMetadata(entry.targetTable());
         if (target == null) {
-          throw new MolgenisException(
+          throw YamlDocumentReader.error(
+              parsedFile.fileLabel(),
               "column '"
                   + entry.column().getName()
                   + "' is assigned to unknown subtable '"
                   + entry.targetTable()
-                  + "'");
+                  + "'",
+              entry.node());
         }
         entry.column().setPosition(position++);
         target.add(entry.column());
@@ -857,7 +860,14 @@ public class Emx2Yaml {
       }
     }
     if (order.size() != count) {
-      throw new MolgenisException("cyclic dependency between hierarchy files");
+      List<String> unresolved = new ArrayList<>();
+      for (int index = 0; index < count; index++) {
+        if (!order.contains(index)) {
+          unresolved.add(parsedFiles.get(index).fileLabel());
+        }
+      }
+      throw new MolgenisException(
+          "cyclic dependency between hierarchy files: " + String.join(", ", unresolved));
     }
     return order;
   }
@@ -889,11 +899,15 @@ public class Emx2Yaml {
   }
 
   private record ParsedFile(
-      TableMetadata primary, List<TableMetadata> subtables, List<ColumnEntry> columns) {}
+      String fileLabel,
+      TableMetadata primary,
+      List<TableMetadata> subtables,
+      List<ColumnEntry> columns) {}
 
-  private record ColumnEntry(String targetTable, Column column, List<String> previousNames) {
-    ColumnEntry(String targetTable, Column column) {
-      this(targetTable, column, List.of());
+  private record ColumnEntry(
+      String targetTable, Column column, List<String> previousNames, Node node) {
+    ColumnEntry(String targetTable, Column column, Node node) {
+      this(targetTable, column, List.of(), node);
     }
   }
 
@@ -1003,8 +1017,9 @@ public class Emx2Yaml {
     }
     root.put(KEY_TABLES, tableEntries);
 
-    if (!schema.getSettings().isEmpty()) {
-      root.put(KEY_SETTINGS, new LinkedHashMap<>(schema.getSettings()));
+    Map<String, String> exportableSettings = exportableSettings(schema.getSettings());
+    if (!exportableSettings.isEmpty()) {
+      root.put(KEY_SETTINGS, new LinkedHashMap<>(exportableSettings));
     }
 
     files.put(MOLGENIS_YAML, dump(root));
@@ -1054,8 +1069,9 @@ public class Emx2Yaml {
     tableMap.put(KEY_NAME, table.getTableName());
     putLocalized(tableMap, KEY_LABEL, table.getLabels());
     putLocalized(tableMap, KEY_DESCRIPTION, table.getDescriptions());
-    if (!table.getSettings().isEmpty()) {
-      tableMap.put(KEY_SETTINGS, new LinkedHashMap<>(table.getSettings()));
+    Map<String, String> tableSettings = exportableSettings(table.getSettings());
+    if (!tableSettings.isEmpty()) {
+      tableMap.put(KEY_SETTINGS, new LinkedHashMap<>(tableSettings));
     }
     if (table.getSemantics() != null && table.getSemantics().length > 0) {
       tableMap.put(KEY_SEMANTICS, List.of(table.getSemantics()));

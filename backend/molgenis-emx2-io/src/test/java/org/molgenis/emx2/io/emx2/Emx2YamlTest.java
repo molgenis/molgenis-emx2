@@ -302,6 +302,29 @@ class Emx2YamlTest {
   }
 
   @Test
+  void systemSettingsNotExported() {
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.setSetting("menu", "main");
+    schema.setSetting("mg_model_version", "3.2.1");
+    TableMetadata pet = new TableMetadata("Pet");
+    pet.add(new Column("id").setKey(1));
+    pet.setSetting("row_style", "card");
+    pet.setSetting("mg_draft", "true");
+    schema.create(pet);
+
+    String bundle =
+        String.join("\n", Emx2Yaml.toBundleFiles(new Emx2YamlBundle(schema, 1, null)).values());
+    String single = Emx2Yaml.toSingleFile(new Emx2YamlBundle(schema, 1, null));
+
+    for (String form : List.of(bundle, single)) {
+      assertFalse(form.contains("mg_model_version"), form);
+      assertFalse(form.contains("mg_draft"), form);
+      assertTrue(form.contains("menu"), form);
+      assertTrue(form.contains("row_style"), form);
+    }
+  }
+
+  @Test
   void headingProfilesRoundtrip() {
     SchemaMetadata schema = new SchemaMetadata();
     TableMetadata table = new TableMetadata("Survey");

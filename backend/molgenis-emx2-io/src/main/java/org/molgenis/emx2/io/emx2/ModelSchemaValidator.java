@@ -41,6 +41,7 @@ public final class ModelSchemaValidator {
     for (ValidationMessage message : messages) {
       errors.add(fileLabel + ": " + message.getMessage());
     }
+    errors.sort(String::compareTo);
     return errors;
   }
 
