@@ -137,7 +137,7 @@ class SparqlSelectRdfTransformerTest {
 
     @Test
     void shouldIncludeRootIRI() {
-      assertEquals(SUBJECT.stringValue(), testData.getString("_subject"));
+      assertEquals(SUBJECT.stringValue(), testData.getString("_subject_"));
     }
 
     @Test

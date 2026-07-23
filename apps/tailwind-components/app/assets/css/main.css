@@ -82,6 +82,12 @@
       #ffffff 133.81%
     );
 
+    --background-color-bulk-gradient: linear-gradient(
+      90deg,
+      #ffffff 0%,
+      #ffffff 100%
+    );
+
     --opacity-background-gradient: 0;
 
     --background-color-link-hover: var(--color-blue-50);
@@ -142,7 +148,10 @@
     --text-color-button-tertiary-hover: var(--color-blue-800);
     --text-color-button-outline: var(--color-blue-500);
     --text-color-button-outline-hover: var(--color-blue-700);
-    --text-color-button-disabled: var(--color-gray-600);
+    --text-color-button-inline: var(--text-color-button-outline);
+    --text-color-button-disabled: var(--color-gray-400);
+    --text-color-button-text-disabled: var(--text-color-button-disabled);
+    --text-color-button-inline-disabled: var(--text-color-button-disabled);
     --text-color-button-disabled-hover: var(--color-gray-600);
     --text-color-button-filter: var(--color-blue-800);
     --text-color-button-tree-node-toggle: var(--color-blue-800);
@@ -241,6 +250,8 @@
     --border-color-footer: var(--border-color-theme);
     --border-color-filter-divider: var(--color-gray-200);
 
+    --accent-color: var(---color-blue-500);
+
     --border-width-theme: 1px;
     --border-width-form-required: 1px;
 
@@ -261,6 +272,7 @@
     --height-input: 3.5rem;
     --height-input-tiny: 2rem;
     --height-input-small: 2.5rem;
+    --height-input-medium: 3.125rem;
     --height-input-large: 4.5rem;
 
     /** input switch styles */

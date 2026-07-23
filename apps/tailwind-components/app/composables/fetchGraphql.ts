@@ -1,4 +1,5 @@
-import { createError } from "#imports";
+import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
+import { fetchErrorToNuxtError } from "../utils/fetchErrorToNuxtError";
 
 export default async (
   schemaId: string,
@@ -14,11 +15,9 @@ export default async (
     },
     signal: options?.signal,
   }).catch((error) => {
-    console.error(`Could not fetch metadata for schema ${schemaId}, `, error);
-    throw createError({
-      ...error,
-      statusMessage: `Could not fetch graphql for schema ${schemaId}`,
-    });
+    const message = `Could not fetch graphql for schema ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
+    console.error(message, error);
+    throw fetchErrorToNuxtError(error, message);
   });
 
   return data;

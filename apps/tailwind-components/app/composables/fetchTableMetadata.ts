@@ -1,4 +1,6 @@
+import { createError } from "nuxt/app";
 import type { ITableMetaData } from "../../../metadata-utils/src/types";
+import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
 import fetchMetadata from "./fetchMetadata";
 
 export default async (
@@ -9,8 +11,15 @@ export default async (
   const tableMetadata = schemaMetadata.tables.find(
     (table) => table.id === tableId
   );
-  return (
-    tableMetadata ||
-    Promise.reject(`Table ${tableId} not found in schema ${schemaId}`)
-  );
+
+  if (!tableMetadata) {
+    const message = `Could not find table "${tableId}" in schema "${schemaId}". ${DATA_NOT_FOUND_ERROR}`;
+    console.error(message);
+    throw createError({
+      message,
+      statusCode: 404,
+    });
+  } else {
+    return tableMetadata;
+  }
 };

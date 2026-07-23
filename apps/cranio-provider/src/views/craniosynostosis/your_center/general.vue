@@ -9,16 +9,23 @@ import {
   LoadingScreen,
   //@ts-ignore
 } from "molgenis-viz";
-import { generateAxisTickData } from "../../../utils/generateAxisTicks";
-import { getDashboardChart } from "../../../utils/getDashboardData";
+
+import { generateAxisTickData } from "../../../../../tailwind-components/app/utils/viz";
+import { getDashboardChart } from "../../../../../metadata-utils/src/viz/getUiDashboardCharts";
 import { generateColorPalette } from "../../../utils/generateColorPalette";
 import { uniqueValues, uniqueAgeGroups } from "../../../utils";
+import {
+  ernYourCenterPalette,
+  columnHoverFillColor,
+} from "../../../utils/variables";
 
-import type { ICharts, IChartData } from "../../../types/schema";
-import type { IKeyValuePair } from "../../../types/index";
-import type { IAppPage } from "../../../types/app";
+import type {
+  ICharts,
+  IChartData,
+} from "../../../../../metadata-utils/src/viz/UiDashboard";
+import type { IAppPage, IKeyValuePair } from "../../../types/index";
+
 const props = defineProps<IAppPage>();
-
 const loading = ref<boolean>(true);
 const ageGroups = ref<string[]>();
 const selectedAgeGroup = ref<string>();
@@ -53,30 +60,30 @@ async function getPageData() {
   multipleSutureChart.value = multiSutures[0];
 
   cranioTypeChartPalette.value = generateColorPalette(
-    uniqueValues(cranioTypeChart.value?.dataPoints, "dataPointName")
+    uniqueValues(cranioTypeChart.value?.dataPoints, "name")
   );
 
   affectedSutureChartPalette.value = generateColorPalette(
-    uniqueValues(affectedSutureChart.value?.dataPoints, "dataPointName")
+    uniqueValues(affectedSutureChart.value?.dataPoints, "name")
   );
 
   multipleSuturePalette.value = generateColorPalette(
-    uniqueValues(multipleSutureChart.value?.dataPoints, "dataPointName")
+    uniqueValues(multipleSutureChart.value?.dataPoints, "name")
   );
 }
 
 function updateCranioTypesChart() {
   cranioTypeChartData.value = cranioTypeChart.value?.dataPoints
     ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+      return row.primaryCategory === selectedAgeGroup.value;
     })
-    .sort((current, next) => {
-      return current.dataPointOrder! - next.dataPointOrder!;
+    .sort((current: IChartData, next: IChartData) => {
+      return (current.sortOrder as number) - (next.sortOrder as number);
     });
 
   const cranioTypeTicks = generateAxisTickData(
-    cranioTypeChartData.value!,
-    "dataPointValue"
+    cranioTypeChartData.value as IChartData[],
+    "value"
   );
 
   if (cranioTypeChart.value) {
@@ -88,15 +95,15 @@ function updateCranioTypesChart() {
 function updateAffectedSutureChart() {
   affectedSutureChartData.value = affectedSutureChart.value?.dataPoints
     ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+      return row.primaryCategory === selectedAgeGroup.value;
     })
-    .sort((current, next) => {
-      return current.dataPointOrder! - next.dataPointOrder!;
+    .sort((current: IChartData, next: IChartData) => {
+      return (current.sortOrder as number) - (next.sortOrder as number);
     });
 
   const affectedSutureTicks = generateAxisTickData(
-    affectedSutureChartData.value!,
-    "dataPointValue"
+    affectedSutureChartData.value as IChartData[],
+    "value"
   );
 
   if (affectedSutureChart.value) {
@@ -108,15 +115,15 @@ function updateAffectedSutureChart() {
 function updateMultipeSuturesChart() {
   multipleSutureChartData.value = multipleSutureChart.value?.dataPoints
     ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+      return row.primaryCategory === selectedAgeGroup.value;
     })
-    .sort((current, next) => {
-      return current.dataPointOrder! - next.dataPointOrder!;
+    .sort((current: IChartData, next: IChartData) => {
+      return (current.sortOrder as number) - (next.sortOrder as number);
     });
 
   const multipleSutureTicks = generateAxisTickData(
-    multipleSutureChartData.value!,
-    "dataPointValue"
+    multipleSutureChartData.value as IChartData[],
+    "value"
   );
   if (multipleSutureChart.value) {
     multipleSutureChart.value.yAxisMaxValue = multipleSutureTicks.limit;
@@ -127,7 +134,7 @@ function updateMultipeSuturesChart() {
 function setAgeGroupFilter() {
   ageGroups.value = uniqueAgeGroups(
     cranioTypeChart.value?.dataPoints,
-    "dataPointPrimaryCategory"
+    "primaryCategory"
   );
   selectedAgeGroup.value = ageGroups.value[0];
 }
@@ -180,13 +187,14 @@ onMounted(() => {
           :title="cranioTypeChart?.chartTitle"
           :description="cranioTypeChart?.chartSubtitle"
           :chartData="cranioTypeChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :yMax="cranioTypeChart?.yAxisMaxValue"
           :yTickValues="cranioTypeChart?.yAxisTicks"
           :xAxisLabel="cranioTypeChart?.xAxisLabel"
           :yAxisLAbel="cranioTypeChart?.yAxisLabel"
-          :columnColorPalette="cranioTypeChartPalette"
+          :columnFill="ernYourCenterPalette['Your center']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="225"
           :chartMargins="{
             top: cranioTypeChart?.topMargin,
@@ -208,14 +216,15 @@ onMounted(() => {
           :title="affectedSutureChart?.chartTitle"
           :description="affectedSutureChart?.chartSubtitle"
           :chartData="affectedSutureChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :yMin="0"
           :yMax="affectedSutureChart?.yAxisMaxValue"
           :yTickValues="affectedSutureChart?.yAxisTicks"
           :xAxisLabel="affectedSutureChart?.xAxisLabel"
           :yAxisLabel="affectedSutureChart?.yAxisLabel"
-          :columnColorPalette="affectedSutureChartPalette"
+          :columnFill="ernYourCenterPalette['Your center']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="275"
           :chartMargins="{
             top: affectedSutureChart?.topMargin,
@@ -234,14 +243,15 @@ onMounted(() => {
           :title="multipleSutureChart?.chartTitle"
           :description="multipleSutureChart?.chartSubtitle"
           :chartData="multipleSutureChartData"
-          xvar="dataPointName"
-          yvar="dataPointValue"
+          xvar="name"
+          yvar="value"
           :xAxisLabel="multipleSutureChart?.xAxisLabel"
           :yAxisLabel="multipleSutureChart?.yAxisLabel"
           :yMin="0"
           :yMax="multipleSutureChart?.yAxisMaxValue"
           :yTickValues="multipleSutureChart?.yAxisTicks"
-          :columnColorPalette="multipleSuturePalette"
+          :columnFill="ernYourCenterPalette['Your center']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="275"
           :chartMargins="{
             top: multipleSutureChart?.topMargin,

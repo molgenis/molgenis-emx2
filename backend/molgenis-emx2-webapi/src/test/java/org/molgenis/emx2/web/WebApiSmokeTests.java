@@ -1524,6 +1524,46 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
+  void testGraphqlUnknownSchemaReturns404() {
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    given()
+        .queryParam("query", "{_schema{id}}")
+        .when()
+        .get("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    // a schema the user cannot see returns the same 404, so the response does
+    // not reveal whether a schema exists
+    given()
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(404)
+        .body("errors[0].message", containsString("unknown"));
+
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(200);
+  }
+
+  @Test
   void testMetricsEndpoint() {
     given()
         .expect()
@@ -1531,5 +1571,24 @@ class WebApiSmokeTests extends ApiTestBase {
         .body(containsString("jvm_memory_used_bytes"))
         .when()
         .get(MetricsController.METRICS_PATH);
+  }
+
+  @Test
+  void testClearTasks() {
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/pet store/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
   }
 }

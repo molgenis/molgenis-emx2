@@ -1,22 +1,7 @@
+import type { IOrganisations } from "../../../metadata-utils/src/viz/ErnDashboard";
+
 export interface IKeyValuePair {
   [key: string]: string;
-}
-
-export interface ISettings {
-  key: string;
-  value?: string;
-}
-
-export interface ISettingsResponse {
-  _settings: ISettings[];
-}
-
-export interface ISchema {
-  name: string;
-}
-
-export interface ISchemaResponse {
-  _schema: ISchema;
 }
 
 export interface IMgError {
@@ -34,11 +19,6 @@ export interface ICranioSchemas {
   CRANIO_PROVIDER_SCHEMA: string;
 }
 
-export interface IAxisTickData {
-  limit: number;
-  ticks: number[];
-}
-
 export interface IValueLabel {
   value: string;
   label: string;
@@ -54,4 +34,20 @@ export interface ICleftTypes {
 export interface ISiteErnCleftTypeCounts {
   center: ICleftTypes;
   ern: ICleftTypes;
+}
+
+export interface IAppPage {
+  organisation: IOrganisations;
+  schemaNames: ICranioSchemas;
+  api: {
+    graphql: {
+      current: string;
+      public: string;
+      providers: string;
+    };
+  };
+}
+
+export interface IOrganisationsResponse {
+  Organisations: IOrganisations[];
 }
