@@ -51,8 +51,9 @@ public class MissingReferencePrimaryKeyResolver {
     }
 
     String[] subjects =
-        row.getString(SUBJECT_VARIABLE + column.getName())
-            .split(String.valueOf(SparqlVariableUtil.CONCAT_SEPARATOR));
+        Optional.ofNullable(row.getString(SUBJECT_VARIABLE + column.getName()))
+            .map(s -> s.split(String.valueOf(SparqlVariableUtil.CONCAT_SEPARATOR)))
+            .orElse(new String[0]);
 
     List<Row> rows =
         Arrays.stream(subjects)
@@ -111,7 +112,7 @@ public class MissingReferencePrimaryKeyResolver {
         // assume it's a one-to-one reference.
         if (columnTableNames.contains(reference.getTargetTable())) {
           Object value = row.getValueMap().get(reference.getTargetColumn());
-          referringRow.set(reference.getColumnName(), value);
+          referringRow.set(reference.getReferencedColumnName(), value);
           row.set(reference.getColumnName(), value);
         }
       }

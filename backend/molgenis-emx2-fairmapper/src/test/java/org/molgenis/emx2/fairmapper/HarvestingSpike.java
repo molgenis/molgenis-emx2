@@ -96,6 +96,22 @@ class HarvestingSpike {
 
     // Drop _subject_ fields as those aren't in the schema
     new SubjectColumnRemover().remove(tableStore);
+    dropUnusedOrganisations(tableStore);
+    System.out.println("test");
+  }
+
+  private void dropUnusedOrganisations(TableStore tableStore) {
+    List<Row> filtered =
+        StreamSupport.stream(tableStore.readTable("Organisations").spliterator(), false)
+            .filter(row -> row.containsName("resource"))
+            .toList();
+
+    if (filtered.isEmpty()) {
+      tableStore.writeTable("Organisations", List.of(), List.of());
+    } else {
+      tableStore.writeTable(
+          "Organisations", filtered.getFirst().getColumnNames().stream().toList(), filtered);
+    }
   }
 
   private void resolveOrganisationResource(TableStore tableStore) {

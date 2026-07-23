@@ -109,8 +109,6 @@ class MissingPrimaryKeyResolverTest {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
     store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:unknown"));
 
-    ;
-
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> resolver.resolve(tableStore, "Collections"));
     assertEquals(
