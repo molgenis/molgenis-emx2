@@ -109,15 +109,15 @@ public class YamlWorkspaceLoader {
 
   private void provisionCompanion(
       Database database, String name, String bundleReference, Map<String, String> permissions) {
-    if (database.getSchema(name) != null) {
-      return;
-    }
     String base = parentPath(bundleReference);
     String rootContent = readClasspathFile(WORKSPACE + SLASH + bundleReference);
     Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, base));
-    Schema companion = database.createSchema(name, "Companion schema: " + name);
-    companion.migrate(bundle.schema());
-    ModelPermissions.apply(companion, permissions);
+    Schema companion = database.getSchema(name);
+    if (companion == null) {
+      companion = database.createSchema(name, "Companion schema: " + name);
+      companion.migrate(bundle.schema());
+      ModelPermissions.apply(companion, permissions);
+    }
     loadData(companion, bundle.dataFiles(), base);
   }
 

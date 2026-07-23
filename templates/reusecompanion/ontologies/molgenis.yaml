@@ -1,0 +1,6 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- tables/Countries.yaml
+data:
+- data

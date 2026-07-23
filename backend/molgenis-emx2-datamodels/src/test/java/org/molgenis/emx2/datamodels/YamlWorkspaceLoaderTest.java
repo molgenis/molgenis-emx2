@@ -4,19 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.Row.row;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.Table;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class YamlWorkspaceLoaderTest {
+class YamlWorkspaceLoaderTest extends TestLoaders {
 
   private static final String CATALOGUE = "catalogue";
   private static final String RD3 = "rd3";
@@ -31,14 +30,19 @@ class YamlWorkspaceLoaderTest {
   private static final String RD3_SCHEMA = "wsRd3";
   private static final String ROOT_IMPORTS_TEMPLATE = "rootimports/demo";
   private static final String ROOT_IMPORTS_SCHEMA = "wsRootImports";
+  private static final String REUSE_TEMPLATE = "reusecompanion/demo";
+  private static final String REUSE_MAIN_A = "wsReuseCompanionA";
+  private static final String REUSE_MAIN_B = "wsReuseCompanionB";
+  private static final String REUSE_COMPANION = "YwlReuseOntologies";
+  private static final String COUNTRIES = "Countries";
+  private static final String NAME = "name";
+  private static final String NETHERLANDS = "Netherlands";
 
-  private static Database database;
   private static final YamlWorkspaceLoader loader = new YamlWorkspaceLoader();
 
   @BeforeAll
-  void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
-    for (String schemaName : List.of(CATALOGUE_NO_DEMO, CATALOGUE_DEMO, RD3_SCHEMA, COMPANION)) {
+  void provisionWorkspaces() {
+    for (String schemaName : List.of(CATALOGUE_NO_DEMO, CATALOGUE_DEMO, RD3_SCHEMA)) {
       database.dropSchemaIfExists(schemaName);
     }
     loader.create(database, CATALOGUE, CATALOGUE_NO_DEMO, false);
@@ -138,5 +142,30 @@ class YamlWorkspaceLoaderTest {
         Privileges.VIEWER.toString(),
         database.getSchema(COMPANION).getRoleForUser(Constants.ANONYMOUS),
         "companion permissions must add the role default to the provisioned companion schema");
+  }
+
+  @Test
+  void companionDataIsEnsuredAdditivelyOnReuse() {
+    database.dropSchemaIfExists(REUSE_MAIN_A);
+    database.dropSchemaIfExists(REUSE_MAIN_B);
+    database.dropSchemaIfExists(REUSE_COMPANION);
+
+    loader.create(database, REUSE_TEMPLATE, REUSE_MAIN_A, false);
+    Table countries = database.getSchema(REUSE_COMPANION).getTable(COUNTRIES);
+    countries.delete(row(NAME, NETHERLANDS));
+    assertTrue(
+        countries.retrieveRows().stream()
+            .noneMatch(term -> NETHERLANDS.equals(term.getString(NAME))),
+        "precondition: the existing companion no longer contains the Netherlands term");
+
+    loader.create(database, REUSE_TEMPLATE, REUSE_MAIN_B, false);
+
+    List<Row> terms = database.getSchema(REUSE_COMPANION).getTable(COUNTRIES).retrieveRows();
+    assertTrue(
+        terms.stream().anyMatch(term -> NETHERLANDS.equals(term.getString(NAME))),
+        "reprovisioning must ensure the companion data: term is present after reuse");
+    assertTrue(
+        terms.stream().anyMatch(term -> "Belgium".equals(term.getString(NAME))),
+        "pre-existing companion rows must remain untouched after additive reuse");
   }
 }
