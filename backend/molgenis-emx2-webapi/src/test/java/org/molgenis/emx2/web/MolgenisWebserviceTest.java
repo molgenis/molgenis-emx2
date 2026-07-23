@@ -102,12 +102,15 @@ class MolgenisWebserviceTest extends ApiTestBase {
   @Test
   void startRefreshesHostUrlForEachService() throws Exception {
     URL hostUrlBeforeSecondService = MolgenisWebservice.hostUrl;
-    MolgenisWebservice secondService = startWebservice();
+    MolgenisWebservice secondService = null;
     try {
+      secondService = startWebservice();
       assertNotEquals(port, secondService.getPort());
       assertTrue(MolgenisWebservice.hostUrl.toString().endsWith(":" + secondService.getPort()));
     } finally {
-      secondService.stop();
+      if (secondService != null) {
+        secondService.stop();
+      }
       MolgenisWebservice.hostUrl = hostUrlBeforeSecondService;
     }
   }
