@@ -33,6 +33,13 @@ export const useCartStore = defineStore("cart", () => {
     )
   );
 
+  const variablesInCart = computed(() =>
+    cartItems.value.filter(
+      (item): item is Extract<ICartItem, { type: "variable" }> =>
+        item.type === "variable"
+    )
+  );
+
   const CART_STORAGE_KEY = "emx2-catalogue-cart";
 
   // load after hydration: reading localStorage during setup would make the
@@ -83,7 +90,10 @@ export const useCartStore = defineStore("cart", () => {
 
     switch (catalogueStoreVersion.value) {
       case "negotiatorV3":
-        return await doNegotiatorV3Request(cartItems.value, catalogueStoreUrl.value)
+        return await doNegotiatorV3Request(
+          cartItems.value,
+          catalogueStoreUrl.value
+        )
           .then(async (response: Response) => {
             if (response.ok) {
               clearCart();
@@ -114,6 +124,7 @@ export const useCartStore = defineStore("cart", () => {
     cart,
     cartItems,
     resourcesInCart,
+    variablesInCart,
     isEnabled,
     addToCart,
     clearCart,
@@ -121,7 +132,7 @@ export const useCartStore = defineStore("cart", () => {
     getVersionText,
     removeFromCart,
     isInCart,
-    isEmpty
+    isEmpty,
   };
 });
 

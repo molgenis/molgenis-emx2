@@ -121,7 +121,10 @@ describe("doNegotiatorV3Request", () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response("{}"));
     vi.stubGlobal("fetch", fetchMock);
 
-    await doNegotiatorV3Request([variableItem], "https://negotiator.example/api");
+    await doNegotiatorV3Request(
+      [variableItem],
+      "https://negotiator.example/api"
+    );
 
     const body = JSON.parse(fetchMock.mock.calls[0]![1].body);
     expect(body.resources).toEqual([]);

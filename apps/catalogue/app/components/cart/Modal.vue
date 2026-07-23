@@ -5,7 +5,7 @@ import SideModal from "../../../../tailwind-components/app/components/SideModal.
 import ContentBlockModal from "../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
 import FormError from "../../../../tailwind-components/app/components/form/Error.vue";
 import { useCartStore } from "../../stores/useCartStore";
-import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
+import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 
 const cartStore = useCartStore();
 
@@ -24,6 +24,19 @@ const storeError = computed(
   () =>
     `An error occurred while communicating with the ${cartStore.getVersionText()}. Please try again later.`
 );
+
+const sections = computed(() => [
+  {
+    title: "Collections",
+    items: cartStore.resourcesInCart,
+    emptyText: "No collections selected.",
+  },
+  {
+    title: "Variables",
+    items: cartStore.variablesInCart,
+    emptyText: "No variables selected.",
+  },
+]);
 
 const emit = defineEmits<{
   (e: "close"): void;
@@ -55,27 +68,33 @@ async function sendToStore() {
     <ContentBlockModal title="Shopping cart">
       <template v-if="!cartStore.isEmpty()">
         <p class="mb-2">Review your selection</p>
-        <ul class="list-style-none">
-          <li
-            v-for="item in cartStore.cartItems"
-            :key="item.id"
-            class="border-b-[1px] mb-2 last:border-none last:mb-none"
-          >
-            <div class="flex justify-center items-start">
-              <div class="grow mb-2 self-center">
-                <span class="block font-bold">{{ item.label }}</span>
+        <section
+          v-for="section in sections"
+          :key="section.title"
+          class="mb-4 last:mb-0"
+        >
+          <h3 class="mb-2.5 font-bold">{{ section.title }}</h3>
+          <ul v-if="section.items.length" class="list-style-none">
+            <li
+              v-for="item in section.items"
+              :key="item.id"
+              class="border-b last:border-none"
+            >
+              <div class="flex items-center justify-between gap-2 py-0.5">
+                <span class="min-w-0 truncate">{{ item.label }}</span>
+                <button
+                  type="button"
+                  class="shrink-0 flex items-center justify-center w-6 h-6 text-button-remove hover:text-blue-800 transition-colors"
+                  :aria-label="`remove ${item.type} from cart`"
+                  @click="cartStore.removeFromCart(item.id)"
+                >
+                  <BaseIcon name="trash" :width="16" />
+                </button>
               </div>
-              <div>
-                <IconButton
-                  icon="trash"
-                  @click="() => cartStore.removeFromCart(item.id)"
-                  class="text-button-remove mb-2"
-                  :label="`remove ${item.type} from cart`"
-                />
-              </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+          <p v-else class="text-gray-600">{{ section.emptyText }}</p>
+        </section>
       </template>
       <p v-else>Cart is empty</p>
       <p v-if="!cartStore.isEmpty() && !cartStore.resourcesInCart.length">
