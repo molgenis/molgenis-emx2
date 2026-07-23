@@ -3,12 +3,14 @@ package org.molgenis.emx2.web;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import io.restassured.response.Response;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Constants;
@@ -25,6 +27,7 @@ class ModelApiTest extends ApiTestBase {
   private static final String CYCLE_SCHEMA = "ModelApiTestCycle";
   private static final String ATOMIC_SCHEMA = "ModelApiTestAtomic";
   private static final String ATOMIC_COMPANION = "ModelApiTestAtomicCompanion";
+  private static final String TABLE_ADD_SCHEMA = "ModelApiTestTableAdd";
 
   @BeforeAll
   static void setup() {
@@ -261,5 +264,53 @@ class ModelApiTest extends ApiTestBase {
     // nothing changed: the companion was not created and the root column was rolled back
     assertFalse(database.hasSchema(ATOMIC_COMPANION));
     assertFalse(getModel(ATOMIC_SCHEMA).contains("extra"));
+  }
+
+  @Test
+  void tableAddsAppliedParentFirst() {
+    createPersonSchema(TABLE_ADD_SCHEMA);
+
+    // a single bundle introduces a new parent table AND a new subclass extending it
+    String bundle =
+        """
+        formatVersion: 1
+        version: 1.0.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+        - name: Animal
+          subclasses:
+          - name: Dog
+          columns:
+          - name: species
+            key: 1
+          - name: breed
+            subclass: Dog
+        """;
+
+    // dry-run: both the new parent and the new subclass are planned as table adds
+    Response dryRun = putModel(TABLE_ADD_SCHEMA, bundle, "?dryRun=true");
+    dryRun.then().statusCode(200);
+    String plan = dryRun.body().asString();
+    assertTrue(plan.contains("tableAdds"));
+    assertTrue(plan.contains("Animal"));
+    assertTrue(plan.contains("Dog"));
+
+    // apply creates the parent before the subclass and the subclass inherits the parent's key
+    putModel(TABLE_ADD_SCHEMA, bundle, "").then().statusCode(200);
+    database.clearCache();
+    Schema applied = database.getSchema(TABLE_ADD_SCHEMA);
+    assertEquals(List.of("Animal"), applied.getTable("Dog").getMetadata().getInheritNames());
+    // the inherited key column is present once, only the local column is non-inherited
+    assertNotNull(applied.getTable("Dog").getMetadata().getColumn("species"));
+    assertEquals(
+        List.of("breed"),
+        applied.getTable("Dog").getMetadata().getNonInheritedColumns().stream()
+            .filter(column -> !column.isSystemColumn())
+            .map(org.molgenis.emx2.Column::getName)
+            .toList());
   }
 }

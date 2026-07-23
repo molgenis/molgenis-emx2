@@ -32,7 +32,6 @@ import org.molgenis.emx2.io.emx2.MigrationPlan.ColumnAttributeChange;
 import org.molgenis.emx2.io.emx2.MigrationPlan.ColumnRef;
 import org.molgenis.emx2.io.emx2.MigrationPlan.ColumnRename;
 import org.molgenis.emx2.io.emx2.MigrationPlan.TableRef;
-import org.molgenis.emx2.io.emx2.MigrationPlan.TableRename;
 import org.molgenis.emx2.io.emx2.ModelDiff;
 
 public class ModelApi {
@@ -253,9 +252,6 @@ public class ModelApi {
   }
 
   private static void applyPlan(Schema txSchema, SchemaMetadata desired, MigrationPlan plan) {
-    for (TableRename rename : plan.tableRenames()) {
-      txSchema.getTable(rename.fromTable()).getMetadata().alterName(rename.toTable());
-    }
     Set<String> tablesToAdd = new LinkedHashSet<>();
     for (TableRef add : plan.tableAdds()) {
       tablesToAdd.add(add.table());
