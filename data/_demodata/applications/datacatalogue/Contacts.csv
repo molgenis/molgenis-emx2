@@ -4,7 +4,7 @@ testCohort1,Data manager,test description for data manager role,datamgr first na
 main catalogue,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 FORCE-NEN,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,UMCU,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 NFBC1966,,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
-FORCE-NEN,Principal Investigator,,Jack,Ross,Jack Ross,,JR,prof.,UMCG,jack.ross@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Carpenting,
+FORCE-NEN,Principal Investigator,,Jack,Ross,Jack Ross,,JR,prof.,UMCG_org,jack.ross@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Carpenting,
 FORCE-NEN,"Primary contact,Project manager",,Ollie,Ross,Ollie Ross,,OR,ir.,UMCU,ollie.ross@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Waiting,
 GECKO,,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 GenR,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,EMC,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
@@ -41,7 +41,7 @@ testCohort3,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
 ABCD,Primary contact,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 ALSPAC,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 ALSPAC,Primary contact,,Jack,Ross,Jack Ross,,JR,prof.,,jack.ross@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Carpenting,
-testCohort1,"Principal Investigator,Project manager",Test description of PI/PM role,PIPM,last name PIPM,PIPM last name PIPM,surname prefix,P.I.P.M.,dr. ir.,UMCG,pipm@testdomain.nl,test orcid,https://kanariepiet.com,5ffcc5ec9be54a7fad38aef5e67a6c59,29a0c789813341a39adf09022577c44c.jpg,test expertise,false
+testCohort1,"Principal Investigator,Project manager",Test description of PI/PM role,PIPM,last name PIPM,PIPM last name PIPM,surname prefix,P.I.P.M.,dr. ir.,UMCG_org,pipm@testdomain.nl,test orcid,https://kanariepiet.com,5ffcc5ec9be54a7fad38aef5e67a6c59,29a0c789813341a39adf09022577c44c.jpg,test expertise,false
 ALSPAC,Data manager,,Ollie,Ross,Ollie Ross,,OR,ir.,,ollie.ross@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Waiting,
 BIB,Data manager,,Rob,Boss,Rob Boss,,R,dr.,BRI,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 CELSPAC-TNG,Data manager,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
@@ -128,3 +128,13 @@ testUMC,"Principal Investigator,Primary contact",leader,Rob,Boss,Rob Boss,,,,,tu
 TestDataSourceID,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
 TestDatabank1,Project manager,,Rob,Boss,Rob Boss,,,prof. dr.,,rob.boss@email.org,,,,,,false
 TestDatabank2,Project manager,,Test,Data,Test Data,,,,,testdata@data.nl,,,,,,false
+bbmri-eric:ID:EXT_QBB:collection:covid19,,,Nahla,Afifi,Prof. Nahla Afifi,,,,,nafifi@qf.org.qa,,,,,,
+bbmri-eric:ID:EXT_76823:collection:MainCollection,,,Carmen,Aguado,Carmen Aguado,,,,,info-biobank@ciberer.es,,,,,,
+bbmri-eric:ID:EXT_BB-iMM:collection:covid19,,,Sérgio,Dias,Prof. Sérgio Dias,,,,,biobanco-imm@medicina.ulisboa.pt,,,,,,
+bbmri-eric:ID:EXT_BB-iMM:collection:COVID19PROSPECTIVE,,,Cláudia,Faria,Prof. Cláudia Faria,,,,,biobanco-imm@medicina.ulisboa.pt,,,,,,
+bbmri-eric:ID:EXT_IBG:collection:RareDisease-1,,,Sanem,Tercan Avcı,Dr. Sanem Tercan Avcı,,,,,sanem.avci@ibg.edu.tr,,,,,,
+bbmri-eric:ID:EXT_IBG:collection:NeurologicalDisease-1,,,Sanem,Tercan Avcı,Dr. Sanem Tercan Avcı,,,,,sanem.avci@ibg.edu.tr,,,,,,
+bbmri-eric:ID:EXT_IBG:collection:HematologicalDisease-1,,,Sanem,Tercan Avcı,Dr. Sanem Tercan Avcı,,,,,sanem.avci@ibg.edu.tr,,,,,,
+bbmri-eric:ID:EXT_IBG:collection:MetabolicDisease-1,,,Sanem,Tercan Avcı,Dr. Sanem Tercan Avcı,,,,,sanem.avci@ibg.edu.tr,,,,,,
+bbmri-eric:ID:EXT_GBR-1-198:collection:1,,,Dan,Cox,Dan Cox,,,,,dan.cox@newcastle.ac.uk,,,,,,
+directory_network_bbmri-eric:networkID:EU_BBMRI-ERIC:networks:BBMRI-Cohorts,,,Jens,Habermann,Jens Habermann,,,,,contact@bbmri-eric.eu,,,,,,
