@@ -9,9 +9,11 @@ const props = withDefaults(
   defineProps<{
     item: ICartItem;
     variant?: "button" | "icon";
+    size?: "tiny" | "small" | "medium" | "large";
   }>(),
   {
     variant: "icon",
+    size: "medium",
   }
 );
 
@@ -39,7 +41,7 @@ function onInput() {
     :type="isInCart ? 'secondary' : 'primary'"
     :label="label"
     :icon="isInCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
-    size="medium"
+    :size="size"
     buttonAlignment="right"
     @click="onInput"
   />

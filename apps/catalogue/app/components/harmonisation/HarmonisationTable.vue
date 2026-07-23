@@ -124,6 +124,13 @@ let activeVariablePath = computed(() =>
       </template>
 
       <template #footer>
+        <CartButton
+          v-if="activeVariable && cartStore.isEnabled"
+          :item="variableToCartItem(activeVariable)"
+          variant="button"
+          size="small"
+          class="mr-2.5"
+        />
         <NuxtLink
           :to="`/${route.params.catalogue}/variables/${activeVariablePath}`"
         >
