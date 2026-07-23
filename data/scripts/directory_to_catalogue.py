@@ -44,7 +44,7 @@ async def clear_schemas(client, schema, staging_schema):
 def get_directory_data():
     """Get Directory data"""
     data = {}
-    tables = ["Biobanks", "Collections"]
+    tables = ["Biobanks", "Collections", "CollectionFacts"]
     with pyclient.Client(url="https://directory.bbmri-eric.eu", schema="ERIC") as client:
         for table in tables:
             # FIXME: reading from file is only for speeding up testing, remove afterwards
@@ -93,6 +93,20 @@ def convert_collections_to_collections(coll, mappings):
     coll["held by"] = coll["biobank"]
     coll["type"] = "Biobank"
     return coll
+
+
+def convert_collections_to_facts(facts, mappings):
+    """Convert subcollections to Collection facts"""
+    fact_ids = mappings.loc[
+        (mappings["directory_table"] == "Collections")
+        & (mappings["catalogue_table"] == "Collection facts"),
+        "directory_id",
+    ]
+    facts = facts[facts["id"].isin(fact_ids)]
+    facts["collection"] = facts["parent_collection"]
+    # TODO for all dimensions: if more than 1 value, then *,
+    # if 1 value, then that value, if no value, then 'Unknown' or some other null value
+    return facts
 
 
 async def main():
@@ -157,6 +171,8 @@ async def main():
                 "description",
             ]
         )
+        collection_facts = convert_collections_to_facts(data["Collections"].copy(), mappings)
+        collection_facts = collection_facts.reindex(columns=["id", "collection"])
         # Post-process data
         # Link collections to their newly minted legal-entity organisations
         jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)]
@@ -192,12 +208,14 @@ async def main():
         ] += " (organisation)"
         # Clear and upload data
         if truncate:
+            client.truncate(table="Collection facts", schema=schema)
             client.truncate(table="Collections", schema=schema)
             client.truncate(table="Biobanks", schema=schema)
             client.truncate(table="Organisations", schema=schema)
         client.save_table(table="Organisations", schema=schema, data=organisations)
         client.save_table(table="Biobanks", schema=schema, data=biobanks)
         client.save_table(table="Collections", schema=schema, data=collections)
+        client.save_table(table="Collection facts", schema=schema, data=collection_facts)
         pass
 
 
