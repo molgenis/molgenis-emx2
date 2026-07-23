@@ -105,6 +105,7 @@ public class Emx2Yaml {
           KEY_IMPORTS,
           KEY_NAMESPACES,
           KEY_ADDITIONAL_SCHEMAS,
+          KEY_PERMISSIONS,
           KEY_DATA,
           KEY_DEMO);
   static final Set<String> COMPANION_KEYS =
@@ -300,6 +301,11 @@ public class Emx2Yaml {
           "version '" + version + "' must be numeric MAJOR.MINOR.PATCH (for example 1.0.0)",
           root.get(KEY_VERSION));
     }
+    Map<String, String> permissions = Map.of();
+    Node permissionsNode = root.get(KEY_PERMISSIONS);
+    if (permissionsNode != null) {
+      permissions = reader.scalarMapping(permissionsNode, "bundle." + KEY_PERMISSIONS);
+    }
     List<String> dataFiles = bundleFileList(reader, root.get(KEY_DATA), "bundle." + KEY_DATA);
     List<String> demoFiles = bundleFileList(reader, root.get(KEY_DEMO), "bundle." + KEY_DEMO);
     return new Emx2YamlBundle(
@@ -309,6 +315,7 @@ public class Emx2Yaml {
         namespaces,
         tables.previousNames(),
         tables.drops(),
+        permissions,
         dataFiles,
         demoFiles);
   }

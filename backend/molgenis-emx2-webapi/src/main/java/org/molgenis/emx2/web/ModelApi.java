@@ -10,18 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionEvaluator;
-import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
@@ -37,6 +34,7 @@ import org.molgenis.emx2.io.emx2.MigrationPlan.ColumnRef;
 import org.molgenis.emx2.io.emx2.MigrationPlan.ColumnRename;
 import org.molgenis.emx2.io.emx2.MigrationPlan.TableRef;
 import org.molgenis.emx2.io.emx2.ModelDiff;
+import org.molgenis.emx2.io.emx2.ModelPermissions;
 
 public class ModelApi {
 
@@ -94,7 +92,10 @@ public class ModelApi {
             parsed.version(),
             parsed.namespaces(),
             mergedPreviousNames,
-            parsed.drops());
+            parsed.drops(),
+            parsed.permissions(),
+            parsed.dataFiles(),
+            parsed.demoFiles());
     MigrationPlan plan = ModelDiff.diff(bundle, schema.getMetadata());
     String storedVersion = schema.getMetadata().getSetting(MG_MODEL_VERSION);
     List<String> companionWarnings = companionWarnings(schema.getDatabase(), companions);
@@ -201,6 +202,8 @@ public class ModelApi {
           }
           Schema txSchema = database.getSchema(schema.getName());
           applyPlan(txSchema, bundle.schema(), plan);
+          applySchemaSettings(txSchema, bundle.schema().getSettings());
+          ModelPermissions.apply(txSchema, bundle.permissions());
           if (bundle.version() != null) {
             txSchema.getMetadata().setSetting(MG_MODEL_VERSION, bundle.version());
           }
@@ -264,7 +267,7 @@ public class ModelApi {
       SchemaMetadata model = companion.model().schema();
       stripBareOntologyTables(model);
       created.migrate(model);
-      applyPermissions(created, companion.permissions());
+      ModelPermissions.apply(created, companion.permissions());
       if (companion.model().version() != null) {
         created.getMetadata().setSetting(MG_MODEL_VERSION, companion.model().version());
       }
@@ -275,26 +278,10 @@ public class ModelApi {
     }
   }
 
-  private static void applyPermissions(Schema schema, Map<String, String> permissions) {
-    for (Map.Entry<String, String> entry : permissions.entrySet()) {
-      String role = entry.getKey();
-      if (!Privileges.isSystemRole(role)) {
-        throw new MolgenisException(
-            "unknown permission role '"
-                + role
-                + "' in companion schema '"
-                + schema.getName()
-                + "'; legal roles are "
-                + legalRoleNames());
-      }
-      schema.addMember(entry.getValue(), role);
+  private static void applySchemaSettings(Schema txSchema, Map<String, String> settings) {
+    for (Map.Entry<String, String> entry : settings.entrySet()) {
+      txSchema.getMetadata().setSetting(entry.getKey(), entry.getValue());
     }
-  }
-
-  private static String legalRoleNames() {
-    return Arrays.stream(Privileges.values())
-        .map(Privileges::toString)
-        .collect(Collectors.joining(", "));
   }
 
   private static void stripBareOntologyTables(SchemaMetadata schema) {

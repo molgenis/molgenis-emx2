@@ -26,49 +26,57 @@
           "type" : "string"
         },
         "type" : {
-          "enum" : [
-            "auto_id",
-            "bool",
-            "bool_array",
-            "checkbox",
-            "date",
-            "date_array",
-            "datetime",
-            "datetime_array",
-            "decimal",
-            "decimal_array",
-            "email",
-            "email_array",
-            "enum",
-            "enum_array",
-            "file",
-            "hyperlink",
-            "hyperlink_array",
-            "int",
-            "int_array",
-            "json",
-            "long",
-            "long_array",
-            "module",
-            "module_array",
-            "multiselect",
-            "non_negative_int",
-            "non_negative_int_array",
-            "ontology",
-            "ontology_array",
-            "period",
-            "period_array",
-            "radio",
-            "ref",
-            "ref_array",
-            "refback",
-            "select",
-            "string",
-            "string_array",
-            "text",
-            "text_array",
-            "uuid",
-            "uuid_array"
+          "anyOf" : [
+            {
+              "enum" : [
+                "auto_id",
+                "bool",
+                "bool_array",
+                "checkbox",
+                "date",
+                "date_array",
+                "datetime",
+                "datetime_array",
+                "decimal",
+                "decimal_array",
+                "email",
+                "email_array",
+                "enum",
+                "enum_array",
+                "file",
+                "hyperlink",
+                "hyperlink_array",
+                "int",
+                "int_array",
+                "json",
+                "long",
+                "long_array",
+                "module",
+                "module_array",
+                "multiselect",
+                "non_negative_int",
+                "non_negative_int_array",
+                "ontology",
+                "ontology_array",
+                "period",
+                "period_array",
+                "radio",
+                "ref",
+                "ref_array",
+                "refback",
+                "select",
+                "string",
+                "string_array",
+                "text",
+                "text_array",
+                "uuid",
+                "uuid_array"
+              ]
+            },
+            {
+              "type" : "string",
+              "pattern" : "^(?:[aA][uU][tT][oO][__][iI][dD]|[bB][oO][oO][lL]|[bB][oO][oO][lL][__][aA][rR][rR][aA][yY]|[cC][hH][eE][cC][kK][bB][oO][xX]|[dD][aA][tT][eE]|[dD][aA][tT][eE][__][aA][rR][rR][aA][yY]|[dD][aA][tT][eE][tT][iI][mM][eE]|[dD][aA][tT][eE][tT][iI][mM][eE][__][aA][rR][rR][aA][yY]|[dD][eE][cC][iI][mM][aA][lL]|[dD][eE][cC][iI][mM][aA][lL][__][aA][rR][rR][aA][yY]|[eE][mM][aA][iI][lL]|[eE][mM][aA][iI][lL][__][aA][rR][rR][aA][yY]|[eE][nN][uU][mM]|[eE][nN][uU][mM][__][aA][rR][rR][aA][yY]|[fF][iI][lL][eE]|[hH][yY][pP][eE][rR][lL][iI][nN][kK]|[hH][yY][pP][eE][rR][lL][iI][nN][kK][__][aA][rR][rR][aA][yY]|[iI][nN][tT]|[iI][nN][tT][__][aA][rR][rR][aA][yY]|[jJ][sS][oO][nN]|[lL][oO][nN][gG]|[lL][oO][nN][gG][__][aA][rR][rR][aA][yY]|[mM][oO][dD][uU][lL][eE]|[mM][oO][dD][uU][lL][eE][__][aA][rR][rR][aA][yY]|[mM][uU][lL][tT][iI][sS][eE][lL][eE][cC][tT]|[nN][oO][nN][__][nN][eE][gG][aA][tT][iI][vV][eE][__][iI][nN][tT]|[nN][oO][nN][__][nN][eE][gG][aA][tT][iI][vV][eE][__][iI][nN][tT][__][aA][rR][rR][aA][yY]|[oO][nN][tT][oO][lL][oO][gG][yY]|[oO][nN][tT][oO][lL][oO][gG][yY][__][aA][rR][rR][aA][yY]|[pP][eE][rR][iI][oO][dD]|[pP][eE][rR][iI][oO][dD][__][aA][rR][rR][aA][yY]|[rR][aA][dD][iI][oO]|[rR][eE][fF]|[rR][eE][fF][__][aA][rR][rR][aA][yY]|[rR][eE][fF][bB][aA][cC][kK]|[sS][eE][lL][eE][cC][tT]|[sS][tT][rR][iI][nN][gG]|[sS][tT][rR][iI][nN][gG][__][aA][rR][rR][aA][yY]|[tT][eE][xX][tT]|[tT][eE][xX][tT][__][aA][rR][rR][aA][yY]|[uU][uU][iI][dD]|[uU][uU][iI][dD][__][aA][rR][rR][aA][yY])$"
+            }
           ]
         },
         "key" : {
@@ -542,6 +550,9 @@
           "additionalProperties" : {
             "$ref" : "#/$defs/companionEntry"
           }
+        },
+        "permissions" : {
+          "type" : "object"
         },
         "data" : {
           "anyOf" : [

@@ -11,6 +11,7 @@ public record Emx2YamlBundle(
     Map<String, String> namespaces,
     Map<String, Map<String, List<String>>> previousNames,
     ModelDrops drops,
+    Map<String, String> permissions,
     List<String> dataFiles,
     List<String> demoFiles) {
 
@@ -22,6 +23,7 @@ public record Emx2YamlBundle(
         Map.of(),
         Map.of(),
         ModelDrops.empty(),
+        Map.of(),
         List.of(),
         List.of());
   }
@@ -39,6 +41,7 @@ public record Emx2YamlBundle(
         namespaces,
         previousNames,
         ModelDrops.empty(),
+        Map.of(),
         List.of(),
         List.of());
   }
@@ -50,6 +53,15 @@ public record Emx2YamlBundle(
       Map<String, String> namespaces,
       Map<String, Map<String, List<String>>> previousNames,
       ModelDrops drops) {
-    this(schema, formatVersion, version, namespaces, previousNames, drops, List.of(), List.of());
+    this(
+        schema,
+        formatVersion,
+        version,
+        namespaces,
+        previousNames,
+        drops,
+        Map.of(),
+        List.of(),
+        List.of());
   }
 }

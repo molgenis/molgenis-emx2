@@ -33,6 +33,12 @@ dependencies {
 
 }
 
+tasks.named('processTestResources') {
+    from(file("$rootDir/templates")) {
+        into 'templates'
+    }
+}
+
 tasks.register('dev', JavaExec) {
     group = 'application'
     classpath = sourceSets.main.runtimeClasspath

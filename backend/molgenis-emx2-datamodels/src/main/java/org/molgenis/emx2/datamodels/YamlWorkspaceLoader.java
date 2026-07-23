@@ -17,6 +17,7 @@ import org.molgenis.emx2.datamodels.profiles.ResourceListing;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.emx2.Emx2Yaml;
 import org.molgenis.emx2.io.emx2.Emx2YamlBundle;
+import org.molgenis.emx2.io.emx2.ModelPermissions;
 
 /**
  * Loads the /templates workspace of durable YAML model bundles. Each YAML file at the workspace
@@ -37,10 +38,15 @@ public class YamlWorkspaceLoader {
   private static final String KEY_DEMO = "demo";
   private static final String KEY_ADDITIONAL_SCHEMAS = "additionalSchemas";
   private static final String KEY_BUNDLE = "bundle";
+  private static final String KEY_PERMISSIONS = "permissions";
 
   private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
   public record TemplateInfo(String name, String label, boolean hasDemoData) {}
+
+  public boolean isAvailable() {
+    return getClass().getResource(ROOT_PATH) != null;
+  }
 
   public List<String> templates() {
     try {
@@ -73,6 +79,8 @@ public class YamlWorkspaceLoader {
     Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, ""));
     Schema schema = getOrCreateSchema(database, schemaName, "YAML workspace template " + template);
     schema.migrate(bundle.schema());
+    applySettings(schema, bundle.schema().getSettings());
+    ModelPermissions.apply(schema, bundle.permissions());
 
     loadData(schema, bundle.dataFiles(), "");
     if (includeDemoData) {
@@ -89,12 +97,14 @@ public class YamlWorkspaceLoader {
     for (Map.Entry<?, ?> companion : companions.entrySet()) {
       String name = String.valueOf(companion.getKey());
       if (companion.getValue() instanceof Map<?, ?> body && body.get(KEY_BUNDLE) != null) {
-        provisionCompanion(database, name, String.valueOf(body.get(KEY_BUNDLE)));
+        provisionCompanion(
+            database, name, String.valueOf(body.get(KEY_BUNDLE)), permissionsOf(body));
       }
     }
   }
 
-  private void provisionCompanion(Database database, String name, String bundleReference) {
+  private void provisionCompanion(
+      Database database, String name, String bundleReference, Map<String, String> permissions) {
     if (database.getSchema(name) != null) {
       return;
     }
@@ -103,7 +113,25 @@ public class YamlWorkspaceLoader {
     Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, base));
     Schema companion = database.createSchema(name, "Companion schema: " + name);
     companion.migrate(bundle.schema());
+    ModelPermissions.apply(companion, permissions);
     loadData(companion, bundle.dataFiles(), base);
+  }
+
+  private static Map<String, String> permissionsOf(Map<?, ?> companionBody) {
+    if (companionBody.get(KEY_PERMISSIONS) instanceof Map<?, ?> permissions) {
+      Map<String, String> result = new LinkedHashMap<>();
+      for (Map.Entry<?, ?> entry : permissions.entrySet()) {
+        result.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+      }
+      return result;
+    }
+    return Map.of();
+  }
+
+  private static void applySettings(Schema schema, Map<String, String> settings) {
+    for (Map.Entry<String, String> entry : settings.entrySet()) {
+      schema.getMetadata().setSetting(entry.getKey(), entry.getValue());
+    }
   }
 
   private Map<String, String> gatherBundleFiles(String rootContent, String base) {

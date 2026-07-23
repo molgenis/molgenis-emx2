@@ -249,6 +249,7 @@ public final class ModelSchemaGenerator {
     properties.put(ModelSchemaRules.IMPORTS, stringArray());
     properties.put(ModelSchemaRules.NAMESPACES, objectSchema());
     properties.put(Emx2Yaml.KEY_ADDITIONAL_SCHEMAS, mapOf(ref(DEF_COMPANION_ENTRY)));
+    properties.put(Emx2Yaml.KEY_PERMISSIONS, objectSchema());
     properties.put(Emx2Yaml.KEY_DATA, stringOrStringArray());
     properties.put(Emx2Yaml.KEY_DEMO, stringOrStringArray());
     verifyCovers(properties.keySet(), Emx2Yaml.BUNDLE_KEYS, DEF_BUNDLE);
@@ -317,9 +318,7 @@ public final class ModelSchemaGenerator {
   }
 
   private static Map<String, Object> columnTypeEnum() {
-    Map<String, Object> schema = new LinkedHashMap<>();
-    schema.put(ENUM, ModelSchemaRules.columnTypeNames());
-    return schema;
+    return caseInsensitiveEnum(ModelSchemaRules.columnTypeNames());
   }
 
   private static Map<String, Object> stringArray() {
@@ -333,11 +332,15 @@ public final class ModelSchemaGenerator {
   }
 
   private static Map<String, Object> tableTypeEnum() {
+    return caseInsensitiveEnum(ModelSchemaRules.tableTypeNames());
+  }
+
+  private static Map<String, Object> caseInsensitiveEnum(List<String> values) {
     Map<String, Object> canonical = new LinkedHashMap<>();
-    canonical.put(ENUM, ModelSchemaRules.tableTypeNames());
+    canonical.put(ENUM, values);
     Map<String, Object> caseInsensitive = new LinkedHashMap<>();
     caseInsensitive.put(TYPE, T_STRING);
-    caseInsensitive.put(PATTERN, caseInsensitivePattern(ModelSchemaRules.tableTypeNames()));
+    caseInsensitive.put(PATTERN, caseInsensitivePattern(values));
     Map<String, Object> schema = new LinkedHashMap<>();
     schema.put(ANY_OF, List.of(canonical, caseInsensitive));
     return schema;

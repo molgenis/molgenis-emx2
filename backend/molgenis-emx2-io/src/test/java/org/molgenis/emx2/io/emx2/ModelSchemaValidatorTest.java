@@ -14,6 +14,12 @@ class ModelSchemaValidatorTest {
     return VALIDATOR.validate("name: Terms\ntableType: " + tableType + "\n", "Terms.yaml");
   }
 
+  private static List<String> validateColumnType(String columnType) {
+    return VALIDATOR.validate(
+        "name: Person\ncolumns:\n  - name: firstName\n    type: " + columnType + "\n",
+        "Person.yaml");
+  }
+
   @Test
   void tableTypeAcceptsAnyCaseLikeTheParser() {
     // the parser lower-cases tableType, so file-mode validation must accept the same spellings
@@ -25,5 +31,26 @@ class ModelSchemaValidatorTest {
 
     // an unknown tableType is still rejected
     assertFalse(validate("nonsense").isEmpty(), "an unknown tableType must still fail validation");
+  }
+
+  @Test
+  void columnTypeAcceptsAnyCaseLikeTheParser() {
+    // the parser upper-cases column type before ColumnType.valueOf, so file-mode validation must
+    // accept the same spellings
+    assertTrue(validateColumnType("string").isEmpty(), "canonical lowercase must validate");
+    assertTrue(
+        validateColumnType("String").isEmpty(),
+        "capitalised spelling must validate like the parser");
+    assertTrue(
+        validateColumnType("STRING").isEmpty(),
+        "upper-case spelling must validate like the parser");
+    assertTrue(
+        validateColumnType("Ref_Array").isEmpty(),
+        "mixed-case spelling must validate like the parser");
+
+    // an unknown column type is still rejected
+    assertFalse(
+        validateColumnType("nonsense").isEmpty(),
+        "an unknown column type must still fail validation");
   }
 }

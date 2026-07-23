@@ -9,7 +9,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -108,5 +110,22 @@ class YamlWorkspaceLoaderTest {
         2,
         withDemo.getTable(COLLECTIONS).retrieveRows().size(),
         "demo: rows must load when demo data is requested");
+  }
+
+  @Test
+  void rootPermissionsAndSettingsAndCompanionPermissionsApply() {
+    Schema catalogueSchema = database.getSchema(CATALOGUE_NO_DEMO);
+    assertEquals(
+        "[{\"label\":\"Home\",\"href\":\"/\"}]",
+        catalogueSchema.getMetadata().getSetting("menu"),
+        "bundle-root settings must be written to the created schema");
+    assertEquals(
+        Privileges.VIEWER.toString(),
+        catalogueSchema.getRoleForUser(Constants.ANONYMOUS),
+        "bundle-root permissions must add the role default to the main schema");
+    assertEquals(
+        Privileges.VIEWER.toString(),
+        database.getSchema(COMPANION).getRoleForUser(Constants.ANONYMOUS),
+        "companion permissions must add the role default to the provisioned companion schema");
   }
 }

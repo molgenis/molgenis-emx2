@@ -35,6 +35,9 @@ class ModelApiTest extends ApiTestBase {
   private static final String PERMISSION_ROOT_SCHEMA = "ModelApiTestPermissionRoot";
   private static final String PERMISSION_COMPANION = "ModelApiTestPermissionOnt";
   private static final String DATA_DEMO_SCHEMA = "ModelApiTestDataDemo";
+  private static final String ROOT_APPLY_SCHEMA = "ModelApiTestRootApply";
+  private static final String MENU_SETTING = "menu";
+  private static final String MENU_VALUE = "[{\"label\":\"Home\",\"href\":\"/\"}]";
 
   @BeforeAll
   static void setup() {
@@ -515,6 +518,47 @@ class ModelApiTest extends ApiTestBase {
 
     database.clearCache();
     assertFalse(database.hasSchema(PERMISSION_COMPANION));
+  }
+
+  @Test
+  void rootPermissionsAndSettingsApplyAdditively() {
+    Schema schema = createPersonSchema(ROOT_APPLY_SCHEMA);
+    // an unrelated setting already on the schema must survive an apply that sets only 'menu'
+    schema.getMetadata().setSetting("existingKey", "existingValue");
+
+    String bundle =
+        """
+        formatVersion: 1
+        version: 1.0.0
+        settings:
+          menu: '%s'
+        permissions:
+          Viewer: anonymous
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+        """
+            .formatted(MENU_VALUE);
+
+    putModel(ROOT_APPLY_SCHEMA, bundle, "").then().statusCode(200);
+
+    database.clearCache();
+    Schema applied = database.getSchema(ROOT_APPLY_SCHEMA);
+    assertEquals(
+        MENU_VALUE,
+        applied.getMetadata().getSetting(MENU_SETTING),
+        "bundle-root settings must be written to the schema");
+    assertEquals(
+        "existingValue",
+        applied.getMetadata().getSetting("existingKey"),
+        "an unrelated existing setting must survive the additive apply");
+    assertEquals(
+        Privileges.VIEWER.toString(),
+        applied.getRoleForUser(Constants.ANONYMOUS),
+        "bundle-root permissions must add the role default to the main schema");
   }
 
   @Test
