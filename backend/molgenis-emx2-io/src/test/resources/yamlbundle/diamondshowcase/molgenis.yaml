@@ -8,4 +8,4 @@ tables:
 additionalSchemas:
   diamontologies:
     bundle: diamontologies/molgenis.yaml
-    permissions: {view: anonymous}
+    permissions: {Viewer: anonymous}
