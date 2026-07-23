@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
@@ -77,6 +78,9 @@ public class Emx2Yaml {
   private static final String KEY_IMPORTS = "imports";
   private static final String KEY_SECTION = "section";
   private static final String KEY_HEADING = "heading";
+  private static final String KEY_DROP = "drop";
+
+  private static final Pattern VERSION_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
 
   private static final String DEFAULT_LOCALE = "en";
   private static final String LOCALE_SUFFIX = String.valueOf(YamlDocumentReader.LOCALE_SEPARATOR);
@@ -110,7 +114,8 @@ public class Emx2Yaml {
           KEY_MODULES,
           KEY_SEMANTICS,
           KEY_PROFILES,
-          KEY_IMPORTS);
+          KEY_IMPORTS,
+          KEY_DROP);
   static final Set<String> SHARED_FILE_KEYS = Set.of(KEY_COLUMNS);
   static final Set<String> HEADING_KEYS =
       Set.of(
@@ -131,7 +136,8 @@ public class Emx2Yaml {
           KEY_DESCRIPTION,
           KEY_TABLE_TYPE,
           KEY_SEMANTICS,
-          KEY_PROFILES);
+          KEY_PROFILES,
+          KEY_DROP);
   static final Set<String> COLUMN_KEYS =
       Set.of(
           KEY_NAME,
@@ -155,7 +161,8 @@ public class Emx2Yaml {
           KEY_LABEL,
           KEY_FORM_LABEL,
           KEY_SUBCLASS,
-          KEY_MODULE);
+          KEY_MODULE,
+          KEY_DROP);
 
   private Emx2Yaml() {}
 
@@ -275,13 +282,17 @@ public class Emx2Yaml {
     }
     List<SharedFile> bundleImports =
         loadSharedFiles(reader, root.get(KEY_IMPORTS), files, "bundle." + KEY_IMPORTS);
-    Map<String, Map<String, List<String>>> previousNames =
-        parseTables(root.get(KEY_TABLES), files, schema, bundleImports);
-    createImplicitOntologyTables(schema);
+    BundleTables tables = parseTables(root.get(KEY_TABLES), files, schema, bundleImports);
 
     String version =
         root.containsKey(KEY_VERSION) ? reader.scalar(root.get(KEY_VERSION), KEY_VERSION) : null;
-    return new Emx2YamlBundle(schema, formatVersion, version, namespaces, previousNames);
+    if (version != null && !VERSION_PATTERN.matcher(version).matches()) {
+      throw reader.error(
+          "version '" + version + "' must be numeric MAJOR.MINOR.PATCH (for example 1.0.0)",
+          root.get(KEY_VERSION));
+    }
+    return new Emx2YamlBundle(
+        schema, formatVersion, version, namespaces, tables.previousNames(), tables.drops());
   }
 
   private static int readFormatVersion(
@@ -319,14 +330,14 @@ public class Emx2Yaml {
     }
   }
 
-  private static Map<String, Map<String, List<String>>> parseTables(
+  private static BundleTables parseTables(
       Node tablesNode,
       Map<String, String> files,
       SchemaMetadata schema,
       List<SharedFile> bundleImports) {
     Map<String, Map<String, List<String>>> previousNames = new LinkedHashMap<>();
     if (tablesNode == null) {
-      return previousNames;
+      return new BundleTables(previousNames, ModelDrops.empty());
     }
     YamlDocumentReader reader = new YamlDocumentReader(MOLGENIS_YAML);
     List<Node> entries = reader.sequence(tablesNode, KEY_TABLES);
@@ -346,8 +357,80 @@ public class Emx2Yaml {
         parsedFiles.add(parseTable(reader, tableMap, entryNode, files, bundleImports));
       }
     }
-    assemble(parsedFiles, schema, previousNames);
-    return previousNames;
+    Set<String> tableDrops = new LinkedHashSet<>();
+    Map<String, List<String>> columnDrops = new LinkedHashMap<>();
+    assemble(parsedFiles, schema, previousNames, tableDrops, columnDrops);
+    createImplicitOntologyTables(schema);
+    validateOntologyReferences(parsedFiles, schema);
+    validateInheritanceRoots(schema);
+    return new BundleTables(previousNames, new ModelDrops(tableDrops, columnDrops));
+  }
+
+  private record BundleTables(
+      Map<String, Map<String, List<String>>> previousNames, ModelDrops drops) {}
+
+  private static void validateOntologyReferences(
+      List<ParsedFile> parsedFiles, SchemaMetadata schema) {
+    for (ParsedFile parsedFile : parsedFiles) {
+      YamlDocumentReader reader = new YamlDocumentReader(parsedFile.fileLabel());
+      for (ColumnEntry entry : parsedFile.columns()) {
+        if (entry.drop()) {
+          continue;
+        }
+        Column column = entry.column();
+        if (!column.isOntology()
+            || column.getRefTableName() == null
+            || column.getRefSchemaName() != null) {
+          continue;
+        }
+        TableMetadata target = schema.getTableMetadata(column.getRefTableName());
+        if (target != null && !TableType.ONTOLOGIES.equals(target.getTableType())) {
+          throw reader.error(
+              "column '"
+                  + column.getName()
+                  + "' is an ontology reference but its refTable '"
+                  + column.getRefTableName()
+                  + "' is a "
+                  + tableTypeSurface(target.getTableType())
+                  + " table, not an ontology",
+              entry.node());
+        }
+      }
+    }
+  }
+
+  private static void validateInheritanceRoots(SchemaMetadata schema) {
+    for (TableMetadata table : schema.getTables()) {
+      if (table.getInheritNames().size() < 2) {
+        continue;
+      }
+      Set<String> roots = inheritanceRoots(table.getTableName(), schema, new LinkedHashSet<>());
+      if (roots.size() > 1) {
+        throw new MolgenisException(
+            "table '"
+                + table.getTableName()
+                + "' extends parents with disjoint roots "
+                + roots
+                + "; multi-parent inheritance requires a single shared root");
+      }
+    }
+  }
+
+  private static Set<String> inheritanceRoots(
+      String tableName, SchemaMetadata schema, Set<String> visiting) {
+    TableMetadata table = schema.getTableMetadata(tableName);
+    if (table == null || table.getInheritNames().isEmpty()) {
+      return Set.of(tableName);
+    }
+    if (!visiting.add(tableName)) {
+      return Set.of();
+    }
+    Set<String> roots = new LinkedHashSet<>();
+    for (String parent : table.getInheritNames()) {
+      roots.addAll(inheritanceRoots(parent, schema, visiting));
+    }
+    visiting.remove(tableName);
+    return roots;
   }
 
   private static List<SharedFile> loadSharedFiles(
@@ -452,16 +535,29 @@ public class Emx2Yaml {
               .toArray(new String[0]));
     }
 
+    Set<String> droppedTables = new LinkedHashSet<>();
+    if (isDropMarked(reader, tableMap, tableName)) {
+      droppedTables.add(tableName);
+    }
+
     List<TableMetadata> subtables = new ArrayList<>();
-    parseSubtables(reader, tableMap.get(KEY_SUBCLASSES), tableName, TableType.DATA, subtables);
-    parseSubtables(reader, tableMap.get(KEY_MODULES), tableName, TableType.MODULE, subtables);
+    parseSubtables(
+        reader, tableMap.get(KEY_SUBCLASSES), tableName, TableType.DATA, subtables, droppedTables);
+    parseSubtables(
+        reader, tableMap.get(KEY_MODULES), tableName, TableType.MODULE, subtables, droppedTables);
 
     List<SharedFile> tableImports =
         loadSharedFiles(reader, tableMap.get(KEY_IMPORTS), files, tableName + "." + KEY_IMPORTS);
     ImportScope scope = new ImportScope(tableImports, bundleImports);
 
     List<ColumnEntry> columns = parseColumns(reader, tableMap.get(KEY_COLUMNS), tableName, scope);
-    return new ParsedFile(reader.getFileLabel(), primary, subtables, columns);
+    return new ParsedFile(reader.getFileLabel(), primary, subtables, columns, droppedTables);
+  }
+
+  private static boolean isDropMarked(
+      YamlDocumentReader reader, LinkedHashMap<String, Node> map, String path) {
+    return map.containsKey(KEY_DROP)
+        && BOOLEAN_TRUE.equals(reader.scalar(map.get(KEY_DROP), path + "." + KEY_DROP));
   }
 
   private static void parseSubtables(
@@ -469,7 +565,8 @@ public class Emx2Yaml {
       Node blockNode,
       String rootName,
       TableType defaultType,
-      List<TableMetadata> subtables) {
+      List<TableMetadata> subtables,
+      Set<String> droppedTables) {
     if (blockNode == null) {
       return;
     }
@@ -510,6 +607,9 @@ public class Emx2Yaml {
       }
       applyLocalized(reader, entry, path, KEY_LABEL, subtable::setLabel);
       applyLocalized(reader, entry, path, KEY_DESCRIPTION, subtable::setDescription);
+      if (isDropMarked(reader, entry, path)) {
+        droppedTables.add(subtable.getTableName());
+      }
       subtables.add(subtable);
     }
   }
@@ -556,7 +656,8 @@ public class Emx2Yaml {
         columnMap.containsKey(KEY_PREVIOUS_NAMES)
             ? reader.stringList(columnMap.get(KEY_PREVIOUS_NAMES), path + "." + KEY_PREVIOUS_NAMES)
             : List.of();
-    return new ColumnEntry(target, column, previousNames, node);
+    boolean drop = isDropMarked(reader, columnMap, path);
+    return new ColumnEntry(target, column, previousNames, drop, node);
   }
 
   private static void rejectReuseOrDefine(
@@ -798,7 +899,9 @@ public class Emx2Yaml {
   private static void assemble(
       List<ParsedFile> parsedFiles,
       SchemaMetadata schema,
-      Map<String, Map<String, List<String>>> previousNames) {
+      Map<String, Map<String, List<String>>> previousNames,
+      Set<String> tableDrops,
+      Map<String, List<String>> columnDrops) {
     Map<String, Integer> fileOfTable = new HashMap<>();
     for (int index = 0; index < parsedFiles.size(); index++) {
       ParsedFile parsedFile = parsedFiles.get(index);
@@ -812,9 +915,9 @@ public class Emx2Yaml {
 
     for (int fileIndex : order) {
       ParsedFile parsedFile = parsedFiles.get(fileIndex);
-      schema.create(parsedFile.primary());
+      createOrDrop(schema, parsedFile.primary(), parsedFile.droppedTables(), tableDrops);
       for (TableMetadata subtable : parsedFile.subtables()) {
-        schema.create(subtable);
+        createOrDrop(schema, subtable, parsedFile.droppedTables(), tableDrops);
       }
     }
 
@@ -822,6 +925,12 @@ public class Emx2Yaml {
     for (int fileIndex : order) {
       ParsedFile parsedFile = parsedFiles.get(fileIndex);
       for (ColumnEntry entry : parsedFile.columns()) {
+        if (entry.drop()) {
+          columnDrops
+              .computeIfAbsent(entry.targetTable(), key -> new ArrayList<>())
+              .add(entry.column().getName());
+          continue;
+        }
         TableMetadata target = schema.getTableMetadata(entry.targetTable());
         if (target == null) {
           throw YamlDocumentReader.error(
@@ -841,6 +950,18 @@ public class Emx2Yaml {
               .put(entry.column().getName(), entry.previousNames());
         }
       }
+    }
+  }
+
+  private static void createOrDrop(
+      SchemaMetadata schema,
+      TableMetadata table,
+      Set<String> droppedTables,
+      Set<String> tableDrops) {
+    if (droppedTables.contains(table.getTableName())) {
+      tableDrops.add(table.getTableName());
+    } else {
+      schema.create(table);
     }
   }
 
@@ -916,12 +1037,13 @@ public class Emx2Yaml {
       String fileLabel,
       TableMetadata primary,
       List<TableMetadata> subtables,
-      List<ColumnEntry> columns) {}
+      List<ColumnEntry> columns,
+      Set<String> droppedTables) {}
 
   private record ColumnEntry(
-      String targetTable, Column column, List<String> previousNames, Node node) {
+      String targetTable, Column column, List<String> previousNames, boolean drop, Node node) {
     ColumnEntry(String targetTable, Column column, Node node) {
-      this(targetTable, column, List.of(), node);
+      this(targetTable, column, List.of(), false, node);
     }
   }
 

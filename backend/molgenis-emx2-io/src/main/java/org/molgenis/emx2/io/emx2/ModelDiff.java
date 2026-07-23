@@ -90,12 +90,30 @@ public final class ModelDiff {
         buckets.tableAdds.add(new TableRef(tableName));
       }
     }
-    for (String tableName : liveTableNames) {
-      if (!desiredTableNames.contains(tableName)) {
+    // apply is additive: absence never deletes, drops come only from explicit markers
+    applyDrops(desired.drops(), live, liveTableNames, buckets);
+    return buckets.toPlan();
+  }
+
+  private static void applyDrops(
+      ModelDrops drops, SchemaMetadata live, Set<String> liveTableNames, Buckets buckets) {
+    for (String tableName : drops.tables()) {
+      if (liveTableNames.contains(tableName)) {
         buckets.tableDrops.add(new TableRef(tableName));
       }
     }
-    return buckets.toPlan();
+    for (Map.Entry<String, List<String>> entry : drops.columns().entrySet()) {
+      TableMetadata liveTable = live.getTableMetadata(entry.getKey());
+      if (liveTable == null) {
+        continue;
+      }
+      Set<String> liveNames = nonSystemColumnNames(liveTable);
+      for (String columnName : entry.getValue()) {
+        if (liveNames.contains(columnName)) {
+          buckets.columnDrops.add(new ColumnRef(entry.getKey(), columnName));
+        }
+      }
+    }
   }
 
   private static void diffTable(
@@ -124,11 +142,7 @@ public final class ModelDiff {
             buckets);
       }
     }
-    for (String liveName : liveNames) {
-      if (!desiredNames.contains(liveName) && !consumedLive.contains(liveName)) {
-        buckets.columnDrops.add(new ColumnRef(tableName, liveName));
-      }
-    }
+    // additive: live columns absent from the desired document are left untouched
   }
 
   private static void classifyAbsentColumn(

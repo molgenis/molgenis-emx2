@@ -127,6 +127,9 @@
         },
         "module" : {
           "type" : "string"
+        },
+        "drop" : {
+          "type" : "boolean"
         }
       },
       "patternProperties" : {
@@ -311,6 +314,9 @@
           "items" : {
             "type" : "string"
           }
+        },
+        "drop" : {
+          "type" : "boolean"
         }
       },
       "patternProperties" : {
@@ -396,6 +402,9 @@
           "items" : {
             "type" : "string"
           }
+        },
+        "drop" : {
+          "type" : "boolean"
         }
       },
       "patternProperties" : {
@@ -440,7 +449,8 @@
           "type" : "integer"
         },
         "version" : {
-          "type" : "string"
+          "type" : "string",
+          "pattern" : "^\\d+\\.\\d+\\.\\d+$"
         },
         "tables" : {
           "type" : "array",

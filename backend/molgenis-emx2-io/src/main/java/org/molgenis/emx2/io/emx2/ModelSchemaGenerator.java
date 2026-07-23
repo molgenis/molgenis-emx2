@@ -30,7 +30,9 @@ public final class ModelSchemaGenerator {
   private static final String IF = "if";
   private static final String THEN = "then";
   private static final String PATTERN_PROPERTIES = "patternProperties";
+  private static final String PATTERN = "pattern";
   private static final String UNEVALUATED = "unevaluatedProperties";
+  private static final String VERSION_PATTERN = "^\\d+\\.\\d+\\.\\d+$";
 
   private static final String T_STRING = "string";
   private static final String T_ARRAY = "array";
@@ -161,6 +163,7 @@ public final class ModelSchemaGenerator {
     properties.put(ModelSchemaRules.TABLE_TYPE, tableTypeEnum());
     properties.put(ModelSchemaRules.SEMANTICS, stringArray());
     properties.put(ModelSchemaRules.PROFILES, stringArray());
+    properties.put(ModelSchemaRules.DROP, scalarType(T_BOOLEAN));
     verifyCovers(properties.keySet(), Emx2Yaml.SUBTABLE_KEYS, DEF_SUBTABLE);
 
     Map<String, Object> definition = new LinkedHashMap<>();
@@ -186,6 +189,7 @@ public final class ModelSchemaGenerator {
     properties.put(ModelSchemaRules.SEMANTICS, stringArray());
     properties.put(ModelSchemaRules.PROFILES, stringArray());
     properties.put(ModelSchemaRules.IMPORTS, stringArray());
+    properties.put(ModelSchemaRules.DROP, scalarType(T_BOOLEAN));
     verifyCovers(properties.keySet(), Emx2Yaml.TABLE_KEYS, DEF_TABLE_FILE);
 
     Map<String, Object> definition = new LinkedHashMap<>();
@@ -218,7 +222,7 @@ public final class ModelSchemaGenerator {
   private static Map<String, Object> bundle() {
     Map<String, Object> properties = new LinkedHashMap<>();
     properties.put(ModelSchemaRules.FORMAT_VERSION, integerSchema());
-    properties.put(ModelSchemaRules.VERSION, scalarString());
+    properties.put(ModelSchemaRules.VERSION, versionString());
     properties.put(ModelSchemaRules.TABLES, arrayOf(ref(DEF_TABLE_ENTRY)));
     properties.put(ModelSchemaRules.SETTINGS, objectSchema());
     properties.put(ModelSchemaRules.IMPORTS, stringArray());
@@ -260,6 +264,13 @@ public final class ModelSchemaGenerator {
 
   private static Map<String, Object> scalarString() {
     return scalarType(T_STRING);
+  }
+
+  private static Map<String, Object> versionString() {
+    Map<String, Object> schema = new LinkedHashMap<>();
+    schema.put(TYPE, T_STRING);
+    schema.put(PATTERN, VERSION_PATTERN);
+    return schema;
   }
 
   private static Map<String, Object> integerSchema() {

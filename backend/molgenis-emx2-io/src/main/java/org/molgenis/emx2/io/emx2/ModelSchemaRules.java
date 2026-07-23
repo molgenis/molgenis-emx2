@@ -44,6 +44,7 @@ public final class ModelSchemaRules {
   static final String DESCRIPTION = "description";
   static final String SEMANTICS = "semantics";
   static final String PROFILES = "profiles";
+  static final String DROP = "drop";
 
   static final Set<String> REFERENCE_ONLY_ATTRIBUTES =
       Set.of(REF_TABLE, REF_LINK, REF_LABEL, REF_BACK);
@@ -77,6 +78,7 @@ public final class ModelSchemaRules {
     attributes.put("formLabel", AttributeType.STRING);
     attributes.put("subclass", AttributeType.STRING);
     attributes.put("module", AttributeType.STRING);
+    attributes.put(DROP, AttributeType.BOOLEAN);
     verifyCovers(attributes.keySet(), Emx2Yaml.COLUMN_KEYS, "column");
     return attributes;
   }

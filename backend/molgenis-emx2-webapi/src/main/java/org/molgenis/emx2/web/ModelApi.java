@@ -10,11 +10,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -46,17 +48,6 @@ public class ModelApi {
   private static final TypeReference<Map<String, Map<String, List<String>>>> PREVIOUS_NAMES_TYPE =
       new TypeReference<>() {};
 
-  private static final Map<String, String> PERMISSION_ROLES =
-      Map.of(
-          "exists", Privileges.EXISTS.toString(),
-          "range", Privileges.RANGE.toString(),
-          "aggregate", Privileges.AGGREGATOR.toString(),
-          "count", Privileges.COUNT.toString(),
-          "view", Privileges.VIEWER.toString(),
-          "edit", Privileges.EDITOR.toString(),
-          "manage", Privileges.MANAGER.toString(),
-          "own", Privileges.OWNER.toString());
-
   private ModelApi() {
     // hide constructor
   }
@@ -85,7 +76,6 @@ public class ModelApi {
   static void putModel(Context ctx) throws Exception {
     Schema schema = getSchema(ctx);
     boolean dryRun = "true".equals(ctx.queryParam("dryRun"));
-    boolean force = "true".equals(ctx.queryParam("force"));
 
     // parse + validate; formatVersion skew, unknown keys and companion cycles fail here first
     Emx2YamlBundle parsed = BundleValidator.validate(Map.of(ROOT_FILE, ctx.body()));
@@ -99,7 +89,8 @@ public class ModelApi {
             parsed.formatVersion(),
             parsed.version(),
             parsed.namespaces(),
-            mergedPreviousNames);
+            mergedPreviousNames,
+            parsed.drops());
     MigrationPlan plan = ModelDiff.diff(bundle, schema.getMetadata());
     String storedVersion = schema.getMetadata().getSetting(MG_MODEL_VERSION);
     List<String> companionWarnings = companionWarnings(schema.getDatabase(), companions);
@@ -124,13 +115,13 @@ public class ModelApi {
               response(false, bundle.version(), storedVersion, plan, companionWarnings)));
       return;
     }
-    if (isDowngrade(bundle.version(), storedVersion) && !force) {
+    if (isDowngrade(bundle.version(), storedVersion)) {
       throw new MolgenisException(
           "Refusing to apply model version '"
               + bundle.version()
               + "' because it is older than the stored version '"
               + storedVersion
-              + "'; pass ?force=true to override");
+              + "'; bump the version to apply");
     }
 
     applyInTransaction(schema, bundle, plan, companions);
@@ -270,17 +261,24 @@ public class ModelApi {
 
   private static void applyPermissions(Schema schema, Map<String, String> permissions) {
     for (Map.Entry<String, String> entry : permissions.entrySet()) {
-      String role = PERMISSION_ROLES.get(entry.getKey());
-      if (role == null) {
+      String role = entry.getKey();
+      if (!Privileges.isSystemRole(role)) {
         throw new MolgenisException(
-            "unknown permission '"
-                + entry.getKey()
+            "unknown permission role '"
+                + role
                 + "' in companion schema '"
                 + schema.getName()
-                + "'");
+                + "'; legal roles are "
+                + legalRoleNames());
       }
       schema.addMember(entry.getValue(), role);
     }
+  }
+
+  private static String legalRoleNames() {
+    return Arrays.stream(Privileges.values())
+        .map(Privileges::toString)
+        .collect(Collectors.joining(", "));
   }
 
   private static void stripBareOntologyTables(SchemaMetadata schema) {

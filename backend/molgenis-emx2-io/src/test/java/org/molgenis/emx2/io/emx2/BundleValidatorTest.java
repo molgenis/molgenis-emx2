@@ -170,6 +170,40 @@ class BundleValidatorTest {
   }
 
   @Test
+  void ontologyRefTargetMustBeOntology() {
+    // 'kind' is an ontology column but points at a data table -> loud error, path + position
+    MolgenisException error =
+        parseError(
+            Map.of(
+                "molgenis.yaml",
+                "tables:\n"
+                    + "- name: Person\n  columns:\n  - name: id\n    key: 1\n"
+                    + "- name: Event\n  columns:\n  - name: id\n    key: 1\n"
+                    + "  - name: kind\n    type: ontology\n    refTable: Person\n"));
+    assertTrue(error.getMessage().contains("kind"), error.getMessage());
+    assertTrue(error.getMessage().contains("Person"), error.getMessage());
+    assertTrue(error.getMessage().toLowerCase().contains("ontology"), error.getMessage());
+    assertTrue(error.getMessage().contains("line"), error.getMessage());
+    assertTrue(error.getMessage().contains("column"), error.getMessage());
+  }
+
+  @Test
+  void disjointRootsRejected() {
+    // Child extends two independent roots (both empty-extends ancestors) -> loud error
+    MolgenisException error =
+        parseError(
+            Map.of(
+                "molgenis.yaml",
+                "tables:\n"
+                    + "- name: RootA\n  columns:\n  - name: id\n    key: 1\n"
+                    + "- name: RootB\n  columns:\n  - name: code\n    key: 1\n"
+                    + "- name: Child\n  extends: [RootA, RootB]\n  columns:\n  - name: x\n"));
+    assertTrue(error.getMessage().contains("Child"), error.getMessage());
+    assertTrue(error.getMessage().contains("RootA"), error.getMessage());
+    assertTrue(error.getMessage().contains("RootB"), error.getMessage());
+  }
+
+  @Test
   void reuseOrDefine() {
     MolgenisException refinement =
         parseError(

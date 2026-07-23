@@ -7,6 +7,7 @@ import static org.molgenis.emx2.Column.column;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
@@ -20,6 +21,7 @@ class ModelDiffTest {
   private static final String SURNAME = "surname";
   private static final String LAST_NAME = "last_name";
   private static final String FAMILY_NAME = "familyName";
+  private static final String MIDDLE_NAME = "middleName";
 
   private static SchemaMetadata schemaWithPerson(String... columnNames) {
     SchemaMetadata schema = new SchemaMetadata(SCHEMA);
@@ -89,5 +91,41 @@ class ModelDiffTest {
     assertFalse(
         plan.columnDrops().contains(new ColumnRef(PERSON, SURNAME)),
         "surname must not be silently dropped, got " + plan.columnDrops());
+  }
+
+  @Test
+  void additiveAbsenceKeepsColumn() {
+    // live carries a column the desired document does not mention at all
+    SchemaMetadata live = schemaWithPerson(SURNAME);
+    SchemaMetadata desired = schemaWithPerson();
+    Emx2YamlBundle bundle = new Emx2YamlBundle(desired, 1, "1.0.0");
+
+    MigrationPlan plan = ModelDiff.diff(bundle, live);
+
+    // absence never deletes: the unmentioned live column survives, no drop, no error
+    assertFalse(
+        plan.columnDrops().contains(new ColumnRef(PERSON, SURNAME)),
+        "an unmentioned live column must not be dropped, got " + plan.columnDrops());
+    assertTrue(plan.errors().isEmpty(), "expected no errors, got " + plan.errors());
+  }
+
+  @Test
+  void dropMarkerDrops() {
+    // both surname and middleName are absent from desired, but only surname is drop-marked
+    SchemaMetadata live = schemaWithPerson(SURNAME, MIDDLE_NAME);
+    SchemaMetadata desired = schemaWithPerson();
+    ModelDrops drops = new ModelDrops(Set.of(), Map.of(PERSON, List.of(SURNAME)));
+    Emx2YamlBundle bundle = new Emx2YamlBundle(desired, 1, "1.0.0", Map.of(), Map.of(), drops);
+
+    MigrationPlan plan = ModelDiff.diff(bundle, live);
+
+    // the marker drives the drop
+    assertTrue(
+        plan.columnDrops().contains(new ColumnRef(PERSON, SURNAME)),
+        "a drop-marked column must be dropped, got " + plan.columnDrops());
+    // the unmarked absent column is left alone (additive)
+    assertFalse(
+        plan.columnDrops().contains(new ColumnRef(PERSON, MIDDLE_NAME)),
+        "an unmarked absent column must not be dropped, got " + plan.columnDrops());
   }
 }

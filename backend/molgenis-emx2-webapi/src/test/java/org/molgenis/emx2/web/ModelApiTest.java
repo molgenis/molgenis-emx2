@@ -31,6 +31,9 @@ class ModelApiTest extends ApiTestBase {
   private static final String PREVIOUS_NAMES_SCHEMA = "ModelApiTestPreviousNames";
   private static final String BUNDLE_REF_SCHEMA = "ModelApiTestBundleRef";
   private static final String RENAME_FALLBACK_SCHEMA = "ModelApiTestRenameFallback";
+  private static final String DROP_SCHEMA = "ModelApiTestDrop";
+  private static final String PERMISSION_ROOT_SCHEMA = "ModelApiTestPermissionRoot";
+  private static final String PERMISSION_COMPANION = "ModelApiTestPermissionOnt";
 
   @BeforeAll
   static void setup() {
@@ -77,15 +80,15 @@ class ModelApiTest extends ApiTestBase {
         .statusCode(200);
     assertTrue(getModel(VERSION_SCHEMA).contains("version: 1.0.0"));
 
-    // applying an older version is refused without force, leaving the stored version untouched
-    putModel(VERSION_SCHEMA, withVersion(VERSION_SCHEMA, "0.9.0"), "").then().statusCode(400);
+    // applying an older version is refused, leaving the stored version untouched (no force escape)
+    Response downgrade = putModel(VERSION_SCHEMA, withVersion(VERSION_SCHEMA, "0.9.0"), "");
+    downgrade.then().statusCode(400);
+    assertTrue(downgrade.body().asString().contains("version"));
     assertTrue(getModel(VERSION_SCHEMA).contains("version: 1.0.0"));
 
-    // force applies the downgrade
-    putModel(VERSION_SCHEMA, withVersion(VERSION_SCHEMA, "0.9.0"), "?force=true")
-        .then()
-        .statusCode(200);
-    assertTrue(getModel(VERSION_SCHEMA).contains("version: 0.9.0"));
+    // a non-numeric version fails validation and never stamps
+    putModel(VERSION_SCHEMA, withVersion(VERSION_SCHEMA, "1.0"), "").then().statusCode(400);
+    assertTrue(getModel(VERSION_SCHEMA).contains("version: 1.0.0"));
   }
 
   @Test
@@ -157,11 +160,11 @@ class ModelApiTest extends ApiTestBase {
           - name: cohort
             type: ref
             refTable: %s.Cohorts
-        schemas:
+        additionalSchemas:
           %s:
             version: %s
             permissions:
-              view: anonymous
+              Viewer: anonymous
             tables:
             - name: Cohorts
               columns:
@@ -216,7 +219,7 @@ class ModelApiTest extends ApiTestBase {
           columns:
           - name: id
             key: 1
-        schemas:
+        additionalSchemas:
           SomeCompanion:
             bundle: molgenis.yaml
         """;
@@ -244,7 +247,7 @@ class ModelApiTest extends ApiTestBase {
             key: 1
           - name: name
           - name: extra
-        schemas:
+        additionalSchemas:
           %s:
             version: 1.0.0
             tables:
@@ -410,13 +413,107 @@ class ModelApiTest extends ApiTestBase {
           columns:
           - name: id
             key: 1
-        schemas:
+        additionalSchemas:
           ExternalCohorts:
             bundle: external/cohorts.yaml
         """;
     Response response = putModel(BUNDLE_REF_SCHEMA, bundle, "");
     response.then().statusCode(400);
     assertTrue(response.body().asString().contains("ExternalCohorts"));
+  }
+
+  @Test
+  void additiveApplyKeepsAbsentColumnAndDropMarkerRemoves() {
+    createPersonSchema(DROP_SCHEMA);
+
+    // seed a distinguishable column so we can watch it survive and later be dropped
+    String withNickname =
+        """
+        formatVersion: 1
+        version: 1.0.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+          - name: nickname
+        """;
+    putModel(DROP_SCHEMA, withNickname, "").then().statusCode(200);
+    assertTrue(getModel(DROP_SCHEMA).contains("nickname"));
+
+    // additive: a PUT that OMITS nickname must leave it untouched (absence never deletes)
+    String withoutNickname =
+        """
+        formatVersion: 1
+        version: 1.1.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+        """;
+    putModel(DROP_SCHEMA, withoutNickname, "").then().statusCode(200);
+    assertTrue(getModel(DROP_SCHEMA).contains("nickname"));
+
+    // an explicit drop marker is the only way to remove it
+    String dropNickname =
+        """
+        formatVersion: 1
+        version: 1.2.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+          - name: nickname
+            drop: true
+        """;
+    Response dryRun = putModel(DROP_SCHEMA, dropNickname, "?dryRun=true");
+    dryRun.then().statusCode(200);
+    assertTrue(dryRun.body().asString().contains("columnDrops"));
+    putModel(DROP_SCHEMA, dropNickname, "").then().statusCode(200);
+    assertFalse(getModel(DROP_SCHEMA).contains("nickname"));
+  }
+
+  @Test
+  void companionPermissionRoleMustBeExactRoleName() {
+    createPersonSchema(PERMISSION_ROOT_SCHEMA);
+    database.dropSchemaIfExists(PERMISSION_COMPANION);
+
+    // a lowercase 'view' is no longer mapped: only exact role names (Viewer/...) are accepted
+    String bundle =
+        """
+        formatVersion: 1
+        version: 1.0.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+        additionalSchemas:
+          %s:
+            version: 1.0.0
+            permissions:
+              view: anonymous
+            tables:
+            - name: Widget
+              columns:
+              - name: id
+                key: 1
+        """
+            .formatted(PERMISSION_COMPANION);
+
+    Response response = putModel(PERMISSION_ROOT_SCHEMA, bundle, "");
+    response.then().statusCode(400);
+    String body = response.body().asString();
+    assertTrue(body.contains("view"));
+    assertTrue(body.contains(Privileges.VIEWER.toString()));
+
+    database.clearCache();
+    assertFalse(database.hasSchema(PERMISSION_COMPANION));
   }
 
   @Test
@@ -439,7 +536,7 @@ class ModelApiTest extends ApiTestBase {
         """;
     putModel(RENAME_FALLBACK_SCHEMA, toLabel, "").then().statusCode(200);
 
-    // desync: bring column name back WITHOUT a chain -> drop label + add name; chain retained
+    // desync: drop label with a marker and add name back WITHOUT a chain; the chain is retained
     String backToName =
         """
         formatVersion: 1
@@ -450,6 +547,8 @@ class ModelApiTest extends ApiTestBase {
           - name: id
             key: 1
           - name: name
+          - name: label
+            drop: true
         """;
     putModel(RENAME_FALLBACK_SCHEMA, backToName, "").then().statusCode(200);
 

@@ -9,9 +9,19 @@ public record Emx2YamlBundle(
     int formatVersion,
     String version,
     Map<String, String> namespaces,
-    Map<String, Map<String, List<String>>> previousNames) {
+    Map<String, Map<String, List<String>>> previousNames,
+    ModelDrops drops) {
 
   public Emx2YamlBundle(SchemaMetadata schema, int formatVersion, String version) {
-    this(schema, formatVersion, version, Map.of(), Map.of());
+    this(schema, formatVersion, version, Map.of(), Map.of(), ModelDrops.empty());
+  }
+
+  public Emx2YamlBundle(
+      SchemaMetadata schema,
+      int formatVersion,
+      String version,
+      Map<String, String> namespaces,
+      Map<String, Map<String, List<String>>> previousNames) {
+    this(schema, formatVersion, version, namespaces, previousNames, ModelDrops.empty());
   }
 }
