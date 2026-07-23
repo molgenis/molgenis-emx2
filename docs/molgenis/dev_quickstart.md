@@ -120,9 +120,22 @@ MOLGENIS_HTTP_PORT=8083
 
 Every Gradle task in this checkout — `run`, `dev`, `cleandb` and the test tasks — now targets that instance with no extra flags, and every app dev server proxies to `http://localhost:8083`. Start the stack as above: `./gradlew dev` plus a `pnpm dev` per app.
 
-### Which backend a dev server talks to
+### Which backend a frontend app (`pnpm dev`) talks to
 
-Per key the order is: `MOLGENIS_APPS_HOST` / `NUXT_PUBLIC_API_BASE` set in `.env`, otherwise derived from `MOLGENIS_HTTP_PORT` in `.env`, otherwise those two keys in the ambient shell, otherwise each app's own fallback. `.env` deliberately beats the ambient shell: an `export NUXT_PUBLIC_API_BASE=...` in a shell profile otherwise pins every worktree at once to a backend none of them declared. Gradle's `-D` is the one per-run override: `./gradlew dev -DMOLGENIS_HTTP_PORT=9000`.
+Vite apps read `MOLGENIS_APPS_HOST`, Nuxt apps read `NUXT_PUBLIC_API_BASE`. Both
+resolve the same way — the first match wins:
+
+1. the key itself, set in `.env`
+2. `http://localhost:<MOLGENIS_HTTP_PORT>`, derived from the port in `.env`
+3. the key exported in your shell environment
+4. the app's own fallback (usually `https://emx2.dev.molgenis.org`)
+
+Note that `.env` beats your shell environment. This is on purpose, and it is the opposite of the usual dotenv rule, because an `export NUXT_PUBLIC_API_BASE=...` in a shell profile would otherwise point *every* worktree at one backend that none of them declared. Note that this order applies to **every** key in `.env`.
+
+For a one-off change, use a `-D` system property on the Gradle command line — it
+beats `.env`:
+
+`./gradlew dev -DMOLGENIS_HTTP_PORT=9000`
 
 ### Running from IntelliJ
 
