@@ -6,6 +6,12 @@ import ContentBlockModal from "../../../../tailwind-components/app/components/co
 import FormError from "../../../../tailwind-components/app/components/form/Error.vue";
 import { useCartStore } from "../../stores/useCartStore";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import type { ICartItem } from "../../../interfaces/types";
+
+const typeLabels: Record<ICartItem["type"], string> = {
+  resource: "collection",
+  variable: "variable",
+};
 
 const cartStore = useCartStore();
 
@@ -85,7 +91,7 @@ async function sendToStore() {
                 <button
                   type="button"
                   class="shrink-0 flex items-center justify-center w-6 h-6 text-button-remove hover:text-blue-800 transition-colors"
-                  :aria-label="`remove ${item.type} from cart`"
+                  :aria-label="`remove ${typeLabels[item.type]} from cart`"
                   @click="cartStore.removeFromCart(item.id)"
                 >
                   <BaseIcon name="trash" :width="16" />

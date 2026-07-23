@@ -49,7 +49,10 @@ export const useCartStore = defineStore("cart", () => {
       try {
         const saved = window.localStorage.getItem(CART_STORAGE_KEY);
         if (saved) {
-          for (const item of JSON.parse(saved) as ICartItem[]) {
+          const items = (JSON.parse(saved) as ICartItem[]).filter(
+            (item) => item?.id && item?.label && item?.type
+          );
+          for (const item of items) {
             cart.set(item.id, item);
           }
         }
@@ -95,16 +98,19 @@ export const useCartStore = defineStore("cart", () => {
           catalogueStoreUrl.value
         )
           .then(async (response: Response) => {
-            if (response.ok) {
-              clearCart();
-              const body = await response.json();
-              window.location.href = body.redirectUrl;
-            } else {
+            if (!response.ok) {
               return handleNegotiatorV3Error(response);
             }
+            const body = await response.json();
+            if (!body.redirectUrl) {
+              return "The store response did not contain a redirect URL.";
+            }
+            clearCart();
+            window.location.href = body.redirectUrl;
           })
           .catch((error) => {
             console.error("Error during Negotiator V3 request:", error);
+            return "Could not reach the store.";
           });
       default:
         return "Unknown data store version, cannot send to store.";

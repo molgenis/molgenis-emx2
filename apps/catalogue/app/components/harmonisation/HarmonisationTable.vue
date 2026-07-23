@@ -32,7 +32,7 @@ let activeRowIndex = ref(-1);
 // list of optional computed values that are non null when the side panel is shown
 let showSidePanel = computed(() => activeRowIndex.value !== -1);
 let activeVariable = computed(() =>
-  showSidePanel ? props.variables[activeRowIndex.value] : null
+  showSidePanel.value ? props.variables[activeRowIndex.value] : null
 );
 
 let activeVariableKey = computed(() =>
