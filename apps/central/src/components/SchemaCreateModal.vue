@@ -159,6 +159,7 @@ export default {
         "TYPE_TEST",
         "PATIENT_REGISTRY_DEMO",
         "DIAMOND_SHOWCASE",
+        "DIAMOND_SHOWCASE_YAML",
       ],
       includeDemoData: false,
     };
