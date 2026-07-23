@@ -1,8 +1,8 @@
 # Development Guidelines
 
-## For component development
+## For frontend development
 
-To ensure consistency in the MOLGENIS interfaces, we would also like components to follow the same structure. Please follow these guidelines when developing components or creating new ones.
+To ensure consistency in the MOLGENIS interfaces, frontend components must follow the same structure. Please follow these guidelines when developing components or creating new ones.
 
 ### 1. Component files start with the script
 
@@ -27,7 +27,7 @@ Note: older apps and code may have deviating orders as they have not all been up
 
 ### 2. All scripts use composition API and have typescript enabled
 
-We prefer to use the [composition API](https://vuejs.org/api/composition-api-setup.html) for all EMX2 components. Typescript should also be enabled.
+We prefer to use the [composition API](https://vuejs.org/api/composition-api-setup.html) for all EMX2 components, and Typescript must be enabled.
 
 ```vue
 <script setup lang="ts">
@@ -90,7 +90,71 @@ Good semantic html practices covers a lot of areas. In principle, it is importan
 + <a href="path/to/some/page" class="btn btn-primary">Get started</a>
 ```
 
-For additional information and examples, please consult the [ARIA Patterns guide](https://www.w3.org/WAI/ARIA/apg/patterns/) and the [a11y project](https://www.a11yproject.com).
+In addition to good semantic HTML practices, it is important to provide an indication that an HTML element is used to manipulate other HTML elements. For example, a button that opens a form.
+
+```vue
+<template>
+  <button @click="openForm()">Open form</button>
+  <form>
+      ...
+  </form>
+</template>
+```
+
+This "functions" as intended but it only "visually". This markup does not provide context as to which elements are controlled by the button controls and does not indicate the current state of the target elements (i.e., open or closed). In other words, this is not machine-readable and screen reader users will not know what this does. The correct way to mark this up is by using a few aria attributes and providing element IDs.
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue";
+const formIsOpen = ref<boolean>(false);
+</script>
+
+<template>
+  <button
+    id="openFormButton"
+    aria-controls="myForm"
+    :aria-expanded="formIsOpen"
+    @click="formIsOpen = !formIsOpen"
+  >
+    Open form
+  </button>
+
+  <form id="myForm" :class={ 'hidden': !formIsOpen }>
+    <legend>My Form</legend>
+  </form>
+</template>
+```
+
+#### General semantic HTML rules
+
+This following list provides an brief overview on using the correct HTML element.
+
+- Buttons: Use a button if you need to preform an action such as saving a form or signing in.
+- Links: A link are to be used if you need to redirect users to another page&mdash;nothing else.
+- Text: text elements must be written in an HTML text element (e.g., `<h*>`, `<p>`, `<span>`, etc.)
+    - Headings: Do not place a heading in an empty div and style it like a button. Use a heading element and follow proper page hierarchy.
+    - Pages should not have more than one `<h1>` element.
+- Lists: Lists should be used to provide some organisation to a group of related elements. If the order matters, then use the ordered list element (`<ol>`). Otherwise, use an unordered list.
+
+More information can be found in [Mozilla's guide on Semantic HTML](https://developer.mozilla.org/en-US/curriculum/core/semantic-html/).
+
+#### Accessibility guidelines
+
+In addition to good semantic HTML practices, we aim for [WCAG Level AA compliance](https://www.w3.org/WAI/WCAG22/Understanding/conformance) to align with government-, education-, and health organisations. Meeting this criteria can be addresed by following good HTML semantic practices (as noted above) and by following these principles-
+
+- Aria attributes are used appropriately and only in situtations where they are required
+- Elements have sufficient color contrast and content is readable
+- Content is human readable: information is clear and concise, actions are not vague, error messages inform users (in simple language) what the issue is.
+
+For further information and examples, please consult-
+
+- [Web Accessibility Initiative](https://www.w3.org/WAI/standards-guidelines/wcag/)
+- [The ARIA Patterns guide](https://www.w3.org/WAI/ARIA/apg/patterns/)
+- [a11y project](https://www.a11yproject.com).
+- [Richtlijnen NL Design System (NL)](https://nldesignsystem.nl/richtlijnen/)
+- [Digitaal toegankelijk (NL)](https://digitaaltoegankelijk.nl)
+
+All frontend code must be evaluated for semantic HTML and WCAG compliance before merging into production. Initial testing can be fulfilled by the developer by using the [WAVE Browser Extensions](https://wave.webaim.org) and by throughly reviewing the PR.
 
 ### 6. Naming conventions
 
