@@ -1,0 +1,4 @@
+subjectId,name,sex,diseaseCategory
+SUBJ001,Alice Bakker,female,Genodermatosis
+SUBJ002,Bob Claassen,male,Autoimmune
+SUBJ003,Clara Dijk,female,"Oncology,Metabolic"

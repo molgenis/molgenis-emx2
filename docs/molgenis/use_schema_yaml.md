@@ -18,7 +18,9 @@ If you already know the CSV/Excel `molgenis` format, start with [Migrating from 
 [`backend/molgenis-emx2-io/src/test/resources/yamlbundle/`](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-io/src/test/resources/yamlbundle)
 — `reuse/` (imports + heading splice), `woven/` (subclass/module weaving), `axes/` (module discriminator
 axis), `diamond/` (multi-parent extends), `refs/` (dotted cross-schema `refTable`), `singlefile/`
-(single-file/inline form), `fullsurface/` (every attribute, with a CSV twin proving parity). Sections
+(single-file/inline form), `fullsurface/` (every attribute, with a CSV twin proving parity),
+`diamondshowcase/` (diamond inheritance combined with a companion schema, see [Worked example: diamond +
+companion schema](#worked-example-diamond--companion-schema) below). Sections
 below quote these fixtures directly where practical; the converted production corpus lives at
 [`data/_models/yaml/`](https://github.com/molgenis/molgenis-emx2/tree/master/data/_models/yaml) (see its
 `SKIPPED.md` for the models that don't map cleanly yet — [Profiles](#profiles) below).
@@ -339,6 +341,9 @@ schemas:
 
 Dotted `refTable: Schema.Table` references resolve companion-before-instance.
 
+See [Worked example: diamond + companion schema](#worked-example-diamond--companion-schema) below for a
+full runnable bundle that combines a companion with diamond inheritance.
+
 ## Model API
 
 `GET`/`PUT /{schema}/api/model` expose this same format as a schema's live model, using the same parser
@@ -428,6 +433,9 @@ columns:
 Importing this bundle auto-creates a same-schema `Keywords` ontology table (empty — its terms are loaded
 as data, e.g. via CSV upload); exporting the schema afterwards emits `Keywords` as a metadata-only stub
 (`name`, `tableType: ontologies`, plus any `description`/`semantics`/`profiles`) — never its term rows.
+
+See [Worked example: diamond + companion schema](#worked-example-diamond--companion-schema) below for a
+cross-schema `ontology_array` combined with diamond inheritance.
 
 ## Profiles
 
@@ -549,6 +557,108 @@ With `refLink: patient` declared above, the same observation is entered with the
 patient,sample
 P1,S1
 ```
+
+## Worked example: diamond + companion schema
+
+The `DIAMOND_SHOWCASE_YAML` template (loaded by
+[`DiamondShowcaseYamlLoader`](https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2-datamodels/src/main/java/org/molgenis/emx2/datamodels/DiamondShowcaseYamlLoader.java),
+sources at
+[`data/diamond_showcase/yaml/`](https://github.com/molgenis/molgenis-emx2/tree/master/data/diamond_showcase/yaml),
+model-only fixture copy at
+[`backend/molgenis-emx2-io/src/test/resources/yamlbundle/diamondshowcase/`](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-io/src/test/resources/yamlbundle/diamondshowcase))
+combines both stories end to end: a diamond inheritance hierarchy whose ontology columns are dotted
+references into a companion schema.
+
+The flat root declares a `Subject` root, two single-parent subclasses, and a diamond child that extends
+both:
+
+```yaml
+# molgenis.yaml
+formatVersion: 1
+version: 1.0.0
+tables:
+  - file: tables/Subject.yaml
+  - file: tables/ClinicalSubject.yaml
+  - file: tables/ResearchSubject.yaml
+  - file: tables/ClinicalResearchSubject.yaml
+schemas:
+  diamontologies:
+    bundle: diamontologies/molgenis.yaml
+    permissions: { view: anonymous }
+```
+
+```yaml
+# tables/Subject.yaml
+name: Subject
+columns:
+  - name: subjectId
+    key: 1
+    type: string
+    required: true
+  - name: diseaseCategory
+    type: ontology_array
+    refTable: diamontologies.Disease categories
+```
+
+```yaml
+# tables/ClinicalSubject.yaml
+name: ClinicalSubject
+extends: [Subject]
+columns:
+  - name: clinicalCentreId
+    type: string
+```
+
+```yaml
+# tables/ResearchSubject.yaml
+name: ResearchSubject
+extends: [Subject]
+columns:
+  - name: biobanked
+    type: string
+```
+
+```yaml
+# tables/ClinicalResearchSubject.yaml
+name: ClinicalResearchSubject
+extends: [ClinicalSubject, ResearchSubject]
+columns:
+  - name: assayCategory
+    type: ontology_array
+    refTable: diamontologies.Assay categories
+```
+
+`ClinicalResearchSubject` is the diamond child: it extends both `ClinicalSubject` and `ResearchSubject`,
+which in turn both extend `Subject` — so `ClinicalSubject` is the primary parent (first in the list) and
+`Subject` remains the single root for the whole hierarchy, exactly as in the
+[`diamond/` fixture](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-io/src/test/resources/yamlbundle/diamond).
+
+The `diamontologies` companion, referenced by `bundle:` from the root, declares two ontology tables as
+metadata-only stubs — no `columns:`, because an ontology table's own columns are engine-defined:
+
+```yaml
+# diamontologies/molgenis.yaml
+formatVersion: 1
+version: 1.0.0
+tables:
+  - file: tables/DiseaseCategories.yaml
+  - file: tables/AssayCategories.yaml
+```
+
+```yaml
+# diamontologies/tables/DiseaseCategories.yaml
+name: Disease categories
+tableType: ontologies
+```
+
+Both `diseaseCategory` (on `Subject`, inherited by every subclass) and `assayCategory` (on the diamond
+child only) use the dotted `refTable: diamontologies.<Table name>` form, resolving into the companion
+rather than the schema the bundle is loaded into. On first load, `diamontologies` is provisioned once as
+its own schema (companion terms are shipped as demo-data CSV rows under `diamontologies/data/`, never as
+model content — see [Ontologies](#ontologies)); loading the template again onto a different schema name
+reuses that same companion instead of re-provisioning it. `DiamondShowcaseYamlLoader` performs this
+provision-if-absent step itself, since applying a `schemas:` companion onto a live database is otherwise a
+server (Model API) concern — see [Companion schemas](#companion-schemas).
 
 ## Migrating from CSV to YAML
 
