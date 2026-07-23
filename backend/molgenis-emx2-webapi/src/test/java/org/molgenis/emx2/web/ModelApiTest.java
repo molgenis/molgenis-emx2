@@ -11,6 +11,8 @@ import static org.molgenis.emx2.TableMetadata.table;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
 
 class ModelApiTest extends ApiTestBase {
@@ -18,6 +20,11 @@ class ModelApiTest extends ApiTestBase {
   private static final String VERSION_SCHEMA = "ModelApiTestVersion";
   private static final String ROUNDTRIP_SCHEMA = "ModelApiTestRoundtrip";
   private static final String VALIDATOR_SCHEMA = "ModelApiTestValidator";
+  private static final String COMPANION_ROOT_SCHEMA = "ModelApiTestCompanionRoot";
+  private static final String COMPANION_SCHEMA = "ModelApiTestCompanionOnt";
+  private static final String CYCLE_SCHEMA = "ModelApiTestCycle";
+  private static final String ATOMIC_SCHEMA = "ModelApiTestAtomic";
+  private static final String ATOMIC_COMPANION = "ModelApiTestAtomicCompanion";
 
   @BeforeAll
   static void setup() {
@@ -129,5 +136,130 @@ class ModelApiTest extends ApiTestBase {
     assertTrue(body.contains("line"));
     assertTrue(body.contains("column"));
     assertEquals(400, response.getStatusCode());
+  }
+
+  private static String companionBundle(String companionVersion) {
+    return """
+        formatVersion: 1
+        version: 1.0.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+          - name: cohort
+            type: ref
+            refTable: %s.Cohorts
+        schemas:
+          %s:
+            version: %s
+            permissions:
+              view: anonymous
+            tables:
+            - name: Cohorts
+              columns:
+              - name: id
+                key: 1
+              - name: types
+                type: ontology_array
+                refTable: CohortTypes
+        """
+        .formatted(COMPANION_SCHEMA, COMPANION_SCHEMA, companionVersion);
+  }
+
+  @Test
+  void companionLifecycle() {
+    createPersonSchema(COMPANION_ROOT_SCHEMA);
+    database.dropSchemaIfExists(COMPANION_SCHEMA);
+    assertFalse(database.hasSchema(COMPANION_SCHEMA));
+
+    // first apply provisions the companion with its model and role-default permissions
+    putModel(COMPANION_ROOT_SCHEMA, companionBundle("1.0.0"), "").then().statusCode(200);
+    database.clearCache();
+    assertTrue(database.hasSchema(COMPANION_SCHEMA));
+    assertEquals(
+        Privileges.VIEWER.toString(),
+        database.getSchema(COMPANION_SCHEMA).getRoleForUser(Constants.ANONYMOUS));
+
+    // dotted refs resolve companion-before-instance: the root ref to the companion table applied
+    String rootModel = getModel(COMPANION_ROOT_SCHEMA);
+    assertTrue(rootModel.contains("refTable: " + COMPANION_SCHEMA + ".Cohorts"));
+
+    // second apply of the same bundle leaves the existing companion byte-identical
+    String companionBefore = getModel(COMPANION_SCHEMA);
+    assertTrue(companionBefore.contains("Cohorts"));
+    putModel(COMPANION_ROOT_SCHEMA, companionBundle("1.0.0"), "").then().statusCode(200);
+    String companionAfter = getModel(COMPANION_SCHEMA);
+    assertEquals(companionBefore, companionAfter);
+
+    // dryRun warns when the existing companion is older than the referenced version
+    Response dryRun = putModel(COMPANION_ROOT_SCHEMA, companionBundle("2.0.0"), "?dryRun=true");
+    dryRun.then().statusCode(200);
+    String dryRunBody = dryRun.body().asString();
+    assertTrue(dryRunBody.contains(COMPANION_SCHEMA));
+    assertTrue(dryRunBody.contains("older"));
+
+    // a companion cycle fails validation and surfaces through the API
+    createPersonSchema(CYCLE_SCHEMA);
+    String cycleBundle =
+        """
+        formatVersion: 1
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+        schemas:
+          SomeCompanion:
+            bundle: molgenis.yaml
+        """;
+    Response cycle = putModel(CYCLE_SCHEMA, cycleBundle, "");
+    cycle.then().statusCode(400);
+    assertTrue(cycle.body().asString().contains("cycle"));
+  }
+
+  @Test
+  void atomicApply() {
+    createPersonSchema(ATOMIC_SCHEMA);
+    database.dropSchemaIfExists(ATOMIC_COMPANION);
+    assertFalse(database.hasSchema(ATOMIC_COMPANION));
+
+    // the root change is valid, but the companion references a table that does not exist,
+    // so the whole-bundle apply must fail and leave everything untouched
+    String bundle =
+        """
+        formatVersion: 1
+        version: 1.0.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+          - name: extra
+        schemas:
+          %s:
+            version: 1.0.0
+            tables:
+            - name: Widget
+              columns:
+              - name: id
+                key: 1
+              - name: broken
+                type: ref
+                refTable: NoSuchTable
+        """
+            .formatted(ATOMIC_COMPANION);
+
+    Response response = putModel(ATOMIC_SCHEMA, bundle, "");
+    response.then().statusCode(400);
+    // the error names the schema whose apply failed
+    assertTrue(response.body().asString().contains(ATOMIC_COMPANION));
+
+    database.clearCache();
+    // nothing changed: the companion was not created and the root column was rolled back
+    assertFalse(database.hasSchema(ATOMIC_COMPANION));
+    assertFalse(getModel(ATOMIC_SCHEMA).contains("extra"));
   }
 }
