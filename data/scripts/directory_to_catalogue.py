@@ -44,10 +44,15 @@ async def clear_schemas(client, schema, staging_schema):
 def get_directory_data():
     """Get Directory data"""
     data = {}
-    tables = ["Biobanks"]  # , "Collections"]
+    tables = ["Biobanks", "Collections"]
     with pyclient.Client(url="https://directory.bbmri-eric.eu", schema="ERIC") as client:
         for table in tables:
-            data[table] = client.get(table, as_df=True)
+            # FIXME: reading from file is only for speeding up testing, remove afterwards
+            try:
+                data[table] = pd.read_csv(f'{table}.csv')
+            except FileNotFoundError:
+                data[table] = client.get(table, as_df=True)
+                pyclient.utils.data_to_csv(data=data[table], filename=f'{table}.csv')
     return data
 
 
@@ -89,6 +94,9 @@ def convert_biobanks_to_collections(bb, mappings):
     coll["type"] = "Biobank"
     return coll
 
+def convert_collections_to_collections(coll, mappings):
+    """Convert standalone/parent Collections to Collections"""
+    return coll
 
 async def main():
     """Main function"""
@@ -136,6 +144,7 @@ async def main():
             ]
         )
         collections = convert_biobanks_to_collections(data["Biobanks"].copy(), biobank_mappings)
+        collections = pd.concat([collections, convert_collections_to_collections(data["Collections"].copy(), mappings)])
         collections = collections.reindex(
             columns=[
                 "id",
