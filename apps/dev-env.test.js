@@ -4,7 +4,12 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 
-const { apiBase, appsHost, loadRootEnv } = require("./dev-env.js");
+const {
+  apiBase,
+  appsHost,
+  autoLoadRootEnvForDevServer,
+  loadRootEnv,
+} = require("./dev-env.js");
 
 const injectedKeys = [
   "NUXT_PUBLIC_API_BASE",
@@ -36,6 +41,17 @@ function withEnv(ambientEnv, assertions) {
 function declareStack(envFilePath, contents) {
   fs.writeFileSync(envFilePath, contents);
   loadRootEnv(envFilePath);
+}
+
+function withLifecycleEvent(event, run) {
+  const previous = process.env.npm_lifecycle_event;
+  process.env.npm_lifecycle_event = event;
+  try {
+    run();
+  } finally {
+    if (previous === undefined) delete process.env.npm_lifecycle_event;
+    else process.env.npm_lifecycle_event = previous;
+  }
 }
 
 test("a declared MOLGENIS_HTTP_PORT outranks an ambient NUXT_PUBLIC_API_BASE", () => {
@@ -123,6 +139,32 @@ test("with nothing declared and nothing ambient each app keeps its own fallback"
       "https://emx2.dev.molgenis.org/"
     );
     assert.equal(appsHost("http://localhost:8080"), "http://localhost:8080");
+  });
+});
+
+test("the dev-server auto-load skips .env when the lifecycle event is not dev", () => {
+  withEnv({}, (envFilePath) => {
+    fs.writeFileSync(envFilePath, "MOLGENIS_HTTP_PORT=8083\n");
+    withLifecycleEvent("build", () => {
+      assert.equal(autoLoadRootEnvForDevServer(envFilePath), false);
+      assert.equal(
+        apiBase("https://emx2.dev.molgenis.org/"),
+        "https://emx2.dev.molgenis.org/"
+      );
+    });
+  });
+});
+
+test("the dev-server auto-load applies .env when the lifecycle event is dev", () => {
+  withEnv({}, (envFilePath) => {
+    fs.writeFileSync(envFilePath, "MOLGENIS_HTTP_PORT=8083\n");
+    withLifecycleEvent("dev", () => {
+      assert.equal(autoLoadRootEnvForDevServer(envFilePath), true);
+      assert.equal(
+        apiBase("https://emx2.dev.molgenis.org/"),
+        "http://localhost:8083"
+      );
+    });
   });
 });
 

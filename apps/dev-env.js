@@ -21,6 +21,12 @@ function loadRootEnv(envFilePath = rootEnvPath) {
   return parsed;
 }
 
+function autoLoadRootEnvForDevServer(envFilePath = rootEnvPath) {
+  if (process.env.npm_lifecycle_event !== "dev") return false;
+  loadRootEnv(envFilePath);
+  return true;
+}
+
 function applyDeclaredBackendTarget(declared) {
   const declaredPort = Number(declared.MOLGENIS_HTTP_PORT);
   if (!Number.isInteger(declaredPort) || declaredPort <= 0) return;
@@ -51,11 +57,12 @@ function stripSurroundingQuotes(value) {
   return quoted ? value.slice(1, -1) : value;
 }
 
-loadRootEnv();
+autoLoadRootEnvForDevServer();
 
 module.exports = {
   apiBase,
   appsHost,
+  autoLoadRootEnvForDevServer,
   loadRootEnv,
   parseDotenv,
 };
