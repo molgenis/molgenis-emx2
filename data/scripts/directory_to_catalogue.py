@@ -146,13 +146,13 @@ async def main():
         )
         # Post-process data
         # Link collections to their legal-entity organisations
-        jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)].set_index("name")
-        collections["held by"] = jp_orgs.loc[collections["held by"], "id"].values
+        jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)]
+        collections["held by"] = jp_orgs.set_index("name").loc[collections["held by"], "id"].values
         # Link biobanks to their legal-entity organisations
-        biobanks["part of"] = jp_orgs.loc[biobanks["part of"], "id"].values
+        biobanks["part of"] = jp_orgs.set_index("name").loc[biobanks["part of"], "id"].values
         # Ensure newly minted organisations have a distinct name from biobanks and collections
         organisations.loc[
-            organisations["id"].str.startswith(jp_prefix)
+            organisations["id"].isin(jp_orgs['id'])
             & (
                 (organisations["name"].isin(biobanks["name"]))
                 | (organisations["name"].isin(collections["name"]))
