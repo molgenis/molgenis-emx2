@@ -53,14 +53,50 @@ public class YamlWorkspaceLoader {
   }
 
   /**
-   * Returns the named template woven into the canonical single-file wire form (imports resolved),
-   * the same export {@code GET /<schema>/api/yaml} produces from a live schema. Data/demo CSVs and
-   * companion bodies are not inlined.
+   * Returns the named template woven into the canonical single-file wire form (imports resolved).
+   * Companion schemas declared under {@code additionalSchemas:} are woven from their own multi-file
+   * layout and inlined per the inline companion key-set (tables/settings/version/permissions); data
+   * and demo CSVs stay out because they are not YAML.
    */
   public String toSingleFileWireForm(String template) {
     String rootContent = readClasspathFile(WORKSPACE + SLASH + template + YAML_SUFFIX);
+    Map<String, Object> root = parse(rootContent);
     Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, ""));
-    return Emx2Yaml.toSingleFile(bundle);
+    return Emx2Yaml.toSingleFile(bundle, weaveCompanions(root));
+  }
+
+  private Map<String, Emx2YamlBundle> weaveCompanions(Map<String, Object> root) {
+    Map<String, Emx2YamlBundle> woven = new LinkedHashMap<>();
+    Object additionalSchemas = root.get(KEY_ADDITIONAL_SCHEMAS);
+    if (!(additionalSchemas instanceof Map<?, ?> companions)) {
+      return woven;
+    }
+    for (Map.Entry<?, ?> companion : companions.entrySet()) {
+      String name = String.valueOf(companion.getKey());
+      if (companion.getValue() instanceof Map<?, ?> body && body.get(KEY_BUNDLE) != null) {
+        String bundleReference = String.valueOf(body.get(KEY_BUNDLE));
+        String base = parentPath(bundleReference);
+        String companionRoot = readClasspathFile(WORKSPACE + SLASH + bundleReference);
+        Emx2YamlBundle companionBundle =
+            Emx2Yaml.fromBundleFiles(gatherBundleFiles(companionRoot, base));
+        woven.put(name, withPermissions(companionBundle, permissionsOf(body)));
+      }
+    }
+    return woven;
+  }
+
+  private static Emx2YamlBundle withPermissions(
+      Emx2YamlBundle bundle, Map<String, String> permissions) {
+    return new Emx2YamlBundle(
+        bundle.schema(),
+        bundle.formatVersion(),
+        bundle.version(),
+        bundle.namespaces(),
+        bundle.previousNames(),
+        bundle.drops(),
+        permissions,
+        bundle.dataFiles(),
+        bundle.demoFiles());
   }
 
   public List<String> templates() {

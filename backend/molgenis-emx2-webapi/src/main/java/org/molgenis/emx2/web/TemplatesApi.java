@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.ArrayList;
@@ -17,13 +18,20 @@ public class TemplatesApi {
 
   private static final String SOURCE_CLASSIC = "classic";
   private static final String SOURCE_YAML = "yaml";
+  private static final String TEMPLATE_PATH = "/api/templates/";
 
   private TemplatesApi() {
     // hide constructor
   }
 
+  @JsonInclude(JsonInclude.Include.NON_NULL)
   public record TemplateEntry(
-      String name, String label, String description, boolean hasDemoData, String source) {}
+      String name,
+      String label,
+      String description,
+      boolean hasDemoData,
+      String source,
+      String url) {}
 
   public static void create(Javalin app) {
     app.get("/api/templates", TemplatesApi::getTemplates);
@@ -55,13 +63,19 @@ public class TemplatesApi {
     if (workspace.isAvailable()) {
       for (TemplateInfo info : workspace.availableTemplates()) {
         templates.add(
-            new TemplateEntry(info.name(), info.label(), null, info.hasDemoData(), SOURCE_YAML));
+            new TemplateEntry(
+                info.name(),
+                info.label(),
+                null,
+                info.hasDemoData(),
+                SOURCE_YAML,
+                TEMPLATE_PATH + info.name()));
       }
     }
     ctx.json(templates);
   }
 
   private static TemplateEntry classicEntry(String name) {
-    return new TemplateEntry(name, name, null, true, SOURCE_CLASSIC);
+    return new TemplateEntry(name, name, null, true, SOURCE_CLASSIC, null);
   }
 }

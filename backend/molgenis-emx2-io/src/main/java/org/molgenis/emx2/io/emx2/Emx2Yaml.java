@@ -1196,6 +1196,22 @@ public class Emx2Yaml {
   }
 
   public static String toSingleFile(Emx2YamlBundle bundle) {
+    return dump(singleFileRoot(bundle));
+  }
+
+  public static String toSingleFile(Emx2YamlBundle bundle, Map<String, Emx2YamlBundle> companions) {
+    Map<String, Object> root = singleFileRoot(bundle);
+    if (companions != null && !companions.isEmpty()) {
+      Map<String, Object> additionalSchemas = new LinkedHashMap<>();
+      for (Map.Entry<String, Emx2YamlBundle> companion : companions.entrySet()) {
+        additionalSchemas.put(companion.getKey(), companionInlineBody(companion.getValue()));
+      }
+      root.put(KEY_ADDITIONAL_SCHEMAS, additionalSchemas);
+    }
+    return dump(root);
+  }
+
+  private static Map<String, Object> singleFileRoot(Emx2YamlBundle bundle) {
     SchemaMetadata schema = bundle.schema();
     Map<String, Object> root = new LinkedHashMap<>();
     root.put(KEY_FORMAT_VERSION, bundle.formatVersion());
@@ -1205,20 +1221,56 @@ public class Emx2Yaml {
     if (!bundle.namespaces().isEmpty()) {
       root.put(KEY_NAMESPACES, new LinkedHashMap<>(bundle.namespaces()));
     }
+    root.put(KEY_TABLES, singleFileTables(schema, bundle.previousNames()));
+    Map<String, String> exportableSettings = exportableSettings(schema.getSettings());
+    if (!exportableSettings.isEmpty()) {
+      root.put(KEY_SETTINGS, new LinkedHashMap<>(exportableSettings));
+    }
+    if (!bundle.permissions().isEmpty()) {
+      root.put(KEY_PERMISSIONS, new LinkedHashMap<>(bundle.permissions()));
+    }
+    if (!bundle.dataFiles().isEmpty()) {
+      root.put(KEY_DATA, new ArrayList<>(bundle.dataFiles()));
+    }
+    if (!bundle.demoFiles().isEmpty()) {
+      root.put(KEY_DEMO, new ArrayList<>(bundle.demoFiles()));
+    }
+    return root;
+  }
+
+  private static List<Map<String, Object>> singleFileTables(
+      SchemaMetadata schema, Map<String, Map<String, List<String>>> previousNames) {
     List<Map<String, Object>> tableEntries = new ArrayList<>();
     for (TableMetadata table : schema.getRootTables()) {
       if (TableType.ONTOLOGIES.equals(table.getTableType())) {
         tableEntries.add(ontologyStubToMap(table));
         continue;
       }
-      tableEntries.add(tableToMap(table, schema, bundle.previousNames()));
+      tableEntries.add(tableToMap(table, schema, previousNames));
     }
-    root.put(KEY_TABLES, tableEntries);
-    Map<String, String> exportableSettings = exportableSettings(schema.getSettings());
+    return tableEntries;
+  }
+
+  private static Map<String, Object> companionInlineBody(Emx2YamlBundle companion) {
+    Map<String, Object> body = new LinkedHashMap<>();
+    if (companion.version() != null) {
+      body.put(KEY_VERSION, companion.version());
+    }
+    body.put(KEY_TABLES, singleFileTables(companion.schema(), companion.previousNames()));
+    Map<String, String> exportableSettings = exportableSettings(companion.schema().getSettings());
     if (!exportableSettings.isEmpty()) {
-      root.put(KEY_SETTINGS, new LinkedHashMap<>(exportableSettings));
+      body.put(KEY_SETTINGS, new LinkedHashMap<>(exportableSettings));
     }
-    return dump(root);
+    if (!companion.permissions().isEmpty()) {
+      body.put(KEY_PERMISSIONS, new LinkedHashMap<>(companion.permissions()));
+    }
+    if (!companion.dataFiles().isEmpty()) {
+      body.put(KEY_DATA, new ArrayList<>(companion.dataFiles()));
+    }
+    if (!companion.demoFiles().isEmpty()) {
+      body.put(KEY_DEMO, new ArrayList<>(companion.demoFiles()));
+    }
+    return body;
   }
 
   private static Map<String, String> exportableSettings(Map<String, String> settings) {

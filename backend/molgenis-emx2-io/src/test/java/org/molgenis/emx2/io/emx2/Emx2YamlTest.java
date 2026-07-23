@@ -433,6 +433,72 @@ class Emx2YamlTest {
   }
 
   @Test
+  void toSingleFileEmitsDataDemoPermissionsVersionAndSettings() {
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.setSetting("menu", "[]");
+    TableMetadata table = new TableMetadata("Collections");
+    table.add(new Column("id").setKey(1));
+    schema.create(table);
+
+    Emx2YamlBundle bundle =
+        new Emx2YamlBundle(
+            schema,
+            1,
+            "1.2.3",
+            Map.of(),
+            Map.of(),
+            ModelDrops.empty(),
+            Map.of("Viewer", "anonymous"),
+            List.of("catalogue/data"),
+            List.of("catalogue/demo"));
+
+    String yaml = Emx2Yaml.toSingleFile(bundle);
+
+    assertTrue(yaml.contains("1.2.3"), "version survives into the wire form");
+    assertTrue(yaml.contains("menu"), "settings survive into the wire form");
+    assertTrue(yaml.contains("anonymous"), "permissions survive into the wire form");
+    assertTrue(
+        yaml.contains("catalogue/data"),
+        "data: keeps the relative path (CSV rows are not inlined)");
+    assertTrue(
+        yaml.contains("catalogue/demo"),
+        "demo: keeps the relative path (CSV rows are not inlined)");
+  }
+
+  @Test
+  void toSingleFileInlinesCompanionDataDemoAndPermissions() {
+    SchemaMetadata mainSchema = new SchemaMetadata();
+    TableMetadata mainTable = new TableMetadata("Collections");
+    mainTable.add(new Column("id").setKey(1));
+    mainSchema.create(mainTable);
+    Emx2YamlBundle main = new Emx2YamlBundle(mainSchema, 1, "1.0.0");
+
+    SchemaMetadata companionSchema = new SchemaMetadata();
+    TableMetadata companionTable = new TableMetadata("Countries");
+    companionTable.add(new Column("name").setKey(1));
+    companionSchema.create(companionTable);
+    Emx2YamlBundle companion =
+        new Emx2YamlBundle(
+            companionSchema,
+            1,
+            "2.0.0",
+            Map.of(),
+            Map.of(),
+            ModelDrops.empty(),
+            Map.of("Viewer", "anonymous"),
+            List.of("ontologies/data"),
+            List.of());
+
+    String yaml = Emx2Yaml.toSingleFile(main, Map.of("CatalogueOntologies", companion));
+
+    assertTrue(yaml.contains("additionalSchemas"), "companion is inlined under additionalSchemas");
+    assertTrue(yaml.contains("Countries"), "companion tables are woven into the inline definition");
+    assertTrue(yaml.contains("2.0.0"), "companion version survives");
+    assertTrue(yaml.contains("anonymous"), "companion permissions survive");
+    assertTrue(yaml.contains("ontologies/data"), "companion data: keeps its relative path");
+  }
+
+  @Test
   void surfaceV2Forms() throws Exception {
     SchemaMetadata schema = new SchemaMetadata();
     TableMetadata base = new TableMetadata("Base");
