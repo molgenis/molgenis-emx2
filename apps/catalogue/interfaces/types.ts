@@ -381,8 +381,8 @@ export type analyticsService =
   | "piwik-pro";
 
 export type ICartItem = { id: string; label: string } & (
-  | { type: "resource"; data: IResources }
-  | { type: "variable"; data: IVariables }
+  | { type: "resource"; pid: string; name: string }
+  | { type: "variable" }
 );
 
 export type ICart = Map<string, ICartItem>;

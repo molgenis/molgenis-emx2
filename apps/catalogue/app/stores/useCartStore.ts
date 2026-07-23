@@ -8,6 +8,7 @@ import {
   handleNegotiatorV3Error,
 } from "./util/negotiatorClient";
 import { getCatalogueStoreConfig } from "./util/catalogueStoreConfig";
+import { cartItemsOfType } from "../utils/cartItem";
 
 export const useCartStore = defineStore("cart", () => {
   const cart = reactive<ICart>(new Map());
@@ -27,17 +28,11 @@ export const useCartStore = defineStore("cart", () => {
   const cartItems = computed(() => [...cart.values()]);
 
   const resourcesInCart = computed(() =>
-    cartItems.value.filter(
-      (item): item is Extract<ICartItem, { type: "resource" }> =>
-        item.type === "resource"
-    )
+    cartItemsOfType(cartItems.value, "resource")
   );
 
   const variablesInCart = computed(() =>
-    cartItems.value.filter(
-      (item): item is Extract<ICartItem, { type: "variable" }> =>
-        item.type === "variable"
-    )
+    cartItemsOfType(cartItems.value, "variable")
   );
 
   const CART_STORAGE_KEY = "emx2-catalogue-cart";
@@ -50,7 +45,11 @@ export const useCartStore = defineStore("cart", () => {
         const saved = window.localStorage.getItem(CART_STORAGE_KEY);
         if (saved) {
           const items = (JSON.parse(saved) as ICartItem[]).filter(
-            (item) => item?.id && item?.label && item?.type
+            (item) =>
+              item?.id &&
+              item?.label &&
+              (item.type === "variable" ||
+                (item.type === "resource" && item.pid && item.name))
           );
           for (const item of items) {
             cart.set(item.id, item);

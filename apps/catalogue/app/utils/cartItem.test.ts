@@ -3,13 +3,29 @@ import { resourceToCartItem, variableToCartItem } from "./cartItem";
 import type { IResources, IVariables } from "~~/interfaces/catalogue";
 
 describe("resourceToCartItem", () => {
-  it("should convert a resource to a cart item", () => {
-    const resource = { id: "res1", name: "Resource 1" } as IResources;
+  it("should project a resource onto a cart item", () => {
+    const resource = {
+      id: "res1",
+      pid: "pid1",
+      name: "Resource 1",
+    } as IResources;
     expect(resourceToCartItem(resource)).toEqual({
       id: "resource:res1",
       label: "res1",
       type: "resource",
-      data: resource,
+      pid: "pid1",
+      name: "Resource 1",
+    });
+  });
+
+  it("should fall back to the id when pid or name is missing", () => {
+    const resource = { id: "res1" } as IResources;
+    expect(resourceToCartItem(resource)).toEqual({
+      id: "resource:res1",
+      label: "res1",
+      type: "resource",
+      pid: "res1",
+      name: "res1",
     });
   });
 });
@@ -27,7 +43,6 @@ describe("variableToCartItem", () => {
       id: "variable:network1:cohort1:core:height",
       label: "network1: core.height",
       type: "variable",
-      data: variable,
     });
   });
 });

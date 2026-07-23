@@ -1,4 +1,5 @@
 import type { ICartItem } from "~~/interfaces/types";
+import { cartItemsOfType } from "../../utils/cartItem";
 
 export async function doNegotiatorV3Request(
   cartItems: ICartItem[],
@@ -51,29 +52,20 @@ export async function handleNegotiatorV3Error(response: Response) {
 }
 
 function toNegotiatorFormat(cartItems: ICartItem[]) {
-  return cartItems
-    .filter(
-      (i): i is Extract<ICartItem, { type: "resource" }> =>
-        i.type === "resource"
-    )
-    .map((item) => {
-      return { id: item.data.pid, name: item.data.name };
-    });
+  return cartItemsOfType(cartItems, "resource").map((item) => {
+    return { id: item.pid, name: item.name };
+  });
 }
 
 function toHumanReadableString(cartItems: ICartItem[]) {
-  const resources = cartItems.filter(
-    (i): i is Extract<ICartItem, { type: "resource" }> => i.type === "resource"
-  );
-  const variables = cartItems.filter(
-    (i): i is Extract<ICartItem, { type: "variable" }> => i.type === "variable"
-  );
+  const resources = cartItemsOfType(cartItems, "resource");
+  const variables = cartItemsOfType(cartItems, "variable");
   const parts = [];
   if (resources.length > 0) {
     parts.push(
       "Resources: " +
         resources
-          .map((resource) => `${resource.data.name} (${resource.data.pid})`)
+          .map((resource) => `${resource.name} (${resource.pid})`)
           .join(", ")
     );
   }

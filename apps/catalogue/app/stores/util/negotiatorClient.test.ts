@@ -82,13 +82,13 @@ describe("doNegotiatorV3Request", () => {
     id: "resource:res1",
     label: "res1",
     type: "resource",
-    data: { id: "res1", pid: "pid1", name: "Dataset 1" } as IResources,
+    pid: "pid1",
+    name: "Dataset 1",
   };
   const variableItem: ICartItem = {
     id: "variable:network1:cohort1:core:height",
     label: "network1: core.height",
     type: "variable",
-    data: { name: "height" } as IVariables,
   };
 
   afterEach(() => {

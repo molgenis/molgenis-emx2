@@ -7,7 +7,10 @@ export function resourceToCartItem(resource: IResources): ICartItem {
     id: `resource:${resource.id}`,
     label: resource.id,
     type: "resource",
-    data: resource,
+    // pid/name can be missing when the source page under-fetches;
+    // fall back to the id so the payload stays identifiable
+    pid: resource.pid ?? resource.id,
+    name: resource.name ?? resource.id,
   };
 }
 
@@ -17,6 +20,14 @@ export function variableToCartItem(variable: IVariables): ICartItem {
     id: `variable:${key.resource.id}:${key.table.resource.id}:${key.table.name}:${key.name}`,
     label: `${variable.resource.id}: ${variable.table.name}.${variable.name}`,
     type: "variable",
-    data: variable,
   };
+}
+
+export function cartItemsOfType<T extends ICartItem["type"]>(
+  items: ICartItem[],
+  type: T
+): Extract<ICartItem, { type: T }>[] {
+  return items.filter(
+    (item): item is Extract<ICartItem, { type: T }> => item.type === type
+  );
 }
