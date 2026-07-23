@@ -49,10 +49,10 @@ def get_directory_data():
         for table in tables:
             # FIXME: reading from file is only for speeding up testing, remove afterwards
             try:
-                data[table] = pd.read_csv(f'{table}.csv')
+                data[table] = pd.read_csv(f"{table}.csv")
             except FileNotFoundError:
                 data[table] = client.get(table, as_df=True)
-                pyclient.utils.data_to_csv(data=data[table], filename=f'{table}.csv')
+                pyclient.utils.data_to_csv(data=data[table], filename=f"{table}.csv")
     return data
 
 
@@ -83,20 +83,17 @@ def convert_biobanks_to_organisations(bb, jp_prefix):
     return orgs
 
 
-def convert_biobanks_to_collections(bb, mappings):
-    """Convert Biobanks with a single attribute-poor collection to Collections"""
+def convert_collections_to_collections(coll, mappings):
+    """Convert standalone/parent Collections to Collections"""
     collection_ids = mappings.loc[
-        mappings["mapping_rule"].str.startswith("biobank 1:1 attribute-poor"),
+        mappings["mapping_rule"] == "standalone/parent collection -> Collections (direct)",
         "directory_id",
     ]
-    coll = bb.loc[bb["id"].isin(collection_ids)]
-    coll["held by"] = coll["juridical_person"]
+    coll = coll.loc[coll["id"].isin(collection_ids)]
+    coll["held by"] = coll["biobank"]
     coll["type"] = "Biobank"
     return coll
 
-def convert_collections_to_collections(coll, mappings):
-    """Convert standalone/parent Collections to Collections"""
-    return coll
 
 async def main():
     """Main function"""
@@ -126,6 +123,13 @@ async def main():
             "name",
         ] += " (withdrawn)"
         data["Biobanks"].loc[(data["Biobanks"]["name"].duplicated(keep="first")), "name"] += " (2)"
+        # Deal with duplicate names in Collections table
+        count = 1
+        while data["Collections"]["name"].duplicated(keep=False).sum() > 0:
+            data["Collections"].loc[
+                data["Collections"]["name"].duplicated(keep="first"), "name"
+            ] += f" ({count})"
+            count += 1
         # Convert data
         organisations = convert_biobanks_to_organisations(data["Biobanks"].copy(), jp_prefix)
         organisations = organisations.reindex(
@@ -143,31 +147,50 @@ async def main():
                 "part of",
             ]
         )
-        collections = convert_biobanks_to_collections(data["Biobanks"].copy(), biobank_mappings)
-        collections = pd.concat([collections, convert_collections_to_collections(data["Collections"].copy(), mappings)])
+        # collections = convert_biobanks_to_collections(data["Biobanks"].copy(), biobank_mappings)
+        collections = convert_collections_to_collections(data["Collections"].copy(), mappings)
         collections = collections.reindex(
             columns=[
                 "id",
                 "name",
                 "held by",
                 "type",
+                "description",
             ]
         )
         # Post-process data
-        # Link collections to their legal-entity organisations
+        # Link collections to their newly minted legal-entity organisations
         jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)]
-        collections["held by"] = jp_orgs.set_index("name").loc[collections["held by"], "id"].values
+        collections.loc[~collections["held by"].isin(biobanks["id"]), "held by"] = (
+            jp_orgs.set_index("name")
+            .loc[
+                data["Biobanks"]
+                .set_index("id")
+                .loc[
+                    collections.loc[~collections["held by"].isin(biobanks["id"]), "held by"],
+                    "juridical_person",
+                ],
+                "id",
+            ]
+            .values
+        )
         # Link biobanks to their legal-entity organisations
         biobanks["part of"] = jp_orgs.set_index("name").loc[biobanks["part of"], "id"].values
         # Ensure newly minted organisations have a distinct name from biobanks and collections
         organisations.loc[
-            organisations["id"].isin(jp_orgs['id'])
+            organisations["id"].isin(jp_orgs["id"])
             & (
                 (organisations["name"].isin(biobanks["name"]))
                 | (organisations["name"].isin(collections["name"]))
             ),
             "name",
         ] += " (juridical person)"
+        # Ensure biobanks have a distinct name from collections
+        biobanks.loc[biobanks["name"].isin(collections["name"]), "name"] += " (biobank)"
+        # Ensure organisations derived from 0-collection biobanks have a distinct name from collections
+        organisations.loc[
+            organisations["name"].isin(collections["name"]), "name"
+        ] += " (organisation)"
         # Clear and upload data
         if truncate:
             client.truncate(table="Collections", schema=schema)
