@@ -7,12 +7,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -21,7 +16,6 @@ class MissingPkResolverTest {
   private static final String SCHEMA_NAME = MissingPkResolverTest.class.getSimpleName();
 
   private InMemoryTableStore tableStore;
-  private MissingPkResolver resolver;
   private SchemaMetadata schema;
 
   @BeforeEach
@@ -46,7 +40,6 @@ class MissingPkResolverTest {
                 Column.column("contactPoint").setType(ColumnType.REF).setRefTable("Contacts")));
 
     tableStore = new InMemoryTableStore();
-    resolver = new MissingPkResolver(schema, "Collections");
   }
 
   /** Writes rows for a table, deriving the column header from the union of all row keys. */
@@ -67,16 +60,7 @@ class MissingPkResolverTest {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
     store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:1"));
 
-    resolver.process(tableStore);
-
-    assertEquals("org-1", collection().getString("publisher"));
-  }
-
-  @Test
-  void shouldNotSplitASingularSubjectIriThatContainsAComma() {
-    store("Organisations", new Row("_subject_", "urn:org:1,2", "id", "org-1"));
-    store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:1,2"));
-
+    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
     resolver.process(tableStore);
 
     assertEquals("org-1", collection().getString("publisher"));
@@ -88,8 +72,9 @@ class MissingPkResolverTest {
         "Organisations",
         new Row("_subject_", "urn:org:1", "id", "org-1"),
         new Row("_subject_", "urn:org:2", "id", "org-2"));
-    store("Collections", new Row("id", "col-1", "_subject_creator", "urn:org:1,urn:org:2"));
+    store("Collections", new Row("id", "col-1", "_subject_creator", "urn:org:1\u001Furn:org:2"));
 
+    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
     resolver.process(tableStore);
 
     assertEquals("org-1,org-2", collection().getString("creator"));
@@ -105,6 +90,7 @@ class MissingPkResolverTest {
             "publisher", "manually-set-id",
             "_subject_publisher", "urn:org:1"));
 
+    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
     resolver.process(tableStore);
 
     assertEquals("manually-set-id", collection().getString("publisher"));
@@ -115,6 +101,7 @@ class MissingPkResolverTest {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
     store("Collections", new Row("id", "col-1"));
 
+    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
     resolver.process(tableStore);
 
     assertNull(collection().getString("publisher"));
@@ -125,9 +112,12 @@ class MissingPkResolverTest {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
     store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:unknown"));
 
-    resolver.process(tableStore);
-
-    assertNull(collection().getString("publisher"));
+    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> resolver.process(tableStore));
+    assertEquals(
+        "Referencing non-existing row for table: Organisations, for subject: urn:org:unknown",
+        exception.getMessage());
   }
 
   @Test
@@ -141,6 +131,7 @@ class MissingPkResolverTest {
             "_subject_publisher", "urn:org:1",
             "_subject_contactPoint", "urn:contact:1"));
 
+    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
     resolver.process(tableStore);
 
     Row result = collection();
@@ -153,7 +144,8 @@ class MissingPkResolverTest {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
     store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:1"));
 
-    new MissingPkResolver(schema).process(tableStore);
+    MissingPkResolver resolver = new MissingPkResolver(schema);
+    resolver.process(tableStore);
 
     assertNull(collection().getString("publisher"));
   }

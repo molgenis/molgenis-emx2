@@ -1,16 +1,8 @@
 package org.molgenis.emx2.fairmapper.postprocessing;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 import java.util.stream.StreamSupport;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Reference;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,93 +10,140 @@ import org.slf4j.LoggerFactory;
 public class MissingPkResolver implements PostProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(MissingPkResolver.class);
-
   private static final String SUBJECT_VARIABLE = "_subject_";
 
   private final SchemaMetadata schema;
-  private final List<String> tableNames;
+  private final String[] tableNames;
 
   public MissingPkResolver(SchemaMetadata schema, String... tableNames) {
     this.schema = schema;
-    this.tableNames = List.of(tableNames);
+    this.tableNames = tableNames;
   }
 
   @Override
   public void process(TableStore tableStore) {
-
     for (String tableName : tableNames) {
-      TableMetadata table = schema.getTableMetadata(tableName);
-      for (Column column : table.getColumns()) {
-        if (column.isReference()) {
-          resolveColumn(tableStore, tableName, column);
+      List<Column> referenceColumns =
+          schema.getTableMetadata(tableName).getColumns().stream()
+              .filter(Column::isReference)
+              .toList();
+
+      tableStore.processTable(
+          tableName,
+          (iterator, source) ->
+              iterator.forEachRemaining(row -> resolveRow(tableStore, row, referenceColumns)));
+    }
+  }
+
+  private void resolveRow(TableStore tableStore, Row row, List<Column> columns) {
+    for (Column column : columns) {
+      if (column.isArray()) {
+        resolveArray(tableStore, row, column);
+      } else {
+        resolveSingular(tableStore, row, column);
+      }
+    }
+  }
+
+  private void resolveSingular(TableStore tableStore, Row row, Column column) {
+    String subject = row.getString(SUBJECT_VARIABLE + column.getName());
+    if (subject == null) {
+      return;
+    }
+
+    Row referringRow = getRowForSubject(tableStore, column.getRefTableName(), subject);
+
+    for (Reference reference : column.getReferences()) {
+      if (row.containsName(reference.getColumnName())) {
+        continue;
+      }
+
+      if (referringRow.containsName(reference.getReferencedColumnName())) {
+        Object newValue = referringRow.getValueMap().get(reference.getReferencedColumnName());
+        logger.info(
+            "Updating subject: {}, deriving column: {} from reference, setting new value: {}",
+            subject,
+            reference.getColumnName(),
+            newValue);
+        row.set(reference.getColumnName(), newValue);
+      } else {
+        // This referenced row is missing its half of a composite key that points back to
+        // this row's own table: treat it as a one-to-one back-reference, backfill the
+        // missing part onto the referenced row from this row's value, and use that same
+        // value as this row's entry in the array.
+        if (isCircularReference(column, reference)) {
+          Object value = row.getValueMap().get(reference.getTargetColumn());
+          updateReferringRow(row, reference, referringRow, value);
+          row.set(reference.getColumnName(), value);
         }
       }
     }
   }
 
-  private void resolveColumn(TableStore tableStore, String tableName, Column column) {
-    String subjectColumnName = SUBJECT_VARIABLE + column.getName();
-    tableStore.processTable(
-        tableName,
-        (iterator, source) ->
-            iterator.forEachRemaining(row -> resolveRow(source, row, column, subjectColumnName)));
+  private static boolean isCircularReference(Column column, Reference reference) {
+    List<String> columnTableNames = column.getTable().getAllInheritNames();
+    columnTableNames.add(column.getTableName());
+    return columnTableNames.contains(reference.getTargetTable());
   }
 
-  private void resolveRow(TableStore tableStore, Row row, Column column, String subjectColumnName) {
-    String subjectValue = row.getString(subjectColumnName);
-    if (subjectValue == null) {
+  private void resolveArray(TableStore tableStore, Row row, Column column) {
+    if (!row.containsName(SUBJECT_VARIABLE + column.getName())) {
       return;
     }
 
-    List<Reference> references = column.getReferences();
-    if (references.isEmpty()) {
-      return;
-    }
-    String targetTable = references.getFirst().getTargetTable();
-
-    // Multiple references are a composite key, so that's fine
-    List<Row> referenceTableRows =
-        StreamSupport.stream(tableStore.readTable(targetTable).spliterator(), false).toList();
-
-    // Only array reference columns hold multiple comma-separated subject IRIs; a singular
-    // reference's IRI may itself legally contain a comma, so it must not be split.
-    String[] subjectIris = column.isArray() ? subjectValue.split(",") : new String[] {subjectValue};
-
-    List<Row> matches =
-        Arrays.stream(subjectIris)
-            .flatMap(subjectIri -> findBySubject(referenceTableRows, subjectIri).stream())
+    List<Row> rows =
+        Optional.ofNullable(row.getString(SUBJECT_VARIABLE + column.getName())).stream()
+            .flatMap(s -> Arrays.stream(s.split("\\|")))
+            .map(subject -> getRowForSubject(tableStore, column.getRefTableName(), subject))
             .toList();
 
-    if (matches.size() != subjectIris.length) {
-      logger.warn("No matches found in table: {} for subject: {}", targetTable, subjectValue);
-      return;
-    }
-
-    if (matches.isEmpty()) {
-      logger.warn("No matches found in table: {} for subject: {}", targetTable, subjectValue);
-      return;
-    }
-
-    for (Reference reference : references) {
-      if (row.getString(reference.getColumnName()) != null) {
+    for (Reference reference : column.getReferences()) {
+      if (row.containsName(reference.getColumnName())) {
         continue;
       }
 
-      String resolvedValue =
-          matches.stream()
-              .map(match -> match.getString(reference.getTargetColumn()))
-              .filter(Objects::nonNull)
-              .collect(Collectors.joining(","));
-
-      if (!resolvedValue.isEmpty()) {
-        row.set(reference.getColumnName(), resolvedValue);
+      List<Object> values = new ArrayList<>();
+      for (Row referringRow : rows) {
+        if (referringRow.containsName(reference.getReferencedColumnName())) {
+          values.add(referringRow.getValueMap().get(reference.getReferencedColumnName()));
+        } else {
+          // This referenced row is missing its half of a composite key that points back to
+          // this row's own table: treat it as a one-to-one back-reference, backfill the
+          // missing part onto the referenced row from this row's value, and use that same
+          // value as this row's entry in the array.
+          if (isCircularReference(column, reference)) {
+            Object value = row.getValueMap().get(reference.getTargetColumn());
+            updateReferringRow(row, reference, referringRow, value);
+            values.add(value);
+          }
+        }
       }
+      row.setRefArray(reference.getColumnName(), values.toArray());
     }
   }
 
-  private Optional<Row> findBySubject(List<Row> rows, String subjectIri) {
-    return rows.stream()
-        .filter(candidate -> subjectIri.equals(candidate.getString(SUBJECT_VARIABLE)))
-        .findFirst();
+  private static void updateReferringRow(
+      Row row, Reference reference, Row referringRow, Object value) {
+    logger.info(
+        "Object from table: {}, that refers to subject: {}, has a missing reference. Updating column {} with value: {}",
+        reference.getTargetTable(),
+        row.getString(SUBJECT_VARIABLE),
+        reference.getReferencedColumnName(),
+        value);
+    referringRow.set(reference.getReferencedColumnName(), value);
+  }
+
+  private static Row getRowForSubject(
+      TableStore tableStore, String targetTable, String referenceSubject) {
+    return StreamSupport.stream(tableStore.readTable(targetTable).spliterator(), false)
+        .filter(row -> row.getString(SUBJECT_VARIABLE).equals(referenceSubject))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new MolgenisException(
+                    "Referencing non-existing row for table: "
+                        + targetTable
+                        + ", for subject: "
+                        + referenceSubject));
   }
 }
