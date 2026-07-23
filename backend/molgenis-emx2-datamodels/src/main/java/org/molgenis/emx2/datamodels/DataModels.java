@@ -106,6 +106,8 @@ public class DataModels {
           Regular.valueOf(template)
               .getImportTask(
                   new SchemaLoaderSettings(database, schemaName, description, includeDemoData));
+    } else if (new YamlWorkspaceLoader().hasTemplate(template)) {
+      task = new YamlWorkspaceLoadTask(database, template, schemaName, includeDemoData);
     } else {
       throw new MolgenisException("Cannot create schema from template '" + template + "'.");
     }

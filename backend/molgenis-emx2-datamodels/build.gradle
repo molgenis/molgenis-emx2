@@ -24,7 +24,7 @@ sourceSets {
 def templatesDir = file("$rootDir/templates")
 def modelSchemaArtifact = file("$rootDir/backend/molgenis-emx2-io/src/main/resources/molgenis-model.schema.json")
 
-tasks.named('processTestResources') {
+tasks.named('processResources') {
     from(templatesDir) {
         into 'templates'
     }

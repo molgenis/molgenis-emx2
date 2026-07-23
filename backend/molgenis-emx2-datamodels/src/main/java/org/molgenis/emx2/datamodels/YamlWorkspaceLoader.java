@@ -48,6 +48,10 @@ public class YamlWorkspaceLoader {
     return getClass().getResource(ROOT_PATH) != null;
   }
 
+  public boolean hasTemplate(String template) {
+    return isAvailable() && templates().contains(template);
+  }
+
   public List<String> templates() {
     try {
       String[] entries = new ResourceListing().retrieve(ROOT_PATH);
