@@ -39,7 +39,7 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
     @dragend="
       endDrag($event, { dragging: false, componentName, componentType })
     "
-    type="primary"
+    type="secondary"
     size="tiny"
     :icon="icon"
     icon-position="left"
