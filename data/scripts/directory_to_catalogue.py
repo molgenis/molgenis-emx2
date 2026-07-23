@@ -109,6 +109,18 @@ def convert_collections_to_facts(facts, mappings):
     return facts
 
 
+def convert_collections_to_events(events, mappings):
+    """Convert Collections to Collection events"""
+    event_ids = mappings.loc[
+        (mappings["directory_table"] == "Collections")
+        & (mappings["catalogue_table"] == "Collection events"),
+        "directory_id",
+    ]
+    events = events[events["id"].isin(event_ids)]
+    events["resource"] = events["parent_collection"]
+    return events
+
+
 async def main():
     """Main function"""
     load_dotenv()
@@ -173,6 +185,8 @@ async def main():
         )
         collection_facts = convert_collections_to_facts(data["Collections"].copy(), mappings)
         collection_facts = collection_facts.reindex(columns=["id", "collection"])
+        collection_events = convert_collections_to_events(data["Collections"].copy(), mappings)
+        collection_events = collection_events.reindex(columns=["resource", "name"])
         # Post-process data
         # Link collections to their newly minted legal-entity organisations
         jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)]
@@ -208,6 +222,7 @@ async def main():
         ] += " (organisation)"
         # Clear and upload data
         if truncate:
+            client.truncate(table="Collection events", schema=schema)
             client.truncate(table="Collection facts", schema=schema)
             client.truncate(table="Collections", schema=schema)
             client.truncate(table="Biobanks", schema=schema)
@@ -216,6 +231,7 @@ async def main():
         client.save_table(table="Biobanks", schema=schema, data=biobanks)
         client.save_table(table="Collections", schema=schema, data=collections)
         client.save_table(table="Collection facts", schema=schema, data=collection_facts)
+        client.save_table(table="Collection events", schema=schema, data=collection_events)
         pass
 
 
