@@ -28,6 +28,8 @@ class ModelApiTest extends ApiTestBase {
   private static final String ATOMIC_SCHEMA = "ModelApiTestAtomic";
   private static final String ATOMIC_COMPANION = "ModelApiTestAtomicCompanion";
   private static final String TABLE_ADD_SCHEMA = "ModelApiTestTableAdd";
+  private static final String PREVIOUS_NAMES_SCHEMA = "ModelApiTestPreviousNames";
+  private static final String BUNDLE_REF_SCHEMA = "ModelApiTestBundleRef";
 
   @BeforeAll
   static void setup() {
@@ -312,5 +314,107 @@ class ModelApiTest extends ApiTestBase {
             .filter(column -> !column.isSystemColumn())
             .map(org.molgenis.emx2.Column::getName)
             .toList());
+  }
+
+  @Test
+  void previousNamesPersistAcrossGet() {
+    createPersonSchema(PREVIOUS_NAMES_SCHEMA);
+
+    // a PUT carrying a rename chain on the name column persists it server-side
+    String withChain =
+        """
+        formatVersion: 1
+        version: 1.0.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+            previousNames:
+            - formerName
+        """;
+    putModel(PREVIOUS_NAMES_SCHEMA, withChain, "").then().statusCode(200);
+
+    // GET re-emits the persisted chain from the live schema alone
+    String afterFirst = getModel(PREVIOUS_NAMES_SCHEMA);
+    assertTrue(afterFirst.contains("previousNames"));
+    assertTrue(afterFirst.contains("formerName"));
+
+    // a second PUT WITHOUT chains: the persisted chain is the diff fallback and is retained
+    String withoutChain =
+        """
+        formatVersion: 1
+        version: 1.1.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+        """;
+    putModel(PREVIOUS_NAMES_SCHEMA, withoutChain, "").then().statusCode(200);
+    assertTrue(getModel(PREVIOUS_NAMES_SCHEMA).contains("formerName"));
+
+    // precedence: an incoming chain WINS and replaces the persisted one wholesale per column
+    String withNewChain =
+        """
+        formatVersion: 1
+        version: 1.2.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+            previousNames:
+            - renamedFrom
+        """;
+    putModel(PREVIOUS_NAMES_SCHEMA, withNewChain, "").then().statusCode(200);
+    String afterThird = getModel(PREVIOUS_NAMES_SCHEMA);
+    assertTrue(afterThird.contains("renamedFrom"));
+    assertFalse(afterThird.contains("formerName"));
+
+    // dryRun never persists: the stored chain is left untouched
+    String dryChain =
+        """
+        formatVersion: 1
+        version: 1.3.0
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+          - name: name
+            previousNames:
+            - neverStored
+        """;
+    putModel(PREVIOUS_NAMES_SCHEMA, dryChain, "?dryRun=true").then().statusCode(200);
+    String afterDryRun = getModel(PREVIOUS_NAMES_SCHEMA);
+    assertFalse(afterDryRun.contains("neverStored"));
+    assertTrue(afterDryRun.contains("renamedFrom"));
+  }
+
+  @Test
+  void wireBundleRefCompanionRejected() {
+    createPersonSchema(BUNDLE_REF_SCHEMA);
+
+    // a non-cyclic bundle: path reference cannot be resolved on the single-file wire;
+    // the apply layer rejects it with a 400 whose message names the companion schema
+    String bundle =
+        """
+        formatVersion: 1
+        tables:
+        - name: Person
+          columns:
+          - name: id
+            key: 1
+        schemas:
+          ExternalCohorts:
+            bundle: external/cohorts.yaml
+        """;
+    Response response = putModel(BUNDLE_REF_SCHEMA, bundle, "");
+    response.then().statusCode(400);
+    assertTrue(response.body().asString().contains("ExternalCohorts"));
   }
 }

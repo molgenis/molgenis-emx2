@@ -4,6 +4,8 @@ import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
 import static org.molgenis.emx2.web.Constants.ACCEPT_YAML;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -37,9 +39,12 @@ import org.molgenis.emx2.io.emx2.ModelDiff;
 public class ModelApi {
 
   public static final String MG_MODEL_VERSION = "mg_model_version";
+  public static final String MG_PREVIOUS_NAMES = "mg_previous_names";
 
   private static final String ROOT_FILE = "molgenis.yaml";
   private static final ObjectMapper JSON = new ObjectMapper();
+  private static final TypeReference<Map<String, Map<String, List<String>>>> PREVIOUS_NAMES_TYPE =
+      new TypeReference<>() {};
 
   private static final Map<String, String> PERMISSION_ROLES =
       Map.of(
@@ -71,7 +76,7 @@ public class ModelApi {
             Emx2Yaml.SUPPORTED_FORMAT_VERSION,
             storedVersion,
             Map.of(),
-            Map.of());
+            prunePreviousNames(loadPreviousNames(schema.getMetadata()), schema.getMetadata()));
     ctx.contentType(ACCEPT_YAML);
     ctx.status(200);
     ctx.result(Emx2Yaml.toSingleFile(bundle));
@@ -83,9 +88,18 @@ public class ModelApi {
     boolean force = "true".equals(ctx.queryParam("force"));
 
     // parse + validate; formatVersion skew, unknown keys and companion cycles fail here first
-    Emx2YamlBundle bundle = BundleValidator.validate(Map.of(ROOT_FILE, ctx.body()));
+    Emx2YamlBundle parsed = BundleValidator.validate(Map.of(ROOT_FILE, ctx.body()));
     List<CompanionDeclaration> companions = CompanionSchemas.fromSingleFile(ctx.body());
-    stripBareOntologyTables(bundle.schema());
+    stripBareOntologyTables(parsed.schema());
+    Map<String, Map<String, List<String>>> mergedPreviousNames =
+        mergePreviousNames(loadPreviousNames(schema.getMetadata()), parsed.previousNames());
+    Emx2YamlBundle bundle =
+        new Emx2YamlBundle(
+            parsed.schema(),
+            parsed.formatVersion(),
+            parsed.version(),
+            parsed.namespaces(),
+            mergedPreviousNames);
     MigrationPlan plan = ModelDiff.diff(bundle, schema.getMetadata());
     String storedVersion = schema.getMetadata().getSetting(MG_MODEL_VERSION);
     List<String> companionWarnings = companionWarnings(schema.getDatabase(), companions);
@@ -183,7 +197,67 @@ public class ModelApi {
           if (bundle.version() != null) {
             txSchema.getMetadata().setSetting(MG_MODEL_VERSION, bundle.version());
           }
+          persistPreviousNames(txSchema, bundle.previousNames());
         });
+  }
+
+  private static Map<String, Map<String, List<String>>> loadPreviousNames(SchemaMetadata schema) {
+    String stored = schema.getSetting(MG_PREVIOUS_NAMES);
+    if (stored == null || stored.isBlank()) {
+      return new LinkedHashMap<>();
+    }
+    try {
+      Map<String, Map<String, List<String>>> parsed = JSON.readValue(stored, PREVIOUS_NAMES_TYPE);
+      return parsed == null ? new LinkedHashMap<>() : parsed;
+    } catch (JsonProcessingException exception) {
+      throw new MolgenisException("Failed to read stored rename chains", exception);
+    }
+  }
+
+  private static Map<String, Map<String, List<String>>> mergePreviousNames(
+      Map<String, Map<String, List<String>>> persisted,
+      Map<String, Map<String, List<String>>> incoming) {
+    Map<String, Map<String, List<String>>> merged = new LinkedHashMap<>();
+    for (Map.Entry<String, Map<String, List<String>>> table : persisted.entrySet()) {
+      merged.put(table.getKey(), new LinkedHashMap<>(table.getValue()));
+    }
+    for (Map.Entry<String, Map<String, List<String>>> table : incoming.entrySet()) {
+      merged.computeIfAbsent(table.getKey(), key -> new LinkedHashMap<>()).putAll(table.getValue());
+    }
+    return merged;
+  }
+
+  private static Map<String, Map<String, List<String>>> prunePreviousNames(
+      Map<String, Map<String, List<String>>> previousNames, SchemaMetadata schema) {
+    Map<String, Map<String, List<String>>> pruned = new LinkedHashMap<>();
+    for (Map.Entry<String, Map<String, List<String>>> table : previousNames.entrySet()) {
+      TableMetadata tableMetadata = schema.getTableMetadata(table.getKey());
+      if (tableMetadata == null) {
+        continue;
+      }
+      Map<String, List<String>> columns = new LinkedHashMap<>();
+      for (Map.Entry<String, List<String>> column : table.getValue().entrySet()) {
+        if (tableMetadata.getColumn(column.getKey()) != null) {
+          columns.put(column.getKey(), column.getValue());
+        }
+      }
+      if (!columns.isEmpty()) {
+        pruned.put(table.getKey(), columns);
+      }
+    }
+    return pruned;
+  }
+
+  private static void persistPreviousNames(
+      Schema txSchema, Map<String, Map<String, List<String>>> previousNames) {
+    if (previousNames.isEmpty()) {
+      return;
+    }
+    try {
+      txSchema.getMetadata().setSetting(MG_PREVIOUS_NAMES, JSON.writeValueAsString(previousNames));
+    } catch (JsonProcessingException exception) {
+      throw new MolgenisException("Failed to persist rename chains", exception);
+    }
   }
 
   private static void provisionCompanion(Database database, CompanionDeclaration companion) {
