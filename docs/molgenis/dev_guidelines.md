@@ -154,7 +154,19 @@ For further information and examples, please consult-
 - [Richtlijnen NL Design System (NL)](https://nldesignsystem.nl/richtlijnen/)
 - [Digitaal toegankelijk (NL)](https://digitaaltoegankelijk.nl)
 
-All frontend code must be evaluated for semantic HTML and WCAG compliance before merging into production. Initial testing can be fulfilled by the developer by using the [WAVE Browser Extensions](https://wave.webaim.org) and by throughly reviewing the PR.
+#### How to review a PR for compliance
+
+To ensure all frontend code follows good semantic HTML practices and WCAG compliance, follow these steps.
+
+1. Install the [WAVE Browser Extension](https://wave.webaim.org)
+2. Go to the preview and start the WAVE browser extension. Review errors and warnings. Address errors that are related to the aim of the PR. Larger issues should be added to the appropriate epic, story, or in a new issue.
+3. Review the vue component file and check that-
+    i. There are no typescript errors
+    ii. The HTML markup follows the guidelines above and makes sense (e.g., actions a buttons, URLs are links, etc.)
+    iii. Element(s) are properly connected if they are manipulated by another element(s)
+4. If anything is unclear or if you are unsure if a component meets guidelines, ask for an additional review by a developer who is familiar with the guidelines.
+
+**Note**: it is not uncommon that be the case that there are unrelated compliance issues or issues that cannot be resolved. In these situations, it is recommended to open a new issue if one doesn't exist.
 
 ### 6. Naming conventions
 
