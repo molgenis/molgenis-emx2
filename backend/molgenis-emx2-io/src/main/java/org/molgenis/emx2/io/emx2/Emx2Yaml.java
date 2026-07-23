@@ -68,6 +68,7 @@ public class Emx2Yaml {
   private static final String KEY_PROFILES = "profiles";
   private static final String KEY_PREVIOUS_NAMES = "previousNames";
   private static final String KEY_NAMESPACES = "namespaces";
+  static final String KEY_SCHEMAS = "schemas";
   private static final String KEY_EXTENDS = "extends";
   private static final String KEY_TABLE_TYPE = "tableType";
   private static final String KEY_SUBCLASSES = "subclasses";
@@ -83,10 +84,16 @@ public class Emx2Yaml {
   private static final String BOOLEAN_TRUE = "true";
   private static final String BOOLEAN_FALSE = "false";
 
-  private static final Set<String> BUNDLE_KEYS =
+  static final Set<String> BUNDLE_KEYS =
       Set.of(
-          KEY_FORMAT_VERSION, KEY_VERSION, KEY_TABLES, KEY_SETTINGS, KEY_IMPORTS, KEY_NAMESPACES);
-  private static final Set<String> TABLE_KEYS =
+          KEY_FORMAT_VERSION,
+          KEY_VERSION,
+          KEY_TABLES,
+          KEY_SETTINGS,
+          KEY_IMPORTS,
+          KEY_NAMESPACES,
+          KEY_SCHEMAS);
+  static final Set<String> TABLE_KEYS =
       Set.of(
           KEY_NAME,
           KEY_LABEL,
@@ -100,9 +107,9 @@ public class Emx2Yaml {
           KEY_SEMANTICS,
           KEY_PROFILES,
           KEY_IMPORTS);
-  private static final Set<String> TABLE_ENTRY_KEYS = withKey(TABLE_KEYS, KEY_FILE);
-  private static final Set<String> SHARED_FILE_KEYS = Set.of(KEY_COLUMNS);
-  private static final Set<String> HEADING_KEYS =
+  static final Set<String> TABLE_ENTRY_KEYS = withKey(TABLE_KEYS, KEY_FILE);
+  static final Set<String> SHARED_FILE_KEYS = Set.of(KEY_COLUMNS);
+  static final Set<String> HEADING_KEYS =
       Set.of(
           KEY_SECTION,
           KEY_HEADING,
@@ -111,9 +118,9 @@ public class Emx2Yaml {
           KEY_DESCRIPTION,
           KEY_SUBCLASS,
           KEY_MODULE);
-  private static final Set<String> SUBTABLE_KEYS =
+  static final Set<String> SUBTABLE_KEYS =
       Set.of(KEY_NAME, KEY_EXTENDS, KEY_LABEL, KEY_DESCRIPTION, KEY_TABLE_TYPE);
-  private static final Set<String> COLUMN_KEYS =
+  static final Set<String> COLUMN_KEYS =
       Set.of(
           KEY_NAME,
           KEY_TYPE,

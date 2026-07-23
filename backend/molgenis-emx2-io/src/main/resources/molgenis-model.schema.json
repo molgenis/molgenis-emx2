@@ -1,0 +1,444 @@
+{
+  "$schema" : "https://json-schema.org/draft/2020-12/schema",
+  "$id" : "https://molgenis.org/molgenis-model.schema.json",
+  "title" : "MOLGENIS model bundle",
+  "$defs" : {
+    "columnEntry" : {
+      "anyOf" : [
+        {
+          "type" : "string"
+        },
+        {
+          "$ref" : "#/$defs/columnDefinition"
+        },
+        {
+          "$ref" : "#/$defs/heading"
+        }
+      ]
+    },
+    "columnDefinition" : {
+      "type" : "object",
+      "required" : [
+        "name"
+      ],
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "type" : {
+          "enum" : [
+            "auto_id",
+            "bool",
+            "bool_array",
+            "checkbox",
+            "date",
+            "date_array",
+            "datetime",
+            "datetime_array",
+            "decimal",
+            "decimal_array",
+            "email",
+            "email_array",
+            "enum",
+            "enum_array",
+            "file",
+            "hyperlink",
+            "hyperlink_array",
+            "int",
+            "int_array",
+            "json",
+            "long",
+            "long_array",
+            "module",
+            "module_array",
+            "multiselect",
+            "non_negative_int",
+            "non_negative_int_array",
+            "ontology",
+            "ontology_array",
+            "period",
+            "period_array",
+            "radio",
+            "ref",
+            "ref_array",
+            "refback",
+            "select",
+            "string",
+            "string_array",
+            "text",
+            "text_array",
+            "uuid",
+            "uuid_array"
+          ]
+        },
+        "key" : {
+          "type" : "integer"
+        },
+        "required" : {
+          "type" : [
+            "boolean",
+            "string"
+          ]
+        },
+        "readonly" : {
+          "type" : "boolean"
+        },
+        "defaultValue" : {
+          "type" : "string"
+        },
+        "validation" : {
+          "type" : "string"
+        },
+        "visible" : {
+          "type" : "string"
+        },
+        "computed" : {
+          "type" : "string"
+        },
+        "semantics" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "profiles" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "previousNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "label" : {
+          "type" : "string"
+        },
+        "formLabel" : {
+          "type" : "string"
+        },
+        "subclass" : {
+          "type" : "string"
+        },
+        "module" : {
+          "type" : "string"
+        }
+      },
+      "patternProperties" : {
+        "^label@[A-Za-z][A-Za-z0-9-]*$" : {
+          "type" : "string"
+        },
+        "^description@[A-Za-z][A-Za-z0-9-]*$" : {
+          "type" : "string"
+        }
+      },
+      "allOf" : [
+        {
+          "if" : {
+            "required" : [
+              "type"
+            ],
+            "properties" : {
+              "type" : {
+                "enum" : [
+                  "checkbox",
+                  "multiselect",
+                  "ontology",
+                  "ontology_array",
+                  "radio",
+                  "ref",
+                  "ref_array",
+                  "refback",
+                  "select"
+                ]
+              }
+            }
+          },
+          "then" : {
+            "properties" : {
+              "refBack" : {
+                "type" : "string"
+              },
+              "refLabel" : {
+                "type" : "string"
+              },
+              "refLink" : {
+                "type" : "string"
+              },
+              "refTable" : {
+                "type" : "string"
+              }
+            }
+          }
+        },
+        {
+          "if" : {
+            "required" : [
+              "type"
+            ],
+            "properties" : {
+              "type" : {
+                "enum" : [
+                  "enum",
+                  "enum_array",
+                  "module",
+                  "module_array"
+                ]
+              }
+            }
+          },
+          "then" : {
+            "properties" : {
+              "values" : {
+                "type" : "array",
+                "items" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties" : false
+    },
+    "heading" : {
+      "type" : "object",
+      "anyOf" : [
+        {
+          "required" : [
+            "section"
+          ]
+        },
+        {
+          "required" : [
+            "heading"
+          ]
+        }
+      ],
+      "properties" : {
+        "section" : {
+          "type" : "string"
+        },
+        "heading" : {
+          "type" : "string"
+        },
+        "visible" : {
+          "type" : "string"
+        },
+        "label" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "subclass" : {
+          "type" : "string"
+        },
+        "module" : {
+          "type" : "string"
+        }
+      },
+      "patternProperties" : {
+        "^label@[A-Za-z][A-Za-z0-9-]*$" : {
+          "type" : "string"
+        },
+        "^description@[A-Za-z][A-Za-z0-9-]*$" : {
+          "type" : "string"
+        }
+      },
+      "unevaluatedProperties" : false
+    },
+    "subtable" : {
+      "type" : "object",
+      "required" : [
+        "name"
+      ],
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "extends" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "label" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "tableType" : {
+          "type" : "string"
+        }
+      },
+      "patternProperties" : {
+        "^label@[A-Za-z][A-Za-z0-9-]*$" : {
+          "type" : "string"
+        },
+        "^description@[A-Za-z][A-Za-z0-9-]*$" : {
+          "type" : "string"
+        }
+      },
+      "unevaluatedProperties" : false
+    },
+    "tableFile" : {
+      "type" : "object",
+      "required" : [
+        "name"
+      ],
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "label" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "settings" : {
+          "type" : "object"
+        },
+        "columns" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/$defs/columnEntry"
+          }
+        },
+        "extends" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "tableType" : {
+          "type" : "string"
+        },
+        "subclasses" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/$defs/subtable"
+          }
+        },
+        "modules" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/$defs/subtable"
+          }
+        },
+        "semantics" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "profiles" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "imports" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "patternProperties" : {
+        "^label@[A-Za-z][A-Za-z0-9-]*$" : {
+          "type" : "string"
+        },
+        "^description@[A-Za-z][A-Za-z0-9-]*$" : {
+          "type" : "string"
+        }
+      },
+      "unevaluatedProperties" : false
+    },
+    "sharedFile" : {
+      "type" : "object",
+      "required" : [
+        "columns"
+      ],
+      "properties" : {
+        "columns" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/$defs/columnEntry"
+          }
+        }
+      },
+      "unevaluatedProperties" : false
+    },
+    "tableEntry" : {
+      "anyOf" : [
+        {
+          "type" : "object",
+          "required" : [
+            "file"
+          ],
+          "properties" : {
+            "file" : {
+              "type" : "string"
+            }
+          },
+          "unevaluatedProperties" : false
+        },
+        {
+          "$ref" : "#/$defs/tableFile"
+        }
+      ]
+    },
+    "bundle" : {
+      "type" : "object",
+      "properties" : {
+        "formatVersion" : {
+          "type" : "integer"
+        },
+        "version" : {
+          "type" : "string"
+        },
+        "tables" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/$defs/tableEntry"
+          }
+        },
+        "settings" : {
+          "type" : "object"
+        },
+        "imports" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "namespaces" : {
+          "type" : "object"
+        },
+        "schemas" : {
+          "type" : "object"
+        }
+      },
+      "unevaluatedProperties" : false
+    }
+  },
+  "anyOf" : [
+    {
+      "$ref" : "#/$defs/bundle"
+    },
+    {
+      "$ref" : "#/$defs/tableFile"
+    },
+    {
+      "$ref" : "#/$defs/sharedFile"
+    }
+  ]
+}

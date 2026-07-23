@@ -87,6 +87,70 @@ class BundleValidatorTest {
   }
 
   @Test
+  void membersRejected() {
+    SchemaMetadata roleDefaults =
+        BundleValidator.validate(
+                Map.of(
+                    "molgenis.yaml",
+                    "tables:\n- file: tables/T.yaml\nschemas:\n  Shared:\n"
+                        + "    bundle: shared/molgenis.yaml\n    permissions:\n      view: anonymous\n",
+                    "tables/T.yaml",
+                    "name: T\ncolumns:\n- name: id\n  key: 1\n"))
+            .schema();
+    assertEquals(
+        ColumnType.STRING, roleDefaults.getTableMetadata("T").getColumn("id").getColumnType());
+
+    MolgenisException memberBlock =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                BundleValidator.validate(
+                    Map.of(
+                        "molgenis.yaml",
+                        "tables:\n- file: tables/T.yaml\nschemas:\n  Shared:\n"
+                            + "    bundle: shared/molgenis.yaml\n    members:\n"
+                            + "    - alice@example.com\n",
+                        "tables/T.yaml",
+                        "name: T\ncolumns:\n- name: id\n  key: 1\n")));
+    assertTrue(memberBlock.getMessage().contains("member"), memberBlock.getMessage());
+    assertTrue(memberBlock.getMessage().contains("Shared"), memberBlock.getMessage());
+    assertTrue(memberBlock.getMessage().contains("line"), memberBlock.getMessage());
+
+    MolgenisException emailGrantee =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                BundleValidator.validate(
+                    Map.of(
+                        "molgenis.yaml",
+                        "tables:\n- file: tables/T.yaml\nschemas:\n  Shared:\n"
+                            + "    bundle: shared/molgenis.yaml\n    permissions:\n"
+                            + "      edit: bob@example.com\n",
+                        "tables/T.yaml",
+                        "name: T\ncolumns:\n- name: id\n  key: 1\n")));
+    assertTrue(emailGrantee.getMessage().contains("bob@example.com"), emailGrantee.getMessage());
+    assertTrue(emailGrantee.getMessage().contains("member"), emailGrantee.getMessage());
+  }
+
+  @Test
+  void companionCycleDetected() {
+    MolgenisException cycle =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                BundleValidator.validate(
+                    Map.of(
+                        "molgenis.yaml",
+                        "tables:\n- file: tables/T.yaml\nschemas:\n  B:\n"
+                            + "    bundle: b/molgenis.yaml\n",
+                        "tables/T.yaml",
+                        "name: T\ncolumns:\n- name: id\n  key: 1\n",
+                        "b/molgenis.yaml",
+                        "schemas:\n  A:\n    bundle: ../molgenis.yaml\n")));
+    assertTrue(cycle.getMessage().toLowerCase().contains("cycle"), cycle.getMessage());
+  }
+
+  @Test
   void reuseOrDefine() {
     MolgenisException refinement =
         parseError(
