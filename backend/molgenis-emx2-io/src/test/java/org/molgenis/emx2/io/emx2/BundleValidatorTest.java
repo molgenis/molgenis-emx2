@@ -4,10 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.SchemaMetadata;
 
 class BundleValidatorTest {
@@ -112,7 +117,7 @@ class BundleValidatorTest {
                 Map.of(
                     "molgenis.yaml",
                     "tables:\n- tables/T.yaml\nadditionalSchemas:\n  Shared:\n"
-                        + "    bundle: shared/molgenis.yaml\n    permissions:\n      view: anonymous\n",
+                        + "    bundle: shared/molgenis.yaml\n    permissions:\n      Viewer: anonymous\n",
                     "tables/T.yaml",
                     "name: T\ncolumns:\n- name: id\n  key: 1\n"))
             .schema();
@@ -149,6 +154,52 @@ class BundleValidatorTest {
                         "name: T\ncolumns:\n- name: id\n  key: 1\n")));
     assertTrue(emailGrantee.getMessage().contains("bob@example.com"), emailGrantee.getMessage());
     assertTrue(emailGrantee.getMessage().contains("member"), emailGrantee.getMessage());
+  }
+
+  @Test
+  void rootLevelImportsResolveInDiskBundle(@TempDir Path directory) throws IOException {
+    // an inline table must resolve a column pulled in via the bundle's own root-level imports:
+    Files.writeString(
+        directory.resolve("molgenis.yaml"),
+        "imports:\n- shared/audit.yaml\n"
+            + "tables:\n- name: Widget\n  columns:\n  - name: id\n    key: 1\n  - reviewed\n");
+    Files.createDirectories(directory.resolve("shared"));
+    Files.writeString(
+        directory.resolve("shared/audit.yaml"), "columns:\n- name: reviewed\n  type: bool\n");
+
+    SchemaMetadata schema = BundleValidator.validate(directory).schema();
+    assertEquals(
+        ColumnType.BOOL,
+        schema.getTableMetadata("Widget").getColumn("reviewed").getColumnType(),
+        "disk-mode validation must gather the root bundle's own imports so the column resolves");
+  }
+
+  @Test
+  void rootPermissionRoleMustBeSystemRole() {
+    // an unknown root role must fail at validate (dry-run), not only at real apply
+    MolgenisException unknownRole =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                BundleValidator.validate(
+                    Map.of(
+                        "molgenis.yaml",
+                        "permissions:\n  view: anonymous\n"
+                            + "tables:\n- name: T\n  columns:\n  - name: id\n    key: 1\n")));
+    assertTrue(unknownRole.getMessage().contains("view"), unknownRole.getMessage());
+    assertTrue(
+        unknownRole.getMessage().contains(Privileges.VIEWER.toString()), unknownRole.getMessage());
+    assertTrue(unknownRole.getMessage().contains("line"), unknownRole.getMessage());
+
+    // an exact, case-sensitive role name validates cleanly
+    SchemaMetadata clean =
+        BundleValidator.validate(
+                Map.of(
+                    "molgenis.yaml",
+                    "permissions:\n  Viewer: anonymous\n"
+                        + "tables:\n- name: T\n  columns:\n  - name: id\n    key: 1\n"))
+            .schema();
+    assertEquals(ColumnType.STRING, clean.getTableMetadata("T").getColumn("id").getColumnType());
   }
 
   @Test

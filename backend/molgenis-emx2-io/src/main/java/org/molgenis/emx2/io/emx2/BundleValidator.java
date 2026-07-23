@@ -11,7 +11,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Privileges;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
@@ -64,8 +66,34 @@ public final class BundleValidator {
     if (rootContent == null) {
       return;
     }
+    validateRootPermissions(rootPath, rootContent);
     validateSchemaDeclarations(rootPath, rootContent);
     detectCompanionCycles(rootPath, loader);
+  }
+
+  private static void validateRootPermissions(String fileLabel, String content) {
+    YamlDocumentReader reader = new YamlDocumentReader(fileLabel);
+    Node rootNode = reader.compose(content);
+    if (rootNode instanceof MappingNode rootMapping
+        && valueOf(rootMapping, KEY_PERMISSIONS) instanceof MappingNode permissions) {
+      for (NodeTuple tuple : permissions.getValue()) {
+        String role = reader.scalar(tuple.getKeyNode(), KEY_PERMISSIONS);
+        checkRoleName(reader, "bundle root", role, tuple.getKeyNode());
+      }
+    }
+  }
+
+  private static void checkRoleName(
+      YamlDocumentReader reader, String context, String role, Node keyNode) {
+    if (!Privileges.isSystemRole(role)) {
+      throw reader.error(
+          context
+              + " declares unknown permission role '"
+              + role
+              + "'; legal roles are "
+              + ModelPermissions.legalRoleNames(),
+          keyNode);
+    }
   }
 
   private static void validateSchemaDeclarations(String fileLabel, String content) {
@@ -106,7 +134,7 @@ public final class BundleValidator {
             + "' declares illegal key '"
             + key
             + "'; an inline additionalSchemas entry allows only "
-            + new java.util.TreeSet<>(Emx2Yaml.COMPANION_KEYS),
+            + new TreeSet<>(Emx2Yaml.COMPANION_KEYS),
         node);
   }
 
@@ -132,6 +160,7 @@ public final class BundleValidator {
                 + "'; a bundle may declare role-default permissions only, never member accounts",
             tuple.getValueNode());
       }
+      checkRoleName(reader, "companion schema '" + schemaName + "'", role, tuple.getKeyNode());
     }
   }
 

@@ -29,6 +29,8 @@ class YamlWorkspaceLoaderTest {
   private static final String CATALOGUE_NO_DEMO = "wsCatalogueNoDemo";
   private static final String CATALOGUE_DEMO = "wsCatalogueDemo";
   private static final String RD3_SCHEMA = "wsRd3";
+  private static final String ROOT_IMPORTS_TEMPLATE = "rootimports/demo";
+  private static final String ROOT_IMPORTS_SCHEMA = "wsRootImports";
 
   private static Database database;
   private static final YamlWorkspaceLoader loader = new YamlWorkspaceLoader();
@@ -80,6 +82,15 @@ class YamlWorkspaceLoaderTest {
             .getMetadata()
             .getColumn("notes"),
         "Collections must carry the 'notes' column pulled in via the table file's own imports:");
+  }
+
+  @Test
+  void rootLevelImportsResolveInWorkspace() {
+    database.dropSchemaIfExists(ROOT_IMPORTS_SCHEMA);
+    Schema schema = loader.create(database, ROOT_IMPORTS_TEMPLATE, ROOT_IMPORTS_SCHEMA, false);
+    assertNotNull(
+        schema.getTable("Widget").getMetadata().getColumn("reviewed"),
+        "an inline table must resolve a column pulled in via the bundle's own root-level imports:");
   }
 
   @Test

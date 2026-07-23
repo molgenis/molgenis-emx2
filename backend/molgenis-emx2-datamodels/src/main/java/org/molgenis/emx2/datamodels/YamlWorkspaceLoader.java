@@ -141,8 +141,9 @@ public class YamlWorkspaceLoader {
   private Map<String, String> gatherBundleFiles(String rootContent, String base) {
     Map<String, String> files = new LinkedHashMap<>();
     files.put(MOLGENIS_YAML, rootContent);
-    Object tables = parse(rootContent).get(KEY_TABLES);
-    if (tables instanceof List<?> entries) {
+    Map<String, Object> root = parse(rootContent);
+    gatherImports(files, root.get(KEY_IMPORTS), base);
+    if (root.get(KEY_TABLES) instanceof List<?> entries) {
       for (Object entry : entries) {
         if (entry instanceof String reference) {
           gatherFileAndImports(files, reference, base);
@@ -159,7 +160,10 @@ public class YamlWorkspaceLoader {
     String resourcePath = base.isEmpty() ? reference : base + SLASH + reference;
     String content = readClasspathFile(WORKSPACE + SLASH + resourcePath);
     files.put(reference, content);
-    Object imports = parse(content).get(KEY_IMPORTS);
+    gatherImports(files, parse(content).get(KEY_IMPORTS), base);
+  }
+
+  private void gatherImports(Map<String, String> files, Object imports, String base) {
     if (imports instanceof List<?> importedFiles) {
       for (Object imported : importedFiles) {
         if (imported instanceof String importReference) {
