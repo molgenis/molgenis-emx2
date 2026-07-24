@@ -3,17 +3,19 @@ package org.molgenis.emx2.datamodels;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.Row.row;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.tasks.Task;
 
 class YamlWorkspaceLoaderTest extends TestLoaders {
 
@@ -38,6 +40,9 @@ class YamlWorkspaceLoaderTest extends TestLoaders {
   private static final String COUNTRIES = "Countries";
   private static final String NAME = "name";
   private static final String NETHERLANDS = "Netherlands";
+  private static final String SKIPPED_MARKER = "up to date, skipped";
+  private static final String ATOMICITY_TEMPLATE = "atomicity/broken";
+  private static final String ATOMICITY_SCHEMA = "wsAtomicityMain";
 
   private static final YamlWorkspaceLoader loader = new YamlWorkspaceLoader();
 
@@ -146,27 +151,53 @@ class YamlWorkspaceLoaderTest extends TestLoaders {
   }
 
   @Test
-  void companionDataIsEnsuredAdditivelyOnReuse() {
+  void companionOntologyImportIsChecksumSkippedOnReuse() {
     database.dropSchemaIfExists(REUSE_MAIN_A);
     database.dropSchemaIfExists(REUSE_MAIN_B);
     database.dropSchemaIfExists(REUSE_COMPANION);
 
-    loader.create(database, REUSE_TEMPLATE, REUSE_MAIN_A, false);
-    Table countries = database.getSchema(REUSE_COMPANION).getTable(COUNTRIES);
-    countries.delete(row(NAME, NETHERLANDS));
+    Task firstRun = new Task("first reuse run");
+    loader.create(database, REUSE_TEMPLATE, REUSE_MAIN_A, false, firstRun);
     assertTrue(
-        countries.retrieveRows().stream()
-            .noneMatch(term -> NETHERLANDS.equals(term.getString(NAME))),
-        "precondition: the existing companion no longer contains the Netherlands term");
+        collectDescriptions(firstRun).stream().noneMatch(step -> step.contains(SKIPPED_MARKER)),
+        "the first companion import must actually load the ontology, not report it skipped");
 
-    loader.create(database, REUSE_TEMPLATE, REUSE_MAIN_B, false);
+    Task secondRun = new Task("second reuse run");
+    loader.create(database, REUSE_TEMPLATE, REUSE_MAIN_B, false, secondRun);
+    assertTrue(
+        collectDescriptions(secondRun).stream()
+            .anyMatch(step -> step.contains(COUNTRIES) && step.contains(SKIPPED_MARKER)),
+        "the second create must checksum-skip the unchanged companion ontology");
 
     List<Row> terms = database.getSchema(REUSE_COMPANION).getTable(COUNTRIES).retrieveRows();
     assertTrue(
         terms.stream().anyMatch(term -> NETHERLANDS.equals(term.getString(NAME))),
-        "reprovisioning must ensure the companion data: term is present after reuse");
-    assertTrue(
-        terms.stream().anyMatch(term -> "Belgium".equals(term.getString(NAME))),
-        "pre-existing companion rows must remain untouched after additive reuse");
+        "the companion ontology data loaded on first create must remain present");
+  }
+
+  @Test
+  void failedMainSchemaLeavesNoHalfCreatedSchema() {
+    database.dropSchemaIfExists(ATOMICITY_SCHEMA);
+
+    assertThrows(
+        MolgenisException.class,
+        () -> loader.create(database, ATOMICITY_TEMPLATE, ATOMICITY_SCHEMA, false),
+        "a main-schema migrate failure must abort the create");
+    assertNull(
+        database.getSchema(ATOMICITY_SCHEMA),
+        "the per-schema transaction must roll back, leaving no half-created main schema");
+  }
+
+  private static List<String> collectDescriptions(Task task) {
+    List<String> descriptions = new ArrayList<>();
+    collectDescriptions(task, descriptions);
+    return descriptions;
+  }
+
+  private static void collectDescriptions(Task task, List<String> descriptions) {
+    descriptions.add(task.getDescription());
+    for (Task subTask : task.getSubTasks()) {
+      collectDescriptions(subTask, descriptions);
+    }
   }
 }

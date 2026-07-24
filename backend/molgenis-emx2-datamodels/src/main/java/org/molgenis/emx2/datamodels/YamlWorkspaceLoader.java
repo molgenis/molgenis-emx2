@@ -6,7 +6,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +16,8 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.profiles.ResourceListing;
-import org.molgenis.emx2.io.ImportSchemaTask;
+import org.molgenis.emx2.io.ImportDataTask;
+import org.molgenis.emx2.io.ImportOntologiesTask;
 import org.molgenis.emx2.io.emx2.Emx2Yaml;
 import org.molgenis.emx2.io.emx2.Emx2YamlBundle;
 import org.molgenis.emx2.io.emx2.ModelPermissions;
@@ -41,12 +44,17 @@ public class YamlWorkspaceLoader {
   private static final String KEY_ADDITIONAL_SCHEMAS = "additionalSchemas";
   private static final String KEY_BUNDLE = "bundle";
   private static final String KEY_PERMISSIONS = "permissions";
-  private static final String STEP_CREATE = "Create schema and metadata: ";
-  private static final String STEP_DATA = "Import data: ";
-  private static final String STEP_DEMO = "Import demo data: ";
-  private static final String STEP_COMPANIONS = "Provision companion schemas";
-  private static final String STEP_SETTINGS = "Apply settings and permissions: ";
-  private static final String STEP_COMPANION_DATA = "Import companion data: ";
+  private static final String SCHEMA_BLOCK = "Schema ";
+  private static final String CREATED_SCHEMA = "Created schema ";
+  private static final String EXISTS_SUFFIX = " already exists — model untouched, data ensured";
+  private static final String COMMITTING = "Committing";
+  private static final String STEP_DATA = "Import data";
+  private static final String STEP_DEMO = "Import demo data";
+  private static final String STEP_DEMO_SKIPPED = "Import demo data: skipped (not requested)";
+  private static final String TABLES_TEMPLATE = "Created %d tables: %s";
+  private static final String SETTINGS_TEMPLATE = "Applied %d settings: %s";
+  private static final String PERMISSIONS_TEMPLATE = "Applied permissions: %s";
+  private static final String LIST_SEPARATOR = ", ";
 
   private final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
 
@@ -141,10 +149,13 @@ public class YamlWorkspaceLoader {
   }
 
   /**
-   * Creates a schema from the named workspace template, emitting a visible task step for every
-   * stage (companion provisioning, create schema/metadata, settings/permissions, data: and demo:
-   * imports) so the caller's task tree shows the same per-table row counts and skipped-sheet notes
-   * the classic loaders produce.
+   * Creates a schema from the named workspace template. Each companion schema and the main schema
+   * is a single per-schema transaction (create-if-absent + migrate + settings + permissions + data
+   * + demo, ending in one {@code Committing} step), mirroring the classic {@link
+   * org.molgenis.emx2.io.ImportProfileTask} phase pattern. Companion ontology data is imported
+   * through {@link ImportOntologiesTask} so unchanged CSVs are checksum-skipped; the caller's task
+   * tree shows the per-schema block, the full created-table list, and the machinery's per-table row
+   * counts and skipped notes.
    */
   public Schema create(
       Database database,
@@ -156,21 +167,37 @@ public class YamlWorkspaceLoader {
     provisionCompanions(database, parse(rootContent), parentTask);
 
     Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, ""));
-    Task schemaTask = parentTask.addSubTask(STEP_CREATE + template).start();
-    Schema schema = getOrCreateSchema(database, schemaName, "YAML workspace template " + template);
-    schema.migrate(bundle.schema());
-    schemaTask.complete();
+    loadMainSchema(database, schemaName, template, bundle, includeDemoData, parentTask);
+    return database.getSchema(schemaName);
+  }
 
-    Task settingsTask = parentTask.addSubTask(STEP_SETTINGS + template).start();
-    applySettings(schema, bundle.schema().getSettings());
-    ModelPermissions.apply(schema, bundle.permissions());
-    settingsTask.complete();
-
-    loadData(schema, bundle.dataFiles(), "", parentTask, STEP_DATA + template);
-    if (includeDemoData) {
-      loadData(schema, bundle.demoFiles(), "", parentTask, STEP_DEMO + template);
-    }
-    return schema;
+  private void loadMainSchema(
+      Database database,
+      String schemaName,
+      String template,
+      Emx2YamlBundle bundle,
+      boolean includeDemoData,
+      Task parentTask) {
+    Task block = parentTask.addSubTask(SCHEMA_BLOCK + schemaName).start();
+    Task commit = new Task(COMMITTING);
+    database.tx(
+        db -> {
+          Schema schema =
+              getOrCreateSchema(db, schemaName, "YAML workspace template " + template, block);
+          schema.migrate(bundle.schema());
+          reportCreatedTables(block, schema);
+          applySettings(schema, bundle.schema().getSettings(), block);
+          applyPermissions(schema, bundle.permissions(), block);
+          loadMainData(schema, bundle.dataFiles(), STEP_DATA, block);
+          if (includeDemoData) {
+            loadMainData(schema, bundle.demoFiles(), STEP_DEMO, block);
+          } else {
+            block.addSubTask(STEP_DEMO_SKIPPED).setSkipped();
+          }
+          block.addSubTask(commit);
+        });
+    commit.complete();
+    block.complete();
   }
 
   private void provisionCompanions(Database database, Map<String, Object> root, Task parentTask) {
@@ -178,19 +205,13 @@ public class YamlWorkspaceLoader {
     if (!(additionalSchemas instanceof Map<?, ?> companions)) {
       return;
     }
-    Task companionTask = parentTask.addSubTask(STEP_COMPANIONS).start();
     for (Map.Entry<?, ?> companion : companions.entrySet()) {
       String name = String.valueOf(companion.getKey());
       if (companion.getValue() instanceof Map<?, ?> body && body.get(KEY_BUNDLE) != null) {
         provisionCompanion(
-            database,
-            name,
-            String.valueOf(body.get(KEY_BUNDLE)),
-            permissionsOf(body),
-            companionTask);
+            database, name, String.valueOf(body.get(KEY_BUNDLE)), permissionsOf(body), parentTask);
       }
     }
-    companionTask.complete();
   }
 
   private void provisionCompanion(
@@ -202,13 +223,70 @@ public class YamlWorkspaceLoader {
     String base = parentPath(bundleReference);
     String rootContent = readClasspathFile(WORKSPACE + SLASH + bundleReference);
     Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, base));
-    Schema companion = database.getSchema(name);
-    if (companion == null) {
-      companion = database.createSchema(name, "Companion schema: " + name);
-      companion.migrate(bundle.schema());
-      ModelPermissions.apply(companion, permissions);
+    Task block = parentTask.addSubTask(SCHEMA_BLOCK + name).start();
+    Task commit = new Task(COMMITTING);
+    database.tx(
+        db -> {
+          Schema existing = db.getSchema(name);
+          Schema companion;
+          if (existing == null) {
+            companion = db.createSchema(name, "Companion schema: " + name);
+            block.addSubTask(CREATED_SCHEMA + name);
+            companion.migrate(bundle.schema());
+            reportCreatedTables(block, companion);
+            applyPermissions(companion, permissions, block);
+          } else {
+            companion = existing;
+            block.addSubTask(name + EXISTS_SUFFIX);
+          }
+          loadCompanionData(companion, bundle.dataFiles(), base, block);
+          block.addSubTask(commit);
+        });
+    commit.complete();
+    block.complete();
+  }
+
+  private void loadMainData(Schema schema, List<String> entries, String label, Task block) {
+    for (String entry : entries) {
+      TableStoreForCsvFilesClasspath store =
+          new TableStoreForCsvFilesClasspath(WORKSPACE + SLASH + entry);
+      ImportDataTask task = new ImportDataTask(schema, store, false);
+      task.setDescription(label);
+      block.addSubTask(task);
+      task.run();
     }
-    loadData(companion, bundle.dataFiles(), base, parentTask, STEP_COMPANION_DATA + name);
+  }
+
+  private void loadCompanionData(Schema companion, List<String> entries, String base, Task block) {
+    for (String entry : entries) {
+      String directory = base.isEmpty() ? entry : base + SLASH + entry;
+      String storePath = WORKSPACE + SLASH + directory;
+      TableStoreForCsvFilesClasspath store = new TableStoreForCsvFilesClasspath(storePath);
+      ImportOntologiesTask task =
+          new ImportOntologiesTask(companion, store, SLASH + storePath, null);
+      task.setDescription(STEP_DATA);
+      block.addSubTask(task);
+      task.run();
+    }
+  }
+
+  private static void reportCreatedTables(Task block, Schema schema) {
+    List<String> names = new ArrayList<>(schema.getMetadata().getTableNames());
+    Collections.sort(names);
+    block.addSubTask(
+        String.format(TABLES_TEMPLATE, names.size(), String.join(LIST_SEPARATOR, names)));
+  }
+
+  private static void applyPermissions(Schema schema, Map<String, String> permissions, Task block) {
+    if (permissions.isEmpty()) {
+      return;
+    }
+    ModelPermissions.apply(schema, permissions);
+    List<String> rendered =
+        permissions.entrySet().stream()
+            .map(entry -> entry.getKey() + " = " + entry.getValue())
+            .toList();
+    block.addSubTask(String.format(PERMISSIONS_TEMPLATE, String.join(LIST_SEPARATOR, rendered)));
   }
 
   private static Map<String, String> permissionsOf(Map<?, ?> companionBody) {
@@ -222,10 +300,16 @@ public class YamlWorkspaceLoader {
     return Map.of();
   }
 
-  private static void applySettings(Schema schema, Map<String, String> settings) {
+  private static void applySettings(Schema schema, Map<String, String> settings, Task block) {
+    if (settings.isEmpty()) {
+      return;
+    }
     for (Map.Entry<String, String> entry : settings.entrySet()) {
       schema.getMetadata().setSetting(entry.getKey(), entry.getValue());
     }
+    block.addSubTask(
+        String.format(
+            SETTINGS_TEMPLATE, settings.size(), String.join(LIST_SEPARATOR, settings.keySet())));
   }
 
   private Map<String, String> gatherBundleFiles(String rootContent, String base) {
@@ -263,29 +347,14 @@ public class YamlWorkspaceLoader {
     }
   }
 
-  private void loadData(
-      Schema schema, List<String> entries, String base, Task parentTask, String label) {
-    if (entries.isEmpty()) {
-      return;
-    }
-    Task dataTask = parentTask.addSubTask(label).start();
-    for (String entry : entries) {
-      String directory = base.isEmpty() ? entry : base + SLASH + entry;
-      TableStoreForCsvFilesClasspath store =
-          new TableStoreForCsvFilesClasspath(WORKSPACE + SLASH + directory);
-      ImportSchemaTask importTask =
-          new ImportSchemaTask(store, schema, false).setFilter(ImportSchemaTask.Filter.DATA_ONLY);
-      dataTask.addSubTask(importTask);
-      importTask.run();
-    }
-    dataTask.complete();
-  }
-
   private static Schema getOrCreateSchema(
-      Database database, String schemaName, String description) {
+      Database database, String schemaName, String description, Task block) {
     Schema schema = database.getSchema(schemaName);
     if (schema == null) {
       schema = database.createSchema(schemaName, description);
+      block.addSubTask(CREATED_SCHEMA + schemaName);
+    } else {
+      block.addSubTask(schemaName + EXISTS_SUFFIX);
     }
     return schema;
   }

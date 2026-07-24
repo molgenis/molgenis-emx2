@@ -81,20 +81,47 @@ class DataModelsYamlTemplateTest {
   }
 
   @Test
-  void yamlTemplateLoadTaskReportsPerStageAndPerTableSteps() {
+  void yamlTemplateLoadTaskReportsPerSchemaHierarchyAndPerTableSteps() {
     Task task = DataModels.getImportTask(database, SCHEMA_STEPS, "", CATALOGUE_TEMPLATE, true);
     task.run();
 
     List<String> steps = new ArrayList<>();
     collectDescriptions(task, steps);
-    String log = String.join("\n", steps);
 
-    assertTrue(log.contains("Create schema and metadata"), "task must log a create schema step");
-    assertTrue(log.contains("Import data"), "task must log a data: import step");
-    assertTrue(log.contains("Import demo data"), "task must log a demo: import step");
+    assertTrue(
+        steps.stream().anyMatch(step -> step.startsWith("Schema " + SCHEMA_STEPS)),
+        "task must log a per-schema block for the main schema");
+    assertTrue(
+        steps.stream().anyMatch(step -> step.startsWith("Schema CatalogueOntologies")),
+        "task must log a per-schema block for the companion, listed first");
+
+    String tablesLine =
+        steps.stream()
+            .filter(
+                step ->
+                    step.startsWith("Created ")
+                        && step.contains(" tables: ")
+                        && step.contains(COLLECTIONS))
+            .findFirst()
+            .orElse("");
+    assertTrue(
+        tablesLine.contains(COLLECTIONS)
+            && tablesLine.contains("Contacts")
+            && tablesLine.contains(ORGANISATIONS),
+        "the main schema created-tables line must list the full set of tables, uncapped: "
+            + tablesLine);
+
     assertTrue(
         steps.stream().anyMatch(step -> step.contains("Modified") && step.contains(ORGANISATIONS)),
         "task must surface a per-table row-count line for the data: import");
+
+    long committing = steps.stream().filter(step -> step.startsWith("Committing")).count();
+    assertEquals(
+        2, committing, "exactly one Committing per schema block is expected (companion + main)");
+
+    assertTrue(
+        steps.stream().noneMatch(step -> step.contains("Import from store")),
+        "the bare 'Import from store' plumbing step must not surface in the log");
   }
 
   private static void collectDescriptions(Task task, List<String> descriptions) {
