@@ -18,6 +18,8 @@ class TemplatesApiTest extends ApiTestBase {
   private static final String CLASSIC_TEMPLATE = "PET_STORE";
   private static final String YAML_TEMPLATE = "catalogue";
   private static final String CREATED_SCHEMA = "TemplatesApiTestCatalogue";
+  private static final String CLASSIC_DIAMOND = "DIAMOND_SHOWCASE";
+  private static final String YAML_DIAMOND = "diamond";
 
   @BeforeAll
   static void setup() {
@@ -50,6 +52,23 @@ class TemplatesApiTest extends ApiTestBase {
             .getBoolean(
                 "find { it.source == 'yaml' && it.name == '" + YAML_TEMPLATE + "' }.hasDemoData");
     assertTrue(hasDemoData, "the catalogue yaml template carries demo: data");
+  }
+
+  @Test
+  void classicDiamondShowcaseIsHiddenWhileYamlDiamondIsListed() {
+    Response response = getTemplates();
+    response.then().statusCode(200);
+
+    List<String> classicNames =
+        response.jsonPath().getList("findAll { it.source == 'classic' }.name");
+    List<String> yamlNames = response.jsonPath().getList("findAll { it.source == 'yaml' }.name");
+
+    assertFalse(
+        classicNames.contains(CLASSIC_DIAMOND),
+        "the classic DIAMOND_SHOWCASE must be hidden from the list, superseded by the yaml diamond template");
+    assertTrue(
+        yamlNames.contains(YAML_DIAMOND),
+        "the yaml diamond template must still be listed as its replacement");
   }
 
   @Test

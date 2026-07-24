@@ -19,6 +19,7 @@ public class TemplatesApi {
   private static final String SOURCE_CLASSIC = "classic";
   private static final String SOURCE_YAML = "yaml";
   private static final String TEMPLATE_PATH = "/api/templates/";
+  private static final String HIDDEN_CLASSIC_TEMPLATE = "DIAMOND_SHOWCASE";
 
   private TemplatesApi() {
     // hide constructor
@@ -57,6 +58,9 @@ public class TemplatesApi {
       templates.add(classicEntry(profile.name()));
     }
     for (DataModels.Regular regular : DataModels.Regular.values()) {
+      if (HIDDEN_CLASSIC_TEMPLATE.equals(regular.name())) {
+        continue;
+      }
       templates.add(classicEntry(regular.name()));
     }
     YamlWorkspaceLoader workspace = new YamlWorkspaceLoader();
