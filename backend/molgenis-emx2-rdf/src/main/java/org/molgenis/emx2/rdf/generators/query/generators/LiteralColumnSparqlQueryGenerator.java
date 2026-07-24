@@ -14,9 +14,7 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
-import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfValue;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 
 public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGenerator {
@@ -80,10 +78,10 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     List<Operand> aliases = new ArrayList<>();
 
     RdfPredicate[] semantics =
-      column
-        .getSemanticsStringStream()
-        .<RdfPredicate>map(i -> () -> i)
-        .toArray(RdfPredicate[]::new);
+        column
+            .getSemanticsStringStream()
+            .<RdfPredicate>map(i -> () -> i)
+            .toArray(RdfPredicate[]::new);
 
     for (int i = 0; i < semantics.length; i++) {
       Variable alias = SparqlBuilder.var(object.getVarName() + i);
