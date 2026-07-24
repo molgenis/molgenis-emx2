@@ -26,6 +26,8 @@ const props = withDefaults(
   }
 );
 
+const emit = defineEmits(["updatePage"]);
+
 const showEditModal = ref<boolean>(false);
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
@@ -91,7 +93,7 @@ function onEdit(component?: string, value?: IPageComponent) {
     :id="component.id"
     :heading-is-centered="component.headingIsCentered"
     :level="component.level"
-    class="mb-5 inline-flex"
+    class="mb-5"
     :text="parsePageText(component.text)"
     :is-editable="editingIsEnabled"
     @edit="onEdit"
@@ -136,6 +138,7 @@ function onEdit(component?: string, value?: IPageComponent) {
     :metadata="componentMetadata"
     :formValues="(componentData as Record<string,any>)"
     :isInsert="false"
+    @update:updated="$emit('updatePage')"
     v-model:visible="showEditModal"
   />
 </template>

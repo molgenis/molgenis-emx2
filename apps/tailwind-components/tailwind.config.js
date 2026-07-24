@@ -241,6 +241,10 @@ module.exports = {
         "label-available-hover":
           "var(--background-color-label-available-hover)",
         dropdown: "var(--background-color-dropdown)",
+        "dashboard-dropzone":
+          "color-mix(var(--background-color-button-primary), var(--background-color-content) 70%)",
+        "dashboard-dropzone-hover":
+          "color-mix(var(--background-color-button-primary), var(--background-color-content) 85%)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",

@@ -21,6 +21,7 @@ examplefiles
 *.DS_Store
 git.properties
 psql_data
+/.env
 */data/elasticsearch/
 /data/elasticsearch/
 test-output/
@@ -87,4 +88,4 @@ apps/tailwind-components/playwright/.auth/user.json
 .claude
 .playwright-cli
 apps/**/.nuxtrc
-.plan/
+.plan

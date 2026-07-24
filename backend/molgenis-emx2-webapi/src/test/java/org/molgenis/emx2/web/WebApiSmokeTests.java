@@ -776,7 +776,7 @@ class WebApiSmokeTests extends ApiTestBase {
 
   @Test
   void testRdfApiRequest() {
-    final String urlPrefix = "http://localhost:" + PORT;
+    final String urlPrefix = "http://localhost:" + port;
 
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
@@ -866,7 +866,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
+            .get("http://localhost:" + port + "/api/rdf?schemas=pet store")
             .getBody()
             .asString();
 
@@ -876,7 +876,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
+            .get("http://localhost:" + port + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
             .getBody()
             .asString();
 
@@ -885,7 +885,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?shacls")
+            .get("http://localhost:" + port + "/api/rdf?shacls")
             .getBody()
             .asString();
 
@@ -894,7 +894,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/pet store/api/rdf")
+            .get("http://localhost:" + port + "/pet store/api/rdf")
             .getBody()
             .asString();
 
@@ -902,7 +902,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/pet store/api/jsonld?validate=hri-v2.0.2")
+            .get("http://localhost:" + port + "/pet store/api/jsonld?validate=hri-v2.0.2")
             .getBody()
             .asString();
 
@@ -1287,14 +1287,15 @@ class WebApiSmokeTests extends ApiTestBase {
                 logging.getLogger("requests").setLevel(logging.WARNING)
                 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-                async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+                async with Client('http://localhost:%d', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
                     await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
                                 template="PET_STORE", include_demo_data=False)
 
             if __name__ == '__main__':
                 asyncio.run(main())
 
-            """;
+            """
+            .formatted(port);
     jobs.insert(
         row(
             "name",

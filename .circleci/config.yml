@@ -411,6 +411,28 @@ jobs:
 
     - post_steps
 
+    # LAST step of this job on purpose: it writes a repo-root .env, which would otherwise change the
+    # gradle and turbo input hashes of every step after it.
+    - run:
+        name: <dev> a repo-root .env reaches the forked dev JVM
+        command: |
+          set -eo pipefail
+          printf '%s\n' \
+            'MOLGENIS_HTTP_PORT=19345' \
+            'MOLGENIS_JVM_XMX=333m' \
+            'MOLGENIS_POSTGRES_PASS=ci-guardrail-secret' > .env
+          export MOLGENIS_HTTP_PORT=19999
+          ./gradlew -q --console=plain --no-daemon printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
+            | tee printDevConfig.out
+          grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_HTTP_PORT=19345' printDevConfig.out
+          grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_CI_PROBE=probe-value' printDevConfig.out
+          grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_POSTGRES_PASS=<HIDDEN>' printDevConfig.out
+          grep -Fxq 'molgenis.dev.maxHeapSize=333m' printDevConfig.out
+    - run:
+        name: <dev> remove the temporary .env
+        command: rm -f .env printDevConfig.out
+        when: always
+
   release:
     <<: *release_config
 

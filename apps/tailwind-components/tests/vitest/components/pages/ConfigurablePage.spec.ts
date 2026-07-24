@@ -58,14 +58,15 @@ const page = mount(ConfigurablePage, {
     content: pageData,
     isEditable: false,
     metadata: [] as ITableMetaData[],
+    schema: "cms",
   },
 });
 
 describe("Configurable page", () => {
   test("Blocks are rendered in the correct order", () => {
-    const firstElem = page.find("*:first-child");
-    const secondElem = page.find("*:nth-child(2)");
-    expect(firstElem.html()).toContain('<header id="home-banner"');
-    expect(secondElem.html()).toContain('<div id="welcome-section"');
+    const firstElem = page.find("div.flex-1 > *:first-child");
+    const secondElem = page.find("div.flex-1 > *:nth-child(2)");
+    expect(firstElem.html()).toContain('id="home-banner"');
+    expect(secondElem.html()).toContain('id="welcome-section"');
   });
 });
