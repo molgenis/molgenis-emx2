@@ -101,7 +101,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
   private void mapPrimaryKeys() {
     TableMetadata refTable = rootColumn.getRefTable();
     for (Column column : refTable.getPrimaryKeyColumns()) {
-      if (column.getSemantics() == null || column.getSemantics().length == 0) {
+      if (!column.hasSemantics()) {
         logger.warn("Column {} has no semantics", column.getName());
         continue;
       }

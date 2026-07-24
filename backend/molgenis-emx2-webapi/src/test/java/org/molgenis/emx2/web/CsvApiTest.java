@@ -369,22 +369,22 @@ class CsvApiTest extends ApiTestBase {
     addUpdateTableAndCompare(
         header,
         schemaName,
-        "tableName,description,semantics\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
+        "tableName,description,semantics\nTestMetaTable,TestDesc,:TestSem",
+        "TestMetaTable,,,,,,,,,,,,,,,,,,:TestSem,,,TestDesc\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName\nTestMetaTable",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,:TestSem,,,TestDesc\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,:TestSem,,,NewTestDesc\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
@@ -397,8 +397,8 @@ class CsvApiTest extends ApiTestBase {
     addUpdateTableAndCompare(
         header,
         schemaName,
-        "tableName,description,semantics\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,NewTestSem,,,\n");
+        "tableName,description,semantics\nTestMetaTable,,:NewTestSem",
+        "TestMetaTable,,,,,,,,,,,,,,,,,,:NewTestSem,,,\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
@@ -411,8 +411,8 @@ class CsvApiTest extends ApiTestBase {
     addUpdateTableAndCompare(
         header,
         schemaName,
-        "tableName,description,semantics\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\n");
+        "tableName,description,semantics\nTestMetaTable,TestDesc,\":TestSem1,:TestSem2\"",
+        "TestMetaTable,,,,,,,,,,,,,,,,,,\":TestSem1,:TestSem2\",,,TestDesc\n");
   }
 
   @Test

@@ -7,6 +7,7 @@ import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -35,16 +36,32 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   // use to classify the table, influences display, import, export, etc
   private TableType tableType = TableType.DATA;
   // table semantics, typically an ontology URI
-  private String[] semantics = null;
+  private Semantic[] semantics = null;
   // profiles to which this table belongs
   private String[] profiles;
 
-  public String[] getSemantics() {
+  /**
+   * @return {@code false} if null or empty, otherwise {@code true}.
+   */
+  public boolean hasSemantics() {
+    return semantics != null && semantics.length > 0;
+  }
+
+  @Nullable
+  public Semantic[] getSemantics() {
     return semantics;
   }
 
-  public TableMetadata setSemantics(String... semantics) {
+  public TableMetadata setSemantics(Semantic[] semantics) {
     this.semantics = semantics;
+    return this;
+  }
+
+  public TableMetadata setSemantics(String... semantics) {
+    this.semantics =
+        semantics == null
+            ? null
+            : Arrays.stream(semantics).map(Semantic::new).toArray(Semantic[]::new);
     return this;
   }
 
