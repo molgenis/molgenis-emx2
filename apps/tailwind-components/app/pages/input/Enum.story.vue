@@ -63,8 +63,9 @@
           <legend id="enum-array-legend" class="text-title-contrast mb-1">
             Select active modules
           </legend>
-          <InputEnumArray
+          <InputEnum
             id="enum-array"
+            :isArray="true"
             v-model="multiValue"
             :values="moduleValues"
             :invalid="invalid"
@@ -75,6 +76,33 @@
         </fieldset>
         <p class="mt-2 text-title-contrast">
           Selected: {{ multiValue ?? "(none)" }}
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-heading-lg mb-2">
+          ENUM_ARRAY — pre-filled (editing existing row)
+        </h3>
+        <fieldset>
+          <legend
+            id="enum-array-prefilled-legend"
+            class="text-title-contrast mb-1"
+          >
+            Active modules from an existing record
+          </legend>
+          <InputEnum
+            id="enum-array-prefilled"
+            :isArray="true"
+            v-model="prefilledMultiValue"
+            :values="moduleValues"
+            :invalid="invalid"
+            :valid="valid"
+            :disabled="disabled"
+            described-by="enum-array-prefilled-legend"
+          />
+        </fieldset>
+        <p class="mt-2 text-title-contrast">
+          Selected: {{ prefilledMultiValue ?? "(none)" }}
         </p>
       </div>
     </form>
@@ -91,4 +119,5 @@ const singleValue = ref<string | null>(null);
 const prefilledValue = ref<string | null>("B+");
 const moduleValue = ref<string | null>(null);
 const multiValue = ref<string[] | null>(null);
+const prefilledMultiValue = ref<string[] | null>(["BloodPressure", "MRI"]);
 </script>

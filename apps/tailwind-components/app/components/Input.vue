@@ -309,9 +309,10 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <InputEnumArray
+  <InputEnum
     v-else-if="'ENUM_ARRAY' === typeUpperCase && values"
     :id="id"
+    :isArray="true"
     v-model="modelValue as string[] | undefined | null"
     :values="values"
     :valid="valid"
@@ -334,9 +335,10 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <InputEnumArray
+  <InputEnum
     v-else-if="'MODULE_ARRAY' === typeUpperCase && values"
     :id="id"
+    :isArray="true"
     v-model="modelValue as string[] | undefined | null"
     :values="values"
     :valid="valid"
@@ -365,7 +367,6 @@ import InputDate from "./input/Date.vue";
 import InputDateTime from "./input/DateTime.vue";
 import InputDecimal from "./input/Decimal.vue";
 import InputEnum from "./input/Enum.vue";
-import InputEnumArray from "./input/EnumArray.vue";
 import InputFile from "./input/File.vue";
 import InputInt from "./input/Int.vue";
 import InputLong from "./input/Long.vue";
