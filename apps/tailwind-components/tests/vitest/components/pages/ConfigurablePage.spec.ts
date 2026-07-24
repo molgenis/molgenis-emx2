@@ -64,9 +64,12 @@ const page = mount(ConfigurablePage, {
 
 describe("Configurable page", () => {
   test("Blocks are rendered in the correct order", () => {
-    const firstElem = page.find("div.flex-1 > *:first-child");
-    const secondElem = page.find("div.flex-1 > *:nth-child(2)");
-    expect(firstElem.html()).toContain('id="home-banner"');
-    expect(secondElem.html()).toContain('id="welcome-section"');
+    const firstElem = page.find("#configurable-page-main > :first-child");
+    expect(firstElem.element.tagName).toEqual("HEADER");
+    expect(firstElem.element.id).toEqual("home-banner");
+
+    const secondElem = page.find("#configurable-page-main > :nth-child(2)");
+    expect(secondElem.element.tagName).toEqual("DIV");
+    expect(secondElem.element.id).toEqual("welcome-section");
   });
 });
