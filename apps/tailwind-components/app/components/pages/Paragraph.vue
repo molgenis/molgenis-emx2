@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import EditButton from "./EditButton.vue";
 import { renderTextUrls } from "../../utils/cms";
 import type { IParagraphs } from "../../../types/cms";
 
@@ -11,16 +10,13 @@ const props = withDefaults(
     isEditable: false,
   }
 );
+const showMenu = defineModel("showMenu");
 
 const renderedText = computed<string | undefined>(() => {
   if (props.text) {
     return renderTextUrls(props.text);
   }
 });
-
-const emit = defineEmits<{
-  (e: "edit"): void;
-}>();
 </script>
 
 <template>
@@ -30,22 +26,9 @@ const emit = defineEmits<{
     :class="{
       'text-center': paragraphIsCentered,
       'text-left': !paragraphIsCentered,
+      underline: showMenu,
     }"
   >
-    <EditButton
-      v-if="isEditable"
-      @click="emit('edit')"
-      :class="{
-        'text-center': paragraphIsCentered,
-        'text-left': !paragraphIsCentered,
-      }"
-    >
-      <span class="sr-only">edit paragraph: </span>
-      <span
-        class="group-hover:underline group-focus:underline"
-        v-html="renderedText"
-      />
-    </EditButton>
-    <span v-else v-html="renderedText" />
+    {{ renderedText }}
   </p>
 </template>
