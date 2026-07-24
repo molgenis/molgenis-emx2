@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from "nuxt/config";
+import { apiBase } from "../dev-env.js";
 
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
@@ -24,8 +25,7 @@ export default defineNuxtConfig({
       analyticsDomain: "",
       cohortOnly: false,
       schema: "catalogue-demo",
-      apiBase:
-        process.env.NUXT_PUBLIC_API_BASE || "https://emx2.dev.molgenis.org/",
+      apiBase: apiBase("https://emx2.dev.molgenis.org/"),
     },
   },
   imports: {
