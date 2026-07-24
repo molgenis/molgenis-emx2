@@ -58,7 +58,14 @@ let activeVariablePath = computed(() =>
         class="h-screen overflow-auto"
       >
         <template #column="columnProps">
-          <div class="flex flex-col items-center min-h-title max-h-title">
+          <div
+            class="flex flex-col items-center min-h-title max-h-title"
+            :class="{
+              'bg-button-filter': cartStore.isInCart(
+                resourceToCartItem(columnProps.value).id
+              ),
+            }"
+          >
             <CartButton
               v-if="cartStore.isEnabled"
               :item="resourceToCartItem(columnProps.value)"
@@ -78,6 +85,11 @@ let activeVariablePath = computed(() =>
         <template #row="rowProps">
           <div
             class="flex items-center gap-1 text-body-base text-link font-normal hover:underline px-2 cursor-pointer"
+            :class="{
+              'bg-button-filter': cartStore.isInCart(
+                variableToCartItem(rowProps.value.row).id
+              ),
+            }"
             @click="activeRowIndex = rowProps.value.rowIndex"
           >
             <CartButton

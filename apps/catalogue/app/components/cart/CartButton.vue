@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
-import Checkbox from "../../../../tailwind-components/app/components/input/Checkbox.vue";
+import InputCheckboxIcon from "../../../../tailwind-components/app/components/input/CheckboxIcon.vue";
 import type { ICartItem } from "../../../interfaces/types";
 import { useCartStore } from "../../stores/useCartStore";
 
@@ -49,10 +49,16 @@ function onInput() {
   />
   <label
     v-else
-    class="inline-flex items-center px-1 py-1 rounded-base cursor-pointer align-middle"
-    :class="{ 'bg-button-secondary': isInCart }"
+    class="group inline-flex items-center px-1 py-1 rounded-base cursor-pointer align-middle"
+    :class="{ 'bg-button-filter': isInCart }"
   >
-    <Checkbox :modelValue="isInCart" @update:modelValue="onInput" />
+    <input
+      type="checkbox"
+      class="peer sr-only"
+      :checked="isInCart"
+      @change="onInput"
+    />
+    <InputCheckboxIcon :checked="isInCart" class="!mr-0" />
     <span class="sr-only">{{ label }}</span>
   </label>
 </template>
