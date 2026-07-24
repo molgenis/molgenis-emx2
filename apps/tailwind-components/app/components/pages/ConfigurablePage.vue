@@ -42,6 +42,7 @@ const sidebarCollapsed = ref(false);
     }"
   >
     <Sidebar
+      id="configurable-page-sidebar"
       v-if="isEditable"
       :collapsed="sidebarCollapsed"
       :active-filter-count="0"
@@ -51,7 +52,7 @@ const sidebarCollapsed = ref(false);
         <AddComponentPalette @dragging="handleDragEvent" />
       </div>
     </Sidebar>
-    <div class="flex-1 min-w-0">
+    <div id="configurable-page-main" class="flex-1 min-w-0">
       <template
         v-for="orderedBlock in content.blockOrder"
         :key="orderedBlock.id"
