@@ -13,16 +13,14 @@ public class MissingPkResolver implements PostProcessor {
   private static final String SUBJECT_VARIABLE = "_subject_";
 
   private final SchemaMetadata schema;
-  private final String[] tableNames;
 
-  public MissingPkResolver(SchemaMetadata schema, String... tableNames) {
+  public MissingPkResolver(SchemaMetadata schema) {
     this.schema = schema;
-    this.tableNames = tableNames;
   }
 
   @Override
   public void process(TableStore tableStore) {
-    for (String tableName : tableNames) {
+    for (String tableName : schema.getTableNames()) {
       List<Column> referenceColumns =
           schema.getTableMetadata(tableName).getColumns().stream()
               .filter(Column::isReference)
