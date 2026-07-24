@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.MODULES;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -278,7 +279,7 @@ class DiamondShowcaseTest {
 
   @Test
   void experimentModuleColumnsIncludeAssayHeadings() {
-    List<Column> cols = schema.getTable(EXPERIMENT).getMetadata().getColumnsIncludingModules();
+    List<Column> cols = schema.getTable(EXPERIMENT).getMetadata().getColumns(MODULES);
 
     Column rnaHeading = findHeadingForTable(cols, RNA);
     assertNotNull(

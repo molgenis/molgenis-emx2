@@ -1,5 +1,7 @@
 package org.molgenis.emx2.beaconv2.endpoints.filteringterms;
 
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.LOCAL;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.*;
@@ -69,7 +71,7 @@ public class FilteringTermsFetcher {
     if (tableNamesInSchema.contains(tableToQuery)) {
       TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
       // todo: now extended columns are ignored because make the query super complicated
-      for (Column column : metadata.getLocalColumns()) {
+      for (Column column : metadata.getColumns(LOCAL)) {
         if (column.getColumnType().isAtomicType() && !column.getIdentifier().startsWith("mg_")) {
           FilteringTerm filteringTerm =
               new FilteringTerm("alphanumeric", column.getName(), tableToQuery);

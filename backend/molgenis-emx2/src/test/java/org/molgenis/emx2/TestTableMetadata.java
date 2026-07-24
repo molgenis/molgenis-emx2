@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.SUBCLASSES;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
@@ -20,14 +21,17 @@ class TestTableMetadata {
                 table("Employee", column("details").setType(ColumnType.HEADING), column("salary"))
                     .setInheritNames("Person"));
 
-    List<Column> result = s.getTableMetadata("Person").getColumnsIncludingSubclasses();
+    List<Column> result = s.getTableMetadata("Person").getColumns(SUBCLASSES);
     assertEquals(3, result.size());
 
     Column salary = result.get(2);
     assertEquals("salary", salary.getName());
     assertEquals("Employee", salary.getTableName());
 
-    result = s.getTableMetadata("Person").getColumnsIncludingSubclassesExcludingHeadings();
+    result =
+        s.getTableMetadata("Person").getColumns(SUBCLASSES).stream()
+            .filter(c -> !c.isHeading())
+            .toList();
     assertEquals(2, result.size());
   }
 

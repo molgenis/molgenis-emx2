@@ -3,6 +3,8 @@ package org.molgenis.emx2.graphql;
 import static graphql.scalars.ExtendedScalars.GraphQLLong;
 import static org.molgenis.emx2.FilterBean.*;
 import static org.molgenis.emx2.Operator.IS_NULL;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.ALL;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.SUBCLASSES;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -156,7 +158,7 @@ public class GraphqlTableFieldFactory {
       tableTypes.put(tableObjectType, GraphQLTypeReference.typeRef(tableObjectType));
       // build the object
       GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(tableObjectType);
-      for (Column col : table.getColumnsIncludingSubclassesAndModulesExcludingHeadings()) {
+      for (Column col : table.getColumns(ALL).stream().filter(c -> !c.isHeading()).toList()) {
         createTableField(col, tableBuilder);
       }
       tableTypes.put(tableObjectType, tableBuilder.build());
@@ -318,7 +320,7 @@ public class GraphqlTableFieldFactory {
     groupByBuilder.field(
         GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
     List<Column> aggCols =
-        table.getColumnsIncludingSubclasses().stream()
+        table.getColumns(SUBCLASSES).stream()
             .filter(c -> c.getColumnType().isNumericType())
             .toList();
     if (aggCols.size() > 0) {
@@ -334,7 +336,7 @@ public class GraphqlTableFieldFactory {
           GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sumBuilder.build()));
     }
 
-    for (Column column : table.getColumnsIncludingSubclasses()) {
+    for (Column column : table.getColumns(SUBCLASSES)) {
       if (column.isReference()
           && (PermissionEvaluator.canView(schema, table) || column.isOntology())) {
         groupByBuilder.field(
@@ -371,7 +373,7 @@ public class GraphqlTableFieldFactory {
     }
     if (PermissionEvaluator.canView(schema, table)) {
       List<Column> aggCols =
-          table.getColumnsIncludingSubclasses().stream()
+          table.getColumns(SUBCLASSES).stream()
               .filter(c -> c.getColumnType().isNumericType())
               .toList();
 
@@ -472,7 +474,7 @@ public class GraphqlTableFieldFactory {
               .name(FILTER_AND)
               .type(GraphQLList.list(GraphQLTypeReference.typeRef(tableFilterInputType)))
               .build());
-      for (Column col : table.getColumnsIncludingSubclasses()) {
+      for (Column col : table.getColumns(SUBCLASSES)) {
         if (col.isReference()) {
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
@@ -523,7 +525,7 @@ public class GraphqlTableFieldFactory {
       // build the type
       GraphQLInputObjectType.Builder orderByBuilder =
           GraphQLInputObjectType.newInputObject().name(tableOrderByInputType);
-      for (Column col : table.getColumnsIncludingSubclasses()) {
+      for (Column col : table.getColumns(SUBCLASSES)) {
         orderByBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
                 .name(col.getIdentifier())
@@ -774,7 +776,7 @@ public class GraphqlTableFieldFactory {
     if (selection == null) return new SelectColumn[0];
     Map<String, Column> columnIdentifierMap =
         table != null
-            ? table.getColumnsIncludingSubclassesAndModules().stream()
+            ? table.getColumns(ALL).stream()
                 .collect(
                     Collectors.toMap(
                         Column::getIdentifier,
@@ -843,7 +845,7 @@ public class GraphqlTableFieldFactory {
 
   private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
-      return aTable.getColumnsIncludingSubclasses().stream()
+      return aTable.getColumns(SUBCLASSES).stream()
           .filter(
               c ->
                   c.getIdentifier().equals(id)
@@ -923,7 +925,7 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (!table.getColumnsIncludingSubclassesAndModulesExcludingHeadings().isEmpty()) {
+      if (table.getColumns(ALL).stream().anyMatch(c -> !c.isHeading())) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
@@ -1017,7 +1019,7 @@ public class GraphqlTableFieldFactory {
       rowInputTypes.put(rowInputType, GraphQLTypeReference.typeRef(rowInputType + INPUT));
       GraphQLInputObjectType.Builder inputBuilder =
           GraphQLInputObjectType.newInputObject().name(rowInputType + INPUT);
-      for (Column col : table.getColumnsIncludingSubclassesAndModulesExcludingHeadings()) {
+      for (Column col : table.getColumns(ALL).stream().filter(c -> !c.isHeading()).toList()) {
         GraphQLInputType type;
         if (col.isReference()) {
           if (col.isRef()) {

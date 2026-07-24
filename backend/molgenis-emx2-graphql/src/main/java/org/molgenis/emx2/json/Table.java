@@ -1,5 +1,7 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.MODULES;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -70,7 +72,7 @@ public class Table {
             .toList();
     String currentSectionId = Constants.MG_TOP_OF_FORM; // default first section
     String currentHeadingId = null;
-    for (org.molgenis.emx2.Column column : tableMetadata.getColumnsIncludingModules()) {
+    for (org.molgenis.emx2.Column column : tableMetadata.getColumns(MODULES)) {
       if (column.getColumnType().equals(ColumnType.SECTION)) {
         currentSectionId = column.getIdentifier();
         currentHeadingId = null;

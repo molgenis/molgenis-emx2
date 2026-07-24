@@ -6,6 +6,9 @@ import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Query.Option.EXCLUDE_MG_COLUMNS;
 import static org.molgenis.emx2.Query.Option.INCLUDE_FILE_CONTENTS;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.ALL;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.MODULES;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.SUBCLASSES;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
@@ -96,7 +99,7 @@ public class SqlQuery extends QueryBean {
     // will generally be all you need
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c :
-          table.getColumnsIncludingModules().stream()
+          table.getColumns(MODULES).stream()
               .filter(
                   column ->
                       Arrays.stream(options).anyMatch(option -> option == EXCLUDE_MG_COLUMNS)
@@ -303,7 +306,7 @@ public class SqlQuery extends QueryBean {
     } else {
       // select all on root level as default
       if (select.getSubselect().isEmpty()) {
-        for (Column c : table.getColumnsIncludingModules()) {
+        for (Column c : table.getColumns(MODULES)) {
           if (!c.isHeading()) {
             select.select(c.getName());
           }
@@ -1765,9 +1768,7 @@ public class SqlQuery extends QueryBean {
             ? table.getColumnByNameIncludingSubclassesAndModules(columnName)
             : table.getColumnByNameIncludingSubclasses(columnName);
     List<Column> candidateColumns =
-        includeModules
-            ? table.getColumnsIncludingSubclassesAndModules()
-            : table.getColumnsIncludingSubclasses();
+        includeModules ? table.getColumns(ALL) : table.getColumns(SUBCLASSES);
     if (column == null || (isRowQuery && column.isReference())) {
       // is reference?
       for (Column c : candidateColumns) {

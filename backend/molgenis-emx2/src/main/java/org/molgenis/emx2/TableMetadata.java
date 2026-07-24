@@ -16,9 +16,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public enum ColumnSelection {
     LOCAL,
-    INHERITED,
     SUBCLASSES,
-    MODULES
+    MODULES,
+    ALL
   }
 
   public static final String TABLE_NAME_MESSAGE =
@@ -159,7 +159,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     }
 
     // ignore primary key from child class because that is same as in inheritedTable
-    for (Column col : getLocalColumns()) {
+    for (Column col : localColumns()) {
       if (!internal.containsKey(col.getName()) && !external.containsKey(col.getName())) {
         if (col.isSystemColumn()) {
           meta.put(col.getName(), new Column(col.getTable(), col));
@@ -188,13 +188,20 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getColumns(ColumnSelection first, ColumnSelection... rest) {
     EnumSet<ColumnSelection> selection = EnumSet.of(first, rest);
-    boolean subclasses = selection.contains(ColumnSelection.SUBCLASSES);
-    boolean modules = selection.contains(ColumnSelection.MODULES);
+    if (selection.contains(ColumnSelection.LOCAL) && selection.size() > 1) {
+      throw new IllegalArgumentException(
+          "ColumnSelection.LOCAL cannot be combined with other selections");
+    }
+    if (selection.contains(ColumnSelection.LOCAL)) {
+      return localColumns();
+    }
+    boolean all = selection.contains(ColumnSelection.ALL);
+    boolean subclasses = all || selection.contains(ColumnSelection.SUBCLASSES);
+    boolean modules = all || selection.contains(ColumnSelection.MODULES);
     if (subclasses && modules) return columnsIncludingSubclassesAndModules();
     if (subclasses) return columnsIncludingSubclasses();
     if (modules) return columnsIncludingModules();
-    if (selection.contains(ColumnSelection.INHERITED)) return getColumns();
-    return getLocalColumns();
+    return getColumns();
   }
 
   public List<Column> getColumnsWithoutHeadings() {
@@ -213,7 +220,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getDownloadColumnNames() {
     List<Column> list = new ArrayList<>();
-    for (Column column : getColumnsIncludingModules()) {
+    for (Column column : columnsIncludingModules()) {
       if (!column.isHeading()) {
         if (column.isFile()) {
           list.add(column(column.getName()));
@@ -282,12 +289,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getStoredColumns() {
-    return getLocalColumns().stream()
+    return localColumns().stream()
         .filter(c -> !c.isHeading() && !c.isRefback())
         .collect(Collectors.toList());
   }
 
-  public List<Column> getLocalColumns() {
+  private List<Column> localColumns() {
     Map<String, Column> result = new LinkedHashMap<>();
     for (TableMetadata parent : getInheritedTables()) {
       for (Column pkey : parent.getPrimaryKeyColumns()) {
@@ -324,7 +331,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<String> getLocalColumnNames() {
     List<String> result = new ArrayList<>();
-    for (Column c : getLocalColumns()) {
+    for (Column c : localColumns()) {
       result.add(c.getName());
     }
     return result;
@@ -342,7 +349,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<String> getNonReferencingColumnNames() {
     List<String> result = new ArrayList<>();
-    for (Column c : getLocalColumns()) {
+    for (Column c : localColumns()) {
       if (!c.isReference()) {
         result.add(c.getName());
       }
@@ -691,10 +698,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     }
   }
 
-  public List<Column> getColumnsIncludingSubclasses() {
-    return getColumns(ColumnSelection.INHERITED, ColumnSelection.SUBCLASSES);
-  }
-
   private List<Column> columnsIncludingSubclasses() {
     // get all tables in current schema that inherit this
     List<Column> result = new ArrayList<>();
@@ -703,27 +706,23 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return result;
   }
 
-  public List<Column> getColumnsIncludingSubclassesExcludingHeadings() {
-    return getColumnsIncludingSubclasses().stream().filter(c -> !c.isHeading()).toList();
-  }
-
   private List<Column> getColumnsFromSubclasses() {
     List<Column> result = new ArrayList<>();
     for (TableMetadata subclass : getSubclassTables()) {
-      result.addAll(subclass.getLocalColumns());
+      result.addAll(subclass.localColumns());
     }
     return result;
   }
 
   public Column getColumnByNameIncludingSubclasses(String columnName) {
-    return getColumnsIncludingSubclasses().stream()
+    return columnsIncludingSubclasses().stream()
         .filter(c -> c.getName().equals(columnName))
         .findFirst()
         .orElse(null);
   }
 
   public Column getColumnByIdIncludingSubclasses(String columnId) {
-    return getColumnsIncludingSubclasses().stream()
+    return columnsIncludingSubclasses().stream()
         .filter(c -> c.getIdentifier().equals(columnId))
         .findFirst()
         .orElseGet(() -> null);
@@ -775,10 +774,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     }
   }
 
-  public List<Column> getColumnsIncludingModules() {
-    return getColumns(ColumnSelection.INHERITED, ColumnSelection.MODULES);
-  }
-
   private List<Column> columnsIncludingModules() {
     List<Column> base = getColumns();
     if (getTableType().isModule()) {
@@ -799,7 +794,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       }
     }
     for (TableMetadata moduleTable : moduleTables) {
-      for (Column c : moduleTable.getLocalColumns()) {
+      for (Column c : moduleTable.localColumns()) {
         // module's inherited copy of the shared root PK/columns is already in
         // 'base'; only add columns genuinely local to the module itself.
         // HEADING/SECTION columns flow through like any other module column,
@@ -819,16 +814,11 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return result;
   }
 
-  public List<Column> getColumnsIncludingSubclassesAndModules() {
-    return getColumns(
-        ColumnSelection.INHERITED, ColumnSelection.SUBCLASSES, ColumnSelection.MODULES);
-  }
-
   private List<Column> columnsIncludingSubclassesAndModules() {
-    List<Column> result = new ArrayList<>(getColumnsIncludingSubclasses());
+    List<Column> result = new ArrayList<>(columnsIncludingSubclasses());
     Set<String> rootColumnNames = result.stream().map(Column::getName).collect(Collectors.toSet());
     for (TableMetadata moduleTable : getModuleSubtypeTables()) {
-      for (Column c : moduleTable.getLocalColumns()) {
+      for (Column c : moduleTable.localColumns()) {
         if (!rootColumnNames.contains(c.getName())) {
           result.add(c);
         }
@@ -837,12 +827,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return result;
   }
 
-  public List<Column> getColumnsIncludingSubclassesAndModulesExcludingHeadings() {
-    return getColumnsIncludingSubclassesAndModules().stream().filter(c -> !c.isHeading()).toList();
-  }
-
   public Column getColumnByNameIncludingSubclassesAndModules(String columnName) {
-    return getColumnsIncludingSubclassesAndModules().stream()
+    return columnsIncludingSubclassesAndModules().stream()
         .filter(c -> c.getName().equals(columnName))
         .findFirst()
         .orElse(null);

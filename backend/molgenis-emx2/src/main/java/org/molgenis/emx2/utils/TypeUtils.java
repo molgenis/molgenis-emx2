@@ -1,5 +1,7 @@
 package org.molgenis.emx2.utils;
 
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.ALL;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -521,9 +523,7 @@ public class TypeUtils {
     for (Map<String, Object> field : map) {
       Row row = new Row();
       List<Column> columns =
-          primaryKeyOnly
-              ? metadata.getPrimaryKeyColumns()
-              : metadata.getColumnsIncludingSubclassesAndModules();
+          primaryKeyOnly ? metadata.getPrimaryKeyColumns() : metadata.getColumns(ALL);
       for (Column column : columns) {
         if (field.containsKey(column.getIdentifier())) {
           Object fieldValue = field.get(column.getIdentifier());

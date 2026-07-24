@@ -2,7 +2,7 @@ package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.TableMetadata.ColumnSelection.INHERITED;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.ALL;
 import static org.molgenis.emx2.TableMetadata.ColumnSelection.LOCAL;
 import static org.molgenis.emx2.TableMetadata.ColumnSelection.MODULES;
 import static org.molgenis.emx2.TableMetadata.ColumnSelection.SUBCLASSES;
@@ -31,32 +31,30 @@ public class TestTableMetadataInheritance {
   }
 
   @Test
-  void getColumnsLocalReturnsOnlyOwnColumnsPlusInheritedKey() {
+  void getColumnsNoArgReturnsLocalPlusInherited() {
+    TableMetadata child = diamondWithModuleFixture().getTableMetadata("Child");
+    assertEquals(
+        Set.of("id", "rootCol", "paCol", "pbCol", "childCol"), columnNames(child.getColumns()));
+  }
+
+  @Test
+  void getColumnsLocalReturnsDeclaredColumnsOnly() {
     TableMetadata child = diamondWithModuleFixture().getTableMetadata("Child");
     assertEquals(Set.of("id", "childCol"), columnNames(child.getColumns(LOCAL)));
   }
 
   @Test
-  void getColumnsInheritedAddsAllAncestorColumns() {
-    TableMetadata child = diamondWithModuleFixture().getTableMetadata("Child");
-    assertEquals(
-        Set.of("id", "rootCol", "paCol", "pbCol", "childCol"),
-        columnNames(child.getColumns(INHERITED)));
-  }
-
-  @Test
-  void getColumnsSubclassesAddsSubclassColumnsButNotModuleColumns() {
+  void getColumnsSubclassesAddsSubclassColumnsToNoArgSet() {
     TableMetadata root = diamondWithModuleFixture().getTableMetadata("Root");
     assertEquals(
         Set.of("id", "rootCol", "paCol", "pbCol", "childCol"),
-        columnNames(root.getColumns(INHERITED, SUBCLASSES)));
+        columnNames(root.getColumns(SUBCLASSES)));
   }
 
   @Test
-  void getColumnsModulesAddsModuleColumnsButNotSubclassColumns() {
+  void getColumnsModulesAddsModuleColumnsToNoArgSet() {
     TableMetadata root = diamondWithModuleFixture().getTableMetadata("Root");
-    assertEquals(
-        Set.of("id", "rootCol", "modXCol"), columnNames(root.getColumns(INHERITED, MODULES)));
+    assertEquals(Set.of("id", "rootCol", "modXCol"), columnNames(root.getColumns(MODULES)));
   }
 
   @Test
@@ -64,7 +62,21 @@ public class TestTableMetadataInheritance {
     TableMetadata root = diamondWithModuleFixture().getTableMetadata("Root");
     assertEquals(
         Set.of("id", "rootCol", "paCol", "pbCol", "childCol", "modXCol"),
-        columnNames(root.getColumns(INHERITED, SUBCLASSES, MODULES)));
+        columnNames(root.getColumns(SUBCLASSES, MODULES)));
+  }
+
+  @Test
+  void getColumnsAllReturnsSubclassesAndModulesUnion() {
+    TableMetadata root = diamondWithModuleFixture().getTableMetadata("Root");
+    assertEquals(
+        Set.of("id", "rootCol", "paCol", "pbCol", "childCol", "modXCol"),
+        columnNames(root.getColumns(ALL)));
+  }
+
+  @Test
+  void getColumnsLocalCombinedWithOtherSelectionThrows() {
+    TableMetadata root = diamondWithModuleFixture().getTableMetadata("Root");
+    assertThrows(IllegalArgumentException.class, () -> root.getColumns(LOCAL, MODULES));
   }
 
   @Test
@@ -347,9 +359,9 @@ public class TestTableMetadataInheritance {
     assertEquals(1, countD, "D must appear exactly once in A.getSubclassTables()");
   }
 
-  // S1: getColumnsIncludingSubclasses must not return duplicate columns in a diamond
+  // S1: getColumns(SUBCLASSES) must not return duplicate columns in a diamond
   @Test
-  void getColumnsIncludingSubclassesDeduplicatesInDiamond() {
+  void getColumnsSubclassesDeduplicatesInDiamond() {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(
         table("A", column("id").setPkey()),
@@ -357,7 +369,7 @@ public class TestTableMetadataInheritance {
         table("C", column("cCol")).setInheritNames("A"),
         table("D", column("dCol")).setInheritNames(List.of("B", "C")));
 
-    List<Column> cols = schema.getTableMetadata("A").getColumnsIncludingSubclasses();
+    List<Column> cols = schema.getTableMetadata("A").getColumns(SUBCLASSES);
     long dColCount = cols.stream().filter(c -> c.getName().equals("dCol")).count();
     assertEquals(1, dColCount, "dCol must appear exactly once, not duplicated via B and C paths");
   }

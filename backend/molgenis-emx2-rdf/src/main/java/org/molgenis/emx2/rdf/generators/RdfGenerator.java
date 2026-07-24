@@ -3,6 +3,7 @@ package org.molgenis.emx2.rdf.generators;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.MODULES;
 import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 
@@ -59,7 +60,7 @@ public abstract class RdfGenerator {
     }
 
     List<Row> rows = query.retrieveRows();
-    List<Column> columns = table.getMetadata().getColumnsIncludingModules();
+    List<Column> columns = table.getMetadata().getColumns(MODULES);
     ResolveComputedValue.apply(columns, rows);
     return rows;
   }

@@ -2,6 +2,7 @@ package org.molgenis.emx2.io.emx1;
 
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.LOCAL;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.ArrayList;
@@ -235,7 +236,7 @@ public class Emx1 {
   public static List<Row> getEmx1Attributes(SchemaMetadata schema) {
     List<Row> rows = new ArrayList<>();
     for (TableMetadata table : schema.getTables()) {
-      for (Column c : table.getLocalColumns()) {
+      for (Column c : table.getColumns(LOCAL)) {
         Emx1Attribute a = new Emx1Attribute(c);
         rows.add(a.toRow());
       }

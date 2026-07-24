@@ -1,5 +1,6 @@
 package org.molgenis.emx2.typescript;
 
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.SUBCLASSES;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
@@ -95,7 +96,7 @@ public class Generator {
       writer.println(String.format("export interface I%s extends IMgTableClass {", tableName));
 
       Set<String> seenColumns = new LinkedHashSet<>();
-      for (Column column : table.getColumnsIncludingSubclasses()) {
+      for (Column column : table.getColumns(SUBCLASSES)) {
         String columnName = convertToCamelCase(column.getName());
         if (shouldSkipColumn(column, seenColumns, columnName)) continue;
         String fieldValue = toTypeScriptInterfaceFieldValue(schema, column);
