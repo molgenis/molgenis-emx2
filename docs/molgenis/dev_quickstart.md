@@ -13,12 +13,12 @@ git clone git@github.com:molgenis/molgenis-emx2.git
 Optionally, checkout the branch you would like to review:
 
 ```
-cd molgenis-emx
+cd molgenis-emx2
 git checkout <branch name here>
 ```
 
 Then you can either build + run the whole molgenis.jar, or use docker-compose to instantiate the backend and only run one app, described below. Or you can run
-it inside IntelliJ.
+it inside IntelliJ. Work on apps only? See [Frontend only: point an app at a backend you did not start](#frontend-only-point-an-app-at-a-backend-you-did-not-start). Keep more than one checkout? Read [Parallel dev stacks](#parallel-dev-stacks-one-per-worktree) first.
 
 ## Build whole system
 
@@ -80,13 +80,60 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
   cd molgenis-emx2
   ./gradlew dev
   ```
-  You can verify that it's running by looking at http://localhost:8080
+  Verify with `/api/graphql` on whatever port you declared (<http://localhost:8080/api/graphql> if you have no `.env`), not with an app URL: `dev` serves **no apps**, so `/apps/central/` returns **404**. Only `./gradlew run` bundles apps. The admin UI is an app too, so here you run it yourself with `cd apps/central && pnpm dev`.
 - Serve only the app you want to look at
   ```console
   cd molgenis-emx2/apps/<yourapp>
   pnpm dev
   ```
-  Typically the app is then served at http://localhost:9090 (look at the console to see actual port number)
+  Look at the dev server's own banner for the actual port: Vite apps start at `5173` and Nuxt apps at `3000`, and drift upwards when that port is taken.
+
+## Frontend only: point an app at a backend you did not start
+
+If you only work on apps, you need no Postgres, no Java and no backend of your own. Install the workspace once (`cd apps && pnpm install`), then create a gitignored `.env` at the repo root with nothing but the host of a backend that already exists:
+
+```
+MOLGENIS_APPS_HOST=https://emx2.dev.molgenis.org
+NUXT_PUBLIC_API_BASE=https://emx2.dev.molgenis.org/
+```
+
+That is the whole file — no `MOLGENIS_HTTP_PORT` and no `MOLGENIS_POSTGRES_*`, since those describe a backend you start yourself. Then `cd apps/<yourapp> && pnpm dev`. Set `MOLGENIS_APPS_SCHEMA` if you develop against a schema other than `pet store`.
+
+## Parallel dev stacks (one per worktree)
+
+Every checkout defaults to backend port `:8080` and the `molgenis` database on Postgres `:5432`, so several checkouts — for example a git worktree per branch — quietly fight over both. The convention is: **one worktree declares one private stack in one gitignored `.env` at the repo root.** Copy `.env-example` and adjust.
+
+Give the worktree its **own Postgres instance** — a second server in Postgres.app, or any separate cluster, on its own port. A separate *database name* on the shared `:5432` server is **not** enough: `gradle test` and `cleandb` drop roles that are cluster-wide, so they reach into every checkout using that server. Seed the new instance:
+
+```console
+psql -p 5435 -f .circleci/initdb.sql
+```
+
+Then declare the stack, picking ports nothing else on your machine uses — stay off `8080` (the default, so somebody else's checkout has it) and off `8081` (historically the webapi test port):
+
+```
+MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5435/molgenis
+MOLGENIS_POSTGRES_USER=molgenis
+MOLGENIS_POSTGRES_PASS=molgenis
+MOLGENIS_HTTP_PORT=8083
+```
+
+Every Gradle task in this checkout — `run`, `dev`, `cleandb` and the test tasks — now targets that instance with no extra flags, and every app dev server proxies to `http://localhost:8083`. Start the stack as above: `./gradlew dev` plus a `pnpm dev` per app.
+
+### Which backend a dev server talks to
+
+Vite apps read `MOLGENIS_APPS_HOST`, Nuxt apps read `NUXT_PUBLIC_API_BASE`. Each resolves by first match:
+
+1. the key set in `.env`;
+2. else derived from `MOLGENIS_HTTP_PORT` in `.env` — `http://localhost:<port>`;
+3. else the key in the ambient shell;
+4. else the app's own fallback.
+
+`.env` deliberately beats the ambient shell — an `export NUXT_PUBLIC_API_BASE=...` in a shell profile would otherwise pin every worktree to a backend none of them declared. Gradle's `-D` overrides the backend port for a single run: `./gradlew dev -DMOLGENIS_HTTP_PORT=9000`.
+
+### Running from IntelliJ
+
+**IntelliJ does not read `.env`.** Gradle's forwarding only reaches JVMs Gradle forks, so an unconfigured IDE run targets the default database on `:5432` and port `:8080` — very likely someone else's stack. Set `MOLGENIS_HTTP_PORT`, `MOLGENIS_POSTGRES_URI`, `MOLGENIS_POSTGRES_USER` and `MOLGENIS_POSTGRES_PASS` by hand in the run configuration, as environment variables or as `-D` VM options.
 
 ## Building on Windows
 
@@ -155,6 +202,8 @@ rm -rf ./apps/*/dist/
 
 If you want to delete all the MOLGENIS generated schemas, roles and users in the postgresql and return to clean state, run
 `gradle cleandb`
+
+This drops roles across the **whole Postgres instance**, not just one database, so it hits every checkout pointed at that instance — including the ones using a different database name on it. See [Parallel dev stacks](#parallel-dev-stacks-one-per-worktree).
 
 ### Build+test drop/creates schemas in my database
 

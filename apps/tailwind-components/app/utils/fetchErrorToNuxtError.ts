@@ -4,7 +4,7 @@ import { errorToMessage } from "./errorToMessage";
 
 export function fetchErrorToNuxtError(error: unknown, fallbackMessage: string) {
   return createError({
-    statusCode: error instanceof FetchError ? (error.statusCode ?? 500) : 500,
+    statusCode: error instanceof FetchError ? error.statusCode ?? 500 : 500,
     message: errorToMessage(error, fallbackMessage),
     cause: error,
   });
