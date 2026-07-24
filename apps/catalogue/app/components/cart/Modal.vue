@@ -73,20 +73,20 @@ async function sendToStore() {
   >
     <ContentBlockModal title="Shopping cart">
       <template v-if="!cartStore.isEmpty">
-        <p class="mb-2">Review your selection</p>
-        <section
+        <h3 class="mb-2.5">Review your selection</h3>
+        <div
           v-for="section in sections"
           :key="section.title"
-          class="mb-4 last:mb-0"
+          class="mb-5 last:mb-0"
         >
-          <h3 class="mb-2.5 font-bold">{{ section.title }}</h3>
+          <h4 class="mb-2.5 font-bold">{{ section.title }}</h4>
           <ul v-if="section.items.length" class="list-style-none">
             <li
               v-for="item in section.items"
               :key="item.id"
               class="border-b last:border-none"
             >
-              <div class="flex items-center justify-between gap-2 py-0.5">
+              <div class="flex items-center justify-between gap-2 py-2.5">
                 <span class="min-w-0 truncate">{{ item.label }}</span>
                 <button
                   type="button"
@@ -94,13 +94,13 @@ async function sendToStore() {
                   :aria-label="`remove ${typeLabels[item.type]} from cart`"
                   @click="cartStore.removeFromCart(item.id)"
                 >
-                  <BaseIcon name="trash" :width="16" />
+                  <BaseIcon name="trash" />
                 </button>
               </div>
             </li>
           </ul>
           <p v-else class="text-gray-600">{{ section.emptyText }}</p>
-        </section>
+        </div>
       </template>
       <p v-else>Cart is empty</p>
       <p v-if="!cartStore.isEmpty && !cartStore.resourcesInCart.length">

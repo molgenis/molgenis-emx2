@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
+import Checkbox from "../../../../tailwind-components/app/components/input/Checkbox.vue";
 import type { ICartItem } from "../../../interfaces/types";
 import { useCartStore } from "../../stores/useCartStore";
 
@@ -24,7 +24,9 @@ const isInCart = computed(() => {
 });
 
 const label = computed(() =>
-  isInCart.value ? "Remove from cart" : "Add to cart"
+  isInCart.value
+    ? `Remove ${props.item.label} from cart`
+    : `Add ${props.item.label} to cart`
 );
 
 function onInput() {
@@ -48,21 +50,9 @@ function onInput() {
   <label
     v-else
     class="inline-flex items-center px-1 py-1 rounded-base cursor-pointer align-middle"
-    :class="{
-      'text-button-cart-add hover:text-button-cart-add-hover': !isInCart,
-      'text-button-cart-remove bg-button-cart-remove': isInCart,
-    }"
+    :class="{ 'bg-button-secondary': isInCart }"
   >
-    <BaseIcon
-      :name="isInCart ? 'shopping-cart-remove' : 'shopping-cart-add'"
-      :width="21"
-    />
+    <Checkbox :modelValue="isInCart" @update:modelValue="onInput" />
     <span class="sr-only">{{ label }}</span>
-    <input
-      type="checkbox"
-      class="sr-only"
-      :checked="isInCart"
-      @input="onInput"
-    />
   </label>
 </template>
