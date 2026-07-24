@@ -14,6 +14,7 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
+import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfValue;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
@@ -65,9 +66,9 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
 
     RdfPredicate predicate =
         column
-            .getSchema()
-            .getSemanticPrefixes()
-            .mapAsString(column.getSemantics()[0])
+            .getSemanticsStringStream()
+            .findFirst()
+            .orElseThrow()
             .transform(semanticString -> () -> semanticString);
     GraphPattern pattern = GraphPatterns.tp(subject, predicate, object);
 
@@ -78,16 +79,15 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     List<GraphPattern> semanticPatterns = new ArrayList<>();
     List<Operand> aliases = new ArrayList<>();
 
-    for (int i = 0; i < column.getSemantics().length; i++) {
-      Semantic semantic = column.getSemantics()[i];
+    RdfPredicate[] semantics =
+      column
+        .getSemanticsStringStream()
+        .<RdfPredicate>map(i -> () -> i)
+        .toArray(RdfPredicate[]::new);
+
+    for (int i = 0; i < semantics.length; i++) {
       Variable alias = SparqlBuilder.var(object.getVarName() + i);
-      RdfPredicate predicate =
-          column
-              .getSchema()
-              .getSemanticPrefixes()
-              .mapAsString(semantic)
-              .transform(semanticString -> () -> semanticString);
-      GraphPattern pattern = GraphPatterns.tp(subject, predicate, alias).optional();
+      GraphPattern pattern = GraphPatterns.tp(subject, semantics[i], alias).optional();
       semanticPatterns.add(pattern);
       aliases.add(alias);
     }

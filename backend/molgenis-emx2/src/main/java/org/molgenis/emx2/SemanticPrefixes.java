@@ -156,7 +156,7 @@ public class SemanticPrefixes {
     return foundNamespace;
   }
 
-  /** Maps a semantic to a list of {@link IRI}{@code s} that represent a sequence path. */
+  /** Maps a semantic to an {@link IRI}. */
   public IRI mapAsIri(final Semantic semantic) {
     return map(
         semantic,
@@ -167,7 +167,12 @@ public class SemanticPrefixes {
         });
   }
 
-  /** Maps a semantic to a list of {@link String}{@code s} that represent a sequence path. */
+  /**
+   * Maps a semantic to a {@link String}{@code s} that represent either an IRI surrounded by {@code
+   * <} and {@code >} or a prefixed name. Note that {@link Semantic}{@code s} that represent the
+   * legacy IRI format (so {@code http(s)} without being surrounded by{@code <>}) will become
+   * surrounded by {@code <} and {@code >}.
+   */
   public String mapAsString(final Semantic semantic) {
     return map(
         semantic,

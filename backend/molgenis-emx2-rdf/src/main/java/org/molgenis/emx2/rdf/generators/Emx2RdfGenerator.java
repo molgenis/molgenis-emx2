@@ -102,12 +102,10 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
 
     // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
-    if (table.getMetadata().hasSemantics()) {
-      for (final Semantic tableSemantic : table.getMetadata().getSemantics()) {
-        IRI object = table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(tableSemantic);
-        getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
-      }
-    }
+    table
+        .getMetadata()
+        .getSemanticsIriStream()
+        .forEach(object -> getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object));
     // Add 'observing' for any DATA
     if (table.getMetadata().getTableType() == TableType.DATA) {
       getWriter().processTriple(subject, RDFS.ISDEFINEDBY, BasicIRI.SIO_OBSERVING);
@@ -158,12 +156,9 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
     getWriter().processTriple(subject, RDFS.LABEL, Values.literal(column.getName()));
     getWriter().processTriple(subject, RDFS.DOMAIN, tableIRI(getBaseURL(), column.getTable()));
-    if (column.hasSemantics()) {
-      for (Semantic columnSemantic : column.getSemantics()) {
-        IRI object = column.getSchema().getSemanticPrefixes().mapAsIri(columnSemantic);
-        getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object);
-      }
-    }
+    column
+        .getSemanticsIriStream()
+        .forEach(object -> getWriter().processTriple(subject, RDFS.ISDEFINEDBY, object));
     if (column.getDescriptions() != null) {
       for (Map.Entry<String, String> entry : column.getDescriptions().entrySet()) {
         getWriter()
@@ -263,12 +258,9 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
 
     for (final Value value : retrieveValues(rdfMapData, row, column)) {
-      if (column.hasSemantics()) {
-        for (Semantic semantic : column.getSemantics()) {
-          IRI predicate = table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic);
-          getWriter().processTriple(subject, predicate, value);
-        }
-      }
+      column
+          .getSemanticsIriStream()
+          .forEach(predicate -> getWriter().processTriple(subject, predicate, value));
 
       switch (column.getColumnType()) {
         case ONTOLOGY, ONTOLOGY_ARRAY -> {} // skipped due to custom behaviour above

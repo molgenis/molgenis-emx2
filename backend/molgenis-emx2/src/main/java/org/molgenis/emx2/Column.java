@@ -1,5 +1,6 @@
 package org.molgenis.emx2;
 
+import static java.util.Arrays.stream;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
@@ -7,8 +8,11 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.eclipse.rdf4j.model.IRI;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
 import org.jooq.Field;
@@ -107,17 +111,33 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return semantics;
   }
 
+  private <R> Stream<R> getSemanticsStream(Function<Semantic, R> mapper) {
+    return semantics == null ? Stream.empty() : stream(semantics).map(mapper);
+  }
+
+  public Stream<IRI> getSemanticsIriStream() {
+    return getSemanticsStream(getSemanticPrefixes()::mapAsIri);
+  }
+
+  /**
+   * @see SemanticPrefixes#mapAsString(Semantic)
+   */
+  public Stream<String> getSemanticsStringStream() {
+    return getSemanticsStream(getSemanticPrefixes()::mapAsString);
+  }
+
   public Column setSemantics(Semantic[] semantics) {
     this.semantics = semantics;
     return this;
   }
 
   public Column setSemantics(String... semantics) {
-    this.semantics =
-        semantics == null
-            ? null
-            : Arrays.stream(semantics).map(Semantic::new).toArray(Semantic[]::new);
-    return this;
+    return setSemantics(
+        semantics == null ? null : stream(semantics).map(Semantic::new).toArray(Semantic[]::new));
+  }
+
+  public SemanticPrefixes getSemanticPrefixes() {
+    return getSchema().getSemanticPrefixes();
   }
 
   public String[] getProfiles() {

@@ -79,10 +79,9 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
     if (!column.hasSemantics()) return;
 
     for (final Value value : retrieveValues(rdfMapData, row, column)) {
-      for (Semantic semantic : column.getSemantics()) {
-        IRI predicate = table.getSchema().getMetadata().getSemanticPrefixes().mapAsIri(semantic);
-        getWriter().processTriple(subject, predicate, value);
-      }
+      column
+          .getSemanticsIriStream()
+          .forEach(predicate -> getWriter().processTriple(subject, predicate, value));
 
       if (column.getColumnType().isFile()) {
         generateFileTriples((IRI) value, row, column);

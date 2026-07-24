@@ -9,7 +9,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.junit.jupiter.api.Test;
 
 class SemanticPrefixesTest {
-  SemanticPrefixes prefixesSimple =
+  private final SemanticPrefixes prefixesSimple =
       new SemanticPrefixes(
           List.of(
               Values.namespace("dcterms", "http://purl.org/dc/terms/"),
@@ -24,15 +24,29 @@ class SemanticPrefixesTest {
             assertEquals(
                 expectedIri,
                 prefixesSimple.mapAsIri(new Semantic("<http://purl.org/dc/terms/temporal>"))),
+        () ->
+            assertEquals(
+                expectedIri,
+                prefixesSimple.mapAsIri(new Semantic("http://purl.org/dc/terms/temporal"))),
         () -> assertEquals(expectedIri, prefixesSimple.mapAsIri(new Semantic("dcterms:temporal"))));
   }
 
   @Test
   void testSemanticMappingString() {
-    // As most logic is shared with mapAsIri, only validate the output format.
-    assertEquals(
-        "<http://purl.org/dc/terms/temporal>",
-        prefixesSimple.mapAsString(new Semantic("<http://purl.org/dc/terms/temporal>")));
+    String expectedIri = "<http://purl.org/dc/terms/temporal>";
+
+    assertAll(
+        () ->
+            assertEquals(
+                expectedIri,
+                prefixesSimple.mapAsString(new Semantic("<http://purl.org/dc/terms/temporal>"))),
+        () ->
+            assertEquals(
+                expectedIri,
+                prefixesSimple.mapAsString(new Semantic("http://purl.org/dc/terms/temporal"))),
+        () ->
+            assertEquals(
+                "dcterms:temporal", prefixesSimple.mapAsString(new Semantic("dcterms:temporal"))));
   }
 
   @Test
