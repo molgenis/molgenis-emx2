@@ -49,8 +49,12 @@ public class YamlWorkspaceLoader {
   private static final String EXISTS_SUFFIX = " already exists — model untouched, data ensured";
   private static final String COMMITTING = "Committing";
   private static final String STEP_DATA = "Import data";
+  private static final String STEP_DATA_NONE = "Import data: none declared";
   private static final String STEP_DEMO = "Import demo data";
+  private static final String STEP_DEMO_NONE = "Import demo data: none declared";
   private static final String STEP_DEMO_SKIPPED = "Import demo data: skipped (not requested)";
+  private static final String SETTINGS_NONE = "Settings: none declared";
+  private static final String PERMISSIONS_NONE = "Permissions: none declared";
   private static final String TABLES_TEMPLATE = "Created %d tables: %s";
   private static final String SETTINGS_TEMPLATE = "Applied %d settings: %s";
   private static final String PERMISSIONS_TEMPLATE = "Applied permissions: %s";
@@ -180,22 +184,27 @@ public class YamlWorkspaceLoader {
       Task parentTask) {
     Task block = parentTask.addSubTask(SCHEMA_BLOCK + schemaName).start();
     Task commit = new Task(COMMITTING);
-    database.tx(
-        db -> {
-          Schema schema =
-              getOrCreateSchema(db, schemaName, "YAML workspace template " + template, block);
-          schema.migrate(bundle.schema());
-          reportCreatedTables(block, schema);
-          applySettings(schema, bundle.schema().getSettings(), block);
-          applyPermissions(schema, bundle.permissions(), block);
-          loadMainData(schema, bundle.dataFiles(), STEP_DATA, block);
-          if (includeDemoData) {
-            loadMainData(schema, bundle.demoFiles(), STEP_DEMO, block);
-          } else {
-            block.addSubTask(STEP_DEMO_SKIPPED).setSkipped();
-          }
-          block.addSubTask(commit);
-        });
+    try {
+      database.tx(
+          db -> {
+            Schema schema =
+                getOrCreateSchema(db, schemaName, "YAML workspace template " + template, block);
+            schema.migrate(bundle.schema());
+            reportCreatedTables(block, schema);
+            applySettings(schema, bundle.schema().getSettings(), block);
+            applyPermissions(schema, bundle.permissions(), block);
+            loadMainData(schema, bundle.dataFiles(), STEP_DATA, STEP_DATA_NONE, block);
+            if (includeDemoData) {
+              loadMainData(schema, bundle.demoFiles(), STEP_DEMO, STEP_DEMO_NONE, block);
+            } else {
+              addSkippedStep(block, STEP_DEMO_SKIPPED);
+            }
+            block.addSubTask(commit);
+          });
+    } catch (RuntimeException exception) {
+      block.setError();
+      throw exception;
+    }
     commit.complete();
     block.complete();
   }
@@ -225,28 +234,39 @@ public class YamlWorkspaceLoader {
     Emx2YamlBundle bundle = Emx2Yaml.fromBundleFiles(gatherBundleFiles(rootContent, base));
     Task block = parentTask.addSubTask(SCHEMA_BLOCK + name).start();
     Task commit = new Task(COMMITTING);
-    database.tx(
-        db -> {
-          Schema existing = db.getSchema(name);
-          Schema companion;
-          if (existing == null) {
-            companion = db.createSchema(name, "Companion schema: " + name);
-            block.addSubTask(CREATED_SCHEMA + name);
-            companion.migrate(bundle.schema());
-            reportCreatedTables(block, companion);
-            applyPermissions(companion, permissions, block);
-          } else {
-            companion = existing;
-            block.addSubTask(name + EXISTS_SUFFIX);
-          }
-          loadCompanionData(companion, bundle.dataFiles(), base, block);
-          block.addSubTask(commit);
-        });
+    try {
+      database.tx(
+          db -> {
+            Schema existing = db.getSchema(name);
+            Schema companion;
+            if (existing == null) {
+              companion = db.createSchema(name, "Companion schema: " + name);
+              addCompletedStep(block, CREATED_SCHEMA + name);
+              companion.migrate(bundle.schema());
+              reportCreatedTables(block, companion);
+              applySettings(companion, bundle.schema().getSettings(), block);
+              applyPermissions(companion, permissions, block);
+            } else {
+              companion = existing;
+              addCompletedStep(block, name + EXISTS_SUFFIX);
+            }
+            loadCompanionData(companion, bundle.dataFiles(), base, block);
+            block.addSubTask(commit);
+          });
+    } catch (RuntimeException exception) {
+      block.setError();
+      throw exception;
+    }
     commit.complete();
     block.complete();
   }
 
-  private void loadMainData(Schema schema, List<String> entries, String label, Task block) {
+  private void loadMainData(
+      Schema schema, List<String> entries, String label, String noneLabel, Task block) {
+    if (entries.isEmpty()) {
+      addSkippedStep(block, noneLabel);
+      return;
+    }
     for (String entry : entries) {
       TableStoreForCsvFilesClasspath store =
           new TableStoreForCsvFilesClasspath(WORKSPACE + SLASH + entry);
@@ -258,6 +278,10 @@ public class YamlWorkspaceLoader {
   }
 
   private void loadCompanionData(Schema companion, List<String> entries, String base, Task block) {
+    if (entries.isEmpty()) {
+      addSkippedStep(block, STEP_DATA_NONE);
+      return;
+    }
     for (String entry : entries) {
       String directory = base.isEmpty() ? entry : base + SLASH + entry;
       String storePath = WORKSPACE + SLASH + directory;
@@ -270,15 +294,24 @@ public class YamlWorkspaceLoader {
     }
   }
 
+  private static void addCompletedStep(Task block, String message) {
+    block.addSubTask(message).complete();
+  }
+
+  private static void addSkippedStep(Task block, String message) {
+    block.addSubTask(message).setSkipped();
+  }
+
   private static void reportCreatedTables(Task block, Schema schema) {
     List<String> names = new ArrayList<>(schema.getMetadata().getTableNames());
     Collections.sort(names);
-    block.addSubTask(
-        String.format(TABLES_TEMPLATE, names.size(), String.join(LIST_SEPARATOR, names)));
+    addCompletedStep(
+        block, String.format(TABLES_TEMPLATE, names.size(), String.join(LIST_SEPARATOR, names)));
   }
 
   private static void applyPermissions(Schema schema, Map<String, String> permissions, Task block) {
     if (permissions.isEmpty()) {
+      addSkippedStep(block, PERMISSIONS_NONE);
       return;
     }
     ModelPermissions.apply(schema, permissions);
@@ -286,7 +319,8 @@ public class YamlWorkspaceLoader {
         permissions.entrySet().stream()
             .map(entry -> entry.getKey() + " = " + entry.getValue())
             .toList();
-    block.addSubTask(String.format(PERMISSIONS_TEMPLATE, String.join(LIST_SEPARATOR, rendered)));
+    addCompletedStep(
+        block, String.format(PERMISSIONS_TEMPLATE, String.join(LIST_SEPARATOR, rendered)));
   }
 
   private static Map<String, String> permissionsOf(Map<?, ?> companionBody) {
@@ -302,12 +336,14 @@ public class YamlWorkspaceLoader {
 
   private static void applySettings(Schema schema, Map<String, String> settings, Task block) {
     if (settings.isEmpty()) {
+      addSkippedStep(block, SETTINGS_NONE);
       return;
     }
     for (Map.Entry<String, String> entry : settings.entrySet()) {
       schema.getMetadata().setSetting(entry.getKey(), entry.getValue());
     }
-    block.addSubTask(
+    addCompletedStep(
+        block,
         String.format(
             SETTINGS_TEMPLATE, settings.size(), String.join(LIST_SEPARATOR, settings.keySet())));
   }
@@ -352,9 +388,9 @@ public class YamlWorkspaceLoader {
     Schema schema = database.getSchema(schemaName);
     if (schema == null) {
       schema = database.createSchema(schemaName, description);
-      block.addSubTask(CREATED_SCHEMA + schemaName);
+      addCompletedStep(block, CREATED_SCHEMA + schemaName);
     } else {
-      block.addSubTask(schemaName + EXISTS_SUFFIX);
+      addCompletedStep(block, schemaName + EXISTS_SUFFIX);
     }
     return schema;
   }

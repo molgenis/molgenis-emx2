@@ -16,6 +16,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
+import org.molgenis.emx2.tasks.TaskStatus;
 
 /**
  * Guards ticket-21's promise that a yaml template is creatable end-to-end by the name {@code
@@ -122,6 +123,26 @@ class DataModelsYamlTemplateTest {
     assertTrue(
         steps.stream().noneMatch(step -> step.contains("Import from store")),
         "the bare 'Import from store' plumbing step must not surface in the log");
+
+    List<Task> allTasks = new ArrayList<>();
+    collectTasks(task, allTasks);
+    assertTrue(
+        allTasks.stream().noneMatch(Task::isRunning),
+        "after a completed load no subtask may be left running or waiting");
+    assertTrue(
+        allTasks.stream()
+            .allMatch(
+                subTask ->
+                    subTask.getStatus() == TaskStatus.COMPLETED
+                        || subTask.getStatus() == TaskStatus.SKIPPED),
+        "every subtask must end COMPLETED or SKIPPED after a completed load");
+  }
+
+  private static void collectTasks(Task task, List<Task> tasks) {
+    tasks.add(task);
+    for (Task subTask : task.getSubTasks()) {
+      collectTasks(subTask, tasks);
+    }
   }
 
   private static void collectDescriptions(Task task, List<String> descriptions) {

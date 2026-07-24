@@ -16,6 +16,7 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.tasks.Task;
+import org.molgenis.emx2.tasks.TaskStatus;
 
 class YamlWorkspaceLoaderTest extends TestLoaders {
 
@@ -43,6 +44,12 @@ class YamlWorkspaceLoaderTest extends TestLoaders {
   private static final String SKIPPED_MARKER = "up to date, skipped";
   private static final String ATOMICITY_TEMPLATE = "atomicity/broken";
   private static final String ATOMICITY_SCHEMA = "wsAtomicityMain";
+  private static final String STAGES_SCHEMA = "wsRd3Stages";
+  private static final String SETTINGS_NONE = "Settings: none declared";
+  private static final String PERMISSIONS_NONE = "Permissions: none declared";
+  private static final String DATA_NONE = "Import data: none declared";
+  private static final String DEMO_SKIPPED = "Import demo data: skipped (not requested)";
+  private static final String SCHEMA_PREFIX = "Schema ";
 
   private static final YamlWorkspaceLoader loader = new YamlWorkspaceLoader();
 
@@ -176,16 +183,72 @@ class YamlWorkspaceLoaderTest extends TestLoaders {
   }
 
   @Test
-  void failedMainSchemaLeavesNoHalfCreatedSchema() {
+  void everyStageLineAppearsEvenWhenNothingDeclared() {
+    database.dropSchemaIfExists(STAGES_SCHEMA);
+
+    Task task = new Task("rd3 stages run");
+    loader.create(database, RD3, STAGES_SCHEMA, false, task);
+
+    List<Task> tasks = collectTasks(task);
+    assertTrue(
+        tasks.stream().anyMatch(subTask -> subTask.getDescription().startsWith(SCHEMA_PREFIX)),
+        "a per-schema block must be emitted");
+    assertStageSkipped(tasks, SETTINGS_NONE);
+    assertStageSkipped(tasks, PERMISSIONS_NONE);
+    assertStageSkipped(tasks, DATA_NONE);
+    assertStageSkipped(tasks, DEMO_SKIPPED);
+  }
+
+  @Test
+  void failedMainSchemaRollsBackAndSurfacesError() {
     database.dropSchemaIfExists(ATOMICITY_SCHEMA);
 
+    YamlWorkspaceLoadTask task =
+        new YamlWorkspaceLoadTask(database, ATOMICITY_TEMPLATE, ATOMICITY_SCHEMA, false);
     assertThrows(
-        MolgenisException.class,
-        () -> loader.create(database, ATOMICITY_TEMPLATE, ATOMICITY_SCHEMA, false),
-        "a main-schema migrate failure must abort the create");
+        MolgenisException.class, task::run, "a main-schema migrate failure must abort the create");
     assertNull(
         database.getSchema(ATOMICITY_SCHEMA),
         "the per-schema transaction must roll back, leaving no half-created main schema");
+
+    assertEquals(
+        TaskStatus.ERROR,
+        task.getStatus(),
+        "the load task must surface the failure as error state");
+    List<Task> tasks = collectTasks(task);
+    assertTrue(
+        tasks.stream()
+            .anyMatch(
+                subTask ->
+                    subTask.getStatus() == TaskStatus.ERROR
+                        && subTask.getDescription().startsWith(SCHEMA_PREFIX + ATOMICITY_SCHEMA)),
+        "the failing schema block must end in error state");
+    assertTrue(
+        tasks.stream().noneMatch(Task::isRunning),
+        "no subtask may be left running or waiting after a failed load");
+  }
+
+  private static void assertStageSkipped(List<Task> tasks, String prefix) {
+    assertTrue(
+        tasks.stream()
+            .anyMatch(
+                subTask ->
+                    subTask.getDescription().startsWith(prefix)
+                        && subTask.getStatus() == TaskStatus.SKIPPED),
+        "stage line must appear as a skipped step: " + prefix);
+  }
+
+  private static List<Task> collectTasks(Task task) {
+    List<Task> tasks = new ArrayList<>();
+    collectTasks(task, tasks);
+    return tasks;
+  }
+
+  private static void collectTasks(Task task, List<Task> tasks) {
+    tasks.add(task);
+    for (Task subTask : task.getSubTasks()) {
+      collectTasks(subTask, tasks);
+    }
   }
 
   private static List<String> collectDescriptions(Task task) {
