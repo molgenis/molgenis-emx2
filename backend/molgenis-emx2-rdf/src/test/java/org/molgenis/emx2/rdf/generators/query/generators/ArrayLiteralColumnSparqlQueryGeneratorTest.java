@@ -66,7 +66,8 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
                 .setRequired(true)
                 .setSemantics(
                     "foaf:test",
-                    "<https://xmlns.com/foaf/0.1/alternative>",
+                    "https://xmlns.com/foaf/0.1/alternative",
+                    "<https://xmlns.com/foaf/0.1/alternative_second>",
                     "foaf:also_alternative"));
     ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
 
@@ -75,8 +76,9 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
         """
         OPTIONAL { OPTIONAL { ?start foaf:test ?foo_single0 . }
         OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative> ?foo_single1 . }
-        OPTIONAL { ?start foaf:also_alternative ?foo_single2 . }
-        BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2 ) AS ?foo_single ) }""",
+        OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative_second> ?foo_single2 . }
+        OPTIONAL { ?start foaf:also_alternative ?foo_single3 . }
+        BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2, ?foo_single3 ) AS ?foo_single ) }""",
         "FILTER ( BOUND( ?foo_single ) )");
     assertHasSelectors(
         mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");

@@ -1390,6 +1390,20 @@ public class RDFTest {
   }
 
   @Test
+  void testIllegalPrefixSemanticPrefixesSetting() throws IOException {
+    final String customPrefixes = "http,http://example.com";
+
+    try {
+      Schema schema = database.dropCreateSchema("PrefixesIllegalPrefix");
+      assertThrows(
+          MolgenisException.class,
+          () -> schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes));
+    } finally {
+      database.dropSchemaIfExists("PrefixesIllegalPrefix");
+    }
+  }
+
+  @Test
   void testEmptySemanticPrefixesSetting() throws IOException {
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {

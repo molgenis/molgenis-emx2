@@ -76,7 +76,9 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
       final Row row,
       final Column column,
       final IRI subject) {
-    if (!column.hasSemantics()) return;
+    if (!column.hasSemantics()) {
+      return;
+    }
 
     for (final Value value : retrieveValues(rdfMapData, row, column)) {
       column

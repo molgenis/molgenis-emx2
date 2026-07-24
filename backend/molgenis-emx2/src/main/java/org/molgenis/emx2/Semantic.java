@@ -1,7 +1,5 @@
 package org.molgenis.emx2;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * Represents a semantic field and stores it in a list of 1 element. This can either be:
  *
@@ -71,6 +69,6 @@ public class Semantic {
    */
   @Override
   public String toString() {
-    return String.join("/", sequencePath);
+    return sequencePath;
   }
 }

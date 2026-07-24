@@ -1,2 +1,2 @@
 tableName,tableType,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Tag,ONTOLOGIES,,,,,,,,,,,<https://w3id.org/reproduceme#Tag>,
+Tag,ONTOLOGIES,,,,,,,,,,,https://w3id.org/reproduceme#Tag,
