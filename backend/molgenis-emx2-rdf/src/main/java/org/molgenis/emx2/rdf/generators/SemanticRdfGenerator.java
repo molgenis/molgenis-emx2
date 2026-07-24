@@ -1,23 +1,16 @@
 package org.molgenis.emx2.rdf.generators;
 
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
-import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
+import static org.molgenis.emx2.rdf.IriGenerator.*;
 
 import java.util.List;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
-import org.eclipse.rdf4j.model.vocabulary.OWL;
-import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.model.vocabulary.RDFS;
-import org.eclipse.rdf4j.model.vocabulary.SKOS;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.eclipse.rdf4j.model.vocabulary.*;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
-import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
@@ -30,12 +23,11 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
   public void generate(Schema schema) {
     List<Table> tables = schema.getTablesSorted();
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
-    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), schema);
 
-    generatePrefixes(namespaces.getAllNamespaces(schema));
+    generatePrefixes(schema);
     generateCustomRdf(schema);
     describeRoot();
-    tables.forEach(i -> processRows(namespaces, rdfMapData, i, null));
+    tables.forEach(i -> processRows(rdfMapData, i, null));
   }
 
   @Override
@@ -67,29 +59,32 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
   }
 
   @Override
-  protected void dataRowToRdf(
-      NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, Row row) {
+  protected void dataRowToRdf(RdfMapData rdfMapData, Table table, Row row) {
     if (row.isDraft()) return;
 
     final IRI subject = rowIRI(getBaseURL(), table, row);
+    processDataRowTable(table, subject);
+    table
+        .getMetadata()
+        .getColumns()
+        .forEach(column -> processDataRowColumn(rdfMapData, table, row, column, subject));
+  }
 
-    if (table.getMetadata().getSemantics() != null) {
-      for (String semantics : table.getMetadata().getSemantics()) {
-        getWriter().processTriple(subject, RDF.TYPE, namespaces.map(table.getSchema(), semantics));
-      }
-    }
+  private void processDataRowColumn(
+      final RdfMapData rdfMapData,
+      final Table table,
+      final Row row,
+      final Column column,
+      final IRI subject) {
+    if (!column.hasSemantics()) return;
 
-    for (final Column column : table.getMetadata().getColumns()) {
-      if (column.getSemantics() != null) {
-        for (final Value value : retrieveValues(rdfMapData, row, column)) {
-          for (String semantics : column.getSemantics()) {
-            getWriter().processTriple(subject, namespaces.map(table.getSchema(), semantics), value);
-          }
+    for (final Value value : retrieveValues(rdfMapData, row, column)) {
+      column
+          .getSemanticsIriStream()
+          .forEach(predicate -> getWriter().processTriple(subject, predicate, value));
 
-          if (column.getColumnType().isFile()) {
-            generateFileTriples((IRI) value, row, column);
-          }
-        }
+      if (column.getColumnType().isFile()) {
+        generateFileTriples((IRI) value, row, column);
       }
     }
   }

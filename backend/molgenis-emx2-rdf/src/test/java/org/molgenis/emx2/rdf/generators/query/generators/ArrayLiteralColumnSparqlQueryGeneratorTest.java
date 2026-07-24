@@ -4,6 +4,7 @@ import static org.eclipse.rdf4j.model.util.Statements.statement;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.SemanticTestUtils.toSemantic;
 import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
 
 import java.util.List;
@@ -22,9 +23,9 @@ import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.DefaultNamespace;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.rdf.DefaultNamespace;
 
 class ArrayLiteralColumnSparqlQueryGeneratorTest {
 
@@ -65,7 +66,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
                 .setRequired(true)
                 .setSemantics(
                     "foaf:test",
-                    "https://xmlns.com/foaf/0.1/alternative",
+                    "<https://xmlns.com/foaf/0.1/alternative>",
                     "foaf:also_alternative"));
     ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
 
@@ -87,9 +88,9 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
     List<Column> columns =
         List.of(
             createColumn(
-                Column.column("foo").setRequired(true).setSemantics(FOAF.FIRST_NAME.toString())),
+                Column.column("foo").setRequired(true).setSemantics(toSemantic(FOAF.FIRST_NAME))),
             createColumn(
-                Column.column("bar").setRequired(true).setSemantics(FOAF.LAST_NAME.toString())));
+                Column.column("bar").setRequired(true).setSemantics(toSemantic(FOAF.LAST_NAME))));
 
     SelectQuery query = Queries.SELECT().prefix(DefaultNamespace.FOAF.getNamespace());
     for (Column column : columns) {

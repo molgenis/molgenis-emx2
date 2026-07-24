@@ -2,6 +2,7 @@ package org.molgenis.emx2.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Constants.SETTING_SEMANTIC_PREFIXES;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.TestResourceLoader.getFile;
@@ -14,7 +15,6 @@ import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT2_FIRST;
 import static org.molgenis.emx2.rdf.RdfParser.parseFile;
 import static org.molgenis.emx2.rdf.RdfParser.parseString;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_CUSTOM_RDF;
-import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -167,7 +167,7 @@ public class RDFTest {
             "Patients",
             column("name").setPkey(),
             column("diseases")
-                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C2991")
+                .setSemantics("<http://purl.obolibrary.org/obo/NCIT_C2991>")
                 .setType(ColumnType.ONTOLOGY_ARRAY)
                 .setRefTable("Diseases")));
 
@@ -240,7 +240,7 @@ public class RDFTest {
             "Patients",
             column("name").setPkey(),
             column("diseases")
-                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C2991")
+                .setSemantics("<http://purl.obolibrary.org/obo/NCIT_C2991>")
                 .setType(ColumnType.ONTOLOGY_ARRAY)
                 .setRefSchemaName(RDFTest.class.getSimpleName() + "_ontology")
                 .setRefTable("Diseases")));
@@ -383,25 +383,21 @@ public class RDFTest {
 
     semanticTest.create(
         table(
-            "valid",
+            "semanticTable",
             column("id").setType(ColumnType.STRING).setPkey(),
             column("title")
                 .setType(ColumnType.STRING)
-                .setSemantics("http://purl.org/dc/terms/title"),
+                .setSemantics("<http://purl.org/dc/terms/title>"),
             column("description").setType(ColumnType.STRING).setSemantics("dcterms:description"),
             column("nonDefinedPrefix")
                 .setType(ColumnType.STRING)
-                .setSemantics("nonDefinedPrefix:value")),
-        table(
-            "invalid",
-            column("id").setType(ColumnType.STRING).setPkey(),
-            column("theme").setType(ColumnType.STRING).setSemantics("theme")));
+                .setSemantics("nonDefinedPrefix:value")));
 
     semanticTest
-        .getTable("valid")
+        .getTable("semanticTable")
         .insert(
-            row("id", "1", "title", "test", "description", "test2", "nonDefinedPrefix", "test3"));
-    semanticTest.getTable("invalid").insert(row("id", "2", "theme", "test4"));
+            row("id", "1", "title", "test", "description", "test1"),
+            row("id", "2", "title", "test", "description", "test2", "nonDefinedPrefix", "test3"));
 
     semanticTest
         .getMetadata()
@@ -1380,28 +1376,16 @@ public class RDFTest {
   }
 
   @Test
-  void testMissingIriSemanticPrefixesSetting() throws IOException {
-    final String customPrefixes = "example,example";
+  void testMissingIriSemanticPrefixesSetting() {
+    final String customPrefixes = "examplePrefix,exampleName";
 
     try {
       Schema schema = database.dropCreateSchema("PrefixesMissingIri");
-      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
+      assertThrows(
+          MolgenisException.class,
+          () -> schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes));
     } finally {
       database.dropSchemaIfExists("PrefixesMissingIri");
-    }
-  }
-
-  @Test
-  void testIllegalPrefixSemanticPrefixesSetting() throws IOException {
-    final String customPrefixes = "urn,http://example.com";
-
-    try {
-      Schema schema = database.dropCreateSchema("PrefixesIllegalPrefix");
-      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
-    } finally {
-      database.dropSchemaIfExists("PrefixesIllegalPrefix");
     }
   }
 
@@ -1521,28 +1505,36 @@ name,http://www.w3.org/2000/01/rdf-schema#
     validateNamespaces("PrefixSettingNameIri", expectedNamespace, customPrefixes1, customPrefixes2);
   }
 
+  /**
+   * While for custom prefixes the schemas are processed on alphabetical order which defines which
+   * duplicates will be used, the default namespaces take priority over any custom prefixes if
+   * duplicates are present.
+   */
   @Test
-  void testSingleCustomPrefixesSetting() throws IOException {
+  void testDefaultPrefixPriority() throws IOException {
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingPartly1", BASE_URL + "/PrefixSettingPartly1/api/rdf/"));
+                    "PrefixSettingDefaultPriority1",
+                    BASE_URL + "/PrefixSettingDefaultPriority1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingPartly2", BASE_URL + "/PrefixSettingPartly2/api/rdf/"));
-            add(new SimpleNamespace("example", "http://example.com/"));
+                    "PrefixSettingDefaultPriority2",
+                    BASE_URL + "/PrefixSettingDefaultPriority2/api/rdf/"));
+            add(new SimpleNamespace("example", "http://example.com/example/"));
             addAll(DEFAULT_NAMESPACES);
           }
         };
 
     final String customPrefixes1 =
-"""
-example,http://example.com/
-    """;
+        """
+      example,http://example.com/example/
+      dcat,http://example.com/dcat/
+      """;
 
-    validateNamespaces("PrefixSettingPartly", expectedNamespaces, customPrefixes1, null);
+    validateNamespaces("PrefixSettingDefaultPriority", expectedNamespaces, customPrefixes1, null);
   }
 
   @Test
@@ -1627,18 +1619,21 @@ example,http://example.com/
   }
 
   @Test
-  void prefixedNames() throws IOException {
+  void prefixedNamesValidRow() throws IOException {
     Set<IRI> expectedPredicates =
         Set.of(
             Values.iri("http://purl.org/dc/terms/title"),
             Values.iri("http://purl.org/dc/terms/description"));
 
-    InMemoryRDFHandler handler = parseTableRdf(semanticTest, "valid");
+    InMemoryRDFHandler handler = parseRowRdf(semanticTest, "SemanticTable", "id=1");
     Set<IRI> actualPredicates =
-        handler.resources.get(Values.iri(getApi(semanticTest) + "Valid/id=1")).keySet();
+        handler.resources.get(Values.iri(getApi(semanticTest) + "SemanticTable/id=1")).keySet();
     assertTrue(actualPredicates.containsAll(expectedPredicates));
+  }
 
-    assertThrows(MolgenisException.class, () -> parseTableRdf(semanticTest, "invalid"));
+  @Test
+  void prefixedNamesRowUsingUndefinedPrefix() throws IOException {
+    assertThrows(MolgenisException.class, () -> parseRowRdf(semanticTest, "SemanticTable", "id=2"));
   }
 
   /**
