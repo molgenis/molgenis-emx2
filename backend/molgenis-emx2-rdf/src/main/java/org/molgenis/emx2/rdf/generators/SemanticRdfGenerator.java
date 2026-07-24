@@ -67,15 +67,11 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
     table
         .getMetadata()
         .getColumns()
-        .forEach(column -> processDataRowColumn(rdfMapData, table, row, column, subject));
+        .forEach(column -> processDataRowColumn(rdfMapData, row, column, subject));
   }
 
   private void processDataRowColumn(
-      final RdfMapData rdfMapData,
-      final Table table,
-      final Row row,
-      final Column column,
-      final IRI subject) {
+      final RdfMapData rdfMapData, final Row row, final Column column, final IRI subject) {
     if (!column.hasSemantics()) {
       return;
     }
