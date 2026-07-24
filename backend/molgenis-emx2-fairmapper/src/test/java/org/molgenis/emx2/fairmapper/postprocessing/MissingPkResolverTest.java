@@ -60,21 +60,21 @@ class MissingPkResolverTest {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
     store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:1"));
 
-    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
+    MissingPkResolver resolver = new MissingPkResolver(schema);
     resolver.process(tableStore);
 
     assertEquals("org-1", collection().getString("publisher"));
   }
 
   @Test
-  void shouldFillMissingArrayReferenceUsingCommaSeparatedSubjectIris() {
+  void shouldFillMissingArrayReferenceUsingPipeSeparatedSubjectIris() {
     store(
         "Organisations",
         new Row("_subject_", "urn:org:1", "id", "org-1"),
         new Row("_subject_", "urn:org:2", "id", "org-2"));
-    store("Collections", new Row("id", "col-1", "_subject_creator", "urn:org:1\u001Furn:org:2"));
+    store("Collections", new Row("id", "col-1", "_subject_creator", "urn:org:1|urn:org:2"));
 
-    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
+    MissingPkResolver resolver = new MissingPkResolver(schema);
     resolver.process(tableStore);
 
     assertEquals("org-1,org-2", collection().getString("creator"));
@@ -90,7 +90,7 @@ class MissingPkResolverTest {
             "publisher", "manually-set-id",
             "_subject_publisher", "urn:org:1"));
 
-    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
+    MissingPkResolver resolver = new MissingPkResolver(schema);
     resolver.process(tableStore);
 
     assertEquals("manually-set-id", collection().getString("publisher"));
@@ -101,7 +101,7 @@ class MissingPkResolverTest {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
     store("Collections", new Row("id", "col-1"));
 
-    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
+    MissingPkResolver resolver = new MissingPkResolver(schema);
     resolver.process(tableStore);
 
     assertNull(collection().getString("publisher"));
@@ -112,7 +112,7 @@ class MissingPkResolverTest {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
     store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:unknown"));
 
-    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
+    MissingPkResolver resolver = new MissingPkResolver(schema);
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> resolver.process(tableStore));
     assertEquals(
@@ -131,22 +131,11 @@ class MissingPkResolverTest {
             "_subject_publisher", "urn:org:1",
             "_subject_contactPoint", "urn:contact:1"));
 
-    MissingPkResolver resolver = new MissingPkResolver(schema, "Collections");
+    MissingPkResolver resolver = new MissingPkResolver(schema);
     resolver.process(tableStore);
 
     Row result = collection();
     assertEquals("org-1", result.getString("publisher"));
     assertEquals("contact-1", result.getString("contactPoint"));
-  }
-
-  @Test
-  void shouldOnlyResolveTablesThatWerePassedIn() {
-    store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
-    store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:1"));
-
-    MissingPkResolver resolver = new MissingPkResolver(schema);
-    resolver.process(tableStore);
-
-    assertNull(collection().getString("publisher"));
   }
 }
