@@ -158,3 +158,55 @@ For further information and examples, please consult the following websites.
 - [Mozilla's guide on Semantic HTML](https://developer.mozilla.org/en-US/curriculum/core/semantic-html/)
 - [Richtlijnen NL Design System (NL)](https://nldesignsystem.nl/richtlijnen/)
 - [Digitaal toegankelijk (NL)](https://digitaaltoegankelijk.nl)
+
+---
+
+## Accessibility Statement for MOLGENIS
+
+MOLGENIS is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone, and applying the relevant accessibility standards.
+
+### Conformance status
+
+The [Web Content Accessibility Guidelines (WCAG)](https://www.w3.org/WAI/standards-guidelines/wcag/) defines requirements for designers and developers to improve accessibility for people with disabilities. It defines three levels of conformance: Level A, Level AA, and Level AAA. MOLGENIS is partially conformant with WCAG 2.2 level AA. Partially conformant means that some parts of the content do not fully conform to the accessibility standard.
+
+### Feedback
+
+We welcome your feedback on the accessibility of MOLGENIS. Please let us know if you encounter accessibility barriers on MOLGENIS:
+
+- E-mail: [support@molgenis.org](mailto:support@molgenis.org)
+- Postal Address: Genomics Coordination Center, UMCG / University of Groningen, Dept. of Genetics, Antonius Deusinglaan 1, 9713 AV Groningen, The Netherlands
+
+We try to respond to feedback within 5 business days.
+
+### Compatibility with browsers and assistive technology
+
+MOLGENIS is not compatible with:
+
+- browsers older than 2 major versions
+
+### Technical specifications
+
+Accessibility of MOLGENIS relies on the following technologies to work with the particular combination of web browser and any assistive technologies or plugins installed on your computer:
+
+- HTML
+- WAI-ARIA
+- CSS
+- JavaScript
+
+These technologies are relied upon for conformance with the accessibility standards used.
+
+### Limitations and alternatives
+
+Despite our best efforts to ensure accessibility of MOLGENIS, there may be some limitations. Below is a description of known limitations, and potential solutions. Please contact us if you observe an issue not listed below.
+
+1. **MOLGENIS Redesign**: We are currently in the process of redesigning the MOLGENIS. As this process is ongoing, not all features may be available or some aspects may not work as expected. We welcome any feedback if you encounter any issues at [support@molgenis.org](mailto:support@molgenis.org).
+
+### Assessment approach
+
+The MOLGENIS software team assessed the accessibility of MOLGENIS by the following approaches:
+
+- Internal evaluation
+
+### Date
+
+This statement was created on 23 July 2026 using the [W3C Accessibility Statement Generator Tool](https://www.w3.org/WAI/planning/statements/).
