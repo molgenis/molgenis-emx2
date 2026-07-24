@@ -28,7 +28,8 @@ below quote these fixtures directly where practical; the converted production co
 
 A **bundle** is the unit of model distribution and apply: either a folder containing a `molgenis.yaml`
 root plus table files, or an equivalent **single-file form**. A bundle is versioned and applied in one
-transaction.
+transaction. The **folder form** is recommended for authoring and git (small, readable diffs); the
+**single-file form** is the wire/API form.
 
 ### molgenis.yaml (bundle root)
 
@@ -53,6 +54,9 @@ namespaces:
 
 File paths (bare-string `tables:` entries, `imports:` entries, companion `bundle:` references) resolve
 relative to the file that references them.
+
+`permissions:` (here and on companions) grants **standard roles only**, never member or user accounts —
+its keys are exact-case `Viewer`, `Editor`, `Manager`, `Owner`, `Aggregator`, `Count`, `Range`, `Exists`.
 
 ### Table files
 
@@ -146,6 +150,25 @@ producing many named catalogues).
 `additionalSchemas:` declares **companion** schemas: fixed-name, shared schemas that a bundle depends on but does
 not own. See [Companion schemas](#companion-schemas) below for full semantics.
 
+### data: and demo: (reference and sample rows)
+
+Two optional bundle-root keys point at **folders of CSVs** — one CSV per table, named after the table —
+that are loaded when a **template** is created (by the template loaders), not by the model API:
+
+- **`data:`** is reference data **always** loaded on template create, e.g. ontology terms. Companion
+  bundles typically carry it.
+- **`demo:`** is sample rows, loaded **only** when the create-schema demo-data checkbox is ticked. Root
+  bundles typically carry it.
+
+These keys drive data loading only; because the model API `PUT /{schema}/api/yaml` describes model, not
+rows, it **ignores `data:`/`demo:` with a warning**.
+
+```yaml
+# molgenis.yaml — bundle carrying reference + sample data
+data: [data]            # folder of CSVs (e.g. ontology terms) — loaded on every template create
+demo: [demo]            # folder of CSVs (sample rows) — loaded only when demo data is requested
+```
+
 ### namespaces
 
 Bundle-root `namespaces:` declares CURIE prefixes (e.g. `dcterms: http://purl.org/dc/terms/`) available
@@ -168,6 +191,8 @@ the two ever drift.
 | `imports` | Bundle-wide shared files whose named columns/headings become referenceable by bare string anywhere in the bundle (shadowed by a table-level `imports:` of the same name). | `imports: [shared/common.yaml]` |
 | `tables` | This bundle's table files — one entry per hierarchy (root + its woven subclasses/modules), each a bare-string file path. Single-file form inlines the table object in place of the path string. | `tables: [tables/resources.yaml]` |
 | `additionalSchemas` | Fixed-name companion schemas, inline or by `bundle:` reference, with optional role-default `permissions:`. | `additionalSchemas: {CatalogueOntologies: {bundle: catalogue-ontologies/molgenis.yaml}}` |
+| `data` | Folder(s) of reference-data CSVs (one CSV per table, named after the table) loaded on **every** template create — e.g. ontology terms. Loaded by template creation, not the model API (`PUT` ignores it with a warning). Companion bundles typically carry it. | `data: [data]` |
+| `demo` | Folder(s) of sample-row CSVs (same one-CSV-per-table shape) loaded **only** when demo data is requested at create. Same template-only loading; `PUT` ignores it with a warning. Root bundles typically carry it. | `demo: [demo]` |
 | `settings` | Free-form key/value settings map for the schema this bundle applies to (e.g. menu). | `settings: {menu: ...}` |
 | `namespaces` | CURIE prefixes for `semantics:` fields, in addition to/overriding the built-in defaults. | `namespaces: {dcterms: http://purl.org/dc/terms/}` |
 
@@ -274,13 +299,17 @@ into **one** ordered flat `columns:` list.
 
 - **`previousNames`** is an ordered list of a column's former names. The diff engine matches an older
   live name to infer a RENAME (instead of DROP+ADD) across version gaps — but only when that old name is
-  absent from the desired state.
+  absent from the desired state. *Worked example:* you rename `surname` → `familyName` and set
+  `previousNames: [surname]`; the diff engine emits a **RENAME** (data preserved) rather than a drop of
+  `surname` plus an add of `familyName`.
 - **Live-name collision rule**: if a chain name is both still live in the current schema *and* still
   desired in the bundle, the dry-run refuses to guess and reports an error demanding explicit
   resolution — it never silently drops or mis-renames.
-- **`version`** is stamped on the schema at apply time; a dry-run leaves it unchanged. It must be strict
-  numeric `MAJOR.MINOR.PATCH` (e.g. `3.2.0`) — any other shape is a validation error; versions compare
-  numerically, segment by segment.
+- **`version`** is stamped on the schema at apply time; a dry-run never bumps the stored version. It must
+  be strict numeric `MAJOR.MINOR.PATCH` (e.g. `3.2.0`) — any other shape is a validation error, and
+  versions compare numerically, **segment by segment**. Each apply's `version` must be **>=** the stored
+  one: an equal version re-applies fine, a strictly-older one is refused with the bump message (see
+  Downgrade below).
 - **Downgrade**: applying a bundle whose `version` is older than the schema's current one is a plain
   refusal (400) — there is no override flag. The only way forward is bumping `version:` in the bundle (or
   applying it to a fresh schema). A dry-run always shows the destructive diff before you decide.
@@ -294,7 +323,9 @@ layered on top of whatever the schema already has:
 
 - **Absence means leave alone.** A column or table that simply isn't in the bundle is not touched — not
   dropped, not renamed, not altered. A bundle can describe just the tables/columns it cares about without
-  re-declaring an entire schema's worth of unrelated structure.
+  re-declaring an entire schema's worth of unrelated structure. *Worked example:* you previously applied a
+  bundle with column `X`; you remove `X` from the bundle and re-apply — **nothing happens to `X`**, it
+  stays. To remove it, keep the entry and mark it `drop: true`.
 - **Deletion is explicit.** The only way to remove a column or table is to mark its entry `drop: true`:
 
 ```yaml
