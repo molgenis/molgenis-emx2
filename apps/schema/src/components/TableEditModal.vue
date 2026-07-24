@@ -24,14 +24,15 @@
         label="description"
         :locales="locales"
       />
-      <InputCheckbox
+      <InputSelect
         v-if="rootTable !== undefined && table.oldName === undefined"
         id="table_extends"
         v-model="table.inheritNames"
         :required="true"
+        :multiple="true"
         :options="inheritOptions"
-        :hideClearButton="true"
         :errorMessage="subclassInvalid"
+        description="Hold ctrl (Windows) or cmd (Mac) to select multiple parent tables"
         label="Extends tables (can not be edited after creation)"
       />
       <div v-else-if="rootTable !== undefined">
@@ -79,7 +80,6 @@ import {
   ButtonAction,
   MessageWarning,
   InputSelect,
-  InputCheckbox,
   ArrayInput,
   ButtonAlt,
   deepClone,
@@ -97,7 +97,6 @@ export default {
     ButtonAction,
     MessageWarning,
     InputSelect,
-    InputCheckbox,
     ButtonAlt,
     InputTextLocalized,
   },

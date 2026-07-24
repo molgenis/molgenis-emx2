@@ -10,6 +10,22 @@
       {{ noOptionsProvidedMessage }}
     </MessageError>
     <select
+      v-else-if="!readonly && multiple"
+      :id="id"
+      multiple
+      class="form-control"
+      @change="updateMultipleModelValue($event.target)"
+    >
+      <option
+        v-for="(option, index) in options"
+        :key="index + option"
+        :value="option"
+        :selected="Array.isArray(modelValue) && modelValue.includes(option)"
+      >
+        {{ option }}
+      </option>
+    </select>
+    <select
       v-else-if="!readonly"
       :id="id"
       :modelValue="modelValue"
@@ -57,10 +73,17 @@ export default {
   props: {
     options: { type: Array, required: true },
     noOptionsProvidedMessage: { type: String, default: "No options provided" },
+    multiple: { type: Boolean, default: false },
   },
   methods: {
     updateModelValue: function (value) {
       this.$emit("update:modelValue", value == "" ? null : value);
+    },
+    updateMultipleModelValue: function (selectElement) {
+      const selected = Array.from(selectElement.selectedOptions).map(
+        (option) => option.value
+      );
+      this.$emit("update:modelValue", selected);
     },
   },
 };
@@ -120,6 +143,17 @@ export default {
       />
       Selected: {{ readonlyModel }}
     </DemoItem>
+    <DemoItem>
+      <InputSelect
+        id="input-select-multiple"
+        description="Multiple select input (hold ctrl/cmd to pick several)"
+        label="Multiple animals"
+        multiple
+        v-model="multipleValue"
+        :options="['lion', 'ape', 'monkey']"
+      />
+      Selected: {{ multipleValue }}
+    </DemoItem>
   </div>
 </template>
 <script>
@@ -128,6 +162,7 @@ export default {
     return {
       check: null,
       defaultValue: 'ape',
+      multipleValue: ['ape'],
       requiredCheck: 'lion',
       empty: null,
       readonlyModel: 'lion'
