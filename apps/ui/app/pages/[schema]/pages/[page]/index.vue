@@ -46,5 +46,6 @@ const crumbs: Crumb[] = [
     :content="(pageData.page as IConfigurablePages)"
     :metadata="(pageData.metadata as ITableMetaData[])"
     :is-editable="false"
+    :schema="schema || ''"
   />
 </template>

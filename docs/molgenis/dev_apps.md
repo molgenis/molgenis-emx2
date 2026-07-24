@@ -95,11 +95,28 @@ cd apps/schema
 pnpm dev
 ```
 
+#### Server-side rendered applications (catalogue)
+
+Most apps are single-page applications (SPAs): `pnpm build` creates a static `dist/` folder that Gradle bundles into the EMX2 jar. The `catalogue` app is different: it is a [Nuxt](https://nuxt.com) app with server-side rendering (SSR). Its build output is a Node.js server, not a static folder, so it is **not** included in the jar. This means the catalogue is not available on `http://localhost:8080` when you run `./gradlew run`.
+
+To develop the catalogue app, run it separately and point it at your backend:
+
+```bash
+# terminal 1: start the backend (and the SPA apps) on http://localhost:8080
+./gradlew run
+
+# terminal 2: start the catalogue app on http://localhost:3000
+cd apps/catalogue
+NUXT_PUBLIC_API_BASE=http://localhost:8080 pnpm dev
+```
+
+In production the catalogue runs as its own container (`molgenis/ssr-catalogue`, see `docker-compose.yml`) next to the backend. See [apps/catalogue/README.md](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/README.md) for more details.
+
 ## Deploying your application
 
 When you have finished building your app, commit your changes and open a new PR. See our [contributing guidelines](https://github.com/molgenis/molgenis-emx2/blog/master/CONTRIBUTING.md) for more information on contributing to the EMX2 code base. When your PR is accepted and merged with the main EMX2 branch, a [new release](https://github.com/molgenis/molgenis-emx2/releases) will be created. Then, update your server with the latest version of EMX2.
 
-On your server, all vue apps are served at `/apps/<app-name>`. This mirrors EMX2 folder structure so the URL will match the name of the folder (e.g., `/apps/molgenis-viz`). If your app is designed to work with a schema, it will be accessible at `/<schema>/<app-name>/`.
+On your server, all SPA vue apps are served at `/apps/<app-name>`. This mirrors EMX2 folder structure so the URL will match the name of the folder (e.g., `/apps/molgenis-viz`). If your app is designed to work with a schema, it will be accessible at `/<schema>/<app-name>/`. SSR apps such as the catalogue are deployed as a separate container instead (see "Server-side rendered applications" above).
 
 ## Troubleshooting
 
@@ -119,7 +136,7 @@ Once started, the app is served at [http://localhost:5173](http://localhost:5173
 
 ### How do I view my app on the server?
 
-On the server, applications are available at `/apps/<app-name>/`. The path of the app will match the name of the folder in the `apps/` directory. If you app interacts with a schema, it will accessible at `/<schema-name>/<app-name>/`.
+On the server, SPA applications are available at `/apps/<app-name>/`. The path of the app will match the name of the folder in the `apps/` directory. If you app interacts with a schema, it will accessible at `/<schema-name>/<app-name>/`. SSR apps such as the catalogue run as a separate container and are not served under `/apps/` (see "Server-side rendered applications" above).
 
 If you continue to have issues, make sure your app has been merged with the main emx2 branch and the server is updated with the latest version of MOLGENIS EMX2.
 

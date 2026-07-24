@@ -1,8 +1,8 @@
 # Development Guidelines
 
-## For component development
+## For frontend development
 
-To ensure consistency in the MOLGENIS interfaces, we would also like components to follow the same structure. Please follow these guidelines when developing components or creating new ones.
+To ensure consistency in the MOLGENIS interfaces, frontend components must follow the same structure. Please follow these guidelines when developing components or creating new ones.
 
 ### 1. Component files start with the script
 
@@ -27,7 +27,7 @@ Note: older apps and code may have deviating orders as they have not all been up
 
 ### 2. All scripts use composition API and have typescript enabled
 
-We prefer to use the [composition API](https://vuejs.org/api/composition-api-setup.html) for all EMX2 components. Typescript should also be enabled.
+We prefer to use the [composition API](https://vuejs.org/api/composition-api-setup.html) for all EMX2 components, and Typescript must be enabled.
 
 ```vue
 <script setup lang="ts">
@@ -83,14 +83,15 @@ If a specific style is not available, define it in the `assets/css/main.css` and
 
 ### 5. All components follow good semantic HTML practices and are built with accessibility in mind
 
-Good semantic html practices covers a lot of areas. In principle, it is important to make sure the appropriate elements are used so that HTML elements properly render and are accesible. For example, it is fairly common to see buttons that redirects users to another page. Buttons should only perform an action and not act as link. Instead, it would be better to use the anchor element and style it as a button.
+Good semantic html practices covers a lot of areas. In principle, it is important to-
 
-```diff
-- <button @click="window.location.href='....'">Get started</button>
-+ <a href="path/to/some/page" class="btn btn-primary">Get started</a>
-```
+- Use the appropriate HTML elements (e.g., actions are buttons, links are `<a>` elements, etc.)
+- Interactive elements are accessible using a mouse and keyboard and mouse support. Hover and focus styles are clearly visible and they provide good visual indication that an element is interactive.
+- Elements have sufficient color contrast and are readable in different themes
+- Text elements use clear, concise language. It is recommended to avoid using technical jargon in the UI. When writing text, keep in mind that they are two terms: the internal, technical word and the public-facing term.
+- Error messages clearly describe the issue and inform users how to resolve it. Do not use phrases such as "Oops! Something went wrong".
 
-For additional information and examples, please consult the [ARIA Patterns guide](https://www.w3.org/WAI/ARIA/apg/patterns/) and the [a11y project](https://www.a11yproject.com).
+There are additional things to consider. Please refer to the [Accessibility guidelines](docs/molgenis/dev_accessibility.md) page for more information and instructions on how to review PRs.
 
 ### 6. Naming conventions
 
@@ -147,6 +148,7 @@ This to make debugging more easily.
 Instead, during a `@BeforeAll`/`@BeforeEach`, the relevant test schema is dropped and created again.
 
 Example:
+
 ```java
 class MyClassTest {
   static Database database;
