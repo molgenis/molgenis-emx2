@@ -44,6 +44,20 @@ export async function getPage(
     | IDeveloperPages;
   return { page: currentPage, metadata: data._schema.tables };
 }
+export async function deleteComponent(
+  schema: string,
+  id:string,
+  tableclass:string
+){
+  // TODO:
+  // confirm if user is sure!
+  // are we deleting a block or component?
+  // if component remove from correct table and from order table
+  // recalculate component order
+  // if block
+  // delete all containing components & orders
+  // recalculate block order
+}
 
 export async function addComponent(
   schema: string,

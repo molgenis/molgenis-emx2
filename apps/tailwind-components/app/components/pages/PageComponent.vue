@@ -11,10 +11,9 @@ import ComponentActions from "./ComponentActions.vue";
 
 import EditModal from "../form/EditModal.vue";
 
-import { parsePageText } from "../../utils/cms";
+import { deleteComponent, parsePageText } from "../../utils/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
-import DeleteModal from "../form/DeleteModal.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -60,17 +59,11 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
 });
 
 function onDelete() {
-  // TODO:
-  // confirm if user is sure!
-  // are we deleting a block or component?
-  // if component remove from correct table and from order table
-  // recalculate component order
-  // if block
-  // delete all containing components & orders
-  // recalculate block order
+  console.log("DELETE");
+  console.log(props);
+  deleteComponent(schemaTableName.value,props.component.id,props.component.mg_tableclass || "")
 }
 
-// Todo: some situations need different menu placements
 const menuPlacement = computed<string>(() => {
   let placement = 'top-start';
   if(props.component?.headingIsCentered || props.component?.paragraphIsCentered || props.component?.imageIsCentered){
