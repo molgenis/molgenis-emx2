@@ -29,3 +29,8 @@ export {
 } from "./moduleColumns";
 
 export type { IModuleColumnGroup } from "./moduleColumns";
+
+export {
+  getSelectableTableTypes,
+  DEFAULT_TABLE_TYPE,
+} from "./tableTypeHelpers";

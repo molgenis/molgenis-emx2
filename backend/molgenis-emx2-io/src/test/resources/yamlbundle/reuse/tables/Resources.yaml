@@ -1,0 +1,10 @@
+name: Resources
+imports: [shared/common.yaml]
+columns:
+- name: id
+  key: 1
+- name: familyName
+- contactDetails
+- name: sex
+  type: enum
+  values: [male, female, unknown]

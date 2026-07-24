@@ -1,0 +1,19 @@
+formatVersion: 1
+version: 1.0.0
+settings:
+  menu: '[{"label":"Home","href":"/"}]'
+permissions:
+  Viewer: anonymous
+tables:
+- shared/Contacts.yaml
+- shared/Organisations.yaml
+- catalogue/tables/Collections.yaml
+additionalSchemas:
+  CatalogueOntologies:
+    bundle: catalogueOntologies/molgenis.yaml
+    permissions:
+      Viewer: anonymous
+data:
+- catalogue/data
+demo:
+- catalogue/demo

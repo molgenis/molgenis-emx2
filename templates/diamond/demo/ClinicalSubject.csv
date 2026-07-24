@@ -1,0 +1,3 @@
+subjectId,name,sex,diseaseCategory,clinicalCentreId,lastVisitDate
+SUBJ004,David Ernst,male,Autoimmune,AMC-NL,2025-02-28
+SUBJ005,Eva Feenstra,female,Oncology,UMCG-NL,2025-03-14

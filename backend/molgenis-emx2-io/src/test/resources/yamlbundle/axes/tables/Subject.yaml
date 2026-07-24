@@ -1,0 +1,15 @@
+name: Subject
+modules:
+- name: CockayneSyndrome
+- name: Trichothiodystrophy
+columns:
+- name: subjectId
+  key: 1
+- name: sex
+  type: enum
+  values: [male, female, unknown]
+- name: subgroups
+  type: module_array
+  values: [CockayneSyndrome, Trichothiodystrophy]
+- name: assay
+  type: module

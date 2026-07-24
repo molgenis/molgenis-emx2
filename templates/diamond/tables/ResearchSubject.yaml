@@ -1,0 +1,5 @@
+name: ResearchSubject
+extends: [Subject]
+columns:
+- name: biobanked
+- name: consentFormId

@@ -1,0 +1,10 @@
+name: Subjects
+description: rd3 subjects referencing the rd3-local Contacts redefinition
+columns:
+- name: subjectId
+  key: 1
+  required: true
+- name: name
+- name: contact
+  type: ref
+  refTable: Contacts

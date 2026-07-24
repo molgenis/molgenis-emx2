@@ -40,7 +40,9 @@ public class ImportOntologiesTask extends Task {
   public void run() {
     this.start();
     importOntologyData();
-    createOntologySchema();
+    if (semanticsLocation != null) {
+      createOntologySchema();
+    }
     this.complete();
   }
 

@@ -1,0 +1,83 @@
+name: Resources
+label: Resources
+label@nl: Bronnen
+description: Research resources
+description@nl: Onderzoeksbronnen
+semantics: ["http://schema.org/Dataset"]
+profiles: [datacatalogue]
+settings:
+  row_style: card
+subclasses:
+- name: Cohorts
+- name: Networks
+- name: CohortNetwork
+  extends: [Cohorts, Networks]
+modules:
+- name: QuantitativeInfo
+- name: QualitativeInfo
+columns:
+- section: identity
+- name: id
+  key: 1
+  description: Identifier
+  description@nl: Identificatie
+- name: orgCode
+  key: 2
+- name: regionCode
+  key: 2
+- name: familyName
+  label: Family name
+  label@nl: Achternaam
+  previousNames: [surname, last_name]
+- name: displayName
+  formLabel: Display name
+  computed: id
+- name: email
+  type: email
+  required: true
+- name: homepage
+  semantics: ["http://schema.org/url"]
+- name: sex
+  type: enum
+  values: [male, female, unknown]
+  defaultValue: unknown
+- name: tags
+  type: enum_array
+  values: [research, clinical, rare]
+- name: consentGiven
+  type: bool
+  required: "sex != null"
+- name: contact
+  type: ref
+  refTable: Contacts
+  refLabel: "${contactId}"
+  readonly: true
+- name: altContact
+  type: ref
+  refTable: Contacts
+  refLink: contact
+- name: keywords
+  type: ontology_array
+  refTable: CatalogueOntologies.Keywords
+- name: visibleNote
+  visible: "sex == 'female'"
+  validation: "value != null"
+- name: profiledField
+  profiles: [datacatalogue]
+- name: subgroups
+  type: module_array
+  values: [QuantitativeInfo, QualitativeInfo]
+- name: cohortType
+  subclass: Cohorts
+- name: networkScope
+  subclass: Networks
+- name: jointField
+  subclass: CohortNetwork
+- heading: quantHeading
+  module: QuantitativeInfo
+- name: sampleCount
+  module: QuantitativeInfo
+  type: int
+- name: narrative
+  module: QualitativeInfo
+  type: text

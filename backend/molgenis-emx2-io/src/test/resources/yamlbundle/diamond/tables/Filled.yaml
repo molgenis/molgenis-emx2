@@ -1,0 +1,4 @@
+name: Filled
+extends: [Shape]
+columns:
+- name: fillColor

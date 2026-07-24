@@ -34,6 +34,14 @@
         :errorMessage="subclassInvalid"
         label="Extends table (can not be edited after creation)"
       />
+      <InputSelect
+        v-if="rootTable !== undefined"
+        id="table_type"
+        v-model="table.tableType"
+        :options="tableTypeOptions"
+        :readonly="table.oldName !== undefined"
+        label="Table type (can not be edited after creation)"
+      />
       <ArrayInput
         id="table_semantics"
         columnType="STRING_ARRAY"
@@ -69,6 +77,8 @@ import {
   ButtonAlt,
   deepClone,
   InputTextLocalized,
+  getSelectableTableTypes,
+  DEFAULT_TABLE_TYPE,
 } from "molgenis-components";
 
 export default {
@@ -142,6 +152,9 @@ export default {
       }
       return undefined;
     },
+    tableTypeOptions() {
+      return getSelectableTableTypes();
+    },
     nameInvalid() {
       if (
         this.table.name === undefined ||
@@ -183,6 +196,9 @@ export default {
     showModal() {
       if (!this.modelValue) {
         this.table = {};
+        if (this.rootTable !== undefined) {
+          this.table.tableType = DEFAULT_TABLE_TYPE;
+        }
       }
       this.modalVisible = true;
     },
@@ -199,6 +215,9 @@ export default {
         this.table = deepClone(this.modelValue);
       } else {
         this.table = {};
+        if (this.rootTable !== undefined) {
+          this.table.tableType = DEFAULT_TABLE_TYPE;
+        }
       }
     },
   },

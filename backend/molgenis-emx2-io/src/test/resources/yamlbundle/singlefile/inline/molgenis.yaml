@@ -1,0 +1,9 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: People
+  imports: [shared/common.yaml]
+  columns:
+  - name: id
+    key: 1
+  - contactDetails

@@ -144,6 +144,11 @@ import {
 
 import { getRowErrors } from "../src/components/forms/formUtils/formUtils";
 
+import {
+  getSelectableTableTypes,
+  DEFAULT_TABLE_TYPE,
+} from "../../metadata-utils/src";
+
 import constants, { privacyConstants } from "../src/components/constants";
 
 export {
@@ -271,6 +276,8 @@ export {
   deepClone,
   flattenObject,
   getRowErrors,
+  getSelectableTableTypes,
+  DEFAULT_TABLE_TYPE,
   privacyConstants,
   request,
 };

@@ -1,0 +1,5 @@
+name: FilledOutlined
+extends: [Filled, Outlined]
+columns:
+- name: cornerRadius
+  type: int
