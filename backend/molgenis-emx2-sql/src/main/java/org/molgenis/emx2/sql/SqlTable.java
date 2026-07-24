@@ -389,35 +389,22 @@ public class SqlTable implements Table {
 
   private static List<Row> applyValidationPerRow(
       SqlTable entry, List<Column> baseColumns, List<Row> rows, boolean isInsert) {
-    List<Column> discriminatorColumns = entry.getMetadata().getDiscriminatorColumns();
-    if (discriminatorColumns.isEmpty()) {
-      new SqlRowProcessor(baseColumns).validateAndCompute(rows);
-      return rows;
-    }
-    for (Row row : rows) {
-      List<Column> union = buildValidationUnion(entry, baseColumns, row, isInsert);
-      new SqlRowProcessor(union).validateAndCompute(row);
-    }
+    boolean hasModuleColumns = !entry.getMetadata().getDiscriminatorColumns().isEmpty();
+    SqlRowProcessor.validateAndCompute(
+        baseColumns, rows, hasModuleColumns, row -> activeModuleColumns(entry, row, isInsert));
     return rows;
   }
 
-  private static List<Column> buildValidationUnion(
-      SqlTable entry, List<Column> baseColumns, Row row, boolean isInsert) {
-    List<Column> union = new ArrayList<>(baseColumns);
-    Set<String> unionNames =
-        new LinkedHashSet<>(baseColumns.stream().map(Column::getName).toList());
+  private static List<Column> activeModuleColumns(SqlTable entry, Row row, boolean isInsert) {
+    List<Column> moduleColumns = new ArrayList<>();
     for (SqlTable moduleTable : activeModuleTables(entry, row)) {
-      List<Column> moduleCols =
-          isInsert
-              ? getInsertColumns(moduleTable, row.getColumnNames())
-              : moduleTable.getMetadata().getColumns();
-      for (Column col : moduleCols) {
-        if (unionNames.add(col.getName())) {
-          union.add(col);
-        }
+      if (isInsert) {
+        moduleColumns.addAll(getInsertColumns(moduleTable, row.getColumnNames()));
+      } else {
+        moduleColumns.addAll(moduleTable.getMetadata().getColumns());
       }
     }
-    return union;
+    return moduleColumns;
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
@@ -496,6 +483,16 @@ public class SqlTable implements Table {
     for (String tableName : activeTableNames) {
       SqlTable moduleTable = (SqlTable) entrySchema.getTable(tableName);
       if (moduleTable == null) continue;
+      if (!isModuleOfRoot(moduleTable, rootSchemaName, rootTableName)) {
+        throw new MolgenisException(
+            "Cannot activate '"
+                + tableName
+                + "' on table '"
+                + entry.getName()
+                + "': value must name a MODULE that extends root '"
+                + rootTableName
+                + "'");
+      }
 
       String qualifiedKey = entrySchema.getName() + "." + tableName;
       expandModuleAncestors(moduleTable, rootSchemaName, rootTableName, result, emitted, database);
@@ -505,6 +502,16 @@ public class SqlTable implements Table {
     }
 
     return result;
+  }
+
+  private static boolean isModuleOfRoot(
+      SqlTable moduleTable, String rootSchemaName, String rootTableName) {
+    if (!moduleTable.getMetadata().getTableType().isModule()) {
+      return false;
+    }
+    TableMetadata moduleRoot = moduleTable.getMetadata().getRootTable();
+    return moduleRoot.getSchemaName().equals(rootSchemaName)
+        && moduleRoot.getTableName().equals(rootTableName);
   }
 
   private static void expandModuleAncestors(
@@ -535,14 +542,20 @@ public class SqlTable implements Table {
 
   private List<Record> insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
-    List<SqlTable> chain = new ArrayList<>(ancestorChainRootFirst(table));
-    chain.add(table);
+    List<SqlTable> tables = new ArrayList<>(ancestorChainRootFirst(table));
+    tables.add(table);
+    SqlTable rootTable = tables.get(0);
+
+    List<Column> discriminators = table.getMetadata().getDiscriminatorColumns();
+    Map<String, Map<String, String[]>> priorArraysByPkKey =
+        (updateOnConflict && !discriminators.isEmpty())
+            ? selectPriorDiscriminatorArrays(table, rows, discriminators)
+            : Collections.emptyMap();
 
     List<Record> rootRecords = Collections.emptyList();
 
-    for (int i = 0; i < chain.size(); i++) {
-      SqlTable current = chain.get(i);
-      boolean isRoot = (i == 0);
+    for (SqlTable current : tables) {
+      boolean isRoot = current == rootTable;
       List<Column> columns = getLocalStoredColumns(current, updateColumns);
       if (columns.isEmpty()) continue;
 
@@ -565,11 +578,15 @@ public class SqlTable implements Table {
     }
 
     Set<String> isATableKeys =
-        chain.stream()
+        tables.stream()
             .map(t -> t.getMetadata().getSchemaName() + "." + t.getMetadata().getTableName())
             .collect(Collectors.toCollection(LinkedHashSet::new));
 
     insertModuleRows(table, rows, updateOnConflict, isATableKeys);
+
+    if (updateOnConflict && !discriminators.isEmpty()) {
+      deleteRemovedModuleRows(table, rows, discriminators, priorArraysByPkKey);
+    }
 
     return rootRecords;
   }

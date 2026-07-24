@@ -203,6 +203,7 @@ export default {
           table.columns?.filter((column) => column.table === table.name) || [];
       });
       tables = Object.values(tableMap);
+      tables.forEach((table) => delete table.inheritName);
       //add ontologies
       tables.push(...schema.ontologies);
       request(

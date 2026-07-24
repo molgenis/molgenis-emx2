@@ -137,7 +137,7 @@ class TestDiamondInheritance {
       SqlTableMetadata leafMeta = (SqlTableMetadata) s.getTable("Leaf").getMetadata();
       leafMeta.setInheritNames("Branch1", "Branch2");
 
-      fail("Should have thrown MolgenisException: DAG has two distinct roots");
+      fail("Should have thrown MolgenisException: inheritance graph has multiple roots");
     } catch (MolgenisException e) {
       assertTrue(
           e.getMessage().toLowerCase().contains("root")
@@ -311,6 +311,64 @@ class TestDiamondInheritance {
         "After migrate, D must have both B and C as parents, got: " + mergedParents);
 
     db.dropSchemaIfExists(mergeSchemaName);
+  }
+
+  @Test
+  void addingParentAfterCreationThrows() {
+    String immutableSchema = SCHEMA + "Immutable";
+    db.dropSchemaIfExists(immutableSchema);
+    Schema s = db.createSchema(immutableSchema);
+    try {
+      s.create(
+          table("Root").add(column("id").setType(STRING).setPkey()),
+          table("P1").setInheritNames("Root").add(column("p1Col").setType(STRING)),
+          table("P2").setInheritNames("Root").add(column("p2Col").setType(STRING)),
+          table("Child").setInheritNames("P1").add(column("childCol").setType(STRING)));
+
+      SqlTableMetadata childMeta = (SqlTableMetadata) s.getTable("Child").getMetadata();
+      MolgenisException thrown =
+          assertThrows(
+              MolgenisException.class,
+              () -> childMeta.setInheritNames("P1", "P2"),
+              "Adding a parent after table creation must be rejected: extends is immutable");
+      assertTrue(
+          thrown.getMessage().toLowerCase().contains("immutable")
+              || thrown.getMessage().toLowerCase().contains("cannot change"),
+          "Exception must explain extends is immutable, got: " + thrown.getMessage());
+
+      List<String> parents =
+          db.getSchema(immutableSchema).getTable("Child").getMetadata().getInheritNames();
+      assertEquals(
+          List.of("P1"), parents, "Child must still extend only P1 after the rejected change");
+    } finally {
+      db.dropSchemaIfExists(immutableSchema);
+    }
+  }
+
+  @Test
+  void reimportingIdenticalInheritNamesIsSilentNoOp() {
+    String idempotentSchema = SCHEMA + "Idempotent";
+    db.dropSchemaIfExists(idempotentSchema);
+    Schema s = db.createSchema(idempotentSchema);
+    try {
+      s.create(
+          table("Root").add(column("id").setType(STRING).setPkey()),
+          table("P1").setInheritNames("Root").add(column("p1Col").setType(STRING)),
+          table("P2").setInheritNames("Root").add(column("p2Col").setType(STRING)),
+          table("Child").setInheritNames("P1", "P2").add(column("childCol").setType(STRING)));
+
+      SqlTableMetadata childMeta = (SqlTableMetadata) s.getTable("Child").getMetadata();
+      childMeta.setInheritNames("P2", "P1");
+
+      List<String> parents =
+          db.getSchema(idempotentSchema).getTable("Child").getMetadata().getInheritNames();
+      assertTrue(
+          parents.containsAll(List.of("P1", "P2")),
+          "Re-importing the identical extends must be a silent no-op; Child still extends P1 and P2, got: "
+              + parents);
+    } finally {
+      db.dropSchemaIfExists(idempotentSchema);
+    }
   }
 
   // S6: error message on unresolved parent must list ALL unresolved parent names

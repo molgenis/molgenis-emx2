@@ -6,43 +6,6 @@ import type {
   ITableMetaData,
 } from "./types";
 
-export interface IModuleColumnGroup {
-  moduleName: string;
-  columns: IColumn[];
-}
-
-export function expandModuleColumns(
-  rootTable: ITableMetaData,
-  schema: ISchemaMetaData
-): IModuleColumnGroup[] {
-  const rootColumnIds = new Set(rootTable.columns.map((col) => col.id));
-
-  const moduleArrayColumns = rootTable.columns.filter(
-    (col) => col.columnType === "MODULE_ARRAY"
-  );
-
-  const groups: IModuleColumnGroup[] = [];
-
-  for (const axisColumn of moduleArrayColumns) {
-    const moduleNames = axisColumn.values ?? [];
-    for (const moduleName of moduleNames) {
-      // moduleName is a table NAME (from the MODULE_ARRAY discriminator's values), matched against table.name
-      const moduleTable = schema.tables.find(
-        (table) => table.name === moduleName
-      );
-      if (!moduleTable) {
-        continue;
-      }
-      const localColumns = moduleTable.columns.filter(
-        (col) => !rootColumnIds.has(col.id)
-      );
-      groups.push({ moduleName, columns: localColumns });
-    }
-  }
-
-  return groups;
-}
-
 export function isModuleColumn(col: IColumn, tableName: string): boolean {
   return col.inherited !== true && !!col.table && col.table !== tableName;
 }
@@ -69,7 +32,8 @@ export function omitInactiveModuleValues(
 
 export function activeModules(
   row: Record<string, unknown>,
-  rootTable: ITableMetaData
+  rootTable: ITableMetaData,
+  schema?: ISchemaMetaData
 ): Set<string> {
   const active = new Set<string>();
 
@@ -100,5 +64,38 @@ export function activeModules(
     }
   }
 
+  if (schema) {
+    activateAncestorModules(active, schema);
+  }
+
   return active;
+}
+
+function activateAncestorModules(
+  active: Set<string>,
+  schema: ISchemaMetaData
+): void {
+  const tablesByName = new Map(
+    schema.tables.map((table) => [table.name, table])
+  );
+
+  const pending = [...active];
+  while (pending.length > 0) {
+    const moduleName = pending.pop()!;
+    const moduleTable = tablesByName.get(moduleName);
+    if (!moduleTable) {
+      continue;
+    }
+    for (const parentName of moduleTable.inheritNames ?? []) {
+      const parentTable = tablesByName.get(parentName);
+      if (
+        parentTable &&
+        parentTable.tableType === "MODULE" &&
+        !active.has(parentName)
+      ) {
+        active.add(parentName);
+        pending.push(parentName);
+      }
+    }
+  }
 }

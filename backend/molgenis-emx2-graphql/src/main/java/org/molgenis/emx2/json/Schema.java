@@ -46,7 +46,7 @@ public class Schema {
             .collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
-      tm.setInheritNames(t.getInheritNames());
+      tm.setInheritNames(t.getEffectiveInheritNames());
       tm.setSettings(
           t.getSettings().stream()
               .filter(d -> d.value() != null)
@@ -68,7 +68,7 @@ public class Schema {
       for (Column c : t.getColumns()) {
         if (c.getName().equals(Constants.MG_TOP_OF_FORM)) {
           // skip
-        } else if (!c.isInherited()) {
+        } else if (!c.isInherited() && !isModuleContentColumn(c, t)) {
           // we remove clearly inherited columns here
           org.molgenis.emx2.Column cm = c.getColumnMetadata(tm);
           tm.add(cm);
@@ -77,6 +77,10 @@ public class Schema {
       tm.setTableType(t.getTableType());
     }
     return s;
+  }
+
+  private static boolean isModuleContentColumn(Column column, Table table) {
+    return column.getTable() != null && !column.getTable().equals(table.getName());
   }
 
   public List<Table> getTables() {

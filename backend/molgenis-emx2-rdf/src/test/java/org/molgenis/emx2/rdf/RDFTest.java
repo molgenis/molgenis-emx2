@@ -1465,6 +1465,195 @@ public class RDFTest {
   }
 
   @Test
+  void diamondChildEmitsSubClassOfForEveryParent() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("DiamondSubClassRdfTest");
+      schema.create(
+          table(
+              "A",
+              column("id").setType(ColumnType.STRING).setPkey(),
+              column("aCol").setType(ColumnType.STRING)));
+      schema.create(table("B", column("bCol").setType(ColumnType.STRING)).setInheritNames("A"));
+      schema.create(table("C", column("cCol").setType(ColumnType.STRING)).setInheritNames("A"));
+      schema.create(
+          table("D", column("dCol").setType(ColumnType.STRING)).setInheritNames("B", "C"));
+
+      InMemoryRDFHandler handler = parseSchemaRdf(schema);
+
+      IRI childIRI = Values.iri(getApi(schema) + "D");
+      IRI firstParentIRI = Values.iri(getApi(schema) + "B");
+      IRI secondParentIRI = Values.iri(getApi(schema) + "C");
+      Set<Value> subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
+
+      assertNotNull(subclasses, "diamond child D must appear as a class in schema RDF");
+      assertTrue(subclasses.contains(firstParentIRI), "D must be rdfs:subClassOf first parent B");
+      assertTrue(subclasses.contains(secondParentIRI), "D must be rdfs:subClassOf second parent C");
+    } finally {
+      database.dropSchemaIfExists("DiamondSubClassRdfTest");
+    }
+  }
+
+  @Test
+  void moduleContentColumnGetsPredicateDefinitionInSchemaRdf() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("ModuleColumnDefRdfTest");
+      schema.create(table("Host", column("id").setType(ColumnType.STRING).setPkey()));
+      schema.create(
+          table("Panel", column("panelCol").setType(ColumnType.STRING))
+              .setTableType(TableType.MODULE)
+              .setInheritNames("Host"));
+
+      InMemoryRDFHandler handler = parseSchemaRdf(schema);
+
+      IRI panelColIRI = Values.iri(getApi(schema) + "Panel/column/panelCol");
+      Map<IRI, Set<Value>> panelColTriples = handler.resources.get(panelColIRI);
+
+      assertNotNull(
+          panelColTriples,
+          "module content column must have a predicate definition in the schema RDF");
+      assertTrue(
+          panelColTriples.getOrDefault(RDF.TYPE, Set.of()).contains(OWL.DATATYPEPROPERTY),
+          "module content column predicate must be defined as owl:DatatypeProperty");
+      assertTrue(
+          panelColTriples.containsKey(RDFS.LABEL),
+          "module content column predicate must have an rdfs:label");
+    } finally {
+      database.dropSchemaIfExists("ModuleColumnDefRdfTest");
+    }
+  }
+
+  @Test
+  void ontologyTypedModuleColumnValueEmittedAsOntologyIri() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("ModuleOntologyIriRdfTest");
+      schema.create(table("Codes").setTableType(TableType.ONTOLOGIES));
+      schema
+          .getTable("Codes")
+          .insert(
+              row("name", "U07", "ontologyTermURI", "https://icd.who.int/browse10/2019/en#/U07"));
+      schema.create(table("Host", column("id").setType(ColumnType.STRING).setPkey()));
+      schema.create(
+          table(
+                  "Panel",
+                  column("disease")
+                      .setType(ColumnType.ONTOLOGY)
+                      .setRefTable("Codes")
+                      .setSemantics("http://purl.obolibrary.org/obo/NCIT_C2991"))
+              .setTableType(TableType.MODULE)
+              .setInheritNames("Host"));
+      schema
+          .getTable("Host")
+          .getMetadata()
+          .add(column("panels").setType(ColumnType.MODULE_ARRAY).setValues("Panel"));
+
+      schema.getTable("Host").insert(row("id", "active", "panels", "Panel", "disease", "U07"));
+
+      InMemoryRDFHandler handler = parseTableRdf(schema, "Host");
+
+      IRI subject = Values.iri(getApi(schema) + "Host/id=active");
+      IRI semanticPredicate = Values.iri("http://purl.obolibrary.org/obo/NCIT_C2991");
+      IRI ontologyTermIri = Values.iri("https://icd.who.int/browse10/2019/en#/U07");
+      Set<Value> semanticObjects = handler.resources.get(subject).get(semanticPredicate);
+
+      assertNotNull(
+          semanticObjects,
+          "active row must emit the module ontology column under its semantic predicate");
+      assertTrue(
+          semanticObjects.contains(ontologyTermIri),
+          "ontology-typed module column value must emit the ontologyTermURI IRI, not the ontology row reference");
+    } finally {
+      database.dropSchemaIfExists("ModuleOntologyIriRdfTest");
+    }
+  }
+
+  @Test
+  void selectingDiamondParentPullsChildReachableViaSecondParent() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("DiamondSelectRdfTest");
+      schema.create(
+          table(
+              "A",
+              column("id").setType(ColumnType.STRING).setPkey(),
+              column("aCol").setType(ColumnType.STRING)));
+      schema.create(table("B", column("bCol").setType(ColumnType.STRING)).setInheritNames("A"));
+      schema.create(table("C", column("cCol").setType(ColumnType.STRING)).setInheritNames("A"));
+      schema.create(
+          table("D", column("dCol").setType(ColumnType.STRING)).setInheritNames("B", "C"));
+
+      schema
+          .getTable("D")
+          .insert(
+              row(
+                  "id", "row1", "aCol", "aValue", "bCol", "bValue", "cCol", "cValue", "dCol",
+                  "dValue"));
+
+      // C is the SECOND parent of D; selecting C must still pull the D instance (D IS-A C).
+      InMemoryRDFHandler handler = parseTableRdf(schema, "C");
+
+      IRI subject = Values.iri(getApi(schema) + "A/id=row1");
+      IRI dColPredicate = Values.iri(getApi(schema) + "D/column/dCol");
+      Map<IRI, Set<Value>> triples = handler.resources.get(subject);
+
+      assertNotNull(
+          triples, "selecting parent C must pull the diamond child D instance into the output");
+      assertTrue(
+          triples.getOrDefault(dColPredicate, Set.of()).contains(Values.literal("dValue")),
+          "D's own column value must be present when selecting its second parent C");
+    } finally {
+      database.dropSchemaIfExists("DiamondSelectRdfTest");
+    }
+  }
+
+  @Test
+  void activeModuleWithSemanticAnnotationEmitsModuleTypeAsRdfType() throws IOException {
+    try {
+      Schema schema = database.dropCreateSchema("ModuleSemanticTypeRdfTest");
+      schema.create(
+          table(
+              "Host",
+              column("id").setType(ColumnType.STRING).setPkey(),
+              column("hostCol").setType(ColumnType.STRING)));
+      schema.create(
+          table("Assay", column("assayCol").setType(ColumnType.STRING))
+              .setTableType(TableType.MODULE)
+              .setInheritNames("Host")
+              .setSemantics("http://purl.obolibrary.org/obo/NCIT_C60819"));
+      schema
+          .getTable("Host")
+          .getMetadata()
+          .add(column("assays").setType(ColumnType.MODULE_ARRAY).setValues("Assay"));
+
+      schema
+          .getTable("Host")
+          .insert(row("id", "active", "hostCol", "val", "assays", "Assay", "assayCol", "aVal"));
+      schema.getTable("Host").insert(row("id", "inactive", "hostCol", "other"));
+
+      InMemoryRDFHandler handler = parseTableRdf(schema, "Host");
+
+      IRI activeSubject = Values.iri(getApi(schema) + "Host/id=active");
+      IRI inactiveSubject = Values.iri(getApi(schema) + "Host/id=inactive");
+      IRI assaySemanticType = Values.iri("http://purl.obolibrary.org/obo/NCIT_C60819");
+
+      assertTrue(
+          handler
+              .resources
+              .get(activeSubject)
+              .getOrDefault(RDF.TYPE, Set.of())
+              .contains(assaySemanticType),
+          "active row must emit rdf:type <module semantic IRI> for the activated module's semantic annotation");
+      assertFalse(
+          handler
+              .resources
+              .get(inactiveSubject)
+              .getOrDefault(RDF.TYPE, Set.of())
+              .contains(assaySemanticType),
+          "inactive row must NOT emit the module's semantic rdf:type");
+    } finally {
+      database.dropSchemaIfExists("ModuleSemanticTypeRdfTest");
+    }
+  }
+
+  @Test
   void testThatURLColumnsAreObjectProperties() throws IOException {
     Schema schema = database.dropCreateSchema("Website");
     Table table =

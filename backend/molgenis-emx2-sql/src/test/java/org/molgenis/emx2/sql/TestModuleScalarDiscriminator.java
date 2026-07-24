@@ -57,7 +57,7 @@ class TestModuleScalarDiscriminator {
         "explicit values must contain the bare MODULE reference after reload");
   }
 
-  // ── isDiscriminator returns true for MODULE ────────────────────────────────────
+  // ── isModuleDiscriminator returns true for MODULE ───────────────────────────────
 
   @Test
   void moduleColumnIsDiscriminator() {
@@ -71,7 +71,7 @@ class TestModuleScalarDiscriminator {
         .add(column("modType").setType(org.molgenis.emx2.ColumnType.MODULE).setValues("Mod"));
 
     Column modType = s.getTable("Host").getMetadata().getColumn("modType");
-    assertTrue(modType.isDiscriminator(), "MODULE column must be a discriminator");
+    assertTrue(modType.isModuleDiscriminator(), "MODULE column must be a discriminator");
 
     List<Column> discriminators = s.getTable("Host").getMetadata().getDiscriminatorColumns();
     assertEquals(1, discriminators.size(), "must have exactly one discriminator");

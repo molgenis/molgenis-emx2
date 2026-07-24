@@ -35,7 +35,7 @@ export default defineConfig<ConfigOptions>({
   projects: [
     {
       name: "auth.setup",
-      testMatch: /auth\.setup\.ts/, // <-- only runs this file
+      testMatch: /(^|\/)auth\.setup\.ts$/, // <-- only runs this file
     },
     {
       name: "diamond.setup",
@@ -44,7 +44,10 @@ export default defineConfig<ConfigOptions>({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: "typetest/types/create.spec.ts",
+      testIgnore: [
+        "typetest/types/create.spec.ts",
+        "tests/e2e/diamond-module-form.spec.ts",
+      ],
     },
     {
       name: "diamond-with-auth",

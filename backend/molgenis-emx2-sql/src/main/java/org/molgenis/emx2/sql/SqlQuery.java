@@ -197,7 +197,7 @@ public class SqlQuery extends QueryBean {
 
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn select : selection.getSubselect()) {
-      Column column = getColumnByName(table, select.getColumn(), false, true);
+      Column column = getColumnByName(table, select.getColumn(), ColumnLookup.INCLUDE_MODULES);
       if (column.isFile()) {
         // check what they want to get, contents, mimetype, size, filename and/or extension
         if (select.getSubselect().isEmpty() || select.has("id")) {
@@ -589,7 +589,7 @@ public class SqlQuery extends QueryBean {
           select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
               ? getColumnByName(
                   table, select.getColumn().replace("_agg", "").replace("_groupBy", ""))
-              : getColumnByName(table, select.getColumn(), false, true);
+              : getColumnByName(table, select.getColumn(), ColumnLookup.INCLUDE_MODULES);
 
       // add the fields, using subselects for references
       if (column.isFile()) {
@@ -899,22 +899,16 @@ public class SqlQuery extends QueryBean {
     for (TableMetadata ancestor : ancestors) {
       joined.add(ancestor.getTableName());
     }
-    for (TableMetadata subclassTable : table.getSubclassTables()) {
-      List<Field<?>> using = new ArrayList<>(subclassTable.getPrimaryKeyFields());
-      Column mgTableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
-      if (mgTableclass != null) {
-        using.add(mgTableclass.getJooqField());
-      }
-      result = result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
-      joined.add(subclassTable.getTableName());
-    }
-
-    for (TableMetadata moduleTable : table.getRootTable().getModuleSubtypeTables()) {
-      if (joined.add(moduleTable.getTableName())) {
-        result =
-            result
-                .leftJoin(moduleTable.getJooqTable())
-                .using(moduleTable.getPrimaryKeyFields().toArray(new Field<?>[0]));
+    List<TableMetadata> subtypeTables = new ArrayList<>(table.getSubclassTables());
+    subtypeTables.addAll(table.getRootTable().getModuleSubtypeTables());
+    for (TableMetadata subtypeTable : subtypeTables) {
+      if (joined.add(subtypeTable.getTableName())) {
+        List<Field<?>> using = new ArrayList<>(subtypeTable.getPrimaryKeyFields());
+        Column mgTableclass = subtypeTable.getLocalColumn(MG_TABLECLASS);
+        if (mgTableclass != null) {
+          using.add(mgTableclass.getJooqField());
+        }
+        result = result.leftJoin(subtypeTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
       }
     }
 
@@ -962,7 +956,7 @@ public class SqlQuery extends QueryBean {
     if (selection != null) {
       for (SelectColumn select : selection.getSubselect()) {
         // check if is refback for join (cut of the part behind .)
-        Column column = getColumnByName(table, select.getColumn(), false, true);
+        Column column = getColumnByName(table, select.getColumn(), ColumnLookup.INCLUDE_MODULES);
         if (column.isRefback()) {
           String subAlias = alias(tableAlias + "-refbackjoin-" + column.getName());
           if (!aliasList.contains(subAlias)) {
@@ -1148,7 +1142,9 @@ public class SqlQuery extends QueryBean {
                   .toList()));
     } else {
       Column column =
-          getColumnByName(table, filters.getColumn(), filters.getSubfilters().isEmpty());
+          filters.getSubfilters().isEmpty()
+              ? getColumnByName(table, filters.getColumn(), ColumnLookup.ROW_QUERY)
+              : getColumnByName(table, filters.getColumn());
       if (column.isReference()
           && column.getReferences().size() > 1
           && filters.getSubfilters().isEmpty()) {
@@ -1748,17 +1744,17 @@ public class SqlQuery extends QueryBean {
                 .toArray(String[]::new));
   }
 
-  private static Column getColumnByName(TableMetadata table, String columnName) {
-    return getColumnByName(table, columnName, false, false);
+  private enum ColumnLookup {
+    ROW_QUERY,
+    INCLUDE_MODULES
   }
 
   private static Column getColumnByName(
-      TableMetadata table, String columnName, boolean isRowQuery) {
-    return getColumnByName(table, columnName, isRowQuery, false);
-  }
-
-  private static Column getColumnByName(
-      TableMetadata table, String columnName, boolean isRowQuery, boolean includeModules) {
+      TableMetadata table, String columnName, ColumnLookup... options) {
+    EnumSet<ColumnLookup> lookup =
+        options.length == 0 ? EnumSet.noneOf(ColumnLookup.class) : EnumSet.copyOf(List.of(options));
+    boolean isRowQuery = lookup.contains(ColumnLookup.ROW_QUERY);
+    boolean includeModules = lookup.contains(ColumnLookup.INCLUDE_MODULES);
     // is search?
     if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
       return new Column(table, searchColumnName(table.getTableName()));

@@ -22,15 +22,25 @@ export type {
 export { fieldTypes, isEmpty, isValueType } from "./fieldHelpers";
 
 export {
-  expandModuleColumns,
   activeModules,
   isModuleColumn,
   omitInactiveModuleValues,
 } from "./moduleColumns";
 
-export type { IModuleColumnGroup } from "./moduleColumns";
-
 export {
   getSelectableTableTypes,
   DEFAULT_TABLE_TYPE,
 } from "./tableTypeHelpers";
+
+export {
+  getSelectableColumnTypes,
+  getColumnTypesWithEditableValues,
+} from "./columnTypeHelpers";
+
+export {
+  normalizeInheritNames,
+  getPrimaryInheritName,
+  getInheritanceEdges,
+} from "./inheritNames";
+
+export type { IInheritanceEdge, IInheritanceEdgeSource } from "./inheritNames";

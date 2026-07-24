@@ -19,6 +19,7 @@ import type {
   columnValue,
   IColumn,
   IRow,
+  ISchemaMetaData,
   ITableMetaData,
   LegendSection,
 } from "../../../metadata-utils/src/types";
@@ -30,11 +31,20 @@ import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
-  formValuesRef: MaybeRef<Record<columnId, columnValue>>
+  formValuesRef: MaybeRef<Record<columnId, columnValue>>,
+  schemaMetadata?: MaybeRef<ISchemaMetaData | undefined>
 ): UseForm {
   const metadata = ref(unref(tableMetadata));
   if (isRef(tableMetadata)) {
     watch(tableMetadata, (val) => (metadata.value = val), {
+      immediate: true,
+      deep: true,
+    });
+  }
+
+  const schema = ref(unref(schemaMetadata));
+  if (isRef(schemaMetadata)) {
+    watch(schemaMetadata, (val) => (schema.value = val), {
       immediate: true,
       deep: true,
     });
@@ -75,7 +85,7 @@ export default function useForm(
   const formValueKeys = metadata.value.columns.map((col) => col.id);
 
   const activeModuleNames = computed(() =>
-    activeModules(formValues.value, metadata.value)
+    activeModules(formValues.value, metadata.value, schema.value)
   );
 
   const extractParamsFromExpression = (expression: string) => {

@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { ISchemaMetaData, ITableMetaData } from "../src/types";
 import {
-  expandModuleColumns,
   activeModules,
   isModuleColumn,
   omitInactiveModuleValues,
@@ -24,47 +23,6 @@ const rootColumns = [
   },
 ];
 
-const bodyMeasurementsTable: ITableMetaData = {
-  id: "BodyMeasurements",
-  name: "BodyMeasurements",
-  schemaId: "test",
-  label: "Body Measurements",
-  tableType: "MODULE",
-  columns: [
-    { id: "id", label: "ID", columnType: "STRING" as const, key: 1 },
-    { id: "name", label: "Name", columnType: "STRING" as const },
-    { id: "height", label: "Height", columnType: "DECIMAL" as const },
-    { id: "weight", label: "Weight", columnType: "DECIMAL" as const },
-  ],
-};
-
-const bloodPressureTable: ITableMetaData = {
-  id: "BloodPressure",
-  name: "BloodPressure",
-  schemaId: "test",
-  label: "Blood Pressure",
-  tableType: "MODULE",
-  columns: [
-    { id: "id", label: "ID", columnType: "STRING" as const, key: 1 },
-    { id: "name", label: "Name", columnType: "STRING" as const },
-    { id: "systolic", label: "Systolic", columnType: "INT" as const },
-    { id: "diastolic", label: "Diastolic", columnType: "INT" as const },
-  ],
-};
-
-const mriTable: ITableMetaData = {
-  id: "MRI",
-  name: "MRI",
-  schemaId: "test",
-  label: "MRI",
-  tableType: "MODULE",
-  columns: [
-    { id: "id", label: "ID", columnType: "STRING" as const, key: 1 },
-    { id: "name", label: "Name", columnType: "STRING" as const },
-    { id: "scanDate", label: "Scan Date", columnType: "DATE" as const },
-  ],
-};
-
 const rootTable: ITableMetaData = {
   id: "Patient",
   name: "Patient",
@@ -73,224 +31,6 @@ const rootTable: ITableMetaData = {
   tableType: "DATA",
   columns: rootColumns,
 };
-
-const schema: ISchemaMetaData = {
-  id: "test",
-  label: "Test Schema",
-  tables: [rootTable, bodyMeasurementsTable, bloodPressureTable, mriTable],
-};
-
-describe("expandModuleColumns", () => {
-  it("returns empty array for a root with no MODULE_ARRAY columns", () => {
-    const noModuleRoot: ITableMetaData = {
-      id: "Simple",
-      name: "Simple",
-      schemaId: "test",
-      label: "Simple",
-      tableType: "DATA",
-      columns: [
-        { id: "id", label: "ID", columnType: "STRING" as const, key: 1 },
-      ],
-    };
-    expect(expandModuleColumns(noModuleRoot, schema)).toEqual([]);
-  });
-
-  it("returns groups ordered by axis column then values order", () => {
-    const groups = expandModuleColumns(rootTable, schema);
-
-    expect(groups.map((g) => g.moduleName)).toEqual([
-      "BodyMeasurements",
-      "BloodPressure",
-      "MRI",
-    ]);
-  });
-
-  it("local columns exclude root table columns (matched by id)", () => {
-    const groups = expandModuleColumns(rootTable, schema);
-
-    const bodyGroup = groups.find((g) => g.moduleName === "BodyMeasurements");
-    expect(bodyGroup).toBeDefined();
-    const columnIds = bodyGroup!.columns.map((col) => col.id);
-    expect(columnIds).toContain("height");
-    expect(columnIds).toContain("weight");
-    expect(columnIds).not.toContain("id");
-    expect(columnIds).not.toContain("name");
-  });
-
-  it("flat module with extra cols: local cols exclude root cols (id, name)", () => {
-    const extendedModuleTable: ITableMetaData = {
-      id: "DetailedMRI",
-      name: "DetailedMRI",
-      schemaId: "test",
-      label: "Detailed MRI",
-      tableType: "MODULE",
-      columns: [
-        { id: "id", label: "ID", columnType: "STRING" as const, key: 1 },
-        { id: "name", label: "Name", columnType: "STRING" as const },
-        { id: "scanDate", label: "Scan Date", columnType: "DATE" as const },
-        {
-          id: "resolution",
-          label: "Resolution",
-          columnType: "DECIMAL" as const,
-        },
-      ],
-    };
-
-    const rootWithExtended: ITableMetaData = {
-      ...rootTable,
-      columns: [
-        { id: "id", label: "ID", columnType: "STRING" as const, key: 1 },
-        { id: "name", label: "Name", columnType: "STRING" as const },
-        {
-          id: "imaging",
-          label: "Imaging",
-          columnType: "MODULE_ARRAY" as const,
-          values: ["DetailedMRI"],
-        },
-      ],
-    };
-
-    const extendedSchema: ISchemaMetaData = {
-      ...schema,
-      tables: [...schema.tables, extendedModuleTable],
-    };
-
-    const groups = expandModuleColumns(rootWithExtended, extendedSchema);
-    const group = groups.find((g) => g.moduleName === "DetailedMRI");
-    expect(group).toBeDefined();
-    const columnIds = group!.columns.map((col) => col.id);
-    expect(columnIds).toContain("scanDate");
-    expect(columnIds).toContain("resolution");
-    expect(columnIds).not.toContain("id");
-    expect(columnIds).not.toContain("name");
-  });
-
-  it("module-extends-module chain: child group includes parent-local cols but excludes root cols", () => {
-    const rootBase: ITableMetaData = {
-      id: "Subject",
-      name: "Subject",
-      schemaId: "test",
-      label: "Subject",
-      tableType: "DATA",
-      columns: [
-        {
-          id: "subjectId",
-          label: "Subject ID",
-          columnType: "STRING" as const,
-          key: 1,
-        },
-        { id: "subjectName", label: "Name", columnType: "STRING" as const },
-        {
-          id: "exams",
-          label: "Exams",
-          columnType: "MODULE_ARRAY" as const,
-          values: ["AdvancedCockayne"],
-        },
-      ],
-    };
-
-    const moduleA: ITableMetaData = {
-      id: "BasicCockayne",
-      name: "BasicCockayne",
-      schemaId: "test",
-      label: "Basic Cockayne",
-      tableType: "MODULE",
-      inheritNames: ["Subject"],
-      columns: [
-        {
-          id: "subjectId",
-          label: "Subject ID",
-          columnType: "STRING" as const,
-          key: 1,
-        },
-        { id: "subjectName", label: "Name", columnType: "STRING" as const },
-        { id: "severity", label: "Severity", columnType: "STRING" as const },
-        {
-          id: "ageAtDiagnosis",
-          label: "Age at Diagnosis",
-          columnType: "INT" as const,
-        },
-      ],
-    };
-
-    const moduleB: ITableMetaData = {
-      id: "AdvancedCockayne",
-      name: "AdvancedCockayne",
-      schemaId: "test",
-      label: "Advanced Cockayne",
-      tableType: "MODULE",
-      inheritNames: ["BasicCockayne"],
-      columns: [
-        {
-          id: "subjectId",
-          label: "Subject ID",
-          columnType: "STRING" as const,
-          key: 1,
-        },
-        { id: "subjectName", label: "Name", columnType: "STRING" as const },
-        { id: "severity", label: "Severity", columnType: "STRING" as const },
-        {
-          id: "ageAtDiagnosis",
-          label: "Age at Diagnosis",
-          columnType: "INT" as const,
-        },
-        { id: "csaScore", label: "CSA Score", columnType: "DECIMAL" as const },
-        {
-          id: "uvSensitivity",
-          label: "UV Sensitivity",
-          columnType: "BOOL" as const,
-        },
-      ],
-    };
-
-    const chainSchema: ISchemaMetaData = {
-      id: "test",
-      label: "Chain Schema",
-      tables: [rootBase, moduleA, moduleB],
-    };
-
-    const groups = expandModuleColumns(rootBase, chainSchema);
-    const group = groups.find((g) => g.moduleName === "AdvancedCockayne");
-    expect(group).toBeDefined();
-    const columnIds = group!.columns.map((col) => col.id);
-
-    expect(columnIds).toContain("severity");
-    expect(columnIds).toContain("ageAtDiagnosis");
-    expect(columnIds).toContain("csaScore");
-    expect(columnIds).toContain("uvSensitivity");
-
-    expect(columnIds).not.toContain("subjectId");
-    expect(columnIds).not.toContain("subjectName");
-  });
-
-  it("handles two orthogonal axes producing separate groups", () => {
-    const groups = expandModuleColumns(rootTable, schema);
-    const moduleNames = groups.map((g) => g.moduleName);
-    expect(moduleNames).toContain("BodyMeasurements");
-    expect(moduleNames).toContain("BloodPressure");
-    expect(moduleNames).toContain("MRI");
-    expect(moduleNames).toHaveLength(3);
-  });
-
-  it("ignores unknown module names in values (no crash)", () => {
-    const rootWithUnknown: ITableMetaData = {
-      ...rootTable,
-      columns: [
-        {
-          id: "modules",
-          label: "Modules",
-          columnType: "MODULE_ARRAY" as const,
-          values: ["BodyMeasurements", "NonExistentModule"],
-        },
-      ],
-    };
-    const groups = expandModuleColumns(rootWithUnknown, schema);
-    const moduleNames = groups.map((g) => g.moduleName);
-    expect(moduleNames).toContain("BodyMeasurements");
-    expect(moduleNames).not.toContain("NonExistentModule");
-    expect(moduleNames).toHaveLength(1);
-  });
-});
 
 describe("isModuleColumn", () => {
   it("returns false for a root/local column (table === tableName)", () => {
@@ -596,5 +336,113 @@ describe("activeModules", () => {
     expect(result.has("BodyMeasurements")).toBe(true);
     expect(result.has("RNA")).toBe(true);
     expect(result.size).toBe(2);
+  });
+});
+
+describe("activeModules ancestor-module activation (module chain)", () => {
+  const chainSchema: ISchemaMetaData = {
+    id: "test",
+    label: "test",
+    tables: [
+      {
+        id: "Root",
+        name: "Root",
+        schemaId: "test",
+        label: "Root",
+        tableType: "DATA",
+        columns: [
+          { id: "id", label: "ID", columnType: "STRING", key: 1 },
+          {
+            id: "modules",
+            label: "Modules",
+            columnType: "MODULE_ARRAY",
+            values: ["M1", "M2"],
+            table: "Root",
+          },
+          { id: "m1Col", label: "M1 col", columnType: "STRING", table: "M1" },
+          { id: "m2Col", label: "M2 col", columnType: "STRING", table: "M2" },
+        ],
+      },
+      {
+        id: "M1",
+        name: "M1",
+        schemaId: "test",
+        label: "M1",
+        tableType: "MODULE",
+        inheritNames: ["Root"],
+        columns: [],
+      },
+      {
+        id: "M2",
+        name: "M2",
+        schemaId: "test",
+        label: "M2",
+        tableType: "MODULE",
+        inheritNames: ["M1"],
+        columns: [],
+      },
+    ],
+  };
+  const chainRoot = chainSchema.tables[0]!;
+
+  it("activates ancestor module M1 when leaf module M2 is active (Root<-M1<-M2)", () => {
+    const row = { id: "r1", modules: ["M2"] };
+    const result = activeModules(row, chainRoot, chainSchema);
+    expect(result.has("M2")).toBe(true);
+    expect(result.has("M1")).toBe(true);
+  });
+
+  it("does not activate the DATA root as a module ancestor", () => {
+    const row = { id: "r1", modules: ["M2"] };
+    const result = activeModules(row, chainRoot, chainSchema);
+    expect(result.has("Root")).toBe(false);
+  });
+
+  it("activates ancestor of an active scalar MODULE leaf", () => {
+    const scalarSchema: ISchemaMetaData = {
+      id: "test",
+      label: "test",
+      tables: [
+        {
+          id: "Host",
+          name: "Host",
+          schemaId: "test",
+          label: "Host",
+          tableType: "DATA",
+          columns: [
+            { id: "id", label: "ID", columnType: "STRING", key: 1 },
+            {
+              id: "assay",
+              label: "Assay",
+              columnType: "MODULE",
+              values: ["ModA", "DeepA"],
+              table: "Host",
+            },
+          ],
+        },
+        {
+          id: "ModA",
+          name: "ModA",
+          schemaId: "test",
+          label: "ModA",
+          tableType: "MODULE",
+          inheritNames: ["Host"],
+          columns: [],
+        },
+        {
+          id: "DeepA",
+          name: "DeepA",
+          schemaId: "test",
+          label: "DeepA",
+          tableType: "MODULE",
+          inheritNames: ["ModA"],
+          columns: [],
+        },
+      ],
+    };
+    const row = { id: "e1", assay: "DeepA" };
+    const result = activeModules(row, scalarSchema.tables[0]!, scalarSchema);
+    expect(result.has("DeepA")).toBe(true);
+    expect(result.has("ModA")).toBe(true);
   });
 });

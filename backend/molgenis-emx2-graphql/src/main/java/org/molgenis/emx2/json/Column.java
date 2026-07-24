@@ -149,7 +149,7 @@ public class Column {
             .filter(d -> d.value() != null)
             .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setSemantics(semantics);
-    if (values != null) c.setValues(values);
+    if (values != null && columnType != ColumnType.MODULE) c.setValues(values);
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);

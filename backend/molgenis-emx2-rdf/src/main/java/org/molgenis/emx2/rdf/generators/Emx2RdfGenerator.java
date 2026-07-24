@@ -101,12 +101,14 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     final IRI subject = tableIRI(getBaseURL(), table);
     getWriter().processTriple(subject, RDF.TYPE, OWL.CLASS);
     getWriter().processTriple(subject, RDFS.SUBCLASSOF, BasicIRI.LD_DATASET_CLASS);
-    Table parent = table.getInheritedTable();
-    // A table is a subclass of owl:Thing or of it's direct parent
-    if (parent == null) {
+    List<TableMetadata> parents = table.getMetadata().getInheritedTables();
+    // A table is a subclass of owl:Thing or of each of its direct parents
+    if (parents.isEmpty()) {
       getWriter().processTriple(subject, RDFS.SUBCLASSOF, OWL.THING);
     } else {
-      getWriter().processTriple(subject, RDFS.SUBCLASSOF, tableIRI(getBaseURL(), parent));
+      for (final TableMetadata parent : parents) {
+        getWriter().processTriple(subject, RDFS.SUBCLASSOF, tableIRI(getBaseURL(), parent));
+      }
     }
     // Add 'controlled vocab' and 'concept scheme' for any ONTOLOGIES
     if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
@@ -152,7 +154,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   void describeColumns(
       final NamespaceMapper namespaces, final Table table, final String columnName) {
-    if (table.getMetadata().getTableType() == TableType.DATA) {
+    if (table.getMetadata().getTableType() == TableType.DATA
+        || table.getMetadata().getTableType() == TableType.MODULE) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
         // Exclude the system columns that refer to specific users
         if (column.isSystemAddUpdateByUserColumn()) {

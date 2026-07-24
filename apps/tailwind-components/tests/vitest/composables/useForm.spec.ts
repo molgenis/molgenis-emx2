@@ -1,7 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { type Ref, ref } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type { columnValue } from "../../../../metadata-utils/src/types";
+import type {
+  columnValue,
+  ISchemaMetaData,
+} from "../../../../metadata-utils/src/types";
 import useForm from "../../../app/composables/useForm";
 
 describe("useForm", () => {
@@ -696,6 +699,103 @@ describe("useForm", () => {
       const { visibleColumns } = useForm(scalarModuleMeta, formValues);
 
       expect(visibleColumns.value.map((c) => c.id)).not.toContain("readCount");
+    });
+  });
+
+  describe("ancestor module reveal in a module chain (Root<-M1<-M2)", () => {
+    const chainSchema = ref<ISchemaMetaData>({
+      id: "chainSchema",
+      label: "chainSchema",
+      tables: [
+        {
+          id: "Root",
+          name: "Root",
+          schemaId: "chainSchema",
+          label: "Root",
+          tableType: "DATA",
+          columns: [
+            {
+              columnType: "STRING",
+              id: "id",
+              label: "ID",
+              key: 1,
+              table: "Root",
+              inherited: false,
+            },
+            {
+              columnType: "MODULE_ARRAY",
+              id: "modules",
+              label: "Modules",
+              values: ["M1", "M2"],
+              table: "Root",
+              inherited: false,
+            },
+            {
+              columnType: "STRING",
+              id: "m1Col",
+              label: "M1 column",
+              table: "M1",
+              inherited: false,
+            },
+            {
+              columnType: "STRING",
+              id: "m2Col",
+              label: "M2 column",
+              table: "M2",
+              inherited: false,
+            },
+          ],
+        },
+        {
+          id: "M1",
+          name: "M1",
+          schemaId: "chainSchema",
+          label: "M1",
+          tableType: "MODULE",
+          inheritNames: ["Root"],
+          columns: [],
+        },
+        {
+          id: "M2",
+          name: "M2",
+          schemaId: "chainSchema",
+          label: "M2",
+          tableType: "MODULE",
+          inheritNames: ["M1"],
+          columns: [],
+        },
+      ],
+    });
+    const chainRoot = ref<ITableMetaData>(chainSchema.value.tables[0]!);
+
+    test("activating leaf module M2 reveals ancestor module M1's column", () => {
+      const formValues = ref<Record<string, columnValue>>({ modules: [] });
+      const { visibleColumns } = useForm(chainRoot, formValues, chainSchema);
+
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("m1Col");
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("m2Col");
+
+      formValues.value["modules"] = ["M2"];
+      const visibleIds = visibleColumns.value.map((c) => c.id);
+      expect(visibleIds).toContain("m2Col");
+      expect(visibleIds).toContain("m1Col");
+    });
+
+    test("payload keeps ancestor module M1's value when leaf module M2 is active", () => {
+      const formValues = ref<Record<string, columnValue>>({
+        id: "r1",
+        modules: ["M2"],
+        m1Col: "m1val",
+        m2Col: "m2val",
+      });
+      const { values, visibleColumns } = useForm(
+        chainRoot,
+        formValues,
+        chainSchema
+      );
+
+      expect(visibleColumns.value.map((c) => c.id)).toContain("m1Col");
+      expect(values.value["m1Col"]).toBe("m1val");
     });
   });
 });

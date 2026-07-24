@@ -437,7 +437,7 @@ public class SqlColumnExecutor {
                   c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
         }
       }
-      if ((c.getColumnType() == MODULE_ARRAY || c.getColumnType() == MODULE) && hasDatabase(c)) {
+      if (c.isModuleDiscriminator()) {
         validateModuleDiscriminatorValues(c);
       }
       // fix required
@@ -448,12 +448,6 @@ public class SqlColumnExecutor {
       throw new MolgenisException(
           "Column " + c.getTableName() + "." + c.getName() + " is invalid: " + e.getMessage());
     }
-  }
-
-  private static boolean hasDatabase(Column c) {
-    return c.getTable() != null
-        && c.getTable().getSchema() != null
-        && c.getTable().getSchema().getDatabase() != null;
   }
 
   private static void validateModuleDiscriminatorValues(Column c) {
@@ -552,35 +546,6 @@ public class SqlColumnExecutor {
                 + "' but declaring table root is '"
                 + declaringRootKey
                 + "'");
-      }
-    }
-
-    validateNoModuleInMultipleAxes(c, moduleValues, declaringTable);
-  }
-
-  private static void validateNoModuleInMultipleAxes(
-      Column newColumn, List<String> newModuleValues, TableMetadata declaringTable) {
-    for (Column existing : declaringTable.getDiscriminatorColumns()) {
-      if (existing.getName().equals(newColumn.getName())) {
-        continue;
-      }
-      List<String> existingValues = existing.getEffectiveValues();
-      if (existingValues == null) {
-        continue;
-      }
-      for (String newValue : newModuleValues) {
-        if (existingValues.contains(newValue)) {
-          throw new MolgenisException(
-              "Add column '"
-                  + declaringTable.getTableName()
-                  + "."
-                  + newColumn.getName()
-                  + "' failed: MODULE '"
-                  + newValue
-                  + "' is already assigned to axis '"
-                  + existing.getName()
-                  + "'. A module may appear in at most one MODULE/MODULE_ARRAY axis per table.");
-        }
       }
     }
   }

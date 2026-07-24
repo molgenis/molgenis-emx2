@@ -40,15 +40,21 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(rdfMapData, table, row));
       case DATA -> rows.forEach(row -> dataRowToRdf(namespaces, rdfMapData, table, row));
-      case MODULE -> rows.forEach(row -> moduleRowToRdf(rdfMapData, table, row));
+      case MODULE -> rows.forEach(row -> moduleRowToRdf(namespaces, rdfMapData, table, row));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
   }
 
-  protected void moduleRowToRdf(RdfMapData rdfMapData, Table table, Row row) {
+  protected void moduleRowToRdf(
+      NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, Row row) {
     if (row.isDraft()) return;
     IRI subject = rowIRI(getBaseURL(), table, row);
     getWriter().processTriple(subject, RDF.TYPE, tableIRI(getBaseURL(), table));
+    if (table.getMetadata().getSemantics() != null) {
+      for (String semantics : table.getMetadata().getSemantics()) {
+        getWriter().processTriple(subject, RDF.TYPE, namespaces.map(table.getSchema(), semantics));
+      }
+    }
   }
 
   protected abstract void ontologyRowToRdf(RdfMapData rdfMapData, Table table, Row row);

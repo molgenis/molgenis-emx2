@@ -9,6 +9,7 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadata.validateTableIdentifierIsU
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -356,6 +357,19 @@ class SqlTableMetadata extends TableMetadata {
       return this;
     }
     List<String> currentParents = getInheritNames();
+    if (!currentParents.isEmpty()) {
+      if (new HashSet<>(currentParents).equals(new HashSet<>(names))) {
+        return this;
+      }
+      throw new MolgenisException(
+          "Cannot change inheritance of table '"
+              + getTableName()
+              + "': extends is immutable after creation (current parents "
+              + currentParents
+              + ", requested "
+              + names
+              + ")");
+    }
     List<String> newParents =
         names.stream().filter(name -> !currentParents.contains(name)).toList();
     if (newParents.isEmpty()) {

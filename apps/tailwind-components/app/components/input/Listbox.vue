@@ -192,6 +192,35 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
   });
 });
 
+function findOptionForValue(
+  value: IInputValue | IInputValueLabel | null | undefined
+) {
+  return listboxOptions.value.find((row: IInternalListboxOption) => {
+    return (
+      row.value === (value as IInputValueLabel)?.value ||
+      row.value === (value as IInputValue)
+    );
+  });
+}
+
+watch(
+  modelValue,
+  () => {
+    const current = findOptionForValue(modelValue.value);
+    if (current && current.value !== null) {
+      focusCounter.value = current.index;
+      startingCounter.value = current.index;
+      selectedElementId.value = current.elemId;
+      displayText.value = updateDisplayText(
+        (current.label as string) || (current.value as string)
+      );
+    } else {
+      displayText.value = props.placeholder;
+    }
+  },
+  { immediate: true }
+);
+
 function updateCounter(value: number) {
   if (counterIsInRange(value)) {
     focusCounter.value = value;

@@ -31,7 +31,7 @@ type Resp<T> = {
   data: Record<string, T>;
 };
 
-type TableType = "DATA" | "ONTOLOGIES";
+type TableType = "DATA" | "ONTOLOGIES" | "MODULE";
 
 interface Table {
   id: string;

@@ -320,11 +320,11 @@ public class TypeUtils {
 
   public static ColumnType getArrayType(ColumnType columnType) {
     if (columnType.isArray()) return columnType;
+    if (columnType == ColumnType.ENUM) return ColumnType.ENUM_ARRAY;
+    if (columnType == ColumnType.MODULE) return ColumnType.MODULE_ARRAY;
     return switch (columnType.getBaseType()) {
       case UUID -> ColumnType.UUID_ARRAY;
       case STRING -> ColumnType.STRING_ARRAY;
-      case ENUM -> ColumnType.ENUM_ARRAY;
-      case MODULE -> ColumnType.MODULE_ARRAY;
       case BOOL -> ColumnType.BOOL_ARRAY;
       case INT -> ColumnType.INT_ARRAY;
       case NON_NEGATIVE_INT -> ColumnType.NON_NEGATIVE_INT_ARRAY;

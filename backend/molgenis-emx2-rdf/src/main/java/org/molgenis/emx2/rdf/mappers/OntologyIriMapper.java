@@ -34,7 +34,7 @@ public class OntologyIriMapper {
 
   private void add(Table table) {
     switch (table.getMetadata().getTableType()) {
-      case DATA -> addDataTable(table);
+      case DATA, MODULE -> addDataTable(table);
       case ONTOLOGIES -> addOntologyTable(table);
     }
   }

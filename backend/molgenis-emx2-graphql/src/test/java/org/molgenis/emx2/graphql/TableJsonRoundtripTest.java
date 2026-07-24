@@ -33,4 +33,22 @@ class TableJsonRoundtripTest {
         inheritNames.containsAll(List.of("B", "C")),
         "After JSON round-trip, D must have both B and C as parents, got: " + inheritNames);
   }
+
+  @Test
+  void legacySingularInheritNameYieldsInheritance() throws IOException {
+    String legacyJson =
+        "{\"tables\":["
+            + "{\"name\":\"Pet\",\"columns\":[{\"name\":\"id\",\"columnType\":\"STRING\",\"key\":1}]},"
+            + "{\"name\":\"Dog\",\"inheritName\":\"Pet\",\"columns\":[{\"name\":\"breed\",\"columnType\":\"STRING\"}]}"
+            + "]}";
+
+    SchemaMetadata restored = JsonUtil.jsonToSchema(legacyJson);
+
+    TableMetadata dog = restored.getTableMetadata("Dog");
+    assertNotNull(dog, "Table Dog must be parsed from legacy JSON");
+    assertEquals(
+        List.of("Pet"),
+        dog.getInheritNames(),
+        "Legacy singular inheritName must still yield inheritance, got: " + dog.getInheritNames());
+  }
 }

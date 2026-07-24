@@ -108,6 +108,16 @@ NOTE: when using any of the above relationship types, the "refTable" must also b
 - email_array
 - hyperlink_array
 
+#### Enumerations (fixed set of allowed values)
+
+- enum : a single value chosen from a fixed set of allowed values declared in the column's `values` field
+- enum_array : multiple values chosen from that same fixed set
+
+#### Composition (see [MODULE tableType](#module-tabletype-composition) and [MODULE_ARRAY](#module_array-composition-column) below)
+
+- module : a single MODULE subtype selected from the column's `values` (the allowed MODULE table names). When `values` is left empty the allowed set is server-derived from the root's MODULE subtypes.
+- module_array : multiple MODULE subtypes selected from that set
+
 #### Layout (static content, not an input)
 
 - heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.

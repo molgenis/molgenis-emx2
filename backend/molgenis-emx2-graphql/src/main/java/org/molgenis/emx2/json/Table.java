@@ -214,6 +214,16 @@ public class Table {
     return inheritNames;
   }
 
+  public List<String> getEffectiveInheritNames() {
+    if (inheritNames != null && !inheritNames.isEmpty()) {
+      return inheritNames;
+    }
+    if (inheritName != null && !inheritName.isBlank()) {
+      return List.of(inheritName);
+    }
+    return new ArrayList<>();
+  }
+
   public void setInheritNames(List<String> inheritNames) {
     this.inheritNames = inheritNames != null ? inheritNames : new ArrayList<>();
   }

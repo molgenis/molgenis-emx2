@@ -202,7 +202,9 @@ public class Migrations {
 
           if (version < 34) {
             executeMigrationFile(
-                tdb, "migration33.sql", "diamond: table_inherits array + column values");
+                tdb,
+                "migration33.sql",
+                "change table_metadata.inherit_name to inherit_names and add column_metadata.values");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

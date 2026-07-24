@@ -401,7 +401,7 @@ class TestModuleArrayDiscriminator {
   }
 
   @Test
-  void moduleArrayValueOneAxisPerModule() {
+  void overlappingModuleValuesAcrossTwoAxesAreAccepted() {
     Schema s = freshSchema("C2D_axis");
 
     s.create(table("Root").add(column("id").setType(STRING).setPkey()));
@@ -413,18 +413,16 @@ class TestModuleArrayDiscriminator {
 
     s.getTable("Root").getMetadata().add(column("axis1").setType(MODULE_ARRAY).setValues("Mod"));
 
-    MolgenisException ex =
-        assertThrows(
-            MolgenisException.class,
-            () ->
-                s.getTable("Root")
-                    .getMetadata()
-                    .add(column("axis2").setType(MODULE_ARRAY).setValues("Mod")),
-            "A module may only appear in one MODULE_ARRAY axis per table (O-5)");
+    assertDoesNotThrow(
+        () ->
+            s.getTable("Root")
+                .getMetadata()
+                .add(column("axis2").setType(MODULE_ARRAY).setValues("Mod")),
+        "A module may appear in multiple MODULE_ARRAY axes; the backend unions active modules");
 
-    assertTrue(
-        ex.getMessage().contains("Mod") || ex.getMessage().contains("axis"),
-        "Error must mention the duplicate module or axis conflict, got: " + ex.getMessage());
+    TableMetadata rootMeta = s.getTable("Root").getMetadata();
+    assertNotNull(rootMeta.getColumn("axis1"));
+    assertNotNull(rootMeta.getColumn("axis2"));
   }
 
   // ── C3: write routing into module subtype tables ─────────────────────────────
@@ -1404,6 +1402,85 @@ class TestModuleArrayDiscriminator {
     assertTrue(
         json.contains("modValue"),
         "JSON must contain the active module column value, got: " + json);
+  }
+
+  // ── ticket 11: save()/upsert removes deactivated module rows ─────────────────
+
+  @Test
+  void saveRemovesDeactivatedModuleRow() {
+    Schema s = freshSchema("SaveDeactivate");
+
+    s.create(table("Root").add(column("id").setPkey()));
+    s.create(
+        table("Mod1")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("col1").setType(STRING)));
+    s.create(
+        table("Mod2")
+            .setTableType(MODULE)
+            .setInheritNames("Root")
+            .add(column("col2").setType(STRING)));
+
+    s.getTable("Root")
+        .getMetadata()
+        .add(column("panels").setType(MODULE_ARRAY).setValues("Mod1", "Mod2"));
+
+    s.getTable("Root")
+        .save(
+            row(
+                "id", "1",
+                "panels", new String[] {"Mod1", "Mod2"},
+                "col1", "v1",
+                "col2", "v2"));
+
+    assertEquals(1, s.getTable("Mod1").retrieveRows().size(), "Mod1 must have a row after save");
+    assertEquals(1, s.getTable("Mod2").retrieveRows().size(), "Mod2 must have a row after save");
+
+    s.getTable("Root").save(row("id", "1", "panels", new String[] {"Mod1"}, "col1", "v1"));
+
+    assertEquals(1, s.getTable("Mod1").retrieveRows().size(), "Mod1 must still have its row");
+    assertEquals(
+        0,
+        s.getTable("Mod2").retrieveRows().size(),
+        "Mod2 row must be removed when save deactivates it");
+
+    List<Row> projected = s.getTable("Root").query().select(s("id"), s("col2")).retrieveRows();
+    assertEquals(1, projected.size(), "Root must have exactly one row");
+    assertNull(
+        projected.get(0).getString("col2"),
+        "col2 must project NULL after save deactivation (no stale projection)");
+  }
+
+  // ── ticket 11: insert rejects a discriminator value naming a non-module table ──
+
+  @Test
+  void insertRejectsDiscriminatorValueNamingNonModuleTable() {
+    Schema s = freshSchema("RogueTable");
+
+    s.create(table("Root").add(column("id").setType(STRING).setPkey()).add(column("rootCol")));
+    s.create(
+        table("NotAModule")
+            .add(column("id").setType(STRING).setPkey())
+            .add(column("otherCol").setType(STRING)));
+
+    s.getTable("Root").getMetadata().add(column("panels").setType(MODULE_ARRAY));
+
+    MolgenisException ex =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                s.getTable("Root").insert(row("id", "r1", "rootCol", "v", "panels", "NotAModule")),
+            "Inserting a discriminator value naming a non-module same-schema table must be rejected");
+
+    assertTrue(
+        ex.getMessage().contains("NotAModule") || ex.getMessage().contains("MODULE"),
+        "Error must mention the offending table or MODULE requirement, got: " + ex.getMessage());
+
+    assertEquals(
+        0,
+        s.getTable("NotAModule").retrieveRows().size(),
+        "No rogue row may be written into the non-module table");
   }
 
   @Test

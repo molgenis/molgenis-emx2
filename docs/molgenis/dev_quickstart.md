@@ -48,38 +48,6 @@ root-directory)
   rm -rf psql_data
   ```
 
-**Run a dedicated dev database on a custom port**
-
-To isolate a dev database from the default one on `:5432` without Docker, run a second Postgres on another port (e.g. `5433`). With Postgres.app, add a second server (PostgreSQL 15) on port `5433`; or start a separate PostgreSQL cluster. Seed the `molgenis` db/user if it does not exist yet:
-
-```console
-psql -p 5433 -f .circleci/initdb.sql
-```
-
-Then point the backend (and tests) at it. The simplest way is a `.env` file at the repo root: Gradle auto-reads it (straight from disk at configuration time, so it is daemon-safe) and forwards `MOLGENIS_POSTGRES_URI`/`USER`/`PASS` to the forked test/`dev`/`cleandb`/`run` JVMs. Create `.env` with:
-
-```
-MOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
-MOLGENIS_POSTGRES_USER=molgenis
-MOLGENIS_POSTGRES_PASS=molgenis
-```
-
-Now the tasks pick it up with no extra flags:
-
-```console
-./gradlew run
-./gradlew dev
-./gradlew :backend:molgenis-emx2-sql:test
-```
-
-A `-D` system property overrides the `.env` value for a single run (handy to hit a different port without editing `.env`):
-
-```console
-./gradlew run -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5433/molgenis
-```
-
-Add `MOLGENIS_POSTGRES_USER=...`/`MOLGENIS_POSTGRES_PASS=...` (in `.env`) or `-DMOLGENIS_POSTGRES_USER=...`/`-DMOLGENIS_POSTGRES_PASS=...` if your credentials differ from the `molgenis`/`molgenis` default. See `.env-example` for a ready-made template. The `.env` file is gitignored.
-
 **Start developing using gradle**
 
 - Change into molgenis-emx2 directory and then compile and run via command

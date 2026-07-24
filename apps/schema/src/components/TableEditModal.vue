@@ -24,16 +24,22 @@
         label="description"
         :locales="locales"
       />
-      <InputSelect
-        v-if="rootTable !== undefined"
+      <InputCheckbox
+        v-if="rootTable !== undefined && table.oldName === undefined"
         id="table_extends"
-        v-model="table.inheritName"
+        v-model="table.inheritNames"
         :required="true"
         :options="inheritOptions"
-        :readonly="table.oldName !== undefined"
+        :hideClearButton="true"
         :errorMessage="subclassInvalid"
-        label="Extends table (can not be edited after creation)"
+        label="Extends tables (can not be edited after creation)"
       />
+      <div v-else-if="rootTable !== undefined">
+        <label class="mb-0"
+          >Extends tables (can not be edited after creation):</label
+        >
+        <div class="ml-4">{{ table.inheritNames?.join(", ") }}</div>
+      </div>
       <InputSelect
         v-if="rootTable !== undefined"
         id="table_type"
@@ -73,6 +79,7 @@ import {
   ButtonAction,
   MessageWarning,
   InputSelect,
+  InputCheckbox,
   ArrayInput,
   ButtonAlt,
   deepClone,
@@ -90,6 +97,7 @@ export default {
     ButtonAction,
     MessageWarning,
     InputSelect,
+    InputCheckbox,
     ButtonAlt,
     InputTextLocalized,
   },
@@ -147,7 +155,6 @@ export default {
               .filter((name) => name !== this.table.name)
           );
         }
-        this.table.inheritName = result[0];
         return result;
       }
       return undefined;
@@ -184,7 +191,7 @@ export default {
       return null;
     },
     subclassInvalid() {
-      return this.inheritOptions && this.table.inheritName === undefined
+      return this.inheritOptions && !this.table.inheritNames?.length
         ? "Extends is required in case of subclass"
         : null;
     },
@@ -195,14 +202,12 @@ export default {
   methods: {
     showModal() {
       if (!this.modelValue) {
-        this.table = {};
-        if (this.rootTable !== undefined) {
-          this.table.tableType = DEFAULT_TABLE_TYPE;
-        }
+        this.initNewTable();
       }
       this.modalVisible = true;
     },
     emitOperation() {
+      this.table.inheritName = this.table.inheritNames?.[0];
       this.$emit(this.operation, this.table);
       this.modalVisible = false;
     },
@@ -214,10 +219,14 @@ export default {
       if (this.modelValue) {
         this.table = deepClone(this.modelValue);
       } else {
-        this.table = {};
-        if (this.rootTable !== undefined) {
-          this.table.tableType = DEFAULT_TABLE_TYPE;
-        }
+        this.initNewTable();
+      }
+    },
+    initNewTable() {
+      this.table = {};
+      if (this.rootTable !== undefined) {
+        this.table.tableType = DEFAULT_TABLE_TYPE;
+        this.table.inheritNames = [this.rootTable.name];
       }
     },
   },

@@ -2,12 +2,70 @@ package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.INHERITED;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.LOCAL;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.MODULES;
+import static org.molgenis.emx2.TableMetadata.ColumnSelection.SUBCLASSES;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
-public class TestTableMetadataDag {
+public class TestTableMetadataInheritance {
+
+  private static SchemaMetadata diamondWithModuleFixture() {
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.create(
+        table("Root", column("id").setPkey(), column("rootCol")),
+        table("ParentA", column("paCol")).setInheritNames("Root"),
+        table("ParentB", column("pbCol")).setInheritNames("Root"),
+        table("Child", column("childCol")).setInheritNames(List.of("ParentA", "ParentB")),
+        table("ModuleX", column("modXCol")).setTableType(TableType.MODULE).setInheritNames("Root"));
+    return schema;
+  }
+
+  private static Set<String> columnNames(List<Column> columns) {
+    return columns.stream().map(Column::getName).collect(Collectors.toSet());
+  }
+
+  @Test
+  void getColumnsLocalReturnsOnlyOwnColumnsPlusInheritedKey() {
+    TableMetadata child = diamondWithModuleFixture().getTableMetadata("Child");
+    assertEquals(Set.of("id", "childCol"), columnNames(child.getColumns(LOCAL)));
+  }
+
+  @Test
+  void getColumnsInheritedAddsAllAncestorColumns() {
+    TableMetadata child = diamondWithModuleFixture().getTableMetadata("Child");
+    assertEquals(
+        Set.of("id", "rootCol", "paCol", "pbCol", "childCol"),
+        columnNames(child.getColumns(INHERITED)));
+  }
+
+  @Test
+  void getColumnsSubclassesAddsSubclassColumnsButNotModuleColumns() {
+    TableMetadata root = diamondWithModuleFixture().getTableMetadata("Root");
+    assertEquals(
+        Set.of("id", "rootCol", "paCol", "pbCol", "childCol"),
+        columnNames(root.getColumns(INHERITED, SUBCLASSES)));
+  }
+
+  @Test
+  void getColumnsModulesAddsModuleColumnsButNotSubclassColumns() {
+    TableMetadata root = diamondWithModuleFixture().getTableMetadata("Root");
+    assertEquals(
+        Set.of("id", "rootCol", "modXCol"), columnNames(root.getColumns(INHERITED, MODULES)));
+  }
+
+  @Test
+  void getColumnsSubclassesAndModulesAddsBoth() {
+    TableMetadata root = diamondWithModuleFixture().getTableMetadata("Root");
+    assertEquals(
+        Set.of("id", "rootCol", "paCol", "pbCol", "childCol", "modXCol"),
+        columnNames(root.getColumns(INHERITED, SUBCLASSES, MODULES)));
+  }
 
   @Test
   void getInheritNameReturnsPrimaryParent() {
@@ -378,14 +436,18 @@ public class TestTableMetadataDag {
     assertEquals("groups", discriminators.get(1).getName());
 
     assertTrue(
-        host.getColumn("panels").isDiscriminator(), "MODULE_ARRAY column must be a discriminator");
+        host.getColumn("panels").isModuleDiscriminator(),
+        "MODULE_ARRAY column must be a discriminator");
     assertTrue(
-        host.getColumn("groups").isDiscriminator(), "MODULE_ARRAY column must be a discriminator");
+        host.getColumn("groups").isModuleDiscriminator(),
+        "MODULE_ARRAY column must be a discriminator");
     assertFalse(
-        host.getColumn("label").isDiscriminator(), "STRING column must not be a discriminator");
+        host.getColumn("label").isModuleDiscriminator(),
+        "STRING column must not be a discriminator");
     assertFalse(
-        host.getColumn("category").isDiscriminator(),
-        "ENUM column must not be a discriminator — isDiscriminator is exact-type, not base-type");
-    assertFalse(host.getColumn("id").isDiscriminator(), "PK column must not be a discriminator");
+        host.getColumn("category").isModuleDiscriminator(),
+        "ENUM column must not be a discriminator — isModuleDiscriminator is exact-type, not base-type");
+    assertFalse(
+        host.getColumn("id").isModuleDiscriminator(), "PK column must not be a discriminator");
   }
 }

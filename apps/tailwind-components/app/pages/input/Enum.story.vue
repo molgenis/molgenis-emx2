@@ -21,6 +21,27 @@
       </div>
 
       <div>
+        <h3 class="text-heading-lg mb-2">
+          ENUM — pre-filled (editing existing row)
+        </h3>
+        <InputLabel for="enum-prefilled" class="block mb-1 pl-0">
+          Blood type from an existing record
+        </InputLabel>
+        <InputEnum
+          id="enum-prefilled"
+          v-model="prefilledValue"
+          :values="bloodTypeValues"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+          placeholder="Select blood type"
+        />
+        <p class="mt-2 text-title-contrast">
+          Selected: {{ prefilledValue ?? "(none)" }}
+        </p>
+      </div>
+
+      <div>
         <h3 class="text-heading-lg mb-2">MODULE — single select</h3>
         <InputLabel for="module-single" class="block mb-1 pl-0">
           Select experiment type
@@ -67,6 +88,7 @@ const bloodTypeValues = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const moduleValues = ["BodyMeasurements", "BloodPressure", "MRI", "Genetics"];
 
 const singleValue = ref<string | null>(null);
+const prefilledValue = ref<string | null>("B+");
 const moduleValue = ref<string | null>(null);
 const multiValue = ref<string[] | null>(null);
 </script>

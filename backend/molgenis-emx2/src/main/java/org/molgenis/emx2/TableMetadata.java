@@ -14,6 +14,13 @@ import org.jooq.impl.DSL;
 public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadata>
     implements Comparable {
 
+  public enum ColumnSelection {
+    LOCAL,
+    INHERITED,
+    SUBCLASSES,
+    MODULES
+  }
+
   public static final String TABLE_NAME_MESSAGE =
       ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
   public static final String SCHEMA_NAME_MESSAGE =
@@ -177,6 +184,17 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     finalResult.addAll(internalList);
     finalResult.addAll(metaList);
     return finalResult;
+  }
+
+  public List<Column> getColumns(ColumnSelection first, ColumnSelection... rest) {
+    EnumSet<ColumnSelection> selection = EnumSet.of(first, rest);
+    boolean subclasses = selection.contains(ColumnSelection.SUBCLASSES);
+    boolean modules = selection.contains(ColumnSelection.MODULES);
+    if (subclasses && modules) return columnsIncludingSubclassesAndModules();
+    if (subclasses) return columnsIncludingSubclasses();
+    if (modules) return columnsIncludingModules();
+    if (selection.contains(ColumnSelection.INHERITED)) return getColumns();
+    return getLocalColumns();
   }
 
   public List<Column> getColumnsWithoutHeadings() {
@@ -357,25 +375,25 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public TableMetadata add(Column... column) {
-    for (Column col : column) {
+    for (Column c : column) {
       for (TableMetadata parent : getInheritedTables()) {
-        if (parent.getColumn(col.getName()) != null && !col.isPrimaryKey()) {
+        if (parent.getColumn(c.getName()) != null && !c.isPrimaryKey()) {
           throw new MolgenisException(
               "Cannot add column '"
                   + getTableName()
                   + "."
-                  + col.getName()
+                  + c.getName()
                   + "': exists in extended table '"
                   + parent.getTableName()
                   + "'");
         }
       }
 
-      if (col.getPosition() == null) {
-        col.setPosition(columns.size());
+      if (c.getPosition() == null) {
+        c.setPosition(columns.size());
       }
-      columns.put(col.getName(), new Column(this, col));
-      col.setTable(this);
+      columns.put(c.getName(), new Column(this, c));
+      c.setTable(this);
     }
     return this;
   }
@@ -674,6 +692,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getColumnsIncludingSubclasses() {
+    return getColumns(ColumnSelection.INHERITED, ColumnSelection.SUBCLASSES);
+  }
+
+  private List<Column> columnsIncludingSubclasses() {
     // get all tables in current schema that inherit this
     List<Column> result = new ArrayList<>();
     result.addAll(this.getColumns());
@@ -754,6 +776,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getColumnsIncludingModules() {
+    return getColumns(ColumnSelection.INHERITED, ColumnSelection.MODULES);
+  }
+
+  private List<Column> columnsIncludingModules() {
     List<Column> base = getColumns();
     if (getTableType().isModule()) {
       return base;
@@ -794,6 +820,11 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getColumnsIncludingSubclassesAndModules() {
+    return getColumns(
+        ColumnSelection.INHERITED, ColumnSelection.SUBCLASSES, ColumnSelection.MODULES);
+  }
+
+  private List<Column> columnsIncludingSubclassesAndModules() {
     List<Column> result = new ArrayList<>(getColumnsIncludingSubclasses());
     Set<String> rootColumnNames = result.stream().map(Column::getName).collect(Collectors.toSet());
     for (TableMetadata moduleTable : getModuleSubtypeTables()) {
@@ -827,7 +858,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     }
     if (roots.size() > 1) {
       throw new MolgenisException(
-          "Inheritance DAG for table '"
+          "Inheritance graph for table '"
               + getTableName()
               + "' has multiple roots: "
               + roots.keySet()
@@ -855,7 +886,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getDiscriminatorColumns() {
-    return getColumns().stream().filter(Column::isDiscriminator).toList();
+    return getColumns().stream().filter(Column::isModuleDiscriminator).toList();
   }
 
   public void validateInheritance() {
@@ -886,6 +917,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     List<TableMetadata> result = new ArrayList<>();
     result.add(this);
     result.addAll(getSubclassTables());
+    result.addAll(getModuleSubtypeTables());
     return result;
   }
 }

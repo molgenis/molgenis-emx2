@@ -715,7 +715,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return this.getColumnType().equals(ONTOLOGY) || this.getColumnType().equals(ONTOLOGY_ARRAY);
   }
 
-  public boolean isDiscriminator() {
+  public boolean isModuleDiscriminator() {
     return this.getColumnType() == MODULE_ARRAY || this.getColumnType() == MODULE;
   }
 

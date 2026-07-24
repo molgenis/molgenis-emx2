@@ -171,6 +171,15 @@ class TestTypeUtils {
   }
 
   @Test
+  void getArrayTypeMapsEnumAndModuleToTheirOwnArrayType() {
+    assertEquals(ColumnType.ENUM_ARRAY, TypeUtils.getArrayType(ColumnType.ENUM));
+    assertEquals(ColumnType.MODULE_ARRAY, TypeUtils.getArrayType(ColumnType.MODULE));
+    assertEquals(ColumnType.STRING_ARRAY, TypeUtils.getArrayType(ColumnType.STRING));
+    assertEquals(ColumnType.ENUM_ARRAY, TypeUtils.getArrayType(ColumnType.ENUM_ARRAY));
+    assertEquals(ColumnType.MODULE_ARRAY, TypeUtils.getArrayType(ColumnType.MODULE_ARRAY));
+  }
+
+  @Test
   void testAllColumnTypesCoveredToJooqType() {
     EXCLUDE_REFERENCE_HEADING.forEach(TypeUtils::toJooqType);
   }

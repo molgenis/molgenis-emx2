@@ -115,23 +115,21 @@ fdp-o:metadataModified "2025-02-20T13:46:29"^^xsd:dateTime;
 ### MODULE composition columns and RDF
 
 When a root table uses [MODULE_ARRAY composition](use_schema.md#module_array-composition-column),
-the column values of any active MODULE are emitted as RDF triples **under the host root's subject**
-— exactly as if those columns had been declared directly on the root. There is no separate RDF
-subject for a MODULE table; a MODULE row has no standalone RDF representation.
+the column values of any active MODULE are emitted as RDF triples under the host root's subject.
+In addition, each active MODULE types the root subject: an `rdf:type` triple is emitted for the
+MODULE table and for any semantic annotation defined on that MODULE table. MODULE tables do not
+get a standalone RDF subject; all their data surfaces under the root subject.
 
 Example: if a `Subject` row activates `DiabetesData` (which contributes an `hba1c` column), the
-`hba1c` value is emitted as a predicate of the `Subject` subject URI:
+`hba1c` value is emitted as a predicate of the `Subject` subject URI and the subject is additionally
+typed as `DiabetesData`:
 
 ```turtle
 <http://localhost:8080/myschema/api/rdf/Subject?id=s1>
-    a myschema:Subject, qb:Observation ;
+    a myschema:Subject, qb:Observation, myschema:DiabetesData ;
     <.../Subject/column/hba1c> "6.8" ;
     ...
 ```
-
-Note: the system does **not** emit a separate `rdf:type` triple per active module (a
-FHIR `meta.profile[]`-style multiple-typing was considered but deferred). MODULE tables do not
-appear as standalone RDF subjects; all their data surfaces under the root subject.
 
 ### References to an ontology table
 

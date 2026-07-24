@@ -428,6 +428,41 @@ class SchemaMetadataGraphqlSurfaceTest {
             + pkOccurrences);
   }
 
+  @Test
+  void reapplyingFetchedSchemaJsonIsIdempotentForModuleColumns() throws IOException {
+    schema.create(
+        table("IdemRoot")
+            .add(column("idemId").setType(STRING).setPkey())
+            .add(column("idemRootCol").setType(STRING)));
+    schema.create(
+        table("IdemMod")
+            .setTableType(MODULE)
+            .setInheritNames("IdemRoot")
+            .add(column("idemModCol").setType(STRING)));
+    schema.getTable("IdemRoot").getMetadata().add(column("idemAxis").setType(ColumnType.MODULE));
+
+    String json = JsonUtil.schemaToJson(schema.getMetadata(), false);
+    SchemaMetadata restored = JsonUtil.jsonToSchema(json);
+
+    assertDoesNotThrow(
+        () -> schema.migrate(restored),
+        "Re-applying the fetched _schema JSON must be idempotent (no duplicate module column error)");
+
+    TableMetadata root = schema.getTable("IdemRoot").getMetadata();
+    assertNull(
+        root.getLocalColumn("idemModCol"),
+        "Module content column must not become a root-local column after re-apply");
+
+    org.molgenis.emx2.Column axis = root.getLocalColumn("idemAxis");
+    assertNotNull(axis, "scalar MODULE discriminator column must survive re-apply");
+    assertNull(
+        axis.getValues(),
+        "Derived scalar MODULE values must stay derived (null) after re-apply, not frozen into an explicit list");
+    assertTrue(
+        axis.getEffectiveValues().contains("IdemMod"),
+        "Derived MODULE values must still resolve to the module subtype table after re-apply");
+  }
+
   private JsonNode findTableByName(JsonNode tables, String name) {
     for (JsonNode table : tables) {
       if (name.equals(table.at("/name").asText())) {

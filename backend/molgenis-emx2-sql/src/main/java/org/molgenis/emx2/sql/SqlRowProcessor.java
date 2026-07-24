@@ -2,9 +2,13 @@ package org.molgenis.emx2.sql;
 
 import static java.util.function.Predicate.not;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.sql.row.resolvers.ResolveDefaultValue;
@@ -34,6 +38,33 @@ public class SqlRowProcessor {
     for (Row row : rows) {
       validateAndCompute(row);
     }
+  }
+
+  public static void validateAndCompute(
+      List<Column> baseColumns,
+      List<Row> rows,
+      boolean hasModuleColumns,
+      Function<Row, List<Column>> activeModuleColumns) {
+    if (!hasModuleColumns) {
+      new SqlRowProcessor(baseColumns).validateAndCompute(rows);
+      return;
+    }
+    for (Row row : rows) {
+      List<Column> union = union(baseColumns, activeModuleColumns.apply(row));
+      new SqlRowProcessor(union).validateAndCompute(row);
+    }
+  }
+
+  private static List<Column> union(List<Column> baseColumns, List<Column> moduleColumns) {
+    List<Column> union = new ArrayList<>(baseColumns);
+    Set<String> unionNames =
+        new LinkedHashSet<>(baseColumns.stream().map(Column::getName).toList());
+    for (Column column : moduleColumns) {
+      if (unionNames.add(column.getName())) {
+        union.add(column);
+      }
+    }
+    return union;
   }
 
   public void validateAndCompute(Row row) throws MolgenisException {
