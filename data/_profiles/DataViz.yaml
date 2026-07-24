@@ -1,0 +1,6 @@
+---
+name: DataViz
+description: Model for data visualisation interfaces
+profileTags: dataviz
+
+demoData: _demodata/applications/dataviz
