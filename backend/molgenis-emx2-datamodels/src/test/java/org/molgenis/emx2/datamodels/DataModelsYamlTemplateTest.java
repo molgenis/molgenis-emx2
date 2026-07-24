@@ -83,6 +83,7 @@ class DataModelsYamlTemplateTest {
 
   @Test
   void yamlTemplateLoadTaskReportsPerSchemaHierarchyAndPerTableSteps() {
+    database.dropSchemaIfExists(SCHEMA_STEPS);
     Task task = DataModels.getImportTask(database, SCHEMA_STEPS, "", CATALOGUE_TEMPLATE, true);
     task.run();
 

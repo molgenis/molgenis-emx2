@@ -47,6 +47,8 @@ public class YamlWorkspaceLoader {
   private static final String SCHEMA_BLOCK = "Schema ";
   private static final String CREATED_SCHEMA = "Created schema ";
   private static final String EXISTS_SUFFIX = " already exists — model untouched, data ensured";
+  private static final String MAIN_REUSE_SUFFIX =
+      " already exists — applying template model into it";
   private static final String COMMITTING = "Committing";
   private static final String STEP_DATA = "Import data";
   private static final String STEP_DATA_NONE = "Import data: none declared";
@@ -56,6 +58,7 @@ public class YamlWorkspaceLoader {
   private static final String SETTINGS_NONE = "Settings: none declared";
   private static final String PERMISSIONS_NONE = "Permissions: none declared";
   private static final String TABLES_TEMPLATE = "Created %d tables: %s";
+  private static final String TABLES_UPDATED_TEMPLATE = "Updated %d tables: %s";
   private static final String SETTINGS_TEMPLATE = "Applied %d settings: %s";
   private static final String PERMISSIONS_TEMPLATE = "Applied permissions: %s";
   private static final String LIST_SEPARATOR = ", ";
@@ -187,10 +190,15 @@ public class YamlWorkspaceLoader {
     try {
       database.tx(
           db -> {
+            boolean reuse = db.getSchema(schemaName) != null;
             Schema schema =
-                getOrCreateSchema(db, schemaName, "YAML workspace template " + template, block);
+                reuse
+                    ? db.getSchema(schemaName)
+                    : db.createSchema(schemaName, "YAML workspace template " + template);
+            addCompletedStep(
+                block, reuse ? schemaName + MAIN_REUSE_SUFFIX : CREATED_SCHEMA + schemaName);
             schema.migrate(bundle.schema());
-            reportCreatedTables(block, schema);
+            reportTables(block, schema, reuse);
             applySettings(schema, bundle.schema().getSettings(), block);
             applyPermissions(schema, bundle.permissions(), block);
             loadMainData(schema, bundle.dataFiles(), STEP_DATA, STEP_DATA_NONE, block);
@@ -202,7 +210,7 @@ public class YamlWorkspaceLoader {
             block.addSubTask(commit);
           });
     } catch (RuntimeException exception) {
-      block.setError();
+      finalizeOnError(block, commit);
       throw exception;
     }
     commit.complete();
@@ -243,7 +251,7 @@ public class YamlWorkspaceLoader {
               companion = db.createSchema(name, "Companion schema: " + name);
               addCompletedStep(block, CREATED_SCHEMA + name);
               companion.migrate(bundle.schema());
-              reportCreatedTables(block, companion);
+              reportTables(block, companion, false);
               applySettings(companion, bundle.schema().getSettings(), block);
               applyPermissions(companion, permissions, block);
             } else {
@@ -254,7 +262,7 @@ public class YamlWorkspaceLoader {
             block.addSubTask(commit);
           });
     } catch (RuntimeException exception) {
-      block.setError();
+      finalizeOnError(block, commit);
       throw exception;
     }
     commit.complete();
@@ -302,11 +310,19 @@ public class YamlWorkspaceLoader {
     block.addSubTask(message).setSkipped();
   }
 
-  private static void reportCreatedTables(Task block, Schema schema) {
+  private static void reportTables(Task block, Schema schema, boolean reuse) {
     List<String> names = new ArrayList<>(schema.getMetadata().getTableNames());
     Collections.sort(names);
+    String template = reuse ? TABLES_UPDATED_TEMPLATE : TABLES_TEMPLATE;
     addCompletedStep(
-        block, String.format(TABLES_TEMPLATE, names.size(), String.join(LIST_SEPARATOR, names)));
+        block, String.format(template, names.size(), String.join(LIST_SEPARATOR, names)));
+  }
+
+  private static void finalizeOnError(Task block, Task commit) {
+    if (commit.isRunning()) {
+      commit.setError();
+    }
+    block.setError();
   }
 
   private static void applyPermissions(Schema schema, Map<String, String> permissions, Task block) {
@@ -381,18 +397,6 @@ public class YamlWorkspaceLoader {
         }
       }
     }
-  }
-
-  private static Schema getOrCreateSchema(
-      Database database, String schemaName, String description, Task block) {
-    Schema schema = database.getSchema(schemaName);
-    if (schema == null) {
-      schema = database.createSchema(schemaName, description);
-      addCompletedStep(block, CREATED_SCHEMA + schemaName);
-    } else {
-      addCompletedStep(block, schemaName + EXISTS_SUFFIX);
-    }
-    return schema;
   }
 
   private static String parentPath(String path) {

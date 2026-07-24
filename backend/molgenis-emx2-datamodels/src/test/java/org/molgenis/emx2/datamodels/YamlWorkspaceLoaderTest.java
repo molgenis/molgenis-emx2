@@ -44,6 +44,15 @@ class YamlWorkspaceLoaderTest extends TestLoaders {
   private static final String SKIPPED_MARKER = "up to date, skipped";
   private static final String ATOMICITY_TEMPLATE = "atomicity/broken";
   private static final String ATOMICITY_SCHEMA = "wsAtomicityMain";
+  private static final String COMMITFAIL_TEMPLATE = "atomicity/commitfail";
+  private static final String COMMITFAIL_SCHEMA = "wsCommitFail";
+  private static final String RELOAD_SCHEMA = "wsReloadMain";
+  private static final String COMMITTING = "Committing";
+  private static final String MODEL_UNTOUCHED = "model untouched";
+  private static final String CREATED_TABLES = "Created ";
+  private static final String UPDATED_TABLES = "Updated ";
+  private static final String TABLES_INFIX = " tables: ";
+  private static final String MAIN_REUSE_PHRASE = "applying template model into it";
   private static final String STAGES_SCHEMA = "wsRd3Stages";
   private static final String SETTINGS_NONE = "Settings: none declared";
   private static final String PERMISSIONS_NONE = "Permissions: none declared";
@@ -205,8 +214,14 @@ class YamlWorkspaceLoaderTest extends TestLoaders {
 
     YamlWorkspaceLoadTask task =
         new YamlWorkspaceLoadTask(database, ATOMICITY_TEMPLATE, ATOMICITY_SCHEMA, false);
-    assertThrows(
-        MolgenisException.class, task::run, "a main-schema migrate failure must abort the create");
+    MolgenisException thrown =
+        assertThrows(
+            MolgenisException.class,
+            task::run,
+            "a main-schema migrate failure must abort the create");
+    assertNotNull(
+        thrown.getCause(),
+        "the propagated failure must carry the original cause, not drop the chain");
     assertNull(
         database.getSchema(ATOMICITY_SCHEMA),
         "the per-schema transaction must roll back, leaving no half-created main schema");
@@ -226,6 +241,54 @@ class YamlWorkspaceLoaderTest extends TestLoaders {
     assertTrue(
         tasks.stream().noneMatch(Task::isRunning),
         "no subtask may be left running or waiting after a failed load");
+  }
+
+  @Test
+  void reloadingTemplateOntoExistingMainSchemaLogsTruthfully() {
+    database.dropSchemaIfExists(RELOAD_SCHEMA);
+    loader.create(database, RD3, RELOAD_SCHEMA, false, new Task("first reload run"));
+
+    Task reload = new Task("second reload run");
+    loader.create(database, RD3, RELOAD_SCHEMA, false, reload);
+
+    List<String> steps = collectDescriptions(reload);
+    assertTrue(
+        steps.stream().noneMatch(step -> step.contains(MODEL_UNTOUCHED)),
+        "main-schema reuse migrates the model, so it must not claim the model was left untouched");
+    assertTrue(
+        steps.stream()
+            .noneMatch(step -> step.startsWith(CREATED_TABLES) && step.contains(TABLES_INFIX)),
+        "main-schema reuse must not claim tables were freshly created while it migrates");
+    assertTrue(
+        steps.stream().anyMatch(step -> step.contains(MAIN_REUSE_PHRASE)),
+        "main-schema reuse must state the template model is applied into the existing schema");
+    assertTrue(
+        steps.stream()
+            .anyMatch(step -> step.startsWith(UPDATED_TABLES) && step.contains(TABLES_INFIX)),
+        "main-schema reuse must report its tables as updated, not created");
+  }
+
+  @Test
+  void commitTimeFailureFinalizesCommittingSubtask() {
+    database.dropSchemaIfExists(COMMITFAIL_SCHEMA);
+
+    YamlWorkspaceLoadTask task =
+        new YamlWorkspaceLoadTask(database, COMMITFAIL_TEMPLATE, COMMITFAIL_SCHEMA, false);
+    assertThrows(
+        MolgenisException.class,
+        task::run,
+        "a deferred foreign-key violation must fail the transaction at commit");
+    assertNull(
+        database.getSchema(COMMITFAIL_SCHEMA),
+        "a commit-time failure must roll back, leaving no half-created schema");
+
+    List<Task> tasks = collectTasks(task);
+    assertTrue(
+        tasks.stream().anyMatch(subTask -> subTask.getDescription().startsWith(COMMITTING)),
+        "the Committing subtask must have been reached before the commit failed");
+    assertTrue(
+        tasks.stream().noneMatch(Task::isRunning),
+        "the Committing subtask must be finalized on commit failure, not left waiting");
   }
 
   private static void assertStageSkipped(List<Task> tasks, String prefix) {

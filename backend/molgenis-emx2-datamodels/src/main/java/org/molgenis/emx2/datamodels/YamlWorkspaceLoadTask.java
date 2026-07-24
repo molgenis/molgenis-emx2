@@ -32,7 +32,11 @@ public class YamlWorkspaceLoadTask extends Task {
       new YamlWorkspaceLoader().create(database, template, schemaName, includeDemoData, this);
       this.complete();
     } catch (Exception exception) {
-      this.completeWithError(exception.getMessage());
+      this.setError(
+          "Failed to create schema from YAML template '"
+              + template
+              + "': "
+              + exception.getMessage());
       throw new MolgenisException(
           "Failed to create schema from YAML template '" + template + "'", exception);
     }
