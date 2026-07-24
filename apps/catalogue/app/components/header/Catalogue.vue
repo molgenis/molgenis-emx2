@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { useRoute, useRuntimeConfig } from "#app";
-import { useDatasetStore } from "#imports";
+import { useCartStore } from "#imports";
 import { computed, ref } from "vue";
 import type { UIResource } from "../../../interfaces/types";
 import Container from "../../../../tailwind-components/app/components/Container.vue";
 import Logo from "../../../../tailwind-components/app/components/Logo.vue";
 import MainNavigation from "../../components/MainNavigation.vue";
 import HamburgerMenu from "../../components/HamburgerMenu.vue";
-import StoreHeaderButton from "../../components/store/HeaderButton.vue";
-import StoreModal from "../../components/store/Modal.vue";
+import CartHeaderButton from "../../components/cart/HeaderButton.vue";
+import CartModal from "../../components/cart/Modal.vue";
 
 const route = useRoute();
 const config = useRuntimeConfig();
-const datasetStore = useDatasetStore();
+const cartStore = useCartStore();
 
 const props = defineProps<{
   catalogue?: UIResource;
@@ -115,8 +115,8 @@ if (!cohortOnly.value) {
            <SearchBar />
         </div>-->
 
-        <StoreHeaderButton
-          v-if="datasetStore.isEnabled"
+        <CartHeaderButton
+          v-if="cartStore.isEnabled"
           @click="showCartModal = !showCartModal"
         />
         <!-- <HeaderButton label="Account" icon="user" /> -->
@@ -133,9 +133,9 @@ if (!cohortOnly.value) {
             >
           </div>
           <div class="flex gap-3">
-            <StoreHeaderButton
+            <CartHeaderButton
               @click="showCartModal = !showCartModal"
-              v-if="datasetStore.isEnabled"
+              v-if="cartStore.isEnabled"
             />
             <!-- <HeaderButton label="Account" icon="user" /> -->
           </div>
@@ -147,6 +147,6 @@ if (!cohortOnly.value) {
         </div>
       </div>
     </Container>
-    <StoreModal :show="showCartModal" @close="showCartModal = false" />
+    <CartModal :show="showCartModal" @close="showCartModal = false" />
   </header>
 </template>

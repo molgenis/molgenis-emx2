@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useRoute } from "#app";
-import { useDatasetStore } from "#imports";
+import { useCartStore } from "#imports";
 import { computed } from "vue";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import type { IResources } from "../../interfaces/catalogue";
 import dateUtils from "../utils/dateUtils";
-import CartButton from "./store/CartButton.vue";
+import { resourceToCartItem } from "../utils/cartItem";
+import CartButton from "./cart/CartButton.vue";
 
-const datasetStore = useDatasetStore();
+const cartStore = useCartStore();
 
 const CUTOFF = 250;
 
@@ -65,11 +66,10 @@ const headerClasses = computed(() => {
           {{ resource.acronym ? resource.name : "" }}
         </span>
       </div>
-      <div class="flex self-start">
+      <div class="flex items-center self-start">
         <CartButton
-          v-if="datasetStore.isEnabled"
-          :resource="resource"
-          :compact="props.compact"
+          v-if="cartStore.isEnabled"
+          :item="resourceToCartItem(resource)"
         />
         <NuxtLink :to="`/${catalogue}/resources/${resource.id}`">
           <IconButton
