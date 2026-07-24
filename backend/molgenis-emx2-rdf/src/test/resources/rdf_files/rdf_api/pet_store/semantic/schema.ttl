@@ -1,4 +1,4 @@
-@prefix PetStoreNr1: <http://localhost:8080/petStoreNr1/api/rdf/> .
+@prefix PetStoreTest: <http://localhost:8080/PetStoreTest/api/rdf/> .
 @prefix afr: <http://purl.allotrope.org/ontologies/result#> .
 @prefix afrl: <http://purl.allotrope.org/ontologies/role#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
@@ -39,92 +39,92 @@
   dcterms:description "MOLGENIS EMX2 database at http://localhost:8080";
   dcterms:creator <https://molgenis.org> .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky> <http://example.com/petstore#hasName>
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=pooky> <http://example.com/petstore#hasName>
     "pooky";
   <http://example.com/petstore#hasStatus> "available";
   <http://example.com/petstore#hasWeight> "9.4"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike> <http://example.com/petstore#hasName>
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=spike> <http://example.com/petstore#hasName>
     "spike";
   <http://example.com/petstore#hasStatus> "sold";
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>;
   <http://example.com/petstore#hasWeight> "15.7"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tom> <http://example.com/petstore#hasName>
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=tom> <http://example.com/petstore#hasName>
     "tom";
   <http://example.com/petstore#hasStatus> "available";
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
   <http://example.com/petstore#hasWeight> "3.14"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=sylvester> <http://example.com/petstore#hasName>
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=sylvester> <http://example.com/petstore#hasName>
     "sylvester";
   <http://example.com/petstore#hasStatus> "available";
-  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  <http://example.com/petstore#hasTags> <http://localhost:8080/PetStoreTest/api/rdf/Tag/name=purple>;
   <http://example.com/petstore#hasWeight> "1.337"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=jerry> <http://example.com/petstore#hasName>
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=jerry> <http://example.com/petstore#hasName>
     "jerry";
   <http://example.com/petstore#hasStatus> "available";
-  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
+  <http://example.com/petstore#hasTags> <http://localhost:8080/PetStoreTest/api/rdf/Tag/name=blue>;
   <http://example.com/petstore#hasWeight> "0.18"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tweety> <http://example.com/petstore#hasName>
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=tweety> <http://example.com/petstore#hasName>
     "tweety";
   <http://example.com/petstore#hasStatus> "available";
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
   <http://example.com/petstore#hasWeight> "0.1"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>
   <http://example.com/petstore#hasName> "the very hungry caterpillar";
   <http://example.com/petstore#hasStatus> "available";
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>;
   <http://example.com/petstore#hasWeight> "0.5"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant> <http://example.com/petstore#hasName>
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=fire%20ant> <http://example.com/petstore#hasName>
     "fire ant";
   <http://example.com/petstore#hasStatus> "available";
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>,
-    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+    <http://localhost:8080/PetStoreTest/api/rdf/Tag/name=purple>;
   <http://example.com/petstore#hasWeight> "0.01"^^xsd:double .
 
-<http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke> a foaf:Person;
+<http://localhost:8080/PetStoreTest/api/rdf/User/username=bofke> a foaf:Person;
   foaf:accountName "bofke";
-  foaf:img <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
-  <http://example.com/petstore#hasPets> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>,
-    <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>,
-    <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>, <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>.
+  foaf:img <http://localhost:8080/PetStoreTest/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
+  <http://example.com/petstore#hasPets> <http://localhost:8080/PetStoreTest/api/rdf/Pet/name=fire%20ant>,
+    <http://localhost:8080/PetStoreTest/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>,
+    <http://localhost:8080/PetStoreTest/api/rdf/Pet/name=pooky>, <http://localhost:8080/PetStoreTest/api/rdf/Pet/name=spike>.
 
-<http://localhost:8080/petStoreNr1/api/rdf/User/username=plofke> a foaf:Person;
+<http://localhost:8080/PetStoreTest/api/rdf/User/username=plofke> a foaf:Person;
   foaf:accountName "plofke".
 
-<http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>
+<http://localhost:8080/PetStoreTest/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>
   a sio:SIO_000396;
   rdfs:label "8hlbnm.jpg";
   dcterms:title "8hlbnm.jpg";
   dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=colors> rdfs:label "colors".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=colors> rdfs:label "colors".
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red> rdfs:label "red";
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=red> rdfs:label "red";
   owl:sameAs <https://dbpedia.org/page/Red> .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green> rdfs:label "green";
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=green> rdfs:label "green";
   owl:sameAs <https://dbpedia.org/page/Green> .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue> rdfs:label "blue".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=blue> rdfs:label "blue".
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple> rdfs:label "purple".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=purple> rdfs:label "purple".
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=species> rdfs:label "species".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=species> rdfs:label "species".
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=mammals> rdfs:label "mammals".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=mammals> rdfs:label "mammals".
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=mammals> rdfs:label "mammals".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=mammals> rdfs:label "mammals".
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=carnivorous%20mammals> rdfs:label "carnivorous mammals".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=carnivorous%20mammals> rdfs:label "carnivorous mammals".
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals> rdfs:label "herbivorous mammals".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=herbivorous%20mammals> rdfs:label "herbivorous mammals".
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=birds> rdfs:label "birds".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=birds> rdfs:label "birds".
 
-<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=insect> rdfs:label "insect".
+<http://localhost:8080/PetStoreTest/api/rdf/Tag/name=insect> rdfs:label "insect".

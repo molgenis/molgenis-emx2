@@ -45,7 +45,7 @@ public class RdfValidator {
     return this;
   }
 
-  void validate(InMemoryRDFHandler handler) {
+  public void validate(InMemoryRDFHandler handler) {
     // Tracks errors.
     List<String> errors = new ArrayList<>();
 
