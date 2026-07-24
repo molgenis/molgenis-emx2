@@ -18,19 +18,39 @@ public class Semantic {
   private final String sequencePath;
 
   Semantic(String semantic) {
-    if (!semantic.contains(":")) throw new MolgenisException("Invalid semantic: " + semantic);
-    if (semantic.startsWith("<")) {
-      if (!semantic.endsWith(">")) {
-        throw new MolgenisException("Invalid semantic IRI: " + semantic);
-      }
-    } else {
-      if (isLegacyIri(semantic)) {
-        ColumnType.HYPERLINK.validate(semantic);
-      } else if (semantic.substring(semantic.indexOf(':') + 1).isEmpty()) {
-        throw new MolgenisException("Prefixed name misses local part: " + semantic);
-      }
+    this.sequencePath = validate(semantic);
+  }
+
+  private String validate(String semantic) {
+    if (!semantic.contains(":")) {
+      throw new MolgenisException("Invalid semantic (missing ':'): " + semantic);
     }
-    this.sequencePath = requireNonNull(semantic);
+
+    if (isLegacyIri(semantic)) {
+      validateLegacyIri(semantic);
+    } else if (semantic.startsWith("<")) {
+      validateIri(semantic);
+    } else {
+      validatePrefixedName(semantic);
+    }
+
+    return semantic;
+  }
+
+  private void validateLegacyIri(String semantic) {
+    ColumnType.HYPERLINK.validate(semantic);
+  }
+
+  private void validateIri(String semantic) {
+    if (!semantic.endsWith(">")) {
+      throw new MolgenisException("Invalid semantic IRI (missing closing '>'): " + semantic);
+    }
+  }
+
+  private void validatePrefixedName(String semantic) {
+    if (semantic.substring(semantic.indexOf(':') + 1).isEmpty()) {
+      throw new MolgenisException("Prefixed name misses local part: " + semantic);
+    }
   }
 
   public boolean isLegacyIri() {
