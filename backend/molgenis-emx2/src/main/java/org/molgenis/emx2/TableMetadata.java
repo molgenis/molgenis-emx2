@@ -14,12 +14,19 @@ import org.jooq.impl.DSL;
 public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadata>
     implements Comparable {
 
+  public enum ColumnSelection {
+    LOCAL,
+    INHERITED,
+    SUBCLASSES,
+    MODULES
+  }
+
   public static final String TABLE_NAME_MESSAGE =
       ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
   public static final String SCHEMA_NAME_MESSAGE =
       ": Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
-  // if a table extends another table (optional)
-  public String inheritName = null;
+  // backing store for all parent table names (supports multiple/diamond inheritance)
+  protected List<String> inheritNames = new ArrayList<>();
   // to allow indicate that a table should be dropped
   protected boolean drop = false;
   // for refenence to another schema (rare use)
@@ -105,7 +112,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       for (Column c : metadata.columns.values()) {
         this.columns.put(c.getName(), new Column(this, c));
       }
-      this.inheritName = metadata.getInheritName();
+      this.inheritNames = new ArrayList<>(metadata.getInheritNames());
       this.importSchema = metadata.getImportSchema();
       this.semantics = metadata.getSemantics();
       this.profiles = metadata.getProfiles();
@@ -137,16 +144,16 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     Map<String, Column> internal = new LinkedHashMap<>();
     Map<String, Column> meta = new LinkedHashMap<>();
 
-    if (getInheritedTable() != null) {
+    for (TableMetadata parent : getInheritedTables()) {
       // we create copies so we don't need worry on changes
-      for (Column col : getInheritedTable().getColumns()) {
+      for (Column col : parent.getColumns()) {
         if (col.isSystemColumn()) {
           meta.put(col.getName(), col);
           // sorting of external schema is seperate from internal schema
         } else if (!Objects.equals(col.getTable().getSchemaName(), getSchemaName())) {
-          external.put(col.getName(), col);
+          external.putIfAbsent(col.getName(), col);
         } else {
-          internal.put(col.getName(), col);
+          internal.putIfAbsent(col.getName(), col);
         }
       }
     }
@@ -179,6 +186,17 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return finalResult;
   }
 
+  public List<Column> getColumns(ColumnSelection first, ColumnSelection... rest) {
+    EnumSet<ColumnSelection> selection = EnumSet.of(first, rest);
+    boolean subclasses = selection.contains(ColumnSelection.SUBCLASSES);
+    boolean modules = selection.contains(ColumnSelection.MODULES);
+    if (subclasses && modules) return columnsIncludingSubclassesAndModules();
+    if (subclasses) return columnsIncludingSubclasses();
+    if (modules) return columnsIncludingModules();
+    if (selection.contains(ColumnSelection.INHERITED)) return getColumns();
+    return getLocalColumns();
+  }
+
   public List<Column> getColumnsWithoutHeadings() {
     return this.getColumns().stream().filter(c -> !c.isHeading()).toList();
   }
@@ -195,7 +213,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getDownloadColumnNames() {
     List<Column> list = new ArrayList<>();
-    for (Column column : getColumns()) {
+    for (Column column : getColumnsIncludingModules()) {
       if (!column.isHeading()) {
         if (column.isFile()) {
           list.add(column(column.getName()));
@@ -244,10 +262,19 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return new ArrayList<>(result.values());
   }
 
+  private Set<String> allParentColumnNames() {
+    Set<String> result = new HashSet<>();
+    for (TableMetadata parent : getInheritedTables()) {
+      result.addAll(parent.getColumnNames());
+    }
+    return result;
+  }
+
   public List<Column> getNonInheritedColumns() {
-    if (getInheritName() != null) {
+    if (!getInheritNames().isEmpty()) {
+      Set<String> parentColumnNames = allParentColumnNames();
       return this.columns.values().stream()
-          .filter(c -> !getInheritedTable().getColumnNames().contains(c.getName()))
+          .filter(c -> !parentColumnNames.contains(c.getName()))
           .collect(Collectors.toList());
     } else {
       return new ArrayList<>(this.columns.values());
@@ -262,11 +289,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getLocalColumns() {
     Map<String, Column> result = new LinkedHashMap<>();
-    // get primary key from parent, always first
-    if (getInheritedTable() != null) {
-      for (Column pkey : getInheritedTable().getPrimaryKeyColumns()) {
-        // rewrite metadata to point to current table instead of parent table
-        result.put(pkey.getName(), new Column(pkey).setTable(this));
+    for (TableMetadata parent : getInheritedTables()) {
+      for (Column pkey : parent.getPrimaryKeyColumns()) {
+        result.computeIfAbsent(pkey.getName(), name -> new Column(pkey).setTable(this));
       }
     }
 
@@ -306,11 +331,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<String> getNonInheritedColumnNames() {
-    // skip inherited
-    if (getInheritName() != null) {
-      TableMetadata inheritedTable = getInheritedTable();
+    if (!getInheritNames().isEmpty()) {
+      Set<String> parentColumnNames = allParentColumnNames();
       return getColumnNames().stream()
-          .filter(c -> inheritedTable.getColumn(c) == null)
+          .filter(name -> !parentColumnNames.contains(name))
           .collect(Collectors.toList());
     }
     return getColumnNames();
@@ -328,9 +352,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public Column getColumn(String name) {
     if (columns.containsKey(name)) return new Column(this, columns.get(name));
-    if (getInheritedTable() != null) {
-      Column c = getInheritedTable().getColumn(name);
-      if (c != null) return new Column(c.getTable(), c);
+    for (TableMetadata parent : getInheritedTables()) {
+      Column col = parent.getColumn(name);
+      if (col != null) return new Column(col.getTable(), col);
     }
     return null;
   }
@@ -341,25 +365,28 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
             .filter(c -> c.getIdentifier().equals(identifier))
             .findFirst()
             .orElse(null);
-    if (column == null && getInheritedTable() != null) {
-      column = getInheritedTable().getColumnByIdentifier(identifier);
+    if (column == null) {
+      for (TableMetadata parent : getInheritedTables()) {
+        column = parent.getColumnByIdentifier(identifier);
+        if (column != null) break;
+      }
     }
     return column;
   }
 
   public TableMetadata add(Column... column) {
     for (Column c : column) {
-      if (getInheritedTable() != null
-          && getInheritedTable().getColumn(c.getName()) != null
-          && !c.isPrimaryKey()) {
-        throw new MolgenisException(
-            "Cannot add column '"
-                + getTableName()
-                + "."
-                + c.getName()
-                + "': exists in extended table '"
-                + getInheritName()
-                + "'");
+      for (TableMetadata parent : getInheritedTables()) {
+        if (parent.getColumn(c.getName()) != null && !c.isPrimaryKey()) {
+          throw new MolgenisException(
+              "Cannot add column '"
+                  + getTableName()
+                  + "."
+                  + c.getName()
+                  + "': exists in extended table '"
+                  + parent.getTableName()
+                  + "'");
+        }
       }
 
       if (c.getPosition() == null) {
@@ -396,59 +423,110 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     columns.remove(name);
   }
 
-  public String getInheritName() {
-    return this.inheritName;
+  public List<String> getInheritNames() {
+    return Collections.unmodifiableList(inheritNames);
   }
 
   public List<String> getAllInheritNames() {
     List<String> result = new ArrayList<>();
-    result.add(this.getTableName());
-    if (getInheritName() != null) {
-      result.addAll(getInheritedTable().getAllInheritNames());
+    Set<String> seen = new LinkedHashSet<>();
+    Set<String> onStack = new LinkedHashSet<>();
+    collectAllInheritNames(result, seen, onStack);
+    return result;
+  }
+
+  private void collectAllInheritNames(List<String> result, Set<String> seen, Set<String> onStack) {
+    if (!onStack.add(getTableName())) {
+      throw new MolgenisException(
+          "Cyclic inheritance detected for table '" + getTableName() + "'. Cycle path: " + onStack);
+    }
+    if (seen.add(getTableName())) {
+      result.add(getTableName());
+    }
+    for (TableMetadata parent : getInheritedTables()) {
+      parent.collectAllInheritNames(result, seen, onStack);
+    }
+    onStack.remove(getTableName());
+  }
+
+  public TableMetadata setInheritNames(String... names) {
+    return setInheritNames(names == null ? List.of() : List.of(names));
+  }
+
+  public TableMetadata setInheritNames(List<String> names) {
+    inheritNames.clear();
+    if (names != null) {
+      for (String name : names) {
+        if (name != null && !inheritNames.contains(name)) {
+          inheritNames.add(name);
+        }
+      }
+    }
+    return this;
+  }
+
+  public List<TableMetadata> getInheritedTables() {
+    if (inheritNames.isEmpty()) return Collections.emptyList();
+    List<TableMetadata> result = new ArrayList<>();
+    for (String parentName : inheritNames) {
+      TableMetadata parent = resolveParentTable(parentName);
+      if (parent != null) {
+        result.add(parent);
+      }
     }
     return result;
   }
 
-  public TableMetadata setInheritName(String otherTable) {
-    this.inheritName = otherTable;
-    return this;
-  }
-
-  public TableMetadata getInheritedTable() {
-    if (inheritName != null && getSchema() != null) {
-      if (getImportSchema() != null && getSchema().getDatabase() != null) {
-        if (getSchema().getDatabase().getSchema(getImportSchema()) == null) {
-          throw new MolgenisException(
-              "Cannot find schema '"
-                  + getImportSchema()
-                  + " for inheritance of table '"
-                  + inheritName
-                  + "'");
-        }
-        if (getSchema().getDatabase().getSchema(getImportSchema()).getTable(inheritName) == null) {
-          throw new MolgenisException(
-              "Cannot find table '" + inheritName + "' for inheritance of table.");
-        }
-        return getSchema()
-            .getDatabase()
-            .getSchema(getImportSchema())
-            .getTable(inheritName)
-            .getMetadata();
-      } else {
-        return getSchema().getTableMetadata(inheritName);
+  private TableMetadata resolveParentTable(String parentName) {
+    if (getSchema() == null) return null;
+    if (getImportSchema() != null && getSchema().getDatabase() != null) {
+      if (getSchema().getDatabase().getSchema(getImportSchema()) == null) {
+        throw new MolgenisException(
+            "Cannot find schema '"
+                + getImportSchema()
+                + " for inheritance of table '"
+                + parentName
+                + "'");
       }
+      if (getSchema().getDatabase().getSchema(getImportSchema()).getTable(parentName) == null) {
+        throw new MolgenisException(
+            "Cannot find table '" + parentName + "' for inheritance of table.");
+      }
+      return getSchema()
+          .getDatabase()
+          .getSchema(getImportSchema())
+          .getTable(parentName)
+          .getMetadata();
+    } else {
+      TableMetadata resolved = getSchema().getTableMetadata(parentName);
+      if (resolved == null && getSchema().getDatabase() != null) {
+        throw new MolgenisException(
+            "Cannot inherit "
+                + getSchemaName()
+                + "."
+                + parentName
+                + ": not found"
+                + " (declared parent of '"
+                + getTableName()
+                + "')");
+      }
+      return resolved;
     }
-    return null;
   }
 
   public String toString() {
     StringBuilder builder = new StringBuilder();
     String name = getTableName();
-    if (getInheritName() != null) {
+    List<String> parents = getInheritNames();
+    if (!parents.isEmpty()) {
       if (getImportSchema() != null) {
-        name += " extends " + getImportSchema() + "." + getInheritName();
+        name +=
+            " extends "
+                + parents.stream()
+                    .map(p -> getImportSchema() + "." + p)
+                    .collect(Collectors.joining(", "));
       } else {
-        name += " extends " + getInheritName();
+        name += " extends " + String.join(", ", parents);
       }
     }
     builder.append("TABLE(").append(name).append("){");
@@ -461,7 +539,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public void clearCache() {
     columns = new LinkedHashMap<>();
-    inheritName = null;
+    inheritNames = new ArrayList<>();
     importSchema = null;
   }
 
@@ -470,7 +548,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public TableMetadata removeInherit() {
-    this.inheritName = null;
+    this.inheritNames.clear();
     return this;
   }
 
@@ -614,6 +692,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<Column> getColumnsIncludingSubclasses() {
+    return getColumns(ColumnSelection.INHERITED, ColumnSelection.SUBCLASSES);
+  }
+
+  private List<Column> columnsIncludingSubclasses() {
     // get all tables in current schema that inherit this
     List<Column> result = new ArrayList<>();
     result.addAll(this.getColumns());
@@ -627,9 +709,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   private List<Column> getColumnsFromSubclasses() {
     List<Column> result = new ArrayList<>();
-    for (TableMetadata table : getSubclassTables()) {
-      result.addAll(table.getLocalColumns());
-      result.addAll(table.getColumnsFromSubclasses());
+    for (TableMetadata subclass : getSubclassTables()) {
+      result.addAll(subclass.getLocalColumns());
     }
     return result;
   }
@@ -638,7 +719,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getColumnsIncludingSubclasses().stream()
         .filter(c -> c.getName().equals(columnName))
         .findFirst()
-        .orElseGet(() -> null);
+        .orElse(null);
   }
 
   public Column getColumnByIdIncludingSubclasses(String columnId) {
@@ -649,28 +730,194 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<TableMetadata> getSubclassTables() {
+    if (getSchema() == null) return Collections.emptyList();
     List<TableMetadata> result = new ArrayList<>();
+    Set<String> emitted = new LinkedHashSet<>();
+    collectSubclassTablesDeduped(result, emitted);
+    return result;
+  }
+
+  private void collectSubclassTablesDeduped(List<TableMetadata> result, Set<String> emitted) {
+    if (getSchema() == null) return;
     for (TableMetadata table : getSchema().getTables()) {
-      if (this.getTableName().equals(table.getInheritName())) {
-        result.add(table);
-        result.addAll(table.getSubclassTables());
+      if (table.getInheritNames().contains(getTableName()) && !table.getTableType().isModule()) {
+        if (emitted.add(table.getTableName())) {
+          result.add(table);
+          table.collectSubclassTablesDeduped(result, emitted);
+        }
+      }
+    }
+  }
+
+  public List<TableMetadata> getModuleSubtypeTables() {
+    if (getSchema() == null) return Collections.emptyList();
+    if (!getTableType().isModule()) {
+      TableMetadata root = getRootTable();
+      if (root != this) {
+        return root.getModuleSubtypeTables();
+      }
+    }
+    List<TableMetadata> result = new ArrayList<>();
+    Set<String> emitted = new LinkedHashSet<>();
+    collectModuleSubtablesDeduped(result, emitted);
+    return result;
+  }
+
+  private void collectModuleSubtablesDeduped(List<TableMetadata> result, Set<String> emitted) {
+    if (getSchema() == null) return;
+    for (TableMetadata table : getSchema().getTables()) {
+      if (table.getInheritNames().contains(getTableName()) && table.getTableType().isModule()) {
+        if (emitted.add(table.getTableName())) {
+          result.add(table);
+          table.collectModuleSubtablesDeduped(result, emitted);
+        }
+      }
+    }
+  }
+
+  public List<Column> getColumnsIncludingModules() {
+    return getColumns(ColumnSelection.INHERITED, ColumnSelection.MODULES);
+  }
+
+  private List<Column> columnsIncludingModules() {
+    List<Column> base = getColumns();
+    if (getTableType().isModule()) {
+      return base;
+    }
+    List<TableMetadata> moduleTables = getModuleSubtypeTables();
+    if (moduleTables.isEmpty()) {
+      return base;
+    }
+    Set<String> rootColumnNames = base.stream().map(Column::getName).collect(Collectors.toSet());
+    List<Column> nonSystem = new ArrayList<>();
+    List<Column> system = new ArrayList<>();
+    for (Column c : base) {
+      if (c.isSystemColumn()) {
+        system.add(c);
+      } else {
+        nonSystem.add(c);
+      }
+    }
+    for (TableMetadata moduleTable : moduleTables) {
+      for (Column c : moduleTable.getLocalColumns()) {
+        // module's inherited copy of the shared root PK/columns is already in
+        // 'base'; only add columns genuinely local to the module itself.
+        // HEADING/SECTION columns flow through like any other module column,
+        // just as root headings do; the SQL default-select drops them at its
+        // select site (SqlQuery: !isHeading()).
+        if (!c.isSystemColumn() && !rootColumnNames.contains(c.getName())) {
+          nonSystem.add(c);
+        }
+      }
+    }
+    nonSystem.sort(
+        Comparator.comparingInt(
+                (Column c) -> c.getPosition() != null ? c.getPosition() : Integer.MAX_VALUE)
+            .thenComparing(Column::getName));
+    List<Column> result = new ArrayList<>(nonSystem);
+    result.addAll(system);
+    return result;
+  }
+
+  public List<Column> getColumnsIncludingSubclassesAndModules() {
+    return getColumns(
+        ColumnSelection.INHERITED, ColumnSelection.SUBCLASSES, ColumnSelection.MODULES);
+  }
+
+  private List<Column> columnsIncludingSubclassesAndModules() {
+    List<Column> result = new ArrayList<>(getColumnsIncludingSubclasses());
+    Set<String> rootColumnNames = result.stream().map(Column::getName).collect(Collectors.toSet());
+    for (TableMetadata moduleTable : getModuleSubtypeTables()) {
+      for (Column c : moduleTable.getLocalColumns()) {
+        if (!rootColumnNames.contains(c.getName())) {
+          result.add(c);
+        }
       }
     }
     return result;
   }
 
+  public List<Column> getColumnsIncludingSubclassesAndModulesExcludingHeadings() {
+    return getColumnsIncludingSubclassesAndModules().stream().filter(c -> !c.isHeading()).toList();
+  }
+
+  public Column getColumnByNameIncludingSubclassesAndModules(String columnName) {
+    return getColumnsIncludingSubclassesAndModules().stream()
+        .filter(c -> c.getName().equals(columnName))
+        .findFirst()
+        .orElse(null);
+  }
+
   public TableMetadata getRootTable() {
-    TableMetadata table = this;
-    while (table.getInheritName() != null) {
-      table = table.getInheritedTable();
+    List<TableMetadata> parents = getInheritedTables();
+    if (parents.isEmpty()) return this;
+    Map<String, TableMetadata> roots = new LinkedHashMap<>();
+    for (TableMetadata parent : parents) {
+      TableMetadata root = parent.getRootTable();
+      roots.put(root.getTableName(), root);
     }
-    return table;
+    if (roots.size() > 1) {
+      throw new MolgenisException(
+          "Inheritance graph for table '"
+              + getTableName()
+              + "' has multiple roots: "
+              + roots.keySet()
+              + ". All parents must share a single common root.");
+    }
+    return roots.values().iterator().next();
+  }
+
+  public List<TableMetadata> getAncestorsRootFirst() {
+    List<TableMetadata> result = new ArrayList<>();
+    Set<String> visited = new LinkedHashSet<>();
+    visited.add(getTableName());
+    gatherAncestorsPostOrder(this, result, visited);
+    return result;
+  }
+
+  private static void gatherAncestorsPostOrder(
+      TableMetadata table, List<TableMetadata> result, Set<String> visited) {
+    for (TableMetadata parent : table.getInheritedTables()) {
+      if (visited.add(parent.getTableName())) {
+        gatherAncestorsPostOrder(parent, result, visited);
+        result.add(parent);
+      }
+    }
+  }
+
+  public List<Column> getDiscriminatorColumns() {
+    return getColumns().stream().filter(Column::isModuleDiscriminator).toList();
+  }
+
+  public void validateInheritance() {
+    getAllInheritNames();
+    getRootTable();
+    Map<String, String> ownerByColumn = new LinkedHashMap<>();
+    for (TableMetadata parent : getInheritedTables()) {
+      for (Column col : parent.getNonInheritedColumns()) {
+        if (col.isPrimaryKey()) continue;
+        String previousOwner = ownerByColumn.put(col.getName(), parent.getTableName());
+        if (previousOwner != null && !previousOwner.equals(parent.getTableName())) {
+          throw new MolgenisException(
+              "Cannot inherit in table '"
+                  + getTableName()
+                  + "': column '"
+                  + col.getName()
+                  + "' exists in multiple parents ('"
+                  + previousOwner
+                  + "' and '"
+                  + parent.getTableName()
+                  + "'). Column names must be unique across all parents.");
+        }
+      }
+    }
   }
 
   public List<TableMetadata> getInheritanceTree() {
     List<TableMetadata> result = new ArrayList<>();
     result.add(this);
     result.addAll(getSubclassTables());
+    result.addAll(getModuleSubtypeTables());
     return result;
   }
 }

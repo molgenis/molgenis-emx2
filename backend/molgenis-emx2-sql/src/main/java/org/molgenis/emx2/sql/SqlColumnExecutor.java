@@ -105,7 +105,7 @@ public class SqlColumnExecutor {
                           UNION ALL
                           SELECT t.table_schema,t.table_name,t.table_inherits
                           FROM "MOLGENIS"."table_metadata" t
-                                   JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND t.table_inherits = r.table_name
+                                   JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND r.table_name = ANY(t.table_inherits)
                       )
                       SELECT *
                       FROM RecursiveCTE WHERE table_inherits IS NOT NULL;
@@ -437,6 +437,9 @@ public class SqlColumnExecutor {
                   c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
         }
       }
+      if (c.isModuleDiscriminator()) {
+        validateModuleDiscriminatorValues(c);
+      }
       // fix required
       if (c.getKey() == 1 && !c.isRequired()) {
         c.setRequired(true);
@@ -444,6 +447,106 @@ public class SqlColumnExecutor {
     } catch (MolgenisException e) {
       throw new MolgenisException(
           "Column " + c.getTableName() + "." + c.getName() + " is invalid: " + e.getMessage());
+    }
+  }
+
+  private static void validateModuleDiscriminatorValues(Column c) {
+    List<String> moduleValues = c.getEffectiveValues();
+    if (moduleValues == null || moduleValues.isEmpty()) {
+      return;
+    }
+    Database database = c.getTable().getSchema().getDatabase();
+    TableMetadata declaringTable = c.getTable();
+    String currentSchemaName = declaringTable.getSchemaName();
+    TableMetadata declaringRoot = declaringTable.getRootTable();
+    String columnTypeName = c.getColumnType().name();
+
+    if (!declaringTable.getTableName().equals(declaringRoot.getTableName())
+        || !declaringTable.getSchemaName().equals(declaringRoot.getSchemaName())) {
+      throw new MolgenisException(
+          "Column '"
+              + c.getName()
+              + "' of type MODULE/MODULE_ARRAY must be declared on the root table '"
+              + declaringRoot.getTableName()
+              + "', not on subtype '"
+              + declaringTable.getTableName()
+              + "'");
+    }
+
+    String declaringRootKey = declaringRoot.getSchemaName() + "." + declaringRoot.getTableName();
+
+    for (String declaredValue : moduleValues) {
+      if (declaredValue == null || declaredValue.isBlank()) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: MODULE/MODULE_ARRAY value must not be empty or blank");
+      }
+      if (declaredValue.contains(".")) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: "
+                + columnTypeName
+                + " value '"
+                + declaredValue
+                + "' must be a bare table name referring to a MODULE in the same schema; "
+                + "schema-qualified ('schema.Table') values are not supported.");
+      }
+      org.molgenis.emx2.Schema currentSchema = database.getSchema(currentSchemaName);
+      if (currentSchema == null) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: declaring schema '"
+                + currentSchemaName
+                + "' not found");
+      }
+      org.molgenis.emx2.Table referencedTable = currentSchema.getTable(declaredValue);
+      if (referencedTable == null) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: table '"
+                + declaredValue
+                + "' referenced by MODULE/MODULE_ARRAY values does not exist");
+      }
+      TableMetadata referencedMeta = referencedTable.getMetadata();
+      if (!referencedMeta.getTableType().isModule()) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: table '"
+                + declaredValue
+                + "' must have tableType=MODULE but has "
+                + referencedMeta.getTableType());
+      }
+      TableMetadata moduleRoot = referencedMeta.getRootTable();
+      String moduleRootKey = moduleRoot.getSchemaName() + "." + moduleRoot.getTableName();
+      if (!moduleRootKey.equals(declaringRootKey)) {
+        throw new MolgenisException(
+            "Add column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: MODULE '"
+                + declaredValue
+                + "' does not extend the same root as the declaring table. Module root is '"
+                + moduleRootKey
+                + "' but declaring table root is '"
+                + declaringRootKey
+                + "'");
+      }
     }
   }
 

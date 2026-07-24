@@ -39,14 +39,14 @@ class TestInherits {
 
     // test if fails if no primary key
     try {
-      s.create(table("Employee").setInheritName(person.getName()));
+      s.create(table("Employee").setInheritNames(person.getName()));
       fail("Should fail because does not have pkey");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
 
     try {
-      s.create(table("Employee").setInheritName("fake_table"));
+      s.create(table("Employee").setInheritNames("fake_table"));
       fail("Should fail");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -59,7 +59,7 @@ class TestInherits {
     // create first extended table
     Table employee =
         s.create(
-            table("Employee").setInheritName(person.getName()).add(column("salary").setType(INT)));
+            table("Employee").setInheritNames(person.getName()).add(column("salary").setType(INT)));
 
     // check that mg_tableclass column doesn't have a default (regression #2936)
     assertNull(employee.getMetadata().getColumn(MG_TABLECLASS).getDefaultValue());
@@ -80,14 +80,14 @@ class TestInherits {
     Table manager =
         s.create(
             table("Manager")
-                .setInheritName("Employee")
+                .setInheritNames("Employee")
                 .add(column("directs").setType(REF_ARRAY).setRefTable("Employee")));
 
     Schema otherSchema = db.createSchema(TestInherits.class.getSimpleName() + "1");
     Table ceo =
         otherSchema.create(
             table("CEO")
-                .setInheritName("Manager")
+                .setInheritNames("Manager")
                 .setImportSchema(s.getName())
                 .add(column("title")));
 
@@ -126,7 +126,7 @@ class TestInherits {
 
     // try to extend twice
     try {
-      manager.getMetadata().setInheritName("Student");
+      manager.getMetadata().setInheritNames("Student");
       fail("should fail: cannot extend another table");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -134,7 +134,9 @@ class TestInherits {
 
     // create another extended table
     s.create(
-        table("Student").setInheritName(person.getName()).add(column("averageGrade").setType(INT)));
+        table("Student")
+            .setInheritNames(person.getName())
+            .add(column("averageGrade").setType(INT)));
 
     // test insert, retrieve
     Table studentTable = s.getTable("Student");
@@ -339,7 +341,7 @@ class TestInherits {
     Table tableB =
         schema.create(
             table("test_inheritance_B", new Column("b_label").setType(ColumnType.INT))
-                .setInheritName("test_inheritance_A"));
+                .setInheritNames("test_inheritance_A"));
 
     List<Row> rows =
         IntStream.range(0, 100).boxed().map(i -> Row.row("a_label", i, "b_label", i)).toList();

@@ -1,7 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { type Ref, ref } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type { columnValue } from "../../../../metadata-utils/src/types";
+import type {
+  columnValue,
+  ISchemaMetaData,
+} from "../../../../metadata-utils/src/types";
 import useForm from "../../../app/composables/useForm";
 
 describe("useForm", () => {
@@ -549,6 +552,250 @@ describe("useForm", () => {
       expect(requiredMap["col4"].value).toBe(true);
       expect(requiredMap["col5"].value).toBe(false);
       expect(requiredMap["col6"].value).toBe(true);
+    });
+  });
+
+  describe("module column visibility, required, and submit payload", () => {
+    const moduleMeta = ref<ITableMetaData>({
+      id: "Subject",
+      name: "Subject",
+      schemaId: "testSchema",
+      label: "Subject",
+      tableType: "DATA",
+      columns: [
+        {
+          columnType: "STRING",
+          id: "id",
+          label: "ID",
+          key: 1,
+          required: true,
+          table: "Subject",
+          inherited: false,
+        },
+        {
+          columnType: "MODULE_ARRAY",
+          id: "moduleAxis",
+          label: "Module axis",
+          values: ["ModX"],
+          table: "Subject",
+          inherited: false,
+        },
+        {
+          columnType: "STRING",
+          id: "rootCol",
+          label: "Root column",
+          table: "Subject",
+          inherited: false,
+        },
+        {
+          columnType: "STRING",
+          id: "modxCol",
+          label: "ModX column",
+          table: "ModX",
+          inherited: false,
+          required: true,
+        },
+      ],
+    });
+
+    test("(a) module col absent from visibleColumns when discriminator empty, present when active, toggles reactively", () => {
+      const formValues = ref<Record<string, columnValue>>({ moduleAxis: [] });
+      const { visibleColumns } = useForm(moduleMeta, formValues);
+
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("modxCol");
+
+      formValues.value["moduleAxis"] = ["ModX"];
+      expect(visibleColumns.value.map((c) => c.id)).toContain("modxCol");
+
+      formValues.value["moduleAxis"] = [];
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("modxCol");
+    });
+
+    test("(b) when ModX active + module col required + empty → in requiredFields/emptyRequiredFields, isValid false; when inactive → not required, isValid true", () => {
+      const formValues = ref<Record<string, columnValue>>({
+        id: "row1",
+        moduleAxis: ["ModX"],
+        modxCol: null,
+      });
+      const { requiredFields, emptyRequiredFields, isValid } = useForm(
+        moduleMeta,
+        formValues
+      );
+
+      expect(requiredFields.value.map((c) => c.id)).toContain("modxCol");
+      expect(emptyRequiredFields.value.map((c) => c.id)).toContain("modxCol");
+      expect(isValid()).toBe(false);
+
+      formValues.value["moduleAxis"] = [];
+      expect(requiredFields.value.map((c) => c.id)).not.toContain("modxCol");
+      expect(emptyRequiredFields.value.map((c) => c.id)).not.toContain(
+        "modxCol"
+      );
+      expect(isValid()).toBe(true);
+    });
+  });
+
+  describe("module column visibility via scalar MODULE discriminator", () => {
+    const scalarModuleMeta = ref<ITableMetaData>({
+      id: "Experiment",
+      name: "Experiment",
+      schemaId: "testSchema",
+      label: "Experiment",
+      tableType: "DATA",
+      columns: [
+        {
+          columnType: "STRING",
+          id: "id",
+          label: "ID",
+          key: 1,
+          required: true,
+          table: "Experiment",
+          inherited: false,
+        },
+        {
+          columnType: "MODULE",
+          id: "experimentType",
+          label: "Experiment type",
+          values: ["RNA", "DNA"],
+          table: "Experiment",
+          inherited: false,
+        },
+        {
+          columnType: "STRING",
+          id: "rootCol",
+          label: "Root column",
+          table: "Experiment",
+          inherited: false,
+        },
+        {
+          columnType: "STRING",
+          id: "readCount",
+          label: "RNA read count",
+          table: "RNA",
+          inherited: false,
+        },
+      ],
+    });
+
+    test("module col hidden when scalar discriminator unset, visible when chosen, hidden again when cleared", () => {
+      const formValues = ref<Record<string, columnValue>>({
+        experimentType: null,
+      });
+      const { visibleColumns } = useForm(scalarModuleMeta, formValues);
+
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("readCount");
+
+      formValues.value["experimentType"] = "RNA";
+      expect(visibleColumns.value.map((c) => c.id)).toContain("readCount");
+
+      formValues.value["experimentType"] = null;
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("readCount");
+    });
+
+    test("module col of a different module stays hidden while another scalar module value is active", () => {
+      const formValues = ref<Record<string, columnValue>>({
+        experimentType: "DNA",
+      });
+      const { visibleColumns } = useForm(scalarModuleMeta, formValues);
+
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("readCount");
+    });
+  });
+
+  describe("ancestor module reveal in a module chain (Root<-M1<-M2)", () => {
+    const chainSchema = ref<ISchemaMetaData>({
+      id: "chainSchema",
+      label: "chainSchema",
+      tables: [
+        {
+          id: "Root",
+          name: "Root",
+          schemaId: "chainSchema",
+          label: "Root",
+          tableType: "DATA",
+          columns: [
+            {
+              columnType: "STRING",
+              id: "id",
+              label: "ID",
+              key: 1,
+              table: "Root",
+              inherited: false,
+            },
+            {
+              columnType: "MODULE_ARRAY",
+              id: "modules",
+              label: "Modules",
+              values: ["M1", "M2"],
+              table: "Root",
+              inherited: false,
+            },
+            {
+              columnType: "STRING",
+              id: "m1Col",
+              label: "M1 column",
+              table: "M1",
+              inherited: false,
+            },
+            {
+              columnType: "STRING",
+              id: "m2Col",
+              label: "M2 column",
+              table: "M2",
+              inherited: false,
+            },
+          ],
+        },
+        {
+          id: "M1",
+          name: "M1",
+          schemaId: "chainSchema",
+          label: "M1",
+          tableType: "MODULE",
+          inheritNames: ["Root"],
+          columns: [],
+        },
+        {
+          id: "M2",
+          name: "M2",
+          schemaId: "chainSchema",
+          label: "M2",
+          tableType: "MODULE",
+          inheritNames: ["M1"],
+          columns: [],
+        },
+      ],
+    });
+    const chainRoot = ref<ITableMetaData>(chainSchema.value.tables[0]!);
+
+    test("activating leaf module M2 reveals ancestor module M1's column", () => {
+      const formValues = ref<Record<string, columnValue>>({ modules: [] });
+      const { visibleColumns } = useForm(chainRoot, formValues, chainSchema);
+
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("m1Col");
+      expect(visibleColumns.value.map((c) => c.id)).not.toContain("m2Col");
+
+      formValues.value["modules"] = ["M2"];
+      const visibleIds = visibleColumns.value.map((c) => c.id);
+      expect(visibleIds).toContain("m2Col");
+      expect(visibleIds).toContain("m1Col");
+    });
+
+    test("payload keeps ancestor module M1's value when leaf module M2 is active", () => {
+      const formValues = ref<Record<string, columnValue>>({
+        id: "r1",
+        modules: ["M2"],
+        m1Col: "m1val",
+        m2Col: "m2val",
+      });
+      const { values, visibleColumns } = useForm(
+        chainRoot,
+        formValues,
+        chainSchema
+      );
+
+      expect(visibleColumns.value.map((c) => c.id)).toContain("m1Col");
+      expect(values.value["m1Col"]).toBe("m1val");
     });
   });
 });

@@ -13,6 +13,7 @@
 <script>
 import { renderSvg } from "nomnoml";
 import { InputCheckbox } from "molgenis-components";
+import { getInheritanceEdges } from "metadata-utils";
 
 export default {
   props: {
@@ -91,7 +92,10 @@ export default {
               res += `[<table> ${subclass.name}`;
               res += this.nomnomColumnsForTable(table, subclass.name);
               res += "]\n";
-              res += `[<table>${subclass.inheritName}]<:-[<table>${subclass.name}]\n`;
+              getInheritanceEdges(subclass).forEach((edge) => {
+                const connector = edge.isModule ? "+-" : "<:-";
+                res += `[<table>${edge.parent}]${connector}[<table>${edge.child}]\n`;
+              });
             });
           }
         });

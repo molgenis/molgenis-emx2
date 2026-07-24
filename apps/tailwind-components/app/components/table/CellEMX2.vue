@@ -23,7 +23,9 @@
                 metadata.columnType === 'DATETIME' ||
                 metadata.columnType === 'AUTO_ID' ||
                 metadata.columnType === 'UUID' ||
-                metadata.columnType === 'PERIOD'
+                metadata.columnType === 'PERIOD' ||
+                metadata.columnType === 'ENUM' ||
+                metadata.columnType === 'MODULE'
               "
               :metadata="metadata"
               :data="assertStringValue(data)"

@@ -59,7 +59,7 @@ public abstract class RdfGenerator {
     }
 
     List<Row> rows = query.retrieveRows();
-    List<Column> columns = table.getMetadata().getColumns();
+    List<Column> columns = table.getMetadata().getColumnsIncludingModules();
     ResolveComputedValue.apply(columns, rows);
     return rows;
   }
@@ -87,11 +87,35 @@ public abstract class RdfGenerator {
       tablesToDescribe.add(currentTable);
       return true;
     }
-    if (processInheritedTable(tableFilter, tablesToDescribe, currentTable.getInheritedTable())) {
-      tablesToDescribe.add(currentTable);
-      return true;
+    boolean reached = false;
+    for (Table parent : getParentTables(currentTable)) {
+      if (processInheritedTable(tableFilter, tablesToDescribe, parent)) {
+        reached = true;
+      }
     }
-    return false;
+    if (reached) {
+      tablesToDescribe.add(currentTable);
+    }
+    return reached;
+  }
+
+  private List<Table> getParentTables(Table table) {
+    List<String> parentNames = table.getMetadata().getInheritNames();
+    if (parentNames.isEmpty()) {
+      return List.of();
+    }
+    String importSchema = table.getMetadata().getImportSchema();
+    List<Table> parents = new ArrayList<>();
+    for (String parentName : parentNames) {
+      Table parent =
+          importSchema != null
+              ? table.getSchema().getDatabase().getSchema(importSchema).getTable(parentName)
+              : table.getSchema().getTable(parentName);
+      if (parent != null) {
+        parents.add(parent);
+      }
+    }
+    return parents;
   }
 
   protected void generatePrefixes(Collection<Namespace> namespaces) {

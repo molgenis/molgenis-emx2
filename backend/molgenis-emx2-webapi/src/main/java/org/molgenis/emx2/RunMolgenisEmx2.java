@@ -19,6 +19,7 @@ public class RunMolgenisEmx2 {
   public static final String CATALOGUE_DEMO = "catalogue-demo";
   public static final String DIRECTORY_DEMO = "directory-demo";
   public static final String PET_STORE = "pet store";
+  public static final String DIAMOND_SHOWCASE = "diamond_showcase";
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =
@@ -95,6 +96,8 @@ public class RunMolgenisEmx2 {
             schema.getDatabase().setUserPassword("shopviewer", "shopviewer");
           }
 
+          loadDiamondShowcase(db);
+
           if (INCLUDE_TYPE_TEST_DEMO && db.getSchema("type test") == null) {
             DataModels.Profile.TYPE_TEST.getImportTask(db, "type test", "", true).run();
           }
@@ -120,5 +123,11 @@ public class RunMolgenisEmx2 {
 
     // start
     new MolgenisWebservice().start(port);
+  }
+
+  public static void loadDiamondShowcase(Database database) {
+    if (database.getSchema(DIAMOND_SHOWCASE) == null) {
+      DataModels.Regular.DIAMOND_SHOWCASE.getImportTask(database, DIAMOND_SHOWCASE, "", true).run();
+    }
   }
 }

@@ -286,6 +286,7 @@
     :showButton="false"
     :schemaId="schemaId"
     :metadata="data.tableMetadata"
+    :schema="data.schemaMetadata"
     :formValues="rowDataForModal"
     :isInsert="false"
     v-model:visible="showEditModal"
@@ -298,6 +299,7 @@
     :showButton="false"
     :schemaId="schemaId"
     :metadata="data.tableMetadata"
+    :schema="data.schemaMetadata"
     :isInsert="true"
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
@@ -319,6 +321,7 @@ import type {
 import { sortColumns } from "../../utils/sortColumns";
 
 import fetchTableData from "../../composables/fetchTableData";
+import fetchMetadata from "../../composables/fetchMetadata";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 
@@ -456,6 +459,8 @@ const { data, refresh, status } = useAsyncData(
       props.tableId
     );
 
+    const schemaMetadata = await fetchMetadata(props.schemaId);
+
     const tableData = await fetchTableData(props.schemaId, props.tableId, {
       limit: settings.value.pageSize,
       offset: (settings.value.page - 1) * settings.value.pageSize,
@@ -484,6 +489,7 @@ const { data, refresh, status } = useAsyncData(
 
     return {
       tableMetadata,
+      schemaMetadata,
       rows,
       count: tableData.count,
     };

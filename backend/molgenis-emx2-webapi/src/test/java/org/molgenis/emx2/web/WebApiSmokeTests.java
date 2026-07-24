@@ -61,6 +61,7 @@ class WebApiSmokeTests extends ApiTestBase {
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static final String TABLE_WITH_SPACES = "table with spaces";
   public static final String PET_STORE_SCHEMA = "pet store";
+  public static final String DIAMOND_SHOWCASE_SCHEMA = "diamond_showcase";
 
   private static Schema schema;
 
@@ -88,6 +89,9 @@ class WebApiSmokeTests extends ApiTestBase {
     if (schema.getTable(TABLE_WITH_SPACES) == null) {
       schema.create(table(TABLE_WITH_SPACES, column("name", STRING).setKey(1)));
     }
+
+    database.dropSchemaIfExists(DIAMOND_SHOWCASE_SCHEMA);
+    RunMolgenisEmx2.loadDiamondShowcase(database);
   }
 
   private static void setAdminSession() {
@@ -100,6 +104,7 @@ class WebApiSmokeTests extends ApiTestBase {
     database.dropSchemaIfExists(PET_STORE_SCHEMA);
     database.dropSchemaIfExists("pet store yaml");
     database.dropSchemaIfExists("pet store json");
+    database.dropSchemaIfExists(DIAMOND_SHOWCASE_SCHEMA);
   }
 
   @Test
@@ -190,6 +195,20 @@ class WebApiSmokeTests extends ApiTestBase {
 
     // Restore admin session to not break the other tests
     setAdminSession();
+  }
+
+  @Test
+  void testDiamondShowcaseGraphqlApi() {
+    String result =
+        given()
+            .sessionId(sessionId)
+            .body("{\"query\":\"{Subject{subjectId}}\"}")
+            .when()
+            .post("/" + DIAMOND_SHOWCASE_SCHEMA + "/api/graphql")
+            .asString();
+    assertTrue(
+        result.contains("SUBJ001"),
+        "diamond_showcase must answer a GraphQL query on a freshly started server");
   }
 
   @Test

@@ -27,11 +27,19 @@ const emit = defineEmits([
   "focus",
 ]);
 
+function isChecked(value: columnValue): boolean {
+  return Array.isArray(modelValue.value) && modelValue.value.includes(value);
+}
+
 function toggleSelect(event: Event) {
   const target = event.target as HTMLInputElement;
+  const currentArray = Array.isArray(modelValue.value) ? modelValue.value : [];
+
   if (target.checked) {
+    modelValue.value = [...currentArray, target.value];
     emit("select", target.value);
   } else {
+    modelValue.value = currentArray.filter((v) => v !== target.value);
     emit("deselect", target.value);
   }
   emit("focus");
@@ -63,14 +71,13 @@ function resetModelValue() {
           :id="`${id}-checkbox-group-${option.value}`"
           :name="id"
           :value="option.value"
-          v-model="modelValue"
-          :checked="modelValue ? modelValue.includes(option.value) : false"
+          :checked="isChecked(option.value)"
           :disabled="disabled"
           @change="toggleSelect"
           class="ml-4 mt-2 sr-only"
         />
         <InputCheckboxIcon
-          :checked="modelValue ? modelValue.includes(option.value) : false"
+          :checked="isChecked(option.value)"
           :invalid="invalid"
           :valid="valid"
           :disabled="disabled"

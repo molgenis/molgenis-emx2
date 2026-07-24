@@ -99,6 +99,16 @@
                   description="(Optional) customize how ref values should be shown. E.g. '${name}' or '${firstName} ${lastName}'"
                 />
               </div>
+              <div class="col-4" v-if="showValuesInput">
+                <ArrayInput
+                  id="column_values"
+                  columnType="STRING_ARRAY"
+                  v-model="column.values"
+                  :list="true"
+                  label="values"
+                  description="Allowed values for ENUM columns, or module (subtype) names for MODULE columns. Scalar MODULE values are derived by the server and may be left empty."
+                />
+              </div>
               <div class="col-4" v-if="column.columnType === 'REFBACK'">
                 <InputSelect
                   id="column_refBack"
@@ -310,7 +320,8 @@ import {
   RowEdit, //@ts-ignore
   Spinner, //@ts-ignore
   deepClone, //@ts-ignore
-  getRowErrors,
+  getRowErrors, //@ts-ignore
+  getColumnTypesWithEditableValues,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
@@ -488,6 +499,11 @@ export default {
     },
     isDisabled() {
       return this.operation !== "add" && this.nameInvalid;
+    },
+    showValuesInput() {
+      return getColumnTypesWithEditableValues().includes(
+        this.column.columnType
+      );
     },
   },
   methods: {

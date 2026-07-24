@@ -8,8 +8,11 @@ import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadata.validateTableIdentifierIsUnique;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
@@ -43,17 +46,15 @@ class SqlTableMetadata extends TableMetadata {
         tm.alterColumn(c);
       } else {
         Column newColumn = new Column(tm, c);
-        if (tm.getInheritName() != null
-            && tm.getInheritedTable().getColumn(c.getName()) != null
-            // this column is replicated in all subclass tables
-            && !c.getName().equals(MG_TABLECLASS)) {
+        Optional<TableMetadata> conflictingParent = findConflictingParentByName(tm, c.getName());
+        if (conflictingParent.isPresent() && !c.getName().equals(MG_TABLECLASS)) {
           throw new MolgenisException(
               "Cannot add column "
                   + tm.getTableName()
                   + "."
                   + c.getName()
                   + ": column exists in inherited class "
-                  + tm.getInheritName());
+                  + conflictingParent.get().getTableName());
         }
         checkNoColumnWithSameNameExistsInSubclass(c.getName(), tm, tm.getJooq());
 
@@ -81,6 +82,16 @@ class SqlTableMetadata extends TableMetadata {
       }
     }
     return tm;
+  }
+
+  private static Optional<TableMetadata> findConflictingParentByName(
+      TableMetadata tm, String columnName) {
+    for (TableMetadata parent : tm.getInheritedTables()) {
+      if (parent.getColumn(columnName) != null) {
+        return Optional.of(parent);
+      }
+    }
+    return Optional.empty();
   }
 
   private static void validateColumnIdentifierIsUnique(
@@ -183,16 +194,19 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' does not exist");
     }
-    if (getInheritName() != null && getInheritedTable().getColumn(columnName) != null) {
+    Optional<TableMetadata> ownerOfExistingColumn = findConflictingParentByName(this, columnName);
+    if (ownerOfExistingColumn.isPresent()) {
       throw new MolgenisException(
           "Alter column "
               + getTableName()
               + "."
               + columnName
               + " failed: column is part of inherited table "
-              + getInheritName());
+              + ownerOfExistingColumn.get().getTableName());
     }
-    if (getInheritName() != null && getInheritedTable().getColumn(column.getName()) != null) {
+    Optional<TableMetadata> ownerOfNewColumnName =
+        findConflictingParentByName(this, column.getName());
+    if (ownerOfNewColumnName.isPresent() && !column.getName().equals(columnName)) {
       throw new MolgenisException(
           "Rename column from "
               + getTableName()
@@ -205,7 +219,7 @@ class SqlTableMetadata extends TableMetadata {
               + " failed: column '"
               + column.getName()
               + "' is part of inherited table "
-              + getInheritName());
+              + ownerOfNewColumnName.get().getTableName());
     }
     getDatabase()
         .tx(
@@ -337,77 +351,99 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata setInheritName(String otherTable) {
+  public TableMetadata setInheritNames(List<String> names) {
     long start = System.currentTimeMillis();
-    if (getInheritName() != null && getInheritName().equals(otherTable)) {
-      return this; // nothing to do
+    if (names == null || names.isEmpty()) {
+      return this;
     }
-    if (getInheritName() != null) {
-      throw new MolgenisException(
-          "Table '"
-              + getTableName()
-              + "'can only extend one table. Therefore it cannot extend '"
-              + otherTable
-              + "' because it already extends other table '"
-              + getInheritName()
-              + "'");
-    }
-    TableMetadata other;
-    if (getImportSchema() != null) {
-      // check for duplicate table name
-      Schema otherSchema = getSchema().getDatabase().getSchema(getImportSchema());
-      if (otherSchema == null || otherSchema.getMetadata().getTableMetadata(otherTable) == null) {
-        throw new MolgenisException(
-            "Inheritance failed. Other schema.table '"
-                + getImportSchema()
-                + "."
-                + otherTable
-                + "' does not exist in this database");
+    List<String> currentParents = getInheritNames();
+    if (!currentParents.isEmpty()) {
+      if (new HashSet<>(currentParents).equals(new HashSet<>(names))) {
+        return this;
       }
-      other = otherSchema.getMetadata().getTableMetadata(otherTable);
-    } else {
-      other = getSchema().getTableMetadata(otherTable);
-      if (other == null)
-        throw new MolgenisException(
-            "Inheritance failed. Other table '" + otherTable + "' does not exist in this schema");
-    }
-    if (other.getPrimaryKeys().isEmpty())
       throw new MolgenisException(
-          "Set inheritance failed: To extend table '"
-              + otherTable
-              + "' it must have primary key set");
+          "Cannot change inheritance of table '"
+              + getTableName()
+              + "': extends is immutable after creation (current parents "
+              + currentParents
+              + ", requested "
+              + names
+              + ")");
+    }
+    List<String> newParents =
+        names.stream().filter(name -> !currentParents.contains(name)).toList();
+    if (newParents.isEmpty()) {
+      return this;
+    }
+    List<String> allRequestedParents = new ArrayList<>(currentParents);
+    allRequestedParents.addAll(newParents);
+
+    String inheritSchema = getImportSchema() != null ? getImportSchema() : getSchemaName();
+    for (String parentName : newParents) {
+      TableMetadata parent;
+      if (getImportSchema() != null) {
+        Schema otherSchema = getSchema().getDatabase().getSchema(getImportSchema());
+        if (otherSchema == null || otherSchema.getMetadata().getTableMetadata(parentName) == null) {
+          throw new MolgenisException(
+              "Inheritance failed. Other schema.table '"
+                  + getImportSchema()
+                  + "."
+                  + parentName
+                  + "' does not exist in this database");
+        }
+        parent = otherSchema.getMetadata().getTableMetadata(parentName);
+      } else {
+        parent = getSchema().getTableMetadata(parentName);
+        if (parent == null)
+          throw new MolgenisException(
+              "Inheritance failed. Other table '" + parentName + "' does not exist in this schema");
+      }
+      if (parent.getPrimaryKeys().isEmpty()) {
+        throw new MolgenisException(
+            "Set inheritance failed: To extend table '"
+                + parentName
+                + "' it must have primary key set");
+      }
+    }
+    TableMetadata candidateChild = new org.molgenis.emx2.TableMetadata(getSchema(), this);
+    candidateChild.setInheritNames(allRequestedParents);
+    candidateChild.validateInheritance();
+
     getDatabase()
         .tx(
             tdb ->
-                // extends means we copy primary key column from parent to child, make it foreign
-                // key
-                // to
-                // parent, and make it primary key of this table also.
                 sync(
-                    setInheritTransaction(
+                    bulkAddInheritTransaction(
                         tdb,
                         getSchemaName(),
                         getTableName(),
-                        getImportSchema() != null ? getImportSchema() : getSchemaName(),
-                        otherTable)));
+                        inheritSchema,
+                        currentParents,
+                        newParents)));
     log(start, "set inherit on ");
-    super.setInheritName(otherTable);
+    super.setInheritNames(allRequestedParents);
     return this;
   }
 
-  // static function to ensure this is not altered until end of transaction
-  private static SqlTableMetadata setInheritTransaction(
+  private static SqlTableMetadata bulkAddInheritTransaction(
       Database db,
       String schemaName,
       String tableName,
       String inheritSchema,
-      String inheritedName) {
+      List<String> alreadyWiredParents,
+      List<String> parentsToAdd) {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     SqlTableMetadata tm =
         (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
-    TableMetadata om = db.getSchema(inheritSchema).getTable(inheritedName).getMetadata();
-    executeSetInherit(jooq, tm, om);
-    tm.inheritName = inheritedName;
+
+    for (String parentName : parentsToAdd) {
+      TableMetadata om = db.getSchema(inheritSchema).getTable(parentName).getMetadata();
+      executeSetInherit(jooq, tm, om);
+      // Update in-memory list directly — avoids re-entering SqlTableMetadata.setInheritNames
+      if (!tm.inheritNames.contains(parentName)) {
+        tm.inheritNames.add(parentName);
+      }
+    }
     MetadataUtils.saveTableMetadata(jooq, tm);
     return tm;
   }

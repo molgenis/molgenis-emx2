@@ -42,6 +42,7 @@ const fieldId = computed(
     :ref-table-id="column.refTableId"
     :ref-label="column.refLabel || column.refLabelDefault"
     :ref-back-id="column.refBackId"
+    :values="column.values"
     :invalid="(form.visibleColumnErrors.value[column.id] || '').length > 0"
     @input="form.onUpdateColumn(props.column)"
     @blur="form.onBlurColumn(props.column)"

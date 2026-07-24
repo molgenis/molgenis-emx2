@@ -367,15 +367,13 @@ public class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      SqlRowProcessor rowProcessor = new SqlRowProcessor(table.getMetadata().getColumns());
-      List<Row> rows = subclassRows.get(subclassName);
-      rowProcessor.validateAndCompute(rows);
+      List<Row> batchRows = subclassRows.get(subclassName);
+      List<Row> rows = applyValidationPerRow(table, updateColumns, batchRows, false);
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
-      List<Row> rows = subclassRows.get(subclassName);
-      SqlRowProcessor rowProcessor = new SqlRowProcessor(insertColumns);
-      rowProcessor.validateAndCompute(rows);
+      List<Row> batchRows = subclassRows.get(subclassName);
+      List<Row> rows = applyValidationPerRow(table, insertColumns, batchRows, true);
       count.set(
           count.get()
               + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size());
@@ -387,6 +385,26 @@ public class SqlTable implements Table {
     }
     // clear the list
     subclassRows.get(subclassName).clear();
+  }
+
+  private static List<Row> applyValidationPerRow(
+      SqlTable entry, List<Column> baseColumns, List<Row> rows, boolean isInsert) {
+    boolean hasModuleColumns = !entry.getMetadata().getDiscriminatorColumns().isEmpty();
+    SqlRowProcessor.validateAndCompute(
+        baseColumns, rows, hasModuleColumns, row -> activeModuleColumns(entry, row, isInsert));
+    return rows;
+  }
+
+  private static List<Column> activeModuleColumns(SqlTable entry, Row row, boolean isInsert) {
+    List<Column> moduleColumns = new ArrayList<>();
+    for (SqlTable moduleTable : activeModuleTables(entry, row)) {
+      if (isInsert) {
+        moduleColumns.addAll(getInsertColumns(moduleTable, row.getColumnNames()));
+      } else {
+        moduleColumns.addAll(moduleTable.getMetadata().getColumns());
+      }
+    }
+    return moduleColumns;
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
@@ -419,53 +437,243 @@ public class SqlTable implements Table {
     return this.tableListener;
   }
 
-  private List<Record> insertBatch(
-      SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
-    if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      List<Record> records =
-          inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
+  private static List<SqlTable> ancestorChainRootFirst(SqlTable table) {
+    return table.getMetadata().getAncestorsRootFirst().stream()
+        .map(
+            tm ->
+                (SqlTable)
+                    table
+                        .getSchema()
+                        .getDatabase()
+                        .getSchema(tm.getSchemaName())
+                        .getTable(tm.getTableName()))
+        .collect(Collectors.toList());
+  }
 
-      List<Column> autoIdColumns =
-          inheritedTable.getMetadata().getPrimaryKeyColumns().stream()
-              .filter(c -> AUTO_ID.equals(c.getColumnType()))
-              .toList();
-
-      // Copy the generated auto id's from the parent table
-      for (int i = 0; i < records.size(); i++) {
-        copyRecordValuesIntoRows(rows.get(i), records.get(i), autoIdColumns);
-      }
-    }
-
-    List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.isEmpty()) {
+  private static List<SqlTable> activeModuleTables(SqlTable entry, Row row) {
+    List<Column> discriminators = entry.getMetadata().getDiscriminatorColumns();
+    if (discriminators.isEmpty()) {
       return Collections.emptyList();
     }
 
+    Set<String> activeTableNames = new LinkedHashSet<>();
+    for (Column discriminator : discriminators) {
+      String[] values = row.getStringArray(discriminator.getName());
+      if (values != null) {
+        for (String value : values) {
+          if (value != null && !value.isBlank()) {
+            activeTableNames.add(value);
+          }
+        }
+      }
+    }
+
+    if (activeTableNames.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    String rootSchemaName = entry.getMetadata().getRootTable().getSchemaName();
+    String rootTableName = entry.getMetadata().getRootTable().getTableName();
+    Database database = entry.getSchema().getDatabase();
+    org.molgenis.emx2.Schema entrySchema = entry.getSchema();
+
+    List<SqlTable> result = new ArrayList<>();
+    Set<String> emitted = new LinkedHashSet<>();
+
+    for (String tableName : activeTableNames) {
+      SqlTable moduleTable = (SqlTable) entrySchema.getTable(tableName);
+      if (moduleTable == null) continue;
+      if (!isModuleOfRoot(moduleTable, rootSchemaName, rootTableName)) {
+        throw new MolgenisException(
+            "Cannot activate '"
+                + tableName
+                + "' on table '"
+                + entry.getName()
+                + "': value must name a MODULE that extends root '"
+                + rootTableName
+                + "'");
+      }
+
+      String qualifiedKey = entrySchema.getName() + "." + tableName;
+      expandModuleAncestors(moduleTable, rootSchemaName, rootTableName, result, emitted, database);
+      if (emitted.add(qualifiedKey)) {
+        result.add(moduleTable);
+      }
+    }
+
+    return result;
+  }
+
+  private static boolean isModuleOfRoot(
+      SqlTable moduleTable, String rootSchemaName, String rootTableName) {
+    if (!moduleTable.getMetadata().getTableType().isModule()) {
+      return false;
+    }
+    TableMetadata moduleRoot = moduleTable.getMetadata().getRootTable();
+    return moduleRoot.getSchemaName().equals(rootSchemaName)
+        && moduleRoot.getTableName().equals(rootTableName);
+  }
+
+  private static void expandModuleAncestors(
+      SqlTable moduleTable,
+      String rootSchemaName,
+      String rootTableName,
+      List<SqlTable> result,
+      Set<String> emitted,
+      Database database) {
+    for (TableMetadata ancestorMeta : moduleTable.getMetadata().getAncestorsRootFirst()) {
+      if (ancestorMeta.getSchemaName().equals(rootSchemaName)
+          && ancestorMeta.getTableName().equals(rootTableName)) {
+        continue;
+      }
+      String ancestorKey = ancestorMeta.getSchemaName() + "." + ancestorMeta.getTableName();
+      if (emitted.add(ancestorKey)) {
+        SqlTable ancestorTable =
+            (SqlTable)
+                database
+                    .getSchema(ancestorMeta.getSchemaName())
+                    .getTable(ancestorMeta.getTableName());
+        if (ancestorTable != null) {
+          result.add(ancestorTable);
+        }
+      }
+    }
+  }
+
+  private List<Record> insertBatch(
+      SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
+    List<SqlTable> tables = new ArrayList<>(ancestorChainRootFirst(table));
+    tables.add(table);
+    SqlTable rootTable = tables.get(0);
+
+    List<Column> discriminators = table.getMetadata().getDiscriminatorColumns();
+    Map<String, Map<String, String[]>> priorArraysByPkKey =
+        (updateOnConflict && !discriminators.isEmpty())
+            ? selectPriorDiscriminatorArrays(table, rows, discriminators)
+            : Collections.emptyMap();
+
+    List<Record> rootRecords = Collections.emptyList();
+
+    for (SqlTable current : tables) {
+      boolean isRoot = current == rootTable;
+      List<Column> columns = getLocalStoredColumns(current, updateColumns);
+      if (columns.isEmpty()) continue;
+
+      List<Record> inserted =
+          insertIntoSingleTable(current, rows, updateOnConflict, columns, isRoot);
+
+      if (isRoot) {
+        rootRecords = inserted;
+      }
+
+      List<Column> autoIdColumns =
+          current.getMetadata().getPrimaryKeyColumns().stream()
+              .filter(c -> AUTO_ID.equals(c.getColumnType()))
+              .toList();
+      if (!autoIdColumns.isEmpty()) {
+        for (int j = 0; j < rows.size(); j++) {
+          copyRecordValuesIntoRows(rows.get(j), inserted.get(j), autoIdColumns);
+        }
+      }
+    }
+
+    Set<String> isATableKeys =
+        tables.stream()
+            .map(t -> t.getMetadata().getSchemaName() + "." + t.getMetadata().getTableName())
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+    insertModuleRows(table, rows, updateOnConflict, isATableKeys);
+
+    if (updateOnConflict && !discriminators.isEmpty()) {
+      deleteRemovedModuleRows(table, rows, discriminators, priorArraysByPkKey);
+    }
+
+    return rootRecords;
+  }
+
+  private void insertModuleRows(
+      SqlTable entry, List<Row> rows, boolean updateOnConflict, Set<String> isATableKeys) {
+    List<Column> discriminators = entry.getMetadata().getDiscriminatorColumns();
+    if (discriminators.isEmpty()) return;
+
+    List<SqlTable> allActiveModules = collectAllActiveModuleTables(entry, rows, isATableKeys);
+
+    for (SqlTable moduleTable : allActiveModules) {
+      String moduleKey =
+          moduleTable.getMetadata().getSchemaName()
+              + "."
+              + moduleTable.getMetadata().getTableName();
+      List<Row> moduleRows =
+          rows.stream()
+              .filter(row -> activeModuleTableKeys(entry, row).contains(moduleKey))
+              .collect(Collectors.toList());
+      if (moduleRows.isEmpty()) continue;
+
+      Set<String> providedNames =
+          moduleRows.stream()
+              .flatMap(row -> row.getColumnNames().stream())
+              .collect(Collectors.toCollection(LinkedHashSet::new));
+      List<Column> moduleCols =
+          getLocalStoredColumns(moduleTable, getInsertColumns(moduleTable, providedNames));
+      if (moduleCols.isEmpty()) continue;
+
+      moduleTable.insertIntoSingleTable(
+          moduleTable, moduleRows, updateOnConflict, moduleCols, false);
+    }
+  }
+
+  private static Set<String> activeModuleTableKeys(SqlTable entry, Row row) {
+    return activeModuleTables(entry, row).stream()
+        .map(t -> t.getMetadata().getSchemaName() + "." + t.getMetadata().getTableName())
+        .collect(Collectors.toCollection(LinkedHashSet::new));
+  }
+
+  private static List<SqlTable> collectAllActiveModuleTables(
+      SqlTable entry, List<Row> rows, Set<String> isATableKeys) {
+    List<SqlTable> allModules = new ArrayList<>();
+    Set<String> emittedKeys = new LinkedHashSet<>(isATableKeys);
+    for (Row row : rows) {
+      for (SqlTable moduleTable : activeModuleTables(entry, row)) {
+        String key =
+            moduleTable.getMetadata().getSchemaName()
+                + "."
+                + moduleTable.getMetadata().getTableName();
+        if (emittedKeys.add(key)) {
+          allModules.add(moduleTable);
+        }
+      }
+    }
+    return allModules;
+  }
+
+  private List<Record> insertIntoSingleTable(
+      SqlTable ancestor,
+      List<Row> rows,
+      boolean updateOnConflict,
+      List<Column> columns,
+      boolean isRoot) {
+    if (columns.isEmpty()) return Collections.emptyList();
+
     List<Field> insertFields = columns.stream().map(Column::getJooqField).toList();
     InsertValuesStepN<org.jooq.Record> step =
-        table.getJooq().insertInto(table.getJooqTable(), insertFields.toArray(new Field[0]));
+        ancestor.getJooq().insertInto(ancestor.getJooqTable(), insertFields.toArray(new Field[0]));
 
-    // add all the rows as steps
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
-      if (!inherit) {
-        values.put(MG_INSERTEDBY, getActiveUser(table));
+      if (isRoot) {
+        values.put(MG_INSERTEDBY, getActiveUser(ancestor));
         values.put(MG_INSERTEDON, now);
-        values.put(MG_UPDATEDBY, getActiveUser(table));
+        values.put(MG_UPDATEDBY, getActiveUser(ancestor));
         values.put(MG_UPDATEDON, now);
       }
       step.values(values.values());
     }
 
-    // optionally, add conflict clause
     if (updateOnConflict) {
       InsertOnDuplicateSetStep<org.jooq.Record> step2 =
-          step.onConflict(table.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
+          step.onConflict(ancestor.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
               .doUpdate();
-      // remove mg_table as part of update key
       for (Column column :
           columns.stream()
               .filter(
@@ -475,13 +683,13 @@ public class SqlTable implements Table {
             column.getJooqField(),
             (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
       }
-      if (!inherit) {
-        step2.set(field(name(MG_UPDATEDBY)), getActiveUser(table));
+      if (isRoot) {
+        step2.set(field(name(MG_UPDATEDBY)), getActiveUser(ancestor));
         step2.set(field(name(MG_UPDATEDON)), now);
       }
     }
 
-    return step.returningResult(table.getMetadata().getPrimaryKeyFields()).fetch();
+    return step.returningResult(ancestor.getMetadata().getPrimaryKeyFields()).fetch();
   }
 
   private static void copyRecordValuesIntoRows(Row row, Record from, List<Column> toCopy) {
@@ -499,36 +707,195 @@ public class SqlTable implements Table {
   }
 
   private int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
+    List<SqlTable> ancestorChain = ancestorChainRootFirst(table);
     int count = 0;
-    if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      count = inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
-    }
 
-    List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.size() == 0) return count;
-    List<Column> pkeyFields = table.getMetadata().getPrimaryKeyColumns();
+    List<SqlTable> allTables = new ArrayList<>(ancestorChain);
+    allTables.add(table);
+    SqlTable rootTable = allTables.get(0);
 
-    // create batch of updates
-    List<UpdateConditionStep> list = new ArrayList();
-    LocalDateTime now = LocalDateTime.now();
-    for (Row row : rows) {
-      Map values = getSelectedRowValues(columns, row);
-      if (!inherit) {
-        values.put(MG_UPDATEDBY, getActiveUser(table));
-        values.put(MG_UPDATEDON, now);
+    List<Column> discriminators = table.getMetadata().getDiscriminatorColumns();
+    Map<String, Map<String, String[]>> priorArraysByPkKey =
+        discriminators.isEmpty()
+            ? Collections.emptyMap()
+            : selectPriorDiscriminatorArrays(table, rows, discriminators);
+
+    for (SqlTable current : allTables) {
+      boolean isRoot = current == rootTable;
+      List<Column> columns = getLocalStoredColumns(current, updateColumns);
+      if (columns.isEmpty()) continue;
+
+      List<Column> pkeyFields = current.getMetadata().getPrimaryKeyColumns();
+      List<UpdateConditionStep> list = new ArrayList<>();
+      LocalDateTime now = LocalDateTime.now();
+      for (Row row : rows) {
+        Map<String, Object> values = getSelectedRowValues(columns, row);
+        if (isRoot) {
+          values.put(MG_UPDATEDBY, getActiveUser(current));
+          values.put(MG_UPDATEDON, now);
+        }
+        list.add(
+            current
+                .getJooq()
+                .update(current.getJooqTable())
+                .set(values)
+                .where(current.getUpdateCondition(row, pkeyFields)));
       }
 
-      list.add(
-          table
-              .getJooq()
-              .update(table.getJooqTable())
-              .set(values)
-              .where(table.getUpdateCondition(row, pkeyFields)));
+      count +=
+          Arrays.stream(current.getJooq().batch(list).execute()).reduce(Integer::sum).orElse(0);
     }
 
-    return Arrays.stream(table.getJooq().batch(list).execute()).reduce(Integer::sum).getAsInt();
+    Set<String> isATableKeys =
+        allTables.stream()
+            .map(t -> t.getMetadata().getSchemaName() + "." + t.getMetadata().getTableName())
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+
+    insertModuleRows(table, rows, true, isATableKeys);
+
+    if (!discriminators.isEmpty()) {
+      deleteRemovedModuleRows(table, rows, discriminators, priorArraysByPkKey);
+    }
+
+    return count;
+  }
+
+  private Map<String, Map<String, String[]>> selectPriorDiscriminatorArrays(
+      SqlTable table, List<Row> rows, List<Column> discriminators) {
+    SqlTable rootTable =
+        (SqlTable) table.getSchema().getTable(table.getMetadata().getRootTable().getTableName());
+    List<Field<?>> selectFields = new ArrayList<>();
+    for (Column pkCol : rootTable.getMetadata().getPrimaryKeyColumns()) {
+      selectFields.add(pkCol.getJooqField());
+    }
+    for (Column disc : discriminators) {
+      selectFields.add(disc.getJooqField());
+    }
+
+    Condition whereCondition = rootTable.getWhereConditionForBatchDelete(rows);
+    Result<Record> records =
+        rootTable
+            .getJooq()
+            .select(selectFields)
+            .from(rootTable.getJooqTable())
+            .where(whereCondition)
+            .fetch();
+
+    Map<String, Map<String, String[]>> result = new LinkedHashMap<>();
+    List<Column> pkCols = rootTable.getMetadata().getPrimaryKeyColumns();
+    for (Record record : records) {
+      String pkKey = buildPkKey(record, pkCols);
+      Map<String, String[]> discMap = new LinkedHashMap<>();
+      for (Column disc : discriminators) {
+        if (disc.isArray()) {
+          discMap.put(disc.getName(), record.get(disc.getName(), String[].class));
+        } else {
+          String scalarVal = record.get(disc.getName(), String.class);
+          discMap.put(
+              disc.getName(),
+              scalarVal != null && !scalarVal.isBlank() ? new String[] {scalarVal} : new String[0]);
+        }
+      }
+      result.put(pkKey, discMap);
+    }
+    return result;
+  }
+
+  private static String buildPkKey(Record record, List<Column> pkCols) {
+    StringBuilder key = new StringBuilder();
+    for (Column pkCol : pkCols) {
+      if (key.length() > 0) key.append("|");
+      Object val = record.get(pkCol.getName());
+      key.append(val == null ? "" : val.toString());
+    }
+    return key.toString();
+  }
+
+  private static String buildPkKeyFromRow(Row row, List<Column> pkCols) {
+    StringBuilder key = new StringBuilder();
+    for (Column pkCol : pkCols) {
+      if (key.length() > 0) key.append("|");
+      Object val = row.get(pkCol.getName(), pkCol.getColumnType());
+      key.append(val == null ? "" : val.toString());
+    }
+    return key.toString();
+  }
+
+  private void deleteRemovedModuleRows(
+      SqlTable table,
+      List<Row> rows,
+      List<Column> discriminators,
+      Map<String, Map<String, String[]>> priorArraysByPkKey) {
+    List<Column> pkCols = table.getMetadata().getRootTable().getPrimaryKeyColumns();
+
+    Map<String, List<Row>> removedTableKeyToRows = new LinkedHashMap<>();
+
+    for (Row row : rows) {
+      String pkKey = buildPkKeyFromRow(row, pkCols);
+      Map<String, String[]> prior = priorArraysByPkKey.getOrDefault(pkKey, Collections.emptyMap());
+
+      Row oldSynthetic = new Row();
+      for (Column disc : discriminators) {
+        String[] priorArr = prior.get(disc.getName());
+        if (priorArr != null) {
+          oldSynthetic.set(disc.getName(), priorArr);
+        }
+      }
+
+      Row effectiveSynthetic = new Row();
+      for (Column disc : discriminators) {
+        String[] effectiveArr =
+            row.getColumnNames().contains(disc.getName())
+                ? row.getStringArray(disc.getName())
+                : prior.get(disc.getName());
+        if (effectiveArr != null) {
+          effectiveSynthetic.set(disc.getName(), effectiveArr);
+        }
+      }
+
+      Set<String> newActiveKeys = activeModuleTableKeys(table, effectiveSynthetic);
+
+      for (SqlTable oldModuleTable : activeModuleTables(table, oldSynthetic)) {
+        if (!oldModuleTable.getMetadata().getTableType().isModule()) continue;
+        String moduleKey =
+            oldModuleTable.getMetadata().getSchemaName()
+                + "."
+                + oldModuleTable.getMetadata().getTableName();
+        if (!newActiveKeys.contains(moduleKey)) {
+          removedTableKeyToRows.computeIfAbsent(moduleKey, k -> new ArrayList<>()).add(row);
+        }
+      }
+    }
+
+    if (removedTableKeyToRows.isEmpty()) return;
+
+    List<Map.Entry<String, List<Row>>> removedEntries =
+        new ArrayList<>(removedTableKeyToRows.entrySet());
+    removedEntries.sort(
+        (entryA, entryB) -> {
+          SqlTable tableA = resolveModuleTable(table, entryA.getKey());
+          SqlTable tableB = resolveModuleTable(table, entryB.getKey());
+          int depthA = tableA == null ? 0 : tableA.getMetadata().getAncestorsRootFirst().size();
+          int depthB = tableB == null ? 0 : tableB.getMetadata().getAncestorsRootFirst().size();
+          return Integer.compare(depthB, depthA);
+        });
+
+    for (Map.Entry<String, List<Row>> entry : removedEntries) {
+      SqlTable removedTable = resolveModuleTable(table, entry.getKey());
+      if (removedTable != null) {
+        deleteBatch(removedTable, entry.getValue());
+      }
+    }
+  }
+
+  private static SqlTable resolveModuleTable(SqlTable entry, String schemaTableKey) {
+    int dotIdx = schemaTableKey.indexOf('.');
+    if (dotIdx < 0) return null;
+    String schemaName = schemaTableKey.substring(0, dotIdx);
+    String tableName = schemaTableKey.substring(dotIdx + 1);
+    org.molgenis.emx2.Schema schema = entry.getSchema().getDatabase().getSchema(schemaName);
+    if (schema == null) return null;
+    return (SqlTable) schema.getTable(tableName);
   }
 
   private static List<Column> getLocalStoredColumns(SqlTable table, List<Column> updateColumns) {
@@ -600,7 +967,7 @@ public class SqlTable implements Table {
             nrDeleted.addAndGet(deleteBatch(table, batch));
 
             // finally delete in superclass
-            if (table.getMetadata().getInheritName() != null) {
+            if (!table.getMetadata().getInheritNames().isEmpty()) {
               table.getInheritedTable().delete(rows);
             }
 
@@ -757,14 +1124,17 @@ public class SqlTable implements Table {
 
   @Override
   public SqlTable getInheritedTable() {
+    String primaryParent =
+        getMetadata().getInheritNames().isEmpty() ? null : getMetadata().getInheritNames().get(0);
+    if (primaryParent == null) return null;
     if (getMetadata().getImportSchema() != null) {
       return (SqlTable)
           getSchema()
               .getDatabase()
               .getSchema(getMetadata().getImportSchema())
-              .getTable(getMetadata().getInheritName());
+              .getTable(primaryParent);
     } else {
-      return (SqlTable) getSchema().getTable(getMetadata().getInheritName());
+      return (SqlTable) getSchema().getTable(primaryParent);
     }
   }
 

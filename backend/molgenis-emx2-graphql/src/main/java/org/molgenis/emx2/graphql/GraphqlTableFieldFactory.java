@@ -156,7 +156,7 @@ public class GraphqlTableFieldFactory {
       tableTypes.put(tableObjectType, GraphQLTypeReference.typeRef(tableObjectType));
       // build the object
       GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(tableObjectType);
-      for (Column col : table.getColumnsIncludingSubclassesExcludingHeadings()) {
+      for (Column col : table.getColumnsIncludingSubclassesAndModulesExcludingHeadings()) {
         createTableField(col, tableBuilder);
       }
       tableTypes.put(tableObjectType, tableBuilder.build());
@@ -192,6 +192,7 @@ public class GraphqlTableFieldFactory {
       case PERIOD:
       case EMAIL:
       case HYPERLINK:
+      case ENUM:
         tableBuilder.field(
             GraphQLFieldDefinition.newFieldDefinition().name(id).type(Scalars.GraphQLString));
         break;
@@ -200,6 +201,7 @@ public class GraphqlTableFieldFactory {
             GraphQLFieldDefinition.newFieldDefinition().name(id).type(GraphQLJsonAsString));
         break;
       case STRING_ARRAY:
+      case ENUM_ARRAY:
       case EMAIL_ARRAY:
       case HYPERLINK_ARRAY:
       case TEXT_ARRAY:
@@ -577,10 +579,12 @@ public class GraphqlTableFieldFactory {
       TEXT,
       UUID,
       FILE,
+      ENUM,
       DATE_ARRAY,
       DATETIME_ARRAY,
       PERIOD_ARRAY,
       STRING_ARRAY,
+      ENUM_ARRAY,
       TEXT_ARRAY,
       EMAIL_ARRAY,
       HYPERLINK_ARRAY:
@@ -770,12 +774,12 @@ public class GraphqlTableFieldFactory {
     if (selection == null) return new SelectColumn[0];
     Map<String, Column> columnIdentifierMap =
         table != null
-            ? table.getColumnsIncludingSubclasses().stream()
+            ? table.getColumnsIncludingSubclassesAndModules().stream()
                 .collect(
                     Collectors.toMap(
                         Column::getIdentifier,
                         Function.identity(),
-                        // might be duplicates from subclass
+                        // might be duplicates from subclass or module
                         (existing, replacement) -> existing))
             :
             // in case of file table will be empty
@@ -919,7 +923,7 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (!table.getColumnsIncludingSubclassesExcludingHeadings().isEmpty()) {
+      if (!table.getColumnsIncludingSubclassesAndModulesExcludingHeadings().isEmpty()) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
@@ -1013,7 +1017,7 @@ public class GraphqlTableFieldFactory {
       rowInputTypes.put(rowInputType, GraphQLTypeReference.typeRef(rowInputType + INPUT));
       GraphQLInputObjectType.Builder inputBuilder =
           GraphQLInputObjectType.newInputObject().name(rowInputType + INPUT);
-      for (Column col : table.getColumnsIncludingSubclassesExcludingHeadings()) {
+      for (Column col : table.getColumnsIncludingSubclassesAndModulesExcludingHeadings()) {
         GraphQLInputType type;
         if (col.isReference()) {
           if (col.isRef()) {
@@ -1063,13 +1067,19 @@ public class GraphqlTableFieldFactory {
       case INT -> Scalars.GraphQLInt;
       case LONG -> GraphQLLong;
       case DECIMAL -> Scalars.GraphQLFloat;
-      case UUID, STRING, TEXT, DATE, DATETIME, PERIOD -> Scalars.GraphQLString;
+      case UUID, STRING, TEXT, DATE, DATETIME, PERIOD, ENUM -> Scalars.GraphQLString;
       case BOOL_ARRAY -> GraphQLList.list(Scalars.GraphQLBoolean);
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
       case JSON -> GraphqlCustomTypes.GraphQLJsonAsString;
-      case STRING_ARRAY, TEXT_ARRAY, DATE_ARRAY, DATETIME_ARRAY, PERIOD_ARRAY, UUID_ARRAY ->
+      case STRING_ARRAY,
+          ENUM_ARRAY,
+          TEXT_ARRAY,
+          DATE_ARRAY,
+          DATETIME_ARRAY,
+          PERIOD_ARRAY,
+          UUID_ARRAY ->
           GraphQLList.list(Scalars.GraphQLString);
       default ->
           throw new MolgenisException(
