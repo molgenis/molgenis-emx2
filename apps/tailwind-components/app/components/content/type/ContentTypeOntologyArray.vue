@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { ISectionField } from "../../../../types/types";
-import type { ontologyValueObject } from "../../../../../metadata-utils/src/types";
+import { isOntologyValueObject } from "../../../../../metadata-utils/src/types";
 
 const { field } = defineProps<{
   field: ISectionField;
 }>();
 
 const asString = computed((): string => {
-  const items = field.value as unknown as ontologyValueObject[];
-  return items?.map((item) => String(item.name ?? "")).join(", ") ?? "";
+  const value: unknown = field.value;
+  if (!Array.isArray(value)) {
+    return "";
+  }
+  return value
+    .filter(isOntologyValueObject)
+    .map((term) => term.label ?? term.name)
+    .filter(Boolean)
+    .join(", ");
 });
 </script>
 

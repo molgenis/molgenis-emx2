@@ -1,45 +1,57 @@
 <script setup lang="ts">
-import { computed, resolveComponent } from "vue";
-import type { ISectionField } from "../../../types/types";
-const String = resolveComponent("ContentTypeString");
-const Text = resolveComponent("ContentTypeText");
-const OntologyArray = resolveComponent("ContentTypeOntologyArray");
-const HyperLink = resolveComponent("ContentTypeHyperLink");
-const RefBack = resolveComponent("ContentTypeRefBack");
+import { computed } from "vue";
+import type { ISectionField, cellPayload } from "../../../types/types";
+import ValueEMX2 from "../value/EMX2.vue";
+import ContentTypeHyperLink from "./type/ContentTypeHyperLink.vue";
+import ContentTypeOntologyArray from "./type/ContentTypeOntologyArray.vue";
+import ContentTypeRefBack from "./type/ContentTypeRefBack.vue";
+import ContentTypeString from "./type/ContentTypeString.vue";
+import ContentTypeText from "./type/ContentTypeText.vue";
 
 const { field } = defineProps<{
   field: ISectionField;
 }>();
 
-const component = computed(() => {
+defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
+
+const contentTypeComponent = computed(() => {
   switch (field.meta?.columnType) {
     case "TEXT":
-      return Text;
+      return ContentTypeText;
     case "STRING":
-      return String;
+      return ContentTypeString;
     case "ONTOLOGY_ARRAY":
-      return OntologyArray;
+      return ContentTypeOntologyArray;
     case "HYPERLINK":
-      return HyperLink;
+      return ContentTypeHyperLink;
     case "REFBACK":
-      return RefBack;
+      return ContentTypeRefBack;
     default:
-      return String;
+      return null;
   }
 });
 </script>
 
 <template>
   <div class="grid md:grid-cols-3 md:gap-2.5">
-    <dt class="flex items-start font-bold text-body-base">
-      <div class="flex items-center gap-1 capitalize">
-        {{ field.meta?.label }}
-        {{ field.meta?.columnType }}
-      </div>
+    <dt class="flex items-start font-bold text-body-base capitalize">
+      {{ field.meta?.label || field.meta?.id }}
     </dt>
 
     <dd class="col-span-2">
-      <component :is="component" :field="field" />
+      <component
+        :is="contentTypeComponent"
+        v-if="contentTypeComponent"
+        :field="field"
+      />
+      <ValueEMX2
+        v-else
+        :metadata="field.meta"
+        :data="field.value"
+        @valueClick="$emit('valueClick', $event)"
+      />
     </dd>
   </div>
 </template>
