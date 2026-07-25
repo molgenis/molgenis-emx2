@@ -27,7 +27,7 @@
     },
     "format": {
       "inputs": [
-        "**/*.{ts,tsx,js,jsx,vue,json,md,yml,yaml}",
+        "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,json,md,yml,yaml}",
         ".prettierrc.*",
         "../.prettierrc.*",
         "package.json"
@@ -37,7 +37,7 @@
     },
     "checkFormat": {
       "inputs": [
-        "**/*.{ts,tsx,js,jsx,vue,json,md,yml,yaml}",
+        "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,json,md,yml,yaml}",
         ".prettierrc.*",
         "../.prettierrc.*",
         "package.json"
