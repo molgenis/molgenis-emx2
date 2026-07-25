@@ -5,7 +5,7 @@ Dashboard pages,,,description,text,,,,,,,,schema:description,dataviz,Text that d
 Dashboard pages,,,charts,refback,,,,Charts,dashboard page,,,edam:topic_0092,dataviz,One or more charts displayed on a page
 Charts,,,,,,,,,,,,sio:SIO_000904,dataviz,Visualisations that are displayed on page
 Charts,,,chart id,string,1,TRUE,,,,,,sio:SIO_000115,dataviz,"A unique value that identifies a visualisation, the associated settings and data points."
-Charts,,,chart type,ontology,,,,Data viz chart types,,,,sio:SIO_000904,dataviz,"The chart type (e.g., pie chart, table, bar, etc.)"
+Charts,,,chart type,ontology,,,CatalogueOntologies,Data viz chart types,,,,sio:SIO_000904,dataviz,"The chart type (e.g., pie chart, table, bar, etc.)"
 Charts,,,chart title,string,,,,,,,,sio:SIO_000473,dataviz,A title to be displayed above a chart
 Charts,,,chart subtitle,string,,,,,,,,sio:SIO_000474,dataviz,A subtitle to be displayed below the title. This text provides additional context for the data points displayed in the chart.
 Charts,,,x axis label,string,,,,,,,,"sio:SIO_000452,sio:SIO_000179,sio:SIO_001316",dataviz,Text to be displayed along the x-axis (horizontal axis)
@@ -64,14 +64,15 @@ Chart data,,,time unit,ontology,,,CatalogueOntologies,Data viz time intervals,,,
 Chart data,,,color,string,,,,,,,,schema:color,dataviz,"A colour value (RGB, HEX, HSL, etc.) used to style the data point"
 Chart data,,,sort order,int,,,,,,,,sio:SIO_001316,dataviz,A numerical value indicating the sorting method for data points
 Map dot distribution data,Data,,,,,,,,,,,,dataviz,Dataset that contains one or more observations at a specific location
-Map dot distribution data,,,name,string,,,,,,,,sio:SIO_000116,dataviz,A label that identifies a location
+Map dot distribution data,,,location name,string,,,,,,,,sio:SIO_000116,dataviz,A label that identifies a location
 Map dot distribution data,,,alternate id,string,,,,,,,,,dataviz,An alternate identifier that can be used identify a location
 Map dot distribution data,,,city,string,,,,,,,,sio:SIO_000665,dataviz,
-Map dot distribution data,,,country,string,,,CatalogueOntologies,Countries,,,,sio:SIO_000664,dataviz,
-Map dot distribution data,,,continent,string,,,CatalogueOntologies,Continents,,,,,dataviz,
-Map dot distribution data,,,latitude,decimal,,,,,,,,sio:SIO_000319,dataviz,"Latitude is a geographic coordinate which refers to the angle from a point on the Earth's surface to the equatorial plane"
-Map dot distribution data,,,longitude,decimal,,,,,,,,sio:SIO_000318,dataviz,"Longitude is a geographic position that refers to the angle east or west of a reference meridian between the two geographical poles to another meridian that passes through an arbitrary point."
-Map dot density data,,,tooltip content,text,,,,,,,,,dataviz,"Content to display in the tooltip. You may write in html or as plain text. By default, the tooltip will display the name and information about the location (if defined). If this value is defined, it will replace the default tooltip."
+Map dot distribution data,,,country,ontology,,,CatalogueOntologies,Countries,,,,sio:SIO_000664,dataviz,
+Map dot distribution data,,,continent,ontology,,,CatalogueOntologies,Continents,,,,,dataviz,
+Map dot distribution data,,,latitude,decimal,,,,,,,,sio:SIO_000319,dataviz,Latitude is a geographic coordinate which refers to the angle from a point on the Earth's surface to the equatorial plane
+Map dot distribution data,,,longitude,decimal,,,,,,,,sio:SIO_000318,dataviz,Longitude is a geographic position that refers to the angle east or west of a reference meridian between the two geographical poles to another meridian that passes through an arbitrary point.
+Map dot distribution data,,,website,hyperlink,,,,,,,,sio:SIO_000296,dataviz,A URL to a resource that provides additional information about a data item
+Map dot distribution data,,,tooltip content,text,,,,,,,,,dataviz,"Content to display in the tooltip. You may write in html or as plain text. By default, the tooltip will display the name and information about the location (if defined). If this value is defined, it will replace the default tooltip."
 Data,,,primary category,string,,,,,,,,"sio:SIO_000455,sio:SIO_000456",dataviz,"A primary category axis is a category axis that either defines the sole value range or holds the larger set of categorical values specified by the secondary category axis. For example, if you need to group the categories listed in the ""name"" column, then define the grouping levels here."
 Data,,,secondary category,string,,,,,,,,"sio:SIO_000455,sio:SIO_000457",dataviz,A secondary category axis is a category axis that defines a finer granular part (or subset) of the value range of the primary category axis.
 Data,,,primary category label,string,,,,,,,,sio:SIO_000179,dataviz,"An alternative label that will be displayed instead of the value in ""primary category"" column"

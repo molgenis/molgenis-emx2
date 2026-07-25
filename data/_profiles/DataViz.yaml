@@ -4,3 +4,8 @@ description: Model for data visualisation interfaces
 profileTags: dataviz
 
 demoData: _demodata/applications/dataviz
+
+# special options
+setViewPermission: anonymous
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
