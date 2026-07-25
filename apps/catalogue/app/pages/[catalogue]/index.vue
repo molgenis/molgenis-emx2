@@ -6,7 +6,7 @@ import {
   useFetch,
   createError,
 } from "#app";
-import { logError } from "#imports";
+import { isMgError, logError } from "#imports";
 import { computed } from "vue";
 import type { ISetting } from "../../../../metadata-utils/src/types";
 import LayoutsLandingPage from "../../components/layouts/LandingPage.vue";
@@ -177,8 +177,10 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
 
 if (error.value) {
   const contextMsg = "Error on landing-page data fetch";
-  if (error.value.data) {
-    logError(error.value.data, contextMsg);
+  if (isMgError(error.value)) {
+    logError(error.value, contextMsg);
+  } else {
+    console.error(`[ERROR] ${contextMsg}`, error.value);
   }
   throw new Error(contextMsg);
 }
