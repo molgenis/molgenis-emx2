@@ -128,12 +128,27 @@ publishing {
 
 project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghToken') : System.getenv('GITHUB_TOKEN') ?: null
 
+def gitHashOutput = providers.exec { spec ->
+    spec.commandLine('git', 'rev-parse', '--short', 'HEAD')
+    spec.workingDir = rootDir
+    spec.ignoreExitValue = true
+}
+ext.gitHash = 'unknown'
+try {
+    if (gitHashOutput.result.get().exitValue == 0) {
+        ext.gitHash = gitHashOutput.standardOutput.asText.get().trim()
+    } else {
+        logger.warn("Git command failed, using 'unknown' as hash")
+    }
+} catch (Exception e) {
+    logger.warn("Failed to get git hash: ${e.message}, using 'unknown' as hash")
+}
+
 def imageName = 'docker.io/molgenis/molgenis-emx2'
 def tagName = project.version.toString().replace("v","")
 if (version.toString().endsWith('-SNAPSHOT')) {
-    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
     imageName = "docker.io/molgenis/molgenis-emx2-snapshot"
-    tagName = "${project.version.toString().replace("v","")}-${ext.hash}"
+    tagName = "${project.version.toString().replace("v","")}-${ext.gitHash}"
 }
 // write a file to pickup in deployment to use specific tags in upgrade
 tasks.register('ci', WriteProperties) {
@@ -190,27 +205,6 @@ tasks.register('dockerClean', Delete) {
     delete fileTree(dir: projectDir, include: '*.jar')
 }
 
-String getGitHash() {
-    try {
-        // Use ProcessBuilder to properly inherit environment and handle git command
-        def process = new ProcessBuilder('git', 'rev-parse', '--short', 'HEAD')
-            .directory(rootProject.projectDir)
-            .redirectErrorStream(true)
-            .start()
-        process.waitFor()
-
-        if (process.exitValue() == 0) {
-            return process.inputStream.text.trim()
-        } else {
-            logger.warn("Git command failed, using 'unknown' as hash")
-            return "unknown"
-        }
-    } catch (Exception e) {
-        logger.warn("Failed to get git hash: ${e.message}, using 'unknown' as hash")
-        return "unknown"
-    }
-}
-
 application {
     mainClass.set(javaMainClass)
 }
@@ -240,7 +234,7 @@ jar {
     manifest {
         attributes(
                 'Specification-Version': project.version.toString(),
-                'Implementation-Version': getGitHash(),
+                'Implementation-Version': project.ext.gitHash,
                 'Created-By': "Gradle ${gradle.gradleVersion}",
                 'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
                 'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
