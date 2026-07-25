@@ -1183,8 +1183,8 @@ importers:
         specifier: 4.0.2
         version: 4.0.2
       tailwind-components:
-        specifier: '*'
-        version: 0.0.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@3.4.17)
+        specifier: workspace:*
+        version: link:../tailwind-components
       tailwindcss:
         specifier: 3.4.17
         version: 3.4.17
@@ -8058,13 +8058,6 @@ packages:
   tagged-tag@1.0.0:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
-
-  tailwind-components@0.0.1:
-    resolution: {integrity: sha512-dwftXWHhgLraBykxIkZ+mqoqYOdjvBdGcEImTk4Qao7SZQ550FYX5BuW2rzuJ7Thh3psczF8LB1/M5hpzbyjzQ==}
-    peerDependencies:
-      react: '*'
-      react-dom: '*'
-      tailwindcss: 1.x
 
   tailwind-config-viewer@2.0.4:
     resolution: {integrity: sha512-icvcmdMmt9dphvas8wL40qttrHwAnW3QEN4ExJ2zICjwRsPj7gowd1cOceaWG3IfTuM/cTNGQcx+bsjMtmV+cw==}
@@ -17420,12 +17413,6 @@ snapshots:
   tabbable@6.4.0: {}
 
   tagged-tag@1.0.0: {}
-
-  tailwind-components@0.0.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@3.4.17):
-    dependencies:
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-      tailwindcss: 3.4.17
 
   tailwind-config-viewer@2.0.4(tailwindcss@3.4.17):
     dependencies:
