@@ -17,6 +17,10 @@ vi.mock("#app/composables/router", () => ({
   useRouter: vi.fn(),
 }));
 
+vi.mock("#build/fetch", () => ({
+  $fetch: vi.fn(),
+}));
+
 // @ts-ignore
 import { useRoute, useRouter } from "#app/composables/router";
 

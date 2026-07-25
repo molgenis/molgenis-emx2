@@ -1,5 +1,9 @@
 import { defineNuxtConfig } from "nuxt/config";
 import { apiBase } from "../dev-env.js";
+import {
+  removePlaygroundLayout,
+  removePlaygroundPages,
+} from "../tailwind-components/playground";
 
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
@@ -41,6 +45,10 @@ export default defineNuxtConfig({
   },
   pinia: {
     storesDirs: ["./app/stores/**"],
+  },
+  hooks: {
+    "pages:extend": removePlaygroundPages,
+    "app:resolve": removePlaygroundLayout,
   },
   app: {
     head: {

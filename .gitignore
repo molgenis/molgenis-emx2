@@ -33,6 +33,7 @@ derby.log
 .idea/fileTemplates/*/
 !.idea/fileTemplates/
 **/npm-debug.log
+.devstack-*
 **/.factorypath
 **/node_modules
 **/node

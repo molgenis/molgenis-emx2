@@ -3,6 +3,7 @@ import { defineNuxtConfig } from "nuxt/config";
 import * as fs from "fs";
 import { resolve } from "path";
 import { apiBase } from "../dev-env.js";
+import { setPlaygroundLayout } from "./playground";
 
 const sourceCodeMapPath = resolve("./sourceCodeMap.json");
 const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
@@ -18,7 +19,6 @@ export default defineNuxtConfig({
     "@nuxt/test-utils/module",
     "floating-vue/nuxt",
     "@nuxtjs/tailwindcss",
-    "nuxt-monaco-editor",
   ],
   ignore: [
     ".gradle/**",
@@ -50,6 +50,10 @@ export default defineNuxtConfig({
     prerender: {
       ignore: ["/_tailwind/"],
     },
+  },
+
+  hooks: {
+    "pages:extend": setPlaygroundLayout,
   },
 
   app: {

@@ -14,7 +14,7 @@ def isCI = System.getenv('CI') ? true : false
 
 
 node {
-    version = '22.17.0'
+    version = '22.19.0'
     pnpmVersion = "10.24.0"
     download = true
     workDir = file("build/node")

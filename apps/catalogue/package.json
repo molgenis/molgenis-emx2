@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "lint": "nuxi typecheck",
-    "build": "nuxt build",
+    "build": "nuxt build && node ../tailwind-components/scripts/assert-built-routes.mjs .",
     "test": "vitest",
     "test-ci": "vitest run",
     "e2e": "playwright test",
@@ -28,7 +28,7 @@
     "happy-dom": "20.9.0",
     "if-env": "^1.0.4",
     "jsdom": "22.1.0",
-    "nuxt": "4.4.8",
+    "nuxt": "4.5.0",
     "playwright-core": "1.61.0",
     "postcss": "8.5.12",
     "postcss-custom-properties": "13.3.11",
@@ -37,7 +37,7 @@
     "std-env": "3.7.0",
     "tailwind-components": "workspace:*",
     "tailwindcss": "3.4.17",
-    "typescript": "5.6.2",
+    "typescript": "5.9.3",
     "vitest": "4.1.8"
   },
   "dependencies": {
