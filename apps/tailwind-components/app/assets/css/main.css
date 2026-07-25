@@ -9,6 +9,12 @@
 @import url("./plugins/popper.css");
 @import url("./plugins/datepicker.css");
 
+@layer base {
+  body {
+    font-size: 0.875rem; /* 14px */
+  }
+}
+
 @layer components {
   :root {
     --color-current: currentColor;
