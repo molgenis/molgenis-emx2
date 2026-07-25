@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import { defineNuxtConfig } from "nuxt/config";
 import * as fs from "fs";
 import { resolve } from "path";
@@ -10,6 +12,22 @@ const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
   ? JSON.parse(fs.readFileSync(sourceCodeMapPath, "utf-8"))
   : { none: "none" };
 
+const playgroundIsTheApp =
+  resolve(process.cwd()) ===
+  resolve(fileURLToPath(new URL(".", import.meta.url)));
+const monacoModules = playgroundIsTheApp ? ["nuxt-monaco-editor"] : [];
+const monacoPublicAssets = playgroundIsTheApp
+  ? [
+      {
+        dir: resolve(
+          createRequire(import.meta.url).resolve("monaco-editor/index"),
+          "../.."
+        ),
+        baseURL: "_nuxt/nuxt-monaco-editor",
+      },
+    ]
+  : [];
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
   experimental: {
@@ -19,6 +37,7 @@ export default defineNuxtConfig({
     "@nuxt/test-utils/module",
     "floating-vue/nuxt",
     "@nuxtjs/tailwindcss",
+    ...monacoModules,
   ],
   ignore: [
     ".gradle/**",
@@ -50,6 +69,7 @@ export default defineNuxtConfig({
     prerender: {
       ignore: ["/_tailwind/"],
     },
+    publicAssets: monacoPublicAssets,
   },
 
   hooks: {
