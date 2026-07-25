@@ -28,7 +28,9 @@ export async function getDashboardPage(
             rightMargin
             bottomMargin
             leftMargin
-            legendPosition
+            legendPosition {
+              name
+            }
             dataPoints(
               orderby: [
                 { primaryCategory: ASC }
@@ -46,10 +48,26 @@ export async function getDashboardPage(
               primaryCategoryLabel
               secondaryCategoryLabel
               timeValue
-              timeUnit
+              timeUnit {
+                name
+              }
               color
               description
               sortOrder
+
+              locationName
+              alternateId
+              city
+              country {
+                name
+              }
+              continent {
+                name
+              }
+              latitude
+              longitude
+              website
+              tooltipContent
             }
           }
         }

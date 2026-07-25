@@ -1,147 +1,237 @@
-// Generated (on: 2026-07-14T10:28:13.953871) from Generator.java for schema: UiDashboard
+// Generated (on: 2026-07-25T12:07:12.958827) from Generator.java for schema: UiDashboard
 
 export interface IMgTableClass {
-  mg_tableclass?: string;
+    mg_tableclass: string;
 }
 
 export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
+    id?: string;
+    size?: number;
+    extension?: string;
+    url?: string;
 }
 
 export interface ITreeNode {
-  name: string;
-  children?: ITreeNode[];
-  parent?: {
     name: string;
-  };
+    children?: ITreeNode[];
+    parent?: {
+        name: string;
+    };
 }
 
 export interface IOntologyNode extends ITreeNode {
-  code?: string;
-  definition?: string;
-  ontologyTermURI?: string;
-  order?: number;
+    code?: string;
+    definition?: string;
+    ontologyTermURI?: string;
+    order?: number;
 }
 
 export interface IChartData extends IMgTableClass {
-  id: string;
-  name?: string;
-  value?: number;
-  valueLabel?: string;
-  series?: string;
-  primaryCategory?: string;
-  secondaryCategory?: string;
-  primaryCategoryLabel?: string;
-  secondaryCategoryLabel?: string;
-  timeValue?: string;
-  timeUnit?: IOntologyNode;
-  color?: string;
-  description?: string;
-  sortOrder?: number;
-  includedInChart?: ICharts;
+    id: string;
+    name?: string;
+    value?: number;
+    valueLabel?: string;
+    series?: string;
+    timeValue?: string;
+    timeUnit?: IOntologyNode;
+    color?: string;
+    sortOrder?: number;
+    primaryCategory?: string;
+    secondaryCategory?: string;
+    primaryCategoryLabel?: string;
+    secondaryCategoryLabel?: string;
+    description?: string;
+    includedInChart?: ICharts;
 }
 
 export interface IChartData_agg {
-  count: number;
+    count: number
 }
 
 export interface IChartPalette extends IMgTableClass {
-  key: string;
-  color: string;
-  includedInChart?: ICharts;
+    key: string;
+    color: string;
+    includedInChart?: ICharts;
 }
 
 export interface IChartPalette_agg {
-  count: number;
-}
-
-export interface IChartTypes extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: IChartTypes;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: IChartTypes[];
-}
-
-export interface IChartTypes_agg {
-  count: number;
+    count: number
 }
 
 export interface ICharts extends IMgTableClass {
-  chartId: string;
-  chartType?: IOntologyNode;
-  chartTitle?: string;
-  chartSubtitle?: string;
-  xAxisLabel?: string;
-  xAxisMinValue?: number;
-  xAxisMaxValue?: number;
-  xAxisTicks?: number[];
-  yAxisLabel?: string;
-  yAxisMinValue?: number;
-  yAxisMaxValue?: number;
-  yAxisTicks?: number[];
-  colorPalette?: IChartPalette[];
-  topMargin?: number;
-  rightMargin?: number;
-  bottomMargin?: number;
-  leftMargin?: number;
-  legendPosition?: IOntologyNode;
-  dataPoints?: IChartData[];
-  dashboardPage?: IDashboardPages;
+    chartId: string;
+    chartType?: IOntologyNode;
+    chartTitle?: string;
+    chartSubtitle?: string;
+    xAxisLabel?: string;
+    xAxisMinValue?: number;
+    xAxisMaxValue?: number;
+    xAxisTicks?: number[];
+    yAxisLabel?: string;
+    yAxisMinValue?: number;
+    yAxisMaxValue?: number;
+    yAxisTicks?: number[];
+    colorPalette?: IChartPalette[];
+    topMargin?: number;
+    rightMargin?: number;
+    bottomMargin?: number;
+    leftMargin?: number;
+    legendPosition?: IOntologyNode;
+    dataPoints?: IData[];
+    dashboardPage?: IDashboardPages;
 }
 
 export interface ICharts_agg {
-  count: number;
+    count: number
+}
+
+export interface ICatalogueOntologies_Continents extends IMgTableClass {
+    order?: number;
+    name: string;
+    label?: string;
+    tags?: string[];
+    parent?: ICatalogueOntologies_Continents;
+    codesystem?: string;
+    code?: string;
+    ontologyTermURI?: string;
+    definition?: string;
+    children?: ICatalogueOntologies_Continents[];
+}
+
+export interface ICatalogueOntologies_Continents_agg {
+    count: number
+}
+
+export interface ICatalogueOntologies_Countries extends IMgTableClass {
+    order?: number;
+    name: string;
+    label?: string;
+    tags?: string[];
+    parent?: ICatalogueOntologies_Countries;
+    codesystem?: string;
+    code?: string;
+    ontologyTermURI?: string;
+    definition?: string;
+    children?: ICatalogueOntologies_Countries[];
+}
+
+export interface ICatalogueOntologies_Countries_agg {
+    count: number
 }
 
 export interface IDashboardPages extends IMgTableClass {
-  name: string;
-  description?: string;
-  charts?: ICharts[];
+    name: string;
+    description?: string;
+    charts?: ICharts[];
 }
 
 export interface IDashboardPages_agg {
-  count: number;
+    count: number
 }
 
-export interface ILegendPositions extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ILegendPositions;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ILegendPositions[];
+export interface IData extends IMgTableClass {
+    id: string;
+    primaryCategory?: string;
+    secondaryCategory?: string;
+    primaryCategoryLabel?: string;
+    secondaryCategoryLabel?: string;
+    description?: string;
+    includedInChart?: ICharts;
+    name?: string;
+    value?: number;
+    valueLabel?: string;
+    series?: string;
+    timeValue?: string;
+    timeUnit?: IOntologyNode;
+    color?: string;
+    sortOrder?: number;
+    locationName?: string;
+    alternateId?: string;
+    city?: string;
+    country?: IOntologyNode;
+    continent?: IOntologyNode;
+    latitude?: number;
+    longitude?: number;
+    website?: string;
+    tooltipContent?: string;
 }
 
-export interface ILegendPositions_agg {
-  count: number;
+export interface IData_agg {
+    count: number
 }
 
-export interface ITimeIntervals extends IMgTableClass {
-  order?: number;
-  name: string;
-  label?: string;
-  tags?: string[];
-  parent?: ITimeIntervals;
-  codesystem?: string;
-  code?: string;
-  ontologyTermURI?: string;
-  definition?: string;
-  children?: ITimeIntervals[];
+export interface ICatalogueOntologies_DataVizChartTypes extends IMgTableClass {
+    order?: number;
+    name: string;
+    label?: string;
+    tags?: string[];
+    parent?: ICatalogueOntologies_DataVizChartTypes;
+    codesystem?: string;
+    code?: string;
+    ontologyTermURI?: string;
+    definition?: string;
+    children?: ICatalogueOntologies_DataVizChartTypes[];
 }
 
-export interface ITimeIntervals_agg {
-  count: number;
+export interface ICatalogueOntologies_DataVizChartTypes_agg {
+    count: number
 }
+
+export interface ICatalogueOntologies_DataVizLegendPositions extends IMgTableClass {
+    order?: number;
+    name: string;
+    label?: string;
+    tags?: string[];
+    parent?: ICatalogueOntologies_DataVizLegendPositions;
+    codesystem?: string;
+    code?: string;
+    ontologyTermURI?: string;
+    definition?: string;
+    children?: ICatalogueOntologies_DataVizLegendPositions[];
+}
+
+export interface ICatalogueOntologies_DataVizLegendPositions_agg {
+    count: number
+}
+
+export interface ICatalogueOntologies_DataVizTimeIntervals extends IMgTableClass {
+    order?: number;
+    name: string;
+    label?: string;
+    tags?: string[];
+    parent?: ICatalogueOntologies_DataVizTimeIntervals;
+    codesystem?: string;
+    code?: string;
+    ontologyTermURI?: string;
+    definition?: string;
+    children?: ICatalogueOntologies_DataVizTimeIntervals[];
+}
+
+export interface ICatalogueOntologies_DataVizTimeIntervals_agg {
+    count: number
+}
+
+export interface IMapDotDistributionData extends IMgTableClass {
+    id: string;
+    locationName?: string;
+    alternateId?: string;
+    city?: string;
+    country?: IOntologyNode;
+    continent?: IOntologyNode;
+    latitude?: number;
+    longitude?: number;
+    website?: string;
+    tooltipContent?: string;
+    primaryCategory?: string;
+    secondaryCategory?: string;
+    primaryCategoryLabel?: string;
+    secondaryCategoryLabel?: string;
+    description?: string;
+    includedInChart?: ICharts;
+}
+
+export interface IMapDotDistributionData_agg {
+    count: number
+}
+
+
