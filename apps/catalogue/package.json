@@ -30,7 +30,7 @@
     "jsdom": "22.1.0",
     "nuxt": "4.4.8",
     "playwright-core": "1.61.0",
-    "postcss": "8.5.10",
+    "postcss": "8.5.12",
     "postcss-custom-properties": "13.3.11",
     "prettier": "2.8.8",
     "shelljs": "0.8.5",
