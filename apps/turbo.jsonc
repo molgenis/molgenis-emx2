@@ -9,18 +9,10 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "**/*",
-        "!node_modules/**",
-        "!dist/**",
-        "!*.log",
-        "!.gradle",
-        "!build",
-        "!.nuxt",
-        "!.output",
-        "!.turbo"
-      ],
-      "outputs": ["dist/**", "public/_nuxt-styles/**", "showCase/**","gen-docs/**"],
+      // will treat everything NOT in .gitignore as inputs (smart!)
+      "inputs": ["$TURBO_DEFAULT$"],
+      // outputs turbo should cache, rest is uncached
+      "outputs": ["dist/**", "showCase/**","gen-docs/**"],
       "cache": true
     },
     "test": {
