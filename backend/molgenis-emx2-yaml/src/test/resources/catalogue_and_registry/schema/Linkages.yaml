@@ -1,0 +1,35 @@
+---
+table:
+  table: Linkages
+  description: "Links between resources, e.g. data source and databank"
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Main resource for this linkage
+    refTable: Resources
+  - name: linked resource
+    type: ref
+    key: 1
+    description: Linked resource
+    refTable: Resources
+  - name: linkage strategy
+    type: ontology
+    description: The linkage method that was used to link resources
+    refTable: Linkage strategies
+    refSchema: CatalogueOntologies
+  - name: linkage variable
+    type: text
+    description: "If a single variable (or linkage key) is used to link resources,\
+      \ provide a name and description of the variable"
+  - name: linkage variable unique
+    type: bool
+    description: "If a single variable is used to link resources, is the variable\
+      \ a unique identifier?"
+  - name: linkage completeness
+    type: text
+    description: Provide a high-level description of the completeness of linkages
+      that are currently available between resources (max 100 words)
+  - name: pre linked
+    type: bool
+    description: Does the data source constitute of linked data sources?

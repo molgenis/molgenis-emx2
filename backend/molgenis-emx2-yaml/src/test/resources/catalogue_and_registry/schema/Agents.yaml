@@ -1,0 +1,85 @@
+---
+table:
+  table: Agents
+  description: "An organisation, department or individual"
+  subclasses:
+  - name: Organisations
+    description: "Research organisations, departments and research groups"
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource this Agent is associated with
+    refTable: Resources
+  - name: id
+    key: 1
+    description: Internal identifier. Ideally fill out acronym for an organisation
+      (e.g. UMCG) and full name for a person (e.g. Ada Lovelace)"
+  - name: type
+    type: ontology
+    description: "Type of agent: person or organisation"
+    refTable: Agent types
+    refSchema: CatalogueOntologies
+  - name: name
+    description: Name of the individual
+  - name: organisation
+    type: ref
+    description: Organisation name from Research Organization Registry (ROR).
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+  - name: other organisation
+    type: text
+    description: "If your organisation is not listed, please look up in ROR: https://ror.org/\
+      \ and preferably provide ROR id, otherwise fill out your organisation name."
+  - name: department
+    description: Name of department within the organisation
+  - name: website
+    type: hyperlink
+    semantics:
+    - foaf:homepage
+    description: A website representing this Agent
+  - name: email
+    type: email
+    semantics:
+    - foaf:mbox
+    description: E-mail address to contact this organisation or individual
+  - name: logo
+    type: file
+    semantics:
+    - foaf:logo
+    description: Logo of the organisation
+  - name: role
+    type: ontology_array
+    description: Type(s) of contribution or role in the resource
+    refTable: Organisation roles
+    refSchema: CatalogueOntologies
+  - name: organisation name
+    semantics:
+    - foaf:name
+    description: "Organisation name, copied value from ROR ontology for DCAT conform\
+      \ RDF generation"
+  - name: organisation pid
+    semantics:
+    - dcterms:identifier
+    description: "ROR id, copied value from ROR ontology for DCAT conform RDF generation"
+  - name: organisation website
+    type: hyperlink
+    semantics:
+    - foaf:homepage
+    description: "Organisation website, copied value from ROR ontology for DCAT conform\
+      \ RDF generation"
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource this Agent is associated with
+    refTable: Resources
+    subclass: Organisations
+  - name: id
+    key: 1
+    description: Internal identifier. Ideally fill out acronym for an organisation
+      (e.g. UMCG) and full name for a person (e.g. Ada Lovelace)"
+    subclass: Organisations
+  - name: is lead organisation
+    type: bool
+    description: Whether the organisation is the lead organisation of this resource
+    subclass: Organisations

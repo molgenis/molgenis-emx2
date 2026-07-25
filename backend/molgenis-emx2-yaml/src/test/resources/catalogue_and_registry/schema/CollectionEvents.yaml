@@ -1,0 +1,152 @@
+---
+table:
+  table: Collection events
+  description: Definition of a collection event for a resource
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    semantics:
+    - dcterms:source
+    description: Resource this collection event is part of
+    refTable: Resources
+  - name: name
+    key: 1
+    semantics:
+    - dcterms:title
+    description: Name of the collection event
+  - name: pid
+    semantics:
+    - dcterms:identifier
+    description: Persistent identifier for this collection event
+  - name: description
+    type: text
+    semantics:
+    - dcterms:description
+    description: Description of the collection event
+  - name: subpopulations
+    type: ref_array
+    semantics:
+    - dcterms:source
+    description: Subpopulations that are targetted by this collection event
+    refTable: Subpopulations
+  - name: keywords
+    type: string_array
+    semantics:
+    - dcat:keyword
+    description: Keywords to increase findability of this collection event. Try to
+      use words that are not used in the description. Keywords are not displayed on
+      the collection event page
+  - name: start date
+    type: date
+    semantics:
+    - dcat:startDate
+    description: Start date of data collection
+  - name: end date
+    type: date
+    semantics:
+    - dcat:endDate
+    description: End date of data collection. Leave empty if collection is ongoing
+  - name: age groups
+    type: ontology_array
+    description: Age groups included in this data collection event
+    refTable: Age groups
+    refSchema: CatalogueOntologies
+  - name: number of participants
+    type: int
+    description: Number of participants sampled in this data collection event
+  - name: areas of information
+    type: ontology_array
+    description: Areas of information that were extracted in this data collection
+      event
+    refTable: Areas of information cohorts
+    refSchema: CatalogueOntologies
+  - name: data categories
+    type: ontology_array
+    description: Methods of data collection used in this collection event
+    refTable: Data categories
+    refSchema: CatalogueOntologies
+  - name: sample categories
+    type: ontology_array
+    description: Samples that were collected in this collection event
+    refTable: Sample categories
+    refSchema: CatalogueOntologies
+  - name: standardized tools
+    type: ontology_array
+    description: "Standardized tools, e.g. surveys, questionnaires, instruments used\
+      \ to collect data for this collection event"
+    refTable: Standardized tools
+    refSchema: CatalogueOntologies
+  - name: standardized tools other
+    type: text
+    description: "If 'other', please specify"
+  - name: core variables
+    type: string_array
+    description: Name 10-20 relevant variables that were collected in this collection
+      event
+  - name: contact point
+    type: ref
+    semantics:
+    - dcat:contactPoint
+    description: Contact point for this collection event. Value copied from Resources
+      table
+    refTable: Contacts
+  - name: publisher
+    type: ref
+    semantics:
+    - dcterms:publisher
+    description: Organisation that published this collection event. Value copied from
+      Resources table
+    refTable: Organisations
+  - name: creator
+    type: ref_array
+    semantics:
+    - dcterms:creator
+    description: Organisation(s) that created this collection event. Value copied
+      from Resources table
+    refTable: Organisations
+  - name: issued
+    type: datetime
+    semantics:
+    - dcterms:issued
+    description: When the data for this collection event was first published
+  - name: modified
+    type: datetime
+    semantics:
+    - dcterms:modified
+    description: When the data for this collection event was last modified
+  - name: theme
+    type: ontology_array
+    semantics:
+    - dcat:theme
+    description: "A main category of the collection event. A collection event can\
+      \ have multiple themes, for health data theme must at least take the value 'Health',\
+      \ which is set as a default"
+    refTable: Themes
+    refSchema: CatalogueOntologies
+  - name: access rights
+    type: ontology
+    semantics:
+    - dcterms:accessRights
+    description: "Information that indicates whether the resource is publicly accessible,\
+      \ has access restrictions or is not public. A default is set for non-public\
+      \ access, because most health datasets contain sensitive information and rules\
+      \ and licenses apply to get access"
+    refTable: Access rights
+    refSchema: CatalogueOntologies
+  - name: applicable legislation
+    type: ontology_array
+    semantics:
+    - dcatap:applicableLegislation
+    description: "The legislation that mandates the creation or management of the\
+      \ collection event. For health datasets, the value must include the data governance\
+      \ act, which is set as a default. URI's to other legislations may be included"
+    refTable: Legislations
+    refSchema: CatalogueOntologies
+  - name: provenance statement
+    type: text
+    semantics:
+    - dct:provenance
+    description: "A statement of any changes in ownership and custody of a resource\
+      \ since its creation that are significant for its authenticity, integrity, and\
+      \ interpretation"

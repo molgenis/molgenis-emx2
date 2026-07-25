@@ -1,0 +1,182 @@
+---
+schema:
+- import: ../catalogue_and_registry.yaml
+  include:
+  - table: Internal identifiers
+    columns:
+    - resource
+    - identifier
+    - internal identifier type
+  - table: Agents
+    columns:
+    - resource
+    - id
+    - type
+    - name
+    - organisation
+    - other organisation
+    - website
+    - email
+    - role
+    - organisation name
+    - organisation pid
+    - organisation website
+  - table: Resources
+    columns:
+    - rdf type
+    - fdp endpoint
+    - ldp membership relation
+    - overview
+    - hricore
+    - id
+    - pid
+    - name
+    - acronym
+    - type other
+    - clinical study type
+    - RWD type
+    - website
+    - description
+    - internal identifiers
+    - external identifiers
+    - start year
+    - end year
+    - status
+    - issued
+    - modified
+    - design and structure
+    - design description
+    - data collection description
+    - record trigger
+    - data resources
+    - part of networks
+    - population
+    - number of participants
+    - population of interest
+    - population of interest other
+    - countries
+    - regions
+    - population age groups
+    - age min
+    - age max
+    - population entry
+    - population entry other
+    - population exit
+    - population exit other
+    - population coverage
+    - population not covered
+    - contributors
+    - organisations involved
+    - publisher
+    - creator
+    - people involved
+    - contact point
+    - child networks
+    - parent networks
+    - available data and samples
+    - areas of information rwd
+    - quality of life other
+    - cause of death code other
+    - indication vocabulary other
+    - genetic data vocabulary other
+    - care setting other
+    - medicinal product vocabulary other
+    - prescriptions vocabulary other
+    - dispensings vocabulary other
+    - procedures vocabulary other
+    - biomarker data vocabulary other
+    - diagnosis medical event vocabulary other
+    - disease details
+    - languages
+    - linkage
+    - prelinked
+    - linkage possibility
+    - linked resources
+    - access conditions
+    - informed consent required
+    - informed consent other
+    - access rights
+    - access subject details
+    - biospecimen access
+    - biospecimen access conditions
+    - approval for publication
+    - updates
+    - release frequency
+    - refresh period
+    - date last refresh
+    - preservation
+    - preservation duration
+    - quality
+    - qualification
+    - qualifications description
+    - access for validation
+    - standards
+    - common data models other
+    - information
+    - publications
+    - funding sources
+    - funding scheme
+    - funding statement
+    - citation requirements
+    - provenance statement
+    - documentation
+    - theme
+    - applicable legislation
+    - study details
+    - collection start planned
+    - collection start actual
+    - analysis start planned
+    - analysis start actual
+    - data sources
+    - medical conditions studied
+    - study methods
+    - objectives
+    - results
+  - table: Resource mappings
+    columns:
+    - source
+    - source version
+    - target
+    - target version
+    - cdms other
+    - mapping status
+    - ETL frequency
+    - ETL specification url
+    - ETL specification document
+  - table: External identifiers
+    columns:
+    - resource
+    - identifier
+    - external identifier type
+  - table: Linkages
+    columns:
+    - resource
+    - linked resource
+    - linkage strategy
+    - linkage variable
+    - linkage completeness
+    - pre linked
+  - table: Organisations
+    columns:
+    - resource
+    - id
+    - type
+    - name
+    - organisation
+    - other organisation
+    - website
+    - email
+    - role
+    - organisation name
+    - organisation pid
+    - organisation website
+    - is lead organisation
+  - table: Contacts
+    columns:
+    - resource
+    - role
+    - first name
+    - last name
+    - title
+    - organisation
+  - table: Version

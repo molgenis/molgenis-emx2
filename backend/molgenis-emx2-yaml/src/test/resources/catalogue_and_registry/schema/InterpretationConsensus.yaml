@@ -1,0 +1,44 @@
+---
+table:
+  table: Interpretation consensus
+  description: Agreement as the result of multiple results or opinions on genomic
+    variants
+  columns:
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+  - name: variant interpretation
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000125
+    description: "If applicable, a reference to one or more variants involved in the\
+      \ consensus process"
+    refTable: Variant interpretations
+  - name: name of commenter
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25461
+    description: The name of the person making the comment
+    refTable: Contacts
+  - name: classification
+    type: ontology
+    semantics:
+    - http://edamontology.org/operation_3225
+    description: "Classification of the clinical relevance of the variant (e.g., \"\
+      Pathogenic\")"
+    refTable: Variant classifications
+    refSchema: CatalogueOntologies
+  - name: summary
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C86073
+    description: Context or an explanation on how the variant classification was derived
+  - name: timestamp
+    type: datetime
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C54086
+    description: The date and time a comment was made
