@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.row.resolvers.PrefixEditRole;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.sql.row.resolvers.ResolveDefaultValue;
 import org.molgenis.emx2.sql.row.validators.ValidateExpression;
@@ -41,9 +40,7 @@ public class SqlRowProcessor {
     Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
 
     for (Column column : columnsToProcess) {
-      if (column.isMgEditRoleColumn()) {
-        PrefixEditRole.apply(column, row);
-      } else if (column.hasDefaultValue() && !row.notNull(column.getName())) {
+      if (column.hasDefaultValue() && !row.notNull(column.getName())) {
         ResolveDefaultValue.apply(context, column, row);
       } else if (column.hasComputed()) {
         ResolveComputedValue.apply(context, column, row);

@@ -10,6 +10,7 @@ import graphql.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
+import io.javalin.http.NotFoundResponse;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.http.Part;
 import java.io.File;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.graphql.GraphqlException;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
 import org.slf4j.Logger;
@@ -86,7 +86,7 @@ public class GraphqlApi {
 
     // todo, really check permissions
     if (getSchema(ctx) == null) {
-      throw new GraphqlException(
+      throw new NotFoundResponse(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
     GraphqlExecutor graphqlForSchema = APPLICATION_CACHE.getSchemaGraphqlForUser(schemaName, ctx);

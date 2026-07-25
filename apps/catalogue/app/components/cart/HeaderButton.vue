@@ -18,18 +18,14 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
-import { useDatasetStore } from "../../stores/useDatasetStore";
+import { useCartStore } from "../../stores/useCartStore";
 
-const datasetStore = useDatasetStore();
+const cartStore = useCartStore();
 
 defineEmits<{ (e: "click"): void }>();
 
 const numberOfItemsInStore = computed<number | string>(() => {
-  const count = Object.keys(datasetStore.datasets).length;
-  if (count > 99) {
-    return "99+";
-  } else {
-    return count;
-  }
+  const count = cartStore.cart.size;
+  return count > 99 ? "99+" : count;
 });
 </script>

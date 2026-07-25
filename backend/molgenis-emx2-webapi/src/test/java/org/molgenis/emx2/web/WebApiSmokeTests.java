@@ -757,7 +757,7 @@ class WebApiSmokeTests extends ApiTestBase {
 
   @Test
   void testRdfApiRequest() {
-    final String urlPrefix = "http://localhost:" + PORT;
+    final String urlPrefix = "http://localhost:" + port;
 
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
@@ -847,7 +847,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
+            .get("http://localhost:" + port + "/api/rdf?schemas=pet store")
             .getBody()
             .asString();
 
@@ -857,7 +857,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
+            .get("http://localhost:" + port + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
             .getBody()
             .asString();
 
@@ -866,7 +866,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?shacls")
+            .get("http://localhost:" + port + "/api/rdf?shacls")
             .getBody()
             .asString();
 
@@ -875,7 +875,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/pet store/api/rdf")
+            .get("http://localhost:" + port + "/pet store/api/rdf")
             .getBody()
             .asString();
 
@@ -883,7 +883,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/pet store/api/jsonld?validate=hri-v2.0.2")
+            .get("http://localhost:" + port + "/pet store/api/jsonld?validate=hri-v2.0.2")
             .getBody()
             .asString();
 
@@ -1268,14 +1268,15 @@ class WebApiSmokeTests extends ApiTestBase {
                 logging.getLogger("requests").setLevel(logging.WARNING)
                 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-                async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+                async with Client('http://localhost:%d', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
                     await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
                                 template="PET_STORE", include_demo_data=False)
 
             if __name__ == '__main__':
                 asyncio.run(main())
 
-            """;
+            """
+            .formatted(port);
     jobs.insert(
         row(
             "name",
@@ -1524,6 +1525,46 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
+  void testGraphqlUnknownSchemaReturns404() {
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    given()
+        .queryParam("query", "{_schema{id}}")
+        .when()
+        .get("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    // a schema the user cannot see returns the same 404, so the response does
+    // not reveal whether a schema exists
+    given()
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(404)
+        .body("errors[0].message", containsString("unknown"));
+
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(200);
+  }
+
+  @Test
   void testMetricsEndpoint() {
     given()
         .expect()
@@ -1531,5 +1572,24 @@ class WebApiSmokeTests extends ApiTestBase {
         .body(containsString("jvm_memory_used_bytes"))
         .when()
         .get(MetricsController.METRICS_PATH);
+  }
+
+  @Test
+  void testClearTasks() {
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/pet store/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
   }
 }
