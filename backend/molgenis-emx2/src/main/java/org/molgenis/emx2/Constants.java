@@ -50,6 +50,9 @@ public class Constants {
   public static final String SETTINGS_VALUE = "value";
   public static final String SETTINGS_USER = "user";
 
+  // Advanced setting containing comma-separated "namespace prefix,namespace IRI" pairs (per row)
+  public static final String SETTING_SEMANTIC_PREFIXES = "semantic_prefixes";
+
   public static final String CHANGELOG_TABLE = "mg_changelog";
   public static final String CHANGELOG_OPERATION = "operation";
   public static final String CHANGELOG_STAMP = "stamp";

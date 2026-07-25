@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf.generators.query;
 
+import static java.util.Arrays.stream;
+
 import java.util.*;
 import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
 import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
@@ -16,7 +18,6 @@ import org.molgenis.emx2.rdf.generators.query.generators.ArrayColumnSparqlQueryG
 import org.molgenis.emx2.rdf.generators.query.generators.ColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.LiteralColumnSparqlQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.generators.ReferenceColumnSparqlQueryGenerator;
-import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 
 public class TableQueryGenerator implements QueryGenerator {
 
@@ -35,7 +36,7 @@ public class TableQueryGenerator implements QueryGenerator {
     groups.add(SUBJECT_VARIABLE);
 
     for (Column column : tableMetadata.getColumns()) {
-      if (hasSemantics(column.getSemantics())) {
+      if (!column.hasSemantics()) {
         continue;
       }
 
@@ -54,7 +55,7 @@ public class TableQueryGenerator implements QueryGenerator {
     }
 
     SelectQuery query = setupQuery(tableMetadata);
-    if (hasSemantics(tableMetadata.getSemantics())) {
+    if (!tableMetadata.hasSemantics()) {
       anchorTableVar(query);
     } else {
       addTableTypeSemantics(tableMetadata, query);
@@ -65,10 +66,6 @@ public class TableQueryGenerator implements QueryGenerator {
         .where(whereClauses.toArray(new GraphPattern[0]))
         .groupBy(groups.toArray(new Groupable[0]))
         .getQueryString();
-  }
-
-  private static boolean hasSemantics(String[] semantics) {
-    return semantics == null || semantics.length == 0;
   }
 
   /**
@@ -89,15 +86,22 @@ public class TableQueryGenerator implements QueryGenerator {
   }
 
   private static void addTableTypeSemantics(TableMetadata tableMetadata, SelectQuery select) {
-    String[] tableSemantics = tableMetadata.getSemantics();
-    if (tableSemantics.length == 1) {
-      select.where(SUBJECT_VARIABLE.isA(() -> tableSemantics[0]));
-    } else if (tableSemantics.length > 1) {
-      RdfValue[] semantics =
-          Arrays.stream(tableSemantics)
-              .map(semantic -> (RdfValue) () -> semantic)
-              .toArray(RdfValue[]::new);
+    RdfValue[] semantics =
+        stream(tableMetadata.getSemantics())
+            .map(
+                semantic ->
+                    (RdfValue)
+                        () ->
+                            tableMetadata
+                                .getSchema()
+                                .getSemanticPrefixes()
+                                .mapAsString(semantic)
+                                .getFirst())
+            .toArray(RdfValue[]::new);
 
+    if (semantics.length == 1) {
+      select.where(SUBJECT_VARIABLE.isA(semantics[0]));
+    } else {
       select
           .where(SUBJECT_VARIABLE.isA(TYPE_VARIABLE))
           .values(value -> value.variables(TYPE_VARIABLE).values(semantics))
@@ -107,8 +111,7 @@ public class TableQueryGenerator implements QueryGenerator {
 
   private SelectQuery setupQuery(TableMetadata tableMetadata) {
     SelectQuery select = Queries.SELECT();
-    NamespaceMapper namespaceMapper = new NamespaceMapper(tableMetadata.getSchema());
-    namespaceMapper.getAllNamespaces().forEach(select::prefix);
+    tableMetadata.getSchema().getSemanticPrefixes().getAllNamespaces().forEach(select::prefix);
     return select;
   }
 }

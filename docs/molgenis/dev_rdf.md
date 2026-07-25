@@ -74,8 +74,6 @@ dcat,http://www.w3.org/ns/dcat#
 dcterms,http://purl.org/dc/terms/
 ```
 
-!> The following prefixes are **not** allowed: `http`, `https`, `urn` & `tag`
-
 !> When the default is overridden, make sure to either include previously used namespaces or adjust every semantic field that uses a prefix that is not supported anymore.
 
 Conflicts in namespaces will not break the RDF output but might result in unexpected behaviour. Examples include:

@@ -1,12 +1,11 @@
 package org.molgenis.emx2.json;
 
+import static java.util.Arrays.stream;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.TableType;
+import org.molgenis.emx2.*;
 
 public class Table {
   private String schemaId;
@@ -58,7 +57,10 @@ public class Table {
             .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
-    this.semantics = tableMetadata.getSemantics();
+    this.semantics =
+        tableMetadata.getSemantics() == null
+            ? null
+            : stream(tableMetadata.getSemantics()).map(Semantic::toString).toArray(String[]::new);
     this.settings =
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))

@@ -15,17 +15,23 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   protected String description;
   // optional
   protected Database database;
+  // retrieved (default or advanced setting if present)
+  protected SemanticPrefixes semanticPrefixes;
 
-  public SchemaMetadata() {}
+  public SchemaMetadata() {
+    this.semanticPrefixes = new SemanticPrefixes(this);
+  }
 
   public SchemaMetadata(String name) {
     validateSchemaName(name);
     this.name = name;
+    this.semanticPrefixes = new SemanticPrefixes(this);
   }
 
   public SchemaMetadata(String name, String description) {
     this(name);
     this.description = description;
+    this.semanticPrefixes = new SemanticPrefixes(this);
   }
 
   public SchemaMetadata(SchemaMetadata schema) {
@@ -33,6 +39,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.description = schema.getDescription();
     this.database = schema.getDatabase();
     this.setSettingsWithoutReload(schema.getSettings());
+    this.semanticPrefixes = new SemanticPrefixes(this);
   }
 
   public SchemaMetadata(Database db, SchemaMetadata schema) {
@@ -40,6 +47,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.description = schema.getDescription();
     this.database = db;
     this.setSettingsWithoutReload(schema.getSettings());
+    this.semanticPrefixes = new SemanticPrefixes(this);
   }
 
   private void validateSchemaName(String name) {
@@ -132,6 +140,22 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
 
   public void setDatabase(Database database) {
     this.database = database;
+  }
+
+  public SemanticPrefixes getSemanticPrefixes() {
+    return semanticPrefixes;
+  }
+
+  /**
+   * In case the advanced setting {@link Constants#SETTING_SEMANTIC_PREFIXES} is changed after
+   * loading, the {@link SemanticPrefixes} needs to be re-initialized.
+   *
+   * <p>Ensure this method is called at the end of {@link #setSettings(Map)} in implementations of
+   * this class!
+   */
+  protected void update() {
+    SemanticPrefixes newSemanticPrefixes = new SemanticPrefixes(this);
+    if (!semanticPrefixes.equals(newSemanticPrefixes)) semanticPrefixes = newSemanticPrefixes;
   }
 
   public List<TableMetadata> getTablesIncludingExternal() {

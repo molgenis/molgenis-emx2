@@ -102,7 +102,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
   void givenColumn_whenSemanticIsIRI_thenSurroundWithPointBrackets() {
     Column column =
         createColumn(
-            Column.column("foo").setRequired(true).setSemantics("https://example.org/ns#test"));
+            Column.column("foo").setRequired(true).setSemantics("<https://example.org/ns#test>"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start <https://example.org/ns#test> ?foo .");
     assertHasSelectors(mapper, "?foo");
@@ -115,7 +115,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
         createColumn(
             Column.column("foo")
                 .setRequired(false)
-                .setSemantics("foaf:test", "http://example.org/ns#test"));
+                .setSemantics("foaf:test", "<http://example.org/ns#test>"));
     LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(
         mapper,
