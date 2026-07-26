@@ -12,7 +12,7 @@ export default defineConfig({
     plugins: [
         vue(),
         monacoEditorPlugin({
-            languages: ["editorWorkerService", "json"],
+            languageWorkers: ["editorWorkerService", "json"],
         }),
     ],
     base: "",

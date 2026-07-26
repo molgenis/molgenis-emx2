@@ -7,7 +7,7 @@ export default defineConfig((command) => {
   plugins: [
     vue(),
     monacoEditorPlugin({
-        languages: ["editorWorkerService", "html", "css", "typescript"],
+        languageWorkers: ["editorWorkerService", "html", "css", "typescript"],
     }),
   ],
   base: command === "serve" ? "/" :"apps/pages/",
