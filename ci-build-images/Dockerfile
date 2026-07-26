@@ -1,7 +1,7 @@
 # docker file for the ci
 # to build and publish (n.b. on apple silicon you need to set --platform)
-# docker buildx build -t molgenis/ci-build:1.6.0 --platform linux/amd64 .
-# docker push molgenis/ci-build:1.6.0
+# docker buildx build -t molgenis/ci-build:1.6.2 --platform linux/amd64 .
+# docker push molgenis/ci-build:1.6.2
 
 FROM gradle:jdk21-noble
 RUN useradd -m molgenis
