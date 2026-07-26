@@ -3,7 +3,7 @@ import {
   isLayoutColumnType,
   isRefbackType,
 } from "../../../metadata-utils/src";
-import type { IColumn } from "../../../metadata-utils/src/types";
+import type { DisplayType, IColumn } from "../../../metadata-utils/src/types";
 
 export function isEmptyValue(val: any): boolean {
   if (val === null || val === undefined || val === "") return true;
@@ -166,7 +166,7 @@ export function filterColumnsByRole(columns: IColumn[]): IColumn[] {
 export function getListColumns(
   columns: IColumn[],
   options?: {
-    layout?: "TABLE" | "CARDS" | "LIST" | "LINKS";
+    layout?: DisplayType;
     hideColumns?: string[];
     visibleColumns?: string[];
     rows?: Record<string, any>[];

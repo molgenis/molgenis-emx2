@@ -20,33 +20,33 @@ export const buildOntologyTree = (
 
   const allItems = itemsArray.map(flattenParentChain).flat();
 
-  const uniqueItems = [
-    ...new Map(allItems.map((item) => [item.name, item])).values(),
-  ];
+  const nodesByName = new Map<string, IOntologyTreeItem>();
+  for (const item of allItems) {
+    nodesByName.set(item.name, copyOntologyItem(item));
+  }
 
-  for (const item of uniqueItems) {
-    if (!item.parent) {
+  for (const node of nodesByName.values()) {
+    if (!node.parent) {
       continue;
     }
-    const parent = item.parent;
-    const parentIndex = uniqueItems.findIndex(
-      (candidate) => candidate.name === parent.name
-    );
-
-    if (parentIndex !== -1 && uniqueItems[parentIndex]) {
-      if (!uniqueItems[parentIndex].children) {
-        uniqueItems[parentIndex].children = [];
-      }
-      const children = uniqueItems[parentIndex].children!;
-      if (!children.find((child) => child.name === item.name)) {
-        children.push(item);
-      }
+    const parent = nodesByName.get(node.parent.name);
+    if (!parent) {
+      continue;
+    }
+    if (!parent.children) {
+      parent.children = [];
+    }
+    if (!parent.children.some((child) => child.name === node.name)) {
+      parent.children.push(node);
     }
   }
 
-  const roots = uniqueItems.filter((item) => !item.parent);
+  const roots = [...nodesByName.values()].filter((node) => !node.parent);
   return sortOntologyTree(roots);
 };
+
+const copyOntologyItem = (item: IOntologyTreeItem): IOntologyTreeItem =>
+  item.children ? { ...item, children: [...item.children] } : { ...item };
 
 export const flattenParentChain = (
   item: IOntologyTreeItem
@@ -66,17 +66,17 @@ export const sortOntologyTree = (
   const sortBy = tree.every((item) => item.order !== undefined)
     ? "order"
     : "name";
-  tree.sort((a, b) => {
-    return sortBy === "order" && a.order !== undefined && b.order !== undefined
-      ? a.order - b.order
-      : a.name.localeCompare(b.name);
-  });
-
-  for (const item of tree) {
-    if (item.children) {
-      item.children = sortOntologyTree(item.children);
-    }
-  }
-
-  return tree;
+  return [...tree]
+    .sort((a, b) => {
+      return sortBy === "order" &&
+        a.order !== undefined &&
+        b.order !== undefined
+        ? a.order - b.order
+        : a.name.localeCompare(b.name);
+    })
+    .map((item) =>
+      item.children
+        ? { ...item, children: sortOntologyTree(item.children) }
+        : item
+    );
 };

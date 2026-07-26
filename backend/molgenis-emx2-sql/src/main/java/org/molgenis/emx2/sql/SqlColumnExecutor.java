@@ -466,10 +466,11 @@ public class SqlColumnExecutor {
       throw new MolgenisException(
           partsRefBackMessage(counterpart, "must be required so every part has one parent"));
     }
-    if (counterpart.getKey() == 0) {
+    if (!counterpart.isPrimaryKey()) {
       throw new MolgenisException(
           partsRefBackMessage(
-              counterpart, "must be part of a key so every part has one path to its parent"));
+              counterpart,
+              "must be part of the primary key so every part has one path to its parent"));
     }
     Column conflicting = findConflictingPartsColumn(c);
     if (conflicting != null) {
@@ -499,8 +500,11 @@ public class SqlColumnExecutor {
   }
 
   private static boolean isSamePartsRelation(Column c, Column other) {
-    return c.getTableName().equals(other.getTableName())
-        && c.getRefBack().equals(other.getRefBack());
+    if (!c.getSchemaName().equals(other.getSchemaName())
+        || !c.getTableName().equals(other.getTableName())) {
+      return false;
+    }
+    return c.getName().equals(other.getName()) || c.getRefBack().equals(other.getRefBack());
   }
 
   private static String partsRefBackMessage(Column counterpart, String requirement) {

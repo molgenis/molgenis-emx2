@@ -2,12 +2,10 @@ import { createError } from "nuxt/app";
 import type { ITableMetaData } from "../../../metadata-utils/src/types";
 import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
 import fetchMetadata from "./fetchMetadata";
-import { getSubclassColumns } from "./getSubclassColumns";
 
 export default async (
   schemaId: string,
-  tableId: string,
-  options?: { includeSubclassColumns?: boolean }
+  tableId: string
 ): Promise<ITableMetaData> => {
   const schemaMetadata = await fetchMetadata(schemaId);
   const tableMetadata = schemaMetadata.tables.find(
@@ -21,17 +19,6 @@ export default async (
       message,
       statusCode: 404,
     });
-  }
-
-  if (options?.includeSubclassColumns) {
-    const subclassColumns = getSubclassColumns(
-      tableId,
-      schemaMetadata.tables
-    ).map((col) => ({ ...col, visible: "false" }));
-    return {
-      ...tableMetadata,
-      columns: [...tableMetadata.columns, ...subclassColumns],
-    };
   }
 
   return tableMetadata;

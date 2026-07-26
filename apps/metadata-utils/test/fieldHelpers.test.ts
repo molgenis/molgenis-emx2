@@ -13,6 +13,7 @@ import {
   isOptionKeyRefType,
   isPartsType,
   isPlainHeadingType,
+  isRangeConditionType,
   isRefArrayType,
   isRefType,
   isRefbackType,
@@ -98,6 +99,53 @@ const columnTypesWhereBackendIsRefbackReturnsTrue = new Set([
   "REFBACK",
   "PARTS",
 ]);
+
+const filterConditionShapeByColumnType: Record<
+  string,
+  "aRangeBetweenTwoBounds" | "individualValues"
+> = {
+  BOOL: "individualValues",
+  BOOL_ARRAY: "individualValues",
+  UUID: "individualValues",
+  UUID_ARRAY: "individualValues",
+  FILE: "individualValues",
+  STRING: "individualValues",
+  STRING_ARRAY: "individualValues",
+  TEXT: "individualValues",
+  TEXT_ARRAY: "individualValues",
+  INT: "aRangeBetweenTwoBounds",
+  INT_ARRAY: "individualValues",
+  LONG: "aRangeBetweenTwoBounds",
+  LONG_ARRAY: "individualValues",
+  DECIMAL: "aRangeBetweenTwoBounds",
+  DECIMAL_ARRAY: "individualValues",
+  DATE: "aRangeBetweenTwoBounds",
+  DATE_ARRAY: "individualValues",
+  DATETIME: "aRangeBetweenTwoBounds",
+  DATETIME_ARRAY: "individualValues",
+  PERIOD: "individualValues",
+  PERIOD_ARRAY: "individualValues",
+  JSON: "individualValues",
+  REF: "individualValues",
+  REF_ARRAY: "individualValues",
+  REFBACK: "individualValues",
+  PARTS: "individualValues",
+  RADIO: "individualValues",
+  SELECT: "individualValues",
+  HEADING: "individualValues",
+  SECTION: "individualValues",
+  AUTO_ID: "individualValues",
+  ONTOLOGY: "individualValues",
+  ONTOLOGY_ARRAY: "individualValues",
+  EMAIL: "individualValues",
+  EMAIL_ARRAY: "individualValues",
+  HYPERLINK: "individualValues",
+  HYPERLINK_ARRAY: "individualValues",
+  NON_NEGATIVE_INT: "individualValues",
+  NON_NEGATIVE_INT_ARRAY: "individualValues",
+  CHECKBOX: "individualValues",
+  MULTISELECT: "individualValues",
+};
 
 const matchingNames = (
   predicates: Record<string, (columnType: string) => boolean>,
@@ -198,6 +246,20 @@ describe("every column type is classified", () => {
     (columnType) => {
       const levels = matchingNames(headingLevels, columnType);
       expect(levels.length, `${columnType} is at levels [${levels}]`).toBe(1);
+    }
+  );
+
+  it.each(fieldTypes())(
+    "records a filter condition shape for %s and offers a range condition to exactly the two bound ones",
+    (columnType) => {
+      const shape = filterConditionShapeByColumnType[columnType];
+      expect(
+        shape,
+        `${columnType} has no filter condition shape recorded`
+      ).toBeDefined();
+      expect(isRangeConditionType(columnType)).toBe(
+        shape === "aRangeBetweenTwoBounds"
+      );
     }
   );
 
@@ -309,6 +371,24 @@ describe("ref flavors", () => {
   it("counts only PARTS as a parts type, unlike its REFBACK sibling", () => {
     expect(sortedMembers(isPartsType)).toEqual(["PARTS"]);
     expect(isPartsType("REFBACK")).toBe(false);
+  });
+});
+
+describe("range conditions", () => {
+  it("counts exactly DATE, DATETIME, DECIMAL, INT and LONG as filtered between two bounds", () => {
+    expect(sortedMembers(isRangeConditionType)).toEqual([
+      "DATE",
+      "DATETIME",
+      "DECIMAL",
+      "INT",
+      "LONG",
+    ]);
+  });
+
+  it("excludes the arrays of the same scalars and the ordered PERIOD", () => {
+    expect(isRangeConditionType("INT_ARRAY")).toBe(false);
+    expect(isRangeConditionType("DATE_ARRAY")).toBe(false);
+    expect(isRangeConditionType("PERIOD")).toBe(false);
   });
 });
 

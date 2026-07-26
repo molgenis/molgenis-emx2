@@ -145,6 +145,18 @@ export function buildCrumbs(
   return crumbs;
 }
 
+export function subclassTableId(
+  schema: ISchemaMetaData,
+  row: IRow
+): string | undefined {
+  const tableClass = row.mg_tableclass;
+  if (typeof tableClass !== "string") return undefined;
+  const tableName = tableClass.slice(tableClass.indexOf(".") + 1);
+  return schema.tables.find(
+    (table) => table.name === tableName || table.id === tableName
+  )?.id;
+}
+
 function parseFlatLevel(
   schema: ISchemaMetaData,
   tableSegment: string,
@@ -294,18 +306,6 @@ function composeKey(
     }
   }
   return key;
-}
-
-function subclassTableId(
-  schema: ISchemaMetaData,
-  row: IRow
-): string | undefined {
-  const tableClass = row.mg_tableclass;
-  if (typeof tableClass !== "string") return undefined;
-  const tableName = tableClass.slice(tableClass.indexOf(".") + 1);
-  return schema.tables.find(
-    (table) => table.name === tableName || table.id === tableName
-  )?.id;
 }
 
 function findPartsDeclaration(

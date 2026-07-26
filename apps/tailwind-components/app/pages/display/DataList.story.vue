@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import type { ITableMetaData } from "../../../../metadata-utils/src/types";
+import type {
+  DisplayType,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
 import DemoDataControls from "../../DemoDataControls.vue";
 import DataList from "../../components/display/DataList.vue";
 import { provideRecordNavigation } from "../../composables/useRecordNavigation";
@@ -14,7 +17,7 @@ const tableId = ref<string>((route.query.table as string) || "Pet");
 const metadata = ref<ITableMetaData>();
 const formValues = ref<Record<string, any>>({});
 
-const layout = ref<"TABLE" | "CARDS" | "LIST" | "LINKS">("TABLE");
+const layout = ref<DisplayType>("TABLE");
 const pageSize = ref(10);
 
 const clickLog = ref<string[]>([]);

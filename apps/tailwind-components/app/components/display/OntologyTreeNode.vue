@@ -76,6 +76,7 @@ const toggleCollapse = () => {
         :key="child.name"
         class="pt-1 pl-8"
         :node="child"
+        :collapse-all="collapseAll"
       />
     </ul>
   </li>

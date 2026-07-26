@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, useId } from "vue";
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import type {
+  DisplayType,
+  IColumn,
+} from "../../../../metadata-utils/src/types";
 import { useTableData } from "../../composables/useTableData";
 import { getListColumns } from "../../utils/displayUtils";
 import InputSearch from "../input/Search.vue";
@@ -18,7 +21,7 @@ const props = withDefaults(
     rows?: Record<string, any>[];
     totalCount?: number;
     columns?: IColumn[];
-    layout?: "TABLE" | "CARDS" | "LIST" | "LINKS";
+    layout?: DisplayType;
     pageSize?: number;
     hideColumns?: string[];
     rowLabelTemplate?: string;
@@ -96,7 +99,7 @@ const {
 
 const smartListColumns = computed(() =>
   getListColumns(metadata.value?.columns || [], {
-    layout: props.layout as "TABLE" | "CARDS" | "LIST" | undefined,
+    layout: props.layout,
     hideColumns: props.hideColumns,
     rows: fetchedRows.value,
   })
@@ -110,7 +113,7 @@ const errorText = computed(
 
 const dumbColumns = computed(() =>
   getListColumns(props.columns || [], {
-    layout: props.layout as "TABLE" | "CARDS" | "LIST" | undefined,
+    layout: props.layout,
     hideColumns: props.hideColumns,
     rows: props.rows || [],
   })

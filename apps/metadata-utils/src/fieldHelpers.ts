@@ -107,6 +107,14 @@ const VALUE_TYPES = new Set<string>([
   "UUID_ARRAY",
 ] satisfies ColumnType[]);
 
+const RANGE_CONDITION_TYPES = new Set<string>([
+  "DATE",
+  "DATETIME",
+  "INT",
+  "LONG",
+  "DECIMAL",
+] satisfies ColumnType[]);
+
 export const fieldTypes = (): string[] => Object.keys(ALL_COLUMN_TYPES);
 
 export const isSingleRefType = (columnType: string): boolean =>
@@ -165,6 +173,9 @@ export const isPlainHeadingType = (columnType: string): boolean =>
 
 export const isValueType = (columnType: string): boolean =>
   VALUE_TYPES.has(columnType);
+
+export const isRangeConditionType = (columnType: string): boolean =>
+  RANGE_CONDITION_TYPES.has(columnType);
 
 export const isArrayType = (columnType: string): boolean =>
   columnType.endsWith("_ARRAY");

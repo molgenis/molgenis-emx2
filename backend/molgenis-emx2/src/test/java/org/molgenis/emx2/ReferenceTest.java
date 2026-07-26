@@ -100,6 +100,9 @@ public class ReferenceTest {
     assertTrue(
         exception.getMessage().contains("Nodes.parent"),
         "message must name the offending column, was: " + exception.getMessage());
+    assertTrue(
+        exception.getMessage().contains("A self reference must stay outside of the key"),
+        "message must advise on the self reference, was: " + exception.getMessage());
   }
 
   @Test
@@ -133,6 +136,12 @@ public class ReferenceTest {
     assertTrue(
         exception.getMessage().contains("Left.right"),
         "message must name the offending column, was: " + exception.getMessage());
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("At least one of these references must stay outside of the key of its table"),
+        "message must advise on the chain, not on a self reference, was: "
+            + exception.getMessage());
   }
 
   @Test

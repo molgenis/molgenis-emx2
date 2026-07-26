@@ -502,6 +502,13 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return schema == null ? getQualifiedName() : schema.getName() + "." + getQualifiedName();
   }
 
+  private static String cyclicExpansionAdvice(List<String> expansionPath) {
+    if (expansionPath.size() == 1) {
+      return "A self reference must stay outside of the key";
+    }
+    return "At least one of these references must stay outside of the key of its table";
+  }
+
   private List<Reference> getReferences(List<String> expansionPath) {
 
     // no ref
@@ -519,7 +526,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
               + String.join(" -> ", expansionPath)
               + " -> "
               + expansionId
-              + "). A self reference must stay outside of the key");
+              + "). "
+              + cyclicExpansionAdvice(expansionPath));
     }
     List<String> nestedExpansionPath = new ArrayList<>(expansionPath);
     nestedExpansionPath.add(expansionId);

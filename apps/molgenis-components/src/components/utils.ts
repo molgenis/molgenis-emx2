@@ -12,12 +12,6 @@ const { CODE_0, CODE_9, CODE_PERIOD } = constants;
 
 export { isRefType } from "../../../metadata-utils/src/fieldHelpers";
 
-const RANGE_CONDITION_TYPES = ["DATE", "DATETIME", "INT", "LONG", "DECIMAL"];
-
-export function isRangeConditionType(columnType: string): boolean {
-  return RANGE_CONDITION_TYPES.includes(columnType);
-}
-
 export function isNumericKey(event: KeyboardEvent): boolean {
   const keyCode = event.which ?? event.keyCode;
   return (keyCode >= CODE_0 && keyCode <= CODE_9) || keyCode === CODE_PERIOD;

@@ -75,7 +75,7 @@ watchEffect(async () => {
   );
 
   refTableColumns.value = getListColumns(refTable.columns, {
-    layout: props.column.display as "TABLE" | "CARDS" | "LIST" | undefined,
+    layout: props.column.display,
   });
 
   if (refbackCol && props.parentRowId) {

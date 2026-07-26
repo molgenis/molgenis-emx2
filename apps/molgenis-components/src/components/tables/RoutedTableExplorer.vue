@@ -45,7 +45,8 @@
 </template>
 
 <script>
-import { deepClone, isRangeConditionType, isRefType } from "../utils";
+import { deepClone, isRefType } from "../utils";
+import { isRangeConditionType } from "../../../../metadata-utils/src/fieldHelpers";
 import TableExplorer from "./TableExplorer.vue";
 
 export default {

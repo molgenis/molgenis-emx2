@@ -11,7 +11,6 @@ export interface UseTableDataOptions {
   filter?: object | ComputedRef<object>;
   searchTerms?: Ref<string>;
   orderby?: Ref<{ column: string; direction: "ASC" | "DESC" }>;
-  includeSubclassColumns?: boolean;
 }
 
 export interface UseTableDataReturn {
@@ -30,14 +29,7 @@ export function useTableData(
   tableId: string | Ref<string>,
   options: UseTableDataOptions
 ): UseTableDataReturn {
-  const {
-    pageSize,
-    page,
-    filter,
-    searchTerms,
-    orderby,
-    includeSubclassColumns,
-  } = options;
+  const { pageSize, page, filter, searchTerms, orderby } = options;
 
   const status = ref<TableDataStatus>("idle");
   const metadataRef = ref<ITableMetaData | undefined>(undefined);
@@ -56,9 +48,7 @@ export function useTableData(
     errorRef.value = undefined;
     try {
       const [tableMetadata, tableData] = await Promise.all([
-        fetchTableMetadata(resolvedSchemaId, resolvedTableId, {
-          includeSubclassColumns,
-        }),
+        fetchTableMetadata(resolvedSchemaId, resolvedTableId),
         fetchTableData(resolvedSchemaId, resolvedTableId, {
           limit: pageSize,
           offset: (page.value - 1) * pageSize,
@@ -67,7 +57,6 @@ export function useTableData(
             : {},
           searchTerms: searchTerms?.value || "",
           filter: unref(filter),
-          includeSubclassColumns,
         }),
       ]);
 

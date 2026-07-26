@@ -10,6 +10,10 @@ export interface ISetting {
 
 export type HeadingType = "HEADING" | "SECTION";
 
+export const DISPLAY_TYPES = ["TABLE", "CARDS", "LIST", "LINKS"] as const;
+
+export type DisplayType = (typeof DISPLAY_TYPES)[number];
+
 export type CellValueType =
   | "BOOL"
   | "BOOL_ARRAY"
@@ -78,12 +82,11 @@ export interface IColumn {
   validation?: string;
   visible?: string;
   role?: "TITLE" | "SUBTITLE" | "DESCRIPTION" | "LOGO" | "DETAIL" | "INTERNAL";
-  display?: "TABLE" | "CARDS" | "LIST" | "LINKS";
+  display?: DisplayType;
   table?: string;
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
-  tableId?: string;
 }
 
 export interface IRefColumn extends IColumn {

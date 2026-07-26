@@ -94,6 +94,18 @@ describe("buildOntologyTree", () => {
     expect(result.map((item) => item.name)).toEqual(["A", "B", "C"]);
   });
 
+  it("leaves the items it was given untouched", () => {
+    const items: IOntologyTreeItem[] = [
+      { name: "Cardiology", parent: { name: "Medicine" } },
+      { name: "Anatomy", children: [{ name: "Thorax" }, { name: "Abdomen" }] },
+    ];
+    const itemsBeforeCall = structuredClone(items);
+
+    buildOntologyTree(items);
+
+    expect(items).toEqual(itemsBeforeCall);
+  });
+
   it("sorts alphabetically when no order field", () => {
     const items: IOntologyTreeItem[] = [
       { name: "Zebra" },

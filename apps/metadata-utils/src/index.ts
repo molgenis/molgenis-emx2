@@ -11,7 +11,10 @@ export {
   getTableMetaData,
 } from "./tableQuery";
 
+export { DISPLAY_TYPES } from "./types";
+
 export type {
+  DisplayType,
   IColumn,
   ISetting,
   ISchemaMetaData,
@@ -34,6 +37,7 @@ export {
   isOptionKeyRefType,
   isPartsType,
   isPlainHeadingType,
+  isRangeConditionType,
   isRefArrayType,
   isRefType,
   isRefbackType,

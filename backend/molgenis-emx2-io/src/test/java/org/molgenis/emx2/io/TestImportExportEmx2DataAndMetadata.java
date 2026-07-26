@@ -144,6 +144,37 @@ class TestImportExportEmx2DataAndMetadata {
     CompareTools.assertEquals(exported.getMetadata(), reimported.getMetadata());
   }
 
+  @Test
+  void linksDisplayTypeSurvivesRoundtrip() throws IOException {
+    Path modelDirectory = tmp.resolve("links-model");
+    Files.createDirectories(modelDirectory);
+    Files.writeString(
+        modelDirectory.resolve("molgenis.csv"),
+        """
+        tableName,columnName,columnType,key,refTable,display
+        LinksChild,name,string,1,,
+        LinksParent,name,string,1,,
+        LinksParent,children,ref_array,,LinksChild,links
+        """);
+
+    Schema imported = database.dropCreateSchema(getClass().getSimpleName() + "Links1");
+    MolgenisIO.fromDirectory(modelDirectory, imported, true);
+    assertLinksDisplay(imported);
+
+    Path export = tmp.resolve("links-export");
+    Files.createDirectories(export);
+    MolgenisIO.toDirectory(export, imported, false);
+
+    Schema reimported = database.dropCreateSchema(getClass().getSimpleName() + "Links2");
+    MolgenisIO.fromDirectory(export, reimported, true);
+    assertLinksDisplay(reimported);
+  }
+
+  private void assertLinksDisplay(Schema schema) {
+    Column children = schema.getTable("LinksParent").getMetadata().getColumn("children");
+    assertEquals("LINKS", children.getDisplay().name());
+  }
+
   private void assertPartsColumn(Schema schema) {
     Column parts = schema.getTable("PartsResources").getMetadata().getColumn("tables");
     assertEquals(ColumnType.PARTS, parts.getColumnType());

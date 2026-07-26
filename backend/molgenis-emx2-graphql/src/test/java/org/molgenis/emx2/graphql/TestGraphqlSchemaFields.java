@@ -694,6 +694,15 @@ class TestGraphqlSchemaFields {
   }
 
   @Test
+  void linksDisplayInSchemaMetadata() throws IOException {
+    execute(
+        "mutation{change(tables:[{name:\"LinksDisplayTest\",columns:[{name:\"id\",key:1},{name:\"displayCol\",display:\"links\"}]}]){message}}");
+    JsonNode node = execute("{_schema{tables{name,columns{name,display}}}}");
+    assertTrue(node.toString().contains("\"display\":\"LINKS\""));
+    execute("mutation{drop(tables:\"LinksDisplayTest\"){message}}");
+  }
+
+  @Test
   void partsColumnTypeInSchemaMetadata() throws IOException {
     execute(
         "mutation{change(tables:[{name:\"PartsResources\",columns:[{name:\"name\",key:1}]},{name:\"PartsTables\",columns:[{name:\"resource\",columnType:\"REF\",refTableName:\"PartsResources\",key:1},{name:\"name\",key:1}]}]){message}}");

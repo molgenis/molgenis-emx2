@@ -437,13 +437,11 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import Task from "../task/Task.vue";
+import { applyComputed, convertRowToPrimaryKey, isRefType } from "../utils";
 import {
-  applyComputed,
-  convertRowToPrimaryKey,
+  isLayoutColumnType,
   isRangeConditionType,
-  isRefType,
-} from "../utils";
-import { isLayoutColumnType } from "../../../../metadata-utils/src/fieldHelpers";
+} from "../../../../metadata-utils/src/fieldHelpers";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
 import RecordCards from "./RecordCards.vue";

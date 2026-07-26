@@ -16,8 +16,7 @@ import RecordSection from "./DetailSection.vue";
 import DetailPageLayout from "../layout/DetailPageLayout.vue";
 import SideNav from "../SideNav.vue";
 import LoadingContent from "../LoadingContent.vue";
-import fetchTableMetadata from "../../composables/fetchTableMetadata";
-import fetchRowData from "../../composables/fetchRowData";
+import fetchRecordOfOwnClass from "../../composables/fetchRecordOfOwnClass";
 import {
   isEmptyValue,
   isTopSection,
@@ -52,26 +51,13 @@ const isSmartMode = computed(
 );
 
 const {
-  data: metadata,
-  status: metadataStatus,
-  error: metadataError,
+  data: record,
+  status: recordStatus,
+  error: recordError,
 } = useAsyncData(
-  `metadata-${props.schemaId}-${props.tableId}`,
-  () => fetchTableMetadata(props.schemaId!, props.tableId!),
-  {
-    watch: [() => props.schemaId, () => props.tableId],
-    immediate: isSmartMode.value,
-  }
-);
-
-const {
-  data: rowData,
-  status: rowStatus,
-  error: rowError,
-} = useAsyncData(
-  `row-${props.schemaId}-${props.tableId}-${JSON.stringify(props.rowId)}`,
+  `record-${props.schemaId}-${props.tableId}-${JSON.stringify(props.rowId)}`,
   () =>
-    fetchRowData(
+    fetchRecordOfOwnClass(
       props.schemaId!,
       props.tableId!,
       props.rowId!,
@@ -83,22 +69,20 @@ const {
   }
 );
 
+const metadata = computed(() => record.value?.metadata ?? null);
+const rowData = computed(() => record.value?.row ?? null);
+const recordTableId = computed(() => metadata.value?.id ?? props.tableId);
+
 const combinedStatus = computed(() => {
   if (!isSmartMode.value) return "success";
-  if (metadataStatus.value === "pending" || rowStatus.value === "pending")
-    return "pending";
-  if (metadataStatus.value === "error" || rowStatus.value === "error")
-    return "error";
+  if (recordStatus.value === "pending") return "pending";
+  if (recordStatus.value === "error") return "error";
   return "success";
 });
 
 const errorText = computed(() => {
-  if (!isSmartMode.value) return undefined;
-  if (metadataError.value)
-    return `Failed to load metadata: ${metadataError.value.message}`;
-  if (rowError.value)
-    return `Failed to load row data: ${rowError.value.message}`;
-  return undefined;
+  if (!isSmartMode.value || !recordError.value) return undefined;
+  return `Failed to load record: ${recordError.value.message}`;
 });
 
 const processedColumns = computed<IColumn[]>(() => {
@@ -333,7 +317,7 @@ const emit = defineEmits<{
               :columns="section.columns"
               :show-empty="showEmpty"
               :schema-id="schemaId"
-              :parent-table-id="tableId"
+              :parent-table-id="recordTableId"
               :parent-row-id="rowId"
               @valueClick="emit('valueClick', $event)"
             />
