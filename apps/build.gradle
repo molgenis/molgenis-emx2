@@ -94,12 +94,33 @@ tasks.register('pnpm_build', PnpmTask) {
     outputs.dirs(workspaceDirs.collect { buildOutputDirForApp(it) })
 }
 
+def gitCommonDirOutput = providers.exec { spec ->
+    spec.commandLine('git', 'rev-parse', '--git-common-dir')
+    spec.workingDir = rootDir
+    spec.ignoreExitValue = true
+}.standardOutput.asText
+
+def turboCacheDir = gitCommonDirOutput.map { output ->
+    String path = output.trim()
+    if (path.isEmpty()) {
+        return null
+    }
+    File gitCommonDir = new File(path)
+    if (!gitCommonDir.isAbsolute()) {
+        gitCommonDir = new File(rootDir, path)
+    }
+    return new File(gitCommonDir.canonicalFile.parentFile, ".turbo/cache")
+}
+
 // Util task to clean up all apps files created during build
 tasks.register("cleanApps", Delete) {
     doFirst {
         // delete build directory as before
         delete(project.layout.buildDirectory)
-        delete file("${project.projectDir}/node_modules")
+        File turboCache = turboCacheDir.getOrNull()
+        if (turboCache != null) {
+            delete turboCache
+        }
         delete file("${project.projectDir}/.turbo")
         delete file("${project.projectDir}/.nuxt")
         delete file("${project.projectDir}/.output")
@@ -110,12 +131,12 @@ tasks.register("cleanApps", Delete) {
             def dir = project.file(dirName)
             if (dir.exists()) {
                 delete new File(dir, ".turbo")
-                delete new File(dir, "dist")
-                delete new File(dir, "showCase")
-                delete new File(dir, "node_modules") // optional
+                delete new File(dir, ".nuxt")
                 delete new File(dir, "build")
-                delete file("${project.projectDir}/.nuxt")
-                delete file("${project.projectDir}/.output")
+                delete file(buildOutputDirForApp(dirName))
+                buildOutputFolders.each { folderName ->
+                    delete new File(dir, folderName)
+                }
             }
         }
     }
@@ -145,6 +166,7 @@ abstract class CollectDistTask extends DefaultTask {
 
     @TaskAction
     void collect() {
+        rejectStaleDistDirs(appsDirectory.get().asFile, appNames.get())
         Map<String, File> sources = distDirByAppName(appsDirectory.get().asFile, appNames.get())
         fileSystemOperations.sync { spec ->
             sources.each { appName, sourceDir ->
@@ -165,11 +187,20 @@ abstract class CollectDistTask extends DefaultTask {
             if (showCaseDir.exists()) {
                 sources.put(appName, showCaseDir)
             } else if (distDir.exists()) {
-                rejectStaleDistDir(appDir, distDir)
                 sources.put(appName, distDir)
             }
         }
         return sources
+    }
+
+    static void rejectStaleDistDirs(File appsDirectory, List<String> appNames) {
+        appNames.each { appName ->
+            File appDir = new File(appsDirectory, appName)
+            File distDir = new File(appDir, "dist")
+            if (distDir.exists()) {
+                rejectStaleDistDir(appDir, distDir)
+            }
+        }
     }
 
     static void rejectStaleDistDir(File appDir, File distDir) {
