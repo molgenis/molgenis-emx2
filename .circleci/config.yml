@@ -139,6 +139,29 @@ commands:
           - ~/.gradle/caches/build-cache-1
         key: gradle-buildcache-v1-{{ .Revision }}
 
+  restore_turbo_cache:
+    steps:
+    - restore_cache:
+        keys:
+          - turbo-v1-{{ .Revision }}
+          - turbo-v1-
+
+  save_turbo_cache:
+    steps:
+    - run:
+        name: Drop turbo cache entries unused for 7 days before archiving
+        command: |
+          if [ -d apps/.turbo/cache ]; then
+            find apps/.turbo/cache -type f -mtime +7 -delete
+            du -sh apps/.turbo/cache
+          else
+            echo "no turbo cache to prune"
+          fi
+    - save_cache:
+        paths:
+          - apps/.turbo/cache
+        key: turbo-v1-{{ .Revision }}
+
   post_steps:
     steps:
     - run:
@@ -164,6 +187,7 @@ jobs:
     - pre_steps
     - gradle_pre_steps
     - restore_gradle_build_cache
+    - restore_turbo_cache
 
     - run:
         name: build and push emx2 java docker images for the preview
@@ -198,14 +222,15 @@ jobs:
       - pre_steps
       - gradle_pre_steps
       - restore_gradle_build_cache
+      - restore_turbo_cache
       - run:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar -x test ci --no-daemon
 
       - run:
           name: build ssr catalogue
-          command: pnpm build
-          working_directory: apps/catalogue
+          command: pnpm exec turbo run build --filter=catalogue
+          working_directory: apps
 
       - persist_to_workspace:
           root: .
@@ -433,6 +458,7 @@ jobs:
     - pre_steps
     - gradle_pre_steps
     - restore_gradle_build_cache
+    - restore_turbo_cache
 
     - run:
         name: prepare sql test database
@@ -451,6 +477,8 @@ jobs:
     - run:
         name: <apps> unit test the code
         command: ./gradlew :apps:test
+
+    - save_turbo_cache
 
     - run:
         name: <backend> check code format
