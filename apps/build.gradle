@@ -1,7 +1,7 @@
 /* will produce a fat jar containing all html/js dist in public_html/apps*/
 
+import groovy.io.FileType
 import java.nio.file.Files
-import javax.inject.Inject
 
 plugins {
     id "java"
@@ -145,84 +145,75 @@ tasks.register("cleanApps", Delete) {
 }
 clean.dependsOn 'cleanApps';
 
-// Custom task to collect all dist folders into the resources directory
+// Custom task to repair the dist folders the jar packages directly
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
-abstract class CollectDistTask extends DefaultTask {
+abstract class RepairAppDistTask extends DefaultTask {
     @Internal
     abstract DirectoryProperty getAppsDirectory()
 
     @Internal
     abstract ListProperty<String> getAppNames()
 
-    @InputFiles
-    @PathSensitive(PathSensitivity.RELATIVE)
-    abstract ConfigurableFileCollection getAppDistDirs()
-
-    @OutputDirectory
-    abstract DirectoryProperty getDestinationDirectory()
-
-    @Inject
-    abstract FileSystemOperations getFileSystemOperations()
-
     @TaskAction
-    void collect() {
-        rejectStaleDistDirs(appsDirectory.get().asFile, appNames.get())
-        Map<String, File> sources = distDirByAppName(appsDirectory.get().asFile, appNames.get())
-        fileSystemOperations.sync { spec ->
-            sources.each { appName, sourceDir ->
-                spec.from(sourceDir) { childSpec -> childSpec.into(appName) }
-            }
-            spec.into(destinationDirectory)
-        }
-
-        println "✅ Collected dist folders into ${destinationDirectory.get().asFile}"
-    }
-
-    static Map<String, File> distDirByAppName(File appsDirectory, List<String> appNames) {
-        Map<String, File> sources = new TreeMap<>()
-        appNames.each { appName ->
-            File appDir = new File(appsDirectory, appName)
-            File showCaseDir = new File(appDir, "showCase")
-            File distDir = new File(appDir, "dist")
-            if (showCaseDir.exists()) {
-                sources.put(appName, showCaseDir)
-            } else if (distDir.exists()) {
-                sources.put(appName, distDir)
-            }
-        }
-        return sources
-    }
-
-    static void rejectStaleDistDirs(File appsDirectory, List<String> appNames) {
-        appNames.each { appName ->
-            File appDir = new File(appsDirectory, appName)
+    void repair() {
+        File appsDir = appsDirectory.get().asFile
+        appNames.get().each { appName ->
+            File appDir = new File(appsDir, appName)
             File distDir = new File(appDir, "dist")
             if (distDir.exists()) {
-                rejectStaleDistDir(appDir, distDir)
+                repairStaleDistDir(appDir, distDir)
             }
         }
     }
 
-    static void rejectStaleDistDir(File appDir, File distDir) {
+    void repairStaleDistDir(File appDir, File distDir) {
         File nuxtPublicDir = new File(appDir, ".output/public")
-        if (nuxtPublicDir.isDirectory() && !Files.isSymbolicLink(distDir.toPath())) {
+        if (!nuxtPublicDir.isDirectory() || Files.isSymbolicLink(distDir.toPath())) {
+            return
+        }
+        int removedFiles = 0
+        distDir.eachFileRecurse(FileType.FILES) { removedFiles++ }
+        logger.lifecycle("Replacing ${distDir} with a symlink to ${nuxtPublicDir} and discarding " +
+                "${removedFiles} stale file(s), because nuxt only creates that symlink when nothing " +
+                "is there and would otherwise let the stale bytes reach the jar")
+        distDir.deleteDir()
+        try {
+            Files.createSymbolicLink(distDir.toPath(), nuxtPublicDir.toPath())
+        } catch (IOException | UnsupportedOperationException e) {
             throw new GradleException(
-                    "${distDir} is a real directory while ${nuxtPublicDir} exists. " +
-                            "Nuxt only creates the dist symlink when nothing is there, so this directory holds " +
-                            "stale bytes that would be packaged into the jar. Delete it and rebuild.")
+                    "${distDir} held stale bytes and was removed, but this platform refused to create " +
+                            "the symlink to ${nuxtPublicDir} that replaces it. Rebuild the app.", e)
         }
     }
+
+    static File distDirForApp(File appsDirectory, String appName) {
+        File appDir = new File(appsDirectory, appName)
+        File showCaseDir = new File(appDir, "showCase")
+        File distDir = new File(appDir, "dist")
+        if (showCaseDir.exists()) {
+            return showCaseDir
+        }
+        if (distDir.exists()) {
+            return distDir.canonicalFile
+        }
+        return null
+    }
+
 }
 
-tasks.register("collectDist", CollectDistTask) {
-    dependsOn("pnpm_build")
-    def appsDir = project.projectDir
+tasks.register("repairAppDistBeforeBuild", RepairAppDistTask) {
     appsDirectory.set(layout.projectDirectory)
     appNames.set(workspaceDirs)
-    destinationDirectory.set(layout.buildDirectory.dir("generated/resources/public_html/apps"))
-    appDistDirs.from(providers.provider {
-        CollectDistTask.distDirByAppName(appsDir, workspaceDirs).values() as List
-    })
+}
+
+tasks.register("repairAppDistAfterBuild", RepairAppDistTask) {
+    dependsOn("pnpm_build")
+    appsDirectory.set(layout.projectDirectory)
+    appNames.set(workspaceDirs)
+}
+
+tasks.named("pnpm_build") {
+    dependsOn("repairAppDistBeforeBuild")
 }
 
 tasks.register('format', PnpmTask) {
@@ -249,20 +240,15 @@ tasks.register('testJavascript', PnpmTask) {
 
 test.dependsOn 'testJavascript'
 
-sourceSets {
-    main {
-        resources {
-            srcDir "${layout.buildDirectory.get()}/generated/main/resources"
-        }
-    }
-}
-
-// Link the app build to the java jar
+// Link the app build to the java jar, reading each app's own output folder so no tree is staged twice
 tasks.named("processResources") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn("collectDist")
+    dependsOn("repairAppDistAfterBuild")
 
-    from(layout.buildDirectory.dir("generated/resources/public_html/apps")) {
-        into("public_html/apps")
+    def appsDir = project.projectDir
+    workspaceDirs.each { appName ->
+        from(providers.provider { RepairAppDistTask.distDirForApp(appsDir, appName) ?: [] }) {
+            into("public_html/apps/${appName}")
+        }
     }
 }
