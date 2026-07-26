@@ -11,10 +11,13 @@ const monacoEsmDirectory = resolve(
   "../.."
 );
 
+const isProductionBuild = process.env.NODE_ENV === "production";
+
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   ssr: false,
-  devtools: { enabled: true },
+  devtools: { enabled: !isProductionBuild },
+  telemetry: false,
   runtimeConfig: {
     logLevel: 4,
   },

@@ -12,6 +12,9 @@ const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
   ? JSON.parse(fs.readFileSync(sourceCodeMapPath, "utf-8"))
   : { none: "none" };
 
+const isProductionBuild = process.env.NODE_ENV === "production";
+const testUtilsModules = isProductionBuild ? [] : ["@nuxt/test-utils/module"];
+
 const playgroundIsTheApp =
   resolve(process.cwd()) ===
   resolve(fileURLToPath(new URL(".", import.meta.url)));
@@ -29,12 +32,13 @@ const monacoPublicAssets = playgroundIsTheApp
   : [];
 
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: !isProductionBuild },
+  telemetry: false,
   experimental: {
     watcher: "parcel",
   },
   modules: [
-    "@nuxt/test-utils/module",
+    ...testUtilsModules,
     "floating-vue/nuxt",
     "@nuxtjs/tailwindcss",
     ...monacoModules,

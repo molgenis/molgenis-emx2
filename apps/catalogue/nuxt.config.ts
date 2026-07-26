@@ -5,11 +5,15 @@ import {
   removePlaygroundPages,
 } from "../tailwind-components/playground";
 
+const isProductionBuild = process.env.NODE_ENV === "production";
+const testUtilsModules = isProductionBuild ? [] : ["@nuxt/test-utils/module"];
+
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
-  devtools: { enabled: true },
+  devtools: { enabled: !isProductionBuild },
+  telemetry: false,
   modules: [
-    "@nuxt/test-utils/module",
+    ...testUtilsModules,
     "nuxt-gtag",
     "@pinia/nuxt",
     "floating-vue/nuxt",
