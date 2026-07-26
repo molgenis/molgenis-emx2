@@ -1,5 +1,8 @@
 /* will produce a fat jar containing all html/js dist in public_html/apps*/
 
+import java.nio.file.Files
+import javax.inject.Inject
+
 plugins {
     id "java"
     id "com.github.node-gradle.node" version "7.1.0"
@@ -37,7 +40,16 @@ ext.listProjectFolders = { List<String> excludeNames = excludeFolders ->
 def workspaceDirs = listProjectFolders()
 println "Workspace dirs = $workspaceDirs"
 
-def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
+def buildOutputFolders = ["dist", "showCase", "gen-docs"]
+
+def buildOutputDirForApp = { String appName ->
+    if (file("${appName}/nuxt.config.ts").exists()) {
+        return "${appName}/.output"
+    }
+    return "${appName}/dist"
+}
+
+def registerAppInputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
     //include all files in root
     project.projectDir.listFiles().findAll { it.isFile() }.each {file ->
             task.inputs.file(file);
@@ -52,6 +64,10 @@ def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String>
                 }
         )
     }
+}
+
+def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
+    registerAppInputs(task, workspaceDirs, excludeFolders)
     task.outputs.upToDateWhen { true }
 }
 
@@ -74,7 +90,8 @@ tasks.register('pnpm_build', PnpmTask) {
     dependsOn 'pnpm_install'
     args = ['run', 'build']
     inputs.property('molgenisDotenv', rootProject.ext.molgenisDotenv)
-    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+    registerAppInputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
+    outputs.dirs(workspaceDirs.collect { buildOutputDirForApp(it) })
 }
 
 // Util task to clean up all apps files created during build
@@ -110,39 +127,71 @@ clean.dependsOn 'cleanApps';
 // Custom task to collect all dist folders into the resources directory
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
 abstract class CollectDistTask extends DefaultTask {
+    @Internal
+    abstract DirectoryProperty getAppsDirectory()
+
+    @Internal
+    abstract ListProperty<String> getAppNames()
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    abstract ConfigurableFileCollection getAppDistDirs()
+
+    @OutputDirectory
+    abstract DirectoryProperty getDestinationDirectory()
+
+    @Inject
+    abstract FileSystemOperations getFileSystemOperations()
+
     @TaskAction
     void collect() {
-        File targetDir = project.layout.buildDirectory
-                .dir("generated/resources/public_html/apps")
-                .get()
-                .asFile
-
-        project.copy { spec ->
-            project.file(".").eachDir { dir ->
-                def showCaseDir = new File(dir, "showCase")
-                def distDir = new File(dir, "dist")
-                if (showCaseDir.exists()) {
-                    spec.from(showCaseDir) {
-                        into(dir.name)
-                    }
-                }
-                else if (distDir.exists()) {
-                    spec.from(distDir) {
-                        into(dir.name)
-                    }
-                }
-
+        Map<String, File> sources = distDirByAppName(appsDirectory.get().asFile, appNames.get())
+        fileSystemOperations.sync { spec ->
+            sources.each { appName, sourceDir ->
+                spec.from(sourceDir) { childSpec -> childSpec.into(appName) }
             }
-            spec.into(targetDir)
+            spec.into(destinationDirectory)
         }
 
-        println "✅ Collected dist folders into $targetDir"
+        println "✅ Collected dist folders into ${destinationDirectory.get().asFile}"
+    }
+
+    static Map<String, File> distDirByAppName(File appsDirectory, List<String> appNames) {
+        Map<String, File> sources = new TreeMap<>()
+        appNames.each { appName ->
+            File appDir = new File(appsDirectory, appName)
+            File showCaseDir = new File(appDir, "showCase")
+            File distDir = new File(appDir, "dist")
+            if (showCaseDir.exists()) {
+                sources.put(appName, showCaseDir)
+            } else if (distDir.exists()) {
+                rejectStaleDistDir(appDir, distDir)
+                sources.put(appName, distDir)
+            }
+        }
+        return sources
+    }
+
+    static void rejectStaleDistDir(File appDir, File distDir) {
+        File nuxtPublicDir = new File(appDir, ".output/public")
+        if (nuxtPublicDir.isDirectory() && !Files.isSymbolicLink(distDir.toPath())) {
+            throw new GradleException(
+                    "${distDir} is a real directory while ${nuxtPublicDir} exists. " +
+                            "Nuxt only creates the dist symlink when nothing is there, so this directory holds " +
+                            "stale bytes that would be packaged into the jar. Delete it and rebuild.")
+        }
     }
 }
 
 tasks.register("collectDist", CollectDistTask) {
     dependsOn("pnpm_build")
-    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+    def appsDir = project.projectDir
+    appsDirectory.set(layout.projectDirectory)
+    appNames.set(workspaceDirs)
+    destinationDirectory.set(layout.buildDirectory.dir("generated/resources/public_html/apps"))
+    appDistDirs.from(providers.provider {
+        CollectDistTask.distDirByAppName(appsDir, workspaceDirs).values() as List
+    })
 }
 
 tasks.register('format', PnpmTask) {
@@ -152,7 +201,7 @@ tasks.register('format', PnpmTask) {
     } else {
         args = ['run', 'checkFormat']
     }
-    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
 }
 
 tasks.register('lint', PnpmTask) {
