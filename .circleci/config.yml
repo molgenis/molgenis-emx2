@@ -240,14 +240,41 @@ jobs:
             corepack prepare pnpm@latest --activate
             pnpm -v
 
-      - run: pnpm i -D @playwright/test
-
       - run:
           name: Install dependencies
           command: |
-            pnpm install @playwright/test         
-            npx playwright install chrome
-            npx playwright install
+            (cd apps && pnpm install)
+            (cd e2e && pnpm install --frozen-lockfile)
+
+      - run:
+          name: Verify Playwright agrees with the browsers this image ships
+          command: |
+            IMAGE_VERSION=$(sed -n 's|.*image: mcr\.microsoft\.com/playwright:v\([0-9][0-9.]*\)-.*|\1|p' .circleci/config.yml | head -1)
+            if [ -z "$IMAGE_VERSION" ]; then
+              echo "could not read the playwright image tag from .circleci/config.yml"
+              exit 1
+            fi
+            for PLAYWRIGHT_BIN in e2e/node_modules/.bin/playwright apps/tailwind-components/node_modules/.bin/playwright; do
+              INSTALLED_VERSION=$("$PLAYWRIGHT_BIN" --version | sed 's/^Version //')
+              echo "$PLAYWRIGHT_BIN reports $INSTALLED_VERSION, image ships v$IMAGE_VERSION"
+              if [ "$INSTALLED_VERSION" != "$IMAGE_VERSION" ]; then
+                echo "playwright $INSTALLED_VERSION does not match image v$IMAGE_VERSION"
+                exit 1
+              fi
+            done
+            EXPECTED_BROWSERS=$(e2e/node_modules/.bin/playwright install --dry-run | grep -A1 'playwright chromium' | sed -n 's|.*Install location: *||p' || true)
+            FOUND=$(printf '%s\n' "$EXPECTED_BROWSERS" | grep -c . || true)
+            if [ "$FOUND" != "2" ]; then
+              echo "expected 2 chromium install locations, found $FOUND in: $EXPECTED_BROWSERS"
+              exit 1
+            fi
+            for BROWSER_DIR in $EXPECTED_BROWSERS; do
+              if [ ! -d "$BROWSER_DIR" ]; then
+                echo "browser missing from the image: $BROWSER_DIR"
+                exit 1
+              fi
+              echo "browser present: $BROWSER_DIR"
+            done
 
       - run:
           name: Put custom app next to jar
@@ -376,8 +403,7 @@ jobs:
           name: Run non ssr e2e tests
           command: |
             export $( cat build/ci.properties | xargs )
-            pnpm install
-            npx playwright test --config e2e e2e/tests 
+            e2e/node_modules/.bin/playwright test --config e2e e2e/tests
 
       - store_test_results:
           path: e2e/test-results

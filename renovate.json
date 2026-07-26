@@ -43,6 +43,15 @@
       "matchPackagePrefixes": [
         "vueuse"
       ]
+    },
+    {
+      "groupName": "playwright",
+      "matchPackageNames": [
+        "mcr.microsoft.com/playwright",
+        "@playwright/test",
+        "playwright",
+        "playwright-core"
+      ]
     }
   ]
 }
