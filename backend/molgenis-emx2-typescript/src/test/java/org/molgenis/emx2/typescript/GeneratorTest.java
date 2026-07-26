@@ -104,6 +104,36 @@ class GeneratorTest {
     assertTrue(stringWriter.toString().contains("PetStore_"));
   }
 
+  @Test
+  @Order(4)
+  void partsColumnGeneratesArrayOfChildInterfaceLikeRefback() {
+    String schemaName = GeneratorTest.class.getSimpleName() + "Parts";
+    final Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(
+        table("PartsResources").add(column("name").setPkey()),
+        table("PartsTables")
+            .add(
+                column("resource")
+                    .setType(ColumnType.REF)
+                    .setRefTable("PartsResources")
+                    .setRequired(true)
+                    .setKey(1),
+                column("name").setRequired(true).setKey(1)));
+    schema
+        .getTable("PartsResources")
+        .getMetadata()
+        .add(
+            column("tables")
+                .setType(ColumnType.PARTS)
+                .setRefTable("PartsTables")
+                .setRefBack("resource"));
+
+    StringWriter stringWriter = new StringWriter();
+    new Generator().generate(schema, new PrintWriter(stringWriter), false);
+
+    assertTrue(stringWriter.toString().contains("tables?: IPartsTables[];"));
+  }
+
   private String fileToString(String file) throws IOException {
     return Files.readString(Path.of(file));
   }

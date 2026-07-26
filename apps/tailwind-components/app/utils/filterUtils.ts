@@ -1,3 +1,11 @@
+import {
+  isFileType,
+  isLayoutColumnType,
+  isOntologyType,
+  isOptionKeyRefType,
+  isRefType,
+  isTableRefType,
+} from "../../../metadata-utils/src";
 import type { IColumn, columnValue } from "../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../types/filters";
 import type { CountedOption } from "./fetchCounts";
@@ -7,41 +15,6 @@ export const BOOL_LABELS: Record<string, string> = {
   false: "No",
   _null_: "Not set",
 };
-
-export const REF_EXPANDABLE_TYPES = new Set([
-  "REF",
-  "REF_ARRAY",
-  "SELECT",
-  "MULTISELECT",
-  "REFBACK",
-]);
-
-export const COUNTABLE_TYPES = new Set([
-  "ONTOLOGY",
-  "ONTOLOGY_ARRAY",
-  "BOOL",
-  "RADIO",
-  "CHECKBOX",
-  "STRING_ARRAY",
-  "REF",
-  "REF_ARRAY",
-  "REFBACK",
-  "SELECT",
-  "MULTISELECT",
-]);
-
-const REF_FILTER_TYPES = new Set([
-  "RADIO",
-  "CHECKBOX",
-  "REF",
-  "REF_ARRAY",
-  "REFBACK",
-  "SELECT",
-  "MULTISELECT",
-]);
-
-const isRefFilterType = (columnType: string): boolean =>
-  REF_FILTER_TYPES.has(columnType);
 
 export const RANGE_TYPES = new Set([
   "INT",
@@ -58,27 +31,21 @@ export const RANGE_TYPES = new Set([
   "DATETIME_ARRAY",
 ]);
 
-const EXCLUDED_COLUMN_TYPES = new Set(["HEADING", "SECTION", "FILE"]);
+const COUNTABLE_VALUE_TYPES = new Set(["BOOL", "STRING_ARRAY"]);
 
-const DEFAULT_FILTER_TYPES = new Set([
-  "ONTOLOGY",
-  "ONTOLOGY_ARRAY",
-  "RADIO",
-  "SELECT",
-]);
+const DEFAULT_FILTER_REF_TYPES = new Set(["RADIO", "SELECT"]);
 
 export const isCountableType = (columnType: string): boolean =>
-  COUNTABLE_TYPES.has(columnType);
+  isRefType(columnType) || COUNTABLE_VALUE_TYPES.has(columnType);
 
 export const isRangeType = (columnType: string): boolean =>
   RANGE_TYPES.has(columnType);
 
-export function isRefExpandable(ct: string): boolean {
-  return REF_EXPANDABLE_TYPES.has(ct);
-}
+export const isDrillableRefType = (columnType: string): boolean =>
+  isTableRefType(columnType) && !isOptionKeyRefType(columnType);
 
-export function navDepth(ct: string): 1 | 2 {
-  if (ct === "REF" || ct === "SELECT") return 2;
+export function navDepth(columnType: string): 1 | 2 {
+  if (columnType === "REF" || columnType === "SELECT") return 2;
   return 1;
 }
 
@@ -90,14 +57,20 @@ export function shouldExcludeSelfRef(
 }
 
 export function isExcludedColumn(col: IColumn): boolean {
-  return EXCLUDED_COLUMN_TYPES.has(col.columnType) || col.id.startsWith("mg_");
+  return (
+    isLayoutColumnType(col.columnType) ||
+    isFileType(col.columnType) ||
+    col.id.startsWith("mg_")
+  );
 }
 
 export function computeDefaultFilters(columns: IColumn[]): string[] {
   return columns
     .filter(
       (col) =>
-        !isExcludedColumn(col) && DEFAULT_FILTER_TYPES.has(col.columnType)
+        !isExcludedColumn(col) &&
+        (isOntologyType(col.columnType) ||
+          DEFAULT_FILTER_REF_TYPES.has(col.columnType))
     )
     .map((col) => col.id);
 }
@@ -110,7 +83,7 @@ export function treeSelectionToFilterValue(
   if (selected.length === 0) return undefined;
 
   if (
-    isRefFilterType(column.columnType) &&
+    isTableRefType(column.columnType) &&
     options.length > 0 &&
     options[0]?.keyObject !== undefined
   ) {

@@ -83,6 +83,10 @@ names are case insensitive):
     - values are shown in a dropdown menu as a checkbox group
 - refback: to describe link back to ref/ref_array (aka one_to_many/many_to_many)
     - values shown as an expandable card which displays the complete record when expanded. The foreign record can be edited or deleted if a user has permission to do so.
+- parts: like refback, but declares the child rows as *part of* the parent row (composition, not just a link back)
+    - part rows get a canonical nested URL and breadcrumbs following the chain, e.g. `/{schema}/Resources/{key}/tables/{key}/variables/{key}` instead of the flat form; see `data/_models/shared/Tables.csv` (`Tables.variables`) for a worked example
+    - constraints: within a schema a child table can be the target of only one `parts` column, its counterpart ref must be single-valued, required and part of its key, and a table cannot be `parts` of itself
+    - use `refback` instead when the relation is a plain backlink and the child is not owned by / does not live under the parent
 - ref (deprecated) : foreign key (aka many-to-one)
     - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
 - ref_array (deprecated): multiple foreign key (aka many-to-many).

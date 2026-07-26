@@ -36,7 +36,7 @@ useHead({
 
 const crumbs = [
   { url: `/${routeSchema}`, label: routeSchema },
-  { url: `/${routeSchema}/shacl`, label: "shacl" },
+  { url: `/${routeSchema}/_shacl`, label: "shacl" },
   { url: "", label: routeShaclSet },
 ];
 
@@ -60,7 +60,7 @@ if (processData.status === "UNKNOWN") runShacl(routeSchema, routeShaclSet);
           size="large"
           :iconOnly="true"
           icon="arrow-left"
-          @click="navigateTo(`/${routeSchema}/shacl`)"
+          @click="navigateTo(`/${routeSchema}/_shacl`)"
         />
       </template>
       <template #description>

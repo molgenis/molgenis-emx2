@@ -16,21 +16,29 @@ import ListDisplay from "./cellTypes/ListDisplay.vue";
 import ObjectDisplay from "./cellTypes/ObjectDisplay.vue";
 import EmailDisplay from "./cellTypes/EmailDisplay.vue";
 import HyperlinkDisplay from "./cellTypes/HyperlinkDisplay.vue";
+import {
+  isMultiValuedType,
+  isOntologyType,
+  isSingleRefType,
+} from "../../../../metadata-utils/src/fieldHelpers";
 
 const typeMap: { [key: string]: string } = {
   FILE: "FileDisplay",
   TEXT: "TextDisplay",
   JSON: "TextDisplay",
-  REFBACK: "ListDisplay",
-  MULTISELECT: "ListDisplay",
-  CHECKBOX: "ListDisplay",
-  REF: "ObjectDisplay",
-  SELECT: "ObjectDisplay",
-  RADIO: "ObjectDisplay",
-  ONTOLOGY: "ObjectDisplay",
   EMAIL: "EmailDisplay",
   HYPERLINK: "HyperlinkDisplay",
 };
+
+function resolveDisplayComponentName(columnType: string): string {
+  if (isMultiValuedType(columnType)) {
+    return "ListDisplay";
+  } else if (isSingleRefType(columnType) || isOntologyType(columnType)) {
+    return "ObjectDisplay";
+  } else {
+    return typeMap[columnType] || "StringDisplay";
+  }
+}
 
 export default defineComponent({
   name: "DataDisplayCell",
@@ -55,16 +63,7 @@ export default defineComponent({
   },
   computed: {
     cellTypeComponentName() {
-      return this.isArrayType
-        ? "ListDisplay"
-        : typeMap[this.metadata.columnType] || "StringDisplay";
-    },
-    isArrayType() {
-      return (
-        this.metadata.columnType.includes("ARRAY") ||
-        this.metadata.columnType === "MULTISELECT" ||
-        this.metadata.columnType === "CHECKBOX"
-      );
+      return resolveDisplayComponentName(this.metadata.columnType);
     },
     isEmpty() {
       return (

@@ -80,6 +80,7 @@ th {
 import Client from "../../client/client";
 import TableRow from "./TableRow.vue";
 import { toRaw } from "vue";
+import { isLayoutColumnType } from "../../../../metadata-utils/src/fieldHelpers";
 
 export default {
   components: { TableRow },
@@ -104,8 +105,7 @@ export default {
   computed: {
     dataColumns() {
       const columnsWithoutHeaders = this.columns.filter(
-        (column) =>
-          column.columnType !== "HEADING" && column.columnType !== "SECTION"
+        (column) => !isLayoutColumnType(column.columnType)
       );
 
       return columnsWithoutHeaders.map((column) => {

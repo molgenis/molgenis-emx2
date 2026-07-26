@@ -34,7 +34,7 @@ useHead({ title: `SHACL - ${routeSchema}  - Molgenis` });
 
 const crumbs = [
   { url: `/${routeSchema}`, label: routeSchema },
-  { url: `/${routeSchema}/shacl`, label: "shacl" },
+  { url: `/${routeSchema}/_shacl`, label: "shacl" },
 ];
 
 const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
@@ -108,7 +108,7 @@ const { data, status, error } = await useFetch(`/api/rdf?shacls`, {
                       'RUNNING'
                     "
                   />
-                  <NuxtLink :to="`/${routeSchema}/shacl/${shaclSet.id}`">
+                  <NuxtLink :to="`/${routeSchema}/_shacl/${shaclSet.id}`">
                     <Button
                       :icon-only="true"
                       type="inline"

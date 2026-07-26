@@ -333,6 +333,274 @@ public class TestRefBack {
   }
 
   @Test
+  void partsColumnReturnsChildRowsLikeRefback() {
+    Table resources = schema.create(table("PartsResources", column("name").setPkey()));
+    Table tables =
+        schema.create(
+            table(
+                "PartsTables",
+                column("resource")
+                    .setType(REF)
+                    .setRefTable("PartsResources")
+                    .setRequired(true)
+                    .setKey(1),
+                column("name").setRequired(true).setKey(1)));
+
+    resources.insert(row("name", "resource1"), row("name", "resource2"));
+    tables.insert(
+        row("resource", "resource1", "name", "table1"),
+        row("resource", "resource1", "name", "table2"),
+        row("resource", "resource2", "name", "table3"));
+
+    long foreignKeysBeforeParts = countForeignKeyConstraints("PartsResources");
+
+    resources
+        .getMetadata()
+        .add(column("tables").setType(PARTS).setRefTable("PartsTables").setRefBack("resource"));
+
+    assertEquals(foreignKeysBeforeParts, countForeignKeyConstraints("PartsResources"));
+
+    String resource1Json =
+        resources
+            .select(s("name"), s("tables", s("name")), s("tables_agg", s("count")))
+            .where(f("name", EQUALS, "resource1"))
+            .retrieveJSON();
+    assertTrue(resource1Json.contains("table1"));
+    assertTrue(resource1Json.contains("table2"));
+    assertFalse(resource1Json.contains("table3"));
+    assertTrue(resource1Json.contains("\"count\": 2"));
+
+    String resource2Json =
+        resources
+            .select(s("name"), s("tables", s("name")), s("tables_agg", s("count")))
+            .where(f("name", EQUALS, "resource2"))
+            .retrieveJSON();
+    assertTrue(resource2Json.contains("table3"));
+    assertFalse(resource2Json.contains("table1"));
+    assertFalse(resource2Json.contains("table2"));
+    assertTrue(resource2Json.contains("\"count\": 1"));
+
+    resources
+        .getMetadata()
+        .add(
+            column("tablesAsRefback")
+                .setType(REFBACK)
+                .setRefTable("PartsTables")
+                .setRefBack("resource"));
+    String refbackJson =
+        resources.select(s("name"), s("tablesAsRefback", s("name"))).orderBy("name").retrieveJSON();
+    String partsJson =
+        resources.select(s("name"), s("tables", s("name"))).orderBy("name").retrieveJSON();
+    assertEquals(refbackJson.replace("tablesAsRefback", "tables"), partsJson);
+  }
+
+  @Test
+  void partsRejectsSelfReference() {
+    schema.create(
+        table(
+            "PartsSelfReference",
+            column("name").setPkey(),
+            column("parent").setType(REF).setRefTable("PartsSelfReference")));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsSelfReference")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsSelfReference")
+                            .setRefBack("parent")));
+    assertTrue(exception.getMessage().contains("cannot refer to its own table"));
+  }
+
+  @Test
+  void partsRejectsMultiValuedCounterpart() {
+    schema.create(
+        table("PartsMultiValuedParent", column("name").setPkey()),
+        table(
+            "PartsMultiValuedChild",
+            column("name").setPkey(),
+            column("parents").setType(REF_ARRAY).setRefTable("PartsMultiValuedParent")));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsMultiValuedParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsMultiValuedChild")
+                            .setRefBack("parents")));
+    assertTrue(exception.getMessage().contains("must be a single valued ref"));
+    assertTrue(exception.getMessage().contains("PartsMultiValuedChild.parents"));
+  }
+
+  @Test
+  void partsAcceptsSelectAndRadioCounterpart() {
+    schema.create(
+        table("PartsFlavorParent", column("name").setPkey()),
+        table(
+            "PartsSelectChild",
+            column("parent").setType(SELECT).setRefTable("PartsFlavorParent").setKey(1),
+            column("name").setKey(1)),
+        table(
+            "PartsRadioChild",
+            column("parent").setType(RADIO).setRefTable("PartsFlavorParent").setKey(1),
+            column("name").setKey(1)));
+
+    TableMetadata parent = schema.getTable("PartsFlavorParent").getMetadata();
+    parent.add(
+        column("selectChildren")
+            .setType(PARTS)
+            .setRefTable("PartsSelectChild")
+            .setRefBack("parent"));
+    parent.add(
+        column("radioChildren").setType(PARTS).setRefTable("PartsRadioChild").setRefBack("parent"));
+
+    TableMetadata reloaded = schema.getTable("PartsFlavorParent").getMetadata();
+    assertEquals(PARTS, reloaded.getColumn("selectChildren").getColumnType());
+    assertEquals(PARTS, reloaded.getColumn("radioChildren").getColumnType());
+  }
+
+  @Test
+  void partsRejectsOptionalCounterpart() {
+    schema.create(
+        table("PartsOptionalParent", column("name").setPkey()),
+        table(
+            "PartsOptionalChild",
+            column("name").setPkey(),
+            column("parent").setType(REF).setRefTable("PartsOptionalParent")));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsOptionalParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsOptionalChild")
+                            .setRefBack("parent")));
+    assertTrue(exception.getMessage().contains("must be required"));
+    assertTrue(exception.getMessage().contains("PartsOptionalChild.parent"));
+  }
+
+  @Test
+  void partsRejectsCounterpartOutsideKey() {
+    schema.create(
+        table("PartsOutsideKeyParent", column("name").setPkey()),
+        table(
+            "PartsOutsideKeyChild",
+            column("name").setPkey(),
+            column("parent").setType(REF).setRefTable("PartsOutsideKeyParent").setRequired(true)));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsOutsideKeyParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsOutsideKeyChild")
+                            .setRefBack("parent")));
+    assertTrue(exception.getMessage().contains("must be part of a key"));
+    assertTrue(exception.getMessage().contains("PartsOutsideKeyChild.parent"));
+
+    schema
+        .getTable("PartsOutsideKeyChild")
+        .getMetadata()
+        .alterColumn(
+            "parent",
+            column("parent")
+                .setType(REF)
+                .setRefTable("PartsOutsideKeyParent")
+                .setRequired(true)
+                .setKey(1));
+    schema
+        .getTable("PartsOutsideKeyParent")
+        .getMetadata()
+        .add(
+            column("children")
+                .setType(PARTS)
+                .setRefTable("PartsOutsideKeyChild")
+                .setRefBack("parent"));
+
+    assertEquals(
+        PARTS,
+        schema
+            .getTable("PartsOutsideKeyParent")
+            .getMetadata()
+            .getColumn("children")
+            .getColumnType());
+  }
+
+  @Test
+  void partsRejectsSecondPartsColumnTargetingSameChild() {
+    schema.create(
+        table("PartsFirstParent", column("name").setPkey()),
+        table("PartsSecondParent", column("name").setPkey()),
+        table(
+            "PartsSharedChild",
+            column("firstParent")
+                .setType(REF)
+                .setRefTable("PartsFirstParent")
+                .setRequired(true)
+                .setKey(1),
+            column("secondParent")
+                .setType(REF)
+                .setRefTable("PartsSecondParent")
+                .setRequired(true)
+                .setKey(1),
+            column("name").setRequired(true).setKey(1)));
+
+    schema
+        .getTable("PartsFirstParent")
+        .getMetadata()
+        .add(
+            column("children")
+                .setType(PARTS)
+                .setRefTable("PartsSharedChild")
+                .setRefBack("firstParent"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsSecondParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsSharedChild")
+                            .setRefBack("secondParent")));
+    assertTrue(exception.getMessage().contains("PartsFirstParent.children"));
+    assertTrue(exception.getMessage().contains("PartsSecondParent.children"));
+  }
+
+  private static long countForeignKeyConstraints(String tableName) {
+    return ((SqlSchemaMetadata) schema.getMetadata())
+            .getJooq()
+            .resultQuery(
+                "SELECT constraint_name FROM information_schema.table_constraints WHERE table_schema = {0} AND table_name = {1} AND constraint_type = 'FOREIGN KEY'",
+                schema.getName(), tableName)
+            .stream()
+            .count();
+  }
+
+  @Test
   void testRefBackAndFile_fix4703() {
     Table test =
         schema.create(

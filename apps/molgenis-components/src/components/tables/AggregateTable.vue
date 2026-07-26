@@ -137,6 +137,11 @@ import InputRadio from "../forms/InputRadio.vue";
 import InputSelect from "../forms/InputSelect.vue";
 import IAggregateData from "./IAggregateData";
 import TableStickyHeaders from "./TableStickyHeaders.vue";
+import {
+  isOntologyType,
+  isRefbackType,
+  isTableRefType,
+} from "../../../../metadata-utils/src/fieldHelpers";
 
 const AGG_FIELD_TYPES = ["INT", "LONG", "DECIMAL"];
 
@@ -238,11 +243,11 @@ async function fetchData() {
 }
 
 async function getPrimaryKeyColumn(column: IColumn) {
-  if (column.columnType.startsWith("ONTOLOGY")) {
+  if (isOntologyType(column.columnType)) {
     return "name";
   }
 
-  if (column.columnType === "REFBACK") {
+  if (isRefbackType(column.columnType)) {
     const keys = await client.value.getPrimaryKeyFields(
       props.schemaId,
       props.tableId
@@ -293,7 +298,7 @@ function getLabel(column: IColumn, item: Record<string, any>) {
   const result = item[column.id];
   if (!result) {
     return "not specified";
-  } else if (column.columnType === "REFBACK") {
+  } else if (isRefbackType(column.columnType)) {
     return result[column.refBackId!]?.name || "not specified";
   } else {
     return result?.name || "not specified";
@@ -318,9 +323,8 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
   return columns
     .filter((column: IColumn) => {
       return (
-        (column.columnType.startsWith("REF") && canView) ||
-        column.columnType.startsWith("ONTOLOGY") ||
-        (column.columnType === "RADIO" && canView)
+        (isTableRefType(column.columnType) && canView) ||
+        isOntologyType(column.columnType)
       );
     })
     .map((column: IColumn) => column.id);

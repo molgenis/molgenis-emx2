@@ -1,3 +1,8 @@
+import {
+  isOntologyArrayType,
+  isOntologyType,
+  isTableRefType,
+} from "../../../metadata-utils/src";
 import { columnValueToString } from "./columnValueToString";
 import type { IGraphQLFilter } from "../../types/filters";
 import type { ITreeNode } from "../../types/types";
@@ -36,7 +41,7 @@ export async function fetchCounts(
   refLabel?: string | null,
   crossFilterIncludeAll?: IGraphQLFilter
 ): Promise<FetchCountsResult> {
-  if (columnType === "ONTOLOGY" || columnType === "ONTOLOGY_ARRAY") {
+  if (isOntologyType(columnType)) {
     const { options, saturated } = await fetchOntologyWithAncestors(
       schemaId,
       tableId,
@@ -62,15 +67,7 @@ export async function fetchCounts(
     return { options, saturated: false };
   }
 
-  if (
-    columnType === "RADIO" ||
-    columnType === "CHECKBOX" ||
-    columnType === "REF" ||
-    columnType === "REF_ARRAY" ||
-    columnType === "REFBACK" ||
-    columnType === "SELECT" ||
-    columnType === "MULTISELECT"
-  ) {
+  if (isTableRefType(columnType)) {
     let keyExpansion: string | undefined;
     if (refTableId) {
       keyExpansion = (
@@ -260,7 +257,7 @@ async function fetchOntologyWithAncestors(
   );
   const tree = buildTreeFromOntologyTerms(allTerms, overlapTerms);
 
-  if (columnType === "ONTOLOGY_ARRAY") {
+  if (isOntologyArrayType(columnType)) {
     await Promise.all([
       fetchOntologyParentCountsFromServer(
         tree,

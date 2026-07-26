@@ -2,6 +2,8 @@ import { inject, provide, type InjectionKey } from "vue";
 import { navigateTo } from "#imports";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { buildRefHref } from "../utils/displayUtils";
+import { buildNestedRecordPath } from "../utils/recordPath";
+import fetchMetadata from "./fetchMetadata";
 
 export interface RecordNavigation {
   navigateToRecord: (
@@ -19,9 +21,32 @@ function createDefaultNavigation(): RecordNavigation {
   return {
     async navigateToRecord(schemaId, tableId, row, refSchemaId) {
       const schema = refSchemaId || schemaId;
-      const key = await getPrimaryKey(row, tableId, schema);
-      const href = buildRefHref(schemaId, tableId, refSchemaId, key);
-      navigateTo(href);
+      let nestedPath: string | null = null;
+      try {
+        nestedPath = buildNestedRecordPath(
+          await fetchMetadata(schema),
+          tableId,
+          row
+        );
+      } catch (error) {
+        console.error(
+          `Could not build a nested record path for ${schema}/${tableId}, trying the flat path, `,
+          error
+        );
+      }
+      if (nestedPath) {
+        await navigateTo(nestedPath);
+        return;
+      }
+      try {
+        const key = await getPrimaryKey(row, tableId, schema);
+        await navigateTo(buildRefHref(schemaId, tableId, refSchemaId, key));
+      } catch (error) {
+        console.error(
+          `Could not resolve the primary key of ${schema}/${tableId}, cannot navigate to the record, `,
+          error
+        );
+      }
     },
   };
 }

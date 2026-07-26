@@ -74,9 +74,9 @@ async function onClose() {
 
 function setNuxtLink(value: string, page: string): string {
   if (value.endsWith(".Developer pages")) {
-    return `/${schema}/pages/${page}/editor`;
+    return `/${schema}/_pages/${page}/editor`;
   } else {
-    return `/${schema}/pages/${page}/configure`;
+    return `/${schema}/_pages/${page}/configure`;
   }
 }
 </script>
@@ -153,7 +153,7 @@ function setNuxtLink(value: string, page: string): string {
           </NuxtLink>
         </div>
         <NuxtLink
-          :to="`/${schema}/pages/${container.name}/`"
+          :to="`/${schema}/_pages/${container.name}/`"
           class="text-button-text hover:underline"
         >
           {{ container.name }}

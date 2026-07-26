@@ -33,6 +33,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useAsyncData } from "#app";
 import { navigateTo } from "#imports";
+import { isPlainHeadingType } from "../../../../../../metadata-utils/src";
 import type { IColumn } from "../../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../components/BreadCrumbs.vue";
 import DetailView from "../../../../components/display/DetailView.vue";
@@ -129,7 +130,8 @@ function aggregateCollectionEvents(
 
 function injectMergedColumns(columns: IColumn[]): IColumn[] {
   const headingIndex = columns.findIndex(
-    (c) => c.columnType === "HEADING" && c.id === "availableDataAndSamples"
+    (c) =>
+      isPlainHeadingType(c.columnType) && c.id === "availableDataAndSamples"
   );
 
   if (headingIndex === -1) return columns;

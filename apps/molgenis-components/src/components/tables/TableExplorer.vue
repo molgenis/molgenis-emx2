@@ -437,7 +437,13 @@ import LayoutModal from "../layout/LayoutModal.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
 import Task from "../task/Task.vue";
-import { applyComputed, convertRowToPrimaryKey, isRefType } from "../utils";
+import {
+  applyComputed,
+  convertRowToPrimaryKey,
+  isRangeConditionType,
+  isRefType,
+} from "../utils";
+import { isLayoutColumnType } from "../../../../metadata-utils/src/fieldHelpers";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
 import RecordCards from "./RecordCards.vue";
@@ -878,37 +884,20 @@ function getColumnIds(
     .filter(
       (column) =>
         //@ts-ignore TODO: remove column input modification in TableMolgenis
-        column[property] &&
-        column.columnType !== "HEADING" &&
-        column.columnType !== "SECTION"
+        column[property] && !isLayoutColumnType(column.columnType)
     )
     .map((column) => column.id);
 }
 
 function getCondition(columnType: string, condition: string) {
-  if (condition) {
-    switch (columnType) {
-      case "REF":
-      case "REF_ARRAY":
-      case "REFBACK":
-      case "ONTOLOGY":
-      case "ONTOLOGY_ARRAY":
-      case "RADIO":
-      case "SELECT":
-      case "MULTISELECT":
-      case "CHECKBOX":
-        return JSON.parse(condition);
-      case "DATE":
-      case "DATETIME":
-      case "INT":
-      case "LONG":
-      case "DECIMAL":
-        return condition.split(",").map((v: string) => v.split(".."));
-      default:
-        return condition.split(",");
-    }
-  } else {
+  if (!condition) {
     return [];
+  } else if (isRefType(columnType)) {
+    return JSON.parse(condition);
+  } else if (isRangeConditionType(columnType)) {
+    return condition.split(",").map((v: string) => v.split(".."));
+  } else {
+    return condition.split(",");
   }
 }
 </script>

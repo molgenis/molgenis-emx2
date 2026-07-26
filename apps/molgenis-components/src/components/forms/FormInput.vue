@@ -7,7 +7,7 @@
     <component
       v-if="typeToInput"
       :is="typeToInput"
-      :isMultiSelect="columnType === 'ONTOLOGY_ARRAY'"
+      :isMultiSelect="isOntologyArrayColumn"
       v-bind="$props"
       @update:modelValue="handleUpdate"
     />
@@ -37,11 +37,17 @@ import InputHyperlink from "./InputHyperlink.vue";
 import InputJson from "./InputJson.vue";
 import InputRefList from "./InputRefList.vue";
 import InputNonNegativeInt from "./InputNonNegativeInt.vue";
+import {
+  isLayoutColumnType,
+  isOntologyArrayType,
+  isOntologyType,
+  isRefArrayType,
+  isRefbackType,
+  isSingleRefType,
+} from "../../../../metadata-utils/src/fieldHelpers";
 
 const typeToInputMap = {
   AUTO_ID: InputString,
-  HEADING: InputHeading,
-  SECTION: InputHeading,
   EMAIL: InputEmail,
   HYPERLINK: InputHyperlink,
   STRING: InputString,
@@ -53,15 +59,9 @@ const typeToInputMap = {
   DECIMAL: InputDecimal,
   BOOL: InputBoolean,
   DATE: InputDate,
-  REF: InputRefSelect,
-  //bootstrap will be deprecated so here we don't differentiate
-  SELECT: InputRefSelect,
-  RADIO: InputRefSelect,
-  REFBACK: InputRefBack,
   FILE: InputFile,
   DATETIME: InputDateTime,
   PERIOD: InputString,
-  ONTOLOGY: InputOntology,
   EMAIL_ARRAY: ArrayInput,
   BOOL_ARRAY: ArrayInput,
   DATE_ARRAY: ArrayInput,
@@ -72,14 +72,26 @@ const typeToInputMap = {
   INT_ARRAY: ArrayInput,
   NON_NEGATIVE_INT_ARRAY: ArrayInput,
   LONG_ARRAY: ArrayInput,
-  ONTOLOGY_ARRAY: InputOntology,
-  REF_ARRAY: InputRefList,
-  //bootstrap will be deprecated so here we don't differentiate
-  CHECKBOX: InputRefList,
-  MULTISELECT: InputRefList,
   STRING_ARRAY: ArrayInput,
   TEXT_ARRAY: ArrayInput,
 };
+
+//bootstrap will be deprecated so here we don't differentiate within a family
+function resolveInputComponent(columnType) {
+  if (isLayoutColumnType(columnType)) {
+    return InputHeading;
+  } else if (isRefbackType(columnType)) {
+    return InputRefBack;
+  } else if (isSingleRefType(columnType)) {
+    return InputRefSelect;
+  } else if (isRefArrayType(columnType)) {
+    return InputRefList;
+  } else if (isOntologyType(columnType)) {
+    return InputOntology;
+  } else {
+    return typeToInputMap[columnType];
+  }
+}
 
 export default {
   name: "FormInput",
@@ -166,7 +178,10 @@ export default {
   },
   computed: {
     typeToInput() {
-      return typeToInputMap[this.columnType];
+      return resolveInputComponent(this.columnType);
+    },
+    isOntologyArrayColumn() {
+      return isOntologyArrayType(this.columnType);
     },
   },
   methods: {

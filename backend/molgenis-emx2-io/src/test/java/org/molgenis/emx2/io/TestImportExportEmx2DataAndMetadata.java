@@ -1,10 +1,13 @@
 package org.molgenis.emx2.io;
 
 import static java.util.stream.IntStream.range;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +21,8 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.*;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
@@ -96,6 +101,54 @@ class TestImportExportEmx2DataAndMetadata {
     database.setActiveUser(ANONYMOUS);
     schema1 = database.getSchema(getClass().getSimpleName() + "1");
     MolgenisIO.toExcelFile(excelFile, schema1, true);
+  }
+
+  @Test
+  void partsColumnTypeSurvivesRoundtrip() throws IOException {
+    Schema exported = database.dropCreateSchema(getClass().getSimpleName() + "Parts1");
+    exported.create(table("PartsResources", column("name").setPkey()));
+    exported.create(
+        table(
+            "PartsTables",
+            column("resource")
+                .setType(ColumnType.REF)
+                .setRefTable("PartsResources")
+                .setRequired(true)
+                .setKey(1),
+            column("name").setRequired(true).setKey(1)));
+    exported
+        .getTable("PartsResources")
+        .getMetadata()
+        .add(
+            column("tables")
+                .setType(ColumnType.PARTS)
+                .setRefTable("PartsTables")
+                .setRefBack("resource"));
+
+    Path firstExport = tmp.resolve("parts-first");
+    Files.createDirectories(firstExport);
+    MolgenisIO.toDirectory(firstExport, exported, false);
+
+    Schema imported = database.dropCreateSchema(getClass().getSimpleName() + "Parts2");
+    MolgenisIO.fromDirectory(firstExport, imported, true);
+    assertPartsColumn(imported);
+
+    Path secondExport = tmp.resolve("parts-second");
+    Files.createDirectories(secondExport);
+    MolgenisIO.toDirectory(secondExport, imported, false);
+
+    Schema reimported = database.dropCreateSchema(getClass().getSimpleName() + "Parts3");
+    MolgenisIO.fromDirectory(secondExport, reimported, true);
+    assertPartsColumn(reimported);
+
+    CompareTools.assertEquals(exported.getMetadata(), reimported.getMetadata());
+  }
+
+  private void assertPartsColumn(Schema schema) {
+    Column parts = schema.getTable("PartsResources").getMetadata().getColumn("tables");
+    assertEquals(ColumnType.PARTS, parts.getColumnType());
+    assertEquals("resource", parts.getRefBack());
+    assertEquals("PartsTables", parts.getRefTableName());
   }
 
   @Nested

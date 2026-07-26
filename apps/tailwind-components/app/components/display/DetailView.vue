@@ -2,6 +2,11 @@
 import { computed } from "vue";
 import { useAsyncData, useHead } from "#app";
 import type { ISectionField, cellPayload } from "../../../types/types";
+import {
+  isLayoutColumnType,
+  isPlainHeadingType,
+  isSectionType,
+} from "../../../../metadata-utils/src";
 import type {
   IColumn,
   IRow,
@@ -104,9 +109,7 @@ const processedColumns = computed<IColumn[]>(() => {
     columns = metadata.value.columns.filter(
       (col) =>
         col.role !== "INTERNAL" &&
-        (!col.id.startsWith("mg_") ||
-          col.columnType === "SECTION" ||
-          col.columnType === "HEADING")
+        (!col.id.startsWith("mg_") || isLayoutColumnType(col.columnType))
     );
   } else {
     columns = props.columns || [];
@@ -140,11 +143,16 @@ const sections = computed<SectionGroup[]>(() => {
   const columns = processedColumns.value;
   const result: SectionGroup[] = [];
 
-  const sectionColumns = columns.filter((c) => c.columnType === "SECTION");
-  const headingColumns = columns.filter((c) => c.columnType === "HEADING");
-  const dataColumns = columns.filter(
-    (c) => c.columnType !== "SECTION" && c.columnType !== "HEADING"
+  const groupingColumns = columns.filter((c) =>
+    isLayoutColumnType(c.columnType)
   );
+  const sectionColumns = groupingColumns.filter((c) =>
+    isSectionType(c.columnType)
+  );
+  const headingColumns = groupingColumns.filter((c) =>
+    isPlainHeadingType(c.columnType)
+  );
+  const dataColumns = columns.filter((c) => !isLayoutColumnType(c.columnType));
 
   const orphanColumns = dataColumns.filter((c) => !c.section && !c.heading);
 
@@ -325,6 +333,7 @@ const emit = defineEmits<{
               :columns="section.columns"
               :show-empty="showEmpty"
               :schema-id="schemaId"
+              :parent-table-id="tableId"
               :parent-row-id="rowId"
               @valueClick="emit('valueClick', $event)"
             />

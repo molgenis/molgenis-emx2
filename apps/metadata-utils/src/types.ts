@@ -36,6 +36,7 @@ export type CellValueType =
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
+  | "PARTS"
   | "RADIO"
   | "SELECT"
   | "HEADING"

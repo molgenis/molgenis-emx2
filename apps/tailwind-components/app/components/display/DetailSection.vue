@@ -23,6 +23,7 @@ const props = withDefaults(
     columns: ISectionField[];
     showEmpty?: boolean;
     schemaId?: string;
+    parentTableId?: string;
     parentRowId?: Record<string, any>;
   }>(),
   {
@@ -86,6 +87,7 @@ const isSingleListSection = computed(
             :count="col.count"
             :show-empty="showEmpty"
             :schema-id="schemaId"
+            :parent-table-id="parentTableId"
             :parent-row-id="parentRowId"
             @valueClick="emit('valueClick', $event)"
           />
@@ -115,6 +117,7 @@ const isSingleListSection = computed(
             :count="col.count"
             :show-empty="showEmpty"
             :schema-id="schemaId"
+            :parent-table-id="parentTableId"
             :parent-row-id="parentRowId"
             @valueClick="emit('valueClick', $event)"
           />

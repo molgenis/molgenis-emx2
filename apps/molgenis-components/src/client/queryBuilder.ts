@@ -1,4 +1,11 @@
 import type { ITableMetaData } from "../../../metadata-utils/src/types";
+import {
+  isFileType,
+  isLayoutColumnType,
+  isMultiValuedRefType,
+  isOntologyType,
+  isTableRefType,
+} from "../../../metadata-utils/src/fieldHelpers";
 import { fetchSchemaMetaData } from "./client";
 
 /**
@@ -20,28 +27,9 @@ export const getColumnIds = async (
   for (const col of getColumns(schemaId, tableId, metadata.tables)) {
     //we always expand the subfields of key, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key) {
-      if (
-        !rootLevel &&
-        [
-          "REF_ARRAY",
-          "REFBACK",
-          "ONTOLOGY_ARRAY",
-          "CHECKBOX",
-          "MULTISELECT",
-        ].includes(col.columnType)
-      ) {
+      if (!rootLevel && isMultiValuedRefType(col.columnType)) {
         continue;
-      } else if (
-        [
-          "REF",
-          "REF_ARRAY",
-          "REFBACK",
-          "CHECKBOX",
-          "MULTISELECT",
-          "SELECT",
-          "RADIO",
-        ].includes(col.columnType)
-      ) {
+      } else if (isTableRefType(col.columnType)) {
         result =
           result +
           " " +
@@ -50,16 +38,16 @@ export const getColumnIds = async (
           (await getColumnIds(
             col.refSchemaId || schemaId,
             col.refTableId || tableId,
-            //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
+            //indicate that sub queries should not be expanded on collection and ontology array columns
             expandLevel - 1,
             false
           )) +
           " }";
-      } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
+      } else if (isOntologyType(col.columnType)) {
         result = result + " " + col.id + " {name, label}";
-      } else if (col.columnType === "FILE") {
+      } else if (isFileType(col.columnType)) {
         result += ` ${col.id} { id, size, filename, extension, url }`;
-      } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
+      } else if (!isLayoutColumnType(col.columnType)) {
         result += ` ${col.id}`;
       }
     }

@@ -693,6 +693,34 @@ class TestGraphqlSchemaFields {
     execute("mutation{drop(tables:\"RoleDisplayTest\"){message}}");
   }
 
+  @Test
+  void partsColumnTypeInSchemaMetadata() throws IOException {
+    execute(
+        "mutation{change(tables:[{name:\"PartsResources\",columns:[{name:\"name\",key:1}]},{name:\"PartsTables\",columns:[{name:\"resource\",columnType:\"REF\",refTableName:\"PartsResources\",key:1},{name:\"name\",key:1}]}]){message}}");
+    execute(
+        "mutation{change(columns:{table:\"PartsResources\",name:\"tables\",columnType:\"PARTS\",refTableName:\"PartsTables\",refBackName:\"resource\"}){message}}");
+
+    JsonNode node =
+        execute("{_schema{tables{name,columns{name,columnType,refBackName,refTableName}}}}");
+    JsonNode partsColumn = null;
+    for (JsonNode table : node.at("/_schema/tables")) {
+      if ("PartsResources".equals(table.get("name").asText())) {
+        for (JsonNode column : table.get("columns")) {
+          if ("tables".equals(column.get("name").asText())) {
+            partsColumn = column;
+          }
+        }
+      }
+    }
+
+    assertNotNull(partsColumn);
+    assertEquals(ColumnType.PARTS.name(), partsColumn.get("columnType").asText());
+    assertEquals("resource", partsColumn.get("refBackName").asText());
+    assertEquals("PartsTables", partsColumn.get("refTableName").asText());
+
+    execute("mutation{drop(tables:[\"PartsTables\",\"PartsResources\"]){message}}");
+  }
+
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(graphqlExecutor.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);

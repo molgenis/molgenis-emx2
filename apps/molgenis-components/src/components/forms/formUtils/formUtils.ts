@@ -5,6 +5,13 @@ import type {
   recordValue,
 } from "../../../../../metadata-utils/src/types";
 import type { IRow } from "../../../Interfaces/IRow";
+import {
+  isArrayType,
+  isAutoIdType,
+  isLayoutColumnType,
+  isRefbackType,
+  isRefType,
+} from "../../../../../metadata-utils/src/fieldHelpers";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
@@ -13,9 +20,6 @@ const {
   HYPERLINK_REGEX,
   PERIOD_REGEX,
   UUID_REGEX,
-  AUTO_ID,
-  HEADING,
-  SECTION,
   MIN_INT,
   MIN_NON_NEGATIVE_INT,
   MAX_INT,
@@ -65,9 +69,8 @@ export function getColumnError(
   }
 
   if (
-    column.columnType === AUTO_ID ||
-    column.columnType === HEADING ||
-    column.columnType === SECTION
+    isAutoIdType(column.columnType) ||
+    isLayoutColumnType(column.columnType)
   ) {
     return undefined;
   }
@@ -90,7 +93,7 @@ export function getColumnError(
     }
   }
 
-  if (value === undefined || (!type.includes("_ARRAY") && missesValue)) {
+  if (value === undefined || (!isArrayType(type) && missesValue)) {
     return undefined;
   }
   if (type === "EMAIL" && isInvalidEmail(value)) {
@@ -437,6 +440,23 @@ export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
   return filterObject(rowData, (key) => !keyColumnsIds?.includes(key));
 }
 
+export function getDataWithoutRefbacks(
+  formData: IRow,
+  tableMetaData: ITableMetaData | undefined
+): IRow {
+  if (!tableMetaData) {
+    return formData;
+  } else {
+    let dataCopy = { ...formData };
+    tableMetaData.columns.forEach((column: IColumn) => {
+      if (isRefbackType(column.columnType)) {
+        delete dataCopy[column.id];
+      }
+    });
+    return dataCopy;
+  }
+}
+
 export function filterVisibleColumns(
   columns: IColumn[],
   visibleColumns?: string[]
@@ -467,7 +487,7 @@ export function isColumnVisible(
 
 export function splitColumnIdsByHeadings(columns: IColumn[]): string[][] {
   return columns.reduce((accum, column) => {
-    if (column.columnType === "HEADING") {
+    if (isLayoutColumnType(column.columnType)) {
       accum.push([column.id]);
     } else {
       if (accum.length === 0) {
@@ -514,7 +534,7 @@ export function buildGraphqlFilter(
         : [];
       if (conditions.length) {
         if (
-          col.columnType.startsWith("AUTO_ID") ||
+          isAutoIdType(col.columnType) ||
           col.columnType.startsWith("STRING") ||
           col.columnType.startsWith("TEXT") ||
           col.columnType.startsWith("JSON")
@@ -522,12 +542,7 @@ export function buildGraphqlFilter(
           filter[col.id] = { like: conditions };
         } else if (
           col.columnType.startsWith("BOOL") ||
-          col.columnType.startsWith("CHECKBOX") ||
-          col.columnType.startsWith("REF") ||
-          col.columnType.startsWith("ONTOLOGY") ||
-          col.columnType.startsWith("RADIO") ||
-          col.columnType.startsWith("MULTISELECT") ||
-          col.columnType.startsWith("SELECT")
+          isRefType(col.columnType)
         ) {
           filter[col.id] = { equals: conditions.flat() };
         } else if (

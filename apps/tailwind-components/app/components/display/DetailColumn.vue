@@ -1,21 +1,29 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
 import {
+  isOntologyType,
+  isPartsType,
+  isRefArrayType,
+  isRefbackType,
+  isSingleRefType,
+} from "../../../../metadata-utils/src";
+import {
   isEmptyValue,
   buildRefbackFilter,
-  isRefColumn,
-  isRefArrayColumn,
   isDataListColumn,
   hasOntologyHierarchy,
   getListColumns,
 } from "../../utils/displayUtils";
+import { buildContextualListPath } from "../../utils/recordPath";
 import { useRecordNavigation } from "../../composables/useRecordNavigation";
+import BaseIcon from "../BaseIcon.vue";
 import ValueEMX2 from "../value/EMX2.vue";
 import DataList from "./DataList.vue";
 import OntologyTreeDisplay from "./OntologyTreeDisplay.vue";
 import fetchMetadata from "../../composables/fetchMetadata";
 import type {
   IColumn,
+  ISchemaMetaData,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
@@ -31,6 +39,7 @@ const props = withDefaults(
     count?: number;
     showEmpty?: boolean;
     schemaId?: string;
+    parentTableId?: string;
     parentRowId?: Record<string, any>;
     maxItems?: number;
   }>(),
@@ -41,15 +50,18 @@ const props = withDefaults(
 
 const refArrayFilter = ref<Record<string, any> | undefined>();
 const refTableColumns = ref<IColumn[]>([]);
+const refSchemaMetadata = ref<ISchemaMetaData>();
 
 watchEffect(async () => {
   if (!isDataListColumn(props.column) || !props.schemaId) {
     refArrayFilter.value = undefined;
     refTableColumns.value = [];
+    refSchemaMetadata.value = undefined;
     return;
   }
   const schema = props.column.refSchemaId || props.schemaId;
   const schemaMetadata = await fetchMetadata(schema);
+  refSchemaMetadata.value = schemaMetadata;
   const refTable = schemaMetadata.tables.find(
     (t: ITableMetaData) => t.id === props.column.refTableId
   );
@@ -59,7 +71,7 @@ watchEffect(async () => {
     return;
   }
   const refbackCol = refTable.columns.find(
-    (c) => c.columnType === "REFBACK" && c.refBackId === props.column.id
+    (c) => isRefbackType(c.columnType) && c.refBackId === props.column.id
   );
 
   refTableColumns.value = getListColumns(refTable.columns, {
@@ -81,10 +93,26 @@ const showDataList = computed(() => {
   const type = props.column.columnType;
   if (!isDataListColumn(props.column) || !props.schemaId) return false;
   if (Array.isArray(props.value)) return true;
-  if (type === "REFBACK" && props.column.refBackId && props.parentRowId)
+  if (isRefbackType(type) && props.column.refBackId && props.parentRowId)
     return true;
-  if (isRefArrayColumn(type) && refArrayFilter.value) return true;
+  if (isRefArrayType(type) && refArrayFilter.value) return true;
   return false;
+});
+
+const contextualListPath = computed(() => {
+  if (
+    !refSchemaMetadata.value ||
+    !props.parentTableId ||
+    !props.parentRowId ||
+    !isPartsType(props.column.columnType)
+  )
+    return null;
+  return buildContextualListPath(
+    refSchemaMetadata.value,
+    props.parentTableId,
+    props.parentRowId,
+    props.column.id
+  );
 });
 
 const listRows = computed(() =>
@@ -92,22 +120,21 @@ const listRows = computed(() =>
 );
 
 const listFilter = computed(() => {
-  if (props.column.columnType === "REFBACK") {
+  if (isRefbackType(props.column.columnType)) {
     return buildRefbackFilter(
       props.column.columnType,
       props.column.refBackId,
       props.parentRowId
     );
   }
-  if (isRefArrayColumn(props.column.columnType)) {
+  if (isRefArrayType(props.column.columnType)) {
     return refArrayFilter.value;
   }
   return undefined;
 });
 
 const isHierarchicalOntology = computed(() => {
-  if (!["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(props.column.columnType))
-    return false;
+  if (!isOntologyType(props.column.columnType)) return false;
   return hasOntologyHierarchy(props.value);
 });
 
@@ -117,7 +144,7 @@ const isClickableRef = computed(() => {
   return (
     !!props.schemaId &&
     !!props.column.refTableId &&
-    isRefColumn(props.column.columnType) &&
+    isSingleRefType(props.column.columnType) &&
     !!props.value &&
     typeof props.value === "object"
   );
@@ -144,18 +171,28 @@ function handleRefClick() {
   >
     not provided
   </span>
-  <DataList
-    v-else-if="showDataList"
-    :rows="listRows"
-    :total-count="count"
-    :columns="refTableColumns"
-    :schema-id="column.refSchemaId || schemaId"
-    :table-id="column.refTableId"
-    :filter="listFilter"
-    :layout="column.display || 'TABLE'"
-    :hide-columns="column.refBackId ? [column.refBackId] : undefined"
-    :row-label-template="column.refLabelDefault"
-  />
+  <div v-else-if="showDataList">
+    <DataList
+      :rows="listRows"
+      :total-count="count"
+      :columns="refTableColumns"
+      :schema-id="column.refSchemaId || schemaId"
+      :table-id="column.refTableId"
+      :filter="listFilter"
+      :layout="column.display || 'TABLE'"
+      :hide-columns="column.refBackId ? [column.refBackId] : undefined"
+      :row-label-template="column.refLabelDefault"
+    />
+    <NuxtLink
+      v-if="contextualListPath"
+      :to="contextualListPath"
+      class="inline-flex items-center gap-1 mt-2 text-link hover:underline"
+      :aria-label="`View all ${column.label || column.id}`"
+    >
+      View all
+      <BaseIcon name="arrow-right" :width="16" />
+    </NuxtLink>
+  </div>
   <a
     v-else-if="isClickableRef"
     href="#"

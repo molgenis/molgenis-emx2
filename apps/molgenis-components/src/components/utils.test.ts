@@ -39,6 +39,10 @@ describe("isRefType", () => {
     assert.isTrue(isRefType("ONTOLOGY_ARRAY"));
   });
 
+  test("it should return true for PARTS, like it does for its REFBACK flavor", () => {
+    assert.isTrue(isRefType("PARTS"));
+  });
+
   test("it should return false for other types", () => {
     assert.isFalse(isRefType("SOME_OTHER_TYPE"));
   });

@@ -1,7 +1,9 @@
+import {
+  isCollectionType,
+  isLayoutColumnType,
+  isRefbackType,
+} from "../../../metadata-utils/src";
 import type { IColumn } from "../../../metadata-utils/src/types";
-
-const REF_COLUMN_TYPES = ["REF", "SELECT", "RADIO"];
-const REF_ARRAY_COLUMN_TYPES = ["REF_ARRAY", "MULTISELECT", "CHECKBOX"];
 
 export function isEmptyValue(val: any): boolean {
   if (val === null || val === undefined || val === "") return true;
@@ -31,7 +33,7 @@ export function buildRefbackFilter(
   refBackId: string | undefined,
   parentRowId: Record<string, any> | undefined
 ): Record<string, any> | undefined {
-  if (columnType === "REFBACK" && refBackId && parentRowId) {
+  if (isRefbackType(columnType) && refBackId && parentRowId) {
     const keyFilter: Record<string, any> = {};
     for (const [key, val] of Object.entries(parentRowId)) {
       keyFilter[key] = { equals: val };
@@ -58,8 +60,7 @@ export function filterDataColumns(
   const hiddenSet = new Set(hideColumns || []);
   return columns.filter(
     (c) =>
-      c.columnType !== "SECTION" &&
-      c.columnType !== "HEADING" &&
+      !isLayoutColumnType(c.columnType) &&
       !c.id.startsWith("mg_") &&
       !hiddenSet.has(c.id)
   );
@@ -75,19 +76,8 @@ export function filterNonEmptyColumns(
   );
 }
 
-export function isRefColumn(columnType: string): boolean {
-  return REF_COLUMN_TYPES.includes(columnType);
-}
-
-export function isRefArrayColumn(columnType: string): boolean {
-  return REF_ARRAY_COLUMN_TYPES.includes(columnType);
-}
-
 export function isDataListColumn(col: IColumn): boolean {
-  return (
-    (col.columnType === "REFBACK" || isRefArrayColumn(col.columnType)) &&
-    !!col.refTableId
-  );
+  return isCollectionType(col.columnType) && !!col.refTableId;
 }
 
 export interface CardColumnClassification {
@@ -109,8 +99,7 @@ export function classifyCardColumns(
           (c) =>
             !c.role &&
             (!c.key || c.key === 0) &&
-            c.columnType !== "HEADING" &&
-            c.columnType !== "SECTION" &&
+            !isLayoutColumnType(c.columnType) &&
             !c.id.startsWith("mg_")
         )
         .slice(0, 5);
@@ -190,8 +179,7 @@ export function getListColumns(
     (c) =>
       c.role !== "INTERNAL" &&
       c.role !== "LOGO" &&
-      c.columnType !== "SECTION" &&
-      c.columnType !== "HEADING" &&
+      !isLayoutColumnType(c.columnType) &&
       !c.id.startsWith("mg_") &&
       !hiddenSet.has(c.id)
   );

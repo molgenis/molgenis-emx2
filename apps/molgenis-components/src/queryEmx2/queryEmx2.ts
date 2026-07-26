@@ -4,6 +4,7 @@
 
 import { request } from "graphql-request";
 import { IColumn, ITableMetaData } from "../../../metadata-utils/src";
+import { isRefType } from "../../../metadata-utils/src/fieldHelpers";
 
 class QueryEMX2 {
   tableId = "";
@@ -113,8 +114,10 @@ class QueryEMX2 {
         {
             _schema {
               tables {
+                id,
                 name,
                 columns {
+                id,
                 name,
                 columnType
                 }
@@ -157,11 +160,8 @@ class QueryEMX2 {
 
     return this._schemaTablesInformation
       .find((table: ITableMetaData) => table.id === tableId)
-      .columns.filter(
-        (column: IColumn) =>
-          !column.columnType.includes("REF") &&
-          !column.columnType.includes("ONTOLOGY")
-      );
+      .columns.filter((column: IColumn) => !isRefType(column.columnType))
+      .map((column: IColumn) => column.id);
   }
 
   /** returns the correct column names and their types. */

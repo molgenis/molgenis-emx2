@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { isRefbackType } from "../../../../metadata-utils/src";
 import type {
   columnValue,
   IColumn,
@@ -124,7 +125,7 @@ function handleCellClick() {
         @refCellClicked="handleCellClick"
       />
       <ValueRefBack
-        v-else-if="metadata.columnType === 'REFBACK'"
+        v-else-if="isRefbackType(metadata.columnType)"
         :metadata="toRefColumn(metadata)"
         :data="assertTableValue(listElement)"
         @refBackCellClicked="handleCellClick"

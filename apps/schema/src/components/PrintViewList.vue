@@ -80,7 +80,7 @@
         <br />
         <h3>Column definitions:</h3>
         <div v-for="column in table.columns">
-          <div v-if="column.columnType == 'HEADING'">
+          <div v-if="isLayoutColumnType(column.columnType)">
             <br />
             <b
               ><u>heading: {{ column.name }}</u></b
@@ -147,8 +147,8 @@ import {
 import { request } from "graphql-request";
 import ColumnDefinition from "./ColumnDefinition.vue";
 import { Spinner, MessageError, InputCheckbox } from "molgenis-components";
-import { renderSvg } from "nomnoml";
 import SchemaDiagram from "./SchemaDiagram.vue";
+import { isLayoutColumnType } from "metadata-utils";
 
 const SHOW_TABLE_DIAGRAMS = "show table diagrams";
 
@@ -191,6 +191,7 @@ export default {
         });
     },
     getDescription,
+    isLayoutColumnType,
   },
   created() {
     this.loadSchema();
@@ -201,50 +202,5 @@ function getDescription(item) {
   if (item.descriptions?.filter((desc) => desc.locale == "en").length == 1) {
     return item.descriptions?.filter((desc) => desc.locale == "en")[0].value;
   }
-}
-
-function figureForSchemaSVG(schema) {
-  let result = `
-#.table: fill=white solid
-#stroke: #007bff
-#direction: down
-  `;
-  schema.tables.forEach((table) => {
-    result += `
-    [<table>${table.name}]
-    `;
-    table.columns.forEach((column) => {
-      if (
-        column.columnType == "REF" ||
-        column.columnType == "REF_ARRAY" ||
-        column.columnType == "SELECT" ||
-        column.columnType == "RADIO" ||
-        column.columnType == "MULTISELECT" ||
-        column.columnType == "CHECKBOX"
-      ) {
-        result += `[<table>${findRootTable(schema, column.refTable)}]<- ${
-          column.name
-        } [<table>${table.name}]\n`;
-      }
-    });
-  });
-  return renderSvg(result);
-}
-
-function findRootTable(schema, tableName) {
-  let result;
-  schema.tables.forEach((table) => {
-    if (table.name == tableName) {
-      result = table.name;
-    }
-    if (table.subclasses) {
-      table.subclasses.forEach((subclass) => {
-        if (subclass.name == tableName) {
-          result = table.name;
-        }
-      });
-    }
-  });
-  return result;
 }
 </script>

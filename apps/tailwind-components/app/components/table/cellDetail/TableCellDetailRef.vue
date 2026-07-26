@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import {
+  isLayoutColumnType,
+  isSectionType,
+} from "../../../../../metadata-utils/src";
 import type {
   columnValue,
   IColumn,
@@ -67,15 +71,19 @@ const sections = computed(() => {
     .filter((item) => {
       return (
         refRow.value.hasOwnProperty(item.key) ||
-        item.metadata.columnType === "HEADING"
+        isLayoutColumnType(item.metadata.columnType)
       );
     })
     .reduce((acc: ICellDetailSection[], item) => {
-      if (item.metadata.columnType === "HEADING") {
-        acc.push({ heading: item.metadata.label as string, fields: [] });
+      if (isLayoutColumnType(item.metadata.columnType)) {
+        acc.push({
+          heading: item.metadata.label as string,
+          headingType: item.metadata.columnType,
+          fields: [],
+        });
       } else {
         if (acc.length === 0) {
-          const defaultSection = { heading: "", fields: [] };
+          const defaultSection = { heading: "", headingType: "", fields: [] };
           acc.push(defaultSection);
         }
         const lastSection = acc[acc.length - 1];
@@ -93,6 +101,7 @@ const sections = computed(() => {
 
 interface ICellDetailSection {
   heading: string;
+  headingType: string;
   fields: {
     key: string;
     value: columnValue;
@@ -110,7 +119,12 @@ interface ICellDetailSection {
   >
     <h3
       v-if="section.heading"
-      class="text-heading-3xl font-display text-title-contrast mb-4"
+      class="font-display text-title-contrast mb-4"
+      :class="
+        isSectionType(section.headingType)
+          ? 'text-heading-4xl'
+          : 'text-heading-3xl'
+      "
     >
       {{ section.heading }}
     </h3>

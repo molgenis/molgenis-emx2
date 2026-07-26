@@ -28,6 +28,7 @@
 <script>
 import FilterContainer from "./FilterContainer.vue";
 import FilterInput from "./FilterInput.vue";
+import { isLayoutColumnType } from "../../../../metadata-utils/src/fieldHelpers";
 
 export default {
   name: "FilterSidebar",
@@ -48,9 +49,7 @@ export default {
   computed: {
     visibleFilters() {
       return this.filters.filter(
-        (column) =>
-          column.showFilter &&
-          !["HEADING", "SECTION"].includes(column.columnType)
+        (column) => column.showFilter && !isLayoutColumnType(column.columnType)
       );
     },
   },

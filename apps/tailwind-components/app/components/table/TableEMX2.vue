@@ -306,6 +306,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { isLayoutColumnType } from "../../../../metadata-utils/src";
 import type {
   columnValue,
   IColumn,
@@ -586,8 +587,7 @@ watch(
     if (newMetadata) {
       columns.value = newMetadata.columns.filter(
         (c: IColumn) =>
-          !c.id.startsWith("mg") &&
-          !["HEADING", "SECTION"].includes(c.columnType)
+          !c.id.startsWith("mg") && !isLayoutColumnType(c.columnType)
       );
     }
   },

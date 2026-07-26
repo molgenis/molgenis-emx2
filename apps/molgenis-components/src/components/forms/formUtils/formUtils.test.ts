@@ -3,6 +3,7 @@ import constants from "../../constants.js";
 import {
   filterVisibleColumns,
   getChapterStyle,
+  getDataWithoutRefbacks,
   getRowErrors,
   getSaveDisabledMessage,
   removeKeyColumns,
@@ -19,13 +20,12 @@ import {
   IColumn,
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types.js";
-const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {
   test("it should return no errors for an autoId field", () => {
     const rowData = { autoId: "1337" };
     const metadata = {
-      columns: [{ id: "autoId", columnType: AUTO_ID }],
+      columns: [{ id: "autoId", columnType: "AUTO_ID" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({});
@@ -34,7 +34,7 @@ describe("getRowErrors", () => {
   test("it should return no errors for a heading field", () => {
     const rowData = { heading: "1337" };
     const metadata = {
-      columns: [{ id: "heading", columnType: HEADING }],
+      columns: [{ id: "heading", columnType: "HEADING" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({});
@@ -571,6 +571,29 @@ describe("removeKeyColumns", () => {
   });
 });
 
+describe("getDataWithoutRefbacks", () => {
+  test.each(["REFBACK", "PARTS"])(
+    "it should remove the data of a %s column, which is derived and cannot be written",
+    (refbackFlavor: string) => {
+      const metadata = {
+        columns: [
+          { id: "name", columnType: "STRING" },
+          { id: "kennels", columnType: refbackFlavor },
+        ],
+      } as ITableMetaData;
+      const formData = { name: "Shelter", kennels: [{ name: "Kennel 1" }] };
+      const result = getDataWithoutRefbacks(formData, metadata);
+      expect(result).toEqual({ name: "Shelter" });
+    }
+  );
+
+  test("it should return the data unchanged when there is no table metadata", () => {
+    const formData = { name: "Shelter" };
+    const result = getDataWithoutRefbacks(formData, undefined);
+    expect(result).toEqual({ name: "Shelter" });
+  });
+});
+
 describe("filterVisibleColumns", () => {
   test("it should return the columns if no visisble columns are defined", () => {
     const columns = [{ id: "col1" }, { id: "col2" }] as IColumn[];
@@ -590,9 +613,9 @@ describe("filterVisibleColumns", () => {
 describe("splitColumnIdsByHeadings", () => {
   test("it should split all columns by the headings", () => {
     const columns = [
-      { id: "heading1", columnType: HEADING },
+      { id: "heading1", columnType: "HEADING" },
       { id: "string1", columnType: "STRING" },
-      { id: "heading2", columnType: HEADING },
+      { id: "heading2", columnType: "HEADING" },
       { id: "string2", columnType: "STRING" },
       { id: "string3", columnType: "STRING" },
     ] as IColumn[];
@@ -600,6 +623,21 @@ describe("splitColumnIdsByHeadings", () => {
     const expectedResult = [
       ["heading1", "string1"],
       ["heading2", "string2", "string3"],
+    ];
+    expect(result).to.deep.equal(expectedResult);
+  });
+
+  test("it should start a new chapter at a SECTION too, instead of listing it as a field of the previous chapter", () => {
+    const columns = [
+      { id: "heading1", columnType: "HEADING" },
+      { id: "string1", columnType: "STRING" },
+      { id: "section1", columnType: "SECTION" },
+      { id: "string2", columnType: "STRING" },
+    ] as IColumn[];
+    const result = splitColumnIdsByHeadings(columns);
+    const expectedResult = [
+      ["heading1", "string1"],
+      ["section1", "string2"],
     ];
     expect(result).to.deep.equal(expectedResult);
   });
@@ -791,6 +829,25 @@ describe("buildGraphqlFilter", () => {
       jsonColumn: { like: ["{id: 'json'}"] },
     });
   });
+
+  test.each(["REFBACK", "PARTS"])(
+    "it should set an equals filter for a %s column",
+    (refbackFlavor: string) => {
+      const columns: IColumn[] = [
+        {
+          columnType: refbackFlavor,
+          id: "kennels",
+          conditions: [["Kennel 1"]],
+        } as unknown as IColumn,
+      ];
+      const reportedErrors: string[] = [];
+      const result = buildGraphqlFilter(defaultFilter, columns, (error) =>
+        reportedErrors.push(error)
+      );
+      expect(result).toEqual({ kennels: { equals: ["Kennel 1"] } });
+      expect(reportedErrors).toEqual([]);
+    }
+  );
 
   test("it should set an equals filter for a boolean filter", () => {
     const columns: IColumn[] = [

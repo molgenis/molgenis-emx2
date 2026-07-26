@@ -6,11 +6,7 @@
         <slot>
           <template v-if="metadata && data !== undefined && data !== null">
             <ValueList
-              v-if="
-                metadata.columnType.endsWith('ARRAY') ||
-                metadata.columnType === 'MULTISELECT' ||
-                metadata.columnType === 'CHECKBOX'
-              "
+              v-if="isStoredMultiValuedType(metadata.columnType)"
               :metadata="metadata"
               :data="assertListValue(data)"
               @listRefCellClicked="$emit('cellClicked', $event)"
@@ -57,18 +53,14 @@
             />
 
             <ValueRef
-              v-else-if="
-                metadata.columnType === 'REF' ||
-                metadata.columnType === 'RADIO' ||
-                metadata.columnType === 'SELECT'
-              "
+              v-else-if="isSingleRefType(metadata.columnType)"
               :metadata="toRefColumn(metadata)"
               :data="assertRowValue(data)"
               @refCellClicked="$emit('cellClicked', $event)"
             />
 
             <ValueObject
-              v-else-if="metadata.columnType === 'ONTOLOGY'"
+              v-else-if="isSingleOntologyType(metadata.columnType)"
               :metadata="metadata"
               :data="assertRowValue(data)"
               @refCellClicked="$emit('cellClicked', $event)"
@@ -93,14 +85,14 @@
             />
 
             <ValueRefBack
-              v-else-if="metadata.columnType === 'REFBACK'"
+              v-else-if="isRefbackType(metadata.columnType)"
               :metadata="toRefColumn(metadata)"
               :data="assertTableValue(data)"
               @refBackCellClicked="$emit('cellClicked', $event)"
             />
 
             <ValueFile
-              v-else-if="metadata.columnType === 'FILE'"
+              v-else-if="isFileType(metadata.columnType)"
               :metadata="metadata"
               :data="assertFileValue(data)"
             />
@@ -124,6 +116,13 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref } from "vue";
+import {
+  isFileType,
+  isRefbackType,
+  isSingleOntologyType,
+  isSingleRefType,
+  isStoredMultiValuedType,
+} from "../../../../metadata-utils/src";
 import type {
   columnValue,
   IColumn,

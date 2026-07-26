@@ -44,9 +44,9 @@ Collections,,reason sustained,text,,,,,,,,dcterms:provenance,"Description of the
 Collections,,record trigger,text,,,,,,,,,"What triggers the creation of a record in the data bank? e.g. planned collection events, hospital discharge, specialist encounter, dispensation of a medicinal product, recording of a congenital anomaly","DataCatalogueFlat,EMA,RWEStaging,INTEGRATE",,,,,,
 Collections,,unit of observation,text,,,,,,,,,"Based on the record trigger or promt, what is the unit(s) of observation of a record (e.g. person, prescription)?","DataCatalogueFlat,RWEStaging",,,,,,
 Collections,,subpopulations heading,heading,,,,,,,,,List of subpopulations for this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,,,,Subpopulations
-Collections,,subpopulations,refback,,,,Subpopulations,,resource,,,"List of cohorts or subpopulations defined in this resource, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,,,,
+Collections,,subpopulations,parts,,,,Subpopulations,,resource,,,"List of cohorts or subpopulations defined in this resource, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,,,,
 Collections,,collection events heading,heading,,,,,,,,,List of collection events defined for this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,,,,Collection events
-Collections,,collection events,refback,,,,Collection events,,resource,,,"List of data/sample collection events defined for this collection, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,,,,
+Collections,,collection events,parts,,,,Collection events,,resource,,,"List of data/sample collection events defined for this collection, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,,,,
 Networks,,data resources,ref_array,,,,Collections,,,,dcat:dataset,"List of other data collections included in this network, e.g. cohorts, biobanks or real world data sources. Do not list other networks or catalogues here","DataCatalogueFlat,EMA",,,,,,
 Networks,,data resources,ref_array,,,catalogue,Collections,,,,dcat:dataset,"List of other data collections included in this network, e.g. cohorts, biobanks or real world data sources. Do not list other networks or catalogues here",NetworksStaging,,,,,,
 Collections,,networks heading,heading,,,,,,,,,Part of networks,"DataCatalogueFlat,EMA",,,,,,Networks
@@ -89,7 +89,7 @@ Networks,,child networks,ref_array,,,catalogue,Networks,,,,dcat:catalog,"List of
 Networks,,parent networks,refback,,,,Networks,,child networks,,,The consortia or networks that this resource is part of,"DataCatalogueFlat,EMA",,,,cards,,
 Networks,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this resource is involved in,EMA,,,,,,
 Collections,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging",,,,,,
-Resources,,tables,refback,,,,Tables,,resource,,,List of tables contained in this resouce if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,,,,
+Resources,,tables,parts,,,,Tables,,resource,,,List of tables contained in this resouce if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,,,,
 Resources,,samplesets,refback,,,,Samplesets,,resource,,,List of sample sets contained in this resource if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,,,,,
 Collections,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were collected,"DataCatalogueFlat,CohortsStaging",,,,,,
 Collections,,areas of information rwd,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,"DataCatalogueFlat,EMA,RWEStaging",,,,,,

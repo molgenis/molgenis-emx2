@@ -1,146 +1,64 @@
 <script setup lang="ts">
-import { useAsyncData } from "#app";
-import { useRoute, useRouter } from "#app/composables/router";
-import { computed, ref, useId } from "vue";
-import type { IRow } from "../../../../../metadata-utils/src/types";
-import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
-import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
-import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
-import DetailView from "../../../../../tailwind-components/app/components/display/DetailView.vue";
+import { createError, navigateTo, useAsyncData, useHead } from "#app";
+import { useRoute } from "#app/composables/router";
+import { computed } from "vue";
+import RecordDetail from "../../../components/RecordDetail.vue";
+import fetchMetadata from "../../../../../tailwind-components/app/composables/fetchMetadata";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
-import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
-import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
-import type { cellPayload } from "../../../../../tailwind-components/types/types";
+import { getTitleText } from "../../../../../tailwind-components/app/utils/displayUtils";
+import {
+  buildCrumbs,
+  buildNestedRecordPath,
+  parseRecordPath,
+} from "../../../../../tailwind-components/app/utils/recordPath";
 
 const route = useRoute();
-const router = useRouter();
 const schemaId = route.params.schema as string;
-const tableId = route.params.table as string;
 const entityId = route.params.entity as string;
-const keys = route.query.keys as string | undefined;
-let rowId: IRow = {};
 
-const showModal = ref(false);
-const cellDetailPayload = ref<cellPayload>();
+const schema = await fetchMetadata(schemaId);
+const levels = parseRecordPath(schema, route.fullPath);
 
-try {
-  if (keys) {
-    rowId = JSON.parse(keys) as IRow;
-  }
-} catch {
-  rowId = {};
+if (!levels) {
+  const message = `Could not resolve a record from ${route.fullPath}`;
+  console.error(message);
+  throw createError({ message, statusCode: 404 });
 }
 
-const { isAdmin, session } = await useSession(schemaId);
+const record = levels[levels.length - 1]!;
+const columns =
+  schema.tables.find((table) => table.id === record.tableId)?.columns ?? [];
 
-const tableMetadata = await fetchTableMetadata(schemaId, tableId);
-const { data: rowData, refresh } = await useAsyncData(
-  keys || JSON.stringify(rowId),
-  () => fetchRowData(schemaId, tableId, rowId)
+const { data: row, refresh } = await useAsyncData(
+  `record-${route.fullPath}`,
+  () => fetchRowData(schemaId, record.tableId, record.key)
 );
 
-const showEditModal = ref(false);
-const showDeleteModal = ref(false);
-const recordViewKey = ref(0);
+const canonicalPath = row.value
+  ? buildNestedRecordPath(schema, record.tableId, row.value)
+  : null;
 
-const editModalKey = `edit-modal-${useId()}`;
-
-function afterEditClosed() {
-  showEditModal.value = false;
-  refresh();
-  recordViewKey.value++;
+if (canonicalPath && canonicalPath !== route.path) {
+  await navigateTo(canonicalPath, { replace: true });
+} else if (canonicalPath) {
+  useHead({ link: [{ rel: "canonical", href: canonicalPath }] });
 }
 
-function afterRowDeleted() {
-  router.push(`/${schemaId}/${tableId}`);
-}
+const title = computed(
+  () => (row.value && getTitleText(columns, row.value)) || entityId
+);
 
-const enableEditing = computed(() => {
-  return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
-});
-
-const enableDeleting = computed(() => {
-  return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
-});
-
-function handleCellClick(event: cellPayload) {
-  cellDetailPayload.value = event;
-  showModal.value = true;
-}
+const crumbs = computed(() => buildCrumbs(schema, levels, [title.value]));
 </script>
 
 <template>
-  <DetailView
-    :key="recordViewKey"
+  <RecordDetail
     :schema-id="schemaId"
-    :table-id="tableId"
-    :row-id="rowId"
-    @valueClick="handleCellClick"
-  >
-    <template #header>
-      <PageHeader :title="entityId">
-        <template #prefix>
-          <BreadCrumbs
-            :crumbs="[
-              { label: schemaId, url: `/${schemaId}` },
-              { label: tableId, url: `/${schemaId}/${tableId}` },
-            ]"
-          />
-        </template>
-      </PageHeader>
-
-      <div class="flex pb-[30px] gap-[10px] justify-end">
-        <Button
-          v-if="enableEditing"
-          type="outline"
-          icon="edit"
-          @click="showEditModal = true"
-          >Edit
-        </Button>
-        <Button
-          v-if="enableDeleting"
-          type="outline"
-          icon="trash"
-          @click="showDeleteModal = true"
-          >Delete
-        </Button>
-      </div>
-    </template>
-  </DetailView>
-
-  <CellDetailModal
-    v-if="cellDetailPayload"
-    :payload="cellDetailPayload"
-    :schemaId="schemaId"
-    v-model:showModal="showModal"
-    @update:cellDetailPayload="cellDetailPayload = $event"
-  />
-
-  <DeleteModal
-    v-if="tableMetadata && rowData && showDeleteModal"
-    :showButton="false"
-    :schemaId="schemaId"
-    :metadata="tableMetadata"
-    :formValues="rowData"
-    v-model:visible="showDeleteModal"
-    @update:deleted="afterRowDeleted"
-    @update:cancelled="showDeleteModal = false"
-  />
-
-  <EditModal
-    v-if="tableMetadata && rowData && showEditModal"
-    :key="editModalKey"
-    :showButton="false"
-    :schemaId="schemaId"
-    :metadata="tableMetadata"
-    :formValues="rowData"
-    :isInsert="false"
-    v-model:visible="showEditModal"
-    @update:cancelled="afterEditClosed"
-    @update:added="afterEditClosed"
-    @update:edited="afterEditClosed"
+    :table-id="record.tableId"
+    :row-id="record.key"
+    :row="row ?? null"
+    :title="title"
+    :crumbs="crumbs"
+    @row-changed="refresh"
   />
 </template>

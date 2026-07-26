@@ -2,25 +2,20 @@ import type {
   IColumn,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
+import { isAutoIdType } from "../../../metadata-utils/src/fieldHelpers";
 import Client from "../client/client";
 import type { IRow } from "../Interfaces/IRow";
 import constants from "./constants";
 import { executeExpression } from "./forms/formUtils/formUtils";
 
-const { CODE_0, CODE_9, CODE_PERIOD, AUTO_ID } = constants;
+const { CODE_0, CODE_9, CODE_PERIOD } = constants;
 
-export function isRefType(columnType: string): boolean {
-  return [
-    "REF",
-    "REF_ARRAY",
-    "REFBACK",
-    "ONTOLOGY",
-    "ONTOLOGY_ARRAY",
-    "RADIO",
-    "SELECT",
-    "CHECKBOX",
-    "MULTISELECT",
-  ].includes(columnType);
+export { isRefType } from "../../../metadata-utils/src/fieldHelpers";
+
+const RANGE_CONDITION_TYPES = ["DATE", "DATETIME", "INT", "LONG", "DECIMAL"];
+
+export function isRangeConditionType(columnType: string): boolean {
+  return RANGE_CONDITION_TYPES.includes(columnType);
 }
 
 export function isNumericKey(event: KeyboardEvent): boolean {
@@ -202,7 +197,7 @@ function isObject(object: Record<string, any> | null): object is Object {
 export function applyComputed(rows: IRow[], tableMetadata: ITableMetaData) {
   return rows?.map((row) => {
     return tableMetadata.columns.reduce((accum: IRow, column: IColumn) => {
-      if (column.computed && column.columnType !== AUTO_ID) {
+      if (column.computed && !isAutoIdType(column.columnType)) {
         try {
           accum[column.id] = executeExpression(
             column.computed,

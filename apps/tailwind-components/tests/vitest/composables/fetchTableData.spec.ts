@@ -1,25 +1,53 @@
 import { describe, it, expect } from "vitest";
 import {
-  buildColumnGql,
+  buildColumnGqlAsync,
   DEFAULT_NESTED_LIMIT,
 } from "../../../app/composables/fetchTableData";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
-function col(id: string, columnType: string, refTableId?: string): IColumn {
+const ROOT_SCHEMA_ID = "MySchema";
+const ROOT_TABLE_ID = "MyTable";
+
+function col(
+  id: string,
+  columnType: string,
+  refTableId?: string,
+  refSchemaId?: string
+): IColumn {
   return {
     id,
     columnType,
     refTableId,
+    refSchemaId,
     position: 0,
   } as IColumn;
 }
 
-const refTableColumnsMap: Record<string, IColumn[]> = {
-  CollectionEvents: [col("name", "STRING"), col("description", "STRING")],
-  Subpopulations: [col("name", "STRING")],
-  Publications: [col("title", "STRING")],
-  Cohorts: [col("id", "STRING"), col("name", "STRING")],
+const columnsBySchemaAndTable: Record<string, Record<string, IColumn[]>> = {
+  [ROOT_SCHEMA_ID]: {
+    CollectionEvents: [col("name", "STRING"), col("description", "STRING")],
+    Subpopulations: [col("name", "STRING")],
+    Publications: [col("title", "STRING")],
+    Cohorts: [col("id", "STRING"), col("name", "STRING")],
+    Tags: [col("name", "STRING")],
+    Options: [col("name", "STRING")],
+    SharedTable: [col("localName", "STRING")],
+  },
+  OtherSchema: {
+    SharedTable: [col("foreignName", "STRING")],
+  },
 };
+
+async function columnsForTable(
+  schemaId: string,
+  tableId: string
+): Promise<IColumn[]> {
+  return columnsBySchemaAndTable[schemaId]?.[tableId] ?? [];
+}
+
+async function noColumnsForTable(): Promise<IColumn[]> {
+  return [];
+}
 
 describe("DEFAULT_NESTED_LIMIT", () => {
   it("is 5", () => {
@@ -27,16 +55,25 @@ describe("DEFAULT_NESTED_LIMIT", () => {
   });
 });
 
-describe("buildColumnGql — scalar columns", () => {
-  it("emits scalar field name", () => {
-    const result = buildColumnGql([col("name", "STRING")], () => [], true, 2);
+describe("buildColumnGqlAsync — scalar columns", () => {
+  it("emits scalar field name", async () => {
+    const result = await buildColumnGqlAsync(
+      [col("name", "STRING")],
+      noColumnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
+      true,
+      2
+    );
     expect(result).toContain("name");
   });
 
-  it("does not emit HEADING or SECTION columns", () => {
-    const result = buildColumnGql(
+  it("does not emit HEADING or SECTION columns", async () => {
+    const result = await buildColumnGqlAsync(
       [col("sect", "HEADING"), col("sec2", "SECTION")],
-      () => [],
+      noColumnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       true,
       2
     );
@@ -45,21 +82,25 @@ describe("buildColumnGql — scalar columns", () => {
   });
 });
 
-describe("buildColumnGql — REFBACK at root level", () => {
-  it("always emits _agg { count } for REFBACK", () => {
-    const result = buildColumnGql(
+describe("buildColumnGqlAsync — REFBACK at root level", () => {
+  it("always emits _agg { count } for REFBACK", async () => {
+    const result = await buildColumnGqlAsync(
       [col("collectionEvents", "REFBACK", "CollectionEvents")],
-      (tableId) => refTableColumnsMap[tableId] ?? [],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       true,
       2
     );
     expect(result).toContain("collectionEvents_agg { count }");
   });
 
-  it("emits nested fields for REFBACK at root level", () => {
-    const result = buildColumnGql(
+  it("emits nested fields for REFBACK at root level", async () => {
+    const result = await buildColumnGqlAsync(
       [col("collectionEvents", "REFBACK", "CollectionEvents")],
-      (tableId) => refTableColumnsMap[tableId] ?? [],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       true,
       2
     );
@@ -67,10 +108,12 @@ describe("buildColumnGql — REFBACK at root level", () => {
     expect(result).toContain("name");
   });
 
-  it("always emits (limit: 5) from DEFAULT_NESTED_LIMIT for REFBACK at root level", () => {
-    const result = buildColumnGql(
+  it("always emits (limit: 5) from DEFAULT_NESTED_LIMIT for REFBACK at root level", async () => {
+    const result = await buildColumnGqlAsync(
       [col("collectionEvents", "REFBACK", "CollectionEvents")],
-      (tableId) => refTableColumnsMap[tableId] ?? [],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       true,
       2
     );
@@ -81,21 +124,25 @@ describe("buildColumnGql — REFBACK at root level", () => {
   });
 });
 
-describe("buildColumnGql — REF_ARRAY at root level", () => {
-  it("always emits _agg { count } for REF_ARRAY", () => {
-    const result = buildColumnGql(
+describe("buildColumnGqlAsync — REF_ARRAY at root level", () => {
+  it("always emits _agg { count } for REF_ARRAY", async () => {
+    const result = await buildColumnGqlAsync(
       [col("publications", "REF_ARRAY", "Publications")],
-      (tableId) => refTableColumnsMap[tableId] ?? [],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       true,
       2
     );
     expect(result).toContain("publications_agg { count }");
   });
 
-  it("always emits (limit: 5) from DEFAULT_NESTED_LIMIT for REF_ARRAY at root level", () => {
-    const result = buildColumnGql(
+  it("always emits (limit: 5) from DEFAULT_NESTED_LIMIT for REF_ARRAY at root level", async () => {
+    const result = await buildColumnGqlAsync(
       [col("publications", "REF_ARRAY", "Publications")],
-      (tableId) => refTableColumnsMap[tableId] ?? [],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       true,
       2
     );
@@ -104,31 +151,37 @@ describe("buildColumnGql — REF_ARRAY at root level", () => {
   });
 });
 
-describe("buildColumnGql — nested depth > 1 (non-root)", () => {
-  it("skips REFBACK at non-root level (no expansion)", () => {
-    const result = buildColumnGql(
+describe("buildColumnGqlAsync — nested depth > 1 (non-root)", () => {
+  it("skips REFBACK at non-root level (no expansion)", async () => {
+    const result = await buildColumnGqlAsync(
       [col("subItems", "REFBACK", "Subpopulations")],
-      (tableId) => refTableColumnsMap[tableId] ?? [],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       false,
       1
     );
     expect(result).not.toContain("subItems");
   });
 
-  it("does not emit _agg { count } for REF_ARRAY at non-root level", () => {
-    const result = buildColumnGql(
+  it("does not emit _agg { count } for REF_ARRAY at non-root level", async () => {
+    const result = await buildColumnGqlAsync(
       [col("publications", "REF_ARRAY", "Publications")],
-      (tableId) => refTableColumnsMap[tableId] ?? [],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       false,
       1
     );
     expect(result).not.toContain("publications_agg");
   });
 
-  it("does not emit (limit:) at non-root level", () => {
-    const result = buildColumnGql(
+  it("does not emit (limit:) at non-root level", async () => {
+    const result = await buildColumnGqlAsync(
       [col("publications", "REF_ARRAY", "Publications")],
-      (tableId) => refTableColumnsMap[tableId] ?? [],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       false,
       1
     );
@@ -136,11 +189,47 @@ describe("buildColumnGql — nested depth > 1 (non-root)", () => {
   });
 });
 
-describe("buildColumnGql — REF column unaffected by DEFAULT_NESTED_LIMIT", () => {
-  it("emits REF field without limit or _agg", () => {
-    const result = buildColumnGql(
+describe("buildColumnGqlAsync — mg_tableclass beyond the expand depth", () => {
+  it("emits mg_tableclass where only key columns survive, so an ancestor row still names its own subclass", async () => {
+    const result = await buildColumnGqlAsync(
+      [
+        col("mg_tableclass", "STRING"),
+        col("id", "STRING"),
+        col("description", "STRING"),
+      ],
+      noColumnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
+      false,
+      0
+    );
+    expect(result.trim().split(/\s+/)).toEqual(["mg_tableclass"]);
+  });
+
+  it("keeps emitting key columns alongside mg_tableclass beyond the expand depth", async () => {
+    const result = await buildColumnGqlAsync(
+      [
+        col("mg_tableclass", "STRING"),
+        { ...col("id", "STRING"), key: 1 },
+        col("description", "STRING"),
+      ],
+      noColumnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
+      false,
+      0
+    );
+    expect(result.trim().split(/\s+/)).toEqual(["mg_tableclass", "id"]);
+  });
+});
+
+describe("buildColumnGqlAsync — REF column unaffected by DEFAULT_NESTED_LIMIT", () => {
+  it("emits REF field without limit or _agg", async () => {
+    const result = await buildColumnGqlAsync(
       [col("cohort", "REF", "Cohorts")],
-      (tableId) => refTableColumnsMap[tableId] ?? [],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       true,
       2
     );
@@ -150,11 +239,39 @@ describe("buildColumnGql — REF column unaffected by DEFAULT_NESTED_LIMIT", () 
   });
 });
 
-describe("buildColumnGql — MULTISELECT and CHECKBOX at root level", () => {
-  it("emits _agg { count } and (limit: 5) for MULTISELECT at root level", () => {
-    const result = buildColumnGql(
+describe("buildColumnGqlAsync — cross-schema refs", () => {
+  it("expands a ref into the columns of its own refSchemaId, not the schema being queried", async () => {
+    const result = await buildColumnGqlAsync(
+      [col("shared", "REF", "SharedTable", "OtherSchema")],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
+      true,
+      2
+    );
+    expect(result).toBe(" shared { foreignName }");
+  });
+
+  it("expands a ref without refSchemaId into the columns of the schema being queried", async () => {
+    const result = await buildColumnGqlAsync(
+      [col("shared", "REF", "SharedTable")],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
+      true,
+      2
+    );
+    expect(result).toBe(" shared { localName }");
+  });
+});
+
+describe("buildColumnGqlAsync — MULTISELECT and CHECKBOX at root level", () => {
+  it("emits _agg { count } and (limit: 5) for MULTISELECT at root level", async () => {
+    const result = await buildColumnGqlAsync(
       [col("tags", "MULTISELECT", "Tags")],
-      () => [col("name", "STRING")],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       true,
       2
     );
@@ -162,14 +279,55 @@ describe("buildColumnGql — MULTISELECT and CHECKBOX at root level", () => {
     expect(result).toContain(`tags(limit: ${DEFAULT_NESTED_LIMIT}) {`);
   });
 
-  it("emits _agg { count } and (limit: 5) for CHECKBOX at root level", () => {
-    const result = buildColumnGql(
+  it("emits _agg { count } and (limit: 5) for CHECKBOX at root level", async () => {
+    const result = await buildColumnGqlAsync(
       [col("options", "CHECKBOX", "Options")],
-      () => [col("name", "STRING")],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
       true,
       2
     );
     expect(result).toContain("options_agg { count }");
     expect(result).toContain(`options(limit: ${DEFAULT_NESTED_LIMIT}) {`);
+  });
+});
+
+describe("buildColumnGqlAsync — PARTS", () => {
+  it("queries a PARTS column as a collection of its child rows, like its REFBACK flavor", async () => {
+    const result = await buildColumnGqlAsync(
+      [col("subpopulations", "PARTS", "Subpopulations")],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
+      true,
+      2
+    );
+    expect(result).toBe(
+      await buildColumnGqlAsync(
+        [col("subpopulations", "REFBACK", "Subpopulations")],
+        columnsForTable,
+        ROOT_SCHEMA_ID,
+        ROOT_TABLE_ID,
+        true,
+        2
+      )
+    );
+    expect(result).toContain(
+      `subpopulations(limit: ${DEFAULT_NESTED_LIMIT}) { name }`
+    );
+    expect(result).toContain("subpopulations_agg { count }");
+  });
+
+  it("skips a PARTS column at non-root level, like its REFBACK flavor", async () => {
+    const result = await buildColumnGqlAsync(
+      [col("subpopulations", "PARTS", "Subpopulations")],
+      columnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
+      false,
+      1
+    );
+    expect(result).toBe("");
   });
 });

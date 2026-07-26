@@ -144,8 +144,8 @@ watch(
 
 const crumbs: Crumb[] = [
   { label: schema as string, url: `/${schema}` },
-  { label: "Pages", url: `/${schema}/pages` },
-  { label: page as string, url: `/${schema}/pages/${page}` },
+  { label: "Pages", url: `/${schema}/_pages` },
+  { label: page as string, url: `/${schema}/_pages/${page}` },
   { label: "Edit", url: "" },
 ];
 </script>
@@ -167,7 +167,7 @@ const crumbs: Crumb[] = [
         class="sticky top-0 w-full flex justify-end items-center bg-navigation py-2 gap-5 px-7.5 z-10 mb-5"
       >
         <NuxtLink
-          :to="`/${schema}/pages/${page}`"
+          :to="`/${schema}/_pages/${page}`"
           class="font-display tracking-widest uppercase text-button-text text-heading-lg hover:underline"
         >
           View page

@@ -1,5 +1,31 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { request } from "graphql-request";
 import QueryEMX2 from "./queryEmx2";
+
+vi.mock("graphql-request", () => ({ request: vi.fn() }));
+
+const collectionsMetaData = {
+  _schema: {
+    tables: [
+      {
+        id: "Collections",
+        name: "Collections",
+        columns: [
+          { id: "name", name: "name", columnType: "STRING" },
+          { id: "description", name: "description", columnType: "TEXT" },
+          { id: "biobank", name: "biobank", columnType: "REF" },
+          { id: "networks", name: "networks", columnType: "REF_ARRAY" },
+          {
+            id: "diagnosisAvailable",
+            name: "diagnosis available",
+            columnType: "ONTOLOGY_ARRAY",
+          },
+          { id: "factSheets", name: "fact sheets", columnType: "REFBACK" },
+        ],
+      },
+    ],
+  },
+};
 
 describe("QueryEMX2 Interface", () => {
   it("can create a simple query on the biobanks table", () => {
@@ -402,4 +428,59 @@ NestedExample {
       `{ collections: { materials: { name: { like: \"test\" } } } }`
     );
   });
+});
+
+describe("QueryEMX2 getColumnsForTable", () => {
+  beforeEach(() => {
+    vi.mocked(request).mockReset();
+    vi.mocked(request).mockResolvedValue(collectionsMetaData);
+  });
+
+  it("should request the table and column ids it looks the table up by", async () => {
+    await new QueryEMX2("graphql").getColumnsForTable("Collections");
+
+    const requestedQuery = vi.mocked(request).mock.calls[0][1] as string;
+    expect(requestedQuery).toContain("id");
+    expect(requestedQuery.replace(/\s/g, "")).toContain(
+      "columns{id,name,columnType}"
+    );
+  });
+
+  it("should return the ids of the columns that can be queried as a scalar", async () => {
+    const columns = await new QueryEMX2("graphql").getColumnsForTable(
+      "Collections"
+    );
+
+    expect(columns).toEqual(["name", "description"]);
+  });
+
+  it.each(["REFBACK", "PARTS"])(
+    "should exclude a %s column, which cannot be queried as a scalar",
+    async (columnType) => {
+      vi.mocked(request).mockResolvedValue({
+        _schema: {
+          tables: [
+            {
+              id: "Collections",
+              name: "Collections",
+              columns: [
+                { id: "name", name: "name", columnType: "STRING" },
+                {
+                  id: "subpopulations",
+                  name: "subpopulations",
+                  columnType,
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      const columns = await new QueryEMX2("graphql").getColumnsForTable(
+        "Collections"
+      );
+
+      expect(columns).toEqual(["name"]);
+    }
+  );
 });

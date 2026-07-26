@@ -32,7 +32,7 @@ export async function useLayoutMenu(
     },
     {
       label: "SHACL",
-      link: `shacl`,
+      link: `_shacl`,
       isSpaLink: true,
       role: "Viewer",
     },
@@ -67,13 +67,13 @@ export async function useLayoutMenu(
     },
     {
       label: "Analytics",
-      link: `analytics`,
+      link: `_analytics`,
       isSpaLink: true,
       role: "Manager",
     },
     {
       label: "Pages",
-      link: `pages`,
+      link: `_pages`,
       isSpaLink: true,
       role: "Manager",
     },

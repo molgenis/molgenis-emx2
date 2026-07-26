@@ -8,6 +8,11 @@ import {
   type MaybeRef,
   type Ref,
 } from "vue";
+import {
+  isLayoutColumnType,
+  isPlainHeadingType,
+  isSectionType,
+} from "../../../metadata-utils/src";
 import { toFormData } from "../../../metadata-utils/src/toFormData";
 import type {
   columnId,
@@ -60,8 +65,7 @@ export default function useForm(
   metadata.value.columns.forEach((column: IColumn) => {
     if (
       !formValues.value.hasOwnProperty(column.id) &&
-      column.columnType !== "SECTION" &&
-      column.columnType !== "HEADING"
+      !isLayoutColumnType(column.columnType)
     ) {
       formValues.value[column.id] = null;
     }
@@ -160,7 +164,7 @@ export default function useForm(
 
   // first pass to get sections
   metadata.value.columns.forEach((column) => {
-    if (column.columnType === "SECTION") {
+    if (isSectionType(column.columnType)) {
       const columns = metadata.value.columns.filter(
         (col) =>
           col.section === column.id &&
@@ -197,11 +201,11 @@ export default function useForm(
 
   // second pass to get headings and columns
   metadata.value.columns.forEach((column) => {
-    if (column.columnType !== "SECTION") {
+    if (!isSectionType(column.columnType)) {
       const section = sections.value.find(
         (section) => section.id === column.section
       );
-      if (section && column.columnType === "HEADING") {
+      if (section && isPlainHeadingType(column.columnType)) {
         const headingColumns = metadata.value.columns.filter(
           (col) =>
             col.heading === column.id &&

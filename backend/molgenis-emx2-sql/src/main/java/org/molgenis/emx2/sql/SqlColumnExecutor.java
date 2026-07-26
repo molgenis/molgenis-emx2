@@ -394,6 +394,9 @@ public class SqlColumnExecutor {
                 + c.getTableName()
                 + " or any of its inherited tables");
       }
+      if (PARTS.equals(c.getColumnType())) {
+        validatePartsColumn(c);
+      }
       if (c.getRefTableName() != null && !c.isReference()) {
         throw new MolgenisException(
             "Cannot set refTable '"
@@ -445,6 +448,68 @@ public class SqlColumnExecutor {
       throw new MolgenisException(
           "Column " + c.getTableName() + "." + c.getName() + " is invalid: " + e.getMessage());
     }
+  }
+
+  private static void validatePartsColumn(Column c) {
+    if (c.getRefTableName().equals(c.getTableName())
+        && c.getRefSchemaName().equals(c.getSchemaName())) {
+      throw new MolgenisException(
+          "Parts column cannot refer to its own table '" + c.getTableName() + "'");
+    }
+    Column counterpart = c.getRefBackColumn();
+    if (!counterpart.isRef()) {
+      throw new MolgenisException(
+          partsRefBackMessage(
+              counterpart, "must be a single valued ref but is " + counterpart.getColumnType()));
+    }
+    if (!counterpart.isRequired()) {
+      throw new MolgenisException(
+          partsRefBackMessage(counterpart, "must be required so every part has one parent"));
+    }
+    if (counterpart.getKey() == 0) {
+      throw new MolgenisException(
+          partsRefBackMessage(
+              counterpart, "must be part of a key so every part has one path to its parent"));
+    }
+    Column conflicting = findConflictingPartsColumn(c);
+    if (conflicting != null) {
+      throw new MolgenisException(
+          "Parts column cannot target table '"
+              + c.getRefTableName()
+              + "' because it is already the target of parts column '"
+              + conflicting.getTableName()
+              + "."
+              + conflicting.getName()
+              + "'");
+    }
+  }
+
+  private static Column findConflictingPartsColumn(Column c) {
+    for (TableMetadata tableMetadata : c.getSchema().getTables()) {
+      for (Column other : tableMetadata.getNonInheritedColumns()) {
+        if (PARTS.equals(other.getColumnType())
+            && !isSamePartsRelation(c, other)
+            && c.getRefTableName().equals(other.getRefTableName())
+            && c.getRefSchemaName().equals(other.getRefSchemaName())) {
+          return other;
+        }
+      }
+    }
+    return null;
+  }
+
+  private static boolean isSamePartsRelation(Column c, Column other) {
+    return c.getTableName().equals(other.getTableName())
+        && c.getRefBack().equals(other.getRefBack());
+  }
+
+  private static String partsRefBackMessage(Column counterpart, String requirement) {
+    return "Parts refBack '"
+        + counterpart.getTableName()
+        + "."
+        + counterpart.getName()
+        + "' "
+        + requirement;
   }
 
   private static void executeCreateRefArrayIndex(DSLContext jooq, Table<?> table, Field<?> field) {

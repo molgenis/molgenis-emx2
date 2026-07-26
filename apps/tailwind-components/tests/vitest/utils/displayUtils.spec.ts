@@ -8,8 +8,6 @@ import {
   filterNonEmptyColumns,
   filterColumnsByRole,
   getListColumns,
-  isRefColumn,
-  isRefArrayColumn,
   isDataListColumn,
   buildRefHref,
   getLogoColumn,
@@ -105,6 +103,31 @@ describe("buildRefbackFilter", () => {
     ).toEqual({
       dataset: {
         resource: { equals: "ALSPAC" },
+        name: { equals: "core" },
+      },
+    });
+  });
+
+  it("builds the same parent scoped filter for PARTS as for its REFBACK flavor", () => {
+    expect(
+      buildRefbackFilter("PARTS", "table", {
+        resource: { id: "ALSPAC" },
+        name: "core",
+      })
+    ).toEqual(
+      buildRefbackFilter("REFBACK", "table", {
+        resource: { id: "ALSPAC" },
+        name: "core",
+      })
+    );
+    expect(
+      buildRefbackFilter("PARTS", "table", {
+        resource: { id: "ALSPAC" },
+        name: "core",
+      })
+    ).toEqual({
+      table: {
+        resource: { equals: { id: "ALSPAC" } },
         name: { equals: "core" },
       },
     });
@@ -234,66 +257,6 @@ describe("filterNonEmptyColumns", () => {
     const rows = [{ name: "A", description: {}, status: [] }];
     const result = filterNonEmptyColumns(columns, rows);
     expect(result.map((c) => c.id)).toEqual(["name"]);
-  });
-});
-
-describe("isRefColumn", () => {
-  it("returns true for REF", () => {
-    expect(isRefColumn("REF")).toBe(true);
-  });
-
-  it("returns true for SELECT", () => {
-    expect(isRefColumn("SELECT")).toBe(true);
-  });
-
-  it("returns true for RADIO", () => {
-    expect(isRefColumn("RADIO")).toBe(true);
-  });
-
-  it("returns false for REF_ARRAY", () => {
-    expect(isRefColumn("REF_ARRAY")).toBe(false);
-  });
-
-  it("returns false for REFBACK", () => {
-    expect(isRefColumn("REFBACK")).toBe(false);
-  });
-
-  it("returns false for ONTOLOGY", () => {
-    expect(isRefColumn("ONTOLOGY")).toBe(false);
-  });
-
-  it("returns false for STRING", () => {
-    expect(isRefColumn("STRING")).toBe(false);
-  });
-});
-
-describe("isRefArrayColumn", () => {
-  it("returns true for REF_ARRAY", () => {
-    expect(isRefArrayColumn("REF_ARRAY")).toBe(true);
-  });
-
-  it("returns true for MULTISELECT", () => {
-    expect(isRefArrayColumn("MULTISELECT")).toBe(true);
-  });
-
-  it("returns true for CHECKBOX", () => {
-    expect(isRefArrayColumn("CHECKBOX")).toBe(true);
-  });
-
-  it("returns false for REF", () => {
-    expect(isRefArrayColumn("REF")).toBe(false);
-  });
-
-  it("returns false for REFBACK", () => {
-    expect(isRefArrayColumn("REFBACK")).toBe(false);
-  });
-
-  it("returns false for STRING", () => {
-    expect(isRefArrayColumn("STRING")).toBe(false);
-  });
-
-  it("returns false for ONTOLOGY", () => {
-    expect(isRefArrayColumn("ONTOLOGY")).toBe(false);
   });
 });
 
@@ -733,6 +696,55 @@ describe("getListColumns", () => {
   });
 });
 
+describe("getListColumns in a parent scoped list", () => {
+  const variableColumns = [
+    col({ id: "resource", columnType: "REF", key: 1, role: "DETAIL" }),
+    col({ id: "table", columnType: "REF", key: 1, role: "DETAIL" }),
+    col({ id: "name", columnType: "STRING", key: 1, role: "TITLE" }),
+    col({ id: "description", columnType: "TEXT", role: "DESCRIPTION" }),
+    col({ id: "unit", columnType: "STRING", role: "DETAIL" }),
+    col({ id: "format", columnType: "STRING", role: "DETAIL" }),
+    col({ id: "repeats", columnType: "STRING", role: "DETAIL" }),
+    col({ id: "mandatory", columnType: "STRING", role: "DETAIL" }),
+  ];
+
+  const columnsWithoutRoles = [
+    col({ id: "resource", columnType: "REF", key: 1 }),
+    col({ id: "name", columnType: "STRING", key: 1 }),
+    col({ id: "label", columnType: "STRING" }),
+    col({ id: "unit", columnType: "STRING" }),
+    col({ id: "format", columnType: "STRING" }),
+    col({ id: "notes", columnType: "TEXT" }),
+  ];
+
+  it("keeps the part-of column and the pinned key columns when no context is supplied", () => {
+    expect(
+      getListColumns(variableColumns, { layout: "TABLE" }).map((c) => c.id)
+    ).toEqual(["name", "description", "resource", "table", "unit"]);
+    expect(
+      getListColumns(columnsWithoutRoles, { layout: "TABLE" }).map((c) => c.id)
+    ).toEqual(["resource", "name", "label", "unit", "format"]);
+  });
+
+  it("hides the columns the url already pins and spends the freed slots on informative columns", () => {
+    expect(
+      getListColumns(variableColumns, {
+        layout: "TABLE",
+        hideColumns: ["resource", "table"],
+      }).map((c) => c.id)
+    ).toEqual(["name", "description", "unit", "format", "repeats"]);
+  });
+
+  it("hides pinned key columns of a table without roles too", () => {
+    expect(
+      getListColumns(columnsWithoutRoles, {
+        layout: "TABLE",
+        hideColumns: ["resource"],
+      }).map((c) => c.id)
+    ).toEqual(["name", "label", "unit", "format", "notes"]);
+  });
+});
+
 describe("isDataListColumn", () => {
   it("returns true for REF_ARRAY with refTableId", () => {
     expect(
@@ -776,6 +788,14 @@ describe("isDataListColumn", () => {
     expect(isDataListColumn(col({ id: "name", columnType: "STRING" }))).toBe(
       false
     );
+  });
+
+  it("returns true for PARTS with refTableId, so a parts collection renders as a list like its refback flavor", () => {
+    expect(
+      isDataListColumn(
+        col({ id: "tables", columnType: "PARTS", refTableId: "Tables" })
+      )
+    ).toBe(true);
   });
 });
 
