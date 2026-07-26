@@ -83,6 +83,14 @@ commands:
         name: run-pnpm-audit
         command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
         working_directory: apps
+    - setup_remote_docker:
+        docker_layer_caching: true
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+  gradle_pre_steps:
+    steps:
     - run:
           name: Concatenate Build Files as key for cache
           command: |
@@ -90,8 +98,8 @@ commands:
           no_output_timeout: 5m
     - restore_cache:
         keys:
-          - gradle-{{ checksum "concatenated-build-gradle" }}
-          - gradle
+          - gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
+          - gradle-deps-v1-
     - restore_cache:
         keys:
         - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
@@ -104,13 +112,32 @@ commands:
         key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - save_cache:
         paths:
-          - ~/.gradle/caches
-        key: gradle-{{ checksum "concatenated-build-gradle" }}
-    - setup_remote_docker:
-        docker_layer_caching: true
+          - ~/.gradle/caches/modules-2
+          - ~/.gradle/caches/jars-9
+        key: gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
+
+  restore_gradle_build_cache:
+    steps:
+    - restore_cache:
+        keys:
+          - gradle-buildcache-v1-{{ .Revision }}
+          - gradle-buildcache-v1-
+
+  save_gradle_build_cache:
+    steps:
     - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+        name: Drop gradle build cache entries unused for 7 days before archiving
+        command: |
+          if [ -d ~/.gradle/caches/build-cache-1 ]; then
+            find ~/.gradle/caches/build-cache-1 -type f ! -name '*.lock' ! -name '*.properties' -mtime +7 -delete
+            du -sh ~/.gradle/caches/build-cache-1
+          else
+            echo "no gradle build cache to prune"
+          fi
+    - save_cache:
+        paths:
+          - ~/.gradle/caches/build-cache-1
+        key: gradle-buildcache-v1-{{ .Revision }}
 
   post_steps:
     steps:
@@ -135,6 +162,8 @@ jobs:
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 
     - pre_steps
+    - gradle_pre_steps
+    - restore_gradle_build_cache
 
     - run:
         name: build and push emx2 java docker images for the preview
@@ -167,6 +196,8 @@ jobs:
 
     steps:
       - pre_steps
+      - gradle_pre_steps
+      - restore_gradle_build_cache
       - run:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar -x test ci --no-daemon
@@ -374,6 +405,8 @@ jobs:
 
     steps:
     - pre_steps
+    - gradle_pre_steps
+    - restore_gradle_build_cache
 
     - run:
         name: prepare sql test database
@@ -409,6 +442,8 @@ jobs:
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
 
+    - save_gradle_build_cache
+
     - post_steps
 
     # LAST step of this job on purpose: it writes a repo-root .env, which would otherwise change the
@@ -443,7 +478,8 @@ jobs:
         my-pipeline: <<pipeline.number>>
         
     - pre_steps
-    
+    - gradle_pre_steps
+
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
@@ -547,6 +583,7 @@ jobs:
 
     steps:
       - pre_steps
+      - gradle_pre_steps
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
