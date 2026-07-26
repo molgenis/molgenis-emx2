@@ -16,6 +16,7 @@
     "graphql-tag": "2.12.6",
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
+    "tailwind-components": "workspace:*",
     "sass": "1.70.0",
     "vue": "3.5.22",
     "vue-router": "4.4.3"

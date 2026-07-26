@@ -1,0 +1,14 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": [
+        "dist/**",
+        "showCase/**",
+        "gen-docs/**",
+        ".nuxt/tsconfig*.json"
+      ]
+    }
+  }
+}

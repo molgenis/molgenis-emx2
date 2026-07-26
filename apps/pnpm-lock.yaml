@@ -35,6 +35,9 @@ importers:
       molgenis-viz:
         specifier: workspace:*
         version: link:../molgenis-viz
+      tailwind-components:
+        specifier: workspace:*
+        version: link:../tailwind-components
       vue:
         specifier: 3.5.22
         version: 3.5.22(typescript@5.9.3)
@@ -203,6 +206,9 @@ importers:
       molgenis-viz:
         specifier: workspace:*
         version: link:../molgenis-viz
+      tailwind-components:
+        specifier: workspace:*
+        version: link:../tailwind-components
       vue:
         specifier: 3.5.22
         version: 3.5.22(typescript@5.9.3)
@@ -243,6 +249,9 @@ importers:
       molgenis-viz:
         specifier: workspace:*
         version: link:../molgenis-viz
+      tailwind-components:
+        specifier: workspace:*
+        version: link:../tailwind-components
       vue:
         specifier: 3.5.22
         version: 3.5.22(typescript@5.9.3)
@@ -369,6 +378,9 @@ importers:
       molgenis-viz:
         specifier: workspace:*
         version: link:../molgenis-viz
+      tailwind-components:
+        specifier: workspace:*
+        version: link:../tailwind-components
       vue:
         specifier: 3.5.22
         version: 3.5.22(typescript@5.9.3)
@@ -471,6 +483,9 @@ importers:
       sass:
         specifier: 1.70.0
         version: 1.70.0
+      tailwind-components:
+        specifier: workspace:*
+        version: link:../tailwind-components
       vue:
         specifier: 3.5.22
         version: 3.5.22(typescript@5.9.3)
@@ -737,6 +752,9 @@ importers:
       molgenis-viz:
         specifier: workspace:*
         version: link:../molgenis-viz
+      tailwind-components:
+        specifier: workspace:*
+        version: link:../tailwind-components
       vue:
         specifier: 3.5.22
         version: 3.5.22(typescript@5.9.3)
