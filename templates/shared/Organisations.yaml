@@ -1,0 +1,7 @@
+name: Organisations
+description: Shared organisation reference table
+columns:
+- name: orgId
+  key: 1
+  required: true
+- name: orgName

@@ -1,0 +1,2 @@
+subjectId,name,sex,diseaseCategory,clinicalCentreId,lastVisitDate,biobanked,consentFormId,trialEnrolment,assayCategory
+SUBJ008,Hanna Ismail,female,"Autoimmune,Genodermatosis",AMC-NL,2025-02-28,Yes,CF-2024-088,XPTRIAL-007,"Genomics,Proteomics"

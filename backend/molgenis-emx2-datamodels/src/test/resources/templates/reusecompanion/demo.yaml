@@ -1,0 +1,10 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Item
+  columns:
+  - name: id
+    key: 1
+additionalSchemas:
+  YwlReuseOntologies:
+    bundle: reusecompanion/ontologies/molgenis.yaml

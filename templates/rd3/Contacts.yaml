@@ -1,0 +1,8 @@
+name: Contacts
+description: rd3 defines its own Contacts, deliberately not sharing the catalogue one
+columns:
+- name: id
+  key: 1
+  required: true
+- name: firstName
+- name: lastName

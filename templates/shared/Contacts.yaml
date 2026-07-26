@@ -1,0 +1,8 @@
+name: Contacts
+description: Shared contact definition reused by bundles that adopt it verbatim
+columns:
+- name: contactId
+  key: 1
+  required: true
+- name: fullName
+- name: email

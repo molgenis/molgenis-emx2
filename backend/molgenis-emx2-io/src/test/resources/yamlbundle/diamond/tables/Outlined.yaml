@@ -1,0 +1,4 @@
+name: Outlined
+extends: [Shape]
+columns:
+- name: strokeColor

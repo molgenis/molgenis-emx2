@@ -1,0 +1,5 @@
+name: Category
+columns:
+- name: name
+  key: 1
+- name: label

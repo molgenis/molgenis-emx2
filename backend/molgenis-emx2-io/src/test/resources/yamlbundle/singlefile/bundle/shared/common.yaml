@@ -1,0 +1,5 @@
+columns:
+- heading: contactDetails
+- name: email
+  type: email
+- name: phone

@@ -1,0 +1,14 @@
+name: Pet
+label: Pets
+description: A pet in the store
+settings:
+  row_style: card
+columns:
+- name: name
+  key: 1
+- name: category
+- name: weight
+  type: decimal
+- name: active
+  type: bool
+  required: true

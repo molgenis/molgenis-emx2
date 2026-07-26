@@ -1,0 +1,7 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- tables/Pet.yaml
+- tables/Category.yaml
+settings:
+  menu: main

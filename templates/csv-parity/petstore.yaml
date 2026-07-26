@@ -1,0 +1,170 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Pet
+  description: My pet store example table
+  profiles:
+  - Petstore
+  columns:
+  - name: name
+    key: 1
+    required: true
+    description: the name
+    semantics:
+    - http://example.com/petstore#hasName
+    profiles:
+    - Petstore
+  - name: category
+    type: radio
+    refTable: Category
+    required: true
+    profiles:
+    - Petstore
+  - name: photoUrls
+    type: string_array
+    profiles:
+    - Petstore
+  - heading: details
+    description: Details
+    profiles:
+    - Petstore
+  - name: status
+    semantics:
+    - http://example.com/petstore#hasStatus
+    profiles:
+    - Petstore
+  - name: tags
+    type: ontology_array
+    refTable: Tag
+    semantics:
+    - http://example.com/petstore#hasTags
+    profiles:
+    - Petstore
+  - name: weight
+    type: decimal
+    required: true
+    semantics:
+    - http://example.com/petstore#hasWeight
+    profiles:
+    - Petstore
+  - heading: Heading2
+    profiles:
+    - Petstore
+  - name: orders
+    type: refback
+    refTable: Order
+    refBack: pet
+    profiles:
+    - Petstore
+- name: Order
+  description: ''
+  profiles:
+  - Petstore
+  columns:
+  - name: orderId
+    type: auto_id
+    key: 1
+    required: true
+    computed: ORDER:${mg_autoid}
+    profiles:
+    - Petstore
+  - name: pet
+    type: select
+    refTable: Pet
+    profiles:
+    - Petstore
+  - name: quantity
+    type: long
+    formLabel: how many would you like ?
+    validation: if(quantity < 1) 'quantity should be >= 1'
+    profiles:
+    - Petstore
+  - name: price
+    type: decimal
+    validation: price >= 1
+    profiles:
+    - Petstore
+  - name: complete
+    type: bool
+    profiles:
+    - Petstore
+  - name: status
+    defaultValue: hallo
+    profiles:
+    - Petstore
+  - name: timestamp
+    type: datetime
+    profiles:
+    - Petstore
+- name: User
+  description: ''
+  semantics:
+  - foaf:Person
+  profiles:
+  - Petstore
+  columns:
+  - name: username
+    key: 1
+    required: true
+    semantics:
+    - foaf:accountName
+    profiles:
+    - Petstore
+  - name: firstName
+    semantics:
+    - foaf:firstName
+    profiles:
+    - Petstore
+  - name: lastName
+    semantics:
+    - foaf:lastName
+    profiles:
+    - Petstore
+  - name: picture
+    type: file
+    semantics:
+    - foaf:img
+    profiles:
+    - Petstore
+  - name: email
+    type: email
+    semantics:
+    - foaf:mbox
+    profiles:
+    - Petstore
+  - name: password
+    profiles:
+    - Petstore
+  - name: phone
+    semantics:
+    - foaf:phone
+    profiles:
+    - Petstore
+  - name: userStatus
+    type: int
+    profiles:
+    - Petstore
+  - name: pets
+    type: multiselect
+    refTable: Pet
+    semantics:
+    - http://example.com/petstore#hasPets
+    profiles:
+    - Petstore
+  - heading: address
+    profiles:
+    - Petstore
+  - name: street
+    visible: lastName
+    profiles:
+    - Petstore
+- name: Category
+  description: ''
+  profiles:
+  - Petstore
+  columns:
+  - name: name
+    key: 1
+    required: true
+    profiles:
+    - Petstore

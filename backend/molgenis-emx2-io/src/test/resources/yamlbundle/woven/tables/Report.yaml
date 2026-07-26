@@ -1,0 +1,17 @@
+name: Report
+subclasses:
+- name: DraftReport
+  extends: [Report]
+modules:
+- name: Attachments
+columns:
+- name: reportId
+  key: 1
+- name: draftNote
+  subclass: DraftReport
+  type: text
+- name: attachmentInfo
+  module: Attachments
+  type: string
+- name: publishedDate
+  type: date

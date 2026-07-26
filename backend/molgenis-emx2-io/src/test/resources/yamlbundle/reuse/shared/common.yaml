@@ -1,0 +1,8 @@
+columns:
+- heading: contactDetails
+  visible: hasContact
+- name: email
+  type: email
+- name: phone
+- name: orcid
+  type: string

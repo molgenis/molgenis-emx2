@@ -1,0 +1,12 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Node
+  columns:
+  - name: id
+    key: 1
+  - name: parent
+    type: ref
+    refTable: Node
+data:
+- atomicity/commitfaildata
