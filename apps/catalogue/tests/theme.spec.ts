@@ -40,3 +40,13 @@ test("landing-page-aumc", async ({ page, goto }) => {
     maxDiffPixelRatio: 0.4,
   });
 });
+
+test("landing-page-hdsu", async ({ page, goto }) => {
+  await goto("/?theme=hdsu", {
+    waitUntil: "hydration",
+  });
+  await expect(page).toHaveScreenshot({
+    fullPage: true,
+    maxDiffPixelRatio: 0.4,
+  });
+});

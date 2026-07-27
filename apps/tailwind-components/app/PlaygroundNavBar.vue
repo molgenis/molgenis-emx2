@@ -90,6 +90,43 @@
           />
           <label class="hover:cursor-pointer" for="aumc-theme"> AUMC </label>
         </div>
+        <div class="px-1">
+          <input
+            class="hover:cursor-pointer ml-1"
+            id="hdsu-theme"
+            type="radio"
+            v-model="theme"
+            value="hdsu"
+            name="theme"
+          />
+          <label class="hover:cursor-pointer" for="hdsu-theme"> HDSU </label>
+        </div>
+        <div class="px-1">
+          <input
+            class="hover:cursor-pointer ml-1"
+            id="uncan-connect-light-theme"
+            type="radio"
+            v-model="theme"
+            value="uncan-connect-light"
+            name="theme"
+          />
+          <label class="hover:cursor-pointer" for="uncan-connect-light-theme">
+            UNCAN light
+          </label>
+        </div>
+        <div class="px-1">
+          <input
+            class="hover:cursor-pointer ml-1"
+            id="uncan-connect-bold-theme"
+            type="radio"
+            v-model="theme"
+            value="uncan-connect-bold"
+            name="theme"
+          />
+          <label class="hover:cursor-pointer" for="uncan-connect-bold-theme">
+            UNCAN bold
+          </label>
+        </div>
       </fieldset>
     </div>
   </nav>

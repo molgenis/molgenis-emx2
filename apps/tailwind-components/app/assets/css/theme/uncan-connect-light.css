@@ -1,0 +1,70 @@
+:root[data-theme="uncan-connect-light"] {
+  --uncan-accent: #7a39c4;
+  --uncan-accent-secondary: #ffab00;
+  --uncan-bg: #fdfcf8;
+  --uncan-bg-alt: #f6edf3;
+  --uncan-fg: #1a1128;
+  --uncan-fg-alt: #ffffff;
+  --uncan-muted: #636363;
+
+  --background-color-app-wrapper: var(--uncan-bg);
+  --background-image-base-gradient: linear-gradient(
+    180deg,
+    var(--uncan-bg),
+    var(--uncan-bg) 133.81%
+  );
+  --background-color-navigation: var(--uncan-fg-alt);
+
+  --text-color-logo-text: var(--uncan-accent);
+  --text-color-logo-text-inverted: var(--uncan-fg-alt);
+  --background-color-logo: var(--uncan-fg-alt);
+  --logo-icon-primary: var(--uncan-accent);
+  --logo-icon-secondary: var(--uncan-accent-secondary);
+
+  --text-color-title: var(--uncan-accent);
+  --text-color-title-contrast: var(--uncan-fg);
+  --text-color-sub-menu: var(--uncan-accent);
+  --text-color-sub-menu-hover: var(--uncan-fg);
+  --text-color-link: var(--uncan-accent);
+  --text-color-breadcrumb: var(--uncan-accent);
+
+  --background-color-button-primary: var(--uncan-accent);
+  --background-color-button-primary-hover: var(--uncan-accent);
+  --border-color-button-primary: var(--uncan-accent);
+  --border-color-button-primary-hover: var(--uncan-accent);
+
+  --background-color-button-secondary: var(--uncan-fg-alt);
+  --text-color-button-secondary: var(--uncan-accent);
+  --text-color-button-secondary-hover: var(--uncan-accent);
+  --background-color-button-secondary-hover: var(--uncan-bg-alt);
+  --border-color-button-secondary-hover: var(--uncan-accent);
+
+  --background-color-link-hover: var(--uncan-bg-alt);
+
+  --background-color-search-results-view-tabs: var(--uncan-accent);
+  --text-color-search-results-view-tabs: var(--uncan-accent);
+  --text-color-search-results-view-tabs-hover: var(--uncan-fg);
+  --text-color-search-filter-action: var(--uncan-accent);
+  --text-color-icon-neutral: var(--uncan-muted);
+
+  --background-color-search-button: var(--uncan-bg-alt);
+  --text-color-search-button: var(--uncan-accent);
+  --text-color-search-button-hover: var(--uncan-fg);
+  --background-color-search-filter-group-toggle: var(--uncan-bg-alt);
+
+  --text-color-pagination: var(--uncan-accent);
+  --text-color-pagination-hover: var(--uncan-fg);
+  --text-color-pagination-button: var(--uncan-accent);
+  --text-color-pagination-button-hover: var(--uncan-fg);
+  --border-color-pagination-hover: var(--uncan-accent);
+
+  --background-color-label-available: var(--uncan-accent);
+  --background-color-label-available-hover: var(--uncan-fg);
+  --text-color-label-available: var(--uncan-fg-alt);
+
+  --background-color-tab: var(--uncan-bg-alt);
+  --background-color-tab-hover: var(--uncan-accent);
+  --background-color-tab-active: var(--uncan-accent);
+
+  --text-color-table-row: var(--uncan-fg);
+}
