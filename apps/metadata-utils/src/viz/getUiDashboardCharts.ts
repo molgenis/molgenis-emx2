@@ -51,6 +51,20 @@ export async function getDashboardChart(
             color
             description
             sortOrder
+            
+            locationName
+            alternateId
+            city
+            country {
+              name
+            }
+            continent {
+              name
+            }
+            latitude
+            longitude
+            website
+            tooltipContent
           }
         }
       }

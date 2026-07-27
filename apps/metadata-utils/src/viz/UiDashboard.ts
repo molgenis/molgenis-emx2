@@ -1,7 +1,7 @@
-// Generated (on: 2026-07-25T12:07:12.958827) from Generator.java for schema: UiDashboard
+// Generated (on: 2026-07-27T13:44:53.120466) from Generator.java for schema: UiDashboard
 
 export interface IMgTableClass {
-    mg_tableclass: string;
+    mg_tableclass?: string;
 }
 
 export interface IFile {
@@ -34,12 +34,12 @@ export interface IChartData extends IMgTableClass {
     series?: string;
     timeValue?: string;
     timeUnit?: IOntologyNode;
-    color?: string;
-    sortOrder?: number;
     primaryCategory?: string;
     secondaryCategory?: string;
     primaryCategoryLabel?: string;
     secondaryCategoryLabel?: string;
+    color?: string;
+    sortOrder?: number;
     description?: string;
     includedInChart?: ICharts;
 }
@@ -77,7 +77,7 @@ export interface ICharts extends IMgTableClass {
     bottomMargin?: number;
     leftMargin?: number;
     legendPosition?: IOntologyNode;
-    dataPoints?: IData[];
+    dataPoints?: IVizDatasets[];
     dashboardPage?: IDashboardPages;
 }
 
@@ -126,37 +126,6 @@ export interface IDashboardPages extends IMgTableClass {
 }
 
 export interface IDashboardPages_agg {
-    count: number
-}
-
-export interface IData extends IMgTableClass {
-    id: string;
-    primaryCategory?: string;
-    secondaryCategory?: string;
-    primaryCategoryLabel?: string;
-    secondaryCategoryLabel?: string;
-    description?: string;
-    includedInChart?: ICharts;
-    name?: string;
-    value?: number;
-    valueLabel?: string;
-    series?: string;
-    timeValue?: string;
-    timeUnit?: IOntologyNode;
-    color?: string;
-    sortOrder?: number;
-    locationName?: string;
-    alternateId?: string;
-    city?: string;
-    country?: IOntologyNode;
-    continent?: IOntologyNode;
-    latitude?: number;
-    longitude?: number;
-    website?: string;
-    tooltipContent?: string;
-}
-
-export interface IData_agg {
     count: number
 }
 
@@ -226,11 +195,44 @@ export interface IMapDotDistributionData extends IMgTableClass {
     secondaryCategory?: string;
     primaryCategoryLabel?: string;
     secondaryCategoryLabel?: string;
+    color?: string;
+    sortOrder?: number;
     description?: string;
     includedInChart?: ICharts;
 }
 
 export interface IMapDotDistributionData_agg {
+    count: number
+}
+
+export interface IVizDatasets extends IMgTableClass {
+    id: string;
+    primaryCategory?: string;
+    secondaryCategory?: string;
+    primaryCategoryLabel?: string;
+    secondaryCategoryLabel?: string;
+    color?: string;
+    sortOrder?: number;
+    description?: string;
+    includedInChart?: ICharts;
+    name?: string;
+    value?: number;
+    valueLabel?: string;
+    series?: string;
+    timeValue?: string;
+    timeUnit?: IOntologyNode;
+    locationName?: string;
+    alternateId?: string;
+    city?: string;
+    country?: IOntologyNode;
+    continent?: IOntologyNode;
+    latitude?: number;
+    longitude?: number;
+    website?: string;
+    tooltipContent?: string;
+}
+
+export interface IVizDatasets_agg {
     count: number
 }
 
