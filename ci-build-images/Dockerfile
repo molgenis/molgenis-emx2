@@ -7,7 +7,9 @@ FROM gradle:jdk21-noble
 RUN useradd -m molgenis
 
 # Python
-RUN apt-get update && apt-get install vim python3 -y
+RUN apt-get update && apt-get install vim python3 python3-pip -y
+RUN python3 -m pip config set global.break-system-packages true
+RUN pip install uv
 RUN python3 --version
 
 ENV NODE_VERSION=22.17.0
@@ -28,11 +30,6 @@ RUN npm --version
 RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 RUN pnpm --version
-
-# Python uv
-RUN curl -LsSf https://astral.sh/uv/0.11.25/install.sh | sh
-ENV PATH="/home/molgenis/.local/bin:$PATH"
-RUN uv --version
 
 USER root 
 
