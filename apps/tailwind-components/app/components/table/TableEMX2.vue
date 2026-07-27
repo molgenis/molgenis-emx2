@@ -300,7 +300,7 @@
     :schemaId="schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
-    :isInsert="false"
+    :isInsert="isCopy"
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
   />
@@ -392,6 +392,7 @@ const showDeleteModal = ref<boolean>(false);
 const showDeleteMultipleModal = ref<boolean>(false);
 const rowDataForModal = ref<IRow>();
 const showModal = ref(false);
+const isCopy = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
 const columns = ref<IColumn[]>([]);
@@ -748,6 +749,7 @@ function onShowEditModal(row: TableRow) {
   delete clone._rowId;
   delete clone._rowIdString;
   rowDataForModal.value = clone;
+  isCopy.value = false;
   showEditModal.value = true;
 }
 
@@ -761,6 +763,7 @@ function onShowCopyModal(row: TableRow) {
     }
   });
   rowDataForModal.value = clone;
+  isCopy.value = true;
   showEditModal.value = true;
 }
 
