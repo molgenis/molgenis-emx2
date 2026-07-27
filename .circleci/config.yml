@@ -177,44 +177,6 @@ commands:
 
 # jobs for pull request and master
 jobs:
-  build-preview-images:
-    <<: *build_config
-
-    steps:
-    - run: |
-        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-
-    - pre_steps
-    - gradle_pre_steps
-    - restore_gradle_build_cache
-    - restore_turbo_cache
-
-    - run:
-        name: build and push emx2 java docker images for the preview
-        command: ./gradlew -s --no-daemon dockerPush ci -x test
-
-    - persist_to_workspace:
-        root: .
-        paths:
-          - build/ci.properties
-
-    - run:
-        name: push ssr-catalogue docker images
-        command: |
-          export $( cat build/ci.properties | xargs )
-          docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-          docker push molgenis/ssr-catalogue-snapshot --all-tags
-
-    - run:
-        name: Docker-Scout scanning on cve's, break on critical.
-        command: |
-          export $( cat build/ci.properties | xargs )
-          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
-          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --only-severity critical --ignore-suppressed --only-fixed --exit-code
-
-    - post_steps
-
-
   build:
     <<: *build_config
 
@@ -225,7 +187,7 @@ jobs:
       - restore_turbo_cache
       - run:
           name: build the application without running tests to speed up the e2e tests
-          command: ./gradlew shadowJar -x test ci --no-daemon
+          command: ./gradlew shadowJar dockerPrepare -x test ci --no-daemon
 
       - run:
           name: build ssr catalogue
@@ -236,6 +198,8 @@ jobs:
           root: .
           paths:
             - build/libs
+            - build/docker/deps
+            - build/docker/app
             - build/ci.properties
             - apps/catalogue
             - custom-app/
@@ -587,14 +551,38 @@ jobs:
 
     - post_steps
 
-  pr-preview:
+  preview:
     <<: *build_config
 
     steps:
+    - run: |
+        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+
     - pre_steps
 
     - attach_workspace:
         at: .
+
+    - run:
+        name: build and push emx2 java docker images for the preview
+        command: |
+          export $( cat build/ci.properties | xargs )
+          docker build . -t ${IMAGE_NAME}:${TAG_NAME} -t ${IMAGE_NAME}:latest
+          docker push ${IMAGE_NAME} --all-tags
+
+    - run:
+        name: push ssr-catalogue docker images
+        command: |
+          export $( cat build/ci.properties | xargs )
+          docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+          docker push molgenis/ssr-catalogue-snapshot --all-tags
+
+    - run:
+        name: Docker-Scout scanning on cve's, break on critical.
+        command: |
+          export $( cat build/ci.properties | xargs )
+          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --only-severity critical --ignore-suppressed --only-fixed --exit-code
 
     - run:
         name: Start preview in limited resources mode
@@ -731,13 +719,9 @@ workflows:
     unless:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
-    - build-preview-images:
-        filters:
-          branches:
-            ignore: master
-    - pr-preview:
+    - preview:
         requires:
-          - build-preview-images
+          - build
         filters:
           branches:
             ignore: master
