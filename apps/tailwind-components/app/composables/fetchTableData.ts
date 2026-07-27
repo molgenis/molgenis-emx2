@@ -81,11 +81,7 @@ function isSelectedAtEveryDepth(col: IColumn): boolean {
 
 function buildScalarFieldGql(col: IColumn): string {
   if (isOntologyType(col.columnType)) {
-    return (
-      " " +
-      col.id +
-      " {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order, parent {name, label, definition, order}}}}"
-    );
+    return ` ${col.id} {name, label, definition, order}`;
   } else if (isFileType(col.columnType)) {
     return ` ${col.id} { id, size, filename, extension, url }`;
   } else if (!isLayoutColumnType(col.columnType)) {

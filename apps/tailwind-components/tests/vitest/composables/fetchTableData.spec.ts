@@ -82,6 +82,32 @@ describe("buildColumnGqlAsync — scalar columns", () => {
   });
 });
 
+describe("buildColumnGqlAsync — ontology columns", () => {
+  it("selects only the term's own fields, never an ancestor chain, so ancestry is not fetched on every row", async () => {
+    const result = await buildColumnGqlAsync(
+      [col("keywords", "ONTOLOGY_ARRAY", "Keywords", "CatalogueOntologies")],
+      noColumnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
+      true,
+      2
+    );
+    expect(result).toBe(" keywords {name, label, definition, order}");
+  });
+
+  it("selects the same fields for a single ONTOLOGY column as for an ONTOLOGY_ARRAY column", async () => {
+    const singleResult = await buildColumnGqlAsync(
+      [col("status", "ONTOLOGY", "Statuses")],
+      noColumnsForTable,
+      ROOT_SCHEMA_ID,
+      ROOT_TABLE_ID,
+      true,
+      2
+    );
+    expect(singleResult).toBe(" status {name, label, definition, order}");
+  });
+});
+
 describe("buildColumnGqlAsync — REFBACK at root level", () => {
   it("always emits _agg { count } for REFBACK", async () => {
     const result = await buildColumnGqlAsync(

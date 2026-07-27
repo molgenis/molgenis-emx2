@@ -21,6 +21,9 @@ import ValueEMX2 from "../value/EMX2.vue";
 import DataList from "./DataList.vue";
 import OntologyTreeDisplay from "./OntologyTreeDisplay.vue";
 import fetchMetadata from "../../composables/fetchMetadata";
+import fetchOntologyAncestry from "../../composables/fetchOntologyAncestry";
+import { resolveOntologyAncestry } from "../../utils/resolveOntologyAncestry";
+import type { IOntologyTreeItem } from "../../utils/buildOntologyTree";
 import type {
   IColumn,
   ISchemaMetaData,
@@ -133,10 +136,40 @@ const listFilter = computed(() => {
   return undefined;
 });
 
-const isHierarchicalOntology = computed(() => {
-  if (!isOntologyType(props.column.columnType)) return false;
-  return hasOntologyHierarchy(props.value);
+const ontologyTerms = ref<IOntologyTreeItem[]>([]);
+
+watchEffect(async () => {
+  const terms = isOntologyType(props.column.columnType)
+    ? (props.value as IOntologyTreeItem[] | null)
+    : null;
+  if (!Array.isArray(terms)) {
+    ontologyTerms.value = [];
+    return;
+  }
+  ontologyTerms.value = terms;
+
+  const ontologySchemaId = props.column.refSchemaId || props.schemaId;
+  const ontologyTableId = props.column.refTableId;
+  if (!ontologySchemaId || !ontologyTableId) return;
+
+  try {
+    const termsByName = await fetchOntologyAncestry(
+      ontologySchemaId,
+      ontologyTableId,
+      terms.map((term) => term.name)
+    );
+    ontologyTerms.value = resolveOntologyAncestry(terms, termsByName);
+  } catch (error) {
+    console.error(
+      `Could not resolve ontology ancestry for ${ontologySchemaId}.${ontologyTableId}`,
+      error
+    );
+  }
 });
+
+const isHierarchicalOntology = computed(() =>
+  hasOntologyHierarchy(ontologyTerms.value)
+);
 
 const { navigateToRecord } = useRecordNavigation();
 
@@ -207,7 +240,7 @@ function handleRefClick() {
   </a>
   <OntologyTreeDisplay
     v-else-if="isHierarchicalOntology"
-    :value="value"
+    :value="ontologyTerms"
     :maxItems="maxItems"
   />
   <ValueEMX2
