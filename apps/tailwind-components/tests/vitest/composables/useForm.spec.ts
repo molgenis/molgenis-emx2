@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { type Ref, ref } from "vue";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnValue } from "../../../../metadata-utils/src/types";
@@ -536,6 +536,42 @@ describe("useForm", () => {
       );
       validateKeyColumns();
       expect(visibleColumnErrors.value["my_key"]).toBe("My key is required");
+    });
+  });
+
+  describe("mutation payload", () => {
+    const captureMutationVariables = () => {
+      const sentBodies: FormData[] = [];
+      vi.stubGlobal("$fetch", (_url: string, options: { body: FormData }) => {
+        sentBodies.push(options.body);
+        return Promise.resolve({ data: {} });
+      });
+      return () =>
+        JSON.parse(sentBodies[0]?.get("variables") as string).value[0];
+    };
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    test("should send only table columns when updating", async () => {
+      const getSentValue = captureMutationVariables();
+      const formValues = ref<Record<string, columnValue>>({
+        col1: "a value",
+        col1_agg: { count: 2 } as unknown as columnValue,
+      });
+
+      await useForm(tableMetadata, formValues).updateInto();
+
+      expect(Object.keys(getSentValue())).toEqual([
+        "col1",
+        "col2",
+        "col3",
+        "col4",
+        "col5",
+        "col6",
+        "col7",
+      ]);
     });
   });
 

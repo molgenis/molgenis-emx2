@@ -428,7 +428,7 @@ export default function useForm(
   };
 
   const insertInto = async () => {
-    const formData = toFormData(formValues.value);
+    const formData = toFormData(formValues.value, metadata.value.columns);
     const query = `mutation insert($value:[${metadata.value.id}Input]){insert(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {
@@ -445,7 +445,7 @@ export default function useForm(
   };
 
   const updateInto = async () => {
-    const formData = toFormData(formValues.value);
+    const formData = toFormData(formValues.value, metadata.value.columns);
     const query = `mutation update($value:[${metadata.value.id}Input]){update(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {
