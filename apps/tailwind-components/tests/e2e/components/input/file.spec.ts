@@ -19,9 +19,7 @@ test.describe(
       const inputValueContainer = page.locator(
         "div[data-elem='current-file-container']"
       );
-      expect(
-        (inputValueContainer as unknown as HTMLInputElement).children
-      ).toBeFalsy();
+      await expect(inputValueContainer.locator("> *")).toHaveCount(0);
     });
   }
 );

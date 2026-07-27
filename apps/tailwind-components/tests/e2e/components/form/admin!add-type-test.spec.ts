@@ -576,5 +576,34 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .click();
 
   // Save the form
+  const insertResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes("graphql") &&
+      !!response.request().postData()?.includes("mutation insert")
+  );
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  await insertResponse;
+
+  // Read back the stored row to confirm persisted values, not just displayed ones
+  const latestRow = await page.request.post("/type test/graphql", {
+    data: {
+      query: `query{Types(orderby:{mg_insertedOn:DESC}, limit:1){autoIdType}}`,
+    },
+  });
+  const { autoIdType } = (await latestRow.json()).data.Types[0];
+
+  const stored = await page.request.post("/type test/graphql", {
+    data: {
+      query: `query($autoIdType:String){Types(filter:{autoIdType:{equals:[$autoIdType]}}){intType intArrayType longType longArrayType decimalType decimalArrayType}}`,
+      variables: { autoIdType },
+    },
+  });
+  const storedRow = (await stored.json()).data.Types[0];
+
+  expect(storedRow.intType).toBe(-5);
+  expect(storedRow.intArrayType).toEqual([6, 37]);
+  expect(storedRow.longType).toBe("6778");
+  expect(storedRow.longArrayType).toEqual(["8787", "7"]);
+  expect(storedRow.decimalType).toBe(-1.1);
+  expect(storedRow.decimalArrayType).toEqual([2.2, 3.3]);
 });
