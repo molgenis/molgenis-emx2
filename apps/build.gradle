@@ -1,6 +1,7 @@
 /* will produce a fat jar containing all html/js dist in public_html/apps*/
 
 import groovy.io.FileType
+import groovy.json.JsonSlurper
 import java.nio.file.Files
 
 plugins {
@@ -162,6 +163,8 @@ abstract class RepairAppDistTask extends DefaultTask {
             File distDir = new File(appDir, "dist")
             if (distDir.exists()) {
                 repairStaleDistDir(appDir, distDir)
+            } else {
+                restoreMissingDistSymlink(appDir, distDir)
             }
         }
     }
@@ -177,12 +180,32 @@ abstract class RepairAppDistTask extends DefaultTask {
                 "${removedFiles} stale file(s), because nuxt only creates that symlink when nothing " +
                 "is there and would otherwise let the stale bytes reach the jar")
         distDir.deleteDir()
+        createDistSymlink(distDir, nuxtPublicDir)
+    }
+
+    void restoreMissingDistSymlink(File appDir, File distDir) {
+        File nuxtPublicDir = new File(appDir, ".output/public")
+        if (!nuxtPublicDir.isDirectory() || !isStaticNuxtOutput(appDir)) {
+            return
+        }
+        logger.lifecycle("Creating the missing symlink ${distDir} -> ${nuxtPublicDir}, because a turbo " +
+                "cache hit restores .output without running nuxt, and the jar packages this app from " +
+                "dist")
+        createDistSymlink(distDir, nuxtPublicDir)
+    }
+
+    static boolean isStaticNuxtOutput(File appDir) {
+        File nitroManifest = new File(appDir, ".output/nitro.json")
+        return nitroManifest.isFile() && new JsonSlurper().parse(nitroManifest).preset == "static"
+    }
+
+    void createDistSymlink(File distDir, File nuxtPublicDir) {
         try {
             Files.createSymbolicLink(distDir.toPath(), nuxtPublicDir.toPath())
         } catch (IOException | UnsupportedOperationException e) {
             throw new GradleException(
-                    "${distDir} held stale bytes and was removed, but this platform refused to create " +
-                            "the symlink to ${nuxtPublicDir} that replaces it. Rebuild the app.", e)
+                    "${distDir} must be a symlink to ${nuxtPublicDir} for this app to reach the jar, " +
+                            "but this platform refused to create it. Rebuild the app.", e)
         }
     }
 
