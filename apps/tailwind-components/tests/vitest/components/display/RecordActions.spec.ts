@@ -42,7 +42,14 @@ function catalogueSchema(schemaId: string) {
   };
 }
 
-function stubCatalogueGraphql(schemaId: string) {
+interface IGraphqlStub {
+  recordQueries: string[];
+}
+
+function stubCatalogueGraphql(
+  schemaId: string,
+  { roles = ["Editor"], failRecordQueries = false } = {}
+): IGraphqlStub {
   const storedCollection: Record<string, unknown> = {
     id: "c1",
     name: "Cohort One",
@@ -50,6 +57,7 @@ function stubCatalogueGraphql(schemaId: string) {
     collectionType: "Population cohort",
   };
   const schema = catalogueSchema(schemaId);
+  const recordQueries: string[] = [];
 
   vi.stubGlobal(
     "$fetch",
@@ -66,11 +74,17 @@ function stubCatalogueGraphql(schemaId: string) {
               email: "editor@molgenis.org",
               admin: false,
               token: "token",
-              roles: url === `/${schemaId}/graphql` ? ["Editor"] : undefined,
+              roles: url === `/${schemaId}/graphql` ? roles : undefined,
             },
           },
         };
       }
+
+      recordQueries.push(query);
+      if (failRecordQueries) {
+        throw new Error("graphql unavailable");
+      }
+
       if (query.includes("_schema")) return { data: { _schema: schema } };
 
       const tableId = query.slice(
@@ -88,12 +102,13 @@ function stubCatalogueGraphql(schemaId: string) {
       };
     })
   );
+
+  return { recordQueries };
 }
 
 const mounted: { unmount: () => void }[] = [];
 
-async function openEditFormOf(schemaId: string, tableId: string) {
-  stubCatalogueGraphql(schemaId);
+async function mountRecordActions(schemaId: string, tableId: string) {
   const wrapper = mount(
     defineComponent({
       render: () =>
@@ -105,6 +120,12 @@ async function openEditFormOf(schemaId: string, tableId: string) {
   );
   await flushPromises();
   mounted.push(wrapper);
+  return wrapper;
+}
+
+async function openEditFormOf(schemaId: string, tableId: string) {
+  stubCatalogueGraphql(schemaId);
+  const wrapper = await mountRecordActions(schemaId, tableId);
 
   const editButton = wrapper
     .findAll("button")
@@ -156,5 +177,57 @@ describe("display/RecordActions.vue subclass fields", () => {
     await openEditFormOf("recordActionsOwnClass", "Collections");
 
     expect(editFormFieldLabels()).toEqual(["Id", "Name", "Collection type"]);
+  });
+});
+
+describe("display/RecordActions.vue without modify rights", () => {
+  afterEach(() => {
+    mounted.splice(0).forEach((wrapper) => wrapper.unmount());
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    sessionStorage.clear();
+  });
+
+  it("fetches no record at all when the viewer may not modify it", async () => {
+    const schemaId = "recordActionsViewer";
+    const { recordQueries } = stubCatalogueGraphql(schemaId, { roles: [] });
+
+    await mountRecordActions(schemaId, "Resources");
+
+    expect(recordQueries).toEqual([]);
+  });
+
+  it("offers no Edit or Delete button when the viewer may not modify it", async () => {
+    const schemaId = "recordActionsViewerButtons";
+    stubCatalogueGraphql(schemaId, { roles: [] });
+
+    const wrapper = await mountRecordActions(schemaId, "Resources");
+
+    expect(wrapper.findAll("button").map((button) => button.text())).toEqual(
+      []
+    );
+  });
+});
+
+describe("display/RecordActions.vue when the record cannot be loaded", () => {
+  afterEach(() => {
+    mounted.splice(0).forEach((wrapper) => wrapper.unmount());
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    sessionStorage.clear();
+  });
+
+  it("reports the failure instead of blanking the render or offering dead buttons", async () => {
+    const schemaId = "recordActionsLoadFailure";
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    stubCatalogueGraphql(schemaId, { failRecordQueries: true });
+
+    const wrapper = await mountRecordActions(schemaId, "Resources");
+
+    expect(wrapper.text()).toContain("Cannot load this record");
+    expect(wrapper.findAll("button")).toEqual([]);
+    expect(consoleError).toHaveBeenCalled();
   });
 });
