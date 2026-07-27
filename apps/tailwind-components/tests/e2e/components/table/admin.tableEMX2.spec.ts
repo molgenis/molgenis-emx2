@@ -8,17 +8,15 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.use({ storageState: "playwright/.auth/user.json" });
 
-test.beforeEach(async ({ page, goto }) => {
+test("the row should be removed from the table after deletion", async ({
+  page,
+  goto,
+}) => {
   await goto(`${route}table/EMX2.story?schema=pet+store&table=Category`, {
     waitUntil: "hydration",
   });
   await expect(page.getByText("TableEMX2").first()).toBeVisible();
   await expect(page.getByLabel("Schema:")).toHaveValue("pet store");
-});
-
-test("the row should be removed from the table after deletion", async ({
-  page,
-}) => {
   await page.getByRole("checkbox", { name: "Is Editable:" }).check();
   await expect(
     page.getByRole("button", { name: "Add Category" })
@@ -43,4 +41,33 @@ test("the row should be removed from the table after deletion", async ({
   await expect(
     page.getByRole("cell", { name: "view row details deltest" })
   ).toBeHidden();
+});
+
+test("the row should be copied and added to the table after copying", async ({
+  page,
+}) => {
+  await goto(`${route}table/EMX2.story?schema=pet+store&table=Pet`, {
+    waitUntil: "hydration",
+  });
+  await expect(page.getByText("TableEMX2").first()).toBeVisible();
+  await expect(page.getByLabel("Schema:")).toHaveValue("pet store");
+  await page.getByRole("checkbox", { name: "Is Editable:" }).check();
+  await expect(page.getByRole("button", { name: "Add Pet" })).toBeVisible();
+
+  // copy Pooky
+  await page.goto(
+    "http://localhost:3000/table/EMX2.story?schema=pet+store&table=Pet"
+  );
+  await page.getByRole("checkbox", { name: "Is Editable:" }).check();
+  await page.getByRole("button", { name: 'copy {"name":"pooky"}' }).hover();
+  await page.getByRole("button", { name: 'copy {"name":"pooky"}' }).click();
+  await page.getByRole("textbox", { name: "name Required" }).fill("copy cat");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.getByRole("button", { name: "Cancel" }).click();
+  await expect(
+    page
+      .locator("div")
+      .filter({ hasText: /^copy cat$/ })
+      .first()
+  ).toBeVisible();
 });
