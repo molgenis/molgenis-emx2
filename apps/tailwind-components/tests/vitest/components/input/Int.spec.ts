@@ -3,6 +3,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 import InputArray from "../../../../app/components/input/Array.vue";
 import InputInt from "../../../../app/components/input/Int.vue";
+import { dispatchKeyPress } from "../../fixtures/keyPress";
+
+const COMMA_KEY_CODE = 44;
+const PERIOD_KEY_CODE = 46;
+const DIGIT_SEVEN_KEY_CODE = 55;
 
 describe("input int", () => {
   let wrapper: ReturnType<typeof mount>;
@@ -62,6 +67,30 @@ describe("input int", () => {
   it("emits a lone minus sign so a negative number stays typeable", async () => {
     await wrapper.get("input").setValue("-");
     expect(lastEmittedValue()).toEqual(["-"]);
+  });
+
+  it("cancels a typed comma so it can never enter the field", () => {
+    const event = dispatchKeyPress(
+      wrapper.get("input").element,
+      COMMA_KEY_CODE
+    );
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("cancels a typed period because an integer has no fraction", () => {
+    const event = dispatchKeyPress(
+      wrapper.get("input").element,
+      PERIOD_KEY_CODE
+    );
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("lets a typed digit through", () => {
+    const event = dispatchKeyPress(
+      wrapper.get("input").element,
+      DIGIT_SEVEN_KEY_CODE
+    );
+    expect(event.defaultPrevented).toBe(false);
   });
 });
 

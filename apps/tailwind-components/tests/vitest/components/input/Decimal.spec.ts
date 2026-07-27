@@ -2,6 +2,11 @@ import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 import InputDecimal from "../../../../app/components/input/Decimal.vue";
+import { dispatchKeyPress } from "../../fixtures/keyPress";
+
+const COMMA_KEY_CODE = 44;
+const PERIOD_KEY_CODE = 46;
+const DIGIT_SEVEN_KEY_CODE = 55;
 
 describe("input decimal", () => {
   let wrapper: ReturnType<typeof mount>;
@@ -61,5 +66,38 @@ describe("input decimal", () => {
   it("emits a zero value rather than treating it as cleared", async () => {
     await wrapper.get("input").setValue("0");
     expect(lastEmittedValue()).toEqual(["0"]);
+  });
+
+  it("cancels a typed comma so it can never enter the field", () => {
+    const event = dispatchKeyPress(
+      wrapper.get("input").element,
+      COMMA_KEY_CODE
+    );
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it("lets a typed digit through", () => {
+    const event = dispatchKeyPress(
+      wrapper.get("input").element,
+      DIGIT_SEVEN_KEY_CODE
+    );
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("lets the first typed period through as the decimal separator", () => {
+    const event = dispatchKeyPress(
+      wrapper.get("input").element,
+      PERIOD_KEY_CODE
+    );
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("cancels a second typed period", async () => {
+    await wrapper.get("input").setValue("3.7");
+    const event = dispatchKeyPress(
+      wrapper.get("input").element,
+      PERIOD_KEY_CODE
+    );
+    expect(event.defaultPrevented).toBe(true);
   });
 });
