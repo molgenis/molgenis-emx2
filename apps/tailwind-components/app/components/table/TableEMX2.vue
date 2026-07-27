@@ -212,7 +212,20 @@
                         >
                           {{ row._rowIdString }}
                         </Button>
-
+                        <Button
+                          v-if="isEditable"
+                          :id="`copy-button-${row._rowIdString}`"
+                          :icon-only="true"
+                          type="inline"
+                          icon="copy"
+                          label="copy"
+                          @click="onShowCopyModal(row)"
+                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-copy`"
+                          aria-haspopup="dialog"
+                          :aria-expanded="showEditModal"
+                        >
+                          {{ row._rowIdString }}
+                        </Button>
                         <slot name="additional-row-actions" :row="row" />
                       </div>
                     </template>
@@ -734,6 +747,19 @@ function onShowEditModal(row: TableRow) {
   const clone: IRow = structuredClone(row);
   delete clone._rowId;
   delete clone._rowIdString;
+  rowDataForModal.value = clone;
+  showEditModal.value = true;
+}
+
+function onShowCopyModal(row: TableRow) {
+  const clone: IRow = structuredClone(row);
+  delete clone._rowId;
+  delete clone._rowIdString;
+  data.value?.tableMetadata?.columns.forEach((column: IColumn) => {
+    if (column.key === 1) {
+      delete clone[column.id];
+    }
+  });
   rowDataForModal.value = clone;
   showEditModal.value = true;
 }
