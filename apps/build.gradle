@@ -1,8 +1,6 @@
 /* will produce a fat jar containing all html/js dist in public_html/apps*/
 
-import groovy.io.FileType
 import groovy.json.JsonSlurper
-import java.nio.file.Files
 
 plugins {
     id "java"
@@ -146,97 +144,27 @@ tasks.register("cleanApps", Delete) {
 }
 clean.dependsOn 'cleanApps';
 
-// Custom task to repair the dist folders the jar packages directly
+// Locates the folder the jar packages per app
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
-abstract class RepairAppDistTask extends DefaultTask {
-    @Internal
-    abstract DirectoryProperty getAppsDirectory()
-
-    @Internal
-    abstract ListProperty<String> getAppNames()
-
-    @TaskAction
-    void repair() {
-        File appsDir = appsDirectory.get().asFile
-        appNames.get().each { appName ->
-            File appDir = new File(appsDir, appName)
-            File distDir = new File(appDir, "dist")
-            if (distDir.exists()) {
-                repairStaleDistDir(appDir, distDir)
-            } else {
-                restoreMissingDistSymlink(appDir, distDir)
-            }
+abstract class AppOutputLocator {
+    static File packagedOutputDirForApp(File appsDirectory, String appName) {
+        File appDir = new File(appsDirectory, appName)
+        File showCaseDir = new File(appDir, "showCase")
+        if (showCaseDir.isDirectory()) {
+            return showCaseDir
         }
-    }
-
-    void repairStaleDistDir(File appDir, File distDir) {
-        File nuxtPublicDir = new File(appDir, ".output/public")
-        if (!nuxtPublicDir.isDirectory() || Files.isSymbolicLink(distDir.toPath())) {
-            return
+        if (new File(appDir, "nuxt.config.ts").exists()) {
+            File nuxtPublicDir = new File(appDir, ".output/public")
+            return isStaticNuxtOutput(appDir) && nuxtPublicDir.isDirectory() ? nuxtPublicDir : null
         }
-        int removedFiles = 0
-        distDir.eachFileRecurse(FileType.FILES) { removedFiles++ }
-        logger.lifecycle("Replacing ${distDir} with a symlink to ${nuxtPublicDir} and discarding " +
-                "${removedFiles} stale file(s), because nuxt only creates that symlink when nothing " +
-                "is there and would otherwise let the stale bytes reach the jar")
-        distDir.deleteDir()
-        createDistSymlink(distDir, nuxtPublicDir)
-    }
-
-    void restoreMissingDistSymlink(File appDir, File distDir) {
-        File nuxtPublicDir = new File(appDir, ".output/public")
-        if (!nuxtPublicDir.isDirectory() || !isStaticNuxtOutput(appDir)) {
-            return
-        }
-        logger.lifecycle("Creating the missing symlink ${distDir} -> ${nuxtPublicDir}, because a turbo " +
-                "cache hit restores .output without running nuxt, and the jar packages this app from " +
-                "dist")
-        createDistSymlink(distDir, nuxtPublicDir)
+        File distDir = new File(appDir, "dist")
+        return distDir.isDirectory() ? distDir.canonicalFile : null
     }
 
     static boolean isStaticNuxtOutput(File appDir) {
         File nitroManifest = new File(appDir, ".output/nitro.json")
         return nitroManifest.isFile() && new JsonSlurper().parse(nitroManifest).preset == "static"
     }
-
-    void createDistSymlink(File distDir, File nuxtPublicDir) {
-        try {
-            Files.createSymbolicLink(distDir.toPath(), nuxtPublicDir.toPath())
-        } catch (IOException | UnsupportedOperationException e) {
-            throw new GradleException(
-                    "${distDir} must be a symlink to ${nuxtPublicDir} for this app to reach the jar, " +
-                            "but this platform refused to create it. Rebuild the app.", e)
-        }
-    }
-
-    static File distDirForApp(File appsDirectory, String appName) {
-        File appDir = new File(appsDirectory, appName)
-        File showCaseDir = new File(appDir, "showCase")
-        File distDir = new File(appDir, "dist")
-        if (showCaseDir.exists()) {
-            return showCaseDir
-        }
-        if (distDir.exists()) {
-            return distDir.canonicalFile
-        }
-        return null
-    }
-
-}
-
-tasks.register("repairAppDistBeforeBuild", RepairAppDistTask) {
-    appsDirectory.set(layout.projectDirectory)
-    appNames.set(workspaceDirs)
-}
-
-tasks.register("repairAppDistAfterBuild", RepairAppDistTask) {
-    dependsOn("pnpm_build")
-    appsDirectory.set(layout.projectDirectory)
-    appNames.set(workspaceDirs)
-}
-
-tasks.named("pnpm_build") {
-    dependsOn("repairAppDistBeforeBuild")
 }
 
 tasks.register('format', PnpmTask) {
@@ -266,11 +194,11 @@ test.dependsOn 'testJavascript'
 // Link the app build to the java jar, reading each app's own output folder so no tree is staged twice
 tasks.named("processResources") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn("repairAppDistAfterBuild")
+    dependsOn("pnpm_build")
 
     def appsDir = project.projectDir
     workspaceDirs.each { appName ->
-        from(providers.provider { RepairAppDistTask.distDirForApp(appsDir, appName) ?: [] }) {
+        from(providers.provider { AppOutputLocator.packagedOutputDirForApp(appsDir, appName) ?: [] }) {
             into("public_html/apps/${appName}")
         }
     }
