@@ -207,6 +207,33 @@ commands:
           - ~/.pnpm-store
         key: pnpm-store-v2-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
 
+  restore_apt_postgres_client:
+    steps:
+    - run:
+        name: Key the apt archives and lists on the pinned major, the image, the architecture and the week
+        command: |
+          {
+            echo "postgresql-client-15"
+            (. /etc/os-release && echo "$VERSION_CODENAME")
+            dpkg --print-architecture
+            sed -n 's|.*image: *mcr\.microsoft\.com/playwright:\(.*\)$|\1|p' .circleci/config.yml
+            date -u +%G-%V
+          } > apt-postgres-client-key
+          echo "apt postgres client cache key inputs: $(tr '\n' ' ' < apt-postgres-client-key)"
+    - restore_cache:
+        keys:
+          - apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
+
+  save_apt_postgres_client:
+    steps:
+    - save_cache:
+        paths:
+          - /var/cache/apt/archives
+          - /var/lib/apt/lists
+          - /etc/apt/sources.list.d/pgdg.list
+          - /usr/share/postgresql-common/pgdg
+        key: apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
+
   restore_demo_dump:
     steps:
     - run:
@@ -343,9 +370,17 @@ jobs:
           name: Put custom app next to jar
           command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
 
+      - restore_apt_postgres_client
+
       - run:
           name: install postgres client matching the postgres 15 service
           command: |
+            echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/99keep-downloaded-packages
+            installFromRestoredAptCache() {
+              [ -s /etc/apt/sources.list.d/pgdg.list ] || return 1
+              [ -n "$(find /var/lib/apt/lists -name '*_Packages*' -print -quit 2>/dev/null)" ] || return 1
+              apt-get install -y postgresql-client-15
+            }
             installFromPostgresqlOrg() {
               apt-get install -y curl ca-certificates
               install -d /usr/share/postgresql-common/pgdg
@@ -356,14 +391,21 @@ jobs:
               apt-get update
               apt-get install -y postgresql-client-15
             }
-            apt-get update
-            if ! installFromPostgresqlOrg; then
-              echo "postgresql-client-15 is unavailable, falling back to the distribution client"
-              echo "pg_dump will refuse the newer server, so the demo dump cache stays empty"
-              apt-get install -y postgresql-client
+            if installFromRestoredAptCache; then
+              echo "postgres client installed from the restored apt cache, apt-get update was skipped"
+            else
+              echo "APT_CACHE_UNUSABLE: installing from the network"
+              apt-get update
+              if ! installFromPostgresqlOrg; then
+                echo "postgresql-client-15 is unavailable, falling back to the distribution client"
+                echo "pg_dump will refuse the newer server, so the demo dump cache stays empty"
+                apt-get install -y postgresql-client
+              fi
             fi
             psql --version
             pg_dump --version
+
+      - save_apt_postgres_client
 
       - run:
           name: prepare sql test database
