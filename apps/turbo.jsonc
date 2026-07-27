@@ -10,7 +10,14 @@
     "build": {
       "dependsOn": ["^build"],
       // will treat everything NOT in .gitignore as inputs (smart!)
-      "inputs": ["$TURBO_DEFAULT$"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!tests/**",
+        "!test/**",
+        "!__screenshots__/**",
+        "!playwright.config.*",
+        "!vitest.config.*"
+      ],
       // outputs turbo should cache, rest is uncached
       "outputs": ["dist/**", "showCase/**","gen-docs/**"],
       "cache": true
@@ -52,7 +59,7 @@
     },
     "e2e": {
       "outputs": [],
-      "cache": true
+      "cache": false
     }
   }
 }
