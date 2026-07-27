@@ -115,6 +115,8 @@ const radioColumn: IColumn = {
   id: "status",
   label: "Status",
   columnType: "RADIO",
+  refTableId: "Tag",
+  refSchemaId: "pet store",
   refLabel: "${name}",
   refLabelDefault: "${name}",
 };
@@ -123,6 +125,8 @@ const selectColumn: IColumn = {
   id: "priority",
   label: "Priority",
   columnType: "SELECT",
+  refTableId: "Category",
+  refSchemaId: "pet store",
   refLabel: "${name}",
   refLabelDefault: "${name}",
 };
@@ -131,6 +135,8 @@ const checkboxColumn: IColumn = {
   id: "features",
   label: "Features",
   columnType: "CHECKBOX",
+  refTableId: "Tag",
+  refSchemaId: "pet store",
   refLabel: "${name}",
   refLabelDefault: "${name}",
 };
@@ -139,6 +145,8 @@ const multiselectColumn: IColumn = {
   id: "categories",
   label: "Categories",
   columnType: "MULTISELECT",
+  refTableId: "Category",
+  refSchemaId: "pet store",
   refLabel: "${name}",
   refLabelDefault: "${name}",
 };
