@@ -50,20 +50,18 @@ Charts,,,left margin,int,,,,,,80,"(function () {
   }
 })();",obo:NCIT_C69201,dataviz,A number that indicates the amount of white space to add to the left of the chart
 Charts,,,legend position,ontology,,,CatalogueOntologies,Data viz legend positions,,top,,"sio:SIO_000468,sio:SIO_000056",dataviz,The position of the legend around the chart.
-Charts,,,data points,refback,,,,Data,included in chart,,,sio:SIO_000546,dataviz,Data that is prepared to be used in a chart
+Charts,,,data points,refback,,,,Viz datasets,included in chart,,,sio:SIO_000546,dataviz,Data that is prepared to be used in a chart
 Charts,,,dashboard page,ref,,,,Dashboard pages,,,,sio:SIO_000302,dataviz,
-Data,,,,,,,,,,,,sio:SIO_000089,dataviz,A dataset is a data item that is a collection of data items.
-Data,,,id,string,1,TRUE,,,,,,sio:SIO_000115,dataviz,A value that identifies this data point in a chart
-Chart data,Data,,,,,,,,,,,sio:SIO_000089,dataviz,"Data used in a statistical visualisations (e.g., column charts, pie charts, tables, etc.)"
+Viz datasets,,,,,,,,,,,,sio:SIO_000089,dataviz,A dataset is a data item that is a collection of data items.
+Viz datasets,,,id,string,1,TRUE,,,,,,sio:SIO_000115,dataviz,A value that identifies this data point in a chart
+Chart data,Viz datasets,,,,,,,,,,,sio:SIO_000089,dataviz,"Data used in a statistical visualisations (e.g., column charts, pie charts, tables, etc.)"
 Chart data,,,name,string,,,,,,,,sio:SIO_000116,dataviz,"A label to be displayed in the chart that visually identifies the data point. By default, data points must have a name and value defined. If you would like to create a chart that displays number of participants by disease and research institution, then you would put the diseases in the ""name"" column and the institutions in the ""primary category"" column."
 Chart data,,,value,decimal,,,,,,,,sio:SIO_000465,dataviz,"The calculated value of the data point. A value that is described by the ""name"" and can be further grouped by the primary and secondary categories."
 Chart data,,,value label,string,,,,,,,,sio:SIO_000179,dataviz,"An alternative label that will be displayed in the chart in place of the actual value. This is useful if you would like to format the values in the specific format (e.g., ""10.05% increase"" instead of ""10.05""). If you use the ""value label"" column, the ""value"" column must be populated."
 Chart data,,,series,string,,,,,,,,sio:SIO_000464,dataviz,A data series is a data set composed of related values displayed in a statistical graph. It is intended to use this column for line charts. This column is useful to link data points of a group in addition to the primary and secondary category columns.
 Chart data,,,time value,string,,,,,,,,sio:SIO_000391,dataviz," time measurement is a measurement value of the duration of some interval of time or a particular instant of time (against some frame of reference). This column should be populated if you are visualising data by time. It is intended to place the value in this column (e.g., ""2020,2021,2022,..."" or ""12, 13,14""; years, months, etc.) and set the unit in the ""time unit"" column."
 Chart data,,,time unit,ontology,,,CatalogueOntologies,Data viz time intervals,,,,sio:SIO_000074,dataviz,"A unit that provides context to the value in the column ""time interval"". E.g., ""months"", ""years"", etc."
-Chart data,,,color,string,,,,,,,,schema:color,dataviz,"A colour value (RGB, HEX, HSL, etc.) used to style the data point"
-Chart data,,,sort order,int,,,,,,,,sio:SIO_001316,dataviz,A numerical value indicating the sorting method for data points
-Map dot distribution data,Data,,,,,,,,,,,,dataviz,Dataset that contains one or more observations at a specific location
+Map dot distribution data,Viz datasets,,,,,,,,,,,,dataviz,Dataset that contains one or more observations at a specific location
 Map dot distribution data,,,location name,string,,,,,,,,sio:SIO_000116,dataviz,A label that identifies a location
 Map dot distribution data,,,alternate id,string,,,,,,,,,dataviz,An alternate identifier that can be used identify a location
 Map dot distribution data,,,city,string,,,,,,,,sio:SIO_000665,dataviz,
@@ -73,12 +71,14 @@ Map dot distribution data,,,latitude,decimal,,,,,,,,sio:SIO_000319,dataviz,Latit
 Map dot distribution data,,,longitude,decimal,,,,,,,,sio:SIO_000318,dataviz,Longitude is a geographic position that refers to the angle east or west of a reference meridian between the two geographical poles to another meridian that passes through an arbitrary point.
 Map dot distribution data,,,website,hyperlink,,,,,,,,sio:SIO_000296,dataviz,A URL to a resource that provides additional information about a data item
 Map dot distribution data,,,tooltip content,text,,,,,,,,,dataviz,"Content to display in the tooltip. You may write in html or as plain text. By default, the tooltip will display the name and information about the location (if defined). If this value is defined, it will replace the default tooltip."
-Data,,,primary category,string,,,,,,,,"sio:SIO_000455,sio:SIO_000456",dataviz,"A primary category axis is a category axis that either defines the sole value range or holds the larger set of categorical values specified by the secondary category axis. For example, if you need to group the categories listed in the ""name"" column, then define the grouping levels here."
-Data,,,secondary category,string,,,,,,,,"sio:SIO_000455,sio:SIO_000457",dataviz,A secondary category axis is a category axis that defines a finer granular part (or subset) of the value range of the primary category axis.
-Data,,,primary category label,string,,,,,,,,sio:SIO_000179,dataviz,"An alternative label that will be displayed instead of the value in ""primary category"" column"
-Data,,,secondary category label,string,,,,,,,,sio:SIO_000179,dataviz,"An alternative label that will be displayed instead of the value in ""secondary category"" column"
-Data,,,description,text,,,,,,,,sio:SIO_000136,dataviz,A description is language entity in which elements of a language (formal or natural) are used to characterize an entity. This is useful if you are using tooltips in charts. Information placed in this column could be displayed in the charts.
-Data,,,included in chart,ref,,,,Charts,,,,edam:topic_0092,dataviz,A value that links one or more data points to a visualisation
+Viz datasets,,,primary category,string,,,,,,,,"sio:SIO_000455,sio:SIO_000456",dataviz,"A primary category axis is a category axis that either defines the sole value range or holds the larger set of categorical values specified by the secondary category axis. For example, if you need to group the categories listed in the ""name"" column, then define the grouping levels here."
+Viz datasets,,,secondary category,string,,,,,,,,"sio:SIO_000455,sio:SIO_000457",dataviz,A secondary category axis is a category axis that defines a finer granular part (or subset) of the value range of the primary category axis.
+Viz datasets,,,primary category label,string,,,,,,,,sio:SIO_000179,dataviz,"An alternative label that will be displayed instead of the value in ""primary category"" column"
+Viz datasets,,,secondary category label,string,,,,,,,,sio:SIO_000179,dataviz,"An alternative label that will be displayed instead of the value in ""secondary category"" column"
+Viz datasets,,,color,string,,,,,,,,schema:color,dataviz,"A colour value (RGB, HEX, HSL, etc.) used to style the data point"
+Viz datasets,,,sort order,int,,,,,,,,sio:SIO_001316,dataviz,A numerical value indicating the sorting method for data points
+Viz datasets,,,description,text,,,,,,,,sio:SIO_000136,dataviz,A description is language entity in which elements of a language (formal or natural) are used to characterize an entity. This is useful if you are using tooltips in charts. Information placed in this column could be displayed in the charts.
+Viz datasets,,,included in chart,ref,,,,Charts,,,,edam:topic_0092,dataviz,A value that links one or more data points to a visualisation
 Chart palette,,,,,,,,,,,,obo:PATO_0000014,dataviz,Color palette for distinct groups in a dataset
 Chart palette,,,key,string,1,TRUE,,,,,,obo:NCIT_C46002,dataviz,A unique key that represents a categorical value in the dataset
 Chart palette,,,color,string,,TRUE,,,,,,obo:GSSO_004945,dataviz,"The color code assigned to the group (HEX, RGB, etc.)"
