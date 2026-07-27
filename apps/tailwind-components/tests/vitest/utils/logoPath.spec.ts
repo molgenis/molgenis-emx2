@@ -13,8 +13,8 @@ describe("toLogoPath", () => {
   });
 
   test("uses a name ending in an image extension verbatim", () => {
-    expect(toLogoPath("uncan-purple.png")).toBe(
-      "/_nuxt-styles/logos/uncan-purple.png"
+    expect(toLogoPath("uncan-white.png")).toBe(
+      "/_nuxt-styles/logos/uncan-white.png"
     );
   });
 

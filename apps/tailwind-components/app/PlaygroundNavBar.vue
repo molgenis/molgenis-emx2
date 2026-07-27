@@ -104,27 +104,14 @@
         <div class="px-1">
           <input
             class="hover:cursor-pointer ml-1"
-            id="uncan-connect-light-theme"
+            id="uncan-connect-theme"
             type="radio"
             v-model="theme"
-            value="uncan-connect-light"
+            value="uncan-connect"
             name="theme"
           />
-          <label class="hover:cursor-pointer" for="uncan-connect-light-theme">
-            UNCAN light
-          </label>
-        </div>
-        <div class="px-1">
-          <input
-            class="hover:cursor-pointer ml-1"
-            id="uncan-connect-bold-theme"
-            type="radio"
-            v-model="theme"
-            value="uncan-connect-bold"
-            name="theme"
-          />
-          <label class="hover:cursor-pointer" for="uncan-connect-bold-theme">
-            UNCAN bold
+          <label class="hover:cursor-pointer" for="uncan-connect-theme">
+            UNCAN
           </label>
         </div>
       </fieldset>
