@@ -27,30 +27,12 @@ export default {
   methods: {
     handleInputChanged(event: any) {
       const value = event.target?.value;
-      if (!value) {
-        this.$emit("update:modelValue", null);
-      } else {
-        this.emitIfValid(value);
-      }
-    },
-    emitIfValid(strValue: string | null) {
-      if (strValue === null) {
-        this.$emit("update:modelValue", null);
-        return;
-      }
-      const noCommaValue = strValue.replace(",", "");
-      const value = parseFloat(noCommaValue);
-      if (!isNaN(value)) {
-        this.$emit("update:modelValue", value);
-      } else {
-        this.$emit("update:modelValue", strValue);
-      }
+      this.$emit("update:modelValue", value ? value : null);
     },
     handleKeyValidity(event: any) {
       const keyCode = event.which ?? event.keyCode;
       if (keyCode === CODE_MINUS) {
-        const flipped = flipMinusSign(event.target?.value);
-        this.emitIfValid(flipped);
+        this.$emit("update:modelValue", flipMinusSign(event.target?.value));
       }
       if (keyCode === CODE_PERIOD && event.target?.value.indexOf(".") > -1) {
         event.preventDefault();

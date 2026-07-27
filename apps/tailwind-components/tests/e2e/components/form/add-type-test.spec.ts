@@ -84,6 +84,9 @@ test("it should be able to fill out all input types", async ({ page }) => {
 
   // Integer
   await page.getByRole("textbox", { name: "int type", exact: true }).fill("-5");
+  await expect(
+    page.getByRole("textbox", { name: "int type", exact: true })
+  ).toHaveValue("-5");
 
   // Integer array
   await page
@@ -97,9 +100,18 @@ test("it should be able to fill out all input types", async ({ page }) => {
   await page
     .locator('[id="type test-Types-intArrayType-form-field-input_1"]')
     .fill("37");
+  await expect(
+    page.locator('[id="type test-Types-intArrayType-form-field-input_0"]')
+  ).toHaveValue("6");
+  await expect(
+    page.locator('[id="type test-Types-intArrayType-form-field-input_1"]')
+  ).toHaveValue("37");
 
   // Long
   await page.getByRole("textbox", { name: "long type" }).fill("6778");
+  await expect(page.getByRole("textbox", { name: "long type" })).toHaveValue(
+    "6778"
+  );
 
   // Long array
   await page
@@ -112,9 +124,18 @@ test("it should be able to fill out all input types", async ({ page }) => {
   await page
     .locator('[id="type test-Types-longArrayType-form-field-input_1"]')
     .fill("7");
+  await expect(
+    page.locator('[id="type test-Types-longArrayType-form-field-input_0"]')
+  ).toHaveValue("8787");
+  await expect(
+    page.locator('[id="type test-Types-longArrayType-form-field-input_1"]')
+  ).toHaveValue("7");
 
   // Decimal
   await page.getByRole("textbox", { name: "decimal type" }).fill("-1.1");
+  await expect(page.getByRole("textbox", { name: "decimal type" })).toHaveValue(
+    "-1.1"
+  );
 
   // Decimal array
   await page
@@ -127,9 +148,18 @@ test("it should be able to fill out all input types", async ({ page }) => {
   await page
     .locator('[id="type test-Types-decimalArrayType-form-field-input_1"]')
     .fill("3.3");
+  await expect(
+    page.locator('[id="type test-Types-decimalArrayType-form-field-input_0"]')
+  ).toHaveValue("2.2");
+  await expect(
+    page.locator('[id="type test-Types-decimalArrayType-form-field-input_1"]')
+  ).toHaveValue("3.3");
 
   // Non negative integer
   await page.getByRole("textbox", { name: "non negative int type" }).fill("37");
+  await expect(
+    page.getByRole("textbox", { name: "non negative int type" })
+  ).toHaveValue("37");
 
   // Non negative integer array
   await page
@@ -146,6 +176,16 @@ test("it should be able to fill out all input types", async ({ page }) => {
       '[id="type test-Types-nonNegativeIntArrayType-form-field-input_1"]'
     )
     .fill("1337");
+  await expect(
+    page.locator(
+      '[id="type test-Types-nonNegativeIntArrayType-form-field-input_0"]'
+    )
+  ).toHaveValue("42");
+  await expect(
+    page.locator(
+      '[id="type test-Types-nonNegativeIntArrayType-form-field-input_1"]'
+    )
+  ).toHaveValue("1337");
 
   // Boolean
   await page.locator("circle").nth(1).click();

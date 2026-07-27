@@ -16,6 +16,7 @@ import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
 const {
+  DECIMAL_REGEX,
   EMAIL_REGEX,
   HYPERLINK_REGEX,
   PERIOD_REGEX,
@@ -168,13 +169,13 @@ export function getColumnError(
   ) {
     return BIG_INT_ERROR;
   }
-  if (type === "DECIMAL" && isNaN(parseFloat(value as string))) {
+  if (type === "DECIMAL" && isInvalidDecimal(value)) {
     return "Invalid number";
   }
   if (
     type === "DECIMAL_ARRAY" &&
-    (value as unknown as string[])?.some(
-      (val) => val && isNaN(parseFloat(val as string))
+    (value as unknown as columnValue[])?.some(
+      (val) => Boolean(val) && isInvalidDecimal(val)
     )
   ) {
     return "Invalid number";
@@ -227,6 +228,13 @@ export function readableStringArray(
       escapedStrings[escapedStrings.length - 1]
     }' ${postErrorPlural}`;
   }
+}
+
+export function isInvalidDecimal(value: columnValue): boolean {
+  if (typeof value === "number") {
+    return !Number.isFinite(value);
+  }
+  return typeof value !== "string" || !DECIMAL_REGEX.test(value);
 }
 
 export function isInvalidBigInt(value?: string): boolean {

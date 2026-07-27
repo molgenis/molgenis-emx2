@@ -272,6 +272,17 @@ describe("getRowErrors", () => {
     });
   });
 
+  test("it should return an error for a long written with a comma separator", () => {
+    const rowData = { long: "1,5" };
+    const metadata = {
+      columns: [{ id: "long", columnType: "LONG" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      long: "Invalid long: must be value from -9223372036854775807 to 9223372036854775807",
+    });
+  });
+
   test("it should return no error for a valid long array", () => {
     const rowData = { long: ["9223372036854775807", "-9223372036854775807"] };
     const metadata = {
@@ -310,6 +321,33 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ decimal: "Invalid number" });
   });
 
+  test("it should return an error for a decimal written with a comma separator", () => {
+    const rowData = { decimal: "2,75" };
+    const metadata = {
+      columns: [{ id: "decimal", columnType: "DECIMAL" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({ decimal: "Invalid number" });
+  });
+
+  test("it should return no error for a decimal that is already a number", () => {
+    const rowData = { decimal: 2.75 };
+    const metadata = {
+      columns: [{ id: "decimal", columnType: "DECIMAL" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for a decimal with trailing characters", () => {
+    const rowData = { decimal: "1.2.3" };
+    const metadata = {
+      columns: [{ id: "decimal", columnType: "DECIMAL" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({ decimal: "Invalid number" });
+  });
+
   test("it should return no error for a valid decimal array", () => {
     const rowData = { decimal: ["1.1"] };
     const metadata = {
@@ -326,6 +364,49 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({ decimal: "Invalid number" });
+  });
+
+  test("it should return an error for a decimal array item written with a comma separator", () => {
+    const rowData = { decimal: ["1.1", "2,75"] };
+    const metadata = {
+      columns: [{ id: "decimal", columnType: "DECIMAL_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({ decimal: "Invalid number" });
+  });
+
+  test("it should return an error for an integer written with a comma separator", () => {
+    const rowData = { integer: "2,75" };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      integer: "Invalid integer: must be value from -2147483648 to 2147483647",
+    });
+  });
+
+  test("it should return an error for an integer written with a fraction", () => {
+    const rowData = { integer: "2.75" };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      integer: "Invalid integer: must be value from -2147483648 to 2147483647",
+    });
+  });
+
+  test("it should return an error for a non negative integer written with a comma separator", () => {
+    const rowData = { integer: "2,75" };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "NON_NEGATIVE_INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      integer:
+        "Invalid non negative integer: must be value from 0 to 2147483647",
+    });
   });
 
   test("it should return no error for a valid integer", () => {
