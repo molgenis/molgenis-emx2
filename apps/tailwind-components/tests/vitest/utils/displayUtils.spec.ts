@@ -16,6 +16,7 @@ import {
   getSubtitleText,
   hasOntologyHierarchy,
   classifyCardColumns,
+  getCardListColumnIds,
 } from "../../../app/utils/displayUtils";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
@@ -904,5 +905,46 @@ describe("classifyCardColumns", () => {
     ];
     const result = classifyCardColumns(columns);
     expect(result.detailColumns.map((c) => c.id)).toEqual(["summary"]);
+  });
+});
+
+describe("getCardListColumnIds", () => {
+  it("keeps only TITLE, SUBTITLE and DESCRIPTION when roles are declared", () => {
+    const columns = [
+      col({ id: "id", columnType: "STRING", key: 1 }),
+      col({ id: "acronym", columnType: "STRING", role: "TITLE" }),
+      col({ id: "name", columnType: "STRING", role: "SUBTITLE" }),
+      col({ id: "description", columnType: "TEXT", role: "DESCRIPTION" }),
+      col({ id: "startYear", columnType: "INT", role: "DETAIL" }),
+      col({ id: "logo", columnType: "FILE", role: "LOGO" }),
+      col({ id: "secret", columnType: "STRING", role: "INTERNAL" }),
+    ];
+
+    expect(getCardListColumnIds(columns)).toEqual([
+      "acronym",
+      "name",
+      "description",
+    ]);
+  });
+
+  it("falls back to the key columns when no roles are declared", () => {
+    const columns = [
+      col({ id: "resource", columnType: "REF", key: 1 }),
+      col({ id: "id", columnType: "STRING", key: 1 }),
+      col({ id: "pid", columnType: "STRING", key: 2 }),
+      col({ id: "website", columnType: "HYPERLINK" }),
+    ];
+
+    expect(getCardListColumnIds(columns)).toEqual(["resource", "id", "pid"]);
+  });
+
+  it("skips layout columns and mg_ columns in the key fallback", () => {
+    const columns = [
+      col({ id: "mg_insertedOn", columnType: "DATETIME", key: 1 }),
+      col({ id: "section", columnType: "SECTION" }),
+      col({ id: "id", columnType: "STRING", key: 1 }),
+    ];
+
+    expect(getCardListColumnIds(columns)).toEqual(["id"]);
   });
 });

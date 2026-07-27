@@ -163,6 +163,19 @@ export function filterColumnsByRole(columns: IColumn[]): IColumn[] {
   return [...titleCols, ...otherCols];
 }
 
+const CARD_LIST_ROLES = ["TITLE", "SUBTITLE", "DESCRIPTION"] as const;
+
+export function getCardListColumnIds(columns: IColumn[]): string[] {
+  const selectable = columns.filter(
+    (c) => !isLayoutColumnType(c.columnType) && !c.id.startsWith("mg_")
+  );
+  const byRole = CARD_LIST_ROLES.flatMap((role) =>
+    selectable.filter((c) => c.role === role)
+  );
+  if (byRole.length > 0) return byRole.map((c) => c.id);
+  return selectable.filter((c) => c.key && c.key > 0).map((c) => c.id);
+}
+
 export function getListColumns(
   columns: IColumn[],
   options?: {

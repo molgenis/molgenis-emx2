@@ -25,11 +25,14 @@ const props = withDefaults(
     layout?: DisplayType;
     pageSize?: number;
     hideColumns?: string[];
+    visibleColumns?: string[];
     rowLabelTemplate?: string;
+    hideSearch?: boolean;
   }>(),
   {
     layout: "TABLE",
     pageSize: 10,
+    hideSearch: false,
   }
 );
 
@@ -69,7 +72,8 @@ const page = ref(1);
 const searchTerms = ref("");
 
 const showSearch = computed(
-  () => effectiveSmartMode.value || hasTruncatedData.value
+  () =>
+    !props.hideSearch && (effectiveSmartMode.value || hasTruncatedData.value)
 );
 
 watch(searchTerms, (val) => {
@@ -106,6 +110,7 @@ const smartListColumns = computed(() =>
   getListColumns(metadata.value?.columns || [], {
     layout: props.layout,
     hideColumns: props.hideColumns,
+    visibleColumns: props.visibleColumns,
     rows: fetchedRows.value,
   })
 );
@@ -120,6 +125,7 @@ const dumbColumns = computed(() =>
   getListColumns(props.columns || [], {
     layout: props.layout,
     hideColumns: props.hideColumns,
+    visibleColumns: props.visibleColumns,
     rows: props.rows || [],
   })
 );

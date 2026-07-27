@@ -7,6 +7,8 @@ import {
   getRowLabel,
   isEmptyValue,
   classifyCardColumns,
+  getTitleText,
+  getSubtitleText,
 } from "../../utils/displayUtils";
 import { useRecordNavigation } from "../../composables/useRecordNavigation";
 
@@ -39,7 +41,14 @@ function rowKey(row: Record<string, any>): string {
 const { navigateToRecord } = useRecordNavigation();
 
 function cardTitle(row: Record<string, any>): string {
-  return getRowLabel(row, props.rowLabelTemplate);
+  if (props.rowLabelTemplate) {
+    return getRowLabel(row, props.rowLabelTemplate);
+  }
+  return getTitleText(props.columns ?? [], row) || getRowLabel(row);
+}
+
+function cardSubtitle(row: Record<string, any>): string {
+  return getSubtitleText(props.columns ?? [], row);
 }
 
 function visibleDescription(row: Record<string, any>): string | undefined {
@@ -87,6 +96,13 @@ function visibleLogoUrl(row: Record<string, any>): string | undefined {
             {{ cardTitle(row) }}
           </a>
           <span v-else class="font-bold">{{ cardTitle(row) }}</span>
+        </span>
+        <span
+          v-if="cardSubtitle(row)"
+          data-testid="card-subtitle"
+          class="block text-body-sm text-record-label"
+        >
+          {{ cardSubtitle(row) }}
         </span>
         <p
           v-if="visibleDescription(row)"
