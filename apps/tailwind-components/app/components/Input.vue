@@ -25,7 +25,7 @@
     @blur="emit('blur')"
   />
   <InputArray
-    v-else-if="NON_REF_ARRAY_TYPES.includes(typeUpperCase)"
+    v-else-if="isValueArrayType(typeUpperCase)"
     :id="id"
     v-model="modelValue as string[]"
     :type="typeUpperCase"
@@ -213,7 +213,7 @@
     :align="align"
   />
   <InputRefBack
-    v-else-if="['REFBACK'].includes(typeUpperCase)"
+    v-else-if="isRefbackType(typeUpperCase)"
     v-model="modelValue as columnValueObject[] | undefined"
     :id="id"
     :refSchemaId="refSchemaId!"
@@ -224,7 +224,7 @@
   />
 
   <InputOntology
-    v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
+    v-else-if="isSingleOntologyType(typeUpperCase)"
     :modelValue="modelValue && typeof modelValue === 'object' && 'name' in modelValue ? (modelValue as Record<string, any>)['name'] : undefined"
     @update:modelValue="
       $event ? (modelValue = { name: $event as string }) : (modelValue = null)
@@ -243,7 +243,7 @@
     :limit="10"
   />
   <InputOntology
-    v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
+    v-else-if="isOntologyArrayType(typeUpperCase)"
     :isArray="true"
     :modelValue="getOntologyArrayValues(modelValue)"
     @update:modelValue="updateOntologyArrayValues"
@@ -260,7 +260,7 @@
     :limit="10"
   />
   <InputFile
-    v-else-if="['FILE'].includes(typeUpperCase)"
+    v-else-if="isFileType(typeUpperCase)"
     v-model="modelValue as IFile"
     :id="id"
     :valid="valid"
@@ -296,6 +296,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
+  <template v-else> {{ type }} </template>
 </template>
 
 <script setup lang="ts">
@@ -306,6 +307,13 @@ import type {
   columnValueObject,
   DateValue,
 } from "../../../metadata-utils/src/types";
+import {
+  isFileType,
+  isOntologyArrayType,
+  isRefbackType,
+  isSingleOntologyType,
+  isValueArrayType,
+} from "../../../metadata-utils/src";
 import type { IFile, IInputProps, IValueLabel } from "../../types/types";
 import { getOntologyArrayValues } from "../utils/typeUtils";
 import InputArray from "./input/Array.vue";
@@ -349,22 +357,6 @@ const props = withDefaults(
 );
 const emit = defineEmits(["focus", "blur"]);
 const typeUpperCase = computed(() => props.type.toUpperCase());
-
-const NON_REF_ARRAY_TYPES = [
-  "STRING_ARRAY",
-  "BOOL_ARRAY",
-  "DATE_ARRAY",
-  "DATETIME_ARRAY",
-  "DECIMAL_ARRAY",
-  "EMAIL_ARRAY",
-  "HYPERLINK_ARRAY",
-  "INT_ARRAY",
-  "NON_NEGATIVE_INT_ARRAY",
-  "LONG_ARRAY",
-  "TEXT_ARRAY",
-  "UUID_ARRAY",
-  "PERIOD_ARRAY",
-];
 
 function updateOntologyArrayValues(event?: string | string[] | null) {
   if (Array.isArray(event) && event.length) {

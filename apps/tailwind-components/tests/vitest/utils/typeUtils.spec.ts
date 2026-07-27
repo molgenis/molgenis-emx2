@@ -342,9 +342,9 @@ describe("getIntInput", () => {
     expect(result).toEqual(undefined);
   });
 
-  it("Should return empty string for an empty string input", () => {
+  it("Should return null for an empty string input, so a cleared field is stored as null", () => {
     const result = getIntInput("");
-    expect(result).toEqual("");
+    expect(result).toEqual(null);
   });
 
   it("Should return a minus for a minus string input", () => {

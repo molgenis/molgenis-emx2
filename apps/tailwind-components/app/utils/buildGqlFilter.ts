@@ -1,7 +1,10 @@
+import {
+  isOntologyType,
+  isOptionKeyRefType,
+  isTableRefType,
+} from "../../../metadata-utils/src";
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue, IGraphQLFilter } from "../../types/filters";
-
-const ONTOLOGY_TYPES = ["ONTOLOGY", "ONTOLOGY_ARRAY"];
 
 export function parseFilterTerms(input: string): string[] {
   const tokenRegex = /'([^']*)'|(\S+)/g;
@@ -62,7 +65,7 @@ export function equalsForDirectRef(
   arr: any[],
   column: IColumn,
   isDirectColumn: boolean,
-  isRefType: boolean
+  isTableRef: boolean
 ): any {
   const hasPlainStringValues = arr.length > 0 && typeof arr[0] === "string";
   const hasMultiKeyObjects =
@@ -92,7 +95,7 @@ export function equalsForDirectRef(
   if (
     isDirectColumn &&
     column.refTableId &&
-    (hasMultiKeyObjects || (!isRefType && hasAnyObjects))
+    (hasMultiKeyObjects || (!isTableRef && hasAnyObjects))
   ) {
     return {
       _or: arr.map((keyObj: any) => {
@@ -105,7 +108,7 @@ export function equalsForDirectRef(
     };
   }
 
-  if (isRefType && hasAnyObjects) {
+  if (isTableRef && hasAnyObjects) {
     const refField = Object.keys(arr[0] as Record<string, unknown>)[0]!;
     const refValues = arr.map(
       (v: any) => (v as Record<string, unknown>)[refField]
@@ -127,7 +130,7 @@ export function equalsForNestedRef(
   );
   const leafSegment = pathSegments[pathSegments.length - 1];
 
-  if (ONTOLOGY_TYPES.includes(resolvedType)) {
+  if (isOntologyType(resolvedType)) {
     return { _match_any_including_children: refValues };
   }
   if (leafSegment === refField) {
@@ -173,27 +176,15 @@ export function buildGraphQLFilter(
             }
             filterValueObj = boolResult.filterValueObj;
           } else if (
-            resolvedType === "RADIO" ||
-            resolvedType === "CHECKBOX" ||
-            ((resolvedType === "REF" ||
-              resolvedType === "REF_ARRAY" ||
-              resolvedType === "REFBACK" ||
-              resolvedType === "SELECT" ||
-              resolvedType === "MULTISELECT") &&
-              pathSegments.length === 1)
+            isOptionKeyRefType(resolvedType) ||
+            (isTableRefType(resolvedType) && pathSegments.length === 1)
           ) {
             const isDirectColumn = !columnTypeMap?.get(columnId);
-            const isRefType =
-              resolvedType === "REF" ||
-              resolvedType === "REF_ARRAY" ||
-              resolvedType === "REFBACK" ||
-              resolvedType === "SELECT" ||
-              resolvedType === "MULTISELECT";
             filterValueObj = equalsForDirectRef(
               arr,
               column,
               isDirectColumn,
-              isRefType
+              isTableRefType(resolvedType)
             );
           } else if (
             arr.length > 0 &&
@@ -205,7 +196,7 @@ export function buildGraphQLFilter(
               pathSegments,
               resolvedType
             );
-          } else if (ONTOLOGY_TYPES.includes(resolvedType)) {
+          } else if (isOntologyType(resolvedType)) {
             filterValueObj = { _match_any_including_children: arr };
           } else {
             filterValueObj = { equals: arr };

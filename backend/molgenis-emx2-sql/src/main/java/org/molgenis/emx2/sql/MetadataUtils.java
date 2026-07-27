@@ -61,6 +61,7 @@ public class MetadataUtils {
   private static final Field<String[]> TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
   private static final Field<String> TABLE_TYPE = field(name("table_type"), VARCHAR.nullable(true));
+  private static final Field<String> TABLE_ROLE = field(name("table_role"), VARCHAR.nullable(true));
 
   // column
   private static final Field<String> COLUMN_NAME =
@@ -102,6 +103,9 @@ public class MetadataUtils {
       field(name("cascade"), BOOLEAN.nullable(true));
   private static final Field<Boolean> COLUMN_READONLY =
       field(name("readonly"), BOOLEAN.nullable(true));
+  private static final Field<String> COLUMN_ROLE = field(name("role"), VARCHAR.nullable(true));
+  private static final Field<String> COLUMN_DISPLAY =
+      field(name("display"), VARCHAR.nullable(true));
   private static final Field<String> COLUMN_DEFAULT =
       field(name("defaultValue"), VARCHAR.nullable(true));
 
@@ -220,7 +224,8 @@ public class MetadataUtils {
                         TABLE_IMPORT_SCHEMA,
                         TABLE_DESCRIPTION,
                         TABLE_SEMANTICS,
-                        TABLE_TYPE)
+                        TABLE_TYPE,
+                        TABLE_ROLE)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME),
                         foreignKey(TABLE_SCHEMA)
@@ -254,7 +259,9 @@ public class MetadataUtils {
                         COLUMN_DESCRIPTION,
                         COLUMN_SEMANTICS,
                         COLUMN_VISIBLE,
-                        COLUMN_FORM_LABEL)
+                        COLUMN_FORM_LABEL,
+                        COLUMN_ROLE,
+                        COLUMN_DISPLAY)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME),
                         foreignKey(TABLE_SCHEMA, TABLE_NAME)
@@ -364,6 +371,7 @@ public class MetadataUtils {
               TABLE_DESCRIPTION,
               TABLE_SEMANTICS,
               TABLE_TYPE,
+              TABLE_ROLE,
               SETTINGS)
           .values(
               table.getSchema().getName(),
@@ -374,6 +382,7 @@ public class MetadataUtils {
               table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
+              Objects.toString(table.getRole(), null),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
@@ -383,6 +392,7 @@ public class MetadataUtils {
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
+          .set(TABLE_ROLE, Objects.toString(table.getRole(), null))
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
@@ -512,6 +522,9 @@ public class MetadataUtils {
     if (r.get(TABLE_TYPE, String.class) != null) {
       table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
     }
+    if (r.get(TABLE_ROLE, String.class) != null) {
+      table.setRole(TableRole.valueOf(r.get(TABLE_ROLE, String.class)));
+    }
     return table;
   }
 
@@ -553,7 +566,9 @@ public class MetadataUtils {
             COLUMN_SEMANTICS,
             COLUMN_DEFAULT,
             COLUMN_PROFILES,
-            COLUMN_VISIBLE)
+            COLUMN_VISIBLE,
+            COLUMN_ROLE,
+            COLUMN_DISPLAY)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -578,7 +593,9 @@ public class MetadataUtils {
             column.getSemantics(),
             column.getDefaultValue(),
             column.getProfiles(),
-            column.getVisible())
+            column.getVisible(),
+            Objects.toString(column.getRole(), null),
+            Objects.toString(column.getDisplay(), null))
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(COLUMN_LABEL, column.getLabels())
@@ -602,6 +619,8 @@ public class MetadataUtils {
         .set(COLUMN_PROFILES, column.getProfiles())
         .set(COLUMN_VISIBLE, column.getVisible())
         .set(COLUMN_DEFAULT, column.getDefaultValue())
+        .set(COLUMN_ROLE, Objects.toString(column.getRole(), null))
+        .set(COLUMN_DISPLAY, Objects.toString(column.getDisplay(), null))
         .execute();
   }
 
@@ -643,6 +662,10 @@ public class MetadataUtils {
     c.setProfiles(col.get(COLUMN_PROFILES, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
     c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
+    String roleStr = col.get(COLUMN_ROLE, String.class);
+    if (roleStr != null) c.setRole(ColumnRole.valueOf(roleStr));
+    String displayStr = col.get(COLUMN_DISPLAY, String.class);
+    if (displayStr != null) c.setDisplay(DisplayType.valueOf(displayStr));
     return c;
   }
 

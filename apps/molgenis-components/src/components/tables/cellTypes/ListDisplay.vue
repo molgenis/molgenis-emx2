@@ -55,16 +55,20 @@ import ObjectDisplay from "./ObjectDisplay.vue";
 import StringDisplay from "./StringDisplay.vue";
 import EmailDisplay from "./EmailDisplay.vue";
 import HyperlinkDisplay from "./HyperlinkDisplay.vue";
+import { isMultiValuedRefType } from "../../../../../metadata-utils/src/fieldHelpers";
 
 const typeMap = {
-  REF_ARRAY: "ObjectDisplay",
-  MULTISELECT: "ObjectDisplay",
-  CHECKBOX: "ObjectDisplay",
-  ONTOLOGY_ARRAY: "ObjectDisplay",
-  REFBACK: "ObjectDisplay",
   EMAIL_ARRAY: "EmailDisplay",
   HYPERLINK_ARRAY: "HyperlinkDisplay",
 };
+
+function resolveListItemComponentName(columnType) {
+  if (isMultiValuedRefType(columnType)) {
+    return "ObjectDisplay";
+  } else {
+    return typeMap[columnType] || "StringDisplay";
+  }
+}
 
 export default {
   name: "ListDisplay",
@@ -91,7 +95,7 @@ export default {
   },
   computed: {
     cellTypeComponentName() {
-      return typeMap[this.metadata.columnType] || "StringDisplay";
+      return resolveListItemComponentName(this.metadata.columnType);
     },
     visibleListItems() {
       return this.isFolded ? this.data.slice(0, this.foldCuttOff) : this.data;

@@ -85,6 +85,66 @@ public class ReferenceTest {
   }
 
   @Test
+  void selfReferenceInKeyThrowsMolgenisExceptionNotStackOverflow() {
+    SchemaMetadata schema = schemaWithCompositeKey();
+    schema.create(
+        table(
+            "Nodes",
+            column("parent").setType(REF).setRefTable("Nodes").setKey(1),
+            column("name").setType(STRING).setKey(1)));
+
+    Column selfReference = schema.getTableMetadata("Nodes").getColumn("parent");
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, selfReference::getReferences);
+    assertTrue(
+        exception.getMessage().contains("Nodes.parent"),
+        "message must name the offending column, was: " + exception.getMessage());
+    assertTrue(
+        exception.getMessage().contains("A self reference must stay outside of the key"),
+        "message must advise on the self reference, was: " + exception.getMessage());
+  }
+
+  @Test
+  void selfReferenceOutsideKeyExpandsIntoTheOwnKeyOfTheTable() {
+    SchemaMetadata schema = schemaWithCompositeKey();
+    schema.create(
+        table(
+            "Terms",
+            column("name").setType(STRING).setKey(1),
+            column("parent").setType(REF).setRefTable("Terms")));
+
+    Reference ref = onlyReference(schema.getTableMetadata("Terms").getColumn("parent"));
+
+    assertAll(
+        () -> assertEquals("parent", ref.getColumnName()),
+        () -> assertEquals("Terms", ref.getTargetTable()),
+        () -> assertEquals("name", ref.getTargetColumn()));
+  }
+
+  @Test
+  void transitiveReferenceCycleThroughKeysThrowsMolgenisException() {
+    SchemaMetadata schema = new SchemaMetadata("ReferenceTest");
+    schema.create(
+        table("Left", column("right").setType(REF).setRefTable("Right").setKey(1)),
+        table("Right", column("left").setType(REF).setRefTable("Left").setKey(1)));
+
+    Column cyclicReference = schema.getTableMetadata("Left").getColumn("right");
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, cyclicReference::getReferences);
+    assertTrue(
+        exception.getMessage().contains("Left.right"),
+        "message must name the offending column, was: " + exception.getMessage());
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("At least one of these references must stay outside of the key of its table"),
+        "message must advise on the chain, not on a self reference, was: "
+            + exception.getMessage());
+  }
+
+  @Test
   void refArrayUsesArrayPrimitiveType() {
     SchemaMetadata schema = schemaWithCompositeKey();
     schema.create(

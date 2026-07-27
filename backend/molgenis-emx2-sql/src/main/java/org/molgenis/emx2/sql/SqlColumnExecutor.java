@@ -352,6 +352,10 @@ public class SqlColumnExecutor {
   }
 
   static void validateColumn(Column c) {
+    validateColumn(c, null);
+  }
+
+  static void validateColumn(Column c, String replacedColumnName) {
     try {
       if (c.getName() == null) {
         throw new MolgenisException("Add column failed: Column name cannot be null");
@@ -393,6 +397,9 @@ public class SqlColumnExecutor {
                 + "' is not a reference to table "
                 + c.getTableName()
                 + " or any of its inherited tables");
+      }
+      if (PARTS.equals(c.getColumnType())) {
+        validatePartsColumn(c, replacedColumnName);
       }
       if (c.getRefTableName() != null && !c.isReference()) {
         throw new MolgenisException(
@@ -445,6 +452,128 @@ public class SqlColumnExecutor {
       throw new MolgenisException(
           "Column " + c.getTableName() + "." + c.getName() + " is invalid: " + e.getMessage());
     }
+  }
+
+  private static void validatePartsColumn(Column c, String replacedColumnName) {
+    if (c.getRefTableName().equals(c.getTableName())
+        && c.getRefSchemaName().equals(c.getSchemaName())) {
+      throw new MolgenisException(
+          "Parts column '"
+              + qualifiedColumnName(c)
+              + "' cannot point at its own table '"
+              + c.getTableName()
+              + "', because a row cannot be part of itself.");
+    }
+    validatePartsCounterpart(c, c.getRefBackColumn());
+    Column conflicting = findConflictingPartsColumn(c, replacedColumnName);
+    if (conflicting != null) {
+      throw new MolgenisException(
+          "Parts column '"
+              + qualifiedColumnName(c)
+              + "' cannot target table '"
+              + c.getRefTableName()
+              + "', because '"
+              + qualifiedColumnName(conflicting)
+              + "' already claims it and every '"
+              + c.getRefTableName()
+              + "' row must belong to exactly one whole.");
+    }
+  }
+
+  private static void validatePartsCounterpart(Column partsColumn, Column counterpart) {
+    String partTable = counterpart.getTableName();
+    String wholeTable = partsColumn.getTableName();
+    if (!counterpart.isRef()) {
+      throw new MolgenisException(
+          "Column '"
+              + qualifiedColumnName(counterpart)
+              + "' must be a single valued ref but is "
+              + counterpart.getColumnType()
+              + ", so every '"
+              + partTable
+              + "' row is part of exactly one '"
+              + wholeTable
+              + "' row.");
+    }
+    if (!counterpart.isRequired()) {
+      throw new MolgenisException(
+          "Column '"
+              + qualifiedColumnName(counterpart)
+              + "' must be required, so every '"
+              + partTable
+              + "' row belongs to exactly one '"
+              + wholeTable
+              + "' row.");
+    }
+    if (!counterpart.isPrimaryKey()) {
+      throw new MolgenisException(
+          "Column '"
+              + qualifiedColumnName(counterpart)
+              + "' must be part of the primary key of '"
+              + partTable
+              + "' (a key column marked key=1), because the URL of a '"
+              + partTable
+              + "' row is built from its key and must identify its '"
+              + wholeTable
+              + "' row.");
+    }
+  }
+
+  static void validatePartsCounterpartRemainsValid(Column oldColumn, Column newColumn) {
+    Column partsColumn = findPartsColumnUsingAsCounterpart(oldColumn);
+    if (partsColumn != null) {
+      validatePartsCounterpart(partsColumn, newColumn);
+    }
+  }
+
+  private static Column findPartsColumnUsingAsCounterpart(Column counterpart) {
+    if (!counterpart.isRef() && !counterpart.isRefArray()) {
+      return null;
+    }
+    TableMetadata refTableMetadata;
+    try {
+      refTableMetadata = counterpart.getRefTable();
+    } catch (MissingRefTableException refTableNotAvailable) {
+      return null;
+    }
+    if (refTableMetadata == null) {
+      return null;
+    }
+    for (Column other : refTableMetadata.getColumns()) {
+      if (PARTS.equals(other.getColumnType())
+          && counterpart.getName().equals(other.getRefBack())
+          && counterpart.getTableName().equals(other.getRefTableName())
+          && counterpart.getSchemaName().equals(other.getRefSchemaName())) {
+        return other;
+      }
+    }
+    return null;
+  }
+
+  private static Column findConflictingPartsColumn(Column c, String replacedColumnName) {
+    for (TableMetadata tableMetadata : c.getSchema().getTables()) {
+      for (Column other : tableMetadata.getNonInheritedColumns()) {
+        if (PARTS.equals(other.getColumnType())
+            && !isSamePartsColumn(c, other, replacedColumnName)
+            && c.getRefTableName().equals(other.getRefTableName())
+            && c.getRefSchemaName().equals(other.getRefSchemaName())) {
+          return other;
+        }
+      }
+    }
+    return null;
+  }
+
+  private static boolean isSamePartsColumn(Column c, Column other, String replacedColumnName) {
+    if (!c.getSchemaName().equals(other.getSchemaName())
+        || !c.getTableName().equals(other.getTableName())) {
+      return false;
+    }
+    return c.getName().equals(other.getName()) || other.getName().equals(replacedColumnName);
+  }
+
+  private static String qualifiedColumnName(Column c) {
+    return c.getSchemaName() + "." + c.getTableName() + "." + c.getName();
   }
 
   private static void executeCreateRefArrayIndex(DSLContext jooq, Table<?> table, Field<?> field) {

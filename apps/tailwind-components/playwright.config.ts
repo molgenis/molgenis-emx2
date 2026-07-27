@@ -48,7 +48,7 @@ export default defineConfig<ConfigOptions>({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        storageState: "e2e/.auth/user.json",
+        storageState: "playwright/.auth/user.json",
       },
       testMatch: "*/admin!*.spec.ts",
       dependencies: ["auth.setup"],

@@ -31,13 +31,11 @@
 
 <script lang="ts">
 import { IColumn, ITableMetaData } from "metadata-utils";
-import constants from "../constants.js";
+import { isAutoIdType } from "../../../../metadata-utils/src/fieldHelpers";
 import { deepClone } from "../utils";
 import FormInput from "./FormInput.vue";
 import { executeExpression, isColumnVisible } from "./formUtils/formUtils";
 import { convertRowToPrimaryKey } from "../../client/client";
-
-const { AUTO_ID } = constants;
 
 export default {
   name: "RowEdit",
@@ -156,7 +154,7 @@ export default {
     },
     applyComputed() {
       this.tableMetaData.columns.forEach((column: IColumn) => {
-        if (column.computed && column.columnType !== AUTO_ID) {
+        if (column.computed && !isAutoIdType(column.columnType)) {
           try {
             this.internalValues[column.id] = executeExpression(
               column.computed,

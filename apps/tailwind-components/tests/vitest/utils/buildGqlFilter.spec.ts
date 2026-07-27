@@ -480,57 +480,59 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
-  it("uses _or for RADIO with composite key objects (single-value)", () => {
-    const columns: IColumn[] = [
-      makeColumn({
-        id: "category",
-        columnType: "RADIO",
-        label: "Category",
-        refTableId: "Category",
-      }),
-    ];
-    const filters = new Map<string, IFilterValue>([
-      [
-        "category",
-        {
-          operator: "equals",
-          value: [{ name: "cat" }],
-        },
-      ],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      category: {
-        _or: [{ name: { equals: "cat" } }],
-      },
-    });
-  });
+  it.each(["RADIO", "REF"] as const)(
+    "%s single-key objects use equals on the key field (RADIO mirrors REF, no _or)",
+    (columnType) => {
+      const columns: IColumn[] = [
+        makeColumn({
+          id: "category",
+          columnType,
+          label: "Category",
+          refTableId: "Category",
+        }),
+      ];
+      const filters = new Map<string, IFilterValue>([
+        [
+          "category",
+          {
+            operator: "equals",
+            value: [{ name: "cat" }],
+          },
+        ],
+      ]);
+      const result = buildGraphQLFilter(filters, columns, "");
+      expect(result).toEqual({
+        category: { name: { equals: ["cat"] } },
+      });
+    }
+  );
 
-  it("uses _or for CHECKBOX with composite key objects", () => {
-    const columns: IColumn[] = [
-      makeColumn({
-        id: "tags",
-        columnType: "CHECKBOX",
-        label: "Tags",
-        refTableId: "Tags",
-      }),
-    ];
-    const filters = new Map<string, IFilterValue>([
-      [
-        "tags",
-        {
-          operator: "equals",
-          value: [{ code: "X" }, { code: "Y" }],
-        },
-      ],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      tags: {
-        _or: [{ code: { equals: "X" } }, { code: { equals: "Y" } }],
-      },
-    });
-  });
+  it.each(["CHECKBOX", "REF_ARRAY"] as const)(
+    "%s single-key objects use equals on the key field (CHECKBOX mirrors REF_ARRAY, no _or)",
+    (columnType) => {
+      const columns: IColumn[] = [
+        makeColumn({
+          id: "tags",
+          columnType,
+          label: "Tags",
+          refTableId: "Tags",
+        }),
+      ];
+      const filters = new Map<string, IFilterValue>([
+        [
+          "tags",
+          {
+            operator: "equals",
+            value: [{ code: "X" }, { code: "Y" }],
+          },
+        ],
+      ]);
+      const result = buildGraphQLFilter(filters, columns, "");
+      expect(result).toEqual({
+        tags: { code: { equals: ["X", "Y"] } },
+      });
+    }
+  );
 
   it("uses _match_any for nested RADIO path", () => {
     const columns: IColumn[] = [orderColumn];
@@ -694,23 +696,61 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
-  it("REFBACK single-key plain string uses equals with name key (mirrors RADIO)", () => {
-    const columns: IColumn[] = [
-      makeColumn({
-        id: "events",
-        columnType: "REFBACK",
-        label: "Events",
-        refTableId: "Event",
-      }),
-    ];
-    const filters = new Map<string, IFilterValue>([
-      ["events", { operator: "equals", value: ["eventA"] }],
-    ]);
-    const result = buildGraphQLFilter(filters, columns, "");
-    expect(result).toEqual({
-      events: { equals: [{ name: "eventA" }] },
-    });
-  });
+  it.each(["REFBACK", "PARTS"] as const)(
+    "%s single-key plain string uses equals with name key (PARTS mirrors its REFBACK flavor)",
+    (columnType) => {
+      const columns: IColumn[] = [
+        makeColumn({
+          id: "events",
+          columnType,
+          label: "Events",
+          refTableId: "Event",
+        }),
+      ];
+      const filters = new Map<string, IFilterValue>([
+        ["events", { operator: "equals", value: ["eventA"] }],
+      ]);
+      const result = buildGraphQLFilter(filters, columns, "");
+      expect(result).toEqual({
+        events: { equals: [{ name: "eventA" }] },
+      });
+    }
+  );
+
+  it.each(["REFBACK", "PARTS"] as const)(
+    "%s composite key objects use _or (PARTS mirrors its REFBACK flavor)",
+    (columnType) => {
+      const columns: IColumn[] = [
+        makeColumn({
+          id: "events",
+          columnType,
+          label: "Events",
+          refTableId: "Event",
+        }),
+      ];
+      const filters = new Map<string, IFilterValue>([
+        [
+          "events",
+          {
+            operator: "equals",
+            value: [
+              { resource: "R1", name: "eventA" },
+              { resource: "R2", name: "eventB" },
+            ],
+          },
+        ],
+      ]);
+      const result = buildGraphQLFilter(filters, columns, "");
+      expect(result).toEqual({
+        events: {
+          _or: [
+            { resource: { equals: "R1" }, name: { equals: "eventA" } },
+            { resource: { equals: "R2" }, name: { equals: "eventB" } },
+          ],
+        },
+      });
+    }
+  );
 
   it("between with [null, null] produces no filter entry", () => {
     const columns: IColumn[] = [{ id: "age", columnType: "INT", label: "Age" }];
@@ -914,7 +954,7 @@ describe("buildGraphQLFilter", () => {
     });
   });
 
-  it("RADIO single-key non-name pk objects use _or (existing object branch)", () => {
+  it("RADIO single-key non-name pk objects use equals on that pk field (mirrors REF)", () => {
     const columns: IColumn[] = [
       makeColumn({
         id: "radioType",
@@ -928,7 +968,7 @@ describe("buildGraphQLFilter", () => {
     ]);
     const result = buildGraphQLFilter(filters, columns, "");
     expect(result).toEqual({
-      radioType: { _or: [{ optionKey: { equals: "FR" } }] },
+      radioType: { optionKey: { equals: ["FR"] } },
     });
   });
 });

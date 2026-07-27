@@ -8,6 +8,9 @@ import type {
   IRow,
 } from "../../../metadata-utils/src/types";
 import { executeExpression } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
+import constants from "../../../molgenis-components/src/components/constants";
+
+const { INT_REGEX } = constants;
 
 export function getInitialFormValues(metadata: ITableMetaData) {
   return metadata.columns.reduce(
@@ -269,11 +272,11 @@ export function parseLinkSetting(linkSetting: string): Link {
 }
 
 export function getIntInput(inputValue?: string | number | null) {
-  if ((typeof inputValue !== "number" && !inputValue) || inputValue === "-") {
-    return inputValue;
-  } else {
-    const numericValue =
-      typeof inputValue === "string" ? Number.parseInt(inputValue) : inputValue;
-    return numericValue;
+  if (inputValue === "") {
+    return null;
   }
+  if (typeof inputValue !== "string") {
+    return inputValue;
+  }
+  return INT_REGEX.test(inputValue) ? Number.parseInt(inputValue) : inputValue;
 }

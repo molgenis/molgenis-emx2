@@ -1,4 +1,11 @@
 <script setup lang="ts">
+import {
+  isFileType,
+  isRefbackType,
+  isSingleOntologyType,
+  isSingleRefType,
+  isStoredMultiValuedType,
+} from "../../../../metadata-utils/src";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
 import { toRefColumn } from "../../utils/typeUtils";
@@ -18,16 +25,27 @@ import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
 
-withDefaults(
+import { computed } from "vue";
+
+const props = withDefaults(
   defineProps<{
     metadata: IColumn;
     data: any;
     hideListSeparator?: boolean;
+    maxItems?: number;
   }>(),
   {
     hideListSeparator: false,
   }
 );
+
+const effectiveMaxItems = computed(() => {
+  if (props.maxItems !== undefined) return props.maxItems;
+  if (isStoredMultiValuedType(props.metadata.columnType)) {
+    return 5;
+  }
+  return undefined;
+});
 
 defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
@@ -37,14 +55,11 @@ defineEmits<{
 <template>
   <template v-if="data == null || data === undefined"></template>
   <ValueList
-    v-else-if="
-      metadata.columnType.endsWith('ARRAY') ||
-      metadata.columnType === 'CHECKBOX' ||
-      metadata.columnType === 'MULTISELECT'
-    "
+    v-else-if="isStoredMultiValuedType(metadata.columnType)"
     :metadata="metadata"
     :data="data"
     :hideListSeparator="hideListSeparator"
+    :maxItems="effectiveMaxItems"
     @listRefCellClicked="$emit('valueClick', $event)"
   />
 
@@ -84,14 +99,14 @@ defineEmits<{
   />
 
   <ValueRef
-    v-else-if="['REF', 'RADIO', 'SELECT'].includes(metadata.columnType)"
+    v-else-if="isSingleRefType(metadata.columnType)"
     :metadata="toRefColumn(metadata)"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueObject
-    v-else-if="['ONTOLOGY'].includes(metadata.columnType)"
+    v-else-if="isSingleOntologyType(metadata.columnType)"
     :metadata="metadata"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
@@ -116,14 +131,14 @@ defineEmits<{
   />
 
   <ValueRefBack
-    v-else-if="metadata.columnType === 'REFBACK'"
+    v-else-if="isRefbackType(metadata.columnType)"
     :metadata="toRefColumn(metadata)"
     :data="data"
     @refBackCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueFile
-    v-else-if="metadata.columnType === 'FILE'"
+    v-else-if="isFileType(metadata.columnType)"
     :metadata="metadata"
     :data="data"
   />

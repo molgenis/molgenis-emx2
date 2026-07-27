@@ -42,24 +42,14 @@ function handleInputChanged(value?: string | number | null) {
   if (value !== 0 && !value) {
     emit("update:modelValue", null);
   } else {
-    const noCommaValue = value?.toString().replace(",", ".");
-    const numericValue =
-      typeof noCommaValue === "string"
-        ? Number.parseInt(noCommaValue)
-        : noCommaValue;
-    emit("update:modelValue", numericValue);
+    emit("update:modelValue", value);
   }
 }
 
 function handleKeyValidity(event: any) {
   const keyCode = event.which ?? event.keyCode;
   if (keyCode === CODE_MINUS) {
-    const flipped = flipMinusSign(event.target?.value);
-    if (flipped && flipped !== "-") {
-      emit("update:modelValue", Number.parseInt(flipped));
-    } else {
-      emit("update:modelValue", flipped);
-    }
+    emit("update:modelValue", flipMinusSign(event.target?.value));
   }
   if (keyCode === CODE_PERIOD && event.target?.value.indexOf(".") > -1) {
     event.preventDefault();

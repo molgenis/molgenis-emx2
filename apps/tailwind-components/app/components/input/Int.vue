@@ -42,12 +42,7 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 function handleKeyValidity(event: any) {
   const keyCode = event.which ?? event.keyCode;
   if (keyCode === CODE_MINUS) {
-    const flipped: string = flipMinusSign(event.target?.value);
-    if (flipped && flipped !== "-") {
-      emit("update:modelValue", Number.parseInt(flipped));
-    } else {
-      emit("update:modelValue", flipped);
-    }
+    emit("update:modelValue", getIntInput(flipMinusSign(event.target?.value)));
   }
   if (!isNumericKey(event) || keyCode === CODE_PERIOD) {
     event.preventDefault();

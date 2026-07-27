@@ -45,6 +45,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String[] profiles = null; // comma-separated strings
 
   private Boolean readonly = false;
+  private ColumnRole role = null;
+  private DisplayType display = null;
   private String defaultValue = null;
   private boolean indexed = false;
   private boolean cascadeDelete = false;
@@ -124,6 +126,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     required = column.required;
     key = column.key;
     readonly = column.readonly;
+    role = column.role;
+    display = column.display;
     defaultValue = column.defaultValue;
     indexed = column.indexed;
     refTable = column.refTable;
@@ -255,6 +259,24 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   public Column setReadonly(Boolean readonly) {
     this.readonly = readonly;
+    return this;
+  }
+
+  public ColumnRole getRole() {
+    return role;
+  }
+
+  public Column setRole(ColumnRole role) {
+    this.role = role;
+    return this;
+  }
+
+  public DisplayType getDisplay() {
+    return display;
+  }
+
+  public Column setDisplay(DisplayType display) {
+    this.display = display;
     return this;
   }
 
@@ -472,12 +494,43 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
   /** will return self in case of single, and multiple in case of composite key wrapper */
   public List<Reference> getReferences() {
+    return getReferences(List.of());
+  }
+
+  private String getReferenceExpansionId() {
+    SchemaMetadata schema = getTable().getSchema();
+    return schema == null ? getQualifiedName() : schema.getName() + "." + getQualifiedName();
+  }
+
+  private static String cyclicExpansionAdvice(List<String> expansionPath) {
+    if (expansionPath.size() == 1) {
+      return "A self reference must stay outside of the key";
+    }
+    return "At least one of these references must stay outside of the key of its table";
+  }
+
+  private List<Reference> getReferences(List<String> expansionPath) {
 
     // no ref
     if (getRefTableName() == null) {
       throw new MolgenisException(
           "getReferences failed: column " + getQualifiedName() + " is not a reference");
     }
+
+    String expansionId = getReferenceExpansionId();
+    if (expansionPath.contains(expansionId)) {
+      throw new MolgenisException(
+          "Error in column '"
+              + getQualifiedName()
+              + "': reference expansion is cyclic because this column references a table whose primary key leads back to it ("
+              + String.join(" -> ", expansionPath)
+              + " -> "
+              + expansionId
+              + "). "
+              + cyclicExpansionAdvice(expansionPath));
+    }
+    List<String> nestedExpansionPath = new ArrayList<>(expansionPath);
+    nestedExpansionPath.add(expansionId);
 
     List<Column> pkeys = getRefTable().getPrimaryKeyColumns();
     List<Reference> refColumns = new ArrayList<>();
@@ -496,7 +549,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     Column refLink = getRefLinkColumn();
     for (Column keyPart : pkeys) {
       if (keyPart.isReference()) {
-        for (Reference ref : keyPart.getReferences()) {
+        List<Reference> keyPartReferences = keyPart.getReferences(nestedExpansionPath);
+        for (Reference ref : keyPartReferences) {
           ColumnType type = ref.getPrimitiveType();
           if (!isRef()) {
             type = getArrayType(type);
@@ -505,7 +559,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
           path.add(0, keyPart.getIdentifier());
           String name = null;
           if (refLink != null) {
-            for (Reference overlap : refLink.getReferences()) {
+            for (Reference overlap : refLink.getReferences(nestedExpansionPath)) {
               if (overlap.getTargetTable().equals(ref.getTargetTable())
                   && overlap.getTargetColumn().equals(ref.getTargetColumn())) {
                 name = overlap.getColumnName();
@@ -515,7 +569,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
           if (name == null) {
             name = getName();
             // fixed in #4705 to also accommodate for nested composite keys checking keyParts!
-            if (pkeys.size() > 1 || keyPart.getReferences().size() > 0) {
+            if (pkeys.size() > 1 || !keyPartReferences.isEmpty()) {
               name += COMPOSITE_REF_SEPARATOR + ref.getColumnName();
             }
           }

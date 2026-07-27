@@ -129,7 +129,7 @@ Vite apps read `MOLGENIS_APPS_HOST`, Nuxt apps read `NUXT_PUBLIC_API_BASE`. Each
 3. else the key in the ambient shell;
 4. else the app's own fallback.
 
-`.env` deliberately beats the ambient shell — an `export NUXT_PUBLIC_API_BASE=...` in a shell profile would otherwise pin every worktree to a backend none of them declared. Gradle's `-D` overrides the backend port for a single run: `./gradlew dev -DMOLGENIS_HTTP_PORT=9000`.
+`.env` deliberately beats the ambient shell — an `export NUXT_PUBLIC_API_BASE=...` in a shell profile would otherwise pin every worktree to a backend none of them declared. A `-D` system property overrides any `.env` value for a single run, not just the port: `./gradlew dev -DMOLGENIS_HTTP_PORT=9000` or `./gradlew run -DMOLGENIS_POSTGRES_URI=jdbc:postgresql://localhost:5435/molgenis`.
 
 ### Running from IntelliJ
 

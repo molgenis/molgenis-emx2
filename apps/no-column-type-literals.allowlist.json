@@ -1,0 +1,92 @@
+[
+  {
+    "file": "catalogue/app/utils/filterUtils.ts",
+    "code": "case \"ONTOLOGY\": case \"REF_ARRAY\": const ontologyFilter = filter as IConditionsFilter;",
+    "count": 1,
+    "reason": "switches on IFilterConfig.type, the filter widget kind, not on a column type"
+  },
+  {
+    "file": "catalogue/app/utils/filterUtils.ts",
+    "code": "case \"ONTOLOGY\": case \"REF_ARRAY\": return (filter as IConditionsFilter).conditions.length === 0;",
+    "count": 1,
+    "reason": "switches on IFilterConfig.type, the filter widget kind, not on a column type"
+  },
+  {
+    "file": "catalogue/app/utils/filterUtils.ts",
+    "code": "case \"ONTOLOGY\": case \"REF_ARRAY\": return {",
+    "count": 1,
+    "reason": "switches on IFilterConfig.type, the filter widget kind, not on a column type"
+  },
+  {
+    "file": "molgenis-components/src/components/filters/FilterWells.vue",
+    "code": "return [\"MULTISELECT\", \"SELECT\", \"CHECKBOX\"].includes(columnType);",
+    "count": 1,
+    "reason": "widget shape straddling isSingleRefType and isRefArrayType while excluding REF, REF_ARRAY and RADIO"
+  },
+  {
+    "file": "molgenis-components/src/components/tables/TableExplorer.vue",
+    "code": ":exclude=\"['HEADING', 'FILE', 'SECTION']\"",
+    "count": 1,
+    "reason": "a prop value listing columns to hide, not a predicate; no call site to put a predicate in"
+  },
+  {
+    "file": "molgenis-components/src/components/tables/TableExplorer.vue",
+    "code": ":exclude=\"['HEADING', 'SECTION']\"",
+    "count": 1,
+    "reason": "a prop value listing columns to hide, not a predicate; no call site to put a predicate in"
+  },
+  {
+    "file": "molgenis-viz/src/utils/defaults.ts",
+    "code": "categorical: [\"STRING\", \"REF\", \"ONTOLOGY\"],",
+    "count": 1,
+    "reason": "chart axis vocabulary: which column types feed a continuous versus a categorical d3 scale, so INT+DECIMAL and STRING+REF+ONTOLOGY answer a plotting question no metadata-utils family answers"
+  },
+  {
+    "file": "tailwind-components/app/components/Input.vue",
+    "code": "v-else-if=\"['REF', 'RADIO'].includes(typeUpperCase)\"",
+    "count": 1,
+    "reason": "per-widget dispatch: a strict subset of isSingleRefType, widening to SELECT would change which input renders"
+  },
+  {
+    "file": "tailwind-components/app/components/Input.vue",
+    "code": "v-else-if=\"['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)\"",
+    "count": 1,
+    "reason": "per-widget dispatch: a strict subset of isRefArrayType, widening to MULTISELECT would change which input renders"
+  },
+  {
+    "file": "tailwind-components/app/components/value/List.vue",
+    "code": "elementType === 'REF' || elementType === 'MULTISELECT' || elementType === 'CHECKBOX'",
+    "count": 1,
+    "reason": "per-widget dispatch on the element type of an array value, not on a column type"
+  },
+  {
+    "file": "tailwind-components/app/pages/samples/catalogue/[resource]/index.vue",
+    "code": "id: \"_mergedDataCategories\", label: \"Data categories\", columnType: \"ONTOLOGY_ARRAY\", heading: headingId, } as IColumn, {",
+    "count": 1,
+    "reason": "constructs a synthetic IColumn, so it declares a column type rather than testing one"
+  },
+  {
+    "file": "tailwind-components/app/pages/samples/catalogue/[resource]/index.vue",
+    "code": "id: \"_mergedSampleCategories\", label: \"Sample categories\", columnType: \"ONTOLOGY_ARRAY\", heading: headingId, } as IColumn, ];",
+    "count": 1,
+    "reason": "constructs a synthetic IColumn, so it declares a column type rather than testing one"
+  },
+  {
+    "file": "tailwind-components/app/utils/buildGqlFilter.ts",
+    "code": "const isSelectType = column.columnType === \"SELECT\" || column.columnType === \"MULTISELECT\";",
+    "count": 1,
+    "reason": "widget shape: the select flavors only, excluding REF and REF_ARRAY"
+  },
+  {
+    "file": "tailwind-components/app/utils/filterUtils.ts",
+    "code": "const DEFAULT_FILTER_REF_TYPES = new Set([\"RADIO\", \"SELECT\"]);",
+    "count": 1,
+    "reason": "widget shape: which ref flavors get a filter by default"
+  },
+  {
+    "file": "tailwind-components/app/utils/filterUtils.ts",
+    "code": "if (columnType === \"REF\" || columnType === \"SELECT\") return 2;",
+    "count": 1,
+    "reason": "navigation depth of the filter tree, a UI depth rule that happens to name two ref flavors"
+  }
+]

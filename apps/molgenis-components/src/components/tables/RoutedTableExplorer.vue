@@ -45,7 +45,8 @@
 </template>
 
 <script>
-import { deepClone } from "../utils";
+import { deepClone, isRefType } from "../utils";
+import { isRangeConditionType } from "../../../../metadata-utils/src/fieldHelpers";
 import TableExplorer from "./TableExplorer.vue";
 
 export default {
@@ -238,32 +239,17 @@ export default {
       columns.forEach((column) => {
         const conditions = column.conditions;
         if (conditions?.length) {
-          switch (column.columnType) {
-            case "REF":
-            case "REF_ARRAY":
-            case "REFBACK":
-            case "ONTOLOGY":
-            case "ONTOLOGY_ARRAY":
-            case "RADIO":
-            case "SELECT":
-            case "MULTISELECT":
-            case "CHECKBOX":
-              query[column.id] = JSON.stringify(conditions);
-              break;
-            case "DATE":
-            case "DATETIME":
-            case "INT":
-            case "LONG":
-            case "DECIMAL":
-              const result = conditions.map((v) => v.join("..")).join(",");
-              if (result !== "..") {
-                query[column.id] = result;
-              } else {
-                delete query[column.id];
-              }
-              break;
-            default:
-              query[column.id] = conditions.join(",");
+          if (isRefType(column.columnType)) {
+            query[column.id] = JSON.stringify(conditions);
+          } else if (isRangeConditionType(column.columnType)) {
+            const result = conditions.map((v) => v.join("..")).join(",");
+            if (result !== "..") {
+              query[column.id] = result;
+            } else {
+              delete query[column.id];
+            }
+          } else {
+            query[column.id] = conditions.join(",");
           }
         } else {
           delete query[column.id];

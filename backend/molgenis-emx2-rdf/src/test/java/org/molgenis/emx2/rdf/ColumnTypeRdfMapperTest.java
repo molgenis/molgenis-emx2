@@ -27,6 +27,7 @@ class ColumnTypeRdfMapperTest {
   static final String TEST_TABLE = "TestTable";
   static final String REF_TABLE = "TestRefTable";
   static final String REFBACK_TABLE = "TestRefBackTable";
+  static final String PARTS_TABLE = "TestPartsTable";
   static final String COMPOSITE_REF_TABLE = "TestCompositeRefTable";
   static final String COMPOSITE_REFBACK_TABLE = "TestCompositeRefbackTable";
   static final String ONT_TABLE = "Test Ontology";
@@ -43,6 +44,7 @@ class ColumnTypeRdfMapperTest {
   static final String COLUMN_COMPOSITE_REF = "composite_ref";
   static final String COLUMN_COMPOSITE_REF_ARRAY = "composite_ref_array";
   static final String COLUMN_COMPOSITE_REFBACK = "composite_refback";
+  static final String COLUMN_PARTS_REFBACK = "parts_refback";
 
   static Database database;
   static Schema allColumnTypes;
@@ -68,6 +70,7 @@ class ColumnTypeRdfMapperTest {
         case STRING -> column.setPkey();
         case REF, REF_ARRAY, SELECT, CHECKBOX, RADIO, MULTISELECT -> column.setRefTable(REF_TABLE);
         case REFBACK -> column.setRefTable(REFBACK_TABLE).setRefBack("ref");
+        case PARTS -> column.setRefTable(PARTS_TABLE).setRefBack("ref");
         case ONTOLOGY, ONTOLOGY_ARRAY -> column.setRefTable(ONT_TABLE);
       }
     }
@@ -79,6 +82,10 @@ class ColumnTypeRdfMapperTest {
     columnList.add(
         column(COLUMN_COMPOSITE_REFBACK, ColumnType.REFBACK)
             .setRefTable(COMPOSITE_REFBACK_TABLE)
+            .setRefBack("ref"));
+    columnList.add(
+        column(COLUMN_PARTS_REFBACK, ColumnType.REFBACK)
+            .setRefTable(PARTS_TABLE)
             .setRefBack("ref"));
 
     // Creates tables.
@@ -94,6 +101,11 @@ class ColumnTypeRdfMapperTest {
             REFBACK_TABLE,
             column("id", ColumnType.STRING).setPkey(),
             column("ref", ColumnType.REF).setRefTable(TEST_TABLE)),
+        // Table to get parts from: its parent ref is required and part of the key
+        table(
+            PARTS_TABLE,
+            column("ref", ColumnType.REF).setRefTable(TEST_TABLE).setRequired(true).setKey(1),
+            column("name", ColumnType.STRING).setRequired(true).setKey(1)),
         // Table containing composite primary key to ref towards
         table(
             COMPOSITE_REF_TABLE,
@@ -218,6 +230,7 @@ class ColumnTypeRdfMapperTest {
         .insert(
             row("id1", "a", "id2", "b", "ref", "lonelyString"),
             row("id1", "c", "id2", "d", "ref", "lonelyString"));
+    allColumnTypes.getTable(PARTS_TABLE).insert(row("ref", "lonelyString", "name", "part1"));
 
     // Describes rows for easy access.
     // exclude mg columns because they might be not empty for the empty test
@@ -281,6 +294,31 @@ class ColumnTypeRdfMapperTest {
     Set<ColumnType> columnMappings = ColumnTypeRdfMapper.getMapperKeys();
 
     assertEquals(columnTypes, columnMappings);
+  }
+
+  @Test
+  void partsEmitsSameRdfAsRefbackOnSameTable() {
+    Set<Value> partsValues = retrieveValues(ColumnType.PARTS.name());
+
+    assertAll(
+        () ->
+            assertEquals(
+                ColumnTypeRdfMapper.getCoreDataType(ColumnType.REFBACK),
+                ColumnTypeRdfMapper.getCoreDataType(ColumnType.PARTS)),
+        () ->
+            assertFalse(
+                partsValues.isEmpty(), ColumnType.PARTS.name() + " emitted no value at all"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.PARTS.name()).isIRI(),
+                ColumnType.PARTS.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.PARTS.name())
+                    .stringValue()
+                    .startsWith(RDF_API_URL_PREFIX + PARTS_TABLE + "/"),
+                ColumnType.PARTS.name() + " does not point at a row of " + PARTS_TABLE),
+        () -> assertEquals(retrieveValues(COLUMN_PARTS_REFBACK), partsValues));
   }
 
   /**

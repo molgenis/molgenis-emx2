@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import Picker from "../../../../app/components/filter/Picker.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
@@ -68,6 +68,15 @@ const multiselectCol: IColumn = {
   position: 5,
 } as IColumn;
 
+const radioCol: IColumn = {
+  id: "shippingMethod",
+  label: "Shipping Method",
+  columnType: "RADIO",
+  table: "MyTable",
+  refTableId: "ShippingMethods",
+  position: 6,
+} as IColumn;
+
 const headingCol: IColumn = {
   id: "section1",
   label: "Section",
@@ -91,9 +100,83 @@ const allColumns: IColumn[] = [
   refCol,
   selectCol,
   multiselectCol,
+  radioCol,
   headingCol,
   mgCol,
 ];
+
+const nestedRadioCol: IColumn = {
+  id: "priority",
+  label: "Priority",
+  columnType: "RADIO",
+  table: "Category",
+  refTableId: "Priorities",
+  position: 1,
+} as IColumn;
+
+function stubCategorySchemaFetch() {
+  vi.stubGlobal(
+    "$fetch",
+    vi.fn(async () => ({
+      data: {
+        _schema: {
+          id: "pet-store",
+          label: "pet-store",
+          tables: [
+            {
+              id: "Category",
+              schemaId: "pet-store",
+              name: "Category",
+              label: "Category",
+              tableType: "DATA",
+              columns: [
+                {
+                  id: "name",
+                  label: "Name",
+                  columnType: "STRING",
+                  table: "Category",
+                  position: 0,
+                },
+                nestedRadioCol,
+              ],
+            },
+          ],
+        },
+      },
+    }))
+  );
+}
+
+function expandLabels(): (string | null)[] {
+  return Array.from(document.body.querySelectorAll("button"))
+    .map((button) => button.getAttribute("aria-label"))
+    .filter((label) => label?.startsWith("Expand "));
+}
+
+function checkboxLabelled(label: string): HTMLInputElement | undefined {
+  return Array.from(
+    document.body.querySelectorAll(
+      'input[type="checkbox"]'
+    ) as NodeListOf<HTMLInputElement>
+  ).find((checkbox) => checkbox.getAttribute("aria-label") === label);
+}
+
+function buttonLabelled(label: string): HTMLButtonElement | undefined {
+  return Array.from(document.body.querySelectorAll("button")).find(
+    (button) => button.getAttribute("aria-label") === label
+  );
+}
+
+function buttonTitled(title: string): HTMLButtonElement | undefined {
+  return Array.from(document.body.querySelectorAll("button")).find((button) =>
+    button.textContent?.trim().includes(title)
+  );
+}
+
+function clickRequired(element: HTMLElement | undefined, what: string): void {
+  expect(element, `${what} is not in the document`).toBeDefined();
+  element!.click();
+}
 
 function mountPicker(
   overrides: {
@@ -117,6 +200,7 @@ function mountPicker(
 describe("Picker", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
+    vi.unstubAllGlobals();
   });
 
   it("renders modal when modelValue is true", async () => {
@@ -502,6 +586,47 @@ describe("Picker", () => {
       cb.closest("label")?.textContent?.includes("Tags")
     );
     expect(tagsCheckbox).toBeTruthy();
+    wrapper.unmount();
+  });
+
+  it("offers an expand control only for the refs whose target table can be drilled into", async () => {
+    const wrapper = mountPicker({ modelValue: true });
+    await nextTick();
+
+    expect(expandLabels()).toEqual([
+      "Expand Category",
+      "Expand Contact Point",
+      "Expand Tags",
+    ]);
+    wrapper.unmount();
+  });
+
+  it("keeps a nested RADIO column selectable as a filter once its parent ref is expanded", async () => {
+    stubCategorySchemaFetch();
+    const wrapper = mountPicker({
+      modelValue: true,
+      visibleFilterIds: new Set(),
+    });
+    await nextTick();
+
+    clickRequired(
+      buttonLabelled("Expand Category"),
+      "the expand control of Category"
+    );
+    await flushPromises();
+    await nextTick();
+
+    clickRequired(
+      checkboxLabelled("Priority"),
+      "the checkbox of the nested Priority column"
+    );
+    await nextTick();
+
+    clickRequired(buttonTitled("Apply"), "the Apply button");
+    await nextTick();
+
+    const emittedSet = wrapper.emitted("apply")![0]![0] as Set<string>;
+    expect([...emittedSet]).toEqual(["category.priority"]);
     wrapper.unmount();
   });
 

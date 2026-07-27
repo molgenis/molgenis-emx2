@@ -7,6 +7,7 @@
 <script>
 import mermaid from "mermaid";
 import { Spinner } from "molgenis-components";
+import { isStoredTableRefType } from "metadata-utils";
 
 export default {
   components: {
@@ -118,14 +119,7 @@ direction TB
       });
     }
     table.columns.forEach((column) => {
-      if (
-        column.columnType === "REF" ||
-        column.columnType === "REF_ARRAY" ||
-        column.columnType === "RADIO" ||
-        column.columnType === "CHECKBOX" ||
-        column.columnType === "SELECT" ||
-        column.columnType === "MULTISELECT"
-      ) {
+      if (isStoredTableRefType(column.columnType)) {
         graph += `  class \`${column.refTableName}\`\n`;
         graph += `  \`${column.refTableName}\` <-- \`${column.table}\` : ${column.name} \n`;
       }

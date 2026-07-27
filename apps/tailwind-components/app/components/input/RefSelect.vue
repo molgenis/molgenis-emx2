@@ -24,6 +24,7 @@ import ButtonText from "../button/Text.vue";
 import { fetchGraphql } from "#imports";
 import fetchTableData from "../../composables/fetchTableData";
 
+import { isLayoutColumnType } from "../../../../metadata-utils/src";
 import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import { fetchTableMetadata } from "#imports";
 import type { ITableDataResponse } from "../../composables/fetchTableData";
@@ -154,7 +155,8 @@ const namesForOrderByInput = computed<IInputValueLabel[]>(() => {
     tableMetadata.value?.columns
       .filter((column) => {
         return (
-          (column.columnType !== "HEADING" && !column.id.startsWith("mg_")) ||
+          (!isLayoutColumnType(column.columnType) &&
+            !column.id.startsWith("mg_")) ||
           props.showMgColumns
         );
       })

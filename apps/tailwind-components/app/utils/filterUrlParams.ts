@@ -1,18 +1,12 @@
+import {
+  isOntologyType,
+  isOptionKeyRefType,
+  isRefType,
+  isTableRefType,
+} from "../../../metadata-utils/src";
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { IFilterValue } from "../../types/filters";
-import { RANGE_TYPES, REF_EXPANDABLE_TYPES } from "./filterUtils";
-
-const REF_TYPES = new Set([
-  "REF",
-  "REF_ARRAY",
-  "REFBACK",
-  "ONTOLOGY",
-  "ONTOLOGY_ARRAY",
-  "SELECT",
-  "MULTISELECT",
-  "RADIO",
-  "CHECKBOX",
-]);
+import { RANGE_TYPES } from "./filterUtils";
 
 const MULTI_VALUE_SEPARATOR = "|";
 const RESERVED_PREFIX = "mg_";
@@ -102,22 +96,16 @@ export function parseFilterValue(
   const columnType = column.columnType;
 
   const isDirectRefType =
-    REF_EXPANDABLE_TYPES.has(columnType) &&
+    isTableRefType(columnType) &&
     Boolean(column.refTableId) &&
     refField === null;
 
-  const MULTI_VALUE_TYPES = new Set([
-    "ONTOLOGY",
-    "ONTOLOGY_ARRAY",
-    "BOOL",
-    "RADIO",
-    "CHECKBOX",
-  ]);
+  const isMultiValueType =
+    isOntologyType(columnType) ||
+    columnType === "BOOL" ||
+    isOptionKeyRefType(columnType);
 
-  if (
-    (MULTI_VALUE_TYPES.has(columnType) && refField === null) ||
-    isDirectRefType
-  ) {
+  if ((isMultiValueType && refField === null) || isDirectRefType) {
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       return {
         operator: "equals",
@@ -127,7 +115,7 @@ export function parseFilterValue(
     return { operator: "equals", value: [urlValue] };
   }
 
-  if (REF_TYPES.has(columnType)) {
+  if (isRefType(columnType)) {
     const field = refField ?? "name";
     if (urlValue.includes(MULTI_VALUE_SEPARATOR)) {
       const values = urlValue.split(MULTI_VALUE_SEPARATOR);
@@ -220,20 +208,14 @@ export function serializeFiltersToUrl(
           }
         }
       } else if (
-        (column.columnType === "RADIO" ||
-          column.columnType === "CHECKBOX" ||
-          column.columnType === "REF" ||
-          column.columnType === "REF_ARRAY" ||
-          column.columnType === "REFBACK" ||
-          column.columnType === "SELECT" ||
-          column.columnType === "MULTISELECT") &&
+        isTableRefType(column.columnType) &&
         column.refTableId &&
         Array.isArray(value.value) &&
         value.value.length > 0 &&
         typeof value.value[0] === "string"
       ) {
         params[key] = serialized;
-      } else if (REF_TYPES.has(column.columnType)) {
+      } else if (isRefType(column.columnType)) {
         const refField = extractRefField(value);
         params[`${key}.${refField}`] = serialized;
       } else {
@@ -286,7 +268,7 @@ export function parseFiltersFromUrl(
     let filterKey: string;
     let refField: string | null;
 
-    if (!REF_TYPES.has(column.columnType) || segments.length === 1) {
+    if (!isRefType(column.columnType) || segments.length === 1) {
       filterKey = resolvedKey;
       refField = null;
     } else if (segments.length === 2) {

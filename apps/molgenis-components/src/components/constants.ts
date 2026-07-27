@@ -11,6 +11,8 @@ export default {
     /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$|^$/,
   HYPERLINK_REGEX:
     /^((https?):\/\/)(www.)?[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%._\\+~#?&//=()]*)\/?$|^$/,
+  DECIMAL_REGEX: /^[+-]?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?$/,
+  INT_REGEX: /^-?\d+$/,
   PERIOD_REGEX: /^P(?=\d+Y|\d+M|\d+D)(\d+Y)?(\d+M)?(\d+D)?$/,
   UUID_REGEX: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
   SELECT_QUOTED_REGEX: /'(?:[^'\\]|\\')*'/g,
@@ -20,9 +22,6 @@ export default {
   MAX_LONG: "9223372036854775807",
   MIN_LONG: "-9223372036854775807",
   IS_CHAPTERS_ENABLED_FIELD_NAME: "isChaptersEnabled",
-  AUTO_ID: "AUTO_ID",
-  HEADING: "HEADING",
-  SECTION: "SECTION",
 };
 
 const LEVEL_1 = "Level 1";
