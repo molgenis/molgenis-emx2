@@ -5,9 +5,9 @@ export default defineConfig<PlaywrightTestConfig>({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI
-    ? [["list"], ["junit", { outputFile: "results.xml" }]]
+    ? [["list"], ["junit", { outputFile: "test-results/results.xml" }]]
     : "html",
   use: {
     baseURL: process.env.E2E_BASE_URL || "http://localhost:5173/", // change to specific http://localhost:*/, preview, etc.

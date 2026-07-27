@@ -9,11 +9,11 @@ export default defineConfig<ConfigOptions>({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Limit parallelism on CI, where backend and Postgres share the box. */
+  workers: process.env.CI ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
-    ? [["list"], ["junit", { outputFile: "results.xml" }]]
+    ? [["list"], ["junit", { outputFile: "test-results/results.xml" }]]
     : "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -40,7 +40,10 @@ export default defineConfig<ConfigOptions>({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: "typetest/types/create.spec.ts",
+      testIgnore: [
+        "typetest/types/create.spec.ts",
+        "filter-count-parity.spec.ts",
+      ],
     },
     {
       name: "with-auth",
@@ -51,6 +54,12 @@ export default defineConfig<ConfigOptions>({
       testIgnore: "tests/e2e/re-authtest.spec.ts",
       testMatch: "typetest/types/create.spec.ts",
       dependencies: ["auth.setup"],
+    },
+    {
+      name: "after-type-test-mutations",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: "filter-count-parity.spec.ts",
+      dependencies: ["with-auth"],
     },
   ],
 });

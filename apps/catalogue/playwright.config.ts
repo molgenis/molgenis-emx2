@@ -17,8 +17,8 @@ export default defineConfig<ConfigOptions>({
   maxFailures: process.env.CI ? 1 : 5,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Limit parallelism on CI, where backend and Postgres share the box. */
+  workers: process.env.CI ? 2 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
     ? [["list"], ["junit", { outputFile: "test-results/results.xml" }]]
