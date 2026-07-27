@@ -20,17 +20,20 @@
       ],
       // outputs turbo should cache, rest is uncached
       "outputs": ["dist/**", "showCase/**","gen-docs/**"],
-      "cache": true
+      "cache": true,
+      "outputLogs": "new-only"
     },
     "test": {
       "dependsOn": ["build"],
       "outputs": [],
-      "cache": true
+      "cache": true,
+      "outputLogs": "new-only"
     },
     "lint": {
       "dependsOn": ["build"],
       "outputs": [],
-      "cache": true
+      "cache": true,
+      "outputLogs": "new-only"
     },
     "format": {
       "inputs": [
@@ -40,7 +43,8 @@
         "package.json"
       ],
       "outputs": [],
-      "cache": true
+      "cache": true,
+      "outputLogs": "new-only"
     },
     "checkFormat": {
       "inputs": [
@@ -50,12 +54,14 @@
         "package.json"
       ],
       "outputs": [],
-      "cache": true
+      "cache": true,
+      "outputLogs": "new-only"
     },
     "test-ci": {
       "dependsOn": ["build"],
       "outputs": [],
-      "cache": true
+      "cache": true,
+      "outputLogs": "new-only"
     },
     "e2e": {
       "outputs": [],

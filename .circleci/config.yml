@@ -232,7 +232,7 @@ jobs:
       - restore_turbo_cache
       - restore_pnpm_store
       - run:
-          name: build the application without running tests to speed up the e2e tests
+          name: build application
           command: ./gradlew shadowJar dockerPrepare -x test ci --no-daemon
 
       - run:
