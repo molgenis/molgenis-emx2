@@ -122,6 +122,14 @@ subprojects {
         sourceCompatibility = rootProject.ext.javaVersion
     }
 
+    normalization {
+        runtimeClasspath {
+            metaInf {
+                ignoreAttribute("Implementation-Version")
+            }
+        }
+    }
+
     jar {
         reproducibleFileOrder = true
         manifest {
