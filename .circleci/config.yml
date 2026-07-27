@@ -162,6 +162,42 @@ commands:
           - apps/.turbo/cache
         key: turbo-v1-{{ .Revision }}
 
+  restore_pnpm_store:
+    parameters:
+      strict:
+        type: boolean
+        default: true
+    steps:
+    - run:
+        name: Pin the pnpm store to a cacheable location and record the pnpm version as key
+        command: |
+          STRICT="<< parameters.strict >>"
+          pnpm -v > pnpm-version
+          pnpm config set store-dir "$HOME/.pnpm-store"
+          STORE_PATH=$(pnpm store path)
+          echo "pnpm $(cat pnpm-version) reports its store at $STORE_PATH"
+          case "$STORE_PATH" in
+            "$HOME/.pnpm-store"*) ;;
+            *)
+              echo "PNPM_STORE_PIN_IGNORED: store is at $STORE_PATH, the cache will not be reused and this install stays cold"
+              if [ "$STRICT" = "true" ]; then
+                exit 1
+              fi
+              ;;
+          esac
+    - restore_cache:
+        keys:
+          - pnpm-store-v1-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
+          - pnpm-store-v1-{{ checksum "pnpm-version" }}-
+          - pnpm-store-v1-
+
+  save_pnpm_store:
+    steps:
+    - save_cache:
+        paths:
+          - ~/.pnpm-store
+        key: pnpm-store-v1-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
+
   post_steps:
     steps:
     - run:
@@ -185,6 +221,7 @@ jobs:
       - gradle_pre_steps
       - restore_gradle_build_cache
       - restore_turbo_cache
+      - restore_pnpm_store
       - run:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar dockerPrepare -x test ci --no-daemon
@@ -193,6 +230,8 @@ jobs:
           name: build ssr catalogue
           command: pnpm exec turbo run build --filter=catalogue
           working_directory: apps
+
+      - save_pnpm_store
 
       - persist_to_workspace:
           root: .
@@ -229,11 +268,15 @@ jobs:
             corepack prepare pnpm@latest --activate
             pnpm -v
 
+      - restore_pnpm_store
+
       - run:
           name: Install dependencies
           command: |
             (cd apps && pnpm install)
             (cd e2e && pnpm install --frozen-lockfile)
+
+      - save_pnpm_store
 
       - run:
           name: Verify Playwright agrees with the browsers this image ships
@@ -423,6 +466,7 @@ jobs:
     - gradle_pre_steps
     - restore_gradle_build_cache
     - restore_turbo_cache
+    - restore_pnpm_store
 
     - run:
         name: prepare sql test database
@@ -443,6 +487,7 @@ jobs:
         command: ./gradlew :apps:test
 
     - save_turbo_cache
+    - save_pnpm_store
 
     - run:
         name: <backend> check code format
@@ -497,6 +542,8 @@ jobs:
         
     - pre_steps
     - gradle_pre_steps
+    - restore_pnpm_store:
+        strict: false
 
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
@@ -511,6 +558,8 @@ jobs:
         command: |
           ./gradlew lint ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+
+    - save_pnpm_store
 
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
