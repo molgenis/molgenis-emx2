@@ -45,6 +45,7 @@ test("the row should be removed from the table after deletion", async ({
 
 test("the row should be copied and added to the table after copying", async ({
   page,
+  goto,
 }) => {
   await goto(`${route}table/EMX2.story?schema=pet+store&table=Pet`, {
     waitUntil: "hydration",
@@ -59,7 +60,7 @@ test("the row should be copied and added to the table after copying", async ({
     "http://localhost:3000/table/EMX2.story?schema=pet+store&table=Pet"
   );
   await page.getByRole("checkbox", { name: "Is Editable:" }).check();
-  await page.getByRole("button", { name: 'copy {"name":"pooky"}' }).hover();
+  await page.getByRole("cell", { name: "pooky" }).first().hover();
   await page.getByRole("button", { name: 'copy {"name":"pooky"}' }).click();
   await page.getByRole("textbox", { name: "name Required" }).fill("copy cat");
   await page.getByRole("button", { name: "Save", exact: true }).click();
