@@ -120,7 +120,6 @@ function tableLabelOf(schemaMetadata: ISchemaMetaData, tableId: string) {
     :schema-id="schemaId"
     :table-id="record.tableId"
     :row-id="record.key"
-    :row="row ?? null"
     :title="title"
     :crumbs="crumbs"
     @row-changed="refresh"
