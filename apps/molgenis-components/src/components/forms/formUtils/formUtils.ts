@@ -29,6 +29,7 @@ const {
 } = constants;
 const BIG_INT_ERROR = `Invalid long: must be value from ${MIN_LONG} to ${MAX_LONG}`;
 const INT_ERROR = `Invalid integer: must be value from ${MIN_INT} to ${MAX_INT}`;
+const DECIMAL_ERROR = `Should be number using '.' as decimal separator`;
 const PERIOD_EXPLANATION =
   'must start with a P and should contain at least a Y(year), M(month) or D(day): e.g. "P1Y3M14D"';
 const UUID_EXPLANATION =
@@ -170,7 +171,7 @@ export function getColumnError(
     return BIG_INT_ERROR;
   }
   if (type === "DECIMAL" && isInvalidDecimal(value)) {
-    return "Invalid number";
+    return DECIMAL_ERROR;
   }
   if (
     type === "DECIMAL_ARRAY" &&
@@ -178,7 +179,7 @@ export function getColumnError(
       (val) => Boolean(val) && isInvalidDecimal(val)
     )
   ) {
-    return "Invalid number";
+    return DECIMAL_ERROR;
   }
   if (type === "INT" && isInvalidInt(value as number)) {
     return INT_ERROR;

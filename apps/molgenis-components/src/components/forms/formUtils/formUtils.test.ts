@@ -318,7 +318,9 @@ describe("getRowErrors", () => {
       columns: [{ id: "decimal", columnType: "DECIMAL" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ decimal: "Invalid number" });
+    expect(result).to.deep.equal({
+      decimal: "Should be number using '.' as decimal separator",
+    });
   });
 
   test("it should return an error for a decimal written with a comma separator", () => {
@@ -327,7 +329,9 @@ describe("getRowErrors", () => {
       columns: [{ id: "decimal", columnType: "DECIMAL" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ decimal: "Invalid number" });
+    expect(result).to.deep.equal({
+      decimal: "Should be number using '.' as decimal separator",
+    });
   });
 
   test("it should return no error for a decimal that is already a number", () => {
@@ -345,7 +349,9 @@ describe("getRowErrors", () => {
       columns: [{ id: "decimal", columnType: "DECIMAL" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ decimal: "Invalid number" });
+    expect(result).to.deep.equal({
+      decimal: "Should be number using '.' as decimal separator",
+    });
   });
 
   test("it should return no error for a valid decimal array", () => {
@@ -363,7 +369,9 @@ describe("getRowErrors", () => {
       columns: [{ id: "decimal", columnType: "DECIMAL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ decimal: "Invalid number" });
+    expect(result).to.deep.equal({
+      decimal: "Should be number using '.' as decimal separator",
+    });
   });
 
   test("it should return an error for a decimal array item written with a comma separator", () => {
@@ -372,7 +380,9 @@ describe("getRowErrors", () => {
       columns: [{ id: "decimal", columnType: "DECIMAL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
-    expect(result).to.deep.equal({ decimal: "Invalid number" });
+    expect(result).to.deep.equal({
+      decimal: "Should be number using '.' as decimal separator",
+    });
   });
 
   test("it should return an error for an integer written with a comma separator", () => {
