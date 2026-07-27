@@ -163,40 +163,49 @@ commands:
         key: turbo-v1-{{ .Revision }}
 
   restore_pnpm_store:
+    steps:
+    - run:
+        name: Pin the store of the pnpm that performs the install, and key on its version
+        command: |
+          sed -n 's/.*"packageManager" *: *"pnpm@\([^"]*\)".*/\1/p' apps/package.json > pnpm-version
+          sed -n 's/.*pnpmVersion *= *"\([^"]*\)".*/\1/p' apps/build.gradle >> pnpm-version
+          echo "pnpm versions that perform the install: $(tr '\n' ' ' < pnpm-version)"
+          if [ -z "${BASH_ENV:-}" ]; then
+            echo "PNPM_STORE_PIN_IGNORED: BASH_ENV is unset so npm_config_store_dir cannot reach the install"
+          else
+            echo "export npm_config_store_dir=\"$HOME/.pnpm-store\"" >> "$BASH_ENV"
+            echo "npm_config_store_dir exported as $HOME/.pnpm-store"
+          fi
+    - restore_cache:
+        keys:
+          - pnpm-store-v2-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
+          - pnpm-store-v2-{{ checksum "pnpm-version" }}-
+          - pnpm-store-v2-
+
+  save_pnpm_store:
     parameters:
       strict:
         type: boolean
         default: true
     steps:
     - run:
-        name: Pin the pnpm store to a cacheable location and record the pnpm version as key
+        name: Verify the install populated the cached store, quarantine the key if it did not
         command: |
           STRICT="<< parameters.strict >>"
-          pnpm -v > pnpm-version
-          pnpm config set store-dir "$HOME/.pnpm-store"
-          STORE_PATH=$(pnpm store path)
-          echo "pnpm $(cat pnpm-version) reports its store at $STORE_PATH"
-          case "$STORE_PATH" in
-            "$HOME/.pnpm-store"*) ;;
-            *)
-              echo "PNPM_STORE_PIN_IGNORED: store is at $STORE_PATH, the cache will not be reused and this install stays cold"
-              if [ "$STRICT" = "true" ]; then
-                exit 1
-              fi
-              ;;
-          esac
-    - restore_cache:
-        keys:
-          - pnpm-store-v1-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
-          - pnpm-store-v1-{{ checksum "pnpm-version" }}-
-          - pnpm-store-v1-
-
-  save_pnpm_store:
-    steps:
+          STORE_DIR="$HOME/.pnpm-store"
+          if [ -n "$(find "$STORE_DIR" -type f -print -quit 2>/dev/null)" ]; then
+            du -sh "$STORE_DIR"
+          else
+            echo "PNPM_STORE_PIN_IGNORED: nothing was installed into $STORE_DIR, the installing pnpm used another store"
+            echo "store-pin-broken" >> pnpm-version
+            if [ "$STRICT" = "true" ]; then
+              exit 1
+            fi
+          fi
     - save_cache:
         paths:
           - ~/.pnpm-store
-        key: pnpm-store-v1-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
+        key: pnpm-store-v2-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
 
   post_steps:
     steps:
@@ -265,7 +274,7 @@ jobs:
           name: Enable pnpm
           command: |
             corepack enable
-            corepack prepare pnpm@latest --activate
+            corepack prepare pnpm@10.24.0 --activate
             pnpm -v
 
       - restore_pnpm_store
@@ -542,8 +551,7 @@ jobs:
         
     - pre_steps
     - gradle_pre_steps
-    - restore_pnpm_store:
-        strict: false
+    - restore_pnpm_store
 
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
@@ -559,7 +567,8 @@ jobs:
           ./gradlew lint ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 
-    - save_pnpm_store
+    - save_pnpm_store:
+        strict: false
 
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
