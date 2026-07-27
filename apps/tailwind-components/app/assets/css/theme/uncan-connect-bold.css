@@ -15,18 +15,18 @@
   --box-shadow-pagination-gray: 0px 10px 20px rgba(0, 0, 0, 0.1);
   --box-shadow-input-hover: inset 0 0 1px 1px var(--uncan-bg);
 
-  --color-gradient1: var(--uncan-bg-alt);
-  --color-gradient2: var(--uncan-bg-alt);
+  --color-gradient1: var(--uncan-bg);
+  --color-gradient2: var(--uncan-bg);
   --opacity-background-gradient: 100;
 
   --background-image-sidebar-gradient: linear-gradient(
     180deg,
-    var(--uncan-bg-alt) 0%,
-    rgba(172, 60, 180, 0) 86.02%
+    var(--uncan-bg) 0%,
+    rgba(122, 57, 196, 0) 86.02%
   );
   --background-image-base-gradient: linear-gradient(
     180deg,
-    var(--uncan-bg) 0%,
+    var(--uncan-bg-alt) 0%,
     var(--uncan-bg-deep) 133.81%
   );
   --background-color-bulk-gradient: linear-gradient(
