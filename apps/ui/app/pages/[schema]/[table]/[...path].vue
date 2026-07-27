@@ -13,6 +13,7 @@ import {
 } from "../../../../../tailwind-components/app/utils/displayUtils";
 import {
   buildCrumbs,
+  ownLabelColumns,
   parseContextualListPath,
   parseRecordPath,
   type RecordPathLevel,
@@ -44,14 +45,14 @@ const { data: row, refresh } = await useAsyncData(`record-${route.path}`, () =>
 
 const labelledLevels = record ? levels.slice(0, -1) : levels;
 const levelLabels = await Promise.all(
-  labelledLevels.map((level) => fetchRecordLabel(level))
+  labelledLevels.map((level, index) => fetchRecordLabel(level, index))
 );
 
 const title = computed(
   () =>
     (record &&
       row.value &&
-      getTitleText(columnsOf(schema, record.tableId), row.value)) ||
+      getTitleText(ownLabelColumnsAt(levels.length - 1), row.value)) ||
     record?.keySegment ||
     ""
 );
@@ -85,14 +86,17 @@ const listFilter =
       )
     : undefined;
 
+function ownLabelColumnsAt(index: number) {
+  return ownLabelColumns(schema, levels[index]!, levels[index - 1]);
+}
+
 async function fetchRecordLabel(
-  level: RecordPathLevel
+  level: RecordPathLevel,
+  index: number
 ): Promise<string | undefined> {
   try {
     const levelRow = await fetchRowData(schemaId, level.tableId, level.key, 1);
-    return (
-      getTitleText(columnsOf(schema, level.tableId), levelRow) || undefined
-    );
+    return getTitleText(ownLabelColumnsAt(index), levelRow) || undefined;
   } catch (error) {
     console.error(
       `Could not label breadcrumb for ${level.tableId} ${level.keySegment}`,

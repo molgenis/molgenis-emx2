@@ -182,3 +182,37 @@ describe("display/DetailView.vue subclass columns", () => {
     ]);
   });
 });
+
+describe("display/DetailView.vue title override", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    sessionStorage.clear();
+  });
+
+  it("headlines the record with the title its caller supplies instead of the whole primary key", async () => {
+    stubCatalogueGraphql("detailViewTitleOverride");
+    const wrapper = mount(DetailView, {
+      props: {
+        schemaId: "detailViewTitleOverride",
+        tableId: "Collections",
+        rowId: { id: "c1" },
+        showSideNav: false,
+        title: "Cohort One",
+      },
+    });
+    await flushPromises();
+    await flushPromises();
+
+    expect(wrapper.find("h1").text()).toBe("Cohort One");
+    expect(document.title).toBe("Cohort One");
+  });
+
+  it("keeps deriving the headline from the record when the caller supplies no title", async () => {
+    const wrapper = await mountRecordOf(
+      "detailViewTitleDerived",
+      "Collections"
+    );
+
+    expect(wrapper.find("h1").text()).toBe("c1");
+  });
+});

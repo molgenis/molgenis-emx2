@@ -51,6 +51,7 @@ function handleCellClick(event: cellPayload) {
     :schema-id="schemaId"
     :table-id="tableId"
     :row-id="rowId"
+    :title="title"
     @valueClick="handleCellClick"
   >
     <template #header>

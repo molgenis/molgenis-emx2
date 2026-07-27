@@ -145,6 +145,28 @@ export function buildCrumbs(
   return crumbs;
 }
 
+export function ownLabelColumns(
+  schema: ISchemaMetaData,
+  level: RecordPathLevel,
+  parent?: RecordPathLevel
+): IColumn[] {
+  const table = findTable(schema, level.tableId);
+  if (!table) return [];
+  if (!parent) return table.columns;
+  const partsColumn = findTable(schema, parent.tableId)?.columns.find(
+    (column) =>
+      column.id === level.tableSegment && isPartsType(column.columnType)
+  );
+  if (!partsColumn?.refBackId) return table.columns;
+  const contextColumnIds = pinnedByParentColumnIds(
+    table,
+    partsColumn.refBackId
+  );
+  return table.columns.filter(
+    (column) => !contextColumnIds.includes(column.id)
+  );
+}
+
 export function subclassTableId(
   schema: ISchemaMetaData,
   row: IRow

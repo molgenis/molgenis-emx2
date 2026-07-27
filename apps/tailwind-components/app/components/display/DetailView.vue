@@ -33,6 +33,7 @@ const props = withDefaults(
     rowId?: IRow;
     columns?: IColumn[];
     data?: Record<string, any>;
+    title?: string;
     showEmpty?: boolean;
     showSideNav?: boolean;
     columnTransform?: (columns: IColumn[]) => IColumn[];
@@ -243,8 +244,8 @@ const tableLabel = computed(() => {
   return metadata.value.label;
 });
 
-const autoTitle = computed(() =>
-  getTitleText(processedColumns.value, effectiveData.value)
+const autoTitle = computed(
+  () => props.title || getTitleText(processedColumns.value, effectiveData.value)
 );
 const autoSubtitle = computed(() =>
   getSubtitleText(processedColumns.value, effectiveData.value)

@@ -3,9 +3,11 @@ import {
   buildContextualListPath,
   buildCrumbs,
   buildNestedRecordPath,
+  ownLabelColumns,
   parseContextualListPath,
   parseRecordPath,
 } from "../../../app/utils/recordPath";
+import { getTitleText } from "../../../app/utils/displayUtils";
 import type {
   FieldNode,
   OperationDefinitionNode,
@@ -486,6 +488,44 @@ describe("buildCrumbs", () => {
       "Variables",
       "Age",
     ]);
+  });
+});
+
+describe("ownLabelColumns", () => {
+  const nestedPath = "/catalogue/Resources/c1/tables/t1/variables/v1";
+
+  it("titles a nested level from its own key alone, leaving the ancestors to the preceding segments", () => {
+    const schema = catalogueSchema();
+    const levels = parseRecordPath(schema, nestedPath) ?? [];
+
+    expect(
+      getTitleText(ownLabelColumns(schema, levels[1]!, levels[0]), tablesRow)
+    ).toBe("t1");
+    expect(
+      getTitleText(ownLabelColumns(schema, levels[2]!, levels[1]), variablesRow)
+    ).toBe("v1");
+  });
+
+  it("titles a level nested two parts deep from its own key alone", () => {
+    const schema = catalogueSchema();
+    const levels =
+      parseRecordPath(schema, `${nestedPath}/permittedValues/vv1`) ?? [];
+
+    expect(
+      getTitleText(
+        ownLabelColumns(schema, levels[3]!, levels[2]),
+        variableValuesRow
+      )
+    ).toBe("vv1");
+  });
+
+  it("keeps every column of a root level, which no preceding segment gives context to", () => {
+    const schema = catalogueSchema();
+    const levels = parseRecordPath(schema, nestedPath) ?? [];
+
+    expect(
+      ownLabelColumns(schema, levels[0]!).map((column) => column.id)
+    ).toEqual(["id", "name", "tables"]);
   });
 });
 
