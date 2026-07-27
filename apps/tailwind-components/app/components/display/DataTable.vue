@@ -7,7 +7,12 @@ interface IColumnAction {
   clickAction?: (col: IColumn, row: IRow) => void;
 }
 import ValueEMX2 from "../value/EMX2.vue";
+import type { cellPayload } from "../../../types/types";
 import { useRecordNavigation } from "../../composables/useRecordNavigation";
+
+defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
 
 const props = defineProps<{
   columns: IColumn[];
@@ -98,27 +103,48 @@ async function handleRowClick(row: IRow) {
                 :to="linkColumnConfig.getHref(col, row)"
                 class="font-bold text-link hover:underline truncate"
               >
-                <ValueEMX2 :metadata="col" :data="row[col.id]" />
+                <ValueEMX2
+                  :metadata="col"
+                  :data="row[col.id]"
+                  @valueClick="$emit('valueClick', $event)"
+                />
               </NuxtLink>
               <span
                 v-else-if="linkColumnConfig?.clickAction"
                 class="font-bold text-link hover:underline cursor-pointer truncate"
                 @click="linkColumnConfig.clickAction(col, row)"
               >
-                <ValueEMX2 :metadata="col" :data="row[col.id]" />
+                <ValueEMX2
+                  :metadata="col"
+                  :data="row[col.id]"
+                  @valueClick="$emit('valueClick', $event)"
+                />
               </span>
               <span
                 v-else-if="isRowClickable"
                 class="font-bold text-link hover:underline cursor-pointer truncate"
                 @click="handleRowClick(row)"
               >
-                <ValueEMX2 :metadata="col" :data="row[col.id]" />
+                <ValueEMX2
+                  :metadata="col"
+                  :data="row[col.id]"
+                  @valueClick="$emit('valueClick', $event)"
+                />
               </span>
               <span v-else class="font-bold">
-                <ValueEMX2 :metadata="col" :data="row[col.id]" />
+                <ValueEMX2
+                  :metadata="col"
+                  :data="row[col.id]"
+                  @valueClick="$emit('valueClick', $event)"
+                />
               </span>
             </div>
-            <ValueEMX2 v-else :metadata="col" :data="row[col.id]" />
+            <ValueEMX2
+              v-else
+              :metadata="col"
+              :data="row[col.id]"
+              @valueClick="$emit('valueClick', $event)"
+            />
           </td>
         </tr>
         <tr v-if="rows.length === 0">

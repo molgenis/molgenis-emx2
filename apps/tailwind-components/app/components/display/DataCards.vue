@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { cellPayload } from "../../../types/types";
 import ValueEMX2 from "../value/EMX2.vue";
 import {
   getRowLabel,
@@ -22,6 +23,10 @@ const props = withDefaults(
     maxColumns: 2,
   }
 );
+
+defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
 
 const cardClassification = computed(() =>
   classifyCardColumns(props.columns ?? [])
@@ -100,7 +105,11 @@ function visibleLogoUrl(row: Record<string, any>): string | undefined {
               {{ col.label || col.id }}
             </dt>
             <dd class="text-sm">
-              <ValueEMX2 :metadata="col" :data="row[col.id]" />
+              <ValueEMX2
+                :metadata="col"
+                :data="row[col.id]"
+                @valueClick="$emit('valueClick', $event)"
+              />
             </dd>
           </div>
         </dl>

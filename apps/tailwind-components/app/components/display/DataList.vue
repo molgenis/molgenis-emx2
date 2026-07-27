@@ -4,6 +4,7 @@ import type {
   DisplayType,
   IColumn,
 } from "../../../../metadata-utils/src/types";
+import type { cellPayload } from "../../../types/types";
 import { useTableData } from "../../composables/useTableData";
 import { getListColumns } from "../../utils/displayUtils";
 import InputSearch from "../input/Search.vue";
@@ -31,6 +32,10 @@ const props = withDefaults(
     pageSize: 10,
   }
 );
+
+defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
 
 const hasSwitchedToSmart = ref(false);
 
@@ -173,6 +178,7 @@ const effectiveShowPagination = computed(() =>
         :rows="effectiveRows"
         :schema-id="schemaId"
         :table-id="tableId"
+        @valueClick="$emit('valueClick', $event)"
       />
       <DataCards
         v-else-if="layout === 'CARDS'"
@@ -182,6 +188,7 @@ const effectiveShowPagination = computed(() =>
         :row-label-template="rowLabelTemplate"
         :schema-id="schemaId"
         :table-id="tableId"
+        @valueClick="$emit('valueClick', $event)"
       />
       <DataCards
         v-else-if="layout === 'LIST'"
@@ -191,6 +198,7 @@ const effectiveShowPagination = computed(() =>
         :row-label-template="rowLabelTemplate"
         :schema-id="schemaId"
         :table-id="tableId"
+        @valueClick="$emit('valueClick', $event)"
       />
       <DataLinks
         v-else-if="layout === 'LINKS'"

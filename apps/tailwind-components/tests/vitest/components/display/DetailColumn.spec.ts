@@ -93,6 +93,105 @@ function renderedTree(wrapper: {
   return nodeNamesByDepth(wrapper.find("ul").element);
 }
 
+const ORGANISATION_COLUMNS: IColumn[] = [
+  {
+    id: "name",
+    label: "Name",
+    columnType: "STRING",
+    key: 1,
+    position: 0,
+  } as IColumn,
+  {
+    id: "dataOriginator",
+    label: "Data originator",
+    columnType: "ONTOLOGY",
+    refTableId: "OriginatorTypes",
+    position: 1,
+  } as IColumn,
+];
+
+function organisationsColumn(display: "CARDS" | "TABLE"): IColumn {
+  return {
+    id: "organisations",
+    label: "Organisations involved",
+    columnType: "REF_ARRAY",
+    refTableId: "Organisations",
+    display,
+    refLabelDefault: "${name}",
+    position: 0,
+  } as IColumn;
+}
+
+function stubOrganisationsSchemaGraphql() {
+  vi.stubGlobal(
+    "$fetch",
+    vi.fn(async () => ({
+      data: {
+        _schema: {
+          id: "organisationListSchema",
+          tables: [{ id: "Organisations", columns: ORGANISATION_COLUMNS }],
+        },
+      },
+    }))
+  );
+}
+
+async function mountOrganisationList(
+  schemaId: string,
+  display: "CARDS" | "TABLE"
+) {
+  const wrapper = mount(DetailColumn, {
+    props: {
+      column: organisationsColumn(display),
+      value: [{ name: "THL", dataOriginator: { name: "Registry" } }],
+      schemaId,
+    },
+  });
+  await flushPromises();
+  return wrapper;
+}
+
+describe("display/DetailColumn.vue value clicks inside a DataList", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("re-emits valueClick from an ontology value nested in a CARDS list", async () => {
+    stubOrganisationsSchemaGraphql();
+
+    const wrapper = await mountOrganisationList("cardsListSchema", "CARDS");
+
+    await wrapper.find("dd span.text-link").trigger("click");
+
+    expect(wrapper.emitted("valueClick")).toEqual([
+      [
+        {
+          metadata: expect.objectContaining({ id: "dataOriginator" }),
+          data: { name: "Registry" },
+        },
+      ],
+    ]);
+  });
+
+  it("re-emits valueClick from an ontology value nested in a TABLE list", async () => {
+    stubOrganisationsSchemaGraphql();
+
+    const wrapper = await mountOrganisationList("tableListSchema", "TABLE");
+
+    const valueCell = wrapper.findAll("td")[1];
+    await valueCell!.find("span.text-link").trigger("click");
+
+    expect(wrapper.emitted("valueClick")).toEqual([
+      [
+        {
+          metadata: expect.objectContaining({ id: "dataOriginator" }),
+          data: { name: "Registry" },
+        },
+      ],
+    ]);
+  });
+});
+
 describe("display/DetailColumn.vue ontology ancestry", () => {
   afterEach(() => {
     vi.unstubAllGlobals();

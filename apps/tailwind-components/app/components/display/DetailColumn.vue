@@ -215,6 +215,7 @@ function handleRefClick() {
       :layout="column.display || 'TABLE'"
       :hide-columns="column.refBackId ? [column.refBackId] : undefined"
       :row-label-template="column.refLabelDefault"
+      @valueClick="emit('valueClick', $event)"
     />
     <NuxtLink
       v-if="contextualListPath"
