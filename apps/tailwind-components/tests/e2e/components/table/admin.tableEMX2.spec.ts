@@ -56,11 +56,10 @@ test("the row should be copied and added to the table after copying", async ({
   await expect(page.getByRole("button", { name: "Add Pet" })).toBeVisible();
 
   // copy Pooky
-  await page.goto(
-    "http://localhost:3000/table/EMX2.story?schema=pet+store&table=Pet"
-  );
-  await page.getByRole("checkbox", { name: "Is Editable:" }).check();
-  await page.getByRole("cell", { name: "pooky" }).first().hover();
+  await page.getByRole("cell", { name: "pooky" }).hover();
+  await expect(
+    page.getByRole("button", { name: 'copy {"name":"pooky"}' })
+  ).toBeVisible();
   await page.getByRole("button", { name: 'copy {"name":"pooky"}' }).click();
   await page.getByRole("textbox", { name: "name Required" }).fill("copy cat");
   await page.getByRole("button", { name: "Save", exact: true }).click();
