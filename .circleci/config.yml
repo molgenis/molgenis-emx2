@@ -26,7 +26,7 @@ definitions:
     resource_class: large
     environment:
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.console=plain"
       TERM: dumb
   test_config: &test_config
     docker:
@@ -40,7 +40,7 @@ definitions:
     resource_class: large
     environment:
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.console=plain"
       TERM: dumb
   release_config: &release_config
     docker:
@@ -54,7 +54,7 @@ definitions:
     resource_class: large
     environment:
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false -Dorg.gradle.console=plain"
       TERM: dumb
 
 
@@ -246,7 +246,7 @@ jobs:
       - image: mcr.microsoft.com/playwright:v1.61.0-jammy
         environment:
           JVM_OPTS: -Xmx6400m
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.console=plain"
           TERM: dumb
       - image: postgres:15-alpine
         environment:
