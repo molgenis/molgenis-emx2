@@ -178,8 +178,8 @@ useHead({
                 content: variable?.description,
               },
               {
-                label: 'Dataset',
-                content: variable?.dataset?.name,
+                label: 'Table',
+                content: variable?.table?.name,
               },
             ]"
           >

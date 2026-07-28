@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { keySlug, type KeyObject } from "../../../app/utils/navigationUtils";
+import { keySlug } from "../../../app/utils/navigationUtils";
 
 describe("keySlug", () => {
   it("returns value for single key", () => {
-    const input: KeyObject = {
+    const input = {
       a: "foo",
     };
 
@@ -11,7 +11,7 @@ describe("keySlug", () => {
   });
 
   it("joins multiple string values with dash", () => {
-    const input: KeyObject = {
+    const input = {
       a: "foo",
       b: "bar",
       c: "baz",
@@ -21,7 +21,7 @@ describe("keySlug", () => {
   });
 
   it("handles nested objects", () => {
-    const input: KeyObject = {
+    const input = {
       a: "foo",
       b: {
         c: "bar",
@@ -32,7 +32,7 @@ describe("keySlug", () => {
   });
 
   it("handles deeply nested objects", () => {
-    const input: KeyObject = {
+    const input = {
       a: "foo",
       b: {
         c: {
@@ -45,7 +45,7 @@ describe("keySlug", () => {
   });
 
   it("handles mixed nesting and multiple values", () => {
-    const input: KeyObject = {
+    const input = {
       a: "foo",
       b: {
         c: "bar",
@@ -58,13 +58,13 @@ describe("keySlug", () => {
   });
 
   it("returns empty string for empty object", () => {
-    const input: KeyObject = {};
+    const input = {};
 
     expect(keySlug(input)).toBe("");
   });
 
   it("preserves Object.values insertion order", () => {
-    const input: KeyObject = {
+    const input = {
       first: "one",
       second: {
         third: "two",

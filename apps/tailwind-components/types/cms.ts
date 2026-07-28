@@ -315,3 +315,9 @@ export interface IWebFetchPriorities extends IMgTableClass {
 export interface IWebFetchPriorities_agg {
   count: number;
 }
+
+export interface IDraggingInfo {
+  dragging: boolean;
+  componentName: string;
+  componentType: string;
+}

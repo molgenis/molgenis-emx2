@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+import Breadcrumbs from "../components/breadcrumbs.vue";
+</script>
+
 <template>
   <Page id="page-home">
     <PageHeader
@@ -40,7 +46,7 @@
         of clinical and patient-reported outcomes.
       </p>
       <p>
-        he registry has been built and is hosted in collaboration with the
+        The registry has been built and is hosted in collaboration with the
         Genomics Coordination Centre at the University Medical Center Groningen
         (UMCG), which specialises in registry development and support. The
         registry is based on MOLGENIS, an open source LGPLv3 licensed data
@@ -71,8 +77,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup>
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-import Breadcrumbs from "../components/breadcrumbs.vue";
-</script>

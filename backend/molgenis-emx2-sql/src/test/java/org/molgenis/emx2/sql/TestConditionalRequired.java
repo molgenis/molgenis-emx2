@@ -7,10 +7,10 @@ import static org.molgenis.emx2.TableMetadata.table;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
-public class TestConditionalRequired {
+class TestConditionalRequired {
 
   @Test
-  public void testConditionallyRequiredOnSingleFieldInt() {
+  void testConditionallyRequiredOnSingleFieldInt() {
     String expression = "age > 5";
 
     TableMetadata tableMetadata =
@@ -21,19 +21,20 @@ public class TestConditionalRequired {
 
     Row validRow = new Row("age", 4, "status", null);
 
-    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow); // success
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+    rowProcessor.validateAndCompute(validRow); // success
 
     Row invalidRow = validRow.set("age", 6);
 
     assertThrows(
         MolgenisException.class,
         () -> {
-          SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow);
+          rowProcessor.validateAndCompute(invalidRow);
         });
   }
 
   @Test
-  public void testConditionallyRequiredOnSingleField() {
+  void testConditionallyRequiredOnSingleField() {
     String requiredExpression = "if(field_one) 'if field_one is provided field_two is required'";
 
     TableMetadata tableMetadata =
@@ -46,7 +47,8 @@ public class TestConditionalRequired {
             "field_one", "provided",
             "field_two", "provided");
 
-    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow); // success
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+    rowProcessor.validateAndCompute(validRow); // success
 
     Row invalidRow = new Row("field_one", "provided", "field_two", null);
 
@@ -54,7 +56,7 @@ public class TestConditionalRequired {
         assertThrows(
             MolgenisException.class,
             () -> {
-              SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow);
+              rowProcessor.validateAndCompute(invalidRow);
             });
 
     assertEquals(
@@ -64,7 +66,7 @@ public class TestConditionalRequired {
   }
 
   @Test
-  public void testConditionallyRequiredOnMultipleFields() {
+  void testConditionallyRequiredOnMultipleFields() {
     String requiredExpression =
         "if(onMedication && "
             + "age > 10 &&"
@@ -87,12 +89,9 @@ public class TestConditionalRequired {
             "species", "cat",
             "onMedication", true);
 
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
     Exception exception =
-        assertThrows(
-            MolgenisException.class,
-            () -> {
-              SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), invalidRow);
-            });
+        assertThrows(MolgenisException.class, () -> rowProcessor.validateAndCompute(invalidRow));
 
     assertEquals(
         exception.getMessage(),
@@ -101,6 +100,6 @@ public class TestConditionalRequired {
             + "in ROW(age='12' weight='4' species='cat' onMedication='true')");
 
     Row validRow = invalidRow.set("medicalStatus", "old and fat");
-    SqlTypeUtils.applyValidationAndComputed(tableMetadata.getColumns(), validRow); // success
+    rowProcessor.validateAndCompute(validRow); // success
   }
 }

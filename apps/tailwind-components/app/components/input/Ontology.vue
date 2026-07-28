@@ -613,7 +613,7 @@ function toStringArray(value: string | string[]): string[] {
   <div
     v-else-if="!initLoading && totalCount"
     :class="{
-      'flex flex-col items-start border outline-none rounded-input':
+      'flex flex-col items-start border outline-none rounded-base':
         displayAsSelect,
       'bg-input ': displayAsSelect && !disabled,
       'border-disabled': displayAsSelect && disabled,

@@ -55,6 +55,10 @@ def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String>
     task.outputs.upToDateWhen { true }
 }
 
+tasks.withType(PnpmTask).configureEach {
+    environment.putAll(rootProject.ext.molgenisDotenv)
+}
+
 tasks.register('pnpm_install', PnpmTask) {
     args = ['install']
     inputs.file("package.json")
@@ -69,6 +73,7 @@ tasks.register('pnpm_install', PnpmTask) {
 tasks.register('pnpm_build', PnpmTask) {
     dependsOn 'pnpm_install'
     args = ['run', 'build']
+    inputs.property('molgenisDotenv', rootProject.ext.molgenisDotenv)
     registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
 }
 

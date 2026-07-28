@@ -1,3 +1,11 @@
+<script setup lang="ts">
+// @ts-expect-error
+import { PageSection, MessageBox } from "molgenis-viz";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+</script>
+
 <template>
   <PageSection>
     <h2>Under Construction</h2>
@@ -10,10 +18,3 @@
     </MessageBox>
   </PageSection>
 </template>
-
-<script setup>
-import { PageSection, MessageBox } from "molgenis-viz";
-import { useRoute } from "vue-router";
-
-const route = useRoute();
-</script>

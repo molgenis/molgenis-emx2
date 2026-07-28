@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection, FileList } from "molgenis-viz";
+import Breadcrumbs from "../components/breadcrumbs.vue";
+</script>
+
 <template>
   <Page id="page-documents">
     <PageHeader
@@ -20,8 +26,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup>
-import { Page, PageHeader, PageSection, FileList } from "molgenis-viz";
-import Breadcrumbs from "../components/breadcrumbs.vue";
-</script>

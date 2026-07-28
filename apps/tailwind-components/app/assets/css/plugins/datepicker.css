@@ -13,7 +13,7 @@
 /* override input styles */
 
 .dp__main .dp__input_wrap .dp__input {
-  @apply h-input bg-input text-input border rounded-input;
+  @apply h-input bg-input text-input border rounded-base;
 }
 
 .dp__main .dp__input_wrap .dp__input_icon {

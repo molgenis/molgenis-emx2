@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
   <section
-    class="bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-3px last:rounded-b-theme shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden"
+    class="bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-base last:rounded-b-alt shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden"
   >
     <h2 class="mb-5 uppercase text-heading-4xl font-display" v-if="title">
       {{ title }}

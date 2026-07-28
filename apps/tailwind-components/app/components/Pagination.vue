@@ -99,7 +99,7 @@ function changeCurrentPage(event: Event) {
         <a
           href="#"
           @click.prevent="onFirstClick"
-          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default"
+          class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default"
           :class="{
             'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage > 1,
@@ -113,7 +113,7 @@ function changeCurrentPage(event: Event) {
         <a
           href="#"
           @click.prevent="onPrevClick"
-          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default"
+          class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default"
           :class="{
             'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage > 1,
@@ -137,7 +137,7 @@ function changeCurrentPage(event: Event) {
         </div>
         <input
           :id="pageInputId"
-          class="sm:px-12 px-7.5 w-32 text-center border border-input rounded-theme bg-input text-pagination-input hover:text-pagination-hover hover:border-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
+          class="sm:px-12 px-7.5 w-32 text-center border border-input rounded-alt bg-input text-pagination-input hover:text-pagination-hover hover:border-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
           :value="currentPage"
           @change="changeCurrentPage"
         />
@@ -156,7 +156,7 @@ function changeCurrentPage(event: Event) {
         <a
           href="#"
           @click.prevent="onNextClick"
-          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default"
+          class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default"
           :class="{
             'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage < totalPages,
@@ -170,7 +170,7 @@ function changeCurrentPage(event: Event) {
         <a
           href="#"
           @click.prevent="onLastClick"
-          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default"
+          class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default"
           :class="{
             'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage < totalPages,
@@ -207,7 +207,7 @@ function changeCurrentPage(event: Event) {
               :options="constants.PAGE_SIZE_OPTIONS"
               @update:modelValue="(value) => emit('update:pageSize', value)"
               :modelValue="pageSize"
-              class="!p-0 text-center border border-input rounded-theme !bg-input text-pagination-input !hover:text-pagination-hover hover:outline-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
+              class="!p-0 text-center border border-input rounded-alt !bg-input text-pagination-input !hover:text-pagination-hover hover:outline-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
               :required="true"
             />
           </span>

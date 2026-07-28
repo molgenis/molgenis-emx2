@@ -366,61 +366,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   async function sendToNegotiator() {
     const { negotiatorType } = settingsStore.config;
     clearError();
-    if (negotiatorType === "v1") {
-      doNegotiatorV1Request();
-    } else if (
-      negotiatorType === "v3" ||
-      negotiatorType === "eric-negotiator"
-    ) {
+    if (negotiatorType === "v3" || negotiatorType === "eric-negotiator") {
       doNegotiatorV3Request();
     } else {
       console.error(
         `Unsupported negotiator type: ${negotiatorType}. Please check your settings.`
-      );
-      setError(NEGOTIATOR_ERROR);
-    }
-  }
-
-  async function doNegotiatorV1Request() {
-    const { negotiatorUsername, negotiatorPassword, negotiatorUrl } =
-      settingsStore.config;
-    const humanReadable = getHumanReadableString() + createHistoryJournal();
-    const collections: any[] = getV1CollectionsToSend();
-    const URL = window.location.href.replace(/&nToken=\w{32}/, "");
-    const body: Record<string, any> = {
-      podiumUrl: negotiatorUrl,
-      podiumUsername: negotiatorUsername,
-      podiumPassword: negotiatorPassword,
-      payload: { URL, humanReadable, collections },
-    };
-
-    if (nToken.value) {
-      body.nToken = nToken.value;
-    }
-
-    const response = await fetch(`/api/podium`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (response.ok) {
-      removeAllFromSelection(false);
-      if (typeof response.headers.get("Location") === "string") {
-        window.location.href = response.headers.get("Location") as string;
-      }
-    } else {
-      const jsonResponse = await response.json();
-      const detail = jsonResponse.detail
-        ? ` Detail: ${jsonResponse.detail}`
-        : "";
-      const statusString = response.status
-        ? ` Status: ${response.status} (${response.statusText}).`
-        : "";
-      console.error(
-        `Error communicating with the Negotiator: ${statusString} ${detail}`
       );
       setError(NEGOTIATOR_ERROR);
     }

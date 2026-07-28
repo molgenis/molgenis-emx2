@@ -7,7 +7,9 @@ export async function getOrganisations(
 ): Promise<IOrganisations[]> {
   const query = `query getOrganisations($filter: OrganisationsFilter) {
         Organisations(filter: $filter) {
+            order
             name
+            label
             code
             city
             country
@@ -18,6 +20,8 @@ export async function getOrganisations(
                 providerIdentifier
                 hasSubmittedData
             }
+            hasSchema
+            schemaName
         } 
     }`;
 

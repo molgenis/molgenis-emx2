@@ -63,8 +63,8 @@ watch(
 );
 
 const roundedClass = props.slideInRight
-  ? "rounded-l-theme right-0"
-  : "rounded-r-theme";
+  ? "rounded-l-alt right-0"
+  : "rounded-r-alt";
 
 const fullScreenClass = computed(() =>
   props.fullScreen ? "w-[95vw]" : "lg:w-[33vw] md:w-[50vw] w-[95vw]"

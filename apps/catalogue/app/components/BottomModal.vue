@@ -45,7 +45,7 @@ const emit = defineEmits(["close"]);
     <template #popper="{ hide }">
       <div class="flex justify-center">
         <div
-          class="fixed bottom-0 bg-white overflow-hidden rounded-t-50px w-[95vw]"
+          class="fixed bottom-0 bg-white overflow-hidden rounded-t-alt w-[95vw]"
         >
           <div class="w-full overflow-auto">
             <button @click="hide()" class="absolute top-7 right-8">

@@ -26,7 +26,7 @@ export default gql`
       resource {
         id
       }
-      dataset {
+      table {
         name
         resource {
           id

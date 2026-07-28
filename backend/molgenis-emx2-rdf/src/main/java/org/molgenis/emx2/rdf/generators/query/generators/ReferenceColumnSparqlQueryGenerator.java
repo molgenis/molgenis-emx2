@@ -2,15 +2,13 @@ package org.molgenis.emx2.rdf.generators.query.generators;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
-import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
-import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
-import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
+import org.eclipse.rdf4j.sparqlbuilder.core.*;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
+import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,9 +69,9 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
       selectors.addAll(generator.getSelectors());
     } else {
       generator =
-          new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable(), true);
+          new LiteralColumnSparqlQueryGenerator(variable, rootColumn, encodedColumnPath(), true);
 
-      selectors.add(columnVariable());
+      selectors.add(encodedColumnPath());
     }
 
     patterns.addAll(generator.getPatterns());
@@ -81,10 +79,23 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
   }
 
   private void mapDataColumn() {
+    Variable columnVariable = encodedColumnPath();
+    Variable subjectVariable = columnSubjectVariable();
+
     ColumnSparqlQueryGenerator mapper =
-        new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable(), true);
+        new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable, true);
     patterns.addAll(mapper.getPatterns());
+    addSubjectColumnvariable(subjectVariable, columnVariable);
     mapPrimaryKeys();
+  }
+
+  private void addSubjectColumnvariable(Variable subjectVariable, Variable columnVariable) {
+    if (rootColumn.isArray()) {
+      selectors.add(SparqlVariableUtil.concatAs(encodedColumnPath(), subjectVariable));
+    } else {
+      selectors.add(columnVariable.as(subjectVariable));
+      groupBy.add(columnVariable);
+    }
   }
 
   private void mapPrimaryKeys() {
@@ -96,7 +107,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
       }
 
       ArrayList<String> columnPath = columnPath();
-      Variable subject = columnVariable();
+      Variable subject = encodedColumnPath();
       ColumnSparqlQueryGenerator mapper = getMapperForColumn(column, subject, columnPath);
 
       patterns.addAll(mapper.getPatterns());
@@ -111,7 +122,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
       return new ReferenceColumnSparqlQueryGenerator(subject, column, columnPath);
     }
 
-    Variable ref = SparqlBuilder.var(ColumnNameSparqlEncoder.encodeSparqlVariable(columnPath));
+    Variable ref = encodedColumnPath();
     Variable extended = extendVariable(subject, column);
 
     if (rootColumn.isArray()) {
@@ -121,20 +132,23 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     }
   }
 
-  private Variable columnVariable() {
-    return SparqlBuilder.var(ColumnNameSparqlEncoder.encodeSparqlVariable(columnPath()));
+  private Variable columnSubjectVariable() {
+    return SparqlVariableUtil.subjectVariable(encodedColumnPath());
+  }
+
+  private Variable encodedColumnPath() {
+    return ColumnNameSparqlEncoder.encodeSparqlVariablePath(columnPath());
   }
 
   private ArrayList<String> columnPath() {
     ArrayList<String> newPath = new ArrayList<>(path);
-    newPath.add(ColumnNameSparqlEncoder.encodeSparqlVariable(rootColumn));
+    newPath.add(rootColumn.getName());
     return newPath;
   }
 
   private Variable extendVariable(Variable toExtend, Column column) {
-    return SparqlBuilder.var(
-        ColumnNameSparqlEncoder.encodeSparqlVariable(
-            List.of(toExtend.getVarName(), column.getName())));
+    return ColumnNameSparqlEncoder.encodeSparqlVariablePath(
+        List.of(toExtend.getVarName(), column.getName()));
   }
 
   @Override

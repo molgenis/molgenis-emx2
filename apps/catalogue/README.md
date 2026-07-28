@@ -1,25 +1,31 @@
-# Nuxt 3 Minimal Starter
+# Catalogue
 
-Look at the [nuxt 3 documentation](https://v3.nuxtjs.org) to learn more.
+The MOLGENIS EMX2 data catalogue app, built with [Nuxt](https://nuxt.com/docs).
 
 ## Setup
 
-Make sure to install the dependencies:
+Install the dependencies from the `apps/` workspace root (this installs all
+frontend apps, including this one):
 
 ```bash
-# pnpm
+cd apps
 pnpm install
 ```
 
 ## Development Server
 
-Start the development server on http://localhost:3000
-
-set non default (api)proxy target with
-`NUXT_PUBLIC_API_BASE`
+Start the development server from the app directory. The app runs on
+http://localhost:3000.
 
 ```bash
+cd apps/catalogue
 pnpm dev
+```
+
+Set a non-default (api)proxy target with `NUXT_PUBLIC_API_BASE`, for example:
+
+```bash
+NUXT_PUBLIC_API_BASE=http://localhost:8080 pnpm dev
 ```
 
 ## Production
@@ -39,7 +45,7 @@ Locally preview production build:
 pnpm preview
 ```
 
-Checkout the [deployment documentation](https://v3.nuxtjs.org/guide/deploy/presets) for more information.
+Checkout the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
 
 #### Running the styles
 
