@@ -28,6 +28,7 @@ definitions:
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.console=plain"
       TERM: dumb
+      TURBO_RUN_SUMMARY: "true"
   test_config: &test_config
     docker:
     - image: molgenis/ci-build:1.6.2
@@ -42,6 +43,7 @@ definitions:
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.console=plain"
       TERM: dumb
+      TURBO_RUN_SUMMARY: "true"
   release_config: &release_config
     docker:
       - image: molgenis/ci-build:1.6.2
@@ -173,14 +175,61 @@ commands:
           if [ -z "${BASH_ENV:-}" ]; then
             echo "PNPM_STORE_PIN_IGNORED: BASH_ENV is unset so npm_config_store_dir cannot reach the install"
           else
-            echo "export npm_config_store_dir=\"$HOME/.pnpm-store\"" >> "$BASH_ENV"
-            echo "npm_config_store_dir exported as $HOME/.pnpm-store"
+            echo "export npm_config_store_dir=/tmp/pnpm-store" >> "$BASH_ENV"
+            echo "npm_config_store_dir exported as /tmp/pnpm-store"
           fi
     - restore_cache:
         keys:
-          - pnpm-store-v2-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
-          - pnpm-store-v2-{{ checksum "pnpm-version" }}-
-          - pnpm-store-v2-
+          - pnpm-store-v3-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
+          - pnpm-store-v3-{{ checksum "pnpm-version" }}-
+          - pnpm-store-v3-
+    - run:
+        name: Record whether the restored store landed where pnpm reads it
+        command: |
+          if [ -n "$(find /tmp/pnpm-store -type f -print -quit 2>/dev/null)" ]; then
+            echo restored > pnpm-store-state
+            du -sh /tmp/pnpm-store
+          else
+            echo empty > pnpm-store-state
+            echo "no pnpm store at /tmp/pnpm-store after restore_cache"
+          fi
+
+  assert_pnpm_reused_store:
+    steps:
+    - run:
+        name: Fail if a restored pnpm store was not reused by every install
+        command: |
+          INSTALL_LOGS=$(ls pnpm-install-*.log 2>/dev/null || true)
+          if [ -z "$INSTALL_LOGS" ]; then
+            echo "PNPM_REUSE_UNVERIFIED: no pnpm-install-*.log exists, so no install recorded its own output"
+            exit 1
+          fi
+          STORE_STATE=$(cat pnpm-store-state 2>/dev/null || echo unrecorded)
+          case "$STORE_STATE" in
+            restored|empty)
+              ;;
+            *)
+              echo "PNPM_REUSE_UNVERIFIED: restore_pnpm_store did not record the state of the store, got '$STORE_STATE'"
+              exit 1
+              ;;
+          esac
+          UNREUSED=0
+          for LOG in $INSTALL_LOGS; do
+            if [ ! -s "$LOG" ]; then
+              echo "PNPM_REUSE_UNVERIFIED: $LOG is empty, so that install did not record its own output"
+              UNREUSED=1
+              continue
+            fi
+            REUSED=$(sed -n 's/.*reused \([0-9][0-9]*\).*/\1/p' "$LOG" | sort -n | tail -1)
+            echo "restored store state: $STORE_STATE, highest reused count in $LOG: ${REUSED:-none}"
+            if [ "$STORE_STATE" = empty ]; then
+              echo "PNPM_STORE_MISS: nothing was restored, so the install in $LOG had to download"
+            elif [ "${REUSED:-0}" -eq 0 ]; then
+              echo "PNPM_STORE_RESTORED_BUT_UNUSED: the store was restored yet the install in $LOG reused nothing from it"
+              UNREUSED=1
+            fi
+          done
+          exit $UNREUSED
 
   save_pnpm_store:
     parameters:
@@ -192,7 +241,7 @@ commands:
         name: Check pnpm installed into the shared store, and change the cache key if it did not
         command: |
           STRICT="<< parameters.strict >>"
-          STORE_DIR="$HOME/.pnpm-store"
+          STORE_DIR="/tmp/pnpm-store"
           if [ -n "$(find "$STORE_DIR" -type f -print -quit 2>/dev/null)" ]; then
             du -sh "$STORE_DIR"
           else
@@ -204,8 +253,8 @@ commands:
           fi
     - save_cache:
         paths:
-          - ~/.pnpm-store
-        key: pnpm-store-v2-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
+          - /tmp/pnpm-store
+        key: pnpm-store-v3-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
 
   restore_apt_postgres_client:
     steps:
@@ -255,8 +304,33 @@ commands:
           - ~/emx2-demo-dump
         key: emx2-demo-dump-v1-{{ checksum "emx2-demo-dump-key" }}
 
+  store_build_diagnostics:
+    steps:
+    - run:
+        name: Keep the task outcomes and turbo run summaries that explain what this job rebuilt
+        command: mkdir -p build/reports/task-outcomes apps/.turbo/runs
+        when: always
+    - store_artifacts:
+        path: build/reports/task-outcomes
+        when: always
+    - store_artifacts:
+        path: apps/.turbo/runs
+        when: always
+
+  report_build_diagnostics:
+    steps:
+    # Wired as the LAST step of a job on purpose: the step-output API caps at 400,000 chars and serves the TAIL, so only a final summary is guaranteed to survive.
+    - run:
+        name: Summarise what this job rebuilt and what it replayed from cache
+        command: node ci/report-build-diagnostics.mjs
+        when: always
+    - store_artifacts:
+        path: build/reports/build-diagnostics
+        when: always
+
   post_steps:
     steps:
+    - store_build_diagnostics
     - run:
         name: Save test results for stats
         command: |
@@ -300,6 +374,9 @@ jobs:
             - apps/catalogue
             - custom-app/
 
+      - store_build_diagnostics
+      - report_build_diagnostics
+
   e2e-tests:
     resource_class: large
     docker:
@@ -330,8 +407,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            (cd apps && pnpm install)
-            (cd e2e && pnpm install --frozen-lockfile)
+            (cd apps && pnpm install) 2>&1 | tee pnpm-install-apps.log
+            (cd e2e && pnpm install --frozen-lockfile) 2>&1 | tee pnpm-install-e2e.log
+
+      - assert_pnpm_reused_store
 
       - save_pnpm_store
 
@@ -594,10 +673,20 @@ jobs:
     - run:
         name: run tests and push to sonar
         command: |
+          set -o pipefail
+          mkdir -p build
           ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} \
+          | tee build/gradle-test.log
+
+    - run:
+        name: Check the task outcome artifact covers every task gradle counted
+        command: |
+          bash ci/check-task-outcomes.sh \
+            build/gradle-test.log \
+            'build/reports/task-outcomes/*-test-jacocoMergedReport-sonar.tsv'
 
     - save_gradle_build_cache
 
@@ -624,6 +713,8 @@ jobs:
         name: <dev> remove the temporary .env
         command: rm -f .env printDevConfig.out
         when: always
+
+    - report_build_diagnostics
 
   release:
     <<: *release_config
@@ -693,6 +784,7 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
+    - report_build_diagnostics
 
   preview:
     <<: *build_config
@@ -801,7 +893,9 @@ jobs:
               A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
               -d "channel=C02AZDG6QQ7" \
               -X POST https://slack.com/api/chat.postMessage
-            fi           
+            fi
+
+      - report_build_diagnostics
 
   delete-helm-preview:
     <<: *build_config
