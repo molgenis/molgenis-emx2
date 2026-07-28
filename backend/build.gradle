@@ -126,6 +126,7 @@ subprojects {
         runtimeClasspath {
             metaInf {
                 ignoreAttribute("Implementation-Version")
+                ignoreAttribute("Build-OS")
             }
         }
     }
