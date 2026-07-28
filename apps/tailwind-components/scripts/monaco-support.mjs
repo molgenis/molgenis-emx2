@@ -1,3 +1,5 @@
+// In practice these markers are CodeEditor.vue's long tailwind class strings:
+// reformatting them changes the markers and fails the tailwind-components and ui builds.
 const literalLongEnoughToIdentifyTheComponent = /"([^"\n]{40,})"/g;
 const monacoRuntimeMarker = "monaco-diff-editor";
 
