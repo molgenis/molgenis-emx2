@@ -84,15 +84,29 @@ def convert_biobanks_to_organisations(bb, jp_prefix):
 
 
 def convert_collections_to_collections(coll, mappings):
-    """Convert standalone/parent Collections to Collections"""
-    collection_ids = mappings.loc[
+    """
+    Convert standalone/parent Collections to Collections
+    Convert subcollections needing curation to temporary Collections
+    """
+    parent_collection_ids = mappings.loc[
         mappings["mapping_rule"] == "standalone/parent collection -> Collections (direct)",
         "directory_id",
     ]
-    coll = coll.loc[coll["id"].isin(collection_ids)]
+    parent_coll = coll.loc[coll["id"].isin(parent_collection_ids)]
+    subcollection_ids = mappings.loc[
+        (mappings["directory_table"] == "Collections")
+        & (mappings["disposition"] == "needs_curation"),
+        "directory_id",
+    ]
+    to_curate_coll = coll.loc[coll["id"].isin(subcollection_ids)]
+    # Add linkages from to-be-curated subcollections to their parent collections
+    links = to_curate_coll.reindex(columns=["id", "parent_collection"])
+    links = links.rename(columns={"id": "resource", "parent_collection": "linked resource"})
+    coll = pd.concat([parent_coll, to_curate_coll])
+    # Attribute-level operations which apply to all Collections
     coll["held by"] = coll["biobank"]
     coll["type"] = "Biobank"
-    return coll
+    return coll, links
 
 
 def convert_collections_to_facts(facts, mappings):
@@ -132,6 +146,7 @@ def convert_collections_to_subpopulations(subpop, mappings):
     subpop["resource"] = subpop["parent_collection"]
     return subpop
 
+
 async def main():
     """Main function"""
     load_dotenv()
@@ -167,6 +182,11 @@ async def main():
                 data["Collections"]["name"].duplicated(keep="first"), "name"
             ] += f" ({count})"
             count += 1
+        # Deal with problematic subsubcollection
+        data["Collections"].loc[
+            data["Collections"]["id"] == "bbmri-eric:ID:HU_SUB:collection:DGCI_OSC",
+            "parent_collection",
+        ] = "bbmri-eric:ID:HU_SUB:collection:DGCI"
         # Convert data
         organisations = convert_biobanks_to_organisations(data["Biobanks"].copy(), jp_prefix)
         organisations = organisations.reindex(
@@ -184,7 +204,9 @@ async def main():
                 "part of",
             ]
         )
-        collections = convert_collections_to_collections(data["Collections"].copy(), mappings)
+        collections, linkages = convert_collections_to_collections(
+            data["Collections"].copy(), mappings
+        )
         collections = collections.reindex(
             columns=[
                 "id",
@@ -194,6 +216,7 @@ async def main():
                 "description",
             ]
         )
+        linkages = linkages.reindex(columns=["resource", "linked resource"])
         collection_facts = convert_collections_to_facts(data["Collections"].copy(), mappings)
         collection_facts = collection_facts.reindex(columns=["id", "collection"])
         collection_events = convert_collections_to_events(data["Collections"].copy(), mappings)
@@ -236,6 +259,7 @@ async def main():
         # Clear and upload data
         if truncate:
             print("Truncating...")
+            client.truncate(table="Linkages", schema=schema)
             client.truncate(table="Subpopulations", schema=schema)
             client.truncate(table="Collection events", schema=schema)
             client.truncate(table="Collection facts", schema=schema)
@@ -249,6 +273,7 @@ async def main():
         client.save_table(table="Collection facts", schema=schema, data=collection_facts)
         client.save_table(table="Collection events", schema=schema, data=collection_events)
         client.save_table(table="Subpopulations", schema=schema, data=subpopulations)
+        client.save_table(table="Linkages", schema=schema, data=linkages)
         pass
 
 
