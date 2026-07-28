@@ -16,6 +16,54 @@ ext {
     javaVersion = JavaVersion.VERSION_21
 }
 
+// Settings such as MOLGENIS_POSTGRES_URI/USER/PASS, MOLGENIS_HTTP_PORT or feature flags
+// are read inside the Java code (EnvironmentProperty.getParameter). A running Gradle
+// daemon does not pass command-line -D system properties to forked JVMs, so they are
+// forwarded explicitly onto every forked Test/JavaExec task (test, run, dev, cleandb,
+// generateTypes).
+// Every key of a repo-root .env file is forwarded, read straight from disk once at
+// configuration time (daemon-safe, no `source` needed), as is every MOLGENIS_ system property
+// given on the command line. Precedence per key: a -D CLI system property wins; otherwise the
+// .env value; otherwise nothing (Java default applies).
+// Whitespace is trimmed the way JavaScript String.trim() does it, so that this parser and the
+// one in apps/dev-env.js read the same keys out of the same file.
+def javascriptTrim = { String text -> text.replaceAll('^[\\s\\u00A0\\uFEFF]+|[\\s\\u00A0\\uFEFF]+$', '') }
+ext.molgenisDotenv = { ->
+    def envFile = new File(rootDir, '.env')
+    def result = [:]
+    if (envFile.exists()) {
+        envFile.eachLine { line ->
+            def trimmed = javascriptTrim(line)
+            if (trimmed.isEmpty() || trimmed.startsWith('#')) return
+            def idx = trimmed.indexOf('=')
+            if (idx < 0) return
+            def key = javascriptTrim(trimmed.substring(0, idx))
+            def value = javascriptTrim(trimmed.substring(idx + 1))
+            if (value.length() >= 2 &&
+                    ((value.startsWith('"') && value.endsWith('"')) ||
+                     (value.startsWith("'") && value.endsWith("'")))) {
+                value = value.substring(1, value.length() - 1)
+            }
+            result[key] = value
+        }
+    }
+    result
+}()
+ext.forwardDotenvProps = { task ->
+    def commandLineKeys = System.getProperties().stringPropertyNames().findAll { it.startsWith('MOLGENIS_') }
+    (rootProject.molgenisDotenv.keySet() + commandLineKeys).each { key ->
+        def value = System.getProperty(key) ?: rootProject.molgenisDotenv[key]
+        if (value != null) task.systemProperty key, value
+    }
+}
+ext.resolveDotenvValue = { key ->
+    System.getProperty(key) ?: rootProject.molgenisDotenv[key] ?: System.getenv(key)
+}
+ext.applyDotenvHeap = { task ->
+    def heap = rootProject.ext.resolveDotenvValue('MOLGENIS_JVM_XMX')
+    if (heap) task.maxHeapSize = heap
+}
+
 allprojects {
     if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
         version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
@@ -165,6 +213,26 @@ String getGitHash() {
 
 application {
     mainClass.set(javaMainClass)
+}
+
+tasks.withType(JavaExec).configureEach { forwardDotenvProps(it) }
+
+tasks.named('run') { rootProject.ext.applyDotenvHeap(it) }
+
+// Prints the realized launch configuration of the dev task so a CI step can grep it; that grep is
+// the only automated exercise of the .env path, which is invisible to CI because .env is gitignored.
+tasks.register('printDevConfig') {
+    group = 'help'
+    description = 'Prints the realized dev task system properties and heap without starting the application'
+    def devTask = project(':backend:molgenis-emx2-webapi').tasks.named('dev', JavaExec).get()
+    def devSystemProperties = new TreeMap<String, String>(devTask.systemProperties.collectEntries { key, value ->
+        [key, key.toUpperCase() =~ /PASS|SECRET|TOKEN/ ? '<HIDDEN>' : String.valueOf(value)]
+    })
+    def devHeap = devTask.maxHeapSize ?: 'unbounded'
+    doLast {
+        devSystemProperties.each { key, value -> println "molgenis.dev.systemProperty.${key}=${value}" }
+        println "molgenis.dev.maxHeapSize=${devHeap}"
+    }
 }
 
 jar {

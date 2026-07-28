@@ -8,7 +8,8 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 
 public class SparqlVariableUtil {
 
-  public static final String SINGLE = "_single";
+  private static final String CONCAT_ARG = "'|'";
+  private static final String SINGLE = "_single";
 
   private SparqlVariableUtil() {
     // Utility class
@@ -27,7 +28,7 @@ public class SparqlVariableUtil {
   }
 
   public static Projectable concatAs(Variable toConcat, Variable as) {
-    return Expressions.group_concat("','", Expressions.str(toConcat)).distinct().as(as);
+    return Expressions.group_concat(CONCAT_ARG, Expressions.str(toConcat)).distinct().as(as);
   }
 
   public static GraphPattern bindAs(Variable toBind, Variable as) {

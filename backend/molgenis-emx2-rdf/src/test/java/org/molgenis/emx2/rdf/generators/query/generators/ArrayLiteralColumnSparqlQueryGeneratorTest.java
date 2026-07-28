@@ -43,7 +43,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
     ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo_single .");
     assertHasSelectors(
-        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
+        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
     assertHasGroupBy(mapper);
   }
 
@@ -53,7 +53,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
     ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
     assertTrue(mapper.getPatterns().isEmpty());
     assertHasSelectors(
-        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
+        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
     assertHasGroupBy(mapper);
   }
 
@@ -78,7 +78,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
         BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2 ) AS ?foo_single ) }""",
         "FILTER ( BOUND( ?foo_single ) )");
     assertHasSelectors(
-        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
+        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
     assertHasGroupBy(mapper);
   }
 
@@ -111,8 +111,8 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
       try (TupleQueryResult queryResult =
           connection.prepareTupleQuery(QueryLanguage.SPARQL, query.getQueryString()).evaluate()) {
         BindingSet binding = queryResult.next();
-        assertEquals(literal("foo1,foo2"), binding.getValue("foo"));
-        assertEquals(literal("bar1,bar2"), binding.getValue("bar"));
+        assertEquals(literal("foo1|foo2"), binding.getValue("foo"));
+        assertEquals(literal("bar1|bar2"), binding.getValue("bar"));
         assertFalse(queryResult.hasNext());
       }
     }
