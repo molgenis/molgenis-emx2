@@ -210,14 +210,13 @@ commands:
   restore_apt_postgres_client:
     steps:
     - run:
-        name: Key the apt archives and lists on the pinned major, the image, the architecture and the week
+        name: Key the apt archives and lists on the pinned major, the image and the architecture
         command: |
           {
             echo "postgresql-client-15"
             (. /etc/os-release && echo "$VERSION_CODENAME")
             dpkg --print-architecture
             sed -n 's|.*image: *mcr\.microsoft\.com/playwright:\(.*\)$|\1|p' .circleci/config.yml
-            date -u +%G-%V
           } > apt-postgres-client-key
           echo "apt postgres client cache key inputs: $(tr '\n' ' ' < apt-postgres-client-key)"
     - restore_cache:
