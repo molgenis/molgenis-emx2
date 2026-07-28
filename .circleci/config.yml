@@ -165,7 +165,7 @@ commands:
   restore_pnpm_store:
     steps:
     - run:
-        name: Pin the store of the pnpm that performs the install, and key on its version
+        name: Point pnpm at a shared store and record the pnpm versions that install
         command: |
           sed -n 's/.*"packageManager" *: *"pnpm@\([^"]*\)".*/\1/p' apps/package.json > pnpm-version
           sed -n 's/.*pnpmVersion *= *"\([^"]*\)".*/\1/p' apps/build.gradle >> pnpm-version
@@ -189,7 +189,7 @@ commands:
         default: true
     steps:
     - run:
-        name: Verify the install populated the cached store, quarantine the key if it did not
+        name: Check pnpm installed into the shared store, and change the cache key if it did not
         command: |
           STRICT="<< parameters.strict >>"
           STORE_DIR="$HOME/.pnpm-store"
@@ -210,7 +210,7 @@ commands:
   restore_apt_postgres_client:
     steps:
     - run:
-        name: Key the apt archives and lists on the pinned major, the image and the architecture
+        name: Record the apt cache key from the postgres client version, image and architecture
         command: |
           {
             echo "postgresql-client-15"
@@ -280,7 +280,7 @@ jobs:
       - restore_turbo_cache
       - restore_pnpm_store
       - run:
-          name: build application
+          name: build the application jar and docker context without running tests
           command: ./gradlew shadowJar dockerPrepare -x test ci --no-daemon
 
       - run:
@@ -336,7 +336,7 @@ jobs:
       - save_pnpm_store
 
       - run:
-          name: Verify Playwright agrees with the browsers this image ships
+          name: Verify the installed Playwright matches the browsers this image ships
           command: |
             IMAGE_VERSION=$(sed -n 's|.*image: mcr\.microsoft\.com/playwright:v\([0-9][0-9.]*\)-.*|\1|p' .circleci/config.yml | head -1)
             if [ -z "$IMAGE_VERSION" ]; then
@@ -586,11 +586,7 @@ jobs:
     - run:
         name: <backend> check code format
         command: |
-          ./gradlew --continue spotlessCheck --profile
-    - run:
-        name: "ticket 36 step 1: gradle --profile split for spotlessCheck"
-        command: bash ci/gradle_profile_report.sh spotlessCheck
-        when: always
+          ./gradlew --continue spotlessCheck
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
         command: |
@@ -618,16 +614,12 @@ jobs:
             'MOLGENIS_JVM_XMX=333m' \
             'MOLGENIS_POSTGRES_PASS=ci-guardrail-secret' > .env
           export MOLGENIS_HTTP_PORT=19999
-          ./gradlew -q --console=plain --no-daemon --profile printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
+          ./gradlew -q --console=plain --no-daemon printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
             | tee printDevConfig.out
           grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_HTTP_PORT=19345' printDevConfig.out
           grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_CI_PROBE=probe-value' printDevConfig.out
           grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_POSTGRES_PASS=<HIDDEN>' printDevConfig.out
           grep -Fxq 'molgenis.dev.maxHeapSize=333m' printDevConfig.out
-    - run:
-        name: "ticket 36 step 1: gradle --profile split for printDevConfig"
-        command: bash ci/gradle_profile_report.sh printDevConfig
-        when: always
     - run:
         name: <dev> remove the temporary .env
         command: rm -f .env printDevConfig.out
