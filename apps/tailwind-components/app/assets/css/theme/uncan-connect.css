@@ -3,6 +3,8 @@
   --uncan-accent-soft: #fff4cb;
   --uncan-bg: #7a39c4;
   --uncan-bg-alt: #ac3cb4;
+  --uncan-bg-alt-deep: #7a2a80;
+  --uncan-bg-alt-soft: #f7e8f8;
   --uncan-bg-deep: #2d1b4e;
   --uncan-fg: #ffffff;
   --uncan-fg-alt: #1a1128;
@@ -36,10 +38,6 @@
   );
 
   --text-color-logo-text: var(--uncan-fg);
-  --text-color-logo-text-inverted: var(--uncan-accent);
-  --background-color-logo: var(--uncan-bg);
-  --logo-icon-primary: var(--uncan-accent);
-  --logo-icon-secondary: var(--uncan-bg-alt);
 
   --background-color-button-primary: var(--uncan-accent);
   --background-color-button-primary-hover: var(--uncan-accent-soft);
@@ -51,7 +49,7 @@
   --background-color-button-outline-hover: var(--uncan-neutral-soft);
   --background-color-button-disabled: var(--uncan-neutral-soft);
   --background-color-button-disabled-hover: var(--uncan-neutral-soft);
-  --background-color-button-filter: var(--uncan-bg-alt);
+  --background-color-button-filter: var(--uncan-bg-alt-soft);
   --background-color-button-filter-hover: var(--uncan-bg-deep);
   --background-color-button-inline-hover: var(--uncan-bg-deep);
   --background-color-button-tree-node-toggle: var(--uncan-bg-alt);
@@ -95,7 +93,7 @@
   --text-color-button-outline-hover: var(--uncan-bg-alt);
   --text-color-button-disabled: var(--uncan-neutral);
   --text-color-button-disabled-hover: var(--uncan-neutral);
-  --text-color-button-filter: var(--uncan-fg);
+  --text-color-button-filter: var(--uncan-bg-alt-deep);
   --text-color-button-text: var(--uncan-fg);
   --text-color-button-text-disabled: var(--uncan-muted);
   --text-color-button-inline: var(--uncan-fg);
@@ -104,8 +102,9 @@
   --text-color-button-tree-node-toggle-hover: var(--uncan-accent);
 
   --text-color-menu: var(--uncan-fg);
-  --text-color-sub-menu: var(--uncan-fg);
-  --text-color-sub-menu-hover: var(--uncan-accent);
+  --text-color-menu-dynamic: var(--uncan-fg);
+  --text-color-sub-menu: var(--uncan-bg);
+  --text-color-sub-menu-hover: var(--uncan-bg-alt);
   --text-color-breadcrumb: var(--uncan-muted);
   --text-color-breadcrumb-arrow: var(--uncan-fg);
   --text-color-title: var(--uncan-fg);
