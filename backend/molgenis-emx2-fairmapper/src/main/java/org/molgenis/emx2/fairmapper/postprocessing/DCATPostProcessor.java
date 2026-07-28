@@ -14,6 +14,7 @@ public class DCATPostProcessor implements PostProcessor {
             // Base id field off of acronym or name
             new CoalesceFieldPostProcessor("Collections", "id", "acronym", "name"),
             new CoalesceFieldPostProcessor("Catalogues", "id", "acronym", "name"),
+            new CoalesceFieldPostProcessor("Organisations", "id", "organisation name"),
 
             // Set type of collections to a hardcoded value
             new StaticFieldPostProcessor(
