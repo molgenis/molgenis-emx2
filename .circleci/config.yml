@@ -187,7 +187,7 @@ jobs:
   e2e-tests:
     resource_class: large
     docker:
-      - image: mcr.microsoft.com/playwright:v1.61.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.62.0-jammy
         environment:
           JVM_OPTS: -Xmx6400m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
@@ -209,12 +209,12 @@ jobs:
             corepack prepare pnpm@latest --activate
             pnpm -v
 
-      - run: pnpm i -D @playwright/test@1.61.0
+      - run: pnpm i -D @playwright/test@1.62.0
 
       - run:
           name: Install dependencies
           command: |
-            pnpm install @playwright/test@1.61.0
+            pnpm install @playwright/test@1.62.0
             npx playwright install chrome
             npx playwright install
 
