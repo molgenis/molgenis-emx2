@@ -213,7 +213,8 @@ jobs:
           name: Install dependencies
           command: |
             pnpm install @playwright/test         
-            pnpm exec playwright install
+            npx playwright install chrome
+            npx playwright install
 
       - run:
           name: Put custom app next to jar
