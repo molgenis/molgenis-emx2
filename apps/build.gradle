@@ -101,33 +101,11 @@ tasks.register('pnpm_build', PnpmTask) {
     outputs.dirs(workspaceDirs.collectMany { buildOutputDirsForApp(it) })
 }
 
-def gitCommonDirOutput = providers.exec { spec ->
-    spec.commandLine('git', 'rev-parse', '--git-common-dir')
-    spec.workingDir = rootDir
-    spec.ignoreExitValue = true
-}.standardOutput.asText
-
-def turboCacheDir = gitCommonDirOutput.map { output ->
-    String path = output.trim()
-    if (path.isEmpty()) {
-        return null
-    }
-    File gitCommonDir = new File(path)
-    if (!gitCommonDir.isAbsolute()) {
-        gitCommonDir = new File(rootDir, path)
-    }
-    return new File(gitCommonDir.canonicalFile.parentFile, ".turbo/cache")
-}
-
 // Util task to clean up all apps files created during build
 tasks.register("cleanApps", Delete) {
     doFirst {
         // delete build directory as before
         delete(project.layout.buildDirectory)
-        File turboCache = turboCacheDir.getOrNull()
-        if (turboCache != null) {
-            delete turboCache
-        }
         delete file("${project.projectDir}/.turbo")
         delete file("${project.projectDir}/.nuxt")
         delete file("${project.projectDir}/.output")
@@ -169,6 +147,15 @@ abstract class AppOutputLocator {
         return distDir.isDirectory() ? distDir.canonicalFile : null
     }
 
+    static boolean expectsPackagedOutput(File appsDirectory, String appName) {
+        File appDir = new File(appsDirectory, appName)
+        if (!new File(appDir, "nuxt.config.ts").exists()) {
+            return true
+        }
+        def buildScript = new JsonSlurper().parse(new File(appDir, "package.json")).scripts?.build ?: ""
+        return buildScript.contains("nuxt generate")
+    }
+
     static boolean isStaticNuxtOutput(File appDir) {
         File nitroManifest = new File(appDir, ".output/nitro.json")
         return nitroManifest.isFile() && new JsonSlurper().parse(nitroManifest).preset == "static"
@@ -206,7 +193,13 @@ tasks.named("processResources") {
 
     def appsDir = project.projectDir
     workspaceDirs.each { appName ->
-        from(providers.provider { AppOutputLocator.packagedOutputDirForApp(appsDir, appName) ?: [] }) {
+        from(providers.provider {
+            File packagedOutputDir = AppOutputLocator.packagedOutputDirForApp(appsDir, appName)
+            if (packagedOutputDir == null && AppOutputLocator.expectsPackagedOutput(appsDir, appName)) {
+                throw new GradleException("App '${appName}' produced no packageable output, so the jar would silently ship without it")
+            }
+            packagedOutputDir ?: []
+        }) {
             into("public_html/apps/${appName}")
         }
     }
