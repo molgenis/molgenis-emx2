@@ -606,7 +606,7 @@ function getRefTableColumns(
     const inheritedTable = tables.find(
       (otherTable: Record<string, any>) => table.inheritName === otherTable.name
     );
-    return [...inheritedTable?.columns, ...table?.columns];
+    return [...(inheritedTable?.columns || []), ...(table?.columns || [])];
   } else {
     return table?.columns || [];
   }

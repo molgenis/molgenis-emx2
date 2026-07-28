@@ -52,6 +52,7 @@
           @update:modelValue="handleInput"
           :key="key"
           :isManager="isManager"
+          :schemaNames="schemaNames"
         />
       </div>
       <div class="bg-white col ml-2 overflow-auto">

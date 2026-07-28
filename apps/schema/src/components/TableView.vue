@@ -57,6 +57,13 @@
           </table>
         </div>
 
+        <div v-if="isCrossSchemaSubclass(table, schema.name)" class="mb-2">
+          <label style="display: inline">Extends:</label>
+          <span class="ml-2">
+            {{ table.inheritSchemaName }}.{{ table.inheritName }}
+          </span>
+        </div>
+
         <div v-if="table.tableType !== 'ONTOLOGIES'">
           <div>
             <div class="hoverContainer mb-2">
@@ -208,6 +215,7 @@ import ColumnView from "./ColumnView.vue";
 import Draggable from "vuedraggable";
 import TableEditModal from "./TableEditModal.vue";
 import ColumnEditModal from "./ColumnEditModal.vue";
+import { isCrossSchemaSubclass } from "../inheritSchema";
 
 export default {
   components: {
@@ -245,6 +253,7 @@ export default {
     };
   },
   methods: {
+    isCrossSchemaSubclass,
     updateColumn(index, column) {
       this.table.columns.splice(index, 1, column);
       this.$emit("update:modelValue", this.table);

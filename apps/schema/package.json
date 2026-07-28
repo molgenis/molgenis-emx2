@@ -6,8 +6,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "vite lint",
-    "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "test-ci": "node --experimental-strip-types --test tests/*.test.js",
+    "format": "prettier src tests --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src tests --check --config ../.prettierrc.js"
   },
   "dependencies": {
     "core-js": "3.34.0",
