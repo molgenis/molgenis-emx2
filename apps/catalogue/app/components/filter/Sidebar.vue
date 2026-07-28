@@ -32,7 +32,7 @@ function handleFilerUpdate(filter: IFilter) {
 
 <template>
   <div
-    class="mt-7.5 rounded-t-3px rounded-b-50px"
+    class="mt-7.5 rounded-t-base rounded-b-alt"
     :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
   >
     <h2

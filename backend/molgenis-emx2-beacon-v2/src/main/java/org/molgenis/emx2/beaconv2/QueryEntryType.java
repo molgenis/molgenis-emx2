@@ -12,6 +12,7 @@ import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
@@ -169,21 +170,27 @@ public class QueryEntryType {
     if (database == null) {
       return null;
     }
-    String activeUser = database.getActiveUser();
-    try {
-      database.becomeAdmin();
-      Table templatesTable = database.getSchema(SYSTEM_SCHEMA).getTable("Templates");
-      String endpoint = "beacon_" + entryType.getName();
-      return templatesTable.retrieveRows().stream()
-          .filter(
-              r ->
-                  schemaName.equals(r.getString("schema"))
-                      && endpoint.equals(r.getString("endpoint")))
-          .findFirst()
-          .orElse(null);
-    } finally {
-      database.setActiveUser(activeUser);
-    }
+    AtomicReference<Row> templateRow = new AtomicReference<>();
+    database.tx(
+        tx -> {
+          String activeUser = tx.getActiveUser();
+          try {
+            tx.becomeAdmin();
+            Table templatesTable = tx.getSchema(SYSTEM_SCHEMA).getTable("Templates");
+            String endpoint = "beacon_" + entryType.getName();
+            templateRow.set(
+                templatesTable.retrieveRows().stream()
+                    .filter(
+                        r ->
+                            schemaName.equals(r.getString("schema"))
+                                && endpoint.equals(r.getString("endpoint")))
+                    .findFirst()
+                    .orElse(null));
+          } finally {
+            tx.setActiveUser(activeUser);
+          }
+        });
+    return templateRow.get();
   }
 
   private void addEmptyResultSet(ObjectNode jsltResponse) {

@@ -61,7 +61,7 @@ function isAFilterSet(filters: IFilter[]) {
 <template>
   <div
     v-if="isAFilterSet(filters)"
-    class="bg-search-results-view-tabs text-white flex items-center rounded-t-3px"
+    class="bg-search-results-view-tabs text-white flex items-center rounded-t-base"
   >
     <div class="p-4 whitespace-nowrap justify-self-start self-start">
       Active filters

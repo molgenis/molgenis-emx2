@@ -82,11 +82,14 @@ If you would like to add a feature to an existing app or fix something, then the
 
 #### Core MOLGENIS EMX2 applications
 
-In the apps folder, there are several core frontend applications (e.g., settings, table, schema, etc.). These require a molgenis-emx2 backend in order to develop the frontend. You can start the server using docker.
+In the apps folder, there are several core frontend applications (e.g., settings, table, schema, etc.). These require a molgenis-emx2 backend in order to develop the frontend. Start Postgres with docker-compose, then start the backend with gradle.
 
 ```bash
-docker-compose up
+docker-compose up -d postgres
+./gradlew dev
 ```
+
+Start only the `postgres` service. A bare `docker-compose up` also brings up a backend on `:8080` and Postgres on `:5432` — the defaults every other checkout on your machine shares. To give this worktree a database and a port of its own, see [Parallel dev stacks](dev_quickstart.md#parallel-dev-stacks-one-per-worktree).
 
 The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use `pnpm dev`. For example, to preview the app `apps/schema`, run the following command.
 
@@ -95,11 +98,28 @@ cd apps/schema
 pnpm dev
 ```
 
+#### Server-side rendered applications (catalogue)
+
+Most apps are single-page applications (SPAs): `pnpm build` creates a static `dist/` folder that Gradle bundles into the EMX2 jar. The `catalogue` app is different: it is a [Nuxt](https://nuxt.com) app with server-side rendering (SSR). Its build output is a Node.js server, not a static folder, so it is **not** included in the jar. This means the catalogue is not available on `http://localhost:8080` when you run `./gradlew run`.
+
+To develop the catalogue app, run it separately and point it at your backend:
+
+```bash
+# terminal 1: start the backend (and the SPA apps) on http://localhost:8080
+./gradlew run
+
+# terminal 2: start the catalogue app on http://localhost:3000
+cd apps/catalogue
+NUXT_PUBLIC_API_BASE=http://localhost:8080 pnpm dev
+```
+
+In production the catalogue runs as its own container (`molgenis/ssr-catalogue`, see `docker-compose.yml`) next to the backend. See [apps/catalogue/README.md](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/README.md) for more details.
+
 ## Deploying your application
 
 When you have finished building your app, commit your changes and open a new PR. See our [contributing guidelines](https://github.com/molgenis/molgenis-emx2/blog/master/CONTRIBUTING.md) for more information on contributing to the EMX2 code base. When your PR is accepted and merged with the main EMX2 branch, a [new release](https://github.com/molgenis/molgenis-emx2/releases) will be created. Then, update your server with the latest version of EMX2.
 
-On your server, all vue apps are served at `/apps/<app-name>`. This mirrors EMX2 folder structure so the URL will match the name of the folder (e.g., `/apps/molgenis-viz`). If your app is designed to work with a schema, it will be accessible at `/<schema>/<app-name>/`.
+On your server, all SPA vue apps are served at `/apps/<app-name>`. This mirrors EMX2 folder structure so the URL will match the name of the folder (e.g., `/apps/molgenis-viz`). If your app is designed to work with a schema, it will be accessible at `/<schema>/<app-name>/`. SSR apps such as the catalogue are deployed as a separate container instead (see "Server-side rendered applications" above).
 
 ## Troubleshooting
 
@@ -115,11 +135,11 @@ cd apps/<your-app>
 pnpm dev
 ```
 
-Once started, the app is served at [http://localhost:5173](http://localhost:5173). If the server is running and the app cannot be found, check the `vite.config.js` file to see if the port has changed.
+Read the port off the dev server's own banner rather than assuming one: an app gets Vite's default [http://localhost:5173](http://localhost:5173) (Nuxt: `3000`) and walks upwards from there whenever another app already holds it.
 
 ### How do I view my app on the server?
 
-On the server, applications are available at `/apps/<app-name>/`. The path of the app will match the name of the folder in the `apps/` directory. If you app interacts with a schema, it will accessible at `/<schema-name>/<app-name>/`.
+On the server, SPA applications are available at `/apps/<app-name>/`. The path of the app will match the name of the folder in the `apps/` directory. If you app interacts with a schema, it will accessible at `/<schema-name>/<app-name>/`. SSR apps such as the catalogue run as a separate container and are not served under `/apps/` (see "Server-side rendered applications" above).
 
 If you continue to have issues, make sure your app has been merged with the main emx2 branch and the server is updated with the latest version of MOLGENIS EMX2.
 
@@ -177,7 +197,7 @@ It is possible to run your app against a clean server. We use [gradle](https://g
 ./gradlew run
 ```
 
-Gradle may take some time to build. Once it's ready, the app will be visible on port `8080`
+Gradle may take some time to build. Once it's ready, the app will be visible on the port the backend bound: `MOLGENIS_HTTP_PORT` if your repo-root `.env` declares one, otherwise the `8080` default.
 
 ### I want to display my app by default
 
@@ -261,48 +281,37 @@ Add the `vite.config.js` file to your project
 touch vite.config.js
 ```
 
-Use the `vite.config.js` file to configure how the application is run and built. At a minimum, the following configurations are needed.
+Use the `vite.config.js` file to configure how the application is run and built. At a minimum, the following configurations are needed. This is `apps/schema/vite.config.js` with the folder name changed.
 
 ```js
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import devProxy from "../dev-proxy.config";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: "",
+  base: command === "serve" ? "/" : "apps/my-app/",
   server: {
-    proxy: require("../dev-proxy.config")
-  }
-});
+    proxy: devProxy,
+  },
+}));
 ```
 
-By default, all proxy configurations are stored in the `dev-proxy.config.js` file (located in the `apps` folder). This allows you to point the local dev server to an existing EMX2 instance. This may be useful if you would like to query data from a specific database. You can either change the proxy configs in this file or use a `.env` file to store this information.
+`base` is `/` while the dev server runs and `apps/<app-name>/` in a build, because on a server the app is served from that subpath.
+
+##### Choosing the backend your dev server proxies to
+
+`apps/dev-proxy.config.js` is shared by most of the Vite apps. It routes `/graphql`, `/api`, `/reports`, `/theme.css` and their schema-prefixed variants to the backend named by `MOLGENIS_APPS_HOST` set in `.env`; when that is not declared it derives `http://localhost:${MOLGENIS_HTTP_PORT}` from `.env`, then an ambient `MOLGENIS_APPS_HOST` from the shell, and falls back to the shared remote `https://emx2.dev.molgenis.org` last. `MOLGENIS_APPS_SCHEMA` fills in the schema for the routes that do not carry one (default `pet store`).
+
+**Do not create a per-app `.env`, and do not call `dotenv` inside `vite.config.js`.** Those keys are read from a single gitignored `.env` at the **repo root**, which `apps/dev-env.js` loads as an import side effect. `dev-proxy.config.js` requires `dev-env.js`, so importing the shared proxy already loads it — there is nothing to wire up in your app.
 
 ```sh
-# .env file
-MOLGENIS_APPS_HOST=....
-MOLGENIS_APPS_SCHEMA=....
+# <repo root>/.env
+MOLGENIS_HTTP_PORT=8083
+MOLGENIS_APPS_SCHEMA=pet store
 ```
 
-Then, load it into the `vite.config.js` file.
-
-```js
-// vite.config.json with .env file
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-
-export default defineConfig(() => {
-  require("dotenv").config({ path: `./.env` });
-
-  return {
-    plugins: [vue()],
-    base: "",
-    server: {
-      proxy: require("../dev-proxy.config")
-    }
-  };
-});
-```
+A per-app `.env` would let one app talk to a backend the checkout never declared, with nothing on screen to reveal the divergence. One file at the root is what keeps every app, the backend and the e2e suites on the same stack. What to put in it: [Parallel dev stacks](dev_quickstart.md#parallel-dev-stacks-one-per-worktree), or [Frontend only](dev_quickstart.md#frontend-only-point-an-app-at-a-backend-you-did-not-start) if you use a backend somebody else runs.
 
 If you are using components for the `molgenis-viz` component library, you will also need import the styles. To use these, add the following configuration after the `server` configuration.
 

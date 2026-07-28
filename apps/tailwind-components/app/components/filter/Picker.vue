@@ -299,7 +299,7 @@ function updateVisibility(value: boolean) {
             <div
               v-if="node.selectable && node.expandable"
               :data-column-id="node.id"
-              class="flex items-center gap-2 py-1.5 px-2 text-body-sm text-title-contrast hover:bg-hover rounded-input"
+              class="flex items-center gap-2 py-1.5 px-2 text-body-sm text-title-contrast hover:bg-hover rounded-alt"
             >
               <label class="flex items-center gap-2 cursor-pointer min-w-0">
                 <input
@@ -386,7 +386,7 @@ function updateVisibility(value: boolean) {
 
             <label
               v-else
-              class="flex items-center gap-2 py-1.5 px-2 text-body-sm text-title-contrast cursor-pointer hover:bg-hover rounded-input"
+              class="flex items-center gap-2 py-1.5 px-2 text-body-sm text-title-contrast cursor-pointer hover:bg-hover rounded-alt"
             >
               <input
                 type="checkbox"

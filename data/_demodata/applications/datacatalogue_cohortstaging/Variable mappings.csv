@@ -1,4 +1,4 @@
-source,source dataset,source variables,source variables other datasets.dataset,source variables other datasets.name,target,target dataset,target variable,match,status,description,syntax,comments,repeat_num,stripped_var,repeated,repeats
+source,source table,source variables,source variables other tables.table,source variables other tables.name,target,target table,target variable,match,status,description,syntax,comments,repeat_num,stripped_var,repeated,repeats
 testCohort,metadata,c_id,,,LifeCycle,core,child_id,complete,,,child_id = c_id,,,child_id,False,
 testCohort,metadata,m_id,,,LifeCycle,core,mother_id,complete,,,mother_id = m_id,,,mother_id,False,
 testCohort,household,partner_in_household,,,LifeCycle,core,fam_splitup,partial,,,"if partner_in_household == 1:

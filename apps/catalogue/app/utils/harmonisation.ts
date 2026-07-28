@@ -57,7 +57,7 @@ const calcStatusForSingleVariable = (
   resource: { id: string }
 ): HarmonisationStatus => {
   const resourceMapping = variable.mappings?.find((mapping) => {
-    return mapping.sourceDataset.resource.id === resource.id;
+    return mapping.sourceTable.resource.id === resource.id;
   });
 
   switch (resourceMapping?.match.name) {
@@ -85,7 +85,7 @@ const calcStatusForAggregatedRepeatingVariable = (
           return (
             mapping.targetVariable &&
             mapping.targetVariable.name === repeatedVariable.name &&
-            mapping.sourceDataset.resource.id === resource.id
+            mapping.sourceTable.resource.id === resource.id
           );
         });
 
@@ -96,7 +96,7 @@ const calcStatusForAggregatedRepeatingVariable = (
     return (
       mapping.targetVariable &&
       mapping.targetVariable.name === variable.name &&
-      mapping.sourceDataset.resource.id === resource.id
+      mapping.sourceTable.resource.id === resource.id
     );
   });
 

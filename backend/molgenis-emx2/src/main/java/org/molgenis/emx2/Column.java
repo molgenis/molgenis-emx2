@@ -217,7 +217,18 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
       // other relation
       else if (schema != null) {
-        return schema.getTableMetadata(this.refTable);
+        TableMetadata refTableMetadata = schema.getTableMetadata(this.refTable);
+        if (refTableMetadata == null) {
+          throw new MissingRefTableException(
+              "refTable '"
+                  + this.refTable
+                  + "' does not exist or permission denied in schema '"
+                  + schema.getName()
+                  + "', referenced by column '"
+                  + this.getQualifiedName()
+                  + "'");
+        }
+        return refTableMetadata;
       }
     }
     throw new MolgenisException(
@@ -404,8 +415,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     }
     // in complex table rename scenarios the refTable might not be available
     // todo, never have to check if null
-    if (this.getRefTable() != null) {
-      for (Column c : this.getRefTable().getColumns()) {
+    TableMetadata refTableMetadata;
+    try {
+      refTableMetadata = this.getRefTable();
+    } catch (MissingRefTableException refTableNotAvailable) {
+      return null;
+    }
+    if (refTableMetadata != null) {
+      for (Column c : refTableMetadata.getColumns()) {
         if (c.isRefback()
             && c.getRefTableName().equals(this.getTableName())
             && c.getRefSchemaName().equals(this.getSchemaName())
@@ -724,5 +741,27 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     } else {
       return getName();
     }
+  }
+
+  public boolean hasDefaultValue() {
+    return defaultValue != null;
+  }
+
+  public boolean hasComputed() {
+    return computed != null;
+  }
+
+  public boolean isAutoId() {
+    return AUTO_ID.equals(getColumnType());
+  }
+
+  public boolean hasDependencyOn(Column column) {
+    boolean onComputed = getComputed() != null && getComputed().contains(column.getName());
+    boolean onDefaultValue =
+        getDefaultValue() != null && getDefaultValue().contains(column.getName());
+    boolean onRequired = getRequired() != null && getRequired().contains(column.getName());
+    boolean onValidate = getValidation() != null && getValidation().contains(column.getName());
+    boolean onVisible = getVisible() != null && getVisible().contains(column.getName());
+    return onComputed || onDefaultValue || onRequired || onValidate || onVisible;
   }
 }

@@ -1,4 +1,4 @@
-﻿source,source dataset,source variables,source variables other datasets.dataset,source variables other datasets.name,target,target dataset,target variable,repeats,match,description,syntax,comments,mg_draft
+﻿source,source table,source variables,source variables other tables.table,source variables other tables.name,target,target table,target variable,repeats,match,description,syntax,comments,mg_draft
 testDatabank,table1,,,,OOM,MEDICAL_OBSERVATIONS,mo_source_table,NA,na,AP,,,
 testDatabank,table1,,,,OOM,VISIT_OCCURRENCE,status_at_discharge_vocabulary,NA,na,Leave empty,,,
 testDatabank,table1,,,,OOM,VISIT_OCCURRENCE,meaning_of_visit,NA,na,‘pathology_report’,,,

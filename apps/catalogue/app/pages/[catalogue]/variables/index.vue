@@ -234,7 +234,7 @@ const query = computed(() => {
       resource {
         id
       }
-      dataset {
+      table {
         name
         resource {
           id
@@ -251,6 +251,8 @@ const query = computed(() => {
     }
     Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
       id
+      pid
+      name
     }
     Variables_agg (filter:$variablesFilter){
       count

@@ -1,98 +1,3 @@
-<template>
-  <Page id="page-dashboard">
-    <LoadingScreen v-if="loading" />
-    <div class="page-section padding-h-2" v-else-if="!loading && error">
-      <MessageBox type="error">
-        <p>Unable to retrieve data {{ error }}</p>
-      </MessageBox>
-    </div>
-    <Dashboard
-      id="genturisPublicDashboard"
-      :verticalPadding="0"
-      :horizontalPadding="2"
-      v-else
-    >
-      <DashboardRow id="registryHighlights" :columns="1">
-        <DataValueHighlights
-          title="ern genturis registry at a glance"
-          :data="highlightsData"
-        />
-      </DashboardRow>
-      <DashboardRow :columns="2">
-        <DashboardChart>
-          <GeoMercator
-            chartId="registryInstitutionsMap"
-            title="Status of data by healthcare provider"
-            :chartData="organisationsData"
-            rowId="code"
-            longitude="longitude"
-            latitude="latitude"
-            :geojson="WorldGeoJson"
-            group="hasSubmittedData"
-            :groupColorMappings="orgGroupMapping"
-            :legendData="orgGroupMapping"
-            :chartSize="114"
-            :chartHeight="190"
-            :mapCenter="{
-              latitude: 5,
-              longitude: 51,
-            }"
-            :pointRadius="4"
-            :tooltipTemplate="
-              (row: IOrganisations) => {
-                return `
-                <p class='title'>${row.name}</p>
-                <p class='location'>${row.city}, ${row.country}</p>
-            `;
-              }
-            "
-            :zoomLimits="[0.3, 10]"
-            :enableLegendClicks="true"
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <DataTable
-            tableId="diseaseGroupEnrollment"
-            caption="Summary of patients enrolled by thematic disease group"
-            :data="enrollmentData"
-            :columnOrder="['Thematic Disease Group', 'Number of Patients']"
-            :enableRowHighlighting="true"
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <PieChart2
-            chartId="sexAtBirthChart"
-            title="Sex at birth"
-            :chartData="sexAtBirthData"
-            legendPosition="bottom"
-            :chartHeight="140"
-            :asDonutChart="true"
-            :enableLegendHovering="true"
-            :chartMargins="10"
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <ColumnChart
-            chartId="registry-age-at-inclusion"
-            title="Age at last follow-up"
-            :chartData="ageAtInclusionData"
-            xvar="label"
-            yvar="value"
-            :yMin="0"
-            :yMax="ageAtInclusionAxis?.limit"
-            :yTickValues="ageAtInclusionAxis?.ticks"
-            xAxisLabel="Age groups"
-            yAxisLabel="Number of patients"
-            :chartHeight="200"
-            :chartMargins="{ top: 20, right: 10, bottom: 60, left: 60 }"
-            :columnPaddingInner="0.2"
-          />
-        </DashboardChart>
-      </DashboardRow>
-    </Dashboard>
-  </Page>
-</template>
-
 <script setup lang="ts">
 import { ref } from "vue";
 
@@ -222,3 +127,98 @@ loadData()
   .catch((err) => (error.value = err))
   .finally(() => (loading.value = false));
 </script>
+
+<template>
+  <Page id="page-dashboard">
+    <LoadingScreen v-if="loading" />
+    <div class="page-section padding-h-2" v-else-if="!loading && error">
+      <MessageBox type="error">
+        <p>Unable to retrieve data {{ error }}</p>
+      </MessageBox>
+    </div>
+    <Dashboard
+      id="genturisPublicDashboard"
+      :verticalPadding="0"
+      :horizontalPadding="2"
+      v-else
+    >
+      <DashboardRow id="registryHighlights" :columns="1">
+        <DataValueHighlights
+          title="ern genturis registry at a glance"
+          :data="highlightsData"
+        />
+      </DashboardRow>
+      <DashboardRow :columns="2">
+        <DashboardChart>
+          <GeoMercator
+            chartId="registryInstitutionsMap"
+            title="Status of data by healthcare provider"
+            :chartData="organisationsData"
+            rowId="code"
+            longitude="longitude"
+            latitude="latitude"
+            :geojson="WorldGeoJson"
+            group="hasSubmittedData"
+            :groupColorMappings="orgGroupMapping"
+            :legendData="orgGroupMapping"
+            :chartSize="114"
+            :chartHeight="190"
+            :mapCenter="{
+              latitude: 5,
+              longitude: 51,
+            }"
+            :pointRadius="4"
+            :tooltipTemplate="
+              (row: IOrganisations) => {
+                return `
+                <p class='title'>${row.name}</p>
+                <p class='location'>${row.city}, ${row.country}</p>
+            `;
+              }
+            "
+            :zoomLimits="[0.3, 10]"
+            :enableLegendClicks="true"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <DataTable
+            tableId="diseaseGroupEnrollment"
+            caption="Summary of patients enrolled by thematic disease group"
+            :data="enrollmentData"
+            :columnOrder="['Thematic Disease Group', 'Number of Patients']"
+            :enableRowHighlighting="true"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <PieChart2
+            chartId="sexAtBirthChart"
+            title="Sex at birth"
+            :chartData="sexAtBirthData"
+            legendPosition="bottom"
+            :chartHeight="140"
+            :asDonutChart="true"
+            :enableLegendHovering="true"
+            :chartMargins="10"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <ColumnChart
+            chartId="registry-age-at-inclusion"
+            title="Age at last follow-up"
+            :chartData="ageAtInclusionData"
+            xvar="label"
+            yvar="value"
+            :yMin="0"
+            :yMax="ageAtInclusionAxis?.limit"
+            :yTickValues="ageAtInclusionAxis?.ticks"
+            xAxisLabel="Age groups"
+            yAxisLabel="Number of patients"
+            :chartHeight="200"
+            :chartMargins="{ top: 20, right: 10, bottom: 60, left: 60 }"
+            :columnPaddingInner="0.2"
+          />
+        </DashboardChart>
+      </DashboardRow>
+    </Dashboard>
+  </Page>
+</template>

@@ -441,10 +441,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return null;
   }
 
-  public void enableRowLevelSecurity() {
-    throw new UnsupportedOperationException();
-  }
-
   public String toString() {
     StringBuilder builder = new StringBuilder();
     String name = getTableName();

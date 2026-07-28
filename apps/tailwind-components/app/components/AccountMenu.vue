@@ -9,7 +9,7 @@
     <HeaderButton label="Account" icon="user" />
     <template #popper>
       <div
-        class="px-[10px] py-[5px] border-theme border-color-theme rounded-theme bg-form"
+        class="px-[10px] py-[5px] border-theme border-color-theme rounded-base bg-form"
       >
         <slot v-if="hasCustomContent" />
         <template v-else>

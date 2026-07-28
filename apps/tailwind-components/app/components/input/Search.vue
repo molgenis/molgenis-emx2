@@ -28,7 +28,7 @@ defineEmits<{
 </script>
 <template>
   <div
-    class="relative flex items-center border outline-none rounded-input"
+    class="relative flex items-center border outline-none rounded-alt"
     :class="{
       'bg-input border-valid text-valid': valid && !disabled,
       'bg-input border-invalid text-invalid': invalid && !disabled,

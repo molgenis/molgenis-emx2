@@ -1,5 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NUXT_PUBLIC_API_BASE",
+    "MOLGENIS_APPS_HOST",
+    "MOLGENIS_HTTP_PORT"
+  ],
+  "globalDependencies": ["dev-env.js", "dev-proxy.config.js"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

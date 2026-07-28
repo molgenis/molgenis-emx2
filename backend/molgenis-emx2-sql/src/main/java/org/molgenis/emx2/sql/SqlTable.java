@@ -5,7 +5,6 @@ import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
 import java.io.StringReader;
@@ -368,13 +367,15 @@ public class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      List<Row> rows =
-          applyValidationAndComputed(
-              table.getMetadata().getColumns(), subclassRows.get(subclassName));
+      SqlRowProcessor rowProcessor = new SqlRowProcessor(table.getMetadata().getColumns());
+      List<Row> rows = subclassRows.get(subclassName);
+      rowProcessor.validateAndCompute(rows);
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
+      List<Row> rows = subclassRows.get(subclassName);
+      SqlRowProcessor rowProcessor = new SqlRowProcessor(insertColumns);
+      rowProcessor.validateAndCompute(rows);
       count.set(
           count.get()
               + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size());

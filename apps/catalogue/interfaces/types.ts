@@ -21,7 +21,7 @@ export interface IVariableBase {
   resource: {
     id: string;
   };
-  dataset: {
+  table: {
     name: string;
     resource: {
       id: string;
@@ -158,14 +158,14 @@ export interface IMapping {
     mg_tableclass: string;
   };
   repeats: string;
-  sourceDataset: {
+  sourceTable: {
     resource: {
       id: string;
     };
     name: string;
   };
   sourceVariables: IVariableBase[] | IVariables[];
-  sourceVariablesOtherDatasets: IVariableBase[] | IVariables[];
+  sourceVariablesOtherTables: IVariableBase[] | IVariables[];
   targetVariable: IVariableBase | IVariables;
 }
 
@@ -380,4 +380,9 @@ export type analyticsService =
   | "google-analytics"
   | "piwik-pro";
 
-export type IShoppingCart = Record<string, IResources>;
+export type ICartItem = { id: string; label: string } & (
+  | { type: "resource"; pid: string; name: string }
+  | { type: "variable" }
+);
+
+export type ICart = Map<string, ICartItem>;

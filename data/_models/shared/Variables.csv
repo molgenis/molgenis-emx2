@@ -1,9 +1,9 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Variables,,,,,,,,,,,,Definition of a variable,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variables,,resource,ref,1,TRUE,,Resources,,,,,Resource that this variable is part of,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
-Variables,,dataset,ref,1,TRUE,,Datasets,resource,,,,Dataset that this variable is part of,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
-Variables,,name,,1,TRUE,,,,,,,"Name of the variable, unique within a dataset","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
-Variables,,useExternalDefinition,ref,,,,Variables,,,,,Refer to variable definition in other datasets,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
+Variables,,table,ref,1,TRUE,,Tables,resource,,,,Table that this variable is part of,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
+Variables,,name,,1,TRUE,,,,,,,"Name of the variable, unique within a table","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
+Variables,,useExternalDefinition,ref,,,,Variables,,,,,Refer to variable definition in other tables,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
 Variables,,label,,,,,,,,,,"Human readable name, if applicable","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variables,,description,text,,,,,,,,,Description of the variable,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variables,,original language description,text,,,,,,,,,Description of the variable in the original language,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",

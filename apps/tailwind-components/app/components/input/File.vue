@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center border rounded-input px-2 h-input"
+    class="flex items-center border rounded-alt px-2 h-input"
     data-elem="container"
     :class="{
       'cursor-pointer duration-default ease-in-out hover:border-input-hover focus-within:border-input-focused':
@@ -18,7 +18,7 @@
         :id="`${id}-current-file`"
         data-elem="current-value-btn"
         ref="selectedFileButton"
-        class="flex justify-center items-center h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display duration-default ease-in-out border rounded-input"
+        class="flex justify-center items-center h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display duration-default ease-in-out border rounded-alt"
         :class="{
           'text-disabled bg-disabled hover:text-disabled cursor-not-allowed':
             disabled,
@@ -38,7 +38,7 @@
     <div class="flex-none">
       <button
         :id="`${id}-file-open-btn`"
-        class="flex justify-center items-center h-10 px-5 text-heading-xl tracking-widest uppercase font-display duration-default ease-in-out border rounded-input bg-button-filter text-button-filter border-button-filter"
+        class="flex justify-center items-center h-10 px-5 text-heading-xl tracking-widest uppercase font-display duration-default ease-in-out border rounded-alt bg-button-filter text-button-filter border-button-filter"
         :class="{
           'border-invalid text-invalid bg-invalid hover:bg-invalid hover:text-invalid':
             invalid,

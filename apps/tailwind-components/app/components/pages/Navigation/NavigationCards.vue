@@ -18,7 +18,7 @@ withDefaults(defineProps<INavigationCards>(), {
     <p v-if="description" class="text-body-base">{{ description }}</p>
     <a
       :href="url"
-      class="flex justify-center items-center gap-1.5 p-2 border rounded-input bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover duration-default ease-in-out"
+      class="flex justify-center items-center gap-1.5 p-2 border rounded-alt bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover duration-default ease-in-out"
       :rel="urlIsExternal ? 'noopener noreferrer' : undefined"
       :target="urlIsExternal ? '_blank' : undefined"
     >

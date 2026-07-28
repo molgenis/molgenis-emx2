@@ -57,7 +57,7 @@
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
-              class="w-full h-full rounded-lg"
+              class="w-full h-full rounded-alt"
             ></iframe>
           </div>
         </ContentBlock>

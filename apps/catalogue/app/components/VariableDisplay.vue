@@ -68,13 +68,11 @@ const items = computed(() => {
     },
   ];
 
-  if (variable.value.dataset) {
+  if (variable.value.table) {
     defaultItems.push({
-      label: "Dataset",
+      label: "Table",
       content:
-        variable.value.dataset.resource.id +
-        " - " +
-        variable.value.dataset.name,
+        variable.value.table.resource.id + " - " + variable.value.table.name,
     });
   }
 

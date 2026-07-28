@@ -1,18 +1,17 @@
 package org.molgenis.emx2.rdf.generators.query.generators;
 
 import java.util.List;
-import org.eclipse.rdf4j.sparqlbuilder.constraint.Expressions;
 import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
 import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
-import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
+import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
 
 public class ArrayColumnSparqlQueryGenerator extends LiteralColumnSparqlQueryGenerator {
 
   public ArrayColumnSparqlQueryGenerator(Variable subject, Column column) {
-    this(subject, column, SparqlBuilder.var(ColumnNameSparqlEncoder.encodeSparqlVariable(column)));
+    this(subject, column, ColumnNameSparqlEncoder.encodeSparqlVariable(column));
   }
 
   public ArrayColumnSparqlQueryGenerator(Variable subject, Column column, Variable object) {
@@ -20,7 +19,7 @@ public class ArrayColumnSparqlQueryGenerator extends LiteralColumnSparqlQueryGen
         subject,
         column,
         // "_single" variable binds each array element before aggregation in getSelectors()
-        SparqlBuilder.var(object.getVarName() + "_single"),
+        SparqlVariableUtil.singleVariable(object),
         object,
         column.isRequired());
   }
@@ -28,8 +27,7 @@ public class ArrayColumnSparqlQueryGenerator extends LiteralColumnSparqlQueryGen
   /** Aggregates multiple values into a comma-separated string, e.g. "val1,val2,val3" */
   @Override
   public List<Projectable> getSelectors() {
-    return List.of(
-        Expressions.group_concat("','", Expressions.str(object)).distinct().as(selector));
+    return List.of(SparqlVariableUtil.concatAs(object, selector));
   }
 
   @Override

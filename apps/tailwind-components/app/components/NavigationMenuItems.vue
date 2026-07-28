@@ -14,7 +14,7 @@ defineProps<{
 }>();
 
 const submenuListClass =
-  "flex flex-col gap-1.5 rounded-3px rounded-tr-none bg-form p-6 shadow-xl text-body-base";
+  "flex flex-col gap-1.5 rounded-base rounded-tr-none bg-form p-6 shadow-xl text-body-base";
 const submenuLinkClass =
   "font-display text-heading-xl whitespace-nowrap transition-colors hover:underline tracking-widest text-sub-menu hover:text-sub-menu-hover";
 const submenuButtonClass =
