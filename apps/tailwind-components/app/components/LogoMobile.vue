@@ -34,7 +34,7 @@ if (logoFileName) {
       v-else-if="svg"
       :src="svg"
       alt="logo"
-      class="object-contain max-h-10 max-w-96"
+      class="object-contain max-h-12.5 max-w-96"
     />
     <img
       v-else
