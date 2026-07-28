@@ -19,9 +19,10 @@
   },
   "scripts": {
     "dev": "cross-env CLEAR_GEN_FOLDERS=on vite",
+    "generate-docs": "node generate-docs.js",
     "build:lib": "cross-env SHOW_CASE=off vite build",
     "build:showcase": "cross-env SHOW_CASE=on vite build",
-    "build": "npm-run-all build:lib build:showcase",
+    "build": "npm-run-all generate-docs build:lib build:showcase",
     "preview": "vite preview",
     "test": "vitest",
     "test-ci": "vitest run",
