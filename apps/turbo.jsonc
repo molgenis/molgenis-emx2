@@ -37,9 +37,11 @@
     },
     "format": {
       "inputs": [
-        "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,json,md,yml,yaml}",
+        "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,json,md,yml,yaml,css,scss,html}",
         ".prettierrc.*",
         "../.prettierrc.*",
+        ".prettierignore",
+        "../.prettierignore",
         "package.json"
       ],
       "outputs": [],
@@ -48,9 +50,11 @@
     },
     "checkFormat": {
       "inputs": [
-        "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,json,md,yml,yaml}",
+        "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,json,md,yml,yaml,css,scss,html}",
         ".prettierrc.*",
         "../.prettierrc.*",
+        ".prettierignore",
+        "../.prettierignore",
         "package.json"
       ],
       "outputs": [],

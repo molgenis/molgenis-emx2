@@ -41,11 +41,19 @@ println "Workspace dirs = $workspaceDirs"
 
 def buildOutputFolders = ["dist", "showCase", "gen-docs"]
 
-def buildOutputDirForApp = { String appName ->
+def buildOutputDirsForApp = { String appName ->
     if (file("${appName}/nuxt.config.ts").exists()) {
-        return "${appName}/.output"
+        return ["${appName}/.output"]
     }
-    return "${appName}/dist"
+    def outputDirs = ["${appName}/dist"]
+    def scripts = new JsonSlurper().parse(file("${appName}/package.json")).scripts ?: [:]
+    if (scripts.containsKey("build:showcase")) {
+        outputDirs << "${appName}/showCase"
+    }
+    if (scripts.containsKey("generate-docs")) {
+        outputDirs << "${appName}/gen-docs"
+    }
+    return outputDirs
 }
 
 def registerAppInputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
@@ -90,7 +98,7 @@ tasks.register('pnpm_build', PnpmTask) {
     args = ['run', 'build']
     inputs.property('molgenisDotenv', rootProject.ext.molgenisDotenv)
     registerAppInputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
-    outputs.dirs(workspaceDirs.collect { buildOutputDirForApp(it) })
+    outputs.dirs(workspaceDirs.collectMany { buildOutputDirsForApp(it) })
 }
 
 def gitCommonDirOutput = providers.exec { spec ->
@@ -132,7 +140,7 @@ tasks.register("cleanApps", Delete) {
                 delete new File(dir, ".turbo")
                 delete new File(dir, ".nuxt")
                 delete new File(dir, "build")
-                delete file(buildOutputDirForApp(dirName))
+                buildOutputDirsForApp(dirName).each { delete file(it) }
                 buildOutputFolders.each { folderName ->
                     delete new File(dir, folderName)
                 }
