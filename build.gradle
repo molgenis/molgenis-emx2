@@ -6,6 +6,8 @@ plugins {
     id 'application'
 }
 
+apply from: "$rootDir/gradle/task-outcomes.gradle"
+
 // In specific scenario's (f.e. macOS with docker through colima), `which docker` works yet it fails
 // when trying to run docker commands. This allows for a manual override to include a hard coded
 // path instead. Example (.bash_profile): export DOCKER_PATH="/usr/local/bin/docker"
