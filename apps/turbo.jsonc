@@ -36,27 +36,13 @@
       "outputLogs": "new-only"
     },
     "format": {
-      "inputs": [
-        "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,json,md,yml,yaml,css,scss,html}",
-        ".prettierrc.*",
-        "../.prettierrc.*",
-        ".prettierignore",
-        "../.prettierignore",
-        "package.json"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "../.prettierrc.*", "../.prettierignore"],
       "outputs": [],
       "cache": true,
       "outputLogs": "new-only"
     },
     "checkFormat": {
-      "inputs": [
-        "**/*.{ts,tsx,js,jsx,mjs,cjs,vue,json,md,yml,yaml,css,scss,html}",
-        ".prettierrc.*",
-        "../.prettierrc.*",
-        ".prettierignore",
-        "../.prettierignore",
-        "package.json"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "../.prettierrc.*", "../.prettierignore"],
       "outputs": [],
       "cache": true,
       "outputLogs": "new-only"
