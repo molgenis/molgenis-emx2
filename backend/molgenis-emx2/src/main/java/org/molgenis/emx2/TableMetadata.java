@@ -18,6 +18,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
   public static final String SCHEMA_NAME_MESSAGE =
       ": Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
+  private static final String TABLE_NOT_FOUND = "table not found or permission denied.";
   // if a table extends another table (optional)
   public String inheritName = null;
   // to allow indicate that a table should be dropped
@@ -247,7 +248,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public List<Column> getNonInheritedColumns() {
     if (getInheritName() != null) {
       return this.columns.values().stream()
-          .filter(c -> !getInheritedTable().getColumnNames().contains(c.getName()))
+          .filter(c -> !requireInheritedTable().getColumnNames().contains(c.getName()))
           .collect(Collectors.toList());
     } else {
       return new ArrayList<>(this.columns.values());
@@ -404,7 +405,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     List<String> result = new ArrayList<>();
     result.add(this.getTableName());
     if (getInheritName() != null) {
-      result.addAll(getInheritedTable().getAllInheritNames());
+      result.addAll(requireInheritedTable().getAllInheritNames());
     }
     return result;
   }
@@ -417,28 +418,59 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public TableMetadata getInheritedTable() {
     if (inheritName != null && getSchema() != null) {
       if (getImportSchema() != null && getSchema().getDatabase() != null) {
-        if (getSchema().getDatabase().getSchema(getImportSchema()) == null) {
-          throw new MolgenisException(
-              "Cannot find schema '"
-                  + getImportSchema()
-                  + " for inheritance of table '"
-                  + inheritName
-                  + "'");
+        Schema importedSchema = getSchema().getDatabase().getSchema(getImportSchema());
+        if (importedSchema == null) {
+          throw new MolgenisException(cannotSetTableExtendsMessage() + schemaNotFoundReason());
         }
-        if (getSchema().getDatabase().getSchema(getImportSchema()).getTable(inheritName) == null) {
-          throw new MolgenisException(
-              "Cannot find table '" + inheritName + "' for inheritance of table.");
+        if (importedSchema.getTable(inheritName) == null) {
+          throw new MolgenisException(cannotSetTableExtendsMessage() + TABLE_NOT_FOUND);
         }
-        return getSchema()
-            .getDatabase()
-            .getSchema(getImportSchema())
-            .getTable(inheritName)
-            .getMetadata();
+        return importedSchema.getTable(inheritName).getMetadata();
       } else {
         return getSchema().getTableMetadata(inheritName);
       }
     }
     return null;
+  }
+
+  public TableMetadata requireInheritedTable() {
+    TableMetadata inheritedTable = getInheritedTable();
+    if (inheritedTable == null) {
+      throw new MolgenisException(cannotSetTableExtendsMessage() + unresolvedParentReason());
+    }
+    return inheritedTable;
+  }
+
+  private String unresolvedParentReason() {
+    if (getImportSchema() != null) {
+      return schemaNotFoundReason();
+    }
+    return TABLE_NOT_FOUND + " If the table lives in another schema, provide refSchema.";
+  }
+
+  private String schemaNotFoundReason() {
+    return "schema '" + getImportSchema() + "' not found or permission denied.";
+  }
+
+  private String cannotSetTableExtendsMessage() {
+    String withRefSchema = "";
+    if (getImportSchema() != null) {
+      withRefSchema = " with refSchema='" + getImportSchema() + "'";
+    }
+    return "Cannot set tableExtends='"
+        + inheritName
+        + "'"
+        + withRefSchema
+        + " in table '"
+        + qualifiedTableName()
+        + "': ";
+  }
+
+  protected String qualifiedTableName() {
+    if (getSchemaName() != null) {
+      return getSchemaName() + "." + getTableName();
+    }
+    return getTableName();
   }
 
   public String toString() {
@@ -662,7 +694,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public TableMetadata getRootTable() {
     TableMetadata table = this;
     while (table.getInheritName() != null) {
-      table = table.getInheritedTable();
+      table = table.requireInheritedTable();
     }
     return table;
   }

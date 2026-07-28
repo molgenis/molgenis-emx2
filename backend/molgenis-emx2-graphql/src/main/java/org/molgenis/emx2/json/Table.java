@@ -18,6 +18,7 @@ public class Table {
   private String[] pkey;
   private String inheritId;
   private String inheritName;
+  private String inheritSchemaName;
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
   private Collection<String[]> unique = new ArrayList<>();
@@ -50,8 +51,17 @@ public class Table {
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     if (tableMetadata.getInheritName() != null) {
-      this.inheritId = tableMetadata.getInheritedTable().getIdentifier();
+      TableMetadata inheritedTable;
+      if (tableMetadata.getSchema().getDatabase() != null) {
+        inheritedTable = tableMetadata.requireInheritedTable();
+      } else {
+        inheritedTable = tableMetadata.getInheritedTable();
+      }
+      if (inheritedTable != null) {
+        this.inheritId = inheritedTable.getIdentifier();
+      }
       this.inheritName = tableMetadata.getInheritName();
+      this.inheritSchemaName = tableMetadata.getImportSchema();
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
@@ -203,6 +213,14 @@ public class Table {
 
   public void setInheritName(String inheritName) {
     this.inheritName = inheritName;
+  }
+
+  public String getInheritSchemaName() {
+    return inheritSchemaName;
+  }
+
+  public void setInheritSchemaName(String inheritSchemaName) {
+    this.inheritSchemaName = inheritSchemaName;
   }
 
   public String getLabel() {

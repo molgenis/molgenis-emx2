@@ -8,6 +8,7 @@ public class SqlMolgenisException extends MolgenisException {
 
   public SqlMolgenisException(DataAccessException dae) {
     super(getTitle(dae) + ". " + getDetail(dae));
+    initCause(dae);
   }
 
   public SqlMolgenisException(String title, Exception e) {
@@ -22,6 +23,7 @@ public class SqlMolgenisException extends MolgenisException {
                 + getDetail((DataAccessException) e)
             // otherwise simply return in usual 'title: message' format
             : title + ": " + e.getMessage());
+    initCause(e);
   }
 
   private static String getTitle(DataAccessException dae) {

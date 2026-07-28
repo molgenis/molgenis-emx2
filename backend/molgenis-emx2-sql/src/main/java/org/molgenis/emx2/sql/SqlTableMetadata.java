@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
@@ -343,14 +344,10 @@ class SqlTableMetadata extends TableMetadata {
       return this; // nothing to do
     }
     if (getInheritName() != null) {
-      throw new MolgenisException(
-          "Table '"
-              + getTableName()
-              + "'can only extend one table. Therefore it cannot extend '"
-              + otherTable
-              + "' because it already extends other table '"
-              + getInheritName()
-              + "'");
+      throw new MolgenisException(inheritanceIsFixed("change tableExtends"));
+    }
+    if (otherTable != null) {
+      throw new MolgenisException(inheritanceIsFixed("set tableExtends"));
     }
     TableMetadata other;
     if (getImportSchema() != null) {
@@ -414,7 +411,23 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata removeInherit() {
-    throw new MolgenisException("remove tableExtends not yet implemented");
+    throw new MolgenisException(inheritanceIsFixed("remove tableExtends"));
+  }
+
+  @Override
+  public TableMetadata setImportSchema(String importSchema) {
+    if (getInheritName() != null && !Objects.equals(getImportSchema(), importSchema)) {
+      throw new MolgenisException(inheritanceIsFixed("change refSchema"));
+    }
+    return super.setImportSchema(importSchema);
+  }
+
+  private String inheritanceIsFixed(String action) {
+    return "Cannot "
+        + action
+        + " of table '"
+        + qualifiedTableName()
+        + "': inheritance cannot be changed after the table is created.";
   }
 
   @Override
