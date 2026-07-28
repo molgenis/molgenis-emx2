@@ -72,6 +72,8 @@ import { request } from "graphql-request";
 import { toRaw } from "vue";
 import { editor } from "monaco-editor";
 
+const BUILT_IN_TEMPLATE_SCHEMA = "default";
+
 export default {
   components: {
     IconAction,
@@ -154,7 +156,7 @@ export default {
   created() {
     this.getSchemaList();
     this.getTableList(this.selectedSchema);
-    if (this.selectedSchema === "default") {
+    if (this.selectedSchema === BUILT_IN_TEMPLATE_SCHEMA) {
       this.action = "insert";
     }
   },
@@ -208,14 +210,12 @@ export default {
         });
     },
     getTableList(schemaId) {
-      // the "default" schema is a placeholder and has no real tables
-      if (!schemaId || schemaId === "default") {
+      if (!schemaId || schemaId === BUILT_IN_TEMPLATE_SCHEMA) {
         this.tables = [];
         return;
       }
       request(schemaId + "/graphql", `{_schema{tables{name}}}`)
         .then((data) => {
-          // store the table name (matches MOLGENIS.table_metadata.table_name, used by the reference)
           this.tables = data._schema.tables.map((table) => table.name);
         })
         .catch((error) => {
