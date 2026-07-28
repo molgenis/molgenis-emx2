@@ -192,13 +192,22 @@ tasks.named("processResources") {
     dependsOn("pnpm_build")
 
     def appsDir = project.projectDir
+    def packagedApps = workspaceDirs
+    doFirst {
+        def appsMissingOutput = packagedApps.findAll { appName ->
+            AppOutputLocator.packagedOutputDirForApp(appsDir, appName) == null &&
+                    AppOutputLocator.expectsPackagedOutput(appsDir, appName)
+        }
+        if (!appsMissingOutput.isEmpty()) {
+            throw new GradleException(appsMissingOutput.collect { appName ->
+                "App '${appName}' produced no packageable output, so the jar would silently ship without it"
+            }.join("\n"))
+        }
+    }
+
     workspaceDirs.each { appName ->
         from(providers.provider {
-            File packagedOutputDir = AppOutputLocator.packagedOutputDirForApp(appsDir, appName)
-            if (packagedOutputDir == null && AppOutputLocator.expectsPackagedOutput(appsDir, appName)) {
-                throw new GradleException("App '${appName}' produced no packageable output, so the jar would silently ship without it")
-            }
-            packagedOutputDir ?: []
+            AppOutputLocator.packagedOutputDirForApp(appsDir, appName) ?: []
         }) {
             into("public_html/apps/${appName}")
         }
