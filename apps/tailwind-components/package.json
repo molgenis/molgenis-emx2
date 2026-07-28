@@ -15,7 +15,7 @@
     "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "test-ci": "vitest run",
+    "test-ci": "node ./scripts/run-tests.mjs",
     "e2e": "playwright test",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
     "typecheck": "nuxi typecheck",
