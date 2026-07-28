@@ -102,6 +102,7 @@ def convert_collections_to_collections(coll, mappings):
     # Add linkages from to-be-curated subcollections to their parent collections
     links = to_curate_coll.reindex(columns=["id", "parent_collection"])
     links = links.rename(columns={"id": "resource", "parent_collection": "linked resource"})
+    links['relationship type'] = "Directory subcollections migrated as temporary Collections, to be curated."
     coll = pd.concat([parent_coll, to_curate_coll])
     # Attribute-level operations which apply to all Collections
     coll["held by"] = coll["biobank"]
@@ -216,7 +217,7 @@ async def main():
                 "description",
             ]
         )
-        linkages = linkages.reindex(columns=["resource", "linked resource"])
+        linkages = linkages.reindex(columns=["resource", "linked resource", "relationship type"])
         collection_facts = convert_collections_to_facts(data["Collections"].copy(), mappings)
         collection_facts = collection_facts.reindex(columns=["id", "collection"])
         collection_events = convert_collections_to_events(data["Collections"].copy(), mappings)
