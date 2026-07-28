@@ -44,19 +44,98 @@ export async function getPage(
     | IDeveloperPages;
   return { page: currentPage, metadata: data._schema.tables };
 }
+
 export async function deleteComponent(
   schema: string,
-  id:string,
-  tableclass:string
-){
-  // TODO:
-  // confirm if user is sure!
-  // are we deleting a block or component?
-  // if component remove from correct table and from order table
-  // recalculate component order
-  // if block
-  // delete all containing components & orders
-  // recalculate block order
+  id: string,
+  block: string,
+  reorder: boolean = true
+) {
+  const dataOrder = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation delete($pkey:[ComponentOrdersInput]){delete(ComponentOrders:$pkey){message}}`,
+      variables: {
+        pkey: [
+          {
+            id: `${id}-order`,
+          },
+        ],
+      },
+    },
+  });
+  const dataComponent = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation delete($pkey:[ComponentsInput]){delete(Components:$pkey){message}}`,
+      variables: {
+        pkey: [
+          {
+            id: `${id}`,
+          },
+        ],
+      },
+    },
+  });
+  if (reorder) {
+    fullReorder(schema, block, "Component");
+  }
+}
+
+async function deleteAllComponentsFromBlock(schema: string, id: string) {
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query getComponents($filter: ComponentOrdersFilter){ComponentOrders(filter:$filter){id,order}}`,
+      variables: {
+        filter: {
+          block: { id: { equals: parent } },
+        },
+        orderby: [{ order: "ASC" }],
+      },
+    },
+  });
+
+  if (data?.ComponentOrders) {
+    const itemsToRemove = data?.ComponentOrders as {
+      id: string;
+    }[];
+    for (const item of itemsToRemove) {
+      deleteComponent(schema, item.id, id, false);
+    }
+  }
+}
+
+export async function deleteBlock(schema: string, id: string, page: string) {
+  deleteAllComponentsFromBlock(schema, id);
+
+  const dataOrder = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation delete($pkey:[BlockOrdersInput]){delete(BlockOrders:$pkey){message}}`,
+      variables: {
+        pkey: [
+          {
+            id: `${id}-order`,
+          },
+        ],
+      },
+    },
+  });
+  const dataComponent = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation delete($pkey:[BlockInput]){delete(Block:$pkey){message}}`,
+      variables: {
+        pkey: [
+          {
+            id: `${id}`,
+          },
+        ],
+      },
+    },
+  });
+  fullReorder(schema, page, "Block");
 }
 
 export async function addComponent(
@@ -216,7 +295,66 @@ async function AddParagraph(schema: string, id: string) {
   });
 }
 
-async function prepareOrder(schema: string, order: number, block: string) {
+async function fullReorder(
+  schema: string,
+  parent: string,
+  type: "Component" | "Block"
+) {
+  let filter: any = {
+    block: { id: { equals: parent } },
+  };
+  if (type === "Block") {
+    filter = {
+      configurablePage: { id: { equals: parent } },
+    };
+  }
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query get${type}s($filter: ${type}OrdersFilter){${type}Orders(filter:$filter){id,order}}`,
+      variables: {
+        filter,
+        orderby: [{ order: "ASC" }],
+      },
+    },
+  });
+  const items = type === "Block" ? data?.BlockOrders : data?.ComponentOrders;
+  if (items) {
+    const itemsToUpdate = items as {
+      id: string;
+      order: number;
+    }[];
+
+    itemsToUpdate.sort((a, b) => a.order - b.order);
+
+    let values: { id: string; order: number }[] = [];
+    let order: number = 0;
+    for (const item of itemsToUpdate) {
+      values.push({
+        id: item.id,
+        order: order++,
+      });
+    }
+    if (values.length) {
+      await $fetch(`/${schema}/graphql`, {
+        method: "POST",
+        body: {
+          query: `mutation update($value:[${type}OrdersInput]){update(${type}Orders:$value){message}}`,
+          variables: {
+            value: values,
+          },
+        },
+      });
+    }
+  }
+}
+
+async function prepareOrder(
+  schema: string,
+  order: number,
+  block: string,
+  offset: number = 1
+) {
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {

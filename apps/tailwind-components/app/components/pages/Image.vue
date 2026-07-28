@@ -24,13 +24,13 @@ if (props.height) {
 </script>
 
 <template>
-    <img
-      :id="id"
-      :src="src"
-      :class="{
-        'm-auto': imageIsCentered,
-      }"
-      :alt="alt"
-      :style="style"
-    />
+  <img
+    :id="id"
+    :src="src"
+    :class="{
+      'm-auto': imageIsCentered,
+    }"
+    :alt="alt"
+    :style="style"
+  />
 </template>

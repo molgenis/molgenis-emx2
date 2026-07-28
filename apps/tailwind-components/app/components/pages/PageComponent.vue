@@ -11,16 +11,19 @@ import ComponentActions from "./ComponentActions.vue";
 
 import EditModal from "../form/EditModal.vue";
 
-import { deleteComponent, parsePageText } from "../../utils/cms";
+import { deleteBlock, deleteComponent, parsePageText } from "../../utils/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
+import type { IComponentOrders } from "../../..//types/cms";
 
 const props = withDefaults(
   defineProps<{
     component: IPageComponent;
+    componentType: string;
     mg_tableclass: string;
     metadata?: ITableMetaData[];
     isEditable?: boolean;
+    parent: string;
   }>(),
   {
     isEditable: false,
@@ -59,26 +62,49 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
 });
 
 function onDelete() {
-  console.log("DELETE");
-  console.log(props);
-  deleteComponent(schemaTableName.value,props.component.id,props.component.mg_tableclass || "")
+  // TODO:
+  // confirm if user is sure!
+  // are we deleting a block or component?
+  console.log("DELETE", props.component);
+  if (props.componentType === "Component") {
+    deleteComponent(
+      componentMetadata.value?.schemaId || "",
+      componentData.value.id,
+      props.parent
+    );
+  } else {
+    deleteBlock(
+      componentMetadata.value?.schemaId || "",
+      componentData.value.id,
+      props.parent
+    );
+  }
+  emit("updatePage");
 }
 
 const menuPlacement = computed<string>(() => {
-  let placement = 'top-start';
-  if(props.component?.headingIsCentered || props.component?.paragraphIsCentered || props.component?.imageIsCentered){
-    placement = 'top';
+  let placement = "top-start";
+  const component = componentData;
+  if (
+    props.component?.headingIsCentered ||
+    props.component?.paragraphIsCentered ||
+    props.component?.imageIsCentered
+  ) {
+    placement = "top";
   }
-  return placement
+  return placement;
 });
-
 </script>
 
 <template>
-  <VMenu :placement="menuPlacement" :disabled="!isEditable" v-model:shown="showMenu" show-group="component-menu"
+  <VMenu
+    :placement="menuPlacement"
+    :disabled="!isEditable"
+    v-model:shown="showMenu"
+    show-group="component-menu"
     :triggers="['hover', 'focus']"
-  :popper-triggers="['hover', 'focus']"
-  :delay="{ show: 100, hide: 200 }"
+    :popper-triggers="['hover', 'focus']"
+    :delay="{ show: 100, hide: 200 }"
   >
     <template #popper>
       <ComponentActions
@@ -92,57 +118,57 @@ const menuPlacement = computed<string>(() => {
     <Banner
       v-if="mg_tableclass.endsWith('.Headers')"
       v-model:showMenu="showMenu"
-      :id="component.id"
-      :title="component.title"
-      :subtitle="component.subtitle"
-      :background-image="component.backgroundImage?.image?.url"
-      :enable-full-screen-width="component.enableFullScreenWidth"
-      :title-is-centered="component.titleIsCentered"
+      :id="componentData.id"
+      :title="componentData.title"
+      :subtitle="componentData.subtitle"
+      :background-image="componentData.backgroundImage?.image?.url"
+      :enable-full-screen-width="componentData.enableFullScreenWidth"
+      :title-is-centered="componentData.titleIsCentered"
       :is-editable="editingIsEnabled"
     />
     <Section
       v-else-if="mg_tableclass.endsWith('.Sections')"
       v-model:showMenu="showMenu"
-      :id="component.id"
-      :enable-full-screen-width="component.enableFullScreenWidth"
+      :id="componentData.id"
+      :enable-full-screen-width="componentData.enableFullScreenWidth"
     >
       <slot></slot>
     </Section>
     <Heading
       v-else-if="mg_tableclass.endsWith('.Headings')"
       v-model:showMenu="showMenu"
-      :id="component.id"
-      :heading-is-centered="component.headingIsCentered"
-      :level="component.level"
+      :id="componentData.id"
+      :heading-is-centered="componentData.headingIsCentered"
+      :level="componentData.level"
       class="mb-5"
-      :text="parsePageText(component.text)"
+      :text="parsePageText(componentData.text)"
       :is-editable="editingIsEnabled"
     />
     <Paragraph
       v-else-if="mg_tableclass.endsWith('.Paragraphs')"
       v-model:showMenu="showMenu"
-      :id="component.id"
-      :paragraph-is-centered="component.paragraphIsCentered"
+      :id="componentData.id"
+      :paragraph-is-centered="componentData.paragraphIsCentered"
       class="mb-2.5 last:mb-0"
-      :text="parsePageText(component.text)"
+      :text="parsePageText(componentData.text)"
       :is-editable="editingIsEnabled"
     />
     <Image
       v-else-if="mg_tableclass.endsWith('.Images')"
       v-model:showMenu="showMenu"
-      :id="component.id"
-      :image="component.image"
-      :width="component.width"
-      :height="component.height"
-      :alt="component.alt"
-      :image-is-centered="component.imageIsCentered"
+      :id="componentData.id"
+      :image="componentData.image"
+      :width="componentData.width"
+      :height="componentData.height"
+      :alt="componentData.alt"
+      :image-is-centered="componentData.imageIsCentered"
       :is-editable="editingIsEnabled"
     />
     <NavigationGroups
       v-else-if="mg_tableclass.endsWith('.Navigation groups')"
       v-model:showMenu="showMenu"
-      :id="component.id"
-      :links="component.links"
+      :id="componentData.id"
+      :links="componentData.links"
       :is-editable="editingIsEnabled"
     />
     <Paragraph

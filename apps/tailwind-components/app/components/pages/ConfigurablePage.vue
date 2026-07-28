@@ -72,13 +72,18 @@ const sidebarCollapsed = ref(false);
           v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
+          componentType="Block"
+          :parent="content.name"
           :is-editable="isEditable"
           :metadata="metadata"
+          @update-page="$emit('updatePage')"
         />
         <PageComponent
           v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
+          :parent="content.name"
+          componentType="Block"
           @update-page="$emit('updatePage')"
         >
           <ComponentDropZone
@@ -101,6 +106,8 @@ const sidebarCollapsed = ref(false);
             <PageComponent
               :mg_tableclass="orderedComponent.component.mg_tableclass"
               :component="orderedComponent.component"
+              componentType="Component"
+              :parent="orderedBlock.block.id"
               :is-editable="isEditable"
               :metadata="metadata"
               @update-page="$emit('updatePage')"
