@@ -103,6 +103,18 @@ class SqlTableMetadata extends TableMetadata {
     long start = System.currentTimeMillis();
     String oldName = getTableName();
     if (!getTableName().equals(newName)) {
+      List<String[]> children =
+          MetadataUtils.getInheritingChildren(getJooq(), getSchemaName(), getTableName());
+      if (!children.isEmpty()) {
+        throw new MolgenisException(
+            "Cannot rename table '"
+                + qualifiedTableName()
+                + "': table '"
+                + children.get(0)[0]
+                + "."
+                + children.get(0)[1]
+                + "' inherits from it.");
+      }
       getDatabase()
           .tx(db -> sync(alterNameTransaction(db, getSchemaName(), getTableName(), newName)));
       ((SqlSchemaMetadata) getSchema()).reload();
