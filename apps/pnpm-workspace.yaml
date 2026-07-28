@@ -35,10 +35,15 @@ onlyBuiltDependencies:
   - vue-demi
 
 catalog:
+  '@vue/test-utils': 2.4.6
+  core-js: 3.34.0
+  d3: 7.8.5
+  graphql-tag: 2.12.6
   vite: 8.1.5
+  vue: 3.5.22
 
 overrides:
-  vue: 3.5.22
+  vue: 'catalog:'
   vite: 'catalog:'
   cookie@<0.7.0: '>=0.7.0'
   shell-quote@<1.8.4: '>=1.8.4'

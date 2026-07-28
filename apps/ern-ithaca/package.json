@@ -12,10 +12,10 @@
   "dependencies": {
     "@heroicons/vue": "2.2.0",
     "graphql-request": "5.2.0",
-    "graphql-tag": "2.12.6",
+    "graphql-tag": "catalog:",
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
-    "vue": "3.5.22",
+    "vue": "catalog:",
     "vue-router": "4.4.3"
   },
   "devDependencies": {

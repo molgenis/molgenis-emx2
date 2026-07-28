@@ -15,8 +15,8 @@
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
     "tailwind-components": "workspace:*",
-    "graphql-tag": "2.12.6",
-    "vue": "3.5.22",
+    "graphql-tag": "catalog:",
+    "vue": "catalog:",
     "vue-router": "4.4.3"
   },
   "devDependencies": {

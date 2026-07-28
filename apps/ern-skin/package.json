@@ -11,14 +11,14 @@
   },
   "dependencies": {
     "@heroicons/vue": "2.0.18",
-    "d3": "7.8.5",
+    "d3": "catalog:",
     "graphql-request": "5.2.0",
-    "graphql-tag": "2.12.6",
+    "graphql-tag": "catalog:",
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
     "tailwind-components": "workspace:*",
     "sass": "1.70.0",
-    "vue": "3.5.22",
+    "vue": "catalog:",
     "vue-router": "4.4.3"
   },
   "devDependencies": {

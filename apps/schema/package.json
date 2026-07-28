@@ -10,14 +10,14 @@
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "core-js": "3.34.0",
+    "core-js": "catalog:",
     "graphql-request": "5.2.0",
-    "graphql-tag": "2.12.6",
+    "graphql-tag": "catalog:",
     "mermaid": "11.15.0",
     "metadata-utils": "workspace:*",
     "molgenis-components": "workspace:*",
     "nomnoml": "1.6.2",
-    "vue": "3.5.22",
+    "vue": "catalog:",
     "vue-router": "4.4.3",
     "vue-scrollto": "2.20.0",
     "vuedraggable": "4.1.0"

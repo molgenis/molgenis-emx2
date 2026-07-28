@@ -16,7 +16,7 @@
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
     "tailwind-components": "workspace:*",
-    "vue": "3.5.22",
+    "vue": "catalog:",
     "vue-router": "4.4.3"
   },
   "devDependencies": {

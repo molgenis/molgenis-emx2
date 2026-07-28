@@ -4,6 +4,21 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@vue/test-utils':
+      specifier: 2.4.6
+      version: 2.4.6
+    core-js:
+      specifier: 3.34.0
+      version: 3.34.0
+    d3:
+      specifier: 7.8.5
+      version: 7.8.5
+    graphql-tag:
+      specifier: 2.12.6
+      version: 2.12.6
+
 overrides:
   vue: 3.5.22
   vite: 8.1.5
@@ -108,13 +123,13 @@ importers:
         specifier: 6.0.8
         version: 6.0.8(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.70.0)(terser@5.46.1)(yaml@2.9.0))(vue@3.5.22(typescript@5.9.3))
       '@vue/test-utils':
-        specifier: 2.4.6
+        specifier: 'catalog:'
         version: 2.4.6
       autoprefixer:
         specifier: 10.4.19
         version: 10.4.19(postcss@8.5.12)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: 'catalog:'
         version: 2.12.6(graphql@16.12.0)
       happy-dom:
         specifier: 20.9.0
@@ -162,7 +177,7 @@ importers:
   central:
     dependencies:
       core-js:
-        specifier: 3.34.0
+        specifier: 'catalog:'
         version: 3.34.0
       graphql-request:
         specifier: 5.2.0
@@ -199,7 +214,7 @@ importers:
         specifier: 2.0.18
         version: 2.0.18(vue@3.5.22(typescript@5.9.3))
       d3:
-        specifier: 7.8.5
+        specifier: 'catalog:'
         version: 7.8.5
       molgenis-components:
         specifier: workspace:*
@@ -242,7 +257,7 @@ importers:
         specifier: 5.2.0
         version: 5.2.0(graphql@16.12.0)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: 'catalog:'
         version: 2.12.6(graphql@16.12.0)
       molgenis-components:
         specifier: workspace:*
@@ -316,7 +331,7 @@ importers:
         specifier: 5.2.4
         version: 5.2.4(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.70.0)(terser@5.46.1)(yaml@2.9.0))(vue@3.5.22(typescript@5.9.3))
       '@vue/test-utils':
-        specifier: 2.4.6
+        specifier: 'catalog:'
         version: 2.4.6
       '@vue/vue3-jest':
         specifier: 29.2.6
@@ -365,13 +380,13 @@ importers:
         specifier: 2.0.18
         version: 2.0.18(vue@3.5.22(typescript@5.9.3))
       d3:
-        specifier: 7.8.5
+        specifier: 'catalog:'
         version: 7.8.5
       graphql-request:
         specifier: 5.2.0
         version: 5.2.0(graphql@16.12.0)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: 'catalog:'
         version: 2.12.6(graphql@16.12.0)
       molgenis-components:
         specifier: workspace:*
@@ -408,7 +423,7 @@ importers:
         specifier: 5.2.0
         version: 5.2.0(graphql@16.12.0)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: 'catalog:'
         version: 2.12.6(graphql@16.12.0)
       molgenis-components:
         specifier: workspace:*
@@ -467,13 +482,13 @@ importers:
         specifier: 2.0.18
         version: 2.0.18(vue@3.5.22(typescript@5.9.3))
       d3:
-        specifier: 7.8.5
+        specifier: 'catalog:'
         version: 7.8.5
       graphql-request:
         specifier: 5.2.0
         version: 5.2.0(graphql@16.12.0)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: 'catalog:'
         version: 2.12.6(graphql@16.12.0)
       molgenis-components:
         specifier: workspace:*
@@ -663,7 +678,7 @@ importers:
         specifier: 5.2.4
         version: 5.2.4(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(sass@1.70.0)(terser@5.46.1)(yaml@2.9.0))(vue@3.5.22(typescript@5.9.3))
       '@vue/test-utils':
-        specifier: 2.4.6
+        specifier: 'catalog:'
         version: 2.4.6
       npm-run-all:
         specifier: 4.1.5
@@ -693,7 +708,7 @@ importers:
         specifier: 2.0.18
         version: 2.0.18(vue@3.5.22(typescript@5.9.3))
       d3:
-        specifier: 7.8.5
+        specifier: 'catalog:'
         version: 7.8.5
       d3-scale-chromatic:
         specifier: 3.0.0
@@ -702,7 +717,7 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0(graphql@16.12.0)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: 'catalog:'
         version: 2.12.6(graphql@16.12.0)
       heroicons:
         specifier: ^2.0.18
@@ -745,7 +760,7 @@ importers:
         specifier: 5.2.0
         version: 5.2.0(graphql@16.12.0)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: 'catalog:'
         version: 2.12.6(graphql@16.12.0)
       molgenis-components:
         specifier: workspace:*
@@ -776,7 +791,7 @@ importers:
   pages:
     dependencies:
       core-js:
-        specifier: 3.34.0
+        specifier: 'catalog:'
         version: 3.34.0
       graphql-request:
         specifier: 5.2.0
@@ -816,7 +831,7 @@ importers:
         specifier: 5.2.0
         version: 5.2.0(graphql@16.12.0)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: 'catalog:'
         version: 2.12.6(graphql@16.12.0)
       metadata-utils:
         specifier: workspace:*
@@ -844,7 +859,7 @@ importers:
   reports:
     dependencies:
       core-js:
-        specifier: 3.34.0
+        specifier: 'catalog:'
         version: 3.34.0
       graphql-request:
         specifier: 5.2.0
@@ -872,13 +887,13 @@ importers:
   schema:
     dependencies:
       core-js:
-        specifier: 3.34.0
+        specifier: 'catalog:'
         version: 3.34.0
       graphql-request:
         specifier: 5.2.0
         version: 5.2.0(graphql@16.12.0)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: 'catalog:'
         version: 2.12.6(graphql@16.12.0)
       mermaid:
         specifier: 11.15.0
@@ -918,7 +933,7 @@ importers:
   settings:
     dependencies:
       core-js:
-        specifier: 3.34.0
+        specifier: 'catalog:'
         version: 3.34.0
       graphql-request:
         specifier: 5.2.0
@@ -952,7 +967,7 @@ importers:
   tables:
     dependencies:
       core-js:
-        specifier: 3.34.0
+        specifier: 'catalog:'
         version: 3.34.0
       graphql-request:
         specifier: 5.2.0
@@ -1047,13 +1062,13 @@ importers:
         specifier: ^14.1.2
         version: 14.1.2
       '@vue/test-utils':
-        specifier: 2.4.6
+        specifier: 'catalog:'
         version: 2.4.6
       cross-env:
         specifier: 7.0.3
         version: 7.0.3
       d3:
-        specifier: 7.8.5
+        specifier: 'catalog:'
         version: 7.8.5
       http-server:
         specifier: 14.1.1
@@ -1092,7 +1107,7 @@ importers:
   tasks:
     dependencies:
       core-js:
-        specifier: 3.34.0
+        specifier: 'catalog:'
         version: 3.34.0
       graphql-request:
         specifier: 5.2.0
@@ -1178,7 +1193,7 @@ importers:
         specifier: 1.61.0
         version: 1.61.0
       '@vue/test-utils':
-        specifier: 2.4.6
+        specifier: 'catalog:'
         version: 2.4.6
       cross-env:
         specifier: 7.0.3
@@ -1223,7 +1238,7 @@ importers:
   updownload:
     dependencies:
       core-js:
-        specifier: 3.34.0
+        specifier: 'catalog:'
         version: 3.34.0
       graphql-request:
         specifier: 5.2.0

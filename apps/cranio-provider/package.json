@@ -12,11 +12,11 @@
   },
   "dependencies": {
     "@heroicons/vue": "2.0.18",
-    "d3": "7.8.5",
+    "d3": "catalog:",
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
     "tailwind-components": "workspace:*",
-    "vue": "3.5.22",
+    "vue": "catalog:",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
