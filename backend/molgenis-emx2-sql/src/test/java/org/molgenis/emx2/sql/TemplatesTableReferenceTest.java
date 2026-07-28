@@ -73,6 +73,43 @@ class TemplatesTableReferenceTest {
   }
 
   @Test
+  void addTemplatesTableReferenceRecreatesTheForeignKey() {
+    db.becomeAdmin();
+    SqlDatabase sqlDb = (SqlDatabase) db;
+    // drop and re-add through the production helper, so the constraint it builds is the one
+    // under test; the table is left with the same constraint it started with
+    sqlDb
+        .getJooq()
+        .execute(
+            "ALTER TABLE \"_SYSTEM_\".\"Templates\" DROP CONSTRAINT IF EXISTS \"Templates_tableName_fkey\"");
+    assertFalse(templatesForeignKeyExists(sqlDb));
+
+    SqlDatabase.addTemplatesTableReference(sqlDb);
+
+    assertTrue(templatesForeignKeyExists(sqlDb));
+    // and it actually enforces: an unknown table is still rejected
+    Table templates = templates();
+    assertThrows(
+        Exception.class,
+        () ->
+            templates.insert(
+                row(
+                    "endpoint", "beacon_runs",
+                    "schema", SCHEMA_NAME,
+                    "tableName", "StillDoesNotExist")));
+  }
+
+  private static boolean templatesForeignKeyExists(SqlDatabase sqlDb) {
+    return sqlDb
+            .getJooq()
+            .fetchOne(
+                "SELECT count(*) FROM pg_constraint WHERE conname = 'Templates_tableName_fkey'"
+                    + " AND conrelid = '\"_SYSTEM_\".\"Templates\"'::regclass")
+            .get(0, Integer.class)
+        > 0;
+  }
+
+  @Test
   void cannotBindEndpointToNonExistingTable() {
     Table templates = templates();
     Exception exception =

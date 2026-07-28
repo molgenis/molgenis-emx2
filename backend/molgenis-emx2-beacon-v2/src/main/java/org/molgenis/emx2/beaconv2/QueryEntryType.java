@@ -167,9 +167,6 @@ public class QueryEntryType {
   }
 
   private Row getTemplateRow(Database database, String schemaName) {
-    if (database == null) {
-      return null;
-    }
     AtomicReference<Row> templateRow = new AtomicReference<>();
     database.tx(
         tx -> {

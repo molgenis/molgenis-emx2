@@ -122,6 +122,38 @@ public class BeaconConfigurableTableTest {
   }
 
   @Test
+  void templateWithoutTableNameFallsBackToEntryTypeDefault() {
+    // a row predating the tableName column: the entry type's own table id must still be used
+    insertTemplate(row("endpoint", ENDPOINT, "schema", SCHEMA_NAME, "template", MARKER_TEMPLATE));
+
+    MolgenisException thrown =
+        assertThrows(MolgenisException.class, () -> newQuery().query(schema));
+    // the message names the table that was resolved, proving the enum default was used
+    assertTrue(
+        thrown.getMessage().contains(EntryType.INDIVIDUALS.getId()),
+        "expected fallback to "
+            + EntryType.INDIVIDUALS.getId()
+            + " but got: "
+            + thrown.getMessage());
+  }
+
+  @Test
+  void templateForADifferentEndpointIsIgnored() {
+    // same schema, but bound to another entry type: must not leak into the individuals query
+    insertTemplate(
+        row(
+            "endpoint", "beacon_" + EntryType.ANALYSES.getName(),
+            "schema", SCHEMA_NAME,
+            "tableName", CUSTOM_TABLE));
+
+    MolgenisException thrown =
+        assertThrows(MolgenisException.class, () -> newQuery().query(schema));
+    assertTrue(
+        thrown.getMessage().contains(EntryType.INDIVIDUALS.getId()),
+        "individuals query must ignore another endpoint's table, got: " + thrown.getMessage());
+  }
+
+  @Test
   void missingTableThrowsForSingleSchemaButIsSkippedCrossSchema() {
     assertThrows(MolgenisException.class, () -> newQuery().query(schema));
 
