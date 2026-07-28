@@ -1,13 +1,15 @@
 # docker file for the ci
 # to build and publish (n.b. on apple silicon you need to set --platform)
-# docker buildx build -t molgenis/ci-build:1.2.2 --platform linux/amd64 .
-# docker push molgenis/ci-build:1.2.2
+# docker buildx build -t molgenis/ci-build:x.y.z --platform linux/amd64 .
+# docker push molgenis/ci-build:x.y.z
 
 FROM gradle:jdk21-noble
 RUN useradd -m molgenis
 
-RUN apt-get update && apt-get install vim python3 python3-venv python3-pip python3-setuptools python3-setuptools-whl -y
+# Python
+RUN apt-get update && apt-get install vim python3 python3-pip -y
 RUN python3 -m pip config set global.break-system-packages true
+RUN pip install uv
 RUN python3 --version
 
 ENV NODE_VERSION=22.17.0
@@ -52,7 +54,6 @@ RUN curl -fsSL https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz \
  && mv linux-amd64/helm /usr/local/bin/helm \
  && chmod +x /usr/local/bin/helm \
  && rm -rf linux-amd64
-#
 
 # Azure CLI Tools
 RUN mkdir -p /etc/apt/keyrings
