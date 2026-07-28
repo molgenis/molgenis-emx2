@@ -17,7 +17,7 @@ export default defineConfig(({ command }) => ({
         },
       ],
       publicPath: "assets",
-      customDistPath: (root, buildOutDir, base) => {
+      customDistPath: (root, buildOutDir) => {
           return buildOutDir + '/' + 'assets';
         },
 
