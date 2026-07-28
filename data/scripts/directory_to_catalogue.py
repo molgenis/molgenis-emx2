@@ -86,24 +86,31 @@ def convert_biobanks_to_organisations(bb, jp_prefix):
 def convert_collections_to_collections(coll, mappings):
     """
     Convert standalone/parent Collections to Collections
-    Convert subcollections needing curation to temporary Collections
+    Convert subcollections marked as such to Collections + Linkages
+    Convert subcollections needing curation to temporary Collections + Linkages
     """
     parent_collection_ids = mappings.loc[
         mappings["mapping_rule"] == "standalone/parent collection -> Collections (direct)",
         "directory_id",
     ]
     parent_coll = coll.loc[coll["id"].isin(parent_collection_ids)]
-    subcollection_ids = mappings.loc[
+    to_promote_collection_ids = mappings.loc[mappings["mapping_rule"] == "sub-collection type-varies (robust) -> promoted Collection + Linkage(wasDerivedFrom)", "directory_id"]
+    to_promote_coll = coll.loc[coll["id"].isin(to_promote_collection_ids)]
+    to_curate_collection_ids = mappings.loc[
         (mappings["directory_table"] == "Collections")
         & (mappings["disposition"] == "needs_curation"),
         "directory_id",
     ]
-    to_curate_coll = coll.loc[coll["id"].isin(subcollection_ids)]
-    # Add linkages from to-be-curated subcollections to their parent collections
-    links = to_curate_coll.reindex(columns=["id", "parent_collection"])
-    links = links.rename(columns={"id": "resource", "parent_collection": "linked resource"})
-    links['relationship type'] = "Directory subcollections migrated as temporary Collections, to be curated."
-    coll = pd.concat([parent_coll, to_curate_coll])
+    to_curate_coll = coll.loc[coll["id"].isin(to_curate_collection_ids)]
+    # Add linkages from to-be-curated and promoted subcollections to their parent collections
+    links_1 = to_promote_coll.reindex(columns=["id", "parent_collection"])
+    links_1 = links_1.rename(columns={"id": "resource", "parent_collection": "linked resource"})
+    links_1['relationship type'] = "hasParentCollection (Directory subcollection which was promoted)"
+    links_2 = to_curate_coll.reindex(columns=["id", "parent_collection"])
+    links_2 = links_2.rename(columns={"id": "resource", "parent_collection": "linked resource"})
+    links_2['relationship type'] = "Directory subcollections migrated as temporary Collections, to be curated."
+    links = pd.concat([links_1, links_2])
+    coll = pd.concat([parent_coll, to_promote_coll, to_curate_coll])
     # Attribute-level operations which apply to all Collections
     coll["held by"] = coll["biobank"]
     coll["type"] = "Biobank"
