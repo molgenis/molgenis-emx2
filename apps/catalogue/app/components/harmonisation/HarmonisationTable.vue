@@ -5,14 +5,18 @@ import type { IResources, IVariables } from "../../../interfaces/catalogue";
 import { calcAggregatedHarmonisationStatus } from "~/utils/harmonisation";
 import { getKey } from "../../utils/variableUtils";
 import { resourceIdPath } from "../../utils/urlHelpers";
+import { resourceToCartItem, variableToCartItem } from "../../utils/cartItem";
+import { useCartStore } from "../../stores/useCartStore";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 import TableSticky from "../table/Sticky.vue";
 import HarmonisationTableCellAvailableIcon from "./HarmonisationTableCellAvailableIcon.vue";
 import VariableDisplay from "../VariableDisplay.vue";
 import type { IVariableMappings } from "~~/interfaces/types";
+import CartButton from "../cart/CartButton.vue";
 
 const route = useRoute();
+const cartStore = useCartStore();
 
 const props = defineProps<{
   variables: (IVariables & IVariableMappings)[];
@@ -28,7 +32,7 @@ let activeRowIndex = ref(-1);
 // list of optional computed values that are non null when the side panel is shown
 let showSidePanel = computed(() => activeRowIndex.value !== -1);
 let activeVariable = computed(() =>
-  showSidePanel ? props.variables[activeRowIndex.value] : null
+  showSidePanel.value ? props.variables[activeRowIndex.value] : null
 );
 
 let activeVariableKey = computed(() =>
@@ -55,23 +59,46 @@ let activeVariablePath = computed(() =>
       >
         <template #column="columnProps">
           <div
-            class="hover:bg-gray-100 text-link font-normal min-w-[2rem] rotate-180 [writing-mode:vertical-lr] max-h-title min-h-title hover:max-h-none truncate hover:text-clip hover:overflow-visible"
+            class="flex flex-col items-center min-h-title max-h-title"
+            :class="{
+              'bg-button-filter': cartStore.isInCart(
+                resourceToCartItem(columnProps.value).id
+              ),
+            }"
           >
-            <span
-              class="hover:bg-gray-100 hover:flex items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
+            <CartButton
+              v-if="cartStore.isEnabled"
+              :item="resourceToCartItem(columnProps.value)"
+            />
+            <div
+              class="flex-1 min-h-0 hover:bg-gray-100 text-link font-normal min-w-[2rem] rotate-180 [writing-mode:vertical-lr] truncate hover:text-clip hover:overflow-visible"
             >
-              {{ columnProps.value.id }}
-            </span>
+              <span
+                class="hover:bg-gray-100 items-center justify-items-end align-middle min-w-[2rem] hover:z-50 py-2"
+              >
+                {{ columnProps.value.id }}
+              </span>
+            </div>
           </div>
         </template>
 
         <template #row="rowProps">
           <div
-            class="text-body-base text-link font-normal hover:underline px-2 cursor-pointer truncate hover:text-clip hover:overflow-visible"
+            class="flex items-center gap-1 text-body-base text-link font-normal hover:underline px-2 cursor-pointer"
+            :class="{
+              'bg-button-filter': cartStore.isInCart(
+                variableToCartItem(rowProps.value.row).id
+              ),
+            }"
             @click="activeRowIndex = rowProps.value.rowIndex"
           >
+            <CartButton
+              v-if="cartStore.isEnabled"
+              :item="variableToCartItem(rowProps.value.row)"
+              @click.stop
+            />
             <span
-              class="hover:bg-gray-100 hover:inline-block hover:border-r hover:pr-3 z-50"
+              class="min-w-0 truncate hover:text-clip hover:overflow-visible hover:bg-gray-100 hover:border-r hover:pr-3 z-50"
             >
               {{ rowProps.value.row.name }}
             </span>
@@ -106,6 +133,13 @@ let activeVariablePath = computed(() =>
       </template>
 
       <template #footer>
+        <CartButton
+          v-if="activeVariable && cartStore.isEnabled"
+          :item="variableToCartItem(activeVariable)"
+          variant="button"
+          size="small"
+          class="mr-2.5"
+        />
         <NuxtLink
           :to="`/${route.params.catalogue}/variables/${activeVariablePath}`"
         >
