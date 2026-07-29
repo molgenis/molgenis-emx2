@@ -149,7 +149,7 @@ def convert_collections_to_events(events, mappings):
         "directory_id",
     ]
     events = events[events["id"].isin(event_ids)]
-    events["resource"] = events["parent_collection"]
+    events = events.rename(columns={'parent_collection': 'resource', 'id': 'pid'})
     return events
 
 
@@ -161,7 +161,7 @@ def convert_collections_to_subpopulations(subpop, mappings):
         "directory_id",
     ]
     subpop = subpop[subpop["id"].isin(subpop_ids)]
-    subpop["resource"] = subpop["parent_collection"]
+    subpop = subpop.rename(columns={'parent_collection': 'resource', 'id': 'pid'})
     return subpop
 
 
@@ -250,9 +250,9 @@ async def main():
         collection_facts = convert_collections_to_facts(data["Collections"].copy(), mappings)
         collection_facts = collection_facts.reindex(columns=["id", "collection"])
         collection_events = convert_collections_to_events(data["Collections"].copy(), mappings)
-        collection_events = collection_events.reindex(columns=["resource", "name"])
+        collection_events = collection_events.reindex(columns=["resource", "name", "pid"])
         subpopulations = convert_collections_to_subpopulations(data["Collections"].copy(), mappings)
-        subpopulations = subpopulations.reindex(columns=["resource", "name"])
+        subpopulations = subpopulations.reindex(columns=["resource", "name", "pid"])
         networks = convert_networks_to_networks(data["Networks"].copy())
         networks = networks.reindex(columns=["id", "name", "organisations involved"])
         # Post-process data
