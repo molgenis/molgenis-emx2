@@ -9,7 +9,6 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      // will treat everything NOT in .gitignore as inputs (smart!)
       "inputs": [
         "$TURBO_DEFAULT$",
         "!tests/**",
@@ -18,7 +17,6 @@
         "!playwright.config.*",
         "!vitest.config.*"
       ],
-      // outputs turbo should cache, rest is uncached
       "outputs": ["dist/**", "showCase/**","gen-docs/**"],
       "cache": true,
       "outputLogs": "new-only"

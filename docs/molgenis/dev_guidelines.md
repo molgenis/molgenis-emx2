@@ -14,9 +14,9 @@ Keep it to the rule and the command. No history, no motivation, no repeating the
 
 ### Scripts are TypeScript and their names say whether they can fail your build
 
-Build and CI scripts are `.ts`, run directly by `node`. The Node version lives in `.nvmrc` alone; pnpm refuses to install below it.
+Build and CI scripts are `.ts`, run directly by `node`. `.nvmrc` owns the Node version; the check keeps `apps/package.json` and the CI image Dockerfile equal to it, and pnpm refuses to install below it.
 
-A script you invoke directly that can exit non-zero is named `check-*`, `assert-*` or `generate-*`. One that only reports is not.
+A script you invoke directly that can exit non-zero is named `check-*`, `assert-*` or `generate-*`. One that only reports is not. Convention only — no check enforces it.
 
 ```bash
 bash ci/check-script-conventions.sh

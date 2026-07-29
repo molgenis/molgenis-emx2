@@ -128,11 +128,13 @@ commands:
   save_gradle_build_cache:
     steps:
     - run:
-        name: Drop gradle build cache entries unused for 7 days before archiving
+        name: Cap the gradle build cache at 2GB, dropping the oldest entries first
         command: |
           if [ -d ~/.gradle/caches/build-cache-1 ]; then
-            find ~/.gradle/caches/build-cache-1 -type f ! -name '*.lock' ! -name '*.properties' -mtime +7 -delete
-            du -sh ~/.gradle/caches/build-cache-1
+            cd ~/.gradle/caches/build-cache-1
+            ls -lt | awk -v limit=2147483648 '$NF ~ /^[0-9a-f]{32}$/ { total += $5; if (total > limit) print $NF }' |
+              while read -r entry; do rm -f "$entry"; done
+            du -sh .
           else
             echo "no gradle build cache to prune"
           fi
@@ -151,11 +153,13 @@ commands:
   save_turbo_cache:
     steps:
     - run:
-        name: Drop turbo cache entries unused for 7 days before archiving
+        name: Cap the turbo cache at 512MB, dropping the oldest entries first
         command: |
-          if [ -d apps/.turbo/cache ]; then
-            find apps/.turbo/cache -type f -mtime +7 -delete
-            du -sh apps/.turbo/cache
+          if ls apps/.turbo/cache/*.tar.zst >/dev/null 2>&1; then
+            cd apps/.turbo/cache
+            ls -lt *.tar.zst | awk -v limit=536870912 '{ total += $5 } total > limit { sub(/\.tar\.zst$/, "", $NF); print $NF }' |
+              while read -r entry; do rm -f "$entry".tar.zst "$entry"-meta.json "$entry"-manifest.json; done
+            du -sh .
           else
             echo "no turbo cache to prune"
           fi
