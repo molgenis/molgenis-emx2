@@ -68,4 +68,20 @@ public class TestTableRename {
     assertEquals(
         1, reloaded.getTable("PlainRenamed").query().search("findme").retrieveRows().size());
   }
+
+  @Test
+  void tableCanBeCreatedUnderTheOldNameAfterARename() {
+    String schemaName = TestTableRename.class.getSimpleName() + "_reuseoldname";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(table("Plain", column("name"), column("size").setType(INT)));
+
+    schema.getMetadata().getTableMetadata("Plain").alterName("PlainRenamed");
+
+    db.clearCache();
+    Schema reloaded = db.getSchema(schemaName);
+    reloaded.create(table("Plain", column("code").setPkey()));
+
+    reloaded.getTable("Plain").insert(row("code", "findme"));
+    assertEquals(1, reloaded.getTable("Plain").query().search("findme").retrieveRows().size());
+  }
 }

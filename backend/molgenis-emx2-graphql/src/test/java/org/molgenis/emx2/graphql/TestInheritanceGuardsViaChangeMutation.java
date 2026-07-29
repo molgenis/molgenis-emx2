@@ -127,6 +127,6 @@ public class TestInheritanceGuardsViaChangeMutation {
         "GqlGuardRename",
         """
         mutation{change(tables:[{name:"Renamed",oldName:"Shape"}]){message}}""",
-        "Cannot rename table 'GqlGuardRename.Shape': table 'GqlGuardRename.MyShape' inherits from it.");
+        "Cannot rename table 'GqlGuardRename.Shape': table 'GqlGuardRename.MyShape' inherits from it. Renaming a table with inheriting children is not supported yet.");
   }
 }

@@ -21,6 +21,9 @@ import org.molgenis.emx2.*;
 
 class TestInherits {
 
+  private static final String RENAME_NOT_SUPPORTED_YET =
+      "' inherits from it. Renaming a table with inheriting children is not supported yet.";
+
   private static Database db;
 
   @BeforeAll
@@ -678,7 +681,8 @@ class TestInherits {
                     + parentSchemaName
                     + ".Shape': table '"
                     + childSchemaName
-                    + ".MyShape' inherits from it."),
+                    + ".MyShape"
+                    + RENAME_NOT_SUPPORTED_YET),
         exception.getMessage());
 
     assertNotNull(db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape"));
@@ -708,7 +712,8 @@ class TestInherits {
                     + schemaName
                     + ".Shape': table '"
                     + schemaName
-                    + ".MyShape' inherits from it."),
+                    + ".MyShape"
+                    + RENAME_NOT_SUPPORTED_YET),
         exception.getMessage());
 
     assertNotNull(db.getSchema(schemaName).getMetadata().getTableMetadata("Shape"));
@@ -760,7 +765,8 @@ class TestInherits {
                     + parentSchemaName
                     + ".Shape': table '"
                     + childSchemaName
-                    + ".MyShape' inherits from it."),
+                    + ".MyShape"
+                    + RENAME_NOT_SUPPORTED_YET),
         exception.getMessage());
 
     assertNotNull(db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape"));

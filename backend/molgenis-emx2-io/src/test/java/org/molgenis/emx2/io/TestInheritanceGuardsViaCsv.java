@@ -173,6 +173,6 @@ public class TestInheritanceGuardsViaCsv {
                 Renamed,,,name,1
                 MyShape,,Shape,,
                 MyShape,,,size,""",
-                "Cannot rename table 'CsvGuardRename.Shape': table 'CsvGuardRename.MyShape' inherits from it."));
+                "Cannot rename table 'CsvGuardRename.Shape': table 'CsvGuardRename.MyShape' inherits from it. Renaming a table with inheriting children is not supported yet."));
   }
 }
