@@ -48,7 +48,8 @@ class ResolveStaticFieldPostProcessorTest {
   void givenField_whenTableEmpty_thenNoOp() {
     TableStore tableStore = getTableStoreWithRows();
 
-    ResolveStaticFieldPostProcessor processor = new ResolveStaticFieldPostProcessor(TABLE_NAME, "id", "name");
+    ResolveStaticFieldPostProcessor processor =
+        new ResolveStaticFieldPostProcessor(TABLE_NAME, "id", "name");
     processor.process(tableStore);
 
     assertTableStoreHasRows(tableStore);

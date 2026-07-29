@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
@@ -42,19 +43,6 @@ class ResolveMissingPkPostProcessorTest {
     tableStore = new InMemoryTableStore();
   }
 
-  /** Writes rows for a table, deriving the column header from the union of all row keys. */
-  private void store(String tableName, Row... rows) {
-    Set<String> columnNames = new LinkedHashSet<>();
-    for (Row row : rows) {
-      columnNames.addAll(row.getColumnNames());
-    }
-    tableStore.writeTable(tableName, List.copyOf(columnNames), List.of(rows));
-  }
-
-  private Row collection() {
-    return tableStore.readTable("Collections").iterator().next();
-  }
-
   @Test
   void shouldFillMissingReferenceUsingSubjectIri() {
     store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
@@ -72,7 +60,9 @@ class ResolveMissingPkPostProcessorTest {
         "Organisations",
         new Row("_subject_", "urn:org:1", "id", "org-1"),
         new Row("_subject_", "urn:org:2", "id", "org-2"));
-    store("Collections", new Row("id", "col-1", "_subject_creator", "urn:org:1|urn:org:2"));
+    store(
+        "Collections",
+        new Row("id", "col-1", "_subject_creator", new Object[] {"urn:org:1", "urn:org:2"}));
 
     ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
     resolver.process(tableStore);
@@ -158,5 +148,175 @@ class ResolveMissingPkPostProcessorTest {
     Row result = collection();
     assertEquals("org-1", result.getString("publisher"));
     assertEquals("contact-1", result.getString("contactPoint"));
+  }
+
+  @Nested
+  class CompositeKeyTest {
+
+    @BeforeEach
+    void setup() {
+      Database database = TestDatabaseFactory.getTestDatabase();
+      schema = database.dropCreateSchema(CompositeKeyTest.class.getSimpleName()).getMetadata();
+
+      schema.create(
+          new TableMetadata("Organisations")
+              .add(Column.column("id").setType(ColumnType.STRING).setPkey())
+              .add(Column.column("name").setType(ColumnType.STRING).setPkey()));
+
+      schema.create(
+          new TableMetadata("Contacts")
+              .add(Column.column("id").setType(ColumnType.STRING).setPkey())
+              .add(Column.column("name").setType(ColumnType.STRING).setPkey()));
+
+      schema.create(
+          new TableMetadata("Collections")
+              .add(
+                  Column.column("id").setType(ColumnType.STRING).setPkey(),
+                  Column.column("publisher").setType(ColumnType.REF).setRefTable("Organisations"),
+                  Column.column("creator")
+                      .setType(ColumnType.REF_ARRAY)
+                      .setRefTable("Organisations")));
+    }
+
+    @Test
+    void shouldFillMissingReferenceUsingSubjectIri() {
+      store(
+          "Organisations",
+          new Row("_subject_", "urn:org:1", "id", "org-1", "name", "organisation-1"));
+      store("Collections", new Row("id", "col-1", "_subject_publisher", "urn:org:1"));
+
+      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      resolver.process(tableStore);
+
+      assertEquals("org-1", collection().getString("publisher.id"));
+      assertEquals("organisation-1", collection().getString("publisher.name"));
+    }
+
+    @Test
+    void shouldFillMissingReferenceUsingSubjectIriForArrays() {
+      store(
+          "Organisations",
+          new Row("_subject_", "urn:org:1", "id", "org-1", "name", "organisation-1"),
+          new Row("_subject_", "urn:org:2", "id", "org-2", "name", "organisation-2"));
+      store(
+          "Collections",
+          new Row("id", "col-1", "_subject_creator", new Object[] {"urn:org:1", "urn:org:2"}));
+
+      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      resolver.process(tableStore);
+
+      assertArrayEquals(new String[] {"org-1", "org-2"}, collection().getStringArray("creator.id"));
+      assertArrayEquals(
+          new String[] {"organisation-1", "organisation-2"},
+          collection().getStringArray("creator.name"));
+    }
+
+  }
+  @Nested
+  class BackReferenceTest {
+
+    private SchemaMetadata schema;
+
+    @BeforeEach
+    void setup() {
+      Database database = TestDatabaseFactory.getTestDatabase();
+      schema = database.dropCreateSchema(BackReferenceTest.class.getSimpleName()).getMetadata();
+
+      TableMetadata collections =
+          schema.create(
+              new TableMetadata("Collections")
+                  .add(Column.column("id").setType(ColumnType.STRING).setPkey()));
+
+      schema.create(
+          new TableMetadata("Organisations")
+              .add(Column.column("id").setType(ColumnType.STRING).setPkey())
+              .add(
+                  Column.column("collection")
+                      .setType(ColumnType.REF)
+                      .setRefTable("Collections")
+                      .setPkey()));
+
+      schema.create(
+          new TableMetadata("Contacts")
+              .add(Column.column("id").setType(ColumnType.STRING).setPkey())
+              .add(
+                  Column.column("collection")
+                      .setType(ColumnType.REF)
+                      .setRefTable("Collections")
+                      .setPkey()));
+
+      collections.add(
+          Column.column("organisation").setType(ColumnType.REF).setRefTable("Organisations"),
+          Column.column("contact").setType(ColumnType.REF_ARRAY).setRefTable("Contacts"));
+    }
+
+    @Test
+    void shouldBackReferenceSingle() {
+      // This row should receive a reference to the collection
+      store(
+          "Organisations",
+          new Row("_subject_", "urn:org:1", "id", "org-1", "_subject_collection", "urn:col:1"));
+
+      // This row should receive the composite key of the organisation, including its own id
+      store(
+          "Collections",
+          new Row("_subject_", "urn:col:1", "id", "col-1", "_subject_organisation", "urn:org:1"));
+
+      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      resolver.process(tableStore);
+
+      assertEquals("col-1", organisation().getString("collection"));
+      assertEquals("org-1", collection().getString("organisation.id"));
+      assertEquals("col-1", collection().getString("organisation.collection"));
+    }
+
+    @Test
+    void shouldBackReferenceArray() {
+      // This row should receive a reference to the contact
+      store(
+          "Collections",
+          new Row(
+              "_subject_",
+              "urn:col:1",
+              "id",
+              "col-1",
+              "_subject_contact",
+              new String[] {"urn:con:1"}));
+
+      // This row should receive the composite key of the organisation, including its own id
+      store(
+          "Contacts",
+          new Row("_subject_", "urn:con:1", "id", "con-1", "_subject_collection", "urn:col:1"));
+
+      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      resolver.process(tableStore);
+
+      assertArrayEquals(new String[] {"con-1"}, collection().getStringArray("contact.id"));
+      assertArrayEquals(new String[] {"col-1"}, collection().getStringArray("contact.collection"));
+
+      assertEquals("col-1", contact().getString("collection"));
+    }
+
+  }
+
+  /** Writes rows for a table, deriving the column header from the union of all row keys. */
+  private void store(String tableName, Row... rows) {
+    Set<String> columnNames = new LinkedHashSet<>();
+    for (Row row : rows) {
+      columnNames.addAll(row.getColumnNames());
+    }
+    tableStore.writeTable(tableName, List.copyOf(columnNames), List.of(rows));
+  }
+
+  private Row collection() {
+    return tableStore.readTable("Collections").iterator().next();
+  }
+
+  private Row contact() {
+    return tableStore.readTable("Contacts").iterator().next();
+  }
+
+  private Row organisation() {
+    return tableStore.readTable("Organisations").iterator().next();
   }
 }
