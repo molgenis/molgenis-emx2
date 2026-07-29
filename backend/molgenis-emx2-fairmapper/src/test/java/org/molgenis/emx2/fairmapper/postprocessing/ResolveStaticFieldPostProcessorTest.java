@@ -11,7 +11,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
-class StaticFieldPostProcessorTest {
+class ResolveStaticFieldPostProcessorTest {
 
   private static final String TABLE_NAME = "order";
 
@@ -20,8 +20,8 @@ class StaticFieldPostProcessorTest {
     TableStore tableStore =
         getTableStoreWithRows(new Row("id", "temp", "name", "keyboard", "barcode", 1234));
 
-    StaticFieldPostProcessor processor =
-        new StaticFieldPostProcessor(TABLE_NAME, "id", "static-id");
+    ResolveStaticFieldPostProcessor processor =
+        new ResolveStaticFieldPostProcessor(TABLE_NAME, "id", "static-id");
     processor.process(tableStore);
 
     assertTableStoreHasRows(
@@ -36,8 +36,8 @@ class StaticFieldPostProcessorTest {
   void givenField_whenNotExisting_thenCreate() {
     TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
-    StaticFieldPostProcessor processor =
-        new StaticFieldPostProcessor(TABLE_NAME, "id", "static-id");
+    ResolveStaticFieldPostProcessor processor =
+        new ResolveStaticFieldPostProcessor(TABLE_NAME, "id", "static-id");
     processor.process(tableStore);
 
     assertTableStoreHasRows(
@@ -48,7 +48,7 @@ class StaticFieldPostProcessorTest {
   void givenField_whenTableEmpty_thenNoOp() {
     TableStore tableStore = getTableStoreWithRows();
 
-    StaticFieldPostProcessor processor = new StaticFieldPostProcessor(TABLE_NAME, "id", "name");
+    ResolveStaticFieldPostProcessor processor = new ResolveStaticFieldPostProcessor(TABLE_NAME, "id", "name");
     processor.process(tableStore);
 
     assertTableStoreHasRows(tableStore);
@@ -61,8 +61,8 @@ class StaticFieldPostProcessorTest {
             new Row("name", "keyboard", "barcode", 1234),
             new Row("name", "mouse", "barcode", 6789));
 
-    StaticFieldPostProcessor processor =
-        new StaticFieldPostProcessor(TABLE_NAME, "id", "static-id");
+    ResolveStaticFieldPostProcessor processor =
+        new ResolveStaticFieldPostProcessor(TABLE_NAME, "id", "static-id");
     processor.process(tableStore);
 
     assertTableStoreHasRows(

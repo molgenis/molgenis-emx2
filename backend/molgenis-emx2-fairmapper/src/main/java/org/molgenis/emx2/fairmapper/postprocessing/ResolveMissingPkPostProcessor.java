@@ -7,14 +7,14 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MissingPkResolver implements PostProcessor {
+public class ResolveMissingPkPostProcessor implements PostProcessor {
 
-  private static final Logger logger = LoggerFactory.getLogger(MissingPkResolver.class);
+  private static final Logger logger = LoggerFactory.getLogger(ResolveMissingPkPostProcessor.class);
   private static final String SUBJECT_VARIABLE = "_subject_";
 
   private final SchemaMetadata schema;
 
-  public MissingPkResolver(SchemaMetadata schema) {
+  public ResolveMissingPkPostProcessor(SchemaMetadata schema) {
     this.schema = schema;
   }
 
@@ -121,10 +121,11 @@ public class MissingPkResolver implements PostProcessor {
 
   private static void updateReferringRow(
       Row row, Reference reference, Row referringRow, Object value) {
+    String subjectVariable = row.getString(SUBJECT_VARIABLE);
     logger.info(
         "Object from table: {}, that refers to subject: {}, has a missing reference. Updating column {} with value: {}",
         reference.getTargetTable(),
-        row.getString(SUBJECT_VARIABLE),
+        subjectVariable,
         reference.getReferencedColumnName(),
         value);
     referringRow.set(reference.getReferencedColumnName(), value);

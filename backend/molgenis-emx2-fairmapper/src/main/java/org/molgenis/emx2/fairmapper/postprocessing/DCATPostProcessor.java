@@ -17,18 +17,18 @@ public class DCATPostProcessor implements PostProcessor {
             new CoalesceFieldPostProcessor("Organisations", "id", false, "organisation name"),
 
             // Set type of collections to a hardcoded value
-            new StaticFieldPostProcessor(
+            new ResolveStaticFieldPostProcessor(
                 "Collections", "type", "http://semanticscience.org/resource/SIO_001067"),
-            new StaticFieldPostProcessor(
+            new ResolveStaticFieldPostProcessor(
                 "Catalogues", "type", "http://semanticscience.org/resource/SIO_001067"),
 
             // Resolve semantic uri of ontologies to their designated names
-            new OntologyResolver(schema),
-            new MissingPkResolver(schema),
+            new ResolveOntologyPostProcessor(schema),
+            new ResolveMissingPkPostProcessor(schema),
 
             // Drop rows left with an incomplete primary key (e.g. unused Organisations that
             // were never resolved as a reference by another table)
-            new MissingPkRowDropper(schema, List.of("Organisations")));
+            new DropMissingPkRowPostProcessor(schema, List.of("Organisations")));
   }
 
   @Override
