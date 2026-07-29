@@ -47,6 +47,7 @@ public class TestExtends {
     database.dropSchemaIfExists("TestExtendsSelf");
     database.dropSchemaIfExists("TestExtendsMsgB");
     database.dropSchemaIfExists("TestExtendsMsgA");
+    database.dropSchemaIfExists("TestExtendsFreshMsg");
   }
 
   @Test
@@ -192,7 +193,32 @@ public class TestExtends {
         exception
             .getMessage()
             .contains(
-                "Cannot set tableExtends='shape' in table 'myshape': table not found or permission denied. If the table lives in another schema, provide refSchema."),
+                "Table 'myshape' cannot inherit table 'shape': not found or permission denied. If the table lives in another schema, provide refSchema."),
+        exception.getMessage());
+  }
+
+  @Test
+  public void importIntoFreshSchemaWithDanglingParentGivesMessageWithoutNull() {
+    Schema fresh = database.createSchema("TestExtendsFreshMsg");
+
+    SchemaMetadata danglingParent =
+        Emx2.fromRowList(
+            CsvTableReader.read(
+                new StringReader(
+                    """
+                    tableName,tableExtends,columnName,key
+                    Employee,Contact,,
+                    Employee,,salary,""")));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> fresh.migrate(danglingParent));
+
+    assertFalse(exception.getMessage().contains("null"), exception.getMessage());
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Table 'TestExtendsFreshMsg.Employee' cannot inherit table 'Contact': not found or permission denied. If the table lives in another schema, provide refSchema."),
         exception.getMessage());
   }
 

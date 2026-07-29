@@ -374,9 +374,9 @@ class TestInherits {
         exception
             .getMessage()
             .contains(
-                "Cannot set tableExtends='Shape' in table '"
+                "Table '"
                     + childSchemaName
-                    + ".MyShape': table not found or permission denied. If the table lives in another schema, provide refSchema."),
+                    + ".MyShape' cannot inherit table 'Shape': not found or permission denied. If the table lives in another schema, provide refSchema."),
         exception.getMessage());
   }
 
@@ -406,11 +406,13 @@ class TestInherits {
         exception
             .getMessage()
             .contains(
-                "Cannot set tableExtends='NoSuchParentTable' with refSchema='"
-                    + parentSchemaName
-                    + "' in table '"
+                "Table '"
                     + childSchemaName
-                    + ".MyShape': table not found or permission denied."),
+                    + ".MyShape' cannot inherit table '"
+                    + parentSchemaName
+                    + ".NoSuchParentTable': table NoSuchParentTable not found in schema "
+                    + parentSchemaName
+                    + " or permission denied."),
         exception.getMessage());
   }
 
@@ -440,9 +442,9 @@ class TestInherits {
         exception
             .getMessage()
             .contains(
-                "Cannot set tableExtends='Shape' with refSchema='TestInheritsNoSuchSchema' in table '"
+                "Table '"
                     + childSchemaName
-                    + ".MyShape': schema 'TestInheritsNoSuchSchema' not found or permission denied."),
+                    + ".MyShape' cannot inherit table 'TestInheritsNoSuchSchema.Shape': schema TestInheritsNoSuchSchema not found or permission denied."),
         exception.getMessage());
   }
 

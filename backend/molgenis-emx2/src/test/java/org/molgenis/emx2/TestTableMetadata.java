@@ -119,15 +119,29 @@ class TestTableMetadata {
 
   @Test
   void danglingParentGivesActionableMessage() {
-    SchemaMetadata schema = new SchemaMetadata("Schema");
-    schema.create(table("Employee", column("salary")).setInheritName("Person"));
+    SchemaMetadata schema = new SchemaMetadata("test1");
+    schema.create(table("Employee", column("salary")).setInheritName("Contact"));
 
     TableMetadata employee = schema.getTableMetadata("Employee");
     MolgenisException exception =
         assertThrows(MolgenisException.class, employee::getNonInheritedColumns);
 
     assertEquals(
-        "Cannot set tableExtends='Person' in table 'Schema.Employee': table not found or permission denied. If the table lives in another schema, provide refSchema.",
+        "Table 'test1.Employee' cannot inherit table 'Contact': not found or permission denied. If the table lives in another schema, provide refSchema.",
+        exception.getMessage());
+  }
+
+  @Test
+  void namelessSchemaOmitsChildQualifierInsteadOfRenderingNull() {
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.create(table("Employee", column("salary")).setInheritName("Contact"));
+
+    TableMetadata employee = schema.getTableMetadata("Employee");
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, employee::getNonInheritedColumns);
+
+    assertEquals(
+        "Table 'Employee' cannot inherit table 'Contact': not found or permission denied. If the table lives in another schema, provide refSchema.",
         exception.getMessage());
   }
 
@@ -167,16 +181,37 @@ class TestTableMetadata {
 
   @Test
   void unresolvableParentSchemaInDetachedSchemaReportsSchemaNotFound() {
-    SchemaMetadata schema = new SchemaMetadata("Schema");
+    SchemaMetadata schema = new SchemaMetadata();
     schema.create(
-        table("Employee", column("salary")).setInheritName("Person").setImportSchema("Other"));
+        table("Employee", column("salary")).setInheritName("Contact").setImportSchema("HT_Parent"));
 
     TableMetadata employee = schema.getTableMetadata("Employee");
     MolgenisException exception =
         assertThrows(MolgenisException.class, employee::getNonInheritedColumns);
 
     assertEquals(
-        "Cannot set tableExtends='Person' with refSchema='Other' in table 'Schema.Employee': schema 'Other' not found or permission denied.",
+        "Table 'Employee' cannot inherit table 'HT_Parent.Contact': schema HT_Parent not found or permission denied.",
+        exception.getMessage());
+  }
+
+  @Test
+  void parentTableMissingFromAnExistingRefSchemaSaysWhichHalfFailed() {
+    Database database = mock(Database.class);
+    Schema parentSchema = mock(Schema.class);
+    when(database.getSchema("HT_Parent")).thenReturn(parentSchema);
+    when(parentSchema.getTable("Contact")).thenReturn(null);
+
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.setDatabase(database);
+    schema.create(
+        table("Employee", column("salary")).setInheritName("Contact").setImportSchema("HT_Parent"));
+
+    TableMetadata employee = schema.getTableMetadata("Employee");
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, employee::getInheritedTable);
+
+    assertEquals(
+        "Table 'Employee' cannot inherit table 'HT_Parent.Contact': table Contact not found in schema HT_Parent or permission denied.",
         exception.getMessage());
   }
 

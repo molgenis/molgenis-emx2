@@ -58,15 +58,7 @@ class SqlTableMetadataExecutor {
 
     // create columns from primary key of superclass
     if (table.getInheritName() != null) {
-      if (table.getInheritedTable() == null) {
-        throw new MolgenisException(
-            "Cannot inherit "
-                + table.getImportSchema()
-                + "."
-                + table.getInheritName()
-                + ": not found");
-      }
-      executeSetInherit(jooq, table, table.getInheritedTable());
+      executeSetInherit(jooq, table, table.requireInheritedTable());
     }
 
     // then create columns
