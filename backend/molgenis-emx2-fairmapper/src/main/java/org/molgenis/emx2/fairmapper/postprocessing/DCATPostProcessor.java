@@ -28,10 +28,7 @@ public class DCATPostProcessor implements PostProcessor {
 
             // Drop rows left with an incomplete primary key (e.g. unused Organisations that
             // were never resolved as a reference by another table)
-            new MissingPkRowDropper(schema, List.of("Organisations")),
-
-            // Drop _subject_ fields as those aren't in the schema
-            new SubjectColumnCleaner());
+            new MissingPkRowDropper(schema, List.of("Organisations")));
   }
 
   @Override
