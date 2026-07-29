@@ -2,6 +2,9 @@
   "private": true,
   "name": "emx2-frontend",
   "packageManager": "pnpm@10.24.0",
+  "engines": {
+    "node": ">=22.19.0"
+  },
   "scripts": {
     "build": "turbo run build",
     "lint": "turbo run lint --filter=tailwind-components --filter=catalogue --filter=ui",

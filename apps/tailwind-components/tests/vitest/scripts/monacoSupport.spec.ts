@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   codeEditorMarkersOf,
   monacoSupportFailure,
-} from "../../../scripts/monaco-support.mjs";
+} from "../../../scripts/check-monaco-support.ts";
 
 const codeEditorSource = `<template>
   <div class="flex justify-between items-center gap-5 text-title p-2.5 px-7.5">
@@ -14,7 +14,7 @@ const codeEditorSource = `<template>
   </div>
 </template>`;
 
-const codeEditorMarkers = [
+const codeEditorMarkers: [string, string] = [
   "flex justify-between items-center gap-5 text-title p-2.5 px-7.5",
   "hover:bg-button-secondary-hover focus:bg-button-secondary-hover",
 ];

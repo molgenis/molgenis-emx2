@@ -1,3 +1,8 @@
+import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { builtJavascriptOf } from "./built-files.ts";
+
 // In practice these markers are CodeEditor.vue's long tailwind class strings:
 // reformatting them changes the markers and fails the tailwind-components and ui builds.
 const literalLongEnoughToIdentifyTheComponent = /"([^"\n]{40,})"/g;
@@ -11,10 +16,17 @@ export const monacoWorkerFiles = [
   "language/typescript/ts.worker.js",
 ];
 
-export function codeEditorMarkersOf(componentSource) {
+export function codeEditorMarkersOf(componentSource: string): string[] {
   return [
     ...componentSource.matchAll(literalLongEnoughToIdentifyTheComponent),
-  ].map(([, literal]) => literal);
+  ].map(([, literal]) => literal as string);
+}
+
+export interface MonacoSupportInput {
+  consumerDirectory: string;
+  builtJavascriptFiles: string[];
+  codeEditorMarkers: string[];
+  missingMonacoWorkers: string[];
 }
 
 export function monacoSupportFailure({
@@ -22,7 +34,7 @@ export function monacoSupportFailure({
   builtJavascriptFiles,
   codeEditorMarkers,
   missingMonacoWorkers,
-}) {
+}: MonacoSupportInput): string | null {
   if (builtJavascriptFiles.length === 0) {
     return `no javascript found in ${consumerDirectory}/.output — build first`;
   }
@@ -49,4 +61,39 @@ export function monacoSupportFailure({
     )} — serve monaco-editor/esm from nitro.publicAssets at _nuxt/nuxt-monaco-editor`;
   }
   return null;
+}
+
+const entryPoint = process.argv[1];
+const invokedDirectly =
+  entryPoint !== undefined &&
+  realpathSync(entryPoint) === realpathSync(fileURLToPath(import.meta.url));
+
+if (invokedDirectly) {
+  const consumerDirectory = resolve(process.argv[2] ?? ".");
+  const codeEditorFile = fileURLToPath(
+    new URL("../app/components/editor/CodeEditor.vue", import.meta.url)
+  );
+  const monacoWorkerDirectory = join(
+    consumerDirectory,
+    ".output/public/_nuxt/nuxt-monaco-editor/vs"
+  );
+
+  const failure = monacoSupportFailure({
+    consumerDirectory,
+    builtJavascriptFiles: builtJavascriptOf(consumerDirectory),
+    codeEditorMarkers: codeEditorMarkersOf(
+      readFileSync(codeEditorFile, "utf8")
+    ),
+    missingMonacoWorkers: monacoWorkerFiles.filter(
+      (file) => !existsSync(join(monacoWorkerDirectory, file))
+    ),
+  });
+
+  if (failure) {
+    console.error(`check-monaco-support: ${failure}`);
+    process.exit(1);
+  }
+  console.log(
+    "check-monaco-support: CodeEditor bundled with its monaco runtime and web workers"
+  );
 }

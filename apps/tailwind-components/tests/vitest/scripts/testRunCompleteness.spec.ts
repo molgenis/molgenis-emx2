@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { unexecutedTestsFailure } from "../../../scripts/test-run-completeness.mjs";
+import { unexecutedTestsFailure } from "../../../scripts/check-vitest-run.ts";
 
 function fileResult(name: string, statuses: string[]) {
   return {

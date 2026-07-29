@@ -322,7 +322,7 @@ commands:
     # Wired as the LAST step of a job on purpose: the step-output API caps at 400,000 chars and serves the TAIL, so only a final summary is guaranteed to survive.
     - run:
         name: Summarise what this job rebuilt and what it replayed from cache
-        command: node ci/report-build-diagnostics.mjs
+        command: node ci/report-build-diagnostics.ts
         when: always
     - store_artifacts:
         path: build/reports/build-diagnostics
@@ -680,6 +680,10 @@ jobs:
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} \
           | tee build/gradle-test.log
+
+    - run:
+        name: Check scripts are TypeScript run by node
+        command: bash ci/check-script-conventions.sh
 
     - run:
         name: Check the task outcome artifact covers every task gradle counted

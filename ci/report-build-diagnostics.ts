@@ -33,14 +33,20 @@ const gradleTestStep = "test";
 const turboMissStatus = "MISS";
 const turboRebuildSteps = ["build", "test-ci"];
 
-const lines = [];
+const lines: string[] = [];
 
-function emit(line = "") {
+function emit(line: string = ""): void {
   lines.push(line);
 }
 
-function filesIn(dir, extension) {
-  let names;
+interface DiagnosticFile {
+  path: string;
+  name: string;
+  modifiedAt: number;
+}
+
+function filesIn(dir: string, extension: string): DiagnosticFile[] {
+  let names: string[];
   try {
     names = readdirSync(dir);
   } catch {
@@ -55,11 +61,11 @@ function filesIn(dir, extension) {
     .sort((left, right) => left.modifiedAt - right.modifiedAt);
 }
 
-function count(amount, noun) {
+function count(amount: number, noun: string): string {
   return `${amount} ${noun}${amount === 1 ? "" : "s"}`;
 }
 
-function humanDuration(milliseconds) {
+function humanDuration(milliseconds: number): string {
   if (!Number.isFinite(milliseconds)) return "?";
   if (milliseconds >= 60000) {
     const minutes = Math.floor(milliseconds / 60000);
@@ -68,12 +74,19 @@ function humanDuration(milliseconds) {
   return milliseconds >= 1000 ? `${(milliseconds / 1000).toFixed(1)}s` : `${milliseconds}ms`;
 }
 
-function shorten(text) {
+function shorten(text: string): string {
   if (text.length <= maxReasonChars) return text;
   return `${text.slice(0, maxReasonChars - 1)}…`;
 }
 
-function parseOutcomeFile(path) {
+interface GradleTask {
+  task: string;
+  outcome: string;
+  durationMs: number;
+  reasons: string;
+}
+
+function parseOutcomeFile(path: string): GradleTask[] {
   return readFileSync(path, "utf8")
     .split("\n")
     .filter((line) => line.trim() !== "")
@@ -83,7 +96,7 @@ function parseOutcomeFile(path) {
       const bucket =
         outcome === executedOutcome && trimmedReasons === "" ? executedWithoutActionsOutcome : outcome;
       return {
-        task,
+        task: task as string,
         outcome: bucket ?? "unknown",
         durationMs: Number(duration ?? 0),
         reasons: trimmedReasons,
@@ -91,8 +104,8 @@ function parseOutcomeFile(path) {
     });
 }
 
-function countByOutcome(tasks) {
-  const counts = new Map();
+function countByOutcome(tasks: GradleTask[]): string {
+  const counts = new Map<string, number>();
   for (const task of tasks) {
     counts.set(task.outcome, (counts.get(task.outcome) ?? 0) + 1);
   }
@@ -101,14 +114,23 @@ function countByOutcome(tasks) {
   return [...known, ...extra].map((outcome) => `${outcome} ${counts.get(outcome)}`).join(separator);
 }
 
-function byDurationDescending(left, right) {
+function byDurationDescending(
+  left: { durationMs: number },
+  right: { durationMs: number }
+): number {
   return right.durationMs - left.durationMs;
 }
 
-const allTasks = [];
-const allTurboTasks = [];
+const allTasks: (GradleTask & { invocation: string })[] = [];
+const allTurboTasks: TurboTask[] = [];
 
-function readGradleInvocation(file) {
+interface GradleInvocation {
+  path: string;
+  invocation: string;
+  tasks: GradleTask[];
+}
+
+function readGradleInvocation(file: DiagnosticFile): GradleInvocation {
   const invocation = file.name.replace(/\.tsv$/, "");
   const tasks = parseOutcomeFile(file.path);
   for (const task of tasks) {
@@ -117,7 +139,11 @@ function readGradleInvocation(file) {
   return { path: file.path, invocation, tasks };
 }
 
-function reportGradleInvocation({ path, invocation, tasks }) {
+function reportGradleInvocation({
+  path,
+  invocation,
+  tasks,
+}: GradleInvocation): void {
   const totalMs = tasks.reduce((sum, task) => sum + task.durationMs, 0);
   emit(`== gradle ${invocation} == ${count(tasks.length, "task")}${separator}${humanDuration(totalMs)} of task time`);
   emit(`${indent}${countByOutcome(tasks)}`);
@@ -138,7 +164,38 @@ function reportGradleInvocation({ path, invocation, tasks }) {
   emit();
 }
 
-function turboGlobalHash(summary) {
+interface TurboTask {
+  taskId?: string;
+  hash?: string;
+  cache?: { status?: string };
+  execution?: { startTime?: number; endTime?: number };
+}
+
+interface TurboSummary {
+  tasks?: TurboTask[];
+  execution?: {
+    command?: string;
+    cached?: number;
+    attempted?: number;
+    failed?: number;
+    exitCode?: number;
+    startTime?: number;
+    endTime?: number;
+  };
+  globalCacheInputs?: {
+    hashOfExternalDependencies?: string;
+    hashOfInternalDependencies?: string;
+    files?: Record<string, string>;
+    environmentVariables?: { configured?: string[] };
+  };
+}
+
+type TurboRunFile = DiagnosticFile & {
+  summary?: TurboSummary;
+  unreadableReason?: string;
+};
+
+function turboGlobalHash(summary: TurboSummary): string {
   const inputs = summary.globalCacheInputs ?? {};
   const externalDependencies = inputs.hashOfExternalDependencies || "(none)";
   const internalDependencies = inputs.hashOfInternalDependencies || "(none)";
@@ -152,19 +209,19 @@ function turboGlobalHash(summary) {
   ].join(separator);
 }
 
-function readTurboRun(file) {
+function readTurboRun(file: DiagnosticFile): TurboRunFile {
   try {
-    const summary = JSON.parse(readFileSync(file.path, "utf8"));
+    const summary = JSON.parse(readFileSync(file.path, "utf8")) as TurboSummary;
     for (const task of summary.tasks ?? []) {
       allTurboTasks.push(task);
     }
     return { ...file, summary };
   } catch (error) {
-    return { ...file, unreadableReason: error.message };
+    return { ...file, unreadableReason: (error as Error).message };
   }
 }
 
-function reportTurboRun(file) {
+function reportTurboRun(file: TurboRunFile): void {
   if (file.summary === undefined) {
     emit(`== turbo ${file.name} == unreadable run summary: ${file.unreadableReason}`);
     emit();
@@ -199,34 +256,38 @@ function reportTurboRun(file) {
   emit();
 }
 
-function taskDuration(task) {
+function taskDuration(task: TurboTask): number {
   const execution = task.execution ?? {};
   return Number(execution.endTime ?? 0) - Number(execution.startTime ?? 0);
 }
 
-function splitGradleTaskPath(taskPath) {
+function splitGradleTaskPath(
+  taskPath: unknown
+): { module: string; step: string } | null {
   if (typeof taskPath !== "string" || !taskPath.startsWith(":")) return null;
   const segments = taskPath.slice(1).split(":");
   if (segments.some((segment) => segment === "")) return null;
   return {
     module: segments.slice(0, -1).join(":") || rootProjectModule,
-    step: segments[segments.length - 1],
+    step: segments[segments.length - 1] as string,
   };
 }
 
-function splitTurboTaskId(taskId) {
+function splitTurboTaskId(
+  taskId: unknown
+): { package: string; step: string } | null {
   if (typeof taskId !== "string") return null;
   const segments = taskId.split("#");
   if (segments.length !== 2 || segments.some((segment) => segment === "")) return null;
-  return { package: segments[0], step: segments[1] };
+  return { package: segments[0] as string, step: segments[1] as string };
 }
 
-function sortedUnique(values) {
+function sortedUnique(values: string[]): string[] {
   return [...new Set(values)].sort();
 }
 
-function retestedModules() {
-  const modules = [];
+function retestedModules(): string[] {
+  const modules: string[] = [];
   for (const task of allTasks) {
     const parsed = splitGradleTaskPath(task.task);
     if (parsed?.step === gradleTestStep && task.outcome === executedOutcome) {
@@ -236,8 +297,8 @@ function retestedModules() {
   return sortedUnique(modules);
 }
 
-function turboCacheMisses() {
-  const taskIds = [];
+function turboCacheMisses(): string[] {
+  const taskIds: string[] = [];
   for (const task of allTurboTasks) {
     const parsed = splitTurboTaskId(task.taskId);
     if (parsed && turboRebuildSteps.includes(parsed.step) && task.cache?.status === turboMissStatus) {
@@ -247,7 +308,7 @@ function turboCacheMisses() {
   return sortedUnique(taskIds);
 }
 
-function unclassifiedTaskIds() {
+function unclassifiedTaskIds(): string[] {
   const gradle = allTasks
     .filter((task) => splitGradleTaskPath(task.task) === null)
     .map((task) => `gradle ${JSON.stringify(task.task ?? null)}`);
@@ -257,7 +318,7 @@ function unclassifiedTaskIds() {
   return sortedUnique([...gradle, ...turbo]);
 }
 
-function emitHeadlineList(label, entries) {
+function emitHeadlineList(label: string, entries: string[]): void {
   emit(`${indent}${label}: ${entries.slice(0, maxHeadlineListed).join(separator)}`);
   const hidden = entries.length - maxHeadlineListed;
   if (hidden > 0) {
@@ -265,7 +326,7 @@ function emitHeadlineList(label, entries) {
   }
 }
 
-function emitUnclassified(unclassified) {
+function emitUnclassified(unclassified: string[]): void {
   if (unclassified.length === 0) return;
   emit(`${indent}${count(unclassified.length, "task id")} not attributed to a module or package:`);
   for (const taskId of unclassified.slice(0, maxHeadlineListed)) {
@@ -277,7 +338,7 @@ function emitUnclassified(unclassified) {
   }
 }
 
-function reportHeadline() {
+function reportHeadline(): void {
   const modules = retestedModules();
   const misses = turboCacheMisses();
   emit(
@@ -300,7 +361,7 @@ function reportHeadline() {
   emit();
 }
 
-function reportSlowest() {
+function reportSlowest(): void {
   const slowest = allTasks
     .filter((task) => task.durationMs > 0)
     .sort(byDurationDescending)
@@ -313,7 +374,7 @@ function reportSlowest() {
   emit();
 }
 
-function main() {
+function main(): void {
   const gradleFiles = filesIn(gradleReportDir, ".tsv");
   const turboFiles = filesIn(turboRunDir, ".json");
   const gradleInvocations = gradleFiles.map(readGradleInvocation);
@@ -342,7 +403,7 @@ function main() {
 try {
   main();
 } catch (error) {
-  emit(`build diagnostics could not be produced: ${error.stack}`);
+  emit(`build diagnostics could not be produced: ${(error as Error).stack}`);
 }
 
 const body = `${lines.join("\n")}\n`;
@@ -354,7 +415,11 @@ try {
   mkdirSync(dirname(overviewPath), { recursive: true });
   writeFileSync(overviewPath, report);
 } catch (error) {
-  console.error(`build diagnostics overview could not be stored at ${overviewPath}: ${error.message}`);
+  console.error(
+    `build diagnostics overview could not be stored at ${overviewPath}: ${
+      (error as Error).message
+    }`
+  );
 }
 
 process.stdout.write(report);

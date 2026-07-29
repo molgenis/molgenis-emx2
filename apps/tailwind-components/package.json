@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "nuxi typecheck",
     "generate-source-map": "node ./app/utils/generateSourceMap.js",
-    "build": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate && node ./scripts/assert-monaco-support.mjs .",
+    "build": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate && node ./scripts/check-monaco-support.ts .",
     "build-showcase": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
     "dev": "pnpm run generate-source-map && nuxt dev --dotenv=../../.env",
     "generate": "nuxt generate",
@@ -15,7 +15,7 @@
     "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "test-ci": "node ./scripts/run-tests.mjs",
+    "test-ci": "node ./scripts/check-vitest-run.ts",
     "e2e": "playwright test",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
     "typecheck": "nuxi typecheck",

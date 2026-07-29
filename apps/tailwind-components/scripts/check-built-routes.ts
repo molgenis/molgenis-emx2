@@ -1,14 +1,10 @@
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { filesUnder } from "./built-files.mjs";
+import { builtJavascriptOf, relativeFilePathsUnder } from "./built-files.ts";
 
 const consumerDirectory = resolve(process.argv[2] ?? ".");
 const consumerPagesDirectory = join(consumerDirectory, "app/pages");
-const builtDirectories = [
-  join(consumerDirectory, ".output/public"),
-  join(consumerDirectory, ".output/server"),
-].filter(existsSync);
 const playgroundPagesDirectory = fileURLToPath(
   new URL("../app/pages", import.meta.url)
 );
@@ -58,36 +54,28 @@ if (missingConsumerRoutes.length > 0) {
   );
 }
 console.log(
-  `assert-built-routes: ${builtRouteNames.size} routes, no playground pages routable or bundled`
+  `check-built-routes: ${builtRouteNames.size} routes, no playground pages routable or bundled`
 );
 
-function readBuiltJavascript() {
-  return builtDirectories
-    .flatMap((directory) =>
-      filesUnder(directory)
-        .filter((file) => /\.(js|mjs)$/.test(file))
-        .filter((file) => !file.includes("nuxt-monaco-editor/"))
-        .map((file) => readFileSync(join(directory, file), "utf8"))
-    )
-    .join("\n")
-    .replace(/\s+/g, " ");
+function readBuiltJavascript(): string {
+  return builtJavascriptOf(consumerDirectory).join("\n").replace(/\s+/g, " ");
 }
 
-function routeNamesIn(javascript) {
+function routeNamesIn(javascript: string): Set<string> {
   return new Set(
     [...javascript.matchAll(/name:(["'`])([^"'`]+)\1,path:["'`]/g)].map(
-      ([, , name]) => name
+      ([, , name]) => name as string
     )
   );
 }
 
-function routeNamesOf(pagesDirectory) {
-  return filesUnder(pagesDirectory)
+function routeNamesOf(pagesDirectory: string): string[] {
+  return relativeFilePathsUnder(pagesDirectory)
     .filter((file) => file.endsWith(".vue"))
     .map(routeNameOf);
 }
 
-function routeNameOf(pageFile) {
+function routeNameOf(pageFile: string): string {
   const withoutExtension = pageFile
     .slice(0, -".vue".length)
     .replace(/(^|\/)index$/, "");
@@ -99,8 +87,11 @@ function routeNameOf(pageFile) {
   );
 }
 
-function pagesWithTheirTextIn(pagesDirectory, javascript) {
-  return filesUnder(pagesDirectory)
+function pagesWithTheirTextIn(
+  pagesDirectory: string,
+  javascript: string
+): string[] {
+  return relativeFilePathsUnder(pagesDirectory)
     .filter((file) => file.endsWith(".vue"))
     .filter((file) => {
       const text = longestTemplateTextOf(join(pagesDirectory, file));
@@ -108,14 +99,14 @@ function pagesWithTheirTextIn(pagesDirectory, javascript) {
     });
 }
 
-function longestTemplateTextOf(pageFile) {
+function longestTemplateTextOf(pageFile: string): string | null {
   const template = readFileSync(pageFile, "utf8").replace(
     /<script[\s\S]*?<\/script>/g,
     ""
   );
   return (
     [...template.matchAll(/>([^<>{}]+)</g)]
-      .map(([, text]) => text.replace(/\s+/g, " ").trim())
+      .map(([, text]) => (text as string).replace(/\s+/g, " ").trim())
       .filter(
         (text) => text.length >= 40 && /^[A-Za-z0-9 ,.:;!?()'-]+$/.test(text)
       )
@@ -123,7 +114,7 @@ function longestTemplateTextOf(pageFile) {
   );
 }
 
-function fail(message) {
-  console.error(`assert-built-routes: ${message}`);
+function fail(message: string): never {
+  console.error(`check-built-routes: ${message}`);
   process.exit(1);
 }
