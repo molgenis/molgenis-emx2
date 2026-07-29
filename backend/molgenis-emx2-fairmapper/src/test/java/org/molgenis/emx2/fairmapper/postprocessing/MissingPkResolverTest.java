@@ -138,4 +138,25 @@ class MissingPkResolverTest {
     assertEquals("org-1", result.getString("publisher"));
     assertEquals("contact-1", result.getString("contactPoint"));
   }
+
+  @Test
+  void shouldHandleNullColumnValueForInput() {
+    store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
+    store("Contacts", new Row("_subject_", "urn:contact:1", "id", "contact-1"));
+    store(
+        "Collections",
+        new Row(
+            "id", "col-1",
+            "_subject_publisher", "urn:org:1",
+            "publisher", null,
+            "_subject_contactPoint", "urn:contact:1",
+            "contactPoint", null));
+
+    MissingPkResolver resolver = new MissingPkResolver(schema);
+    resolver.process(tableStore);
+
+    Row result = collection();
+    assertEquals("org-1", result.getString("publisher"));
+    assertEquals("contact-1", result.getString("contactPoint"));
+  }
 }
