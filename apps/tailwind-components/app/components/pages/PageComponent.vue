@@ -65,7 +65,7 @@ function onDelete() {
   showDeleteModal.value = true;
 }
 
-function doDelete(){
+function doDelete() {
   showDeleteModal.value = false;
   if (props.componentType === "Component") {
     deleteComponent(
@@ -189,25 +189,24 @@ const menuPlacement = computed<string>(() => {
     @update:updated="$emit('updatePage')"
     v-model:visible="showEditModal"
   />
-      <Modal
-        v-model:visible="showDeleteModal"
-        title="Delete"
-        :subtitle="`${componentMetadata?.name}`"
-      >
-      <p class="p-8">
-        Are you sure you want to delete this component?
-      </p>
-<template #footer>
-        <menu class="flex items-center justify-end h-[116px]">
-          <div class="flex gap-4">
-            <Button type="outline" @click="showDeleteModal = false">
-              Cancel
-            </Button>
-            <Button icon="trash" type="primary" @click="doDelete">
-              Delete
-            </Button>
-          </div>
-        </menu>
+  
+  <Modal
+    v-model:visible="showDeleteModal"
+    title="Delete"
+    :subtitle="`${componentMetadata?.name}`"
+  >
+    <p class="p-8">Are you sure you want to delete this component?</p>
+    <template #footer>
+      <menu class="flex items-center justify-end h-[116px]">
+        <div class="flex gap-4">
+          <Button type="outline" @click="showDeleteModal = false">
+            Cancel
+          </Button>
+          <Button icon="trash" type="primary" @click="doDelete">
+            Delete
+          </Button>
+        </div>
+      </menu>
     </template>
-      </Modal>
+  </Modal>
 </template>
