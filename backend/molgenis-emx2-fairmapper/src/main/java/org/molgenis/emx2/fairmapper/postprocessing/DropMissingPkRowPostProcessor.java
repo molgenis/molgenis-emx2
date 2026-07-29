@@ -14,14 +14,14 @@ import org.slf4j.LoggerFactory;
  * Drops rows that are missing a value for one or more of their primary key columns, for each of the
  * configured tables.
  */
-public class MissingPkRowDropper implements PostProcessor {
+public class DropMissingPkRowPostProcessor implements PostProcessor {
 
-  private static final Logger logger = LoggerFactory.getLogger(MissingPkRowDropper.class);
+  private static final Logger logger = LoggerFactory.getLogger(DropMissingPkRowPostProcessor.class);
 
   private final SchemaMetadata schema;
   private final List<String> tableNames;
 
-  public MissingPkRowDropper(SchemaMetadata schema, List<String> tableNames) {
+  public DropMissingPkRowPostProcessor(SchemaMetadata schema, List<String> tableNames) {
     this.schema = schema;
     this.tableNames = tableNames;
   }

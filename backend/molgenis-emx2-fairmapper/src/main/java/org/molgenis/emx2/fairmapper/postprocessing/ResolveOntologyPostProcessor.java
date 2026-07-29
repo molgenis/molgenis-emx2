@@ -10,15 +10,15 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OntologyResolver implements PostProcessor {
+public class ResolveOntologyPostProcessor implements PostProcessor {
 
   private static final String ONTOLOGY_TERM_URI = "ontologyTermURI";
-  private static final Logger logger = LoggerFactory.getLogger(OntologyResolver.class);
+  private static final Logger logger = LoggerFactory.getLogger(ResolveOntologyPostProcessor.class);
 
   private final Map<String, Map<String, String>> ontologyValues = new HashMap<>();
   private final SchemaMetadata schema;
 
-  public OntologyResolver(SchemaMetadata schema) {
+  public ResolveOntologyPostProcessor(SchemaMetadata schema) {
     this.schema = schema;
   }
 

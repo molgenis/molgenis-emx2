@@ -13,12 +13,12 @@ import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class OntologyResolverTest {
+class ResolveOntologyPostProcessorTest {
 
-  private static final String SCHEMA_NAME = OntologyResolverTest.class.getSimpleName();
+  private static final String SCHEMA_NAME = ResolveOntologyPostProcessorTest.class.getSimpleName();
   private static final String FIGURES_TABLE = "figures";
 
-  private OntologyResolver resolver;
+  private ResolveOntologyPostProcessor resolver;
   private SchemaMetadata schema;
 
   @BeforeEach
@@ -54,7 +54,7 @@ class OntologyResolverTest {
                 Column.column("shape").setType(ColumnType.ONTOLOGY).setRefTable("shapes"),
                 Column.column("colors").setType(ColumnType.ONTOLOGY_ARRAY).setRefTable("colors")));
 
-    resolver = new OntologyResolver(schema);
+    resolver = new ResolveOntologyPostProcessor(schema);
   }
 
   @Test

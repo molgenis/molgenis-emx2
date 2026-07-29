@@ -13,9 +13,9 @@ import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class MissingPkRowDropperTest {
+class DropMissingPkRowPostProcessorTest {
 
-  private static final String SCHEMA_NAME = MissingPkRowDropperTest.class.getSimpleName();
+  private static final String SCHEMA_NAME = DropMissingPkRowPostProcessorTest.class.getSimpleName();
 
   private InMemoryTableStore tableStore;
   private SchemaMetadata schema;
@@ -64,7 +64,7 @@ class MissingPkRowDropperTest {
   void shouldKeepRowsThatHaveAllPkValues() {
     store("Products", new Row("id", "product-1"), new Row("id", "product-2"));
 
-    new MissingPkRowDropper(schema, List.of("Products")).process(tableStore);
+    new DropMissingPkRowPostProcessor(schema, List.of("Products")).process(tableStore);
 
     CompareTools.assertEquals(
         List.of(new Row("id", "product-1"), new Row("id", "product-2")), products());
@@ -74,7 +74,7 @@ class MissingPkRowDropperTest {
   void shouldDropRowMissingItsOnlyPkValue() {
     store("Products", new Row("id", "product-1"), new Row("id", null));
 
-    new MissingPkRowDropper(schema, List.of("Products")).process(tableStore);
+    new DropMissingPkRowPostProcessor(schema, List.of("Products")).process(tableStore);
 
     CompareTools.assertEquals(List.of(new Row("id", "product-1")), products());
   }
@@ -83,7 +83,7 @@ class MissingPkRowDropperTest {
   void shouldDropRowWithRedactedPkValue() {
     store("Orders", new Row("orderId", "order-1"), new Row());
 
-    new MissingPkRowDropper(schema, List.of("Orders")).process(tableStore);
+    new DropMissingPkRowPostProcessor(schema, List.of("Orders")).process(tableStore);
 
     assertTrue(orders().isEmpty());
   }
@@ -95,7 +95,7 @@ class MissingPkRowDropperTest {
         new Row("orderId", "order-1", "productId", "product-1"),
         new Row("orderId", "order-2", "productId", null));
 
-    new MissingPkRowDropper(schema, List.of("Orders")).process(tableStore);
+    new DropMissingPkRowPostProcessor(schema, List.of("Orders")).process(tableStore);
 
     CompareTools.assertEquals(
         List.of(new Row("orderId", "order-1", "productId", "product-1")), orders());
@@ -106,7 +106,7 @@ class MissingPkRowDropperTest {
     store("Products", new Row("id", "product-1"), new Row("id", null));
     store("Orders", new Row("orderId", "order-1"));
 
-    new MissingPkRowDropper(schema, List.of("Products")).process(tableStore);
+    new DropMissingPkRowPostProcessor(schema, List.of("Products")).process(tableStore);
 
     CompareTools.assertEquals(List.of(new Row("id", "product-1")), products());
     // Orders was not passed in, so its incomplete row must survive untouched
@@ -117,7 +117,7 @@ class MissingPkRowDropperTest {
   void shouldResultInEmptyTableWhenAllRowsAreDropped() {
     store("Products", new Row("id", null));
 
-    new MissingPkRowDropper(schema, List.of("Products")).process(tableStore);
+    new DropMissingPkRowPostProcessor(schema, List.of("Products")).process(tableStore);
 
     assertTrue(products().isEmpty());
   }
@@ -130,7 +130,7 @@ class MissingPkRowDropperTest {
         new Row("orderId", "order-1", "productId", "product-1"),
         new Row("orderId", "order-2", "productId", null));
 
-    new MissingPkRowDropper(schema, List.of("Products", "Orders")).process(tableStore);
+    new DropMissingPkRowPostProcessor(schema, List.of("Products", "Orders")).process(tableStore);
 
     CompareTools.assertEquals(List.of(new Row("id", "product-1")), products());
     CompareTools.assertEquals(
@@ -144,7 +144,7 @@ class MissingPkRowDropperTest {
         new Row("orderId", "order-1", "productId", "product-1"),
         new Row("orderId", "order-2", "productId", "product-2", "note", "should-retain"));
 
-    new MissingPkRowDropper(schema, List.of("Orders")).process(tableStore);
+    new DropMissingPkRowPostProcessor(schema, List.of("Orders")).process(tableStore);
     CompareTools.assertEquals(
         List.of(
             new Row("orderId", "order-1", "productId", "product-1", "note", null),
