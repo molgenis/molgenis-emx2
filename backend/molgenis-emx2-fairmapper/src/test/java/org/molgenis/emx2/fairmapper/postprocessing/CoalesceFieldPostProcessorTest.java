@@ -21,7 +21,8 @@ class CoalesceFieldPostProcessorTest {
   void givenSingleField_whenMatching_thenDeriveFromSingleField() {
     TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
-    CoalesceFieldPostProcessor processor = new CoalesceFieldPostProcessor(TABLE_NAME, "id", "name");
+    CoalesceFieldPostProcessor processor =
+        new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "name");
     processor.process(tableStore);
 
     assertTableStoreHasRows(
@@ -33,13 +34,24 @@ class CoalesceFieldPostProcessorTest {
   }
 
   @Test
-  void givenSingleField_whenNotMatching_thenThrowException() {
+  void givenSingleField_whenNotMatchingAndStrict_thenThrowException() {
     TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
-        new CoalesceFieldPostProcessor(TABLE_NAME, "id", "non-existent");
+        new CoalesceFieldPostProcessor(TABLE_NAME, "id", true, "non-existent");
 
     assertThrows(MolgenisException.class, () -> processor.process(tableStore));
+  }
+
+  @Test
+  void givenSingleField_whenNotMatchingAndNotStrict_thenUseNull() {
+    TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
+
+    CoalesceFieldPostProcessor processor =
+        new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "non-existent");
+
+    processor.process(tableStore);
+    assertTableStoreHasRows(tableStore, new Row("id", null, "name", "keyboard", "barcode", 1234));
   }
 
   @Test
@@ -47,7 +59,7 @@ class CoalesceFieldPostProcessorTest {
     TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
-        new CoalesceFieldPostProcessor(TABLE_NAME, "id", "name", "barcode");
+        new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "name", "barcode");
     processor.process(tableStore);
 
     assertTableStoreHasRows(
@@ -63,7 +75,7 @@ class CoalesceFieldPostProcessorTest {
     TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
-        new CoalesceFieldPostProcessor(TABLE_NAME, "id", "non-existent", "name");
+        new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "non-existent", "name");
     processor.process(tableStore);
 
     assertTableStoreHasRows(
@@ -76,11 +88,8 @@ class CoalesceFieldPostProcessorTest {
 
   @Test
   void givenNoDeriveFields_whenProcessed_thenThrowException() {
-    TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
-
-    CoalesceFieldPostProcessor processor = new CoalesceFieldPostProcessor(TABLE_NAME, "id");
-
-    assertThrows(MolgenisException.class, () -> processor.process(tableStore));
+    assertThrows(
+        MolgenisException.class, () -> new CoalesceFieldPostProcessor(TABLE_NAME, "id", true));
   }
 
   @Test
@@ -90,7 +99,8 @@ class CoalesceFieldPostProcessorTest {
             new Row("name", "keyboard", "barcode", 1234),
             new Row("name", "mouse", "barcode", 6789));
 
-    CoalesceFieldPostProcessor processor = new CoalesceFieldPostProcessor(TABLE_NAME, "id", "name");
+    CoalesceFieldPostProcessor processor =
+        new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "name");
     processor.process(tableStore);
 
     assertTableStoreHasRows(
@@ -109,7 +119,8 @@ class CoalesceFieldPostProcessorTest {
   void givenFields_whenTableEmpty_thenNoOp() {
     TableStore tableStore = getTableStoreWithRows();
 
-    CoalesceFieldPostProcessor processor = new CoalesceFieldPostProcessor(TABLE_NAME, "id", "name");
+    CoalesceFieldPostProcessor processor =
+        new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "name");
     processor.process(tableStore);
 
     assertTableStoreHasRows(tableStore);
@@ -121,7 +132,7 @@ class CoalesceFieldPostProcessorTest {
         getTableStoreWithRows(new Row("id", "some-id", "name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
-        new CoalesceFieldPostProcessor(TABLE_NAME, "id", "name", "barcode");
+        new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "name", "barcode");
     processor.process(tableStore);
 
     assertTableStoreHasRows(

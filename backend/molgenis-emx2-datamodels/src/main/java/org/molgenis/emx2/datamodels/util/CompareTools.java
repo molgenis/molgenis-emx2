@@ -39,7 +39,22 @@ public class CompareTools {
 
     Map<String, Object> values1 = row1.getValueMap();
     for (String colName : colNames1) {
-      ColumnType columnType = TypeUtils.typeOf(values1.get(colName).getClass());
+      Object value = values1.get(colName);
+      if (value == null) {
+        Object row2Value = row2.getValueMap().get(colName);
+        if (row2Value != null) {
+          fail(
+              """
+              List<Row> has different value for row, column %s:
+              versus
+              %s
+              """
+                  .formatted(colName, row2Value));
+        }
+        continue;
+      }
+
+      ColumnType columnType = TypeUtils.typeOf(value.getClass());
 
       if (!row1.get(colName, columnType).equals(row2.get(colName, columnType))
           && !Arrays.equals(
