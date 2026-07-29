@@ -52,11 +52,11 @@ public class MissingPkResolver implements PostProcessor {
     Row referringRow = getRowForSubject(tableStore, column.getRefTableName(), subject);
 
     for (Reference reference : column.getReferences()) {
-      if (row.containsName(reference.getColumnName())) {
+      if (row.notNull(reference.getColumnName())) {
         continue;
       }
 
-      if (referringRow.containsName(reference.getReferencedColumnName())) {
+      if (referringRow.notNull(reference.getReferencedColumnName())) {
         Object newValue = referringRow.getValueMap().get(reference.getReferencedColumnName());
         logger.info(
             "Updating subject: {}, deriving column: {} from reference, setting new value: {}",
@@ -68,7 +68,7 @@ public class MissingPkResolver implements PostProcessor {
         // This referenced row is missing its half of a composite key that points back to
         // this row's own table: treat it as a one-to-one back-reference, backfill the
         // missing part onto the referenced row from this row's value, and use that same
-        // value as this row's entry in the array.
+        // value as this row's entry.
         if (isCircularReference(column, reference)) {
           Object value = row.getValueMap().get(reference.getTargetColumn());
           updateReferringRow(row, reference, referringRow, value);
@@ -80,7 +80,6 @@ public class MissingPkResolver implements PostProcessor {
 
   private static boolean isCircularReference(Column column, Reference reference) {
     List<String> columnTableNames = column.getTable().getAllInheritNames();
-    columnTableNames.add(column.getTableName());
     return columnTableNames.contains(reference.getTargetTable());
   }
 
@@ -96,13 +95,13 @@ public class MissingPkResolver implements PostProcessor {
             .toList();
 
     for (Reference reference : column.getReferences()) {
-      if (row.containsName(reference.getColumnName())) {
+      if (row.notNull(reference.getColumnName())) {
         continue;
       }
 
       List<Object> values = new ArrayList<>();
       for (Row referringRow : rows) {
-        if (referringRow.containsName(reference.getReferencedColumnName())) {
+        if (referringRow.notNull(reference.getReferencedColumnName())) {
           values.add(referringRow.getValueMap().get(reference.getReferencedColumnName()));
         } else {
           // This referenced row is missing its half of a composite key that points back to
