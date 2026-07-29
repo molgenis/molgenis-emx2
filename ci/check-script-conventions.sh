@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-allowedCommonJs="apps/directory/.eslintrc.cjs
-apps/tailwind-components/scripts/create_vue_components_from_icons.cjs
-apps/tailwind-components/svgo.config.cjs"
-
 usageExitCode=2
 status=0
 
@@ -16,10 +12,9 @@ if [ -n "$esModuleScripts" ]; then
 fi
 
 commonJsScripts=$(git ls-files '*.cjs')
-unexpectedCommonJs=$(comm -23 <(echo "$commonJsScripts" | sort) <(echo "$allowedCommonJs" | sort))
-if [ -n "$unexpectedCommonJs" ]; then
-  echo "these must be TypeScript run by node, or added to the allowed list with the tool that requires CommonJS:"
-  echo "$unexpectedCommonJs"
+if [ -n "$commonJsScripts" ]; then
+  echo "these must be TypeScript run by node, not .cjs:"
+  echo "$commonJsScripts"
   status=1
 fi
 
@@ -36,20 +31,20 @@ canFailTheBuild() {
     grep -qvE "^(0|$usageExitCode)$"
 }
 
-isNamedAsGate() {
+nameAnnouncesItCanFail() {
   case "$(basename "$1")" in
-  check-* | assert-*) return 0 ;;
+  check-* | assert-* | generate-*) return 0 ;;
   *) return 1 ;;
   esac
 }
 
 for script in $(git ls-files 'ci/*.sh' 'ci/*.ts' '*/scripts/*.sh' '*/scripts/*.ts'); do
-  if isInvokedDirectly "$script" && canFailTheBuild "$script" && ! isNamedAsGate "$script"; then
-    echo "$script is invoked directly and can fail the build, so it must be named check-* or assert-*"
+  if isInvokedDirectly "$script" && canFailTheBuild "$script" && ! nameAnnouncesItCanFail "$script"; then
+    echo "$script is invoked directly and can fail the build, so it must be named check-*, assert-* or generate-*"
     status=1
   fi
-  if isNamedAsGate "$script" && ! canFailTheBuild "$script"; then
-    echo "$script is named as a gate but has no reachable non-zero exit"
+  if nameAnnouncesItCanFail "$script" && ! canFailTheBuild "$script"; then
+    echo "$script is named as if it can fail the build but has no reachable non-zero exit"
     status=1
   fi
 done
@@ -62,6 +57,6 @@ if [ ">=$nodeVersion" != "$declaredNodeRange" ]; then
 fi
 
 if [ "$status" -eq 0 ]; then
-  echo "script conventions: no .mjs, $(echo "$commonJsScripts" | grep -c .) allowed .cjs, gate names match gate behaviour, node $nodeVersion"
+  echo "script conventions: no .mjs, no .cjs, names match failure behaviour, node $nodeVersion"
 fi
 exit $status

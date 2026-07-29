@@ -1,11 +1,11 @@
-var fs = require("fs");
-var path = require("path");
-var process = require("process");
+import fs from "node:fs";
+import path from "node:path";
+import process from "node:process";
 
-var moveFrom = "./app/assets/minified-icons";
-var moveTo = "./app/components/global/icons";
+const moveFrom = "./app/assets/minified-icons";
+const moveTo = "./app/components/global/icons";
 
-function camelize(str) {
+function camelize(str: string): string {
   return str
     .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
       return index === 0 ? word.toLowerCase() : word.toUpperCase();
@@ -13,11 +13,11 @@ function camelize(str) {
     .replace(/\s+/g, "");
 }
 
-function capitalizeFirstLetter(string) {
+function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-fs.rmdirSync(moveTo, { recursive: true });
+fs.rmSync(moveTo, { recursive: true });
 fs.mkdir(moveTo, (err) => {
   if (err) {
     return console.error(err);
@@ -34,7 +34,7 @@ fs.readdir(moveFrom, function (err, files) {
 
   files.forEach(function (file) {
     // Make one pass and make the file complete
-    var fromPath = path.join(moveFrom, file);
+    const fromPath = path.join(moveFrom, file);
 
     fs.readFile(fromPath, "utf8", (err, data) => {
       if (err) {
@@ -42,11 +42,11 @@ fs.readdir(moveFrom, function (err, files) {
         return;
       }
 
-      var newFileName = camelize(file);
+      let newFileName = camelize(file);
       newFileName = capitalizeFirstLetter(newFileName);
       newFileName = newFileName.replace("Svg", "vue");
 
-      var toPath = path.join(moveTo, newFileName);
+      const toPath = path.join(moveTo, newFileName);
 
       const newFile = `<template>
   ${data} 

@@ -16,7 +16,7 @@ Keep it to the rule and the command. No history, no motivation, no repeating the
 
 Build and CI scripts are `.ts`, run directly by `node`. The Node version lives in `.nvmrc` alone; pnpm refuses to install below it.
 
-A script you invoke directly that can exit non-zero is named `check-*` or `assert-*`. One that only reports is not.
+A script you invoke directly that can exit non-zero is named `check-*`, `assert-*` or `generate-*`. One that only reports is not.
 
 ```bash
 bash ci/check-script-conventions.sh

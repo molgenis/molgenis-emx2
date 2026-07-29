@@ -17,7 +17,7 @@
     "coverage": "vitest run --coverage",
     "test-ci": "node ./scripts/check-vitest-run.ts",
     "e2e": "playwright test",
-    "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
+    "parse-icons": "svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.ts && node ./scripts/generate-vue-components-from-icons.ts",
     "typecheck": "nuxi typecheck",
     "typecheck:tests": "vue-tsc --noEmit -p tsconfig.vitest.json",
     "typecheck:scripts": "tsc -p tsconfig.scripts.json"
