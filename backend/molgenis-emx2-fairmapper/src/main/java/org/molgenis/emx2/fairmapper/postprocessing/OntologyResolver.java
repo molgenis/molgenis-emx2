@@ -80,10 +80,10 @@ public class OntologyResolver implements PostProcessor {
       String mapped = ontologyMapping.get(value);
       if (mapped == null) {
         logMissingMapping(column, value);
+        mappedValues.add("");
       } else {
         mappedValues.add(mapped);
       }
-      handleValue(column, ontologyMapping, value);
     }
 
     if (mappedValues.size() != split.length) {
@@ -96,15 +96,6 @@ public class OntologyResolver implements PostProcessor {
   private Map<String, String> getOntologyMapping(Column column) {
     String key = referenceKey(column);
     return ontologyValues.computeIfAbsent(key, s -> generateMapping(column));
-  }
-
-  private static Optional<String> handleValue(
-      Column column, Map<String, String> ontologyMapping, String value) {
-    Optional<String> handled = Optional.ofNullable(ontologyMapping.get(value));
-    if (handled.isEmpty()) {
-      logMissingMapping(column, value);
-    }
-    return handled;
   }
 
   private Map<String, String> generateMapping(Column column) {
