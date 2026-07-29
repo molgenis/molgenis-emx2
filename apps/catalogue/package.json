@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "nuxi typecheck",
     "build": "nuxt build && node ../tailwind-components/scripts/check-built-routes.ts .",
     "test": "vitest",
     "test-ci": "vitest run",

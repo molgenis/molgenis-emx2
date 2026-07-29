@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "lint": "turbo run lint --filter=tailwind-components --filter=catalogue --filter=ui",
+    "lint": "turbo run lint typecheck --filter=tailwind-components --filter=catalogue --filter=ui",
     "format": "turbo run format",
     "checkFormat": "turbo run checkFormat",
     "test-ci": "turbo run test-ci && pnpm run test-dev-env",

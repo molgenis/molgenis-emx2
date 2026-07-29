@@ -35,6 +35,12 @@
       "cache": true,
       "outputLogs": "new-only"
     },
+    "typecheck": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true,
+      "outputLogs": "new-only"
+    },
     "format": {
       "inputs": ["$TURBO_DEFAULT$", "../.prettierrc.*", "../.prettierignore"],
       "outputs": [],

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "nuxi typecheck",
+    "typecheck": "nuxi typecheck",
     "build": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate && node ../tailwind-components/scripts/check-built-routes.ts . && node ../tailwind-components/scripts/check-monaco-support.ts .",
     "dev": "nuxt dev --dotenv=../../.env",
     "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
