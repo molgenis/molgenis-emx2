@@ -89,8 +89,8 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
     }
 
     List<Row> rows =
-        Optional.ofNullable(row.getString(SUBJECT_VARIABLE + column.getName())).stream()
-            .flatMap(s -> Arrays.stream(s.split("\\|")))
+        Optional.ofNullable(row.getStringArray(SUBJECT_VARIABLE + column.getName())).stream()
+            .flatMap(Arrays::stream)
             .map(subject -> getRowForSubject(tableStore, column.getRefTableName(), subject))
             .toList();
 
