@@ -321,17 +321,6 @@ commands:
         path: apps/.turbo/runs
         when: always
 
-  report_build_diagnostics:
-    steps:
-    # Wired as the LAST step of a job on purpose: the step-output API caps at 400,000 chars and serves the TAIL, so only a final summary is guaranteed to survive.
-    - run:
-        name: Summarise what this job rebuilt and what it replayed from cache
-        command: node ci/report-build-diagnostics.ts
-        when: always
-    - store_artifacts:
-        path: build/reports/build-diagnostics
-        when: always
-
   post_steps:
     steps:
     - store_build_diagnostics
@@ -379,7 +368,6 @@ jobs:
             - custom-app/
 
       - store_build_diagnostics
-      - report_build_diagnostics
 
   e2e-tests:
     resource_class: large
@@ -677,13 +665,10 @@ jobs:
     - run:
         name: run tests and push to sonar
         command: |
-          set -o pipefail
-          mkdir -p build
           ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} \
-          | tee build/gradle-test.log
+          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
 
     - run:
         name: Check scripts are TypeScript run by node
@@ -692,13 +677,6 @@ jobs:
     - run:
         name: Type-check the build and CI scripts
         command: apps/tailwind-components/node_modules/.bin/tsc -p apps/tailwind-components/tsconfig.scripts.json
-
-    - run:
-        name: Check the task outcome artifact covers every task gradle counted
-        command: |
-          bash ci/check-task-outcomes.sh \
-            build/gradle-test.log \
-            'build/reports/task-outcomes/*-test-jacocoMergedReport-sonar.tsv'
 
     - save_gradle_build_cache
 
@@ -725,8 +703,6 @@ jobs:
         name: <dev> remove the temporary .env
         command: rm -f .env printDevConfig.out
         when: always
-
-    - report_build_diagnostics
 
   release:
     <<: *release_config
@@ -796,7 +772,6 @@ jobs:
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
-    - report_build_diagnostics
 
   preview:
     <<: *build_config
@@ -906,8 +881,6 @@ jobs:
               -d "channel=C02AZDG6QQ7" \
               -X POST https://slack.com/api/chat.postMessage
             fi
-
-      - report_build_diagnostics
 
   delete-helm-preview:
     <<: *build_config

@@ -1,13 +1,4 @@
-import { spawnSync } from "node:child_process";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  realpathSync,
-  rmSync,
-} from "node:fs";
-import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const executedStatuses = ["passed", "failed"];
@@ -66,34 +57,13 @@ const invokedDirectly =
   realpathSync(entryPoint) === realpathSync(fileURLToPath(import.meta.url));
 
 if (invokedDirectly) {
-  const require = createRequire(import.meta.url);
-  const vitestManifest = require("vitest/package.json") as {
-    bin: { vitest: string };
-  };
-  const vitestBin = join(
-    dirname(require.resolve("vitest/package.json")),
-    vitestManifest.bin.vitest
-  );
-  const reportDirectory = fileURLToPath(
-    new URL("../node_modules/.cache", import.meta.url)
-  );
-  const reportFile = join(reportDirectory, "vitest-run-report.json");
-
-  mkdirSync(reportDirectory, { recursive: true });
-  rmSync(reportFile, { force: true });
-
-  const vitest = spawnSync(
-    process.execPath,
-    [
-      vitestBin,
-      "run",
-      "--reporter=default",
-      "--reporter=json",
-      `--outputFile.json=${reportFile}`,
-      ...process.argv.slice(2),
-    ],
-    { stdio: "inherit" }
-  );
+  const [reportFile, ...unexpectedArguments] = process.argv.slice(2);
+  if (reportFile === undefined || unexpectedArguments.length > 0) {
+    console.error(
+      "usage: check-vitest-run.ts <vitest json report>; run a single file with `pnpm exec vitest run <file>`"
+    );
+    process.exit(2);
+  }
 
   if (!existsSync(reportFile)) {
     console.error(
@@ -109,6 +79,4 @@ if (invokedDirectly) {
     console.error(`check-vitest-run: ${failure}`);
     process.exit(1);
   }
-
-  process.exit(vitest.status ?? 1);
 }

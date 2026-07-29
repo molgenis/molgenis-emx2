@@ -10,8 +10,8 @@ import org.gradle.tooling.events.task.TaskSuccessResult
 
 // Writes `<task path>\t<outcome>\t<duration ms>\t<execution reasons>` for every task of every gradle
 // invocation, so a CI run can be attributed to the tasks that actually executed. Permanent build
-// instrumentation, not a temporary probe: ci/check-task-outcomes.sh fails the build when this file
-// disappears or records fewer tasks than gradle counted as actionable.
+// instrumentation, not a temporary probe: the root build.gradle applies it, so every gradle
+// invocation fails if this file disappears.
 abstract class TaskOutcomeRecorder implements BuildService<Params>, OperationCompletionListener, AutoCloseable {
 
     interface Params extends BuildServiceParameters {
