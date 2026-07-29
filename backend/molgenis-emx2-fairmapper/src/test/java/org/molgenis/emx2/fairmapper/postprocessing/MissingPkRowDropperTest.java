@@ -136,4 +136,19 @@ class MissingPkRowDropperTest {
     CompareTools.assertEquals(
         List.of(new Row("orderId", "order-1", "productId", "product-1")), orders());
   }
+
+  @Test
+  void shouldUseUnionOfColumnsInRows() {
+    store(
+        "Orders",
+        new Row("orderId", "order-1", "productId", "product-1"),
+        new Row("orderId", "order-2", "productId", "product-2", "note", "should-retain"));
+
+    new MissingPkRowDropper(schema, List.of("Orders")).process(tableStore);
+    CompareTools.assertEquals(
+        List.of(
+            new Row("orderId", "order-1", "productId", "product-1", "note", null),
+            new Row("orderId", "order-2", "productId", "product-2", "note", "should-retain")),
+        orders());
+  }
 }

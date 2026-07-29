@@ -5,6 +5,7 @@ import java.util.List;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,8 @@ public class MissingPkRowDropper implements PostProcessor {
   @Override
   public void process(TableStore tableStore) {
     for (String tableName : tableNames) {
-      List<Column> pkColumns = schema.getTableMetadata(tableName).getPrimaryKeyColumns();
+      TableMetadata table = schema.getTableMetadata(tableName);
+      List<Column> pkColumns = table.getPrimaryKeyColumns();
 
       List<Row> rows = new ArrayList<>();
       for (Row row : tableStore.readTable(tableName)) {
@@ -39,11 +41,10 @@ public class MissingPkRowDropper implements PostProcessor {
         }
       }
 
-      if (rows.isEmpty()) {
-        tableStore.writeTable(tableName, List.of(), List.of());
-      } else {
-        tableStore.writeTable(tableName, rows.getFirst().getColumnNames().stream().toList(), rows);
-      }
+      tableStore.writeTable(
+          tableName,
+          rows.stream().flatMap(row -> row.getColumnNames().stream()).distinct().toList(),
+          rows);
     }
   }
 
