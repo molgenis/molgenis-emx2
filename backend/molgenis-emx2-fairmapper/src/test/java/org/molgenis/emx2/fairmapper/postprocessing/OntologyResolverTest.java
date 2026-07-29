@@ -115,7 +115,7 @@ class OntologyResolverTest {
                 "colors",
                 "http://www.example.org/colors#green,http://www.example.org/colors#magenta"));
     resolver.process(tableStore);
-    assertTableStoreHasFiguresTableWithRows(tableStore, new Row("name", "foo"));
+    assertTableStoreHasFiguresTableWithRows(tableStore, new Row("name", "foo", "colors", "green,"));
   }
 
   @Test
