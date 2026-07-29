@@ -186,10 +186,10 @@ const menuPlacement = computed<string>(() => {
     :metadata="componentMetadata"
     :formValues="(componentData as Record<string,any>)"
     :isInsert="false"
-    @update:updated="$emit('updatePage')"
+    @update:updated="$emit('updatePage'); showEditModal = false"
     v-model:visible="showEditModal"
   />
-  
+
   <Modal
     v-model:visible="showDeleteModal"
     title="Delete"
