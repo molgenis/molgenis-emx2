@@ -183,7 +183,7 @@ const menuPlacement = computed<string>(() => {
     :showButton="false"
     :schemaId="componentMetadata.schemaId"
     :metadata="componentMetadata"
-    :formValues="(component as Record<string,any>)"
+    :formValues="(componentData as Record<string,any>)"
     :isInsert="false"
     @update:updated="$emit('updatePage')"
     v-model:visible="showEditModal"

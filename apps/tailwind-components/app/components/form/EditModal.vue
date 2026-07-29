@@ -299,9 +299,9 @@ async function insert(draft: boolean) {
 
   isInsert.value = false;
   await updateAutoIds();
-  emit("update:added", resp);
   formMessage.value = `inserted  ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
+  emit("update:added", resp);
 }
 
 async function update(draft: boolean) {
@@ -310,9 +310,9 @@ async function update(draft: boolean) {
     throw new Error(`No response from server on update`);
   }
 
-  emit("update:updated", resp);
   formMessage.value = `saved ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
+  emit("update:updated", resp);
 }
 
 function reAuthenticate() {
