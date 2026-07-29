@@ -2,9 +2,8 @@ package org.molgenis.emx2.fairmapper.postprocessing;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.LinkedHashSet;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,8 +20,7 @@ class ResolveMissingPkPostProcessorTest {
 
   @BeforeEach
   void setup() {
-    Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(SCHEMA_NAME).getMetadata();
+    schema = new SchemaMetadata(SCHEMA_NAME);
 
     schema.create(
         new TableMetadata("Organisations")
@@ -108,6 +106,7 @@ class ResolveMissingPkPostProcessorTest {
     assertEquals(
         "Referencing non-existing row for table: Organisations, for subject: urn:org:unknown",
         exception.getMessage());
+    assertNull(collection().getString("publisher"));
   }
 
   @Test
@@ -210,8 +209,8 @@ class ResolveMissingPkPostProcessorTest {
           new String[] {"organisation-1", "organisation-2"},
           collection().getStringArray("creator.name"));
     }
-
   }
+
   @Nested
   class BackReferenceTest {
 
@@ -296,16 +295,14 @@ class ResolveMissingPkPostProcessorTest {
 
       assertEquals("col-1", contact().getString("collection"));
     }
-
   }
 
   /** Writes rows for a table, deriving the column header from the union of all row keys. */
   private void store(String tableName, Row... rows) {
-    Set<String> columnNames = new LinkedHashSet<>();
-    for (Row row : rows) {
-      columnNames.addAll(row.getColumnNames());
-    }
-    tableStore.writeTable(tableName, List.copyOf(columnNames), List.of(rows));
+    tableStore.writeTable(
+        tableName,
+        Arrays.stream(rows).flatMap(row -> row.getColumnNames().stream()).distinct().toList(),
+        List.of(rows));
   }
 
   private Row collection() {
