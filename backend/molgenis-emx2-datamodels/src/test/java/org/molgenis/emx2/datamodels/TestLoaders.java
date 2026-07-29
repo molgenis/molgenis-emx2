@@ -93,10 +93,8 @@ public class TestLoaders {
           .getImportTask(database, DIRECTORY_STAGING, "test", false)
           .run();
       directoryStaging = database.getSchema(DIRECTORY_STAGING);
-      DataModels.Profile.UI_DASHBOARD
-        .getImportTask(database, DASHBOARD_TEST, "test", true)
-        .run();
-      dashboard = database.getSchema(DASHBOARD_TEST);  
+      DataModels.Profile.UI_DASHBOARD.getImportTask(database, DASHBOARD_TEST, "test", true).run();
+      dashboard = database.getSchema(DASHBOARD_TEST);
       DataModels.Profile.PATIENT_REGISTRY
           .getImportTask(database, PATIENT_REGISTRY, "test", true)
           .run();
