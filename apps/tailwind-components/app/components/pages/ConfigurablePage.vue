@@ -66,7 +66,7 @@ const sidebarCollapsed = ref(false);
           :order="0"
           :parent="content.name"
           componentType="Block"
-          @update-page="$emit('updatePage')"
+          @updatePage="$emit('updatePage')"
         />
         <PageComponent
           v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
@@ -76,7 +76,7 @@ const sidebarCollapsed = ref(false);
           :parent="content.name"
           :is-editable="isEditable"
           :metadata="metadata"
-          @update-page="$emit('updatePage')"
+          @updatePage="$emit('updatePage')"
         />
         <PageComponent
           v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
@@ -84,7 +84,7 @@ const sidebarCollapsed = ref(false);
           :component="orderedBlock.block"
           :parent="content.name"
           componentType="Block"
-          @update-page="$emit('updatePage')"
+          @updatePage="$emit('updatePage')"
         >
           <ComponentDropZone
             v-if="isEditable"
@@ -97,7 +97,7 @@ const sidebarCollapsed = ref(false);
             "
             :parent="orderedBlock.block.id"
             componentType="Component"
-            @update-page="$emit('updatePage')"
+            @updatePage="$emit('updatePage')"
           />
           <template
             v-for="orderedComponent in orderedBlock.block.componentOrder"
@@ -110,7 +110,7 @@ const sidebarCollapsed = ref(false);
               :parent="orderedBlock.block.id"
               :is-editable="isEditable"
               :metadata="metadata"
-              @update-page="$emit('updatePage')"
+              @updatePage="$emit('updatePage')"
             />
             <ComponentDropZone
               v-if="isEditable"
@@ -119,7 +119,7 @@ const sidebarCollapsed = ref(false);
               :order="orderedComponent.order + 1"
               :parent="orderedBlock.block.id"
               componentType="Component"
-              @update-page="$emit('updatePage')"
+              @updatePage="$emit('updatePage')"
             />
           </template>
         </PageComponent>
@@ -136,7 +136,7 @@ const sidebarCollapsed = ref(false);
           :order="orderedBlock.order ? orderedBlock.order + 1 : 0"
           :parent="content.name"
           componentType="Block"
-          @update-page="$emit('updatePage')"
+          @updatePage="$emit('updatePage')"
         />
       </template>
       <ComponentDropZone
@@ -147,7 +147,7 @@ const sidebarCollapsed = ref(false);
         :order="0"
         :parent="content.name"
         componentType="Block"
-        @update-page="$emit('updatePage')"
+        @updatePage="$emit('updatePage')"
       />
     </div>
   </div>
