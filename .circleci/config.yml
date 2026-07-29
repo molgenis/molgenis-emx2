@@ -686,6 +686,10 @@ jobs:
         command: bash ci/check-script-conventions.sh
 
     - run:
+        name: Type-check the build and CI scripts
+        command: apps/tailwind-components/node_modules/.bin/tsc -p apps/tailwind-components/tsconfig.scripts.json
+
+    - run:
         name: Check the task outcome artifact covers every task gradle counted
         command: |
           bash ci/check-task-outcomes.sh \

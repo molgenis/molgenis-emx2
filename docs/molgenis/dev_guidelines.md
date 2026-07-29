@@ -12,6 +12,16 @@ Well-named code needs no explanation. Only a genuine gotcha gets written down, i
 
 Keep it to the rule and the command. No history, no motivation, no repeating the heading.
 
+### Scripts are TypeScript and their names say whether they can fail your build
+
+Build and CI scripts are `.ts`, run directly by `node`. The Node version lives in `.nvmrc` alone; pnpm refuses to install below it.
+
+A script you invoke directly that can exit non-zero is named `check-*` or `assert-*`. One that only reports is not.
+
+```bash
+bash ci/check-script-conventions.sh
+```
+
 ## For frontend development
 
 To ensure consistency in the MOLGENIS interfaces, frontend components must follow the same structure. Please follow these guidelines when developing components or creating new ones.

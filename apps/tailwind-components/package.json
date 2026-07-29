@@ -19,7 +19,8 @@
     "e2e": "playwright test",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./app/assets/icons -o ./app/assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
     "typecheck": "nuxi typecheck",
-    "typecheck:tests": "vue-tsc --noEmit -p tsconfig.vitest.json"
+    "typecheck:tests": "vue-tsc --noEmit -p tsconfig.vitest.json",
+    "typecheck:scripts": "tsc -p tsconfig.scripts.json"
   },
   "dependencies": {
     "@vuepic/vue-datepicker": "11.0.3",
@@ -46,6 +47,7 @@
     "@playwright/test": "1.62.0",
     "@types/d3": "7.4.3",
     "@types/markdown-it": "^14.1.2",
+    "@types/node": "26.1.1",
     "@vue/server-renderer": "^3.5.40",
     "@vue/test-utils": "catalog:",
     "cross-env": "7.0.3",

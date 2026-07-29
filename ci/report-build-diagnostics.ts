@@ -96,7 +96,7 @@ function parseOutcomeFile(path: string): GradleTask[] {
       const bucket =
         outcome === executedOutcome && trimmedReasons === "" ? executedWithoutActionsOutcome : outcome;
       return {
-        task: task as string,
+        task: task ?? "",
         outcome: bucket ?? "unknown",
         durationMs: Number(duration ?? 0),
         reasons: trimmedReasons,
@@ -266,10 +266,11 @@ function splitGradleTaskPath(
 ): { module: string; step: string } | null {
   if (typeof taskPath !== "string" || !taskPath.startsWith(":")) return null;
   const segments = taskPath.slice(1).split(":");
-  if (segments.some((segment) => segment === "")) return null;
+  const step = segments.pop();
+  if (step === undefined || step === "" || segments.some((segment) => segment === "")) return null;
   return {
-    module: segments.slice(0, -1).join(":") || rootProjectModule,
-    step: segments[segments.length - 1] as string,
+    module: segments.join(":") || rootProjectModule,
+    step,
   };
 }
 
@@ -278,8 +279,10 @@ function splitTurboTaskId(
 ): { package: string; step: string } | null {
   if (typeof taskId !== "string") return null;
   const segments = taskId.split("#");
-  if (segments.length !== 2 || segments.some((segment) => segment === "")) return null;
-  return { package: segments[0] as string, step: segments[1] as string };
+  if (segments.length !== 2) return null;
+  const [packageName, step] = segments;
+  if (!packageName || !step) return null;
+  return { package: packageName, step };
 }
 
 function sortedUnique(values: string[]): string[] {
@@ -300,9 +303,11 @@ function retestedModules(): string[] {
 function turboCacheMisses(): string[] {
   const taskIds: string[] = [];
   for (const task of allTurboTasks) {
-    const parsed = splitTurboTaskId(task.taskId);
+    const taskId = task.taskId;
+    if (taskId === undefined) continue;
+    const parsed = splitTurboTaskId(taskId);
     if (parsed && turboRebuildSteps.includes(parsed.step) && task.cache?.status === turboMissStatus) {
-      taskIds.push(task.taskId);
+      taskIds.push(taskId);
     }
   }
   return sortedUnique(taskIds);
