@@ -116,6 +116,7 @@ import {
   addOldNamesAndRemoveMeta,
   convertToSubclassTables,
 } from "../utils.ts";
+import { toSaveTables } from "../tableModel";
 import gql from "graphql-tag";
 
 export default {
@@ -168,44 +169,7 @@ export default {
       this.warning = "submitting changes";
       this.success = null;
       //copy so in case of error user can continue to edit
-      let schema = deepClone(this.schema);
-      let tables = schema.tables ? schema.tables : [];
-
-      //transform subclasses back into their original tables.
-      //create a map of tables
-      let tableMap = {};
-      tables.forEach((table) => {
-        tableMap[table.name] = table;
-        if (table.subclasses) {
-          table.subclasses.forEach((subclass) => {
-            tableMap[subclass.name] = subclass;
-          });
-          delete table.subclasses;
-        }
-      });
-      //redistribute the columns to subclasses
-      tables.forEach((table) => {
-        if (table.columns?.length) {
-          table.columns.forEach((column) => {
-            if (column.table !== table.oldName) {
-              if (!tableMap[column.table]) {
-                tableMap[column.table] = { columns: [] };
-              }
-              if (!tableMap[column.table].columns) {
-                tableMap[column.table].columns = [];
-              }
-              tableMap[column.table].columns.push(column);
-            }
-          });
-        }
-      });
-      tables.forEach((table) => {
-        table.columns =
-          table.columns?.filter((column) => column.table === table.name) || [];
-      });
-      tables = Object.values(tableMap);
-      //add ontologies
-      tables.push(...schema.ontologies);
+      const tables = toSaveTables(deepClone(this.schema));
       request(
         "graphql",
         gql`

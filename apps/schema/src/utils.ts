@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
-import { deepClone, ITableMetaData, IColumn } from "molgenis-components";
+import { deepClone } from "molgenis-components";
+import type { IColumn, ITableMetaData } from "metadata-utils";
 import { isCrossSchemaSubclass, isRootTable } from "./inheritSchema";
 
 export const schemaQuery = gql`

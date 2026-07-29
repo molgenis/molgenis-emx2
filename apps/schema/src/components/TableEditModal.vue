@@ -96,7 +96,12 @@ import {
   deepClone,
   InputTextLocalized,
 } from "molgenis-components";
-import { toInheritSchemaName, extendableTableNames } from "../inheritSchema";
+import {
+  toInheritSchemaName,
+  extendableTableNames,
+  parentTableOptions,
+  resolveInheritName,
+} from "../inheritSchema";
 
 export default {
   components: {
@@ -165,19 +170,9 @@ export default {
         : `${this.operation} table definition`;
     },
     inheritOptions() {
-      if (this.rootTable) {
-        const result = [this.rootTable.name];
-        if (this.rootTable.subclasses !== undefined) {
-          result.push(
-            ...this.rootTable.subclasses
-              .map((subclass) => subclass.name)
-              .filter((name) => name !== this.table.name)
-          );
-        }
-        this.table.inheritName = result[0];
-        return result;
-      }
-      return undefined;
+      return this.rootTable
+        ? parentTableOptions(this.rootTable, this.table.name)
+        : undefined;
     },
     canChooseParentSchema() {
       return (
@@ -287,6 +282,12 @@ export default {
         this.table = deepClone(this.modelValue);
       } else {
         this.table = {};
+      }
+      if (this.inheritOptions) {
+        this.table.inheritName = resolveInheritName(
+          this.table.inheritName,
+          this.inheritOptions
+        );
       }
       this.selectedRefSchema = this.table.inheritSchemaName;
       this.refSchema = undefined;

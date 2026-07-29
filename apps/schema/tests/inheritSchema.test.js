@@ -152,6 +152,81 @@ test("a same schema subclass is not a root table", async () => {
   );
 });
 
+test("the extends options of a subclass are the root table and its sibling subclasses", async () => {
+  const { parentTableOptions } = await import(moduleUrl);
+  const root = {
+    name: "A",
+    subclasses: [
+      { name: "B", inheritName: "A" },
+      { name: "C", inheritName: "B" },
+    ],
+  };
+  assert.deepStrictEqual(parentTableOptions(root, "C"), ["A", "B"]);
+});
+
+test("editing a grandchild keeps its own parent instead of the root table", async () => {
+  const { parentTableOptions, resolveInheritName } = await import(moduleUrl);
+  const root = {
+    name: "A",
+    subclasses: [
+      { name: "B", inheritName: "A" },
+      { name: "C", inheritName: "B" },
+    ],
+  };
+  const options = parentTableOptions(root, "C");
+  assert.strictEqual(options[0], "A");
+  assert.strictEqual(resolveInheritName("B", options), "B");
+});
+
+test("editing a direct child keeps the root table as its parent", async () => {
+  const { parentTableOptions, resolveInheritName } = await import(moduleUrl);
+  const root = {
+    name: "A",
+    subclasses: [
+      { name: "B", inheritName: "A" },
+      { name: "C", inheritName: "B" },
+    ],
+  };
+  assert.strictEqual(
+    resolveInheritName("A", parentTableOptions(root, "B")),
+    "A"
+  );
+});
+
+test("a new subclass extends the root table by default", async () => {
+  const { parentTableOptions, resolveInheritName } = await import(moduleUrl);
+  const root = { name: "A", subclasses: [{ name: "B", inheritName: "A" }] };
+  assert.strictEqual(
+    resolveInheritName(undefined, parentTableOptions(root, undefined)),
+    "A"
+  );
+});
+
+test("a root table without subclasses only offers itself as parent", async () => {
+  const { parentTableOptions, resolveInheritName } = await import(moduleUrl);
+  const root = { name: "A" };
+  assert.deepStrictEqual(parentTableOptions(root, undefined), ["A"]);
+  assert.strictEqual(resolveInheritName(undefined, ["A"]), "A");
+});
+
+test("a subclass of a cross schema child extends that child, not its external parent", async () => {
+  const { parentTableOptions, resolveInheritName } = await import(moduleUrl);
+  const crossSchemaRoot = {
+    name: "B",
+    inheritName: "A",
+    inheritSchemaName: "otherschema",
+    subclasses: [{ name: "C", inheritName: "B" }],
+  };
+  const options = parentTableOptions(crossSchemaRoot, "C");
+  assert.deepStrictEqual(options, ["B"]);
+  assert.strictEqual(resolveInheritName("B", options), "B");
+});
+
+test("a parent that is no longer offered falls back to the root table", async () => {
+  const { resolveInheritName } = await import(moduleUrl);
+  assert.strictEqual(resolveInheritName("removedSubclass", ["A", "B"]), "A");
+});
+
 test("parent table options list every table once when subclasses are also listed at top level", async () => {
   const { extendableTableNames } = await import(moduleUrl);
   const subclass = { name: "sub", inheritName: "parent" };

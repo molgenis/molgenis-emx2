@@ -1,19 +1,4 @@
-export interface InheritableTable {
-  name: string;
-  tableType?: string;
-  drop?: boolean;
-  inheritName?: string;
-  inheritSchemaName?: string;
-  subclasses?: InheritableTable[];
-}
-
-export interface TableHolder {
-  tables?: InheritableTable[];
-}
-
-export interface InheritableSchema extends TableHolder {
-  name: string;
-}
+import type { EditorSchema, EditorTable } from "./tableModel";
 
 export function toInheritSchemaName(
   selectedSchemaName: string | null | undefined,
@@ -26,7 +11,7 @@ export function toInheritSchemaName(
 }
 
 export function isCrossSchemaSubclass(
-  table: InheritableTable,
+  table: EditorTable,
   currentSchemaName: string
 ): boolean {
   return (
@@ -36,16 +21,16 @@ export function isCrossSchemaSubclass(
 }
 
 export function isRootTable(
-  table: InheritableTable,
+  table: EditorTable,
   currentSchemaName: string
 ): boolean {
   return !table.inheritName || isCrossSchemaSubclass(table, currentSchemaName);
 }
 
 export function findLocalRootTable(
-  schema: InheritableSchema,
-  table: InheritableTable
-): InheritableTable | undefined {
+  schema: EditorSchema,
+  table: EditorTable
+): EditorTable | undefined {
   if (isRootTable(table, schema.name)) {
     return undefined;
   }
@@ -60,8 +45,27 @@ export function findLocalRootTable(
     );
 }
 
+export function parentTableOptions(
+  rootTable: EditorTable,
+  tableName: string | undefined
+): string[] {
+  const siblingNames = (rootTable.subclasses || [])
+    .map((subclass) => subclass.name)
+    .filter((name) => name !== tableName);
+  return [rootTable.name, ...siblingNames];
+}
+
+export function resolveInheritName(
+  currentInheritName: string | undefined,
+  options: string[]
+): string | undefined {
+  return options.some((option) => option === currentInheritName)
+    ? currentInheritName
+    : options[0];
+}
+
 export function extendableTableNames(
-  schema: TableHolder | null | undefined
+  schema: { tables?: EditorTable[] } | null | undefined
 ): string[] {
   const tables = schema && schema.tables ? schema.tables : [];
   const names = tables
