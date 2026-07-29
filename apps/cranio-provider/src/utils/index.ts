@@ -84,15 +84,6 @@ export function uniqueAgeGroups(data: any, key: string): string[] {
 }
 
 /**
- * @name ernCenterPalette
- * @description color palette for charts that show ERN and center comparisons
- */
-export const ernCenterPalette: IKeyValuePair = {
-  ERN: "#66c2a4",
-  "Your center": "#3f6597",
-};
-
-/**
  * @name sortByDataPointName
  *
  * @param data dataset to sort (IChartData[] from ICharts)

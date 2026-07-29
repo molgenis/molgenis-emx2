@@ -47,6 +47,7 @@ public class MolgenisWebservice {
   public static final OIDCController oidcController = new OIDCController();
 
   private final Javalin app;
+  private final boolean hostUrlFromEnvironment;
   static URL hostUrl;
 
   public MolgenisWebservice() {
@@ -65,13 +66,13 @@ public class MolgenisWebservice {
                           Math.toIntExact(MAX_REQUEST_SIZE)) // Jetty limit
                   );
             });
-    setServiceUrl();
+    hostUrlFromEnvironment = setServiceUrl();
   }
 
   public void start(int port) {
     app.start(port);
 
-    if (hostUrl == null) {
+    if (!hostUrlFromEnvironment) {
       try {
         hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
       } catch (Exception ignored) {
@@ -168,7 +169,7 @@ public class MolgenisWebservice {
         });
   }
 
-  private static void setServiceUrl() {
+  private static boolean setServiceUrl() {
     String serviceUrlParameter = null;
     try {
       serviceUrlParameter =
@@ -177,7 +178,7 @@ public class MolgenisWebservice {
                   org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL, null, ColumnType.STRING);
 
       if (serviceUrlParameter == null || serviceUrlParameter.isBlank()) {
-        return;
+        return false;
       }
 
       URI uri = new URI(serviceUrlParameter);
@@ -185,8 +186,10 @@ public class MolgenisWebservice {
       if (uri.getScheme() != null && uri.getHost() != null) {
         hostUrl = uri.toURL();
         logger.info("Using provided service URL: {}", serviceUrlParameter);
+        return true;
       }
 
+      return false;
     } catch (Exception e) {
       throw new MolgenisException(
           "Invalid MOLGENIS_SERVICE_URL '%s': must include scheme and host"
@@ -196,6 +199,10 @@ public class MolgenisWebservice {
 
   public void stop() {
     app.stop();
+  }
+
+  public int getPort() {
+    return app.port();
   }
 
   private static void handleLoginCallback(Context ctx) {

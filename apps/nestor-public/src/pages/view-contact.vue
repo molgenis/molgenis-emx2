@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// @ts-expect-error
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+import Address from "../components/Address.vue";
+</script>
+
 <template>
   <Page>
     <PageHeader
@@ -7,16 +13,12 @@
       titlePositionY="center"
       height="medium"
     />
-    <PageSection aria-labelledby="contact-us-section-title">
+    <PageSection
+      aria-labelledby="contact-us-section-title"
+      :verticalPadding="2"
+    >
       <h2 id="contact-us-section-title">Contact Us</h2>
       <Address :showEmail="true" :centerText="true" />
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-expect-error
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-// @ts-expect-error
-import Address from "../components/Address.vue";
-</script>

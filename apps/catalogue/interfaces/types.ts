@@ -380,4 +380,9 @@ export type analyticsService =
   | "google-analytics"
   | "piwik-pro";
 
-export type IShoppingCart = Record<string, IResources>;
+export type ICartItem = { id: string; label: string } & (
+  | { type: "resource"; pid: string; name: string }
+  | { type: "variable" }
+);
+
+export type ICart = Map<string, ICartItem>;

@@ -32,38 +32,15 @@ class SqlQueryBuilderHelpers {
       String tableAlias) {
     for (Map.Entry<String, Order> orderEntry : select.getOrderBy().entrySet()) {
       Column column = getColumnByName(table, orderEntry.getKey());
-      query = setOderByForColumn(column, orderEntry.getValue(), query, tableAlias);
+      query = setOrderByForColumn(column, orderEntry.getValue(), query, tableAlias);
     }
     return query;
   }
 
-  private static SelectJoinStep<Record> setOderByForColumn(
+  private static SelectJoinStep<Record> setOrderByForColumn(
       Column column, Order order, SelectConnectByStep<org.jooq.Record> query, String tableAlias) {
     if (column.isRefback()) {
-      // TODO, we now ignore sorting on refback, see issue
-      // https://github.com/molgenis/molgenis-emx2/issues/4260
-      // need to order by join with the refback table
-      /*
-      List<Condition> conditions =
-          column.getRefBackColumn().getReferences().stream()
-              .map(ref -> field(name(tableAlias, ref.getReferencedColumnName())).eq(field(ref.getName())))
-              .toList();
-      for (Reference ref : column.getReferences()) {
-        Field<?> field =
-            isCaseSensitiveField(column) ? lower(field(ref.getReferencedColumnName())) : ref.getJooqField();
-        var collatedField =
-            ref.getColumnType().isStringyType()
-                ? field.collate(DSL.unquotedName("\"MOLGENIS\".numeric"))
-                : field;
-        field =
-            DSL.field(
-                DSL.select(DSL.max(field(collatedField)))
-                    .from(column.getRefTable().getJooqTable())
-                    .where(conditions));
-        final SortField<?> sortField =
-            ASC.equals(order) ? collatedField.asc() : collatedField.desc();
-        query = (SelectJoinStep<org.jooq.Record>) query.orderBy(sortField);
-      }*/
+      // Not supported. Feature request: https://github.com/molgenis/molgenis-emx2/issues/4021
     } else if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
         final Column refColumn = ref.toPrimitiveColumn();

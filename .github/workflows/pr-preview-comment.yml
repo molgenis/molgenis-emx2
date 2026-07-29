@@ -1,0 +1,27 @@
+name: PR preview link
+on:
+  pull_request:
+    types: [ opened, reopened ]
+jobs:
+  preview-comment:
+    # previews are only deployed for branches in this repo, not for forks
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-slim
+    permissions:
+      pull-requests: write
+    steps:
+      - name: URL-encode branch name
+        id: branch
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: echo "encoded=$(jq -rn --arg b "$BRANCH" '$b|@uri')" >> "$GITHUB_OUTPUT"
+      - name: Comment preview link on PR
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: pr-preview
+          message: |
+            **Preview:** https://preview-emx2-pr-${{ github.event.number }}.dev.molgenis.org/
+
+            The preview is deployed by CircleCI and may take a while to become available after each push.
+            Preview servers don't exist indefinitely. If the preview server is unavailable, then either push a new commit, or contact ops.
+            Build progress: [CircleCI pipeline for this branch](https://app.circleci.com/pipelines/github/molgenis/molgenis-emx2?branch=${{ steps.branch.outputs.encoded }})

@@ -1,4 +1,5 @@
-import { createError, useRoute } from "nuxt/app";
+import { useRoute } from "nuxt/app";
+import { fetchErrorToNuxtError } from "../utils/fetchErrorToNuxtError";
 import { computed, ref } from "vue";
 import type { RouteLocationNormalizedGeneric } from "vue-router";
 import type { Resp, Settings } from "../../types/types";
@@ -26,10 +27,10 @@ export const useSchemaSettings = async (
       }),
     }).catch((error) => {
       console.error("Error fetching schema settings", error);
-      throw createError({
-        ...error,
-        message: `Could not fetch schema settings for schema ${schema.value}.`,
-      });
+      throw fetchErrorToNuxtError(
+        error,
+        `Could not fetch schema settings for schema ${schema.value}.`
+      );
     });
 
     if (response) {

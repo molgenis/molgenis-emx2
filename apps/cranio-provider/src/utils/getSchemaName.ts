@@ -1,15 +1,9 @@
-import { request, gql } from "graphql-request";
-import type { ISchemaResponse, ISchema } from "../types/index";
-
 export async function getSchemaName(): Promise<string> {
-  const query = gql`
-    {
-      _schema {
-        name
-      }
-    }
-  `;
-
-  const result: ISchemaResponse = await request("../api/graphql", query);
-  return (result._schema as ISchema).name;
+  const query = `{ _schema { name }}`;
+  const response = await fetch("../api/graphql", {
+    method: "POST",
+    body: JSON.stringify({ query: query }),
+  });
+  const responseJson = await response.json();
+  return responseJson.data._schema.name;
 }
