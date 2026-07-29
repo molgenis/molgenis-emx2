@@ -44,7 +44,7 @@ async def clear_schemas(client, schema, staging_schema):
 def get_directory_data():
     """Get Directory data"""
     data = {}
-    tables = ["Biobanks", "Collections", "CollectionFacts"]
+    tables = ["Biobanks", "Collections", "CollectionFacts", "Networks"]
     with pyclient.Client(url="https://directory.bbmri-eric.eu", schema="ERIC") as client:
         for table in tables:
             # FIXME: reading from file is only for speeding up testing, remove afterwards
@@ -69,12 +69,14 @@ def convert_biobanks_to_biobanks(bb, mappings):
     return bb
 
 
-def convert_biobanks_to_organisations(bb, jp_prefix):
-    """Convert Biobanks to Organisations"""
+def convert_biobanks_networks_to_organisations(bb, networks, jp_prefix):
+    """Convert Biobanks and Networks to Organisations"""
     # Select biobanks without collections
     bb_no_coll = bb.loc[bb["collections"].isna()]
     # Convert juridical persons of all biobanks with collections to organisations
     jp = bb.loc[bb["collections"].notna()]
+    # Add juridical persons from networks
+    jp = pd.concat([jp, networks.loc[networks["juridical_person"].notna()]])
     # Prevent duplicate names
     jp["name"] = jp["juridical_person"]
     jp = jp.drop_duplicates(subset="name", ignore_index=True)
@@ -94,7 +96,11 @@ def convert_collections_to_collections(coll, mappings):
         "directory_id",
     ]
     parent_coll = coll.loc[coll["id"].isin(parent_collection_ids)]
-    to_promote_collection_ids = mappings.loc[mappings["mapping_rule"] == "sub-collection type-varies (robust) -> promoted Collection + Linkage(wasDerivedFrom)", "directory_id"]
+    to_promote_collection_ids = mappings.loc[
+        mappings["mapping_rule"]
+        == "sub-collection type-varies (robust) -> promoted Collection + Linkage(wasDerivedFrom)",
+        "directory_id",
+    ]
     to_promote_coll = coll.loc[coll["id"].isin(to_promote_collection_ids)]
     to_curate_collection_ids = mappings.loc[
         (mappings["directory_table"] == "Collections")
@@ -105,10 +111,14 @@ def convert_collections_to_collections(coll, mappings):
     # Add linkages from to-be-curated and promoted subcollections to their parent collections
     links_1 = to_promote_coll.reindex(columns=["id", "parent_collection"])
     links_1 = links_1.rename(columns={"id": "resource", "parent_collection": "linked resource"})
-    links_1['relationship type'] = "hasParentCollection (Directory subcollection which was promoted)"
+    links_1["relationship type"] = (
+        "hasParentCollection (Directory subcollection which was promoted)"
+    )
     links_2 = to_curate_coll.reindex(columns=["id", "parent_collection"])
     links_2 = links_2.rename(columns={"id": "resource", "parent_collection": "linked resource"})
-    links_2['relationship type'] = "Directory subcollections migrated as temporary Collections, to be curated."
+    links_2["relationship type"] = (
+        "Directory subcollections migrated as temporary Collections, to be curated."
+    )
     links = pd.concat([links_1, links_2])
     coll = pd.concat([parent_coll, to_promote_coll, to_curate_coll])
     # Attribute-level operations which apply to all Collections
@@ -155,6 +165,12 @@ def convert_collections_to_subpopulations(subpop, mappings):
     return subpop
 
 
+def convert_networks_to_networks(networks):
+    """Convert Networks to Networks"""
+    networks = networks.rename(columns={"juridical_person": "organisations involved"})
+    return networks
+
+
 async def main():
     """Main function"""
     load_dotenv()
@@ -195,8 +211,14 @@ async def main():
             data["Collections"]["id"] == "bbmri-eric:ID:HU_SUB:collection:DGCI_OSC",
             "parent_collection",
         ] = "bbmri-eric:ID:HU_SUB:collection:DGCI"
+        # Deal with duplicate Networks entry
+        data["Networks"] = data["Networks"].drop(
+            data["Networks"].loc[data["Networks"]["id"] == "bbmri-eric:networkID:FI_finbb"].index
+        )
         # Convert data
-        organisations = convert_biobanks_to_organisations(data["Biobanks"].copy(), jp_prefix)
+        organisations = convert_biobanks_networks_to_organisations(
+            data["Biobanks"].copy(), data["Networks"].copy(), jp_prefix
+        )
         organisations = organisations.reindex(
             columns=[
                 "id",
@@ -231,6 +253,8 @@ async def main():
         collection_events = collection_events.reindex(columns=["resource", "name"])
         subpopulations = convert_collections_to_subpopulations(data["Collections"].copy(), mappings)
         subpopulations = subpopulations.reindex(columns=["resource", "name"])
+        networks = convert_networks_to_networks(data["Networks"].copy())
+        networks = networks.reindex(columns=["id", "name", "organisations involved"])
         # Post-process data
         # Link collections to their newly minted legal-entity organisations
         jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)]
@@ -247,17 +271,34 @@ async def main():
             ]
             .values
         )
+        # Create organisation roles
+        organisation_roles = networks.loc[networks["organisations involved"].notna()]
+        del organisation_roles["name"]
+        organisation_roles = organisation_roles.rename(
+            columns={"id": "resource", "organisations involved": "organisation"}
+        )
+        organisation_roles["organisation"] = (
+            jp_orgs.set_index("name").loc[organisation_roles["organisation"], "id"].values
+        )
+        organisation_roles["role"] = "Other"  # TODO: TBD what role this should be
         # Link biobanks to their legal-entity organisations
         biobanks["part of"] = jp_orgs.set_index("name").loc[biobanks["part of"], "id"].values
-        # Ensure newly minted organisations have a distinct name from biobanks and collections
+        # Ensure newly minted organisations have a distinct name from biobanks, collections and networks
         organisations.loc[
             organisations["id"].isin(jp_orgs["id"])
             & (
                 (organisations["name"].isin(biobanks["name"]))
                 | (organisations["name"].isin(collections["name"]))
+                | (organisations["name"].isin(networks["name"]))
             ),
             "name",
         ] += " (juridical person)"
+        # Ensure networks have a distinct name from biobanks and collections
+        networks.loc[
+            (networks["name"].isin(collections["name"]))
+            | (networks["name"].isin(biobanks["name"])),
+            "name",
+        ] += " (network)"
         # Ensure biobanks have a distinct name from collections
         biobanks.loc[biobanks["name"].isin(collections["name"]), "name"] += " (biobank)"
         # Ensure organisations derived from 0-coll biobanks have a distinct name from collections
@@ -268,6 +309,8 @@ async def main():
         if truncate:
             print("Truncating...")
             client.truncate(table="Linkages", schema=schema)
+            client.truncate(table="Organisation roles", schema=schema)
+            client.truncate(table="Networks", schema=schema)
             client.truncate(table="Subpopulations", schema=schema)
             client.truncate(table="Collection events", schema=schema)
             client.truncate(table="Collection facts", schema=schema)
@@ -281,6 +324,8 @@ async def main():
         client.save_table(table="Collection facts", schema=schema, data=collection_facts)
         client.save_table(table="Collection events", schema=schema, data=collection_events)
         client.save_table(table="Subpopulations", schema=schema, data=subpopulations)
+        client.save_table(table="Networks", schema=schema, data=networks)
+        client.save_table(table="Organisation roles", schema=schema, data=organisation_roles)
         client.save_table(table="Linkages", schema=schema, data=linkages)
         pass
 
