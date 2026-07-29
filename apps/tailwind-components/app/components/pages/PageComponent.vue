@@ -32,8 +32,8 @@ const props = withDefaults(
 
 const emit = defineEmits(["updatePage"]);
 const showMenu = ref<boolean>(false);
-
 const showEditModal = ref<boolean>(false);
+const showDeleteModal = ref<boolean>(false);
 
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
@@ -62,10 +62,11 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
 });
 
 function onDelete() {
-  // TODO:
-  // confirm if user is sure!
-  // are we deleting a block or component?
-  console.log("DELETE", props.component);
+  showDeleteModal.value = true;
+}
+
+function doDelete(){
+  showDeleteModal.value = false;
   if (props.componentType === "Component") {
     deleteComponent(
       componentMetadata.value?.schemaId || "",
@@ -188,4 +189,25 @@ const menuPlacement = computed<string>(() => {
     @update:updated="$emit('updatePage')"
     v-model:visible="showEditModal"
   />
+      <Modal
+        v-model:visible="showDeleteModal"
+        title="Delete"
+        :subtitle="`${componentMetadata?.name}`"
+      >
+      <p class="p-8">
+        Are you sure you want to delete this component?
+      </p>
+<template #footer>
+        <menu class="flex items-center justify-end h-[116px]">
+          <div class="flex gap-4">
+            <Button type="outline" @click="showDeleteModal = false">
+              Cancel
+            </Button>
+            <Button icon="trash" type="primary" @click="doDelete">
+              Delete
+            </Button>
+          </div>
+        </menu>
+    </template>
+      </Modal>
 </template>
