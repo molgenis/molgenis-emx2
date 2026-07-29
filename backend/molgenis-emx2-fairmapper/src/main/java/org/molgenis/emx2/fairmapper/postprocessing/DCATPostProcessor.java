@@ -12,9 +12,9 @@ public class DCATPostProcessor implements PostProcessor {
     this.postProcessors =
         List.of(
             // Base id field off of acronym or name
-            new CoalesceFieldPostProcessor("Collections", "id", "acronym", "name"),
-            new CoalesceFieldPostProcessor("Catalogues", "id", "acronym", "name"),
-            new CoalesceFieldPostProcessor("Organisations", "id", "organisation name"),
+            new CoalesceFieldPostProcessor("Collections", "id", false, "acronym", "name"),
+            new CoalesceFieldPostProcessor("Catalogues", "id", false, "acronym", "name"),
+            new CoalesceFieldPostProcessor("Organisations", "id", false, "organisation name"),
 
             // Set type of collections to a hardcoded value
             new StaticFieldPostProcessor(
