@@ -1,0 +1,13 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Collection facts,,,,,,,,,,,,Dimensioned aggregate breakdown of sample and donor counts for a collection,DataCatalogueFlat
+Collection facts,,id,string,1,TRUE,,,,,,,Internal identifier,DataCatalogueFlat
+Collection facts,,collection,ref,1,TRUE,,Collections,,,,,Collection these facts describe,DataCatalogueFlat
+Collection facts,,sex,ontology,,,CatalogueOntologies,Sex,,,,,Sex dimension of this aggregate (empty means aggregated over sex),DataCatalogueFlat
+Collection facts,,age group,ontology,,,CatalogueOntologies,Age groups,,,,,Age group dimension of this aggregate (empty means aggregated over age group),DataCatalogueFlat
+Collection facts,,disease,ontology,,,CatalogueOntologies,Diseases,,,,,Disease dimension of this aggregate (empty means aggregated over disease),DataCatalogueFlat
+Collection facts,,sample type,ontology,,,CatalogueOntologies,Sample types,,,,,Sample type dimension of this aggregate (empty means aggregated over sample type),DataCatalogueFlat
+Collection facts,,anatomy,ontology,,,CatalogueOntologies,Anatomical location,,,,,Anatomical location dimension of this aggregate (empty means aggregated over anatomy),DataCatalogueFlat
+Collection facts,,number of samples,int,,,,,,,,,Number of samples for this dimension combination,DataCatalogueFlat
+Collection facts,,number of donors,int,,,,,,,,,Number of donors for this dimension combination,DataCatalogueFlat
+Collection facts,,last update,date,,,,,,,,,Date these counts were last updated,DataCatalogueFlat
+Collection facts,,source,ref,,,,Organisations,,,,,Owning catalogue or national node these facts originate from,DataCatalogueFlat
