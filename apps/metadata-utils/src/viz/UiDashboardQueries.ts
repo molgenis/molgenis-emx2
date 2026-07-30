@@ -63,8 +63,8 @@ export const chartQuery = `query getChart($filter: ChartsFilter) {
   Charts(filter: $filter) ${chartData}
 }`;
 
-export const dashboardQuery = `query getDashboardPage() {
-  DashboardPage(filter: $filter) {
+export const dashboardQuery = `query getDashboardPage($filter: DashboardPagesFilter) {
+  DashboardPages(filter: $filter) {
     name
     description
     charts ${chartData}
