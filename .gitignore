@@ -21,7 +21,8 @@ examplefiles
 *.DS_Store
 git.properties
 psql_data
-/.env
+/.env*
+!/.env-example
 */data/elasticsearch/
 /data/elasticsearch/
 test-output/
