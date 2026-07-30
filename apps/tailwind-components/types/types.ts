@@ -150,7 +150,7 @@ export interface ISession {
   email: string;
   admin: boolean;
   roles: Record<schemaId, string[]>;
-  tablePermissions: Record<schemaId, Record<string, ITablePermission>>;
+  tablePermissions: Record<schemaId, ITablePermission[]>;
   schemas?: Schema[];
   token?: string;
 }

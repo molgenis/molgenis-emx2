@@ -15,6 +15,7 @@ import TableHeadRow from "../../../../tailwind-components/app/components/TableHe
 import type { Crumb } from "../../../../tailwind-components/types/types";
 import { definePageMeta } from "#imports";
 import Search from "../../../../tailwind-components/app/components/input/Search.vue";
+import { useSession } from "../../../../tailwind-components/app/composables/useSession";
 
 definePageMeta({
   middleware: ["landing-page"],
@@ -69,6 +70,17 @@ const ontologies = computed(
       .sort((a, b) => a.label.localeCompare(b.label)) ?? []
 );
 
+const { tablePermissions, getTablePermission } = await useSession(schema);
+
+// no permissions at all means the backend did not supply them; fall back to
+// showing every table rather than ghosting the whole list
+function canViewTable(table: { id: string; tableType: TableType }) {
+  if (!tablePermissions.value.length) return true;
+  return (
+    getTablePermission(table.id)?.canView || table.tableType === "ONTOLOGIES"
+  );
+}
+
 const crumbs: Crumb[] = [];
 if (schema) {
   crumbs.push({ label: schema, url: `/${schema}` });
@@ -121,10 +133,19 @@ const filteredOntologies = computed(() => {
         <template #body>
           <TableRow
             v-for="table in filteredTables"
-            @click="navigateTo(`${schema}/${table.id}`)"
+            :disabled="!canViewTable(table)"
+            @click="canViewTable(table) && navigateTo(`${schema}/${table.id}`)"
           >
-            <TableCell>{{ table.label }}</TableCell>
-            <TableCell>{{ table.description }}</TableCell>
+            <TableCell>
+              <span :class="{ 'text-disabled': !canViewTable(table) }">
+                {{ table.label }}
+              </span>
+            </TableCell>
+            <TableCell>
+              <span :class="{ 'text-disabled': !canViewTable(table) }">
+                {{ table.description }}
+              </span>
+            </TableCell>
           </TableRow>
         </template>
       </Table>

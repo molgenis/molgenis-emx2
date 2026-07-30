@@ -1,6 +1,6 @@
 import { useAsyncData, useRouter, useState } from "nuxt/app";
 import { computed, type Ref } from "vue";
-import type { ISession } from "../../types/types";
+import type { ISession, ITablePermission } from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
 
 export const useSession = async (schemaId?: string) => {
@@ -78,10 +78,9 @@ export const useSession = async (schemaId?: string) => {
       session.value.roles = {};
       session.value.tablePermissions = {};
 
-      session.value.roles[schemaId] =
-        permissionsResult?.data.value?.data?._session?.roles;
+      session.value.roles[schemaId] = permissionsResult.data?._session?.roles;
       session.value.tablePermissions[schemaId] =
-        permissionsResult?.data.value?.data?._session?.tablePermissions;
+        permissionsResult.data?._session?.tablePermissions;
     }
   }
 
@@ -152,6 +151,16 @@ export const useSession = async (schemaId?: string) => {
   }
   const isAdmin = computed(() => session.value?.admin || false);
 
+  const tablePermissions = computed<ITablePermission[]>(() =>
+    schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
+  );
+
+  function getTablePermission(tableId: string): ITablePermission | undefined {
+    return tablePermissions.value.find(
+      (permission) => permission.id === tableId || permission.name === tableId
+    );
+  }
+
   if (
     !session.value ||
     (schemaId && session.value.roles?.[schemaId] === undefined)
@@ -162,6 +171,8 @@ export const useSession = async (schemaId?: string) => {
   return {
     isAdmin,
     session,
+    tablePermissions,
+    getTablePermission,
     reload,
     hasSessionTimeout,
     reAuthenticate,
