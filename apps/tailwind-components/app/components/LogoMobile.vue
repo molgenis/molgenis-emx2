@@ -8,6 +8,7 @@ import { toLogoPath } from "../utils/logoPath";
 defineProps<{
   link?: string;
   image?: string;
+  alt?: string;
 }>();
 
 const config = useRuntimeConfig();
@@ -27,13 +28,14 @@ if (logoFileName) {
     <img
       v-if="image"
       :src="image"
+      :alt="alt"
       class="w-50px h-auto"
       style="background-color: white"
     />
     <img
       v-else-if="svg"
       :src="svg"
-      alt="logo"
+      :alt="alt ?? 'logo'"
       class="object-contain max-h-12.5 max-w-96 py-1"
     />
     <img

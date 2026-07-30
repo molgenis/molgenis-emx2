@@ -8,6 +8,7 @@ withDefaults(
   defineProps<{
     link?: string;
     image?: string;
+    alt?: string;
     inverted?: boolean;
   }>(),
   {
@@ -33,10 +34,15 @@ if (logoFileName) {
     <img
       v-if="svg"
       :src="svg"
-      alt="logo"
+      :alt="alt ?? 'logo'"
       class="object-contain max-h-25 max-w-96 py-2"
     />
-    <img v-else-if="image" :src="image" class="object-contain h-16 w-96" />
+    <img
+      v-else-if="image"
+      :src="image"
+      :alt="alt"
+      class="object-contain h-16 w-96"
+    />
     <svg
       v-else
       xmlns="http://www.w3.org/2000/svg"
