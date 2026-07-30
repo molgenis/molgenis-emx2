@@ -639,17 +639,17 @@ jobs:
 
     - run:
         name: <apps> check code format
-        command: ./gradlew :apps:format
+        command: ./gradlew :apps:format --profile
 
     - run:
         name: <apps> lint the code
         command: |
-          ./gradlew lint ci --no-daemon \
+          ./gradlew lint ci --no-daemon --profile \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 
     - run:
         name: <apps> unit test the code
-        command: ./gradlew :apps:test
+        command: ./gradlew :apps:test --profile
 
     - save_turbo_cache
     - save_pnpm_store
@@ -657,15 +657,15 @@ jobs:
     - run:
         name: <backend> check code format
         command: |
-          ./gradlew --continue spotlessCheck
+          ./gradlew --continue spotlessCheck --profile
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
         command: |
-          ./gradlew --continue pmdMain pmdTest
+          ./gradlew --continue pmdMain pmdTest --profile
     - run:
         name: run tests and push to sonar
         command: |
-          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
+          ./gradlew test jacocoMergedReport sonar --no-daemon --profile -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
@@ -693,7 +693,7 @@ jobs:
             'MOLGENIS_JVM_XMX=333m' \
             'MOLGENIS_POSTGRES_PASS=ci-guardrail-secret' > .env
           export MOLGENIS_HTTP_PORT=19999
-          ./gradlew -q --console=plain --no-daemon printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
+          ./gradlew -q --console=plain --no-daemon --profile printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
             | tee printDevConfig.out
           grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_HTTP_PORT=19345' printDevConfig.out
           grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_CI_PROBE=probe-value' printDevConfig.out
@@ -703,6 +703,44 @@ jobs:
         name: <dev> remove the temporary .env
         command: rm -f .env printDevConfig.out
         when: always
+
+    - run:
+        name: Gradle configuration versus task execution time, per invocation
+        when: always
+        command: |
+          set -euo pipefail
+          reportDir=build/reports/profile
+          reports=$(ls -1 "$reportDir"/profile-*.html 2>/dev/null || true)
+          if [ -z "$reports" ]; then
+            echo "no gradle profile report in $reportDir; every ./gradlew call in this job runs with --profile" >&2
+            exit 1
+          fi
+          for report in $reports; do
+            summary=$(sed -n '/<h2>Summary<\/h2>/,/<\/table>/p' "$report" |
+              sed -e 's/<[^>]*>//g' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | grep -v '^$')
+            field() {
+              printf '%s\n' "$summary" | awk -v want="$1" 'found { print; exit } $0 == want { found = 1 }'
+            }
+            profiled=$(sed -n 's/.*Profiled build: *\(.*\)<\/p>.*/\1/p' "$report" | sed -e 's/[[:space:]]*$//')
+            for pair in "profiled build:$profiled" \
+                        "total:$(field 'Total Build Time')" \
+                        "startup:$(field 'Startup')" \
+                        "settings and buildSrc:$(field 'Settings and buildSrc')" \
+                        "configuration:$(field 'Configuring Projects')" \
+                        "task execution:$(field 'Task Execution')"; do
+              if [ -z "${pair#*:}" ]; then
+                echo "cannot read '${pair%%:*}' out of $report; the gradle profile report format changed" >&2
+                exit 1
+              fi
+            done
+            echo "gradle profile | tasks: $profiled | total $(field 'Total Build Time') |" \
+              "startup $(field 'Startup') | settings+buildSrc $(field 'Settings and buildSrc') |" \
+              "configuration $(field 'Configuring Projects') | execution $(field 'Task Execution')"
+          done
+
+    - store_artifacts:
+        path: build/reports/profile
+        destination: gradle-profile
 
   release:
     <<: *release_config
