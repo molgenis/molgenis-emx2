@@ -36,6 +36,18 @@ export function applyTableRename(
     });
 }
 
+export function findRootTable(
+  tables: EditorTable[] | undefined,
+  tableName: string | undefined
+): EditorTable | undefined {
+  if (tableName === undefined) {
+    return undefined;
+  }
+  return (tables || []).find((table) =>
+    withSubclasses(table).some((owner) => owner.name === tableName)
+  );
+}
+
 export function isColumnOwnerDropped(
   rootTable: EditorTable,
   column: EditorColumn
