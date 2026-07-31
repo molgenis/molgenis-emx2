@@ -797,6 +797,7 @@ jobs:
             exit 1
           fi
           awk 'NF == 4 && $1 > 0 {
+                 sampleCount++
                  total = $1
                  if (minAvailable == 0 || $2 < minAvailable) minAvailable = $2
                  if ($3 > maxCgroup) maxCgroup = $3
@@ -804,7 +805,7 @@ jobs:
                }
                END {
                  printf "gradle daemon | peak memory used machine-wide, postgres container included: %.2f GiB of %.2f GiB, over %d samples\n", \
-                   (total - minAvailable) / 1048576, total / 1048576, NR
+                   (total - minAvailable) / 1048576, total / 1048576, sampleCount
                  printf "gradle daemon | peak memory of this container cgroup: %.2f GiB\n", maxCgroup / 1073741824
                  printf "gradle daemon | peak resident memory of all java processes together: %.2f GiB\n", maxJava / 1048576
                }' "$samples"
@@ -940,6 +941,7 @@ jobs:
               "run for this job, so peak memory cannot be reported" >&2
           else
             awk 'NF == 4 && $1 > 0 {
+                   sampleCount++
                    total = $1
                    if (minAvailable == 0 || $2 < minAvailable) minAvailable = $2
                    if ($3 > maxCgroup) maxCgroup = $3
@@ -947,7 +949,7 @@ jobs:
                  }
                  END {
                    printf "gradle daemon | peak memory used machine-wide, postgres container included: %.2f GiB of %.2f GiB, over %d samples\n", \
-                     (total - minAvailable) / 1048576, total / 1048576, NR
+                     (total - minAvailable) / 1048576, total / 1048576, sampleCount
                    printf "gradle daemon | peak memory of this container cgroup: %.2f GiB\n", maxCgroup / 1073741824
                    printf "gradle daemon | peak resident memory of all java processes together: %.2f GiB\n", maxJava / 1048576
                  }' "$samples"
