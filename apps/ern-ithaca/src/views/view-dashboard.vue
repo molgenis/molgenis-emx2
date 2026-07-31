@@ -6,7 +6,6 @@ import {
   Dashboard,
   DashboardRow,
   DashboardChart,
-  DataValueHighlights,
   DataTable,
   GeoMercator,
   WorldGeoJson,
@@ -130,17 +129,25 @@ loadData()
       id="publicDashboard"
       class="bg-blue-100"
       :verticalPadding="0"
-      :horizontalPadding="3"
+      :horizontalPadding="2"
       v-else-if="!loading && !error"
     >
-      <DashboardRow :columns="1">
-        <DataValueHighlights
-          id="ernIthacaDataHighlights"
-          title="ERN ITHACA at a glance"
-          :data="dataHighlightsData"
-        />
-      </DashboardRow>
-      <DashboardRow :columns="2">
+      <DashboardRow :columns="3">
+        <DashboardChart class="custom-data-highlight">
+          <data :value="dataHighlightsData?.Patients">
+            <span>Patients</span>
+          </data>
+        </DashboardChart>
+        <DashboardChart class="custom-data-highlight">
+          <data :value="dataHighlightsData?.['Small variants']">
+            <span>Small variants</span>
+          </data>
+        </DashboardChart>
+        <DashboardChart class="custom-data-highlight">
+          <data :value="dataHighlightsData?.['Structural variants']">
+            <span>Structural variants</span>
+          </data>
+        </DashboardChart>
         <DashboardChart>
           <DataTable
             :tableId="topGenesChart?.name"
