@@ -53,13 +53,16 @@ ext.dotenvValuesForForkedJvms = { ->
     }
     values
 }
-ext.isSecretDotenvKey = { String key -> key.toUpperCase() =~ /PASS|PW|SECRET|TOKEN|KEY|CREDENTIAL/ }
+ext.secretDotenvKeyNameFragments = /PASS|PW|SECRET|TOKEN|KEY|CREDENTIAL/
+ext.isSecretDotenvKey = { String key -> key.toUpperCase() =~ rootProject.ext.secretDotenvKeyNameFragments }
 ext.dotenvKeysNotReadByTests = ['MOLGENIS_HTTP_PORT', 'MOLGENIS_JVM_XMX',
                                 'MOLGENIS_APPS_HOST', 'MOLGENIS_APPS_SCHEMA',
                                 'NUXT_PUBLIC_API_BASE'].toSet()
 ext.secretDotenvKeysReadByTests = ['MOLGENIS_POSTGRES_PASS', 'MOLGENIS_ADMIN_PW',
                                    'MOLGENIS_JWT_SHARED_SECRET', 'MOLGENIS_OIDC_CLIENT_SECRET',
-                                   'CV_CLIENT_SECRET'].toSet()
+                                   'MOLGENIS_OIDC_UNSIGNED_TOKEN', 'MOLGENIS_TOKEN',
+                                   'CV_CLIENT_SECRET', 'EMX2_TEST_EMAIL_PASSWORD',
+                                   'EMAIL_SMTP_AUTHENTICATOR_SENDER_PASSWORD'].toSet()
 ext.sha256Hex = { String text ->
     java.security.MessageDigest.getInstance('SHA-256').digest(text.getBytes('UTF-8')).encodeHex().toString()
 }
@@ -79,6 +82,7 @@ ext.declareTestDotenvInput = { task, String key, String value ->
     }
 }
 ext.forwardDotenvPropsToTest = { task ->
+    task.dependsOn ':checkSecretDotenvKeysReadByTests'
     def values = rootProject.ext.dotenvValuesForForkedJvms()
     task.jvmArgumentProviders.add(new DotenvSystemProperties(values))
     values.each { key, value -> rootProject.ext.declareTestDotenvInput(task, key, value) }
@@ -90,3 +94,39 @@ ext.applyDotenvHeap = { task ->
     def heap = rootProject.ext.resolveDotenvValue('MOLGENIS_JVM_XMX')
     if (heap) task.maxHeapSize = heap
 }
+
+// Key NAMES only, so that nothing here can print or track a secret value.
+def backendJavaSources = fileTree(dir: new File(rootDir, 'backend'), include: '**/src/**/*.java')
+def envKeyNameLiteral = /"([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)"/
+def secretKeyNameFragments = ext.secretDotenvKeyNameFragments
+def listedSecretKeys = ext.secretDotenvKeysReadByTests.toSorted()
+tasks.register('checkSecretDotenvKeysReadByTests') {
+    group = 'verification'
+    description = 'Fails when backend source names a secret-like .env key that is absent from ' +
+            'ext.secretDotenvKeysReadByTests, which would leave it out of every test task cache key.'
+    outputs.upToDateWhen { false }
+    doLast {
+        def literal = java.util.regex.Pattern.compile(envKeyNameLiteral)
+        def secret = java.util.regex.Pattern.compile(secretKeyNameFragments)
+        def found = new TreeSet<String>()
+        backendJavaSources.each { source ->
+            source.eachLine('UTF-8') { line ->
+                def matcher = literal.matcher(line)
+                while (matcher.find()) {
+                    def key = matcher.group(1)
+                    if (secret.matcher(key).find()) found.add(key)
+                }
+            }
+        }
+        def unlisted = found.findAll { !listedSecretKeys.contains(it) }
+        if (!unlisted.isEmpty()) {
+            throw new GradleException(
+                    "backend source names secret-like .env key(s) missing from " +
+                    "ext.secretDotenvKeysReadByTests in gradle/dotenv.gradle: ${unlisted.join(', ')}. " +
+                    "Add each one to that set so its value is tracked as a SHA-256 digest in the " +
+                    "backend Test task cache keys; leaving it out serves a stale cached green when " +
+                    "the value changes. Listing a key nothing reads is harmless.")
+        }
+    }
+}
+tasks.named('check') { dependsOn 'checkSecretDotenvKeysReadByTests' }
