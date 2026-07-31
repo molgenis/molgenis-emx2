@@ -56,8 +56,13 @@ public class Emx2Tables {
   }
 
   private static boolean isFileType(Column c, TableMetadata metadata) {
-    if (metadata.getColumn(c.getName()) == null && c.getName().endsWith("_filename")) {
+    Column resolved = metadata.getColumnByNameIncludingSubclassesAndModules(c.getName());
+    if (resolved == null && c.getName().endsWith("_filename")) {
       return true;
-    } else return !metadata.getColumn(c.getName()).isFile();
+    }
+    if (resolved == null) {
+      return true;
+    }
+    return !resolved.isFile();
   }
 }

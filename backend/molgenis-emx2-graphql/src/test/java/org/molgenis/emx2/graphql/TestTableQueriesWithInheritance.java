@@ -33,7 +33,7 @@ class TestTableQueriesWithInheritance {
     schema = database.dropCreateSchema(schemaName);
     schema.create(table("Person", column("name").setPkey()));
     schema.create(
-        table("Employee", column("salary").setType(ColumnType.INT)).setInheritName("Person"));
+        table("Employee", column("salary").setType(ColumnType.INT)).setInheritNames("Person"));
     schema.getTable("Employee").insert(row("name", "pooky", "salary", 1000));
 
     // table with a file column, with a row that has no file uploaded

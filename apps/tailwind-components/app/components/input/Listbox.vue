@@ -8,6 +8,7 @@
       :valid="valid"
       :disabled="disabled"
       :selected-element-id="selectedElementId"
+      :described-by="describedBy"
       @keydown="onListboxButtonKeyDown"
     >
       <span class="w-full whitespace-nowrap">
@@ -191,6 +192,35 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
   });
 });
 
+function findOptionForValue(
+  value: IInputValue | IInputValueLabel | null | undefined
+) {
+  return listboxOptions.value.find((row: IInternalListboxOption) => {
+    return (
+      row.value === (value as IInputValueLabel)?.value ||
+      row.value === (value as IInputValue)
+    );
+  });
+}
+
+watch(
+  modelValue,
+  () => {
+    const current = findOptionForValue(modelValue.value);
+    if (current && current.value !== null) {
+      focusCounter.value = current.index;
+      startingCounter.value = current.index;
+      selectedElementId.value = current.elemId;
+      displayText.value = updateDisplayText(
+        (current.label as string) || (current.value as string)
+      );
+    } else {
+      displayText.value = props.placeholder;
+    }
+  },
+  { immediate: true }
+);
+
 function updateCounter(value: number) {
   if (counterIsInRange(value)) {
     focusCounter.value = value;
@@ -258,7 +288,6 @@ function updateModelValue(
     displayText.value = updateDisplayText(selection.value as string);
   }
   selectedElementId.value = selection.elemId;
-  emit("update:modelValue", modelValue.value);
 
   if (enableToggling) {
     openCloseListbox();
@@ -269,7 +298,6 @@ function resetModelValue() {
   updateCounter(0);
   displayText.value = updateDisplayText("");
   modelValue.value = undefined;
-  emit("update:modelValue", modelValue.value);
 
   if (isExpanded.value) {
     openCloseListbox();

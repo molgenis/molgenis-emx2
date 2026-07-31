@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -17,17 +18,20 @@ class TestTablePermissionEnforcement {
   private static final String TABLE_A = "TableA";
   private static final String TABLE_B = "TableB";
   private static final String ONTOLOGY_TABLE = "OntologyTable";
+  private static final String MODULE_HOST = "ModuleHost";
+  private static final String MODULE_PANEL = "ModulePanel";
 
   private static final String USER_VIEWER = "tpe_user_viewer";
   private static final String USER_EDITOR = "tpe_user_editor";
   private static final String USER_NO_ACCESS = "tpe_user_noaccess";
+  private static final String USER_MODULE = "tpe_user_module";
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
+    for (String user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS, USER_MODULE)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
@@ -35,11 +39,28 @@ class TestTablePermissionEnforcement {
     schema.create(
         table(TABLE_A).add(column("id").setPkey()).add(column("value")),
         table(TABLE_B).add(column("id").setPkey()).add(column("value")),
-        table(ONTOLOGY_TABLE).setTableType(TableType.ONTOLOGIES));
+        table(ONTOLOGY_TABLE).setTableType(TableType.ONTOLOGIES),
+        table(MODULE_HOST).add(column("id").setPkey()).add(column("value")),
+        table(MODULE_PANEL)
+            .setTableType(TableType.MODULE)
+            .setInheritNames(MODULE_HOST)
+            .add(column("panelValue")));
+    schema
+        .getTable(MODULE_HOST)
+        .getMetadata()
+        .add(column("panels").setType(ColumnType.MODULE_ARRAY).setValues(MODULE_PANEL));
 
     schema.getTable(TABLE_A).insert(new Row().setString("id", "r1").setString("value", "hello"));
     schema.getTable(TABLE_B).insert(new Row().setString("id", "r1").setString("value", "world"));
     schema.getTable(ONTOLOGY_TABLE).insert(new Row().setString("name", "term1").setInt("order", 1));
+    schema
+        .getTable(MODULE_HOST)
+        .insert(
+            new Row()
+                .setString("id", "h1")
+                .setString("value", "hostval")
+                .setStringArray("panels", MODULE_PANEL)
+                .setString("panelValue", "pv"));
   }
 
   @Test
@@ -141,6 +162,58 @@ class TestTablePermissionEnforcement {
     // Ontology tables should be accessible regardless of grants
     List<Row> rows = database.getSchema(SCHEMA).getTable(ONTOLOGY_TABLE).retrieveRows();
     assertNotNull(rows);
+  }
+
+  @Test
+  void customWriteGrantOnRootReachesModuleSubtypeTable() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("ModuleWriteRole");
+    schema.grant(
+        "ModuleWriteRole",
+        new TablePermission(MODULE_HOST).select(true).insert(true).update(true).delete(true));
+    schema.addMember(USER_MODULE, "ModuleWriteRole");
+
+    database.setActiveUser(USER_MODULE);
+    database
+        .getSchema(SCHEMA)
+        .getTable(MODULE_HOST)
+        .insert(
+            new Row()
+                .setString("id", "h2")
+                .setString("value", "v2")
+                .setStringArray("panels", MODULE_PANEL)
+                .setString("panelValue", "pv2"));
+
+    database.becomeAdmin();
+    List<Row> rows = database.getSchema(SCHEMA).getTable(MODULE_HOST).retrieveRows();
+    assertTrue(rows.stream().anyMatch(row -> "h2".equals(row.getString("id"))));
+  }
+
+  @Test
+  void revokeCustomGrantRemovesModuleSubtypeTableGrant() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    schema.createRole("ModuleRevokeRole");
+    schema.grant("ModuleRevokeRole", new TablePermission(MODULE_HOST).select(true).insert(true));
+    assertTrue(
+        moduleTableGrantedTo("ModuleRevokeRole"),
+        "custom grant on root must reach the module subtype table");
+
+    schema.revoke("ModuleRevokeRole", MODULE_HOST);
+    assertFalse(
+        moduleTableGrantedTo("ModuleRevokeRole"),
+        "revoke must remove the module subtype table grant");
+  }
+
+  private static boolean moduleTableGrantedTo(String roleName) {
+    DSLContext jooq = ((SqlDatabase) database).getJooq();
+    return jooq.fetchExists(
+        jooq.selectOne()
+            .from("information_schema.role_table_grants")
+            .where(
+                "table_schema = {0} and table_name = {1} and grantee = {2}",
+                SCHEMA, MODULE_PANEL, SqlRoleManager.fullRoleName(SCHEMA, roleName)));
   }
 
   @Test

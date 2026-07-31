@@ -8,12 +8,18 @@ import {
   type MaybeRef,
   type Ref,
 } from "vue";
+import {
+  activeModules,
+  isModuleColumn,
+  omitInactiveModuleValues,
+} from "../../../metadata-utils/src/moduleColumns";
 import { toFormData } from "../../../metadata-utils/src/toFormData";
 import type {
   columnId,
   columnValue,
   IColumn,
   IRow,
+  ISchemaMetaData,
   ITableMetaData,
   LegendSection,
 } from "../../../metadata-utils/src/types";
@@ -25,11 +31,20 @@ import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
-  formValuesRef: MaybeRef<Record<columnId, columnValue>>
+  formValuesRef: MaybeRef<Record<columnId, columnValue>>,
+  schemaMetadata?: MaybeRef<ISchemaMetaData | undefined>
 ): UseForm {
   const metadata = ref(unref(tableMetadata));
   if (isRef(tableMetadata)) {
     watch(tableMetadata, (val) => (metadata.value = val), {
+      immediate: true,
+      deep: true,
+    });
+  }
+
+  const schema = ref(unref(schemaMetadata));
+  if (isRef(schemaMetadata)) {
+    watch(schemaMetadata, (val) => (schema.value = val), {
       immediate: true,
       deep: true,
     });
@@ -69,6 +84,10 @@ export default function useForm(
 
   const formValueKeys = metadata.value.columns.map((col) => col.id);
 
+  const activeModuleNames = computed(() =>
+    activeModules(formValues.value, metadata.value, schema.value)
+  );
+
   const extractParamsFromExpression = (expression: string) => {
     const params: string[] = [];
     if (expression === "") {
@@ -98,13 +117,23 @@ export default function useForm(
     );
 
     // use function with apply to pass parameters dynamically while keeping reactivity
-    acc[column.id] = computed(
-      () =>
-        !!visibilityFunction.apply(
-          null,
-          params.map((p) => formValues.value[p])
-        )
-    );
+    if (isModuleColumn(column, metadata.value.name)) {
+      acc[column.id] = computed(
+        () =>
+          !!visibilityFunction.apply(
+            null,
+            params.map((p) => formValues.value[p])
+          ) && activeModuleNames.value.has(column.table!)
+      );
+    } else {
+      acc[column.id] = computed(
+        () =>
+          !!visibilityFunction.apply(
+            null,
+            params.map((p) => formValues.value[p])
+          )
+      );
+    }
 
     return acc;
   }, {} as Record<columnId, ComputedRef<boolean>>);
@@ -424,7 +453,13 @@ export default function useForm(
   };
 
   const insertInto = async () => {
-    const formData = toFormData(formValues.value);
+    const formData = toFormData(
+      omitInactiveModuleValues(
+        formValues.value,
+        metadata.value,
+        activeModuleNames.value
+      )
+    );
     const query = `mutation insert($value:[${metadata.value.id}Input]){insert(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {
@@ -441,7 +476,13 @@ export default function useForm(
   };
 
   const updateInto = async () => {
-    const formData = toFormData(formValues.value);
+    const formData = toFormData(
+      omitInactiveModuleValues(
+        formValues.value,
+        metadata.value,
+        activeModuleNames.value
+      )
+    );
     const query = `mutation update($value:[${metadata.value.id}Input]){update(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {

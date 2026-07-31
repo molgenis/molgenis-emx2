@@ -43,6 +43,7 @@ public class Column {
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
   private String[] profiles = null;
+  private List<String> values = null;
 
   private boolean inherited = false;
 
@@ -110,13 +111,17 @@ public class Column {
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics = column.getSemantics();
+    List<String> effectiveVals = column.getEffectiveValues();
+    this.values = effectiveVals != null && !effectiveVals.isEmpty() ? effectiveVals : null;
     this.visible = column.getVisible();
     this.computed = column.getComputed();
     this.profiles = column.getProfiles();
 
     // calculated field
-    if (table.getInheritName() != null)
-      this.inherited = table.getInheritedTable().getColumnNames().contains(column.getName());
+    if (!table.getInheritNames().isEmpty())
+      this.inherited =
+          table.getInheritedTables().stream()
+              .anyMatch(p -> p.getColumnNames().contains(column.getName()));
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
@@ -144,6 +149,7 @@ public class Column {
             .filter(d -> d.value() != null)
             .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setSemantics(semantics);
+    if (values != null && columnType != ColumnType.MODULE) c.setValues(values);
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
@@ -248,6 +254,14 @@ public class Column {
 
   public void setSemantics(String[] semantics) {
     this.semantics = semantics;
+  }
+
+  public List<String> getValues() {
+    return values;
+  }
+
+  public void setValues(List<String> values) {
+    this.values = values;
   }
 
   public String getRefLinkId() {

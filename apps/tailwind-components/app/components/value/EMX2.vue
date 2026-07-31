@@ -50,7 +50,9 @@ defineEmits<{
 
   <ValueString
     v-else-if="
-      ['STRING', 'AUTO_ID', 'UUID', 'PERIOD'].includes(metadata.columnType)
+      ['STRING', 'AUTO_ID', 'UUID', 'PERIOD', 'ENUM', 'MODULE'].includes(
+        metadata.columnType
+      )
     "
     :metadata="metadata"
     :data="data"

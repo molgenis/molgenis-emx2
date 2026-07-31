@@ -1,0 +1,2 @@
+subjectId,name,sex,tags,subgroups01,diseaseGroup,clinicalCentreId,lastVisitDate,biobanked,consentFormId,trialEnrolment
+SUBJ008,Hanna Ismail,female,"research,clinical",XerodermaPigmentosum,,AMC-NL,2025-02-28,Yes,CF-2024-088,XPTRIAL-007

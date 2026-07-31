@@ -1,7 +1,12 @@
 package org.molgenis.emx2.rdf.generators;
 
+import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
+import static org.molgenis.emx2.rdf.IriGenerator.tableIRI;
+
 import java.util.List;
 import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
@@ -35,7 +40,20 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(rdfMapData, table, row));
       case DATA -> rows.forEach(row -> dataRowToRdf(namespaces, rdfMapData, table, row));
+      case MODULE -> rows.forEach(row -> moduleRowToRdf(namespaces, rdfMapData, table, row));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
+    }
+  }
+
+  protected void moduleRowToRdf(
+      NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, Row row) {
+    if (row.isDraft()) return;
+    IRI subject = rowIRI(getBaseURL(), table, row);
+    getWriter().processTriple(subject, RDF.TYPE, tableIRI(getBaseURL(), table));
+    if (table.getMetadata().getSemantics() != null) {
+      for (String semantics : table.getMetadata().getSemantics()) {
+        getWriter().processTriple(subject, RDF.TYPE, namespaces.map(table.getSchema(), semantics));
+      }
     }
   }
 

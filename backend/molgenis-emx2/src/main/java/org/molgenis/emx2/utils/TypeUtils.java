@@ -320,6 +320,8 @@ public class TypeUtils {
 
   public static ColumnType getArrayType(ColumnType columnType) {
     if (columnType.isArray()) return columnType;
+    if (columnType == ColumnType.ENUM) return ColumnType.ENUM_ARRAY;
+    if (columnType == ColumnType.MODULE) return ColumnType.MODULE_ARRAY;
     return switch (columnType.getBaseType()) {
       case UUID -> ColumnType.UUID_ARRAY;
       case STRING -> ColumnType.STRING_ARRAY;
@@ -390,8 +392,8 @@ public class TypeUtils {
       case FILE -> SQLDataType.BINARY;
       case UUID -> SQLDataType.UUID;
       case UUID_ARRAY -> SQLDataType.UUID.getArrayDataType();
-      case STRING -> SQLDataType.VARCHAR(255);
-      case STRING_ARRAY -> SQLDataType.VARCHAR(255).getArrayDataType();
+      case STRING, ENUM -> SQLDataType.VARCHAR(255);
+      case STRING_ARRAY, ENUM_ARRAY -> SQLDataType.VARCHAR(255).getArrayDataType();
       case INT -> SQLDataType.INTEGER;
       case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
@@ -421,8 +423,8 @@ public class TypeUtils {
     return switch (columnType.getBaseType()) {
       case UUID -> TypeUtils.toUuid(v);
       case UUID_ARRAY -> TypeUtils.toUuidArray(v);
-      case STRING, FILE -> TypeUtils.toString(v);
-      case STRING_ARRAY -> TypeUtils.toStringArray(v);
+      case STRING, FILE, ENUM -> TypeUtils.toString(v);
+      case STRING_ARRAY, ENUM_ARRAY -> TypeUtils.toStringArray(v);
       case BOOL -> TypeUtils.toBool(v);
       case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
       case INT -> TypeUtils.toInt(v);
@@ -519,7 +521,9 @@ public class TypeUtils {
     for (Map<String, Object> field : map) {
       Row row = new Row();
       List<Column> columns =
-          primaryKeyOnly ? metadata.getPrimaryKeyColumns() : metadata.getColumns();
+          primaryKeyOnly
+              ? metadata.getPrimaryKeyColumns()
+              : metadata.getColumnsIncludingSubclassesAndModules();
       for (Column column : columns) {
         if (field.containsKey(column.getIdentifier())) {
           Object fieldValue = field.get(column.getIdentifier());
@@ -529,6 +533,42 @@ public class TypeUtils {
       rows.add(row);
     }
     return rows;
+  }
+
+  public static void checkEnumMembership(Column column, Object value) {
+    List<String> allowedValues = column.getEffectiveValues();
+    if (value == null
+        || !column.getColumnType().isEnum()
+        || allowedValues == null
+        || allowedValues.isEmpty()) {
+      return;
+    }
+    if (column.getColumnType().isArray()) {
+      if (value instanceof String[] arrayValue) {
+        for (String element : arrayValue) {
+          if (!allowedValues.contains(element)) {
+            throw new MolgenisException(
+                "Value '"
+                    + element
+                    + "' is not allowed for column '"
+                    + column.getName()
+                    + "'. Allowed values: "
+                    + allowedValues);
+          }
+        }
+      }
+    } else {
+      String scalarValue = value.toString();
+      if (!allowedValues.contains(scalarValue)) {
+        throw new MolgenisException(
+            "Value '"
+                + scalarValue
+                + "' is not allowed for column '"
+                + column.getName()
+                + "'. Allowed values: "
+                + allowedValues);
+      }
+    }
   }
 
   public static void addFieldObjectToRow(Column column, Object object, Row row) {

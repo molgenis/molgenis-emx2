@@ -59,7 +59,9 @@ function handleCellClick() {
         elementType === 'STRING' ||
         elementType === 'AUTO_ID' ||
         elementType === 'PERIOD' ||
-        elementType === 'UUID'
+        elementType === 'UUID' ||
+        elementType === 'ENUM' ||
+        elementType === 'MODULE'
       "
       :metadata="metadata"
       :data="assertStringValue(listElement)"

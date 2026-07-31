@@ -6,11 +6,14 @@ export default gql`
       label
       tables {
         id
+        name
         schemaId
         label
         tableType
         description
         semantics
+        inheritNames
+        inheritIds
         columns {
           id
           label
@@ -34,6 +37,9 @@ export default gql`
           computed
           visible
           validation
+          values
+          table
+          inherited
         }
       }
     }

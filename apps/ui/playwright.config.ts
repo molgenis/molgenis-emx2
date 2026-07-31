@@ -35,12 +35,28 @@ export default defineConfig<ConfigOptions>({
   projects: [
     {
       name: "auth.setup",
-      testMatch: /auth\.setup\.ts/, // <-- only runs this file
+      testMatch: /(^|\/)auth\.setup\.ts$/, // <-- only runs this file
+    },
+    {
+      name: "diamond.setup",
+      testMatch: /diamond-auth\.setup\.ts/,
     },
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: "typetest/types/create.spec.ts",
+      testIgnore: [
+        "typetest/types/create.spec.ts",
+        "tests/e2e/diamond-module-form.spec.ts",
+      ],
+    },
+    {
+      name: "diamond-with-auth",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "playwright/.auth/diamond.json",
+      },
+      testMatch: "tests/e2e/diamond-module-form.spec.ts",
+      dependencies: ["diamond.setup"],
     },
     {
       name: "with-auth",

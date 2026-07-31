@@ -296,6 +296,56 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
+  <InputEnum
+    v-else-if="'ENUM' === typeUpperCase && values"
+    :id="id"
+    v-model="modelValue as string | null"
+    :values="values"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputEnumArray
+    v-else-if="'ENUM_ARRAY' === typeUpperCase && values"
+    :id="id"
+    v-model="modelValue as string[] | undefined | null"
+    :values="values"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputEnum
+    v-else-if="'MODULE' === typeUpperCase && values"
+    :id="id"
+    v-model="modelValue as string | null"
+    :values="values"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputEnumArray
+    v-else-if="'MODULE_ARRAY' === typeUpperCase && values"
+    :id="id"
+    v-model="modelValue as string[] | undefined | null"
+    :values="values"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
 </template>
 
 <script setup lang="ts">
@@ -314,6 +364,8 @@ import InputCheckboxGroup from "./input/CheckboxGroup.vue";
 import InputDate from "./input/Date.vue";
 import InputDateTime from "./input/DateTime.vue";
 import InputDecimal from "./input/Decimal.vue";
+import InputEnum from "./input/Enum.vue";
+import InputEnumArray from "./input/EnumArray.vue";
 import InputFile from "./input/File.vue";
 import InputInt from "./input/Int.vue";
 import InputLong from "./input/Long.vue";
@@ -336,6 +388,7 @@ const props = withDefaults(
       refBackColumn?: string;
       rowKey?: any;
       options?: IValueLabel[];
+      values?: string[];
       trueLabel?: string;
       falseLabel?: string;
       align?: "horizontal" | "vertical";

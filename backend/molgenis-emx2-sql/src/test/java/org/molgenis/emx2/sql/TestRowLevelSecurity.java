@@ -511,7 +511,7 @@ class TestRowLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.dropCreateSchema("TestRlsInheritReject");
     schema.create(table("Root").add(column("id").setPkey()));
-    schema.create(table("Sub").setInheritName("Root"));
+    schema.create(table("Sub").setInheritNames("Root"));
     schema.createRole("RejectRole");
 
     TablePermission subPermission = new TablePermission("Sub").select(true);
@@ -541,7 +541,7 @@ class TestRowLevelSecurity {
     }
 
     schema.create(table(root).add(column("id").setPkey()).add(column("title")));
-    schema.create(table(child).setInheritName(root).add(column("childField")));
+    schema.create(table(child).setInheritNames(root).add(column("childField")));
 
     schema.createRole(roleA);
     schema.createRole(roleB);
@@ -645,7 +645,7 @@ class TestRowLevelSecurity {
     if (!database.hasUser(userC)) database.addUser(userC);
 
     schema.create(table(root).add(column("id").setPkey()).add(column("title")));
-    schema.create(table(child).setInheritName(root).add(column("childField")));
+    schema.create(table(child).setInheritNames(root).add(column("childField")));
 
     schema.createRole(roleC);
     // grant on root — must also propagate down so the root-side LEFT JOIN
@@ -694,8 +694,8 @@ class TestRowLevelSecurity {
     if (!database.hasUser(userD)) database.addUser(userD);
 
     schema.create(table(grand).add(column("id").setPkey()).add(column("title")));
-    schema.create(table(mid).setInheritName(grand).add(column("midField")));
-    schema.create(table(leaf).setInheritName(mid).add(column("leafField")));
+    schema.create(table(mid).setInheritNames(grand).add(column("midField")));
+    schema.create(table(leaf).setInheritNames(mid).add(column("leafField")));
 
     schema.createRole(roleD);
     // Grant on the root only
@@ -730,6 +730,85 @@ class TestRowLevelSecurity {
           assertEquals(1, db.getSchema(schema.getName()).getTable(leaf).retrieveRows().size());
           assertEquals(1, db.getSchema(schema.getName()).getTable(mid).retrieveRows().size());
           assertEquals(1, db.getSchema(schema.getName()).getTable(grand).retrieveRows().size());
+        });
+  }
+
+  @Test
+  void rlsGrantOnRootCrudWorksOnModuleSubtypeAcrossInheritanceTree() {
+    database.becomeAdmin();
+    String root = "ModRlsRoot";
+    String module = "ModRlsPanel";
+    String roleA = "ModRlsTeamA";
+    String roleB = "ModRlsTeamB";
+    String userA = "rls_mod_a";
+    String userB = "rls_mod_b";
+    Schema schema = database.dropCreateSchema("TestRlsModule");
+    for (String u : List.of(userA, userB)) {
+      if (!database.hasUser(u)) database.addUser(u);
+    }
+
+    schema.create(table(root).add(column("id").setPkey()).add(column("title")));
+    schema.create(
+        table(module)
+            .setTableType(TableType.MODULE)
+            .setInheritNames(root)
+            .add(column("panelField")));
+    schema
+        .getTable(root)
+        .getMetadata()
+        .add(column("panels").setType(ColumnType.MODULE_ARRAY).setValues(module));
+
+    schema.createRole(roleA);
+    schema.createRole(roleB);
+    schema.grant(
+        roleA,
+        new TablePermission(root)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+    schema.grant(roleB, new TablePermission(root).select(true).rowLevel(true));
+
+    schema.addMember(userA, roleA);
+    schema.addMember(userB, roleB);
+
+    // INSERT root row activating the module, owned by roleA: the physical write into
+    // the module subtype table must satisfy roleA's grant on the module table.
+    database.setActiveUser(userA);
+    database.tx(
+        db ->
+            db.getSchema(schema.getName())
+                .getTable(root)
+                .insert(
+                    new Row()
+                        .setString("id", "p1")
+                        .setString("title", "team a")
+                        .setStringArray("panels", module)
+                        .setString("panelField", "x")
+                        .set(MG_ROLES, new String[] {roleA})));
+
+    // roleA sees the row and its module column via the root query
+    database.setActiveUser(userA);
+    database.tx(
+        db -> {
+          Row row =
+              db.getSchema(schema.getName()).getTable(root).retrieveRows().stream()
+                  .filter(r -> "p1".equals(r.getString("id")))
+                  .findFirst()
+                  .orElseThrow();
+          assertEquals("x", row.getString("panelField"), "module column must be visible to owner");
+        });
+
+    // roleB must NOT see roleA's row through the module-joined root query
+    database.setActiveUser(userB);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(schema.getName()).getTable(root).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertFalse(ids.contains("p1"), "TeamB should NOT see TeamA's row");
         });
   }
 
@@ -795,7 +874,7 @@ class TestRowLevelSecurity {
     if (!database.hasUser(userE)) database.addUser(userE);
 
     schema.create(table(root).add(column("id").setPkey()).add(column("title")));
-    schema.create(table(child).setInheritName(root).add(column("childField")));
+    schema.create(table(child).setInheritNames(root).add(column("childField")));
 
     schema.createRole(roleE);
     schema.grant(

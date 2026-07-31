@@ -141,6 +141,7 @@ import type {
   columnId,
   columnValue,
   IRow,
+  ISchemaMetaData,
 } from "../../../../metadata-utils/src/types";
 import fetchColumnValues from "../../composables/fetchColumnValues";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
@@ -164,6 +165,7 @@ const props = withDefaults(
   defineProps<{
     schemaId: string;
     metadata: ITableMetaData;
+    schema?: ISchemaMetaData;
     isInsert: boolean;
     constantValues?: IRow;
     showButton?: boolean;
@@ -175,6 +177,7 @@ const props = withDefaults(
 );
 
 const saving = ref(false);
+const schemaMetadata = computed(() => props.schema);
 const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
 const showFormMessage = ref(false);
@@ -194,7 +197,7 @@ watch(
   visible,
   (newValue, oldValue) => {
     if (newValue && !oldValue) {
-      form = useForm(props.metadata, formValues);
+      form = useForm(props.metadata, formValues, schemaMetadata);
     }
 
     if (!newValue && oldValue) {

@@ -1,0 +1,51 @@
+export const getSelectableColumnTypes = (): string[] => {
+  return [
+    "AUTO_ID",
+    "BOOL",
+    "BOOL_ARRAY",
+    "DATE",
+    "DATE_ARRAY",
+    "DATETIME",
+    "DATETIME_ARRAY",
+    "DECIMAL",
+    "DECIMAL_ARRAY",
+    "EMAIL",
+    "EMAIL_ARRAY",
+    "ENUM",
+    "ENUM_ARRAY",
+    "FILE",
+    "HEADING",
+    "HYPERLINK",
+    "HYPERLINK_ARRAY",
+    "INT",
+    "INT_ARRAY",
+    "NON_NEGATIVE_INT",
+    "NON_NEGATIVE_INT_ARRAY",
+    "JSON",
+    "LONG",
+    "LONG_ARRAY",
+    "MODULE",
+    "MODULE_ARRAY",
+    "ONTOLOGY",
+    "ONTOLOGY_ARRAY",
+    "PERIOD",
+    "PERIOD_ARRAY",
+    "REF", //deprecated
+    "SELECT",
+    "RADIO",
+    "REF_ARRAY", //deprecated
+    "MULTISELECT",
+    "CHECKBOX",
+    "REFBACK",
+    "STRING",
+    "STRING_ARRAY",
+    "TEXT",
+    "TEXT_ARRAY",
+    "UUID",
+    "UUID_ARRAY",
+  ];
+};
+
+export const getColumnTypesWithEditableValues = (): string[] => {
+  return ["ENUM", "ENUM_ARRAY", "MODULE", "MODULE_ARRAY"];
+};

@@ -32,7 +32,10 @@ public class RootRdfGenerator extends RdfGenerator {
         schemas.stream()
             .map(Schema::getTablesSorted)
             .flatMap(Collection::stream)
-            .filter(i -> i.getMetadata().getTableType() == TableType.DATA)
+            .filter(
+                i ->
+                    i.getMetadata().getTableType() == TableType.DATA
+                        || i.getMetadata().getTableType() == TableType.MODULE)
             .toList();
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
 

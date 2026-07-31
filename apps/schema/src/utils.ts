@@ -1,5 +1,10 @@
 import gql from "graphql-tag";
-import { deepClone, ITableMetaData, IColumn } from "molgenis-components";
+import {
+  deepClone,
+  ITableMetaData,
+  IColumn,
+  normalizeInheritNames,
+} from "molgenis-components";
 
 export const schemaQuery = gql`
   {
@@ -21,7 +26,7 @@ export const schemaQuery = gql`
       tables {
         name
         tableType
-        inheritName
+        inheritNames
         labels {
           locale
           value
@@ -40,6 +45,7 @@ export const schemaQuery = gql`
           table
           position
           columnType
+          values
           inherited
           key
           refSchemaName
@@ -103,6 +109,13 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
 export function convertToSubclassTables(rawSchema: any) {
   //deep copy to not change the input
   const schema = deepClone(rawSchema);
+  //normalize multi-parent (diamond) extends to a clean list and derive the
+  //primary parent used for nesting subclasses under their root
+  schema.tables.forEach((table) => {
+    const parents = normalizeInheritNames(table);
+    table.inheritNames = parents;
+    table.inheritName = parents[0];
+  });
   //columns of subclasses should be put in root tables, sorted by position
   // this because position can only edited in context of root table
   schema.tables.forEach((table) => {

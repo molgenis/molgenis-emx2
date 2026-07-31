@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnTypeGroups.*;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.TableType.MODULE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.jooq.JSONB;
 import org.junit.jupiter.api.Test;
@@ -169,6 +171,15 @@ class TestTypeUtils {
   }
 
   @Test
+  void getArrayTypeMapsEnumAndModuleToTheirOwnArrayType() {
+    assertEquals(ColumnType.ENUM_ARRAY, TypeUtils.getArrayType(ColumnType.ENUM));
+    assertEquals(ColumnType.MODULE_ARRAY, TypeUtils.getArrayType(ColumnType.MODULE));
+    assertEquals(ColumnType.STRING_ARRAY, TypeUtils.getArrayType(ColumnType.STRING));
+    assertEquals(ColumnType.ENUM_ARRAY, TypeUtils.getArrayType(ColumnType.ENUM_ARRAY));
+    assertEquals(ColumnType.MODULE_ARRAY, TypeUtils.getArrayType(ColumnType.MODULE_ARRAY));
+  }
+
+  @Test
   void testAllColumnTypesCoveredToJooqType() {
     EXCLUDE_REFERENCE_HEADING.forEach(TypeUtils::toJooqType);
   }
@@ -201,5 +212,129 @@ class TestTypeUtils {
         }
       }
     }
+  }
+
+  @Test
+  void checkEnumMembershipNonEnumColumnIsNoOp() {
+    Column col = column("status").setType(ColumnType.STRING);
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(col, "anything"),
+        "Non-enum column must not validate membership");
+  }
+
+  @Test
+  void checkEnumMembershipEnumWithNoValuesAcceptsAnyString() {
+    Column col = column("status").setType(ColumnType.ENUM);
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(col, "anything"),
+        "ENUM with no declared values must accept any string");
+
+    Column colEmpty = column("status2").setType(ColumnType.ENUM).setValues(new String[0]);
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(colEmpty, "anything"),
+        "ENUM with empty values list must accept any string");
+  }
+
+  @Test
+  void checkEnumMembershipScalarEnforcesAllowedSet() {
+    Column col = column("priority").setType(ColumnType.ENUM).setValues("low", "medium", "high");
+
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(col, "high"), "In-set value must be accepted");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(col, "critical"),
+        "Out-of-set value must throw MolgenisException");
+  }
+
+  @Test
+  void checkEnumMembershipArrayEnforcesAllowedSet() {
+    Column enumArray =
+        column("tags").setType(ColumnType.ENUM_ARRAY).setValues("alpha", "beta", "gamma");
+
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(enumArray, new String[] {"alpha", "gamma"}),
+        "All-in-set array must be accepted");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(enumArray, new String[] {"alpha", "unknown"}),
+        "Array with one out-of-set element must throw MolgenisException");
+
+    Column moduleArray = column("panels").setType(ColumnType.MODULE_ARRAY).setValues("A", "B");
+
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(moduleArray, new String[] {"A"}),
+        "MODULE_ARRAY bare in-set value must be accepted");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(moduleArray, new String[] {"A", "C"}),
+        "MODULE_ARRAY with one out-of-set element must throw MolgenisException");
+  }
+
+  @Test
+  void enumExactMatchEnforced() {
+    Column enumCol = column("priority").setType(ColumnType.ENUM).setValues("low", "medium", "high");
+
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(enumCol, "high"), "exact in-set value accepted");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(enumCol, "HIGH"),
+        "ENUM must enforce exact strings");
+
+    Column enumArrayCol = column("tags").setType(ColumnType.ENUM_ARRAY).setValues("alpha", "beta");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(enumArrayCol, new String[] {"Alpha"}),
+        "ENUM_ARRAY must enforce exact strings");
+
+    Column moduleArrayCol = column("panels").setType(ColumnType.MODULE_ARRAY).setValues("Mod1");
+
+    assertThrows(
+        MolgenisException.class,
+        () -> TypeUtils.checkEnumMembership(moduleArrayCol, new String[] {"schema.Mod1"}),
+        "MODULE_ARRAY must enforce exact strings; dotted value must not match bare declared value");
+  }
+
+  @Test
+  void checkEnumMembershipNullValueIsNoOp() {
+    Column col = column("priority").setType(ColumnType.ENUM).setValues("low", "high");
+    assertDoesNotThrow(
+        () -> TypeUtils.checkEnumMembership(col, null), "Null value must be a no-op");
+  }
+
+  @Test
+  void convertToRowsModuleColPresentKeyIsWrittenAbsentKeyIsSkipped() {
+    SchemaMetadata schema = new SchemaMetadata("test");
+    schema.create(
+        table("CvRoot")
+            .add(column("id").setType(ColumnType.STRING).setKey(1))
+            .add(column("panels").setType(ColumnType.MODULE_ARRAY).setValues("CvMod")),
+        table("CvMod")
+            .setTableType(MODULE)
+            .setInheritNames("CvRoot")
+            .add(column("modCol").setType(ColumnType.STRING)));
+
+    TableMetadata rootTable = schema.getTableMetadata("CvRoot");
+
+    Map<String, Object> rowWithModCol = Map.of("id", "r1", "modCol", "hello");
+    List<Row> rowsWithModCol = TypeUtils.convertToRows(rootTable, List.of(rowWithModCol));
+    assertEquals(1, rowsWithModCol.size(), "convertToRows must produce one row");
+    assertEquals(
+        "hello",
+        rowsWithModCol.get(0).getString("modCol"),
+        "Module-col key present in input map must be written into the Row");
+
+    Map<String, Object> rowWithoutModCol = Map.of("id", "r2");
+    List<Row> rowsWithoutModCol = TypeUtils.convertToRows(rootTable, List.of(rowWithoutModCol));
+    assertEquals(1, rowsWithoutModCol.size(), "convertToRows must produce one row");
+    assertFalse(
+        rowsWithoutModCol.get(0).containsName("modCol"),
+        "Module-col key absent in input map must not be written as null into the Row");
   }
 }

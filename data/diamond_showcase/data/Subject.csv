@@ -1,0 +1,8 @@
+subjectId,name,sex,subgroups01,diseaseGroup,relevantmedhistory,ageOfDiagnose,weight,skinSymptoms,totalSkin,lowSulphur,sensorineuralHearingLoss,eBType,anemicHemoglobine,crp
+SUBJ001,Alice Bakker,female,CockayneSyndrome,,Mild photosensitivity history,12/03,42.5,,,,,,
+SUBJ002,Bob Claassen,male,XerodermaPigmentosum,,,,,Yes,3,,,,
+SUBJ003,Clara Dijk,female,Trichothiodystrophy,,,,,,Yes,Mild,,,
+SUBJ004,David Ernst,male,CockayneSyndrome,,No known medical history,08/05,55.2,,,,,,
+SUBJ005,Eva Feenstra,female,,EpidermolysisBullosa,,,,,,,Simplex,9,12
+SUBJ006,Frans Groot,male,"CockayneSyndrome,XerodermaPigmentosum",,History of seizures,03/09,38.0,Yes,7,,,,
+SUBJ007,Greta Houten,female,CockayneSyndrome,,No relevant history,14/07,48.3,,,,,

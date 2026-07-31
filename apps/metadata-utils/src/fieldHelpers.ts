@@ -40,6 +40,10 @@ export const fieldTypes = () => {
     "UUID",
     "UUID_ARRAY",
     "JSON",
+    "ENUM",
+    "ENUM_ARRAY",
+    "MODULE",
+    "MODULE_ARRAY",
   ];
 };
 

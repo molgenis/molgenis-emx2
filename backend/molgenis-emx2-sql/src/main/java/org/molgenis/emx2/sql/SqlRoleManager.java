@@ -248,7 +248,7 @@ public class SqlRoleManager {
       throw new MolgenisException("Table does not exist: " + tableName);
     }
     TableMetadata meta = database.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
-    if (meta.getInheritName() != null) {
+    if (!meta.getInheritNames().isEmpty()) {
       throw new MolgenisException(
           "Cannot grant custom permission on inherited table '"
               + tableName

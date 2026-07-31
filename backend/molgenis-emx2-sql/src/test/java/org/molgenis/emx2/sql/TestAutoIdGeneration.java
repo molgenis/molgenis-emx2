@@ -66,7 +66,7 @@ class TestAutoIdGeneration {
                     .setComputed("${mg_autoid(length=2, format=numbers)}")
                     .setPkey(),
                 new Column("b_label").setType(ColumnType.INT))
-            .setInheritName("test_inheritance_A"));
+            .setInheritNames("test_inheritance_A"));
 
     Table tableC =
         schema.create(
@@ -77,7 +77,7 @@ class TestAutoIdGeneration {
                         .setComputed("${mg_autoid(length=3, format=numbers)}")
                         .setPkey(),
                     new Column("c_label").setType(ColumnType.INT))
-                .setInheritName("test_inheritance_B"));
+                .setInheritNames("test_inheritance_B"));
 
     int nrInserted = tableC.insert(Row.row());
     assertEquals(1, nrInserted);

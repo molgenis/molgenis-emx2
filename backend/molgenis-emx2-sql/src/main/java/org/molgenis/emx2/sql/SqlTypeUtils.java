@@ -18,8 +18,8 @@ public class SqlTypeUtils extends TypeUtils {
       case FILE -> row.getBinary(name);
       case UUID -> row.getUuid(name);
       case UUID_ARRAY -> row.getUuidArray(name);
-      case STRING -> row.getString(name);
-      case STRING_ARRAY -> row.getStringArray(name);
+      case STRING, ENUM -> row.getString(name);
+      case STRING_ARRAY, ENUM_ARRAY -> row.getStringArray(name);
       case BOOL -> row.getBoolean(name);
       case BOOL_ARRAY -> row.getBooleanArray(name);
       case INT -> row.getInteger(name);
@@ -49,8 +49,8 @@ public class SqlTypeUtils extends TypeUtils {
 
   static String getPsqlType(ColumnType type) {
     return switch (type.getBaseType()) {
-      case STRING, TEXT -> "character varying";
-      case STRING_ARRAY, TEXT_ARRAY -> "character varying[]";
+      case STRING, TEXT, ENUM -> "character varying";
+      case STRING_ARRAY, TEXT_ARRAY, ENUM_ARRAY -> "character varying[]";
       case UUID -> "uuid";
       case UUID_ARRAY -> "uuid[]";
       case BOOL -> "bool";

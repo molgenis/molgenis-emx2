@@ -158,6 +158,7 @@ export default {
         "DATA_CATALOGUE_AGGREGATES",
         "TYPE_TEST",
         "PATIENT_REGISTRY_DEMO",
+        "DIAMOND_SHOWCASE",
       ],
       includeDemoData: false,
     };

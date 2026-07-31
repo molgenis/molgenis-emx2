@@ -18,7 +18,7 @@ class TestTableMetadata {
             .create(
                 table("Person", column("name")),
                 table("Employee", column("details").setType(ColumnType.HEADING), column("salary"))
-                    .setInheritName("Person"));
+                    .setInheritNames("Person"));
 
     List<Column> result = s.getTableMetadata("Person").getColumnsIncludingSubclasses();
     assertEquals(3, result.size());
@@ -109,7 +109,7 @@ class TestTableMetadata {
     SchemaMetadata schema = new SchemaMetadata("Schema");
     schema.create(
         table("Parent", column("name").setPosition(0), column("age").setPosition(2)),
-        table("Employee", column("salary").setPosition(1)).setInheritName("Parent"));
+        table("Employee", column("salary").setPosition(1)).setInheritNames("Parent"));
 
     List<String> names =
         schema.getTableMetadata("Employee").getColumns().stream().map(Column::getName).toList();
@@ -131,7 +131,7 @@ class TestTableMetadata {
     c1.setTable(table);
     c2.setTable(table);
     table.setSchema(schema);
-    table.setInheritName("parent table");
+    table.setInheritNames("parent table");
 
     // Parent table for inheritance validation
     Column c3 = new Column("parent column");

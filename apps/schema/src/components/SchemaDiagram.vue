@@ -7,6 +7,7 @@
 <script>
 import mermaid from "mermaid";
 import { Spinner } from "molgenis-components";
+import { getInheritanceEdges } from "metadata-utils";
 
 export default {
   components: {
@@ -114,7 +115,10 @@ direction TB
     }
     if (table.subclasses) {
       table.subclasses.forEach((subclass) => {
-        graph += ` \`${subclass.inheritName}\` <|-- \`${subclass.name}\` \n`;
+        getInheritanceEdges(subclass).forEach((edge) => {
+          const connector = edge.isModule ? "*--" : "<|--";
+          graph += ` \`${edge.parent}\` ${connector} \`${edge.child}\` \n`;
+        });
       });
     }
     table.columns.forEach((column) => {
