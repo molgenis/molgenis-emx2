@@ -790,13 +790,13 @@ jobs:
             exit 1
           fi
           samples=/tmp/job-memory-samples.txt
-          validSamples=$(awk 'NF == 4 && $1 > 0' "$samples" 2>/dev/null | grep -c . || true)
+          validSamples=$(awk 'NF == 4 && $0 ~ /^[0-9 ]+$/ && $1 + 0 > 0' "$samples" 2>/dev/null | grep -c . || true)
           if [ "$validSamples" -lt 2 ]; then
             echo "only $validSamples usable memory samples in $samples; the background sampler step did not" \
               "run for this job, so peak memory cannot be reported" >&2
             exit 1
           fi
-          awk 'NF == 4 && $1 > 0 {
+          awk 'NF == 4 && $0 ~ /^[0-9 ]+$/ && $1 + 0 > 0 {
                  sampleCount++
                  total = $1
                  if (minAvailable == 0 || $2 < minAvailable) minAvailable = $2
@@ -935,12 +935,12 @@ jobs:
             fi
           fi
           samples=/tmp/job-memory-samples.txt
-          validSamples=$(awk 'NF == 4 && $1 > 0' "$samples" 2>/dev/null | grep -c . || true)
+          validSamples=$(awk 'NF == 4 && $0 ~ /^[0-9 ]+$/ && $1 + 0 > 0' "$samples" 2>/dev/null | grep -c . || true)
           if [ "$validSamples" -lt 2 ]; then
             echo "only $validSamples usable memory samples in $samples; the background sampler step did not" \
               "run for this job, so peak memory cannot be reported" >&2
           else
-            awk 'NF == 4 && $1 > 0 {
+            awk 'NF == 4 && $0 ~ /^[0-9 ]+$/ && $1 + 0 > 0 {
                    sampleCount++
                    total = $1
                    if (minAvailable == 0 || $2 < minAvailable) minAvailable = $2
