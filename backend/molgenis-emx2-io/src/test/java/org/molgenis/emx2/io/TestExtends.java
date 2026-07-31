@@ -154,9 +154,10 @@ public class TestExtends {
 
     assertEquals(
         parent.getName(), fresh.getMetadata().getTableMetadata("myshape").getImportSchema());
-    assertTrue(
-        fresh.getMetadata().getTableMetadata("myshape").getColumnNames().contains("name"),
-        "inherited column 'name' should be present");
+    assertEquals(
+        List.of("name"),
+        fresh.getMetadata().getTableMetadata("myshape").getPrimaryKeys(),
+        "inherited column 'name' should be the primary key");
   }
 
   @Test
@@ -164,11 +165,16 @@ public class TestExtends {
     Schema parent = createParentSchema("TestExtendsReA");
     Schema child = createChildSchema("TestExtendsReB", parent.getName());
 
+    String importSchemaBeforeReimport =
+        child.getMetadata().getTableMetadata("myshape").getImportSchema();
+    assertEquals(parent.getName(), importSchemaBeforeReimport);
+
     List<Row> exported = Emx2.toRowList(child.getMetadata());
     child.migrate(Emx2.fromRowList(exported));
 
     assertEquals(
-        parent.getName(), child.getMetadata().getTableMetadata("myshape").getImportSchema());
+        importSchemaBeforeReimport,
+        child.getMetadata().getTableMetadata("myshape").getImportSchema());
   }
 
   @Test
@@ -193,8 +199,7 @@ public class TestExtends {
         exception
             .getMessage()
             .contains(
-                "Table 'myshape' cannot inherit table 'shape': not found or permission denied. If the table lives in another schema, provide refSchema."),
-        exception.getMessage());
+                "Table 'myshape' cannot inherit table 'shape': not found or permission denied. If the table lives in another schema, provide refSchema."));
   }
 
   @Test

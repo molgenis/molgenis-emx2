@@ -474,12 +474,6 @@ public class MetadataUtils {
     return table;
   }
 
-  record TableRef(String schemaName, String tableName) {
-    String qualifiedName() {
-      return schemaName + "." + tableName;
-    }
-  }
-
   static List<TableRef> getInheritingChildren(
       DSLContext jooq, String schemaName, String tableName) {
     return jooq
@@ -492,7 +486,8 @@ public class MetadataUtils {
         .orderBy(TABLE_SCHEMA, TABLE_NAME)
         .fetch()
         .stream()
-        .map(record -> new TableRef(record.get(TABLE_SCHEMA), record.get(TABLE_NAME)))
+        .map(
+            childRecord -> new TableRef(childRecord.get(TABLE_SCHEMA), childRecord.get(TABLE_NAME)))
         .toList();
   }
 
@@ -755,5 +750,11 @@ public class MetadataUtils {
 
   public static void resetVersion() {
     version = null;
+  }
+
+  record TableRef(String schemaName, String tableName) {
+    String qualifiedName() {
+      return schemaName + "." + tableName;
+    }
   }
 }

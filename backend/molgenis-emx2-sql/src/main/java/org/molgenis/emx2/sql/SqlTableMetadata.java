@@ -350,10 +350,10 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata setInheritName(String otherTable) {
     long start = System.currentTimeMillis();
-    if (getInheritName() != null && getInheritName().equals(otherTable)) {
-      return this; // nothing to do
-    }
     if (getInheritName() != null) {
+      if (getInheritName().equals(otherTable)) {
+        return this; // nothing to do
+      }
       throw new MolgenisException(inheritanceIsFixed("change tableExtends"));
     }
     if (otherTable != null) {

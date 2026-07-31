@@ -1,5 +1,7 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -51,15 +53,7 @@ public class Table {
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     if (tableMetadata.getInheritName() != null) {
-      TableMetadata inheritedTable;
-      if (tableMetadata.getSchema().getDatabase() != null) {
-        inheritedTable = tableMetadata.requireInheritedTable();
-      } else {
-        inheritedTable = tableMetadata.getInheritedTable();
-      }
-      if (inheritedTable != null) {
-        this.inheritId = inheritedTable.getIdentifier();
-      }
+      this.inheritId = convertToPascalCase(tableMetadata.getInheritName());
       this.inheritName = tableMetadata.getInheritName();
       this.inheritSchemaName = tableMetadata.getImportSchema();
     }

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 
-public class TestTableRename {
+class TestTableRename {
 
   private static Database db;
 
@@ -70,7 +70,7 @@ public class TestTableRename {
   }
 
   @Test
-  void tableCanBeCreatedUnderTheOldNameAfterARename() {
+  void searchIndexIsRenamedSoATableCanBeCreatedUnderTheOldName() {
     String schemaName = TestTableRename.class.getSimpleName() + "_reuseoldname";
     Schema schema = db.dropCreateSchema(schemaName);
     schema.create(table("Plain", column("name"), column("size").setType(INT)));

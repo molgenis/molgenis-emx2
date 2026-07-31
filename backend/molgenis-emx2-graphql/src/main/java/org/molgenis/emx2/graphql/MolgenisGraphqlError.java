@@ -9,7 +9,7 @@ class MolgenisGraphqlError implements GraphQLError {
 
   private final Throwable exception;
   private final SourceLocation sourceLocation;
-  private final ErrorClassification errorType;
+  private final transient ErrorClassification errorType;
 
   MolgenisGraphqlError(
       Throwable exception, SourceLocation sourceLocation, ErrorClassification errorType) {

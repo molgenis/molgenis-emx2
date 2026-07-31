@@ -148,7 +148,6 @@ class TestTableMetadata {
   @Test
   void tableWithoutLocalColumnsHasNoNonInheritedColumnsEvenWithUnresolvedParent() {
     SchemaMetadata schema = new SchemaMetadata("Schema");
-    schema.setDatabase(mock(Database.class));
     schema.create(table("Employee").setInheritName("Person"));
 
     assertEquals(List.of(), schema.getTableMetadata("Employee").getNonInheritedColumns());
@@ -191,27 +190,6 @@ class TestTableMetadata {
 
     assertEquals(
         "Table 'Employee' cannot inherit table 'HT_Parent.Contact': schema HT_Parent not found or permission denied.",
-        exception.getMessage());
-  }
-
-  @Test
-  void parentTableMissingFromAnExistingRefSchemaSaysWhichHalfFailed() {
-    Database database = mock(Database.class);
-    Schema parentSchema = mock(Schema.class);
-    when(database.getSchema("HT_Parent")).thenReturn(parentSchema);
-    when(parentSchema.getTable("Contact")).thenReturn(null);
-
-    SchemaMetadata schema = new SchemaMetadata();
-    schema.setDatabase(database);
-    schema.create(
-        table("Employee", column("salary")).setInheritName("Contact").setImportSchema("HT_Parent"));
-
-    TableMetadata employee = schema.getTableMetadata("Employee");
-    MolgenisException exception =
-        assertThrows(MolgenisException.class, employee::getInheritedTable);
-
-    assertEquals(
-        "Table 'Employee' cannot inherit table 'HT_Parent.Contact': table Contact not found in schema HT_Parent or permission denied.",
         exception.getMessage());
   }
 

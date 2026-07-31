@@ -1,5 +1,6 @@
 package org.molgenis.emx2.graphql;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -12,88 +13,84 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
-public class GraphqlExecutorTest {
+class GraphqlExecutorTest {
 
   private static final String SCHEMA_NAME = GraphqlExecutorTest.class.getSimpleName();
-  private static Database database;
   private static GraphqlExecutor graphql;
 
+  private CapturingAppender appender;
+  private org.apache.logging.log4j.core.Logger executorLogger;
+
   @BeforeAll
-  public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+  static void setup() {
+    Database database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(SCHEMA_NAME);
     database.createSchema(SCHEMA_NAME);
     graphql = new GraphqlExecutor(database, new TaskServiceInMemory());
   }
 
-  @Test
-  public void logsCause() {
-    CapturingAppender appender = new CapturingAppender();
-    org.apache.logging.log4j.core.Logger executorLogger =
+  @BeforeEach
+  void startCapturingExecutorLog() {
+    appender = new CapturingAppender();
+    executorLogger =
         (org.apache.logging.log4j.core.Logger) LogManager.getLogger(GraphqlExecutor.class);
     appender.start();
     executorLogger.addAppender(appender);
-    try {
-      MolgenisException exception =
-          assertThrows(
-              MolgenisException.class,
-              () ->
-                  graphql.execute(
-                      "mutation{createSchema(name:\"" + SCHEMA_NAME + "\"){message}}",
-                      null,
-                      new GraphqlExecutor.DummySessionHandler()));
+  }
 
-      assertNotNull(exception.getCause());
-
-      List<LogEvent> loggedThrowables =
-          appender.getEvents().stream().filter(event -> event.getThrown() != null).toList();
-      assertTrue(
-          !loggedThrowables.isEmpty(),
-          "expected the failing request to log a throwable, logged: " + appender.getEvents());
-      Throwable logged = loggedThrowables.get(0).getThrown();
-      assertTrue(logged.getStackTrace().length > 0);
-    } finally {
-      executorLogger.removeAppender(appender);
-      appender.stop();
-    }
+  @AfterEach
+  void stopCapturingExecutorLog() {
+    executorLogger.removeAppender(appender);
+    appender.stop();
   }
 
   @Test
-  public void logsCauseOfExceptionThatIsNotMolgenisException() {
-    CapturingAppender appender = new CapturingAppender();
-    org.apache.logging.log4j.core.Logger executorLogger =
-        (org.apache.logging.log4j.core.Logger) LogManager.getLogger(GraphqlExecutor.class);
-    appender.start();
-    executorLogger.addAppender(appender);
-    try {
-      MolgenisException exception =
-          assertThrows(
-              MolgenisException.class,
-              () ->
-                  graphql.execute(
-                      "{_tasks(id:\"" + SCHEMA_NAME + "NoSuchTask\"){id}}",
-                      null,
-                      new GraphqlExecutor.DummySessionHandler()));
+  void logsCause() {
+    GraphqlExecutor.DummySessionHandler sessionHandler = new GraphqlExecutor.DummySessionHandler();
+    String createExistingSchema = "mutation{createSchema(name:\"" + SCHEMA_NAME + "\"){message}}";
 
-      assertInstanceOf(NullPointerException.class, exception.getCause());
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () -> graphql.execute(createExistingSchema, null, sessionHandler));
 
-      List<LogEvent> loggedThrowables =
-          appender.getEvents().stream().filter(event -> event.getThrown() != null).toList();
-      assertTrue(
-          !loggedThrowables.isEmpty(),
-          "expected the failing request to log a throwable, logged: " + appender.getEvents());
-      assertInstanceOf(NullPointerException.class, loggedThrowables.get(0).getThrown());
-    } finally {
-      executorLogger.removeAppender(appender);
-      appender.stop();
-    }
+    assertNotNull(exception.getCause());
+
+    List<LogEvent> loggedThrowables =
+        appender.getEvents().stream().filter(event -> event.getThrown() != null).toList();
+    assertFalse(
+        loggedThrowables.isEmpty(),
+        "expected the failing request to log a throwable, logged: " + appender.getEvents());
+    Throwable logged = loggedThrowables.get(0).getThrown();
+    assertTrue(logged.getStackTrace().length > 0);
+  }
+
+  @Test
+  void logsCauseOfExceptionThatIsNotMolgenisException() {
+    GraphqlExecutor.DummySessionHandler sessionHandler = new GraphqlExecutor.DummySessionHandler();
+    String unknownTask = "{_tasks(id:\"" + SCHEMA_NAME + "NoSuchTask\"){id}}";
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class, () -> graphql.execute(unknownTask, null, sessionHandler));
+
+    assertInstanceOf(NullPointerException.class, exception.getCause());
+
+    List<LogEvent> loggedThrowables =
+        appender.getEvents().stream().filter(event -> event.getThrown() != null).toList();
+    assertFalse(
+        loggedThrowables.isEmpty(),
+        "expected the failing request to log a throwable, logged: " + appender.getEvents());
+    assertInstanceOf(NullPointerException.class, loggedThrowables.get(0).getThrown());
   }
 
   private static class CapturingAppender extends AbstractAppender {

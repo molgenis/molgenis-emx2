@@ -420,6 +420,36 @@ class TestInherits {
   }
 
   @Test
+  void parentTableMissingFromAnExistingRefSchemaSaysWhichHalfFailed() {
+    String parentSchemaName = TestInherits.class.getSimpleName() + "_whichhalf_parent";
+    String childSchemaName = TestInherits.class.getSimpleName() + "_whichhalf_child";
+    db.dropSchemaIfExists(childSchemaName);
+    db.dropCreateSchema(parentSchemaName).create(table("Shape", column("name").setPkey()));
+    Schema childSchema = db.createSchema(childSchemaName);
+
+    TableMetadata employee =
+        table("Employee", column("salary"))
+            .setInheritName("Contact")
+            .setImportSchema(parentSchemaName);
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> childSchema.create(employee));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Table '"
+                    + childSchemaName
+                    + ".Employee' cannot inherit table '"
+                    + parentSchemaName
+                    + ".Contact': table Contact not found in schema "
+                    + parentSchemaName
+                    + " or permission denied."),
+        exception.getMessage());
+  }
+
+  @Test
   void reimportWithMissingParentSchemaGivesMessage() {
     String parentSchemaName = TestInherits.class.getSimpleName() + "_missing_parent";
     String childSchemaName = TestInherits.class.getSimpleName() + "_missing_child";
@@ -664,14 +694,11 @@ class TestInherits {
             .setImportSchema(parentSchemaName)
             .setInheritName("Shape"));
 
+    TableMetadata parentTable =
+        db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape");
+
     MolgenisException exception =
-        assertThrows(
-            MolgenisException.class,
-            () ->
-                db.getSchema(parentSchemaName)
-                    .getMetadata()
-                    .getTableMetadata("Shape")
-                    .alterName("Renamed"));
+        assertThrows(MolgenisException.class, () -> parentTable.alterName("Renamed"));
 
     assertTrue(
         exception
@@ -699,10 +726,10 @@ class TestInherits {
     schema.create(table("Shape", column("name").setPkey()));
     schema.create(table("MyShape", column("size").setType(INT)).setInheritName("Shape"));
 
+    TableMetadata parentTable = schema.getMetadata().getTableMetadata("Shape");
+
     MolgenisException exception =
-        assertThrows(
-            MolgenisException.class,
-            () -> schema.getMetadata().getTableMetadata("Shape").alterName("Renamed"));
+        assertThrows(MolgenisException.class, () -> parentTable.alterName("Renamed"));
 
     assertTrue(
         exception
