@@ -2,8 +2,6 @@ package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -195,27 +193,18 @@ class TestTableMetadata {
 
   @Test
   void testRetrieveColumnByIdentifier() {
-    SchemaMetadata schema = mock(SchemaMetadata.class);
-    when(schema.getName()).thenReturn("schema name");
+    SchemaMetadata schema = new SchemaMetadata("schema name");
 
     // Columns that would result in an identical identifier are not allowed so do not need to be
     // validated.
     Column c1 = new Column("a colname");
     Column c2 = new Column("a colName");
-    TableMetadata table = TableMetadata.table("table name", c1, c2);
-
-    c1.setTable(table);
-    c2.setTable(table);
-    table.setSchema(schema);
-    table.setInheritName("parent table");
-
-    // Parent table for inheritance validation
     Column c3 = new Column("parent column");
-    TableMetadata parentTable = TableMetadata.table("parent table", c3);
 
-    c3.setTable(parentTable);
-    parentTable.setSchema(schema);
-    when(schema.getTableMetadata("parent table")).thenReturn(parentTable);
+    schema.create(
+        table("parent table", c3), table("table name", c1, c2).setInheritName("parent table"));
+
+    TableMetadata table = schema.getTableMetadata("table name");
 
     assertAll(
         () -> assertEquals(c2, table.getColumnByIdentifier("aColName")),
