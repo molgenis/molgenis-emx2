@@ -43,8 +43,11 @@ public class ResolveOntologyPostProcessor implements PostProcessor {
   private void resolveCell(Column column, Row row) {
     Map<String, String> ontologyMapping = getOntologyMapping(column);
     String columnValue = row.getString(column.getName());
-    Optional<String> mappedValue;
+    if (columnValue == null) {
+      return;
+    }
 
+    Optional<String> mappedValue;
     if (column.isArray()) {
       mappedValue = mapArray(column, columnValue, ontologyMapping);
     } else {

@@ -58,6 +58,15 @@ class ResolveOntologyPostProcessorTest {
   }
 
   @Test
+  void shouldHandleNullValue() {
+    TableStore tableStore =
+        getTableStoreWithRows(new Row("name", "foo", "shape", null, "colors", null));
+    resolver.process(tableStore);
+    assertTableStoreHasFiguresTableWithRows(
+        tableStore, new Row("name", "foo", "shape", null, "colors", null));
+  }
+
+  @Test
   void shouldReplaceOntologyTermURIWithName() {
     TableStore tableStore =
         getTableStoreWithRows(
