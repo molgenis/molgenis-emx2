@@ -1,15 +1,15 @@
 import { defineConfig } from "vitest/config";
 import { defineVitestProject } from "@nuxt/test-utils/config";
 
-const pureSpecs = [
-  "tests/vitest/utils/**/*.spec.ts",
-  "tests/vitest/scripts/**/*.spec.ts",
+const pureTests = [
+  "tests/vitest/utils/**/*.test.ts",
+  "tests/vitest/scripts/**/*.test.ts",
 ];
-const pureSpecsExceptThoseNeedingNuxt = [
-  "tests/vitest/utils/**/!(*.nuxt).spec.ts",
-  "tests/vitest/scripts/**/!(*.nuxt).spec.ts",
+const pureTestsExceptThoseNeedingNuxt = [
+  "tests/vitest/utils/**/!(*.nuxt).test.ts",
+  "tests/vitest/scripts/**/!(*.nuxt).test.ts",
 ];
-const specsNeedingNuxt = "**/*.nuxt.spec.ts";
+const testsNeedingNuxt = "**/*.nuxt.test.ts";
 
 export default defineConfig({
   test: {
@@ -18,8 +18,8 @@ export default defineConfig({
         test: {
           name: "node",
           environment: "node",
-          include: pureSpecs,
-          exclude: [specsNeedingNuxt],
+          include: pureTests,
+          exclude: [testsNeedingNuxt],
         },
       },
       await defineVitestProject({
@@ -27,8 +27,8 @@ export default defineConfig({
           name: "nuxt",
           setupFiles: ["./tests/vitest/setup.ts"],
           hookTimeout: 120000,
-          include: ["tests/vitest/**/*.spec.ts"],
-          exclude: pureSpecsExceptThoseNeedingNuxt,
+          include: ["tests/vitest/**/*.test.ts"],
+          exclude: pureTestsExceptThoseNeedingNuxt,
         },
       }),
     ],
