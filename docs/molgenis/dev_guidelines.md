@@ -169,3 +169,20 @@ class MyClassTest {
   }
 }
 ```
+
+### We test at the lowest layer that can hold the behaviour
+
+The floor is the `Schema` API.
+Below it, package-internal helpers and executors are implementation: a test there breaks on refactors while proving nothing a user can observe.
+
+Two things that look like exceptions and are not.
+Reading raw SQL to verify state is fine, the subject is still the Schema-level behaviour.
+And where the behaviour is a stored SQL function with no java surface, the SQL is the unit and gets tested directly.
+
+Above the floor, don't repeat yourself: CSV import and the GraphQL `change` mutation each get one test that the payload arrives, not a copy of the rule they share.
+
+### We don't mock
+
+Needing a mock usually means the test sits below the `Schema` API.
+Move it up to where a real schema exists rather than mocking the layer beneath.
+A few older tests do mock internals; they're the shape we're moving away from, not a precedent.
