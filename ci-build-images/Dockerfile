@@ -1,7 +1,7 @@
 # docker file for the ci
 # to build and publish (n.b. on apple silicon you need to set --platform)
-# docker buildx build -t molgenis/ci-build:1.2.2 --platform linux/amd64 .
-# docker push molgenis/ci-build:1.2.2
+# docker buildx build -t molgenis/ci-build:1.6.2 --platform linux/amd64 .
+# docker push molgenis/ci-build:1.6.2
 
 FROM gradle:jdk21-noble
 RUN useradd -m molgenis
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install vim python3 python3-venv python3-pip pytho
 RUN python3 -m pip config set global.break-system-packages true
 RUN python3 --version
 
-ENV NODE_VERSION=22.17.0
+ENV NODE_VERSION=22.19.0
 RUN apt install -y curl
 USER molgenis 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash

@@ -21,16 +21,17 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.5.1
+    - image: molgenis/ci-build:1.6.2
     working_directory: ~/repo
     resource_class: large
     environment:
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.console=plain"
       TERM: dumb
+      TURBO_RUN_SUMMARY: "true"
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.5.1
+    - image: molgenis/ci-build:1.6.2
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -40,11 +41,12 @@ definitions:
     resource_class: large
     environment:
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2 -Dorg.gradle.console=plain"
       TERM: dumb
+      TURBO_RUN_SUMMARY: "true"
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.5.1
+      - image: molgenis/ci-build:1.6.2
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -54,7 +56,7 @@ definitions:
     resource_class: large
     environment:
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false -Dorg.gradle.console=plain"
       TERM: dumb
 
 
@@ -83,6 +85,14 @@ commands:
         name: run-pnpm-audit
         command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
         working_directory: apps
+    - setup_remote_docker:
+        docker_layer_caching: true
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+  gradle_pre_steps:
+    steps:
     - run:
           name: Concatenate Build Files as key for cache
           command: |
@@ -90,8 +100,8 @@ commands:
           no_output_timeout: 5m
     - restore_cache:
         keys:
-          - gradle-{{ checksum "concatenated-build-gradle" }}
-          - gradle
+          - gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
+          - gradle-deps-v1-
     - restore_cache:
         keys:
         - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
@@ -104,16 +114,216 @@ commands:
         key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - save_cache:
         paths:
-          - ~/.gradle/caches
-        key: gradle-{{ checksum "concatenated-build-gradle" }}
-    - setup_remote_docker:
-        docker_layer_caching: true
+          - ~/.gradle/caches/modules-2
+          - ~/.gradle/caches/jars-9
+        key: gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
+
+  restore_gradle_build_cache:
+    steps:
+    - restore_cache:
+        keys:
+          - gradle-buildcache-v1-{{ .Revision }}
+          - gradle-buildcache-v1-
+
+  save_gradle_build_cache:
+    steps:
     - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+        name: Cap the gradle build cache at 2GB, dropping the oldest entries first
+        command: |
+          if [ -d ~/.gradle/caches/build-cache-1 ]; then
+            cd ~/.gradle/caches/build-cache-1
+            ls -lt | awk -v limit=2147483648 '$NF ~ /^[0-9a-f]{32}$/ { total += $5; if (total > limit) print $NF }' |
+              while read -r entry; do rm -f "$entry"; done
+            du -sh .
+          else
+            echo "no gradle build cache to prune"
+          fi
+    - save_cache:
+        paths:
+          - ~/.gradle/caches/build-cache-1
+        key: gradle-buildcache-v1-{{ .Revision }}
+
+  restore_turbo_cache:
+    steps:
+    - restore_cache:
+        keys:
+          - turbo-v1-{{ .Revision }}
+          - turbo-v1-
+
+  save_turbo_cache:
+    steps:
+    - run:
+        name: Cap the turbo cache at 512MB, dropping the oldest entries first
+        command: |
+          if ls apps/.turbo/cache/*.tar.zst >/dev/null 2>&1; then
+            cd apps/.turbo/cache
+            ls -lt *.tar.zst | awk -v limit=536870912 '{ total += $5 } total > limit { sub(/\.tar\.zst$/, "", $NF); print $NF }' |
+              while read -r entry; do rm -f "$entry".tar.zst "$entry"-meta.json "$entry"-manifest.json; done
+            du -sh .
+          else
+            echo "no turbo cache to prune"
+          fi
+    - save_cache:
+        paths:
+          - apps/.turbo/cache
+        key: turbo-v1-{{ .Revision }}
+
+  restore_pnpm_store:
+    steps:
+    - run:
+        name: Point pnpm at a shared store and record the pnpm versions that install
+        command: |
+          sed -n 's/.*"packageManager" *: *"pnpm@\([^"]*\)".*/\1/p' apps/package.json > pnpm-version
+          sed -n 's/.*pnpmVersion *= *"\([^"]*\)".*/\1/p' apps/build.gradle >> pnpm-version
+          echo "pnpm versions that perform the install: $(tr '\n' ' ' < pnpm-version)"
+          if [ -z "${BASH_ENV:-}" ]; then
+            echo "PNPM_STORE_PIN_IGNORED: BASH_ENV is unset so npm_config_store_dir cannot reach the install"
+          else
+            echo "export npm_config_store_dir=/tmp/pnpm-store" >> "$BASH_ENV"
+            echo "npm_config_store_dir exported as /tmp/pnpm-store"
+          fi
+    - restore_cache:
+        keys:
+          - pnpm-store-v3-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
+          - pnpm-store-v3-{{ checksum "pnpm-version" }}-
+          - pnpm-store-v3-
+    - run:
+        name: Record whether the restored store landed where pnpm reads it
+        command: |
+          if [ -n "$(find /tmp/pnpm-store -type f -print -quit 2>/dev/null)" ]; then
+            echo restored > pnpm-store-state
+            du -sh /tmp/pnpm-store
+          else
+            echo empty > pnpm-store-state
+            echo "no pnpm store at /tmp/pnpm-store after restore_cache"
+          fi
+
+  assert_pnpm_reused_store:
+    steps:
+    - run:
+        name: Fail if a restored pnpm store was not reused by every install
+        command: |
+          INSTALL_LOGS=$(ls pnpm-install-*.log 2>/dev/null || true)
+          if [ -z "$INSTALL_LOGS" ]; then
+            echo "PNPM_REUSE_UNVERIFIED: no pnpm-install-*.log exists, so no install recorded its own output"
+            exit 1
+          fi
+          STORE_STATE=$(cat pnpm-store-state 2>/dev/null || echo unrecorded)
+          case "$STORE_STATE" in
+            restored|empty)
+              ;;
+            *)
+              echo "PNPM_REUSE_UNVERIFIED: restore_pnpm_store did not record the state of the store, got '$STORE_STATE'"
+              exit 1
+              ;;
+          esac
+          UNREUSED=0
+          for LOG in $INSTALL_LOGS; do
+            if [ ! -s "$LOG" ]; then
+              echo "PNPM_REUSE_UNVERIFIED: $LOG is empty, so that install did not record its own output"
+              UNREUSED=1
+              continue
+            fi
+            REUSED=$(sed -n 's/.*reused \([0-9][0-9]*\).*/\1/p' "$LOG" | sort -n | tail -1)
+            echo "restored store state: $STORE_STATE, highest reused count in $LOG: ${REUSED:-none}"
+            if [ "$STORE_STATE" = empty ]; then
+              echo "PNPM_STORE_MISS: nothing was restored, so the install in $LOG had to download"
+            elif [ "${REUSED:-0}" -eq 0 ]; then
+              echo "PNPM_STORE_RESTORED_BUT_UNUSED: the store was restored yet the install in $LOG reused nothing from it"
+              UNREUSED=1
+            fi
+          done
+          exit $UNREUSED
+
+  save_pnpm_store:
+    parameters:
+      strict:
+        type: boolean
+        default: true
+    steps:
+    - run:
+        name: Check pnpm installed into the shared store, and change the cache key if it did not
+        command: |
+          STRICT="<< parameters.strict >>"
+          STORE_DIR="/tmp/pnpm-store"
+          if [ -n "$(find "$STORE_DIR" -type f -print -quit 2>/dev/null)" ]; then
+            du -sh "$STORE_DIR"
+          else
+            echo "PNPM_STORE_PIN_IGNORED: nothing was installed into $STORE_DIR, the installing pnpm used another store"
+            echo "store-pin-broken" >> pnpm-version
+            if [ "$STRICT" = "true" ]; then
+              exit 1
+            fi
+          fi
+    - save_cache:
+        paths:
+          - /tmp/pnpm-store
+        key: pnpm-store-v3-{{ checksum "pnpm-version" }}-{{ checksum "apps/pnpm-lock.yaml" }}
+
+  restore_apt_postgres_client:
+    steps:
+    - run:
+        name: Record the apt cache key from the postgres client version, image and architecture
+        command: |
+          {
+            echo "postgresql-client-15"
+            (. /etc/os-release && echo "$VERSION_CODENAME")
+            dpkg --print-architecture
+            sed -n 's|.*image: *mcr\.microsoft\.com/playwright:\(.*\)$|\1|p' .circleci/config.yml
+          } > apt-postgres-client-key
+          echo "apt postgres client cache key inputs: $(tr '\n' ' ' < apt-postgres-client-key)"
+    - restore_cache:
+        keys:
+          - apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
+
+  save_apt_postgres_client:
+    steps:
+    - save_cache:
+        paths:
+          - /var/cache/apt/archives
+          - /var/lib/apt/lists
+          - /etc/apt/sources.list.d/pgdg.list
+          - /usr/share/postgresql-common/pgdg
+        key: apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
+
+  restore_demo_dump:
+    steps:
+    - run:
+        name: Compute the demo-dump cache key over backend, data and the EMX2 jar
+        command: bash ci/e2e_demo_dump.sh key
+    - restore_cache:
+        keys:
+          - emx2-demo-dump-v1-{{ checksum "emx2-demo-dump-key" }}
+    - run:
+        name: Restore the cached demo database, or fall back to a full import
+        command: bash ci/e2e_demo_dump.sh restore
+
+  save_demo_dump:
+    steps:
+    - run:
+        name: Dump the imported demo database for the next run
+        command: bash ci/e2e_demo_dump.sh save
+    - save_cache:
+        paths:
+          - ~/emx2-demo-dump
+        key: emx2-demo-dump-v1-{{ checksum "emx2-demo-dump-key" }}
+
+  store_build_diagnostics:
+    steps:
+    - run:
+        name: Keep the task outcomes and turbo run summaries that explain what this job rebuilt
+        command: mkdir -p build/reports/task-outcomes apps/.turbo/runs
+        when: always
+    - store_artifacts:
+        path: build/reports/task-outcomes
+        when: always
+    - store_artifacts:
+        path: apps/.turbo/runs
+        when: always
 
   post_steps:
     steps:
+    - store_build_diagnostics
     - run:
         name: Save test results for stats
         command: |
@@ -127,62 +337,37 @@ commands:
 
 # jobs for pull request and master
 jobs:
-  build-preview-images:
-    <<: *build_config
-
-    steps:
-    - run: |
-        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-
-    - pre_steps
-
-    - run:
-        name: build and push emx2 java docker images for the preview
-        command: ./gradlew -s --no-daemon dockerPush ci -x test
-
-    - persist_to_workspace:
-        root: .
-        paths:
-          - build/ci.properties
-
-    - run:
-        name: push ssr-catalogue docker images
-        command: |
-          export $( cat build/ci.properties | xargs )
-          docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
-          docker push molgenis/ssr-catalogue-snapshot --all-tags
-
-    - run:
-        name: Docker-Scout scanning on cve's, break on critical.
-        command: |
-          export $( cat build/ci.properties | xargs )
-          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
-          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --only-severity critical --ignore-suppressed --only-fixed --exit-code
-
-    - post_steps
-
-
   build:
     <<: *build_config
 
     steps:
       - pre_steps
+      - gradle_pre_steps
+      - restore_gradle_build_cache
+      - restore_turbo_cache
+      - restore_pnpm_store
       - run:
-          name: build the application without running tests to speed up the e2e tests
-          command: ./gradlew shadowJar -x test ci --no-daemon
+          name: build the application jar and docker context without running tests
+          command: ./gradlew shadowJar dockerPrepare -x test ci --no-daemon
 
       - run:
           name: build ssr catalogue
-          command: pnpm build
-          working_directory: apps/catalogue
+          command: pnpm exec turbo run build --filter=catalogue
+          working_directory: apps
+
+      - save_pnpm_store
 
       - persist_to_workspace:
           root: .
           paths:
             - build/libs
+            - build/docker/deps
+            - build/docker/app
             - build/ci.properties
             - apps/catalogue
             - custom-app/
+
+      - store_build_diagnostics
 
   e2e-tests:
     resource_class: large
@@ -190,7 +375,7 @@ jobs:
       - image: mcr.microsoft.com/playwright:v1.62.0-jammy
         environment:
           JVM_OPTS: -Xmx6400m
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.console=plain"
           TERM: dumb
       - image: postgres:15-alpine
         environment:
@@ -206,29 +391,97 @@ jobs:
           name: Enable pnpm
           command: |
             corepack enable
-            corepack prepare pnpm@latest --activate
+            corepack prepare pnpm@10.24.0 --activate
             pnpm -v
 
-      - run: pnpm i -D @playwright/test@1.62.0
+      - restore_pnpm_store
 
       - run:
           name: Install dependencies
           command: |
-            pnpm install @playwright/test@1.62.0
-            npx playwright install chrome
-            npx playwright install
+            (cd apps && pnpm install) 2>&1 | tee pnpm-install-apps.log
+            (cd e2e && pnpm install --frozen-lockfile) 2>&1 | tee pnpm-install-e2e.log
+
+      - assert_pnpm_reused_store
+
+      - save_pnpm_store
+
+      - run:
+          name: Verify the installed Playwright matches the browsers this image ships
+          command: |
+            IMAGE_VERSION=$(sed -n 's|.*image: mcr\.microsoft\.com/playwright:v\([0-9][0-9.]*\)-.*|\1|p' .circleci/config.yml | head -1)
+            if [ -z "$IMAGE_VERSION" ]; then
+              echo "could not read the playwright image tag from .circleci/config.yml"
+              exit 1
+            fi
+            for PLAYWRIGHT_BIN in e2e/node_modules/.bin/playwright apps/tailwind-components/node_modules/.bin/playwright; do
+              INSTALLED_VERSION=$("$PLAYWRIGHT_BIN" --version | sed 's/^Version //')
+              echo "$PLAYWRIGHT_BIN reports $INSTALLED_VERSION, image ships v$IMAGE_VERSION"
+              if [ "$INSTALLED_VERSION" != "$IMAGE_VERSION" ]; then
+                echo "playwright $INSTALLED_VERSION does not match image v$IMAGE_VERSION"
+                exit 1
+              fi
+            done
+            EXPECTED_BROWSERS=$(e2e/node_modules/.bin/playwright install --dry-run | grep -A1 'playwright chromium' | sed -n 's|.*Install location: *||p' || true)
+            FOUND=$(printf '%s\n' "$EXPECTED_BROWSERS" | grep -c . || true)
+            if [ "$FOUND" != "2" ]; then
+              echo "expected 2 chromium install locations, found $FOUND in: $EXPECTED_BROWSERS"
+              exit 1
+            fi
+            for BROWSER_DIR in $EXPECTED_BROWSERS; do
+              if [ ! -d "$BROWSER_DIR" ]; then
+                echo "browser missing from the image: $BROWSER_DIR"
+                exit 1
+              fi
+              echo "browser present: $BROWSER_DIR"
+            done
 
       - run:
           name: Put custom app next to jar
           command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
 
+      - restore_apt_postgres_client
+
       - run:
-          name: install postgres client
-          command: apt-get update && apt-get install -y postgresql-client
+          name: install postgres client matching the postgres 15 service
+          command: |
+            echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/99keep-downloaded-packages
+            installFromRestoredAptCache() {
+              [ -s /etc/apt/sources.list.d/pgdg.list ] || return 1
+              [ -n "$(find /var/lib/apt/lists -name '*_Packages*' -print -quit 2>/dev/null)" ] || return 1
+              apt-get install -y postgresql-client-15
+            }
+            installFromPostgresqlOrg() {
+              apt-get install -y curl ca-certificates
+              install -d /usr/share/postgresql-common/pgdg
+              curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+                -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+              echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo "$VERSION_CODENAME")-pgdg main" \
+                > /etc/apt/sources.list.d/pgdg.list
+              apt-get update
+              apt-get install -y postgresql-client-15
+            }
+            if installFromRestoredAptCache; then
+              echo "postgres client installed from the restored apt cache, apt-get update was skipped"
+            else
+              echo "APT_CACHE_UNUSABLE: installing from the network"
+              apt-get update
+              if ! installFromPostgresqlOrg; then
+                echo "postgresql-client-15 is unavailable, falling back to the distribution client"
+                echo "pg_dump will refuse the newer server, so the demo dump cache stays empty"
+                apt-get install -y postgresql-client
+              fi
+            fi
+            psql --version
+            pg_dump --version
+
+      - save_apt_postgres_client
 
       - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+
+      - restore_demo_dump
 
       - run:
           name: Install Java
@@ -250,10 +503,14 @@ jobs:
           name: start the application in the background
           command: |
             export $( cat build/ci.properties | xargs )
-            export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
-            export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
-            export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
-            export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            if [ "${MOLGENIS_DEMO_DUMP_RESTORED:-false}" = "true" ]; then
+              echo "booting against the restored demo database, so no demo is imported"
+            else
+              export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
+              export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
+              export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
+              export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            fi
             export E2E_BASE_URL=http://localhost:8080/
             export MOLGENIS_OIDC_CLIENT_ID=emx2-local
             export MOLGENIS_OIDC_CLIENT_SECRET=${LOCAL_OIDC_CLIENT_SECRET}
@@ -294,13 +551,14 @@ jobs:
               fi
 
               sleep 1
-            done            
+            done
+
+      - save_demo_dump
 
       - run:
           name: Test tailwind components
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
-            pnpm install
             pnpm --filter tailwind-components run e2e
           working_directory: apps
 
@@ -317,7 +575,6 @@ jobs:
           name: Directory e2e tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/
-            pnpm install
             pnpm --filter directory run e2e
           working_directory: apps
 
@@ -331,7 +588,6 @@ jobs:
           name: UI tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/ui/
-            pnpm install
             pnpm --filter ui run e2e
           working_directory: apps
 
@@ -345,8 +601,7 @@ jobs:
           name: Run non ssr e2e tests
           command: |
             export $( cat build/ci.properties | xargs )
-            pnpm install
-            npx playwright test --config e2e e2e/tests 
+            e2e/node_modules/.bin/playwright test --config e2e e2e/tests
 
       - store_test_results:
           path: e2e/test-results
@@ -359,7 +614,6 @@ jobs:
           command: |
             cp -r /workspace/apps/catalogue/.output  /root/project/apps/catalogue/.output
             export NUXT_PUBLIC_API_BASE=http://localhost:8080/                  
-            pnpm install
             pnpm --filter catalogue run e2e
           working_directory: apps
 
@@ -373,7 +627,24 @@ jobs:
     <<: *test_config
 
     steps:
+    - run:
+        name: Sample machine, container and java memory every two seconds for the whole job
+        background: true
+        command: |
+          while true; do
+            memTotal=$(awk '/^MemTotal:/ { print $2 }' /proc/meminfo)
+            memAvailable=$(awk '/^MemAvailable:/ { print $2 }' /proc/meminfo)
+            cgroupUsed=$(cat /sys/fs/cgroup/memory.current 2>/dev/null ||
+              cat /sys/fs/cgroup/memory/memory.usage_in_bytes 2>/dev/null || echo 0)
+            javaRss=$(ps -eo rss,comm 2>/dev/null | awk '$2 ~ /java/ { sum += $1 } END { print sum + 0 }')
+            echo "${memTotal:-0} ${memAvailable:-0} ${cgroupUsed:-0} ${javaRss:-0}"
+            sleep 2
+          done > /tmp/job-memory-samples.txt
     - pre_steps
+    - gradle_pre_steps
+    - restore_gradle_build_cache
+    - restore_turbo_cache
+    - restore_pnpm_store
 
     - run:
         name: prepare sql test database
@@ -381,33 +652,46 @@ jobs:
 
     - run:
         name: <apps> check code format
-        command: ./gradlew :apps:format
+        command: ./gradlew :apps:format --profile
 
     - run:
         name: <apps> lint the code
         command: |
-          ./gradlew lint ci --no-daemon \
+          ./gradlew lint ci --profile \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 
     - run:
         name: <apps> unit test the code
-        command: ./gradlew :apps:test
+        command: ./gradlew :apps:test --profile
+
+    - save_turbo_cache
+    - save_pnpm_store
 
     - run:
         name: <backend> check code format
         command: |
-          ./gradlew --continue spotlessCheck
+          ./gradlew --continue spotlessCheck --profile
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
         command: |
-          ./gradlew --continue pmdMain pmdTest
+          ./gradlew --continue pmdMain pmdTest --profile
     - run:
         name: run tests and push to sonar
         command: |
-          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
+          ./gradlew test jacocoMergedReport sonar --profile -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+
+    - run:
+        name: Check scripts are TypeScript run by node
+        command: bash ci/check-script-conventions.sh
+
+    - run:
+        name: Type-check the build and CI scripts
+        command: apps/tailwind-components/node_modules/.bin/tsc -p apps/tailwind-components/tsconfig.scripts.json
+
+    - save_gradle_build_cache
 
     - post_steps
 
@@ -422,7 +706,7 @@ jobs:
             'MOLGENIS_JVM_XMX=333m' \
             'MOLGENIS_POSTGRES_PASS=ci-guardrail-secret' > .env
           export MOLGENIS_HTTP_PORT=19999
-          ./gradlew -q --console=plain --no-daemon printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
+          ./gradlew -q --console=plain --profile printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
             | tee printDevConfig.out
           grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_HTTP_PORT=19345' printDevConfig.out
           grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_CI_PROBE=probe-value' printDevConfig.out
@@ -432,6 +716,110 @@ jobs:
         name: <dev> remove the temporary .env
         command: rm -f .env printDevConfig.out
         when: always
+
+    - run:
+        name: Gradle configuration versus task execution time, per invocation
+        when: always
+        command: |
+          set -euo pipefail
+          reportDir=build/reports/profile
+          reports=$(ls -1 "$reportDir"/profile-*.html 2>/dev/null || true)
+          if [ -z "$reports" ]; then
+            echo "no gradle profile report in $reportDir; every ./gradlew call in this job runs with --profile" >&2
+            exit 1
+          fi
+          for report in $reports; do
+            summary=$(sed -n '/<h2>Summary<\/h2>/,/<\/table>/p' "$report" |
+              sed -e 's/<[^>]*>//g' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | grep -v '^$')
+            field() {
+              printf '%s\n' "$summary" | awk -v want="$1" 'found { print; exit } $0 == want { found = 1 }'
+            }
+            profiled=$(sed -n 's/.*Profiled build: *\(.*\)<\/p>.*/\1/p' "$report" | sed -e 's/[[:space:]]*$//')
+            for pair in "profiled build:$profiled" \
+                        "total:$(field 'Total Build Time')" \
+                        "startup:$(field 'Startup')" \
+                        "settings and buildSrc:$(field 'Settings and buildSrc')" \
+                        "configuration:$(field 'Configuring Projects')" \
+                        "task execution:$(field 'Task Execution')"; do
+              if [ -z "${pair#*:}" ]; then
+                echo "cannot read '${pair%%:*}' out of $report; the gradle profile report format changed" >&2
+                exit 1
+              fi
+            done
+            echo "gradle profile | tasks: $profiled | total $(field 'Total Build Time') |" \
+              "startup $(field 'Startup') | settings+buildSrc $(field 'Settings and buildSrc') |" \
+              "configuration $(field 'Configuring Projects') | execution $(field 'Task Execution')"
+          done
+
+    - store_artifacts:
+        path: build/reports/profile
+        destination: gradle-profile
+
+    - run:
+        name: Gradle daemons spawned, builds each one served, and peak memory of the job
+        when: always
+        command: |
+          set -uo pipefail
+          daemonLogs=$(ls -1 ~/.gradle/daemon/*/daemon-*.log 2>/dev/null || true)
+          if [ -z "$daemonLogs" ]; then
+            echo "no daemon log under ~/.gradle/daemon/*/daemon-*.log, so no daemon can be counted;" \
+              "every ./gradlew call in this job runs with the daemon allowed by GRADLE_OPTS" >&2
+            exit 1
+          fi
+          mkdir -p build/reports/gradle-daemon
+          cp $daemonLogs build/reports/gradle-daemon/
+          daemonCount=$(printf '%s\n' "$daemonLogs" | grep -c .)
+          echo "gradle daemon | distinct daemons spawned: $daemonCount"
+          totalBuilds=0
+          totalReused=0
+          for daemonLog in $daemonLogs; do
+            daemonPid=$(basename "$daemonLog" | sed -e 's/^daemon-//' -e 's/\..*$//')
+            freshStarts=$(grep -c 'Starting build in new daemon' "$daemonLog" || true)
+            reusedStarts=$(grep -cE 'Starting [0-9]+[a-z]* build in daemon' "$daemonLog" || true)
+            builds=$((freshStarts + reusedStarts))
+            totalBuilds=$((totalBuilds + builds))
+            totalReused=$((totalReused + reusedStarts))
+            heap=$(sed -n 's/.*Starting build in new daemon \[memory: \([^]]*\)\].*/\1/p' "$daemonLog" | head -1)
+            echo "gradle daemon | pid $daemonPid | builds served $builds |" \
+              "fresh starts $freshStarts | reused $reusedStarts | heap ${heap:-unknown}"
+          done
+          echo "gradle daemon | builds served in total: $totalBuilds, of which reused an existing daemon: $totalReused"
+          if [ "$totalBuilds" -eq 0 ]; then
+            echo "no 'Starting build in new daemon' or 'Starting Nth build in daemon' line in any of the" \
+              "$daemonCount daemon logs; the gradle daemon log format changed, so reuse cannot be read" >&2
+            exit 1
+          fi
+          samples=/tmp/job-memory-samples.txt
+          validSamples=$(awk 'NF == 4 && $0 ~ /^[0-9 ]+$/ && $1 + 0 > 0' "$samples" 2>/dev/null | grep -c . || true)
+          if [ "$validSamples" -lt 2 ]; then
+            echo "only $validSamples usable memory samples in $samples; the background sampler step did not" \
+              "run for this job, so peak memory cannot be reported" >&2
+            exit 1
+          fi
+          awk 'NF == 4 && $0 ~ /^[0-9 ]+$/ && $1 + 0 > 0 {
+                 sampleCount++
+                 total = $1
+                 if (minAvailable == 0 || $2 < minAvailable) minAvailable = $2
+                 if ($3 > maxCgroup) maxCgroup = $3
+                 if ($4 > maxJava) maxJava = $4
+               }
+               END {
+                 printf "gradle daemon | peak memory used machine-wide, postgres container included: %.2f GiB of %.2f GiB, over %d samples\n", \
+                   (total - minAvailable) / 1048576, total / 1048576, sampleCount
+                 printf "gradle daemon | peak memory of this container cgroup: %.2f GiB\n", maxCgroup / 1073741824
+                 printf "gradle daemon | peak resident memory of all java processes together: %.2f GiB\n", maxJava / 1048576
+               }' "$samples"
+          kernelPeak=$(cat /sys/fs/cgroup/memory.peak 2>/dev/null ||
+            cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes 2>/dev/null || true)
+          if [ -n "$kernelPeak" ]; then
+            echo "gradle daemon | peak this container cgroup recorded itself: $kernelPeak bytes"
+          else
+            echo "gradle daemon | this kernel exposes no cgroup peak file, sampled figures above are the only ones"
+          fi
+
+    - store_artifacts:
+        path: build/reports/gradle-daemon
+        destination: gradle-daemon
 
   release:
     <<: *release_config
@@ -443,7 +831,9 @@ jobs:
         my-pipeline: <<pipeline.number>>
         
     - pre_steps
-    
+    - gradle_pre_steps
+    - restore_pnpm_store
+
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
@@ -455,13 +845,16 @@ jobs:
     - run:
         name: lint the code
         command: |
-          ./gradlew lint ci --no-daemon \
+          ./gradlew lint ci \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+
+    - save_pnpm_store:
+        strict: false
 
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
-          ./gradlew test jacocoMergedReport sonar ci dockerBuild --no-daemon \
+          ./gradlew test jacocoMergedReport sonar ci dockerBuild \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
@@ -470,11 +863,11 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            ./gradlew -s --no-daemon dockerPush
+            ./gradlew -s dockerPush
             docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
-            ./gradlew -s --no-daemon dockerPush release
+            ./gradlew -s dockerPush release
             docker build apps/catalogue/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
@@ -493,18 +886,42 @@ jobs:
           curl -d "token=${SLACK_TOKEN}" \
           -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.org" \
           -d "channel=C02AZDG6QQ7" \
-          -X POST https://slack.com/api/chat.postMessage  
+          -X POST https://slack.com/api/chat.postMessage
 
     - post_steps
 
-  pr-preview:
+  preview:
     <<: *build_config
 
     steps:
+    - run: |
+        echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+
     - pre_steps
 
     - attach_workspace:
         at: .
+
+    - run:
+        name: build and push emx2 java docker images for the preview
+        command: |
+          export $( cat build/ci.properties | xargs )
+          docker build . -t ${IMAGE_NAME}:${TAG_NAME} -t ${IMAGE_NAME}:latest
+          docker push ${IMAGE_NAME} --all-tags
+
+    - run:
+        name: push ssr-catalogue docker images
+        command: |
+          export $( cat build/ci.properties | xargs )
+          docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
+          docker push molgenis/ssr-catalogue-snapshot --all-tags
+
+    - run:
+        name: Docker-Scout scanning on cve's, break on critical.
+        command: |
+          export $( cat build/ci.properties | xargs )
+          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --only-severity critical --ignore-suppressed --only-fixed --exit-code
 
     - run:
         name: Start preview in limited resources mode
@@ -547,6 +964,7 @@ jobs:
 
     steps:
       - pre_steps
+      - gradle_pre_steps
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
@@ -579,7 +997,7 @@ jobs:
               A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
               -d "channel=C02AZDG6QQ7" \
               -X POST https://slack.com/api/chat.postMessage
-            fi           
+            fi
 
   delete-helm-preview:
     <<: *build_config
@@ -640,13 +1058,9 @@ workflows:
     unless:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
-    - build-preview-images:
-        filters:
-          branches:
-            ignore: master
-    - pr-preview:
+    - preview:
         requires:
-          - build-preview-images
+          - build
         filters:
           branches:
             ignore: master

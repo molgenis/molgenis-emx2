@@ -1,5 +1,7 @@
 /* will produce a fat jar containing all html/js dist in public_html/apps*/
 
+import groovy.json.JsonSlurper
+
 plugins {
     id "java"
     id "com.github.node-gradle.node" version "7.1.0"
@@ -14,7 +16,7 @@ def isCI = System.getenv('CI') ? true : false
 
 
 node {
-    version = '22.17.0'
+    version = file("${rootProject.projectDir}/.nvmrc").text.trim()
     pnpmVersion = "10.24.0"
     download = true
     workDir = file("build/node")
@@ -37,7 +39,24 @@ ext.listProjectFolders = { List<String> excludeNames = excludeFolders ->
 def workspaceDirs = listProjectFolders()
 println "Workspace dirs = $workspaceDirs"
 
-def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
+def buildOutputFolders = ["dist", "showCase", "gen-docs"]
+
+def buildOutputDirsForApp = { String appName ->
+    if (file("${appName}/nuxt.config.ts").exists()) {
+        return ["${appName}/.output"]
+    }
+    def outputDirs = ["${appName}/dist"]
+    def scripts = new JsonSlurper().parse(file("${appName}/package.json")).scripts ?: [:]
+    if (scripts.containsKey("build:showcase")) {
+        outputDirs << "${appName}/showCase"
+    }
+    if (scripts.containsKey("generate-docs")) {
+        outputDirs << "${appName}/gen-docs"
+    }
+    return outputDirs
+}
+
+def registerAppInputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
     //include all files in root
     project.projectDir.listFiles().findAll { it.isFile() }.each {file ->
             task.inputs.file(file);
@@ -52,6 +71,10 @@ def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String>
                 }
         )
     }
+}
+
+def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
+    registerAppInputs(task, workspaceDirs, excludeFolders)
     task.outputs.upToDateWhen { true }
 }
 
@@ -74,7 +97,8 @@ tasks.register('pnpm_build', PnpmTask) {
     dependsOn 'pnpm_install'
     args = ['run', 'build']
     inputs.property('molgenisDotenv', rootProject.ext.molgenisDotenv)
-    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+    registerAppInputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
+    outputs.dirs(workspaceDirs.collectMany { buildOutputDirsForApp(it) })
 }
 
 // Util task to clean up all apps files created during build
@@ -82,7 +106,6 @@ tasks.register("cleanApps", Delete) {
     doFirst {
         // delete build directory as before
         delete(project.layout.buildDirectory)
-        delete file("${project.projectDir}/node_modules")
         delete file("${project.projectDir}/.turbo")
         delete file("${project.projectDir}/.nuxt")
         delete file("${project.projectDir}/.output")
@@ -93,12 +116,12 @@ tasks.register("cleanApps", Delete) {
             def dir = project.file(dirName)
             if (dir.exists()) {
                 delete new File(dir, ".turbo")
-                delete new File(dir, "dist")
-                delete new File(dir, "showCase")
-                delete new File(dir, "node_modules") // optional
+                delete new File(dir, ".nuxt")
                 delete new File(dir, "build")
-                delete file("${project.projectDir}/.nuxt")
-                delete file("${project.projectDir}/.output")
+                buildOutputDirsForApp(dirName).each { delete file(it) }
+                buildOutputFolders.each { folderName ->
+                    delete new File(dir, folderName)
+                }
             }
         }
     }
@@ -107,42 +130,36 @@ tasks.register("cleanApps", Delete) {
 }
 clean.dependsOn 'cleanApps';
 
-// Custom task to collect all dist folders into the resources directory
+// Locates the folder the jar packages per app
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
-abstract class CollectDistTask extends DefaultTask {
-    @TaskAction
-    void collect() {
-        File targetDir = project.layout.buildDirectory
-                .dir("generated/resources/public_html/apps")
-                .get()
-                .asFile
-
-        project.copy { spec ->
-            project.file(".").eachDir { dir ->
-                def showCaseDir = new File(dir, "showCase")
-                def distDir = new File(dir, "dist")
-                if (showCaseDir.exists()) {
-                    spec.from(showCaseDir) {
-                        into(dir.name)
-                    }
-                }
-                else if (distDir.exists()) {
-                    spec.from(distDir) {
-                        into(dir.name)
-                    }
-                }
-
-            }
-            spec.into(targetDir)
+abstract class AppOutputLocator {
+    static File packagedOutputDirForApp(File appsDirectory, String appName) {
+        File appDir = new File(appsDirectory, appName)
+        File showCaseDir = new File(appDir, "showCase")
+        if (showCaseDir.isDirectory()) {
+            return showCaseDir
         }
-
-        println "✅ Collected dist folders into $targetDir"
+        if (new File(appDir, "nuxt.config.ts").exists()) {
+            File nuxtPublicDir = new File(appDir, ".output/public")
+            return isStaticNuxtOutput(appDir) && nuxtPublicDir.isDirectory() ? nuxtPublicDir : null
+        }
+        File distDir = new File(appDir, "dist")
+        return distDir.isDirectory() ? distDir.canonicalFile : null
     }
-}
 
-tasks.register("collectDist", CollectDistTask) {
-    dependsOn("pnpm_build")
-    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+    static boolean expectsPackagedOutput(File appsDirectory, String appName) {
+        File appDir = new File(appsDirectory, appName)
+        if (!new File(appDir, "nuxt.config.ts").exists()) {
+            return true
+        }
+        def buildScript = new JsonSlurper().parse(new File(appDir, "package.json")).scripts?.build ?: ""
+        return buildScript.contains("nuxt generate")
+    }
+
+    static boolean isStaticNuxtOutput(File appDir) {
+        File nitroManifest = new File(appDir, ".output/nitro.json")
+        return nitroManifest.isFile() && new JsonSlurper().parse(nitroManifest).preset == "static"
+    }
 }
 
 tasks.register('format', PnpmTask) {
@@ -152,7 +169,7 @@ tasks.register('format', PnpmTask) {
     } else {
         args = ['run', 'checkFormat']
     }
-    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
 }
 
 tasks.register('lint', PnpmTask) {
@@ -169,20 +186,30 @@ tasks.register('testJavascript', PnpmTask) {
 
 test.dependsOn 'testJavascript'
 
-sourceSets {
-    main {
-        resources {
-            srcDir "${layout.buildDirectory.get()}/generated/main/resources"
-        }
-    }
-}
-
-// Link the app build to the java jar
+// Link the app build to the java jar, reading each app's own output folder so no tree is staged twice
 tasks.named("processResources") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn("collectDist")
+    dependsOn("pnpm_build")
 
-    from(layout.buildDirectory.dir("generated/resources/public_html/apps")) {
-        into("public_html/apps")
+    def appsDir = project.projectDir
+    def packagedApps = workspaceDirs
+    doFirst {
+        def appsMissingOutput = packagedApps.findAll { appName ->
+            AppOutputLocator.packagedOutputDirForApp(appsDir, appName) == null &&
+                    AppOutputLocator.expectsPackagedOutput(appsDir, appName)
+        }
+        if (!appsMissingOutput.isEmpty()) {
+            throw new GradleException(appsMissingOutput.collect { appName ->
+                "App '${appName}' produced no packageable output, so the jar would silently ship without it"
+            }.join("\n"))
+        }
+    }
+
+    workspaceDirs.each { appName ->
+        from(providers.provider {
+            AppOutputLocator.packagedOutputDirForApp(appsDir, appName) ?: []
+        }) {
+            into("public_html/apps/${appName}")
+        }
     }
 }

@@ -13,14 +13,14 @@
     "graphql-request": "5.2.0",
     "metadata-utils": "workspace:*",
     "molgenis-components": "workspace:*",
-    "graphql-tag": "2.12.6",
-    "vue": "3.5.22",
+    "graphql-tag": "catalog:",
+    "vue": "catalog:",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "5.2.4",
     "prettier": "2.8.8",
-    "vite": "7.3.5"
+    "vite": "catalog:"
   },
   "browserslist": [
     "> 1%",

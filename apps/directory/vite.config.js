@@ -21,7 +21,7 @@ export default defineConfig(({ command }) => ({
       template: command === "serve" ? "dev-index.html" : "index.html",
     }),
     monacoEditorPlugin({
-      languages: ["editorWorkerService", "json"],
+      languageWorkers: ["editorWorkerService", "json"],
     }),
   ],
   resolve: {

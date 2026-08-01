@@ -1,4 +1,6 @@
-module.exports = {
+import type { Config } from "svgo";
+
+const config: Config = {
   plugins: [
     {
       name: "convertColors",
@@ -14,3 +16,5 @@ module.exports = {
     },
   ],
 };
+
+export default config;

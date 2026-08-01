@@ -1,11 +1,19 @@
 import { defineNuxtConfig } from "nuxt/config";
 import { apiBase } from "../dev-env.js";
+import {
+  removePlaygroundLayout,
+  removePlaygroundPages,
+} from "../tailwind-components/playground";
+
+const isProductionBuild = process.env.NODE_ENV === "production";
+const testUtilsModules = isProductionBuild ? [] : ["@nuxt/test-utils/module"];
 
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
-  devtools: { enabled: true },
+  devtools: { enabled: !isProductionBuild },
+  telemetry: false,
   modules: [
-    "@nuxt/test-utils/module",
+    ...testUtilsModules,
     "nuxt-gtag",
     "@pinia/nuxt",
     "floating-vue/nuxt",
@@ -41,6 +49,10 @@ export default defineNuxtConfig({
   },
   pinia: {
     storesDirs: ["./app/stores/**"],
+  },
+  hooks: {
+    "pages:extend": removePlaygroundPages,
+    "app:resolve": removePlaygroundLayout,
   },
   app: {
     head: {

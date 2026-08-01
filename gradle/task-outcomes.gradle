@@ -1,0 +1,95 @@
+import javax.inject.Inject
+import org.gradle.build.event.BuildEventsListenerRegistry
+import org.gradle.tooling.events.FinishEvent
+import org.gradle.tooling.events.OperationCompletionListener
+import org.gradle.tooling.events.task.TaskExecutionResult
+import org.gradle.tooling.events.task.TaskFailureResult
+import org.gradle.tooling.events.task.TaskFinishEvent
+import org.gradle.tooling.events.task.TaskSkippedResult
+import org.gradle.tooling.events.task.TaskSuccessResult
+
+// Writes `<task path>\t<outcome>\t<duration ms>\t<execution reasons>` for every task of every gradle
+// invocation, so a CI run can be attributed to the tasks that actually executed. Permanent build
+// instrumentation, not a temporary probe: the root build.gradle applies it, so every gradle
+// invocation fails if this file disappears.
+abstract class TaskOutcomeRecorder implements BuildService<Params>, OperationCompletionListener, AutoCloseable {
+
+    interface Params extends BuildServiceParameters {
+        DirectoryProperty getOutcomeDir()
+        Property<String> getInvocationLabel()
+    }
+
+    private Writer writer
+
+    @Override
+    void onFinish(FinishEvent event) {
+        if (!(event instanceof TaskFinishEvent)) return
+        def result = event.result
+        def line = String.join('\t',
+                event.descriptor.taskPath,
+                outcomeOf(result),
+                String.valueOf(result.endTime - result.startTime),
+                reasonsOf(result))
+        synchronized (this) {
+            writer().write(line + '\n')
+        }
+    }
+
+    @Override
+    void close() {
+        synchronized (this) {
+            writer().close()
+        }
+    }
+
+    private Writer writer() {
+        if (writer == null) {
+            def dir = parameters.outcomeDir.get().asFile
+            dir.mkdirs()
+            writer = new BufferedWriter(new FileWriter(unusedFileIn(dir, parameters.invocationLabel.get()), false))
+        }
+        writer
+    }
+
+    private static File unusedFileIn(File dir, String label) {
+        def taken = (dir.list() ?: new String[0]).findAll { it.endsWith('.tsv') }
+        def ordinal = taken.size() + 1
+        while (taken.any { it.startsWith(String.format('%02d-', ordinal)) }) {
+            ordinal++
+        }
+        new File(dir, String.format('%02d-%s.tsv', ordinal, label))
+    }
+
+    private static String outcomeOf(result) {
+        if (result instanceof TaskFailureResult) return 'failed'
+        if (result instanceof TaskSkippedResult) {
+            return result.skipMessage == 'NO-SOURCE' ? 'noSource' : 'skipped'
+        }
+        if (result instanceof TaskSuccessResult) {
+            if (result.fromCache) return 'fromCache'
+            if (result.upToDate) return 'upToDate'
+            return 'executed'
+        }
+        'unknown'
+    }
+
+    private static String reasonsOf(result) {
+        if (!(result instanceof TaskExecutionResult) || result.executionReasons == null) return ''
+        result.executionReasons.join('; ').replaceAll('\\s+', ' ')
+    }
+}
+
+interface TaskOutcomeListenerRegistry {
+    @Inject
+    BuildEventsListenerRegistry getListenerRegistry()
+}
+
+def readable = { String text -> text.replaceAll('[^A-Za-z0-9]+', '-').replaceAll('^-+|-+$', '') }
+def jobContext = readable(System.getenv('CIRCLE_JOB') ?: 'local')
+def taskNames = readable(gradle.startParameter.taskNames.join('_'))
+def invocationLabel = "${jobContext.isEmpty() ? 'local' : jobContext}-${taskNames.isEmpty() ? 'default' : taskNames}"
+def recorder = gradle.sharedServices.registerIfAbsent('taskOutcomeRecorder', TaskOutcomeRecorder) {
+    parameters.outcomeDir.set(layout.buildDirectory.dir('reports/task-outcomes'))
+    parameters.invocationLabel.set(invocationLabel)
+}
+objects.newInstance(TaskOutcomeListenerRegistry).listenerRegistry.onTaskCompletion(recorder)

@@ -1,5 +1,27 @@
 # Development Guidelines
 
+## For all development
+
+### We document as little as possible
+
+Well-named code needs no explanation. Only a genuine gotcha gets written down, in the cheapest place that works:
+
+1. **Enforce it** — a `.gitignore` entry, a lint rule, a check that exits non-zero. Beats any text, because it cannot go stale.
+2. **A one-line comment** at the spot where the decision is made, when the gotcha lives in one place.
+3. **This file**, when it is a way of working, or a gotcha spanning several files and tools.
+
+Keep it to the rule and the command. No history, no motivation, no repeating the heading.
+
+### Scripts are TypeScript and their names say whether they can fail your build
+
+Build and CI scripts are `.ts`, run directly by `node`. `.nvmrc` owns the Node version; the check keeps `apps/package.json` and the CI image Dockerfile equal to it, and pnpm refuses to install below it.
+
+A script you invoke directly that can exit non-zero is named `check-*`, `assert-*` or `generate-*`. One that only reports is not. Convention only — no check enforces it.
+
+```bash
+bash ci/check-script-conventions.sh
+```
+
 ## For frontend development
 
 To ensure consistency in the MOLGENIS interfaces, frontend components must follow the same structure. Please follow these guidelines when developing components or creating new ones.

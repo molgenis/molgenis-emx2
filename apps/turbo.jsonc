@@ -1,0 +1,65 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NUXT_PUBLIC_API_BASE",
+    "MOLGENIS_APPS_HOST",
+    "MOLGENIS_HTTP_PORT"
+  ],
+  "globalDependencies": ["dev-env.js", "dev-proxy.config.js"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!tests/**",
+        "!test/**",
+        "!__screenshots__/**",
+        "!playwright.config.*",
+        "!vitest.config.*"
+      ],
+      "outputs": ["dist/**", "showCase/**","gen-docs/**"],
+      "cache": true,
+      "outputLogs": "new-only"
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true,
+      "outputLogs": "new-only"
+    },
+    "lint": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true,
+      "outputLogs": "new-only"
+    },
+    "typecheck": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true,
+      "outputLogs": "new-only"
+    },
+    "format": {
+      "inputs": ["$TURBO_DEFAULT$", "../.prettierrc.*", "../.prettierignore"],
+      "outputs": [],
+      "cache": true,
+      "outputLogs": "new-only"
+    },
+    "checkFormat": {
+      "inputs": ["$TURBO_DEFAULT$", "../.prettierrc.*", "../.prettierignore"],
+      "outputs": [],
+      "cache": true,
+      "outputLogs": "new-only"
+    },
+    "test-ci": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true,
+      "outputLogs": "new-only"
+    },
+    "e2e": {
+      "outputs": [],
+      "cache": false
+    }
+  }
+}

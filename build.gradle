@@ -6,6 +6,9 @@ plugins {
     id 'application'
 }
 
+apply from: "$rootDir/gradle/task-outcomes.gradle"
+apply from: "$rootDir/gradle/dotenv.gradle"
+
 // In specific scenario's (f.e. macOS with docker through colima), `which docker` works yet it fails
 // when trying to run docker commands. This allows for a manual override to include a hard coded
 // path instead. Example (.bash_profile): export DOCKER_PATH="/usr/local/bin/docker"
@@ -14,54 +17,6 @@ def docker = System.getenv("DOCKER_PATH") ?: "docker"
 ext {
     javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
     javaVersion = JavaVersion.VERSION_21
-}
-
-// Settings such as MOLGENIS_POSTGRES_URI/USER/PASS, MOLGENIS_HTTP_PORT or feature flags
-// are read inside the Java code (EnvironmentProperty.getParameter). A running Gradle
-// daemon does not pass command-line -D system properties to forked JVMs, so they are
-// forwarded explicitly onto every forked Test/JavaExec task (test, run, dev, cleandb,
-// generateTypes).
-// Every key of a repo-root .env file is forwarded, read straight from disk once at
-// configuration time (daemon-safe, no `source` needed), as is every MOLGENIS_ system property
-// given on the command line. Precedence per key: a -D CLI system property wins; otherwise the
-// .env value; otherwise nothing (Java default applies).
-// Whitespace is trimmed the way JavaScript String.trim() does it, so that this parser and the
-// one in apps/dev-env.js read the same keys out of the same file.
-def javascriptTrim = { String text -> text.replaceAll('^[\\s\\u00A0\\uFEFF]+|[\\s\\u00A0\\uFEFF]+$', '') }
-ext.molgenisDotenv = { ->
-    def envFile = new File(rootDir, '.env')
-    def result = [:]
-    if (envFile.exists()) {
-        envFile.eachLine { line ->
-            def trimmed = javascriptTrim(line)
-            if (trimmed.isEmpty() || trimmed.startsWith('#')) return
-            def idx = trimmed.indexOf('=')
-            if (idx < 0) return
-            def key = javascriptTrim(trimmed.substring(0, idx))
-            def value = javascriptTrim(trimmed.substring(idx + 1))
-            if (value.length() >= 2 &&
-                    ((value.startsWith('"') && value.endsWith('"')) ||
-                     (value.startsWith("'") && value.endsWith("'")))) {
-                value = value.substring(1, value.length() - 1)
-            }
-            result[key] = value
-        }
-    }
-    result
-}()
-ext.forwardDotenvProps = { task ->
-    def commandLineKeys = System.getProperties().stringPropertyNames().findAll { it.startsWith('MOLGENIS_') }
-    (rootProject.molgenisDotenv.keySet() + commandLineKeys).each { key ->
-        def value = System.getProperty(key) ?: rootProject.molgenisDotenv[key]
-        if (value != null) task.systemProperty key, value
-    }
-}
-ext.resolveDotenvValue = { key ->
-    System.getProperty(key) ?: rootProject.molgenisDotenv[key] ?: System.getenv(key)
-}
-ext.applyDotenvHeap = { task ->
-    def heap = rootProject.ext.resolveDotenvValue('MOLGENIS_JVM_XMX')
-    if (heap) task.maxHeapSize = heap
 }
 
 allprojects {
@@ -131,7 +86,7 @@ project.ext.ghToken = project.hasProperty('ghToken') ? project.getProperty('ghTo
 def imageName = 'docker.io/molgenis/molgenis-emx2'
 def tagName = project.version.toString().replace("v","")
 if (version.toString().endsWith('-SNAPSHOT')) {
-    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+    ext.hash = getGitHash()
     imageName = "docker.io/molgenis/molgenis-emx2-snapshot"
     tagName = "${project.version.toString().replace("v","")}-${ext.hash}"
 }
@@ -139,6 +94,7 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 tasks.register('ci', WriteProperties) {
     destinationFile.set(file('build/ci.properties'))
     property 'TAG_NAME', tagName
+    property 'IMAGE_NAME', imageName
 }
 
 tasks.register('dockerPrepare') {
@@ -192,15 +148,14 @@ tasks.register('dockerClean', Delete) {
 
 String getGitHash() {
     try {
-        // Use ProcessBuilder to properly inherit environment and handle git command
-        def process = new ProcessBuilder('git', 'rev-parse', '--short', 'HEAD')
-            .directory(rootProject.projectDir)
-            .redirectErrorStream(true)
-            .start()
-        process.waitFor()
+        def gitHashOutput = providers.exec { spec ->
+            spec.commandLine('git', 'rev-parse', '--short', 'HEAD')
+            spec.workingDir = rootProject.projectDir
+            spec.ignoreExitValue = true
+        }
 
-        if (process.exitValue() == 0) {
-            return process.inputStream.text.trim()
+        if (gitHashOutput.result.get().exitValue == 0) {
+            return gitHashOutput.standardOutput.asText.get().trim()
         } else {
             logger.warn("Git command failed, using 'unknown' as hash")
             return "unknown"
@@ -226,7 +181,7 @@ tasks.register('printDevConfig') {
     description = 'Prints the realized dev task system properties and heap without starting the application'
     def devTask = project(':backend:molgenis-emx2-webapi').tasks.named('dev', JavaExec).get()
     def devSystemProperties = new TreeMap<String, String>(devTask.systemProperties.collectEntries { key, value ->
-        [key, key.toUpperCase() =~ /PASS|SECRET|TOKEN/ ? '<HIDDEN>' : String.valueOf(value)]
+        [key, rootProject.ext.isSecretDotenvKey(key) ? '<HIDDEN>' : String.valueOf(value)]
     })
     def devHeap = devTask.maxHeapSize ?: 'unbounded'
     doLast {

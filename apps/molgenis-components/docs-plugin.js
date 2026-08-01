@@ -1,36 +1,18 @@
 const fs = require("fs");
+const { writeGeneratedDoc } = require("./docs-generator");
 
 module.exports = function () {
+  let isDevServer = false;
+
+  const configResolved = (resolvedConfig) => {
+    isDevServer = resolvedConfig.command === "serve";
+  };
+
   const transform = (code, id) => {
     if (/<docs>/.test(code)) {
-      const findDocsElementRegExp = /<docs>[\s\S.]*<\/docs>/;
-
-      // Save the docs in memory
-      const docs = code.match(findDocsElementRegExp)[0];
-
-      // Build a path to store the docs
-      const pathSections = id.split("/");
-      const componentsPathIndex = pathSections.findIndex((section) => {
-        return section === "components";
-      });
-      const componentsPathSections = pathSections.splice(componentsPathIndex);
-      const componentFileName = componentsPathSections.pop();
-      const docPath = "./gen-docs/" + componentsPathSections.join("/");
-
-      // Construct the folder tree for the docs components
-      fs.mkdir(docPath, { recursive: true }, (err) => {
-        if (err) throw err;
-
-        const docTemplate = docs.replace(/(<docs>|<\/docs>)/g, "");
-
-        // write out the docs to .vue files (needs to be done after folder was created)
-        fs.writeFile(docPath + "/" + componentFileName, docTemplate, (err) => {
-          if (err) {
-            console.error(err);
-            return;
-          }
-        });
-      });
+      if (isDevServer) {
+        writeGeneratedDoc(id, code);
+      }
 
       // Strip the docs from the original vue sfc
       return code.replace(/<docs>[\s\S.]*<\/docs>/g, "");
@@ -45,5 +27,5 @@ module.exports = function () {
     }
   };
 
-  return { name: "docs-plugin", buildStart, transform };
+  return { name: "docs-plugin", configResolved, buildStart, transform };
 };
