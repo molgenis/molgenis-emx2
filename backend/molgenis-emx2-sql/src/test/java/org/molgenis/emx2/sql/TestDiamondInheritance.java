@@ -106,10 +106,7 @@ class TestDiamondInheritance {
               .add(column("rootCol").setType(STRING)));
       s.create(table("P1").setInheritNames("Root").add(column("dup").setType(STRING)));
       s.create(table("P2").setInheritNames("Root").add(column("dup").setType(STRING)));
-      s.create(table("Child").add(column("childCol").setType(STRING)));
-
-      SqlTableMetadata childMeta = (SqlTableMetadata) s.getTable("Child").getMetadata();
-      childMeta.setInheritNames("P1", "P2");
+      s.create(table("Child").setInheritNames("P1", "P2").add(column("childCol").setType(STRING)));
 
       fail("Should have thrown MolgenisException due to duplicate column 'dup' across parents");
     } catch (MolgenisException e) {
@@ -249,10 +246,7 @@ class TestDiamondInheritance {
           table("Root").add(column("id").setType(STRING).setPkey()),
           table("P1").setInheritNames("Root").add(column("p1Col").setType(STRING)),
           table("P2").setInheritNames("Root").add(column("p2Col").setType(STRING)),
-          table("Child").add(column("childCol").setType(STRING)));
-
-      SqlTableMetadata childMeta = (SqlTableMetadata) s.getTable("Child").getMetadata();
-      childMeta.setInheritNames("P1", "P2");
+          table("Child").setInheritNames("P1", "P2").add(column("childCol").setType(STRING)));
 
       SqlTableMetadata p2Meta = (SqlTableMetadata) s.getTable("P2").getMetadata();
       assertThrows(

@@ -480,6 +480,22 @@ public class MetadataUtils {
     return table;
   }
 
+  static List<TableRef> getInheritingChildren(
+      DSLContext jooq, String schemaName, String tableName) {
+    return jooq
+        .select(TABLE_SCHEMA, TABLE_NAME)
+        .from(TABLE_METADATA)
+        .where(
+            condition("{0} = ANY({1})", inline(tableName), TABLE_INHERITS)
+                .and(coalesce(TABLE_IMPORT_SCHEMA, TABLE_SCHEMA).eq(schemaName)))
+        .orderBy(TABLE_SCHEMA, TABLE_NAME)
+        .fetch()
+        .stream()
+        .map(
+            childRecord -> new TableRef(childRecord.get(TABLE_SCHEMA), childRecord.get(TABLE_NAME)))
+        .toList();
+  }
+
   public static List<Column> getReferencesToTable(
       DSLContext jooq, String schemaName, String tableName) {
     List<org.jooq.Record> refRecords =
@@ -751,5 +767,11 @@ public class MetadataUtils {
 
   public static void resetVersion() {
     version = null;
+  }
+
+  record TableRef(String schemaName, String tableName) {
+    String qualifiedName() {
+      return schemaName + "." + tableName;
+    }
   }
 }

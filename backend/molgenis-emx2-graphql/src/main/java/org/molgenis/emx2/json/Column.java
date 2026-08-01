@@ -120,7 +120,7 @@ public class Column {
     // calculated field
     if (!table.getInheritNames().isEmpty())
       this.inherited =
-          table.getInheritedTables().stream()
+          table.requireInheritedTables().stream()
               .anyMatch(p -> p.getColumnNames().contains(column.getName()));
   }
 

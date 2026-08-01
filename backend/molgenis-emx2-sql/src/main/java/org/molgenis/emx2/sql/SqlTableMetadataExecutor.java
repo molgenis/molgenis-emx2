@@ -29,6 +29,8 @@ class SqlTableMetadataExecutor {
 
   static void executeCreateTable(DSLContext jooq, SqlTableMetadata table) {
 
+    table.validateInheritance();
+
     // create the table
     Table jooqTable = table.getJooqTable();
     jooq.execute("CREATE TABLE {0}()", jooqTable);
@@ -59,22 +61,9 @@ class SqlTableMetadataExecutor {
         jooqTable, name(getRolePrefix(table) + Privileges.MANAGER.toString()));
 
     // create columns from primary key of superclass (supports multiple parents / diamond)
-    List<TableMetadata> parents = table.getInheritedTables();
-    // Validate every declared inherit name resolved (getInheritedTables silently drops nulls)
-    if (parents.size() < table.getInheritNames().size()) {
-      String schemaPrefix =
-          table.getImportSchema() != null ? table.getImportSchema() : table.getSchemaName();
-      throw new MolgenisException(
-          "Cannot inherit "
-              + schemaPrefix
-              + "."
-              + String.join(", ", table.getInheritNames())
-              + ": not found");
-    }
-    if (!parents.isEmpty()) {
-      for (TableMetadata parent : parents) {
-        executeSetInherit(jooq, table, parent);
-      }
+    List<TableMetadata> parents = table.requireInheritedTables();
+    for (TableMetadata parent : parents) {
+      executeSetInherit(jooq, table, parent);
     }
 
     // then create columns
@@ -125,8 +114,15 @@ class SqlTableMetadataExecutor {
     // drop search trigger
     dropSearchTrigger(jooq, table);
 
-    // rename search column
-    jooq.alterTable(table.getJooqTable()).renameTo(newName + "search_vector_trigger");
+    // rename search column and its index
+    jooq.alterTable(table.getJooqTable())
+        .renameColumn(name(searchColumnName(table.getTableName())))
+        .to(name(searchColumnName(newName)))
+        .execute();
+    jooq.execute(
+        "ALTER INDEX {0} RENAME TO {1}",
+        name(table.getSchemaName(), searchIndexName(table.getTableName())),
+        name(searchIndexName(newName)));
 
     // rename table
     jooq.alterTable(table.getJooqTable()).renameTo(name(table.getSchemaName(), newName)).execute();
@@ -402,6 +398,10 @@ class SqlTableMetadataExecutor {
     return tableName + TEXT_SEARCH_COLUMN_NAME;
   }
 
+  private static String searchIndexName(String tableName) {
+    return tableName + "_search_idx";
+  }
+
   private static String getSearchTriggerName(String tableName) {
     return tableName + "search_vector_trigger";
   }
@@ -446,7 +446,7 @@ class SqlTableMetadataExecutor {
 
     Table jooqTable = getJooqTable(table);
     Name searchColumnName = name(searchColumnName(table.getTableName()));
-    Name searchIndexName = name(table.getTableName() + "_search_idx");
+    Name searchIndexName = name(searchIndexName(table.getTableName()));
 
     // also add text search  column
     // 1. create column

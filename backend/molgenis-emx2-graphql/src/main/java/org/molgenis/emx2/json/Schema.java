@@ -46,6 +46,7 @@ public class Schema {
             .collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
+      tm.setImportSchema(t.getInheritSchemaName());
       tm.setInheritNames(t.getEffectiveInheritNames());
       tm.setSettings(
           t.getSettings().stream()

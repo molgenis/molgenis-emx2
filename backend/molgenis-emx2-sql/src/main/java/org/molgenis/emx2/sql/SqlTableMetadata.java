@@ -8,10 +8,10 @@ import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadata.validateTableIdentifierIsUnique;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
@@ -113,6 +113,16 @@ class SqlTableMetadata extends TableMetadata {
     long start = System.currentTimeMillis();
     String oldName = getTableName();
     if (!getTableName().equals(newName)) {
+      List<MetadataUtils.TableRef> children =
+          MetadataUtils.getInheritingChildren(getJooq(), getSchemaName(), getTableName());
+      if (!children.isEmpty()) {
+        throw new MolgenisException(
+            "Cannot rename table '"
+                + qualifiedTableName()
+                + "': table '"
+                + children.get(0).qualifiedName()
+                + "' inherits from it. Renaming a table with inheriting children is not supported yet.");
+      }
       getDatabase()
           .tx(db -> sync(alterNameTransaction(db, getSchemaName(), getTableName(), newName)));
       ((SqlSchemaMetadata) getSchema()).reload();
@@ -352,105 +362,39 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata setInheritNames(List<String> names) {
-    long start = System.currentTimeMillis();
-    if (names == null || names.isEmpty()) {
-      return this;
-    }
+    List<String> requestedParents = names == null ? List.of() : names;
     List<String> currentParents = getInheritNames();
     if (!currentParents.isEmpty()) {
-      if (new HashSet<>(currentParents).equals(new HashSet<>(names))) {
+      if (new HashSet<>(currentParents).equals(new HashSet<>(requestedParents))) {
         return this;
       }
-      throw new MolgenisException(
-          "Cannot change inheritance of table '"
-              + getTableName()
-              + "': extends is immutable after creation (current parents "
-              + currentParents
-              + ", requested "
-              + names
-              + ")");
+      throw new MolgenisException(inheritanceIsFixed("change tableExtends"));
     }
-    List<String> newParents =
-        names.stream().filter(name -> !currentParents.contains(name)).toList();
-    if (newParents.isEmpty()) {
-      return this;
+    if (!requestedParents.isEmpty()) {
+      throw new MolgenisException(inheritanceIsFixed("set tableExtends"));
     }
-    List<String> allRequestedParents = new ArrayList<>(currentParents);
-    allRequestedParents.addAll(newParents);
-
-    String inheritSchema = getImportSchema() != null ? getImportSchema() : getSchemaName();
-    for (String parentName : newParents) {
-      TableMetadata parent;
-      if (getImportSchema() != null) {
-        Schema otherSchema = getSchema().getDatabase().getSchema(getImportSchema());
-        if (otherSchema == null || otherSchema.getMetadata().getTableMetadata(parentName) == null) {
-          throw new MolgenisException(
-              "Inheritance failed. Other schema.table '"
-                  + getImportSchema()
-                  + "."
-                  + parentName
-                  + "' does not exist in this database");
-        }
-        parent = otherSchema.getMetadata().getTableMetadata(parentName);
-      } else {
-        parent = getSchema().getTableMetadata(parentName);
-        if (parent == null)
-          throw new MolgenisException(
-              "Inheritance failed. Other table '" + parentName + "' does not exist in this schema");
-      }
-      if (parent.getPrimaryKeys().isEmpty()) {
-        throw new MolgenisException(
-            "Set inheritance failed: To extend table '"
-                + parentName
-                + "' it must have primary key set");
-      }
-    }
-    TableMetadata candidateChild = new org.molgenis.emx2.TableMetadata(getSchema(), this);
-    candidateChild.setInheritNames(allRequestedParents);
-    candidateChild.validateInheritance();
-
-    getDatabase()
-        .tx(
-            tdb ->
-                sync(
-                    bulkAddInheritTransaction(
-                        tdb,
-                        getSchemaName(),
-                        getTableName(),
-                        inheritSchema,
-                        currentParents,
-                        newParents)));
-    log(start, "set inherit on ");
-    super.setInheritNames(allRequestedParents);
     return this;
-  }
-
-  private static SqlTableMetadata bulkAddInheritTransaction(
-      Database db,
-      String schemaName,
-      String tableName,
-      String inheritSchema,
-      List<String> alreadyWiredParents,
-      List<String> parentsToAdd) {
-    DSLContext jooq = ((SqlDatabase) db).getJooq();
-    SqlTableMetadata tm =
-        (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
-
-    for (String parentName : parentsToAdd) {
-      TableMetadata om = db.getSchema(inheritSchema).getTable(parentName).getMetadata();
-      executeSetInherit(jooq, tm, om);
-      // Update in-memory list directly — avoids re-entering SqlTableMetadata.setInheritNames
-      if (!tm.inheritNames.contains(parentName)) {
-        tm.inheritNames.add(parentName);
-      }
-    }
-    MetadataUtils.saveTableMetadata(jooq, tm);
-    return tm;
   }
 
   @Override
   public TableMetadata removeInherit() {
-    throw new MolgenisException("remove tableExtends not yet implemented");
+    throw new MolgenisException(inheritanceIsFixed("remove tableExtends"));
+  }
+
+  @Override
+  public TableMetadata setImportSchema(String importSchema) {
+    if (!getInheritNames().isEmpty() && !Objects.equals(getImportSchema(), importSchema)) {
+      throw new MolgenisException(inheritanceIsFixed("change refSchema"));
+    }
+    return super.setImportSchema(importSchema);
+  }
+
+  private String inheritanceIsFixed(String action) {
+    return "Cannot "
+        + action
+        + " of table '"
+        + qualifiedTableName()
+        + "': inheritance cannot be changed after the table is created.";
   }
 
   @Override

@@ -1,10 +1,7 @@
 import gql from "graphql-tag";
-import {
-  deepClone,
-  ITableMetaData,
-  IColumn,
-  normalizeInheritNames,
-} from "molgenis-components";
+import { deepClone, normalizeInheritNames } from "molgenis-components";
+import type { IColumn, ITableMetaData } from "metadata-utils";
+import { isCrossSchemaSubclass, isRootTable } from "./inheritSchema";
 
 export const schemaQuery = gql`
   {
@@ -27,6 +24,7 @@ export const schemaQuery = gql`
         name
         tableType
         inheritNames
+        inheritSchemaName
         labels {
           locale
           value
@@ -119,7 +117,7 @@ export function convertToSubclassTables(rawSchema: any) {
   //columns of subclasses should be put in root tables, sorted by position
   // this because position can only edited in context of root table
   schema.tables.forEach((table) => {
-    if (table.inheritName === undefined) {
+    if (isRootTable(table, schema.name)) {
       getSubclassTables(schema, table.name).forEach((subclass) => {
         //get columns from subclass tables
         table.columns.push(...subclass.columns);
@@ -144,7 +142,9 @@ export function convertToSubclassTables(rawSchema: any) {
 
 export function getSubclassTables(schema, tableName) {
   let subclasses = schema.tables.filter(
-    (table) => table.inheritName === tableName
+    (table) =>
+      table.inheritName === tableName &&
+      !isCrossSchemaSubclass(table, schema.name)
   );
   return subclasses.concat(
     subclasses

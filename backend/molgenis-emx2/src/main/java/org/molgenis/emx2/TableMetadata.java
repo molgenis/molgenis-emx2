@@ -25,6 +25,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
   public static final String SCHEMA_NAME_MESSAGE =
       ": Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
+  private static final String NOT_FOUND_WITH_REF_SCHEMA_HINT =
+      "not found or permission denied. If the table lives in another schema, provide refSchema.";
   // backing store for all parent table names (supports multiple/diamond inheritance)
   protected List<String> inheritNames = new ArrayList<>();
   // to allow indicate that a table should be dropped
@@ -271,21 +273,20 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   private Set<String> allParentColumnNames() {
     Set<String> result = new HashSet<>();
-    for (TableMetadata parent : getInheritedTables()) {
+    for (TableMetadata parent : requireInheritedTables()) {
       result.addAll(parent.getColumnNames());
     }
     return result;
   }
 
   public List<Column> getNonInheritedColumns() {
-    if (!getInheritNames().isEmpty()) {
-      Set<String> parentColumnNames = allParentColumnNames();
-      return this.columns.values().stream()
-          .filter(c -> !parentColumnNames.contains(c.getName()))
-          .collect(Collectors.toList());
-    } else {
+    if (getInheritNames().isEmpty() || this.columns.isEmpty()) {
       return new ArrayList<>(this.columns.values());
     }
+    Set<String> parentColumnNames = allParentColumnNames();
+    return this.columns.values().stream()
+        .filter(c -> !parentColumnNames.contains(c.getName()))
+        .collect(Collectors.toList());
   }
 
   public List<Column> getStoredColumns() {
@@ -450,7 +451,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     if (seen.add(getTableName())) {
       result.add(getTableName());
     }
-    for (TableMetadata parent : getInheritedTables()) {
+    for (TableMetadata parent : requireInheritedTables()) {
       parent.collectAllInheritNames(result, seen, onStack);
     }
     onStack.remove(getTableName());
@@ -484,41 +485,74 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return result;
   }
 
+  public List<TableMetadata> requireInheritedTables() {
+    List<TableMetadata> result = new ArrayList<>();
+    for (String parentName : inheritNames) {
+      TableMetadata parent = resolveParentTable(parentName);
+      if (parent == null) {
+        throw new MolgenisException(cannotInheritMessage(parentName) + unresolvedParentReason());
+      }
+      result.add(parent);
+    }
+    return result;
+  }
+
   private TableMetadata resolveParentTable(String parentName) {
     if (getSchema() == null) return null;
-    if (getImportSchema() != null && getSchema().getDatabase() != null) {
-      if (getSchema().getDatabase().getSchema(getImportSchema()) == null) {
-        throw new MolgenisException(
-            "Cannot find schema '"
-                + getImportSchema()
-                + " for inheritance of table '"
-                + parentName
-                + "'");
+    if (getImportSchema() != null) {
+      if (getSchema().getDatabase() == null) return null;
+      Schema importedSchema = getSchema().getDatabase().getSchema(getImportSchema());
+      if (importedSchema == null) {
+        throw new MolgenisException(cannotInheritMessage(parentName) + schemaNotFoundReason());
       }
-      if (getSchema().getDatabase().getSchema(getImportSchema()).getTable(parentName) == null) {
+      if (importedSchema.getTable(parentName) == null) {
         throw new MolgenisException(
-            "Cannot find table '" + parentName + "' for inheritance of table.");
+            cannotInheritMessage(parentName) + parentTableNotFoundReason(parentName));
       }
-      return getSchema()
-          .getDatabase()
-          .getSchema(getImportSchema())
-          .getTable(parentName)
-          .getMetadata();
-    } else {
-      TableMetadata resolved = getSchema().getTableMetadata(parentName);
-      if (resolved == null && getSchema().getDatabase() != null) {
-        throw new MolgenisException(
-            "Cannot inherit "
-                + getSchemaName()
-                + "."
-                + parentName
-                + ": not found"
-                + " (declared parent of '"
-                + getTableName()
-                + "')");
-      }
-      return resolved;
+      return importedSchema.getTable(parentName).getMetadata();
     }
+    return getSchema().getTableMetadata(parentName);
+  }
+
+  private String unresolvedParentReason() {
+    if (getImportSchema() != null) {
+      return schemaNotFoundReason();
+    }
+    return NOT_FOUND_WITH_REF_SCHEMA_HINT;
+  }
+
+  private String schemaNotFoundReason() {
+    return "schema " + getImportSchema() + " not found or permission denied.";
+  }
+
+  private String parentTableNotFoundReason(String parentName) {
+    return "table "
+        + parentName
+        + " not found in schema "
+        + getImportSchema()
+        + " or permission denied.";
+  }
+
+  private String cannotInheritMessage(String parentName) {
+    return "Table '"
+        + qualifiedTableName()
+        + "' cannot inherit table '"
+        + qualifiedInheritName(parentName)
+        + "': ";
+  }
+
+  private String qualifiedInheritName(String parentName) {
+    if (getImportSchema() != null) {
+      return getImportSchema() + "." + parentName;
+    }
+    return parentName;
+  }
+
+  protected String qualifiedTableName() {
+    if (getSchemaName() != null) {
+      return getSchemaName() + "." + getTableName();
+    }
+    return getTableName();
   }
 
   public String toString() {
@@ -835,8 +869,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public TableMetadata getRootTable() {
-    List<TableMetadata> parents = getInheritedTables();
-    if (parents.isEmpty()) return this;
+    if (getInheritNames().isEmpty()) return this;
+    List<TableMetadata> parents = requireInheritedTables();
     Map<String, TableMetadata> roots = new LinkedHashMap<>();
     for (TableMetadata parent : parents) {
       TableMetadata root = parent.getRootTable();

@@ -212,7 +212,20 @@
                         >
                           {{ row._rowIdString }}
                         </Button>
-
+                        <Button
+                          v-if="isEditable"
+                          :id="`copy-button-${row._rowIdString}`"
+                          :icon-only="true"
+                          type="inline"
+                          icon="copy"
+                          label="copy"
+                          @click="onShowEditModal(row, true)"
+                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-copy`"
+                          aria-haspopup="dialog"
+                          :aria-expanded="showEditModal"
+                        >
+                          {{ row._rowIdString }}
+                        </Button>
                         <slot name="additional-row-actions" :row="row" />
                       </div>
                     </template>
@@ -288,7 +301,7 @@
     :metadata="data.tableMetadata"
     :schema="data.schemaMetadata"
     :formValues="rowDataForModal"
-    :isInsert="false"
+    :isInsert="isCopy"
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
   />
@@ -382,6 +395,7 @@ const showDeleteModal = ref<boolean>(false);
 const showDeleteMultipleModal = ref<boolean>(false);
 const rowDataForModal = ref<IRow>();
 const showModal = ref(false);
+const isCopy = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
 const columns = ref<IColumn[]>([]);
@@ -736,11 +750,19 @@ function onShowDeleteModal(row: TableRow) {
   showDeleteModal.value = true;
 }
 
-function onShowEditModal(row: TableRow) {
+function onShowEditModal(row: TableRow, isCopyMode = false) {
   const clone: IRow = structuredClone(row);
   delete clone._rowId;
   delete clone._rowIdString;
+  if (isCopyMode) {
+    data.value?.tableMetadata?.columns.forEach((column: IColumn) => {
+      if (column.key === 1) {
+        delete clone[column.id];
+      }
+    });
+  }
   rowDataForModal.value = clone;
+  isCopy.value = isCopyMode;
   showEditModal.value = true;
 }
 

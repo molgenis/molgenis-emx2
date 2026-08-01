@@ -49,6 +49,31 @@
         :readonly="table.oldName !== undefined"
         label="Table type (can not be edited after creation)"
       />
+      <template v-if="canChooseParentSchema">
+        <InputSelect
+          id="table_refSchema"
+          v-model="selectedRefSchema"
+          :options="schemaNames"
+          @update:modelValue="loadRefSchema"
+          label="refSchema"
+          description="When you want to extend a table from another schema (can not be edited after creation)"
+        />
+        <Spinner v-if="loadingRefSchema" />
+        <MessageError v-else-if="refSchemaError">
+          {{ refSchemaError }}
+        </MessageError>
+        <InputSelect
+          v-else-if="selectedRefSchema"
+          id="table_parent_extends"
+          v-model="table.inheritNames"
+          :multiple="true"
+          :options="parentTableNames"
+          :errorMessage="parentTableInvalid"
+          :noOptionsProvidedMessage="`No table found in schema '${selectedRefSchema}'`"
+          description="Hold ctrl (Windows) or cmd (Mac) to select multiple parent tables"
+          label="Extends tables (can not be edited after creation)"
+        />
+      </template>
       <ArrayInput
         id="table_semantics"
         columnType="STRING_ARRAY"
@@ -74,19 +99,28 @@
 <script>
 import {
   constants,
+  Client,
   InputString,
   LayoutModal,
   IconAction,
   ButtonAction,
+  MessageError,
   MessageWarning,
   InputSelect,
   ArrayInput,
   ButtonAlt,
+  Spinner,
   deepClone,
   InputTextLocalized,
   getSelectableTableTypes,
   DEFAULT_TABLE_TYPE,
 } from "molgenis-components";
+import {
+  toInheritSchemaName,
+  extendableTableNames,
+  parentTableOptions,
+  resolveInheritNames,
+} from "../inheritSchema";
 
 export default {
   components: {
@@ -95,9 +129,11 @@ export default {
     InputString,
     IconAction,
     ButtonAction,
+    MessageError,
     MessageWarning,
     InputSelect,
     ButtonAlt,
+    Spinner,
     InputTextLocalized,
   },
   props: {
@@ -115,6 +151,10 @@ export default {
     schema: {
       type: Object,
       required: true,
+    },
+    schemaNames: {
+      type: Array,
+      default: () => [],
     },
     /** action, either 'add' or 'input */
     operation: {
@@ -136,6 +176,10 @@ export default {
       table: {},
       /** whether modal is visible */
       modalVisible: false,
+      selectedRefSchema: undefined,
+      refSchema: undefined,
+      refSchemaError: null,
+      loadingRefSchema: false,
     };
   },
   computed: {
@@ -145,18 +189,28 @@ export default {
         : `${this.operation} table definition`;
     },
     inheritOptions() {
-      if (this.rootTable) {
-        const result = [this.rootTable.name];
-        if (this.rootTable.subclasses !== undefined) {
-          result.push(
-            ...this.rootTable.subclasses
-              .map((subclass) => subclass.name)
-              .filter((name) => name !== this.table.name)
-          );
-        }
-        return result;
-      }
-      return undefined;
+      return this.rootTable
+        ? parentTableOptions(this.rootTable, this.table.name)
+        : undefined;
+    },
+    canChooseParentSchema() {
+      return (
+        this.tableType !== "ontology" &&
+        this.rootTable === undefined &&
+        this.table.oldName === undefined
+      );
+    },
+    parentTableNames() {
+      return this.selectedRefSchema === this.schema.name
+        ? extendableTableNames(this.schema)
+        : extendableTableNames(this.refSchema);
+    },
+    parentTableInvalid() {
+      return this.canChooseParentSchema &&
+        this.selectedRefSchema &&
+        !this.table.inheritNames?.length
+        ? "Extends table is required when refSchema is set"
+        : null;
     },
     tableTypeOptions() {
       return getSelectableTableTypes();
@@ -195,18 +249,50 @@ export default {
         : null;
     },
     isDisabled() {
-      return this.nameInvalid !== null || this.subclassInvalid !== null;
+      return (
+        this.nameInvalid !== null ||
+        this.subclassInvalid !== null ||
+        this.parentTableInvalid !== null
+      );
     },
   },
   methods: {
     showModal() {
-      if (!this.modelValue) {
-        this.initNewTable();
-      }
+      this.reset();
       this.modalVisible = true;
+    },
+    async loadRefSchema() {
+      this.refSchemaError = null;
+      this.refSchema = undefined;
+      this.table.inheritNames = undefined;
+      if (!this.selectedRefSchema) {
+        return;
+      }
+      if (this.selectedRefSchema === this.schema.name) {
+        return;
+      }
+      this.loadingRefSchema = true;
+      try {
+        this.refSchema = await Client.newClient(
+          this.selectedRefSchema
+        ).fetchSchemaMetaData();
+      } catch (error) {
+        console.error(error);
+        this.refSchemaError = `Cannot read schema '${this.selectedRefSchema}': ${error}`;
+      }
+      this.loadingRefSchema = false;
     },
     emitOperation() {
       this.table.inheritName = this.table.inheritNames?.[0];
+      const inheritSchemaName = toInheritSchemaName(
+        this.selectedRefSchema,
+        this.schema.name
+      );
+      if (inheritSchemaName) {
+        this.table.inheritSchemaName = inheritSchemaName;
+      } else {
+        delete this.table.inheritSchemaName;
+      }
       this.$emit(this.operation, this.table);
       this.modalVisible = false;
     },
@@ -220,6 +306,15 @@ export default {
       } else {
         this.initNewTable();
       }
+      if (this.inheritOptions) {
+        this.table.inheritNames = resolveInheritNames(
+          this.table.inheritNames,
+          this.inheritOptions
+        );
+      }
+      this.selectedRefSchema = this.table.inheritSchemaName;
+      this.refSchema = undefined;
+      this.refSchemaError = null;
     },
     initNewTable() {
       this.table = {};

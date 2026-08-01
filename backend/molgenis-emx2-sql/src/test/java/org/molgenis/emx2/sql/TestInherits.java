@@ -21,6 +21,9 @@ import org.molgenis.emx2.*;
 
 class TestInherits {
 
+  private static final String RENAME_NOT_SUPPORTED_YET =
+      "' inherits from it. Renaming a table with inheriting children is not supported yet.";
+
   private static Database db;
 
   @BeforeAll
@@ -351,5 +354,454 @@ class TestInherits {
     for (Row row : tableB.retrieveRows()) {
       assertEquals(row.getInteger("a_label"), row.getInteger("b_label"));
     }
+  }
+
+  @Test
+  void reimportWithDanglingParentGivesMessage() {
+    String parentSchemaName = TestInherits.class.getSimpleName() + "_reimport_parent";
+    String childSchemaName = TestInherits.class.getSimpleName() + "_reimport_child";
+    db.dropSchemaIfExists(childSchemaName);
+    Schema parentSchema = db.dropCreateSchema(parentSchemaName);
+    parentSchema.create(table("Shape", column("name").setPkey()));
+    Schema childSchema = db.createSchema(childSchemaName);
+    childSchema.create(
+        table("MyShape", column("size").setType(INT))
+            .setImportSchema(parentSchemaName)
+            .setInheritNames("Shape"));
+
+    SchemaMetadata reimport = new SchemaMetadata(childSchemaName);
+    reimport.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> childSchema.migrate(reimport));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Table '"
+                    + childSchemaName
+                    + ".MyShape' cannot inherit table 'Shape': not found or permission denied. If the table lives in another schema, provide refSchema."),
+        exception.getMessage());
+  }
+
+  @Test
+  void reimportWithMissingParentTableInOtherSchemaGivesMessage() {
+    String parentSchemaName = TestInherits.class.getSimpleName() + "_missingtable_parent";
+    String childSchemaName = TestInherits.class.getSimpleName() + "_missingtable_child";
+    db.dropSchemaIfExists(childSchemaName);
+    Schema parentSchema = db.dropCreateSchema(parentSchemaName);
+    parentSchema.create(table("Shape", column("name").setPkey()));
+    Schema childSchema = db.createSchema(childSchemaName);
+    childSchema.create(
+        table("MyShape", column("size").setType(INT))
+            .setImportSchema(parentSchemaName)
+            .setInheritNames("Shape"));
+
+    SchemaMetadata reimport = new SchemaMetadata(childSchemaName);
+    reimport.create(
+        table("MyShape", column("size").setType(INT))
+            .setImportSchema(parentSchemaName)
+            .setInheritNames("NoSuchParentTable"));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> childSchema.migrate(reimport));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Table '"
+                    + childSchemaName
+                    + ".MyShape' cannot inherit table '"
+                    + parentSchemaName
+                    + ".NoSuchParentTable': table NoSuchParentTable not found in schema "
+                    + parentSchemaName
+                    + " or permission denied."),
+        exception.getMessage());
+  }
+
+  @Test
+  void parentTableMissingFromAnExistingRefSchemaSaysWhichHalfFailed() {
+    String parentSchemaName = TestInherits.class.getSimpleName() + "_whichhalf_parent";
+    String childSchemaName = TestInherits.class.getSimpleName() + "_whichhalf_child";
+    db.dropSchemaIfExists(childSchemaName);
+    db.dropCreateSchema(parentSchemaName).create(table("Shape", column("name").setPkey()));
+    Schema childSchema = db.createSchema(childSchemaName);
+
+    TableMetadata employee =
+        table("Employee", column("salary"))
+            .setInheritNames("Contact")
+            .setImportSchema(parentSchemaName);
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> childSchema.create(employee));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Table '"
+                    + childSchemaName
+                    + ".Employee' cannot inherit table '"
+                    + parentSchemaName
+                    + ".Contact': table Contact not found in schema "
+                    + parentSchemaName
+                    + " or permission denied."),
+        exception.getMessage());
+  }
+
+  @Test
+  void reimportWithMissingParentSchemaGivesMessage() {
+    String parentSchemaName = TestInherits.class.getSimpleName() + "_missing_parent";
+    String childSchemaName = TestInherits.class.getSimpleName() + "_missing_child";
+    db.dropSchemaIfExists(childSchemaName);
+    Schema parentSchema = db.dropCreateSchema(parentSchemaName);
+    parentSchema.create(table("Shape", column("name").setPkey()));
+    Schema childSchema = db.createSchema(childSchemaName);
+    childSchema.create(
+        table("MyShape", column("size").setType(INT))
+            .setImportSchema(parentSchemaName)
+            .setInheritNames("Shape"));
+
+    SchemaMetadata reimport = new SchemaMetadata(childSchemaName);
+    reimport.create(
+        table("MyShape", column("size").setType(INT))
+            .setImportSchema("TestInheritsNoSuchSchema")
+            .setInheritNames("Shape"));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> childSchema.migrate(reimport));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Table '"
+                    + childSchemaName
+                    + ".MyShape' cannot inherit table 'TestInheritsNoSuchSchema.Shape': schema TestInheritsNoSuchSchema not found or permission denied."),
+        exception.getMessage());
+  }
+
+  @Test
+  void refSchemaChangeOnExistingTableIsRejected() {
+    String parentA = TestInherits.class.getSimpleName() + "_refchange_a";
+    String parentB = TestInherits.class.getSimpleName() + "_refchange_b";
+    String childSchemaName = TestInherits.class.getSimpleName() + "_refchange_child";
+    db.dropSchemaIfExists(childSchemaName);
+    Schema schemaA = db.dropCreateSchema(parentA);
+    schemaA.create(table("Shape", column("name").setPkey()));
+    db.dropCreateSchema(parentB).create(table("Shape", column("name").setPkey()));
+    Schema child = db.createSchema(childSchemaName);
+    child.create(
+        table("MyShape", column("size").setType(INT))
+            .setImportSchema(parentA)
+            .setInheritNames("Shape"));
+
+    SchemaMetadata reimport = new SchemaMetadata(childSchemaName);
+    reimport.create(
+        table("MyShape", column("size").setType(INT))
+            .setImportSchema(parentB)
+            .setInheritNames("Shape"));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> child.migrate(reimport));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Cannot change refSchema of table '"
+                    + childSchemaName
+                    + ".MyShape': inheritance cannot be changed after the table is created."),
+        exception.getMessage());
+    assertEquals(
+        parentA,
+        db.getSchema(childSchemaName).getMetadata().getTableMetadata("MyShape").getImportSchema());
+    db.getSchema(childSchemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
+    assertEquals(1, db.getSchema(childSchemaName).getTable("MyShape").retrieveRows().size());
+    assertDoesNotThrow(() -> db.dropSchema(childSchemaName));
+  }
+
+  @Test
+  void tableExtendsChangeOnExistingTableIsRejected() {
+    String schemaName = TestInherits.class.getSimpleName() + "_extendschange";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(table("Shape", column("name").setPkey()));
+    schema.create(table("OtherShape", column("othername").setPkey()));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
+
+    SchemaMetadata reimport = new SchemaMetadata(schemaName);
+    reimport.create(table("Shape", column("name").setPkey()));
+    reimport.create(table("OtherShape", column("othername").setPkey()));
+    reimport.create(table("MyShape", column("size").setType(INT)).setInheritNames("OtherShape"));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> schema.migrate(reimport));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Cannot change tableExtends of table '"
+                    + schemaName
+                    + ".MyShape': inheritance cannot be changed after the table is created."),
+        exception.getMessage());
+    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    assertEquals(List.of("Shape"), after.getInheritNames());
+    assertTrue(after.getColumnNames().contains("name"), after.getColumnNames().toString());
+    db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
+    assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
+    assertDoesNotThrow(() -> db.dropSchema(schemaName));
+  }
+
+  @Test
+  void addingTableExtendsToExistingTableIsRejected() {
+    String schemaName = TestInherits.class.getSimpleName() + "_addextends";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(table("Shape", column("name").setPkey()));
+    schema.create(table("MyShape", column("myid").setPkey(), column("size").setType(INT)));
+
+    SchemaMetadata reimport = new SchemaMetadata(schemaName);
+    reimport.create(table("Shape", column("name").setPkey()));
+    reimport.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> schema.migrate(reimport));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Cannot set tableExtends of table '"
+                    + schemaName
+                    + ".MyShape': inheritance cannot be changed after the table is created."),
+        exception.getMessage());
+
+    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    assertTrue(after.getInheritNames().isEmpty());
+    assertFalse(after.getColumnNames().contains("name"), after.getColumnNames().toString());
+    db.getSchema(schemaName).getTable("MyShape").insert(row("myid", "m1", "size", 3));
+    assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
+  }
+
+  @Test
+  void addingTableExtendsWithCollidingColumnIsRejectedWithSameMessage() {
+    String schemaName = TestInherits.class.getSimpleName() + "_addextends_collide";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(table("Shape", column("name").setPkey()));
+    schema.create(table("MyShape", column("name").setPkey(), column("size").setType(INT)));
+
+    SchemaMetadata reimport = new SchemaMetadata(schemaName);
+    reimport.create(table("Shape", column("name").setPkey()));
+    reimport.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> schema.migrate(reimport));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Cannot set tableExtends of table '"
+                    + schemaName
+                    + ".MyShape': inheritance cannot be changed after the table is created."),
+        exception.getMessage());
+    assertFalse(exception.getMessage().contains("already exists"), exception.getMessage());
+
+    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    assertTrue(after.getInheritNames().isEmpty());
+    assertTrue(after.getColumnNames().contains("name"), after.getColumnNames().toString());
+    db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
+    assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
+    assertDoesNotThrow(() -> db.dropSchema(schemaName));
+  }
+
+  @Test
+  void addingRefSchemaToLocallyInheritingTableIsRejected() {
+    String schemaName = TestInherits.class.getSimpleName() + "_addrefschema";
+    String otherSchemaName = TestInherits.class.getSimpleName() + "_addrefschema_other";
+    db.dropSchemaIfExists(schemaName);
+    db.dropCreateSchema(otherSchemaName).create(table("Shape", column("name").setPkey()));
+    Schema schema = db.createSchema(schemaName);
+    schema.create(table("Shape", column("name").setPkey()));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
+
+    SchemaMetadata reimport = new SchemaMetadata(schemaName);
+    reimport.create(table("Shape", column("name").setPkey()));
+    reimport.create(
+        table("MyShape", column("size").setType(INT))
+            .setInheritNames("Shape")
+            .setImportSchema(otherSchemaName));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> schema.migrate(reimport));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Cannot change refSchema of table '"
+                    + schemaName
+                    + ".MyShape': inheritance cannot be changed after the table is created."),
+        exception.getMessage());
+
+    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    assertNull(after.getImportSchema());
+    assertEquals(List.of("Shape"), after.getInheritNames());
+    db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
+    assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
+    assertDoesNotThrow(() -> db.dropSchema(schemaName));
+  }
+
+  @Test
+  void removingTableExtendsFromExistingTableIsRejected() {
+    String schemaName = TestInherits.class.getSimpleName() + "_removeextends";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(table("Shape", column("name").setPkey()));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
+
+    SchemaMetadata reimport = new SchemaMetadata(schemaName);
+    reimport.create(table("Shape", column("name").setPkey()));
+    reimport.create(table("MyShape", column("size").setType(INT)));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> schema.migrate(reimport));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Cannot remove tableExtends of table '"
+                    + schemaName
+                    + ".MyShape': inheritance cannot be changed after the table is created."),
+        exception.getMessage());
+
+    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    assertEquals(List.of("Shape"), after.getInheritNames());
+    db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
+    assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
+    assertDoesNotThrow(() -> db.dropSchema(schemaName));
+  }
+
+  @Test
+  void renamingParentWithCrossSchemaChildIsRejected() {
+    String parentSchemaName = TestInherits.class.getSimpleName() + "_rename_parent";
+    String childSchemaName = TestInherits.class.getSimpleName() + "_rename_child";
+    db.dropSchemaIfExists(childSchemaName);
+    db.dropCreateSchema(parentSchemaName).create(table("Shape", column("name").setPkey()));
+    Schema child = db.createSchema(childSchemaName);
+    child.create(
+        table("MyShape", column("size").setType(INT))
+            .setImportSchema(parentSchemaName)
+            .setInheritNames("Shape"));
+
+    TableMetadata parentTable =
+        db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape");
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> parentTable.alterName("Renamed"));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Cannot rename table '"
+                    + parentSchemaName
+                    + ".Shape': table '"
+                    + childSchemaName
+                    + ".MyShape"
+                    + RENAME_NOT_SUPPORTED_YET),
+        exception.getMessage());
+
+    assertNotNull(db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape"));
+    db.getSchema(childSchemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
+    assertEquals(1, db.getSchema(childSchemaName).getTable("MyShape").retrieveRows().size());
+    assertDoesNotThrow(() -> db.dropSchema(childSchemaName));
+    assertDoesNotThrow(() -> db.dropSchema(parentSchemaName));
+  }
+
+  @Test
+  void renamingParentWithSameSchemaChildIsRejected() {
+    String schemaName = TestInherits.class.getSimpleName() + "_rename_local";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(table("Shape", column("name").setPkey()));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
+
+    TableMetadata parentTable = schema.getMetadata().getTableMetadata("Shape");
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> parentTable.alterName("Renamed"));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Cannot rename table '"
+                    + schemaName
+                    + ".Shape': table '"
+                    + schemaName
+                    + ".MyShape"
+                    + RENAME_NOT_SUPPORTED_YET),
+        exception.getMessage());
+
+    assertNotNull(db.getSchema(schemaName).getMetadata().getTableMetadata("Shape"));
+    db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
+    assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
+    assertDoesNotThrow(() -> db.dropSchema(schemaName));
+  }
+
+  @Test
+  void renamingAnInheritingChildIsNotBlockedByTheGuard() {
+    String schemaName = TestInherits.class.getSimpleName() + "_rename_childtable";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(table("Shape", column("name").setPkey()));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
+
+    assertDoesNotThrow(
+        () -> schema.getMetadata().getTableMetadata("MyShape").alterName("MyRenamedShape"));
+
+    assertNotNull(
+        db.getSchema(schemaName).getMetadata().getTableMetadata("MyRenamedShape"),
+        "renaming a child is not blocked by the parent-rename guard");
+    assertDoesNotThrow(() -> db.dropSchema(schemaName));
+  }
+
+  @Test
+  void renamingParentWithCsvOldNameColumnIsRejected() {
+    String parentSchemaName = TestInherits.class.getSimpleName() + "_rename_csv_parent";
+    String childSchemaName = TestInherits.class.getSimpleName() + "_rename_csv_child";
+    db.dropSchemaIfExists(childSchemaName);
+    db.dropCreateSchema(parentSchemaName).create(table("Shape", column("name").setPkey()));
+    Schema child = db.createSchema(childSchemaName);
+    child.create(
+        table("MyShape", column("size").setType(INT))
+            .setImportSchema(parentSchemaName)
+            .setInheritNames("Shape"));
+
+    SchemaMetadata renamePayload = new SchemaMetadata(parentSchemaName);
+    renamePayload.create(table("Renamed", column("name").setPkey()).setOldName("Shape"));
+
+    Schema parent = db.getSchema(parentSchemaName);
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> parent.migrate(renamePayload));
+
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Cannot rename table '"
+                    + parentSchemaName
+                    + ".Shape': table '"
+                    + childSchemaName
+                    + ".MyShape"
+                    + RENAME_NOT_SUPPORTED_YET),
+        exception.getMessage());
+
+    assertNotNull(db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape"));
+    db.getSchema(childSchemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
+    assertEquals(1, db.getSchema(childSchemaName).getTable("MyShape").retrieveRows().size());
+    assertDoesNotThrow(() -> db.dropSchema(childSchemaName));
+    assertDoesNotThrow(() -> db.dropSchema(parentSchemaName));
   }
 }

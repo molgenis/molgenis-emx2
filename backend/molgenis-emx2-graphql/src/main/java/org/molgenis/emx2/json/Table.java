@@ -1,6 +1,7 @@
 package org.molgenis.emx2.json;
 
 import static org.molgenis.emx2.TableMetadata.ColumnSelection.MODULES;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +23,7 @@ public class Table {
   private String inheritName;
   private List<String> inheritNames = new ArrayList<>();
   private List<String> inheritIds = new ArrayList<>();
+  private String inheritSchemaName;
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
   private Collection<String[]> unique = new ArrayList<>();
@@ -55,10 +57,10 @@ public class Table {
     this.oldName = tableMetadata.getOldName();
     if (!tableMetadata.getInheritNames().isEmpty()) {
       this.inheritNames = tableMetadata.getInheritNames();
-      this.inheritName = tableMetadata.getInheritNames().get(0);
-      List<TableMetadata> inheritedTables = tableMetadata.getInheritedTables();
-      this.inheritId = inheritedTables.get(0).getIdentifier();
-      this.inheritIds = inheritedTables.stream().map(TableMetadata::getIdentifier).toList();
+      this.inheritName = this.inheritNames.get(0);
+      this.inheritIds = this.inheritNames.stream().map(name -> convertToPascalCase(name)).toList();
+      this.inheritId = this.inheritIds.get(0);
+      this.inheritSchemaName = tableMetadata.getImportSchema();
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
@@ -236,6 +238,14 @@ public class Table {
 
   public void setInheritIds(List<String> inheritIds) {
     this.inheritIds = inheritIds != null ? inheritIds : new ArrayList<>();
+  }
+
+  public String getInheritSchemaName() {
+    return inheritSchemaName;
+  }
+
+  public void setInheritSchemaName(String inheritSchemaName) {
+    this.inheritSchemaName = inheritSchemaName;
   }
 
   public String getLabel() {
