@@ -273,6 +273,7 @@ module.exports = {
         "button-cart-remove": "var(--text-color-button-cart-remove)",
         "button-cart-count": "var(--text-color-button-cart-count)",
         menu: "var(--text-color-menu)",
+        "menu-dynamic": "var(--text-color-menu-dynamic)",
         "sub-menu": "var(--text-color-sub-menu)",
         "sub-menu-hover": "var(--text-color-sub-menu-hover)",
         "breadcrumb-arrow": "var(--text-color-breadcrumb-arrow)",

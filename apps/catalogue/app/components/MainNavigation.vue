@@ -31,7 +31,7 @@ const active = "underline";
       v-for="button in mainButtons"
       :href="button.link"
       class="flex items-center gap-1 tracking-widest transition-colors border border-b-0 border-transparent font-display text-heading-xl hover:underline"
-      :class="invert ? 'text-sub-menu' : 'text-menu'"
+      :class="invert ? 'text-menu-dynamic' : 'text-menu'"
     >
       {{ button.label }}
     </a>
@@ -44,7 +44,7 @@ const active = "underline";
     >
       <button
         class="flex items-center gap-1 pt-3 pb-2 pl-4 pr-2 -mt-3 -ml-4 tracking-widest transition-colors duration-300 translate-y-1 border border-b-0 border-transparent rounded-t-base font-display text-heading-xl hover:border-white"
-        :class="invert ? 'text-sub-menu' : 'text-menu'"
+        :class="invert ? 'text-menu-dynamic' : 'text-menu'"
       >
         More
         <BaseIcon name="caret-down" />
