@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.ExceptionWhileDataFetching;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -152,17 +153,33 @@ public class GraphqlExecutor {
 
     for (GraphQLError err : executionResult.getErrors()) {
       if (logger.isErrorEnabled()) {
-        logger.error(err.getMessage());
+        logger.error(err.getMessage(), getCause(err));
       }
     }
     if (executionResult.getErrors().size() > 0) {
-      throw new MolgenisException(executionResult.getErrors().get(0).getMessage());
+      GraphQLError firstError = executionResult.getErrors().get(0);
+      MolgenisException exception = new MolgenisException(firstError.getMessage());
+      Throwable cause = getCause(firstError);
+      if (cause != null) {
+        exception.initCause(cause);
+      }
+      throw exception;
     }
 
     if (logger.isInfoEnabled())
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
 
     return executionResult;
+  }
+
+  private static Throwable getCause(GraphQLError error) {
+    if (error instanceof ExceptionWhileDataFetching exceptionWhileDataFetching) {
+      return exceptionWhileDataFetching.getException();
+    }
+    if (error instanceof MolgenisGraphqlError molgenisGraphqlError) {
+      return molgenisGraphqlError.getException();
+    }
+    return null;
   }
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
