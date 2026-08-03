@@ -5,15 +5,15 @@ import java.util.stream.Collectors;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 import org.molgenis.emx2.rdf.generators.query.QueryGenerator;
 
 public class SparqlSelectRdfTransformer implements RdfTransformer {
+
+  private static final String ARRAY_SEPARATOR_REGEX = "\\|";
 
   private final QueryGenerator queryGenerator;
   private final SchemaMetadata schema;
@@ -53,7 +53,8 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
 
   private void addTableDataToStore(
       String table, SailRepositoryConnection conn, InMemoryTableStore tableStore) {
-    String query = queryGenerator.generate(schema.getTableMetadata(table));
+    TableMetadata tableMetadata = schema.getTableMetadata(table);
+    String query = queryGenerator.generate(tableMetadata);
     TupleQuery prepared = conn.prepareTupleQuery(QueryLanguage.SPARQL, query);
 
     try (TupleQueryResult evaluate = prepared.evaluate()) {
@@ -62,7 +63,31 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
               .map(ColumnNameSparqlEncoder::decodeSparqlVariable)
               .toList();
 
-      tableStore.writeTable(table, columnNames, evaluate.stream().map(this::mapToRow).toList());
+      List<Row> rows = evaluate.stream().map(this::mapToRow).toList();
+      mapRowArrays(rows, tableMetadata);
+
+      tableStore.writeTable(table, columnNames, rows);
+    }
+  }
+
+  /**
+   * Sparql doesn't support array types out of the box. Thus, we expect to split array columns with
+   * a set separator.
+   */
+  private void mapRowArrays(List<Row> rows, TableMetadata tableMetadata) {
+    List<String> arrayColumnNames =
+        tableMetadata.getDownloadColumnNames().stream()
+            .filter(Column::isArray)
+            .map(Column::getName)
+            .toList();
+
+    for (Row row : rows) {
+      for (String name : arrayColumnNames) {
+        if (row.notNull(name)) {
+          String[] split = row.getString(name).split(ARRAY_SEPARATOR_REGEX);
+          row.set(name, split);
+        }
+      }
     }
   }
 
