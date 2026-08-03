@@ -1,16 +1,12 @@
 import { defineConfig } from "vite";
 import path from "path";
 import vue from "@vitejs/plugin-vue";
-import dotenv from "dotenv";
 import devProxy from "../dev-proxy.config";
 import { fileURLToPath } from "url";
 
 // needed because __dirname is not available in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// load env
-dotenv.config({ path: "./.env" });
 
 // basic build conf for both library and app
 const conf = {

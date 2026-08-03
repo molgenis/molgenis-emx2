@@ -182,6 +182,7 @@ public class ScriptTask extends Task {
       byte[] extraFileContent = (byte[]) this.extraFile.get(EXTRA_FILE_CONTENTS);
       Object extraFileExtension = this.extraFile.get(EXTRA_FILE_EXTENSION);
       Path extraFilePath = tempDir.resolve(extraFileName);
+      checkForZipSlip(tempDir, extraFilePath.toFile());
 
       try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
         fos.write(extraFileContent);

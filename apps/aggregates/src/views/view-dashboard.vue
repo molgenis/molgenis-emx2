@@ -1,195 +1,3 @@
-<template>
-  <Page>
-    <form class="page-section filters-form">
-      <fieldset class="page-section-content width-full filters-container">
-        <div class="filter-item selected-filters">
-          <div class="filter-context relative">
-            <legend>Selected Filters</legend>
-          </div>
-          <div class="filter-buttons">
-            <template
-              v-for="key in Object.keys(selectedFilters)"
-              v-if="Object.keys(queryFilters.filter).length"
-            >
-              <div
-                class="filter-button"
-                v-for="value in selectedFilters[key as keyof selectedFiltersIF]"
-              >
-                <p>{{ value }}</p>
-                <button
-                  :id="`filter-${key}-${value}`"
-                  @click.prevent="removeFilter(key, value)"
-                >
-                  <span class="visually-hidden">remove {{ value }}</span>
-                  <MinusCircleIcon class="heroicons" />
-                </button>
-              </div>
-            </template>
-          </div>
-        </div>
-        <div class="filter-item filter-action">
-          <button
-            id="runQuery"
-            @click="renderCharts"
-            @click.prevent="onClickPrevent"
-          >
-            <span>Apply filters</span>
-            <ChevronRightIcon class="heroicons" />
-          </button>
-          <button
-            id="resetFilters"
-            @click="resetFilters"
-            @click.prevent="onClickPrevent"
-          >
-            <span>Remove all</span>
-            <TrashIcon class="heroicons" />
-          </button>
-        </div>
-      </fieldset>
-      <Accordion title="How to use this dashboard" id="dashboardInstructions">
-        <h4>Selecting filters and updating the charts</h4>
-        <p>
-          To filter data, click on one or more elements in the charts below. For
-          example, click a row in a table or a column in a bar chart. As an
-          element is clicked, a filter will appear in the "selected filters"
-          list. When you are satisfied with your selection, click the "Apply
-          filters" button to update the charts. Click the "Remove all" button to
-          clear all filters and reset the charts. A filter can also be removed
-          by clicking the "remove icon" (<MinusCircleIcon />). Doing so will
-          automatically update the charts.
-        </p>
-      </Accordion>
-    </form>
-    <PageSection v-if="error">
-      <MessageBox type="error">
-        {{ error }}
-      </MessageBox>
-    </PageSection>
-    <Dashboard>
-      <DashboardRow class="dashboard-meta" :columns="1">
-        <p class="resource-total-cases">
-          Total number of cases: {{ totalNumberOfCases }}
-        </p>
-      </DashboardRow>
-      <DashboardRow :columns="3">
-        <DashboardChart>
-          <LoadingScreen style="height: 400px" v-if="loading" />
-          <BarChart
-            v-else
-            chartId="chart-number-of-cases-by-research-center"
-            title="Number of cases by research center"
-            :chartData="researchCenters"
-            xvar="_sum"
-            yvar="researchCenter"
-            :xMax="researchCenterAxis?.limit"
-            :xTickValues="researchCenterAxis?.ticks"
-            yAxisLineBreaker=" "
-            :chartHeight="400"
-            :barFill="palette[3]"
-            :barHoverFill="palette[5]"
-            :chartMargins="{
-              top: 10,
-              right: 40,
-              bottom: 30,
-              left: 100,
-            }"
-            :enableClicks="true"
-            :enableAnimation="true"
-            @bar-clicked="
-              (data: string) => onChartClick(JSON.parse(data), 'researchCenter')
-            "
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <LoadingScreen style="height: 100%" v-if="loading" />
-          <DataTable
-            v-else
-            tableId="chart-number-of-cases-by-primary-tumor"
-            caption="Number of cases by primary tumor"
-            :data="primaryTumorSite"
-            :columnOrder="['primary tumor site', 'sum']"
-            :enableRowClicks="true"
-            @row-clicked="(data: object) => onChartClick(data, 'primaryTumorSite')"
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <LoadingScreen style="height: 100%" v-if="loading" />
-          <PieChart2
-            v-else
-            chartId="chart-number-cases-by-stage-at-diagnosis"
-            title="Number of cases by stage at diagnosis, distant metastasis"
-            :chartData="metastasis"
-            :chartScale="1"
-            :chartHeight="350"
-            :chartColors="{
-              No: palette[3],
-              Yes: palette[5],
-              Unknown: palette[2],
-            }"
-            :asDonutChart="true"
-            :enableLegendHovering="true"
-            :chartMargins="25"
-            :valuesArePercents="false"
-            :enableClicks="true"
-            @slice-clicked="(data: object) => onChartClick(data, 'metastasis', true)"
-          />
-        </DashboardChart>
-      </DashboardRow>
-      <DashboardRow class="dashboard-row-offset" :columns="2">
-        <DashboardChart>
-          <LoadingScreen style="height: 300px" v-if="loading" />
-          <ColumnChart
-            v-else
-            chartId="chart-number-of-cases-by-year-of-diagnosis"
-            title="Number of cases by year of diagnosis"
-            :chartData="yearOfDiagnosis"
-            xvar="yearOfDiagnosis"
-            yvar="_sum"
-            :yTickValues="yearOfDiagnosisAxis?.ticks"
-            :yMax="yearOfDiagnosisAxis?.limit"
-            :columnFill="palette[5]"
-            :columnHoverFill="palette[3]"
-            :chartHeight="250"
-            :chartMargins="{
-              top: 30,
-              right: 5,
-              bottom: 30,
-              left: 60,
-            }"
-            :enableClicks="true"
-            :enableAnimation="true"
-            @column-clicked="
-              (data: string) => onChartClick(JSON.parse(data), 'yearOfDiagnosis')
-            "
-          />
-        </DashboardChart>
-        <DashboardChart>
-          <LoadingScreen style="height: 100%" v-if="loading" />
-          <PieChart2
-            v-else
-            chartId="chart-number-of-cases-by-sex"
-            title="Number of cases by sex"
-            :chartData="sexCases"
-            :chartColors="{
-              Male: palette[3],
-              Female: palette[5],
-            }"
-            :chartScale="1"
-            :chartHeight="250"
-            :asDonutChart="true"
-            :enableLegendHovering="true"
-            :chartMargins="0"
-            legendPosition="top"
-            :valuesArePercents="false"
-            :enableClicks="true"
-            @slice-clicked="(data: object) => onChartClick(data, 'sex', true)"
-          />
-        </DashboardChart>
-      </DashboardRow>
-    </Dashboard>
-  </Page>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
 import {
@@ -449,3 +257,195 @@ function renderCharts() {
 
 onMounted(() => renderCharts());
 </script>
+
+<template>
+  <Page>
+    <form class="page-section filters-form">
+      <fieldset class="page-section-content width-full filters-container">
+        <div class="filter-item selected-filters">
+          <div class="filter-context relative">
+            <legend>Selected Filters</legend>
+          </div>
+          <div class="filter-buttons">
+            <template
+              v-for="key in Object.keys(selectedFilters)"
+              v-if="Object.keys(queryFilters.filter).length"
+            >
+              <div
+                class="filter-button"
+                v-for="value in selectedFilters[key as keyof selectedFiltersIF]"
+              >
+                <p>{{ value }}</p>
+                <button
+                  :id="`filter-${key}-${value}`"
+                  @click.prevent="removeFilter(key, value)"
+                >
+                  <span class="visually-hidden">remove {{ value }}</span>
+                  <MinusCircleIcon class="heroicons" />
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="filter-item filter-action">
+          <button
+            id="runQuery"
+            @click="renderCharts"
+            @click.prevent="onClickPrevent"
+          >
+            <span>Apply filters</span>
+            <ChevronRightIcon class="heroicons" />
+          </button>
+          <button
+            id="resetFilters"
+            @click="resetFilters"
+            @click.prevent="onClickPrevent"
+          >
+            <span>Remove all</span>
+            <TrashIcon class="heroicons" />
+          </button>
+        </div>
+      </fieldset>
+      <Accordion title="How to use this dashboard" id="dashboardInstructions">
+        <h4>Selecting filters and updating the charts</h4>
+        <p>
+          To filter data, click on one or more elements in the charts below. For
+          example, click a row in a table or a column in a bar chart. As an
+          element is clicked, a filter will appear in the "selected filters"
+          list. When you are satisfied with your selection, click the "Apply
+          filters" button to update the charts. Click the "Remove all" button to
+          clear all filters and reset the charts. A filter can also be removed
+          by clicking the "remove icon" (<MinusCircleIcon />). Doing so will
+          automatically update the charts.
+        </p>
+      </Accordion>
+    </form>
+    <PageSection v-if="error">
+      <MessageBox type="error">
+        {{ error }}
+      </MessageBox>
+    </PageSection>
+    <Dashboard>
+      <DashboardRow class="dashboard-meta" :columns="1">
+        <p class="resource-total-cases">
+          Total number of cases: {{ totalNumberOfCases }}
+        </p>
+      </DashboardRow>
+      <DashboardRow :columns="3">
+        <DashboardChart>
+          <LoadingScreen style="height: 400px" v-if="loading" />
+          <BarChart
+            v-else
+            chartId="chart-number-of-cases-by-research-center"
+            title="Number of cases by research center"
+            :chartData="researchCenters"
+            xvar="_sum"
+            yvar="researchCenter"
+            :xMax="researchCenterAxis?.limit"
+            :xTickValues="researchCenterAxis?.ticks"
+            yAxisLineBreaker=" "
+            :chartHeight="400"
+            :barFill="palette[3]"
+            :barHoverFill="palette[5]"
+            :chartMargins="{
+              top: 10,
+              right: 40,
+              bottom: 30,
+              left: 100,
+            }"
+            :enableClicks="true"
+            :enableAnimation="true"
+            @bar-clicked="
+              (data: string) => onChartClick(JSON.parse(data), 'researchCenter')
+            "
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <LoadingScreen style="height: 100%" v-if="loading" />
+          <DataTable
+            v-else
+            tableId="chart-number-of-cases-by-primary-tumor"
+            caption="Number of cases by primary tumor"
+            :data="primaryTumorSite"
+            :columnOrder="['primary tumor site', 'sum']"
+            :enableRowClicks="true"
+            @row-clicked="(data: object) => onChartClick(data, 'primaryTumorSite')"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <LoadingScreen style="height: 100%" v-if="loading" />
+          <PieChart2
+            v-else
+            chartId="chart-number-cases-by-stage-at-diagnosis"
+            title="Number of cases by stage at diagnosis, distant metastasis"
+            :chartData="metastasis"
+            :chartScale="1"
+            :chartHeight="350"
+            :chartColors="{
+              No: palette[3],
+              Yes: palette[5],
+              Unknown: palette[2],
+            }"
+            :asDonutChart="true"
+            :enableLegendHovering="true"
+            :chartMargins="25"
+            :valuesArePercents="false"
+            :enableClicks="true"
+            @slice-clicked="(data: object) => onChartClick(data, 'metastasis', true)"
+          />
+        </DashboardChart>
+      </DashboardRow>
+      <DashboardRow class="dashboard-row-offset" :columns="2">
+        <DashboardChart>
+          <LoadingScreen style="height: 300px" v-if="loading" />
+          <ColumnChart
+            v-else
+            chartId="chart-number-of-cases-by-year-of-diagnosis"
+            title="Number of cases by year of diagnosis"
+            :chartData="yearOfDiagnosis"
+            xvar="yearOfDiagnosis"
+            yvar="_sum"
+            :yTickValues="yearOfDiagnosisAxis?.ticks"
+            :yMax="yearOfDiagnosisAxis?.limit"
+            :columnFill="palette[5]"
+            :columnHoverFill="palette[3]"
+            :chartHeight="250"
+            :chartMargins="{
+              top: 30,
+              right: 5,
+              bottom: 30,
+              left: 60,
+            }"
+            :enableClicks="true"
+            :enableAnimation="true"
+            @column-clicked="
+              (data: string) => onChartClick(JSON.parse(data), 'yearOfDiagnosis')
+            "
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <LoadingScreen style="height: 100%" v-if="loading" />
+          <PieChart2
+            v-else
+            chartId="chart-number-of-cases-by-sex"
+            title="Number of cases by sex"
+            :chartData="sexCases"
+            :chartColors="{
+              Male: palette[3],
+              Female: palette[5],
+            }"
+            :chartScale="1"
+            :chartHeight="250"
+            :asDonutChart="true"
+            :enableLegendHovering="true"
+            :chartMargins="0"
+            legendPosition="top"
+            :valuesArePercents="false"
+            :enableClicks="true"
+            @slice-clicked="(data: object) => onChartClick(data, 'sex', true)"
+          />
+        </DashboardChart>
+      </DashboardRow>
+    </Dashboard>
+  </Page>
+</template>

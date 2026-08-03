@@ -281,6 +281,8 @@ const query = computed(() => {
     }
     Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
       id
+      pid
+      name
     }
     Variables_agg (filter:$variablesFilter){
       count

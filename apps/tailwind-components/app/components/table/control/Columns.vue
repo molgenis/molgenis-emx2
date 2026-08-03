@@ -1,5 +1,10 @@
 <template>
-  <Button type="outline" icon="columns" @click="showModal = true">
+  <Button
+    type="outline"
+    icon="columns"
+    @click="showModal = true"
+    class="h-50px"
+  >
     Columns
   </Button>
   <Modal

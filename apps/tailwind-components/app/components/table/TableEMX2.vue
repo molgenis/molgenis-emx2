@@ -1,6 +1,14 @@
 <template>
   <div>
-    <div class="flex pb-[30px] justify-between">
+    <div class="flex mb-[30px] justify-between h-50px">
+      <RowControls
+        :number-of-selected-rows="numberOfSelectedRows"
+        :all-rows-selected="
+          numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
+        "
+        :can-edit="props.isEditable"
+        @row-action="handleRowAction"
+      />
       <div
         v-if="!props.hideSearch && enableFilters && filters"
         class="shrink-0 w-80 xl:w-96 lg:-ml-[30px] px-5"
@@ -141,6 +149,17 @@
                   }"
                 >
                   <TableCellEMX2
+                    class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
+                  >
+                    <div class="flex justify-center items-center h-full">
+                      <Checkbox
+                        :model-value="selectedRows.has(row._rowIdString)"
+                        @update:model-value="toggleRowSelection(row)"
+                      />
+                    </div>
+                  </TableCellEMX2>
+
+                  <TableCellEMX2
                     v-if="showDraftColumn"
                     class="text-table-row group-hover:bg-hover"
                   >
@@ -163,39 +182,50 @@
                   >
                     <template #row-actions v-if="colIndex === 0">
                       <div
-                        class="absolute left-2 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                        class="absolute left-12 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                       >
                         <Button
                           v-if="isEditable"
-                          :id="useId()"
+                          :id="`delete-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
                           icon="trash"
-                          size="small"
                           label="delete"
                           @click="onShowDeleteModal(row)"
                           :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
                           aria-haspopup="dialog"
                           :aria-expanded="showDeleteModal"
                         >
-                          {{ getRowId(row) }}
+                          {{ row._rowIdString }}
                         </Button>
                         <Button
                           v-if="isEditable"
-                          :id="useId()"
+                          :id="`edit-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
                           icon="edit"
-                          size="small"
                           label="edit"
                           @click="onShowEditModal(row)"
                           :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
                           aria-haspopup="dialog"
                           :aria-expanded="showEditModal"
                         >
-                          {{ getRowId(row) }}
+                          {{ row._rowIdString }}
                         </Button>
-
+                        <Button
+                          v-if="isEditable"
+                          :id="`copy-button-${row._rowIdString}`"
+                          :icon-only="true"
+                          type="inline"
+                          icon="copy"
+                          label="copy"
+                          @click="onShowEditModal(row, true)"
+                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-copy`"
+                          aria-haspopup="dialog"
+                          :aria-expanded="showEditModal"
+                        >
+                          {{ row._rowIdString }}
+                        </Button>
                         <slot name="additional-row-actions" :row="row" />
                       </div>
                     </template>
@@ -254,21 +284,30 @@
     @update:deleted="afterRowDeleted"
   />
 
+  <DeleteRows
+    v-if="data?.tableMetadata && showDeleteMultipleModal"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :keys="new Set(selectedRows.values())"
+    v-model:visible="showDeleteMultipleModal"
+    @update:deleted="afterRowDeleted"
+  />
+
   <EditModal
     v-if="data?.tableMetadata && showEditModal"
-    :key="`edit-modal-${useId()}`"
+    :key="`edit-modal-${rowDataForModal?._rowIdString}`"
     :showButton="false"
     :schemaId="schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
-    :isInsert="false"
+    :isInsert="isCopy"
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
   />
 
   <EditModal
     v-if="data?.tableMetadata && showAddModal"
-    :key="`add-modal-${useId()}`"
+    :key="`add-modal-${tableId}`"
     :showButton="false"
     :schemaId="schemaId"
     :metadata="data.tableMetadata"
@@ -278,29 +317,8 @@
   />
 </template>
 
-<script lang="ts">
-export function resolveEmptyRowsLabel(hasFiltersOrSearch: boolean): string {
-  return hasFiltersOrSearch
-    ? "No data matched the filters"
-    : "No records found";
-}
-
-export function routeSearchValue(
-  val: string,
-  enableFilters: boolean,
-  setSearch: ((v: string) => void) | null,
-  handleSearch: (v: string) => void
-): void {
-  if (enableFilters && setSearch) {
-    setSearch(val);
-  } else {
-    handleSearch(val);
-  }
-}
-</script>
-
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useId, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -313,7 +331,9 @@ import type {
 } from "../../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
-import { fetchTableData, fetchTableMetadata } from "#imports";
+import fetchTableData from "../../composables/fetchTableData";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
 
 import type { IGraphQLFilter } from "../../../types/filters";
 import type { UseFilters } from "../../../types/filters";
@@ -332,10 +352,13 @@ import { useColumnResize } from "../../composables/useColumnResize";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
 import Button from "../Button.vue";
-import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
+import DraftLabel from "../label/DraftLabel.vue";
+import Checkbox from "../input/Checkbox.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
+import RowControls from "./control/RowControls.vue";
+import DeleteRows from "./control/DeleteRows.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 import DownloadButton from "./control/DownloadButton.vue";
@@ -359,15 +382,23 @@ const props = withDefaults(
   }
 );
 
+const emit = defineEmits<{
+  (e: "view-details", payload: TableRow): void;
+}>();
+
 const showAddModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
-const rowDataForModal = ref();
+const showDeleteMultipleModal = ref<boolean>(false);
+const rowDataForModal = ref<IRow>();
 const showModal = ref(false);
+const isCopy = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
 const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
+const selectedRows = ref<Map<string, Record<string, columnValue>>>(new Map());
+
 const tableContainer = ref<HTMLElement | null>(null);
 const tableHeaderFixed = ref<HTMLElement | null>(null);
 const tableHead = ref<HTMLElement | null>(null);
@@ -385,6 +416,11 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
+type TableRow = {
+  _rowId: Record<string, columnValue>;
+  _rowIdString: string;
+} & Record<string, columnValue>;
+
 const filters: UseFilters | null = props.enableFilters
   ? useFilters(
       computed(() => columns.value),
@@ -397,10 +433,6 @@ const filters: UseFilters | null = props.enableFilters
   : null;
 
 const sidebarCollapsed = ref(false);
-
-onMounted(() => {
-  sidebarCollapsed.value = window.matchMedia("(max-width: 1023px)").matches;
-});
 
 if (filters) {
   watch(
@@ -418,12 +450,11 @@ const searchValue = computed({
       ? filters.searchValue.value
       : settings.value.search,
   set: (val: string) => {
-    routeSearchValue(
-      val,
-      props.enableFilters,
-      filters ? filters.setSearch : null,
-      handleSearchRequest
-    );
+    if (props.enableFilters && filters) {
+      filters.setSearch(val);
+    } else {
+      handleSearchRequest(val);
+    }
   },
 });
 
@@ -449,14 +480,32 @@ const { data, refresh, status } = useAsyncData(
       filter: effectiveFilter.value,
     });
 
+    // add unique row identifier for selection purposes
+    const rows: TableRow[] = await Promise.all(
+      tableData.rows.map(async (row) => {
+        const primaryKey = await getPrimaryKey(
+          row,
+          props.tableId,
+          props.schemaId
+        );
+        return {
+          ...row,
+          _rowId: primaryKey,
+          _rowIdString: JSON.stringify(primaryKey),
+        };
+      })
+    );
+
     return {
       tableMetadata,
-      tableData,
+      rows,
+      count: tableData.count,
     };
   }
 );
 
 onMounted(async () => {
+  sidebarCollapsed.value = window.matchMedia("(max-width: 1023px)").matches;
   if (props.useStickyHeader) {
     window.addEventListener("resize", updateStickyHeaderWidth);
     window.addEventListener("scroll", handleStickyHeaderScroll);
@@ -516,8 +565,8 @@ watch(
   { immediate: true, deep: true }
 );
 
-const rows = computed((): IRow[] =>
-  Array.isArray(data.value?.tableData?.rows) ? data.value?.tableData?.rows : []
+const rows = computed((): TableRow[] =>
+  Array.isArray(data.value?.rows) ? data.value?.rows : []
 );
 
 const hasFiltersOrSearch = computed(
@@ -527,24 +576,14 @@ const hasFiltersOrSearch = computed(
 );
 
 const emptyRowsLabel = computed(() =>
-  resolveEmptyRowsLabel(hasFiltersOrSearch.value)
+  hasFiltersOrSearch.value ? "No data matched the filters" : "No records found"
 );
 
 const showDraftColumn = computed(() =>
-  rows.value.some((row: IRow) => row?.mg_draft === true)
+  rows.value.some((row: TableRow) => row?.mg_draft === true)
 );
 
-const count = computed(() => data.value?.tableData?.count ?? 0);
-
-const primaryKeys = computed(() => {
-  return columns.value
-    ?.map((col: IColumn) => {
-      if (Object.hasOwn(col, "key")) {
-        return col.id;
-      }
-    })
-    .filter((value: any) => value);
-});
+const count = computed(() => data.value?.count ?? 0);
 
 watch(
   () => effectiveFilter.value,
@@ -599,8 +638,63 @@ const sortedVisibleColumns = computed(() =>
   sortedColumns.value.filter((col) => col.visible !== "false")
 );
 
+const numberOfSelectedRows = computed(() => selectedRows.value.size);
+
 function handleColumnsUpdate(newColumns: IColumn[]) {
   settings.value.orderedColumnsIds = newColumns.map((col) => col.id);
+}
+
+function toggleRowSelection(row: TableRow) {
+  if (selectedRows.value.has(row._rowIdString)) {
+    selectedRows.value.delete(row._rowIdString);
+  } else {
+    selectedRows.value.set(row._rowIdString, row._rowId);
+  }
+}
+
+function handleRowAction(payload: { action: string }) {
+  if ("action" in payload) {
+    const action = payload.action;
+    const singleRowSelected =
+      selectedRows.value.size === 1
+        ? rows.value.find((row) => selectedRows.value.has(row._rowIdString))
+        : null;
+    switch (action) {
+      case "delete-selection":
+        if (singleRowSelected) {
+          onShowDeleteModal(singleRowSelected);
+        } else if (selectedRows.value.size > 1) {
+          showDeleteMultipleModal.value = true;
+        }
+        break;
+      case "edit-selection":
+        if (singleRowSelected) {
+          onShowEditModal(singleRowSelected);
+        }
+        break;
+      case "view-details":
+        if (singleRowSelected) {
+          emit("view-details", singleRowSelected);
+        }
+        break;
+      case "select-all-on-page":
+        rows.value.forEach((row) => {
+          selectedRows.value.set(row._rowIdString, row._rowId);
+        });
+        break;
+      case "select-none":
+        selectedRows.value.clear();
+        break;
+      case "select-drafts":
+        selectedRows.value.clear();
+        rows.value.forEach((row) => {
+          if (row.mg_draft === true) {
+            selectedRows.value.set(row._rowIdString, row._rowId);
+          }
+        });
+        break;
+    }
+  }
 }
 
 function handleSortRequest(columnId: string) {
@@ -645,20 +739,24 @@ function handleCellClick(payload: cellPayload) {
   showModal.value = true;
 }
 
-function getRowId(row: IRow) {
-  return primaryKeys.value
-    .map((key) => row[key as string])
-    .join("-")
-    .replaceAll(" ", "-");
-}
-
-function onShowDeleteModal(row: Record<string, columnValue>) {
+function onShowDeleteModal(row: TableRow) {
   rowDataForModal.value = row;
   showDeleteModal.value = true;
 }
 
-function onShowEditModal(row: Record<string, columnValue>) {
-  rowDataForModal.value = row;
+function onShowEditModal(row: TableRow, isCopyMode = false) {
+  const clone: IRow = structuredClone(row);
+  delete clone._rowId;
+  delete clone._rowIdString;
+  if (isCopyMode) {
+    data.value?.tableMetadata?.columns.forEach((column: IColumn) => {
+      if (column.key === 1) {
+        delete clone[column.id];
+      }
+    });
+  }
+  rowDataForModal.value = clone;
+  isCopy.value = isCopyMode;
   showEditModal.value = true;
 }
 

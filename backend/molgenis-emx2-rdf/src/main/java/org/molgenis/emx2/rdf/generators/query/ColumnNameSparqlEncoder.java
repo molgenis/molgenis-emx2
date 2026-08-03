@@ -1,6 +1,8 @@
 package org.molgenis.emx2.rdf.generators.query;
 
 import java.util.List;
+import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
+import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.molgenis.emx2.Column;
 
 /**
@@ -32,16 +34,16 @@ public class ColumnNameSparqlEncoder {
     throw new IllegalStateException("Utility class");
   }
 
-  public static String encodeSparqlVariable(Column column) {
+  public static Variable encodeSparqlVariable(Column column) {
     return encodeSparqlVariable(column.getName());
   }
 
-  public static String encodeSparqlVariable(String name) {
-    return encodeSparqlVariable(List.of(name));
+  public static Variable encodeSparqlVariable(String name) {
+    return encodeSparqlVariablePath(List.of(name));
   }
 
-  public static String encodeSparqlVariable(List<String> path) {
-    return String.join(".", path).replace(".", "__").replace(" ", "___");
+  public static Variable encodeSparqlVariablePath(List<String> path) {
+    return SparqlBuilder.var(String.join(".", path).replace(".", "__").replace(" ", "___"));
   }
 
   public static String decodeSparqlVariable(String sparql) {

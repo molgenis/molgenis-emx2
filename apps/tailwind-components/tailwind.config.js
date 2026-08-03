@@ -87,6 +87,9 @@ module.exports = {
       },
     },
     extend: {
+      accentColor: {
+        theme: "var(--accent-color)",
+      },
       boxShadow: () => ({
         primary: "var(--box-shadow-primary)",
         "no-background-modal": "var(--box-shadow-no-background-modal)",
@@ -115,6 +118,7 @@ module.exports = {
         input: "var(--height-input)",
         "input-tiny": "var(--height-input-tiny)",
         "input-small": "var(--height-input-small)",
+        "input-medium": "var(--height-input-medium)",
         "input-large": "var(--height-input-large)",
         "button-tiny": "2rem",
         "button-small": "2.625rem",
@@ -150,6 +154,7 @@ module.exports = {
       backgroundImage: {
         "sidebar-gradient": "var(--background-image-sidebar-gradient)",
         "base-gradient": "var(--background-image-base-gradient)",
+        "bulk-gradient": "var(--background-image-bulk-gradient)",
         "collapsible-listitem-line":
           "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMjAnIGhlaWdodD0nMjQnIHZpZXdCb3g9JzAgMCAyMCAyMicgZmlsbD0nbm9uZScgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNMSAxVjIxJyBzdHJva2U9JyM4QkM1RkYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgc3Ryb2tlLWRhc2hhcnJheT0nNCA0Jy8+PC9zdmc+Cg==)",
       },
@@ -236,6 +241,10 @@ module.exports = {
         "label-available-hover":
           "var(--background-color-label-available-hover)",
         dropdown: "var(--background-color-dropdown)",
+        "dashboard-dropzone":
+          "color-mix(var(--background-color-button-primary), var(--background-color-content) 70%)",
+        "dashboard-dropzone-hover":
+          "color-mix(var(--background-color-button-primary), var(--background-color-content) 85%)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -250,6 +259,9 @@ module.exports = {
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
         "button-filter": "var(--text-color-button-filter)",
         "button-text": "var(--text-color-button-text)",
+        "button-text-disabled": "var(--text-color-button-text-disabled)",
+        "button-inline": "var(--text-color-button-inline)",
+        "button-inline-disabled": "var(--text-color-button-inline-disabled)",
         "button-icon": "var(--text-color-button-icon)",
         "button-icon-hover": "var(--text-color-button-icon-hover)",
         "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
@@ -261,6 +273,7 @@ module.exports = {
         "button-cart-remove": "var(--text-color-button-cart-remove)",
         "button-cart-count": "var(--text-color-button-cart-count)",
         menu: "var(--text-color-menu)",
+        "menu-dynamic": "var(--text-color-menu-dynamic)",
         "sub-menu": "var(--text-color-sub-menu)",
         "sub-menu-hover": "var(--text-color-sub-menu-hover)",
         "breadcrumb-arrow": "var(--text-color-breadcrumb-arrow)",
