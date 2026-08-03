@@ -43,7 +43,6 @@ import {
   mergeWithPageDefaults,
   toPathQueryConditions,
 } from "../../../utils/filterUtils";
-import { fetchOntology } from "../../../composables/fetchOntology";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;
