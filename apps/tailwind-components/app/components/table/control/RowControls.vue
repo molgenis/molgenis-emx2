@@ -9,7 +9,7 @@ const props = defineProps<{
   allRowsSelected: boolean;
   canUpdate: boolean;
   canDelete: boolean;
-  canModifySelection?: boolean;
+  canModifySelection: boolean;
 }>();
 
 const emit = defineEmits<{

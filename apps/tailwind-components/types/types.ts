@@ -149,8 +149,8 @@ export type schemaId = string;
 export interface ISession {
   email: string;
   admin: boolean;
-  roles: Record<schemaId, string[]>;
-  tablePermissions: Record<schemaId, ITablePermission[]>;
+  roles?: Record<schemaId, string[]>;
+  tablePermissions?: Record<schemaId, ITablePermission[]>;
   schemas?: Schema[];
   token?: string;
 }

@@ -150,12 +150,12 @@ describe("useSession", () => {
           .mockResolvedValueOnce(permissionsResult)
           .mockResolvedValueOnce(sessionResult);
 
-        const session = await useSession();
+        const session = await useSession("pet store");
 
-        expect(session.session.value?.roles).toEqual(roles);
-        expect(session.session.value?.tablePermissions).toEqual(
-          tablePermissions
-        );
+        expect(session.session.value?.roles).toEqual({ "pet store": roles });
+        expect(session.session.value?.tablePermissions).toEqual({
+          "pet store": tablePermissions,
+        });
         expect(session.isAdmin.value).toBe(false);
       });
     });

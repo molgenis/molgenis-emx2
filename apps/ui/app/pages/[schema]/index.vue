@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { useFetch } from "#app/composables/fetch";
-import { useRoute, navigateTo } from "#app/composables/router";
-import { useHead } from "#app";
-import { computed, ref } from "vue";
-import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import BreadCrumbs from "../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
-import Container from "../../../../tailwind-components/app/components/Container.vue";
-import Table from "../../../../tailwind-components/app/components/Table.vue";
-import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
-import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
-import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
-import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
-import type { Crumb } from "../../../../tailwind-components/types/types";
 import { definePageMeta } from "#imports";
+import { navigateTo, useFetch, useHead, useRoute } from "nuxt/app";
+import { computed, ref } from "vue";
+import type { ITableMetaData } from "../../../../metadata-utils/src/types.js";
+import BreadCrumbs from "../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import Container from "../../../../tailwind-components/app/components/Container.vue";
+import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import Search from "../../../../tailwind-components/app/components/input/Search.vue";
+import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
+import Table from "../../../../tailwind-components/app/components/Table.vue";
+import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
+import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
+import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
+import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
 import { useSession } from "../../../../tailwind-components/app/composables/useSession";
+import type { Crumb } from "../../../../tailwind-components/types/types";
 
 definePageMeta({
   middleware: ["landing-page"],
@@ -45,7 +44,7 @@ interface Table {
 interface Schema {
   id: string;
   label: string;
-  tables: Table[];
+  tables: ITableMetaData[];
 }
 
 const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
@@ -56,26 +55,31 @@ const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
   },
 });
 
-const tables = computed(
+const tables = computed<ITableMetaData[]>(
   () =>
     data.value?.data?._schema?.tables
-      ?.filter((t) => t.tableType === "DATA")
-      .sort((a, b) => a.label.localeCompare(b.label)) ?? []
+      ?.filter((t: ITableMetaData) => t.tableType === "DATA")
+      .sort((a: ITableMetaData, b: ITableMetaData) =>
+        a.label.localeCompare(b.label)
+      ) ?? []
 );
 
-const ontologies = computed(
+const ontologies = computed<ITableMetaData[]>(
   () =>
     data.value?.data?._schema?.tables
-      ?.filter((t) => t.tableType === "ONTOLOGIES")
-      .sort((a, b) => a.label.localeCompare(b.label)) ?? []
+      ?.filter((t: ITableMetaData) => t.tableType === "ONTOLOGIES")
+      .sort((a: ITableMetaData, b: ITableMetaData) =>
+        a.label.localeCompare(b.label)
+      ) ?? []
 );
 
 const { tablePermissions, getTablePermission } = await useSession(schema);
 
 // no permissions at all means the backend did not supply them; fall back to
 // showing every table rather than ghosting the whole list
-function canViewTable(table: { id: string; tableType: TableType }) {
-  if (!tablePermissions.value.length) return true;
+// empty permissions means the user has no access to any tables, so ghost all but ontologies
+function canViewTable(table: ITableMetaData): boolean {
+  if (!tablePermissions.value) return true;
   return (
     getTablePermission(table.id)?.canView || table.tableType === "ONTOLOGIES"
   );
