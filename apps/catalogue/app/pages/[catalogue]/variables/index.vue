@@ -122,7 +122,7 @@ const pageFilterTemplate: IFilter[] = [
         filterBuilder: Record<string, Record<string, any>>,
         conditions: IFilterCondition[]
       ) => {
-        return  {
+        return {
           ...filterBuilder,
           ...{
             _or: [
@@ -141,7 +141,6 @@ const pageFilterTemplate: IFilter[] = [
         };
       },
     },
-    options: fetchKeywordOptions,
     conditions: [],
   },
   {
@@ -174,13 +173,6 @@ const pageFilterTemplate: IFilter[] = [
     conditions: [],
   },
 ];
-
-async function fetchKeywordOptions(): Promise<INode[]> {
-      // fetch the ontology data for the keywords
-       fetchOntology("Keywords", )
-      // fetch generated keywords from variables table OR are these the same as the keywords in the ontology? If they are the same, we can just use the ontology data. If they are different, we need to fetch them separately and combine them into a single list.
-      combine into single list and return as INode[]
-}
 
 async function fetchResourceOptions(): Promise<INode[]> {
   const { data, error } = await $fetch(`/${schema}/graphql`, {
@@ -384,9 +376,7 @@ const fetchData = async () => {
       _and: [
         filter.value,
         ...(variableResourceFilter ? [variableResourceFilter] : []),
-        ...(scoped
-          ? [scopedResourceFilter]
-          : [nonScopedResourceFilter])
+        ...(scoped ? [scopedResourceFilter] : [nonScopedResourceFilter]),
       ],
     },
     resourcesFilter,
