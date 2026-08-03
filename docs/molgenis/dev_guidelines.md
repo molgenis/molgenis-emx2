@@ -11,15 +11,13 @@ The structure of vue files should start with the `script` element first, and the
 ```vue
 <!-- MyComponent.vue -->
 <script setup lang="ts">
-  ...
+...
 </script>
 
-<template>
-  ...
-</template>
+<template>...</template>
 
 <style>
-  ...
+...
 </style>
 ```
 
@@ -45,18 +43,13 @@ Component interfaces should have a clear and unique name.
 
 ```vue
 <script setup lang="ts">
-
 interface IComponent {
   count: number;
 }
 
-const props = withDefaults(
-  defineProps<IComponent>(),
-  {
-    count: 0
-  }
-);
-
+const props = withDefaults(defineProps<IComponent>(), {
+  count: 0,
+});
 </script>
 ```
 
@@ -135,6 +128,11 @@ const layout = ref<Layout>("grid");
 
 When a plain string (for example from a route query or setting) must be narrowed to such a type at runtime, use a type guard or assertion function instead of a cast. See `apps/tailwind-components/app/utils/typeUtils.ts` for examples.
 
+### 8. Vitest file extensions are `.test.ts` and for Playwright files `.spec.ts`
+
+Unit tests, run by Vitest use the `.test.ts` extension.
+End-to-end / Integration tests are run by Playwright and use `.spec.ts`.
+
 ## For java development
 
 ### We don't use var
@@ -160,9 +158,9 @@ class MyClassTest {
     database.dropCreateSchema("mySchemaName");
     database.dropCreateSchema("linkedSchemaThatMustBeRemovedFirst");
   }
-  
+
   // No `@AfterAll` that removes the schemas!
-  
+
   @Test
   void testSomething() {
     // Do stuff.
