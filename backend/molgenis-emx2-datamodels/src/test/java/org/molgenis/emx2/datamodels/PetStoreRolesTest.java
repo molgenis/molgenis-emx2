@@ -35,11 +35,11 @@ class PetStoreRolesTest {
             .filter(p -> "Pet".equals(p.table()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("no permission on Pet: " + role.permissions()));
-    assertEquals(Boolean.TRUE, permission.select());
-    assertEquals(Boolean.TRUE, permission.insert());
-    assertEquals(Boolean.TRUE, permission.update());
-    assertEquals(Boolean.TRUE, permission.delete());
-    assertEquals(Boolean.TRUE, permission.isRowLevel());
+    assertTrue(permission.select());
+    assertTrue(permission.insert());
+    assertTrue(permission.update());
+    assertTrue(permission.delete());
+    assertTrue(permission.isRowLevel());
   }
 
   @Test
