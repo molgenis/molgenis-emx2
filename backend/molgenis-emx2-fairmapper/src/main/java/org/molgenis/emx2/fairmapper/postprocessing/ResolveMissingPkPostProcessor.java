@@ -3,6 +3,7 @@ package org.molgenis.emx2.fairmapper.postprocessing;
 import java.util.*;
 import java.util.stream.StreamSupport;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
   }
 
   @Override
-  public void process(TableStore tableStore) {
+  public void process(InMemoryTableStore tableStore) {
     for (String tableName : schema.getTableNames()) {
       List<Column> referenceColumns =
           schema.getTableMetadata(tableName).getColumns().stream()

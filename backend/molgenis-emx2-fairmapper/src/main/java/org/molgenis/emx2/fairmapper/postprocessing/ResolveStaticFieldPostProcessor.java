@@ -1,6 +1,6 @@
 package org.molgenis.emx2.fairmapper.postprocessing;
 
-import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 
 /** Adds the field and value to all rows of given table of provided TableStores */
 public class ResolveStaticFieldPostProcessor implements PostProcessor {
@@ -16,7 +16,7 @@ public class ResolveStaticFieldPostProcessor implements PostProcessor {
   }
 
   @Override
-  public void process(TableStore tableStore) {
+  public void process(InMemoryTableStore tableStore) {
     tableStore.processTable(
         table, (iterator, source) -> iterator.forEachRemaining(row -> row.set(field, value)));
   }

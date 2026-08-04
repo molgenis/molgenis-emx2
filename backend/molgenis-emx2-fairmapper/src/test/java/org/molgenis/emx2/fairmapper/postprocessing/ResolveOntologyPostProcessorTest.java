@@ -59,7 +59,7 @@ class ResolveOntologyPostProcessorTest {
 
   @Test
   void shouldHandleNullValue() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(new Row("name", "foo", "shape", null, "colors", null));
     resolver.process(tableStore);
     assertTableStoreHasFiguresTableWithRows(
@@ -68,7 +68,7 @@ class ResolveOntologyPostProcessorTest {
 
   @Test
   void shouldReplaceOntologyTermURIWithName() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(
             new Row("name", "foo", "shape", "http://www.example.org/shapes#square"));
     resolver.process(tableStore);
@@ -77,7 +77,7 @@ class ResolveOntologyPostProcessorTest {
 
   @Test
   void givenRow_whenOntologyDoesNotExist_thenClearCell() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(
             new Row("name", "foo", "shape", "http://www.example.org/shape#hexagon"));
     resolver.process(tableStore);
@@ -86,7 +86,7 @@ class ResolveOntologyPostProcessorTest {
 
   @Test
   void givenRow_whenMultipleCellsWithOntologies_thenReplaceAll() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(
             new Row(
                 "name",
@@ -102,7 +102,7 @@ class ResolveOntologyPostProcessorTest {
 
   @Test
   void givenRow_whenOntologyArray_thenReplaceAllValues() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(
             new Row(
                 "name",
@@ -116,7 +116,7 @@ class ResolveOntologyPostProcessorTest {
 
   @Test
   void givenRow_whenOntologyArrayWithNonExistingValue_thenClearCell() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(
             new Row(
                 "name",
@@ -136,7 +136,7 @@ class ResolveOntologyPostProcessorTest {
                 Column.column("shape").setType(ColumnType.ONTOLOGY).setRefTable("shapes"),
                 Column.column("color").setType(ColumnType.ONTOLOGY).setRefTable("colors")));
 
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(
             new Row(
                 "name",
@@ -164,7 +164,7 @@ class ResolveOntologyPostProcessorTest {
         tableStore, "pictures", new Row("name", "Lava Ball", "shape", "circle", "color", "red"));
   }
 
-  private TableStore getTableStoreWithRows(Row... rows) {
+  private InMemoryTableStore getTableStoreWithRows(Row... rows) {
     InMemoryTableStore store = new InMemoryTableStore();
     if (rows.length == 0) {
       store.writeTable(FIGURES_TABLE, List.of(), List.of());

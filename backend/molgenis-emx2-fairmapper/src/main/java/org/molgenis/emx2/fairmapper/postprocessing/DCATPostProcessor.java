@@ -2,7 +2,7 @@ package org.molgenis.emx2.fairmapper.postprocessing;
 
 import java.util.List;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 
 public class DCATPostProcessor implements PostProcessor {
 
@@ -32,7 +32,7 @@ public class DCATPostProcessor implements PostProcessor {
   }
 
   @Override
-  public void process(TableStore tableStore) {
+  public void process(InMemoryTableStore tableStore) {
     for (PostProcessor postProcessor : postProcessors) {
       postProcessor.process(tableStore);
     }

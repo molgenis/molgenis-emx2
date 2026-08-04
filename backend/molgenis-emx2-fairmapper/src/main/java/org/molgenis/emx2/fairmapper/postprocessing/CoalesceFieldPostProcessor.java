@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
-import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 
 /**
  * Derives the value of a single field from a prioritised list of candidate fields on the same row.
@@ -41,7 +41,7 @@ public class CoalesceFieldPostProcessor implements PostProcessor {
   }
 
   @Override
-  public void process(TableStore tableStore) {
+  public void process(InMemoryTableStore tableStore) {
     tableStore.processTable(
         table,
         (iterator, source) ->
