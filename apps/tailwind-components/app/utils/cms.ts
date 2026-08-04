@@ -78,7 +78,7 @@ export async function deleteComponent(
     },
   });
   if (reorder) {
-    fullReorder(schema, block, "Component");
+    await fullReorder(schema, block, "Component");
   }
 }
 
@@ -89,7 +89,7 @@ async function deleteAllComponentsFromBlock(schema: string, id: string) {
       query: `query getComponents($filter: ComponentOrdersFilter){ComponentOrders(filter:$filter){id,order}}`,
       variables: {
         filter: {
-          block: { id: { equals: parent } },
+          block: { id: { equals: id } },
         },
         orderby: [{ order: "ASC" }],
       },
@@ -101,13 +101,13 @@ async function deleteAllComponentsFromBlock(schema: string, id: string) {
       id: string;
     }[];
     for (const item of itemsToRemove) {
-      deleteComponent(schema, item.id, id, false);
+      await deleteComponent(schema, item.id.replace(/-order$/, ""), id, false);
     }
   }
 }
 
 export async function deleteBlock(schema: string, id: string, page: string) {
-  deleteAllComponentsFromBlock(schema, id);
+  await deleteAllComponentsFromBlock(schema, id);
 
   const dataOrder = await $fetch(`/${schema}/graphql`, {
     method: "POST",
@@ -125,7 +125,7 @@ export async function deleteBlock(schema: string, id: string, page: string) {
   const dataComponent = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: `mutation delete($pkey:[BlockInput]){delete(Block:$pkey){message}}`,
+      query: `mutation delete($pkey:[BlocksInput]){delete(Blocks:$pkey){message}}`,
       variables: {
         pkey: [
           {
@@ -135,7 +135,7 @@ export async function deleteBlock(schema: string, id: string, page: string) {
       },
     },
   });
-  fullReorder(schema, page, "Block");
+  await fullReorder(schema, page, "Block");
 }
 
 export async function addComponent(
@@ -300,7 +300,7 @@ async function fullReorder(
   };
   if (type === "Block") {
     filter = {
-      configurablePage: { id: { equals: parent } },
+      configurablePage: { name: { equals: parent } },
     };
   }
   const { data } = await $fetch(`/${schema}/graphql`, {

@@ -33,7 +33,7 @@ const emit = defineEmits(["updatePage"]);
 const showMenu = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
-
+const currentlyDeleting = ref<boolean>(false);
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
 });
@@ -64,21 +64,23 @@ function onDelete() {
   showDeleteModal.value = true;
 }
 
-function doDelete() {
-  showDeleteModal.value = false;
+async function doDelete(): Promise<void> {
+  currentlyDeleting.value = true;
   if (props.componentType === "Component") {
-    deleteComponent(
+    await deleteComponent(
       componentMetadata.value?.schemaId || "",
       props.component.id,
       props.parent
     );
   } else {
-    deleteBlock(
+    await deleteBlock(
       componentMetadata.value?.schemaId || "",
       props.component.id,
       props.parent
     );
   }
+  currentlyDeleting.value = false;
+  showDeleteModal.value = false;
   emit("updatePage");
 }
 
@@ -205,11 +207,23 @@ const menuPlacement = computed<string>(() => {
     <template #footer>
       <menu class="flex items-center justify-end h-[116px]">
         <div class="flex gap-4">
-          <Button type="outline" @click="showDeleteModal = false">
+          <Button
+            v-if="!currentlyDeleting"
+            type="outline"
+            @click="showDeleteModal = false"
+          >
             Cancel
           </Button>
-          <Button icon="trash" type="primary" @click="doDelete">
+          <Button
+            v-if="!currentlyDeleting"
+            icon="trash"
+            type="primary"
+            @click="doDelete"
+          >
             Delete
+          </Button>
+          <Button v-if="currentlyDeleting" type="primary" disabled>
+            Deleting...
           </Button>
         </div>
       </menu>
