@@ -91,15 +91,14 @@ const menuPlacement = computed<string>(() => {
   ) {
     placement = "top";
   }
-if(props.mg_tableclass === "cms.Sections") {
-  placement = "left-start";
-}
+  if (props.mg_tableclass === "cms.Sections") {
+    placement = "left-start";
+  }
   return placement;
 });
 </script>
 
 <template>
-
   <VMenu
     :placement="menuPlacement"
     :disabled="!isEditable"
@@ -190,7 +189,10 @@ if(props.mg_tableclass === "cms.Sections") {
     :metadata="componentMetadata"
     :formValues="(componentData as Record<string,any>)"
     :isInsert="false"
-    @update:updated="$emit('updatePage'); showEditModal = false"
+    @update:updated="
+      $emit('updatePage');
+      showEditModal = false;
+    "
     v-model:visible="showEditModal"
   />
 

@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<{ name?: string }>(), {});
     class="z-40 absolute -translate-y-full left-0 top-0 inline-flex flex-row items-center gap-2 p-1 divide-x group border border-theme rounded-theme [background-image:var(--background-color-bulk-gradient)] shadow-lg"
   >
     <div class="flex flex-row items-center gap-2">
-        <div class="text-title-contrast whitespace-nowrap">{{ name }}</div>
+      <div class="text-title-contrast whitespace-nowrap">{{ name }}</div>
       <Button
         icon-only
         size="tiny"

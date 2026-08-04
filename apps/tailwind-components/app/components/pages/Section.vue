@@ -8,11 +8,16 @@ const props = withDefaults(defineProps<ISections>(), {
 </script>
 
 <template>
-  <div class="w-full flex" >
-    <div v-if="isEditable" class="flex items-center justify-center py-4 pr-8 w-0 relative">
+  <div class="w-full flex">
+    <div
+      v-if="isEditable"
+      class="flex items-center justify-center py-4 pr-8 w-0 relative"
+    >
       <div class="border border-dashed w-0 absolute top-3 bottom-3"></div>
 
-      <span class="text-button-disabled rotate-90 inline-block pb-6">Section</span> 
+      <span class="text-button-disabled rotate-90 inline-block pb-6"
+        >Section</span
+      >
     </div>
     <div :id="id" class="w-full py-8 justify-center items-center">
       <div

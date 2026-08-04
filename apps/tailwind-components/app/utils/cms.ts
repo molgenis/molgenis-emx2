@@ -344,11 +344,7 @@ async function fullReorder(
   }
 }
 
-async function prepareOrder(
-  schema: string,
-  order: number,
-  block: string,
-) {
+async function prepareOrder(schema: string, order: number, block: string) {
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
