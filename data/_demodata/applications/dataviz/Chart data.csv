@@ -1,0 +1,14 @@
+id,name,value,value label,series,primary category,secondary category,primary category label,secondary category label,time value,time unit,color,description,sort order,included in chart
+landmarks-by-type-castle,castle,52,,,,,,,,,,,0,landmarks by type
+landmarks-by-type-fortress,fortress,11,,,,,,,,,,,1,landmarks by type
+landmarks-by-type-palace,palace,4,,,,,,,,,,,2,landmarks by type
+landmarks-by-type-ruin,ruin,7,,,,,,,,,,,3,landmarks by type
+landmarks-by-century-11th,11th,2,,,,,,,11,century,,,0,landmarks by century
+landmarks-by-century-12th,12th,1,,,,,,,12,century,,,1,landmarks by century
+landmarks-by-century-13th,13th,11,,,,,,,13,century,,,2,landmarks by century
+landmarks-by-century-14th,14th,6,,,,,,,14,century,,,3,landmarks by century
+landmarks-by-century-15th,15th,2,,,,,,,15,century,,,4,landmarks by century
+landmarks-by-century-16th,16th,6,,,,,,,16,century,,,5,landmarks by century
+landmarks-by-century-17th,17th,10,,,,,,,17,century,,,6,landmarks by century
+landmarks-by-century-18th,18th,0,,,,,,,18,century,,,7,landmarks by century
+landmarks-by-century-19th,19th,1,,,,,,,19,century,,,8,landmarks by century
