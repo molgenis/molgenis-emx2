@@ -75,7 +75,7 @@ const sidebarCollapsed = ref(false);
           :component="orderedBlock.block"
           componentType="Block"
           :parent="content.name"
-          :is-editable="isEditable"
+          :isEditable="isEditable"
           :metadata="metadata"
           @updatePage="$emit('updatePage')"
         />
@@ -84,7 +84,7 @@ const sidebarCollapsed = ref(false);
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
           :parent="content.name"
-          :is-editable="isEditable"
+          :isEditable="isEditable"
           componentType="Block"
           :metadata="metadata"
           @updatePage="$emit('updatePage')"
@@ -111,7 +111,7 @@ const sidebarCollapsed = ref(false);
               :component="orderedComponent.component"
               componentType="Component"
               :parent="orderedBlock.block.id"
-              :is-editable="isEditable"
+              :isEditable="isEditable"
               :metadata="metadata"
               @updatePage="$emit('updatePage')"
             />

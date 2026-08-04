@@ -103,11 +103,11 @@ const menuPlacement = computed<string>(() => {
     :placement="menuPlacement"
     :disabled="!isEditable"
     v-model:shown="showMenu"
-    show-group="component-menu"
+    showGroup="component-menu"
     :triggers="['hover', 'focus']"
-    :popper-triggers="['hover', 'focus']"
+    :popperTriggers="['hover', 'focus']"
     :delay="{ show: 100, hide: 200 }"
-    no-auto-focus
+    noAutoFocus
   >
     <template #popper>
       <ComponentActions
@@ -127,14 +127,14 @@ const menuPlacement = computed<string>(() => {
       :background-image="component.backgroundImage?.image?.url"
       :enable-full-screen-width="component.enableFullScreenWidth"
       :title-is-centered="component.titleIsCentered"
-      :is-editable="editingIsEnabled"
+      :isEditable="editingIsEnabled"
     />
     <Section
       v-else-if="mg_tableclass.endsWith('.Sections')"
       v-model:showMenu="showMenu"
       :id="component.id"
       :enable-full-screen-width="component.enableFullScreenWidth"
-      :is-editable="editingIsEnabled"
+      :isEditable="editingIsEnabled"
     >
       <slot></slot>
     </Section>
@@ -146,7 +146,7 @@ const menuPlacement = computed<string>(() => {
       :level="component.level"
       class="mb-5"
       :text="parsePageText(component.text)"
-      :is-editable="editingIsEnabled"
+      :isEditable="editingIsEnabled"
     />
     <Paragraph
       v-else-if="mg_tableclass.endsWith('.Paragraphs')"
@@ -155,7 +155,7 @@ const menuPlacement = computed<string>(() => {
       :paragraph-is-centered="component.paragraphIsCentered"
       class="mb-2.5 last:mb-0"
       :text="parsePageText(component.text)"
-      :is-editable="editingIsEnabled"
+      :isEditable="editingIsEnabled"
     />
     <Image
       v-else-if="mg_tableclass.endsWith('.Images')"
@@ -166,14 +166,14 @@ const menuPlacement = computed<string>(() => {
       :height="component.height"
       :alt="component.alt"
       :image-is-centered="component.imageIsCentered"
-      :is-editable="editingIsEnabled"
+      :isEditable="editingIsEnabled"
     />
     <NavigationGroups
       v-else-if="mg_tableclass.endsWith('.Navigation groups')"
       v-model:showMenu="showMenu"
       :id="component.id"
       :links="component.links"
-      :is-editable="editingIsEnabled"
+      :isEditable="editingIsEnabled"
     />
     <Paragraph
       v-else
