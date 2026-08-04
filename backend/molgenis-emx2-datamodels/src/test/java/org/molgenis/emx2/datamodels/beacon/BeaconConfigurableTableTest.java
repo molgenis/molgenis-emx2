@@ -8,6 +8,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
@@ -34,9 +35,29 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 public class BeaconConfigurableTableTest {
 
   private static final String SCHEMA_NAME = "BeaconConfigurableTableTest";
+  private static final String DEFAULT_SCHEMA_NAME = "BeaconConfigurableTableTestDefault";
   private static final String CUSTOM_TABLE = "Subjects";
   private static final String ENDPOINT = "beacon_" + EntryType.INDIVIDUALS.getName();
   private static final String MARKER_TEMPLATE = "{ \"marker\": \"custom-template\" }";
+
+  /**
+   * Reads "subjectCode", a column the packaged individuals template knows nothing about, and emits
+   * the standard envelope so it can take part in a cross-schema response.
+   */
+  private static final String CUSTOM_TEMPLATE =
+      """
+      {
+        "meta": { "beaconId": "custom-beacon" },
+        "response": {
+          "resultSets": [for (.resultSets) {
+            "id": .id,
+            "setType": "individuals",
+            "resultsCount": .count,
+            "results": [for (.results) { "id": .subjectCode }]
+          }]
+        }
+      }
+      """;
 
   private static Database database;
   private static Schema schema;
@@ -46,9 +67,22 @@ public class BeaconConfigurableTableTest {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
     database.dropSchemaIfExists(SCHEMA_NAME);
+    database.dropSchemaIfExists(DEFAULT_SCHEMA_NAME);
+
     schema = database.createSchema(SCHEMA_NAME);
-    schema.create(table(CUSTOM_TABLE, column("id").setPkey()));
-    schema.getTable(CUSTOM_TABLE).insert(row("id", "S1"), row("id", "S2"), row("id", "S3"));
+    schema.create(table(CUSTOM_TABLE, column("id").setPkey(), column("subjectCode")));
+    schema
+        .getTable(CUSTOM_TABLE)
+        .insert(
+            row("id", "S1", "subjectCode", "code-1"),
+            row("id", "S2", "subjectCode", "code-2"),
+            row("id", "S3", "subjectCode", "code-3"));
+
+    // a second schema holding a plain entry type table, so cross-schema queries mix a
+    // template-configured schema with one that relies on the packaged template
+    Schema defaultSchema = database.createSchema(DEFAULT_SCHEMA_NAME);
+    defaultSchema.create(table(EntryType.INDIVIDUALS.getId(), column("id").setPkey()));
+    defaultSchema.getTable(EntryType.INDIVIDUALS.getId()).insert(row("id", "D1"), row("id", "D2"));
   }
 
   @AfterEach
@@ -69,6 +103,7 @@ public class BeaconConfigurableTableTest {
     database.becomeAdmin();
     // dropping the schema cascades through the foreign key and removes any Templates rows
     database.dropSchemaIfExists(SCHEMA_NAME);
+    database.dropSchemaIfExists(DEFAULT_SCHEMA_NAME);
   }
 
   @Test
@@ -108,7 +143,39 @@ public class BeaconConfigurableTableTest {
   }
 
   @Test
-  void crossSchemaIgnoresConfiguredJsltTemplate() {
+  void crossSchemaAppliesEachSchemasOwnJsltTemplate() {
+    insertTemplate(
+        row(
+            "endpoint", ENDPOINT,
+            "schema", SCHEMA_NAME,
+            "tableName", CUSTOM_TABLE,
+            "template", CUSTOM_TEMPLATE));
+
+    JsonNode json = newQuery().query(database);
+
+    // the configured schema is rendered with its own template, so the column that only its
+    // template knows about carries a value instead of being dropped as null
+    JsonNode configured = resultSetFor(json, SCHEMA_NAME);
+    assertNotNull(configured, "cross-schema query should include the configured schema");
+    assertEquals(3, configured.get("resultsCount").intValue());
+    assertEquals(
+        List.of("code-1", "code-2", "code-3"),
+        resultIds(configured),
+        "results must come from the schema's own template, not the packaged one");
+
+    // a schema without a template is still rendered with the packaged template
+    JsonNode packaged = resultSetFor(json, DEFAULT_SCHEMA_NAME);
+    assertNotNull(packaged, "cross-schema query should include schemas without a template");
+    assertEquals(2, packaged.get("resultsCount").intValue());
+    assertEquals(List.of("D1", "D2"), resultIds(packaged));
+
+    // the envelope stays the packaged one: it describes the request, not any one schema's data
+    assertEquals("org.molgenis.beaconv2", json.path("meta").path("beaconId").asText());
+  }
+
+  @Test
+  void crossSchemaRejectsTemplateThatDropsTheResultSets() {
+    // a template free to reshape a single-schema response cannot be merged with other schemas
     insertTemplate(
         row(
             "endpoint", ENDPOINT,
@@ -116,9 +183,11 @@ public class BeaconConfigurableTableTest {
             "tableName", CUSTOM_TABLE,
             "template", MARKER_TEMPLATE));
 
-    JsonNode json = newQuery().query(database);
-    assertFalse(json.has("marker"));
-    assertTrue(json.has("response"));
+    MolgenisException thrown =
+        assertThrows(MolgenisException.class, () -> newQuery().query(database));
+    assertTrue(
+        thrown.getMessage().contains("response.resultSets"),
+        "expected the message to name the missing field, got: " + thrown.getMessage());
   }
 
   @Test
@@ -170,6 +239,13 @@ public class BeaconConfigurableTableTest {
     Context request =
         BeaconTestUtil.mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     return new QueryEntryType(new BeaconRequestBody(request));
+  }
+
+  /* Top level "id" of each result; not findValuesAsText, which also digs into nested ontology terms. */
+  private static List<String> resultIds(JsonNode resultSet) {
+    List<String> ids = new ArrayList<>();
+    resultSet.get("results").forEach(result -> ids.add(result.path("id").asText()));
+    return ids;
   }
 
   private static JsonNode resultSetFor(JsonNode response, String schemaId) {

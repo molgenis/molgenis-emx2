@@ -10,9 +10,10 @@ import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
@@ -44,7 +45,7 @@ public class QueryEntryType {
 
   public JsonNode query(Schema schema) {
     Database database = schema.getDatabase();
-    ResolvedTemplate template = resolveTemplate(database, schema.getName());
+    ResolvedTemplate template = resolveTemplates(database).forSchema(schema.getName());
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
@@ -68,24 +69,69 @@ public class QueryEntryType {
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
+    Templates templates = resolveTemplates(database);
 
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
+    ArrayNode renderedEntries = mapper.createArrayNode();
 
     for (String schemaName : database.getSchemaNames()) {
       Schema entrySchema = database.getSchema(schemaName);
       if (entrySchema == null) continue;
-      ResolvedTemplate template = resolveTemplate(database, schemaName);
+      ResolvedTemplate template = templates.forSchema(schemaName);
       Table table = entrySchema.getTable(template.tableId());
-      if (table != null) {
-        numTotalResults += queryTable(table, filterParser, resultSets);
-      }
+      if (table == null) continue;
+
+      ArrayNode schemaResultSets = mapper.createArrayNode();
+      int schemaResults = queryTable(table, filterParser, schemaResultSets);
+      if (schemaResultSets.isEmpty()) continue;
+
+      numTotalResults += schemaResults;
+      resultSets.addAll(schemaResultSets);
+      renderedEntries.addAll(renderEntries(template, response, schemaResultSets, schemaResults));
     }
     if (!granularity.equals(Granularity.BOOLEAN)) {
       response.put("numTotalResults", numTotalResults);
     }
     response.set("resultSets", resultSets);
-    return getJsltResponse(null, response);
+
+    ObjectNode jsltResponse = getJsltResponse(null, response);
+    setEntries(jsltResponse, renderedEntries);
+    return jsltResponse;
+  }
+
+  private ArrayNode renderEntries(
+      ResolvedTemplate template, ObjectNode response, ArrayNode schemaResultSets, int count) {
+    ObjectNode schemaResponse = response.deepCopy();
+    if (!granularity.equals(Granularity.BOOLEAN)) {
+      schemaResponse.put("numTotalResults", count);
+    }
+    schemaResponse.set("resultSets", schemaResultSets);
+
+    JsonNode entries =
+        getJsltResponse(template.jslt(), schemaResponse).path("response").path(entriesField());
+    if (!entries.isArray()) {
+      throw new MolgenisException(
+          "Beacon template for endpoint beacon_"
+              + entryType.getName()
+              + " does not produce response."
+              + entriesField()
+              + ", so it cannot be combined with other schemas in a cross-schema query");
+    }
+    return (ArrayNode) entries;
+  }
+
+  private void setEntries(ObjectNode jsltResponse, ArrayNode entries) {
+    if (jsltResponse.get("response") instanceof ObjectNode responseNode) {
+      responseNode.set(entriesField(), entries);
+    }
+  }
+
+  private String entriesField() {
+    return switch (entryType) {
+      case COHORTS, DATASETS -> "collections";
+      default -> "resultSets";
+    };
   }
 
   private int queryTable(Table table, FilterParser filterParser, ArrayNode resultSets) {
@@ -153,53 +199,41 @@ public class QueryEntryType {
     return jsltResponse;
   }
 
-  /* Resolved template for a (schema, entry type): tableId always set; null jslt means use the packaged template. */
   private record ResolvedTemplate(String tableId, String jslt) {}
 
-  private ResolvedTemplate resolveTemplate(Database database, String schemaName) {
-    Row row = getTemplateRow(database, schemaName);
-    if (row == null) {
-      return new ResolvedTemplate(entryType.getId(), null);
+  private record Templates(Map<String, ResolvedTemplate> bySchema, ResolvedTemplate fallback) {
+    ResolvedTemplate forSchema(String schemaName) {
+      return bySchema.getOrDefault(schemaName, fallback);
     }
-    String tableId = Objects.requireNonNullElse(row.getString("tableName"), entryType.getId());
-    String jslt = row.getString("template");
-    return new ResolvedTemplate(tableId, jslt);
   }
 
-  private Row getTemplateRow(Database database, String schemaName) {
-    AtomicReference<Row> templateRow = new AtomicReference<>();
+  private Templates resolveTemplates(Database database) {
+    Map<String, ResolvedTemplate> bySchema = new HashMap<>();
+    String endpoint = "beacon_" + entryType.getName();
     database.tx(
         tx -> {
           String activeUser = tx.getActiveUser();
           try {
             tx.becomeAdmin();
             Table templatesTable = tx.getSchema(SYSTEM_SCHEMA).getTable("Templates");
-            String endpoint = "beacon_" + entryType.getName();
-            templateRow.set(
-                templatesTable.retrieveRows().stream()
-                    .filter(
-                        r ->
-                            schemaName.equals(r.getString("schema"))
-                                && endpoint.equals(r.getString("endpoint")))
-                    .findFirst()
-                    .orElse(null));
+            templatesTable.retrieveRows().stream()
+                .filter(r -> endpoint.equals(r.getString("endpoint")))
+                .forEach(r -> bySchema.putIfAbsent(r.getString("schema"), toResolvedTemplate(r)));
           } finally {
             tx.setActiveUser(activeUser);
           }
         });
-    return templateRow.get();
+    return new Templates(bySchema, new ResolvedTemplate(entryType.getId(), null));
+  }
+
+  private ResolvedTemplate toResolvedTemplate(Row row) {
+    String tableId = Objects.requireNonNullElse(row.getString("tableName"), entryType.getId());
+    return new ResolvedTemplate(tableId, row.getString("template"));
   }
 
   private void addEmptyResultSet(ObjectNode jsltResponse) {
-    switch (entryType) {
-      case COHORTS, DATASETS:
-        jsltResponse.set(
-            "response", mapper.createObjectNode().set("collections", mapper.createArrayNode()));
-        break;
-      default:
-        jsltResponse.set(
-            "response", mapper.createObjectNode().set("resultSets", mapper.createArrayNode()));
-    }
+    jsltResponse.set(
+        "response", mapper.createObjectNode().set(entriesField(), mapper.createArrayNode()));
   }
 
   private boolean hasResult(ArrayNode resultsArray) {
