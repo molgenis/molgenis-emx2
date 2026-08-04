@@ -1,5 +1,6 @@
 order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
 ,data highlight,,,,,,,
+,dot distribution map,,,map,,,,
 ,horizontal bar chart,,,,SIO,SIO:000444,http://semanticscience.org/resource/SIO_000444,
 ,line graph,,,,SIO,SIO:000442,http://semanticscience.org/resource/SIO_000442,
 ,map,,,,SIO,SIO:000906,http://semanticscience.org/resource/SIO_000906,
