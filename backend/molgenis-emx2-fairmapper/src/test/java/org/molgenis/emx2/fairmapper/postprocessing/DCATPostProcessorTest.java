@@ -33,9 +33,9 @@ class DCATPostProcessorTest {
         .run();
     schema = database.getSchema(SCHEMA_NAME).getMetadata();
 
-    InMemoryTableStore before =
-        tableStoreFromDirectory("dcat/after/", "Catalogues", "Collections", "Organisations");
     InMemoryTableStore after =
+        tableStoreFromDirectory("dcat/after/", "Catalogues", "Collections", "Organisations");
+    InMemoryTableStore before =
         tableStoreFromDirectory("dcat/before/", "Catalogues", "Collections", "Organisations");
 
     DCATPostProcessor postProcessor = new DCATPostProcessor(schema);
