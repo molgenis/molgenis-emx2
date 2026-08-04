@@ -22,6 +22,10 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
   @Override
   public void process(InMemoryTableStore tableStore) {
     for (String tableName : schema.getTableNames()) {
+      if (!tableStore.containsTable(tableName)) {
+        continue;
+      }
+
       List<Column> referenceColumns =
           schema.getTableMetadata(tableName).getColumns().stream()
               .filter(Column::isReference)
