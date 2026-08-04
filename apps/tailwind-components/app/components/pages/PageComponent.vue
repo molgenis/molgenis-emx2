@@ -28,7 +28,7 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-console.log("props", props);
+
 const emit = defineEmits(["updatePage"]);
 const showMenu = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
@@ -108,6 +108,7 @@ if(props.mg_tableclass === "cms.Sections") {
     :triggers="['hover', 'focus']"
     :popper-triggers="['hover', 'focus']"
     :delay="{ show: 100, hide: 200 }"
+    no-auto-focus
   >
     <template #popper>
       <ComponentActions
