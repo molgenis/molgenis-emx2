@@ -53,6 +53,17 @@ class ResolveMissingPkPostProcessorTest {
   }
 
   @Test
+  void shouldIgnoreNullValueRelations() {
+    store("Organisations", new Row("_subject_", "urn:org:1", "id", "org-1"));
+    store("Collections", new Row("id", "col-1", "_subject_publisher", null));
+
+    ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+    resolver.process(tableStore);
+
+    assertNull(collection().getString("publisher"));
+  }
+
+  @Test
   void shouldFillMissingArrayReferenceUsingPipeSeparatedSubjectIris() {
     store(
         "Organisations",
