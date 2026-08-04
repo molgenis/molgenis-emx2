@@ -68,7 +68,9 @@ describe("Configurable page", () => {
     expect(firstElem.element.tagName).toEqual("HEADER");
     expect(firstElem.element.id).toEqual("home-banner");
 
-    const secondElem = page.find("#configurable-page-main > div > div > div#welcome-section");
+    const secondElem = page.find(
+      "#configurable-page-main > div > div > div#welcome-section"
+    );
     expect(secondElem.element.tagName).toEqual("DIV");
     expect(secondElem.element.id).toEqual("welcome-section");
   });
