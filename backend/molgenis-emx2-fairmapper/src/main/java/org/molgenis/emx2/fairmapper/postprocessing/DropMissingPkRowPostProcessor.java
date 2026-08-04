@@ -6,7 +6,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class DropMissingPkRowPostProcessor implements PostProcessor {
   }
 
   @Override
-  public void process(TableStore tableStore) {
+  public void process(InMemoryTableStore tableStore) {
     for (String tableName : tableNames) {
       TableMetadata table = schema.getTableMetadata(tableName);
       List<Column> pkColumns = table.getPrimaryKeyColumns();

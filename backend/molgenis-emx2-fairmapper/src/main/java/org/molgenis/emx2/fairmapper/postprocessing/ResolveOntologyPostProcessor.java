@@ -6,7 +6,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.SelectColumn;
-import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class ResolveOntologyPostProcessor implements PostProcessor {
   }
 
   @Override
-  public void process(TableStore tableStore) {
+  public void process(InMemoryTableStore tableStore) {
     for (String table : tableStore.getTableNames()) {
       Iterable<Row> rows = tableStore.readTable(table);
       for (Column column : schema.getTableMetadata(table).getColumns()) {

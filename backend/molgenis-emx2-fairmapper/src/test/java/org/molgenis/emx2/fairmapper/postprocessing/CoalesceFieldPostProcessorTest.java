@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
-import org.molgenis.emx2.io.tablestore.TableStore;
 
 class CoalesceFieldPostProcessorTest {
 
@@ -19,7 +18,8 @@ class CoalesceFieldPostProcessorTest {
 
   @Test
   void givenSingleField_whenMatching_thenDeriveFromSingleField() {
-    TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
+    InMemoryTableStore tableStore =
+        getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
         new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "name");
@@ -35,7 +35,8 @@ class CoalesceFieldPostProcessorTest {
 
   @Test
   void givenSingleField_whenNotMatchingAndStrict_thenThrowException() {
-    TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
+    InMemoryTableStore tableStore =
+        getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
         new CoalesceFieldPostProcessor(TABLE_NAME, "id", true, "non-existent");
@@ -45,7 +46,8 @@ class CoalesceFieldPostProcessorTest {
 
   @Test
   void givenSingleField_whenNotMatchingAndNotStrict_thenUseNull() {
-    TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
+    InMemoryTableStore tableStore =
+        getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
         new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "non-existent");
@@ -56,7 +58,8 @@ class CoalesceFieldPostProcessorTest {
 
   @Test
   void givenFields_whenMultipleMatching_thenDeriveFromFirstOnly() {
-    TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
+    InMemoryTableStore tableStore =
+        getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
         new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "name", "barcode");
@@ -72,7 +75,8 @@ class CoalesceFieldPostProcessorTest {
 
   @Test
   void givenFields_whenLastMatching_thenDeriveFromLast() {
-    TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
+    InMemoryTableStore tableStore =
+        getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
         new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "non-existent", "name");
@@ -94,7 +98,7 @@ class CoalesceFieldPostProcessorTest {
 
   @Test
   void givenFields_whenTableHasMultipleRows_thenDeriveIndependentlyPerRow() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(
             new Row("name", "keyboard", "barcode", 1234),
             new Row("name", "mouse", "barcode", 6789));
@@ -117,7 +121,7 @@ class CoalesceFieldPostProcessorTest {
 
   @Test
   void givenFields_whenTableEmpty_thenNoOp() {
-    TableStore tableStore = getTableStoreWithRows();
+    InMemoryTableStore tableStore = getTableStoreWithRows();
 
     CoalesceFieldPostProcessor processor =
         new CoalesceFieldPostProcessor(TABLE_NAME, "id", false, "name");
@@ -128,7 +132,7 @@ class CoalesceFieldPostProcessorTest {
 
   @Test
   void givenFields_whenTargetFieldAlreadyHasValue_thenOverwriteWithDerivedValue() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(new Row("id", "some-id", "name", "keyboard", "barcode", 1234));
 
     CoalesceFieldPostProcessor processor =
@@ -143,7 +147,7 @@ class CoalesceFieldPostProcessorTest {
             "barcode", 1234));
   }
 
-  private TableStore getTableStoreWithRows(Row... rows) {
+  private InMemoryTableStore getTableStoreWithRows(Row... rows) {
     InMemoryTableStore store = new InMemoryTableStore();
     if (rows.length == 0) {
       store.writeTable(TABLE_NAME, List.of(), List.of());
@@ -154,7 +158,7 @@ class CoalesceFieldPostProcessorTest {
     return store;
   }
 
-  private void assertTableStoreHasRows(TableStore tableStore, Row... rows) {
+  private void assertTableStoreHasRows(InMemoryTableStore tableStore, Row... rows) {
     List<Row> actual =
         StreamSupport.stream(tableStore.readTable(TABLE_NAME).spliterator(), false).toList();
     List<Row> expected = Arrays.stream(rows).toList();

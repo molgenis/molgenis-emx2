@@ -17,7 +17,7 @@ class ResolveStaticFieldPostProcessorTest {
 
   @Test
   void givenField_whenExisting_thenOverride() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(new Row("id", "temp", "name", "keyboard", "barcode", 1234));
 
     ResolveStaticFieldPostProcessor processor =
@@ -34,7 +34,8 @@ class ResolveStaticFieldPostProcessorTest {
 
   @Test
   void givenField_whenNotExisting_thenCreate() {
-    TableStore tableStore = getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
+    InMemoryTableStore tableStore =
+        getTableStoreWithRows(new Row("name", "keyboard", "barcode", 1234));
 
     ResolveStaticFieldPostProcessor processor =
         new ResolveStaticFieldPostProcessor(TABLE_NAME, "id", "static-id");
@@ -46,7 +47,7 @@ class ResolveStaticFieldPostProcessorTest {
 
   @Test
   void givenField_whenTableEmpty_thenNoOp() {
-    TableStore tableStore = getTableStoreWithRows();
+    InMemoryTableStore tableStore = getTableStoreWithRows();
 
     ResolveStaticFieldPostProcessor processor =
         new ResolveStaticFieldPostProcessor(TABLE_NAME, "id", "name");
@@ -57,7 +58,7 @@ class ResolveStaticFieldPostProcessorTest {
 
   @Test
   void givenFields_whenTableHasMultipleRows_thenHandleIndependentlyPerRow() {
-    TableStore tableStore =
+    InMemoryTableStore tableStore =
         getTableStoreWithRows(
             new Row("name", "keyboard", "barcode", 1234),
             new Row("name", "mouse", "barcode", 6789));
@@ -72,7 +73,7 @@ class ResolveStaticFieldPostProcessorTest {
         new Row("id", "static-id", "name", "mouse", "barcode", 6789));
   }
 
-  private TableStore getTableStoreWithRows(Row... rows) {
+  private InMemoryTableStore getTableStoreWithRows(Row... rows) {
     InMemoryTableStore store = new InMemoryTableStore();
     if (rows.length == 0) {
       store.writeTable(TABLE_NAME, List.of(), List.of());
