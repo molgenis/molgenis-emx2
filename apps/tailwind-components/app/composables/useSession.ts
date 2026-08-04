@@ -29,7 +29,7 @@ export const useSession = async (schemaId?: string) => {
 
   async function loadSession() {
     const permissionsPromise = schemaId
-      ? useAsyncData("schemaRoles_" + schemaId, () =>
+      ? useAsyncData("permissions_" + schemaId, () =>
           fetchPermissions(schemaId)
         )
       : Promise.resolve(null);
