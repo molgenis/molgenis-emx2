@@ -175,6 +175,132 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void mgRolesDefaultsToOwnRoleOnInsertWhenOmitted() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .insert(
+                    new Row().setString("id", "mg_default").setString("title", "No role given")));
+
+    database.becomeAdmin();
+    assertArrayEquals(
+        new String[] {"TeamA"},
+        retrieveArticle("mg_default").getStringArray(MG_ROLES),
+        "row should be owned by the role that inserted it");
+
+    database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "mg_default"));
+  }
+
+  @Test
+  void mgRolesDefaultsToOwnRoleOnSaveWhenEmptyArrayGiven() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .save(
+                    new Row()
+                        .setString("id", "mg_default_save")
+                        .setString("title", "Empty roles given")
+                        .set(MG_ROLES, new String[] {})));
+
+    database.becomeAdmin();
+    assertArrayEquals(
+        new String[] {"TeamA"}, retrieveArticle("mg_default_save").getStringArray(MG_ROLES));
+
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_default_save"));
+  }
+
+  @Test
+  void mgRolesDefaultIsVisibleToOwnRoleOnly() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db -> {
+          Table articles = db.getSchema(SCHEMA).getTable(ARTICLES);
+          articles.insert(new Row().setString("id", "mg_default_visible"));
+          assertTrue(
+              articles.retrieveRows().stream()
+                  .anyMatch(r -> "mg_default_visible".equals(r.getString("id"))),
+              "inserter should see its own row");
+        });
+
+    database.setActiveUser(USER_TEAM_B);
+    database.tx(
+        db ->
+            assertFalse(
+                db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().stream()
+                    .anyMatch(r -> "mg_default_visible".equals(r.getString("id"))),
+                "other role should not see the row"));
+
+    database.becomeAdmin();
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_default_visible"));
+  }
+
+  @Test
+  void mgRolesIsNotDefaultedForUsersWithUnrestrictedAccess() {
+    database.becomeAdmin();
+    String editorUser = "rls_user_editor_default";
+    if (!database.hasUser(editorUser)) database.addUser(editorUser);
+    database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
+
+    database.setActiveUser(editorUser);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .insert(new Row().setString("id", "mg_editor").setString("title", "Editor row")));
+
+    database.becomeAdmin();
+    assertNull(
+        retrieveArticle("mg_editor").getStringArray(MG_ROLES),
+        "editors write unowned rows, as before");
+
+    database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "mg_editor"));
+  }
+
+  @Test
+  void mgRolesOfExistingRowIsNotChangedByUpdate() {
+    database.becomeAdmin();
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .insert(
+            new Row()
+                .setString("id", "mg_update")
+                .setString("title", "before")
+                .set(MG_ROLES, new String[] {"TeamA"}));
+
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .update(new Row().setString("id", "mg_update").setString("title", "after")));
+
+    database.becomeAdmin();
+    Row updated = retrieveArticle("mg_update");
+    assertEquals("after", updated.getString("title"));
+    assertArrayEquals(new String[] {"TeamA"}, updated.getStringArray(MG_ROLES));
+
+    database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "mg_update"));
+  }
+
+  private static Row retrieveArticle(String id) {
+    return database.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().stream()
+        .filter(r -> id.equals(r.getString("id")))
+        .findFirst()
+        .orElseThrow();
+  }
+
+  @Test
   void teamAUserSeesOnlyTeamARows() {
     database.setActiveUser(USER_TEAM_A);
     database.tx(
