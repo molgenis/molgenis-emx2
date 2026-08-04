@@ -54,7 +54,7 @@ class SparqlSelectRdfTransformerTest {
 
   @Test
   void givenData_thenQueryTable() throws IOException {
-    String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_petstore";
+    String schemaName = "SparqlSelectRdfTransformer_petstore";
     database.dropSchemaIfExists(schemaName);
     DataModels.Profile.PET_STORE
         .getImportTask(database, schemaName, "RDF data transformation test", false)

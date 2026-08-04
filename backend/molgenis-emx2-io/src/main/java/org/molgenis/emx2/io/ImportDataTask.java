@@ -63,6 +63,7 @@ public class ImportDataTask extends Task {
             && !"molgenis".equals(sheet)
             && !"molgenis_settings".equals(sheet)
             && !"molgenis_members".equals(sheet)
+            && !"molgenis_roles".equals(sheet)
             && !schema.hasTableWithNameOrIdCaseInsensitive(sheet)) {
           this.addSubTask(
                   "Skipped sheet with name '%s': no table with that name found"

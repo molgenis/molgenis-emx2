@@ -5,6 +5,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.emx2.Emx2Members;
+import org.molgenis.emx2.io.emx2.Emx2Roles;
 import org.molgenis.emx2.io.emx2.Emx2Settings;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
@@ -29,13 +30,22 @@ public class ImportMetadataTask extends Task {
       // attempt emx2
       if (store.containsTable(MOLGENIS)
           || store.containsTable("molgenis_settings")
-          || store.containsTable("molgenis_members")) {
+          || store.containsTable("molgenis_members")
+          || store.containsTable("molgenis_roles")) {
 
         if (store.containsTable(MOLGENIS)) {
           schema.migrate(Emx2.fromRowList(store.readTable(MOLGENIS)));
           this.addSubTask("Loaded tables and columns from 'molgenis' sheet").complete();
         } else {
           this.addSubTask("Metadata loading skipped: 'molgenis' sheet not included in the file")
+              .setSkipped();
+        }
+        if (store.containsTable("molgenis_roles")) {
+          int count = Emx2Roles.inputRoles(store, schema);
+          this.addSubTask("Loaded %s roles from 'molgenis_roles' sheet".formatted(count))
+              .complete();
+        } else {
+          this.addSubTask("Roles loading skipped: 'molgenis_roles' sheet not included in the file")
               .setSkipped();
         }
 
