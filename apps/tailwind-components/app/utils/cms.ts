@@ -176,7 +176,6 @@ export async function addBlock(
 }
 
 async function AddSection(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -194,7 +193,6 @@ async function AddSection(schema: string, id: string) {
 }
 
 async function AddHeader(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -229,7 +227,6 @@ async function AddHeader(schema: string, id: string) {
 }
 
 async function AddImage(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -256,7 +253,6 @@ async function AddImage(schema: string, id: string) {
 }
 
 async function AddHeading(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -277,7 +273,6 @@ async function AddHeading(schema: string, id: string) {
 }
 
 async function AddParagraph(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -353,7 +348,6 @@ async function prepareOrder(
   schema: string,
   order: number,
   block: string,
-  offset: number = 1
 ) {
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
@@ -465,6 +459,7 @@ async function AddOrder(
   });
   return true;
 }
+
 async function AddBlockOrder(
   schema: string,
   id: string,

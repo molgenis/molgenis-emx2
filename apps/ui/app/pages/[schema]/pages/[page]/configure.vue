@@ -39,11 +39,9 @@ const enableEditing = computed(() => {
 });
 
 async function updatePage() {
-  console.log("Updatepage");
   const updatedPageData = await getPage(schema as string, page);
   pageData.value.page = updatedPageData.page;
   pageData.value.metadata = updatedPageData.metadata;
-  console.log(pageData.value);
   return updatedPageData;
 }
 </script>

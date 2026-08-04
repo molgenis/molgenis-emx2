@@ -14,7 +14,6 @@ import EditModal from "../form/EditModal.vue";
 import { deleteBlock, deleteComponent, parsePageText } from "../../utils/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type { IComponentOrders } from "../../..//types/cms";
 
 const props = withDefaults(
   defineProps<{
@@ -29,7 +28,7 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-
+console.log("props", props);
 const emit = defineEmits(["updatePage"]);
 const showMenu = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
@@ -92,11 +91,15 @@ const menuPlacement = computed<string>(() => {
   ) {
     placement = "top";
   }
+if(props.mg_tableclass === "cms.Sections") {
+  placement = "left-start";
+}
   return placement;
 });
 </script>
 
 <template>
+
   <VMenu
     :placement="menuPlacement"
     :disabled="!isEditable"
@@ -109,7 +112,7 @@ const menuPlacement = computed<string>(() => {
     <template #popper>
       <ComponentActions
         v-if="isEditable"
-        :name="componentMetadata?.name"
+        :name="componentMetadata?.name.replace(/s$/, '')"
         @edit="showEditModal = true"
         @delete="onDelete"
       />
@@ -131,6 +134,7 @@ const menuPlacement = computed<string>(() => {
       v-model:showMenu="showMenu"
       :id="component.id"
       :enable-full-screen-width="component.enableFullScreenWidth"
+      :is-editable="editingIsEnabled"
     >
       <slot></slot>
     </Section>
@@ -177,7 +181,6 @@ const menuPlacement = computed<string>(() => {
       :text="`Component ${mg_tableclass} is not yet supported`"
     />
   </VMenu>
-
   <EditModal
     v-if="componentMetadata && showEditModal"
     :key="`edit-modal-${componentMetadata.id}`"

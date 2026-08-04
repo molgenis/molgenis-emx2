@@ -84,7 +84,9 @@ const sidebarCollapsed = ref(false);
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
           :parent="content.name"
+          :is-editable="isEditable"
           componentType="Block"
+          :metadata="metadata"
           @updatePage="$emit('updatePage')"
         >
           <ComponentDropZone
