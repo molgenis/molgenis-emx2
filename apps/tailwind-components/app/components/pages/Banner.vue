@@ -47,6 +47,8 @@ const showMenu = ref<boolean>(true);
     <ComponentActions
       v-if="isEditable && showMenu"
       name="Header"
+      :id="`${id}-toolbar`"
+      :aria-controls="id"
       @edit="$emit('edit')"
       @delete="$emit('delete')"
       class="right-2 top-2 !left-auto"

@@ -13,7 +13,7 @@ const showMenu = ref<boolean>(false);
 </script>
 
 <template>
-  <div class="w-full flex relative">
+  <div :id="id" class="w-full flex relative">
     <VMenu
       v-if="isEditable"
       v-model:shown="showMenu"
@@ -28,6 +28,8 @@ const showMenu = ref<boolean>(false);
       <template #popper>
         <ComponentActions
           name="Section"
+          :id="`${id}-toolbar`"
+          :aria-controls="id"
           @edit="$emit('edit')"
           @delete="$emit('delete')"
         />
@@ -43,7 +45,7 @@ const showMenu = ref<boolean>(false);
       </div>
     </VMenu>
 
-    <div :id="id" class="w-full py-8 justify-center items-center">
+    <div class="w-full py-8 justify-center items-center">
       <div
         class="m-auto"
         :class="{

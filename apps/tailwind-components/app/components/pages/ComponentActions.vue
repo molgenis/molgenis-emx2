@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<{ name?: string }>(), {});
         size="tiny"
         icon="edit"
         type="inline"
-        :label="`Edit ${name}`"
+        label="edit"
         @click="$emit('edit')"
       />
       <Button
@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<{ name?: string }>(), {});
         size="tiny"
         icon="trash"
         type="inline"
-        :label="`Delete ${name}`"
+        label="delete"
         @click="$emit('delete')"
       />
     </div>

@@ -42,6 +42,8 @@ if (props.height) {
       <ComponentActions
         v-if="isEditable && showMenu"
         name="Image"
+        :id="`${id}-toolbar`"
+        :aria-controls="id"
         @edit="$emit('edit')"
         @delete="$emit('delete')"
         class="right-2 top-2 !left-auto"

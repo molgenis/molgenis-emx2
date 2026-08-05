@@ -35,6 +35,8 @@ const renderedText = computed<string | undefined>(() => {
     <template #popper>
       <ComponentActions
         name="Paragraph"
+        :id="`${id}-toolbar`"
+        :aria-controls="id"
         @edit="$emit('edit')"
         @delete="$emit('delete')"
       />

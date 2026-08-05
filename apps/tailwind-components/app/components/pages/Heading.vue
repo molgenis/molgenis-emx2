@@ -27,6 +27,8 @@ withDefaults(defineProps<IHeadings & { isEditable?: boolean }>(), {
     <template #popper>
       <ComponentActions
         name="Heading"
+        :id="`${id}-toolbar`"
+        :aria-controls="id"
         @edit="$emit('edit')"
         @delete="$emit('delete')"
       />
