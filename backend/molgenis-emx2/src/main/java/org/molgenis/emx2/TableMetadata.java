@@ -34,6 +34,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String oldName;
   // use to classify the table, influences display, import, export, etc
   private TableType tableType = TableType.DATA;
+  // SQL query used when tableType is VIEW
+  private String viewSql = null;
   // table semantics, typically an ontology URI
   private String[] semantics = null;
   // profiles to which this table belongs
@@ -110,6 +112,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.semantics = metadata.getSemantics();
       this.profiles = metadata.getProfiles();
       this.tableType = metadata.getTableType();
+      this.viewSql = metadata.getViewSql();
     }
   }
 
@@ -593,6 +596,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public TableMetadata setTableType(TableType tableType) {
     this.tableType = tableType;
+    return this;
+  }
+
+  public String getViewSql() {
+    return viewSql;
+  }
+
+  public TableMetadata setViewSql(String viewSql) {
+    this.viewSql = viewSql;
     return this;
   }
 

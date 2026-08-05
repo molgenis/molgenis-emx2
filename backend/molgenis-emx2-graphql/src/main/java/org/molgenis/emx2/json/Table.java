@@ -27,6 +27,7 @@ public class Table {
   private String[] profiles = null;
   private String id;
   private TableType tableType;
+  private String viewSql;
 
   public Table() {
     // for json serialisation
@@ -90,6 +91,7 @@ public class Table {
       this.columns.add(0, firstHeading);
     }
     this.tableType = tableMetadata.getTableType();
+    this.viewSql = tableMetadata.getViewSql();
     this.profiles = tableMetadata.getProfiles();
   }
 
@@ -187,6 +189,14 @@ public class Table {
 
   public void setTableType(TableType tableType) {
     this.tableType = tableType;
+  }
+
+  public String getViewSql() {
+    return viewSql;
+  }
+
+  public void setViewSql(String viewSql) {
+    this.viewSql = viewSql;
   }
 
   public List<LanguageValue> getLabels() {

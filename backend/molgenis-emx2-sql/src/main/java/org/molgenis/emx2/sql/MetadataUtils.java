@@ -61,6 +61,8 @@ public class MetadataUtils {
   private static final Field<String[]> TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
   private static final Field<String> TABLE_TYPE = field(name("table_type"), VARCHAR.nullable(true));
+  private static final Field<String> TABLE_VIEW_SQL =
+      field(name("view_sql"), VARCHAR.nullable(true));
 
   // column
   private static final Field<String> COLUMN_NAME =
@@ -220,7 +222,8 @@ public class MetadataUtils {
                         TABLE_IMPORT_SCHEMA,
                         TABLE_DESCRIPTION,
                         TABLE_SEMANTICS,
-                        TABLE_TYPE)
+                        TABLE_TYPE,
+                        TABLE_VIEW_SQL)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME),
                         foreignKey(TABLE_SCHEMA)
@@ -364,6 +367,7 @@ public class MetadataUtils {
               TABLE_DESCRIPTION,
               TABLE_SEMANTICS,
               TABLE_TYPE,
+              TABLE_VIEW_SQL,
               SETTINGS)
           .values(
               table.getSchema().getName(),
@@ -374,6 +378,7 @@ public class MetadataUtils {
               table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
+              table.getViewSql(),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
@@ -383,6 +388,7 @@ public class MetadataUtils {
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
+          .set(TABLE_VIEW_SQL, table.getViewSql())
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
@@ -512,6 +518,7 @@ public class MetadataUtils {
     if (r.get(TABLE_TYPE, String.class) != null) {
       table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
     }
+    table.setViewSql(r.get(TABLE_VIEW_SQL, String.class));
     return table;
   }
 

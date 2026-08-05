@@ -55,6 +55,9 @@ public class Schema {
       if (t.getTableType() != null) {
         tm.setTableType(t.getTableType());
       }
+      if (t.getViewSql() != null) {
+        tm.setViewSql(t.getViewSql());
+      }
       if (t.getDrop()) tm.drop();
       tm.setSemantics(t.getSemantics());
       tm.setLabels(

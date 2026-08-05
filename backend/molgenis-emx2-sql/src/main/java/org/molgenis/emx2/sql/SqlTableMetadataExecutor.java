@@ -27,6 +27,12 @@ class SqlTableMetadataExecutor {
 
   static void executeCreateTable(DSLContext jooq, SqlTableMetadata table) {
 
+    // if this is a VIEW type, create a PostgreSQL view instead of a regular table
+    if (TableType.VIEW.equals(table.getTableType())) {
+      executeCreateView(jooq, table);
+      return;
+    }
+
     // create the table
     Table jooqTable = table.getJooqTable();
     jooq.execute("CREATE TABLE {0}()", jooqTable);
@@ -275,8 +281,57 @@ class SqlTableMetadataExecutor {
     }
   }
 
+  private static void executeCreateView(DSLContext jooq, SqlTableMetadata table) {
+    if (table.getViewSql() == null || table.getViewSql().isBlank()) {
+      throw new MolgenisException(
+          "Cannot create view '"
+              + table.getTableName()
+              + "': viewSql must be provided when tableType is VIEW");
+    }
+    // Create the PostgreSQL view using the provided SQL
+    jooq.execute(
+        "CREATE OR REPLACE VIEW {0} AS {1}",
+        name(table.getSchema().getName(), table.getTableName()),
+        keyword(table.getViewSql()));
+    MetadataUtils.saveTableMetadata(jooq, table);
+
+    // Grant SELECT to schema roles
+    Name jooqView = name(table.getSchema().getName(), table.getTableName());
+    String rolePrefix = getRolePrefix(table);
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqView, name(rolePrefix + Privileges.EXISTS.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqView, name(rolePrefix + Privileges.RANGE.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqView, name(rolePrefix + Privileges.AGGREGATOR.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqView, name(rolePrefix + Privileges.COUNT.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqView, name(rolePrefix + Privileges.VIEWER.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqView, name(rolePrefix + Privileges.EDITOR.toString()));
+    jooq.execute(
+        "ALTER VIEW {0} OWNER TO {1}",
+        jooqView, name(rolePrefix + Privileges.MANAGER.toString()));
+  }
+
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
+      // if this is a VIEW, just drop the view and remove metadata
+      if (TableType.VIEW.equals(table.getTableType())) {
+        jooq.execute(
+            "DROP VIEW IF EXISTS {0}",
+            name(table.getSchema().getName(), table.getTableName()));
+        MetadataUtils.deleteTable(jooq, table);
+        return;
+      }
+
       // disableChangeLog
       disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
 
