@@ -62,7 +62,7 @@ export default async (
       throw fetchErrorToNuxtError(error, message);
     });
 
-  const data = response?.data ?? {};
+  const data = response?._data.data ?? {};
 
   return { rows: data[tableId], count: data[`${tableId}_agg`].count };
 };
