@@ -129,6 +129,7 @@ const sidebarCollapsed = ref(false);
         <TextParagraph
           v-else
           id="block-does-not-exist-message"
+          name="Error"
           :text="`Block ${orderedBlock.block.mg_tableclass} is not yet supported.`"
         />
         <ComponentDropZone

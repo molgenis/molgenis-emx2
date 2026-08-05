@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { IImages } from "../../../types/cms";
+import ComponentActions from "./ComponentActions.vue";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,
   imageIsCentered: false,
 });
-const showMenu = defineModel("showMenu");
+const emit = defineEmits(["edit", "delete"]);
+const showMenu = ref<boolean>(true);
 
 const src = ref<string>();
 if (props.image?.url) {
@@ -24,13 +26,26 @@ if (props.height) {
 </script>
 
 <template>
-  <img
-    :id="id"
-    :src="src"
-    :class="{
-      'm-auto': imageIsCentered,
-    }"
-    :alt="alt"
-    :style="style"
-  />
+  <div
+    class="w-full"
+    @mouseenter="showMenu = true"
+    @mouseleave="showMenu = false"
+  >
+    <div
+      class="relative"
+      :class="{
+        'm-auto': imageIsCentered,
+      }"
+      :style="style"
+    >
+      <img :id="id" :src="src" :alt="alt" />
+      <ComponentActions
+        v-if="isEditable && showMenu"
+        name="Image"
+        @edit="$emit('edit')"
+        @delete="$emit('delete')"
+        class="right-2 top-2 !left-auto"
+      />
+    </div>
+  </div>
 </template>
