@@ -24,7 +24,10 @@ public class CsvTableWriter {
       // fromReader all values into strings first
       Map<String, String> values = new LinkedHashMap<>();
       for (String columnName : r.getColumnNames()) {
-        values.put(columnName, r.getString(columnName));
+        // We remove all prefixing _ characters of column names because SFM csv writer has a bug
+        // that prevents values with a key that start with a _ are skipped. Because of the ordering,
+        // they appear under the correct header column.
+        values.put(columnName.replaceFirst("^_+", ""), r.getString(columnName));
       }
       csvWriter.append(values);
     }
