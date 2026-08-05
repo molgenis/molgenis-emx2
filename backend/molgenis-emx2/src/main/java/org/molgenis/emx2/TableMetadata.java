@@ -36,6 +36,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private TableType tableType = TableType.DATA;
   // SQL query used when tableType is VIEW
   private String viewSql = null;
+  // tables/joins used when tableType is VIEW and viewSql is not explicitly set
+  // e.g. "Patients p JOIN Orders o ON o.patient_id = p.id"
+  private String viewTables = null;
   // table semantics, typically an ontology URI
   private String[] semantics = null;
   // profiles to which this table belongs
@@ -113,6 +116,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.profiles = metadata.getProfiles();
       this.tableType = metadata.getTableType();
       this.viewSql = metadata.getViewSql();
+      this.viewTables = metadata.getViewTables();
     }
   }
 
@@ -605,6 +609,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public TableMetadata setViewSql(String viewSql) {
     this.viewSql = viewSql;
+    return this;
+  }
+
+  public String getViewTables() {
+    return viewTables;
+  }
+
+  public TableMetadata setViewTables(String viewTables) {
+    this.viewTables = viewTables;
     return this;
   }
 

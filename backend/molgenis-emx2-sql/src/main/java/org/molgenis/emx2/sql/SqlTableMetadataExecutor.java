@@ -10,7 +10,10 @@ import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.utils.ColumnSort.sortColumnsByDependency;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.jooq.*;
 import org.jooq.Record;
@@ -282,17 +285,18 @@ class SqlTableMetadataExecutor {
   }
 
   private static void executeCreateView(DSLContext jooq, SqlTableMetadata table) {
-    if (table.getViewSql() == null || table.getViewSql().isBlank()) {
+    String sql = resolveViewSql(table);
+    if (sql == null || sql.isBlank()) {
       throw new MolgenisException(
           "Cannot create view '"
               + table.getTableName()
-              + "': viewSql must be provided when tableType is VIEW");
+              + "': either viewSql or viewTables (with column computed expressions) must be provided when tableType is VIEW");
     }
-    // Create the PostgreSQL view using the provided SQL
+    // Create the PostgreSQL view using the resolved SQL
     jooq.execute(
         "CREATE OR REPLACE VIEW {0} AS {1}",
         name(table.getSchema().getName(), table.getTableName()),
-        keyword(table.getViewSql()));
+        keyword(sql));
     MetadataUtils.saveTableMetadata(jooq, table);
 
     // Grant SELECT to schema roles
@@ -319,6 +323,81 @@ class SqlTableMetadataExecutor {
     jooq.execute(
         "ALTER VIEW {0} OWNER TO {1}",
         jooqView, name(rolePrefix + Privileges.MANAGER.toString()));
+  }
+
+  /**
+   * Resolves the SQL to use for a VIEW. If viewSql is explicitly provided, it is used as-is. If
+   * viewTables is set instead, generates a SELECT statement from the column computed expressions
+   * and the viewTables FROM/JOIN clause, qualifying table references with the schema name.
+   */
+  static String resolveViewSql(TableMetadata table) {
+    if (table.getViewSql() != null && !table.getViewSql().isBlank()) {
+      return table.getViewSql();
+    }
+    if (table.getViewTables() != null && !table.getViewTables().isBlank()) {
+      // Build SELECT list from columns that have a computed expression
+      List<Column> columns = table.getLocalColumns();
+      List<String> selectExpressions = new ArrayList<>();
+      for (Column col : columns) {
+        if (!col.isSystemColumn()) {
+          if (col.getComputed() != null && !col.getComputed().isBlank()) {
+            selectExpressions.add(col.getComputed() + " AS \"" + col.getName() + "\"");
+          } else {
+            selectExpressions.add("\"" + col.getName() + "\"");
+          }
+        }
+      }
+      String selectClause = selectExpressions.isEmpty() ? "*" : String.join(", ", selectExpressions);
+      // Qualify each table name token in viewTables with the schema name
+      String fromClause = qualifyViewTables(table.getViewTables(), table.getSchemaName());
+      return "SELECT " + selectClause + " FROM " + fromClause;
+    }
+    return null;
+  }
+
+  /**
+   * Qualifies bare table name tokens in a FROM/JOIN clause with the given schema name. Tokens
+   * recognised as table names are unquoted identifiers that appear at the start or after JOIN
+   * keywords and are not SQL keywords.
+   */
+  private static final Set<String> SQL_JOIN_KEYWORDS =
+      new HashSet<>(
+          Arrays.asList(
+              "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "OUTER", "CROSS", "NATURAL", "ON",
+              "USING", "AND", "OR", "NOT", "WHERE", "AS"));
+
+  static String qualifyViewTables(String viewTables, String schemaName) {
+    // Tokenise by whitespace, preserving delimiters, and qualify bare identifiers that follow
+    // FROM/JOIN positions. We use a simple state-machine approach.
+    String[] tokens = viewTables.split("(?<=\\s)|(?=\\s)");
+    StringBuilder sb = new StringBuilder();
+    boolean expectTableName = true; // first token is always a table name
+    for (String token : tokens) {
+      if (token.isBlank()) {
+        sb.append(token);
+        continue;
+      }
+      String upper = token.toUpperCase();
+      if (SQL_JOIN_KEYWORDS.contains(upper)) {
+        sb.append(token);
+        // After JOIN keyword the next non-keyword token is a table name
+        if (upper.equals("JOIN")) {
+          expectTableName = true;
+        } else {
+          expectTableName = false;
+        }
+      } else if (expectTableName && !token.startsWith("\"") && !token.startsWith("(")) {
+        // Strip any trailing comma or parenthesis to isolate the identifier
+        String identifier = token.replaceAll("[,();]", "");
+        String suffix = token.substring(identifier.length());
+        sb.append("\"").append(schemaName).append("\".\"").append(identifier).append("\"").append(suffix);
+        expectTableName = false;
+      } else {
+        sb.append(token);
+        expectTableName = false;
+      }
+    }
+    return sb.toString();
   }
 
   static void executeDropTable(DSLContext jooq, TableMetadata table) {

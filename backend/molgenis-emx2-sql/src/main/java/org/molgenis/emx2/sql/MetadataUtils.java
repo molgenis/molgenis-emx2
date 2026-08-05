@@ -63,6 +63,8 @@ public class MetadataUtils {
   private static final Field<String> TABLE_TYPE = field(name("table_type"), VARCHAR.nullable(true));
   private static final Field<String> TABLE_VIEW_SQL =
       field(name("view_sql"), VARCHAR.nullable(true));
+  private static final Field<String> TABLE_VIEW_TABLES =
+      field(name("view_tables"), VARCHAR.nullable(true));
 
   // column
   private static final Field<String> COLUMN_NAME =
@@ -223,7 +225,8 @@ public class MetadataUtils {
                         TABLE_DESCRIPTION,
                         TABLE_SEMANTICS,
                         TABLE_TYPE,
-                        TABLE_VIEW_SQL)
+                        TABLE_VIEW_SQL,
+                        TABLE_VIEW_TABLES)
                     .constraints(
                         primaryKey(TABLE_SCHEMA, TABLE_NAME),
                         foreignKey(TABLE_SCHEMA)
@@ -368,6 +371,7 @@ public class MetadataUtils {
               TABLE_SEMANTICS,
               TABLE_TYPE,
               TABLE_VIEW_SQL,
+              TABLE_VIEW_TABLES,
               SETTINGS)
           .values(
               table.getSchema().getName(),
@@ -379,6 +383,7 @@ public class MetadataUtils {
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
               table.getViewSql(),
+              table.getViewTables(),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
@@ -389,6 +394,7 @@ public class MetadataUtils {
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
           .set(TABLE_VIEW_SQL, table.getViewSql())
+          .set(TABLE_VIEW_TABLES, table.getViewTables())
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
@@ -519,6 +525,7 @@ public class MetadataUtils {
       table.setTableType(TableType.valueOf(r.get(TABLE_TYPE, String.class)));
     }
     table.setViewSql(r.get(TABLE_VIEW_SQL, String.class));
+    table.setViewTables(r.get(TABLE_VIEW_TABLES, String.class));
     return table;
   }
 

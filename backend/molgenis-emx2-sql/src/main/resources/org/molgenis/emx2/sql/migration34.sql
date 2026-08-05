@@ -1,0 +1,1 @@
+ALTER TABLE "MOLGENIS"."table_metadata" ADD COLUMN IF NOT EXISTS view_tables VARCHAR;

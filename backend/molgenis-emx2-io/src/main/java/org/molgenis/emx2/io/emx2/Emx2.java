@@ -36,6 +36,7 @@ public class Emx2 {
   private static final String COLUMN_POSITION = "position";
   private static final String TABLE_TYPE = "tableType";
   private static final String VIEW_SQL = "viewSql";
+  private static final String VIEW_TABLES = "viewTables";
   private static final String PROFILES = "profiles";
   private static final String COLUMN_FORM_LABEL = "formLabel";
 
@@ -75,6 +76,9 @@ public class Emx2 {
         }
         if (row.getString(VIEW_SQL) != null) {
           schema.getTableMetadata(tableName).setViewSql(row.getString(VIEW_SQL));
+        }
+        if (row.getString(VIEW_TABLES) != null) {
+          schema.getTableMetadata(tableName).setViewTables(row.getString(VIEW_TABLES));
         }
 
         if (row.getString(OLD_NAME) != null) {
@@ -192,6 +196,7 @@ public class Emx2 {
             TABLE_EXTENDS,
             TABLE_TYPE,
             VIEW_SQL,
+            VIEW_TABLES,
             COLUMN_NAME,
             COLUMN_FORM_LABEL,
             COLUMN_TYPE,
@@ -257,6 +262,7 @@ public class Emx2 {
               ? "ONTOLOGIES"
               : table.getTableType().equals(TableType.VIEW) ? "VIEW" : null);
       row.setString(VIEW_SQL, table.getViewSql());
+      row.setString(VIEW_TABLES, table.getViewTables());
       row.setString(COLUMN_NAME, null);
       row.setString(COLUMN_FORM_LABEL, null);
       row.setString(COLUMN_TYPE, null);
