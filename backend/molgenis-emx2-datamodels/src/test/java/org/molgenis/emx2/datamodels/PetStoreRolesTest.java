@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-/** Verifies the molgenis_roles.csv of the PetStore profile is applied on import. */
 class PetStoreRolesTest {
 
   private static final String SCHEMA = "PetStoreRolesTest";
@@ -36,11 +35,11 @@ class PetStoreRolesTest {
             .filter(p -> "Pet".equals(p.table()))
             .findFirst()
             .orElseThrow(() -> new AssertionError("no permission on Pet: " + role.permissions()));
-    assertEquals(Boolean.TRUE, permission.select());
-    assertEquals(Boolean.TRUE, permission.insert());
-    assertEquals(Boolean.TRUE, permission.update());
-    assertEquals(Boolean.TRUE, permission.delete());
-    assertEquals(Boolean.TRUE, permission.isRowLevel());
+    assertTrue(permission.select());
+    assertTrue(permission.insert());
+    assertTrue(permission.update());
+    assertTrue(permission.delete());
+    assertTrue(permission.isRowLevel());
   }
 
   @Test
@@ -68,12 +67,6 @@ class PetStoreRolesTest {
     assertArrayEquals(new String[] {DRAGON_KEEPER}, rows.get(0).getStringArray(MG_ROLES));
   }
 
-  /**
-   * The PetStore grants 'anonymous' the Viewer role and every user inherits the anonymous user
-   * role, so every user hits the VIEWER_BYPASS policy and sees all rows: the row-level grant on
-   * DragonKeeper restricts nobody here. This test pins that down; if the PetStore ever stops
-   * granting anonymous Viewer, it should start failing and the demo becomes meaningful.
-   */
   @Test
   void everyoneSeesSmaugBecausePetStoreGrantsAnonymousViewer() {
     for (String user : List.of(DRAGON_KEEPER_USER, "shopviewer", "anonymous")) {
@@ -87,13 +80,6 @@ class PetStoreRolesTest {
     database.becomeAdmin();
   }
 
-  /**
-   * The row-level grant on DragonKeeper enables row level security on Pet, and the Aggregator role
-   * has no bypass policy. Once the schema-wide Viewer that PetStore hands to 'anonymous' is taken
-   * away, an aggregator therefore sees zero rows and the group by comes back empty rather than
-   * aggregating the rows it is allowed to count. Uses its own schema so removing the anonymous
-   * member does not leak into the other tests.
-   */
   @Test
   void aggregatorSeesNoRowsOnRowLevelSecuredTable() {
     String aggregatorSchema = SCHEMA + "Agg";
