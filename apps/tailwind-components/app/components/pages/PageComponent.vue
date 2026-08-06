@@ -11,6 +11,7 @@ import NavigationGroups from "./Navigation/NavigationGroups.vue";
 import EditModal from "../form/EditModal.vue";
 
 import { deleteBlock, deleteComponent, parsePageText } from "../../utils/cms";
+import type { IFile } from "../../../types/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 
@@ -42,12 +43,16 @@ const schemaTableName = ref<string>(
 );
 
 const componentData = ref<IPageComponent>(props.component);
-// temporary workaround for graphql bug #2706
+const headerComponentImage = ref<IFile>();
+
 if (
-  !props.mg_tableclass.endsWith(".Images") &&
-  Object.keys(componentData.value).includes("image")
+  props.mg_tableclass.endsWith(".Headers") &&
+  Object.keys(componentData.value).includes("backgroundImage")
 ) {
-  delete componentData.value["image" as keyof IPageComponent];
+  headerComponentImage.value = componentData.value.backgroundImage.image;
+  componentData.value.backgroundImage = {
+    id: componentData.value.backgroundImage.id,
+  };
 }
 
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
@@ -95,7 +100,8 @@ async function doDelete(): Promise<void> {
     :id="component.id"
     :title="component.title"
     :subtitle="component.subtitle"
-    :background-image="component.backgroundImage?.image?.url"
+    :background-image="component.backgroundImage"
+    :image="headerComponentImage"
     :enable-full-screen-width="component.enableFullScreenWidth"
     :title-is-centered="component.titleIsCentered"
     :isEditable="editingIsEnabled"

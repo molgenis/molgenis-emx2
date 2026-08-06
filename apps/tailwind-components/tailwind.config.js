@@ -124,6 +124,8 @@ module.exports = {
         "button-small": "2.625rem",
         "button-default": "3.125rem",
         "button-large": "3.5rem",
+        "modal-footer": "5.125rem",
+        "sidebar-footer": "7.25rem",
       }),
       width: {
         "button-switch": "var(--width-button-switch)",

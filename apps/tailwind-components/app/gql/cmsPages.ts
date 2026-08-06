@@ -37,10 +37,16 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                 title
                 subtitle
                 backgroundImage {
+                    displayName
                     image {
                         id
                         url
                     }
+                    alt
+                    width
+                    height
+                    imageIsCentered
+                    id
                 }
                 titleIsCentered
                 

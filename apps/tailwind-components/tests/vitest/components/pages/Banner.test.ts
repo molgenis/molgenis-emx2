@@ -11,12 +11,15 @@ const defaultBanner = mount(PageBanner, {
   },
 });
 
+const demoImage = "/path/to/some/image.jpg";
+
 const bannerWithImage = mount(PageBanner, {
   props: {
     id: "vitest-page-banner",
     title: "My Page Banner",
     subtitle: "this is an example",
-    backgroundImage: "/page/to/some/image.jpg",
+    backgroundImage: { id: demoImage },
+    image: { id: demoImage, url: demoImage },
   },
 });
 
