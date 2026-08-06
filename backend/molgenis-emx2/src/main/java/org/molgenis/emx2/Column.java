@@ -1,5 +1,6 @@
 package org.molgenis.emx2;
 
+import static java.util.Arrays.stream;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
@@ -7,7 +8,11 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
+import org.eclipse.rdf4j.model.IRI;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jooq.DataType;
 import org.jooq.Field;
@@ -41,7 +46,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private String[] semantics = null; // absolute IRI or prefixed name
+  private Semantic[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
   private Boolean readonly = false;
@@ -94,13 +99,45 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName.trim();
   }
 
-  public String[] getSemantics() {
+  /**
+   * @return {@code false} if null or empty, otherwise {@code true}.
+   */
+  public boolean hasSemantics() {
+    return semantics != null && semantics.length > 0;
+  }
+
+  @Nullable
+  public Semantic[] getSemantics() {
     return semantics;
   }
 
-  public Column setSemantics(String... semantics) {
+  private <R> Stream<R> getSemanticsStream(Function<Semantic, R> mapper) {
+    return semantics == null ? Stream.empty() : stream(semantics).map(mapper);
+  }
+
+  public Stream<IRI> getSemanticsIriStream() {
+    return getSemanticsStream(getSemanticPrefixes()::mapAsIri);
+  }
+
+  /**
+   * @see SemanticPrefixes#mapAsString(Semantic)
+   */
+  public Stream<String> getSemanticsStringStream() {
+    return getSemanticsStream(getSemanticPrefixes()::mapAsString);
+  }
+
+  public Column setSemantics(Semantic[] semantics) {
     this.semantics = semantics;
     return this;
+  }
+
+  public Column setSemantics(String... semantics) {
+    return setSemantics(
+        semantics == null ? null : stream(semantics).map(Semantic::new).toArray(Semantic[]::new));
+  }
+
+  public SemanticPrefixes getSemanticPrefixes() {
+    return getSchema().getSemanticPrefixes();
   }
 
   public String[] getProfiles() {

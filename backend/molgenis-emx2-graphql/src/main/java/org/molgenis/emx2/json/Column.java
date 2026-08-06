@@ -1,10 +1,13 @@
 package org.molgenis.emx2.json;
 
+import static java.util.Arrays.stream;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
@@ -109,7 +112,10 @@ public class Column {
             .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
-    this.semantics = column.getSemantics();
+    this.semantics =
+        column.getSemantics() == null
+            ? null
+            : stream(column.getSemantics()).map(Semantic::toString).toArray(String[]::new);
     this.visible = column.getVisible();
     this.computed = column.getComputed();
     this.profiles = column.getProfiles();

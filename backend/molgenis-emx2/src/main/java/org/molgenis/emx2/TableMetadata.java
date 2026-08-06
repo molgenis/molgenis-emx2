@@ -1,12 +1,17 @@
 package org.molgenis.emx2;
 
+import static java.util.Arrays.stream;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
+import org.eclipse.rdf4j.model.IRI;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
@@ -35,17 +40,49 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   // use to classify the table, influences display, import, export, etc
   private TableType tableType = TableType.DATA;
   // table semantics, typically an ontology URI
-  private String[] semantics = null;
+  private Semantic[] semantics = null;
   // profiles to which this table belongs
   private String[] profiles;
 
-  public String[] getSemantics() {
+  /**
+   * @return {@code false} if null or empty, otherwise {@code true}.
+   */
+  public boolean hasSemantics() {
+    return semantics != null && semantics.length > 0;
+  }
+
+  @Nullable
+  public Semantic[] getSemantics() {
     return semantics;
   }
 
-  public TableMetadata setSemantics(String... semantics) {
+  private <R> Stream<R> getSemanticsStream(Function<Semantic, R> mapper) {
+    return semantics == null ? Stream.empty() : stream(semantics).map(mapper);
+  }
+
+  public Stream<IRI> getSemanticsIriStream() {
+    return getSemanticsStream(getSemanticPrefixes()::mapAsIri);
+  }
+
+  /**
+   * @see SemanticPrefixes#mapAsString(Semantic)
+   */
+  public Stream<String> getSemanticsStringStream() {
+    return getSemanticsStream(getSemanticPrefixes()::mapAsString);
+  }
+
+  public TableMetadata setSemantics(Semantic[] semantics) {
     this.semantics = semantics;
     return this;
+  }
+
+  public TableMetadata setSemantics(String... semantics) {
+    return setSemantics(
+        semantics == null ? null : stream(semantics).map(Semantic::new).toArray(Semantic[]::new));
+  }
+
+  public SemanticPrefixes getSemanticPrefixes() {
+    return getSchema().getSemanticPrefixes();
   }
 
   public String[] getProfiles() {
