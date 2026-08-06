@@ -30,8 +30,6 @@ describe("Custom Pages: banner", () => {
   });
 
   test("when an image is defined, the image filter and colors are applied", async () => {
-    console.log(bannerWithImage.html());
-
     expect(bannerWithImage.find("h1").exists()).toBeTruthy();
     expect(bannerWithImage.find("p").exists()).toBeTruthy();
     expect(bannerWithImage.classes()).toContain("text-gray-100");
