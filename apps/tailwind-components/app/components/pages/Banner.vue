@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import type { IHeaders } from "../../../types/cms";
+import type { IHeaders, IFile } from "../../../types/cms";
 import Button from "../Button.vue";
 
-withDefaults(defineProps<IHeaders & { isEditable?: boolean }>(), {
-  enableFullScreenWidth: false,
-  isEditable: false,
-});
+const props = withDefaults(
+  defineProps<IHeaders & { image?: IFile; isEditable?: boolean }>(),
+  {
+    enableFullScreenWidth: false,
+    isEditable: false,
+  }
+);
 
 const emit = defineEmits<{
   (e: "edit"): void;
@@ -17,10 +20,10 @@ const emit = defineEmits<{
     :id="id"
     class="group relative flex justify-center items-center h-72"
     :class="{
-      'text-gray-100 bg-cover bg-center': backgroundImage,
-      'text-title': !backgroundImage,
+      'text-gray-100 bg-cover bg-center': image?.url,
+      'text-title': !image?.url,
     }"
-    :style="backgroundImage ? `background-image: url(${backgroundImage})` : ''"
+    :style="image?.url ? `background-image: url(${image.url})` : ''"
   >
     <div
       class="m-auto mx-12.5 z-10"
@@ -34,7 +37,7 @@ const emit = defineEmits<{
       <p class="text-body-lg">{{ subtitle }}</p>
     </div>
     <div
-      v-if="backgroundImage"
+      v-if="image?.url"
       class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-60"
     />
     <div v-if="isEditable" class="absolute top-5 right-5">
