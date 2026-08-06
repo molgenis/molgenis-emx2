@@ -111,7 +111,7 @@ async function onDeleteConfirm() {
     </Transition>
     <template #footer>
       <div class="flex justify-between items-center">
-        <menu class="flex items-center justify-end h-[116px]">
+        <menu class="flex items-center justify-end h-modal-footer">
           <div class="flex gap-4">
             <Button type="secondary" @click="visible = false">Cancel</Button>
             <Button type="primary" @click="onDeleteConfirm">Delete</Button>
