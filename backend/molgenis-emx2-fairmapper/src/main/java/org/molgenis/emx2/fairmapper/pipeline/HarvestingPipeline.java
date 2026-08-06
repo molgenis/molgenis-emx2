@@ -18,6 +18,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.io.ImportSchemaTask;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class HarvestingPipeline {
 
   public void execute() {
     logger.info("Starting harvesting pipeline");
-    SailRepository repository = new SailRepository(new MemoryStore());
+    Repository repository = new SailRepository(new MemoryStore());
 
     if (config.dumpEnabled() && !outputDirectory().toFile().mkdirs()) {
       throw new MolgenisException("Could not create output directory: " + config.outputPath());
@@ -53,7 +54,7 @@ public class HarvestingPipeline {
       preProcess(repository);
     }
 
-    TableStore transformed = transform(repository);
+    InMemoryTableStore transformed = transform(repository);
 
     if (!config.postProcessors().isEmpty()) {
       postProcess(transformed);
@@ -74,8 +75,8 @@ public class HarvestingPipeline {
     }
   }
 
-  private TableStore transform(Repository extracted) {
-    TableStore transformed = config.transformer().transform(extracted);
+  private InMemoryTableStore transform(Repository extracted) {
+    InMemoryTableStore transformed = config.transformer().transform(extracted);
 
     if (config.dumpEnabled()) {
       writeTableStoreToZip(transformed, config.tables(), "transformed.zip");
@@ -84,7 +85,7 @@ public class HarvestingPipeline {
     return transformed;
   }
 
-  private void postProcess(TableStore transform) {
+  private void postProcess(InMemoryTableStore transform) {
     for (PostProcessor postProcessor : config.postProcessors()) {
       postProcessor.process(transform);
     }
@@ -94,7 +95,7 @@ public class HarvestingPipeline {
     }
   }
 
-  private void load(TableStore tableStore) {
+  private void load(InMemoryTableStore tableStore) {
     ImportSchemaTask tasks =
         new ImportSchemaTask(tableStore, config.schema(), false, config.tables())
             .setFilter(ImportSchemaTask.Filter.DATA_ONLY);

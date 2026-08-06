@@ -25,7 +25,6 @@ import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
-import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -167,7 +166,7 @@ class HarvestingPipelineTest {
   private static class StaticRdfTransformer implements RdfTransformer {
 
     @Override
-    public TableStore transform(Repository repository) {
+    public InMemoryTableStore transform(Repository repository) {
       InMemoryTableStore store = new InMemoryTableStore();
       store.writeTable(
           "names", List.of("name"), List.of(Row.row("name", "foo"), Row.row("name", "bar")));
@@ -191,7 +190,7 @@ class HarvestingPipelineTest {
   private static class StaticPostProcessor implements PostProcessor {
 
     @Override
-    public void process(TableStore tableStore) {
+    public void process(InMemoryTableStore tableStore) {
       tableStore.writeTable(
           "products",
           List.of("barcode"),
