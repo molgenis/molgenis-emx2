@@ -3,6 +3,7 @@ import { ref } from "vue";
 import type { IImages } from "../../../types/cms";
 
 import EditButton from "./EditButton.vue";
+import BaseIcon from "../BaseIcon.vue";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,
@@ -45,9 +46,10 @@ if (src.value && props.height) {
       <div
         v-else
         :id="`${id}-edit-add-image-message`"
-        class="w-full bg-neutral py-5"
+        class="w-full flex items-center justify-center text-center gap-2.5 text-title-contrast border rounded-base py-5"
       >
-        <span class="text-neutral">Click edit to add your own image</span>
+        <BaseIcon name="Image" :width="21" />
+        <span>Click to upload an image</span>
       </div>
     </EditButton>
     <img
