@@ -13,9 +13,9 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -26,33 +26,35 @@ class FdpRdfExtractorTest {
   @Test
   void liveTest() {
     String endpoint = "FDP ENDPOINT HERE";
-    SailRepository extract =
-        new FdpRdfExtractor(new RemoteRdfExtractor()).extract(URI.create(endpoint), endpoint);
-    try (SailRepositoryConnection connection = extract.getConnection()) {
+    Repository extract = new SailRepository(new MemoryStore());
+    new FdpRdfExtractor(new RemoteRdfExtractor(), URI.create(endpoint)).addRdfToRepository(extract);
+    try (RepositoryConnection connection = extract.getConnection()) {
       connection.getStatements(null, null, null).forEach(System.out::println);
     }
   }
 
   @Test
   void shouldExtractCatalogsAndDatasets() {
-    SailRepository repository = new SailRepository(new MemoryStore());
-    addFileRdf(repository, "fdp.rdf");
+    SailRepository fdpRepository = new SailRepository(new MemoryStore());
+    addFileRdf(fdpRepository, "fdp.rdf");
 
-    SailRepository extracted =
-        new FdpRdfExtractor(
-                new StaticFileRdfExtractor(
-                    Map.of(
-                        URI.create("https://example.org/fdp-api"),
-                        "fdp.rdf",
-                        URI.create("https://example.org/fdp-api/catalog/1"),
-                        "catalog1.rdf",
-                        URI.create("https://example.org/fdp-api/catalog/2"),
-                        "catalog2.rdf",
-                        URI.create("https://example.org/fdp-api/dataset/1"),
-                        "dataset.rdf")))
-            .extract(URI.create("https://example.org/fdp-api"), "https://example.org/fdp-api");
+    StaticFileRdfExtractor staticFileRdfExtractor =
+        new StaticFileRdfExtractor(
+            Map.of(
+                URI.create("https://example.org/fdp-api"),
+                "fdp.rdf",
+                URI.create("https://example.org/fdp-api/catalog/1"),
+                "catalog1.rdf",
+                URI.create("https://example.org/fdp-api/catalog/2"),
+                "catalog2.rdf",
+                URI.create("https://example.org/fdp-api/dataset/1"),
+                "dataset.rdf"));
 
-    try (SailRepositoryConnection connection = extracted.getConnection()) {
+    SailRepository extracted = new SailRepository(new MemoryStore());
+    new FdpRdfExtractor(staticFileRdfExtractor, URI.create("https://example.org/fdp-api"))
+        .addRdfToRepository(extracted);
+
+    try (RepositoryConnection connection = extracted.getConnection()) {
       long nrStatements = connection.getStatements(null, null, null).stream().count();
       assertEquals(6, nrStatements);
       assertHasStatements(
@@ -102,13 +104,13 @@ class FdpRdfExtractorTest {
     }
 
     @Override
-    public void addRdfToRepository(SailRepository repository, URI location) {
-      String file = fileMappings.get(location);
+    public void addRdfToRepository(Repository repository, URI rootToAdd) {
+      String file = fileMappings.get(rootToAdd);
       addFileRdf(repository, file);
     }
   }
 
-  private static void addFileRdf(SailRepository repository, String file) {
+  private static void addFileRdf(Repository repository, String file) {
     try (RepositoryConnection conn = repository.getConnection()) {
       conn.add(file(file));
       conn.commit();

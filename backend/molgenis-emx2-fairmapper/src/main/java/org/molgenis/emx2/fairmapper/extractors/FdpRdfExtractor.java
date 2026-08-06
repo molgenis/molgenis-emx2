@@ -8,12 +8,10 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FdpRdfExtractor {
+public class FdpRdfExtractor implements RdfExtractor {
 
   private static final Logger logger = LoggerFactory.getLogger(FdpRdfExtractor.class);
 
@@ -36,40 +34,41 @@ public class FdpRdfExtractor {
       """;
 
   private final RdfExtractor rdfExtractor;
+  private final URI endpoint;
 
-  public FdpRdfExtractor(RdfExtractor rdfExtractor) {
+  public FdpRdfExtractor(RdfExtractor rdfExtractor, URI endpoint) {
     this.rdfExtractor = rdfExtractor;
+    this.endpoint = endpoint;
+  }
+
+  public void addRdfToRepository(Repository repository) {
+    addRdfToRepository(repository, endpoint);
   }
 
   /**
    * Extracts RDF data from a FAIR Data Point by querying its metadata catalogs and, for each
-   * catalog, its datasets, then fetching the RDF for each catalog and dataset into an in-memory
+   * catalog, its datasets, then fetching the RDF for each catalog and dataset into the provided
    * repository.
    *
-   * @param endpoint the endpoint of the RDF endpoint
-   * @param fdpIdentifier the URI identifying the FAIR Data Point to extract catalogs and datasets
-   *     from
-   * @return an in-memory {@link SailRepository} containing the RDF extracted from the FDP's
-   *     catalogs and datasets
+   * @param repository RDF repository that the query results are written to.
+   * @param rootToAdd the URI identifying the FAIR Data Point to extract catalogs and datasets from
    */
-  public SailRepository extract(URI endpoint, String fdpIdentifier) {
-    SailRepository sail = new SailRepository(new MemoryStore());
-    rdfExtractor.addRdfToRepository(sail, endpoint);
+  @Override
+  public void addRdfToRepository(Repository repository, URI rootToAdd) {
+    rdfExtractor.addRdfToRepository(repository, endpoint);
 
-    List<String> catalogs = queryCatalogs(sail, fdpIdentifier);
+    List<String> catalogs = queryCatalogs(repository, rootToAdd);
     for (String catalog : catalogs) {
-      rdfExtractor.addRdfToRepository(sail, catalog);
+      rdfExtractor.addRdfToRepository(repository, catalog);
     }
 
-    List<String> datasets = queryDatasets(sail, catalogs);
+    List<String> datasets = queryDatasets(repository, catalogs);
     for (String dataset : datasets) {
-      rdfExtractor.addRdfToRepository(sail, dataset);
+      rdfExtractor.addRdfToRepository(repository, dataset);
     }
-
-    return sail;
   }
 
-  private static List<String> queryDatasets(SailRepository sail, List<String> catalogs) {
+  private static List<String> queryDatasets(Repository sail, List<String> catalogs) {
     List<String> datasets = new ArrayList<>();
     try (RepositoryConnection connection = sail.getConnection()) {
       for (String catalog : catalogs) {
@@ -96,7 +95,7 @@ public class FdpRdfExtractor {
     return datasets;
   }
 
-  private List<String> queryCatalogs(Repository repository, String fdpIdentifier) {
+  private List<String> queryCatalogs(Repository repository, URI fdpIdentifier) {
     logger.info("Querying for catalogs from FDP with identifier: {}", fdpIdentifier);
     try (RepositoryConnection connection = repository.getConnection()) {
       TupleQuery tupleQuery = connection.prepareTupleQuery(CATALOG_QUERY.formatted(fdpIdentifier));
