@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -100,7 +101,7 @@ class RemoteRdfExtractorTest {
           byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
           exchange.getResponseHeaders().add("Content-Type", contentType);
           exchange.sendResponseHeaders(status, bytes.length);
-          try (var os = exchange.getResponseBody()) {
+          try (OutputStream os = exchange.getResponseBody()) {
             os.write(bytes);
           }
         });
