@@ -19,6 +19,7 @@ public class RunMolgenisEmx2 {
   public static final String CATALOGUE_DEMO = "catalogue-demo";
   public static final String DIRECTORY_DEMO = "directory-demo";
   public static final String PET_STORE = "pet store";
+  public static final String MG_CMS = "cms";
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =
@@ -33,7 +34,8 @@ public class RunMolgenisEmx2 {
   public static final boolean INCLUDE_TYPE_TEST_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_TYPE_TEST_DEMO, false, BOOL);
-
+  public static final boolean INCLUDE_CMS =
+      (Boolean) EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_CMS, false, BOOL);
   public static final boolean INCLUDE_PATIENT_REGISTRY_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(
@@ -115,6 +117,10 @@ public class RunMolgenisEmx2 {
             new PatientRegistryDemoLoader(
                     new SchemaLoaderSettings(db, "patient registry demo", "", true))
                 .run();
+          }
+
+          if (INCLUDE_CMS && db.getSchema(MG_CMS) == null) {
+            DataModels.Profile.MG_CMS.getImportTask(db, MG_CMS, "", true).run();
           }
         });
 
