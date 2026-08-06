@@ -60,7 +60,7 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
   private void addTableDataToStore(
       String table, RepositoryConnection conn, InMemoryTableStore tableStore) {
     TableMetadata tableMetadata = schema.getTableMetadata(table);
-    String query = queryGenerator.generate(schema.getTableMetadata(table));
+    String query = queryGenerator.generate(tableMetadata);
     TupleQuery prepared = conn.prepareTupleQuery(QueryLanguage.SPARQL, query);
 
     try (TupleQueryResult evaluate = prepared.evaluate()) {
