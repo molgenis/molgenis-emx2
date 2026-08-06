@@ -7,12 +7,17 @@ import type {
   INavigationGroups,
   IDeveloperPages,
   IConfigurablePages,
+  IFile,
 } from "./cms.ts";
 
 import type { ITableMetaData } from "../../metadata-utils/src/types.js";
 
+export interface IHeadersExtended extends IHeaders {
+  image?: IFile;
+}
+
 export interface IPageComponent
-  extends IHeaders,
+  extends IHeadersExtended,
     ISections,
     IHeadings,
     IParagraphs,
