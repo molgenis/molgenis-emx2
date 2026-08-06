@@ -47,7 +47,8 @@ export async function getPage(
 
 export async function deleteComponent(
   schema: string,
-  id: string,
+  componentId: string,
+  componentOrderid: string,
   block: string,
   reorder: boolean = true
 ) {
@@ -58,7 +59,7 @@ export async function deleteComponent(
       variables: {
         pkey: [
           {
-            id: `${id}-order`,
+            id: `${componentOrderid}`,
           },
         ],
       },
@@ -71,7 +72,7 @@ export async function deleteComponent(
       variables: {
         pkey: [
           {
-            id: `${id}`,
+            id: `${componentId}`,
           },
         ],
       },
@@ -82,14 +83,14 @@ export async function deleteComponent(
   }
 }
 
-async function deleteAllComponentsFromBlock(schema: string, id: string) {
+async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: `query getComponents($filter: ComponentOrdersFilter){ComponentOrders(filter:$filter){id,order}}`,
+      query: `query getComponents($filter: ComponentOrdersFilter){ComponentOrders(filter:$filter){id,order, component{id}}}`,
       variables: {
         filter: {
-          block: { id: { equals: id } },
+          block: { id: { equals: blockId } },
         },
         orderby: [{ order: "ASC" }],
       },
@@ -97,17 +98,23 @@ async function deleteAllComponentsFromBlock(schema: string, id: string) {
   });
 
   if (data?.ComponentOrders) {
-    const itemsToRemove = data?.ComponentOrders as {
+    const itemsToRemove = data.ComponentOrders as {
       id: string;
+      component: { id: string };
     }[];
     for (const item of itemsToRemove) {
-      await deleteComponent(schema, item.id.replace(/-order$/, ""), id, false);
+      await deleteComponent(schema, item.component.id, item.id, blockId, false);
     }
   }
 }
 
-export async function deleteBlock(schema: string, id: string, page: string) {
-  await deleteAllComponentsFromBlock(schema, id);
+export async function deleteBlock(
+  schema: string,
+  blockId: string,
+  blockOrderid: string,
+  page: string
+) {
+  await deleteAllComponentsFromBlock(schema, blockId);
 
   const dataOrder = await $fetch(`/${schema}/graphql`, {
     method: "POST",
@@ -116,7 +123,7 @@ export async function deleteBlock(schema: string, id: string, page: string) {
       variables: {
         pkey: [
           {
-            id: `${id}-order`,
+            id: `${blockOrderid}`,
           },
         ],
       },
@@ -129,7 +136,7 @@ export async function deleteBlock(schema: string, id: string, page: string) {
       variables: {
         pkey: [
           {
-            id: `${id}`,
+            id: `${blockId}`,
           },
         ],
       },

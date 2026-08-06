@@ -17,6 +17,7 @@ import type { ITableMetaData } from "../../../../metadata-utils/src";
 const props = withDefaults(
   defineProps<{
     component: IPageComponent;
+    orderId: string;
     componentType: string;
     mg_tableclass: string;
     metadata?: ITableMetaData[];
@@ -64,16 +65,21 @@ function onDelete() {
 
 async function doDelete(): Promise<void> {
   currentlyDeleting.value = true;
+  console.log(
+    `Deleting ${props.componentType} ${props.component.id}  ${props.orderId}`
+  );
   if (props.componentType === "Component") {
     await deleteComponent(
       componentMetadata.value?.schemaId || "",
       props.component.id,
+      props.orderId,
       props.parent
     );
   } else {
     await deleteBlock(
       componentMetadata.value?.schemaId || "",
       props.component.id,
+      props.orderId,
       props.parent
     );
   }
