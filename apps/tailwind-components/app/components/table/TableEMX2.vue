@@ -6,7 +6,9 @@
         :all-rows-selected="
           numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
         "
-        :can-edit="props.isEditable"
+        :canUpdate="canUpdate"
+        :canDelete="canDelete"
+        :canModifySelection="selectionIsModifiable"
         @row-action="handleRowAction"
       />
       <div
@@ -32,7 +34,7 @@
 
       <div class="flex gap-[10px]">
         <Button
-          v-if="props.isEditable && data?.tableMetadata"
+          v-if="canInsert && data?.tableMetadata"
           type="primary"
           size="medium"
           icon="add-circle"
@@ -145,7 +147,7 @@
                   v-for="row in rows"
                   class="group h-[50px]"
                   :class="{
-                    'hover:cursor-pointer': props.isEditable,
+                    'hover:cursor-pointer': canEdit,
                   }"
                 >
                   <TableCellEMX2
@@ -185,7 +187,7 @@
                         class="absolute left-12 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                       >
                         <Button
-                          v-if="isEditable"
+                          v-if="canDeleteRow(row)"
                           :id="`delete-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
@@ -199,7 +201,7 @@
                           {{ row._rowIdString }}
                         </Button>
                         <Button
-                          v-if="isEditable"
+                          v-if="canEditRow(row)"
                           :id="`edit-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
@@ -213,7 +215,7 @@
                           {{ row._rowIdString }}
                         </Button>
                         <Button
-                          v-if="isEditable"
+                          v-if="canCloneRow(row)"
                           :id="`copy-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
@@ -235,7 +237,7 @@
             </table>
             <div
               class="sticky left-0 flex justify-center items-center py-2.5"
-              v-if="status === 'success' && !rows?.length"
+              v-if="!rows?.length"
             >
               <TextNoResultsMessage
                 class="w-full text-center"
@@ -334,6 +336,7 @@ import { sortColumns } from "../../utils/sortColumns";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
+import { rowMatchesUserRole } from "../../utils/rowMatchesUserRole";
 
 import type { IGraphQLFilter } from "../../../types/filters";
 import type { UseFilters } from "../../../types/filters";
@@ -367,19 +370,32 @@ const props = withDefaults(
   defineProps<{
     schemaId: string;
     tableId: string;
-    isEditable?: boolean;
+    canInsert?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+    /** the table is under row level security, act per row on mg_roles */
+    isRowLevel?: boolean;
+    userRoles?: string[];
     filter?: IGraphQLFilter;
     hideSearch?: boolean;
     enableFilters?: boolean;
     useStickyHeader?: boolean;
   }>(),
   {
-    isEditable: () => false,
+    canInsert: () => false,
+    canUpdate: () => false,
+    canDelete: () => false,
+    isRowLevel: () => false,
+    userRoles: () => [],
     filter: () => ({}),
     hideSearch: false,
     enableFilters: true,
     useStickyHeader: () => true,
   }
+);
+
+const canEdit = computed(
+  () => props.canInsert || props.canUpdate || props.canDelete
 );
 
 const emit = defineEmits<{
@@ -549,6 +565,22 @@ function updateStickyHeaderWidth() {
   }
 }
 
+function mayModifyRow(row: IRow): boolean {
+  return !props.isRowLevel || rowMatchesUserRole(row, props.userRoles);
+}
+
+function canEditRow(row: IRow): boolean {
+  return props.canUpdate && mayModifyRow(row);
+}
+
+function canCloneRow(row: IRow): boolean {
+  return props.canInsert && mayModifyRow(row);
+}
+
+function canDeleteRow(row: IRow): boolean {
+  return props.canDelete && mayModifyRow(row);
+}
+
 let widthsInitialized = false;
 watch(
   () => columns.value,
@@ -639,6 +671,14 @@ const sortedVisibleColumns = computed(() =>
 );
 
 const numberOfSelectedRows = computed(() => selectedRows.value.size);
+
+const selectionIsModifiable = computed(
+  () =>
+    !props.isRowLevel ||
+    rows.value
+      .filter((row) => selectedRows.value.has(row._rowIdString))
+      .every((row) => rowMatchesUserRole(row, props.userRoles))
+);
 
 function handleColumnsUpdate(newColumns: IColumn[]) {
   settings.value.orderedColumnsIds = newColumns.map((col) => col.id);

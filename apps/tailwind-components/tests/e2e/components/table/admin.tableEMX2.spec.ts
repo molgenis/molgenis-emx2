@@ -17,7 +17,7 @@ test("the row should be removed from the table after deletion", async ({
   });
   await expect(page.getByText("TableEMX2").first()).toBeVisible();
   await expect(page.getByLabel("Schema:")).toHaveValue("pet store");
-  await page.getByRole("checkbox", { name: "Is Editable:" }).check();
+  await page.getByRole("checkbox", { name: "Can insert:" }).check();
   await expect(
     page.getByRole("button", { name: "Add Category" })
   ).toBeVisible();
@@ -30,6 +30,7 @@ test("the row should be removed from the table after deletion", async ({
   await page.getByRole("button", { name: "Cancel" }).click();
 
   // delete row
+  await page.getByRole("checkbox", { name: "Can delete:" }).check();
   await page.getByRole("searchbox", { name: "Search Category" }).click();
   await page
     .getByRole("searchbox", { name: "Search Category" })
@@ -52,7 +53,7 @@ test("the row should be copied and added to the table after copying", async ({
   });
   await expect(page.getByText("TableEMX2").first()).toBeVisible();
   await expect(page.getByLabel("Schema:")).toHaveValue("pet store");
-  await page.getByRole("checkbox", { name: "Is Editable:" }).check();
+  await page.getByRole("checkbox", { name: "Can insert:" }).check();
   await expect(page.getByRole("button", { name: "Add Pet" })).toBeVisible();
 
   // copy Pooky
