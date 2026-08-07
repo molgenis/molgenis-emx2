@@ -106,8 +106,10 @@ if (!metadata.value && schemaId.value && tableId.value) {
     await getNumberOfRows();
     if (props.rowIndex !== undefined && props.rowIndex !== null) {
       rowIndex.value = props.rowIndex;
-      if (rowIndex.value - 1 >= 0) {
+      if (rowIndex.value - 1 >= 0 && rowIndex.value <= numberOfRows.value) {
         await fetchRow(rowIndex.value - 1);
+      } else {
+        rowIndex.value = null;
       }
     }
   }
