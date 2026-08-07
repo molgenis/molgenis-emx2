@@ -33,10 +33,10 @@ if (src.value && props.height) {
   <div>
     <EditButton
       v-if="isEditable"
-      class="border-2 border-transparent bg-button-secondary hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
+      class="bg-button-secondary hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
       :class="{
         'm-auto flex justify-center items-center': imageIsCentered,
-        'w-full': !src,
+        'w-full border border-button-tertiary rounded-base': !src,
       }"
       @click="emit('edit')"
       :fix-icon-position="true"
@@ -46,7 +46,7 @@ if (src.value && props.height) {
       <div
         v-else
         :id="`${id}-edit-add-image-message`"
-        class="w-full flex items-center justify-center text-center gap-2.5 text-title-contrast border rounded-base py-5"
+        class="w-full flex items-center justify-center text-center gap-2 text-title-contrast py-5"
       >
         <BaseIcon name="Image" :width="21" />
         <span>Click to upload an image</span>
