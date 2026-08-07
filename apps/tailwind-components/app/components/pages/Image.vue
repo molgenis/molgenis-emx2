@@ -3,6 +3,7 @@ import { ref } from "vue";
 import type { IImages } from "../../../types/cms";
 
 import EditButton from "./EditButton.vue";
+import BaseIcon from "../BaseIcon.vue";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,
@@ -19,11 +20,11 @@ if (props.image?.url) {
 }
 
 let style = "";
-if (props.width) {
+if (src.value && props.width) {
   style = style + `width: ${props.width};`;
 }
 
-if (props.height) {
+if (src.value && props.height) {
   style = style + `height: ${props.height};`;
 }
 </script>
@@ -32,16 +33,27 @@ if (props.height) {
   <div>
     <EditButton
       v-if="isEditable"
-      class="border-2 border-transparent bg-button-secondary hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-      :class="{ 'm-auto flex justify-center items-center': imageIsCentered }"
+      class="bg-button-secondary hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
+      :class="{
+        'm-auto flex justify-center items-center': imageIsCentered,
+        'w-full mb-2.5 border border-button-tertiary rounded-base': !src,
+      }"
       @click="emit('edit')"
       :fix-icon-position="true"
     >
       <span class="sr-only">Edit image: </span>
-      <img :id="id" :src="src" :alt="alt" :style="style" />
+      <img v-if="src" :id="id" :src="src" :alt="alt" :style="style" />
+      <div
+        v-else
+        :id="`${id}-edit-add-image-message`"
+        class="w-full flex items-center justify-center text-center gap-2 text-title-contrast py-5"
+      >
+        <BaseIcon name="Image" :width="21" />
+        <span>Click to upload an image</span>
+      </div>
     </EditButton>
     <img
-      v-else
+      v-else-if="src"
       :id="id"
       :src="src"
       :class="{
