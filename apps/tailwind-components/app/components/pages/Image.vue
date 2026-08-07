@@ -36,7 +36,7 @@ if (src.value && props.height) {
       class="bg-button-secondary hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
       :class="{
         'm-auto flex justify-center items-center': imageIsCentered,
-        'w-full border border-button-tertiary rounded-base': !src,
+        'w-full mb-2.5 border border-button-tertiary rounded-base': !src,
       }"
       @click="emit('edit')"
       :fix-icon-position="true"
