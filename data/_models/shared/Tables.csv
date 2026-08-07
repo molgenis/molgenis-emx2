@@ -1,7 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Tables,,,,,,,,,,,,Definition of a table,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
+Tables,,,,,,,,,,,csvw:Table,Definition of a table,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
 Tables,,resource,ref,1,TRUE,,Resources,,,,,Resource of which the table is part,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
-Tables,,name,,1,TRUE,,,,,,,Unique table name in the model,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
+Tables,,name,,1,TRUE,,,,,,dcterms:title,Unique table name in the model,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
 Tables,,label,,,,,,,,,,Short human readable description,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
 Tables,,table type,ontology_array,,,CatalogueOntologies,Table types,,,,,"Defines the type of table, e.g. genomic","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
 Tables,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,Defines what each record in this table describes,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
