@@ -78,7 +78,7 @@ describe("useTask", () => {
     expect(status.value).toBe("UNKNOWN");
   });
 
-  test("rejects when API returns terminal error status", async () => {
+  test("resolves when API returns terminal error status", async () => {
     fetchMock.mockResolvedValueOnce({
       data: { _tasks: [{ status: "ERROR" }] },
     });

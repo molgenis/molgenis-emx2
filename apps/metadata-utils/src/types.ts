@@ -208,7 +208,7 @@ export type TaskStatus =
   | "WARNING"
   | "ERROR"
   | "UNKNOWN"
-  | "CANCELED";
+  | "CANCELLED";
 
 export interface TaskResponse {
   data: {

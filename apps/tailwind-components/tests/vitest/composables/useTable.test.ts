@@ -84,8 +84,7 @@ describe("useTable", () => {
     });
 
     const { truncate } = useTable("demo", "Person");
-    const truncateStatus = ref<TruncateStatus>("IDLE");
-
+    const truncateStatus = ref<TruncateStatus>("REQUEST_CONFIRMATION");
     await expect(truncate(truncateStatus)).resolves.toEqual({
       status: "COMPLETED",
     });

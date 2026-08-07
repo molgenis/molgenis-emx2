@@ -1,27 +1,27 @@
 import type { Ref } from "vue";
 import type { TaskStatus } from "../../../metadata-utils/src/types";
 
-const taskPollingFiels =
-  "{ id, description, status, subTasks { id, description, status} }";
+const taskPollingFields =
+  "{ id, description, status, subTasks { id, description, status } }";
 
-interface taskPollingResponse {
+interface TaskPollingResponse {
   status: TaskStatus;
   description?: string;
-  subTasks?: taskPollingResponse[];
+  subTasks?: TaskPollingResponse[];
 }
 
 export const useTask = (schemaId: string, taskId: string) => {
   function pollStatus(
     status: Ref<TaskStatus>,
     interval: number = 2000
-  ): Promise<taskPollingResponse> {
+  ): Promise<TaskPollingResponse> {
     return new Promise((resolve, reject) => {
       const checkStatus = async () => {
         try {
           const response = await $fetch(`/${schemaId}/graphql`, {
             method: "POST",
             body: {
-              query: `query { _tasks(id:"${taskId}") ${taskPollingFiels} }`,
+              query: `query { _tasks(id:"${taskId}") ${taskPollingFields} }`,
             },
           });
 
@@ -33,7 +33,7 @@ export const useTask = (schemaId: string, taskId: string) => {
             status.value = response.data._tasks[0].status;
           }
 
-          if (status.value === "COMPLETED" || status.value === "ERROR") {
+          if (status.value === "COMPLETED" || status.value === "ERROR" || status.value === "CANCELLED") {
             resolve({
               status: status.value,
               description: response.data._tasks[0].description,
