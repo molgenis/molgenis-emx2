@@ -104,6 +104,26 @@ class HarvestTest {
     assertTrue(config.loadDataEnabled());
   }
 
+  @Test
+  void shouldThrowWhenSchemaDoesNotExist() {
+    Harvest harvest = new Harvest();
+    new CommandLine(harvest)
+        .parseArgs("-r", RDF_ENDPOINT, "-s", "NonExistingSchema", "-t", "TableA");
+
+    MolgenisException exception = assertThrows(MolgenisException.class, harvest::run);
+    assertEquals("Schema not found: NonExistingSchema", exception.getMessage());
+  }
+
+  @Test
+  void shouldThrowWhenTableDoesNotExist() {
+    Harvest harvest = new Harvest();
+    new CommandLine(harvest)
+        .parseArgs("-r", RDF_ENDPOINT, "-s", schema.getName(), "-t", "NonExistingTable");
+
+    MolgenisException exception = assertThrows(MolgenisException.class, harvest::run);
+    assertEquals("Table not found: NonExistingTable", exception.getMessage());
+  }
+
   private HarvestingPipelineConfig runAndCaptureConfig(
       String rdf, String tables, String... extraArgs) {
     Harvest harvest = spy(new Harvest());
