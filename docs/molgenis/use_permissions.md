@@ -52,6 +52,16 @@ When RLS is enabled for a role on a table:
 > only **one role per row** is supported. Setting more than one value in `mg_roles` is not yet
 > supported and the behaviour is undefined.
 
+**Automatic row ownership:**
+
+When a user whose only write access to a table comes from an RLS role inserts or saves a row without
+providing `mg_roles` (or providing an empty one), the backend tags the row with that user's role. A
+row would otherwise match no role and be rejected.
+
+Users who are not restricted by RLS on that table (Editor, Manager, Owner, admin, or a plain
+non-RLS grant) are unaffected: their rows stay untagged unless they set `mg_roles` themselves.
+Updates never rewrite the `mg_roles` of an existing row.
+
 **Who bypasses row-level security:**
 
 RLS is bypassed in three cases:
