@@ -75,8 +75,12 @@ public class GraphqlTableFieldFactory {
   }
 
   // schema specific types
-  public GraphQLFieldDefinition tableQueryField(TableMetadata table) {
+  public GraphQLFieldDefinition tableQueryField(
+      TableMetadata table, GraphQLCodeRegistry.Builder codeRegistry) {
     GraphQLNamedOutputType tableType = createTableObjectType(table);
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", table.getIdentifier()),
+        fetcherForTableQueryField(table));
     return GraphQLFieldDefinition.newFieldDefinition()
         .name(table.getIdentifier())
         .type(GraphQLList.list(tableType))
@@ -84,7 +88,6 @@ public class GraphqlTableFieldFactory {
             String.format(
                 "Retrieve from table '%s'. Use {%s{...All%sFields}} to select all fields including foreign key nested queries",
                 table.getTableName(), table.getIdentifier(), table.getIdentifier()))
-        .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.FILTER_ARGUMENT)
@@ -113,11 +116,14 @@ public class GraphqlTableFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition tableGroupByField(TableMetadata table) {
+  public GraphQLFieldDefinition tableGroupByField(
+      TableMetadata table, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", table.getIdentifier() + "_groupBy"),
+        fetcherForTableQueryField(table));
     return GraphQLFieldDefinition.newFieldDefinition()
         .name(table.getIdentifier() + "_groupBy")
         .type(GraphQLList.list(createTableGroupByType(table)))
-        .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.FILTER_ARGUMENT)
@@ -131,11 +137,14 @@ public class GraphqlTableFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition tableAggField(TableMetadata table) {
+  public GraphQLFieldDefinition tableAggField(
+      TableMetadata table, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", table.getIdentifier() + "_agg"),
+        fetcherForTableQueryField(table));
     return GraphQLFieldDefinition.newFieldDefinition()
         .name(table.getIdentifier() + "_agg")
         .type(createTableAggregationType(table))
-        .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.FILTER_ARGUMENT)
@@ -912,12 +921,14 @@ public class GraphqlTableFieldFactory {
         .orElseThrow(() -> new MolgenisException("Unknown order by column id: " + id));
   }
 
-  private GraphQLFieldDefinition getMutationDefinition(Schema schema, MutationType type) {
+  private GraphQLFieldDefinition getMutationDefinition(
+      Schema schema, MutationType type, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", type.name().toLowerCase()), fetcher(schema, type));
     GraphQLFieldDefinition.Builder fieldBuilder =
         GraphQLFieldDefinition.newFieldDefinition()
             .name(type.name().toLowerCase())
-            .type(typeForMutationResult)
-            .dataFetcher(fetcher(schema, type));
+            .type(typeForMutationResult);
     for (TableMetadata table : schema.getMetadata().getTables()) {
       if (!table.getColumnsIncludingSubclassesExcludingHeadings().isEmpty()) {
         fieldBuilder.argument(
@@ -929,24 +940,27 @@ public class GraphqlTableFieldFactory {
     return fieldBuilder.build();
   }
 
-  public GraphQLFieldDefinition insertMutation(Schema schema) {
-    return getMutationDefinition(schema, MutationType.INSERT);
+  public GraphQLFieldDefinition insertMutation(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    return getMutationDefinition(schema, MutationType.INSERT, codeRegistry);
   }
 
-  public GraphQLFieldDefinition updateMutation(Schema schema) {
-    return getMutationDefinition(schema, MutationType.UPDATE);
+  public GraphQLFieldDefinition updateMutation(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    return getMutationDefinition(schema, MutationType.UPDATE, codeRegistry);
   }
 
-  public GraphQLFieldDefinition upsertMutation(Schema schema) {
-    return getMutationDefinition(schema, MutationType.SAVE);
+  public GraphQLFieldDefinition upsertMutation(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    return getMutationDefinition(schema, MutationType.SAVE, codeRegistry);
   }
 
-  public GraphQLFieldDefinition deleteMutation(Schema schema) {
+  public GraphQLFieldDefinition deleteMutation(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "delete"), fetcher(schema, MutationType.DELETE));
     GraphQLFieldDefinition.Builder fieldBuilder =
-        GraphQLFieldDefinition.newFieldDefinition()
-            .name("delete")
-            .type(typeForMutationResult)
-            .dataFetcher(fetcher(schema, MutationType.DELETE));
+        GraphQLFieldDefinition.newFieldDefinition().name("delete").type(typeForMutationResult);
 
     fieldBuilder.argument(
         GraphQLArgument.newArgument().name("strict").type(Scalars.GraphQLBoolean).build());

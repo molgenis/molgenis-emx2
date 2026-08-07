@@ -10,7 +10,10 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.outputSettings
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import graphql.Scalars;
+import graphql.schema.DataFetcher;
+import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLArgument;
+import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
@@ -54,11 +57,11 @@ public class GraphqlSessionFieldFactory {
     // no instance
   }
 
-  public GraphQLFieldDefinition signoutField(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("signout")
-        .type(GraphqlApiMutationResult.typeForMutationResult)
-        .dataFetcher(
+  public GraphQLFieldDefinition signoutField(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "signout"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               GraphqlSessionHandlerInterface sessionHandler =
                   dataFetchingEnvironment
@@ -69,17 +72,18 @@ public class GraphqlSessionFieldFactory {
                   GraphqlApiMutationResult.Status.SUCCESS,
                   "User '%s' has signed out",
                   database.getActiveUser());
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("signout")
+        .type(GraphqlApiMutationResult.typeForMutationResult)
         .build();
   }
 
-  public GraphQLFieldDefinition signupField(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("signup")
-        .type(GraphqlApiMutationResult.typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
-        .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
-        .dataFetcher(
+  public GraphQLFieldDefinition signupField(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "signup"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
@@ -107,17 +111,20 @@ public class GraphqlSessionFieldFactory {
                   });
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' added", userName);
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("signup")
+        .type(GraphqlApiMutationResult.typeForMutationResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .build();
   }
 
-  public GraphQLFieldDefinition signinField(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("signin")
-        .type(GraphqlApiMutationResultWithToken.typeForSignResult)
-        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
-        .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
-        .dataFetcher(
+  public GraphQLFieldDefinition signinField(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "signin"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
@@ -145,11 +152,37 @@ public class GraphqlSessionFieldFactory {
                 return new GraphqlApiMutationResult(
                     FAILED, "Sign in as '%s' failed: user or password unknown", userName);
               }
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("signin")
+        .type(GraphqlApiMutationResultWithToken.typeForSignResult)
+        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
+        .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .build();
   }
 
-  public GraphQLFieldDefinition sessionQueryField(Database database, Schema schema) {
+  public GraphQLFieldDefinition sessionQueryField(
+      Database database, Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_session"),
+        (DataFetcher<?>)
+            dataFetchingEnvironment -> {
+              Map<String, Object> result = new LinkedHashMap<>();
+              result.put(
+                  EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
+              result.put(ADMIN, database.isAdmin());
+              if (schema != null) {
+                result.put(ROLES, schema.getInheritedRolesForActiveUser());
+                result.put(TABLE_PERMISSIONS, buildTablePermissions(schema));
+              }
+              result.put(SCHEMAS, database.getSchemaNames());
+              User user = database.getUser(database.getActiveUser());
+              result.put(
+                  SETTINGS, user != null ? mapSettingsToGraphql(user.getSettings()) : Map.of());
+              result.put(
+                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
+              return result;
+            });
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_session")
         .type(
@@ -183,24 +216,6 @@ public class GraphqlSessionFieldFactory {
                     GraphQLFieldDefinition.newFieldDefinition()
                         .name(TOKEN)
                         .type(Scalars.GraphQLString)))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              Map<String, Object> result = new LinkedHashMap<>();
-              result.put(
-                  EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
-              result.put(ADMIN, database.isAdmin());
-              if (schema != null) {
-                result.put(ROLES, schema.getInheritedRolesForActiveUser());
-                result.put(TABLE_PERMISSIONS, buildTablePermissions(schema));
-              }
-              result.put(SCHEMAS, database.getSchemaNames());
-              User user = database.getUser(database.getActiveUser());
-              result.put(
-                  SETTINGS, user != null ? mapSettingsToGraphql(user.getSettings()) : Map.of());
-              result.put(
-                  TOKEN, JWTgenerator.createTemporaryToken(database, database.getActiveUser()));
-              return result;
-            })
         .build();
   }
 
@@ -219,15 +234,11 @@ public class GraphqlSessionFieldFactory {
         .toList();
   }
 
-  public GraphQLFieldDefinition createTokenField(Database database) {
-    GraphQLFieldDefinition.Builder builder =
-        GraphQLFieldDefinition.newFieldDefinition()
-            .name("createToken")
-            .type(GraphqlApiMutationResultWithToken.typeForSignResult);
-    builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
-    return builder
-        .argument(GraphQLArgument.newArgument().name(TOKEN_NAME).type(Scalars.GraphQLString))
-        .dataFetcher(
+  public GraphQLFieldDefinition createTokenField(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "createToken"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String tokenId = dataFetchingEnvironment.getArgument(TOKEN_NAME);
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
@@ -241,21 +252,22 @@ public class GraphqlSessionFieldFactory {
                   "Token '%s' created for user '%s'",
                   tokenId,
                   userName);
-            })
+            });
+    GraphQLFieldDefinition.Builder builder =
+        GraphQLFieldDefinition.newFieldDefinition()
+            .name("createToken")
+            .type(GraphqlApiMutationResultWithToken.typeForSignResult);
+    builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
+    return builder
+        .argument(GraphQLArgument.newArgument().name(TOKEN_NAME).type(Scalars.GraphQLString))
         .build();
   }
 
-  public GraphQLFieldDefinition changePasswordField(Database database) {
-    GraphQLFieldDefinition.Builder builder =
-        GraphQLFieldDefinition.newFieldDefinition()
-            .name("changePassword")
-            .type(typeForMutationResult);
-    if (database.isAdmin()) {
-      builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
-    }
-    return builder
-        .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
-        .dataFetcher(
+  public GraphQLFieldDefinition changePasswordField(
+      Database database, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "changePassword"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               String password = dataFetchingEnvironment.getArgument(PASSWORD);
               String username = dataFetchingEnvironment.getArgument(EMAIL);
@@ -268,7 +280,16 @@ public class GraphqlSessionFieldFactory {
               } else {
                 return new GraphqlApiMutationResult(FAILED, "Password not changed: empty");
               }
-            })
+            });
+    GraphQLFieldDefinition.Builder builder =
+        GraphQLFieldDefinition.newFieldDefinition()
+            .name("changePassword")
+            .type(typeForMutationResult);
+    if (database.isAdmin()) {
+      builder.argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString));
+    }
+    return builder
+        .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
         .build();
   }
 }

@@ -778,7 +778,8 @@ public class GraphqlSchemaFieldFactory {
     }
   }
 
-  public GraphQLFieldDefinition.Builder schemaQuery(Schema schema) {
+  public GraphQLFieldDefinition.Builder schemaQuery(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
     GraphQLObjectType.Builder builder =
         new GraphQLObjectType.Builder()
             .name("MolgenisSchema")
@@ -807,42 +808,44 @@ public class GraphqlSchemaFieldFactory {
               .type(GraphQLList.list(outputMembersMetadataType)));
     }
 
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_schema")
-        .type(builder)
-        .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_schema"),
+        GraphqlSchemaFieldFactory.queryFetcher(schema));
+    return GraphQLFieldDefinition.newFieldDefinition().name("_schema").type(builder);
   }
 
-  public GraphQLFieldDefinition.Builder changeLogQuery(Schema schema) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_changes")
-        .type(GraphQLList.list(changesMetadataType))
-        .dataFetcher(
+  public GraphQLFieldDefinition.Builder changeLogQuery(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_changes"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               int limit = dataFetchingEnvironment.getArgumentOrDefault("limit", 100);
               int offset = dataFetchingEnvironment.getArgumentOrDefault("offset", 0);
               return schema.getChanges(limit, offset);
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_changes")
+        .type(GraphQLList.list(changesMetadataType))
         .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
         .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt));
   }
 
-  public GraphQLFieldDefinition.Builder changeLogCountQuery(Schema schema) {
+  public GraphQLFieldDefinition.Builder changeLogCountQuery(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_changesCount"),
+        (DataFetcher<?>) dataFetchingEnvironment -> schema.getChangesCount());
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_changesCount")
-        .type(Scalars.GraphQLInt)
-        .dataFetcher(dataFetchingEnvironment -> schema.getChangesCount());
+        .type(Scalars.GraphQLInt);
   }
 
-  public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_settings")
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.KEYS)
-                .type(GraphQLList.list(Scalars.GraphQLString)))
-        .type(GraphQLList.list(outputSettingsType))
-        .dataFetcher(
+  public GraphQLFieldDefinition.Builder settingsQuery(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_settings"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               final List<String> selectedKeys =
                   dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
@@ -865,13 +868,21 @@ public class GraphqlSchemaFieldFactory {
                               String.valueOf(schema.getDatabase().isOidcEnabled()))))
                   .toList();
             });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_settings")
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.KEYS)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
+        .type(GraphQLList.list(outputSettingsType));
   }
 
-  public GraphQLFieldDefinition changeMutation(Schema schema) {
+  public GraphQLFieldDefinition changeMutation(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(FieldCoordinates.coordinates("Save", "change"), changeFetcher(schema));
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("change")
         .type(typeForMutationResult)
-        .dataFetcher(changeFetcher(schema))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.TABLES)
@@ -996,11 +1007,12 @@ public class GraphqlSchemaFieldFactory {
     return keyValueMap;
   }
 
-  public GraphQLFieldDefinition dropMutation(Schema schema) {
+  public GraphQLFieldDefinition dropMutation(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(FieldCoordinates.coordinates("Save", "drop"), dropFetcher(schema));
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("drop")
         .type(typeForMutationResult)
-        .dataFetcher(dropFetcher(schema))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.TABLES)
@@ -1024,10 +1036,12 @@ public class GraphqlSchemaFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition.Builder truncateMutation(Schema schema, TaskService taskService) {
+  public GraphQLFieldDefinition.Builder truncateMutation(
+      Schema schema, TaskService taskService, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Save", "truncate"), truncateFetcher(schema, taskService));
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("truncate")
-        .dataFetcher(truncateFetcher(schema, taskService))
         .type(typeForMutationResult)
         .argument(
             GraphQLArgument.newArgument()
@@ -1039,7 +1053,22 @@ public class GraphqlSchemaFieldFactory {
                 .type(Scalars.GraphQLBoolean));
   }
 
-  public GraphQLFieldDefinition schemaReportsField(Schema schema) {
+  public GraphQLFieldDefinition schemaReportsField(
+      Schema schema, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_reports"),
+        (DataFetcher<?>)
+            dataFetchingEnvironment -> {
+              Map<String, Object> result = new LinkedHashMap<>();
+              final String id = dataFetchingEnvironment.getArgument(ID);
+              Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
+              Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
+              Map<String, String> parameters =
+                  convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
+              result.put(DATA, getReportAsJson(id, schema, parameters, limit, offset));
+              result.put(COUNT, getReportCount(id, schema, parameters));
+              return result;
+            });
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_reports")
         .type(
@@ -1060,18 +1089,6 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(inputSettingsMetadataType)))
         .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
         .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              Map<String, Object> result = new LinkedHashMap<>();
-              final String id = dataFetchingEnvironment.getArgument(ID);
-              Integer offset = dataFetchingEnvironment.getArgumentOrDefault(OFFSET, 0);
-              Integer limit = dataFetchingEnvironment.getArgumentOrDefault(LIMIT, 10);
-              Map<String, String> parameters =
-                  convertKeyValueListToMap(dataFetchingEnvironment.getArgument(PARAMETERS));
-              result.put(DATA, getReportAsJson(id, schema, parameters, limit, offset));
-              result.put(COUNT, getReportCount(id, schema, parameters));
-              return result;
-            })
         .build();
   }
 }

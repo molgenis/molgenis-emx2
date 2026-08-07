@@ -1,6 +1,9 @@
 package org.molgenis.emx2.graphql;
 
 import graphql.Scalars;
+import graphql.schema.DataFetcher;
+import graphql.schema.FieldCoordinates;
+import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 import java.util.HashMap;
@@ -14,17 +17,20 @@ public class GraphqlManifesFieldFactory {
   public static final String SPECIFICATION_VERSION = "SpecificationVersion";
   public static final String DATABASE_VERSION = "DatabaseVersion";
 
-  public GraphQLFieldDefinition queryVersionField(Database db) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name("_manifest")
-        .dataFetcher(
+  public GraphQLFieldDefinition queryVersionField(
+      Database db, GraphQLCodeRegistry.Builder codeRegistry) {
+    codeRegistry.dataFetcher(
+        FieldCoordinates.coordinates("Query", "_manifest"),
+        (DataFetcher<?>)
             dataFetchingEnvironment -> {
               Map<String, Object> result = new HashMap<>();
               result.put(IMPLEMENTATION_VERSION, Version.getImplementationVersion());
               result.put(SPECIFICATION_VERSION, Version.getSpecificationVersion());
               result.put(DATABASE_VERSION, db.getDatabaseVersion());
               return result;
-            })
+            });
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_manifest")
         .type(
             GraphQLObjectType.newObject()
                 .name("MolgenisManifest")
