@@ -173,7 +173,8 @@ module.exports = {
         "button-outline": "var(--background-color-button-outline)",
         "button-outline-hover": "var(--background-color-button-outline-hover)",
         "button-disabled": "var(--background-color-button-disabled)",
-        "button-disabled-hover": "var(background-color-button-disabled-hover)",
+        "button-disabled-hover":
+          "var(--background-color-button-disabled-hover)",
         "button-filter": "var(--background-color-button-filter)",
         "button-filter-hover": "var(--background-color-button-filter-hover)",
         "button-tree-node-toggle":
