@@ -109,6 +109,37 @@ class SparqlSelectRdfTransformerTest {
   }
 
   @Test
+  void shouldSplitRefArraySubjects() {
+    schema.create(TableMetadata.table("splitRefArrays_tag").add(Column.column("name").setPkey()));
+    schema.create(
+        TableMetadata.table("splitRefArrays_owner")
+            .add(
+                Column.column("id").setType(ColumnType.INT).setPkey(),
+                Column.column("tags")
+                    .setType(ColumnType.REF_ARRAY)
+                    .setRefTable("splitRefArrays_tag")
+                    .setSemantics(FOAF.KNOWS.stringValue())));
+
+    IRI tag1 = iri("https://example.com/tag/1");
+    IRI tag2 = iri("https://example.com/tag/2");
+
+    SailRepository repository =
+        createRepositoryWithStatements(
+            statement(SUBJECT, FOAF.KNOWS, tag1, null), statement(SUBJECT, FOAF.KNOWS, tag2, null));
+
+    TableStore transform =
+        new SparqlSelectRdfTransformer(
+                new TableQueryGenerator(), schema, List.of("splitRefArrays_owner"))
+            .transform(repository);
+
+    Iterator<Row> iterator = transform.readTable("splitRefArrays_owner").iterator();
+    Row row = iterator.next();
+    assertArrayEquals(
+        new String[] {tag1.stringValue(), tag2.stringValue()}, row.getStringArray("_subject_tags"));
+    assertFalse(iterator.hasNext());
+  }
+
+  @Test
   void givenTtlData_thenQueryTable() throws IOException {
     String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_petstore";
     database.dropSchemaIfExists(schemaName);
