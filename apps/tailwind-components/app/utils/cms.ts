@@ -135,8 +135,6 @@ async function AddImage(schema: string, id: string) {
         value: [
           {
             id: `${id}`,
-            width: "325px",
-            imageIsCentered: true,
           },
         ],
       },
