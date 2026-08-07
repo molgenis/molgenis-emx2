@@ -29,16 +29,21 @@ public class Harvest implements Runnable {
   private static final Logger logger = LoggerFactory.getLogger(Harvest.class);
   public static final UUID HARVEST_ID = UUID.randomUUID();
 
-  @CommandLine.Parameters(index = "0", description = "FDP endpoint to harvest")
+  @CommandLine.Option(
+      names = {"-r", "--rdf"},
+      required = true,
+      description = "FDP endpoint to harvest")
   private String rdf;
 
-  @CommandLine.Parameters(
-      index = "1",
+  @CommandLine.Option(
+      names = {"-s", "--schema"},
+      required = true,
       description = "Name of Molgenis schema that contains the desired tables")
   private String schemaName;
 
-  @CommandLine.Parameters(
-      index = "2",
+  @CommandLine.Option(
+      names = {"-t", "--tables"},
+      required = true,
       description = "Comma-separated list of table names to harvest")
   private String tablesArg;
 

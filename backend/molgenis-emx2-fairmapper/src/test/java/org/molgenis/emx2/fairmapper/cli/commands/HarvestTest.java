@@ -12,11 +12,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
@@ -114,7 +110,9 @@ class HarvestTest {
     doNothing().when(harvest).runPipeline(any());
 
     String[] args =
-        Stream.concat(Stream.of(rdf, schema.getName(), tables), Arrays.stream(extraArgs))
+        Stream.concat(
+                Stream.of("-r", rdf, "-s", schema.getName(), "-t", tables),
+                Arrays.stream(extraArgs))
             .toArray(String[]::new);
     new CommandLine(harvest).execute(args);
 
