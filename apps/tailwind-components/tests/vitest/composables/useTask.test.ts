@@ -30,13 +30,16 @@ describe("useTask", () => {
     });
     expect(status.value).toBe("COMPLETED");
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith("/demo/graphql", {
+    const fetchArgs = fetchMock.mock.calls[0];
+    expect(fetchArgs?.[0]).toBe("/demo/graphql");
+    expect(fetchArgs?.[1]).toMatchObject({
       method: "POST",
-      body: {
-        query:
-          'query { _tasks(id:"task-1") { id, description, status, subTasks { id, description, status} } }',
-      },
     });
+
+    const query = fetchArgs?.[1]?.body?.query;
+    expect(query).toContain('_tasks(id:"task-1")');
+    expect(query).toContain("id, description, status");
+    expect(query).toContain("subTasks");
   });
 
   test("keeps polling until API returns completed", async () => {

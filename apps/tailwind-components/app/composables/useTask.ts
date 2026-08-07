@@ -33,7 +33,11 @@ export const useTask = (schemaId: string, taskId: string) => {
             status.value = response.data._tasks[0].status;
           }
 
-          if (status.value === "COMPLETED" || status.value === "ERROR" || status.value === "CANCELLED") {
+          if (
+            status.value === "COMPLETED" ||
+            status.value === "ERROR" ||
+            status.value === "CANCELLED"
+          ) {
             resolve({
               status: status.value,
               description: response.data._tasks[0].description,
