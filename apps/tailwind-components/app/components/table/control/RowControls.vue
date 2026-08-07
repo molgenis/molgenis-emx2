@@ -34,7 +34,7 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
       >
         <div class="flex items-center pl-2 pr-2 gap-2">
           <Checkbox
-            :model-value="allRowsSelected"
+            :model-value="allRowsSelected && numberOfSelectedRows > 0"
             :indeterminate="!allRowsSelected && numberOfSelectedRows > 0"
             :prevent-click="true"
           >
