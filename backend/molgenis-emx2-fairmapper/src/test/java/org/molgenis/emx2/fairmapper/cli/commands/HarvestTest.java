@@ -88,10 +88,24 @@ class HarvestTest {
   }
 
   @Test
-  void shouldNeverEnableDataLoading() {
+  void shouldNotEnableDataLoadingWhenLoadOptionOmitted() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
     assertFalse(config.loadDataEnabled());
+  }
+
+  @Test
+  void shouldEnableDataLoadingWhenLoadOptionProvided() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-l");
+
+    assertTrue(config.loadDataEnabled());
+  }
+
+  @Test
+  void shouldEnableDataLoadingWhenLoadLongOptionProvided() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--load");
+
+    assertTrue(config.loadDataEnabled());
   }
 
   private HarvestingPipelineConfig runAndCaptureConfig(

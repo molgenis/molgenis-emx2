@@ -45,7 +45,12 @@ public class Harvest implements Runnable {
   @CommandLine.Option(
       names = {"-o", "--output"},
       description = "Write intermediate post processing results to files")
-  private String dump;
+  private String outputPath;
+
+  @CommandLine.Option(
+      names = {"-l", "--load"},
+      description = "Write intermediate post processing results to files")
+  private boolean enableLoading;
 
   @Override
   public void run() {
@@ -68,8 +73,12 @@ public class Harvest implements Runnable {
             .withPostProcessors(new DCATPostProcessor(schema.getMetadata()))
             .withPreProcessors(new TemporalRdfPreProcessor(), new TypicalAgeRdfPreProcessor());
 
-    if (dump != null) {
-      builder.withDumpEnabled(dump);
+    if (outputPath != null) {
+      builder.withDumpEnabled(outputPath);
+    }
+
+    if (enableLoading) {
+      builder.enableDataLoading();
     }
 
     runPipeline(builder);
