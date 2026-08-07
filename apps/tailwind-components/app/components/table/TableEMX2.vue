@@ -237,7 +237,7 @@
             </table>
             <div
               class="sticky left-0 flex justify-center items-center py-2.5"
-              v-if="status === 'success' && !rows?.length"
+              v-if="!rows?.length"
             >
               <TextNoResultsMessage
                 class="w-full text-center"

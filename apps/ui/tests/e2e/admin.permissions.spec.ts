@@ -1,5 +1,5 @@
 import { test, expect, request as apiRequest } from "@playwright/test";
-import type { APIRequestContext } from "@playwright/test";
+import type { APIRequestContext, Page } from "@playwright/test";
 import playwrightConfig from "../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
@@ -70,11 +70,42 @@ test.afterAll(async () => {
   await api.dispose();
 });
 
-test("test admin page is shown after login and page refresh", async ({
-  page,
-}) => {
-  await page.goto(`${route}admin`);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Admin Tools"
+test("The dragonkeeper has the correct permissions", async ({ page }) => {
+  await page.goto(route + "pet%20store/Pet");
+  await expect(
+    page.getByText("The requested page could not be found.")
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Home" }).click();
+  await expect(page).toHaveURL(route);
+
+  await signin(page, "dragonKeeper", "dragonKeeper");
+
+  // check that order tables are not clickable
+  await page.goto(route + "pet%20store");
+  expect(page.getByText("Category")).toBeVisible();
+  expect(page.getByText("Order")).toBeVisible();
+  expect(page.getByText("User")).toBeVisible();
+
+  await page.getByText("pet store").click();
+  await page.getByText("Pet", { exact: true }).click();
+  expect(page.getByText("No records found")).toBeVisible();
+
+  await page.getByText("Pet", { exact: true }).click();
+  await page.getByRole("button", { name: "Account" }).click();
+  await page.getByRole("button", { name: "Sign out" }).click();
+  expect(page.getByLabel("error")).toHaveText(
+    "You don't have permission to view this table. Please contact your administrator to request access."
   );
+
+  signin(page, "admin", "admin");
+  expect(page.getByText("Showing 1 to 10 of 10 items")).toBeVisible();
 });
+
+async function signin(page: Page, username: string, password: string) {
+  return page
+    .getByRole("button", { name: "Signin" })
+    .click()
+    .then(() => page.getByRole("textbox", { name: "Username" }).fill(username))
+    .then(() => page.getByRole("textbox", { name: "Password" }).fill(password))
+    .then(() => page.getByRole("button", { name: "Sign in" }).click());
+}
