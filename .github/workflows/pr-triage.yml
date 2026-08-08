@@ -25,13 +25,20 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # issues:write is needed because assignment goes through the
-    # /issues/{n}/assignees endpoint. GITHUB_TOKEN does nothing else here:
-    # the draft conversion and every board write use PROJECT_BOARD_TOKEN,
-    # since GitHub refuses convertPullRequestToDraft to GITHUB_TOKEN outright.
+    # Assignment is GITHUB_TOKEN's only job here; the draft conversion and
+    # every board write use PROJECT_BOARD_TOKEN, since GitHub refuses
+    # convertPullRequestToDraft to GITHUB_TOKEN outright.
+    #
+    # Do not narrow this block by reasoning. Assigning a PULL REQUEST needs
+    # pull-requests:write even though the endpoint path reads /issues/, and
+    # dropping it once already produced a 403 "Resource not accessible by
+    # integration" on the assignees call. This exact pair is the only
+    # combination observed to work; issues:write alone is observed to fail,
+    # and pull-requests:write alone has never been tried.
     permissions:
       contents: read
       issues: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - name: Triage pull request

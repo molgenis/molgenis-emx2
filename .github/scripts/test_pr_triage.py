@@ -2191,15 +2191,25 @@ class WorkflowHasAPerPrConcurrencyGroupTest(unittest.TestCase):
         self.assertNotIn("cancel-in-progress: true", workflow_text)
 
 
-class WorkflowGithubTokenPermissionsAreNarrowedTest(unittest.TestCase):
-    def test_triage_job_no_longer_grants_pull_requests_write(self):
+class WorkflowGithubTokenPermissionsTest(unittest.TestCase):
+    """Assigning a PULL REQUEST needs pull-requests:write as well as issues:write.
+
+    This assertion was once the exact opposite: it pinned the narrower block,
+    on the reasoning that assignment goes through an /issues/ endpoint so only
+    issues:write could be required. A real run disproved it — the assignees
+    call returned 403 "Resource not accessible by integration". The requirement
+    changed, so the check changed with it. issues:write alone is observed to
+    fail; this pair is observed to work; pull-requests:write alone is untried.
+    """
+
+    def test_triage_job_grants_both_permissions_assignment_needs(self):
         repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         workflow_path = os.path.join(repo_root, ".github", "workflows", "pr-triage.yml")
         with open(workflow_path, encoding="utf-8") as handle:
             workflow_text = handle.read()
 
         self.assertIn("issues: write", workflow_text)
-        self.assertNotIn("pull-requests: write", workflow_text)
+        self.assertIn("pull-requests: write", workflow_text)
 
 
 if __name__ == "__main__":
