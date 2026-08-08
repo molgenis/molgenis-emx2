@@ -30,6 +30,19 @@ class GraphqlError(Exception):
     pass
 
 
+class AssignmentDroppedError(Exception):
+    pass
+
+
+def check_assignment_succeeded(author_login, assign_result):
+    assignee_logins = [assignee["login"] for assignee in assign_result.get("assignees", [])]
+    if author_login not in assignee_logins:
+        raise AssignmentDroppedError(
+            f"GitHub did not assign '{author_login}' (assignees after the call: {assignee_logins}). "
+            f"The login is probably no longer valid for assignment; .github/pr-triage-teams.yml is probably stale."
+        )
+
+
 def decide(author_login, is_draft, mapping):
     team = mapping.get(author_login)
     known = bool(team) and bool(team.strip())
@@ -50,11 +63,13 @@ def decide(author_login, is_draft, mapping):
     }
 
 
-def decide_transition(action):
+def decide_transition(action, is_draft=None):
     if action == "ready_for_review":
         return {"status": STATUS_REVIEW}
     if action == "converted_to_draft":
         return {"status": STATUS_WORKING}
+    if action == "reopened":
+        return {"status": STATUS_WORKING if is_draft else STATUS_REVIEW}
     return None
 
 
@@ -73,8 +88,8 @@ def find_option_id_by_name(options, target_name, strip_emoji):
     )
 
 
-def parse_teams_mapping(text):
-    mapping = {}
+def parse_teams_entries(text):
+    entries = []
     in_teams_block = False
     for raw_line in text.splitlines():
         line = raw_line.split("#", 1)[0].rstrip()
@@ -89,13 +104,21 @@ def parse_teams_mapping(text):
             in_teams_block = False
             continue
         key, _, value = line.strip().partition(":")
-        mapping[key.strip()] = value.strip()
-    return mapping
+        entries.append((key.strip(), value.strip()))
+    return entries
+
+
+def parse_teams_mapping(text):
+    return dict(parse_teams_entries(text))
 
 
 def load_teams_mapping(path):
     with open(path, encoding="utf-8") as handle:
         return parse_teams_mapping(handle.read())
+
+
+def mapping_file_path(pr_triage_file):
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(pr_triage_file))), "pr-triage-teams.yml")
 
 
 def http_request(url, token, method="GET", body=None):
@@ -284,7 +307,7 @@ def handle_transition(action, transition, pull_request):
         write_step_summary(summary_rows)
 
 
-OPEN_TRIAGE_ACTIONS = ("opened", "reopened")
+OPEN_TRIAGE_ACTIONS = ("opened",)
 
 
 def handle_unrecognized_action(action, pull_request):
@@ -314,7 +337,7 @@ def main():
     action = event["action"]
     pull_request = event["pull_request"]
 
-    transition = decide_transition(action)
+    transition = decide_transition(action, is_draft=pull_request.get("draft"))
     if transition is not None:
         handle_transition(action, transition, pull_request)
         return
@@ -330,7 +353,7 @@ def main():
     is_draft = pull_request["draft"]
     repo = event["repository"]["full_name"]
 
-    mapping_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "pr-triage-teams.yml")
+    mapping_path = mapping_file_path(__file__)
     mapping = load_teams_mapping(mapping_path)
 
     decision = decide(author_login=author_login, is_draft=is_draft, mapping=mapping)
@@ -359,9 +382,8 @@ def main():
         if decision["assign"]:
             github_token = os.environ["GITHUB_TOKEN"]
             assign_result = assign_author(repo, pr_number, author_login, github_token)
-            summary_rows.append(
-                ("Assignee set", author_login in [u["login"] for u in assign_result.get("assignees", [])])
-            )
+            check_assignment_succeeded(author_login, assign_result)
+            summary_rows.append(("Assignee set", True))
         elif decision["known"]:
             summary_rows.append(("Assignee set", "skipped, not required by decision"))
         else:

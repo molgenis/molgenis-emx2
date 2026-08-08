@@ -120,8 +120,15 @@ class DecideTransitionTest(unittest.TestCase):
     def test_opened_is_not_a_transition(self):
         self.assertIsNone(pr_triage.decide_transition("opened"))
 
-    def test_reopened_is_not_a_transition(self):
-        self.assertIsNone(pr_triage.decide_transition("reopened"))
+    def test_reopened_draft_pr_moves_status_to_working(self):
+        transition = pr_triage.decide_transition("reopened", is_draft=True)
+
+        self.assertEqual(transition["status"], "Working")
+
+    def test_reopened_ready_pr_moves_status_to_review(self):
+        transition = pr_triage.decide_transition("reopened", is_draft=False)
+
+        self.assertEqual(transition["status"], "Review")
 
     def test_transition_rule_is_decoupled_from_the_unknown_author_rule(self):
         with mock.patch.object(pr_triage, "UNKNOWN_AUTHOR_STATUS", "SomethingElse"):
@@ -134,6 +141,22 @@ class DecideTransitionTest(unittest.TestCase):
             transition = pr_triage.decide_transition("converted_to_draft")
 
         self.assertEqual(transition["status"], "Working")
+
+
+class CheckAssignmentSucceededTest(unittest.TestCase):
+    def test_raises_when_author_login_is_absent_from_the_assignees_response(self):
+        assign_result = {"assignees": []}
+
+        with self.assertRaises(pr_triage.AssignmentDroppedError) as context:
+            pr_triage.check_assignment_succeeded("someuser", assign_result)
+
+        self.assertIn("someuser", str(context.exception))
+        self.assertIn("pr-triage-teams.yml", str(context.exception))
+
+    def test_does_not_raise_when_author_login_is_present(self):
+        assign_result = {"assignees": [{"login": "someuser"}]}
+
+        pr_triage.check_assignment_succeeded("someuser", assign_result)
 
 
 class StripEmojiPrefixTest(unittest.TestCase):
@@ -234,6 +257,22 @@ class ValidateTeamValuesTest(unittest.TestCase):
         errors = validate_pr_triage_teams.find_unknown_team_values(mapping, valid_team_names={"Dev", "Delivery"})
 
         self.assertEqual(errors, [])
+
+
+class FindDuplicateLoginsTest(unittest.TestCase):
+    def test_flags_a_login_listed_twice(self):
+        text = "teams:\n  mswertz: Dev\n  hslh: Delivery\n  mswertz: Delivery\n"
+
+        duplicates = validate_pr_triage_teams.find_duplicate_logins(text)
+
+        self.assertEqual(duplicates, ["mswertz"])
+
+    def test_passes_when_every_login_appears_once(self):
+        text = "teams:\n  mswertz: Dev\n  hslh: Delivery\n"
+
+        duplicates = validate_pr_triage_teams.find_duplicate_logins(text)
+
+        self.assertEqual(duplicates, [])
 
 
 class ValidateBlankTeamValuesTest(unittest.TestCase):
@@ -429,6 +468,247 @@ class MainWiringTest(unittest.TestCase):
         self.assertEqual(team_write["body"]["variables"]["fieldId"], pr_triage.TEAM_FIELD_ID)
         self.assertEqual(team_write["body"]["variables"]["optionId"], "TEAM_OPT")
         self.assertEqual(team_write["token"], "board-token")
+
+
+class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
+    def test_main_raises_and_records_failure_when_github_drops_the_assignment(self):
+        import tempfile
+
+        event = {
+            "action": "opened",
+            "pull_request": {
+                "user": {"login": "mswertz"},
+                "head": {"ref": "feature/x"},
+                "number": 1,
+                "node_id": "PR_node",
+                "draft": False,
+            },
+            "repository": {"full_name": "molgenis/molgenis-emx2"},
+        }
+
+        def fake_http_request(url, token, method="GET", body=None):
+            if url.endswith("/assignees"):
+                return {"assignees": []}
+            raise AssertionError(f"unexpected call: {url}")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            event_path = os.path.join(tmp_dir, "event.json")
+            with open(event_path, "w", encoding="utf-8") as handle:
+                json.dump(event, handle)
+            summary_path = os.path.join(tmp_dir, "summary.md")
+            open(summary_path, "w", encoding="utf-8").close()
+
+            env = {
+                "GITHUB_EVENT_PATH": event_path,
+                "GITHUB_TOKEN": "github-token",
+                "PROJECT_BOARD_TOKEN": "board-token",
+                "GITHUB_STEP_SUMMARY": summary_path,
+            }
+
+            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
+                pr_triage, "http_request", side_effect=fake_http_request
+            ):
+                with self.assertRaises(pr_triage.AssignmentDroppedError):
+                    pr_triage.main()
+
+            with open(summary_path, encoding="utf-8") as handle:
+                summary_text = handle.read()
+
+        self.assertIn("### PR triage", summary_text)
+        self.assertIn("Failure", summary_text)
+        self.assertIn("mswertz", summary_text)
+
+
+class MappingFilePathTest(unittest.TestCase):
+    def test_is_absolute_even_when_file_argument_is_relative(self):
+        result = pr_triage.mapping_file_path("some/relative/.github/scripts/pr_triage.py")
+
+        self.assertTrue(os.path.isabs(result))
+
+    def test_resolves_next_to_the_given_file_not_against_cwd(self):
+        result = pr_triage.mapping_file_path("/opt/checkout/.github/scripts/pr_triage.py")
+
+        self.assertEqual(result, "/opt/checkout/.github/pr-triage-teams.yml")
+
+
+class MainWiringReopenedTest(unittest.TestCase):
+    def _run_reopened(self, is_draft, item_exists):
+        import tempfile
+
+        event = {
+            "action": "reopened",
+            "pull_request": {
+                "user": {"login": "mswertz"},
+                "head": {"ref": "feature/x"},
+                "number": 1,
+                "node_id": "PR_node",
+                "draft": is_draft,
+            },
+            "repository": {"full_name": "molgenis/molgenis-emx2"},
+        }
+
+        calls = []
+
+        def fake_http_request(url, token, method="GET", body=None):
+            calls.append({"url": url, "token": token, "body": body})
+            query = (body or {}).get("query", "")
+            variables = (body or {}).get("variables", {})
+
+            if url.endswith("/assignees"):
+                raise AssertionError("reopened must never touch the assignee")
+            if "convertPullRequestToDraft" in query:
+                raise AssertionError("reopened must never call convertPullRequestToDraft")
+            if "ReadyForReview" in query:
+                raise AssertionError("reopened must never call a ready-conversion mutation")
+
+            if "projectItems" in query:
+                if item_exists:
+                    nodes = [
+                        {
+                            "id": "EXISTING_ITEM",
+                            "project": {"id": pr_triage.BOARD_PROJECT_ID},
+                            "fieldValueByName": {"name": "Working"},
+                        }
+                    ]
+                else:
+                    nodes = []
+                return {"data": {"node": {"projectItems": {"nodes": nodes}}}}
+
+            if "addProjectV2ItemById" in query:
+                if item_exists:
+                    raise AssertionError("must not add an item that already exists")
+                return {"data": {"addProjectV2ItemById": {"item": {"id": "NEW_ITEM"}}}}
+
+            if "updateProjectV2ItemFieldValue" in query:
+                if variables.get("fieldId") == pr_triage.TEAM_FIELD_ID:
+                    raise AssertionError("reopened must never write the Team field")
+                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM"}}}}
+
+            if "options { id name }" in query:
+                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
+                    return {"data": {"node": {"options": LIVE_STATUS_OPTIONS}}}
+                raise AssertionError("reopened must never fetch Team options")
+
+            raise AssertionError(f"unexpected call: {url} {query}")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            event_path = os.path.join(tmp_dir, "event.json")
+            with open(event_path, "w", encoding="utf-8") as handle:
+                json.dump(event, handle)
+            summary_path = os.path.join(tmp_dir, "summary.md")
+            open(summary_path, "w", encoding="utf-8").close()
+
+            env = {
+                "GITHUB_EVENT_PATH": event_path,
+                "PROJECT_BOARD_TOKEN": "board-token",
+                "GITHUB_STEP_SUMMARY": summary_path,
+            }
+
+            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
+                pr_triage, "http_request", side_effect=fake_http_request
+            ):
+                pr_triage.main()
+
+        return calls
+
+    def test_reopened_draft_pr_moves_status_to_working(self):
+        calls = self._run_reopened(is_draft=True, item_exists=True)
+
+        def query_of(call):
+            return (call["body"] or {}).get("query", "")
+
+        field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
+        self.assertEqual(len(field_writes), 1)
+        self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")
+
+    def test_reopened_ready_pr_moves_status_to_review(self):
+        calls = self._run_reopened(is_draft=False, item_exists=True)
+
+        def query_of(call):
+            return (call["body"] or {}).get("query", "")
+
+        field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
+        self.assertEqual(len(field_writes), 1)
+        self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], "879449e7")
+
+    def test_reopened_with_no_existing_item_is_added_not_skipped(self):
+        calls = self._run_reopened(is_draft=False, item_exists=False)
+
+        def query_of(call):
+            return (call["body"] or {}).get("query", "")
+
+        add_item_calls = [call for call in calls if "addProjectV2ItemById" in query_of(call)]
+        self.assertEqual(len(add_item_calls), 1)
+
+
+class MainWiringOpenedStillRunsFullOpenPathTest(unittest.TestCase):
+    def test_opened_action_still_assigns_drafts_and_writes_team(self):
+        import tempfile
+
+        event = {
+            "action": "opened",
+            "pull_request": {
+                "user": {"login": "mswertz"},
+                "head": {"ref": "feature/x"},
+                "number": 1,
+                "node_id": "PR_node",
+                "draft": False,
+            },
+            "repository": {"full_name": "molgenis/molgenis-emx2"},
+        }
+
+        calls = []
+
+        def fake_http_request(url, token, method="GET", body=None):
+            calls.append({"url": url, "token": token, "body": body})
+            query = (body or {}).get("query", "")
+            variables = (body or {}).get("variables", {})
+            if url.endswith("/assignees"):
+                return {"assignees": [{"login": "mswertz"}]}
+            if "convertPullRequestToDraft" in query:
+                return {"data": {"convertPullRequestToDraft": {"pullRequest": {"id": "PR_node", "isDraft": True}}}}
+            if "addProjectV2ItemById" in query:
+                return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
+            if "updateProjectV2ItemFieldValue" in query:
+                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
+            if "options { id name }" in query:
+                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
+                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "Working"}]}}}
+                if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
+                    return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
+            raise AssertionError(f"unexpected call: {url} {query}")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            event_path = os.path.join(tmp_dir, "event.json")
+            with open(event_path, "w", encoding="utf-8") as handle:
+                json.dump(event, handle)
+            summary_path = os.path.join(tmp_dir, "summary.md")
+            open(summary_path, "w", encoding="utf-8").close()
+
+            env = {
+                "GITHUB_EVENT_PATH": event_path,
+                "GITHUB_TOKEN": "github-token",
+                "PROJECT_BOARD_TOKEN": "board-token",
+                "GITHUB_STEP_SUMMARY": summary_path,
+            }
+
+            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
+                pr_triage, "http_request", side_effect=fake_http_request
+            ):
+                pr_triage.main()
+
+        def query_of(call):
+            return (call["body"] or {}).get("query", "")
+
+        assign_call = next(call for call in calls if call["url"].endswith("/assignees"))
+        self.assertEqual(assign_call["token"], "github-token")
+
+        draft_call = next(call for call in calls if "convertPullRequestToDraft" in query_of(call))
+        self.assertEqual(draft_call["token"], "github-token")
+
+        field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
+        self.assertEqual(len(field_writes), 2)
+        self.assertEqual(field_writes[1]["body"]["variables"]["fieldId"], pr_triage.TEAM_FIELD_ID)
 
 
 class MainWiringUnknownAuthorTest(unittest.TestCase):
@@ -1255,6 +1535,88 @@ class FindBannedTermsAcrossTriageSourceTest(unittest.TestCase):
         self.assertEqual(findings, [])
 
 
+class ValidateMainExitsNonZeroOnDuplicateLoginTest(unittest.TestCase):
+    def test_main_exits_non_zero_when_a_login_is_listed_twice(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = os.path.join(tmp_dir, "repo")
+            scripts_dir = os.path.join(repo_root, ".github", "scripts")
+            workflows_dir = os.path.join(repo_root, ".github", "workflows")
+            os.makedirs(scripts_dir)
+            os.makedirs(workflows_dir)
+            with open(os.path.join(repo_root, ".github", "pr-triage-teams.yml"), "w", encoding="utf-8") as handle:
+                handle.write("teams:\n  mswertz: Dev\n  mswertz: Delivery\n")
+            with open(os.path.join(workflows_dir, "pr-triage.yml"), "w", encoding="utf-8") as handle:
+                handle.write("on:\n  pull_request:\n    types: [opened]\n")
+            with open(os.path.join(scripts_dir, "pr_triage.py"), "w", encoding="utf-8") as handle:
+                handle.write("def decide():\n    pass\n")
+            with open(os.path.join(scripts_dir, "validate_pr_triage_teams.py"), "w", encoding="utf-8") as handle:
+                handle.write("BANNED = ('author_association',)\n")
+            with open(os.path.join(scripts_dir, "test_pr_triage.py"), "w", encoding="utf-8") as handle:
+                handle.write("workflow_text = 'author_association'\n")
+
+            env = {"PROJECT_BOARD_TOKEN": "board-token"}
+            fake_status_options = [{"id": "s1", "name": "Working"}, {"id": "s2", "name": "Review"}]
+            fake_team_options = [{"id": "t1", "name": "Dev"}, {"id": "t2", "name": "Delivery"}]
+
+            def fake_fetch(field_id, token):
+                if field_id == pr_triage.TEAM_FIELD_ID:
+                    return fake_team_options
+                return fake_status_options
+
+            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
+                pr_triage, "fetch_project_field_options", side_effect=fake_fetch
+            ):
+                with self.assertRaises(SystemExit) as context:
+                    validate_pr_triage_teams.main(repo_root=repo_root)
+
+        self.assertNotEqual(context.exception.code, 0)
+
+
+class ValidateMainChecksTransitionStatusConstantsTest(unittest.TestCase):
+    def _write_clean_repo(self, tmp_dir):
+        repo_root = os.path.join(tmp_dir, "repo")
+        scripts_dir = os.path.join(repo_root, ".github", "scripts")
+        workflows_dir = os.path.join(repo_root, ".github", "workflows")
+        os.makedirs(scripts_dir)
+        os.makedirs(workflows_dir)
+        with open(os.path.join(repo_root, ".github", "pr-triage-teams.yml"), "w", encoding="utf-8") as handle:
+            handle.write("teams:\n  mswertz: Dev\n")
+        with open(os.path.join(workflows_dir, "pr-triage.yml"), "w", encoding="utf-8") as handle:
+            handle.write("on:\n  pull_request:\n    types: [opened]\n")
+        with open(os.path.join(scripts_dir, "pr_triage.py"), "w", encoding="utf-8") as handle:
+            handle.write("def decide():\n    pass\n")
+        with open(os.path.join(scripts_dir, "validate_pr_triage_teams.py"), "w", encoding="utf-8") as handle:
+            handle.write("BANNED = ('author_association',)\n")
+        with open(os.path.join(scripts_dir, "test_pr_triage.py"), "w", encoding="utf-8") as handle:
+            handle.write("workflow_text = 'author_association'\n")
+        return repo_root
+
+    def test_validator_flags_a_status_review_that_diverged_from_the_unknown_author_status(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = self._write_clean_repo(tmp_dir)
+
+            env = {"PROJECT_BOARD_TOKEN": "board-token"}
+            fake_status_options = [{"id": "s1", "name": "Working"}, {"id": "s2", "name": "Review"}]
+            fake_team_options = [{"id": "t1", "name": "Dev"}]
+
+            def fake_fetch(field_id, token):
+                if field_id == pr_triage.TEAM_FIELD_ID:
+                    return fake_team_options
+                return fake_status_options
+
+            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
+                pr_triage, "fetch_project_field_options", side_effect=fake_fetch
+            ), mock.patch.object(pr_triage, "STATUS_REVIEW", "DivergedFromUnknownAuthorStatus"):
+                with self.assertRaises(SystemExit) as context:
+                    validate_pr_triage_teams.main(repo_root=repo_root)
+
+        self.assertNotEqual(context.exception.code, 0)
+
+
 class ValidateMainExitsNonZeroOnBannedTermTest(unittest.TestCase):
     def test_main_exits_non_zero_when_a_banned_term_is_planted(self):
         import tempfile
@@ -1286,6 +1648,18 @@ class ValidateMainExitsNonZeroOnBannedTermTest(unittest.TestCase):
                     validate_pr_triage_teams.main(repo_root=repo_root)
 
         self.assertNotEqual(context.exception.code, 0)
+
+
+class WorkflowHasAPerPrConcurrencyGroupTest(unittest.TestCase):
+    def test_concurrency_group_is_scoped_per_pr_and_does_not_cancel_in_progress_runs(self):
+        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        workflow_path = os.path.join(repo_root, ".github", "workflows", "pr-triage.yml")
+        with open(workflow_path, encoding="utf-8") as handle:
+            workflow_text = handle.read()
+
+        self.assertIn("concurrency:", workflow_text)
+        self.assertIn("github.event.pull_request.number", workflow_text)
+        self.assertNotIn("cancel-in-progress: true", workflow_text)
 
 
 if __name__ == "__main__":

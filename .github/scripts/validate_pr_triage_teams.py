@@ -41,6 +41,15 @@ def find_blank_team_values(mapping):
     return [login for login, team in mapping.items() if not team.strip()]
 
 
+def find_duplicate_logins(text):
+    logins = [login for login, _ in pr_triage.parse_teams_entries(text)]
+    duplicates = []
+    for login in logins:
+        if logins.count(login) > 1 and login not in duplicates:
+            duplicates.append(login)
+    return duplicates
+
+
 def find_missing_status_option(status_options, status_name):
     for option in status_options:
         if pr_triage.strip_emoji_prefix(option["name"]) == status_name:
@@ -90,9 +99,15 @@ def main(repo_root=None):
     if repo_root is None:
         repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     mapping_path = os.path.join(repo_root, ".github", "pr-triage-teams.yml")
-    mapping = pr_triage.load_teams_mapping(mapping_path)
+    with open(mapping_path, encoding="utf-8") as handle:
+        mapping_text = handle.read()
+    mapping = pr_triage.parse_teams_mapping(mapping_text)
 
     errors = []
+
+    duplicate_logins = find_duplicate_logins(mapping_text)
+    if duplicate_logins:
+        errors.append(f"login(s) listed more than once in pr-triage-teams.yml: {duplicate_logins}")
 
     bad_logins = find_bot_or_machine_logins(mapping)
     if bad_logins:
@@ -131,11 +146,11 @@ def main(repo_root=None):
             f"Live Team options are: {available}"
         )
 
-    missing_working_status = find_missing_status_option(status_options, pr_triage.KNOWN_AUTHOR_STATUS)
+    missing_working_status = find_missing_status_option(status_options, pr_triage.STATUS_WORKING)
     if missing_working_status:
         errors.append(missing_working_status)
 
-    missing_review_status = find_missing_status_option(status_options, pr_triage.UNKNOWN_AUTHOR_STATUS)
+    missing_review_status = find_missing_status_option(status_options, pr_triage.STATUS_REVIEW)
     if missing_review_status:
         errors.append(missing_review_status)
 
