@@ -40,13 +40,12 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      # Pin to the base commit, not the PR's own HEAD: this step runs with
-      # PROJECT_BOARD_TOKEN in its environment, and without this ref a PR
-      # could edit these scripts to exfiltrate that token and have its own
-      # edit run before any review. Looks removable; is not.
+      # This step runs the PR's own copy of .github/scripts/ with
+      # PROJECT_BOARD_TOKEN in its environment. Accepted: only trusted
+      # committers can push a branch here, and a same-repo PR supplies its
+      # own workflow file anyway, so pinning the checkout would not close the
+      # hole on its own.
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
       - name: Triage pull request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

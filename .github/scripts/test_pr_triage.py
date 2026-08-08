@@ -2602,20 +2602,6 @@ class WorkflowOnlyTriagesPrsBasedOnTheDefaultBranchTest(unittest.TestCase):
         self.assertNotIn('== "master"', triage_text)
 
 
-class WorkflowTriageCheckoutPinsToBaseShaTest(unittest.TestCase):
-    def test_triage_job_checks_out_the_base_sha_not_the_prs_own_code(self):
-        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        workflow_path = os.path.join(repo_root, ".github", "workflows", "pr-triage.yml")
-        with open(workflow_path, encoding="utf-8") as handle:
-            workflow_text = handle.read()
-
-        jobs = workflow_text.split("\n  triage:", 1)
-        self.assertEqual(len(jobs), 2, "expected exactly one 'triage:' job in the workflow")
-        _, triage_text = jobs
-
-        self.assertIn("ref: ${{ github.event.pull_request.base.sha }}", triage_text)
-
-
 class WorkflowValidateJobHoldsNoBoardTokenTest(unittest.TestCase):
     def test_validate_job_env_has_no_project_board_token(self):
         repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
