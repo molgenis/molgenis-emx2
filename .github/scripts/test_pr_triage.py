@@ -108,13 +108,13 @@ class DecideTransitionTest(unittest.TestCase):
     def test_ready_for_review_moves_status_to_review(self):
         transition = pr_triage.decide_transition("ready_for_review")
 
-        self.assertEqual(transition["status"], pr_triage.UNKNOWN_AUTHOR_STATUS)
+        self.assertEqual(transition["status"], pr_triage.STATUS_REVIEW)
         self.assertEqual(transition["status"], "Review")
 
     def test_converted_to_draft_moves_status_to_working(self):
         transition = pr_triage.decide_transition("converted_to_draft")
 
-        self.assertEqual(transition["status"], pr_triage.KNOWN_AUTHOR_STATUS)
+        self.assertEqual(transition["status"], pr_triage.STATUS_WORKING)
         self.assertEqual(transition["status"], "Working")
 
     def test_opened_is_not_a_transition(self):
@@ -122,6 +122,18 @@ class DecideTransitionTest(unittest.TestCase):
 
     def test_reopened_is_not_a_transition(self):
         self.assertIsNone(pr_triage.decide_transition("reopened"))
+
+    def test_transition_rule_is_decoupled_from_the_unknown_author_rule(self):
+        with mock.patch.object(pr_triage, "UNKNOWN_AUTHOR_STATUS", "SomethingElse"):
+            transition = pr_triage.decide_transition("ready_for_review")
+
+        self.assertEqual(transition["status"], "Review")
+
+    def test_transition_rule_is_decoupled_from_the_known_author_rule(self):
+        with mock.patch.object(pr_triage, "KNOWN_AUTHOR_STATUS", "SomethingElse"):
+            transition = pr_triage.decide_transition("converted_to_draft")
+
+        self.assertEqual(transition["status"], "Working")
 
 
 class StripEmojiPrefixTest(unittest.TestCase):
@@ -634,6 +646,19 @@ class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
                     pr_triage.main()
 
 
+LIVE_STATUS_OPTIONS = [
+    {"id": "285bb9d7", "name": "\U0001f4cb Epic"},
+    {"id": "ff9f2e2b", "name": "⛔️ Blocked"},
+    {"id": "f75ad846", "name": "\U0001f4da Backlog"},
+    {"id": "47fc9ee4", "name": "\U0001f6e0️ Working"},
+    {"id": "879449e7", "name": "\U0001f50d Review"},
+    {"id": "98236657", "name": "✅ Done"},
+    {"id": "58e93f55", "name": "\U0001f4e5 Inbox"},
+    {"id": "7164e058", "name": "Icebox"},
+]
+LIVE_STATUS_OPTION_ID_BY_NAME = {"Working": "47fc9ee4", "Review": "879449e7"}
+
+
 class MainWiringTransitionTest(unittest.TestCase):
     def _run_transition(self, action, author_login, item_exists):
         import tempfile
@@ -651,7 +676,6 @@ class MainWiringTransitionTest(unittest.TestCase):
         }
 
         calls = []
-        expected_status_name = "Review" if action == "ready_for_review" else "Working"
 
         def fake_http_request(url, token, method="GET", body=None):
             calls.append({"url": url, "token": token, "body": body})
@@ -690,13 +714,7 @@ class MainWiringTransitionTest(unittest.TestCase):
 
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {
-                        "data": {
-                            "node": {
-                                "options": [{"id": "STATUS_OPT_ID", "name": expected_status_name}]
-                            }
-                        }
-                    }
+                    return {"data": {"node": {"options": LIVE_STATUS_OPTIONS}}}
                 raise AssertionError("a transition must never fetch Team options")
 
             raise AssertionError(f"unexpected call: {url} {query}")
@@ -724,9 +742,13 @@ class MainWiringTransitionTest(unittest.TestCase):
 
         return calls, summary_text
 
-    def _assert_transition_wiring(self, calls, summary_text, item_exists):
+    def _assert_transition_wiring(self, calls, summary_text, action, item_exists):
         def query_of(call):
             return (call["body"] or {}).get("query", "")
+
+        expected_status_name = "Review" if action == "ready_for_review" else "Working"
+        expected_option_id = LIVE_STATUS_OPTION_ID_BY_NAME[expected_status_name]
+        expected_item_id = "EXISTING_ITEM" if item_exists else "NEW_ITEM"
 
         self.assertFalse(any(call["url"].endswith("/assignees") for call in calls))
         self.assertFalse(any("convertPullRequestToDraft" in query_of(call) for call in calls))
@@ -738,32 +760,225 @@ class MainWiringTransitionTest(unittest.TestCase):
             self.assertEqual(len(add_item_calls), 1)
             self.assertEqual(add_item_calls[0]["token"], "board-token")
 
+        project_items_calls = [call for call in calls if "projectItems" in query_of(call)]
+        self.assertEqual(len(project_items_calls), 1)
+        self.assertIn("first: 100", query_of(project_items_calls[0]))
+
         field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
         self.assertEqual(len(field_writes), 1)
         self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
+        self.assertEqual(field_writes[0]["body"]["variables"]["itemId"], expected_item_id)
+        self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], expected_option_id)
         self.assertEqual(field_writes[0]["token"], "board-token")
 
         self.assertIn("### PR triage", summary_text)
-        self.assertIn("Team", summary_text)
-        self.assertIn("Assignee", summary_text)
+        self.assertIn("| Team | not touched, deliberate |", summary_text)
+        self.assertIn(
+            "| Assignee | not touched, deliberate, including when empty |", summary_text
+        )
 
     def test_ready_for_review_known_author_existing_item(self):
         calls, summary_text = self._run_transition("ready_for_review", "mswertz", item_exists=True)
-        self._assert_transition_wiring(calls, summary_text, item_exists=True)
+        self._assert_transition_wiring(calls, summary_text, "ready_for_review", item_exists=True)
 
     def test_ready_for_review_unknown_author_no_existing_item(self):
         calls, summary_text = self._run_transition("ready_for_review", "some-outside-contributor", item_exists=False)
-        self._assert_transition_wiring(calls, summary_text, item_exists=False)
+        self._assert_transition_wiring(calls, summary_text, "ready_for_review", item_exists=False)
 
     def test_converted_to_draft_known_author_existing_item(self):
         calls, summary_text = self._run_transition("converted_to_draft", "mswertz", item_exists=True)
-        self._assert_transition_wiring(calls, summary_text, item_exists=True)
+        self._assert_transition_wiring(calls, summary_text, "converted_to_draft", item_exists=True)
 
     def test_converted_to_draft_unknown_author_no_existing_item(self):
         calls, summary_text = self._run_transition(
             "converted_to_draft", "some-outside-contributor", item_exists=False
         )
-        self._assert_transition_wiring(calls, summary_text, item_exists=False)
+        self._assert_transition_wiring(calls, summary_text, "converted_to_draft", item_exists=False)
+
+
+class TransitionWritesStepSummaryOnFailureTest(unittest.TestCase):
+    def test_step_summary_is_written_and_error_reraised_when_a_transition_write_fails(self):
+        import tempfile
+
+        event = {
+            "action": "ready_for_review",
+            "pull_request": {
+                "user": {"login": "mswertz"},
+                "head": {"ref": "feature/x"},
+                "number": 1,
+                "node_id": "PR_node",
+                "draft": False,
+            },
+            "repository": {"full_name": "molgenis/molgenis-emx2"},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            event_path = os.path.join(tmp_dir, "event.json")
+            with open(event_path, "w", encoding="utf-8") as handle:
+                json.dump(event, handle)
+            summary_path = os.path.join(tmp_dir, "summary.md")
+            open(summary_path, "w", encoding="utf-8").close()
+
+            env = {
+                "GITHUB_EVENT_PATH": event_path,
+                "PROJECT_BOARD_TOKEN": "board-token",
+                "GITHUB_STEP_SUMMARY": summary_path,
+            }
+
+            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
+                pr_triage, "fetch_project_field_options", side_effect=pr_triage.GraphqlError("board boom")
+            ):
+                with self.assertRaises(pr_triage.GraphqlError):
+                    pr_triage.main()
+
+            with open(summary_path, encoding="utf-8") as handle:
+                summary_text = handle.read()
+
+        self.assertIn("### PR triage", summary_text)
+        self.assertIn("Failure", summary_text)
+        self.assertIn("board boom", summary_text)
+
+
+class TransitionResolvesStatusBeforeAddingBoardItemTest(unittest.TestCase):
+    def test_status_option_is_resolved_before_a_missing_item_is_added(self):
+        import tempfile
+
+        event = {
+            "action": "ready_for_review",
+            "pull_request": {
+                "user": {"login": "mswertz"},
+                "head": {"ref": "feature/x"},
+                "number": 1,
+                "node_id": "PR_node",
+                "draft": False,
+            },
+            "repository": {"full_name": "molgenis/molgenis-emx2"},
+        }
+
+        call_kinds = []
+
+        def fake_http_request(url, token, method="GET", body=None):
+            query = (body or {}).get("query", "")
+            variables = (body or {}).get("variables", {})
+            if "projectItems" in query:
+                call_kinds.append("find_item")
+                return {"data": {"node": {"projectItems": {"nodes": []}}}}
+            if "addProjectV2ItemById" in query:
+                call_kinds.append("add_item")
+                return {"data": {"addProjectV2ItemById": {"item": {"id": "NEW_ITEM"}}}}
+            if "updateProjectV2ItemFieldValue" in query:
+                call_kinds.append("set_field")
+                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "NEW_ITEM"}}}}
+            if "options { id name }" in query:
+                call_kinds.append("fetch_status_options")
+                return {"data": {"node": {"options": LIVE_STATUS_OPTIONS}}}
+            raise AssertionError(f"unexpected call: {url} {query}")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            event_path = os.path.join(tmp_dir, "event.json")
+            with open(event_path, "w", encoding="utf-8") as handle:
+                json.dump(event, handle)
+            summary_path = os.path.join(tmp_dir, "summary.md")
+            open(summary_path, "w", encoding="utf-8").close()
+
+            env = {
+                "GITHUB_EVENT_PATH": event_path,
+                "PROJECT_BOARD_TOKEN": "board-token",
+                "GITHUB_STEP_SUMMARY": summary_path,
+            }
+
+            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
+                pr_triage, "http_request", side_effect=fake_http_request
+            ):
+                pr_triage.main()
+
+        self.assertLess(call_kinds.index("fetch_status_options"), call_kinds.index("add_item"))
+
+    def test_a_status_resolution_failure_never_adds_a_board_item(self):
+        import tempfile
+
+        event = {
+            "action": "ready_for_review",
+            "pull_request": {
+                "user": {"login": "mswertz"},
+                "head": {"ref": "feature/x"},
+                "number": 1,
+                "node_id": "PR_node",
+                "draft": False,
+            },
+            "repository": {"full_name": "molgenis/molgenis-emx2"},
+        }
+
+        def fake_http_request(url, token, method="GET", body=None):
+            query = (body or {}).get("query", "")
+            if "projectItems" in query:
+                return {"data": {"node": {"projectItems": {"nodes": []}}}}
+            if "addProjectV2ItemById" in query:
+                raise AssertionError("must not add a board item when Status resolution fails")
+            if "options { id name }" in query:
+                return {"data": {"node": {"options": [{"id": "SOME_OPT", "name": "NoMatchingOptionHere"}]}}}
+            raise AssertionError(f"unexpected call: {url} {query}")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            event_path = os.path.join(tmp_dir, "event.json")
+            with open(event_path, "w", encoding="utf-8") as handle:
+                json.dump(event, handle)
+            summary_path = os.path.join(tmp_dir, "summary.md")
+            open(summary_path, "w", encoding="utf-8").close()
+
+            env = {
+                "GITHUB_EVENT_PATH": event_path,
+                "PROJECT_BOARD_TOKEN": "board-token",
+                "GITHUB_STEP_SUMMARY": summary_path,
+            }
+
+            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
+                pr_triage, "http_request", side_effect=fake_http_request
+            ):
+                with self.assertRaises(ValueError):
+                    pr_triage.main()
+
+
+class MainIgnoresUnrecognizedActionTest(unittest.TestCase):
+    def test_an_unrecognized_action_makes_no_writes_and_reads_no_mapping_file(self):
+        import tempfile
+
+        event = {
+            "action": "synchronize",
+            "pull_request": {
+                "user": {"login": "mswertz"},
+                "head": {"ref": "feature/x"},
+                "number": 1,
+                "node_id": "PR_node",
+                "draft": False,
+            },
+            "repository": {"full_name": "molgenis/molgenis-emx2"},
+        }
+
+        def fake_http_request(url, token, method="GET", body=None):
+            raise AssertionError(f"an unrecognized action must make no API call, got: {url}")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            event_path = os.path.join(tmp_dir, "event.json")
+            with open(event_path, "w", encoding="utf-8") as handle:
+                json.dump(event, handle)
+            summary_path = os.path.join(tmp_dir, "summary.md")
+            open(summary_path, "w", encoding="utf-8").close()
+
+            env = {"GITHUB_EVENT_PATH": event_path, "GITHUB_STEP_SUMMARY": summary_path}
+
+            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
+                pr_triage, "http_request", side_effect=fake_http_request
+            ), mock.patch.object(
+                pr_triage, "load_teams_mapping", side_effect=AssertionError("must not read the mapping file")
+            ):
+                pr_triage.main()
+
+            with open(summary_path, encoding="utf-8") as handle:
+                summary_text = handle.read()
+
+        self.assertIn("synchronize", summary_text)
+        self.assertIn("no action", summary_text.lower())
 
 
 class MainReadsAssignDecisionTest(unittest.TestCase):

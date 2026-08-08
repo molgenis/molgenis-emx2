@@ -15,8 +15,10 @@ import urllib.request
 BOARD_PROJECT_ID = "PVT_kwDOABnCXs4AgIEx"
 STATUS_FIELD_ID = "PVTSSF_lADOABnCXs4AgIExzgVUF6A"
 TEAM_FIELD_ID = "PVTSSF_lADOABnCXs4AgIExzgbkzoM"
-KNOWN_AUTHOR_STATUS = "Working"
-UNKNOWN_AUTHOR_STATUS = "Review"
+STATUS_WORKING = "Working"
+STATUS_REVIEW = "Review"
+KNOWN_AUTHOR_STATUS = STATUS_WORKING
+UNKNOWN_AUTHOR_STATUS = STATUS_REVIEW
 UNKNOWN_AUTHOR_TEAM = "Dev"
 
 GITHUB_API_URL = "https://api.github.com"
@@ -50,9 +52,9 @@ def decide(author_login, is_draft, mapping):
 
 def decide_transition(action):
     if action == "ready_for_review":
-        return {"status": UNKNOWN_AUTHOR_STATUS}
+        return {"status": STATUS_REVIEW}
     if action == "converted_to_draft":
-        return {"status": KNOWN_AUTHOR_STATUS}
+        return {"status": STATUS_WORKING}
     return None
 
 
@@ -163,7 +165,7 @@ def find_board_item_for_pr(pr_node_id, token):
     query($contentId: ID!) {
       node(id: $contentId) {
         ... on PullRequest {
-          projectItems(first: 20) {
+          projectItems(first: 100) {
             nodes {
               id
               project { id }
@@ -258,6 +260,9 @@ def handle_transition(action, transition, pull_request):
     try:
         board_token = os.environ["PROJECT_BOARD_TOKEN"]
 
+        status_options = fetch_project_field_options(STATUS_FIELD_ID, board_token)
+        status_option_id = find_option_id_by_name(status_options, target_status, strip_emoji=True)
+
         existing_item = find_board_item_for_pr(pr_node_id, board_token)
         if existing_item:
             item_id = existing_item["id"]
@@ -268,8 +273,6 @@ def handle_transition(action, transition, pull_request):
             summary_rows.append(("Board item", f"no existing item, added {item_id}"))
             summary_rows.append(("Status before", "none, item just added"))
 
-        status_options = fetch_project_field_options(STATUS_FIELD_ID, board_token)
-        status_option_id = find_option_id_by_name(status_options, target_status, strip_emoji=True)
         set_project_field_option(item_id, STATUS_FIELD_ID, status_option_id, board_token)
         summary_rows.append(("Status after", target_status))
         summary_rows.append(("Team", "not touched, deliberate"))
@@ -279,6 +282,28 @@ def handle_transition(action, transition, pull_request):
         raise
     finally:
         write_step_summary(summary_rows)
+
+
+OPEN_TRIAGE_ACTIONS = ("opened", "reopened")
+
+
+def handle_unrecognized_action(action, pull_request):
+    author_login = pull_request["user"]["login"]
+    head_branch = pull_request["head"]["ref"]
+
+    verdict = f"unrecognized action '{action}' -> no action taken"
+
+    print(f"event=pull_request action={action} head_branch={head_branch} author={author_login}")
+    print(f"verdict: {verdict}")
+
+    write_step_summary(
+        [
+            ("Event/action", f"pull_request / {action}"),
+            ("Head branch", head_branch),
+            ("Author", author_login),
+            ("Verdict", verdict),
+        ]
+    )
 
 
 def main():
@@ -292,6 +317,10 @@ def main():
     transition = decide_transition(action)
     if transition is not None:
         handle_transition(action, transition, pull_request)
+        return
+
+    if action not in OPEN_TRIAGE_ACTIONS:
+        handle_unrecognized_action(action, pull_request)
         return
 
     author_login = pull_request["user"]["login"]
