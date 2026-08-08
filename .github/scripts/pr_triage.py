@@ -307,6 +307,56 @@ def handle_transition(action, transition, pull_request):
         write_step_summary(summary_rows)
 
 
+ADD_IF_MISSING_ACTIONS = ("synchronize",)
+
+
+def handle_add_if_missing(action, pull_request):
+    author_login = pull_request["user"]["login"]
+    head_branch = pull_request["head"]["ref"]
+    pr_node_id = pull_request["node_id"]
+    is_draft = pull_request["draft"]
+
+    summary_rows = [
+        ("Event/action", f"pull_request / {action}"),
+        ("Head branch", head_branch),
+        ("Author", author_login),
+    ]
+
+    try:
+        board_token = os.environ["PROJECT_BOARD_TOKEN"]
+
+        existing_item = find_board_item_for_pr(pr_node_id, board_token)
+        if existing_item:
+            verdict = f"already on board (item {existing_item['id']}) -> no action taken"
+            print(f"event=pull_request action={action} head_branch={head_branch} author={author_login}")
+            print(f"verdict: {verdict}")
+            summary_rows.append(("Verdict", verdict))
+            summary_rows.append(("Board item", f"already exists as {existing_item['id']}, left untouched"))
+        else:
+            target_status = STATUS_WORKING if is_draft else STATUS_REVIEW
+            verdict = f"missing from board -> added, boarded {target_status} (Team, assignee and draft not touched)"
+            print(f"event=pull_request action={action} head_branch={head_branch} author={author_login}")
+            print(f"verdict: {verdict}")
+            summary_rows.append(("Verdict", verdict))
+
+            status_options = fetch_project_field_options(STATUS_FIELD_ID, board_token)
+            status_option_id = find_option_id_by_name(status_options, target_status, strip_emoji=True)
+
+            item_id = add_item_to_project(pr_node_id, board_token)
+            summary_rows.append(("Board item", f"no existing item, added {item_id}"))
+
+            set_project_field_option(item_id, STATUS_FIELD_ID, status_option_id, board_token)
+            summary_rows.append(("Status set", target_status))
+            summary_rows.append(("Team", "not touched, deliberate"))
+            summary_rows.append(("Assignee", "not touched, deliberate"))
+            summary_rows.append(("Draft state", "not touched, deliberate"))
+    except Exception as error:
+        summary_rows.append(("Failure", str(error)))
+        raise
+    finally:
+        write_step_summary(summary_rows)
+
+
 OPEN_TRIAGE_ACTIONS = ("opened",)
 
 
@@ -329,29 +379,12 @@ def handle_unrecognized_action(action, pull_request):
     )
 
 
-def main():
-    event_path = os.environ["GITHUB_EVENT_PATH"]
-    with open(event_path, encoding="utf-8") as handle:
-        event = json.load(handle)
-
-    action = event["action"]
-    pull_request = event["pull_request"]
-
-    transition = decide_transition(action, is_draft=pull_request.get("draft"))
-    if transition is not None:
-        handle_transition(action, transition, pull_request)
-        return
-
-    if action not in OPEN_TRIAGE_ACTIONS:
-        handle_unrecognized_action(action, pull_request)
-        return
-
+def handle_open_triage(action, pull_request, repo):
     author_login = pull_request["user"]["login"]
     head_branch = pull_request["head"]["ref"]
     pr_number = pull_request["number"]
     pr_node_id = pull_request["node_id"]
     is_draft = pull_request["draft"]
-    repo = event["repository"]["full_name"]
 
     mapping_path = mapping_file_path(__file__)
     mapping = load_teams_mapping(mapping_path)
@@ -375,31 +408,41 @@ def main():
         ("Author", author_login),
         ("Verdict", verdict),
     ]
+    failures = []
 
-    try:
-        board_token = os.environ["PROJECT_BOARD_TOKEN"]
+    board_token = os.environ["PROJECT_BOARD_TOKEN"]
 
-        if decision["assign"]:
+    if decision["assign"]:
+        try:
             github_token = os.environ["GITHUB_TOKEN"]
             assign_result = assign_author(repo, pr_number, author_login, github_token)
             check_assignment_succeeded(author_login, assign_result)
             summary_rows.append(("Assignee set", True))
-        elif decision["known"]:
-            summary_rows.append(("Assignee set", "skipped, not required by decision"))
-        else:
-            summary_rows.append(("Assignee set", "skipped, unknown author is never assigned"))
+        except Exception as error:
+            print(f"ERROR: assignment failed: {error}")
+            summary_rows.append(("Assignee set", f"FAILED: {error}"))
+            failures.append(str(error))
+    elif decision["known"]:
+        summary_rows.append(("Assignee set", "skipped, not required by decision"))
+    else:
+        summary_rows.append(("Assignee set", "skipped, unknown author is never assigned"))
 
-        if decision["force_draft"]:
-            github_token = os.environ["GITHUB_TOKEN"]
-            draft_result = convert_pr_to_draft(pr_node_id, github_token)
+    if decision["force_draft"]:
+        try:
+            draft_result = convert_pr_to_draft(pr_node_id, board_token)
             summary_rows.append(
                 ("Converted to draft", draft_result["data"]["convertPullRequestToDraft"]["pullRequest"]["isDraft"])
             )
-        elif decision["known"]:
-            summary_rows.append(("Converted to draft", "skipped, already draft"))
-        else:
-            summary_rows.append(("Converted to draft", "skipped, draft state left untouched for unknown author"))
+        except Exception as error:
+            print(f"ERROR: convert-to-draft failed: {error}")
+            summary_rows.append(("Converted to draft", f"FAILED: {error}"))
+            failures.append(str(error))
+    elif decision["known"]:
+        summary_rows.append(("Converted to draft", "skipped, already draft"))
+    else:
+        summary_rows.append(("Converted to draft", "skipped, draft state left untouched for unknown author"))
 
+    try:
         status_options = fetch_project_field_options(STATUS_FIELD_ID, board_token)
         status_option_id = find_option_id_by_name(status_options, decision["status"], strip_emoji=True)
 
@@ -415,10 +458,40 @@ def main():
         set_project_field_option(item_id, TEAM_FIELD_ID, team_option_id, board_token)
         summary_rows.append(("Team option id written", team_option_id))
     except Exception as error:
-        summary_rows.append(("Failure", str(error)))
-        raise
-    finally:
-        write_step_summary(summary_rows)
+        print(f"ERROR: board write failed: {error}")
+        summary_rows.append(("Board write", f"FAILED: {error}"))
+        failures.append(str(error))
+
+    write_step_summary(summary_rows)
+
+    if failures:
+        print(f"ERROR: {len(failures)} outcome(s) failed: {'; '.join(failures)}")
+        sys.exit(1)
+
+
+def main():
+    event_path = os.environ["GITHUB_EVENT_PATH"]
+    with open(event_path, encoding="utf-8") as handle:
+        event = json.load(handle)
+
+    action = event["action"]
+    pull_request = event["pull_request"]
+
+    transition = decide_transition(action, is_draft=pull_request.get("draft"))
+    if transition is not None:
+        handle_transition(action, transition, pull_request)
+        return
+
+    if action in ADD_IF_MISSING_ACTIONS:
+        handle_add_if_missing(action, pull_request)
+        return
+
+    if action not in OPEN_TRIAGE_ACTIONS:
+        handle_unrecognized_action(action, pull_request)
+        return
+
+    repo = event["repository"]["full_name"]
+    handle_open_triage(action, pull_request, repo)
 
 
 if __name__ == "__main__":

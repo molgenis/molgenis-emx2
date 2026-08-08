@@ -1,7 +1,7 @@
 name: PR triage
 on:
   pull_request:
-    types: [ opened, reopened, ready_for_review, converted_to_draft ]
+    types: [ opened, reopened, ready_for_review, converted_to_draft, synchronize ]
 concurrency:
   group: pr-triage-${{ github.event.pull_request.number }}
 jobs:
@@ -26,12 +26,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     # issues:write is needed because assignment goes through the
-    # /issues/{n}/assignees endpoint; pull-requests:write is needed to
-    # read/convert the pull request.
+    # /issues/{n}/assignees endpoint. GITHUB_TOKEN does nothing else here:
+    # the draft conversion and every board write use PROJECT_BOARD_TOKEN,
+    # since GitHub refuses convertPullRequestToDraft to GITHUB_TOKEN outright.
     permissions:
       contents: read
       issues: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - name: Triage pull request
