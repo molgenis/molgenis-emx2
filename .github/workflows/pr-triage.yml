@@ -1,0 +1,39 @@
+name: PR triage
+on:
+  pull_request:
+    types: [ opened, reopened, ready_for_review, converted_to_draft ]
+jobs:
+  validate:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate pr-triage-teams.yml
+        env:
+          PROJECT_BOARD_TOKEN: ${{ secrets.PROJECT_BOARD_TOKEN }}
+        run: python3 .github/scripts/validate_pr_triage_teams.py
+      - name: Run unit tests
+        run: python3 .github/scripts/test_pr_triage.py
+
+  triage:
+    needs: validate
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # issues:write is needed because assignment goes through the
+    # /issues/{n}/assignees endpoint; pull-requests:write is needed to
+    # read/convert the pull request.
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Triage pull request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_BOARD_TOKEN: ${{ secrets.PROJECT_BOARD_TOKEN }}
+        run: python3 .github/scripts/pr_triage.py

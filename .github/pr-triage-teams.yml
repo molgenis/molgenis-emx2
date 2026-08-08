@@ -1,0 +1,46 @@
+# This file is the mapping of known PR authors to their board Team.
+# Presence of a login here is the ONLY thing that can cause a PR to be
+# assigned, drafted and boarded on open. An author not listed here is
+# "unknown" and is never assigned.
+#
+# No `[bot]` login and neither machine account (`JV-CI-CD`,
+# `molgenis-jenkins`) may ever be added to this file.
+teams:
+  aikevd: Dev
+  aneashodselmans: Onboarding
+  bartcharbon: Analysis
+  Bellaannabinoy: Onboarding
+  BrendaHijmans: Delivery
+  chinook25: Dev
+  connoratrug: Dev
+  davidruvolo51: Dev
+  dennishendriksen: Analysis
+  DickPostma: Ops
+  dtroelofsprins: Delivery
+  EleanorHyde-UMCG: Onboarding
+  erikzwart: Delivery
+  esthervanenckevort: Delivery
+  Fernananas: Delivery
+  Gerbenvandervries: Analysis
+  GeriekeBeen: Onboarding
+  gvdgeijn: Analysis
+  harmbrugge: Dev
+  hslh: Delivery
+  jelmerveen: Dev
+  jhhaanstra: Dev
+  joelkuiper: Dev
+  joerivandervelde: Dev
+  LdeHosson: Onboarding
+  marieke-bijlsma: Infra
+  marijevdgeest: Onboarding
+  marikaris: Armadillo
+  MaxPostema: Dev
+  mswertz: Dev
+  nakikkertumcg: Dev
+  pneerincx: Infra
+  RoanKanninga: Analysis
+  RubenOPS: Ops
+  svandenhoek: Dev
+  timcadman: Armadillo
+  willemijn-oudijk: Delivery
+  YpeZ: Delivery
