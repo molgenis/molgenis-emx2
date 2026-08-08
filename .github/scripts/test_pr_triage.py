@@ -20,7 +20,6 @@ class DecidePrTriageTest(unittest.TestCase):
         self.assertTrue(decision["known"])
         self.assertTrue(decision["assign"])
         self.assertTrue(decision["force_draft"])
-        self.assertEqual(decision["status"], "Working")
         self.assertEqual(decision["team"], "Dev")
 
     def test_known_author_mapped_to_delivery_boards_under_delivery(self):
@@ -39,7 +38,6 @@ class DecidePrTriageTest(unittest.TestCase):
         self.assertFalse(decision["known"])
         self.assertFalse(decision["assign"])
         self.assertFalse(decision["force_draft"])
-        self.assertEqual(decision["status"], "Review")
         self.assertEqual(decision["team"], "Dev")
 
     def test_unknown_author_already_draft_is_still_not_touched(self):
@@ -50,7 +48,6 @@ class DecidePrTriageTest(unittest.TestCase):
         self.assertFalse(decision["known"])
         self.assertFalse(decision["assign"])
         self.assertFalse(decision["force_draft"])
-        self.assertEqual(decision["status"], "Review")
         self.assertEqual(decision["team"], "Dev")
 
     def test_bot_author_is_unknown_regardless_of_login_shape(self):
@@ -60,7 +57,6 @@ class DecidePrTriageTest(unittest.TestCase):
 
         self.assertFalse(decision["known"])
         self.assertFalse(decision["assign"])
-        self.assertEqual(decision["status"], "Review")
         self.assertEqual(decision["team"], "Dev")
 
     def test_known_author_already_draft_is_not_re_converted(self):
@@ -87,7 +83,6 @@ class DecidePrTriageTest(unittest.TestCase):
         self.assertFalse(decision["known"])
         self.assertFalse(decision["assign"])
         self.assertFalse(decision["force_draft"])
-        self.assertEqual(decision["status"], "Review")
         self.assertEqual(decision["team"], "Dev")
 
     def test_whitespace_only_team_value_is_treated_as_unknown(self):
@@ -105,45 +100,89 @@ class DecidePrTriageTest(unittest.TestCase):
         self.assertFalse(decision["known"])
 
 
+class DecideStatusTest(unittest.TestCase):
+    def test_blank_status_fills_from_draft_state(self):
+        self.assertEqual(pr_triage.decide_status(True, None), "Working")
+        self.assertEqual(pr_triage.decide_status(False, None), "Review")
+
+    def test_blank_string_status_counts_as_blank(self):
+        self.assertEqual(pr_triage.decide_status(True, "   "), "Working")
+
+    def test_working_flips_to_review_when_pr_is_ready(self):
+        self.assertEqual(pr_triage.decide_status(False, "Working"), "Review")
+
+    def test_review_flips_to_working_when_pr_is_draft(self):
+        self.assertEqual(pr_triage.decide_status(True, "Review"), "Working")
+
+    def test_working_stays_working_when_pr_is_draft(self):
+        self.assertEqual(pr_triage.decide_status(True, "Working"), "Working")
+
+    def test_review_stays_review_when_pr_is_ready(self):
+        self.assertEqual(pr_triage.decide_status(False, "Review"), "Review")
+
+    def test_non_managed_statuses_are_never_touched_regardless_of_draft_state(self):
+        for status in ("Epic", "Blocked", "Backlog", "Done", "Inbox", "Icebox"):
+            with self.subTest(status=status):
+                self.assertIsNone(pr_triage.decide_status(True, status))
+                self.assertIsNone(pr_triage.decide_status(False, status))
+
+    def test_all_eight_real_board_option_names_behave_correctly_for_both_draft_states(self):
+        expected = {
+            "\U0001f4cb Epic": (None, None),
+            "⛔️ Blocked": (None, None),
+            "\U0001f4da Backlog": (None, None),
+            "\U0001f6e0️ Working": ("Working", "Review"),
+            "\U0001f50d Review": ("Working", "Review"),
+            "✅ Done": (None, None),
+            "\U0001f4e5 Inbox": (None, None),
+            "Icebox": (None, None),
+        }
+
+        for real_name, (expected_draft, expected_ready) in expected.items():
+            with self.subTest(real_name=real_name):
+                self.assertEqual(pr_triage.decide_status(True, real_name), expected_draft)
+                self.assertEqual(pr_triage.decide_status(False, real_name), expected_ready)
+
+
 class DecideBoardUpdateTest(unittest.TestCase):
     def test_ready_for_review_sets_status_review_outright(self):
         fields = pr_triage.decide_board_update(
-            "ready_for_review", is_draft=False, current_status="Working", current_team="Dev", mapped_team="Dev"
+            "ready_for_review", is_draft=False, current_status="🛠️ Working", current_team="Dev", mapped_team="Dev"
         )
 
         self.assertEqual(fields["status"], "Review")
 
     def test_converted_to_draft_sets_status_working_outright(self):
         fields = pr_triage.decide_board_update(
-            "converted_to_draft", is_draft=True, current_status="Review", current_team="Dev", mapped_team="Dev"
+            "converted_to_draft", is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
         )
 
         self.assertEqual(fields["status"], "Working")
 
     def test_reopened_draft_sets_status_working_outright(self):
         fields = pr_triage.decide_board_update(
-            "reopened", is_draft=True, current_status="Review", current_team="Dev", mapped_team="Dev"
+            "reopened", is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
         )
 
         self.assertEqual(fields["status"], "Working")
 
     def test_reopened_ready_sets_status_review_outright(self):
         fields = pr_triage.decide_board_update(
-            "reopened", is_draft=False, current_status="Working", current_team="Dev", mapped_team="Dev"
+            "reopened", is_draft=False, current_status="🛠️ Working", current_team="Dev", mapped_team="Dev"
         )
 
         self.assertEqual(fields["status"], "Review")
 
-    def test_transition_status_overwrites_even_when_status_already_set(self):
+    def test_transition_flips_a_managed_status_to_match_current_draft_state(self):
         fields = pr_triage.decide_board_update(
-            "ready_for_review", is_draft=False, current_status="Review", current_team="Dev", mapped_team="Dev"
+            "reopened", is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
         )
 
-        self.assertEqual(fields["status"], "Review")
+        self.assertEqual(fields["status"], "Working")
 
     def test_transition_fills_team_when_empty(self):
         fields = pr_triage.decide_board_update(
-            "ready_for_review", is_draft=False, current_status="Working", current_team=None, mapped_team="Delivery"
+            "ready_for_review", is_draft=False, current_status="🛠️ Working", current_team=None, mapped_team="Delivery"
         )
 
         self.assertEqual(fields["team"], "Delivery")
@@ -152,7 +191,7 @@ class DecideBoardUpdateTest(unittest.TestCase):
         fields = pr_triage.decide_board_update(
             "ready_for_review",
             is_draft=False,
-            current_status="Working",
+            current_status="🛠️ Working",
             current_team="Analysis",
             mapped_team="Delivery",
         )
@@ -173,38 +212,52 @@ class DecideBoardUpdateTest(unittest.TestCase):
 
         self.assertEqual(fields["status"], "Review")
 
-    def test_synchronize_never_overwrites_a_non_empty_status(self):
+    def test_synchronize_flips_a_managed_status_to_match_current_draft_state(self):
         fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=True, current_status="Review", current_team="Dev", mapped_team="Dev"
+            "synchronize", is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
+        )
+
+        self.assertEqual(fields["status"], "Working")
+
+    def test_synchronize_leaves_a_non_managed_status_alone(self):
+        fields = pr_triage.decide_board_update(
+            "synchronize", is_draft=True, current_status="📋 Epic", current_team="Dev", mapped_team="Dev"
+        )
+
+        self.assertIsNone(fields["status"])
+
+    def test_transition_leaves_a_non_managed_status_alone(self):
+        fields = pr_triage.decide_board_update(
+            "ready_for_review", is_draft=False, current_status="⛔️ Blocked", current_team="Dev", mapped_team="Dev"
         )
 
         self.assertIsNone(fields["status"])
 
     def test_synchronize_fills_team_when_empty(self):
         fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=False, current_status="Review", current_team=None, mapped_team="Delivery"
+            "synchronize", is_draft=False, current_status="🔍 Review", current_team=None, mapped_team="Delivery"
         )
 
         self.assertEqual(fields["team"], "Delivery")
 
     def test_synchronize_never_overwrites_a_non_empty_team(self):
         fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=False, current_status="Review", current_team="Analysis", mapped_team="Delivery"
+            "synchronize", is_draft=False, current_status="🔍 Review", current_team="Analysis", mapped_team="Delivery"
         )
 
         self.assertIsNone(fields["team"])
 
-    def test_synchronize_never_overwrites_status_or_team_together(self):
+    def test_synchronize_leaves_non_managed_status_alone_while_still_filling_team(self):
         fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=True, current_status="Review", current_team="Analysis", mapped_team="Delivery"
+            "synchronize", is_draft=True, current_status="📋 Epic", current_team=None, mapped_team="Delivery"
         )
 
         self.assertIsNone(fields["status"])
-        self.assertIsNone(fields["team"])
+        self.assertEqual(fields["team"], "Delivery")
 
     def test_blank_string_team_counts_as_empty(self):
         fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=False, current_status="Review", current_team="   ", mapped_team="Delivery"
+            "synchronize", is_draft=False, current_status="🔍 Review", current_team="   ", mapped_team="Delivery"
         )
 
         self.assertEqual(fields["team"], "Delivery")
@@ -227,7 +280,7 @@ class DecideBoardUpdateTest(unittest.TestCase):
         fields = pr_triage.decide_board_update(
             "ready_for_review",
             is_draft=False,
-            current_status="Working",
+            current_status="🛠️ Working",
             current_team="Dev",
             mapped_team="Dev",
             current_sprint=None,
@@ -240,7 +293,7 @@ class DecideBoardUpdateTest(unittest.TestCase):
         fields = pr_triage.decide_board_update(
             "converted_to_draft",
             is_draft=True,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             mapped_team="Dev",
             current_sprint="Sprint 259",
@@ -253,7 +306,7 @@ class DecideBoardUpdateTest(unittest.TestCase):
         fields = pr_triage.decide_board_update(
             "reopened",
             is_draft=False,
-            current_status="Working",
+            current_status="🛠️ Working",
             current_team="Dev",
             mapped_team="Dev",
             current_sprint=None,
@@ -266,7 +319,7 @@ class DecideBoardUpdateTest(unittest.TestCase):
         fields = pr_triage.decide_board_update(
             "synchronize",
             is_draft=False,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             mapped_team="Dev",
             current_sprint=None,
@@ -279,7 +332,7 @@ class DecideBoardUpdateTest(unittest.TestCase):
         fields = pr_triage.decide_board_update(
             "synchronize",
             is_draft=False,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             mapped_team="Dev",
             current_sprint="Sprint 259",
@@ -292,7 +345,7 @@ class DecideBoardUpdateTest(unittest.TestCase):
         fields = pr_triage.decide_board_update(
             "synchronize",
             is_draft=False,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             mapped_team="Dev",
             current_sprint="   ",
@@ -305,7 +358,7 @@ class DecideBoardUpdateTest(unittest.TestCase):
         fields = pr_triage.decide_board_update(
             "synchronize",
             is_draft=False,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             mapped_team="Dev",
             current_sprint=None,
@@ -316,7 +369,7 @@ class DecideBoardUpdateTest(unittest.TestCase):
 
     def test_no_field_is_written_by_default_when_sprint_args_are_omitted(self):
         fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=False, current_status="Review", current_team="Dev", mapped_team="Dev"
+            "synchronize", is_draft=False, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
         )
 
         self.assertIsNone(fields["sprint"])
@@ -613,7 +666,7 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "Working"}]}}}
+                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "🛠️ Working"}]}}}
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
             raise AssertionError(f"unexpected call: {url} {query}")
@@ -689,7 +742,7 @@ class MainWiringTest(unittest.TestCase):
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "Working"}]}}}
+                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "🛠️ Working"}]}}}
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
             raise AssertionError(f"unexpected call: {url} {query}")
@@ -771,7 +824,7 @@ class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "Working"}]}}}
+                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "🛠️ Working"}]}}}
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
             raise AssertionError(f"unexpected call: {url} {query}")
@@ -848,7 +901,16 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "Working"}]}}}
+                    return {
+                        "data": {
+                            "node": {
+                                "options": [
+                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
+                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
+                                ]
+                            }
+                        }
+                    }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
             raise AssertionError(f"unexpected call: {url} {query}")
@@ -889,6 +951,11 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
 
         field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
         self.assertEqual(len(field_writes), 2)
+
+        status_write = next(
+            call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+        )
+        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_REVIEW_OPT")
 
         self.assertIn("### PR triage", summary_text)
         self.assertIn("| Assignee set | True |", summary_text)
@@ -1049,7 +1116,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
 
     def test_ready_for_review_overwrites_status_even_when_already_set(self):
         calls, _ = self._run_board_update(
-            "ready_for_review", is_draft=False, item_exists=True, current_status="Working", current_team="Dev"
+            "ready_for_review", is_draft=False, item_exists=True, current_status="🛠️ Working", current_team="Dev"
         )
 
         status_writes = [
@@ -1064,7 +1131,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
 
     def test_converted_to_draft_overwrites_status_even_when_already_set(self):
         calls, _ = self._run_board_update(
-            "converted_to_draft", is_draft=True, item_exists=True, current_status="Review", current_team="Dev"
+            "converted_to_draft", is_draft=True, item_exists=True, current_status="🔍 Review", current_team="Dev"
         )
 
         status_writes = [
@@ -1076,7 +1143,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
 
     def test_reopened_draft_overwrites_status_to_working(self):
         calls, _ = self._run_board_update(
-            "reopened", is_draft=True, item_exists=True, current_status="Review", current_team="Dev"
+            "reopened", is_draft=True, item_exists=True, current_status="🔍 Review", current_team="Dev"
         )
 
         status_writes = [
@@ -1088,7 +1155,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
 
     def test_reopened_ready_overwrites_status_to_review(self):
         calls, _ = self._run_board_update(
-            "reopened", is_draft=False, item_exists=True, current_status="Working", current_team="Dev"
+            "reopened", is_draft=False, item_exists=True, current_status="🛠️ Working", current_team="Dev"
         )
 
         status_writes = [
@@ -1105,6 +1172,18 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         self.assertEqual(len(add_item_calls), 1)
         self.assertEqual(add_item_calls[0]["token"], "board-token")
 
+    def test_transition_never_touches_a_non_managed_status(self):
+        calls, _ = self._run_board_update(
+            "ready_for_review", is_draft=False, item_exists=True, current_status="⛔️ Blocked", current_team="Dev"
+        )
+
+        status_writes = [
+            call
+            for call in self._field_writes(calls)
+            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+        ]
+        self.assertEqual(status_writes, [])
+
     # --- transitions: Team and Sprint fill only, never overwrite ---
 
     def test_transition_fills_team_when_empty(self):
@@ -1112,7 +1191,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             "ready_for_review",
             is_draft=False,
             item_exists=True,
-            current_status="Working",
+            current_status="🛠️ Working",
             current_team=None,
             mapping={"mswertz": "Delivery"},
         )
@@ -1128,7 +1207,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             "ready_for_review",
             is_draft=False,
             item_exists=True,
-            current_status="Working",
+            current_status="🛠️ Working",
             current_team="Dev",
             mapping={"mswertz": "Delivery"},
         )
@@ -1143,7 +1222,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             "converted_to_draft",
             is_draft=True,
             item_exists=True,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             current_sprint=None,
         )
@@ -1161,7 +1240,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             "converted_to_draft",
             is_draft=True,
             item_exists=True,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             current_sprint="Sprint 259",
         )
@@ -1180,7 +1259,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             "synchronize",
             is_draft=False,
             item_exists=True,
-            current_status="Review",
+            current_status="📋 Epic",
             current_team="Dev",
             current_sprint="Sprint 260",
         )
@@ -1203,12 +1282,30 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         self.assertEqual(len(status_writes), 1)
         self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")
 
-    def test_synchronize_never_overwrites_a_non_empty_status(self):
+    def test_synchronize_flips_a_managed_status_to_match_current_draft_state(self):
         calls, _ = self._run_board_update(
             "synchronize",
             is_draft=True,
             item_exists=True,
-            current_status="Review",
+            current_status="🔍 Review",
+            current_team="Dev",
+            current_sprint="Sprint 260",
+        )
+
+        status_writes = [
+            call
+            for call in self._field_writes(calls)
+            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+        ]
+        self.assertEqual(len(status_writes), 1)
+        self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")
+
+    def test_synchronize_never_touches_a_non_managed_status(self):
+        calls, _ = self._run_board_update(
+            "synchronize",
+            is_draft=True,
+            item_exists=True,
+            current_status="📋 Epic",
             current_team="Dev",
             current_sprint="Sprint 260",
         )
@@ -1225,7 +1322,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             "synchronize",
             is_draft=False,
             item_exists=True,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team=None,
             current_sprint="Sprint 260",
             mapping={"mswertz": "Delivery"},
@@ -1242,7 +1339,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             "synchronize",
             is_draft=False,
             item_exists=True,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             current_sprint="Sprint 260",
             mapping={"mswertz": "Delivery"},
@@ -1258,7 +1355,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             "synchronize",
             is_draft=False,
             item_exists=True,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             current_sprint=None,
         )
@@ -1276,7 +1373,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             "synchronize",
             is_draft=False,
             item_exists=True,
-            current_status="Review",
+            current_status="🔍 Review",
             current_team="Dev",
             current_sprint="Sprint 259",
         )
@@ -1504,7 +1601,16 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "STATUS_REVIEW_OPT", "name": "Review"}]}}}
+                    return {
+                        "data": {
+                            "node": {
+                                "options": [
+                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
+                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
+                                ]
+                            }
+                        }
+                    }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_DEV_OPT", "name": "Dev"}]}}}
             raise AssertionError(f"unexpected call: {url} {query}")
@@ -1532,7 +1638,7 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
 
         return calls, summary_text
 
-    def _assert_unknown_author_boarded_correctly(self, calls, summary_text):
+    def _assert_unknown_author_boarded_correctly(self, calls, summary_text, expected_status_option_id):
         def query_of(call):
             return (call["body"] or {}).get("query", "")
 
@@ -1547,7 +1653,7 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
 
         status_write = field_writes[0]
         self.assertEqual(status_write["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
-        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_REVIEW_OPT")
+        self.assertEqual(status_write["body"]["variables"]["optionId"], expected_status_option_id)
         self.assertEqual(status_write["token"], "board-token")
 
         team_write = field_writes[1]
@@ -1562,13 +1668,13 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
         )
         self.assertIn("absent from .github/pr-triage-teams.yml", summary_text)
 
-    def test_unknown_author_ready_for_review_is_boarded_without_assign_or_draft(self):
+    def test_unknown_author_ready_for_review_is_boarded_review(self):
         calls, summary_text = self._run_main_for(is_draft=False)
-        self._assert_unknown_author_boarded_correctly(calls, summary_text)
+        self._assert_unknown_author_boarded_correctly(calls, summary_text, "STATUS_REVIEW_OPT")
 
-    def test_unknown_author_already_draft_is_boarded_without_assign_or_draft(self):
+    def test_unknown_author_already_draft_is_boarded_working(self):
         calls, summary_text = self._run_main_for(is_draft=True)
-        self._assert_unknown_author_boarded_correctly(calls, summary_text)
+        self._assert_unknown_author_boarded_correctly(calls, summary_text, "STATUS_WORKING_OPT")
 
 
 class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
@@ -1607,7 +1713,7 @@ class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
                     call_kinds.append("fetch_status_options")
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "Working"}]}}}
+                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "🛠️ Working"}]}}}
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     call_kinds.append("fetch_team_options")
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
@@ -1781,7 +1887,16 @@ class MainReadsAssignDecisionTest(unittest.TestCase):
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "Working"}]}}}
+                    return {
+                        "data": {
+                            "node": {
+                                "options": [
+                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
+                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
+                                ]
+                            }
+                        }
+                    }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
             raise AssertionError(f"unexpected call: {url} {query}")
@@ -1829,7 +1944,7 @@ class FindBoardItemForPrTest(unittest.TestCase):
                             {
                                 "id": "EXISTING_ITEM",
                                 "project": {"id": pr_triage.BOARD_PROJECT_ID},
-                                "status": {"name": "Working"},
+                                "status": {"name": "🛠️ Working"},
                                 "team": {"name": "Dev"},
                                 "sprint": {"title": "Sprint 260"},
                             },
@@ -1842,7 +1957,7 @@ class FindBoardItemForPrTest(unittest.TestCase):
             item = pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         self.assertEqual(item["id"], "EXISTING_ITEM")
-        self.assertEqual(item["status"], "Working")
+        self.assertEqual(item["status"], "🛠️ Working")
         self.assertEqual(item["team"], "Dev")
         self.assertEqual(item["sprint"], "Sprint 260")
 
@@ -2086,7 +2201,7 @@ class ValidateMainExitsNonZeroOnDuplicateLoginTest(unittest.TestCase):
                 handle.write("workflow_text = 'author_association'\n")
 
             env = {"PROJECT_BOARD_TOKEN": "board-token"}
-            fake_status_options = [{"id": "s1", "name": "Working"}, {"id": "s2", "name": "Review"}]
+            fake_status_options = [{"id": "s1", "name": "🛠️ Working"}, {"id": "s2", "name": "🔍 Review"}]
             fake_team_options = [{"id": "t1", "name": "Dev"}, {"id": "t2", "name": "Delivery"}]
 
             def fake_fetch(field_id, token):
@@ -2129,7 +2244,7 @@ class ValidateMainChecksTransitionStatusConstantsTest(unittest.TestCase):
             repo_root = self._write_clean_repo(tmp_dir)
 
             env = {"PROJECT_BOARD_TOKEN": "board-token"}
-            fake_status_options = [{"id": "s1", "name": "Working"}, {"id": "s2", "name": "Review"}]
+            fake_status_options = [{"id": "s1", "name": "🛠️ Working"}, {"id": "s2", "name": "🔍 Review"}]
             fake_team_options = [{"id": "t1", "name": "Dev"}]
 
             def fake_fetch(field_id, token):

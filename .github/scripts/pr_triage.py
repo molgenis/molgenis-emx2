@@ -19,8 +19,6 @@ TEAM_FIELD_ID = "PVTSSF_lADOABnCXs4AgIExzgbkzoM"
 SPRINT_FIELD_ID = "PVTIF_lADOABnCXs4AgIExzgavkek"
 STATUS_WORKING = "Working"
 STATUS_REVIEW = "Review"
-KNOWN_AUTHOR_STATUS = STATUS_WORKING
-UNKNOWN_AUTHOR_STATUS = STATUS_REVIEW
 UNKNOWN_AUTHOR_TEAM = "Dev"
 
 GITHUB_API_URL = "https://api.github.com"
@@ -53,14 +51,12 @@ def decide(author_login, is_draft, mapping):
             "known": False,
             "assign": False,
             "force_draft": False,
-            "status": UNKNOWN_AUTHOR_STATUS,
             "team": UNKNOWN_AUTHOR_TEAM,
         }
     return {
         "known": True,
         "assign": True,
         "force_draft": not is_draft,
-        "status": KNOWN_AUTHOR_STATUS,
         "team": team,
     }
 
@@ -89,22 +85,25 @@ def find_current_iteration(iterations, today):
     return None
 
 
+STATUS_MANAGED_VALUES = (STATUS_WORKING, STATUS_REVIEW)
+
+
+def decide_status(is_draft, current_status):
+    if is_blank(current_status) or strip_emoji_prefix(current_status) in STATUS_MANAGED_VALUES:
+        return target_status_from_draft_state(is_draft)
+    return None
+
+
 def decide_board_update(
     action, is_draft, current_status, current_team, mapped_team, current_sprint=None, current_sprint_title=None
 ):
-    team_fill = mapped_team if is_blank(current_team) else None
-    sprint_fill = current_sprint_title if (current_sprint_title and is_blank(current_sprint)) else None
-
-    if action == "ready_for_review":
-        return {"status": STATUS_REVIEW, "team": team_fill, "sprint": sprint_fill}
-    if action == "converted_to_draft":
-        return {"status": STATUS_WORKING, "team": team_fill, "sprint": sprint_fill}
-    if action == "reopened":
-        return {"status": target_status_from_draft_state(is_draft), "team": team_fill, "sprint": sprint_fill}
-    if action == "synchronize":
-        status_fill = target_status_from_draft_state(is_draft) if is_blank(current_status) else None
-        return {"status": status_fill, "team": team_fill, "sprint": sprint_fill}
-    return None
+    if action not in TRANSITION_ACTIONS and action != "synchronize":
+        return None
+    return {
+        "status": decide_status(is_draft, current_status),
+        "team": mapped_team if is_blank(current_team) else None,
+        "sprint": current_sprint_title if (current_sprint_title and is_blank(current_sprint)) else None,
+    }
 
 
 def strip_emoji_prefix(name):
@@ -493,22 +492,12 @@ def handle_open_triage(action, pull_request, repo):
 
     decision = decide(author_login=author_login, is_draft=is_draft, mapping=mapping)
 
-    if decision["known"]:
-        verdict = f"known -> assign+draft+{decision['status']}/{decision['team']}"
-    else:
-        verdict = (
-            f"unknown (absent from .github/pr-triage-teams.yml) -> "
-            f"no assignee, draft untouched, boarded {decision['status']}/{decision['team']}"
-        )
-
     print(f"event=pull_request action={action} head_branch={head_branch} author={author_login}")
-    print(f"verdict: {verdict}")
 
     summary_rows = [
         ("Event/action", f"pull_request / {action}"),
         ("Head branch", head_branch),
         ("Author", author_login),
-        ("Verdict", verdict),
     ]
     failures = []
 
@@ -529,12 +518,12 @@ def handle_open_triage(action, pull_request, repo):
     else:
         summary_rows.append(("Assignee set", "skipped, unknown author is never assigned"))
 
+    actual_is_draft = is_draft
     if decision["force_draft"]:
         try:
             draft_result = convert_pr_to_draft(pr_node_id, board_token)
-            summary_rows.append(
-                ("Converted to draft", draft_result["data"]["convertPullRequestToDraft"]["pullRequest"]["isDraft"])
-            )
+            actual_is_draft = draft_result["data"]["convertPullRequestToDraft"]["pullRequest"]["isDraft"]
+            summary_rows.append(("Converted to draft", actual_is_draft))
         except Exception as error:
             print(f"ERROR: convert-to-draft failed: {error}")
             summary_rows.append(("Converted to draft", f"FAILED: {error}"))
@@ -544,9 +533,21 @@ def handle_open_triage(action, pull_request, repo):
     else:
         summary_rows.append(("Converted to draft", "skipped, draft state left untouched for unknown author"))
 
+    target_status = decide_status(actual_is_draft, current_status=None)
+
+    if decision["known"]:
+        verdict = f"known -> assign+draft+{target_status}/{decision['team']}"
+    else:
+        verdict = (
+            f"unknown (absent from .github/pr-triage-teams.yml) -> "
+            f"no assignee, draft untouched, boarded {target_status}/{decision['team']}"
+        )
+    print(f"verdict: {verdict}")
+    summary_rows.insert(3, ("Verdict", verdict))
+
     try:
         status_options = fetch_project_field_options(STATUS_FIELD_ID, board_token)
-        status_option_id = find_option_id_by_name(status_options, decision["status"], strip_emoji=True)
+        status_option_id = find_option_id_by_name(status_options, target_status, strip_emoji=True)
 
         team_options = fetch_project_field_options(TEAM_FIELD_ID, board_token)
         team_option_id = find_option_id_by_name(team_options, decision["team"], strip_emoji=False)
