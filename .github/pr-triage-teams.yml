@@ -5,6 +5,11 @@
 #
 # No `[bot]` login and neither machine account (`JV-CI-CD`,
 # `molgenis-jenkins`) may ever be added to this file.
+#
+# The team below is only ever written to a board item whose Team is EMPTY.
+# Changing someone's team here will not move their existing PRs, and a Team
+# you set by hand on the board is never overwritten. Same for Sprint, which
+# is filled once with the sprint current at the time and then left alone.
 teams:
   aikevd: Dev
   aneashodselmans: Onboarding
