@@ -6,6 +6,7 @@ live board option names, so they are testable without a network. main() does
 the file read and the live GraphQL resolution, then calls the pure checks.
 """
 
+import collections
 import os
 import sys
 import urllib.error
@@ -38,32 +39,21 @@ def find_unknown_team_values(mapping, valid_team_names):
 
 
 def find_blank_team_values(mapping):
-    return [login for login, team in mapping.items() if not team.strip()]
+    return [login for login, team in mapping.items() if pr_triage.is_blank(team)]
 
 
 def find_duplicate_logins(text):
     logins = [login for login, _ in pr_triage.parse_teams_entries(text)]
-    duplicates = []
-    for login in logins:
-        if logins.count(login) > 1 and login not in duplicates:
-            duplicates.append(login)
-    return duplicates
+    counts = collections.Counter(logins)
+    return [login for login, count in counts.items() if count > 1]
 
 
-def find_missing_status_option(status_options, status_name):
-    for option in status_options:
-        if pr_triage.strip_emoji_prefix(option["name"]) == status_name:
-            return None
-    available = ", ".join(sorted(option["name"] for option in status_options))
-    return f"'{status_name}' is not a live Status option. Live Status options are: {available}"
-
-
-def find_missing_team_option(team_options, team_name):
-    valid_team_names = {option["name"] for option in team_options}
-    if team_name in valid_team_names:
+def find_missing_option(options, name, strip_emoji):
+    try:
+        pr_triage.find_option_id_by_name(options, name, strip_emoji=strip_emoji)
         return None
-    available = ", ".join(sorted(valid_team_names))
-    return f"'{team_name}' is not a live Team option. Live Team options are: {available}"
+    except ValueError as error:
+        return str(error)
 
 
 def is_credential_error(http_error):
@@ -154,15 +144,15 @@ def main(repo_root=None):
                 f"Live Team options are: {available}"
             )
 
-        missing_working_status = find_missing_status_option(status_options, pr_triage.STATUS_WORKING)
+        missing_working_status = find_missing_option(status_options, pr_triage.STATUS_WORKING, strip_emoji=True)
         if missing_working_status:
             errors.append(missing_working_status)
 
-        missing_review_status = find_missing_status_option(status_options, pr_triage.STATUS_REVIEW)
+        missing_review_status = find_missing_option(status_options, pr_triage.STATUS_REVIEW, strip_emoji=True)
         if missing_review_status:
             errors.append(missing_review_status)
 
-        missing_dev_team = find_missing_team_option(team_options, pr_triage.UNKNOWN_AUTHOR_TEAM)
+        missing_dev_team = find_missing_option(team_options, pr_triage.UNKNOWN_AUTHOR_TEAM, strip_emoji=False)
         if missing_dev_team:
             errors.append(missing_dev_team)
     else:

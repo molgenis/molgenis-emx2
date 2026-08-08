@@ -1,7 +1,9 @@
+import contextlib
 import datetime
 import json
 import os
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -9,6 +11,155 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import pr_triage
 import validate_pr_triage_teams
+
+DEFAULT_ITERATIONS = [{"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}]
+DEFAULT_STATUS_OPTIONS = [{"id": "STATUS_OPT_WORKING", "name": "🛠️ Working"}, {"id": "STATUS_OPT_REVIEW", "name": "🔍 Review"}]
+DEFAULT_TEAM_OPTIONS = [{"id": "TEAM_OPT_DEV", "name": "Dev"}]
+
+# The board's real Status options, all eight, as returned live -- every option
+# carries an emoji prefix from GitHub except Icebox.
+LIVE_STATUS_OPTIONS = [
+    {"id": "285bb9d7", "name": "\U0001f4cb Epic"},
+    {"id": "ff9f2e2b", "name": "⛔️ Blocked"},
+    {"id": "f75ad846", "name": "\U0001f4da Backlog"},
+    {"id": "47fc9ee4", "name": "\U0001f6e0️ Working"},
+    {"id": "879449e7", "name": "\U0001f50d Review"},
+    {"id": "98236657", "name": "✅ Done"},
+    {"id": "58e93f55", "name": "\U0001f4e5 Inbox"},
+    {"id": "7164e058", "name": "Icebox"},
+]
+
+
+def query_of(call):
+    return (call["body"] or {}).get("query", "")
+
+
+def make_fake_http_request(
+    calls,
+    *,
+    assign_result=None,
+    assign_error=None,
+    draft_result=None,
+    draft_error=None,
+    board_item=None,
+    status_options=None,
+    team_options=None,
+    iterations=None,
+    add_item_id="ITEM_1",
+    extra=None,
+):
+    """One fake GitHub for every pr_triage test: records every call, and answers
+    each request shape pr_triage.http_request can make. `board_item` is what
+    find_board_item_for_pr's query resolves to (None -> no existing item).
+    `extra(url, token, method, body, query, variables)` is consulted first and,
+    if it returns something other than None, that is the response -- the escape
+    hatch for a test that needs one response to differ from these defaults."""
+    if status_options is None:
+        status_options = DEFAULT_STATUS_OPTIONS
+    if team_options is None:
+        team_options = DEFAULT_TEAM_OPTIONS
+    if iterations is None:
+        iterations = DEFAULT_ITERATIONS
+
+    def fake_http_request(url, token, method="GET", body=None):
+        calls.append({"url": url, "token": token, "body": body})
+        query = (body or {}).get("query", "")
+        variables = (body or {}).get("variables", {})
+
+        if extra is not None:
+            result = extra(url, token, method, body, query, variables)
+            if result is not None:
+                return result
+
+        if url.endswith("/assignees"):
+            if assign_error is not None:
+                raise assign_error
+            if assign_result is not None:
+                return assign_result
+            return {"assignees": [{"login": login} for login in (body or {}).get("assignees", [])]}
+
+        if "convertPullRequestToDraft" in query:
+            if draft_error is not None:
+                raise draft_error
+            if draft_result is not None:
+                return draft_result
+            return {
+                "data": {
+                    "convertPullRequestToDraft": {
+                        "pullRequest": {"id": variables.get("pullRequestId"), "isDraft": True}
+                    }
+                }
+            }
+
+        if "projectItems" in query:
+            nodes = []
+            if board_item is not None:
+                nodes = [
+                    {
+                        "id": board_item["id"],
+                        "project": {"id": pr_triage.BOARD_PROJECT_ID},
+                        "status": {"name": board_item["status"]} if board_item.get("status") else None,
+                        "team": {"name": board_item["team"]} if board_item.get("team") else None,
+                        "sprint": {"title": board_item["sprint"]} if board_item.get("sprint") else None,
+                    }
+                ]
+            return {"data": {"node": {"projectItems": {"nodes": nodes}}}}
+
+        if "addProjectV2ItemById" in query:
+            return {"data": {"addProjectV2ItemById": {"item": {"id": add_item_id}}}}
+
+        if "updateProjectV2ItemFieldValue" in query:
+            return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": variables.get("itemId")}}}}
+
+        if "options { id name }" in query:
+            if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
+                return {"data": {"node": {"options": status_options}}}
+            if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
+                return {"data": {"node": {"options": team_options}}}
+
+        if "configuration" in query:
+            return {"data": {"node": {"configuration": {"iterations": iterations}}}}
+
+        raise AssertionError(f"unexpected call: {url} {query}")
+
+    return fake_http_request
+
+
+def run_main(event, *, http_request=None, current_date=None, env_extra=None):
+    """The tempdir + event.json + summary file + env + mock.patch scaffold every
+    main() test needs, collapsed to one call. Returns (summary_text, exit_code):
+    exit_code is None when main() returned normally, or sys.exit's code when it
+    didn't -- callers that only care about the happy path can ignore it."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        event_path = os.path.join(tmp_dir, "event.json")
+        with open(event_path, "w", encoding="utf-8") as handle:
+            json.dump(event, handle)
+        summary_path = os.path.join(tmp_dir, "summary.md")
+        open(summary_path, "w", encoding="utf-8").close()
+
+        env = {
+            "GITHUB_EVENT_PATH": event_path,
+            "GITHUB_TOKEN": "github-token",
+            "PROJECT_BOARD_TOKEN": "board-token",
+            "GITHUB_STEP_SUMMARY": summary_path,
+        }
+        if env_extra:
+            env.update(env_extra)
+
+        exit_code = None
+        try:
+            with contextlib.ExitStack() as stack:
+                stack.enter_context(mock.patch.dict(os.environ, env, clear=False))
+                if http_request is not None:
+                    stack.enter_context(mock.patch.object(pr_triage, "http_request", side_effect=http_request))
+                if current_date is not None:
+                    stack.enter_context(mock.patch.object(pr_triage, "current_date", return_value=current_date))
+                pr_triage.main()
+        except SystemExit as exit_call:
+            exit_code = exit_call.code
+
+        with open(summary_path, encoding="utf-8") as handle:
+            return handle.read(), exit_code
 
 
 class DecidePrTriageTest(unittest.TestCase):
@@ -18,7 +169,6 @@ class DecidePrTriageTest(unittest.TestCase):
         decision = pr_triage.decide(author_login="mswertz", is_draft=False, mapping=mapping)
 
         self.assertTrue(decision["known"])
-        self.assertTrue(decision["assign"])
         self.assertTrue(decision["force_draft"])
         self.assertEqual(decision["team"], "Dev")
 
@@ -36,7 +186,6 @@ class DecidePrTriageTest(unittest.TestCase):
         decision = pr_triage.decide(author_login="some-outside-contributor", is_draft=False, mapping=mapping)
 
         self.assertFalse(decision["known"])
-        self.assertFalse(decision["assign"])
         self.assertFalse(decision["force_draft"])
         self.assertEqual(decision["team"], "Dev")
 
@@ -46,7 +195,6 @@ class DecidePrTriageTest(unittest.TestCase):
         decision = pr_triage.decide(author_login="some-outside-contributor", is_draft=True, mapping=mapping)
 
         self.assertFalse(decision["known"])
-        self.assertFalse(decision["assign"])
         self.assertFalse(decision["force_draft"])
         self.assertEqual(decision["team"], "Dev")
 
@@ -56,7 +204,6 @@ class DecidePrTriageTest(unittest.TestCase):
         decision = pr_triage.decide(author_login="dependabot[bot]", is_draft=False, mapping=mapping)
 
         self.assertFalse(decision["known"])
-        self.assertFalse(decision["assign"])
         self.assertEqual(decision["team"], "Dev")
 
     def test_known_author_already_draft_is_not_re_converted(self):
@@ -81,7 +228,6 @@ class DecidePrTriageTest(unittest.TestCase):
         decision = pr_triage.decide(author_login="someuser", is_draft=False, mapping=mapping)
 
         self.assertFalse(decision["known"])
-        self.assertFalse(decision["assign"])
         self.assertFalse(decision["force_draft"])
         self.assertEqual(decision["team"], "Dev")
 
@@ -114,11 +260,11 @@ class DecideStatusTest(unittest.TestCase):
     def test_review_flips_to_working_when_pr_is_draft(self):
         self.assertEqual(pr_triage.decide_status(True, "Review"), "Working")
 
-    def test_working_stays_working_when_pr_is_draft(self):
-        self.assertEqual(pr_triage.decide_status(True, "Working"), "Working")
+    def test_working_already_matching_draft_state_is_not_rewritten(self):
+        self.assertIsNone(pr_triage.decide_status(True, "Working"))
 
-    def test_review_stays_review_when_pr_is_ready(self):
-        self.assertEqual(pr_triage.decide_status(False, "Review"), "Review")
+    def test_review_already_matching_ready_state_is_not_rewritten(self):
+        self.assertIsNone(pr_triage.decide_status(False, "Review"))
 
     def test_non_managed_statuses_are_never_touched_regardless_of_draft_state(self):
         for status in ("Epic", "Blocked", "Backlog", "Done", "Inbox", "Icebox"):
@@ -131,8 +277,8 @@ class DecideStatusTest(unittest.TestCase):
             "\U0001f4cb Epic": (None, None),
             "⛔️ Blocked": (None, None),
             "\U0001f4da Backlog": (None, None),
-            "\U0001f6e0️ Working": ("Working", "Review"),
-            "\U0001f50d Review": ("Working", "Review"),
+            "\U0001f6e0️ Working": (None, "Review"),
+            "\U0001f50d Review": ("Working", None),
             "✅ Done": (None, None),
             "\U0001f4e5 Inbox": (None, None),
             "Icebox": (None, None),
@@ -145,231 +291,141 @@ class DecideStatusTest(unittest.TestCase):
 
 
 class DecideBoardUpdateTest(unittest.TestCase):
-    def test_ready_for_review_sets_status_review_outright(self):
-        fields = pr_triage.decide_board_update(
-            "ready_for_review", is_draft=False, current_status="🛠️ Working", current_team="Dev", mapped_team="Dev"
-        )
+    """decide_board_update no longer takes an action: main() already filters to
+    BOARD_UPDATE_ACTIONS before calling it, so every action in that tuple (the
+    three transitions and synchronize alike) must obey the identical rule.
+    Every case below runs once per action via subTest to prove that."""
 
-        self.assertEqual(fields["status"], "Review")
+    def test_status_flips_a_managed_status_to_match_current_draft_state(self):
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
+                )
+                self.assertEqual(fields["status"], "Working")
 
-    def test_converted_to_draft_sets_status_working_outright(self):
-        fields = pr_triage.decide_board_update(
-            "converted_to_draft", is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
-        )
+                fields = pr_triage.decide_board_update(
+                    is_draft=False, current_status="🛠️ Working", current_team="Dev", mapped_team="Dev"
+                )
+                self.assertEqual(fields["status"], "Review")
 
-        self.assertEqual(fields["status"], "Working")
+    def test_status_already_matching_current_draft_state_is_not_rewritten(self):
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=True, current_status="🛠️ Working", current_team="Dev", mapped_team="Dev"
+                )
+                self.assertIsNone(fields["status"])
 
-    def test_reopened_draft_sets_status_working_outright(self):
-        fields = pr_triage.decide_board_update(
-            "reopened", is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
-        )
+    def test_status_fills_when_empty(self):
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=True, current_status=None, current_team="Dev", mapped_team="Dev"
+                )
+                self.assertEqual(fields["status"], "Working")
 
-        self.assertEqual(fields["status"], "Working")
+                fields = pr_triage.decide_board_update(
+                    is_draft=False, current_status=None, current_team="Dev", mapped_team="Dev"
+                )
+                self.assertEqual(fields["status"], "Review")
 
-    def test_reopened_ready_sets_status_review_outright(self):
-        fields = pr_triage.decide_board_update(
-            "reopened", is_draft=False, current_status="🛠️ Working", current_team="Dev", mapped_team="Dev"
-        )
+    def test_status_leaves_a_non_managed_status_alone(self):
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=True, current_status="📋 Epic", current_team="Dev", mapped_team="Dev"
+                )
+                self.assertIsNone(fields["status"])
 
-        self.assertEqual(fields["status"], "Review")
+    def test_team_fills_when_empty(self):
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=False, current_status="🛠️ Working", current_team=None, mapped_team="Delivery"
+                )
+                self.assertEqual(fields["team"], "Delivery")
 
-    def test_transition_flips_a_managed_status_to_match_current_draft_state(self):
-        fields = pr_triage.decide_board_update(
-            "reopened", is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
-        )
+    def test_team_never_overwrites_a_non_empty_team(self):
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=False, current_status="🛠️ Working", current_team="Analysis", mapped_team="Delivery"
+                )
+                self.assertIsNone(fields["team"])
 
-        self.assertEqual(fields["status"], "Working")
-
-    def test_transition_fills_team_when_empty(self):
-        fields = pr_triage.decide_board_update(
-            "ready_for_review", is_draft=False, current_status="🛠️ Working", current_team=None, mapped_team="Delivery"
-        )
-
-        self.assertEqual(fields["team"], "Delivery")
-
-    def test_transition_never_overwrites_a_non_empty_team(self):
-        fields = pr_triage.decide_board_update(
-            "ready_for_review",
-            is_draft=False,
-            current_status="🛠️ Working",
-            current_team="Analysis",
-            mapped_team="Delivery",
-        )
-
-        self.assertIsNone(fields["team"])
-
-    def test_synchronize_fills_status_only_when_empty_and_draft(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=True, current_status=None, current_team="Dev", mapped_team="Dev"
-        )
-
-        self.assertEqual(fields["status"], "Working")
-
-    def test_synchronize_fills_status_only_when_empty_and_ready(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=False, current_status=None, current_team="Dev", mapped_team="Dev"
-        )
-
-        self.assertEqual(fields["status"], "Review")
-
-    def test_synchronize_flips_a_managed_status_to_match_current_draft_state(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
-        )
-
-        self.assertEqual(fields["status"], "Working")
-
-    def test_synchronize_leaves_a_non_managed_status_alone(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=True, current_status="📋 Epic", current_team="Dev", mapped_team="Dev"
-        )
-
-        self.assertIsNone(fields["status"])
-
-    def test_transition_leaves_a_non_managed_status_alone(self):
-        fields = pr_triage.decide_board_update(
-            "ready_for_review", is_draft=False, current_status="⛔️ Blocked", current_team="Dev", mapped_team="Dev"
-        )
-
-        self.assertIsNone(fields["status"])
-
-    def test_synchronize_fills_team_when_empty(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=False, current_status="🔍 Review", current_team=None, mapped_team="Delivery"
-        )
-
-        self.assertEqual(fields["team"], "Delivery")
-
-    def test_synchronize_never_overwrites_a_non_empty_team(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=False, current_status="🔍 Review", current_team="Analysis", mapped_team="Delivery"
-        )
-
-        self.assertIsNone(fields["team"])
-
-    def test_synchronize_leaves_non_managed_status_alone_while_still_filling_team(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=True, current_status="📋 Epic", current_team=None, mapped_team="Delivery"
-        )
-
-        self.assertIsNone(fields["status"])
-        self.assertEqual(fields["team"], "Delivery")
+    def test_leaves_non_managed_status_alone_while_still_filling_team(self):
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=True, current_status="📋 Epic", current_team=None, mapped_team="Delivery"
+                )
+                self.assertIsNone(fields["status"])
+                self.assertEqual(fields["team"], "Delivery")
 
     def test_blank_string_team_counts_as_empty(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=False, current_status="🔍 Review", current_team="   ", mapped_team="Delivery"
-        )
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=False, current_status="🔍 Review", current_team="   ", mapped_team="Delivery"
+                )
+                self.assertEqual(fields["team"], "Delivery")
 
-        self.assertEqual(fields["team"], "Delivery")
+    def test_sprint_fills_when_empty(self):
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=False,
+                    current_status="🛠️ Working",
+                    current_team="Dev",
+                    mapped_team="Dev",
+                    current_sprint=None,
+                    current_sprint_title="Sprint 260",
+                )
+                self.assertEqual(fields["sprint"], "Sprint 260")
 
-    def test_opened_is_not_a_board_update_action(self):
-        self.assertIsNone(
-            pr_triage.decide_board_update(
-                "opened", is_draft=False, current_status=None, current_team=None, mapped_team="Dev"
-            )
-        )
-
-    def test_unrecognized_action_is_not_a_board_update_action(self):
-        self.assertIsNone(
-            pr_triage.decide_board_update(
-                "labeled", is_draft=False, current_status=None, current_team=None, mapped_team="Dev"
-            )
-        )
-
-    def test_transition_fills_sprint_when_empty(self):
-        fields = pr_triage.decide_board_update(
-            "ready_for_review",
-            is_draft=False,
-            current_status="🛠️ Working",
-            current_team="Dev",
-            mapped_team="Dev",
-            current_sprint=None,
-            current_sprint_title="Sprint 260",
-        )
-
-        self.assertEqual(fields["sprint"], "Sprint 260")
-
-    def test_transition_never_overwrites_a_non_empty_sprint(self):
-        fields = pr_triage.decide_board_update(
-            "converted_to_draft",
-            is_draft=True,
-            current_status="🔍 Review",
-            current_team="Dev",
-            mapped_team="Dev",
-            current_sprint="Sprint 259",
-            current_sprint_title="Sprint 260",
-        )
-
-        self.assertIsNone(fields["sprint"])
-
-    def test_reopened_fills_sprint_when_empty(self):
-        fields = pr_triage.decide_board_update(
-            "reopened",
-            is_draft=False,
-            current_status="🛠️ Working",
-            current_team="Dev",
-            mapped_team="Dev",
-            current_sprint=None,
-            current_sprint_title="Sprint 260",
-        )
-
-        self.assertEqual(fields["sprint"], "Sprint 260")
-
-    def test_synchronize_fills_sprint_when_empty(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize",
-            is_draft=False,
-            current_status="🔍 Review",
-            current_team="Dev",
-            mapped_team="Dev",
-            current_sprint=None,
-            current_sprint_title="Sprint 260",
-        )
-
-        self.assertEqual(fields["sprint"], "Sprint 260")
-
-    def test_synchronize_never_overwrites_a_non_empty_sprint(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize",
-            is_draft=False,
-            current_status="🔍 Review",
-            current_team="Dev",
-            mapped_team="Dev",
-            current_sprint="Sprint 259",
-            current_sprint_title="Sprint 260",
-        )
-
-        self.assertIsNone(fields["sprint"])
+    def test_sprint_never_overwrites_a_non_empty_sprint(self):
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=True,
+                    current_status="🔍 Review",
+                    current_team="Dev",
+                    mapped_team="Dev",
+                    current_sprint="Sprint 259",
+                    current_sprint_title="Sprint 260",
+                )
+                self.assertIsNone(fields["sprint"])
 
     def test_blank_string_sprint_counts_as_empty(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize",
-            is_draft=False,
-            current_status="🔍 Review",
-            current_team="Dev",
-            mapped_team="Dev",
-            current_sprint="   ",
-            current_sprint_title="Sprint 260",
-        )
-
-        self.assertEqual(fields["sprint"], "Sprint 260")
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=False,
+                    current_status="🔍 Review",
+                    current_team="Dev",
+                    mapped_team="Dev",
+                    current_sprint="   ",
+                    current_sprint_title="Sprint 260",
+                )
+                self.assertEqual(fields["sprint"], "Sprint 260")
 
     def test_empty_sprint_stays_unwritten_when_no_current_iteration_resolves(self):
-        fields = pr_triage.decide_board_update(
-            "synchronize",
-            is_draft=False,
-            current_status="🔍 Review",
-            current_team="Dev",
-            mapped_team="Dev",
-            current_sprint=None,
-            current_sprint_title=None,
-        )
-
-        self.assertIsNone(fields["sprint"])
+        for action in pr_triage.BOARD_UPDATE_ACTIONS:
+            with self.subTest(action=action):
+                fields = pr_triage.decide_board_update(
+                    is_draft=False,
+                    current_status="🔍 Review",
+                    current_team="Dev",
+                    mapped_team="Dev",
+                    current_sprint=None,
+                    current_sprint_title=None,
+                )
+                self.assertIsNone(fields["sprint"])
 
     def test_no_field_is_written_by_default_when_sprint_args_are_omitted(self):
         fields = pr_triage.decide_board_update(
-            "synchronize", is_draft=False, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
+            is_draft=False, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
         )
 
         self.assertIsNone(fields["sprint"])
@@ -377,7 +433,6 @@ class DecideBoardUpdateTest(unittest.TestCase):
 
 class FindCurrentIterationTest(unittest.TestCase):
     def test_returns_the_iteration_containing_today(self):
-        import datetime
 
         iterations = [
             {"id": "bd551113", "title": "Sprint 259", "startDate": "2026-07-13", "duration": 21},
@@ -390,7 +445,6 @@ class FindCurrentIterationTest(unittest.TestCase):
         self.assertEqual(iteration["title"], "Sprint 260")
 
     def test_start_date_itself_is_inside_the_iteration(self):
-        import datetime
 
         iterations = [{"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}]
 
@@ -399,7 +453,6 @@ class FindCurrentIterationTest(unittest.TestCase):
         self.assertEqual(iteration["id"], "bd551114")
 
     def test_the_day_after_the_iteration_ends_is_not_inside_it(self):
-        import datetime
 
         iterations = [{"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}]
 
@@ -409,7 +462,6 @@ class FindCurrentIterationTest(unittest.TestCase):
         self.assertIsNone(iteration)
 
     def test_returns_none_when_no_iteration_contains_the_date(self):
-        import datetime
 
         iterations = [{"id": "bd551113", "title": "Sprint 259", "startDate": "2026-07-13", "duration": 21}]
 
@@ -418,12 +470,10 @@ class FindCurrentIterationTest(unittest.TestCase):
         self.assertIsNone(iteration)
 
     def test_returns_none_for_an_empty_iteration_list(self):
-        import datetime
 
         self.assertIsNone(pr_triage.find_current_iteration([], datetime.date(2026, 8, 8)))
 
     def test_does_not_assume_the_first_entry_is_current(self):
-        import datetime
 
         iterations = [
             {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21},
@@ -591,31 +641,35 @@ class ValidateBlankTeamValuesTest(unittest.TestCase):
 
 
 class ValidateStatusOptionTest(unittest.TestCase):
+    """find_missing_option is built on pr_triage.find_option_id_by_name, the same
+    lookup write time uses -- so a value missing here and a value missing at
+    write time report the identical message."""
+
     def test_passes_when_working_is_a_live_status_option(self):
         status_options = [{"id": "47fc9ee4", "name": "\U0001f6e0️ Working"}]
 
-        error = validate_pr_triage_teams.find_missing_status_option(status_options, "Working")
+        error = validate_pr_triage_teams.find_missing_option(status_options, "Working", strip_emoji=True)
 
         self.assertIsNone(error)
 
     def test_flags_when_working_is_not_a_live_status_option(self):
         status_options = [{"id": "98236657", "name": "✅ Done"}]
 
-        error = validate_pr_triage_teams.find_missing_status_option(status_options, "Working")
+        error = validate_pr_triage_teams.find_missing_option(status_options, "Working", strip_emoji=True)
 
         self.assertIsNotNone(error)
 
     def test_passes_when_review_is_a_live_status_option(self):
         status_options = [{"id": "879449e7", "name": "\U0001f50d Review"}]
 
-        error = validate_pr_triage_teams.find_missing_status_option(status_options, "Review")
+        error = validate_pr_triage_teams.find_missing_option(status_options, "Review", strip_emoji=True)
 
         self.assertIsNone(error)
 
     def test_flags_when_review_is_not_a_live_status_option(self):
         status_options = [{"id": "98236657", "name": "✅ Done"}]
 
-        error = validate_pr_triage_teams.find_missing_status_option(status_options, "Review")
+        error = validate_pr_triage_teams.find_missing_option(status_options, "Review", strip_emoji=True)
 
         self.assertIsNotNone(error)
 
@@ -624,22 +678,20 @@ class ValidateTeamOptionTest(unittest.TestCase):
     def test_passes_when_dev_is_a_live_team_option(self):
         team_options = [{"id": "f2a5529c", "name": "Dev"}]
 
-        error = validate_pr_triage_teams.find_missing_team_option(team_options, "Dev")
+        error = validate_pr_triage_teams.find_missing_option(team_options, "Dev", strip_emoji=False)
 
         self.assertIsNone(error)
 
     def test_flags_when_dev_is_not_a_live_team_option(self):
         team_options = [{"id": "34b176a9", "name": "Delivery"}]
 
-        error = validate_pr_triage_teams.find_missing_team_option(team_options, "Dev")
+        error = validate_pr_triage_teams.find_missing_option(team_options, "Dev", strip_emoji=False)
 
         self.assertIsNotNone(error)
 
 
 class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
     def test_a_missing_mapping_file_still_writes_a_summary_and_exits_non_zero(self):
-        import tempfile
-
         event = {
             "action": "opened",
             "pull_request": {
@@ -652,36 +704,17 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
             "repository": {"full_name": "molgenis/molgenis-emx2"},
         }
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
+        with mock.patch.object(
+            pr_triage, "load_teams_mapping", side_effect=FileNotFoundError("no such file: pr-triage-teams.yml")
+        ):
+            summary_text, exit_code = run_main(event)
 
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "GITHUB_TOKEN": "fake-github-token",
-                "PROJECT_BOARD_TOKEN": "fake-board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
-
-            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
-                pr_triage, "load_teams_mapping", side_effect=FileNotFoundError("no such file: pr-triage-teams.yml")
-            ):
-                with self.assertRaises(SystemExit) as context:
-                    pr_triage.main()
-
-            with open(summary_path, encoding="utf-8") as handle:
-                summary_text = handle.read()
-
-        self.assertNotEqual(context.exception.code, 0)
+        self.assertNotEqual(exit_code, 0)
+        self.assertIsNotNone(exit_code)
         self.assertIn("### PR triage", summary_text)
         self.assertIn("no such file", summary_text)
 
     def test_assign_failure_skips_the_draft_flip_but_still_boards_review_and_exits_non_zero(self):
-        import tempfile
-
         event = {
             "action": "opened",
             "pull_request": {
@@ -696,73 +729,18 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
 
         calls = []
 
-        def fake_http_request(url, token, method="GET", body=None):
-            calls.append({"url": url, "token": token, "body": body})
-            query = (body or {}).get("query", "")
-            variables = (body or {}).get("variables", {})
+        def refuse_draft_flip(url, token, method, body, query, variables):
             if "convertPullRequestToDraft" in query:
                 raise AssertionError("assignment failure must skip the draft flip entirely")
-            if "addProjectV2ItemById" in query:
-                return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
-            if "updateProjectV2ItemFieldValue" in query:
-                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
-            if "options { id name }" in query:
-                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {
-                        "data": {
-                            "node": {
-                                "options": [
-                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
-                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
-                                ]
-                            }
-                        }
-                    }
-                if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
-            if "configuration" in query:
-                return {
-                    "data": {
-                        "node": {
-                            "configuration": {
-                                "iterations": [
-                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
-                                ]
-                            }
-                        }
-                    }
-                }
-            raise AssertionError(f"unexpected call: {url} {query}")
+            return None
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
+        fake_http_request = make_fake_http_request(calls, extra=refuse_draft_flip)
 
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "GITHUB_TOKEN": "fake-github-token",
-                "PROJECT_BOARD_TOKEN": "fake-board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
+        with mock.patch.object(pr_triage, "assign_author", side_effect=pr_triage.GraphqlError("boom")):
+            summary_text, exit_code = run_main(event, http_request=fake_http_request, current_date=datetime.date(2026, 8, 8))
 
-            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
-                pr_triage, "assign_author", side_effect=pr_triage.GraphqlError("boom")
-            ), mock.patch.object(pr_triage, "http_request", side_effect=fake_http_request), mock.patch.object(
-                pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)
-            ):
-                with self.assertRaises(SystemExit) as context:
-                    pr_triage.main()
-
-            with open(summary_path, encoding="utf-8") as handle:
-                summary_text = handle.read()
-
-        self.assertNotEqual(context.exception.code, 0)
-
-        def query_of(call):
-            return (call["body"] or {}).get("query", "")
+        self.assertNotEqual(exit_code, 0)
+        self.assertIsNotNone(exit_code)
 
         self.assertFalse(any("convertPullRequestToDraft" in query_of(call) for call in calls))
         self.assertTrue(any("addProjectV2ItemById" in query_of(call) for call in calls))
@@ -772,20 +750,18 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
         status_write = next(
             call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
         )
-        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_REVIEW_OPT")
+        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_OPT_REVIEW")
 
         self.assertIn("### PR triage", summary_text)
         self.assertIn("boom", summary_text)
-        self.assertIn("Board item id", summary_text)
-        self.assertIn("Status option id written", summary_text)
+        self.assertIn("Board item", summary_text)
+        self.assertIn("Status set", summary_text)
         self.assertIn("| Converted to draft | skipped, assignment failed |", summary_text)
-        self.assertIn("Team option id written", summary_text)
+        self.assertIn("Team set", summary_text)
 
 
 class MainWiringTest(unittest.TestCase):
     def test_known_author_writes_go_to_the_right_endpoint_field_and_token(self):
-        import tempfile
-
         event = {
             "action": "opened",
             "pull_request": {
@@ -799,59 +775,7 @@ class MainWiringTest(unittest.TestCase):
         }
 
         calls = []
-
-        def fake_http_request(url, token, method="GET", body=None):
-            calls.append({"url": url, "token": token, "body": body})
-            query = (body or {}).get("query", "")
-            variables = (body or {}).get("variables", {})
-            if url.endswith("/assignees"):
-                return {"assignees": [{"login": "mswertz"}]}
-            if "convertPullRequestToDraft" in query:
-                return {"data": {"convertPullRequestToDraft": {"pullRequest": {"id": "PR_node", "isDraft": True}}}}
-            if "addProjectV2ItemById" in query:
-                return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
-            if "updateProjectV2ItemFieldValue" in query:
-                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
-            if "options { id name }" in query:
-                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "🛠️ Working"}]}}}
-                if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
-            if "configuration" in query:
-                return {
-                    "data": {
-                        "node": {
-                            "configuration": {
-                                "iterations": [
-                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
-                                ]
-                            }
-                        }
-                    }
-                }
-            raise AssertionError(f"unexpected call: {url} {query}")
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
-
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "GITHUB_TOKEN": "github-token",
-                "PROJECT_BOARD_TOKEN": "board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
-
-            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
-                pr_triage.main()
-
-        def query_of(call):
-            return (call["body"] or {}).get("query", "")
+        run_main(event, http_request=make_fake_http_request(calls), current_date=datetime.date(2026, 8, 8))
 
         assign_call = next(call for call in calls if call["url"].endswith("/assignees"))
         self.assertEqual(assign_call["token"], "github-token")
@@ -867,12 +791,12 @@ class MainWiringTest(unittest.TestCase):
 
         status_write = field_writes[0]
         self.assertEqual(status_write["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
-        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_OPT")
+        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_OPT_WORKING")
         self.assertEqual(status_write["token"], "board-token")
 
         team_write = field_writes[1]
         self.assertEqual(team_write["body"]["variables"]["fieldId"], pr_triage.TEAM_FIELD_ID)
-        self.assertEqual(team_write["body"]["variables"]["optionId"], "TEAM_OPT")
+        self.assertEqual(team_write["body"]["variables"]["optionId"], "TEAM_OPT_DEV")
         self.assertEqual(team_write["token"], "board-token")
 
         sprint_write = field_writes[2]
@@ -883,8 +807,6 @@ class MainWiringTest(unittest.TestCase):
 
 class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
     def test_dropped_assignment_skips_the_draft_flip_but_still_boards_review_and_exits_non_zero(self):
-        import tempfile
-
         event = {
             "action": "opened",
             "pull_request": {
@@ -899,73 +821,17 @@ class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
 
         calls = []
 
-        def fake_http_request(url, token, method="GET", body=None):
-            calls.append({"url": url, "token": token, "body": body})
-            query = (body or {}).get("query", "")
-            variables = (body or {}).get("variables", {})
-            if url.endswith("/assignees"):
-                return {"assignees": []}
+        def refuse_draft_flip(url, token, method, body, query, variables):
             if "convertPullRequestToDraft" in query:
                 raise AssertionError("a dropped assignment must skip the draft flip entirely")
-            if "addProjectV2ItemById" in query:
-                return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
-            if "updateProjectV2ItemFieldValue" in query:
-                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
-            if "options { id name }" in query:
-                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {
-                        "data": {
-                            "node": {
-                                "options": [
-                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
-                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
-                                ]
-                            }
-                        }
-                    }
-                if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
-            if "configuration" in query:
-                return {
-                    "data": {
-                        "node": {
-                            "configuration": {
-                                "iterations": [
-                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
-                                ]
-                            }
-                        }
-                    }
-                }
-            raise AssertionError(f"unexpected call: {url} {query}")
+            return None
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
+        fake_http_request = make_fake_http_request(calls, assign_result={"assignees": []}, extra=refuse_draft_flip)
 
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "GITHUB_TOKEN": "github-token",
-                "PROJECT_BOARD_TOKEN": "board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
+        summary_text, exit_code = run_main(event, http_request=fake_http_request, current_date=datetime.date(2026, 8, 8))
 
-            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
-                with self.assertRaises(SystemExit) as context:
-                    pr_triage.main()
-
-            with open(summary_path, encoding="utf-8") as handle:
-                summary_text = handle.read()
-
-        self.assertNotEqual(context.exception.code, 0)
-
-        def query_of(call):
-            return (call["body"] or {}).get("query", "")
+        self.assertNotEqual(exit_code, 0)
+        self.assertIsNotNone(exit_code)
 
         self.assertFalse(any("convertPullRequestToDraft" in query_of(call) for call in calls))
         self.assertTrue(any("addProjectV2ItemById" in query_of(call) for call in calls))
@@ -975,18 +841,16 @@ class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
         status_write = next(
             call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
         )
-        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_REVIEW_OPT")
+        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_OPT_REVIEW")
 
         self.assertIn("### PR triage", summary_text)
         self.assertIn("mswertz", summary_text)
         self.assertIn("| Converted to draft | skipped, assignment failed |", summary_text)
-        self.assertIn("Board item id", summary_text)
+        self.assertIn("Board item", summary_text)
 
 
 class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
     def test_forbidden_draft_conversion_does_not_prevent_assignment_or_board_writes(self):
-        import tempfile
-
         event = {
             "action": "opened",
             "pull_request": {
@@ -1001,76 +865,20 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
 
         calls = []
 
-        def fake_http_request(url, token, method="GET", body=None):
-            calls.append({"url": url, "token": token, "body": body})
-            query = (body or {}).get("query", "")
-            variables = (body or {}).get("variables", {})
-            if url.endswith("/assignees"):
-                return {"assignees": [{"login": "mswertz"}]}
+        def refuse_draft_flip(url, token, method, body, query, variables):
             if "convertPullRequestToDraft" in query:
                 raise pr_triage.GraphqlError(
                     "GraphQL request returned errors: [{'type': 'FORBIDDEN', "
                     "'message': 'Resource not accessible by integration'}]"
                 )
-            if "addProjectV2ItemById" in query:
-                return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
-            if "updateProjectV2ItemFieldValue" in query:
-                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
-            if "options { id name }" in query:
-                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {
-                        "data": {
-                            "node": {
-                                "options": [
-                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
-                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
-                                ]
-                            }
-                        }
-                    }
-                if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
-            if "configuration" in query:
-                return {
-                    "data": {
-                        "node": {
-                            "configuration": {
-                                "iterations": [
-                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
-                                ]
-                            }
-                        }
-                    }
-                }
-            raise AssertionError(f"unexpected call: {url} {query}")
+            return None
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
+        fake_http_request = make_fake_http_request(calls, extra=refuse_draft_flip)
 
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "GITHUB_TOKEN": "github-token",
-                "PROJECT_BOARD_TOKEN": "board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
+        summary_text, exit_code = run_main(event, http_request=fake_http_request, current_date=datetime.date(2026, 8, 8))
 
-            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
-                with self.assertRaises(SystemExit) as context:
-                    pr_triage.main()
-
-            with open(summary_path, encoding="utf-8") as handle:
-                summary_text = handle.read()
-
-        self.assertNotEqual(context.exception.code, 0)
-
-        def query_of(call):
-            return (call["body"] or {}).get("query", "")
+        self.assertNotEqual(exit_code, 0)
+        self.assertIsNotNone(exit_code)
 
         assign_call = next(call for call in calls if call["url"].endswith("/assignees"))
         self.assertEqual(assign_call["token"], "github-token")
@@ -1084,15 +892,15 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
         status_write = next(
             call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
         )
-        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_REVIEW_OPT")
+        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_OPT_REVIEW")
 
         self.assertIn("### PR triage", summary_text)
         self.assertIn("| Assignee set | True |", summary_text)
         self.assertIn("FORBIDDEN", summary_text)
-        self.assertIn("Board item id", summary_text)
-        self.assertIn("Status option id written", summary_text)
-        self.assertIn("Team option id written", summary_text)
-        self.assertIn("Sprint option id written", summary_text)
+        self.assertIn("Board item", summary_text)
+        self.assertIn("Status set", summary_text)
+        self.assertIn("Team set", summary_text)
+        self.assertIn("Sprint set", summary_text)
 
 
 class MappingFilePathTest(unittest.TestCase):
@@ -1119,7 +927,6 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         mapping=None,
         author_login="mswertz",
     ):
-        import tempfile
 
         event = {
             "action": action,
@@ -1242,7 +1049,9 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         self.assertFalse(any(call["url"].endswith("/assignees") for call in calls))
         self.assertFalse(any("convertPullRequestToDraft" in self._query_of(call) for call in calls))
 
-    # --- transitions: Status is always overwritten ---
+    # --- Status flips when it differs from the target and is still managed
+    # (blank, Working, or Review); a non-managed value or an already-matching
+    # one is left alone (decide_status returns None for both) ---
 
     def test_ready_for_review_overwrites_status_even_when_already_set(self):
         calls, _ = self._run_board_update(
@@ -1314,7 +1123,8 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         ]
         self.assertEqual(status_writes, [])
 
-    # --- transitions: Team and Sprint fill only, never overwrite ---
+    # --- Team and Sprint fill only, never overwrite -- true for every action
+    # in BOARD_UPDATE_ACTIONS, not just the transitions exercised here ---
 
     def test_transition_fills_team_when_empty(self):
         calls, _ = self._run_board_update(
@@ -1382,7 +1192,8 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         ]
         self.assertEqual(sprint_writes, [])
 
-    # --- synchronize: fill-only for every field, never overwrite ---
+    # --- synchronize obeys the identical rule as the transitions: Status can
+    # still flip (it is managed, not fill-only), Team and Sprint are fill-only ---
 
     def test_synchronize_item_already_exists_with_everything_set_writes_nothing(self):
         calls, summary_text = self._run_board_update(
@@ -1536,7 +1347,6 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
 
 class BoardUpdateWritesStepSummaryOnFailureTest(unittest.TestCase):
     def test_step_summary_is_written_and_error_reraised_when_a_board_write_fails(self):
-        import tempfile
 
         event = {
             "action": "ready_for_review",
@@ -1579,7 +1389,6 @@ class BoardUpdateWritesStepSummaryOnFailureTest(unittest.TestCase):
 
 class BoardUpdateResolvesFieldsBeforeAddingBoardItemTest(unittest.TestCase):
     def test_fields_are_resolved_before_a_missing_item_is_added(self):
-        import tempfile
 
         event = {
             "action": "ready_for_review",
@@ -1651,7 +1460,6 @@ class BoardUpdateResolvesFieldsBeforeAddingBoardItemTest(unittest.TestCase):
         self.assertLess(call_kinds.index("fetch_options"), add_item_index)
 
     def test_a_status_resolution_failure_never_adds_a_board_item(self):
-        import tempfile
 
         event = {
             "action": "ready_for_review",
@@ -1701,8 +1509,6 @@ class BoardUpdateResolvesFieldsBeforeAddingBoardItemTest(unittest.TestCase):
 
 class MainWiringUnknownAuthorTest(unittest.TestCase):
     def _run_main_for(self, is_draft):
-        import tempfile
-
         event = {
             "action": "opened",
             "pull_request": {
@@ -1717,73 +1523,22 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
 
         calls = []
 
-        def fake_http_request(url, token, method="GET", body=None):
-            calls.append({"url": url, "token": token, "body": body})
-            query = (body or {}).get("query", "")
-            variables = (body or {}).get("variables", {})
+        def forbid_assign_or_draft(url, token, method, body, query, variables):
             if url.endswith("/assignees"):
                 raise AssertionError("unknown author must never be assigned")
             if "convertPullRequestToDraft" in query:
                 raise AssertionError("unknown author's draft state must never be touched")
-            if "addProjectV2ItemById" in query:
-                return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
-            if "updateProjectV2ItemFieldValue" in query:
-                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
-            if "options { id name }" in query:
-                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {
-                        "data": {
-                            "node": {
-                                "options": [
-                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
-                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
-                                ]
-                            }
-                        }
-                    }
-                if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "TEAM_DEV_OPT", "name": "Dev"}]}}}
-            if "configuration" in query:
-                return {
-                    "data": {
-                        "node": {
-                            "configuration": {
-                                "iterations": [
-                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
-                                ]
-                            }
-                        }
-                    }
-                }
-            raise AssertionError(f"unexpected call: {url} {query}")
+            return None
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
+        fake_http_request = make_fake_http_request(
+            calls, team_options=[{"id": "TEAM_DEV_OPT", "name": "Dev"}], extra=forbid_assign_or_draft
+        )
 
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "PROJECT_BOARD_TOKEN": "board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
-
-            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
-                pr_triage.main()
-
-            with open(summary_path, encoding="utf-8") as handle:
-                summary_text = handle.read()
+        summary_text, _ = run_main(event, http_request=fake_http_request, current_date=datetime.date(2026, 8, 8))
 
         return calls, summary_text
 
     def _assert_unknown_author_boarded_correctly(self, calls, summary_text, expected_status_option_id):
-        def query_of(call):
-            return (call["body"] or {}).get("query", "")
-
         self.assertFalse(any(call["url"].endswith("/assignees") for call in calls))
         self.assertFalse(any("convertPullRequestToDraft" in query_of(call) for call in calls))
 
@@ -1817,17 +1572,15 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
 
     def test_unknown_author_ready_for_review_is_boarded_review(self):
         calls, summary_text = self._run_main_for(is_draft=False)
-        self._assert_unknown_author_boarded_correctly(calls, summary_text, "STATUS_REVIEW_OPT")
+        self._assert_unknown_author_boarded_correctly(calls, summary_text, "STATUS_OPT_REVIEW")
 
     def test_unknown_author_already_draft_is_boarded_working(self):
         calls, summary_text = self._run_main_for(is_draft=True)
-        self._assert_unknown_author_boarded_correctly(calls, summary_text, "STATUS_WORKING_OPT")
+        self._assert_unknown_author_boarded_correctly(calls, summary_text, "STATUS_OPT_WORKING")
 
 
 class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
     def test_status_and_team_options_are_resolved_before_the_item_is_added(self):
-        import tempfile
-
         event = {
             "action": "opened",
             "pull_request": {
@@ -1840,72 +1593,27 @@ class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
             "repository": {"full_name": "molgenis/molgenis-emx2"},
         }
 
-        call_kinds = []
+        calls = []
+        run_main(event, http_request=make_fake_http_request(calls), current_date=datetime.date(2026, 8, 8))
 
-        def fake_http_request(url, token, method="GET", body=None):
-            query = (body or {}).get("query", "")
-            variables = (body or {}).get("variables", {})
-            if url.endswith("/assignees"):
-                call_kinds.append("assign")
-                return {"assignees": [{"login": "mswertz"}]}
-            if "convertPullRequestToDraft" in query:
-                call_kinds.append("draft")
-                return {"data": {"convertPullRequestToDraft": {"pullRequest": {"id": "PR_node", "isDraft": True}}}}
-            if "addProjectV2ItemById" in query:
-                call_kinds.append("add_item")
-                return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
-            if "updateProjectV2ItemFieldValue" in query:
-                call_kinds.append("set_field")
-                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
+        def kind_of(call):
+            query = query_of(call)
             if "options { id name }" in query:
-                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    call_kinds.append("fetch_status_options")
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "🛠️ Working"}]}}}
-                if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
-                    call_kinds.append("fetch_team_options")
-                    return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
+                variables = (call["body"] or {}).get("variables", {})
+                return "fetch_status_options" if variables["fieldId"] == pr_triage.STATUS_FIELD_ID else "fetch_team_options"
             if "configuration" in query:
-                call_kinds.append("fetch_iterations")
-                return {
-                    "data": {
-                        "node": {
-                            "configuration": {
-                                "iterations": [
-                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
-                                ]
-                            }
-                        }
-                    }
-                }
-            raise AssertionError(f"unexpected call: {url} {query}")
+                return "fetch_iterations"
+            if "addProjectV2ItemById" in query:
+                return "add_item"
+            return None
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
-
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "GITHUB_TOKEN": "github-token",
-                "PROJECT_BOARD_TOKEN": "board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
-
-            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
-                pr_triage.main()
-
+        call_kinds = [kind_of(call) for call in calls]
         add_item_index = call_kinds.index("add_item")
         self.assertLess(call_kinds.index("fetch_status_options"), add_item_index)
         self.assertLess(call_kinds.index("fetch_team_options"), add_item_index)
         self.assertLess(call_kinds.index("fetch_iterations"), add_item_index)
 
     def test_a_resolution_failure_never_adds_a_board_item(self):
-        import tempfile
-
         event = {
             "action": "opened",
             "pull_request": {
@@ -1920,59 +1628,28 @@ class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
 
         calls = []
 
-        def fake_http_request(url, token, method="GET", body=None):
-            query = (body or {}).get("query", "")
-            calls.append(query)
-            if url.endswith("/assignees"):
-                return {"assignees": [{"login": "mswertz"}]}
-            if "convertPullRequestToDraft" in query:
-                return {"data": {"convertPullRequestToDraft": {"pullRequest": {"id": "PR_node", "isDraft": True}}}}
+        def refuse_add_item(url, token, method, body, query, variables):
             if "addProjectV2ItemById" in query:
                 raise AssertionError("must not add a board item when option resolution fails")
-            if "options { id name }" in query:
-                return {"data": {"node": {"options": [{"id": "SOME_OPT", "name": "NoMatchingOptionHere"}]}}}
-            raise AssertionError(f"unexpected call: {url} {query}")
+            return None
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
+        fake_http_request = make_fake_http_request(
+            calls,
+            status_options=[{"id": "SOME_OPT", "name": "NoMatchingOptionHere"}],
+            team_options=[{"id": "SOME_OPT", "name": "NoMatchingOptionHere"}],
+            extra=refuse_add_item,
+        )
 
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "GITHUB_TOKEN": "github-token",
-                "PROJECT_BOARD_TOKEN": "board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
+        summary_text, exit_code = run_main(event, http_request=fake_http_request, current_date=datetime.date(2026, 8, 8))
 
-            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
-                with self.assertRaises(SystemExit) as context:
-                    pr_triage.main()
+        self.assertNotEqual(exit_code, 0)
+        self.assertIsNotNone(exit_code)
+        self.assertFalse(any("addProjectV2ItemById" in query_of(call) for call in calls))
 
-        self.assertNotEqual(context.exception.code, 0)
-        self.assertFalse(any("addProjectV2ItemById" in query for query in calls))
-
-
-LIVE_STATUS_OPTIONS = [
-    {"id": "285bb9d7", "name": "\U0001f4cb Epic"},
-    {"id": "ff9f2e2b", "name": "⛔️ Blocked"},
-    {"id": "f75ad846", "name": "\U0001f4da Backlog"},
-    {"id": "47fc9ee4", "name": "\U0001f6e0️ Working"},
-    {"id": "879449e7", "name": "\U0001f50d Review"},
-    {"id": "98236657", "name": "✅ Done"},
-    {"id": "58e93f55", "name": "\U0001f4e5 Inbox"},
-    {"id": "7164e058", "name": "Icebox"},
-]
-LIVE_STATUS_OPTION_ID_BY_NAME = {"Working": "47fc9ee4", "Review": "879449e7"}
 
 
 class MainIgnoresUnrecognizedActionTest(unittest.TestCase):
     def test_an_unrecognized_action_makes_no_writes_and_reads_no_mapping_file(self):
-        import tempfile
 
         event = {
             "action": "labeled",
@@ -2011,97 +1688,6 @@ class MainIgnoresUnrecognizedActionTest(unittest.TestCase):
         self.assertIn("labeled", summary_text)
         self.assertIn("no action", summary_text.lower())
 
-
-class MainReadsAssignDecisionTest(unittest.TestCase):
-    def test_main_does_not_assign_when_decision_says_not_to(self):
-        import tempfile
-
-        event = {
-            "action": "opened",
-            "pull_request": {
-                "user": {"login": "mswertz"},
-                "head": {"ref": "feature/x"},
-                "number": 1,
-                "node_id": "PR_node",
-                "draft": False,
-            },
-            "repository": {"full_name": "molgenis/molgenis-emx2"},
-        }
-
-        # known and assign always agree in the real decide(); this forces the
-        # only combination that ever skips assignment (both false), since
-        # "known but not assigned" is a state the all-or-nothing ruling forbids.
-        forced_decision = {
-            "known": False,
-            "assign": False,
-            "force_draft": False,
-            "team": "Dev",
-        }
-
-        calls = []
-
-        def fake_http_request(url, token, method="GET", body=None):
-            calls.append({"url": url, "token": token, "body": body})
-            query = (body or {}).get("query", "")
-            variables = (body or {}).get("variables", {})
-            if "addProjectV2ItemById" in query:
-                return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
-            if "updateProjectV2ItemFieldValue" in query:
-                return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
-            if "options { id name }" in query:
-                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {
-                        "data": {
-                            "node": {
-                                "options": [
-                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
-                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
-                                ]
-                            }
-                        }
-                    }
-                if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
-            if "configuration" in query:
-                return {
-                    "data": {
-                        "node": {
-                            "configuration": {
-                                "iterations": [
-                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
-                                ]
-                            }
-                        }
-                    }
-                }
-            raise AssertionError(f"unexpected call: {url} {query}")
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            event_path = os.path.join(tmp_dir, "event.json")
-            with open(event_path, "w", encoding="utf-8") as handle:
-                json.dump(event, handle)
-            summary_path = os.path.join(tmp_dir, "summary.md")
-            open(summary_path, "w", encoding="utf-8").close()
-
-            env = {
-                "GITHUB_EVENT_PATH": event_path,
-                "GITHUB_TOKEN": "github-token",
-                "PROJECT_BOARD_TOKEN": "board-token",
-                "GITHUB_STEP_SUMMARY": summary_path,
-            }
-
-            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "decide", return_value=forced_decision), mock.patch.object(
-                pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)
-            ):
-                pr_triage.main()
-
-            with open(summary_path, encoding="utf-8") as handle:
-                summary_text = handle.read()
-
-        self.assertFalse(any(call["url"].endswith("/assignees") for call in calls))
-        self.assertIn("| Assignee set | skipped, unknown author is never assigned |", summary_text)
 
 
 class FindBoardItemForPrTest(unittest.TestCase):
@@ -2345,7 +1931,6 @@ class FindBannedTermsAcrossTriageSourceTest(unittest.TestCase):
         return scripts_dir, workflows_dir
 
     def test_flags_a_banned_term_planted_in_a_script_file(self):
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             scripts_dir, _ = self._write_clean_triage_source(tmp_dir)
@@ -2357,7 +1942,6 @@ class FindBannedTermsAcrossTriageSourceTest(unittest.TestCase):
         self.assertEqual(findings, [("pr_triage.py", ["author_association"])])
 
     def test_flags_a_banned_term_planted_in_the_workflow_file_itself(self):
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             _, workflows_dir = self._write_clean_triage_source(tmp_dir)
@@ -2369,7 +1953,6 @@ class FindBannedTermsAcrossTriageSourceTest(unittest.TestCase):
         self.assertEqual(findings, [("pr-triage.yml", ["author_association"])])
 
     def test_passes_clean_triage_source(self):
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             self._write_clean_triage_source(tmp_dir)
@@ -2381,7 +1964,6 @@ class FindBannedTermsAcrossTriageSourceTest(unittest.TestCase):
 
 class ValidateMainExitsNonZeroOnDuplicateLoginTest(unittest.TestCase):
     def test_main_exits_non_zero_when_a_login_is_listed_twice(self):
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = os.path.join(tmp_dir, "repo")
@@ -2418,7 +2000,7 @@ class ValidateMainExitsNonZeroOnDuplicateLoginTest(unittest.TestCase):
         self.assertNotEqual(context.exception.code, 0)
 
 
-class ValidateMainChecksTransitionStatusConstantsTest(unittest.TestCase):
+class ValidateMainChecksStatusConstantsResolveLiveTest(unittest.TestCase):
     def _write_clean_repo(self, tmp_dir):
         repo_root = os.path.join(tmp_dir, "repo")
         scripts_dir = os.path.join(repo_root, ".github", "scripts")
@@ -2438,7 +2020,6 @@ class ValidateMainChecksTransitionStatusConstantsTest(unittest.TestCase):
         return repo_root
 
     def test_validator_flags_a_status_review_that_diverged_from_the_unknown_author_status(self):
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = self._write_clean_repo(tmp_dir)
@@ -2463,7 +2044,6 @@ class ValidateMainChecksTransitionStatusConstantsTest(unittest.TestCase):
 
 class ValidateMainExitsNonZeroOnBannedTermTest(unittest.TestCase):
     def test_main_exits_non_zero_when_a_banned_term_is_planted(self):
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = os.path.join(tmp_dir, "repo")
@@ -2496,7 +2076,6 @@ class ValidateMainExitsNonZeroOnBannedTermTest(unittest.TestCase):
 
 class ValidateMainRunsOfflineWithoutBoardTokenTest(unittest.TestCase):
     def test_offline_checks_pass_green_with_a_clean_mapping_and_no_token_in_the_environment(self):
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = os.path.join(tmp_dir, "repo")
@@ -2523,7 +2102,6 @@ class ValidateMainRunsOfflineWithoutBoardTokenTest(unittest.TestCase):
                 validate_pr_triage_teams.main(repo_root=repo_root)
 
     def test_a_genuine_mapping_defect_still_fails_with_no_token_present(self):
-        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             repo_root = os.path.join(tmp_dir, "repo")

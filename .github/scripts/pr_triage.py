@@ -43,29 +43,20 @@ def check_assignment_succeeded(author_login, assign_result):
         )
 
 
-def decide(author_login, is_draft, mapping):
-    team = mapping.get(author_login)
-    known = bool(team) and bool(team.strip())
-    if not known:
-        return {
-            "known": False,
-            "assign": False,
-            "force_draft": False,
-            "team": UNKNOWN_AUTHOR_TEAM,
-        }
-    return {
-        "known": True,
-        "assign": True,
-        "force_draft": not is_draft,
-        "team": team,
-    }
-
-
-TRANSITION_ACTIONS = ("ready_for_review", "converted_to_draft", "reopened")
-
-
 def is_blank(value):
     return not value or not value.strip()
+
+
+def team_for(author_login, mapping):
+    team = mapping.get(author_login)
+    return None if is_blank(team) else team
+
+
+def decide(author_login, is_draft, mapping):
+    team = team_for(author_login, mapping)
+    if team is None:
+        return {"known": False, "force_draft": False, "team": UNKNOWN_AUTHOR_TEAM}
+    return {"known": True, "force_draft": not is_draft, "team": team}
 
 
 def target_status_from_draft_state(is_draft):
@@ -89,16 +80,18 @@ STATUS_MANAGED_VALUES = (STATUS_WORKING, STATUS_REVIEW)
 
 
 def decide_status(is_draft, current_status):
-    if is_blank(current_status) or strip_emoji_prefix(current_status) in STATUS_MANAGED_VALUES:
-        return target_status_from_draft_state(is_draft)
+    target = target_status_from_draft_state(is_draft)
+    if is_blank(current_status):
+        return target
+    current = strip_emoji_prefix(current_status)
+    if current == target:
+        return None
+    if current in STATUS_MANAGED_VALUES:
+        return target
     return None
 
 
-def decide_board_update(
-    action, is_draft, current_status, current_team, mapped_team, current_sprint=None, current_sprint_title=None
-):
-    if action not in TRANSITION_ACTIONS and action != "synchronize":
-        return None
+def decide_board_update(is_draft, current_status, current_team, mapped_team, current_sprint=None, current_sprint_title=None):
     return {
         "status": decide_status(is_draft, current_status),
         "team": mapped_team if is_blank(current_team) else None,
@@ -360,19 +353,78 @@ def write_step_summary(rows):
             handle.write(f"| {name} | {value} |\n")
 
 
-# One handler for every event whose only job is to move board fields, never the
-# assignee or the draft state: the three transitions and synchronize alike.
-# Status follows decide_status's one rule regardless of action (fill when
-# empty or already Working/Review, leave any other value alone); Team and
-# Sprint always fill only if empty. decide_board_update carries the whole
-# rule; this function is purely the I/O around it, so a future field slots
-# into SINGLE_SELECT_FIELD_SPECS without touching the fill-vs-overwrite logic.
+# Every event that touches the board (the three transitions, synchronize, and
+# opened) applies the one rule in decide_board_update: Status per decide_status,
+# Team and Sprint fill-only. Sprint's mutation shape differs from a single-select
+# (iterationId, not singleSelectOptionId), which is why it is written separately
+# below rather than through SINGLE_SELECT_FIELD_SPECS; a real fourth field would
+# still touch this table, current_values, FIELD_LABELS, and the write loop below.
+TRANSITION_ACTIONS = ("ready_for_review", "converted_to_draft", "reopened")
 BOARD_UPDATE_ACTIONS = TRANSITION_ACTIONS + ("synchronize",)
 
 SINGLE_SELECT_FIELD_SPECS = (
     ("status", STATUS_FIELD_ID, True, "Status"),
     ("team", TEAM_FIELD_ID, False, "Team"),
 )
+FIELD_LABELS = {"status": "Status", "team": "Team", "sprint": "Sprint"}
+
+
+def resolve_and_apply_board_fields(pr_node_id, existing_item, fields, current_values, current_iteration, board_token, summary_rows):
+    resolved_single_select = {}
+    for key, field_id, strip_emoji, _label in SINGLE_SELECT_FIELD_SPECS:
+        target_value = fields[key]
+        if target_value is not None:
+            options = fetch_project_field_options(field_id, board_token)
+            resolved_single_select[key] = (field_id, find_option_id_by_name(options, target_value, strip_emoji=strip_emoji))
+
+    sprint_iteration_id = current_iteration["id"] if (fields["sprint"] is not None and current_iteration) else None
+
+    if existing_item:
+        item_id = existing_item["id"]
+        summary_rows.append(("Board item", f"found existing item {item_id}"))
+    else:
+        item_id = add_item_to_project(pr_node_id, board_token)
+        summary_rows.append(("Board item", f"no existing item, added {item_id}"))
+
+    for key, label in FIELD_LABELS.items():
+        target_value = fields[key]
+        if target_value is None:
+            summary_rows.append((label, f"left as-is ({current_values[key]!r})"))
+        elif key == "sprint":
+            set_project_field_iteration(item_id, SPRINT_FIELD_ID, sprint_iteration_id, board_token)
+            summary_rows.append((f"{label} set", target_value))
+        else:
+            field_id, option_id = resolved_single_select[key]
+            set_project_field_option(item_id, field_id, option_id, board_token)
+            summary_rows.append((f"{label} set", target_value))
+
+    return item_id
+
+
+def resolve_board_state(pr_node_id, board_token):
+    """Looks up the item and, when needed, the current sprint. Returns
+    (existing_item, current_values, current_iteration)."""
+    existing_item = find_board_item_for_pr(pr_node_id, board_token)
+    current_values = {
+        "status": existing_item["status"] if existing_item else None,
+        "team": existing_item["team"] if existing_item else None,
+        "sprint": existing_item["sprint"] if existing_item else None,
+    }
+
+    current_iteration = None
+    if is_blank(current_values["sprint"]):
+        iterations = fetch_project_iterations(SPRINT_FIELD_ID, board_token)
+        current_iteration = find_current_iteration(iterations, current_date())
+
+    return existing_item, current_values, current_iteration
+
+
+def board_verdict(prefix, fields, current_values):
+    parts = [
+        f"{label} {fields[key] if fields[key] else f'left as {current_values[key]!r}'}"
+        for key, label in FIELD_LABELS.items()
+    ]
+    return f"{prefix} -> " + ", ".join(parts)
 
 
 def handle_board_update(action, pull_request):
@@ -383,7 +435,7 @@ def handle_board_update(action, pull_request):
 
     mapping_path = mapping_file_path(__file__)
     mapping = load_teams_mapping(mapping_path)
-    mapped_team = decide(author_login=author_login, is_draft=is_draft, mapping=mapping)["team"]
+    mapped_team = team_for(author_login, mapping) or UNKNOWN_AUTHOR_TEAM
 
     print(f"event=pull_request action={action} head_branch={head_branch} author={author_login}")
 
@@ -396,69 +448,25 @@ def handle_board_update(action, pull_request):
     try:
         board_token = os.environ["PROJECT_BOARD_TOKEN"]
 
-        existing_item = find_board_item_for_pr(pr_node_id, board_token)
-        current_status = existing_item["status"] if existing_item else None
-        current_team = existing_item["team"] if existing_item else None
-        current_sprint = existing_item["sprint"] if existing_item else None
-
-        iterations = fetch_project_iterations(SPRINT_FIELD_ID, board_token)
-        current_iteration = find_current_iteration(iterations, current_date())
+        existing_item, current_values, current_iteration = resolve_board_state(pr_node_id, board_token)
         current_sprint_title = current_iteration["title"] if current_iteration else None
 
         fields = decide_board_update(
-            action,
             is_draft,
-            current_status,
-            current_team,
+            current_values["status"],
+            current_values["team"],
             mapped_team,
-            current_sprint=current_sprint,
+            current_sprint=current_values["sprint"],
             current_sprint_title=current_sprint_title,
         )
 
-        verdict = (
-            f"{action} -> Status "
-            f"{fields['status'] if fields['status'] else f'left as {current_status!r}'}, Team "
-            f"{fields['team'] if fields['team'] else f'left as {current_team!r}'}, Sprint "
-            f"{fields['sprint'] if fields['sprint'] else f'left as {current_sprint!r}'}"
-        )
+        verdict = board_verdict(action, fields, current_values)
         print(f"verdict: {verdict}")
         summary_rows.append(("Verdict", verdict))
 
-        resolved_single_select = []
-        for key, field_id, strip_emoji, label in SINGLE_SELECT_FIELD_SPECS:
-            target_value = fields[key]
-            if target_value is None:
-                continue
-            options = fetch_project_field_options(field_id, board_token)
-            option_id = find_option_id_by_name(options, target_value, strip_emoji=strip_emoji)
-            resolved_single_select.append((field_id, option_id, label, target_value))
-
-        sprint_target = fields["sprint"]
-        if sprint_target is not None:
-            sprint_iteration_id = current_iteration["id"]
-
-        if existing_item:
-            item_id = existing_item["id"]
-            summary_rows.append(("Board item", f"found existing item {item_id}"))
-        else:
-            item_id = add_item_to_project(pr_node_id, board_token)
-            summary_rows.append(("Board item", f"no existing item, added {item_id}"))
-
-        for field_id, option_id, label, target_value in resolved_single_select:
-            set_project_field_option(item_id, field_id, option_id, board_token)
-            summary_rows.append((f"{label} set", target_value))
-
-        if sprint_target is not None:
-            set_project_field_iteration(item_id, SPRINT_FIELD_ID, sprint_iteration_id, board_token)
-            summary_rows.append(("Sprint set", sprint_target))
-
-        for key, current_value, label in (
-            ("status", current_status, "Status"),
-            ("team", current_team, "Team"),
-            ("sprint", current_sprint, "Sprint"),
-        ):
-            if fields[key] is None:
-                summary_rows.append((label, f"left as-is ({current_value!r})"))
+        resolve_and_apply_board_fields(
+            pr_node_id, existing_item, fields, current_values, current_iteration, board_token, summary_rows
+        )
 
         summary_rows.append(("Assignee", "not touched, deliberate, including when empty"))
         summary_rows.append(("Draft state", "not touched, deliberate"))
@@ -467,9 +475,6 @@ def handle_board_update(action, pull_request):
         raise
     finally:
         write_step_summary(summary_rows)
-
-
-OPEN_TRIAGE_ACTIONS = ("opened",)
 
 
 def handle_unrecognized_action(action, pull_request):
@@ -516,7 +521,7 @@ def handle_open_triage(action, pull_request, repo):
         board_token = os.environ["PROJECT_BOARD_TOKEN"]
 
         assignment_succeeded = True
-        if decision["assign"]:
+        if decision["known"]:
             try:
                 github_token = os.environ["GITHUB_TOKEN"]
                 assign_result = assign_author(repo, pr_number, author_login, github_token)
@@ -551,42 +556,27 @@ def handle_open_triage(action, pull_request, repo):
         else:
             summary_rows.append(("Converted to draft", "skipped, draft state left untouched for unknown author"))
 
-        target_status = decide_status(actual_is_draft, current_status=None)
-
-        if decision["known"]:
-            verdict = f"known -> assign+draft+{target_status}/{decision['team']}"
-        else:
-            verdict = (
-                f"unknown (absent from .github/pr-triage-teams.yml) -> "
-                f"no assignee, draft untouched, boarded {target_status}/{decision['team']}"
-            )
-        print(f"verdict: {verdict}")
-        summary_rows.insert(3, ("Verdict", verdict))
-
         try:
-            status_options = fetch_project_field_options(STATUS_FIELD_ID, board_token)
-            status_option_id = find_option_id_by_name(status_options, target_status, strip_emoji=True)
+            existing_item, current_values, current_iteration = resolve_board_state(pr_node_id, board_token)
+            current_sprint_title = current_iteration["title"] if current_iteration else None
 
-            team_options = fetch_project_field_options(TEAM_FIELD_ID, board_token)
-            team_option_id = find_option_id_by_name(team_options, decision["team"], strip_emoji=False)
+            fields = decide_board_update(
+                actual_is_draft,
+                current_values["status"],
+                current_values["team"],
+                decision["team"],
+                current_sprint=current_values["sprint"],
+                current_sprint_title=current_sprint_title,
+            )
 
-            iterations = fetch_project_iterations(SPRINT_FIELD_ID, board_token)
-            current_iteration = find_current_iteration(iterations, current_date())
+            verdict_prefix = "known, assign+draft" if decision["known"] else "unknown (absent from .github/pr-triage-teams.yml), no assignee, draft untouched"
+            verdict = board_verdict(verdict_prefix, fields, current_values)
+            print(f"verdict: {verdict}")
+            summary_rows.insert(3, ("Verdict", verdict))
 
-            item_id = add_item_to_project(pr_node_id, board_token)
-            summary_rows.append(("Board item id", item_id))
-
-            set_project_field_option(item_id, STATUS_FIELD_ID, status_option_id, board_token)
-            summary_rows.append(("Status option id written", status_option_id))
-
-            set_project_field_option(item_id, TEAM_FIELD_ID, team_option_id, board_token)
-            summary_rows.append(("Team option id written", team_option_id))
-
-            if current_iteration:
-                set_project_field_iteration(item_id, SPRINT_FIELD_ID, current_iteration["id"], board_token)
-                summary_rows.append(("Sprint option id written", current_iteration["id"]))
-            else:
-                summary_rows.append(("Sprint", "not set, no current iteration resolved"))
+            resolve_and_apply_board_fields(
+                pr_node_id, existing_item, fields, current_values, current_iteration, board_token, summary_rows
+            )
         except Exception as error:
             print(f"ERROR: board write failed: {error}")
             summary_rows.append(("Board write", f"FAILED: {error}"))
@@ -615,7 +605,7 @@ def main():
         handle_board_update(action, pull_request)
         return
 
-    if action not in OPEN_TRIAGE_ACTIONS:
+    if action != "opened":
         handle_unrecognized_action(action, pull_request)
         return
 
