@@ -503,6 +503,7 @@ def handle_open_triage(action, pull_request, repo):
 
     board_token = os.environ["PROJECT_BOARD_TOKEN"]
 
+    assignment_succeeded = True
     if decision["assign"]:
         try:
             github_token = os.environ["GITHUB_TOKEN"]
@@ -513,13 +514,18 @@ def handle_open_triage(action, pull_request, repo):
             print(f"ERROR: assignment failed: {error}")
             summary_rows.append(("Assignee set", f"FAILED: {error}"))
             failures.append(str(error))
+            assignment_succeeded = False
     elif decision["known"]:
         summary_rows.append(("Assignee set", "skipped, not required by decision"))
     else:
         summary_rows.append(("Assignee set", "skipped, unknown author is never assigned"))
 
+    # Assign-then-draft is a real dependency, not the chaining we removed elsewhere:
+    # claiming ownership is what force-to-draft means, so a failed assignment must
+    # leave the PR exactly as its author left it, boarded Review, not force-drafted
+    # and unowned. The board write below stays independent of both outcomes.
     actual_is_draft = is_draft
-    if decision["force_draft"]:
+    if decision["force_draft"] and assignment_succeeded:
         try:
             draft_result = convert_pr_to_draft(pr_node_id, board_token)
             actual_is_draft = draft_result["data"]["convertPullRequestToDraft"]["pullRequest"]["isDraft"]
@@ -528,6 +534,8 @@ def handle_open_triage(action, pull_request, repo):
             print(f"ERROR: convert-to-draft failed: {error}")
             summary_rows.append(("Converted to draft", f"FAILED: {error}"))
             failures.append(str(error))
+    elif decision["force_draft"] and not assignment_succeeded:
+        summary_rows.append(("Converted to draft", "skipped, assignment failed"))
     elif decision["known"]:
         summary_rows.append(("Converted to draft", "skipped, already draft"))
     else:

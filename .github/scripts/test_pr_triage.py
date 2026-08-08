@@ -637,7 +637,7 @@ class ValidateTeamOptionTest(unittest.TestCase):
 
 
 class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
-    def test_assign_failure_does_not_prevent_draft_or_board_writes_and_exits_non_zero(self):
+    def test_assign_failure_skips_the_draft_flip_but_still_boards_review_and_exits_non_zero(self):
         import tempfile
 
         event = {
@@ -659,14 +659,23 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
             query = (body or {}).get("query", "")
             variables = (body or {}).get("variables", {})
             if "convertPullRequestToDraft" in query:
-                return {"data": {"convertPullRequestToDraft": {"pullRequest": {"id": "PR_node", "isDraft": True}}}}
+                raise AssertionError("assignment failure must skip the draft flip entirely")
             if "addProjectV2ItemById" in query:
                 return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
             if "updateProjectV2ItemFieldValue" in query:
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "🛠️ Working"}]}}}
+                    return {
+                        "data": {
+                            "node": {
+                                "options": [
+                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
+                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
+                                ]
+                            }
+                        }
+                    }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
             raise AssertionError(f"unexpected call: {url} {query}")
@@ -699,14 +708,20 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
         def query_of(call):
             return (call["body"] or {}).get("query", "")
 
-        self.assertTrue(any("convertPullRequestToDraft" in query_of(call) for call in calls))
+        self.assertFalse(any("convertPullRequestToDraft" in query_of(call) for call in calls))
         self.assertTrue(any("addProjectV2ItemById" in query_of(call) for call in calls))
-        self.assertTrue(any("updateProjectV2ItemFieldValue" in query_of(call) for call in calls))
+
+        field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
+        status_write = next(
+            call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+        )
+        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_REVIEW_OPT")
 
         self.assertIn("### PR triage", summary_text)
         self.assertIn("boom", summary_text)
         self.assertIn("Board item id", summary_text)
         self.assertIn("Status option id written", summary_text)
+        self.assertIn("| Converted to draft | skipped, assignment failed |", summary_text)
         self.assertIn("Team option id written", summary_text)
 
 
@@ -793,7 +808,7 @@ class MainWiringTest(unittest.TestCase):
 
 
 class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
-    def test_dropped_assignment_does_not_prevent_draft_or_board_writes_and_exits_non_zero(self):
+    def test_dropped_assignment_skips_the_draft_flip_but_still_boards_review_and_exits_non_zero(self):
         import tempfile
 
         event = {
@@ -817,14 +832,23 @@ class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
             if url.endswith("/assignees"):
                 return {"assignees": []}
             if "convertPullRequestToDraft" in query:
-                return {"data": {"convertPullRequestToDraft": {"pullRequest": {"id": "PR_node", "isDraft": True}}}}
+                raise AssertionError("a dropped assignment must skip the draft flip entirely")
             if "addProjectV2ItemById" in query:
                 return {"data": {"addProjectV2ItemById": {"item": {"id": "ITEM_1"}}}}
             if "updateProjectV2ItemFieldValue" in query:
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM_1"}}}}
             if "options { id name }" in query:
                 if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
-                    return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "🛠️ Working"}]}}}
+                    return {
+                        "data": {
+                            "node": {
+                                "options": [
+                                    {"id": "STATUS_WORKING_OPT", "name": "🛠️ Working"},
+                                    {"id": "STATUS_REVIEW_OPT", "name": "🔍 Review"},
+                                ]
+                            }
+                        }
+                    }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
             raise AssertionError(f"unexpected call: {url} {query}")
@@ -857,12 +881,18 @@ class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
         def query_of(call):
             return (call["body"] or {}).get("query", "")
 
-        self.assertTrue(any("convertPullRequestToDraft" in query_of(call) for call in calls))
+        self.assertFalse(any("convertPullRequestToDraft" in query_of(call) for call in calls))
         self.assertTrue(any("addProjectV2ItemById" in query_of(call) for call in calls))
-        self.assertTrue(any("updateProjectV2ItemFieldValue" in query_of(call) for call in calls))
+
+        field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
+        status_write = next(
+            call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+        )
+        self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_REVIEW_OPT")
 
         self.assertIn("### PR triage", summary_text)
         self.assertIn("mswertz", summary_text)
+        self.assertIn("| Converted to draft | skipped, assignment failed |", summary_text)
         self.assertIn("Board item id", summary_text)
 
 
