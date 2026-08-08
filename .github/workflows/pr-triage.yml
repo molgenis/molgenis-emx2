@@ -14,15 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate pr-triage-teams.yml
-        env:
-          PROJECT_BOARD_TOKEN: ${{ secrets.PROJECT_BOARD_TOKEN }}
         run: python3 .github/scripts/validate_pr_triage_teams.py
       - name: Run unit tests
         run: python3 .github/scripts/test_pr_triage.py
 
   triage:
     needs: validate
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == github.event.repository.default_branch
     runs-on: ubuntu-latest
     timeout-minutes: 5
     # Assignment is GITHUB_TOKEN's only job here; the draft conversion and
@@ -40,7 +40,13 @@ jobs:
       issues: write
       pull-requests: write
     steps:
+      # Pin to the base commit, not the PR's own HEAD: this step runs with
+      # PROJECT_BOARD_TOKEN in its environment, and without this ref a PR
+      # could edit these scripts to exfiltrate that token and have its own
+      # edit run before any review. Looks removable; is not.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
       - name: Triage pull request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

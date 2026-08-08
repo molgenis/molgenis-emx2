@@ -637,6 +637,48 @@ class ValidateTeamOptionTest(unittest.TestCase):
 
 
 class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
+    def test_a_missing_mapping_file_still_writes_a_summary_and_exits_non_zero(self):
+        import tempfile
+
+        event = {
+            "action": "opened",
+            "pull_request": {
+                "user": {"login": "mswertz"},
+                "head": {"ref": "feature/x"},
+                "number": 1,
+                "node_id": "PR_node",
+                "draft": False,
+            },
+            "repository": {"full_name": "molgenis/molgenis-emx2"},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            event_path = os.path.join(tmp_dir, "event.json")
+            with open(event_path, "w", encoding="utf-8") as handle:
+                json.dump(event, handle)
+            summary_path = os.path.join(tmp_dir, "summary.md")
+            open(summary_path, "w", encoding="utf-8").close()
+
+            env = {
+                "GITHUB_EVENT_PATH": event_path,
+                "GITHUB_TOKEN": "fake-github-token",
+                "PROJECT_BOARD_TOKEN": "fake-board-token",
+                "GITHUB_STEP_SUMMARY": summary_path,
+            }
+
+            with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
+                pr_triage, "load_teams_mapping", side_effect=FileNotFoundError("no such file: pr-triage-teams.yml")
+            ):
+                with self.assertRaises(SystemExit) as context:
+                    pr_triage.main()
+
+            with open(summary_path, encoding="utf-8") as handle:
+                summary_text = handle.read()
+
+        self.assertNotEqual(context.exception.code, 0)
+        self.assertIn("### PR triage", summary_text)
+        self.assertIn("no such file", summary_text)
+
     def test_assign_failure_skips_the_draft_flip_but_still_boards_review_and_exits_non_zero(self):
         import tempfile
 
@@ -678,6 +720,18 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
                     }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
+            if "configuration" in query:
+                return {
+                    "data": {
+                        "node": {
+                            "configuration": {
+                                "iterations": [
+                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
+                                ]
+                            }
+                        }
+                    }
+                }
             raise AssertionError(f"unexpected call: {url} {query}")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -696,7 +750,9 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
 
             with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
                 pr_triage, "assign_author", side_effect=pr_triage.GraphqlError("boom")
-            ), mock.patch.object(pr_triage, "http_request", side_effect=fake_http_request):
+            ), mock.patch.object(pr_triage, "http_request", side_effect=fake_http_request), mock.patch.object(
+                pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)
+            ):
                 with self.assertRaises(SystemExit) as context:
                     pr_triage.main()
 
@@ -712,6 +768,7 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
         self.assertTrue(any("addProjectV2ItemById" in query_of(call) for call in calls))
 
         field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
+        self.assertEqual(len(field_writes), 3)
         status_write = next(
             call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
         )
@@ -760,6 +817,18 @@ class MainWiringTest(unittest.TestCase):
                     return {"data": {"node": {"options": [{"id": "STATUS_OPT", "name": "🛠️ Working"}]}}}
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
+            if "configuration" in query:
+                return {
+                    "data": {
+                        "node": {
+                            "configuration": {
+                                "iterations": [
+                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
+                                ]
+                            }
+                        }
+                    }
+                }
             raise AssertionError(f"unexpected call: {url} {query}")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -778,7 +847,7 @@ class MainWiringTest(unittest.TestCase):
 
             with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
                 pr_triage, "http_request", side_effect=fake_http_request
-            ):
+            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
                 pr_triage.main()
 
         def query_of(call):
@@ -794,7 +863,7 @@ class MainWiringTest(unittest.TestCase):
         self.assertEqual(add_item_call["token"], "board-token")
 
         field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
-        self.assertEqual(len(field_writes), 2)
+        self.assertEqual(len(field_writes), 3)
 
         status_write = field_writes[0]
         self.assertEqual(status_write["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
@@ -805,6 +874,11 @@ class MainWiringTest(unittest.TestCase):
         self.assertEqual(team_write["body"]["variables"]["fieldId"], pr_triage.TEAM_FIELD_ID)
         self.assertEqual(team_write["body"]["variables"]["optionId"], "TEAM_OPT")
         self.assertEqual(team_write["token"], "board-token")
+
+        sprint_write = field_writes[2]
+        self.assertEqual(sprint_write["body"]["variables"]["fieldId"], pr_triage.SPRINT_FIELD_ID)
+        self.assertEqual(sprint_write["body"]["variables"]["iterationId"], "bd551114")
+        self.assertEqual(sprint_write["token"], "board-token")
 
 
 class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
@@ -851,6 +925,18 @@ class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
                     }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
+            if "configuration" in query:
+                return {
+                    "data": {
+                        "node": {
+                            "configuration": {
+                                "iterations": [
+                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
+                                ]
+                            }
+                        }
+                    }
+                }
             raise AssertionError(f"unexpected call: {url} {query}")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -869,7 +955,7 @@ class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
 
             with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
                 pr_triage, "http_request", side_effect=fake_http_request
-            ):
+            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
                 with self.assertRaises(SystemExit) as context:
                     pr_triage.main()
 
@@ -885,6 +971,7 @@ class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
         self.assertTrue(any("addProjectV2ItemById" in query_of(call) for call in calls))
 
         field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
+        self.assertEqual(len(field_writes), 3)
         status_write = next(
             call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
         )
@@ -943,6 +1030,18 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
                     }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
+            if "configuration" in query:
+                return {
+                    "data": {
+                        "node": {
+                            "configuration": {
+                                "iterations": [
+                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
+                                ]
+                            }
+                        }
+                    }
+                }
             raise AssertionError(f"unexpected call: {url} {query}")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -961,7 +1060,7 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
 
             with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
                 pr_triage, "http_request", side_effect=fake_http_request
-            ):
+            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
                 with self.assertRaises(SystemExit) as context:
                     pr_triage.main()
 
@@ -980,7 +1079,7 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
         self.assertEqual(add_item_call["token"], "board-token")
 
         field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
-        self.assertEqual(len(field_writes), 2)
+        self.assertEqual(len(field_writes), 3)
 
         status_write = next(
             call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
@@ -993,6 +1092,7 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
         self.assertIn("Board item id", summary_text)
         self.assertIn("Status option id written", summary_text)
         self.assertIn("Team option id written", summary_text)
+        self.assertIn("Sprint option id written", summary_text)
 
 
 class MappingFilePathTest(unittest.TestCase):
@@ -1643,6 +1743,18 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
                     }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_DEV_OPT", "name": "Dev"}]}}}
+            if "configuration" in query:
+                return {
+                    "data": {
+                        "node": {
+                            "configuration": {
+                                "iterations": [
+                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
+                                ]
+                            }
+                        }
+                    }
+                }
             raise AssertionError(f"unexpected call: {url} {query}")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -1660,7 +1772,7 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
 
             with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
                 pr_triage, "http_request", side_effect=fake_http_request
-            ):
+            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
                 pr_triage.main()
 
             with open(summary_path, encoding="utf-8") as handle:
@@ -1679,7 +1791,7 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
         self.assertEqual(add_item_call["token"], "board-token")
 
         field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
-        self.assertEqual(len(field_writes), 2)
+        self.assertEqual(len(field_writes), 3)
 
         status_write = field_writes[0]
         self.assertEqual(status_write["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
@@ -1690,6 +1802,11 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
         self.assertEqual(team_write["body"]["variables"]["fieldId"], pr_triage.TEAM_FIELD_ID)
         self.assertEqual(team_write["body"]["variables"]["optionId"], "TEAM_DEV_OPT")
         self.assertEqual(team_write["token"], "board-token")
+
+        sprint_write = field_writes[2]
+        self.assertEqual(sprint_write["body"]["variables"]["fieldId"], pr_triage.SPRINT_FIELD_ID)
+        self.assertEqual(sprint_write["body"]["variables"]["iterationId"], "bd551114")
+        self.assertEqual(sprint_write["token"], "board-token")
 
         self.assertIn("### PR triage", summary_text)
         self.assertIn("| Assignee set | skipped, unknown author is never assigned |", summary_text)
@@ -1747,6 +1864,19 @@ class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     call_kinds.append("fetch_team_options")
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
+            if "configuration" in query:
+                call_kinds.append("fetch_iterations")
+                return {
+                    "data": {
+                        "node": {
+                            "configuration": {
+                                "iterations": [
+                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
+                                ]
+                            }
+                        }
+                    }
+                }
             raise AssertionError(f"unexpected call: {url} {query}")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -1765,12 +1895,13 @@ class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
 
             with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
                 pr_triage, "http_request", side_effect=fake_http_request
-            ):
+            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
                 pr_triage.main()
 
         add_item_index = call_kinds.index("add_item")
         self.assertLess(call_kinds.index("fetch_status_options"), add_item_index)
         self.assertLess(call_kinds.index("fetch_team_options"), add_item_index)
+        self.assertLess(call_kinds.index("fetch_iterations"), add_item_index)
 
     def test_a_resolution_failure_never_adds_a_board_item(self):
         import tempfile
@@ -1818,7 +1949,7 @@ class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
 
             with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
                 pr_triage, "http_request", side_effect=fake_http_request
-            ):
+            ), mock.patch.object(pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)):
                 with self.assertRaises(SystemExit) as context:
                     pr_triage.main()
 
@@ -1897,11 +2028,13 @@ class MainReadsAssignDecisionTest(unittest.TestCase):
             "repository": {"full_name": "molgenis/molgenis-emx2"},
         }
 
+        # known and assign always agree in the real decide(); this forces the
+        # only combination that ever skips assignment (both false), since
+        # "known but not assigned" is a state the all-or-nothing ruling forbids.
         forced_decision = {
-            "known": True,
+            "known": False,
             "assign": False,
             "force_draft": False,
-            "status": "Working",
             "team": "Dev",
         }
 
@@ -1929,6 +2062,18 @@ class MainReadsAssignDecisionTest(unittest.TestCase):
                     }
                 if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
                     return {"data": {"node": {"options": [{"id": "TEAM_OPT", "name": "Dev"}]}}}
+            if "configuration" in query:
+                return {
+                    "data": {
+                        "node": {
+                            "configuration": {
+                                "iterations": [
+                                    {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
+                                ]
+                            }
+                        }
+                    }
+                }
             raise AssertionError(f"unexpected call: {url} {query}")
 
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -1947,14 +2092,16 @@ class MainReadsAssignDecisionTest(unittest.TestCase):
 
             with mock.patch.dict(os.environ, env, clear=False), mock.patch.object(
                 pr_triage, "http_request", side_effect=fake_http_request
-            ), mock.patch.object(pr_triage, "decide", return_value=forced_decision):
+            ), mock.patch.object(pr_triage, "decide", return_value=forced_decision), mock.patch.object(
+                pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)
+            ):
                 pr_triage.main()
 
             with open(summary_path, encoding="utf-8") as handle:
                 summary_text = handle.read()
 
         self.assertFalse(any(call["url"].endswith("/assignees") for call in calls))
-        self.assertIn("| Assignee set | skipped, not required by decision |", summary_text)
+        self.assertIn("| Assignee set | skipped, unknown author is never assigned |", summary_text)
 
 
 class FindBoardItemForPrTest(unittest.TestCase):
@@ -2079,6 +2226,29 @@ class SetProjectFieldIterationTest(unittest.TestCase):
         self.assertEqual(called_body["variables"]["iterationId"], "bd551114")
         self.assertIn("iterationId", called_body["query"])
         self.assertNotIn("singleSelectOptionId", called_body["query"])
+
+
+class NullNodeIsRaisedActionablyTest(unittest.TestCase):
+    def test_fetch_project_field_options_raises_naming_the_field_id_when_node_is_null(self):
+        with mock.patch.object(pr_triage, "http_request", return_value={"data": {"node": None}}):
+            with self.assertRaises(pr_triage.GraphqlError) as context:
+                pr_triage.fetch_project_field_options("STALE_FIELD_ID", "board-token")
+
+        self.assertIn("STALE_FIELD_ID", str(context.exception))
+
+    def test_find_board_item_for_pr_raises_naming_the_pr_node_id_when_node_is_null(self):
+        with mock.patch.object(pr_triage, "http_request", return_value={"data": {"node": None}}):
+            with self.assertRaises(pr_triage.GraphqlError) as context:
+                pr_triage.find_board_item_for_pr("STALE_PR_NODE_ID", "board-token")
+
+        self.assertIn("STALE_PR_NODE_ID", str(context.exception))
+
+    def test_fetch_project_iterations_raises_naming_the_field_id_when_node_is_null(self):
+        with mock.patch.object(pr_triage, "http_request", return_value={"data": {"node": None}}):
+            with self.assertRaises(pr_triage.GraphqlError) as context:
+                pr_triage.fetch_project_iterations("STALE_SPRINT_FIELD_ID", "board-token")
+
+        self.assertIn("STALE_SPRINT_FIELD_ID", str(context.exception))
 
 
 class GraphqlRequestErrorHandlingTest(unittest.TestCase):
@@ -2324,6 +2494,61 @@ class ValidateMainExitsNonZeroOnBannedTermTest(unittest.TestCase):
         self.assertNotEqual(context.exception.code, 0)
 
 
+class ValidateMainRunsOfflineWithoutBoardTokenTest(unittest.TestCase):
+    def test_offline_checks_pass_green_with_a_clean_mapping_and_no_token_in_the_environment(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = os.path.join(tmp_dir, "repo")
+            scripts_dir = os.path.join(repo_root, ".github", "scripts")
+            workflows_dir = os.path.join(repo_root, ".github", "workflows")
+            os.makedirs(scripts_dir)
+            os.makedirs(workflows_dir)
+            with open(os.path.join(repo_root, ".github", "pr-triage-teams.yml"), "w", encoding="utf-8") as handle:
+                handle.write("teams:\n  mswertz: Dev\n")
+            with open(os.path.join(workflows_dir, "pr-triage.yml"), "w", encoding="utf-8") as handle:
+                handle.write("on:\n  pull_request:\n    types: [opened]\n")
+            with open(os.path.join(scripts_dir, "pr_triage.py"), "w", encoding="utf-8") as handle:
+                handle.write("def decide():\n    pass\n")
+            with open(os.path.join(scripts_dir, "validate_pr_triage_teams.py"), "w", encoding="utf-8") as handle:
+                handle.write("BANNED = ('author_association',)\n")
+            with open(os.path.join(scripts_dir, "test_pr_triage.py"), "w", encoding="utf-8") as handle:
+                handle.write("workflow_text = 'author_association'\n")
+
+            with mock.patch.dict(os.environ, {}, clear=True), mock.patch.object(
+                pr_triage,
+                "fetch_project_field_options",
+                side_effect=AssertionError("offline validation must never call the live board"),
+            ):
+                validate_pr_triage_teams.main(repo_root=repo_root)
+
+    def test_a_genuine_mapping_defect_still_fails_with_no_token_present(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            repo_root = os.path.join(tmp_dir, "repo")
+            scripts_dir = os.path.join(repo_root, ".github", "scripts")
+            workflows_dir = os.path.join(repo_root, ".github", "workflows")
+            os.makedirs(scripts_dir)
+            os.makedirs(workflows_dir)
+            with open(os.path.join(repo_root, ".github", "pr-triage-teams.yml"), "w", encoding="utf-8") as handle:
+                handle.write("teams:\n  dependabot[bot]: Dev\n")
+            with open(os.path.join(workflows_dir, "pr-triage.yml"), "w", encoding="utf-8") as handle:
+                handle.write("on:\n  pull_request:\n    types: [opened]\n")
+            with open(os.path.join(scripts_dir, "pr_triage.py"), "w", encoding="utf-8") as handle:
+                handle.write("def decide():\n    pass\n")
+            with open(os.path.join(scripts_dir, "validate_pr_triage_teams.py"), "w", encoding="utf-8") as handle:
+                handle.write("BANNED = ('author_association',)\n")
+            with open(os.path.join(scripts_dir, "test_pr_triage.py"), "w", encoding="utf-8") as handle:
+                handle.write("workflow_text = 'author_association'\n")
+
+            with mock.patch.dict(os.environ, {}, clear=True):
+                with self.assertRaises(SystemExit) as context:
+                    validate_pr_triage_teams.main(repo_root=repo_root)
+
+        self.assertNotEqual(context.exception.code, 0)
+
+
 class WorkflowHasAPerPrConcurrencyGroupTest(unittest.TestCase):
     def test_concurrency_group_is_scoped_per_pr_and_does_not_cancel_in_progress_runs(self):
         repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -2355,6 +2580,54 @@ class WorkflowGithubTokenPermissionsTest(unittest.TestCase):
 
         self.assertIn("issues: write", workflow_text)
         self.assertIn("pull-requests: write", workflow_text)
+
+
+class WorkflowOnlyTriagesPrsBasedOnTheDefaultBranchTest(unittest.TestCase):
+    def test_triage_job_guards_on_base_ref_matching_the_default_branch(self):
+        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        workflow_path = os.path.join(repo_root, ".github", "workflows", "pr-triage.yml")
+        with open(workflow_path, encoding="utf-8") as handle:
+            workflow_text = handle.read()
+
+        jobs = workflow_text.split("\n  triage:", 1)
+        self.assertEqual(len(jobs), 2, "expected exactly one 'triage:' job in the workflow")
+        validate_text, triage_text = jobs
+
+        self.assertNotIn("base.ref", validate_text)
+        self.assertNotIn("default_branch", validate_text)
+
+        self.assertIn("github.event.pull_request.base.ref", triage_text)
+        self.assertIn("github.event.repository.default_branch", triage_text)
+        self.assertNotIn("== 'master'", triage_text)
+        self.assertNotIn('== "master"', triage_text)
+
+
+class WorkflowTriageCheckoutPinsToBaseShaTest(unittest.TestCase):
+    def test_triage_job_checks_out_the_base_sha_not_the_prs_own_code(self):
+        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        workflow_path = os.path.join(repo_root, ".github", "workflows", "pr-triage.yml")
+        with open(workflow_path, encoding="utf-8") as handle:
+            workflow_text = handle.read()
+
+        jobs = workflow_text.split("\n  triage:", 1)
+        self.assertEqual(len(jobs), 2, "expected exactly one 'triage:' job in the workflow")
+        _, triage_text = jobs
+
+        self.assertIn("ref: ${{ github.event.pull_request.base.sha }}", triage_text)
+
+
+class WorkflowValidateJobHoldsNoBoardTokenTest(unittest.TestCase):
+    def test_validate_job_env_has_no_project_board_token(self):
+        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        workflow_path = os.path.join(repo_root, ".github", "workflows", "pr-triage.yml")
+        with open(workflow_path, encoding="utf-8") as handle:
+            workflow_text = handle.read()
+
+        jobs = workflow_text.split("\n  triage:", 1)
+        self.assertEqual(len(jobs), 2, "expected exactly one 'triage:' job in the workflow")
+        validate_text, _ = jobs
+
+        self.assertNotIn("PROJECT_BOARD_TOKEN", validate_text)
 
 
 if __name__ == "__main__":

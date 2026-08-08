@@ -182,6 +182,16 @@ def graphql_request(query, variables, token):
     return result
 
 
+def require_node(result, resolved_id):
+    node = result["data"]["node"]
+    if node is None:
+        raise GraphqlError(
+            f"GraphQL id '{resolved_id}' resolved to no node (data.node is null). "
+            f"The id is probably stale, e.g. a board field that was deleted and recreated."
+        )
+    return node
+
+
 def assign_author(repo, pr_number, author_login, token):
     return http_request(
         f"{GITHUB_API_URL}/repos/{repo}/issues/{pr_number}/assignees",
@@ -241,7 +251,7 @@ def find_board_item_for_pr(pr_node_id, token):
     }
     """
     result = graphql_request(query, {"contentId": pr_node_id}, token)
-    nodes = result["data"]["node"]["projectItems"]["nodes"]
+    nodes = require_node(result, pr_node_id)["projectItems"]["nodes"]
     for node in nodes:
         if node["project"]["id"] == BOARD_PROJECT_ID:
             status_value = node["status"]
@@ -294,7 +304,7 @@ def fetch_project_field_options(field_id, token):
     }
     """
     result = graphql_request(query, {"fieldId": field_id}, token)
-    return result["data"]["node"]["options"]
+    return require_node(result, field_id)["options"]
 
 
 def set_project_field_iteration(item_id, field_id, iteration_id, token):
@@ -337,7 +347,7 @@ def fetch_project_iterations(field_id, token):
     }
     """
     result = graphql_request(query, {"fieldId": field_id}, token)
-    return result["data"]["node"]["configuration"]["iterations"]
+    return require_node(result, field_id)["configuration"]["iterations"]
 
 
 def write_step_summary(rows):
@@ -351,11 +361,12 @@ def write_step_summary(rows):
 
 
 # One handler for every event whose only job is to move board fields, never the
-# assignee or the draft state: the three transitions (which set Status outright
-# and fill Team/Sprint only if empty) and synchronize (which fills all three
-# only if empty). decide_board_update carries the difference; this function is
-# purely the I/O around it, so a future field slots into SINGLE_SELECT_FIELD_SPECS
-# without touching the fill-vs-overwrite logic.
+# assignee or the draft state: the three transitions and synchronize alike.
+# Status follows decide_status's one rule regardless of action (fill when
+# empty or already Working/Review, leave any other value alone); Team and
+# Sprint always fill only if empty. decide_board_update carries the whole
+# rule; this function is purely the I/O around it, so a future field slots
+# into SINGLE_SELECT_FIELD_SPECS without touching the fill-vs-overwrite logic.
 BOARD_UPDATE_ACTIONS = TRANSITION_ACTIONS + ("synchronize",)
 
 SINGLE_SELECT_FIELD_SPECS = (
@@ -487,11 +498,6 @@ def handle_open_triage(action, pull_request, repo):
     pr_node_id = pull_request["node_id"]
     is_draft = pull_request["draft"]
 
-    mapping_path = mapping_file_path(__file__)
-    mapping = load_teams_mapping(mapping_path)
-
-    decision = decide(author_login=author_login, is_draft=is_draft, mapping=mapping)
-
     print(f"event=pull_request action={action} head_branch={head_branch} author={author_login}")
 
     summary_rows = [
@@ -501,79 +507,96 @@ def handle_open_triage(action, pull_request, repo):
     ]
     failures = []
 
-    board_token = os.environ["PROJECT_BOARD_TOKEN"]
-
-    assignment_succeeded = True
-    if decision["assign"]:
-        try:
-            github_token = os.environ["GITHUB_TOKEN"]
-            assign_result = assign_author(repo, pr_number, author_login, github_token)
-            check_assignment_succeeded(author_login, assign_result)
-            summary_rows.append(("Assignee set", True))
-        except Exception as error:
-            print(f"ERROR: assignment failed: {error}")
-            summary_rows.append(("Assignee set", f"FAILED: {error}"))
-            failures.append(str(error))
-            assignment_succeeded = False
-    elif decision["known"]:
-        summary_rows.append(("Assignee set", "skipped, not required by decision"))
-    else:
-        summary_rows.append(("Assignee set", "skipped, unknown author is never assigned"))
-
-    # Assign-then-draft is a real dependency, not the chaining we removed elsewhere:
-    # claiming ownership is what force-to-draft means, so a failed assignment must
-    # leave the PR exactly as its author left it, boarded Review, not force-drafted
-    # and unowned. The board write below stays independent of both outcomes.
-    actual_is_draft = is_draft
-    if decision["force_draft"] and assignment_succeeded:
-        try:
-            draft_result = convert_pr_to_draft(pr_node_id, board_token)
-            actual_is_draft = draft_result["data"]["convertPullRequestToDraft"]["pullRequest"]["isDraft"]
-            summary_rows.append(("Converted to draft", actual_is_draft))
-        except Exception as error:
-            print(f"ERROR: convert-to-draft failed: {error}")
-            summary_rows.append(("Converted to draft", f"FAILED: {error}"))
-            failures.append(str(error))
-    elif decision["force_draft"] and not assignment_succeeded:
-        summary_rows.append(("Converted to draft", "skipped, assignment failed"))
-    elif decision["known"]:
-        summary_rows.append(("Converted to draft", "skipped, already draft"))
-    else:
-        summary_rows.append(("Converted to draft", "skipped, draft state left untouched for unknown author"))
-
-    target_status = decide_status(actual_is_draft, current_status=None)
-
-    if decision["known"]:
-        verdict = f"known -> assign+draft+{target_status}/{decision['team']}"
-    else:
-        verdict = (
-            f"unknown (absent from .github/pr-triage-teams.yml) -> "
-            f"no assignee, draft untouched, boarded {target_status}/{decision['team']}"
-        )
-    print(f"verdict: {verdict}")
-    summary_rows.insert(3, ("Verdict", verdict))
-
     try:
-        status_options = fetch_project_field_options(STATUS_FIELD_ID, board_token)
-        status_option_id = find_option_id_by_name(status_options, target_status, strip_emoji=True)
+        mapping_path = mapping_file_path(__file__)
+        mapping = load_teams_mapping(mapping_path)
 
-        team_options = fetch_project_field_options(TEAM_FIELD_ID, board_token)
-        team_option_id = find_option_id_by_name(team_options, decision["team"], strip_emoji=False)
+        decision = decide(author_login=author_login, is_draft=is_draft, mapping=mapping)
 
-        item_id = add_item_to_project(pr_node_id, board_token)
-        summary_rows.append(("Board item id", item_id))
+        board_token = os.environ["PROJECT_BOARD_TOKEN"]
 
-        set_project_field_option(item_id, STATUS_FIELD_ID, status_option_id, board_token)
-        summary_rows.append(("Status option id written", status_option_id))
+        assignment_succeeded = True
+        if decision["assign"]:
+            try:
+                github_token = os.environ["GITHUB_TOKEN"]
+                assign_result = assign_author(repo, pr_number, author_login, github_token)
+                check_assignment_succeeded(author_login, assign_result)
+                summary_rows.append(("Assignee set", True))
+            except Exception as error:
+                print(f"ERROR: assignment failed: {error}")
+                summary_rows.append(("Assignee set", f"FAILED: {error}"))
+                failures.append(str(error))
+                assignment_succeeded = False
+        else:
+            summary_rows.append(("Assignee set", "skipped, unknown author is never assigned"))
 
-        set_project_field_option(item_id, TEAM_FIELD_ID, team_option_id, board_token)
-        summary_rows.append(("Team option id written", team_option_id))
+        # Assign-then-draft is a real dependency, not the chaining we removed elsewhere:
+        # claiming ownership is what force-to-draft means, so a failed assignment must
+        # leave the PR exactly as its author left it, boarded Review, not force-drafted
+        # and unowned. The board write below stays independent of both outcomes.
+        actual_is_draft = is_draft
+        if decision["force_draft"] and assignment_succeeded:
+            try:
+                draft_result = convert_pr_to_draft(pr_node_id, board_token)
+                actual_is_draft = draft_result["data"]["convertPullRequestToDraft"]["pullRequest"]["isDraft"]
+                summary_rows.append(("Converted to draft", actual_is_draft))
+            except Exception as error:
+                print(f"ERROR: convert-to-draft failed: {error}")
+                summary_rows.append(("Converted to draft", f"FAILED: {error}"))
+                failures.append(str(error))
+        elif decision["force_draft"] and not assignment_succeeded:
+            summary_rows.append(("Converted to draft", "skipped, assignment failed"))
+        elif decision["known"]:
+            summary_rows.append(("Converted to draft", "skipped, already draft"))
+        else:
+            summary_rows.append(("Converted to draft", "skipped, draft state left untouched for unknown author"))
+
+        target_status = decide_status(actual_is_draft, current_status=None)
+
+        if decision["known"]:
+            verdict = f"known -> assign+draft+{target_status}/{decision['team']}"
+        else:
+            verdict = (
+                f"unknown (absent from .github/pr-triage-teams.yml) -> "
+                f"no assignee, draft untouched, boarded {target_status}/{decision['team']}"
+            )
+        print(f"verdict: {verdict}")
+        summary_rows.insert(3, ("Verdict", verdict))
+
+        try:
+            status_options = fetch_project_field_options(STATUS_FIELD_ID, board_token)
+            status_option_id = find_option_id_by_name(status_options, target_status, strip_emoji=True)
+
+            team_options = fetch_project_field_options(TEAM_FIELD_ID, board_token)
+            team_option_id = find_option_id_by_name(team_options, decision["team"], strip_emoji=False)
+
+            iterations = fetch_project_iterations(SPRINT_FIELD_ID, board_token)
+            current_iteration = find_current_iteration(iterations, current_date())
+
+            item_id = add_item_to_project(pr_node_id, board_token)
+            summary_rows.append(("Board item id", item_id))
+
+            set_project_field_option(item_id, STATUS_FIELD_ID, status_option_id, board_token)
+            summary_rows.append(("Status option id written", status_option_id))
+
+            set_project_field_option(item_id, TEAM_FIELD_ID, team_option_id, board_token)
+            summary_rows.append(("Team option id written", team_option_id))
+
+            if current_iteration:
+                set_project_field_iteration(item_id, SPRINT_FIELD_ID, current_iteration["id"], board_token)
+                summary_rows.append(("Sprint option id written", current_iteration["id"]))
+            else:
+                summary_rows.append(("Sprint", "not set, no current iteration resolved"))
+        except Exception as error:
+            print(f"ERROR: board write failed: {error}")
+            summary_rows.append(("Board write", f"FAILED: {error}"))
+            failures.append(str(error))
     except Exception as error:
-        print(f"ERROR: board write failed: {error}")
-        summary_rows.append(("Board write", f"FAILED: {error}"))
+        print(f"ERROR: {error}")
+        summary_rows.append(("Failure", str(error)))
         failures.append(str(error))
-
-    write_step_summary(summary_rows)
+    finally:
+        write_step_summary(summary_rows)
 
     if failures:
         print(f"ERROR: {len(failures)} outcome(s) failed: {'; '.join(failures)}")

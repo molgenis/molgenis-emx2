@@ -123,47 +123,64 @@ def main(repo_root=None):
             f"reader-dependent decision term(s) found, never allowed in this workflow's logic: {banned_terms_found}"
         )
 
-    board_token = os.environ["PROJECT_BOARD_TOKEN"]
-    try:
-        team_options = pr_triage.fetch_project_field_options(pr_triage.TEAM_FIELD_ID, board_token)
-        status_options = pr_triage.fetch_project_field_options(pr_triage.STATUS_FIELD_ID, board_token)
-    except urllib.error.HTTPError as error:
-        if is_credential_error(error):
-            print(f"ERROR: PROJECT_BOARD_TOKEN was rejected by GitHub (HTTP {error.code}). "
-                  "This is a credential problem: rotate the PROJECT_BOARD_TOKEN secret. "
-                  "It is not a problem with pr-triage-teams.yml.")
-        else:
-            print(f"ERROR: unexpected HTTP {error.code} resolving live board options: {error}")
-        sys.exit(1)
+    # Live board-option resolution (Team values, and Working/Review/Dev existing)
+    # needs PROJECT_BOARD_TOKEN, and this validator must not hold that secret:
+    # it runs against the PR's own edit to this very file, before review. So
+    # this step is offline-only here; the same check still happens, just later
+    # and loud: find_option_id_by_name raises with the full live option list
+    # when a value doesn't resolve, at write time in the triage job. Do not
+    # reinstate a token here to bring it back to validate time.
+    board_token = os.environ.get("PROJECT_BOARD_TOKEN")
+    if board_token:
+        try:
+            team_options = pr_triage.fetch_project_field_options(pr_triage.TEAM_FIELD_ID, board_token)
+            status_options = pr_triage.fetch_project_field_options(pr_triage.STATUS_FIELD_ID, board_token)
+        except urllib.error.HTTPError as error:
+            if is_credential_error(error):
+                print(f"ERROR: PROJECT_BOARD_TOKEN was rejected by GitHub (HTTP {error.code}). "
+                      "This is a credential problem: rotate the PROJECT_BOARD_TOKEN secret. "
+                      "It is not a problem with pr-triage-teams.yml.")
+            else:
+                print(f"ERROR: unexpected HTTP {error.code} resolving live board options: {error}")
+            sys.exit(1)
 
-    valid_team_names = {option["name"] for option in team_options}
+        valid_team_names = {option["name"] for option in team_options}
 
-    unknown_team_values = find_unknown_team_values(mapping, valid_team_names)
-    if unknown_team_values:
-        available = ", ".join(sorted(valid_team_names))
-        errors.append(
-            f"unknown Team value(s) in pr-triage-teams.yml: {unknown_team_values}. "
-            f"Live Team options are: {available}"
+        unknown_team_values = find_unknown_team_values(mapping, valid_team_names)
+        if unknown_team_values:
+            available = ", ".join(sorted(valid_team_names))
+            errors.append(
+                f"unknown Team value(s) in pr-triage-teams.yml: {unknown_team_values}. "
+                f"Live Team options are: {available}"
+            )
+
+        missing_working_status = find_missing_status_option(status_options, pr_triage.STATUS_WORKING)
+        if missing_working_status:
+            errors.append(missing_working_status)
+
+        missing_review_status = find_missing_status_option(status_options, pr_triage.STATUS_REVIEW)
+        if missing_review_status:
+            errors.append(missing_review_status)
+
+        missing_dev_team = find_missing_team_option(team_options, pr_triage.UNKNOWN_AUTHOR_TEAM)
+        if missing_dev_team:
+            errors.append(missing_dev_team)
+    else:
+        print(
+            "PROJECT_BOARD_TOKEN not present: skipping live board-option checks "
+            "(Team values, and Working/Review/Dev existing on the board). These "
+            "run at write time in the triage job instead."
         )
-
-    missing_working_status = find_missing_status_option(status_options, pr_triage.STATUS_WORKING)
-    if missing_working_status:
-        errors.append(missing_working_status)
-
-    missing_review_status = find_missing_status_option(status_options, pr_triage.STATUS_REVIEW)
-    if missing_review_status:
-        errors.append(missing_review_status)
-
-    missing_dev_team = find_missing_team_option(team_options, pr_triage.UNKNOWN_AUTHOR_TEAM)
-    if missing_dev_team:
-        errors.append(missing_dev_team)
 
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
         sys.exit(1)
 
-    print(f"pr-triage-teams.yml is valid: {len(mapping)} authors, all Team values resolve to live board options")
+    if board_token:
+        print(f"pr-triage-teams.yml is valid: {len(mapping)} authors, all Team values resolve to live board options")
+    else:
+        print(f"pr-triage-teams.yml passes all offline checks: {len(mapping)} authors")
 
 
 if __name__ == "__main__":
