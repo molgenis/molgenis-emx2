@@ -1,5 +1,22 @@
 plugins {
     id 'java-library'
+    id 'application'
+    id 'com.gradleup.shadow' version '8.3.11'
+}
+
+application {
+    mainClass = 'org.molgenis.emx2.fairmapper.cli.FairMapper'
+}
+
+shadowJar {
+    zip64 = true
+    archiveBaseName = 'fairmapper'
+    archiveClassifier = 'all'
+    mergeServiceFiles()
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
 }
 
 dependencies {
