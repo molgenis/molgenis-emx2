@@ -4,7 +4,7 @@ idna==3.18
 numpy
 python-dateutil==2.9.0
 python-decouple==3.8
-pytz==2026.2
+pytz==2026.3.post1
 requests==2.33.1
 setuptools==83.0.0
 six==1.17.0
