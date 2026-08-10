@@ -12,6 +12,10 @@
   font-family: Helvetica, sans-serif;
 }
 
+.app-page.nestor-page {
+  font-size: 14pt;
+}
+
 .app-page .page-header {
   background-color: var(--nestor-green-050);
 }
@@ -141,10 +145,6 @@
 #nestorPublicDashboard .dashboard-content,
 #nestorPublicDashboard .dashboard-content .dashboard-chart-layout {
   gap: 1em;
-}
-
-#page-home {
-  font-size: 14pt;
 }
 
 @media screen and (min-width: 1800px) {
