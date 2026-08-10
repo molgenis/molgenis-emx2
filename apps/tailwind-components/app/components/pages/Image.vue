@@ -35,27 +35,6 @@ if (src.value && props.height) {
     @mouseenter="showMenu = true"
     @mouseleave="showMenu = false"
   >
-    <!-- <EditButton
-      v-if="isEditable"
-      class="border-2 border-transparent bg-button-secondary hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-      :class="{ 
-        'm-auto flex justify-center items-center': imageIsCentered,
-        'w-full': !src,
-      }"
-      @click="emit('edit')"
-      :fix-icon-position="true"
-    >
-      <span class="sr-only">Edit image: </span>
-      <img v-if="src" :id="id" :src="src" :alt="alt" :style="style" />
-      <div
-        v-else
-        :id="`${id}-edit-add-image-message`"
-        class="w-full bg-neutral py-5"
-      >
-        <span class="text-neutral">Click edit to add your own image</span>
-      </div>
-    </EditButton> -->
-    <!-- v-else-if="src" -->
     <div
       class="relative"
       :class="{
@@ -63,7 +42,14 @@ if (src.value && props.height) {
       }"
       :style="style"
     >
-      <img :id="id" :src="src" :alt="alt" />
+      <div
+        v-if="!src"
+        class="w-full flex items-center justify-center text-center gap-2 text-title-contrast py-5 border border-button-tertiary rounded-base mb-2.5 hover:border-button-tertiary-hover"
+      >
+        <BaseIcon name="Image" :width="21" />
+        <span>Click the edit button to upload an image</span>
+      </div>
+      <img v-if="src" :id="id" :src="src" :alt="alt" />
       <ComponentActions
         v-if="isEditable && showMenu"
         name="Image"
