@@ -8,12 +8,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
@@ -22,25 +21,27 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
+import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.rdf.generators.query.FileBasedQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class SparqlSelectRdfTransformerTest {
 
+  public static final IRI SUBJECT = iri("https://example.com/bob");
   private Database database;
+  private SchemaMetadata schema;
 
   @BeforeEach
   void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
+    String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName();
+    schema = database.dropCreateSchema(schemaName).getMetadata();
   }
 
   @Test
   void givenUnknownTable_thenThrow() {
-    String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_unknowntable";
-    SchemaMetadata schema = database.dropCreateSchema(schemaName).getMetadata();
     TableQueryGenerator generator = new TableQueryGenerator();
     List<String> tables = List.of("unknown-1", "unknown-2");
     MolgenisException exception =
@@ -48,12 +49,98 @@ class SparqlSelectRdfTransformerTest {
             MolgenisException.class,
             () -> new SparqlSelectRdfTransformer(generator, schema, tables));
     assertEquals(
-        "Unknown table(s) provided to transformer: unknown-1, unknown-2 for schema: SparqlSelectRdfTransformerTest_unknowntable",
+        "Unknown table(s) provided to transformer: unknown-1, unknown-2 for schema: SparqlSelectRdfTransformerTest",
         exception.getMessage());
   }
 
   @Test
-  void givenData_thenQueryTable() throws IOException {
+  void shouldSplitArrayValues() {
+    schema.create(
+        TableMetadata.table("splitArrays_string")
+            .add(
+                Column.column("id").setType(ColumnType.INT).setPkey(),
+                Column.column("names")
+                    .setType(ColumnType.STRING_ARRAY)
+                    .setSemantics(FOAF.FIRST_NAME.stringValue())));
+
+    SailRepository repository =
+        createRepositoryWithStatements(
+            statement(SUBJECT, FOAF.FIRST_NAME, literal("foo"), null),
+            statement(SUBJECT, FOAF.FIRST_NAME, literal("bar"), null));
+
+    TableStore transform =
+        new SparqlSelectRdfTransformer(
+                new TableQueryGenerator(), schema, List.of("splitArrays_string"))
+            .transform(repository);
+
+    Iterator<Row> iterator = transform.readTable("splitArrays_string").iterator();
+    CompareTools.assertEquals(
+        iterator.next(),
+        Row.row("_subject_", SUBJECT.stringValue(), "names", new String[] {"foo", "bar"}));
+    assertFalse(iterator.hasNext());
+  }
+
+  @Test
+  void shouldHandleNonStringValues() {
+    schema.create(
+        TableMetadata.table("splitArrays_integer")
+            .add(
+                Column.column("id").setType(ColumnType.INT).setPkey(),
+                Column.column("numbers")
+                    .setType(ColumnType.INT_ARRAY)
+                    .setSemantics(FOAF.FIRST_NAME.stringValue())));
+
+    SailRepository repository =
+        createRepositoryWithStatements(
+            statement(SUBJECT, FOAF.FIRST_NAME, literal(1), null),
+            statement(SUBJECT, FOAF.FIRST_NAME, literal(2), null));
+
+    TableStore transform =
+        new SparqlSelectRdfTransformer(
+                new TableQueryGenerator(), schema, List.of("splitArrays_integer"))
+            .transform(repository);
+
+    Iterator<Row> iterator = transform.readTable("splitArrays_integer").iterator();
+    Row next = iterator.next();
+    CompareTools.assertEquals(
+        next, Row.row("_subject_", SUBJECT.stringValue(), "numbers", new String[] {"1", "2"}));
+    assertArrayEquals(new Integer[] {1, 2}, next.getIntegerArray("numbers"));
+    assertFalse(iterator.hasNext());
+  }
+
+  @Test
+  void shouldSplitRefArraySubjects() {
+    schema.create(TableMetadata.table("splitRefArrays_tag").add(Column.column("name").setPkey()));
+    schema.create(
+        TableMetadata.table("splitRefArrays_owner")
+            .add(
+                Column.column("id").setType(ColumnType.INT).setPkey(),
+                Column.column("tags")
+                    .setType(ColumnType.REF_ARRAY)
+                    .setRefTable("splitRefArrays_tag")
+                    .setSemantics(FOAF.KNOWS.stringValue())));
+
+    IRI tag1 = iri("https://example.com/tag/1");
+    IRI tag2 = iri("https://example.com/tag/2");
+
+    SailRepository repository =
+        createRepositoryWithStatements(
+            statement(SUBJECT, FOAF.KNOWS, tag1, null), statement(SUBJECT, FOAF.KNOWS, tag2, null));
+
+    TableStore transform =
+        new SparqlSelectRdfTransformer(
+                new TableQueryGenerator(), schema, List.of("splitRefArrays_owner"))
+            .transform(repository);
+
+    Iterator<Row> iterator = transform.readTable("splitRefArrays_owner").iterator();
+    Row row = iterator.next();
+    assertArrayEquals(
+        new String[] {tag1.stringValue(), tag2.stringValue()}, row.getStringArray("_subject_tags"));
+    assertFalse(iterator.hasNext());
+  }
+
+  @Test
+  void givenTtlData_thenQueryTable() throws IOException {
     String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_petstore";
     database.dropSchemaIfExists(schemaName);
     DataModels.Profile.PET_STORE
@@ -62,7 +149,7 @@ class SparqlSelectRdfTransformerTest {
 
     SparqlSelectRdfTransformer transformer =
         new SparqlSelectRdfTransformer(
-            new FileBasedQueryGenerator(Map.of("Pet", getQueryFilePath())),
+            new TableQueryGenerator(),
             database.getSchema(schemaName).getMetadata(),
             List.of("Pet"));
 
@@ -71,10 +158,23 @@ class SparqlSelectRdfTransformerTest {
 
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(
-        store.readTable("Pet"), List.of("Pet", "name", "status", "weight", "tags"), writer, ',');
+        store.readTable("Pet"), List.of("name", "status", "weight", "tags"), writer, ',');
 
     String expected = readPetsCsv();
     assertEquals(expected, writer.toString());
+  }
+
+  private SailRepository createRepositoryWithStatements(Statement... statements) {
+    SailRepository repository = new SailRepository(new MemoryStore());
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      for (Statement statement : statements) {
+        connection.add(statement);
+      }
+      connection.commit();
+    }
+
+    return repository;
   }
 
   private SailRepository readPetStoreTtl() {
@@ -103,25 +203,23 @@ class SparqlSelectRdfTransformerTest {
 
     @BeforeAll
     void queryTestData() {
-
       // Set up a SailRepository with a single statement to test against
       SailRepository repository = setupRepository();
-      SchemaMetadata schema = setupSchema();
-
       SparqlSelectRdfTransformer transformer =
-          new SparqlSelectRdfTransformer(new TableQueryGenerator(), schema, List.of("testTable"));
+          new SparqlSelectRdfTransformer(
+              new TableQueryGenerator(), setupSchema(), List.of("testTable"));
       TableStore transform = transformer.transform(repository);
       testData = transform.readTable("testTable").iterator().next();
     }
 
     private SchemaMetadata setupSchema() {
-      SchemaMetadata schema = new SchemaMetadata(getClass().getSimpleName() + "_mapColumnNames");
-      schema.create(
-          TableMetadata.table(
-              "testTable",
-              Column.column("first name").setSemantics(FIRST_NAME_SEMANTIC.toString()),
-              Column.column("last_name").setSemantics(LAST_NAME_SEMANTIC.toString())));
-      return schema;
+      return new SchemaMetadata(getClass().getSimpleName() + "_mapColumnNames")
+          .create(
+              TableMetadata.table(
+                  "testTable",
+                  Column.column("first name").setSemantics(FIRST_NAME_SEMANTIC.toString()),
+                  Column.column("last_name").setSemantics(LAST_NAME_SEMANTIC.toString())))
+          .getSchema();
     }
 
     private SailRepository setupRepository() {
@@ -155,11 +253,5 @@ class SparqlSelectRdfTransformerTest {
     return new String(
         Objects.requireNonNull(SparqlSelectRdfTransformerTest.class.getResourceAsStream("pets.csv"))
             .readAllBytes());
-  }
-
-  private static Path getQueryFilePath() {
-    return Paths.get(
-        Objects.requireNonNull(SparqlSelectRdfTransformerTest.class.getResource("query.rq"))
-            .getPath());
   }
 }
