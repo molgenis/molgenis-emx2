@@ -38,6 +38,13 @@ example with internal link ( i.e. all within of the 'ui' app)
 ```json
 {"link": "pet%20store/Pet", "isSpaLink": true}
 ```
+#### Banner
+Set the landing page with the optional BANNER_HTML setting
+
+- key: ```SYSTEM_BANNER_HTML```
+- value: a string containing valid html code to be displayed in the banner on top of the page:
+
+if not set or empty string, no banner will be shown.
 
 ## User management
 
