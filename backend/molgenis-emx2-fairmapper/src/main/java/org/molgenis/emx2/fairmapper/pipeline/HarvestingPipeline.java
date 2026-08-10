@@ -97,7 +97,8 @@ public class HarvestingPipeline {
 
   private void load(InMemoryTableStore tableStore) {
     ImportSchemaTask tasks =
-        new ImportSchemaTask(tableStore, config.schema(), false, config.tables())
+        new ImportSchemaTask(
+                tableStore, config.schema(), false, config.tables().toArray(new String[0]))
             .setFilter(ImportSchemaTask.Filter.DATA_ONLY);
 
     tasks.run();
@@ -112,7 +113,7 @@ public class HarvestingPipeline {
     }
   }
 
-  private void writeTableStoreToZip(TableStore store, String[] tables, String filename) {
+  private void writeTableStoreToZip(TableStore store, List<String> tables, String filename) {
     TableStoreForCsvInZipFile zip =
         new TableStoreForCsvInZipFile(outputDirectory().resolve(filename));
     for (String tableName : tables) {
