@@ -17,6 +17,7 @@ describe("useBanner", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    dataRef.value = undefined;
     vi.mocked(useFetch).mockReturnValue({ data: dataRef } as never);
   });
 

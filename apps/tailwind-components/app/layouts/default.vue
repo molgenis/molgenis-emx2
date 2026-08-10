@@ -35,7 +35,7 @@
       </Header>
 
       <main>
-        <Banner v-if="banner" v-html="banner" />
+        <Banner v-if="banner"><div v-html="banner" /></Banner>
         <slot />
       </main>
 

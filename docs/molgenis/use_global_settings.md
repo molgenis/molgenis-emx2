@@ -39,12 +39,12 @@ example with internal link ( i.e. all within of the 'ui' app)
 {"link": "pet%20store/Pet", "isSpaLink": true}
 ```
 #### Banner
-Set the landing page with the optional BANNER_HTML setting
+Set the application banner with the optional SYSTEM_BANNER_HTML setting
 
 - key: ```SYSTEM_BANNER_HTML```
-- value: a string containing valid html code to be displayed in the banner on top of the page:
+- value: a string containing valid HTML code to be displayed in the banner on top of the page:
 
-if not set or empty string, no banner will be shown.
+If not set or an empty string, no banner will be shown.
 
 ## User management
 
