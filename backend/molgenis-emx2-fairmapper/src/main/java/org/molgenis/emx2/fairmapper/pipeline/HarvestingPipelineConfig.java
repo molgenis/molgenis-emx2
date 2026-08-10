@@ -13,7 +13,7 @@ import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
 public record HarvestingPipelineConfig(
     URI rdf,
     Schema schema,
-    String[] tables,
+    List<String> tables,
     String outputPath,
     boolean loadDataEnabled,
     RdfExtractor extractor,
@@ -32,7 +32,7 @@ public record HarvestingPipelineConfig(
     private final RdfExtractor extractor;
     private final RdfTransformer transformer;
 
-    private String[] tables = new String[0];
+    private List<String> tables = new ArrayList<>();
     private String outputPath = null;
     private boolean loadDataEnabled = false;
 
@@ -47,7 +47,7 @@ public record HarvestingPipelineConfig(
     }
 
     public Builder setTables(String... tables) {
-      this.tables = tables;
+      this.tables = List.of(tables);
       return this;
     }
 
