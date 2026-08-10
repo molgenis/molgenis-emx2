@@ -27,6 +27,6 @@ Genomic variants,,breakend mate chromosome,ontology,,,CatalogueOntologies,Chromo
 Genomic variants,,breakend mate start position,long,,,,,,,,obo:GENO_0000894,The starting position of a sequence feature or interval from the breakend/translocation partner,Patient registry
 Genomic variants,,breakend mate stop position,long,,,,,,,,obo:GENO_0000895,The ending position of a sequence feature or interval from the breakend/translocation partner,Patient registry
 Genomic variants,,variant length,int,,,,,,,,,Length of insertion/deletion/SV,Patient registry
-Genomic variants,,is left-normalized,bool,,,,,,,,,Indicated whether the variant has been left-normalized,Patient registry
+Genomic variants,,is left normalized,bool,,,,,,,,,Indicated whether the variant has been left-normalized,Patient registry
 Genomic variants,,Consensus Classification,heading,,,,,,,,,,Patient registry
 Genomic variants,,used in interpretations,refback,,,,Variant interpretations,,variants,,obo:NGBO_6000125,"A reference to one or more processes (i.e., variant interpretations) where a variant was used",Patient registry
