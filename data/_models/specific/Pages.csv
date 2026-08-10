@@ -45,9 +45,9 @@ Images,Components,,,,,,,,,,,,<img> elements,pages
 Images,,display name,string,,,,,,,,,,An optional name to display in place of the filename,pages
 Images,,image,file,,,,,,,,,,Select an image file,pages
 Images,,alt,string,,,,,,,,,,A description of the image for accessibility compliance,pages
-Images,,width,string,,,,,,,,,,"The width of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
+Images,,width,string,,,,,,,,325px,,"The width of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
 Images,,height,string,,,,,,,,,,"The height of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
-Images,,image is centered,bool,,,,,,,,FALSE,,"If true, the image will be centered aligned",pages
+Images,,image is centered,bool,,,,,,,,TRUE,,"If true (default), the image will be centered aligned",pages
 Ordered lists,Components,,,,,,,,,,,,<ol> elements,pages
 Ordered lists,,items,text_array,,,,,,,,,,,pages
 Unordered lists,Components,,,,,,,,,,,,<ul> elements,pages
