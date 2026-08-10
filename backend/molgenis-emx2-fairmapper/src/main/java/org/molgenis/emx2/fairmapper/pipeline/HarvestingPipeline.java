@@ -4,7 +4,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.StreamSupport;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.repository.Repository;
@@ -21,6 +20,7 @@ import org.molgenis.emx2.io.ImportSchemaTask;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ public class HarvestingPipeline {
   private static final String OUTPUT_DIRECTORY_NAME = "fairmapper-output-";
   private static final Logger logger = LoggerFactory.getLogger(HarvestingPipeline.class);
 
-  private final UUID harvestId = UUID.randomUUID();
+  private final String harvestId = SnowflakeIdGenerator.getInstance().generateId();
   private final HarvestingPipelineConfig config;
 
   public HarvestingPipeline(HarvestingPipelineConfig config) {
@@ -37,7 +37,7 @@ public class HarvestingPipeline {
   }
 
   public void execute() {
-    logger.info("Starting harvesting pipeline");
+    logger.info("Starting harvesting pipeline: {}", harvestId);
     Repository repository = new SailRepository(new MemoryStore());
 
     if (config.dumpEnabled() && !outputDirectory().toFile().mkdirs()) {
