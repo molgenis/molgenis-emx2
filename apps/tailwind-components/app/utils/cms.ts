@@ -45,6 +45,106 @@ export async function getPage(
   return { page: currentPage, metadata: data._schema.tables };
 }
 
+export async function deleteComponent(
+  schema: string,
+  componentId: string,
+  componentOrderid: string,
+  block: string,
+  reorder: boolean = true
+) {
+  const dataOrder = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation delete($pkey:[ComponentOrdersInput]){delete(ComponentOrders:$pkey){message}}`,
+      variables: {
+        pkey: [
+          {
+            id: `${componentOrderid}`,
+          },
+        ],
+      },
+    },
+  });
+  const dataComponent = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation delete($pkey:[ComponentsInput]){delete(Components:$pkey){message}}`,
+      variables: {
+        pkey: [
+          {
+            id: `${componentId}`,
+          },
+        ],
+      },
+    },
+  });
+  if (reorder) {
+    await fullReorder(schema, block, "Component");
+  }
+}
+
+async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query getComponents($filter: ComponentOrdersFilter){ComponentOrders(filter:$filter){id,order, component{id}}}`,
+      variables: {
+        filter: {
+          block: { id: { equals: blockId } },
+        },
+        orderby: [{ order: "ASC" }],
+      },
+    },
+  });
+
+  if (data?.ComponentOrders) {
+    const itemsToRemove = data.ComponentOrders as {
+      id: string;
+      component: { id: string };
+    }[];
+    for (const item of itemsToRemove) {
+      await deleteComponent(schema, item.component.id, item.id, blockId, false);
+    }
+  }
+}
+
+export async function deleteBlock(
+  schema: string,
+  blockId: string,
+  blockOrderid: string,
+  page: string
+) {
+  await deleteAllComponentsFromBlock(schema, blockId);
+
+  const dataOrder = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation delete($pkey:[BlockOrdersInput]){delete(BlockOrders:$pkey){message}}`,
+      variables: {
+        pkey: [
+          {
+            id: `${blockOrderid}`,
+          },
+        ],
+      },
+    },
+  });
+  const dataComponent = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation delete($pkey:[BlocksInput]){delete(Blocks:$pkey){message}}`,
+      variables: {
+        pkey: [
+          {
+            id: `${blockId}`,
+          },
+        ],
+      },
+    },
+  });
+  await fullReorder(schema, page, "Block");
+}
+
 export async function addComponent(
   schema: string,
   id: string,
@@ -83,7 +183,6 @@ export async function addBlock(
 }
 
 async function AddSection(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -101,7 +200,6 @@ async function AddSection(schema: string, id: string) {
 }
 
 async function AddHeader(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -126,7 +224,6 @@ async function AddHeader(schema: string, id: string) {
 }
 
 async function AddImage(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -135,6 +232,8 @@ async function AddImage(schema: string, id: string) {
         value: [
           {
             id: `${id}`,
+            width: "325px",
+            imageIsCentered: true,
           },
         ],
       },
@@ -143,7 +242,6 @@ async function AddImage(schema: string, id: string) {
 }
 
 async function AddHeading(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -164,7 +262,6 @@ async function AddHeading(schema: string, id: string) {
 }
 
 async function AddParagraph(schema: string, id: string) {
-  // add the paragraph component
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
@@ -180,6 +277,60 @@ async function AddParagraph(schema: string, id: string) {
       },
     },
   });
+}
+
+async function fullReorder(
+  schema: string,
+  parent: string,
+  type: "Component" | "Block"
+) {
+  let filter: any = {
+    block: { id: { equals: parent } },
+  };
+  if (type === "Block") {
+    filter = {
+      configurablePage: { name: { equals: parent } },
+    };
+  }
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query get${type}s($filter: ${type}OrdersFilter){${type}Orders(filter:$filter){id,order}}`,
+      variables: {
+        filter,
+        orderby: [{ order: "ASC" }],
+      },
+    },
+  });
+  const items = type === "Block" ? data?.BlockOrders : data?.ComponentOrders;
+  if (items) {
+    const itemsToUpdate = items as {
+      id: string;
+      order: number;
+    }[];
+
+    itemsToUpdate.sort((a, b) => a.order - b.order);
+
+    let values: { id: string; order: number }[] = [];
+    let order: number = 0;
+    for (const item of itemsToUpdate) {
+      values.push({
+        id: item.id,
+        order: order++,
+      });
+    }
+    if (values.length) {
+      await $fetch(`/${schema}/graphql`, {
+        method: "POST",
+        body: {
+          query: `mutation update($value:[${type}OrdersInput]){update(${type}Orders:$value){message}}`,
+          variables: {
+            value: values,
+          },
+        },
+      });
+    }
+  }
 }
 
 async function prepareOrder(schema: string, order: number, block: string) {
@@ -293,6 +444,7 @@ async function AddOrder(
   });
   return true;
 }
+
 async function AddBlockOrder(
   schema: string,
   id: string,
