@@ -212,16 +212,6 @@ async function AddHeader(schema: string, id: string) {
             title: "Header",
             subtitle: "Add a nice subtitle here",
             backgroundImage: {
-              image: {
-                id: "93489539b9004e98a078ee164ad0c578",
-                size: 317451,
-                filename: "penguins.jpg",
-                extension: "jpg",
-                url: "/cms/api/file/Images/image/93489539b9004e98a078ee164ad0c578",
-              },
-              alt: "two penguins walking in the grass",
-              width: "425px",
-              imageIsCentered: true,
               id: "penguins",
             },
             id: `${id}`,
@@ -241,17 +231,9 @@ async function AddImage(schema: string, id: string) {
       variables: {
         value: [
           {
-            image: {
-              id: "93489539b9004e98a078ee164ad0c578",
-              size: 317451,
-              filename: "penguins.jpg",
-              extension: "jpg",
-              url: "/cms/api/file/Images/image/93489539b9004e98a078ee164ad0c578",
-            },
-            alt: "two penguins walking in the grass",
-            width: "425px",
-            imageIsCentered: true,
             id: `${id}`,
+            width: "325px",
+            imageIsCentered: true,
           },
         ],
       },
