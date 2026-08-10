@@ -17,6 +17,7 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +28,10 @@ class FdpRdfExtractorTest {
   void liveTest() {
     String endpoint = "FDP ENDPOINT HERE";
     Repository extract = new SailRepository(new MemoryStore());
-    new FdpRdfExtractor(new RemoteRdfExtractor(), URI.create(endpoint)).addRdfToRepository(extract);
+    Assertions.assertDoesNotThrow(
+        () ->
+            new FdpRdfExtractor(new RemoteRdfExtractor(), URI.create(endpoint))
+                .addRdfToRepository(extract));
     try (RepositoryConnection connection = extract.getConnection()) {
       connection.getStatements(null, null, null).forEach(System.out::println);
     }
