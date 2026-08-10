@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { IImages } from "../../../types/cms";
-
-import EditButton from "./EditButton.vue";
+import ComponentActions from "./ComponentActions.vue";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,
   imageIsCentered: false,
 });
-
-const emit = defineEmits<{
-  (e: "edit"): void;
-}>();
+const emit = defineEmits(["edit", "delete"]);
+const showMenu = ref<boolean>(true);
 
 const src = ref<string>();
 if (props.image?.url) {
@@ -29,26 +26,28 @@ if (props.height) {
 </script>
 
 <template>
-  <div>
-    <EditButton
-      v-if="isEditable"
-      class="border-2 border-transparent bg-button-secondary hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-      :class="{ 'm-auto flex justify-center items-center': imageIsCentered }"
-      @click="emit('edit')"
-      :fix-icon-position="true"
-    >
-      <span class="sr-only">Edit image: </span>
-      <img :id="id" :src="src" :alt="alt" :style="style" />
-    </EditButton>
-    <img
-      v-else
-      :id="id"
-      :src="src"
+  <div
+    class="w-full"
+    @mouseenter="showMenu = true"
+    @mouseleave="showMenu = false"
+  >
+    <div
+      class="relative"
       :class="{
         'm-auto': imageIsCentered,
       }"
-      :alt="alt"
       :style="style"
-    />
+    >
+      <img :id="id" :src="src" :alt="alt" />
+      <ComponentActions
+        v-if="isEditable && showMenu"
+        name="Image"
+        :id="`${id}-toolbar`"
+        :aria-controls="id"
+        @edit="$emit('edit')"
+        @delete="$emit('delete')"
+        class="right-2 top-2 !left-auto"
+      />
+    </div>
   </div>
 </template>
