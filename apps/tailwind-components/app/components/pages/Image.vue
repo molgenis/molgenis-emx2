@@ -4,6 +4,7 @@ import type { IImages } from "../../../types/cms";
 
 import ComponentActions from "./ComponentActions.vue";
 import BaseIcon from "../BaseIcon.vue";
+import BaseIcon from "../BaseIcon.vue";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,
