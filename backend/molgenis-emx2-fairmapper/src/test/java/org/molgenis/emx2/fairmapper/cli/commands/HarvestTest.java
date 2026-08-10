@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class HarvestTest {
 
     assertEquals(URI.create(RDF_ENDPOINT), config.rdf());
     assertEquals(schema.getName(), config.schema().getName());
-    assertArrayEquals(new String[] {"TableA", "TableB"}, config.tables());
+    assertEquals(List.of("TableA", "TableB"), config.tables());
   }
 
   @Test
