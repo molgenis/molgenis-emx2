@@ -97,7 +97,8 @@ public class HarvestingPipeline {
 
   private void load(InMemoryTableStore tableStore) {
     ImportSchemaTask tasks =
-        new ImportSchemaTask(tableStore, config.schema(), false, config.tables().toArray(new String[0]))
+        new ImportSchemaTask(
+                tableStore, config.schema(), false, config.tables().toArray(new String[0]))
             .setFilter(ImportSchemaTask.Filter.DATA_ONLY);
 
     tasks.run();
