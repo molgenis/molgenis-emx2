@@ -5,9 +5,12 @@ import playwrightConfig from "../../playwright.config";
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/ui/";
+// test.use({ storageState: "playwright/.auth/user.json" });
 
 // shared context so the signin cookie is reused by the follow-up mutations
 let api: APIRequestContext;
+const USERNAME = "dragonkeeper";
+const PASSWORD = "dragonkeeper";
 
 async function gql(
   url: string,
@@ -47,6 +50,15 @@ test.beforeAll(async () => {
     }`,
     { members: ["anonymous"] }
   );
+
+  await gql(
+    `${route}graphql`,
+    `mutation{
+      changePassword(email: "${USERNAME}", password: "${PASSWORD}"){
+        status,message
+      }
+    }`
+  );
 });
 
 test.afterAll(async () => {
@@ -61,7 +73,6 @@ test.afterAll(async () => {
     {
       updateUser: {
         email: "anonymous",
-        enabled: true,
         roles: [{ schemaId: "pet store", role: "Viewer" }],
       },
     }
@@ -78,34 +89,40 @@ test("The dragonkeeper has the correct permissions", async ({ page }) => {
   await page.getByRole("button", { name: "Home" }).click();
   await expect(page).toHaveURL(route);
 
-  await signin(page, "dragonKeeper", "dragonKeeper");
+  await signin(page, USERNAME, PASSWORD);
 
-  // check that order tables are not clickable
-  await page.goto(route + "pet%20store");
-  expect(page.getByText("Category")).toBeVisible();
-  expect(page.getByText("Order")).toBeVisible();
-  expect(page.getByText("User")).toBeVisible();
-
+  // check that other tables are not clickable
+  await page.goto(route);
   await page.getByText("pet store").click();
-  await page.getByText("Pet", { exact: true }).click();
-  expect(page.getByText("No records found")).toBeVisible();
+  await expect(page.getByText("Category")).toBeVisible();
+  await expect(page.getByText("Order")).toBeVisible();
+  await expect(page.getByText("User")).toBeVisible();
 
   await page.getByText("Pet", { exact: true }).click();
-  await page.getByRole("button", { name: "Account" }).click();
-  await page.getByRole("button", { name: "Sign out" }).click();
-  expect(page.getByLabel("error")).toHaveText(
-    "You don't have permission to view this table. Please contact your administrator to request access."
-  );
+  await expect(page.getByText("No records found")).toBeVisible();
 
-  signin(page, "admin", "admin");
-  expect(page.getByText("Showing 1 to 10 of 10 items")).toBeVisible();
+  await signout(page);
+  await expect(page.getByLabel("error")).toBeVisible();
+
+  await signin(page, "admin", "admin");
+  await expect(page.getByText("Showing 1 to 10 of 10 items")).toBeVisible();
 });
 
 async function signin(page: Page, username: string, password: string) {
-  return page
-    .getByRole("button", { name: "Signin" })
-    .click()
-    .then(() => page.getByRole("textbox", { name: "Username" }).fill(username))
-    .then(() => page.getByRole("textbox", { name: "Password" }).fill(password))
-    .then(() => page.getByRole("button", { name: "Sign in" }).click());
+  await page.getByRole("button", { name: "Signin" }).click();
+  await page.getByRole("textbox", { name: "Username" }).fill(username);
+  await page.getByRole("textbox", { name: "Password" }).fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await timeout(200);
+}
+
+async function signout(page: Page) {
+  await page.getByRole("button", { name: "Account" }).click();
+  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await timeout(200);
+}
+
+async function timeout(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
