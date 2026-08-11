@@ -349,7 +349,6 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata setInheritName(String otherTable) {
-    long start = System.currentTimeMillis();
     if (getInheritName() != null) {
       if (getInheritName().equals(otherTable)) {
         return this; // nothing to do
@@ -359,64 +358,7 @@ class SqlTableMetadata extends TableMetadata {
     if (otherTable != null) {
       throw new MolgenisException(inheritanceIsFixed("set tableExtends"));
     }
-    TableMetadata other;
-    if (getImportSchema() != null) {
-      // check for duplicate table name
-      Schema otherSchema = getSchema().getDatabase().getSchema(getImportSchema());
-      if (otherSchema == null || otherSchema.getMetadata().getTableMetadata(otherTable) == null) {
-        throw new MolgenisException(
-            "Inheritance failed. Other schema.table '"
-                + getImportSchema()
-                + "."
-                + otherTable
-                + "' does not exist in this database");
-      }
-      other = otherSchema.getMetadata().getTableMetadata(otherTable);
-    } else {
-      other = getSchema().getTableMetadata(otherTable);
-      if (other == null)
-        throw new MolgenisException(
-            "Inheritance failed. Other table '" + otherTable + "' does not exist in this schema");
-    }
-    if (other.getPrimaryKeys().isEmpty())
-      throw new MolgenisException(
-          "Set inheritance failed: To extend table '"
-              + otherTable
-              + "' it must have primary key set");
-    getDatabase()
-        .tx(
-            tdb ->
-                // extends means we copy primary key column from parent to child, make it foreign
-                // key
-                // to
-                // parent, and make it primary key of this table also.
-                sync(
-                    setInheritTransaction(
-                        tdb,
-                        getSchemaName(),
-                        getTableName(),
-                        getImportSchema() != null ? getImportSchema() : getSchemaName(),
-                        otherTable)));
-    log(start, "set inherit on ");
-    super.setInheritName(otherTable);
     return this;
-  }
-
-  // static function to ensure this is not altered until end of transaction
-  private static SqlTableMetadata setInheritTransaction(
-      Database db,
-      String schemaName,
-      String tableName,
-      String inheritSchema,
-      String inheritedName) {
-    DSLContext jooq = ((SqlDatabase) db).getJooq();
-    SqlTableMetadata tm =
-        (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
-    TableMetadata om = db.getSchema(inheritSchema).getTable(inheritedName).getMetadata();
-    executeSetInherit(jooq, tm, om);
-    tm.inheritName = inheritedName;
-    MetadataUtils.saveTableMetadata(jooq, tm);
-    return tm;
   }
 
   @Override

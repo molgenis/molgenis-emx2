@@ -2,7 +2,6 @@ package org.molgenis.emx2.graphql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.ExceptionWhileDataFetching;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -14,6 +13,7 @@ import graphql.parser.Parser;
 import graphql.parser.ParserOptions;
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -153,15 +153,14 @@ public class GraphqlExecutor {
 
     for (GraphQLError err : executionResult.getErrors()) {
       if (logger.isErrorEnabled()) {
-        logger.error(err.getMessage(), getCause(err));
+        logger.error(err.getMessage());
       }
     }
     if (executionResult.getErrors().size() > 0) {
-      GraphQLError firstError = executionResult.getErrors().get(0);
-      MolgenisException exception = new MolgenisException(firstError.getMessage());
-      Throwable cause = getCause(firstError);
-      if (cause != null) {
-        exception.initCause(cause);
+      List<GraphQLError> errors = executionResult.getErrors();
+      MolgenisException exception = new MolgenisException(errors.get(0).getMessage());
+      for (GraphQLError remainingError : errors.subList(1, errors.size())) {
+        exception.addSuppressed(new MolgenisException(remainingError.getMessage()));
       }
       throw exception;
     }
@@ -170,16 +169,6 @@ public class GraphqlExecutor {
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
 
     return executionResult;
-  }
-
-  private static Throwable getCause(GraphQLError error) {
-    if (error instanceof ExceptionWhileDataFetching exceptionWhileDataFetching) {
-      return exceptionWhileDataFetching.getException();
-    }
-    if (error instanceof MolgenisGraphqlError molgenisGraphqlError) {
-      return molgenisGraphqlError.getException();
-    }
-    return null;
   }
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {

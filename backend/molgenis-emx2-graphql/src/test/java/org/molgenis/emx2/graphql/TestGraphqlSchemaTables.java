@@ -39,7 +39,6 @@ class TestGraphqlSchemaTables {
   @BeforeAll
   static void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
-    database.becomeAdmin();
     database.dropSchemaIfExists(CHILD_SCHEMA);
     database.dropSchemaIfExists(PARENT_SCHEMA);
     Schema parent = database.createSchema(PARENT_SCHEMA);
