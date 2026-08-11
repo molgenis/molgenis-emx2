@@ -275,7 +275,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   ontologyTableId: string;
   ontologySchema: string;
   filter?: Record<string, IFilter>;
-  columnId: string;
+  columnId?: string;
   refFields?: filterRefField;
   // optional function to build the filter based on the selected options
   // if empty the default builder will be used
@@ -314,6 +314,7 @@ export type IFilterCondition = {
 
 export interface IOntologyFilter extends IAbstractFilter {
   conditions: IFilterCondition[];
+  options?: IOntologyRespItem[];
   config: IOntologyFilterConfig;
 }
 

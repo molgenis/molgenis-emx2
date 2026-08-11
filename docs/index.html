@@ -11,33 +11,97 @@
 </head>
 
 <body>
-    <div id="app"></div>
+<div id="app"></div>
 
-    <style>
-        .content {
-            padding: 0px;
-        }
+<style>
+    .content {
+        padding: 0px;
+    }
 
-        .app-nav:not(:empty)~main .markdown-section {
-            padding-top: 6rem;
-        }
+    .app-nav:not(:empty)~main .markdown-section {
+        padding-top: 6rem;
+    }
 
-        .markdown-section>h4+p {
-            margin-top: 0;
-        }
+    .markdown-section > h4 + p {
+        margin-top: 0;
+    }
 
-        input:focus {
-            outline: none;
-            border-radius: 10px;
-        }
+    input:focus {
+        outline: none;
+        border-radius: 10px;
+    }
 
-        .sidebar-nav>h4 {
-            margin-top: 0;
-        }
+    .sidebar-nav > h4 {
+        margin-top: 0;
+    }
 
-        .sidebar-nav>h4>a:is(:link, :active, :hover, :focus, :visited) {
-            font-weight: 700;
-            color: #ffffff;
+    .sidebar-nav > h4 > a:is(:link, :active, :hover, :focus, :visited) {
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    .app-nav > ul > li {
+        background: var(--color-yellow-500);
+        padding: 15px 40px;
+        border-radius: 9999px;
+        font-weight: 700;
+    }
+
+    .folder {
+        cursor: pointer;
+    }
+
+    :root {
+        --color-blue-500: #0071e6;
+        --color-blue-700: #1d4ed8;
+        --color-yellow-500: #fff500;
+        --theme-color: var(--color-blue-500);
+
+        --sidebar-background: var(--color-blue-500);
+        --sidebar-name-color: white;
+
+        --sidebar-nav-margin: 0;
+        --sidebar-nav-strong-color: white;
+        --sidebar-nav-link-color: white;
+        --sidebar-nav-link-color--active: var(--color-yellow-500);
+        --sidebar-nav-link-border-color--active: var(--color-yellow-500);
+
+        --search-input-border-radius: 10px;
+        --search-margin: 0.5rem 1rem 0;
+        --search-result-heading-color: #ffffff;
+        --search-result-item-color: #ffffff;
+
+        --heading-color: var(--theme-color);
+        --link-color: var(--theme-color);
+        --sidebar-name-font-weight: bold;
+        --code-font-size: calc(var(--font-size-m) * 0.80);
+        --heading-h3-color: black ;
+        --heading-h4-color: black ;
+        --heading-h4-margin: 0 0 0 0;
+        --markdown-section-p-margin: 0 0 0 0;
+    }
+</style>
+<script>
+    window.$docsify = {
+        name: '<img src="./img/molgenis_logo_white.png" height="50" style="margin-left: -15px;"/>',
+        repo: 'http://github.com/molgenis/molgenis-emx2',
+        loadNavbar: true,
+        loadSidebar: true,
+        relativePath: true,
+        themeColor: "#005EC4",
+        loadFooter: true,
+        auto2top: true,
+        maxLevel: 3,
+        homepage: "intro.md",
+        subMaxLevel: 3,
+        search: {
+            depth: 5,
+            noData: 'No results!',
+            placeholder: 'Search...'
+        },
+        githubEditLink: {
+            repo: "https://github.com/molgenis/molgenis-emx2/",
+            branch: "master"
         }
 
         .app-nav>ul>li {

@@ -106,7 +106,7 @@
           @required-next="form?.gotoNextRequiredField"
           @required-prev="form?.gotoPreviousRequiredField"
         />
-        <menu class="flex items-center justify-end h-[116px]">
+        <menu class="flex items-center justify-end h-modal-footer">
           <div class="flex gap-4">
             <Button type="secondary" :disabled="saving" @click="onCancel">
               Cancel
@@ -299,9 +299,9 @@ async function insert(draft: boolean) {
 
   isInsert.value = false;
   await updateAutoIds();
-  emit("update:added", resp);
   formMessage.value = `inserted  ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
+  emit("update:added", resp);
 }
 
 async function update(draft: boolean) {
@@ -310,9 +310,9 @@ async function update(draft: boolean) {
     throw new Error(`No response from server on update`);
   }
 
-  emit("update:updated", resp);
   formMessage.value = `saved ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
+  emit("update:updated", resp);
 }
 
 function reAuthenticate() {
