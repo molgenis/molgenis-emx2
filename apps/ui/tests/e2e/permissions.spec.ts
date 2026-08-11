@@ -12,100 +12,88 @@ let api: APIRequestContext;
 const USERNAME = "dragonkeeper";
 const PASSWORD = "dragonkeeper";
 
-async function gql(
-  url: string,
-  query: string,
-  variables?: Record<string, unknown>
-) {
-  const response = await api.post(url, {
-    headers: { "Content-Type": "application/json" },
-    data: variables ? { query, variables } : { query },
-  });
-  const body = await response.json();
-  if (body.errors) {
-    throw new Error(`GraphQL error on ${url}: ${JSON.stringify(body.errors)}`);
-  }
-  return body.data;
-}
+test.describe.configure({ mode: "serial" });
 
 test.beforeAll(async () => {
   api = await apiRequest.newContext();
-
-  await gql(
-    `${route}graphql`,
-    `mutation {
-      signin(email: "admin", password: "admin") {
-        status
-        message
-      }
-    }`
-  );
-
-  await gql(
-    `${route}pet%20store/graphql`,
-    `mutation drop($members: [String]) {
-      drop(members: $members) {
-        message
-      }
-    }`,
-    { members: ["anonymous"] }
-  );
-
-  await gql(
-    `${route}graphql`,
-    `mutation{
-      changePassword(email: "${USERNAME}", password: "${PASSWORD}"){
-        status,message
-      }
-    }`
-  );
+  await becomeAdmin();
+  await dropAnonymousFromPetStore();
+  await addPasswordToDragonKeeper();
 });
 
 test.afterAll(async () => {
-  await gql(
-    `${route}graphql`,
-    `mutation updateUser($updateUser: InputUpdateUser) {
-      updateUser(updateUser: $updateUser) {
-        status
-        message
-      }
-    }`,
-    {
-      updateUser: {
-        email: "anonymous",
-        roles: [{ schemaId: "pet store", role: "Viewer" }],
-      },
-    }
-  );
-
+  await restoreAnonymousToPetStore();
   await api.dispose();
 });
 
-test("The dragonkeeper has the correct permissions", async ({ page }) => {
-  await page.goto(route + "pet%20store/Pet");
-  await expect(
-    page.getByText("The requested page could not be found.")
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Home" }).click();
-  await expect(page).toHaveURL(route);
+test.describe("when the dragonkeeper has permissions on the pet table only", () => {
+  test("The dragonkeeper has the correct permissions", async ({ page }) => {
+    await page.goto(route + "pet%20store/Pet");
+    await expect(
+      page.getByText("The requested page could not be found.")
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Home" }).click();
+    await expect(page).toHaveURL(route);
 
-  await signin(page, USERNAME, PASSWORD);
+    await signin(page, USERNAME, PASSWORD);
 
-  // check that other tables are not clickable
-  await page.goto(route);
-  await page.getByText("pet store").click();
-  await expect(page.getByText("Category")).toBeVisible();
-  await expect(page.getByText("Order")).toBeVisible();
-  await expect(page.getByText("User")).toBeVisible();
+    // check that other tables are not clickable
+    await page.goto(route);
+    await page.getByText("pet store").click();
+    await expect(page.getByText("Category")).toBeVisible();
+    await expect(page.getByText("Order")).toBeVisible();
+    await expect(page.getByText("User")).toBeVisible();
 
-  await page.getByText("Pet", { exact: true }).click();
-  await expect(page.getByText("No records found")).toBeVisible();
+    await page.getByText("Pet", { exact: true }).click();
+    await expect(page.getByText("No records found")).toBeVisible();
 
-  await signout(page);
-  await expect(page.getByLabel("error")).toBeVisible();
+    await signout(page);
+    await expect(page.getByLabel("error")).toBeVisible();
 
-  await signin(page, "admin", "admin");
-  await expect(page.getByText("Showing 1 to 10 of 10 items")).toBeVisible();
+    await signin(page, "admin", "admin");
+    await expect(page.getByText("Showing 1 to 10 of 10 items")).toBeVisible();
+  });
+});
+
+test.describe("when the dragonkeeper has also permissions on the order table", () => {
+  test.beforeAll(async () => {
+    await addRLSToOrderTable();
+  });
+
+  test.afterAll(async () => {
+    await removeRLSToOrderTable();
+  });
+
+  test("the dragonkeeper can now see the order table", async ({ page }) => {
+    // await addRLSToOrderTable();
+    await page.goto(route);
+    await signin(page, USERNAME, PASSWORD);
+    await page.getByText("pet store").click();
+    await page.getByText("Order", { exact: true }).click();
+    await expect(page.getByText("No records found")).toBeVisible();
+    // await removeRLSToOrderTable();
+  });
+
+  test("the dragonkeeper can now see smaug in the pet table", async ({
+    page,
+  }) => {
+    await page.goto(route);
+    await signin(page, USERNAME, PASSWORD);
+    await page.getByText("pet store").click();
+    await page.getByText("Pet", { exact: true }).click();
+    await expect(page.getByText("smaug")).toBeVisible();
+  });
+
+  test("the dragonkeeper can now add pets to the pet table", async ({
+    page,
+  }) => {
+    await page.goto(route);
+    await signin(page, USERNAME, PASSWORD);
+    await page.getByText("pet store").click();
+    await page.getByText("Pet", { exact: true }).click();
+    await page.getByRole("button", { name: "Add" }).click();
+    await expect(page.getByLabel("Name")).toBeVisible();
+  });
 });
 
 async function signin(page: Page, username: string, password: string) {
@@ -125,4 +113,127 @@ async function signout(page: Page) {
 
 async function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function gql(
+  url: string,
+  query: string,
+  variables?: Record<string, unknown>
+) {
+  const response = await api.post(url, {
+    headers: { "Content-Type": "application/json" },
+    data: variables ? { query, variables } : { query },
+  });
+  const body = await response.json();
+  if (body.errors) {
+    throw new Error(`GraphQL error on ${url}: ${JSON.stringify(body.errors)}`);
+  }
+  return body.data;
+}
+
+async function becomeAdmin() {
+  return gql(
+    `${route}graphql`,
+    `mutation {
+      signin(email: "admin", password: "admin") {
+        status
+        message
+      }
+    }`
+  );
+}
+
+async function dropAnonymousFromPetStore() {
+  return gql(
+    `${route}pet%20store/graphql`,
+    `mutation drop($members: [String]) {
+      drop(members: $members) {
+        message
+      }
+    }`,
+    { members: ["anonymous"] }
+  );
+}
+
+async function addPasswordToDragonKeeper() {
+  return gql(
+    `${route}graphql`,
+    `mutation{
+      changePassword(email: "${USERNAME}", password: "${PASSWORD}"){
+        status,message
+      }
+    }`
+  );
+}
+
+async function restoreAnonymousToPetStore() {
+  return gql(
+    `${route}graphql`,
+    `mutation updateUser($updateUser: InputUpdateUser) {
+      updateUser(updateUser: $updateUser) {
+        status
+        message
+      }
+    }`,
+    {
+      updateUser: {
+        email: "anonymous",
+        roles: [{ schemaId: "pet store", role: "Viewer" }],
+      },
+    }
+  );
+}
+
+async function addRLSToOrderTable() {
+  return gql(
+    `${route}pet%20store/graphql`,
+    `mutation {
+        change(
+          roles: [
+            {
+              name: "DragonKeeper"
+              permissions: [
+                {
+                  table: "Order"
+                  select: true
+                  insert: true
+                  update: true
+                  delete: true
+                  isRowLevel: true
+                }
+              ]
+            }
+          ]
+        ) {
+          message
+        }
+      } `
+  );
+}
+
+async function removeRLSToOrderTable() {
+  return gql(
+    `${route}pet%20store/graphql`,
+    `mutation {
+        change(
+          roles: [
+            {
+              name: "DragonKeeper"
+              permissions: [
+                {
+                  table: "Order"
+                  select: false
+                  insert: false
+                  update: false
+                  delete: false
+                  isRowLevel: false
+                }
+              ]
+            }
+          ]
+        ) {
+          message
+        }
+      }`
+  );
 }
