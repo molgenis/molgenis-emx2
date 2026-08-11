@@ -558,17 +558,14 @@ def apply_redirected_board_write(action, is_draft, mapped_team, pr_item, closing
     least one issue, so it gets no card of its own -- an existing one is
     removed from board 15, unconditionally -- and each linked issue's card
     is written instead, per decide_issue_card_update. synchronize never
-    reaches this function; see apply_board_write."""
-    if decide_remove_pr_card(closing_issues, pr_item):
-        was = f"Status {pr_item['status']!r}, Team {pr_item['team']!r}, Sprint {pr_item['sprint']!r}"
-        # Recorded BEFORE the mutation runs -- this row is the one place a
-        # person can recover the values from, so a timeout after GitHub has
-        # already committed the removal must not lose it.
-        summary_rows.append(("PR card removed", f"{pr_item['id']} (was: {was})"))
-        remove_item_from_board(pr_item["id"], board_token)
-    else:
-        summary_rows.append(("PR card", f"none to add or remove (closes {len(closing_issues)} linked issue(s))"))
+    reaches this function; see apply_board_write.
 
+    Order matters, owner ruling: every linked issue's card is written FIRST,
+    and the PR's own card is removed LAST. If an issue write fails partway
+    (a GraphQL error, a timeout), the PR's card survives -- a transient
+    duplicate, which the spec explicitly prefers over the alternative this
+    ordering rules out: the PR's card gone and no issue card written, i.e.
+    zero cards for the same piece of work."""
     current_iteration = resolve_current_iteration(board_token)
     current_sprint_title = current_iteration["title"] if current_iteration else None
 
@@ -588,6 +585,16 @@ def apply_redirected_board_write(action, is_draft, mapped_team, pr_item, closing
             issue_ref["id"], existing_issue_item, fields, current_values, current_iteration, board_token, summary_rows
         )
         summary_rows.append((f"Issue #{issue_ref['number']}", f"item {item_id}"))
+
+    if decide_remove_pr_card(closing_issues, pr_item):
+        was = f"Status {pr_item['status']!r}, Team {pr_item['team']!r}, Sprint {pr_item['sprint']!r}"
+        # Recorded BEFORE the mutation runs -- this row is the one place a
+        # person can recover the values from, so a timeout after GitHub has
+        # already committed the removal must not lose it.
+        summary_rows.append(("PR card removed", f"{pr_item['id']} (was: {was})"))
+        remove_item_from_board(pr_item["id"], board_token)
+    else:
+        summary_rows.append(("PR card", f"none to add or remove (closes {len(closing_issues)} linked issue(s))"))
 
 
 def apply_board_write(action, pr_node_id, is_draft, mapped_team, board_token, summary_rows, verdict_prefix, insert_verdict_at=None):
@@ -644,10 +651,6 @@ def handle_board_update(action, pull_request):
     pr_node_id = pull_request["node_id"]
     is_draft = pull_request["draft"]
 
-    mapping_path = mapping_file_path(__file__)
-    mapping = load_teams_mapping(mapping_path)
-    mapped_team = team_for(author_login, mapping) or UNKNOWN_AUTHOR_TEAM
-
     print(f"event=pull_request action={action} head_branch={head_branch} author={author_login}")
 
     summary_rows = [
@@ -657,6 +660,10 @@ def handle_board_update(action, pull_request):
     ]
 
     try:
+        mapping_path = mapping_file_path(__file__)
+        mapping = load_teams_mapping(mapping_path)
+        mapped_team = team_for(author_login, mapping) or UNKNOWN_AUTHOR_TEAM
+
         board_token = os.environ["PROJECT_BOARD_TOKEN"]
 
         apply_board_write(action, pr_node_id, is_draft, mapped_team, board_token, summary_rows, verdict_prefix=action)

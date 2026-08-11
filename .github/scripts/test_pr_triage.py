@@ -1725,6 +1725,62 @@ class MainWiringClosingIssueTest(unittest.TestCase):
             self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
             self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], "879449e7")  # Review
 
+    # --- owner ruling: the PR's own card is removed LAST, only after every
+    # linked issue's card has been written -- if an issue write fails
+    # partway, the PR's card must survive (a transient duplicate is the
+    # spec's explicitly preferred outcome over zero cards) ---
+
+    def test_removal_happens_after_all_issue_writes_complete(self):
+        """Pins the ORDER, not just the outcome: a mutant that removes the
+        PR's card first and then writes the issue would still leave the
+        final state correct (both eventually happen), so an order-blind test
+        would not catch a regression back to remove-first."""
+        calls = []
+        fake = make_fake_http_request_for_redirect(
+            calls,
+            pr_item={"id": "PR_ITEM_ORDER", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"},
+            closing_issues=[{"id": "ISSUE_A", "number": 10}],
+            issue_items={"ISSUE_A": None},
+            add_item_ids={"ISSUE_A": "NEW_ISSUE_ITEM"},
+        )
+
+        run_main(_pr_event("ready_for_review", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
+
+        remove_index = next(i for i, c in enumerate(calls) if "deleteProjectV2Item" in query_of(c))
+        issue_write_indices = [
+            i
+            for i, c in enumerate(calls)
+            if ("addProjectV2ItemById" in query_of(c) and c["body"]["variables"]["contentId"] == "ISSUE_A")
+            or (
+                "updateProjectV2ItemFieldValue" in query_of(c)
+                and c["body"]["variables"]["itemId"] == "NEW_ISSUE_ITEM"
+            )
+        ]
+        self.assertTrue(issue_write_indices, "expected at least the add call and one field write for the new issue item")
+        self.assertTrue(
+            all(i < remove_index for i in issue_write_indices),
+            "every issue write must complete before the PR's card is removed",
+        )
+
+    def test_removal_never_happens_when_an_issue_write_fails(self):
+        """The finding this reorder exists for: an issue write raising
+        partway through must leave the PR's card in place -- a transient
+        duplicate, not the zero-cards outcome the spec forbids."""
+        calls = []
+        fake = make_fake_http_request_for_redirect(
+            calls,
+            pr_item={"id": "PR_ITEM_SURVIVES", "status": "🔍 Review", "team": "Dev", "sprint": "Sprint 260"},
+            closing_issues=[{"id": "ISSUE_A", "number": 10}],
+            issue_items={"ISSUE_A": None},
+            add_item_ids={"ISSUE_A": "NEW_ISSUE_ITEM"},
+            status_options=[{"id": "SOME_OPT", "name": "NoMatchingOptionHere"}],
+        )
+
+        with self.assertRaises(ValueError):
+            run_main(_pr_event("ready_for_review", is_draft=False), http_request=fake, current_date=datetime.date(2026, 8, 8))
+
+        self.assertEqual(self._remove_calls(calls), [], "the PR's card must survive an issue write that failed")
+
     # --- synchronize on a closing PR: writes NOTHING anywhere -- not the PR's
     # card (not even removal), not any issue's [owner ruling, fixes review
     # finding F1: a push must never leave zero cards for the same work] ---
@@ -1975,6 +2031,50 @@ class BoardUpdateWritesStepSummaryOnFailureTest(unittest.TestCase):
         self.assertIn("### PR triage", summary_text)
         self.assertIn("Failure", summary_text)
         self.assertIn("board boom", summary_text)
+
+    def test_step_summary_is_still_written_when_the_teams_mapping_fails_to_load(self):
+        """Review finding: handle_board_update used to load the teams mapping
+        OUTSIDE its try/finally, so a mapping-read failure on a
+        transition/synchronize/edited event wrote no step summary at all --
+        unlike the opened path (MainWritesStepSummaryOnFailureTest), which
+        already handled this gracefully and had a test for it."""
+        event = {
+            "action": "ready_for_review",
+            "pull_request": {
+                "user": {"login": "mswertz"},
+                "head": {"ref": "feature/x"},
+                "number": 1,
+                "node_id": "PR_node",
+                "draft": False,
+            },
+            "repository": {"full_name": "molgenis/molgenis-emx2"},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            event_path = os.path.join(tmp_dir, "event.json")
+            with open(event_path, "w", encoding="utf-8") as handle:
+                json.dump(event, handle)
+            summary_path = os.path.join(tmp_dir, "summary.md")
+            open(summary_path, "w", encoding="utf-8").close()
+
+            env = {
+                "GITHUB_EVENT_PATH": event_path,
+                "PROJECT_BOARD_TOKEN": "board-token",
+                "GITHUB_STEP_SUMMARY": summary_path,
+            }
+
+            with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
+                pr_triage, "load_teams_mapping", side_effect=FileNotFoundError("no such file: pr-triage-teams.yml")
+            ):
+                with self.assertRaises(FileNotFoundError):
+                    pr_triage.main()
+
+            with open(summary_path, encoding="utf-8") as handle:
+                summary_text = handle.read()
+
+        self.assertIn("### PR triage", summary_text)
+        self.assertIn("Failure", summary_text)
+        self.assertIn("no such file", summary_text)
 
 
 class BoardUpdateResolvesFieldsBeforeAddingBoardItemTest(unittest.TestCase):
