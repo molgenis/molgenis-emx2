@@ -65,10 +65,6 @@ test("the row should be copied and added to the table after copying", async ({
   await page.getByRole("textbox", { name: "name Required" }).fill("copy cat");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await page.getByRole("button", { name: "Cancel" }).click();
-
-  // check result
-  await page.getByRole("searchbox", { name: "Search Pet" }).fill("copy cat");
-
   await expect(
     page
       .locator("div")
