@@ -28,7 +28,7 @@ import org.molgenis.emx2.rdf.generators.query.FileBasedQueryGenerator;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class SparqlSelectRdfTransformerTest {
+class SparqlRdfTransformerTest {
 
   private Database database;
 
@@ -39,7 +39,7 @@ class SparqlSelectRdfTransformerTest {
 
   @Test
   void givenUnknownTable_thenThrow() {
-    String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_unknowntable";
+    String schemaName = SparqlRdfTransformerTest.class.getSimpleName() + "_unknowntable";
     SchemaMetadata schema = database.dropCreateSchema(schemaName).getMetadata();
     TableQueryGenerator generator = new TableQueryGenerator();
     List<String> tables = List.of("unknown-1", "unknown-2");
@@ -54,7 +54,7 @@ class SparqlSelectRdfTransformerTest {
 
   @Test
   void givenData_thenQueryTable() throws IOException {
-    String schemaName = "SparqlSelectRdfTransformer_petstore";
+    String schemaName = SparqlRdfTransformerTest.class.getSimpleName() + "_petstore";
     database.dropSchemaIfExists(schemaName);
     DataModels.Profile.PET_STORE
         .getImportTask(database, schemaName, "RDF data transformation test", false)
@@ -80,7 +80,7 @@ class SparqlSelectRdfTransformerTest {
   private SailRepository readPetStoreTtl() {
     SailRepository repository = new SailRepository(new MemoryStore());
     try (SailRepositoryConnection connection = repository.getConnection()) {
-      URL url = SparqlSelectRdfTransformerTest.class.getResource("petstore.ttl");
+      URL url = SparqlRdfTransformerTest.class.getResource("petstore.ttl");
       connection.add(url, RDFFormat.TURTLE);
       connection.commit();
     } catch (IOException e) {
@@ -153,13 +153,12 @@ class SparqlSelectRdfTransformerTest {
 
   private static String readPetsCsv() throws IOException {
     return new String(
-        Objects.requireNonNull(SparqlSelectRdfTransformerTest.class.getResourceAsStream("pets.csv"))
+        Objects.requireNonNull(SparqlRdfTransformerTest.class.getResourceAsStream("pets.csv"))
             .readAllBytes());
   }
 
   private static Path getQueryFilePath() {
     return Paths.get(
-        Objects.requireNonNull(SparqlSelectRdfTransformerTest.class.getResource("query.rq"))
-            .getPath());
+        Objects.requireNonNull(SparqlRdfTransformerTest.class.getResource("query.rq")).getPath());
   }
 }

@@ -11,7 +11,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class PetStoreRolesTest {
 
-  private static final String SCHEMA = "PetStoreRolesTest";
+  private static final String SCHEMA = PetStoreRolesTest.class.getSimpleName();
   private static final String DRAGON_KEEPER = "DragonKeeper";
   private static final String DRAGON_KEEPER_USER = "dragonkeeper";
 
