@@ -255,7 +255,11 @@ public class Emx2 {
       row.setString(REQUIRED, null);
       row.setString(DEFAULT_VALUE, null);
       row.setString(READ_ONLY, null);
-      row.setString(REF_SCHEMA, null);
+      row.setString(
+          REF_SCHEMA,
+          table.getImportSchema() != null && !table.getImportSchema().equals(table.getSchemaName())
+              ? table.getImportSchema()
+              : null);
       row.setString(REF_TABLE, null);
       row.setString(REF_LINK, null);
       row.setString(REF_BACK, null);
