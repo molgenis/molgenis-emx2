@@ -27,7 +27,7 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class SparqlSelectRdfTransformerTest {
+class SparqlRdfTransformerTest {
 
   public static final IRI SUBJECT = iri("https://example.com/bob");
   private Database database;
@@ -36,7 +36,7 @@ class SparqlSelectRdfTransformerTest {
   @BeforeEach
   void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
-    String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName();
+    String schemaName = SparqlRdfTransformerTest.class.getSimpleName();
     schema = database.dropCreateSchema(schemaName).getMetadata();
   }
 
@@ -141,9 +141,7 @@ class SparqlSelectRdfTransformerTest {
 
   @Test
   void givenTtlData_thenQueryTable() throws IOException {
-    // keep short: the pet store profile creates roles, and MG_ROLE_<schema>/RLS_<role> must fit
-    // PostgreSQL's 63-byte identifier limit
-    String schemaName = "SparqlSelectRdfTransformer_petstore";
+    String schemaName = SparqlRdfTransformerTest.class.getSimpleName() + "_petstore";
     database.dropSchemaIfExists(schemaName);
     DataModels.Profile.PET_STORE
         .getImportTask(database, schemaName, "RDF data transformation test", false)
@@ -182,7 +180,7 @@ class SparqlSelectRdfTransformerTest {
   private SailRepository readPetStoreTtl() {
     SailRepository repository = new SailRepository(new MemoryStore());
     try (SailRepositoryConnection connection = repository.getConnection()) {
-      URL url = SparqlSelectRdfTransformerTest.class.getResource("petstore.ttl");
+      URL url = SparqlRdfTransformerTest.class.getResource("petstore.ttl");
       connection.add(url, RDFFormat.TURTLE);
       connection.commit();
     } catch (IOException e) {
@@ -253,7 +251,7 @@ class SparqlSelectRdfTransformerTest {
 
   private static String readPetsCsv() throws IOException {
     return new String(
-        Objects.requireNonNull(SparqlSelectRdfTransformerTest.class.getResourceAsStream("pets.csv"))
+        Objects.requireNonNull(SparqlRdfTransformerTest.class.getResourceAsStream("pets.csv"))
             .readAllBytes());
   }
 }
