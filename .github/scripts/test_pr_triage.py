@@ -388,98 +388,12 @@ class DecideStatusTest(unittest.TestCase):
 
 
 class DecideBoardUpdateTest(unittest.TestCase):
-    """decide_board_update no longer takes an action: main() already filters to
-    BOARD_UPDATE_ACTIONS before calling it, so every action in that tuple (the
-    three transitions and synchronize alike) must obey the identical rule.
-    Every case below runs once per action via subTest to prove that."""
-
-    def test_status_flips_a_managed_status_to_match_current_draft_state(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=True, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
-                )
-                self.assertEqual(fields["status"], "Working")
-
-                fields = pr_triage.decide_board_update(
-                    is_draft=False, current_status="🛠️ Working", current_team="Dev", mapped_team="Dev"
-                )
-                self.assertEqual(fields["status"], "Review")
-
-    def test_status_already_matching_current_draft_state_is_not_rewritten(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=True, current_status="🛠️ Working", current_team="Dev", mapped_team="Dev"
-                )
-                self.assertIsNone(fields["status"])
-
-    def test_status_fills_when_empty(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=True, current_status=None, current_team="Dev", mapped_team="Dev"
-                )
-                self.assertEqual(fields["status"], "Working")
-
-                fields = pr_triage.decide_board_update(
-                    is_draft=False, current_status=None, current_team="Dev", mapped_team="Dev"
-                )
-                self.assertEqual(fields["status"], "Review")
-
-    def test_status_leaves_a_non_managed_status_alone(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=True, current_status="📋 Epic", current_team="Dev", mapped_team="Dev"
-                )
-                self.assertIsNone(fields["status"])
-
-    def test_team_fills_when_empty(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=False, current_status="🛠️ Working", current_team=None, mapped_team="Delivery"
-                )
-                self.assertEqual(fields["team"], "Delivery")
-
-    def test_team_never_overwrites_a_non_empty_team(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=False, current_status="🛠️ Working", current_team="Analysis", mapped_team="Delivery"
-                )
-                self.assertIsNone(fields["team"])
-
-    def test_leaves_non_managed_status_alone_while_still_filling_team(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=True, current_status="📋 Epic", current_team=None, mapped_team="Delivery"
-                )
-                self.assertIsNone(fields["status"])
-                self.assertEqual(fields["team"], "Delivery")
-
-    def test_blank_string_team_counts_as_empty(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=False, current_status="🔍 Review", current_team="   ", mapped_team="Delivery"
-                )
-                self.assertEqual(fields["team"], "Delivery")
-
-    def test_sprint_fills_when_empty(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=False,
-                    current_status="🛠️ Working",
-                    current_team="Dev",
-                    mapped_team="Dev",
-                    current_sprint=None,
-                    current_sprint_title="Sprint 260",
-                )
-                self.assertEqual(fields["sprint"], "Sprint 260")
+    """decide_board_update takes no `action` argument, so a subTest loop over
+    BOARD_UPDATE_ACTIONS proved nothing beyond running the same assertion 5
+    times. Every other case this class used to cover that way is provably
+    redundant against MainWiringBoardUpdateTest and DecideStatusTest, per an
+    owner-approved mutation-tested trim. This one survives: without it, a
+    mutant that always overwrites a non-empty Sprint escapes every other test."""
 
     def test_sprint_never_overwrites_a_non_empty_sprint(self):
         for action in pr_triage.BOARD_UPDATE_ACTIONS:
@@ -493,39 +407,6 @@ class DecideBoardUpdateTest(unittest.TestCase):
                     current_sprint_title="Sprint 260",
                 )
                 self.assertIsNone(fields["sprint"])
-
-    def test_blank_string_sprint_counts_as_empty(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=False,
-                    current_status="🔍 Review",
-                    current_team="Dev",
-                    mapped_team="Dev",
-                    current_sprint="   ",
-                    current_sprint_title="Sprint 260",
-                )
-                self.assertEqual(fields["sprint"], "Sprint 260")
-
-    def test_empty_sprint_stays_unwritten_when_no_current_iteration_resolves(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=False,
-                    current_status="🔍 Review",
-                    current_team="Dev",
-                    mapped_team="Dev",
-                    current_sprint=None,
-                    current_sprint_title=None,
-                )
-                self.assertIsNone(fields["sprint"])
-
-    def test_no_field_is_written_by_default_when_sprint_args_are_omitted(self):
-        fields = pr_triage.decide_board_update(
-            is_draft=False, current_status="🔍 Review", current_team="Dev", mapped_team="Dev"
-        )
-
-        self.assertIsNone(fields["sprint"])
 
 
 class KeywordClosingIssuesTest(unittest.TestCase):
