@@ -16,7 +16,7 @@ class TestTableMetadata {
             .create(
                 table("Person", column("name")),
                 table("Employee", column("details").setType(ColumnType.HEADING), column("salary"))
-                    .setInheritName("Person"));
+                    .setInheritNames("Person"));
 
     List<Column> result = s.getTableMetadata("Person").getColumnsIncludingSubclasses();
     assertEquals(3, result.size());
@@ -107,7 +107,7 @@ class TestTableMetadata {
     SchemaMetadata schema = new SchemaMetadata("Schema");
     schema.create(
         table("Parent", column("name").setPosition(0), column("age").setPosition(2)),
-        table("Employee", column("salary").setPosition(1)).setInheritName("Parent"));
+        table("Employee", column("salary").setPosition(1)).setInheritNames("Parent"));
 
     List<String> names =
         schema.getTableMetadata("Employee").getColumns().stream().map(Column::getName).toList();
@@ -116,9 +116,20 @@ class TestTableMetadata {
   }
 
   @Test
+  void setInheritNamesWithItsOwnCurrentListDoesNotWipeParents() {
+    TableMetadata table = new TableMetadata("Child").setInheritNames("P1", "P2");
+
+    // re-applying a table's own (possibly unmodifiable) list back into itself must not clear it
+    // out from under the read
+    table.setInheritNames(table.getInheritNames());
+
+    assertEquals(List.of("P1", "P2"), table.getInheritNames());
+  }
+
+  @Test
   void danglingParentGivesActionableMessage() {
     SchemaMetadata schema = new SchemaMetadata("test1");
-    schema.create(table("Employee", column("salary")).setInheritName("Contact"));
+    schema.create(table("Employee", column("salary")).setInheritNames("Contact"));
 
     TableMetadata employee = schema.getTableMetadata("Employee");
     MolgenisException exception =
@@ -132,7 +143,7 @@ class TestTableMetadata {
   @Test
   void namelessSchemaOmitsChildQualifierInsteadOfRenderingNull() {
     SchemaMetadata schema = new SchemaMetadata();
-    schema.create(table("Employee", column("salary")).setInheritName("Contact"));
+    schema.create(table("Employee", column("salary")).setInheritNames("Contact"));
 
     TableMetadata employee = schema.getTableMetadata("Employee");
     MolgenisException exception =
@@ -146,7 +157,7 @@ class TestTableMetadata {
   @Test
   void tableWithoutLocalColumnsHasNoNonInheritedColumnsEvenWithUnresolvedParent() {
     SchemaMetadata schema = new SchemaMetadata("Schema");
-    schema.create(table("Employee").setInheritName("Person"));
+    schema.create(table("Employee").setInheritNames("Person"));
 
     assertEquals(List.of(), schema.getTableMetadata("Employee").getNonInheritedColumns());
   }
@@ -154,11 +165,11 @@ class TestTableMetadata {
   @Test
   void crossSchemaParentInDetachedSchemaIsUnresolvedInsteadOfError() {
     SchemaMetadata schema = new SchemaMetadata("Schema");
-    schema.create(table("MyShape").setImportSchema("Other").setInheritName("Shape"));
+    schema.create(table("MyShape").setImportSchema("Other").setInheritNames("Shape"));
 
     TableMetadata myShape = schema.getTableMetadata("MyShape");
 
-    assertNull(myShape.getInheritedTable());
+    assertTrue(myShape.getInheritedTables().isEmpty());
     assertNull(myShape.getColumn("name"));
     assertDoesNotThrow(() -> myShape.add(column("size")));
   }
@@ -166,13 +177,13 @@ class TestTableMetadata {
   @Test
   void detachedSchemaResolvesParentAddedAfterItsChild() {
     SchemaMetadata schema = new SchemaMetadata("Schema");
-    TableMetadata child = schema.create(table("Child").setInheritName("Parent"));
+    TableMetadata child = schema.create(table("Child").setInheritNames("Parent"));
 
     assertDoesNotThrow(() -> child.add(column("x")));
 
     schema.create(table("Parent", column("id")));
 
-    assertEquals("Parent", child.getInheritedTable().getTableName());
+    assertEquals("Parent", child.getInheritedTables().get(0).getTableName());
     assertEquals("id", child.getColumn("id").getName());
   }
 
@@ -180,7 +191,9 @@ class TestTableMetadata {
   void unresolvableParentSchemaInDetachedSchemaReportsSchemaNotFound() {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(
-        table("Employee", column("salary")).setInheritName("Contact").setImportSchema("HT_Parent"));
+        table("Employee", column("salary"))
+            .setInheritNames("Contact")
+            .setImportSchema("HT_Parent"));
 
     TableMetadata employee = schema.getTableMetadata("Employee");
     MolgenisException exception =
@@ -202,7 +215,7 @@ class TestTableMetadata {
     Column c3 = new Column("parent column");
 
     schema.create(
-        table("parent table", c3), table("table name", c1, c2).setInheritName("parent table"));
+        table("parent table", c3), table("table name", c1, c2).setInheritNames("parent table"));
 
     TableMetadata table = schema.getTableMetadata("table name");
 

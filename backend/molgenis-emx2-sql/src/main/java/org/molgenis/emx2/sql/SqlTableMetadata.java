@@ -8,9 +8,11 @@ import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadata.validateTableIdentifierIsUnique;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
@@ -44,17 +46,15 @@ class SqlTableMetadata extends TableMetadata {
         tm.alterColumn(c);
       } else {
         Column newColumn = new Column(tm, c);
-        if (tm.getInheritName() != null
-            && tm.getInheritedTable().getColumn(c.getName()) != null
-            // this column is replicated in all subclass tables
-            && !c.getName().equals(MG_TABLECLASS)) {
+        Optional<TableMetadata> conflictingParent = findConflictingParentByName(tm, c.getName());
+        if (conflictingParent.isPresent() && !c.getName().equals(MG_TABLECLASS)) {
           throw new MolgenisException(
               "Cannot add column "
                   + tm.getTableName()
                   + "."
                   + c.getName()
                   + ": column exists in inherited class "
-                  + tm.getInheritName());
+                  + conflictingParent.get().getTableName());
         }
         checkNoColumnWithSameNameExistsInSubclass(c.getName(), tm, tm.getJooq());
 
@@ -82,6 +82,16 @@ class SqlTableMetadata extends TableMetadata {
       }
     }
     return tm;
+  }
+
+  private static Optional<TableMetadata> findConflictingParentByName(
+      TableMetadata tm, String columnName) {
+    for (TableMetadata parent : tm.getInheritedTables()) {
+      if (parent.getColumn(columnName) != null) {
+        return Optional.of(parent);
+      }
+    }
+    return Optional.empty();
   }
 
   private static void validateColumnIdentifierIsUnique(
@@ -194,16 +204,19 @@ class SqlTableMetadata extends TableMetadata {
               + column.getName()
               + "' does not exist");
     }
-    if (getInheritName() != null && getInheritedTable().getColumn(columnName) != null) {
+    Optional<TableMetadata> ownerOfExistingColumn = findConflictingParentByName(this, columnName);
+    if (ownerOfExistingColumn.isPresent()) {
       throw new MolgenisException(
           "Alter column "
               + getTableName()
               + "."
               + columnName
               + " failed: column is part of inherited table "
-              + getInheritName());
+              + ownerOfExistingColumn.get().getTableName());
     }
-    if (getInheritName() != null && getInheritedTable().getColumn(column.getName()) != null) {
+    Optional<TableMetadata> ownerOfNewColumnName =
+        findConflictingParentByName(this, column.getName());
+    if (ownerOfNewColumnName.isPresent() && !column.getName().equals(columnName)) {
       throw new MolgenisException(
           "Rename column from "
               + getTableName()
@@ -216,7 +229,7 @@ class SqlTableMetadata extends TableMetadata {
               + " failed: column '"
               + column.getName()
               + "' is part of inherited table "
-              + getInheritName());
+              + ownerOfNewColumnName.get().getTableName());
     }
     getDatabase()
         .tx(
@@ -348,14 +361,16 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
-  public TableMetadata setInheritName(String otherTable) {
-    if (getInheritName() != null) {
-      if (getInheritName().equals(otherTable)) {
+  public TableMetadata setInheritNames(List<String> names) {
+    List<String> requestedParents = names == null ? List.of() : names;
+    List<String> currentParents = getInheritNames();
+    if (!currentParents.isEmpty()) {
+      if (new HashSet<>(currentParents).equals(new HashSet<>(requestedParents))) {
         return this; // nothing to do
       }
       throw new MolgenisException(inheritanceIsFixed("change tableExtends"));
     }
-    if (otherTable != null) {
+    if (!requestedParents.isEmpty()) {
       throw new MolgenisException(inheritanceIsFixed("set tableExtends"));
     }
     return this;
@@ -368,7 +383,7 @@ class SqlTableMetadata extends TableMetadata {
 
   @Override
   public TableMetadata setImportSchema(String importSchema) {
-    if (getInheritName() != null && !Objects.equals(getImportSchema(), importSchema)) {
+    if (!getInheritNames().isEmpty() && !Objects.equals(getImportSchema(), importSchema)) {
       throw new MolgenisException(inheritanceIsFixed("change refSchema"));
     }
     return super.setImportSchema(importSchema);

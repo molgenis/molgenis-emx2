@@ -51,8 +51,8 @@ public class MetadataUtils {
   private static final Field<String> SCHEMA_DESCRIPTION =
       field(name("description"), VARCHAR.nullable(true));
   static final Field<String> TABLE_NAME = field(name("table_name"), VARCHAR.nullable(false));
-  private static final Field<String> TABLE_INHERITS =
-      field(name("table_inherits"), VARCHAR.nullable(true));
+  private static final Field<String[]> TABLE_INHERITS =
+      field(name("table_inherits"), VARCHAR.getArrayDataType().nullable(true));
   private static final Field<String> TABLE_IMPORT_SCHEMA =
       field(name("import_schema"), VARCHAR.nullable(true));
   private static final Field<JSON> TABLE_DESCRIPTION =
@@ -354,6 +354,9 @@ public class MetadataUtils {
 
   protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
     try {
+      List<String> inheritNamesList = table.getInheritNames();
+      String[] inheritNamesArray =
+          inheritNamesList.isEmpty() ? null : inheritNamesList.toArray(new String[0]);
       jooq.insertInto(TABLE_METADATA)
           .columns(
               TABLE_SCHEMA,
@@ -369,7 +372,7 @@ public class MetadataUtils {
               table.getSchema().getName(),
               table.getTableName(),
               table.getLabels(),
-              table.getInheritName(),
+              inheritNamesArray,
               table.getImportSchema(),
               table.getDescriptions(),
               table.getSemantics(),
@@ -378,7 +381,7 @@ public class MetadataUtils {
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
           .set(TABLE_LABEL, table.getLabels())
-          .set(TABLE_INHERITS, table.getInheritName())
+          .set(TABLE_INHERITS, inheritNamesArray)
           .set(TABLE_IMPORT_SCHEMA, table.getImportSchema())
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
@@ -480,8 +483,7 @@ public class MetadataUtils {
         .select(TABLE_SCHEMA, TABLE_NAME)
         .from(TABLE_METADATA)
         .where(
-            TABLE_INHERITS
-                .eq(tableName)
+            condition("{0} = ANY({1})", inline(tableName), TABLE_INHERITS)
                 .and(coalesce(TABLE_IMPORT_SCHEMA, TABLE_SCHEMA).eq(schemaName)))
         .orderBy(TABLE_SCHEMA, TABLE_NAME)
         .fetch()
@@ -518,7 +520,10 @@ public class MetadataUtils {
 
   private static TableMetadata recordToTable(org.jooq.Record r) {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
-    table.setInheritName(r.get(TABLE_INHERITS, String.class));
+    String[] inheritNamesArray = r.get(TABLE_INHERITS, String[].class);
+    if (inheritNamesArray != null && inheritNamesArray.length > 0) {
+      table.setInheritNames(Arrays.asList(inheritNamesArray));
+    }
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
     table.setLabels(r.get(TABLE_LABEL) != null ? r.get(TABLE_LABEL, Map.class) : new TreeMap<>());
     table.setDescriptions(

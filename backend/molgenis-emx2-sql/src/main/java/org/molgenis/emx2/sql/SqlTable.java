@@ -347,42 +347,71 @@ public class SqlTable implements Table {
     return this.tableListener;
   }
 
+  /** Ancestor chain root first, deduplicated (needed for diamond inheritance). */
+  private static List<SqlTable> ancestorChainRootFirst(SqlTable table) {
+    return table.getMetadata().getAncestorsRootFirst().stream()
+        .map(
+            tm ->
+                (SqlTable)
+                    table
+                        .getSchema()
+                        .getDatabase()
+                        .getSchema(tm.getSchemaName())
+                        .getTable(tm.getTableName()))
+        .collect(Collectors.toList());
+  }
+
   private List<Record> insertBatch(
       SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
-    if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      List<Record> records =
-          inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
+    List<SqlTable> tables = new ArrayList<>(ancestorChainRootFirst(table));
+    tables.add(table);
+    SqlTable rootTable = tables.get(0);
+
+    List<Record> lastRecords = Collections.emptyList();
+
+    for (SqlTable current : tables) {
+      boolean isRoot = current == rootTable;
+      List<Column> columns = getLocalStoredColumns(current, updateColumns);
+      if (columns.isEmpty()) continue;
+
+      List<Record> inserted =
+          insertIntoSingleTable(current, rows, updateOnConflict, columns, isRoot);
+      lastRecords = inserted;
 
       List<Column> autoIdColumns =
-          inheritedTable.getMetadata().getPrimaryKeyColumns().stream()
+          current.getMetadata().getPrimaryKeyColumns().stream()
               .filter(c -> AUTO_ID.equals(c.getColumnType()))
               .toList();
 
-      // Copy the generated auto id's from the parent table
-      for (int i = 0; i < records.size(); i++) {
-        copyRecordValuesIntoRows(rows.get(i), records.get(i), autoIdColumns);
+      // Copy the generated auto id's from this level into the row, so descendant levels can use it
+      if (!autoIdColumns.isEmpty()) {
+        for (int i = 0; i < rows.size(); i++) {
+          copyRecordValuesIntoRows(rows.get(i), inserted.get(i), autoIdColumns);
+        }
       }
     }
 
-    List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.isEmpty()) {
-      return Collections.emptyList();
-    }
+    return lastRecords;
+  }
 
+  private List<Record> insertIntoSingleTable(
+      SqlTable current,
+      List<Row> rows,
+      boolean updateOnConflict,
+      List<Column> columns,
+      boolean isRoot) {
     List<Field> insertFields = columns.stream().map(Column::getJooqField).toList();
     InsertValuesStepN<org.jooq.Record> step =
-        table.getJooq().insertInto(table.getJooqTable(), insertFields.toArray(new Field[0]));
+        current.getJooq().insertInto(current.getJooqTable(), insertFields.toArray(new Field[0]));
 
     // add all the rows as steps
     LocalDateTime now = LocalDateTime.now();
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
-      if (!inherit) {
-        values.put(MG_INSERTEDBY, getActiveUser(table));
+      if (isRoot) {
+        values.put(MG_INSERTEDBY, getActiveUser(current));
         values.put(MG_INSERTEDON, now);
-        values.put(MG_UPDATEDBY, getActiveUser(table));
+        values.put(MG_UPDATEDBY, getActiveUser(current));
         values.put(MG_UPDATEDON, now);
       }
       step.values(values.values());
@@ -391,7 +420,7 @@ public class SqlTable implements Table {
     // optionally, add conflict clause
     if (updateOnConflict) {
       InsertOnDuplicateSetStep<org.jooq.Record> step2 =
-          step.onConflict(table.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
+          step.onConflict(current.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
               .doUpdate();
       // remove mg_table as part of update key
       for (Column column :
@@ -403,13 +432,13 @@ public class SqlTable implements Table {
             column.getJooqField(),
             (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
       }
-      if (!inherit) {
-        step2.set(field(name(MG_UPDATEDBY)), getActiveUser(table));
+      if (isRoot) {
+        step2.set(field(name(MG_UPDATEDBY)), getActiveUser(current));
         step2.set(field(name(MG_UPDATEDON)), now);
       }
     }
 
-    return step.returningResult(table.getMetadata().getPrimaryKeyFields()).fetch();
+    return step.returningResult(current.getMetadata().getPrimaryKeyFields()).fetch();
   }
 
   private static void copyRecordValuesIntoRows(Row row, Record from, List<Column> toCopy) {
@@ -427,36 +456,40 @@ public class SqlTable implements Table {
   }
 
   private int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
+    List<SqlTable> tables = new ArrayList<>(ancestorChainRootFirst(table));
+    tables.add(table);
+    SqlTable rootTable = tables.get(0);
+
     int count = 0;
-    if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      count = inheritedTable.updateBatch(inheritedTable, rows, updateColumns);
-    }
+    for (SqlTable current : tables) {
+      boolean isRoot = current == rootTable;
+      List<Column> columns = getLocalStoredColumns(current, updateColumns);
+      if (columns.isEmpty()) continue;
+      List<Column> pkeyFields = current.getMetadata().getPrimaryKeyColumns();
 
-    List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.size() == 0) return count;
-    List<Column> pkeyFields = table.getMetadata().getPrimaryKeyColumns();
+      // create batch of updates
+      List<UpdateConditionStep> list = new ArrayList<>();
+      LocalDateTime now = LocalDateTime.now();
+      for (Row row : rows) {
+        Map<String, Object> values = getSelectedRowValues(columns, row);
+        if (isRoot) {
+          values.put(MG_UPDATEDBY, getActiveUser(current));
+          values.put(MG_UPDATEDON, now);
+        }
 
-    // create batch of updates
-    List<UpdateConditionStep> list = new ArrayList();
-    LocalDateTime now = LocalDateTime.now();
-    for (Row row : rows) {
-      Map values = getSelectedRowValues(columns, row);
-      if (!inherit) {
-        values.put(MG_UPDATEDBY, getActiveUser(table));
-        values.put(MG_UPDATEDON, now);
+        list.add(
+            current
+                .getJooq()
+                .update(current.getJooqTable())
+                .set(values)
+                .where(current.getUpdateCondition(row, pkeyFields)));
       }
 
-      list.add(
-          table
-              .getJooq()
-              .update(table.getJooqTable())
-              .set(values)
-              .where(table.getUpdateCondition(row, pkeyFields)));
+      count +=
+          Arrays.stream(current.getJooq().batch(list).execute()).reduce(Integer::sum).orElse(0);
     }
 
-    return Arrays.stream(table.getJooq().batch(list).execute()).reduce(Integer::sum).getAsInt();
+    return count;
   }
 
   private static List<Column> getLocalStoredColumns(SqlTable table, List<Column> updateColumns) {
@@ -527,8 +560,8 @@ public class SqlTable implements Table {
             // delete remaining elements
             nrDeleted.addAndGet(deleteBatch(table, batch));
 
-            // finally delete in superclass
-            if (table.getMetadata().getInheritName() != null) {
+            // finally delete in superclass (primary parent chain; see getInheritedTable())
+            if (!table.getMetadata().getInheritNames().isEmpty()) {
               table.getInheritedTable().delete(rows);
             }
 

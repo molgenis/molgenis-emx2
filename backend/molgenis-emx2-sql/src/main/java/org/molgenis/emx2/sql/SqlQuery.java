@@ -560,12 +560,10 @@ public class SqlQuery extends QueryBean {
                 }
               });
 
-      TableMetadata parent = table.getInheritedTable();
-      while (parent != null) {
+      for (TableMetadata ancestor : table.getAncestorsRootFirst()) {
         search.add(
-            field(name(alias(subAlias), searchColumnName(parent.getTableName())))
+            field(name(alias(subAlias), searchColumnName(ancestor.getTableName())))
                 .likeIgnoreCase("%" + term + "%"));
-        parent = parent.getInheritedTable();
       }
       searchCondition.add(or(search));
     }
@@ -889,28 +887,45 @@ public class SqlQuery extends QueryBean {
   private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {
 
     Table<org.jooq.Record> result = table.getJooqTable();
-    TableMetadata inheritedTable = table.getInheritedTable();
-    // root and intermediate levels have mg_tableclass column
-    Column mg_tableclass = table.getLocalColumn(MG_TABLECLASS);
-    while (inheritedTable != null) {
-      List<Field<?>> using = inheritedTable.getPrimaryKeyFields();
-      if (mg_tableclass != null) {
-        using.add(mg_tableclass.getJooqField());
+
+    // join all ancestors (root first), deduplicated so a diamond joins each shared ancestor once.
+    // On an upgraded database the pre-slice code added mg_tableclass to every level that had
+    // children, so root AND intermediates can physically carry it (migration33 does not drop the
+    // redundant copies). Include the ancestor's own local mg_tableclass in the USING list once
+    // the joined result already carries one — from the queried table itself or an
+    // already-joined earlier ancestor — so postgres merges same-named columns instead of
+    // reporting "column reference \"mg_tableclass\" is ambiguous". A plain USING(mg_tableclass)
+    // on the very first join is wrong whenever the queried table doesn't itself have the column
+    // (the common case): postgres would then reject it with "does not exist in left table". On a
+    // database created fresh by this code only the root ever has it, so this stays a no-op there.
+    List<TableMetadata> ancestors = table.getAncestorsRootFirst();
+    boolean resultHasMgTableclass = table.getLocalColumn(MG_TABLECLASS) != null;
+    for (TableMetadata ancestor : ancestors) {
+      List<Field<?>> using = new ArrayList<>(ancestor.getPrimaryKeyFields());
+      Column ancestorMgTableclass = ancestor.getLocalColumn(MG_TABLECLASS);
+      if (resultHasMgTableclass && ancestorMgTableclass != null) {
+        using.add(ancestorMgTableclass.getJooqField());
       }
-      result = result.join(inheritedTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
-      inheritedTable = inheritedTable.getInheritedTable();
-      if (inheritedTable != null) {
-        mg_tableclass = inheritedTable.getLocalColumn(MG_TABLECLASS);
-      }
+      resultHasMgTableclass = resultHasMgTableclass || ancestorMgTableclass != null;
+      result = result.join(ancestor.getJooqTable()).using(using.toArray(new Field<?>[0]));
     }
-    // join subclass tables also
+
+    // join subclass tables also, skipping any already joined as an ancestor
+    Set<String> joined = new LinkedHashSet<>();
+    joined.add(table.getTableName());
+    for (TableMetadata ancestor : ancestors) {
+      joined.add(ancestor.getTableName());
+    }
     for (TableMetadata subclassTable : table.getSubclassTables()) {
-      List<Field<?>> using = subclassTable.getPrimaryKeyFields();
-      mg_tableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
-      if (mg_tableclass != null) {
-        using.add(mg_tableclass.getJooqField());
+      if (joined.add(subclassTable.getTableName())) {
+        List<Field<?>> using = new ArrayList<>(subclassTable.getPrimaryKeyFields());
+        Column mgTableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
+        if (mgTableclass != null) {
+          using.add(mgTableclass.getJooqField());
+        }
+        result =
+            result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
       }
-      result = result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
     }
 
     return result;
@@ -1578,19 +1593,21 @@ public class SqlQuery extends QueryBean {
   private Condition whereConditionSearch(
       TableMetadata table, String tableAlias, String[] searchTerms) {
     List<Condition> searchConditions = new ArrayList<>();
-    while (table != null) {
+    // search this table and all its ancestors (deduplicated, needed for diamond inheritance)
+    List<TableMetadata> tablesToSearch = new ArrayList<>();
+    tablesToSearch.add(table);
+    tablesToSearch.addAll(table.getAncestorsRootFirst());
+    for (TableMetadata current : tablesToSearch) {
       List<Condition> subConditions = new ArrayList<>();
-      // will get inherit tables too
       for (String term : searchTerms) {
         for (String subTerm : term.split(" ")) {
           subTerm = subTerm.trim();
           Field<Object> field =
-              field(name(alias(tableAlias), searchColumnName(table.getTableName())));
+              field(name(alias(tableAlias), searchColumnName(current.getTableName())));
           // short terms with 'like', longer with trigram
           subConditions.add(field.likeIgnoreCase("%" + subTerm + "%"));
         }
       }
-      table = table.getInheritedTable();
       if (!subConditions.isEmpty()) {
         searchConditions.add(and(subConditions));
       }
