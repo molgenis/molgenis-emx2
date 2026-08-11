@@ -20,4 +20,4 @@ Interpretation consensus,,variant interpretation,select,,,,Variant interpretatio
 Interpretation consensus,,name of commenter,select,,,,Contacts,,,${displayName},,,obo:NCIT_C25461,The name of the person making the comment,Patient registry
 Interpretation consensus,,classification,ontology,,,CatalogueOntologies,Variant classifications,,,,,,edam:operation_3225,"Classification of the clinical relevance of the variant (e.g., ""Pathogenic"")",Patient registry
 Interpretation consensus,,summary,text,,,,,,,,,,obo:NCIT_C86073,Context or an explanation on how the variant classification was derived,Patient registry
-Interpretation consensus,,timestamp,datetime,,,,,,,,,timestamp === null ? new Date().toISOString() : timestamp,obo:NCIT_C54086,The date and time a comment was made,Patient registry
+Interpretation consensus,,timestamp,datetime,,,,,,,,,=new Date().toISOString(),obo:NCIT_C54086,The date and time a comment was made,Patient registry

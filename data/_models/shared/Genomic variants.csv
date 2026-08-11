@@ -5,7 +5,8 @@ Genomic variants,,id,string,1,TRUE,,,,,,"obo:NCIT_C164813,http://docs.genomebeac
 Genomic variants,,alternative ids,string_array,,,,,,,,obo:NCIT_C90353,A backup sequence of characters used to identify an entity,Patient registry
 Genomic variants,,variant type,ontology,,,CatalogueOntologies,Variant types,,,,obo:NCIT_C17004,The regular and simultaneous occurrence of alternative nucleotide sequences at equivalent locations of the genetic material among individuals of a single interbreeding population that are not maintained by recurrent mutation. Polymorphisms may range in size from single nucleotide to large nucleotide sequence variation visible at the chromosomal level. e.g. SNP,Patient registry
 Genomic variants,,variant effect type,string,,,,,,,,obo:SO_0001818,E.g. benign,Patient registry
-Genomic variants,,sequence feature,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C47853,"An identifiable region or site of interest in a sequence (e.g., regulatory feature, enhancer, etc)",Patient registry
+Genomic variants,,sequence feature ID,string,,,,,,,,http://edamontology.org/data_1015,"Name or other identifier of molecular sequence feature(s), i.e. an identifiable region or site of interest in a sequence (e.g., regulatory feature, enhancer, etc)",Patient registry
+Genomic variants,,sequence feature type,ontology,,,CatalogueOntologies,Seq Feature Type,,,,http://purl.obolibrary.org/obo/NCIT_C47853,"The sequence feature type (e.g., regulatory feature, enhancer, etc). ",Patient registry
 Genomic variants,,genomic HGVS id,string,,,,,,,,obo:NCIT_C172243,E.g. NC_000017.11:g.43057063G>A,Patient registry
 Genomic variants,,transcript HGVS ids,string_array,,,,,,,,obo:NCIT_C172244,E.g. NC_000023.10(NM004006.2):c.357+1G,Patient registry
 Genomic variants,,protein HGVS ids,string_array,,,,,,,,ensembl:ENSGLOSSARY_0000274,E.g. NP_009225.1:p.Glu1817Ter,Patient registry
@@ -22,7 +23,7 @@ Genomic variants,,cDNA,string,,,,,,,,obo:NCIT_C324,Single-stranded DNA that is c
 Genomic variants,,repeat unit,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164244,"Specifically for STRs. One or more chemical structures that represent a repeating element in a polymer. A repeat unit may be made of one or more structural repeat units (e.g., GAA)",Patient registry
 Genomic variants,,repeat count,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25463,Specifically for STRs. The number of repeats in the observed allele,Patient registry
 Genomic variants,,reference repeat count,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25463,Specifically for STRs. The number of repeats in the reference genome,Patient registry
-Genomic variants,,copy number,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C49142,Specifically for CNVs. The number of molecules of a particular type on or in a cell or part of a cell,Patient registry
+Genomic variants,,copy number,ontology,,,CatalogueOntologies,Copy number,,,,http://purl.obolibrary.org/obo/NCIT_C49142,Specifically for CNVs. The number of molecules of a particular type on or in a cell or part of a cell,Patient registry
 Genomic variants,,breakend mate chromosome,ontology,,,CatalogueOntologies,Chromosomes,,,,obo:NCIT_C13203,The breakend/translocation partner chromosome. ,Patient registry
 Genomic variants,,breakend mate start position,long,,,,,,,,obo:GENO_0000894,The starting position of a sequence feature or interval from the breakend/translocation partner,Patient registry
 Genomic variants,,breakend mate stop position,long,,,,,,,,obo:GENO_0000895,The ending position of a sequence feature or interval from the breakend/translocation partner,Patient registry
