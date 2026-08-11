@@ -1,7 +1,7 @@
 name: PR triage
 on:
   pull_request:
-    types: [ opened, reopened, ready_for_review, converted_to_draft, synchronize ]
+    types: [ opened, reopened, ready_for_review, converted_to_draft, synchronize, edited ]
 concurrency:
   group: pr-triage-${{ github.event.pull_request.number }}
 jobs:
