@@ -4,7 +4,7 @@ import { Page, PageHeader, PageSection, FileList } from "molgenis-viz";
 </script>
 
 <template>
-  <Page>
+  <Page class="nestor-page">
     <PageHeader
       title="NESTOR Registry"
       subtitle="Download documents"
