@@ -49,7 +49,7 @@ class SparqlRdfTransformerTest {
             MolgenisException.class,
             () -> new SparqlSelectRdfTransformer(generator, schema, tables));
     assertEquals(
-        "Unknown table(s) provided to transformer: unknown-1, unknown-2 for schema: SparqlSelectRdfTransformerTest",
+        "Unknown table(s) provided to transformer: unknown-1, unknown-2 for schema: SparqlRdfTransformerTest",
         exception.getMessage());
   }
 
