@@ -17,8 +17,8 @@ Collection events,,standardized tools,ontology_array,,,CatalogueOntologies,Stand
 Collection events,,standardized tools other,text,,,,,,,,,"If 'other', please specify","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
 Collection events,,core variables,string_array,,,,,,,,,Name 10-20 relevant variables that were collected in this collection event,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
 Collection events,,contact point,ref,,,,Contacts,resource,,,dcat:contactPoint,Contact point for this collection event. Value copied from Resources table,DataCatalogueFlat,
-Collection events,,publisher,ref,,,,Organisations,resource,,,dcterms:publisher,Organisation that published this collection event. Value copied from Resources table,DataCatalogueFlat,
-Collection events,,creator,ref_array,,,,Organisations,resource,,,dcterms:creator,Organisation(s) that created this collection event. Value copied from Resources table,DataCatalogueFlat,
+Collection events,,publisher,ref,,,,Organisations,,,,dcterms:publisher,Organisation that published this collection event. Value copied from Resources table,DataCatalogueFlat,
+Collection events,,creator,ref_array,,,,Organisations,,,,dcterms:creator,Organisation(s) that created this collection event. Value copied from Resources table,DataCatalogueFlat,
 Collection events,,issued,datetime,,,,,,,,dcterms:issued, When the data for this collection event was first published,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
 Collection events,,modified,datetime,,,,,,,,dcterms:modified, When the data for this collection event was last modified,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
 Collection events,,theme,ontology_array,,,CatalogueOntologies,Themes,,,,dcat:theme,"A main category of the collection event. A collection event can have multiple themes, for health data theme must at least take the value 'Health', which is set as a default","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",= [{name: 'Health'}]
