@@ -10,6 +10,7 @@ import { getContainersQuery } from "../gql/cmsPages";
 import type {
   IContainerMetadata,
   ICmsJsFetchPriority,
+  FetchGraphqlResponse,
 } from "../../types/CmsComponents";
 
 export function newDeveloperPage(): IDeveloperPages {
@@ -45,6 +46,24 @@ export async function getPage(
   return { page: currentPage, metadata: data._schema.tables };
 }
 
+async function cmsFetch(
+  schema: string,
+  query: string,
+  variables?: any
+): Promise<FetchGraphqlResponse> {
+  const url: string = `/${schema}/graphql`;
+  const response = (await $fetch(url, {
+    method: "POST",
+    body: { query: query, variables: variables },
+  })) as unknown as FetchGraphqlResponse;
+
+  if (response?.errors?.[0]?.message) {
+    console.error(response.errors[0].message);
+  }
+
+  return response;
+}
+
 export async function deleteComponent(
   schema: string,
   componentId: string,
@@ -52,50 +71,49 @@ export async function deleteComponent(
   block: string,
   reorder: boolean = true
 ) {
-  const dataOrder = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation delete($pkey:[ComponentOrdersInput]){delete(ComponentOrders:$pkey){message}}`,
-      variables: {
-        pkey: [
-          {
-            id: `${componentOrderid}`,
-          },
-        ],
-      },
-    },
-  });
-  const dataComponent = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation delete($pkey:[ComponentsInput]){delete(Components:$pkey){message}}`,
-      variables: {
-        pkey: [
-          {
-            id: `${componentId}`,
-          },
-        ],
-      },
-    },
-  });
+  const orderQuery = `mutation delete($orderId:[ComponentOrdersInput]) {
+    delete(ComponentOrders:$orderId){
+      message
+    }
+  }`;
+  const orderVars = { orderId: [{ id: `${componentOrderid}` }] };
+
+  const componentQuery = `mutation delete($componentId:[ComponentsInput]) {
+    delete(Components:$componentId) {
+      message
+    }
+  }`;
+  const componentVars = { componentId: [{ id: `${componentId}` }] };
+
+  await cmsFetch(schema, orderQuery, orderVars);
+  await cmsFetch(schema, componentQuery, componentVars);
+
   if (reorder) {
     await fullReorder(schema, block, "Component");
   }
 }
 
 async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
-  const { data } = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `query getComponents($filter: ComponentOrdersFilter){ComponentOrders(filter:$filter){id,order, component{id}}}`,
-      variables: {
-        filter: {
-          block: { id: { equals: blockId } },
-        },
-        orderby: [{ order: "ASC" }],
-      },
-    },
-  });
+  const query = `query getComponents($filter: ComponentOrdersFilter) {
+    ComponentOrders(filter:$filter) {
+      id
+      order
+      component {
+        id
+      }
+    }
+  }`;
+
+  const variables = {
+    filter: { block: { id: { equals: blockId } } },
+    orderby: [{ order: "ASC" }],
+  };
+
+  const { data } = (await cmsFetch(
+    schema,
+    query,
+    variables
+  )) as FetchGraphqlResponse;
 
   if (data?.ComponentOrders) {
     const itemsToRemove = data.ComponentOrders as {
@@ -116,32 +134,14 @@ export async function deleteBlock(
 ) {
   await deleteAllComponentsFromBlock(schema, blockId);
 
-  const dataOrder = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation delete($pkey:[BlockOrdersInput]){delete(BlockOrders:$pkey){message}}`,
-      variables: {
-        pkey: [
-          {
-            id: `${blockOrderid}`,
-          },
-        ],
-      },
-    },
-  });
-  const dataComponent = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation delete($pkey:[BlocksInput]){delete(Blocks:$pkey){message}}`,
-      variables: {
-        pkey: [
-          {
-            id: `${blockId}`,
-          },
-        ],
-      },
-    },
-  });
+  const orderQuery = `mutation delete($pkey:[BlockOrdersInput]){delete(BlockOrders:$pkey){message}}`;
+  const orderVar = { pkey: [{ id: `${blockOrderid}` }] };
+
+  const blockQuery = `mutation delete($pkey:[BlocksInput]){delete(Blocks:$pkey){message}}`;
+  const blockVars = { pkey: [{ id: `${blockId}` }] };
+
+  await cmsFetch(schema, orderQuery, orderVar);
+  await cmsFetch(schema, blockQuery, blockVars);
   await fullReorder(schema, page, "Block");
 }
 
@@ -183,100 +183,58 @@ export async function addBlock(
 }
 
 async function AddSection(schema: string, id: string) {
-  const { data } = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation insert($value:[SectionsInput]){insert(Sections:$value){message}}`,
-      variables: {
-        value: [
-          {
-            enableFullScreenWidth: false,
-            id: `${id}`,
-          },
-        ],
-      },
-    },
-  });
+  const query = `mutation insert($section:[SectionsInput]){insert(Sections:$section){ message }}`;
+  const variables = { section: [{ id: `${id}` }] };
+  await cmsFetch(schema, query, variables);
 }
 
 async function AddHeader(schema: string, id: string) {
-  const { data } = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation insert($value:[HeadersInput]){insert(Headers:$value){message}}`,
-      variables: {
-        value: [
-          {
-            titleIsCentered: false,
-            enableFullScreenWidth: false,
-            title: "Header",
-            subtitle: "Add a nice subtitle here",
-            backgroundImage: {
-              id: "penguins",
-            },
-            id: `${id}`,
-            mg_draft: false,
-          },
-        ],
+  const query = `mutation insert($header:[HeadersInput]){insert(Headers:$header){ message }}`;
+  const variables = {
+    header: [
+      {
+        id: `${id}`,
+        title: "Title",
+        subtitle: "A subtitle here",
+        backgroundImage: { id: "penguins" },
       },
-    },
-  });
+    ],
+  };
+
+  await cmsFetch(schema, query, variables);
 }
 
 async function AddImage(schema: string, id: string) {
-  const { data } = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation insert($value:[ImagesInput]){insert(Images:$value){message}}`,
-      variables: {
-        value: [
-          {
-            id: `${id}`,
-            width: "325px",
-            imageIsCentered: true,
-          },
-        ],
-      },
-    },
-  });
+  const query = `mutation insert($image:[ImagesInput]) {
+    insert(Images:$image) {
+      status
+      message
+    }
+  }`;
+  const variables = { image: [{ id: `${id}` }] };
+  await cmsFetch(schema, query, variables);
 }
 
 async function AddHeading(schema: string, id: string) {
-  const { data } = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation insert($value:[HeadingsInput]){insert(Headings:$value){message}}`,
-      variables: {
-        value: [
-          {
-            id: `${id}`,
-            headingIsCentered: false,
-            headingIsHidden: false,
-            text: "Heading",
-            level: 2,
-          },
-        ],
-      },
-    },
-  });
+  const query = `mutation insert($heading:[HeadingsInput]) {
+    insert(Headings:$heading) {
+      status
+      message
+    }
+  }`;
+  const variables = { heading: [{ id: `${id}`, text: "Section Heading" }] };
+  await cmsFetch(schema, query, variables);
 }
 
 async function AddParagraph(schema: string, id: string) {
-  const { data } = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `mutation insert($value:[ParagraphsInput]){insert(Paragraphs:$value){message}}`,
-      variables: {
-        value: [
-          {
-            paragraphIsCentered: false,
-            text: "Add your text here.",
-            id: `${id}`,
-          },
-        ],
-      },
-    },
-  });
+  const query = `mutation insert($paragraph:[ParagraphsInput]){
+    insert(Paragraphs:$paragraph){
+      status
+      message
+    }
+  }`;
+  const variables = { paragraph: [{ id: `${id}`, text: "My new paragraph" }] };
+  await cmsFetch(schema, query, variables);
 }
 
 async function fullReorder(

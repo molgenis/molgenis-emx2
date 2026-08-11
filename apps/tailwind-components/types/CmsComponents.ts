@@ -7,6 +7,7 @@ import type {
   INavigationGroups,
   IDeveloperPages,
   IConfigurablePages,
+  IComponentOrders,
   IFile,
 } from "./cms.ts";
 
@@ -30,3 +31,18 @@ export interface IContainerMetadata {
 }
 
 export type ICmsJsFetchPriority = "high" | "low" | "auto";
+
+export interface FetchGraphqlBody {
+  status?: string;
+  message: string;
+}
+
+export interface FetchGraphqlResponse {
+  data?: {
+    insert?: FetchGraphqlBody;
+    delete?: FetchGraphqlBody;
+    query?: FetchGraphqlBody;
+    ComponentOrders?: IComponentOrders[];
+  };
+  errors?: FetchGraphqlBody[];
+}
