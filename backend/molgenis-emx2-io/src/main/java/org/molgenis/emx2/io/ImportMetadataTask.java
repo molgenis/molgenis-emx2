@@ -1,5 +1,7 @@
 package org.molgenis.emx2.io;
 
+import static org.molgenis.emx2.Constants.SETTINGS_TABLE;
+import static org.molgenis.emx2.io.emx2.Emx2.MOLGENIS_TABLE;
 import static org.molgenis.emx2.io.emx2.Emx2Members.MEMBERS_TABLE;
 import static org.molgenis.emx2.io.emx2.Emx2Roles.ROLES_TABLE;
 
@@ -16,8 +18,6 @@ import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskStatus;
 
 public class ImportMetadataTask extends Task {
-  public static final String MOLGENIS = "molgenis";
-  private static final String SETTINGS_TABLE = "molgenis_settings";
   private static final String EMX1_ATTRIBUTES_TABLE = "attributes";
   private final TableStore store;
   private final Schema schema;
@@ -53,19 +53,20 @@ public class ImportMetadataTask extends Task {
   }
 
   private boolean containsEmx2Metadata() {
-    return store.containsTable(MOLGENIS)
+    return store.containsTable(MOLGENIS_TABLE)
         || store.containsTable(SETTINGS_TABLE)
         || store.containsTable(MEMBERS_TABLE)
         || store.containsTable(ROLES_TABLE);
   }
 
   private void importTables() {
-    if (!store.containsTable(MOLGENIS)) {
-      addSkipped("Metadata", MOLGENIS);
+    if (!store.containsTable(MOLGENIS_TABLE)) {
+      addSkipped("Metadata", MOLGENIS_TABLE);
       return;
     }
-    schema.migrate(Emx2.fromRowList(store.readTable(MOLGENIS)));
-    this.addSubTask("Loaded tables and columns from '%s' sheet".formatted(MOLGENIS)).complete();
+    schema.migrate(Emx2.fromRowList(store.readTable(MOLGENIS_TABLE)));
+    this.addSubTask("Loaded tables and columns from '%s' sheet".formatted(MOLGENIS_TABLE))
+        .complete();
   }
 
   private void importRoles() {

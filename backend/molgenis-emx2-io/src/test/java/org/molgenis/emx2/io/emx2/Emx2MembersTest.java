@@ -38,12 +38,13 @@ class Emx2MembersTest {
   }
 
   @Test
-  void givenUnauthorizedUser_thenDoNotInputMembers() {
+  void givenUnauthorizedUser_thenInputMembersThrows() {
     addTestUserToStore();
 
     schema.getDatabase().clearActiveUser();
-    int nrInput = Emx2Members.inputMembers(store, schema);
-    assertEquals(0, nrInput);
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> Emx2Members.inputMembers(store, schema));
+    assertTrue(exception.getMessage().contains("Unauthorized to import members"));
   }
 
   @Test
