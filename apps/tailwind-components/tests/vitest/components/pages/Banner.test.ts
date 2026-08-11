@@ -11,12 +11,15 @@ const defaultBanner = mount(PageBanner, {
   },
 });
 
+const demoImage = "/path/to/some/image.jpg";
+
 const bannerWithImage = mount(PageBanner, {
   props: {
     id: "vitest-page-banner",
     title: "My Page Banner",
     subtitle: "this is an example",
-    backgroundImage: "/page/to/some/image.jpg",
+    backgroundImage: { id: demoImage },
+    image: { id: demoImage, url: demoImage },
   },
 });
 
@@ -29,7 +32,7 @@ describe("Custom Pages: banner", () => {
   test("when an image is defined, the image filter and colors are applied", async () => {
     expect(bannerWithImage.find("h1").exists()).toBeTruthy();
     expect(bannerWithImage.find("p").exists()).toBeTruthy();
-    expect(bannerWithImage.classes()).toContain("text-gray-100");
+    expect(bannerWithImage.find("header").classes()).toContain("text-gray-100");
 
     const filter = bannerWithImage.find("div:nth-child(2)");
     expect(filter.exists()).toBeTruthy();

@@ -67,20 +67,29 @@ const sidebarCollapsed = ref(false);
           :order="0"
           :parent="content.name"
           componentType="Block"
-          @update-page="$emit('updatePage')"
+          @updatePage="$emit('updatePage')"
         />
         <PageComponent
           v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
-          :is-editable="isEditable"
+          :orderId="orderedBlock.id"
+          componentType="Block"
+          :parent="content.name"
+          :isEditable="isEditable"
           :metadata="metadata"
+          @updatePage="$emit('updatePage')"
         />
         <PageComponent
           v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
-          @update-page="$emit('updatePage')"
+          :orderId="orderedBlock.id"
+          :parent="content.name"
+          :isEditable="isEditable"
+          componentType="Block"
+          :metadata="metadata"
+          @updatePage="$emit('updatePage')"
         >
           <ComponentDropZone
             v-if="isEditable"
@@ -93,7 +102,7 @@ const sidebarCollapsed = ref(false);
             "
             :parent="orderedBlock.block.id"
             componentType="Component"
-            @update-page="$emit('updatePage')"
+            @updatePage="$emit('updatePage')"
           />
           <template
             v-for="orderedComponent in orderedBlock.block.componentOrder"
@@ -102,9 +111,12 @@ const sidebarCollapsed = ref(false);
             <PageComponent
               :mg_tableclass="orderedComponent.component.mg_tableclass"
               :component="orderedComponent.component"
-              :is-editable="isEditable"
+              :orderId="orderedComponent.id"
+              componentType="Component"
+              :parent="orderedBlock.block.id"
+              :isEditable="isEditable"
               :metadata="metadata"
-              @update-page="$emit('updatePage')"
+              @updatePage="$emit('updatePage')"
             />
             <ComponentDropZone
               v-if="isEditable"
@@ -113,13 +125,14 @@ const sidebarCollapsed = ref(false);
               :order="orderedComponent.order + 1"
               :parent="orderedBlock.block.id"
               componentType="Component"
-              @update-page="$emit('updatePage')"
+              @updatePage="$emit('updatePage')"
             />
           </template>
         </PageComponent>
         <TextParagraph
           v-else
           id="block-does-not-exist-message"
+          name="Error"
           :text="`Block ${orderedBlock.block.mg_tableclass} is not yet supported.`"
         />
         <ComponentDropZone
@@ -130,7 +143,7 @@ const sidebarCollapsed = ref(false);
           :order="orderedBlock.order ? orderedBlock.order + 1 : 0"
           :parent="content.name"
           componentType="Block"
-          @update-page="$emit('updatePage')"
+          @updatePage="$emit('updatePage')"
         />
       </template>
       <ComponentDropZone
@@ -141,7 +154,7 @@ const sidebarCollapsed = ref(false);
         :order="0"
         :parent="content.name"
         componentType="Block"
-        @update-page="$emit('updatePage')"
+        @updatePage="$emit('updatePage')"
       />
     </div>
   </div>
