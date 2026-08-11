@@ -3,14 +3,21 @@ package org.molgenis.emx2.sql;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_ROLES;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlQuery.COUNT_FIELD;
+import static org.molgenis.emx2.sql.SqlQuery.EXISTS_FIELD;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 class TestRowLevelSecurity {
+
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private static Database database;
   private static final String SCHEMA = "TestRowLevelSecurity";
@@ -20,13 +27,16 @@ class TestRowLevelSecurity {
   private static final String USER_TEAM_B = "rls_user_team_b";
   private static final String USER_VIEWER = "rls_user_viewer";
   private static final String USER_NO_ACCESS = "rls_user_noaccess";
+  private static final String USER_COUNT = "rls_user_count";
+  private static final String USER_EXISTS = "rls_user_exists";
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_TEAM_A, USER_TEAM_B, USER_VIEWER, USER_NO_ACCESS)) {
+    for (String user :
+        List.of(USER_TEAM_A, USER_TEAM_B, USER_VIEWER, USER_NO_ACCESS, USER_COUNT, USER_EXISTS)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
@@ -84,6 +94,8 @@ class TestRowLevelSecurity {
     schema.addMember(USER_TEAM_A, "TeamA");
     schema.addMember(USER_TEAM_B, "TeamB");
     schema.addMember(USER_VIEWER, Privileges.VIEWER.toString());
+    schema.addMember(USER_COUNT, Privileges.COUNT.toString());
+    schema.addMember(USER_EXISTS, Privileges.EXISTS.toString());
   }
 
   @Test
@@ -504,6 +516,61 @@ class TestRowLevelSecurity {
           assertTrue(ids.contains("ab1"), "Viewer should see shared row");
           assertTrue(ids.contains("open"), "Viewer should see public row");
         });
+  }
+
+  @Test
+  void countRoleCountsAllRowsDespiteRls() {
+    database.setActiveUser(USER_COUNT);
+    database.tx(
+        db -> {
+          Schema schema = db.getSchema(SCHEMA);
+          assertThrows(
+              MolgenisException.class,
+              () -> schema.getTable(ARTICLES).retrieveRows(),
+              "Count role must not be able to read rows");
+          assertEquals(
+              4,
+              aggregateCount(schema),
+              "Count role should count every row, row level security must not filter aggregates");
+        });
+  }
+
+  @Test
+  void existsRoleSeesDataDespiteRls() {
+    database.setActiveUser(USER_EXISTS);
+    database.tx(
+        db -> {
+          String json =
+              db.getSchema(SCHEMA).query(ARTICLES + "_agg", s(EXISTS_FIELD)).retrieveJSON();
+          assertTrue(readAgg(json).get(EXISTS_FIELD).asBoolean(), "Exists role should see data");
+        });
+  }
+
+  @Test
+  void customRoleAggregateStaysLimitedToOwnRows() {
+    // the aggregate bypass keys on the 'Exists' system role; a custom (row level) role only holds
+    // 'Using', so its aggregates stay filtered by the row policies
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            assertEquals(
+                2,
+                aggregateCount(db.getSchema(SCHEMA)),
+                "TeamA should only count the rows it is allowed to see"));
+  }
+
+  private static int aggregateCount(Schema schema) {
+    return readAgg(schema.query(ARTICLES + "_agg", s(COUNT_FIELD)).retrieveJSON())
+        .get(COUNT_FIELD)
+        .asInt();
+  }
+
+  private static com.fasterxml.jackson.databind.JsonNode readAgg(String json) {
+    try {
+      return MAPPER.readTree(json).get(ARTICLES + "_agg");
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("could not parse aggregate response: " + json, e);
+    }
   }
 
   @Test

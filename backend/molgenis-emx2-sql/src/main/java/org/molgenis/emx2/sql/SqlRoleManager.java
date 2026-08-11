@@ -33,7 +33,7 @@ public class SqlRoleManager {
   public static final String RLS_ROLE_PREFIX = "RLS_";
 
   enum RlsPolicy {
-    VIEWER_BYPASS("mg_roles_viewer_bypass", "SELECT"),
+    AGGREGATE_BYPASS("mg_roles_aggregate_bypass", "SELECT"),
     EDITOR_BYPASS("mg_roles_editor_bypass", "ALL"),
     TABLE_GRANT_BYPASS("mg_roles_table_grant_bypass", "ALL"),
     ROW_MATCH("mg_roles_row_match", "ALL");
@@ -64,7 +64,7 @@ public class SqlRoleManager {
 
   private void createRoleWithGrants(String schemaName, String roleName) {
     String fullRole = fullRoleName(schemaName, roleName);
-    String existsRole = fullRoleName(schemaName, Privileges.EXISTS.toString());
+    String usingRole = fullRoleName(schemaName, Privileges.USING.toString());
     String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
     database.tx( // we need to lift to admin to create a role
         db -> {
@@ -75,7 +75,7 @@ public class SqlRoleManager {
             executeCreateRole(jooq, fullRole);
             grantWithAdminOption(jooq, name(fullRole), keyword("session_user"));
             grantWithAdminOption(jooq, name(fullRole), name(ownerRole));
-            grant(jooq, name(existsRole), name(fullRole));
+            grant(jooq, name(usingRole), name(fullRole));
           } finally {
             db.setActiveUser(currentUser);
           }
@@ -321,7 +321,7 @@ public class SqlRoleManager {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
     dropRlsPolicies(jooq, table);
 
-    createPolicy(jooq, table, VIEWER_BYPASS, hasSystemRoleMember(schemaName, Privileges.VIEWER));
+    createPolicy(jooq, table, AGGREGATE_BYPASS, hasSystemRoleMember(schemaName, Privileges.EXISTS));
     createPolicy(jooq, table, EDITOR_BYPASS, hasSystemRoleMember(schemaName, Privileges.EDITOR));
     createPolicy(jooq, table, TABLE_GRANT_BYPASS, tableGrantBypass(schemaName, tableName));
     createPolicy(jooq, table, ROW_MATCH, rowMatchCondition);
@@ -660,7 +660,8 @@ public class SqlRoleManager {
   }
 
   private List<TablePermission> systemPermissions(String roleName) {
-    if (roleName.equals(Privileges.EXISTS.toString())
+    if (roleName.equals(Privileges.USING.toString())
+        || roleName.equals(Privileges.EXISTS.toString())
         || roleName.equals(Privileges.RANGE.toString())
         || roleName.equals(Privileges.AGGREGATOR.toString())
         || roleName.equals(Privileges.COUNT.toString())) {
