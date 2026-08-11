@@ -116,8 +116,29 @@ const pageFilterTemplate: IFilter[] = [
       type: "ONTOLOGY",
       ontologyTableId: "Keywords",
       ontologySchema: "CatalogueOntologies",
-      columnId: "keywords",
       initialCollapsed: true,
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => {
+        return {
+          ...filterBuilder,
+          ...{
+            _or: [
+              {
+                keywords: {
+                  equals: conditions,
+                },
+              },
+              {
+                generated_keywords: {
+                  equals: conditions,
+                },
+              },
+            ],
+          },
+        };
+      },
     },
     conditions: [],
   },
@@ -314,53 +335,51 @@ const fetchData = async () => {
         },
       }
     : undefined;
-  const variables = scoped
-    ? {
-        variablesFilter: {
-          ...filter.value,
-          ...variableResourceFilter,
-          ...{
-            _or: [
-              { resource: { id: { equals: catalogueRouteParam } } },
-              {
-                resource: {
-                  parentNetworks: { id: { equals: catalogueRouteParam } },
-                },
-              },
-              {
-                reusedInResources: {
-                  _or: [
-                    { resource: { id: { equals: catalogueRouteParam } } },
-                    {
-                      resource: {
-                        parentNetworks: {
-                          id: { equals: catalogueRouteParam },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
+
+  const scopedResourceFilter = {
+    _or: [
+      { resource: { id: { equals: catalogueRouteParam } } },
+      {
+        resource: {
+          parentNetworks: { id: { equals: catalogueRouteParam } },
         },
-        resourcesFilter,
-      }
-    : {
-        variablesFilter: {
-          ...filter.value,
-          ...variableResourceFilter,
-          ...{
-            resource: {
-              _or: [
-                { mg_tableclass: { equals: `${schema}.Networks` } },
-                { mg_tableclass: { equals: `${schema}.Catalogues` } },
-              ],
+      },
+      {
+        reusedInResources: {
+          _or: [
+            { resource: { id: { equals: catalogueRouteParam } } },
+            {
+              resource: {
+                parentNetworks: {
+                  id: { equals: catalogueRouteParam },
+                },
+              },
             },
-          },
+          ],
         },
-        resourcesFilter,
-      };
+      },
+    ],
+  };
+
+  const nonScopedResourceFilter = {
+    resource: {
+      _or: [
+        { mg_tableclass: { equals: `${schema}.Networks` } },
+        { mg_tableclass: { equals: `${schema}.Catalogues` } },
+      ],
+    },
+  };
+
+  const variables = {
+    variablesFilter: {
+      _and: [
+        filter.value,
+        ...(variableResourceFilter ? [variableResourceFilter] : []),
+        ...(scoped ? [scopedResourceFilter] : [nonScopedResourceFilter]),
+      ],
+    },
+    resourcesFilter,
+  };
 
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
