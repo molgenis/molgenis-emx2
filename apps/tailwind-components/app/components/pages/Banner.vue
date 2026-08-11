@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IHeaders, IFile } from "../../../types/cms";
-import Button from "../Button.vue";
+import { ref } from "vue";
+import ComponentActions from "./ComponentActions.vue";
 
 const props = withDefaults(
   defineProps<IHeaders & { image?: IFile; isEditable?: boolean }>(),
@@ -9,48 +10,49 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-
-const emit = defineEmits<{
-  (e: "edit"): void;
-}>();
+const emit = defineEmits(["edit", "delete"]);
+const showMenu = ref<boolean>(true);
 </script>
 
 <template>
-  <header
-    :id="id"
-    class="group relative flex justify-center items-center h-72"
-    :class="{
-      'text-gray-100 bg-cover bg-center': image?.url,
-      'text-title': !image?.url,
-    }"
-    :style="image?.url ? `background-image: url(${image.url})` : ''"
+  <div
+    class="w-full relative"
+    @mouseenter="showMenu = true"
+    @mouseleave="showMenu = false"
   >
-    <div
-      class="m-auto mx-12.5 z-10"
+    <header
+      :id="id"
+      class="group relative flex justify-center items-center h-72"
       :class="{
-        'w-pg-section': !enableFullScreenWidth,
-        'w-full': enableFullScreenWidth,
-        'text-center': titleIsCentered,
+        'text-gray-100 bg-cover bg-center': image?.url,
+        'text-title': !image?.url,
       }"
+      :style="image?.url ? `background-image: url(${image?.url})` : ''"
     >
-      <h1 class="font-display text-heading-6xl">{{ title }}</h1>
-      <p class="text-body-lg">{{ subtitle }}</p>
-    </div>
-    <div
-      v-if="image?.url"
-      class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-60"
-    />
-    <div v-if="isEditable" class="absolute top-5 right-5">
-      <Button
-        class="opacity-0 group-hover:opacity-100 group-focus:opacity-100"
-        iconOnly
-        icon="edit"
-        label="Edit Header"
-        type="secondary"
-        size="small"
-        aria-haspopup="true"
-        @click="emit('edit')"
+      <div
+        class="m-auto mx-12.5 z-10"
+        :class="{
+          'w-pg-section': !enableFullScreenWidth,
+          'w-full': enableFullScreenWidth,
+          'text-center': titleIsCentered,
+        }"
+      >
+        <h1 class="font-display text-heading-6xl">{{ title }}</h1>
+        <p class="text-body-lg">{{ subtitle }}</p>
+      </div>
+      <div
+        v-if="image?.url"
+        class="absolute top-0 left-0 w-full h-full bg-black bg-opacity-60"
       />
-    </div>
-  </header>
+    </header>
+    <ComponentActions
+      v-if="isEditable && showMenu"
+      name="Header"
+      :id="`${id}-toolbar`"
+      :aria-controls="id"
+      @edit="$emit('edit')"
+      @delete="$emit('delete')"
+      class="right-2 top-2 !left-auto"
+    />
+  </div>
 </template>

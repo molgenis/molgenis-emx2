@@ -266,8 +266,7 @@ export interface IParagraphs_agg {
 export interface ISections extends IMgTableClass {
   enableFullScreenWidth?: boolean;
   inContainer?: any;
-  components?: IComponents[];
-  componentOrder?: IComponentOrders[];
+  isEditable?: boolean;
   id: string;
 }
 
