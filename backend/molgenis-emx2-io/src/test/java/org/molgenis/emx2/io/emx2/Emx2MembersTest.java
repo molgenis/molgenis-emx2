@@ -24,11 +24,11 @@ class Emx2MembersTest {
   }
 
   @Test
-  void shouldInputRoles() {
+  void shouldInputMembers() {
     addTestUserToStore();
 
     schema.addMember("bofke", Privileges.VIEWER.toString());
-    Emx2Members.inputRoles(store, schema);
+    Emx2Members.inputMembers(store, schema);
     List<Member> members = schema.getMembers();
     assertEquals(
         List.of(
@@ -38,19 +38,19 @@ class Emx2MembersTest {
   }
 
   @Test
-  void givenUnauthorizedUser_thenDoNotInputRoles() {
+  void givenUnauthorizedUser_thenDoNotInputMembers() {
     addTestUserToStore();
 
     schema.getDatabase().clearActiveUser();
-    int nrInput = Emx2Members.inputRoles(store, schema);
+    int nrInput = Emx2Members.inputMembers(store, schema);
     assertEquals(0, nrInput);
   }
 
   @Test
-  void shouldOutputRoles() {
+  void shouldOutputMembers() {
     schema.addMember("bofke", Privileges.VIEWER.toString());
-    Emx2Members.outputRoles(store, schema);
-    List<Row> rows = IteratorUtils.toList(store.readTable(Emx2Members.ROLES_TABLE).iterator());
+    Emx2Members.outputMembers(store, schema);
+    List<Row> rows = IteratorUtils.toList(store.readTable(Emx2Members.MEMBERS_TABLE).iterator());
     assertEquals(1, rows.size());
     assertEquals(
         rows.get(0).getValueMap(),
@@ -58,10 +58,10 @@ class Emx2MembersTest {
   }
 
   @Test
-  void givenUnauthorizedUser_thenDoNotOutputRoles() {
+  void givenUnauthorizedUser_thenDoNotOutputMembers() {
     schema.getDatabase().clearActiveUser();
-    Emx2Members.outputRoles(store, schema);
-    assertFalse(store.containsTable(Emx2Members.ROLES_TABLE));
+    Emx2Members.outputMembers(store, schema);
+    assertFalse(store.containsTable(Emx2Members.MEMBERS_TABLE));
   }
 
   private void addTestUserToStore() {
@@ -69,6 +69,6 @@ class Emx2MembersTest {
     row.set(Emx2Members.USER, "test-user");
     row.set(Emx2Members.ROLE, Privileges.VIEWER.toString());
     store.writeTable(
-        Emx2Members.ROLES_TABLE, List.of(Emx2Members.USER, Emx2Members.ROLE), List.of(row));
+        Emx2Members.MEMBERS_TABLE, List.of(Emx2Members.USER, Emx2Members.ROLE), List.of(row));
   }
 }

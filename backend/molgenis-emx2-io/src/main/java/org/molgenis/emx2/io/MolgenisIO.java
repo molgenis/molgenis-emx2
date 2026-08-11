@@ -26,7 +26,7 @@ public class MolgenisIO {
   private static void outputAll(TableStore store, Schema schema, boolean includeSystemColumns) {
     outputMetadata(store, schema);
     Emx2Roles.outputRoles(store, schema);
-    Emx2Members.outputRoles(store, schema);
+    Emx2Members.outputMembers(store, schema);
     outputSettings(store, schema);
 
     for (String tableName : schema.getTableNames()) {

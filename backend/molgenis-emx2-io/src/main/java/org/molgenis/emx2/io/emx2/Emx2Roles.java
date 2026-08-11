@@ -25,7 +25,7 @@ public class Emx2Roles {
   }
 
   public static void outputRoles(TableStore store, Schema schema) {
-    if (!canAccessRoles(schema)) {
+    if (!PermissionEvaluator.canManage(schema)) {
       return;
     }
 
@@ -56,8 +56,9 @@ public class Emx2Roles {
   }
 
   public static int inputRoles(TableStore store, Schema schema) {
-    if (!canAccessRoles(schema)) {
-      return 0;
+    if (!PermissionEvaluator.canManage(schema)) {
+      throw new MolgenisException(
+          "Unauthorized to import roles into schema '%s'".formatted(schema.getName()));
     }
     if (!store.containsTable(ROLES_TABLE)) {
       return 0;
@@ -97,9 +98,5 @@ public class Emx2Roles {
         .update(row.getBoolean(UPDATE))
         .delete(row.getBoolean(DELETE))
         .rowLevel(row.getBoolean(IS_ROW_LEVEL));
-  }
-
-  private static boolean canAccessRoles(Schema schema) {
-    return PermissionEvaluator.canManage(schema);
   }
 }
