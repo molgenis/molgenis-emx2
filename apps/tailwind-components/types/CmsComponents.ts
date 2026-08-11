@@ -7,6 +7,7 @@ import type {
   INavigationGroups,
   IDeveloperPages,
   IConfigurablePages,
+  IBlockOrders,
   IComponentOrders,
   IFile,
 } from "./cms.ts";
@@ -39,10 +40,13 @@ export interface FetchGraphqlBody {
 
 export interface FetchGraphqlResponse {
   data?: {
-    insert?: FetchGraphqlBody;
-    delete?: FetchGraphqlBody;
-    query?: FetchGraphqlBody;
     ComponentOrders?: IComponentOrders[];
+    BlockOrders?: IBlockOrders[];
   };
   errors?: FetchGraphqlBody[];
+}
+
+export interface ICmsOrder {
+  id: string;
+  order: number;
 }
