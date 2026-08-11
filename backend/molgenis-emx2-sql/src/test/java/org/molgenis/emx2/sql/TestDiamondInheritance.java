@@ -119,36 +119,126 @@ class TestDiamondInheritance {
   }
 
   @Test
-  void twoRootsRejected() {
-    String twoRootsSchema = SCHEMA + "TwoRoots";
-    db.dropSchemaIfExists(twoRootsSchema);
-    Schema s = db.createSchema(twoRootsSchema);
+  void twoBasesRejectedAtCreateTime() {
+    String twoBasesSchema = SCHEMA + "TwoBases";
+    db.dropSchemaIfExists(twoBasesSchema);
+    Schema s = db.createSchema(twoBasesSchema);
 
     try {
-      s.create(table("Root1").add(column("id1").setType(STRING).setPkey()).add(column("r1Col")));
-      s.create(table("Root2").add(column("id2").setType(STRING).setPkey()).add(column("r2Col")));
-      s.create(table("Branch1").setInheritNames("Root1").add(column("b1Col")));
-      s.create(table("Branch2").setInheritNames("Root2").add(column("b2Col")));
-      s.create(table("Leaf").add(column("leafCol")));
+      s.create(
+          table("Base1")
+              .add(column("id1").setType(STRING).setPkey())
+              .add(column("base1Col").setType(STRING)),
+          table("Base2")
+              .add(column("id2").setType(STRING).setPkey())
+              .add(column("base2Col").setType(STRING)),
+          table("Branch1").setInheritNames("Base1").add(column("branch1Col").setType(STRING)),
+          table("Branch2").setInheritNames("Base2").add(column("branch2Col").setType(STRING)));
 
-      SqlTableMetadata leafMeta = (SqlTableMetadata) s.getTable("Leaf").getMetadata();
-      leafMeta.setInheritNames("Branch1", "Branch2");
+      MolgenisException thrown =
+          assertThrows(
+              MolgenisException.class,
+              () ->
+                  s.create(
+                      table("Leaf")
+                          .setInheritNames("Branch1", "Branch2")
+                          .add(column("leafCol").setType(STRING))),
+              "Creating a table whose parents do not share one root must be rejected");
+      assertTrue(
+          thrown.getMessage().toLowerCase().contains("multiple roots"),
+          "Exception must state the multiple-root diagnosis, got: " + thrown.getMessage());
+      assertTrue(
+          thrown.getMessage().contains("Base1") && thrown.getMessage().contains("Base2"),
+          "Exception must name both conflicting roots, got: " + thrown.getMessage());
 
-      fail("Should have thrown MolgenisException: inheritance graph has multiple roots");
-    } catch (MolgenisException e) {
-      assertTrue(
-          e.getMessage().toLowerCase().contains("root")
-              || e.getMessage().toLowerCase().contains("multiple"),
-          "Exception must describe the multiple-root violation, got: " + e.getMessage());
-      Schema reloaded = db.getSchema(twoRootsSchema);
-      List<String> leafParents = reloaded.getTable("Leaf").getMetadata().getInheritNames();
-      assertTrue(
-          leafParents.isEmpty(),
-          "After validate-once rejection, Leaf must have no wired parents (no partial DDL), got: "
-              + leafParents);
+      db.clearCache();
+      assertFalse(
+          db.getSchema(twoBasesSchema).getMetadata().getTableNames().contains("Leaf"),
+          "After create-time rejection Leaf must not exist (no partial DDL)");
     } finally {
-      db.dropSchemaIfExists(twoRootsSchema);
+      db.dropSchemaIfExists(twoBasesSchema);
     }
+  }
+
+  @Test
+  void crossSchemaDiamondChildInheritsBothParentsFromOtherSchema() {
+    String upstreamSchema = SCHEMA + "Upstream";
+    String downstreamSchema = SCHEMA + "Downstream";
+    db.dropSchemaIfExists(downstreamSchema);
+    db.dropSchemaIfExists(upstreamSchema);
+
+    Schema upstream = db.createSchema(upstreamSchema);
+    upstream.create(
+        table("Base")
+            .add(column("id").setType(STRING).setPkey())
+            .add(column("baseCol").setType(STRING)),
+        table("Alpha").setInheritNames("Base").add(column("alphaCol").setType(STRING)),
+        table("Beta").setInheritNames("Base").add(column("betaCol").setType(STRING)));
+
+    Schema downstream = db.createSchema(downstreamSchema);
+    downstream.create(
+        table("Child")
+            .setImportSchema(upstreamSchema)
+            .setInheritNames("Alpha", "Beta")
+            .add(column("childCol").setType(STRING)));
+
+    db.clearCache();
+    TableMetadata child = db.getSchema(downstreamSchema).getTable("Child").getMetadata();
+    assertEquals(
+        List.of("Alpha", "Beta"),
+        child.getInheritNames(),
+        "Cross-schema child must keep both parents after reload");
+    assertEquals(
+        upstreamSchema,
+        child.getImportSchema(),
+        "Cross-schema child must keep the single table-level import schema");
+    assertEquals(
+        List.of("id"),
+        child.getPrimaryKeys(),
+        "Cross-schema diamond child must have exactly the shared root primary key");
+
+    List<String> childForeignKeys =
+        ((SqlSchema) db.getSchema(downstreamSchema))
+                .getJooq()
+                .meta()
+                .getSchemas(downstreamSchema)
+                .get(0)
+                .getTable("Child")
+                .getReferences()
+                .stream()
+                .map(Object::toString)
+                .collect(Collectors.toList());
+    assertTrue(
+        childForeignKeys.stream().anyMatch(fk -> fk.contains("\"Alpha\"")),
+        "Child must have a FK to cross-schema parent Alpha, found: " + childForeignKeys);
+    assertTrue(
+        childForeignKeys.stream().anyMatch(fk -> fk.contains("\"Beta\"")),
+        "Child must have a FK to cross-schema parent Beta, found: " + childForeignKeys);
+
+    db.getSchema(downstreamSchema)
+        .getTable("Child")
+        .insert(
+            row(
+                "id",
+                "cross1",
+                "baseCol",
+                "baseValue",
+                "alphaCol",
+                "alphaValue",
+                "betaCol",
+                "betaValue",
+                "childCol",
+                "childValue"));
+
+    List<Row> childRows = db.getSchema(downstreamSchema).getTable("Child").select().retrieveRows();
+    assertEquals(1, childRows.size());
+    assertEquals("baseValue", childRows.get(0).getString("baseCol"));
+    assertEquals("alphaValue", childRows.get(0).getString("alphaCol"));
+    assertEquals("betaValue", childRows.get(0).getString("betaCol"));
+
+    List<Row> baseRows = db.getSchema(upstreamSchema).getTable("Base").select().retrieveRows();
+    assertEquals(
+        1, baseRows.size(), "Shared root in the other schema must hold exactly one row for cross1");
   }
 
   @Test
@@ -259,26 +349,31 @@ class TestDiamondInheritance {
   }
 
   @Test
-  void cyclicInheritanceThrowsMolgenisException() {
-    String cycleSchema = SCHEMA + "Cycle";
-    db.dropSchemaIfExists(cycleSchema);
-    Schema s = db.createSchema(cycleSchema);
+  void cyclicInheritanceRejectedAtCreateTime() {
+    String selfExtendsSchema = SCHEMA + "SelfExtends";
+    db.dropSchemaIfExists(selfExtendsSchema);
+    Schema s = db.createSchema(selfExtendsSchema);
     try {
-      s.create(table("A").add(column("id").setType(STRING).setPkey()));
-      s.create(table("B").setInheritNames("A").add(column("bCol").setType(STRING)));
-
-      SqlTableMetadata aMeta = (SqlTableMetadata) s.getTable("A").getMetadata();
       MolgenisException thrown =
           assertThrows(
               MolgenisException.class,
-              () -> aMeta.setInheritNames("B"),
-              "Making A extend B (which extends A) must throw due to cyclic inheritance");
+              () ->
+                  s.create(
+                      table("Loop").setInheritNames("Loop").add(column("loopCol").setType(STRING))),
+              "Creating a table whose inheritance graph closes on itself must be rejected");
       assertTrue(
-          thrown.getMessage().toLowerCase().contains("cyclic")
-              || thrown.getMessage().toLowerCase().contains("cycle"),
-          "Exception must mention cyclic inheritance, got: " + thrown.getMessage());
+          thrown.getMessage().toLowerCase().contains("cyclic inheritance detected"),
+          "Exception must state the cyclic inheritance diagnosis, got: " + thrown.getMessage());
+      assertTrue(
+          thrown.getMessage().contains("Loop"),
+          "Exception must name the table on the cycle, got: " + thrown.getMessage());
+
+      db.clearCache();
+      assertFalse(
+          db.getSchema(selfExtendsSchema).getMetadata().getTableNames().contains("Loop"),
+          "After create-time rejection the cyclic table must not exist");
     } finally {
-      db.dropSchemaIfExists(cycleSchema);
+      db.dropSchemaIfExists(selfExtendsSchema);
     }
   }
 
