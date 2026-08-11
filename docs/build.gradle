@@ -11,7 +11,7 @@ tasks.register('generateSearchPaths') {
                 fileTree(dir) {
                     include '**/*.md'
                 }.files.collect { f ->
-                    f.path.replace(File.separator, '/').split("/docs/")[1]
+                  "/apps/docs/" + f.path.replace(File.separator, '/').split("/docs/")[1]
                 }
             }
 
