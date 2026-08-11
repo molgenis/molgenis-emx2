@@ -38,7 +38,6 @@ export default {
     session: Object,
   },
   methods: {
-    // a saved template is a new or changed row, so the list must show it without a page refresh
     reloadTemplates() {
       this.$refs.templatesTable?.reload();
     },

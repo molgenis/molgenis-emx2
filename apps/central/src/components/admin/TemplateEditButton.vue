@@ -162,11 +162,6 @@ export default {
     this.getTableList(this.selectedSchema);
   },
   methods: {
-    /**
-     * Built-in templates (schema "default") are shipped with the server and rewritten on every
-     * startup, so they are never updated in place: editing one is the starting point for a new,
-     * schema specific template.
-     */
     initialAction() {
       return this.type === "update" && this.schema !== BUILT_IN_TEMPLATE_SCHEMA
         ? "update"
@@ -205,7 +200,6 @@ export default {
         .then((data) => {
           this.success = data.save.message;
           this.hasSaved = true;
-          // the template now exists, so further edits update it instead of adding another one
           this.action = "update";
           this.loading = false;
         })
@@ -279,7 +273,6 @@ export default {
       }
     },
     open() {
-      // start from the stored template again, the previous session may have left edits behind
       this.error = null;
       this.success = null;
       this.action = this.initialAction();
