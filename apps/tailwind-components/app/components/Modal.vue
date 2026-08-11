@@ -12,11 +12,13 @@ withDefaults(
     maxWidth?: string;
     type?: "center" | "left" | "right";
     backgroundAccessible?: boolean;
+    size?: "small" | "medium" | "large";
   }>(),
   {
     type: "center",
     maxWidth: "max-w-xl",
     backgroundAccessible: false,
+    size: "large",
   }
 );
 
@@ -88,9 +90,12 @@ function hide() {
               />
 
               <div
-                class="bg-modal w-3/4 relative rounded-alt h-[95vh] flex flex-col pointer-events-auto"
+                class="bg-modal w-3/4 relative rounded-alt max-h-[95dvh] min-h-[18.75rem] flex flex-col pointer-events-auto"
                 :class="[
                   {
+                    'h-[95vh]': size === 'large',
+                    'h-[50vh]': size === 'medium',
+                    'h-[33vh]': size === 'small',
                     'm-auto': type === 'center',
                     'ml-auto rounded-r-none': type === 'right',
                     'mr-auto rounded-l-none': type === 'left',
