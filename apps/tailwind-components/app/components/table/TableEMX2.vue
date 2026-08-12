@@ -55,7 +55,7 @@
         />
 
         <Truncate
-          v-if="props.isEditable && data?.tableMetadata"
+          v-if="canDelete && data?.tableMetadata"
           v-slot="{ showConfirmationModal }"
           :metadata="data.tableMetadata"
           @update:truncated="afterRowDeleted"
