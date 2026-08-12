@@ -236,6 +236,28 @@ commands:
           - /var/lib/apt/lists
         key: apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
 
+  restore_demo_dump:
+    steps:
+    - run:
+        name: Compute the demo-dump cache key over backend, data and the EMX2 jar
+        command: bash ci/e2e_demo_dump.sh key
+    - restore_cache:
+        keys:
+          - emx2-demo-dump-v1-{{ checksum "emx2-demo-dump-key" }}
+    - run:
+        name: Restore the cached demo database, or fall back to a full import
+        command: bash ci/e2e_demo_dump.sh restore
+
+  save_demo_dump:
+    steps:
+    - run:
+        name: Dump the imported demo database for the next run
+        command: bash ci/e2e_demo_dump.sh save
+    - save_cache:
+        paths:
+          - ~/emx2-demo-dump
+        key: emx2-demo-dump-v1-{{ checksum "emx2-demo-dump-key" }}
+
   post_steps:
     steps:
     - run:
@@ -353,6 +375,8 @@ jobs:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
+      - restore_demo_dump
+
       - run:
           name: Install Java
           command: |
@@ -373,10 +397,14 @@ jobs:
           name: start the application in the background
           command: |
             export $( cat build/ci.properties | xargs )
-            export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
-            export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
-            export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
-            export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            if [ "${MOLGENIS_DEMO_DUMP_RESTORED:-false}" = "true" ]; then
+              echo "booting against the restored demo database, so no demo is imported"
+            else
+              export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
+              export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
+              export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
+              export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            fi
             export E2E_BASE_URL=http://localhost:8080/
             export MOLGENIS_OIDC_CLIENT_ID=emx2-local
             export MOLGENIS_OIDC_CLIENT_SECRET=${LOCAL_OIDC_CLIENT_SECRET}
@@ -417,7 +445,9 @@ jobs:
               fi
 
               sleep 1
-            done            
+            done
+
+      - save_demo_dump
 
       - run:
           name: Test tailwind components
