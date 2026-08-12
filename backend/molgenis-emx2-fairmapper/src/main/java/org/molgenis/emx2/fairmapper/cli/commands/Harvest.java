@@ -2,7 +2,6 @@ package org.molgenis.emx2.fairmapper.cli.commands;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
@@ -17,7 +16,6 @@ import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -30,7 +28,6 @@ public class Harvest implements Runnable {
 
   private static final Logger logger = LoggerFactory.getLogger(Harvest.class);
   public static final UUID HARVEST_ID = UUID.randomUUID();
-  public static final Random RANDOM = new Random();
 
   @CommandLine.Option(
       names = {"-r", "--rdf"},
@@ -65,7 +62,6 @@ public class Harvest implements Runnable {
     logger.info("Starting harvest with ID: {}", HARVEST_ID);
 
     Database database = setupDatabase();
-    SnowflakeIdGenerator.init(String.valueOf(RANDOM.nextLong(SnowflakeIdGenerator.MAX_ID)));
     Schema schema = validateSchema(database);
     String[] tables = validateTables(schema);
 
