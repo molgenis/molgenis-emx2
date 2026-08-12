@@ -162,6 +162,110 @@ commands:
           - apps/.turbo/cache
         key: turbo-v1-{{ .Revision }}
 
+  restore_pnpm_store:
+    parameters:
+      tree:
+        type: string
+    steps:
+    - run:
+        name: Point pnpm at a store for << parameters.tree >> and record the pnpm versions that install
+        command: |
+          sed -n 's/.*"packageManager" *: *"pnpm@\([^"]*\)".*/\1/p' apps/package.json > pnpm-version
+          sed -n 's/.*pnpmVersion *= *"\([^"]*\)".*/\1/p' apps/build.gradle >> pnpm-version
+          echo "pnpm versions that perform the install: $(tr '\n' ' ' < pnpm-version)"
+          STORE_DIR="/tmp/pnpm-store-<< parameters.tree >>"
+          if [ -z "${BASH_ENV:-}" ]; then
+            echo "PNPM_STORE_PIN_IGNORED: BASH_ENV is unset so npm_config_store_dir cannot reach the install"
+          else
+            echo "export npm_config_store_dir=$STORE_DIR" >> "$BASH_ENV"
+            echo "npm_config_store_dir exported as $STORE_DIR for << parameters.tree >>"
+          fi
+    - restore_cache:
+        keys:
+          - pnpm-store-v3-<< parameters.tree >>-{{ checksum "pnpm-version" }}-{{ checksum "<< parameters.tree >>/pnpm-lock.yaml" }}
+          - pnpm-store-v3-<< parameters.tree >>-{{ checksum "pnpm-version" }}-
+          - pnpm-store-v3-<< parameters.tree >>-
+    - run:
+        name: Record the << parameters.tree >> store's state before install
+        command: |
+          STORE_DIR="/tmp/pnpm-store-<< parameters.tree >>"
+          if [ -n "$(find "$STORE_DIR" -type f -print -quit 2>/dev/null)" ]; then
+            echo restored > pnpm-store-state-<< parameters.tree >>
+            du -sh "$STORE_DIR"
+          else
+            echo empty > pnpm-store-state-<< parameters.tree >>
+            echo "no pnpm store at $STORE_DIR after restore_cache"
+          fi
+
+  assert_pnpm_reused_store:
+    steps:
+    - run:
+        name: Fail if a restored pnpm store was not reused by every install
+        command: |
+          INSTALL_LOGS=$(ls pnpm-install-*.log 2>/dev/null || true)
+          if [ -z "$INSTALL_LOGS" ]; then
+            echo "PNPM_REUSE_UNVERIFIED: no pnpm-install-*.log exists, so no install recorded its own output"
+            exit 1
+          fi
+          UNREUSED=0
+          for LOG in $INSTALL_LOGS; do
+            TREE=${LOG#pnpm-install-}
+            TREE=${TREE%.log}
+            STORE_STATE=$(cat "pnpm-store-state-$TREE" 2>/dev/null || echo unrecorded)
+            case "$STORE_STATE" in
+              restored|empty)
+                ;;
+              *)
+                echo "PNPM_REUSE_UNVERIFIED: restore_pnpm_store did not record the state of the $TREE store, got '$STORE_STATE'"
+                UNREUSED=1
+                continue
+                ;;
+            esac
+            if [ ! -s "$LOG" ]; then
+              echo "PNPM_REUSE_UNVERIFIED: $LOG is empty, so the $TREE install did not record its own output"
+              UNREUSED=1
+              continue
+            fi
+            REUSED=$(sed -n 's/.*reused \([0-9][0-9]*\).*/\1/p' "$LOG" | sort -n | tail -1)
+            echo "$TREE: restored store state: $STORE_STATE, highest reused count in $LOG: ${REUSED:-none}"
+            if [ "$STORE_STATE" = empty ]; then
+              echo "PNPM_STORE_MISS: nothing was restored for $TREE, so the install in $LOG had to download"
+            elif [ "${REUSED:-0}" -eq 0 ]; then
+              echo "PNPM_STORE_RESTORED_BUT_UNUSED: the $TREE store was restored yet the install in $LOG reused nothing from it"
+              UNREUSED=1
+            fi
+          done
+          exit $UNREUSED
+
+  save_pnpm_store:
+    parameters:
+      tree:
+        type: string
+    steps:
+    - run:
+        name: Check << parameters.tree >> installed into its pinned store, and change the cache key if it did not
+        command: |
+          STORE_DIR="/tmp/pnpm-store-<< parameters.tree >>"
+          MODULES_YAML="<< parameters.tree >>/node_modules/.modules.yaml"
+          BEFORE=$(cat pnpm-store-state-<< parameters.tree >> 2>/dev/null || echo unrecorded)
+          if [ ! -f "$MODULES_YAML" ]; then
+            echo "PNPM_STORE_PIN_IGNORED: $MODULES_YAML does not exist, so << parameters.tree >> was never installed (store before install: $BEFORE)"
+            echo "store-pin-broken" >> pnpm-version
+            exit 1
+          fi
+          RECORDED_STORE=$(sed -n 's/^storeDir: *//p' "$MODULES_YAML")
+          if [ "$RECORDED_STORE" != "$STORE_DIR" ]; then
+            echo "PNPM_STORE_PIN_IGNORED: << parameters.tree >> recorded storeDir '$RECORDED_STORE' in $MODULES_YAML, not the pinned $STORE_DIR (store before install: $BEFORE)"
+            echo "store-pin-broken" >> pnpm-version
+            exit 1
+          fi
+          echo "<< parameters.tree >> installed with npm_config_store_dir pinned to $STORE_DIR (store before install: $BEFORE)"
+          du -sh "$STORE_DIR" 2>/dev/null || echo "$STORE_DIR is empty after install"
+    - save_cache:
+        paths:
+          - /tmp/pnpm-store-<< parameters.tree >>
+        key: pnpm-store-v3-<< parameters.tree >>-{{ checksum "pnpm-version" }}-{{ checksum "<< parameters.tree >>/pnpm-lock.yaml" }}
+
   restore_apt_postgres_client:
     steps:
     - run:
@@ -242,6 +346,8 @@ jobs:
       - pre_steps
       - restore_gradle_build_cache
       - restore_turbo_cache
+      - restore_pnpm_store:
+          tree: apps
       - run:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar -x test ci --no-daemon
@@ -250,6 +356,9 @@ jobs:
           name: build ssr catalogue
           command: pnpm exec turbo run build --filter=catalogue
           working_directory: apps
+
+      - save_pnpm_store:
+          tree: apps
 
       - persist_to_workspace:
           root: .
@@ -281,17 +390,36 @@ jobs:
           name: Enable pnpm
           command: |
             corepack enable
-            corepack prepare pnpm@latest --activate
+            corepack prepare pnpm@10.24.0 --activate
             pnpm -v
 
-      - run: pnpm i -D @playwright/test@1.62.0
+      - restore_pnpm_store:
+          tree: apps
+      - restore_pnpm_store:
+          tree: e2e
 
       - run:
           name: Install dependencies
           command: |
-            pnpm install @playwright/test@1.62.0
-            npx playwright install chrome
-            npx playwright install
+            # npm_config_store_dir is process-wide once exported via BASH_ENV, and this job installs
+            # two trees in one job, so each install pins its own store inline rather than relying on
+            # whichever restore_pnpm_store call ran last.
+            (cd apps && npm_config_store_dir=/tmp/pnpm-store-apps pnpm install) 2>&1 | tee pnpm-install-apps.log
+            (cd e2e && npm_config_store_dir=/tmp/pnpm-store-e2e pnpm install --frozen-lockfile) 2>&1 | tee pnpm-install-e2e.log
+
+      - assert_pnpm_reused_store
+
+      - save_pnpm_store:
+          tree: apps
+      - save_pnpm_store:
+          tree: e2e
+
+      # The image ships browsers for playwright v1.62.1; both apps/ and e2e/ pin @playwright/test
+      # 1.62.0, so the shipped browsers do not match the installed library version for version.
+      # One install keeps the job green without making browsers a per-suite dependency.
+      - run:
+          name: Install the chromium browser playwright needs
+          command: e2e/node_modules/.bin/playwright install chromium
 
       - run:
           name: Put custom app next to jar
@@ -385,7 +513,6 @@ jobs:
           name: Test tailwind components
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
-            pnpm install
             pnpm --filter tailwind-components run e2e
           working_directory: apps
 
@@ -402,7 +529,6 @@ jobs:
           name: Directory e2e tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/
-            pnpm install
             pnpm --filter directory run e2e
           working_directory: apps
 
@@ -416,7 +542,6 @@ jobs:
           name: UI tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/ui/
-            pnpm install
             pnpm --filter ui run e2e
           working_directory: apps
 
@@ -430,8 +555,7 @@ jobs:
           name: Run non ssr e2e tests
           command: |
             export $( cat build/ci.properties | xargs )
-            pnpm install
-            npx playwright test --config e2e e2e/tests 
+            e2e/node_modules/.bin/playwright test --config e2e e2e/tests
 
       - store_test_results:
           path: e2e/test-results
@@ -443,8 +567,7 @@ jobs:
           name: Catalogue ssr tests
           command: |
             cp -r /workspace/apps/catalogue/.output  /root/project/apps/catalogue/.output
-            export NUXT_PUBLIC_API_BASE=http://localhost:8080/                  
-            pnpm install
+            export NUXT_PUBLIC_API_BASE=http://localhost:8080/
             pnpm --filter catalogue run e2e
           working_directory: apps
 
@@ -461,6 +584,8 @@ jobs:
     - pre_steps
     - restore_gradle_build_cache
     - restore_turbo_cache
+    - restore_pnpm_store:
+        tree: apps
 
     - run:
         name: prepare sql test database
@@ -479,6 +604,9 @@ jobs:
     - run:
         name: <apps> unit test the code
         command: ./gradlew :apps:test
+
+    - save_pnpm_store:
+        tree: apps
 
     - run:
         name: <backend> check code format
