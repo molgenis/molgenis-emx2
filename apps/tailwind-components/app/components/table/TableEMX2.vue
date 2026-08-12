@@ -54,6 +54,22 @@
           :tableId="tableId"
         />
 
+        <Truncate
+          v-if="props.isEditable && data?.tableMetadata"
+          v-slot="{ showConfirmationModal }"
+          :metadata="data.tableMetadata"
+          @update:truncated="afterRowDeleted"
+        >
+          <Button
+            type="outline"
+            size="medium"
+            @click="showConfirmationModal"
+            :disabled="!rows.length"
+          >
+            Truncate
+          </Button>
+        </Truncate>
+
         <slot name="toolbar-end" />
       </div>
     </div>
@@ -365,6 +381,7 @@ import DeleteRows from "./control/DeleteRows.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 import DownloadButton from "./control/DownloadButton.vue";
+import Truncate from "./control/Truncate.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -497,20 +514,22 @@ const { data, refresh, status } = useAsyncData(
     });
 
     // add unique row identifier for selection purposes
-    const rows: TableRow[] = await Promise.all(
-      tableData.rows.map(async (row) => {
-        const primaryKey = await getPrimaryKey(
-          row,
-          props.tableId,
-          props.schemaId
-        );
-        return {
-          ...row,
-          _rowId: primaryKey,
-          _rowIdString: JSON.stringify(primaryKey),
-        };
-      })
-    );
+    const rows: TableRow[] = tableData.rows?.length
+      ? await Promise.all(
+          tableData.rows.map(async (row) => {
+            const primaryKey = await getPrimaryKey(
+              row,
+              props.tableId,
+              props.schemaId
+            );
+            return {
+              ...row,
+              _rowId: primaryKey,
+              _rowIdString: JSON.stringify(primaryKey),
+            };
+          })
+        )
+      : [];
 
     return {
       tableMetadata,
