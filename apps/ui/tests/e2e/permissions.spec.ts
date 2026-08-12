@@ -57,11 +57,11 @@ test.describe("when the dragonkeeper has permissions on the pet table only", () 
 
 test.describe("when the dragonkeeper has also permissions on the order table", () => {
   test.beforeAll(async () => {
-    await addRlsToOrderTable();
+    await addRlsToTables();
   });
 
   test.afterAll(async () => {
-    await removeRlsFromOrderTable();
+    await removeRlsFromTables();
   });
 
   test("the dragonkeeper can now see the order table", async ({ page }) => {
@@ -187,7 +187,7 @@ async function restoreAnonymousToPetStore() {
   );
 }
 
-async function addRlsToOrderTable() {
+async function addRlsToTables() {
   return gql(
     `${route}pet%20store/graphql`,
     `mutation {
@@ -222,7 +222,7 @@ async function addRlsToOrderTable() {
   );
 }
 
-async function removeRlsFromOrderTable() {
+async function removeRlsFromTables() {
   return gql(
     `${route}pet%20store/graphql`,
     `mutation {
