@@ -13,7 +13,8 @@ import urllib.error
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-import pr_triage
+import pr_triage_decide
+import pr_triage_github
 
 MACHINE_ACCOUNTS = {"JV-CI-CD", "molgenis-jenkins"}
 BANNED_WORKFLOW_TERMS = (
@@ -39,18 +40,18 @@ def find_unknown_team_values(mapping, valid_team_names):
 
 
 def find_blank_team_values(mapping):
-    return [login for login, team in mapping.items() if pr_triage.is_blank(team)]
+    return [login for login, team in mapping.items() if pr_triage_decide.is_blank(team)]
 
 
 def find_duplicate_logins(text):
-    logins = [login for login, _ in pr_triage.parse_teams_entries(text)]
+    logins = [login for login, _ in pr_triage_decide.parse_teams_entries(text)]
     counts = collections.Counter(logins)
     return [login for login, count in counts.items() if count > 1]
 
 
 def find_missing_option(options, name, strip_emoji):
     try:
-        pr_triage.find_option_id_by_name(options, name, strip_emoji=strip_emoji)
+        pr_triage_decide.find_option_id_by_name(options, name, strip_emoji=strip_emoji)
         return None
     except ValueError as error:
         return str(error)
@@ -91,7 +92,7 @@ def main(repo_root=None):
     mapping_path = os.path.join(repo_root, ".github", "pr-triage-teams.yml")
     with open(mapping_path, encoding="utf-8") as handle:
         mapping_text = handle.read()
-    mapping = pr_triage.parse_teams_mapping(mapping_text)
+    mapping = pr_triage_decide.parse_teams_mapping(mapping_text)
 
     errors = []
 
@@ -123,8 +124,8 @@ def main(repo_root=None):
     board_token = os.environ.get("PROJECT_BOARD_TOKEN")
     if board_token:
         try:
-            team_options = pr_triage.fetch_project_field_options(pr_triage.TEAM_FIELD_ID, board_token)
-            status_options = pr_triage.fetch_project_field_options(pr_triage.STATUS_FIELD_ID, board_token)
+            team_options = pr_triage_github.fetch_project_field_options(pr_triage_github.TEAM_FIELD_ID, board_token)
+            status_options = pr_triage_github.fetch_project_field_options(pr_triage_github.STATUS_FIELD_ID, board_token)
         except urllib.error.HTTPError as error:
             if is_credential_error(error):
                 print(f"ERROR: PROJECT_BOARD_TOKEN was rejected by GitHub (HTTP {error.code}). "
@@ -144,15 +145,15 @@ def main(repo_root=None):
                 f"Live Team options are: {available}"
             )
 
-        missing_working_status = find_missing_option(status_options, pr_triage.STATUS_WORKING, strip_emoji=True)
+        missing_working_status = find_missing_option(status_options, pr_triage_decide.STATUS_WORKING, strip_emoji=True)
         if missing_working_status:
             errors.append(missing_working_status)
 
-        missing_review_status = find_missing_option(status_options, pr_triage.STATUS_REVIEW, strip_emoji=True)
+        missing_review_status = find_missing_option(status_options, pr_triage_decide.STATUS_REVIEW, strip_emoji=True)
         if missing_review_status:
             errors.append(missing_review_status)
 
-        missing_dev_team = find_missing_option(team_options, pr_triage.UNKNOWN_AUTHOR_TEAM, strip_emoji=False)
+        missing_dev_team = find_missing_option(team_options, pr_triage_decide.UNKNOWN_AUTHOR_TEAM, strip_emoji=False)
         if missing_dev_team:
             errors.append(missing_dev_team)
     else:

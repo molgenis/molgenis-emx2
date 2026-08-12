@@ -1,7 +1,19 @@
+"""Tests for pr_triage — the wiring, the handlers, and the workflow YAML itself.
+
+A test belongs here when it exercises main(), an event handler, or a function that
+mixes a decision with I/O. Pure verdicts go to test_pr_triage_decide.py and HTTP
+calls to test_pr_triage_github.py. The banned-term fixtures live here on purpose:
+this is the one file FILES_HOLDING_BANNED_TERMS_AS_LITERAL_FIXTURES excludes.
+
+New test file here? The workflow discovers test*.py, so name it accordingly.
+"""
+
 import contextlib
 import datetime
+import fnmatch
 import json
 import os
+import shlex
 import sys
 import tempfile
 import unittest
@@ -10,6 +22,8 @@ from unittest import mock
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import pr_triage
+import pr_triage_decide
+import pr_triage_github
 import validate_pr_triage_teams
 
 DEFAULT_ITERATIONS = [{"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}]
@@ -49,7 +63,7 @@ def make_fake_http_request(
     extra=None,
 ):
     """One fake GitHub for every pr_triage test: records every call, and answers
-    each request shape pr_triage.http_request can make. `board_item` is what
+    each request shape pr_triage_github.http_request can make. `board_item` is what
     find_board_item_for_pr's query resolves to (None -> no existing item).
     `extra(url, token, method, body, query, variables)` is consulted first and,
     if it returns something other than None, that is the response -- the escape
@@ -97,7 +111,7 @@ def make_fake_http_request(
                 nodes = [
                     {
                         "id": board_item["id"],
-                        "project": {"id": pr_triage.BOARD_PROJECT_ID},
+                        "project": {"id": pr_triage_github.BOARD_PROJECT_ID},
                         "status": {"name": board_item["status"]} if board_item.get("status") else None,
                         "team": {"name": board_item["team"]} if board_item.get("team") else None,
                         "sprint": {"title": board_item["sprint"]} if board_item.get("sprint") else None,
@@ -112,9 +126,9 @@ def make_fake_http_request(
             return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": variables.get("itemId")}}}}
 
         if "options { id name }" in query:
-            if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
+            if variables["fieldId"] == pr_triage_github.STATUS_FIELD_ID:
                 return {"data": {"node": {"options": status_options}}}
-            if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
+            if variables["fieldId"] == pr_triage_github.TEAM_FIELD_ID:
                 return {"data": {"node": {"options": team_options}}}
 
         if "configuration" in query:
@@ -128,7 +142,7 @@ def make_fake_http_request(
 def _item_node(item):
     return {
         "id": item["id"],
-        "project": {"id": pr_triage.BOARD_PROJECT_ID},
+        "project": {"id": pr_triage_github.BOARD_PROJECT_ID},
         "status": {"name": item["status"]} if item.get("status") else None,
         "team": {"name": item["team"]} if item.get("team") else None,
         "sprint": {"title": item["sprint"]} if item.get("sprint") else None,
@@ -210,7 +224,7 @@ def make_fake_http_request_for_redirect(
             return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": variables.get("itemId")}}}}
 
         if "options { id name }" in query:
-            if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
+            if variables["fieldId"] == pr_triage_github.STATUS_FIELD_ID:
                 return {"data": {"node": {"options": status_options}}}
             return {"data": {"node": {"options": team_options}}}
 
@@ -248,7 +262,7 @@ def run_main(event, *, http_request=None, current_date=None, env_extra=None):
             with contextlib.ExitStack() as stack:
                 stack.enter_context(mock.patch.dict(os.environ, env, clear=False))
                 if http_request is not None:
-                    stack.enter_context(mock.patch.object(pr_triage, "http_request", side_effect=http_request))
+                    stack.enter_context(mock.patch.object(pr_triage_github, "http_request", side_effect=http_request))
                 if current_date is not None:
                     stack.enter_context(mock.patch.object(pr_triage, "current_date", return_value=current_date))
                 pr_triage.main()
@@ -257,419 +271,6 @@ def run_main(event, *, http_request=None, current_date=None, env_extra=None):
 
         with open(summary_path, encoding="utf-8") as handle:
             return handle.read(), exit_code
-
-
-class DecidePrTriageTest(unittest.TestCase):
-    def test_known_author_is_assigned_drafted_and_boarded_working(self):
-        mapping = {"mswertz": "Dev"}
-
-        decision = pr_triage.decide(author_login="mswertz", is_draft=False, mapping=mapping)
-
-        self.assertTrue(decision["known"])
-        self.assertTrue(decision["force_draft"])
-        self.assertEqual(decision["team"], "Dev")
-
-    def test_known_author_mapped_to_delivery_boards_under_delivery(self):
-        mapping = {"hslh": "Delivery"}
-
-        decision = pr_triage.decide(author_login="hslh", is_draft=True, mapping=mapping)
-
-        self.assertTrue(decision["known"])
-        self.assertEqual(decision["team"], "Delivery")
-
-    def test_unknown_author_is_boarded_review_dev_without_assign_or_draft(self):
-        mapping = {"mswertz": "Dev"}
-
-        decision = pr_triage.decide(author_login="some-outside-contributor", is_draft=False, mapping=mapping)
-
-        self.assertFalse(decision["known"])
-        self.assertFalse(decision["force_draft"])
-        self.assertEqual(decision["team"], "Dev")
-
-    def test_unknown_author_already_draft_is_still_not_touched(self):
-        mapping = {"mswertz": "Dev"}
-
-        decision = pr_triage.decide(author_login="some-outside-contributor", is_draft=True, mapping=mapping)
-
-        self.assertFalse(decision["known"])
-        self.assertFalse(decision["force_draft"])
-        self.assertEqual(decision["team"], "Dev")
-
-    def test_bot_author_is_unknown_regardless_of_login_shape(self):
-        mapping = {"mswertz": "Dev"}
-
-        decision = pr_triage.decide(author_login="dependabot[bot]", is_draft=False, mapping=mapping)
-
-        self.assertFalse(decision["known"])
-        self.assertEqual(decision["team"], "Dev")
-
-    def test_known_author_already_draft_is_not_re_converted(self):
-        mapping = {"mswertz": "Dev"}
-
-        decision = pr_triage.decide(author_login="mswertz", is_draft=True, mapping=mapping)
-
-        self.assertTrue(decision["known"])
-        self.assertFalse(decision["force_draft"])
-
-    def test_known_author_ready_for_review_is_converted_to_draft(self):
-        mapping = {"mswertz": "Dev"}
-
-        decision = pr_triage.decide(author_login="mswertz", is_draft=False, mapping=mapping)
-
-        self.assertTrue(decision["known"])
-        self.assertTrue(decision["force_draft"])
-
-    def test_empty_team_value_is_treated_as_unknown(self):
-        mapping = {"someuser": ""}
-
-        decision = pr_triage.decide(author_login="someuser", is_draft=False, mapping=mapping)
-
-        self.assertFalse(decision["known"])
-        self.assertFalse(decision["force_draft"])
-        self.assertEqual(decision["team"], "Dev")
-
-    def test_whitespace_only_team_value_is_treated_as_unknown(self):
-        mapping = {"someuser": "   "}
-
-        decision = pr_triage.decide(author_login="someuser", is_draft=False, mapping=mapping)
-
-        self.assertFalse(decision["known"])
-
-    def test_login_matching_is_exact_case_and_can_only_ever_miss(self):
-        mapping = {"mswertz": "Dev"}
-
-        decision = pr_triage.decide(author_login="Mswertz", is_draft=False, mapping=mapping)
-
-        self.assertFalse(decision["known"])
-
-
-class DecideStatusTest(unittest.TestCase):
-    def test_blank_status_fills_from_draft_state(self):
-        self.assertEqual(pr_triage.decide_status(True, None), "Working")
-        self.assertEqual(pr_triage.decide_status(False, None), "Review")
-
-    def test_blank_string_status_counts_as_blank(self):
-        self.assertEqual(pr_triage.decide_status(True, "   "), "Working")
-
-    def test_working_flips_to_review_when_pr_is_ready(self):
-        self.assertEqual(pr_triage.decide_status(False, "Working"), "Review")
-
-    def test_review_flips_to_working_when_pr_is_draft(self):
-        self.assertEqual(pr_triage.decide_status(True, "Review"), "Working")
-
-    def test_working_already_matching_draft_state_is_not_rewritten(self):
-        self.assertIsNone(pr_triage.decide_status(True, "Working"))
-
-    def test_review_already_matching_ready_state_is_not_rewritten(self):
-        self.assertIsNone(pr_triage.decide_status(False, "Review"))
-
-    def test_non_managed_statuses_are_never_touched_regardless_of_draft_state(self):
-        for status in ("Epic", "Blocked", "Backlog", "Done", "Inbox", "Icebox"):
-            with self.subTest(status=status):
-                self.assertIsNone(pr_triage.decide_status(True, status))
-                self.assertIsNone(pr_triage.decide_status(False, status))
-
-    def test_all_eight_real_board_option_names_behave_correctly_for_both_draft_states(self):
-        expected = {
-            "\U0001f4cb Epic": (None, None),
-            "⛔️ Blocked": (None, None),
-            "\U0001f4da Backlog": (None, None),
-            "\U0001f6e0️ Working": (None, "Review"),
-            "\U0001f50d Review": ("Working", None),
-            "✅ Done": (None, None),
-            "\U0001f4e5 Inbox": (None, None),
-            "Icebox": (None, None),
-        }
-
-        for real_name, (expected_draft, expected_ready) in expected.items():
-            with self.subTest(real_name=real_name):
-                self.assertEqual(pr_triage.decide_status(True, real_name), expected_draft)
-                self.assertEqual(pr_triage.decide_status(False, real_name), expected_ready)
-
-
-class DecideBoardUpdateTest(unittest.TestCase):
-    """decide_board_update takes no `action` argument, so a subTest loop over
-    BOARD_UPDATE_ACTIONS proved nothing beyond running the same assertion 5
-    times. Every other case this class used to cover that way is provably
-    redundant against MainWiringBoardUpdateTest and DecideStatusTest, per an
-    owner-approved mutation-tested trim. This one survives: without it, a
-    mutant that always overwrites a non-empty Sprint escapes every other test."""
-
-    def test_sprint_never_overwrites_a_non_empty_sprint(self):
-        for action in pr_triage.BOARD_UPDATE_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_board_update(
-                    is_draft=True,
-                    current_status="🔍 Review",
-                    current_team="Dev",
-                    mapped_team="Dev",
-                    current_sprint="Sprint 259",
-                    current_sprint_title="Sprint 260",
-                )
-                self.assertIsNone(fields["sprint"])
-
-
-class KeywordClosingIssuesTest(unittest.TestCase):
-    """Owner ruling, mid-ticket: only a KEYWORD-derived closing reference
-    redirects aim 6 -- a sidebar-only link (GitHub's Development panel, no
-    keyword in the body, e.g. this repo's `Addresses: <url>` habit) does not.
-    keyword_closing_issues = closingIssuesReferences minus its
-    userLinkedOnly=true counterpart, matched by node id. Verified against two
-    real PRs of each shape, see notes/github-facts.md §8."""
-
-    ISSUE_A = {"id": "ISSUE_A", "number": 1}
-    ISSUE_B = {"id": "ISSUE_B", "number": 2}
-
-    def test_a_keyword_only_link_counts(self):
-        result = pr_triage.keyword_closing_issues([self.ISSUE_A], [])
-
-        self.assertEqual(result, [self.ISSUE_A])
-
-    def test_a_sidebar_only_link_does_not_count(self):
-        result = pr_triage.keyword_closing_issues([self.ISSUE_A], [self.ISSUE_A])
-
-        self.assertEqual(result, [])
-
-    def test_both_sets_empty_means_no_redirection(self):
-        result = pr_triage.keyword_closing_issues([], [])
-
-        self.assertEqual(result, [])
-
-    def test_a_keyword_link_and_a_separate_sidebar_link_keeps_only_the_keyword_one(self):
-        result = pr_triage.keyword_closing_issues([self.ISSUE_A, self.ISSUE_B], [self.ISSUE_B])
-
-        self.assertEqual(result, [self.ISSUE_A])
-
-    def test_two_keyword_links_both_count(self):
-        result = pr_triage.keyword_closing_issues([self.ISSUE_A, self.ISSUE_B], [])
-
-        self.assertEqual(result, [self.ISSUE_A, self.ISSUE_B])
-
-
-class DecideRedirectToIssuesTest(unittest.TestCase):
-    def test_true_when_the_pr_closes_one_issue(self):
-        self.assertTrue(pr_triage.decide_redirect_to_issues([{"id": "ISSUE_A", "number": 1}]))
-
-    def test_true_when_the_pr_closes_two_issues(self):
-        self.assertTrue(
-            pr_triage.decide_redirect_to_issues([{"id": "ISSUE_A", "number": 1}, {"id": "ISSUE_B", "number": 2}])
-        )
-
-    def test_false_when_the_pr_closes_no_issue(self):
-        self.assertFalse(pr_triage.decide_redirect_to_issues([]))
-
-
-class DecideRemovePrCardTest(unittest.TestCase):
-    """Renamed from decide_delete_pr_item -- owner ruling: "delete" reads as
-    "delete the pull request", and it does not; this only removes a card
-    from board 15."""
-
-    def test_true_when_the_pr_closes_an_issue_and_already_has_a_card(self):
-        self.assertTrue(
-            pr_triage.decide_remove_pr_card([{"id": "ISSUE_A", "number": 1}], {"id": "PR_ITEM", "status": None, "team": None, "sprint": None})
-        )
-
-    def test_false_when_the_pr_closes_an_issue_but_has_no_card_yet(self):
-        self.assertFalse(pr_triage.decide_remove_pr_card([{"id": "ISSUE_A", "number": 1}], None))
-
-    def test_false_when_the_pr_closes_no_issue_even_if_it_has_a_card(self):
-        self.assertFalse(
-            pr_triage.decide_remove_pr_card([], {"id": "PR_ITEM", "status": None, "team": None, "sprint": None})
-        )
-
-
-class DecideIssueCardUpdateTest(unittest.TestCase):
-    """Pure decision for one linked issue's card. mapped_team/current_sprint_title
-    are only ever consulted when a card is being added (existing_issue_item is
-    None); an existing card's Team and Sprint are never touched by any action."""
-
-    EXISTING_WORKING = {"id": "ISSUE_ITEM", "status": "🛠️ Working", "team": "Dev", "sprint": "Sprint 259"}
-    EXISTING_BLANK = {"id": "ISSUE_ITEM", "status": None, "team": None, "sprint": None}
-    EXISTING_PARKED = {"id": "ISSUE_ITEM", "status": "⛔️ Blocked", "team": "Dev", "sprint": "Sprint 259"}
-
-    # --- opened and the three transitions: Status only on an existing card ---
-
-    def test_opened_and_transitions_set_status_only_on_an_existing_card(self):
-        for action in pr_triage.ISSUE_STATUS_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_issue_card_update(action, False, self.EXISTING_WORKING, "Delivery", "Sprint 260")
-                self.assertEqual(fields, {"status": "Review", "team": None, "sprint": None})
-
-    def test_opened_and_transitions_fill_status_when_the_existing_card_is_blank(self):
-        for action in pr_triage.ISSUE_STATUS_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_issue_card_update(action, False, self.EXISTING_BLANK, "Delivery", "Sprint 260")
-                self.assertEqual(fields, {"status": "Review", "team": None, "sprint": None})
-
-    def test_opened_and_transitions_never_move_a_parked_status(self):
-        for action in pr_triage.ISSUE_STATUS_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_issue_card_update(action, False, self.EXISTING_PARKED, "Delivery", "Sprint 260")
-                self.assertEqual(fields, {"status": None, "team": None, "sprint": None})
-
-    def test_opened_and_transitions_add_and_fill_all_three_on_a_missing_card(self):
-        for action in pr_triage.ISSUE_STATUS_ACTIONS:
-            with self.subTest(action=action):
-                fields = pr_triage.decide_issue_card_update(action, True, None, "Delivery", "Sprint 260")
-                self.assertEqual(fields, {"status": "Working", "team": "Delivery", "sprint": "Sprint 260"})
-
-                fields = pr_triage.decide_issue_card_update(action, False, None, "Delivery", "Sprint 260")
-                self.assertEqual(fields, {"status": "Review", "team": "Delivery", "sprint": "Sprint 260"})
-
-    # --- synchronize: never touches a linked issue's card, existing or missing ---
-
-    def test_synchronize_never_touches_an_existing_card(self):
-        fields = pr_triage.decide_issue_card_update("synchronize", True, self.EXISTING_WORKING, "Delivery", "Sprint 260")
-        self.assertIsNone(fields)
-
-    def test_synchronize_never_touches_a_missing_card_either(self):
-        fields = pr_triage.decide_issue_card_update("synchronize", True, None, "Delivery", "Sprint 260")
-        self.assertIsNone(fields)
-
-    # --- edited: adds and fills Team+Sprint on a missing card, but never
-    # touches an existing one, and never writes Status even on the card it adds ---
-
-    def test_edited_never_touches_an_existing_card(self):
-        fields = pr_triage.decide_issue_card_update("edited", True, self.EXISTING_WORKING, "Delivery", "Sprint 260")
-        self.assertIsNone(fields)
-
-    def test_edited_adds_and_fills_team_and_sprint_on_a_missing_card_but_leaves_status_unwritten(self):
-        fields = pr_triage.decide_issue_card_update("edited", True, None, "Delivery", "Sprint 260")
-        self.assertEqual(fields, {"status": None, "team": "Delivery", "sprint": "Sprint 260"})
-
-        fields = pr_triage.decide_issue_card_update("edited", False, None, "Delivery", "Sprint 260")
-        self.assertEqual(fields, {"status": None, "team": "Delivery", "sprint": "Sprint 260"})
-
-
-class FindCurrentIterationTest(unittest.TestCase):
-    def test_returns_the_iteration_containing_today(self):
-
-        iterations = [
-            {"id": "bd551113", "title": "Sprint 259", "startDate": "2026-07-13", "duration": 21},
-            {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21},
-        ]
-
-        iteration = pr_triage.find_current_iteration(iterations, datetime.date(2026, 8, 8))
-
-        self.assertEqual(iteration["id"], "bd551114")
-        self.assertEqual(iteration["title"], "Sprint 260")
-
-    def test_start_date_itself_is_inside_the_iteration(self):
-
-        iterations = [{"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}]
-
-        iteration = pr_triage.find_current_iteration(iterations, datetime.date(2026, 8, 3))
-
-        self.assertEqual(iteration["id"], "bd551114")
-
-    def test_the_day_after_the_iteration_ends_is_not_inside_it(self):
-
-        iterations = [{"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}]
-
-        end_date = datetime.date(2026, 8, 3) + datetime.timedelta(days=21)
-        iteration = pr_triage.find_current_iteration(iterations, end_date)
-
-        self.assertIsNone(iteration)
-
-    def test_returns_none_when_no_iteration_contains_the_date(self):
-
-        iterations = [{"id": "bd551113", "title": "Sprint 259", "startDate": "2026-07-13", "duration": 21}]
-
-        iteration = pr_triage.find_current_iteration(iterations, datetime.date(2026, 9, 1))
-
-        self.assertIsNone(iteration)
-
-    def test_returns_none_for_an_empty_iteration_list(self):
-
-        self.assertIsNone(pr_triage.find_current_iteration([], datetime.date(2026, 8, 8)))
-
-    def test_does_not_assume_the_first_entry_is_current(self):
-
-        iterations = [
-            {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21},
-            {"id": "bd551113", "title": "Sprint 259", "startDate": "2026-07-13", "duration": 21},
-        ]
-
-        iteration = pr_triage.find_current_iteration(iterations, datetime.date(2026, 7, 20))
-
-        self.assertEqual(iteration["id"], "bd551113")
-
-
-class CheckAssignmentSucceededTest(unittest.TestCase):
-    def test_raises_when_author_login_is_absent_from_the_assignees_response(self):
-        assign_result = {"assignees": []}
-
-        with self.assertRaises(pr_triage.AssignmentDroppedError) as context:
-            pr_triage.check_assignment_succeeded("someuser", assign_result)
-
-        self.assertIn("someuser", str(context.exception))
-        self.assertIn("pr-triage-teams.yml", str(context.exception))
-
-    def test_does_not_raise_when_author_login_is_present(self):
-        assign_result = {"assignees": [{"login": "someuser"}]}
-
-        pr_triage.check_assignment_succeeded("someuser", assign_result)
-
-
-class StripEmojiPrefixTest(unittest.TestCase):
-    def test_strips_leading_emoji_and_whitespace(self):
-        self.assertEqual(pr_triage.strip_emoji_prefix("\U0001f6e0️ Working"), "Working")
-
-    def test_leaves_plain_name_unchanged(self):
-        self.assertEqual(pr_triage.strip_emoji_prefix("Icebox"), "Icebox")
-
-
-class FindOptionIdByNameTest(unittest.TestCase):
-    def test_matches_status_option_ignoring_emoji_prefix(self):
-        options = [
-            {"name": "\U0001f6e0️ Working", "id": "47fc9ee4"},
-            {"name": "\U0001f50d Review", "id": "879449e7"},
-        ]
-
-        option_id = pr_triage.find_option_id_by_name(options, "Working", strip_emoji=True)
-
-        self.assertEqual(option_id, "47fc9ee4")
-
-    def test_matches_team_option_by_exact_name(self):
-        options = [{"name": "Dev", "id": "f2a5529c"}, {"name": "Delivery", "id": "34b176a9"}]
-
-        option_id = pr_triage.find_option_id_by_name(options, "Delivery", strip_emoji=False)
-
-        self.assertEqual(option_id, "34b176a9")
-
-    def test_raises_with_full_option_list_when_name_does_not_resolve(self):
-        options = [{"name": "Dev", "id": "f2a5529c"}]
-
-        with self.assertRaises(ValueError) as context:
-            pr_triage.find_option_id_by_name(options, "Nonexistent", strip_emoji=False)
-
-        self.assertIn("Dev", str(context.exception))
-        self.assertIn("Nonexistent", str(context.exception))
-
-
-class ParseTeamsMappingTest(unittest.TestCase):
-    def test_parses_flat_login_to_team_mapping(self):
-        text = (
-            "# header comment\n"
-            "teams:\n"
-            "  mswertz: Dev\n"
-            "  hslh: Delivery\n"
-        )
-
-        mapping = pr_triage.parse_teams_mapping(text)
-
-        self.assertEqual(mapping, {"mswertz": "Dev", "hslh": "Delivery"})
-
-    def test_ignores_blank_lines_and_trailing_comments(self):
-        text = (
-            "teams:\n"
-            "\n"
-            "  mswertz: Dev\n"
-        )
-
-        mapping = pr_triage.parse_teams_mapping(text)
-
-        self.assertEqual(mapping, {"mswertz": "Dev"})
 
 
 class ValidateNoBotOrMachineLoginsTest(unittest.TestCase):
@@ -751,7 +352,7 @@ class ValidateBlankTeamValuesTest(unittest.TestCase):
 
 
 class ValidateStatusOptionTest(unittest.TestCase):
-    """find_missing_option is built on pr_triage.find_option_id_by_name, the same
+    """find_missing_option is built on pr_triage_decide.find_option_id_by_name, the same
     lookup write time uses -- so a value missing here and a value missing at
     write time report the identical message."""
 
@@ -846,7 +447,7 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
 
         fake_http_request = make_fake_http_request(calls, extra=refuse_draft_flip)
 
-        with mock.patch.object(pr_triage, "assign_author", side_effect=pr_triage.GraphqlError("boom")):
+        with mock.patch.object(pr_triage_github, "assign_author", side_effect=pr_triage_github.GraphqlError("boom")):
             summary_text, exit_code = run_main(event, http_request=fake_http_request, current_date=datetime.date(2026, 8, 8))
 
         self.assertNotEqual(exit_code, 0)
@@ -858,7 +459,7 @@ class MainWritesStepSummaryOnFailureTest(unittest.TestCase):
         field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
         self.assertEqual(len(field_writes), 3)
         status_write = next(
-            call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         )
         self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_OPT_REVIEW")
 
@@ -900,17 +501,17 @@ class MainWiringTest(unittest.TestCase):
         self.assertEqual(len(field_writes), 3)
 
         status_write = field_writes[0]
-        self.assertEqual(status_write["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
+        self.assertEqual(status_write["body"]["variables"]["fieldId"], pr_triage_github.STATUS_FIELD_ID)
         self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_OPT_WORKING")
         self.assertEqual(status_write["token"], "board-token")
 
         team_write = field_writes[1]
-        self.assertEqual(team_write["body"]["variables"]["fieldId"], pr_triage.TEAM_FIELD_ID)
+        self.assertEqual(team_write["body"]["variables"]["fieldId"], pr_triage_github.TEAM_FIELD_ID)
         self.assertEqual(team_write["body"]["variables"]["optionId"], "TEAM_OPT_DEV")
         self.assertEqual(team_write["token"], "board-token")
 
         sprint_write = field_writes[2]
-        self.assertEqual(sprint_write["body"]["variables"]["fieldId"], pr_triage.SPRINT_FIELD_ID)
+        self.assertEqual(sprint_write["body"]["variables"]["fieldId"], pr_triage_github.SPRINT_FIELD_ID)
         self.assertEqual(sprint_write["body"]["variables"]["iterationId"], "bd551114")
         self.assertEqual(sprint_write["token"], "board-token")
 
@@ -949,7 +550,7 @@ class MainRaisesOnDroppedAssignmentTest(unittest.TestCase):
         field_writes = [call for call in calls if "updateProjectV2ItemFieldValue" in query_of(call)]
         self.assertEqual(len(field_writes), 3)
         status_write = next(
-            call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         )
         self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_OPT_REVIEW")
 
@@ -977,7 +578,7 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
 
         def refuse_draft_flip(url, token, method, body, query, variables):
             if "convertPullRequestToDraft" in query:
-                raise pr_triage.GraphqlError(
+                raise pr_triage_github.GraphqlError(
                     "GraphQL request returned errors: [{'type': 'FORBIDDEN', "
                     "'message': 'Resource not accessible by integration'}]"
                 )
@@ -1000,7 +601,7 @@ class MainDraftFailureStillBoardsAndExitsNonZeroTest(unittest.TestCase):
         self.assertEqual(len(field_writes), 3)
 
         status_write = next(
-            call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            call for call in field_writes if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         )
         self.assertEqual(status_write["body"]["variables"]["optionId"], "STATUS_OPT_REVIEW")
 
@@ -1069,7 +670,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
                     nodes = [
                         {
                             "id": "EXISTING_ITEM",
-                            "project": {"id": pr_triage.BOARD_PROJECT_ID},
+                            "project": {"id": pr_triage_github.BOARD_PROJECT_ID},
                             "status": {"name": current_status} if current_status else None,
                             "team": {"name": current_team} if current_team else None,
                             "sprint": {"title": current_sprint} if current_sprint else None,
@@ -1088,9 +689,9 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "ITEM"}}}}
 
             if "options { id name }" in query:
-                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
+                if variables["fieldId"] == pr_triage_github.STATUS_FIELD_ID:
                     return {"data": {"node": {"options": LIVE_STATUS_OPTIONS}}}
-                if variables["fieldId"] == pr_triage.TEAM_FIELD_ID:
+                if variables["fieldId"] == pr_triage_github.TEAM_FIELD_ID:
                     return {
                         "data": {
                             "node": {
@@ -1136,7 +737,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
             }
 
             with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
+                pr_triage_github, "http_request", side_effect=fake_http_request
             ), mock.patch.object(
                 pr_triage, "load_teams_mapping", return_value=mapping if mapping is not None else {"mswertz": "Dev"}
             ), mock.patch.object(
@@ -1171,7 +772,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         status_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         ]
         self.assertEqual(len(status_writes), 1)
         self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "879449e7")
@@ -1186,7 +787,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         status_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         ]
         self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")
 
@@ -1198,7 +799,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         status_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         ]
         self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")
 
@@ -1210,7 +811,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         status_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         ]
         self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "879449e7")
 
@@ -1229,7 +830,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         status_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         ]
         self.assertEqual(status_writes, [])
 
@@ -1247,7 +848,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         )
 
         team_writes = [
-            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage.TEAM_FIELD_ID
+            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage_github.TEAM_FIELD_ID
         ]
         self.assertEqual(len(team_writes), 1)
         self.assertEqual(team_writes[0]["body"]["variables"]["optionId"], "TEAM_DELIVERY_OPT")
@@ -1263,7 +864,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         )
 
         team_writes = [
-            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage.TEAM_FIELD_ID
+            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage_github.TEAM_FIELD_ID
         ]
         self.assertEqual(team_writes, [])
 
@@ -1280,7 +881,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         sprint_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.SPRINT_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.SPRINT_FIELD_ID
         ]
         self.assertEqual(len(sprint_writes), 1)
         self.assertEqual(sprint_writes[0]["body"]["variables"]["iterationId"], "bd551114")
@@ -1298,7 +899,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         sprint_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.SPRINT_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.SPRINT_FIELD_ID
         ]
         self.assertEqual(sprint_writes, [])
 
@@ -1328,7 +929,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         status_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         ]
         self.assertEqual(len(status_writes), 1)
         self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")
@@ -1346,7 +947,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         status_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         ]
         self.assertEqual(len(status_writes), 1)
         self.assertEqual(status_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")
@@ -1364,7 +965,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         status_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID
         ]
         self.assertEqual(status_writes, [])
 
@@ -1380,7 +981,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         )
 
         team_writes = [
-            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage.TEAM_FIELD_ID
+            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage_github.TEAM_FIELD_ID
         ]
         self.assertEqual(len(team_writes), 1)
         self.assertEqual(team_writes[0]["body"]["variables"]["optionId"], "TEAM_DELIVERY_OPT")
@@ -1397,7 +998,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         )
 
         team_writes = [
-            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage.TEAM_FIELD_ID
+            call for call in self._field_writes(calls) if call["body"]["variables"]["fieldId"] == pr_triage_github.TEAM_FIELD_ID
         ]
         self.assertEqual(team_writes, [])
 
@@ -1414,7 +1015,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         sprint_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.SPRINT_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.SPRINT_FIELD_ID
         ]
         self.assertEqual(len(sprint_writes), 1)
         self.assertEqual(sprint_writes[0]["body"]["variables"]["iterationId"], "bd551114")
@@ -1432,7 +1033,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         sprint_writes = [
             call
             for call in self._field_writes(calls)
-            if call["body"]["variables"]["fieldId"] == pr_triage.SPRINT_FIELD_ID
+            if call["body"]["variables"]["fieldId"] == pr_triage_github.SPRINT_FIELD_ID
         ]
         self.assertEqual(sprint_writes, [])
 
@@ -1448,7 +1049,7 @@ class MainWiringBoardUpdateTest(unittest.TestCase):
         field_writes = self._field_writes(calls)
         written_field_ids = {call["body"]["variables"]["fieldId"] for call in field_writes}
         self.assertEqual(
-            written_field_ids, {pr_triage.STATUS_FIELD_ID, pr_triage.TEAM_FIELD_ID, pr_triage.SPRINT_FIELD_ID}
+            written_field_ids, {pr_triage_github.STATUS_FIELD_ID, pr_triage_github.TEAM_FIELD_ID, pr_triage_github.SPRINT_FIELD_ID}
         )
         for call in field_writes:
             self.assertEqual(call["body"]["variables"]["itemId"], "NEW_ITEM")
@@ -1513,7 +1114,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
 
         field_writes = self._field_writes(calls, "ISSUE_ITEM_A")
         self.assertEqual(len(field_writes), 1)
-        self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
+        self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage_github.STATUS_FIELD_ID)
         self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")  # Working
 
     def test_opened_closing_an_unboarded_issue_boards_the_issue_with_all_three_fields(self):
@@ -1535,9 +1136,9 @@ class MainWiringClosingIssueTest(unittest.TestCase):
         field_writes = self._field_writes(calls, "NEW_ISSUE_ITEM")
         written_field_ids = {call["body"]["variables"]["fieldId"] for call in field_writes}
         self.assertEqual(
-            written_field_ids, {pr_triage.STATUS_FIELD_ID, pr_triage.TEAM_FIELD_ID, pr_triage.SPRINT_FIELD_ID}
+            written_field_ids, {pr_triage_github.STATUS_FIELD_ID, pr_triage_github.TEAM_FIELD_ID, pr_triage_github.SPRINT_FIELD_ID}
         )
-        team_write = next(c for c in field_writes if c["body"]["variables"]["fieldId"] == pr_triage.TEAM_FIELD_ID)
+        team_write = next(c for c in field_writes if c["body"]["variables"]["fieldId"] == pr_triage_github.TEAM_FIELD_ID)
         self.assertEqual(team_write["body"]["variables"]["optionId"], "TEAM_DEV_OPT")
 
     def test_opened_removes_the_prs_existing_card(self):
@@ -1596,7 +1197,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
 
         field_writes = self._field_writes(calls, "ISSUE_ITEM")
         self.assertEqual(len(field_writes), 1)
-        self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
+        self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage_github.STATUS_FIELD_ID)
         self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], "879449e7")  # Review
 
     def test_converted_to_draft_moves_the_linked_issues_card_to_working(self):
@@ -1613,7 +1214,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
 
         field_writes = self._field_writes(calls, "ISSUE_ITEM")
         self.assertEqual(len(field_writes), 1)
-        self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
+        self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage_github.STATUS_FIELD_ID)
         self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], "47fc9ee4")  # Working
 
     # --- F10: removal on `opened` and each transition, asserted individually.
@@ -1722,7 +1323,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
         for item_id in ("ISSUE_ITEM_A", "ISSUE_ITEM_B"):
             field_writes = self._field_writes(calls, item_id)
             self.assertEqual(len(field_writes), 1)
-            self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
+            self.assertEqual(field_writes[0]["body"]["variables"]["fieldId"], pr_triage_github.STATUS_FIELD_ID)
             self.assertEqual(field_writes[0]["body"]["variables"]["optionId"], "879449e7")  # Review
 
     # --- owner ruling: the PR's own card is removed LAST, only after every
@@ -1867,7 +1468,7 @@ class MainWiringClosingIssueTest(unittest.TestCase):
         self.assertEqual(self._add_calls(calls)[0]["body"]["variables"]["contentId"], "ISSUE_B")
         field_writes = self._field_writes(calls, "NEW_ISSUE")
         written_field_ids = {call["body"]["variables"]["fieldId"] for call in field_writes}
-        self.assertEqual(written_field_ids, {pr_triage.TEAM_FIELD_ID, pr_triage.SPRINT_FIELD_ID})
+        self.assertEqual(written_field_ids, {pr_triage_github.TEAM_FIELD_ID, pr_triage_github.SPRINT_FIELD_ID})
 
     # --- edited: link disappears (the PR is boarded exactly like any other) ---
 
@@ -1887,9 +1488,9 @@ class MainWiringClosingIssueTest(unittest.TestCase):
         field_writes = self._field_writes(calls, "NEW_PR_ITEM")
         written_field_ids = {call["body"]["variables"]["fieldId"] for call in field_writes}
         self.assertEqual(
-            written_field_ids, {pr_triage.STATUS_FIELD_ID, pr_triage.TEAM_FIELD_ID, pr_triage.SPRINT_FIELD_ID}
+            written_field_ids, {pr_triage_github.STATUS_FIELD_ID, pr_triage_github.TEAM_FIELD_ID, pr_triage_github.SPRINT_FIELD_ID}
         )
-        status_write = next(c for c in field_writes if c["body"]["variables"]["fieldId"] == pr_triage.STATUS_FIELD_ID)
+        status_write = next(c for c in field_writes if c["body"]["variables"]["fieldId"] == pr_triage_github.STATUS_FIELD_ID)
         self.assertEqual(status_write["body"]["variables"]["optionId"], "47fc9ee4")  # Working, is_draft=True
 
     def test_add_remove_add_cycle_is_stable_not_one_shot(self):
@@ -2020,9 +1621,9 @@ class BoardUpdateWritesStepSummaryOnFailureTest(unittest.TestCase):
             }
 
             with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage, "find_board_item_for_pr", side_effect=pr_triage.GraphqlError("board boom")
+                pr_triage, "find_board_item_for_pr", side_effect=pr_triage_github.GraphqlError("board boom")
             ):
-                with self.assertRaises(pr_triage.GraphqlError):
+                with self.assertRaises(pr_triage_github.GraphqlError):
                     pr_triage.main()
 
             with open(summary_path, encoding="utf-8") as handle:
@@ -2108,7 +1709,7 @@ class BoardUpdateResolvesFieldsBeforeAddingBoardItemTest(unittest.TestCase):
                 return {"data": {"updateProjectV2ItemFieldValue": {"projectV2Item": {"id": "NEW_ITEM"}}}}
             if "options { id name }" in query:
                 call_kinds.append("fetch_options")
-                if variables["fieldId"] == pr_triage.STATUS_FIELD_ID:
+                if variables["fieldId"] == pr_triage_github.STATUS_FIELD_ID:
                     return {"data": {"node": {"options": LIVE_STATUS_OPTIONS}}}
                 return {"data": {"node": {"options": [{"id": "TEAM_DEV_OPT", "name": "Dev"}]}}}
             if "configuration" in query:
@@ -2140,7 +1741,7 @@ class BoardUpdateResolvesFieldsBeforeAddingBoardItemTest(unittest.TestCase):
             }
 
             with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
+                pr_triage_github, "http_request", side_effect=fake_http_request
             ), mock.patch.object(pr_triage, "load_teams_mapping", return_value={"mswertz": "Dev"}), mock.patch.object(
                 pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)
             ):
@@ -2189,7 +1790,7 @@ class BoardUpdateResolvesFieldsBeforeAddingBoardItemTest(unittest.TestCase):
             }
 
             with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
+                pr_triage_github, "http_request", side_effect=fake_http_request
             ), mock.patch.object(pr_triage, "load_teams_mapping", return_value={"mswertz": "Dev"}), mock.patch.object(
                 pr_triage, "current_date", return_value=datetime.date(2026, 8, 8)
             ):
@@ -2239,17 +1840,17 @@ class MainWiringUnknownAuthorTest(unittest.TestCase):
         self.assertEqual(len(field_writes), 3)
 
         status_write = field_writes[0]
-        self.assertEqual(status_write["body"]["variables"]["fieldId"], pr_triage.STATUS_FIELD_ID)
+        self.assertEqual(status_write["body"]["variables"]["fieldId"], pr_triage_github.STATUS_FIELD_ID)
         self.assertEqual(status_write["body"]["variables"]["optionId"], expected_status_option_id)
         self.assertEqual(status_write["token"], "board-token")
 
         team_write = field_writes[1]
-        self.assertEqual(team_write["body"]["variables"]["fieldId"], pr_triage.TEAM_FIELD_ID)
+        self.assertEqual(team_write["body"]["variables"]["fieldId"], pr_triage_github.TEAM_FIELD_ID)
         self.assertEqual(team_write["body"]["variables"]["optionId"], "TEAM_DEV_OPT")
         self.assertEqual(team_write["token"], "board-token")
 
         sprint_write = field_writes[2]
-        self.assertEqual(sprint_write["body"]["variables"]["fieldId"], pr_triage.SPRINT_FIELD_ID)
+        self.assertEqual(sprint_write["body"]["variables"]["fieldId"], pr_triage_github.SPRINT_FIELD_ID)
         self.assertEqual(sprint_write["body"]["variables"]["iterationId"], "bd551114")
         self.assertEqual(sprint_write["token"], "board-token")
 
@@ -2290,7 +1891,7 @@ class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
             query = query_of(call)
             if "options { id name }" in query:
                 variables = (call["body"] or {}).get("variables", {})
-                return "fetch_status_options" if variables["fieldId"] == pr_triage.STATUS_FIELD_ID else "fetch_team_options"
+                return "fetch_status_options" if variables["fieldId"] == pr_triage_github.STATUS_FIELD_ID else "fetch_team_options"
             if "configuration" in query:
                 return "fetch_iterations"
             if "addProjectV2ItemById" in query:
@@ -2337,7 +1938,6 @@ class MainResolvesOptionsBeforeAddingBoardItemTest(unittest.TestCase):
         self.assertFalse(any("addProjectV2ItemById" in query_of(call) for call in calls))
 
 
-
 class MainIgnoresUnrecognizedActionTest(unittest.TestCase):
     def test_an_unrecognized_action_makes_no_writes_and_reads_no_mapping_file(self):
 
@@ -2366,7 +1966,7 @@ class MainIgnoresUnrecognizedActionTest(unittest.TestCase):
             env = {"GITHUB_EVENT_PATH": event_path, "GITHUB_STEP_SUMMARY": summary_path}
 
             with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage, "http_request", side_effect=fake_http_request
+                pr_triage_github, "http_request", side_effect=fake_http_request
             ), mock.patch.object(
                 pr_triage, "load_teams_mapping", side_effect=AssertionError("must not read the mapping file")
             ):
@@ -2377,7 +1977,6 @@ class MainIgnoresUnrecognizedActionTest(unittest.TestCase):
 
         self.assertIn("labeled", summary_text)
         self.assertIn("no action", summary_text.lower())
-
 
 
 class FindBoardItemForPrTest(unittest.TestCase):
@@ -2402,7 +2001,7 @@ class FindBoardItemForPrTest(unittest.TestCase):
                             },
                             {
                                 "id": "EXISTING_ITEM",
-                                "project": {"id": pr_triage.BOARD_PROJECT_ID},
+                                "project": {"id": pr_triage_github.BOARD_PROJECT_ID},
                                 "status": {"name": "🛠️ Working"},
                                 "team": {"name": "Dev"},
                                 "sprint": {"title": "Sprint 260"},
@@ -2412,7 +2011,7 @@ class FindBoardItemForPrTest(unittest.TestCase):
                 }
             }
         }
-        with mock.patch.object(pr_triage, "http_request", return_value=response):
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response):
             result = pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         item = result["item"]
@@ -2440,14 +2039,14 @@ class FindBoardItemForPrTest(unittest.TestCase):
                 }
             }
         }
-        with mock.patch.object(pr_triage, "http_request", return_value=response):
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response):
             result = pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         self.assertIsNone(result["item"])
 
     def test_returns_none_when_pr_has_no_items_at_all(self):
         response = {"data": {"node": {"projectItems": {"nodes": []}}}}
-        with mock.patch.object(pr_triage, "http_request", return_value=response):
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response):
             result = pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         self.assertIsNone(result["item"])
@@ -2460,7 +2059,7 @@ class FindBoardItemForPrTest(unittest.TestCase):
                         "nodes": [
                             {
                                 "id": "EXISTING_ITEM",
-                                "project": {"id": pr_triage.BOARD_PROJECT_ID},
+                                "project": {"id": pr_triage_github.BOARD_PROJECT_ID},
                                 "status": None,
                                 "team": None,
                                 "sprint": None,
@@ -2470,7 +2069,7 @@ class FindBoardItemForPrTest(unittest.TestCase):
                 }
             }
         }
-        with mock.patch.object(pr_triage, "http_request", return_value=response):
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response):
             result = pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         item = result["item"]
@@ -2478,6 +2077,13 @@ class FindBoardItemForPrTest(unittest.TestCase):
         self.assertIsNone(item["status"])
         self.assertIsNone(item["team"])
         self.assertIsNone(item["sprint"])
+
+    def test_find_board_item_for_pr_raises_naming_the_pr_node_id_when_node_is_null(self):
+        with mock.patch.object(pr_triage_github, "http_request", return_value={"data": {"node": None}}):
+            with self.assertRaises(pr_triage_github.GraphqlError) as context:
+                pr_triage.find_board_item_for_pr("STALE_PR_NODE_ID", "board-token")
+
+        self.assertIn("STALE_PR_NODE_ID", str(context.exception))
 
 
 class ClosingIssuesReferencesTest(unittest.TestCase):
@@ -2497,7 +2103,7 @@ class ClosingIssuesReferencesTest(unittest.TestCase):
                 }
             }
         }
-        with mock.patch.object(pr_triage, "http_request", return_value=response):
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response):
             result = pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         self.assertEqual(result["closing_issues"], [{"id": "ISSUE_A", "number": 42}])
@@ -2514,7 +2120,7 @@ class ClosingIssuesReferencesTest(unittest.TestCase):
                 }
             }
         }
-        with mock.patch.object(pr_triage, "http_request", return_value=response):
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response):
             result = pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         self.assertEqual(result["closing_issues"], [{"id": "ISSUE_A", "number": 42}, {"id": "ISSUE_B", "number": 43}])
@@ -2531,7 +2137,7 @@ class ClosingIssuesReferencesTest(unittest.TestCase):
                 }
             }
         }
-        with mock.patch.object(pr_triage, "http_request", return_value=response):
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response):
             result = pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         self.assertEqual(result["closing_issues"], [])
@@ -2546,14 +2152,14 @@ class ClosingIssuesReferencesTest(unittest.TestCase):
                 }
             }
         }
-        with mock.patch.object(pr_triage, "http_request", return_value=response):
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response):
             result = pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         self.assertEqual(result["closing_issues"], [])
 
     def test_empty_list_when_the_field_is_absent_entirely_as_an_issue_node_would_be(self):
         response = {"data": {"node": {"projectItems": {"nodes": []}}}}
-        with mock.patch.object(pr_triage, "http_request", return_value=response):
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response):
             result = pr_triage.find_board_item_for_pr("ISSUE_node", "board-token")
 
         self.assertEqual(result["closing_issues"], [])
@@ -2568,7 +2174,7 @@ class ClosingIssuesReferencesTest(unittest.TestCase):
                 }
             }
         }
-        with mock.patch.object(pr_triage, "http_request", return_value=response) as mock_request:
+        with mock.patch.object(pr_triage_github, "http_request", return_value=response) as mock_request:
             pr_triage.find_board_item_for_pr("PR_node", "board-token")
 
         self.assertEqual(mock_request.call_count, 1)
@@ -2576,97 +2182,6 @@ class ClosingIssuesReferencesTest(unittest.TestCase):
         self.assertIn("projectItems", called_body["query"])
         self.assertIn("closingIssuesReferences", called_body["query"])
         self.assertIn("userLinkedOnly: true", called_body["query"])
-
-
-class FetchProjectIterationsTest(unittest.TestCase):
-    def test_returns_the_not_yet_completed_iterations(self):
-        response = {
-            "data": {
-                "node": {
-                    "configuration": {
-                        "iterations": [
-                            {"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}
-                        ]
-                    }
-                }
-            }
-        }
-        with mock.patch.object(pr_triage, "http_request", return_value=response) as mock_request:
-            iterations = pr_triage.fetch_project_iterations(pr_triage.SPRINT_FIELD_ID, "board-token")
-
-        self.assertEqual(iterations, [{"id": "bd551114", "title": "Sprint 260", "startDate": "2026-08-03", "duration": 21}])
-        called_body = mock_request.call_args.kwargs.get("body") or mock_request.call_args.args[-1]
-        self.assertIn("iterations", called_body["query"])
-        self.assertNotIn("completedIterations", called_body["query"])
-
-
-class SetProjectFieldIterationTest(unittest.TestCase):
-    def test_writes_the_iteration_id_not_a_single_select_option(self):
-        with mock.patch.object(pr_triage, "http_request", return_value={"data": {}}) as mock_request:
-            pr_triage.set_project_field_iteration("ITEM_1", pr_triage.SPRINT_FIELD_ID, "bd551114", "board-token")
-
-        called_body = mock_request.call_args.kwargs.get("body") or mock_request.call_args.args[-1]
-        self.assertEqual(called_body["variables"]["iterationId"], "bd551114")
-        self.assertIn("iterationId", called_body["query"])
-        self.assertNotIn("singleSelectOptionId", called_body["query"])
-
-
-class RemoveItemFromBoardTest(unittest.TestCase):
-    """The story's one removal (aim 6): remove_item_from_board, called only
-    with the PR's own item id -- never an issue's. The GraphQL mutation
-    keeps GitHub's real name, deleteProjectV2Item; only our identifier
-    changed (owner ruling: "delete" reads as "delete the pull request")."""
-
-    def test_removes_the_given_item_from_board_15(self):
-        with mock.patch.object(
-            pr_triage, "http_request", return_value={"data": {"deleteProjectV2Item": {"deletedItemId": "PR_ITEM"}}}
-        ) as mock_request:
-            pr_triage.remove_item_from_board("PR_ITEM", "board-token")
-
-        called_body = mock_request.call_args.kwargs.get("body") or mock_request.call_args.args[-1]
-        self.assertIn("deleteProjectV2Item", called_body["query"])
-        self.assertEqual(called_body["variables"]["projectId"], pr_triage.BOARD_PROJECT_ID)
-        self.assertEqual(called_body["variables"]["itemId"], "PR_ITEM")
-        self.assertEqual(mock_request.call_args.kwargs.get("token") or mock_request.call_args.args[1], "board-token")
-
-
-class NullNodeIsRaisedActionablyTest(unittest.TestCase):
-    def test_fetch_project_field_options_raises_naming_the_field_id_when_node_is_null(self):
-        with mock.patch.object(pr_triage, "http_request", return_value={"data": {"node": None}}):
-            with self.assertRaises(pr_triage.GraphqlError) as context:
-                pr_triage.fetch_project_field_options("STALE_FIELD_ID", "board-token")
-
-        self.assertIn("STALE_FIELD_ID", str(context.exception))
-
-    def test_find_board_item_for_pr_raises_naming_the_pr_node_id_when_node_is_null(self):
-        with mock.patch.object(pr_triage, "http_request", return_value={"data": {"node": None}}):
-            with self.assertRaises(pr_triage.GraphqlError) as context:
-                pr_triage.find_board_item_for_pr("STALE_PR_NODE_ID", "board-token")
-
-        self.assertIn("STALE_PR_NODE_ID", str(context.exception))
-
-    def test_fetch_project_iterations_raises_naming_the_field_id_when_node_is_null(self):
-        with mock.patch.object(pr_triage, "http_request", return_value={"data": {"node": None}}):
-            with self.assertRaises(pr_triage.GraphqlError) as context:
-                pr_triage.fetch_project_iterations("STALE_SPRINT_FIELD_ID", "board-token")
-
-        self.assertIn("STALE_SPRINT_FIELD_ID", str(context.exception))
-
-
-class GraphqlRequestErrorHandlingTest(unittest.TestCase):
-    def test_raises_when_response_body_carries_errors_despite_http_200(self):
-        errors_payload = [{"message": "Resource not accessible - requires one of the following scopes: ['project']"}]
-        with mock.patch.object(pr_triage, "http_request", return_value={"data": None, "errors": errors_payload}):
-            with self.assertRaises(pr_triage.GraphqlError) as context:
-                pr_triage.graphql_request("query {}", {}, "token")
-
-        self.assertIn("requires one of the following scopes", str(context.exception))
-
-    def test_passes_through_a_clean_response(self):
-        with mock.patch.object(pr_triage, "http_request", return_value={"data": {"ok": True}}):
-            result = pr_triage.graphql_request("query {}", {}, "token")
-
-        self.assertEqual(result, {"data": {"ok": True}})
 
 
 class IsCredentialErrorTest(unittest.TestCase):
@@ -2803,12 +2318,12 @@ class ValidateMainExitsNonZeroOnDuplicateLoginTest(unittest.TestCase):
             fake_team_options = [{"id": "t1", "name": "Dev"}, {"id": "t2", "name": "Delivery"}]
 
             def fake_fetch(field_id, token):
-                if field_id == pr_triage.TEAM_FIELD_ID:
+                if field_id == pr_triage_github.TEAM_FIELD_ID:
                     return fake_team_options
                 return fake_status_options
 
             with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage, "fetch_project_field_options", side_effect=fake_fetch
+                pr_triage_github, "fetch_project_field_options", side_effect=fake_fetch
             ):
                 with self.assertRaises(SystemExit) as context:
                     validate_pr_triage_teams.main(repo_root=repo_root)
@@ -2845,13 +2360,13 @@ class ValidateMainChecksStatusConstantsResolveLiveTest(unittest.TestCase):
             fake_team_options = [{"id": "t1", "name": "Dev"}]
 
             def fake_fetch(field_id, token):
-                if field_id == pr_triage.TEAM_FIELD_ID:
+                if field_id == pr_triage_github.TEAM_FIELD_ID:
                     return fake_team_options
                 return fake_status_options
 
             with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage, "fetch_project_field_options", side_effect=fake_fetch
-            ), mock.patch.object(pr_triage, "STATUS_REVIEW", "DivergedFromUnknownAuthorStatus"):
+                pr_triage_github, "fetch_project_field_options", side_effect=fake_fetch
+            ), mock.patch.object(pr_triage_decide, "STATUS_REVIEW", "DivergedFromUnknownAuthorStatus"):
                 with self.assertRaises(SystemExit) as context:
                     validate_pr_triage_teams.main(repo_root=repo_root)
 
@@ -2882,7 +2397,7 @@ class ValidateMainExitsNonZeroOnBannedTermTest(unittest.TestCase):
             fake_options = [{"id": "opt", "name": "Dev"}]
 
             with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(
-                pr_triage, "fetch_project_field_options", return_value=fake_options
+                pr_triage_github, "fetch_project_field_options", return_value=fake_options
             ):
                 with self.assertRaises(SystemExit) as context:
                     validate_pr_triage_teams.main(repo_root=repo_root)
@@ -2911,7 +2426,7 @@ class ValidateMainRunsOfflineWithoutBoardTokenTest(unittest.TestCase):
                 handle.write("workflow_text = 'author_association'\n")
 
             with mock.patch.dict(os.environ, {}, clear=True), mock.patch.object(
-                pr_triage,
+                pr_triage_github,
                 "fetch_project_field_options",
                 side_effect=AssertionError("offline validation must never call the live board"),
             ):
@@ -2956,7 +2471,7 @@ class WorkflowIncludesEditedInPullRequestTypesTest(unittest.TestCase):
         types_line = next(line for line in workflow_text.splitlines() if "types:" in line)
         self.assertIn("edited", types_line)
 
-        self.assertIn("edited", pr_triage.BOARD_UPDATE_ACTIONS)
+        self.assertIn("edited", pr_triage_decide.BOARD_UPDATE_ACTIONS)
 
 
 class WorkflowHasAPerPrConcurrencyGroupTest(unittest.TestCase):
@@ -3024,6 +2539,68 @@ class WorkflowValidateJobHoldsNoBoardTokenTest(unittest.TestCase):
         validate_text, _ = jobs
 
         self.assertNotIn("PROJECT_BOARD_TOKEN", validate_text)
+
+
+class WorkflowRunUnitTestsStepDiscoversEveryTestFileTest(unittest.TestCase):
+    """The split (ticket 06) turned one test file into three, and a run
+    command that once worked -- `python3 .github/scripts/test_pr_triage.py`
+    -- now silently drops 60 of 167 tests, because unittest.main() only
+    loads TestCase classes defined in __main__ itself. The fix is a
+    `unittest discover` invocation, but discover has its own silent-drop
+    failure mode: a `-p` pattern that does not match every test*.py file
+    actually present in the directory skips whatever it misses, and still
+    prints OK. This pins the REQUIREMENT, not one exact command string --
+    a differently-spelled discover invocation that still satisfies it must
+    stay green."""
+
+    def test_run_unit_tests_step_is_a_discover_invocation_whose_pattern_matches_every_test_file(self):
+        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        workflow_path = os.path.join(repo_root, ".github", "workflows", "pr-triage.yml")
+        with open(workflow_path, encoding="utf-8") as handle:
+            workflow_text = handle.read()
+
+        step_marker = "- name: Run unit tests"
+        self.assertIn(step_marker, workflow_text, "expected a 'Run unit tests' step in the workflow")
+        after_step = workflow_text.split(step_marker, 1)[1]
+        run_line = next(line for line in after_step.splitlines() if "run:" in line)
+        run_command = run_line.split("run:", 1)[1].strip()
+
+        # Tokenise rather than match one exact spelling -- a `-v` for debugging,
+        # a `-t` start-directory, or `-s`/`-p` in the other order are all still
+        # valid discover invocations and must not go red for being spelled
+        # differently.
+        tokens = shlex.split(run_command)
+        try:
+            m_index = tokens.index("-m")
+            unittest_index = tokens.index("unittest")
+            discover_index = tokens.index("discover")
+            is_discover_invocation = m_index < unittest_index < discover_index
+        except ValueError:
+            is_discover_invocation = False
+        self.assertTrue(
+            is_discover_invocation,
+            f"'Run unit tests' step must be a `unittest discover` invocation, got: {run_command!r}",
+        )
+
+        def value_after(flags):
+            for index, token in enumerate(tokens):
+                if token in flags and index + 1 < len(tokens):
+                    return tokens[index + 1]
+            return None
+
+        discover_dir = value_after({"-s", "--start-directory"})
+        pattern = value_after({"-p", "--pattern"}) or "test*.py"
+
+        self.assertIsNotNone(discover_dir, f"no -s/--start-directory found in: {run_command!r}")
+        scripts_dir = os.path.join(repo_root, ".github", "scripts")
+        self.assertEqual(os.path.join(repo_root, discover_dir), scripts_dir)
+
+        test_files = [name for name in os.listdir(scripts_dir) if name.startswith("test") and name.endswith(".py")]
+        self.assertTrue(test_files, "expected at least one test*.py file in .github/scripts")
+        unmatched = [name for name in test_files if not fnmatch.fnmatch(name, pattern)]
+        self.assertEqual(
+            unmatched, [], f"pattern {pattern!r} does not match every test*.py file present: {unmatched}"
+        )
 
 
 if __name__ == "__main__":
