@@ -69,7 +69,7 @@ all-in-one JAR with:
 ```
 
 The resulting JAR is written to the module's `build/libs` directory, named
-`fairmapper-<version>-all.jar`.
+`fairmapper-<version>-cli.jar`.
 
 ## Run instructions
 
@@ -77,7 +77,7 @@ The FAIR Mapper is a [picocli](https://picocli.info/)-based CLI with the main cl
 `org.molgenis.emx2.fairmapper.cli.FairMapper`. Run it with:
 
 ```bash
-java -jar backend/molgenis-emx2-fairmapper/build/libs/fairmapper-<version>-all.jar <command> [options]
+java -jar backend/molgenis-emx2-fairmapper/build/libs/fairmapper-<version>-cli.jar <command> [options]
 ```
 
 It connects to the database using the same environment variables as the rest of MOLGENIS EMX2
@@ -87,7 +87,7 @@ to harvest into already exist.
 
 ?>**Tip**: since the command gets long, it's convenient to define a shell alias, e.g.:
     ```bash
-    alias fairmapper='java -jar /path/to/fairmapper-<version>-all.jar'
+    alias fairmapper='java -jar /path/to/fairmapper-<version>-cli.jar'
     ```
 
 ### `harvest`
