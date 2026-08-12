@@ -254,11 +254,17 @@ commands:
             exit 1
           fi
           RECORDED_STORE=$(sed -n 's/^storeDir: *//p' "$MODULES_YAML")
-          if [ "$RECORDED_STORE" != "$STORE_DIR" ]; then
-            echo "PNPM_STORE_PIN_IGNORED: << parameters.tree >> recorded storeDir '$RECORDED_STORE' in $MODULES_YAML, not the pinned $STORE_DIR (store before install: $BEFORE)"
-            echo "store-pin-broken" >> pnpm-version
-            exit 1
-          fi
+          # pnpm writes its own versioned subdirectory (e.g. .../v10) under the store directory it
+          # was given, so a correct install records "$STORE_DIR/v10", not "$STORE_DIR" itself.
+          case "$RECORDED_STORE" in
+            "$STORE_DIR"|"$STORE_DIR"/*)
+              ;;
+            *)
+              echo "PNPM_STORE_PIN_IGNORED: << parameters.tree >> recorded storeDir '$RECORDED_STORE' in $MODULES_YAML, not under the pinned $STORE_DIR (store before install: $BEFORE)"
+              echo "store-pin-broken" >> pnpm-version
+              exit 1
+              ;;
+          esac
           echo "<< parameters.tree >> installed with npm_config_store_dir pinned to $STORE_DIR (store before install: $BEFORE)"
           du -sh "$STORE_DIR" 2>/dev/null || echo "$STORE_DIR is empty after install"
     - save_cache:
