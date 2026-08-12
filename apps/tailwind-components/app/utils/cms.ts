@@ -77,13 +77,14 @@ export async function deleteComponent(
       message
     }
   }`;
-  const orderVars = { orderId: [{ id: `${componentOrderid}` }] };
 
   const componentQuery = `mutation delete($componentId:[ComponentsInput]) {
     delete(Components:$componentId) {
       message
     }
   }`;
+
+  const orderVars = { orderId: [{ id: `${componentOrderid}` }] };
   const componentVars = { componentId: [{ id: `${componentId}` }] };
 
   await cmsFetch(schema, orderQuery, orderVars);
@@ -135,10 +136,19 @@ export async function deleteBlock(
 ) {
   await deleteAllComponentsFromBlock(schema, blockId);
 
-  const orderQuery = `mutation delete($pkey:[BlockOrdersInput]){delete(BlockOrders:$pkey){message}}`;
-  const orderVar = { pkey: [{ id: `${blockOrderid}` }] };
+  const orderQuery = `mutation delete($pkey:[BlockOrdersInput]){
+    delete(BlockOrders:$pkey) {
+      message
+    }
+  }`;
 
-  const blockQuery = `mutation delete($pkey:[BlocksInput]){delete(Blocks:$pkey){message}}`;
+  const blockQuery = `mutation delete($pkey:[BlocksInput]){
+    delete(Blocks:$pkey) {
+      message
+    }
+  }`;
+
+  const orderVar = { pkey: [{ id: `${blockOrderid}` }] };
   const blockVars = { pkey: [{ id: `${blockId}` }] };
 
   await cmsFetch(schema, orderQuery, orderVar);
@@ -184,13 +194,22 @@ export async function addBlock(
 }
 
 async function AddSection(schema: string, id: string) {
-  const query = `mutation insert($section:[SectionsInput]){insert(Sections:$section){ message }}`;
+  const query = `mutation insert($section:[SectionsInput]) {
+    insert(Sections:$section) {
+      message
+    }
+  }`;
   const variables = { section: [{ id: `${id}` }] };
   await cmsFetch(schema, query, variables);
 }
 
 async function AddHeader(schema: string, id: string) {
-  const query = `mutation insert($header:[HeadersInput]){insert(Headers:$header){ message }}`;
+  const query = `mutation insert($header:[HeadersInput]) {
+    insert(Headers:$header) {
+      message
+    }
+  }`;
+
   const variables = {
     header: [
       {
@@ -252,11 +271,18 @@ async function fullReorder(
     };
   }
 
-  const query = `query get${type}s($filter: ${type}OrdersFilter){${type}Orders(filter:$filter){id,order}}`;
-  const variables = { filter: filter, orderby: [{ order: "ASC" }] };
-  const { data } = await cmsFetch(schema, query, variables);
+  const query = `query get${type}s($filter: ${type}OrdersFilter) {
+    ${type}Orders(filter:$filter) {
+      id
+      order
+    }
+  }`;
 
+  const variables = { filter: filter, orderby: [{ order: "ASC" }] };
+
+  const { data } = await cmsFetch(schema, query, variables);
   const items = type === "Block" ? data?.BlockOrders : data?.ComponentOrders;
+
   if (items) {
     let order: number = 0;
     const itemsToUpdate = (items as ICmsOrder[])
@@ -266,7 +292,11 @@ async function fullReorder(
       });
 
     if (itemsToUpdate.length) {
-      const query = `mutation update($value:[${type}OrdersInput]){update(${type}Orders:$value){message}}`;
+      const query = `mutation update($value:[${type}OrdersInput]) {
+        update(${type}Orders:$value){
+          message
+        }
+      }`;
       const variables = { value: itemsToUpdate };
       await cmsFetch(schema, query, variables);
     }
@@ -274,7 +304,12 @@ async function fullReorder(
 }
 
 async function prepareOrder(schema: string, order: number, block: string) {
-  const query = `query getComponents($filter:ComponentOrdersFilter){ComponentOrders(filter:$filter){id,order}}`;
+  const query = `query getComponents($filter:ComponentOrdersFilter) {
+    ComponentOrders(filter:$filter) {
+      id
+      order
+    }
+  }`;
   const variables = {
     filter: {
       block: { id: { equals: block } },
@@ -293,7 +328,11 @@ async function prepareOrder(schema: string, order: number, block: string) {
     );
 
     if (componentsToUpdate.length) {
-      const updateQuery = `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`;
+      const updateQuery = `mutation update($value:[ComponentOrdersInput]) {
+        update(ComponentOrders:$value) {
+          message
+        }
+      }`;
       const updateVars = { value: componentsToUpdate };
       await cmsFetch(schema, updateQuery, updateVars);
     }
@@ -301,7 +340,13 @@ async function prepareOrder(schema: string, order: number, block: string) {
 }
 
 async function prepareBlockOrder(schema: string, order: number, page: string) {
-  const query = `query getBlocks($filter: BlockOrdersFilter){BlockOrders(filter:$filter){id,order}}`;
+  const query = `query getBlocks($filter: BlockOrdersFilter) {
+    BlockOrders(filter:$filter) {
+      id
+      order
+    }
+  }`;
+
   const variables = {
     filter: {
       configurablePage: { equals: [{ name: page }] },
@@ -309,6 +354,7 @@ async function prepareBlockOrder(schema: string, order: number, page: string) {
     },
     orderby: [{ order: "ASC" }],
   };
+
   const { data } = await cmsFetch(schema, query, variables);
 
   if (data?.BlockOrders) {
@@ -319,7 +365,12 @@ async function prepareBlockOrder(schema: string, order: number, page: string) {
     );
 
     if (blocksToUpdate.length) {
-      const updateQuery = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+      const updateQuery = `mutation update($value:[BlockOrdersInput]) {
+        update(BlockOrders:$value) {
+          message
+        }
+      }`;
+
       const updateVars = { value: blocksToUpdate };
       await cmsFetch(schema, updateQuery, updateVars);
     }
@@ -332,7 +383,12 @@ async function AddOrder(
   order: number,
   parentBlock: string
 ) {
-  const query = `mutation insert($value:[ComponentOrdersInput]){insert(ComponentOrders:$value){message}}`;
+  const query = `mutation insert($value:[ComponentOrdersInput]) {
+    insert(ComponentOrders:$value) {
+      message
+    }
+  }`;
+
   const variables = {
     value: [
       {
@@ -356,7 +412,12 @@ async function AddBlockOrder(
   order: number,
   page: string
 ) {
-  const query = `mutation insert($value:[BlockOrdersInput]){insert(BlockOrders:$value){message}}`;
+  const query = `mutation insert($value:[BlockOrdersInput]) {
+    insert(BlockOrders:$value) {
+      message
+    }
+  }`;
+
   const variables = {
     value: [
       {
