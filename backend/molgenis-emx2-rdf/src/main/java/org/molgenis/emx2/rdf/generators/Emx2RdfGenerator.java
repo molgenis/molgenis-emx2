@@ -239,10 +239,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
   }
 
   private void processDataRowColumn(
-      final RdfMapData rdfMapData,
-      final Row row,
-      final Column column,
-      final IRI subject) {
+      final RdfMapData rdfMapData, final Row row, final Column column, final IRI subject) {
     // Exclude the system columns that refer to specific users
     if (column.isSystemAddUpdateByUserColumn()) {
       return;
