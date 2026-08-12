@@ -214,7 +214,7 @@ class SparqlSelectRdfTransformerTest {
     }
 
     private SchemaMetadata setupSchema() {
-          return new SchemaMetadata(getClass().getSimpleName() + "_mapColumnNames")
+      return new SchemaMetadata(getClass().getSimpleName() + "_mapColumnNames")
           .create(
               TableMetadata.table(
                   "testTable",
