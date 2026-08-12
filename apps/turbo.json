@@ -18,7 +18,13 @@
         "!build",
         "!.nuxt",
         "!.output",
-        "!.turbo"
+        "!.turbo",
+        "!tests/**",
+        "!test/**",
+        "!__screenshots__/**",
+        "!playwright.config.*",
+        "!vitest.config.*",
+        "!**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"
       ],
       "outputs": ["dist/**", "public/_nuxt-styles/**", "showCase/**","gen-docs/**"],
       "cache": true

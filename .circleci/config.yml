@@ -39,7 +39,7 @@ definitions:
     resource_class: large
     environment:
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
   release_config: &release_config
     docker:
@@ -53,7 +53,7 @@ definitions:
     resource_class: large
     environment:
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
       TERM: dumb
 
 
@@ -89,27 +89,101 @@ commands:
           no_output_timeout: 5m
     - restore_cache:
         keys:
-          - gradle-{{ checksum "concatenated-build-gradle" }}
-          - gradle
+          - gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
+          - gradle-deps-v1-
     - restore_cache:
         keys:
         - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - run:
         name: Download Dependencies
-        command: ./gradlew dependencies --no-daemon
+        command: ./gradlew dependencies
     - save_cache:
         paths:
           - ~/.gradle/wrapper
         key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - save_cache:
         paths:
-          - ~/.gradle/caches
-        key: gradle-{{ checksum "concatenated-build-gradle" }}
+          - ~/.gradle/caches/modules-2
+          - ~/.gradle/caches/jars-9
+        key: gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
     - setup_remote_docker:
         docker_layer_caching: true
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+  restore_gradle_build_cache:
+    steps:
+    - restore_cache:
+        keys:
+          - gradle-buildcache-v1-{{ .Revision }}
+          - gradle-buildcache-v1-
+
+  save_gradle_build_cache:
+    steps:
+    - run:
+        name: Cap the gradle build cache at 2GB, dropping the oldest entries first
+        command: |
+          if [ -d ~/.gradle/caches/build-cache-1 ]; then
+            cd ~/.gradle/caches/build-cache-1
+            ls -lt | awk -v limit=2147483648 '$NF ~ /^[0-9a-f]{32}$/ { total += $5; if (total > limit) print $NF }' |
+              while read -r entry; do rm -f "$entry"; done
+            du -sh .
+          else
+            echo "no gradle build cache to prune"
+          fi
+    - save_cache:
+        paths:
+          - ~/.gradle/caches/build-cache-1
+        key: gradle-buildcache-v1-{{ .Revision }}
+
+  restore_turbo_cache:
+    steps:
+    - restore_cache:
+        keys:
+          - turbo-v1-{{ .Revision }}
+          - turbo-v1-
+
+  save_turbo_cache:
+    steps:
+    - run:
+        name: Cap the turbo cache at 512MB, dropping the oldest entries first
+        command: |
+          if ls apps/.turbo/cache/*.tar.zst >/dev/null 2>&1; then
+            cd apps/.turbo/cache
+            ls -lt *.tar.zst | awk -v limit=536870912 '{ total += $5 } total > limit { sub(/\.tar\.zst$/, "", $NF); print $NF }' |
+              while read -r entry; do rm -f "$entry".tar.zst "$entry"-meta.json "$entry"-manifest.json; done
+            du -sh .
+          else
+            echo "no turbo cache to prune"
+          fi
+    - save_cache:
+        paths:
+          - apps/.turbo/cache
+        key: turbo-v1-{{ .Revision }}
+
+  restore_apt_postgres_client:
+    steps:
+    - run:
+        name: Record the apt cache key from the postgres client, image and architecture
+        command: |
+          {
+            echo "postgresql-client"
+            (. /etc/os-release && echo "$VERSION_CODENAME")
+            dpkg --print-architecture
+            sed -n 's|.*image: *mcr\.microsoft\.com/playwright:\(.*\)$|\1|p' .circleci/config.yml
+          } > apt-postgres-client-key
+    - restore_cache:
+        keys:
+          - apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
+
+  save_apt_postgres_client:
+    steps:
+    - save_cache:
+        paths:
+          - /var/cache/apt/archives
+          - /var/lib/apt/lists
+        key: apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
 
   post_steps:
     steps:
@@ -166,14 +240,16 @@ jobs:
 
     steps:
       - pre_steps
+      - restore_gradle_build_cache
+      - restore_turbo_cache
       - run:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar -x test ci --no-daemon
 
       - run:
           name: build ssr catalogue
-          command: pnpm build
-          working_directory: apps/catalogue
+          command: pnpm exec turbo run build --filter=catalogue
+          working_directory: apps
 
       - persist_to_workspace:
           root: .
@@ -221,9 +297,19 @@ jobs:
           name: Put custom app next to jar
           command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
 
+      - restore_apt_postgres_client
+
       - run:
           name: install postgres client
-          command: apt-get update && apt-get install -y postgresql-client
+          command: |
+            if [ -n "$(find /var/lib/apt/lists -name '*_Packages*' -print -quit 2>/dev/null)" ]; then
+              echo "apt lists restored from cache, skipping apt-get update"
+            else
+              apt-get update
+            fi
+            apt-get install -y postgresql-client
+
+      - save_apt_postgres_client
 
       - run:
           name: prepare sql test database
@@ -373,6 +459,8 @@ jobs:
 
     steps:
     - pre_steps
+    - restore_gradle_build_cache
+    - restore_turbo_cache
 
     - run:
         name: prepare sql test database
@@ -385,7 +473,7 @@ jobs:
     - run:
         name: <apps> lint the code
         command: |
-          ./gradlew lint ci --no-daemon \
+          ./gradlew lint ci \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 
     - run:
@@ -403,10 +491,13 @@ jobs:
     - run:
         name: run tests and push to sonar
         command: |
-          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
+          ./gradlew test jacocoMergedReport sonar -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+
+    - save_gradle_build_cache
+    - save_turbo_cache
 
     - post_steps
 
@@ -421,7 +512,7 @@ jobs:
             'MOLGENIS_JVM_XMX=333m' \
             'MOLGENIS_POSTGRES_PASS=ci-guardrail-secret' > .env
           export MOLGENIS_HTTP_PORT=19999
-          ./gradlew -q --console=plain --no-daemon printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
+          ./gradlew -q --console=plain printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
             | tee printDevConfig.out
           grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_HTTP_PORT=19345' printDevConfig.out
           grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_CI_PROBE=probe-value' printDevConfig.out
@@ -449,13 +540,13 @@ jobs:
     - run:
         name: lint the code
         command: |
-          ./gradlew lint ci --no-daemon \
+          ./gradlew lint ci \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
-          ./gradlew test jacocoMergedReport sonar ci dockerBuild --no-daemon \
+          ./gradlew test jacocoMergedReport sonar ci dockerBuild \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
@@ -464,11 +555,11 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            ./gradlew -s --no-daemon dockerPush
+            ./gradlew -s dockerPush
             docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
-            ./gradlew -s --no-daemon dockerPush release
+            ./gradlew -s dockerPush release
             docker build apps/catalogue/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
