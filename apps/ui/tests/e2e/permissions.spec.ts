@@ -65,13 +65,11 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
   });
 
   test("the dragonkeeper can now see the order table", async ({ page }) => {
-    // await addRLSToOrderTable();
     await page.goto(route);
     await signin(page, USERNAME, PASSWORD);
     await page.getByText("pet store").click();
     await page.getByText("Order", { exact: true }).click();
     await expect(page.getByText("No records found")).toBeVisible();
-    // await removeRLSToOrderTable();
   });
 
   test("the dragonkeeper can now see smaug in the pet table", async ({
@@ -81,7 +79,12 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
     await signin(page, USERNAME, PASSWORD);
     await page.getByText("pet store").click();
     await page.getByText("Pet", { exact: true }).click();
-    await expect(page.getByText("smaug")).toBeVisible();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^smaug$/ })
+        .first()
+    ).toBeVisible();
   });
 
   test("the dragonkeeper can now add pets to the pet table", async ({
@@ -201,13 +204,21 @@ async function addRlsToOrderTable() {
                   delete: true
                   isRowLevel: true
                 }
+                {
+                  table: "Category"
+                  select: true
+                  insert: true
+                  update: true
+                  delete: true
+                  isRowLevel: true
+                }
               ]
             }
           ]
         ) {
           message
         }
-      } `
+      }`
   );
 }
 
@@ -222,6 +233,14 @@ async function removeRlsFromOrderTable() {
               permissions: [
                 {
                   table: "Order"
+                  select: false
+                  insert: false
+                  update: false
+                  delete: false
+                  isRowLevel: false
+                } 
+                {
+                  table: "Category"
                   select: false
                   insert: false
                   update: false
