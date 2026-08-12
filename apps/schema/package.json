@@ -6,15 +6,16 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "vite lint",
-    "test-ci": "node --test src/columnTypes.test.mjs",
-    "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "test": "vitest",
+    "test-ci": "node --experimental-strip-types --test tests/*.test.js && node --test src/columnTypes.test.mjs && vitest run",
+    "format": "prettier src tests --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src tests --check --config ../.prettierrc.js"
   },
   "dependencies": {
     "core-js": "3.34.0",
-    "graphql-request": "5.2.0",
+    "graphql-request": "6.1.0",
     "graphql-tag": "2.12.6",
-    "mermaid": "11.15.0",
+    "mermaid": "11.16.1",
     "metadata-utils": "workspace:*",
     "molgenis-components": "workspace:*",
     "vue": "3.5.22",
@@ -24,7 +25,9 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "5.2.4",
+    "@vue/test-utils": "2.4.6",
     "prettier": "2.8.8",
-    "vite": "7.3.5"
+    "vite": "7.3.5",
+    "vitest": "4.1.8"
   }
 }

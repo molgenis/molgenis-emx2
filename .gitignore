@@ -90,3 +90,5 @@ apps/tailwind-components/playwright/.auth/user.json
 apps/**/.nuxtrc
 .plan
 .devstacks/
+
+fairmapper-output-*/

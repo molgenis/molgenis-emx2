@@ -1,0 +1,4 @@
+chart id,chart type,chart title,chart subtitle,x axis label,x axis min value,x axis max value,x axis ticks,y axis label,y axis min value,y axis max value,y axis ticks,top margin,right margin,bottom margin,left margin,legend position,data points,dashboard page
+landmarks by type,vertical bar chart,Types of landmarks,Number of landmarks by category,Category,,,,Count,0,,,30,10,80,30,top,,Netherlands landmarks
+landmarks by century,vertical bar chart,Landmarks by century built,Number of landmarks by century built,Century,,,,Count,0,,,30,10,80,30,top,,Netherlands landmarks
+landmarks map,dot distribution map,Location of landmarks,,,,,,,,,,,,,,,,Netherlands landmarks

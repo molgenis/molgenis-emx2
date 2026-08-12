@@ -10,16 +10,20 @@ import NavigationGroups from "./Navigation/NavigationGroups.vue";
 
 import EditModal from "../form/EditModal.vue";
 
-import { parsePageText } from "../../utils/cms";
+import { deleteBlock, deleteComponent, parsePageText } from "../../utils/cms";
+import type { IFile } from "../../../types/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 
 const props = withDefaults(
   defineProps<{
     component: IPageComponent;
+    orderId: string;
+    componentType: string;
     mg_tableclass: string;
     metadata?: ITableMetaData[];
     isEditable?: boolean;
+    parent: string;
   }>(),
   {
     isEditable: false,
@@ -27,8 +31,9 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["updatePage"]);
-
 const showEditModal = ref<boolean>(false);
+const showDeleteModal = ref<boolean>(false);
+const currentlyDeleting = ref<boolean>(false);
 const editingIsEnabled = computed<boolean>(() => {
   return props.isEditable && componentMetadata.value !== undefined;
 });
@@ -38,13 +43,16 @@ const schemaTableName = ref<string>(
 );
 
 const componentData = ref<IPageComponent>(props.component);
+const headerComponentImage = ref<IFile>();
 
-// temporary workaround for graphql bug #2706
 if (
-  !props.mg_tableclass.endsWith(".Images") &&
-  Object.keys(componentData.value).includes("image")
+  props.mg_tableclass.endsWith(".Headers") &&
+  Object.keys(componentData.value).includes("backgroundImage")
 ) {
-  delete componentData.value["image" as keyof IPageComponent];
+  headerComponentImage.value = componentData.value.backgroundImage.image;
+  componentData.value.backgroundImage = {
+    id: componentData.value.backgroundImage.id,
+  };
 }
 
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
@@ -56,16 +64,33 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
   return undefined;
 });
 
-function onEdit(component?: string, value?: IPageComponent) {
-  if (component) {
-    schemaTableName.value = component as string;
-  }
+function onDelete() {
+  showDeleteModal.value = true;
+}
 
-  if (value) {
-    componentData.value = value as IPageComponent;
+async function doDelete(): Promise<void> {
+  currentlyDeleting.value = true;
+  console.log(
+    `Deleting ${props.componentType} ${props.component.id}  ${props.orderId}`
+  );
+  if (props.componentType === "Component") {
+    await deleteComponent(
+      componentMetadata.value?.schemaId || "",
+      props.component.id,
+      props.orderId,
+      props.parent
+    );
+  } else {
+    await deleteBlock(
+      componentMetadata.value?.schemaId || "",
+      props.component.id,
+      props.orderId,
+      props.parent
+    );
   }
-
-  showEditModal.value = true;
+  currentlyDeleting.value = false;
+  showDeleteModal.value = false;
+  emit("updatePage");
 }
 </script>
 
@@ -75,16 +100,21 @@ function onEdit(component?: string, value?: IPageComponent) {
     :id="component.id"
     :title="component.title"
     :subtitle="component.subtitle"
-    :background-image="component.backgroundImage?.image?.url"
+    :background-image="component.backgroundImage"
+    :image="headerComponentImage"
     :enable-full-screen-width="component.enableFullScreenWidth"
     :title-is-centered="component.titleIsCentered"
-    :is-editable="editingIsEnabled"
-    @edit="onEdit"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
   />
   <Section
     v-else-if="mg_tableclass.endsWith('.Sections')"
     :id="component.id"
     :enable-full-screen-width="component.enableFullScreenWidth"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
   >
     <slot></slot>
   </Section>
@@ -95,17 +125,19 @@ function onEdit(component?: string, value?: IPageComponent) {
     :level="component.level"
     class="mb-5"
     :text="parsePageText(component.text)"
-    :is-editable="editingIsEnabled"
-    @edit="onEdit"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
   />
   <Paragraph
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
+    class="mb-2.5 last:mb-0"
     :id="component.id"
     :paragraph-is-centered="component.paragraphIsCentered"
-    class="mb-2.5 last:mb-0"
     :text="parsePageText(component.text)"
-    :is-editable="editingIsEnabled"
-    @edit="onEdit"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
   />
   <Image
     v-else-if="mg_tableclass.endsWith('.Images')"
@@ -115,19 +147,20 @@ function onEdit(component?: string, value?: IPageComponent) {
     :height="component.height"
     :alt="component.alt"
     :image-is-centered="component.imageIsCentered"
-    :is-editable="editingIsEnabled"
-    @edit="onEdit"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
   />
   <NavigationGroups
     v-else-if="mg_tableclass.endsWith('.Navigation groups')"
     :id="component.id"
     :links="component.links"
-    :is-editable="editingIsEnabled"
-    @edit="onEdit"
+    :isEditable="editingIsEnabled"
   />
   <Paragraph
     v-else
     id="component-does-not-exist-message"
+    name="Error"
     :text="`Component ${mg_tableclass} is not yet supported`"
   />
   <EditModal
@@ -138,7 +171,42 @@ function onEdit(component?: string, value?: IPageComponent) {
     :metadata="componentMetadata"
     :formValues="(componentData as Record<string,any>)"
     :isInsert="false"
-    @update:updated="$emit('updatePage')"
+    @update:updated="
+      $emit('updatePage');
+      showEditModal = false;
+    "
     v-model:visible="showEditModal"
   />
+
+  <Modal
+    v-model:visible="showDeleteModal"
+    title="Delete"
+    :subtitle="`${componentMetadata?.name}`"
+  >
+    <p class="p-8">Are you sure you want to delete this component?</p>
+    <template #footer>
+      <menu class="flex items-center justify-end h-[116px]">
+        <div class="flex gap-4">
+          <Button
+            v-if="!currentlyDeleting"
+            type="outline"
+            @click="showDeleteModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            v-if="!currentlyDeleting"
+            icon="trash"
+            type="primary"
+            @click="doDelete"
+          >
+            Delete
+          </Button>
+          <Button v-if="currentlyDeleting" type="primary" disabled>
+            Deleting...
+          </Button>
+        </div>
+      </menu>
+    </template>
+  </Modal>
 </template>
