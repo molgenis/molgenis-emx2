@@ -1,0 +1,50 @@
+package org.molgenis.emx2.fairmapper.cli.commands;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URI;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
+import picocli.CommandLine;
+
+@CommandLine.Command(
+    name = "extract",
+    description =
+        """
+        Generate a sparql query based on a given EMX2 schema and table. Select and where clauses are set up based on
+        schema metadata and how the columns are anotated with Semantics
+        """,
+    mixinStandardHelpOptions = true)
+public class Extract implements Runnable {
+
+  @CommandLine.Parameters(index = "0", description = "FDP endpoint to harvest")
+  private String rdf;
+
+  @CommandLine.Parameters(index = "1", description = "Path of file to write to")
+  private String outputPath;
+
+  @Override
+  public void run() {
+    Repository repository = new SailRepository(new MemoryStore());
+    URI endpoint = URI.create(rdf);
+    RdfExtractor extractor = new FdpRdfExtractor(new RemoteRdfExtractor(), endpoint);
+    extractor.addRdfToRepository(repository, endpoint);
+    try (RepositoryConnection connection = repository.getConnection();
+        FileOutputStream fos = new FileOutputStream(outputPath)) {
+      RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, fos);
+      connection.export(writer);
+      writer.endRDF();
+    } catch (IOException e) {
+      throw new MolgenisException("Something went wrong extracting endpoint: " + rdf, e);
+    }
+  }
+}
