@@ -18,7 +18,7 @@ test("should show the edit modal", async ({ page }) => {
   await page.getByRole("button", { name: "Edit Pet" }).click();
   await expect(page.getByRole("link", { name: "_top" })).toBeVisible();
   await expect(
-    page.getByRole("link").filter({ hasText: "details" })
+    page.getByRole("link", { name: "details", exact: true })
   ).toBeVisible();
   await expect(
     page.getByRole("link").filter({ hasText: "Heading2" })

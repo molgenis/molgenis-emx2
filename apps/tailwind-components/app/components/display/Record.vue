@@ -1,7 +1,14 @@
 <script lang="ts" setup>
 import { computed } from "vue";
+import {
+  isLayoutColumnType,
+  isSectionType,
+} from "../../../../metadata-utils/src";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type { recordValue } from "../../../../metadata-utils/src/types";
+import type {
+  IColumn,
+  recordValue,
+} from "../../../../metadata-utils/src/types";
 import ValueEMX2 from "../value/EMX2.vue";
 
 const props = withDefaults(
@@ -21,47 +28,53 @@ const filteredTableMetadata = computed(() => {
   );
 });
 
-const tableMetadataByHeadings = computed(() => {
-  if (filteredTableMetadata.value) {
-    const headings = filteredTableMetadata.value.reduce(
-      (results, row) => {
-        if (row.columnType === "HEADING") {
-          results[row.label] = [];
-        }
+interface IRecordSection {
+  id: string;
+  heading: string;
+  headingType: string;
+  rows: IColumn[];
+}
 
-        return results;
-      },
-      { _base: [] } as Record<string, any>
-    );
-
-    let currentHeading: string = "";
-    filteredTableMetadata.value?.forEach((row) => {
-      if (row.columnType === "HEADING") {
-        currentHeading = row.label;
-      }
-
-      if (currentHeading === "" && row.columnType !== "HEADING") {
-        headings["_base"].push(row);
-      } else if (currentHeading !== "" && row.columnType !== "HEADING") {
-        headings[currentHeading].push(row);
-      } else {
-        return null;
-      }
-    });
-
-    return headings;
+const recordSections = computed<IRecordSection[]>(() => {
+  if (!filteredTableMetadata.value) {
+    return [];
   }
+
+  const sections: IRecordSection[] = [];
+
+  filteredTableMetadata.value.forEach((row) => {
+    if (isLayoutColumnType(row.columnType)) {
+      sections.push({
+        id: row.id,
+        heading: row.label,
+        headingType: row.columnType,
+        rows: [],
+      });
+    } else {
+      if (sections.length === 0) {
+        sections.push({ id: "", heading: "", headingType: "", rows: [] });
+      }
+      sections[sections.length - 1]!.rows.push(row);
+    }
+  });
+
+  return sections;
 });
 </script>
 
 <template>
-  <div v-for="(headingData, heading) in tableMetadataByHeadings">
-    <p v-if="heading !== '_base'" class="mb-1 text-record-heading font-bold">
-      {{ heading }}
+  <div v-for="section in recordSections" :key="section.id">
+    <p
+      v-if="section.heading"
+      class="mb-1 text-record-heading font-bold"
+      :class="isSectionType(section.headingType) ? 'text-heading-lg' : ''"
+    >
+      {{ section.heading }}
     </p>
     <ul>
       <li
-        v-for="row in headingData"
+        v-for="row in section.rows"
+        :key="row.id"
         class="grid grid-cols-1 md:grid-cols-[1fr_3fr]"
       >
         <div>

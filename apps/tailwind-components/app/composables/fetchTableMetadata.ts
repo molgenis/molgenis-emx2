@@ -19,7 +19,7 @@ export default async (
       message,
       statusCode: 404,
     });
-  } else {
-    return tableMetadata;
   }
+
+  return tableMetadata;
 };

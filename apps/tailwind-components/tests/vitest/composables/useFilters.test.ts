@@ -1550,3 +1550,37 @@ describe("useFilters — count error surfacing", () => {
     expect(hasCountError("status").value).toBe(false);
   });
 });
+
+describe("useFilters — URL survives a reload", () => {
+  it("rebuilds the same filter state and gqlFilter from the URL it wrote", async () => {
+    const roundTripColumns: IColumn[] = [
+      { ...ontologyColumn, refTableId: "Statuses", refSchemaId: "Ontologies" },
+      stringColumn,
+    ];
+    const { mockQuery } = makeUrlSync();
+    const columns = ref<IColumn[]>(roundTripColumns);
+    const applied = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    applied.setFilter("status", { operator: "equals", value: ["active"] });
+    applied.setSearch("cohort");
+    await nextTick();
+
+    const sharedQuery = JSON.parse(JSON.stringify(mockQuery));
+    expect(sharedQuery[MG_SEARCH_PARAM]).toBe("cohort");
+
+    makeUrlSync(sharedQuery);
+    const reloaded = useFilters(ref<IColumn[]>(roundTripColumns), {
+      schemaId: "test",
+      tableId: "table1",
+      urlSync: true,
+    });
+
+    expect(reloaded.searchValue.value).toBe("cohort");
+    expect(reloaded.filterStates.value.has("status")).toBe(true);
+    expect(reloaded.gqlFilter.value).toEqual(applied.gqlFilter.value);
+  });
+});

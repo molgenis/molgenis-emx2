@@ -242,7 +242,8 @@ class SqlTableMetadata extends TableMetadata {
       newColumn.setRequired(true);
     }
 
-    validateColumn(newColumn);
+    validateColumn(newColumn, columnName);
+    validatePartsCounterpartRemainsValid(oldColumn, newColumn);
     if (!columnName.equals(column.getName())) {
       checkNoColumnWithSameNameExistsInSubclass(column.getName(), tm, tm.getJooq());
     }

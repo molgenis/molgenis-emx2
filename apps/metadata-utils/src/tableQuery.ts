@@ -3,6 +3,7 @@ import {
   isRefType,
   isArrayType,
   isFileType,
+  isLayoutColumnType,
 } from "./fieldHelpers";
 import type {
   ISchemaMetaData,
@@ -29,7 +30,7 @@ export const buildRecordDetailsQueryFields = (
   const allColumns = tableMetaData?.columns;
   const dataColumns = allColumns
     ?.filter((c) => !c.id.startsWith("mg_"))
-    .filter((c) => !["HEADING", "SECTION"].includes(c.columnType));
+    .filter((c) => !isLayoutColumnType(c.columnType));
 
   const refTableQueryFields = (refColumn: IColumn): string => {
     const refSchema = schemas[refColumn.refSchemaId || schemaId];
@@ -48,28 +49,16 @@ export const buildRecordDetailsQueryFields = (
 
     const refTableDataColumns = allRefColumns
       ?.filter((c) => !c.id.startsWith("mg_"))
-      .filter((c) => !["HEADING", "SECTION"].includes(c.columnType));
+      .filter((c) => !isLayoutColumnType(c.columnType));
 
     const refFields = refTableDataColumns?.map((column) => {
-      switch (column.columnType) {
-        case "STRING":
-        case "TEXT":
-          return column.id;
-        case "FILE":
-          return `${column.id} ${FILE_FRAGMENT}`;
-        case "REF":
-        case "SELECT":
-        case "CHECKBOX":
-        case "RADIO":
-        case "MULTISELECT":
-        case "ONTOLOGY":
-        case "REF_ARRAY":
-        case "REFBACK":
-        case "ONTOLOGY_ARRAY":
-          return ""; // stop recursion
-        default:
-          return column.id;
+      if (isFileType(column.columnType)) {
+        return `${column.id} ${FILE_FRAGMENT}`;
       }
+      if (isRefType(column.columnType)) {
+        return ""; // stop recursion
+      }
+      return column.id;
     });
 
     const refQueryFields = refFields ? refFields.join(" ") : "";
@@ -78,25 +67,13 @@ export const buildRecordDetailsQueryFields = (
   };
 
   const fields = dataColumns?.map((column) => {
-    switch (column.columnType) {
-      case "STRING":
-      case "TEXT":
-        return column.id;
-      case "FILE":
-        return `${column.id} ${FILE_FRAGMENT}`;
-      case "REF":
-      case "ONTOLOGY":
-      case "SELECT":
-      case "CHECKBOX":
-      case "RADIO":
-      case "MULTISELECT":
-      case "REF_ARRAY":
-      case "REFBACK":
-      case "ONTOLOGY_ARRAY":
-        return `${column.id} { ${refTableQueryFields(column)} }`;
-      default:
-        return column.id;
+    if (isFileType(column.columnType)) {
+      return `${column.id} ${FILE_FRAGMENT}`;
     }
+    if (isRefType(column.columnType)) {
+      return `${column.id} { ${refTableQueryFields(column)} }`;
+    }
+    return column.id;
   });
 
   const queryFields = fields ? fields.join(" ") : "";
@@ -180,9 +157,13 @@ const buildKeyFields = (
   const keyFields = tableMetaData.columns.reduce(
     (acc: any, column: IColumn) => {
       if (column.key === 1) {
-        if (isValueType(column)) {
+        if (isArrayType(column.columnType)) {
+          console.log(
+            "TODO: buildRecordListQueryFields, key column isArrayType, skip for now"
+          );
+        } else if (isValueType(column.columnType)) {
           acc.push(column.id);
-        } else if (isRefType(column)) {
+        } else if (isRefType(column.columnType)) {
           if (!column.refTableId) {
             throw new Error(
               "refTable is undefined for refColumn with id " +
@@ -201,11 +182,7 @@ const buildKeyFields = (
               )
             );
           }
-        } else if (isArrayType(column)) {
-          console.log(
-            "TODO: buildRecordListQueryFields, key column isArrayType, skip for now"
-          );
-        } else if (isFileType(column)) {
+        } else if (isFileType(column.columnType)) {
           console.log(
             "TODO: buildRecordListQueryFields, key column isFileType, skip for now"
           );
@@ -254,9 +231,13 @@ export const extractKeyFromRecord = (
 
   const key = tableMetaData.columns.reduce((acc: any, column: IColumn) => {
     if (column.key === 1 && record[column.id]) {
-      if (isValueType(column)) {
+      if (isArrayType(column.columnType)) {
+        console.log(
+          "TODO: extractKeyFromRecord, key column isArrayType, skip for now"
+        );
+      } else if (isValueType(column.columnType)) {
         acc[column.id] = record[column.id];
-      } else if (isRefType(column)) {
+      } else if (isRefType(column.columnType)) {
         if (!column.refTableId) {
           throw new Error(
             "refTable is undefined for refColumn with id " +
@@ -273,11 +254,7 @@ export const extractKeyFromRecord = (
             schemas
           );
         }
-      } else if (isArrayType(column)) {
-        console.log(
-          "TODO: extractKeyFromRecord, key column isArrayType, skip for now"
-        );
-      } else if (isFileType(column)) {
+      } else if (isFileType(column.columnType)) {
         console.log(
           "TODO: extractKeyFromRecord, key column isFileType, skip for now"
         );

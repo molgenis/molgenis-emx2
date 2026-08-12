@@ -9,3 +9,5 @@ node_modules
 dist
 sourceCodeMap.json
 playwright-report
+test-results
+**/playwright/.auth

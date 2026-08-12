@@ -1,8 +1,17 @@
+import {
+  isCollectionType,
+  isFileType,
+  isLayoutColumnType,
+  isOntologyType,
+  isTableRefType,
+} from "../../../metadata-utils/src";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
 import { fetchErrorToNuxtError } from "../utils/fetchErrorToNuxtError";
 import fetchMetadata from "./fetchMetadata";
+
+export const DEFAULT_NESTED_LIMIT = 5;
 
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];
@@ -28,12 +37,13 @@ export default async (
     schemaId,
     tableId,
     expandLevel,
-    properties?.columns
+    properties?.columns,
+    true
   );
   const query = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
           filter:$filter,
-          limit:${limit}, 
+          limit:${limit},
           offset:${offset}${search},
           orderby:$orderby
           )
@@ -63,10 +73,38 @@ export default async (
   return { rows: data[tableId], count: data[`${tableId}_agg`].count };
 };
 
+const SUBCLASS_COLUMN_ID = "mg_tableclass";
+
+function isSelectedAtEveryDepth(col: IColumn): boolean {
+  return Boolean(col.key) || col.id === SUBCLASS_COLUMN_ID;
+}
+
+function buildScalarFieldGql(col: IColumn): string {
+  if (isOntologyType(col.columnType)) {
+    return ` ${col.id} {name, label, definition, order}`;
+  } else if (isFileType(col.columnType)) {
+    return ` ${col.id} { id, size, filename, extension, url }`;
+  } else if (!isLayoutColumnType(col.columnType)) {
+    return ` ${col.id}`;
+  }
+  return "";
+}
+
+function buildRefFieldGql(
+  col: IColumn,
+  subFields: string,
+  rootLevel: boolean
+): string {
+  const isCollection = rootLevel && isCollectionType(col.columnType);
+  const limitArg = isCollection ? `(limit: ${DEFAULT_NESTED_LIMIT})` : "";
+  let result = ` ${col.id}${limitArg} {${subFields} }`;
+  if (isCollection) result += ` ${col.id}_agg { count }`;
+  return result;
+}
+
 export const getColumnIds = async (
   schemaId: string,
   tableId: string,
-  //allows expansion of ref fields to add their next layer of details.
   expandLevel: number,
   columnFilter: IColumn[] = [],
   rootLevel = true
@@ -77,55 +115,59 @@ export const getColumnIds = async (
     ? columnFilter
     : metadata.tables.find((table) => table.id === tableId)?.columns || [];
 
+  const columnsForTable = async (
+    refSchemaId: string,
+    refTableId: string
+  ): Promise<IColumn[]> => {
+    const refMetadata = await fetchMetadata(refSchemaId);
+    return (
+      refMetadata.tables.find((table) => table.id === refTableId)?.columns || []
+    );
+  };
+
+  return buildColumnGqlAsync(
+    columns,
+    columnsForTable,
+    schemaId,
+    tableId,
+    rootLevel,
+    expandLevel
+  );
+};
+
+export async function buildColumnGqlAsync(
+  columns: IColumn[],
+  columnsForTable: (schemaId: string, tableId: string) => Promise<IColumn[]>,
+  schemaId: string,
+  tableId: string,
+  rootLevel: boolean,
+  expandLevel: number
+): Promise<string> {
   let gqlFields = "";
+
   for (const col of columns) {
-    //we always expand the subfields of key, but other 'ref' fields only if they do not break server
-    if (expandLevel > 0 || col.key) {
-      if (
-        !rootLevel &&
-        [
-          "REF_ARRAY",
-          "REFBACK",
-          "ONTOLOGY_ARRAY",
-          "MULTISELECT",
-          "CHECKBOX",
-        ].includes(col.columnType)
-      ) {
-        //skip
-      } else if (
-        [
-          "REF",
-          "REF_ARRAY",
-          "REFBACK",
-          "MULTISELECT",
-          "CHECKBOX",
-          "SELECT",
-          "RADIO",
-        ].includes(col.columnType)
-      ) {
-        gqlFields =
-          gqlFields +
-          " " +
-          col.id +
-          " {" +
-          (await getColumnIds(
-            col.refSchemaId || schemaId,
-            col.refTableId || tableId,
-            //indicate that sub queries should not be expanded on ref_array, refback, ontology_array
-            expandLevel - 1,
-            [],
-            false
-          )) +
-          " }";
-      } else if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(col.columnType)) {
-        gqlFields = gqlFields + " " + col.id + " {name, label}";
-      } else if (col.columnType === "FILE") {
-        gqlFields += ` ${col.id} { id, size, filename, extension, url }`;
-      } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
-        gqlFields += ` ${col.id}`;
+    if (expandLevel > 0 || isSelectedAtEveryDepth(col)) {
+      if (!rootLevel && isCollectionType(col.columnType)) {
+        // skip collection types at non-root levels
+      } else if (isTableRefType(col.columnType)) {
+        const subColumns = await columnsForTable(
+          col.refSchemaId || schemaId,
+          col.refTableId || tableId
+        );
+        const subFields = await buildColumnGqlAsync(
+          subColumns,
+          columnsForTable,
+          col.refSchemaId || schemaId,
+          col.refTableId || tableId,
+          false,
+          expandLevel - 1
+        );
+        gqlFields += buildRefFieldGql(col, subFields, rootLevel);
+      } else {
+        gqlFields += buildScalarFieldGql(col);
       }
     }
   }
 
   return gqlFields;
-};
+}

@@ -19,7 +19,7 @@
             <ButtonAlt class="p-0" @click="hideAll(false)">none</ButtonAlt>
             )
           </b>
-          <div class="form-check" v-if="col.columnType != 'HEADING'">
+          <div class="form-check" v-if="!isLayoutColumn(col.columnType)">
             <input
               class="form-check-input"
               type="checkbox"
@@ -45,6 +45,7 @@
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonDropdown from "../forms/ButtonDropdown.vue";
 import IconAction from "../forms/IconAction.vue";
+import { isLayoutColumnType } from "../../../../metadata-utils/src/fieldHelpers";
 
 export default {
   components: { ButtonAlt, ButtonDropdown, IconAction },
@@ -69,6 +70,9 @@ export default {
     },
   },
   methods: {
+    isLayoutColumn(columnType) {
+      return isLayoutColumnType(columnType);
+    },
     value(col) {
       return col[this.checkAttribute] == undefined
         ? this.defaultValue

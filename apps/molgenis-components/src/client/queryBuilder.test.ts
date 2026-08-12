@@ -46,6 +46,29 @@ describe("getColumnIds", () => {
     const result = await getColumnIds("pet store", "Tag", EXPAND_TWO);
     assert.equal(result, expectedResult);
   });
+
+  //ref_array
+  //expand 2
+  test("it should not expand a nested REF_ARRAY column beyond level 0, just like the equivalent REFBACK column (so 'user.pets' is missing)", async () => {
+    const expectedResult =
+      " name user { username firstName lastName picture { id, size, filename, extension, url } }";
+    const result = await getColumnIds("pet store", "Owner", EXPAND_TWO);
+    assert.equal(result, expectedResult);
+  });
+
+  //parts
+  //expand 1
+  test("it should expand a PARTS column into the same subselection as the equivalent REFBACK column", async () => {
+    const expectedResult = " name kennels { name } visits { name }";
+    const result = await getColumnIds("pet store", "Shelter", EXPAND_ONE);
+    assert.equal(result, expectedResult);
+  });
+  //expand 2
+  test("it should not expand a PARTS column beyond level 0, just like the equivalent REFBACK column", async () => {
+    const expectedResult = " name shelter { name }";
+    const result = await getColumnIds("pet store", "Kennel", EXPAND_TWO);
+    assert.equal(result, expectedResult);
+  });
 });
 
 // test meta data with mg_columns removed
@@ -202,6 +225,62 @@ const metadata: ISchemaMetaData = {
       ],
     },
     {
+      id: "Shelter",
+      label: "Shelter",
+      tableType: "DATA",
+      schemaId: "pet store",
+      columns: [
+        {
+          id: "name",
+          label: "Name",
+          columnType: "STRING",
+          key: 1,
+          required: true,
+        },
+        {
+          id: "kennels",
+          label: "Kennels",
+          columnType: "PARTS",
+          refTableId: "Kennel",
+          refLabelDefault: "${name}",
+          refBackId: "shelter",
+          position: 1,
+        },
+        {
+          id: "visits",
+          label: "Visits",
+          columnType: "REFBACK",
+          refTableId: "Kennel",
+          refLabelDefault: "${name}",
+          refBackId: "shelter",
+          position: 2,
+        },
+      ],
+    },
+    {
+      id: "Kennel",
+      label: "Kennel",
+      tableType: "DATA",
+      schemaId: "pet store",
+      columns: [
+        {
+          id: "name",
+          label: "Name",
+          columnType: "STRING",
+          key: 1,
+          required: true,
+        },
+        {
+          id: "shelter",
+          label: "Shelter",
+          columnType: "REF",
+          refTableId: "Shelter",
+          refLabelDefault: "${name}",
+          position: 1,
+        },
+      ],
+    },
+    {
       id: "User",
       label: "User",
       tableType: "DATA",
@@ -239,6 +318,29 @@ const metadata: ISchemaMetaData = {
           refTableId: "Pet",
           refLabelDefault: "${name}",
           position: 8,
+        },
+      ],
+    },
+    {
+      id: "Owner",
+      label: "Owner",
+      tableType: "DATA",
+      schemaId: "pet store",
+      columns: [
+        {
+          id: "name",
+          label: "Name",
+          columnType: "STRING",
+          key: 1,
+          required: true,
+        },
+        {
+          id: "user",
+          label: "User",
+          columnType: "REF",
+          refTableId: "User",
+          refLabelDefault: "${username}",
+          position: 1,
         },
       ],
     },

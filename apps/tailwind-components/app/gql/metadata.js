@@ -7,10 +7,12 @@ export default gql`
       tables {
         id
         schemaId
+        name
         label
         tableType
         description
         semantics
+        inheritId
         columns {
           id
           label
@@ -18,6 +20,7 @@ export default gql`
           section
           heading
           columnType
+          inherited
           key
           refTableId
           refSchemaId
@@ -33,6 +36,8 @@ export default gql`
           position
           computed
           visible
+          role
+          display
           validation
         }
       }

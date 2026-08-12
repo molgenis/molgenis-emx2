@@ -355,9 +355,6 @@ module.exports = {
         "record-heading": "var(--text-color-record-heading)",
         "record-label": "var(--text-color-record-label)",
         "record-value": "var(--text-color-record-value)",
-        "record-heading": "var(--text-color-record-heading)",
-        "record-label": "var(--text-color-record-label)",
-        "record-value": "var(--text-color-record-value)",
 
         "button-switch": "var(--text-color-button-switch)",
         "button-switch-selected": "var(--text-color-button-switch-selected)",

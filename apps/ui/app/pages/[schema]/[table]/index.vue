@@ -5,7 +5,9 @@ import type {
   ITableSettings,
   sortDirection,
 } from "../../../../../tailwind-components/types/types";
+import fetchMetadata from "../../../../../tailwind-components/app/composables/fetchMetadata";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
+import { buildNestedRecordPath } from "../../../../../tailwind-components/app/utils/recordPath";
 import { useRoute, useRouter } from "#app/composables/router";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 import { watch } from "vue";
@@ -96,6 +98,16 @@ function handleSettingsUpdate() {
 }
 
 async function handleViewRowRequest(row: IRow) {
+  const nestedPath = buildNestedRecordPath(
+    await fetchMetadata(schemaId),
+    tableId,
+    row
+  );
+  if (nestedPath) {
+    router.push(nestedPath);
+    return;
+  }
+
   const primaryKeys = await getPrimaryKey(row, tableId, schemaId);
 
   router.push({

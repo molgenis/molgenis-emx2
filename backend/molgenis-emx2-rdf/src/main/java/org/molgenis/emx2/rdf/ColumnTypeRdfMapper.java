@@ -66,6 +66,7 @@ public abstract class ColumnTypeRdfMapper {
           entry(ColumnType.CHECKBOX, RdfColumnType.REFERENCE),
           entry(ColumnType.REF_ARRAY, RdfColumnType.REFERENCE),
           entry(ColumnType.REFBACK, RdfColumnType.REFERENCE),
+          entry(ColumnType.PARTS, RdfColumnType.REFERENCE),
 
           // LAYOUT and other constants
           entry(ColumnType.HEADING, RdfColumnType.SKIP), // Should not be in RDF output.

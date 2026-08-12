@@ -9,7 +9,7 @@ import BaseIcon from "../BaseIcon.vue";
 import Well from "../Well.vue";
 import {
   computeDefaultFilters,
-  isRefExpandable,
+  isDrillableRefType,
   isExcludedColumn,
   shouldExcludeSelfRef,
   navDepth,
@@ -133,7 +133,7 @@ function buildNodes(
     .flatMap((col) => {
       const path = parentPath ? `${parentPath}.${col.id}` : col.id;
 
-      if (isRefExpandable(col.columnType) && col.refTableId) {
+      if (isDrillableRefType(col.columnType) && col.refTableId) {
         const maxDepth = navDepth(col.columnType);
         if (depth >= maxDepth) return [];
 

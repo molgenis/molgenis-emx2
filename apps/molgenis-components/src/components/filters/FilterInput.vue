@@ -40,6 +40,10 @@ import OntologyFilter from "./OntologyFilter.vue";
 import RadioFilter from "./RadioFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 import StringFilter from "./StringFilter.vue";
+import {
+  isOntologyType,
+  isTableRefType,
+} from "../../../../metadata-utils/src/fieldHelpers";
 
 const filterTypeMap = {
   AUTO_ID: StringFilter,
@@ -66,16 +70,21 @@ const filterTypeMap = {
   DATETIME_ARRAY: DateTimeFilter,
   BOOL: BooleanFilter,
   BOOl_ARRAY: BooleanFilter,
-  SELECT: RefListFilter,
-  MULTISELECT: RefListFilter,
-  CHECKBOX: RefListFilter,
-  REF: RefListFilter,
-  REFBACK: RefListFilter,
-  REF_ARRAY: RefListFilter,
-  ONTOLOGY: OntologyFilter,
-  ONTOLOGY_ARRAY: OntologyFilter,
   RADIO: RadioFilter,
 };
+
+function resolveFilterComponent(columnType) {
+  const filterForExactType = filterTypeMap[columnType];
+  if (filterForExactType) {
+    return filterForExactType;
+  } else if (isOntologyType(columnType)) {
+    return OntologyFilter;
+  } else if (isTableRefType(columnType)) {
+    return RefListFilter;
+  } else {
+    return undefined;
+  }
+}
 
 export default {
   name: "FilterInput",
@@ -99,7 +108,7 @@ export default {
       type: String,
       required: true,
       validator(value) {
-        return Object.keys(filterTypeMap).includes(value);
+        return resolveFilterComponent(value) !== undefined;
       },
     },
     conditions: {
@@ -127,17 +136,12 @@ export default {
   },
   computed: {
     filterType() {
-      return filterTypeMap[this.columnType];
+      return resolveFilterComponent(this.columnType);
     },
     isMultiConditionFilter() {
-      return [
-        "MULTI_SELECT",
-        "REF",
-        "REF_ARRAY",
-        "REFBACK",
-        "ONTOLOGY",
-        "ONTOLOGY_ARRAY",
-      ].includes(this.columnType);
+      return (
+        this.filterType === RefListFilter || this.filterType === OntologyFilter
+      );
     },
   },
   methods: {

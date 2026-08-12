@@ -10,6 +10,10 @@ export interface ISetting {
 
 export type HeadingType = "HEADING" | "SECTION";
 
+export const DISPLAY_TYPES = ["TABLE", "CARDS", "LIST", "LINKS"] as const;
+
+export type DisplayType = (typeof DISPLAY_TYPES)[number];
+
 export type CellValueType =
   | "BOOL"
   | "BOOL_ARRAY"
@@ -36,6 +40,7 @@ export type CellValueType =
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
+  | "PARTS"
   | "RADIO"
   | "SELECT"
   | "HEADING"
@@ -76,6 +81,8 @@ export interface IColumn {
   semantics?: string[];
   validation?: string;
   visible?: string;
+  role?: "TITLE" | "SUBTITLE" | "DESCRIPTION" | "LOGO" | "DETAIL" | "INTERNAL";
+  display?: DisplayType;
   table?: string;
   name?: string;
   inherited?: boolean;
@@ -100,6 +107,7 @@ export interface ITableMetaData {
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
+  inheritId?: string;
 }
 
 export interface ISchemaMetaData {
@@ -166,6 +174,37 @@ export function isColumnValueObjectArray(
         typeof item === "object" && item !== null && !Array.isArray(item)
     )
   );
+}
+
+export interface ontologyValueObject {
+  name: string;
+  label?: string;
+  code?: string;
+  codesystem?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  order?: number;
+  tags?: string[];
+  parent?: ontologyValueObject;
+  children?: ontologyValueObject[];
+}
+
+export function isOntologyValueObject(
+  value: unknown
+): value is ontologyValueObject {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    "name" in value &&
+    typeof (value as Record<string, unknown>).name === "string"
+  );
+}
+
+export function isOntologyValueObjectArray(
+  value: unknown
+): value is ontologyValueObject[] {
+  return Array.isArray(value) && value.every(isOntologyValueObject);
 }
 
 export type fileValue = {

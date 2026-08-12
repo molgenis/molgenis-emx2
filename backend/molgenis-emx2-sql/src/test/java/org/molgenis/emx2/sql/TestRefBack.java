@@ -333,6 +333,571 @@ public class TestRefBack {
   }
 
   @Test
+  void partsColumnReturnsChildRowsLikeRefback() {
+    Table resources = schema.create(table("PartsResources", column("name").setPkey()));
+    Table tables =
+        schema.create(
+            table(
+                "PartsTables",
+                column("resource")
+                    .setType(REF)
+                    .setRefTable("PartsResources")
+                    .setRequired(true)
+                    .setKey(1),
+                column("name").setRequired(true).setKey(1)));
+
+    resources.insert(row("name", "resource1"), row("name", "resource2"));
+    tables.insert(
+        row("resource", "resource1", "name", "table1"),
+        row("resource", "resource1", "name", "table2"),
+        row("resource", "resource2", "name", "table3"));
+
+    long foreignKeysBeforeParts = countForeignKeyConstraints("PartsResources");
+
+    resources
+        .getMetadata()
+        .add(column("tables").setType(PARTS).setRefTable("PartsTables").setRefBack("resource"));
+
+    assertEquals(foreignKeysBeforeParts, countForeignKeyConstraints("PartsResources"));
+
+    String resource1Json =
+        resources
+            .select(s("name"), s("tables", s("name")), s("tables_agg", s("count")))
+            .where(f("name", EQUALS, "resource1"))
+            .retrieveJSON();
+    assertTrue(resource1Json.contains("table1"));
+    assertTrue(resource1Json.contains("table2"));
+    assertFalse(resource1Json.contains("table3"));
+    assertTrue(resource1Json.contains("\"count\": 2"));
+
+    String resource2Json =
+        resources
+            .select(s("name"), s("tables", s("name")), s("tables_agg", s("count")))
+            .where(f("name", EQUALS, "resource2"))
+            .retrieveJSON();
+    assertTrue(resource2Json.contains("table3"));
+    assertFalse(resource2Json.contains("table1"));
+    assertFalse(resource2Json.contains("table2"));
+    assertTrue(resource2Json.contains("\"count\": 1"));
+
+    resources
+        .getMetadata()
+        .add(
+            column("tablesAsRefback")
+                .setType(REFBACK)
+                .setRefTable("PartsTables")
+                .setRefBack("resource"));
+    String refbackJson =
+        resources.select(s("name"), s("tablesAsRefback", s("name"))).orderBy("name").retrieveJSON();
+    String partsJson =
+        resources.select(s("name"), s("tables", s("name"))).orderBy("name").retrieveJSON();
+    assertEquals(refbackJson.replace("tablesAsRefback", "tables"), partsJson);
+  }
+
+  @Test
+  void partsRejectsSelfReference() {
+    schema.create(
+        table(
+            "PartsSelfReference",
+            column("name").setPkey(),
+            column("parent").setType(REF).setRefTable("PartsSelfReference")));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsSelfReference")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsSelfReference")
+                            .setRefBack("parent")));
+    assertTrue(exception.getMessage().contains("cannot point at its own table"));
+    assertTrue(exception.getMessage().contains("a row cannot be part of itself"));
+    assertTrue(exception.getMessage().contains("PartsSelfReference"));
+  }
+
+  @Test
+  void partsRejectsMultiValuedCounterpart() {
+    schema.create(
+        table("PartsMultiValuedParent", column("name").setPkey()),
+        table(
+            "PartsMultiValuedChild",
+            column("name").setPkey(),
+            column("parents").setType(REF_ARRAY).setRefTable("PartsMultiValuedParent")));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsMultiValuedParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsMultiValuedChild")
+                            .setRefBack("parents")));
+    assertTrue(exception.getMessage().contains("must be a single valued ref"));
+    assertTrue(exception.getMessage().contains("PartsMultiValuedChild.parents"));
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "so every 'PartsMultiValuedChild' row is part of exactly one 'PartsMultiValuedParent' row"));
+  }
+
+  @Test
+  void partsAcceptsSelectAndRadioCounterpart() {
+    schema.create(
+        table("PartsFlavorParent", column("name").setPkey()),
+        table(
+            "PartsSelectChild",
+            column("parent").setType(SELECT).setRefTable("PartsFlavorParent").setKey(1),
+            column("name").setKey(1)),
+        table(
+            "PartsRadioChild",
+            column("parent").setType(RADIO).setRefTable("PartsFlavorParent").setKey(1),
+            column("name").setKey(1)));
+
+    TableMetadata parent = schema.getTable("PartsFlavorParent").getMetadata();
+    parent.add(
+        column("selectChildren")
+            .setType(PARTS)
+            .setRefTable("PartsSelectChild")
+            .setRefBack("parent"));
+    parent.add(
+        column("radioChildren").setType(PARTS).setRefTable("PartsRadioChild").setRefBack("parent"));
+
+    TableMetadata reloaded = schema.getTable("PartsFlavorParent").getMetadata();
+    assertEquals(PARTS, reloaded.getColumn("selectChildren").getColumnType());
+    assertEquals(PARTS, reloaded.getColumn("radioChildren").getColumnType());
+  }
+
+  @Test
+  void partsRejectsOptionalCounterpart() {
+    schema.create(
+        table("PartsOptionalParent", column("name").setPkey()),
+        table(
+            "PartsOptionalChild",
+            column("name").setPkey(),
+            column("parent").setType(REF).setRefTable("PartsOptionalParent")));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsOptionalParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsOptionalChild")
+                            .setRefBack("parent")));
+    assertTrue(exception.getMessage().contains("must be required"));
+    assertTrue(exception.getMessage().contains("PartsOptionalChild.parent"));
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "so every 'PartsOptionalChild' row belongs to exactly one 'PartsOptionalParent' row"));
+  }
+
+  @Test
+  void partsRejectsCounterpartOutsideKey() {
+    schema.create(
+        table("PartsOutsideKeyParent", column("name").setPkey()),
+        table(
+            "PartsOutsideKeyChild",
+            column("name").setPkey(),
+            column("parent").setType(REF).setRefTable("PartsOutsideKeyParent").setRequired(true)));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsOutsideKeyParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsOutsideKeyChild")
+                            .setRefBack("parent")));
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("must be part of the primary key of 'PartsOutsideKeyChild'"));
+    assertTrue(exception.getMessage().contains("a key column marked key=1"));
+    assertTrue(exception.getMessage().contains("PartsOutsideKeyChild.parent"));
+
+    schema
+        .getTable("PartsOutsideKeyChild")
+        .getMetadata()
+        .alterColumn(
+            "parent",
+            column("parent")
+                .setType(REF)
+                .setRefTable("PartsOutsideKeyParent")
+                .setRequired(true)
+                .setKey(1));
+    schema
+        .getTable("PartsOutsideKeyParent")
+        .getMetadata()
+        .add(
+            column("children")
+                .setType(PARTS)
+                .setRefTable("PartsOutsideKeyChild")
+                .setRefBack("parent"));
+
+    assertEquals(
+        PARTS,
+        schema
+            .getTable("PartsOutsideKeyParent")
+            .getMetadata()
+            .getColumn("children")
+            .getColumnType());
+  }
+
+  @Test
+  void partsRejectsCounterpartInSecondaryKeyOnly() {
+    schema.create(
+        table("PartsSecondaryKeyParent", column("name").setPkey()),
+        table(
+            "PartsSecondaryKeyChild",
+            column("name").setPkey(),
+            column("parent")
+                .setType(REF)
+                .setRefTable("PartsSecondaryKeyParent")
+                .setRequired(true)
+                .setKey(2)));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsSecondaryKeyParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsSecondaryKeyChild")
+                            .setRefBack("parent")));
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("must be part of the primary key of 'PartsSecondaryKeyChild'"));
+    assertTrue(exception.getMessage().contains("a key column marked key=1"));
+    assertTrue(exception.getMessage().contains("PartsSecondaryKeyChild.parent"));
+  }
+
+  @Test
+  void partsRejectsSecondPartsColumnTargetingSameChild() {
+    schema.create(
+        table("PartsFirstParent", column("name").setPkey()),
+        table("PartsSecondParent", column("name").setPkey()),
+        table(
+            "PartsSharedChild",
+            column("firstParent")
+                .setType(REF)
+                .setRefTable("PartsFirstParent")
+                .setRequired(true)
+                .setKey(1),
+            column("secondParent")
+                .setType(REF)
+                .setRefTable("PartsSecondParent")
+                .setRequired(true)
+                .setKey(1),
+            column("name").setRequired(true).setKey(1)));
+
+    schema
+        .getTable("PartsFirstParent")
+        .getMetadata()
+        .add(
+            column("children")
+                .setType(PARTS)
+                .setRefTable("PartsSharedChild")
+                .setRefBack("firstParent"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsSecondParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsSharedChild")
+                            .setRefBack("secondParent")));
+    assertTrue(exception.getMessage().contains("PartsFirstParent.children"));
+    assertTrue(exception.getMessage().contains("PartsSecondParent.children"));
+  }
+
+  @Test
+  void partsAllowsRepointingItsOwnRefBack() {
+    schema.create(
+        table("PartsRepointParent", column("name").setPkey()),
+        table(
+            "PartsRepointChild",
+            column("firstLink")
+                .setType(REF)
+                .setRefTable("PartsRepointParent")
+                .setRequired(true)
+                .setKey(1),
+            column("secondLink")
+                .setType(REF)
+                .setRefTable("PartsRepointParent")
+                .setRequired(true)
+                .setKey(1),
+            column("name").setRequired(true).setKey(1)));
+
+    TableMetadata parent = schema.getTable("PartsRepointParent").getMetadata();
+    parent.add(
+        column("children").setType(PARTS).setRefTable("PartsRepointChild").setRefBack("firstLink"));
+
+    parent.alterColumn(
+        "children",
+        column("children")
+            .setType(PARTS)
+            .setRefTable("PartsRepointChild")
+            .setRefBack("secondLink"));
+
+    assertEquals(
+        "secondLink",
+        schema.getTable("PartsRepointParent").getMetadata().getColumn("children").getRefBack());
+  }
+
+  @Test
+  void partsStillRejectsDuplicateAfterRepointing() {
+    schema.create(
+        table("PartsDuplicateFirstParent", column("name").setPkey()),
+        table("PartsDuplicateSecondParent", column("name").setPkey()),
+        table(
+            "PartsDuplicateChild",
+            column("firstLink")
+                .setType(REF)
+                .setRefTable("PartsDuplicateFirstParent")
+                .setRequired(true)
+                .setKey(1),
+            column("secondLink")
+                .setType(REF)
+                .setRefTable("PartsDuplicateFirstParent")
+                .setRequired(true)
+                .setKey(1),
+            column("otherParent")
+                .setType(REF)
+                .setRefTable("PartsDuplicateSecondParent")
+                .setRequired(true)
+                .setKey(1),
+            column("name").setRequired(true).setKey(1)));
+
+    TableMetadata firstParent = schema.getTable("PartsDuplicateFirstParent").getMetadata();
+    firstParent.add(
+        column("children")
+            .setType(PARTS)
+            .setRefTable("PartsDuplicateChild")
+            .setRefBack("firstLink"));
+    firstParent.alterColumn(
+        "children",
+        column("children")
+            .setType(PARTS)
+            .setRefTable("PartsDuplicateChild")
+            .setRefBack("secondLink"));
+
+    MolgenisException fromOtherTable =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsDuplicateSecondParent")
+                    .getMetadata()
+                    .add(
+                        column("children")
+                            .setType(PARTS)
+                            .setRefTable("PartsDuplicateChild")
+                            .setRefBack("otherParent")));
+    assertTrue(fromOtherTable.getMessage().contains("PartsDuplicateFirstParent.children"));
+
+    MolgenisException fromSameTable =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema
+                    .getTable("PartsDuplicateFirstParent")
+                    .getMetadata()
+                    .add(
+                        column("moreChildren")
+                            .setType(PARTS)
+                            .setRefTable("PartsDuplicateChild")
+                            .setRefBack("firstLink")));
+    assertTrue(fromSameTable.getMessage().contains("PartsDuplicateFirstParent.children"));
+  }
+
+  @Test
+  void partsRejectsSecondPartsColumnWithSameRefBack() {
+    schema.create(
+        table("PartsSameRefBackWhole", column("name").setPkey()),
+        table(
+            "PartsSameRefBackPart",
+            column("whole")
+                .setType(REF)
+                .setRefTable("PartsSameRefBackWhole")
+                .setRequired(true)
+                .setKey(1),
+            column("name").setRequired(true).setKey(1)));
+
+    TableMetadata whole = schema.getTable("PartsSameRefBackWhole").getMetadata();
+    whole.add(
+        column("children").setType(PARTS).setRefTable("PartsSameRefBackPart").setRefBack("whole"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                whole.add(
+                    column("moreChildren")
+                        .setType(PARTS)
+                        .setRefTable("PartsSameRefBackPart")
+                        .setRefBack("whole")));
+    assertTrue(exception.getMessage().contains("PartsSameRefBackWhole.children"));
+    assertTrue(exception.getMessage().contains("PartsSameRefBackWhole.moreChildren"));
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("every 'PartsSameRefBackPart' row must belong to exactly one whole"));
+  }
+
+  @Test
+  void partsValidationAllowsRenamingAndRepointingButNotDuplicating() {
+    schema.create(
+        table("PartsRenameWhole", column("name").setPkey()),
+        table(
+            "PartsRenamePart",
+            column("firstLink")
+                .setType(REF)
+                .setRefTable("PartsRenameWhole")
+                .setRequired(true)
+                .setKey(1),
+            column("secondLink")
+                .setType(REF)
+                .setRefTable("PartsRenameWhole")
+                .setRequired(true)
+                .setKey(1),
+            column("name").setRequired(true).setKey(1)));
+
+    TableMetadata whole = schema.getTable("PartsRenameWhole").getMetadata();
+    whole.add(
+        column("children").setType(PARTS).setRefTable("PartsRenamePart").setRefBack("firstLink"));
+
+    Column renamed =
+        new Column(
+            whole,
+            column("sections")
+                .setType(PARTS)
+                .setRefTable("PartsRenamePart")
+                .setRefBack("firstLink"));
+    Column renamedAndRepointed =
+        new Column(
+            whole,
+            column("sections")
+                .setType(PARTS)
+                .setRefTable("PartsRenamePart")
+                .setRefBack("secondLink"));
+
+    assertDoesNotThrow(() -> SqlColumnExecutor.validateColumn(renamed, "children"));
+    assertDoesNotThrow(() -> SqlColumnExecutor.validateColumn(renamedAndRepointed, "children"));
+
+    MolgenisException addedAlongside =
+        assertThrows(
+            MolgenisException.class, () -> SqlColumnExecutor.validateColumn(renamed, null));
+    assertTrue(addedAlongside.getMessage().contains("PartsRenameWhole.children"));
+  }
+
+  private static TableMetadata createPartsRelation(String prefix) {
+    schema.create(
+        table(prefix + "Whole", column("name").setPkey()),
+        table(
+            prefix + "Part",
+            column("whole").setType(REF).setRefTable(prefix + "Whole").setRequired(true).setKey(1),
+            column("name").setRequired(true).setKey(1)));
+    schema
+        .getTable(prefix + "Whole")
+        .getMetadata()
+        .add(column("children").setType(PARTS).setRefTable(prefix + "Part").setRefBack("whole"));
+    return schema.getTable(prefix + "Part").getMetadata();
+  }
+
+  @Test
+  void partsRejectsDroppingCounterpartFromKeyAfterwards() {
+    TableMetadata part = createPartsRelation("PartsLaterKey");
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                part.alterColumn(
+                    "whole",
+                    column("whole")
+                        .setType(REF)
+                        .setRefTable("PartsLaterKeyWhole")
+                        .setRequired(true)));
+    assertTrue(
+        exception.getMessage().contains("must be part of the primary key of 'PartsLaterKeyPart'"));
+    assertTrue(exception.getMessage().contains("a key column marked key=1"));
+    assertTrue(exception.getMessage().contains("PartsLaterKeyPart.whole"));
+
+    part.alterColumn(
+        "whole",
+        column("whole")
+            .setType(REF)
+            .setRefTable("PartsLaterKeyWhole")
+            .setRequired(true)
+            .setKey(1)
+            .setDescription("still a valid counterpart"));
+    assertEquals(1, schema.getTable("PartsLaterKeyPart").getMetadata().getColumn("whole").getKey());
+  }
+
+  @Test
+  void partsRejectsWideningCounterpartToRefArrayAfterwards() {
+    TableMetadata part = createPartsRelation("PartsLaterArray");
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                part.alterColumn(
+                    "whole",
+                    column("whole")
+                        .setType(REF_ARRAY)
+                        .setRefTable("PartsLaterArrayWhole")
+                        .setRequired(true)
+                        .setKey(1)));
+    assertTrue(exception.getMessage().contains("must be a single valued ref"));
+    assertTrue(exception.getMessage().contains("PartsLaterArrayPart.whole"));
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "so every 'PartsLaterArrayPart' row is part of exactly one 'PartsLaterArrayWhole' row"));
+  }
+
+  private static long countForeignKeyConstraints(String tableName) {
+    return ((SqlSchemaMetadata) schema.getMetadata())
+            .getJooq()
+            .resultQuery(
+                "SELECT constraint_name FROM information_schema.table_constraints WHERE table_schema = {0} AND table_name = {1} AND constraint_type = 'FOREIGN KEY'",
+                schema.getName(), tableName)
+            .stream()
+            .count();
+  }
+
+  @Test
   void testRefBackAndFile_fix4703() {
     Table test =
         schema.create(

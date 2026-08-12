@@ -24,6 +24,57 @@ vi.mock("../../../../../app/composables/fetchTableMetadata", () => {
     default: vi
       .fn()
       .mockImplementation(async (_schema: string, tableId: string) => {
+        if (tableId === "cats") {
+          return {
+            id: "cats",
+            columns: [
+              {
+                id: "overview_section",
+                label: "Overview",
+                columnType: "SECTION",
+              },
+              {
+                id: "name",
+                label: "Name",
+                columnType: "STRING",
+              },
+              {
+                id: "details_heading",
+                label: "Details",
+                columnType: "HEADING",
+              },
+              {
+                id: "age",
+                label: "Age",
+                columnType: "INT",
+              },
+            ],
+          };
+        }
+
+        if (tableId === "dogs") {
+          return {
+            id: "dogs",
+            columns: [
+              {
+                id: "overview_section",
+                label: "Overview",
+                columnType: "SECTION",
+              },
+              {
+                id: "details_heading",
+                label: "Details",
+                columnType: "HEADING",
+              },
+              {
+                id: "name",
+                label: "Name",
+                columnType: "STRING",
+              },
+            ],
+          };
+        }
+
         if (tableId === "birds") {
           return {
             id: "birds",
@@ -110,6 +161,51 @@ describe("TableCellDetailRef.vue", () => {
     expect(wrapper.text()).toContain("3");
     expect(wrapper.text()).not.toContain("Data owner");
     expect(wrapper.text()).not.toContain("admin");
+  });
+
+  it("renders a SECTION one heading level above a HEADING", async () => {
+    const wrapper = mountWithSuspense({
+      metadata: {
+        id: "catRef",
+        label: "Cat",
+        columnType: "REF",
+        refTableId: "cats",
+      },
+      columnValue: { id: "cat-1" },
+      schema: "petstore",
+    });
+
+    await flushPromises();
+
+    const headings = wrapper.findAll("h3");
+    expect(headings.map((heading) => heading.text())).toEqual([
+      "Overview",
+      "Details",
+    ]);
+    expect(
+      headings.map((heading) =>
+        heading.classes().filter((name) => name.startsWith("text-heading-"))
+      )
+    ).toEqual([["text-heading-4xl"], ["text-heading-3xl"]]);
+  });
+
+  it("drops a section whose heading is followed by no queried columns", async () => {
+    const wrapper = mountWithSuspense({
+      metadata: {
+        id: "dogRef",
+        label: "Dog",
+        columnType: "REF",
+        refTableId: "dogs",
+      },
+      columnValue: { id: "dog-1" },
+      schema: "petstore",
+    });
+
+    await flushPromises();
+
+    expect(wrapper.findAll("h3").map((heading) => heading.text())).toEqual([
+      "Details",
+    ]);
   });
 
   it("shows data owner fields when enabled and forwards nested value clicks", async () => {

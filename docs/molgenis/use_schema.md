@@ -83,6 +83,19 @@ names are case insensitive):
     - values are shown in a dropdown menu as a checkbox group
 - refback: to describe link back to ref/ref_array (aka one_to_many/many_to_many)
     - values shown as an expandable card which displays the complete record when expanded. The foreign record can be edited or deleted if a user has permission to do so.
+- parts: like refback, but declares the child rows as *part of* the parent row (composition, not just a link back)
+    - use `parts` when child rows **belong to and are nested under** the parent: every child row has exactly one parent and should be viewed as part of the parent's own record. Examples: a resource's tables are *part of* that resource's data model; a table's variables are *part of* that table's definition
+    - when you declare `type: parts` on the parent column, the child table must have a **required reference back to the parent**, and that reference **must be part of the child's primary key** (e.g., `Variables.key = (resource, table, name)`). This constraint makes the path from row to root deterministic and derivable from the URL alone, enabling nested canonical URLs like `/{schema}/Resources/key/tables/key/variables/key` instead of the flat form
+    - validated rules at schema-alter time (`SqlColumnExecutor.validatePartsColumn`, `backend/molgenis-emx2-sql/src/main/java/org/molgenis/emx2/sql/SqlColumnExecutor.java:453-486`):
+        1. A table cannot be `parts` of itself (line 454-457) — prevents circular composition
+        2. The counterpart reference must be single-valued, not `ref_array` (line 460-463) — ensures one parent per child
+        3. The counterpart reference must be required (line 465-467) — every child must have a parent; EMX2 requires all key members to be required anyway (`SqlColumnExecutor.java:441,359`)
+        4. The counterpart reference must be part of the **primary key** (line 469-473) — this is the crucial rule that makes path derivation possible from the URL without server lookup; a table whose parent ref is outside its key cannot be a `parts` child until the key is changed
+        5. Only one `parts` column per child table within a schema (line 475-485) — prevents ambiguous ownership
+    - consequence: child rows are **always nested** — they do not exist standalone at their own top-level URL. If a table needs both nested *and* standalone rows, model them as two separate tables (e.g., keeping the same data in a view or maintaining duplicate tables)
+    - delete behavior: adding `parts` does NOT add cascade delete. The child's required parent reference is an ordinary foreign key constraint (line 49-51, `SqlColumnRefExecutor.java`). Deleting a parent that still has children is **rejected by the database**; children must be deleted first. Cascade delete on composition is a separate feature tracked separately
+    - see `data/_models/shared/Tables.csv` (`Tables.variables`) or `Resources.csv` for worked examples
+    - use `refback` instead when the relation is a plain backlink and the child is not owned by / does not live under the parent. Note: ~18 other relations in the shared models match the mechanical criteria (required single-valued ref in primary key), but only the five declared here represent true composition: `Resources.tables`, `Tables.variables`, `Collections.subpopulations`, `Collections.collection events`, and `Variables.permitted values`. The distinction: `parts` declares ownership/nesting, while a relationship table (e.g. `Table mappings`, which references three different parents) is a plain backlink. Explicit declaration is the only way to distinguish them
 - ref (deprecated) : foreign key (aka many-to-one)
     - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
 - ref_array (deprecated): multiple foreign key (aka many-to-many).
@@ -180,6 +193,59 @@ Text value that describes the column, or when columnName is empty, the table.
 ### form label
 
 Optional string value that defines a label to shown when the field is used within the context of a form.
+
+### role
+
+Using 'role' you can indicate the display function of a column when records are shown as cards (e.g. in detail views where a reference is displayed as a card grid). Possible values:
+
+| Value | Purpose | Example |
+|-------|---------|---------|
+| title | Card heading / row label | Name or acronym field |
+| subtitle | Secondary heading below title | Full name when acronym is title |
+| description | Card description text (truncated to 2 lines) | Description field |
+| logo | Image shown on the card | Logo file field |
+| detail | Additional fields shown in the card body | Type, year, role fields |
+
+When a reference column has `display=cards`, the referenced table's columns with `role` values determine what appears on each card. Columns without a `role` are not shown on cards.
+
+### display
+
+Using 'display' you can control how a reference column (ref_array or refback) is rendered in detail views. Possible values:
+
+| Value | Layout | Description |
+|-------|--------|-------------|
+| table | Paginated table | Default. Shows referenced records in a searchable, sortable table |
+| cards | Card grid | Shows referenced records as cards in a responsive grid (2 columns on desktop). Uses `role` settings from the referenced table to determine card content |
+| list | Bullet list | Shows referenced records as a simple list |
+| links | Link list | Shows referenced records as a series of links |
+
+Example:
+
+| tableName | columnName | columnType | refTable | refBack | display |
+|-----------|------------|------------|----------|---------|---------|
+| Resources | organisations involved | refback | Organisations | resource | cards |
+| Resources | tables | refback | Tables | resource | |
+| Resources | collection events | refback | Collection events | resource | |
+
+In this example, organisations are shown as cards while tables and collection events use the default table layout.
+
+### role (table-level)
+
+Using 'role' on a table (in the row where columnName is empty) you can control how the table appears on the schema landing page. The column header is `role` (the same column that holds column-level roles; the system distinguishes them by whether `columnName` is empty). Possible values:
+
+| Value | Description |
+|-------|-------------|
+| MAIN | Default. Table is shown in the schema's table list section |
+| DETAIL | Table is shown in a separate "detail tables" section. Used for tables that are only meaningful as nested detail of another table (e.g. Collection events, Subpopulations) |
+
+Example:
+
+| tableName | role | description |
+|-----------|------|-------------|
+| Resources | | Main resource table (default: shown in "data tables" section) |
+| Collection events | DETAIL | Shown in "detail tables" section on the landing page |
+| Subpopulations | DETAIL | Shown in "detail tables" section on the landing page |
+
 ## Cross-references
 
 You can define cross-references from one table to another by using the types listed in the [relationship types](#relationships) section. In postgresql, these cross-references translate, and array of foreign key with triggers protecting foreign key constraints respectively. When using cross-references, the name of the reference table (_refTable_) is required.

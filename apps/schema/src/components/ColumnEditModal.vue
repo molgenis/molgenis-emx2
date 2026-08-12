@@ -50,20 +50,7 @@
                   label="columnType"
                 />
               </div>
-              <div
-                class="col-4"
-                v-if="
-                  column.columnType === 'REF' ||
-                  column.columnType === 'REF_ARRAY' ||
-                  column.columnType === 'REFBACK' ||
-                  column.columnType === 'RADIO' ||
-                  column.columnType === 'CHECKBOX' ||
-                  column.columnType === 'SELECT' ||
-                  column.columnType === 'MULTISELECT' ||
-                  column.columnType === 'ONTOLOGY' ||
-                  column.columnType === 'ONTOLOGY_ARRAY'
-                "
-              >
+              <div class="col-4" v-if="isRefType(column.columnType)">
                 <InputSelect
                   id="column_refTable"
                   v-model="column.refTableName"
@@ -74,7 +61,7 @@
                   "
                   :noOptionsProvidedMessage="
                     'No ' +
-                    (column.columnType.includes('ONTOLOGY')
+                    (isOntologyType(column.columnType)
                       ? 'ontology table'
                       : 'data table') +
                     ' found in schema \'' +
@@ -99,7 +86,7 @@
                   description="(Optional) customize how ref values should be shown. E.g. '${name}' or '${firstName} ${lastName}'"
                 />
               </div>
-              <div class="col-4" v-if="column.columnType === 'REFBACK'">
+              <div class="col-4" v-if="isRefbackType(column.columnType)">
                 <InputSelect
                   id="column_refBack"
                   label="refBack"
@@ -110,9 +97,7 @@
               <div
                 class="col-4"
                 v-if="
-                  column.refTableName &&
-                  (column.columnType === 'REF' ||
-                    column.columnType === 'REF_ARRAY')
+                  column.refTableName && isStoredTableRefType(column.columnType)
                 "
               >
                 <InputSelect
@@ -157,7 +142,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-4" v-if="column.columnType !== 'CONSTANT'">
+              <div class="col-4">
                 <InputSelect
                   id="column_key"
                   v-model="column.key"
@@ -186,7 +171,7 @@
                   description="When javascript expression returns 'false' the expression itself is shown. Example: name === 'John'. When javascript expression returns a string then this string is shown. Example if(name!=='John')'name should be John'. Is not checked if not visible."
                 />
               </div>
-              <div class="col-4" v-if="column.columnType !== AUTO_ID">
+              <div class="col-4" v-if="!isAutoIdType(column.columnType)">
                 <InputText
                   id="column_visible"
                   v-model="column.visible"
@@ -200,7 +185,7 @@
                   v-model="column.computed"
                   label="computed"
                   :description="
-                    column.columnType == AUTO_ID
+                    isAutoIdType(column.columnType)
                       ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix. Additional options for mg_autoid: format=letters|numbers|mixed, length=number. Example: ${mg_autoid(format=letters, length=8)}'
                       : 'When set only the input will be readonly and value computed using this formula'
                   "
@@ -312,11 +297,16 @@ import {
   deepClone, //@ts-ignore
   getRowErrors,
 } from "molgenis-components";
+import {
+  isAutoIdType,
+  isOntologyType,
+  isRefType,
+  isRefbackType,
+  isStoredTableRefType,
+} from "metadata-utils";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
 import { findRootTable } from "../tableModel";
-
-const AUTO_ID = "AUTO_ID";
 
 export default {
   components: {
@@ -390,7 +380,6 @@ export default {
       previewData: {} as Record<string, any>,
       rowErrors: {} as Record<string, string>,
       columnTypes,
-      AUTO_ID,
     };
   },
   computed: {
@@ -443,10 +432,7 @@ export default {
     //listing of all tables, used for refs
     tableNames() {
       if (this.column.refSchemaName && this.refSchema.tables) {
-        if (
-          this.column.columnType === "ONTOLOGY" ||
-          this.column.columnType === "ONTOLOGY_ARRAY"
-        ) {
+        if (isOntologyType(this.column.columnType)) {
           return this.refSchema.tables
             .filter((t: Record<string, any>) => t.tableType === "ONTOLOGIES")
             .map((t: Record<string, any>) => t.name);
@@ -456,10 +442,7 @@ export default {
             .map((t: Record<string, any>) => t.name);
         }
       } else {
-        if (
-          this.column.columnType === "ONTOLOGY" ||
-          this.column.columnType === "ONTOLOGY_ARRAY"
-        ) {
+        if (isOntologyType(this.column.columnType)) {
           return this.schema.ontologies.map((t: Record<string, any>) => t.name);
         } else {
           return this.schema.tables.map((t: Record<string, any>) => t.name);
@@ -490,6 +473,11 @@ export default {
     },
   },
   methods: {
+    isAutoIdType,
+    isRefType,
+    isRefbackType,
+    isOntologyType,
+    isStoredTableRefType,
     showModal() {
       this.reset();
       this.modalVisible = true;
@@ -514,12 +502,7 @@ export default {
       return this.table.columns
         .filter(
           (c: Record<string, any>) =>
-            (c.columnType === "REF" ||
-              c.columnType === "REF_ARRAY" ||
-              c.columnType === "RADIO" ||
-              c.columnType === "SELECT" ||
-              c.columnType === "MULTISELECT" ||
-              c.columnType === "CHECKBOX") &&
+            isStoredTableRefType(c.columnType) &&
             c.name !== this.modelValue?.name
         )
         .map((c: Record<string, any>) => c.name);
@@ -579,11 +562,7 @@ export default {
       this.modalVisible = false;
     },
     isEditable(column: Record<string, any>) {
-      return (
-        column.columnType !== "CONSTANT" &&
-        !column.computed &&
-        column.columnType !== AUTO_ID
-      );
+      return !column.computed && !isAutoIdType(column.columnType);
     },
     checkForErrors() {
       this.rowErrors = getRowErrors(this.table, this.previewData);

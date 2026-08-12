@@ -7,5 +7,5 @@ defineProps<{
 </script>
 
 <template>
-  <HyperLink :href="field.value" target="_blank"></HyperLink>
+  <HyperLink :href="(field.value as string)" target="_blank"></HyperLink>
 </template>

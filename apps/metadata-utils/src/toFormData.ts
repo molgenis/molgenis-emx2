@@ -1,6 +1,9 @@
-import type { columnValue } from "./types";
+import type { columnValue, IColumn } from "./types";
 
-export const toFormData = (rowData: Record<string, columnValue>) => {
+export const toFormData = (
+  rowData: Record<string, columnValue>,
+  columns?: IColumn[]
+) => {
   if (!FormData) {
     throw "Files can only be uploaded via a browser client";
   }
@@ -9,7 +12,7 @@ export const toFormData = (rowData: Record<string, columnValue>) => {
   const fileValues: Record<string, File> = {};
 
   // split into file and non-file entries
-  for (const [key, value] of Object.entries(rowData)) {
+  for (const [key, value] of columnEntries(rowData, columns)) {
     isFileValue(value)
       ? (fileValues[key] = value)
       : (nonFileValue[key] = value);
@@ -25,6 +28,18 @@ export const toFormData = (rowData: Record<string, columnValue>) => {
   formData.append("variables", JSON.stringify({ value: [nonFileValue] }));
 
   return formData;
+};
+
+const columnEntries = (
+  rowData: Record<string, columnValue>,
+  columns?: IColumn[]
+): [string, columnValue][] => {
+  const entries = Object.entries(rowData);
+  if (!columns) {
+    return entries;
+  }
+  const columnIds = new Set(columns.map((column) => column.id));
+  return entries.filter(([key]) => columnIds.has(key));
 };
 
 const isFileValue = (value: File | any) => {

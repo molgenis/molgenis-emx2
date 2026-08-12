@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { vIntersectionObserver } from "@vueuse/components";
+import {
+  isLayoutColumnType,
+  isPlainHeadingType,
+} from "../../../../metadata-utils/src";
 import type { IRow } from "../../../../metadata-utils/src/types";
 import FormField from "./FormField.vue";
 import type { UseForm } from "../../composables/useForm";
@@ -47,13 +51,13 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
 <template>
   <template v-for="column in columns" :key="column.id">
     <div
-      v-if="column.columnType === 'HEADING' || column.columnType === 'SECTION'"
+      v-if="isLayoutColumnType(column.columnType)"
       :id="`${prefix}-${column.id}-form-field`"
     >
       <h2
         class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
         :class="
-          column.columnType === 'HEADING'
+          isPlainHeadingType(column.columnType)
             ? 'md:text-heading-4xl text-heading-4xl'
             : 'md:text-heading-5xl text-heading-5xl'
         "

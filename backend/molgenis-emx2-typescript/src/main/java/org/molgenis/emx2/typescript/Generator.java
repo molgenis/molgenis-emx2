@@ -149,7 +149,7 @@ public class Generator {
                       : column.getRefTable().getSchemaName()
                           + '_'
                           + column.getRefTable().getTableName());
-      case REF_ARRAY, REFBACK ->
+      case REF_ARRAY, REFBACK, PARTS ->
           "I"
               + convertToPascalCase(
                   column.getRefTable().getSchemaName().equals(schema.getName())

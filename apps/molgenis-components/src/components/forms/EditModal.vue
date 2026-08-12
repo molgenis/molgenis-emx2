@@ -102,6 +102,7 @@ import type {
   ISetting,
   ITableMetaData,
 } from "metadata-utils";
+import { isAutoIdType } from "../../../../metadata-utils/src/fieldHelpers";
 import { computed, onMounted, ref, toRefs } from "vue";
 import type { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";
@@ -116,6 +117,7 @@ import Tooltip from "./Tooltip.vue";
 import {
   filterVisibleColumns,
   getChapterStyle,
+  getDataWithoutRefbacks,
   getRowErrors,
   getSaveDisabledMessage,
   isColumnVisible,
@@ -233,7 +235,7 @@ const saveDraftDisabledMessage = computed(() => {
   const hasInvalidPrimaryKeyValue = tableMetadata.value?.columns.some(
     (column) =>
       column.key === 1 &&
-      column.columnType !== "AUTO_ID" &&
+      !isAutoIdType(column.columnType) &&
       !isValidKeyValue(rowData.value[column.id])
   );
   if (hasInvalidPrimaryKeyValue) {
@@ -316,23 +318,6 @@ async function save(formData: IRow) {
   if (result) {
     emit("update:newRow", formData);
     handleClose();
-  }
-}
-
-function getDataWithoutRefbacks(
-  formData: IRow,
-  tableMetadata: ITableMetaData | undefined
-): IRow {
-  if (!tableMetadata) {
-    return formData;
-  } else {
-    let dataCopy = { ...formData };
-    tableMetadata.columns.forEach((column: IColumn) => {
-      if (column.columnType === "REFBACK") {
-        delete dataCopy[column.id];
-      }
-    });
-    return dataCopy;
   }
 }
 

@@ -675,6 +675,61 @@ class TestGraphqlSchemaFields {
     assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
   }
 
+  @Test
+  public void testRoleAndDisplayInSchemaMetadata() throws IOException {
+    execute(
+        "mutation{change(tables:[{name:\"RoleDisplayTest\",role:\"detail\",columns:[{name:\"id\",key:1},{name:\"roleCol\",role:\"DETAIL\"},{name:\"displayCol\",display:\"cards\"}]}]){message}}");
+    JsonNode node = execute("{_schema{tables{name,role,columns{name,role,display}}}}");
+    String result = node.toString();
+    assertTrue(result.contains("\"role\":\"DETAIL\""));
+    assertTrue(result.contains("\"display\":\"CARDS\""));
+    String tableRole = null;
+    for (JsonNode table : node.at("/_schema/tables")) {
+      if ("RoleDisplayTest".equals(table.get("name").asText())) {
+        tableRole = table.get("role").asText();
+      }
+    }
+    assertEquals("DETAIL", tableRole);
+    execute("mutation{drop(tables:\"RoleDisplayTest\"){message}}");
+  }
+
+  @Test
+  void linksDisplayInSchemaMetadata() throws IOException {
+    execute(
+        "mutation{change(tables:[{name:\"LinksDisplayTest\",columns:[{name:\"id\",key:1},{name:\"displayCol\",display:\"links\"}]}]){message}}");
+    JsonNode node = execute("{_schema{tables{name,columns{name,display}}}}");
+    assertTrue(node.toString().contains("\"display\":\"LINKS\""));
+    execute("mutation{drop(tables:\"LinksDisplayTest\"){message}}");
+  }
+
+  @Test
+  void partsColumnTypeInSchemaMetadata() throws IOException {
+    execute(
+        "mutation{change(tables:[{name:\"PartsResources\",columns:[{name:\"name\",key:1}]},{name:\"PartsTables\",columns:[{name:\"resource\",columnType:\"REF\",refTableName:\"PartsResources\",key:1},{name:\"name\",key:1}]}]){message}}");
+    execute(
+        "mutation{change(columns:{table:\"PartsResources\",name:\"tables\",columnType:\"PARTS\",refTableName:\"PartsTables\",refBackName:\"resource\"}){message}}");
+
+    JsonNode node =
+        execute("{_schema{tables{name,columns{name,columnType,refBackName,refTableName}}}}");
+    JsonNode partsColumn = null;
+    for (JsonNode table : node.at("/_schema/tables")) {
+      if ("PartsResources".equals(table.get("name").asText())) {
+        for (JsonNode column : table.get("columns")) {
+          if ("tables".equals(column.get("name").asText())) {
+            partsColumn = column;
+          }
+        }
+      }
+    }
+
+    assertNotNull(partsColumn);
+    assertEquals(ColumnType.PARTS.name(), partsColumn.get("columnType").asText());
+    assertEquals("resource", partsColumn.get("refBackName").asText());
+    assertEquals("PartsTables", partsColumn.get("refTableName").asText());
+
+    execute("mutation{drop(tables:[\"PartsTables\",\"PartsResources\"]){message}}");
+  }
+
   private JsonNode execute(String query) throws IOException {
     String result = convertExecutionResultToJson(graphqlExecutor.executeWithoutSession(query));
     JsonNode node = new ObjectMapper().readTree(result);

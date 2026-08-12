@@ -11,6 +11,10 @@ import {
 } from "vue";
 import { useRoute, useRouter } from "#imports";
 import { useDebounceFn } from "@vueuse/core";
+import {
+  isOntologyType,
+  isOptionKeyRefType,
+} from "../../../metadata-utils/src";
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type {
   ActiveFilter,
@@ -813,14 +817,11 @@ export function buildLabelMap(
     return {};
   }
 
-  if (
-    column.columnType === "ONTOLOGY" ||
-    column.columnType === "ONTOLOGY_ARRAY"
-  ) {
+  if (isOntologyType(column.columnType)) {
     return flattenOntologyTree(counted);
   }
 
-  if (column.columnType === "RADIO" || column.columnType === "CHECKBOX") {
+  if (isOptionKeyRefType(column.columnType)) {
     return flattenRefOptions(counted);
   }
 

@@ -7,8 +7,9 @@
     "lint": "turbo run lint --filter=tailwind-components --filter=catalogue --filter=ui",
     "format": "turbo run format",
     "checkFormat": "turbo run checkFormat",
-    "test-ci": "turbo run test-ci && pnpm run test-dev-env",
+    "test-ci": "turbo run test-ci && pnpm run test-dev-env && pnpm run test-column-type-literals",
     "test-dev-env": "node --test dev-env.test.js",
+    "test-column-type-literals": "node --test no-column-type-literals.test.js",
     "e2e": "turbo run e2e"
   },
   "dependencies": {

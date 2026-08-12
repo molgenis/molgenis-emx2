@@ -363,56 +363,56 @@ class CsvApiTest extends ApiTestBase {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\n";
+        "tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,role,display,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description,semantics\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName\nTestMetaTable",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,semantics\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,NewTestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,,,NewTestDesc\n");
 
     // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description,semantics\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,NewTestSem,,,\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,NewTestSem,,,\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description,semantics\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,,,\n");
 
     // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description,semantics\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\n");
   }
 
   @Test
