@@ -10,6 +10,7 @@
         @add="addTable"
         operation="add"
         :schema="schema"
+        :schemaNames="schemaNames"
         @update:modelValue="$emit('update:modelValue', schema)"
       />
     </div>
@@ -90,6 +91,7 @@ div.schema-toc.sticky-top {
 
 <script>
 import TableEditModal from "./TableEditModal.vue";
+import { findLocalRootTable } from "../inheritSchema";
 
 export default {
   components: { TableEditModal },
@@ -102,6 +104,10 @@ export default {
     isManager: {
       type: Boolean,
       default: false,
+    },
+    schemaNames: {
+      type: Array,
+      default: () => [],
     },
   },
   data() {
@@ -118,7 +124,15 @@ export default {
       if (!Array.isArray(table.columns)) {
         table.columns = [];
       }
-      this.schema.tables.push(table);
+      const localRootTable = findLocalRootTable(this.schema, table);
+      if (localRootTable) {
+        localRootTable.subclasses = [
+          table,
+          ...(localRootTable.subclasses || []),
+        ];
+      } else {
+        this.schema.tables.push(table);
+      }
       this.$emit("update:modelValue", this.schema);
     },
     addOntology(ontology) {
