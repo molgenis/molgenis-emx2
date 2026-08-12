@@ -57,7 +57,7 @@ test.describe("when the dragonkeeper has permissions on the pet table only", () 
         .locator("div")
         .filter({ hasText: /^pooky$/ })
         .first()
-    );
+    ).toBeVisible();
   });
 });
 
