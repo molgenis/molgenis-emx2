@@ -622,8 +622,8 @@ const rows = computed((): TableRow[] =>
 
 const hasFiltersOrSearch = computed(
   () =>
-    (filters?.activeFilters.value.length ?? 0) > 0 ||
-    (filters?.searchValue.value ?? "").length > 0
+    (filters?.activeFilters.value.length ?? 0) ||
+    (filters?.searchValue.value ?? "").length
 );
 
 const emptyRowsLabel = computed(() =>
