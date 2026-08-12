@@ -8,17 +8,15 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
-import org.eclipse.rdf4j.model.IRI;
 import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.jetbrains.annotations.Nullable;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column extends HasLabelsDescriptionsAndSettings<Column> implements Comparable<Column> {
+public class Column extends HasLabelsDescriptionsAndSettings<Column>
+    implements Comparable<Column>, HasSemantics {
 
   // basics
   private TableMetadata table; // table this column is part of
@@ -99,31 +97,10 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName.trim();
   }
 
-  /**
-   * @return {@code false} if null or empty, otherwise {@code true}.
-   */
-  public boolean hasSemantics() {
-    return semantics != null && semantics.length > 0;
-  }
-
   @Nullable
+  @Override
   public Semantic[] getSemantics() {
     return semantics;
-  }
-
-  private <R> Stream<R> getSemanticsStream(Function<Semantic, R> mapper) {
-    return semantics == null ? Stream.empty() : stream(semantics).map(mapper);
-  }
-
-  public Stream<IRI> getSemanticsIriStream() {
-    return getSemanticsStream(getSemanticPrefixes()::mapAsIri);
-  }
-
-  /**
-   * @see SemanticPrefixes#mapAsString(Semantic)
-   */
-  public Stream<String> getSemanticsStringStream() {
-    return getSemanticsStream(getSemanticPrefixes()::mapAsString);
   }
 
   public Column setSemantics(Semantic[] semantics) {
@@ -136,6 +113,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
         semantics == null ? null : stream(semantics).map(Semantic::new).toArray(Semantic[]::new));
   }
 
+  @Override
   public SemanticPrefixes getSemanticPrefixes() {
     return getSchema().getSemanticPrefixes();
   }

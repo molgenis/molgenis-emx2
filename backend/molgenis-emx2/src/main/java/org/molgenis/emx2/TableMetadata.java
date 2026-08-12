@@ -7,17 +7,14 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import org.eclipse.rdf4j.model.IRI;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.impl.DSL;
 
 public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadata>
-    implements Comparable {
+    implements Comparable, HasSemantics {
 
   public static final String TABLE_NAME_MESSAGE =
       ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
@@ -54,23 +51,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   @Nullable
+  @Override
   public Semantic[] getSemantics() {
     return semantics;
-  }
-
-  private <R> Stream<R> getSemanticsStream(Function<Semantic, R> mapper) {
-    return semantics == null ? Stream.empty() : stream(semantics).map(mapper);
-  }
-
-  public Stream<IRI> getSemanticsIriStream() {
-    return getSemanticsStream(getSemanticPrefixes()::mapAsIri);
-  }
-
-  /**
-   * @see SemanticPrefixes#mapAsString(Semantic)
-   */
-  public Stream<String> getSemanticsStringStream() {
-    return getSemanticsStream(getSemanticPrefixes()::mapAsString);
   }
 
   public TableMetadata setSemantics(Semantic[] semantics) {
@@ -83,6 +66,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
         semantics == null ? null : stream(semantics).map(Semantic::new).toArray(Semantic[]::new));
   }
 
+  @Override
   public SemanticPrefixes getSemanticPrefixes() {
     return getSchema().getSemanticPrefixes();
   }
