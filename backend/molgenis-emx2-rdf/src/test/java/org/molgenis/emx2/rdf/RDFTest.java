@@ -1646,7 +1646,7 @@ name,http://www.w3.org/2000/01/rdf-schema#
   }
 
   @Test
-  void prefixedNamesRowUsingUndefinedPrefix() throws IOException {
+  void prefixedNamesRowUsingUndefinedPrefix() {
     assertThrows(MolgenisException.class, () -> parseRowRdf(semanticTest, "SemanticTable", "id=2"));
   }
 

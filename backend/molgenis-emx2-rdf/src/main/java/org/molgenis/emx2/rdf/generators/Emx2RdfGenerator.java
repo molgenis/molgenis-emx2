@@ -221,7 +221,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     table
         .getMetadata()
         .getColumns()
-        .forEach(column -> processDataRowColumn(rdfMapData, table, row, column, subject));
+        .forEach(column -> processDataRowColumn(rdfMapData, row, column, subject));
   }
 
   private void processDataRowGenerics(final Table table, final Row row, final IRI subject) {
@@ -240,7 +240,6 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   private void processDataRowColumn(
       final RdfMapData rdfMapData,
-      final Table table,
       final Row row,
       final Column column,
       final IRI subject) {
