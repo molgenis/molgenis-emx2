@@ -136,6 +136,7 @@
                   :settings="settings"
                   :columns="sortedVisibleColumns"
                   :showDraftColumn="showDraftColumn"
+                  :showRolesColumn="showRolesColumn"
                   :isResizing="isResizing"
                   :columnWidths="columnWidths"
                   @sort-requested="handleSortRequest"
@@ -150,6 +151,7 @@
                 :settings="settings"
                 :columns="sortedVisibleColumns"
                 :showDraftColumn="showDraftColumn"
+                :showRolesColumn="showRolesColumn"
                 :isResizing="isResizing"
                 :columnWidths="columnWidths"
                 @sort-requested="handleSortRequest"
@@ -175,6 +177,13 @@
                         @update:model-value="toggleRowSelection(row)"
                       />
                     </div>
+                  </TableCellEMX2>
+
+                  <TableCellEMX2
+                    v-if="showRolesColumn"
+                    class="text-table-row group-hover:bg-hover w-48"
+                  >
+                    {{ row.mg_roles?.[0] ?? "" }}
                   </TableCellEMX2>
 
                   <TableCellEMX2
@@ -452,6 +461,7 @@ const settings = defineModel<ITableSettings>("settings", {
 type TableRow = {
   _rowId: Record<string, columnValue>;
   _rowIdString: string;
+  mg_roles?: string[];
 } & Record<string, columnValue>;
 
 const filters: UseFilters | null = props.enableFilters
@@ -632,6 +642,10 @@ const emptyRowsLabel = computed(() =>
 
 const showDraftColumn = computed(() =>
   rows.value.some((row: TableRow) => row?.mg_draft === true)
+);
+
+const showRolesColumn = computed(() =>
+  rows.value.some((row: TableRow) => row?.mg_roles?.length)
 );
 
 const count = computed(() => data.value?.count ?? 0);
