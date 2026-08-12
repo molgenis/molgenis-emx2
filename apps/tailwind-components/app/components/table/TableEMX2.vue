@@ -52,6 +52,22 @@
           :tableId="tableId"
         />
 
+        <Truncate
+          v-if="props.isEditable && data?.tableMetadata"
+          v-slot="{ showConfirmationModal }"
+          :metadata="data.tableMetadata"
+          @update:truncated="afterRowDeleted"
+        >
+          <Button
+            type="outline"
+            size="medium"
+            @click="showConfirmationModal"
+            :disabled="!rows.length"
+          >
+            Truncate
+          </Button>
+        </Truncate>
+
         <slot name="toolbar-end" />
       </div>
     </div>
@@ -212,7 +228,20 @@
                         >
                           {{ row._rowIdString }}
                         </Button>
-
+                        <Button
+                          v-if="isEditable"
+                          :id="`copy-button-${row._rowIdString}`"
+                          :icon-only="true"
+                          type="inline"
+                          icon="copy"
+                          label="copy"
+                          @click="onShowEditModal(row, true)"
+                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-copy`"
+                          aria-haspopup="dialog"
+                          :aria-expanded="showEditModal"
+                        >
+                          {{ row._rowIdString }}
+                        </Button>
                         <slot name="additional-row-actions" :row="row" />
                       </div>
                     </template>
@@ -287,7 +316,7 @@
     :schemaId="schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
-    :isInsert="false"
+    :isInsert="isCopy"
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
   />
@@ -349,6 +378,7 @@ import DeleteRows from "./control/DeleteRows.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
 import DownloadButton from "./control/DownloadButton.vue";
+import Truncate from "./control/Truncate.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -379,6 +409,7 @@ const showDeleteModal = ref<boolean>(false);
 const showDeleteMultipleModal = ref<boolean>(false);
 const rowDataForModal = ref<IRow>();
 const showModal = ref(false);
+const isCopy = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
 const columns = ref<IColumn[]>([]);
@@ -467,20 +498,22 @@ const { data, refresh, status } = useAsyncData(
     });
 
     // add unique row identifier for selection purposes
-    const rows: TableRow[] = await Promise.all(
-      tableData.rows.map(async (row) => {
-        const primaryKey = await getPrimaryKey(
-          row,
-          props.tableId,
-          props.schemaId
-        );
-        return {
-          ...row,
-          _rowId: primaryKey,
-          _rowIdString: JSON.stringify(primaryKey),
-        };
-      })
-    );
+    const rows: TableRow[] = tableData.rows?.length
+      ? await Promise.all(
+          tableData.rows.map(async (row) => {
+            const primaryKey = await getPrimaryKey(
+              row,
+              props.tableId,
+              props.schemaId
+            );
+            return {
+              ...row,
+              _rowId: primaryKey,
+              _rowIdString: JSON.stringify(primaryKey),
+            };
+          })
+        )
+      : [];
 
     return {
       tableMetadata,
@@ -730,11 +763,19 @@ function onShowDeleteModal(row: TableRow) {
   showDeleteModal.value = true;
 }
 
-function onShowEditModal(row: TableRow) {
+function onShowEditModal(row: TableRow, isCopyMode = false) {
   const clone: IRow = structuredClone(row);
   delete clone._rowId;
   delete clone._rowIdString;
+  if (isCopyMode) {
+    data.value?.tableMetadata?.columns.forEach((column: IColumn) => {
+      if (column.key === 1) {
+        delete clone[column.id];
+      }
+    });
+  }
   rowDataForModal.value = clone;
+  isCopy.value = isCopyMode;
   showEditModal.value = true;
 }
 

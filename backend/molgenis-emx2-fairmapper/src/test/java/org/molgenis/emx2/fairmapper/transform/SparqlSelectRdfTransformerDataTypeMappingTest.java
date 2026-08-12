@@ -3,11 +3,10 @@ package org.molgenis.emx2.fairmapper.transform;
 import static org.eclipse.rdf4j.model.util.Statements.statement;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.SemanticTestUtils.toSemantic;
 
-import java.util.Arrays;
 import java.util.List;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
@@ -90,7 +89,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
   }
 
   @Test
-  void shouldMapStringArrayValuesAsCommaSeparated() {
+  void shouldMapStringArrayValuesAsArrays() {
     IRI predicate = iri(PREDICATE_BASE + "tags");
     SchemaMetadata schema =
         setupSchema(
@@ -102,10 +101,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
         transformAndGetFirstRow(
             schema, repositoryWithMultiple(predicate, literal("alpha"), literal("beta")));
 
-    List<String> parts = Arrays.asList(row.getString("tags").split("\\|"));
-    assertEquals(2, parts.size());
-    assertTrue(parts.contains("alpha"));
-    assertTrue(parts.contains("beta"));
+    assertArrayEquals(new String[] {"alpha", "beta"}, row.getStringArray("tags"));
   }
 
   @Test
@@ -122,10 +118,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
             schema, repositoryWithMultiple(predicate, literal(10), literal(20)));
 
     // STR() in GROUP_CONCAT strips the XSD type annotation, leaving just the lexical value
-    List<String> parts = Arrays.asList(row.getString("scores").split("\\|"));
-    assertEquals(2, parts.size());
-    assertTrue(parts.contains("10"));
-    assertTrue(parts.contains("20"));
+    assertArrayEquals(new Integer[] {10, 20}, row.getIntegerArray("scores"));
   }
 
   private SailRepository repositoryWith(IRI predicate, Value object) {
