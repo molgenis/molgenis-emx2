@@ -116,7 +116,7 @@ public class Column {
 
     // calculated field
     if (table.getInheritName() != null)
-      this.inherited = table.getInheritedTable().getColumnNames().contains(column.getName());
+      this.inherited = table.requireInheritedTable().getColumnNames().contains(column.getName());
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
