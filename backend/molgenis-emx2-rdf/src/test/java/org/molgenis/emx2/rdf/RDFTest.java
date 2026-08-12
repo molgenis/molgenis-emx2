@@ -1381,9 +1381,8 @@ public class RDFTest {
 
     try {
       Schema schema = database.dropCreateSchema("PrefixesMissingIri");
-      assertThrows(
-          MolgenisException.class,
-          () -> schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes));
+      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
+      assertThrows(MolgenisException.class, () -> schema.getMetadata().getSemanticPrefixes());
     } finally {
       database.dropSchemaIfExists("PrefixesMissingIri");
     }
@@ -1395,9 +1394,8 @@ public class RDFTest {
 
     try {
       Schema schema = database.dropCreateSchema("PrefixesIllegalPrefix");
-      assertThrows(
-          MolgenisException.class,
-          () -> schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes));
+      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
+      assertThrows(MolgenisException.class, () -> schema.getMetadata().getSemanticPrefixes());
     } finally {
       database.dropSchemaIfExists("PrefixesIllegalPrefix");
     }
