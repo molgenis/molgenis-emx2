@@ -51,6 +51,13 @@ test.describe("when the dragonkeeper has permissions on the pet table only", () 
     await expect(page.getByLabel("error")).toBeVisible();
 
     await signin(page, "admin", "admin");
+    await page.getByRole("searchbox", { name: "Search Pet" }).fill("pooky");
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^pooky$/ })
+        .first()
+    );
     await expect(page.getByText("Showing 1 to 10 of 10 items")).toBeVisible();
   });
 });
