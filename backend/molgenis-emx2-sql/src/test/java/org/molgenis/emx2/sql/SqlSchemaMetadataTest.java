@@ -26,7 +26,7 @@ class SqlSchemaMetadataTest {
   }
 
   @Test
-  void testSemanticPrefixesUpdated() {
+  void testSemanticPrefixesRepresentAdvancedSettingState() {
     Namespace[] namespaces =
         new Namespace[] {
           new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"),
