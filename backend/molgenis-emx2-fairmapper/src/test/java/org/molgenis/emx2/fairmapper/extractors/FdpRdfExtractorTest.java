@@ -52,7 +52,11 @@ class FdpRdfExtractorTest {
                 URI.create("https://example.org/fdp-api/catalog/2"),
                 "catalog2.rdf",
                 URI.create("https://example.org/fdp-api/dataset/1"),
-                "dataset.rdf"));
+                "dataset.rdf",
+                URI.create("https://example.org/fdp-api/distribution/1"),
+                "distribution.rdf",
+                URI.create("https://example.org/fdp-api/csvw/1"),
+                "csvw.rdf"));
 
     SailRepository extracted = new SailRepository(new MemoryStore());
     new FdpRdfExtractor(staticFileRdfExtractor, URI.create("https://example.org/fdp-api"))
@@ -60,7 +64,7 @@ class FdpRdfExtractorTest {
 
     try (RepositoryConnection connection = extracted.getConnection()) {
       long nrStatements = connection.getStatements(null, null, null).stream().count();
-      assertEquals(6, nrStatements);
+      assertEquals(10, nrStatements);
       assertHasStatements(
           connection,
           Values.iri("https://example.org/fdp-api"),
@@ -83,14 +87,34 @@ class FdpRdfExtractorTest {
           Values.iri("https://example.org/fdp-api/dataset/1"));
       assertHasStatements(
           connection,
+          Values.iri("https://example.org/fdp-api/catalog/2"),
+          DCTERMS.TITLE,
+          Values.literal("catalog 2"));
+      assertHasStatements(
+          connection,
           Values.iri("https://example.org/fdp-api/dataset/1"),
           DCTERMS.TITLE,
           Values.literal("dataset"));
       assertHasStatements(
           connection,
-          Values.iri("https://example.org/fdp-api/catalog/2"),
+          Values.iri("https://example.org/fdp-api/dataset/1"),
+          Values.iri("http://www.w3.org/ns/dcat#distribution"),
+          Values.iri("https://example.org/fdp-api/distribution/1"));
+      assertHasStatements(
+          connection,
+          Values.iri("https://example.org/fdp-api/distribution/1"),
           DCTERMS.TITLE,
-          Values.literal("catalog 2"));
+          Values.literal("distribution 1"));
+      assertHasStatements(
+          connection,
+          Values.iri("https://example.org/fdp-api/distribution/1"),
+          Values.iri("http://www.w3.org/ns/dcat#downloadURL"),
+          Values.iri("https://example.org/fdp-api/csvw/1"));
+      assertHasStatements(
+          connection,
+          Values.iri("https://example.org/fdp-api/csvw/1"),
+          DCTERMS.TITLE,
+          Values.literal("csvw 1"));
     }
   }
 
