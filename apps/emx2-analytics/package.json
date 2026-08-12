@@ -1,5 +1,5 @@
 {
-  "name": "@molgenis/emx2-analytics",
+  "name": "emx2-analytics",
   "description": "Molgenis EMX2 Analytics, client module",
   "license": "LGPL-3.0-or-later",
   "private": false,
