@@ -11,12 +11,20 @@ application {
 shadowJar {
     zip64 = true
     archiveBaseName = 'fairmapper'
-    archiveClassifier = 'all'
+    archiveClassifier = 'cli'
     mergeServiceFiles()
+
+    // Multi-release is needed for graalvm lib
+    manifest {
+        attributes(
+                "Multi-Release": "true"
+        )
+    }
 
     exclude("META-INF/*.SF")
     exclude("META-INF/*.DSA")
     exclude("META-INF/*.RSA")
+
 }
 
 dependencies {
