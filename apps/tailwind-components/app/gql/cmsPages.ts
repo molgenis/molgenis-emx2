@@ -52,6 +52,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                 
                 # components
                 componentOrder(orderby: {order:ASC}) {
+                    id
                     order
                     component {
                         id

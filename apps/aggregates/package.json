@@ -1,5 +1,5 @@
 {
-  "name": "force-dashboard",
+  "name": "aggregates",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,6 +15,7 @@
     "graphql-request": "6.1.0",
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
+    "tailwind-components": "workspace:*",
     "vue": "3.5.22",
     "vue-router": "4.4.3"
   },

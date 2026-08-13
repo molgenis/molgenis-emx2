@@ -14,7 +14,6 @@ import Modal from "../../Modal.vue";
 import { isMgError } from "../../../utils/typeUtils";
 
 const session = await useSession();
-const table = useTable();
 
 const props = defineProps<{
   schemaId: string;
@@ -26,6 +25,8 @@ const emit = defineEmits<{
   (e: "update:deleted", deleted: boolean): void;
   (e: "update:cancelled", cancelled: boolean): void;
 }>();
+
+const table = useTable(props.schemaId, props.metadata.id);
 
 const visible = defineModel("visible", {
   type: Boolean,
@@ -42,7 +43,7 @@ function reAuthenticate() {
 
 async function onDeleteConfirm() {
   try {
-    await table.deleteRecords(props.schemaId, props.metadata.id, props.keys);
+    await table.deleteRecords(props.keys);
     emit("update:deleted", true);
     visible.value = false;
   } catch (error: unknown) {
@@ -60,7 +61,7 @@ async function onDeleteConfirm() {
 </script>
 
 <template>
-  <Modal v-model:visible="visible" max-width="max-w-9/10">
+  <Modal v-model:visible="visible" size="small">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
         <div class="mb-5 relative flex items-center">
@@ -83,12 +84,10 @@ async function onDeleteConfirm() {
 
     <section class="grid grid-cols-4 gap-1"></section>
 
-    <div class="w-[90%] mx-8 my-auto py-4">
-      <p class="text-body-lg text-center text-title-contrast">
-        Are you sure you want to delete the {{ keys.size }} selected rows.
-      </p>
-      <p class="text-body-lg text-center text-title-contrast">
-        This action cannot be undone.
+    <div class="mx-8 my-auto py-4">
+      <p class="text-sm">
+        Are you sure you want to delete the {{ keys.size }} selected rows. This
+        action cannot be undone.
       </p>
     </div>
 
