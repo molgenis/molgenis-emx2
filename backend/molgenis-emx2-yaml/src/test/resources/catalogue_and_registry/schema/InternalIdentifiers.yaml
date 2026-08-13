@@ -1,0 +1,22 @@
+---
+table:
+  table: Internal identifiers
+  description: Internal identifier(s) for this resource
+  columns:
+  - name: resource
+    type: ref
+    key: 1
+    description: Resource that this internal identifier belongs to
+    refTable: Resources
+  - name: identifier
+    type: text
+    key: 1
+    description: Internal identifier
+  - name: internal identifier type
+    type: ontology
+    description: Internal identifier type
+    refTable: Internal identifier types
+    refSchema: CatalogueOntologies
+  - name: internal identifier type other
+    type: text
+    description: "If 'other', enter internal identifier type"

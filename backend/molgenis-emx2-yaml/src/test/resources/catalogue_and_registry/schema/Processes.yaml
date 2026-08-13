@@ -1,0 +1,2680 @@
+---
+table:
+  table: Processes
+  description: "An event (e.g., an experiment, a clinical observation) that belongs\
+    \ to an individual"
+  subclasses:
+  - name: Analyses
+    description: An analysis (examination and interpretation) relating to an individual
+  - name: Variant interpretation analyses
+    description: Analyses relating to specific individuals
+    inherits:
+    - Analyses
+  - name: Observations
+    description: Findings and circumstances relating to the examination and treatment
+      of an individual
+  - name: Clinical observations
+    description: This table extends observations with clinical details compatible
+      with phenopacket
+    inherits:
+    - Observations
+  - name: Experiments
+    description: "An experiment is an investigation that has the goal of verifying,\
+      \ falsifying, or establishing the validity of a hypothesis."
+  - name: NGS sequencing
+    description: Technologies that facilitate the rapid determination of the nucleotide
+      sequence of large numbers of strands or segments of DNA or RNA
+    inherits:
+    - Experiments
+  - name: Experiments RNA
+    description: An RNA sequencing experiment
+    inherits:
+    - NGS sequencing
+  - name: Experiments lrGS
+    description: A long-read Genome Sequencing (lrGS) experiment
+    inherits:
+    - NGS sequencing
+  - name: Experiments srDNA
+    description: A short-read DNA sequencing experiment
+    inherits:
+    - NGS sequencing
+  - name: Experiments OGM
+    description: An Optical Genome Mapping (OGM) experiment
+    inherits:
+    - Experiments
+  columns:
+  - name: General Information
+    type: heading
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+  - name: individuals
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C164337
+    description: A reference to one or more individuals associated to the process
+    refTable: Individuals
+  - name: alternate ids
+    type: string_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C90353
+    description: Additional identifiers that identify a process
+  - name: affiliated organisations
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25412
+    description: One or more associations between the individual and an organisation.
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+  - name: included in resources
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/HSO_0000370
+    description: "A reference to one or more resources that organises processes in\
+      \ a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)"
+    refTable: Resources
+  - name: Additional Process Information
+    type: heading
+  - name: data source
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: "The source or origin of the record. For example, an organisation,\
+      \ database, system, etc."
+    refTable: Resources
+  - name: date created at source
+    type: date
+    semantics:
+    - dcterms:created
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The date the record was created at the source
+  - name: created at source by
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C51820
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The person who created the record at the source
+    refTable: Contacts
+  - name: date updated at source
+    type: date
+    semantics:
+    - dcterms:modified
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The date the record was updated at the source
+  - name: updated at source by
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C51820
+    - http://purl.obolibrary.org/obo/NCIT_C16493
+    description: The person who updated the record at the source
+    refTable: Contacts
+  - name: comments
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25393
+    description: "A written explanation, observation or criticism added to textual\
+      \ material"
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Analyses
+  - name: Analyses Information
+    type: heading
+    subclass: Analyses
+  - name: date started
+    type: date
+    semantics:
+    - http://semanticscience.org/resource/SIO_000031
+    description: A start date is a time instant pertaining to the date of the beginning
+      of a analysis.
+    subclass: Analyses
+  - name: date completed
+    type: date
+    semantics:
+    - http://semanticscience.org/resource/SIO_000032
+    description: An end date is a time instant pertaining to date of the end of an
+      analysis
+    subclass: Analyses
+  - name: persons involved
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25461
+    description: Reference to one or more individuals involved in the analysis
+    refTable: Contacts
+    subclass: Analyses
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Variant interpretation analyses
+  - name: Variant Interpretation Analyses
+    type: heading
+    subclass: Variant interpretation analyses
+  - name: experiment
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C43376
+    description: Links to experiment
+    refTable: Experiments
+    subclass: Variant interpretation analyses
+  - name: status
+    type: select
+    semantics:
+    - http://semanticscience.org/resource/SIO_000033
+    description: "An characterisation of the analysis that indicates the current state\
+      \ or progress (e.g., confirmed, to be verified, etc.)"
+    refTable: Status
+    refSchema: CatalogueOntologies
+    subclass: Variant interpretation analyses
+  - name: solved
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/IAO_0000136
+    description: A reference to the individual whom this analysis is about
+    subclass: Variant interpretation analyses
+  - name: date solved
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25587
+    description: An indication that diagnosis is given and the case is no longer considered
+      unsolved.
+    subclass: Variant interpretation analyses
+  - name: variant interpretation
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000125
+    description: Links to variant interpretation(s)
+    refTable: Variant interpretations
+    refBack: interpretation analysis
+    subclass: Variant interpretation analyses
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Variant interpretation analyses
+  - name: Variant Interpretation Analyses
+    type: heading
+    subclass: Variant interpretation analyses
+  - name: experiment
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C43376
+    description: Links to experiment
+    refTable: Experiments
+    subclass: Variant interpretation analyses
+  - name: status
+    type: select
+    semantics:
+    - http://semanticscience.org/resource/SIO_000033
+    description: "An characterisation of the analysis that indicates the current state\
+      \ or progress (e.g., confirmed, to be verified, etc.)"
+    refTable: Status
+    refSchema: CatalogueOntologies
+    subclass: Variant interpretation analyses
+  - name: solved
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/IAO_0000136
+    description: A reference to the individual whom this analysis is about
+    subclass: Variant interpretation analyses
+  - name: date solved
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25587
+    description: An indication that diagnosis is given and the case is no longer considered
+      unsolved.
+    subclass: Variant interpretation analyses
+  - name: variant interpretation
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000125
+    description: Links to variant interpretation(s)
+    refTable: Variant interpretations
+    refBack: interpretation analysis
+    subclass: Variant interpretation analyses
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Observations
+  - name: Observations Information
+    type: heading
+    subclass: Observations
+  - name: date of observation
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C119798
+    description: The date on which an observation took place
+    subclass: Observations
+  - name: age at observation
+    type: period
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C192236
+    description: "The age of the individual at the time of observation (e.g., \"P55Y8M12D\"\
+      )"
+    subclass: Observations
+  - name: type of visit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C103165
+    description: "The kind of visit undertaken by the individual within a study such\
+      \ as inpatient, outpatient, telephone, baseline, follow up, etc."
+    refTable: Visit type
+    refSchema: CatalogueOntologies
+    subclass: Observations
+  - name: location of observation
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C119804
+    description: The site in or on the body at which the observation is made.
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Observations
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Clinical observations
+  - name: Clinical Observations
+    type: heading
+    subclass: Clinical observations
+  - name: observation performed by
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48206
+    description: "The individual that performed the clinical observation (e.g., made\
+      \ the diagnosis, performed the evaluation, etc.)"
+    refTable: Contacts
+    subclass: Clinical observations
+  - name: phenotypes
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C16977
+    description: "The assemblage of traits or outward appearance of an individual.\
+      \ It is the product of interactions between genes and between genes and the\
+      \ environment. In medical context,  these are often the symptoms caused by a\
+      \ disease."
+    refTable: Phenotype observations
+    refBack: part of clinical observation
+    subclass: Clinical observations
+  - name: diseases
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C15607
+    description: "Any abnormal condition of the body or mind that causes discomfort,\
+      \ dysfunction, or distress to the person affected or those in contact with the\
+      \ person. The term is often used broadly to include injuries, disabilities,\
+      \ syndromes, symptoms, deviant behaviors, and atypical variations of structure\
+      \ and function."
+    refTable: Disease history
+    refBack: part of clinical observation
+    subclass: Clinical observations
+  - name: measurements
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/CMO_0000000
+    description: Clinical measurements collected as part of the clinical observation
+    refTable: Clinical measurements
+    refBack: part of clinical observation
+    subclass: Clinical observations
+  - name: age group at onset
+    type: ontology
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0004847
+    - http://purl.obolibrary.org/obo/NCIT_C20587
+    description: "A categorical value that groups this individual's age of onset into\
+      \ groups (e.g., \"Adult\", \"18-24 years\", etc.)"
+    refTable: Age groups at onset
+    refSchema: CatalogueOntologies
+    subclass: Clinical observations
+  - name: age at onset
+    type: period
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0004847
+    description: "The age at which manifestations of the disease first appeared (e.g.,\
+      \ \"P32Y6M1D\")"
+    subclass: Clinical observations
+  - name: consanguinity
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/OMIT_0004546
+    description: Information on whether the patient is a child from two family members
+      who are second cousins or closer
+    subclass: Clinical observations
+  - name: molecular diagnosis gene
+    type: ontology_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C36391
+    description: Gene affected by pathogenic variation that is causal for disease
+      of the individual
+    refTable: Genes
+    refSchema: CatalogueOntologies
+    subclass: Clinical observations
+  - name: molecular diagnosis other
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C20826
+    description: Causal variant in HGVS notation with optional classification or free
+      text explaining any other molecular mechanisms involved.
+    subclass: Clinical observations
+  - name: is solved
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25587
+    description: An indication that diagnosis is given and the case is no longer considered
+      unsolved.
+    subclass: Clinical observations
+  - name: date solved
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C119798
+    description: "The date on which a case was considered solved (i.e., when a diagnosis\
+      \ was made)"
+    subclass: Clinical observations
+  - name: medication
+    type: ontology_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C459
+    description: "A drug product that contains one or more active and/or inactive\
+      \ ingredients used by the individual intended to treat, prevent or alleviate\
+      \ the symptoms of disease. Any hormone therapies, gender-related, or otherwise\
+      \ should also be recorded here."
+    refTable: Medication
+    refSchema: CatalogueOntologies
+    subclass: Clinical observations
+  - name: drug regimen
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C142516
+    description: "The specific way a therapeutic drug is to be taken, including formulation\
+      \ route of administration, dose, dosing interval, and treatment duration."
+    subclass: Clinical observations
+  - name: medical history
+    type: ontology_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C18772
+    description: "A record of a individual's background regarding health, occurrence\
+      \ of disease events and surgical procedures"
+    refTable: Medical history
+    refSchema: CatalogueOntologies
+    subclass: Clinical observations
+  - name: date of first contact
+    type: date
+    semantics:
+    - http://purl.bioontology.org/ontology/LNC/MTHU048806
+    description: The date on which contact with the individual was initiated
+    subclass: Clinical observations
+  - name: date of last contact
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C156916
+    description: The date on which contact with the individual was last made
+    subclass: Clinical observations
+  - name: classification of functioning
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C21007
+    description: An individual's classification of functioning i.e. disability profile
+      according to International Classification of Functioning and Disability (ICF)
+    subclass: Clinical observations
+  - name: material used in diagnosis
+    type: text
+    semantics:
+    - http://semanticscience.org/resource/SIO_000641
+    description: A description of one or more materials used to make a diagnosis
+    subclass: Clinical observations
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Clinical observations
+  - name: Clinical Observations
+    type: heading
+    subclass: Clinical observations
+  - name: observation performed by
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48206
+    description: "The individual that performed the clinical observation (e.g., made\
+      \ the diagnosis, performed the evaluation, etc.)"
+    refTable: Contacts
+    subclass: Clinical observations
+  - name: phenotypes
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C16977
+    description: "The assemblage of traits or outward appearance of an individual.\
+      \ It is the product of interactions between genes and between genes and the\
+      \ environment. In medical context,  these are often the symptoms caused by a\
+      \ disease."
+    refTable: Phenotype observations
+    refBack: part of clinical observation
+    subclass: Clinical observations
+  - name: diseases
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C15607
+    description: "Any abnormal condition of the body or mind that causes discomfort,\
+      \ dysfunction, or distress to the person affected or those in contact with the\
+      \ person. The term is often used broadly to include injuries, disabilities,\
+      \ syndromes, symptoms, deviant behaviors, and atypical variations of structure\
+      \ and function."
+    refTable: Disease history
+    refBack: part of clinical observation
+    subclass: Clinical observations
+  - name: measurements
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/CMO_0000000
+    description: Clinical measurements collected as part of the clinical observation
+    refTable: Clinical measurements
+    refBack: part of clinical observation
+    subclass: Clinical observations
+  - name: age group at onset
+    type: ontology
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0004847
+    - http://purl.obolibrary.org/obo/NCIT_C20587
+    description: "A categorical value that groups this individual's age of onset into\
+      \ groups (e.g., \"Adult\", \"18-24 years\", etc.)"
+    refTable: Age groups at onset
+    refSchema: CatalogueOntologies
+    subclass: Clinical observations
+  - name: age at onset
+    type: period
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0004847
+    description: "The age at which manifestations of the disease first appeared (e.g.,\
+      \ \"P32Y6M1D\")"
+    subclass: Clinical observations
+  - name: consanguinity
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/OMIT_0004546
+    description: Information on whether the patient is a child from two family members
+      who are second cousins or closer
+    subclass: Clinical observations
+  - name: molecular diagnosis gene
+    type: ontology_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C36391
+    description: Gene affected by pathogenic variation that is causal for disease
+      of the individual
+    refTable: Genes
+    refSchema: CatalogueOntologies
+    subclass: Clinical observations
+  - name: molecular diagnosis other
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C20826
+    description: Causal variant in HGVS notation with optional classification or free
+      text explaining any other molecular mechanisms involved.
+    subclass: Clinical observations
+  - name: is solved
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25587
+    description: An indication that diagnosis is given and the case is no longer considered
+      unsolved.
+    subclass: Clinical observations
+  - name: date solved
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C119798
+    description: "The date on which a case was considered solved (i.e., when a diagnosis\
+      \ was made)"
+    subclass: Clinical observations
+  - name: medication
+    type: ontology_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C459
+    description: "A drug product that contains one or more active and/or inactive\
+      \ ingredients used by the individual intended to treat, prevent or alleviate\
+      \ the symptoms of disease. Any hormone therapies, gender-related, or otherwise\
+      \ should also be recorded here."
+    refTable: Medication
+    refSchema: CatalogueOntologies
+    subclass: Clinical observations
+  - name: drug regimen
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C142516
+    description: "The specific way a therapeutic drug is to be taken, including formulation\
+      \ route of administration, dose, dosing interval, and treatment duration."
+    subclass: Clinical observations
+  - name: medical history
+    type: ontology_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C18772
+    description: "A record of a individual's background regarding health, occurrence\
+      \ of disease events and surgical procedures"
+    refTable: Medical history
+    refSchema: CatalogueOntologies
+    subclass: Clinical observations
+  - name: date of first contact
+    type: date
+    semantics:
+    - http://purl.bioontology.org/ontology/LNC/MTHU048806
+    description: The date on which contact with the individual was initiated
+    subclass: Clinical observations
+  - name: date of last contact
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C156916
+    description: The date on which contact with the individual was last made
+    subclass: Clinical observations
+  - name: classification of functioning
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C21007
+    description: An individual's classification of functioning i.e. disability profile
+      according to International Classification of Functioning and Disability (ICF)
+    subclass: Clinical observations
+  - name: material used in diagnosis
+    type: text
+    semantics:
+    - http://semanticscience.org/resource/SIO_000641
+    description: A description of one or more materials used to make a diagnosis
+    subclass: Clinical observations
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments
+  - name: Sample
+    type: heading
+    subclass: Experiments
+  - name: sample id
+    type: auto_id
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a sample"
+    subclass: Experiments
+  - name: local sample id
+    type: string_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "An identifier associated with a particular source, used by the data\
+      \ provider or owner"
+    subclass: Experiments
+  - name: sample type
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/FBcv_0003044
+    description: "The type of sample as characterized by its biological source material\
+      \ collected for testing, diagnostic, propagation, treatment or research purposes"
+    refTable: Sample type
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: sample type other
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C126072
+    description: "If the sample type is other, provide a description of the sample."
+    subclass: Experiments
+  - name: tissue type
+    type: ontology
+    semantics:
+    - http://purl.uniprot.org/core/Tissue
+    description: "The tissue type of origin (e.g., lung or heart) for the sample"
+    refTable: Tissue type
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: aliquot id
+    type: string_array
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C173074
+    description: A unique identifier assigned to an aliquot containing a portion of
+      a biospecimen
+    subclass: Experiments
+  - name: sample availability
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C19065
+    description: "An indication if the sample is available (i.e., retained, available\
+      \ for use, etc.)"
+    refTable: Sample availability
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: pathological state
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C28257
+    description: "An examination that is performed to determine the extent of the\
+      \ spread of cancer based on histopathologic examination of one or more pathology\
+      \ specimens. Pathologic staging uses evidence acquired during the process of\
+      \ clinical staging, supplemented by histopathologic examination of surgical\
+      \ specimens."
+    refTable: Pathological state
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: volume
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C74720
+    description: The determination of the volume of a sample.
+    subclass: Experiments
+  - name: volume unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C44279
+    description: An indication of the type of unit of measure being used to express
+      a volume.
+    refTable: Units
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: percentage tumor cells
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C127771
+    description: The percentage of tumor cells compared to total cells present in
+      this sample.
+    subclass: Experiments
+  - name: age group of individual at collection
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C20587
+    description: "A categorical value that groups this individual by age at the time\
+      \ of collection (e.g., \"Adult\", \"18-24 years\", etc.)"
+    refTable: Age groups
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: age of individual at collection
+    type: period
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001775
+    description: The age of the individual at the time of collection
+    subclass: Experiments
+  - name: anatomical location
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C170983
+    description: The specific anatomical or biological region associated with a tissue
+      or organ specimen.
+    refTable: Anatomical location
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: anatomical location other
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C170983
+    description: Additional description on the anatomical or biological region associated
+      with a tissue or organ specimen
+    subclass: Experiments
+  - name: failed quality control
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100564
+    description: An indication confirming that quality control processes were carried
+      out and that the sequence did not meet the assessment criteria.
+    subclass: Experiments
+  - name: registration timestamp
+    type: datetime
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25646
+    description: "Date and time at which this sample was listed or recorded officially,\
+      \ i.e. officially qualified or enrolled."
+    subclass: Experiments
+  - name: input amount
+    type: int
+    semantics:
+    - http://purl.allotrope.org/ontologies/role#AFRL_0000010
+    description: Amount of input material in nanogram (ng).
+    subclass: Experiments
+  - name: collected at organisation
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/OBIB_0000085
+    description: The geographic location where sample collection took place
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: collected by
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0001769
+    description: The person or persons responsible for sample collection
+    refTable: Contacts
+    subclass: Experiments
+  - name: date of collection
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C82515
+    description: Date on which the sample was collected
+    subclass: Experiments
+  - name: storage conditions
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C96145
+    description: The conditions under which this sample was stored.
+    refTable: Storage conditions
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: storage location
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100594
+    description: "A place on the Earth where this sample is located, by its name or\
+      \ by its geographical location. This definition is intentionally vague to allow\
+      \ reuse locally (e.g. which freezer), for contacting (e.g. which institute),\
+      \ broadly for logistical or legal reasons (e.g. city, country or continent)."
+    refTable: Storage locations
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: date of expiration
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C164516
+    description: The date this sample is no longer regarded as fit for use.
+    subclass: Experiments
+  - name: platform model
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001921
+    description: "The name of the product and model number of a manufacturer's genomic\
+      \ (dna) sequencer. In FAIR Genomes: SequencingInstrumentModel."
+    refTable: Sequencing instrument models
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: instrument id
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C178947
+    description: "The unique number assigned to an instrument (e.g., a sequencer).\
+      \ This could either be the serial number, a unique ID generated by the data\
+      \ provider/owner, or another character string used to identify the instrument"
+    subclass: Experiments
+  - name: instrument software
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C178947
+    description: "The instrument (e.g., a sequencer) software"
+    subclass: Experiments
+  - name: persons involved
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25461
+    description: Who was involved in the processing
+    refTable: Contacts
+    subclass: Experiments
+  - name: output files
+    type: refback
+    semantics:
+    - http://edamontology.org/topic_3168
+    description: links to output of files
+    refTable: Files
+    refBack: produced by experiment
+    subclass: Experiments
+  - name: reference genome used
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C164815
+    description: The source-specific version of the published genome assembly.
+    refTable: Genome accessions
+    refSchema: CatalogueOntologies
+    subclass: Experiments
+  - name: observed insert size
+    type: int
+    semantics:
+    - https://w3id.org/fair-genomes/resource/FG_0000002
+    description: "In paired-end sequencing, the DNA between the adapter sequences\
+      \ is the insert. The length of this sequence is known as the insert size, not\
+      \ to be confused with the inner distance between reads. So, fragment length\
+      \ equals read adapter length (2x) plus insert size, and insert size equals read\
+      \ lenght (2x) plus inner distance."
+    subclass: Experiments
+  - name: other quality metrics
+    type: text
+    semantics:
+    - http://edamontology.org/data_3914
+    description: "Other NGS quality control metrics, including but not limited to\
+      \ (i) sequencer metrics such as yield, error rate, density (K/mm2), cluster\
+      \ PF (%) and phas/prephas (%), (ii) alignment metrics such as QM insert size,\
+      \ GC content, QM duplicated reads (%), QM error rate, uniformity/evenness of\
+      \ coverage and maternal cell contamination, and (iii) variant call metrics such\
+      \ as number of SNVs/CNVs/SVs called, number of missense/nonsense variants, common\
+      \ variants (%), unique variants (%), gender match and trio inheritance check"
+    subclass: Experiments
+  - name: run id
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C117058
+    description: A sequence of characters used to uniquely identify a particular run
+      of a test on a particular batch of samples
+    subclass: Experiments
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: NGS sequencing
+  - name: extraction kit
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0000407
+    - http://purl.obolibrary.org/obo/NGBO_6000238
+    description: An assay kit used for the technique of extracting nucleic acids from
+      a biological sample
+    subclass: NGS sequencing
+  - name: extraction date
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0003081
+    description: A time measurement datum that specifies when some material was extracted
+      from an input material
+    subclass: NGS sequencing
+  - name: Library Preparation
+    type: heading
+    subclass: NGS sequencing
+  - name: library source
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001965
+    description: E.g. genomic source
+    refTable: Library source
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: library selection
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001940
+    description: E.g. RANDOM method
+    subclass: NGS sequencing
+  - name: library strategy
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/FIX_0000704
+    description: "Method used to determine the order of bases in a nucleic acid sequence.\
+      \ In FAIR Genomes: SequencingMethod."
+    refTable: Sequencing methods
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: library layout
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/FBcv_0003208
+    description: Either PAIRED or SINGLE
+    refTable: Library layout
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: sequencer barcode
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C43361
+    description: "A machine-readable representation of an instrument (e.g., a sequencer)\
+      \ in a visual format on a surface"
+    subclass: NGS sequencing
+  - name: library preparation kit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000085
+    description: "Pre-filled, ready-to-use reagent cartridges intented to improve\
+      \ chemistry, cluster density and read length as well as improve quality (Q)\
+      \ scores for this sample. Reagent components are encoded to interact with the\
+      \ sequencing system to validate compatibility with user-defined applications."
+    refTable: Sequencing enrichment kits
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: PCR free
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C17003
+    description: Indicates whether a polymerase chain reaction (PCR) was used to prepare
+      this sample. PCR is a method for amplifying a DNA base sequence using multiple
+      rounds of heat denaturation of the DNA and annealing of oligonucleotide primers
+      complementary to flanking regions in the presence of a heat-stable polymerase.
+    subclass: NGS sequencing
+  - name: target enrichment kit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C154307
+    description: Indicates which target enrichment kit was used to prepare this sample.
+      Target enrichment is a pre-sequencing DNA preparation step where DNA sequences
+      are either directly amplified (amplicon or multiplex PCR-based) or captured
+      (hybrid capture-based) in order to only focus on specific regions of a genome
+      or DNA sample.
+    refTable: Sequencing enrichment kits
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: UMIs present
+    type: bool
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0010199
+    description: Indicates whether any unique molecular identifiers (UMIs) are present.
+      An UMI barcode is a short nucleotide sequence that is used to identify reads
+      originating from an individual mRNA molecule.
+    subclass: NGS sequencing
+  - name: intended insert size
+    type: int
+    semantics:
+    - https://w3id.org/fair-genomes/resource/FG_0000001
+    description: "In paired-end sequencing, the DNA between the adapter sequences\
+      \ is the insert. The length of this sequence is known as the insert size, not\
+      \ to be confused with the inner distance between reads. So, fragment length\
+      \ equals read adapter length (2x) plus insert size, and insert size equals read\
+      \ lenght (2x) plus inner distance."
+    subclass: NGS sequencing
+  - name: intended read length
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The number of nucleotides intended to be ordered from each side of
+      a nucleic acid fragment obtained after the completion of a sequencing process.
+    subclass: NGS sequencing
+  - name: barcode
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C43361
+    description: A machine-readable representation of information in a visual format
+      on a surface.
+    subclass: NGS sequencing
+  - name: Sequencing
+    type: heading
+    subclass: NGS sequencing
+  - name: date of sequencing
+    type: datetime
+    description: When the sequencing run took place
+    subclass: NGS sequencing
+  - name: mean read depth
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C155320
+    description: "The mean number of times a particular locus (site, nucleotide, amplicon,\
+      \ region) was sequenced."
+    subclass: NGS sequencing
+  - name: median read depth
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C155320
+    description: "The median number of times a particular locus (site, nucleotide,\
+      \ amplicon, region) was sequenced."
+    subclass: NGS sequencing
+  - name: observed read length
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The number of nucleotides successfully ordered from each side of
+      a nucleic acid fragment obtained after the completion of a sequencing process.
+    subclass: NGS sequencing
+  - name: sequencing centre
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001202
+    description: A data field which describes the name of the third party company
+      or laboratory that provided services.
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: platform
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000071
+    description: "The name of the sequencing platform (i.e. brand, name of a company\
+      \ that produces sequencer equipment). In FAIR Genomes: SequencingPlatform."
+    refTable: Sequencing platforms
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: percentage Q30
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000089
+    description: "Percentage of reads with a Phred quality score over 30, which indicates\
+      \ less than a 1/1000 chance that the base was called incorrectly."
+    subclass: NGS sequencing
+  - name: percentage Tr20
+    type: decimal
+    semantics:
+    - https://w3id.org/fair-genomes/resource/FG_0000003
+    description: Percentage of the target sequence on which 20 or more unique reads
+      were successfully mapped.
+    subclass: NGS sequencing
+  - name: flow cell ID
+    semantics:
+    - http://purl.allotrope.org/ontologies/result#AFR_0003078
+    description: A flow cell identifier is an identifier that identifies some flow
+      cell (aparatus in the fluidic subsystem where the sheath and sample meet)
+    subclass: NGS sequencing
+  - name: sequencing lane identifier
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C182081
+    description: The numerical identifier for the lane or machine unit where a sample
+      was located during nucleotide sequencing.
+    subclass: NGS sequencing
+  - name: secondary analysis pipeline version
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000152
+    description: A datum which describes the version of the bioinformatics pipeline
+      used.
+    subclass: NGS sequencing
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments RNA
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments RNA
+  - name: concentration
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: "The quantity of a substance per unit volume or weight; a measure\
+      \ of the amount of substance present in a unit amount of mixture, particularly,\
+      \ the amount of solute dissolved in a solvent. The amounts can be expressed\
+      \ as moles, masses, volumes, or parts."
+    subclass: Experiments RNA
+  - name: concentration unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48207
+    description: An indication of the type of unit of measure being used to express
+      a concentration.
+    refTable: Units
+    refSchema: CatalogueOntologies
+    subclass: Experiments RNA
+  - name: RIN QC value
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100661
+    description: A data field which describes quality control information
+    subclass: Experiments RNA
+  - name: NMD inhibitor added
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C29648
+    description: Was a Nonsense-Mediated Decay (NMC) inhibitor added?
+    subclass: Experiments RNA
+  - name: RNA Extraction
+    type: heading
+    subclass: Experiments RNA
+  - name: fragmentation method
+    description: A laboratory process in which RNA molecules are broken into smaller
+      fragments
+    subclass: Experiments RNA
+  - name: flow cell type
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0400043
+    description: "Can be one of several types; jet-in-air, quartz cuvette, or a hybrid\
+      \ of the two. The sample flows through the center of a fluid column of sheath\
+      \ fluid in the flow cell."
+    subclass: Experiments RNA
+  - name: TIN
+    type: decimal
+    description: Transcript Integrity Number
+    subclass: Experiments RNA
+  - name: targeted sequencing
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C158252
+    description: Did targeted sequencing take place?
+    subclass: Experiments RNA
+  - name: adaptive sequencing
+    type: bool
+    description: Did adaptive sequencing take place?
+    subclass: Experiments RNA
+  - name: adaptive sequencing bed file
+    type: file
+    description: "If adaptive sequencing took place, please provide the bed file"
+    subclass: Experiments RNA
+  - name: sample batch ID
+    semantics:
+    - http://purl.obolibrary.org/obo/MS_1000053
+    description: Sample batch lot identifier
+    subclass: Experiments RNA
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments RNA
+  - name: experiment attributes
+    type: text
+    description: Any other experiment attributes
+    subclass: Experiments RNA
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments lrGS
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments lrGS
+  - name: genomic fragment length
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/IAO_0000408
+    description: A scalar measurement datum that is the result of measurement of length
+      of a genomic fragment
+    subclass: Experiments lrGS
+  - name: A260 to A280 ratio
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139280
+    description: An assessment of nucleic acid purity that is measured by determining
+      the ratio of light absorbance of the nucleic acid sample at 260nm and 280nm
+      respectively.
+    subclass: Experiments lrGS
+  - name: A260 to A230 ratio
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139281
+    description: An assessment of nucleic acid purity that is measured by determining
+      the ratio of light absorbance of the nucleic acid sample at 260nm and 230nm
+      respectively.
+    subclass: Experiments lrGS
+  - name: DNA Extraction
+    type: heading
+    subclass: Experiments lrGS
+  - name: storage buffer
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C70815
+    description: An ionic compound that resists changes in its pH. The buffer containing
+      the DNA/RNA.
+    subclass: Experiments lrGS
+  - name: concentration
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: "The quantity of a substance per unit volume or weight; a measure\
+      \ of the amount of substance present in a unit amount of mixture, particularly,\
+      \ the amount of solute dissolved in a solvent. The amounts can be expressed\
+      \ as moles, masses, volumes, or parts."
+    subclass: Experiments lrGS
+  - name: concentration unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48207
+    description: An indication of the type of unit of measure being used to express
+      a concentration.
+    refTable: Units
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: concentration measurement type
+    type: ontology
+    semantics:
+    - http://purl.allotrope.org/ontologies/process#AFP_0002800
+    description: "An concentration measurement is the determination of the concentration\
+      \ of a compound in solution. [Allotrope]"
+    refTable: Concentration measurement type
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: DIN QC value
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100661
+    description: A data field which describes quality control information
+    subclass: Experiments lrGS
+  - name: mean read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The mean number of nucleotides successfully ordered from each side
+      of a nucleic acid fragment obtained after the completion of a sequencing process
+    subclass: Experiments lrGS
+  - name: N50 read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0001940
+    description: "the weighted median item size or N50 is a weighted median of the\
+      \ lengths of items, equal to the length of the longest item i such that the\
+      \ sum of the lengths of items greater than or equal in length to i is greater\
+      \ than or equal to half the length of all of the items. With regard to assemblies\
+      \ the items are typically contigs or scaffolds. It therefore denotes the ability\
+      \ of the software to create contigs and provides information about the resulting\
+      \ sequence assembly"
+    subclass: Experiments lrGS
+  - name: map rate
+    type: decimal
+    description: Map rate (%) is the percentage of sequencing reads that successfully
+      align to a reference genome.
+    subclass: Experiments lrGS
+  - name: sequencing chemistry
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000075
+    description: A laboratory sequencing datum which describes the method and chemistry
+      used to determine the order of nucleotides in a DNA molecule
+    subclass: Experiments lrGS
+  - name: base rate
+    type: decimal
+    description: rate at which bases are produced or processed by the sequencing instrument
+    subclass: Experiments lrGS
+  - name: base quality
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000281
+    - http://purl.obolibrary.org/obo/GENEPIO_0000089
+    description: "The percentage of sequenced bases whose Phred quality score exceeds\
+      \ 25, indicating high-confidence base calls"
+    subclass: Experiments lrGS
+  - name: samples per flow cell
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: The number of samples per flow cell
+    subclass: Experiments lrGS
+  - name: yield
+    type: decimal
+    semantics:
+    - http://biomodels.net/SBO/SBO_0000668
+    description: Output generated as biomass or product from a set of chemical reactions
+    subclass: Experiments lrGS
+  - name: movietime
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25330
+    description: "The period of time during which a sequencing run took place, i.e.,\
+      \ the length of time during which the instrument records signal data."
+    refTable: movietime
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: base kinetics included
+    type: bool
+    description: Does the experiment contain kinetic information?
+    subclass: Experiments lrGS
+  - name: basecaller version
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C181950
+    description: The version of the software used to call the nucleotide bases in
+      a sequencing assay
+    subclass: Experiments lrGS
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments srDNA
+  - name: DNA Extraction
+    type: heading
+    subclass: Experiments srDNA
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments RNA
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments RNA
+  - name: concentration
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: "The quantity of a substance per unit volume or weight; a measure\
+      \ of the amount of substance present in a unit amount of mixture, particularly,\
+      \ the amount of solute dissolved in a solvent. The amounts can be expressed\
+      \ as moles, masses, volumes, or parts."
+    subclass: Experiments RNA
+  - name: concentration unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48207
+    description: An indication of the type of unit of measure being used to express
+      a concentration.
+    refTable: Units
+    refSchema: CatalogueOntologies
+    subclass: Experiments RNA
+  - name: RIN QC value
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100661
+    description: A data field which describes quality control information
+    subclass: Experiments RNA
+  - name: NMD inhibitor added
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C29648
+    description: Was a Nonsense-Mediated Decay (NMC) inhibitor added?
+    subclass: Experiments RNA
+  - name: RNA Extraction
+    type: heading
+    subclass: Experiments RNA
+  - name: fragmentation method
+    description: A laboratory process in which RNA molecules are broken into smaller
+      fragments
+    subclass: Experiments RNA
+  - name: flow cell type
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0400043
+    description: "Can be one of several types; jet-in-air, quartz cuvette, or a hybrid\
+      \ of the two. The sample flows through the center of a fluid column of sheath\
+      \ fluid in the flow cell."
+    subclass: Experiments RNA
+  - name: TIN
+    type: decimal
+    description: Transcript Integrity Number
+    subclass: Experiments RNA
+  - name: targeted sequencing
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C158252
+    description: Did targeted sequencing take place?
+    subclass: Experiments RNA
+  - name: adaptive sequencing
+    type: bool
+    description: Did adaptive sequencing take place?
+    subclass: Experiments RNA
+  - name: adaptive sequencing bed file
+    type: file
+    description: "If adaptive sequencing took place, please provide the bed file"
+    subclass: Experiments RNA
+  - name: sample batch ID
+    semantics:
+    - http://purl.obolibrary.org/obo/MS_1000053
+    description: Sample batch lot identifier
+    subclass: Experiments RNA
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments RNA
+  - name: experiment attributes
+    type: text
+    description: Any other experiment attributes
+    subclass: Experiments RNA
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments lrGS
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments lrGS
+  - name: genomic fragment length
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/IAO_0000408
+    description: A scalar measurement datum that is the result of measurement of length
+      of a genomic fragment
+    subclass: Experiments lrGS
+  - name: A260 to A280 ratio
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139280
+    description: An assessment of nucleic acid purity that is measured by determining
+      the ratio of light absorbance of the nucleic acid sample at 260nm and 280nm
+      respectively.
+    subclass: Experiments lrGS
+  - name: A260 to A230 ratio
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139281
+    description: An assessment of nucleic acid purity that is measured by determining
+      the ratio of light absorbance of the nucleic acid sample at 260nm and 230nm
+      respectively.
+    subclass: Experiments lrGS
+  - name: DNA Extraction
+    type: heading
+    subclass: Experiments lrGS
+  - name: storage buffer
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C70815
+    description: An ionic compound that resists changes in its pH. The buffer containing
+      the DNA/RNA.
+    subclass: Experiments lrGS
+  - name: concentration
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: "The quantity of a substance per unit volume or weight; a measure\
+      \ of the amount of substance present in a unit amount of mixture, particularly,\
+      \ the amount of solute dissolved in a solvent. The amounts can be expressed\
+      \ as moles, masses, volumes, or parts."
+    subclass: Experiments lrGS
+  - name: concentration unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48207
+    description: An indication of the type of unit of measure being used to express
+      a concentration.
+    refTable: Units
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: concentration measurement type
+    type: ontology
+    semantics:
+    - http://purl.allotrope.org/ontologies/process#AFP_0002800
+    description: "An concentration measurement is the determination of the concentration\
+      \ of a compound in solution. [Allotrope]"
+    refTable: Concentration measurement type
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: DIN QC value
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100661
+    description: A data field which describes quality control information
+    subclass: Experiments lrGS
+  - name: mean read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The mean number of nucleotides successfully ordered from each side
+      of a nucleic acid fragment obtained after the completion of a sequencing process
+    subclass: Experiments lrGS
+  - name: N50 read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0001940
+    description: "the weighted median item size or N50 is a weighted median of the\
+      \ lengths of items, equal to the length of the longest item i such that the\
+      \ sum of the lengths of items greater than or equal in length to i is greater\
+      \ than or equal to half the length of all of the items. With regard to assemblies\
+      \ the items are typically contigs or scaffolds. It therefore denotes the ability\
+      \ of the software to create contigs and provides information about the resulting\
+      \ sequence assembly"
+    subclass: Experiments lrGS
+  - name: map rate
+    type: decimal
+    description: Map rate (%) is the percentage of sequencing reads that successfully
+      align to a reference genome.
+    subclass: Experiments lrGS
+  - name: sequencing chemistry
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000075
+    description: A laboratory sequencing datum which describes the method and chemistry
+      used to determine the order of nucleotides in a DNA molecule
+    subclass: Experiments lrGS
+  - name: base rate
+    type: decimal
+    description: rate at which bases are produced or processed by the sequencing instrument
+    subclass: Experiments lrGS
+  - name: base quality
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000281
+    - http://purl.obolibrary.org/obo/GENEPIO_0000089
+    description: "The percentage of sequenced bases whose Phred quality score exceeds\
+      \ 25, indicating high-confidence base calls"
+    subclass: Experiments lrGS
+  - name: samples per flow cell
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: The number of samples per flow cell
+    subclass: Experiments lrGS
+  - name: yield
+    type: decimal
+    semantics:
+    - http://biomodels.net/SBO/SBO_0000668
+    description: Output generated as biomass or product from a set of chemical reactions
+    subclass: Experiments lrGS
+  - name: movietime
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25330
+    description: "The period of time during which a sequencing run took place, i.e.,\
+      \ the length of time during which the instrument records signal data."
+    refTable: movietime
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: base kinetics included
+    type: bool
+    description: Does the experiment contain kinetic information?
+    subclass: Experiments lrGS
+  - name: basecaller version
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C181950
+    description: The version of the software used to call the nucleotide bases in
+      a sequencing assay
+    subclass: Experiments lrGS
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments srDNA
+  - name: DNA Extraction
+    type: heading
+    subclass: Experiments srDNA
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments OGM
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments OGM
+  - name: number of cells per million
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C202259
+    description: "The number of cells (million) in a sample, sample volume, field,\
+      \ or other delimiter."
+    subclass: Experiments OGM
+  - name: storage buffer
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C70815
+    description: An ionic compound that resists changes in its pH. The buffer containing
+      the DNA/RNA.
+    subclass: Experiments OGM
+  - name: Sample Preparation
+    type: heading
+    subclass: Experiments OGM
+  - name: processing centre
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001202
+    description: A data field which describes the name of the third party company
+      or laboratory that provided services.
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments OGM
+  - name: cell count
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/UO_0010073
+    description: The number of cells used for DNA isolation
+    subclass: Experiments OGM
+  - name: HMW_DNA isolation
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0000834
+    description: The output of an extraction process in which DNA molecules above
+      a molecular weight cutoff are purified in order to exclude DNA from organellas
+    subclass: Experiments OGM
+  - name: isolation date
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100465
+    description: A date field which describes the date on which the DNA was isolated
+      from a sample
+    subclass: Experiments OGM
+  - name: viscosity
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C75912
+    description: The resistance of a liquid to sheer forces and flow
+    subclass: Experiments OGM
+  - name: mean concentration HMW_DNA
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: The quantity of a HMW-DNA per unit volume or weight
+    subclass: Experiments OGM
+  - name: labeling protocol
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0003813
+    description: A protocol description in which input nucleic acid material is labeled
+    subclass: Experiments OGM
+  - name: labeling date
+    type: date
+    semantics:
+    - http://purl.org/dc/terms/date
+    description: The date of the labeling protocol
+    subclass: Experiments OGM
+  - name: concentration after labeling
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: The amount of DNA present in the sample after labeling
+    subclass: Experiments OGM
+  - name: date of mapping
+    type: datetime
+    description: When the mapping experiment took place
+    subclass: Experiments OGM
+  - name: mean read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The mean number of nucleotides successfully ordered from each side
+      of a nucleic acid fragment obtained after the completion of a sequencing process
+    subclass: Experiments OGM
+  - name: chip id
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C181946
+    description: A sequence of characters used to uniquely identify a particular microassay
+      chip
+    subclass: Experiments OGM
+  - name: OGM Characteristics
+    type: heading
+    subclass: Experiments OGM
+  - name: jobIDs
+    type: string_array
+    semantics:
+    - http://edamontology.org/data_2098
+    description: An identifier of a submitted job
+    subclass: Experiments OGM
+  - name: bionano solve version
+    description: The specific version of the Bionano Solve software
+    subclass: Experiments OGM
+  - name: bionano access version
+    description: The specific version of the Bionano Access software
+    subclass: Experiments OGM
+  - name: total DNA
+    type: decimal
+    description: The total amount of DNA data generated during an OGM run
+    subclass: Experiments OGM
+  - name: N50150kbp
+    type: int
+    description: The molecule N50 for all molecules that are ≥ 150 kbp in length
+    subclass: Experiments OGM
+  - name: N5020kbp
+    type: int
+    description: The molecule N50 for all molecules that are ≥ 20 kbp in length
+    subclass: Experiments OGM
+  - name: label density
+    type: decimal
+    description: The average number of fluorescent labels per unit length of DNA
+    subclass: Experiments OGM
+  - name: map rate
+    type: decimal
+    description: Map rate (%) is the percentage of sequencing reads that successfully
+      align to a reference genome.
+    subclass: Experiments OGM
+  - name: PLV
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C133645
+    description: The percentage of labeled sites whose observed positions differ from
+      the expected positions in the reference genome
+    subclass: Experiments OGM
+  - name: NLV
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C133645
+    description: The percentage of expected label sites from the reference genome
+      that are missing in the observed DNA molecules
+    subclass: Experiments OGM
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments OGM
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: NGS sequencing
+  - name: extraction kit
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0000407
+    - http://purl.obolibrary.org/obo/NGBO_6000238
+    description: An assay kit used for the technique of extracting nucleic acids from
+      a biological sample
+    subclass: NGS sequencing
+  - name: extraction date
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0003081
+    description: A time measurement datum that specifies when some material was extracted
+      from an input material
+    subclass: NGS sequencing
+  - name: Library Preparation
+    type: heading
+    subclass: NGS sequencing
+  - name: library source
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001965
+    description: E.g. genomic source
+    refTable: Library source
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: library selection
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001940
+    description: E.g. RANDOM method
+    subclass: NGS sequencing
+  - name: library strategy
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/FIX_0000704
+    description: "Method used to determine the order of bases in a nucleic acid sequence.\
+      \ In FAIR Genomes: SequencingMethod."
+    refTable: Sequencing methods
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: library layout
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/FBcv_0003208
+    description: Either PAIRED or SINGLE
+    refTable: Library layout
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: sequencer barcode
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C43361
+    description: "A machine-readable representation of an instrument (e.g., a sequencer)\
+      \ in a visual format on a surface"
+    subclass: NGS sequencing
+  - name: library preparation kit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000085
+    description: "Pre-filled, ready-to-use reagent cartridges intented to improve\
+      \ chemistry, cluster density and read length as well as improve quality (Q)\
+      \ scores for this sample. Reagent components are encoded to interact with the\
+      \ sequencing system to validate compatibility with user-defined applications."
+    refTable: Sequencing enrichment kits
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: PCR free
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C17003
+    description: Indicates whether a polymerase chain reaction (PCR) was used to prepare
+      this sample. PCR is a method for amplifying a DNA base sequence using multiple
+      rounds of heat denaturation of the DNA and annealing of oligonucleotide primers
+      complementary to flanking regions in the presence of a heat-stable polymerase.
+    subclass: NGS sequencing
+  - name: target enrichment kit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C154307
+    description: Indicates which target enrichment kit was used to prepare this sample.
+      Target enrichment is a pre-sequencing DNA preparation step where DNA sequences
+      are either directly amplified (amplicon or multiplex PCR-based) or captured
+      (hybrid capture-based) in order to only focus on specific regions of a genome
+      or DNA sample.
+    refTable: Sequencing enrichment kits
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: UMIs present
+    type: bool
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0010199
+    description: Indicates whether any unique molecular identifiers (UMIs) are present.
+      An UMI barcode is a short nucleotide sequence that is used to identify reads
+      originating from an individual mRNA molecule.
+    subclass: NGS sequencing
+  - name: intended insert size
+    type: int
+    semantics:
+    - https://w3id.org/fair-genomes/resource/FG_0000001
+    description: "In paired-end sequencing, the DNA between the adapter sequences\
+      \ is the insert. The length of this sequence is known as the insert size, not\
+      \ to be confused with the inner distance between reads. So, fragment length\
+      \ equals read adapter length (2x) plus insert size, and insert size equals read\
+      \ lenght (2x) plus inner distance."
+    subclass: NGS sequencing
+  - name: intended read length
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The number of nucleotides intended to be ordered from each side of
+      a nucleic acid fragment obtained after the completion of a sequencing process.
+    subclass: NGS sequencing
+  - name: barcode
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C43361
+    description: A machine-readable representation of information in a visual format
+      on a surface.
+    subclass: NGS sequencing
+  - name: Sequencing
+    type: heading
+    subclass: NGS sequencing
+  - name: date of sequencing
+    type: datetime
+    description: When the sequencing run took place
+    subclass: NGS sequencing
+  - name: mean read depth
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C155320
+    description: "The mean number of times a particular locus (site, nucleotide, amplicon,\
+      \ region) was sequenced."
+    subclass: NGS sequencing
+  - name: median read depth
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C155320
+    description: "The median number of times a particular locus (site, nucleotide,\
+      \ amplicon, region) was sequenced."
+    subclass: NGS sequencing
+  - name: observed read length
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The number of nucleotides successfully ordered from each side of
+      a nucleic acid fragment obtained after the completion of a sequencing process.
+    subclass: NGS sequencing
+  - name: sequencing centre
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001202
+    description: A data field which describes the name of the third party company
+      or laboratory that provided services.
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: platform
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000071
+    description: "The name of the sequencing platform (i.e. brand, name of a company\
+      \ that produces sequencer equipment). In FAIR Genomes: SequencingPlatform."
+    refTable: Sequencing platforms
+    refSchema: CatalogueOntologies
+    subclass: NGS sequencing
+  - name: percentage Q30
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000089
+    description: "Percentage of reads with a Phred quality score over 30, which indicates\
+      \ less than a 1/1000 chance that the base was called incorrectly."
+    subclass: NGS sequencing
+  - name: percentage Tr20
+    type: decimal
+    semantics:
+    - https://w3id.org/fair-genomes/resource/FG_0000003
+    description: Percentage of the target sequence on which 20 or more unique reads
+      were successfully mapped.
+    subclass: NGS sequencing
+  - name: flow cell ID
+    semantics:
+    - http://purl.allotrope.org/ontologies/result#AFR_0003078
+    description: A flow cell identifier is an identifier that identifies some flow
+      cell (aparatus in the fluidic subsystem where the sheath and sample meet)
+    subclass: NGS sequencing
+  - name: sequencing lane identifier
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C182081
+    description: The numerical identifier for the lane or machine unit where a sample
+      was located during nucleotide sequencing.
+    subclass: NGS sequencing
+  - name: secondary analysis pipeline version
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000152
+    description: A datum which describes the version of the bioinformatics pipeline
+      used.
+    subclass: NGS sequencing
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments RNA
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments RNA
+  - name: concentration
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: "The quantity of a substance per unit volume or weight; a measure\
+      \ of the amount of substance present in a unit amount of mixture, particularly,\
+      \ the amount of solute dissolved in a solvent. The amounts can be expressed\
+      \ as moles, masses, volumes, or parts."
+    subclass: Experiments RNA
+  - name: concentration unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48207
+    description: An indication of the type of unit of measure being used to express
+      a concentration.
+    refTable: Units
+    refSchema: CatalogueOntologies
+    subclass: Experiments RNA
+  - name: RIN QC value
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100661
+    description: A data field which describes quality control information
+    subclass: Experiments RNA
+  - name: NMD inhibitor added
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C29648
+    description: Was a Nonsense-Mediated Decay (NMC) inhibitor added?
+    subclass: Experiments RNA
+  - name: RNA Extraction
+    type: heading
+    subclass: Experiments RNA
+  - name: fragmentation method
+    description: A laboratory process in which RNA molecules are broken into smaller
+      fragments
+    subclass: Experiments RNA
+  - name: flow cell type
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0400043
+    description: "Can be one of several types; jet-in-air, quartz cuvette, or a hybrid\
+      \ of the two. The sample flows through the center of a fluid column of sheath\
+      \ fluid in the flow cell."
+    subclass: Experiments RNA
+  - name: TIN
+    type: decimal
+    description: Transcript Integrity Number
+    subclass: Experiments RNA
+  - name: targeted sequencing
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C158252
+    description: Did targeted sequencing take place?
+    subclass: Experiments RNA
+  - name: adaptive sequencing
+    type: bool
+    description: Did adaptive sequencing take place?
+    subclass: Experiments RNA
+  - name: adaptive sequencing bed file
+    type: file
+    description: "If adaptive sequencing took place, please provide the bed file"
+    subclass: Experiments RNA
+  - name: sample batch ID
+    semantics:
+    - http://purl.obolibrary.org/obo/MS_1000053
+    description: Sample batch lot identifier
+    subclass: Experiments RNA
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments RNA
+  - name: experiment attributes
+    type: text
+    description: Any other experiment attributes
+    subclass: Experiments RNA
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments lrGS
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments lrGS
+  - name: genomic fragment length
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/IAO_0000408
+    description: A scalar measurement datum that is the result of measurement of length
+      of a genomic fragment
+    subclass: Experiments lrGS
+  - name: A260 to A280 ratio
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139280
+    description: An assessment of nucleic acid purity that is measured by determining
+      the ratio of light absorbance of the nucleic acid sample at 260nm and 280nm
+      respectively.
+    subclass: Experiments lrGS
+  - name: A260 to A230 ratio
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139281
+    description: An assessment of nucleic acid purity that is measured by determining
+      the ratio of light absorbance of the nucleic acid sample at 260nm and 230nm
+      respectively.
+    subclass: Experiments lrGS
+  - name: DNA Extraction
+    type: heading
+    subclass: Experiments lrGS
+  - name: storage buffer
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C70815
+    description: An ionic compound that resists changes in its pH. The buffer containing
+      the DNA/RNA.
+    subclass: Experiments lrGS
+  - name: concentration
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: "The quantity of a substance per unit volume or weight; a measure\
+      \ of the amount of substance present in a unit amount of mixture, particularly,\
+      \ the amount of solute dissolved in a solvent. The amounts can be expressed\
+      \ as moles, masses, volumes, or parts."
+    subclass: Experiments lrGS
+  - name: concentration unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48207
+    description: An indication of the type of unit of measure being used to express
+      a concentration.
+    refTable: Units
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: concentration measurement type
+    type: ontology
+    semantics:
+    - http://purl.allotrope.org/ontologies/process#AFP_0002800
+    description: "An concentration measurement is the determination of the concentration\
+      \ of a compound in solution. [Allotrope]"
+    refTable: Concentration measurement type
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: DIN QC value
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100661
+    description: A data field which describes quality control information
+    subclass: Experiments lrGS
+  - name: mean read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The mean number of nucleotides successfully ordered from each side
+      of a nucleic acid fragment obtained after the completion of a sequencing process
+    subclass: Experiments lrGS
+  - name: N50 read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0001940
+    description: "the weighted median item size or N50 is a weighted median of the\
+      \ lengths of items, equal to the length of the longest item i such that the\
+      \ sum of the lengths of items greater than or equal in length to i is greater\
+      \ than or equal to half the length of all of the items. With regard to assemblies\
+      \ the items are typically contigs or scaffolds. It therefore denotes the ability\
+      \ of the software to create contigs and provides information about the resulting\
+      \ sequence assembly"
+    subclass: Experiments lrGS
+  - name: map rate
+    type: decimal
+    description: Map rate (%) is the percentage of sequencing reads that successfully
+      align to a reference genome.
+    subclass: Experiments lrGS
+  - name: sequencing chemistry
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000075
+    description: A laboratory sequencing datum which describes the method and chemistry
+      used to determine the order of nucleotides in a DNA molecule
+    subclass: Experiments lrGS
+  - name: base rate
+    type: decimal
+    description: rate at which bases are produced or processed by the sequencing instrument
+    subclass: Experiments lrGS
+  - name: base quality
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000281
+    - http://purl.obolibrary.org/obo/GENEPIO_0000089
+    description: "The percentage of sequenced bases whose Phred quality score exceeds\
+      \ 25, indicating high-confidence base calls"
+    subclass: Experiments lrGS
+  - name: samples per flow cell
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: The number of samples per flow cell
+    subclass: Experiments lrGS
+  - name: yield
+    type: decimal
+    semantics:
+    - http://biomodels.net/SBO/SBO_0000668
+    description: Output generated as biomass or product from a set of chemical reactions
+    subclass: Experiments lrGS
+  - name: movietime
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25330
+    description: "The period of time during which a sequencing run took place, i.e.,\
+      \ the length of time during which the instrument records signal data."
+    refTable: movietime
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: base kinetics included
+    type: bool
+    description: Does the experiment contain kinetic information?
+    subclass: Experiments lrGS
+  - name: basecaller version
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C181950
+    description: The version of the software used to call the nucleotide bases in
+      a sequencing assay
+    subclass: Experiments lrGS
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments srDNA
+  - name: DNA Extraction
+    type: heading
+    subclass: Experiments srDNA
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments RNA
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments RNA
+  - name: concentration
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: "The quantity of a substance per unit volume or weight; a measure\
+      \ of the amount of substance present in a unit amount of mixture, particularly,\
+      \ the amount of solute dissolved in a solvent. The amounts can be expressed\
+      \ as moles, masses, volumes, or parts."
+    subclass: Experiments RNA
+  - name: concentration unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48207
+    description: An indication of the type of unit of measure being used to express
+      a concentration.
+    refTable: Units
+    refSchema: CatalogueOntologies
+    subclass: Experiments RNA
+  - name: RIN QC value
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100661
+    description: A data field which describes quality control information
+    subclass: Experiments RNA
+  - name: NMD inhibitor added
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C29648
+    description: Was a Nonsense-Mediated Decay (NMC) inhibitor added?
+    subclass: Experiments RNA
+  - name: RNA Extraction
+    type: heading
+    subclass: Experiments RNA
+  - name: fragmentation method
+    description: A laboratory process in which RNA molecules are broken into smaller
+      fragments
+    subclass: Experiments RNA
+  - name: flow cell type
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0400043
+    description: "Can be one of several types; jet-in-air, quartz cuvette, or a hybrid\
+      \ of the two. The sample flows through the center of a fluid column of sheath\
+      \ fluid in the flow cell."
+    subclass: Experiments RNA
+  - name: TIN
+    type: decimal
+    description: Transcript Integrity Number
+    subclass: Experiments RNA
+  - name: targeted sequencing
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C158252
+    description: Did targeted sequencing take place?
+    subclass: Experiments RNA
+  - name: adaptive sequencing
+    type: bool
+    description: Did adaptive sequencing take place?
+    subclass: Experiments RNA
+  - name: adaptive sequencing bed file
+    type: file
+    description: "If adaptive sequencing took place, please provide the bed file"
+    subclass: Experiments RNA
+  - name: sample batch ID
+    semantics:
+    - http://purl.obolibrary.org/obo/MS_1000053
+    description: Sample batch lot identifier
+    subclass: Experiments RNA
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments RNA
+  - name: experiment attributes
+    type: text
+    description: Any other experiment attributes
+    subclass: Experiments RNA
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments lrGS
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments lrGS
+  - name: genomic fragment length
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/IAO_0000408
+    description: A scalar measurement datum that is the result of measurement of length
+      of a genomic fragment
+    subclass: Experiments lrGS
+  - name: A260 to A280 ratio
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139280
+    description: An assessment of nucleic acid purity that is measured by determining
+      the ratio of light absorbance of the nucleic acid sample at 260nm and 280nm
+      respectively.
+    subclass: Experiments lrGS
+  - name: A260 to A230 ratio
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C139281
+    description: An assessment of nucleic acid purity that is measured by determining
+      the ratio of light absorbance of the nucleic acid sample at 260nm and 230nm
+      respectively.
+    subclass: Experiments lrGS
+  - name: DNA Extraction
+    type: heading
+    subclass: Experiments lrGS
+  - name: storage buffer
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C70815
+    description: An ionic compound that resists changes in its pH. The buffer containing
+      the DNA/RNA.
+    subclass: Experiments lrGS
+  - name: concentration
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: "The quantity of a substance per unit volume or weight; a measure\
+      \ of the amount of substance present in a unit amount of mixture, particularly,\
+      \ the amount of solute dissolved in a solvent. The amounts can be expressed\
+      \ as moles, masses, volumes, or parts."
+    subclass: Experiments lrGS
+  - name: concentration unit
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C48207
+    description: An indication of the type of unit of measure being used to express
+      a concentration.
+    refTable: Units
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: concentration measurement type
+    type: ontology
+    semantics:
+    - http://purl.allotrope.org/ontologies/process#AFP_0002800
+    description: "An concentration measurement is the determination of the concentration\
+      \ of a compound in solution. [Allotrope]"
+    refTable: Concentration measurement type
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: DIN QC value
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100661
+    description: A data field which describes quality control information
+    subclass: Experiments lrGS
+  - name: mean read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The mean number of nucleotides successfully ordered from each side
+      of a nucleic acid fragment obtained after the completion of a sequencing process
+    subclass: Experiments lrGS
+  - name: N50 read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0001940
+    description: "the weighted median item size or N50 is a weighted median of the\
+      \ lengths of items, equal to the length of the longest item i such that the\
+      \ sum of the lengths of items greater than or equal in length to i is greater\
+      \ than or equal to half the length of all of the items. With regard to assemblies\
+      \ the items are typically contigs or scaffolds. It therefore denotes the ability\
+      \ of the software to create contigs and provides information about the resulting\
+      \ sequence assembly"
+    subclass: Experiments lrGS
+  - name: map rate
+    type: decimal
+    description: Map rate (%) is the percentage of sequencing reads that successfully
+      align to a reference genome.
+    subclass: Experiments lrGS
+  - name: sequencing chemistry
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0000075
+    description: A laboratory sequencing datum which describes the method and chemistry
+      used to determine the order of nucleotides in a DNA molecule
+    subclass: Experiments lrGS
+  - name: base rate
+    type: decimal
+    description: rate at which bases are produced or processed by the sequencing instrument
+    subclass: Experiments lrGS
+  - name: base quality
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000281
+    - http://purl.obolibrary.org/obo/GENEPIO_0000089
+    description: "The percentage of sequenced bases whose Phred quality score exceeds\
+      \ 25, indicating high-confidence base calls"
+    subclass: Experiments lrGS
+  - name: samples per flow cell
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: The number of samples per flow cell
+    subclass: Experiments lrGS
+  - name: yield
+    type: decimal
+    semantics:
+    - http://biomodels.net/SBO/SBO_0000668
+    description: Output generated as biomass or product from a set of chemical reactions
+    subclass: Experiments lrGS
+  - name: movietime
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25330
+    description: "The period of time during which a sequencing run took place, i.e.,\
+      \ the length of time during which the instrument records signal data."
+    refTable: movietime
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: base kinetics included
+    type: bool
+    description: Does the experiment contain kinetic information?
+    subclass: Experiments lrGS
+  - name: basecaller version
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C181950
+    description: The version of the software used to call the nucleotide bases in
+      a sequencing assay
+    subclass: Experiments lrGS
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments lrGS
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments srDNA
+  - name: DNA Extraction
+    type: heading
+    subclass: Experiments srDNA
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+    subclass: Experiments OGM
+  - name: number of aliquots
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25414
+    - http://purl.obolibrary.org/obo/NCIT_C25463
+    description: "The number of aliquots (= pertaining to a portion of the whole;\
+      \ any one of two or more samples of something, of the same volume or weight)"
+    subclass: Experiments OGM
+  - name: number of cells per million
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C202259
+    description: "The number of cells (million) in a sample, sample volume, field,\
+      \ or other delimiter."
+    subclass: Experiments OGM
+  - name: storage buffer
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C70815
+    description: An ionic compound that resists changes in its pH. The buffer containing
+      the DNA/RNA.
+    subclass: Experiments OGM
+  - name: Sample Preparation
+    type: heading
+    subclass: Experiments OGM
+  - name: processing centre
+    type: select
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0001202
+    description: A data field which describes the name of the third party company
+      or laboratory that provided services.
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments OGM
+  - name: cell count
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/UO_0010073
+    description: The number of cells used for DNA isolation
+    subclass: Experiments OGM
+  - name: HMW_DNA isolation
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0000834
+    description: The output of an extraction process in which DNA molecules above
+      a molecular weight cutoff are purified in order to exclude DNA from organellas
+    subclass: Experiments OGM
+  - name: isolation date
+    type: date
+    semantics:
+    - http://purl.obolibrary.org/obo/GENEPIO_0100465
+    description: A date field which describes the date on which the DNA was isolated
+      from a sample
+    subclass: Experiments OGM
+  - name: viscosity
+    type: int
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C75912
+    description: The resistance of a liquid to sheer forces and flow
+    subclass: Experiments OGM
+  - name: mean concentration HMW_DNA
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: The quantity of a HMW-DNA per unit volume or weight
+    subclass: Experiments OGM
+  - name: labeling protocol
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0003813
+    description: A protocol description in which input nucleic acid material is labeled
+    subclass: Experiments OGM
+  - name: labeling date
+    type: date
+    semantics:
+    - http://purl.org/dc/terms/date
+    description: The date of the labeling protocol
+    subclass: Experiments OGM
+  - name: concentration after labeling
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C41185
+    description: The amount of DNA present in the sample after labeling
+    subclass: Experiments OGM
+  - name: date of mapping
+    type: datetime
+    description: When the mapping experiment took place
+    subclass: Experiments OGM
+  - name: mean read length
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C153362
+    description: The mean number of nucleotides successfully ordered from each side
+      of a nucleic acid fragment obtained after the completion of a sequencing process
+    subclass: Experiments OGM
+  - name: chip id
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C181946
+    description: A sequence of characters used to uniquely identify a particular microassay
+      chip
+    subclass: Experiments OGM
+  - name: OGM Characteristics
+    type: heading
+    subclass: Experiments OGM
+  - name: jobIDs
+    type: string_array
+    semantics:
+    - http://edamontology.org/data_2098
+    description: An identifier of a submitted job
+    subclass: Experiments OGM
+  - name: bionano solve version
+    description: The specific version of the Bionano Solve software
+    subclass: Experiments OGM
+  - name: bionano access version
+    description: The specific version of the Bionano Access software
+    subclass: Experiments OGM
+  - name: total DNA
+    type: decimal
+    description: The total amount of DNA data generated during an OGM run
+    subclass: Experiments OGM
+  - name: N50150kbp
+    type: int
+    description: The molecule N50 for all molecules that are ≥ 150 kbp in length
+    subclass: Experiments OGM
+  - name: N5020kbp
+    type: int
+    description: The molecule N50 for all molecules that are ≥ 20 kbp in length
+    subclass: Experiments OGM
+  - name: label density
+    type: decimal
+    description: The average number of fluorescent labels per unit length of DNA
+    subclass: Experiments OGM
+  - name: map rate
+    type: decimal
+    description: Map rate (%) is the percentage of sequencing reads that successfully
+      align to a reference genome.
+    subclass: Experiments OGM
+  - name: PLV
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C133645
+    description: The percentage of labeled sites whose observed positions differ from
+      the expected positions in the reference genome
+    subclass: Experiments OGM
+  - name: NLV
+    type: decimal
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C133645
+    description: The percentage of expected label sites from the reference genome
+      that are missing in the observed DNA molecules
+    subclass: Experiments OGM
+  - name: secondary analysis centre
+    type: multiselect
+    semantics:
+    - http://id.nlm.nih.gov/mesh/D000094422
+    description: Analysis or reanalysis of existing data collected by another centre
+      usually for a different purpose
+    refTable: Organisations
+    refSchema: CatalogueOntologies
+    subclass: Experiments OGM

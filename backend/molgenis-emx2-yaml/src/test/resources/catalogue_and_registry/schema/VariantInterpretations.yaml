@@ -1,0 +1,99 @@
+---
+table:
+  table: Variant interpretations
+  description: A genetic variation analysis which assign a formal classification to
+    a detected genetic variant.
+  columns:
+  - name: id
+    type: auto_id
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C25364
+    description: "One or more characters used to identify, name, or characterize the\
+      \ nature, properties, or contents of a thing"
+  - name: interpretation analysis
+    type: select
+    refTable: Variant interpretation analyses
+  - name: Variant Definition
+    type: heading
+  - name: status
+    type: ontology
+    semantics:
+    - http://semanticscience.org/resource/SIO_000033
+    description: "An characterisation of the variant that indicates the state or progress\
+      \ (e.g., confirmed, to be verified, etc.)"
+    refTable: Status
+    refSchema: CatalogueOntologies
+  - name: variants
+    type: multiselect
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C164813
+    description: "A unique identifier that represents this variant (e.g., \"20:2447955..2447958c>g\"\
+      )"
+    refTable: Genomic variants
+  - name: transcript
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C1936
+    description: The initial RNA molecule produced by transcription
+  - name: parental origin
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENO_0000877
+    description: "A quality inhering in an allele that describes its genetic origin\
+      \ (how it came to be part of a cell's genome), i.e. whether it occurred de novo\
+      \ through some spontaneous mutation event, or was inherited from a parent (e.g.,\
+      \ \"maternal\")"
+    refTable: Variant origin
+    refSchema: CatalogueOntologies
+  - name: inheritance
+    type: ontology_array
+    semantics:
+    - http://purl.obolibrary.org/obo/GENO_0000141
+    description: "The pattern in which a genetic trait or condition is passed from\
+      \ one generation to the next, as determined by genetic interactions between\
+      \ alleles of the causal gene, and interactions between these alleles and the\
+      \ environment."
+    refTable: Inheritance pattern
+    refSchema: CatalogueOntologies
+  - name: zygosity
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/GENO_0000133
+    description: "An allelic state that describes the degree of similarity between\
+      \ features in a 'single locus complement', within the genome of a cell or organism\
+      \ (i.e., whether the alleles or haplotypes that reside at the same location\
+      \ on paired chromosomes are the same or different)."
+    refTable: Zygosity
+    refSchema: CatalogueOntologies
+  - name: Consensus Classification
+    type: heading
+  - name: disease
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C15607
+    description: "The diagnosis assigned for this particular observation (e.g., \"\
+      Spinocerebellar ataxia type 34\")"
+    refTable: Diseases
+    refSchema: CatalogueOntologies
+  - name: classification
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/NGBO_6000303
+    description: "A clinical variant interpretation that represents a sequence variant\
+      \ that is previously reported and is a recognized cause of the disorder (e.g.,\
+      \ \"Pathogenic\")"
+    refTable: Variant classifications
+    refSchema: CatalogueOntologies
+  - name: classification summary
+    type: text
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C86073
+    description: Context or an explanation on how the variant classification was derived
+  - name: consensus
+    type: refback
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C64197
+    description: Agreement as the result of multiple results or opinions on genomic
+      variants
+    refTable: Interpretation consensus
+    refBack: variant interpretation

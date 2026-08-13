@@ -1,0 +1,820 @@
+---
+table:
+  table: Resources
+  description: Resource of data and/or samples. Use 'resource type' to specify
+  columns:
+  - name: rdf type
+    type: hyperlink
+    semantics:
+    - rdf:type
+    description: The DCAT type such as dcat:Catalog as computed field
+  - name: fdp endpoint
+    type: ref
+    semantics:
+    - ldp:membershipResource
+    description: FDP endpoint to associated with the catalogue
+    refTable: Endpoint
+  - name: ldp membership relation
+    type: hyperlink
+    semantics:
+    - ldp:hasMemberRelation
+    description: LDP membership relation
+  - name: overview
+    type: heading
+    description: General information
+  - name: hricore
+    type: bool
+    description: "Do you want your metadata to be compatible with HRICore v2.0.1,\
+      \ so that the metadata can be shared with the Dutch National Health Data Catalogue?"
+  - name: id
+    key: 1
+    description: Internal identifier
+  - name: pid
+    key: 2
+    semantics:
+    - dcterms:identifier
+    description: Persistent identifier
+  - name: name
+    type: text
+    key: 3
+    semantics:
+    - dcterms:title
+    description: Name used in international projects
+  - name: local name
+    semantics:
+    - rdfs:label
+    description: "If different from above, name in the national language"
+  - name: acronym
+    semantics:
+    - dcterms:alternative
+    description: "Acronym, if applicable"
+  - name: type
+    type: ontology_array
+    description: "Type of resource, e.g. registry, cohort, biobank"
+    refTable: Resource types
+    refSchema: CatalogueOntologies
+  - name: type other
+    description: "If other, describe the type of resource"
+  - name: catalogue type
+    type: ontology
+    description: Type of catalogue
+    refTable: CatalogueTypes
+    refSchema: CatalogueOntologies
+  - name: cohort type
+    type: ontology_array
+    description: Type of cohort
+    refTable: Cohort study types
+    refSchema: CatalogueOntologies
+  - name: clinical study type
+    type: ontology_array
+    description: Type of clinical study
+    refTable: Clinical study types
+    refSchema: CatalogueOntologies
+  - name: RWD type
+    type: ontology_array
+    description: Type of registry or health record
+    refTable: Datasource types
+    refSchema: CatalogueOntologies
+  - name: network type
+    type: ontology_array
+    description: Type of network
+    refTable: Network types
+    refSchema: CatalogueOntologies
+  - name: website
+    type: hyperlink
+    semantics:
+    - dcat:landingPage
+    - foaf:homepage
+    description: Link to the website or homepage
+  - name: description
+    type: text
+    semantics:
+    - dcterms:description
+    description: Short description
+  - name: keywords
+    type: string_array
+    semantics:
+    - dcat:keyword
+    description: Keywords to increase findability of this resource. Try to use words
+      that are not used in the description. Keywords are not displayed on the resource
+      page
+  - name: internal identifiers
+    type: refback
+    description: Internal identifier(s) for this resource (e.g. UMCG register number)
+    refTable: Internal identifiers
+    refBack: resource
+  - name: external identifiers
+    type: refback
+    description: External identifier(s) for this resource (e.g. EUPASS number or BBMRI
+      persistent identifer)
+    refTable: External identifiers
+    refBack: resource
+  - name: start year
+    type: int
+    semantics:
+    - dcat:startDate
+    description: "The year when the resource started, e.g. when data or samples started\
+      \ to be collected or extracted, or when the resource was established"
+  - name: end year
+    type: int
+    semantics:
+    - dcat:endDate
+    description: "The year the resource ceased, e.g. when data or sample collection\
+      \ was stopped"
+  - name: time span description
+    type: text
+    description: Description of time span
+  - name: contact email
+    type: email
+    description: Contact e-mail address
+  - name: logo
+    type: file
+    description: "Logo of the resource, for use on homepages etc."
+  - name: status
+    type: ontology
+    description: Status of the study
+    refTable: Study status
+    refSchema: CatalogueOntologies
+  - name: conforms to
+    type: hyperlink
+    semantics:
+    - dcterms:conformsTo
+    description: The specification of the catalog metadata schema
+  - name: has member relation
+    type: hyperlink
+    semantics:
+    - ldp:hasMemberRelation
+    - dcat:record
+    description: This relation points to the URI of the custom relation/predicate
+      used to relate the FAIR Data Point with its member catalogs. The object of this
+      property MUST be fdp-o:metadataCatalog.
+  - name: issued
+    type: datetime
+    semantics:
+    - dcterms:issued
+    - https://w3id.org/fdp/fdp-o#metadataIssued
+    description: When the data of the resource was first published
+  - name: modified
+    type: datetime
+    semantics:
+    - dcterms:modified
+    - https://w3id.org/fdp/fdp-o#metadataModified
+    description: When the data of the resource was last modified
+  - name: design and structure
+    type: heading
+    description: Structure of the resource
+  - name: design
+    type: ontology
+    description: "The study design of this cohort, i.e. cross-sectional or longitudinal"
+    refTable: Cohort designs
+    refSchema: CatalogueOntologies
+  - name: design description
+    type: text
+    semantics:
+    - dcterms:provenance
+    description: "Short description of the study design of this resource, if applicable"
+  - name: design schematic
+    type: file
+    description: A schematic depiction of the study design of this resource
+  - name: data collection type
+    type: ontology_array
+    description: Retrospective or prospective data collection
+    refTable: Cohort collection types
+    refSchema: CatalogueOntologies
+  - name: data collection description
+    type: text
+    semantics:
+    - dcterms:provenance
+    description: Describe the process of collection and recording of data
+  - name: reason sustained
+    type: text
+    semantics:
+    - dcterms:provenance
+    description: "Description of the reason why the data bank is sustained by the\
+      \ organisation (e.g. for surveillance, clinical purposes, financial or administrative\
+      \ purposes, research purposes)"
+  - name: record trigger
+    type: text
+    description: "What triggers the creation of a record in the data bank? e.g. planned\
+      \ collection events, hospital discharge, specialist encounter, dispensation\
+      \ of a medicinal product, recording of a congenital anomaly"
+  - name: unit of observation
+    type: text
+    description: "Based on the record trigger or promt, what is the unit(s) of observation\
+      \ of a record (e.g. person, prescription)?"
+  - name: subpopulations
+    type: refback
+    description: "List of cohorts or subpopulations defined in this resource, if applicable"
+    refTable: Subpopulations
+    refBack: resource
+  - name: collection events
+    type: refback
+    description: "List of data/sample collection events defined for this collection,\
+      \ if applicable"
+    refTable: Collection events
+    refBack: resource
+  - name: data resources
+    type: ref_array
+    semantics:
+    - dcat:dataset
+    description: "List of other data collections included in this network, e.g. cohorts,\
+      \ biobanks or real world data sources. Do not list other networks or catalogues\
+      \ here"
+    refTable: Resources
+  - name: part of networks
+    type: refback
+    description: List of other collections included in this resource
+    refTable: Resources
+    refBack: data resources
+  - name: population
+    type: heading
+    description: Description of the population that is sampled in this resource
+  - name: number of participants
+    type: int
+    semantics:
+    - healthdcatap:numberOfUniqueIndividuals
+    description: Total number of individuals for which data is collected
+  - name: number of participants with samples
+    type: int
+    description: Number of individuals for which samples are collected
+  - name: underlying population
+    type: text
+    semantics:
+    - healthdcatap:populationCoverage
+    description: Provide a summary description of the underlying population from which
+      participants are sampled
+  - name: population of interest
+    type: ontology_array
+    description: Select population of interest
+    refTable: Population of interest
+    refSchema: CatalogueOntologies
+  - name: population of interest other
+    type: text
+    description: "If population of interest is 'Other', please specify which other\
+      \ population has been studied"
+  - name: countries
+    type: ontology_array
+    semantics:
+    - dcterms:spatial
+    description: Countries where data/samples from this resource largely originate
+      from
+    refTable: Countries
+    refSchema: CatalogueOntologies
+  - name: regions
+    type: ontology_array
+    semantics:
+    - dcterms:spatial
+    description: Geographical regions where data/samples from this resource largely
+      originate from
+    refTable: Regions
+    refSchema: CatalogueOntologies
+  - name: population age groups
+    type: ontology_array
+    description: Which population age groups are captured in this resource? Select
+      all that are relevant
+    refTable: Age groups
+    refSchema: CatalogueOntologies
+  - name: age min
+    type: int
+    semantics:
+    - healthdcatap:minimumTypicalAge
+    description: Minimum age of participants within this resource
+  - name: age max
+    type: int
+    semantics:
+    - healthdcatap:maximumTypicalAge
+    description: Maximum age of participants within this resource
+  - name: inclusion criteria
+    type: ontology_array
+    description: Inclusion criteria applied to the participants of this resource
+    refTable: Inclusion Exclusion Criteria
+    refSchema: CatalogueOntologies
+  - name: other inclusion criteria
+    type: text
+    description: Other inclusion criteria applied to the participants of this resource
+  - name: exclusion criteria
+    type: ontology_array
+    description: Exclusion criteria applied to the participants of this resource
+    refTable: Inclusion Exclusion Criteria
+    refSchema: CatalogueOntologies
+  - name: other exclusion criteria
+    type: text
+    description: Other exclusion criteria applied to the participants of this resource
+  - name: population entry
+    type: ontology_array
+    description: Select the possible causes / events that trigger the registration
+      of a person in the data source
+    refTable: Population entry
+    refSchema: CatalogueOntologies
+  - name: population entry other
+    type: text
+    description: "If other, specify the causes of entry to the underlying population"
+  - name: population exit
+    type: ontology_array
+    description: Select the possible causes / events that trigger the de-registration
+      of a person in the data source
+    refTable: Population exit
+    refSchema: CatalogueOntologies
+  - name: population exit other
+    type: text
+    description: "If other, specify the causes of exit from the underlying population"
+  - name: population disease
+    type: ontology_array
+    description: Is information on a specific disease subpopulation collected (e.g.
+      as in a disease-specific registry or cohort)?
+    refTable: Diseases
+    refSchema: CatalogueOntologies
+  - name: population oncology topology
+    type: ontology_array
+    description: "Is information on specific cancer subtype(s) collected? If yes,\
+      \ select topology specifications"
+    refTable: ICDO topologies
+    refSchema: CatalogueOntologies
+  - name: population oncology morphology
+    type: ontology_array
+    description: "Is information on specific cancer subtype(s) collected? If yes,\
+      \ select morphology specifications"
+    refTable: ICDO morphologies
+    refSchema: CatalogueOntologies
+  - name: population coverage
+    type: text
+    description: Estimated percentage of the population covered by the data source
+      in the catchment area. Please describe the denominator
+  - name: population not covered
+    type: text
+    description: "Description of the population covered by the data source in the\
+      \ catchment area whose data are not collected, where applicable (e.g. people\
+      \ who are registered only for private care)"
+  - name: counts
+    type: refback
+    description: Counts of e.g. samples defined for this resource
+    refTable: Resource counts
+    refBack: resource
+  - name: contributors
+    type: heading
+    description: List of relevant collaborations
+  - name: organisations involved
+    type: refback
+    description: Organisations involved in this resource and their role(s)
+    refTable: Organisations
+    refBack: resource
+  - name: publisher
+    type: ref
+    semantics:
+    - dcterms:publisher
+    description: "From organisations involved, point out the organisation that published\
+      \ this resource"
+    refTable: Organisations
+  - name: creator
+    type: ref_array
+    semantics:
+    - dcterms:creator
+    description: "From organisations involved, point out the organisation(s) that\
+      \ created this resource"
+    refTable: Organisations
+  - name: people involved
+    type: refback
+    description: Persons that contributed to this resource
+    refTable: Contacts
+    refBack: resource
+  - name: contact point
+    type: ref
+    semantics:
+    - dcat:contactPoint
+    description: "From people involved, point out the primary contact point for this\
+      \ resource"
+    refTable: Contacts
+  - name: child networks
+    type: ref_array
+    semantics:
+    - dcat:catalog
+    description: "List of networks, consortia or catalogues included in this network"
+    refTable: Resources
+  - name: parent networks
+    type: refback
+    description: The consortia or networks that this resource is part of
+    refTable: Resources
+    refBack: child networks
+  - name: available data and samples
+    type: heading
+    description: Data model and contents
+  - name: datasets
+    type: refback
+    description: List of datasets contained in this resouce if applicable
+    refTable: Datasets
+    refBack: resource
+  - name: samplesets
+    type: refback
+    description: List of sample sets contained in this resource if applicable
+    refTable: Samplesets
+    refBack: resource
+  - name: areas of information
+    type: ontology_array
+    description: Areas of information that were collected
+    refTable: Areas of information cohorts
+    refSchema: CatalogueOntologies
+  - name: areas of information rwd
+    type: ontology_array
+    description: Areas of information that were collected
+    refTable: Areas of information ds
+    refSchema: CatalogueOntologies
+  - name: quality of life other
+    type: text
+    description: "If 'other', specify additional quality of life measures"
+  - name: cause of death code other
+    type: text
+    description: "If 'other', what cause of death vocabulary is used?"
+  - name: indication vocabulary other
+    type: text
+    description: "If 'other', what indication for use vocabulary is used?"
+  - name: genetic data vocabulary other
+    type: text
+    description: "If 'other', what genetic data vocabulary is used?"
+  - name: care setting other
+    type: text
+    description: "If 'other', description of the setting of care"
+  - name: medicinal product vocabulary other
+    type: text
+    description: "If 'other', description of the medicinal product vocabulary"
+  - name: prescriptions vocabulary other
+    type: text
+    description: "If 'other', what prescriptions vocabulary is used?"
+  - name: dispensings vocabulary other
+    type: text
+    description: "If 'other', what dispensings vocabulary is used?"
+  - name: procedures vocabulary other
+    type: text
+    description: "If 'other', what procedures vocabulary is used?"
+  - name: biomarker data vocabulary other
+    type: text
+    description: "If 'other', what biomarker data vocabulary is used?"
+  - name: diagnosis medical event vocabulary other
+    type: text
+    description: "If 'other', what diagnosis medical event vocabulary is used?"
+  - name: data dictionary available
+    type: bool
+    description: Are a data dictionary and a data model available?
+  - name: disease details
+    type: ontology_array
+    description: "If data on a specific disease is collected, which diseases does\
+      \ the data source collect information on"
+    refTable: MedDRA
+    refSchema: CatalogueOntologies
+  - name: biospecimen collected
+    type: ontology_array
+    description: "If the data bank contains biospecimens, what types of specimen"
+    refTable: Biospecimens
+    refSchema: CatalogueOntologies
+  - name: languages
+    type: ontology_array
+    description: Languages that the records are recorded in (ISO 639)
+    refTable: Languages
+    refSchema: CatalogueOntologies
+  - name: multiple entries
+    type: bool
+    description: Can there be multiple entries for a single person in the data bank?
+  - name: linkage
+    type: heading
+    description: Data linkage
+  - name: has identifier
+    type: bool
+    description: Is there a unique identifier for a person in the data bank?
+  - name: identifier description
+    type: text
+    description: "Describe the variable that is used as a unique identifier for a\
+      \ person in the data bank. If the unique identifier is not at level of a person\
+      \ (for example hospital encounter), describe how this is translated to an individual\
+      \ level"
+  - name: prelinked
+    type: bool
+    description: Is the data from this data source linked to other data sources?
+  - name: linkage options
+    type: text
+    description: Linkage options with additional data resources that are available
+      for this resource
+  - name: linkage possibility
+    type: bool
+    description: Can this data source be linked to other data sources?
+  - name: linked resources
+    type: refback
+    description: List of resources that are or can be linked to this main resource
+    refTable: Linkages
+    refBack: resource
+  - name: access conditions
+    type: heading
+    description: Access and validation information
+  - name: informed consent type
+    type: ontology
+    description: What type of informed consent was given for data resource?
+    refTable: Informed consent types
+    refSchema: CatalogueOntologies
+  - name: informed consent required
+    type: ontology
+    description: Is informed consent required for use of the data for research purposes?
+    refTable: Informed consent required
+    refSchema: CatalogueOntologies
+  - name: informed consent other
+    type: text
+    description: "If 'other', describe the conditions when informed consent is required"
+  - name: access rights
+    type: ontology
+    semantics:
+    - dcterms:accessRights
+    description: "Information that indicates whether the resource is publicly accessible,\
+      \ has access restrictions or is not public. A default is set for non-public\
+      \ access, because most health datasets contain sensitive information and rules\
+      \ and licenses apply to get access."
+    refTable: Access rights
+    refSchema: CatalogueOntologies
+  - name: data access conditions
+    type: ontology_array
+    description: Codes defining data access terms and conditions
+    refTable: Data access conditions
+    refSchema: CatalogueOntologies
+  - name: data use conditions
+    type: ontology_array
+    description: Codes defining data use terms and conditions
+    refTable: Data use conditions
+    refSchema: CatalogueOntologies
+  - name: data access conditions description
+    type: text
+    description: Description of data access terms and use conditions
+  - name: data access fee
+    type: bool
+    description: Does a fee apply to gain access to data of this resource?
+  - name: access identifiable data
+    type: text
+    description: Can identifiable data be accessed in the data bank (including patient/practitioner
+      name/practice name)?
+  - name: access identifiable data route
+    type: text
+    description: "If yes above, what is the route to access or process this information?\
+      \ What permission is required?"
+  - name: access subject details
+    type: bool
+    description: Can individual patients/practitioners/practices be contacted in the
+      data bank?
+  - name: access subject details route
+    type: text
+    description: "If yes to the above, what is the route to access or process this\
+      \ information? What permission is required?"
+  - name: access third party
+    type: bool
+    description: Can (an extract of) the data bank be accessed with permission by
+      a third party?
+  - name: access third party conditions
+    type: text
+    description: "If above is 'yes', describe the conditions under which third-party\
+      \ access may be granted"
+  - name: access non EU
+    type: bool
+    description: Can (an extract of) the data bank be accessed with permission by
+      a non-EU/EEA institution?
+  - name: access non EU conditions
+    type: text
+    description: "If yes to the above, describe the conditions under which non-EU/EEA\
+      \ access may be granted"
+  - name: biospecimen access
+    type: bool
+    description: "If the data bank contains biospecimens (e.g. tissue samples), can\
+      \ these be retrieved?"
+  - name: biospecimen access conditions
+    type: text
+    description: "If yes to the above, describe the conditions under which permission\
+      \ to retrieve biospecimens may be granted"
+  - name: governance details
+    type: text
+    description: "If available, provide a link to documents or webpages that describe\
+      \ the overall governance of the data source bank (governing data access or utilisation\
+      \ for research purposes by existing DAPs)"
+  - name: approval for publication
+    type: bool
+    description: Is an approval needed to publish the results of a study using the
+      data
+  - name: updates
+    type: heading
+    description: Information on the regularity of updates and time lags
+  - name: release type
+    type: ontology
+    semantics:
+    - dcterms:accrualPeriodicity
+    description: Select whether this resource is a closed dataset or whether new data
+      is released continuously or at a termly basis
+    refTable: Release types
+    refSchema: CatalogueOntologies
+  - name: release description
+    type: text
+    description: Description of the release cycle of this resource
+  - name: number of records
+    type: int
+    description: Total number of unique records captured in the data bank (most recent
+      count)
+  - name: release frequency
+    type: int
+    description: Refreshing rate (in months)
+  - name: refresh time
+    type: int
+    description: Average number of days between refresh of data bank with new records
+  - name: lag time
+    type: int
+    description: How many days is the lag time after refresh before a record can be
+      extracted? (e.g. a lag time may occur if the originator conducts quality checks)
+  - name: refresh period
+    type: ontology_array
+    description: "If data are refreshed on fixed dates (e.g. every June and December),\
+      \ when are the refreshes scheduled? Select all that apply from the following:"
+    refTable: Refresh periods
+    refSchema: CatalogueOntologies
+  - name: date last refresh
+    type: date
+    description: Date of last update/refresh
+  - name: preservation
+    type: bool
+    description: Are records preserved in the data bank indefinitely?
+  - name: preservation duration
+    type: int
+    description: "If 'no' to the above, for how long (in years) are records preserved\
+      \ in the data bank?"
+  - name: quality
+    type: heading
+    description: List of relevant studies conducted using the data bank
+  - name: standard operating procedures
+    type: bool
+    description: Is there a standard operating procedure document that defines the
+      processes and procedures for data capture and management?
+  - name: qualification
+    type: bool
+    description: "Has the data source successfully undergone a formal qualification\
+      \ process (e.g. from the EMA, ISO or other certifications)?"
+  - name: qualifications description
+    type: text
+    description: "Has the data source successfully undergone a qualification process\
+      \ (e.g. from the EMA)? If yes, describe the qualification(s) granted"
+  - name: audit possible
+    type: bool
+    description: "Are external parties allowed to audit the data? For example, is\
+      \ it possible for an external party to audit the quality or validity of the\
+      \ data source?"
+  - name: completeness
+    type: text
+    description: Describe the completeness of the data bank (e.g. variables with more
+      or fewer missing values)
+  - name: completeness over time
+    type: text
+    description: Describe any changes in completeness of the data bank (e.g. variables
+      with more or fewer missing values) that have occurred  over time
+  - name: completeness results
+    type: text
+    description: What methods or processes are applied to check completeness of the
+      data bank?
+  - name: quality description
+    type: text
+    description: Describe the quality of the data bank (e.g. variables with more or
+      fewer missing values)
+  - name: quality over time
+    type: text
+    description: Describe any changes in quality of the data bank that have occurred  over
+      time
+  - name: access for validation
+    type: bool
+    description: "Can validity of the data in the data bank be verified, e.g. by review\
+      \ of origin medical charts?"
+  - name: quality validation frequency
+    type: text
+    description: How often are data quality checks and validation steps conducted
+      on the data bank?
+  - name: quality validation methods
+    type: text
+    description: What methods or processes are applied for data quality checks and
+      validation steps conducted on the data bank?
+  - name: correction methods
+    type: text
+    description: What methods or processes are applied to correct illogical values
+      in the data bank?
+  - name: quality validation results
+    description: "If available, provide a link to a publication of the data quality\
+      \ check and validation results"
+  - name: standards
+    type: heading
+    description: Use of standard data models and ontologies
+  - name: mappings to common data models
+    type: refback
+    description: Overview of dataset mappings available
+    refTable: Dataset mappings
+    refBack: source
+  - name: common data models other
+    type: text
+    description: "If not in list above, give the name of cdm(s) used by this data\
+      \ source"
+  - name: ETL standard vocabularies
+    type: ontology_array
+    description: "Are data mapped to standardised vocabularies during ETL to the CDM?\
+      \ If yes, what vocabularies are used for events, such as diagnoses?"
+    refTable: Vocabularies
+    refSchema: CatalogueOntologies
+  - name: ETL standard vocabularies other
+    type: text
+    description: "If other, what other vocabularies are used?"
+  - name: information
+    type: heading
+    description: Other information
+  - name: publications
+    type: refback
+    description: Publication(s) about this resource
+    refTable: Publications
+    refBack: resource
+  - name: funding sources
+    type: ontology_array
+    description: Specify the main financial support sources for the data source in
+      the last three years. Select all that apply
+    refTable: Funding types
+    refSchema: CatalogueOntologies
+  - name: funding scheme
+    type: ontology_array
+    description: The source of funding for the study. Select all that apply
+    refTable: Study funding
+    refSchema: CatalogueOntologies
+  - name: funding statement
+    type: text
+    description: Statement listing funding that was obtained for this resource
+  - name: citation requirements
+    type: text
+    description: Citation regulation for this resource
+  - name: acknowledgements
+    type: text
+    description: Acknowledgement statement and citation regulation for this resource
+  - name: provenance statement
+    type: text
+    semantics:
+    - dcterms:provenance
+    description: "A statement of any changes in ownership and custody of a resource\
+      \ since its creation that are significant for its authenticity, integrity, and\
+      \ interpretation"
+  - name: documentation
+    type: refback
+    description: "Descriptive document(s) available for this resource, e.g. informed\
+      \ consent"
+    refTable: Documentation
+    refBack: resource
+  - name: supplementary information
+    type: text
+    description: Any other information that needs to be disclosed for this resource
+  - name: theme
+    type: ontology_array
+    semantics:
+    - dcat:theme
+    description: "A main category of the resource. A resource can have multiple themes,\
+      \ for health data theme must at least take the value 'Health', which is set\
+      \ as a default"
+    refTable: Themes
+    refSchema: CatalogueOntologies
+  - name: applicable legislation
+    type: ontology_array
+    semantics:
+    - dcatap:applicableLegislation
+    description: "The legislation that mandates the creation or management of the\
+      \ resource. For health datasets, the value must include the data governance\
+      \ act, which is set as a default. URI's to other legislations may be included"
+    refTable: Legislations
+    refSchema: CatalogueOntologies
+  - name: study details
+    type: heading
+    description: List of relevant collaborations
+  - name: collection start planned
+    type: date
+    description: When was the data collection planned to start?
+  - name: collection start actual
+    type: date
+    description: When was the data collection actually start?
+  - name: analysis start planned
+    type: date
+    description: When was the data analysis planned to start?
+  - name: analysis start actual
+    type: date
+    description: When did the data analysis actually start?
+  - name: data sources
+    type: ref_array
+    description: Data sources that provided data into this study
+    refTable: Resources
+  - name: medical conditions studied
+    type: ontology_array
+    description: Codes of the medical conditions studied
+    refTable: MedDRA
+    refSchema: CatalogueOntologies
+  - name: data extraction date
+    type: date
+    description: Date on which the study data was extracted
+  - name: study methods
+    type: heading
+    description: Methodological aspects
+  - name: analysis plan
+    type: text
+    description: "A brief summary of the analysis method (e.g. risk estimation, measures\
+      \ of risk, internal/external validity)"
+  - name: objectives
+    type: text
+    description: A short description of the study objective
+  - name: results
+    type: text
+    description: A brief summary of the results of the study on study completion (e.g.
+      from abstract)

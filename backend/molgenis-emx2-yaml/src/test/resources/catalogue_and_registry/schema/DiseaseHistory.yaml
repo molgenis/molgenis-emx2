@@ -1,0 +1,82 @@
+---
+table:
+  table: Disease history
+  description: History of diagnoses of an individual at a specific timepoints
+  columns:
+  - name: part of clinical observation
+    type: select
+    key: 1
+    semantics:
+    - http://purl.obolibrary.org/obo/NCIT_C87853
+    description: "A reference to a specific clinical observation (e.g., \"Ind001_Phen001\"\
+      )"
+    refTable: Clinical observations
+  - name: disease
+    type: ontology
+    key: 1
+    semantics:
+    - http://semanticscience.org/resource/SIO_001331
+    description: "The diagnosis assigned for this particular observation (e.g., \"\
+      Spinocerebellar ataxia type 34\")"
+    refTable: Diseases
+    refSchema: CatalogueOntologies
+  - name: age group at onset
+    type: ontology
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0004847
+    - http://purl.obolibrary.org/obo/NCIT_C20587
+    description: "A categorical value that groups this individual's age of onset into\
+      \ groups (e.g., \"Adult\", \"18-24 years\", etc.)"
+    refTable: Age groups at onset
+    refSchema: CatalogueOntologies
+  - name: age at onset
+    type: period
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0004847
+    description: "The age at which manifestations of the disease first appeared (e.g.,\
+      \ \"P32Y6M1D\")"
+  - name: age group at diagnosis
+    type: ontology
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0004918
+    - http://purl.obolibrary.org/obo/NCIT_C20587
+    description: "A categorical value that groups this individual's age at diagnosis\
+      \ into groups (e.g., \"Adult\", \"18-24 years\", etc.)"
+    refTable: Age groups
+    refSchema: CatalogueOntologies
+  - name: age at diagnosis
+    type: period
+    semantics:
+    - http://www.ebi.ac.uk/efo/EFO_0004918
+    description: "The age at which the diagnosis was made (e.g., \"P32Y6M1D\")"
+  - name: has family history
+    type: bool
+    semantics:
+    - http://purl.obolibrary.org/obo/HP_0032316
+    description: An indication if the diagnosis is present in one or more family members
+      or other relatives
+  - name: disease severity
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/HP_0012824
+    description: "A value that describes the intensity of the disease (e.g., \"Profound\"\
+      )"
+    refTable: Severity
+    refSchema: CatalogueOntologies
+  - name: disease stage
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/OBI_0000278
+    description: "A part of an occurrence of a disease process which is associated\
+      \ with position in the normal progression of the disease (e.g., \"acute onset\"\
+      )"
+    refTable: Disease stage
+    refSchema: CatalogueOntologies
+  - name: disease status
+    type: ontology
+    semantics:
+    - http://purl.obolibrary.org/obo/OPMI_0000533
+    description: "The state or status at the point during the visit the diagnosis\
+      \ was given (e.g., \"Suspected\")"
+    refTable: Disease status
+    refSchema: CatalogueOntologies
