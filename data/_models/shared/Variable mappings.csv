@@ -1,5 +1,4 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible,defaultValue
-<<<<<<< HEAD
 Variable mappings,,,,,,,,,,,,"Mappings from collected or source variables to target or harmonised variables, optionally including ETL syntax","DataCatalogueFlat,Mappings",,
 Variable mappings,,source,ref,1,TRUE,,Resources,,,,,Id of the resource that contains the source variable(s),"DataCatalogueFlat,Mappings",,
 Variable mappings,,source table,ref,1,TRUE,,Tables,source,,,,Name of the table that contains the source variable(s),"DataCatalogueFlat,Mappings",,
