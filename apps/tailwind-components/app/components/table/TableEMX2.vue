@@ -353,6 +353,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
+  ITablePermission,
   ITableSettings,
   sortDirection,
 } from "../../../types/types";
@@ -363,34 +364,34 @@ import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import { rowMatchesUserRole } from "../../utils/rowMatchesUserRole";
 
-import type { IGraphQLFilter } from "../../../types/filters";
-import type { UseFilters } from "../../../types/filters";
+import type { IGraphQLFilter, UseFilters } from "../../../types/filters";
 import { useFilters } from "../../composables/useFilters";
 import TableCellEMX2 from "./CellEMX2.vue";
 
+import ActiveFilters from "../filter/ActiveFilters.vue";
+import FilterSidebarContent from "../filter/SidebarContent.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
 import Sidebar from "../Sidebar.vue";
-import FilterSidebarContent from "../filter/SidebarContent.vue";
-import ActiveFilters from "../filter/ActiveFilters.vue";
 
 import { useAsyncData } from "nuxt/app";
 import { useColumnResize } from "../../composables/useColumnResize";
+import { useSession } from "../../composables/useSession";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
 import Button from "../Button.vue";
+import Checkbox from "../input/Checkbox.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import DraftLabel from "../label/DraftLabel.vue";
-import Checkbox from "../input/Checkbox.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
-import RowControls from "./control/RowControls.vue";
-import DeleteRows from "./control/DeleteRows.vue";
 import TableControlColumns from "./control/Columns.vue";
-import TableEMX2Head from "./TableEMX2Head.vue";
+import DeleteRows from "./control/DeleteRows.vue";
 import DownloadButton from "./control/DownloadButton.vue";
+import RowControls from "./control/RowControls.vue";
 import Truncate from "./control/Truncate.vue";
+import TableEMX2Head from "./TableEMX2Head.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -399,7 +400,6 @@ const props = withDefaults(
     canInsert?: boolean;
     canUpdate?: boolean;
     canDelete?: boolean;
-    /** the table is under row level security, act per row on mg_roles */
     isRowLevel?: boolean;
     userRoles?: string[];
     filter?: IGraphQLFilter;
@@ -458,11 +458,7 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-type TableRow = {
-  _rowId: Record<string, columnValue>;
-  _rowIdString: string;
-  mg_roles?: string[];
-} & Record<string, columnValue>;
+const { tablePermissions, isAdmin } = await useSession(props.schemaId);
 
 const filters: UseFilters | null = props.enableFilters
   ? useFilters(
@@ -505,7 +501,7 @@ const effectiveFilter = computed(() =>
   filters ? filters.gqlFilter.value : props.filter
 );
 
-const { data, refresh, status } = useAsyncData(
+const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
     const tableMetadata = await fetchTableMetadata(
@@ -644,9 +640,16 @@ const showDraftColumn = computed(() =>
   rows.value.some((row: TableRow) => row?.mg_draft === true)
 );
 
-const showRolesColumn = computed(() =>
-  rows.value.some((row: TableRow) => row?.mg_roles?.length)
-);
+const showRolesColumn = computed(() => {
+  const isOwnerOrAdmin =
+    isAdmin.value ||
+    tablePermissions.value?.some(
+      (permission: ITablePermission) => permission.name === "OWNER"
+    );
+  return (
+    isOwnerOrAdmin && rows.value.some((row: TableRow) => row?.mg_roles?.length)
+  );
+});
 
 const count = computed(() => data.value?.count ?? 0);
 
@@ -845,4 +848,10 @@ async function afterRowDeleted() {
   // maybe notify user, and do more stuff
   await refresh();
 }
+
+type TableRow = {
+  _rowId: Record<string, columnValue>;
+  _rowIdString: string;
+  mg_roles?: string[];
+} & Record<string, columnValue>;
 </script>
