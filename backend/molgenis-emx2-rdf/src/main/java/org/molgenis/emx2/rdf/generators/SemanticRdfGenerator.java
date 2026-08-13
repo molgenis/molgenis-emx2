@@ -17,6 +17,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
+import org.molgenis.emx2.rdf.TableColumnsSelector;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
@@ -27,20 +28,20 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
   }
 
   @Override
-  public void generate(Schema schema) {
-    List<Table> tables = schema.getTablesSorted();
+  public void generate(Schema schema, TableColumnsSelector selector) {
+    List<Table> tables = schema.getTablesSorted(); // todo: filter tables using selector instead?
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
     NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), schema);
 
     generatePrefixes(namespaces.getAllNamespaces(schema));
     generateCustomRdf(schema);
     describeRoot();
-    tables.forEach(i -> processRows(namespaces, rdfMapData, i, null));
+    tables.forEach(i -> processRows(namespaces, rdfMapData, i, selector, null));
   }
 
   @Override
-  public void generate(Table table) {
-    generate(table, (PrimaryKey) null);
+  public void generate(Table table, TableColumnsSelector selector) {
+    generate(table, selector, (PrimaryKey) null);
   }
 
   /**
