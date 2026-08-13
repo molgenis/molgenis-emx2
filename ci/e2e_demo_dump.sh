@@ -8,6 +8,7 @@ COMPANION_MARKER="$DUMP_DIR/cache-key.txt"
 CACHE_KEY_FILE="${EMX2_DUMP_KEY_FILE:-emx2-demo-dump-key}"
 JAR_GLOB="${EMX2_JAR_GLOB:-/workspace/build/libs/molgenis-emx2-*-all.jar}"
 INITDB_SQL="${EMX2_INITDB_SQL:-.circleci/initdb.sql}"
+CIRCLECI_CONFIG="${EMX2_CIRCLECI_CONFIG:-.circleci/config.yml}"
 DATABASE="${EMX2_DATABASE:-molgenis}"
 RESTORE_JOBS="${EMX2_RESTORE_JOBS:-4}"
 KEY_MARKER_PREFIX="-- emx2-demo-dump-key: "
@@ -29,7 +30,7 @@ announce() {
   echo "[demo-dump] $*" >&2
 }
 
-KEY_PATHSPEC=(backend data ':(exclude)data/_shacl')
+KEY_PATHSPEC=(backend data ':(exclude)data/_shacl' "$INITDB_SQL")
 
 hashUntrackedInputs() {
   git ls-files -o --exclude-standard -z -- "${KEY_PATHSPEC[@]}" |
@@ -41,6 +42,14 @@ hashUntrackedInputs() {
 postgresVersions() {
   echo "client $(pg_dump --version 2>/dev/null || echo unreadable)"
   echo "server $(psql -tAX -d postgres -c 'show server_version' 2>/dev/null || echo unreadable)"
+}
+
+demoIncludeFlags() {
+  # The demo import is driven by whichever MOLGENIS_INCLUDE_* flags the CI
+  # config exports before a fresh (non-restored) boot; read them from the
+  # config itself so the key moves when a flag is added, removed or flipped.
+  grep -oE 'MOLGENIS_INCLUDE_[A-Z_]+=[^[:space:]]*' "$CIRCLECI_CONFIG" 2>/dev/null |
+    sort -u || echo "circleci-config-unreadable"
 }
 
 computeCacheKey() {
@@ -61,6 +70,7 @@ computeCacheKey() {
   {
     echo "$jarName"
     postgresVersions
+    demoIncludeFlags
     echo "$committedInputs"
     git diff HEAD -- "${KEY_PATHSPEC[@]}" 2>/dev/null || echo "uncommitted-changes-unreadable"
     hashUntrackedInputs || echo "untracked-files-unreadable"
