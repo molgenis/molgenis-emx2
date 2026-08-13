@@ -10,7 +10,7 @@ Variable mappings,,target variable,ref,1,TRUE,,Variables,target table,,,,Target 
 Variable mappings,,target,ref,1,TRUE,catalogue,Resources,,,,,Id of the resource that contains the target variable,Mappings,,
 Variable mappings,,target table,ref,1,TRUE,catalogue,Tables,target,,,,Name of the table that contains the target variable,Mappings,,
 Variable mappings,,target variable,ref,1,TRUE,catalogue,Variables,target table,,,,Target variable that was mapped to,Mappings,,
-Variable mappings,,repeats,text,1,TRUE,,,,,"if(!/^(([0-9]+)((, ?[0-9]+)*)|(NA))$/.test(repeats))'Repeats take the format 1,2,3 or 1, 2, 3 or NA'",,"In case of mapping to a repeated variable, specify which repeats were mapped to","DataCatalogueFlat,Mappings",,
+Variable mappings,,repeats,text,1,TRUE,,,,,"if(!/^(([0-9]+)((, ?[0-9]+)*)|(NA))$/.test(repeats))'Repeats take the format 1,2,3 or 1, 2, 3 or NA'",,"In case of mapping to a repeated variable, specify which repeats were mapped to","DataCatalogueFlat,Mappings",,NA
 Variable mappings,,match,ontology,,TRUE,CatalogueOntologies,Status details,,,,,"Harmonisation match, i.e., complete, partial, na","DataCatalogueFlat,Mappings",,
 Variable mappings,,description,text,,,,,,,,,Human readible description of the mapping,"DataCatalogueFlat,Mappings",,
 Variable mappings,,syntax,text,,,,,,,,,"Formal definition of the mapping, ideally in executable code","DataCatalogueFlat,Mappings",,
