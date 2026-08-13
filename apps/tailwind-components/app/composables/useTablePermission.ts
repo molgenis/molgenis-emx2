@@ -1,4 +1,5 @@
 import { computed, type Ref } from "vue";
+import type { TableType } from "../../../metadata-utils/src/types";
 import type { ISession, ITablePermission } from "../../types/types";
 
 /**
@@ -9,7 +10,7 @@ export function useTablePermission(
   session: Ref<ISession | null>,
   schemaId: string,
   tableId: string,
-  tableType?: string
+  tableType?: TableType
 ) {
   const permission = computed<ITablePermission | undefined>(() =>
     session.value?.tablePermissions?.[schemaId]?.find(
