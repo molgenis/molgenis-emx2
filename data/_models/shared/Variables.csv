@@ -4,7 +4,7 @@ Variables,,resource,ref,1,TRUE,,Resources,,,,,Resource that this variable is par
 Variables,,table,ref,1,TRUE,,Tables,resource,,,,Table that this variable is part of,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variables,,name,,1,TRUE,,,,,,csvw:name,"Name of the variable, unique within a table","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variables,,useExternalDefinition,ref,,,,Variables,,,,,Refer to variable definition in other tables,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging",
-Variables,,label,,,,,,,,,csvw:title,"Human readable name, if applicable","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
+Variables,,label,,,,,,,,,csvw:titles,"Human readable name, if applicable","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variables,,description,text,,,,,,,,dcterms:description,Description of the variable,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variables,,original language description,text,,,,,,,,,Description of the variable in the original language,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging,NetworksStaging,UMCGCohortsStaging,UMCUCohorts",
 Variables,,collection event,ref_array,,,,Collection events,resource,,,,In case of protocolised data collection this defines the moment(s) in time this variable is collected on,"DataCatalogueFlat,CohortsStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts",
