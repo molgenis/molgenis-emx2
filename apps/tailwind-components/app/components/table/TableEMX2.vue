@@ -331,6 +331,7 @@
     :metadata="data.tableMetadata"
     :isInsert="true"
     v-model:visible="showAddModal"
+    @update:added="afterClose"
     @update:cancelled="afterClose"
   />
 </template>
