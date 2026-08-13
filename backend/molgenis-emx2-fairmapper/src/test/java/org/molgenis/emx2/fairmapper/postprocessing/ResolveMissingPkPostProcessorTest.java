@@ -3,11 +3,13 @@ package org.molgenis.emx2.fairmapper.postprocessing;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -220,6 +222,78 @@ class ResolveMissingPkPostProcessorTest {
           new String[] {"organisation-1", "organisation-2"},
           collection().getStringArray("creator.name"));
     }
+  }
+
+  @Test
+  void givenResolving_whenTableUpdatedAfterHandledByResolver_thenResolveAgain() {
+    schema = new SchemaMetadata(SCHEMA_NAME + "OrderDependency");
+    tableStore = new InMemoryTableStore();
+
+    // Orders is created (and therefore processed) before Products exists, so it stays first in
+    // table processing order even after the "product" reference column
+    TableMetadata orders =
+        schema.create(
+            new TableMetadata("Orders")
+                .add(Column.column("id").setType(ColumnType.STRING).setPkey()));
+
+    schema.create(
+        new TableMetadata("Suppliers")
+            .add(Column.column("id").setType(ColumnType.STRING).setPkey()));
+
+    schema.create(
+        new TableMetadata("Products")
+            .add(Column.column("id").setType(ColumnType.STRING).setPkey())
+            .add(
+                Column.column("supplier")
+                    .setType(ColumnType.REF)
+                    .setRefTable("Suppliers")
+                    .setPkey()));
+
+    orders.add(Column.column("product").setType(ColumnType.REF).setRefTable("Products"));
+
+    // Orders must be processed before Products resolves its own composite key, or this test doesn't
+    // reproduce the bug
+    assertEquals(
+        List.of("Orders", "Suppliers", "Products"), schema.getTableNames().stream().toList());
+
+    store("Suppliers", new Row("_subject_", "urn:s:1", "id", "supplier-1"));
+    store(
+        "Products",
+        new Row("_subject_", "urn:p:1", "id", "product-1", "_subject_supplier", "urn:s:1"));
+    store("Orders", new Row("id", "order-1", "_subject_product", "urn:p:1"));
+
+    ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+    resolver.process(tableStore);
+
+    Iterator<Row> iterator = tableStore.readTable("Products").iterator();
+    Row product = iterator.next();
+    Row expectedProduct =
+        Row.row(
+            "_subject_",
+            "urn:p:1",
+            "id",
+            "product-1",
+            "_subject_supplier",
+            "urn:s:1",
+            "supplier",
+            "supplier-1");
+    CompareTools.assertEquals(product, expectedProduct);
+    assertFalse(iterator.hasNext());
+
+    iterator = tableStore.readTable("Orders").iterator();
+    Row order = iterator.next();
+    Row expectedOrder =
+        Row.row(
+            "id",
+            "order-1",
+            "_subject_product",
+            "urn:p:1",
+            "product.id",
+            "product-1",
+            "supplier",
+            "supplier-1");
+    CompareTools.assertEquals(order, expectedOrder);
+    assertFalse(iterator.hasNext());
   }
 
   @Nested
