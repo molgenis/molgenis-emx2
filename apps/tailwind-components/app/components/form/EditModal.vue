@@ -18,7 +18,7 @@
       <header
         class="pt-[36px] px-8 overflow-y-auto border-b border-divider flex-none"
       >
-        <div class="mb-5 relative flex items-center">
+        <div class="mb-5 relative flex items-center pr-14">
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
@@ -26,8 +26,14 @@
           </h2>
 
           <DraftLabel v-if="isDraft" />
+          <span
+            v-if="showRoles"
+            class="text-title-contrast"
+            style="margin-left: auto"
+          >
+            BLAAT
+          </span>
         </div>
-
         <button
           @click="onCancel"
           aria-label="Close modal"
@@ -190,6 +196,25 @@ const visible = defineModel<boolean>("visible");
 // lazy init formContext (form) when modal is opened
 let form: UseForm | undefined;
 
+const session = await useSession();
+
+const saveErrorMessage = ref<string>("");
+const formMessage = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
+
+const tableId = computed(() => props.metadata.id);
+const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
+const savingDraft = computed(
+  () => saving.value && formValues.value["mg_draft"] === true
+);
+const showRoles = computed(
+  () =>
+    session?.isAdmin ||
+    session?.tablePermissions.value.some(
+      (permission) => permission.name === "OWNER"
+    )
+);
+
 watch(
   visible,
   (newValue, oldValue) => {
@@ -204,10 +229,6 @@ watch(
   { immediate: true }
 );
 
-const savingDraft = computed(
-  () => saving.value && formValues.value["mg_draft"] === true
-);
-
 watch(formValues.value, () => {
   formMessage.value = "";
 });
@@ -215,14 +236,6 @@ watch(formValues.value, () => {
 watch(formValues.value, () => {
   formMessage.value = "";
 });
-
-const session = await useSession();
-const saveErrorMessage = ref<string>("");
-const formMessage = ref<string>("");
-const showReAuthenticateButton = ref<boolean>(false);
-
-const tableId = computed(() => props.metadata.id);
-const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
 
 function initFormValues() {
   const values =
