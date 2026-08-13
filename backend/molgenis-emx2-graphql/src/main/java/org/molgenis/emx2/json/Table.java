@@ -1,5 +1,7 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,6 +20,7 @@ public class Table {
   private String[] pkey;
   private String inheritId;
   private String inheritName;
+  private String inheritSchemaName;
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
   private Collection<String[]> unique = new ArrayList<>();
@@ -50,8 +53,9 @@ public class Table {
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     if (tableMetadata.getInheritName() != null) {
-      this.inheritId = tableMetadata.getInheritedTable().getIdentifier();
+      this.inheritId = convertToPascalCase(tableMetadata.getInheritName());
       this.inheritName = tableMetadata.getInheritName();
+      this.inheritSchemaName = tableMetadata.getImportSchema();
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
@@ -203,6 +207,14 @@ public class Table {
 
   public void setInheritName(String inheritName) {
     this.inheritName = inheritName;
+  }
+
+  public String getInheritSchemaName() {
+    return inheritSchemaName;
+  }
+
+  public void setInheritSchemaName(String inheritSchemaName) {
+    this.inheritSchemaName = inheritSchemaName;
   }
 
   public String getLabel() {
