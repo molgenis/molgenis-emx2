@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
-import NavigationGroups from "../../../../app/components/pages/Navigation/NavigationGroups.vue";
+import NavigationGroups from "../../../../app/components/cms/Navigation/NavigationGroups.vue";
 
 const wrapper = mount(NavigationGroups, {
   props: {

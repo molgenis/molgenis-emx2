@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
-import Image from "../../../../app/components/pages/Image.vue";
+import Image from "../../../../app/components/cms/Image.vue";
 
 const componentWithoutImage = mount(Image, {
   props: {
