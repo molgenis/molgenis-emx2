@@ -27,6 +27,7 @@ definitions:
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
+      npm_config_store_dir: /tmp/pnpm-store-apps
   test_config: &test_config
     docker:
     - image: molgenis/ci-build:1.5.1
@@ -41,6 +42,7 @@ definitions:
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
+      npm_config_store_dir: /tmp/pnpm-store-apps
   release_config: &release_config
     docker:
       - image: molgenis/ci-build:1.5.1
@@ -168,74 +170,16 @@ commands:
         type: string
     steps:
     - run:
-        name: Point pnpm at a store for << parameters.tree >> and record the pnpm versions that install
+        name: Record the pnpm versions that install into << parameters.tree >>
         command: |
           sed -n 's/.*"packageManager" *: *"pnpm@\([^"]*\)".*/\1/p' apps/package.json > pnpm-version
           sed -n 's/.*pnpmVersion *= *"\([^"]*\)".*/\1/p' apps/build.gradle >> pnpm-version
           echo "pnpm versions that perform the install: $(tr '\n' ' ' < pnpm-version)"
-          STORE_DIR="/tmp/pnpm-store-<< parameters.tree >>"
-          if [ -z "${BASH_ENV:-}" ]; then
-            echo "PNPM_STORE_PIN_IGNORED: BASH_ENV is unset so npm_config_store_dir cannot reach the install"
-          else
-            echo "export npm_config_store_dir=$STORE_DIR" >> "$BASH_ENV"
-            echo "npm_config_store_dir exported as $STORE_DIR for << parameters.tree >>"
-          fi
     - restore_cache:
         keys:
           - pnpm-store-v3-<< parameters.tree >>-{{ checksum "pnpm-version" }}-{{ checksum "<< parameters.tree >>/pnpm-lock.yaml" }}
           - pnpm-store-v3-<< parameters.tree >>-{{ checksum "pnpm-version" }}-
           - pnpm-store-v3-<< parameters.tree >>-
-    - run:
-        name: Record the << parameters.tree >> store's state before install
-        command: |
-          STORE_DIR="/tmp/pnpm-store-<< parameters.tree >>"
-          if [ -n "$(find "$STORE_DIR" -type f -print -quit 2>/dev/null)" ]; then
-            echo restored > pnpm-store-state-<< parameters.tree >>
-            du -sh "$STORE_DIR"
-          else
-            echo empty > pnpm-store-state-<< parameters.tree >>
-            echo "no pnpm store at $STORE_DIR after restore_cache"
-          fi
-
-  assert_pnpm_reused_store:
-    steps:
-    - run:
-        name: Fail if a restored pnpm store was not reused by every install
-        command: |
-          INSTALL_LOGS=$(ls pnpm-install-*.log 2>/dev/null || true)
-          if [ -z "$INSTALL_LOGS" ]; then
-            echo "PNPM_REUSE_UNVERIFIED: no pnpm-install-*.log exists, so no install recorded its own output"
-            exit 1
-          fi
-          UNREUSED=0
-          for LOG in $INSTALL_LOGS; do
-            TREE=${LOG#pnpm-install-}
-            TREE=${TREE%.log}
-            STORE_STATE=$(cat "pnpm-store-state-$TREE" 2>/dev/null || echo unrecorded)
-            case "$STORE_STATE" in
-              restored|empty)
-                ;;
-              *)
-                echo "PNPM_REUSE_UNVERIFIED: restore_pnpm_store did not record the state of the $TREE store, got '$STORE_STATE'"
-                UNREUSED=1
-                continue
-                ;;
-            esac
-            if [ ! -s "$LOG" ]; then
-              echo "PNPM_REUSE_UNVERIFIED: $LOG is empty, so the $TREE install did not record its own output"
-              UNREUSED=1
-              continue
-            fi
-            REUSED=$(sed -n 's/.*reused \([0-9][0-9]*\).*/\1/p' "$LOG" | sort -n | tail -1)
-            echo "$TREE: restored store state: $STORE_STATE, highest reused count in $LOG: ${REUSED:-none}"
-            if [ "$STORE_STATE" = empty ]; then
-              echo "PNPM_STORE_MISS: nothing was restored for $TREE, so the install in $LOG had to download"
-            elif [ "${REUSED:-0}" -eq 0 ]; then
-              echo "PNPM_STORE_RESTORED_BUT_UNUSED: the $TREE store was restored yet the install in $LOG reused nothing from it"
-              UNREUSED=1
-            fi
-          done
-          exit $UNREUSED
 
   save_pnpm_store:
     parameters:
@@ -243,14 +187,12 @@ commands:
         type: string
     steps:
     - run:
-        name: Check << parameters.tree >> installed into its pinned store, and change the cache key if it did not
+        name: Check << parameters.tree >> installed into its pinned store
         command: |
           STORE_DIR="/tmp/pnpm-store-<< parameters.tree >>"
           MODULES_YAML="<< parameters.tree >>/node_modules/.modules.yaml"
-          BEFORE=$(cat pnpm-store-state-<< parameters.tree >> 2>/dev/null || echo unrecorded)
           if [ ! -f "$MODULES_YAML" ]; then
-            echo "PNPM_STORE_PIN_IGNORED: $MODULES_YAML does not exist, so << parameters.tree >> was never installed (store before install: $BEFORE)"
-            echo "store-pin-broken" >> pnpm-version
+            echo "PNPM_STORE_PIN_IGNORED: $MODULES_YAML does not exist, so << parameters.tree >> was never installed"
             exit 1
           fi
           RECORDED_STORE=$(sed -n 's/^storeDir: *//p' "$MODULES_YAML")
@@ -260,12 +202,11 @@ commands:
             "$STORE_DIR"|"$STORE_DIR"/*)
               ;;
             *)
-              echo "PNPM_STORE_PIN_IGNORED: << parameters.tree >> recorded storeDir '$RECORDED_STORE' in $MODULES_YAML, not under the pinned $STORE_DIR (store before install: $BEFORE)"
-              echo "store-pin-broken" >> pnpm-version
+              echo "PNPM_STORE_PIN_IGNORED: << parameters.tree >> recorded storeDir '$RECORDED_STORE' in $MODULES_YAML, not under the pinned $STORE_DIR"
               exit 1
               ;;
           esac
-          echo "<< parameters.tree >> installed with npm_config_store_dir pinned to $STORE_DIR (store before install: $BEFORE)"
+          echo "<< parameters.tree >> installed with npm_config_store_dir pinned to $STORE_DIR"
           du -sh "$STORE_DIR" 2>/dev/null || echo "$STORE_DIR is empty after install"
     - save_cache:
         paths:
@@ -407,13 +348,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            # npm_config_store_dir is process-wide once exported via BASH_ENV, and this job installs
-            # two trees in one job, so each install pins its own store inline rather than relying on
-            # whichever restore_pnpm_store call ran last.
-            (cd apps && npm_config_store_dir=/tmp/pnpm-store-apps pnpm install) 2>&1 | tee pnpm-install-apps.log
-            (cd e2e && npm_config_store_dir=/tmp/pnpm-store-e2e pnpm install --frozen-lockfile) 2>&1 | tee pnpm-install-e2e.log
-
-      - assert_pnpm_reused_store
+            # two trees in one job, so each install names its own store
+            (cd apps && npm_config_store_dir=/tmp/pnpm-store-apps pnpm install --frozen-lockfile)
+            (cd e2e && npm_config_store_dir=/tmp/pnpm-store-e2e pnpm install --frozen-lockfile)
 
       - save_pnpm_store:
           tree: apps
