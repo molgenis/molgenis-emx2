@@ -4,9 +4,7 @@
 	xmlns:dcat="http://www.w3.org/ns/dcat#"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 
-    <rdf:Description rdf:about="https://example.org/fdp-api/dataset/1">
-        <dcterms:title>dataset</dcterms:title>
-        <dcat:distribution rdf:resource="https://example.org/fdp-api/distribution/1"/>
+    <rdf:Description rdf:about="https://example.org/fdp-api/csvw/1">
+        <dcterms:title>csvw 1</dcterms:title>
     </rdf:Description>
-
 </rdf:RDF>
