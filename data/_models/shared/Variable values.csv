@@ -1,5 +1,4 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-<<<<<<< HEAD
 Variable values,,,,,,,,,,,,Listing of categorical value+label definition in case of a categorical variable,"DataCatalogueFlat,DataDictionaries",
 Variable values,,resource,ref,1,TRUE,,Resources,,,,,Resource the variable belongs to,"DataCatalogueFlat,DataDictionaries",
 Variable values,,table,ref,1,TRUE,,Tables,resource,,,,Table the variable belongs to,"DataCatalogueFlat,DataDictionaries",
