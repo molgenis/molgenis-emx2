@@ -127,6 +127,7 @@ Variant interpretation analyses,,experiment,multiselect,,,,,,Experiments,,,,,,ob
 Variant interpretation analyses,,status,select,,,,,CatalogueOntologies,Status,,,,,,sio:SIO_000033,"An characterisation of the analysis that indicates the current state or progress (e.g., confirmed, to be verified, etc.)",Patient registry,
 Variant interpretation analyses,,solved,bool,,,,,,,,,,,,obo:IAO_0000136,A reference to the individual whom this analysis is about,Patient registry,
 Variant interpretation analyses,,date solved,date,,,,,,,,,,,,obo:NCIT_C25587,An indication that diagnosis is given and the case is no longer considered unsolved.,Patient registry,
+Variant interpretation analyses,,VIP Report,file,,,,,,,,,,,,,A Variant Interpretation Pipeline (VIP) report.,Patient registry,
 Variant interpretation analyses,,variant interpretation,refback,,,,,,Variant interpretations,,interpretation analysis,,,,obo:NGBO_6000125,Links to variant interpretation(s),Patient registry,
 Observations,Processes,,,,,,,,,,,,,,obo:NCIT_C25398,Findings and circumstances relating to the examination and treatment of an individual,"Patient registry, FAIR Genomes",
 Observations,,Observations Information,heading,,,,,,,,,,,,,,"Patient registry, FAIR Genomes",
