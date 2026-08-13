@@ -13,11 +13,13 @@ import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
-import type { IRow } from "../../../../../metadata-utils/src/types";
 import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
 import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import constants from "../../../../../tailwind-components/app/utils/constants";
+import { definePageMeta } from "#imports";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
+import type { IRow } from "../../../../../metadata-utils/src/types";
 
 const route = useRoute();
 const router = useRouter();
@@ -25,6 +27,10 @@ const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
 
 useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
+
+definePageMeta({
+  layout: "wide",
+});
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -112,11 +118,11 @@ const currentBreadCrumb = computed(
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
 const { isAdmin, session } = await useSession(schemaId);
+const enableFilters = true;
 </script>
 <template>
-  <div class="mx-auto lg:px-[30px] px-0">
+  <Container :wide="true">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
-      {{ tableMetadata }}
       <template #prefix>
         <BreadCrumbs
           :align="'left'"
@@ -129,8 +135,10 @@ const { isAdmin, session } = await useSession(schemaId);
     <TableEMX2
       :schemaId="schemaId"
       :tableId="tableId"
+      :enable-filters="enableFilters"
       v-model:settings="tableSettings"
       :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+      @view-details="handleViewRowRequest"
     >
       <template #additional-row-actions="{ row }">
         <Button
@@ -138,11 +146,10 @@ const { isAdmin, session } = await useSession(schemaId);
           :icon-only="true"
           type="inline"
           icon="info"
-          size="small"
           label="view row details"
           @click="handleViewRowRequest(row)"
         />
       </template>
     </TableEMX2>
-  </div>
+  </Container>
 </template>

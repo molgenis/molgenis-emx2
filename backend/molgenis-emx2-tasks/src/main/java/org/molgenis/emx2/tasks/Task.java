@@ -23,7 +23,7 @@ public class Task implements Runnable, Iterable<Task> {
   // for the toString method
   @JsonIgnore
   private static final ObjectMapper mapper =
-      new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+      new ObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
   @JsonIgnore private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
   // human readable description
@@ -37,7 +37,7 @@ public class Task implements Runnable, Iterable<Task> {
   // user who submitted
   private String submitUser;
   // start time to measure run time
-  private long submitTimeMilliseconds = System.currentTimeMillis();
+  private final long submitTimeMilliseconds = System.currentTimeMillis();
   // start time to measure run time
   private long startTimeMilliseconds;
   // end time to calculate run time
@@ -199,7 +199,10 @@ public class Task implements Runnable, Iterable<Task> {
     Objects.requireNonNull(status, "status can not be null");
     if (RUNNING.equals(status)) {
       this.startTimeMilliseconds = System.currentTimeMillis();
-    } else if (ERROR.equals(status) || COMPLETED.equals(status) || SKIPPED.equals(status)) {
+    } else if (ERROR.equals(status)
+        || COMPLETED.equals(status)
+        || SKIPPED.equals(status)
+        || CANCELLED.equals(status)) {
       if (startTimeMilliseconds == 0) {
         this.startTimeMilliseconds = System.currentTimeMillis();
       }
@@ -379,14 +382,13 @@ public class Task implements Runnable, Iterable<Task> {
 
   @JsonIgnore
   public boolean isRunning() {
-    return !status.equals(ERROR) && !status.equals(COMPLETED);
+    return !status.equals(ERROR)
+        && !status.equals(COMPLETED)
+        && !status.equals(SKIPPED)
+        && !status.equals(CANCELLED);
   }
 
   public boolean isIncludeDemoData() {
     return includeDemoData;
-  }
-
-  public void setIncludeDemoData(boolean includeDemoData) {
-    this.includeDemoData = includeDemoData;
   }
 }

@@ -1,5 +1,6 @@
 <template>
   <client-only>
+    <!-- teleport: render popup at body to avoid clipping by overflow-hidden ancestors -->
     <vue-date-picker
       :uid="id"
       :placeholder="datePlaceholder"
@@ -24,6 +25,7 @@
         escClose: true,
       }"
       @blur="handleBlur"
+      :teleport="true"
     />
   </client-only>
 </template>

@@ -78,25 +78,6 @@ export function sortData(
 }
 
 /**
- * Rename a property in a dataset (i.e., array of objects)
- *
- * @param data an array of objects
- * @param oldKey name of the property to rename
- * @param newKey name to substitute
- *
- * @param an array of objects
- */
-export function renameKey(data: object[], oldKey: string, newKey: string) {
-  return data.map((row: Record<string, any>) => {
-    if (Object.hasOwn(row, oldKey)) {
-      row[newKey] = row[oldKey];
-      delete row[oldKey];
-    }
-    return row;
-  });
-}
-
-/**
  * Flattens a nested object
  * @param row
  * @param key
@@ -243,61 +224,6 @@ export async function getChartData({
   }
 
   return preppedData;
-}
-
-/**
- * Evaluate a number and return a suitable increment
- * @param number a number to evaluate
- * @returns number
- */
-export function calculateIncrement(number: number) {
-  if (number > 2500) {
-    return 1000;
-  }
-
-  if (number > 1500 && number < 5000) {
-    return 500;
-  }
-  if (number > 500 && number <= 1500) {
-    return 250;
-  }
-
-  if (number > 100 && number <= 500) {
-    return 100;
-  }
-
-  if (number > 50 && number <= 100) {
-    return 25;
-  }
-
-  if (number > 10 && number <= 50) {
-    return 10;
-  }
-
-  return 2;
-}
-
-/**
- * Generate a sequence between two numbers by a specific interval
- * @param start the number to start the sequence
- * @param stop the number to stop the sequence
- * @param by the increment between each item in the sequence
- * @returns an array of numbers
- */
-export function seqAlongBy(start: number, stop: number, by: number): number[] {
-  return Array.from(
-    { length: (stop - start) / by + 1 },
-    (_, i) => start + i * by
-  );
-}
-
-/**
- * Check to see if number is between 0 and 1
- * @param value a value that is between 0 and 1
- * @returns boolean
- */
-export function validateNumRange(value: number) {
-  return value >= 0 && value <= 1;
 }
 
 /**

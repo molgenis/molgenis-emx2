@@ -104,7 +104,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
         transformAndGetFirstRow(
             schema, repositoryWithMultiple(predicate, literal("alpha"), literal("beta")));
 
-    List<String> parts = Arrays.asList(row.getString("tags").split(","));
+    List<String> parts = Arrays.asList(row.getString("tags").split("\\|"));
     assertEquals(2, parts.size());
     assertTrue(parts.contains("alpha"));
     assertTrue(parts.contains("beta"));
@@ -124,7 +124,7 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
             schema, repositoryWithMultiple(predicate, literal(10), literal(20)));
 
     // STR() in GROUP_CONCAT strips the XSD type annotation, leaving just the lexical value
-    List<String> parts = Arrays.asList(row.getString("scores").split(","));
+    List<String> parts = Arrays.asList(row.getString("scores").split("\\|"));
     assertEquals(2, parts.size());
     assertTrue(parts.contains("10"));
     assertTrue(parts.contains("20"));

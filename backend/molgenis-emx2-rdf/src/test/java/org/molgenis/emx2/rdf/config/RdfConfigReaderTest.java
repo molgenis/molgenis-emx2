@@ -17,7 +17,7 @@ class RdfConfigReaderTest {
     // use non-uppercase enum values to test case insensitivity
     Schema schema =
         mockSchema(
-            """
+"""
 writer: model
 generator: sEMantic
 """);
@@ -33,7 +33,7 @@ generator: sEMantic
   void testPartlyConfiguredRdfConfig() {
     Schema schema =
         mockSchema(
-            """
+"""
 writer: stream
 """);
 
@@ -71,7 +71,7 @@ writer: stream
   void testInvalidEnumValueRdfConfig() {
     Schema schema =
         mockSchema(
-            """
+"""
 writer: thisValueDoesNotExist
 """);
 
@@ -82,7 +82,7 @@ writer: thisValueDoesNotExist
   void testInvalidKeyRdfConfig() {
     Schema schema =
         mockSchema(
-            """
+"""
 thisKeyDoesNotExist: value
 """);
 

@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-10">
     <ButtonDropdown label="basic">
-      <section class="flex bg-white p-4 w-52">
+      <section class="flex p-4 w-52">
         <p>
           Behind every exquisite thing that existed, there was something tragic.
         </p>

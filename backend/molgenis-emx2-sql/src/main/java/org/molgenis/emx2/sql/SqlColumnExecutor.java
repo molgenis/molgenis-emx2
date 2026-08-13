@@ -210,7 +210,7 @@ public class SqlColumnExecutor {
           createOntologyTable(column);
         }
         for (Reference ref : column.getReferences()) {
-          current = ref.getName();
+          current = ref.getColumnName();
           // check if reference name already exists, composite ref may reuse columns
           // either other column, or a part of a reference
           if (!ref.isOverlapping()) {

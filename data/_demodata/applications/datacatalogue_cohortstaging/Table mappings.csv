@@ -1,0 +1,3 @@
+source,source table,target,target table,order,description,syntax
+testCohort,metadata,LifeCycle,core,,,
+testCohort,household,LifeCycle,core,,,

@@ -23,6 +23,7 @@ import fetchRowData from "../../../../../tailwind-components/app/composables/fet
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 import type { cellPayload } from "../../../../../tailwind-components/types/types";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -135,7 +136,7 @@ function handleCellClick(event: cellPayload) {
 </script>
 
 <template>
-  <section class="mx-auto lg:px-[30px] px-0">
+  <Container>
     <PageHeader :title="entityId" align="left">
       <template #prefix>
         <BreadCrumbs
@@ -207,7 +208,7 @@ function handleCellClick(event: cellPayload) {
         </DefinitionList>
       </section>
     </ContentBlock>
-  </section>
+  </Container>
 
   <CellDetailModal
     v-if="cellDetailPayload"

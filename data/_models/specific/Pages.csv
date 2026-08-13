@@ -34,7 +34,7 @@ Headers,,subtitle,string,,,,,,,,,,An optional secondary title that describes the
 Headers,,background image,select,,,Images,,,,,,,An image to display in the background of the header,pages
 Headers,,title is centered,bool,,,,,,,,FALSE,,"If true, the title and subtitle will be center aligned",pages
 Text elements,Components,,,,,,,,,,,,All text elements,pages
-Text elements,,text,text,,,,,,,,,,The content to display,pages
+Text elements,,text,text,,,,,,,,,,"The content to display. URLs can be generated using markdown format ""[label](url)"". This also works for emails if ""mailto"" is defined ""[user@website.com](mailto:user@website.com)"".",pages
 Headings,Text elements,,,,,,,,,,,,<h*> elements,pages
 Headings,,level,int,,,,,,,"if (level && (level < 1 || level > 6)) ""Level must corresponding to an HTML heading element. Use a level from 1 to 6.""",,,Enter an HTML Heading element level (1-6). Please note that heading levels corresponds to page hierarchy and it should not be used to style headings; this should be done elsewhere. ,pages
 Headings,,heading is centered,bool,,,,,,,,FALSE,,"If true, the heading will be center aligned",pages

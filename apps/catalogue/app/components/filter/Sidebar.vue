@@ -32,7 +32,7 @@ function handleFilerUpdate(filter: IFilter) {
 
 <template>
   <div
-    class="mt-7.5 rounded-t-3px rounded-b-50px"
+    class="mt-7.5 rounded-t-base rounded-b-alt"
     :class="{ 'bg-sidebar-gradient': !mobileDisplay }"
   >
     <h2
@@ -75,6 +75,7 @@ function handleFilerUpdate(filter: IFilter) {
           :filter="filter.config.filter || {}"
           :mobileDisplay="mobileDisplay"
           :filterLabel="filter.config.label"
+          :options="(filter as IOntologyFilter).options"
           :model-value="(filter as IOntologyFilter).conditions "
           @update:model-value="(value: IFilterCondition[]) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
         />
@@ -97,9 +98,9 @@ function handleFilerUpdate(filter: IFilter) {
 
     <!-- <div class="flex items-center p-5">
       <button class="flex items-center">
-        <BaseIcon name="plus" class="text-search-filter-expand" :width="18" />
+        <BaseIcon name="plus" class="text-search-filter-action" :width="18" />
         <span
-          class="ml-3 text-search-filter-expand text-body-base hover:underline"
+          class="ml-3 text-search-filter-action text-body-base hover:underline"
         >
           More filters
         </span>

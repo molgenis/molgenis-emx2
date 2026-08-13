@@ -105,10 +105,10 @@ watch(
 }
 
 .emx2__page_preview.enabled.enabled__button_styles button {
-  @apply h-14 px-7.5 text-heading-xl gap-4 tracking-widest uppercase rounded-input font-display bg-button-outline text-button-outline border border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover;
+  @apply h-14 px-7.5 text-heading-xl gap-4 tracking-widest uppercase rounded-alt font-display bg-button-outline text-button-outline border border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover;
 }
 
 .emx2__page_preview.enabled.enabled__button_styles button[type="submit"] {
-  @apply tracking-widest uppercase rounded-input font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover;
+  @apply tracking-widest uppercase rounded-alt font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover;
 }
 </style>

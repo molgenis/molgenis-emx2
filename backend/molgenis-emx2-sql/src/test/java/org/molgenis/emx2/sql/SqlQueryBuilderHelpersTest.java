@@ -173,7 +173,7 @@ class SqlQueryBuilderHelpersTest {
     final TableMetadata table = Mockito.mock(TableMetadata.class);
     final Column col1 = Mockito.mock(Column.class);
     final Reference ref1 = Mockito.mock(Reference.class);
-    when(ref1.getName()).thenReturn("ref1");
+    when(ref1.getColumnName()).thenReturn("ref1");
     when(col1.getName()).thenReturn("col1");
     when(col1.getReferences()).thenReturn(Collections.singletonList(ref1));
     when(table.getColumns()).thenReturn(Collections.singletonList(col1));

@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection, LinkCardGroup } from "molgenis-viz";
+import Address from "../components/Address.vue";
+</script>
+
 <template>
   <Page id="page-home">
     <PageHeader
@@ -38,25 +44,20 @@
       <h2 class="visually-hidden" id="quicklinks-card-title">
         quick links: learn more about ERN GENTURIS
       </h2>
-      <QuickLinks
-        id="genturisQuickLinks"
-        aria-labelledby="quicklinks-card-title"
-        :data="[
+      <LinkCardGroup
+        :linkCards="[
           { name: 'about', label: 'About Us' },
           {
             name: 'documents',
             label: 'Documents',
-            image: 'img/bkg-image-documents.jpg',
+            imageSrc: 'img/bkg-image-documents.jpg',
           },
           {
             name: 'dashboard',
             label: 'Dashboard',
-            image: 'img/bkg-image-dashboard.jpg',
+            imageSrc: 'img/bkg-image-dashboard.jpg',
           },
         ]"
-        name="name"
-        label="label"
-        imageSrc="image"
       />
     </PageSection>
     <PageSection
@@ -127,16 +128,7 @@
         <a href="mailto:genturis-registry@umcg.nl">genturis-registry@umcg.nl</a>
         or at the following address.
       </p>
-      <Address :centerText="true" />
+      <Address />
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-// @ts-ignore
-import QuickLinks from "../components/QuickLinks.vue";
-// @ts-ignore
-import Address from "../components/Address.vue";
-</script>

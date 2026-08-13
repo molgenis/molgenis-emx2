@@ -275,7 +275,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                                 "output of the script, if output extension != null and based on OUTPUT_FILE environment variable")));
             // import defaults
             String demoScript =
-                """
+"""
 import os;
 import sys
 # you can get parameters via sys.argv[1]
@@ -334,7 +334,7 @@ f.close()
               .getMetadata()
               .setSetting(
                   "menu",
-                  """
+"""
 [{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Tables","href":"tables","role":"Editor","key":"eq1fcr","submenu":[]},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
 """);
         });

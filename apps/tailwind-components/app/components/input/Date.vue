@@ -23,6 +23,7 @@
         escClose: true,
       }"
       @blur="handleBlur"
+      :teleport="true"
     />
   </client-only>
 </template>

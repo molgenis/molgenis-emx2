@@ -6,6 +6,10 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.GraphQLError;
+import graphql.language.Document;
+import graphql.language.OperationDefinition;
+import graphql.parser.InvalidSyntaxException;
+import graphql.parser.Parser;
 import graphql.parser.ParserOptions;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -78,6 +82,28 @@ public class GraphqlExecutor {
   public @NotNull ExecutionResult executeWithoutSession(
       String query, Map<String, Object> variables) {
     return execute(query, variables, new DummySessionHandler());
+  }
+
+  public @NotNull ExecutionResult executeReadOnly(
+      String query, Map<String, Object> variables, GraphqlSessionHandlerInterface sessionManager) {
+    rejectMutations(query);
+    return execute(query, variables, sessionManager);
+  }
+
+  private static void rejectMutations(String query) {
+    Document document;
+    try {
+      document = Parser.parse(query);
+    } catch (InvalidSyntaxException e) {
+      // let execute() report the syntax error in the standard graphql response format
+      return;
+    }
+    for (OperationDefinition operation : document.getDefinitionsOfType(OperationDefinition.class)) {
+      if (!OperationDefinition.Operation.QUERY.equals(operation.getOperation())) {
+        throw new GraphqlException(
+            "Only query operations are allowed via HTTP GET. Use a POST request to execute mutations.");
+      }
+    }
   }
 
   public @NotNull ExecutionResult execute(

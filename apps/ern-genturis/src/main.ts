@@ -5,8 +5,9 @@ import App from "./App.vue";
 // @ts-ignore
 import router from "./router/router";
 
-import "../../molgenis-components/dist/molgenis-components.css";
-import "molgenis-viz";
+import "molgenis/molgenis-components.css";
+import "vizdist/molgenis-viz.css";
+
 import { RouteLocationNormalizedGeneric } from "vue-router";
 
 const app = createApp(App);

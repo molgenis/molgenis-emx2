@@ -5,7 +5,7 @@ import type {
   IDependenciesJS,
 } from "../../types/cms";
 
-import cmsPagesQuery from "../gql/cmsPages";
+import { getContainersQuery } from "../gql/cmsPages";
 
 import type {
   IContainerMetadata,
@@ -34,7 +34,7 @@ export async function getPage(
   const { data } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: cmsPagesQuery,
+      query: getContainersQuery,
       variables: { filter: { name: { equals: page } } },
     },
   });
@@ -43,6 +43,303 @@ export async function getPage(
     | IConfigurablePages
     | IDeveloperPages;
   return { page: currentPage, metadata: data._schema.tables };
+}
+
+export async function addComponent(
+  schema: string,
+  id: string,
+  parentBlock: string,
+  order: number,
+  componentType: string
+) {
+  await prepareOrder(schema, order, parentBlock);
+  if (componentType === "Paragraph") {
+    await AddParagraph(schema, id);
+  }
+  if (componentType === "Heading") {
+    await AddHeading(schema, id);
+  }
+  if (componentType === "Image") {
+    await AddImage(schema, id);
+  }
+  await AddOrder(schema, id, order, parentBlock);
+}
+
+export async function addBlock(
+  schema: string,
+  id: string,
+  page: string,
+  order: number,
+  componentType: string
+) {
+  await prepareBlockOrder(schema, order, page);
+  if (componentType === "Header") {
+    await AddHeader(schema, id);
+  }
+  if (componentType === "Section") {
+    await AddSection(schema, id);
+  }
+  await AddBlockOrder(schema, id, order, page);
+}
+
+async function AddSection(schema: string, id: string) {
+  // add the paragraph component
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[SectionsInput]){insert(Sections:$value){message}}`,
+      variables: {
+        value: [
+          {
+            enableFullScreenWidth: false,
+            id: `${id}`,
+          },
+        ],
+      },
+    },
+  });
+}
+
+async function AddHeader(schema: string, id: string) {
+  // add the paragraph component
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[HeadersInput]){insert(Headers:$value){message}}`,
+      variables: {
+        value: [
+          {
+            titleIsCentered: false,
+            enableFullScreenWidth: false,
+            title: "Header",
+            subtitle: "Add a nice subtitle here",
+            backgroundImage: {
+              image: {
+                id: "93489539b9004e98a078ee164ad0c578",
+                size: 317451,
+                filename: "penguins.jpg",
+                extension: "jpg",
+                url: "/cms/api/file/Images/image/93489539b9004e98a078ee164ad0c578",
+              },
+              alt: "two penguins walking in the grass",
+              width: "425px",
+              imageIsCentered: true,
+              id: "penguins",
+            },
+            id: `${id}`,
+            mg_draft: false,
+          },
+        ],
+      },
+    },
+  });
+}
+
+async function AddImage(schema: string, id: string) {
+  // add the paragraph component
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[ImagesInput]){insert(Images:$value){message}}`,
+      variables: {
+        value: [
+          {
+            image: {
+              id: "93489539b9004e98a078ee164ad0c578",
+              size: 317451,
+              filename: "penguins.jpg",
+              extension: "jpg",
+              url: "/cms/api/file/Images/image/93489539b9004e98a078ee164ad0c578",
+            },
+            alt: "two penguins walking in the grass",
+            width: "425px",
+            imageIsCentered: true,
+            id: `${id}`,
+          },
+        ],
+      },
+    },
+  });
+}
+
+async function AddHeading(schema: string, id: string) {
+  // add the paragraph component
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[HeadingsInput]){insert(Headings:$value){message}}`,
+      variables: {
+        value: [
+          {
+            id: `${id}`,
+            headingIsCentered: false,
+            headingIsHidden: false,
+            text: "Heading",
+            level: 2,
+          },
+        ],
+      },
+    },
+  });
+}
+
+async function AddParagraph(schema: string, id: string) {
+  // add the paragraph component
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[ParagraphsInput]){insert(Paragraphs:$value){message}}`,
+      variables: {
+        value: [
+          {
+            paragraphIsCentered: false,
+            text: "Add your text here.",
+            id: `${id}`,
+          },
+        ],
+      },
+    },
+  });
+}
+
+async function prepareOrder(schema: string, order: number, block: string) {
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query getComponents($filter: ComponentOrdersFilter){ComponentOrders(filter:$filter){id,order}}`,
+      variables: {
+        filter: {
+          block: { id: { equals: block } },
+          order: { between: [order, null] },
+        },
+        orderby: [{ order: "ASC" }],
+      },
+    },
+  });
+  if (data?.ComponentOrders) {
+    const componentsToUpdate = data.ComponentOrders as {
+      id: string;
+      order: number;
+    }[];
+
+    let values: { id: string; order: number }[] = [];
+    for (const component of componentsToUpdate) {
+      values.push({
+        id: component.id,
+        order: component.order + 1,
+      });
+    }
+    if (values.length) {
+      await $fetch(`/${schema}/graphql`, {
+        method: "POST",
+        body: {
+          query: `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`,
+          variables: {
+            value: values,
+          },
+        },
+      });
+    }
+  }
+}
+
+async function prepareBlockOrder(schema: string, order: number, page: string) {
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query getBlocks($filter: BlockOrdersFilter){BlockOrders(filter:$filter){id,order}}`,
+      variables: {
+        filter: {
+          configurablePage: { equals: [{ name: page }] },
+          order: { between: [order, null] },
+        },
+        orderby: [{ order: "ASC" }],
+      },
+    },
+  });
+
+  if (data?.BlockOrders) {
+    const blocksToUpdate = data.BlockOrders as {
+      id: string;
+      order: number;
+    }[];
+
+    let values: { id: string; order: number }[] = [];
+    for (const block of blocksToUpdate) {
+      values.push({
+        id: block.id,
+        order: block.order + 1,
+      });
+    }
+    if (values.length) {
+      await $fetch(`/${schema}/graphql`, {
+        method: "POST",
+        body: {
+          query: `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`,
+          variables: {
+            value: values,
+          },
+        },
+      });
+    }
+  }
+}
+
+async function AddOrder(
+  schema: string,
+  id: string,
+  order: number,
+  parentBlock: string
+) {
+  const { data_order } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[ComponentOrdersInput]){insert(ComponentOrders:$value){message}}`,
+      variables: {
+        value: [
+          {
+            id: `${id}-order`,
+            block: {
+              id: parentBlock,
+            },
+            component: {
+              id: `${id}`,
+            },
+            order: order,
+          },
+        ],
+      },
+    },
+  });
+  return true;
+}
+async function AddBlockOrder(
+  schema: string,
+  id: string,
+  order: number,
+  page: string
+) {
+  await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `mutation insert($value:[BlockOrdersInput]){insert(BlockOrders:$value){message}}`,
+      variables: {
+        value: [
+          {
+            id: `${id}-order`,
+            configurablePage: {
+              name: page,
+            },
+            block: {
+              id: `${id}`,
+            },
+            order: order,
+          },
+        ],
+      },
+    },
+  });
+  return true;
 }
 
 export function generateHtmlPreview(
@@ -157,4 +454,14 @@ export function parsePageText(value?: string): string {
 export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
+}
+
+export function renderTextUrls(string: string): string {
+  let paragraph = string;
+  const urlPattern = /\[(.*?)\]\((.*?)\)/g;
+  paragraph = paragraph.replaceAll(
+    urlPattern,
+    '<a href="$2" class="underline decoration-solid">$1</a>'
+  );
+  return paragraph;
 }

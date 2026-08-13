@@ -1,4 +1,4 @@
-export default `query getContainers($filter:ContainersFilter) {
+export const getContainersQuery = `query getContainers($filter:ContainersFilter) {
     Containers(filter:$filter) {
         
         # Containers
@@ -37,10 +37,16 @@ export default `query getContainers($filter:ContainersFilter) {
                 title
                 subtitle
                 backgroundImage {
+                    displayName
                     image {
                         id
                         url
                     }
+                    alt
+                    width
+                    height
+                    imageIsCentered
+                    id
                 }
                 titleIsCentered
                 

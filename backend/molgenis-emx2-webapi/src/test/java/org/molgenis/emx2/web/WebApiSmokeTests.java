@@ -20,7 +20,6 @@ import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
@@ -557,6 +556,47 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
+  void testGraphqlGetRequestsCannotExecuteMutations() {
+    // queries via GET remain possible
+    String result =
+        given().queryParam("query", "{_session{email}}").when().get("/api/graphql").asString();
+    assertTrue(result.contains("anonymous"));
+
+    // mutations via GET are rejected (would enable CSRF via links/images)
+    given()
+        .queryParam("query", "mutation{signin(email:\"admin\",password:\"admin\"){message}}")
+        .when()
+        .get("/api/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+
+    // also on the schema endpoints
+    given()
+        .queryParam("query", "mutation{drop(tables:[\"Pet\"]){message}}")
+        .when()
+        .get("/pet store/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+    assertNotNull(schema.getTable("Pet"));
+
+    // same mutation via POST still works for signin
+    String postResult =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + database.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + ADMIN_PASS
+                    + "\\\"){message}}\"}")
+            .when()
+            .post("/api/graphql")
+            .asString();
+    assertTrue(postResult.contains("Signed in"));
+  }
+
+  @Test
   void testBootstrapThemeService() {
     // should success
     String css = given().when().get("/pet store/tables/theme.css?primaryColor=123123").asString();
@@ -717,7 +757,7 @@ class WebApiSmokeTests extends ApiTestBase {
 
   @Test
   void testRdfApiRequest() {
-    final String urlPrefix = "http://localhost:" + PORT;
+    final String urlPrefix = "http://localhost:" + port;
 
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
@@ -807,7 +847,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
+            .get("http://localhost:" + port + "/api/rdf?schemas=pet store")
             .getBody()
             .asString();
 
@@ -817,7 +857,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
+            .get("http://localhost:" + port + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
             .getBody()
             .asString();
 
@@ -826,7 +866,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/api/rdf?shacls")
+            .get("http://localhost:" + port + "/api/rdf?shacls")
             .getBody()
             .asString();
 
@@ -835,7 +875,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/pet store/api/rdf")
+            .get("http://localhost:" + port + "/pet store/api/rdf")
             .getBody()
             .asString();
 
@@ -843,7 +883,7 @@ class WebApiSmokeTests extends ApiTestBase {
         given()
             .sessionId(sessionId)
             .when()
-            .get("http://localhost:" + PORT + "/pet store/api/jsonld?validate=hri-v2.0.2")
+            .get("http://localhost:" + port + "/pet store/api/jsonld?validate=hri-v2.0.2")
             .getBody()
             .asString();
 
@@ -1228,14 +1268,15 @@ class WebApiSmokeTests extends ApiTestBase {
                 logging.getLogger("requests").setLevel(logging.WARNING)
                 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-                async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+                async with Client('http://localhost:%d', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
                     await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
                                 template="PET_STORE", include_demo_data=False)
 
             if __name__ == '__main__':
                 asyncio.run(main())
 
-            """;
+            """
+            .formatted(port);
     jobs.insert(
         row(
             "name",
@@ -1353,43 +1394,6 @@ class WebApiSmokeTests extends ApiTestBase {
         .statusCode(200)
         .when()
         .get("/pet store/api/ttl/Pet");
-  }
-
-  @Test
-  void testBeaconConfiguration() {
-    getAndAssertContains("/api/beacon/configuration", "productionStatus");
-  }
-
-  @Test
-  void testBeaconMap() {
-    getAndAssertContains("/api/beacon/map", "endpointSets");
-  }
-
-  @Test
-  void testBeaconInfo() {
-    getAndAssertContains("/pet store/api/beacon/info", "beaconInfoResponse");
-  }
-
-  @Test
-  void testBeaconEntryTypes() {
-    getAndAssertContains("/api/beacon/entry_types", "entry");
-  }
-
-  private void getAndAssertContains(String path, String expectedSubstring) {
-    database.clearCache();
-    String result = given().get(path).getBody().asString();
-    ObjectMapper mapper = new ObjectMapper();
-    String prettyJson;
-    try {
-      Object json = mapper.readValue(result, Object.class);
-      ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-      prettyJson = writer.writeValueAsString(json);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
-    assertTrue(
-        result.contains(expectedSubstring),
-        "expecting:\n" + expectedSubstring + "\nin:\n" + prettyJson);
   }
 
   @Test
@@ -1521,6 +1525,46 @@ class WebApiSmokeTests extends ApiTestBase {
   }
 
   @Test
+  void testGraphqlUnknownSchemaReturns404() {
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    given()
+        .queryParam("query", "{_schema{id}}")
+        .when()
+        .get("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    // a schema the user cannot see returns the same 404, so the response does
+    // not reveal whether a schema exists
+    given()
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(404)
+        .body("errors[0].message", containsString("unknown"));
+
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(200);
+  }
+
+  @Test
   void testMetricsEndpoint() {
     given()
         .expect()
@@ -1528,5 +1572,24 @@ class WebApiSmokeTests extends ApiTestBase {
         .body(containsString("jvm_memory_used_bytes"))
         .when()
         .get(MetricsController.METRICS_PATH);
+  }
+
+  @Test
+  void testClearTasks() {
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/pet store/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
   }
 }

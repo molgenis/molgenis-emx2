@@ -42,6 +42,7 @@ export default defineConfig<ConfigOptions>({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
       testIgnore: "*/admin!*.spec.ts",
+      testMatch: "*/*.spec.ts",
     },
     {
       name: "chromium",

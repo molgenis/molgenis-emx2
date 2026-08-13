@@ -1,11 +1,21 @@
+<script setup lang="ts">
+import { ref } from "vue";
+//@ts-expect-error
+import { Molgenis } from "molgenis-components";
+//@ts-expect-error
+import { AppFooter } from "molgenis-viz";
+
+const session = ref(null);
+const page = ref(null);
+</script>
+
 <template>
   <Molgenis id="__top" v-model="session">
     <router-view :session="session" :page="page" />
     <AppFooter
-      id="project-foooter"
+      id="nestorFooter"
       first-column-title="KWF Nestor"
       second-column-title="For members"
-      :show-project-citation="true"
     >
       <template v-slot:column-links-1>
         <li>
@@ -33,14 +43,14 @@
         <li id="project-funding-logo">
           <img
             src="/img/kwf_supported_by_logo.png"
-            class="logo logo-small"
+            class="nestor-logo"
             alt="NESTOR Registry funded by the KWF"
           />
         </li>
         <li id="project-logo-link">
           <img
             src="/img/nestor-logo.png"
-            class="logo logo-small"
+            class="nestor-logo"
             alt="The Nestor Registry"
           />
         </li>
@@ -56,12 +66,3 @@
     </AppFooter>
   </Molgenis>
 </template>
-
-<script setup>
-import { ref } from "vue";
-import { Molgenis } from "molgenis-components";
-import AppFooter from "./components/AppFooter.vue";
-
-const session = ref(null);
-const page = ref(null);
-</script>

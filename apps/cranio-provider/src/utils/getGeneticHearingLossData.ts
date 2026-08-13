@@ -1,5 +1,5 @@
-import { getDashboardChart } from "./getDashboardData";
-import type { IChartData } from "../types/schema";
+import { getDashboardChart } from "../../../metadata-utils/src/viz/getUiDashboardCharts";
+import type { IChartData } from "../../../metadata-utils/src/viz/UiDashboard";
 
 export async function getGeneticLossData(url: string, type: string) {
   const hearingLossTypeLeft = (
@@ -49,7 +49,7 @@ export async function getGeneticLossData(url: string, type: string) {
   Object.keys(data).forEach((key) => {
     // @ts-ignore
     data[key].dataPoints = data[key].dataPoints.map((row: IChartData) => {
-      return Object.assign(row, { dataPointSecondaryCategory: type });
+      return Object.assign(row, { secondaryCategory: type });
     });
   });
 

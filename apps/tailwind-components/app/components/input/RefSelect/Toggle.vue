@@ -30,7 +30,7 @@ defineExpose({
     role="combobox"
     ref="combobox"
     :aria-required="required"
-    class="flex justify-between items-center h-input w-full text-left pl-11 border rounded-input cursor-pointer"
+    class="flex justify-between items-center h-input w-full text-left pl-11 border rounded-alt cursor-pointer"
     :class="{
       'bg-input border-invalid text-invalid': invalid && !disabled,
       'bg-input border-valid text-valid': valid && !disabled,

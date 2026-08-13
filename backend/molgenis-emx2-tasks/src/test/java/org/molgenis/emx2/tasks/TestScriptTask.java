@@ -33,7 +33,7 @@ public class TestScriptTask {
             .parameters("\"netherlands & world\"")
             .extraFile(new Row())
             .script(
-                """
+"""
 import time
 import sys
 # you can get parameters via sys.argv[1]
@@ -59,7 +59,7 @@ print('Complete')
         new ScriptTask("error")
             .type(PYTHON)
             .script(
-                """
+"""
 import sys
 print('Error message', file=sys.stderr)
 """);
@@ -73,7 +73,7 @@ print('Error message', file=sys.stderr)
         new ScriptTask("bashTest")
             .type(BASH)
             .script(
-                """
+"""
 echo "hello world"
 ls -la
 echo "bey"
@@ -88,7 +88,7 @@ echo "bey"
         new ScriptTask("error")
             .type(PYTHON)
             .script(
-                """
+"""
 import sys
 failureVariable = fail
 print('unreachable')

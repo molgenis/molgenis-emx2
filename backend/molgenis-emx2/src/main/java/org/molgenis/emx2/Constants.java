@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 public class Constants {
 
   public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
-  public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE_";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
   public static final String MG_USER_PREFIX = "MG_USER_";
 
@@ -77,6 +76,7 @@ public class Constants {
   public static final String MOLGENIS_INCLUDE_DIRECTORY_DEMO = "MOLGENIS_INCLUDE_DIRECTORY_DEMO";
   public static final String MOLGENIS_EXCLUDE_PETSTORE_DEMO = "MOLGENIS_EXCLUDE_PETSTORE_DEMO";
   public static final String MOLGENIS_INCLUDE_TYPE_TEST_DEMO = "MOLGENIS_INCLUDE_TYPE_TEST_DEMO";
+  public static final String MOLGENIS_INCLUDE_CMS = "MOLGENIS_INCLUDE_CMS";
   public static final String MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO =
       "MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO";
   public static final String CUSTOM_APP_PATH = "CUSTOM_APP_PATH";

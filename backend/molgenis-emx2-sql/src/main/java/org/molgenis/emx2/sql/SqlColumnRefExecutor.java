@@ -31,10 +31,12 @@ public class SqlColumnRefExecutor {
     Name fkeyConstraintName = name(getRefConstraintName(refColumn));
     Name thisTable = getJooqTable(refColumn.getTable()).getQualifiedName();
     List<Name> thisColumns =
-        refColumn.getReferences().stream().map(c -> name(c.getName())).collect(Collectors.toList());
+        refColumn.getReferences().stream()
+            .map(c -> name(c.getColumnName()))
+            .collect(Collectors.toList());
     List<Name> otherColumns =
         refColumn.getReferences().stream()
-            .map(c -> name(c.getRefTo()))
+            .map(c -> name(c.getReferencedColumnName()))
             .collect(Collectors.toList());
 
     Name fkeyTable = name(refColumn.getRefTable().getSchemaName(), refColumn.getRefTableName());

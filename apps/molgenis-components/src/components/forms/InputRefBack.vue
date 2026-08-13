@@ -102,6 +102,7 @@ import FormGroup from "./FormGroup.vue";
 import MessageError from "./MessageError.vue";
 import MessageWarning from "./MessageWarning.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
+import { resolveTablePermission } from "../../client/client.ts";
 
 export default {
   name: "InputRefBack",
@@ -159,6 +160,7 @@ export default {
   data() {
     return {
       client: null,
+      tablePermission: undefined,
       tableMetadata: null,
       data: null,
       isLoading: false,
@@ -171,9 +173,6 @@ export default {
     };
   },
   computed: {
-    tablePermission() {
-      return this.tablePermissions?.find((p) => p.name === this.tableId);
-    },
     canInsert() {
       return this.tablePermission?.canInsert ?? this.canEdit;
     },
@@ -247,8 +246,20 @@ export default {
       }
       this.loading = false;
     },
+    async loadPermission() {
+      this.tablePermission = await resolveTablePermission(
+        this.schemaId,
+        this.tableId,
+        this.tablePermissions
+      );
+    },
+  },
+  watch: {
+    schemaId: "loadPermission",
+    tableId: "loadPermission",
   },
   mounted: async function () {
+    this.loadPermission();
     this.client = Client.newClient(this.schemaId);
     this.isLoading = true;
     this.tableMetadata = await this.client

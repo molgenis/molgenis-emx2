@@ -3,11 +3,7 @@ package org.molgenis.emx2.email;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
+import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -27,23 +23,23 @@ public class EmailService {
   }
 
   public EmailService(EmailSettings settings) {
-    this.props.put("mail.smtp.auth", settings.getAuth());
-    this.props.put("mail.smtp.host", settings.getHost());
-    this.props.put("mail.smtp.starttls.enable", settings.getStarttlsEnable());
-    this.props.put("mail.smtp.port", settings.getPort());
-    this.props.put("mail.smtp.ssl.protocols", settings.getSslProtocols());
-    this.props.put("mail.smtp.socketFactory.port", settings.getSocketFactoryPort());
-    this.props.put("mail.smtp.socketFactory.class", settings.getSocketFactoryClass());
-    this.props.put("mail.smtp.socketFactory.fallback", settings.getSocketFactoryFallback());
+    props.put("mail.smtp.auth", settings.getAuth());
+    props.put("mail.smtp.host", settings.getHost());
+    props.put("mail.smtp.starttls.enable", settings.getStarttlsEnable());
+    props.put("mail.smtp.port", settings.getPort());
+    props.put("mail.smtp.ssl.protocols", settings.getSslProtocols());
+    props.put("mail.smtp.socketFactory.port", settings.getSocketFactoryPort());
+    props.put("mail.smtp.socketFactory.class", settings.getSocketFactoryClass());
+    props.put("mail.smtp.socketFactory.fallback", settings.getSocketFactoryFallback());
 
-    this.props.put("mail.debug", settings.getDebug());
+    props.put("mail.debug", settings.getDebug());
 
-    this.senderEmail = settings.getSenderEmail();
-    this.senderPassword = settings.getSmtpAuthenticatorSenderPassword();
+    senderEmail = settings.getSenderEmail();
+    senderPassword = settings.getSmtpAuthenticatorSenderPassword();
   }
 
   public Boolean send(EmailMessage emailMessage) {
-    final List<InternetAddress> addressList =
+    List<InternetAddress> addressList =
         emailMessage.recipients().stream()
             .filter(EmailValidator::isValidEmail)
             .map(EmailValidator::toInternetAddress)

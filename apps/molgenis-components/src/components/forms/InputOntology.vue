@@ -7,6 +7,7 @@
     :errorMessage="errorMessage"
   >
     <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
     <div
       class="p-0 m-0"
       :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
@@ -115,6 +116,7 @@ import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
+import MessageWarning from "./MessageWarning.vue";
 //@ts-ignore
 import vClickOutside from "click-outside-vue3";
 import Spinner from "../layout/Spinner.vue";
@@ -168,6 +170,7 @@ export default {
   data() {
     return {
       error: null,
+      warning: null,
       // used for drop down focus state
       focus: false,
       //huge object with all the terms, flattened
@@ -474,7 +477,11 @@ export default {
       },
     },
     data() {
-      if (this.data) {
+      if (!this.data || !this.data.length) {
+        this.loading = false;
+        this.warning = `Ontology '${this.tableId}' in schema '${this.schemaId}' is empty`;
+      } else {
+        this.warning = null;
         this.searchResultCount = 0;
 
         //convert to tree of terms

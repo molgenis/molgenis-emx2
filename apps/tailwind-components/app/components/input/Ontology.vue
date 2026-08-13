@@ -613,7 +613,7 @@ function toStringArray(value: string | string[]): string[] {
   <div
     v-else-if="!initLoading && totalCount"
     :class="{
-      'flex flex-col items-start border outline-none rounded-input':
+      'flex flex-col items-start border outline-none rounded-base':
         displayAsSelect,
       'bg-input ': displayAsSelect && !disabled,
       'border-disabled': displayAsSelect && disabled,
@@ -798,7 +798,7 @@ function toStringArray(value: string | string[]): string[] {
     size="tiny"
     iconPosition="right"
     class="mr-2 underline cursor-pointer"
-    :class="{ 'pl-4': hasChildren && !displayAsSelect }"
+    :class="{ 'ml-4': hasChildren && !displayAsSelect }"
   >
     Clear
   </Button>

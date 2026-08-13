@@ -1,3 +1,9 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+import Address from "../components/Address.vue";
+</script>
+
 <template>
   <Page id="page-privacy-policy">
     <PageHeader
@@ -101,7 +107,7 @@
         GENTURIS registry contact database. To request this, please contact the
         GENTURIS registry coordinator.
       </p>
-      <GenturisAddress :centerText="true" :showEmail="true" />
+      <Address :centerText="true" :showEmail="true" />
     </PageSection>
     <PageSection
       id="genturis-privacy-links"
@@ -119,9 +125,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-import GenturisAddress from "../components/Address.vue";
-</script>

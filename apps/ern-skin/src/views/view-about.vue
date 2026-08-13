@@ -1,3 +1,8 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+</script>
+
 <template>
   <Page id="page-about-us">
     <PageHeader
@@ -269,8 +274,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup lang="ts">
-// @ts-ignore
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-</script>
