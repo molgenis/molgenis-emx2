@@ -1,26 +1,17 @@
 import { flushPromises, mount } from "@vue/test-utils";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
 import FormInput from "./FormInput.vue";
 import InputRefBack from "./InputRefBack.vue";
 
-// stub the data-loading client so mounting the ref inputs does not need a real schema behind it
-vi.mock("../../client/client", async (importActual) => {
-  const actual = await importActual<typeof import("../../client/client")>();
-  return {
-    ...actual,
-    default: {
-      newClient: () => ({
-        fetchTableMetaData: vi
-          .fn()
-          .mockResolvedValue({ id: "Kennel", label: "Kennel", columns: [] }),
-        fetchTableDataValues: vi.fn().mockResolvedValue([]),
-      }),
-    },
-  };
-});
-
+// shallow: this test asserts only which input FormInput dispatches to, and FormInput itself
+// touches no client. Mounting for real also mounts InputRefBack, which reaches the network via
+// `resolveTablePermission` — a named export a module-level client mock does not intercept,
+// because InputRefBack imports "../../client/client.ts" while the mock names
+// "../../client/client". Nothing awaits that call, so each mount leaked an unhandled rejection
+// and failed the run even though the assertions passed.
 async function mountFormInput(columnType: string) {
   const wrapper = mount(FormInput, {
+    shallow: true,
     props: {
       id: "kennels",
       label: "Kennels",

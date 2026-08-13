@@ -6,7 +6,12 @@ import RadioFilter from "./RadioFilter.vue";
 import RefListFilter from "./RefListFilter.vue";
 
 function mountFilterInput(columnType: string, conditions: unknown[] = []) {
+  // shallow: these tests assert which filter FilterInput picks and what it hands it.
+  // Mounting for real also mounts InputOntology, whose `mounted` fetches ontology options
+  // over the network; nothing awaits it, so every mount leaks an unhandled rejection and
+  // vitest fails the run even though all assertions pass.
   return mount(FilterInput, {
+    shallow: true,
     props: {
       id: "kennels",
       columnType,
