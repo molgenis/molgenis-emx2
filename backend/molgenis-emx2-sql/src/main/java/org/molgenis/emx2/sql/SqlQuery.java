@@ -490,7 +490,7 @@ public class SqlQuery extends QueryBean {
         SEARCH_INCLUDING_PARENTS:
           // check for table level filter for ontologies (weird getColumn), apply to "name" columm
           if (filter.getOperator().getName().equals(filter.getColumn())) {
-            return whereCondition(
+            return whereColumnOperator(
                 tableAlias,
                 // use the table itself
                 new Column("name")
@@ -503,7 +503,7 @@ public class SqlQuery extends QueryBean {
         // else use default
         default:
           // then it must be a column filter
-          return whereCondition(
+          return whereColumnOperator(
               subAlias,
               getColumnByName(table, filter.getColumn()),
               filter.getOperator(),
@@ -1169,13 +1169,13 @@ public class SqlQuery extends QueryBean {
         }
       } else {
         conditions.add(
-            whereCondition(tableAlias, column, filters.getOperator(), filters.getValues()));
+            whereColumnOperator(tableAlias, column, filters.getOperator(), filters.getValues()));
       }
     }
     return conditions.isEmpty() ? null : and(conditions);
   }
 
-  private Condition whereCondition(
+  private Condition whereColumnOperator(
       String tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
     Name columnName = name(alias(tableAlias), column.getName());
     ColumnType columnType = column.getColumnType();
