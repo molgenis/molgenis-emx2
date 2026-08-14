@@ -49,9 +49,8 @@ const renderedText = computed<string | undefined>(() => {
         'text-left': !paragraphIsCentered,
         underline: showMenu,
       }"
-    >
-      <span v-html="renderedText" />
-    </p>
+      v-html="renderedText"
+    />
   </VMenu>
 
   <p
@@ -63,7 +62,6 @@ const renderedText = computed<string | undefined>(() => {
       'text-left': !paragraphIsCentered,
       underline: showMenu,
     }"
-  >
-    <span v-html="renderedText" />
-  </p>
+    v-html="renderedText"
+  />
 </template>
