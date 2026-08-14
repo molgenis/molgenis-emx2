@@ -7,6 +7,8 @@ const props = defineProps<{
   schema: string;
 }>();
 
+const pageTypeId: string = props.pageType.replaceAll(" ", "-").toLowerCase();
+
 function setNuxtLink(page: string): string {
   if (props.pageType === "Developer pages") {
     return `/${props.schema}/pages/${page}/editor`;
@@ -16,13 +18,14 @@ function setNuxtLink(page: string): string {
 </script>
 
 <template>
-  <div :id="pageType.replaceAll(' ', '-').toLocaleLowerCase()">
+  <div :id="pageTypeId">
     <h2
+      :id="`${pageTypeId}-title`"
       class="font-display text-title uppercase text-heading-4xl mt-7.5 mb-2.5"
     >
       {{ pageType }}
     </h2>
-    <nav :aria-label="`available ${pageType}`">
+    <nav :aria-labelledby="`${pageTypeId}-title`">
       <ul
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 flew-wrap justify-start items-center gap-7.5"
       >
