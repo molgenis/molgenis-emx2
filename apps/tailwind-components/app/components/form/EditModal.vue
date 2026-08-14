@@ -191,17 +191,6 @@ const showFormMessage = ref(false);
 
 const selectedRole = ref<string | null>(getSelectedRole());
 
-function getSelectedRole(): string | null {
-  if (
-    Array.isArray(props.formValues?.mg_roles) &&
-    typeof props.formValues.mg_roles[0] === "string"
-  ) {
-    return props.formValues.mg_roles[0];
-  } else {
-    return null;
-  }
-}
-
 const emit = defineEmits([
   "update:added",
   "update:updated",
@@ -310,6 +299,9 @@ async function onSave(draft: boolean) {
   if (isReadyForSubmit) {
     try {
       formValues.value["mg_draft"] = draft;
+      if (selectedRole.value) {
+        formValues.value["mg_roles"] = [selectedRole.value];
+      }
       if (isInsert.value) {
         await insert(draft);
       } else {
@@ -374,6 +366,17 @@ async function updateAutoIds() {
       autoIds
     );
     autoIds.forEach((col) => (formValues.value[col.id] = values[col.id]));
+  }
+}
+
+function getSelectedRole(): string | null {
+  if (
+    Array.isArray(props.formValues?.mg_roles) &&
+    typeof props.formValues.mg_roles[0] === "string"
+  ) {
+    return props.formValues.mg_roles[0];
+  } else {
+    return null;
   }
 }
 </script>

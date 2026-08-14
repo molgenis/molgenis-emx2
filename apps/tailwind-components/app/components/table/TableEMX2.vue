@@ -646,6 +646,7 @@ const showRolesColumn = computed(() => {
     tablePermissions.value?.some(
       (permission: ITablePermission) => permission.name === "OWNER"
     );
+  // this isOwner check is incorrect :/
   return (
     isOwnerOrAdmin && rows.value.some((row: TableRow) => row?.mg_roles?.length)
   );
