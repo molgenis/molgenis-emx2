@@ -106,7 +106,7 @@ function scrollIntoView(event: Event) {
       class="flex flex-wrap-reverse gap-7.5 md:gap-0 md:no-wrap md:justify-between pb-7.5"
     >
       <div
-        class="flex items-end w-3/5 xl:w-3/5 2xl:w-1/5"
+        class="flex items-end w-3/5"
         :class="{
           'border-b':
             data?.configurablePages.rows || data?.developerPages?.rows,
