@@ -28,7 +28,7 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class SparqlSelectRdfTransformerTest {
+class SparqlRdfTransformerTest {
 
   public static final IRI SUBJECT = iri("https://example.com/bob");
   private Database database;
@@ -37,7 +37,7 @@ class SparqlSelectRdfTransformerTest {
   @BeforeEach
   void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
-    String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName();
+    String schemaName = SparqlRdfTransformerTest.class.getSimpleName();
     schema = database.dropCreateSchema(schemaName).getMetadata();
   }
 
@@ -50,7 +50,7 @@ class SparqlSelectRdfTransformerTest {
             MolgenisException.class,
             () -> new SparqlSelectRdfTransformer(generator, schema, tables));
     assertEquals(
-        "Unknown table(s) provided to transformer: unknown-1, unknown-2 for schema: SparqlSelectRdfTransformerTest",
+        "Unknown table(s) provided to transformer: unknown-1, unknown-2 for schema: SparqlRdfTransformerTest",
         exception.getMessage());
   }
 
@@ -142,7 +142,7 @@ class SparqlSelectRdfTransformerTest {
 
   @Test
   void givenTtlData_thenQueryTable() throws IOException {
-    String schemaName = SparqlSelectRdfTransformerTest.class.getSimpleName() + "_petstore";
+    String schemaName = SparqlRdfTransformerTest.class.getSimpleName() + "_petstore";
     database.dropSchemaIfExists(schemaName);
     DataModels.Profile.PET_STORE
         .getImportTask(database, schemaName, "RDF data transformation test", false)
@@ -181,7 +181,7 @@ class SparqlSelectRdfTransformerTest {
   private SailRepository readPetStoreTtl() {
     SailRepository repository = new SailRepository(new MemoryStore());
     try (SailRepositoryConnection connection = repository.getConnection()) {
-      URL url = SparqlSelectRdfTransformerTest.class.getResource("petstore.ttl");
+      URL url = SparqlRdfTransformerTest.class.getResource("petstore.ttl");
       connection.add(url, RDFFormat.TURTLE);
       connection.commit();
     } catch (IOException e) {
@@ -252,7 +252,7 @@ class SparqlSelectRdfTransformerTest {
 
   private static String readPetsCsv() throws IOException {
     return new String(
-        Objects.requireNonNull(SparqlSelectRdfTransformerTest.class.getResourceAsStream("pets.csv"))
+        Objects.requireNonNull(SparqlRdfTransformerTest.class.getResourceAsStream("pets.csv"))
             .readAllBytes());
   }
 }

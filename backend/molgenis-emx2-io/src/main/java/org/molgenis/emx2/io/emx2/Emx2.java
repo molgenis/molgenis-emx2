@@ -13,6 +13,7 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public class Emx2 {
 
+  public static final String MOLGENIS_TABLE = "molgenis";
   public static final String TABLE_NAME = "tableName";
   public static final String COLUMN_NAME = "columnName";
   public static final String OLD_NAME = "oldName";

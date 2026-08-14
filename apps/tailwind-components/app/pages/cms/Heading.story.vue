@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TextHeading from "../../components/pages/Heading.vue";
+import TextHeading from "../../components/cms/Heading.vue";
 </script>
 
 <template>
