@@ -7,8 +7,23 @@ from decouple import config
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
 def get_data_model(profile_path, path_to_write, profile):
-    # get data model from profile and write to file
+    # get changed profile tags
+    new_profile_tags = get_new_profiles(profile)
 
+    # get data model from profile and write to file
+    data_model = pd.DataFrame()
+    for file_name in os.listdir(profile_path):
+        if '.csv' in file_name:
+            file_path = Path.joinpath(profile_path, file_name)
+            df = pd.read_csv(file_path, keep_default_na=False, dtype='object')
+            df['new_profiles'] = df['profiles'].apply(lambda x: x.split(','))
+            df = df[df['new_profiles'].apply(lambda x: any(item in new_profile_tags for item in x))]
+            df = df.drop('new_profiles', axis=1, inplace=False)
+            data_model = pd.concat([data_model, df])
+
+    data_model.to_csv(path_to_write + '/molgenis.csv', index=None)
+
+def get_new_profiles(profile):
     templates = {'DataCatalogueFlat': ['DataCatalogueFlat'],
                  'CohortsStaging': ['CohortsBasis', 'CohortsExtended', 'DataDictionaries', 'Mappings', 'Samplesets',
                                     'DataDictionariesColEvent', 'ResourceCounts'],
@@ -24,17 +39,9 @@ def get_data_model(profile_path, path_to_write, profile):
 
     new_profile_tags = templates[profile]
 
-    data_model = pd.DataFrame()
-    for file_name in os.listdir(profile_path):
-        if '.csv' in file_name:
-            file_path = Path.joinpath(profile_path, file_name)
-            df = pd.read_csv(file_path, keep_default_na=False, dtype='object')
-            df['new_profiles'] = df['profiles'].apply(lambda x: x.split(','))
-            df = df[df['new_profiles'].apply(lambda x: any(item in new_profile_tags for item in x))]
-            df = df.drop('new_profiles', axis=1, inplace=False)
-            data_model = pd.concat([data_model, df])
+    return new_profile_tags
 
-    data_model.to_csv(path_to_write + '/molgenis.csv', index=None)
+
 
 
 class Transform:
