@@ -30,7 +30,7 @@ public class GraphqlTableFieldFactory {
           .value(Order.ASC.name(), Order.ASC)
           .value(Order.DESC.name(), Order.DESC)
           .build();
-  private static GraphQLObjectType fileDownload =
+  private static final GraphQLObjectType FILE_DOWNLOAD =
       GraphQLObjectType.newObject()
           .name("MolgenisFileDownload")
           .field(GraphQLFieldDefinition.newFieldDefinition().name("id").type(Scalars.GraphQLString))
@@ -46,7 +46,7 @@ public class GraphqlTableFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
-  final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
+  private static final List<String> AGG_FIELDS = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
 
   // cache so we can reuse types between tables
@@ -171,7 +171,8 @@ public class GraphqlTableFieldFactory {
         // nothing to do
         break;
       case FILE:
-        tableBuilder.field(GraphQLFieldDefinition.newFieldDefinition().name(id).type(fileDownload));
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name(id).type(FILE_DOWNLOAD));
         break;
       case BOOL:
         tableBuilder.field(
@@ -832,7 +833,7 @@ public class GraphqlTableFieldFactory {
           }
           result.add(nested);
 
-        } else if (agg_fields.contains(name)) {
+        } else if (AGG_FIELDS.contains(name)) {
           // --- Aggregate pseudo-field ---
           result.add(new SelectColumn(name, convertMapSelection(table, s.getSelectionSet())));
         }
