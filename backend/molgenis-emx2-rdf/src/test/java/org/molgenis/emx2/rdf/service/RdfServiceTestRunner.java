@@ -86,20 +86,15 @@ abstract class RdfServiceTestRunner {
       String customPrefixes1,
       String customPrefixes2)
       throws IOException {
-    try {
-      Schema schema1 = database.dropCreateSchema(schemaTestprefix + "1");
-      Schema schema2 = database.dropCreateSchema(schemaTestprefix + "2");
-      schema1.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes1);
-      if (customPrefixes2 != null) {
-        schema2.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes2);
-      }
-
-      InMemoryRDFHandler handler = parseRootRdf(List.of(schema1, schema2));
-      assertEquals(expectedNamespaces, handler.namespaces);
-    } finally {
-      database.dropSchemaIfExists(schemaTestprefix + "1");
-      database.dropSchemaIfExists(schemaTestprefix + "2");
+    Schema schema1 = database.dropCreateSchema(schemaTestprefix + "1");
+    Schema schema2 = database.dropCreateSchema(schemaTestprefix + "2");
+    schema1.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes1);
+    if (customPrefixes2 != null) {
+      schema2.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes2);
     }
+
+    InMemoryRDFHandler handler = parseRootRdf(List.of(schema1, schema2));
+    assertEquals(expectedNamespaces, handler.namespaces);
   }
 
   InMemoryRDFHandler parseRootRdf(List<Schema> schemas) throws IOException {
