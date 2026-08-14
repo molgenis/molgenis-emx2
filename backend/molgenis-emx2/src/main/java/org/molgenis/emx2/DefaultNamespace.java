@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2;
 
 import java.util.Arrays;
 import java.util.stream.Stream;

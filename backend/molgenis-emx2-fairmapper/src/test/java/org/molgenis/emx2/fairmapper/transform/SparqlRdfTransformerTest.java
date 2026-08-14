@@ -4,6 +4,7 @@ import static org.eclipse.rdf4j.model.util.Statements.statement;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.SemanticTestUtils.toSemantic;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -217,8 +218,8 @@ class SparqlRdfTransformerTest {
           .create(
               TableMetadata.table(
                   "testTable",
-                  Column.column("first name").setSemantics(FIRST_NAME_SEMANTIC.toString()),
-                  Column.column("last_name").setSemantics(LAST_NAME_SEMANTIC.toString())))
+                  Column.column("first name").setSemantics(toSemantic(FIRST_NAME_SEMANTIC)),
+                  Column.column("last_name").setSemantics(toSemantic(LAST_NAME_SEMANTIC))))
           .getSchema();
     }
 
