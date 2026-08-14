@@ -4,6 +4,7 @@ Subpopulations,,resource,ref,1,TRUE,,Resources,,,,dcterms:source,Resource this s
 Subpopulations,,name,,1,TRUE,,,,,,dcterms:title,"Subpopulation name, e.g. 'mothers in first trimester','newborns'","DataCatalogueFlat,CohortsBasis",,
 Subpopulations,,pid,,,,,,,,,dcterms:identifier,Persistent identifier for this subpopulation,"DataCatalogueFlat,CohortsBasis",,false
 Subpopulations,,description,text,,,,,,,,dcterms:description,Subpopulation description,"DataCatalogueFlat,CohortsBasis",,
+Subpopulations,,study type,ontology_array,,,CatalogueOntologies,Cohort study types,,,,,Study design,"DataCatalogueFlat,CohortsBasis",,
 Subpopulations,,keywords,string_array,,,,,,,,dcat:keyword,Keywords to increase findability of this subpopulation. Try to use words that are not used in the description. Keywords are not displayed on the subpopulation page,"DataCatalogueFlat,CohortsBasis",,
 Subpopulations,,number of participants,non_negative_int,,,,,,,,healthdcatap:numberOfUniqueIndividuals,Number of participants in this subpopulation,"DataCatalogueFlat,CohortsBasis",,
 Subpopulations,,counts,refback,,,,Subpopulation counts,,subpopulation,,,"Total number of unique individuals per age(group), gender and year","DataCatalogueFlat,CohortsExtended",,
