@@ -2,8 +2,8 @@ package org.molgenis.emx2.rdf.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.Constants.SETTING_SEMANTIC_PREFIXES;
 import static org.molgenis.emx2.rdf.RdfParser.parseString;
-import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,11 +17,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
 import org.junit.jupiter.api.BeforeAll;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
-import org.molgenis.emx2.rdf.DefaultNamespace;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.InMemoryRDFHandler;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfRootService;
