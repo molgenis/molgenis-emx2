@@ -30,7 +30,7 @@ public class SqlRoleManager {
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
   public static final int PG_MAX_ID_LENGTH = 63;
-  public static final String RLS_ROLE_PREFIX = "RLS_";
+  private static final String RLS_ROLE_PREFIX = "RLS_";
 
   enum RlsPolicy {
     VIEWER_BYPASS("mg_roles_viewer_bypass", "SELECT"),
@@ -51,6 +51,23 @@ public class SqlRoleManager {
 
   public SqlRoleManager(SqlDatabase database) {
     this.database = database;
+  }
+
+  /**
+   * RLS_ roles exist only to hold the row-restricted table grants; they are granted to their
+   * regular counterpart so privileges reach real users, which also makes them show up in every raw
+   * role listing. They must never be created, joined or written into mg_roles by a user.
+   */
+  static boolean isInternalRole(String roleName) {
+    return roleName != null && roleName.startsWith(RLS_ROLE_PREFIX);
+  }
+
+  static boolean isUserAssignableRole(String roleName) {
+    return !isInternalRole(roleName) && !Privileges.isSystemRole(roleName);
+  }
+
+  static List<String> withoutInternalRoles(List<String> roleNames) {
+    return roleNames.stream().filter(name -> !isInternalRole(name)).toList();
   }
 
   private DSLContext jooq() {
@@ -124,7 +141,7 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot create system role: " + roleName);
     }
-    if (roleName.startsWith(RLS_ROLE_PREFIX)) {
+    if (isInternalRole(roleName)) {
       throw new MolgenisException(
           "Cannot create role '"
               + roleName
@@ -456,7 +473,7 @@ public class SqlRoleManager {
   }
 
   public void addMember(String schemaName, Member member) {
-    if (member.getRole().startsWith(RLS_ROLE_PREFIX)) {
+    if (isInternalRole(member.getRole())) {
       throw new MolgenisException(
           "Add member(s) failed: Role '"
               + member.getRole()
@@ -540,6 +557,11 @@ public class SqlRoleManager {
   }
 
   public List<String> getRoleNames(String schemaName) {
+    return withoutInternalRoles(getAllRoleNamesIncludingInternal(schemaName));
+  }
+
+  /** Raw pg role listing, including the internal RLS_ roles; only for teardown and bookkeeping. */
+  List<String> getAllRoleNamesIncludingInternal(String schemaName) {
     String rolePrefix = rolePrefix(schemaName);
     return jooq()
         .select(field(ROLNAME))
@@ -549,10 +571,7 @@ public class SqlRoleManager {
   }
 
   public List<Role> getRoles(String schemaName) {
-    return getRoleNames(schemaName).stream()
-        .filter(name -> !name.startsWith(RLS_ROLE_PREFIX))
-        .map(name -> getRole(schemaName, name))
-        .toList();
+    return getRoleNames(schemaName).stream().map(name -> getRole(schemaName, name)).toList();
   }
 
   public Role getRole(String schemaName, String roleName) {
@@ -615,10 +634,7 @@ public class SqlRoleManager {
     if (roleNames.isEmpty()) return List.of();
 
     String customRoleName =
-        roleNames.stream()
-            .filter(r -> !r.startsWith(RLS_ROLE_PREFIX) && !isSystemRole(r))
-            .findFirst()
-            .orElse(null);
+        roleNames.stream().filter(SqlRoleManager::isUserAssignableRole).findFirst().orElse(null);
 
     TablePermission systemWildcard =
         roleNames.stream()

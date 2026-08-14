@@ -259,7 +259,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 result.addAll(
                     SqlSchemaMetadataExecutor.getInheritedRoleForUser(
                         adminJooq, getName(), username.trim())));
-    return result;
+    return SqlRoleManager.withoutInternalRoles(result);
   }
 
   public List<String> getInheritedRolesForActiveUser() {

@@ -159,6 +159,53 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void mgRolesRejectsInternalRlsRoleName() {
+    database.setActiveUser(USER_TEAM_A);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row = new Row().setString("id", "mg_internal").set(MG_ROLES, new String[] {"RLS_TeamA"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void mgRolesRejectsSystemRoleName() {
+    database.setActiveUser(USER_TEAM_A);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row =
+        new Row()
+            .setString("id", "mg_system")
+            .set(MG_ROLES, new String[] {Privileges.VIEWER.toString()});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("system role"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void schemaRolesExcludeInternalRlsRoles() {
+    database.becomeAdmin();
+    List<String> roles = database.getSchema(SCHEMA).getRoles();
+    assertTrue(roles.contains("TeamA"), roles.toString());
+    assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
+  }
+
+  @Test
+  void inheritedRolesForActiveUserExcludeInternalRlsRoles() {
+    database.setActiveUser(USER_TEAM_A);
+    List<String> roles = database.getSchema(SCHEMA).getInheritedRolesForActiveUser();
+    assertTrue(roles.contains("TeamA"), roles.toString());
+    assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void adminInheritedRolesExcludeInternalRlsRoles() {
+    database.becomeAdmin();
+    List<String> roles = database.getSchema(SCHEMA).getInheritedRolesForActiveUser();
+    assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
+  }
+
+  @Test
   void mgRolesEmptyArrayIsAllowedLikeNull() {
     database.becomeAdmin();
     String editorUser = "rls_user_editor_mgroles";
