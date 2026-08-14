@@ -13,9 +13,12 @@ import EditModal from "../../../../../tailwind-components/app/components/form/Ed
 import Message from "../../../../../tailwind-components/app/components/Message.vue";
 import NoResultsMessage from "../../../../../tailwind-components/app/components/text/NoResultsMessage.vue";
 
+import GalleryList from "../../../../../tailwind-components/app/components/cms/gallery/GalleryList.vue";
+
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchTableData from "../../../../../tailwind-components/app/composables/fetchTableData";
 
+import type { IContainers } from "../../../../../tailwind-components/types/cms.js";
 import type { Crumb } from "../../../../../tailwind-components/types/types";
 
 const route = useRoute();
@@ -45,14 +48,24 @@ const { data, refresh, error } = useAsyncData(
       schema,
       "DeveloperPages"
     );
-    const containers = await fetchTableData(schema, "Containers", {
+
+    const configurablePages = await fetchTableData(
+      schema,
+      "ConfigurablePages",
+      {
+        orderby: { name: "ASC" },
+      }
+    );
+
+    const developerPages = await fetchTableData(schema, "DeveloperPages", {
       orderby: { name: "ASC" },
     });
 
     return {
+      configurablePages,
       configurablePageMetadata,
+      developerPages,
       developerPageMetadata,
-      containers,
     };
   }
 );
@@ -72,11 +85,12 @@ async function onClose() {
   formMetadata.value = undefined;
 }
 
-function setNuxtLink(value: string, page: string): string {
-  if (value.endsWith(".Developer pages")) {
-    return `/${schema}/pages/${page}/editor`;
-  } else {
-    return `/${schema}/pages/${page}/configure`;
+function scrollIntoView(event: Event) {
+  const targetElem = (event.target as HTMLElement).getAttribute("href");
+  if (targetElem) {
+    console.log("scrolling toString", targetElem);
+    const id: string = (targetElem as string).replace("#", "");
+    document.getElementById(`${id}`)?.scrollIntoView();
   }
 }
 </script>
@@ -88,8 +102,44 @@ function setNuxtLink(value: string, page: string): string {
         <BreadCrumbs :crumbs="crumbs" align="left" />
       </template>
     </PageHeader>
-    <div class="flex pb-7.5 justify-between">
-      <div class="w-3/5 xl:w-2/5 2xl:w-1/5" />
+    <div
+      class="flex flex-wrap-reverse gap-7.5 md:gap-0 md:no-wrap md:justify-between pb-7.5"
+    >
+      <div
+        class="flex items-end w-3/5 xl:w-3/5 2xl:w-1/5"
+        :class="{
+          'border-b':
+            data?.configurablePages.rows || data?.developerPages?.rows,
+        }"
+      >
+        <aside
+          v-if="data?.configurablePages.rows || data?.developerPages?.rows"
+        >
+          <h2 id="on-this-page-heading" class="sr-only">On this page</h2>
+          <nav aria-labelledby="on-this-page-heading">
+            <ol
+              class="flex justify-center items-center gap-7.5 text-button-text [&_li]:pb-2.5 [&_li]:px-7.5 [&_li]:border-b-2 [&_li]:border-b-transparent"
+            >
+              <li
+                class="hover:border-b-current"
+                v-if="data?.configurablePages.rows"
+              >
+                <a href="#configurable-pages" @click.prevent="scrollIntoView">
+                  Configurable pages
+                </a>
+              </li>
+              <li
+                class="hover:border-b-current"
+                v-if="data?.developerPages?.rows"
+              >
+                <a href="#developer-pages" @click.prevent="scrollIntoView">
+                  Developer pages
+                </a>
+              </li>
+            </ol>
+          </nav>
+        </aside>
+      </div>
       <div class="flex gap-2.5">
         <div class="relative">
           <Button
@@ -132,36 +182,22 @@ function setNuxtLink(value: string, page: string): string {
         </div>
       </div>
     </div>
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 flew-wrap justify-start items-center gap-7.5"
-      v-if="data?.containers?.rows"
-    >
-      <div
-        v-for="container in data.containers.rows"
-        class="relative group border rounded-base w-full h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
-      >
-        <div
-          class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full text-button-text hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
-          v-tooltip.bottom="`Edit`"
-        >
-          <NuxtLink
-            :to="setNuxtLink((container.mg_tableclass as string), (container.name as string))"
-            class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
-          >
-            <BaseIcon name="Edit" :width="18" />
-            <span class="sr-only">edit page</span>
-          </NuxtLink>
-        </div>
-        <NuxtLink
-          :to="`/${schema}/pages/${container.name}/`"
-          class="text-button-text hover:underline"
-        >
-          {{ container.name }}
-        </NuxtLink>
-      </div>
+    <div v-if="data?.configurablePages?.rows" class="mb-7.5">
+      <GalleryList
+        pageType="Configurable pages"
+        :containers="(data.configurablePages.rows as unknown as IContainers[])"
+        :schema="schema"
+      />
+    </div>
+    <div v-if="data?.developerPages?.rows">
+      <GalleryList
+        pageType="Developer pages"
+        :containers="(data.developerPages.rows as unknown as IContainers[])"
+        :schema="schema"
+      />
     </div>
     <div
-      v-else-if="data && data.containers && !data.containers.rows"
+      v-else-if="!data?.configurablePages?.rows && !data?.developerPages?.rows"
       class="w-full text-center"
     >
       <NoResultsMessage
