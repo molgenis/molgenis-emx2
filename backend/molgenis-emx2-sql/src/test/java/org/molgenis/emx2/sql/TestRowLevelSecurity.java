@@ -182,6 +182,45 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void deleteRoleRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.deleteRole("RLS_TeamA"));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+    assertTrue(schema.getRoles().contains("TeamA"), "TeamA must survive");
+  }
+
+  @Test
+  void grantRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(
+            MolgenisException.class,
+            () -> schema.grant("RLS_TeamA", new TablePermission(ARTICLES).select(true)));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
+  void revokeRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.revoke("RLS_TeamA", ARTICLES));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
+  void getRoleInfoRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.getRoleInfo("RLS_TeamA"));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
   void schemaRolesExcludeInternalRlsRoles() {
     database.becomeAdmin();
     List<String> roles = database.getSchema(SCHEMA).getRoles();

@@ -70,6 +70,17 @@ public class SqlRoleManager {
     return roleNames.stream().filter(name -> !isInternalRole(name)).toList();
   }
 
+  private static void requireNotInternalRole(String roleName, String action) {
+    if (isInternalRole(roleName)) {
+      throw new MolgenisException(
+          "Cannot "
+              + action
+              + " role '"
+              + roleName
+              + "': it is an internal row-level-security role");
+    }
+  }
+
   private DSLContext jooq() {
     return database.getJooq();
   }
@@ -103,6 +114,7 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot delete system role: " + roleName);
     }
+    requireNotInternalRole(roleName, "delete");
     if (!roleExists(schemaName, roleName)) {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
@@ -202,6 +214,7 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot grant custom permissions to system role: " + roleName);
     }
+    requireNotInternalRole(roleName, "grant permissions to");
     if (!roleExists(schemaName, roleName)) {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
@@ -254,6 +267,7 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot revoke permissions from system role: " + roleName);
     }
+    requireNotInternalRole(roleName, "revoke permissions from");
     if (!roleExists(schemaName, roleName)) {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
@@ -590,6 +604,7 @@ public class SqlRoleManager {
   }
 
   public Role getRole(String schemaName, String roleName) {
+    requireNotInternalRole(roleName, "inspect");
     boolean system = isSystemRole(roleName);
     List<TablePermission> permissions = getPermissions(schemaName, roleName);
     if (!system) {
