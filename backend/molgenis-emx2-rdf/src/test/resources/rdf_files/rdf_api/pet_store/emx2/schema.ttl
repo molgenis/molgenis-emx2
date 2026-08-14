@@ -193,7 +193,7 @@ PetStoreTest:Tag a owl:Class;
   rdfs:range xsd:string;
   rdfs:label "lastName";
   rdfs:domain PetStoreTest:User;
-  rdfs:isDefinedBy foaf:lastName .
+  rdfs:isDefinedBy <http://example.com/petstore#hasLastName>, foaf:lastName, <http://example.com/petstore#hasFamilyName> .
 
 <http://localhost:8080/PetStoreTest/api/rdf/User/column/picture> a owl:DatatypeProperty;
   rdfs:range xsd:anyURI;
