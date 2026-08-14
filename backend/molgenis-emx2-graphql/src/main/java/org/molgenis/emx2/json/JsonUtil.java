@@ -98,7 +98,6 @@ public class JsonUtil {
               .addMixIn(SqlDatabase.class, MixinForJsonIgnore.class)
               .addMixIn(DSLContext.class, MixinForJsonIgnore.class)
               .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-              .setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
               .writer(printer);
     }
     return writer;
