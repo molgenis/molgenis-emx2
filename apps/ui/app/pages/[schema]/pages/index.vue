@@ -88,7 +88,6 @@ async function onClose() {
 function scrollIntoView(event: Event) {
   const targetElem = (event.target as HTMLElement).getAttribute("href");
   if (targetElem) {
-    console.log("scrolling toString", targetElem);
     const id: string = (targetElem as string).replace("#", "");
     document.getElementById(`${id}`)?.scrollIntoView();
   }
