@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleNamespace;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -70,11 +71,12 @@ abstract class RdfServiceTestRunner {
   }
 
   /**
-   * Helper test method to compare namespaces of 2 schemas.
+   * Helper test method to compare namespaces of 2 schemas. It also adds the schema-specific
+   * namespace, so these can be left out in {@code expectedNamespaces}
    *
    * @param schemaTestprefix prefix for created schemas ("1" & "2" is added to this for the 2
    *     different schemes)
-   * @param expectedNamespaces set containing the expected combined namespaces
+   * @param expectedNamespaces set containing the expected combined namespaces (excluding the namespaces belonging to the schema's themselves)
    * @param customPrefixes1 custom_rdf setting field for first schema
    * @param customPrefixes2 custom_rdf setting field for first schema (or null if it should not be
    *     set)
@@ -88,6 +90,10 @@ abstract class RdfServiceTestRunner {
       throws IOException {
     Schema schema1 = database.dropCreateSchema(schemaTestprefix + "1");
     Schema schema2 = database.dropCreateSchema(schemaTestprefix + "2");
+
+    expectedNamespaces.add(new SimpleNamespace(schema1.getName(), getApi(schema1)));
+    expectedNamespaces.add(new SimpleNamespace(schema2.getName(), getApi(schema2)));
+
     schema1.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes1);
     if (customPrefixes2 != null) {
       schema2.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes2);

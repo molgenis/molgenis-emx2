@@ -56,13 +56,13 @@ class SemanticTest extends RdfServiceTestRunner {
 
   @Test
   void testSemanticPrefixesSetting() throws IOException {
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME + "_PrefixesEdit");
+    Namespace schemaNamespace = new SimpleNamespace(schema.getName(), getApi(schema));
+
     final Set<Namespace> defaultNamespaces =
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixesEdit",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixesEdit/api/rdf/"));
+            add(schemaNamespace);
             addAll(DEFAULT_NAMESPACES);
           }
         };
@@ -70,10 +70,7 @@ class SemanticTest extends RdfServiceTestRunner {
     final Set<Namespace> customNamespaces =
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixesEdit",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixesEdit/api/rdf/"));
+            add(schemaNamespace);
             add(new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"));
             add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
           }
@@ -85,7 +82,6 @@ class SemanticTest extends RdfServiceTestRunner {
   dcterms,http://purl.org/dc/terms/
   """;
 
-    Schema schema = database.dropCreateSchema(SCHEMA_NAME + "_PrefixesEdit");
     // Test default behaviour.
     assertFalse(schema.hasSetting(SETTING_SEMANTIC_PREFIXES));
     InMemoryRDFHandler handlerBefore = parseSchemaRdf(schema);
@@ -121,19 +117,18 @@ class SemanticTest extends RdfServiceTestRunner {
 
   @Test
   void testEmptySemanticPrefixesSetting() throws IOException {
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME + "_PrefixesEmpty");
+    Namespace schemaNamespace = new SimpleNamespace(schema.getName(), getApi(schema));
+
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixesEmpty",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixesEmpty/api/rdf/"));
+            add(schemaNamespace);
           }
         };
 
     final String customPrefixes = "";
 
-    Schema schema = database.dropCreateSchema(SCHEMA_NAME + "_PrefixesEmpty");
     schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
     InMemoryRDFHandler handler = parseSchemaRdf(schema);
     assertEquals(expectedNamespaces, handler.namespaces);
@@ -141,17 +136,9 @@ class SemanticTest extends RdfServiceTestRunner {
 
   @Test
   void testDuplicateNamespaces() throws IOException {
-    final Set<Namespace> expectedNamespace =
+    final Set<Namespace> expectedNamespace = // schema namespaces are added in validateNamespaces()
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixSettingEqual1",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixSettingEqual1/api/rdf/"));
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixSettingEqual2",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixSettingEqual2/api/rdf/"));
             add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
           }
         };
@@ -177,17 +164,9 @@ class SemanticTest extends RdfServiceTestRunner {
    */
   @Test
   void testNamespaceDifferentPrefixSameUrl() throws IOException {
-    final Set<Namespace> expectedNamespace =
+    final Set<Namespace> expectedNamespace = // schema namespaces are added in validateNamespaces()
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixSettingName1",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixSettingName1/api/rdf/"));
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixSettingName2",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixSettingName2/api/rdf/"));
             add(new SimpleNamespace("dcterms1", "http://purl.org/dc/terms/"));
           }
         };
@@ -214,17 +193,9 @@ class SemanticTest extends RdfServiceTestRunner {
    */
   @Test
   void testNamespaceDifferentUrlSamePrefix() throws IOException {
-    final Set<Namespace> expectedNamespace =
+    final Set<Namespace> expectedNamespace = // schema namespaces are added in validateNamespaces()
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixSettingNameIri1",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixSettingNameIri1/api/rdf/"));
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixSettingNameIri2",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixSettingNameIri2/api/rdf/"));
             add(new SimpleNamespace("name", "http://purl.org/dc/terms/"));
           }
         };
@@ -250,17 +221,9 @@ class SemanticTest extends RdfServiceTestRunner {
    */
   @Test
   void testDefaultPrefixPriority() throws IOException {
-    final Set<Namespace> expectedNamespaces =
+    final Set<Namespace> expectedNamespaces = // schema namespaces are added in validateNamespaces()
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixSettingDefaultPriority1",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixSettingDefaultPriority1/api/rdf/"));
-            add(
-                new SimpleNamespace(
-                    SCHEMA_NAME + "_PrefixSettingDefaultPriority2",
-                    BASE_URL + "/" + SCHEMA_NAME + "_PrefixSettingDefaultPriority2/api/rdf/"));
             add(new SimpleNamespace("example", "http://example.com/example/"));
             addAll(DEFAULT_NAMESPACES);
           }
