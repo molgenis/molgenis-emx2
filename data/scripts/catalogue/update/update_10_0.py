@@ -83,9 +83,7 @@ class Transform:
         df_collections = pd.read_csv(self.path + 'Collections.csv', dtype='object', keep_default_na=False)
         df_collections = df_collections.drop(columns=['inclusion criteria', 'exclusion criteria'], axis=1, inplace=False)
         df_collections = df_collections.rename(columns = {'other inclusion criteria': 'inclusion criteria',
-                                                          'other exclusion criteria': 'exclusion criteria',
-                                                          'mappings to common data models.source dataset': 'mappings to common data models.source table',
-                                                          'mappings to common data models.target dataset': 'mappings to common data models.target table'})
+                                                          'other exclusion criteria': 'exclusion criteria'})
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
 
     def catalogues(self):
