@@ -192,8 +192,11 @@ const showFormMessage = ref(false);
 const selectedRole = ref<string | null>(getSelectedRole());
 
 function getSelectedRole(): string | null {
-  if (Array.isArray(props.formValues?.mg_roles)) {
-    return props.formValues.mg_roles[0] as string;
+  if (
+    Array.isArray(props.formValues?.mg_roles) &&
+    typeof props.formValues.mg_roles[0] === "string"
+  ) {
+    return props.formValues.mg_roles[0];
   } else {
     return null;
   }
