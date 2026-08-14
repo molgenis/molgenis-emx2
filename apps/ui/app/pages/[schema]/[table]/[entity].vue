@@ -22,6 +22,8 @@ import ValueEMX2 from "../../../../../tailwind-components/app/components/value/E
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
+import { useTablePermission } from "../../../../../tailwind-components/app/composables/useTablePermission";
+import { rowMatchesUserRole } from "../../../../../tailwind-components/app/utils/rowMatchesUserRole";
 import type { cellPayload } from "../../../../../tailwind-components/types/types";
 import Container from "../../../../../tailwind-components/app/components/Container.vue";
 
@@ -121,13 +123,22 @@ function afterEditClosed() {
   refresh();
 }
 
-const enableEditing = computed(() => {
-  return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
-});
+const { canUpdate, canDelete, isRowLevel, userRoles } = useTablePermission(
+  session,
+  schemaId,
+  tableId,
+  tableMetadata.tableType
+);
 
-const enableDeleting = computed(() => {
-  return session.value?.roles?.[schemaId]?.includes("Editor") || isAdmin.value;
-});
+const rowIsModifiable = computed(
+  () =>
+    !isRowLevel.value ||
+    (!!rowData.value && rowMatchesUserRole(rowData.value, userRoles.value))
+);
+
+const enableEditing = computed(() => canUpdate.value && rowIsModifiable.value);
+
+const enableDeleting = computed(() => canDelete.value && rowIsModifiable.value);
 
 function handleCellClick(event: cellPayload) {
   cellDetailPayload.value = event;

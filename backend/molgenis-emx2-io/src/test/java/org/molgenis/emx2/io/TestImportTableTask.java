@@ -79,7 +79,7 @@ class TestImportTableTask {
     PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();
     schema = database.getSchema(SCHEMA_NAME);
     List<Row> rows = schema.getTable("Pet").retrieveRows();
-    assertEquals(9, rows.size());
+    assertEquals(10, rows.size());
 
     // Insert one row
     Path insertPath = path.resolve("insert");
@@ -87,7 +87,7 @@ class TestImportTableTask {
     insertTask.run();
 
     rows = schema.getTable("Pet").retrieveRows();
-    assertEquals(10, rows.size());
+    assertEquals(11, rows.size());
 
     // Delete one row
     Path deletePath = path.resolve("delete");
@@ -95,7 +95,7 @@ class TestImportTableTask {
     deleteTask.run();
 
     rows = schema.getTable("Pet").retrieveRows();
-    assertEquals(9, rows.size());
+    assertEquals(10, rows.size());
   }
 
   @Test

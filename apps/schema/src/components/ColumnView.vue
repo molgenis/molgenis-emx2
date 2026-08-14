@@ -86,6 +86,7 @@ import columnTypes from "../columnTypes.js";
 import ColumnEditModal from "./ColumnEditModal.vue";
 import ColumnDefinition from "./ColumnDefinition.vue";
 import { IconDanger, IconBar, IconAction } from "molgenis-components";
+import { findRootTable } from "../tableModel";
 
 export default {
   components: {
@@ -129,25 +130,15 @@ export default {
   },
   computed: {
     table() {
-      return (
-        this.schema.tables.find(
-          (table) =>
-            //use oldName because otherwise error on renaming
-            //must make sure new tables/subtables also have oldName set!
-            table.oldName === this.column.table ||
-            table.name === this.column.table ||
-            (table.subclasses !== undefined &&
-              (table.subclasses
-                .map((subclass) => subclass.oldName)
-                .includes(this.column.table) ||
-                table.subclasses
-                  .map((subclass) => subclass.name)
-                  .includes(this.column.table)))
-        ) || {}
-      );
+      return findRootTable(this.schema.tables, this.column.table) || {};
     },
     rootTableName() {
       return this.table.name;
+    },
+  },
+  watch: {
+    modelValue(column) {
+      this.column = column;
     },
   },
   methods: {
