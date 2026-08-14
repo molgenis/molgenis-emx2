@@ -31,7 +31,11 @@
             class="text-title-contrast"
             style="margin-left: auto"
           >
-            BLAAT
+            <InputSelect
+              v-model="selectedRole"
+              id="roleSelector"
+              :options="roles"
+            />
           </span>
         </div>
         <button
@@ -185,6 +189,16 @@ const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
 const showFormMessage = ref(false);
 
+const selectedRole = ref<string | null>(getSelectedRole());
+
+function getSelectedRole(): string | null {
+  if (Array.isArray(props.formValues?.mg_roles)) {
+    return props.formValues.mg_roles[0] as string;
+  } else {
+    return null;
+  }
+}
+
 const emit = defineEmits([
   "update:added",
   "update:updated",
@@ -211,9 +225,13 @@ const showRoles = computed(
   () =>
     session?.isAdmin ||
     session?.tablePermissions.value.some(
-      (permission) => permission.name === "OWNER"
+      (permission) =>
+        permission.name === "OWNER" && permission.id === tableId.value
     )
 );
+const roles = computed(() => {
+  return session?.session.value?.roles?.[props.schemaId] || [];
+});
 
 watch(
   visible,
