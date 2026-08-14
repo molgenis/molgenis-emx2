@@ -37,15 +37,22 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                 title
                 subtitle
                 backgroundImage {
+                    displayName
                     image {
                         id
                         url
                     }
+                    alt
+                    width
+                    height
+                    imageIsCentered
+                    id
                 }
                 titleIsCentered
                 
                 # components
                 componentOrder(orderby: {order:ASC}) {
+                    id
                     order
                     component {
                         id

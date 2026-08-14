@@ -17,7 +17,7 @@ export default async (
     console.error(message);
     throw createError({
       message,
-      status: 404,
+      statusCode: 404,
     });
   } else {
     return tableMetadata;

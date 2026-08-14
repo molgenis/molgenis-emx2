@@ -128,3 +128,6 @@
 <http://localhost:8080/PetStoreTest/api/rdf/Tag/name=birds> rdfs:label "birds".
 
 <http://localhost:8080/PetStoreTest/api/rdf/Tag/name=insect> rdfs:label "insect".
+
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=smaug> <http://example.com/petstore#hasName> "smaug";
+  <http://example.com/petstore#hasWeight> "1500.0"^^xsd:double .

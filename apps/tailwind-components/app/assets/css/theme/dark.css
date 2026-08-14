@@ -44,6 +44,7 @@
   --background-color-button-outline-hover: var(--color-gray-900);
 
   --text-color-menu: var(--text-color-title);
+  --text-color-menu-dynamic: var(--color-green-500);
   --text-color-sub-menu: var(--color-green-500);
   --text-color-sub-menu-hover: var(--color-white);
   --background-color-content: var(--color-gray-700);

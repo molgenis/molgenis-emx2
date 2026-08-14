@@ -96,6 +96,11 @@ PetStoreTest:Tag a owl:Class;
   rdfs:label "mg_draft";
   rdfs:domain PetStoreTest:Pet .
 
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/column/mg_roles> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "mg_roles";
+  rdfs:domain PetStoreTest:Pet .
+
 <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/mg_insertedOn> a owl:DatatypeProperty;
   rdfs:range xsd:dateTime;
   rdfs:label "mg_insertedOn";
@@ -358,6 +363,16 @@ rdfs:domain PetStoreTest:User .
   <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/orders> <http://localhost:8080/PetStoreTest/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>;
   <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/PetStoreTest/api/rdf/Category/name=dragon> a PetStoreTest:Category,
+    qb:Observation;
+  dcat:endpointURL <http://localhost:8080/PetStoreTest/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/PetStoreTest/api/rdf/Category/name=dragon>;
+  qb:dataSet PetStoreTest:Category;
+  rdfs:label "dragon";
+  <http://localhost:8080/PetStoreTest/api/rdf/Category/column/name> "dragon";
+  <http://localhost:8080/PetStoreTest/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/PetStoreTest/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/PetStoreTest/api/rdf/Pet/name=spike> a PetStoreTest:Pet, qb:Observation;
   dcat:endpointURL <http://localhost:8080/PetStoreTest/api/rdf>;
@@ -631,3 +646,17 @@ rdfs:domain PetStoreTest:User .
   skos:inScheme PetStoreTest:Tag;
   rdfs:label "insect";
   skos:prefLabel "insect" .
+
+<http://localhost:8080/PetStoreTest/api/rdf/Pet/name=smaug> a PetStoreTest:Pet, qb:Observation;
+  dcat:endpointURL <http://localhost:8080/PetStoreTest/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/PetStoreTest/api/rdf/Pet/name=smaug>;
+  qb:dataSet PetStoreTest:Pet;
+  rdfs:label "smaug";
+  <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/name> "smaug";
+  <http://example.com/petstore#hasName> "smaug";
+  <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/category> <http://localhost:8080/PetStoreTest/api/rdf/Category/name=dragon>;
+  <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/weight> "1500.0"^^xsd:double;
+  <http://example.com/petstore#hasWeight> "1500.0"^^xsd:double;
+  <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/mg_roles> "DragonKeeper";
+  <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/PetStoreTest/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .

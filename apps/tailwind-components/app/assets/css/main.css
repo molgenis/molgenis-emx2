@@ -6,6 +6,7 @@
 @import url("./theme/umcg.css");
 @import url("./theme/aumc.css");
 @import url("./theme/hdsu.css");
+@import url("./theme/uncan-connect.css");
 @import url("./plugins/popper.css");
 @import url("./plugins/datepicker.css");
 
@@ -150,6 +151,8 @@
     --text-color-button-outline-hover: var(--color-blue-700);
     --text-color-button-inline: var(--text-color-button-outline);
     --text-color-button-disabled: var(--color-gray-400);
+    --text-color-button-text-disabled: var(--text-color-button-disabled);
+    --text-color-button-inline-disabled: var(--text-color-button-disabled);
     --text-color-button-disabled-hover: var(--color-gray-600);
     --text-color-button-filter: var(--color-blue-800);
     --text-color-button-tree-node-toggle: var(--color-blue-800);
@@ -163,6 +166,7 @@
     --text-color-button-cart-count: var(--color-black);
 
     --text-color-menu: var(--text-color-title);
+    --text-color-menu-dynamic: var(--color-blue-500);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
     --text-color-breadcrumb-arrow: var(--color-gray-400);

@@ -266,8 +266,7 @@ export interface IParagraphs_agg {
 export interface ISections extends IMgTableClass {
   enableFullScreenWidth?: boolean;
   inContainer?: any;
-  components?: IComponents[];
-  componentOrder?: IComponentOrders[];
+  isEditable?: boolean;
   id: string;
 }
 
@@ -314,4 +313,10 @@ export interface IWebFetchPriorities extends IMgTableClass {
 
 export interface IWebFetchPriorities_agg {
   count: number;
+}
+
+export interface IDraggingInfo {
+  dragging: boolean;
+  componentName: string;
+  componentType: string;
 }

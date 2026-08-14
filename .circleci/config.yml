@@ -16,7 +16,6 @@ parameters:
 
 orbs:
   slack: circleci/slack@6.1.3
-  queue: eddiewebb/queue@3.3.3
 
 definitions:
   build_config: &build_config
@@ -187,7 +186,7 @@ jobs:
   e2e-tests:
     resource_class: large
     docker:
-      - image: mcr.microsoft.com/playwright:v1.61.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.62.1-jammy
         environment:
           JVM_OPTS: -Xmx6400m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
@@ -209,12 +208,12 @@ jobs:
             corepack prepare pnpm@latest --activate
             pnpm -v
 
-      - run: pnpm i -D @playwright/test
+      - run: pnpm i -D @playwright/test@1.62.0
 
       - run:
           name: Install dependencies
           command: |
-            pnpm install @playwright/test         
+            pnpm install @playwright/test@1.62.0
             npx playwright install chrome
             npx playwright install
 
@@ -411,15 +410,32 @@ jobs:
 
     - post_steps
 
+    # LAST step of this job on purpose: it writes a repo-root .env, which would otherwise change the
+    # gradle and turbo input hashes of every step after it.
+    - run:
+        name: <dev> a repo-root .env reaches the forked dev JVM
+        command: |
+          set -eo pipefail
+          printf '%s\n' \
+            'MOLGENIS_HTTP_PORT=19345' \
+            'MOLGENIS_JVM_XMX=333m' \
+            'MOLGENIS_POSTGRES_PASS=ci-guardrail-secret' > .env
+          export MOLGENIS_HTTP_PORT=19999
+          ./gradlew -q --console=plain --no-daemon printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
+            | tee printDevConfig.out
+          grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_HTTP_PORT=19345' printDevConfig.out
+          grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_CI_PROBE=probe-value' printDevConfig.out
+          grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_POSTGRES_PASS=<HIDDEN>' printDevConfig.out
+          grep -Fxq 'molgenis.dev.maxHeapSize=333m' printDevConfig.out
+    - run:
+        name: <dev> remove the temporary .env
+        command: rm -f .env printDevConfig.out
+        when: always
+
   release:
     <<: *release_config
 
     steps:
-    - queue/until_front_of_line:
-        limit-branch-name: main
-        max-wait-time: '25'
-        my-pipeline: <<pipeline.number>>
-        
     - pre_steps
     
     - run:
