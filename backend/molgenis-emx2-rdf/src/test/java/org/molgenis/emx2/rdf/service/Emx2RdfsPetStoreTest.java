@@ -304,10 +304,8 @@ class Emx2RdfsPetStoreTest extends PetStoreTest {
 
     Schema schema = database.dropCreateSchema(schemaName);
     Table root = schema.create(table("root", column("id").setPkey()));
-    Table child = schema.create(table("child", column("name")).setInheritName("root"));
     InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());
     IRI rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
-    IRI childIRI = Values.iri(getApi(schema) + child.getIdentifier());
     IRI cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
     Set<Value> subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
     assertEquals(

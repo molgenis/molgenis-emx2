@@ -25,14 +25,14 @@ import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.writers.RdfModelWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-public class OntologyTableSemanticTest {
+class OntologyTableSemanticTest {
   private static final String SCHEMA_NAME = OntologyTableSemanticTest.class.getSimpleName();
 
   static Database database;
   static Schema petStoreSchema;
 
   @BeforeAll
-  public static void beforeAll() {
+  static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(SCHEMA_NAME);
     PET_STORE.getImportTask(database, SCHEMA_NAME, "", true).run();

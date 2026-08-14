@@ -42,7 +42,7 @@ abstract class RdfServiceTestRunner {
   static Database database;
 
   @BeforeAll
-  static void beforeAll() {
+  static void beforeAllRunner() {
     database = TestDatabaseFactory.getTestDatabase();
   }
 
