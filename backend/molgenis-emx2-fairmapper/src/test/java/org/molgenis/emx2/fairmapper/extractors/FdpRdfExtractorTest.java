@@ -129,7 +129,29 @@ class FdpRdfExtractorTest {
     }
   }
 
-  private void assertHasStatements(
+  @Test
+  void shouldRemoveTrailingSlash(@TempDir Path tempDir) throws IOException {
+    SailRepository repository = new SailRepository(new MemoryStore());
+
+    Path root = tempDir.resolve("root.ttl");
+    Files.writeString(
+        root,
+        """
+        @prefix dcterms: <http://purl.org/dc/terms/> .
+
+        <https://example.org> dcterms:title "root" .
+        """);
+
+    new FdpRdfExtractor(new RemoteRdfExtractor(), URI.create(root.toUri() + "/"))
+        .addRdfToRepository(repository, root.toUri());
+
+    try (RepositoryConnection connection = repository.getConnection()) {
+      assertHasStatement(
+          connection, Values.iri("https://example.org"), DCTERMS.TITLE, Values.literal("root"));
+    }
+  }
+
+  private void assertHasStatement(
       RepositoryConnection connection, Resource subject, IRI predicate, Value object) {
     assertTrue(connection.hasStatement(subject, predicate, object, false));
   }
