@@ -23,9 +23,9 @@ public class DCATPostProcessor implements PostProcessor {
                 "Catalogues", "type", "http://semanticscience.org/resource/SIO_001067"),
 
             // Resolve semantic uri of ontologies to their designated names
+            new RefBackResolver(schema),
             new ResolveOntologyPostProcessor(schema),
             new ResolveMissingPkPostProcessor(schema),
-
             // Drop rows left with an incomplete primary key (e.g. unused Organisations that
             // were never resolved as a reference by another table)
             new DropMissingPkRowPostProcessor(schema, List.of("Organisations")),
