@@ -5,7 +5,7 @@ import Banner from "./Banner.vue";
 import Section from "./Section.vue";
 import Heading from "./Heading.vue";
 import Paragraph from "./Paragraph.vue";
-import Image from "../pages/Image.vue";
+import Image from "./Image.vue";
 import NavigationGroups from "./Navigation/NavigationGroups.vue";
 
 import EditModal from "../form/EditModal.vue";

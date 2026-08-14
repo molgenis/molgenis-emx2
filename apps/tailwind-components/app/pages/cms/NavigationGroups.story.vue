@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NavigationGroups from "../../components/pages/Navigation/NavigationGroups.vue";
+import NavigationGroups from "../../components/cms/Navigation/NavigationGroups.vue";
 
 const links = [
   {

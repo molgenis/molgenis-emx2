@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TextParagraph from "../../components/pages/Paragraph.vue";
+import TextParagraph from "../../components/cms/Paragraph.vue";
 </script>
 
 <template>
