@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
-import PageBanner from "../../../../app/components/pages/Banner.vue";
+import PageBanner from "../../../../app/components/cms/Banner.vue";
 
 const defaultBanner = mount(PageBanner, {
   props: {

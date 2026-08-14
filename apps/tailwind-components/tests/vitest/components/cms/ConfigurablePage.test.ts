@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
 import { ITableMetaData } from "../../../../../metadata-utils/src/types.ts";
-import ConfigurablePage from "../../../../app/components/pages/ConfigurablePage.vue";
+import ConfigurablePage from "../../../../app/components/cms/ConfigurablePage.vue";
 import type { IConfigurablePages } from "../../../../types/cms";
 
 const pageData: IConfigurablePages = {
