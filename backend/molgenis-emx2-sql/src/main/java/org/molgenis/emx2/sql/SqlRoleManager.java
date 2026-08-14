@@ -56,7 +56,7 @@ public class SqlRoleManager {
   /**
    * RLS_ roles exist only to hold the row-restricted table grants; they are granted to their
    * regular counterpart so privileges reach real users, which also makes them show up in every raw
-   * role listing. They must never be created, joined or written into mg_roles by a user.
+   * role listing. They are never assignable by a user.
    */
   static boolean isInternalRole(String roleName) {
     return roleName != null && roleName.startsWith(RLS_ROLE_PREFIX);
@@ -560,7 +560,7 @@ public class SqlRoleManager {
     return withoutInternalRoles(getAllRoleNamesIncludingInternal(schemaName));
   }
 
-  /** Raw pg role listing, including the internal RLS_ roles; only for teardown and bookkeeping. */
+  /** Raw pg role listing, including the internal RLS_ roles; only for drop schema. */
   List<String> getAllRoleNamesIncludingInternal(String schemaName) {
     String rolePrefix = rolePrefix(schemaName);
     return jooq()
@@ -568,6 +568,21 @@ public class SqlRoleManager {
         .from(PG_ROLES)
         .where(field(ROLNAME).like(inline(rolePrefix + "%")))
         .fetch(r -> r.get(ROLNAME, String.class).substring(rolePrefix.length()));
+  }
+
+  public List<String> getInheritedRoleNamesForUser(String schemaName, String username) {
+    if (username == null) return List.of();
+    if (database.getUser(username).isAdmin()) {
+      return getRoleNames(schemaName);
+    }
+    List<String> result = new ArrayList<>();
+    // need elevated privileges, so clear user and run as root
+    database.getJooqAsAdmin(
+        adminJooq ->
+            result.addAll(
+                SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                    adminJooq, schemaName, username.trim())));
+    return withoutInternalRoles(result);
   }
 
   public List<Role> getRoles(String schemaName) {
