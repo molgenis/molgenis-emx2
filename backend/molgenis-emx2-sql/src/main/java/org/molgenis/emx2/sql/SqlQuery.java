@@ -219,13 +219,13 @@ public class SqlQuery extends QueryBean {
           fields.add(field(name(alias(tableAlias), column.getName() + "_extension")));
         }
       } else if (column.isRef() || column.isRefArray()) {
-        shouldNotExpandBeyondPkey(select, column);
+        checkNotExpandedBeyondPkey(select, column);
         fields.addAll(
             column.getReferences().stream()
                 .map(ref -> field(name(alias(tableAlias), ref.getColumnName())))
                 .toList());
       } else if (column.isRefback()) {
-        shouldNotExpandBeyondPkey(select, column);
+        checkNotExpandedBeyondPkey(select, column);
         // will come from refJoin table
         fields.addAll(
             column.getReferences().stream()
@@ -243,7 +243,7 @@ public class SqlQuery extends QueryBean {
     return fields;
   }
 
-  private static void shouldNotExpandBeyondPkey(SelectColumn select, Column column) {
+  private static void checkNotExpandedBeyondPkey(SelectColumn select, Column column) {
     select
         .getSubselect()
         .forEach(
