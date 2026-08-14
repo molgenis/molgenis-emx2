@@ -7,6 +7,8 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -77,5 +79,13 @@ class JsonUtilTest {
 
     assertTrue(yaml.contains("inheritName: \"Shape\""), yaml);
     assertFalse(yaml.contains("inheritSchemaName"), yaml);
+  }
+
+  @Test
+  void writerIncludesFalseBooleanValues() throws IOException {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("active", false);
+    String json = JsonUtil.getWriter().writeValueAsString(map);
+    assertTrue(json.contains("\"active\" : false"), "false boolean must be serialized: " + json);
   }
 }
