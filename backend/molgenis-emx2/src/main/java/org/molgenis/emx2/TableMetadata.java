@@ -43,13 +43,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   // profiles to which this table belongs
   private String[] profiles;
 
-  /**
-   * @return {@code false} if null or empty, otherwise {@code true}.
-   */
-  public boolean hasSemantics() {
-    return semantics != null && semantics.length > 0;
-  }
-
   @Nullable
   @Override
   public Semantic[] getSemantics() {

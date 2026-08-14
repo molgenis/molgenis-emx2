@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.util.Values;
 import org.junit.jupiter.api.Test;
 
@@ -72,23 +73,21 @@ rdfs,http://www.w3.org/2000/01/rdf-schema#
 
   @Test
   void testInvalidDuplicateCustomSemanticPrefixes() {
-    assertThrows(
-        MolgenisException.class,
-        () ->
-            new SemanticPrefixes(
-                List.of(
-                    Values.namespace("myPrefix", "http://purl.org/dc/terms/"),
-                    Values.namespace("myPrefix", "http://www.w3.org/2006/time#"))));
+    List<Namespace> namespaces =
+        List.of(
+            Values.namespace("myPrefix", "http://purl.org/dc/terms/"),
+            Values.namespace("myPrefix", "http://www.w3.org/2006/time#"));
+
+    assertThrows(MolgenisException.class, () -> new SemanticPrefixes(namespaces));
   }
 
   @Test
   void testInvalidHttpCustomSemanticPrefixes() {
-    assertThrows(
-        MolgenisException.class,
-        () ->
-            new SemanticPrefixes(
-                List.of(
-                    Values.namespace("myPrefix", "http://purl.org/dc/terms/"),
-                    Values.namespace("http", "http://example.com/"))));
+    List<Namespace> namespaces =
+        List.of(
+            Values.namespace("myPrefix", "http://purl.org/dc/terms/"),
+            Values.namespace("http", "http://example.com/"));
+
+    assertThrows(MolgenisException.class, () -> new SemanticPrefixes(namespaces));
   }
 }

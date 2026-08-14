@@ -60,11 +60,11 @@ public class SemanticPrefixes {
             .readValues(schema.getSetting(SETTING_SEMANTIC_PREFIXES))) {
 
       iterator.forEachRemaining(
-          row -> {
-            namespaces.add(
-                Values.namespace(
-                    row.get(SEMANTIC_PREFIXES_NAME_PREFIX), row.get(SEMANTIC_PREFIXES_NAME_IRI)));
-          });
+          row ->
+              namespaces.add(
+                  Values.namespace(
+                      row.get(SEMANTIC_PREFIXES_NAME_PREFIX),
+                      row.get(SEMANTIC_PREFIXES_NAME_IRI))));
     } catch (IOException e) {
       logger.error("Failed to retrieve custom prefixes, falling back to default", e);
       return null;
