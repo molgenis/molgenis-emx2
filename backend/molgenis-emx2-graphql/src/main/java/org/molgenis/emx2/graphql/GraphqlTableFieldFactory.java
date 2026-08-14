@@ -760,8 +760,9 @@ public class GraphqlTableFieldFactory {
       if (count > 1)
         throw new MolgenisException("Can only have one operator, found multiple for " + name);
       Operator op = Operator.fromAbbreviation(operatorEntry.getKey());
-      if (operatorEntry.getValue() instanceof List) {
-        return f(name, op, (List) operatorEntry.getValue());
+      if (operatorEntry.getValue() instanceof List<?> values) {
+        // cast selects the List overload of f instead of wrapping the list in varargs
+        return f(name, op, (List<Object>) values);
       } else {
         return f(name, op, operatorEntry.getValue());
       }
