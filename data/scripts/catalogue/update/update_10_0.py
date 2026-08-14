@@ -41,9 +41,6 @@ def get_new_profiles(profile):
 
     return new_profile_tags
 
-
-
-
 class Transform:
     """General functions to update catalogue data model.
     """
@@ -75,29 +72,18 @@ class Transform:
         """Make changes per table
         """
         # transformations per table
-        if 'DataCatalogueFlat' in self.profile:
-            self.reused_variables()
-        if any(item in ['NetworksStaging','DataCatalogueFlat'] for item in self.profile):
-            self.catalogues()
-        if any(item in ['DataCatalogueFlat','CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'INTEGRATE',
-                        'RWEStaging'] for item in self.profile):
+        if any(item in ['NetworksStaging','RWEStaging'] for item in self.profile):
             self.collections()
-        if any(item in ['DataCatalogueFlat', 'CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging', 'RWEStaging',
-                        'NetworksStaging'] for item in self.profile):
-            self.datasets()
-            self.variables()
-            self.variable_values()
-        if any(item in ['DataCatalogueFlat', 'CohortsStaging', 'UMCUCohorts', 'UMCGCohortsStaging',
-                        'RWEStaging'] for item in self.profile):
-            self.variable_mappings()
-            self.dataset_mappings()
+            self.subpopulations()
+            self.collection_events()
 
     def collections(self):
         """ Transform Collections
         """
         df_collections = pd.read_csv(self.path + 'Collections.csv', dtype='object', keep_default_na=False)
-        df_collections = df_collections.rename(columns = {'datasets.resource': 'tables.resource',
-                                                          'datasets.name': 'tables.name',
+        df_collections = df_collections.drop(columns=['inclusion criteria', 'exclusion criteria'], axis=1, inplace=False)
+        df_collections = df_collections.rename(columns = {'other inclusion criteria': 'inclusion criteria',
+                                                          'other exclusion criteria': 'exclusion criteria',
                                                           'mappings to common data models.source dataset': 'mappings to common data models.source table',
                                                           'mappings to common data models.target dataset': 'mappings to common data models.target table'})
         df_collections.to_csv(self.path + 'Collections.csv', index=False)
