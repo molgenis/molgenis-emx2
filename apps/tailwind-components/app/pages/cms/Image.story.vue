@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import DemoImage from "../assets/img/molgenis-banner.jpg";
+import Image from "../../components/cms/Image.vue";
+import DemoImage from "../../assets/img/molgenis-banner.jpg";
 </script>
 
 <template>
   <Image
     id="demo-image"
-    :src="DemoImage"
+    :image="{ url: DemoImage }"
     alt="MOLGENIS: open source software"
     class="mt-5"
-    width="w-[350px]"
-    height="h-auto"
+    width="350px"
   />
 </template>

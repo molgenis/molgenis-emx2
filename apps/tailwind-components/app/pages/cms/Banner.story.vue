@@ -5,21 +5,27 @@ import TextHeading from "../../components/cms/Heading.vue";
 </script>
 
 <template>
-  <TextHeading id="h2-banner-default" class="my-5">
-    Page Banner without image (default)
-  </TextHeading>
-  <PageBanner
-    id="page-banner-demo"
-    title="About Us"
-    subtitle="Duis aliquip reprehenderit nulla et voluptate ex eu qui cillum minim."
+  <TextHeading
+    id="h2-banner-default"
+    class="my-5"
+    :level="3"
+    text="Page Banner without image (default)"
   />
-  <TextHeading id="h2-banner-image" class="my-5">
-    Page Banner with image
-  </TextHeading>
   <PageBanner
     id="page-banner-demo"
-    :background-image="DemoImage"
-    title="About Us"
-    subtitle="Nostrud aute exercitation ipsum voluptate commodo et laborum ad labore ad elit."
+    title="About us"
+    subtitle="Enim Lorem ut velit aute sunt."
+  />
+  <TextHeading
+    id="h2-banner-image"
+    class="my-5"
+    :level="3"
+    text="Page Banner with image"
+  />
+  <PageBanner
+    id="page-banner-demo"
+    :image="{ url: DemoImage }"
+    title="About us"
+    subtitle="Mollit cupidatat voluptate non occaecat est nulla."
   />
 </template>
