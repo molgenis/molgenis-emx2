@@ -37,7 +37,13 @@ def get_new_profiles(profile):
                                  'DataDictionariesColEvent'],
                  'CohortsBasis': ['CohortsBasis']}
 
-    new_profile_tags = templates[profile]
+    new_profile_tags = []
+    for p in profile:
+        if not p == 'Patient registry':
+            try:
+                new_profile_tags += templates[p]
+            except KeyError:
+                pass
 
     return new_profile_tags
 

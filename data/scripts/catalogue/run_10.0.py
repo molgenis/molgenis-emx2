@@ -4,7 +4,7 @@
 from decouple import config
 from molgenis_emx2_pyclient import Client
 from catalogue_util.zip_handling import Zip
-from update.update_9_0 import Transform
+from update.update_10_0 import Transform
 import os
 import asyncio
 
@@ -59,7 +59,7 @@ update.transform_data()
 zip_handling.zip_data()
 
 # instantiate Client for target server:
-target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
+target = Client(TARGET_SERVER_URL, schema='catalogue', token=TARGET_SERVER_TOKEN)
 # upload catalogue data to target server
 asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', schema='catalogue'))
 
@@ -67,7 +67,7 @@ asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', 
 for schema in source.get_schemas():
     schema_name = schema.get('name')
     schema_description = schema.get('description')
-    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'pet store', 'Aggregates'] and schema_name not in target.schema_names:
+    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'pet store', 'Aggregates']:  # and schema_name not in target.schema_names:
         # instantiate Client for source schema:
         source = Client(SOURCE_SERVER_URL, schema=schema_name, token=SOURCE_SERVER_TOKEN)
 
