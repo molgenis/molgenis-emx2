@@ -56,7 +56,15 @@ public class FdpRdfExtractor implements RdfExtractor {
 
   public FdpRdfExtractor(RdfExtractor rdfExtractor, URI endpoint) {
     this.rdfExtractor = rdfExtractor;
-    this.endpoint = endpoint;
+    this.endpoint = normalize(endpoint);
+  }
+
+  private static URI normalize(URI uri) {
+    if (uri.toString().endsWith("/")) {
+      return URI.create(uri.toString().replaceAll("/$", ""));
+    }
+
+    return uri;
   }
 
   public void addRdfToRepository(Repository repository) {

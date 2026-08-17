@@ -165,9 +165,14 @@ class FdpRdfExtractorTest {
 
   private static void assertHasStatements(Statement... statements) {
     try (RepositoryConnection connection = extracted.getConnection()) {
-      for (Statement statement : statements) {
-        assertTrue(connection.hasStatement(statement, false));
-      }
+      assertHasStatements(connection, statements);
+    }
+  }
+
+  private static void assertHasStatements(
+      RepositoryConnection connection, Statement... statements) {
+    for (Statement statement : statements) {
+      assertTrue(connection.hasStatement(statement, false));
     }
   }
 
@@ -182,6 +187,28 @@ class FdpRdfExtractorTest {
                 .addRdfToRepository(extract));
     try (RepositoryConnection connection = extract.getConnection()) {
       connection.getStatements(null, null, null).forEach(System.out::println);
+    }
+  }
+
+  @Test
+  void shouldRemoveTrailingSlash(@TempDir Path tempDir) throws IOException {
+    SailRepository repository = new SailRepository(new MemoryStore());
+
+    Path root = tempDir.resolve("root.ttl");
+    Files.writeString(
+        root,
+        """
+            @prefix dcterms: <http://purl.org/dc/terms/> .
+            <https://example.org> dcterms:title "root" .
+            """);
+
+    new FdpRdfExtractor(new RemoteRdfExtractor(), URI.create(root.toUri() + "/"))
+        .addRdfToRepository(repository, root.toUri());
+
+    try (RepositoryConnection connection = repository.getConnection()) {
+      assertHasStatements(
+          connection,
+          statement(Values.iri("https://example.org"), DCTERMS.TITLE, Values.literal("root")));
     }
   }
 }
