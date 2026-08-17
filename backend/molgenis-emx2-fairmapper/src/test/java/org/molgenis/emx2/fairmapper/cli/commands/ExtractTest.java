@@ -62,10 +62,10 @@ class ExtractTest {
     Files.writeString(
         rootFile,
         """
-            @prefix dcterms: <http://purl.org/dc/terms/> .
+        @prefix dcterms: <http://purl.org/dc/terms/> .
 
-            <%s> dcterms:title "root" .
-            """
+        <%s> dcterms:title "root" .
+        """
             .formatted(rootUri));
     return rootUri;
   }
