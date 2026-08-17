@@ -407,7 +407,7 @@ watch(
               :id="`${id}-ref-dropdown-sorting`"
               :labelId="`${id}-ref-dropdown-sort-input-label`"
               :options="namesForOrderByInput"
-              @update:model-value="(value: IInputValueLabel) => (sortMethod = value?.value as string)"
+              @update:model-value="(value) => (sortMethod = value as string)"
               :enable-search="false"
               placeholder="Sort by"
             />
