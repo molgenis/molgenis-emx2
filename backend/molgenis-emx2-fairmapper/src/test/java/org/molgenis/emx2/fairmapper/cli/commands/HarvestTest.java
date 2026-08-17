@@ -17,6 +17,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.CsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
@@ -62,9 +63,10 @@ class HarvestTest {
     assertEquals(1, config.postProcessors().size());
     assertInstanceOf(DCATPostProcessor.class, config.postProcessors().get(0));
 
-    assertEquals(2, config.preProcessors().size());
+    assertEquals(3, config.preProcessors().size());
     assertInstanceOf(TemporalRdfPreProcessor.class, config.preProcessors().get(0));
     assertInstanceOf(TypicalAgeRdfPreProcessor.class, config.preProcessors().get(1));
+    assertInstanceOf(CsvwPreProcessor.class, config.preProcessors().get(2));
   }
 
   @Test
