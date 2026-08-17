@@ -94,7 +94,7 @@ public class SqlQuery extends QueryBean {
 
     // if empty selection, we will add the default selection here, incl File and Refback
     // will generally be all you need
-    if (select == null || select.getColumNames().isEmpty()) {
+    if (select == null || select.getColumnNames().isEmpty()) {
       for (Column c :
           table.getColumns().stream()
               .filter(
@@ -128,10 +128,10 @@ public class SqlQuery extends QueryBean {
 
     // we don't accept '.' notation in query select anymore
     else {
-      if (select.getColumNames().stream().anyMatch(name -> name.contains("."))) {
+      if (select.getColumnNames().stream().anyMatch(name -> name.contains("."))) {
         throw new MolgenisException(
             "select columns cannot contain dot. Use subselects. Error: "
-                + (select.getColumNames().stream()
+                + (select.getColumnNames().stream()
                     .filter(name -> name.contains("."))
                     .collect(Collectors.joining(","))));
       }
@@ -219,13 +219,13 @@ public class SqlQuery extends QueryBean {
           fields.add(field(name(alias(tableAlias), column.getName() + "_extension")));
         }
       } else if (column.isRef() || column.isRefArray()) {
-        shouldNotExpandBeyondPkey(select, column);
+        checkNotExpandedBeyondPkey(select, column);
         fields.addAll(
             column.getReferences().stream()
                 .map(ref -> field(name(alias(tableAlias), ref.getColumnName())))
                 .toList());
       } else if (column.isRefback()) {
-        shouldNotExpandBeyondPkey(select, column);
+        checkNotExpandedBeyondPkey(select, column);
         // will come from refJoin table
         fields.addAll(
             column.getReferences().stream()
@@ -243,7 +243,7 @@ public class SqlQuery extends QueryBean {
     return fields;
   }
 
-  private static void shouldNotExpandBeyondPkey(SelectColumn select, Column column) {
+  private static void checkNotExpandedBeyondPkey(SelectColumn select, Column column) {
     select
         .getSubselect()
         .forEach(
@@ -490,7 +490,7 @@ public class SqlQuery extends QueryBean {
         SEARCH_INCLUDING_PARENTS:
           // check for table level filter for ontologies (weird getColumn), apply to "name" columm
           if (filter.getOperator().getName().equals(filter.getColumn())) {
-            return whereCondition(
+            return whereColumnOperator(
                 tableAlias,
                 // use the table itself
                 new Column("name")
@@ -503,7 +503,7 @@ public class SqlQuery extends QueryBean {
         // else use default
         default:
           // then it must be a column filter
-          return whereCondition(
+          return whereColumnOperator(
               subAlias,
               getColumnByName(table, filter.getColumn()),
               filter.getOperator(),
@@ -1169,13 +1169,13 @@ public class SqlQuery extends QueryBean {
         }
       } else {
         conditions.add(
-            whereCondition(tableAlias, column, filters.getOperator(), filters.getValues()));
+            whereColumnOperator(tableAlias, column, filters.getOperator(), filters.getValues()));
       }
     }
     return conditions.isEmpty() ? null : and(conditions);
   }
 
-  private Condition whereCondition(
+  private Condition whereColumnOperator(
       String tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
     Name columnName = name(alias(tableAlias), column.getName());
     ColumnType columnType = column.getColumnType();

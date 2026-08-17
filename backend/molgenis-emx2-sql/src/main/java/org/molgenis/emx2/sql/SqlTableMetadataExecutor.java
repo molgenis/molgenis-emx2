@@ -58,15 +58,7 @@ class SqlTableMetadataExecutor {
 
     // create columns from primary key of superclass
     if (table.getInheritName() != null) {
-      if (table.getInheritedTable() == null) {
-        throw new MolgenisException(
-            "Cannot inherit "
-                + table.getImportSchema()
-                + "."
-                + table.getInheritName()
-                + ": not found");
-      }
-      executeSetInherit(jooq, table, table.getInheritedTable());
+      executeSetInherit(jooq, table, table.requireInheritedTable());
     }
 
     // then create columns
@@ -116,8 +108,15 @@ class SqlTableMetadataExecutor {
     // drop search trigger
     dropSearchTrigger(jooq, table);
 
-    // rename search column
-    jooq.alterTable(table.getJooqTable()).renameTo(newName + "search_vector_trigger");
+    // rename search column and its index
+    jooq.alterTable(table.getJooqTable())
+        .renameColumn(name(searchColumnName(table.getTableName())))
+        .to(name(searchColumnName(newName)))
+        .execute();
+    jooq.execute(
+        "ALTER INDEX {0} RENAME TO {1}",
+        name(table.getSchemaName(), searchIndexName(table.getTableName())),
+        name(searchIndexName(newName)));
 
     // rename table
     jooq.alterTable(table.getJooqTable()).renameTo(name(table.getSchemaName(), newName)).execute();
@@ -368,6 +367,10 @@ class SqlTableMetadataExecutor {
     return tableName + TEXT_SEARCH_COLUMN_NAME;
   }
 
+  private static String searchIndexName(String tableName) {
+    return tableName + "_search_idx";
+  }
+
   private static String getSearchTriggerName(String tableName) {
     return tableName + "search_vector_trigger";
   }
@@ -412,7 +415,7 @@ class SqlTableMetadataExecutor {
 
     Table jooqTable = getJooqTable(table);
     Name searchColumnName = name(searchColumnName(table.getTableName()));
-    Name searchIndexName = name(table.getTableName() + "_search_idx");
+    Name searchIndexName = name(searchIndexName(table.getTableName()));
 
     // also add text search  column
     // 1. create column

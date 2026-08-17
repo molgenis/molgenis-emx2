@@ -124,6 +124,8 @@ module.exports = {
         "button-small": "2.625rem",
         "button-default": "3.125rem",
         "button-large": "3.5rem",
+        "modal-footer": "5.125rem",
+        "sidebar-footer": "7.25rem",
       }),
       width: {
         "button-switch": "var(--width-button-switch)",
@@ -171,7 +173,8 @@ module.exports = {
         "button-outline": "var(--background-color-button-outline)",
         "button-outline-hover": "var(--background-color-button-outline-hover)",
         "button-disabled": "var(--background-color-button-disabled)",
-        "button-disabled-hover": "var(background-color-button-disabled-hover)",
+        "button-disabled-hover":
+          "var(--background-color-button-disabled-hover)",
         "button-filter": "var(--background-color-button-filter)",
         "button-filter-hover": "var(--background-color-button-filter-hover)",
         "button-tree-node-toggle":

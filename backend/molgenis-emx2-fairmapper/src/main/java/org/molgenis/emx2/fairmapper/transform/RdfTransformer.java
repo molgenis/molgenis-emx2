@@ -1,6 +1,7 @@
 package org.molgenis.emx2.fairmapper.transform;
 
-import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.Repository;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
 /**
@@ -18,5 +19,5 @@ public interface RdfTransformer {
    * @param repository the RDF repository to query
    * @return a {@link TableStore} containing the mapped tabular data
    */
-  TableStore transform(SailRepository repository);
+  InMemoryTableStore transform(Repository repository);
 }
