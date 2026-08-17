@@ -28,8 +28,17 @@ packages:
   - ui
 
 onlyBuiltDependencies:
-  - "@fortawesome/fontawesome-free"
-  - "@parcel/watcher"
+  - '@fortawesome/fontawesome-free'
+  - '@parcel/watcher'
   - core-js
   - esbuild
   - vue-demi
+
+overrides:
+  cookie@<0.7.0: '>=0.7.0'
+  esbuild@>=0.27.3 <0.28.1: '>=0.28.1'
+  nanoid@<3.3.18: '>=3.3.18'
+  nuxt@>=4.0.0 <4.5.1: '>=4.5.1'
+  nuxt@>=4.4.0 <=4.5.0: '>=4.5.1'
+  nuxt@>=4.4.7 <4.5.1: '>=4.5.1'
+  postcss@<=8.5.22: '>=8.5.23'
