@@ -37,7 +37,6 @@ class Client:
         Initializes a Client object with a server url.
         """
         self._as_context_manager = False
-        self._token = token
         self._job = job
 
         self.url: str = url if not url.endswith('/') else url[:-1]
@@ -47,8 +46,7 @@ class Client:
         self.username: str | None = None
 
         self.session: requests.Session = requests.Session()
-        if self.token:
-            self.session.headers['x-molgenis-token'] = self.token
+        self.set_token(token)
         self._validate_url()
 
         self.schemas: list = self.get_schemas()
@@ -188,15 +186,15 @@ class Client:
         return list(map(str, self.schemas))
 
     @property
-    def token(self):
+    def token(self) -> str | None:
         """Returns the token by a property to prevent it being modified."""
-        return self._token
+        return self.session.headers.get('x-molgenis-token')
 
-    def set_token(self, token: str):
+    def set_token(self, token: str | None) -> str | None:
         """Sets the token supplied as the argument as the client's token."""
-        if self.signin_status == 'success':
-            raise TokenSigninException("Cannot set a token on a client authorized with sign in.")
-        self._token = token
+        if token:
+            self.session.headers['x-molgenis-token'] = token
+        return token
 
     @property
     def version(self):
@@ -808,8 +806,7 @@ class Client:
         query = queries.list_schema_meta()
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/graphql",
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
         self._validate_graphql_response(response)
 
@@ -830,8 +827,7 @@ class Client:
         query = queries.list_schema_settings()
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/graphql",
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
         self._validate_graphql_response(response)
 
@@ -847,8 +843,7 @@ class Client:
         query = queries.list_schema_members()
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/graphql",
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
         self._validate_graphql_response(response)
 
@@ -864,8 +859,7 @@ class Client:
         query = queries.list_schema_roles()
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/graphql",
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
         self._validate_graphql_response(response)
 

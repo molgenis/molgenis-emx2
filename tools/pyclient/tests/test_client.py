@@ -22,9 +22,9 @@ from src.molgenis_emx2_pyclient.metadata import Schema
 from src.molgenis_emx2_pyclient.utils import data_to_csv
 
 load_dotenv()
-server_url = os.environ.get("MG_SERVER")
-username = os.environ.get("MG_USERNAME")
-password = os.environ.get("MG_PASSWORD")
+server_url = os.environ.get("MG_SERVER", "http://localhost:8080/")
+username = os.environ.get("MG_USERNAME", "admin")
+password = os.environ.get("MG_PASSWORD", "admin")
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 
@@ -76,7 +76,7 @@ def test_set_token():
     with Client(url=server_url) as client:
         client.set_token(token)
 
-        assert client._token == token
+        assert client.token == token
 
 
 def test_upload_csv():
