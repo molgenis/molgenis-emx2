@@ -24,6 +24,7 @@ import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Role;
+import org.molgenis.emx2.User;
 
 public class SqlRoleManager {
 
@@ -586,7 +587,9 @@ public class SqlRoleManager {
 
   public List<String> getInheritedRoleNamesForUser(String schemaName, String username) {
     if (username == null) return List.of();
-    if (database.getUser(username).isAdmin()) {
+    User user = database.getUser(username);
+    if (user == null) return List.of();
+    if (user.isAdmin()) {
       return getRoleNames(schemaName);
     }
     List<String> result = new ArrayList<>();
