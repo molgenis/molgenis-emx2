@@ -4,7 +4,7 @@ Variant consensus,,id,auto_id,1,TRUE,,,,,,,,obo:NCIT_C25364,"One or more charact
 Variant consensus,,interpretation analysis,select,,,,Variant interpretation analyses,,,,,,,,Patient registry
 Variant consensus,,Variant Definition,heading,,,,,,,,,,,,Patient registry
 Variant consensus,,status,ontology,,,CatalogueOntologies,Status,,,,,,sio:SIO_000033,"An characterisation of the variant that indicates the state or progress (e.g., confirmed, to be verified, etc.)",Patient registry
-Variant consensus,,variants,multiselect,,,,Genomic variants,,,,,,obo:NCIT_C164813,"A unique identifier that represents this variant (e.g., ""20:2447955..2447958c>g"")",Patient registry
+Variant consensus,,variant,select,,,,Genomic variants,,,,,,obo:NCIT_C164813,"A unique identifier that represents this variant (e.g., ""20:2447955..2447958c>g"")",Patient registry
 Variant consensus,,transcript,string,,,,,,,,,,obo:NCIT_C1936,The initial RNA molecule produced by transcription,Patient registry
 Variant consensus,,parental origin,ontology,,,CatalogueOntologies,Variant origin,,,,,,obo:GENO_0000877,"A quality inhering in an allele that describes its genetic origin (how it came to be part of a cell's genome), i.e. whether it occurred de novo through some spontaneous mutation event, or was inherited from a parent (e.g., ""maternal"")",Patient registry
 Variant consensus,,inheritance,ontology_array,,,CatalogueOntologies,Inheritance pattern,,,,,,obo:GENO_0000141,"The pattern in which a genetic trait or condition is passed from one generation to the next, as determined by genetic interactions between alleles of the causal gene, and interactions between these alleles and the environment.",Patient registry

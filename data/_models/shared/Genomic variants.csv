@@ -20,14 +20,14 @@ Genomic variants,,stop position,long,,,,,,,,obo:GENO_0000895,The ending position
 Genomic variants,,reference allele,string,,,,,,,,obo:GENO_0000036,An allele whose sequence matches what is consdiered to be the reference sequence at that location in the genome.,Patient registry
 Genomic variants,,alternate allele,string,,,,,,,,"obo:GENO_0000002,ensembl:ENSGLOSSARY_0000109",Any allele of a variant which is not the in the reference genome currently being studied. The alternative allele is not necessarily the minor allele.,Patient registry
 Genomic variants,,cDNA,string,,,,,,,,obo:NCIT_C324,Single-stranded DNA that is complementary to messenger RNA or DNA that has been synthesized from messenger RNA by reverse transcriptase.,Patient registry
-Genomic variants,,repeat unit,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164244,"Specifically for STRs. One or more chemical structures that represent a repeating element in a polymer. A repeat unit may be made of one or more structural repeat units (e.g., GAA)",Patient registry
-Genomic variants,,repeat count,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25463,Specifically for STRs. The number of repeats in the observed allele,Patient registry
-Genomic variants,,reference repeat count,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25463,Specifically for STRs. The number of repeats in the reference genome,Patient registry
-Genomic variants,,copy number,ontology,,,CatalogueOntologies,Copy number,,,,http://purl.obolibrary.org/obo/NCIT_C49142,Specifically for CNVs. The number of molecules of a particular type on or in a cell or part of a cell,Patient registry
+Genomic variants,,RU,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164244,"Specifically for STRs. One or more chemical structures that represent a repeating element in a polymer. A Repeat Unit (RU) may be made of one or more structural repeat units (e.g., GAA)",Patient registry
+Genomic variants,,RN,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25463,Specifically for STRs. The Repeat Number (RN) is the total number of repeat sequences in the observed allele,Patient registry
+Genomic variants,,reference RN,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25463,Specifically for STRs. The reference Repeat Number (RN) is the total number of repeats in the reference genome,Patient registry
+Genomic variants,,copy number count,ontology,,,CatalogueOntologies,Copy number,,,,http://purl.obolibrary.org/obo/NCIT_C49142,Specifically for CNVs. The number of molecules of a particular type on or in a cell or part of a cell,Patient registry
 Genomic variants,,breakend mate chromosome,ontology,,,CatalogueOntologies,Chromosomes,,,,obo:NCIT_C13203,The breakend/translocation partner chromosome. ,Patient registry
 Genomic variants,,breakend mate start position,long,,,,,,,,obo:GENO_0000894,The starting position of a sequence feature or interval from the breakend/translocation partner,Patient registry
 Genomic variants,,breakend mate stop position,long,,,,,,,,obo:GENO_0000895,The ending position of a sequence feature or interval from the breakend/translocation partner,Patient registry
-Genomic variants,,variant length,int,,,,,,,,,Length of insertion/deletion/SV,Patient registry
+Genomic variants,,variant length,int,,,,,,,,,Length of insertion/deletion/SV (SVLEN),Patient registry
 Genomic variants,,is left normalized,bool,,,,,,,,,Indicated whether the variant has been left-normalized,Patient registry
 Genomic variants,,Consensus Classification,heading,,,,,,,,,,Patient registry
 Genomic variants,,used in interpretations,refback,,,,Variant consensus,,variants,,obo:NGBO_6000125,"A reference to one or more processes (i.e., variant interpretations) where a variant was used",Patient registry
