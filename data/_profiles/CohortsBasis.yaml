@@ -1,13 +1,12 @@
 ---
-name: INTEGRATECohorts 
+name: Dutch Cohort Metadata Schema
+description: "This is the Dutch national cohort metadata schema."
 
-description: Staging area for filling out INTEGRATE cohort metadata
-
-profileTags: INTEGRATE
+profileTags: CohortsBasis
 
 demoData: _demodata/applications/datacatalogue_cohortstaging
 
-settings:
+# settings:
 
 # special options
 ontologiesToFixedSchema: CatalogueOntologies
@@ -15,4 +14,4 @@ setFixedSchemaViewPermission: anonymous
 firstCreateSchemasIfMissing:
   - name: catalogue
     profile: _profiles/DataCatalogue.yaml
-    importDemoData: false
+    importDemoData: true

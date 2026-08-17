@@ -114,38 +114,14 @@ if (subpopulation.value.countries) {
 if (subpopulation.value.inclusionCriteria) {
   items.push({
     label: "Inclusion criteria",
-    content: renderList(
-      subpopulation.value.inclusionCriteria.sort(
-        (a, b) => (b.order ?? 0) - (a.order ?? 0)
-      ),
-      toName
-    ),
-  });
-}
-
-if (subpopulation.value.otherInclusionCriteria) {
-  items.push({
-    label: "Other inclusion criteria",
-    content: subpopulation.value.otherInclusionCriteria,
+    content: subpopulation.value.inclusionCriteria,
   });
 }
 
 if (subpopulation.value.exclusionCriteria) {
   items.push({
     label: "Exclusion criteria",
-    content: renderList(
-      subpopulation.value.exclusionCriteria.sort(
-        (a, b) => (b.order ?? 0) - (a.order ?? 0)
-      ),
-      toName
-    ),
-  });
-}
-
-if (subpopulation.value.otherExclusionCriteria) {
-  items.push({
-    label: "Other exclusion criteria",
-    content: subpopulation.value.otherExclusionCriteria,
+    content: subpopulation.value.exclusionCriteria,
   });
 }
 </script>
