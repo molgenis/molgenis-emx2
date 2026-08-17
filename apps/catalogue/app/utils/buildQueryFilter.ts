@@ -3,6 +3,7 @@ import type {
   ISearchFilter,
   IConditionsFilter,
   IRefArrayFilterCustomConfig,
+  IFilterCondition,
 } from "../../interfaces/types";
 
 import { isConditionFilter } from "./filterUtils";
@@ -44,6 +45,19 @@ const buildFilterVariables = (filters: IConditionsFilter[]) => {
   }, {});
 
   return filtersVariables;
+};
+
+export const mergeFilterAndClauses = (
+  filterBuilder: IFilterCondition,
+  additionalClauses: IFilterCondition[] = []
+) => {
+  if (!additionalClauses.length) {
+    return filterBuilder;
+  }
+
+  return {
+    _and: [filterBuilder, { _or: additionalClauses }],
+  };
 };
 
 export const buildQueryFilter = (filters: IFilter[]) => {
