@@ -68,7 +68,7 @@ def convert_dtypes(table_meta: Table) -> dict:
 
     return dtypes
 
-def prepare_filter(expr: str, _table: str, schema_meta: Schema) -> dict | None:
+def prepare_filter(expr: str | None, _table: str, schema_meta: Schema) -> dict | None:
     """Prepares a GraphQL filter based on the expression passed into `get`."""
     if expr in [None, ""]:
         return None
@@ -309,7 +309,7 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
                 return target.getvalue()
             return None
 
-def check_schema(schema: str, default_schema: str, schema_names: list[str]):
+def check_schema(schema: str | None, default_schema: str | None, schema_names: list[str]):
     """Checks whether the schema used for this action exists."""
     if schema is not None:
         if schema in schema_names:

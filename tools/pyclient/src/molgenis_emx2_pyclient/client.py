@@ -1,15 +1,14 @@
+import csv
 import json
 import logging
 import pathlib
-import time
-import csv
-
 from functools import cache
 from io import BytesIO
 from warnings import warn
 
 import pandas as pd
 import requests
+import time
 
 from . import graphql_queries as queries
 from .constants import HEADING, DATE, DATETIME, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT, CHECKBOX, MULTISELECT
@@ -20,7 +19,7 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          NoSuchColumnException, ReferenceException)
 from .metadata import Schema, Table
 from .utils import parse_nested_pkeys, convert_dtypes, prepare_filter, format_optional_params, prep_data_or_file, \
-    check_schema, csv_string_to_array, array_to_csv_string
+    check_schema, csv_string_to_array
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -33,7 +32,7 @@ class Client:
     and perform operations on the server.
     """
 
-    def __init__(self, url: str, schema: str = None, token: str = None, job: str = None) -> None:
+    def __init__(self, url: str, schema: str | None = None, token: str | None = None, job: str | None = None) -> None:
         """
         Initializes a Client object with a server url.
         """
@@ -48,11 +47,12 @@ class Client:
         self.username: str | None = None
 
         self.session: requests.Session = requests.Session()
-        self.session.headers = {'x-molgenis-token': self.token}
+        if self.token:
+            self.session.headers['x-molgenis-token'] = self.token
         self._validate_url()
 
         self.schemas: list = self.get_schemas()
-        self.default_schema: str = self.set_schema(schema)
+        self.default_schema: str | None = self.set_schema(schema)
 
     def __repr__(self):
         class_name = type(self).__name__
@@ -209,7 +209,7 @@ class Client:
         self._validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def save_schema(self, table: str, name: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
+    def save_schema(self, table: str, name: str | None = None, file: str | pathlib.Path | None = None, data: list | pd.DataFrame | None = None):
         """
         Imports or updates records in a table of a named schema.
         Deprecated and replaced by `save_table`.
@@ -217,7 +217,7 @@ class Client:
         warn("`save_schema` is deprecated. Use `save_table` instead.")
         return self.save_table(table, name, file, data)
 
-    def save_table(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
+    def save_table(self, table: str, schema: str | None = None, file: str | pathlib.Path | None = None, data: list | pd.DataFrame | None = None):
         """Imports or updates records in a table of a named schema.
 
         :param table: the name of the table
@@ -239,7 +239,7 @@ class Client:
 
         import_data = prep_data_or_file(file_path=file, data=data)
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
 
         response = self.session.post(
@@ -256,7 +256,7 @@ class Client:
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
             raise PyclientException(errors)
 
-    async def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
+    async def upload_file(self, file_path: str | pathlib.Path, schema: str | None = None):
         """Uploads a file to a database on the EMX2 server.
 
         :param file_path: the path where the file is located.
@@ -321,7 +321,7 @@ class Client:
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         query_url = f"{self.url}/{current_schema}/graphql"
-        table_id = self.get_schema_metadata(current_schema).get_table(by='name', value=table).id
+        table_id = self.get_schema_metadata(name=current_schema).get_table(by='name', value=table).id
         query = queries.truncate()
 
         response = self.session.post(
@@ -362,7 +362,7 @@ class Client:
             raise PyclientException(msg)
         return msg
 
-    def delete_records(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
+    def delete_records(self, table: str, schema: str | None = None, file: str | pathlib.Path | None = None, data: list | pd.DataFrame | None = None):
         """Deletes records from a table.
 
         :param table: the name of the table
@@ -384,7 +384,7 @@ class Client:
 
         import_data = prep_data_or_file(file_path=file, data=data)
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
 
         response = self.session.delete(
@@ -404,9 +404,9 @@ class Client:
 
     def get(self,
             table: str,
-            columns: list[str] = None,
-            query_filter: str = None,
-            schema: str = None,
+            columns: list[str] | None = None,
+            query_filter: str | None = None,
+            schema: str| None = None,
             as_df: bool = False,
             parse_arrays: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a table using the EMX2 CSV API and
@@ -434,7 +434,7 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
         table_meta = schema_metadata.get_table(by='name', value=table)
         table_id = table_meta.id
 
@@ -456,7 +456,7 @@ class Client:
         bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
         date_columns = [c.name for c in table_meta.columns
                         if c.get('columnType') in (DATE, DATETIME) and c.name in response_columns]
-        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False, na_values=[''], dtype=dtypes, parse_dates=date_columns, dialect=csv.excel)
+        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False, na_values=[''], dtype=dtypes, parse_dates=date_columns, dialect=csv.excel())
         response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
         if parse_arrays:
             array_columns = [c.name for c in table_meta.columns
@@ -486,9 +486,9 @@ class Client:
 
     def get_graphql(self,
                     table: str,
-                    columns: list[str] = None,
-                    query_filter: str = None,
-                    schema: str = None):
+                    columns: list[str] | None = None,
+                    query_filter: str | None = None,
+                    schema: str | None = None):
         """Retrieves data from a schema using the GraphQL API and returns as a list of dictionaries.
 
         :param table: the name of the table
@@ -508,7 +508,7 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
         table_meta = schema_metadata.get_table(by='name', value=table)
         table_id = table_meta.id
 
@@ -522,12 +522,12 @@ class Client:
                                         fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                f"{table!r}.\nStatus code: {response.status_code}.")
         response_data = response.json().get('data').get(table_id, [])
-        response_data = self._parse_ontology(response_data, table_id, schema)
+        response_data = self._parse_ontology(response_data, table_id, current_schema)
 
         return response_data
 
-    async def export(self, schema: str = None, table: str = None,
-                     filename: str = None, as_excel: bool = False) -> BytesIO:
+    async def export(self, schema: str | None = None, table: str | None = None,
+                     filename: str | None = None, as_excel: bool = False) -> BytesIO:
         """Exports data from a schema to a file in the desired format.
 
         :param schema: the name of the schema
@@ -545,7 +545,7 @@ class Client:
         if table is not None and not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
 
         if filename:
             if filename.endswith('.xlsx'):
@@ -617,7 +617,7 @@ class Client:
 
         return BytesIO(response.content)
 
-    async def export_schema(self, schema: str = None, fmt: str = None, filename: str = None):
+    async def export_schema(self, schema: str | None = None, fmt: str | None = None, filename: str | None = None):
         """
         Exports the schema definition.
 
@@ -650,8 +650,8 @@ class Client:
 
 
     async def create_schema(self, name: str,
-                            description: str = None,
-                            template: str = None,
+                            description: str | None = None,
+                            template: str | None = None,
                             include_demo_data: bool = False):
         """Creates a new schema on the EMX2 server.
 
@@ -695,7 +695,7 @@ class Client:
         self.schemas = self.get_schemas()
         log.info(f"Created schema {name!r}")
 
-    async def delete_schema(self, name: str = None):
+    async def delete_schema(self, name: str | None = None):
         """Deletes a schema from the EMX2 server.
 
         :param name: the name of the new schema
@@ -722,7 +722,7 @@ class Client:
         self.schemas = self.get_schemas()
         log.info(f"Deleted schema {current_schema!r}")
 
-    def update_schema(self, name: str = None, description: str = None):
+    def update_schema(self, name: str | None = None, description: str | None = None):
         """Updates a schema's description.
 
         :param name: the name of the new schema
@@ -750,9 +750,9 @@ class Client:
         )
         self.schemas = self.get_schemas()
 
-    async def recreate_schema(self, name: str = None,
-                              description: str = None,
-                              template: str = None,
+    async def recreate_schema(self, name: str | None = None,
+                              description: str | None = None,
+                              template: str | None = None,
                               include_demo_data: bool = False):
         """Recreates a schema on the EMX2 server by deleting and subsequently
         creating it without data on the EMX2 server.
@@ -791,7 +791,7 @@ class Client:
         self.schemas = self.get_schemas()
 
     @cache
-    def get_schema_metadata(self, name: str = None) -> Schema:
+    def get_schema_metadata(self, name: str | None = None) -> Schema:
         """Retrieves a schema's metadata and returns it in a metadata.Schema object.
 
         :param name: the name of the schema
@@ -801,6 +801,9 @@ class Client:
         :rtype: metadata.Schema
         """
         current_schema = check_schema(name, self.default_schema, self.schema_names)
+
+        if not current_schema:
+            raise NoSuchSchemaException(f"Cannot ")
 
         query = queries.list_schema_meta()
         response = self.session.post(
@@ -820,7 +823,7 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
-    def get_schema_settings(self, name: str = None) -> list[dict]:
+    def get_schema_settings(self, name: str | None = None) -> list[dict]:
         """Retrieves the schema's settings and returns it as list of dictionaries."""
         current_schema = check_schema(name, self.default_schema, self.schema_names)
 
@@ -837,7 +840,7 @@ class Client:
 
         return settings
 
-    def get_schema_members(self, name: str = None) -> list[dict]:
+    def get_schema_members(self, name: str | None = None) -> list[dict]:
         """Retrieves the schema's settings and returns it as a list of dictionaries."""
         current_schema = check_schema(name, self.default_schema, self.schema_names)
 
@@ -854,7 +857,7 @@ class Client:
 
         return members
 
-    def get_schema_roles(self, name: str = None) -> list[dict]:
+    def get_schema_roles(self, name: str | None = None) -> list[dict]:
         """Retrieves the schema's settings and returns it as a list of dictionaries."""
         current_schema = check_schema(name, self.default_schema, self.schema_names)
 
@@ -871,7 +874,7 @@ class Client:
 
         return roles
 
-    def set_schema(self, name: str) -> str:
+    def set_schema(self, name: str | None) -> str | None:
         """Sets the default schema to the schema supplied as argument.
         Raises NoSuchSchemaException if the schema cannot be found on the server.
 
@@ -939,7 +942,7 @@ class Client:
                 task = p_response.json().get('data').get('_tasks')[0]
         log.info(f"Completed task: {task.get('description')}")
 
-    def _validate_graphql_response(self, response, mutation: str = None, fallback_error_message: str = None):
+    def _validate_graphql_response(self, response, mutation: str | None = None, fallback_error_message: str | None = None):
         """Validates a GraphQL response and prints the appropriate message.
 
         :param response: a graphql response from the server
@@ -1024,7 +1027,7 @@ class Client:
         :returns: boolean indicating whether table is present
         :rtype: bool
         """
-        schema_data = self.get_schema_metadata(schema_name)
+        schema_data = self.get_schema_metadata(name=schema_name)
         if not hasattr(schema_data, 'tables'):
             return False
         if table_name in map(str, schema_data.tables):
@@ -1049,11 +1052,11 @@ class Client:
             raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
 
-    def _parse_get_table_query(self, table_id: str, schema: str, columns: list = None) -> str:
+    def _parse_get_table_query(self, table_id: str, schema: str, columns: list | None = None) -> str:
         """Gathers a table's metadata and parses it to a GraphQL query
         for querying the table's contents.
         """
-        schema_metadata: Schema = self.get_schema_metadata(schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=schema)
         table_metadata: Table = schema_metadata.get_table('id', table_id)
 
         if columns is not None:
@@ -1075,7 +1078,7 @@ class Client:
                 if (ref_schema := col.get('refSchemaName', schema)) == schema:
                     pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
                 else:
-                    ref_schema_meta = self.get_schema_metadata(ref_schema)
+                    ref_schema_meta = self.get_schema_metadata(name=ref_schema)
                     pkeys = ref_schema_meta.get_pkeys(col.get('refTableId'))
                 query += f"    {col.get('id')} {{"
                 query += parse_nested_pkeys(pkeys)
@@ -1091,7 +1094,7 @@ class Client:
 
     def _parse_ontology(self, data: list, table_id: str, schema: str) -> list:
         """Parses the ontology columns from a GraphQL response."""
-        schema_meta = self.get_schema_metadata(schema)
+        schema_meta = self.get_schema_metadata(name=schema)
         table_meta = schema_meta.get_table('id', table_id)
         parsed_data = []
         for row in data:
