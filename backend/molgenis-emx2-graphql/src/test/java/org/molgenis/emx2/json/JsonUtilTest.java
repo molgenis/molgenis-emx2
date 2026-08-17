@@ -82,6 +82,14 @@ class JsonUtilTest {
   }
 
   @Test
+  void writerOmitsEmptyCollections() throws IOException {
+    String json = JsonUtil.getWriter().writeValueAsString(new org.molgenis.emx2.json.Schema());
+
+    assertFalse(json.contains("\"tables\""), "empty table list must be omitted: " + json);
+    assertFalse(json.contains("\"settings\""), "empty settings list must be omitted: " + json);
+  }
+
+  @Test
   void writerIncludesFalseBooleanValues() throws IOException {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("active", false);
