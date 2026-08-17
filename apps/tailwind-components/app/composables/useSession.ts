@@ -9,6 +9,10 @@ export const useSession = async (schemaId?: string) => {
 
   let messageHandler: ((event: MessageEvent) => void) | null = null;
 
+  const isAdmin = computed(() => session.value?.admin || false);
+  const isOwner = computed(() => false); // Placeholder for actual logic to determine if the user is an owner
+  const isManager = computed(() => false); // Placeholder for actual logic to determine if the user is a manager
+
   async function fetchSessionDetails() {
     return $fetch("/api/graphql", {
       method: "POST",
@@ -149,7 +153,6 @@ export const useSession = async (schemaId?: string) => {
 
     reload();
   }
-  const isAdmin = computed(() => session.value?.admin || false);
 
   const tablePermissions = computed<ITablePermission[]>(() =>
     schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
@@ -170,6 +173,8 @@ export const useSession = async (schemaId?: string) => {
 
   return {
     isAdmin,
+    isOwner,
+    isManager,
     session,
     tablePermissions,
     getTablePermission,

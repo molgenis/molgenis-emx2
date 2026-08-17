@@ -214,12 +214,7 @@ const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
 );
 const showRoles = computed(
-  () =>
-    session?.isAdmin ||
-    session?.tablePermissions.value.some(
-      (permission) =>
-        permission.name === "OWNER" && permission.id === tableId.value
-    )
+  () => session?.isAdmin || session.isOwner || session.isManager
 );
 const roles = computed(() => {
   return session?.session.value?.roles?.[props.schemaId] || [];

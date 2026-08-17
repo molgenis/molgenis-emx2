@@ -458,7 +458,7 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-const { tablePermissions, isAdmin } = await useSession(props.schemaId);
+const { isAdmin, isOwner, isManager } = await useSession(props.schemaId);
 
 const filters: UseFilters | null = props.enableFilters
   ? useFilters(
@@ -641,14 +641,9 @@ const showDraftColumn = computed(() =>
 );
 
 const showRolesColumn = computed(() => {
-  const isOwnerOrAdmin =
-    isAdmin.value ||
-    tablePermissions.value?.some(
-      (permission: ITablePermission) => permission.name === "OWNER"
-    );
-  // this isOwner check is incorrect :/
+  const hasRolesRights = isAdmin.value || isOwner.value || isManager.value;
   return (
-    isOwnerOrAdmin && rows.value.some((row: TableRow) => row?.mg_roles?.length)
+    hasRolesRights && rows.value.some((row: TableRow) => row?.mg_roles?.length)
   );
 });
 
