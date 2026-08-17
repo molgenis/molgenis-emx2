@@ -58,7 +58,7 @@ public class SqlRoleManager {
    * regular counterpart so privileges reach real users, which also makes them show up in every raw
    * role listing. They are never assignable by a user.
    */
-  static boolean isInternalRole(String roleName) {
+  private static boolean isInternalRole(String roleName) {
     return roleName != null && roleName.startsWith(RLS_ROLE_PREFIX);
   }
 
@@ -66,7 +66,7 @@ public class SqlRoleManager {
     return !isInternalRole(roleName) && !Privileges.isSystemRole(roleName);
   }
 
-  static List<String> withoutInternalRoles(List<String> roleNames) {
+  private static List<String> withoutInternalRoles(List<String> roleNames) {
     return roleNames.stream().filter(name -> !isInternalRole(name)).toList();
   }
 
