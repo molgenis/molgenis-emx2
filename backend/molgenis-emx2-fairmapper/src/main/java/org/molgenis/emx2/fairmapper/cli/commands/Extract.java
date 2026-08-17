@@ -20,16 +20,20 @@ import picocli.CommandLine;
     name = "extract",
     description =
         """
-        Generate a sparql query based on a given EMX2 schema and table. Select and where clauses are set up based on
-        schema metadata and how the columns are anotated with Semantics
+        Extract RDF from provided endpoint
         """,
     mixinStandardHelpOptions = true)
 public class Extract implements Runnable {
 
-  @CommandLine.Parameters(index = "0", description = "FDP endpoint to harvest")
+  @CommandLine.Option(
+      names = {"-r", "--rdf"},
+      required = true,
+      description = "FDP endpoint to harvest")
   private String rdf;
 
-  @CommandLine.Parameters(index = "1", description = "Path of file to write to")
+  @CommandLine.Option(
+      names = {"-o", "--output"},
+      description = "Write results to specified path")
   private String outputPath;
 
   @Override
