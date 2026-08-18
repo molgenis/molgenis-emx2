@@ -20,15 +20,11 @@ test.describe("Create Configurable page (cms):", () => {
 
   test("Add new landing page", async ({ page }) => {
     await page.getByRole("button", { name: "Signin" }).click();
-    await page.getByRole("textbox", { name: "Username" }).click();
     await page.getByRole("textbox", { name: "Username" }).fill("admin");
-    await page.getByRole("textbox", { name: "Username" }).press("Tab");
     await page.getByRole("textbox", { name: "Password" }).fill("admin");
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    await page
-      .getByRole("button", { name: "Add new page" })
-      .click({ delay: 300 });
+    await page.getByRole("button", { name: "Add new page" }).click();
     await page.getByRole("button", { name: "Landing page" }).click();
 
     await page
@@ -38,7 +34,6 @@ test.describe("Create Configurable page (cms):", () => {
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await page.getByRole("button", { name: "Close modal" }).click();
 
-    await timeout(300);
     await expect(
       page.getByRole("link", { name: newPageName, exact: true })
     ).toBeVisible();
