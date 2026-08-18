@@ -26,7 +26,9 @@ test.describe("Create Configurable page (cms):", () => {
     await page.getByRole("textbox", { name: "Password" }).fill("admin");
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    await page.getByRole("button", { name: "Add new page" }).click({ delay: 300 });
+    await page
+      .getByRole("button", { name: "Add new page" })
+      .click({ delay: 300 });
     await page.getByRole("button", { name: "Landing page" }).click();
 
     await page
