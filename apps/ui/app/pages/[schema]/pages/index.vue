@@ -93,10 +93,14 @@ async function onAddFormValues(value: IContainers) {
     const sectionId = `Section-${randomId()}`;
     const headingId = `Heading-${randomId()}`;
     const paragraphId = `Paragraph-${randomId()}`;
-    await addBlock(schema, bannerId, value.name, 0, "Header");
-    await addBlock(schema, sectionId, value.name, 1, "Section");
-    await addComponent(schema, headingId, sectionId, 0, "Heading");
-    await addComponent(schema, paragraphId, sectionId, 1, "Paragraph");
+    try {
+      await addBlock(schema, bannerId, value.name, 0, "Header");
+      await addBlock(schema, sectionId, value.name, 1, "Section");
+      await addComponent(schema, headingId, sectionId, 0, "Heading");
+      await addComponent(schema, paragraphId, sectionId, 1, "Paragraph");
+    } catch (error) {
+      console.error("Unable to save page\n", error);
+    }
   }
 }
 </script>
@@ -138,7 +142,7 @@ async function onAddFormValues(value: IContainers) {
               class="w-full"
               @click="onAddNewPageClick('ConfigurablePage')"
             >
-              Simple page
+              Landing page
             </Button>
             <Button
               id="addNewDeveloperPageBtn"
