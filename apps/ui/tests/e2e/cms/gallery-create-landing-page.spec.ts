@@ -26,8 +26,7 @@ test.describe("Create Configurable page (cms):", () => {
     await page.getByRole("textbox", { name: "Password" }).fill("admin");
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    await timeout(200);
-    await page.getByRole("button", { name: "Add new page" }).click();
+    await page.getByRole("button", { name: "Add new page" }).click({ delay: 300 });
     await page.getByRole("button", { name: "Landing page" }).click();
 
     await page
@@ -37,7 +36,7 @@ test.describe("Create Configurable page (cms):", () => {
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await page.getByRole("button", { name: "Close modal" }).click();
 
-    await timeout(200);
+    await timeout(300);
     await expect(
       page.getByRole("link", { name: newPageName, exact: true })
     ).toBeVisible();
