@@ -30,4 +30,4 @@ Genomic variants,,breakend mate stop position,long,,,,,,,,obo:GENO_0000895,The e
 Genomic variants,,variant length,int,,,,,,,,,Length of insertion/deletion/SV (SVLEN),Patient registry
 Genomic variants,,is left normalized,bool,,,,,,,,,Indicated whether the variant has been left-normalized,Patient registry
 Genomic variants,,Consensus Classification,heading,,,,,,,,,,Patient registry
-Genomic variants,,used in interpretations,refback,,,,Variant consensus,,variants,,obo:NGBO_6000125,"A reference to one or more processes (i.e., variant interpretations) where a variant was used",Patient registry
+Genomic variants,,used in interpretations,refback,,,,Variant consensus,,variant,,obo:NGBO_6000125,"A reference to one or more processes (i.e., variant interpretations) where a variant was used",Patient registry
