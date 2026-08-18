@@ -1,12 +1,12 @@
 package org.molgenis.emx2.json;
 
+import static java.util.Arrays.stream;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.TableType;
+import org.molgenis.emx2.*;
 
 public class Table {
   private String schemaId;
@@ -18,6 +18,7 @@ public class Table {
   private String[] pkey;
   private String inheritId;
   private String inheritName;
+  private String inheritSchemaName;
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
   private Collection<String[]> unique = new ArrayList<>();
@@ -50,15 +51,19 @@ public class Table {
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     if (tableMetadata.getInheritName() != null) {
-      this.inheritId = tableMetadata.getInheritedTable().getIdentifier();
+      this.inheritId = convertToPascalCase(tableMetadata.getInheritName());
       this.inheritName = tableMetadata.getInheritName();
+      this.inheritSchemaName = tableMetadata.getImportSchema();
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
             .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
-    this.semantics = tableMetadata.getSemantics();
+    this.semantics =
+        tableMetadata.getSemantics() == null
+            ? null
+            : stream(tableMetadata.getSemantics()).map(Semantic::toString).toArray(String[]::new);
     this.settings =
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
@@ -203,6 +208,14 @@ public class Table {
 
   public void setInheritName(String inheritName) {
     this.inheritName = inheritName;
+  }
+
+  public String getInheritSchemaName() {
+    return inheritSchemaName;
+  }
+
+  public void setInheritSchemaName(String inheritSchemaName) {
+    this.inheritSchemaName = inheritSchemaName;
   }
 
   public String getLabel() {

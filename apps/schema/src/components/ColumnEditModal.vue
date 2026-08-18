@@ -314,6 +314,7 @@ import {
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
+import { findRootTable } from "../tableModel";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -395,11 +396,9 @@ export default {
   computed: {
     //current table object unedited
     originalTable() {
-      return this.schema.tables.find(
-        (table: Record<string, any>) =>
-          table.name === this.tableName ||
-          table.name === this.column.table ||
-          (table.subclasses && table.subclasses.includes(this.column.table))
+      return (
+        findRootTable(this.schema.tables, this.tableName) ||
+        findRootTable(this.schema.tables, this.column.table)
       );
     },
     //current table object edited
@@ -492,6 +491,7 @@ export default {
   },
   methods: {
     showModal() {
+      this.reset();
       this.modalVisible = true;
     },
     apply() {
@@ -606,7 +606,7 @@ function getRefTableColumns(
     const inheritedTable = tables.find(
       (otherTable: Record<string, any>) => table.inheritName === otherTable.name
     );
-    return [...inheritedTable?.columns, ...table?.columns];
+    return [...(inheritedTable?.columns || []), ...(table?.columns || [])];
   } else {
     return table?.columns || [];
   }

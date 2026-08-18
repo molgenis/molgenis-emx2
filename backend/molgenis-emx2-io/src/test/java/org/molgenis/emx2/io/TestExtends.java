@@ -1,6 +1,10 @@
 package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -8,6 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
@@ -16,6 +21,12 @@ import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestExtends {
+
+  private static final String PARENT_DEF =
+      """
+      tableName,tableExtends,refSchema,columnName,key
+      shape,,,,
+      shape,,,name,1""";
 
   static Database database;
   static Schema schema;
@@ -26,6 +37,17 @@ public class TestExtends {
     database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(TestExtends.class.getSimpleName() + "2");
     database.dropSchemaIfExists(TestExtends.class.getSimpleName());
+    database.dropSchemaIfExists("TestExtendsExpB");
+    database.dropSchemaIfExists("TestExtendsExpA");
+    database.dropSchemaIfExists("TestExtendsRtFresh");
+    database.dropSchemaIfExists("TestExtendsRtB");
+    database.dropSchemaIfExists("TestExtendsRtA");
+    database.dropSchemaIfExists("TestExtendsReB");
+    database.dropSchemaIfExists("TestExtendsReA");
+    database.dropSchemaIfExists("TestExtendsSelf");
+    database.dropSchemaIfExists("TestExtendsMsgB");
+    database.dropSchemaIfExists("TestExtendsMsgA");
+    database.dropSchemaIfExists("TestExtendsFreshMsg");
   }
 
   @Test
@@ -88,6 +110,151 @@ public class TestExtends {
     sm = Emx2.fromRowList(CsvTableReader.read(new StringReader(schemaDef2)));
     schema2.migrate(sm);
     validate2(sm);
+  }
+
+  @Test
+  public void exportWritesRefSchema() {
+    Schema parent = createParentSchema("TestExtendsExpA");
+    Schema child = createChildSchema("TestExtendsExpB", parent.getName());
+
+    Row myshapeRow = tableRow(child.getMetadata(), "myshape");
+
+    assertEquals("shape", myshapeRow.getString(Emx2.TABLE_EXTENDS));
+    assertEquals(parent.getName(), myshapeRow.getString(Emx2.REF_SCHEMA));
+  }
+
+  @Test
+  public void exportOmitsSelfRefSchema() {
+    String schemaName = "TestExtendsSelf";
+    Schema selfSchema = createParentSchema(schemaName);
+    selfSchema.migrate(
+        Emx2.fromRowList(
+            CsvTableReader.read(
+                new StringReader(
+                    """
+                    tableName,tableExtends,refSchema,columnName,key
+                    square,shape,%s,,
+                    square,,,sidelength,"""
+                        .formatted(schemaName)))));
+
+    assertEquals(schemaName, selfSchema.getMetadata().getTableMetadata("square").getImportSchema());
+    assertNull(tableRow(selfSchema.getMetadata(), "square").getString(Emx2.REF_SCHEMA));
+  }
+
+  @Test
+  public void crossSchemaRoundTrip() {
+    Schema parent = createParentSchema("TestExtendsRtA");
+    Schema child = createChildSchema("TestExtendsRtB", parent.getName());
+
+    List<Row> exported = Emx2.toRowList(child.getMetadata());
+
+    database.dropSchemaIfExists("TestExtendsRtFresh");
+    Schema fresh = database.createSchema("TestExtendsRtFresh");
+    fresh.migrate(Emx2.fromRowList(exported));
+
+    assertEquals(
+        parent.getName(), fresh.getMetadata().getTableMetadata("myshape").getImportSchema());
+    assertEquals(
+        List.of("name"),
+        fresh.getMetadata().getTableMetadata("myshape").getPrimaryKeys(),
+        "inherited column 'name' should be the primary key");
+  }
+
+  @Test
+  public void exportThenReimportOverExisting() {
+    Schema parent = createParentSchema("TestExtendsReA");
+    Schema child = createChildSchema("TestExtendsReB", parent.getName());
+
+    String importSchemaBeforeReimport =
+        child.getMetadata().getTableMetadata("myshape").getImportSchema();
+    assertEquals(parent.getName(), importSchemaBeforeReimport);
+
+    List<Row> exported = Emx2.toRowList(child.getMetadata());
+    child.migrate(Emx2.fromRowList(exported));
+
+    assertEquals(
+        importSchemaBeforeReimport,
+        child.getMetadata().getTableMetadata("myshape").getImportSchema());
+  }
+
+  @Test
+  public void reimportWithoutRefSchemaGivesMessageNamingTheTable() {
+    Schema parent = createParentSchema("TestExtendsMsgA");
+    Schema child = createChildSchema("TestExtendsMsgB", parent.getName());
+
+    SchemaMetadata withoutRefSchema =
+        Emx2.fromRowList(
+            CsvTableReader.read(
+                new StringReader(
+                    """
+                    tableName,tableExtends,columnName,key
+                    myshape,shape,,
+                    myshape,,color,""")));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> child.migrate(withoutRefSchema));
+
+    assertFalse(exception.getMessage().contains("null"), exception.getMessage());
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Table 'myshape' cannot inherit table 'shape': not found or permission denied. If the table lives in another schema, provide refSchema."));
+  }
+
+  @Test
+  public void importIntoFreshSchemaWithDanglingParentGivesMessageWithoutNull() {
+    Schema fresh = database.createSchema("TestExtendsFreshMsg");
+
+    SchemaMetadata danglingParent =
+        Emx2.fromRowList(
+            CsvTableReader.read(
+                new StringReader(
+                    """
+                    tableName,tableExtends,columnName,key
+                    Employee,Contact,,
+                    Employee,,salary,""")));
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, () -> fresh.migrate(danglingParent));
+
+    assertFalse(exception.getMessage().contains("null"), exception.getMessage());
+    assertTrue(
+        exception
+            .getMessage()
+            .contains(
+                "Table 'TestExtendsFreshMsg.Employee' cannot inherit table 'Contact': not found or permission denied. If the table lives in another schema, provide refSchema."),
+        exception.getMessage());
+  }
+
+  private Schema createParentSchema(String parentName) {
+    Schema parent = database.createSchema(parentName);
+    parent.migrate(Emx2.fromRowList(CsvTableReader.read(new StringReader(PARENT_DEF))));
+    return parent;
+  }
+
+  private Schema createChildSchema(String childName, String parentName) {
+    Schema child = database.createSchema(childName);
+    child.migrate(
+        Emx2.fromRowList(
+            CsvTableReader.read(
+                new StringReader(
+                    """
+                    tableName,tableExtends,refSchema,columnName,key
+                    myshape,shape,%s,,
+                    myshape,,,color,"""
+                        .formatted(parentName)))));
+    return child;
+  }
+
+  private Row tableRow(SchemaMetadata metadata, String tableName) {
+    return Emx2.toRowList(metadata).stream()
+        .filter(
+            row ->
+                tableName.equals(row.getString(Emx2.TABLE_NAME))
+                    && row.getString(Emx2.COLUMN_NAME) == null)
+        .findFirst()
+        .orElseThrow();
   }
 
   private void validate2(SchemaMetadata sm) {
