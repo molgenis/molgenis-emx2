@@ -24,7 +24,7 @@ test.describe("Create Configurable page (cms):", () => {
     await page.getByRole("textbox", { name: "Password" }).fill("admin");
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    await page.getByRole("button", { name: "Add new page" }).click();
+    await page.locator("#openAddNewPageDropdown").click();
     await page.getByRole("button", { name: "Landing page" }).click();
 
     await page
@@ -40,10 +40,7 @@ test.describe("Create Configurable page (cms):", () => {
   });
 
   test("new landing page contains initial content", async ({ page }) => {
-    const newPageLink = await page.getByRole("link", {
-      name: newPageName,
-      exact: true,
-    });
+    const newPageLink = await page.getByRole("link", { name: newPageName });
     const href = await newPageLink.getAttribute("href");
     const url = href?.slice(1, href.length - 1);
     await page.goto(route + url, { waitUntil: "load" });
