@@ -31,11 +31,11 @@ RESOURCES_DIR = Path(__file__).parent / "resources"
 
 def test_signin():
     """Tests the `signin` method."""
-    with pytest.raises(SigninError) as excinfo:
+    with pytest.raises(SigninError) as exc_info:
         with Client(url=server_url) as client:
             client.signin(username+username, password)
-    assert excinfo.value.msg is not None
-    assert excinfo.value.msg.endswith("Sign in as 'adminadmin' failed: user or password unknown")
+    assert exc_info.value.msg is not None
+    assert exc_info.value.msg.endswith(f"Sign in as '{username+username}' failed: user or password unknown")
 
     with Client(url=server_url) as client:
         client.signin(username, password)
@@ -46,9 +46,9 @@ def test_signin():
 def test_signout():
     """Tests the `signout` method."""
     with Client(url=server_url) as client:
-        with pytest.raises(SignoutError) as excinfo:
+        with pytest.raises(SignoutError) as exc_info:
             client.signout()
-        assert excinfo.value.msg == "Could not sign out as user is not signed in."
+        assert exc_info.value.msg == "Could not sign out as user is not signed in."
 
         client.signin(username, password)
         client.signout()
@@ -86,9 +86,9 @@ def test_upload_csv():
     with Client(url=server_url) as client:
         client.signin(username, password)
 
-        with pytest.raises(FileNotFoundError) as excinfo:
+        with pytest.raises(FileNotFoundError) as exc_info:
             client._upload_csv(file_path=Path("Pet.csv"), schema="pet store")
-        assert str(excinfo.value) == "[Errno 2] No such file or directory: 'Pet.csv'"
+        assert str(exc_info.value) == "[Errno 2] No such file or directory: 'Pet.csv'"
 
         client._upload_csv(file_path=RESOURCES_DIR / "insert" / "Tag.csv", schema="pet store")
         client._upload_csv(file_path=RESOURCES_DIR / "insert" / "Pet.csv", schema="pet store")
@@ -103,9 +103,9 @@ async def test_upload_file():
         client.signin(username, password)
 
         # Upload without specifying schema
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.csv")
-        assert excinfo.value.msg == "Select an existing schema for this operation."
+        assert exc_info.value.msg == "Select an existing schema for this operation."
 
         # Upload ZIP file
         pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
@@ -142,9 +142,9 @@ async def test_upload_file():
         assert tag_after == tag_before
 
         # Upload with unsupported file type
-        with pytest.raises(NotImplementedError) as excinfo:
+        with pytest.raises(NotImplementedError) as exc_info:
             await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.txt", schema="pet store")
-        assert str(excinfo.value) == "Uploading files with extension '.txt' is not supported."
+        assert str(exc_info.value) == "Uploading files with extension '.txt' is not supported."
 
 
 def test_truncate():
@@ -153,10 +153,10 @@ def test_truncate():
         client.signin(username, password)
 
         # Test truncate with ReferenceException
-        with pytest.raises(ReferenceException) as excinfo:
+        with pytest.raises(ReferenceException) as exc_info:
             client.truncate(schema='pet store', table='Pet')
-        assert excinfo.value.msg is not None
-        assert excinfo.value.msg.startswith("Transaction failed: delete on table \"Pet\" violates foreign key constraint.")
+        assert exc_info.value.msg is not None
+        assert exc_info.value.msg.startswith("Transaction failed: delete on table \"Pet\" violates foreign key constraint.")
 
         # Test correct running
         client.truncate(schema='pet store', table='User')
@@ -174,14 +174,14 @@ async def test_export():
         client.signin(username, password)
 
         # Upload without specifying schema
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             await client.export(table="Pet", filename="pet.csv")
-        assert excinfo.value.msg == "Select an existing schema for this operation."
+        assert exc_info.value.msg == "Select an existing schema for this operation."
 
         # Test incorrect file name
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ValueError) as exc_info:
             await client.export(schema="pet store", table="Pet", filename="pet.txt")
-        assert str(excinfo.value) == "File name must end with ('csv', 'xlsx', 'zip')"
+        assert str(exc_info.value) == "File name must end with ('csv', 'xlsx', 'zip')"
 
         # Test CSV
         csv_data: BytesIO = await client.export(schema="pet store", table="Pet")
@@ -225,13 +225,13 @@ async def test_create_schema():
         client.signin(username, password)
 
         # Test fail on existing name
-        with pytest.raises(PyclientException) as excinfo:
+        with pytest.raises(PyclientException) as exc_info:
             await client.create_schema(name="pet store")
-        assert excinfo.value.msg == "Schema with name 'pet store' already exists."
+        assert exc_info.value.msg == "Schema with name 'pet store' already exists."
 
-        with pytest.raises(NonExistentTemplateException) as excinfo:
+        with pytest.raises(NonExistentTemplateException) as exc_info:
             await client.create_schema(name="pet store 2", template="PET_STORE123")
-        assert excinfo.value.msg == "Selected template does not exist."
+        assert exc_info.value.msg == "Selected template does not exist."
 
         # Test description
         await client.create_schema(name="pet store 2", description="The second pet store.")
@@ -272,9 +272,9 @@ async def test_delete_schema():
     with Client(url=server_url) as client:
         client.signin(username, password)
 
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             await client.delete_schema("pet store 2")
-        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+        assert exc_info.value.msg == "Schema 'pet store 2' not available."
 
         await client.create_schema("pet store 2")
 
@@ -291,9 +291,9 @@ async def test_update_schema():
         client.signin(username, password)
 
         # Fail on missing schema
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             client.update_schema("pet store 2")
-        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+        assert exc_info.value.msg == "Schema 'pet store 2' not available."
 
         await client.create_schema("pet store 2")
         client.update_schema("pet store 2", "The second pet store.")
@@ -311,9 +311,9 @@ async def test_recreate_schema():
         client.signin(username, password)
 
         # Fail on missing schema
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             await client.recreate_schema("pet store 2")
-        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+        assert exc_info.value.msg == "Schema 'pet store 2' not available."
 
         await client.create_schema("pet store 2")
 
@@ -343,16 +343,16 @@ def test_set_schema():
         current_schema = client.default_schema
         assert current_schema is None
 
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             client.set_schema("pet store 2")
-        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+        assert exc_info.value.msg == "Schema 'pet store 2' not available."
 
         client.set_schema("pet store")
         assert client.default_schema == "pet store"
 
 
 @pytest.mark.asyncio
-async def test_report_task_progress(caplog):
+async def test_report_task_progress(cap_log):
     """Tests the `_report_task_progress` method."""
 
     with Client(url=server_url) as client:
@@ -368,7 +368,7 @@ async def test_report_task_progress(caplog):
             )
         process_id = response.json().get('id')
 
-        caplog.set_level(logging.INFO)
+        cap_log.set_level(logging.INFO)
         await client._report_task_progress(process_id)
 
         message_starts = [
@@ -380,11 +380,11 @@ async def test_report_task_progress(caplog):
             "Committing",
             "Completed task: Import csv file in "
         ]
-        for cm in caplog.messages:
+        for cm in cap_log.messages:
             assert any(map(lambda ms: cm.startswith(ms), message_starts))
 
 
-def test_validate_graphql_response(caplog):
+def test_validate_graphql_response(cap_log):
     """Tests the `_validate_graphql_response` method."""
 
     class MockResponse(Response):
@@ -412,51 +412,51 @@ def test_validate_graphql_response(caplog):
         client.signin(username, password)
 
         response = MockResponse(503)
-        with pytest.raises(ServiceUnavailableError) as excinfo:
+        with pytest.raises(ServiceUnavailableError) as exc_info:
             client._validate_graphql_response(response)
-        assert excinfo.value.msg == f"Server with url '{server_url}' (temporarily) unavailable."
+        assert exc_info.value.msg == f"Server with url '{server_url}' (temporarily) unavailable."
 
         response = MockResponse(404)
-        with pytest.raises(ServerNotFoundError) as excinfo:
+        with pytest.raises(ServerNotFoundError) as exc_info:
             client._validate_graphql_response(response)
-        assert excinfo.value.msg == f"Server with url '{server_url}' not found."
+        assert exc_info.value.msg == f"Server with url '{server_url}' not found."
 
         response = MockResponse(400, text="Invalid token or token expired")
-        with pytest.raises(InvalidTokenException) as excinfo:
+        with pytest.raises(InvalidTokenException) as exc_info:
             client._validate_graphql_response(response)
-        assert excinfo.value.msg == "Invalid token or token expired."
+        assert exc_info.value.msg == "Invalid token or token expired."
 
         response = MockResponse(400, "Cannot perform operation: permission denied")
-        with pytest.raises(PermissionDeniedException) as excinfo:
+        with pytest.raises(PermissionDeniedException) as exc_info:
             client._validate_graphql_response(response)
-        assert excinfo.value.msg == f"Transaction failed: permission denied."
+        assert exc_info.value.msg == f"Transaction failed: permission denied."
 
 
         response = MockResponse(400, "Graphql API error: cannot perform operation.",
                                 json_data={"errors": [{"message": "Syntax error in GraphQL statement."}]})
-        with pytest.raises(GraphQLException) as excinfo:
-            caplog.set_level(logging.INFO)
+        with pytest.raises(GraphQLException) as exc_info:
+            cap_log.set_level(logging.INFO)
             client._validate_graphql_response(response)
-        assert caplog.messages == ["Syntax error in GraphQL statement."]
-        assert excinfo.value.msg == "Syntax error in GraphQL statement."
+        assert cap_log.messages == ["Syntax error in GraphQL statement."]
+        assert exc_info.value.msg == "Syntax error in GraphQL statement."
 
         error_msg = """Delete into table Pet failed: Transaction failed: delete on table "Pet" violates foreign key 
         constraint. Details: Key ("name")=(pooky) is still referenced from table "User", column(s)("pets")"""
         response = MockResponse(400, "Cannot delete value: violates foreign key constraint.",
                                 json_data={"errors": [{"message": error_msg}]})
-        with pytest.raises(ReferenceException) as excinfo:
-            caplog.clear()
+        with pytest.raises(ReferenceException) as exc_info:
+            cap_log.clear()
             client._validate_graphql_response(response)
-        assert caplog.messages == [error_msg]
-        assert excinfo.value.msg == error_msg
+        assert cap_log.messages == [error_msg]
+        assert exc_info.value.msg == error_msg
 
         response = MockResponse(400, text="Unknown error",
                                 json_data={"errors": [{"message": "An unknown error occurred."}]})
-        with pytest.raises(PyclientException) as excinfo:
-            caplog.clear()
+        with pytest.raises(PyclientException) as exc_info:
+            cap_log.clear()
             client._validate_graphql_response(response)
-        assert caplog.messages == ["An unknown error occurred."]
-        assert excinfo.value.msg == "An unknown error occurred when trying to reach this server."
+        assert cap_log.messages == ["An unknown error occurred."]
+        assert exc_info.value.msg == "An unknown error occurred when trying to reach this server."
 
         response = MockResponse(300, method='GET')
         val = client._validate_graphql_response(response)
@@ -468,38 +468,38 @@ def test_validate_graphql_response(caplog):
 
         response = MockResponse(300, text="Something something",
                                 json_data={})
-        caplog.clear()
+        cap_log.clear()
         client._validate_graphql_response(response, fallback_error_message="Was supposed to do something.")
-        assert caplog.messages == ["Was supposed to do something."]
+        assert cap_log.messages == ["Was supposed to do something."]
 
         response = MockResponse(300, text="Insufficient permissions.",
                                 json_data={"errors": [{"message": "Cannot perform operation: permission denied."}],
                                            "data": {}})
-        with pytest.raises(PermissionDeniedException) as excinfo:
+        with pytest.raises(PermissionDeniedException) as exc_info:
             client._validate_graphql_response(response)
-        assert excinfo.value.msg == "Insufficient permissions for this operations."
+        assert exc_info.value.msg == "Insufficient permissions for this operations."
 
         response = MockResponse(300, text="Insufficient permissions.",
                                 json_data={"errors": [{"message": "Cannot perform operation: permission denied."}],
                                            "data": {}})
-        with pytest.raises(PermissionDeniedException) as excinfo:
+        with pytest.raises(PermissionDeniedException) as exc_info:
             client._validate_graphql_response(response)
-        assert excinfo.value.msg == "Insufficient permissions for this operations."
+        assert exc_info.value.msg == "Insufficient permissions for this operations."
 
 @pytest.mark.asyncio
-async def test_export_schema(caplog):
+async def test_export_schema():
     """Tests the export_schema functionality."""
     with Client(url=server_url) as client:
         client.signin(username, password)
 
-        with pytest.raises(NotImplementedError) as excinfo:
+        with pytest.raises(NotImplementedError) as exc_info:
             await client.export_schema("pet store", "mp3")
-        assert str(excinfo.value) == ("Cannot export schema definition in format 'mp3'. "
+        assert str(exc_info.value) == ("Cannot export schema definition in format 'mp3'. "
                                       "Select one from ['csv', 'json', 'yaml'].")
 
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ValueError) as exc_info:
             await client.export_schema(schema="pet store")
-        assert str(excinfo.value) == "Supply a value for `fmt` or `filename`."
+        assert str(exc_info.value) == "Supply a value for `fmt` or `filename`."
 
         csv_bytes: BytesIO = await client.export_schema("pet store", filename="pet store.csv")
         csv_schema = pd.read_csv(csv_bytes)
