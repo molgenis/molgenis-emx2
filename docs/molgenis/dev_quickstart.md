@@ -154,16 +154,20 @@ When setting up WSL, there are a few things to keep in mind:
 
 ## Tips
 
-last updated 24 nov 2022
+last updated 18 aug 2026
 
 ### IntelliJ plugins
 
-- We use IntelliJ 2021.3.1 with
-  - vue plugin
-  - google-java-format plugin
-  - prettier plugin, set run for files to include '.vue' and 'on save'
-  - auto save and auto format using 'save actions' plugin
-  - SonarQube plugin
+We advise using the following plugins:
+- [google-java-format](https://plugins.jetbrains.com/plugin/8527-google-java-format)
+- [SonarQube for IDE](https://plugins.jetbrains.com/plugin/7973-sonarqube-for-ide)  
+To set up connected mode:
+    1. Go to Settings -> Tools -> SonarQube for IDE
+    2. Under `Connections to SonarQube` add a new connection with `molgenis` as (external) organization
+    3. Go to Settings -> Tools -> SonarQube for IDE  -> Project Settings
+    4. Select `Bind project to SonarQube`
+    5. Select `Search in list...` for project key and select `molgenis-emx2`
+- [Vue.js](https://plugins.jetbrains.com/plugin/9442-vue-js)
 
 ### Pre-commit hook
 
