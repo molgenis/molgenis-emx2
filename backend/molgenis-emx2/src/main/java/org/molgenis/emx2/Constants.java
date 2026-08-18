@@ -50,6 +50,9 @@ public class Constants {
   public static final String SETTINGS_VALUE = "value";
   public static final String SETTINGS_USER = "user";
 
+  // Advanced setting containing comma-separated "namespace prefix,namespace IRI" pairs (per row)
+  public static final String SETTING_SEMANTIC_PREFIXES = "semantic_prefixes";
+
   public static final String CHANGELOG_TABLE = "mg_changelog";
   public static final String CHANGELOG_OPERATION = "operation";
   public static final String CHANGELOG_STAMP = "stamp";
@@ -76,6 +79,7 @@ public class Constants {
   public static final String MOLGENIS_INCLUDE_DIRECTORY_DEMO = "MOLGENIS_INCLUDE_DIRECTORY_DEMO";
   public static final String MOLGENIS_EXCLUDE_PETSTORE_DEMO = "MOLGENIS_EXCLUDE_PETSTORE_DEMO";
   public static final String MOLGENIS_INCLUDE_TYPE_TEST_DEMO = "MOLGENIS_INCLUDE_TYPE_TEST_DEMO";
+  public static final String MOLGENIS_INCLUDE_CMS = "MOLGENIS_INCLUDE_CMS";
   public static final String MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO =
       "MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO";
   public static final String CUSTOM_APP_PATH = "CUSTOM_APP_PATH";
