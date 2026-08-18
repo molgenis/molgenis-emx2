@@ -19,8 +19,7 @@ public final class PermissionEvaluator {
     if (hasRole(schema, COUNT)) return AggregateLevel.COUNT;
     if (hasRole(schema, AGGREGATOR)) return AggregateLevel.AGGREGATOR;
     if (hasRole(schema, RANGE)) return AggregateLevel.RANGE;
-    // I'm not sure if this is right
-    if (hasRole(schema, EXISTS) || hasRole(schema, USING)) return AggregateLevel.EXISTS;
+    if (hasRole(schema, EXISTS)) return AggregateLevel.EXISTS;
     return AggregateLevel.NONE;
   }
 
