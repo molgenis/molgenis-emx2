@@ -125,7 +125,7 @@ Variant interpretation analyses,Analyses,,,,,,,,,,,,,,obo:NCIT_C25391,Analyses r
 Variant interpretation analyses,,Variant Interpretation Analyses,heading,,,,,,,,,,,,,,Patient registry,
 Variant interpretation analyses,,experiment,multiselect,,,,,,Experiments,,,,,,obo:NCIT_C43376,Links to experiment,Patient registry,
 Variant interpretation analyses,,status,select,,,,,CatalogueOntologies,Status,,,,,,sio:SIO_000033,"An characterisation of the analysis that indicates the current state or progress (e.g., confirmed, to be verified, etc.)",Patient registry,
-Variant interpretation analyses,,solved,bool,,,,,,,,,,,,NCIT_C20826,An indication that diagnosis is given and the case is no longer considered unsolved.,Patient registry,
+Variant interpretation analyses,,solved,bool,,,,,,,,,,,,obo:NCIT_C20826,An indication that diagnosis is given and the case is no longer considered unsolved.,Patient registry,
 Variant interpretation analyses,,date solved,date,,,,,,,,,,,,obo:NCIT_C25164,The date the case was solved,Patient registry,
 Variant interpretation analyses,,VIP Report,file,,,,,,,,,,,,,A Variant Interpretation Pipeline (VIP) report.,Patient registry,
 Variant interpretation analyses,,variant consensus,refback,,,,,,Variant consensus,,interpretation analysis,,,,obo:NGBO_6000125,Links to variant consensus(es),Patient registry,
