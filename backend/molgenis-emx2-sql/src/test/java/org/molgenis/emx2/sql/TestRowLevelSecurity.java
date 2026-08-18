@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Constants.MG_ROLES;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
+import org.jooq.Record;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -13,7 +14,7 @@ import org.molgenis.emx2.*;
 class TestRowLevelSecurity {
 
   private static Database database;
-  private static final String SCHEMA = "TestRowLevelSecurity";
+  private static final String SCHEMA = TestRowLevelSecurity.class.getSimpleName();
   private static final String ARTICLES = "Articles";
 
   private static final String USER_TEAM_A = "rls_user_team_a";
@@ -462,6 +463,189 @@ class TestRowLevelSecurity {
     schema.revoke("MixedPlainRole", table);
     schema.deleteRole("MixedRlsRole");
     schema.deleteRole("MixedPlainRole");
+  }
+
+  @Test
+  void switchingGrantToRowLevelEnforcesRlsForThatRole() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String table = "FlipOnTable";
+    String role = "FlipOnRole";
+    String user = "rls_user_flip_on";
+    if (!database.hasUser(user)) database.addUser(user);
+
+    schema.create(table(table).add(column("id").setPkey()).add(column("title")));
+    schema.createRole(role);
+    schema.grant(
+        role, new TablePermission(table).select(true).insert(true).update(true).delete(true));
+    schema.grant(
+        role,
+        new TablePermission(table)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+
+    schema
+        .getTable(table)
+        .insert(
+            new Row()
+                .setString("id", "f1")
+                .setString("title", "owned")
+                .set(MG_ROLES, new String[] {role}));
+    schema.getTable(table).insert(new Row().setString("id", "f2").setString("title", "unowned"));
+    schema.addMember(user, role);
+
+    assertTrue(
+        schema.getRoleInfo(role).permissions().stream()
+            .anyMatch(p -> table.equals(p.table()) && p.hasRowLevel()),
+        "permission should report row level after the switch");
+
+    database.setActiveUser(user);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertTrue(ids.contains("f1"), "should see own row");
+          assertFalse(
+              ids.contains("f2"), "should NOT see unowned row after switching to row level");
+        });
+
+    // Cleanup
+    database.becomeAdmin();
+    schema.getTable(table).delete(new Row().setString("id", "f1"));
+    schema.removeMember(user);
+    schema.revoke(role, table);
+    schema.deleteRole(role);
+  }
+
+  @Test
+  void switchingGrantOffRowLevelRestoresFullTableAccess() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String table = "FlipOffTable";
+    String role = "FlipOffRole";
+    String user = "rls_user_flip_off";
+    if (!database.hasUser(user)) database.addUser(user);
+
+    schema.create(table(table).add(column("id").setPkey()).add(column("title")));
+    schema.createRole(role);
+    schema.grant(
+        role,
+        new TablePermission(table)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+
+    schema
+        .getTable(table)
+        .insert(
+            new Row()
+                .setString("id", "g1")
+                .setString("title", "owned")
+                .set(MG_ROLES, new String[] {role}));
+    schema.getTable(table).insert(new Row().setString("id", "g2").setString("title", "unowned"));
+    schema.addMember(user, role);
+
+    database.setActiveUser(user);
+    database.tx(
+        db ->
+            assertFalse(
+                db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+                    .anyMatch(r -> "g2".equals(r.getString("id"))),
+                "unowned row should be hidden while row level is on"));
+
+    database.becomeAdmin();
+    schema.grant(
+        role,
+        new TablePermission(table)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(false));
+
+    assertTrue(
+        schema.getRoleInfo(role).permissions().stream()
+            .noneMatch(p -> table.equals(p.table()) && p.hasRowLevel()),
+        "permission should no longer report row level");
+    assertFalse(
+        rowLevelSecurityEnabled(table),
+        "row level security should be disabled once the last row level grant is gone");
+
+    database.setActiveUser(user);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertTrue(ids.contains("g1"), "should see own row");
+          assertTrue(ids.contains("g2"), "should see unowned row after switching row level off");
+        });
+  }
+
+  @Test
+  void omittedIsRowLevelKeepsTheExistingMode() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String table = "KeepModeTable";
+    String role = "KeepModeRole";
+    String user = "rls_user_keep_mode";
+    if (!database.hasUser(user)) database.addUser(user);
+
+    schema.create(table(table).add(column("id").setPkey()).add(column("title")));
+    schema.createRole(role);
+    schema.grant(role, new TablePermission(table).select(true).rowLevel(true));
+    // isRowLevel not specified: this only adds insert, it must not downgrade to a plain grant
+    schema.grant(role, new TablePermission(table).insert(true));
+
+    schema
+        .getTable(table)
+        .insert(
+            new Row()
+                .setString("id", "k1")
+                .setString("title", "owned")
+                .set(MG_ROLES, new String[] {role}));
+    schema.getTable(table).insert(new Row().setString("id", "k2").setString("title", "unowned"));
+    schema.addMember(user, role);
+
+    assertTrue(
+        schema.getRoleInfo(role).permissions().stream()
+            .anyMatch(p -> table.equals(p.table()) && p.hasRowLevel()),
+        "row level should be preserved when isRowLevel is not specified");
+
+    database.setActiveUser(user);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertTrue(ids.contains("k1"), "should see own row");
+          assertFalse(ids.contains("k2"), "should NOT see unowned row");
+        });
+
+    database.becomeAdmin();
+    schema.getTable(table).delete(new Row().setString("id", "k1"));
+    schema.removeMember(user);
+    schema.revoke(role, table);
+    schema.deleteRole(role);
+  }
+
+  private static boolean rowLevelSecurityEnabled(String tableName) {
+    Record record =
+        ((SqlDatabase) database)
+            .getJooq()
+            .fetchOne(
+                "select relrowsecurity as rls from pg_class where oid = cast(? as regclass)",
+                "\"" + SCHEMA + "\".\"" + tableName + "\"");
+    return Boolean.TRUE.equals(record.get("rls", Boolean.class));
   }
 
   @Test

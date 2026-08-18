@@ -210,7 +210,7 @@ const network = computed(() => {
   const catalogues = data.value.data?.Catalogues;
   if (scoped && (!catalogues || catalogues.length === 0)) {
     throw createError({
-      statusCode: 404,
+      status: 404,
       statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
     });
   }
