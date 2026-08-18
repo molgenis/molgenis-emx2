@@ -193,26 +193,44 @@ public class SqlRoleManager {
       throw new MolgenisException("Table name is required for table-level grant");
     }
     TableMetadata tableMetadata = requireRootTable(schemaName, tableName);
-    boolean isRowLevel = permission.hasRowLevel();
-    String grantRoleName = isRowLevel ? RLS_ROLE_PREFIX + roleName : roleName;
+    Boolean requestedRowLevel = permission.isRowLevel();
+    boolean isRowLevel =
+        requestedRowLevel != null
+            ? requestedRowLevel
+            : hasRowLevelGrant(schemaName, roleName, tableName);
+    String plainFullRole = fullRoleName(schemaName, roleName);
+    String rlsFullRole = fullRoleName(schemaName, RLS_ROLE_PREFIX + roleName);
     if (isRowLevel) {
       createRlsRole(schemaName, roleName);
       if (tableMetadata.getColumn(MG_ROLES) == null) {
         tableMetadata.add(column(MG_ROLES).setType(STRING_ARRAY));
       }
     }
-    String fullRole = fullRoleName(schemaName, grantRoleName);
+    String fullRole = isRowLevel ? rlsFullRole : plainFullRole;
+    String supersededRole = isRowLevel ? plainFullRole : rlsFullRole;
+    boolean supersededRoleExists = isRowLevel || roleExists(rlsFullRole);
     database.tx(
         db -> {
           DSLContext jooq = ((SqlDatabase) db).getJooq();
           for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
-            applyPgGrants(jooq, schemaName, fullRole, tableInTree.getTableName(), permission);
+            String tableInTreeName = tableInTree.getTableName();
+            if (supersededRoleExists) {
+              revokeAll(jooq, table(name(schemaName, tableInTreeName)), name(supersededRole));
+            }
+            applyPgGrants(jooq, schemaName, fullRole, tableInTreeName, permission);
           }
           if (isRowLevel) {
             enableRowLevelSecurityOnTree(jooq, schemaName, tableMetadata);
+          } else {
+            disableRowLevelSecurityIfUnused(jooq, schemaName, tableMetadata);
           }
         });
     database.getListener().onSchemaChange();
+  }
+
+  private boolean hasRowLevelGrant(String schemaName, String roleName, String tableName) {
+    return getPermissions(schemaName, roleName).stream()
+        .anyMatch(p -> tableName.equals(p.table()) && p.hasRowLevel());
   }
 
   public void revoke(String schemaName, String roleName, String tableName) {

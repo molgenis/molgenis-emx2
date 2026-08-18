@@ -1,8 +1,6 @@
-import { useState } from "#app";
-import { useAsyncData } from "#app/composables/asyncData";
-import { useRouter } from "#app/composables/router";
+import { useAsyncData, useRouter, useState } from "nuxt/app";
 import { computed, type Ref } from "vue";
-import type { ISession } from "../../types/types";
+import type { ISession, ITablePermission } from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
 
 export const useSession = async (schemaId?: string) => {
@@ -20,42 +18,44 @@ export const useSession = async (schemaId?: string) => {
     });
   }
 
-  async function fetchSchemaRoles(schemaId: string) {
+  async function fetchPermissions(schemaId: string) {
     return $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       body: JSON.stringify({
-        query: `{_session { roles }}`,
+        query: `{_session { roles, tablePermissions{ name, id, canView, canInsert, canUpdate, canDelete, isRowLevel } } }`,
       }),
     });
   }
 
   async function loadSession() {
-    const schemaRolesPromise = schemaId
-      ? useAsyncData("schemaRoles_" + schemaId, () =>
-          fetchSchemaRoles(schemaId)
+    const permissionsPromise = schemaId
+      ? useAsyncData("permissions_" + schemaId, () =>
+          fetchPermissions(schemaId)
         )
       : Promise.resolve(null);
 
     const sessionPromise = useAsyncData("session", () => fetchSessionDetails());
 
     // parallel requests
-    const [schemaRolesResult, sessionResult] = await Promise.all([
-      schemaRolesPromise,
+    const [permissionsResult, sessionResult] = await Promise.all([
+      permissionsPromise,
       sessionPromise,
     ]);
 
-    if (sessionResult.error.value || schemaRolesResult?.error.value) {
+    if (sessionResult.error.value || permissionsResult?.error.value) {
       console.error("Error fetching session", sessionResult.error.value);
     }
 
     session.value = sessionResult.data.value?.data._session;
 
-    if (session.value && schemaId) {
-      if (!session.value.roles) {
-        session.value.roles = {};
-      }
+    if (session.value && schemaId && permissionsResult) {
+      session.value.roles = {};
+      session.value.tablePermissions = {};
+
       session.value.roles[schemaId] =
-        schemaRolesResult?.data.value?.data?._session?.roles;
+        permissionsResult?.data.value?.data?._session?.roles;
+      session.value.tablePermissions[schemaId] =
+        permissionsResult?.data.value?.data?._session?.tablePermissions;
     }
   }
 
@@ -63,8 +63,8 @@ export const useSession = async (schemaId?: string) => {
     session.value = null;
 
     // parallel requests
-    const [schemaRolesResult, sessionResult] = await Promise.all([
-      schemaId ? fetchSchemaRoles(schemaId) : Promise.resolve(null),
+    const [permissionsResult, sessionResult] = await Promise.all([
+      schemaId ? fetchPermissions(schemaId) : Promise.resolve(null),
       fetchSessionDetails(),
     ]);
 
@@ -74,11 +74,13 @@ export const useSession = async (schemaId?: string) => {
 
     session.value = sessionResult.data._session;
 
-    if (session.value && schemaId && schemaRolesResult) {
-      if (!session.value.roles) {
-        session.value.roles = {};
-      }
-      session.value.roles[schemaId] = schemaRolesResult.data?._session?.roles;
+    if (session.value && schemaId && permissionsResult) {
+      session.value.roles = {};
+      session.value.tablePermissions = {};
+
+      session.value.roles[schemaId] = permissionsResult.data?._session?.roles;
+      session.value.tablePermissions[schemaId] =
+        permissionsResult.data?._session?.tablePermissions;
     }
   }
 
@@ -147,8 +149,17 @@ export const useSession = async (schemaId?: string) => {
 
     reload();
   }
-
   const isAdmin = computed(() => session.value?.admin || false);
+
+  const tablePermissions = computed<ITablePermission[]>(() =>
+    schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
+  );
+
+  function getTablePermission(tableId: string): ITablePermission | undefined {
+    return tablePermissions.value.find(
+      (permission) => permission.id === tableId || permission.name === tableId
+    );
+  }
 
   if (
     !session.value ||
@@ -160,6 +171,8 @@ export const useSession = async (schemaId?: string) => {
   return {
     isAdmin,
     session,
+    tablePermissions,
+    getTablePermission,
     reload,
     hasSessionTimeout,
     reAuthenticate,
