@@ -34,6 +34,7 @@ def test_signin():
     with pytest.raises(SigninError) as excinfo:
         with Client(url=server_url) as client:
             client.signin(username+username, password)
+    assert excinfo.value.msg is not None
     assert excinfo.value.msg.endswith("Sign in as 'adminadmin' failed: user or password unknown")
 
     with Client(url=server_url) as client:
@@ -154,6 +155,7 @@ def test_truncate():
         # Test truncate with ReferenceException
         with pytest.raises(ReferenceException) as excinfo:
             client.truncate(schema='pet store', table='Pet')
+        assert excinfo.value.msg is not None
         assert excinfo.value.msg.startswith("Transaction failed: delete on table \"Pet\" violates foreign key constraint.")
 
         # Test correct running
@@ -537,7 +539,7 @@ async def test_symmetry():
                         else:
                             client.save_table(table=table.name, schema=schema, data=table_before)
                         table_after = client.get(schema=schema, table=table.name, as_df=as_df, parse_arrays=parse_arrays)
-                        if as_df:
+                        if isinstance(table_before, pd.DataFrame) and isinstance(table_after, pd.DataFrame):
                             assert table_before.equals(table_after)
-                        else:
+                        elif isinstance(table_before, list) and isinstance(table_after, list):
                             assert table_before == table_after
