@@ -9,8 +9,11 @@
   --max-width: 60vw;
   --viz-chart-title-font-size: 1.1rem;
 
-  font-size: 14pt;
   font-family: Helvetica, sans-serif;
+}
+
+.app-page.nestor-page {
+  font-size: 14pt;
 }
 
 .app-page .page-header {
