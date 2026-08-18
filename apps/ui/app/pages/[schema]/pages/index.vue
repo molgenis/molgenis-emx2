@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { useAsyncData } from "nuxt/app";
@@ -24,6 +24,8 @@ import {
   randomId,
 } from "../../../../../tailwind-components/app/utils/cms";
 
+import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
+
 import type { Crumb } from "../../../../../tailwind-components/types/types";
 import type { IContainers } from "../../../../../tailwind-components/types/cms";
 
@@ -43,6 +45,14 @@ const formMetadata = ref();
 const formValues = ref();
 const showFormModal = ref<boolean>(false);
 const showPageDropdown = ref<boolean>(false);
+
+const { isAdmin, session } = await useSession(schema);
+const enableEditing = computed(() => {
+  return (
+    session.value?.roles?.[schema as string]?.includes("Manager") ||
+    isAdmin.value
+  );
+});
 
 const { data, refresh, error } = useAsyncData(
   `containers-${schema}`,
@@ -115,7 +125,7 @@ async function onAddFormValues(value: IContainers) {
     <div class="flex pb-7.5 justify-between">
       <div class="w-3/5 xl:w-2/5 2xl:w-1/5" />
       <div class="flex gap-2.5">
-        <div class="relative">
+        <div class="relative" v-if="enableEditing">
           <Button
             id="openAddNewPageDropdown"
             type="outline"
@@ -165,6 +175,7 @@ async function onAddFormValues(value: IContainers) {
         class="relative group border rounded-base w-full h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
       >
         <div
+          v-if="enableEditing"
           class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full text-button-text hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
           v-tooltip.bottom="`Edit`"
         >
@@ -196,7 +207,7 @@ async function onAddFormValues(value: IContainers) {
     </div>
   </Container>
   <EditModal
-    v-if="formMetadata"
+    v-if="formMetadata && enableEditing"
     key="edit-modal-configurable-page"
     :showButton="false"
     :schemaId="(schema as string)"
