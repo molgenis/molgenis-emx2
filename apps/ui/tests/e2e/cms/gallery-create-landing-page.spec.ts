@@ -7,6 +7,10 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 const newPageName = "playwright-test-page";
 
+async function timeout(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 test.describe("Create Configurable page (cms):", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(route + "cms/pages");
@@ -22,6 +26,7 @@ test.describe("Create Configurable page (cms):", () => {
     await page.getByRole("textbox", { name: "Password" }).fill("admin");
     await page.getByRole("button", { name: "Sign in" }).click();
 
+    await timeout(200);
     await page.getByRole("button", { name: "Add new page" }).click();
     await page.getByRole("button", { name: "Landing page" }).click();
 
@@ -32,6 +37,7 @@ test.describe("Create Configurable page (cms):", () => {
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await page.getByRole("button", { name: "Close modal" }).click();
 
+    await timeout(200);
     await expect(
       page.getByRole("link", { name: newPageName, exact: true })
     ).toBeVisible();
