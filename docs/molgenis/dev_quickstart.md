@@ -20,6 +20,8 @@ git checkout <branch name here>
 Then you can either build + run the whole molgenis.jar, or use docker-compose to instantiate the backend and only run one app, described below. Or you can run
 it inside IntelliJ. Work on apps only? See [Frontend only: point an app at a backend you did not start](#frontend-only-point-an-app-at-a-backend-you-did-not-start). Keep more than one checkout? Read [Parallel dev stacks](#parallel-dev-stacks-one-per-worktree) first.
 
+!> When switching between branches after already having build another branch, be sure to run `gradle clean` before building the new branch.
+
 ## Build whole system
 
 Requires [Postgresql 15](https://www.postgresql.org/download/) and Java 21 (e.g., [OpenJDK 21](https://adoptium.net/)):
@@ -87,6 +89,8 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
   pnpm dev
   ```
   Look at the dev server's own banner for the actual port: Vite apps start at `5173` and Nuxt apps at `3000`, and drift upwards when that port is taken.
+
+!> Sometimes a `gradle clean` is required when front-end changes are made (f.e. when working on an app and some changes were made to tailwind-components as well). 
 
 ## Frontend only: point an app at a backend you did not start
 

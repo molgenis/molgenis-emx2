@@ -2,7 +2,7 @@
 
 Steps:
 
-* Install [Postgresql 15](https://www.postgresql.org/download/)
+* Install [Postgresql 15](https://www.postgresql.org/download/) (for macOS we recommend using [Postgres.app](https://postgresapp.com/))
 * Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
     ```console
     psql postgres
