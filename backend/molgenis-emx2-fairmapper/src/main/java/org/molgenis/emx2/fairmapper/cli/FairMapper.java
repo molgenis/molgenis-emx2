@@ -21,7 +21,10 @@ public class FairMapper implements Runnable {
   }
 
   public static int execute(String... args) {
-    SnowflakeIdGenerator.init(String.valueOf(RANDOM.nextLong(SnowflakeIdGenerator.MAX_ID)));
+    if (!SnowflakeIdGenerator.hasInstance()) {
+      SnowflakeIdGenerator.init(String.valueOf(RANDOM.nextLong(SnowflakeIdGenerator.MAX_ID)));
+    }
+    
     return new CommandLine(new FairMapper()).setColorScheme(createColorScheme()).execute(args);
   }
 
