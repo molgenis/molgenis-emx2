@@ -31,6 +31,12 @@ public class SqlRoleManager {
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
   public static final int PG_MAX_ID_LENGTH = 63;
+
+  /**
+   * Prefix of the internal roles that hold the row-restricted table grants. They are granted to
+   * their regular counterpart so privileges reach real users, which also makes them show up in
+   * every raw role listing. They are never assignable by a user.
+   */
   private static final String RLS_ROLE_PREFIX = "RLS_";
 
   enum RlsPolicy {
@@ -54,25 +60,20 @@ public class SqlRoleManager {
     this.database = database;
   }
 
-  /**
-   * RLS_ roles exist only to hold the row-restricted table grants; they are granted to their
-   * regular counterpart so privileges reach real users, which also makes them show up in every raw
-   * role listing. They are never assignable by a user.
-   */
-  private static boolean isInternalRole(String roleName) {
+  private static boolean isInternalRlsRole(String roleName) {
     return roleName != null && roleName.startsWith(RLS_ROLE_PREFIX);
   }
 
   static boolean isUserAssignableRole(String roleName) {
-    return !isInternalRole(roleName) && !Privileges.isSystemRole(roleName);
+    return !isInternalRlsRole(roleName) && !Privileges.isSystemRole(roleName);
   }
 
   private static List<String> withoutInternalRoles(List<String> roleNames) {
-    return roleNames.stream().filter(name -> !isInternalRole(name)).toList();
+    return roleNames.stream().filter(name -> !isInternalRlsRole(name)).toList();
   }
 
   private static void requireNotInternalRole(String roleName, String action) {
-    if (isInternalRole(roleName)) {
+    if (isInternalRlsRole(roleName)) {
       throw new MolgenisException(
           "Cannot "
               + action
@@ -154,7 +155,7 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot create system role: " + roleName);
     }
-    if (isInternalRole(roleName)) {
+    if (isInternalRlsRole(roleName)) {
       throw new MolgenisException(
           "Cannot create role '"
               + roleName
@@ -488,7 +489,7 @@ public class SqlRoleManager {
   }
 
   public void addMember(String schemaName, Member member) {
-    if (isInternalRole(member.getRole())) {
+    if (isInternalRlsRole(member.getRole())) {
       throw new MolgenisException(
           "Add member(s) failed: Role '"
               + member.getRole()
