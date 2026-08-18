@@ -49,8 +49,8 @@ predicates map onto your columns:
 * It is recommended, but not required, to annotate a table with a `semantics` value identifying
   the RDF class it represents, e.g. a `Collections` table annotated with `dcat:Dataset`. Without
   it, the query won't filter by RDF type explicitly, but any column marked `required` still
-  becomes a mandatory triple pattern, so in practice a subject still has to carry that data to
-  match. Annotating the table just makes the type filter explicit (and the query cheaper).
+  becomes a mandatory where clause/triple pattern, so in practice a subject still has to carry that
+  data to match. Annotating the table just makes the type filter explicit (and the query cheaper).
 * Each column you want filled needs a `semantics` value identifying the RDF predicate that holds
   its value, e.g. a `title` column annotated with `dcterms:title`. Columns without a `semantics`
   value are skipped entirely, they're left out of the generated query and stay empty.
@@ -68,8 +68,8 @@ all-in-one JAR with:
 ./gradlew :backend:molgenis-emx2-fairmapper:shadowJar
 ```
 
-The resulting JAR is written to the module's `build/libs` directory, named
-`fairmapper-<version>-cli.jar`.
+The resulting JAR is written to the module's build directory as
+`backend/molgenis-emx2-fairmapper/build/libs/fairmapper-<version>-cli.jar`
 
 ## Run instructions
 
@@ -86,9 +86,10 @@ point at the Postgres instance that holds the target schema, and that the schema
 to harvest into already exist.
 
 ?>**Tip**: since the command gets long, it's convenient to define a shell alias, e.g.:
-    ```bash
-    alias fairmapper='java -jar /path/to/fairmapper-<version>-cli.jar'
-    ```
+
+```bash
+alias fairmapper='java -jar /path/to/fairmapper-<version>-cli.jar'
+```
 
 ### `harvest`
 
@@ -117,8 +118,8 @@ When `-o` is given, a subdirectory `fairmapper-output-<harvest-id>` is created c
 
 ### `generate-query`
 
-Generates the SPARQL `SELECT` query that the transform step would use for a given table, based on
-its EMX2 metadata and column `semantics`, without running a full harvest.
+Generates the SPARQL `SELECT` query that the transform step (step 3 in above pipeline) would use for a given table,
+based on its EMX2 metadata and column `semantics`, without running a full harvest.
 
 ```bash
 fairmapper generate-query <schema> <table> [-o <output-file>]
