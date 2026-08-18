@@ -223,6 +223,24 @@ public class BeaconConfigurableTableTest {
   }
 
   @Test
+  void savingAnExistingTemplateUpdatesItAndTakesEffectImmediately() {
+    saveTemplate(CUSTOM_TABLE, null);
+    assertEquals(
+        3,
+        newQuery()
+            .query(schema)
+            .get("response")
+            .get("resultSets")
+            .get(0)
+            .get("resultsCount")
+            .intValue());
+
+    saveTemplate(CUSTOM_TABLE, MARKER_TEMPLATE);
+
+    assertEquals("custom-template", newQuery().query(schema).path("marker").asText());
+  }
+
+  @Test
   void missingTableThrowsForSingleSchemaButIsSkippedCrossSchema() {
     assertThrows(MolgenisException.class, () -> newQuery().query(schema));
 
@@ -233,6 +251,19 @@ public class BeaconConfigurableTableTest {
   private void insertTemplate(Row row) {
     database.becomeAdmin();
     database.getSchema(SYSTEM_SCHEMA).getTable("Templates").insert(row);
+  }
+
+  private void saveTemplate(String tableName, String template) {
+    database.becomeAdmin();
+    database
+        .getSchema(SYSTEM_SCHEMA)
+        .getTable("Templates")
+        .save(
+            row(
+                "endpoint", ENDPOINT,
+                "schema", SCHEMA_NAME,
+                "tableName", tableName,
+                "template", template));
   }
 
   private QueryEntryType newQuery() {
