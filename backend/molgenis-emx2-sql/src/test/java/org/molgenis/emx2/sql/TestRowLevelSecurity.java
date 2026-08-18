@@ -195,10 +195,9 @@ class TestRowLevelSecurity {
   void grantRejectsInternalRlsRoleName() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
+    TablePermission permission = new TablePermission(ARTICLES).select(true);
     MolgenisException e =
-        assertThrows(
-            MolgenisException.class,
-            () -> schema.grant("RLS_TeamA", new TablePermission(ARTICLES).select(true)));
+        assertThrows(MolgenisException.class, () -> schema.grant("RLS_TeamA", permission));
     assertTrue(e.getMessage().contains("internal"), e.getMessage());
   }
 
