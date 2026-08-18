@@ -16,7 +16,7 @@ from .metadata import Table, Schema
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
-def read_file(file_path: str) -> str:
+def read_file(file_path: str | pathlib.Path) -> str:
     """Reads and imports data from a file.
     
     :param file_path: path to a data file
@@ -224,7 +224,8 @@ def prepare_nested_filter(columns: str, value: str | int | float | list, compari
     current[last_segment] = {comparison: prepare_value(value)}
     return _filter
 
-def prepare_value(value: str):
+def prepare_value(value):
+    value = str(value)
     if value.startswith('[') and value.endswith(']'):
         return json.loads(value.replace('\'', '"'))
     return value
@@ -240,7 +241,7 @@ def format_optional_params(**kwargs):
         args['parentJob'] = args.pop('parent_job')
     return args
 
-def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.DataFrame = None) -> str | None:
+def prep_data_or_file(file_path: str | pathlib.Path | None = None, data: list | pd.DataFrame | None = None) -> str | None:
     """Prepares the data from memory or loaded from disk for addition or deletion action.
 
     :param file_path: path to the file to be prepared
@@ -262,7 +263,7 @@ def prep_data_or_file(file_path: str | pathlib.Path = None, data: list | pd.Data
     log.error(message)
     raise FileNotFoundError(message)
 
-def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) -> str | None:
+def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path | None = None) -> str | None:
     """Converts Molgenis-format data (DataFrame or list of dicts) to Molgenis-format CSV
     
     :param data: input data, in the form of a Molgenis table
@@ -305,7 +306,7 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path = None) 
                     else:
                         cleaned_row[k] = v
                 writer.writerow(cleaned_row)
-            if not filename:
+            if isinstance(target, io.StringIO):
                 return target.getvalue()
             return None
 
@@ -329,7 +330,7 @@ def csv_string_to_array(csv_string: str) -> list:
     else:
         return []
 
-def array_to_csv_string(array: list) -> str:
+def array_to_csv_string(array: list | str) -> str:
     """Convert a list to a string suitable for output to an EMX2 value of type *_ARRAY, 
     through the CSV API
     """
