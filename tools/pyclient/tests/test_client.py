@@ -13,6 +13,7 @@ import pandas as pd
 import pytest
 import yaml
 from dotenv import load_dotenv
+from requests import Response
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
@@ -245,7 +246,7 @@ async def test_create_schema():
         schemas: list[Schema] = client.get_schemas()
         pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
         assert len(pet_meta) == 1
-        assert len(client.get_schema_metadata("pet store 2").tables) == 5
+        assert len(client.get_schema_metadata(name="pet store 2").tables) == 5
         await client.delete_schema("pet store 2")
 
 
@@ -257,8 +258,8 @@ async def test_create_schema():
         schemas: list[Schema] = client.get_schemas()
         pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
         assert len(pet_meta) == 1
-        assert len(client.get_schema_metadata("pet store 2").tables) == 5
-        assert len(client.get(table="Pet", schema="pet store 2")) == 9
+        assert len(client.get_schema_metadata(name="pet store 2").tables) == 5
+        assert len(client.get(table="Pet", schema="pet store 2")) == 10
         await client.delete_schema("pet store 2")
 
 
@@ -322,13 +323,13 @@ async def test_recreate_schema():
         await client.recreate_schema(name="pet store 2",
                                      description="The second pet store.",
                                      template="PET_STORE")
-        assert len(client.get_schema_metadata("pet store 2").tables) == 5
+        assert len(client.get_schema_metadata(name="pet store 2").tables) == 5
 
         await client.recreate_schema(name="pet store 2",
                                      description="The second pet store.",
                                      template="PET_STORE",
                                      include_demo_data=True)
-        assert len(client.get(table="Pet", schema="pet store 2")) == 9
+        assert len(client.get(table="Pet", schema="pet store 2")) == 10
 
         await client.delete_schema("pet store 2")
 
@@ -369,6 +370,8 @@ async def test_report_task_progress(caplog):
         await client._report_task_progress(process_id)
 
         message_starts = [
+            "Import metadata",
+            "    Metadata loading skipped:",
             "Import from store",
             "    Modified 2 rows in Pet in ",
             "    Modified 2 rows in Tag in ",
@@ -382,11 +385,12 @@ async def test_report_task_progress(caplog):
 def test_validate_graphql_response(caplog):
     """Tests the `_validate_graphql_response` method."""
 
-    class MockResponse:
+    class MockResponse(Response):
 
-        def __init__(self, status_code, text = None, json_data = None, method = None):
+        def __init__(self, status_code, text=None, json_data=None, method=None):
+            super().__init__()
             self.status_code = status_code
-            self.text = text
+            self._text = text
             self.json_data = json_data
 
             class Request:
@@ -395,7 +399,11 @@ def test_validate_graphql_response(caplog):
 
             self.request = Request(method)
 
-        def json(self):
+        @property
+        def text(self):
+            return self._text
+
+        def json(self, **kwargs):
             return self.json_data
 
     with Client(url=server_url) as client:
@@ -483,30 +491,30 @@ async def test_export_schema(caplog):
         client.signin(username, password)
 
         with pytest.raises(NotImplementedError) as excinfo:
-            await client.export_schema("catalogue", "mp3")
+            await client.export_schema("pet store", "mp3")
         assert str(excinfo.value) == ("Cannot export schema definition in format 'mp3'. "
                                       "Select one from ['csv', 'json', 'yaml'].")
 
         with pytest.raises(ValueError) as excinfo:
-            await client.export_schema(schema="catalogue")
+            await client.export_schema(schema="pet store")
         assert str(excinfo.value) == "Supply a value for `fmt` or `filename`."
 
-        csv_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.csv")
+        csv_bytes: BytesIO = await client.export_schema("pet store", filename="pet store.csv")
         csv_schema = pd.read_csv(csv_bytes)
         assert len(csv_schema.columns) == 22
-        assert (Path(__file__).parent.parent / "catalogue.csv").exists()
-        (Path(__file__).parent.parent / "catalogue.csv").unlink()
+        assert (Path(__file__).parent.parent / "pet store.csv").exists()
+        (Path(__file__).parent.parent / "pet store.csv").unlink()
 
-        json_bytes: BytesIO = await client.export_schema("catalogue", "json")
+        json_bytes: BytesIO = await client.export_schema("pet store", "json")
         json_schema = json.load(json_bytes)
-        assert (len(json_schema['tables']), len(json_schema['settings'])) == (27, 7)
-        assert not (Path(__file__).parent.parent / "catalogue.json").exists()
+        assert (len(json_schema['tables']), len(json_schema['settings'])) == (5, 1)
+        assert not (Path(__file__).parent.parent / "pet store.json").exists()
 
-        yaml_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.yaml")
+        yaml_bytes: BytesIO = await client.export_schema("pet store", filename="pet store.yaml")
         yaml_schema = yaml.safe_load(yaml_bytes)
-        assert (len(yaml_schema['tables']), len(yaml_schema['settings'])) == (27, 7)
-        assert (Path(__file__).parent.parent / "catalogue.yaml").exists()
-        (Path(__file__).parent.parent / "catalogue.yaml").unlink()
+        assert (len(yaml_schema['tables']), len(yaml_schema['settings'])) == (5, 1)
+        assert (Path(__file__).parent.parent / "pet store.yaml").exists()
+        (Path(__file__).parent.parent / "pet store.yaml").unlink()
 
 @pytest.mark.asyncio
 async def test_symmetry():
