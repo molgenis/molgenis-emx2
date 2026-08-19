@@ -159,6 +159,91 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void mgRolesRejectsInternalRlsRoleName() {
+    database.setActiveUser(USER_TEAM_A);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row = new Row().setString("id", "mg_internal").set(MG_ROLES, new String[] {"RLS_TeamA"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void mgRolesRejectsSystemRoleName() {
+    database.setActiveUser(USER_TEAM_A);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row =
+        new Row()
+            .setString("id", "mg_system")
+            .set(MG_ROLES, new String[] {Privileges.VIEWER.toString()});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("system role"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void deleteRoleRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.deleteRole("RLS_TeamA"));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+    assertTrue(schema.getRoles().contains("TeamA"), "TeamA must survive");
+  }
+
+  @Test
+  void grantRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    TablePermission permission = new TablePermission(ARTICLES).select(true);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.grant("RLS_TeamA", permission));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
+  void revokeRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.revoke("RLS_TeamA", ARTICLES));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
+  void getRoleInfoRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.getRoleInfo("RLS_TeamA"));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
+  void schemaRolesExcludeInternalRlsRoles() {
+    database.becomeAdmin();
+    List<String> roles = database.getSchema(SCHEMA).getRoles();
+    assertTrue(roles.contains("TeamA"), roles.toString());
+    assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
+  }
+
+  @Test
+  void inheritedRolesForActiveUserExcludeInternalRlsRoles() {
+    database.setActiveUser(USER_TEAM_A);
+    List<String> roles = database.getSchema(SCHEMA).getInheritedRolesForActiveUser();
+    assertTrue(roles.contains("TeamA"), roles.toString());
+    assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void adminInheritedRolesExcludeInternalRlsRoles() {
+    database.becomeAdmin();
+    List<String> roles = database.getSchema(SCHEMA).getInheritedRolesForActiveUser();
+    assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
+  }
+
+  @Test
   void mgRolesEmptyArrayIsAllowedLikeNull() {
     database.becomeAdmin();
     String editorUser = "rls_user_editor_mgroles";

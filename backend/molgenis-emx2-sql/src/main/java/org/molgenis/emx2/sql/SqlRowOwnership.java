@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.PermissionEvaluator;
-import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableMetadata;
@@ -62,6 +61,12 @@ class SqlRowOwnership {
   }
 
   private void validateUserMayAssign(String role) {
+    if (!SqlRoleManager.isUserAssignableRole(role)) {
+      throw new MolgenisException(
+          "mg_roles value '"
+              + role
+              + "' is an internal or system role and cannot be assigned as row owner");
+    }
     if (!rolesInSchema().contains(role)) {
       throw new MolgenisException(
           "mg_roles value '"
@@ -79,8 +84,7 @@ class SqlRowOwnership {
   private String defaultRole() {
     if (!PermissionEvaluator.isRowLevelRestricted(schema, table)) return null;
     return rolesOfUser().stream()
-        .filter(role -> !role.startsWith(SqlRoleManager.RLS_ROLE_PREFIX))
-        .filter(role -> !Privileges.isSystemRole(role))
+        .filter(SqlRoleManager::isUserAssignableRole)
         .findFirst()
         .orElse(null);
   }
