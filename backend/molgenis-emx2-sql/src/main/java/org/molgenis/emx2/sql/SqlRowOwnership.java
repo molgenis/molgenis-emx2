@@ -82,11 +82,15 @@ class SqlRowOwnership {
   }
 
   private String defaultRole() {
-    if (!PermissionEvaluator.isRowLevelRestricted(schema, table)) return null;
-    return rolesOfUser().stream()
-        .filter(SqlRoleManager::isUserAssignableRole)
-        .findFirst()
-        .orElse(null);
+    List<String> candidates =
+        rolesOfUser().stream().filter(SqlRoleManager::isUserAssignableRole).toList();
+    if (candidates.size() > 1) {
+      throw new MolgenisException(
+          "Cannot determine row owner: you hold multiple roles "
+              + candidates
+              + ". Set mg_roles explicitly.");
+    }
+    return candidates.isEmpty() ? null : candidates.getFirst();
   }
 
   private List<String> rolesOfUser() {
