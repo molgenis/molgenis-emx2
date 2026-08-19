@@ -1,0 +1,2 @@
+role,table,select,insert,update,delete,isRowLevel
+DragonKeeper,Pet,true,true,true,true,true

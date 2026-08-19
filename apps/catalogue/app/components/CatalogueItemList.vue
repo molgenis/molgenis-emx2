@@ -32,10 +32,7 @@ function emptyContent(item: IDefinitionListItem) {
 
 <template>
   <DefinitionList>
-    <template
-      :class="small ? smallClasses : useGridClasses"
-      v-for="item in items.filter(emptyContent)"
-    >
+    <template v-for="item in items.filter(emptyContent)">
       <CatalogueListItem :item="item" :small="small" />
     </template>
   </DefinitionList>
