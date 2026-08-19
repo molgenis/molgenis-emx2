@@ -313,14 +313,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getColumns().stream().map(c -> c.getName()).collect(Collectors.toList());
   }
 
-  public List<String> getLocalColumnNames() {
-    List<String> result = new ArrayList<>();
-    for (Column c : getLocalColumns()) {
-      result.add(c.getName());
-    }
-    return result;
-  }
-
   public List<String> getNonInheritedColumnNames() {
     // skip inherited
     if (getInheritName() != null) {
