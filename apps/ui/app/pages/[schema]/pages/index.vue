@@ -95,6 +95,7 @@ function onAddNewPageClick(type: string) {
 async function onClose() {
   await refresh();
   formMetadata.value = undefined;
+  formValues.value = undefined;
 }
 
 async function onAddFormValues(value: IContainers) {
@@ -109,8 +110,7 @@ async function onAddFormValues(value: IContainers) {
       await addComponent(schema, headingId, sectionId, 0, "Heading");
       await addComponent(schema, paragraphId, sectionId, 1, "Paragraph");
 
-      await refresh();
-      showFormModal.value = false;
+      await onClose();
     } catch (error) {
       const message: string = `Unable to save page:\n${error}`;
       console.error(message);
