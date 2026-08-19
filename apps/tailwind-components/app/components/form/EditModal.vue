@@ -28,9 +28,10 @@
           <DraftLabel v-if="isDraft" />
           <span
             v-if="showRoles"
-            class="text-title-contrast"
+            class="flex items-center text-title-contrast"
             style="margin-left: auto"
           >
+            <label class="mr-2" for="roleSelector"><b>Role:</b></label>
             <InputSelect
               v-model="selectedRole"
               id="roleSelector"
