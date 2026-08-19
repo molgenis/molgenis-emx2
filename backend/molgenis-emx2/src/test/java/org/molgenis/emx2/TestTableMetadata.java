@@ -2,8 +2,6 @@ package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -118,28 +116,95 @@ class TestTableMetadata {
   }
 
   @Test
+  void danglingParentGivesActionableMessage() {
+    SchemaMetadata schema = new SchemaMetadata("test1");
+    schema.create(table("Employee", column("salary")).setInheritName("Contact"));
+
+    TableMetadata employee = schema.getTableMetadata("Employee");
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, employee::getNonInheritedColumns);
+
+    assertEquals(
+        "Table 'test1.Employee' cannot inherit table 'Contact': not found or permission denied. If the table lives in another schema, provide refSchema.",
+        exception.getMessage());
+  }
+
+  @Test
+  void namelessSchemaOmitsChildQualifierInsteadOfRenderingNull() {
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.create(table("Employee", column("salary")).setInheritName("Contact"));
+
+    TableMetadata employee = schema.getTableMetadata("Employee");
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, employee::getNonInheritedColumns);
+
+    assertEquals(
+        "Table 'Employee' cannot inherit table 'Contact': not found or permission denied. If the table lives in another schema, provide refSchema.",
+        exception.getMessage());
+  }
+
+  @Test
+  void tableWithoutLocalColumnsHasNoNonInheritedColumnsEvenWithUnresolvedParent() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(table("Employee").setInheritName("Person"));
+
+    assertEquals(List.of(), schema.getTableMetadata("Employee").getNonInheritedColumns());
+  }
+
+  @Test
+  void crossSchemaParentInDetachedSchemaIsUnresolvedInsteadOfError() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(table("MyShape").setImportSchema("Other").setInheritName("Shape"));
+
+    TableMetadata myShape = schema.getTableMetadata("MyShape");
+
+    assertNull(myShape.getInheritedTable());
+    assertNull(myShape.getColumn("name"));
+    assertDoesNotThrow(() -> myShape.add(column("size")));
+  }
+
+  @Test
+  void detachedSchemaResolvesParentAddedAfterItsChild() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    TableMetadata child = schema.create(table("Child").setInheritName("Parent"));
+
+    assertDoesNotThrow(() -> child.add(column("x")));
+
+    schema.create(table("Parent", column("id")));
+
+    assertEquals("Parent", child.getInheritedTable().getTableName());
+    assertEquals("id", child.getColumn("id").getName());
+  }
+
+  @Test
+  void unresolvableParentSchemaInDetachedSchemaReportsSchemaNotFound() {
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.create(
+        table("Employee", column("salary")).setInheritName("Contact").setImportSchema("HT_Parent"));
+
+    TableMetadata employee = schema.getTableMetadata("Employee");
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, employee::getNonInheritedColumns);
+
+    assertEquals(
+        "Table 'Employee' cannot inherit table 'HT_Parent.Contact': schema HT_Parent not found or permission denied.",
+        exception.getMessage());
+  }
+
+  @Test
   void testRetrieveColumnByIdentifier() {
-    SchemaMetadata schema = mock(SchemaMetadata.class);
-    when(schema.getName()).thenReturn("schema name");
+    SchemaMetadata schema = new SchemaMetadata("schema name");
 
     // Columns that would result in an identical identifier are not allowed so do not need to be
     // validated.
     Column c1 = new Column("a colname");
     Column c2 = new Column("a colName");
-    TableMetadata table = TableMetadata.table("table name", c1, c2);
-
-    c1.setTable(table);
-    c2.setTable(table);
-    table.setSchema(schema);
-    table.setInheritName("parent table");
-
-    // Parent table for inheritance validation
     Column c3 = new Column("parent column");
-    TableMetadata parentTable = TableMetadata.table("parent table", c3);
 
-    c3.setTable(parentTable);
-    parentTable.setSchema(schema);
-    when(schema.getTableMetadata("parent table")).thenReturn(parentTable);
+    schema.create(
+        table("parent table", c3), table("table name", c1, c2).setInheritName("parent table"));
+
+    TableMetadata table = schema.getTableMetadata("table name");
 
     assertAll(
         () -> assertEquals(c2, table.getColumnByIdentifier("aColName")),

@@ -149,9 +149,19 @@ export type schemaId = string;
 export interface ISession {
   email: string;
   admin: boolean;
-  roles: Record<schemaId, string[]>;
-  schemas?: string[];
+  roles?: Record<schemaId, string[]>;
+  tablePermissions?: Record<schemaId, ITablePermission[]>;
+  schemas?: Schema[];
   token?: string;
+}
+export interface ITablePermission {
+  name: string;
+  id: string;
+  canView: boolean;
+  canInsert: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  isRowLevel: boolean;
 }
 
 export interface RefPayload {

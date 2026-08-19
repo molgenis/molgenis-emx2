@@ -7,8 +7,6 @@ import static org.molgenis.emx2.MutationType.*;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
-import java.io.StringReader;
-import java.io.Writer;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,8 +18,6 @@ import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.sql.autoid.IdGeneratorService;
-import org.postgresql.copy.CopyManager;
-import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,74 +42,6 @@ public class SqlTable implements Table {
   @Override
   public SqlTableMetadata getMetadata() {
     return metadata;
-  }
-
-  public void copyOut(Writer writer) {
-    db.getJooq()
-        .connection(
-            connection -> {
-              try {
-                CopyManager cm = new CopyManager(connection.unwrap(BaseConnection.class));
-                String selectQuery =
-                    "select "
-                        + this.getMetadata().getLocalColumnNames().stream()
-                            .map(c -> "\"" + c + "\"")
-                            .collect(Collectors.joining(","))
-                        + " from \""
-                        + getSchema().getMetadata().getName()
-                        + "\".\""
-                        + getName()
-                        + "\"";
-                cm.copyOut(
-                    "COPY (" + selectQuery + " ) TO STDOUT WITH (FORMAT CSV,HEADER )", writer);
-              } catch (Exception e) {
-                throw new SqlMolgenisException("copyOut failed: ", e);
-              }
-            });
-  }
-
-  public void copyIn(Iterable<Row> rows) {
-    db.getJooq()
-        .connection(
-            connection -> {
-              try {
-                CopyManager cm = new CopyManager(connection.unwrap(BaseConnection.class));
-
-                // must be batched
-                StringBuilder tmp = new StringBuilder();
-                tmp.append(
-                    this.getMetadata().getLocalColumnNames().stream()
-                            .map(c -> "\"" + c + "\"")
-                            .collect(Collectors.joining(","))
-                        + "\n");
-                for (Row row : rows) {
-                  StringBuilder line = new StringBuilder();
-                  for (Column c : this.getMetadata().getStoredColumns()) {
-                    if (!row.containsName(c.getName())) {
-                      line.append(",");
-                    } else {
-                      Object value = getTypedValue(c, row);
-                      line.append(value + ",");
-                    }
-                  }
-                  tmp.append(line.substring(0, line.length() - 1) + "\n");
-                }
-
-                String tableName =
-                    "\"" + getSchema().getMetadata().getName() + "\".\"" + getName() + "\"";
-
-                String columnNames =
-                    "("
-                        + this.getMetadata().getLocalColumnNames().stream()
-                            .map(c -> "\"" + c + "\"")
-                            .collect(Collectors.joining(","))
-                        + ")";
-                String sql = "COPY " + tableName + columnNames + " FROM STDIN (FORMAT CSV,HEADER )";
-                cm.copyIn(sql, new StringReader(tmp.toString()));
-              } catch (Exception e) {
-                throw new SqlMolgenisException("copyOut failed: ", e);
-              }
-            });
   }
 
   @Override
