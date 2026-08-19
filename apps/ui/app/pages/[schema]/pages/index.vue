@@ -28,6 +28,7 @@ import { useSession } from "../../../../../tailwind-components/app/composables/u
 
 import type { Crumb } from "../../../../../tailwind-components/types/types";
 import type { IContainers } from "../../../../../tailwind-components/types/cms";
+import type { ICmsPageTypes } from "../../../../../tailwind-components/types/CmsComponents.js";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -43,6 +44,7 @@ const crumbs: Crumb[] = [
 
 const formMetadata = ref();
 const formValues = ref();
+const formType = ref<ICmsPageTypes | undefined>();
 const showFormModal = ref<boolean>(false);
 const showPageDropdown = ref<boolean>(false);
 
@@ -77,10 +79,11 @@ const { data, refresh, error } = useAsyncData(
   }
 );
 
-function onAddNewPageClick(type: string) {
+function onAddNewPageClick(type: ICmsPageTypes) {
   formValues.value = null;
   showPageDropdown.value = false;
-  if (type === "ConfigurablePage") {
+  formType.value = type;
+  if (formType.value === "ConfigurablePage") {
     formMetadata.value = data.value?.configurablePageMetadata;
   } else {
     formMetadata.value = data.value?.developerPageMetadata;
@@ -93,17 +96,20 @@ function onAddNewPageClick(type: string) {
 }
 
 async function onClose() {
-  await refresh();
+  showFormModal.value = false;
   formMetadata.value = undefined;
   formValues.value = undefined;
+  formType.value = undefined;
+  await refresh();
 }
 
 async function onAddFormValues(value: IContainers) {
-  if (value.name) {
+  if (formType.value === "ConfigurablePage" && value.name) {
     const bannerId = `Header-${randomId()}`;
     const sectionId = `Section-${randomId()}`;
     const headingId = `Heading-${randomId()}`;
     const paragraphId = `Paragraph-${randomId()}`;
+
     try {
       await addBlock(schema, bannerId, value.name, 0, "Header");
       await addBlock(schema, sectionId, value.name, 1, "Section");
@@ -116,6 +122,8 @@ async function onAddFormValues(value: IContainers) {
       console.error(message);
       throw new Error(message);
     }
+  } else {
+    await onClose();
   }
 }
 </script>

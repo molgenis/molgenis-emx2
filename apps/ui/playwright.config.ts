@@ -18,13 +18,15 @@ export default defineConfig<ConfigOptions>({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.E2E_BASE_URL || "http://localhost:3000/", // change to specific http://localhost:*/, preview, etc.
+    // baseURL: process.env.E2E_BASE_URL || "http://localhost:3000/", // change to specific http://localhost:*/, preview, etc.
+    baseURL: "http://localhost:3000/",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     nuxt: {
       // @ts-ignore
-      host: process.env.E2E_BASE_URL || "http://localhost:3000/",
+      // host: process.env.E2E_BASE_URL || "http://localhost:3000/",
+      hosts: "http://localhost:3000/",
       build: false,
     },
   },
