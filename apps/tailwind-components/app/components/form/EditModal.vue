@@ -34,7 +34,7 @@
             <InputSelect
               v-model="selectedRole"
               id="roleSelector"
-              :options="roles"
+              :options="[GLOBAL_ROLE].concat(roles)"
             />
           </span>
         </div>
@@ -170,6 +170,8 @@ import FormLegend from "./Legend.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 
+const GLOBAL_ROLE: string = "Global";
+
 const props = withDefaults(
   defineProps<{
     schemaId: string;
@@ -189,7 +191,7 @@ const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
 const showFormMessage = ref(false);
 
-const selectedRole = ref<string | null>(getSelectedRole());
+const selectedRole = ref<string>(getSelectedRole());
 
 const emit = defineEmits([
   "update:added",
@@ -202,7 +204,7 @@ const visible = defineModel<boolean>("visible");
 // lazy init formContext (form) when modal is opened
 let form: UseForm | undefined;
 
-const session = await useSession();
+const session = await useSession(props.schemaId);
 
 const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
@@ -213,12 +215,10 @@ const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
 const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
 );
+const roles = computed<string[]>(() => session.rowLevelRoles.value);
 const showRoles = computed(
-  () => session?.isAdmin || session.isOwner || session.isManager
+  () => session.isAdmin || session.isOwner || session.isManager
 );
-const roles = computed(() => {
-  return session?.session.value?.roles?.[props.schemaId] || [];
-});
 
 watch(
   visible,
@@ -293,10 +293,13 @@ async function onSave(draft: boolean) {
 
   if (isReadyForSubmit) {
     try {
-      formValues.value["mg_draft"] = draft;
-      if (selectedRole.value) {
+      if (selectedRole.value && selectedRole.value !== GLOBAL_ROLE) {
         formValues.value["mg_roles"] = [selectedRole.value];
+      } else {
+        formValues.value["mg_roles"] = [];
       }
+
+      formValues.value["mg_draft"] = draft;
       if (isInsert.value) {
         await insert(draft);
       } else {
@@ -364,14 +367,14 @@ async function updateAutoIds() {
   }
 }
 
-function getSelectedRole(): string | null {
+function getSelectedRole(): string {
   if (
     Array.isArray(props.formValues?.mg_roles) &&
     typeof props.formValues.mg_roles[0] === "string"
   ) {
     return props.formValues.mg_roles[0];
   } else {
-    return null;
+    return GLOBAL_ROLE;
   }
 }
 </script>
