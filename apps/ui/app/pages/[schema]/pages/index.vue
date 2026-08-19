@@ -98,9 +98,7 @@ async function onClose() {
 }
 
 async function onAddFormValues(value: IContainers) {
-  console.log("running the onAddFormValues");
   if (value.name) {
-    console.log("Inserting content into page", value.name);
     const bannerId = `Header-${randomId()}`;
     const sectionId = `Section-${randomId()}`;
     const headingId = `Heading-${randomId()}`;
