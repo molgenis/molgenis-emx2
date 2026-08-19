@@ -18,7 +18,7 @@
       <header
         class="pt-[36px] px-8 overflow-y-auto border-b border-divider flex-none"
       >
-        <div class="mb-5 relative flex items-center">
+        <div class="mb-5 relative flex items-center pr-14">
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
@@ -26,8 +26,19 @@
           </h2>
 
           <DraftLabel v-if="isDraft" />
+          <span
+            v-if="showRoles"
+            class="flex items-center text-title-contrast"
+            style="margin-left: auto"
+          >
+            <label class="mr-2" for="roleSelector"><b>Role:</b></label>
+            <InputSelect
+              v-model="selectedRole"
+              id="roleSelector"
+              :options="[GLOBAL_ROLE].concat(roles)"
+            />
+          </span>
         </div>
-
         <button
           @click="onCancel"
           aria-label="Close modal"
@@ -160,6 +171,8 @@ import FormLegend from "./Legend.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 
+const GLOBAL_ROLE: string = "Global";
+
 const props = withDefaults(
   defineProps<{
     schemaId: string;
@@ -179,6 +192,8 @@ const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
 const showFormMessage = ref(false);
 
+const selectedRole = ref<string>(getSelectedRole());
+
 const emit = defineEmits([
   "update:added",
   "update:updated",
@@ -189,6 +204,22 @@ const visible = defineModel<boolean>("visible");
 
 // lazy init formContext (form) when modal is opened
 let form: UseForm | undefined;
+
+const session = await useSession(props.schemaId);
+
+const saveErrorMessage = ref<string>("");
+const formMessage = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
+
+const tableId = computed(() => props.metadata.id);
+const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
+const savingDraft = computed(
+  () => saving.value && formValues.value["mg_draft"] === true
+);
+const roles = computed<string[]>(() => session.rowLevelRoles.value);
+const showRoles = computed(
+  () => session.isAdmin || session.isOwner || session.isManager
+);
 
 watch(
   visible,
@@ -204,10 +235,6 @@ watch(
   { immediate: true }
 );
 
-const savingDraft = computed(
-  () => saving.value && formValues.value["mg_draft"] === true
-);
-
 watch(formValues.value, () => {
   formMessage.value = "";
 });
@@ -215,14 +242,6 @@ watch(formValues.value, () => {
 watch(formValues.value, () => {
   formMessage.value = "";
 });
-
-const session = await useSession();
-const saveErrorMessage = ref<string>("");
-const formMessage = ref<string>("");
-const showReAuthenticateButton = ref<boolean>(false);
-
-const tableId = computed(() => props.metadata.id);
-const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
 
 function initFormValues() {
   const values =
@@ -275,6 +294,12 @@ async function onSave(draft: boolean) {
 
   if (isReadyForSubmit) {
     try {
+      if (selectedRole.value && selectedRole.value !== GLOBAL_ROLE) {
+        formValues.value["mg_roles"] = [selectedRole.value];
+      } else {
+        formValues.value["mg_roles"] = [];
+      }
+
       formValues.value["mg_draft"] = draft;
       if (isInsert.value) {
         await insert(draft);
@@ -340,6 +365,17 @@ async function updateAutoIds() {
       autoIds
     );
     autoIds.forEach((col) => (formValues.value[col.id] = values[col.id]));
+  }
+}
+
+function getSelectedRole(): string {
+  if (
+    Array.isArray(props.formValues?.mg_roles) &&
+    typeof props.formValues.mg_roles[0] === "string"
+  ) {
+    return props.formValues.mg_roles[0];
+  } else {
+    return GLOBAL_ROLE;
   }
 }
 </script>

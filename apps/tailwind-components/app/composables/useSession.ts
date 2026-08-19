@@ -1,5 +1,5 @@
 import { useAsyncData, useRouter, useState } from "nuxt/app";
-import { computed, type Ref } from "vue";
+import { computed, ref, type Ref } from "vue";
 import type { ISession, ITablePermission } from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
 
@@ -8,6 +8,52 @@ export const useSession = async (schemaId?: string) => {
   const session = useState("session", () => null as ISession | null);
 
   let messageHandler: ((event: MessageEvent) => void) | null = null;
+
+  const isAdmin = computed(() => session.value?.admin || false);
+  const isOwner = computed(() => hasRole("owner"));
+  const isManager = computed(() => hasRole("manager"));
+  const rowLevelRoles = ref<string[]>(await getRowLevelRoles());
+
+  function hasRole(role: string): boolean {
+    if (schemaId) {
+      return session.value?.roles?.[schemaId]?.includes(role) || false;
+    } else {
+      return false;
+    }
+  }
+
+  async function getRowLevelRoles(): Promise<string[]> {
+    if (schemaId && isAdmin.value) {
+      const response = await $fetch(`/${schemaId}/graphql`, {
+        method: "POST",
+        body: JSON.stringify({
+          query: `query {
+                    _schema {
+                      roles {
+                        name
+                        permissions {
+                          table
+                          isRowLevel
+                        }
+                      }
+                    }
+                  }`,
+        }),
+      });
+      const schemaRoles = response?.data?._schema?.roles || [];
+      return (
+        schemaRoles
+          .filter((role: SchemaPermission) =>
+            role.permissions.some(
+              (permission: TablePermission) => permission.isRowLevel
+            )
+          )
+          .map((role: SchemaPermission) => role.name) || []
+      );
+    } else {
+      return [];
+    }
+  }
 
   async function fetchSessionDetails() {
     return $fetch("/api/graphql", {
@@ -149,7 +195,6 @@ export const useSession = async (schemaId?: string) => {
 
     reload();
   }
-  const isAdmin = computed(() => session.value?.admin || false);
 
   const tablePermissions = computed<ITablePermission[]>(() =>
     schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
@@ -170,8 +215,12 @@ export const useSession = async (schemaId?: string) => {
 
   return {
     isAdmin,
+    isManager,
+    isOwner,
+    rowLevelRoles,
     session,
     tablePermissions,
+
     getTablePermission,
     reload,
     hasSessionTimeout,
@@ -179,3 +228,15 @@ export const useSession = async (schemaId?: string) => {
     signOut,
   };
 };
+interface SchemaPermission {
+  name: string;
+  permissions: TablePermission[];
+}
+
+interface TablePermission {
+  table: string;
+  isRowLevel: boolean;
+  insert: boolean;
+  update: boolean;
+  delete: boolean;
+}
