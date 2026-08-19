@@ -108,8 +108,11 @@ async function onAddFormValues(value: IContainers) {
       await addBlock(schema, sectionId, value.name, 1, "Section");
       await addComponent(schema, headingId, sectionId, 0, "Heading");
       await addComponent(schema, paragraphId, sectionId, 1, "Paragraph");
+      await refresh();
     } catch (error) {
-      console.error("Unable to save page\n", error);
+      const message: string = `Unable to save page:\n${error}`;
+      console.error(message);
+      throw new Error(message);
     }
   }
 }
