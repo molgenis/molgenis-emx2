@@ -76,7 +76,8 @@ abstract class RdfServiceTestRunner {
    *
    * @param schemaTestprefix prefix for created schemas ("1" & "2" is added to this for the 2
    *     different schemes)
-   * @param expectedNamespaces set containing the expected combined namespaces (excluding the namespaces belonging to the schema's themselves)
+   * @param expectedNamespaces set containing the expected combined namespaces (excluding the
+   *     namespaces belonging to the schema's themselves)
    * @param customPrefixes1 custom_rdf setting field for first schema
    * @param customPrefixes2 custom_rdf setting field for first schema (or null if it should not be
    *     set)
