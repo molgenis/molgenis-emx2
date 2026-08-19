@@ -105,6 +105,32 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
   });
 });
 
+test.describe("as admin can select mg_role", () => {
+  test.only("when creating a new row", async ({ page }) => {
+    await page.goto(route);
+    await signin(page, "admin", "admin");
+    await page.goto(route + "pet%20store/Pet");
+
+    await page.getByRole("button", { name: "Add Pet" }).click();
+    await page.getByLabel("Role:").selectOption("DragonKeeper");
+    await page
+      .getByRole("textbox", { name: "name Required" })
+      .fill("testDragon");
+    await page.getByRole("textbox", { name: "weight Required" }).fill("50000");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+    await page
+      .getByRole("searchbox", { name: "Search Pet" })
+      .fill("testDragon");
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^testDragon$/ })
+        .first()
+    ).toBeVisible();
+  });
+});
+
 async function signin(page: Page, username: string, password: string) {
   await page.getByRole("button", { name: "Signin" }).click();
   await page.getByRole("textbox", { name: "Username" }).fill(username);
