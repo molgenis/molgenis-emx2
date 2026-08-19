@@ -46,7 +46,7 @@
     "@golar/vue": "0.1.10",
     "@nuxt/test-utils": "4.0.3",
     "@nuxtjs/tailwindcss": "6.14.0",
-    "@parcel/watcher": "^2.6.0",
+    "@parcel/watcher": "2.6.0",
     "@playwright/test": "1.62.0",
     "@types/d3": "7.4.3",
     "@types/markdown-it": "^14.1.2",

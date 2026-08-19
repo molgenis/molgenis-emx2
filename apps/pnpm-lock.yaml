@@ -65,7 +65,7 @@ importers:
         version: link:../emx2-analytics
       floating-vue:
         specifier: 5.2.2
-        version: 5.2.2(@nuxt/kit@3.21.11(magicast@0.5.4))(vue@3.5.22(typescript@5.9.2))
+        version: 5.2.2(@nuxt/kit@4.5.1(magic-string@1.2.0)(magicast@0.5.4)(rolldown@1.2.4)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.4)(rollup@4.62.4)(vite@7.3.5(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0))))(vue@3.5.22(typescript@5.9.2))
       graphql:
         specifier: 16.12.0
         version: 16.12.0
@@ -1022,7 +1022,7 @@ importers:
         version: 3.2.3
       floating-vue:
         specifier: 5.2.2
-        version: 5.2.2(@nuxt/kit@4.5.1(magic-string@1.2.0)(magicast@0.5.4)(rolldown@1.2.4)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.4)(rollup@4.62.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0))))(vue@3.5.22(typescript@5.9.2))
+        version: 5.2.2(@nuxt/kit@3.21.11(magicast@0.5.4))(vue@3.5.22(typescript@5.9.2))
       focus-trap:
         specifier: ^8.0.0
         version: 8.2.2
@@ -1073,7 +1073,7 @@ importers:
         specifier: 6.14.0
         version: 6.14.0(magicast@0.5.4)
       '@parcel/watcher':
-        specifier: ^2.6.0
+        specifier: 2.6.0
         version: 2.6.0
       '@playwright/test':
         specifier: 1.62.0
@@ -13937,13 +13937,13 @@ snapshots:
     optionalDependencies:
       '@nuxt/kit': 3.21.11(magicast@0.5.4)
 
-  floating-vue@5.2.2(@nuxt/kit@4.5.1(magic-string@1.2.0)(magicast@0.5.4)(rolldown@1.2.4)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.4)(rollup@4.62.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0))))(vue@3.5.22(typescript@5.9.2)):
+  floating-vue@5.2.2(@nuxt/kit@4.5.1(magic-string@1.2.0)(magicast@0.5.4)(rolldown@1.2.4)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.4)(rollup@4.62.4)(vite@7.3.5(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0))))(vue@3.5.22(typescript@5.9.2)):
     dependencies:
       '@floating-ui/dom': 1.1.1
       vue: 3.5.22(typescript@5.9.2)
       vue-resize: 2.0.0-alpha.1(vue@3.5.22(typescript@5.9.2))
     optionalDependencies:
-      '@nuxt/kit': 4.5.1(magic-string@1.2.0)(magicast@0.5.4)(rolldown@1.2.4)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.4)(rollup@4.62.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0)))
+      '@nuxt/kit': 4.5.1(magic-string@1.2.0)(magicast@0.5.4)(rolldown@1.2.4)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.4)(rollup@4.62.4)(vite@7.3.5(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.33.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0)))
 
   fnv1a-64@0.1.2: {}
 
