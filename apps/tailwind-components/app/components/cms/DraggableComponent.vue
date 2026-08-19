@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import type { IDraggingInfo } from "../../../types/cms";
 import Button from "../Button.vue";
-
 const props = withDefaults(
   defineProps<{
     componentName: string;
@@ -29,15 +28,25 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
 
 <template>
   <Button
-    class="!justify-start w-full mb-1"
+    class="!justify-start w-full mb-1 cursor-grab"
     draggable="true"
     @click="showPleaseDragMe = true"
     @mouseleave="showPleaseDragMe = false"
     @dragstart="
-      startDrag($event, { dragging: true, componentName, componentType })
+      startDrag($event, {
+        dragging: true,
+        action: 'create',
+        componentName,
+        componentType,
+      })
     "
     @dragend="
-      endDrag($event, { dragging: false, componentName, componentType })
+      endDrag($event, {
+        dragging: false,
+        action: 'create',
+        componentName,
+        componentType,
+      })
     "
     type="secondary"
     size="tiny"

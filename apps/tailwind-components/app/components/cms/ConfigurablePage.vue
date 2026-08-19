@@ -27,6 +27,7 @@ const handleDragEvent = (value: IDraggingInfo) => {
 };
 const draggingInfo = ref<IDraggingInfo>({
   dragging: false,
+  action: "create",
   componentName: "",
   componentType: "",
 });
@@ -53,6 +54,8 @@ const sidebarCollapsed = ref(false);
       </div>
     </Sidebar>
     <div id="configurable-page-main" class="flex-1 min-w-0">
+      {{ draggingInfo }}
+
       <template
         v-for="orderedBlock in content.blockOrder"
         :key="orderedBlock.id"
@@ -79,6 +82,7 @@ const sidebarCollapsed = ref(false);
           :isEditable="isEditable"
           :metadata="metadata"
           @updatePage="$emit('updatePage')"
+          @dragging="handleDragEvent"
         />
         <PageComponent
           v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
@@ -90,6 +94,7 @@ const sidebarCollapsed = ref(false);
           componentType="Block"
           :metadata="metadata"
           @updatePage="$emit('updatePage')"
+          @dragging="handleDragEvent"
         >
           <ComponentDropZone
             v-if="isEditable"
@@ -117,6 +122,7 @@ const sidebarCollapsed = ref(false);
               :isEditable="isEditable"
               :metadata="metadata"
               @updatePage="$emit('updatePage')"
+              @dragging="handleDragEvent"
             />
             <ComponentDropZone
               v-if="isEditable"

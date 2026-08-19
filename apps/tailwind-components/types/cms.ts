@@ -317,6 +317,7 @@ export interface IWebFetchPriorities_agg {
 
 export interface IDraggingInfo {
   dragging: boolean;
+  action: "create" | "move";
   componentName: string;
   componentType: string;
 }

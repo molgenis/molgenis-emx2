@@ -30,7 +30,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["updatePage"]);
+const emit = defineEmits(["updatePage", "dragging"]);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
@@ -92,6 +92,18 @@ async function doDelete(): Promise<void> {
   showDeleteModal.value = false;
   emit("updatePage");
 }
+
+function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
+  if (action === "grab" || action === "release") {
+    emit("dragging", {
+      dragging: action === "grab",
+      componentType: props.componentType,
+      componentName: props.mg_tableclass.split(".")[1],
+      action: "move",
+    });
+    return;
+  }
+}
 </script>
 
 <template>
@@ -107,6 +119,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
   <Section
     v-else-if="mg_tableclass.endsWith('.Sections')"
@@ -115,6 +128,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   >
     <slot></slot>
   </Section>
@@ -128,6 +142,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
   <Paragraph
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
@@ -138,6 +153,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
   <Image
     v-else-if="mg_tableclass.endsWith('.Images')"
@@ -150,6 +166,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
   <NavigationGroups
     v-else-if="mg_tableclass.endsWith('.Navigation groups')"

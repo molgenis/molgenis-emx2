@@ -51,7 +51,13 @@ useAnimationFrame(() => {
     0
   );
 });
-
+async function handleDrop() {
+  if (props.draggingInfo.action === "create") {
+    await addComponentToBlock();
+  } else {
+    console.log("Move action not implemented yet");
+  }
+}
 async function addComponentToBlock() {
   if (props.draggingInfo.componentType === "Component") {
     await addComponent(
@@ -96,7 +102,8 @@ async function addComponentToBlock() {
           :style="{ height: distance + 'px' }"
         >
           <p class="text-title-contrast pointer-events-none">
-            Add new {{ props.draggingInfo.componentName }}
+            {{ props.draggingInfo.action === "create" ? "Add new" : "Move" }}
+            {{ props.draggingInfo.componentName }}
             <span class="hidden" :class="{ '!inline': hover }">here</span>
           </p>
         </div>
