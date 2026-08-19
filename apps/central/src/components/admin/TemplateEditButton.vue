@@ -6,14 +6,13 @@
       :title="modalTitle"
       :show="isModalShown"
       @close="close"
-      @open="initializeMonaco"
     >
       <template #body>
         <LayoutForm>
           <InputSelect
             id="template-create-schema"
             label="Schema"
-            description="Schema to connect template to"
+            :description="schemaDescription"
             v-model="selectedSchema"
             :options="schemas"
             :readonly="action === 'update'"
@@ -25,6 +24,16 @@
             v-model="selectedApi"
             :options="apis"
             :readonly="action === 'update'"
+          ></InputSelect>
+          <InputSelect
+            v-if="tables.length"
+            id="template-create-table"
+            label="Table"
+            description="Optional: table this endpoint should query. Leave empty to use the entry type's default table."
+            v-model="selectedTable"
+            :options="tables"
+            :required="false"
+            placeholder="Use default table"
           ></InputSelect>
           <FormGroup label="Template">
             <div
@@ -40,7 +49,7 @@
         <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
         <MessageError v-if="error">{{ error }}</MessageError>
         <ButtonAlt @click="close">Close</ButtonAlt>
-        <ButtonAction @click="doEditTemplate">{{ buttonTitle }}</ButtonAction>
+        <ButtonAction @click="saveTemplate">{{ buttonTitle }}</ButtonAction>
       </template>
     </LayoutModal>
   </div>
@@ -59,8 +68,10 @@ import {
   MessageError,
 } from "molgenis-components";
 import { request } from "graphql-request";
-import { toRaw } from "vue";
+import { markRaw } from "vue";
 import { editor } from "monaco-editor";
+
+const BUILT_IN_TEMPLATE_SCHEMA = "default";
 
 export default {
   components: {
@@ -92,6 +103,10 @@ export default {
       type: String,
       required: false,
     },
+    tableName: {
+      type: String,
+      required: false,
+    },
     type: {
       type: String,
       required: true,
@@ -100,28 +115,30 @@ export default {
       },
     },
   },
+  emits: ["saved"],
   data() {
     return {
       editor: null,
       error: null,
       success: null,
       loading: false,
-      action: this.type,
+      action: this.initialAction(),
       isModalShown: false,
+      hasSaved: false,
       selectedSchema: this.schema,
       schemas: [],
+      selectedTable: this.tableName,
+      tables: [],
       selectedApi: this.api,
       apis: [
-        "beacon_individuals",
-        "beacon_biosamples",
+        "beacon_analyses",
         "beacon_biosamples",
         "beacon_catalogs",
-        "beacon_g_variants",
-        "beacon_datasets",
-        "beacon_analyses",
         "beacon_cohorts",
-        "beacon_runs",
+        "beacon_datasets",
+        "beacon_g_variants",
         "beacon_individuals",
+        "beacon_runs",
         "VCF",
       ],
       jsltTemplate: this.template,
@@ -132,46 +149,65 @@ export default {
       return this.action === "update" ? "Edit template" : "Add template";
     },
     buttonTitle() {
-      return this.action === "update" ? "Edit" : "Add";
+      return this.action === "update" ? "Save" : "Add";
+    },
+    schemaDescription() {
+      return this.action === "update"
+        ? "Schema this template is connected to"
+        : "Schema to connect template to";
     },
   },
   created() {
     this.getSchemaList();
-    if (this.selectedSchema === "default") {
-      this.action = "insert";
-    }
+    this.getTableList(this.selectedSchema);
   },
   methods: {
-    doEditTemplate() {
-      this.loading = true;
+    initialAction() {
+      return this.type === "update" && this.schema !== BUILT_IN_TEMPLATE_SCHEMA
+        ? "update"
+        : "insert";
+    },
+    saveTemplate() {
       this.error = null;
       this.success = null;
-      this.jsltTemplate = toRaw(this.editor).getValue(0);
+      if (
+        !this.selectedSchema ||
+        this.selectedSchema === BUILT_IN_TEMPLATE_SCHEMA
+      ) {
+        this.error =
+          "Select a schema. Built-in default templates cannot be changed, saving creates a template for the selected schema.";
+        return;
+      }
+      if (!this.selectedApi) {
+        this.error = "Select an API.";
+        return;
+      }
+      this.loading = true;
+      this.jsltTemplate = this.editor
+        ? this.editor.getValue()
+        : this.jsltTemplate;
       request(
         "_SYSTEM_/graphql",
-        "mutation " +
-          this.action +
-          "($endpoint:String, $schema:String, $template:String) { " +
-          this.action +
-          "(Templates: { endpoint: $endpoint, schema: $schema, template: $template }) { message } }",
+        "mutation save($endpoint:String, $schema:String, $tableName:String, $template:String) {" +
+          " save(Templates: { endpoint: $endpoint, schema: $schema, tableName: $tableName, template: $template }) { message } }",
         {
           endpoint: this.selectedApi,
           schema: this.selectedSchema,
+          tableName: this.selectedTable || null,
           template: this.jsltTemplate,
         }
       )
         .then((data) => {
-          this.success =
-            this.action === "insert"
-              ? data.insert.message
-              : data.update.message;
+          this.success = data.save.message;
+          this.hasSaved = true;
+          this.action = "update";
           this.loading = false;
         })
         .catch((error) => {
-          if (error.response.status === 403) {
+          if (error.response?.status === 403) {
             this.error = error.message + "Forbidden. Do you need to login?";
           } else {
-            this.error = error.response.errors[0].message;
+            this.error = error.response?.errors?.[0]?.message ?? error.message;
           }
           this.loading = false;
         });
@@ -189,22 +225,62 @@ export default {
           this.loading = false;
         });
     },
+    getTableList(schemaId) {
+      if (!schemaId || schemaId === BUILT_IN_TEMPLATE_SCHEMA) {
+        this.tables = [];
+        return;
+      }
+      request(schemaId + "/graphql", `{_schema{tables{name}}}`)
+        .then((data) => {
+          this.tables = data._schema.tables.map((table) => table.name);
+          this.clearTableIfUnknown();
+        })
+        .catch((error) => {
+          console.error("could not load tables for schema " + schemaId, error);
+          this.tables = [];
+        });
+    },
+    clearTableIfUnknown() {
+      if (this.selectedTable && !this.tables.includes(this.selectedTable)) {
+        this.selectedTable = null;
+      }
+    },
     initializeMonaco() {
-      this.editor = editor.create(this.$refs.monacoEditor, {
-        value: this.jsltTemplate,
-        language: "json",
-        automaticLayout: true,
-        scrollBeyondLastLine: false,
-        minimap: { enabled: false },
-        quickSuggestions: false,
-      });
+      this.disposeMonaco();
+      this.editor = markRaw(
+        editor.create(this.$refs.monacoEditor, {
+          value: this.jsltTemplate,
+          language: "json",
+          automaticLayout: true,
+          scrollBeyondLastLine: false,
+          minimap: { enabled: false },
+          quickSuggestions: false,
+        })
+      );
+    },
+    disposeMonaco() {
+      if (this.editor) {
+        this.editor.dispose();
+        this.editor = null;
+      }
     },
     close() {
-      this.error = null;
-      this.success = null;
+      this.disposeMonaco();
       this.isModalShown = false;
+      if (this.hasSaved) {
+        this.hasSaved = false;
+        this.$emit("saved");
+      }
     },
     open() {
+      this.error = null;
+      this.success = null;
+      this.action = this.initialAction();
+      this.selectedSchema = this.schema;
+      this.selectedApi = this.api;
+      this.selectedTable = this.tableName;
+      this.jsltTemplate = this.template;
+      this.getTableList(this.selectedSchema);
       this.isModalShown = true;
     },
   },
@@ -216,6 +292,15 @@ export default {
         });
       }
     },
+    selectedSchema(newVal, oldVal) {
+      // when the user picks a different schema, reload its tables
+      if (newVal !== oldVal) {
+        this.getTableList(newVal);
+      }
+    },
+  },
+  beforeUnmount() {
+    this.disposeMonaco();
   },
 };
 </script>
