@@ -52,7 +52,7 @@ class Transform:
         """Make changes per table
         """
         # general transformations per table
-        for table_name in ['Collections.csv', 'Collection events.csv', 'Subpopulations.csv']:
+        for table_name in ['Collections.csv', 'Collection events.csv', 'Subpopulations.csv', 'Contacts.csv']:
             if table_name in os.listdir(self.path):
                 self.transform_tables(table_name)
 
@@ -75,24 +75,36 @@ class Transform:
         df_organisations['resource_id'] = df_organisations['resource'] + df_organisations['id']
         dict_organisations = dict(zip(df_organisations['resource_id'], df_organisations['organisation']))
 
-        # get Organisations.organisation instead of Organisations.id for reference
+        # assign resource and id per table and per attribute
         if table_name == 'Collections.csv':
-            df['organisations involved.id'] = df.apply(
-                lambda row: get_organisation_name_from_resource_id(row['organisations involved.resource'],
-                                                                   row['organisations involved.id'],
+            organisation_resource = 'organisations involved.resource'
+            organisation_id = 'organisations involved.id'
+            publisher_resource = 'publisher.resource'
+            publisher_id = 'publisher.id'
+            creator_resource = 'creator.resource'
+            creator_id = 'creator.id'
+        elif table_name in ['Collection events.csv', 'Subpopulations.csv']:
+            publisher_resource = 'resource'
+            publisher_id = 'publisher'
+            creator_resource = 'resource'
+            creator_id = 'creator'
+        elif table_name == 'Contacts.csv':
+            organisation_resource = 'resource'
+            organisation_id = 'organisation'
+
+        # get Organisations.organisation instead of Organisations.id for reference
+        if table_name in ['Collections.csv', 'Contacts.csv']:
+            df[organisation_id] = df.apply(
+                lambda row: get_organisation_name_from_resource_id(row[organisation_resource],
+                                                                   row[organisation_id],
                                                                    dict_organisations=dict_organisations), axis=1)
-            df['publisher.id'] = df.apply(
-                lambda row: get_organisation_name_from_resource_id(row['publisher.resource'], row['publisher.id'],
+
+        if table_name in['Collections.csv', 'Collection events.csv', 'Subpopulations.csv']:
+            df[publisher_id] = df.apply(
+                lambda row: get_organisation_name_from_resource_id(row[publisher_resource], row[publisher_id],
                                                                    dict_organisations=dict_organisations), axis=1)
-            df['creator.id'] = df.apply(
-                lambda row: get_organisation_name_from_resource_id(row['creator.resource'], row['creator.id'],
-                                                                   dict_organisations=dict_organisations), axis=1)
-        else:
-            df['publisher'] = df.apply(
-                lambda row: get_organisation_name_from_resource_id(row['resource'], row['publisher'],
-                                                                   dict_organisations=dict_organisations), axis=1)
-            df['creator'] = df.apply(
-                lambda row: get_organisation_name_from_resource_id(row['resource'], row['creator'],
+            df[creator_id] = df.apply(
+                lambda row: get_organisation_name_from_resource_id(row[creator_resource], row[creator_id],
                                                                    dict_organisations=dict_organisations), axis=1)
 
         df.to_csv(self.path + table_name, index=False)
