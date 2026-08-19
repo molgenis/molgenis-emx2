@@ -8,8 +8,8 @@
 
 ### Checklist
 
-- [ ] checked that code complies with the [dev guidelines](docs/molgenis/dev_guidelines.md)
-- [ ] frontend code follows good semantic HTML practices and meets accessibility guidelines [Accessibility guide](docs/molgenis/dev_accessibility.md)
+- [ ] checked that code complies with the [dev guidelines](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_guidelines)
+- [ ] frontend code follows good semantic HTML practices and meets accessibility guidelines [Accessibility guide](https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_accessibility)
 - [ ] updated docs in case of new feature
 - [ ] added/updated tests
 - [ ] added/updated testplan to include a test for this fix, including ref to bug using # notation
