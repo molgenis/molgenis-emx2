@@ -50,3 +50,5 @@ export interface ICmsOrder {
   id: string;
   order: number;
 }
+
+export type ICmsPageTypes = "ConfigurablePage" | "DeveloperPage";
