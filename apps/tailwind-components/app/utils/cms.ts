@@ -88,29 +88,62 @@ async function cmsFetch(
 export async function moveComponentUp(
   schema: string,
   componentId: string,
+  order: number,
   block: string
 ) {
+  // get the current order of the component
+
   console.log("Move component up", componentId, block);
 }
 
 export async function moveComponentDown(
   schema: string,
   componentId: string,
+  order: number,
   block: string
 ) {
+  // get the last order of the component in the block
   console.log("Move component down", componentId, block);
 }
 
-export async function moveBlockUp(schema: string, block: string, page: string) {
-  console.log("Move block up", block, page);
+export async function moveBlockUp(
+  schema: string,
+  blockOrderId: string,
+  order: number,
+  page: string
+) {
+  const newOrder = Math.max(0, order - 1);
+  const query = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: blockOrderId,
+      order: newOrder,
+    },
+  };
+
+  await prepareBlockOrder(schema, newOrder, page);
+  await cmsFetch(schema, query, vars);
+  await fullReorder(schema, page, "Block");
 }
 
 export async function moveBlockDown(
   schema: string,
-  block: string,
+  blockOrderId: string,
+  order: number,
   page: string
 ) {
-  console.log("Move block down", block, page);
+  const newOrder = order + 1;
+  const query = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: blockOrderId,
+      order: newOrder,
+    },
+  };
+
+  await prepareBlockOrder(schema, newOrder + 1, page);
+  await cmsFetch(schema, query, vars);
+  await fullReorder(schema, page, "Block");
 }
 
 export async function moveComponentTo(
@@ -120,21 +153,23 @@ export async function moveComponentTo(
   newBlockId: string,
   order: number
 ) {
-  console.log(
-    "Move component to a different block",
-    componentId,
-    oldBlockId,
-    newBlockId,
-    order
-  );
+  console.log("Move component", componentId, oldBlockId, newBlockId, order);
 }
 export async function moveBlockTo(
   schema: string,
-  blockId: string,
+  blockOrderId: string,
   page: string,
   order: number
 ) {
-  console.log("Move block to a different page", blockId, page, order);
+  await prepareBlockOrder(schema, order, page);
+  const query = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: blockOrderId,
+      order: order,
+    },
+  };
+  await cmsFetch(schema, query, vars);
 }
 
 export async function deleteComponent(

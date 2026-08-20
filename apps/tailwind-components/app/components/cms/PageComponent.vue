@@ -27,6 +27,7 @@ const props = withDefaults(
   defineProps<{
     component: IPageComponent;
     orderId: string;
+    order?: number;
     componentType: string;
     mg_tableclass: string;
     metadata?: ITableMetaData[];
@@ -35,6 +36,7 @@ const props = withDefaults(
   }>(),
   {
     isEditable: false,
+    order: 0,
   }
 );
 
@@ -98,47 +100,53 @@ async function doDelete(): Promise<void> {
   emit("updatePage");
 }
 
-function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
+async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
   if (action === "grab" || action === "release") {
     emit("dragging", {
       dragging: action === "grab",
       componentType: props.componentType,
       componentName: props.mg_tableclass.split(".")[1],
       action: "move",
-      moveId: props.component.id,
+      moveOrderId: props.orderId,
       parentId: props.parent,
     });
     return;
   }
   if (action === "up") {
     if (props.componentType === "Component") {
-      moveComponentUp(
+      await moveComponentUp(
         componentMetadata.value?.schemaId || "",
-        props.component.id,
+        props.orderId,
+        props.order,
         props.parent
       );
     } else {
-      moveBlockUp(
+      await moveBlockUp(
         componentMetadata.value?.schemaId || "",
-        props.component.id,
+        props.orderId,
+        props.order,
         props.parent
       );
     }
+    emit("updatePage");
   }
   if (action === "down") {
     if (props.componentType === "Component") {
-      moveComponentDown(
+      await moveComponentDown(
         componentMetadata.value?.schemaId || "",
-        props.component.id,
+        props.orderId,
+        props.order,
         props.parent
       );
     } else {
-      moveBlockDown(
+      await moveBlockDown(
         componentMetadata.value?.schemaId || "",
-        props.component.id,
+        props.orderId,
+        props.order,
         props.parent
       );
     }
+    emit("updatePage");
   }
 }
 </script>

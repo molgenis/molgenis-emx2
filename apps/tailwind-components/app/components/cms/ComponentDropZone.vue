@@ -87,7 +87,7 @@ async function moveComponentToBlock() {
   if (props.draggingInfo.componentType === "Component") {
     await moveComponentTo(
       props.schema,
-      props.draggingInfo.moveId || "",
+      props.draggingInfo.moveOrderId || "",
       props.draggingInfo.parentId || "",
       props.parent,
       props.order
@@ -95,7 +95,7 @@ async function moveComponentToBlock() {
   } else {
     await moveBlockTo(
       props.schema,
-      props.draggingInfo.moveId || "",
+      props.draggingInfo.moveOrderId || "",
       props.parent,
       props.order
     );
