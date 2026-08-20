@@ -103,7 +103,7 @@ export interface ITableMetaData {
   name: string;
   label: string;
   description?: string;
-  tableType: string;
+  tableType: TableType;
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
@@ -264,3 +264,5 @@ export type TruncateStatus =
   | "RUNNING"
   | "COMPLETED"
   | "FAILED";
+
+export type TableType = "ONTOLOGIES" | "DATA";

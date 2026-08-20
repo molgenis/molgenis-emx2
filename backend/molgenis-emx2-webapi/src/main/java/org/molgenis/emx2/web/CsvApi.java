@@ -170,10 +170,10 @@ public class CsvApi {
     Character separator = getSeparator(ctx);
     TableStore tableStore = new TableStoreForCsvInMemory(separator);
 
-    Emx2Members.outputRoles(tableStore, schema);
+    Emx2Members.outputMembers(tableStore, schema);
 
     CsvTableWriter.write(
-        tableStore.readTable(Emx2Members.ROLES_TABLE),
+        tableStore.readTable(Emx2Members.MEMBERS_TABLE),
         List.of(Emx2Members.USER, Emx2Members.ROLE),
         writer,
         separator);

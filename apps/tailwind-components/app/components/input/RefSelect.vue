@@ -33,6 +33,7 @@ import type {
   ITableMetaData,
   columnValueObject,
   recordValue,
+  IInputValue,
   IInputValueLabel,
 } from "../../../../metadata-utils/src/types";
 
@@ -223,6 +224,17 @@ function clearSelection() {
   emit("update:modelValue", props.multiselect ? [] : undefined);
 }
 
+function handleSortChange(
+  value: IInputValueLabel | IInputValue | null | undefined
+) {
+  const sortValue =
+    typeof value === "object" && value !== null && "value" in value
+      ? value.value
+      : value;
+
+  sortMethod.value = sortValue == null ? undefined : String(sortValue);
+}
+
 function loadMore() {
   counterOffset.value += props.limit;
 
@@ -409,7 +421,7 @@ watch(
               :id="`${id}-ref-dropdown-sorting`"
               :labelId="`${id}-ref-dropdown-sort-input-label`"
               :options="namesForOrderByInput"
-              @update:model-value="(value: IInputValueLabel) => (sortMethod = value?.value as string)"
+              @update:model-value="handleSortChange"
               :enable-search="false"
               placeholder="Sort by"
             />

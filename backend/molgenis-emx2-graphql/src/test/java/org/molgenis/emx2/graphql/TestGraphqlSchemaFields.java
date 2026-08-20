@@ -534,8 +534,8 @@ class TestGraphqlSchemaFields {
 
     // also works on refback
     result = execute("{Pet_groupBy {count,orders{orderId}}}");
-    // 6 pets without order
-    assertEquals(7, result.at("/Pet_groupBy/2/count").intValue());
+    // 8 pets without order
+    assertEquals(8, result.at("/Pet_groupBy/2/count").intValue());
     assertNull(null, result.at("/Pet_groupBy/2/orders").textValue());
 
     // orderId=1 has one pet
@@ -593,10 +593,14 @@ class TestGraphqlSchemaFields {
     assertEquals(1, result.at("/Pet_groupBy/6/count").intValue());
     assertEquals("cat", result.at("/Pet_groupBy/6/categoryTest/nameTest").textValue());
     assertEquals(null, result.at("/Pet_groupBy/6/tagsTest/nameTest").textValue());
-    // 1 blue mouse
+    // 1 <untagged> dragon
     assertEquals(1, result.at("/Pet_groupBy/10/count").intValue());
-    assertEquals("mouse", result.at("/Pet_groupBy/10/categoryTest/nameTest").textValue());
-    assertEquals("blue", result.at("/Pet_groupBy/10/tagsTest/nameTest").textValue());
+    assertEquals("dragon", result.at("/Pet_groupBy/10/categoryTest/nameTest").textValue());
+    assertEquals(null, result.at("/Pet_groupBy/10/tagsTest/nameTest").textValue());
+    // 1 blue mouse
+    assertEquals(1, result.at("/Pet_groupBy/11/count").intValue());
+    assertEquals("mouse", result.at("/Pet_groupBy/11/categoryTest/nameTest").textValue());
+    assertEquals("blue", result.at("/Pet_groupBy/11/tagsTest/nameTest").textValue());
     // 1 green ant
     assertEquals(1, result.at("/Pet_groupBy/0/count").intValue());
     assertEquals("ant", result.at("/Pet_groupBy/0/categoryTest/nameTest").textValue());
@@ -624,6 +628,26 @@ class TestGraphqlSchemaFields {
   @Test
   void testSchemaQueries() throws IOException {
     assertEquals(schemaName, execute("{_schema{name}}").at("/_schema/name").textValue());
+  }
+
+  @Test
+  void testSemantics() throws IOException {
+    JsonNode output = execute("{_schema {id, tables {id, semantics, columns {id, semantics}}}}");
+
+    JsonNode tableSemantics = output.at("/_schema/tables/4/semantics");
+    JsonNode columnSemantics = output.at("/_schema/tables/4/columns/3/semantics");
+
+    assertAll(
+        () -> assertEquals(1, tableSemantics.size()),
+        () -> assertEquals("foaf:Person", tableSemantics.get(0).textValue()),
+        () -> assertEquals(3, columnSemantics.size()),
+        () ->
+            assertEquals(
+                "http://example.com/petstore#hasLastName", columnSemantics.get(0).textValue()),
+        () -> assertEquals("foaf:lastName", columnSemantics.get(1).textValue()),
+        () ->
+            assertEquals(
+                "<http://example.com/petstore#hasFamilyName>", columnSemantics.get(2).textValue()));
   }
 
   @Test
@@ -1121,7 +1145,7 @@ class TestGraphqlSchemaFields {
     graphqlExecutor = new GraphqlExecutor(schema, taskService);
     JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
-    assertEquals(9, result.at("/_reports/count").intValue());
+    assertEquals(10, result.at("/_reports/count").intValue());
 
     // report 2 has parameters
     result =

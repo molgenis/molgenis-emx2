@@ -1,5 +1,6 @@
 package org.molgenis.emx2;
 
+import static java.util.Arrays.stream;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
@@ -9,11 +10,13 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.jetbrains.annotations.Nullable;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column extends HasLabelsDescriptionsAndSettings<Column> implements Comparable<Column> {
+public class Column extends HasLabelsDescriptionsAndSettings<Column>
+    implements Comparable<Column>, HasSemantics {
 
   // basics
   private TableMetadata table; // table this column is part of
@@ -41,7 +44,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private String[] semantics = null; // absolute IRI or prefixed name
+  private Semantic[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
   private Boolean readonly = false;
@@ -96,13 +99,25 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName.trim();
   }
 
-  public String[] getSemantics() {
+  @Nullable
+  @Override
+  public Semantic[] getSemantics() {
     return semantics;
   }
 
-  public Column setSemantics(String... semantics) {
+  public Column setSemantics(Semantic[] semantics) {
     this.semantics = semantics;
     return this;
+  }
+
+  public Column setSemantics(String... semantics) {
+    return setSemantics(
+        semantics == null ? null : stream(semantics).map(Semantic::new).toArray(Semantic[]::new));
+  }
+
+  @Override
+  public SemanticPrefixes getSemanticPrefixes() {
+    return getSchema().getSemanticPrefixes();
   }
 
   public String[] getProfiles() {

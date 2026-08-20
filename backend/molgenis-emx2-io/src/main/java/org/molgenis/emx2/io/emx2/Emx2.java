@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.emx2;
 
+import static java.util.Arrays.stream;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -12,6 +13,7 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public class Emx2 {
 
+  public static final String MOLGENIS_TABLE = "molgenis";
   public static final String TABLE_NAME = "tableName";
   public static final String COLUMN_NAME = "columnName";
   public static final String OLD_NAME = "oldName";
@@ -281,7 +283,9 @@ public class Emx2 {
       row.setString(VALIDATION, null);
       row.setString(VISIBLE, null);
       row.setString(COMPUTED, null);
-      if (table.getSemantics() != null) row.setStringArray(SEMANTICS, table.getSemantics());
+      if (table.getSemantics() != null)
+        row.setStringArray(
+            SEMANTICS, stream(table.getSemantics()).map(Semantic::toString).toArray(String[]::new));
       if (table.getProfiles() != null) row.setStringArray(PROFILES, table.getProfiles());
       if (table.getRole() != null) row.setString(ROLE, table.getRole().name().toLowerCase());
       for (Map.Entry<String, String> entry : table.getLabels().entrySet()) {

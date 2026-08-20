@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { useFetch } from "#app/composables/fetch";
-import { useRoute, navigateTo } from "#app/composables/router";
-import { useHead } from "#app";
-import { computed, ref } from "vue";
-import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import BreadCrumbs from "../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
-import Container from "../../../../tailwind-components/app/components/Container.vue";
-import Table from "../../../../tailwind-components/app/components/Table.vue";
-import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
-import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
-import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
-import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
-import type { Crumb } from "../../../../tailwind-components/types/types";
 import { definePageMeta } from "#imports";
+import { navigateTo, useFetch, useHead, useRoute } from "nuxt/app";
+import { computed, ref } from "vue";
+import type { ITableMetaData } from "../../../../metadata-utils/src/types.js";
+import BreadCrumbs from "../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import Container from "../../../../tailwind-components/app/components/Container.vue";
+import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import Search from "../../../../tailwind-components/app/components/input/Search.vue";
 import { filterTablesByTypeAndRole } from "../../../../tailwind-components/app/utils/groupTablesByRole";
+import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
+import Table from "../../../../tailwind-components/app/components/Table.vue";
+import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
+import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
+import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
+import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
+import { useSession } from "../../../../tailwind-components/app/composables/useSession";
+import type { Crumb } from "../../../../tailwind-components/types/types";
 
 definePageMeta({
   middleware: ["landing-page"],
@@ -46,7 +46,7 @@ interface Table {
 interface Schema {
   id: string;
   label: string;
-  tables: Table[];
+  tables: ITableMetaData[];
 }
 
 const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
@@ -74,6 +74,18 @@ const ontologies = computed(() =>
 const detailOntologies = computed(() =>
   filterTablesByTypeAndRole(allTables.value, "ONTOLOGIES", "DETAIL")
 );
+
+const { tablePermissions, getTablePermission } = await useSession(schema);
+
+// no permissions at all means the backend did not supply them; fall back to
+// showing every table rather than ghosting the whole list
+// empty permissions means the user has no access to any tables, so ghost all but ontologies
+function canViewTable(table: ITableMetaData): boolean {
+  if (!tablePermissions.value) return true;
+  return (
+    getTablePermission(table.id)?.canView || table.tableType === "ONTOLOGIES"
+  );
+}
 
 const crumbs: Crumb[] = [];
 if (schema) {
@@ -128,10 +140,19 @@ const filteredDetailOntologies = computed(() =>
         <template #body>
           <TableRow
             v-for="table in filteredTables"
-            @click="navigateTo(`${schema}/${table.id}`)"
+            :disabled="!canViewTable(table)"
+            @click="canViewTable(table) && navigateTo(`${schema}/${table.id}`)"
           >
-            <TableCell>{{ table.label }}</TableCell>
-            <TableCell>{{ table.description }}</TableCell>
+            <TableCell>
+              <span :class="{ 'text-disabled': !canViewTable(table) }">
+                {{ table.label }}
+              </span>
+            </TableCell>
+            <TableCell>
+              <span :class="{ 'text-disabled': !canViewTable(table) }">
+                {{ table.description }}
+              </span>
+            </TableCell>
           </TableRow>
         </template>
       </Table>

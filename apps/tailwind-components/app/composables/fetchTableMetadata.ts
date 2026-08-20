@@ -17,7 +17,7 @@ export default async (
     console.error(message);
     throw createError({
       message,
-      statusCode: 404,
+      status: 404,
     });
   }
 

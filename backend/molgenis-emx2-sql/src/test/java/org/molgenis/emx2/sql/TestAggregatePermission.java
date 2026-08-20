@@ -31,6 +31,7 @@ public class TestAggregatePermission {
     db.dropSchemaIfExists(schemaName);
     PET_STORE.getImportTask(db, schemaName, "", true).run();
     schema = db.getSchema(schemaName);
+    schema.revoke("DragonKeeper", "Pet");
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
     db.setActiveUser("AGGREGATE_TEST_USER");
