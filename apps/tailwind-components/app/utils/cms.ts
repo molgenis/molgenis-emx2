@@ -151,14 +151,14 @@ export async function moveComponentTo(
   componentId: string,
   oldBlockId: string,
   newBlockId: string,
-  order: number,
+  order: number
 ) {
   const query = `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`;
   const vars = {
     value: {
       id: componentId,
       block: {
-        id: newBlockId
+        id: newBlockId,
       },
       order: order,
     },
@@ -166,7 +166,7 @@ export async function moveComponentTo(
   await prepareOrder(schema, order, newBlockId);
   await cmsFetch(schema, query, vars);
   await fullReorder(schema, oldBlockId, "Component");
-  if(oldBlockId!== newBlockId) {
+  if (oldBlockId !== newBlockId) {
     await fullReorder(schema, newBlockId, "Component");
   }
 }
