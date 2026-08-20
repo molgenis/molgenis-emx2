@@ -18,7 +18,6 @@ const emit = defineEmits(["edit", "delete", "move"]);
         @dragend="$emit('move', 'release')"
       >
         {{ name }}
-        <BaseIcon name="equal" :width="16" />
       </div>
       <Button
         icon-only

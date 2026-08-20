@@ -7,6 +7,7 @@ import Heading from "./Heading.vue";
 import Paragraph from "./Paragraph.vue";
 import Image from "./Image.vue";
 import NavigationGroups from "./Navigation/NavigationGroups.vue";
+import { hideAllPoppers } from "floating-vue";
 
 import EditModal from "../form/EditModal.vue";
 
@@ -97,6 +98,7 @@ async function doDelete(): Promise<void> {
   }
   currentlyDeleting.value = false;
   showDeleteModal.value = false;
+  hideAllPoppers();
   emit("updatePage");
 }
 
@@ -148,6 +150,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     }
     emit("updatePage");
   }
+  hideAllPoppers();
 }
 </script>
 

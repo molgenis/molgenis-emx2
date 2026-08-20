@@ -4,6 +4,7 @@ import { useElementBounding } from "@vueuse/core";
 import { ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn as useAnimationFrame } from "@vueuse/core";
+import { hideAllPoppers } from "floating-vue";
 import {
   addBlock,
   addComponent,
@@ -81,6 +82,7 @@ async function addComponentToBlock() {
       props.draggingInfo.componentName
     );
   }
+  hideAllPoppers();
   emit("updatePage");
 }
 async function moveComponentToBlock() {
@@ -100,6 +102,7 @@ async function moveComponentToBlock() {
       props.order
     );
   }
+  hideAllPoppers();
   emit("updatePage");
 }
 </script>
