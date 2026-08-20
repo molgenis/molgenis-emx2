@@ -1,0 +1,17 @@
+name: Subject
+label: Subject
+description: Diamond inheritance + companion schema showcase root table
+columns:
+- name: subjectId
+  key: 1
+  required: true
+  label: Subject identifier
+- name: name
+  label: Full name
+- name: sex
+  type: enum
+  values: [male, female, unknown]
+- name: diseaseCategory
+  type: ontology_array
+  refTable: diamontologies.Disease categories
+  label: Disease category

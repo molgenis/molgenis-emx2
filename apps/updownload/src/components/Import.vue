@@ -184,7 +184,7 @@ export default {
       const splitFileName = this.file.name.split(".");
       const fileName = splitFileName[0];
       const type = splitFileName[splitFileName.length - 1];
-      if (["csv", "json", "yaml"].includes(type)) {
+      if (["csv", "json"].includes(type)) {
         const reader = new FileReader();
         reader.readAsText(this.file);
         reader.onload = () => {
@@ -211,6 +211,41 @@ export default {
                 response.json().then((error) => {
                   this.success = null;
                   this.error = error.errors[0].message;
+                });
+              }
+            })
+            .catch((error) => {
+              this.error = error;
+            })
+            .finally(() => {
+              this.file = null;
+              this.loading = false;
+              this.loadSchema();
+            });
+        };
+      } else if (type === "yaml") {
+        const reader = new FileReader();
+        reader.readAsText(this.file);
+        reader.onload = () => {
+          const url = `/${this.schema}/api/yaml`;
+          const options = {
+            method: "PUT",
+            body: reader.result,
+            headers: { "Content-Type": "text/yaml" },
+          };
+          fetch(url, options)
+            .then((response) => {
+              if (response.ok) {
+                response.json().then((result) => {
+                  this.success = result.version
+                    ? `Model updated to version '${result.version}'`
+                    : "Model updated";
+                  this.error = null;
+                });
+              } else {
+                response.json().then((body) => {
+                  this.success = null;
+                  this.error = this.modelErrorMessage(body);
                 });
               }
             })
@@ -260,6 +295,15 @@ export default {
       } else {
         this.error = "File extension " + type + " not supported";
       }
+    },
+    modelErrorMessage(body) {
+      if (body?.errors?.length) {
+        return body.errors[0].message;
+      }
+      if (body?.plan?.errors?.length) {
+        return body.plan.errors.join("; ");
+      }
+      return body?.message ?? "Failed to apply model";
     },
     taskUpdated(task) {
       if (["COMPLETED", "ERROR"].includes(task.status)) {

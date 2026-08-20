@@ -5,6 +5,7 @@
     - [Quick start](use_quickstart.md)
     - [Databases](use_database.md)
     - [Schema](use_schema.md)
+    - [YAML model format](use_schema_yaml.md)
     - [Tables](use_tables.md)
     - [Reports](use_reports.md)
     - [Forms](use_forms.md)

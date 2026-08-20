@@ -1,0 +1,14 @@
+name: Cohorts
+label: Cohorts
+label@nl: Cohorten
+description: Study cohorts
+description@nl: Studie cohorten
+columns:
+- name: id
+  key: 1
+- name: cohortType
+  type: ontology_array
+  refTable: CatalogueOntologies.Cohort types
+- name: keywords
+  type: ontology_array
+  refTable: Keywords

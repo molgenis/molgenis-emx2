@@ -1,0 +1,5 @@
+name: Shape
+columns:
+- name: shapeId
+  key: 1
+- name: shapeName

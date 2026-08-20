@@ -1,0 +1,3 @@
+name: Disease categories
+tableType: ontology
+description: Disease category terms shared by any schema referencing this companion

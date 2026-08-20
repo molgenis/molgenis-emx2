@@ -1,0 +1,13 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- diamond/tables/Subject.yaml
+- diamond/tables/ClinicalSubject.yaml
+- diamond/tables/ResearchSubject.yaml
+- diamond/tables/ClinicalResearchSubject.yaml
+additionalSchemas:
+  diamontologies:
+    bundle: diamontologies/molgenis.yaml
+    permissions: {Viewer: anonymous}
+demo:
+- diamond/demo

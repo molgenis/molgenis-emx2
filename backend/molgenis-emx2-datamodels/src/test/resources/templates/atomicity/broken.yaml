@@ -1,0 +1,10 @@
+formatVersion: 1
+version: 1.0.0
+tables:
+- name: Broken
+  columns:
+  - name: id
+    key: 1
+  - name: link
+    type: ref
+    refTable: MissingTable
