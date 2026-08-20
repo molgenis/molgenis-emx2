@@ -7,10 +7,10 @@ FROM gradle:jdk21-noble
 RUN useradd -m molgenis
 
 # Python
-RUN apt-get update && apt-get install vim python3 python3-pip -y
-RUN python3 -m pip config set global.break-system-packages true
-RUN python3 -m pip install uv
+RUN apt-get update && apt-get install vim python3 pipx -y
+RUN pipx ensurepath && pipx install uv
 RUN python3 --version
+ENV PATH="/root/.local/bin:${PATH}"
 RUN uv --version
 
 ENV NODE_VERSION=22.17.0
