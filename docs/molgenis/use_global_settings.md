@@ -42,9 +42,31 @@ example with internal link ( i.e. all within of the 'ui' app)
 Set the application banner with the optional SYSTEM_BANNER_HTML setting
 
 - key: ```SYSTEM_BANNER_HTML```
-- value: a string containing valid HTML code to be displayed in the banner on top of the page:
+- value: a string containing just simple text or valid HTML code to be displayed in the banner on top of the page. 
 
 If not set or an empty string, no banner will be shown.
+
+Please note that most standard HTML style tags are rendered without their default browser styling (e.g. h1 is not shown as a large bold heading by default). 
+To apply custom styling, an explicit style element with CSS should be included in the value and applied to the text. 
+
+for example:
+```html
+<style>
+    .warning {
+        width: 100%;
+        background-color: #ec6707;
+        line-height: 2;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+            }
+</style>
+    <span class="warning">Warning banner example</span>
+```
+
+
+
 
 ## User management
 
