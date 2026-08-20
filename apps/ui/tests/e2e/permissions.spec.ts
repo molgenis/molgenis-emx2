@@ -116,8 +116,14 @@ test.describe("as admin can select mg_role", () => {
     await page
       .getByRole("textbox", { name: "name Required" })
       .fill("testDragon");
+    await page
+      .locator('[id="pet store-Pet-category-form-field-input-radio-group"]')
+      .getByText("dragon", { exact: true })
+      .click();
     await page.getByRole("textbox", { name: "weight Required" }).fill("50000");
     await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByText("inserted Pet").click();
+
     await page.getByRole("button", { name: "Cancel" }).click();
     await page
       .getByRole("searchbox", { name: "Search Pet" })
@@ -128,6 +134,14 @@ test.describe("as admin can select mg_role", () => {
         .filter({ hasText: /^testDragon$/ })
         .first()
     ).toBeVisible();
+    await page.getByRole("cell", { name: "testDragon" }).hover();
+    await page
+      .getByRole("button", { name: 'delete {"name":"testDragon"}' })
+      .click();
+    await page.getByRole("button", { name: "Delete", exact: true }).click();
+    await expect(
+      page.getByRole("cell", { name: "view row details testDragon" })
+    ).toBeHidden();
   });
 });
 
