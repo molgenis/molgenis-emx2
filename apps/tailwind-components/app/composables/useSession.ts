@@ -1,6 +1,11 @@
 import { useAsyncData, useRouter, useState } from "nuxt/app";
 import { computed, ref, type Ref } from "vue";
-import type { ISession, ITablePermission } from "../../types/types";
+import type {
+  ISession,
+  ITablePermission,
+  SchemaPermission,
+  TablePermission,
+} from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
 
 export const useSession = async (schemaId?: string) => {
@@ -13,6 +18,17 @@ export const useSession = async (schemaId?: string) => {
   const isOwner = computed(() => hasRole("owner"));
   const isManager = computed(() => hasRole("manager"));
   const rowLevelRoles = ref<string[]>(await getRowLevelRoles());
+
+  const tablePermissions = computed<ITablePermission[]>(() =>
+    schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
+  );
+
+  if (
+    !session.value ||
+    (schemaId && session.value.roles?.[schemaId] === undefined)
+  ) {
+    await loadSession();
+  }
 
   function hasRole(role: string): boolean {
     if (schemaId) {
@@ -40,16 +56,9 @@ export const useSession = async (schemaId?: string) => {
                   }`,
         }),
       });
-      const schemaRoles = response?.data?._schema?.roles || [];
-      return (
-        schemaRoles
-          .filter((role: SchemaPermission) =>
-            role.permissions.some(
-              (permission: TablePermission) => permission.isRowLevel
-            )
-          )
-          .map((role: SchemaPermission) => role.name) || []
-      );
+      const schemaRoles: SchemaPermission[] =
+        response?.data?._schema?.roles || [];
+      return getRolesForSchema(schemaRoles);
     } else {
       return [];
     }
@@ -196,21 +205,10 @@ export const useSession = async (schemaId?: string) => {
     reload();
   }
 
-  const tablePermissions = computed<ITablePermission[]>(() =>
-    schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
-  );
-
   function getTablePermission(tableId: string): ITablePermission | undefined {
     return tablePermissions.value.find(
       (permission) => permission.id === tableId || permission.name === tableId
     );
-  }
-
-  if (
-    !session.value ||
-    (schemaId && session.value.roles?.[schemaId] === undefined)
-  ) {
-    await loadSession();
   }
 
   return {
@@ -228,15 +226,15 @@ export const useSession = async (schemaId?: string) => {
     signOut,
   };
 };
-interface SchemaPermission {
-  name: string;
-  permissions: TablePermission[];
-}
 
-interface TablePermission {
-  table: string;
-  isRowLevel: boolean;
-  insert: boolean;
-  update: boolean;
-  delete: boolean;
+function getRolesForSchema(roles: SchemaPermission[]): string[] {
+  return (
+    roles
+      .filter((role: SchemaPermission) =>
+        role.permissions.some(
+          (permission: TablePermission) => permission.isRowLevel
+        )
+      )
+      .map((role: SchemaPermission) => role.name) || []
+  );
 }
