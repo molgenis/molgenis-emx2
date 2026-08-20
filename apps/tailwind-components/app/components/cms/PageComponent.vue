@@ -10,7 +10,15 @@ import NavigationGroups from "./Navigation/NavigationGroups.vue";
 
 import EditModal from "../form/EditModal.vue";
 
-import { deleteBlock, deleteComponent, parsePageText } from "../../utils/cms";
+import {
+  deleteBlock,
+  deleteComponent,
+  parsePageText,
+  moveComponentUp,
+  moveBlockUp,
+  moveComponentDown,
+  moveBlockDown,
+} from "../../utils/cms";
 import type { IFile } from "../../../types/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
@@ -70,9 +78,6 @@ function onDelete() {
 
 async function doDelete(): Promise<void> {
   currentlyDeleting.value = true;
-  console.log(
-    `Deleting ${props.componentType} ${props.component.id}  ${props.orderId}`
-  );
   if (props.componentType === "Component") {
     await deleteComponent(
       componentMetadata.value?.schemaId || "",
@@ -100,8 +105,40 @@ function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
       componentType: props.componentType,
       componentName: props.mg_tableclass.split(".")[1],
       action: "move",
+      moveId: props.component.id,
+      parentId: props.parent,
     });
     return;
+  }
+  if (action === "up") {
+    if (props.componentType === "Component") {
+      moveComponentUp(
+        componentMetadata.value?.schemaId || "",
+        props.component.id,
+        props.parent
+      );
+    } else {
+      moveBlockUp(
+        componentMetadata.value?.schemaId || "",
+        props.component.id,
+        props.parent
+      );
+    }
+  }
+  if (action === "down") {
+    if (props.componentType === "Component") {
+      moveComponentDown(
+        componentMetadata.value?.schemaId || "",
+        props.component.id,
+        props.parent
+      );
+    } else {
+      moveBlockDown(
+        componentMetadata.value?.schemaId || "",
+        props.component.id,
+        props.parent
+      );
+    }
   }
 }
 </script>

@@ -4,7 +4,12 @@ import { useElementBounding } from "@vueuse/core";
 import { ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn as useAnimationFrame } from "@vueuse/core";
-import { addBlock, addComponent } from "../../utils/cms";
+import {
+  addBlock,
+  addComponent,
+  moveBlockTo,
+  moveComponentTo,
+} from "../../utils/cms";
 import type { IDraggingInfo } from "../../../types/cms";
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
@@ -55,7 +60,7 @@ async function handleDrop() {
   if (props.draggingInfo.action === "create") {
     await addComponentToBlock();
   } else {
-    console.log("Move action not implemented yet");
+    await moveComponentToBlock();
   }
 }
 async function addComponentToBlock() {
@@ -78,6 +83,25 @@ async function addComponentToBlock() {
   }
   emit("updatePage");
 }
+async function moveComponentToBlock() {
+  if (props.draggingInfo.componentType === "Component") {
+    await moveComponentTo(
+      props.schema,
+      props.draggingInfo.moveId || "",
+      props.draggingInfo.parentId || "",
+      props.parent,
+      props.order
+    );
+  } else {
+    await moveBlockTo(
+      props.schema,
+      props.draggingInfo.moveId || "",
+      props.parent,
+      props.order
+    );
+  }
+  emit("updatePage");
+}
 </script>
 
 <template>
@@ -89,7 +113,7 @@ async function addComponentToBlock() {
       <div class="-translate-y-1/2">
         <div
           @dragover.prevent
-          @drop="addComponentToBlock"
+          @drop="handleDrop"
           @dragenter="hover = true"
           @dragleave="hover = false"
           ref="dropzone"

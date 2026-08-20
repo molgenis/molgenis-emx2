@@ -320,4 +320,6 @@ export interface IDraggingInfo {
   action: "create" | "move";
   componentName: string;
   componentType: string;
+  moveId?: string;
+  parentId?: string;
 }

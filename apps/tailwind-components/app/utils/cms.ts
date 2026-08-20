@@ -85,6 +85,58 @@ async function cmsFetch(
   return response;
 }
 
+export async function moveComponentUp(
+  schema: string,
+  componentId: string,
+  block: string
+) {
+  console.log("Move component up", componentId, block);
+}
+
+export async function moveComponentDown(
+  schema: string,
+  componentId: string,
+  block: string
+) {
+  console.log("Move component down", componentId, block);
+}
+
+export async function moveBlockUp(schema: string, block: string, page: string) {
+  console.log("Move block up", block, page);
+}
+
+export async function moveBlockDown(
+  schema: string,
+  block: string,
+  page: string
+) {
+  console.log("Move block down", block, page);
+}
+
+export async function moveComponentTo(
+  schema: string,
+  componentId: string,
+  oldBlockId: string,
+  newBlockId: string,
+  order: number
+) {
+  console.log(
+    "Move component to a different block",
+    componentId,
+    oldBlockId,
+    newBlockId,
+    order
+  );
+}
+export async function moveBlockTo(
+  schema: string,
+  blockId: string,
+  page: string,
+  order: number
+) {
+  console.log("Move block to a different page", blockId, page, order);
+}
+
 export async function deleteComponent(
   schema: string,
   componentId: string,
