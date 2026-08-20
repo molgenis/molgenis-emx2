@@ -96,7 +96,7 @@ export interface ITableMetaData {
   name: string;
   label: string;
   description?: string;
-  tableType: string;
+  tableType: TableType;
   columns: IColumn[];
   semantics?: string[];
   settings?: ISetting[];
@@ -199,3 +199,31 @@ export type IInputValueLabel = {
 export type IRow = Record<columnId, columnValue>;
 
 export type DateValue = Date | string | undefined | null;
+
+export type TaskStatus =
+  | "WAITING"
+  | "RUNNING"
+  | "COMPLETED"
+  | "SKIPPED"
+  | "WARNING"
+  | "ERROR"
+  | "UNKNOWN"
+  | "CANCELLED";
+
+export interface TaskResponse {
+  data: {
+    _tasks: {
+      id: string;
+      description: string;
+      status: TaskStatus;
+    }[];
+  };
+}
+
+export type TruncateStatus =
+  | "REQUEST_CONFIRMATION"
+  | "RUNNING"
+  | "COMPLETED"
+  | "FAILED";
+
+export type TableType = "ONTOLOGIES" | "DATA";

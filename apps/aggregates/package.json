@@ -1,5 +1,5 @@
 {
-  "name": "force-dashboard",
+  "name": "aggregates",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,9 +12,10 @@
   "dependencies": {
     "@heroicons/vue": "2.0.18",
     "d3-scale-chromatic": "3.1.0",
-    "graphql-request": "5.2.0",
+    "graphql-request": "6.1.0",
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
+    "tailwind-components": "workspace:*",
     "vue": "3.5.22",
     "vue-router": "4.4.3"
   },

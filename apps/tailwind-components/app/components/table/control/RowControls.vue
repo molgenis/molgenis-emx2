@@ -3,11 +3,13 @@ import { computed } from "vue";
 import Button from "../../Button.vue";
 import { Dropdown as VDropdown } from "floating-vue";
 import Checkbox from "../../input/Checkbox.vue";
-import BaseIcon from "../../BaseIcon.vue";
+
 const props = defineProps<{
   numberOfSelectedRows: number;
   allRowsSelected: boolean;
-  canEdit: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  canModifySelection: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -34,7 +36,7 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
       >
         <div class="flex items-center pl-2 pr-2 gap-2">
           <Checkbox
-            :model-value="allRowsSelected"
+            :model-value="allRowsSelected && numberOfSelectedRows > 0"
             :indeterminate="!allRowsSelected && numberOfSelectedRows > 0"
             :prevent-click="true"
           >
@@ -76,21 +78,21 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
     </div>
     <div class="flex flex-row items-center gap-2 pl-2">
       <Button
-        v-if="canEdit"
+        v-if="canDelete"
         :icon-only="true"
         icon="trash"
         type="inline"
         label="Delete selection"
-        :disabled="noRowsSelected"
+        :disabled="noRowsSelected || !canModifySelection"
         @click="emit('rowAction', { action: 'delete-selection' })"
       />
       <Button
-        v-if="canEdit"
+        v-if="canUpdate"
         :icon-only="true"
         icon="edit"
         type="inline"
         label="Edit"
-        :disabled="noRowsSelected || !singleRowSelected"
+        :disabled="noRowsSelected || !singleRowSelected || !canModifySelection"
         @click="emit('rowAction', { action: 'edit-selection' })"
       />
       <Button
