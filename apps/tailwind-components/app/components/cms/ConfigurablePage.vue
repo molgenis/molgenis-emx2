@@ -54,8 +54,6 @@ const sidebarCollapsed = ref(false);
       </div>
     </Sidebar>
     <div id="configurable-page-main" class="flex-1 min-w-0">
-      {{ draggingInfo }}
-
       <template
         v-for="orderedBlock in content.blockOrder"
         :key="orderedBlock.id"
