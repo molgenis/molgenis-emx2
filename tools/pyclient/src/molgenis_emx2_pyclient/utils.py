@@ -263,7 +263,7 @@ def prep_data_or_file(file_path: str | pathlib.Path | None = None, data: list | 
     log.error(message)
     raise FileNotFoundError(message)
 
-def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path | None = None) -> str | None:
+def data_to_csv(data: list[dict] | pd.DataFrame, filename: str | pathlib.Path | None = None) -> str | None:
     """Converts Molgenis-format data (DataFrame or list of dicts) to Molgenis-format CSV
     
     :param data: input data, in the form of a Molgenis table
@@ -292,6 +292,8 @@ def data_to_csv(data: list | pd.DataFrame, filename: str | pathlib.Path | None =
             writer = csv.DictWriter(target, fieldnames=columns, dialect=csv.excel)
             writer.writeheader()
             for row in data:
+                if not isinstance(row, dict):
+                    raise ValueError(f"Cannot prepare row {row!r}. Supply a list of dictionaries.")
                 cleaned_row = {}
                 for k, v in row.items():
                     # Replace 'nan' with 'None'
