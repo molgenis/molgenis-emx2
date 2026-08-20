@@ -13,7 +13,7 @@ RUN python3 --version
 ENV PATH="/root/.local/bin:${PATH}"
 RUN uv --version
 
-ENV NODE_VERSION=22.17.0
+ENV NODE_VERSION=24.19.0
 RUN apt install -y curl
 USER molgenis 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
