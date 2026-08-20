@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { useAsyncData } from "nuxt/app";
@@ -15,8 +15,20 @@ import NoResultsMessage from "../../../../../tailwind-components/app/components/
 
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchTableData from "../../../../../tailwind-components/app/composables/fetchTableData";
+import {
+  setCmsEditorUrl,
+  setCmsViewUrl,
+  newDeveloperPage,
+  addBlock,
+  addComponent,
+  randomId,
+} from "../../../../../tailwind-components/app/utils/cms";
+
+import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 
 import type { Crumb } from "../../../../../tailwind-components/types/types";
+import type { IContainers } from "../../../../../tailwind-components/types/cms";
+import type { ICmsPageTypes } from "../../../../../tailwind-components/types/CmsComponents.js";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -31,8 +43,18 @@ const crumbs: Crumb[] = [
 ];
 
 const formMetadata = ref();
+const formValues = ref();
+const formType = ref<ICmsPageTypes | undefined>();
 const showFormModal = ref<boolean>(false);
 const showPageDropdown = ref<boolean>(false);
+
+const { isAdmin, session } = await useSession(schema);
+const enableEditing = computed(() => {
+  return (
+    session.value?.roles?.[schema as string]?.includes("Manager") ||
+    isAdmin.value
+  );
+});
 
 const { data, refresh, error } = useAsyncData(
   `containers-${schema}`,
@@ -50,33 +72,58 @@ const { data, refresh, error } = useAsyncData(
     });
 
     return {
-      configurablePageMetadata,
-      developerPageMetadata,
-      containers,
+      configurablePageMetadata: configurablePageMetadata,
+      developerPageMetadata: developerPageMetadata,
+      containers: containers.rows as unknown as IContainers[],
     };
   }
 );
 
-function onAddNewPageClick(type: string) {
+function onAddNewPageClick(type: ICmsPageTypes) {
+  formValues.value = null;
   showPageDropdown.value = false;
-  if (type === "ConfigurablePage") {
+  formType.value = type;
+  if (formType.value === "ConfigurablePage") {
     formMetadata.value = data.value?.configurablePageMetadata;
   } else {
     formMetadata.value = data.value?.developerPageMetadata;
+    const newPage = newDeveloperPage(
+      "<h2>My new page</h2>\n<p>This is a demo page</p>"
+    );
+    formValues.value = newPage;
   }
   showFormModal.value = true;
 }
 
 async function onClose() {
-  await refresh();
+  showFormModal.value = false;
   formMetadata.value = undefined;
+  formValues.value = undefined;
+  formType.value = undefined;
+  await refresh();
 }
 
-function setNuxtLink(value: string, page: string): string {
-  if (value.endsWith(".Developer pages")) {
-    return `/${schema}/pages/${page}/editor`;
+async function onAddFormValues(value: IContainers) {
+  if (formType.value === "ConfigurablePage" && value.name) {
+    const bannerId = `Header-${randomId()}`;
+    const sectionId = `Section-${randomId()}`;
+    const headingId = `Heading-${randomId()}`;
+    const paragraphId = `Paragraph-${randomId()}`;
+
+    try {
+      await addBlock(schema, bannerId, value.name, 0, "Header");
+      await addBlock(schema, sectionId, value.name, 1, "Section");
+      await addComponent(schema, headingId, sectionId, 0, "Heading");
+      await addComponent(schema, paragraphId, sectionId, 1, "Paragraph");
+
+      await onClose();
+    } catch (error) {
+      const message: string = `Unable to save page:\n${error}`;
+      console.error(message);
+      throw new Error(message);
+    }
   } else {
-    return `/${schema}/pages/${page}/configure`;
+    await onClose();
   }
 }
 </script>
@@ -91,7 +138,7 @@ function setNuxtLink(value: string, page: string): string {
     <div class="flex pb-7.5 justify-between">
       <div class="w-3/5 xl:w-2/5 2xl:w-1/5" />
       <div class="flex gap-2.5">
-        <div class="relative">
+        <div class="relative" v-if="enableEditing">
           <Button
             id="openAddNewPageDropdown"
             type="outline"
@@ -118,7 +165,7 @@ function setNuxtLink(value: string, page: string): string {
               class="w-full"
               @click="onAddNewPageClick('ConfigurablePage')"
             >
-              Simple page
+              Landing page
             </Button>
             <Button
               id="addNewDeveloperPageBtn"
@@ -134,18 +181,19 @@ function setNuxtLink(value: string, page: string): string {
     </div>
     <div
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 flew-wrap justify-start items-center gap-7.5"
-      v-if="data?.containers?.rows"
+      v-if="data?.containers"
     >
       <div
-        v-for="container in data.containers.rows"
+        v-for="container in data.containers"
         class="relative group border rounded-base w-full h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
       >
         <div
+          v-if="enableEditing"
           class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full text-button-text hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
           v-tooltip.bottom="`Edit`"
         >
           <NuxtLink
-            :to="setNuxtLink((container.mg_tableclass as string), (container.name as string))"
+            :to="setCmsEditorUrl(schema, (container.mg_tableclass as string), container.name)"
             class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
           >
             <BaseIcon name="Edit" :width="18" />
@@ -153,17 +201,14 @@ function setNuxtLink(value: string, page: string): string {
           </NuxtLink>
         </div>
         <NuxtLink
-          :to="`/${schema}/pages/${container.name}/`"
+          :to="setCmsViewUrl(schema, container.name)"
           class="text-button-text hover:underline"
         >
           {{ container.name }}
         </NuxtLink>
       </div>
     </div>
-    <div
-      v-else-if="data && data.containers && !data.containers.rows"
-      class="w-full text-center"
-    >
+    <div v-else-if="!data?.containers" class="w-full text-center">
       <NoResultsMessage
         label="No pages found. Add a new page to get started."
       />
@@ -175,13 +220,15 @@ function setNuxtLink(value: string, page: string): string {
     </div>
   </Container>
   <EditModal
-    v-if="formMetadata"
+    v-if="formMetadata && enableEditing"
     key="edit-modal-configurable-page"
     :showButton="false"
     :schemaId="(schema as string)"
     :metadata="formMetadata"
+    :formValues="formValues"
     :isInsert="true"
     v-model:visible="showFormModal"
     @update:cancelled="onClose"
+    @update:addedFormValues="onAddFormValues"
   />
 </template>
