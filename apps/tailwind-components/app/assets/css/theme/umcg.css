@@ -61,6 +61,7 @@
   --text-color-button-disabled: var(--color-gray-600);
   --text-color-button-disabled-hover: var(--color-gray-600);
   --text-color-menu: var(--color-umcg-dark-blue);
+  --text-color-menu-dynamic: var(--color-umcg-dark-blue);
   --text-color-sub-menu: var(--color-umcg-dark-blue);
   --text-color-sub-menu-hover: var(--color-umcg-dark-blue);
   --text-color-breadcrumb-arrow: var(--color-umcg-mid-blue);
@@ -104,12 +105,12 @@
   --border-color-button-tertiary-hover: var(--color-umcg-dark-blue);
   --border-color-button-outline: var(--color-umcg-dark-blue);
   --border-color-button-outline-hover: var(--color-umcg-dark-blue);
-  --border-color-button-disabled: var(--color-gray.100);
-  --border-color-button-disabled-hover: var(--color-gray.100);
+  --border-color-button-disabled: var(--color-gray-100);
+  --border-color-button-disabled-hover: var(--color-gray-100);
   --border-color-menu-active: var(--color-orange-500);
   --border-color-search-button: #cccccc;
   --border-color-search-input: #cccccc;
-  --border-color-search-input-mobile: var(--color-gray.100);
+  --border-color-search-input-mobile: var(--color-gray-100);
   --border-color-pagination: var(--color-umcg-dark-blue);
   --border-color-checkbox: #cccccc;
   --border-color-footer: var(--background-color-footer);

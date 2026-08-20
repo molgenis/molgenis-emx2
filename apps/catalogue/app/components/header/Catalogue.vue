@@ -23,6 +23,10 @@ const props = defineProps<{
   logoTitle?: string;
 }>();
 
+const logoAlt = computed(
+  () => props.catalogue?.name || props.catalogue?.acronym
+);
+
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
   return routeSetting === "true" || config.public.cohortOnly;
@@ -108,6 +112,7 @@ if (!cohortOnly.value) {
         <Logo
           :link="`/${catalogueRouteParam}`"
           :image="catalogue?.logo?.url ?? logoSrc"
+          :alt="logoAlt"
           :inverted="true"
         />
         <MainNavigation :navigation="menu" :invert="true" />

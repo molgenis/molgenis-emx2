@@ -81,11 +81,11 @@ export interface IComponents extends IMgTableClass {
   headingIsHidden?: boolean;
   title?: string;
   description?: string;
-  url: string;
+  url?: string;
   urlLabel?: string;
   urlIsExternal?: boolean;
   displayedInNavigationGroup?: any;
-  order: number;
+  order?: number;
   items?: string[];
 }
 
@@ -266,8 +266,7 @@ export interface IParagraphs_agg {
 export interface ISections extends IMgTableClass {
   enableFullScreenWidth?: boolean;
   inContainer?: any;
-  components?: IComponents[];
-  componentOrder?: IComponentOrders[];
+  isEditable?: boolean;
   id: string;
 }
 
