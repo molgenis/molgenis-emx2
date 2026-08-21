@@ -11,6 +11,7 @@ import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.CsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
@@ -76,7 +77,10 @@ public class Harvest implements Runnable {
         new HarvestingPipelineConfig.Builder(rdfURI, schema, extractor, transformer)
             .setTables(tables)
             .withPostProcessors(new DCATPostProcessor(schema.getMetadata()))
-            .withPreProcessors(new TemporalRdfPreProcessor(), new TypicalAgeRdfPreProcessor());
+            .withPreProcessors(
+                new TemporalRdfPreProcessor(),
+                new TypicalAgeRdfPreProcessor(),
+                new CsvwPreProcessor());
 
     if (outputPath != null) {
       builder.withDumpEnabled(outputPath);
