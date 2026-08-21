@@ -3,8 +3,9 @@ import { ref } from "vue";
 import type { ISections } from "../../../types/cms";
 import ComponentActions from "./ComponentActions.vue";
 
-const props = withDefaults(defineProps<ISections>(), {
+const props = withDefaults(defineProps<ISections & { isEditable: boolean }>(), {
   enableFullScreenWidth: false,
+  applyShadedBackground: false,
   isEditable: false,
 });
 
@@ -45,7 +46,12 @@ const showMenu = ref<boolean>(false);
       </div>
     </VMenu>
 
-    <div class="w-full py-8 justify-center items-center">
+    <div
+      class="w-full py-8 justify-center items-center"
+      :class="{
+        'bg-form-legend': applyShadedBackground,
+      }"
+    >
       <div
         class="m-auto"
         :class="{
