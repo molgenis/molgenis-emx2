@@ -23,6 +23,7 @@ public class DCATPostProcessor implements PostProcessor {
                 "Catalogues", "type", "http://semanticscience.org/resource/SIO_001067"),
 
             // Resolve semantic uri of ontologies to their designated names
+            new ResolveRefbackPostProcessor(schema),
             new ResolveOntologyPostProcessor(schema),
             new ResolveMissingPkPostProcessor(schema),
 
