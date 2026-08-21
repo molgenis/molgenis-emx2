@@ -1,6 +1,7 @@
 <template>
   <div>Manage templates</div>
   <TableExplorer
+    ref="templatesTable"
     tableId="Templates"
     schemaId="_SYSTEM_"
     :canEdit="false"
@@ -13,10 +14,15 @@
         :api="slotProps.row.endpoint"
         :tableName="slotProps.row.tableName"
         type="update"
+        @saved="reloadTemplates"
       />
     </template>
   </TableExplorer>
-  <TemplateEditButton type="insert" icon="plus"></TemplateEditButton>
+  <TemplateEditButton
+    type="insert"
+    icon="plus"
+    @saved="reloadTemplates"
+  ></TemplateEditButton>
 </template>
 
 <script>
@@ -30,6 +36,11 @@ export default {
   },
   props: {
     session: Object,
+  },
+  methods: {
+    reloadTemplates() {
+      this.$refs.templatesTable?.reload();
+    },
   },
 };
 </script>
