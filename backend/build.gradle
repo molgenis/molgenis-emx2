@@ -122,6 +122,15 @@ subprojects {
         sourceCompatibility = rootProject.ext.javaVersion
     }
 
+    normalization {
+        runtimeClasspath {
+            metaInf {
+                ignoreAttribute("Implementation-Version")
+                ignoreAttribute("Build-OS")
+            }
+        }
+    }
+
     jar {
         reproducibleFileOrder = true
         manifest {
@@ -150,7 +159,7 @@ subprojects {
         }
     }
 
-    tasks.withType(Test).configureEach { rootProject.ext.forwardDotenvProps(it) }
+    tasks.withType(Test).configureEach { rootProject.ext.forwardDotenvPropsToTest(it) }
     tasks.withType(JavaExec).configureEach { rootProject.ext.forwardDotenvProps(it) }
 
     test.dependsOn ":backend:molgenis-emx2-sql:initDatabase"
