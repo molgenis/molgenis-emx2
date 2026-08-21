@@ -216,10 +216,10 @@ commands:
   restore_apt_postgres_client:
     steps:
     - run:
-        name: Record the apt cache key from the postgres client, image and architecture
+        name: Record the apt cache key from the postgres client version, image and architecture
         command: |
           {
-            echo "postgresql-client"
+            echo "postgresql-client-15"
             (. /etc/os-release && echo "$VERSION_CODENAME")
             dpkg --print-architecture
             sed -n 's|.*image: *mcr\.microsoft\.com/playwright:\(.*\)$|\1|p' .circleci/config.yml
@@ -234,7 +234,31 @@ commands:
         paths:
           - /var/cache/apt/archives
           - /var/lib/apt/lists
+          - /etc/apt/sources.list.d/pgdg.list
+          - /usr/share/postgresql-common/pgdg
         key: apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
+
+  restore_demo_dump:
+    steps:
+    - run:
+        name: Compute the demo-dump cache key over backend, data and the EMX2 jar
+        command: bash ci/e2e_demo_dump.sh key
+    - restore_cache:
+        keys:
+          - emx2-demo-dump-v1-{{ checksum "emx2-demo-dump-key" }}
+    - run:
+        name: Restore the cached demo database, or fall back to a full import
+        command: bash ci/e2e_demo_dump.sh restore
+
+  save_demo_dump:
+    steps:
+    - run:
+        name: Dump the imported demo database for the next run
+        command: bash ci/e2e_demo_dump.sh save
+    - save_cache:
+        paths:
+          - ~/emx2-demo-dump
+        key: emx2-demo-dump-v1-{{ checksum "emx2-demo-dump-key" }}
 
   post_steps:
     steps:
@@ -338,20 +362,45 @@ jobs:
       - restore_apt_postgres_client
 
       - run:
-          name: install postgres client
+          name: install postgres client matching the postgres 15 service
           command: |
-            if [ -n "$(find /var/lib/apt/lists -name '*_Packages*' -print -quit 2>/dev/null)" ]; then
-              echo "apt lists restored from cache, skipping apt-get update"
-            else
+            echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/99keep-downloaded-packages
+            installFromRestoredAptCache() {
+              [ -s /etc/apt/sources.list.d/pgdg.list ] || return 1
+              [ -n "$(find /var/lib/apt/lists -name '*_Packages*' -print -quit 2>/dev/null)" ] || return 1
+              apt-get install -y postgresql-client-15
+            }
+            installFromPostgresqlOrg() {
+              apt-get install -y curl ca-certificates
+              install -d /usr/share/postgresql-common/pgdg
+              curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+                -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+              echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo "$VERSION_CODENAME")-pgdg main" \
+                > /etc/apt/sources.list.d/pgdg.list
               apt-get update
+              apt-get install -y postgresql-client-15
+            }
+            if installFromRestoredAptCache; then
+              echo "postgres client installed from the restored apt cache, apt-get update was skipped"
+            else
+              echo "APT_CACHE_UNUSABLE: installing from the network"
+              apt-get update
+              if ! installFromPostgresqlOrg; then
+                echo "postgresql-client-15 is unavailable, falling back to the distribution client"
+                echo "pg_dump will refuse the newer server, so the demo dump cache stays empty"
+                apt-get install -y postgresql-client
+              fi
             fi
-            apt-get install -y postgresql-client
+            psql --version
+            pg_dump --version
 
       - save_apt_postgres_client
 
       - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+
+      - restore_demo_dump
 
       - run:
           name: Install Java
@@ -373,10 +422,14 @@ jobs:
           name: start the application in the background
           command: |
             export $( cat build/ci.properties | xargs )
-            export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
-            export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
-            export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
-            export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            if [ "${MOLGENIS_DEMO_DUMP_RESTORED:-false}" = "true" ]; then
+              echo "booting against the restored demo database, so no demo is imported"
+            else
+              export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
+              export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
+              export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
+              export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            fi
             export E2E_BASE_URL=http://localhost:8080/
             export MOLGENIS_OIDC_CLIENT_ID=emx2-local
             export MOLGENIS_OIDC_CLIENT_SECRET=${LOCAL_OIDC_CLIENT_SECRET}
@@ -417,7 +470,9 @@ jobs:
               fi
 
               sleep 1
-            done            
+            done
+
+      - save_demo_dump
 
       - run:
           name: Test tailwind components

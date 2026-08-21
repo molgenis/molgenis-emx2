@@ -46,6 +46,10 @@ test("add new row", async ({ page }) => {
   await page.getByRole("textbox", { name: "weight Required" }).click();
   await page.getByRole("textbox", { name: "weight Required" }).fill("23");
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  // the row exists only once the save resolves, and Save re-enables then
+  await expect(
+    page.getByRole("button", { name: "Save", exact: true })
+  ).toBeEnabled();
   await page.getByRole("button", { name: "Close modal", exact: true }).click();
 
   await expect(
