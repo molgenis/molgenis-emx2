@@ -42,14 +42,14 @@ class TestInherits {
 
     // test if fails if no primary key
     try {
-      s.create(table("Employee").setInheritName(person.getName()));
+      s.create(table("Employee").setInheritNames(person.getName()));
       fail("Should fail because does not have pkey");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
     }
 
     try {
-      s.create(table("Employee").setInheritName("fake_table"));
+      s.create(table("Employee").setInheritNames("fake_table"));
       fail("Should fail");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -62,7 +62,7 @@ class TestInherits {
     // create first extended table
     Table employee =
         s.create(
-            table("Employee").setInheritName(person.getName()).add(column("salary").setType(INT)));
+            table("Employee").setInheritNames(person.getName()).add(column("salary").setType(INT)));
 
     // check that mg_tableclass column doesn't have a default (regression #2936)
     assertNull(employee.getMetadata().getColumn(MG_TABLECLASS).getDefaultValue());
@@ -83,14 +83,14 @@ class TestInherits {
     Table manager =
         s.create(
             table("Manager")
-                .setInheritName("Employee")
+                .setInheritNames("Employee")
                 .add(column("directs").setType(REF_ARRAY).setRefTable("Employee")));
 
     Schema otherSchema = db.createSchema(TestInherits.class.getSimpleName() + "1");
     Table ceo =
         otherSchema.create(
             table("CEO")
-                .setInheritName("Manager")
+                .setInheritNames("Manager")
                 .setImportSchema(s.getName())
                 .add(column("title")));
 
@@ -129,7 +129,7 @@ class TestInherits {
 
     // try to extend twice
     try {
-      manager.getMetadata().setInheritName("Student");
+      manager.getMetadata().setInheritNames("Student");
       fail("should fail: cannot extend another table");
     } catch (MolgenisException e) {
       System.out.println("Errored correctly:\n" + e);
@@ -137,7 +137,9 @@ class TestInherits {
 
     // create another extended table
     s.create(
-        table("Student").setInheritName(person.getName()).add(column("averageGrade").setType(INT)));
+        table("Student")
+            .setInheritNames(person.getName())
+            .add(column("averageGrade").setType(INT)));
 
     // test insert, retrieve
     Table studentTable = s.getTable("Student");
@@ -342,7 +344,7 @@ class TestInherits {
     Table tableB =
         schema.create(
             table("test_inheritance_B", new Column("b_label").setType(ColumnType.INT))
-                .setInheritName("test_inheritance_A"));
+                .setInheritNames("test_inheritance_A"));
 
     List<Row> rows =
         IntStream.range(0, 100).boxed().map(i -> Row.row("a_label", i, "b_label", i)).toList();
@@ -365,10 +367,10 @@ class TestInherits {
     childSchema.create(
         table("MyShape", column("size").setType(INT))
             .setImportSchema(parentSchemaName)
-            .setInheritName("Shape"));
+            .setInheritNames("Shape"));
 
     SchemaMetadata reimport = new SchemaMetadata(childSchemaName);
-    reimport.create(table("MyShape", column("size").setType(INT)).setInheritName("Shape"));
+    reimport.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> childSchema.migrate(reimport));
@@ -394,13 +396,13 @@ class TestInherits {
     childSchema.create(
         table("MyShape", column("size").setType(INT))
             .setImportSchema(parentSchemaName)
-            .setInheritName("Shape"));
+            .setInheritNames("Shape"));
 
     SchemaMetadata reimport = new SchemaMetadata(childSchemaName);
     reimport.create(
         table("MyShape", column("size").setType(INT))
             .setImportSchema(parentSchemaName)
-            .setInheritName("NoSuchParentTable"));
+            .setInheritNames("NoSuchParentTable"));
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> childSchema.migrate(reimport));
@@ -429,7 +431,7 @@ class TestInherits {
 
     TableMetadata employee =
         table("Employee", column("salary"))
-            .setInheritName("Contact")
+            .setInheritNames("Contact")
             .setImportSchema(parentSchemaName);
 
     MolgenisException exception =
@@ -460,13 +462,13 @@ class TestInherits {
     childSchema.create(
         table("MyShape", column("size").setType(INT))
             .setImportSchema(parentSchemaName)
-            .setInheritName("Shape"));
+            .setInheritNames("Shape"));
 
     SchemaMetadata reimport = new SchemaMetadata(childSchemaName);
     reimport.create(
         table("MyShape", column("size").setType(INT))
             .setImportSchema("TestInheritsNoSuchSchema")
-            .setInheritName("Shape"));
+            .setInheritNames("Shape"));
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> childSchema.migrate(reimport));
@@ -494,13 +496,13 @@ class TestInherits {
     child.create(
         table("MyShape", column("size").setType(INT))
             .setImportSchema(parentA)
-            .setInheritName("Shape"));
+            .setInheritNames("Shape"));
 
     SchemaMetadata reimport = new SchemaMetadata(childSchemaName);
     reimport.create(
         table("MyShape", column("size").setType(INT))
             .setImportSchema(parentB)
-            .setInheritName("Shape"));
+            .setInheritNames("Shape"));
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> child.migrate(reimport));
@@ -527,12 +529,12 @@ class TestInherits {
     Schema schema = db.dropCreateSchema(schemaName);
     schema.create(table("Shape", column("name").setPkey()));
     schema.create(table("OtherShape", column("othername").setPkey()));
-    schema.create(table("MyShape", column("size").setType(INT)).setInheritName("Shape"));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
 
     SchemaMetadata reimport = new SchemaMetadata(schemaName);
     reimport.create(table("Shape", column("name").setPkey()));
     reimport.create(table("OtherShape", column("othername").setPkey()));
-    reimport.create(table("MyShape", column("size").setType(INT)).setInheritName("OtherShape"));
+    reimport.create(table("MyShape", column("size").setType(INT)).setInheritNames("OtherShape"));
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> schema.migrate(reimport));
@@ -546,7 +548,7 @@ class TestInherits {
                     + ".MyShape': inheritance cannot be changed after the table is created."),
         exception.getMessage());
     TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
-    assertEquals("Shape", after.getInheritName());
+    assertEquals(List.of("Shape"), after.getInheritNames());
     assertTrue(after.getColumnNames().contains("name"), after.getColumnNames().toString());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
@@ -562,7 +564,7 @@ class TestInherits {
 
     SchemaMetadata reimport = new SchemaMetadata(schemaName);
     reimport.create(table("Shape", column("name").setPkey()));
-    reimport.create(table("MyShape", column("size").setType(INT)).setInheritName("Shape"));
+    reimport.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> schema.migrate(reimport));
@@ -577,7 +579,7 @@ class TestInherits {
         exception.getMessage());
 
     TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
-    assertNull(after.getInheritName());
+    assertTrue(after.getInheritNames().isEmpty());
     assertFalse(after.getColumnNames().contains("name"), after.getColumnNames().toString());
     db.getSchema(schemaName).getTable("MyShape").insert(row("myid", "m1", "size", 3));
     assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
@@ -592,7 +594,7 @@ class TestInherits {
 
     SchemaMetadata reimport = new SchemaMetadata(schemaName);
     reimport.create(table("Shape", column("name").setPkey()));
-    reimport.create(table("MyShape", column("size").setType(INT)).setInheritName("Shape"));
+    reimport.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> schema.migrate(reimport));
@@ -608,7 +610,7 @@ class TestInherits {
     assertFalse(exception.getMessage().contains("already exists"), exception.getMessage());
 
     TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
-    assertNull(after.getInheritName());
+    assertTrue(after.getInheritNames().isEmpty());
     assertTrue(after.getColumnNames().contains("name"), after.getColumnNames().toString());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
@@ -623,13 +625,13 @@ class TestInherits {
     db.dropCreateSchema(otherSchemaName).create(table("Shape", column("name").setPkey()));
     Schema schema = db.createSchema(schemaName);
     schema.create(table("Shape", column("name").setPkey()));
-    schema.create(table("MyShape", column("size").setType(INT)).setInheritName("Shape"));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
 
     SchemaMetadata reimport = new SchemaMetadata(schemaName);
     reimport.create(table("Shape", column("name").setPkey()));
     reimport.create(
         table("MyShape", column("size").setType(INT))
-            .setInheritName("Shape")
+            .setInheritNames("Shape")
             .setImportSchema(otherSchemaName));
 
     MolgenisException exception =
@@ -646,7 +648,7 @@ class TestInherits {
 
     TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
     assertNull(after.getImportSchema());
-    assertEquals("Shape", after.getInheritName());
+    assertEquals(List.of("Shape"), after.getInheritNames());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(schemaName));
@@ -657,7 +659,7 @@ class TestInherits {
     String schemaName = TestInherits.class.getSimpleName() + "_removeextends";
     Schema schema = db.dropCreateSchema(schemaName);
     schema.create(table("Shape", column("name").setPkey()));
-    schema.create(table("MyShape", column("size").setType(INT)).setInheritName("Shape"));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
 
     SchemaMetadata reimport = new SchemaMetadata(schemaName);
     reimport.create(table("Shape", column("name").setPkey()));
@@ -676,7 +678,7 @@ class TestInherits {
         exception.getMessage());
 
     TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
-    assertEquals("Shape", after.getInheritName());
+    assertEquals(List.of("Shape"), after.getInheritNames());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(schemaName));
@@ -692,7 +694,7 @@ class TestInherits {
     child.create(
         table("MyShape", column("size").setType(INT))
             .setImportSchema(parentSchemaName)
-            .setInheritName("Shape"));
+            .setInheritNames("Shape"));
 
     TableMetadata parentTable =
         db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape");
@@ -724,7 +726,7 @@ class TestInherits {
     String schemaName = TestInherits.class.getSimpleName() + "_rename_local";
     Schema schema = db.dropCreateSchema(schemaName);
     schema.create(table("Shape", column("name").setPkey()));
-    schema.create(table("MyShape", column("size").setType(INT)).setInheritName("Shape"));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
 
     TableMetadata parentTable = schema.getMetadata().getTableMetadata("Shape");
 
@@ -754,7 +756,7 @@ class TestInherits {
     String schemaName = TestInherits.class.getSimpleName() + "_rename_childtable";
     Schema schema = db.dropCreateSchema(schemaName);
     schema.create(table("Shape", column("name").setPkey()));
-    schema.create(table("MyShape", column("size").setType(INT)).setInheritName("Shape"));
+    schema.create(table("MyShape", column("size").setType(INT)).setInheritNames("Shape"));
 
     assertDoesNotThrow(
         () -> schema.getMetadata().getTableMetadata("MyShape").alterName("MyRenamedShape"));
@@ -775,7 +777,7 @@ class TestInherits {
     child.create(
         table("MyShape", column("size").setType(INT))
             .setImportSchema(parentSchemaName)
-            .setInheritName("Shape"));
+            .setInheritNames("Shape"));
 
     SchemaMetadata renamePayload = new SchemaMetadata(parentSchemaName);
     renamePayload.create(table("Renamed", column("name").setPkey()).setOldName("Shape"));
