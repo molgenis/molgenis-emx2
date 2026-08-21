@@ -16,6 +16,13 @@ In addition we have special roles to allow for specific permissions around aggre
 * **range** - context: schema: Has permission to count table rows, with a step-size of 10 (e.g. 10,20..120,130 etc.), and to view ontology data
 * **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
 
+Finally there is one role that carries no permission on data at all:
+
+* **using** - context: schema. Marks membership of a schema: the schema is visible in the schema list
+  and can be used. Every other role, standard or custom, is a member of this role. Unlike **exists**
+  it does not bypass row-level security, so a user who only reaches a table through **using** sees
+  aggregates over the rows they are allowed to see, and nothing more.
+
 
 ## Custom roles
 
@@ -54,15 +61,21 @@ When RLS is enabled for a role on a table:
 
 **Who bypasses row-level security:**
 
-RLS is bypassed in three cases:
+RLS is bypassed in four cases:
 
 - **Viewer** role: bypass for SELECT only. Viewers see all rows regardless of `mg_roles`. A user
   can hold both an RLS role and the Viewer role at the same time — in that case they see all rows
   (including rows with an empty `mg_roles`) but their write operations are still limited to rows
   tagged with their RLS role.
 - **Editor**, **Manager**, or **Owner** role: bypass for all operations.
+- The aggregate roles **Exists**, **Range**, **Aggregator** and **Count**: bypass for SELECT only.
+  These roles are schema-wide, so their counts stay over the whole table when row-level security is
+  enabled. They cannot read rows: the aggregate roles are limited to aggregate queries.
 - A non-RLS custom role granted on the same table: bypass for all operations on that table.
   Granting RLS to one role does not restrict another role that has a plain (non-RLS) grant.
+
+A custom role never bypasses row-level security by itself, not even for aggregates: it holds the
+**Using** role rather than **Exists**, so its counts only cover the rows it may see.
 
 **Example:**
 

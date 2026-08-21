@@ -9,7 +9,17 @@ class TestPrivileges {
 
   @ParameterizedTest
   @ValueSource(
-      strings = {"Viewer", "Editor", "Manager", "Owner", "Exists", "Range", "Aggregator", "Count"})
+      strings = {
+        "Using",
+        "Viewer",
+        "Editor",
+        "Manager",
+        "Owner",
+        "Exists",
+        "Range",
+        "Aggregator",
+        "Count"
+      })
   void isSystemRoleRecognisesAllBuiltInRoles(String roleName) {
     assertTrue(Privileges.isSystemRole(roleName));
   }
