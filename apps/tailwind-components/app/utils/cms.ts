@@ -85,6 +85,109 @@ async function cmsFetch(
   return response;
 }
 
+export async function moveComponentUp(
+  schema: string,
+  componentId: string,
+  order: number,
+  block: string
+) {
+  // get the current order of the component
+
+  console.log("Move component up", componentId, block);
+}
+
+export async function moveComponentDown(
+  schema: string,
+  componentId: string,
+  order: number,
+  block: string
+) {
+  // get the last order of the component in the block
+  console.log("Move component down", componentId, block);
+}
+
+export async function moveBlockUp(
+  schema: string,
+  blockOrderId: string,
+  order: number,
+  page: string
+) {
+  const newOrder = Math.max(0, order - 1);
+  const query = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: blockOrderId,
+      order: newOrder,
+    },
+  };
+
+  await prepareBlockOrder(schema, newOrder, page);
+  await cmsFetch(schema, query, vars);
+  await fullReorder(schema, page, "Block");
+}
+
+export async function moveBlockDown(
+  schema: string,
+  blockOrderId: string,
+  order: number,
+  page: string
+) {
+  const newOrder = order + 1;
+  const query = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: blockOrderId,
+      order: newOrder,
+    },
+  };
+
+  await prepareBlockOrder(schema, newOrder + 1, page);
+  await cmsFetch(schema, query, vars);
+  await fullReorder(schema, page, "Block");
+}
+
+export async function moveComponentTo(
+  schema: string,
+  componentId: string,
+  oldBlockId: string,
+  newBlockId: string,
+  order: number
+) {
+  const query = `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: componentId,
+      block: {
+        id: newBlockId,
+      },
+      order: order,
+    },
+  };
+  await prepareOrder(schema, order, newBlockId);
+  await cmsFetch(schema, query, vars);
+  await fullReorder(schema, oldBlockId, "Component");
+  if (oldBlockId !== newBlockId) {
+    await fullReorder(schema, newBlockId, "Component");
+  }
+}
+
+export async function moveBlockTo(
+  schema: string,
+  blockOrderId: string,
+  page: string,
+  order: number
+) {
+  const query = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: blockOrderId,
+      order: order,
+    },
+  };
+  await prepareBlockOrder(schema, order, page);
+  await cmsFetch(schema, query, vars);
+}
+
 export async function deleteComponent(
   schema: string,
   componentId: string,

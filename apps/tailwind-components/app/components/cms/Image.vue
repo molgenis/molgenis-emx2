@@ -10,7 +10,7 @@ const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   imageIsCentered: false,
 });
 
-const emit = defineEmits(["edit", "delete"]);
+const emit = defineEmits(["edit", "delete", "move"]);
 
 const showMenu = ref<boolean>(true);
 
@@ -57,6 +57,7 @@ if (src.value && props.height) {
         :aria-controls="id"
         @edit="$emit('edit')"
         @delete="$emit('delete')"
+        @move="$emit('move', $event)"
         class="right-2 top-2 !left-auto"
       />
     </div>

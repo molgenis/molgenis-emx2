@@ -4,7 +4,13 @@ import { useElementBounding } from "@vueuse/core";
 import { ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn as useAnimationFrame } from "@vueuse/core";
-import { addBlock, addComponent } from "../../utils/cms";
+import { hideAllPoppers } from "floating-vue";
+import {
+  addBlock,
+  addComponent,
+  moveBlockTo,
+  moveComponentTo,
+} from "../../utils/cms";
 import type { IDraggingInfo } from "../../../types/cms";
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
@@ -51,7 +57,13 @@ useAnimationFrame(() => {
     0
   );
 });
-
+async function handleDrop() {
+  if (props.draggingInfo.action === "create") {
+    await addComponentToBlock();
+  } else {
+    await moveComponentToBlock();
+  }
+}
 async function addComponentToBlock() {
   if (props.draggingInfo.componentType === "Component") {
     await addComponent(
@@ -70,6 +82,27 @@ async function addComponentToBlock() {
       props.draggingInfo.componentName
     );
   }
+  hideAllPoppers();
+  emit("updatePage");
+}
+async function moveComponentToBlock() {
+  if (props.draggingInfo.componentType === "Component") {
+    await moveComponentTo(
+      props.schema,
+      props.draggingInfo.moveOrderId || "",
+      props.draggingInfo.parentId || "",
+      props.parent,
+      props.order
+    );
+  } else {
+    await moveBlockTo(
+      props.schema,
+      props.draggingInfo.moveOrderId || "",
+      props.parent,
+      props.order
+    );
+  }
+  hideAllPoppers();
   emit("updatePage");
 }
 </script>
@@ -83,7 +116,7 @@ async function addComponentToBlock() {
       <div class="-translate-y-1/2">
         <div
           @dragover.prevent
-          @drop="addComponentToBlock"
+          @drop="handleDrop"
           @dragenter="hover = true"
           @dragleave="hover = false"
           ref="dropzone"
@@ -96,7 +129,8 @@ async function addComponentToBlock() {
           :style="{ height: distance + 'px' }"
         >
           <p class="text-title-contrast pointer-events-none">
-            Add new {{ props.draggingInfo.componentName }}
+            {{ props.draggingInfo.action === "create" ? "Add new" : "Move" }}
+            {{ props.draggingInfo.componentName }}
             <span class="hidden" :class="{ '!inline': hover }">here</span>
           </p>
         </div>
