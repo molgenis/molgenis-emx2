@@ -21,6 +21,9 @@ export interface EditorSchema {
   ontologies?: EditorTable[];
 }
 
+// The fields that where computed and should not be saved to the database
+const COMPUTED_FIELDS = ["inherited"];
+
 export function applyTableRename(
   rootTable: EditorTable,
   previousName: string,
@@ -83,7 +86,16 @@ export function toSaveTables(schema: EditorSchema): EditorTable[] {
       (column) => column.table === table.name
     );
   });
-  return [...Object.values(tableMap), ...(schema.ontologies || [])];
+  const toSave = [...Object.values(tableMap), ...(schema.ontologies || [])];
+  return toSave.map(removeComputedFields);
+}
+
+function removeComputedFields(table: EditorTable): EditorTable {
+  table.columns = table.columns?.filter((col) => {
+    COMPUTED_FIELDS.forEach((field) => delete col[field]);
+    return col;
+  });
+  return table;
 }
 
 function withSubclasses(rootTable: EditorTable): EditorTable[] {
