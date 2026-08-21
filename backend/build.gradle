@@ -37,7 +37,22 @@ subprojects {
         consoleOutput = true
         toolVersion = "7.26.0"
         ruleSetFiles = files("${project.rootDir}/pmd_ruleset.xml")
-        ruleSets = []
+        ruleSets = ["rulesets/java/quickstart.xml"]
+    }
+
+    tasks.register("pmdChanged", Pmd) {
+        def sourceFiles = sourceSets.main.java.asFileTree.files + sourceSets.test.java.asFileTree.files
+
+        def changedFiles = providers.exec {
+            commandLine "git", "diff", "--name-only", "origin/master", "--", "*.java"
+        }.standardOutput.asText.map { output ->
+            output.readLines()
+                    .collect { rootProject.file(it) }
+                    .findAll { it.exists() && it in sourceFiles }
+        }
+
+        source = files(changedFiles)
+        classpath = sourceSets.main.compileClasspath
     }
 
     compileJava.dependsOn 'spotlessApply'
