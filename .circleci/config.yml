@@ -27,6 +27,7 @@ definitions:
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
+      npm_config_store_dir: /tmp/pnpm-store-apps
   test_config: &test_config
     docker:
     - image: molgenis/ci-build:1.6.3
@@ -41,6 +42,7 @@ definitions:
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
+      npm_config_store_dir: /tmp/pnpm-store-apps
   release_config: &release_config
     docker:
       - image: molgenis/ci-build:1.6.3
@@ -162,6 +164,55 @@ commands:
           - apps/.turbo/cache
         key: turbo-v1-{{ .Revision }}
 
+  restore_pnpm_store:
+    parameters:
+      tree:
+        type: string
+    steps:
+    - run:
+        name: Record the pnpm versions that install into << parameters.tree >>
+        command: |
+          sed -n 's/.*"packageManager" *: *"pnpm@\([^"]*\)".*/\1/p' apps/package.json > pnpm-version
+          sed -n 's/.*pnpmVersion *= *"\([^"]*\)".*/\1/p' apps/build.gradle >> pnpm-version
+          echo "pnpm versions that perform the install: $(tr '\n' ' ' < pnpm-version)"
+    - restore_cache:
+        keys:
+          - pnpm-store-v3-<< parameters.tree >>-{{ checksum "pnpm-version" }}-{{ checksum "<< parameters.tree >>/pnpm-lock.yaml" }}
+          - pnpm-store-v3-<< parameters.tree >>-{{ checksum "pnpm-version" }}-
+          - pnpm-store-v3-<< parameters.tree >>-
+
+  save_pnpm_store:
+    parameters:
+      tree:
+        type: string
+    steps:
+    - run:
+        name: Check << parameters.tree >> installed into its pinned store
+        command: |
+          STORE_DIR="/tmp/pnpm-store-<< parameters.tree >>"
+          MODULES_YAML="<< parameters.tree >>/node_modules/.modules.yaml"
+          if [ ! -f "$MODULES_YAML" ]; then
+            echo "PNPM_STORE_PIN_IGNORED: $MODULES_YAML does not exist, so << parameters.tree >> was never installed"
+            exit 1
+          fi
+          RECORDED_STORE=$(sed -n 's/^storeDir: *//p' "$MODULES_YAML")
+          # pnpm writes its own versioned subdirectory (e.g. .../v10) under the store directory it
+          # was given, so a correct install records "$STORE_DIR/v10", not "$STORE_DIR" itself.
+          case "$RECORDED_STORE" in
+            "$STORE_DIR"|"$STORE_DIR"/*)
+              ;;
+            *)
+              echo "PNPM_STORE_PIN_IGNORED: << parameters.tree >> recorded storeDir '$RECORDED_STORE' in $MODULES_YAML, not under the pinned $STORE_DIR"
+              exit 1
+              ;;
+          esac
+          echo "<< parameters.tree >> installed with npm_config_store_dir pinned to $STORE_DIR"
+          du -sh "$STORE_DIR" 2>/dev/null || echo "$STORE_DIR is empty after install"
+    - save_cache:
+        paths:
+          - /tmp/pnpm-store-<< parameters.tree >>
+        key: pnpm-store-v3-<< parameters.tree >>-{{ checksum "pnpm-version" }}-{{ checksum "<< parameters.tree >>/pnpm-lock.yaml" }}
+
   restore_apt_postgres_client:
     steps:
     - run:
@@ -242,6 +293,8 @@ jobs:
       - pre_steps
       - restore_gradle_build_cache
       - restore_turbo_cache
+      - restore_pnpm_store:
+          tree: apps
       - run:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar -x test ci --no-daemon
@@ -250,6 +303,9 @@ jobs:
           name: build ssr catalogue
           command: pnpm exec turbo run build --filter=catalogue
           working_directory: apps
+
+      - save_pnpm_store:
+          tree: apps
 
       - persist_to_workspace:
           root: .
@@ -281,17 +337,32 @@ jobs:
           name: Enable pnpm
           command: |
             corepack enable
-            corepack prepare pnpm@latest --activate
+            corepack prepare pnpm@10.24.0 --activate
             pnpm -v
 
-      - run: pnpm i -D @playwright/test@1.62.0
+      - restore_pnpm_store:
+          tree: apps
+      - restore_pnpm_store:
+          tree: e2e
 
       - run:
           name: Install dependencies
           command: |
-            pnpm install @playwright/test@1.62.0
-            npx playwright install chrome
-            npx playwright install
+            # two trees in one job, so each install names its own store
+            (cd apps && npm_config_store_dir=/tmp/pnpm-store-apps pnpm install --frozen-lockfile)
+            (cd e2e && npm_config_store_dir=/tmp/pnpm-store-e2e pnpm install --frozen-lockfile)
+
+      - save_pnpm_store:
+          tree: apps
+      - save_pnpm_store:
+          tree: e2e
+
+      # The image ships browsers for playwright v1.62.1; both apps/ and e2e/ pin @playwright/test
+      # 1.62.0, so the shipped browsers do not match the installed library version for version.
+      # One install keeps the job green without making browsers a per-suite dependency.
+      - run:
+          name: Install the chromium browser playwright needs
+          command: e2e/node_modules/.bin/playwright install chromium
 
       - run:
           name: Put custom app next to jar
@@ -385,7 +456,6 @@ jobs:
           name: Test tailwind components
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
-            pnpm install
             pnpm --filter tailwind-components run e2e
           working_directory: apps
 
@@ -402,7 +472,6 @@ jobs:
           name: Directory e2e tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/
-            pnpm install
             pnpm --filter directory run e2e
           working_directory: apps
 
@@ -416,7 +485,6 @@ jobs:
           name: UI tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/ui/
-            pnpm install
             pnpm --filter ui run e2e
           working_directory: apps
 
@@ -430,8 +498,7 @@ jobs:
           name: Run non ssr e2e tests
           command: |
             export $( cat build/ci.properties | xargs )
-            pnpm install
-            npx playwright test --config e2e e2e/tests 
+            e2e/node_modules/.bin/playwright test --config e2e e2e/tests
 
       - store_test_results:
           path: e2e/test-results
@@ -443,8 +510,7 @@ jobs:
           name: Catalogue ssr tests
           command: |
             cp -r /workspace/apps/catalogue/.output  /root/project/apps/catalogue/.output
-            export NUXT_PUBLIC_API_BASE=http://localhost:8080/                  
-            pnpm install
+            export NUXT_PUBLIC_API_BASE=http://localhost:8080/
             pnpm --filter catalogue run e2e
           working_directory: apps
 
@@ -461,6 +527,8 @@ jobs:
     - pre_steps
     - restore_gradle_build_cache
     - restore_turbo_cache
+    - restore_pnpm_store:
+        tree: apps
 
     - run:
         name: prepare sql test database
@@ -479,6 +547,9 @@ jobs:
     - run:
         name: <apps> unit test the code
         command: ./gradlew :apps:test
+
+    - save_pnpm_store:
+        tree: apps
 
     - run:
         name: <backend> check code format
