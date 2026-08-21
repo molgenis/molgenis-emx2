@@ -3,11 +3,14 @@ import { ref } from "vue";
 import type { ISections } from "../../../types/cms";
 import ComponentActions from "./ComponentActions.vue";
 
-const props = withDefaults(defineProps<ISections & { isEditable: boolean }>(), {
-  enableFullScreenWidth: false,
-  applyShadedBackground: false,
-  isEditable: false,
-});
+const props = withDefaults(
+  defineProps<ISections & { isEditable?: boolean }>(),
+  {
+    enableFullScreenWidth: false,
+    applyShadedBackground: false,
+    isEditable: false,
+  }
+);
 
 const emit = defineEmits(["edit", "delete"]);
 const showMenu = ref<boolean>(false);
