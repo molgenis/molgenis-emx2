@@ -40,6 +40,21 @@ subprojects {
         ruleSets = []
     }
 
+    tasks.register("pmdChanged", Pmd) {
+        def sourceFiles = sourceSets.main.java.asFileTree.files + sourceSets.test.java.asFileTree.files
+
+        def changedFiles = providers.exec {
+            commandLine "git", "diff", "--name-only", "origin/master", "--", "*.java"
+        }.standardOutput.asText.map { output ->
+            output.readLines()
+                    .collect { rootProject.file(it) }
+                    .findAll { it.exists() && it in sourceFiles }
+        }
+
+        source = files(changedFiles)
+        classpath = sourceSets.main.compileClasspath
+    }
+
     compileJava.dependsOn 'spotlessApply'
 
     tasks.register('format') {
