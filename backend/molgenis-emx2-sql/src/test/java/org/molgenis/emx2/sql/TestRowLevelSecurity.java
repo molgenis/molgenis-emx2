@@ -378,6 +378,75 @@ class TestRowLevelSecurity {
     database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "mg_update"));
   }
 
+  @Test
+  void mgRolesOfExistingRowIsKeptWhenOwnerSavesWithoutRoles() {
+    database.becomeAdmin();
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .insert(
+            new Row()
+                .setString("id", "mg_save_existing")
+                .setString("title", "before")
+                .set(MG_ROLES, new String[] {"TeamA"}));
+
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .save(new Row().setString("id", "mg_save_existing").setString("title", "after")));
+
+    database.becomeAdmin();
+    Row saved = retrieveArticle("mg_save_existing");
+    assertEquals("after", saved.getString("title"));
+    assertArrayEquals(new String[] {"TeamA"}, saved.getStringArray(MG_ROLES));
+
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_save_existing"));
+  }
+
+  @Test
+  void mgRolesOfExistingRowCannotBeTakenOverBySaveFromOtherRole() {
+    database.becomeAdmin();
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .insert(
+            new Row()
+                .setString("id", "mg_save_foreign")
+                .setString("title", "before")
+                .set(MG_ROLES, new String[] {"TeamA"}));
+
+    // the omitted owner is defaulted to TeamB, after which the row-level policy rejects the write
+    database.setActiveUser(USER_TEAM_B);
+    SqlMolgenisException e =
+        assertThrows(
+            SqlMolgenisException.class,
+            () ->
+                database.tx(
+                    db ->
+                        db.getSchema(SCHEMA)
+                            .getTable(ARTICLES)
+                            .save(
+                                new Row()
+                                    .setString("id", "mg_save_foreign")
+                                    .setString("title", "hijacked"))));
+    assertTrue(e.getMessage().contains("row-level security policy"), e.getMessage());
+
+    database.becomeAdmin();
+    Row untouched = retrieveArticle("mg_save_foreign");
+    assertEquals("before", untouched.getString("title"));
+    assertArrayEquals(new String[] {"TeamA"}, untouched.getStringArray(MG_ROLES));
+
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_save_foreign"));
+  }
+
   private static Row retrieveArticle(String id) {
     return database.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().stream()
         .filter(r -> id.equals(r.getString("id")))
