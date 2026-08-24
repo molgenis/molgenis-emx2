@@ -30,7 +30,7 @@ public class TestGrantRolesToUsers {
     List<String> first =
         Arrays.asList(
             "Exists", "Range", "Aggregator", "Count", "Viewer", "Editor", "Manager", "Owner");
-    List<String> second = schema.getRoles();
+    List<String> second = schema.getRoleNames();
     assertTrue(
         first.size() == second.size() && first.containsAll(second) && second.containsAll(first));
 
