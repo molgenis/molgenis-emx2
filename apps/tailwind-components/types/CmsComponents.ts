@@ -7,6 +7,8 @@ import type {
   INavigationGroups,
   IDeveloperPages,
   IConfigurablePages,
+  IBlockOrders,
+  IComponentOrders,
   IFile,
 } from "./cms.ts";
 
@@ -30,3 +32,29 @@ export interface IContainerMetadata {
 }
 
 export type ICmsJsFetchPriority = "high" | "low" | "auto";
+
+export interface FetchGraphqlBody {
+  status?: string;
+  message: string;
+}
+
+export interface FetchGraphqlResponse {
+  data?: {
+    ComponentOrders?: IComponentOrders[];
+    BlockOrders?: IBlockOrders[];
+  };
+  errors?: FetchGraphqlBody[];
+}
+
+export interface ICmsOrder {
+  id: string;
+  order: number;
+}
+
+export type ICmsPageTypes = "ConfigurablePage" | "DeveloperPage";
+
+export interface IDraggingInfo {
+  dragging: boolean;
+  componentName: string;
+  componentType: string;
+}
