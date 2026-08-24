@@ -6,7 +6,7 @@ python-dateutil==2.9.0
 python-decouple==3.8
 pytz==2026.3.post1
 requests==2.34.2
-setuptools==83.0.0
+setuptools==84.0.0
 six==1.17.0
 molgenis_emx2_pyclient==13.165.2
 urllib3==2.7.0
