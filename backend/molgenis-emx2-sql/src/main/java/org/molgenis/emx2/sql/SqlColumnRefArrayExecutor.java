@@ -160,7 +160,7 @@ class SqlColumnRefArrayExecutor {
                         + " <> NEW."
                         + name(r.getReferencedColumnName()))
             .collect(Collectors.joining(" OR "));
-    // todo find out why and when this trigger is set
+
     jooq.execute(
         "CREATE OR REPLACE FUNCTION {0}() RETURNS trigger AS $BODY$ "
             + "\nBEGIN"
@@ -207,7 +207,6 @@ class SqlColumnRefArrayExecutor {
         "ALTER FUNCTION {0}() OWNER TO {1}",
         name(ref.getSchemaName(), deleteTrigger),
         name(getRolePrefix(ref.getSchemaName()) + MANAGER));
-    // end todo trigger
   }
 
   private static String getReferedCheckName(Column column) {

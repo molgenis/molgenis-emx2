@@ -45,6 +45,22 @@ const client: IClient = {
           (table: ITableMetaData) => table.id === tableId
         );
       },
+      fetchCascadeDeleteMsg: async (tableId: string) => {
+        const schema = await fetchSchemaMetaData(schemaId);
+        const cascadeTables = schema.tables.filter((table: ITableMetaData) => {
+          return table.columns.find(
+            (column: IColumn) =>
+              column.refTableId === tableId &&
+              column.columnType === "REF" &&
+              column.cascadeDelete
+          );
+        });
+
+        return cascadeTables.length
+          ? "Removing this row will also remove any rows in the following tables that reference this row: " +
+              cascadeTables.map((table) => table.name).join(", ")
+          : "";
+      },
       fetchTableData: async (
         tableId: string,
         properties: IQueryMetaData = {}
@@ -208,6 +224,7 @@ const metadataQuery = `{
         key,
         refTableId,
         refSchemaId,
+        cascadeDelete,
         refLinkId,
         refLabel,
         refLabelDefault,
