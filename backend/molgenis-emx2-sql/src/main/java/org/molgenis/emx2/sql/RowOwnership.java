@@ -45,7 +45,8 @@ class RowOwnership {
   }
 
   private boolean ownershipApplies() {
-    return table.getColumn(MG_ROLES) != null && PermissionEvaluator.isRowLevelRestricted(schema, table);
+    return table.getColumn(MG_ROLES) != null
+        && PermissionEvaluator.isRowLevelRestricted(schema, table);
   }
 
   private static String ownerOf(Row row) {
