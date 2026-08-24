@@ -85,6 +85,7 @@ names are case insensitive):
     - values shown as an expandable card which displays the complete record when expanded. The foreign record can be edited or deleted if a user has permission to do so.
 - ref (deprecated) : foreign key (aka many-to-one)
     - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
+    - cascadeDelete: if set to TRUE, when the foreign record is deleted, the record in this table will also be deleted. Default value: FALSE
 - ref_array (deprecated): multiple foreign key (aka many-to-many).
     - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
 

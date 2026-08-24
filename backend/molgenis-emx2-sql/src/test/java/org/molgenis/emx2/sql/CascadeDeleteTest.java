@@ -11,7 +11,7 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
-public class CascadeDeleteTest {
+class CascadeDeleteTest {
   private static Schema schema;
 
   @Test
