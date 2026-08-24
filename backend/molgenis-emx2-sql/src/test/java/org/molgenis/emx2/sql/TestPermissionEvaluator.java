@@ -162,7 +162,7 @@ class TestPermissionEvaluator {
 
     @Test
     void customRoleGetsNoneOnNonGrantedTable() {
-      // a custom role only holds 'Using', which carries no aggregate permission
+      // a custom role only holds 'Member', which carries no aggregate permission
       Schema s = schemaFor(USER_CUSTOM);
       TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
       assertEquals(AggregateLevel.NONE, PermissionEvaluator.getAggregateLevel(s, tableB));

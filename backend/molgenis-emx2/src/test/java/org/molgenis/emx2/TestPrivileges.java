@@ -10,7 +10,7 @@ class TestPrivileges {
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "Using",
+        "Member",
         "Viewer",
         "Editor",
         "Manager",

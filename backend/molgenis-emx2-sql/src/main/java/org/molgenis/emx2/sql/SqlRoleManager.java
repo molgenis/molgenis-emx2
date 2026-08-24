@@ -64,7 +64,7 @@ public class SqlRoleManager {
 
   private void createRoleWithGrants(String schemaName, String roleName) {
     String fullRole = fullRoleName(schemaName, roleName);
-    String usingRole = fullRoleName(schemaName, Privileges.USING.toString());
+    String memberRole = fullRoleName(schemaName, Privileges.MEMBER.toString());
     String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
     database.tx( // we need to lift to admin to create a role
         db -> {
@@ -75,7 +75,7 @@ public class SqlRoleManager {
             executeCreateRole(jooq, fullRole);
             grantWithAdminOption(jooq, name(fullRole), keyword("session_user"));
             grantWithAdminOption(jooq, name(fullRole), name(ownerRole));
-            grant(jooq, name(usingRole), name(fullRole));
+            grant(jooq, name(memberRole), name(fullRole));
           } finally {
             db.setActiveUser(currentUser);
           }
@@ -678,7 +678,7 @@ public class SqlRoleManager {
   }
 
   private List<TablePermission> systemPermissions(String roleName) {
-    if (roleName.equals(Privileges.USING.toString())
+    if (roleName.equals(Privileges.MEMBER.toString())
         || roleName.equals(Privileges.EXISTS.toString())
         || roleName.equals(Privileges.RANGE.toString())
         || roleName.equals(Privileges.AGGREGATOR.toString())

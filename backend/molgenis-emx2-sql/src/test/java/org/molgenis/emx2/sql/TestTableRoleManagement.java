@@ -261,7 +261,7 @@ class TestTableRoleManagement {
         Arguments.of("Editor", true, true, true, true),
         Arguments.of("Manager", true, true, true, true),
         Arguments.of("Owner", true, true, true, true),
-        Arguments.of("Using", null, null, null, null),
+        Arguments.of("Member", null, null, null, null),
         Arguments.of("Exists", null, null, null, null),
         Arguments.of("Range", null, null, null, null),
         Arguments.of("Aggregator", null, null, null, null),

@@ -75,7 +75,7 @@ RLS is bypassed in four cases:
   Granting RLS to one role does not restrict another role that has a plain (non-RLS) grant.
 
 A custom role never bypasses row-level security by itself, not even for aggregates: it holds the
-**Using** role rather than **Exists**, so its counts only cover the rows it may see.
+**Member** role rather than **Exists**, so its counts only cover the rows it may see.
 
 **Example:**
 

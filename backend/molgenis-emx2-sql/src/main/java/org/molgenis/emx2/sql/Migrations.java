@@ -213,7 +213,7 @@ public class Migrations {
             executeMigrationFile(
                 tdb,
                 "migration35.sql",
-                "add system role 'Using' so aggregate permissions can bypass row level security");
+                "add system role 'Member' so aggregate permissions can bypass row level security");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

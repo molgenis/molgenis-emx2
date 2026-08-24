@@ -29,7 +29,7 @@ public class TestGrantRolesToUsers {
     Schema schema = database.dropCreateSchema("testGrantRevokeMembership");
     List<String> first =
         Arrays.asList(
-            "Using",
+            "Member",
             "Exists",
             "Range",
             "Aggregator",

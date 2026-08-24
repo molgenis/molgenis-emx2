@@ -205,7 +205,7 @@ public class MetadataUtils {
                 name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
             jooq.execute(
                 "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/"
-                    + Privileges.USING
+                    + Privileges.MEMBER
                     + "'),'MEMBER'))",
                 name(SCHEMA_METADATA.getName() + "_POLICY"),
                 SCHEMA_METADATA,

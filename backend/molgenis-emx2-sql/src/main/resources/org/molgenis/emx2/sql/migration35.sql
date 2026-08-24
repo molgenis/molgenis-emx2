@@ -1,9 +1,9 @@
--- Introduce the system role 'Using' for every schema.
+-- Introduce the system role 'Member' for every schema.
 --
 -- Until now custom roles were made a member of 'Exists' so they could see and use their schema.
 -- That made 'Exists' ambiguous: it meant both "may use this schema" and "may run exists/aggregate
 -- queries". Row level security needs to tell those apart, so that aggregate permissions can bypass
--- the row policies while custom (row level) roles cannot. 'Using' now carries the schema usage,
+-- the row policies while custom (row level) roles cannot. 'Member' now carries the schema usage,
 -- 'Exists' only the aggregate permission.
 DO
 $$
@@ -19,13 +19,13 @@ $$
             LOOP
                 prefix := 'MG_ROLE_' || schemaname || '/';
 
-                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = prefix || 'Using') THEN
-                    EXECUTE format('CREATE ROLE %I WITH NOLOGIN', prefix || 'Using');
+                IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = prefix || 'Member') THEN
+                    EXECUTE format('CREATE ROLE %I WITH NOLOGIN', prefix || 'Member');
                 END IF;
 
                 IF EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = schemaname) THEN
-                    EXECUTE format('GRANT USAGE ON SCHEMA %I TO %I', schemaname, prefix || 'Using');
-                    -- custom roles used to reach the tables through 'Exists', now through 'Using'
+                    EXECUTE format('GRANT USAGE ON SCHEMA %I TO %I', schemaname, prefix || 'Member');
+                    -- custom roles used to reach the tables through 'Exists', now through 'Member'
                     FOR tablename IN SELECT c.relname
                                      FROM pg_class c
                                               JOIN pg_namespace n ON n.oid = c.relnamespace
@@ -33,33 +33,33 @@ $$
                                        AND c.relkind IN ('r', 'p', 'v', 'm', 'f')
                         LOOP
                             EXECUTE format('GRANT SELECT ON %I.%I TO %I', schemaname, tablename,
-                                           prefix || 'Using');
+                                           prefix || 'Member');
                         END LOOP;
                 END IF;
 
-                -- every system role reaches 'Using' through 'Exists'
-                EXECUTE format('GRANT %I TO %I', prefix || 'Using', prefix || 'Exists');
-                EXECUTE format('GRANT %I TO %I WITH ADMIN OPTION', prefix || 'Using', prefix || 'Manager');
-                EXECUTE format('GRANT %I TO %I WITH ADMIN OPTION', prefix || 'Using', prefix || 'Owner');
+                -- every system role reaches 'Member' through 'Exists'
+                EXECUTE format('GRANT %I TO %I', prefix || 'Member', prefix || 'Exists');
+                EXECUTE format('GRANT %I TO %I WITH ADMIN OPTION', prefix || 'Member', prefix || 'Manager');
+                EXECUTE format('GRANT %I TO %I WITH ADMIN OPTION', prefix || 'Member', prefix || 'Owner');
 
-                -- move custom roles (including the internal RLS_ proxies) from 'Exists' to 'Using'
+                -- move custom roles (including the internal RLS_ proxies) from 'Exists' to 'Member'
                 FOR rolename IN SELECT r.rolname
                                 FROM pg_roles r
                                 WHERE left(r.rolname, length(prefix)) = prefix
                                   AND right(r.rolname, -length(prefix)) NOT IN
-                                      ('Using', 'Exists', 'Range', 'Aggregator', 'Count', 'Viewer',
+                                      ('Member', 'Exists', 'Range', 'Aggregator', 'Count', 'Viewer',
                                        'Editor', 'Manager', 'Owner')
                     LOOP
-                        EXECUTE format('GRANT %I TO %I', prefix || 'Using', rolename);
+                        EXECUTE format('GRANT %I TO %I', prefix || 'Member', rolename);
                         EXECUTE format('REVOKE %I FROM %I', prefix || 'Exists', rolename);
                     END LOOP;
             END LOOP;
     END;
 $$ LANGUAGE plpgsql;
 
--- schema visibility is now driven by 'Using' instead of 'Exists'
+-- schema visibility is now driven by 'Member' instead of 'Exists'
 ALTER POLICY "schema_metadata_POLICY" ON "MOLGENIS"."schema_metadata" USING (pg_has_role(
-        (concat('MG_ROLE_', table_schema, '/Using'))::name, 'MEMBER'::text));
+        (concat('MG_ROLE_', table_schema, '/Member'))::name, 'MEMBER'::text));
 
 -- Add the aggregate bypass policy to tables that already have row level security enabled, and drop
 -- the read bypass for 'Viewer': every role from 'Viewer' up is a member of 'Exists' through the role

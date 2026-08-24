@@ -23,7 +23,7 @@ class SqlSchemaMetadataExecutor {
     step.execute();
 
     String schemaName = schema.getName();
-    String using = getRolePrefix(schemaName) + USING;
+    String member = getRolePrefix(schemaName) + MEMBER;
     String exists = getRolePrefix(schemaName) + EXISTS;
     String range = getRolePrefix(schemaName) + RANGE;
     String aggregator = getRolePrefix(schemaName) + AGGREGATOR;
@@ -33,7 +33,7 @@ class SqlSchemaMetadataExecutor {
     String manager = getRolePrefix(schemaName) + MANAGER;
     String owner = getRolePrefix(schemaName) + OWNER;
 
-    db.addRole(using);
+    db.addRole(member);
     db.addRole(exists);
     db.addRole(range);
     db.addRole(aggregator);
@@ -43,8 +43,8 @@ class SqlSchemaMetadataExecutor {
     db.addRole(manager);
     db.addRole(owner);
 
-    // grant exists role also using role, so 'Exists' means 'may aggregate' and nothing else
-    db.getJooq().execute("GRANT {0} TO {1}", name(using), name(exists));
+    // grant exists role also member role, so 'Exists' means 'may aggregate' and nothing else
+    db.getJooq().execute("GRANT {0} TO {1}", name(member), name(exists));
     // grant range role also exists role
     db.getJooq().execute("GRANT {0} TO {1}", name(exists), name(range));
     // grant aggregator role also exists role
@@ -59,7 +59,7 @@ class SqlSchemaMetadataExecutor {
     db.getJooq()
         .execute(
             "GRANT {0},{1},{2},{3},{4},{5},{6} TO {7} WITH ADMIN OPTION",
-            name(using),
+            name(member),
             name(exists),
             name(range),
             name(aggregator),
@@ -71,7 +71,7 @@ class SqlSchemaMetadataExecutor {
     db.getJooq()
         .execute(
             "GRANT {0},{1},{2},{3},{4},{5},{6},{7} TO {8} WITH ADMIN OPTION",
-            name(using),
+            name(member),
             name(exists),
             name(range),
             name(aggregator),
@@ -92,8 +92,8 @@ class SqlSchemaMetadataExecutor {
     // make admin owner
     db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
 
-    // grant the permissions, all other roles inherit this via the 'Using' role
-    db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(using));
+    // grant the permissions, all other roles inherit this via the 'Member' role
+    db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()), name(member));
     // grant the permissions
     db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()), name(manager));
 
