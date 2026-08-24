@@ -47,14 +47,29 @@ const client: IClient = {
       },
       fetchCascadeDeleteMsg: async (tableId: string) => {
         const schema = await fetchSchemaMetaData(schemaId);
-        const cascadeTables = schema.tables.filter((table: ITableMetaData) => {
-          return table.columns.find(
-            (column: IColumn) =>
-              column.refTableId === tableId &&
-              column.columnType === "REF" &&
-              column.cascadeDelete
-          );
-        });
+        function findReferingTables(
+          tableId: string,
+          found: Record<string, ITableMetaData>
+        ) {
+          const referringTables = schema.tables
+            .filter((table) => table.id !== tableId && !found[table.id])
+            .filter((table: ITableMetaData) => {
+              return table.columns.find(
+                (column: IColumn) =>
+                  column.refTableId === tableId &&
+                  column.columnType === "REF" &&
+                  column.cascadeDelete
+              );
+            });
+          referringTables.forEach((table) => {
+            found[table.id] = table;
+            findReferingTables(table.id, found);
+          });
+        }
+        const found: Record<string, ITableMetaData> = {};
+        // recursively find tables that reference this table, passing the found tables so we don't get into an infinite loop
+        findReferingTables(tableId, found);
+        const cascadeTables = Object.values(found);
 
         return cascadeTables.length
           ? "Removing this row will also remove any rows in the following tables that reference this row: " +
