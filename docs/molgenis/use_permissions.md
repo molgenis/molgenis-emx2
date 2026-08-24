@@ -64,7 +64,12 @@ When RLS is enabled for a role on a table:
 
 RLS is bypassed in four cases:
 
-- **Viewer** role: bypass for SELECT only. Viewers see all rows regardless of `mg_roles`. A user
+ - **Exists** and up: bypass for SELECT only. Because roles inherit, this one rule covers the
+  aggregate roles **Exists**, **Range**, **Aggregator** and **Count** as well as **Viewer** and up.
+  Aggregate roles are schema-wide, so their counts stay over the whole table when row-level security
+  is enabled; they still cannot retrieve rows. **Viewer** and up do read all rows. A user can hold
+  both an RLS role and Viewer at the same time — they then read all rows (including rows with an
+  empty `mg_roles`) but their writes stay limited to rows tagged with their RLS role.
   can hold both an RLS role and the Viewer role at the same time — in that case they see all rows
   (including rows with an empty `mg_roles`) but their write operations are still limited to rows
   tagged with their RLS role.
