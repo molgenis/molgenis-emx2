@@ -89,8 +89,8 @@ public class SqlTable implements Table {
     }
   }
 
-  private SqlRowOwnership rowOwnership() {
-    return new SqlRowOwnership(getSchema(), metadata);
+  private RowOwnership rowOwnership() {
+    return new RowOwnership(getSchema(), metadata);
   }
 
   @Override

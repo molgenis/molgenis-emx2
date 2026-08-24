@@ -10,21 +10,20 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableMetadata;
 
-class SqlRowOwnership {
+class RowOwnership {
 
   private final Schema schema;
   private final TableMetadata table;
-  private List<String> rolesOfUser;
   private List<String> rolesInSchema;
 
-  SqlRowOwnership(Schema schema, TableMetadata table) {
+  RowOwnership(Schema schema, TableMetadata table) {
     this.schema = schema;
     this.table = table;
   }
 
   void validateAndAssignOwners(Iterable<Row> rows) {
     if (!ownershipApplies()) return;
-    apply(rows, defaultRole());
+    apply(rows, defaultRoleForActiveUser());
   }
 
   void validateOwners(Iterable<Row> rows) {
@@ -75,23 +74,18 @@ class SqlRowOwnership {
               + table.getSchemaName()
               + "'");
     }
-    if (!rolesOfUser().contains(role)) {
+    if (!schema.getInheritedRolesForActiveUser().contains(role)) {
       throw new MolgenisException(
           "Permission denied: you must be Manager or hold the role '" + role + "' to set mg_roles");
     }
   }
 
-  private String defaultRole() {
+  private String defaultRoleForActiveUser() {
     if (!PermissionEvaluator.isRowLevelRestricted(schema, table)) return null;
-    return rolesOfUser().stream()
+    return schema.getInheritedRolesForActiveUser().stream()
         .filter(SqlRoleManager::isUserAssignableRole)
         .findFirst()
         .orElse(null);
-  }
-
-  private List<String> rolesOfUser() {
-    if (rolesOfUser == null) rolesOfUser = schema.getInheritedRolesForActiveUser();
-    return rolesOfUser;
   }
 
   private List<String> rolesInSchema() {
