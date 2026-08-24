@@ -176,11 +176,8 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
 });
 
 if (error.value) {
-  const contextMsg = "Error on landing-page data fetch";
-  if (error.value.data) {
-    logError(error.value.data, contextMsg);
-  }
-  throw new Error(contextMsg);
+  console.error("Error on landing-page data fetch", error.value);
+  throw new Error("Error on landing-page data fetch");
 }
 
 function percentageLongitudinal(
@@ -210,7 +207,7 @@ const network = computed(() => {
   const catalogues = data.value.data?.Catalogues;
   if (scoped && (!catalogues || catalogues.length === 0)) {
     throw createError({
-      statusCode: 404,
+      status: 404,
       statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
     });
   }

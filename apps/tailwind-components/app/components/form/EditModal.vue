@@ -200,6 +200,7 @@ const emit = defineEmits([
   "update:added",
   "update:updated",
   "update:cancelled",
+  "update:addedFormValues",
 ]);
 
 const visible = defineModel<boolean>("visible");
@@ -329,6 +330,7 @@ async function insert(draft: boolean) {
   formMessage.value = `inserted  ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
   emit("update:added", resp);
+  emit("update:addedFormValues", formValues.value);
 }
 
 async function update(draft: boolean) {
