@@ -94,7 +94,7 @@ public class SqlTable implements Table {
     if (metadata.getColumn(MG_ROLES) == null) return;
 
     List<String> userRoles = getSchema().getInheritedRolesForActiveUser();
-    List<String> rolesInSchema = getSchema().getRoles();
+    List<String> rolesInSchema = getSchema().getAllRoles();
 
     for (Row row : rows) {
       String[] mgRoles = row.getStringArray(MG_ROLES);
