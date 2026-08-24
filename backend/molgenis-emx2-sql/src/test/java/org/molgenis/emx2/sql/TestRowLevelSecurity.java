@@ -260,7 +260,7 @@ class TestRowLevelSecurity {
     MolgenisException e =
         assertThrows(MolgenisException.class, () -> schema.deleteRole("RLS_TeamA"));
     assertTrue(e.getMessage().contains("internal"), e.getMessage());
-    assertTrue(schema.getRoles().contains("TeamA"), "TeamA must survive");
+    assertTrue(schema.getAllRoles().contains("TeamA"), "TeamA must survive");
   }
 
   @Test
@@ -294,7 +294,7 @@ class TestRowLevelSecurity {
   @Test
   void schemaRolesExcludeInternalRlsRoles() {
     database.becomeAdmin();
-    List<String> roles = database.getSchema(SCHEMA).getRoles();
+    List<String> roles = database.getSchema(SCHEMA).getAllRoles();
     assertTrue(roles.contains("TeamA"), roles.toString());
     assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
   }

@@ -75,7 +75,7 @@ public class SqlSchema implements Schema {
   }
 
   @Override
-  public List<String> getRoles() {
+  public List<String> getAllRoles() {
     return roleManager().getRoleNames(getName());
   }
 
@@ -89,7 +89,7 @@ public class SqlSchema implements Schema {
     // moved implementation to SqlSchemaMetadata so can be cached
     // while being reloaded in case of transactions
     if (user == null || user.equals(ADMIN_USER)) {
-      return getRoles();
+      return getAllRoles();
     } else {
       return getMetadata().getInheritedRolesForUser(user);
     }
@@ -143,11 +143,10 @@ public class SqlSchema implements Schema {
 
   @Override
   public List<Row> retrieveSql(String sql, Map<String, ?> parameters) {
-    if (getRoles().contains("Viewer")) {
-      return new SqlRawQueryForSchema(this).executeSql(sql, parameters);
-    } else {
+    if (!getInheritedRolesForActiveUser().contains(Privileges.VIEWER.toString())) {
       throw new MolgenisException("No view permissions on this schema");
     }
+    return new SqlRawQueryForSchema(this).executeSql(sql, parameters);
   }
 
   @Override
