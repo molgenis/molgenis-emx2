@@ -53,7 +53,8 @@ When RLS is enabled for a role on a table:
 2. Each row is tagged with exactly one role name that owns it, e.g. `mg_roles: ["TeamA"]`.
 3. A user with only an RLS role can see, update, or delete rows where their role appears in `mg_roles`.
 4. Rows with an empty `mg_roles` are **not** visible to users who only hold an RLS role — they are
-   visible exclusively to users with a schema-level role (Viewer, Editor, Manager, or Owner).
+4. Rows with an empty `mg_roles` are **not** visible to users who only hold an RLS role — they are
+   readable only by Viewer and up, and counted by the aggregate roles.
 
 > **Current limitation:** `mg_roles` is stored as an array for future extensibility, but at present
 > only **one role per row** is supported. Setting more than one value in `mg_roles` is not yet
