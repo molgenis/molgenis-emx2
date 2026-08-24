@@ -96,4 +96,12 @@ class JsonUtilTest {
     String json = JsonUtil.getWriter().writeValueAsString(map);
     assertTrue(json.contains("\"active\" : false"), "false boolean must be serialized: " + json);
   }
+
+  @Test
+  void writerExcludesFalseBooleanValues() throws IOException {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("noKey", null);
+    String json = JsonUtil.getWriter().writeValueAsString(map);
+    assertFalse(json.contains("\"noKey\""), "null values must be omitted: " + json);
+  }
 }
