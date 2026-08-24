@@ -1782,3 +1782,4 @@ nanogram per microliter (ng/µl),nanogram per microliter,"erdera,RNA,lrGS",UO,UO
 Thousand per Cubic Millimeter,,,NCIT,NCIT_C67255,http://purl.obolibrary.org/obo/NCIT_C67255
 Count per Minute,,,NCIT,NCIT_C73688,http://purl.obolibrary.org/obo/NCIT_C73688
 Femtogram per Liter,,,UCUM,fg/L,http://unitsofmeasure.org#fg/L
+Drinks per week,,,UCUM,{drinks}/wk,http://unitsofmeasure.org#{drinks}/wk
