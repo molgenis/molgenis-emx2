@@ -5,7 +5,7 @@ import { ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn as useAnimationFrame } from "@vueuse/core";
 import { addBlock, addComponent } from "../../utils/cms";
-import type { IDraggingInfo } from "../../../types/cms";
+import type { IDraggingInfo } from "../../../types/CmsComponents";
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
 

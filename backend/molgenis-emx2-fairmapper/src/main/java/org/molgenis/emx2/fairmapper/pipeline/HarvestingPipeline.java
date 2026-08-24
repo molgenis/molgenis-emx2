@@ -62,7 +62,11 @@ public class HarvestingPipeline {
 
     if (config.loadDataEnabled()) {
       load(transformed);
+    } else {
+      logger.info("No data loaded for harvesting pipeline: {}", harvestId);
     }
+
+    logger.info("Finished harvesting pipeline: {}", harvestId);
   }
 
   private void preProcess(Repository extract) {
@@ -96,6 +100,7 @@ public class HarvestingPipeline {
   }
 
   private void load(InMemoryTableStore tableStore) {
+    logger.info("Loading harvested data into schema: {}", config.schema().getName());
     ImportSchemaTask tasks =
         new ImportSchemaTask(
                 tableStore, config.schema(), false, config.tables().toArray(new String[0]))
