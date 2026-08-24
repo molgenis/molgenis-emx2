@@ -18,9 +18,9 @@ In addition we have special roles to allow for specific permissions around aggre
 
 Finally there is one role that carries no permission on data at all:
 
-* **using** - context: schema. Marks membership of a schema: the schema is visible in the schema list
+* **member** - context: schema. Marks membership of a schema: the schema is visible in the schema list
   and can be used. Every other role, standard or custom, is a member of this role. Unlike **exists**
-  it does not bypass row-level security, so a user who only reaches a table through **using** sees
+  it does not bypass row-level security, so a user who only reaches a table through **member** sees
   aggregates over the rows they are allowed to see, and nothing more.
 
 

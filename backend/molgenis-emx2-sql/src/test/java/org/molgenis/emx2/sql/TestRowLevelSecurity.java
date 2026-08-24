@@ -732,7 +732,7 @@ class TestRowLevelSecurity {
 
   @Test
   void customRoleAggregateStaysLimitedToOwnRows() {
-    // the aggregate bypass keys on the 'Exists' system role; a custom (row level) role only holds
+    // the select bypass keys on the 'Exists' system role; a custom (row level) role only holds
     // 'Member', so its aggregates stay filtered by the row policies
     database.setActiveUser(USER_TEAM_A);
     database.tx(

@@ -61,9 +61,10 @@ $$ LANGUAGE plpgsql;
 ALTER POLICY "schema_metadata_POLICY" ON "MOLGENIS"."schema_metadata" USING (pg_has_role(
         (concat('MG_ROLE_', table_schema, '/Member'))::name, 'MEMBER'::text));
 
--- Add the aggregate bypass policy to tables that already have row level security enabled, and drop
+-- Add the select bypass policy to tables that already have row level security enabled, and drop
 -- the read bypass for 'Viewer': every role from 'Viewer' up is a member of 'Exists' through the role
--- chain, so the aggregate bypass (also SELECT only) already covers it.
+-- chain, so the select bypass (also SELECT only) already covers it. Also rename the write bypass
+-- from 'mg_roles_editor_bypass' to 'mg_roles_edit_bypass', the name the code now drops and creates.
 DO
 $$
     DECLARE
@@ -75,13 +76,24 @@ $$
             LOOP
                 EXECUTE format('DROP POLICY IF EXISTS mg_roles_viewer_bypass ON %I.%I',
                                policyrow.schemaname, policyrow.tablename);
+
+                IF EXISTS (SELECT 1
+                           FROM pg_policies p
+                           WHERE p.schemaname = policyrow.schemaname
+                             AND p.tablename = policyrow.tablename
+                             AND p.policyname = 'mg_roles_editor_bypass') THEN
+                    EXECUTE format(
+                            'ALTER POLICY mg_roles_editor_bypass ON %I.%I RENAME TO mg_roles_edit_bypass',
+                            policyrow.schemaname, policyrow.tablename);
+                END IF;
+
                 IF NOT EXISTS (SELECT 1
                                FROM pg_policies p
                                WHERE p.schemaname = policyrow.schemaname
                                  AND p.tablename = policyrow.tablename
-                                 AND p.policyname = 'mg_roles_aggregate_bypass') THEN
+                                 AND p.policyname = 'mg_roles_select_bypass') THEN
                     EXECUTE format(
-                            'CREATE POLICY mg_roles_aggregate_bypass ON %I.%I FOR SELECT USING (pg_has_role(current_user, %L, ''member''))',
+                            'CREATE POLICY mg_roles_select_bypass ON %I.%I FOR SELECT USING (pg_has_role(current_user, %L, ''member''))',
                             policyrow.schemaname, policyrow.tablename,
                             'MG_ROLE_' || policyrow.schemaname || '/Exists');
                 END IF;

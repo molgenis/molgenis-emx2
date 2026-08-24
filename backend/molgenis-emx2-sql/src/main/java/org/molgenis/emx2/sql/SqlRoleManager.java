@@ -33,8 +33,8 @@ public class SqlRoleManager {
   public static final String RLS_ROLE_PREFIX = "RLS_";
 
   enum RlsPolicy {
-    AGGREGATE_BYPASS("mg_roles_aggregate_bypass", "SELECT"),
-    EDITOR_BYPASS("mg_roles_editor_bypass", "ALL"),
+    SELECT_BYPASS("mg_roles_select_bypass", "SELECT"),
+    EDIT_BYPASS("mg_roles_edit_bypass", "ALL"),
     TABLE_GRANT_BYPASS("mg_roles_table_grant_bypass", "ALL"),
     ROW_MATCH("mg_roles_row_match", "ALL");
 
@@ -339,8 +339,8 @@ public class SqlRoleManager {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
     dropRlsPolicies(jooq, table);
 
-    createPolicy(jooq, table, AGGREGATE_BYPASS, hasSystemRoleMember(schemaName, Privileges.EXISTS));
-    createPolicy(jooq, table, EDITOR_BYPASS, hasSystemRoleMember(schemaName, Privileges.EDITOR));
+    createPolicy(jooq, table, SELECT_BYPASS, hasSystemRoleMember(schemaName, Privileges.EXISTS));
+    createPolicy(jooq, table, EDIT_BYPASS, hasSystemRoleMember(schemaName, Privileges.EDITOR));
     createPolicy(jooq, table, TABLE_GRANT_BYPASS, tableGrantBypass(schemaName, tableName));
     createPolicy(jooq, table, ROW_MATCH, rowMatchCondition);
   }
