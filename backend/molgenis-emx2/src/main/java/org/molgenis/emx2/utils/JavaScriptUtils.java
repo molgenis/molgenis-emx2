@@ -80,13 +80,16 @@ public class JavaScriptUtils {
           }
         }
       }
-      String scriptWithFixedRegex = script.replace("\\\\", "\\");
       // Detach the result into plain Java before the try-with-resources closes the context: a
       // Value-backed List/Map view throws once its context is closed, so it must be materialized.
-      return detachFromContext(context.eval("js", scriptWithFixedRegex).as(clazz));
+      return detachFromContext(context.eval("js", prepareScript(script)).as(clazz));
     } catch (Exception e) {
       throw new MolgenisException("script failed: " + e.getMessage());
     }
+  }
+
+  static String prepareScript(String script) {
+    return script.replace("\\\\", "\\");
   }
 
   private static final int MAX_RESULT_DEPTH = 64;

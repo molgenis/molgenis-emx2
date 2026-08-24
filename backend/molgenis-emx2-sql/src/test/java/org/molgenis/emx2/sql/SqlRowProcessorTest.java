@@ -49,6 +49,79 @@ class SqlRowProcessorTest {
   }
 
   @Test
+  void shouldKeepValueWhenVisibleDependsOnComputedDeclaredBefore() {
+    List<Column> columns =
+        List.of(
+            column("name"),
+            column("nameComputed").setComputed("name"),
+            column("filler1"),
+            column("filler2"),
+            column("filler3"),
+            column("otherNames").setVisible("nameComputed == 'Piet'"));
+
+    Row row = row("name", "Piet", "otherNames", "OtherPiet");
+    new SqlRowProcessor(columns).validateAndCompute(row);
+    assertEquals("OtherPiet", row.getString("otherNames"));
+  }
+
+  @Test
+  void shouldKeepValueWhenVisibleDependsOnComputedDeclaredAfter() {
+    List<Column> columns =
+        List.of(
+            column("name"),
+            column("otherNames").setVisible("nameComputed == 'Piet'"),
+            column("filler1"),
+            column("filler2"),
+            column("filler3"),
+            column("nameComputed").setComputed("name"));
+
+    Row row = row("name", "Piet", "otherNames", "OtherPiet");
+    new SqlRowProcessor(columns).validateAndCompute(row);
+    assertEquals("OtherPiet", row.getString("otherNames"));
+  }
+
+  @Test
+  void shouldClearValueWhenVisibleEvaluatesToFalse() {
+    List<Column> columns =
+        List.of(
+            column("name"),
+            column("otherNames").setVisible("nameComputed == 'Piet'"),
+            column("filler1"),
+            column("nameComputed").setComputed("name"));
+
+    Row row = row("name", "Klaas", "otherNames", "OtherPiet");
+    new SqlRowProcessor(columns).validateAndCompute(row);
+    assertNull(row.getString("otherNames"));
+  }
+
+  @Test
+  void shouldOrderOnIdentifierWhenColumnNamesAreMultiWord() {
+    List<Column> columns =
+        List.of(
+            column("name"),
+            column("other names").setVisible("nameComputed == 'Piet'"),
+            column("filler1"),
+            column("name computed").setComputed("name"));
+
+    Row row = row("name", "Piet", "other names", "OtherPiet");
+    new SqlRowProcessor(columns).validateAndCompute(row);
+    assertEquals("OtherPiet", row.getString("other names"));
+  }
+
+  @Test
+  void shouldHandleDependenciesBetweenNonComputedColumns() {
+    List<Column> columns =
+        List.of(
+            column("otherNames").setVisible("name == 'Piet'"),
+            column("filler1"),
+            column("name").setDefaultValue("Piet"));
+
+    Row row = row("otherNames", "OtherPiet");
+    new SqlRowProcessor(columns).validateAndCompute(row);
+    assertEquals("OtherPiet", row.getString("otherNames"));
+  }
+
+  @Test
   void shouldThrowOnCircularDependency() {
     List<Column> columns =
         List.of(
