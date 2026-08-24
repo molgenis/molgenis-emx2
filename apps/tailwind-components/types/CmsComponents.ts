@@ -52,3 +52,9 @@ export interface ICmsOrder {
 }
 
 export type ICmsPageTypes = "ConfigurablePage" | "DeveloperPage";
+
+export interface IDraggingInfo {
+  dragging: boolean;
+  componentName: string;
+  componentType: string;
+}
