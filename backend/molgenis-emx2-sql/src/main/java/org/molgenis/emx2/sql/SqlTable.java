@@ -51,7 +51,7 @@ public class SqlTable implements Table {
 
   @Override
   public int insert(Iterable<Row> rows) {
-    rowOwnership().validateAndAssignOwners(rows);
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
     } catch (Exception e) {
@@ -81,7 +81,7 @@ public class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
-    rowOwnership().validateAndAssignOwners(rows);
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {

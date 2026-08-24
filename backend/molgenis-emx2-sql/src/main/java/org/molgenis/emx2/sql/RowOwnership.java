@@ -21,7 +21,7 @@ class RowOwnership {
     this.table = table;
   }
 
-  void validateAndAssignOwners(Iterable<Row> rows) {
+  void validateAndAssignOwnerWhenOmitted(Iterable<Row> rows) {
     if (!ownershipApplies()) return;
     apply(rows, defaultRoleForActiveUser());
   }
