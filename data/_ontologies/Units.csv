@@ -1718,7 +1718,7 @@ vehicles_per_day,,,,,
 ten_power_minus_five_per_inverse_meter,,,,,
 parts_per_billion,Part Per Billion,,NCIT,NCIT_C70565,http://purl.obolibrary.org/obo/NCIT_C70565
 vehicles_per_day_and_meter,,,,,
-iu_per_ml,,,,,
+iu_per_ml,,,NCIT,NCIT_C67377,http://purl.obolibrary.org/obo/NCIT_C67377
 milligram_per_day,Milligram per Day,,NCIT,NCIT_C67399,http://purl.obolibrary.org/obo/NCIT_C67399
 nanograms_per_cubic_meter,usually Nanogram per Liter (factor 1000) (C67327),,,,
 people_per_square_kilometer,,,,,
@@ -1784,3 +1784,4 @@ Count per Minute,,,NCIT,NCIT_C73688,http://purl.obolibrary.org/obo/NCIT_C73688
 Femtogram per Liter,,,UCUM,fg/L,http://unitsofmeasure.org#fg/L
 Drinks per week,,,UCUM,{drinks}/wk,http://unitsofmeasure.org#{drinks}/wk
 Picogram per Milliliter,,,NCIT,NCIT_C67327,http://purl.obolibrary.org/obo/NCIT_C67327
+Million per Cubic Millimeter,,,NCIT,NCIT_C67308,http://purl.obolibrary.org/obo/NCIT_C67308
