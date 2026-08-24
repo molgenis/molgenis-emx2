@@ -53,7 +53,6 @@ When RLS is enabled for a role on a table:
 2. Each row is tagged with exactly one role name that owns it, e.g. `mg_roles: ["TeamA"]`.
 3. A user with only an RLS role can see, update, or delete rows where their role appears in `mg_roles`.
 4. Rows with an empty `mg_roles` are **not** visible to users who only hold an RLS role — they are
-4. Rows with an empty `mg_roles` are **not** visible to users who only hold an RLS role — they are
    readable only by Viewer and up, and counted by the aggregate roles.
 
 > **Current limitation:** `mg_roles` is stored as an array for future extensibility, but at present
@@ -62,21 +61,15 @@ When RLS is enabled for a role on a table:
 
 **Who bypasses row-level security:**
 
-RLS is bypassed in four cases:
+RLS is bypassed in three cases:
 
- - **Exists** and up: bypass for SELECT only. Because roles inherit, this one rule covers the
+- **Exists** and up: bypass for SELECT only. Because roles inherit, this one rule covers the
   aggregate roles **Exists**, **Range**, **Aggregator** and **Count** as well as **Viewer** and up.
   Aggregate roles are schema-wide, so their counts stay over the whole table when row-level security
   is enabled; they still cannot retrieve rows. **Viewer** and up do read all rows. A user can hold
   both an RLS role and Viewer at the same time — they then read all rows (including rows with an
   empty `mg_roles`) but their writes stay limited to rows tagged with their RLS role.
-  can hold both an RLS role and the Viewer role at the same time — in that case they see all rows
-  (including rows with an empty `mg_roles`) but their write operations are still limited to rows
-  tagged with their RLS role.
 - **Editor**, **Manager**, or **Owner** role: bypass for all operations.
-- The aggregate roles **Exists**, **Range**, **Aggregator** and **Count**: bypass for SELECT only.
-  These roles are schema-wide, so their counts stay over the whole table when row-level security is
-  enabled. They cannot read rows: the aggregate roles are limited to aggregate queries.
 - A non-RLS custom role granted on the same table: bypass for all operations on that table.
   Granting RLS to one role does not restrict another role that has a plain (non-RLS) grant.
 
