@@ -408,6 +408,32 @@ You can reuse table definitions, and make more specialized tables using 'tableEx
 Should contain the value of an existing tableName. When providing tableExtends, the column with 'columnName' should be empty. It means the columns defined in
 that tableName will be added to this table. In addition, rows added to this table, will also be visible in the table that is extended.
 
+### Multi-parent (diamond) inheritance
+
+`tableExtends` accepts a comma-separated list of parent table names, enabling diamond inheritance:
+
+```
+tableExtends=Parent1,Parent2
+```
+
+Rules:
+- All parents must converge on exactly **one common root table** (the single shared primary key). Declaring parents whose inheritance graphs have more than one distinct root is a validation error.
+- Duplicate column names across parents are a validation error — there is no merge or override.
+- Any number of parents is allowed as long as the single-root invariant holds.
+- Existing single-`extends` schemas are unchanged — a single parent name works exactly as before.
+
+Example:
+
+| tableName | columnName | tableExtends  |
+|-----------|------------|---------------|
+| Animal    |            |               |
+| Animal    | id         |               |
+| Swimmer   |            | Animal        |
+| Runner    |            | Animal        |
+| Amphibian |            | Swimmer,Runner |
+
+Here `Amphibian` inherits from both `Swimmer` and `Runner`, both of which share `Animal` as their root.
+
 ## molgenis_ontologies
 
 ## Cross schema references/extends
