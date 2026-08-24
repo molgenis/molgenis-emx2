@@ -1779,5 +1779,5 @@ ug/g,,,,,
 radiation,,,,,http://www.ontology-of-units-of-measure.org/resource/Valerie-9/radiation
 pmol/l,Picomole per Liter,,NCIT,NCIT_C67434,http://purl.obolibrary.org/obo/NCIT_C67434
 nanogram per microliter (ng/µl),nanogram per microliter,"erdera,RNA,lrGS",UO,UO_0010050,http://purl.obolibrary.org/obo/UO_0010050
-name,definition,tags,codesystem,code,ontologyTermURI
 Thousand per Cubic Millimeter,,NCIT,NCIT_C67255,http://purl.obolibrary.org/obo/NCIT_C67255
+Count per Minute,,NCIT,NCIT_C73688,http://purl.obolibrary.org/obo/NCIT_C73688
