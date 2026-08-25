@@ -1,7 +1,6 @@
 package org.molgenis.emx2.fairmapper.extractors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -9,13 +8,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.DCAT;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.rdf.vocabulary.FDPO;
 
 class FdpRdfExtractorTest {
 
@@ -104,10 +107,7 @@ class FdpRdfExtractorTest {
 
   @Test
   void shouldHaveNoMoreStatementsThanNeeded() {
-    try (RepositoryConnection connection = extracted.getConnection()) {
-      long nrStatements = connection.getStatements(null, null, null).stream().count();
-      assertEquals(11, nrStatements);
-    }
+    assertStatementCount(extracted, 11);
   }
 
   @Test
@@ -116,17 +116,17 @@ class FdpRdfExtractorTest {
         statement(Values.iri(rootUri.toString()), DCTERMS.TITLE, Values.literal("root")),
         statement(
             Values.iri(rootUri.toString()),
-            Values.iri("https://w3id.org/fdp/fdp-o#metadataCatalog"),
+            FDPO.METADATA_CATALOG,
             Values.iri(catalog1Uri.toString())),
         statement(
             Values.iri(rootUri.toString()),
-            Values.iri("https://w3id.org/fdp/fdp-o#metadataCatalog"),
+            FDPO.METADATA_CATALOG,
             Values.iri(catalog2Uri.toString())),
         statement(Values.iri(catalog1Uri.toString()), DCTERMS.TITLE, Values.literal("catalog-1")),
         statement(Values.iri(catalog2Uri.toString()), DCTERMS.TITLE, Values.literal("catalog-2")),
         statement(
             Values.iri(catalog1Uri.toString()),
-            Values.iri("http://www.w3.org/ns/dcat#dataset"),
+            DCAT.HAS_DATASET,
             Values.iri(datasetUri.toString())));
   }
 
@@ -136,7 +136,7 @@ class FdpRdfExtractorTest {
         statement(Values.iri(datasetUri.toString()), DCTERMS.TITLE, Values.literal("dataset")),
         statement(
             Values.iri(datasetUri.toString()),
-            Values.iri("http://www.w3.org/ns/dcat#distribution"),
+            DCAT.HAS_DISTRIBUTION,
             Values.iri(distributionUri.toString())));
   }
 
@@ -149,7 +149,7 @@ class FdpRdfExtractorTest {
             Values.literal("distribution 1")),
         statement(
             Values.iri(distributionUri.toString()),
-            Values.iri("http://www.w3.org/ns/dcat#downloadURL"),
+            DCAT.DOWNLOAD_URL,
             Values.iri(csvwUri.toString())));
   }
 
@@ -173,6 +173,13 @@ class FdpRdfExtractorTest {
       RepositoryConnection connection, Statement... statements) {
     for (Statement statement : statements) {
       assertTrue(connection.hasStatement(statement, false));
+    }
+  }
+
+  private static void assertStatementCount(SailRepository repository, int expectedNrStatement) {
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      long nrStatements = connection.getStatements(null, null, null, false).stream().count();
+      assertEquals(expectedNrStatement, nrStatements);
     }
   }
 
@@ -228,7 +235,7 @@ class FdpRdfExtractorTest {
   }
 
   @Test
-  void shouldFollowConfiguredStepsOnly(@TempDir Path tempDir) throws IOException {
+  void shouldExecuteStepConfiguredStepsOnly(@TempDir Path tempDir) throws IOException {
     SailRepository repository = new SailRepository(new MemoryStore());
     IRI partOf = Values.iri("https://example.org/ns#part");
 
@@ -255,61 +262,62 @@ class FdpRdfExtractorTest {
     }
   }
 
-  /** A download URL usually points at the data itself, which is rarely RDF. */
-  @Test
-  void shouldContinueWhenALinkedResourceIsNotRdf(@TempDir Path tempDir) throws IOException {
-    SailRepository repository = new SailRepository(new MemoryStore());
+  @Nested
+  class StrictModeTest {
 
-    Path root = tempDir.resolve("root.ttl");
-    Path catalog = tempDir.resolve("catalog.ttl");
-    Path dataset = tempDir.resolve("dataset.ttl");
-    Path distribution = tempDir.resolve("distribution.ttl");
-    Path data = tempDir.resolve("data.csv");
+    private final IRI partOf = Values.iri("https://example.org/ns#part");
+    private SailRepository repository;
+    private Path root;
+    private Path data;
 
-    Files.writeString(
-        root,
-        """
-        @prefix fdpo: <https://w3id.org/fdp/fdp-o#> .
-        <%s> fdpo:metadataCatalog <%s> .
-        """
-            .formatted(root.toUri(), catalog.toUri()));
-    Files.writeString(
-        catalog,
-        """
-        @prefix dcat: <http://www.w3.org/ns/dcat#> .
-        <%s> dcat:dataset <%s> .
-        """
-            .formatted(catalog.toUri(), dataset.toUri()));
-    Files.writeString(
-        dataset,
-        """
-        @prefix dcat: <http://www.w3.org/ns/dcat#> .
-        <%s> dcat:distribution <%s> .
-        """
-            .formatted(dataset.toUri(), distribution.toUri()));
-    Files.writeString(
-        distribution,
-        """
-        @prefix dcat: <http://www.w3.org/ns/dcat#> .
-        @prefix dcterms: <http://purl.org/dc/terms/> .
-        <%s> dcterms:title "distribution" ;
-            dcat:downloadURL <%s> .
-        """
-            .formatted(distribution.toUri(), data.toUri()));
-    Files.writeString(data, "id,name%n1,first%n".formatted());
+    @BeforeEach
+    void setUp(@TempDir Path tempDir) throws IOException {
+      repository = new SailRepository(new MemoryStore());
+      root = tempDir.resolve("root.ttl");
+      data = tempDir.resolve("data.csv");
+      Files.writeString(data, "id,name%n1,first%n".formatted());
+    }
 
-    Assertions.assertDoesNotThrow(
-        () ->
-            new FdpRdfExtractor(new RemoteRdfExtractor())
-                .addRdfToRepository(repository, root.toUri()));
+    @Test
+    void whenNotStrictMode_thenContinue() throws IOException {
+      Path part = root.resolveSibling("part.ttl");
+      Files.writeString(
+          root,
+          "<%s> <%s> <%s>, <%s> .%n".formatted(root.toUri(), partOf, part.toUri(), data.toUri()));
+      Files.writeString(
+          part,
+          """
+          @prefix dcterms: <http://purl.org/dc/terms/> .
+          <%s> dcterms:title "part" .
+          """
+              .formatted(part.toUri()));
 
-    try (RepositoryConnection connection = repository.getConnection()) {
-      assertHasStatements(
-          connection,
-          statement(
-              Values.iri(distribution.toUri().toString()),
-              DCTERMS.TITLE,
-              Values.literal("distribution")));
+      Assertions.assertDoesNotThrow(
+          () ->
+              new FdpRdfExtractor(new RemoteRdfExtractor())
+                  .withCrawlSteps(new CrawlStep("part", partOf))
+                  .addRdfToRepository(repository, root.toUri()));
+
+      try (RepositoryConnection connection = repository.getConnection()) {
+        assertStatementCount(repository, 3);
+        assertHasStatements(
+            connection,
+            statement(Values.iri(part.toUri().toString()), DCTERMS.TITLE, Values.literal("part")));
+      }
+    }
+
+    @Test
+    void whenStrictMode_thenThrow() throws IOException {
+      Files.writeString(root, "<%s> <%s> <%s> .%n".formatted(root.toUri(), partOf, data.toUri()));
+
+      FdpRdfExtractor extractor =
+          new FdpRdfExtractor(new RemoteRdfExtractor())
+              .withCrawlSteps(new CrawlStep("part", partOf))
+              .withStrict();
+
+      URI uri = root.toUri();
+      assertThrows(
+          MolgenisException.class, () -> extractor.addRdfToRepository(repository, uri));
     }
   }
 }
