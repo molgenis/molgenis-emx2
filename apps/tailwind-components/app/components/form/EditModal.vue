@@ -28,11 +28,10 @@
           <DraftLabel v-if="isDraft" />
           <span
             v-if="showRoles"
-            class="flex items-center text-title-contrast"
-            style="margin-left: auto"
+            class="ml-auto flex shrink-0 items-center text-title-contrast"
           >
-            <label class="mr-2" for="roleSelector">
-              <b>Role:</b>
+            <label class="mr-2 whitespace-nowrap" for="roleSelector">
+              <b>Permission level:</b>
             </label>
             <InputSelect
               v-model="selectedRole"

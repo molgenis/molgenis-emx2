@@ -117,13 +117,13 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
 });
 
 test.describe("as admin can select mg_role", () => {
-  test.only("when creating a new row", async ({ page }) => {
+  test("when creating a new row", async ({ page }) => {
     await page.goto(route);
     await signin(page, "admin", "admin");
     await page.goto(route + PET_STORE_PATH);
 
     await page.getByRole("button", { name: "Add Pet" }).click();
-    await page.getByLabel("Role:").selectOption("DragonKeeper");
+    await page.getByLabel("Permission level:").selectOption("DragonKeeper");
     await page
       .getByRole("textbox", { name: "name Required" })
       .fill("testDragon");
