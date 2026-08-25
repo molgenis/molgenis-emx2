@@ -3,9 +3,7 @@ package org.molgenis.emx2.json;
 import static java.util.Arrays.stream;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.molgenis.emx2.*;
 
 public class Table {
@@ -19,15 +17,16 @@ public class Table {
   private String inheritId;
   private String inheritName;
   private String inheritSchemaName;
+  private String[] semantics;
+  private String id;
+  private TableType tableType;
+
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
   private Collection<String[]> unique = new ArrayList<>();
   private List<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
-  private String[] semantics;
   private String[] profiles = null;
-  private String id;
-  private TableType tableType;
 
   public Table() {
     // for json serialisation
@@ -248,5 +247,54 @@ public class Table {
 
   public void setSchemaId(String schemaId) {
     this.schemaId = schemaId;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    Table table = (Table) o;
+    return drop == table.drop
+        && Objects.equals(schemaId, table.schemaId)
+        && Objects.equals(name, table.name)
+        && Objects.equals(label, table.label)
+        && Objects.equals(description, table.description)
+        && Objects.equals(oldName, table.oldName)
+        && Objects.deepEquals(pkey, table.pkey)
+        && Objects.equals(inheritId, table.inheritId)
+        && Objects.equals(inheritName, table.inheritName)
+        && Objects.equals(inheritSchemaName, table.inheritSchemaName)
+        && Objects.deepEquals(semantics, table.semantics)
+        && Objects.equals(id, table.id)
+        && tableType == table.tableType
+        && Objects.equals(labels, table.labels)
+        && Objects.equals(descriptions, table.descriptions)
+        && Objects.equals(unique, table.unique)
+        && Objects.equals(columns, table.columns)
+        && Objects.equals(settings, table.settings)
+        && Objects.deepEquals(profiles, table.profiles);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        schemaId,
+        name,
+        label,
+        description,
+        oldName,
+        drop,
+        Arrays.hashCode(pkey),
+        inheritId,
+        inheritName,
+        inheritSchemaName,
+        Arrays.hashCode(semantics),
+        id,
+        tableType,
+        labels,
+        descriptions,
+        unique,
+        columns,
+        settings,
+        Arrays.hashCode(profiles));
   }
 }

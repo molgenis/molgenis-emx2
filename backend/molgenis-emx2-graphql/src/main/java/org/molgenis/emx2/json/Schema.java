@@ -95,4 +95,16 @@ public class Schema {
   public void setSettings(List<Setting> settings) {
     this.settings = settings;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    Schema schema = (Schema) o;
+    return Objects.equals(tables, schema.tables) && Objects.equals(settings, schema.settings);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(tables, settings);
+  }
 }

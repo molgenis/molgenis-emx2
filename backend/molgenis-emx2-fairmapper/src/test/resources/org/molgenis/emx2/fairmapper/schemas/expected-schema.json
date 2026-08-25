@@ -1,0 +1,265 @@
+{
+  "tables": [
+    {
+      "schemaId": "GraphqlSchemaFetcherTest",
+      "name": "Order",
+      "label": "Order",
+      "id": "Order",
+      "tableType": "DATA",
+      "columns": [
+        {
+          "table": "Order",
+          "id": "mg_top_of_form",
+          "name": "mg_top_of_form",
+          "label": "_top",
+          "section": "mg_top_of_form",
+          "columnType": "SECTION"
+        },
+        {
+          "table": "Order",
+          "id": "orderId",
+          "name": "orderId",
+          "label": "orderId",
+          "section": "mg_top_of_form",
+          "key": 1,
+          "required": "true",
+          "columnType": "INT"
+        },
+        {
+          "table": "Order",
+          "id": "person",
+          "name": "person",
+          "label": "person",
+          "section": "mg_top_of_form",
+          "refSchemaId": "GraphqlSchemaFetcherTest",
+          "refSchemaName": "GraphqlSchemaFetcherTest",
+          "refTableId": "Person",
+          "refTableName": "Person",
+          "refLabelDefault": "${name}",
+          "position": 1,
+          "columnType": "REF"
+        },
+        {
+          "table": "Order",
+          "id": "products",
+          "name": "products",
+          "label": "products",
+          "section": "mg_top_of_form",
+          "refSchemaId": "GraphqlSchemaFetcherTest",
+          "refSchemaName": "GraphqlSchemaFetcherTest",
+          "refTableId": "Product",
+          "refTableName": "Product",
+          "refLabelDefault": "${name}",
+          "position": 2,
+          "columnType": "REF_ARRAY"
+        },
+        {
+          "table": "Order",
+          "id": "mg_draft",
+          "name": "mg_draft",
+          "label": "mg_draft",
+          "section": "mg_top_of_form",
+          "position": -5,
+          "columnType": "BOOL"
+        },
+        {
+          "table": "Order",
+          "id": "mg_insertedBy",
+          "name": "mg_insertedBy",
+          "label": "mg_insertedBy",
+          "section": "mg_top_of_form",
+          "position": -4,
+          "columnType": "STRING"
+        },
+        {
+          "table": "Order",
+          "id": "mg_insertedOn",
+          "name": "mg_insertedOn",
+          "label": "mg_insertedOn",
+          "section": "mg_top_of_form",
+          "position": -3,
+          "columnType": "DATETIME"
+        },
+        {
+          "table": "Order",
+          "id": "mg_updatedBy",
+          "name": "mg_updatedBy",
+          "label": "mg_updatedBy",
+          "section": "mg_top_of_form",
+          "position": -2,
+          "columnType": "STRING"
+        },
+        {
+          "table": "Order",
+          "id": "mg_updatedOn",
+          "name": "mg_updatedOn",
+          "label": "mg_updatedOn",
+          "section": "mg_top_of_form",
+          "position": -1,
+          "columnType": "DATETIME"
+        }
+      ]
+    },
+    {
+      "schemaId": "GraphqlSchemaFetcherTest",
+      "name": "Person",
+      "label": "Person",
+      "id": "Person",
+      "tableType": "DATA",
+      "columns": [
+        {
+          "table": "Person",
+          "id": "mg_top_of_form",
+          "name": "mg_top_of_form",
+          "label": "_top",
+          "section": "mg_top_of_form",
+          "columnType": "SECTION"
+        },
+        {
+          "table": "Person",
+          "id": "name",
+          "name": "name",
+          "label": "name",
+          "section": "mg_top_of_form",
+          "key": 1,
+          "required": "true",
+          "columnType": "STRING"
+        },
+        {
+          "table": "Person",
+          "id": "orders",
+          "name": "orders",
+          "label": "orders",
+          "section": "mg_top_of_form",
+          "refSchemaId": "GraphqlSchemaFetcherTest",
+          "refSchemaName": "GraphqlSchemaFetcherTest",
+          "refTableId": "Order",
+          "refTableName": "Order",
+          "refBackId": "person",
+          "refBackName": "person",
+          "refLabelDefault": "${orderId}",
+          "position": 3,
+          "columnType": "REFBACK"
+        },
+        {
+          "table": "Person",
+          "id": "mg_draft",
+          "name": "mg_draft",
+          "label": "mg_draft",
+          "section": "mg_top_of_form",
+          "position": -5,
+          "columnType": "BOOL"
+        },
+        {
+          "table": "Person",
+          "id": "mg_insertedBy",
+          "name": "mg_insertedBy",
+          "label": "mg_insertedBy",
+          "section": "mg_top_of_form",
+          "position": -4,
+          "columnType": "STRING"
+        },
+        {
+          "table": "Person",
+          "id": "mg_insertedOn",
+          "name": "mg_insertedOn",
+          "label": "mg_insertedOn",
+          "section": "mg_top_of_form",
+          "position": -3,
+          "columnType": "DATETIME"
+        },
+        {
+          "table": "Person",
+          "id": "mg_updatedBy",
+          "name": "mg_updatedBy",
+          "label": "mg_updatedBy",
+          "section": "mg_top_of_form",
+          "position": -2,
+          "columnType": "STRING"
+        },
+        {
+          "table": "Person",
+          "id": "mg_updatedOn",
+          "name": "mg_updatedOn",
+          "label": "mg_updatedOn",
+          "section": "mg_top_of_form",
+          "position": -1,
+          "columnType": "DATETIME"
+        }
+      ]
+    },
+    {
+      "schemaId": "GraphqlSchemaFetcherTest",
+      "name": "Product",
+      "label": "Product",
+      "id": "Product",
+      "tableType": "DATA",
+      "columns": [
+        {
+          "table": "Product",
+          "id": "mg_top_of_form",
+          "name": "mg_top_of_form",
+          "label": "_top",
+          "section": "mg_top_of_form",
+          "columnType": "SECTION"
+        },
+        {
+          "table": "Product",
+          "id": "name",
+          "name": "name",
+          "label": "name",
+          "section": "mg_top_of_form",
+          "key": 1,
+          "required": "true",
+          "columnType": "STRING"
+        },
+        {
+          "table": "Product",
+          "id": "mg_draft",
+          "name": "mg_draft",
+          "label": "mg_draft",
+          "section": "mg_top_of_form",
+          "position": -5,
+          "columnType": "BOOL"
+        },
+        {
+          "table": "Product",
+          "id": "mg_insertedBy",
+          "name": "mg_insertedBy",
+          "label": "mg_insertedBy",
+          "section": "mg_top_of_form",
+          "position": -4,
+          "columnType": "STRING"
+        },
+        {
+          "table": "Product",
+          "id": "mg_insertedOn",
+          "name": "mg_insertedOn",
+          "label": "mg_insertedOn",
+          "section": "mg_top_of_form",
+          "position": -3,
+          "columnType": "DATETIME"
+        },
+        {
+          "table": "Product",
+          "id": "mg_updatedBy",
+          "name": "mg_updatedBy",
+          "label": "mg_updatedBy",
+          "section": "mg_top_of_form",
+          "position": -2,
+          "columnType": "STRING"
+        },
+        {
+          "table": "Product",
+          "id": "mg_updatedOn",
+          "name": "mg_updatedOn",
+          "label": "mg_updatedOn",
+          "section": "mg_top_of_form",
+          "position": -1,
+          "columnType": "DATETIME"
+        }
+      ]
+    }
+  ],
+  "settings": []
+}
