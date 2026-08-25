@@ -1,13 +1,20 @@
 package org.molgenis.emx2.beaconv2.endpoints.filteringterms;
 
+import static org.molgenis.emx2.SelectColumn.s;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.EntryType;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FilteringTermsFetcher {
+
+  @JsonIgnore private static final ObjectMapper MAPPER = new ObjectMapper();
 
   @JsonIgnore
   public static final List<String> BEACON_TABLES =
@@ -56,8 +63,8 @@ public class FilteringTermsFetcher {
   }
 
   /**
-   * Check of a table is present in schema, add non-referencing terms immediately, launch native SQL
-   * query for others and loop over rows
+   * Check of a table is present in schema, add non-referencing terms immediately, query the terms
+   * occurring in the data for ontology columns
    *
    * @param schemaName
    * @param tableToQuery
@@ -75,52 +82,7 @@ public class FilteringTermsFetcher {
               new FilteringTerm("alphanumeric", column.getName(), tableToQuery);
           filteringTerms.add(filteringTerm);
         } else if (column.isOntology()) {
-          String schema = metadata.getSchemaName();
-          String refSchema = column.getRefTable().getSchemaName();
-          List<Row> rows;
-          String q =
-              "SELECT DISTINCT name,codesystem,code FROM \""
-                  + schema
-                  + "\".\""
-                  + tableToQuery
-                  + "\" INNER JOIN \""
-                  + refSchema
-                  + "\".\""
-                  + column.getRefTableName()
-                  + "\" ON \""
-                  + refSchema
-                  + "\".\""
-                  + column.getRefTableName()
-                  + (column.isArray()
-                      ? "\".\"name\" = ANY(\""
-                          + schema
-                          + "\".\""
-                          + tableToQuery
-                          + "\".\""
-                          + column.getName()
-                          + "\")"
-                      : "\".\"name\" = \""
-                          + schema
-                          + "\".\""
-                          + tableToQuery
-                          + "\".\""
-                          + column.getName()
-                          + "\"");
-          rows = database.getSchema(schemaName).retrieveSql(q);
-          for (Row row : rows) {
-            String codesystem = row.getString("codesystem");
-            codesystem = codesystem == null || codesystem.isBlank() ? "NULL" : codesystem;
-            String code = row.getString("code");
-            code = code == null || code.isBlank() ? "NULL" : code;
-            FilteringTerm filteringTerm =
-                new FilteringTerm(
-                    column,
-                    "ontology",
-                    codesystem + ":" + code,
-                    row.getString("name"),
-                    tableToQuery);
-            filteringTerms.add(filteringTerm);
-          }
+          filteringTerms.addAll(getOntologyTerms(schemaName, tableToQuery, metadata, column));
         } else {
           // ignore any non-atomic, non-ontology fields, which are headings, files and regular
           // (non-ontological) references
@@ -128,5 +90,57 @@ public class FilteringTermsFetcher {
       }
     }
     return filteringTerms;
+  }
+
+  /**
+   * Terms of an ontology column that occur in the data. Read through group by rather than a plain
+   * select, so a caller holding only aggregate permissions still gets terms; group by needs Range,
+   * tables below that are skipped instead of failing the whole response.
+   */
+  private Set<FilteringTerm> getOntologyTerms(
+      String schemaName, String tableToQuery, TableMetadata metadata, Column column) {
+    Schema schema = database.getSchema(schemaName);
+    if (!PermissionEvaluator.canRange(schema, metadata)) {
+      return Set.of();
+    }
+    Set<FilteringTerm> filteringTerms = new LinkedHashSet<>();
+    String groupBy = tableToQuery + "_groupBy";
+    String json =
+        schema
+            .query(groupBy, s("count"), s(column.getName(), s("name"), s("codesystem"), s("code")))
+            .retrieveJSON();
+    for (JsonNode group : readGroups(json, groupBy)) {
+      JsonNode term = group.get(column.getIdentifier());
+      if (term == null || term.isNull()) {
+        continue;
+      }
+      filteringTerms.add(
+          new FilteringTerm(
+              column,
+              "ontology",
+              orNull(term, "codesystem") + ":" + orNull(term, "code"),
+              text(term, "name"),
+              tableToQuery));
+    }
+    return filteringTerms;
+  }
+
+  private JsonNode readGroups(String json, String groupBy) {
+    try {
+      JsonNode groups = MAPPER.readTree(json).get(groupBy);
+      return groups == null || groups.isNull() ? MAPPER.createArrayNode() : groups;
+    } catch (JsonProcessingException e) {
+      throw new MolgenisException("Cannot read group by result of " + groupBy, e);
+    }
+  }
+
+  private static String orNull(JsonNode node, String field) {
+    String value = text(node, field);
+    return value == null || value.isBlank() ? "NULL" : value;
+  }
+
+  private static String text(JsonNode node, String field) {
+    JsonNode value = node.get(field);
+    return value == null || value.isNull() ? null : value.asText();
   }
 }
