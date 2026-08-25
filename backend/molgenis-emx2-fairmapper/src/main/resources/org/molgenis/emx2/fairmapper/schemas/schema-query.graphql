@@ -1,0 +1,70 @@
+query {
+    _schema {
+        tables {
+            schemaId
+            name
+            label
+            description
+            inheritId
+            inheritName
+            inheritSchemaName
+            semantics
+            id
+            tableType
+            labels {
+                locale
+                value
+            }
+            descriptions {
+                locale
+                value
+            }
+            columns {
+                table
+                id
+                name
+                label
+                section
+                heading
+                description
+                formLabel
+                key
+                required
+                readonly
+                defaultValue
+                refSchemaId
+                refSchemaName
+                refTableId
+                refTableName
+                refLinkId
+                refLinkName
+                refBackId
+                refBackName
+                refLabel
+                refLabelDefault
+                position
+                validation
+                visible
+                computed
+                labels {
+                    locale
+                    value
+                }
+                descriptions {
+                    locale
+                    value
+                }
+                columnType
+                semantics
+            }
+            settings {
+                key
+                value
+            }
+        }
+        settings {
+            key
+            value
+        }
+    }
+}
