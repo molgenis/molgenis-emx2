@@ -83,10 +83,15 @@ class RowOwnership {
 
   private String defaultRoleForActiveUser() {
     if (!PermissionEvaluator.isRowLevelRestricted(schema, table)) return null;
-    return schema.getInheritedRolesForActiveUser().stream()
-        .filter(SqlRoleManager::isUserAssignableRole)
-        .findFirst()
-        .orElse(null);
+    List<String> roles =
+        schema.getInheritedRolesForActiveUser().stream()
+            .filter(SqlRoleManager::isUserAssignableRole)
+            .toList();
+    if (roles.isEmpty()) return null;
+    if (roles.size() > 1) {
+      throw new MolgenisException("Cannot determine row owner: multiple roles found: " + roles);
+    }
+    return roles.getFirst();
   }
 
   private List<String> rolesInSchema() {
