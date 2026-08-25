@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, useId, onBeforeUnmount, watch } from "vue";
-import { onClickOutside, useFocusWithin } from "@vueuse/core";
+import { ref, useTemplateRef, useId, onMounted, watch, nextTick } from "vue";
+import { useFocusWithin, useEventListener } from "@vueuse/core";
 import Button from "../Button.vue";
 
 const ariaId: string = useId();
 const isOpen = ref<boolean>(false);
-const dropdownElem = useTemplateRef<HTMLDivElement>("dropdown");
+const dropdown = useTemplateRef<HTMLDivElement>("dropdown");
+const btnElem = useTemplateRef<HTMLButtonElement>("btnElem");
 
 withDefaults(
   defineProps<{
@@ -19,45 +20,56 @@ withDefaults(
   }
 );
 
-const { focused } = useFocusWithin(dropdownElem);
+const { focused } = useFocusWithin(dropdown);
 watch(focused, (focused) => {
   if (!focused && isOpen.value) {
     isOpen.value = false;
+    // focusButton();
   }
 });
 
-const stop = onClickOutside(dropdownElem, (event: Event) => {
-  const target = event.target as HTMLElement;
-  if (!dropdownElem.value?.contains(target) && dropdownElem.value !== target) {
+function onKeyDown(event: KeyboardEvent) {
+  if (event.code === "Escape" && isOpen.value) {
     isOpen.value = false;
+    // focusButton();
   }
-});
+}
 
-onBeforeUnmount(() => stop());
+// function focusButton () {
+//   if (btnElem.value) {
+//     btnElem.value
+//   }
+// }
+
+onMounted(() => {
+  useEventListener(dropdown, "keydown", onKeyDown);
+});
 </script>
 <template>
   <div ref="dropdown" class="relative">
     <Button
+      ref="btnElem"
       :id="`dropdown-${ariaId}-toggle`"
       type="outline"
       size="medium"
       :icon="icon"
       :icon-position="iconPosition"
-      @click="isOpen = !isOpen"
       :aria-expanded="isOpen"
       :aria-controls="`dropdown-${ariaId}-content`"
+      :aria-haspopup="true"
+      @click="isOpen = !isOpen"
     >
       {{ label }}
     </Button>
-    <div
-      :id="`dropdown-${ariaId}-content`"
-      class="absolute min-w-full bottom mt-0.5 left-0 z-10 bg-dropdown text-dropdown shadow-md rounded-base border transition-opacity ease-in-out duration-150"
-      :class="{
-        'hidden invisible opacity-0': !isOpen,
-        'visible opacity-100': isOpen,
-      }"
-    >
-      <slot></slot>
+    <div ref="modalElem">
+      <div
+        v-if="isOpen"
+        :id="`dropdown-${ariaId}-content`"
+        :aria-labelledby="`dropdown-${ariaId}-toggle`"
+        class="absolute min-w-full mt-0.5 left-0 z-10 bg-dropdown text-dropdown shadow-md rounded-base border"
+      >
+        <slot></slot>
+      </div>
     </div>
   </div>
 </template>

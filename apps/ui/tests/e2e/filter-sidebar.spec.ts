@@ -619,7 +619,7 @@ test("countable filter sections with zero base count are hidden initially", asyn
   const filterHeadings = page.locator("#filter-sidebar-content h3");
   const headingTexts = await filterHeadings.allTextContents();
 
-  const filtersHeading = await page.getByRole("heading", {
+  const filtersHeading = page.getByRole("heading", {
     name: "Filters",
     level: 2,
   });
