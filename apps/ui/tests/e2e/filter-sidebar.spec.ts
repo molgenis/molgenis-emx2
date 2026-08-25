@@ -20,7 +20,7 @@ test.describe("filter sidebar", () => {
     await page.goto(`${route}catalogue-demo/Resources`);
     await page.waitForTimeout(5000);
 
-    const filterSectionHeadings = page.locator("h3");
+    const filterSectionHeadings = page.locator("#filter-sidebar-content h3");
     const sectionCount = await filterSectionHeadings.count();
     expect(sectionCount).toBeGreaterThanOrEqual(1);
 
@@ -616,11 +616,12 @@ test("countable filter sections with zero base count are hidden initially", asyn
   const url = page.url();
   expect(url).not.toContain("mg_filters=");
 
-  const filterHeadings = page.locator("h3");
+  const filterHeadings = page.locator("#filter-sidebar-content h3");
   const headingTexts = await filterHeadings.allTextContents();
 
-  const filtersHeading = page.getByRole("heading", { level: 2 }).filter({
-    hasText: "Filters",
+  const filtersHeading = await page.getByRole("heading", {
+    name: "Filters",
+    level: 2,
   });
   await expect(filtersHeading).toBeVisible();
 
@@ -630,13 +631,14 @@ test("countable filter sections with zero base count are hidden initially", asyn
 
   const hrICoreVisible = await hrICoreSection.isVisible().catch(() => false);
 
-  expect(hrICoreVisible).toBe(
-    false,
+  expect(
+    hrICoreVisible,
     'Empty "hricore" section should be hidden'
-  );
+  ).toBeFalsy();
 
   const countriesSection = filterHeadings.filter({ hasText: /countries/i });
-  await expect(countriesSection).toBeVisible(
+  await expect(
+    countriesSection,
     "Non-empty 'countries' section should be visible"
-  );
+  ).toBeVisible();
 });
