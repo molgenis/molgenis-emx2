@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper.extractors;
+package org.molgenis.emx2.rdf.vocabulary;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;

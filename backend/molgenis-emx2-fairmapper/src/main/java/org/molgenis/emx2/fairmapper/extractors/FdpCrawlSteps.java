@@ -2,6 +2,7 @@ package org.molgenis.emx2.fairmapper.extractors;
 
 import java.util.List;
 import org.eclipse.rdf4j.model.vocabulary.DCAT;
+import org.molgenis.emx2.rdf.vocabulary.FDPO;
 
 /**
  * The levels a FAIR Data Point exposes, in the order they have to be followed.
