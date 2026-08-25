@@ -1781,7 +1781,6 @@ pmol/l,Picomole per Liter,,NCIT,NCIT_C67434,http://purl.obolibrary.org/obo/NCIT_
 nanogram per microliter (ng/µl),nanogram per microliter,"erdera,RNA,lrGS",UO,UO_0010050,http://purl.obolibrary.org/obo/UO_0010050
 Thousand per Cubic Millimeter,,,NCIT,NCIT_C67255,http://purl.obolibrary.org/obo/NCIT_C67255
 Femtogram per Liter,,,UCUM,fg/L,http://unitsofmeasure.org#fg/L
-Drinks per week,,,UCUM,{drinks}/wk,
 Picogram per Milliliter,,,NCIT,NCIT_C67327,http://purl.obolibrary.org/obo/NCIT_C67327
 Million per Cubic Millimeter,,,NCIT,NCIT_C67308,http://purl.obolibrary.org/obo/NCIT_C67308
 Arbitrary Unit per Milliliter,,,NCIT,NCIT_C191361,http://purl.obolibrary.org/obo/NCIT_C191361
