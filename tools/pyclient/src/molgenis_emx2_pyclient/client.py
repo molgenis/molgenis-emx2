@@ -12,14 +12,12 @@ import time
 
 from . import graphql_queries as queries
 from .constants import HEADING, DATE, DATETIME, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT, CHECKBOX, MULTISELECT
-from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
+from .exceptions import (NoSuchSchemaException, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
-                         NoContextManagerException, GraphQLException, InvalidTokenException,
-                         PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
-                         NoSuchColumnException, ReferenceException)
+                         NoContextManagerException, GraphQLException, TokenSigninException, NoSuchColumnException)
 from .metadata import Schema, Table
 from .utils import parse_nested_pkeys, convert_dtypes, prepare_filter, format_optional_params, prep_data_or_file, \
-    check_schema, csv_string_to_array
+    check_schema, csv_string_to_array, validate_graphql_response
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -104,7 +102,7 @@ class Client:
             url=self.api_graphql,
             json={'query': query, 'variables': variables}
         )
-        self._validate_graphql_response(response, mutation='signin')
+        validate_graphql_response(response, mutation='signin')
 
         response_json: dict = response.json().get('data', {}).get('signin', {})
 
@@ -134,7 +132,7 @@ class Client:
             url=self.api_graphql,
             json={'query': queries.signout()}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         status = response.json().get('data', {}).get('signout', {}).get('status')
         if status == 'SUCCESS':
@@ -174,7 +172,7 @@ class Client:
             url=self.api_graphql,
             json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json: dict = response.json()
         schemas = [Schema(**s) for s in response_json['data']['_schemas']]
@@ -204,7 +202,7 @@ class Client:
             url=self.api_graphql,
             json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
     def save_schema(self, table: str, name: str | None = None, file: str | pathlib.Path | None = None, data: list | pd.DataFrame | None = None):
@@ -247,7 +245,7 @@ class Client:
         )
 
         try:
-            self._validate_graphql_response(response)
+            validate_graphql_response(response)
             log.info("Imported data into %s::%s.", current_schema, table)
         except PyclientException:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
@@ -327,8 +325,8 @@ class Client:
             json={"query": query, "variables": {"table": table_id}}
         )
 
-        self._validate_graphql_response(response, mutation='truncate',
-                                        fallback_error_message=f"Failed to truncate table {current_schema}::{table}.")
+        validate_graphql_response(response, mutation='truncate',
+                                       fallback_error_message=f"Failed to truncate table {current_schema}::{table}.")
         log.info(f"Truncated table {table!r}.")
 
 
@@ -391,8 +389,8 @@ class Client:
             data=import_data
         )
 
-        self._validate_graphql_response(response, mutation='delete',
-                                        fallback_error_message=f"Failed to delete data from {current_schema}::{table}.")
+        validate_graphql_response(response, mutation='delete',
+                                       fallback_error_message=f"Failed to delete data from {current_schema}::{table}.")
 
         if response.status_code == 200:
             log.info("Deleted data from %s::%s.", current_schema, table)
@@ -444,8 +442,8 @@ class Client:
             filter_part = ""
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
         response = self.session.get(url=query_url)
-        self._validate_graphql_response(response=response,
-                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+        validate_graphql_response(response=response,
+                                       fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                f"{table!r}.\nStatus code: {response.status_code}.")
 
         response_columns = pd.read_csv(BytesIO(response.content)).columns
@@ -516,8 +514,8 @@ class Client:
         query = self._parse_get_table_query(table_id, current_schema, columns)
         response = self.session.post(url=query_url,
                                     json={"query": query, "variables": {"filter": filter_part}})
-        self._validate_graphql_response(response=response,
-                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+        validate_graphql_response(response=response,
+                                       fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                f"{table!r}.\nStatus code: {response.status_code}.")
         response_data = response.json().get('data').get(table_id, [])
         response_data = self._parse_ontology(response_data, table_id, current_schema)
@@ -565,7 +563,7 @@ class Client:
                 # Export the whole schema
                 url = f"{self.url}/{current_schema}/api/excel?async=true"
                 response = self.session.get(url=url)
-                self._validate_graphql_response(response)
+                validate_graphql_response(response)
 
                 if filename:
                     with open(filename, "wb") as file:
@@ -578,7 +576,7 @@ class Client:
                 table_id = schema_metadata.get_table(by='name', value=table).id
                 url = f"{self.url}/{current_schema}/api/excel/{table_id}?async=true"
                 response = self.session.get(url=url)
-                self._validate_graphql_response(response)
+                validate_graphql_response(response)
 
                 if filename:
                     with open(filename, "wb") as file:
@@ -590,7 +588,7 @@ class Client:
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip?async=true"
                 response = self.session.get(url=url)
-                self._validate_graphql_response(response)
+                validate_graphql_response(response)
 
                 if filename:
                     with open(filename, "wb") as file:
@@ -604,7 +602,7 @@ class Client:
                 table_id = schema_metadata.get_table(by='name', value=table).id
                 url = f"{self.url}/{current_schema}/api/csv/{table_id}?async=true"
                 response = self.session.get(url=url)
-                self._validate_graphql_response(response)
+                validate_graphql_response(response)
 
                 if filename:
                     with open(filename, "wb") as file:
@@ -638,7 +636,7 @@ class Client:
 
         url = f"{self.url}/{current_schema}/api/{_fmt}"
         response = self.session.get(url=url)
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         if filename:
             with open(filename, "wb") as file:
@@ -678,7 +676,7 @@ class Client:
             json={'query': query, 'variables': variables}
         )
 
-        self._validate_graphql_response(
+        validate_graphql_response(
             response=response,
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema {name!r}"
@@ -712,7 +710,7 @@ class Client:
             json={'query': query, 'variables': variables}
         )
 
-        self._validate_graphql_response(
+        validate_graphql_response(
             response=response,
             mutation='deleteSchema',
             fallback_error_message=f"Failed to delete schema {current_schema!r}"
@@ -741,7 +739,7 @@ class Client:
             json={'query': query, 'variables': variables}
         )
 
-        self._validate_graphql_response(
+        validate_graphql_response(
             response=response,
             mutation='updateSchema',
             fallback_error_message=f"Failed to update schema {current_schema!r}"
@@ -808,7 +806,7 @@ class Client:
             url=f"{self.url}/{current_schema}/api/graphql",
             json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json = response.json()
 
@@ -829,7 +827,7 @@ class Client:
             url=f"{self.url}/{current_schema}/api/graphql",
             json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json = response.json()
         settings = response_json.get('data').get('_schema').get('settings')
@@ -845,7 +843,7 @@ class Client:
             url=f"{self.url}/{current_schema}/api/graphql",
             json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json = response.json()
         members = response_json.get('data').get('_schema').get('members')
@@ -861,7 +859,7 @@ class Client:
             url=f"{self.url}/{current_schema}/api/graphql",
             json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json = response.json()
         roles = response_json.get('data').get('_schema').get('roles')
@@ -935,81 +933,6 @@ class Client:
                 )
                 task = p_response.json().get('data').get('_tasks')[0]
         log.info(f"Completed task: {task.get('description')}")
-
-    def _validate_graphql_response(self, response, mutation: str | None = None, fallback_error_message: str | None = None):
-        """Validates a GraphQL response and prints the appropriate message.
-
-        :param response: a graphql response from the server
-        :type response: requests.Response
-        :param mutation: the name of the graphql mutation executed, optional
-        :type mutation: str
-        :param fallback_error_message: a fallback error message, optional
-        :type fallback_error_message: str
-
-        :returns: a success or error message
-        :rtype: string
-        """
-
-        if response.status_code == 503:
-            raise ServiceUnavailableError(f"Server with url {self.url!r} (temporarily) unavailable.")
-        if response.status_code == 404:
-            raise ServerNotFoundError(f"Server with url {self.url!r} not found.")
-        if response.status_code == 400:
-            if 'Invalid token or token expired' in response.text:
-                raise InvalidTokenException("Invalid token or token expired.")
-            if 'permission denied' in response.text:
-                raise PermissionDeniedException(f"Transaction failed: permission denied.")
-            if 'Graphql API error' in response.text:
-                msg = response.json().get("errors", [])[0].get('message')
-                log.error(msg)
-                raise GraphQLException(msg)
-            if "violates foreign key constraint" in response.text:
-                msg = response.json().get("errors", [])[0].get('message', '')
-                log.error(msg)
-                raise ReferenceException(msg)
-            if "Cannot create schema from template" in response.text:
-                msg = response.json().get("errors", [])[0].get('message', '')
-                log.error(msg)
-                raise NonExistentTemplateException("Selected template does not exist.")
-            if "Field \'members\' in type \'MolgenisSchema\' is undefined" in response.text:
-                msg = response.json().get("errors", [])[0].get('message')
-                log.error(msg)
-                raise PermissionDeniedException("Cannot access members on this schema.")
-
-            msg = response.json().get("errors", [])[0].get('message', '')
-            log.error(msg)
-            raise PyclientException("An unknown error occurred when trying to reach this server.")
-
-        if response.request.method == 'GET':
-            return
-
-        if response.status_code == 200:
-            return
-
-        response_json = response.json()
-        response_keys = response_json.keys()
-        if 'errors' not in response_keys and 'data' not in response_keys:
-            message = fallback_error_message
-            log.error(message)
-
-        elif 'errors' in response_keys:
-            message = response_json.get('errors')[0].get('message')
-            if 'permission denied' in message:
-                log.error("Insufficient permissions for this operations.")
-                raise PermissionDeniedException("Insufficient permissions for this operations.")
-            if 'AvailableDataModels' in message:
-                log.error("Selected template does not exist.")
-                raise NonExistentTemplateException("Selected template does not exist.")
-            log.error(message)
-            raise GraphQLException(message)
-
-        elif mutation is not None:
-            if response_json.get('data').get(mutation).get('status') == 'SUCCESS':
-                message = response_json.get('data').get(mutation).get('message')
-                log.info(message)
-            else:
-                message = f"Failed to validate response for {mutation!r}"
-                log.error(message)
 
     def _table_in_schema(self, table_name: str, schema_name: str) -> bool:
         """Checks whether the requested table is present in the schema.

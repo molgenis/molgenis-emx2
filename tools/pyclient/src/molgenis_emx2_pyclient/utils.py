@@ -5,13 +5,18 @@ import csv
 import io
 import json
 import logging
-import math
 import pathlib
 
+import math
 import pandas as pd
+import requests
 
 from .constants import INT, DECIMAL, BOOL, LONG, STRING
 from .exceptions import NoSuchSchemaException
+from .exceptions import (ServiceUnavailableError, ServerNotFoundError, PyclientException, GraphQLException,
+                         InvalidTokenException,
+                         PermissionDeniedException, NonExistentTemplateException,
+                         ReferenceException)
 from .metadata import Table, Schema
 
 log = logging.getLogger("Molgenis EMX2 Pyclient")
@@ -343,3 +348,79 @@ def array_to_csv_string(array: list | str) -> str:
             return csv_string.getvalue().strip()
     else:
         return array
+
+
+def validate_graphql_response(response, mutation: str | None = None, fallback_error_message: str | None = None):
+    """Validates a GraphQL response and prints the appropriate message.
+
+    :param response: a graphql response from the server
+    :type response: requests.Response
+    :param mutation: the name of the graphql mutation executed, optional
+    :type mutation: str
+    :param fallback_error_message: a fallback error message, optional
+    :type fallback_error_message: str
+
+    :returns: a success or error message
+    :rtype: string
+    """
+
+    if response.status_code == 503:
+        raise ServiceUnavailableError(f"Server with url {response.url!r} (temporarily) unavailable.")
+    if response.status_code == 404:
+        raise ServerNotFoundError(f"Server with url {response.url!r} not found.")
+    if response.status_code == 400:
+        if 'Invalid token or token expired' in response.text:
+            raise InvalidTokenException("Invalid token or token expired.")
+        if 'permission denied' in response.text:
+            raise PermissionDeniedException(f"Transaction failed: permission denied.")
+        if 'Graphql API error' in response.text:
+            msg = response.json().get("errors", [])[0].get('message')
+            log.error(msg)
+            raise GraphQLException(msg)
+        if "violates foreign key constraint" in response.text:
+            msg = response.json().get("errors", [])[0].get('message', '')
+            log.error(msg)
+            raise ReferenceException(msg)
+        if "Cannot create schema from template" in response.text:
+            msg = response.json().get("errors", [])[0].get('message', '')
+            log.error(msg)
+            raise NonExistentTemplateException("Selected template does not exist.")
+        if "Field \'members\' in type \'MolgenisSchema\' is undefined" in response.text:
+            msg = response.json().get("errors", [])[0].get('message')
+            log.error(msg)
+            raise PermissionDeniedException("Cannot access members on this schema.")
+
+        msg = response.json().get("errors", [])[0].get('message', '')
+        log.error(msg)
+        raise PyclientException("An unknown error occurred when trying to reach this server.")
+
+    if response.request.method == 'GET':
+        return
+
+    if response.status_code == 200:
+        return
+
+    response_json = response.json()
+    response_keys = response_json.keys()
+    if 'errors' not in response_keys and 'data' not in response_keys:
+        message = fallback_error_message
+        log.error(message)
+
+    elif 'errors' in response_keys:
+        message = response_json.get('errors')[0].get('message')
+        if 'permission denied' in message:
+            log.error("Insufficient permissions for this operations.")
+            raise PermissionDeniedException("Insufficient permissions for this operations.")
+        if 'AvailableDataModels' in message:
+            log.error("Selected template does not exist.")
+            raise NonExistentTemplateException("Selected template does not exist.")
+        log.error(message)
+        raise GraphQLException(message)
+
+    elif mutation is not None:
+        if response_json.get('data').get(mutation).get('status') == 'SUCCESS':
+            message = response_json.get('data').get(mutation).get('message')
+            log.info(message)
+        else:
+            message = f"Failed to validate response for {mutation!r}"
+            log.error(message)
