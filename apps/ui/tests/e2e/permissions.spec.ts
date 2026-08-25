@@ -116,8 +116,8 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
   });
 });
 
-test.describe("as admin can select mg_role", () => {
-  test("when creating a new row", async ({ page }) => {
+test.describe("when selecting a permission for a row", () => {
+  test("as admin, for a new row", async ({ page }) => {
     await page.goto(route);
     await signin(page, "admin", "admin");
     await page.goto(route + PET_STORE_PATH);
@@ -136,5 +136,35 @@ test.describe("as admin can select mg_role", () => {
     await insertRow(page, "Pet");
 
     await findAndDeleteRow(page, "Pet", "testDragon");
+  });
+
+  test("as manager,when editing a row", async ({ page }) => {
+    await page.goto(route);
+    await signin(page, "shopmanager", "shopmanager");
+    await page.goto(route + PET_STORE_PATH);
+
+    await expect(
+      page.locator("tr:nth-child(10) > td:nth-child(2) > .flex")
+    ).toHaveText("DragonKeeper", { exact: true });
+
+    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
+    await page.getByLabel("Permission level:").selectOption("Global");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(
+      page.locator("tr:nth-child(10) > td:nth-child(2) > .flex")
+    ).toHaveText("", { exact: true });
+
+    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
+    await page.getByLabel("Permission level:").selectOption("DragonKeeper");
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(
+      page.locator("tr:nth-child(10) > td:nth-child(2) > .flex")
+    ).toHaveText("DragonKeeper", { exact: true });
   });
 });

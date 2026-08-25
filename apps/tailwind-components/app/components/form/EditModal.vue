@@ -220,7 +220,8 @@ const savingDraft = computed(
 );
 const roles = computed<string[]>(() => session.rowLevelRoles.value);
 const showRoles = computed(
-  () => session.isAdmin || session.isOwner || session.isManager
+  () =>
+    session.isAdmin.value || session.isOwner.value || session.isManager.value
 );
 
 watch(

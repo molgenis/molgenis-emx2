@@ -15,8 +15,8 @@ export const useSession = async (schemaId?: string) => {
   let messageHandler: ((event: MessageEvent) => void) | null = null;
 
   const isAdmin = computed(() => session.value?.admin || false);
-  const isOwner = computed(() => hasRole("owner"));
-  const isManager = computed(() => hasRole("manager"));
+  const isOwner = computed(() => hasRole("Owner"));
+  const isManager = computed(() => hasRole("Manager"));
   const rowLevelRoles = ref<string[]>(await getRowLevelRoles());
 
   const tablePermissions = computed<ITablePermission[]>(() =>
@@ -39,7 +39,7 @@ export const useSession = async (schemaId?: string) => {
   }
 
   async function getRowLevelRoles(): Promise<string[]> {
-    if (schemaId && isAdmin.value) {
+    if (schemaId && (isAdmin.value || isOwner.value || isManager.value)) {
       const response = await $fetch(`/${schemaId}/graphql`, {
         method: "POST",
         body: JSON.stringify({
