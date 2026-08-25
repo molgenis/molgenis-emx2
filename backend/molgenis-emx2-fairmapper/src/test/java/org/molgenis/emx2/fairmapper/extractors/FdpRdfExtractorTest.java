@@ -99,7 +99,7 @@ class FdpRdfExtractorTest {
 
     extracted = new SailRepository(new MemoryStore());
     valueFactory = extracted.getValueFactory();
-    new FdpRdfExtractor(new RemoteRdfExtractor(), rootUri).addRdfToRepository(extracted);
+    new FdpRdfExtractor(new RemoteRdfExtractor()).addRdfToRepository(extracted, rootUri);
   }
 
   @Test
@@ -183,32 +183,133 @@ class FdpRdfExtractorTest {
     Repository extract = new SailRepository(new MemoryStore());
     Assertions.assertDoesNotThrow(
         () ->
-            new FdpRdfExtractor(new RemoteRdfExtractor(), URI.create(endpoint))
-                .addRdfToRepository(extract));
+            new FdpRdfExtractor(new RemoteRdfExtractor())
+                .addRdfToRepository(extract, URI.create(endpoint)));
     try (RepositoryConnection connection = extract.getConnection()) {
       connection.getStatements(null, null, null).forEach(System.out::println);
     }
   }
 
+  /**
+   * The pipeline passes the URI the user typed, so the trailing slash has to be stripped from the
+   * URI the crawl queries with, not only from the one it fetches.
+   */
   @Test
-  void shouldRemoveTrailingSlash(@TempDir Path tempDir) throws IOException {
+  void shouldCrawlOnWhenRootHasTrailingSlash(@TempDir Path tempDir) throws IOException {
     SailRepository repository = new SailRepository(new MemoryStore());
 
     Path root = tempDir.resolve("root.ttl");
+    Path catalog = tempDir.resolve("catalog.ttl");
+
     Files.writeString(
         root,
         """
-            @prefix dcterms: <http://purl.org/dc/terms/> .
-            <https://example.org> dcterms:title "root" .
-            """);
+        @prefix fdpo: <https://w3id.org/fdp/fdp-o#> .
+        <%s> fdpo:metadataCatalog <%s> .
+        """
+            .formatted(root.toUri(), catalog.toUri()));
+    Files.writeString(
+        catalog,
+        """
+        @prefix dcterms: <http://purl.org/dc/terms/> .
+        <%s> dcterms:title "catalog" .
+        """
+            .formatted(catalog.toUri()));
 
-    new FdpRdfExtractor(new RemoteRdfExtractor(), URI.create(root.toUri() + "/"))
+    new FdpRdfExtractor(new RemoteRdfExtractor())
+        .addRdfToRepository(repository, URI.create(root.toUri() + "//"));
+
+    try (RepositoryConnection connection = repository.getConnection()) {
+      assertHasStatements(
+          connection,
+          statement(
+              Values.iri(catalog.toUri().toString()), DCTERMS.TITLE, Values.literal("catalog")));
+    }
+  }
+
+  @Test
+  void shouldFollowConfiguredStepsOnly(@TempDir Path tempDir) throws IOException {
+    SailRepository repository = new SailRepository(new MemoryStore());
+    IRI partOf = Values.iri("https://example.org/ns#part");
+
+    Path root = tempDir.resolve("root.ttl");
+    Path part = tempDir.resolve("part.ttl");
+
+    Files.writeString(root, "<%s> <%s> <%s> .%n".formatted(root.toUri(), partOf, part.toUri()));
+    Files.writeString(
+        part,
+        """
+        @prefix dcterms: <http://purl.org/dc/terms/> .
+        <%s> dcterms:title "part" .
+        """
+            .formatted(part.toUri()));
+
+    new FdpRdfExtractor(new RemoteRdfExtractor())
+        .withCrawlSteps(new CrawlStep("part", partOf))
         .addRdfToRepository(repository, root.toUri());
 
     try (RepositoryConnection connection = repository.getConnection()) {
       assertHasStatements(
           connection,
-          statement(Values.iri("https://example.org"), DCTERMS.TITLE, Values.literal("root")));
+          statement(Values.iri(part.toUri().toString()), DCTERMS.TITLE, Values.literal("part")));
+    }
+  }
+
+  /** A download URL usually points at the data itself, which is rarely RDF. */
+  @Test
+  void shouldContinueWhenALinkedResourceIsNotRdf(@TempDir Path tempDir) throws IOException {
+    SailRepository repository = new SailRepository(new MemoryStore());
+
+    Path root = tempDir.resolve("root.ttl");
+    Path catalog = tempDir.resolve("catalog.ttl");
+    Path dataset = tempDir.resolve("dataset.ttl");
+    Path distribution = tempDir.resolve("distribution.ttl");
+    Path data = tempDir.resolve("data.csv");
+
+    Files.writeString(
+        root,
+        """
+        @prefix fdpo: <https://w3id.org/fdp/fdp-o#> .
+        <%s> fdpo:metadataCatalog <%s> .
+        """
+            .formatted(root.toUri(), catalog.toUri()));
+    Files.writeString(
+        catalog,
+        """
+        @prefix dcat: <http://www.w3.org/ns/dcat#> .
+        <%s> dcat:dataset <%s> .
+        """
+            .formatted(catalog.toUri(), dataset.toUri()));
+    Files.writeString(
+        dataset,
+        """
+        @prefix dcat: <http://www.w3.org/ns/dcat#> .
+        <%s> dcat:distribution <%s> .
+        """
+            .formatted(dataset.toUri(), distribution.toUri()));
+    Files.writeString(
+        distribution,
+        """
+        @prefix dcat: <http://www.w3.org/ns/dcat#> .
+        @prefix dcterms: <http://purl.org/dc/terms/> .
+        <%s> dcterms:title "distribution" ;
+            dcat:downloadURL <%s> .
+        """
+            .formatted(distribution.toUri(), data.toUri()));
+    Files.writeString(data, "id,name%n1,first%n".formatted());
+
+    Assertions.assertDoesNotThrow(
+        () ->
+            new FdpRdfExtractor(new RemoteRdfExtractor())
+                .addRdfToRepository(repository, root.toUri()));
+
+    try (RepositoryConnection connection = repository.getConnection()) {
+      assertHasStatements(
+          connection,
+          statement(
+              Values.iri(distribution.toUri().toString()),
+              DCTERMS.TITLE,
+              Values.literal("distribution")));
     }
   }
 }
