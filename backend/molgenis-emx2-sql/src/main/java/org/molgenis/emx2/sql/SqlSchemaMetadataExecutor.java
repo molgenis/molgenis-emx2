@@ -143,7 +143,7 @@ class SqlSchemaMetadataExecutor {
       // drop schema
       db.getJooq().dropSchema(name(schemaName)).execute();
 
-      for (String role : db.getRoleManager().getRoleNames(schemaName)) {
+      for (String role : db.getRoleManager().getAllRoleNamesIncludingInternal(schemaName)) {
         db.getJooq().execute("DROP ROLE IF EXISTS {0}", name(getRolePrefix(schemaName) + role));
       }
       MetadataUtils.deleteSchema(db.getJooq(), schemaName);
