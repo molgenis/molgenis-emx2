@@ -52,7 +52,7 @@ onBeforeUnmount(() => stop());
     <div
       :id="`dropdown-${ariaId}-content`"
       :aria-hidden="!isOpen"
-      class="absolute bottom mt-0.5 left-0 z-10 bg-dropdown text-dropdown shadow-md rounded-base border transition-opacity ease-in-out motion-safe:duration-150 motion-reduce:duration-0"
+      class="absolute bottom mt-0.5 left-0 z-10 bg-dropdown text-dropdown shadow-md rounded-base border transition-opacity ease-in-out duration-150"
       :class="{
         'invisible opacity-0': !isOpen,
         'visible opacity-100': isOpen,
@@ -61,42 +61,4 @@ onBeforeUnmount(() => stop());
       <slot></slot>
     </div>
   </div>
-  <!-- <VDropdown
-    :aria-id="ariaId"
-    :distance="2"
-    :skidding="4"
-    placement="bottom-start"
-  >
-    <Button
-      type="outline"
-      size="medium"
-      :icon="icon"
-      :icon-position="iconPosition"
-    >
-      {{ label }}
-    </Button>
-    <template #popper>
-      <div class="bg-dropdown text-dropdown">
-        <slot />
-      </div>
-    </template>
-  </VDropdown> -->
 </template>
-
-<style>
-div.v-popper__wrapper
-  > div.v-popper__arrow-container
-  > div.v-popper__arrow-outer {
-  display: none;
-}
-div.v-popper__wrapper
-  > div.v-popper__arrow-container
-  > div.v-popper__arrow-inner {
-  display: none;
-}
-div.v-popper__wrapper
-  > div.v-popper__arrow-container
-  > div.v-popper__arrow-container {
-  display: none;
-}
-</style>
