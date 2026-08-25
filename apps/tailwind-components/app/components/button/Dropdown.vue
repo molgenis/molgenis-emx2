@@ -51,7 +51,7 @@ onBeforeUnmount(() => stop());
     </Button>
     <div
       :id="`dropdown-${ariaId}-content`"
-      class="absolute w-full bottom mt-0.5 left-0 z-10 bg-dropdown text-dropdown shadow-md rounded-base border transition-opacity ease-in-out duration-150"
+      class="absolute min-w-full bottom mt-0.5 left-0 z-10 bg-dropdown text-dropdown shadow-md rounded-base border transition-opacity ease-in-out duration-150"
       :class="{
         'hidden invisible opacity-0': !isOpen,
         'visible opacity-100': isOpen,
