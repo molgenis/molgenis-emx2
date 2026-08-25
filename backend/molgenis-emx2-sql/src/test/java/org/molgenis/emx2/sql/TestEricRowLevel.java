@@ -51,7 +51,7 @@ class TestEricRowLevel {
         "Expected " + EXPECTED_COUNTRY_COUNT + " distinct countries in Biobanks");
 
     for (String country : countries) {
-      if (!schema.getRoles().contains(country)) {
+      if (!schema.getRoleNames().contains(country)) {
         schema.createRole(country);
       }
       schema.grant(
@@ -72,7 +72,7 @@ class TestEricRowLevel {
               .rowLevel(true));
     }
 
-    List<String> roles = schema.getRoles();
+    List<String> roles = schema.getRoleNames();
     for (String country : countries) {
       assertTrue(roles.contains(country), "Role should exist for country: " + country);
     }

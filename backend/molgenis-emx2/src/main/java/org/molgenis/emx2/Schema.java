@@ -52,7 +52,7 @@ public interface Schema {
 
   void removeMember(String user);
 
-  List<String> getRoles();
+  List<String> getRoleNames();
 
   String getRoleForUser(String user);
 
