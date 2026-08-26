@@ -122,7 +122,7 @@ function showLess() {
       :aria-expanded="isExpanded"
       @click="showMore"
     >
-      {{ moreLabel }}
+      <slot name="more" :hasMore="hasMore">{{ moreLabel }}</slot>
     </button>
     <button
       v-if="canShowLess"
@@ -130,7 +130,7 @@ function showLess() {
       :aria-expanded="true"
       @click="showLess"
     >
-      {{ lessLabel }}
+      <slot name="less">{{ lessLabel }}</slot>
     </button>
   </span>
 </template>
@@ -140,6 +140,10 @@ function showLess() {
  * -webkit-line-clamp counts real line boxes, so a value carrying its own
  * line-height is still cut on a line. It forces an ellipsis and gives no way to
  * put a control at the cut, so the control is placed over that spot instead.
+ *
+ * Prefixed only. The standard `line-clamp` shorthand sets `continue: discard`,
+ * which wants a block container, and setting both leaves the element clamped by
+ * neither.
  */
 .content-clamp-root {
   position: relative;
@@ -151,7 +155,6 @@ function showLess() {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: var(--content-clamp-lines);
-  line-clamp: var(--content-clamp-lines);
   overflow: hidden;
   overflow-wrap: anywhere;
 }

@@ -107,6 +107,17 @@ describe("ContentClamp.vue", () => {
     expect(labels(w)).toEqual(["show less"]);
   });
 
+  it("lets a caller replace the control, keeping the label as the default", async () => {
+    overflowing(true);
+    const wrapper = mount(ContentClamp, {
+      props: { maxLines: 3 },
+      slots: { default: "some long content", more: "read the rest" },
+    });
+    await nextTick();
+
+    expect(labels(wrapper)).toEqual(["read the rest"]);
+  });
+
   it("collapses to the starting bound, and offers to expand again", async () => {
     const w = await clamp({ maxLines: 3, lineStep: 5 });
 
