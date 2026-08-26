@@ -21,16 +21,11 @@
           class="w-32 border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <p class="text-body-sm">
-        A control appears only where the clamp really hides something, so a low
-        line count or a high value count brings one out.
-      </p>
     </div>
     <p class="text-body-base">
-      A row showing its own type name in place of a value has no branch in
-      <code>EMX2.vue</code> and falls through. HEADING and SECTION do that by
-      design: they are layout, and <code>tableQuery.ts</code> filters them out
-      before a query is built.
+      A long value is bounded by height and revealed with <b>show more</b>. It
+      is never cut out of the page, so a search engine and the browser's own
+      find still reach it.
     </p>
 
     <div
