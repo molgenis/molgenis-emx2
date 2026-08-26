@@ -366,6 +366,7 @@ public class SqlTable implements Table {
           columns.stream()
               .filter(
                   c -> c.getName().equals(MG_TABLECLASS) || !Boolean.TRUE.equals(c.isReadonly()))
+              .filter(c -> !c.getName().equals(MG_INSERTEDBY) && !c.getName().equals(MG_INSERTEDON))
               .toList()) {
         step2.set(
             column.getJooqField(),
