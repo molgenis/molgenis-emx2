@@ -60,16 +60,14 @@
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>
               <div v-if="user.roles && user.roles.length > 3">
-                <ShowMore>
-                  <template v-slot:button>
-                    <Button type="secondary" size="tiny">
-                      show all {{ user.roles.length }} roles
-                    </Button>
+                <ContentClamp :maxLines="3">
+                  <template #more>
+                    show all {{ user.roles.length }} roles
                   </template>
                   <div v-for="role in user.roles">
                     {{ role.schemaId }} ({{ role.role }})
                   </div>
-                </ShowMore>
+                </ContentClamp>
               </div>
               <div v-else v-for="role in user.roles">
                 {{ role.schemaId }} ({{ role.role }})
@@ -142,7 +140,7 @@ import Table from "../../../../tailwind-components/app/components/Table.vue";
 import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
 import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
-import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
+import ContentClamp from "../../../../tailwind-components/app/components/ContentClamp.vue";
 import Container from "../../../../tailwind-components/app/components/Container.vue";
 import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
 import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
