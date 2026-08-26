@@ -45,6 +45,14 @@ describe("value/EMX2.vue", () => {
     expect(wrapper.findComponent(ValueList).exists()).toBe(false);
   });
 
+  it("leaves the cap off entirely when the caller bounds the value itself", () => {
+    const wrapper = mount(EMX2Value, {
+      props: { metadata: ontologyArray, data: eightTerms, collapse: false },
+    });
+
+    expect(wrapper.findComponent(ValueList).props("maxItems")).toBe(undefined);
+  });
+
   it("caps CHECKBOX and MULTISELECT, which are stored multi-valued without an _ARRAY suffix", () => {
     for (const columnType of ["CHECKBOX", "MULTISELECT"] as const) {
       const wrapper = mount(EMX2Value, {

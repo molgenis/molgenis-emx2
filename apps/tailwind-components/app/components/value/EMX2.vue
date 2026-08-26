@@ -34,9 +34,15 @@ const props = withDefaults(
     maxItems?: number;
     /** Lines a collapsed list occupies. Forwarded to ValueList. */
     maxLines?: number;
+    /**
+     * Set false where the caller bounds the value itself. A table cell does: it
+     * truncates to one line and offers its own control onto the cell popup.
+     */
+    collapse?: boolean;
   }>(),
   {
     hideListSeparator: false,
+    collapse: true,
   }
 );
 
@@ -48,6 +54,7 @@ const DEFAULT_MAX_ITEMS = 5;
 
 const effectiveMaxItems = computed(() => {
   if (props.maxItems !== undefined) return props.maxItems;
+  if (!props.collapse) return undefined;
   if (isStoredMultiValuedType(props.metadata.columnType)) {
     return DEFAULT_MAX_ITEMS;
   }
