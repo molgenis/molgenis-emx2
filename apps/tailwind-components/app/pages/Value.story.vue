@@ -4,7 +4,7 @@
     :class="
       onContentSurface
         ? 'bg-content text-title-contrast p-6 rounded-base'
-        : 'text-title [--text-color-link:var(--text-color-link-inverted)]'
+        : 'text-title'
     "
   >
     <div class="flex flex-wrap items-end gap-6 border-b border-gray-200 pb-4">
@@ -71,9 +71,10 @@ const renderLimit = ref<number | string>(1000);
 const count = computed(() => Math.max(0, Number(itemCount.value) || 0));
 const lines = computed(() => Math.max(1, Number(maxLines.value) || 1));
 const tranche = computed(() => Math.max(1, Number(renderLimit.value) || 1));
-// A value lives on a content surface, never on the page background. The switch is
-// here because judging the clamp on the wrong one is misleading: the page's own
-// gradient carries no text colour of its own.
+// A value lives on a content surface. The switch puts it on the page background
+// instead, which is where a page header puts one, and shows it honestly: the value
+// components carry the content surface's link colour and do not adapt to a surface
+// the theme colours itself.
 const onContentSurface = ref(true);
 
 /** Cycles a base list up to `itemCount`, so repeats are fine and the size is the knob. */

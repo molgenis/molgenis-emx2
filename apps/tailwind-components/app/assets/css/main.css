@@ -306,10 +306,9 @@
     --text-color-label-available: var(--color-black);
 
     /** tooltips */
-    /* Follows the link colour rather than naming one: blue-200 measured 1.82 on
-       white, below even the 3:1 a graphic needs, and any fixed colour is wrong on
-       a surface the theme colours itself. This way it moves with the surface. */
-    --text-color-icon-neutral: var(--text-color-link);
+    /* blue-200 was 1.82 on white, below even the 3:1 a graphic needs. Every theme
+       whose content surface is not white states its own, below. */
+    --text-color-icon-neutral: var(--color-blue-500);
 
     /* visualisations: need css and svg defintions */
     --chart-text: var(--color-gray-900);
