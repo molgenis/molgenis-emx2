@@ -6,17 +6,14 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 
 class CascadeDeleteTest {
   private static Schema schema;
 
   @Test
-  void shouldCascadeDeleteRefRowWhenRefSourceIsDeleted() {
-    createTestSchema(true);
+  void shouldCascadeIfCascadeIsTrue() {
+    createSimpleRefSchema(true);
 
     // check the data is present before dropping the table
     Table participants = schema.getTable("Participants");
@@ -31,8 +28,8 @@ class CascadeDeleteTest {
   }
 
   @Test
-  void shouldNotCascadeDeleteRefRowWhenRefSourceIsDeleted() {
-    createTestSchema(false);
+  void shouldNotCascadeIfCascadeIsFalse() {
+    createSimpleRefSchema(false);
 
     // check the data is present before dropping the table
     Table participants = schema.getTable("Participants");
@@ -49,9 +46,25 @@ class CascadeDeleteTest {
     assertEquals(1, samples.retrieveRows().size());
   }
 
-  private void createTestSchema(boolean cascadeDelete) {
+  @Test
+  void shouldWorkInContextOfARefBack() {
+    createSchemaWithRefAndRefBack(true);
+
+    // check the data is present before dropping the table
+    Table participants = schema.getTable("Participants");
+    Table samples = schema.getTable("Samples");
+    assertEquals(1, participants.retrieveRows().size());
+    assertEquals(1, samples.retrieveRows().size());
+
+    // delete the participant row, which should cascade delete the sample row
+    participants.delete(participants.retrieveRows());
+    assertEquals(0, participants.retrieveRows().size());
+    assertEquals(0, samples.retrieveRows().size());
+  }
+
+  private void createSimpleRefSchema(boolean cascadeDelete) {
     Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(TestRefBack.class.getSimpleName());
+    schema = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "_SimpleRef");
     Table participants =
         schema.create(table("Participants").add(column("participantId").setPkey()));
 
@@ -68,5 +81,33 @@ class CascadeDeleteTest {
 
     participants.insert(Row.row("participantId", "P1"));
     samples.insert(Row.row("sampleId", "S1", "participantId", "P1"));
+  }
+
+  private void createSchemaWithRefAndRefBack(boolean cascadeDelete) {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    schema = database.dropCreateSchema(TestRefBack.class.getSimpleName() + "_RefBack");
+
+    TableMetadata participants =
+        table("Participants")
+            .add(column("participantId").setPkey())
+            .add(
+                column("samples")
+                    .setType(ColumnType.REFBACK)
+                    .setRefTable("Samples")
+                    .setRefBack("participantId"));
+
+    TableMetadata samples =
+        table("Samples")
+            .add(column("sampleId").setPkey())
+            .add(
+                column("participantId")
+                    .setType(ColumnType.REF)
+                    .setRefTable("Participants")
+                    .setRefSchemaName(schema.getName())
+                    .setCascadeDelete(cascadeDelete));
+
+    schema.create(participants, samples);
+    schema.getTable("Participants").insert(Row.row("participantId", "P1"));
+    schema.getTable("Samples").insert(Row.row("sampleId", "S1", "participantId", "P1"));
   }
 }
