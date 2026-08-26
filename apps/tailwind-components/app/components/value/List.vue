@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { isRefbackType } from "../../../../metadata-utils/src";
 import type {
   columnValue,
@@ -32,9 +32,12 @@ const props = withDefaults(
     data?: columnValue[] | null;
     hideListSeparator?: boolean;
     maxItems?: number;
+    /** How many more values one click reveals. Keeps a long list from painting at once. */
+    step?: number;
   }>(),
   {
     hideListSeparator: false,
+    step: 20,
   }
 );
 
@@ -42,17 +45,35 @@ const elementType = computed(
   () => props.metadata.columnType.split("_ARRAY")[0]
 );
 
-const expanded = ref(false);
+const shown = ref(props.maxItems);
+
+watch(
+  () => props.maxItems,
+  (value) => (shown.value = value)
+);
 
 const displayedData = computed(() => {
-  if (!props.maxItems || !props.data || expanded.value) return props.data;
-  return props.data.slice(0, props.maxItems);
+  if (!shown.value || !props.data) return props.data;
+  return props.data.slice(0, shown.value);
 });
 
-const hiddenCount = computed(() => {
-  if (!props.maxItems || !props.data) return 0;
-  return Math.max(0, props.data.length - props.maxItems);
+/** How many the next click reveals, which is what the control is labelled with. */
+const nextCount = computed(() => {
+  if (!shown.value || !props.data) return 0;
+  return Math.min(props.step, Math.max(0, props.data.length - shown.value));
 });
+
+const isExpanded = computed(
+  () => !!props.maxItems && !!shown.value && shown.value > props.maxItems
+);
+
+function showMore() {
+  if (shown.value) shown.value += props.step;
+}
+
+function collapse() {
+  shown.value = props.maxItems;
+}
 
 const emit = defineEmits<{
   (e: "listRefCellClicked", data: ListPayload): void;
@@ -157,20 +178,20 @@ function handleCellClick() {
       </span>
     </template>
     <button
-      v-if="hiddenCount > 0 && !expanded"
+      v-if="nextCount > 0"
       class="text-link text-body-sm ml-1"
-      :aria-expanded="false"
-      @click="expanded = true"
+      :aria-expanded="isExpanded"
+      @click="showMore"
     >
-      +{{ hiddenCount }} more
+      +{{ nextCount }} more
     </button>
     <button
-      v-if="expanded && maxItems && data && data.length > maxItems"
+      v-if="isExpanded"
       class="text-link text-body-sm ml-1"
       title="Show less"
       aria-label="Show less"
-      :aria-expanded="true"
-      @click="expanded = false"
+      :aria-expanded="isExpanded"
+      @click="collapse"
     >
       less
     </button>
