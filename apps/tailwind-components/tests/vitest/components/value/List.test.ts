@@ -26,9 +26,7 @@ describe("value/List.vue", () => {
 
     expect(wrapper.text()).toContain("Tag 5");
     expect(wrapper.text()).not.toContain("Tag 6");
-    expect(wrapper.find("button").text()).toBe("+3");
-    expect(wrapper.find("button").attributes("title")).toBe("Show 3 more");
-    expect(wrapper.find("button").attributes("aria-label")).toBe("Show 3 more");
+    expect(wrapper.find("button").text()).toBe("+3 more");
   });
 
   it("expands to every item, then offers to collapse again", async () => {
