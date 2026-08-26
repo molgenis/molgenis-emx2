@@ -34,7 +34,6 @@ watch(
 
 const isClamped = computed(() => lines.value !== undefined);
 
-// Uncut, the block stays inline so the control flows after the last value.
 const isCut = computed(() => isClamped.value && overflows.value);
 
 const isExpanded = computed(
@@ -46,8 +45,7 @@ const isExpanded = computed(
 
 // Only from an observer callback: reading scrollHeight during render forces a
 // synchronous reflow. Measures in the bounded configuration, which is not the one
-// on screen while nothing is cut, then lifts the bound, because line-clamp
-// discards the overflow rather than overflowing.
+// on screen while nothing is cut, because line-clamp discards its overflow.
 function measure() {
   const element = target.value;
   if (!element || lines.value === undefined) return;
@@ -125,8 +123,6 @@ const clampStyle = computed(() =>
   isClamped.value ? { "--content-clamp-lines": String(lines.value) } : undefined
 );
 
-// One or the other, never both. While the slot still hides something, growing the
-// bound is the whole job. Only once it does not is the caller the one who can help.
 function showMore() {
   if (overflows.value && lines.value !== undefined) {
     lines.value += props.lineStep;
