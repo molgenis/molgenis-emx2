@@ -275,24 +275,26 @@ public class GraphqlTableFieldFactory {
                           .type(GraphQLList.list(createTableOrderByInputType(col.getRefTable())))
                           .build()));
         }
-        tableBuilder.field(
-            GraphQLFieldDefinition.newFieldDefinition()
-                .name(id + "_agg")
-                .type(createTableAggregationType(col.getRefTable()))
-                .argument(
-                    GraphQLArgument.newArgument()
-                        .name(GraphqlConstants.FILTER_ARGUMENT)
-                        .type(getTableFilterInputType(col.getRefTable()))
-                        .build()));
-        tableBuilder.field(
-            GraphQLFieldDefinition.newFieldDefinition()
-                .name(id + "_groupBy")
-                .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
-                .argument(
-                    GraphQLArgument.newArgument()
-                        .name(GraphqlConstants.FILTER_ARGUMENT)
-                        .type(getTableFilterInputType(col.getRefTable()))
-                        .build()));
+        if (hasAggregatePermission(col.getRefTable())) {
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id + "_agg")
+                  .type(createTableAggregationType(col.getRefTable()))
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .type(getTableFilterInputType(col.getRefTable()))
+                          .build()));
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id + "_groupBy")
+                  .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .type(getTableFilterInputType(col.getRefTable()))
+                          .build()));
+        }
         break;
       default:
         throw new UnsupportedOperationException("Not yet implemented type " + col.getColumnType());
@@ -301,6 +303,10 @@ public class GraphqlTableFieldFactory {
 
   boolean hasViewPermission(TableMetadata table) {
     return PermissionEvaluator.canView(schema, table);
+  }
+
+  boolean hasAggregatePermission(TableMetadata table) {
+    return PermissionEvaluator.canExists(schema, table);
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
