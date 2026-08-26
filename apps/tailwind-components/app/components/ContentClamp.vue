@@ -23,7 +23,6 @@ const props = withDefaults(
 const emit = defineEmits<{ showMore: [] }>();
 
 const lines = ref(props.maxLines);
-const root = ref<HTMLElement | null>(null);
 const target = ref<HTMLElement | null>(null);
 const overflows = ref(false);
 
@@ -68,40 +67,13 @@ function measure() {
   const full = element.scrollHeight;
   element.style.cssText = saved;
   overflows.value = full > bounded + 1;
-  findSurface();
-}
-
-/**
- * The colour the control fades the text out into has to be the colour actually
- * behind it, and no single token is: a clamp sits on the content surface, in a
- * table cell, in a form and in a filter, and those are four tokens that a theme
- * moves apart. The dark theme already puts a form on --background-color-form and
- * everything else on --background-color-content.
- *
- * So read it off the page instead of naming it. The nearest ancestor that paints
- * anything is the surface, whatever token gave it that colour. A caller can still
- * say so outright with --content-clamp-bg, which wins over what is found here.
- */
-function findSurface() {
-  const element = root.value;
-  if (!element) return;
-  for (
-    let ancestor: HTMLElement | null = element;
-    ancestor;
-    ancestor = ancestor.parentElement
-  ) {
-    const colour = getComputedStyle(ancestor).backgroundColor;
-    if (
-      colour &&
-      colour !== "transparent" &&
-      !colour.startsWith("rgba(0, 0, 0, 0")
-    ) {
-      element.style.setProperty("--content-clamp-surface", colour);
-      return;
-    }
-  }
-  // Nothing paints between here and the root: leave the token to answer.
-  element.style.removeProperty("--content-clamp-surface");
+  // The mask erases the tail of the LAST line, so it needs that line's height.
+  // A value carrying its own line-height makes this taller than the text's, which
+  // is why it is measured rather than named: hyperlinks run 26px against 24px.
+  element.style.setProperty(
+    "--content-clamp-line",
+    `${bounded / lines.value}px`
+  );
 }
 
 let sizeObserver: ResizeObserver | undefined;
@@ -173,7 +145,7 @@ function showLess() {
 </script>
 
 <template>
-  <span ref="root" :class="{ 'content-clamp-root': isClamped }">
+  <span :class="{ 'content-clamp-root': isClamped }">
     <span
       ref="target"
       class="content-clamp-box"
@@ -228,11 +200,41 @@ function showLess() {
   overflow-wrap: anywhere;
 }
 
+/*
+ * The mask erases the tail of the last line, ellipsis and all, so the control has
+ * clean ground to stand on and needs no paint of its own. Painting it was tried
+ * and cannot work here: the surface is not a colour. Two themes back the page with
+ * a gradient — uncan-connect runs #ac3cb4 to #2d1b4e — so the colour behind the
+ * control differs by scroll position and by row, and every ancestor between the
+ * clamp and the body computes `background-color: transparent`. A named token, a
+ * caller-passed token and reading the nearest painted ancestor all put a white
+ * slab on a purple page.
+ *
+ * Two layers: the last line fades out at its right end, everything above it stays
+ * whole. --content-clamp-line is that line's measured height.
+ */
 .content-clamp {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: var(--content-clamp-lines);
   overflow: hidden;
+  -webkit-mask-image: var(--content-clamp-mask);
+  mask-image: var(--content-clamp-mask);
+  -webkit-mask-size: var(--content-clamp-mask-size);
+  mask-size: var(--content-clamp-mask-size);
+  -webkit-mask-position: left bottom, left top;
+  mask-position: left bottom, left top;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+
+  --content-clamp-mask: linear-gradient(
+      to right,
+      #000 calc(100% - 7em),
+      transparent calc(100% - 1em)
+    ),
+    linear-gradient(#000, #000);
+  --content-clamp-mask-size: 100% var(--content-clamp-line),
+    100% calc(100% - var(--content-clamp-line));
 }
 
 /* Nothing is cut, so the control just follows the last value. */
@@ -241,31 +243,16 @@ function showLess() {
 }
 
 /*
- * Something is cut, so the control sits where the ellipsis is, fading the text
- * out behind it. Its line-height is the text's, or a smaller control would sit
- * off the last line's baseline.
- *
- * The gutter is wide on purpose. A control wearing the theme's link colour, in a
- * list of values wearing the same one, is separated by nothing else a reader can
- * see. --color-white would be a bug here: it is a literal white in every theme,
- * including the dark one. A surface that is not the content surface sets
- * --content-clamp-bg on any ancestor.
+ * Something is cut, so the control sits at the cut, on ground the mask cleared for
+ * it. Its line-height is the text's, or a smaller control would sit off the last
+ * line's baseline.
  */
 .content-clamp-over {
   position: absolute;
   right: 0;
   bottom: 0;
   margin-left: 0;
-  padding-left: 4em;
+  padding-left: 1em;
   line-height: inherit;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(
-        --content-clamp-bg,
-        var(--content-clamp-surface, var(--background-color-content))
-      )
-      2em
-  );
 }
 </style>
