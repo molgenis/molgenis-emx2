@@ -205,7 +205,7 @@ const buildKeyFields = (
           console.log(
             "TODO: buildRecordListQueryFields, key column isArrayType, skip for now"
           );
-        } else if (isFileType(column)) {
+        } else if (isFileType(column.columnType)) {
           console.log(
             "TODO: buildRecordListQueryFields, key column isFileType, skip for now"
           );
@@ -277,7 +277,7 @@ export const extractKeyFromRecord = (
         console.log(
           "TODO: extractKeyFromRecord, key column isArrayType, skip for now"
         );
-      } else if (isFileType(column)) {
+      } else if (isFileType(column.columnType)) {
         console.log(
           "TODO: extractKeyFromRecord, key column isFileType, skip for now"
         );

@@ -35,7 +35,15 @@ const asTemplate = computed(() => {
   }
 });
 
-const asDotSeparatedString = computed(() => {
+const asNameString = computed(() => {
+  if (!props.data) return "";
+  if (typeof props.data === "object" && "name" in props.data) {
+    return props.data.name || "";
+  }
+  return null;
+});
+
+const asSpaceSeparatedString = computed(() => {
   if (!props.data) {
     return "";
   }
@@ -47,10 +55,10 @@ const asDotSeparatedString = computed(() => {
     } else if (typeof value === "object") {
       result += flattenObject(value);
     } else {
-      result += "." + value;
+      result += " " + value;
     }
   });
-  return result.replace(/^\./, "");
+  return result.trim();
 });
 
 function handleRefCellClicked() {
@@ -72,8 +80,11 @@ function handleRefCellClicked() {
     <span v-if="hasTemplate">
       {{ asTemplate }}
     </span>
+    <span v-else-if="asNameString !== null">
+      {{ asNameString }}
+    </span>
     <span v-else>
-      {{ asDotSeparatedString }}
+      {{ asSpaceSeparatedString }}
     </span>
   </div>
 </template>

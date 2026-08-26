@@ -19,4 +19,13 @@ export type {
   KeyObject,
 } from "./types";
 
-export { fieldTypes, isEmpty, isValueType } from "./fieldHelpers";
+export {
+  fieldTypes,
+  isEmpty,
+  isFileType,
+  isRefbackType,
+  isSingleOntologyType,
+  isSingleRefType,
+  isStoredMultiValuedType,
+  isValueType,
+} from "./fieldHelpers";

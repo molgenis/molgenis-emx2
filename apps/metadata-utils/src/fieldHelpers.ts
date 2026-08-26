@@ -1,4 +1,16 @@
-import type { IColumn } from "./types";
+import type { ColumnType, IColumn } from "./types";
+
+const SINGLE_REF_TYPES = new Set<string>([
+  "REF",
+  "SELECT",
+  "RADIO",
+] satisfies ColumnType[]);
+
+const REF_ARRAY_TYPES = new Set<string>([
+  "REF_ARRAY",
+  "CHECKBOX",
+  "MULTISELECT",
+] satisfies ColumnType[]);
 
 export const fieldTypes = () => {
   return [
@@ -84,6 +96,28 @@ export const isArrayType = (column: IColumn) => {
   return column.columnType.endsWith("_ARRAY");
 };
 
-export const isFileType = (column: IColumn) => {
-  return column.columnType === "FILE";
-};
+export const isSingleRefType = (columnType: string): boolean =>
+  SINGLE_REF_TYPES.has(columnType);
+
+export const isRefbackType = (columnType: string): boolean =>
+  columnType === "REFBACK";
+
+export const isSingleOntologyType = (columnType: string): boolean =>
+  columnType === "ONTOLOGY";
+
+const isCollectionType = (columnType: string): boolean =>
+  REF_ARRAY_TYPES.has(columnType) || isRefbackType(columnType);
+
+const isMultiValuedType = (columnType: string): boolean =>
+  columnType.endsWith("_ARRAY") || isCollectionType(columnType);
+
+/**
+ * Multi-valued and stored on the row itself, so the values arrive with the
+ * record. A REFBACK is multi-valued too, but it is derived from the other
+ * table, so it is fetched and rendered separately.
+ */
+export const isStoredMultiValuedType = (columnType: string): boolean =>
+  isMultiValuedType(columnType) && !isRefbackType(columnType);
+
+export const isFileType = (columnType: string): boolean =>
+  columnType === "FILE";
