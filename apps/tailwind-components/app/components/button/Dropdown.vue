@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, useId, onMounted, watch, nextTick } from "vue";
-import { useFocusWithin, useEventListener } from "@vueuse/core";
+import { ref, useTemplateRef, useId, onMounted, watch } from "vue";
+import { useFocusWithin, useEventListener, useFocus } from "@vueuse/core";
 import Button from "../Button.vue";
 
 const ariaId: string = useId();
 const isOpen = ref<boolean>(false);
 const dropdown = useTemplateRef<HTMLDivElement>("dropdown");
 const btnElem = useTemplateRef<HTMLButtonElement>("btnElem");
+const modalElem = useTemplateRef<HTMLDivElement>("modalElem");
 
 withDefaults(
   defineProps<{
@@ -20,26 +21,25 @@ withDefaults(
   }
 );
 
-const { focused } = useFocusWithin(dropdown);
-watch(focused, (focused) => {
-  if (!focused && isOpen.value) {
-    isOpen.value = false;
-    // focusButton();
+const { focused: dropdownFocus } = useFocusWithin(dropdown);
+const { focused: modalFocus } = useFocusWithin(modalElem);
+const { focused: buttonFocus } = useFocus(btnElem);
+
+watch(
+  () => [modalFocus.value, dropdownFocus.value],
+  () => {
+    if (!modalFocus.value && !dropdownFocus.value && isOpen.value) {
+      isOpen.value = false;
+      buttonFocus.value = true;
+    }
   }
-});
+);
 
 function onKeyDown(event: KeyboardEvent) {
   if (event.code === "Escape" && isOpen.value) {
     isOpen.value = false;
-    // focusButton();
   }
 }
-
-// function focusButton () {
-//   if (btnElem.value) {
-//     btnElem.value
-//   }
-// }
 
 onMounted(() => {
   useEventListener(dropdown, "keydown", onKeyDown);
@@ -61,10 +61,9 @@ onMounted(() => {
     >
       {{ label }}
     </Button>
-    <div ref="modalElem">
+    <div :id="`dropdown-${ariaId}-content`" ref="modalElem">
       <div
-        v-if="isOpen"
-        :id="`dropdown-${ariaId}-content`"
+        v-show="isOpen"
         :aria-labelledby="`dropdown-${ariaId}-toggle`"
         class="absolute min-w-full mt-0.5 left-0 z-10 bg-dropdown text-dropdown shadow-md rounded-base border"
       >
