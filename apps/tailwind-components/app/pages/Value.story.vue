@@ -1,35 +1,31 @@
 <template>
-  <div class="flex flex-col gap-4">
+  <div
+    class="flex flex-col gap-4"
+    :class="
+      onContentSurface
+        ? 'bg-content text-title-contrast p-6 rounded-base'
+        : 'text-title [--content-clamp-link:var(--text-color-link-inverted,var(--text-color-link))]'
+    "
+  >
     <div class="flex flex-wrap items-end gap-6 border-b border-gray-200 pb-4">
-      <label class="flex flex-col text-body-sm">
+      <label class="flex flex-col gap-1 text-body-sm" for="values-per-array">
         <span class="font-bold">Values per array</span>
-        <input
-          v-model.number="itemCount"
-          type="number"
-          min="0"
-          max="5000"
-          class="w-32 border border-gray-300 rounded px-2 py-1"
-        />
+        <InputInt id="values-per-array" v-model="itemCount" class="w-32" />
       </label>
-      <label class="flex flex-col text-body-sm">
+      <label
+        class="flex flex-col gap-1 text-body-sm"
+        for="lines-when-collapsed"
+      >
         <span class="font-bold">Lines when collapsed</span>
-        <input
-          v-model.number="maxLines"
-          type="number"
-          min="1"
-          max="40"
-          class="w-32 border border-gray-300 rounded px-2 py-1"
-        />
+        <InputInt id="lines-when-collapsed" v-model="maxLines" class="w-32" />
       </label>
-      <label class="flex flex-col text-body-sm">
+      <label class="flex items-center gap-2 text-body-sm" for="content-surface">
+        <InputCheckbox id="content-surface" v-model="onContentSurface" />
+        <span class="font-bold">On a content surface</span>
+      </label>
+      <label class="flex flex-col gap-1 text-body-sm" for="values-rendered">
         <span class="font-bold">Values rendered at a time</span>
-        <input
-          v-model.number="renderLimit"
-          type="number"
-          min="1"
-          max="5000"
-          class="w-32 border border-gray-300 rounded px-2 py-1"
-        />
+        <InputInt id="values-rendered" v-model="renderLimit" class="w-32" />
       </label>
     </div>
     <p class="text-body-base">
@@ -48,8 +44,8 @@
         <ValueEMX2
           :metadata="column"
           :data="data"
-          :maxLines="maxLines"
-          :renderLimit="renderLimit"
+          :maxLines="lines"
+          :renderLimit="tranche"
         />
       </div>
     </div>
@@ -66,9 +62,18 @@ interface Case {
   column?: Partial<IColumn>;
 }
 
-const itemCount = ref(8);
-const maxLines = ref(3);
-const renderLimit = ref(1000);
+const itemCount = ref<number | string>(8);
+const maxLines = ref<number | string>(3);
+const renderLimit = ref<number | string>(1000);
+
+// The inputs hand back strings, so every number the page computes with is derived.
+const count = computed(() => Math.max(0, Number(itemCount.value) || 0));
+const lines = computed(() => Math.max(1, Number(maxLines.value) || 1));
+const tranche = computed(() => Math.max(1, Number(renderLimit.value) || 1));
+// A value lives on a content surface, never on the page background. The switch is
+// here because judging the clamp on the wrong one is misleading: the page's own
+// gradient carries no text colour of its own.
+const onContentSurface = ref(true);
 
 /** Cycles a base list up to `itemCount`, so repeats are fine and the size is the knob. */
 function repeatTo<T>(base: T[], count: number): T[] {
@@ -117,7 +122,7 @@ const termsBase = [
 // Keyed by ColumnType, so the compiler fails this page when a type is added
 // and left uncovered.
 const byType = computed<Record<ColumnType, Case>>(() => {
-  const n = itemCount.value;
+  const n = count.value;
   const people = repeatTo(peopleBase, n);
   const terms = repeatTo(termsBase, n);
   const grow = <T>(base: T[]) => repeatTo(base, n);
