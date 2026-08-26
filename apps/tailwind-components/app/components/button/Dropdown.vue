@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, useId, onMounted, watch } from "vue";
-import { useFocusWithin, useEventListener, useFocus } from "@vueuse/core";
+import { ref, useTemplateRef, useId, onMounted } from "vue";
+import { useEventListener, useFocus, onClickOutside } from "@vueuse/core";
 import Button from "../Button.vue";
 
 const ariaId: string = useId();
@@ -21,22 +21,21 @@ withDefaults(
   }
 );
 
-const { focused: dropdownFocus } = useFocusWithin(dropdown);
-const { focused: modalFocus } = useFocusWithin(modalElem);
 const { focused: buttonFocus } = useFocus(btnElem);
 
-watch(
-  () => [modalFocus.value, dropdownFocus.value],
-  () => {
-    if (!modalFocus.value && !dropdownFocus.value && isOpen.value) {
-      isOpen.value = false;
-      buttonFocus.value = true;
-    }
+onClickOutside(modalElem, (e: MouseEvent) => {
+  if (isOpen.value) {
+    isOpen.value = false;
   }
-);
+});
 
 function onKeyDown(event: KeyboardEvent) {
-  if (event.code === "Escape" && isOpen.value) {
+  if (isOpen.value && event.key === "Escape") {
+    isOpen.value = false;
+    buttonFocus.value = true;
+  }
+
+  if (event.key === "Tab" || (event.shiftKey && event.key === "Tab")) {
     isOpen.value = false;
   }
 }
