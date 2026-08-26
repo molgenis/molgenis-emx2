@@ -16,7 +16,7 @@
   <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header
-        class="pt-[36px] px-8 overflow-y-auto border-b border-divider flex-none"
+        class="pt-[36px] px-8 overflow-visible border-b border-divider flex-none"
       >
         <div class="mb-5 relative flex items-center pr-14">
           <h2
@@ -26,19 +26,19 @@
           </h2>
 
           <DraftLabel v-if="isDraft" />
-          <span
+          <div
             v-if="showRoles"
-            class="ml-auto flex shrink-0 items-center text-title-contrast"
+            class="gap-2.5 ml-auto flex shrink-0 items-center text-title-contrast"
           >
-            <label class="mr-2 whitespace-nowrap" for="roleSelector">
-              <b>Permission level:</b>
+            <label class="whitespace-nowrap font-bold" for="roleSelector">
+              Access group:
             </label>
-            <InputSelect
+            <InputListbox
               v-model="selectedRole"
               id="roleSelector"
               :options="[GLOBAL_ROLE].concat(roles)"
             />
-          </span>
+          </div>
         </div>
         <button
           @click="onCancel"

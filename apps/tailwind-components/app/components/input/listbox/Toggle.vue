@@ -1,5 +1,6 @@
 <template>
   <button
+    type="button"
     role="combobox"
     ref="button"
     aria-haspopup="listbox"
