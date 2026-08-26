@@ -143,6 +143,31 @@ describe("ContentClamp.vue", () => {
     ]);
   });
 
+  it("returns to the starting bound, and offers to expand again", async () => {
+    stubOverflow(true);
+    const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
+    await nextTick();
+
+    // Reveal until nothing is left, which is when collapsing is offered.
+    await wrapper.find("button").trigger("click");
+    stubOverflow(false);
+    await wrapper.find("button").trigger("click");
+    await nextTick();
+    expect(wrapper.find("button").text()).toBe("show less");
+
+    // Collapsing restores the original bound, so the content overflows again.
+    stubOverflow(true);
+    await wrapper.find("button").trigger("click");
+    await nextTick();
+
+    expect(clamped(wrapper).attributes("style")).toContain(
+      "--content-clamp-lines: 3"
+    );
+    expect(wrapper.findAll("button").map((b) => b.text())).toEqual([
+      "show more",
+    ]);
+  });
+
   it("collapses back to the original bound from any step", async () => {
     stubOverflow(true);
     const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
