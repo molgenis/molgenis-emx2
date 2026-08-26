@@ -53,10 +53,10 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
     :icon="icon"
     icon-position="left"
   >
-  <div class="flex items-center">
-    <span>{{ props.componentName }}</span>
-    <span class="" v-if="showPleaseDragMe"> - Please drag me </span>
-    <BaseIcon name="drag" :width="16" :height="16" class="absolute right-1"/> 
+    <div class="flex items-center">
+      <span>{{ props.componentName }}</span>
+      <span class="" v-if="showPleaseDragMe"> - Please drag me </span>
+      <BaseIcon name="drag" :width="16" :height="16" class="absolute right-1" />
     </div>
   </Button>
 </template>

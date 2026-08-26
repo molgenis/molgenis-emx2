@@ -12,13 +12,13 @@ const emit = defineEmits(["edit", "delete", "move"]);
   >
     <div class="flex flex-row items-center gap-2">
       <div
-        class="text-title-contrast whitespace-nowrap cursor-grab flex items-center "
+        class="text-title-contrast whitespace-nowrap cursor-grab flex items-center"
         draggable="true"
         @dragstart="$emit('move', 'grab')"
         @dragend="$emit('move', 'release')"
       >
         {{ name }}
-        <BaseIcon name="drag" :width="16" :height="16"/> 
+        <BaseIcon name="drag" :width="16" :height="16" />
       </div>
       <div class="border-l border-dashed h-5"></div>
       <Button

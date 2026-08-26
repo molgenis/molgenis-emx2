@@ -85,65 +85,104 @@ async function cmsFetch(
   return response;
 }
 
-export async function getBlockAbove(schema: string, blockOrderId: string, page: string): Promise<string> {
+export async function getBlockAbove(
+  schema: string,
+  blockOrderId: string,
+  page: string
+): Promise<string> {
   const blockOrders = await getBlockOrder(schema, page);
-  let lastBlockId:string = blockOrderId;
+  let lastBlockId: string = blockOrderId;
   blockOrders?.every((block, index) => {
     if (block.id === blockOrderId && index > 0) {
       return false;
-    }else{
+    } else {
       lastBlockId = block.id;
-      return true;  
+      return true;
     }
   });
   return lastBlockId;
 }
 
-export async function getBlockBelow(schema: string, blockOrderId: string, page: string): Promise<string> {
-    const blockOrders = await getBlockOrder(schema, page);
-    let blockBelow:string= blockOrderId;
-    blockOrders?.every((block, index) => {
+export async function getBlockBelow(
+  schema: string,
+  blockOrderId: string,
+  page: string
+): Promise<string> {
+  const blockOrders = await getBlockOrder(schema, page);
+  let blockBelow: string = blockOrderId;
+  blockOrders?.every((block, index) => {
     if (block.id === blockOrderId) {
-      blockBelow = blockOrders[index+1]?.id || blockOrderId;
+      blockBelow = blockOrders[index + 1]?.id || blockOrderId;
       return false;
-    }else{
-      return true;  
+    } else {
+      return true;
     }
   });
-
-  // Implementation for getting the block below
-  return "";
+  return blockBelow;
 }
 
 export async function moveComponentUp(
   schema: string,
-  componentId: string,
+  componentOrderId: string,
   order: number,
-  block: string,
+  blockId: string,
   page: string
 ) {
-  if(order === 0) {
-    const blockAbove: string = await getBlockAbove(schema, block, page);
-    await moveComponentTo(schema, componentId, block, blockAbove, Number.MAX_SAFE_INTEGER);
-  }else{
-    await moveComponentTo(schema, componentId, block, block, order - 1);
+  if (order === 0) {
+    const blockAbove: string = await getBlockAbove(schema, blockId, page);
+    await moveComponentTo(schema, componentOrderId, blockId, blockAbove, 1000);
+  } else {
+    await moveComponentTo(
+      schema,
+      componentOrderId,
+      blockId,
+      blockId,
+      order - 1
+    );
   }
+}
+export async function GetLastOrderOfBlock(
+  schema: string,
+  blockId: string
+): Promise<number> {
+  const query = `query getComponents($filter:ComponentOrdersFilter) {
+    ComponentOrders(filter:$filter) {
+      order
+    }
+  }`;
+  const variables = {
+    filter: {
+      block: { id: { equals: blockId } },
+    },
+    orderby: [{ order: "DESC" }],
+  };
+  const { data } = await cmsFetch(schema, query, variables);
+
+  if (data?.ComponentOrders?.[0]) {
+    return data.ComponentOrders[0].order || 0;
+  }
+  return 0;
 }
 
 export async function moveComponentDown(
   schema: string,
-  componentId: string,
+  componentOrderId: string,
   order: number,
-  block: string,
+  blockId: string,
   page: string
 ) {
-  // TODO FIXE 999
-    if(order === 999) {
-      const blockBelow: string = await getBlockBelow(schema, block, page);
-      await moveComponentTo(schema, componentId, block, blockBelow, 0);
-    }else{
-      await moveComponentTo(schema, componentId, block, block, order + 1);
-    }
+  if (order === (await GetLastOrderOfBlock(schema, blockId))) {
+    const blockBelow: string = await getBlockBelow(schema, blockId, page);
+    await moveComponentTo(schema, componentOrderId, blockId, blockBelow, 0);
+  } else {
+    await moveComponentTo(
+      schema,
+      componentOrderId,
+      blockId,
+      blockId,
+      order + 1
+    );
+  }
 }
 
 export async function moveBlockUp(
@@ -188,7 +227,7 @@ export async function moveBlockDown(
 
 export async function moveComponentTo(
   schema: string,
-  componentId: string,
+  componentOrderId: string,
   oldBlockId: string,
   newBlockId: string,
   order: number
@@ -196,7 +235,7 @@ export async function moveComponentTo(
   const query = `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`;
   const vars = {
     value: {
-      id: componentId,
+      id: componentOrderId,
       block: {
         id: newBlockId,
       },
@@ -502,7 +541,11 @@ async function prepareOrder(schema: string, order: number, block: string) {
   }
 }
 
-async function getBlockOrder(schema: string, page: string, fromOrder: number = 0): Promise<{ order: number; id: string }[]|undefined> {
+async function getBlockOrder(
+  schema: string,
+  page: string,
+  fromOrder: number = 0
+): Promise<{ order: number; id: string }[] | undefined> {
   const query = `query getBlocks($filter: BlockOrdersFilter) {
     BlockOrders(filter:$filter) {
       id
@@ -531,8 +574,10 @@ async function getBlockOrder(schema: string, page: string, fromOrder: number = 0
 
 async function prepareBlockOrder(schema: string, order: number, page: string) {
   const blocksToUpdate = await getBlockOrder(schema, page, order);
+  console.log(">", blocksToUpdate);
   const updatedBlocks = blocksToUpdate?.map((block: ICmsOrder) => {
     block.order = block.order + 1;
+    return block;
   });
 
   if (updatedBlocks?.length) {
