@@ -23,6 +23,7 @@ const props = withDefaults(
 const emit = defineEmits<{ showMore: [] }>();
 
 const lines = ref(props.maxLines);
+const root = ref<HTMLElement | null>(null);
 const target = ref<HTMLElement | null>(null);
 const overflows = ref(false);
 
@@ -67,6 +68,40 @@ function measure() {
   const full = element.scrollHeight;
   element.style.cssText = saved;
   overflows.value = full > bounded + 1;
+  findSurface();
+}
+
+/**
+ * The colour the control fades the text out into has to be the colour actually
+ * behind it, and no single token is: a clamp sits on the content surface, in a
+ * table cell, in a form and in a filter, and those are four tokens that a theme
+ * moves apart. The dark theme already puts a form on --background-color-form and
+ * everything else on --background-color-content.
+ *
+ * So read it off the page instead of naming it. The nearest ancestor that paints
+ * anything is the surface, whatever token gave it that colour. A caller can still
+ * say so outright with --content-clamp-bg, which wins over what is found here.
+ */
+function findSurface() {
+  const element = root.value;
+  if (!element) return;
+  for (
+    let ancestor: HTMLElement | null = element;
+    ancestor;
+    ancestor = ancestor.parentElement
+  ) {
+    const colour = getComputedStyle(ancestor).backgroundColor;
+    if (
+      colour &&
+      colour !== "transparent" &&
+      !colour.startsWith("rgba(0, 0, 0, 0")
+    ) {
+      element.style.setProperty("--content-clamp-surface", colour);
+      return;
+    }
+  }
+  // Nothing paints between here and the root: leave the token to answer.
+  element.style.removeProperty("--content-clamp-surface");
 }
 
 let sizeObserver: ResizeObserver | undefined;
@@ -138,7 +173,7 @@ function showLess() {
 </script>
 
 <template>
-  <span :class="{ 'content-clamp-root': isClamped }">
+  <span ref="root" :class="{ 'content-clamp-root': isClamped }">
     <span
       ref="target"
       class="content-clamp-box"
@@ -226,7 +261,11 @@ function showLess() {
   background: linear-gradient(
     to right,
     transparent,
-    var(--content-clamp-bg, var(--background-color-content)) 2em
+    var(
+        --content-clamp-bg,
+        var(--content-clamp-surface, var(--background-color-content))
+      )
+      2em
   );
 }
 </style>
