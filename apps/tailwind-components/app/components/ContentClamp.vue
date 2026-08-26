@@ -250,14 +250,13 @@ function showLess() {
 }
 
 /*
- * `text-link` is the colour, and it is the right one everywhere a value actually
- * sits: measured against --background-color-content, -table and -form it runs 4.59
- * to 12.48 across all seven themes, so it clears AA on every surface in every one.
- * A caller on a surface that is none of those sets --content-clamp-link.
+ * The colour is `text-link`, which measures 4.59 to 12.48 against
+ * --background-color-content, -table and -form across all seven themes. A surface
+ * the theme colours itself re-points --text-color-link for its own subtree, which
+ * corrects every link on it at once, this control included.
  */
 .content-clamp-control {
   margin-left: 0.5em;
-  color: var(--content-clamp-link, var(--text-color-link));
 }
 
 /*

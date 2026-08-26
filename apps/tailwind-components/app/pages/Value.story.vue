@@ -4,29 +4,30 @@
     :class="
       onContentSurface
         ? 'bg-content text-title-contrast p-6 rounded-base'
-        : 'text-title [--content-clamp-link:var(--text-color-link-inverted,var(--text-color-link))]'
+        : 'text-title [--text-color-link:var(--text-color-link-inverted)]'
     "
   >
     <div class="flex flex-wrap items-end gap-6 border-b border-gray-200 pb-4">
-      <label class="flex flex-col gap-1 text-body-sm" for="values-per-array">
-        <span class="font-bold">Values per array</span>
+      <div class="flex flex-col gap-1">
+        <InputLabel :for="'values-per-array'">Values per array</InputLabel>
         <InputInt id="values-per-array" v-model="itemCount" class="w-32" />
-      </label>
-      <label
-        class="flex flex-col gap-1 text-body-sm"
-        for="lines-when-collapsed"
-      >
-        <span class="font-bold">Lines when collapsed</span>
+      </div>
+      <div class="flex flex-col gap-1">
+        <InputLabel :for="'lines-when-collapsed'">
+          Lines when collapsed
+        </InputLabel>
         <InputInt id="lines-when-collapsed" v-model="maxLines" class="w-32" />
-      </label>
-      <label class="flex items-center gap-2 text-body-sm" for="content-surface">
+      </div>
+      <div class="flex items-center gap-2">
         <InputCheckbox id="content-surface" v-model="onContentSurface" />
-        <span class="font-bold">On a content surface</span>
-      </label>
-      <label class="flex flex-col gap-1 text-body-sm" for="values-rendered">
-        <span class="font-bold">Values rendered at a time</span>
+        <InputLabel :for="'content-surface'">On a content surface</InputLabel>
+      </div>
+      <div class="flex flex-col gap-1">
+        <InputLabel :for="'values-rendered'"
+          >Values rendered at a time</InputLabel
+        >
         <InputInt id="values-rendered" v-model="renderLimit" class="w-32" />
-      </label>
+      </div>
     </div>
     <p class="text-body-base">
       A long value is bounded by height and revealed with <b>show more</b>. It

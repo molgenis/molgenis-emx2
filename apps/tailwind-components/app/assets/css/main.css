@@ -210,6 +210,11 @@
     --text-color-pagination-button-hover: var(--color-blue-800);
     --text-color-link: var(--color-blue-500);
     --text-color-link-hover: var(--color-blue-800);
+    /* A link on a surface the theme colours itself, so that a surface can point
+       --text-color-link at this one unconditionally. Never write it in terms of
+       --text-color-link: that is a cycle the moment a surface does so, and a
+       cycle makes the property invalid rather than falling back. */
+    --text-color-link-inverted: var(--color-blue-500);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-table-row: var(--color-blue-800);
@@ -301,7 +306,10 @@
     --text-color-label-available: var(--color-black);
 
     /** tooltips */
-    --text-color-icon-neutral: var(--color-blue-200);
+    /* Follows the link colour rather than naming one: blue-200 measured 1.82 on
+       white, below even the 3:1 a graphic needs, and any fixed colour is wrong on
+       a surface the theme colours itself. This way it moves with the surface. */
+    --text-color-icon-neutral: var(--text-color-link);
 
     /* visualisations: need css and svg defintions */
     --chart-text: var(--color-gray-900);
