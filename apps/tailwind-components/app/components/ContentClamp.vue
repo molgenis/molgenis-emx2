@@ -90,11 +90,14 @@ const clampStyle = computed(() =>
   isClamped.value ? { "--content-clamp-lines": String(lines.value) } : undefined
 );
 
+// One or the other, never both. While the slot still hides something, growing the
+// bound is the whole job. Only once it does not is the caller the one who can help.
 function showMore() {
   if (overflows.value && lines.value !== undefined) {
     lines.value += props.lineStep;
+  } else {
+    emit("showMore");
   }
-  emit("showMore");
   nextTick(measure);
 }
 

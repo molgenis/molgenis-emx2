@@ -29,14 +29,18 @@ const mountClamp = (props: Record<string, unknown>) =>
   mount(ContentClamp, { props, slots: { default: "some long content" } });
 
 let observersCreated = 0;
+/** Re-measure, as a real resize would. Changing the stub alone leaves it stale. */
+let resize = () => {};
 
 beforeEach(() => {
   observersCreated = 0;
+  resize = () => {};
   (globalThis as any).ResizeObserver = class {
     cb: () => void;
     constructor(cb: () => void) {
       this.cb = cb;
       observersCreated += 1;
+      resize = cb;
     }
     observe() {
       this.cb();
@@ -148,6 +152,32 @@ describe("ContentClamp.vue", () => {
     expect(wrapper.findAll("button").map((b) => b.text())).toEqual([
       "show more",
     ]);
+  });
+
+  it("grows the bound, or asks the caller, but never both on one click", async () => {
+    stubOverflow(true);
+    const wrapper = mount(ContentClamp, {
+      props: { maxLines: 3, lineStep: 5, hasMore: true },
+      slots: { default: "some long content" },
+    });
+    await nextTick();
+
+    // Still overflowing, so this click is the clamp's job alone.
+    await wrapper.find("button").trigger("click");
+    expect(clamped(wrapper).attributes("style")).toContain(
+      "--content-clamp-lines: 8"
+    );
+    expect(wrapper.emitted("showMore")).toBeUndefined();
+
+    // Nothing left in the slot, so now the caller is the only one who can help.
+    stubOverflow(false);
+    resize();
+    await nextTick();
+    await wrapper.find("button").trigger("click");
+    expect(wrapper.emitted("showMore")).toHaveLength(1);
+    expect(clamped(wrapper).attributes("style")).toContain(
+      "--content-clamp-lines: 8"
+    );
   });
 
   it("keeps offering, and withholds collapse, while the caller holds content back", async () => {

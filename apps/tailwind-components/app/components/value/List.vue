@@ -34,12 +34,12 @@ const props = withDefaults(
     hideListSeparator?: boolean;
     /** Lines a collapsed list occupies. Leave unset to never collapse. */
     maxLines?: number;
-    /** How many values reach the DOM at all. */
+    /** How many values reach the DOM per tranche. */
     renderLimit?: number;
   }>(),
   {
     hideListSeparator: false,
-    renderLimit: 100,
+    renderLimit: 1000,
   }
 );
 
@@ -47,11 +47,11 @@ const elementType = computed(
   () => props.metadata.columnType.split("_ARRAY")[0]
 );
 
-/**
- * Every rendered value stays in the DOM, collapsed or not, so a crawler, in-page
- * search and a screen reader all still reach it. `renderLimit` only stops a huge
- * refback from painting at once; past it, the bound belongs in the query.
- */
+// Everything rendered stays in the DOM, collapsed or not, so a crawler and
+// in-page search still reach it. A crawler does not click, so anything past
+// `renderLimit` is unindexed: keep it high enough that real data fits under it,
+// and let it be a guard against a pathological refback rather than a display
+// bound. A caller with less room, such as a table cell, passes its own.
 const rendered = ref(props.renderLimit);
 
 watch(

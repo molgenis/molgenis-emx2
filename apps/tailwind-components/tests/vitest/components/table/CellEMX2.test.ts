@@ -45,6 +45,18 @@ describe("table/CellEMX2.vue", () => {
     );
   });
 
+  it("keeps far fewer values in the DOM than a record page does", () => {
+    const many = Array.from({ length: 500 }, (_, i) => `Tag ${i + 1}`);
+    const wrapper = mount(CellEMX2, {
+      props: { metadata: arrayColumn, data: many },
+    });
+
+    // A cell shows one line and routes the rest to the popup. The record page is
+    // the crawlable surface, not this.
+    expect(wrapper.text()).toContain("Tag 10");
+    expect(wrapper.text()).not.toContain("Tag 11");
+  });
+
   it("renders an empty cell for a missing value", () => {
     const wrapper = mount(CellEMX2, {
       props: { metadata: arrayColumn, data: null },

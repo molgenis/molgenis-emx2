@@ -58,7 +58,17 @@ describe("value/List.vue", () => {
     );
   });
 
-  it("renders another tranche when the clamp runs out of rendered values", async () => {
+  it("puts a realistic list wholly in the DOM, where a crawler reads it", () => {
+    const many = Array.from({ length: 500 }, (_, i) => `Tag ${i + 1}`);
+    const wrapper = mount(ValueList, {
+      props: { metadata, data: many, maxLines: 3 },
+    });
+
+    // A crawler never clicks, so anything the default holds back is unindexed.
+    expect(wrapper.text()).toContain("Tag 500");
+  });
+
+  it("guards against a pathological list, and reaches the rest by asking", async () => {
     const many = Array.from({ length: 500 }, (_, i) => `Tag ${i + 1}`);
     const wrapper = mount(ValueList, {
       props: { metadata, data: many, maxLines: 3, renderLimit: 100 },
@@ -70,15 +80,5 @@ describe("value/List.vue", () => {
 
     expect(wrapper.text()).toContain("Tag 200");
     expect(wrapper.text()).not.toContain("Tag 201");
-  });
-
-  it("stops a very long list from painting without bound", () => {
-    const many = Array.from({ length: 500 }, (_, i) => `Tag ${i + 1}`);
-    const wrapper = mount(ValueList, {
-      props: { metadata, data: many, maxLines: 3, renderLimit: 100 },
-    });
-
-    expect(wrapper.text()).toContain("Tag 100");
-    expect(wrapper.text()).not.toContain("Tag 101");
   });
 });

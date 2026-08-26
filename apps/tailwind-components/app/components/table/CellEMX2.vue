@@ -9,6 +9,7 @@
             :metadata="metadata"
             :data="data"
             :collapse="false"
+            :renderLimit="CELL_RENDER_LIMIT"
             @valueClick="$emit('cellClicked', $event)"
           />
           <template v-else>
@@ -37,6 +38,10 @@ import type {
 import type { cellPayload } from "../../../types/types";
 import Button from "../Button.vue";
 import ValueEMX2 from "../value/EMX2.vue";
+
+// A cell shows one line and routes the rest to the popup, so it needs far fewer
+// values in the DOM than a record page, which is the crawlable surface.
+const CELL_RENDER_LIMIT = 10;
 
 const props = defineProps<{
   metadata?: IColumn;

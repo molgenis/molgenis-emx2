@@ -7,7 +7,7 @@
           v-model.number="itemCount"
           type="number"
           min="0"
-          max="500"
+          max="5000"
           class="w-32 border border-gray-300 rounded px-2 py-1"
         />
       </label>
@@ -27,7 +27,7 @@
           v-model.number="renderLimit"
           type="number"
           min="1"
-          max="500"
+          max="5000"
           class="w-32 border border-gray-300 rounded px-2 py-1"
         />
       </label>
@@ -68,7 +68,7 @@ interface Case {
 
 const itemCount = ref(8);
 const maxLines = ref(3);
-const renderLimit = ref(100);
+const renderLimit = ref(1000);
 
 /** Cycles a base list up to `itemCount`, so repeats are fine and the size is the knob. */
 function repeatTo<T>(base: T[], count: number): T[] {
