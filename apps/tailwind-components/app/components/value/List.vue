@@ -160,6 +160,7 @@ function handleCellClick() {
       v-if="hiddenCount > 0 && !expanded"
       class="text-link text-body-sm ml-1"
       :title="`Show ${hiddenCount} more`"
+      :aria-label="`Show ${hiddenCount} more`"
       @click="expanded = true"
     >
       +{{ hiddenCount }}
@@ -168,6 +169,7 @@ function handleCellClick() {
       v-if="expanded && maxItems && data && data.length > maxItems"
       class="text-link text-body-sm ml-1"
       title="Show less"
+      aria-label="Show less"
       @click="expanded = false"
     >
       less
