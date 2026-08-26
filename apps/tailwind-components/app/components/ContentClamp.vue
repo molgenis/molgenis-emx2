@@ -150,7 +150,7 @@ function showLess() {
     <button
       v-if="canShowMore"
       class="content-clamp-control text-link text-body-sm"
-      :class="{ 'content-clamp-over': isCut }"
+      :class="{ 'content-clamp-own-line': isCut }"
       :aria-expanded="isExpanded"
       @click="showMore"
     >
@@ -170,15 +170,13 @@ function showLess() {
 <style scoped>
 /*
  * -webkit-line-clamp counts real line boxes, so a value carrying its own
- * line-height is still cut on a line. It forces an ellipsis and gives no way to
- * put a control at the cut, so the control is placed over that spot instead.
+ * line-height is still cut on a line.
  *
  * Prefixed only. The standard `line-clamp` shorthand sets `continue: discard`,
  * which wants a block container, and setting both leaves the element clamped by
  * neither.
  */
 .content-clamp-root {
-  position: relative;
   display: inline-block;
   max-width: 100%;
 }
@@ -206,22 +204,13 @@ function showLess() {
 }
 
 /*
- * Something is cut, so the control sits where the ellipsis is, fading the text
- * out behind it. Its line-height is the text's, or a smaller control would sit
- * off the last line's baseline. A surface whose background is not the default
- * sets --content-clamp-bg on any ancestor.
+ * A cut block runs to the edge, so there is no room after it and the control
+ * takes the next line. It sits alone there: a control among values wearing the
+ * theme's own link colour is distinguished by nothing a reader can see, and a
+ * theme can put the values in any colour the control might have used.
  */
-.content-clamp-over {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  margin-left: 0;
-  padding-left: 2em;
-  line-height: inherit;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--content-clamp-bg, var(--color-white)) 1.5em
-  );
+.content-clamp-own-line {
+  display: block;
+  margin-left: auto;
 }
 </style>
