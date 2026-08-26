@@ -16,6 +16,7 @@ import BaseIcon from "../BaseIcon.vue";
 import FormError from "./Error.vue";
 import FormMessage from "./Message.vue";
 import DraftLabel from "../label/DraftLabel.vue";
+import { useTable } from "../../composables/useTable";
 
 const props = withDefaults(
   defineProps<{
@@ -37,6 +38,7 @@ const visible = defineModel("visible", {
 });
 
 const deleteErrorMessage = ref<string>("");
+const cascadeDeleteMsg = ref<string | null>(null);
 
 const session = await useSession();
 const formMessage = ref<string>("");
@@ -44,6 +46,8 @@ const showReAuthenticateButton = ref<boolean>(false);
 
 const rowType = computed(() => props.metadata.id);
 const isDraft = ref(false);
+
+fetchCascadeDeleteMessage();
 
 function onCancel() {
   visible.value = false;
@@ -81,6 +85,21 @@ function reAuthenticate() {
     showReAuthenticateButton,
     formMessage
   );
+}
+
+function fetchCascadeDeleteMessage() {
+  const { cascadeDeleteConfirmationMsg } = useTable(
+    props.schemaId,
+    props.metadata.id
+  );
+  cascadeDeleteConfirmationMsg()
+    .then((msg) => {
+      cascadeDeleteMsg.value = msg;
+    })
+    .catch((err) => {
+      console.error("Error fetching cascade delete message", err);
+      cascadeDeleteMsg.value = null;
+    });
 }
 </script>
 
@@ -146,6 +165,9 @@ function reAuthenticate() {
     </Transition>
 
     <div class="w-[90%] m-auto py-4">
+      <div class="text-body-base py-2" v-if="cascadeDeleteMsg">
+        {{ cascadeDeleteMsg }}
+      </div>
       <DisplayRecord :table-metadata="metadata" :input-row-data="formValues" />
     </div>
 
