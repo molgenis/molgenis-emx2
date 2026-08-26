@@ -136,9 +136,17 @@ function showLess() {
 </template>
 
 <style scoped>
+/*
+ * inline-block, not block: a block box inside the inline root escapes the flow and
+ * nothing bounds it to the container. This establishes its own formatting context,
+ * caps at the container width, and still lets the control sit beside it.
+ */
 .content-clamp {
-  display: block;
+  display: inline-block;
+  vertical-align: top;
+  max-width: 100%;
   max-height: calc(var(--content-clamp-lines) * 1lh);
   overflow: hidden;
+  overflow-wrap: anywhere;
 }
 </style>

@@ -44,7 +44,7 @@
       class="grid grid-cols-[14rem_1fr] gap-4 border-b border-gray-200 py-2"
     >
       <h4 class="text-heading-sm font-bold">{{ columnType }}</h4>
-      <div>
+      <div class="min-w-0">
         <ValueEMX2
           :metadata="column"
           :data="data"
