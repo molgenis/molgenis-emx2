@@ -87,6 +87,12 @@ const isExpanded = computed(
  */
 const canShowMore = computed(() => isClamped.value && overflows.value);
 
+/**
+ * Only once nothing is left to reveal. Showing both at once puts "show more" and
+ * "show less" side by side, which reads as one confused control rather than two.
+ */
+const canShowLess = computed(() => isExpanded.value && !overflows.value);
+
 const clampStyle = computed(() =>
   isClamped.value ? { "--content-clamp-lines": String(lines.value) } : undefined
 );
@@ -120,7 +126,7 @@ function showLess() {
       {{ moreLabel }}
     </button>
     <button
-      v-if="isExpanded"
+      v-if="canShowLess"
       class="text-link text-body-sm ml-1"
       :aria-expanded="true"
       @click="showLess"
@@ -133,10 +139,8 @@ function showLess() {
 <style scoped>
 /* Bound by space, not by item or character count. The content stays in the DOM. */
 .content-clamp {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: var(--content-clamp-lines);
-  line-clamp: var(--content-clamp-lines);
+  display: block;
+  max-height: calc(var(--content-clamp-lines) * 1lh);
   overflow: hidden;
 }
 </style>

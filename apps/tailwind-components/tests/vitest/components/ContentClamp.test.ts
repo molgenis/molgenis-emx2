@@ -116,13 +116,42 @@ describe("ContentClamp.vue", () => {
     );
   });
 
+  it("never shows both controls at once", async () => {
+    stubOverflow(true);
+    const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
+    await nextTick();
+
+    await wrapper.find("button").trigger("click");
+
+    // Still overflowing, so there is more to reveal and nothing to collapse yet.
+    const labels = wrapper.findAll("button").map((b) => b.text());
+    expect(labels).toEqual(["show more"]);
+  });
+
+  it("offers to collapse only once nothing is left to reveal", async () => {
+    stubOverflow(true);
+    const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
+    await nextTick();
+
+    await wrapper.find("button").trigger("click");
+    stubOverflow(false);
+    await wrapper.find("button").trigger("click");
+    await nextTick();
+
+    expect(wrapper.findAll("button").map((b) => b.text())).toEqual([
+      "show less",
+    ]);
+  });
+
   it("collapses back to the original bound from any step", async () => {
     stubOverflow(true);
     const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
     await nextTick();
 
     await wrapper.find("button").trigger("click");
+    stubOverflow(false);
     await wrapper.find("button").trigger("click");
+    await nextTick();
 
     const less = wrapper
       .findAll("button")
