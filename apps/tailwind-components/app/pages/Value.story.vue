@@ -4,7 +4,7 @@
     :class="
       onContentSurface
         ? 'bg-content text-title-contrast p-6 rounded-base'
-        : 'text-title'
+        : 'text-title surface-inverted'
     "
   >
     <div class="flex flex-wrap items-end gap-6 border-b border-gray-200 pb-4">

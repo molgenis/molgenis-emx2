@@ -11,6 +11,14 @@
 @import url("./plugins/datepicker.css");
 
 @layer components {
+  /* On an element that IS a surface the theme colours itself: the page background,
+     a banner, a footer. Links and icons inside then invert, without any component
+     having to know which surface it landed on. */
+  .surface-inverted {
+    --text-color-link: var(--text-color-link-inverted);
+    --text-color-icon-neutral: var(--text-color-link-inverted);
+  }
+
   :root {
     --color-current: currentColor;
     --color-black: #333;
@@ -210,10 +218,8 @@
     --text-color-pagination-button-hover: var(--color-blue-800);
     --text-color-link: var(--color-blue-500);
     --text-color-link-hover: var(--color-blue-800);
-    /* A link on a surface the theme colours itself, so that a surface can point
-       --text-color-link at this one unconditionally. Never write it in terms of
-       --text-color-link: that is a cycle the moment a surface does so, and a
-       cycle makes the property invalid rather than falling back. */
+    /* Never write this in terms of --text-color-link: `.surface-inverted` points
+       that at this one, and a cycle makes a custom property invalid outright. */
     --text-color-link-inverted: var(--color-blue-500);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
@@ -306,8 +312,7 @@
     --text-color-label-available: var(--color-black);
 
     /** tooltips */
-    /* blue-200 was 1.82 on white, below even the 3:1 a graphic needs. Every theme
-       whose content surface is not white states its own, below. */
+    /* blue-200 was 1.82 on white, below the 3:1 a graphic needs. */
     --text-color-icon-neutral: var(--color-blue-500);
 
     /* visualisations: need css and svg defintions */

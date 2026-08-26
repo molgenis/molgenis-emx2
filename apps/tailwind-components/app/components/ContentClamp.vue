@@ -34,11 +34,7 @@ watch(
 
 const isClamped = computed(() => lines.value !== undefined);
 
-/**
- * Only a block that is really cutting something wears the clamp. While nothing is
- * cut the block stays inline, so the control flows after the last value and the
- * browser puts it on the last line's baseline for us.
- */
+// Uncut, the block stays inline so the control flows after the last value.
 const isCut = computed(() => isClamped.value && overflows.value);
 
 const isExpanded = computed(
@@ -48,16 +44,13 @@ const isExpanded = computed(
     lines.value > props.maxLines
 );
 
-// Inside the observer callback, where layout has already settled. Reading
-// scrollHeight during render would force a synchronous reflow.
+// Only from an observer callback: reading scrollHeight during render forces a
+// synchronous reflow. Measures in the bounded configuration, which is not the one
+// on screen while nothing is cut, then lifts the bound, because line-clamp
+// discards the overflow rather than overflowing.
 function measure() {
   const element = target.value;
   if (!element || lines.value === undefined) return;
-  // Ask the question in the bounded configuration, which is not the one on screen
-  // whenever nothing is cut. -webkit-line-clamp then discards the lines past the
-  // bound rather than overflowing them, so scrollHeight equals clientHeight and
-  // the usual comparison always answers no: lift the bound to read the full
-  // height. No paint falls between these writes, so none of it is visible.
   const saved = element.style.cssText;
   element.style.display = "-webkit-box";
   element.style.webkitBoxOrient = "vertical";
@@ -68,15 +61,12 @@ function measure() {
   const full = element.scrollHeight;
   element.style.cssText = saved;
   overflows.value = full > bounded + 1;
-  // The mask erases the tail of the LAST line, so it needs that line's height.
-  // A value carrying its own line-height makes this taller than the text's, which
-  // is why it is measured rather than named: hyperlinks run 26px against 24px.
+  // Measured, not named: a hyperlink's own line-height runs 26px against 24px.
   element.style.setProperty(
     "--content-clamp-line",
     `${bounded / lines.value}px`
   );
-  // Clear exactly as much as the control covers. A guessed width leaves the
-  // control standing on half-faded text, and a slot can put any label in it.
+  // A slot can put any label in the control, so clear what it actually covers.
   const width = control.value?.offsetWidth;
   if (width) {
     element.style.setProperty("--content-clamp-clear", `${width}px`);
@@ -93,10 +83,8 @@ function startObserving() {
   if (!isClamped.value || !target.value) return;
   sizeObserver = new ResizeObserver(measure);
   sizeObserver.observe(target.value);
-  // A cut block does not change size when the values inside it change, so the
-  // ResizeObserver alone never re-measures a list whose data was replaced or
-  // whose next tranche arrived. Attributes are deliberately not observed: the
-  // measurement writes its own inline styles.
+  // A cut block keeps its height when its values change, so the ResizeObserver
+  // never fires. Attributes stay unobserved: measure() writes its own styles.
   contentObserver = new MutationObserver(measure);
   contentObserver.observe(target.value, {
     childList: true,
@@ -125,8 +113,7 @@ const canShowMore = computed(
   () => isClamped.value && (overflows.value || props.hasMore)
 );
 
-// The control is only in the DOM once it is called for, and the mask has to clear
-// its width, so its arrival is a reason to measure again.
+// The mask clears the control's width, so its arrival is a reason to re-measure.
 watch(canShowMore, () => nextTick(measure));
 
 // Never alongside `show more`: two controls side by side read as one confused one.
@@ -188,13 +175,9 @@ function showLess() {
 
 <style scoped>
 /*
- * -webkit-line-clamp counts real line boxes, so a value carrying its own
- * line-height is still cut on a line. It forces an ellipsis and gives no way to
- * put a control at the cut, so the control is placed over that spot instead.
- *
- * Prefixed only. The standard `line-clamp` shorthand sets `continue: discard`,
- * which wants a block container, and setting both leaves the element clamped by
- * neither.
+ * Prefixed line-clamp only: the standard `line-clamp` shorthand sets
+ * `continue: discard`, which wants a block container, and setting both leaves the
+ * element clamped by neither.
  */
 .content-clamp-root {
   position: relative;
@@ -202,29 +185,15 @@ function showLess() {
   max-width: 100%;
 }
 
-/*
- * Holds whether anything is cut or not. A list of values carries no break
- * opportunity of its own — the separator is a non-breaking space, and a UUID or
- * an address is one long word — so without this the whole list is a single line
- * running off the side of the page.
- */
+/* Values offer no break of their own: the separator is a non-breaking space and a
+   UUID is one long word. Without this the list is one line off the page. */
 .content-clamp-box {
   overflow-wrap: anywhere;
 }
 
-/*
- * The mask erases the tail of the last line, ellipsis and all, so the control has
- * clean ground to stand on and needs no paint of its own. Painting it was tried
- * and cannot work here: the surface is not a colour. Two themes back the page with
- * a gradient — uncan-connect runs #ac3cb4 to #2d1b4e — so the colour behind the
- * control differs by scroll position and by row, and every ancestor between the
- * clamp and the body computes `background-color: transparent`. A named token, a
- * caller-passed token and reading the nearest painted ancestor all put a white
- * slab on a purple page.
- *
- * Two layers: the last line fades out at its right end, everything above it stays
- * whole. --content-clamp-line is that line's measured height.
- */
+/* The mask erases the tail of the last line, ellipsis and all, so the control needs
+   no paint: the surface is not a colour, two themes back the page with a gradient.
+   Layer one fades that line's right end, layer two keeps everything above whole. */
 .content-clamp {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -249,21 +218,11 @@ function showLess() {
     100% calc(100% - var(--content-clamp-line));
 }
 
-/*
- * The colour is `text-link`, which measures 4.59 to 12.48 against
- * --background-color-content, -table and -form across all seven themes. A surface
- * the theme colours itself re-points --text-color-link for its own subtree, which
- * corrects every link on it at once, this control included.
- */
 .content-clamp-control {
   margin-left: 0.5em;
 }
 
-/*
- * Something is cut, so the control sits at the cut, on ground the mask cleared for
- * it. Its line-height is the text's, or a smaller control would sit off the last
- * line's baseline.
- */
+/* line-height is the text's, or a smaller control sits off the last line's baseline. */
 .content-clamp-over {
   position: absolute;
   right: 0;
