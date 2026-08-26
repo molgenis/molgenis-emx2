@@ -33,6 +33,13 @@ watch(
 
 const isClamped = computed(() => lines.value !== undefined);
 
+/**
+ * Only a block that is really cutting something wears the clamp. While nothing is
+ * cut the block stays inline, so the control flows after the last value and the
+ * browser puts it on the last line's baseline for us.
+ */
+const isCut = computed(() => isClamped.value && overflows.value);
+
 const isExpanded = computed(
   () =>
     props.maxLines !== undefined &&
@@ -44,32 +51,52 @@ const isExpanded = computed(
 // scrollHeight during render would force a synchronous reflow.
 function measure() {
   const element = target.value;
-  if (!element) return;
-  // -webkit-line-clamp discards the lines past the bound rather than overflowing
-  // them, so scrollHeight equals clientHeight and the usual comparison always
-  // answers no. Lift the bound, read the full height, put it back.
+  if (!element || lines.value === undefined) return;
+  // Ask the question in the bounded configuration, which is not the one on screen
+  // whenever nothing is cut. -webkit-line-clamp then discards the lines past the
+  // bound rather than overflowing them, so scrollHeight equals clientHeight and
+  // the usual comparison always answers no: lift the bound to read the full
+  // height. No paint falls between these writes, so none of it is visible.
+  const saved = element.style.cssText;
+  element.style.display = "-webkit-box";
+  element.style.webkitBoxOrient = "vertical";
+  element.style.overflow = "hidden";
+  element.style.webkitLineClamp = String(lines.value);
   const bounded = element.clientHeight;
   element.style.webkitLineClamp = "unset";
   const full = element.scrollHeight;
-  element.style.webkitLineClamp = "";
+  element.style.cssText = saved;
   overflows.value = full > bounded + 1;
 }
 
-let observer: ResizeObserver | undefined;
+let sizeObserver: ResizeObserver | undefined;
+let contentObserver: MutationObserver | undefined;
 
 // Only a clamped block can hide anything. A table page holds hundreds of
 // unclamped ones, and none of them should cost an observer.
 function startObserving() {
-  if (observer || typeof ResizeObserver === "undefined") return;
+  if (sizeObserver || typeof ResizeObserver === "undefined") return;
   if (!isClamped.value || !target.value) return;
-  observer = new ResizeObserver(measure);
-  observer.observe(target.value);
+  sizeObserver = new ResizeObserver(measure);
+  sizeObserver.observe(target.value);
+  // A cut block does not change size when the values inside it change, so the
+  // ResizeObserver alone never re-measures a list whose data was replaced or
+  // whose next tranche arrived. Attributes are deliberately not observed: the
+  // measurement writes its own inline styles.
+  contentObserver = new MutationObserver(measure);
+  contentObserver.observe(target.value, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
   measure();
 }
 
 function stopObserving() {
-  observer?.disconnect();
-  observer = undefined;
+  sizeObserver?.disconnect();
+  sizeObserver = undefined;
+  contentObserver?.disconnect();
+  contentObserver = undefined;
   overflows.value = false;
 }
 
@@ -114,7 +141,8 @@ function showLess() {
   <span :class="{ 'content-clamp-root': isClamped }">
     <span
       ref="target"
-      :class="{ 'content-clamp': isClamped }"
+      class="content-clamp-box"
+      :class="{ 'content-clamp': isCut }"
       :style="clampStyle"
     >
       <slot />
@@ -122,6 +150,7 @@ function showLess() {
     <button
       v-if="canShowMore"
       class="content-clamp-control text-link text-body-sm"
+      :class="{ 'content-clamp-over': isCut }"
       :aria-expanded="isExpanded"
       @click="showMore"
     >
@@ -154,23 +183,41 @@ function showLess() {
   max-width: 100%;
 }
 
+/*
+ * Holds whether anything is cut or not. A list of values carries no break
+ * opportunity of its own — the separator is a non-breaking space, and a UUID or
+ * an address is one long word — so without this the whole list is a single line
+ * running off the side of the page.
+ */
+.content-clamp-box {
+  overflow-wrap: anywhere;
+}
+
 .content-clamp {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: var(--content-clamp-lines);
   overflow: hidden;
-  overflow-wrap: anywhere;
+}
+
+/* Nothing is cut, so the control just follows the last value. */
+.content-clamp-control {
+  margin-left: 0.5em;
 }
 
 /*
- * Sits where the ellipsis is, fading the text out behind it. A surface whose
- * background is not the default sets --content-clamp-bg on any ancestor.
+ * Something is cut, so the control sits where the ellipsis is, fading the text
+ * out behind it. Its line-height is the text's, or a smaller control would sit
+ * off the last line's baseline. A surface whose background is not the default
+ * sets --content-clamp-bg on any ancestor.
  */
-.content-clamp-control {
+.content-clamp-over {
   position: absolute;
   right: 0;
   bottom: 0;
+  margin-left: 0;
   padding-left: 2em;
+  line-height: inherit;
   background: linear-gradient(
     to right,
     transparent,
