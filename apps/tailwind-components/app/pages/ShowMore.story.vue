@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-8">
     <h4 class="text-lg">lines=3 (default)</h4>
-    <ContentClamp :maxLines="3">
+    <ShowMore :maxLines="3">
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
       tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
       veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
@@ -9,16 +9,16 @@
       velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
       cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
       est laborum.
-    </ContentClamp>
+    </ShowMore>
 
     <h4 class="text-lg">lines=1</h4>
-    <ContentClamp :maxLines="1">
+    <ShowMore :maxLines="1">
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
       tempor incididunt ut labore et dolore magna aliqua.
-    </ContentClamp>
+    </ShowMore>
 
     <h4 class="text-lg">lines=5</h4>
-    <ContentClamp :maxLines="5">
+    <ShowMore :maxLines="5">
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
       tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
       veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
@@ -27,10 +27,10 @@
       cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
       est laborum. Sed ut perspiciatis unde omnis iste natus error sit
       voluptatem accusantium doloremque laudantium.
-    </ContentClamp>
+    </ShowMore>
 
     <h4 class="text-lg">Short content (no overflow)</h4>
-    <ContentClamp :maxLines="3">Short text that doesn't overflow.</ContentClamp>
+    <ShowMore :maxLines="3">Short text that doesn't overflow.</ShowMore>
 
     <Markdown :source="spec" />
   </div>

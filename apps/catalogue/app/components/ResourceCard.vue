@@ -3,7 +3,7 @@ import { useRoute } from "#app";
 import { useCartStore } from "#imports";
 import { computed } from "vue";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
-import ContentClamp from "../../../tailwind-components/app/components/ContentClamp.vue";
+import ShowMore from "../../../tailwind-components/app/components/ShowMore.vue";
 import type { IResources } from "../../interfaces/catalogue";
 import dateUtils from "../utils/dateUtils";
 import { resourceToCartItem } from "../utils/cartItem";
@@ -84,9 +84,9 @@ const headerClasses = computed(() => {
     </header>
 
     <div v-if="!compact">
-      <ContentClamp :maxLines="DESCRIPTION_LINES">{{
+      <ShowMore :maxLines="DESCRIPTION_LINES">{{
         resource.description
-      }}</ContentClamp>
+      }}</ShowMore>
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>

@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 import CellEMX2 from "../../../../app/components/table/CellEMX2.vue";
-import ContentClamp from "../../../../app/components/ContentClamp.vue";
+import ShowMore from "../../../../app/components/ShowMore.vue";
 import ValueEMX2 from "../../../../app/components/value/EMX2.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 
@@ -37,7 +37,7 @@ describe("table/CellEMX2.vue", () => {
     });
 
     expect(wrapper.findComponent(ValueEMX2).props("collapse")).toBe(false);
-    expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(
+    expect(wrapper.findComponent(ShowMore).props("maxLines")).toBe(
       undefined
     );
   });

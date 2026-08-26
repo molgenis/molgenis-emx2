@@ -26,6 +26,7 @@ const lines = ref(props.maxLines);
 const target = ref<HTMLElement | null>(null);
 const control = ref<HTMLElement | null>(null);
 const overflows = ref(false);
+const measured = ref(false);
 
 watch(
   () => props.maxLines,
@@ -34,7 +35,12 @@ watch(
 
 const isClamped = computed(() => lines.value !== undefined);
 
-const isCut = computed(() => isClamped.value && overflows.value);
+// Clamped until measurement says otherwise, because the server cannot measure: an
+// unclamped first paint sends the whole text and then snaps to the bound. Clamping
+// short content changes nothing, so this is only ever right.
+const isCut = computed(
+  () => isClamped.value && (overflows.value || !measured.value)
+);
 
 const isExpanded = computed(
   () =>
@@ -59,15 +65,16 @@ function measure() {
   const full = element.scrollHeight;
   element.style.cssText = saved;
   overflows.value = full > bounded + 1;
+  measured.value = true;
   // Measured, not named: a hyperlink's own line-height runs 26px against 24px.
   element.style.setProperty(
-    "--content-clamp-line",
+    "--show-more-line",
     `${bounded / lines.value}px`
   );
   // A slot can put any label in the control, so clear what it actually covers.
   const width = control.value?.offsetWidth;
   if (width) {
-    element.style.setProperty("--content-clamp-clear", `${width}px`);
+    element.style.setProperty("--show-more-clear", `${width}px`);
   }
 }
 
@@ -98,6 +105,7 @@ function stopObserving() {
   contentObserver?.disconnect();
   contentObserver = undefined;
   overflows.value = false;
+  measured.value = false;
 }
 
 onMounted(startObserving);
@@ -120,7 +128,7 @@ const canShowLess = computed(
 );
 
 const clampStyle = computed(() =>
-  isClamped.value ? { "--content-clamp-lines": String(lines.value) } : undefined
+  isClamped.value ? { "--show-more-lines": String(lines.value) } : undefined
 );
 
 function showMore() {
@@ -139,11 +147,11 @@ function showLess() {
 </script>
 
 <template>
-  <span :class="{ 'content-clamp-root': isClamped }">
+  <span :class="{ 'show-more-root': isClamped }">
     <span
       ref="target"
-      class="content-clamp-box"
-      :class="{ 'content-clamp': isCut }"
+      class="show-more-box"
+      :class="{ 'show-more': isCut, 'show-more-faded': overflows }"
       :style="clampStyle"
     >
       <slot />
@@ -151,8 +159,8 @@ function showLess() {
     <button
       v-if="canShowMore"
       ref="control"
-      class="content-clamp-control text-link text-body-sm"
-      :class="{ 'content-clamp-over': isCut }"
+      class="show-more-control text-link text-body-sm"
+      :class="{ 'show-more-over': isCut }"
       :aria-expanded="isExpanded"
       @click="showMore"
     >
@@ -160,7 +168,7 @@ function showLess() {
     </button>
     <button
       v-if="canShowLess"
-      class="content-clamp-control text-link text-body-sm"
+      class="show-more-control text-link text-body-sm"
       :aria-expanded="true"
       @click="showLess"
     >
@@ -175,7 +183,7 @@ function showLess() {
  * `continue: discard`, which wants a block container, and setting both leaves the
  * element clamped by neither.
  */
-.content-clamp-root {
+.show-more-root {
   position: relative;
   display: inline-block;
   max-width: 100%;
@@ -183,43 +191,48 @@ function showLess() {
 
 /* Values offer no break of their own: the separator is a non-breaking space and a
    UUID is one long word. Without this the list is one line off the page. */
-.content-clamp-box {
+.show-more-box {
   overflow-wrap: anywhere;
 }
 
 /* The mask erases the tail of the last line, ellipsis and all, so the control needs
    no paint: the surface is not a colour, two themes back the page with a gradient.
    Layer one fades that line's right end, layer two keeps everything above whole. */
-.content-clamp {
+.show-more {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: var(--content-clamp-lines);
+  -webkit-line-clamp: var(--show-more-lines);
   overflow: hidden;
-  -webkit-mask-image: var(--content-clamp-mask);
-  mask-image: var(--content-clamp-mask);
-  -webkit-mask-size: var(--content-clamp-mask-size);
-  mask-size: var(--content-clamp-mask-size);
+}
+
+/* Only once measured: --show-more-line comes from measure(), and an unset one
+   makes mask-size invalid, which fades every line instead of the last. */
+.show-more-faded {
+  -webkit-mask-image: var(--show-more-mask);
+  mask-image: var(--show-more-mask);
+  -webkit-mask-size: var(--show-more-mask-size);
+  mask-size: var(--show-more-mask-size);
   -webkit-mask-position: left bottom, left top;
   mask-position: left bottom, left top;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 
-  --content-clamp-mask: linear-gradient(
+  --show-more-mask: linear-gradient(
       to right,
-      #000 calc(100% - var(--content-clamp-clear, 6em) - 4em),
-      transparent calc(100% - var(--content-clamp-clear, 6em))
+      #000 calc(100% - var(--show-more-clear, 6em) - 4em),
+      transparent calc(100% - var(--show-more-clear, 6em))
     ),
     linear-gradient(#000, #000);
-  --content-clamp-mask-size: 100% var(--content-clamp-line),
-    100% calc(100% - var(--content-clamp-line));
+  --show-more-mask-size: 100% var(--show-more-line),
+    100% calc(100% - var(--show-more-line));
 }
 
-.content-clamp-control {
+.show-more-control {
   margin-left: 0.5em;
 }
 
 /* line-height is the text's, or a smaller control sits off the last line's baseline. */
-.content-clamp-over {
+.show-more-over {
   position: absolute;
   right: 0;
   bottom: 0;

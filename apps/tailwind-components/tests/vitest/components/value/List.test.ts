@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import ContentClamp from "../../../../app/components/ContentClamp.vue";
+import ShowMore from "../../../../app/components/ShowMore.vue";
 import ValueList from "../../../../app/components/value/List.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 
@@ -19,10 +19,10 @@ describe("value/List.vue", () => {
       props: { metadata, data: eight, maxLines: 2 },
     });
 
-    expect(unbounded.findComponent(ContentClamp).props("maxLines")).toBe(
+    expect(unbounded.findComponent(ShowMore).props("maxLines")).toBe(
       undefined
     );
-    expect(bounded.findComponent(ContentClamp).props("maxLines")).toBe(2);
+    expect(bounded.findComponent(ShowMore).props("maxLines")).toBe(2);
   });
 
   it("tells the clamp whether values remain unrendered", () => {
@@ -36,8 +36,8 @@ describe("value/List.vue", () => {
 
     // Without this the control disappears once the clamp exhausts the rendered
     // hundred, and the other four hundred become unreachable.
-    expect(withMore.findComponent(ContentClamp).props("hasMore")).toBe(true);
-    expect(withoutMore.findComponent(ContentClamp).props("hasMore")).toBe(
+    expect(withMore.findComponent(ShowMore).props("hasMore")).toBe(true);
+    expect(withoutMore.findComponent(ShowMore).props("hasMore")).toBe(
       false
     );
   });
@@ -59,7 +59,7 @@ describe("value/List.vue", () => {
 
     expect(wrapper.text()).not.toContain("Tag 101");
 
-    await wrapper.findComponent(ContentClamp).vm.$emit("showMore");
+    await wrapper.findComponent(ShowMore).vm.$emit("showMore");
 
     expect(wrapper.text()).toContain("Tag 200");
     expect(wrapper.text()).not.toContain("Tag 201");

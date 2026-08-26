@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { isRefbackType } from "../../../../metadata-utils/src";
-import ContentClamp from "../ContentClamp.vue";
+import ShowMore from "../ShowMore.vue";
 import type {
   columnValue,
   IColumn,
@@ -83,7 +83,7 @@ function handleCellClick() {
 
 <template>
   <span>
-    <ContentClamp
+    <ShowMore
       :maxLines="maxLines"
       :hasMore="hasUnrendered"
       @showMore="renderMore"
@@ -177,6 +177,6 @@ function handleCellClick() {
           >,&nbsp;</span
         >
       </template>
-    </ContentClamp>
+    </ShowMore>
   </span>
 </template>

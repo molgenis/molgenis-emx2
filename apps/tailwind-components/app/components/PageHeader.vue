@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSlots } from "vue";
 import BaseIcon from "./BaseIcon.vue";
-import ContentClamp from "./ContentClamp.vue";
+import ShowMore from "./ShowMore.vue";
 import Button from "./Button.vue";
 
 const slots: ReturnType<typeof useSlots> = useSlots();
@@ -85,9 +85,9 @@ withDefaults(
         class="mt-1 mb-0 lg:mb-5 text-body-lg"
         :class="{ 'text-center': align === 'center' }"
       >
-        <ContentClamp v-if="truncate" :maxLines="5">{{
+        <ShowMore v-if="truncate" :maxLines="5">{{
           description
-        }}</ContentClamp>
+        }}</ShowMore>
         <p v-else>{{ description }}</p>
       </div>
     </div>

@@ -15,7 +15,7 @@ import LandingSecondary from "../../components/landing/Secondary.vue";
 import LandingCardPrimary from "../../components/landing/CardPrimary.vue";
 import LandingCardSecondary from "../../components/landing/CardSecondary.vue";
 import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
-import ContentClamp from "../../../../tailwind-components/app/components/ContentClamp.vue";
+import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -253,17 +253,17 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
   <LayoutsLandingPage>
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description>
-        <ContentClamp :maxLines="5">
+        <ShowMore :maxLines="5">
           Welcome to the catalogue of
           <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
             network.id
           }}</NuxtLink
           >{{ network.id && network.name ? ": " : "" }}{{ network.name }}.
           {{ description }}.
-        </ContentClamp>
+        </ShowMore>
       </template>
       <template v-else v-slot:description>
-        <ContentClamp :maxLines="5">{{ description }}</ContentClamp>
+        <ShowMore :maxLines="5">{{ description }}</ShowMore>
       </template>
     </PageHeader>
     <LandingPrimary>

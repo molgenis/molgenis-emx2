@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import ContentClamp from "../../../../app/components/ContentClamp.vue";
+import ShowMore from "../../../../app/components/ShowMore.vue";
 import ValueText from "../../../../app/components/value/Text.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 
@@ -15,15 +15,15 @@ const long = "word ".repeat(120).trim();
 const mountText = (data: string | null, maxLines?: number) =>
   mount(ValueText, {
     props: { metadata, data, maxLines },
-    global: { components: { ContentClamp } },
+    global: { components: { ShowMore } },
   });
 
 describe("value/Text.vue", () => {
   it("takes the bound from its caller, rather than keeping one of its own", () => {
     expect(
-      mountText(long, 3).findComponent(ContentClamp).props("maxLines")
+      mountText(long, 3).findComponent(ShowMore).props("maxLines")
     ).toBe(3);
-    expect(mountText(long).findComponent(ContentClamp).props("maxLines")).toBe(
+    expect(mountText(long).findComponent(ShowMore).props("maxLines")).toBe(
       undefined
     );
   });

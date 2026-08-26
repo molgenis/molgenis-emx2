@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ContentClamp from "../ContentClamp.vue";
+import ShowMore from "../ShowMore.vue";
 defineProps<{
   title?: string;
   description?: string;
@@ -14,7 +14,7 @@ defineProps<{
       {{ title }}
     </h2>
     <div class="mb-5 prose max-w-none" v-if="description">
-      <ContentClamp :maxLines="5">{{ description }}</ContentClamp>
+      <ShowMore :maxLines="5">{{ description }}</ShowMore>
     </div>
     <slot></slot>
   </section>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { linkTarget } from "../../interfaces/types";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
-import ContentClamp from "../../../tailwind-components/app/components/ContentClamp.vue";
+import ShowMore from "../../../tailwind-components/app/components/ShowMore.vue";
 import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 
 withDefaults(
@@ -55,7 +55,7 @@ withDefaults(
         </header>
 
         <p class="text-body-base my-5 hidden sm:block">
-          <ContentClamp :maxLines="5">{{ description }}</ContentClamp>
+          <ShowMore :maxLines="5">{{ description }}</ShowMore>
         </p>
 
         <a
