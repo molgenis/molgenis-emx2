@@ -14,13 +14,9 @@ const props = withDefaults(
     lineStep?: number;
     /** The caller is holding back content that is not in the slot yet. */
     hasMore?: boolean;
-    moreLabel?: string;
-    lessLabel?: string;
   }>(),
   {
     lineStep: 5,
-    moreLabel: "show more",
-    lessLabel: "show less",
   }
 );
 
@@ -49,7 +45,14 @@ const isExpanded = computed(
 function measure() {
   const element = target.value;
   if (!element) return;
-  overflows.value = element.scrollHeight > element.clientHeight + 1;
+  // -webkit-line-clamp discards the lines past the bound rather than overflowing
+  // them, so scrollHeight equals clientHeight and the usual comparison always
+  // answers no. Lift the bound, read the full height, put it back.
+  const bounded = element.clientHeight;
+  element.style.webkitLineClamp = "unset";
+  const full = element.scrollHeight;
+  element.style.webkitLineClamp = "";
+  overflows.value = full > bounded + 1;
 }
 
 let observer: ResizeObserver | undefined;
@@ -122,7 +125,7 @@ function showLess() {
       :aria-expanded="isExpanded"
       @click="showMore"
     >
-      <slot name="more" :hasMore="hasMore">{{ moreLabel }}</slot>
+      <slot name="more" :hasMore="hasMore">show more</slot>
     </button>
     <button
       v-if="canShowLess"
@@ -130,7 +133,7 @@ function showLess() {
       :aria-expanded="true"
       @click="showLess"
     >
-      <slot name="less">{{ lessLabel }}</slot>
+      <slot name="less">show less</slot>
     </button>
   </span>
 </template>
