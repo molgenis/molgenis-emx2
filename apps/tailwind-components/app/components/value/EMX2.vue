@@ -47,10 +47,6 @@ const props = withDefaults(
   }
 );
 
-/**
- * Lines a collapsed list occupies. A count would be the wrong unit: the reader
- * feels vertical space, and four long values can outrun five short ones.
- */
 const DEFAULT_MAX_LINES = 3;
 
 const effectiveMaxLines = computed(() =>

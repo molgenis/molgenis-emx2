@@ -47,11 +47,8 @@ const elementType = computed(
   () => props.metadata.columnType.split("_ARRAY")[0]
 );
 
-// Everything rendered stays in the DOM, collapsed or not, so a crawler and
-// in-page search still reach it. A crawler does not click, so anything past
-// `renderLimit` is unindexed: keep it high enough that real data fits under it,
-// and let it be a guard against a pathological refback rather than a display
-// bound. A caller with less room, such as a table cell, passes its own.
+// A crawler does not click, so anything past `renderLimit` is unindexed. It is a
+// guard against a pathological refback, not a display bound.
 const rendered = ref(props.renderLimit);
 
 watch(
@@ -64,7 +61,6 @@ const displayedData = computed(() => {
   return props.data.slice(0, rendered.value);
 });
 
-/** True while values exist that the clamp cannot reveal, because they are not rendered. */
 const hasUnrendered = computed(
   () => !!props.data && props.data.length > rendered.value
 );

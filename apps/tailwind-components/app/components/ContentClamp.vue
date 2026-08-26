@@ -43,9 +43,9 @@ const isExpanded = computed(
     lines.value > props.maxLines
 );
 
-// Only from an observer callback: reading scrollHeight during render forces a
-// synchronous reflow. Measures in the bounded configuration, which is not the one
-// on screen while nothing is cut, because line-clamp discards its overflow.
+// Never during render: reading scrollHeight forces a synchronous reflow. Measures
+// in the bounded configuration, which is not the one on screen while nothing is
+// cut, because line-clamp discards its overflow instead of overflowing.
 function measure() {
   const element = target.value;
   if (!element || lines.value === undefined) return;

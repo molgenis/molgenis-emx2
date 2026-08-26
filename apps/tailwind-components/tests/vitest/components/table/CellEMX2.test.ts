@@ -26,7 +26,6 @@ describe("table/CellEMX2.vue", () => {
       props: { metadata: arrayColumn, data: eight },
     });
 
-    // The cell used to carry its own copy of this routing, and the two diverged.
     expect(wrapper.findComponent(ValueEMX2).exists()).toBe(true);
     expect(wrapper.text()).toContain("Tag 1");
     expect(wrapper.text()).toContain("Tag 8");
@@ -37,8 +36,6 @@ describe("table/CellEMX2.vue", () => {
       props: { metadata: arrayColumn, data: eight },
     });
 
-    // A cell truncates to one line and offers its own control onto the popup.
-    // A second, vertical bound inside it would fight that and cost an observer.
     expect(wrapper.findComponent(ValueEMX2).props("collapse")).toBe(false);
     expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(
       undefined
@@ -51,8 +48,6 @@ describe("table/CellEMX2.vue", () => {
       props: { metadata: arrayColumn, data: many },
     });
 
-    // A cell shows one line and routes the rest to the popup. The record page is
-    // the crawlable surface, not this.
     expect(wrapper.text()).toContain("Tag 10");
     expect(wrapper.text()).not.toContain("Tag 11");
   });

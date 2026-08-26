@@ -48,7 +48,6 @@ describe("value/List.vue", () => {
       props: { metadata, data: many, maxLines: 3 },
     });
 
-    // A crawler never clicks, so anything the default holds back is unindexed.
     expect(wrapper.text()).toContain("Tag 500");
   });
 

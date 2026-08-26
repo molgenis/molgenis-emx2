@@ -20,9 +20,6 @@ const mountText = (data: string | null, maxLines?: number) =>
 
 describe("value/Text.vue", () => {
   it("takes the bound from its caller, rather than keeping one of its own", () => {
-    // A bound of its own ignored both of the caller's answers: the default in
-    // `EMX2.vue`, and the absence of a bound where the caller bounds the value
-    // itself. Text then clamped at a height nothing on the page had asked for.
     expect(
       mountText(long, 3).findComponent(ContentClamp).props("maxLines")
     ).toBe(3);
@@ -34,8 +31,6 @@ describe("value/Text.vue", () => {
   it("keeps the whole text in the DOM, bounding only its height", () => {
     const wrapper = mountText(long, 3);
 
-    // The old character cutoff built a shorter string, so the tail was not in the
-    // markup at all. Clamping hides it visually and leaves it findable.
     expect(wrapper.text()).toContain(long);
   });
 

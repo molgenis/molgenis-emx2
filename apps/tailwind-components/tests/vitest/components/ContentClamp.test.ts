@@ -85,7 +85,6 @@ describe("ContentClamp.vue", () => {
     expect(lines(w)).toContain("--content-clamp-lines: 8");
     expect(w.emitted("showMore")).toBeUndefined();
 
-    // Nothing left in the slot, so now the caller is the only one who can help.
     overflowing(false);
     resize();
     await nextTick();
@@ -97,7 +96,6 @@ describe("ContentClamp.vue", () => {
   it("withholds collapse until nothing is left to reveal", async () => {
     const w = await clamp({ maxLines: 3, lineStep: 5 });
 
-    // Two controls at once read as one confused control.
     await w.find("button").trigger("click");
     expect(labels(w)).toEqual(["show more"]);
 

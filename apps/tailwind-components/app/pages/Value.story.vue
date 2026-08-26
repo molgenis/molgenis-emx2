@@ -67,17 +67,13 @@ const itemCount = ref<number | string>(8);
 const maxLines = ref<number | string>(3);
 const renderLimit = ref<number | string>(1000);
 
-// The inputs hand back strings, so every number the page computes with is derived.
 const count = computed(() => Math.max(0, Number(itemCount.value) || 0));
 const lines = computed(() => Math.max(1, Number(maxLines.value) || 1));
 const tranche = computed(() => Math.max(1, Number(renderLimit.value) || 1));
-// A value lives on a content surface. The switch puts it on the page background
-// instead, which is where a page header puts one, and shows it honestly: the value
-// components carry the content surface's link colour and do not adapt to a surface
-// the theme colours itself.
+// Values carry the content surface's link colour and do not adapt to a surface the
+// theme colours itself. The switch is what shows that.
 const onContentSurface = ref(true);
 
-/** Cycles a base list up to `itemCount`, so repeats are fine and the size is the knob. */
 function repeatTo<T>(base: T[], count: number): T[] {
   if (base.length === 0 || count <= 0) return [];
   return Array.from(
