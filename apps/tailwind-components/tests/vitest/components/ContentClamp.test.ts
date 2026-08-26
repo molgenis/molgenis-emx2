@@ -28,11 +28,15 @@ function stubOverflow(overflowing: boolean) {
 const mountClamp = (props: Record<string, unknown>) =>
   mount(ContentClamp, { props, slots: { default: "some long content" } });
 
+let observersCreated = 0;
+
 beforeEach(() => {
+  observersCreated = 0;
   (globalThis as any).ResizeObserver = class {
     cb: () => void;
     constructor(cb: () => void) {
       this.cb = cb;
+      observersCreated += 1;
     }
     observe() {
       this.cb();
@@ -54,6 +58,23 @@ describe("ContentClamp.vue", () => {
 
     expect(isClamped(wrapper)).toBe(false);
     expect(wrapper.find("button").exists()).toBe(false);
+  });
+
+  it("observes nothing when there is no clamp to overflow", async () => {
+    stubOverflow(true);
+    mountClamp({});
+    await nextTick();
+
+    // A table page can hold hundreds of unclamped lists; none should cost an observer.
+    expect(observersCreated).toBe(0);
+  });
+
+  it("observes once a clamp exists", async () => {
+    stubOverflow(true);
+    mountClamp({ maxLines: 3 });
+    await nextTick();
+
+    expect(observersCreated).toBe(1);
   });
 
   it("bounds by lines, and keeps the content in the DOM", async () => {

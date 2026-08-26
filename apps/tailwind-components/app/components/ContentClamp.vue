@@ -38,6 +38,8 @@ watch(
  * runs inside the observer callback where layout has already settled. Reading
  * scrollHeight during render would force a synchronous reflow instead.
  */
+const isClamped = computed(() => lines.value !== undefined);
+
 function measure() {
   const element = target.value;
   if (!element) return;
@@ -46,16 +48,31 @@ function measure() {
 
 let observer: ResizeObserver | undefined;
 
-onMounted(() => {
-  if (typeof ResizeObserver === "undefined") return;
+/**
+ * Only a clamped block can be hiding anything, so only a clamped block is worth
+ * observing. An unclamped one would still cost an observer, and a table page can
+ * hold hundreds of these.
+ */
+function startObserving() {
+  if (observer || typeof ResizeObserver === "undefined") return;
+  if (!isClamped.value || !target.value) return;
   observer = new ResizeObserver(measure);
-  if (target.value) observer.observe(target.value);
+  observer.observe(target.value);
   measure();
-});
+}
 
-onBeforeUnmount(() => observer?.disconnect());
+function stopObserving() {
+  observer?.disconnect();
+  observer = undefined;
+  overflows.value = false;
+}
 
-const isClamped = computed(() => lines.value !== undefined);
+onMounted(startObserving);
+onBeforeUnmount(stopObserving);
+
+watch(isClamped, (clamped) =>
+  clamped ? nextTick(startObserving) : stopObserving()
+);
 
 const isExpanded = computed(
   () =>
