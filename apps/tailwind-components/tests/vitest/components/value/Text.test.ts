@@ -23,15 +23,8 @@ describe("value/Text.vue", () => {
     const wrapper = mountText(long);
 
     // An unset bound means no clamp at all, so a missing one is silent.
+    expect(wrapper.findComponent(ContentClamp).exists()).toBe(true);
     expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(5);
-  });
-
-  it("renders long text through the clamp so it can collapse", () => {
-    const wrapper = mountText(long);
-
-    const clamp = wrapper.findComponent(ContentClamp);
-    expect(clamp.exists()).toBe(true);
-    expect(clamp.text()).toContain(long);
   });
 
   it("keeps the whole text in the DOM, bounding only its height", () => {

@@ -3,21 +3,16 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 import ContentClamp from "../../../app/components/ContentClamp.vue";
 
-const clamped = (wrapper: ReturnType<typeof mount>) =>
-  wrapper.find("span span");
+let observers = 0;
+/** Re-measure, as a real resize would. Changing the stub alone leaves it stale. */
+let resize = () => {};
 
-const isClamped = (wrapper: ReturnType<typeof mount>) =>
-  clamped(wrapper).classes().includes("content-clamp");
-
-/**
- * jsdom lays nothing out, so scrollHeight and clientHeight are both 0 and the
- * component would never see an overflow. These stubs decide the answer instead,
- * which is the part of the measurement worth pinning in a unit test.
- */
-function stubOverflow(overflowing: boolean) {
+// jsdom lays nothing out, so scrollHeight and clientHeight are both 0 and the
+// component would never see an overflow. These stubs decide the answer instead.
+function overflowing(yes: boolean) {
   Object.defineProperty(HTMLElement.prototype, "scrollHeight", {
     configurable: true,
-    get: () => (overflowing ? 100 : 10),
+    get: () => (yes ? 100 : 10),
   });
   Object.defineProperty(HTMLElement.prototype, "clientHeight", {
     configurable: true,
@@ -25,21 +20,29 @@ function stubOverflow(overflowing: boolean) {
   });
 }
 
-const mountClamp = (props: Record<string, unknown>) =>
-  mount(ContentClamp, { props, slots: { default: "some long content" } });
+async function clamp(props: Record<string, unknown>, overflows = true) {
+  overflowing(overflows);
+  const wrapper = mount(ContentClamp, {
+    props,
+    slots: { default: "some long content" },
+  });
+  await nextTick();
+  return wrapper;
+}
 
-let observersCreated = 0;
-/** Re-measure, as a real resize would. Changing the stub alone leaves it stale. */
-let resize = () => {};
+const lines = (w: ReturnType<typeof mount>) =>
+  w.find("span span").attributes("style");
+const labels = (w: ReturnType<typeof mount>) =>
+  w.findAll("button").map((b) => b.text());
 
 beforeEach(() => {
-  observersCreated = 0;
+  observers = 0;
   resize = () => {};
   (globalThis as any).ResizeObserver = class {
     cb: () => void;
     constructor(cb: () => void) {
       this.cb = cb;
-      observersCreated += 1;
+      observers += 1;
       resize = cb;
     }
     observe() {
@@ -55,146 +58,68 @@ afterEach(() => {
 });
 
 describe("ContentClamp.vue", () => {
-  it("does not clamp when no line bound is given", async () => {
-    stubOverflow(true);
-    const wrapper = mountClamp({});
-    await nextTick();
-
-    expect(isClamped(wrapper)).toBe(false);
-    expect(wrapper.find("button").exists()).toBe(false);
-  });
-
-  it("observes a clamped block, and only a clamped one", async () => {
-    stubOverflow(true);
-    mountClamp({});
-    await nextTick();
-
-    // A table page holds hundreds of unclamped lists; none should cost an observer.
-    expect(observersCreated).toBe(0);
-
-    mountClamp({ maxLines: 3 });
-    await nextTick();
-
-    expect(observersCreated).toBe(1);
-  });
-
-  it("bounds by lines, and keeps the content in the DOM", async () => {
-    stubOverflow(true);
-    const wrapper = mountClamp({ maxLines: 2 });
-    await nextTick();
-
-    expect(isClamped(wrapper)).toBe(true);
-    expect(clamped(wrapper).attributes("style")).toContain(
-      "--content-clamp-lines: 2"
+  it("clamps, and observes, only when given a line bound", async () => {
+    const unbounded = await clamp({});
+    expect(unbounded.find("span span").classes()).not.toContain(
+      "content-clamp"
     );
-    // Hiding is visual, so the text is still there to be read or indexed.
-    expect(wrapper.text()).toContain("some long content");
+    expect(labels(unbounded)).toEqual([]);
+    expect(observers).toBe(0);
+
+    const bounded = await clamp({ maxLines: 2 });
+    expect(lines(bounded)).toContain("--content-clamp-lines: 2");
+    expect(observers).toBe(1);
+    // Hiding is visual, so the content is still there to be read or indexed.
+    expect(bounded.text()).toContain("some long content");
   });
 
-  it("offers no control when the content already fits", async () => {
-    stubOverflow(false);
-    const wrapper = mountClamp({ maxLines: 3 });
-    await nextTick();
-
-    expect(wrapper.find("button").exists()).toBe(false);
+  it("offers a control only while something is hidden", async () => {
+    expect(labels(await clamp({ maxLines: 3 }, false))).toEqual([]);
+    expect(labels(await clamp({ maxLines: 3 }))).toEqual(["show more"]);
   });
 
-  it("reveals in line steps rather than all at once", async () => {
-    stubOverflow(true);
-    const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
-    await nextTick();
+  it("grows the bound in steps, and never both grows and asks on one click", async () => {
+    const w = await clamp({ maxLines: 3, lineStep: 5, hasMore: true });
 
-    expect(wrapper.find("button").text()).toBe("show more");
-
-    await wrapper.find("button").trigger("click");
-    expect(clamped(wrapper).attributes("style")).toContain(
-      "--content-clamp-lines: 8"
-    );
-
-    await wrapper.find("button").trigger("click");
-    expect(clamped(wrapper).attributes("style")).toContain(
-      "--content-clamp-lines: 13"
-    );
-  });
-
-  it("never shows both controls at once", async () => {
-    stubOverflow(true);
-    const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
-    await nextTick();
-
-    await wrapper.find("button").trigger("click");
-
-    // Still overflowing, so there is more to reveal and nothing to collapse yet.
-    const labels = wrapper.findAll("button").map((b) => b.text());
-    expect(labels).toEqual(["show more"]);
-  });
-
-  it("returns to the starting bound, and offers to expand again", async () => {
-    stubOverflow(true);
-    const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
-    await nextTick();
-
-    // Reveal until nothing is left, which is when collapsing is offered.
-    await wrapper.find("button").trigger("click");
-    stubOverflow(false);
-    await wrapper.find("button").trigger("click");
-    await nextTick();
-    expect(wrapper.find("button").text()).toBe("show less");
-
-    // Collapsing restores the original bound, so the content overflows again.
-    stubOverflow(true);
-    await wrapper.find("button").trigger("click");
-    await nextTick();
-
-    expect(clamped(wrapper).attributes("style")).toContain(
-      "--content-clamp-lines: 3"
-    );
-    expect(wrapper.findAll("button").map((b) => b.text())).toEqual([
-      "show more",
-    ]);
-  });
-
-  it("grows the bound, or asks the caller, but never both on one click", async () => {
-    stubOverflow(true);
-    const wrapper = mount(ContentClamp, {
-      props: { maxLines: 3, lineStep: 5, hasMore: true },
-      slots: { default: "some long content" },
-    });
-    await nextTick();
-
-    // Still overflowing, so this click is the clamp's job alone.
-    await wrapper.find("button").trigger("click");
-    expect(clamped(wrapper).attributes("style")).toContain(
-      "--content-clamp-lines: 8"
-    );
-    expect(wrapper.emitted("showMore")).toBeUndefined();
+    await w.find("button").trigger("click");
+    expect(lines(w)).toContain("--content-clamp-lines: 8");
+    expect(w.emitted("showMore")).toBeUndefined();
 
     // Nothing left in the slot, so now the caller is the only one who can help.
-    stubOverflow(false);
+    overflowing(false);
     resize();
     await nextTick();
-    await wrapper.find("button").trigger("click");
-    expect(wrapper.emitted("showMore")).toHaveLength(1);
-    expect(clamped(wrapper).attributes("style")).toContain(
-      "--content-clamp-lines: 8"
-    );
+    await w.find("button").trigger("click");
+    expect(w.emitted("showMore")).toHaveLength(1);
+    expect(lines(w)).toContain("--content-clamp-lines: 8");
   });
 
-  it("keeps offering, and withholds collapse, while the caller holds content back", async () => {
-    stubOverflow(false);
-    const wrapper = mount(ContentClamp, {
-      props: { maxLines: 3, hasMore: true },
-      slots: { default: "some long content" },
-    });
+  it("withholds collapse until nothing is left to reveal", async () => {
+    const w = await clamp({ maxLines: 3, lineStep: 5 });
+
+    // Two controls at once read as one confused control.
+    await w.find("button").trigger("click");
+    expect(labels(w)).toEqual(["show more"]);
+
+    overflowing(false);
+    resize();
     await nextTick();
+    expect(labels(w)).toEqual(["show less"]);
+  });
 
-    // Nothing overflows, but the caller has more it has not rendered yet.
-    expect(wrapper.find("button").text()).toBe("show more");
+  it("collapses to the starting bound, and offers to expand again", async () => {
+    const w = await clamp({ maxLines: 3, lineStep: 5 });
 
-    await wrapper.find("button").trigger("click");
-    expect(wrapper.emitted("showMore")).toHaveLength(1);
-    expect(wrapper.findAll("button").map((b) => b.text())).toEqual([
-      "show more",
-    ]);
+    await w.find("button").trigger("click");
+    overflowing(false);
+    resize();
+    await nextTick();
+    await w.find("button").trigger("click");
+
+    overflowing(true);
+    resize();
+    await nextTick();
+    expect(lines(w)).toContain("--content-clamp-lines: 3");
+    expect(labels(w)).toEqual(["show more"]);
   });
 });

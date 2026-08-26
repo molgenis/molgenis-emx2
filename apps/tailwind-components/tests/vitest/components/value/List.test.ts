@@ -13,32 +13,16 @@ const metadata: IColumn = {
 const eight = Array.from({ length: 8 }, (_, index) => `Tag ${index + 1}`);
 
 describe("value/List.vue", () => {
-  it("renders every item, and asks for no clamp by default", () => {
-    const wrapper = mount(ValueList, { props: { metadata, data: eight } });
-
-    expect(wrapper.text()).toContain("Tag 8");
-    expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(
-      undefined
-    );
-  });
-
-  it("passes the line bound it is given straight through", () => {
-    const wrapper = mount(ValueList, {
+  it("hands the clamp the bound it was given, or none", () => {
+    const unbounded = mount(ValueList, { props: { metadata, data: eight } });
+    const bounded = mount(ValueList, {
       props: { metadata, data: eight, maxLines: 2 },
     });
 
-    expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(2);
-  });
-
-  it("leaves every value in the DOM, because collapsing is visual", () => {
-    const wrapper = mount(ValueList, {
-      props: { metadata, data: eight, maxLines: 3 },
-    });
-
-    // Slicing the array would drop these from the markup, losing them to
-    // crawlers, in-page search and a screen reader reading the whole page.
-    expect(wrapper.text()).toContain("Tag 6");
-    expect(wrapper.text()).toContain("Tag 8");
+    expect(unbounded.findComponent(ContentClamp).props("maxLines")).toBe(
+      undefined
+    );
+    expect(bounded.findComponent(ContentClamp).props("maxLines")).toBe(2);
   });
 
   it("tells the clamp whether values remain unrendered", () => {

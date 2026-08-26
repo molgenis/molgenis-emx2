@@ -48,15 +48,12 @@ describe("value/Object.vue", () => {
     expect(tooltip.props("content")).toBe(
       "A metabolic disease that causes high blood sugar."
     );
-  });
 
-  it("shows no tooltip when the term has no definition", () => {
-    const { definition, ...withoutDefinition } = term;
-    const wrapper = mount(ValueObject, {
-      props: { metadata: ontology, data: withoutDefinition },
+    const { definition, ...noDefinition } = term;
+    const without = mount(ValueObject, {
+      props: { metadata: ontology, data: noDefinition },
     });
-
-    expect(wrapper.findComponent(CustomTooltip).exists()).toBe(false);
+    expect(without.findComponent(CustomTooltip).exists()).toBe(false);
   });
 
   it("joins the remaining fields with a space when there is no name", () => {
