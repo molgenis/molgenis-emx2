@@ -84,7 +84,7 @@ describe("value/List.vue", () => {
 
     expect(wrapper.text()).toContain("Tag 100");
     expect(wrapper.text()).not.toContain("Tag 101");
-    // The label still counts the whole list, not just what was rendered.
-    expect(wrapper.find("button").text()).toBe("+495 more");
+    // 95, not 495: the control may only promise what expanding can actually show.
+    expect(wrapper.find("button").text()).toBe("+95 more");
   });
 });

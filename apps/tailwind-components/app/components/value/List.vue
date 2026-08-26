@@ -65,9 +65,15 @@ const isCollapsible = computed(
   () => !!props.maxItems && !!props.data && props.data.length > props.maxItems
 );
 
+/**
+ * Counts what expanding actually reveals, which is bounded by `renderLimit`, not
+ * by how many values the record holds. Promising more than is in the DOM would
+ * make the control lie on a long refback.
+ */
 const hiddenCount = computed(() => {
   if (!isCollapsible.value || !props.data || !props.maxItems) return 0;
-  return props.data.length - props.maxItems;
+  const rendered = Math.min(props.data.length, props.renderLimit);
+  return Math.max(0, rendered - props.maxItems);
 });
 
 /**
