@@ -11,6 +11,12 @@ const metadata: IColumn = {
 
 const eight = Array.from({ length: 8 }, (_, index) => `Tag ${index + 1}`);
 
+const clampedSpan = (wrapper: ReturnType<typeof mount>) =>
+  wrapper.find("span > span");
+
+const isClamped = (wrapper: ReturnType<typeof mount>) =>
+  clampedSpan(wrapper).classes().includes("value-list-clamp");
+
 describe("value/List.vue", () => {
   it("renders every item when no cap is given", () => {
     const wrapper = mount(ValueList, { props: { metadata, data: eight } });
@@ -19,82 +25,66 @@ describe("value/List.vue", () => {
     expect(wrapper.find("button").exists()).toBe(false);
   });
 
-  it("caps at maxItems and offers the rest behind a compact +N control", () => {
+  it("keeps every value in the DOM while collapsed, so crawlers and Ctrl-F reach them", () => {
     const wrapper = mount(ValueList, {
       props: { metadata, data: eight, maxItems: 5 },
     });
 
-    expect(wrapper.text()).toContain("Tag 5");
-    expect(wrapper.text()).not.toContain("Tag 6");
-    expect(wrapper.find("button").text()).toBe("+3 more");
-    expect(wrapper.find("button").attributes("aria-expanded")).toBe("false");
+    // Collapsing is visual. Slicing the array would drop these from the markup.
+    expect(wrapper.text()).toContain("Tag 6");
+    expect(wrapper.text()).toContain("Tag 8");
   });
 
-  it("expands to every item, then offers to collapse again", async () => {
+  it("bounds the collapsed list by lines rather than by item count", () => {
+    const wrapper = mount(ValueList, {
+      props: { metadata, data: eight, maxItems: 5, maxLines: 2 },
+    });
+
+    expect(isClamped(wrapper)).toBe(true);
+    expect(clampedSpan(wrapper).attributes("style")).toContain(
+      "--value-list-lines: 2"
+    );
+  });
+
+  it("offers the rest behind a compact control, then collapses again", async () => {
     const wrapper = mount(ValueList, {
       props: { metadata, data: eight, maxItems: 5 },
     });
 
-    await wrapper.find("button").trigger("click");
+    const expand = wrapper.find("button");
+    expect(expand.text()).toBe("+3 more");
+    expect(expand.attributes("aria-expanded")).toBe("false");
 
-    expect(wrapper.text()).toContain("Tag 8");
+    await expand.trigger("click");
+
+    expect(isClamped(wrapper)).toBe(false);
     expect(wrapper.find("button").text()).toBe("less");
     expect(wrapper.find("button").attributes("aria-expanded")).toBe("true");
-  });
-
-  it("reveals a long list in tranches rather than painting it all at once", async () => {
-    const many = Array.from({ length: 500 }, (_, i) => `Tag ${i + 1}`);
-    const wrapper = mount(ValueList, {
-      props: { metadata, data: many, maxItems: 5, step: 20 },
-    });
-
-    // The label states what the click does, not how many are hidden overall.
-    expect(wrapper.find("button").text()).toBe("+20 more");
-    expect(wrapper.text()).toContain("Tag 5");
-    expect(wrapper.text()).not.toContain("Tag 6");
 
     await wrapper.find("button").trigger("click");
 
-    expect(wrapper.text()).toContain("Tag 25");
-    expect(wrapper.text()).not.toContain("Tag 26");
-    expect(wrapper.find("button").text()).toBe("+20 more");
-  });
-
-  it("shrinks the last tranche to what is left", async () => {
-    const wrapper = mount(ValueList, {
-      props: { metadata, data: eight, maxItems: 5, step: 20 },
-    });
-
+    expect(isClamped(wrapper)).toBe(true);
     expect(wrapper.find("button").text()).toBe("+3 more");
-
-    await wrapper.find("button").trigger("click");
-
-    expect(wrapper.text()).toContain("Tag 8");
-    expect(wrapper.findAll("button").map((b) => b.text())).toEqual(["less"]);
   });
 
-  it("collapses back to the cap from any tranche", async () => {
-    const many = Array.from({ length: 500 }, (_, i) => `Tag ${i + 1}`);
-    const wrapper = mount(ValueList, {
-      props: { metadata, data: many, maxItems: 5, step: 20 },
-    });
-
-    await wrapper.find("button").trigger("click");
-    await wrapper.find("button").trigger("click");
-    expect(wrapper.text()).toContain("Tag 45");
-
-    const collapse = wrapper.findAll("button").find((b) => b.text() === "less");
-    await collapse!.trigger("click");
-
-    expect(wrapper.text()).toContain("Tag 5");
-    expect(wrapper.text()).not.toContain("Tag 6");
-  });
-
-  it("shows no control when the data already fits the cap", () => {
+  it("shows no control, and no clamp, when the data already fits the cap", () => {
     const wrapper = mount(ValueList, {
       props: { metadata, data: eight.slice(0, 3), maxItems: 5 },
     });
 
     expect(wrapper.find("button").exists()).toBe(false);
+    expect(isClamped(wrapper)).toBe(false);
+  });
+
+  it("stops a very long list from painting without bound", () => {
+    const many = Array.from({ length: 500 }, (_, i) => `Tag ${i + 1}`);
+    const wrapper = mount(ValueList, {
+      props: { metadata, data: many, maxItems: 5, renderLimit: 100 },
+    });
+
+    expect(wrapper.text()).toContain("Tag 100");
+    expect(wrapper.text()).not.toContain("Tag 101");
+    // The label still counts the whole list, not just what was rendered.
+    expect(wrapper.find("button").text()).toBe("+495 more");
   });
 });

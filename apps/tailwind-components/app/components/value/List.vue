@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { isRefbackType } from "../../../../metadata-utils/src";
 import type {
   columnValue,
@@ -31,13 +31,17 @@ const props = withDefaults(
     metadata: IColumn;
     data?: columnValue[] | null;
     hideListSeparator?: boolean;
+    /** Collapse the list when it holds more values than this. */
     maxItems?: number;
-    /** How many more values one click reveals. Keeps a long list from painting at once. */
-    step?: number;
+    /** How many lines a collapsed list occupies. The visible bound is space, not count. */
+    maxLines?: number;
+    /** How many values reach the DOM at all. */
+    renderLimit?: number;
   }>(),
   {
     hideListSeparator: false,
-    step: 20,
+    maxLines: 3,
+    renderLimit: 100,
   }
 );
 
@@ -45,35 +49,37 @@ const elementType = computed(
   () => props.metadata.columnType.split("_ARRAY")[0]
 );
 
-const shown = ref(props.maxItems);
+const collapsed = ref(true);
 
-watch(
-  () => props.maxItems,
-  (value) => (shown.value = value)
-);
-
+/**
+ * Every rendered value stays in the DOM, collapsed or not, so a crawler, in-page
+ * search and a screen reader all still reach it. `renderLimit` only stops a huge
+ * refback from painting without bound; past it, the bound belongs in the query.
+ */
 const displayedData = computed(() => {
-  if (!shown.value || !props.data) return props.data;
-  return props.data.slice(0, shown.value);
+  if (!props.data) return props.data;
+  return props.data.slice(0, props.renderLimit);
 });
 
-/** How many the next click reveals, which is what the control is labelled with. */
-const nextCount = computed(() => {
-  if (!shown.value || !props.data) return 0;
-  return Math.min(props.step, Math.max(0, props.data.length - shown.value));
-});
-
-const isExpanded = computed(
-  () => !!props.maxItems && !!shown.value && shown.value > props.maxItems
+const isCollapsible = computed(
+  () => !!props.maxItems && !!props.data && props.data.length > props.maxItems
 );
 
-function showMore() {
-  if (shown.value) shown.value += props.step;
-}
+const hiddenCount = computed(() => {
+  if (!isCollapsible.value || !props.data || !props.maxItems) return 0;
+  return props.data.length - props.maxItems;
+});
 
-function collapse() {
-  shown.value = props.maxItems;
-}
+/**
+ * Clamping in CSS rather than slicing the array is what keeps the values in the
+ * DOM. It also costs no measurement: `maxItems` decides whether a control appears,
+ * which the server can work out, and CSS decides how much shows.
+ */
+const isClamped = computed(() => collapsed.value && isCollapsible.value);
+
+const clampStyle = computed(() =>
+  isClamped.value ? { "--value-list-lines": String(props.maxLines) } : undefined
+);
 
 const emit = defineEmits<{
   (e: "listRefCellClicked", data: ListPayload): void;
@@ -89,111 +95,126 @@ function handleCellClick() {
 
 <template>
   <span>
-    <template v-for="(listElement, index) in displayedData">
-      <ValueString
-        v-if="
-          elementType === 'STRING' ||
-          elementType === 'AUTO_ID' ||
-          elementType === 'PERIOD' ||
-          elementType === 'UUID'
-        "
-        :metadata="metadata"
-        :data="assertStringValue(listElement)"
-      />
-      <ValueString
-        v-else-if="elementType === 'TEXT'"
-        :metadata="metadata"
-        :data="assertStringValue(listElement)"
-      />
-      <ValueDecimal
-        v-else-if="elementType === 'DECIMAL'"
-        :metadata="metadata"
-        :data="assertNumberValue(listElement)"
-      />
-      <ValueLong
-        v-else-if="elementType === 'LONG'"
-        :metadata="metadata"
-        :data="assertNumberValue(listElement)"
-      />
-      <ValueInt
-        v-else-if="elementType === 'INT' || elementType === 'NON_NEGATIVE_INT'"
-        :metadata="metadata"
-        :data="assertNumberValue(listElement)"
-      />
-      <ValueBool
-        v-else-if="elementType === 'BOOL'"
-        :metadata="metadata"
-        :data="assertBooleanValue(listElement)"
-      />
-      <ValueEmail
-        v-else-if="elementType === 'EMAIL'"
-        :metadata="metadata"
-        :data="assertStringValue(listElement)"
-      />
-      <ValueHyperlink
-        v-else-if="elementType === 'HYPERLINK'"
-        :metadata="metadata"
-        :data="assertStringValue(listElement)"
-      />
-      <ValueObject
-        v-else-if="
-          elementType === 'REF' ||
-          elementType === 'MULTISELECT' ||
-          elementType === 'CHECKBOX'
-        "
-        :metadata="metadata"
-        :data="assertRowValue(listElement)"
-        @refCellClicked="handleCellClick"
-      />
-      <ValueRefBack
-        v-else-if="isRefbackType(metadata.columnType)"
-        :metadata="toRefColumn(metadata)"
-        :data="assertTableValue(listElement)"
-        @refBackCellClicked="handleCellClick"
-      />
-      <ValueObject
-        v-else-if="elementType === 'ONTOLOGY'"
-        :metadata="metadata"
-        :data="assertRowValue(listElement)"
-        @refCellClicked="handleCellClick"
-      />
-      <ValueDate
-        v-else-if="elementType === 'DATE'"
-        :metadata="metadata"
-        :data="assertStringValue(listElement)"
-      />
-      <ValueDateTime
-        v-else-if="elementType === 'DATETIME'"
-        :metadata="metadata"
-        :data="assertStringValue(listElement)"
-      />
-      <span v-else>{{ elementType }}</span>
-      <span
-        v-if="
-          Number(displayedData?.length) - 1 !== Number(index) &&
-          !hideListSeparator
-        "
-      >
-        ,&nbsp;
-      </span>
-    </template>
+    <span :class="{ 'value-list-clamp': isClamped }" :style="clampStyle">
+      <template v-for="(listElement, index) in displayedData">
+        <ValueString
+          v-if="
+            elementType === 'STRING' ||
+            elementType === 'AUTO_ID' ||
+            elementType === 'PERIOD' ||
+            elementType === 'UUID'
+          "
+          :metadata="metadata"
+          :data="assertStringValue(listElement)"
+        />
+        <ValueString
+          v-else-if="elementType === 'TEXT'"
+          :metadata="metadata"
+          :data="assertStringValue(listElement)"
+        />
+        <ValueDecimal
+          v-else-if="elementType === 'DECIMAL'"
+          :metadata="metadata"
+          :data="assertNumberValue(listElement)"
+        />
+        <ValueLong
+          v-else-if="elementType === 'LONG'"
+          :metadata="metadata"
+          :data="assertNumberValue(listElement)"
+        />
+        <ValueInt
+          v-else-if="
+            elementType === 'INT' || elementType === 'NON_NEGATIVE_INT'
+          "
+          :metadata="metadata"
+          :data="assertNumberValue(listElement)"
+        />
+        <ValueBool
+          v-else-if="elementType === 'BOOL'"
+          :metadata="metadata"
+          :data="assertBooleanValue(listElement)"
+        />
+        <ValueEmail
+          v-else-if="elementType === 'EMAIL'"
+          :metadata="metadata"
+          :data="assertStringValue(listElement)"
+        />
+        <ValueHyperlink
+          v-else-if="elementType === 'HYPERLINK'"
+          :metadata="metadata"
+          :data="assertStringValue(listElement)"
+        />
+        <ValueObject
+          v-else-if="
+            elementType === 'REF' ||
+            elementType === 'MULTISELECT' ||
+            elementType === 'CHECKBOX'
+          "
+          :metadata="metadata"
+          :data="assertRowValue(listElement)"
+          @refCellClicked="handleCellClick"
+        />
+        <ValueRefBack
+          v-else-if="isRefbackType(metadata.columnType)"
+          :metadata="toRefColumn(metadata)"
+          :data="assertTableValue(listElement)"
+          @refBackCellClicked="handleCellClick"
+        />
+        <ValueObject
+          v-else-if="elementType === 'ONTOLOGY'"
+          :metadata="metadata"
+          :data="assertRowValue(listElement)"
+          @refCellClicked="handleCellClick"
+        />
+        <ValueDate
+          v-else-if="elementType === 'DATE'"
+          :metadata="metadata"
+          :data="assertStringValue(listElement)"
+        />
+        <ValueDateTime
+          v-else-if="elementType === 'DATETIME'"
+          :metadata="metadata"
+          :data="assertStringValue(listElement)"
+        />
+        <span v-else>{{ elementType }}</span>
+        <span
+          v-if="
+            Number(displayedData?.length) - 1 !== Number(index) &&
+            !hideListSeparator
+          "
+        >
+          ,&nbsp;
+        </span>
+      </template>
+    </span>
     <button
-      v-if="nextCount > 0"
+      v-if="isCollapsible && collapsed"
       class="text-link text-body-sm ml-1"
-      :aria-expanded="isExpanded"
-      @click="showMore"
+      :aria-expanded="false"
+      @click="collapsed = false"
     >
-      +{{ nextCount }} more
+      +{{ hiddenCount }} more
     </button>
     <button
-      v-if="isExpanded"
+      v-if="isCollapsible && !collapsed"
       class="text-link text-body-sm ml-1"
       title="Show less"
       aria-label="Show less"
-      :aria-expanded="isExpanded"
-      @click="collapse"
+      :aria-expanded="true"
+      @click="collapsed = true"
     >
       less
     </button>
   </span>
 </template>
+
+<style scoped>
+/* Bound the collapsed list by space, not by item count. The values stay in the DOM. */
+.value-list-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--value-list-lines);
+  line-clamp: var(--value-list-lines);
+  overflow: hidden;
+}
+</style>
