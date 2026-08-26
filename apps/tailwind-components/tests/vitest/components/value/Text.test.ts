@@ -27,11 +27,12 @@ describe("value/Text.vue", () => {
     expect(readMore.props("text")).toBe(long);
   });
 
-  it("truncates past the cutoff and offers a control to expand", () => {
+  it("keeps the whole text in the DOM, bounding only its height", () => {
     const wrapper = mountText(long);
 
-    expect(wrapper.text()).not.toContain(long);
-    expect(wrapper.find("button").exists()).toBe(true);
+    // The old character cutoff built a shorter string, so the tail was not in the
+    // markup at all. Clamping hides it visually and leaves it findable.
+    expect(wrapper.text()).toContain(long);
   });
 
   it("renders nothing when there is no text", () => {

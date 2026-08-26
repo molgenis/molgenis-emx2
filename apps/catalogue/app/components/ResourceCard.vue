@@ -11,7 +11,7 @@ import CartButton from "./cart/CartButton.vue";
 
 const cartStore = useCartStore();
 
-const CUTOFF = 250;
+const DESCRIPTION_LINES = 4;
 
 const route = useRoute();
 
@@ -84,7 +84,10 @@ const headerClasses = computed(() => {
     </header>
 
     <div v-if="!compact">
-      <ContentReadMore :text="resource.description" :cutoff="CUTOFF" />
+      <ContentReadMore
+        :text="resource.description"
+        :maxLines="DESCRIPTION_LINES"
+      />
 
       <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>

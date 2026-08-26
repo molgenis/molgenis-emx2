@@ -19,7 +19,7 @@ const props = withDefaults(
   }>(),
   {
     lineStep: 5,
-    moreLabel: "more",
+    moreLabel: "show more",
     lessLabel: "show less",
   }
 );

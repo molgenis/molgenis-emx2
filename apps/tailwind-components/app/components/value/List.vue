@@ -80,7 +80,7 @@ function handleCellClick() {
 
 <template>
   <span>
-    <ContentClamp :maxLines="clampLines" moreLabel="more">
+    <ContentClamp :maxLines="clampLines">
       <template v-for="(listElement, index) in displayedData">
         <ValueString
           v-if="

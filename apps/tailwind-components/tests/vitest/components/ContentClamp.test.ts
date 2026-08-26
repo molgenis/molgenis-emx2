@@ -103,7 +103,7 @@ describe("ContentClamp.vue", () => {
     const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
     await nextTick();
 
-    expect(wrapper.find("button").text()).toBe("more");
+    expect(wrapper.find("button").text()).toBe("show more");
 
     await wrapper.find("button").trigger("click");
     expect(clamped(wrapper).attributes("style")).toContain(
