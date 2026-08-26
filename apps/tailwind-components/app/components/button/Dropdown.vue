@@ -3,7 +3,7 @@ import { ref, useTemplateRef, useId, onMounted } from "vue";
 import { useEventListener, useFocus, onClickOutside } from "@vueuse/core";
 import Button from "../Button.vue";
 
-const ariaId: string = useId();
+const ariaId = useId();
 const isOpen = ref<boolean>(false);
 const dropdown = useTemplateRef<HTMLDivElement>("dropdown");
 const btnElem = useTemplateRef<HTMLButtonElement>("btnElem");
