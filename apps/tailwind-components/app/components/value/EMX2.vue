@@ -31,8 +31,7 @@ const props = withDefaults(
     metadata: IColumn;
     data: any;
     hideListSeparator?: boolean;
-    maxItems?: number;
-    /** Lines a collapsed list occupies. Forwarded to ValueList. */
+    /** Lines a collapsed list occupies. */
     maxLines?: number;
     /**
      * Set false where the caller bounds the value itself. A table cell does: it
@@ -47,19 +46,14 @@ const props = withDefaults(
 );
 
 /**
- * How many values a stored multi-valued column shows before it collapses.
- * A caller that has more or less room passes its own `maxItems`.
+ * Lines a collapsed list occupies. A count would be the wrong unit: the reader
+ * feels vertical space, and four long values can outrun five short ones.
  */
-const DEFAULT_MAX_ITEMS = 5;
+const DEFAULT_MAX_LINES = 3;
 
-const effectiveMaxItems = computed(() => {
-  if (props.maxItems !== undefined) return props.maxItems;
-  if (!props.collapse) return undefined;
-  if (isStoredMultiValuedType(props.metadata.columnType)) {
-    return DEFAULT_MAX_ITEMS;
-  }
-  return undefined;
-});
+const effectiveMaxLines = computed(() =>
+  props.collapse ? props.maxLines ?? DEFAULT_MAX_LINES : undefined
+);
 
 defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
@@ -73,8 +67,7 @@ defineEmits<{
     :metadata="metadata"
     :data="data"
     :hideListSeparator="hideListSeparator"
-    :maxItems="effectiveMaxItems"
-    :maxLines="maxLines"
+    :maxLines="effectiveMaxLines"
     @listRefCellClicked="$emit('valueClick', $event)"
   />
 

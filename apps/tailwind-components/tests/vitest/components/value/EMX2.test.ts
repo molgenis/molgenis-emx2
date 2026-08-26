@@ -21,23 +21,23 @@ const eightTerms = Array.from({ length: 8 }, (_, index) => ({
 }));
 
 describe("value/EMX2.vue", () => {
-  it("caps a stored multi-valued column at five items by default", () => {
+  it("bounds a multi-valued column by lines, not by item count", () => {
     const wrapper = mount(EMX2Value, {
       props: { metadata: ontologyArray, data: eightTerms },
     });
 
-    expect(wrapper.findComponent(ValueList).props("maxItems")).toBe(5);
+    expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(3);
   });
 
-  it("lets the caller override the cap", () => {
+  it("lets the caller choose how many lines it gets", () => {
     const wrapper = mount(EMX2Value, {
-      props: { metadata: ontologyArray, data: eightTerms, maxItems: 2 },
+      props: { metadata: ontologyArray, data: eightTerms, maxLines: 8 },
     });
 
-    expect(wrapper.findComponent(ValueList).props("maxItems")).toBe(2);
+    expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(8);
   });
 
-  it("leaves the cap undefined for a single-valued column", () => {
+  it("routes a single-valued column past the list entirely", () => {
     const wrapper = mount(EMX2Value, {
       props: { metadata: singleString, data: "Alice" },
     });
@@ -45,15 +45,15 @@ describe("value/EMX2.vue", () => {
     expect(wrapper.findComponent(ValueList).exists()).toBe(false);
   });
 
-  it("leaves the cap off entirely when the caller bounds the value itself", () => {
+  it("leaves the bound off entirely when the caller bounds the value itself", () => {
     const wrapper = mount(EMX2Value, {
       props: { metadata: ontologyArray, data: eightTerms, collapse: false },
     });
 
-    expect(wrapper.findComponent(ValueList).props("maxItems")).toBe(undefined);
+    expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(undefined);
   });
 
-  it("caps CHECKBOX and MULTISELECT, which are stored multi-valued without an _ARRAY suffix", () => {
+  it("bounds CHECKBOX and MULTISELECT, which are multi-valued without an _ARRAY suffix", () => {
     for (const columnType of ["CHECKBOX", "MULTISELECT"] as const) {
       const wrapper = mount(EMX2Value, {
         props: {
@@ -62,7 +62,7 @@ describe("value/EMX2.vue", () => {
         },
       });
 
-      expect(wrapper.findComponent(ValueList).props("maxItems")).toBe(5);
+      expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(3);
     }
   });
 });

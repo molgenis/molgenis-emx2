@@ -13,7 +13,7 @@ const metadata: IColumn = {
 const eight = Array.from({ length: 8 }, (_, index) => `Tag ${index + 1}`);
 
 describe("value/List.vue", () => {
-  it("renders every item, and asks for no clamp when no cap is given", () => {
+  it("renders every item, and asks for no clamp by default", () => {
     const wrapper = mount(ValueList, { props: { metadata, data: eight } });
 
     expect(wrapper.text()).toContain("Tag 8");
@@ -22,9 +22,9 @@ describe("value/List.vue", () => {
     );
   });
 
-  it("asks for a line clamp once the list is longer than the cap", () => {
+  it("passes the line bound it is given straight through", () => {
     const wrapper = mount(ValueList, {
-      props: { metadata, data: eight, maxItems: 5, maxLines: 2 },
+      props: { metadata, data: eight, maxLines: 2 },
     });
 
     expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(2);
@@ -32,7 +32,7 @@ describe("value/List.vue", () => {
 
   it("leaves every value in the DOM, because collapsing is visual", () => {
     const wrapper = mount(ValueList, {
-      props: { metadata, data: eight, maxItems: 5 },
+      props: { metadata, data: eight, maxLines: 3 },
     });
 
     // Slicing the array would drop these from the markup, losing them to
@@ -41,9 +41,9 @@ describe("value/List.vue", () => {
     expect(wrapper.text()).toContain("Tag 8");
   });
 
-  it("asks for no clamp when the list already fits the cap", () => {
+  it("asks for no clamp when the caller gives no line bound", () => {
     const wrapper = mount(ValueList, {
-      props: { metadata, data: eight.slice(0, 3), maxItems: 5 },
+      props: { metadata, data: eight.slice(0, 3) },
     });
 
     expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(
@@ -54,7 +54,7 @@ describe("value/List.vue", () => {
   it("stops a very long list from painting without bound", () => {
     const many = Array.from({ length: 500 }, (_, i) => `Tag ${i + 1}`);
     const wrapper = mount(ValueList, {
-      props: { metadata, data: many, maxItems: 5, renderLimit: 100 },
+      props: { metadata, data: many, maxLines: 3, renderLimit: 100 },
     });
 
     expect(wrapper.text()).toContain("Tag 100");

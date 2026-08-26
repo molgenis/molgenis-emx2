@@ -32,16 +32,13 @@ const props = withDefaults(
     metadata: IColumn;
     data?: columnValue[] | null;
     hideListSeparator?: boolean;
-    /** Set to collapse the list. The value is the trigger, not the visible bound. */
-    maxItems?: number;
-    /** Lines a collapsed list occupies. The visible bound is space, not count. */
+    /** Lines a collapsed list occupies. Leave unset to never collapse. */
     maxLines?: number;
     /** How many values reach the DOM at all. */
     renderLimit?: number;
   }>(),
   {
     hideListSeparator: false,
-    maxLines: 3,
     renderLimit: 100,
   }
 );
@@ -60,12 +57,6 @@ const displayedData = computed(() => {
   return props.data.slice(0, props.renderLimit);
 });
 
-const clampLines = computed(() =>
-  props.maxItems && props.data && props.data.length > props.maxItems
-    ? props.maxLines
-    : undefined
-);
-
 const emit = defineEmits<{
   (e: "listRefCellClicked", data: ListPayload): void;
 }>();
@@ -80,7 +71,7 @@ function handleCellClick() {
 
 <template>
   <span>
-    <ContentClamp :maxLines="clampLines">
+    <ContentClamp :maxLines="maxLines">
       <template v-for="(listElement, index) in displayedData">
         <ValueString
           v-if="
