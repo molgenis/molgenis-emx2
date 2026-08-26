@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ContentReadMore from "../ContentReadMore.vue";
+import ContentClamp from "../ContentClamp.vue";
 defineProps<{
   title?: string;
   description?: string;
@@ -14,7 +14,7 @@ defineProps<{
       {{ title }}
     </h2>
     <div class="mb-5 prose max-w-none" v-if="description">
-      <ContentReadMore :text="description" />
+      <ContentClamp>{{ description }}</ContentClamp>
     </div>
     <slot></slot>
   </section>

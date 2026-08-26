@@ -10,14 +10,9 @@ import {
 
 const props = withDefaults(
   defineProps<{
-    /** Lines shown when collapsed. Leave unset to never clamp. */
     maxLines?: number;
-    /** Lines each click adds, so a long block reveals in steps. */
     lineStep?: number;
-    /**
-     * Set when the caller is holding back content that is not in the slot yet.
-     * The control keeps offering, and `showMore` tells the caller to render more.
-     */
+    /** The caller is holding back content that is not in the slot yet. */
     hasMore?: boolean;
     moreLabel?: string;
     lessLabel?: string;
@@ -29,6 +24,8 @@ const props = withDefaults(
   }
 );
 
+const emit = defineEmits<{ showMore: [] }>();
+
 const lines = ref(props.maxLines);
 const target = ref<HTMLElement | null>(null);
 const overflows = ref(false);
@@ -38,13 +35,17 @@ watch(
   (value) => (lines.value = value)
 );
 
-/**
- * Clamping is CSS and costs nothing. Measuring is the only expensive part, so it
- * runs inside the observer callback where layout has already settled. Reading
- * scrollHeight during render would force a synchronous reflow instead.
- */
 const isClamped = computed(() => lines.value !== undefined);
 
+const isExpanded = computed(
+  () =>
+    props.maxLines !== undefined &&
+    lines.value !== undefined &&
+    lines.value > props.maxLines
+);
+
+// Inside the observer callback, where layout has already settled. Reading
+// scrollHeight during render would force a synchronous reflow.
 function measure() {
   const element = target.value;
   if (!element) return;
@@ -53,11 +54,8 @@ function measure() {
 
 let observer: ResizeObserver | undefined;
 
-/**
- * Only a clamped block can be hiding anything, so only a clamped block is worth
- * observing. An unclamped one would still cost an observer, and a table page can
- * hold hundreds of these.
- */
+// Only a clamped block can hide anything. A table page holds hundreds of
+// unclamped ones, and none of them should cost an observer.
 function startObserving() {
   if (observer || typeof ResizeObserver === "undefined") return;
   if (!isClamped.value || !target.value) return;
@@ -79,27 +77,11 @@ watch(isClamped, (clamped) =>
   clamped ? nextTick(startObserving) : stopObserving()
 );
 
-const isExpanded = computed(
-  () =>
-    props.maxLines !== undefined &&
-    lines.value !== undefined &&
-    lines.value > props.maxLines
-);
-
-/**
- * Offered only when the clamp is really hiding something. Counting characters or
- * items instead offers a control for content that already fits.
- */
-const emit = defineEmits<{ showMore: [] }>();
-
 const canShowMore = computed(
   () => isClamped.value && (overflows.value || props.hasMore)
 );
 
-/**
- * Only once nothing is left to reveal. Showing both at once puts "show more" and
- * "show less" side by side, which reads as one confused control rather than two.
- */
+// Never alongside `show more`: two controls side by side read as one confused one.
 const canShowLess = computed(
   () => isExpanded.value && !overflows.value && !props.hasMore
 );
@@ -109,8 +91,6 @@ const clampStyle = computed(() =>
 );
 
 function showMore() {
-  // Grow the bound while the slot still has something hidden. Once it does not,
-  // the caller is the only one who can produce more, so just ask.
   if (overflows.value && lines.value !== undefined) {
     lines.value += props.lineStep;
   }
@@ -153,7 +133,6 @@ function showLess() {
 </template>
 
 <style scoped>
-/* Bound by space, not by item or character count. The content stays in the DOM. */
 .content-clamp {
   display: block;
   max-height: calc(var(--content-clamp-lines) * 1lh);

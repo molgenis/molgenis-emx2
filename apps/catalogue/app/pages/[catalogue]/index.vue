@@ -16,7 +16,7 @@ import LandingCardPrimary from "../../components/landing/CardPrimary.vue";
 import LandingCardSecondary from "../../components/landing/CardSecondary.vue";
 import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
 import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
-import ContentReadMore from "../../../../tailwind-components/app/components/ContentReadMore.vue";
+import ContentClamp from "../../../../tailwind-components/app/components/ContentClamp.vue";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -264,7 +264,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         </ShowMore>
       </template>
       <template v-else v-slot:description>
-        <ContentReadMore :text="description" />
+        <ContentClamp>{{ description }}</ContentClamp>
       </template>
     </PageHeader>
     <LandingPrimary>

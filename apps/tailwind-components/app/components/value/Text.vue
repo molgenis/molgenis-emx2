@@ -7,5 +7,5 @@ defineProps<{
 </script>
 
 <template>
-  <ContentReadMore v-if="data" :text="String(data)" />
+  <ContentClamp v-if="data">{{ data }}</ContentClamp>
 </template>

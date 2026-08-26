@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ISectionField } from "../../../../types/types";
-import ContentReadMore from "../../ContentReadMore.vue";
+import ContentClamp from "../../ContentClamp.vue";
 
 defineProps<{
   field: ISectionField;
@@ -8,5 +8,5 @@ defineProps<{
 </script>
 
 <template>
-  <ContentReadMore :text="field.value" :maxLines="8" />
+  <ContentClamp :maxLines="8">{{ field.value }}</ContentClamp>
 </template>

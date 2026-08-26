@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { expect, test } from "vitest";
 import PageHeader from "../../../app/components/PageHeader.vue";
-import ContentReadMore from "../../../app/components/ContentReadMore.vue";
+import ContentClamp from "../../../app/components/ContentClamp.vue";
 
 const pageHeaderSimple = mount(PageHeader, {
   props: {
@@ -11,5 +11,5 @@ const pageHeaderSimple = mount(PageHeader, {
 });
 
 test("PageHeader should contain truncation component by default (for description)", async () => {
-  expect(pageHeaderSimple.findComponent(ContentReadMore).exists()).toBe(true);
+  expect(pageHeaderSimple.findComponent(ContentClamp).exists()).toBe(true);
 });

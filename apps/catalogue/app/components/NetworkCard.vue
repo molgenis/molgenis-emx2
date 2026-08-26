@@ -4,7 +4,7 @@ import type { INetwork } from "../../interfaces/types";
 import { computed } from "vue";
 import { useRoute } from "#app/composables/router";
 import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
-import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
+import ContentClamp from "../../../tailwind-components/app/components/ContentClamp.vue";
 import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 
 const props = withDefaults(
@@ -107,7 +107,7 @@ const links: Link[] = [];
         </header>
 
         <div v-if="!compact">
-          <ContentReadMore :text="network.description"></ContentReadMore>
+          <ContentClamp>{{ network.description }}</ContentClamp>
         </div>
 
         <a
