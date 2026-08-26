@@ -28,7 +28,7 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
 
 <template>
   <Button
-    class="!justify-start w-full mb-1 cursor-grab"
+    class="!justify-start w-full mb-1 cursor-grab relative"
     draggable="true"
     @click="showPleaseDragMe = true"
     @mouseleave="showPleaseDragMe = false"
@@ -53,7 +53,10 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
     :icon="icon"
     icon-position="left"
   >
-    {{ props.componentName }}
+  <div class="flex items-center">
+    <span>{{ props.componentName }}</span>
     <span class="" v-if="showPleaseDragMe"> - Please drag me </span>
+    <BaseIcon name="drag" :width="16" :height="16" class="absolute right-1"/> 
+    </div>
   </Button>
 </template>

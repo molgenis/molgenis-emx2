@@ -34,6 +34,7 @@ const props = withDefaults(
     metadata?: ITableMetaData[];
     isEditable?: boolean;
     parent: string;
+    page: string;
   }>(),
   {
     isEditable: false,
@@ -120,7 +121,8 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
         componentMetadata.value?.schemaId || "",
         props.orderId,
         props.order,
-        props.parent
+        props.parent,
+        props.page
       );
     } else {
       await moveBlockUp(
@@ -138,7 +140,8 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
         componentMetadata.value?.schemaId || "",
         props.orderId,
         props.order,
-        props.parent
+        props.parent,
+        props.page
       );
     } else {
       await moveBlockDown(

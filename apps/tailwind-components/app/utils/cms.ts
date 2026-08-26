@@ -85,25 +85,65 @@ async function cmsFetch(
   return response;
 }
 
+export async function getBlockAbove(schema: string, blockOrderId: string, page: string): Promise<string> {
+  const blockOrders = await getBlockOrder(schema, page);
+  let lastBlockId:string = blockOrderId;
+  blockOrders?.every((block, index) => {
+    if (block.id === blockOrderId && index > 0) {
+      return false;
+    }else{
+      lastBlockId = block.id;
+      return true;  
+    }
+  });
+  return lastBlockId;
+}
+
+export async function getBlockBelow(schema: string, blockOrderId: string, page: string): Promise<string> {
+    const blockOrders = await getBlockOrder(schema, page);
+    let blockBelow:string= blockOrderId;
+    blockOrders?.every((block, index) => {
+    if (block.id === blockOrderId) {
+      blockBelow = blockOrders[index+1]?.id || blockOrderId;
+      return false;
+    }else{
+      return true;  
+    }
+  });
+
+  // Implementation for getting the block below
+  return "";
+}
+
 export async function moveComponentUp(
   schema: string,
   componentId: string,
   order: number,
-  block: string
+  block: string,
+  page: string
 ) {
-  // get the current order of the component
-
-  console.log("Move component up", componentId, block);
+  if(order === 0) {
+    const blockAbove: string = await getBlockAbove(schema, block, page);
+    await moveComponentTo(schema, componentId, block, blockAbove, Number.MAX_SAFE_INTEGER);
+  }else{
+    await moveComponentTo(schema, componentId, block, block, order - 1);
+  }
 }
 
 export async function moveComponentDown(
   schema: string,
   componentId: string,
   order: number,
-  block: string
+  block: string,
+  page: string
 ) {
-  // get the last order of the component in the block
-  console.log("Move component down", componentId, block);
+  // TODO FIXE 999
+    if(order === 999) {
+      const blockBelow: string = await getBlockBelow(schema, block, page);
+      await moveComponentTo(schema, componentId, block, blockBelow, 0);
+    }else{
+      await moveComponentTo(schema, componentId, block, block, order + 1);
+    }
 }
 
 export async function moveBlockUp(
@@ -462,7 +502,7 @@ async function prepareOrder(schema: string, order: number, block: string) {
   }
 }
 
-async function prepareBlockOrder(schema: string, order: number, page: string) {
+async function getBlockOrder(schema: string, page: string, fromOrder: number = 0): Promise<{ order: number; id: string }[]|undefined> {
   const query = `query getBlocks($filter: BlockOrdersFilter) {
     BlockOrders(filter:$filter) {
       id
@@ -473,30 +513,37 @@ async function prepareBlockOrder(schema: string, order: number, page: string) {
   const variables = {
     filter: {
       configurablePage: { equals: [{ name: page }] },
-      order: { between: [order, null] },
+      order: { between: [fromOrder, null] },
     },
     orderby: [{ order: "ASC" }],
   };
 
   const { data } = await cmsFetch(schema, query, variables);
-
   if (data?.BlockOrders) {
     const blocksToUpdate = (data.BlockOrders as ICmsOrder[]).map(
       (block: ICmsOrder) => {
-        return { id: block.id, order: block.order + 1 };
+        return { id: block.id, order: block.order };
       }
     );
+    return blocksToUpdate;
+  }
+}
 
-    if (blocksToUpdate.length) {
-      const updateQuery = `mutation update($value:[BlockOrdersInput]) {
-        update(BlockOrders:$value) {
-          message
-        }
-      }`;
+async function prepareBlockOrder(schema: string, order: number, page: string) {
+  const blocksToUpdate = await getBlockOrder(schema, page, order);
+  const updatedBlocks = blocksToUpdate?.map((block: ICmsOrder) => {
+    block.order = block.order + 1;
+  });
 
-      const updateVars = { value: blocksToUpdate };
-      await cmsFetch(schema, updateQuery, updateVars);
-    }
+  if (updatedBlocks?.length) {
+    const updateQuery = `mutation update($value:[BlockOrdersInput]) {
+      update(BlockOrders:$value) {
+        message
+      }
+    }`;
+
+    const updateVars = { value: updatedBlocks };
+    await cmsFetch(schema, updateQuery, updateVars);
   }
 }
 
