@@ -14,6 +14,11 @@ const props = withDefaults(
     maxLines?: number;
     /** Lines each click adds, so a long block reveals in steps. */
     lineStep?: number;
+    /**
+     * Set when the caller is holding back content that is not in the slot yet.
+     * The control keeps offering, and `showMore` tells the caller to render more.
+     */
+    hasMore?: boolean;
     moreLabel?: string;
     lessLabel?: string;
   }>(),
@@ -85,20 +90,31 @@ const isExpanded = computed(
  * Offered only when the clamp is really hiding something. Counting characters or
  * items instead offers a control for content that already fits.
  */
-const canShowMore = computed(() => isClamped.value && overflows.value);
+const emit = defineEmits<{ showMore: [] }>();
+
+const canShowMore = computed(
+  () => isClamped.value && (overflows.value || props.hasMore)
+);
 
 /**
  * Only once nothing is left to reveal. Showing both at once puts "show more" and
  * "show less" side by side, which reads as one confused control rather than two.
  */
-const canShowLess = computed(() => isExpanded.value && !overflows.value);
+const canShowLess = computed(
+  () => isExpanded.value && !overflows.value && !props.hasMore
+);
 
 const clampStyle = computed(() =>
   isClamped.value ? { "--content-clamp-lines": String(lines.value) } : undefined
 );
 
 function showMore() {
-  if (lines.value !== undefined) lines.value += props.lineStep;
+  // Grow the bound while the slot still has something hidden. Once it does not,
+  // the caller is the only one who can produce more, so just ask.
+  if (overflows.value && lines.value !== undefined) {
+    lines.value += props.lineStep;
+  }
+  emit("showMore");
   nextTick(measure);
 }
 

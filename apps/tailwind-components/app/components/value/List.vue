@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { isRefbackType } from "../../../../metadata-utils/src";
 import ContentClamp from "../ContentClamp.vue";
 import type {
@@ -50,12 +50,28 @@ const elementType = computed(
 /**
  * Every rendered value stays in the DOM, collapsed or not, so a crawler, in-page
  * search and a screen reader all still reach it. `renderLimit` only stops a huge
- * refback from painting without bound; past it, the bound belongs in the query.
+ * refback from painting at once; past it, the bound belongs in the query.
  */
+const rendered = ref(props.renderLimit);
+
+watch(
+  () => [props.renderLimit, props.data] as const,
+  () => (rendered.value = props.renderLimit)
+);
+
 const displayedData = computed(() => {
   if (!props.data) return props.data;
-  return props.data.slice(0, props.renderLimit);
+  return props.data.slice(0, rendered.value);
 });
+
+/** True while values exist that the clamp cannot reveal, because they are not rendered. */
+const hasUnrendered = computed(
+  () => !!props.data && props.data.length > rendered.value
+);
+
+function renderMore() {
+  rendered.value += props.renderLimit;
+}
 
 const emit = defineEmits<{
   (e: "listRefCellClicked", data: ListPayload): void;
@@ -71,7 +87,11 @@ function handleCellClick() {
 
 <template>
   <span>
-    <ContentClamp :maxLines="maxLines">
+    <ContentClamp
+      :maxLines="maxLines"
+      :hasMore="hasUnrendered"
+      @showMore="renderMore"
+    >
       <template v-for="(listElement, index) in displayedData">
         <ValueString
           v-if="

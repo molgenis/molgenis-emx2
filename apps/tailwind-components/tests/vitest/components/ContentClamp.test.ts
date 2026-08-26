@@ -168,6 +168,37 @@ describe("ContentClamp.vue", () => {
     ]);
   });
 
+  it("keeps offering when the caller is holding content back", async () => {
+    stubOverflow(false);
+    const wrapper = mount(ContentClamp, {
+      props: { maxLines: 3, hasMore: true },
+      slots: { default: "some long content" },
+    });
+    await nextTick();
+
+    // Nothing overflows, but the caller has more it has not rendered yet.
+    expect(wrapper.find("button").text()).toBe("show more");
+
+    await wrapper.find("button").trigger("click");
+    expect(wrapper.emitted("showMore")).toHaveLength(1);
+  });
+
+  it("offers no collapse while the caller still has more to give", async () => {
+    stubOverflow(false);
+    const wrapper = mount(ContentClamp, {
+      props: { maxLines: 3, lineStep: 5, hasMore: true },
+      slots: { default: "some long content" },
+    });
+    await nextTick();
+
+    await wrapper.find("button").trigger("click");
+    await nextTick();
+
+    expect(wrapper.findAll("button").map((b) => b.text())).toEqual([
+      "show more",
+    ]);
+  });
+
   it("collapses back to the original bound from any step", async () => {
     stubOverflow(true);
     const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });

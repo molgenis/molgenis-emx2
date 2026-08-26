@@ -21,6 +21,16 @@
           class="w-32 border border-gray-300 rounded px-2 py-1"
         />
       </label>
+      <label class="flex flex-col text-body-sm">
+        <span class="font-bold">Values rendered at a time</span>
+        <input
+          v-model.number="renderLimit"
+          type="number"
+          min="1"
+          max="500"
+          class="w-32 border border-gray-300 rounded px-2 py-1"
+        />
+      </label>
     </div>
     <p class="text-body-base">
       A long value is bounded by height and revealed with <b>show more</b>. It
@@ -35,7 +45,12 @@
     >
       <h4 class="text-heading-sm font-bold">{{ columnType }}</h4>
       <div>
-        <ValueEMX2 :metadata="column" :data="data" :maxLines="maxLines" />
+        <ValueEMX2
+          :metadata="column"
+          :data="data"
+          :maxLines="maxLines"
+          :renderLimit="renderLimit"
+        />
       </div>
     </div>
   </div>
@@ -53,6 +68,7 @@ interface Case {
 
 const itemCount = ref(8);
 const maxLines = ref(3);
+const renderLimit = ref(100);
 
 /** Cycles a base list up to `itemCount`, so repeats are fine and the size is the knob. */
 function repeatTo<T>(base: T[], count: number): T[] {
