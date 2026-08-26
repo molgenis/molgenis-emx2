@@ -60,17 +60,14 @@ describe("ContentClamp.vue", () => {
     expect(wrapper.find("button").exists()).toBe(false);
   });
 
-  it("observes nothing when there is no clamp to overflow", async () => {
+  it("observes a clamped block, and only a clamped one", async () => {
     stubOverflow(true);
     mountClamp({});
     await nextTick();
 
-    // A table page can hold hundreds of unclamped lists; none should cost an observer.
+    // A table page holds hundreds of unclamped lists; none should cost an observer.
     expect(observersCreated).toBe(0);
-  });
 
-  it("observes once a clamp exists", async () => {
-    stubOverflow(true);
     mountClamp({ maxLines: 3 });
     await nextTick();
 
@@ -128,21 +125,6 @@ describe("ContentClamp.vue", () => {
     expect(labels).toEqual(["show more"]);
   });
 
-  it("offers to collapse only once nothing is left to reveal", async () => {
-    stubOverflow(true);
-    const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
-    await nextTick();
-
-    await wrapper.find("button").trigger("click");
-    stubOverflow(false);
-    await wrapper.find("button").trigger("click");
-    await nextTick();
-
-    expect(wrapper.findAll("button").map((b) => b.text())).toEqual([
-      "show less",
-    ]);
-  });
-
   it("returns to the starting bound, and offers to expand again", async () => {
     stubOverflow(true);
     const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
@@ -168,7 +150,7 @@ describe("ContentClamp.vue", () => {
     ]);
   });
 
-  it("keeps offering when the caller is holding content back", async () => {
+  it("keeps offering, and withholds collapse, while the caller holds content back", async () => {
     stubOverflow(false);
     const wrapper = mount(ContentClamp, {
       props: { maxLines: 3, hasMore: true },
@@ -181,42 +163,8 @@ describe("ContentClamp.vue", () => {
 
     await wrapper.find("button").trigger("click");
     expect(wrapper.emitted("showMore")).toHaveLength(1);
-  });
-
-  it("offers no collapse while the caller still has more to give", async () => {
-    stubOverflow(false);
-    const wrapper = mount(ContentClamp, {
-      props: { maxLines: 3, lineStep: 5, hasMore: true },
-      slots: { default: "some long content" },
-    });
-    await nextTick();
-
-    await wrapper.find("button").trigger("click");
-    await nextTick();
-
     expect(wrapper.findAll("button").map((b) => b.text())).toEqual([
       "show more",
     ]);
-  });
-
-  it("collapses back to the original bound from any step", async () => {
-    stubOverflow(true);
-    const wrapper = mountClamp({ maxLines: 3, lineStep: 5 });
-    await nextTick();
-
-    await wrapper.find("button").trigger("click");
-    stubOverflow(false);
-    await wrapper.find("button").trigger("click");
-    await nextTick();
-
-    const less = wrapper
-      .findAll("button")
-      .find((b) => b.text() === "show less");
-    expect(less).toBeDefined();
-    await less!.trigger("click");
-
-    expect(clamped(wrapper).attributes("style")).toContain(
-      "--content-clamp-lines: 3"
-    );
   });
 });

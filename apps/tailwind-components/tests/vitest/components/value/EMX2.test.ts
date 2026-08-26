@@ -27,14 +27,12 @@ describe("value/EMX2.vue", () => {
     });
 
     expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(3);
-  });
 
-  it("lets the caller choose how many lines it gets", () => {
-    const wrapper = mount(EMX2Value, {
+    const overridden = mount(EMX2Value, {
       props: { metadata: ontologyArray, data: eightTerms, maxLines: 8 },
     });
 
-    expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(8);
+    expect(overridden.findComponent(ValueList).props("maxLines")).toBe(8);
   });
 
   it("routes a single-valued column past the list entirely", () => {

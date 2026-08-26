@@ -29,6 +29,7 @@ describe("table/CellEMX2.vue", () => {
     // The cell used to carry its own copy of this routing, and the two diverged.
     expect(wrapper.findComponent(ValueEMX2).exists()).toBe(true);
     expect(wrapper.text()).toContain("Tag 1");
+    expect(wrapper.text()).toContain("Tag 8");
   });
 
   it("does not collapse the value, because the cell bounds it itself", () => {
@@ -42,14 +43,6 @@ describe("table/CellEMX2.vue", () => {
     expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(
       undefined
     );
-  });
-
-  it("renders every value, leaving what shows to the cell's own truncation", () => {
-    const wrapper = mount(CellEMX2, {
-      props: { metadata: arrayColumn, data: eight },
-    });
-
-    expect(wrapper.text()).toContain("Tag 8");
   });
 
   it("renders an empty cell for a missing value", () => {

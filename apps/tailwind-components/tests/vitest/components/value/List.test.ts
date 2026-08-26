@@ -41,25 +41,21 @@ describe("value/List.vue", () => {
     expect(wrapper.text()).toContain("Tag 8");
   });
 
-  it("asks for no clamp when the caller gives no line bound", () => {
-    const wrapper = mount(ValueList, {
-      props: { metadata, data: eight.slice(0, 3) },
-    });
-
-    expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(
-      undefined
-    );
-  });
-
-  it("asks the clamp to keep offering while values are unrendered", () => {
+  it("tells the clamp whether values remain unrendered", () => {
     const many = Array.from({ length: 500 }, (_, i) => `Tag ${i + 1}`);
-    const wrapper = mount(ValueList, {
+    const withMore = mount(ValueList, {
       props: { metadata, data: many, maxLines: 3, renderLimit: 100 },
+    });
+    const withoutMore = mount(ValueList, {
+      props: { metadata, data: eight, maxLines: 3, renderLimit: 100 },
     });
 
     // Without this the control disappears once the clamp exhausts the rendered
     // hundred, and the other four hundred become unreachable.
-    expect(wrapper.findComponent(ContentClamp).props("hasMore")).toBe(true);
+    expect(withMore.findComponent(ContentClamp).props("hasMore")).toBe(true);
+    expect(withoutMore.findComponent(ContentClamp).props("hasMore")).toBe(
+      false
+    );
   });
 
   it("renders another tranche when the clamp runs out of rendered values", async () => {
@@ -74,14 +70,6 @@ describe("value/List.vue", () => {
 
     expect(wrapper.text()).toContain("Tag 200");
     expect(wrapper.text()).not.toContain("Tag 201");
-  });
-
-  it("stops asking once every value is rendered", async () => {
-    const wrapper = mount(ValueList, {
-      props: { metadata, data: eight, maxLines: 3, renderLimit: 100 },
-    });
-
-    expect(wrapper.findComponent(ContentClamp).props("hasMore")).toBe(false);
   });
 
   it("stops a very long list from painting without bound", () => {
