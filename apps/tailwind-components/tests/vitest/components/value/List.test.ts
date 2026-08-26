@@ -27,6 +27,7 @@ describe("value/List.vue", () => {
     expect(wrapper.text()).toContain("Tag 5");
     expect(wrapper.text()).not.toContain("Tag 6");
     expect(wrapper.find("button").text()).toBe("+3 more");
+    expect(wrapper.find("button").attributes("aria-expanded")).toBe("false");
   });
 
   it("expands to every item, then offers to collapse again", async () => {
@@ -38,6 +39,7 @@ describe("value/List.vue", () => {
 
     expect(wrapper.text()).toContain("Tag 8");
     expect(wrapper.find("button").text()).toBe("less");
+    expect(wrapper.find("button").attributes("aria-expanded")).toBe("true");
   });
 
   it("shows no control when the data already fits the cap", () => {
