@@ -55,7 +55,7 @@ withDefaults(
         </header>
 
         <p class="text-body-base my-5 hidden sm:block">
-          <ContentClamp>{{ description }}</ContentClamp>
+          <ContentClamp :maxLines="5">{{ description }}</ContentClamp>
         </p>
 
         <a

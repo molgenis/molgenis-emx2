@@ -83,7 +83,9 @@ withDefaults(
         class="mt-1 mb-0 lg:mb-5 text-body-lg"
         :class="{ 'text-center': align === 'center' }"
       >
-        <ContentClamp v-if="truncate">{{ description }}</ContentClamp>
+        <ContentClamp v-if="truncate" :maxLines="5">{{
+          description
+        }}</ContentClamp>
         <p v-else>{{ description }}</p>
       </div>
     </div>

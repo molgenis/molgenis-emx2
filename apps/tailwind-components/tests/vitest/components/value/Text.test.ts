@@ -19,6 +19,13 @@ const mountText = (data: string | null) =>
   });
 
 describe("value/Text.vue", () => {
+  it("bounds the text, rather than leaving the clamp to do nothing", () => {
+    const wrapper = mountText(long);
+
+    // An unset bound means no clamp at all, so a missing one is silent.
+    expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(5);
+  });
+
   it("renders long text through the clamp so it can collapse", () => {
     const wrapper = mountText(long);
 

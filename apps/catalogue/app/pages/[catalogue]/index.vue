@@ -264,7 +264,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         </ShowMore>
       </template>
       <template v-else v-slot:description>
-        <ContentClamp>{{ description }}</ContentClamp>
+        <ContentClamp :maxLines="5">{{ description }}</ContentClamp>
       </template>
     </PageHeader>
     <LandingPrimary>

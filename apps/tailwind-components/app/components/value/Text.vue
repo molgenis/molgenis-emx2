@@ -7,5 +7,5 @@ defineProps<{
 </script>
 
 <template>
-  <ContentClamp v-if="data">{{ data }}</ContentClamp>
+  <ContentClamp v-if="data" :maxLines="5">{{ data }}</ContentClamp>
 </template>

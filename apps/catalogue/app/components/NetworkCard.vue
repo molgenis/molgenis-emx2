@@ -107,7 +107,7 @@ const links: Link[] = [];
         </header>
 
         <div v-if="!compact">
-          <ContentClamp>{{ network.description }}</ContentClamp>
+          <ContentClamp :maxLines="5">{{ network.description }}</ContentClamp>
         </div>
 
         <a
