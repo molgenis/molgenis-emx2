@@ -2,6 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import EMX2Value from "../../../../app/components/value/EMX2.vue";
 import ValueList from "../../../../app/components/value/List.vue";
+import ValueText from "../../../../app/components/value/Text.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 
 const ontologyArray: IColumn = {
@@ -14,6 +15,12 @@ const singleString: IColumn = {
   id: "name",
   label: "Name",
   columnType: "STRING",
+};
+
+const singleText: IColumn = {
+  id: "description",
+  label: "Description",
+  columnType: "TEXT",
 };
 
 const eightTerms = Array.from({ length: 8 }, (_, index) => ({
@@ -33,6 +40,26 @@ describe("value/EMX2.vue", () => {
     });
 
     expect(overridden.findComponent(ValueList).props("maxLines")).toBe(8);
+  });
+
+  it("bounds a TEXT value the way it bounds a list", () => {
+    const wrapper = mount(EMX2Value, {
+      props: { metadata: singleText, data: "A long description." },
+    });
+
+    expect(wrapper.findComponent(ValueText).props("maxLines")).toBe(3);
+
+    const uncollapsed = mount(EMX2Value, {
+      props: {
+        metadata: singleText,
+        data: "A long description.",
+        collapse: false,
+      },
+    });
+
+    expect(uncollapsed.findComponent(ValueText).props("maxLines")).toBe(
+      undefined
+    );
   });
 
   it("routes a single-valued column past the list entirely", () => {

@@ -86,6 +86,7 @@ defineEmits<{
     v-else-if="metadata.columnType === 'TEXT'"
     :metadata="metadata"
     :data="data"
+    :maxLines="effectiveMaxLines"
   />
 
   <ValueDecimal
