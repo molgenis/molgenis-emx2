@@ -167,9 +167,8 @@ function handleCellClick() {
             Number(displayedData?.length) - 1 !== Number(index) &&
             !hideListSeparator
           "
+          >,&nbsp;</span
         >
-          ,&nbsp;
-        </span>
       </template>
     </ContentClamp>
   </span>

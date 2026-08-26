@@ -32,6 +32,8 @@ const props = withDefaults(
     data: any;
     hideListSeparator?: boolean;
     maxItems?: number;
+    /** Lines a collapsed list occupies. Forwarded to ValueList. */
+    maxLines?: number;
   }>(),
   {
     hideListSeparator: false,
@@ -65,6 +67,7 @@ defineEmits<{
     :data="data"
     :hideListSeparator="hideListSeparator"
     :maxItems="effectiveMaxItems"
+    :maxLines="maxLines"
     @listRefCellClicked="$emit('valueClick', $event)"
   />
 
