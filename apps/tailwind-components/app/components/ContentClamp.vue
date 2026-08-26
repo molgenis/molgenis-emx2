@@ -108,7 +108,7 @@ function showLess() {
 </script>
 
 <template>
-  <span>
+  <span :class="{ 'content-clamp-root': isClamped }">
     <span
       ref="target"
       :class="{ 'content-clamp': isClamped }"
@@ -118,7 +118,7 @@ function showLess() {
     </span>
     <button
       v-if="canShowMore"
-      class="text-link text-body-sm ml-1"
+      class="content-clamp-control text-link text-body-sm"
       :aria-expanded="isExpanded"
       @click="showMore"
     >
@@ -126,7 +126,7 @@ function showLess() {
     </button>
     <button
       v-if="canShowLess"
-      class="text-link text-body-sm ml-1"
+      class="content-clamp-control text-link text-body-sm"
       :aria-expanded="true"
       @click="showLess"
     >
@@ -137,16 +137,38 @@ function showLess() {
 
 <style scoped>
 /*
- * inline-block, not block: a block box inside the inline root escapes the flow and
- * nothing bounds it to the container. This establishes its own formatting context,
- * caps at the container width, and still lets the control sit beside it.
+ * -webkit-line-clamp counts real line boxes, so a value carrying its own
+ * line-height is still cut on a line. It forces an ellipsis and gives no way to
+ * put a control at the cut, so the control is placed over that spot instead.
  */
-.content-clamp {
+.content-clamp-root {
+  position: relative;
   display: inline-block;
-  vertical-align: top;
   max-width: 100%;
-  max-height: calc(var(--content-clamp-lines) * 1lh);
+}
+
+.content-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--content-clamp-lines);
+  line-clamp: var(--content-clamp-lines);
   overflow: hidden;
   overflow-wrap: anywhere;
+}
+
+/*
+ * Sits where the ellipsis is, fading the text out behind it. A surface whose
+ * background is not the default sets --content-clamp-bg on any ancestor.
+ */
+.content-clamp-control {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding-left: 2em;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--content-clamp-bg, var(--color-white)) 1.5em
+  );
 }
 </style>
