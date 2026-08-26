@@ -1,5 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
+import ContentClamp from "../../../../app/components/ContentClamp.vue";
 import ValueList from "../../../../app/components/value/List.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 
@@ -11,69 +12,43 @@ const metadata: IColumn = {
 
 const eight = Array.from({ length: 8 }, (_, index) => `Tag ${index + 1}`);
 
-const clampedSpan = (wrapper: ReturnType<typeof mount>) =>
-  wrapper.find("span > span");
-
-const isClamped = (wrapper: ReturnType<typeof mount>) =>
-  clampedSpan(wrapper).classes().includes("value-list-clamp");
-
 describe("value/List.vue", () => {
-  it("renders every item when no cap is given", () => {
+  it("renders every item, and asks for no clamp when no cap is given", () => {
     const wrapper = mount(ValueList, { props: { metadata, data: eight } });
 
     expect(wrapper.text()).toContain("Tag 8");
-    expect(wrapper.find("button").exists()).toBe(false);
+    expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(
+      undefined
+    );
   });
 
-  it("keeps every value in the DOM while collapsed, so crawlers and Ctrl-F reach them", () => {
-    const wrapper = mount(ValueList, {
-      props: { metadata, data: eight, maxItems: 5 },
-    });
-
-    // Collapsing is visual. Slicing the array would drop these from the markup.
-    expect(wrapper.text()).toContain("Tag 6");
-    expect(wrapper.text()).toContain("Tag 8");
-  });
-
-  it("bounds the collapsed list by lines rather than by item count", () => {
+  it("asks for a line clamp once the list is longer than the cap", () => {
     const wrapper = mount(ValueList, {
       props: { metadata, data: eight, maxItems: 5, maxLines: 2 },
     });
 
-    expect(isClamped(wrapper)).toBe(true);
-    expect(clampedSpan(wrapper).attributes("style")).toContain(
-      "--value-list-lines: 2"
-    );
+    expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(2);
   });
 
-  it("offers the rest behind a compact control, then collapses again", async () => {
+  it("leaves every value in the DOM, because collapsing is visual", () => {
     const wrapper = mount(ValueList, {
       props: { metadata, data: eight, maxItems: 5 },
     });
 
-    const expand = wrapper.find("button");
-    expect(expand.text()).toBe("+3 more");
-    expect(expand.attributes("aria-expanded")).toBe("false");
-
-    await expand.trigger("click");
-
-    expect(isClamped(wrapper)).toBe(false);
-    expect(wrapper.find("button").text()).toBe("less");
-    expect(wrapper.find("button").attributes("aria-expanded")).toBe("true");
-
-    await wrapper.find("button").trigger("click");
-
-    expect(isClamped(wrapper)).toBe(true);
-    expect(wrapper.find("button").text()).toBe("+3 more");
+    // Slicing the array would drop these from the markup, losing them to
+    // crawlers, in-page search and a screen reader reading the whole page.
+    expect(wrapper.text()).toContain("Tag 6");
+    expect(wrapper.text()).toContain("Tag 8");
   });
 
-  it("shows no control, and no clamp, when the data already fits the cap", () => {
+  it("asks for no clamp when the list already fits the cap", () => {
     const wrapper = mount(ValueList, {
       props: { metadata, data: eight.slice(0, 3), maxItems: 5 },
     });
 
-    expect(wrapper.find("button").exists()).toBe(false);
-    expect(isClamped(wrapper)).toBe(false);
+    expect(wrapper.findComponent(ContentClamp).props("maxLines")).toBe(
+      undefined
+    );
   });
 
   it("stops a very long list from painting without bound", () => {
@@ -84,7 +59,5 @@ describe("value/List.vue", () => {
 
     expect(wrapper.text()).toContain("Tag 100");
     expect(wrapper.text()).not.toContain("Tag 101");
-    // 95, not 495: the control may only promise what expanding can actually show.
-    expect(wrapper.find("button").text()).toBe("+95 more");
   });
 });
