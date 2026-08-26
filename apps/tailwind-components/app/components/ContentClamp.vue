@@ -208,20 +208,25 @@ function showLess() {
 /*
  * Something is cut, so the control sits where the ellipsis is, fading the text
  * out behind it. Its line-height is the text's, or a smaller control would sit
- * off the last line's baseline. A surface whose background is not the default
- * sets --content-clamp-bg on any ancestor.
+ * off the last line's baseline.
+ *
+ * The gutter is wide on purpose. A control wearing the theme's link colour, in a
+ * list of values wearing the same one, is separated by nothing else a reader can
+ * see. --color-white would be a bug here: it is a literal white in every theme,
+ * including the dark one. A surface that is not the content surface sets
+ * --content-clamp-bg on any ancestor.
  */
 .content-clamp-over {
   position: absolute;
   right: 0;
   bottom: 0;
   margin-left: 0;
-  padding-left: 2em;
+  padding-left: 4em;
   line-height: inherit;
   background: linear-gradient(
     to right,
     transparent,
-    var(--content-clamp-bg, var(--color-white)) 1.5em
+    var(--content-clamp-bg, var(--background-color-content)) 2em
   );
 }
 </style>
