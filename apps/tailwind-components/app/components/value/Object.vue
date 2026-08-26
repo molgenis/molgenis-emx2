@@ -3,6 +3,7 @@ import { flattenObject } from "../../utils/flattenObject";
 import { computed } from "vue";
 import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
 import type { ColumnPayload } from "../../../types/types";
+import CustomTooltip from "../CustomTooltip.vue";
 
 const props = defineProps<{
   metadata: IColumn;
@@ -73,18 +74,26 @@ function handleRefCellClicked() {
 </script>
 
 <template>
-  <div
-    class="underline hover:cursor-pointer text-link inline"
-    @click="handleRefCellClicked"
-  >
-    <span v-if="hasTemplate">
-      {{ asTemplate }}
+  <span class="inline-flex items-center gap-1">
+    <span
+      class="underline hover:cursor-pointer text-link"
+      @click="handleRefCellClicked"
+    >
+      <span v-if="hasTemplate">
+        {{ asTemplate }}
+      </span>
+      <span v-else-if="asNameString !== null">
+        {{ asNameString }}
+      </span>
+      <span v-else>
+        {{ asSpaceSeparatedString }}
+      </span>
     </span>
-    <span v-else-if="asNameString !== null">
-      {{ asNameString }}
-    </span>
-    <span v-else>
-      {{ asSpaceSeparatedString }}
-    </span>
-  </div>
+    <CustomTooltip
+      v-if="data?.definition"
+      label="Read more"
+      hoverColor="white"
+      :content="String(data.definition)"
+    />
+  </span>
 </template>

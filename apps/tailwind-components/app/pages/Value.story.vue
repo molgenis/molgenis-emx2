@@ -1,20 +1,26 @@
 <template>
-  <div class="flex flex-col gap-4">
-    <p class="text-body-base">
-      Every column type, rendered through
-      <code>value/EMX2.vue</code>. A row showing its own type name in place of a
-      value has no branch in EMX2.vue and falls through.
-    </p>
+  <Story
+    title="Value"
+    description="Every column type, rendered through value/EMX2.vue."
+  >
+    <div class="flex flex-col gap-4">
+      <p class="text-body-base">
+        A row showing its own type name in place of a value has no branch in
+        <code>EMX2.vue</code> and falls through. HEADING and SECTION do that by
+        design: they are layout, and <code>tableQuery.ts</code> filters them out
+        before a query is built.
+      </p>
 
-    <div
-      v-for="{ columnType, column, data } in cases"
-      :key="columnType"
-      class="grid grid-cols-[14rem_1fr] gap-4 border-b border-gray-200 py-2"
-    >
-      <h4 class="text-heading-sm font-bold">{{ columnType }}</h4>
-      <div><ValueEMX2 :metadata="column" :data="data" /></div>
+      <div
+        v-for="{ columnType, column, data } in cases"
+        :key="columnType"
+        class="grid grid-cols-[14rem_1fr] gap-4 border-b border-gray-200 py-2"
+      >
+        <h4 class="text-heading-sm font-bold">{{ columnType }}</h4>
+        <div><ValueEMX2 :metadata="column" :data="data" /></div>
+      </div>
     </div>
-  </div>
+  </Story>
 </template>
 
 <script setup lang="ts">

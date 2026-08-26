@@ -38,11 +38,16 @@ const props = withDefaults(
   }
 );
 
-/** A stored multi-valued column collapses to five, unless the caller says otherwise. */
+/**
+ * How many values a stored multi-valued column shows before it collapses.
+ * A caller that has more or less room passes its own `maxItems`.
+ */
+const DEFAULT_MAX_ITEMS = 5;
+
 const effectiveMaxItems = computed(() => {
   if (props.maxItems !== undefined) return props.maxItems;
   if (isStoredMultiValuedType(props.metadata.columnType)) {
-    return 5;
+    return DEFAULT_MAX_ITEMS;
   }
   return undefined;
 });

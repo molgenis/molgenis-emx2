@@ -19,14 +19,15 @@ describe("value/List.vue", () => {
     expect(wrapper.find("button").exists()).toBe(false);
   });
 
-  it("caps at maxItems and offers to show the rest", () => {
+  it("caps at maxItems and offers the rest behind a compact +N control", () => {
     const wrapper = mount(ValueList, {
       props: { metadata, data: eight, maxItems: 5 },
     });
 
     expect(wrapper.text()).toContain("Tag 5");
     expect(wrapper.text()).not.toContain("Tag 6");
-    expect(wrapper.find("button").text()).toBe("Show 3 more");
+    expect(wrapper.find("button").text()).toBe("+3");
+    expect(wrapper.find("button").attributes("title")).toBe("Show 3 more");
   });
 
   it("expands to every item, then offers to collapse again", async () => {
@@ -37,7 +38,7 @@ describe("value/List.vue", () => {
     await wrapper.find("button").trigger("click");
 
     expect(wrapper.text()).toContain("Tag 8");
-    expect(wrapper.find("button").text()).toBe("Show less");
+    expect(wrapper.find("button").text()).toBe("less");
   });
 
   it("shows no control when the data already fits the cap", () => {

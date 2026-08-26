@@ -158,17 +158,19 @@ function handleCellClick() {
     </template>
     <button
       v-if="hiddenCount > 0 && !expanded"
-      class="text-link text-body-sm mt-1 block"
+      class="text-link text-body-sm ml-1"
+      :title="`Show ${hiddenCount} more`"
       @click="expanded = true"
     >
-      Show {{ hiddenCount }} more
+      +{{ hiddenCount }}
     </button>
     <button
       v-if="expanded && maxItems && data && data.length > maxItems"
-      class="text-link text-body-sm mt-1 block"
+      class="text-link text-body-sm ml-1"
+      title="Show less"
       @click="expanded = false"
     >
-      Show less
+      less
     </button>
   </span>
 </template>
