@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
-import Paragraph from "../../../../app/components/pages/Paragraph.vue";
+import Paragraph from "../../../../app/components/cms/Paragraph.vue";
 
 const wrapper = mount(Paragraph, {
   props: {
