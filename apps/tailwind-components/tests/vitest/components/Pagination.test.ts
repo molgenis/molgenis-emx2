@@ -95,3 +95,18 @@ it("should not emit update when jumpToEdge is true and clicking last on last pag
   await last?.trigger("click");
   expect(lastPage.emitted("update")).toBeUndefined();
 });
+
+it("renders prev and next controls when showPageSelector is false, but not the page-number box", () => {
+  const wrapper = mount(Pagination, {
+    props: {
+      currentPage: 3,
+      totalPages: 34,
+      showPageSelector: false,
+    },
+  });
+  const anchors = wrapper.findAll("a");
+  expect(anchors.length).toBe(2);
+  expect(anchors[0].text()).toContain("Go to page 2");
+  expect(anchors[1].text()).toContain("Go to page 4");
+  expect(wrapper.find("input").exists()).toBe(false);
+});

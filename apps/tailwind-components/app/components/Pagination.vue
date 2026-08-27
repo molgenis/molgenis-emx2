@@ -109,7 +109,7 @@ function changeCurrentPage(event: Event) {
           <BaseIcon name="double-arrow-left" :width="24" />
         </a>
       </li>
-      <li v-if="showPageSelector">
+      <li>
         <a
           href="#"
           @click.prevent="onPrevClick"
@@ -152,7 +152,7 @@ function changeCurrentPage(event: Event) {
           </span>
         </div>
       </li>
-      <li v-if="showPageSelector">
+      <li>
         <a
           href="#"
           @click.prevent="onNextClick"
