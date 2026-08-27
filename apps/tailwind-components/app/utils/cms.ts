@@ -12,6 +12,7 @@ import type {
   ICmsJsFetchPriority,
   FetchGraphqlResponse,
   ICmsOrder,
+  ICmsOrderWithBlockId,
 } from "../../types/CmsComponents";
 
 export function randomId(): string {
@@ -91,12 +92,13 @@ export async function getBlockAbove(
   page: string
 ): Promise<string> {
   const blockOrders = await getBlockOrder(schema, page);
+
   let lastBlockId: string = blockOrderId;
   blockOrders?.every((block, index) => {
-    if (block.id === blockOrderId && index > 0) {
+    if (block.block.id === blockOrderId && index > 0) {
       return false;
     } else {
-      lastBlockId = block.id;
+      lastBlockId = block.block.id;
       return true;
     }
   });
@@ -105,16 +107,16 @@ export async function getBlockAbove(
 
 export async function getBlockBelow(
   schema: string,
-  blockOrderId: string,
+  blockId: string,
   page: string
 ): Promise<string> {
   const blockOrders = await getBlockOrder(schema, page);
-  let blockBelow: string = blockOrderId;
+  let blockBelow: string = blockId;
   blockOrders?.every((block, index) => {
-    if (block.id === blockOrderId) {
-      blockBelow = blockOrders[index + 1]?.id || blockOrderId;
+    if (block.block.id === blockId) {
       return false;
     } else {
+      blockBelow = blockOrders[index + 2]?.block.id || blockId;
       return true;
     }
   });
@@ -145,8 +147,8 @@ export async function GetLastOrderOfBlock(
   schema: string,
   blockId: string
 ): Promise<number> {
-  const query = `query getComponents($filter:ComponentOrdersFilter) {
-    ComponentOrders(filter:$filter) {
+  const query = `query getComponents($filter:ComponentOrdersFilter, $orderby:[ComponentOrdersorderby]) {
+    ComponentOrders(filter:$filter,orderby:$orderby) {
       order
     }
   }`;
@@ -180,7 +182,7 @@ export async function moveComponentDown(
       componentOrderId,
       blockId,
       blockId,
-      order + 1
+      order + 2
     );
   }
 }
@@ -506,8 +508,8 @@ async function fullReorder(
 }
 
 async function prepareOrder(schema: string, order: number, block: string) {
-  const query = `query getComponents($filter:ComponentOrdersFilter) {
-    ComponentOrders(filter:$filter) {
+  const query = `query getComponents($filter:ComponentOrdersFilter, $orderby:[ComponentOrdersorderby]) {
+    ComponentOrders(filter:$filter,orderby:$orderby) {
       id
       order
     }
@@ -545,10 +547,13 @@ async function getBlockOrder(
   schema: string,
   page: string,
   fromOrder: number = 0
-): Promise<{ order: number; id: string }[] | undefined> {
-  const query = `query getBlocks($filter: BlockOrdersFilter) {
-    BlockOrders(filter:$filter) {
+): Promise<ICmsOrderWithBlockId[] | undefined> {
+  const query = `query getBlocks($filter: BlockOrdersFilter, $orderby:[BlockOrdersorderby]) {
+    BlockOrders(filter:$filter,orderby:$orderby) {
       id
+      block {
+        id
+      }
       order
     }
   }`;
@@ -563,9 +568,13 @@ async function getBlockOrder(
 
   const { data } = await cmsFetch(schema, query, variables);
   if (data?.BlockOrders) {
-    const blocksToUpdate = (data.BlockOrders as ICmsOrder[]).map(
-      (block: ICmsOrder) => {
-        return { id: block.id, order: block.order };
+    const blocksToUpdate = (data.BlockOrders as ICmsOrderWithBlockId[]).map(
+      (block: ICmsOrderWithBlockId) => {
+        return {
+          id: block.id,
+          order: block.order,
+          block: { id: block.block.id },
+        };
       }
     );
     return blocksToUpdate;
@@ -574,7 +583,6 @@ async function getBlockOrder(
 
 async function prepareBlockOrder(schema: string, order: number, page: string) {
   const blocksToUpdate = await getBlockOrder(schema, page, order);
-  console.log(">", blocksToUpdate);
   const updatedBlocks = blocksToUpdate?.map((block: ICmsOrder) => {
     block.order = block.order + 1;
     return block;
