@@ -199,10 +199,10 @@ const byType = computed<Record<ColumnType, Case>>(() => {
         refTableId: "Visit",
         refLabel: "${date} - ${reason}",
       },
-      data: [
+      data: grow([
         { date: "2023-01-10", reason: "Checkup" },
         { date: "2023-06-22", reason: "Vaccination" },
-      ],
+      ]),
     },
     RADIO: {
       column: { ...refTable, refLabel: "${name}" },
