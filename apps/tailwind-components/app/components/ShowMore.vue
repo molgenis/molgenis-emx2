@@ -39,7 +39,7 @@ watch(
 
 const isClamped = computed(() => props.collapsible);
 
-// Clamped until measured: the server cannot measure, and an unclamped first paint
+// Clamped until measured: the server cannot measure, so an unclamped first paint
 // would snap to the bound on hydration.
 const isCut = computed(
   () => isClamped.value && (overflows.value || !measured.value)
@@ -52,8 +52,7 @@ const isExpanded = computed(
     lines.value > props.maxLines
 );
 
-// Never during render: reading scrollHeight forces a synchronous reflow. Measures
-// in the bounded configuration, because line-clamp discards its overflow.
+// Never during render: reading scrollHeight forces a synchronous reflow.
 function measure() {
   const element = target.value;
   if (!element || !props.collapsible) return;
@@ -70,7 +69,6 @@ function measure() {
   measured.value = true;
   // Measured, not named: a hyperlink's own line-height runs 26px against 24px.
   element.style.setProperty("--show-more-line", `${bounded / lines.value}px`);
-  // A slot can put any label in the control, so clear what it actually covers.
   const width = control.value?.offsetWidth;
   if (width) {
     element.style.setProperty("--show-more-clear", `${width}px`);
@@ -80,14 +78,13 @@ function measure() {
 let sizeObserver: ResizeObserver | undefined;
 let contentObserver: MutationObserver | undefined;
 
-// A table page holds hundreds of unclamped blocks; none should cost an observer.
 function startObserving() {
   if (sizeObserver || typeof ResizeObserver === "undefined") return;
   if (!isClamped.value || !target.value) return;
   sizeObserver = new ResizeObserver(measure);
   sizeObserver.observe(target.value);
   // A cut block keeps its height when its values change, so resize never fires.
-  // Attributes stay unobserved: measure() writes its own styles.
+  // Attributes stay unobserved, or measure()'s own styles would wake it.
   contentObserver = new MutationObserver(measure);
   contentObserver.observe(target.value, {
     childList: true,
@@ -117,10 +114,8 @@ const canShowMore = computed(
   () => isClamped.value && (overflows.value || props.hasMore)
 );
 
-// The mask clears the control's width, so measure again when it appears.
 watch(canShowMore, () => nextTick(measure));
 
-// Never alongside `show more`: two controls side by side read as one confused one.
 const canShowLess = computed(
   () => isExpanded.value && !overflows.value && !props.hasMore
 );
@@ -190,9 +185,8 @@ function showLess() {
   overflow-wrap: anywhere;
 }
 
-/* The mask erases the tail of the last line, ellipsis and all, so the control needs
-   no paint of its own. Two themes back the page with a gradient, so no single colour
-   would match. Layer one fades that line's right end, layer two keeps the rest whole. */
+/* Erases the tail of the last line, ellipsis and all, so the control needs no paint:
+   two themes back the page with a gradient, so no colour would match. */
 .show-more {
   display: -webkit-box;
   -webkit-box-orient: vertical;
