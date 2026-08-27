@@ -11,9 +11,8 @@
 @import url("./plugins/datepicker.css");
 
 @layer components {
-  /* On an element that IS a surface the theme colours itself: the page background,
-     a banner, a footer. Links and icons inside then invert, without any component
-     having to know which surface it landed on. */
+  /* Put this on a page background, banner or footer. Links and icons inside it
+     then take the theme's inverted colours. */
   .surface-inverted {
     --text-color-link: var(--text-color-link-inverted);
     --text-color-icon-neutral: var(--text-color-link-inverted);
@@ -218,8 +217,8 @@
     --text-color-pagination-button-hover: var(--color-blue-800);
     --text-color-link: var(--color-blue-500);
     --text-color-link-hover: var(--color-blue-800);
-    /* Never write this in terms of --text-color-link: `.surface-inverted` points
-       that at this one, and a cycle makes a custom property invalid outright. */
+    /* Never define this from --text-color-link. `.surface-inverted` redefines that
+       one from this one, and the cycle makes both invalid. */
     --text-color-link-inverted: var(--color-blue-500);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);

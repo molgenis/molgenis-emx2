@@ -52,8 +52,8 @@ const isExpanded = computed(
     lines.value > props.maxLines
 );
 
-// Never during render: reading scrollHeight forces a synchronous reflow. Asks in
-// the bounded configuration, because line-clamp discards its overflow.
+// Never during render: reading scrollHeight forces a synchronous reflow. Measures
+// in the bounded configuration, because line-clamp discards its overflow.
 function measure() {
   const element = target.value;
   if (!element || !props.collapsible) return;
@@ -117,7 +117,7 @@ const canShowMore = computed(
   () => isClamped.value && (overflows.value || props.hasMore)
 );
 
-// The mask clears the control's width, so its arrival is a reason to re-measure.
+// The mask clears the control's width, so measure again when it appears.
 watch(canShowMore, () => nextTick(measure));
 
 // Never alongside `show more`: two controls side by side read as one confused one.
@@ -191,8 +191,8 @@ function showLess() {
 }
 
 /* The mask erases the tail of the last line, ellipsis and all, so the control needs
-   no paint: two themes back the page with a gradient, so there is no colour to match.
-   Layer one fades that line's right end, layer two keeps everything above whole. */
+   no paint of its own. Two themes back the page with a gradient, so no single colour
+   would match. Layer one fades that line's right end, layer two keeps the rest whole. */
 .show-more {
   display: -webkit-box;
   -webkit-box-orient: vertical;
