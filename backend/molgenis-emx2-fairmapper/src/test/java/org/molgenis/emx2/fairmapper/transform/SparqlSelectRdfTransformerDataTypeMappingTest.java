@@ -149,8 +149,8 @@ class SparqlSelectRdfTransformerDataTypeMappingTest {
 
   private Row transformAndGetFirstRow(SchemaMetadata schema, SailRepository repo) {
     SparqlSelectRdfTransformer transformer =
-        new SparqlSelectRdfTransformer(new TableQueryGenerator(), schema, List.of(TABLE));
-    TableStore store = transformer.transform(repo);
+        new SparqlSelectRdfTransformer(new TableQueryGenerator());
+    TableStore store = transformer.transform(repo, schema, List.of(TABLE));
     return store.readTable(TABLE).iterator().next();
   }
 }
