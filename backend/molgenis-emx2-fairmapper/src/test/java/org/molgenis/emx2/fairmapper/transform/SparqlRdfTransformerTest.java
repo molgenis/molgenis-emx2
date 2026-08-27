@@ -31,6 +31,10 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 class SparqlRdfTransformerTest {
 
   public static final IRI SUBJECT = iri("https://example.com/bob");
+
+  private final SparqlSelectRdfTransformer transformer =
+      new SparqlSelectRdfTransformer(new TableQueryGenerator());
+
   private Database database;
   private SchemaMetadata schema;
 
@@ -39,19 +43,6 @@ class SparqlRdfTransformerTest {
     database = TestDatabaseFactory.getTestDatabase();
     String schemaName = SparqlRdfTransformerTest.class.getSimpleName();
     schema = database.dropCreateSchema(schemaName).getMetadata();
-  }
-
-  @Test
-  void givenUnknownTable_thenThrow() {
-    TableQueryGenerator generator = new TableQueryGenerator();
-    List<String> tables = List.of("unknown-1", "unknown-2");
-    MolgenisException exception =
-        assertThrows(
-            MolgenisException.class,
-            () -> new SparqlSelectRdfTransformer(generator, schema, tables));
-    assertEquals(
-        "Unknown table(s) provided to transformer: unknown-1, unknown-2 for schema: SparqlRdfTransformerTest",
-        exception.getMessage());
   }
 
   @Test
@@ -69,10 +60,7 @@ class SparqlRdfTransformerTest {
             statement(SUBJECT, FOAF.FIRST_NAME, literal("foo"), null),
             statement(SUBJECT, FOAF.FIRST_NAME, literal("bar"), null));
 
-    TableStore transform =
-        new SparqlSelectRdfTransformer(
-                new TableQueryGenerator(), schema, List.of("splitArrays_string"))
-            .transform(repository);
+    TableStore transform = transformer.transform(repository, schema, List.of("splitArrays_string"));
 
     Iterator<Row> iterator = transform.readTable("splitArrays_string").iterator();
     CompareTools.assertEquals(
@@ -97,9 +85,7 @@ class SparqlRdfTransformerTest {
             statement(SUBJECT, FOAF.FIRST_NAME, literal(2), null));
 
     TableStore transform =
-        new SparqlSelectRdfTransformer(
-                new TableQueryGenerator(), schema, List.of("splitArrays_integer"))
-            .transform(repository);
+        transformer.transform(repository, schema, List.of("splitArrays_integer"));
 
     Iterator<Row> iterator = transform.readTable("splitArrays_integer").iterator();
     Row next = iterator.next();
@@ -129,9 +115,7 @@ class SparqlRdfTransformerTest {
             statement(SUBJECT, FOAF.KNOWS, tag1, null), statement(SUBJECT, FOAF.KNOWS, tag2, null));
 
     TableStore transform =
-        new SparqlSelectRdfTransformer(
-                new TableQueryGenerator(), schema, List.of("splitRefArrays_owner"))
-            .transform(repository);
+        transformer.transform(repository, schema, List.of("splitRefArrays_owner"));
 
     Iterator<Row> iterator = transform.readTable("splitRefArrays_owner").iterator();
     Row row = iterator.next();
@@ -148,14 +132,10 @@ class SparqlRdfTransformerTest {
         .getImportTask(database, schemaName, "RDF data transformation test", false)
         .run();
 
-    SparqlSelectRdfTransformer transformer =
-        new SparqlSelectRdfTransformer(
-            new TableQueryGenerator(),
-            database.getSchema(schemaName).getMetadata(),
-            List.of("Pet"));
-
     SailRepository repository = readPetStoreTtl();
-    TableStore store = transformer.transform(repository);
+    TableStore store =
+        transformer.transform(
+            repository, database.getSchema(schemaName).getMetadata(), List.of("Pet"));
 
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(
@@ -204,12 +184,8 @@ class SparqlRdfTransformerTest {
 
     @BeforeAll
     void queryTestData() {
-      // Set up a SailRepository with a single statement to test against
       SailRepository repository = setupRepository();
-      SparqlSelectRdfTransformer transformer =
-          new SparqlSelectRdfTransformer(
-              new TableQueryGenerator(), setupSchema(), List.of("testTable"));
-      TableStore transform = transformer.transform(repository);
+      TableStore transform = transformer.transform(repository, setupSchema(), List.of("testTable"));
       testData = transform.readTable("testTable").iterator().next();
     }
 
