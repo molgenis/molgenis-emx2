@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, useId, onMounted } from "vue";
-import { useEventListener, useFocus, onClickOutside } from "@vueuse/core";
+import { ref, useTemplateRef, useId, onMounted, watch } from "vue";
+import { useEventListener, useFocus } from "@vueuse/core";
 import Button from "../Button.vue";
+import ActiveContainer from "../wrappers/ActiveContainer.vue";
 
 const ariaId = useId();
 const isOpen = ref<boolean>(false);
+const menuIsActive = ref<boolean>(false);
+const componentIsActive = ref<boolean>(false);
 const dropdown = useTemplateRef<HTMLDivElement>("dropdown");
 const btnElem = useTemplateRef<HTMLButtonElement>("btnElem");
-const modalElem = useTemplateRef<HTMLDivElement>("modalElem");
 
 withDefaults(
   defineProps<{
@@ -23,29 +25,51 @@ withDefaults(
 
 const { focused: buttonFocus } = useFocus(btnElem);
 
-onClickOutside(modalElem, (e: MouseEvent) => {
-  if (isOpen.value) {
-    isOpen.value = false;
+function resetFocus() {
+  componentIsActive.value = false;
+  menuIsActive.value = false;
+}
+
+function openClose() {
+  isOpen.value = !isOpen.value;
+  if (!isOpen.value) {
+    resetFocus();
   }
-});
+}
 
 function onKeyDown(event: KeyboardEvent) {
   if (isOpen.value && event.key === "Escape") {
     isOpen.value = false;
     buttonFocus.value = true;
   }
-
-  if (event.key === "Tab" || (event.shiftKey && event.key === "Tab")) {
-    isOpen.value = false;
-  }
 }
+
+watch(
+  () => [componentIsActive.value, menuIsActive.value],
+  (newStatus, oldStatus) => {
+    if (!newStatus[0] && !newStatus[1]) {
+      isOpen.value = false;
+      resetFocus();
+    }
+
+    // focusout of menu with interactive elements
+    if (oldStatus[0] && oldStatus[1] && newStatus[0] && !newStatus[1]) {
+      isOpen.value = false;
+      resetFocus();
+    }
+  }
+);
 
 onMounted(() => {
   useEventListener(dropdown, "keydown", onKeyDown);
 });
 </script>
 <template>
-  <div ref="dropdown" class="relative">
+  <ActiveContainer
+    @isActive="componentIsActive = $event"
+    class="relative"
+    ref="dropdown"
+  >
     <Button
       ref="btnElem"
       :id="`dropdown-${ariaId}-toggle`"
@@ -56,11 +80,14 @@ onMounted(() => {
       :aria-expanded="isOpen"
       :aria-controls="`dropdown-${ariaId}-content`"
       :aria-haspopup="true"
-      @click="isOpen = !isOpen"
+      @click="openClose"
     >
       {{ label }}
     </Button>
-    <div :id="`dropdown-${ariaId}-content`" ref="modalElem">
+    <ActiveContainer
+      id="`dropdown-${ariaId}-content`"
+      @isActive="menuIsActive = $event"
+    >
       <div
         v-show="isOpen"
         :aria-labelledby="`dropdown-${ariaId}-toggle`"
@@ -68,6 +95,6 @@ onMounted(() => {
       >
         <slot></slot>
       </div>
-    </div>
-  </div>
+    </ActiveContainer>
+  </ActiveContainer>
 </template>
