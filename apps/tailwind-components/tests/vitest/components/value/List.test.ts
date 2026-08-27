@@ -22,7 +22,9 @@ describe("value/List.vue", () => {
     });
 
     expect(bounded.findComponent(ShowMore).props("maxLines")).toBe(2);
-    expect(uncollapsed.findComponent(ShowMore).props("collapsible")).toBe(false);
+    expect(uncollapsed.findComponent(ShowMore).props("collapsible")).toBe(
+      false
+    );
   });
 
   it("tells the clamp whether values remain unrendered", () => {

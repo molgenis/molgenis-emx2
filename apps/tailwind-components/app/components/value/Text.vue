@@ -11,7 +11,10 @@ defineProps<{
 </script>
 
 <template>
-  <ShowMore v-if="data" :maxLines="maxLines" :collapsible="collapsible !== false">{{
-    data
-  }}</ShowMore>
+  <ShowMore
+    v-if="data"
+    :maxLines="maxLines"
+    :collapsible="collapsible !== false"
+    >{{ data }}</ShowMore
+  >
 </template>
