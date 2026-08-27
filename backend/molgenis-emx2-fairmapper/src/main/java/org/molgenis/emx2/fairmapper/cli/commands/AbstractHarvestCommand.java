@@ -2,8 +2,14 @@ package org.molgenis.emx2.fairmapper.cli.commands;
 
 import java.net.URI;
 import java.util.UUID;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
+import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
+import org.molgenis.emx2.fairmapper.schemas.SchemaFetcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -48,17 +54,38 @@ public abstract class AbstractHarvestCommand implements Runnable {
 
   @Override
   public void run() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    logger.info("Starting harvest with ID: {}", HARVEST_ID);
+
+    URI rdfUri = URI.create(rdf);
+    String[] tables = tablesArg.split(",");
+
+    HarvestingPipelineConfig.Builder builder =
+        configBuilder(rdfUri, tables)
+            .withPostProcessors(new DCATPostProcessor(fetchSchemaMetadata()))
+            .withPreProcessors(new TemporalRdfPreProcessor(), new TypicalAgeRdfPreProcessor());
+
+    if (outputPath != null) {
+      builder.withDumpEnabled(outputPath);
+    }
+
+    if (!enableLoading) {
+      builder.withLoader(null);
+    }
+
+    runPipeline(builder);
   }
 
   public void runPipeline(HarvestingPipelineConfig.Builder builder) {
     new HarvestingPipeline(builder.build()).execute();
   }
 
-  /**
-   * Builds the mode-specific part of the config (schema access, extractor, transformer, loader).
-   * Shared concerns (pre/post processors, dump/load toggles) are applied on top by {@link #run()}.
-   */
-  protected abstract HarvestingPipelineConfig.Builder buildConfigBuilder(
-      URI rdfUri, String[] tables);
+  private SchemaMetadata fetchSchemaMetadata() {
+    return schemaFetcher()
+        .fetch(schemaName)
+        .orElseThrow(() -> new MolgenisException("Schema not found: " + schemaName));
+  }
+
+  protected abstract SchemaFetcher schemaFetcher();
+
+  protected abstract HarvestingPipelineConfig.Builder configBuilder(URI rdfUri, String[] tables);
 }

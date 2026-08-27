@@ -2,6 +2,9 @@ package org.molgenis.emx2.fairmapper.cli.commands;
 
 import java.net.URI;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
+import org.molgenis.emx2.fairmapper.schemas.GraphqlSchemaFetcher;
+import org.molgenis.emx2.fairmapper.schemas.SchemaFetcher;
+import org.molgenis.emx2.graphql.GraphqlClient;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -23,7 +26,13 @@ public class HarvestRemote extends AbstractHarvestCommand {
   protected String token;
 
   @Override
-  protected HarvestingPipelineConfig.Builder buildConfigBuilder(URI rdfUri, String[] tables) {
-    throw new UnsupportedOperationException("Not yet implemented");
+  protected SchemaFetcher schemaFetcher() {
+    return new GraphqlSchemaFetcher(new GraphqlClient(endpoint, token));
+  }
+
+  @Override
+  protected HarvestingPipelineConfig.Builder configBuilder(URI rdfUri, String[] tables) {
+    return HarvestingPipelineConfig.Builder.remoteConfig(
+        endpoint, token, rdfUri, schemaName, tables);
   }
 }
