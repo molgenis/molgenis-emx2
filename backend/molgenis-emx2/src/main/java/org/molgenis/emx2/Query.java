@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public interface Query {
   enum Option {
@@ -26,6 +27,10 @@ public interface Query {
   Query orderBy(String column, Order order);
 
   List<Row> retrieveRows(Option... options);
+
+  default void retrieveRows(Consumer<Row> consumer, Option... options) {
+    retrieveRows(options).forEach(consumer);
+  }
 
   String retrieveJSON();
 
