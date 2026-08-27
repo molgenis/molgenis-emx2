@@ -12,7 +12,5 @@ const pageHeaderSimple = mount(PageHeader, {
 
 test("PageHeader should contain truncation component by default (for description)", async () => {
   expect(pageHeaderSimple.findComponent(ShowMore).exists()).toBe(true);
-  expect(pageHeaderSimple.findComponent(ShowMore).props("maxLines")).toBe(
-    5
-  );
+  expect(pageHeaderSimple.findComponent(ShowMore).props("maxLines")).toBe(5);
 });

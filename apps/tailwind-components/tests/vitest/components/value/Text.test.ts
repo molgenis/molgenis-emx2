@@ -12,24 +12,29 @@ const metadata: IColumn = {
 
 const long = "word ".repeat(120).trim();
 
-const mountText = (data: string | null, maxLines?: number) =>
+const mountText = (
+  data: string | null,
+  props: { maxLines?: number; collapse?: boolean } = {}
+) =>
   mount(ValueText, {
-    props: { metadata, data, maxLines },
+    props: { metadata, data, ...props },
     global: { components: { ShowMore } },
   });
 
 describe("value/Text.vue", () => {
   it("takes the bound from its caller, rather than keeping one of its own", () => {
     expect(
-      mountText(long, 3).findComponent(ShowMore).props("maxLines")
+      mountText(long, { maxLines: 3 }).findComponent(ShowMore).props("maxLines")
     ).toBe(3);
-    expect(mountText(long).findComponent(ShowMore).props("maxLines")).toBe(
-      undefined
-    );
+    expect(
+      mountText(long, { collapse: false })
+        .findComponent(ShowMore)
+        .props("collapse")
+    ).toBe(false);
   });
 
   it("keeps the whole text in the DOM, bounding only its height", () => {
-    const wrapper = mountText(long, 3);
+    const wrapper = mountText(long, { maxLines: 3 });
 
     expect(wrapper.text()).toContain(long);
   });

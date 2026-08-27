@@ -32,14 +32,17 @@ const props = withDefaults(
     metadata: IColumn;
     data?: columnValue[] | null;
     hideListSeparator?: boolean;
-    /** Lines a collapsed list occupies. Leave unset to never collapse. */
+    /** Lines a collapsed list occupies. */
     maxLines?: number;
     /** How many values reach the DOM per tranche. */
     renderLimit?: number;
+    /** Set false where the caller bounds the value itself, such as a table cell. */
+    collapse?: boolean;
   }>(),
   {
     hideListSeparator: false,
     renderLimit: 1000,
+    collapse: true,
   }
 );
 
@@ -82,101 +85,98 @@ function handleCellClick() {
 </script>
 
 <template>
-  <span>
-    <ShowMore
-      :maxLines="maxLines"
-      :hasMore="hasUnrendered"
-      @showMore="renderMore"
-    >
-      <template v-for="(listElement, index) in displayedData">
-        <ValueString
-          v-if="
-            elementType === 'STRING' ||
-            elementType === 'AUTO_ID' ||
-            elementType === 'PERIOD' ||
-            elementType === 'UUID'
-          "
-          :metadata="metadata"
-          :data="assertStringValue(listElement)"
-        />
-        <ValueString
-          v-else-if="elementType === 'TEXT'"
-          :metadata="metadata"
-          :data="assertStringValue(listElement)"
-        />
-        <ValueDecimal
-          v-else-if="elementType === 'DECIMAL'"
-          :metadata="metadata"
-          :data="assertNumberValue(listElement)"
-        />
-        <ValueLong
-          v-else-if="elementType === 'LONG'"
-          :metadata="metadata"
-          :data="assertNumberValue(listElement)"
-        />
-        <ValueInt
-          v-else-if="
-            elementType === 'INT' || elementType === 'NON_NEGATIVE_INT'
-          "
-          :metadata="metadata"
-          :data="assertNumberValue(listElement)"
-        />
-        <ValueBool
-          v-else-if="elementType === 'BOOL'"
-          :metadata="metadata"
-          :data="assertBooleanValue(listElement)"
-        />
-        <ValueEmail
-          v-else-if="elementType === 'EMAIL'"
-          :metadata="metadata"
-          :data="assertStringValue(listElement)"
-        />
-        <ValueHyperlink
-          v-else-if="elementType === 'HYPERLINK'"
-          :metadata="metadata"
-          :data="assertStringValue(listElement)"
-        />
-        <ValueObject
-          v-else-if="
-            elementType === 'REF' ||
-            elementType === 'MULTISELECT' ||
-            elementType === 'CHECKBOX'
-          "
-          :metadata="metadata"
-          :data="assertRowValue(listElement)"
-          @refCellClicked="handleCellClick"
-        />
-        <ValueRefBack
-          v-else-if="isRefbackType(metadata.columnType)"
-          :metadata="toRefColumn(metadata)"
-          :data="assertTableValue(listElement)"
-          @refBackCellClicked="handleCellClick"
-        />
-        <ValueObject
-          v-else-if="elementType === 'ONTOLOGY'"
-          :metadata="metadata"
-          :data="assertRowValue(listElement)"
-          @refCellClicked="handleCellClick"
-        />
-        <ValueDate
-          v-else-if="elementType === 'DATE'"
-          :metadata="metadata"
-          :data="assertStringValue(listElement)"
-        />
-        <ValueDateTime
-          v-else-if="elementType === 'DATETIME'"
-          :metadata="metadata"
-          :data="assertStringValue(listElement)"
-        />
-        <span v-else>{{ elementType }}</span>
-        <span
-          v-if="
-            Number(displayedData?.length) - 1 !== Number(index) &&
-            !hideListSeparator
-          "
-          >,&nbsp;</span
-        >
-      </template>
-    </ShowMore>
-  </span>
+  <ShowMore
+    :maxLines="maxLines"
+    :collapse="collapse"
+    :hasMore="hasUnrendered"
+    @showMore="renderMore"
+  >
+    <template v-for="(listElement, index) in displayedData">
+      <ValueString
+        v-if="
+          elementType === 'STRING' ||
+          elementType === 'AUTO_ID' ||
+          elementType === 'PERIOD' ||
+          elementType === 'UUID'
+        "
+        :metadata="metadata"
+        :data="assertStringValue(listElement)"
+      />
+      <ValueString
+        v-else-if="elementType === 'TEXT'"
+        :metadata="metadata"
+        :data="assertStringValue(listElement)"
+      />
+      <ValueDecimal
+        v-else-if="elementType === 'DECIMAL'"
+        :metadata="metadata"
+        :data="assertNumberValue(listElement)"
+      />
+      <ValueLong
+        v-else-if="elementType === 'LONG'"
+        :metadata="metadata"
+        :data="assertNumberValue(listElement)"
+      />
+      <ValueInt
+        v-else-if="elementType === 'INT' || elementType === 'NON_NEGATIVE_INT'"
+        :metadata="metadata"
+        :data="assertNumberValue(listElement)"
+      />
+      <ValueBool
+        v-else-if="elementType === 'BOOL'"
+        :metadata="metadata"
+        :data="assertBooleanValue(listElement)"
+      />
+      <ValueEmail
+        v-else-if="elementType === 'EMAIL'"
+        :metadata="metadata"
+        :data="assertStringValue(listElement)"
+      />
+      <ValueHyperlink
+        v-else-if="elementType === 'HYPERLINK'"
+        :metadata="metadata"
+        :data="assertStringValue(listElement)"
+      />
+      <ValueObject
+        v-else-if="
+          elementType === 'REF' ||
+          elementType === 'MULTISELECT' ||
+          elementType === 'CHECKBOX'
+        "
+        :metadata="metadata"
+        :data="assertRowValue(listElement)"
+        @refCellClicked="handleCellClick"
+      />
+      <ValueRefBack
+        v-else-if="isRefbackType(metadata.columnType)"
+        :metadata="toRefColumn(metadata)"
+        :data="assertTableValue(listElement)"
+        @refBackCellClicked="handleCellClick"
+      />
+      <ValueObject
+        v-else-if="elementType === 'ONTOLOGY'"
+        :metadata="metadata"
+        :data="assertRowValue(listElement)"
+        @refCellClicked="handleCellClick"
+      />
+      <ValueDate
+        v-else-if="elementType === 'DATE'"
+        :metadata="metadata"
+        :data="assertStringValue(listElement)"
+      />
+      <ValueDateTime
+        v-else-if="elementType === 'DATETIME'"
+        :metadata="metadata"
+        :data="assertStringValue(listElement)"
+      />
+      <span v-else>{{ elementType }}</span>
+      <span
+        v-if="
+          Number(displayedData?.length) - 1 !== Number(index) &&
+          !hideListSeparator
+        "
+        >,&nbsp;</span
+      >
+    </template>
+  </ShowMore>
 </template>

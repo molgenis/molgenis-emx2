@@ -3,11 +3,15 @@ import type { IColumn } from "../../../../metadata-utils/src/types";
 defineProps<{
   metadata: IColumn;
   data?: string | null;
-  /** Lines a collapsed text occupies. Leave unset to never collapse. */
+  /** Lines a collapsed text occupies. */
   maxLines?: number;
+  /** Set false where the caller bounds the value itself, such as a table cell. */
+  collapse?: boolean;
 }>();
 </script>
 
 <template>
-  <ShowMore v-if="data" :maxLines="maxLines">{{ data }}</ShowMore>
+  <ShowMore v-if="data" :maxLines="maxLines" :collapse="collapse !== false">{{
+    data
+  }}</ShowMore>
 </template>

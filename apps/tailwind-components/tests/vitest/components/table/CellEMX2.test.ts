@@ -37,9 +37,7 @@ describe("table/CellEMX2.vue", () => {
     });
 
     expect(wrapper.findComponent(ValueEMX2).props("collapse")).toBe(false);
-    expect(wrapper.findComponent(ShowMore).props("maxLines")).toBe(
-      undefined
-    );
+    expect(wrapper.findComponent(ShowMore).props("collapse")).toBe(false);
   });
 
   it("keeps far fewer values in the DOM than a record page does", () => {

@@ -12,11 +12,15 @@ const props = withDefaults(
   defineProps<{
     maxLines?: number;
     lineStep?: number;
+    /** Set false where the caller bounds the content itself, such as a table cell. */
+    collapse?: boolean;
     /** The caller is holding back content that is not in the slot yet. */
     hasMore?: boolean;
   }>(),
   {
+    maxLines: 3,
     lineStep: 5,
+    collapse: true,
   }
 );
 
@@ -33,7 +37,7 @@ watch(
   (value) => (lines.value = value)
 );
 
-const isClamped = computed(() => lines.value !== undefined);
+const isClamped = computed(() => props.collapse);
 
 // Clamped until measurement says otherwise, because the server cannot measure: an
 // unclamped first paint sends the whole text and then snaps to the bound. Clamping
@@ -44,8 +48,8 @@ const isCut = computed(
 
 const isExpanded = computed(
   () =>
-    props.maxLines !== undefined &&
-    lines.value !== undefined &&
+    props.maxLines != null &&
+    lines.value != null &&
     lines.value > props.maxLines
 );
 
@@ -54,7 +58,7 @@ const isExpanded = computed(
 // cut, because line-clamp discards its overflow instead of overflowing.
 function measure() {
   const element = target.value;
-  if (!element || lines.value === undefined) return;
+  if (!element || !props.collapse) return;
   const saved = element.style.cssText;
   element.style.display = "-webkit-box";
   element.style.webkitBoxOrient = "vertical";
@@ -67,10 +71,7 @@ function measure() {
   overflows.value = full > bounded + 1;
   measured.value = true;
   // Measured, not named: a hyperlink's own line-height runs 26px against 24px.
-  element.style.setProperty(
-    "--show-more-line",
-    `${bounded / lines.value}px`
-  );
+  element.style.setProperty("--show-more-line", `${bounded / lines.value}px`);
   // A slot can put any label in the control, so clear what it actually covers.
   const width = control.value?.offsetWidth;
   if (width) {
@@ -132,7 +133,7 @@ const clampStyle = computed(() =>
 );
 
 function showMore() {
-  if (overflows.value && lines.value !== undefined) {
+  if (overflows.value) {
     lines.value += props.lineStep;
   } else {
     emit("showMore");

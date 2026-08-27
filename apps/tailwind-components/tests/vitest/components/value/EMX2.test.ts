@@ -33,7 +33,7 @@ describe("value/EMX2.vue", () => {
       props: { metadata: ontologyArray, data: eightTerms },
     });
 
-    expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(3);
+    expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(undefined);
 
     const overridden = mount(EMX2Value, {
       props: { metadata: ontologyArray, data: eightTerms, maxLines: 8 },
@@ -47,7 +47,7 @@ describe("value/EMX2.vue", () => {
       props: { metadata: singleText, data: "A long description." },
     });
 
-    expect(wrapper.findComponent(ValueText).props("maxLines")).toBe(3);
+    expect(wrapper.findComponent(ValueText).props("maxLines")).toBe(undefined);
 
     const uncollapsed = mount(EMX2Value, {
       props: {
@@ -57,9 +57,7 @@ describe("value/EMX2.vue", () => {
       },
     });
 
-    expect(uncollapsed.findComponent(ValueText).props("maxLines")).toBe(
-      undefined
-    );
+    expect(uncollapsed.findComponent(ValueText).props("collapse")).toBe(false);
   });
 
   it("routes a single-valued column past the list entirely", () => {
@@ -75,7 +73,7 @@ describe("value/EMX2.vue", () => {
       props: { metadata: ontologyArray, data: eightTerms, collapse: false },
     });
 
-    expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(undefined);
+    expect(wrapper.findComponent(ValueList).props("collapse")).toBe(false);
   });
 
   it("bounds CHECKBOX and MULTISELECT, which are multi-valued without an _ARRAY suffix", () => {
@@ -87,7 +85,9 @@ describe("value/EMX2.vue", () => {
         },
       });
 
-      expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(3);
+      expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(
+        undefined
+      );
     }
   });
 });

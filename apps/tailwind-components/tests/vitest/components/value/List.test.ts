@@ -13,16 +13,16 @@ const metadata: IColumn = {
 const eight = Array.from({ length: 8 }, (_, index) => `Tag ${index + 1}`);
 
 describe("value/List.vue", () => {
-  it("hands the clamp the bound it was given, or none", () => {
-    const unbounded = mount(ValueList, { props: { metadata, data: eight } });
+  it("hands the clamp its caller's bound, and says when not to collapse", () => {
     const bounded = mount(ValueList, {
       props: { metadata, data: eight, maxLines: 2 },
     });
+    const uncollapsed = mount(ValueList, {
+      props: { metadata, data: eight, collapse: false },
+    });
 
-    expect(unbounded.findComponent(ShowMore).props("maxLines")).toBe(
-      undefined
-    );
     expect(bounded.findComponent(ShowMore).props("maxLines")).toBe(2);
+    expect(uncollapsed.findComponent(ShowMore).props("collapse")).toBe(false);
   });
 
   it("tells the clamp whether values remain unrendered", () => {
@@ -37,9 +37,7 @@ describe("value/List.vue", () => {
     // Without this the control disappears once the clamp exhausts the rendered
     // hundred, and the other four hundred become unreachable.
     expect(withMore.findComponent(ShowMore).props("hasMore")).toBe(true);
-    expect(withoutMore.findComponent(ShowMore).props("hasMore")).toBe(
-      false
-    );
+    expect(withoutMore.findComponent(ShowMore).props("hasMore")).toBe(false);
   });
 
   it("puts a realistic list wholly in the DOM, where a crawler reads it", () => {

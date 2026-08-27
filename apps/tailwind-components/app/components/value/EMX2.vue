@@ -47,12 +47,6 @@ const props = withDefaults(
   }
 );
 
-const DEFAULT_MAX_LINES = 3;
-
-const effectiveMaxLines = computed(() =>
-  props.collapse ? props.maxLines ?? DEFAULT_MAX_LINES : undefined
-);
-
 defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
 }>();
@@ -65,7 +59,8 @@ defineEmits<{
     :metadata="metadata"
     :data="data"
     :hideListSeparator="hideListSeparator"
-    :maxLines="effectiveMaxLines"
+    :maxLines="maxLines"
+    :collapse="collapse"
     :renderLimit="renderLimit"
     @listRefCellClicked="$emit('valueClick', $event)"
   />
@@ -82,7 +77,8 @@ defineEmits<{
     v-else-if="metadata.columnType === 'TEXT'"
     :metadata="metadata"
     :data="data"
-    :maxLines="effectiveMaxLines"
+    :maxLines="maxLines"
+    :collapse="collapse"
   />
 
   <ValueDecimal
