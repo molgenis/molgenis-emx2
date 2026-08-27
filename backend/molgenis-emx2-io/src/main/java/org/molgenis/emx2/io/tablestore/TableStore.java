@@ -10,9 +10,9 @@ public interface TableStore {
 
   void writeTable(String name, List<String> columnNames, Iterable<Row> rows);
 
-  default void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
+  default void writeTable(String name, List<String> columnNames, RowProducer rows) {
     List<Row> collected = new ArrayList<>();
-    rows.produce(collected::add);
+    rows.forEach(collected::add);
     writeTable(name, columnNames, collected);
   }
 

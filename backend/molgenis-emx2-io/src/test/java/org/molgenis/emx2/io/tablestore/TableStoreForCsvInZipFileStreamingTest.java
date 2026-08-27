@@ -24,7 +24,7 @@ class TableStoreForCsvInZipFileStreamingTest {
     try {
       TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(tmp.resolve("test.zip"));
 
-      store.writeTableStreaming(
+      store.writeTable(
           "Pet",
           COLUMNS,
           consumer -> {
@@ -52,7 +52,7 @@ class TableStoreForCsvInZipFileStreamingTest {
     try {
       TableStoreForCsvInZipFile store = new TableStoreForCsvInZipFile(tmp.resolve("test.zip"));
 
-      store.writeTableStreaming("Pet", COLUMNS, consumer -> {});
+      store.writeTable("Pet", COLUMNS, consumer -> {});
 
       assertTrue(store.containsTable("Pet"));
       List<Row> read = new ArrayList<>();
