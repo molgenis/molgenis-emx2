@@ -11,7 +11,6 @@ FROM node:22.17.0-alpine
 WORKDIR /
 
 ## Copy the files need from the contaxt into to image
-COPY ./.nuxt /.nuxt
 COPY ./.output /.output
 
 # Expose $PORT on container.

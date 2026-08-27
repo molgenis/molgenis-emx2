@@ -45,15 +45,7 @@ def buildOutputDirsForApp = { String appName ->
     if (file("${appName}/nuxt.config.ts").exists()) {
         return ["${appName}/.output"]
     }
-    def outputDirs = ["${appName}/dist"]
-    def scripts = new JsonSlurper().parse(file("${appName}/package.json")).scripts ?: [:]
-    if (scripts.containsKey("build:showcase")) {
-        outputDirs << "${appName}/showCase"
-    }
-    if (scripts.containsKey("generate-docs")) {
-        outputDirs << "${appName}/gen-docs"
-    }
-    return outputDirs
+    return ["dist", "showCase", "gen-docs", ".output"].collect { "${appName}/${it}" }
 }
 
 def registerAppInputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
@@ -146,13 +138,13 @@ clean.dependsOn 'cleanApps';
 abstract class AppOutputLocator {
     static File packagedOutputDirForApp(File appsDirectory, String appName) {
         File appDir = new File(appsDirectory, appName)
+        if (new File(appDir, "nuxt.config.ts").exists()) {
+            File nuxtPublicDir = new File(appDir, ".output/public")
+            return nuxtPublicDir.isDirectory() ? nuxtPublicDir : null
+        }
         File showCaseDir = new File(appDir, "showCase")
         if (showCaseDir.isDirectory()) {
             return showCaseDir
-        }
-        if (new File(appDir, "nuxt.config.ts").exists()) {
-            File nuxtPublicDir = new File(appDir, ".output/public")
-            return isStaticNuxtOutput(appDir) && nuxtPublicDir.isDirectory() ? nuxtPublicDir : null
         }
         File distDir = new File(appDir, "dist")
         return distDir.isDirectory() ? distDir.canonicalFile : null
@@ -165,11 +157,6 @@ abstract class AppOutputLocator {
         }
         def buildScript = new JsonSlurper().parse(new File(appDir, "package.json")).scripts?.build ?: ""
         return buildScript.contains("nuxt generate")
-    }
-
-    static boolean isStaticNuxtOutput(File appDir) {
-        File nitroManifest = new File(appDir, ".output/nitro.json")
-        return nitroManifest.isFile() && new JsonSlurper().parse(nitroManifest).preset == "static"
     }
 }
 

@@ -115,8 +115,13 @@ commands:
   restore_gradle_build_cache:
     steps:
     - restore_cache:
+        # this job's own cache first (exact revision, then this branch, then any
+        # revision of this job), only then any other job's, so build and test
+        # don't overwrite each other's entries.
         keys:
-          - gradle-buildcache-v1-{{ .Revision }}
+          - gradle-buildcache-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Revision }}
+          - gradle-buildcache-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-
+          - gradle-buildcache-v1-{{ .Environment.CIRCLE_JOB }}-
           - gradle-buildcache-v1-
 
   save_gradle_build_cache:
@@ -132,16 +137,20 @@ commands:
           else
             echo "no gradle build cache to prune"
           fi
+        when: always
     - save_cache:
         paths:
           - ~/.gradle/caches/build-cache-1
-        key: gradle-buildcache-v1-{{ .Revision }}
+        key: gradle-buildcache-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Revision }}
+        when: always
 
   restore_turbo_cache:
     steps:
     - restore_cache:
         keys:
-          - turbo-v1-{{ .Revision }}
+          - turbo-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Revision }}
+          - turbo-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Branch }}-
+          - turbo-v1-{{ .Environment.CIRCLE_JOB }}-
           - turbo-v1-
 
   save_turbo_cache:
@@ -157,33 +166,12 @@ commands:
           else
             echo "no turbo cache to prune"
           fi
+        when: always
     - save_cache:
         paths:
           - apps/.turbo/cache
-        key: turbo-v1-{{ .Revision }}
-
-  restore_apt_postgres_client:
-    steps:
-    - run:
-        name: Record the apt cache key from the postgres client, image and architecture
-        command: |
-          {
-            echo "postgresql-client"
-            (. /etc/os-release && echo "$VERSION_CODENAME")
-            dpkg --print-architecture
-            sed -n 's|.*image: *mcr\.microsoft\.com/playwright:\(.*\)$|\1|p' .circleci/config.yml
-          } > apt-postgres-client-key
-    - restore_cache:
-        keys:
-          - apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
-
-  save_apt_postgres_client:
-    steps:
-    - save_cache:
-        paths:
-          - /var/cache/apt/archives
-          - /var/lib/apt/lists
-        key: apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
+        key: turbo-v1-{{ .Environment.CIRCLE_JOB }}-{{ .Revision }}
+        when: always
 
   post_steps:
     steps:
@@ -244,12 +232,15 @@ jobs:
       - restore_turbo_cache
       - run:
           name: build the application without running tests to speed up the e2e tests
-          command: ./gradlew shadowJar -x test ci --no-daemon
+          command: ./gradlew shadowJar -x test ci
 
       - run:
           name: build ssr catalogue
           command: pnpm exec turbo run build --filter=catalogue
           working_directory: apps
+
+      - save_gradle_build_cache
+      - save_turbo_cache
 
       - persist_to_workspace:
           root: .
@@ -297,29 +288,15 @@ jobs:
           name: Put custom app next to jar
           command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
 
-      - restore_apt_postgres_client
-
       - run:
-          name: install postgres client
+          name: install postgres client and java
           command: |
-            if [ -n "$(find /var/lib/apt/lists -name '*_Packages*' -print -quit 2>/dev/null)" ]; then
-              echo "apt lists restored from cache, skipping apt-get update"
-            else
-              apt-get update
-            fi
-            apt-get install -y postgresql-client
-
-      - save_apt_postgres_client
+            apt-get update
+            apt-get install -y postgresql-client openjdk-21-jdk
 
       - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
-
-      - run:
-          name: Install Java
-          command: |
-            apt-get update
-            apt-get install -y openjdk-21-jdk
 
       - run:
           name: Show jars
