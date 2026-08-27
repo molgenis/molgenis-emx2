@@ -85,9 +85,7 @@ withDefaults(
         class="mt-1 mb-0 lg:mb-5 text-body-lg"
         :class="{ 'text-center': align === 'center' }"
       >
-        <ShowMore v-if="truncate">{{
-          description
-        }}</ShowMore>
+        <ShowMore v-if="truncate">{{ description }}</ShowMore>
         <p v-else>{{ description }}</p>
       </div>
     </div>
