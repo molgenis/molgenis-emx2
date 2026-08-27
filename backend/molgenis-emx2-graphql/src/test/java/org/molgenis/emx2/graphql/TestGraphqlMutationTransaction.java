@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.REF;
+import static org.molgenis.emx2.Query.Option.EXCLUDE_MG_COLUMNS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
@@ -18,8 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Query;
-import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.datamodels.util.CompareTools;
@@ -69,8 +68,8 @@ class TestGraphqlMutationTransaction {
                     """));
     assertFailedOnBook(exception);
 
-    CompareTools.assertEquals(List.of(), retrieveRows(author));
-    CompareTools.assertEquals(List.of(), retrieveRows(book));
+    CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(List.of(), book.retrieveRows(EXCLUDE_MG_COLUMNS));
   }
 
   @Test
@@ -93,8 +92,8 @@ class TestGraphqlMutationTransaction {
     assertFailedOnBook(exception);
 
     CompareTools.assertEquals(
-        List.of(row("name", "tolkien", "country", "uk")), retrieveRows(author));
-    CompareTools.assertEquals(List.of(), retrieveRows(book));
+        List.of(row("name", "tolkien", "country", "uk")), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(List.of(), book.retrieveRows(EXCLUDE_MG_COLUMNS));
   }
 
   @Test
@@ -118,9 +117,10 @@ class TestGraphqlMutationTransaction {
     assertFailedOnBook(exception);
 
     CompareTools.assertEquals(
-        List.of(row("name", "tolkien", "country", "uk")), retrieveRows(author));
+        List.of(row("name", "tolkien", "country", "uk")), author.retrieveRows(EXCLUDE_MG_COLUMNS));
     CompareTools.assertEquals(
-        List.of(row("title", "lord of the rings", "author", "tolkien")), retrieveRows(book));
+        List.of(row("title", "lord of the rings", "author", "tolkien")),
+        book.retrieveRows(EXCLUDE_MG_COLUMNS));
   }
 
   @Test
@@ -145,9 +145,10 @@ class TestGraphqlMutationTransaction {
     assertFailedOnBook(exception);
 
     CompareTools.assertEquals(
-        List.of(row("name", "tolkien", "country", "uk")), retrieveRows(author));
+        List.of(row("name", "tolkien", "country", "uk")), author.retrieveRows(EXCLUDE_MG_COLUMNS));
     CompareTools.assertEquals(
-        List.of(row("title", "lord of the rings", "author", "tolkien")), retrieveRows(book));
+        List.of(row("title", "lord of the rings", "author", "tolkien")),
+        book.retrieveRows(EXCLUDE_MG_COLUMNS));
   }
 
   @Test
@@ -167,9 +168,10 @@ class TestGraphqlMutationTransaction {
 
     assertEquals("inserted 1 records to Author\ninserted 1 records to Book\n", message);
     CompareTools.assertEquals(
-        List.of(row("name", "tolkien", "country", "uk")), retrieveRows(author));
+        List.of(row("name", "tolkien", "country", "uk")), author.retrieveRows(EXCLUDE_MG_COLUMNS));
     CompareTools.assertEquals(
-        List.of(row("title", "lord of the rings", "author", "tolkien")), retrieveRows(book));
+        List.of(row("title", "lord of the rings", "author", "tolkien")),
+        book.retrieveRows(EXCLUDE_MG_COLUMNS));
   }
 
   @Test
@@ -183,10 +185,6 @@ class TestGraphqlMutationTransaction {
     assertTrue(
         exception.getMessage().contains("Book"),
         "expected the failure to originate from table Book but got: " + exception.getMessage());
-  }
-
-  private List<Row> retrieveRows(Table table) {
-    return table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
   }
 
   private JsonNode execute(String query) throws IOException {
