@@ -19,6 +19,10 @@
         <InputInt id="lines-when-collapsed" v-model="maxLines" class="w-32" />
       </div>
       <div class="flex items-center gap-2">
+        <InputCheckbox id="collapse" v-model="collapse" />
+        <InputLabel :for="'collapse'">Collapse</InputLabel>
+      </div>
+      <div class="flex items-center gap-2">
         <InputCheckbox id="content-surface" v-model="onContentSurface" />
         <InputLabel :for="'content-surface'">On a content surface</InputLabel>
       </div>
@@ -47,6 +51,7 @@
           :data="data"
           :maxLines="lines"
           :renderLimit="tranche"
+          :collapse="collapse"
         />
       </div>
     </div>
@@ -73,6 +78,8 @@ const tranche = computed(() => Math.max(1, Number(renderLimit.value) || 1));
 // Values carry the content surface's link colour and do not adapt to a surface the
 // theme colours itself. The switch is what shows that.
 const onContentSurface = ref(true);
+// A table cell turns this off: it bounds the value itself and opens a popup.
+const collapse = ref(true);
 
 function repeatTo<T>(base: T[], count: number): T[] {
   if (base.length === 0 || count <= 0) return [];

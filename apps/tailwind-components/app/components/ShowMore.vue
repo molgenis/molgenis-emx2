@@ -13,14 +13,14 @@ const props = withDefaults(
     maxLines?: number;
     lineStep?: number;
     /** Set false where the caller bounds the content itself, such as a table cell. */
-    collapsible?: boolean;
+    collapse?: boolean;
     /** The caller is holding back content that is not in the slot yet. */
     hasMore?: boolean;
   }>(),
   {
     maxLines: 3,
     lineStep: 5,
-    collapsible: true,
+    collapse: true,
   }
 );
 
@@ -38,7 +38,7 @@ watch(
   (value) => (lines.value = value)
 );
 
-const isClamped = computed(() => props.collapsible);
+const isClamped = computed(() => props.collapse);
 
 // Clamped until measured: the server cannot measure, so an unclamped first paint
 // would snap to the bound on hydration.
@@ -56,7 +56,7 @@ const isExpanded = computed(
 // Never during render: reading scrollHeight forces a synchronous reflow.
 function measure() {
   const element = target.value;
-  if (!element || !props.collapsible) return;
+  if (!element || !props.collapse) return;
   const saved = element.style.cssText;
   element.style.display = "-webkit-box";
   element.style.webkitBoxOrient = "vertical";

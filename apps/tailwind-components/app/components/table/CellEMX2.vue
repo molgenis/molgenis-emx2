@@ -8,7 +8,7 @@
             v-if="metadata && data !== undefined && data !== null"
             :metadata="metadata"
             :data="data"
-            :collapsible="false"
+            :collapse="false"
             :renderLimit="CELL_RENDER_LIMIT"
             @valueClick="$emit('cellClicked', $event)"
           />

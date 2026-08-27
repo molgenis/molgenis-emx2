@@ -36,12 +36,12 @@ const props = withDefaults(
     /** How many values reach the DOM per tranche. */
     renderLimit?: number;
     /** Set false where the caller bounds the value itself, such as a table cell. */
-    collapsible?: boolean;
+    collapse?: boolean;
   }>(),
   {
     hideListSeparator: false,
     renderLimit: 1000,
-    collapsible: true,
+    collapse: true,
   }
 );
 
@@ -86,7 +86,7 @@ function handleCellClick() {
 <template>
   <ShowMore
     :maxLines="maxLines"
-    :collapsible="collapsible"
+    :collapse="collapse"
     :hasMore="hasUnrendered"
     @showMore="renderMore"
   >

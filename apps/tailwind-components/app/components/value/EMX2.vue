@@ -37,11 +37,11 @@ const props = withDefaults(
      * Set false where the caller bounds the value itself. A table cell does: it
      * truncates to one line and offers its own control onto the cell popup.
      */
-    collapsible?: boolean;
+    collapse?: boolean;
   }>(),
   {
     hideListSeparator: false,
-    collapsible: true,
+    collapse: true,
   }
 );
 
@@ -58,7 +58,7 @@ defineEmits<{
     :data="data"
     :hideListSeparator="hideListSeparator"
     :maxLines="maxLines"
-    :collapsible="collapsible"
+    :collapse="collapse"
     :renderLimit="renderLimit"
     @listRefCellClicked="$emit('valueClick', $event)"
   />
@@ -76,7 +76,7 @@ defineEmits<{
     :metadata="metadata"
     :data="data"
     :maxLines="maxLines"
-    :collapsible="collapsible"
+    :collapse="collapse"
   />
 
   <ValueDecimal

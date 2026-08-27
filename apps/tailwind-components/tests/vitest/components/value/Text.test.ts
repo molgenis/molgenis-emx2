@@ -14,7 +14,7 @@ const long = "word ".repeat(120).trim();
 
 const mountText = (
   data: string | null,
-  props: { maxLines?: number; collapsible?: boolean } = {}
+  props: { maxLines?: number; collapse?: boolean } = {}
 ) =>
   mount(ValueText, {
     props: { metadata, data, ...props },
@@ -27,9 +27,9 @@ describe("value/Text.vue", () => {
       mountText(long, { maxLines: 3 }).findComponent(ShowMore).props("maxLines")
     ).toBe(3);
     expect(
-      mountText(long, { collapsible: false })
+      mountText(long, { collapse: false })
         .findComponent(ShowMore)
-        .props("collapsible")
+        .props("collapse")
     ).toBe(false);
   });
 
