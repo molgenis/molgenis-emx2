@@ -6,13 +6,15 @@ import io
 import json
 import logging
 import pathlib
+from io import BytesIO
 
 import math
 import pandas as pd
 import requests
+from requests import Response
 
-from .constants import INT, DECIMAL, BOOL, LONG, STRING
-from .exceptions import NoSuchSchemaException
+from .constants import INT, DECIMAL, BOOL, LONG, STRING, CHECKBOX, MULTISELECT, DATE, DATETIME
+from .exceptions import NoSuchSchemaException, NoSuchColumnException
 from .exceptions import (ServiceUnavailableError, ServerNotFoundError, PyclientException, GraphQLException,
                          InvalidTokenException,
                          PermissionDeniedException, NonExistentTemplateException,
@@ -424,3 +426,43 @@ def validate_graphql_response(response, mutation: str | None = None, fallback_er
         else:
             message = f"Failed to validate response for {mutation!r}"
             log.error(message)
+
+
+def response_to_dataframe(response: Response,
+                          table: Table,
+                          columns: list[str] | None = None,
+                          parse_arrays: bool = False) -> pd.DataFrame:
+    """Parses the response of a CSV query to pandas DataFrame format."""
+
+    response_columns = pd.read_csv(BytesIO(response.content)).columns
+    dtypes = {c: t for (c, t) in convert_dtypes(table).items() if c in response_columns}
+
+    bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
+    date_columns = [c.name for c in table.columns
+                    if c.get('columnType') in (DATE, DATETIME) and c.name in response_columns]
+    response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False, na_values=[''], dtype=dtypes,
+                                parse_dates=date_columns, dialect=csv.excel())
+    response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
+    if parse_arrays:
+        array_columns = [c.name for c in table.columns
+                         if (c.get('columnType').endswith('_ARRAY') or
+                             c.get('columnType') in (CHECKBOX, MULTISELECT))
+                         and c.name in response_columns]
+        response_data[array_columns] = response_data[array_columns].map(csv_string_to_array)
+    response_data = response_data.astype(dtypes)
+
+    if columns:
+        try:
+            response_data = response_data[columns]
+        except KeyError as e:
+            if e.args[0].startswith("None of [Index(['"):
+                missing_cols = e.args[0].split("None of [Index([")[1].split("]")[0]
+                msg = f"Columns {missing_cols} not found."
+            elif "not in index" in e.args[0]:
+                msg = f"Columns {e.args[0]}"
+            else:
+                msg = f"Columns {e.args[0].split('Index(')[1].split(', dtype')} not in index."
+            raise NoSuchColumnException(msg)
+        response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
+
+    return response_data
