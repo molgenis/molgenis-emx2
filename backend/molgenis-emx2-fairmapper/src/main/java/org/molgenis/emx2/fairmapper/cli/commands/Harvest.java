@@ -4,16 +4,11 @@ import java.net.URI;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
-import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
-import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
-import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
-import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,13 +61,8 @@ public class Harvest implements Runnable {
 
     URI rdfURI = getRdf();
 
-    RdfExtractor extractor = new FdpRdfExtractor(new RemoteRdfExtractor(), rdfURI);
-    SparqlSelectRdfTransformer transformer =
-        new SparqlSelectRdfTransformer(new TableQueryGenerator());
-
     HarvestingPipelineConfig.Builder builder =
-        new HarvestingPipelineConfig.Builder(rdfURI, schema, extractor, transformer)
-            .setTables(tables)
+        HarvestingPipelineConfig.Builder.localConfig(database, rdfURI, schemaName, tables)
             .withPostProcessors(new DCATPostProcessor(schema.getMetadata()))
             .withPreProcessors(new TemporalRdfPreProcessor(), new TypicalAgeRdfPreProcessor());
 
@@ -80,8 +70,8 @@ public class Harvest implements Runnable {
       builder.withDumpEnabled(outputPath);
     }
 
-    if (enableLoading) {
-      builder.enableDataLoading();
+    if (!enableLoading) {
+      builder.withLoader(null);
     }
 
     runPipeline(builder);

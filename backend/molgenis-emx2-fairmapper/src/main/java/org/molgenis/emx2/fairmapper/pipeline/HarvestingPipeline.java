@@ -18,7 +18,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
-import org.molgenis.emx2.io.ImportSchemaTask;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
@@ -40,7 +39,7 @@ public class HarvestingPipeline {
 
   public void execute() {
     logger.info("Validating harvesting config");
-    SchemaMetadata schema = config.schema().getMetadata();
+    SchemaMetadata schema = fetchSchema();
     validateTables(schema);
 
     logger.info("Starting harvesting pipeline: {}", harvestId);
@@ -66,13 +65,20 @@ public class HarvestingPipeline {
       postProcess(transformed);
     }
 
-    if (config.loadDataEnabled()) {
-      load(transformed);
+    if (config.loadEnabled()) {
+      config.loader().load(transformed);
     } else {
       logger.info("No data loaded for harvesting pipeline: {}", harvestId);
     }
 
     logger.info("Finished harvesting pipeline: {}", harvestId);
+  }
+
+  private SchemaMetadata fetchSchema() {
+    return config
+        .schemaFetcher()
+        .fetch(config.schemaName())
+        .orElseThrow(() -> new MolgenisException("Schema not found: " + config.schemaName()));
   }
 
   private void preProcess(Repository extract) {
@@ -103,25 +109,6 @@ public class HarvestingPipeline {
 
     if (config.dumpEnabled()) {
       writeTableStoreToZip(transform, config.tables(), "postprocessed.zip");
-    }
-  }
-
-  private void load(InMemoryTableStore tableStore) {
-    logger.info("Loading harvested data into schema: {}", config.schema().getName());
-    ImportSchemaTask tasks =
-        new ImportSchemaTask(
-                tableStore, config.schema(), false, config.tables().toArray(new String[0]))
-            .setFilter(ImportSchemaTask.Filter.DATA_ONLY);
-
-    tasks.run();
-    while (tasks.isRunning()) {
-      logger.info("waiting...");
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw new MolgenisException("Something went wrong when uploading the data: ", e);
-      }
     }
   }
 

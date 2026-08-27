@@ -19,6 +19,7 @@ import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
+import org.molgenis.emx2.fairmapper.tasks.DatabaseDataLoader;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import picocli.CommandLine;
@@ -43,7 +44,7 @@ class HarvestTest {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA,TableB");
 
     assertEquals(URI.create(RDF_ENDPOINT), config.rdf());
-    assertEquals(schema.getName(), config.schema().getName());
+    assertEquals(schema.getName(), config.schemaName());
     assertEquals(List.of("TableA", "TableB"), config.tables());
   }
 
@@ -88,21 +89,23 @@ class HarvestTest {
   void shouldNotEnableDataLoadingWhenLoadOptionOmitted() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
-    assertFalse(config.loadDataEnabled());
+    assertFalse(config.loadEnabled());
   }
 
   @Test
   void shouldEnableDataLoadingWhenLoadOptionProvided() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-l");
 
-    assertTrue(config.loadDataEnabled());
+    assertTrue(config.loadEnabled());
+    assertInstanceOf(DatabaseDataLoader.class, config.loader());
   }
 
   @Test
   void shouldEnableDataLoadingWhenLoadLongOptionProvided() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--load");
 
-    assertTrue(config.loadDataEnabled());
+    assertTrue(config.loadEnabled());
+    assertInstanceOf(DatabaseDataLoader.class, config.loader());
   }
 
   @Test

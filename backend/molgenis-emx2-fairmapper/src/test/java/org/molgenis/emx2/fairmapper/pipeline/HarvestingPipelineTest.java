@@ -23,6 +23,8 @@ import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
+import org.molgenis.emx2.fairmapper.schemas.DatabaseSchemaFetcher;
+import org.molgenis.emx2.fairmapper.tasks.DatabaseDataLoader;
 import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
@@ -36,6 +38,7 @@ class HarvestingPipelineTest {
 
   @TempDir private static Path tempDir;
   private static Path outputDirectory;
+  private static Database database;
   private static Schema schema;
   private static StaticRdfExtractor rdfExtractor;
   private static StaticRdfTransformer transformer;
@@ -47,12 +50,17 @@ class HarvestingPipelineTest {
     rdfExtractor = new StaticRdfExtractor();
     transformer = new StaticRdfTransformer();
     HarvestingPipelineConfig config =
-        new HarvestingPipelineConfig.Builder(FDP_URI, schema, rdfExtractor, transformer)
+        new HarvestingPipelineConfig.Builder(
+                FDP_URI,
+                rdfExtractor,
+                transformer,
+                new DatabaseSchemaFetcher(database),
+                schema.getName())
             .withDumpEnabled(tempDir.toString())
             .setTables("names", "products")
             .withPreProcessors(new StaticPreProcessor())
             .withPostProcessors(new StaticPostProcessor())
-            .enableDataLoading()
+            .withLoader(new DatabaseDataLoader(schema, "names", "products"))
             .build();
     HarvestingPipeline pipeline = new HarvestingPipeline(config);
     pipeline.execute();
@@ -65,7 +73,7 @@ class HarvestingPipelineTest {
   }
 
   private static void setupSchema() {
-    Database database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(HarvestingPipelineTest.class.getSimpleName());
     schema.create(
         TableMetadata.table(
@@ -129,7 +137,12 @@ class HarvestingPipelineTest {
   @Test
   void shouldSkipDumpingWhenDisabled() {
     HarvestingPipelineConfig config =
-        new HarvestingPipelineConfig.Builder(FDP_URI, schema, rdfExtractor, transformer)
+        new HarvestingPipelineConfig.Builder(
+                FDP_URI,
+                rdfExtractor,
+                transformer,
+                new DatabaseSchemaFetcher(database),
+                schema.getName())
             .setTables("names", "products")
             .withPreProcessors(new StaticPreProcessor())
             .withPostProcessors(new StaticPostProcessor())
@@ -145,7 +158,12 @@ class HarvestingPipelineTest {
   void shouldThrowBeforeExtractingWhenConfiguredTableDoesNotExistInSchema() {
     StaticRdfExtractor extractor = new StaticRdfExtractor();
     HarvestingPipelineConfig config =
-        new HarvestingPipelineConfig.Builder(FDP_URI, schema, extractor, transformer)
+        new HarvestingPipelineConfig.Builder(
+                FDP_URI,
+                extractor,
+                transformer,
+                new DatabaseSchemaFetcher(database),
+                schema.getName())
             .setTables("names", "unknown-table")
             .build();
     HarvestingPipeline pipeline = new HarvestingPipeline(config);
