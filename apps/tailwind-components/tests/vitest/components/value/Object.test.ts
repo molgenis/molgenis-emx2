@@ -66,4 +66,18 @@ describe("value/Object.vue", () => {
 
     expect(wrapper.find(".text-link").text().trim()).toBe("Ada Lovelace");
   });
+
+  it("opens the ref from a button, so a keyboard reaches it", () => {
+    const wrapper = mount(ValueObject, {
+      props: {
+        metadata: { id: "ref", label: "Ref", columnType: "REF" },
+        data: { name: "Ada" },
+      },
+    });
+
+    // A span with @click is neither focusable nor fired by Enter or Space.
+    const control = wrapper.get("button.text-link");
+    control.trigger("click");
+    expect(wrapper.emitted("refCellClicked")).toHaveLength(1);
+  });
 });

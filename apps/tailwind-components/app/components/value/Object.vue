@@ -75,8 +75,9 @@ function handleRefCellClicked() {
 
 <template>
   <span class="inline-flex items-center gap-1">
-    <span
-      class="underline hover:cursor-pointer text-link"
+    <button
+      type="button"
+      class="underline text-left hover:cursor-pointer text-link"
       @click="handleRefCellClicked"
     >
       <span v-if="hasTemplate">
@@ -88,7 +89,7 @@ function handleRefCellClicked() {
       <span v-else>
         {{ asSpaceSeparatedString }}
       </span>
-    </span>
+    </button>
     <CustomTooltip
       v-if="data?.definition"
       label="Read more"
