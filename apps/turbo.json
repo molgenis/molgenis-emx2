@@ -26,7 +26,14 @@
         "!vitest.config.*",
         "!**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"
       ],
-      "outputs": ["dist/**", "public/_nuxt-styles/**", "showCase/**","gen-docs/**"],
+      "outputs": [
+        "dist/**",
+        "public/_nuxt-styles/**",
+        "showCase/**",
+        "gen-docs/**",
+        ".output/**",
+        ".nuxt/tsconfig*.json"
+      ],
       "cache": true
     },
     "test": {
