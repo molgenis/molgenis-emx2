@@ -92,10 +92,6 @@ export const isRefType = (column: IColumn) => {
   );
 };
 
-export const isArrayType = (column: IColumn) => {
-  return column.columnType.endsWith("_ARRAY");
-};
-
 export const isSingleRefType = (columnType: string): boolean =>
   SINGLE_REF_TYPES.has(columnType);
 
