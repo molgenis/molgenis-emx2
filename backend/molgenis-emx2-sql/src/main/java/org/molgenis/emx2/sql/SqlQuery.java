@@ -42,8 +42,7 @@ public class SqlQuery extends QueryBean {
 
   private static final String QUERY_FAILED = "Query failed: ";
 
-  /** rows fetched per round trip when streaming; trades round trips against peak memory */
-  private static final int STREAMING_FETCH_SIZE = 1000;
+  private static final int STREAMING_ROW_SIZE = 1000;
 
   private static final String ANY_SQL = "{0} = ANY ({1})";
   private static final String JSON_AGG_SQL = "jsonb_agg(item)";
@@ -111,7 +110,7 @@ public class SqlQuery extends QueryBean {
               config -> {
                 query.attach(config);
                 try (Cursor<org.jooq.Record> cursor =
-                    query.fetchSize(STREAMING_FETCH_SIZE).fetchLazy()) {
+                    query.fetchSize(STREAMING_ROW_SIZE).fetchLazy()) {
                   for (org.jooq.Record r : cursor) {
                     consumer.accept(new SqlRow(r));
                   }
