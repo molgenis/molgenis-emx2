@@ -12,40 +12,48 @@ import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultTo
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Query;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.Table;
+import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class TestGraphqlMutationTransaction {
 
-  private static final String schemaName = TestGraphqlMutationTransaction.class.getSimpleName();
+  private static final String SCHEMA_NAME = TestGraphqlMutationTransaction.class.getSimpleName();
 
   private static Schema schema;
+  private static Table author;
+  private static Table book;
   private static GraphqlExecutor graphqlExecutor;
 
   @BeforeAll
   static void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(schemaName);
+    schema = database.dropCreateSchema(SCHEMA_NAME);
     schema.create(
         table("Author", column("name").setPkey(), column("country")),
         table("Book", column("title").setPkey(), column("author", REF).setRefTable("Author")));
+    author = schema.getTable("Author");
+    book = schema.getTable("Book");
     graphqlExecutor = new GraphqlExecutor(schema);
   }
 
   @BeforeEach
   void emptyTables() {
-    schema.getTable("Book").truncate();
-    schema.getTable("Author").truncate();
+    book.truncate();
+    author.truncate();
   }
 
   @Test
-  void insertIsRolledBackWhenAnotherTableFails() throws IOException {
-    // the Book row fails because it refers to an author that does not exist
+  void insertIsRolledBackWhenAnotherTableFails() {
     MolgenisException exception =
         assertThrows(
             MolgenisException.class,
@@ -61,14 +69,13 @@ class TestGraphqlMutationTransaction {
                     """));
     assertFailedOnBook(exception);
 
-    // the valid Author row must have been rolled back along with it
-    assertEquals(0, count("Author"));
-    assertEquals(0, count("Book"));
+    CompareTools.assertEquals(List.of(), retrieveRows(author));
+    CompareTools.assertEquals(List.of(), retrieveRows(book));
   }
 
   @Test
-  void saveIsRolledBackWhenAnotherTableFails() throws IOException {
-    schema.getTable("Author").insert(row("name", "tolkien", "country", "uk"));
+  void saveIsRolledBackWhenAnotherTableFails() {
+    author.insert(row("name", "tolkien", "country", "uk"));
 
     MolgenisException exception =
         assertThrows(
@@ -85,14 +92,15 @@ class TestGraphqlMutationTransaction {
                     """));
     assertFailedOnBook(exception);
 
-    assertEquals("uk", country("tolkien"));
-    assertEquals(0, count("Book"));
+    CompareTools.assertEquals(
+        List.of(row("name", "tolkien", "country", "uk")), retrieveRows(author));
+    CompareTools.assertEquals(List.of(), retrieveRows(book));
   }
 
   @Test
-  void updateIsRolledBackWhenAnotherTableFails() throws IOException {
-    schema.getTable("Author").insert(row("name", "tolkien", "country", "uk"));
-    schema.getTable("Book").insert(row("title", "lord of the rings"));
+  void updateIsRolledBackWhenAnotherTableFails() {
+    author.insert(row("name", "tolkien", "country", "uk"));
+    book.insert(row("title", "lord of the rings", "author", "tolkien"));
 
     MolgenisException exception =
         assertThrows(
@@ -109,15 +117,17 @@ class TestGraphqlMutationTransaction {
                     """));
     assertFailedOnBook(exception);
 
-    assertEquals("uk", country("tolkien"));
+    CompareTools.assertEquals(
+        List.of(row("name", "tolkien", "country", "uk")), retrieveRows(author));
+    CompareTools.assertEquals(
+        List.of(row("title", "lord of the rings", "author", "tolkien")), retrieveRows(book));
   }
 
   @Test
-  void deleteIsRolledBackWhenAnotherTableFails() throws IOException {
-    schema.getTable("Author").insert(row("name", "tolkien", "country", "uk"));
-    schema.getTable("Book").insert(row("title", "lord of the rings"));
+  void deleteIsRolledBackWhenAnotherTableFails() {
+    author.insert(row("name", "tolkien", "country", "uk"));
+    book.insert(row("title", "lord of the rings", "author", "tolkien"));
 
-    // a strict delete of a book that does not exist fails
     MolgenisException exception =
         assertThrows(
             MolgenisException.class,
@@ -134,9 +144,10 @@ class TestGraphqlMutationTransaction {
                     """));
     assertFailedOnBook(exception);
 
-    // the author must not have been deleted
-    assertEquals(1, count("Author"));
-    assertEquals(1, count("Book"));
+    CompareTools.assertEquals(
+        List.of(row("name", "tolkien", "country", "uk")), retrieveRows(author));
+    CompareTools.assertEquals(
+        List.of(row("title", "lord of the rings", "author", "tolkien")), retrieveRows(book));
   }
 
   @Test
@@ -155,8 +166,10 @@ class TestGraphqlMutationTransaction {
             .asText();
 
     assertEquals("inserted 1 records to Author\ninserted 1 records to Book\n", message);
-    assertEquals(1, count("Author"));
-    assertEquals(1, count("Book"));
+    CompareTools.assertEquals(
+        List.of(row("name", "tolkien", "country", "uk")), retrieveRows(author));
+    CompareTools.assertEquals(
+        List.of(row("title", "lord of the rings", "author", "tolkien")), retrieveRows(book));
   }
 
   @Test
@@ -172,14 +185,8 @@ class TestGraphqlMutationTransaction {
         "expected the failure to originate from table Book but got: " + exception.getMessage());
   }
 
-  private int count(String tableName) throws IOException {
-    return execute("{" + tableName + "_agg{count}}").at("/" + tableName + "_agg/count").intValue();
-  }
-
-  private String country(String authorName) throws IOException {
-    return execute("{Author(filter:{name:{equals:\"" + authorName + "\"}}){country}}")
-        .at("/Author/0/country")
-        .asText();
+  private List<Row> retrieveRows(Table table) {
+    return table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
   }
 
   private JsonNode execute(String query) throws IOException {
