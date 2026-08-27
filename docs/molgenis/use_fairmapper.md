@@ -80,11 +80,6 @@ The FAIR Mapper is a [picocli](https://picocli.info/)-based CLI with the main cl
 java -jar backend/molgenis-emx2-fairmapper/build/libs/fairmapper-<version>-cli.jar <command> [options]
 ```
 
-It connects to the database using the same environment variables as the rest of MOLGENIS EMX2
-(`MOLGENIS_POSTGRES_URI`, `MOLGENIS_POSTGRES_USER`, `MOLGENIS_POSTGRES_PASS`), so make sure these
-point at the Postgres instance that holds the target schema, and that the schema/tables you want
-to harvest into already exist.
-
 ?>**Tip**: since the command gets long, it's convenient to define a shell alias, e.g.:
 
 ```bash
@@ -94,10 +89,14 @@ alias fairmapper='java -jar /path/to/fairmapper-<version>-cli.jar'
 ### `harvest`
 
 Runs the full harvesting pipeline described above: extract, pre-process, transform,
-post-process and (optionally) load.
+post-process and (optionally) load. The target schema can either be a database running on the
+same machine, or a schema on a remote MOLGENIS EMX2 instance reachable over HTTP, so `harvest` has
+two subcommands, `local` and `remote`, to pick between the two.
+
+Both subcommands share the same core options:
 
 ```bash
-fairmapper harvest -r <fdp-endpoint> -s <schema> -t <table1,table2,...> [-o <output-dir>] [-l]
+fairmapper harvest <local|remote> -r <fdp-endpoint> -s <schema> -t <table1,table2,...> [-o <output-dir>] [-l] ...
 ```
 
 | Option           | Required | Description                                                                                                                                      |
@@ -116,6 +115,33 @@ When `-o` is given, a subdirectory `fairmapper-output-<harvest-id>` is created c
 * `postprocessed.zip` - the same, after post-processing has run. This is what would be loaded into
   the schema when `-l` is set.
 
+#### `harvest local`
+
+Harvests into a schema on a locally running database. It connects using the same environment
+variables as the rest of MOLGENIS EMX2 (`MOLGENIS_POSTGRES_URI`, `MOLGENIS_POSTGRES_USER`,
+`MOLGENIS_POSTGRES_PASS` - see [Run as java service](run_java.md)), so make sure these point at the
+Postgres instance that holds the target schema. No extra options besides the shared ones above.
+
+```bash
+fairmapper harvest local -r <fdp-endpoint> -s <schema> -t <table1,table2,...> [-o <output-dir>] [-l]
+```
+
+#### `harvest remote`
+
+Harvests into a schema on a remote MOLGENIS EMX2 instance, reading its schema metadata and (with
+`-l`) uploading harvested data to it over its GraphQL API instead of a direct database connection.
+
+```bash
+fairmapper harvest remote -r <fdp-endpoint> -s <schema> -t <table1,table2,...> --endpoint <url> --token <token> [-o <output-dir>] [-l]
+```
+
+In addition to the shared options above:
+
+| Option       | Required | Description                                                           |
+|--------------|----------|-----------------------------------------------------------------------|
+| `--endpoint` | yes      | Base URL of the remote MOLGENIS EMX2 instance.                        |
+| `--token`    | yes      | Authentication token for that instance (see [Tokens](use_tokens.md)). |
+
 ### `extract`
 
 Runs just the extract step (step 1 in above pipeline) for a given endpoint and writes the
@@ -127,15 +153,17 @@ hitting the remote endpoint again.
 fairmapper extract -r <fdp-endpoint> -o <output-file>
 ```
 
-| Option           | Required | Description                                       |
-|------------------|----------|----------------------------------------------------|
-| `-r`, `--rdf`    | yes      | The FDP endpoint URI to extract RDF from.          |
-| `-o`, `--output` | yes      | File to write the extracted RDF (Turtle) to.       |
+| Option           | Required | Description                                  |
+|------------------|----------|----------------------------------------------|
+| `-r`, `--rdf`    | yes      | The FDP endpoint URI to extract RDF from.    |
+| `-o`, `--output` | yes      | File to write the extracted RDF (Turtle) to. |
 
 ### `generate-query`
 
 Generates the SPARQL `SELECT` query that the transform step (step 3 in above pipeline) would use for a given table,
-based on its EMX2 metadata and column `semantics`, without running a full harvest.
+based on its EMX2 metadata and column `semantics`, without running a full harvest. This always
+connects to a local database (the same environment variables as `harvest local`, see above), since
+it needs to read the table's metadata.
 
 ```bash
 fairmapper generate-query <schema> <table> [-o <output-file>]
@@ -158,6 +186,7 @@ fairmapper generate-query <schema> <table> [-o <output-file>]
    Code extension) and try out the query from step 1 against it interactively. This lets you
    iterate on schema/semantics changes without re-running the extract step against the remote
    endpoint each time.
-3. Run `harvest` with `-o` and without `-l` first, to inspect `transformed.zip` and
-   `postprocessed.zip` and confirm the data looks correct before actually loading it.
-4. Once satisfied, re-run `harvest` with `-l` to import the data into the schema.
+3. Run `harvest local`/`harvest remote` with `-o` and without `-l` first, to inspect
+   `transformed.zip` and `postprocessed.zip` and confirm the data looks correct before actually
+   loading it.
+4. Once satisfied, re-run the same command with `-l` to import the data into the schema.
