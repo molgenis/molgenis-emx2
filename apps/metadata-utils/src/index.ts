@@ -26,6 +26,6 @@ export {
   isRefbackType,
   isSingleOntologyType,
   isSingleRefType,
-  isStoredMultiValuedType,
+  isMultiValuedType,
   isValueType,
 } from "./fieldHelpers";

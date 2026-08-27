@@ -57,7 +57,26 @@ describe("value/EMX2.vue", () => {
       },
     });
 
-    expect(uncollapsed.findComponent(ValueText).props("collapsible")).toBe(false);
+    expect(uncollapsed.findComponent(ValueText).props("collapsible")).toBe(
+      false
+    );
+  });
+
+  it("routes a refback through the list, so it is bounded like any other", () => {
+    const refback: IColumn = {
+      id: "visits",
+      label: "Visits",
+      columnType: "REFBACK",
+      refSchemaId: "pet store",
+      refTableId: "Visit",
+      refLabel: "${date}",
+    };
+    const wrapper = mount(EMX2Value, {
+      props: { metadata: refback, data: [{ date: "2023-01-10" }] },
+    });
+
+    expect(wrapper.findComponent(ValueList).exists()).toBe(true);
+    expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(undefined);
   });
 
   it("routes a single-valued column past the list entirely", () => {

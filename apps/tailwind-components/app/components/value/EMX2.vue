@@ -2,10 +2,9 @@
 import { computed } from "vue";
 import {
   isFileType,
-  isRefbackType,
   isSingleOntologyType,
   isSingleRefType,
-  isStoredMultiValuedType,
+  isMultiValuedType,
 } from "../../../../metadata-utils/src";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
@@ -22,7 +21,6 @@ import ValueList from "./List.vue";
 import ValueLong from "./Long.vue";
 import ValueObject from "./Object.vue";
 import ValueRef from "./Ref.vue";
-import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
 
@@ -55,7 +53,7 @@ defineEmits<{
 <template>
   <template v-if="data == null || data === undefined"></template>
   <ValueList
-    v-else-if="isStoredMultiValuedType(metadata.columnType)"
+    v-else-if="isMultiValuedType(metadata.columnType)"
     :metadata="metadata"
     :data="data"
     :hideListSeparator="hideListSeparator"
@@ -132,13 +130,6 @@ defineEmits<{
     v-else-if="metadata.columnType === 'HYPERLINK'"
     :metadata="metadata"
     :data="data"
-  />
-
-  <ValueRefBack
-    v-else-if="isRefbackType(metadata.columnType)"
-    :metadata="toRefColumn(metadata)"
-    :data="data"
-    @refBackCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueFile

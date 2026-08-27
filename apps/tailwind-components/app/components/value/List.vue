@@ -25,7 +25,6 @@ import ValueInt from "./Int.vue";
 import ValueLong from "./Long.vue";
 import ValueObject from "./Object.vue";
 import ValueString from "./String.vue";
-import ValueRefBack from "./RefBack.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -141,17 +140,12 @@ function handleCellClick() {
         v-else-if="
           elementType === 'REF' ||
           elementType === 'MULTISELECT' ||
-          elementType === 'CHECKBOX'
+          elementType === 'CHECKBOX' ||
+          isRefbackType(metadata.columnType)
         "
         :metadata="metadata"
         :data="assertRowValue(listElement)"
         @refCellClicked="handleCellClick"
-      />
-      <ValueRefBack
-        v-else-if="isRefbackType(metadata.columnType)"
-        :metadata="toRefColumn(metadata)"
-        :data="assertTableValue(listElement)"
-        @refBackCellClicked="handleCellClick"
       />
       <ValueObject
         v-else-if="elementType === 'ONTOLOGY'"
