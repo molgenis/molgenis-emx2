@@ -1,6 +1,15 @@
 name,parent,codesystem,code,ontologyTermURI,definition
 Copy Number Variant,,so,SO_0001019,http://purl.obolibrary.org/obo/SO_0001019,A variation that increases or decreases the copy number of a given region.
 Single Nucleotide Variant,,so,SO_0001483,http://purl.obolibrary.org/obo/SO_0001483,"Single Nucleotide Variants (SNVs) are single nucleotide positions in genomic DNA at which different sequence alternatives exist."
+Intron variant,,so,SO_0001627,http://purl.obolibrary.org/obo/SO_0001627,A transcript variant occurring within an intron.
+Intergenic variant,,so,SO_0001628,http://purl.obolibrary.org/obo/SO_0001628,"A sequence variant located in the intergenic region, between genes."
+Splice site variant,,so,SO_0001629,http://purl.obolibrary.org/obo/SO_0001629,"A sequence variant that changes the first two or last two bases of an intron, or the 5th base from the start of the intron in the orientation of the transcript."
+5' UTR variant,,so,SO_0001623,http://purl.obolibrary.org/obo/SO_0001623,A UTR variant of the 5' UTR.
+3' UTR variant,,so,SO_0001624,http://purl.obolibrary.org/obo/SO_0001624,A UTR variant of the 3' UTR.
+Regulatory region variant,,so,SO_0001566,http://purl.obolibrary.org/obo/SO_0001566,A sequence variant located within a regulatory region.
+Genic upstream transcript variant,,so,SO_0002153,http://purl.obolibrary.org/obo/SO_0002153,"A variant that falls upstream of a transcript, but within the genic region of the gene due to alternately transcribed isoforms."
+Synonymous variant,,so,SO_0001819,http://purl.obolibrary.org/obo/SO_0001819,A sequence variant where there is no resulting change to the encoded amino acid.
+Non-synonymous variant,,so,SO_0001992,http://purl.obolibrary.org/obo/SO_0001992,"A non-synonymous variant is an inframe, protein altering variant, resulting in a codon change."
 MNV,,so,SO_0002007,http://purl.obolibrary.org/obo/SO_0002007,An MNV is a multiple nucleotide variant (substitution) in which the inserted sequence is the same length as the replaced sequence.
 Insertion,,so,SO_0000667,http://purl.obolibrary.org/obo/SO_0000667,"The sequence of one or more nucleotides added between two adjacent nucleotides in the sequence."
 Deletion,,so,SO_0000159,http://purl.obolibrary.org/obo/SO_0000159,"The point at which one or more contiguous nucleotides were excised."
