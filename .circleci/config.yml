@@ -617,12 +617,12 @@ jobs:
           working_directory: repo
              
       - run:
-        name: Message slack about a database cleanup
-        command: |
-          curl -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" \
-          -H "Content-Type: application/json" \
-          --data '{"channel":"C057JRKLUKG","text":"cleaned database at https://emx2.dev.molgenis.org/"}' \
-          https://slack.com/api/chat.postMessage
+          name: Message slack about a database cleanup
+          command: |
+            curl -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"channel":"C057JRKLUKG","text":"cleaned database at https://emx2.dev.molgenis.org/"}' \
+            https://slack.com/api/chat.postMessage
       
 
 
