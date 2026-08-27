@@ -18,11 +18,11 @@ describe("value/List.vue", () => {
       props: { metadata, data: eight, maxLines: 2 },
     });
     const uncollapsed = mount(ValueList, {
-      props: { metadata, data: eight, collapse: false },
+      props: { metadata, data: eight, collapsible: false },
     });
 
     expect(bounded.findComponent(ShowMore).props("maxLines")).toBe(2);
-    expect(uncollapsed.findComponent(ShowMore).props("collapse")).toBe(false);
+    expect(uncollapsed.findComponent(ShowMore).props("collapsible")).toBe(false);
   });
 
   it("tells the clamp whether values remain unrendered", () => {

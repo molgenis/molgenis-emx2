@@ -59,7 +59,7 @@ afterEach(() => {
 
 describe("ShowMore.vue", () => {
   it("clamps, and observes, only where the caller wants it collapsed", async () => {
-    const unbounded = await clamp({ collapse: false });
+    const unbounded = await clamp({ collapsible: false });
     expect(unbounded.find("span span").classes()).not.toContain("show-more");
     expect(labels(unbounded)).toEqual([]);
     expect(observers).toBe(0);

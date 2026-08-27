@@ -55,7 +55,7 @@ withDefaults(
         </header>
 
         <p class="text-body-base my-5 hidden sm:block">
-          <ShowMore :maxLines="5">{{ description }}</ShowMore>
+          <ShowMore>{{ description }}</ShowMore>
         </p>
 
         <a

@@ -13,14 +13,14 @@ const props = withDefaults(
     maxLines?: number;
     lineStep?: number;
     /** Set false where the caller bounds the content itself, such as a table cell. */
-    collapse?: boolean;
+    collapsible?: boolean;
     /** The caller is holding back content that is not in the slot yet. */
     hasMore?: boolean;
   }>(),
   {
     maxLines: 3,
     lineStep: 5,
-    collapse: true,
+    collapsible: true,
   }
 );
 
@@ -37,11 +37,10 @@ watch(
   (value) => (lines.value = value)
 );
 
-const isClamped = computed(() => props.collapse);
+const isClamped = computed(() => props.collapsible);
 
-// Clamped until measurement says otherwise, because the server cannot measure: an
-// unclamped first paint sends the whole text and then snaps to the bound. Clamping
-// short content changes nothing, so this is only ever right.
+// Clamped until measured: the server cannot measure, and an unclamped first paint
+// would snap to the bound on hydration.
 const isCut = computed(
   () => isClamped.value && (overflows.value || !measured.value)
 );
@@ -53,12 +52,11 @@ const isExpanded = computed(
     lines.value > props.maxLines
 );
 
-// Never during render: reading scrollHeight forces a synchronous reflow. Measures
-// in the bounded configuration, which is not the one on screen while nothing is
-// cut, because line-clamp discards its overflow instead of overflowing.
+// Never during render: reading scrollHeight forces a synchronous reflow. Asks in
+// the bounded configuration, because line-clamp discards its overflow.
 function measure() {
   const element = target.value;
-  if (!element || !props.collapse) return;
+  if (!element || !props.collapsible) return;
   const saved = element.style.cssText;
   element.style.display = "-webkit-box";
   element.style.webkitBoxOrient = "vertical";
@@ -82,15 +80,14 @@ function measure() {
 let sizeObserver: ResizeObserver | undefined;
 let contentObserver: MutationObserver | undefined;
 
-// Only a clamped block can hide anything. A table page holds hundreds of
-// unclamped ones, and none of them should cost an observer.
+// A table page holds hundreds of unclamped blocks; none should cost an observer.
 function startObserving() {
   if (sizeObserver || typeof ResizeObserver === "undefined") return;
   if (!isClamped.value || !target.value) return;
   sizeObserver = new ResizeObserver(measure);
   sizeObserver.observe(target.value);
-  // A cut block keeps its height when its values change, so the ResizeObserver
-  // never fires. Attributes stay unobserved: measure() writes its own styles.
+  // A cut block keeps its height when its values change, so resize never fires.
+  // Attributes stay unobserved: measure() writes its own styles.
   contentObserver = new MutationObserver(measure);
   contentObserver.observe(target.value, {
     childList: true,
@@ -179,11 +176,8 @@ function showLess() {
 </template>
 
 <style scoped>
-/*
- * Prefixed line-clamp only: the standard `line-clamp` shorthand sets
- * `continue: discard`, which wants a block container, and setting both leaves the
- * element clamped by neither.
- */
+/* Prefixed only: the standard `line-clamp` shorthand wants a block container, and
+   setting both leaves the element clamped by neither. */
 .show-more-root {
   position: relative;
   display: inline-block;
@@ -197,7 +191,7 @@ function showLess() {
 }
 
 /* The mask erases the tail of the last line, ellipsis and all, so the control needs
-   no paint: the surface is not a colour, two themes back the page with a gradient.
+   no paint: two themes back the page with a gradient, so there is no colour to match.
    Layer one fades that line's right end, layer two keeps everything above whole. */
 .show-more {
   display: -webkit-box;

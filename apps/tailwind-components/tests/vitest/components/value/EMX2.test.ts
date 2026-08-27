@@ -53,11 +53,11 @@ describe("value/EMX2.vue", () => {
       props: {
         metadata: singleText,
         data: "A long description.",
-        collapse: false,
+        collapsible: false,
       },
     });
 
-    expect(uncollapsed.findComponent(ValueText).props("collapse")).toBe(false);
+    expect(uncollapsed.findComponent(ValueText).props("collapsible")).toBe(false);
   });
 
   it("routes a single-valued column past the list entirely", () => {
@@ -70,10 +70,10 @@ describe("value/EMX2.vue", () => {
 
   it("leaves the bound off entirely when the caller bounds the value itself", () => {
     const wrapper = mount(EMX2Value, {
-      props: { metadata: ontologyArray, data: eightTerms, collapse: false },
+      props: { metadata: ontologyArray, data: eightTerms, collapsible: false },
     });
 
-    expect(wrapper.findComponent(ValueList).props("collapse")).toBe(false);
+    expect(wrapper.findComponent(ValueList).props("collapsible")).toBe(false);
   });
 
   it("bounds CHECKBOX and MULTISELECT, which are multi-valued without an _ARRAY suffix", () => {

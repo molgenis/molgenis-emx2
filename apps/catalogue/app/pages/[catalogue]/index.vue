@@ -253,7 +253,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
   <LayoutsLandingPage>
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description>
-        <ShowMore :maxLines="5">
+        <ShowMore>
           Welcome to the catalogue of
           <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
             network.id
@@ -263,7 +263,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         </ShowMore>
       </template>
       <template v-else v-slot:description>
-        <ShowMore :maxLines="5">{{ description }}</ShowMore>
+        <ShowMore>{{ description }}</ShowMore>
       </template>
     </PageHeader>
     <LandingPrimary>

@@ -14,7 +14,7 @@ defineProps<{
       {{ title }}
     </h2>
     <div class="mb-5 prose max-w-none" v-if="description">
-      <ShowMore :maxLines="5">{{ description }}</ShowMore>
+      <ShowMore>{{ description }}</ShowMore>
     </div>
     <slot></slot>
   </section>
