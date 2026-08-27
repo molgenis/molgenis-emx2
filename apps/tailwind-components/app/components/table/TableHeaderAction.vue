@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ArrowUp from "../global/icons/ArrowUp.vue";
 import ArrowDown from "../global/icons/ArrowDown.vue";
+import { useId } from "vue";
 
 defineProps<{
   column: {
@@ -9,6 +10,7 @@ defineProps<{
   };
   schemaId: string;
   tableId: string;
+  isResizing?: boolean;
   settings: {
     orderby: {
       column: string;
@@ -22,6 +24,8 @@ const mgAriaSortMappings: Record<string, string> = {
   DESC: "descending",
 };
 
+const id = useId();
+
 const emit = defineEmits<{
   (e: "sort-requested", columnId: string): void;
 }>();
@@ -29,7 +33,7 @@ const emit = defineEmits<{
 <template>
   <div class="flex justify-start items-center gap-1">
     <button
-      :id="`table-emx2-${schemaId}-${tableId}-${column.label}-sort-btn`"
+      :id="`table-emx2-${id}-${schemaId}-${tableId}-${column.label}-sort-btn`"
       type="button"
       @click.prevent
       class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"

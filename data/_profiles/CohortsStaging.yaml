@@ -6,7 +6,9 @@ profileTags: CohortsStaging
 
 demoData: _demodata/applications/datacatalogue_cohortstaging
 
-settings:
+settings: _settings/datacatalogue_cohortstaging
+
+# settings:
 
 # special options
 ontologiesToFixedSchema: CatalogueOntologies

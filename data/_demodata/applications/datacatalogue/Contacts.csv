@@ -1,6 +1,6 @@
 resource,role,role description,first name,last name,display name,prefix,initials,title,organisation,email,orcid,homepage,photo,photo_filename,expertise,mg_draft
 MOLGENIS,,,Morris,Swertz,Morris Swertz,,,,,test@email.org,,,,,,false
-testCohort1,Data manager,test description for data manager role,datamgr first name,datamgr last name,datamgr first name datamgr last name,datamgr surname prefix,D.M.,dr.,LUMC,test@email.nl,test orcid,https://kanariepiet.com,742c473e39e64ba397f07d0e9a6d84da,ac8e9674448a42fdb12f49eb0cf329da.jpg,test expertise for data manager role,false
+testCohort1,Data manager,test description for data manager role,datamgr first name,datamgr last name,datamgr first name datamgr last name,datamgr surname prefix,D.M.,dr.,LUMC,test@email.nl,test orcid,https://kanariepiet.com,39cf39f46d5a4a3997a3b4fba8e17d6c,ac8e9674448a42fdb12f49eb0cf329da.jpg,test expertise for data manager role,false
 main catalogue,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 FORCE-NEN,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,UMCU,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 NFBC1966,,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
@@ -41,7 +41,7 @@ testCohort3,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
 ABCD,Primary contact,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 ALSPAC,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 ALSPAC,Primary contact,,Jack,Ross,Jack Ross,,JR,prof.,,jack.ross@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Carpenting,
-testCohort1,"Principal Investigator,Project manager",Test description of PI/PM role,PIPM,last name PIPM,PIPM last name PIPM,surname prefix,P.I.P.M.,dr. ir.,UMCG,pipm@testdomain.nl,test orcid,https://kanariepiet.com,d11622fcde214ade936ce9ef80e8914d,29a0c789813341a39adf09022577c44c.jpg,test expertise,false
+testCohort1,"Principal Investigator,Project manager",Test description of PI/PM role,PIPM,last name PIPM,PIPM last name PIPM,surname prefix,P.I.P.M.,dr. ir.,UMCG,pipm@testdomain.nl,test orcid,https://kanariepiet.com,5ffcc5ec9be54a7fad38aef5e67a6c59,29a0c789813341a39adf09022577c44c.jpg,test expertise,false
 ALSPAC,Data manager,,Ollie,Ross,Ollie Ross,,OR,ir.,,ollie.ross@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Waiting,
 BIB,Data manager,,Rob,Boss,Rob Boss,,R,dr.,BRI,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 CELSPAC-TNG,Data manager,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
@@ -111,7 +111,6 @@ SPA,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
 AVOHILMO,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
 ABL,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
 EUROCAT NNL,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
-TestDataSourceID,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
 CON,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,SSI,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 CONSTANCES,Project manager,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 CSC,Data manager,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
@@ -124,5 +123,8 @@ FEF,Project manager,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-
 PELAGIE,Primary contact,,Rob,Boss,Rob Boss,,R,dr.,INSERM,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 PELAGIE,Primary contact,,Jack,Ross,Jack Ross,,JR,prof.,INSERM,jack.ross@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Carpenting,
 PSYCONN,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
-UMCG,"Principal Investigator,Primary contact",boss person,Rob,Boss,Rob Boss,van der,B.U.M.C.G.,prof. dr. ir.,,umcg@example.org,,,,,
-testUMC,"Principal Investigator,Primary contact",leader,Rob,Boss,Rob Boss,,,,,tumc@example.org,,,,,
+UMCG,"Principal Investigator,Primary contact",boss person,Rob,Boss,Rob Boss,van der,B.U.M.C.G.,prof. dr. ir.,,umcg@example.org,,,,,,
+testUMC,"Principal Investigator,Primary contact",leader,Rob,Boss,Rob Boss,,,,,tumc@example.org,,,,,,
+TestDataSourceID,Primary contact,,Rob,Boss,Rob Boss,,,,,rob.boss@email.eu,,,,,,
+TestDatabank1,Project manager,,Rob,Boss,Rob Boss,,,prof. dr.,,rob.boss@email.org,,,,,,false
+TestDatabank2,Project manager,,Test,Data,Test Data,,,,,testdata@data.nl,,,,,,false

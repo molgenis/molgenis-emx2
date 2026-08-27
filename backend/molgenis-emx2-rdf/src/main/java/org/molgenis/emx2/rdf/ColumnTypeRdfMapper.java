@@ -227,7 +227,8 @@ public abstract class ColumnTypeRdfMapper {
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         Map<String, String> colNameToRefTableColName =
             column.getReferences().stream()
-                .collect(Collectors.toMap(Reference::getName, Reference::getRefTo));
+                .collect(
+                    Collectors.toMap(Reference::getColumnName, Reference::getReferencedColumnName));
 
         // Separate refLink (if present) from the rest.
         String[] refLinkMappingItem =
@@ -242,9 +243,9 @@ public abstract class ColumnTypeRdfMapper {
         final ArrayList<SortedMap<String, String>> itemsToMap = new ArrayList<>();
         for (final String colName : colNameToRefTableColName.keySet()) {
           final String[] values =
-              (column.isArray()
+              column.isArray()
                   ? row.getStringArray(colName)
-                  : new String[] {row.getString(colName)});
+                  : new String[] {row.getString(colName)};
 
           if (values == null) continue;
 
@@ -276,7 +277,8 @@ public abstract class ColumnTypeRdfMapper {
         // Composite key requires all fields to be filled. Using refLink from a non-required field
         // could cause a part of the composite key to be defined.
         // Therefore, if a composite key is partly defined, assume it is not defined.
-        return column.getReferences().stream().anyMatch(i -> row.getString(i.getName()) == null);
+        return column.getReferences().stream()
+            .anyMatch(i -> row.getString(i.getColumnName()) == null);
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {

@@ -14,19 +14,22 @@ public class DataModels {
     DATA_CATALOGUE("_profiles/DataCatalogue.yaml"),
     DATA_CATALOGUE_COHORT_STAGING("_profiles/CohortsStaging.yaml"),
     DATA_CATALOGUE_NETWORK_STAGING("_profiles/NetworksStaging.yaml"),
+    DATA_CATALOGUE_RWE_STAGING("_profiles/RWEStaging.yaml"),
     DATA_CATALOGUE_AGGREGATES("_profiles/DataCatalogueAggregates.yaml"),
     UMCG_COHORT_STAGING("_profiles/UMCGCohortsStaging.yaml"),
     UMCU_COHORTS_STAGING("_profiles/UMCUCohorts.yaml"),
     INTEGRATE_COHORTS_STAGING("_profiles/INTEGRATECohorts.yaml"),
     FAIR_DATA_HUB("_profiles/FAIRDataHub.yaml"),
     PATIENT_REGISTRY("_profiles/PatientRegistry.yaml"),
+    PATIENT_REGISTRY_ID_BANK("_profiles/PatientRegistryIdBank.yaml"),
+    PATIENT_REGISTRY_STAGING("_profiles/PatientRegistryStaging.yaml"),
     FAIR_GENOMES("_profiles/FAIRGenomes.yaml"),
     FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),
     BEACON_V2("_profiles/BeaconV2.yaml"),
-    SHARED_STAGING("_profiles/SharedStaging.yaml"),
     IMAGE_TEST("_profiles/ImageTest.yaml"),
     PET_STORE("_profiles/PetStore.yaml"),
     TYPE_TEST("_profiles/TypeTest.yaml"),
+    UI_DASHBOARD("_profiles/DataViz.yaml"),
     MG_CMS("_profiles/Pages.yaml");
 
     public static boolean hasProfile(String nameOther) {
@@ -52,7 +55,6 @@ public class DataModels {
 
   public enum Regular {
     ERN_DASHBOARD(DashboardLoader::new),
-    UI_DASHBOARD(UiDashboardLoader::new),
     PATIENT_REGISTRY_DEMO(PatientRegistryDemoLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),

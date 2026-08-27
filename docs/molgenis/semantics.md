@@ -15,6 +15,9 @@ If not, then it is assumed to be an IRI.
 
 Multiple values can be defined by separating these by a comma (such as `dcterms:title,http://purl.org/dc/terms/description`).
 
+?>**Note**: Order the semantics from most important to least important. When generating SparQL SELECT queries, the 
+  semantics are prioritised in the order as they are defined.
+
 ## Defined namespaces
 
 By default, the following prefixed names are available:
@@ -26,6 +29,7 @@ By default, the following prefixed names are available:
 |---------------|------------------------------------------------|
 | afr           | http://purl.allotrope.org/ontologies/result#   |
 | afrl          | http://purl.allotrope.org/ontologies/role#     |
+| csvw          | http://www.w3.org/ns/csvw#                     |
 | dc            | http://purl.org/dc/elements/1.1/               |
 | dcat          | http://www.w3.org/ns/dcat#                     |
 | dcatap        | http://data.europa.eu/r5r/                     |
@@ -58,8 +62,6 @@ By default, the following prefixed names are available:
 | snomedct      | http://purl.bioontology.org/ontology/SNOMEDCT/ |
 | vcard         | http://www.w3.org/2006/vcard/ns#               |
 | xsd           | http://www.w3.org/2001/XMLSchema#              |
-
-!> The IRI for healthDCAT-AP is a placeholder as it [currently does not have one defined](https://healthdcat-ap.github.io/#namespaces).
 
 !> The list above can be overridden using a [schema-specific advanced setting](./dev_rdf.md#custom-semantic-prefixes).
 

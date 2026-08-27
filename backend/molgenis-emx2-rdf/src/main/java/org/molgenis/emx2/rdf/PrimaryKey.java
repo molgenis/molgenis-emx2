@@ -52,9 +52,9 @@ public class PrimaryKey {
     for (final Column column : table.getPrimaryKeyColumns()) {
       if (column.isReference()) {
         for (final Reference reference : column.getReferences()) {
-          final String[] values = row.getStringArray(reference.getName());
+          final String[] values = row.getStringArray(reference.getColumnName());
           for (final String value : values) {
-            keyParts.put(reference.getName(), value);
+            keyParts.put(reference.getColumnName(), value);
           }
         }
       } else {

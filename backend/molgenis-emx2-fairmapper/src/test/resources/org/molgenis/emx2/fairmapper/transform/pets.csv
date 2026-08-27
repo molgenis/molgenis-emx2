@@ -1,0 +1,9 @@
+name,status,weight,tags
+the very hungry caterpillar,available,0.5,https://dbpedia.org/page/Green
+sylvester,available,1.337,http://localhost:8080/pet%20store/api/rdf/Tag/name=purple
+tom,available,3.14,https://dbpedia.org/page/Red
+tweety,available,0.1,https://dbpedia.org/page/Red
+fire ant,available,0.01,"http://localhost:8080/pet%20store/api/rdf/Tag/name=purple,https://dbpedia.org/page/Green,https://dbpedia.org/page/Red"
+pooky,available,9.4,
+spike,sold,15.7,"https://dbpedia.org/page/Green,https://dbpedia.org/page/Red"
+jerry,available,0.18,http://localhost:8080/pet%20store/api/rdf/Tag/name=blue

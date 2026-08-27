@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import constants from "../../constants";
-import { flipSign, isNumericKey } from "../../utils";
+import { flipMinusSign, isNumericKey } from "../../utils";
 import { isRequired } from "../formUtils/formUtils";
 import BaseInput from "./BaseInput.vue";
 
@@ -35,7 +35,7 @@ export default {
     handleKeyValidity(event: any) {
       const keyCode = event.which ?? event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit("update:modelValue", flipSign(event.target.value));
+        this.$emit("update:modelValue", flipMinusSign(event.target.value));
       }
       if (!isNumericKey(event)) {
         event.preventDefault();

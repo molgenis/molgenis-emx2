@@ -1,18 +1,18 @@
 package org.molgenis.emx2.io;
 
-import static org.molgenis.emx2.Privileges.VIEWER;
 import static org.molgenis.emx2.io.emx2.Emx2.outputMetadata;
-import static org.molgenis.emx2.io.emx2.Emx2Members.outputRoles;
 import static org.molgenis.emx2.io.emx2.Emx2Settings.outputSettings;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTable;
 import static org.molgenis.emx2.io.emx2.Emx2Tables.outputTableWithSystemColumns;
 
 import java.nio.file.Path;
 import java.util.List;
+import org.molgenis.emx2.PermissionEvaluator;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.io.emx1.Emx1;
+import org.molgenis.emx2.io.emx2.Emx2Members;
+import org.molgenis.emx2.io.emx2.Emx2Roles;
 import org.molgenis.emx2.io.tablestore.*;
 import org.molgenis.emx2.tasks.Task;
 
@@ -25,13 +25,13 @@ public class MolgenisIO {
 
   private static void outputAll(TableStore store, Schema schema, boolean includeSystemColumns) {
     outputMetadata(store, schema);
-    outputRoles(store, schema);
+    Emx2Roles.outputRoles(store, schema);
+    Emx2Members.outputMembers(store, schema);
     outputSettings(store, schema);
 
-    boolean hasViewPermission = schema.getInheritedRolesForActiveUser().contains(VIEWER.toString());
     for (String tableName : schema.getTableNames()) {
       Table table = schema.getTable(tableName);
-      if (hasViewPermission || table.getMetadata().getTableType().equals(TableType.ONTOLOGIES)) {
+      if (PermissionEvaluator.canView(schema, table.getMetadata())) {
         writeTableToStore(store, table, includeSystemColumns);
       }
     }

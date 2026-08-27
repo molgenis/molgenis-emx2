@@ -1,6 +1,7 @@
 package org.molgenis.emx2.tasks;
 
 import static org.molgenis.emx2.tasks.TaskStatus.RUNNING;
+import static org.molgenis.emx2.tasks.TaskStatus.WAITING;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 public class TaskServiceInMemory implements TaskService {
   Logger logger = LoggerFactory.getLogger(TaskServiceInMemory.class.getSimpleName());
   private final ExecutorService executorService;
-  private final Map<String, Task> tasks = new LinkedHashMap<>();
+  private final Map<String, Task> tasks = new ConcurrentHashMap<>();
 
   public TaskServiceInMemory() {
     executorService = Executors.newSingleThreadExecutor();
@@ -43,8 +44,24 @@ public class TaskServiceInMemory implements TaskService {
     return task.getId();
   }
 
+  public Task cancel(String taskId) {
+    Task task = tasks.get(taskId);
+    if (task == null) {
+      throw new MolgenisException("Task with id '" + taskId + "' not found");
+    }
+    if (!RUNNING.equals(task.getStatus()) && !WAITING.equals(task.getStatus())) {
+      throw new MolgenisException("Cannot cancel task with status: " + task.getStatus());
+    }
+
+    task.setStatus(TaskStatus.CANCELLED);
+    task.stop();
+
+    logger.info("Cancelled task " + taskId);
+    return task;
+  }
+
   @Override
-  public String submitTaskFromName(String name, String parameters) {
+  public ScriptTask getScript(String name) {
     throw new UnsupportedOperationException("Not supported when using in memory task service");
   }
 

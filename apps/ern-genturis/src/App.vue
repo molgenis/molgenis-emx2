@@ -1,3 +1,14 @@
+<script lang="ts" setup>
+import { ref } from "vue";
+// @ts-expect-error
+import { Molgenis } from "molgenis-components";
+// @ts-expect-error
+import { AppFooter } from "molgenis-viz";
+
+const session = ref(null);
+const page = ref(null);
+</script>
+
 <template>
   <Molgenis id="__top" v-model="session">
     <router-view :session="session" :page="page" />
@@ -19,6 +30,12 @@
         </li>
         <li>
           <router-link :to="{ name: 'governance' }">Governance</router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'privacy' }">Privacy Policy</router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'disclaimer' }">Disclaimer</router-link>
         </li>
       </template>
       <template v-slot:column-links-2>
@@ -43,23 +60,6 @@
           />
         </li>
       </template>
-      <template v-slot:site-citation>
-        <li>
-          <router-link :to="{ name: 'privacy' }">Privacy Policy</router-link>
-        </li>
-        <li>
-          <router-link :to="{ name: 'disclaimer' }">Disclaimer</router-link>
-        </li>
-      </template>
     </AppFooter>
   </Molgenis>
 </template>
-
-<script setup>
-import { ref } from "vue";
-import { Molgenis } from "molgenis-components";
-import AppFooter from "./components/AppFooter.vue";
-
-const session = ref(null);
-const page = ref(null);
-</script>

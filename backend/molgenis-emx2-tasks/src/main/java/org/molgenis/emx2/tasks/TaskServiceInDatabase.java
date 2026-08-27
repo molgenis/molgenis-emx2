@@ -22,6 +22,7 @@ import org.jooq.Result;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.sql.SqlSchema;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
   private SqlDatabase database;
@@ -97,32 +98,10 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(String scriptName, String parameters) {
-    StringBuilder result = new StringBuilder();
-    String defaultUser = database.getActiveUser();
-    database.tx(
-        db -> {
-          db.becomeAdmin();
-          Schema systemSchema = db.getSchema(this.systemSchemaName);
-
-          ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
-          scriptTask.setServerUrl(hostUrl);
-          String user =
-              scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
-
-          db.setActiveUser(user);
-          // submit the script
-          result.append(
-              this.submit(
-                  scriptTask
-                      .parameters(parameters)
-                      .token(
-                          JWTgenerator.createTemporaryToken(
-                              systemSchema.getDatabase(),
-                              systemSchema.getDatabase().getActiveUser()))
-                      .submitUser(user)));
-        });
-    return result.toString();
+  public ScriptTask getScript(String scriptName) {
+    SqlSchema systemSchema = database.getSchema(this.systemSchemaName);
+    ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
+    return scriptTask.setServerUrl(hostUrl).token(JWTgenerator.createTemporaryToken(database));
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
@@ -296,7 +275,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                                 "output of the script, if output extension != null and based on OUTPUT_FILE environment variable")));
             // import defaults
             String demoScript =
-                """
+"""
 import os;
 import sys
 # you can get parameters via sys.argv[1]
@@ -355,7 +334,7 @@ f.close()
               .getMetadata()
               .setSetting(
                   "menu",
-                  """
+"""
 [{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Tables","href":"tables","role":"Editor","key":"eq1fcr","submenu":[]},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
 """);
         });

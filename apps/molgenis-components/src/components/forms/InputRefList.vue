@@ -61,7 +61,7 @@
       <div class="m-1">
         <RowButtonAdd
           id="add-entry"
-          v-if="canEdit"
+          v-if="canInsert"
           :label="`Add new ${label}`"
           :tableId="tableId"
           :schemaId="schemaId"
@@ -87,6 +87,7 @@
             :schemaId="schemaId"
             :tableId="tableId"
             :canEdit="canEdit"
+            :canInsert="canInsert"
             :showSelect="true"
             :filter="filter"
             :limit="10"
@@ -104,6 +105,7 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import {
   ITableMetaData,
@@ -111,7 +113,8 @@ import {
 } from "../../../../metadata-utils/src/types";
 import { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";
-import Client from "../../client/client";
+import type { ITablePermission } from "../account/Interfaces";
+import Client, { resolveTablePermission } from "../../client/client";
 import FilterWell from "../filters/FilterWell.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
 import Spinner from "../layout/Spinner.vue";
@@ -138,6 +141,7 @@ export default {
       selection: deepClone(this.modelValue),
       count: 0,
       tableMetadata: null as null | ITableMetaData,
+      tablePermission: undefined as ITablePermission | undefined,
       loading: false,
     };
   },
@@ -173,8 +177,16 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    tablePermissions: {
+      type: Array as PropType<ITablePermission[]>,
+      required: false,
+      default: () => [],
+    },
   },
   computed: {
+    canInsert() {
+      return this.tablePermission?.canInsert ?? this.canEdit;
+    },
     title() {
       const label = this.tableMetadata?.label || this.tableId;
       return "Select " + label;
@@ -216,7 +228,7 @@ export default {
     },
     emitSelection() {
       if (!this.selection.length) {
-        this.$emit("update:modelValue", null);
+        this.$emit("update:modelValue", []);
       } else {
         this.$emit("update:modelValue", this.selection);
       }
@@ -263,8 +275,17 @@ export default {
       this.loading = false;
       this.$emit("optionsLoaded", this.data);
     },
+    async loadPermission() {
+      this.tablePermission = await resolveTablePermission(
+        this.schemaId,
+        this.tableId,
+        this.tablePermissions
+      );
+    },
   },
   watch: {
+    schemaId: "loadPermission",
+    tableId: "loadPermission",
     async modelValue() {
       if (!this.modelValue) {
         this.selection = [];
@@ -282,6 +303,7 @@ export default {
     },
   },
   async created() {
+    this.loadPermission();
     this.loading = true;
     this.client = Client.newClient(this.schemaId);
     this.tableMetadata = await this.client.fetchTableMetaData(this.tableId);
@@ -315,7 +337,7 @@ export default {
       <p class="font-italic">view in table mode to see edit action buttons</p>
     </div>
     <DemoItem>
-      <!-- normally you don't need schemaId, it will use graphql on current path-->
+      <!-- normally you don't need schemaId, it will use graphql on current path -->
       <InputRefList
         id="input-ref-list"
         label="Standard ref input list"

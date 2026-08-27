@@ -67,7 +67,7 @@ export default {
 
   .data-highlight {
     box-sizing: border-box;
-    padding: 1em;
+    padding: 0.8em 1em;
     background-color: $blue-800;
     border-radius: 6px;
     flex-grow: 1;
@@ -76,8 +76,8 @@ export default {
     .data-value {
       .data-label {
         display: block;
-        margin-bottom: 21px;
-        font-size: 11pt;
+        margin-bottom: 0.15em;
+        font-size: 0.75rem;
         text-transform: uppercase;
         font-weight: bold;
         color: $blue-100;
@@ -87,7 +87,7 @@ export default {
       &::after {
         content: attr(value);
         display: block;
-        font-size: 36pt;
+        font-size: 1.8rem;
         text-align: center;
         color: $blue-050;
       }

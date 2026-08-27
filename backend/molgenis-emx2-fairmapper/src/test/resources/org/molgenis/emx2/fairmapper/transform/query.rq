@@ -1,0 +1,7 @@
+SELECT ?Pet ?name ?status ( GROUP_CONCAT( DISTINCT STR( ?tags_single ) ; SEPARATOR = ',' ) AS ?tags ) ?weight
+WHERE { ?Pet ?anyPredicate ?anyObject .
+?Pet <http://example.com/petstore#hasName> ?name .
+OPTIONAL { ?Pet <http://example.com/petstore#hasStatus> ?status . }
+OPTIONAL { ?Pet <http://example.com/petstore#hasTags> ?tags_single . }
+?Pet <http://example.com/petstore#hasWeight> ?weight . }
+GROUP BY ?Pet ?name ?status ?weight

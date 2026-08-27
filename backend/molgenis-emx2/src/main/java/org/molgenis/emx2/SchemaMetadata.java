@@ -122,6 +122,10 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     return result;
   }
 
+  public List<TableMetadata> getRootTables() {
+    return getTables().stream().filter(table -> table.getInheritName() == null).toList();
+  }
+
   public Database getDatabase() {
     return database;
   }
@@ -130,12 +134,16 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.database = database;
   }
 
+  public SemanticPrefixes getSemanticPrefixes() {
+    return new SemanticPrefixes(this);
+  }
+
   public List<TableMetadata> getTablesIncludingExternal() {
     Map<String, TableMetadata> tables = new LinkedHashMap<>();
     for (String tableName : getTableNames()) {
       tables.put(tableName, getTableMetadata(tableName));
     }
-    // add exteral references recursively
+    // add external references recursively
     for (String tableName : getTableNames()) {
       addExternalTablesRecursive(tables, getTableMetadata(tableName));
     }

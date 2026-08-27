@@ -7,6 +7,7 @@ import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 import java.util.*;
 import org.jooq.*;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.User;
 import org.slf4j.Logger;
@@ -28,6 +29,10 @@ public class MetadataUtils {
   public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
+  public static final org.jooq.Table<Record> PG_AUTH_MEMBERS =
+      table(name("pg_catalog", "pg_auth_members"));
+  public static final org.jooq.Table<Record> PG_CATALOG_ROLES =
+      table(name("pg_catalog", "pg_roles"));
 
   // deprecated table/clumn, to be delete on next major upgrade
   private static final org.jooq.Table VERSION_METADATA = table(name(MOLGENIS, "version_metadata"));
@@ -199,7 +204,9 @@ public class MetadataUtils {
                 "DROP POLICY IF EXISTS {0} ON {1}",
                 name(SCHEMA_METADATA.getName() + "_POLICY"), SCHEMA_METADATA);
             jooq.execute(
-                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/Exists'),'MEMBER'))",
+                "CREATE POLICY {0} ON {1} USING (pg_has_role(CONCAT({2},{3},'/"
+                    + Privileges.MEMBER
+                    + "'),'MEMBER'))",
                 name(SCHEMA_METADATA.getName() + "_POLICY"),
                 SCHEMA_METADATA,
                 MG_ROLE_PREFIX,
@@ -469,6 +476,23 @@ public class MetadataUtils {
     return table;
   }
 
+  static List<TableRef> getInheritingChildren(
+      DSLContext jooq, String schemaName, String tableName) {
+    return jooq
+        .select(TABLE_SCHEMA, TABLE_NAME)
+        .from(TABLE_METADATA)
+        .where(
+            TABLE_INHERITS
+                .eq(tableName)
+                .and(coalesce(TABLE_IMPORT_SCHEMA, TABLE_SCHEMA).eq(schemaName)))
+        .orderBy(TABLE_SCHEMA, TABLE_NAME)
+        .fetch()
+        .stream()
+        .map(
+            childRecord -> new TableRef(childRecord.get(TABLE_SCHEMA), childRecord.get(TABLE_NAME)))
+        .toList();
+  }
+
   public static List<Column> getReferencesToTable(
       DSLContext jooq, String schemaName, String tableName) {
     List<org.jooq.Record> refRecords =
@@ -728,5 +752,11 @@ public class MetadataUtils {
 
   public static void resetVersion() {
     version = null;
+  }
+
+  record TableRef(String schemaName, String tableName) {
+    String qualifiedName() {
+      return schemaName + "." + tableName;
+    }
   }
 }

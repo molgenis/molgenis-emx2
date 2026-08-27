@@ -1,4 +1,4 @@
-import { ISetting } from "metadata-utils";
+import type { ISetting } from "../../../../metadata-utils/src/types";
 
 export interface ITablePermission {
   name: string;
@@ -7,6 +7,7 @@ export interface ITablePermission {
   canInsert: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  isRowLevel: boolean;
 }
 
 export interface ISession {

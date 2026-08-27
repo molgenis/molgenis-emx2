@@ -1,52 +1,55 @@
-import { getDashboardChart } from "./getDashboardData";
-import type { ICharts, IChartData } from "../types/schema";
+import { getDashboardChart } from "../../../metadata-utils/src/viz/getUiDashboardCharts";
+import type { IChartData } from "../../../metadata-utils/src/viz/UiDashboard";
 
 export async function getGeneticLossData(url: string, type: string) {
-  const hearingLossType = (
-    (await getDashboardChart(url, "type-of-hearing-loss")) as ICharts[]
-  )[0] as ICharts;
+  const hearingLossTypeLeft = (
+    await getDashboardChart(url, "ghl-type-of-hearing-loss-left")
+  )[0];
+
+  const hearingLossTypeRight = (
+    await getDashboardChart(url, "ghl-type-of-hearing-loss-right")
+  )[0];
 
   const severityChart = (
-    (await getDashboardChart(
-      url,
-      "severity-of-hearing-loss-by-ear"
-    )) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "severity-of-hearing-loss-by-ear")
+  )[0];
 
   const onsetChart = (
-    (await getDashboardChart(url, "age-of-hearing-loss-onset")) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "age-of-hearing-loss-onset")
+  )[0];
 
   const dxTypeChart = (
-    (await getDashboardChart(url, "genetic-diagnosis-type")) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "genetic-diagnosis-type")
+  )[0];
 
-  const dxGenes = (
-    (await getDashboardChart(url, "genes")) as ICharts[]
-  )[0] as ICharts;
+  const dxGenes = (await getDashboardChart(url, "genes"))[0];
 
-  const etiologyChart = (
-    (await getDashboardChart(url, "etiology")) as ICharts[]
-  )[0] as ICharts;
+  const etiologyChart = (await getDashboardChart(url, "etiology"))[0];
 
   const classificationChart = (
-    (await getDashboardChart(url, "syndromic-classification")) as ICharts[]
-  )[0] as ICharts;
+    await getDashboardChart(url, "syndromic-classification")
+  )[0];
+
+  const rehabilitationChart = (
+    await getDashboardChart(url, "ghl-rehabilitation-type")
+  )[0];
 
   const data = {
-    hearingLossTypes: hearingLossType,
+    hearingLossTypeLeft: hearingLossTypeLeft,
+    hearingLossTypeRight: hearingLossTypeRight,
     severity: severityChart,
     ageOfOnset: onsetChart,
     diagnosisTypes: dxTypeChart,
     diagnosisGenes: dxGenes,
     etiology: etiologyChart,
     syndromicClassification: classificationChart,
+    rehabilitationChart: rehabilitationChart,
   };
 
   Object.keys(data).forEach((key) => {
     // @ts-ignore
     data[key].dataPoints = data[key].dataPoints.map((row: IChartData) => {
-      return Object.assign(row, { dataPointSecondaryCategory: type });
+      return Object.assign(row, { secondaryCategory: type });
     });
   });
 

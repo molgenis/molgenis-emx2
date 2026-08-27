@@ -2,7 +2,7 @@ package org.molgenis.emx2.rdf.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.molgenis.emx2.rdf.generators.RdfApiGeneratorFactory;
-import org.molgenis.emx2.rdf.writers.WriterFactory;
+import org.molgenis.emx2.rdf.writers.OutputStreamWriterFactory;
 
 /**
  * Contains relevant config data for the RDF module. Use {@link RdfConfigReader} to create object
@@ -13,7 +13,8 @@ public class RdfConfig {
   private static final RdfConfig DEFAULT_INSTANCE = new RdfConfig();
 
   @JsonProperty("writer")
-  private final WriterFactory writerFactory = WriterFactory.STREAM;
+  private final OutputStreamWriterFactory outputStreamWriterFactory =
+      OutputStreamWriterFactory.STREAM;
 
   @JsonProperty("generator")
   private final RdfApiGeneratorFactory rdfApiGeneratorFactory = RdfApiGeneratorFactory.SEMANTIC;
@@ -24,8 +25,8 @@ public class RdfConfig {
     return DEFAULT_INSTANCE;
   }
 
-  public WriterFactory getWriterFactory() {
-    return writerFactory;
+  public OutputStreamWriterFactory getWriterFactory() {
+    return outputStreamWriterFactory;
   }
 
   public RdfApiGeneratorFactory getRdfApiGeneratorFactory() {

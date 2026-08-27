@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import { useRoute, useRuntimeConfig } from "#app";
-import { useDatasetStore } from "#imports";
+import { useCartStore } from "#imports";
 import { computed, ref } from "vue";
 import type { UIResource } from "../../../interfaces/types";
 import Container from "../../../../tailwind-components/app/components/Container.vue";
 import Logo from "../../../../tailwind-components/app/components/Logo.vue";
-import LogoMobile from "../../../../tailwind-components/app/components/LogoMobile.vue";
 import MainNavigation from "../../components/MainNavigation.vue";
 import HamburgerMenu from "../../components/HamburgerMenu.vue";
-import StoreHeaderButton from "../../components/store/HeaderButton.vue";
-import StoreModal from "../../components/store/Modal.vue";
+import CartHeaderButton from "../../components/cart/HeaderButton.vue";
+import CartModal from "../../components/cart/Modal.vue";
 
 const route = useRoute();
 const config = useRuntimeConfig();
-const datasetStore = useDatasetStore();
+const cartStore = useCartStore();
 
 const props = defineProps<{
   catalogue?: UIResource;
@@ -21,7 +20,12 @@ const props = defineProps<{
   collectionCount: number;
   networkCount: number;
   logoSrc?: string;
+  logoTitle?: string;
 }>();
+
+const logoAlt = computed(
+  () => props.catalogue?.name || props.catalogue?.acronym
+);
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
@@ -37,7 +41,11 @@ const showCartModal = ref<boolean>(false);
 // the variable route does not set the resourceType param, therefore check the route name
 if (
   route.params.resourceType ||
-  route.name === "schema-catalogue-catalogue-variables"
+  [
+    "schema-catalogue-catalogue-variables",
+    "catalogue-variables",
+    "catalogue-variables-variable",
+  ].includes(route.name as string)
 ) {
   menu.push({
     label: "overview",
@@ -104,6 +112,7 @@ if (!cohortOnly.value) {
         <Logo
           :link="`/${catalogueRouteParam}`"
           :image="catalogue?.logo?.url ?? logoSrc"
+          :alt="logoAlt"
           :inverted="true"
         />
         <MainNavigation :navigation="menu" :invert="true" />
@@ -111,9 +120,9 @@ if (!cohortOnly.value) {
            <SearchBar />
         </div>-->
 
-        <StoreHeaderButton
+        <CartHeaderButton
+          v-if="cartStore.isEnabled"
           @click="showCartModal = !showCartModal"
-          v-if="datasetStore.isEnabled"
         />
         <!-- <HeaderButton label="Account" icon="user" /> -->
       </div>
@@ -122,16 +131,16 @@ if (!cohortOnly.value) {
         <div class="relative flex items-center h-12.5 justify-between mb-4">
           <HamburgerMenu :navigation="menu" />
           <div class="absolute -translate-x-1/2 left-1/2">
-            <LogoMobile
-              :link="`/${catalogueRouteParam}`"
-              :image="catalogue?.logo?.url ?? logoSrc"
-            />
+            <a
+              :href="`/${catalogueRouteParam}`"
+              class="flex items-center text-center gap-1 tracking-widest transition-colors font-display text-heading-xl hover:underline text-menu"
+              >{{ logoTitle }}</a
+            >
           </div>
-
           <div class="flex gap-3">
-            <StoreHeaderButton
+            <CartHeaderButton
               @click="showCartModal = !showCartModal"
-              v-if="datasetStore.isEnabled"
+              v-if="cartStore.isEnabled"
             />
             <!-- <HeaderButton label="Account" icon="user" /> -->
           </div>
@@ -143,6 +152,6 @@ if (!cohortOnly.value) {
         </div>
       </div>
     </Container>
-    <StoreModal :show="showCartModal" @close="showCartModal = false" />
+    <CartModal :show="showCartModal" @close="showCartModal = false" />
   </header>
 </template>

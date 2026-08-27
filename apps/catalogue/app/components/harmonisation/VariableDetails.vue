@@ -65,7 +65,7 @@ function handleVariableUsedClick(variableUsed: IVariables) {
     <DefinitionList>
       <DefinitionListTerm>Harmonisation status</DefinitionListTerm>
       <DefinitionListDefinition>
-        <HarmonisationStatusComponent
+        <HarmonisationStatus
           :status="mapping.match?.name as HarmonisationStatus "
         />
       </DefinitionListDefinition>

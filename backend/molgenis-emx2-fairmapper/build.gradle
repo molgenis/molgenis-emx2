@@ -1,0 +1,49 @@
+plugins {
+    id 'java-library'
+    id 'application'
+    id 'com.gradleup.shadow' version '8.3.11'
+}
+
+application {
+    mainClass = 'org.molgenis.emx2.fairmapper.cli.FairMapper'
+}
+
+shadowJar {
+    zip64 = true
+    archiveBaseName = 'fairmapper'
+    archiveClassifier = 'cli'
+    mergeServiceFiles()
+
+    // Multi-release is needed for graalvm lib
+    manifest {
+        attributes(
+                "Multi-Release": "true"
+        )
+    }
+
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+
+}
+
+dependencies {
+    implementation('org.eclipse.rdf4j:rdf4j-sparqlbuilder:5.3.2')
+    implementation("org.eclipse.rdf4j:rdf4j-queryresultio-text:5.3.2")
+    implementation 'info.picocli:picocli:4.7.7'
+    annotationProcessor 'info.picocli:picocli-codegen:4.7.7'
+    implementation project(':backend:molgenis-emx2-io')
+    implementation project(':backend:molgenis-emx2-rdf')
+    implementation project(':backend:molgenis-emx2')
+    implementation project(':backend:molgenis-emx2-sql')
+    implementation project(':backend:molgenis-emx2-tasks')
+    testImplementation project(':backend:molgenis-emx2-datamodels')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+compileJava {
+    options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
+}

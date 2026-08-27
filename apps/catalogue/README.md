@@ -1,25 +1,31 @@
-# Nuxt 3 Minimal Starter
+# Catalogue
 
-Look at the [nuxt 3 documentation](https://v3.nuxtjs.org) to learn more.
+The MOLGENIS EMX2 data catalogue app, built with [Nuxt](https://nuxt.com/docs).
 
 ## Setup
 
-Make sure to install the dependencies:
+Install the dependencies from the `apps/` workspace root (this installs all
+frontend apps, including this one):
 
 ```bash
-# pnpm
+cd apps
 pnpm install
 ```
 
 ## Development Server
 
-Start the development server on http://localhost:3000
-
-set non default (api)proxy target with
-`NUXT_PUBLIC_API_BASE`
+Start the development server from the app directory. The app runs on
+http://localhost:3000.
 
 ```bash
+cd apps/catalogue
 pnpm dev
+```
+
+Set a non-default (api)proxy target with `NUXT_PUBLIC_API_BASE`, for example:
+
+```bash
+NUXT_PUBLIC_API_BASE=http://localhost:8080 pnpm dev
 ```
 
 ## Production
@@ -39,7 +45,7 @@ Locally preview production build:
 pnpm preview
 ```
 
-Checkout the [deployment documentation](https://v3.nuxtjs.org/guide/deploy/presets) for more information.
+Checkout the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
 
 #### Running the styles
 
@@ -60,8 +66,10 @@ EMX2_THEME=umcg pnpm dev
 
 The following feature flag(s) are used to toggle certain app features via the runtime config
 
-- `cohortOnly` boolean when set to true the networks part is hidden ( see docker file for passing flag via container)
+- `cohortOnly` (boolean): when set to true the networks part is hidden ( see docker file for passing flag via container)
 - `CATALOGUE_STORE_IS_ENABLED` (boolean): when enabled, the shopping cart will be activated on the collections page (defined in the advanced settings tab)
+- `CATALOGUE_STORE_URL` (string/url): when the store is enabled it needs a url to send the request to
+- `CATALOGUE_STORE_VERSION` (string): when the store is enabled it needs to know the version of the request api it communicates to. Currently allowed versions are: [`negotiatorV3`]
 
 ### debug/test options
 
@@ -75,4 +83,4 @@ for example `.../catalogue-demo/catalogue?cohort-only=true&theme=umcg&logo=UMCGk
 
 ### generate types
 
-gradle generateTypes --args='catalogue apps/catalogue/interfaces/catalogue.ts'
+./gradlew generateTypes --args='catalogue-demo apps/catalogue/interfaces/catalogue.ts'

@@ -22,7 +22,6 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
-import org.molgenis.emx2.utils.RandomString;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +121,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     } else {
       verifyVersion();
+      // the database is assumed initialized; load its settings so getSetting works
+      loadSettings();
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
@@ -223,19 +224,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         this.setSetting(Constants.LOCALES, Constants.LOCALES_DEFAULT);
       }
 
-      String key = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
-      if (key == null) {
-        key =
-            (String)
-                EnvironmentProperty.getParameter(
-                    Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
-      }
-      // validate the key, or generate a good one
-      if (key == null || key.getBytes().length < 32) {
-        key = new RandomString(32).nextString();
-      }
-      // save the key again
-      this.setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, key);
+      resolveJwtSharedSecret();
     } catch (Exception e) {
       // this happens if multiple inits run at same time, totally okay to ignore
       if (!e.getMessage()
@@ -244,6 +233,29 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         throw e;
       }
     }
+  }
+
+  @Override
+  public String resolveJwtSharedSecret() {
+    String secret = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+
+    if (secret == null) {
+      secret =
+          (String)
+              EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
+    }
+
+    if (secret == null || secret.getBytes().length < 32) {
+      secret = JWTgenerator.generateSharedSecret();
+      String activeUser = getActiveUser();
+      try {
+        becomeAdmin();
+        setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, secret);
+      } finally {
+        setActiveUser(activeUser);
+      }
+    }
+    return secret;
   }
 
   private void initSystemSchema() {
@@ -266,9 +278,22 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                     "Templates",
                     column("endpoint").setPkey(),
                     column("schema").setPkey(),
+                    column("tableName"),
                     column("template").setType(ColumnType.TEXT)));
+            addTemplatesTableReference((SqlDatabase) tdb);
           }
         });
+  }
+
+  static void addTemplatesTableReference(SqlDatabase db) {
+    db.getJooq()
+        .execute(
+            "ALTER TABLE {0} ADD CONSTRAINT {1} FOREIGN KEY (\"schema\", \"tableName\")"
+                + " REFERENCES {2} (\"table_schema\", \"table_name\")"
+                + " ON UPDATE CASCADE ON DELETE CASCADE",
+            DSL.table(name(SYSTEM_SCHEMA, "Templates")),
+            name("Templates_tableName_fkey"),
+            DSL.table(name(MOLGENIS, "table_metadata")));
   }
 
   @Override
@@ -734,6 +759,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.schemaNames.clear();
     this.schemaInfos.clear();
 
+    loadSettings();
+  }
+
+  /** (Re)loads the database-level settings from the database into memory, reading them as admin. */
+  private void loadSettings() {
     getJooqAsAdmin(
         adminJooq -> this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(adminJooq)));
   }

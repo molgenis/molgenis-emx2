@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import ChartLegend from "../../../app/components/viz/ChartLegend/ChartLegend.vue";
 
 const stackLegend = ref<boolean>(false);
 const legendMarkerShape = ref<"circle" | "square">("circle");

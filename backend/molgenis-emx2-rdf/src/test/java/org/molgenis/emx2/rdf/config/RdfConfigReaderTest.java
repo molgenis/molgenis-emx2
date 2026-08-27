@@ -9,7 +9,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.RdfUtils;
 import org.molgenis.emx2.rdf.generators.RdfApiGeneratorFactory;
-import org.molgenis.emx2.rdf.writers.WriterFactory;
+import org.molgenis.emx2.rdf.writers.OutputStreamWriterFactory;
 
 class RdfConfigReaderTest {
   @Test
@@ -17,7 +17,7 @@ class RdfConfigReaderTest {
     // use non-uppercase enum values to test case insensitivity
     Schema schema =
         mockSchema(
-            """
+"""
 writer: model
 generator: sEMantic
 """);
@@ -25,7 +25,7 @@ generator: sEMantic
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.MODEL, config.getWriterFactory()),
+        () -> assertEquals(OutputStreamWriterFactory.MODEL, config.getWriterFactory()),
         () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
@@ -33,14 +33,14 @@ generator: sEMantic
   void testPartlyConfiguredRdfConfig() {
     Schema schema =
         mockSchema(
-            """
+"""
 writer: stream
 """);
 
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
+        () -> assertEquals(OutputStreamWriterFactory.STREAM, config.getWriterFactory()),
         () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
@@ -51,7 +51,7 @@ writer: stream
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
+        () -> assertEquals(OutputStreamWriterFactory.STREAM, config.getWriterFactory()),
         () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
@@ -63,7 +63,7 @@ writer: stream
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
+        () -> assertEquals(OutputStreamWriterFactory.STREAM, config.getWriterFactory()),
         () -> assertEquals(RdfApiGeneratorFactory.SEMANTIC, config.getRdfApiGeneratorFactory()));
   }
 
@@ -71,7 +71,7 @@ writer: stream
   void testInvalidEnumValueRdfConfig() {
     Schema schema =
         mockSchema(
-            """
+"""
 writer: thisValueDoesNotExist
 """);
 
@@ -82,7 +82,7 @@ writer: thisValueDoesNotExist
   void testInvalidKeyRdfConfig() {
     Schema schema =
         mockSchema(
-            """
+"""
 thisKeyDoesNotExist: value
 """);
 

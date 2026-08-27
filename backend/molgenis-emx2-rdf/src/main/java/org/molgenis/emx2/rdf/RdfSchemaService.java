@@ -6,11 +6,11 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.config.RdfConfig;
 import org.molgenis.emx2.rdf.config.RdfConfigReader;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
-import org.molgenis.emx2.rdf.writers.RdfWriter;
+import org.molgenis.emx2.rdf.writers.RdfOutputStreamWriter;
 
 public class RdfSchemaService implements RdfService<RdfApiGenerator> {
   private final RdfConfig config;
-  private final RdfWriter writer;
+  private final RdfOutputStreamWriter writer;
   private final RdfApiGenerator generator;
 
   public RdfSchemaService(String baseUrl, Schema schema, RDFFormat format, OutputStream out) {

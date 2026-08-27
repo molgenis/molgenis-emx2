@@ -2,11 +2,17 @@ package org.molgenis.emx2.utils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
+import org.graalvm.polyglot.EnvironmentAccess;
 import org.graalvm.polyglot.HostAccess;
+import org.graalvm.polyglot.ResourceLimits;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.io.IOAccess;
 import org.molgenis.emx2.MolgenisException;
 
 public class JavaScriptUtils {
@@ -16,6 +22,20 @@ public class JavaScriptUtils {
           .allowExperimentalOptions(true)
           .option("engine.WarnInterpreterOnly", "false")
           .build();
+
+  private static final HostAccess SAFE_HOST_ACCESS =
+      HostAccess.newBuilder()
+          .allowMapAccess(true)
+          .allowListAccess(true)
+          .allowArrayAccess(true)
+          .allowIterableAccess(true)
+          .allowIteratorAccess(true)
+          .allowBigIntegerNumberAccess(true)
+          .allowAccessAnnotatedBy(HostAccess.Export.class)
+          .build();
+
+  private static final ResourceLimits RESOURCE_LIMITS =
+      ResourceLimits.newBuilder().statementLimit(1_000_000, null).build();
 
   private JavaScriptUtils() {
     // hide constructor
@@ -35,12 +55,19 @@ public class JavaScriptUtils {
 
   public static Object executeJavascriptOnMap(
       String script, Map<String, Object> values, Class clazz) {
-    try {
-      final Context context =
-          Context.newBuilder("js")
-              .allowHostAccess(HostAccess.newBuilder(HostAccess.ALL).build())
-              .engine(engine)
-              .build();
+    try (Context context =
+        Context.newBuilder("js")
+            .allowHostAccess(SAFE_HOST_ACCESS)
+            .allowHostClassLookup(className -> false)
+            .allowHostClassLoading(false)
+            .allowCreateProcess(false)
+            .allowCreateThread(false)
+            .allowNativeAccess(false)
+            .allowIO(IOAccess.NONE)
+            .allowEnvironmentAccess(EnvironmentAccess.NONE)
+            .resourceLimits(RESOURCE_LIMITS)
+            .engine(engine)
+            .build()) {
       Value bindings = context.getBindings("js");
       if (values != null) {
         for (Map.Entry<String, Object> entry : values.entrySet()) {
@@ -54,9 +81,42 @@ public class JavaScriptUtils {
         }
       }
       String scriptWithFixedRegex = script.replace("\\\\", "\\");
-      return context.eval("js", scriptWithFixedRegex).as(clazz);
+      // Detach the result into plain Java before the try-with-resources closes the context: a
+      // Value-backed List/Map view throws once its context is closed, so it must be materialized.
+      return detachFromContext(context.eval("js", scriptWithFixedRegex).as(clazz));
     } catch (Exception e) {
       throw new MolgenisException("script failed: " + e.getMessage());
     }
+  }
+
+  private static final int MAX_RESULT_DEPTH = 64;
+
+  private static Object detachFromContext(Object value) {
+    return detachFromContext(value, 0);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Object detachFromContext(Object value, int depth) {
+    if (depth >= MAX_RESULT_DEPTH) {
+      throw new MolgenisException(
+          "result exceeds maximum nesting depth of " + MAX_RESULT_DEPTH + " (cyclic result?)");
+    }
+    if (value instanceof Map) {
+      Map<Object, Object> copy = new LinkedHashMap<>();
+      for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
+        copy.put(
+            detachFromContext(entry.getKey(), depth + 1),
+            detachFromContext(entry.getValue(), depth + 1));
+      }
+      return copy;
+    }
+    if (value instanceof List) {
+      List<Object> copy = new ArrayList<>();
+      for (Object item : (List<Object>) value) {
+        copy.add(detachFromContext(item, depth + 1));
+      }
+      return copy;
+    }
+    return value;
   }
 }

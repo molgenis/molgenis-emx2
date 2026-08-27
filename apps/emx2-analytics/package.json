@@ -1,5 +1,5 @@
 {
-  "name": "@molgenis/emx2-analytics",
+  "name": "emx2-analytics",
   "description": "Molgenis EMX2 Analytics, client module",
   "license": "LGPL-3.0-or-later",
   "private": false,
@@ -18,9 +18,9 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "5.2.4",
     "prettier": "2.8.8",
-    "typescript": "5.6.2",
-    "vite": "7.3.2",
-    "vue-tsc": "3.2.1"
+    "typescript": "5.9.2",
+    "vite": "7.3.5",
+    "vue-tsc": "3.3.10"
   },
   "publishConfig": {
     "access": "public"

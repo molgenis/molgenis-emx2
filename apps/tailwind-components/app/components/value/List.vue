@@ -36,13 +36,13 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits<{
-  (e: "listRefCellClicked", data: ListPayload): void;
-}>();
-
 const elementType = computed(
   () => props.metadata.columnType.split("_ARRAY")[0]
 );
+
+const emit = defineEmits<{
+  (e: "listRefCellClicked", data: ListPayload): void;
+}>();
 
 function handleCellClick() {
   if (!props.data) {

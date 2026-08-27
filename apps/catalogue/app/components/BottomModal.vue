@@ -45,7 +45,7 @@ const emit = defineEmits(["close"]);
     <template #popper="{ hide }">
       <div class="flex justify-center">
         <div
-          class="fixed bottom-0 bg-white overflow-hidden rounded-t-50px w-[95vw]"
+          class="fixed bottom-0 bg-white overflow-hidden rounded-t-alt w-[95vw]"
         >
           <div class="w-full overflow-auto">
             <button @click="hide()" class="absolute top-7 right-8">
@@ -61,53 +61,6 @@ const emit = defineEmits(["close"]);
 </template>
 
 <style>
-.v-popper--theme-dropdown .v-popper__inner {
-  background: none;
-  border-radius: 0;
-  border: 0;
-  box-shadow: none;
-}
-
-.v-popper__popper--no-positioning {
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  height: 100%;
-  display: flex;
-  width: 100%;
-}
-
-.v-popper_fullscreen .v-popper__popper--no-positioning {
-  width: 100%;
-  max-width: none;
-}
-
-.v-popper_bottom .v-popper__popper--no-positioning {
-  top: auto;
-  bottom: 0;
-}
-
-.v-popper__popper--no-positioning .v-popper__backdrop {
-  display: block;
-  background: rgba(0 0 0 / 60%);
-}
-
-.v-popper__popper--no-positioning .v-popper__wrapper {
-  width: 100%;
-  pointer-events: auto;
-  transition: transform 0.15s ease-out;
-}
-
-.v-popper__popper--no-positioning.v-popper__popper--hidden .v-popper__wrapper {
-  transform: translateY(-100%);
-}
-.v-popper_bottom
-  .v-popper__popper--no-positioning.v-popper__popper--hidden
-  .v-popper__wrapper {
-  transform: translateY(100%);
-}
-
 body.no-scroll {
   overflow: hidden;
 }

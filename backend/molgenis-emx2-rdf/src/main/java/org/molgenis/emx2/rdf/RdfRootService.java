@@ -3,11 +3,11 @@ package org.molgenis.emx2.rdf;
 import java.io.OutputStream;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.rdf.generators.RootRdfGenerator;
+import org.molgenis.emx2.rdf.writers.RdfOutputStreamWriter;
 import org.molgenis.emx2.rdf.writers.RdfStreamWriter;
-import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 public class RdfRootService implements RdfService<RootRdfGenerator> {
-  private final RdfWriter writer;
+  private final RdfOutputStreamWriter writer;
   private final RootRdfGenerator generator;
 
   public RdfRootService(String baseUrl, RDFFormat format, OutputStream out) {

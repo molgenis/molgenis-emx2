@@ -2,6 +2,9 @@
 import { useTemplateRef, watch } from "vue";
 import type { IDeveloperPages } from "../../../types/cms";
 import { generateHtmlPreview } from "../../utils/cms";
+import { useRoute } from "#app";
+
+const route = useRoute();
 
 const props = defineProps<{
   content: IDeveloperPages;
@@ -28,6 +31,21 @@ watch(
 </script>
 
 <template>
+  <div
+    v-if="!content.html && !route.fullPath.endsWith('/editor')"
+    role="banner"
+    class="emx2__page_preview w-[80%] mx-auto"
+  >
+    <p class="text-title-contrast text-center">
+      No content to display. Start building your page in the
+      <NuxtLink
+        :to="`${route.fullPath}editor`"
+        class="underline text-link-inverted"
+      >
+        Page Editor
+      </NuxtLink>
+    </p>
+  </div>
   <div
     class="emx2__page_preview"
     :class="{
@@ -105,10 +123,10 @@ watch(
 }
 
 .emx2__page_preview.enabled.enabled__button_styles button {
-  @apply h-14 px-7.5 text-heading-xl gap-4 tracking-widest uppercase rounded-input font-display bg-button-outline text-button-outline border border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover;
+  @apply h-14 px-7.5 text-heading-xl gap-4 tracking-widest uppercase rounded-alt font-display bg-button-outline text-button-outline border border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover;
 }
 
 .emx2__page_preview.enabled.enabled__button_styles button[type="submit"] {
-  @apply tracking-widest uppercase rounded-input font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover;
+  @apply tracking-widest uppercase rounded-alt font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover;
 }
 </style>

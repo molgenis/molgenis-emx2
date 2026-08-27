@@ -9,3 +9,5 @@ ABL,COD_FARMACI_SPF,,,,,,
 ABL,ARS_PS,,,,,,
 ABL,ARS_ANAG_MED_RES_storico,,,,,,
 ABL,AP,,,,,,
+TestDataSourceID,TestDatabank1,Deterministic,BSN,true,complete,true,false
+TestDataSourceID,TestDatabank2,Probabilistic,"Full name, zip code",false,,false,false

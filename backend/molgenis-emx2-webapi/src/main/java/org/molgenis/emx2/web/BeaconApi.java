@@ -1,11 +1,15 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import java.util.Optional;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.Templates;
@@ -14,6 +18,10 @@ import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BeaconApi {
+
+  private BeaconApi() {
+    /* This utility class should not be instantiated */
+  }
 
   private static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();
@@ -58,9 +66,17 @@ public class BeaconApi {
     ctx.attribute("specification", specification);
   }
 
+  private static Optional<Schema> getRequestedSchema(Context ctx) {
+    Schema schema = getSchema(ctx);
+    if (schema == null && ctx.pathParamMap().containsKey(SCHEMA)) {
+      throw new MolgenisException("Schema " + ctx.pathParam(SCHEMA) + " unknown");
+    }
+    return Optional.ofNullable(schema);
+  }
+
   private static void getInfo(Context ctx) {
     ctx.contentType(Constants.ACCEPT_JSON);
-    Schema schema = getSchema(ctx);
+    Schema schema = getRequestedSchema(ctx).orElse(null);
 
     Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
     ctx.json(new Info(database).getResponse(schema));
@@ -87,7 +103,7 @@ public class BeaconApi {
     entryTypeRequest(ctx, new BeaconRequestBody(ctx));
   }
 
-  private static void postEntryType(Context ctx) throws Exception {
+  private static void postEntryType(Context ctx) throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(ctx.body(), BeaconRequestBody.class);
     beaconRequest.addRequestParameters(ctx);
@@ -97,9 +113,9 @@ public class BeaconApi {
   private static void entryTypeRequest(Context ctx, BeaconRequestBody requestBody) {
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
 
-    Schema schema = getSchema(ctx);
-    if (schema != null) {
-      ctx.json(queryEntryType.query(schema));
+    Optional<Schema> schema = getRequestedSchema(ctx);
+    if (schema.isPresent()) {
+      ctx.json(queryEntryType.query(schema.get()));
     } else {
       Database database = APPLICATION_CACHE.getDatabaseForUser(ctx);
       ctx.json(queryEntryType.query(database));

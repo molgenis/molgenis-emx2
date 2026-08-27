@@ -24,7 +24,15 @@
               class="text-primary dropdown-toggle dropdown-toggle-split pr-0"
               @click="toggleDropdown"
             />
-            <div class="dropdown-menu" :class="{ show: showDropdown }">
+            <div
+              class="dropdown-menu"
+              :class="{ show: showDropdown }"
+              v-on-click-outside="
+                () => {
+                  showDropdown = false;
+                }
+              "
+            >
               <InputSearch
                 id="breadcrumb-dropdown-search"
                 v-model="dropdownSearch"
@@ -65,12 +73,16 @@
 <script>
 import InputSearch from "../forms/InputSearch.vue";
 import { RouterLink } from "vue-router";
+import { vOnClickOutside } from "@vueuse/components";
 
 export default {
   name: "Breadcrumb",
   components: {
     InputSearch,
     RouterLink,
+  },
+  directives: {
+    "on-click-outside": vOnClickOutside,
   },
   props: {
     /* list of crumbs, map of  {'label':'url'} */

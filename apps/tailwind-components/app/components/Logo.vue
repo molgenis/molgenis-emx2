@@ -2,11 +2,13 @@
 import { useRuntimeConfig } from "#app";
 import { shallowRef } from "vue";
 import { useRoute } from "vue-router";
+import { toLogoPath } from "../utils/logoPath";
 
 withDefaults(
   defineProps<{
     link?: string;
     image?: string;
+    alt?: string;
     inverted?: boolean;
   }>(),
   {
@@ -16,20 +18,31 @@ withDefaults(
 
 const config = useRuntimeConfig();
 const route = useRoute();
-const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
+const logoFileName =
+  (route.query.logo as string) || (config.public.emx2Logo as string);
 
 // load the svg data from the public folder
 const svg = shallowRef();
 if (logoFileName) {
-  svg.value = `/_nuxt-styles/logos/${logoFileName}.svg`;
+  svg.value = toLogoPath(logoFileName);
 }
 </script>
 
 <template>
   <NuxtLink :to="link" class="transition-transform hover:scale-105">
     <span class="sr-only">Go to home</span>
-    <img v-if="svg" :src="svg" alt="logo" />
-    <img v-else-if="image" :src="image" class="object-contain h-16 w-96" />
+    <img
+      v-if="svg"
+      :src="svg"
+      :alt="alt ?? 'logo'"
+      class="object-contain max-h-25 max-w-96 py-2"
+    />
+    <img
+      v-else-if="image"
+      :src="image"
+      :alt="alt"
+      class="object-contain h-16 w-96"
+    />
     <svg
       v-else
       xmlns="http://www.w3.org/2000/svg"
@@ -44,15 +57,15 @@ if (logoFileName) {
       />
       <g>
         <path
-          fill="#fff"
+          class="fill-logo-background"
           d="M198.93 398.12c109.83 0 198.86-89.03 198.86-198.86S308.75.4 198.93.4C83.73.4.07 89.44.07 199.26S89.1 398.12 198.93 398.12"
         />
         <path
-          fill="#275DBD"
+          class="fill-logo-icon-primary"
           d="M199.094 278.78c-2.8 0-5.65-.49-8.43-1.54-12.42-4.66-18.72-18.5-14.06-30.93l46.33-123.54c4.66-12.42 18.51-18.72 30.93-14.06 12.42 4.66 18.72 18.5 14.06 30.93l-46.33 123.54c-3.62 9.65-12.78 15.6-22.5 15.6M106.444 278.78c-2.8 0-5.65-.49-8.43-1.54-12.42-4.66-18.72-18.5-14.06-30.93l46.32-123.53c4.66-12.42 18.5-18.72 30.93-14.06 12.42 4.66 18.72 18.5 14.06 30.93l-46.33 123.54c-3.61 9.64-12.77 15.59-22.49 15.59"
         />
         <path
-          fill="#017FFD"
+          class="fill-logo-icon-secondary"
           d="M199.104 278.78c-9.72 0-18.88-5.95-22.5-15.59l-46.33-123.54c-4.66-12.42 1.63-26.27 14.06-30.93 12.43-4.64 26.27 1.64 30.93 14.06l46.33 123.54c4.66 12.42-1.64 26.27-14.06 30.93a24.245 24.245 0 0 1-8.43 1.53M291.754 278.78c-9.72 0-18.88-5.95-22.5-15.59l-46.32-123.54c-4.66-12.42 1.63-26.27 14.06-30.93 12.43-4.64 26.27 1.64 30.93 14.06l46.33 123.54c4.66 12.42-1.64 26.27-14.06 30.93a24.34 24.34 0 0 1-8.44 1.53"
         />
       </g>

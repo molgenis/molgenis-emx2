@@ -9,6 +9,7 @@ import {
 } from "#app";
 import type {
   IFilter,
+  IFilterCondition,
   IMgError,
   activeTabType,
 } from "../../../../interfaces/types";
@@ -31,7 +32,10 @@ import {
   mergeWithPageDefaults,
   toPathQueryConditions,
 } from "../../../utils/filterUtils";
-import { buildQueryFilter } from "../../../utils/buildQueryFilter";
+import {
+  buildQueryFilter,
+  mergeFilterAndClauses,
+} from "../../../utils/buildQueryFilter";
 import { computed, ref } from "vue";
 import { logError } from "../../../utils/errorLogger";
 import type { Crumb } from "../../../../../tailwind-components/types/types";
@@ -170,7 +174,25 @@ pageFilterTemplate = pageFilterTemplate.concat([
       ontologyTableId: "AreasOfInformationCohorts",
       ontologySchema: "CatalogueOntologies",
       columnId: "areasOfInformation",
-      filterTable: "collectionEvents",
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => ({
+        ...filterBuilder,
+        _and: [
+          ...(Array.isArray(filterBuilder._and) ? filterBuilder._and : []),
+          {
+            _or: [
+              { areasOfInformation: { equals: conditions } },
+              {
+                collectionEvents: {
+                  areasOfInformation: { equals: conditions },
+                },
+              },
+            ],
+          },
+        ],
+      }),
     },
     conditions: [],
   },
@@ -219,6 +241,7 @@ const query = computed(() => {
   query Resources($filter:ResourcesFilter, $orderby:[Resourcesorderby]){
     Resources(limit: ${pageSize} offset: ${offset.value} filter:$filter  orderby:$orderby) {
       id
+      pid
       name
       acronym
       description
@@ -232,7 +255,10 @@ const query = computed(() => {
       design {
           name
       }
-      datasets {
+      networkType {
+          name
+      }
+      tables {
         name
         label
       }
@@ -251,13 +277,13 @@ const gqlFilter = computed(() => {
 
   result = buildQueryFilter(filters.value);
 
-  if (!result.type) {
-    if (route.params.resourceType === "collections") {
-      result.type = { tags: { equals: "collection" } };
-    }
-    if (route.params.resourceType === "networks") {
-      result.type = { tags: { equals: "network" } };
-    }
+  if (route.params.resourceType === "collections") {
+    result.mg_tableclass = { equals: `${schema}.Collections` };
+  } else if (route.params.resourceType === "networks") {
+    result = mergeFilterAndClauses(result, [
+      { mg_tableclass: { equals: `${schema}.Networks` } },
+      { mg_tableclass: { equals: `${schema}.Catalogues` } },
+    ]);
   }
 
   // add hard coded page specific filters

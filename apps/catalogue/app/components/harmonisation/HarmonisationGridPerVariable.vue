@@ -38,7 +38,7 @@ const repeats = computed(() => {
       <TableSticky
         :columns="sourceIds"
         :rows="repeats"
-        class="h-screen overflow-auto"
+        class="max-h-screen overflow-auto"
       >
         <template #column="columnProps">
           <div

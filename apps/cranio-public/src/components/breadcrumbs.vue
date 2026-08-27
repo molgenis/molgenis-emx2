@@ -1,73 +1,73 @@
+<script setup lang="ts">
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+import { HomeIcon } from "@heroicons/vue/24/outline";
+
+interface IBreadcrumbs {
+  name: string;
+  label: string;
+}
+
+const route = useRoute();
+const breadcrumbs = computed<IBreadcrumbs[] | undefined>(() => {
+  if (route.meta.breadcrumbs) {
+    return route.meta.breadcrumbs as IBreadcrumbs[];
+  }
+});
+</script>
+
 <template>
   <div class="breadcrumbs-container page-section">
     <nav class="breadcrumbs page-section-content width-medium">
       <ul>
-        <li v-for="crumb in breadcrumbs">
-          <router-link :to="{ name: crumb.name }" v-if="crumb.name === 'home'">
+        <li>
+          <router-link :to="{ name: 'home' }">
+            <span class="visually-hidden">Go to home page</span>
             <HomeIcon class="heroicons heroicons-outline heroicons-home" />
           </router-link>
-          <router-link :to="{ name: crumb.name }" v-else>{{
-            crumb.label
-          }}</router-link>
+        </li>
+        <li v-for="crumb in breadcrumbs">
+          <router-link :to="{ name: crumb.name }">
+            {{ crumb.label }}
+          </router-link>
         </li>
       </ul>
     </nav>
   </div>
 </template>
 
-<script setup>
-import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
-import { HomeIcon } from "@heroicons/vue/24/outline";
-
-const breadcrumbs = ref([{ name: "home" }]);
-
-function getBreadCrumbs() {
-  const route = useRoute();
-  route.meta.breadcrumbs.map((breadcrumb) =>
-    breadcrumbs.value.push(breadcrumb)
-  );
-}
-
-onMounted(() => getBreadCrumbs());
-</script>
-
-<style lang="scss">
+<style lang="css">
 .breadcrumbs-container {
   box-sizing: content-box;
   padding: 1em;
+}
 
-  .breadcrumbs {
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1em;
+.breadcrumbs-container .breadcrumbs ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+}
 
-      li {
-        position: relative;
+.breadcrumbs-container .breadcrumbs ul li {
+  position: relative;
+}
 
-        .heroicons {
-          $size: 21px;
-          width: $size;
-          height: $size;
-          margin-top: -3px;
-        }
+.breadcrumbs-container .breadcrumbs ul li .heroicons {
+  width: 21px;
+  height: 21px;
+  margin-top: -3px;
+}
 
-        &::after {
-          content: "/";
-          margin-left: 1em;
-        }
+.breadcrumbs-container .breadcrumbs ul li::after {
+  content: "/";
+  margin-left: 1em;
+  color: var(--gray-600);
+}
 
-        &:last-child {
-          &::after {
-            content: none;
-          }
-        }
-      }
-    }
-  }
+.breadcrumbs-container .breadcrumbs ul li:last-child::after {
+  content: none;
 }
 </style>

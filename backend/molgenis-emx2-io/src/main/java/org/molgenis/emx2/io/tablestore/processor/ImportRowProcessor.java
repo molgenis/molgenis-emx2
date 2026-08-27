@@ -36,12 +36,12 @@ public class ImportRowProcessor implements RowProcessor {
       }
 
       boolean isDrop = row.getValueMap().get(MG_DELETE) != null && row.getBoolean(MG_DELETE);
-      addFileAttachmentsToRow(source, columns, row, index);
 
-      if (!isDrop) {
-        importBatch.add(row);
-      } else {
+      if (isDrop) {
         deleteBatch.add(row);
+      } else {
+        addFileAttachmentsToRow(source, columns, row, index);
+        importBatch.add(row);
       }
       index++;
 

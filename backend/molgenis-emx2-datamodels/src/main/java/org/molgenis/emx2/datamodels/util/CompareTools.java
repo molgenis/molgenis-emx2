@@ -1,9 +1,6 @@
 package org.molgenis.emx2.datamodels.util;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.javers.core.Javers;
 import org.javers.core.JaversBuilder;
 import org.javers.core.diff.Diff;
@@ -32,40 +29,63 @@ public class CompareTools {
     // hide constructor
   }
 
-  public static void assertEquals(List<Row> list1, List<Row> list2) {
+  public static void assertEquals(Row row1, Row row2) {
+    Set<String> colNames1 = row1.getColumnNames();
+    Set<String> colNames2 = row2.getColumnNames();
 
+    if (!colNames1.equals(colNames2)) {
+      fail("List<Row> has different column names on row: " + row1 + "+\nversus\n" + row2);
+    }
+
+    for (String colName : colNames1) {
+      assertColumnValueEquals(row1, row2, colName);
+    }
+  }
+
+  private static void assertColumnValueEquals(Row row1, Row row2, String colName) {
+    Object rawValue1 = row1.getValueMap().get(colName);
+    Object rawValue2 = row2.getValueMap().get(colName);
+
+    if (rawValue1 == null || rawValue2 == null) {
+      if (rawValue1 != rawValue2) {
+        fail(
+            """
+            List<Row> has different value for row, column %s:
+            versus
+            %s
+            """
+                .formatted(colName, rawValue1 == null ? rawValue2 : rawValue1));
+      }
+      return;
+    }
+
+    ColumnType columnType = TypeUtils.typeOf(rawValue1.getClass());
+    Object value1 = row1.get(colName, columnType);
+    Object value2 = row2.get(colName, columnType);
+
+    if (!valuesEqual(value1, value2)) {
+      fail(
+          "List<Row> has different value for row, column "
+              + colName
+              + ": "
+              + TypeUtils.toString(value1)
+              + "\nversus\n"
+              + TypeUtils.toString(value2));
+    }
+  }
+
+  private static boolean valuesEqual(Object value1, Object value2) {
+    if (value1 instanceof Object[] array1 && value2 instanceof Object[] array2) {
+      return Arrays.equals(array1, array2);
+    }
+    return value1.equals(value2);
+  }
+
+  public static void assertEquals(List<Row> list1, List<Row> list2) {
     if (list1.size() != list2.size()) fail("List<Row> have different length ");
 
     for (int i = 0; i < list1.size(); i++) {
-
-      Row r1 = list1.get(i);
-      Collection<String> colNames1 = r1.getColumnNames();
-
-      Row r2 = list2.get(i);
-      Collection<String> colNames2 = r2.getColumnNames();
-
-      if (!colNames1.equals(colNames2)) {
-        fail("List<Row> has different column names on row " + i + ": " + r1 + "+\nversus\n" + r2);
-      }
-
-      Map<String, Object> values1 = r1.getValueMap();
-      for (String colName : colNames1) {
-        ColumnType columnType = TypeUtils.typeOf(values1.get(colName).getClass());
-
-        if (!r1.get(colName, columnType).equals(r2.get(colName, columnType))
-            && !Arrays.equals(
-                (Object[]) r1.get(colName, columnType), (Object[]) r2.get(colName, columnType))) {
-          fail(
-              "List<Row> has different value for row "
-                  + i
-                  + ", column "
-                  + colName
-                  + ": "
-                  + TypeUtils.toString(r1.get(colName, columnType))
-                  + "\nversus\n"
-                  + TypeUtils.toString(r2.get(colName, columnType)));
-        }
-      }
+      assertEquals(list1.get(i), list2.get(i));
     }
   }
 

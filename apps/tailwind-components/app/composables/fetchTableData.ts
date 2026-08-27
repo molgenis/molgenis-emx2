@@ -1,7 +1,8 @@
-import { createError } from "#app";
-import { fetchMetadata } from "#imports";
-import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
+import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
+import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
+import { fetchErrorToNuxtError } from "../utils/fetchErrorToNuxtError";
+import fetchMetadata from "./fetchMetadata";
 
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];
@@ -47,23 +48,34 @@ export default async (
   const filter = properties?.filter ? properties?.filter : {};
   const orderby = properties?.orderby ? [properties?.orderby] : [];
 
-  const { data } = await $fetch(`/${schemaId}/graphql`, {
-    method: "POST",
-    body: {
-      query,
-      variables: { filter, orderby },
-    },
-  }).catch((error) => {
-    const message = `Could not fetch data for table ${tableId} in schema ${schemaId}`;
-    console.error(message, error);
-    throw createError({
-      ...error,
-      statusMessage: message,
+  const response = await $fetch
+    .raw(`/${schemaId}/graphql`, {
+      method: "POST",
+      body: {
+        query,
+        variables: { filter, orderby },
+      },
+    })
+    .catch((error) => {
+      const message = getTableErrorMessage(error, schemaId, tableId);
+      console.error(message, error);
+      throw fetchErrorToNuxtError(error, message);
     });
-  });
+
+  const data = response?._data.data ?? {};
 
   return { rows: data[tableId], count: data[`${tableId}_agg`].count };
 };
+
+function getTableErrorMessage(error: any, schemaId: string, tableId: string) {
+  const responseBody =
+    error?.response?._data ?? error?.data ?? error?.response?.body;
+  if (responseBody?.errors[0]?.message?.includes("FieldUndefined")) {
+    return "This table contains a reference to data you don't have permission to view. Contact your administrator to request access.";
+  } else {
+    return `Could not fetch data for table: ${tableId} in schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
+  }
+}
 
 export const getColumnIds = async (
   schemaId: string,

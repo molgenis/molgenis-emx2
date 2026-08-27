@@ -2,12 +2,16 @@ import type {
   columnValue,
   IColumn,
   IRefColumn,
-  IRow,
 } from "../../metadata-utils/src/types";
 
 export type Resp<T> = {
   data: Record<string, T[]>;
 };
+export interface MgError {
+  message: string;
+  statusCode: number;
+  data: { errors: { message: string }[] };
+}
 
 export interface Schema {
   id: string;
@@ -26,6 +30,7 @@ export interface IValueLabel {
 
 export interface ITreeNode extends INode {
   parent?: string;
+  label?: string;
   children: ITreeNode[];
 }
 
@@ -61,6 +66,7 @@ export interface ITreeNodeState extends ITreeNode {
   /* whether this node is showing all children (bypassing search filter) */
   showingAll?: boolean;
   unfilteredTotal?: number;
+  hiddenByCount?: boolean;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
@@ -71,7 +77,6 @@ export type ButtonType =
   | "tertiary"
   | "text"
   | "outline"
-  | "disabled"
   | "filterWell"
   | "inline";
 
@@ -95,7 +100,8 @@ export interface ITableSettings {
     column: string;
     direction: sortDirection;
   };
-  search: string;
+  orderedColumnsIds: string[];
+  search?: string;
 }
 
 export interface ISectionField {
@@ -143,9 +149,19 @@ export type schemaId = string;
 export interface ISession {
   email: string;
   admin: boolean;
-  roles: Record<schemaId, string[]>;
-  schemas?: string[];
+  roles?: Record<schemaId, string[]>;
+  tablePermissions?: Record<schemaId, ITablePermission[]>;
+  schemas?: Schema[];
   token?: string;
+}
+export interface ITablePermission {
+  name: string;
+  id: string;
+  canView: boolean;
+  canInsert: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  isRowLevel: boolean;
 }
 
 export interface RefPayload {
@@ -177,4 +193,22 @@ export interface Section {
 export interface Crumb {
   url: string;
   label: string;
+}
+export interface Link {
+  link: string;
+  isSpaLink?: boolean;
+}
+export interface MenuItem extends Link {
+  label: string;
+  role?: string;
+  key?: string;
+  submenu?: Menu;
+}
+
+export type Menu = MenuItem[];
+export interface Settings {
+  [key: string]: unknown;
+}
+export interface SystemSettings extends Settings {
+  isOidcEnabled: boolean;
 }

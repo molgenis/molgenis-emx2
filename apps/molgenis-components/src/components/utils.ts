@@ -114,7 +114,7 @@ export function filterObject(
   );
 }
 
-export function flipSign(value: string | null): string {
+export function flipMinusSign(value: string | null): string {
   switch (value) {
     case "-":
       return "";

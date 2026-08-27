@@ -380,7 +380,7 @@ onUnmounted(() => {
             v-if="node.selectable && multiselect"
             :indeterminate="node.selected === 'intermediate'"
             :checked="node.selected === 'selected'"
-            class="min-w-[20px]"
+            class="min-w-[20px] shrink-0"
             :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
@@ -392,7 +392,7 @@ onUnmounted(() => {
             v-else-if="node.selectable"
             :indeterminate="node.selected === 'intermediate'"
             :checked="node.selected === 'selected'"
-            class="min-w-[20px] mr-[6px] mt-[2px]"
+            class="min-w-[20px] shrink-0 mr-[6px] mt-[2px]"
             :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
@@ -401,7 +401,7 @@ onUnmounted(() => {
             :disabled="disabled"
           />
           <span
-            class="block text-body-sm leading-normal pl-1"
+            class="block text-body-sm leading-normal pl-1 min-w-0 break-words"
             :class="inverted ? 'text-title-contrast' : 'text-title'"
           >
             {{ node.label || node.name }}

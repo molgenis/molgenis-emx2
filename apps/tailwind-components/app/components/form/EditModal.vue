@@ -86,8 +86,9 @@
           type="outline"
           size="small"
           @click="reAuthenticate"
-          >Re-authenticate</Button
         >
+          Re-authenticate
+        </Button>
       </FormError>
     </TransitionSlideUp>
     <TransitionSlideUp :auto-hide="true" v-model:visible="showFormMessage">
@@ -105,7 +106,7 @@
           @required-next="form?.gotoNextRequiredField"
           @required-prev="form?.gotoPreviousRequiredField"
         />
-        <menu class="flex items-center justify-end h-[116px]">
+        <menu class="flex items-center justify-end h-modal-footer">
           <div class="flex gap-4">
             <Button type="secondary" :disabled="saving" @click="onCancel">
               Cancel
@@ -182,6 +183,7 @@ const emit = defineEmits([
   "update:added",
   "update:updated",
   "update:cancelled",
+  "update:addedFormValues",
 ]);
 
 const visible = defineModel<boolean>("visible");
@@ -298,9 +300,10 @@ async function insert(draft: boolean) {
 
   isInsert.value = false;
   await updateAutoIds();
-  emit("update:added", resp);
   formMessage.value = `inserted  ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
+  emit("update:added", resp);
+  emit("update:addedFormValues", formValues.value);
 }
 
 async function update(draft: boolean) {
@@ -309,9 +312,9 @@ async function update(draft: boolean) {
     throw new Error(`No response from server on update`);
   }
 
-  emit("update:updated", resp);
   formMessage.value = `saved ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
+  emit("update:updated", resp);
 }
 
 function reAuthenticate() {

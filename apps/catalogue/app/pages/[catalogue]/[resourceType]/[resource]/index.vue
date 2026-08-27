@@ -1,58 +1,67 @@
 <script setup lang="ts">
-import subpopulationsQuery from "../../../../gql/subpopulations";
-import collectionEventsQuery from "../../../../gql/collectionEvents";
-import datasetQuery from "../../../../gql/datasets";
-import ontologyFragment from "../../../../gql/fragments/ontology";
-import fileFragment from "../../../../gql/fragments/file";
-import variablesQuery from "../../../../gql/variables";
-import { getKey } from "../../../../utils/variableUtils";
-import { resourceIdPath } from "../../../../utils/urlHelpers";
-import type {
-  IDefinitionListItem,
-  IMgError,
-  IOntologyItem,
-  linkTarget,
-  DefinitionListItemType,
-} from "../../../../../interfaces/types";
-import dateUtils from "../../../../utils/dateUtils";
+import { useFetch, useHead, useRoute, useRuntimeConfig } from "#app";
+import {
+  logError,
+  moduleToString,
+  removeChildIfParentSelected,
+  useCartStore,
+} from "#imports";
+import { computed, ref } from "vue";
+import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
+import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
+import ContentBlocks from "../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
+import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
+import type { Crumb } from "../../../../../../tailwind-components/types/types";
 import type {
   IResources,
   IVariables,
 } from "../../../../../interfaces/catalogue";
-import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { logError, removeChildIfParentSelected } from "#imports";
-import { moduleToString } from "../../../../../../tailwind-components/app/utils/moduleToString";
-import { computed, ref } from "vue";
-import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
-import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
-import ContentBlockOrganisations from "../../../../components/content/ContentBlockOrganisations.vue";
-import ContentBlockContact from "../../../../components/content/ContentBlockContact.vue";
-import ContentBlockPublications from "../../../../components/content/ContentBlockPublications.vue";
-import SideNavigation from "../../../../components/SideNavigation.vue";
-import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
-import ReferenceCard from "../../../../components/ReferenceCard.vue";
-import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue";
-import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
-import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
-import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import ContentBlocks from "../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
-import ContentCohortGeneralDesign from "../../../../components/content/cohort/GeneralDesign.vue";
-import TableContent from "../../../../components/table/Content.vue";
-import DatasetDisplay from "../../../../components/DatasetDisplay.vue";
-import CollectionEventDisplay from "../../../../components/CollectionEventDisplay.vue";
-import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
-import VariableDisplay from "../../../../components/VariableDisplay.vue";
-import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
-import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
+import type {
+  DefinitionListItemType,
+  IDefinitionListItem,
+  IMgError,
+  IOntologyItem,
+  linkTarget,
+} from "../../../../../interfaces/types";
 import CatalogueItemList from "../../../../components/CatalogueItemList.vue";
-import type { Crumb } from "../../../../../../tailwind-components/types/types";
+import CollectionEventDisplay from "../../../../components/CollectionEventDisplay.vue";
+import ContentCohortGeneralDesign from "../../../../components/content/cohort/GeneralDesign.vue";
+import ContentBlockContact from "../../../../components/content/ContentBlockContact.vue";
+import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
+import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
+import ContentBlockOrganisations from "../../../../components/content/ContentBlockOrganisations.vue";
+import ContentBlockPublications from "../../../../components/content/ContentBlockPublications.vue";
+import DatasetDisplay from "../../../../components/DatasetDisplay.vue";
+import LayoutsDetailPage from "../../../../components/layouts/DetailPage.vue";
+import ReferenceCard from "../../../../components/ReferenceCard.vue";
+import ReferenceCardList from "../../../../components/ReferenceCardList.vue";
+import SideNavigation from "../../../../components/SideNavigation.vue";
+import CartButton from "../../../../components/cart/CartButton.vue";
+import { resourceToCartItem } from "../../../../utils/cartItem";
+import SubpopulationDisplay from "../../../../components/SubpopulationDisplay.vue";
+import TableContent from "../../../../components/table/Content.vue";
+import VariableDisplay from "../../../../components/VariableDisplay.vue";
+import collectionEventsQuery from "../../../../gql/collectionEvents";
+import tablesQuery from "../../../../gql/tables";
+import fileFragment from "../../../../gql/fragments/file";
+import ontologyFragment from "../../../../gql/fragments/ontology";
+import subpopulationsQuery from "../../../../gql/subpopulations";
+import variablesQuery from "../../../../gql/variables";
+import dateUtils from "../../../../utils/dateUtils";
+import { resourceIdPath } from "../../../../utils/urlHelpers";
+import { getKey } from "../../../../utils/variableUtils";
 
 const config = useRuntimeConfig();
 const route = useRoute();
-const schema = config.public.schema as string;
+const schema = config.public.schema;
+const cartStore = useCartStore();
 
-const query = `
+const variables = { id: route.params.resource };
+
+const resourceQuery = `
   query Resources($id: String) {
     Resources(filter: { id: { equals: [$id] } }) {
       id
@@ -181,7 +190,7 @@ const query = `
             name
             order
           }
-        } 
+        }
       }
       subpopulations {
           name
@@ -203,7 +212,7 @@ const query = `
         url
         file ${moduleToString(fileFragment)}
       }
-      datasets {
+      tables {
         name
       }
       partOfNetworks {
@@ -214,7 +223,7 @@ const query = `
         logo {
           url
         }
-        type {
+        catalogueType {
           name
         }
       }
@@ -233,23 +242,25 @@ const query = `
     }
   }
 `;
-const variables = { id: route.params.resource };
+
 interface IResourceQueryResponseValue extends IResources {
-  publications_agg: { count: number };
-  subpopulations_agg: { count: number };
-  collectionEvents_agg: { count: number };
+  publications_agg?: { count: number };
+  subpopulations_agg?: { count: number };
+  collectionEvents_agg?: { count: number };
 }
+
 interface IResponse {
   data: {
     Resources: IResourceQueryResponseValue[];
     Variables_agg: { count: number };
   };
 }
+
 const { data, error } = await useFetch<IResponse, IMgError>(
   `/${schema}/graphql`,
   {
     method: "POST",
-    body: { query, variables },
+    body: { query: resourceQuery, variables },
   }
 );
 
@@ -257,12 +268,10 @@ if (error.value) {
   logError(error.value, "Error fetching resource metadata");
 }
 
-const resource = computed(
-  () => data.value?.data?.Resources[0] as IResourceQueryResponseValue
-);
+const resource = computed(() => data.value?.data?.Resources?.[0]);
 const subpopulations = computed(() => resource.value?.subpopulations as any[]);
 const mainMedicalConditions = computed(() => {
-  if (!subpopulations.value || !subpopulations.value.length) {
+  if (!subpopulations.value?.length) {
     return [];
   } else {
     const allItems = subpopulations.value
@@ -303,7 +312,7 @@ function collectionEventMapper(item: any) {
   };
 }
 
-function datasetMapper(item: { name: string; description?: string }) {
+function tableMapper(item: { name: string; description?: string }) {
   return {
     id: {
       name: item.name,
@@ -331,7 +340,7 @@ function variableMapper(variable: IVariables) {
   return {
     id: key,
     name: variable.name,
-    dataset: variable.dataset.name,
+    table: variable.table.name,
     _renderComponent: "VariableDisplay",
     _path: `/${route.params.catalogue}/${route.params.resourceType}/${
       route.params.resource
@@ -339,33 +348,33 @@ function variableMapper(variable: IVariables) {
   };
 }
 
-const datasetOptions = ref<Array<{ name: string }>>([{ name: "All datasets" }]);
-const datasetFilter = ref<string>("All datasets");
+const tableOptions = ref<Array<{ name: string }>>([{ name: "All tables" }]);
+const tableFilter = ref<string>("All tables");
 const variableSearchValue = ref<string>("");
 
 const variablesFilter = computed(() => {
   return {
     filter: {
       resource: { id: { equals: route.params.resource } },
-      dataset:
-        datasetFilter.value === "All datasets"
+      table:
+        tableFilter.value === "All tables"
           ? undefined
-          : { name: { equals: datasetFilter.value } },
+          : { name: { equals: tableFilter.value } },
     },
   };
 });
 
 async function fetchDatasetOptions() {
   const query = `
-    query DatasetOptions($id: String) {
-      Datasets(filter: { resource: { id: { equals: [$id] } } }) {
+    query TableOptions($id: String) {
+      Tables(filter: { resource: { id: { equals: [$id] } } }) {
         name
       }
     }
   `;
   const variables = { id: route.params.resource };
   const { data, error } = await useFetch<
-    { data: { Datasets: { name: string }[] } },
+    { data: { Tables: { name: string }[] } },
     IMgError
   >(`/${schema}/graphql`, {
     method: "POST",
@@ -373,22 +382,18 @@ async function fetchDatasetOptions() {
   });
 
   if (error.value) {
-    logError(error.value, "Error fetching dataset options");
+    logError(error.value, "Error fetching table options");
   }
 
-  datasetOptions.value = data.value?.data?.Datasets
-    ? [...datasetOptions.value, ...data.value?.data?.Datasets]
-    : datasetOptions.value;
+  tableOptions.value = data.value?.data?.Tables
+    ? [...tableOptions.value, ...data.value?.data?.Tables]
+    : tableOptions.value;
 }
 
 fetchDatasetOptions();
 
-const networks = computed(() =>
-  !resource.value?.partOfNetworks
-    ? []
-    : resource.value?.partOfNetworks.filter((c) =>
-        c.type.find((t) => t.name == "Network")
-      )
+const networks = computed(
+  () => (resource.value?.partOfNetworks ?? []) as IResources[]
 );
 
 const tocItems = computed(() => {
@@ -441,9 +446,12 @@ const tocItems = computed(() => {
   }
 
   if (variableCount.value ?? 0 > 0) {
-    tableOffContents.push({ label: "Dataset variables", id: "DataVariables" });
-  } else if (resource.value?.datasets?.length) {
-    tableOffContents.push({ label: "Datasets", id: "Datasets" });
+    tableOffContents.push({
+      label: "Data dictionaries",
+      id: "DataDictionaries",
+    });
+  } else if (resource.value?.tables?.length) {
+    tableOffContents.push({ label: "Tables", id: "Tables" });
   }
 
   if (subpopulationCount.value ?? 0 > 0) {
@@ -720,7 +728,7 @@ const showPopulation = computed(
         :title="
           route.params.resourceType === 'about'
             ? 'About '
-            : resource?.acronym || resource?.name
+            : resource?.acronym || resource?.name || ''
         "
         :description="
           (route.params.resourceType === 'about' ? 'About ' : '') +
@@ -730,9 +738,6 @@ const showPopulation = computed(
         <template #prefix>
           <BreadCrumbs :crumbs="crumbs" />
         </template>
-        <!-- <template #title-suffix>
-          <IconButton icon="star" label="Favorite" />
-        </template> -->
       </PageHeader>
     </template>
     <template #side>
@@ -752,7 +757,13 @@ const showPopulation = computed(
           :contact-name="resource?.name"
           :contact-message-filter="messageFilter"
           :subject-template="resource.acronym"
-        />
+        >
+          <CartButton
+            v-if="resource && cartStore.isEnabled"
+            :item="resourceToCartItem(resource)"
+            variant="button"
+          />
+        </ContentBlockIntro>
 
         <ContentBlockDescription
           id="Description"
@@ -793,17 +804,17 @@ const showPopulation = computed(
         />
 
         <TableContent
-          v-if="resource?.datasets && !variableCount"
-          id="Datasets"
-          title="Datasets"
+          v-if="resource?.tables && !variableCount"
+          id="Tables"
+          title="Tables"
           :headers="[
             { id: 'name', label: 'Name' },
             { id: 'description', label: 'Description', singleLine: true },
           ]"
-          type="Datasets"
-          :query="datasetQuery"
+          type="Tables"
+          :query="tablesQuery"
           :filter="{ id: route.params.resource }"
-          :rowMapper="datasetMapper"
+          :rowMapper="tableMapper"
           v-slot="slotProps"
         >
           <DatasetDisplay
@@ -813,24 +824,24 @@ const showPopulation = computed(
         </TableContent>
 
         <ContentBlock
-          title="Dataset variables"
-          id="DataVariables"
+          title="Data dictionaries"
+          id="DataDictionaries"
           v-if="variableCount ?? 0 > 0"
         >
           <TableContent
-            v-if="resource?.datasets"
-            id="Datasets"
-            title="Datasets"
-            description="Datasets and their description"
+            v-if="resource?.tables"
+            id="Tables"
+            title="Tables"
+            description="Tables and their description"
             :wrapper-component="false"
             :headers="[
               { id: 'name', label: 'Name' },
               { id: 'description', label: 'Description', singleLine: true },
             ]"
-            type="Datasets"
-            :query="datasetQuery"
+            type="Tables"
+            :query="tablesQuery"
             :filter="{ id: route.params.resource }"
-            :rowMapper="datasetMapper"
+            :rowMapper="tableMapper"
             v-slot="slotProps"
           >
             <DatasetDisplay
@@ -842,12 +853,12 @@ const showPopulation = computed(
           <TableContent
             class="mt-11"
             :wrapper-component="false"
-            title="Dataset variables"
+            title="Variables"
             id="Variables"
-            description="Dataset variables and their description"
+            description="Variables and their description"
             :headers="[
-              { id: 'name', label: 'variable' },
-              { id: 'dataset', label: 'Dataset' },
+              { id: 'name', label: 'Variable' },
+              { id: 'table', label: 'Table' },
             ]"
             type="Variables"
             :query="variablesQuery"
@@ -861,14 +872,14 @@ const showPopulation = computed(
                   class="block absolute text-body-xs top-2 left-6 pointer-events-none"
                   for="filter-by-data-set"
                 >
-                  Filter by dataset
+                  Filter by table
                 </label>
                 <select
-                  v-model="datasetFilter"
+                  v-model="tableFilter"
                   name="filter-by-data-set"
                   class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
                 >
-                  <option v-for="option in datasetOptions" :value="option.name">
+                  <option v-for="option in tableOptions" :value="option.name">
                     {{ option.name }}
                   </option>
                 </select>
@@ -962,7 +973,7 @@ const showPopulation = computed(
                {title: 'Network details',
                 url: `/${route.params.catalogue}/networks/${network.id}`,
                 },
-               network.type?.some( (type) => type.name === 'Catalogue')
+               network.catalogueType
                ? {
                 title: 'Catalogue',
                 url: `/${network.id}`,

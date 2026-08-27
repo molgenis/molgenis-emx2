@@ -14,7 +14,11 @@ import {
   isInvalidBigInt,
   readableStringArray,
 } from "./formUtils";
-import { ITableMetaData, IColumn } from "metadata-utils/src/types.js";
+import {
+  columnValue,
+  IColumn,
+  ITableMetaData,
+} from "../../../../../metadata-utils/src/types.js";
 const { AUTO_ID, HEADING } = constants;
 
 describe("getRowErrors", () => {
@@ -191,7 +195,10 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error for an invalid email address array", () => {
-    const rowData = { email: ["in@valid", "val@id.com", null, ""] };
+    const rowData = { email: ["in@valid", "val@id.com", null, ""] } as Record<
+      string,
+      columnValue
+    >;
     const metadata = {
       columns: [{ id: "email", columnType: "EMAIL_ARRAY" }],
     } as ITableMetaData;
@@ -214,7 +221,10 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error for an invalid UUID array", () => {
-    const rowData = { uuid: ["invalid", "not valid", null, ""] };
+    const rowData = { uuid: ["invalid", "not valid", null, ""] } as Record<
+      string,
+      columnValue
+    >;
     const metadata = {
       columns: [{ id: "uuid", columnType: "UUID_ARRAY" }],
     } as ITableMetaData;
@@ -370,7 +380,7 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error for an invalid integer array", () => {
-    const rowData = { integer: [".", 2] };
+    const rowData = { integer: [".", 2] } as Record<string, columnValue>;
     const metadata = {
       columns: [{ id: "integer", columnType: "INT_ARRAY" }],
     } as ITableMetaData;
@@ -448,7 +458,10 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error for an invalid non negative integer array", () => {
-    const rowData = { nonNegativeInteger: [".", 2] };
+    const rowData = { nonNegativeInteger: [".", 2] } as Record<
+      string,
+      columnValue
+    >;
     const metadata = {
       columns: [
         { id: "nonNegativeInteger", columnType: "NON_NEGATIVE_INT_ARRAY" },
@@ -664,9 +677,21 @@ describe("isMissingValue", () => {
   test("should handle (nested) arrays correctly", () => {
     expect(isMissingValue([0])).toBe(false);
     expect(isMissingValue([1, 2, 3])).toBe(false);
-    expect(isMissingValue([null, "field1", ""])).toBe(true);
-    expect(isMissingValue([["field1", "field2"], "field3"])).toBe(false);
-    expect(isMissingValue([[undefined, "field1"], "field2"])).toBe(true);
+    expect(isMissingValue([null, "field1", ""] as columnValue)).toBe(true);
+    expect(
+      isMissingValue([["field1", "field2"], "field3"] as columnValue)
+    ).toBe(false);
+    expect(
+      isMissingValue([[undefined, "field1"], "field2"] as columnValue)
+    ).toBe(true);
+  });
+
+  test("should return true for an empty array", () => {
+    expect(isMissingValue([])).toBe(true);
+  });
+
+  test("should return true for a nested empty array", () => {
+    expect(isMissingValue(["", []] as columnValue)).toBe(true);
   });
 });
 

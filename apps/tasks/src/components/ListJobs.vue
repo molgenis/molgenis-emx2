@@ -13,18 +13,38 @@
   >
     <template v-slot:rowheader="slotProps">
       <TaskViewButton :taskId="slotProps.row.id" />
+      <IconAction
+        v-if="slotProps.row.status.name === 'RUNNING'"
+        icon="stop"
+        @click="cancelJob(slotProps.row)"
+      />
     </template>
   </RoutedTableExplorer>
 </template>
 
 <script>
-import { RoutedTableExplorer } from "molgenis-components";
+import { IconAction, RoutedTableExplorer } from "molgenis-components";
 import TaskViewButton from "./TaskViewButton.vue";
 
 export default {
   components: {
     RoutedTableExplorer,
     TaskViewButton,
+    IconAction,
+  },
+  methods: {
+    cancelJob(row) {
+      fetch(`/api/tasks/${row.id}/cancel`, {
+        method: "POST",
+      })
+        .then(() => {
+          // reload page to update table
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error("Error cancelling job:", error);
+        });
+    },
   },
 };
 </script>

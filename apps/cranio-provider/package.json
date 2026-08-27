@@ -13,9 +13,10 @@
   "dependencies": {
     "@heroicons/vue": "2.0.18",
     "d3": "7.8.5",
-    "graphql-request": "5.2.0",
+    "metadata-utils": "workspace:*",
     "molgenis-components": "workspace:*",
     "molgenis-viz": "workspace:*",
+    "tailwind-components": "workspace:*",
     "vue": "3.5.22",
     "vue-router": "4.4.3"
   },
@@ -23,8 +24,8 @@
     "@types/d3": "7.4.3",
     "@vitejs/plugin-vue": "5.2.4",
     "prettier": "2.8.8",
-    "vite": "7.3.2",
-    "vitest": "1.6.1"
+    "vite": "7.3.5",
+    "vitest": "4.1.8"
   },
   "browserslist": [
     "> 1%",

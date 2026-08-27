@@ -1,5 +1,6 @@
 package org.molgenis.emx2;
 
+import java.util.Arrays;
 import java.util.List;
 
 public interface Table {
@@ -22,9 +23,15 @@ public interface Table {
 
   int save(Iterable<Row> rows);
 
-  int delete(Row... row);
+  default int delete(Row... rows) {
+    return delete(Arrays.asList(rows));
+  }
 
-  int delete(Iterable<Row> rows);
+  default int delete(Iterable<Row> rows) {
+    return delete(rows, false);
+  }
+
+  int delete(Iterable<Row> rows, boolean strict);
 
   void truncate();
 

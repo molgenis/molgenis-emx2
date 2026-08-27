@@ -1,0 +1,413 @@
+{
+    "tables": [
+        {
+            "columns": [
+                {
+                    "columnType": "STRING",
+                    "key": 1,
+                    "name": "name",
+                    "oldName": "name",
+                    "required": "true",
+                    "table": "Category"
+                }
+            ],
+            "name": "Category",
+            "oldName": "Category",
+            "tableType": "DATA"
+        },
+        {
+            "columns": [
+                {
+                    "columnType": "AUTO_ID",
+                    "computed": "ORDER:${mg_autoid}",
+                    "key": 1,
+                    "name": "orderId",
+                    "oldName": "orderId",
+                    "position": 1,
+                    "required": "true",
+                    "table": "Order"
+                },
+                {
+                    "columnType": "SELECT",
+                    "name": "pet",
+                    "oldName": "pet",
+                    "position": 2,
+                    "refSchemaName": "ppet sstore",
+                    "refTableName": "Pet1",
+                    "table": "Order"
+                },
+                {
+                    "columnType": "LONG",
+                    "formLabel": "how many would you like ?",
+                    "name": "quantity",
+                    "oldName": "quantity",
+                    "position": 3,
+                    "table": "Order",
+                    "validation": "if(quantity < 1) 'quantity should be >= 1'"
+                },
+                {
+                    "columnType": "DECIMAL",
+                    "name": "price",
+                    "oldName": "price",
+                    "position": 4,
+                    "table": "Order",
+                    "validation": "price >= 1"
+                },
+                {
+                    "columnType": "BOOL",
+                    "name": "complete",
+                    "oldName": "complete",
+                    "position": 5,
+                    "table": "Order"
+                },
+                {
+                    "columnType": "STRING",
+                    "defaultValue": "hallo",
+                    "name": "status",
+                    "oldName": "status",
+                    "position": 6,
+                    "table": "Order"
+                },
+                {
+                    "columnType": "DATETIME",
+                    "name": "timestamp",
+                    "oldName": "timestamp",
+                    "position": 7,
+                    "table": "Order"
+                }
+            ],
+            "name": "Order",
+            "oldName": "Order",
+            "tableType": "DATA"
+        },
+        {
+            "columns": [],
+            "descriptions": [
+                {
+                    "locale": "en",
+                    "value": "My pet store example table"
+                }
+            ],
+            "labels": [
+                {
+                    "locale": "en",
+                    "value": ""
+                }
+            ],
+            "name": "Pet1",
+            "oldName": "Pet",
+            "tableType": "DATA"
+        },
+        {
+            "columns": [
+                {
+                    "columnType": "STRING",
+                    "key": 1,
+                    "name": "username",
+                    "oldName": "username",
+                    "position": 17,
+                    "required": "true",
+                    "semantics": [
+                        "foaf:accountName"
+                    ],
+                    "table": "User"
+                },
+                {
+                    "columnType": "STRING",
+                    "name": "firstName",
+                    "oldName": "firstName",
+                    "position": 18,
+                    "semantics": [
+                        "foaf:firstName"
+                    ],
+                    "table": "User"
+                },
+                {
+                    "columnType": "STRING",
+                    "name": "lastName",
+                    "oldName": "lastName",
+                    "position": 19,
+                    "semantics": [
+                        "foaf:lastName"
+                    ],
+                    "table": "User"
+                },
+                {
+                    "columnType": "FILE",
+                    "name": "picture",
+                    "oldName": "picture",
+                    "position": 20,
+                    "semantics": [
+                        "foaf:img"
+                    ],
+                    "table": "User"
+                },
+                {
+                    "columnType": "EMAIL",
+                    "name": "email",
+                    "oldName": "email",
+                    "position": 21,
+                    "semantics": [
+                        "foaf:mbox"
+                    ],
+                    "table": "User"
+                },
+                {
+                    "columnType": "STRING",
+                    "name": "password",
+                    "oldName": "password",
+                    "position": 22,
+                    "table": "User"
+                },
+                {
+                    "columnType": "STRING",
+                    "name": "phone",
+                    "oldName": "phone",
+                    "position": 23,
+                    "semantics": [
+                        "foaf:phone"
+                    ],
+                    "table": "User"
+                },
+                {
+                    "columnType": "INT",
+                    "name": "userStatus",
+                    "oldName": "userStatus",
+                    "position": 24,
+                    "table": "User"
+                },
+                {
+                    "columnType": "MULTISELECT",
+                    "name": "pets",
+                    "oldName": "pets",
+                    "position": 25,
+                    "refSchemaName": "ppet sstore",
+                    "refTableName": "Pet1",
+                    "semantics": [
+                        "http://example.com/petstore#hasPets"
+                    ],
+                    "table": "User"
+                },
+                {
+                    "columnType": "HEADING",
+                    "name": "address",
+                    "oldName": "address",
+                    "position": 26,
+                    "table": "User"
+                },
+                {
+                    "columnType": "STRING",
+                    "name": "street",
+                    "oldName": "street",
+                    "position": 27,
+                    "table": "User",
+                    "visible": "lastName"
+                }
+            ],
+            "name": "User",
+            "oldName": "User",
+            "semantics": [
+                "foaf:Person"
+            ],
+            "tableType": "DATA"
+        },
+        {
+            "columns": [
+                {
+                    "columnType": "SECTION",
+                    "name": "mg_top_of_form",
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "INT",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "Order of this term within the code system"
+                        }
+                    ],
+                    "name": "order",
+                    "semantics": [
+                        "http://purl.obolibrary.org/obo/NCIT_C42680"
+                    ],
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "STRING",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "Unique name of the term within this table"
+                        }
+                    ],
+                    "key": 1,
+                    "name": "name",
+                    "position": 1,
+                    "required": "true",
+                    "semantics": [
+                        "http://purl.obolibrary.org/obo/NCIT_C42614"
+                    ],
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "STRING",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "User-friendly label for this term. Should be unique in parent"
+                        }
+                    ],
+                    "name": "label",
+                    "position": 2,
+                    "semantics": [
+                        "http://purl.obolibrary.org/obo/NCIT_C45561"
+                    ],
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "STRING_ARRAY",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "Any tags that you might need to slice and dice the ontology"
+                        }
+                    ],
+                    "name": "tags",
+                    "position": 3,
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "REF",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "The parent term, in case this code exists in a hierarchy"
+                        }
+                    ],
+                    "name": "parent",
+                    "position": 4,
+                    "refSchemaName": "ppet sstore",
+                    "refTableName": "Tag",
+                    "semantics": [
+                        "http://purl.obolibrary.org/obo/NCIT_C80013"
+                    ],
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "STRING",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "Abbreviation of the code system/ontology this term belongs to"
+                        }
+                    ],
+                    "name": "codesystem",
+                    "position": 5,
+                    "required": "false",
+                    "semantics": [
+                        "http://purl.obolibrary.org/obo/NCIT_C70895"
+                    ],
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "STRING",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "Identifier used for this term within this code system/ontology"
+                        }
+                    ],
+                    "name": "code",
+                    "position": 6,
+                    "required": "false",
+                    "semantics": [
+                        "http://purl.obolibrary.org/obo/NCIT_C25162"
+                    ],
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "HYPERLINK",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "Reference to structured definition of this term"
+                        }
+                    ],
+                    "name": "ontologyTermURI",
+                    "position": 7,
+                    "required": "false",
+                    "semantics": [
+                        "http://purl.obolibrary.org/obo/NCIT_C114456"
+                    ],
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "TEXT",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "A concise explanation of the meaning of this term"
+                        }
+                    ],
+                    "name": "definition",
+                    "position": 8,
+                    "semantics": [
+                        "http://purl.obolibrary.org/obo/NCIT_C42777"
+                    ],
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "REFBACK",
+                    "descriptions": [
+                        {
+                            "locale": "en",
+                            "value": "Child terms, in case this term is the parent of other terms"
+                        }
+                    ],
+                    "name": "children",
+                    "position": 9,
+                    "refBackName": "parent",
+                    "refSchemaName": "ppet sstore",
+                    "refTableName": "Tag",
+                    "semantics": [
+                        "http://purl.obolibrary.org/obo/NCIT_C90504"
+                    ],
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "BOOL",
+                    "name": "mg_draft",
+                    "position": -5,
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "STRING",
+                    "name": "mg_insertedBy",
+                    "position": -4,
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "DATETIME",
+                    "name": "mg_insertedOn",
+                    "position": -3,
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "STRING",
+                    "name": "mg_updatedBy",
+                    "position": -2,
+                    "table": "Tag"
+                },
+                {
+                    "columnType": "DATETIME",
+                    "name": "mg_updatedOn",
+                    "position": -1,
+                    "table": "Tag"
+                }
+            ],
+            "name": "Tag",
+            "oldName": "Tag",
+            "tableType": "ONTOLOGIES"
+        }
+    ]
+}

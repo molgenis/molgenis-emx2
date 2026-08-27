@@ -12,11 +12,13 @@ withDefaults(
     maxWidth?: string;
     type?: "center" | "left" | "right";
     backgroundAccessible?: boolean;
+    size?: "small" | "medium" | "large";
   }>(),
   {
     type: "center",
     maxWidth: "max-w-xl",
     backgroundAccessible: false,
+    size: "large",
   }
 );
 
@@ -88,9 +90,12 @@ function hide() {
               />
 
               <div
-                class="bg-modal w-3/4 relative rounded-theme h-[95vh] flex flex-col pointer-events-auto overflow-auto"
+                class="bg-modal w-3/4 relative rounded-alt max-h-[95dvh] min-h-[18.75rem] flex flex-col pointer-events-auto"
                 :class="[
                   {
+                    'h-[95vh]': size === 'large',
+                    'h-[50vh]': size === 'medium',
+                    'h-[33vh]': size === 'small',
                     'm-auto': type === 'center',
                     'ml-auto rounded-r-none': type === 'right',
                     'mr-auto rounded-l-none': type === 'left',
@@ -100,13 +105,8 @@ function hide() {
                 ]"
               >
                 <slot name="header">
-                  <header
-                    class="pt-8 px-8 flex-none overflow-y-auto border-b border-divider"
-                  >
-                    <div
-                      v-if="subtitle"
-                      class="text-title-contrast overflow-y-auto"
-                    >
+                  <header class="pt-8 px-8 flex-none border-b border-divider">
+                    <div v-if="subtitle" class="text-title-contrast">
                       {{ subtitle }}
                     </div>
                     <h2
@@ -136,7 +136,7 @@ function hide() {
                 </div>
 
                 <footer
-                  class="bg-modal-footer px-8 rounded-b-theme border-t border-divider flex-none z-50 overflow-y-auto"
+                  class="bg-modal-footer px-8 rounded-b-alt border-t border-divider flex-none z-50"
                   :class="[
                     {
                       'rounded-r-none': type === 'right',

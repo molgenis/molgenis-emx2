@@ -16,10 +16,12 @@ import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
@@ -45,6 +47,7 @@ public class MolgenisWebservice {
   public static final OIDCController oidcController = new OIDCController();
 
   private final Javalin app;
+  private final boolean hostUrlFromEnvironment;
   static URL hostUrl;
 
   public MolgenisWebservice() {
@@ -63,15 +66,18 @@ public class MolgenisWebservice {
                           Math.toIntExact(MAX_REQUEST_SIZE)) // Jetty limit
                   );
             });
+    hostUrlFromEnvironment = setServiceUrl();
   }
 
   public void start(int port) {
     app.start(port);
 
-    try {
-      hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
-    } catch (Exception ignored) {
-      // should we handle this?
+    if (!hostUrlFromEnvironment) {
+      try {
+        hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
+      } catch (Exception ignored) {
+        // should we handle this?
+      }
     }
 
     if (MetricsController.METRICS_ENABLED) {
@@ -132,7 +138,6 @@ public class MolgenisWebservice {
     BootstrapThemeService.create(app);
     ProfilesApi.create(app);
     AnalyticsApi.create(app);
-    PodiumApi.create(app);
 
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
@@ -164,8 +169,40 @@ public class MolgenisWebservice {
         });
   }
 
+  private static boolean setServiceUrl() {
+    String serviceUrlParameter = null;
+    try {
+      serviceUrlParameter =
+          (String)
+              EnvironmentProperty.getParameter(
+                  org.molgenis.emx2.Constants.MOLGENIS_SERVICE_URL, null, ColumnType.STRING);
+
+      if (serviceUrlParameter == null || serviceUrlParameter.isBlank()) {
+        return false;
+      }
+
+      URI uri = new URI(serviceUrlParameter);
+
+      if (uri.getScheme() != null && uri.getHost() != null) {
+        hostUrl = uri.toURL();
+        logger.info("Using provided service URL: {}", serviceUrlParameter);
+        return true;
+      }
+
+      return false;
+    } catch (Exception e) {
+      throw new MolgenisException(
+          "Invalid MOLGENIS_SERVICE_URL '%s': must include scheme and host"
+              .formatted(serviceUrlParameter));
+    }
+  }
+
   public void stop() {
     app.stop();
+  }
+
+  public int getPort() {
+    return app.port();
   }
 
   private static void handleLoginCallback(Context ctx) {
@@ -201,12 +238,13 @@ public class MolgenisWebservice {
 
       if (menuForRole.isEmpty()) {
         logger.warn("No menu available for current user");
-        if (schema.getRoleForUser(ANONYMOUS).isEmpty()) {
-          ctx.redirect("/");
-        } else {
+        boolean userHasAnyRole =
+            schema.getMembers().stream().anyMatch(m -> m.getUser().equals(currentUser));
+        if (userHasAnyRole) {
           ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        } else {
+          ctx.redirect("/");
         }
-
         return;
       }
 

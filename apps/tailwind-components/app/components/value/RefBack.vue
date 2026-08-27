@@ -44,8 +44,8 @@ const refBackColumnLabels = computed(() => {
     @click="handleRefBackCellClicked(index)"
   >
     {{ refBackColumnLabel }}
-    <span class="no-underline" v-if="index < refBackColumnLabels.length - 1"
-      >,</span
-    >
+    <span class="no-underline" v-if="index < refBackColumnLabels.length - 1">
+      ,
+    </span>
   </span>
 </template>

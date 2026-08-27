@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 public class Constants {
 
   public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
-  public static final String MG_EDIT_ROLE = "MG_EDIT_ROLE_";
   public static final String MG_ROLE_PREFIX = "MG_ROLE_";
   public static final String MG_USER_PREFIX = "MG_USER_";
 
@@ -42,6 +41,7 @@ public class Constants {
   public static final String MG_INSERTEDON = "mg_insertedOn";
   public static final String MG_UPDATEDBY = "mg_updatedBy";
   public static final String MG_UPDATEDON = "mg_updatedOn";
+  public static final String MG_ROLES = "mg_roles";
 
   public static final String TEXT_SEARCH_COLUMN_NAME = "_TEXT_SEARCH_COLUMN";
   public static final String SETTINGS_TABLE = "molgenis_settings";
@@ -49,6 +49,9 @@ public class Constants {
   public static final String SETTINGS_NAME = "key";
   public static final String SETTINGS_VALUE = "value";
   public static final String SETTINGS_USER = "user";
+
+  // Advanced setting containing comma-separated "namespace prefix,namespace IRI" pairs (per row)
+  public static final String SETTING_SEMANTIC_PREFIXES = "semantic_prefixes";
 
   public static final String CHANGELOG_TABLE = "mg_changelog";
   public static final String CHANGELOG_OPERATION = "operation";
@@ -76,6 +79,7 @@ public class Constants {
   public static final String MOLGENIS_INCLUDE_DIRECTORY_DEMO = "MOLGENIS_INCLUDE_DIRECTORY_DEMO";
   public static final String MOLGENIS_EXCLUDE_PETSTORE_DEMO = "MOLGENIS_EXCLUDE_PETSTORE_DEMO";
   public static final String MOLGENIS_INCLUDE_TYPE_TEST_DEMO = "MOLGENIS_INCLUDE_TYPE_TEST_DEMO";
+  public static final String MOLGENIS_INCLUDE_CMS = "MOLGENIS_INCLUDE_CMS";
   public static final String MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO =
       "MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO";
   public static final String CUSTOM_APP_PATH = "CUSTOM_APP_PATH";
@@ -92,6 +96,7 @@ public class Constants {
   public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
+  public static final String MOLGENIS_SERVICE_URL = "MOLGENIS_SERVICE_URL";
   public static final String MOLGENIS_METRICS_ENABLED = "MOLGENIS_METRICS_ENABLED";
   public static final String MOLGENIS_METRICS_PATH = "MOLGENIS_METRICS_PATH";
   public static final String MOLGENIS_APP_CACHE_DURATION = "MOLGENIS_INCLUDE_APP_CACHE_DURATION";
@@ -104,22 +109,20 @@ public class Constants {
   protected static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 
   protected static final Operator[] ORDINAL_OPERATORS = {
-    EQUALS, NOT_EQUALS, MATCH_ANY, BETWEEN, NOT_BETWEEN, IS_NULL, MATCH_NONE
+    EQUALS, NOT_EQUALS, MATCH_ANY, BETWEEN, NOT_BETWEEN, IS_NULL
   };
   protected static final Operator[] ORDINAL_ARRAY_OPERATORS =
       Stream.concat(Arrays.stream(ORDINAL_OPERATORS), Stream.of(MATCH_ALL))
           .toArray(Operator[]::new);
 
   protected static final Operator[] STRING_OPERATORS = {
-    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH, IS_NULL, MATCH_ANY, MATCH_NONE
+    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH, IS_NULL, MATCH_ANY
   };
 
   protected static final Operator[] STRING_ARRAY_OPERATORS =
       Stream.concat(Arrays.stream(STRING_OPERATORS), Stream.of(MATCH_ALL)).toArray(Operator[]::new);
 
-  protected static final Operator[] EQUALITY_OPERATORS = {
-    EQUALS, NOT_EQUALS, IS_NULL, MATCH_ANY, MATCH_NONE
-  };
+  protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS, IS_NULL, MATCH_ANY};
 
   protected static final Operator[] EQUALITY_ARRAY_OPERATORS =
       Stream.concat(Arrays.stream(EQUALITY_OPERATORS), Stream.of(MATCH_ALL))

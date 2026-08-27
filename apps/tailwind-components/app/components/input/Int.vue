@@ -1,16 +1,16 @@
 <template>
   <InputString
     :id="id"
-    :aria-describedby="describedBy"
+    :ariaDescribedby="describedBy"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
     :placeholder="placeholder"
     :required="required"
-    v-model="modelValue"
+    :modelValue="modelValue"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
-    @input="handleInput"
+    @update:modelValue="handleInput"
     @keypress="handleKeyValidity"
   />
 </template>
@@ -18,10 +18,11 @@
 <script setup lang="ts">
 import constants from "../../../../molgenis-components/src/components/constants";
 import {
-  flipSign,
+  flipMinusSign,
   isNumericKey,
 } from "../../../../molgenis-components/src/components/utils";
 import type { IInputProps } from "../../../types/types";
+import { getIntInput } from "../../utils/typeUtils";
 import InputString from "./String.vue";
 
 const modelValue = defineModel<string | number | undefined | null>({
@@ -41,17 +42,19 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 function handleKeyValidity(event: any) {
   const keyCode = event.which ?? event.keyCode;
   if (keyCode === CODE_MINUS) {
-    const flipped = flipSign(event.target?.value);
-    emit("update:modelValue", flipped);
+    const flipped: string = flipMinusSign(event.target?.value);
+    if (flipped && flipped !== "-") {
+      emit("update:modelValue", Number.parseInt(flipped));
+    } else {
+      emit("update:modelValue", flipped);
+    }
   }
   if (!isNumericKey(event) || keyCode === CODE_PERIOD) {
     event.preventDefault();
   }
 }
 
-function handleInput(event: any) {
-  const inputValue = event.target?.value;
-  const numericValue = inputValue !== "" ? Number(inputValue) : null;
-  emit("update:modelValue", numericValue);
+function handleInput(inputValue?: string | number | null) {
+  emit("update:modelValue", getIntInput(inputValue));
 }
 </script>

@@ -19,7 +19,7 @@ const statusClasses = computed(() => {
 <template>
   <div
     :data-status="status"
-    class="absolute inset-x-0 -top-px -bottom-px justify-center items-center inline-flex group"
+    class="absolute inset-x-0 -top-px -bottom-px justify-center items-center inline-flex group hover:cursor-pointer"
     :class="statusClasses"
   >
     <BaseIcon

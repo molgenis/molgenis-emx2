@@ -8,11 +8,22 @@
     @update="updatePage"
   />
 
+  <p>jumpToEdge = true:</p>
   <Pagination
     :currentPage="24"
     :totalPages="999"
     :preventDefault="true"
     :jumpToEdge="true"
+    @update="updatePage"
+  />
+
+  <p>showPageSizeSelector = true:</p>
+  <Pagination
+    :currentPage="24"
+    :totalPages="999"
+    :preventDefault="true"
+    :jumpToEdge="true"
+    :showPageSizeSelector="true"
     @update="updatePage"
   />
 

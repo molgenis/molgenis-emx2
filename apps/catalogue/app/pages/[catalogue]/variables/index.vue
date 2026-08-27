@@ -116,8 +116,29 @@ const pageFilterTemplate: IFilter[] = [
       type: "ONTOLOGY",
       ontologyTableId: "Keywords",
       ontologySchema: "CatalogueOntologies",
-      columnId: "keywords",
       initialCollapsed: true,
+      buildFilterFunction: (
+        filterBuilder: Record<string, Record<string, any>>,
+        conditions: IFilterCondition[]
+      ) => {
+        return {
+          ...filterBuilder,
+          ...{
+            _or: [
+              {
+                keywords: {
+                  equals: conditions,
+                },
+              },
+              {
+                generated_keywords: {
+                  equals: conditions,
+                },
+              },
+            ],
+          },
+        };
+      },
     },
     conditions: [],
   },
@@ -187,7 +208,14 @@ async function fetchResourceOptions(): Promise<INode[]> {
               ],
             },
           }
-        : { resource: { type: { name: { equals: "Network" } } } },
+        : {
+            resource: {
+              _or: [
+                { mg_tableclass: { equals: `${schema}.Networks` } },
+                { mg_tableclass: { equals: `${schema}.Catalogues` } },
+              ],
+            },
+          },
     },
   });
 
@@ -227,7 +255,7 @@ const query = computed(() => {
       resource {
         id
       }
-      dataset {
+      table {
         name
         resource {
           id
@@ -244,6 +272,8 @@ const query = computed(() => {
     }
     Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
       id
+      pid
+      name
     }
     Variables_agg (filter:$variablesFilter){
       count
@@ -305,47 +335,51 @@ const fetchData = async () => {
         },
       }
     : undefined;
-  const variables = scoped
-    ? {
-        variablesFilter: {
-          ...filter.value,
-          ...variableResourceFilter,
-          ...{
-            _or: [
-              { resource: { id: { equals: catalogueRouteParam } } },
-              {
-                resource: {
-                  type: { name: { equals: "Network" } },
-                  parentNetworks: { id: { equals: catalogueRouteParam } },
+
+  const scopedResourceFilter = {
+    _or: [
+      { resource: { id: { equals: catalogueRouteParam } } },
+      {
+        resource: {
+          parentNetworks: { id: { equals: catalogueRouteParam } },
+        },
+      },
+      {
+        reusedInResources: {
+          _or: [
+            { resource: { id: { equals: catalogueRouteParam } } },
+            {
+              resource: {
+                parentNetworks: {
+                  id: { equals: catalogueRouteParam },
                 },
               },
-              {
-                reusedInResources: {
-                  _or: [
-                    { resource: { id: { equals: catalogueRouteParam } } },
-                    {
-                      resource: {
-                        parentNetworks: {
-                          id: { equals: catalogueRouteParam },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
+            },
+          ],
         },
-        resourcesFilter,
-      }
-    : {
-        variablesFilter: {
-          ...filter.value,
-          ...variableResourceFilter,
-          ...{ resource: { type: { name: { equals: "Network" } } } },
-        },
-        resourcesFilter,
-      };
+      },
+    ],
+  };
+
+  const nonScopedResourceFilter = {
+    resource: {
+      _or: [
+        { mg_tableclass: { equals: `${schema}.Networks` } },
+        { mg_tableclass: { equals: `${schema}.Catalogues` } },
+      ],
+    },
+  };
+
+  const variables = {
+    variablesFilter: {
+      _and: [
+        filter.value,
+        ...(variableResourceFilter ? [variableResourceFilter] : []),
+        ...(scoped ? [scopedResourceFilter] : [nonScopedResourceFilter]),
+      ],
+    },
+    resourcesFilter,
+  };
 
   return $fetch(graphqlURL.value, {
     key: `variables-${offset.value}`,
@@ -371,7 +405,7 @@ const {
 
 if (error.value) {
   throw createError({
-    statusCode: error.value.statusCode || 500,
+    status: error.value.statusCode || 500,
     message: error.value.message || "An error occurred while fetching data.",
   });
 }

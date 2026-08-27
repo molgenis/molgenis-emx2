@@ -12,7 +12,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.turtle.TurtleWriterSettings;
 
-public class RdfModelWriter extends RdfWriter {
+public class RdfModelWriter extends RdfOutputStreamWriter {
   private final ModelBuilder builder = new ModelBuilder();
   private static final WriterConfig config = new WriterConfig();
 

@@ -6,20 +6,22 @@
   "files": [
     "dist"
   ],
-  "main": "dist/metadata-utils.umd.cjs",
-  "module": "dist/metadata-utils.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/metadata-utils.umd.cjs",
+  "module": "./dist/metadata-utils.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/metadata-utils.js",
-      "require": "./dist/metadata-utils.umd.cjs"
+      "require": "./dist/metadata-utils.umd.cjs",
+      "default": "./dist/metadata-utils.js"
     }
   },
   "scripts": {
     "dev": "vite",
     "test": "vitest",
     "test-ci": "vitest run",
-    "build": "vite build",
+    "build": "tsc -p tsconfig.build.json && vite build --emptyOutDir false",
     "preview": "vite preview",
     "format": "prettier src test --write --config ../.prettierrc.js",
     "checkFormat": "prettier src  --check --config ../.prettierrc.js",
@@ -27,9 +29,10 @@
   },
   "devDependencies": {
     "prettier": "2.8.8",
-    "vite": "7.3.2",
-    "vitest": "3.0.9",
+    "typescript": "5.9.2",
+    "vite": "7.3.5",
+    "vitest": "4.1.8",
     "vue": "3.5.22",
-    "vue-tsc": "3.2.1"
+    "vue-tsc": "3.3.10"
   }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DefinitionListTerm from "../../DefinitionListTerm.vue";
+import { computed, ref } from "vue";
 import type {
   columnValue,
   IColumn,
@@ -7,24 +7,19 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
-import DefinitionListDefinition from "../../DefinitionListDefinition.vue";
-import { computed, ref } from "vue";
+import type { cellPayload } from "../../../../types/types";
 import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
-import ValueEMX2 from "../../value/EMX2.vue";
 import fetchTableMetadata from "../../../composables/fetchTableMetadata";
-import type {
-  ColumnPayload,
-  ListPayload,
-  RefPayload,
-} from "../../../../types/types";
 import DefinitionList from "../../DefinitionList.vue";
-import { toRefColumnValue } from "../../../utils/typeUtils";
+import DefinitionListDefinition from "../../DefinitionListDefinition.vue";
+import DefinitionListTerm from "../../DefinitionListTerm.vue";
+import ValueEMX2 from "../../value/EMX2.vue";
 
 const props = withDefaults(
   defineProps<{
     metadata: IRefColumn;
-    columnValue: columnValue;
+    columnValue: IRow;
     schema: string;
     showDataOwner?: boolean;
   }>(),
@@ -38,14 +33,10 @@ const refRow = ref<IRow>({});
 const refRowMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits<{
-  (e: "onRefClick", payload: RefPayload | ColumnPayload | ListPayload): void;
+  (e: "onRefClick", payload: cellPayload): void;
 }>();
 
-await fetchData(
-  toRefColumnValue(props.columnValue),
-  props.metadata.refTableId,
-  props.schema
-);
+await fetchData(props.columnValue, props.metadata.refTableId, props.schema);
 
 async function fetchData(row: IRow, tableId: string, schema: string) {
   loading.value = true;
@@ -79,28 +70,35 @@ const sections = computed(() => {
         item.metadata.columnType === "HEADING"
       );
     })
-    .reduce((acc, item) => {
+    .reduce((acc: ICellDetailSection[], item) => {
       if (item.metadata.columnType === "HEADING") {
-        // If the item is a heading, create a new section
         acc.push({ heading: item.metadata.label as string, fields: [] });
       } else {
-        // If first item is not a section heading, create a default section
         if (acc.length === 0) {
-          acc.push({ heading: "", fields: [] });
+          const defaultSection = { heading: "", fields: [] };
+          acc.push(defaultSection);
         }
-        // Add the item to the last section
         const lastSection = acc[acc.length - 1];
         if (lastSection) {
           lastSection.fields.push(item);
         }
       }
       return acc;
-    }, [] as { heading: string; fields: { key: string; value: columnValue; metadata: IColumn }[] }[])
+    }, [])
     .filter((section) => {
       // Filter out empty sections
       return section.fields.length > 0;
     });
 });
+
+interface ICellDetailSection {
+  heading: string;
+  fields: {
+    key: string;
+    value: columnValue;
+    metadata: IColumn;
+  }[];
+}
 </script>
 
 <template>

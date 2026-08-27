@@ -3,8 +3,8 @@
     <legend class="text-title font-bold">Demo data controls</legend>
 
     <div class="flex flex-col">
-      <label for="table-select" class="text-title font-bold">Schema: </label>
-      <select id="table-select" v-model="schemaId" class="border border-black">
+      <label for="schema-select" class="text-title font-bold">Schema: </label>
+      <select id="schema-select" v-model="schemaId" class="border border-black">
         <option v-for="schemaId in schemaIds" :value="schemaId">
           {{ schemaId }}
         </option>
@@ -106,7 +106,11 @@ if (!metadata.value && schemaId.value && tableId.value) {
     await getNumberOfRows();
     if (props.rowIndex !== undefined && props.rowIndex !== null) {
       rowIndex.value = props.rowIndex;
-      await fetchRow(rowIndex.value - 1);
+      if (rowIndex.value - 1 >= 0 && rowIndex.value <= numberOfRows.value) {
+        await fetchRow(rowIndex.value - 1);
+      } else {
+        rowIndex.value = null;
+      }
     }
   }
 }

@@ -196,3 +196,29 @@ export function newCategoricalAxisGenerator({
     .align(0.5)
     .round(true);
 }
+
+/**
+ * @name asDataObject
+ * @description Converts array of objects into an object of key-value pairs.
+ * This is useful for components where the input dataset must be an
+ * object (e.g., PieChart, Highlights, etc.).
+ *
+ * @param data input dataset to convert
+ * @param labelKey name of the key that has the labels
+ * @param valueKey name of the key that has the values
+ * @param sortData If true, data will be sorted by value
+ *
+ * @returns Record<string,number>
+ */
+export function asDataObject(
+  data: DatasetRow[],
+  labelKey: string,
+  valueKey: string,
+  sortData?: boolean
+): Record<string, number> {
+  let result = data.map((row: DatasetRow) => [row[labelKey], row[valueKey]]);
+  if (sortData) {
+    result = result.sort((current, next) => (current[1] < next[1] ? 1 : -1));
+  }
+  return Object.fromEntries(result);
+}
