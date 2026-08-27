@@ -4,6 +4,7 @@ import { nextTick } from "vue";
 import ShowMore from "../../../app/components/ShowMore.vue";
 
 let observers = 0;
+let observed: HTMLElement[] = [];
 /** Re-measure, as a real resize would. Changing the stub alone leaves it stale. */
 let resize = () => {};
 
@@ -37,6 +38,7 @@ const labels = (w: ReturnType<typeof mount>) =>
 
 beforeEach(() => {
   observers = 0;
+  observed = [];
   resize = () => {};
   (globalThis as any).ResizeObserver = class {
     cb: () => void;
@@ -45,7 +47,8 @@ beforeEach(() => {
       observers += 1;
       resize = cb;
     }
-    observe() {
+    observe(el: HTMLElement) {
+      observed.push(el);
       this.cb();
     }
     disconnect() {}
@@ -128,5 +131,14 @@ describe("ShowMore.vue", () => {
     await nextTick();
     expect(lines(w)).toContain("--show-more-lines: 3");
     expect(labels(w)).toEqual(["show more"]);
+  });
+
+  it("watches the root, which a ResizeObserver will actually report on", async () => {
+    const w = await clamp({ maxLines: 3 });
+
+    // An uncut box is display:inline, and a ResizeObserver ignores a non-replaced
+    // inline element, so watching the box means narrowing never re-clamps.
+    expect(observed).toHaveLength(1);
+    expect(observed[0]).toBe(w.find(".show-more-root").element);
   });
 });

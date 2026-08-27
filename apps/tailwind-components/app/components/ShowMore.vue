@@ -27,6 +27,7 @@ const props = withDefaults(
 const emit = defineEmits<{ showMore: [] }>();
 
 const lines = ref(props.maxLines);
+const root = ref<HTMLElement | null>(null);
 const target = ref<HTMLElement | null>(null);
 const control = ref<HTMLElement | null>(null);
 const overflows = ref(false);
@@ -82,7 +83,9 @@ function startObserving() {
   if (sizeObserver || typeof ResizeObserver === "undefined") return;
   if (!isClamped.value || !target.value) return;
   sizeObserver = new ResizeObserver(measure);
-  sizeObserver.observe(target.value);
+  // The root, not the box: a ResizeObserver ignores a non-replaced inline element,
+  // and an uncut box is inline, so narrowing the window would never re-clamp it.
+  sizeObserver.observe(root.value ?? target.value);
   // A cut block keeps its height when its values change, so resize never fires.
   // Attributes stay unobserved, or measure()'s own styles would wake it.
   contentObserver = new MutationObserver(measure);
@@ -140,7 +143,7 @@ function showLess() {
 </script>
 
 <template>
-  <span :class="{ 'show-more-root': isClamped }">
+  <span ref="root" :class="{ 'show-more-root': isClamped }">
     <span
       ref="target"
       class="show-more-box"
