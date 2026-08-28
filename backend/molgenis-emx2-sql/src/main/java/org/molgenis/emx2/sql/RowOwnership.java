@@ -22,12 +22,12 @@ class RowOwnership {
   }
 
   void validateAndAssignOwnerWhenOmitted(Iterable<Row> rows) {
-    if (!ownershipApplies()) return;
+    if (!hasMgRoleColumn()) return;
     apply(rows, defaultRoleForActiveUser());
   }
 
   void validateOwners(Iterable<Row> rows) {
-    if (!ownershipApplies()) return;
+    if (!hasMgRoleColumn()) return;
     apply(rows, null);
   }
 
@@ -39,14 +39,14 @@ class RowOwnership {
           row.set(MG_ROLES, new String[] {defaultRole});
         }
       } else {
-        validateUserMayAssign(owner);
+        validateRoleIsAssignable(owner);
+        if (PermissionEvaluator.isRowLevelRestricted(schema, table)) validateUserMayAssign(owner);
       }
     }
   }
 
-  private boolean ownershipApplies() {
-    return table.getColumn(MG_ROLES) != null
-        && PermissionEvaluator.isRowLevelRestricted(schema, table);
+  private boolean hasMgRoleColumn() {
+    return table.getColumn(MG_ROLES) != null;
   }
 
   private static String ownerOf(Row row) {
@@ -60,7 +60,7 @@ class RowOwnership {
     return mgRoles[0];
   }
 
-  private void validateUserMayAssign(String role) {
+  private void validateRoleIsAssignable(String role) {
     if (!SqlRoleManager.isUserAssignableRole(role)) {
       throw new MolgenisException(
           "mg_roles value '"
@@ -75,6 +75,9 @@ class RowOwnership {
               + table.getSchemaName()
               + "'");
     }
+  }
+
+  private void validateUserMayAssign(String role) {
     if (!schema.getInheritedRolesForActiveUser().contains(role)) {
       throw new MolgenisException(
           "Permission denied: you must be Manager or hold the role '" + role + "' to set mg_roles");

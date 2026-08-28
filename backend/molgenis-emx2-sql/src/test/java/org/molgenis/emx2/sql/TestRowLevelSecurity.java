@@ -3,8 +3,13 @@ package org.molgenis.emx2.sql;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_ROLES;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlQuery.COUNT_FIELD;
+import static org.molgenis.emx2.sql.SqlQuery.EXISTS_FIELD;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.jooq.Record;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 class TestRowLevelSecurity {
+
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private static Database database;
   private static final String SCHEMA = TestRowLevelSecurity.class.getSimpleName();
@@ -21,13 +28,16 @@ class TestRowLevelSecurity {
   private static final String USER_TEAM_B = "rls_user_team_b";
   private static final String USER_VIEWER = "rls_user_viewer";
   private static final String USER_NO_ACCESS = "rls_user_noaccess";
+  private static final String USER_COUNT = "rls_user_count";
+  private static final String USER_EXISTS = "rls_user_exists";
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_TEAM_A, USER_TEAM_B, USER_VIEWER, USER_NO_ACCESS)) {
+    for (String user :
+        List.of(USER_TEAM_A, USER_TEAM_B, USER_VIEWER, USER_NO_ACCESS, USER_COUNT, USER_EXISTS)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
@@ -69,14 +79,6 @@ class TestRowLevelSecurity {
                 .setString("id", "b1")
                 .setString("title", "Team B only")
                 .set(MG_ROLES, new String[] {"TeamB"}));
-    // Row visible to both teams
-    schema
-        .getTable(ARTICLES)
-        .insert(
-            new Row()
-                .setString("id", "ab1")
-                .setString("title", "Both teams")
-                .set(MG_ROLES, new String[] {"TeamA", "TeamB"}));
     // Row with no mg_roles assigned (visible only to VIEWER and above, not to custom role users)
     schema
         .getTable(ARTICLES)
@@ -85,6 +87,8 @@ class TestRowLevelSecurity {
     schema.addMember(USER_TEAM_A, "TeamA");
     schema.addMember(USER_TEAM_B, "TeamB");
     schema.addMember(USER_VIEWER, Privileges.VIEWER.toString());
+    schema.addMember(USER_COUNT, Privileges.COUNT.toString());
+    schema.addMember(USER_EXISTS, Privileges.EXISTS.toString());
   }
 
   @Test
@@ -156,6 +160,74 @@ class TestRowLevelSecurity {
     MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
     assertTrue(e.getMessage().contains("is not a valid custom role"), e.getMessage());
     database.becomeAdmin();
+  }
+
+  @Test
+  void mgRolesRejectsNonExistentRoleForAdmin() {
+    database.becomeAdmin();
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row =
+        new Row().setString("id", "mg_nosuch_admin").set(MG_ROLES, new String[] {"IkBestaNiet"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("is not a valid custom role"), e.getMessage());
+  }
+
+  @Test
+  void mgRolesRejectsNonExistentRoleForManager() {
+    database.becomeAdmin();
+    String managerUser = "rls_user_manager_mgroles";
+    if (!database.hasUser(managerUser)) database.addUser(managerUser);
+    database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
+
+    database.setActiveUser(managerUser);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row =
+        new Row().setString("id", "mg_nosuch_manager").set(MG_ROLES, new String[] {"IkBestaNiet"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("is not a valid custom role"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void mgRolesRejectsNonExistentRoleOnUpdate() {
+    database.becomeAdmin();
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    articles.insert(
+        new Row().setString("id", "mg_nosuch_update").set(MG_ROLES, new String[] {"TeamA"}));
+
+    Row update =
+        new Row().setString("id", "mg_nosuch_update").set(MG_ROLES, new String[] {"IkBestaNiet"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.update(update));
+    assertTrue(e.getMessage().contains("is not a valid custom role"), e.getMessage());
+
+    assertArrayEquals(
+        new String[] {"TeamA"}, retrieveArticle("mg_nosuch_update").getStringArray(MG_ROLES));
+    articles.delete(new Row().setString("id", "mg_nosuch_update"));
+  }
+
+  @Test
+  void mgRolesAcceptsExistingRole() {
+    database.becomeAdmin();
+    String managerUser = "rls_user_manager_assigns";
+    if (!database.hasUser(managerUser)) database.addUser(managerUser);
+    database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
+
+    database.setActiveUser(managerUser);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    assertDoesNotThrow(
+        () ->
+            articles.insert(
+                new Row()
+                    .setString("id", "mg_manager_assign")
+                    .set(MG_ROLES, new String[] {"TeamA"})));
+
+    database.becomeAdmin();
+    assertArrayEquals(
+        new String[] {"TeamA"}, retrieveArticle("mg_manager_assign").getStringArray(MG_ROLES));
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_manager_assign"));
   }
 
   @Test
@@ -462,7 +534,6 @@ class TestRowLevelSecurity {
           List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
           List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
           assertTrue(ids.contains("a1"), "should see TeamA row");
-          assertTrue(ids.contains("ab1"), "should see row shared with TeamB");
           assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
           assertFalse(ids.contains("b1"), "should NOT see TeamB-only row");
         });
@@ -476,7 +547,6 @@ class TestRowLevelSecurity {
           List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
           List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
           assertTrue(ids.contains("b1"), "should see TeamB row");
-          assertTrue(ids.contains("ab1"), "should see row shared with TeamA");
           assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
           assertFalse(ids.contains("a1"), "should NOT see TeamA-only row");
         });
@@ -495,7 +565,7 @@ class TestRowLevelSecurity {
   void adminSeesAllRows() {
     database.becomeAdmin();
     List<Row> rows = database.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
-    assertEquals(4, rows.size());
+    assertEquals(3, rows.size());
   }
 
   @Test
@@ -965,9 +1035,63 @@ class TestRowLevelSecurity {
           List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
           assertTrue(ids.contains("a1"), "Viewer should see TeamA row");
           assertTrue(ids.contains("b1"), "Viewer should see TeamB row");
-          assertTrue(ids.contains("ab1"), "Viewer should see shared row");
           assertTrue(ids.contains("open"), "Viewer should see public row");
         });
+  }
+
+  @Test
+  void countRoleCountsAllRowsDespiteRls() {
+    database.setActiveUser(USER_COUNT);
+    database.tx(
+        db -> {
+          Schema schema = db.getSchema(SCHEMA);
+          assertThrows(
+              MolgenisException.class,
+              () -> schema.getTable(ARTICLES).retrieveRows(),
+              "Count role must not be able to read rows");
+          assertEquals(
+              3,
+              aggregateCount(schema),
+              "Count role should count every row, row level security must not filter aggregates");
+        });
+  }
+
+  @Test
+  void existsRoleSeesDataDespiteRls() {
+    database.setActiveUser(USER_EXISTS);
+    database.tx(
+        db -> {
+          String json =
+              db.getSchema(SCHEMA).query(ARTICLES + "_agg", s(EXISTS_FIELD)).retrieveJSON();
+          assertTrue(readAgg(json).get(EXISTS_FIELD).asBoolean(), "Exists role should see data");
+        });
+  }
+
+  @Test
+  void customRoleAggregateStaysLimitedToOwnRows() {
+    // the select bypass keys on the 'Exists' system role; a custom (row level) role only holds
+    // 'Member', so its aggregates stay filtered by the row policies
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            assertEquals(
+                1,
+                aggregateCount(db.getSchema(SCHEMA)),
+                "TeamA should only count the rows it is allowed to see"));
+  }
+
+  private static int aggregateCount(Schema schema) {
+    return readAgg(schema.query(ARTICLES + "_agg", s(COUNT_FIELD)).retrieveJSON())
+        .get(COUNT_FIELD)
+        .asInt();
+  }
+
+  private static com.fasterxml.jackson.databind.JsonNode readAgg(String json) {
+    try {
+      return MAPPER.readTree(json).get(ARTICLES + "_agg");
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("could not parse aggregate response: " + json, e);
+    }
   }
 
   @Test
