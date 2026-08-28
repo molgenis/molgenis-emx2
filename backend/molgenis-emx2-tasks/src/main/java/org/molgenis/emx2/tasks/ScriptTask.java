@@ -175,7 +175,7 @@ public class ScriptTask extends Task {
         this.dependencies != null ? "--with '" + this.dependencies.replace('\n', ',') + "'" : "";
     String escapedParameters = " " + escapeXSI(this.parameters);
 
-    return "uv run " + requirementsString + " script.py" + escapedParameters;
+    return "pipx run uv run " + requirementsString + " script.py" + escapedParameters;
   }
 
   /**
