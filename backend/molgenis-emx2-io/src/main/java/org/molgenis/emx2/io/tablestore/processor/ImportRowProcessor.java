@@ -15,10 +15,16 @@ public class ImportRowProcessor implements RowProcessor {
 
   private final Table table;
   private final Task task;
+  private final UpdateMode updateMode;
 
   public ImportRowProcessor(Table table, Task task) {
+    this(table, task, UpdateMode.DEFAULT_MODE);
+  }
+
+  public ImportRowProcessor(Table table, Task task, UpdateMode updateMode) {
     this.table = table;
     this.task = task;
+    this.updateMode = updateMode;
   }
 
   @Override
@@ -54,7 +60,11 @@ public class ImportRowProcessor implements RowProcessor {
     }
     // remaining
     if (!importBatch.isEmpty()) {
-      table.save(importBatch);
+      if (updateMode == UpdateMode.OVERWRITE) {
+        table.save(importBatch);
+      } else {
+        table.update(importBatch);
+      }
       task.setProgress(index);
       task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
     }
