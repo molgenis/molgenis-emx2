@@ -2,23 +2,14 @@
 import { useAsyncData } from "#app";
 import { useRoute, useRouter } from "#app/composables/router";
 import { computed, ref, useId } from "vue";
-import type {
-  columnValue,
-  IColumn,
-  IRow,
-} from "../../../../../metadata-utils/src/types";
+import type { IRow } from "../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import ContentBlock from "../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import DefinitionList from "../../../../../tailwind-components/app/components/DefinitionList.vue";
-import DefinitionListDefinition from "../../../../../tailwind-components/app/components/DefinitionListDefinition.vue";
-import DefinitionListTerm from "../../../../../tailwind-components/app/components/DefinitionListTerm.vue";
+import DetailView from "../../../../../tailwind-components/app/components/detail/View.vue";
 import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
-import InputSearch from "../../../../../tailwind-components/app/components/input/Search.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
-import ValueEMX2 from "../../../../../tailwind-components/app/components/value/EMX2.vue";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
@@ -53,64 +44,6 @@ const { data: rowData, refresh } = await useAsyncData(
   keys || JSON.stringify(entityKeysObject),
   () => fetchRowData(schemaId, tableId, entityKeysObject)
 );
-
-const sections = computed(() => {
-  return tableMetadata.columns
-    .map((column) => {
-      return {
-        key: column.id,
-        value: rowData.value?.[column.id],
-        metadata: column,
-      };
-    })
-    .filter((item) => {
-      return !item.key.startsWith("mg_") || isAdmin.value;
-    })
-    .filter((item) => {
-      return (
-        (rowData.value && rowData.value.hasOwnProperty(item.key)) ||
-        item.metadata.columnType === "HEADING"
-      );
-    })
-    .reduce((acc, item) => {
-      if (item.metadata.columnType === "HEADING") {
-        // If the item is a heading, create a new section
-        acc.push({ heading: item.metadata.label as string, fields: [] });
-      } else {
-        // If first item is not a section heading, create a default section
-        if (acc.length === 0) {
-          acc.push({ heading: "", fields: [] });
-        }
-        // Add the item to the last section
-        const lastSection = acc[acc.length - 1];
-        if (lastSection) {
-          lastSection.fields.push(item);
-        }
-      }
-      return acc;
-    }, [] as { heading: string; fields: { key: string; value: columnValue; metadata: IColumn }[] }[])
-    .filter((section) => {
-      // Filter out empty sections
-      return section.fields.length > 0;
-    });
-});
-
-const filterValue = ref("");
-
-const filteredSections = computed(() => {
-  if (!filterValue.value) {
-    return sections.value;
-  }
-  const lowerCaseFilter = filterValue.value.toLowerCase();
-  return sections.value
-    .map((section) => {
-      const filteredFields = section.fields.filter((field) =>
-        field.metadata.label.toLowerCase().includes(lowerCaseFilter)
-      );
-      return { ...section, fields: filteredFields };
-    })
-    .filter((section) => section.fields.length > 0);
-});
 
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
@@ -154,71 +87,36 @@ function handleCellClick(event: cellPayload) {
           :align="'left'"
           :crumbs="[
             { label: schemaId, url: `/${schemaId}` },
-            { label: tableId, url: `/${schemaId}/${tableId}` },
+            { label: tableMetadata.label, url: `/${schemaId}/${tableId}` },
           ]"
         />
       </template>
     </PageHeader>
 
-    <div class="flex pb-[30px] gap-[10px] justify-between">
-      <InputSearch
-        class="w-3/5 xl:w-2/5 2xl:w-1/5"
-        v-model="filterValue"
-        :placeholder="`Filter fields...`"
-        id="filter-input"
-      />
-
-      <div class="flex gap-[10px]">
-        <Button
-          type="outline"
-          icon="edit"
-          @click="showEditModal = true"
-          v-if="enableEditing"
-          >Edit
-        </Button>
-        <Button
-          type="outline"
-          icon="trash"
-          @click="showDeleteModal = true"
-          v-if="enableDeleting"
-        >
-          Delete
-        </Button>
-      </div>
+    <div class="flex pb-[30px] gap-[10px] justify-end">
+      <Button
+        type="outline"
+        icon="edit"
+        @click="showEditModal = true"
+        v-if="enableEditing"
+        >Edit
+      </Button>
+      <Button
+        type="outline"
+        icon="trash"
+        @click="showDeleteModal = true"
+        v-if="enableDeleting"
+      >
+        Delete
+      </Button>
     </div>
 
-    <ContentBlock
-      class="mt-1"
-      :title="entityId"
-      :description="tableMetadata?.label || tableId"
-    >
-      <section
-        v-for="section in filteredSections"
-        class="first:pt-[50px] last:pb-[100px]"
-        :class="section.heading ? 'pt-[50px]' : ''"
-      >
-        <h3
-          v-if="section.heading"
-          class="text-heading-3xl font-display text-title-contrast mb-4"
-        >
-          {{ section.heading }}
-        </h3>
-        <DefinitionList :compact="false">
-          <template v-for="field in section.fields">
-            <DefinitionListTerm class="text-title-contrast">
-              {{ field.metadata.label }}
-            </DefinitionListTerm>
-            <DefinitionListDefinition class="text-title-contrast">
-              <ValueEMX2
-                :data="field.value"
-                :metadata="field.metadata"
-                @valueClick="handleCellClick($event)"
-              />
-            </DefinitionListDefinition>
-          </template>
-        </DefinitionList>
-      </section>
-    </ContentBlock>
+    <DetailView
+      :metadata="tableMetadata"
+      :rowData="rowData"
+      :showMgColumns="isAdmin"
+      @valueClick="handleCellClick($event)"
+    />
   </Container>
 
   <CellDetailModal
