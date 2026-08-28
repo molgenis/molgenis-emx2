@@ -5,7 +5,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     useradd -m molgenis
 
-RUN python3 -m pipx config set global.break-system-packages true && pip install uv
 RUN pipx ensurepath && pipx install uv
 ENV PATH="/root/.local/bin:${PATH}"
 RUN uv --version
