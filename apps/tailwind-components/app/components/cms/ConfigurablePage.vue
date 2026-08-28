@@ -1,0 +1,177 @@
+<script setup lang="ts">
+import type { IConfigurablePages } from "../../../types/cms";
+import type { ITableMetaData } from "../../../../metadata-utils/src";
+import type { IDraggingInfo } from "../../../types/CmsComponents";
+
+import PageComponent from "./PageComponent.vue";
+import TextParagraph from "./Paragraph.vue";
+import AddComponentPalette from "./AddComponentPalette.vue";
+import ComponentDropZone from "./ComponentDropZone.vue";
+import { ref } from "vue";
+
+const props = withDefaults(
+  defineProps<{
+    content: IConfigurablePages;
+    isEditable: boolean;
+    metadata: ITableMetaData[];
+    schema: string;
+  }>(),
+  {
+    isEditable: false,
+  }
+);
+
+const emit = defineEmits(["updatePage"]);
+const handleDragEvent = (value: IDraggingInfo) => {
+  draggingInfo.value = value;
+};
+const draggingInfo = ref<IDraggingInfo>({
+  dragging: false,
+  componentName: "",
+  componentType: "",
+});
+
+const sidebarCollapsed = ref(false);
+</script>
+
+<template>
+  <div
+    :class="{
+      flex: isEditable,
+      'gap-6': isEditable,
+    }"
+  >
+    <Sidebar
+      id="configurable-page-sidebar"
+      v-if="isEditable"
+      :collapsed="sidebarCollapsed"
+      :active-filter-count="0"
+      @update:collapsed="sidebarCollapsed = $event"
+    >
+      <div class="sticky top-0">
+        <AddComponentPalette @dragging="handleDragEvent" />
+      </div>
+    </Sidebar>
+    <div id="configurable-page-main" class="flex-1 min-w-0">
+      <template
+        v-for="orderedBlock in content.blockOrder"
+        :key="orderedBlock.id"
+      >
+        <ComponentDropZone
+          v-if="
+            isEditable && !orderedBlock.block.mg_tableclass.endsWith('.Headers')
+          "
+          :pageName="content.name"
+          :draggingInfo="draggingInfo"
+          :schema="schema"
+          :order="orderedBlock.order"
+          :parent="content.name"
+          componentType="Block"
+          @updatePage="$emit('updatePage')"
+        />
+        <PageComponent
+          v-if="orderedBlock.block.mg_tableclass.endsWith('.Headers')"
+          :mg_tableclass="orderedBlock.block.mg_tableclass"
+          :component="orderedBlock.block"
+          :orderId="orderedBlock.id"
+          componentType="Block"
+          :parent="content.name"
+          :isEditable="isEditable"
+          :metadata="metadata"
+          @updatePage="$emit('updatePage')"
+        />
+        <PageComponent
+          v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
+          :mg_tableclass="orderedBlock.block.mg_tableclass"
+          :component="orderedBlock.block"
+          :orderId="orderedBlock.id"
+          :parent="content.name"
+          :isEditable="isEditable"
+          componentType="Block"
+          :metadata="metadata"
+          @updatePage="$emit('updatePage')"
+        >
+          <ComponentDropZone
+            v-if="isEditable"
+            :draggingInfo="draggingInfo"
+            :schema="schema"
+            :order="
+              orderedBlock.block?.componentOrder
+                ? orderedBlock.block.componentOrder[0].order
+                : orderedBlock.block.order
+            "
+            :parent="orderedBlock.block.id"
+            componentType="Component"
+            @updatePage="$emit('updatePage')"
+          />
+          <template
+            v-for="orderedComponent in orderedBlock.block.componentOrder"
+            :key="orderedComponent.id"
+          >
+            <PageComponent
+              :mg_tableclass="orderedComponent.component.mg_tableclass"
+              :component="orderedComponent.component"
+              :orderId="orderedComponent.id"
+              componentType="Component"
+              :parent="orderedBlock.block.id"
+              :isEditable="isEditable"
+              :metadata="metadata"
+              @updatePage="$emit('updatePage')"
+            />
+            <ComponentDropZone
+              v-if="isEditable"
+              :draggingInfo="draggingInfo"
+              :schema="schema"
+              :order="orderedComponent.order + 1"
+              :parent="orderedBlock.block.id"
+              componentType="Component"
+              @updatePage="$emit('updatePage')"
+            />
+          </template>
+        </PageComponent>
+        <TextParagraph
+          v-else
+          id="block-does-not-exist-message"
+          name="Error"
+          :text="`Block ${orderedBlock.block.mg_tableclass} is not yet supported.`"
+        />
+        <ComponentDropZone
+          v-if="isEditable"
+          :pageName="content.name"
+          :draggingInfo="draggingInfo"
+          :schema="schema"
+          :order="orderedBlock.order ? orderedBlock.order + 1 : 0"
+          :parent="content.name"
+          componentType="Block"
+          @updatePage="$emit('updatePage')"
+        />
+      </template>
+      <ComponentDropZone
+        v-if="isEditable && !content?.blockOrder"
+        :pageName="content.name"
+        :draggingInfo="draggingInfo"
+        :schema="schema"
+        :order="0"
+        :parent="content.name"
+        componentType="Block"
+        @updatePage="$emit('updatePage')"
+      />
+    </div>
+  </div>
+</template>
+
+<style scoped>
+:deep(#filter-sidebar-content) {
+  height: 100%;
+}
+
+:deep(div[class*="absolute"]:has(button[aria-label="Hide filters"])) {
+  height: 100%;
+  pointer-events: none;
+}
+:deep(button[aria-label="Hide filters"]) {
+  position: sticky;
+  top: 0.75rem;
+  pointer-events: all;
+}
+</style>

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 33;
+  private static final int SOFTWARE_DATABASE_VERSION = 36;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -194,10 +194,26 @@ public class Migrations {
           if (version < 32) {
             executeMigrationFile(tdb, "migration31.sql", "add mg_generate_autoid function");
           }
-
           if (version < 33) {
             executeMigrationFile(
                 tdb, "migration32.sql", "add 'cancel' job status, if job table exists");
+          }
+          if (version < 34) {
+            executeMigrationFile(
+                tdb,
+                "migration33.sql",
+                "convert semantic field with urn/tag IRI to new IRI format");
+          }
+
+          if (version < 35) {
+            executeMigrationFile(tdb, "migration34.sql", "add tableName column to Templates");
+          }
+
+          if (version < 36) {
+            executeMigrationFile(
+                tdb,
+                "migration35.sql",
+                "add system role 'Member' so aggregate permissions can bypass row level security");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

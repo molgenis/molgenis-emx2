@@ -14,12 +14,16 @@ import type {
   ICmsOrder,
 } from "../../types/CmsComponents";
 
-export function newDeveloperPage(): IDeveloperPages {
+export function randomId(): string {
+  return crypto.randomUUID();
+}
+
+export function newDeveloperPage(initialHtml?: string): IDeveloperPages {
   return {
     mg_tableclass: "",
     name: "",
     description: "",
-    html: "",
+    html: initialHtml || "",
     css: "",
     javascript: "",
     dependencies: [],
@@ -45,6 +49,22 @@ export async function getPage(
     | IConfigurablePages
     | IDeveloperPages;
   return { page: currentPage, metadata: data._schema.tables };
+}
+
+export function setCmsEditorUrl(
+  schema: string,
+  value: string,
+  page: string
+): string {
+  if (value.endsWith(".Developer pages")) {
+    return `/${schema}/pages/${page}/editor`;
+  } else {
+    return `/${schema}/pages/${page}/configure`;
+  }
+}
+
+export function setCmsViewUrl(schema: string, page: string): string {
+  return `/${schema}/pages/${page}/`;
 }
 
 async function cmsFetch(
