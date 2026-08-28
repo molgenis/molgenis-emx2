@@ -89,7 +89,7 @@ describe("useTable", () => {
           columns: [
             {
               refTableId: "Person",
-              columnType: "REF",
+              columnType: "SELECT",
               cascadeDelete: true,
             },
           ],

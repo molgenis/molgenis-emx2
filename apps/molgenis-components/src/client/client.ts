@@ -57,7 +57,9 @@ const client: IClient = {
               return table.columns.find(
                 (column: IColumn) =>
                   column.refTableId === tableId &&
-                  column.columnType === "REF" &&
+                  (column.columnType === "REF" ||
+                    column.columnType === "SELECT" ||
+                    column.columnType === "RADIO") &&
                   column.cascadeDelete
               );
             });

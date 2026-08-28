@@ -97,7 +97,9 @@ export const useTable = (schemaId: string, tableId: string) => {
           return table.columns.find(
             (column: IColumn) =>
               column.refTableId === tableId &&
-              column.columnType === "REF" &&
+              (column.columnType === "REF" ||
+                column.columnType === "SELECT" ||
+                column.columnType === "RADIO") &&
               column.cascadeDelete
           );
         });

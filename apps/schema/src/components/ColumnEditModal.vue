@@ -99,7 +99,11 @@
                   description="(Optional) customize how ref values should be shown. E.g. '${name}' or '${firstName} ${lastName}'"
                 />
                 <InputBoolean
-                  v-if="column.columnType === 'REF'"
+                  v-if="
+                    column.columnType === 'REF' ||
+                    column.columnType === 'SELECT' ||
+                    column.columnType === 'RADIO'
+                  "
                   id="columns_cascadeDelete"
                   v-model="column.cascadeDelete"
                   label="cascadeDelete"

@@ -75,10 +75,12 @@ names are case insensitive):
 
 - radio: foreign key (many-to-one)
     - values are shown as a radio group
+    - cascadeDelete: if set to TRUE, when the foreign record is deleted, the record in this table will also be deleted. Default value: FALSE
 - checkbox: multiple foreign key (many-to-many)
     - values are shown as a checkbox group
 - select: foreign key (many-to-one)
     - values are shown in a dropdown menu as a radio group
+    - cascadeDelete: if set to TRUE, when the foreign record is deleted, the record in this table will also be deleted. Default value: FALSE
 - multiselect: multiple foreign key (many-to-many)
     - values are shown in a dropdown menu as a checkbox group
 - refback: to describe link back to ref/ref_array (aka one_to_many/many_to_many)
