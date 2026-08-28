@@ -320,7 +320,6 @@
     :formValues="rowDataForModal"
     :isInsert="isCopy"
     v-model:visible="showEditModal"
-    @update:updated="afterClose"
     @update:cancelled="afterClose"
   />
 

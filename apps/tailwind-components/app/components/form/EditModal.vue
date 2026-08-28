@@ -30,9 +30,8 @@
 
         <button
           @click="onCancel"
-          :disabled="saving"
           aria-label="Close modal"
-          class="absolute top-7 right-8 p-1 disabled:cursor-not-allowed disabled:opacity-50"
+          class="absolute top-7 right-8 p-1"
         >
           <BaseIcon class="text-gray-400" name="cross" />
         </button>
