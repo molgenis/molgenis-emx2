@@ -90,33 +90,39 @@ export async function getBlockAbove(
   schema: string,
   blockOrderId: string,
   page: string
-): Promise<string> {
+): Promise<{ id: string; type: string } | undefined> {
   const blockOrders = await getBlockOrder(schema, page);
 
-  let lastBlockId: string = blockOrderId;
+  let lastBlock: { id: string; type: string } | undefined;
   blockOrders?.every((block, index) => {
     if (block.block.id === blockOrderId && index > 0) {
       return false;
     } else {
-      lastBlockId = block.block.id;
+      lastBlock = { id: block.block.id, type: block.block.mg_tableclass };
       return true;
     }
   });
-  return lastBlockId;
+  return lastBlock;
 }
 
 export async function getBlockBelow(
   schema: string,
   blockId: string,
   page: string
-): Promise<string> {
+): Promise<{ id: string; type: string } | undefined> {
   const blockOrders = await getBlockOrder(schema, page);
-  let blockBelow: string = blockId;
+  let blockBelow: { id: string; type: string } | undefined;
   blockOrders?.every((block, index) => {
     if (block.block.id === blockId) {
       return false;
     } else {
-      blockBelow = blockOrders[index + 2]?.block.id || blockId;
+      const selected = blockOrders[index + 2];
+      if (selected) {
+        blockBelow = {
+          id: selected?.block.id,
+          type: selected.block.mg_tableclass,
+        };
+      }
       return true;
     }
   });
@@ -131,8 +137,17 @@ export async function moveComponentUp(
   page: string
 ) {
   if (order === 0) {
-    const blockAbove: string = await getBlockAbove(schema, blockId, page);
-    await moveComponentTo(schema, componentOrderId, blockId, blockAbove, 1000);
+    const blockAbove = await getBlockAbove(schema, blockId, page);
+    if (!blockAbove || blockAbove?.type !== "cms.Sections") {
+      return;
+    }
+    await moveComponentTo(
+      schema,
+      componentOrderId,
+      blockId,
+      blockAbove.id,
+      1000
+    );
   } else {
     await moveComponentTo(
       schema,
@@ -174,8 +189,12 @@ export async function moveComponentDown(
   page: string
 ) {
   if (order === (await GetLastOrderOfBlock(schema, blockId))) {
-    const blockBelow: string = await getBlockBelow(schema, blockId, page);
-    await moveComponentTo(schema, componentOrderId, blockId, blockBelow, 0);
+    const blockBelow = await getBlockBelow(schema, blockId, page);
+    if (!blockBelow || blockBelow?.type !== "cms.Sections") {
+      return;
+    }
+
+    await moveComponentTo(schema, componentOrderId, blockId, blockBelow.id, 0);
   } else {
     await moveComponentTo(
       schema,
@@ -553,6 +572,7 @@ async function getBlockOrder(
       id
       block {
         id
+        mg_tableclass
       }
       order
     }
@@ -573,7 +593,10 @@ async function getBlockOrder(
         return {
           id: block.id,
           order: block.order,
-          block: { id: block.block.id },
+          block: {
+            id: block.block.id,
+            mg_tableclass: block.block.mg_tableclass,
+          },
         };
       }
     );

@@ -55,6 +55,7 @@ export interface ICmsOrderWithBlockId {
   order: number;
   block: {
     id: string;
+    mg_tableclass: string;
   };
 }
 export type ICmsPageTypes = "ConfigurablePage" | "DeveloperPage";
