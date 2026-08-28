@@ -26,12 +26,12 @@ function childListsByParentName(wrapper: ReturnType<typeof mountTree>) {
 }
 
 describe("display/OntologyTreeDisplay.vue collapse-all", () => {
-  it("expands every level, not just the root, when collapse-all is false", () => {
+  it("expands only the root when collapse-all is false, deeper levels stay collapsed", () => {
     const wrapper = mountTree(false);
 
     expect(childListsByParentName(wrapper)).toEqual([
       { name: "Medicine", childListHidden: false },
-      { name: "Cardiology", childListHidden: false },
+      { name: "Cardiology", childListHidden: true },
       { name: "Pediatric cardiology", childListHidden: null },
     ]);
   });
@@ -117,5 +117,21 @@ describe("display/OntologyTreeDisplay.vue renders every root", () => {
     });
     expect(wrapper.findAll("li")).toHaveLength(15);
     expect(wrapper.text()).not.toContain("Show");
+  });
+});
+
+describe("display/OntologyTreeDisplay.vue root markup", () => {
+  it("renders the flat list with no wrapper element around the ul", () => {
+    const wrapper = mount(OntologyTreeDisplay, {
+      props: { value: [{ name: "Genomics" }, { name: "Proteomics" }] },
+    });
+    expect(wrapper.element.tagName).toBe("UL");
+  });
+
+  it("renders the single item with no wrapper element around the span", () => {
+    const wrapper = mount(OntologyTreeDisplay, {
+      props: { value: { name: "Biobank" } },
+    });
+    expect(wrapper.element.tagName).toBe("SPAN");
   });
 });

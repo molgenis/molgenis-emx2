@@ -110,7 +110,8 @@ const hierarchicalTree: IOntologyTreeItem[] = [
           </h2>
           <p class="text-sm text-record-label">
             Items linked via parent chain are grouped into a collapsible tree.
-            Click the caret to expand/collapse.
+            `collapse-all` only sets the root's own state; deeper levels start
+            collapsed regardless. Click a caret to expand/collapse.
           </p>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
@@ -122,7 +123,9 @@ const hierarchicalTree: IOntologyTreeItem[] = [
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-            <span class="font-medium text-record-label">Tree (expanded):</span>
+            <span class="font-medium text-record-label"
+              >Tree (root expanded):</span
+            >
             <OntologyTreeDisplay
               :value="hierarchicalTree"
               :collapse-all="false"

@@ -4,10 +4,9 @@ import collectionEventGql from "../../../../../gql/collectionEvent";
 import type {
   IDefinitionListItem,
   IMgError,
-  IOntologyItem,
 } from "../../../../../../interfaces/types";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { logError, buildTree } from "#imports";
+import { logError } from "#imports";
 import { moduleToString } from "../../../../../../../tailwind-components/app/utils/moduleToString";
 import { computed, reactive } from "vue";
 import { removeChildIfParentSelected } from "../../../../../utils/treeHelpers";
@@ -17,7 +16,7 @@ import BreadCrumbs from "../../../../../../../tailwind-components/app/components
 import SideNavigation from "../../../../../components/SideNavigation.vue";
 import ContentBlocks from "../../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
 import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentOntology from "../../../../../components/content/Ontology.vue";
+import OntologyTreeDisplay from "../../../../../../../tailwind-components/app/components/display/OntologyTreeDisplay.vue";
 import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
 import type { Crumb } from "../../../../../../../tailwind-components/types/types";
 
@@ -124,21 +123,15 @@ if (collectionEvent.value?.numberOfParticipants) {
   });
 }
 
-let dataCategoriesTree: IOntologyItem[] = [];
 if (collectionEvent.value?.dataCategories?.length) {
-  dataCategoriesTree = buildTree(collectionEvent.value.dataCategories);
   tocItems.push({ label: "Data categories", id: "data_categories" });
 }
 
-let areasOfInformationTree: IOntologyItem[] = [];
 if (collectionEvent.value?.areasOfInformation?.length) {
-  areasOfInformationTree = buildTree(collectionEvent.value.areasOfInformation);
   tocItems.push({ label: "Areas of information", id: "areas_of_information" });
 }
 
-let standardizedToolsTree: IOntologyItem[] = [];
 if (collectionEvent.value.standardizedTools) {
-  standardizedToolsTree = buildTree(collectionEvent.value.standardizedTools);
   tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
 }
 
@@ -179,8 +172,8 @@ useHead({
           id="sample_categories"
           title="Sample categories"
         >
-          <ContentOntology
-            :tree="buildTree(collectionEvent.sampleCategories)"
+          <OntologyTreeDisplay
+            :value="collectionEvent.sampleCategories"
             :collapse-all="false"
           />
         </ContentBlock>
@@ -218,15 +211,18 @@ useHead({
           id="data_categories"
           title="Data categories"
         >
-          <ContentOntology :tree="dataCategoriesTree" :collapse-all="false" />
+          <OntologyTreeDisplay
+            :value="collectionEvent.dataCategories"
+            :collapse-all="false"
+          />
         </ContentBlock>
         <ContentBlock
           v-if="collectionEvent.areasOfInformation"
           id="areas_of_information"
           title="Areas of information"
         >
-          <ContentOntology
-            :tree="areasOfInformationTree"
+          <OntologyTreeDisplay
+            :value="collectionEvent.areasOfInformation"
             :collapse-all="false"
           />
         </ContentBlock>
@@ -235,8 +231,8 @@ useHead({
           id="standardized_tools"
           title="Standardized tools"
         >
-          <ContentOntology
-            :tree="standardizedToolsTree"
+          <OntologyTreeDisplay
+            :value="collectionEvent.standardizedTools"
             :collapse-all="false"
           />
           <CatalogueItemList

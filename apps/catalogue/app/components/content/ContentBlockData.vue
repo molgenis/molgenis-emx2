@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { ICollectionEvents } from "../../../interfaces/catalogue";
-import { buildTree } from "../../utils/ontologyUtils";
 import ListCollapsible from "../ListCollapsible.vue";
-import ContentOntology from "./Ontology.vue";
+import OntologyTreeDisplay from "../../../../tailwind-components/app/components/display/OntologyTreeDisplay.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 
 const { collectionEvents } = defineProps<{
@@ -39,30 +38,30 @@ const areasOfInformation = collectionEvents
         title="Data categories"
         :collapse-all="false"
       >
-        <ContentOntology
-          :tree="buildTree(dataCategories)"
+        <OntologyTreeDisplay
+          :value="dataCategories"
           :inverted="true"
-        ></ContentOntology>
+        ></OntologyTreeDisplay>
       </ListCollapsible>
       <ListCollapsible
         v-if="sampleCategories?.length"
         title="Sample categories"
         :collapse-all="false"
       >
-        <ContentOntology
-          :tree="buildTree(sampleCategories)"
+        <OntologyTreeDisplay
+          :value="sampleCategories"
           :inverted="true"
-        ></ContentOntology>
+        ></OntologyTreeDisplay>
       </ListCollapsible>
       <ListCollapsible
         v-if="areasOfInformation?.length"
         title="Areas of information"
         :collapse-all="false"
       >
-        <ContentOntology
-          :tree="buildTree(areasOfInformation)"
+        <OntologyTreeDisplay
+          :value="areasOfInformation"
           :inverted="true"
-        ></ContentOntology>
+        ></OntologyTreeDisplay>
       </ListCollapsible>
     </div>
   </ContentBlock>

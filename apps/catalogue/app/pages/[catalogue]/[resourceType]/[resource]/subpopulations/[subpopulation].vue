@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { buildTree } from "#imports";
 import { moduleToString } from "../../../../../../../tailwind-components/app/utils/moduleToString";
 import { computed, reactive } from "vue";
 import type { ISubpopulations } from "../../../../../../interfaces/catalogue";
@@ -14,7 +13,7 @@ import BreadCrumbs from "../../../../../../../tailwind-components/app/components
 import SideNavigation from "../../../../../components/SideNavigation.vue";
 import ContentBlocks from "../../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
 import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import ContentOntology from "../../../../../components/content/Ontology.vue";
+import OntologyTreeDisplay from "../../../../../../../tailwind-components/app/components/display/OntologyTreeDisplay.vue";
 import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
 import type { Crumb } from "../../../../../../../tailwind-components/types/types";
 const config = useRuntimeConfig();
@@ -175,22 +174,6 @@ if (subpopulation.ageGroups?.length) {
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
-const mainMedicalConditionTree = computed(() => {
-  if (subpopulation.mainMedicalCondition?.length) {
-    return buildTree(subpopulation.mainMedicalCondition);
-  } else {
-    return [];
-  }
-});
-
-const comorbidityTree = computed(() => {
-  if (subpopulation.comorbidity?.length) {
-    return buildTree(subpopulation.comorbidity);
-  } else {
-    return [];
-  }
-});
-
 if (subpopulation.mainMedicalCondition?.length) {
   tocItems.push({
     label: "Main medical condition",
@@ -248,8 +231,8 @@ if (subpopulation.comorbidity?.length) {
           id="main_medical_condition"
           title="Main medical condition"
         >
-          <ContentOntology
-            :tree="mainMedicalConditionTree"
+          <OntologyTreeDisplay
+            :value="subpopulation.mainMedicalCondition"
             :collapse-all="false"
           />
         </ContentBlock>
@@ -258,7 +241,10 @@ if (subpopulation.comorbidity?.length) {
           id="comorbidity"
           title="Comorbidity"
         >
-          <ContentOntology :tree="comorbidityTree" :collapse-all="false" />
+          <OntologyTreeDisplay
+            :value="subpopulation.comorbidity"
+            :collapse-all="false"
+          />
         </ContentBlock>
       </ContentBlocks>
     </template>
