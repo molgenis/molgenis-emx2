@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { IDraggingInfo } from "../../../types/cms";
+import type { IDraggingInfo } from "../../../types/CmsComponents";
 import Button from "../Button.vue";
 const props = withDefaults(
   defineProps<{

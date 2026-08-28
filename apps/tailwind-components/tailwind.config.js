@@ -248,6 +248,7 @@ module.exports = {
           "color-mix(var(--background-color-button-primary), var(--background-color-content) 70%)",
         "dashboard-dropzone-hover":
           "color-mix(var(--background-color-button-primary), var(--background-color-content) 85%)",
+        banner: "var(--background-color-banner)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",

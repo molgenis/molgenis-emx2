@@ -11,7 +11,7 @@ import {
   moveBlockTo,
   moveComponentTo,
 } from "../../utils/cms";
-import type { IDraggingInfo } from "../../../types/cms";
+import type { IDraggingInfo } from "../../../types/CmsComponents";
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
 

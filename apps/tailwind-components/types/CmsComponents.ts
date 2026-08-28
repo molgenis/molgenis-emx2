@@ -59,3 +59,12 @@ export interface ICmsOrderWithBlockId {
   };
 }
 export type ICmsPageTypes = "ConfigurablePage" | "DeveloperPage";
+
+export interface IDraggingInfo {
+  dragging: boolean;
+  action: "create" | "move";
+  componentName: string;
+  componentType: string;
+  moveOrderId?: string;
+  parentId?: string;
+}

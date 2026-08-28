@@ -176,6 +176,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     v-else-if="mg_tableclass.endsWith('.Sections')"
     :id="component.id"
     :enable-full-screen-width="component.enableFullScreenWidth"
+    :applyShadedBackground="component.applyShadedBackground"
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
