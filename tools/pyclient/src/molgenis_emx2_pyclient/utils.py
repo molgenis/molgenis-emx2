@@ -32,7 +32,7 @@ def read_file(file_path: str | pathlib.Path) -> str:
     :returns: data in string format
     :rtype: str
     """
-    with open(file_path, 'r') as stream:
+    with open(file_path, mode='r', encoding='utf-8') as stream:
         data = stream.read()
         stream.close()
     return data
@@ -56,7 +56,7 @@ def parse_nested_pkeys(pkeys: list) -> str:
                     converted_pkeys.append(parse_nested_pkeys(nested_values).strip())
                 converted_pkeys.append("}")
         else:
-            logging.warning(f"Unexpected data type encountered: {type(pk)!r}.")
+            logging.warning("Unexpected data type encountered: %s.",type(pk))
 
     return " ".join(converted_pkeys)
 
@@ -86,7 +86,7 @@ def prepare_filter(expr: str | None,
     if expr in [None, ""]:
         return None
     statements = expr.split(' and ')
-    _filter = dict()
+    _filter = {}
     for stmt in statements:
         if '==' in stmt:
             _filter.update(**prepare_equals_filter(stmt, _table, schema_meta))
@@ -229,10 +229,10 @@ def prepare_between_filter(stmt: str, _table: str, schema_meta: Schema) -> dict:
 
     try:
         val = json.loads(_val)
-    except json.decoder.JSONDecodeError:
+    except json.decoder.JSONDecodeError as exc:
         msg = ("To filter on values between a and b, supply them as a list,"
                " [a, b]. Ensure the values for a and b are numeric.")
-        raise ValueError(msg)
+        raise ValueError(msg) from exc
     col_id = ''.join(_col.split('`'))
 
     col = schema_meta.get_table(by='name', value=_table).get_column(by='id', value=col_id)
@@ -246,17 +246,19 @@ def prepare_between_filter(stmt: str, _table: str, schema_meta: Schema) -> dict:
 
 def prepare_nested_filter(columns: str, value: str | int | float | list,
                           comparison: str) -> dict:
+    """Prepares a filter on a column referencing a column in another table."""
     _filter = {}
     current = _filter
-    for (i, segment) in enumerate(columns.split('.')[:-1]):
+    for segment in columns.split('.')[:-1]:
         current[segment] = {}
         current = current[segment]
     last_segment = columns.split('.')[-1]
-    current[last_segment] = {comparison: prepare_value(value)}
+    current[last_segment] = {comparison: prepare_filter_value(value)}
     return _filter
 
 
-def prepare_value(value):
+def prepare_filter_value(value):
+    """Prepares value for usage in a filter."""
     value = str(value)
     if value.startswith('[') and value.endswith(']'):
         return json.loads(value.replace('\'', '"'))
@@ -265,7 +267,7 @@ def prepare_value(value):
 
 def format_optional_params(**kwargs):
     """Parses optional keyword arguments to GraphQL query format."""
-    args = {key: kwargs[key] for key in kwargs.keys()
+    args = {key: value for key, value in kwargs.items()
             if key not in ('self', None)}
     if 'name' in args.keys():
         args['name'] = args.pop('name')
@@ -322,39 +324,38 @@ def data_to_csv(data: list[dict] | pd.DataFrame,
             data_for_csv.to_csv(path_or_buf=filename, index=False,
                                 quoting=csv.QUOTE_NONNUMERIC)
             return None
-        else:
-            return data_for_csv.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
+        return data_for_csv.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
+
+    if filename:
+        target = open(filename, mode='w', encoding='utf-8', newline='')
     else:
-        if filename:
-            target = open(filename, mode='w', encoding='utf-8', newline='')
-        else:
-            target = io.StringIO('')
-        with target:
-            # Get column names and write header row
-            columns = {column for row in data for column in row}
-            writer = csv.DictWriter(target, fieldnames=columns, dialect=csv.excel)
-            writer.writeheader()
-            for row in data:
-                if not isinstance(row, dict):
-                    raise ValueError(f"Cannot prepare row {row!r}."
-                                     f" Supply a list of dictionaries.")
-                cleaned_row = {}
-                for k, v in row.items():
-                    # Replace 'nan' with 'None'
-                    if isinstance(v, float) and math.isnan(v):
-                        cleaned_row[k] = None
-                    # Replace 'NaT' with 'None'
-                    elif isinstance(v, pd.api.typing.NaTType):
-                        cleaned_row[k] = None
-                    # Convert lists to CSV-formatted strings
-                    elif isinstance(v, list):
-                        cleaned_row[k] = array_to_csv_string(v)
-                    else:
-                        cleaned_row[k] = v
-                writer.writerow(cleaned_row)
-            if isinstance(target, io.StringIO):
-                return target.getvalue()
-            return None
+        target = io.StringIO('')
+    with target:
+        # Get column names and write header row
+        columns = {column for row in data for column in row}
+        writer = csv.DictWriter(target, fieldnames=columns, dialect=csv.excel)
+        writer.writeheader()
+        for row in data:
+            if not isinstance(row, dict):
+                raise ValueError(f"Cannot prepare row {row!r}."
+                                 f" Supply a list of dictionaries.")
+            cleaned_row = {}
+            for k, v in row.items():
+                # Replace 'nan' with 'None'
+                if isinstance(v, float) and math.isnan(v):
+                    cleaned_row[k] = None
+                # Replace 'NaT' with 'None'
+                elif isinstance(v, pd.api.typing.NaTType):
+                    cleaned_row[k] = None
+                # Convert lists to CSV-formatted strings
+                elif isinstance(v, list):
+                    cleaned_row[k] = array_to_csv_string(v)
+                else:
+                    cleaned_row[k] = v
+            writer.writerow(cleaned_row)
+        if isinstance(target, io.StringIO):
+            return target.getvalue()
+        return None
 
 
 def check_schema(schema: str | None,
@@ -364,11 +365,10 @@ def check_schema(schema: str | None,
     if schema is not None:
         if schema in schema_names:
             return schema
-        else:
-            raise NoSuchSchemaException(f"Schema {schema!r} not available.")
+        raise NoSuchSchemaException(f"Schema {schema!r} not available.")
     if default_schema is None:
-        raise NoSuchSchemaException(f"Select an existing schema for"
-                                    f" this operation.")
+        raise NoSuchSchemaException("Select an existing schema for"
+                                    " this operation.")
     return default_schema
 
 
@@ -419,8 +419,8 @@ def validate_graphql_response(response, mutation: str | None = None,
         if 'Invalid token or token expired' in response.text:
             raise InvalidTokenException("Invalid token or token expired.")
         if 'permission denied' in response.text:
-            raise PermissionDeniedException(f"Transaction failed:"
-                                            f" permission denied.")
+            raise PermissionDeniedException("Transaction failed:"
+                                            " permission denied.")
         if 'Graphql API error' in response.text:
             msg = response.json().get("errors", [])[0].get('message')
             log.error(msg)
@@ -518,7 +518,7 @@ def response_to_dataframe(response: Response,
             else:
                 msg = (f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
                        f" not in index.")
-            raise NoSuchColumnException(msg)
+            raise NoSuchColumnException(msg) from e
         response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
 
     return response_data
