@@ -1,11 +1,14 @@
 FROM eclipse-temurin:21-jre-noble
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3 && \
+    apt-get install -y --no-install-recommends python3 pipx && \
     rm -rf /var/lib/apt/lists/* && \
     useradd -m molgenis
 
-RUN python3 -m pip config set global.break-system-packages true && pip install uv
+RUN python3 -m pipx config set global.break-system-packages true && pip install uv
+RUN pipx ensurepath && pipx install uv
+ENV PATH="/root/.local/bin:${PATH}"
+RUN uv --version
 
 COPY --link build/docker/deps/ /app/lib/
 COPY --link build/docker/app/ /app/lib/
