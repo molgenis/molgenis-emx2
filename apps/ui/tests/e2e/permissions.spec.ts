@@ -21,6 +21,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 let api: APIRequestContext;
 const USERNAME = "dragonkeeper";
 const PASSWORD = "dragonkeeper";
+const DRAGON_KEEPER = "DragonKeeper";
 const PET_STORE_PATH = "pet%20store/Pet";
 
 test.describe.configure({ mode: "serial" });
@@ -124,10 +125,8 @@ test.describe("when selecting a permission for a row", () => {
 
     await page.getByRole("button", { name: "Add Pet" }).click();
     await page.getByRole("combobox", { name: "Access group" }).click();
-    await page
-      .locator("#listbox-roleSelector-options-2")
-      .getByText("DragonKeeper")
-      .click();
+    await page.getByRole("option", { name: DRAGON_KEEPER }).click();
+
     await page
       .getByRole("textbox", { name: "name Required" })
       .fill("testDragon");
@@ -147,32 +146,27 @@ test.describe("when selecting a permission for a row", () => {
     await signin(page, "shopmanager", "shopmanager");
     await page.goto(route + PET_STORE_PATH);
 
+    await expect(page.getByRole("cell", { name: DRAGON_KEEPER })).toBeVisible();
+
+    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
+
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: "Global" }).click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
     await expect(
-      page.getByRole("cell", { name: "DragonKeeper" })
-    ).toBeVisible();
+      page.getByRole("cell", { name: DRAGON_KEEPER })
+    ).not.toBeVisible();
 
     await page.getByRole("cell", { name: "smaug" }).hover();
     await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
     await page.getByRole("combobox", { name: "Access group" }).click();
-    await page
-      .locator("#listbox-roleSelector-options-2")
-      .getByText("DragonKeeper")
-      .click();
+    await page.getByRole("option", { name: DRAGON_KEEPER }).click();
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await page.getByRole("button", { name: "Cancel" }).click();
 
-    await expect(
-      page.locator("tr:nth-child(10) > td:nth-child(2) > .flex")
-    ).toHaveText("", { exact: true });
-
-    await page.getByRole("cell", { name: "smaug" }).hover();
-    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
-    await page.getByLabel("Access group").selectOption("DragonKeeper");
-    await page.getByRole("button", { name: "Save", exact: true }).click();
-    await page.getByRole("button", { name: "Cancel" }).click();
-
-    await expect(
-      page.getByRole("cell", { name: "DragonKeeper" })
-    ).toBeVisible();
+    await expect(page.getByRole("cell", { name: DRAGON_KEEPER })).toBeVisible();
   });
 });

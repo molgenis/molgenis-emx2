@@ -34,9 +34,12 @@
               Access group
             </label>
             <InputListbox
-              v-model="selectedRole"
               id="roleSelector"
+              :value="selectedRole"
               :options="[GLOBAL_ROLE].concat(roles)"
+              @update:modelValue="
+            (newRole?:IInputValue | IInputValueLabel | null) => (selectedRole = typeof
+            newRole === 'string'? newRole: '' ) "
             />
           </div>
         </div>
@@ -152,6 +155,8 @@ import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
+  IInputValue,
+  IInputValueLabel,
   IRow,
 } from "../../../../metadata-utils/src/types";
 import fetchColumnValues from "../../composables/fetchColumnValues";
@@ -302,7 +307,6 @@ async function onSave(draft: boolean) {
       } else {
         formValues.value["mg_roles"] = [];
       }
-
       formValues.value["mg_draft"] = draft;
       if (isInsert.value) {
         await insert(draft);
