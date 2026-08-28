@@ -44,6 +44,7 @@ export default defineConfig<ConfigOptions>({
       testIgnore: [
         "typetest/types/create.spec.ts",
         "filter-count-parity.spec.ts",
+        "permissions.spec.ts",
       ],
     },
     {
@@ -61,6 +62,14 @@ export default defineConfig<ConfigOptions>({
       use: { ...devices["Desktop Chrome"] },
       testMatch: "filter-count-parity.spec.ts",
       dependencies: ["with-auth"],
+    },
+    /* revokes anonymous read on pet store for the length of the file, so it
+       must not overlap any spec that reads pet store anonymously */
+    {
+      name: "exclusive-permissions",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: "permissions.spec.ts",
+      dependencies: ["chromium", "with-auth", "after-type-test-mutations"],
     },
   ],
 });
