@@ -86,7 +86,7 @@ async function cmsFetch(
   return response;
 }
 
-export async function getBlockAbove(
+async function getBlockAbove(
   schema: string,
   blockOrderId: string,
   page: string
@@ -105,7 +105,7 @@ export async function getBlockAbove(
   return lastBlock;
 }
 
-export async function getBlockBelow(
+async function getBlockBelow(
   schema: string,
   blockId: string,
   page: string
@@ -158,7 +158,7 @@ export async function moveComponentUp(
     );
   }
 }
-export async function GetLastOrderOfBlock(
+async function GetLastOrderOfBlock(
   schema: string,
   blockId: string
 ): Promise<number> {
