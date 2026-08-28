@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { columnValueToString } from "../../../utils/columnValueToString";
 import Button from "../../Button.vue";
 import Accordion from "../../Accordion.vue";
-import DisplayRecord from "../../display/Record.vue";
+import DetailView from "../../detail/View.vue";
 
 import type {
   columnValueObject,
@@ -84,9 +84,11 @@ function toLabel(row: columnValueObject) {
         </div>
       </template>
       <div @click="$event.stopPropagation()">
-        <DisplayRecord
-          :table-metadata="refMetadata"
-          :input-row-data="refData"
+        <DetailView
+          :metadata="refMetadata"
+          :row-data="refData"
+          :show-menu="false"
+          :show-filter="false"
         />
       </div>
     </Accordion>

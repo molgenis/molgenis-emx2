@@ -7,7 +7,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
-import DisplayRecord from "../display/Record.vue";
+import DetailView from "../detail/View.vue";
 import { useSession } from "../../composables/useSession";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import Modal from "../Modal.vue";
@@ -146,7 +146,12 @@ function reAuthenticate() {
     </Transition>
 
     <div class="w-[90%] m-auto py-4">
-      <DisplayRecord :table-metadata="metadata" :input-row-data="formValues" />
+      <DetailView
+        :metadata="metadata"
+        :row-data="formValues"
+        :show-menu="false"
+        :show-filter="false"
+      />
     </div>
 
     <template #footer>
