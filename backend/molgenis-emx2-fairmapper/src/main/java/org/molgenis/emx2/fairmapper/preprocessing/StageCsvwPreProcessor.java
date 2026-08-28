@@ -6,22 +6,16 @@ import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Normalises abbreviated typical age predicates on {@code dcat:Dataset} resources to the expected
- * version in the EMX2 catalog model, which is not abbreviated.
- *
- * <p>According to the Health-DCAT-AP spec, datasets emit {@code healthdcatap:minTypicalAge} and
- * instead of {@code healthdcatap:minimumTypicalAge} and {@code healthdcatap:maximumTypicalAge} (see
- * the <a
- * href='https://healthdataeu.pages.code.europa.eu/healthdcat-ap/releases/release-7/#healthdcatapmaxTypicalAge'>docs</a>)
- * which is used in EMX2. This pre-processor reads the abbreviated forms and writes the fully
- * written ones, so downstream SPARQL queries only need to handle a single predicate name.
- *
- * <p>Each age is handled independently: a resource that carries only one of the two abbreviated
- * predicates will receive only the corresponding canonical predicate.
+ * Finds the CSVW tables that belong to each dataset and links them together, so later steps can use
+ * those tables to figure out the dataset's variables.
  */
-public class CsvwPreProcessor implements RdfPreProcessor {
+public class StageCsvwPreProcessor implements RdfPreProcessor {
+
+  private static final Logger logger = LoggerFactory.getLogger(StageCsvwPreProcessor.class);
 
   private static final String CONSTRUCT =
       """
@@ -32,10 +26,10 @@ public class CsvwPreProcessor implements RdfPreProcessor {
               ?dataset healthdcatap:hasVariables ?table
           }
           WHERE {
-              ?dataset a dcat:Resource, dcat:Dataset .
+              ?dataset a dcat:Dataset .
               ?dataset dcat:distribution ?distribution .
               ?distribution dcat:downloadURL ?csvw .
-              ?csvw a dcat:Resource, csvw:TableGroup .
+              ?csvw a csvw:TableGroup .
               ?csvw csvw:table ?table .
           }
           """;
@@ -45,7 +39,8 @@ public class CsvwPreProcessor implements RdfPreProcessor {
     try (RepositoryConnection conn = repository.getConnection()) {
       GraphQuery graphQuery = conn.prepareGraphQuery(QueryLanguage.SPARQL, CONSTRUCT);
       Model result = QueryResults.asModel(graphQuery.evaluate());
-      result.forEach(conn::add);
+      logger.info("linked {} table(s) to datasets", result.size());
+      conn.add(result);
       conn.commit();
     }
   }

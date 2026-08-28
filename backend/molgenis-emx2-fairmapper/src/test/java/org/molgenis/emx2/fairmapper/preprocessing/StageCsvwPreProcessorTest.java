@@ -15,7 +15,7 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class CsvwPreProcessorTest {
+class StageCsvwPreProcessorTest {
 
   private static final String PREFIXES =
       """
@@ -44,7 +44,7 @@ class CsvwPreProcessorTest {
             csvw:table <https://example.com/csvw/1/table/1> .
         """);
 
-    new CsvwPreProcessor().process(repository);
+    new StageCsvwPreProcessor().process(repository);
 
     assertHasVariables("https://example.com/dataset/1", "https://example.com/csvw/1/table/1");
   }
@@ -62,7 +62,7 @@ class CsvwPreProcessorTest {
             csvw:table <https://example.com/csvw/1/table/1>, <https://example.com/csvw/1/table/2> .
         """);
 
-    new CsvwPreProcessor().process(repository);
+    new StageCsvwPreProcessor().process(repository);
 
     assertHasVariables(
         "https://example.com/dataset/1",
@@ -86,7 +86,7 @@ class CsvwPreProcessorTest {
             csvw:table <https://example.com/csvw/2/table/1> .
         """);
 
-    new CsvwPreProcessor().process(repository);
+    new StageCsvwPreProcessor().process(repository);
 
     assertHasVariables(
         "https://example.com/dataset/1",
@@ -102,7 +102,7 @@ class CsvwPreProcessorTest {
             dcat:distribution <https://example.com/distribution/1> .
         """);
 
-    new CsvwPreProcessor().process(repository);
+    new StageCsvwPreProcessor().process(repository);
 
     assertHasVariables("https://example.com/dataset/1");
   }
@@ -119,7 +119,7 @@ class CsvwPreProcessorTest {
         <https://example.com/csvw/1> a dcat:Resource, csvw:TableGroup .
         """);
 
-    new CsvwPreProcessor().process(repository);
+    new StageCsvwPreProcessor().process(repository);
 
     assertHasNoVariables("https://example.com/dataset/1");
   }
@@ -137,36 +137,9 @@ class CsvwPreProcessorTest {
         <https://example.com/csvw/1> csvw:table <https://example.com/csvw/1/table/1> .
         """);
 
-    new CsvwPreProcessor().process(repository);
+    new StageCsvwPreProcessor().process(repository);
 
     assertHasNoVariables("https://example.com/dataset/1");
-  }
-
-  /**
-   * The CONSTRUCT query requires the dataset to be typed as both {@code dcat:Resource} and {@code
-   * dcat:Dataset} explicitly - it does not do RDFS-style subclass reasoning to infer {@code
-   * dcat:Resource} from {@code dcat:Dataset} alone. Real-world data that only tags a dataset with
-   * {@code dcat:Dataset} (which is arguably the more common case, since Dataset is a subclass of
-   * Resource) will silently get no {@code hasVariables} triples. This test documents that current
-   * behaviour rather than asserting what "should" happen, per instructions not to touch the
-   * pre-processor itself.
-   */
-  @Test
-  void givenDatasetTypedOnlyAsDcatDataset_whenProcessed_thenNoVariablesAdded() {
-    load(
-        """
-        <https://example.com/dataset/1> a dcat:Dataset ;
-            dcat:distribution <https://example.com/distribution/1> .
-
-        <https://example.com/distribution/1> dcat:downloadURL <https://example.com/csvw/1> .
-
-        <https://example.com/csvw/1> a dcat:Resource, csvw:TableGroup ;
-            csvw:table <https://example.com/csvw/1/table/1> .
-        """);
-
-    new CsvwPreProcessor().process(repository);
-
-    assertHasVariables("https://example.com/dataset/1");
   }
 
   @Test
@@ -182,7 +155,7 @@ class CsvwPreProcessorTest {
             csvw:table <https://example.com/csvw/1/table/1> .
         """);
 
-    new CsvwPreProcessor().process(repository);
+    new StageCsvwPreProcessor().process(repository);
 
     assertHasVariables("https://example.com/catalog/1");
   }
@@ -200,9 +173,9 @@ class CsvwPreProcessorTest {
             csvw:table <https://example.com/csvw/1/table/1> .
         """);
 
-    new CsvwPreProcessor().process(repository);
+    new StageCsvwPreProcessor().process(repository);
     long countAfterFirstRun = countAllStatements();
-    new CsvwPreProcessor().process(repository);
+    new StageCsvwPreProcessor().process(repository);
 
     assertEquals(countAfterFirstRun, countAllStatements());
     assertHasVariables("https://example.com/dataset/1", "https://example.com/csvw/1/table/1");
