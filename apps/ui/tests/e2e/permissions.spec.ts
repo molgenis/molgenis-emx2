@@ -123,7 +123,11 @@ test.describe("when selecting a permission for a row", () => {
     await page.goto(route + PET_STORE_PATH);
 
     await page.getByRole("button", { name: "Add Pet" }).click();
-    await page.getByLabel("Permission level:").selectOption("DragonKeeper");
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page
+      .locator("#listbox-roleSelector-options-2")
+      .getByText("DragonKeeper")
+      .click();
     await page
       .getByRole("textbox", { name: "name Required" })
       .fill("testDragon");
@@ -144,12 +148,16 @@ test.describe("when selecting a permission for a row", () => {
     await page.goto(route + PET_STORE_PATH);
 
     await expect(
-      page.locator("tr:nth-child(10) > td:nth-child(2) > .flex")
-    ).toHaveText("DragonKeeper", { exact: true });
+      page.getByRole("cell", { name: "DragonKeeper" })
+    ).toBeVisible();
 
     await page.getByRole("cell", { name: "smaug" }).hover();
     await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
-    await page.getByLabel("Permission level:").selectOption("Global");
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page
+      .locator("#listbox-roleSelector-options-2")
+      .getByText("DragonKeeper")
+      .click();
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await page.getByRole("button", { name: "Cancel" }).click();
 
@@ -159,12 +167,12 @@ test.describe("when selecting a permission for a row", () => {
 
     await page.getByRole("cell", { name: "smaug" }).hover();
     await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
-    await page.getByLabel("Permission level:").selectOption("DragonKeeper");
+    await page.getByLabel("Access group").selectOption("DragonKeeper");
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await page.getByRole("button", { name: "Cancel" }).click();
 
     await expect(
-      page.locator("tr:nth-child(10) > td:nth-child(2) > .flex")
-    ).toHaveText("DragonKeeper", { exact: true });
+      page.getByRole("cell", { name: "DragonKeeper" })
+    ).toBeVisible();
   });
 });

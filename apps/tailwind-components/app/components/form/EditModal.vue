@@ -31,7 +31,7 @@
             class="gap-2.5 ml-auto flex shrink-0 items-center text-title-contrast"
           >
             <label class="whitespace-nowrap font-bold" for="roleSelector">
-              Access group:
+              Access group
             </label>
             <InputListbox
               v-model="selectedRole"
