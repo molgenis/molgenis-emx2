@@ -87,9 +87,7 @@ function onAddNewPageClick(type: ICmsPageTypes) {
     formMetadata.value = data.value?.configurablePageMetadata;
   } else {
     formMetadata.value = data.value?.developerPageMetadata;
-    const newPage = newDeveloperPage(
-      "<h2>My new page</h2>\n<p>This is a demo page</p>"
-    );
+    const newPage = newDeveloperPage();
     formValues.value = newPage;
   }
   showFormModal.value = true;

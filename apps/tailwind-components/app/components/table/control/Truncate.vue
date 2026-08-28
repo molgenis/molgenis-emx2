@@ -69,7 +69,10 @@ function resetModal() {
     :size="modalSize"
   >
     <ModalContentContainer>
-      <p class="text-sm" v-if="truncateStatus === 'REQUEST_CONFIRMATION'">
+      <p
+        class="text-sm text-title-contrast"
+        v-if="truncateStatus === 'REQUEST_CONFIRMATION'"
+      >
         Are you sure you want to truncate the table
         <strong>{{ metadata.label }}</strong> ? This removes all data from the
         table. This action cannot be undone.
@@ -78,22 +81,24 @@ function resetModal() {
         class="text-sm flex flex-row gap-1"
         v-else-if="truncateStatus === 'RUNNING'"
       >
-        <span
-          >Truncating the table <strong>{{ metadata.label }}</strong></span
-        >
+        <span class="text-sm text-title-contrast">
+          Truncating the table <strong>{{ metadata.label }}</strong>
+        </span>
         <BaseIcon class="ml-2 animate-spin" name="ProgressActivity" />
       </div>
-      <p class="text-sm" v-else-if="truncateStatus === 'COMPLETED'">
-        Successfully truncated the table <strong>{{ metadata.label }}</strong
+      <p
+        class="text-sm text-title-contrast"
+        v-else-if="truncateStatus === 'COMPLETED'"
+      >
+        Successfully truncated the table <strong>{{ metadata.label }}</strong>
         >.
       </p>
       <div class="text-sm" v-else-if="truncateStatus === 'FAILED'">
         <div class="flex flex-row gap-2 items-center">
-          <p>
+          <p class="text-sm text-title-contrast">
             Failed to truncate the table <strong>{{ metadata.label }}</strong
             >.
           </p>
-
           <Button
             v-if="truncateResultMessage"
             type="text"
@@ -106,7 +111,7 @@ function resetModal() {
 
         <p
           v-if="truncateResultMessage && showResultDetails"
-          class="mt-2 italic text-sm"
+          class="mt-2 italic text-sm text-title-contrast"
         >
           {{ truncateResultMessage }}
         </p>
