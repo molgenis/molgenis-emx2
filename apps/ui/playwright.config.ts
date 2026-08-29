@@ -9,7 +9,7 @@ export default defineConfig<ConfigOptions>({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 3 : undefined,
+  workers: process.env.CI ? 2 : undefined,
   /* a pass that needed a retry must not read as green */
   failOnFlakyTests: !!process.env.CI,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
