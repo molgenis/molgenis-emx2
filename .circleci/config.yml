@@ -168,8 +168,8 @@ commands:
         key: turbo-v1-{{ .Branch }}-{{ .Revision }}
         when: always
 
-  # Written from `build` only. A key is write-once, so two jobs writing one key
-  # means the second uploads a blob CircleCI discards.
+  # Written from one job only. A key is write-once, so a second job writing the
+  # same key uploads a blob CircleCI discards.
   save_build_caches:
     steps:
     - save_gradle_build_cache
@@ -247,8 +247,6 @@ jobs:
           name: build ssr catalogue
           command: pnpm exec turbo run build --filter=catalogue
           working_directory: apps
-
-      - save_build_caches
 
       - persist_to_workspace:
           root: .
@@ -475,8 +473,16 @@ jobs:
         name: <backend> check for programming flaws
         command: |
           ./gradlew --continue pmdMain pmdTest
+    # Split from sonar so each has its own timing, and because these two are
+    # cacheable where sonar, which uploads, never can be.
     - run:
-        name: run tests and push to sonar
+        name: run tests and merge coverage
+        command: |
+          ./gradlew test jacocoMergedReport -x :apps:test \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+
+    - run:
+        name: push results to sonar
         # sonar rejects an empty pullrequest.key, and master has no PR, so the
         # pull-request flags are only passed when there is one.
         command: |
@@ -484,10 +490,15 @@ jobs:
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
             SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
           fi
-          ./gradlew test jacocoMergedReport sonar -x :apps:test \
+          ./gradlew sonar \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
+
+    # This job writes the caches, not `build`. Its cacheable output is a superset:
+    # it compiles the same code, adds the test and coverage tasks, and drives
+    # turbo for every app where `build` drives it for catalogue alone.
+    - save_build_caches
 
     - post_steps
 
