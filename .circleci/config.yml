@@ -18,12 +18,21 @@ orbs:
   slack: circleci/slack@6.1.3
 
 definitions:
+  # A cache restores to the absolute path it was saved from, and `~` resolves to
+  # whichever user the job's image runs as. Naming the directories outright is
+  # what lets jobs on different images read each other's caches. /tmp because
+  # every image can write there without a mkdir or chown first.
+  cache_env: &cache_env
+    GRADLE_USER_HOME: /tmp/ci-cache/gradle
+    TURBO_CACHE_DIR: /tmp/ci-cache/turbo
+
   build_config: &build_config
     docker:
     - image: molgenis/ci-build:1.5.1
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
@@ -38,6 +47,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
@@ -49,6 +59,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
@@ -86,23 +97,23 @@ commands:
           no_output_timeout: 5m
     - restore_cache:
         keys:
-          - gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
-          - gradle-deps-v1-
+          - gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
+          - gradle-deps-v2-
     - restore_cache:
         keys:
-        - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+        - gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - run:
         name: Download Dependencies
         command: ./gradlew dependencies
     - save_cache:
         paths:
-          - ~/.gradle/wrapper
-        key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+          - /tmp/ci-cache/gradle/wrapper
+        key: gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - save_cache:
         paths:
-          - ~/.gradle/caches/modules-2
-          - ~/.gradle/caches/jars-9
-        key: gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
+          - /tmp/ci-cache/gradle/caches/modules-2
+          - /tmp/ci-cache/gradle/caches/jars-9
+        key: gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
     - setup_remote_docker:
         docker_layer_caching: true
     - run:
@@ -116,17 +127,17 @@ commands:
         # for it. This branch's own last revision first, because it holds master's
         # pool plus whatever this branch has already compiled.
         keys:
-          - gradle-buildcache-v1-{{ .Branch }}-
-          - gradle-buildcache-v1-master-
-          - gradle-buildcache-v1-
+          - gradle-buildcache-v2-{{ .Branch }}-
+          - gradle-buildcache-v2-master-
+          - gradle-buildcache-v2-
 
   save_gradle_build_cache:
     steps:
     - run:
         name: Cap the gradle build cache at 2GB, dropping the oldest entries first
         command: |
-          if [ -d ~/.gradle/caches/build-cache-1 ]; then
-            cd ~/.gradle/caches/build-cache-1
+          if [ -d /tmp/ci-cache/gradle/caches/build-cache-1 ]; then
+            cd /tmp/ci-cache/gradle/caches/build-cache-1
             ls -lt | awk -v limit=2147483648 '$NF ~ /^[0-9a-f]{32}$/ { total += $5; if (total > limit) print $NF }' |
               while read -r entry; do rm -f "$entry"; done
             du -sh .
@@ -136,25 +147,25 @@ commands:
         when: always
     - save_cache:
         paths:
-          - ~/.gradle/caches/build-cache-1
-        key: gradle-buildcache-v1-{{ .Branch }}-{{ .Revision }}
+          - /tmp/ci-cache/gradle/caches/build-cache-1
+        key: gradle-buildcache-v2-{{ .Branch }}-{{ .Revision }}
         when: always
 
   restore_turbo_cache:
     steps:
     - restore_cache:
         keys:
-          - turbo-v1-{{ .Branch }}-
-          - turbo-v1-master-
-          - turbo-v1-
+          - turbo-v2-{{ .Branch }}-
+          - turbo-v2-master-
+          - turbo-v2-
 
   save_turbo_cache:
     steps:
     - run:
         name: Cap the turbo cache at 512MB, dropping the oldest entries first
         command: |
-          if ls apps/.turbo/cache/*.tar.zst >/dev/null 2>&1; then
-            cd apps/.turbo/cache
+          if ls /tmp/ci-cache/turbo/*.tar.zst >/dev/null 2>&1; then
+            cd /tmp/ci-cache/turbo
             ls -lt *.tar.zst | awk -v limit=536870912 '{ total += $5 } total > limit { sub(/\.tar\.zst$/, "", $NF); print $NF }' |
               while read -r entry; do rm -f "$entry".tar.zst "$entry"-meta.json "$entry"-manifest.json; done
             du -sh .
@@ -164,8 +175,8 @@ commands:
         when: always
     - save_cache:
         paths:
-          - apps/.turbo/cache
-        key: turbo-v1-{{ .Branch }}-{{ .Revision }}
+          - /tmp/ci-cache/turbo
+        key: turbo-v2-{{ .Branch }}-{{ .Revision }}
         when: always
 
   # Written from one job only. A key is write-once, so a second job writing the
@@ -235,6 +246,7 @@ jobs:
     docker:
       - image: mcr.microsoft.com/playwright:v1.62.1-jammy
         environment:
+          <<: *cache_env
           JVM_OPTS: -Xmx6400m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
           TERM: dumb
@@ -260,8 +272,8 @@ jobs:
           command: find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
       - restore_cache:
           keys:
-            - gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
-            - gradle-deps-v1-
+            - gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
+            - gradle-deps-v2-
       - restore_gradle_build_cache
       - restore_turbo_cache
 
