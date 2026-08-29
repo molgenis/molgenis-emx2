@@ -72,7 +72,7 @@ allprojects {
         version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
     }
 
-    // Manifests carry the commit hash, so hashing them re-keys every test per commit.
+    // Manifests carry the commit hash, so ignore them or every test re-keys per commit.
     normalization {
         runtimeClasspath {
             metaInf {
