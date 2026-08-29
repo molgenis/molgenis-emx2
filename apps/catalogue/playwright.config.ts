@@ -17,7 +17,7 @@ export default defineConfig<ConfigOptions>({
   maxFailures: process.env.CI ? 1 : 5,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: process.env.CI ? 3 : undefined,
   /* a pass that needed a retry must not read as green */
   failOnFlakyTests: !!process.env.CI,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
