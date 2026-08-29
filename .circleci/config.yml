@@ -117,9 +117,7 @@ commands:
   restore_gradle_build_cache:
     steps:
     - restore_cache:
-        # Entries are content-addressed, so the key picks a blob, never vouches
-        # for it. This branch's own last revision first, because it holds master's
-        # pool plus whatever this branch has already compiled.
+        # Own branch first, its last save holds master's pool plus this branch's work.
         keys:
           - gradle-buildcache-v2-{{ .Branch }}-
           - gradle-buildcache-v2-master-
