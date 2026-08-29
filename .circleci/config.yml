@@ -161,11 +161,11 @@ commands:
   save_turbo_cache:
     steps:
     - run:
-        name: Cap the turbo cache at 512MB, dropping the oldest entries first
+        name: Cap the turbo cache at 2GB, dropping the oldest entries first
         command: |
           if ls /tmp/ci-cache/turbo/*.tar.zst >/dev/null 2>&1; then
             cd /tmp/ci-cache/turbo
-            ls -lt *.tar.zst | awk -v limit=536870912 '{ total += $5 } total > limit { sub(/\.tar\.zst$/, "", $NF); print $NF }' |
+            ls -lt *.tar.zst | awk -v limit=2147483648 '{ total += $5 } total > limit { sub(/\.tar\.zst$/, "", $NF); print $NF }' |
               while read -r entry; do rm -f "$entry".tar.zst "$entry"-meta.json "$entry"-manifest.json; done
             du -sh .
           else
