@@ -26,6 +26,14 @@ export interface RecordSection {
   headings: RecordHeading[];
 }
 
+/** One rendered box. `kind` sets its title level, so the two-level tree survives flattening. */
+export interface RecordBox {
+  kind: "section" | "heading";
+  id: string;
+  label: string | null;
+  fields: RecordField[];
+}
+
 const TOP_SECTION_ID = "mg_top_of_form";
 
 /**

@@ -52,12 +52,46 @@ describe("DetailView", () => {
     });
   });
 
-  test("renders every section and heading with its own anchor id", () => {
+  test("renders a section and each of its headings as sibling boxes, in reading order", () => {
     expect(
       wrapper.findAll("section").map((section) => section.attributes("id"))
-    ).toEqual(["about", "care"]);
-    expect(wrapper.get("#size").get("h3").text()).toBe("Size");
+    ).toEqual(["about", "size", "care"]);
+    expect(wrapper.get("#about").find("#size").exists()).toBe(false);
+  });
+
+  test("titles a heading box one level below a section box", () => {
     expect(wrapper.get("#about").get("h2").text()).toBe("About");
+    expect(wrapper.get("#size").get("h3").text()).toBe("Size");
+    expect(wrapper.get("#size").find("h2").exists()).toBe(false);
+  });
+
+  test("renders no box for a top section holding nothing but headings, and aims its menu entry at the first box it does render", () => {
+    const headingsOnly = mount(DetailView, {
+      props: {
+        metadata: table([
+          column("mg_top_of_form", "SECTION", "_top"),
+          column("details", "HEADING", "Details"),
+          column("name", "STRING", "Name"),
+          column("care", "SECTION", "Care"),
+          column("diet", "STRING", "Diet"),
+        ]),
+        rowData: { name: "spike", diet: "insects" },
+      },
+    });
+
+    expect(
+      headingsOnly.findAll("section").map((section) => section.attributes("id"))
+    ).toEqual(["details", "care"]);
+    expect(menuLinks(headingsOnly)).toEqual([
+      ["Pet", "#details"],
+      ["Details", "#details"],
+      ["Care", "#care"],
+    ]);
+    expect(
+      menuLinks(headingsOnly).map(([, href]) =>
+        headingsOnly.find(href as string).exists()
+      )
+    ).toEqual([true, true, true]);
   });
 
   test("renders each field label and value", () => {
@@ -153,7 +187,7 @@ describe("DetailView", () => {
     expect(bare.find('input[type="search"]').exists()).toBe(false);
     expect(
       bare.findAll("section").map((section) => section.attributes("id"))
-    ).toEqual(["about", "care"]);
+    ).toEqual(["about", "size", "care"]);
   });
 
   test("shows mg_ columns only when asked", () => {

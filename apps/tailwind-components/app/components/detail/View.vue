@@ -8,6 +8,7 @@ import type {
 import type { cellPayload } from "../../../types/types";
 import {
   groupRecordSections,
+  type RecordBox,
   type RecordSection,
 } from "../../utils/groupRecordSections";
 import FormLegend from "../form/Legend.vue";
@@ -50,6 +51,38 @@ const visibleSections = computed(() =>
     : sections.value
 );
 
+// A section and each of its headings are separate boxes; the menu still nests them.
+const boxes = computed<RecordBox[]>(() =>
+  visibleSections.value.flatMap((section) => [
+    ...(hasOwnBox(section)
+      ? [
+          {
+            kind: "section" as const,
+            id: section.id,
+            label: section.label,
+            fields: section.fields,
+          },
+        ]
+      : []),
+    ...section.headings.map((heading) => ({
+      kind: "heading" as const,
+      ...heading,
+    })),
+  ])
+);
+
+/** The synthetic top section is nameless, so with every column under a heading it has nothing to show. */
+function hasOwnBox(section: RecordSection): boolean {
+  return !!section.label || section.fields.length > 0;
+}
+
+/** A section that renders no box of its own would otherwise link the menu at a missing id. */
+function menuAnchorId(section: RecordSection): string {
+  return hasOwnBox(section)
+    ? section.id
+    : section.headings[0]?.id ?? section.id;
+}
+
 // A menu of one entry helps nobody, so it stays away.
 const showSideNav = computed(
   () => props.showMenu && visibleSections.value.length > 1
@@ -59,7 +92,7 @@ const legendGroups = computed<LegendGroup[]>(() =>
   visibleSections.value.map((section) => ({
     id: section.id,
     label: section.label ?? props.metadata.label,
-    href: `#${section.id}`,
+    href: `#${menuAnchorId(section)}`,
     isVisible: true,
     headers: section.headings.map((heading) => ({
       id: heading.id,
@@ -114,9 +147,9 @@ function filterSections(
     <template #main>
       <div class="grid lg:gap-2.5 gap-0">
         <DetailSection
-          v-for="section in visibleSections"
-          :key="section.id"
-          :section="section"
+          v-for="box in boxes"
+          :key="box.id"
+          :section="box"
           @valueClick="$emit('valueClick', $event)"
         />
       </div>
