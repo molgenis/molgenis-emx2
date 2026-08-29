@@ -88,8 +88,8 @@ describe("DetailView", () => {
       ["Care", "#care"],
     ]);
     expect(
-      menuLinks(headingsOnly).map(([, href]) =>
-        headingsOnly.find(href as string).exists()
+      menuLinks(headingsOnly).map(
+        ([, href]) => href && headingsOnly.find(href).exists()
       )
     ).toEqual([true, true, true]);
   });
