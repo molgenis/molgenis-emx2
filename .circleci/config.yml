@@ -233,6 +233,11 @@ jobs:
 
   build:
     <<: *build_config
+    # 15d is the default and the maximum. The longest gap between master commits
+    # in the last 90 days was 3.7 days, so 7d keeps every PR warm across a quiet
+    # weekend with margin, and stores half of what the maximum would.
+    retention:
+      caches: 7d
 
     steps:
       - pre_steps
@@ -440,6 +445,8 @@ jobs:
 
   test:
     <<: *test_config
+    retention:
+      caches: 7d
 
     steps:
     - pre_steps
