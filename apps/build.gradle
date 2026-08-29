@@ -136,11 +136,8 @@ clean.dependsOn 'cleanApps';
 // Locates the folder the jar packages per app
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
 abstract class AppOutputLocator {
-    // Gradle CREATES every directory a task declares as an output, whether or not
-    // the app ever writes to it. So "the directory exists" is not evidence that a
-    // build produced anything, and an empty one must never be packaged: an empty
-    // showCase shadowed dist for all 24 vite apps and shipped a jar whose every
-    // app was an empty folder, green, with the server's own root redirect 404ing.
+    // Gradle creates every directory a task declares as an output, so existence is
+    // not evidence that a build wrote anything.
     static boolean holdsBuildOutput(File dir) {
         String[] entries = dir.isDirectory() ? dir.list() : null
         return entries != null && entries.length > 0

@@ -115,22 +115,11 @@ commands:
   restore_gradle_build_cache:
     steps:
     - restore_cache:
-        # The key encodes LOCALITY, never validity. Gradle's build cache is
-        # content-addressed and append-only: every entry is a file named by a
-        # hash of the task inputs, and a changed input yields a different hash
-        # rather than a rewritten entry. So a restored entry can never be stale,
-        # and the key's only job is to pick the blob most likely to hold entries
-        # this run wants. Tiering exists because a CircleCI cache key is
-        # write-once, so an append-only store can only grow by saving under a new
-        # key each time, and prefix keys are how the newest one is found.
-        #
-        # Do NOT add CIRCLE_JOB. An entry is valid whichever job computed it, so
-        # splitting the pool per job hides build's entries from test, which
-        # compiles the same backend, and doubles what we store per commit.
+        # Entries are content-addressed, so the key picks a blob, never vouches
+        # for it. Keep it off CIRCLE_JOB: that splits a pool both jobs can use.
         keys:
           - gradle-buildcache-v1-{{ .Branch }}-{{ .Revision }}
           - gradle-buildcache-v1-{{ .Branch }}-
-          # any branch, so a first push to a new branch still starts warm
           - gradle-buildcache-v1-
 
   save_gradle_build_cache:
@@ -156,13 +145,9 @@ commands:
   restore_turbo_cache:
     steps:
     - restore_cache:
-        # Same reasoning as the gradle cache above: turbo entries are
-        # <hash>.tar.zst, content-addressed and append-only, so the key picks a
-        # blob rather than vouching for it.
         keys:
           - turbo-v1-{{ .Branch }}-{{ .Revision }}
           - turbo-v1-{{ .Branch }}-
-          # any branch, so a first push to a new branch still starts warm
           - turbo-v1-
 
   save_turbo_cache:
