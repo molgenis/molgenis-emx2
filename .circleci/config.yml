@@ -18,10 +18,6 @@ orbs:
   slack: circleci/slack@6.1.3
 
 definitions:
-  # A cache restores to the absolute path it was saved from, and `~` resolves to
-  # whichever user the job's image runs as. Naming the directories outright is
-  # what lets jobs on different images read each other's caches. /tmp because
-  # every image can write there without a mkdir or chown first.
   cache_env: &cache_env
     GRADLE_USER_HOME: /tmp/ci-cache/gradle
     TURBO_CACHE_DIR: /tmp/ci-cache/turbo
@@ -51,8 +47,6 @@ definitions:
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
-  # No postgres: release runs no tests. Caching is left at gradle.properties'
-  # true, so release reuses what build compiled for this same commit.
   release_config: &release_config
     docker:
       - image: molgenis/ci-build:1.5.1
@@ -215,8 +209,6 @@ jobs:
 
     - pre_steps
 
-    # This job compiles the backend and builds every app, so it reads both pools.
-    # It does not write: `test` is the single writer.
     - restore_gradle_build_cache
     - restore_turbo_cache
 
@@ -263,8 +255,6 @@ jobs:
     steps:
       - checkout
 
-      # This job builds the jar it tests. Java comes first because the gradle
-      # build needs it, where before it was only needed to run the jar.
       - run:
           name: install postgres client and java
           command: |
@@ -289,9 +279,6 @@ jobs:
             corepack prepare pnpm@latest --activate
             pnpm -v
 
-      # Its own gradle invocation, as in pre_steps. Resolving the whole graph in
-      # the same process that then compiles and builds every app is what put the
-      # peak over the container group's limit.
       - run:
           name: Download Dependencies
           command: ./gradlew dependencies
@@ -512,9 +499,7 @@ jobs:
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
 
-    # This job writes the caches, not `build`. Its cacheable output is a superset:
-    # it compiles the same code, adds the test and coverage tasks, and drives
-    # turbo for every app where `build` drives it for catalogue alone.
+    # The only job that writes the caches; the others read them.
     - save_build_caches
 
     - post_steps
@@ -547,8 +532,6 @@ jobs:
     steps:
     - pre_steps
 
-    # Self-contained: it waits for no other job and builds what it ships, taking
-    # the compilation from the cache. lint and the tests run in their own jobs.
     - restore_gradle_build_cache
     - restore_turbo_cache
 

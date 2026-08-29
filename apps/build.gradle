@@ -90,10 +90,6 @@ tasks.register('pnpm_build', PnpmTask) {
     args = ['run', 'build']
     inputs.property('molgenisDotenv', rootProject.ext.molgenisDotenv)
     registerAppInputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
-    // .output/server/node_modules can contain a real circular symlink from pnpm's peer-dependency
-    // hoisting (vue <-> @vue/server-renderer); Gradle's directory snapshotter has no cycle limit and
-    // exhausts the daemon heap walking it, so the fingerprinted output tree excludes node_modules --
-    // that folder is fully derived from package.json/pnpm-lock.yaml, not build source worth tracking.
     outputs.files(workspaceDirs.collectMany { appName ->
         buildOutputDirsForApp(appName).collect { dirPath ->
             project.fileTree(dirPath) { exclude "**/node_modules/**" }

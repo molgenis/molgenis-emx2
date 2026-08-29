@@ -72,10 +72,7 @@ allprojects {
         version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
     }
 
-    // Jar manifests carry the commit hash and the build machine, so without this a
-    // test task re-keys on every commit and can only ever hit on a rerun. The whole
-    // manifest rather than named attributes, so a new one added later cannot
-    // reintroduce it. META-INF/services stays an input, because it changes behaviour.
+    // Manifests carry the commit hash, so hashing them re-keys every test per commit.
     normalization {
         runtimeClasspath {
             metaInf {
