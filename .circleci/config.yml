@@ -97,8 +97,8 @@ commands:
           no_output_timeout: 5m
     - restore_cache:
         keys:
-          - gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
-          - gradle-deps-v2-
+          - gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
+          - gradle-deps-v3-
     - restore_cache:
         keys:
         - gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
@@ -109,11 +109,16 @@ commands:
         paths:
           - /tmp/ci-cache/gradle/wrapper
         key: gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    # The whole caches directory, not just modules-2 and jars-9: the per-version
+    # metadata and transforms trees beside them are what keep `./gradlew
+    # dependencies` at ~15s instead of ~24s, and save_cache takes no wildcards.
+    # This cannot swallow the build cache, because every job restores that AFTER
+    # pre_steps, so caches/build-cache-1 does not exist yet at this point. Keep
+    # that ordering.
     - save_cache:
         paths:
-          - /tmp/ci-cache/gradle/caches/modules-2
-          - /tmp/ci-cache/gradle/caches/jars-9
-        key: gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
+          - /tmp/ci-cache/gradle/caches
+        key: gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
     - setup_remote_docker:
         docker_layer_caching: true
     - run:
@@ -272,8 +277,8 @@ jobs:
           command: find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
       - restore_cache:
           keys:
-            - gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
-            - gradle-deps-v2-
+            - gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
+            - gradle-deps-v3-
       - restore_gradle_build_cache
       - restore_turbo_cache
 
