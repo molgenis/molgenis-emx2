@@ -136,18 +136,28 @@ clean.dependsOn 'cleanApps';
 // Locates the folder the jar packages per app
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
 abstract class AppOutputLocator {
+    // Gradle CREATES every directory a task declares as an output, whether or not
+    // the app ever writes to it. So "the directory exists" is not evidence that a
+    // build produced anything, and an empty one must never be packaged: an empty
+    // showCase shadowed dist for all 24 vite apps and shipped a jar whose every
+    // app was an empty folder, green, with the server's own root redirect 404ing.
+    static boolean holdsBuildOutput(File dir) {
+        String[] entries = dir.isDirectory() ? dir.list() : null
+        return entries != null && entries.length > 0
+    }
+
     static File packagedOutputDirForApp(File appsDirectory, String appName) {
         File appDir = new File(appsDirectory, appName)
         if (new File(appDir, "nuxt.config.ts").exists()) {
             File nuxtPublicDir = new File(appDir, ".output/public")
-            return nuxtPublicDir.isDirectory() ? nuxtPublicDir : null
+            return holdsBuildOutput(nuxtPublicDir) ? nuxtPublicDir : null
         }
         File showCaseDir = new File(appDir, "showCase")
-        if (showCaseDir.isDirectory()) {
+        if (holdsBuildOutput(showCaseDir)) {
             return showCaseDir
         }
         File distDir = new File(appDir, "dist")
-        return distDir.isDirectory() ? distDir.canonicalFile : null
+        return holdsBuildOutput(distDir) ? distDir.canonicalFile : null
     }
 
     static boolean expectsPackagedOutput(File appsDirectory, String appName) {
@@ -206,7 +216,7 @@ tasks.named("processResources") {
         }
         if (!appsMissingOutput.isEmpty()) {
             throw new GradleException(appsMissingOutput.collect { appName ->
-                "App '${appName}' produced no packageable output, so the jar would silently ship without it"
+                "App '${appName}' produced no packageable output: its output directory is missing or empty, so the jar would silently ship the app as an empty folder"
             }.join("\n"))
         }
     }
