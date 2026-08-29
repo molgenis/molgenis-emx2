@@ -1,5 +1,7 @@
 {{- if .Values.ingress.enabled }}
 {{ $fullName := include "emx2.fullname" . -}}
+{{- $useWakeProxy := .Values.wakeProxy.enabled -}}
+{{- $backendService := ternary (printf "%s-wake-proxy" $fullName) $fullName $useWakeProxy -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -19,7 +21,6 @@ spec:
         - {{ index .Values.ingress.hosts 0 | quote }}
         - {{ index .Values.ingress.hosts 1 | quote}}
       secretName: dev.molgenis.org
-
   rules:
     - host: {{ index .Values.ingress.hosts 1 | quote }}
       http:
@@ -28,23 +29,41 @@ spec:
               pathType: Prefix
               backend:
                 service:
+                  {{- if $useWakeProxy }}
+                  name: {{ $backendService }}
+                  port:
+                    number: 8080
+                  {{- else }}
                   name: {{ $fullName }}
                   port:
                     number: 8080
+                  {{- end }}
             - path: /api
               pathType: Prefix
               backend:
                 service:
+                  {{- if $useWakeProxy }}
+                  name: {{ $backendService }}
+                  port:
+                    number: 8080
+                  {{- else }}
                   name: {{ $fullName }}
                   port:
                     number: 8080
+                  {{- end }}
             - path: /[^/]+/(aggregates|central|cranio-provider|cranio-public|directory|ern-genturis|ern-ithaca|ern-reconnect|ern-skin|gportal|graphql-playground|helloworld|imdhub-public|molgenis-components|molgenis-viz|nestor-public|pages|projectmanager|reports|schema|settings|tables|tailwind-components|tasks|ui|updownload|docs|graphql|api|index|sitemap\.xml|theme\.css)
               pathType: ImplementationSpecific
               backend:
                 service:
+                  {{- if $useWakeProxy }}
+                  name: {{ $backendService }}
+                  port:
+                    number: 8080
+                  {{- else }}
                   name: {{ $fullName }}
                   port:
                     number: 8080
+                  {{- end }}
             - path: /
               pathType: Prefix
               backend:
@@ -59,7 +78,13 @@ spec:
             pathType: Prefix
             backend:
               service:
+                {{- if $useWakeProxy }}
+                name: {{ $backendService }}
+                port:
+                  number: 8080
+                {{- else }}
                 name: {{ $fullName }}
                 port:
                   number: 8080
+                {{- end }}
 {{- end }}
