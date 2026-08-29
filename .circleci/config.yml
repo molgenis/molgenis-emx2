@@ -113,9 +113,10 @@ commands:
     steps:
     - restore_cache:
         # Entries are content-addressed, so the key picks a blob, never vouches
-        # for it. Only master writes, so a PR reads the newest master blob by
-        # prefix and never has to learn master's revision.
+        # for it. This branch's own last revision first, because it holds master's
+        # pool plus whatever this branch has already compiled.
         keys:
+          - gradle-buildcache-v1-{{ .Branch }}-
           - gradle-buildcache-v1-master-
           - gradle-buildcache-v1-
 
@@ -143,6 +144,7 @@ commands:
     steps:
     - restore_cache:
         keys:
+          - turbo-v1-{{ .Branch }}-
           - turbo-v1-master-
           - turbo-v1-
 
@@ -166,16 +168,12 @@ commands:
         key: turbo-v1-{{ .Branch }}-{{ .Revision }}
         when: always
 
-  # Only master writes, and only from `build`. A key is write-once, so parallel
-  # jobs writing one key upload blobs CircleCI discards.
-  save_caches_on_master:
+  # Written from `build` only. A key is write-once, so two jobs writing one key
+  # means the second uploads a blob CircleCI discards.
+  save_build_caches:
     steps:
-    - when:
-        condition:
-          equal: [ master, << pipeline.git.branch >> ]
-        steps:
-          - save_gradle_build_cache
-          - save_turbo_cache
+    - save_gradle_build_cache
+    - save_turbo_cache
 
   post_steps:
     steps:
@@ -250,7 +248,7 @@ jobs:
           command: pnpm exec turbo run build --filter=catalogue
           working_directory: apps
 
-      - save_caches_on_master
+      - save_build_caches
 
       - persist_to_workspace:
           root: .
