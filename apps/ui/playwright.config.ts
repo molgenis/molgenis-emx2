@@ -57,6 +57,9 @@ export default defineConfig<ConfigOptions>({
       testMatch: "typetest/types/create.spec.ts",
       dependencies: ["auth.setup"],
     },
+    /* counts rows the with-auth type tests create, so it depends on them for
+       ordering only. It still runs anonymously, without their storageState,
+       and may overlap chromium because it reads the type test schema. */
     {
       name: "after-type-test-mutations",
       use: { ...devices["Desktop Chrome"] },
