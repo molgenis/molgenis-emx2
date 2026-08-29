@@ -16,45 +16,45 @@ ext {
     javaVersion = JavaVersion.VERSION_21
 }
 
-// Settings such as MOLGENIS_POSTGRES_URI/USER/PASS, MOLGENIS_HTTP_PORT or feature flags
-// are read inside the Java code (EnvironmentProperty.getParameter). A running Gradle
-// daemon does not pass command-line -D system properties to forked JVMs, so they are
-// forwarded explicitly onto every forked Test/JavaExec task (test, run, dev, cleandb,
-// generateTypes).
-// Every key of a repo-root .env file is forwarded, read straight from disk once at
-// configuration time (daemon-safe, no `source` needed), as is every MOLGENIS_ system property
-// given on the command line. Precedence per key: a -D CLI system property wins; otherwise the
-// .env value; otherwise nothing (Java default applies).
-// Whitespace is trimmed the way JavaScript String.trim() does it, so that this parser and the
-// one in apps/dev-env.js read the same keys out of the same file.
+// A warm Gradle daemon does not pass -D to forked JVMs, so .env is read here and forwarded instead.
+// Mirror apps/dev-env.js: it parses the same file and the two must agree.
 def javascriptTrim = { String text -> text.replaceAll('^[\\s\\u00A0\\uFEFF]+|[\\s\\u00A0\\uFEFF]+$', '') }
+def stripSurroundingQuotes = { String value ->
+    def quoted = value.length() >= 2 &&
+            ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'")))
+    quoted ? value.substring(1, value.length() - 1) : value
+}
+def parseDotenvLine = { String line, Map into ->
+    def trimmed = javascriptTrim(line)
+    if (trimmed.isEmpty() || trimmed.startsWith('#')) return
+    def separator = trimmed.indexOf('=')
+    if (separator < 0) return
+    into[javascriptTrim(trimmed.substring(0, separator))] =
+            stripSurroundingQuotes(javascriptTrim(trimmed.substring(separator + 1)))
+}
 ext.molgenisDotenv = { ->
     def envFile = new File(rootDir, '.env')
     def result = [:]
-    if (envFile.exists()) {
-        envFile.eachLine { line ->
-            def trimmed = javascriptTrim(line)
-            if (trimmed.isEmpty() || trimmed.startsWith('#')) return
-            def idx = trimmed.indexOf('=')
-            if (idx < 0) return
-            def key = javascriptTrim(trimmed.substring(0, idx))
-            def value = javascriptTrim(trimmed.substring(idx + 1))
-            if (value.length() >= 2 &&
-                    ((value.startsWith('"') && value.endsWith('"')) ||
-                     (value.startsWith("'") && value.endsWith("'")))) {
-                value = value.substring(1, value.length() - 1)
-            }
-            result[key] = value
-        }
-    }
+    if (envFile.exists()) envFile.eachLine { parseDotenvLine(it, result) }
     result
 }()
-ext.forwardDotenvProps = { task ->
+ext.dotenvValuesForForkedJvms = { ->
     def commandLineKeys = System.getProperties().stringPropertyNames().findAll { it.startsWith('MOLGENIS_') }
+    def values = new TreeMap<String, String>()
     (rootProject.molgenisDotenv.keySet() + commandLineKeys).each { key ->
         def value = System.getProperty(key) ?: rootProject.molgenisDotenv[key]
-        if (value != null) task.systemProperty key, value
+        if (value != null) values[key] = String.valueOf(value)
     }
+    values
+}
+ext.forwardDotenvProps = { task ->
+    rootProject.ext.dotenvValuesForForkedJvms().each { key, value -> task.systemProperty key, value }
+}
+
+// .env says where to run, not what to run, so it stays out of a Test task's cache key: Gradle marks
+// systemProperties @Input but environment @Internal, and EnvironmentProperty reads either.
+ext.forwardDotenvPropsToTest = { task ->
+    task.environment rootProject.ext.dotenvValuesForForkedJvms()
 }
 ext.resolveDotenvValue = { key ->
     System.getProperty(key) ?: rootProject.molgenisDotenv[key] ?: System.getenv(key)
