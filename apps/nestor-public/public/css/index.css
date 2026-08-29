@@ -152,3 +152,7 @@
     max-width: var(--max-width);
   }
 }
+
+#registryHighlights .data-highlight {
+ flex: 0 0 calc(50% - 0.5em);
+}

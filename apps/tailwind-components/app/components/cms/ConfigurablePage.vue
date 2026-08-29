@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IConfigurablePages } from "../../../types/cms";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type { IDraggingInfo } from "../../../types/cms";
+import type { IDraggingInfo } from "../../../types/CmsComponents";
 
 import PageComponent from "./PageComponent.vue";
 import TextParagraph from "./Paragraph.vue";
@@ -64,7 +64,7 @@ const sidebarCollapsed = ref(false);
           :pageName="content.name"
           :draggingInfo="draggingInfo"
           :schema="schema"
-          :order="0"
+          :order="orderedBlock.order"
           :parent="content.name"
           componentType="Block"
           @updatePage="$emit('updatePage')"

@@ -30,7 +30,7 @@ public class GraphqlTableFieldFactory {
           .value(Order.ASC.name(), Order.ASC)
           .value(Order.DESC.name(), Order.DESC)
           .build();
-  private static GraphQLObjectType fileDownload =
+  private static final GraphQLObjectType FILE_DOWNLOAD =
       GraphQLObjectType.newObject()
           .name("MolgenisFileDownload")
           .field(GraphQLFieldDefinition.newFieldDefinition().name("id").type(Scalars.GraphQLString))
@@ -46,7 +46,7 @@ public class GraphqlTableFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition().name("url").type(Scalars.GraphQLString))
           .build();
-  final List<String> agg_fields = List.of("max", "min", SUM_FIELD, "avg");
+  private static final List<String> AGG_FIELDS = List.of("max", "min", SUM_FIELD, "avg");
   private final Schema schema;
 
   // cache so we can reuse types between tables
@@ -171,7 +171,8 @@ public class GraphqlTableFieldFactory {
         // nothing to do
         break;
       case FILE:
-        tableBuilder.field(GraphQLFieldDefinition.newFieldDefinition().name(id).type(fileDownload));
+        tableBuilder.field(
+            GraphQLFieldDefinition.newFieldDefinition().name(id).type(FILE_DOWNLOAD));
         break;
       case BOOL:
         tableBuilder.field(
@@ -274,24 +275,26 @@ public class GraphqlTableFieldFactory {
                           .type(GraphQLList.list(createTableOrderByInputType(col.getRefTable())))
                           .build()));
         }
-        tableBuilder.field(
-            GraphQLFieldDefinition.newFieldDefinition()
-                .name(id + "_agg")
-                .type(createTableAggregationType(col.getRefTable()))
-                .argument(
-                    GraphQLArgument.newArgument()
-                        .name(GraphqlConstants.FILTER_ARGUMENT)
-                        .type(getTableFilterInputType(col.getRefTable()))
-                        .build()));
-        tableBuilder.field(
-            GraphQLFieldDefinition.newFieldDefinition()
-                .name(id + "_groupBy")
-                .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
-                .argument(
-                    GraphQLArgument.newArgument()
-                        .name(GraphqlConstants.FILTER_ARGUMENT)
-                        .type(getTableFilterInputType(col.getRefTable()))
-                        .build()));
+        if (hasAggregatePermission(col.getRefTable())) {
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id + "_agg")
+                  .type(createTableAggregationType(col.getRefTable()))
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .type(getTableFilterInputType(col.getRefTable()))
+                          .build()));
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id + "_groupBy")
+                  .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .type(getTableFilterInputType(col.getRefTable()))
+                          .build()));
+        }
         break;
       default:
         throw new UnsupportedOperationException("Not yet implemented type " + col.getColumnType());
@@ -300,6 +303,10 @@ public class GraphqlTableFieldFactory {
 
   boolean hasViewPermission(TableMetadata table) {
     return PermissionEvaluator.canView(schema, table);
+  }
+
+  boolean hasAggregatePermission(TableMetadata table) {
+    return PermissionEvaluator.canExists(schema, table);
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
@@ -658,33 +665,35 @@ public class GraphqlTableFieldFactory {
                   + entry.getKey()
                   + " unknown in table "
                   + table.getTableName());
-        Map value = new LinkedHashMap<>((Map) entry.getValue());
+        Map remainingOperators = new LinkedHashMap<>((Map) entry.getValue());
         // although nested, this should apply on this level, not sublevel
-        if (value.containsKey(FILTER_MATCH_INCLUDING_CHILDREN)) {
+        if (remainingOperators.containsKey(FILTER_MATCH_INCLUDING_CHILDREN)) {
           subFilters.add(
               f(
                   c.getName(),
                   Operator.MATCH_ANY_INCLUDING_CHILDREN,
-                  ((List) value.get(FILTER_MATCH_INCLUDING_CHILDREN)).toArray(new String[0])));
-          value.remove(FILTER_MATCH_INCLUDING_CHILDREN);
-        } else if (value.containsKey(FILTER_SEARCH_INCLUDING_PARENTS)) {
+                  ((List) remainingOperators.get(FILTER_MATCH_INCLUDING_CHILDREN))
+                      .toArray(new String[0])));
+          remainingOperators.remove(FILTER_MATCH_INCLUDING_CHILDREN);
+        } else if (remainingOperators.containsKey(FILTER_SEARCH_INCLUDING_PARENTS)) {
           subFilters.add(
               f(
                   c.getName(),
                   Operator.SEARCH_INCLUDING_PARENTS,
-                  ((List) value.get(FILTER_SEARCH_INCLUDING_PARENTS)).toArray(new String[0])));
-          value.remove(FILTER_SEARCH_INCLUDING_PARENTS);
-        } else if (value.containsKey(FILTER_MATCH_PATH)) {
+                  ((List) remainingOperators.get(FILTER_SEARCH_INCLUDING_PARENTS))
+                      .toArray(new String[0])));
+          remainingOperators.remove(FILTER_SEARCH_INCLUDING_PARENTS);
+        } else if (remainingOperators.containsKey(FILTER_MATCH_PATH)) {
           subFilters.add(
               f(
                   c.getName(),
                   Operator.MATCH_PATH,
-                  ((List) value.get(FILTER_MATCH_PATH)).toArray(new String[0])));
-          value.remove(FILTER_MATCH_PATH);
-        } else if (value.containsKey(FILTER_IS_NULL)) {
-          subFilters.add(f(c.getName(), IS_NULL, value.get(FILTER_IS_NULL)));
-          value.remove(FILTER_IS_NULL);
-        } else if (value.containsKey(FILTER_MATCH_ALL)) {
+                  ((List) remainingOperators.get(FILTER_MATCH_PATH)).toArray(new String[0])));
+          remainingOperators.remove(FILTER_MATCH_PATH);
+        } else if (remainingOperators.containsKey(FILTER_IS_NULL)) {
+          subFilters.add(f(c.getName(), IS_NULL, remainingOperators.get(FILTER_IS_NULL)));
+          remainingOperators.remove(FILTER_IS_NULL);
+        } else if (remainingOperators.containsKey(FILTER_MATCH_ALL)) {
           //  complex filter, should be an list of maps per graphql contract
           if (entry.getValue() != null && c.getReferences().size() > 1) {
             subFilters.add(
@@ -693,16 +702,19 @@ public class GraphqlTableFieldFactory {
                     Operator.MATCH_ALL,
                     convertToPrimaryKeyRows(
                             c.getRefTable(),
-                            (List<Map<String, Object>>) value.get(FILTER_MATCH_ALL))
+                            (List<Map<String, Object>>) remainingOperators.get(FILTER_MATCH_ALL))
                         .toArray()));
           } else if (entry.getValue() != null) {
             subFilters.add(
-                f(c.getName(), Operator.MATCH_ALL, (List<Object>) value.get(FILTER_MATCH_ALL)));
+                f(
+                    c.getName(),
+                    Operator.MATCH_ALL,
+                    (List<Object>) remainingOperators.get(FILTER_MATCH_ALL)));
           }
-          value.remove(FILTER_MATCH_ALL);
+          remainingOperators.remove(FILTER_MATCH_ALL);
         }
 
-        if (value.size() == 0) continue;
+        if (remainingOperators.size() == 0) continue;
         if (c.isReference()) {
           subFilters.add(
               f(
@@ -714,7 +726,7 @@ public class GraphqlTableFieldFactory {
                           .getSchema(c.getRefTable().getSchemaName())
                           .getTable(c.getRefTableName())
                           .getMetadata(),
-                      value)));
+                      remainingOperators)));
         } else {
           subFilters.add(convertMapToFilter(c.getName(), (Map<String, Object>) entry.getValue()));
         }
@@ -749,15 +761,16 @@ public class GraphqlTableFieldFactory {
 
   private static Filter convertMapToFilter(String name, Map<String, Object> subFilter) {
     int count = 0;
-    for (Map.Entry<String, Object> entry2 : subFilter.entrySet()) {
+    for (Map.Entry<String, Object> operatorEntry : subFilter.entrySet()) {
       count++;
       if (count > 1)
         throw new MolgenisException("Can only have one operator, found multiple for " + name);
-      Operator op = Operator.fromAbbreviation(entry2.getKey());
-      if (entry2.getValue() instanceof List) {
-        return f(name, op, (List) entry2.getValue());
+      Operator op = Operator.fromAbbreviation(operatorEntry.getKey());
+      if (operatorEntry.getValue() instanceof List<?> values) {
+        // cast selects the List overload of f instead of wrapping the list in varargs
+        return f(name, op, (List<Object>) values);
       } else {
-        return f(name, op, entry2.getValue());
+        return f(name, op, operatorEntry.getValue());
       }
     }
     return null;
@@ -827,7 +840,7 @@ public class GraphqlTableFieldFactory {
           }
           result.add(nested);
 
-        } else if (agg_fields.contains(name)) {
+        } else if (AGG_FIELDS.contains(name)) {
           // --- Aggregate pseudo-field ---
           result.add(new SelectColumn(name, convertMapSelection(table, s.getSelectionSet())));
         }

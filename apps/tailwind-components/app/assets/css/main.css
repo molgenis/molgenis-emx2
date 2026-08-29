@@ -140,6 +140,7 @@
     --background-color-code-output: var(--color-gray-100);
     --background-color-ref-dropdown-toolbar: var(--color-gray-100);
     --background-color-dropdown: var(--color-white);
+    --background-color-banner: var(--color-green-500);
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
