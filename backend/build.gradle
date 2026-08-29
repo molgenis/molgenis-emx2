@@ -122,11 +122,17 @@ subprojects {
         sourceCompatibility = rootProject.ext.javaVersion
     }
 
-    // No build metadata here. These jars ship inside the fat jar, which carries it
-    // already from the root manifest. Stamping the commit on each module rebuilt
-    // every jar per commit and re-keyed every test task with it.
     jar {
         reproducibleFileOrder = true
+        manifest {
+            attributes(
+                    'Specification-Version': project.version.toString(),
+                    'Implementation-Version': getGitHash(),
+                    'Created-By': "Gradle ${gradle.gradleVersion}",
+                    'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                    'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+            )
+        }
     }
 
     test {
