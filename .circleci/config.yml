@@ -243,8 +243,10 @@ jobs:
       - restore_gradle_build_cache
       - restore_turbo_cache
       - run:
+          # installDist because release's dockerPrepare needs it, and release
+          # takes it from this job's cache rather than compiling again.
           name: build the application without running tests to speed up the e2e tests
-          command: ./gradlew shadowJar -x test ci
+          command: ./gradlew shadowJar installDist -x test ci
 
       - run:
           name: build ssr catalogue
@@ -480,11 +482,17 @@ jobs:
           ./gradlew --continue pmdMain pmdTest
     - run:
         name: run tests and push to sonar
+        # sonar rejects an empty pullrequest.key, and master has no PR, so the
+        # pull-request flags are only passed when there is one.
         command: |
+          SONAR_PR_ARGS=""
+          if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+            SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
+          fi
           ./gradlew test jacocoMergedReport sonar -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          $SONAR_PR_ARGS
 
     - post_steps
 
@@ -515,27 +523,24 @@ jobs:
 
     steps:
     - pre_steps
-    
+
+    # build already compiled this commit and persisted the jar, ci.properties
+    # and apps/catalogue/.output. lint and the tests run in their own jobs, so
+    # release only turns those artifacts into images and ships them.
+    - attach_workspace:
+        at: .
+    - restore_gradle_build_cache
+    - restore_turbo_cache
+
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
 
     - run:
-        name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
-
-    - run:
-        name: lint the code
+        name: build the docker image from what build produced
         command: |
-          ./gradlew lint ci \
+          ./gradlew ci dockerBuild \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
-
-    - run:
-        name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
-        command: |
-          ./gradlew test jacocoMergedReport sonar ci dockerBuild \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
         name: either release or push only snapshots to docker
@@ -736,6 +741,8 @@ workflows:
           branches:
             ignore: master
     - release:
+       requires:
+         - build
        filters:
          branches:
            only: master
