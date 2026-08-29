@@ -18,19 +18,24 @@ orbs:
   slack: circleci/slack@6.1.3
 
 definitions:
+  cache_env: &cache_env
+    GRADLE_USER_HOME: /tmp/ci-cache/gradle
+    TURBO_CACHE_DIR: /tmp/ci-cache/turbo
+
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.5.1
+    - image: molgenis/ci-build:1.6.3
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
       npm_config_store_dir: /tmp/pnpm-store-apps
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.5.1
+    - image: molgenis/ci-build:1.6.3
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -39,23 +44,20 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
       npm_config_store_dir: /tmp/pnpm-store-apps
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.5.1
-      - image: postgres:15-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+      - image: molgenis/ci-build:1.6.3
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
 
 
@@ -91,23 +93,23 @@ commands:
           no_output_timeout: 5m
     - restore_cache:
         keys:
-          - gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
-          - gradle-deps-v1-
+          - gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
+          - gradle-deps-v3-
     - restore_cache:
         keys:
-        - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+        - gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
     - run:
         name: Download Dependencies
         command: ./gradlew dependencies
     - save_cache:
         paths:
-          - ~/.gradle/wrapper
-        key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+          - /tmp/ci-cache/gradle/wrapper
+        key: gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+    # Whole dir, safe only while pre_steps runs before the build cache is restored.
     - save_cache:
         paths:
-          - ~/.gradle/caches/modules-2
-          - ~/.gradle/caches/jars-9
-        key: gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
+          - /tmp/ci-cache/gradle/caches
+        key: gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
     - setup_remote_docker:
         docker_layer_caching: true
     - run:
@@ -117,52 +119,59 @@ commands:
   restore_gradle_build_cache:
     steps:
     - restore_cache:
+        # Own branch first, its last save holds master's pool plus this branch's work.
         keys:
-          - gradle-buildcache-v1-{{ .Revision }}
-          - gradle-buildcache-v1-
+          - gradle-buildcache-v2-{{ .Branch }}-
+          - gradle-buildcache-v2-master-
+          - gradle-buildcache-v2-
 
   save_gradle_build_cache:
     steps:
     - run:
         name: Cap the gradle build cache at 2GB, dropping the oldest entries first
         command: |
-          if [ -d ~/.gradle/caches/build-cache-1 ]; then
-            cd ~/.gradle/caches/build-cache-1
+          if [ -d /tmp/ci-cache/gradle/caches/build-cache-1 ]; then
+            cd /tmp/ci-cache/gradle/caches/build-cache-1
             ls -lt | awk -v limit=2147483648 '$NF ~ /^[0-9a-f]{32}$/ { total += $5; if (total > limit) print $NF }' |
               while read -r entry; do rm -f "$entry"; done
             du -sh .
           else
             echo "no gradle build cache to prune"
           fi
+        when: always
     - save_cache:
         paths:
-          - ~/.gradle/caches/build-cache-1
-        key: gradle-buildcache-v1-{{ .Revision }}
+          - /tmp/ci-cache/gradle/caches/build-cache-1
+        key: gradle-buildcache-v2-{{ .Branch }}-{{ .Revision }}
+        when: always
 
   restore_turbo_cache:
     steps:
     - restore_cache:
         keys:
-          - turbo-v1-{{ .Revision }}
-          - turbo-v1-
+          - turbo-v2-{{ .Branch }}-
+          - turbo-v2-master-
+          - turbo-v2-
 
   save_turbo_cache:
     steps:
     - run:
-        name: Cap the turbo cache at 512MB, dropping the oldest entries first
+        name: Cap the turbo cache at 2GB, dropping the oldest entries first
         command: |
-          if ls apps/.turbo/cache/*.tar.zst >/dev/null 2>&1; then
-            cd apps/.turbo/cache
-            ls -lt *.tar.zst | awk -v limit=536870912 '{ total += $5 } total > limit { sub(/\.tar\.zst$/, "", $NF); print $NF }' |
+          if ls /tmp/ci-cache/turbo/*.tar.zst >/dev/null 2>&1; then
+            cd /tmp/ci-cache/turbo
+            ls -lt *.tar.zst | awk -v limit=2147483648 '{ total += $5 } total > limit { sub(/\.tar\.zst$/, "", $NF); print $NF }' |
               while read -r entry; do rm -f "$entry".tar.zst "$entry"-meta.json "$entry"-manifest.json; done
             du -sh .
           else
             echo "no turbo cache to prune"
           fi
+        when: always
     - save_cache:
         paths:
-          - apps/.turbo/cache
-        key: turbo-v1-{{ .Revision }}
+          - /tmp/ci-cache/turbo
+        key: turbo-v2-{{ .Branch }}-{{ .Revision }}
+        when: always
 
   restore_pnpm_store:
     parameters:
@@ -213,28 +222,13 @@ commands:
           - /tmp/pnpm-store-<< parameters.tree >>
         key: pnpm-store-v3-<< parameters.tree >>-{{ checksum "pnpm-version" }}-{{ checksum "<< parameters.tree >>/pnpm-lock.yaml" }}
 
-  restore_apt_postgres_client:
-    steps:
-    - run:
-        name: Record the apt cache key from the postgres client, image and architecture
-        command: |
-          {
-            echo "postgresql-client"
-            (. /etc/os-release && echo "$VERSION_CODENAME")
-            dpkg --print-architecture
-            sed -n 's|.*image: *mcr\.microsoft\.com/playwright:\(.*\)$|\1|p' .circleci/config.yml
-          } > apt-postgres-client-key
-    - restore_cache:
-        keys:
-          - apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
 
-  save_apt_postgres_client:
+  # Written from one job only. A key is write-once, so a second job writing the
+  # same key uploads a blob CircleCI discards.
+  save_build_caches:
     steps:
-    - save_cache:
-        paths:
-          - /var/cache/apt/archives
-          - /var/lib/apt/lists
-        key: apt-postgres-client-v1-{{ checksum "apt-postgres-client-key" }}
+    - save_gradle_build_cache
+    - save_turbo_cache
 
   post_steps:
     steps:
@@ -259,6 +253,9 @@ jobs:
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 
     - pre_steps
+
+    - restore_gradle_build_cache
+    - restore_turbo_cache
 
     - run:
         name: build and push emx2 java docker images for the preview
@@ -286,40 +283,12 @@ jobs:
     - post_steps
 
 
-  build:
-    <<: *build_config
-
-    steps:
-      - pre_steps
-      - restore_gradle_build_cache
-      - restore_turbo_cache
-      - restore_pnpm_store:
-          tree: apps
-      - run:
-          name: build the application without running tests to speed up the e2e tests
-          command: ./gradlew shadowJar -x test ci --no-daemon
-
-      - run:
-          name: build ssr catalogue
-          command: pnpm exec turbo run build --filter=catalogue
-          working_directory: apps
-
-      - save_pnpm_store:
-          tree: apps
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build/libs
-            - build/ci.properties
-            - apps/catalogue
-            - custom-app/
-
   e2e-tests:
     resource_class: large
     docker:
       - image: mcr.microsoft.com/playwright:v1.62.1-jammy
         environment:
+          <<: *cache_env
           JVM_OPTS: -Xmx6400m
           GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
           TERM: dumb
@@ -330,8 +299,23 @@ jobs:
           POSTGRES_DB: postgres
     steps:
       - checkout
-      - attach_workspace:
-            at: /workspace
+
+      - run:
+          name: install postgres client and java
+          command: |
+            apt-get update
+            apt-get install -y postgresql-client openjdk-21-jdk
+
+      # pre_steps does not run here, so the deps cache key file is made by hand.
+      - run:
+          name: Concatenate Build Files as key for cache
+          command: find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
+      - restore_cache:
+          keys:
+            - gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
+            - gradle-deps-v3-
+      - restore_gradle_build_cache
+      - restore_turbo_cache
 
       - run:
           name: Enable pnpm
@@ -344,6 +328,21 @@ jobs:
           tree: apps
       - restore_pnpm_store:
           tree: e2e
+
+      - run:
+          name: Download Dependencies
+          command: ./gradlew dependencies
+
+      - run:
+          name: build the application without running tests
+          command: ./gradlew shadowJar installDist -x test ci
+
+      - run:
+          name: build ssr catalogue
+          command: pnpm exec turbo run build --filter=catalogue
+          working_directory: apps
+
+      - run: pnpm i -D @playwright/test@1.62.0
 
       - run:
           name: Install dependencies
@@ -366,41 +365,21 @@ jobs:
 
       - run:
           name: Put custom app next to jar
-          command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
-
-      - restore_apt_postgres_client
-
-      - run:
-          name: install postgres client
-          command: |
-            if [ -n "$(find /var/lib/apt/lists -name '*_Packages*' -print -quit 2>/dev/null)" ]; then
-              echo "apt lists restored from cache, skipping apt-get update"
-            else
-              apt-get update
-            fi
-            apt-get install -y postgresql-client
-
-      - save_apt_postgres_client
+          command: cp -r custom-app build/libs/custom-app
 
       - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
       - run:
-          name: Install Java
-          command: |
-            apt-get update
-            apt-get install -y openjdk-21-jdk
-
-      - run:
           name: Show jars
           command: |
-            ls -la /workspace/build/libs
+            ls -la build/libs
 
       - run:
           name: Make jar executable
           command: |
-            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar
+            chmod +x build/libs/molgenis-emx2-*-all.jar
 
       - run:
           name: start the application in the background
@@ -414,7 +393,7 @@ jobs:
             export MOLGENIS_OIDC_CLIENT_ID=emx2-local
             export MOLGENIS_OIDC_CLIENT_SECRET=${LOCAL_OIDC_CLIENT_SECRET}
             export MOLGENIS_OIDC_DISCOVERY_URL=https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration
-            nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
+            nohup java -jar build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
             echo $! > application.pid
             echo "Started PID: $(cat application.pid)"
             sleep 5
@@ -509,7 +488,6 @@ jobs:
       - run:
           name: Catalogue ssr tests
           command: |
-            cp -r /workspace/apps/catalogue/.output  /root/project/apps/catalogue/.output
             export NUXT_PUBLIC_API_BASE=http://localhost:8080/
             pnpm --filter catalogue run e2e
           working_directory: apps
@@ -522,6 +500,8 @@ jobs:
 
   test:
     <<: *test_config
+    retention:
+      caches: 7d
 
     steps:
     - pre_steps
@@ -559,16 +539,30 @@ jobs:
         name: <backend> check for programming flaws
         command: |
           ./gradlew --continue pmdMain pmdTest
+    # Split from sonar so each has its own timing, and because these two are
+    # cacheable where sonar, which uploads, never can be.
     - run:
-        name: run tests and push to sonar
+        name: run tests and merge coverage
         command: |
-          ./gradlew test jacocoMergedReport sonar -x :apps:test \
+          ./gradlew test jacocoMergedReport -x :apps:test \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+
+    - run:
+        name: push results to sonar
+        # sonar rejects an empty pullrequest.key, and master has no PR, so the
+        # pull-request flags are only passed when there is one.
+        command: |
+          SONAR_PR_ARGS=""
+          if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+            SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
+          fi
+          ./gradlew sonar \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          $SONAR_PR_ARGS
 
-    - save_gradle_build_cache
-    - save_turbo_cache
+    # The only job that writes the caches; the others read them.
+    - save_build_caches
 
     - post_steps
 
@@ -599,27 +593,24 @@ jobs:
 
     steps:
     - pre_steps
-    
+
+    - restore_gradle_build_cache
+    - restore_turbo_cache
+
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
 
     - run:
-        name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
-
-    - run:
-        name: lint the code
+        name: build the docker image
         command: |
-          ./gradlew lint ci \
+          ./gradlew ci dockerBuild \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
 
     - run:
-        name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
-        command: |
-          ./gradlew test jacocoMergedReport sonar ci dockerBuild \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+        name: build ssr catalogue for its image
+        command: pnpm exec turbo run build --filter=catalogue
+        working_directory: apps
 
     - run:
         name: either release or push only snapshots to docker
@@ -777,16 +768,14 @@ jobs:
             bash ci/set_kubectl_config-azure.sh
             bash ci/create_or_update_k8s-azure.sh "emx2" latest false true
           working_directory: repo
-
+             
       - run:
           name: Message slack about a database cleanup
           command: |
-            curl -d "token=${SLACK_TOKEN}" \
-            -d "cleaned database at https://emx2.dev.molgenis.org/" \
-            -d "channel=C057JRKLUKG" \
-            -X POST https://slack.com/api/chat.postMessage
-             
-      
+            curl -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"channel":"C057JRKLUKG","text":"cleaned database at https://emx2.dev.molgenis.org/"}' \
+            https://slack.com/api/chat.postMessage
       
 
 
@@ -806,17 +795,11 @@ workflows:
         filters:
           branches:
             ignore: master
-    - test:
-       filters:
-         branches:
-           ignore: master
-    - build:
-        filters:
-          branches:
-            ignore: master
-    - e2e-tests:
-        requires:
-          - build
+    # test, build and e2e run on master too, so master fills the cache the PRs
+    # read and the squashed merge result gets the e2e a PR got. release does not
+    # require them, so a red e2e never blocks a deploy.
+    - test
+    - e2e-tests
     - emx2-pyclient:
         name: testPyPI release
         filters:

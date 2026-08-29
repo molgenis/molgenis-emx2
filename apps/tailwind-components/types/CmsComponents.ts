@@ -50,3 +50,11 @@ export interface ICmsOrder {
   id: string;
   order: number;
 }
+
+export type ICmsPageTypes = "ConfigurablePage" | "DeveloperPage";
+
+export interface IDraggingInfo {
+  dragging: boolean;
+  componentName: string;
+  componentType: string;
+}

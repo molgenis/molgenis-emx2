@@ -7,8 +7,6 @@ import static org.molgenis.emx2.MutationType.*;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
-import java.io.StringReader;
-import java.io.Writer;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,8 +18,6 @@ import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.sql.autoid.IdGeneratorService;
-import org.postgresql.copy.CopyManager;
-import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,74 +44,6 @@ public class SqlTable implements Table {
     return metadata;
   }
 
-  public void copyOut(Writer writer) {
-    db.getJooq()
-        .connection(
-            connection -> {
-              try {
-                CopyManager cm = new CopyManager(connection.unwrap(BaseConnection.class));
-                String selectQuery =
-                    "select "
-                        + this.getMetadata().getLocalColumnNames().stream()
-                            .map(c -> "\"" + c + "\"")
-                            .collect(Collectors.joining(","))
-                        + " from \""
-                        + getSchema().getMetadata().getName()
-                        + "\".\""
-                        + getName()
-                        + "\"";
-                cm.copyOut(
-                    "COPY (" + selectQuery + " ) TO STDOUT WITH (FORMAT CSV,HEADER )", writer);
-              } catch (Exception e) {
-                throw new SqlMolgenisException("copyOut failed: ", e);
-              }
-            });
-  }
-
-  public void copyIn(Iterable<Row> rows) {
-    db.getJooq()
-        .connection(
-            connection -> {
-              try {
-                CopyManager cm = new CopyManager(connection.unwrap(BaseConnection.class));
-
-                // must be batched
-                StringBuilder tmp = new StringBuilder();
-                tmp.append(
-                    this.getMetadata().getLocalColumnNames().stream()
-                            .map(c -> "\"" + c + "\"")
-                            .collect(Collectors.joining(","))
-                        + "\n");
-                for (Row row : rows) {
-                  StringBuilder line = new StringBuilder();
-                  for (Column c : this.getMetadata().getStoredColumns()) {
-                    if (!row.containsName(c.getName())) {
-                      line.append(",");
-                    } else {
-                      Object value = getTypedValue(c, row);
-                      line.append(value + ",");
-                    }
-                  }
-                  tmp.append(line.substring(0, line.length() - 1) + "\n");
-                }
-
-                String tableName =
-                    "\"" + getSchema().getMetadata().getName() + "\".\"" + getName() + "\"";
-
-                String columnNames =
-                    "("
-                        + this.getMetadata().getLocalColumnNames().stream()
-                            .map(c -> "\"" + c + "\"")
-                            .collect(Collectors.joining(","))
-                        + ")";
-                String sql = "COPY " + tableName + columnNames + " FROM STDIN (FORMAT CSV,HEADER )";
-                cm.copyIn(sql, new StringReader(tmp.toString()));
-              } catch (Exception e) {
-                throw new SqlMolgenisException("copyOut failed: ", e);
-              }
-            });
-  }
-
   @Override
   public int insert(Row... rows) {
     return insert(Arrays.asList(rows));
@@ -123,7 +51,7 @@ public class SqlTable implements Table {
 
   @Override
   public int insert(Iterable<Row> rows) {
-    validateMgRoles(rows);
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
     } catch (Exception e) {
@@ -138,7 +66,7 @@ public class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
-    validateMgRoles(rows);
+    rowOwnership().validateOwners(rows); // an update keeps the owner the row already has
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
     } catch (Exception e) {
@@ -153,7 +81,7 @@ public class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
-    validateMgRoles(rows);
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
@@ -161,40 +89,8 @@ public class SqlTable implements Table {
     }
   }
 
-  private void validateMgRoles(Iterable<Row> rows) {
-    if (PermissionEvaluator.canManage(getSchema())) return;
-    if (metadata.getColumn(MG_ROLES) == null) return;
-
-    List<String> userRoles = getSchema().getInheritedRolesForActiveUser();
-    List<String> rolesInSchema = getSchema().getRoles();
-
-    for (Row row : rows) {
-      String[] mgRoles = row.getStringArray(MG_ROLES);
-      if (mgRoles == null || mgRoles.length == 0) continue;
-
-      if (mgRoles.length > 1) {
-        throw new MolgenisException(
-            "mg_roles can only contain a single role, multiple were provided: "
-                + Arrays.toString(mgRoles));
-      }
-
-      String requestedRole = mgRoles[0];
-      if (!rolesInSchema.contains(requestedRole)) {
-        throw new MolgenisException(
-            "mg_roles value '"
-                + requestedRole
-                + "' is not a valid custom role in schema '"
-                + metadata.getSchemaName()
-                + "'");
-      }
-
-      if (!userRoles.contains(requestedRole)) {
-        throw new MolgenisException(
-            "Permission denied: you must be Manager or hold the role '"
-                + requestedRole
-                + "' to set mg_roles");
-      }
-    }
+  private RowOwnership rowOwnership() {
+    return new RowOwnership(getSchema(), metadata);
   }
 
   @Override

@@ -71,6 +71,15 @@ allprojects {
     else {
         version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
     }
+
+    // Manifests carry the commit hash, so ignore them or every test re-keys per commit.
+    normalization {
+        runtimeClasspath {
+            metaInf {
+                ignoreManifest()
+            }
+        }
+    }
 }
 println "Corrected version checking for optional snapshot: " + rootProject.version
 

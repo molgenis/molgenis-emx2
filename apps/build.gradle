@@ -16,7 +16,7 @@ def isCI = System.getenv('CI') ? true : false
 
 
 node {
-    version = '22.17.0'
+    version = '24.19.0'
     pnpmVersion = "10.24.0"
     download = true
     workDir = file("build/node")
@@ -45,15 +45,7 @@ def buildOutputDirsForApp = { String appName ->
     if (file("${appName}/nuxt.config.ts").exists()) {
         return ["${appName}/.output"]
     }
-    def outputDirs = ["${appName}/dist"]
-    def scripts = new JsonSlurper().parse(file("${appName}/package.json")).scripts ?: [:]
-    if (scripts.containsKey("build:showcase")) {
-        outputDirs << "${appName}/showCase"
-    }
-    if (scripts.containsKey("generate-docs")) {
-        outputDirs << "${appName}/gen-docs"
-    }
-    return outputDirs
+    return ["dist", "showCase", "gen-docs", ".output"].collect { "${appName}/${it}" }
 }
 
 def registerAppInputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
@@ -98,10 +90,6 @@ tasks.register('pnpm_build', PnpmTask) {
     args = ['run', 'build']
     inputs.property('molgenisDotenv', rootProject.ext.molgenisDotenv)
     registerAppInputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
-    // .output/server/node_modules can contain a real circular symlink from pnpm's peer-dependency
-    // hoisting (vue <-> @vue/server-renderer); Gradle's directory snapshotter has no cycle limit and
-    // exhausts the daemon heap walking it, so the fingerprinted output tree excludes node_modules --
-    // that folder is fully derived from package.json/pnpm-lock.yaml, not build source worth tracking.
     outputs.files(workspaceDirs.collectMany { appName ->
         buildOutputDirsForApp(appName).collect { dirPath ->
             project.fileTree(dirPath) { exclude "**/node_modules/**" }
@@ -144,18 +132,25 @@ clean.dependsOn 'cleanApps';
 // Locates the folder the jar packages per app
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
 abstract class AppOutputLocator {
+    // Gradle creates every directory a task declares as an output, so existence is
+    // not evidence that a build wrote anything.
+    static boolean holdsBuildOutput(File dir) {
+        String[] entries = dir.isDirectory() ? dir.list() : null
+        return entries != null && entries.length > 0
+    }
+
     static File packagedOutputDirForApp(File appsDirectory, String appName) {
         File appDir = new File(appsDirectory, appName)
-        File showCaseDir = new File(appDir, "showCase")
-        if (showCaseDir.isDirectory()) {
-            return showCaseDir
-        }
         if (new File(appDir, "nuxt.config.ts").exists()) {
             File nuxtPublicDir = new File(appDir, ".output/public")
-            return isStaticNuxtOutput(appDir) && nuxtPublicDir.isDirectory() ? nuxtPublicDir : null
+            return holdsBuildOutput(nuxtPublicDir) ? nuxtPublicDir : null
+        }
+        File showCaseDir = new File(appDir, "showCase")
+        if (holdsBuildOutput(showCaseDir)) {
+            return showCaseDir
         }
         File distDir = new File(appDir, "dist")
-        return distDir.isDirectory() ? distDir.canonicalFile : null
+        return holdsBuildOutput(distDir) ? distDir.canonicalFile : null
     }
 
     static boolean expectsPackagedOutput(File appsDirectory, String appName) {
@@ -165,11 +160,6 @@ abstract class AppOutputLocator {
         }
         def buildScript = new JsonSlurper().parse(new File(appDir, "package.json")).scripts?.build ?: ""
         return buildScript.contains("nuxt generate")
-    }
-
-    static boolean isStaticNuxtOutput(File appDir) {
-        File nitroManifest = new File(appDir, ".output/nitro.json")
-        return nitroManifest.isFile() && new JsonSlurper().parse(nitroManifest).preset == "static"
     }
 }
 
@@ -219,7 +209,7 @@ tasks.named("processResources") {
         }
         if (!appsMissingOutput.isEmpty()) {
             throw new GradleException(appsMissingOutput.collect { appName ->
-                "App '${appName}' produced no packageable output, so the jar would silently ship without it"
+                "App '${appName}' produced no packageable output: its output directory is missing or empty, so the jar would silently ship the app as an empty folder"
             }.join("\n"))
         }
     }
