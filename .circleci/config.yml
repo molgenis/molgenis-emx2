@@ -199,6 +199,11 @@ jobs:
 
     - pre_steps
 
+    # This job compiles the backend and builds every app, so it reads both pools.
+    # It does not write: `test` is the single writer.
+    - restore_gradle_build_cache
+    - restore_turbo_cache
+
     - run:
         name: build and push emx2 java docker images for the preview
         command: ./gradlew -s --no-daemon dockerPush ci -x test
