@@ -41,19 +41,16 @@ definitions:
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
+  # No postgres: release runs no tests. Caching is left at gradle.properties'
+  # true, so release reuses what build compiled for this same commit.
   release_config: &release_config
     docker:
       - image: molgenis/ci-build:1.5.1
-      - image: postgres:15-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
     working_directory: ~/repo
     resource_class: large
     environment:
       JVM_OPTS: -Xmx6400m
-      GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.workers.max=2"
       TERM: dumb
 
 
