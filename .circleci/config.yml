@@ -103,12 +103,7 @@ commands:
         paths:
           - /tmp/ci-cache/gradle/wrapper
         key: gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-    # The whole caches directory, not just modules-2 and jars-9: the per-version
-    # metadata and transforms trees beside them are what keep `./gradlew
-    # dependencies` at ~15s instead of ~24s, and save_cache takes no wildcards.
-    # This cannot swallow the build cache, because every job restores that AFTER
-    # pre_steps, so caches/build-cache-1 does not exist yet at this point. Keep
-    # that ordering.
+    # Whole dir, safe only while pre_steps runs before the build cache is restored.
     - save_cache:
         paths:
           - /tmp/ci-cache/gradle/caches
