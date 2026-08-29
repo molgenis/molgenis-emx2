@@ -1,5 +1,20 @@
 # Development Guidelines
 
+## General
+
+### Merging on GitHub through "squash and merge"
+
+To reduce the number of commits on the main branch, we use "squash and merge" on GitHub whenever a PR is merged.
+
+### Branch names use snake_case/kebab-case (TODO: choose!)
+
+For consistency, we use snake_case/kebab-case for naming git branches.
+
+### We minimize the use of in-line code comments
+
+Use of in-line code comments should be used sparingly. For example, when citing a source or to explain why a certain mechanism is implemented. For Java, the preferred solution is to split code into separate methods and use Javadoc instead of needing in-line comments (though exceptions can be made when deemed better).
+
+
 ## For frontend development
 
 To ensure consistency in the MOLGENIS interfaces, frontend components must follow the same structure. Please follow these guidelines when developing components or creating new ones.
