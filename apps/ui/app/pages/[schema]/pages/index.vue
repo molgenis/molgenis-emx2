@@ -12,6 +12,7 @@ import Button from "../../../../../tailwind-components/app/components/Button.vue
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
 import Message from "../../../../../tailwind-components/app/components/Message.vue";
 import NoResultsMessage from "../../../../../tailwind-components/app/components/text/NoResultsMessage.vue";
+import PageSelector from "../../../../../tailwind-components/app/components/cms/gallery/PageSelector.vue";
 
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchTableData from "../../../../../tailwind-components/app/composables/fetchTableData";
@@ -46,7 +47,9 @@ const formMetadata = ref();
 const formValues = ref();
 const formType = ref<ICmsPageTypes | undefined>();
 const showFormModal = ref<boolean>(false);
-const showPageDropdown = ref<boolean>(false);
+// const showPageDropdown = ref<boolean>(false);
+// const showPageSelector = ref<boolean>(false);
+const visible = defineModel<boolean>("visible");
 
 const { isAdmin, session } = await useSession(schema);
 const enableEditing = computed(() => {
@@ -55,6 +58,10 @@ const enableEditing = computed(() => {
     isAdmin.value
   );
 });
+
+function onCancel() {
+  visible.value = false;
+}
 
 const { data, refresh, error } = useAsyncData(
   `containers-${schema}`,
@@ -79,19 +86,19 @@ const { data, refresh, error } = useAsyncData(
   }
 );
 
-function onAddNewPageClick(type: ICmsPageTypes) {
-  formValues.value = null;
-  showPageDropdown.value = false;
-  formType.value = type;
-  if (formType.value === "ConfigurablePage") {
-    formMetadata.value = data.value?.configurablePageMetadata;
-  } else {
-    formMetadata.value = data.value?.developerPageMetadata;
-    const newPage = newDeveloperPage();
-    formValues.value = newPage;
-  }
-  showFormModal.value = true;
-}
+// function onAddNewPageClick(type: ICmsPageTypes) {
+//   formValues.value = null;
+//   showPageDropdown.value = false;
+//   formType.value = type;
+//   if (formType.value === "ConfigurablePage") {
+//     formMetadata.value = data.value?.configurablePageMetadata;
+//   } else {
+//     formMetadata.value = data.value?.developerPageMetadata;
+//     const newPage = newDeveloperPage();
+//     formValues.value = newPage;
+//   }
+//   showFormModal.value = true;
+// }
 
 async function onClose() {
   showFormModal.value = false;
@@ -140,15 +147,16 @@ async function onAddFormValues(value: IContainers) {
           <Button
             id="openAddNewPageDropdown"
             type="outline"
-            icon="CaretDown"
-            iconPosition="right"
-            :aria-expanded="showPageDropdown"
+            :aria-expanded="visible"
             aria-controls="addNewPageDropdown"
-            @click="showPageDropdown = !showPageDropdown"
+            @click="visible = true"
           >
+            <!-- @click="showPageDropdown = !showPageDropdown" -->
             Add new page
           </Button>
-          <div
+          <!-- icon="CaretDown"
+          iconPosition="right" -->
+          <!-- <div
             id="addNewPageDropdown"
             aria-labelledby="openAddNewPageDropdown"
             class="absolute z-10 w-full shadow-md rounded-base"
@@ -173,7 +181,7 @@ async function onAddFormValues(value: IContainers) {
             >
               developer page
             </Button>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -217,6 +225,70 @@ async function onAddFormValues(value: IContainers) {
       </Message>
     </div>
   </Container>
+  <Modal
+    v-model:visible="visible"
+    max-width="max-w-9/10"
+    @closed="onClose"
+    title="Page selector"
+  >
+    <div class="min-h-0 p-12.5">
+      <form @submit.prevent>
+        <legend
+          class="mb-5 uppercase text-heading-3xl font-display text-title-contrast"
+        >
+          Select a page type
+        </legend>
+        <fieldset class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          <PageSelector>
+            <input
+              type="radio"
+              id="LandingPageInput"
+              value="ConfigurablePage"
+              name="pageSelection"
+              aria-describedby="LandingPageDefinition"
+              class="sr-only"
+            />
+            <div class="group">
+              <label
+                for="LandingPageInput"
+                class="font-bold hover:cursor-pointer"
+              >
+                <BaseIcon name="LandingPage" :width="92" />
+                <span>Landing page</span>
+              </label>
+              <p id="LandingPageDefinition">
+                Create a landing page to display general information. You can
+                create new sections, titles, and more. Use this template to
+                create a home page or a "Contact us" page.
+              </p>
+            </div>
+          </PageSelector>
+          <PageSelector>
+            <input
+              type="radio"
+              id="DeveloperPageInput"
+              value="DeveloperPage"
+              name="pageSelection"
+              aria-describedby="DeveloperPageDefinition"
+              class="sr-only"
+            />
+            <label
+              for="DeveloperPageInput"
+              class="font-bold hover:cursor-pointer"
+            >
+              <BaseIcon name="DeveloperPage" :width="92" />
+              <span>Developer page</span>
+            </label>
+            <p id="DeveloperPageDefinition">
+              Build your own page from scratch using HTML, CSS, and JavaScript.
+              You may also import 3rd-party dependencies to add additional
+              functionality.
+            </p>
+          </PageSelector>
+        </fieldset>
+      </form>
+    </div>
+  </Modal>
   <EditModal
     v-if="formMetadata && enableEditing"
     key="edit-modal-configurable-page"

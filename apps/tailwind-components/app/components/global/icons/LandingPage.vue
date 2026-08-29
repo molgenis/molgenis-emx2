@@ -39,7 +39,7 @@
                   class="frame-background"
                   x="0"
                   transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                  style="fill: rgb(255, 255, 255); fill-opacity: 1"
+                  style="fill: transparent; fill-opacity: 1"
                   ry="8"
                   rx="8"
                   y="0"
@@ -59,7 +59,7 @@
                       transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                       width="112"
                       height="34.3795359904816"
-                      style="fill: rgb(186, 209, 233); fill-opacity: 1"
+                      style="fill: currentColor; fill-opacity: 1"
                     />
                   </g>
                 </g>
@@ -102,10 +102,7 @@
                                 class="frame-background"
                                 x="13.5"
                                 transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                                style="
-                                  fill: rgb(255, 255, 255);
-                                  fill-opacity: 1;
-                                "
+                                style="fill: transparent; fill-opacity: 1"
                                 ry="0"
                                 rx="0"
                                 y="42"
@@ -127,10 +124,7 @@
                                     transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                     width="16.000000000007276"
                                     height="6"
-                                    style="
-                                      fill: rgb(186, 209, 233);
-                                      fill-opacity: 1;
-                                    "
+                                    style="fill: currentColor; fill-opacity: 1"
                                   />
                                 </g>
                               </g>
@@ -174,10 +168,7 @@
                                 class="frame-background"
                                 x="13.5"
                                 transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                                style="
-                                  fill: rgb(255, 255, 255);
-                                  fill-opacity: 1;
-                                "
+                                style="fill: transparent; fill-opacity: 1"
                                 ry="0"
                                 rx="0"
                                 y="51"
@@ -199,10 +190,7 @@
                                     transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                     width="85"
                                     height="6"
-                                    style="
-                                      fill: rgb(186, 209, 233);
-                                      fill-opacity: 1;
-                                    "
+                                    style="fill: currentColor; fill-opacity: 1"
                                   />
                                 </g>
                               </g>
@@ -246,10 +234,7 @@
                                 class="frame-background"
                                 x="13.5"
                                 transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                                style="
-                                  fill: rgb(255, 255, 255);
-                                  fill-opacity: 1;
-                                "
+                                style="fill: transparent; fill-opacity: 1"
                                 ry="0"
                                 rx="0"
                                 y="59"
@@ -271,10 +256,7 @@
                                     transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                     width="64"
                                     height="6"
-                                    style="
-                                      fill: rgb(186, 209, 233);
-                                      fill-opacity: 1;
-                                    "
+                                    style="fill: currentColor; fill-opacity: 1"
                                   />
                                 </g>
                               </g>
@@ -318,10 +300,7 @@
                                 class="frame-background"
                                 x="13.5"
                                 transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                                style="
-                                  fill: rgb(255, 255, 255);
-                                  fill-opacity: 1;
-                                "
+                                style="fill: transparent; fill-opacity: 1"
                                 ry="0"
                                 rx="0"
                                 y="74"
@@ -343,10 +322,7 @@
                                     transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                     width="32.00000000001455"
                                     height="6"
-                                    style="
-                                      fill: rgb(186, 209, 233);
-                                      fill-opacity: 1;
-                                    "
+                                    style="fill: currentColor; fill-opacity: 1"
                                   />
                                 </g>
                               </g>
@@ -390,10 +366,7 @@
                                 class="frame-background"
                                 x="13.5"
                                 transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                                style="
-                                  fill: rgb(255, 255, 255);
-                                  fill-opacity: 1;
-                                "
+                                style="fill: transparent; fill-opacity: 1"
                                 ry="0"
                                 rx="0"
                                 y="83"
@@ -415,10 +388,7 @@
                                     transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                     width="85"
                                     height="6"
-                                    style="
-                                      fill: rgb(186, 209, 233);
-                                      fill-opacity: 1;
-                                    "
+                                    style="fill: currentColor; fill-opacity: 1"
                                   />
                                 </g>
                               </g>
@@ -462,10 +432,7 @@
                                 class="frame-background"
                                 x="13.5"
                                 transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                                style="
-                                  fill: rgb(255, 255, 255);
-                                  fill-opacity: 1;
-                                "
+                                style="fill: transparent; fill-opacity: 1"
                                 ry="0"
                                 rx="0"
                                 y="91"
@@ -487,10 +454,7 @@
                                     transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                     width="85"
                                     height="6"
-                                    style="
-                                      fill: rgb(186, 209, 233);
-                                      fill-opacity: 1;
-                                    "
+                                    style="fill: currentColor; fill-opacity: 1"
                                   />
                                 </g>
                               </g>
@@ -534,10 +498,7 @@
                                 class="frame-background"
                                 x="13.5"
                                 transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                                style="
-                                  fill: rgb(255, 255, 255);
-                                  fill-opacity: 1;
-                                "
+                                style="fill: transparent; fill-opacity: 1"
                                 ry="0"
                                 rx="0"
                                 y="99"
@@ -559,10 +520,7 @@
                                     transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                     width="24.999999999985448"
                                     height="6"
-                                    style="
-                                      fill: rgb(186, 209, 233);
-                                      fill-opacity: 1;
-                                    "
+                                    style="fill: currentColor; fill-opacity: 1"
                                   />
                                 </g>
                               </g>
@@ -601,7 +559,7 @@
                   style="
                     fill: none;
                     stroke-width: 2;
-                    stroke: rgb(186, 209, 233);
+                    stroke: currentColor;
                     stroke-opacity: 1;
                   "
                   ry="8"

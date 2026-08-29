@@ -39,7 +39,7 @@
                   class="frame-background"
                   x="0"
                   transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
-                  style="fill: rgb(255, 255, 255); fill-opacity: 1"
+                  style="fill: transparent; fill-opacity: 1"
                   ry="8"
                   rx="8"
                   y="0"
@@ -59,7 +59,7 @@
                       transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                       width="112"
                       height="16"
-                      style="fill: rgb(186, 209, 233); fill-opacity: 1"
+                      style="fill: currentColor; fill-opacity: 1"
                     />
                   </g>
                 </g>
@@ -119,7 +119,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -144,7 +144,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -166,7 +166,7 @@
                                               width="16"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -213,7 +213,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -238,7 +238,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -260,7 +260,7 @@
                                               width="32"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -282,7 +282,7 @@
                                               width="18"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -329,7 +329,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -354,7 +354,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -376,7 +376,7 @@
                                               width="16"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -423,7 +423,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -448,7 +448,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -470,7 +470,7 @@
                                               width="32"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -517,7 +517,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -542,7 +542,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -564,7 +564,7 @@
                                               width="16"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -611,7 +611,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -636,7 +636,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -659,7 +659,7 @@
                                               width="16"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -681,7 +681,7 @@
                                               width="40"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -703,7 +703,7 @@
                                               width="14"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -750,7 +750,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -775,7 +775,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -798,7 +798,7 @@
                                               width="16"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -820,7 +820,7 @@
                                               width="28"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -843,7 +843,7 @@
                                               width="15"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -890,7 +890,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -915,7 +915,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -937,7 +937,7 @@
                                               width="16"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -984,7 +984,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -1009,7 +1009,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -1031,7 +1031,7 @@
                                               width="32"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -1078,7 +1078,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -1103,7 +1103,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -1125,7 +1125,7 @@
                                               width="8.000000000001819"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -1147,7 +1147,7 @@
                                               width="8"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -1194,7 +1194,7 @@
                                           x="13.5"
                                           transform="matrix(1.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000)"
                                           style="
-                                            fill: rgb(255, 255, 255);
+                                            fill: transparent;
                                             fill-opacity: 1;
                                           "
                                           ry="0"
@@ -1219,7 +1219,7 @@
                                               width="3"
                                               height="6"
                                               style="
-                                                fill: rgb(186, 209, 233);
+                                                fill: currentColor;
                                                 fill-opacity: 1;
                                               "
                                             />
@@ -1265,7 +1265,7 @@
                   style="
                     fill: none;
                     stroke-width: 2;
-                    stroke: rgb(186, 209, 233);
+                    stroke: currentColor;
                     stroke-opacity: 1;
                   "
                   ry="8"
