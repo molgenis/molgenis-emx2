@@ -535,11 +535,8 @@ jobs:
     steps:
     - pre_steps
 
-    # build already compiled this commit and persisted the jar, ci.properties
-    # and apps/catalogue/.output. lint and the tests run in their own jobs, so
-    # release only turns those artifacts into images and ships them.
-    - attach_workspace:
-        at: .
+    # Self-contained: it waits for no other job and builds what it ships, taking
+    # the compilation from the cache. lint and the tests run in their own jobs.
     - restore_gradle_build_cache
     - restore_turbo_cache
 
@@ -548,10 +545,15 @@ jobs:
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
 
     - run:
-        name: build the docker image from what build produced
+        name: build the docker image
         command: |
           ./gradlew ci dockerBuild \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+
+    - run:
+        name: build ssr catalogue for its image
+        command: pnpm exec turbo run build --filter=catalogue
+        working_directory: apps
 
     - run:
         name: either release or push only snapshots to docker
@@ -752,8 +754,6 @@ workflows:
           branches:
             ignore: master
     - release:
-       requires:
-         - build
        filters:
          branches:
            only: master
