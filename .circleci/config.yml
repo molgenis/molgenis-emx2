@@ -116,10 +116,10 @@ commands:
     steps:
     - restore_cache:
         # Entries are content-addressed, so the key picks a blob, never vouches
-        # for it. Keep it off CIRCLE_JOB: that splits a pool both jobs can use.
+        # for it. Only master writes, so a PR reads the newest master blob by
+        # prefix and never has to learn master's revision.
         keys:
-          - gradle-buildcache-v1-{{ .Branch }}-{{ .Revision }}
-          - gradle-buildcache-v1-{{ .Branch }}-
+          - gradle-buildcache-v1-master-
           - gradle-buildcache-v1-
 
   save_gradle_build_cache:
@@ -146,8 +146,7 @@ commands:
     steps:
     - restore_cache:
         keys:
-          - turbo-v1-{{ .Branch }}-{{ .Revision }}
-          - turbo-v1-{{ .Branch }}-
+          - turbo-v1-master-
           - turbo-v1-
 
   save_turbo_cache:
@@ -169,6 +168,18 @@ commands:
           - apps/.turbo/cache
         key: turbo-v1-{{ .Branch }}-{{ .Revision }}
         when: always
+
+  # Only master writes. A PR revision would otherwise store 2.5GB that one run
+  # reads and nothing reads again. The revision in the key exists because a
+  # CircleCI key is write-once, so a growing store needs a new key each save.
+  save_caches_on_master:
+    steps:
+    - when:
+        condition:
+          equal: [ master, << pipeline.git.branch >> ]
+        steps:
+          - save_gradle_build_cache
+          - save_turbo_cache
 
   post_steps:
     steps:
@@ -236,8 +247,7 @@ jobs:
           command: pnpm exec turbo run build --filter=catalogue
           working_directory: apps
 
-      - save_gradle_build_cache
-      - save_turbo_cache
+      - save_caches_on_master
 
       - persist_to_workspace:
           root: .
@@ -470,8 +480,7 @@ jobs:
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
 
-    - save_gradle_build_cache
-    - save_turbo_cache
+    - save_caches_on_master
 
     - post_steps
 
@@ -709,14 +718,11 @@ workflows:
         filters:
           branches:
             ignore: master
-    - test:
-       filters:
-         branches:
-           ignore: master
-    - build:
-        filters:
-          branches:
-            ignore: master
+    # test, build and e2e run on master too, so master fills the cache the PRs
+    # read and the squashed merge result gets the e2e a PR got. release does not
+    # require them, so a red e2e never blocks a deploy.
+    - test
+    - build
     - e2e-tests:
         requires:
           - build
