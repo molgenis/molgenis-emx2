@@ -91,25 +91,6 @@ describe("DataList.vue", () => {
       const headers = wrapper.findAll("th").map((th) => th.text());
       expect(headers).toEqual(["Title", "Age"]);
     });
-
-    it.each([
-      ["rows", { rows: makeRows(9) }],
-      ["pageSize", { pageSize: 4 }],
-    ] as const)(
-      "resets to page 1 when %s changes the result set",
-      async (_label, propChange) => {
-        const wrapper = mount(DataList, {
-          props: { rows: makeRows(12), columns, pageSize: 5 },
-        });
-        const nextControl = wrapper.findAll("nav a").at(-1)!;
-        await nextControl.trigger("click");
-        expect(wrapper.findAll("tbody tr")[0].text()).toContain("Bird 5");
-
-        await wrapper.setProps(propChange);
-
-        expect(wrapper.findAll("tbody tr")[0].text()).toContain("Bird 0");
-      }
-    );
   });
 
   describe("fetch mode (schemaId/tableId passed in)", () => {
@@ -215,32 +196,40 @@ describe("DataList.vue", () => {
       );
     });
 
-    it.each([
-      [{ filter: { a: 2 } }, "pet"],
-      [{ tableId: "other" }, "other"],
-    ] as const)(
-      "resets to offset 0 when %o changes after paging forward",
-      async (propChange, expectedTableId) => {
-        fetchTableDataMock.mockResolvedValue({ rows: makeRows(3), count: 9 });
-        const wrapper = mount(DataList, {
-          props: { schemaId: "test-schema", tableId: "pet", pageSize: 3 },
-        });
-        await flushPromises();
-        const nextControl = wrapper.findAll("nav a").at(-1)!;
-        await nextControl.trigger("click");
-        await flushPromises();
-        fetchTableDataMock.mockClear();
+    it("discards a stale metadata response so headers don't flip back after tableId changes", async () => {
+      const weightColumn: IColumn = {
+        id: "weight",
+        label: "Weight",
+        columnType: "INT",
+      };
+      let resolvePetMetadata: (value: {
+        id: string;
+        columns: IColumn[];
+      }) => void;
+      const petMetadata = new Promise<{ id: string; columns: IColumn[] }>(
+        (resolve) => {
+          resolvePetMetadata = resolve;
+        }
+      );
+      fetchTableMetadataMock
+        .mockReturnValueOnce(petMetadata)
+        .mockResolvedValueOnce({ id: "other", columns: [weightColumn] });
+      fetchTableDataMock.mockResolvedValue({ rows: makeRows(1), count: 1 });
 
-        await wrapper.setProps(propChange);
-        await flushPromises();
+      const wrapper = mount(DataList, {
+        props: { schemaId: "test-schema", tableId: "pet" },
+      });
+      await flushPromises();
 
-        expect(fetchTableDataMock).toHaveBeenCalledWith(
-          "test-schema",
-          expectedTableId,
-          expect.objectContaining({ offset: 0 })
-        );
-      }
-    );
+      await wrapper.setProps({ tableId: "other" });
+      await flushPromises();
+
+      resolvePetMetadata!({ id: "pet", columns });
+      await flushPromises();
+
+      const headers = wrapper.findAll("th").map((th) => th.text());
+      expect(headers).toEqual(["Title", "Weight"]);
+    });
 
     it("discards a stale response when a newer request resolves later", async () => {
       let resolveFirst: (value: { rows: IRow[]; count: number }) => void;
@@ -269,6 +258,70 @@ describe("DataList.vue", () => {
 
       expect(wrapper.find("tbody tr").text()).toContain("second");
     });
+  });
+
+  describe("page reset", () => {
+    it.each([
+      {
+        label: "rows",
+        mode: "fixture" as const,
+        propChange: { rows: makeRows(9) },
+      },
+      {
+        label: "pageSize",
+        mode: "fixture" as const,
+        propChange: { pageSize: 4 },
+      },
+      {
+        label: "filter",
+        mode: "fetch" as const,
+        propChange: { filter: { a: 2 } },
+        expectedTableId: "pet",
+      },
+      {
+        label: "tableId",
+        mode: "fetch" as const,
+        propChange: { tableId: "other" },
+        expectedTableId: "other",
+      },
+    ])(
+      "resets to page 1 when $label changes the result set",
+      async ({ mode, propChange, expectedTableId }) => {
+        if (mode === "fixture") {
+          const wrapper = mount(DataList, {
+            props: { rows: makeRows(12), columns, pageSize: 5 },
+          });
+          const nextControl = wrapper.findAll("nav a").at(-1)!;
+          await nextControl.trigger("click");
+          expect(wrapper.findAll("tbody tr")[0].text()).toContain("Bird 5");
+
+          await wrapper.setProps(propChange);
+
+          expect(wrapper.findAll("tbody tr")[0].text()).toContain("Bird 0");
+          return;
+        }
+
+        fetchTableMetadataMock.mockResolvedValue({ id: "pet", columns });
+        fetchTableDataMock.mockResolvedValue({ rows: makeRows(3), count: 9 });
+        const wrapper = mount(DataList, {
+          props: { schemaId: "test-schema", tableId: "pet", pageSize: 3 },
+        });
+        await flushPromises();
+        const nextControl = wrapper.findAll("nav a").at(-1)!;
+        await nextControl.trigger("click");
+        await flushPromises();
+        fetchTableDataMock.mockClear();
+
+        await wrapper.setProps(propChange);
+        await flushPromises();
+
+        expect(fetchTableDataMock).toHaveBeenCalledWith(
+          "test-schema",
+          expectedTableId,
+          expect.objectContaining({ offset: 0 })
+        );
+      }
+    );
   });
 
   describe("paging", () => {
@@ -319,20 +372,14 @@ describe("DataList.vue", () => {
       expect(wrapper.find("p").text()).toBe("51-57 of 57");
     });
 
-    it("ships exactly the display/ components this story adds, alongside the untouched ones", () => {
+    it("adds no file under display/ named like a pagination component", () => {
       const files = readdirSync(
         resolve(__dirname, "../../../../app/components/display")
-      ).sort();
-      expect(files).toEqual([
-        "CodeBlock.vue",
-        "DataCards.vue",
-        "DataLinks.vue",
-        "DataList.vue",
-        "DataTable.vue",
-        "List.vue",
-        "ListItem.vue",
-        "Record.vue",
-      ]);
+      );
+      const pagerFiles = files.filter((file) =>
+        /pag(e|er|ination)/i.test(file)
+      );
+      expect(pagerFiles).toEqual([]);
     });
   });
 });

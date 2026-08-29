@@ -54,4 +54,25 @@ describe("DataLinks.vue", () => {
     const items = wrapper.findAll("li");
     expect(items[0].text()).toBe("Tweety");
   });
+
+  it("renders no title text when resolved.titleTemplate is empty", () => {
+    const emptyResolved: ResolvedDisplay = {
+      layout: "LINKS",
+      titleTemplate: "",
+      detailColumns: [],
+    };
+    const wrapper = mount(DataLinks, {
+      props: {
+        rows: [{ name: "LL", year: "2006" }],
+        resolved: emptyResolved,
+        linkTo: (row: IRow) => `/records/${row.name}`,
+      },
+    });
+
+    const anchor = wrapper.find("li a");
+    expect(anchor.exists()).toBe(true);
+    expect(anchor.text()).toBe("");
+    expect(wrapper.text()).not.toContain("LL");
+    expect(wrapper.text()).not.toContain("2006");
+  });
 });

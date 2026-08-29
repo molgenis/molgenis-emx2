@@ -125,4 +125,26 @@ describe("DataCards.vue", () => {
 
     expect(wrapper.find("img").exists()).toBe(false);
   });
+
+  it("renders no title text when resolved.titleTemplate is empty", () => {
+    const emptyResolved: ResolvedDisplay = {
+      layout: "CARDS",
+      titleTemplate: "",
+      detailColumns: [],
+    };
+    const wrapper = mount(DataCards, {
+      props: {
+        rows: [{ name: "LL", year: "2006" }],
+        resolved: emptyResolved,
+        linkTo: (row: IRow) => `/records/${row.name}`,
+      },
+    });
+
+    const card = wrapper.find("li");
+    const anchor = card.find("a");
+    expect(anchor.exists()).toBe(true);
+    expect(anchor.text()).toBe("");
+    expect(card.text()).not.toContain("LL");
+    expect(card.text()).not.toContain("2006");
+  });
 });

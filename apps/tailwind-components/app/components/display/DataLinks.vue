@@ -10,6 +10,9 @@ const props = defineProps<{
 }>();
 
 function titleText(row: IRow): string {
+  if (!props.resolved.titleTemplate) {
+    return "";
+  }
   return columnValueToString(row, props.resolved.titleTemplate) ?? "";
 }
 </script>

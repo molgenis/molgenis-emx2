@@ -68,4 +68,25 @@ describe("DataTable.vue", () => {
 
     expect(wrapper.find("tbody tr td a").exists()).toBe(false);
   });
+
+  it("renders no title text when resolved.titleTemplate is empty", () => {
+    const emptyResolved: ResolvedDisplay = {
+      layout: "TABLE",
+      titleTemplate: "",
+      detailColumns: [],
+    };
+    const wrapper = mount(DataTable, {
+      props: {
+        rows: [{ name: "LL", year: "2006" }],
+        resolved: emptyResolved,
+        linkTo: (row: IRow) => `/records/${row.name}`,
+      },
+    });
+
+    const firstCell = wrapper.find("tbody tr td");
+    expect(firstCell.text()).toBe("");
+    const anchor = wrapper.find("tbody tr td a");
+    expect(anchor.exists()).toBe(true);
+    expect(anchor.text()).toBe("");
+  });
 });

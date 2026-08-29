@@ -38,6 +38,7 @@ const fetchedCount = ref(0);
 // A newer request racing past a slower one must win. Capture a request id
 // before the await and drop the write if a later request already landed.
 let latestRequestId = 0;
+let latestMetadataRequestId = 0;
 
 // Any input that changes what the result set IS goes back to page 1.
 // Registered before the data-fetch watcher below so, when both fire in the
@@ -61,7 +62,11 @@ watch(
     if (!isFetchMode.value || !props.schemaId || !props.tableId) {
       return;
     }
+    const requestId = ++latestMetadataRequestId;
     const metadata = await fetchTableMetadata(props.schemaId, props.tableId);
+    if (requestId !== latestMetadataRequestId) {
+      return;
+    }
     fetchedColumns.value = metadata.columns;
   },
   { immediate: true }
