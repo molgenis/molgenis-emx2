@@ -13,6 +13,7 @@ import ValueInt from "./Int.vue";
 import ValueList from "./List.vue";
 import ValueLong from "./Long.vue";
 import ValueObject from "./Object.vue";
+import ValueOntology from "./Ontology.vue";
 import ValueRef from "./Ref.vue";
 import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
@@ -36,6 +37,12 @@ defineEmits<{
 
 <template>
   <template v-if="data == null || data === undefined"></template>
+  <ValueOntology
+    v-else-if="['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(metadata.columnType)"
+    :metadata="metadata"
+    :data="data"
+  />
+
   <ValueList
     v-else-if="
       metadata.columnType.endsWith('ARRAY') ||
@@ -86,13 +93,6 @@ defineEmits<{
   <ValueRef
     v-else-if="['REF', 'RADIO', 'SELECT'].includes(metadata.columnType)"
     :metadata="toRefColumn(metadata)"
-    :data="data"
-    @refCellClicked="$emit('valueClick', $event)"
-  />
-
-  <ValueObject
-    v-else-if="['ONTOLOGY'].includes(metadata.columnType)"
-    :metadata="metadata"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
   />
