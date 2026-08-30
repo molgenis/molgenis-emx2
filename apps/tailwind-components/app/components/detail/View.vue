@@ -52,8 +52,10 @@ const visibleSections = computed(() =>
 );
 
 // A section and each of its headings are separate boxes; the menu still nests them.
-const boxes = computed<RecordBox[]>(() =>
-  visibleSections.value.flatMap((section) => [
+const boxes = computed<RecordBox[]>(() => toBoxes(visibleSections.value));
+
+function toBoxes(sections: RecordSection[]): RecordBox[] {
+  return sections.flatMap((section) => [
     ...(hasOwnBox(section)
       ? [
           {
@@ -68,8 +70,8 @@ const boxes = computed<RecordBox[]>(() =>
       kind: "heading" as const,
       ...heading,
     })),
-  ])
-);
+  ]);
+}
 
 /** The synthetic top section is nameless, so with every column under a heading it has nothing to show. */
 function hasOwnBox(section: RecordSection): boolean {
@@ -83,9 +85,12 @@ function menuAnchorId(section: RecordSection): string {
     : section.headings[0]?.id ?? section.id;
 }
 
-// A menu of one entry helps nobody, so it stays away.
-const showSideNav = computed(
-  () => props.showMenu && visibleSections.value.length > 1
+// Every box is a jump target, so a section with two headings already needs a menu.
+const showLegend = computed(() => props.showMenu && boxes.value.length > 1);
+
+// The filter lives in the sidebar, so its placement ignores the filter's own effect on the boxes.
+const showSidebar = computed(
+  () => props.showMenu && toBoxes(sections.value).length > 1
 );
 
 const legendGroups = computed<LegendGroup[]>(() =>
@@ -127,8 +132,8 @@ function filterSections(
 </script>
 
 <template>
-  <DetailPageLayout :show-side-nav="showSideNav">
-    <template v-if="showFilter" #header>
+  <DetailPageLayout :show-side-nav="showSidebar">
+    <template v-if="showFilter && !showSidebar" #header>
       <div class="flex pb-[30px]">
         <label :for="filterId" class="sr-only">Filter fields</label>
         <InputSearch
@@ -140,8 +145,21 @@ function filterSections(
       </div>
     </template>
 
-    <template v-if="showSideNav" #sidebar>
-      <FormLegend :sections="legendGroups" />
+    <template v-if="showSidebar" #sidebar>
+      <FormLegend
+        v-if="showLegend"
+        :sections="legendGroups"
+        class="hidden xl:block"
+      />
+      <div v-if="showFilter" class="flex pb-[30px] xl:pb-0 xl:pt-5">
+        <label :for="filterId" class="sr-only">Filter fields</label>
+        <InputSearch
+          :id="filterId"
+          v-model="filterValue"
+          class="w-3/5 xl:w-full"
+          placeholder="Filter fields..."
+        />
+      </div>
     </template>
 
     <template #main>

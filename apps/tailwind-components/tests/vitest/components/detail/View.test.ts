@@ -142,7 +142,36 @@ describe("DetailView", () => {
     expect(topped.get("#mg_top_of_form").find("h2").exists()).toBe(false);
   });
 
-  test("renders no menu below two sections", () => {
+  test("renders a menu for one section with two headings, because every box is its own jump target", () => {
+    const oneSection = mount(DetailView, {
+      props: {
+        metadata: table([
+          column("mg_top_of_form", "SECTION", "_top"),
+          column("name", "STRING", "Name"),
+          column("details", "HEADING", "Details"),
+          column("status", "STRING", "Status"),
+          column("heading2", "HEADING", "Heading2"),
+          column("weight", "DECIMAL", "Weight"),
+        ]),
+        rowData: { name: "spike", status: "available", weight: 15.7 },
+      },
+    });
+
+    expect(menuLinks(oneSection)).toEqual([
+      ["Pet", "#mg_top_of_form"],
+      ["Details", "#details"],
+      ["Heading2", "#heading2"],
+    ]);
+    const topLevel = oneSection.get("nav").findAll(":scope > ul > li");
+    expect(topLevel.map((entry) => entry.get("a").attributes("href"))).toEqual([
+      "#mg_top_of_form",
+    ]);
+    expect(
+      topLevel[0]!.findAll("ul a").map((link) => link.attributes("href"))
+    ).toEqual(["#details", "#heading2"]);
+  });
+
+  test("renders no menu below two boxes", () => {
     const single = mount(DetailView, {
       props: {
         metadata: table([
@@ -164,6 +193,35 @@ describe("DetailView", () => {
       wrapper.findAll("section").map((section) => section.attributes("id"))
     ).toEqual(["care"]);
     expect(menuLinks(wrapper)).toEqual([]);
+  });
+
+  test("puts the one filter box under the legend in the sidebar when a menu renders", () => {
+    expect(wrapper.findAll('input[type="search"]')).toHaveLength(1);
+    expect(
+      wrapper
+        .get("aside")
+        .findAll('nav, input[type="search"]')
+        .map((element) => element.element.tagName.toLowerCase())
+    ).toEqual(["nav", "input"]);
+    expect(wrapper.find("header").exists()).toBe(false);
+  });
+
+  test("falls back to the header for the one filter box when no menu renders", () => {
+    const single = mount(DetailView, {
+      props: {
+        metadata: table([
+          column("about", "SECTION", "About"),
+          column("name", "STRING", "Name"),
+        ]),
+        rowData: { name: "spike" },
+      },
+    });
+
+    expect(single.findAll('input[type="search"]')).toHaveLength(1);
+    expect(single.get("header").find('input[type="search"]').exists()).toBe(
+      true
+    );
+    expect(single.find("aside").exists()).toBe(false);
   });
 
   test("keeps the filter box labelled for a screen reader", () => {

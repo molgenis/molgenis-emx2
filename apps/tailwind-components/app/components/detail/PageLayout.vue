@@ -27,7 +27,7 @@ const hasSidebar = computed(() => props.showSideNav && !!slots.sidebar);
     <div class="xl:flex xl:items-start">
       <aside
         v-if="hasSidebar"
-        class="xl:w-82.5 sticky top-[30px] flex-shrink-0 hidden xl:block"
+        class="xl:w-82.5 xl:sticky xl:top-[30px] flex-shrink-0"
       >
         <slot name="sidebar"></slot>
       </aside>
