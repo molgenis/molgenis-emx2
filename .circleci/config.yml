@@ -105,6 +105,8 @@ commands:
         paths:
           - ~/.gradle/caches
         key: gradle-{{ checksum "concatenated-build-gradle" }}
+  docker_steps:
+    steps:
     - setup_remote_docker:
         docker_layer_caching: true
     - run:
@@ -134,6 +136,7 @@ jobs:
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 
     - pre_steps
+    - docker_steps
 
     - run:
         name: build and push emx2 java docker images for the preview
@@ -161,11 +164,12 @@ jobs:
     - post_steps
 
 
-  build:
-    <<: *build_config
+  test-e2e:
+    <<: *test_config
 
     steps:
       - pre_steps
+
       - run:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar -x test ci --no-daemon
@@ -175,75 +179,22 @@ jobs:
           command: pnpm build
           working_directory: apps/catalogue
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build/libs
-            - build/ci.properties
-            - apps/catalogue
-            - custom-app/
-
-  e2e-tests:
-    resource_class: large
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.62.1-jammy
-        environment:
-          JVM_OPTS: -Xmx6400m
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-          TERM: dumb
-      - image: postgres:15-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-    steps:
-      - checkout
-      - attach_workspace:
-            at: /workspace
-
-      - run:
-          name: Enable pnpm
-          command: |
-            corepack enable
-            corepack prepare pnpm@latest --activate
-            pnpm -v
-
-      - run: pnpm i -D @playwright/test@1.62.0
-
-      - run:
-          name: Install dependencies
-          command: |
-            pnpm install @playwright/test@1.62.0
-            npx playwright install chrome
-            npx playwright install
-
       - run:
           name: Put custom app next to jar
-          command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
-
-      - run:
-          name: install postgres client
-          command: apt-get update && apt-get install -y postgresql-client
+          command: cp -r custom-app build/libs/custom-app
 
       - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
+      # Only chromium: every playwright.config.ts uses devices["Desktop Chrome"], and no config sets channel.
+      # Installed from e2e/, which pins @playwright/test 1.62.0; the browser cache is shared with the apps suites.
       - run:
-          name: Install Java
+          name: Install e2e deps and playwright browser
           command: |
-            apt-get update
-            apt-get install -y openjdk-21-jdk
-
-      - run:
-          name: Show jars
-          command: |
-            ls -la /workspace/build/libs
-
-      - run:
-          name: Make jar executable
-          command: |
-            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar
+            pnpm install
+            npx playwright install --with-deps chromium
+          working_directory: e2e
 
       - run:
           name: start the application in the background
@@ -257,7 +208,7 @@ jobs:
             export MOLGENIS_OIDC_CLIENT_ID=emx2-local
             export MOLGENIS_OIDC_CLIENT_SECRET=${LOCAL_OIDC_CLIENT_SECRET}
             export MOLGENIS_OIDC_DISCOVERY_URL=https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration
-            nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
+            nohup java -jar build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
             echo $! > application.pid
             echo "Started PID: $(cat application.pid)"
             sleep 5
@@ -293,13 +244,12 @@ jobs:
               fi
 
               sleep 1
-            done            
+            done
 
       - run:
           name: Test tailwind components
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
-            pnpm install
             pnpm --filter tailwind-components run e2e
           working_directory: apps
 
@@ -316,7 +266,6 @@ jobs:
           name: Directory e2e tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/
-            pnpm install
             pnpm --filter directory run e2e
           working_directory: apps
 
@@ -330,7 +279,6 @@ jobs:
           name: UI tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/ui/
-            pnpm install
             pnpm --filter ui run e2e
           working_directory: apps
 
@@ -343,9 +291,9 @@ jobs:
       - run:
           name: Run non ssr e2e tests
           command: |
-            export $( cat build/ci.properties | xargs )
-            pnpm install
-            npx playwright test --config e2e e2e/tests 
+            export $( cat ~/repo/build/ci.properties | xargs )
+            npx playwright test tests
+          working_directory: e2e
 
       - store_test_results:
           path: e2e/test-results
@@ -356,9 +304,7 @@ jobs:
       - run:
           name: Catalogue ssr tests
           command: |
-            cp -r /workspace/apps/catalogue/.output  /root/project/apps/catalogue/.output
-            export NUXT_PUBLIC_API_BASE=http://localhost:8080/                  
-            pnpm install
+            export NUXT_PUBLIC_API_BASE=http://localhost:8080/
             pnpm --filter catalogue run e2e
           working_directory: apps
 
@@ -437,7 +383,8 @@ jobs:
 
     steps:
     - pre_steps
-    
+    - docker_steps
+
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
@@ -646,13 +593,10 @@ workflows:
        filters:
          branches:
            ignore: master
-    - build:
+    - test-e2e:
         filters:
           branches:
             ignore: master
-    - e2e-tests:
-        requires:
-          - build
     - emx2-pyclient:
         name: testPyPI release
         filters:
