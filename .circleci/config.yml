@@ -419,7 +419,8 @@ jobs:
     - post_steps
 
     # LAST step of this job on purpose: it writes a repo-root .env, which would otherwise change the
-    # gradle and turbo input hashes of every step after it.
+    # gradle and turbo input hashes of every step after it. PR #6717 takes .env out of those hashes,
+    # so this step can move once that lands.
     - run:
         name: <dev> a repo-root .env reaches the forked dev JVM
         command: |
