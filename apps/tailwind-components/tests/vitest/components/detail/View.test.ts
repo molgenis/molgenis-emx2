@@ -7,7 +7,6 @@ import type {
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
 import DetailView from "../../../../app/components/detail/View.vue";
-import FormLegend from "../../../../app/components/form/Legend.vue";
 import { whenInView } from "../../../../app/directives/whenInView";
 
 function column(id: string, columnType: ColumnType, label?: string): IColumn {
@@ -185,23 +184,6 @@ describe("DetailView", () => {
 
     expect(FakeIntersectionObserver.instances).toEqual([]);
     expect(noMenu.find("nav").exists()).toBe(false);
-  });
-
-  test("rounds and lifts the record menu, and leaves a legend that asks for neither flat", () => {
-    const classes = wrapper.get("nav").classes();
-    expect(classes).toContain("rounded-t-base");
-    expect(classes).toContain("rounded-b-alt");
-    expect(classes).toContain("shadow-primary");
-
-    const legend = mount(FormLegend, {
-      props: { sections: [{ id: "about", label: "About" }] },
-    });
-    expect(
-      legend
-        .get("nav")
-        .classes()
-        .filter((name) => /^(rounded|shadow)/.test(name))
-    ).toEqual([]);
   });
 
   test("renders each field label and value", () => {

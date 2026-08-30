@@ -117,6 +117,50 @@ describe("groupRecordSections", () => {
     expect(sections[0]?.headings).toEqual([]);
   });
 
+  test("drops a field whose value is empty, in every shape empty takes", () => {
+    const metadata = table([
+      column("about", "SECTION", "About"),
+      column("name", "STRING"),
+      column("nothing", "STRING"),
+      column("blank", "STRING"),
+      column("nadaList", "STRING_ARRAY"),
+      column("zero", "INT"),
+      column("no", "BOOL"),
+    ]);
+
+    const sections = groupRecordSections(metadata, {
+      name: "spike",
+      nothing: null,
+      blank: "",
+      nadaList: [],
+      zero: 0,
+      no: false,
+    });
+
+    // 0 and false are values a reader wants to see, so only the empty set goes.
+    expect(sections[0]?.fields.map((field) => field.id)).toEqual([
+      "name",
+      "zero",
+      "no",
+    ]);
+  });
+
+  test("drops a heading whose fields are all empty, and the section with it", () => {
+    const metadata = table([
+      column("about", "SECTION", "About"),
+      column("size", "HEADING", "Size"),
+      column("weight", "DECIMAL"),
+      column("height", "DECIMAL"),
+    ]);
+
+    const sections = groupRecordSections(metadata, {
+      weight: null,
+      height: "",
+    });
+
+    expect(sections).toEqual([]);
+  });
+
   test("drops a column the row data does not carry", () => {
     const metadata = table([
       column("about", "SECTION", "About"),

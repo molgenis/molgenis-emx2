@@ -38,8 +38,8 @@ const TOP_SECTION_ID = "mg_top_of_form";
 
 /**
  * Groups a row's columns into the two-level tree the backend describes: SECTION
- * first, HEADING second. Drops what the reader cannot use: columns the row does
- * not carry, sections and headings left empty, and `mg_` columns unless asked for.
+ * first, HEADING second. Drops what the reader cannot use: fields with no value,
+ * sections and headings left empty, and `mg_` columns unless asked for.
  */
 export function groupRecordSections(
   metadata: ITableMetaData,
@@ -110,5 +110,13 @@ function isVisibleField(
   if (column.id.startsWith("mg_") && !showMgColumns) {
     return false;
   }
-  return !!rowData && Object.prototype.hasOwnProperty.call(rowData, column.id);
+  // A column the row does not carry reads as undefined, so this covers that too.
+  return !isEmptyValue(rowData?.[column.id]);
+}
+
+function isEmptyValue(value: columnValue): boolean {
+  if (value === null || value === undefined || value === "") {
+    return true;
+  }
+  return Array.isArray(value) && value.length === 0;
 }

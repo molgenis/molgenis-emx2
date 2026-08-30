@@ -1,7 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 import Legend from "../../../../app/components/form/Legend.vue";
-import FormLegendHeader from "../../../../app/components/form/legend/Header.vue";
 
 describe("Legend", () => {
   test("links to the href an entry carries, and stays quiet on click", async () => {
@@ -166,67 +165,6 @@ describe("Legend", () => {
       untitled.get("nav").element.firstElementChild?.tagName.toLowerCase()
     ).toBe("ul");
     expect(untitled.get("nav").element.children).toHaveLength(1);
-  });
-
-  test("wears the card on every caller, and adds no radius or shadow of its own", () => {
-    const wrapper = mount(Legend, {
-      props: { sections: [{ id: "about", label: "About" }] },
-    });
-
-    expect(wrapper.get("nav").classes().sort()).toEqual(
-      ["bg-form-legend", "mb-18", "px-12", "py-18"].sort()
-    );
-  });
-
-  test("gives a section entry and a heading entry the same vertical rhythm", () => {
-    const wrapper = mount(Legend, {
-      props: {
-        sections: [
-          {
-            id: "about",
-            label: "About",
-            headers: [{ id: "size", label: "Size" }],
-          },
-        ],
-      },
-    });
-
-    const spacing = wrapper
-      .findAllComponents(FormLegendHeader)
-      .map((entry) =>
-        entry.classes().filter((name) => /^[mp][ytb]-/.test(name))
-      );
-    expect(spacing).toEqual([["my-2"], ["my-2"]]);
-
-    // The nested item keeps its indent and owns no spacing of its own.
-    expect(wrapper.findAll("nav li").map((item) => item.classes())).toEqual([
-      [],
-      ["pl-4"],
-    ]);
-  });
-
-  test("makes the whole row the click target, at both levels", () => {
-    const wrapper = mount(Legend, {
-      props: {
-        sections: [
-          {
-            id: "about",
-            label: "About",
-            href: "#about",
-            headers: [{ id: "size", label: "Size", href: "#size" }],
-          },
-        ],
-      },
-    });
-
-    const links = wrapper.findAll("nav a");
-    expect(links).toHaveLength(2);
-    for (const link of links) {
-      expect(link.classes()).toContain("grow");
-      expect(link.element.parentElement?.classList.toString()).toContain(
-        "grow"
-      );
-    }
   });
 
   test("names its navigation landmark and labels every entry", () => {

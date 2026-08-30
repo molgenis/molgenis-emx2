@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { cellPayload } from "../../../types/types";
 import type { RecordBox } from "../../utils/groupRecordSections";
+import ContentBlock from "../content/ContentBlock.vue";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListDefinition from "../DefinitionListDefinition.vue";
 import DefinitionListTerm from "../DefinitionListTerm.vue";
-import DetailColumn from "./Column.vue";
+import ValueEMX2 from "../value/EMX2.vue";
 
 defineProps<{
   section: RecordBox;
@@ -16,10 +17,8 @@ defineEmits<{
 </script>
 
 <template>
-  <section
-    :id="section.id"
-    class="min-w-0 scroll-mt-[30px] bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-3px last:rounded-b-50px shadow-primary xl:border-b-0 border-b-[1px]"
-  >
+  <!-- No `title`, because a heading box needs an h3 where ContentBlock emits an h2. -->
+  <ContentBlock :id="section.id" class="scroll-mt-[30px]">
     <h2
       v-if="section.label && section.kind === 'section'"
       class="mb-5 uppercase text-heading-4xl font-display"
@@ -34,13 +33,13 @@ defineEmits<{
       <template v-for="field in section.fields" :key="field.id">
         <DefinitionListTerm>{{ field.label }}</DefinitionListTerm>
         <DefinitionListDefinition>
-          <DetailColumn
+          <ValueEMX2
             :metadata="field.metadata"
-            :value="field.value"
+            :data="field.value"
             @valueClick="$emit('valueClick', $event)"
           />
         </DefinitionListDefinition>
       </template>
     </DefinitionList>
-  </section>
+  </ContentBlock>
 </template>
