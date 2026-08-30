@@ -6,7 +6,6 @@ import {
   useFetch,
   createError,
 } from "#app";
-import { logError } from "#imports";
 import { computed } from "vue";
 import type { ISetting } from "../../../../metadata-utils/src/types";
 import LayoutsLandingPage from "../../components/layouts/LandingPage.vue";
