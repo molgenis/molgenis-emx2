@@ -43,7 +43,7 @@ const hierarchicalTree: IOntologyTreeItem[] = [
   },
 ];
 
-const inverted = ref(false);
+const whiteBackground = ref(true);
 </script>
 
 <template>
@@ -52,20 +52,44 @@ const inverted = ref(false);
     description="Displays ontology values as single item, flat list, or collapsible tree depending on data structure."
   >
     <div class="p-5 space-y-6">
+      <div>
+        <input
+          id="ontology-story-white-background"
+          class="hover:cursor-pointer"
+          type="checkbox"
+          v-model="whiteBackground"
+        />
+        <label
+          class="ml-1 hover:cursor-pointer"
+          for="ontology-story-white-background"
+        >
+          white background
+        </label>
+        <p class="text-sm text-record-label">
+          Mirrors what a real caller passes: the single item and flat list take
+          `inverted` from this switch and dim their tooltip hover accordingly,
+          the hierarchical tree's tooltip stays white regardless.
+        </p>
+      </div>
+
       <div
-        class="bg-content p-6 rounded shadow-primary space-y-6 text-record-value"
+        class="p-6 rounded shadow-primary space-y-6 text-record-value"
+        :class="whiteBackground ? 'bg-content' : ''"
       >
         <div class="space-y-4">
           <h2 class="text-xl font-semibold text-record-heading">Single Item</h2>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">No definition:</span>
-            <DisplayOntology :value="singleItem" />
+            <DisplayOntology :value="singleItem" :inverted="!whiteBackground" />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">With definition:</span>
-            <DisplayOntology :value="singleWithDefinition" />
+            <DisplayOntology
+              :value="singleWithDefinition"
+              :inverted="!whiteBackground"
+            />
           </div>
         </div>
 
@@ -74,60 +98,15 @@ const inverted = ref(false);
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">No definitions:</span>
-            <DisplayOntology :value="flatList" />
+            <DisplayOntology :value="flatList" :inverted="!whiteBackground" />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">With definitions:</span>
-            <DisplayOntology :value="flatListWithDefinitions" />
-          </div>
-        </div>
-
-        <div class="space-y-4">
-          <h2 class="text-xl font-semibold text-record-heading">Inverted</h2>
-          <p class="text-sm text-record-label">
-            Dims the read-more tooltip's hover colour for use on a dark surface.
-            Only the single-item and flat-list branches below pick it up; the
-            hierarchical tree's tooltip stays white regardless.
-          </p>
-
-          <fieldset class="border border-gray-900 mb-2">
-            <legend class="m-2 px-2">Props</legend>
-            <div class="mb-2">
-              <input
-                id="display-ontology-inverted"
-                class="ml-2 hover:cursor-pointer"
-                type="checkbox"
-                v-model="inverted"
-              />
-              <label
-                class="ml-1 hover:cursor-pointer"
-                for="display-ontology-inverted"
-              >
-                inverted
-              </label>
-            </div>
-          </fieldset>
-
-          <div
-            class="p-4 rounded space-y-4"
-            :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
-          >
-            <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
-              <span class="font-medium text-record-label">Single item:</span>
-              <DisplayOntology
-                :value="singleWithDefinition"
-                :inverted="inverted"
-              />
-            </div>
-
-            <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-              <span class="font-medium text-record-label">Flat list:</span>
-              <DisplayOntology
-                :value="flatListWithDefinitions"
-                :inverted="inverted"
-              />
-            </div>
+            <DisplayOntology
+              :value="flatListWithDefinitions"
+              :inverted="!whiteBackground"
+            />
           </div>
         </div>
 
@@ -143,14 +122,22 @@ const inverted = ref(false);
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">Tree (collapsed):</span>
-            <DisplayOntology :value="hierarchicalTree" :collapse-all="true" />
+            <DisplayOntology
+              :value="hierarchicalTree"
+              :collapse-all="true"
+              :inverted="!whiteBackground"
+            />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label"
               >Tree (root expanded):</span
             >
-            <DisplayOntology :value="hierarchicalTree" :collapse-all="false" />
+            <DisplayOntology
+              :value="hierarchicalTree"
+              :collapse-all="false"
+              :inverted="!whiteBackground"
+            />
           </div>
         </div>
 
@@ -159,7 +146,7 @@ const inverted = ref(false);
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">Empty array:</span>
-            <DisplayOntology :value="[]" />
+            <DisplayOntology :value="[]" :inverted="!whiteBackground" />
           </div>
         </div>
       </div>
