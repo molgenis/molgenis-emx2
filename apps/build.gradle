@@ -70,10 +70,11 @@ tasks.register('pnpm_install', PnpmTask) {
     outputs.file("${project.projectDir}/node_modules/.pnpm-workspace-state-v1.json")
 }
 
+// .env is not an input here: apps/dev-env.js only loads it when npm_lifecycle_event is "dev", so a
+// build never sees it. Tracking it gave every worktree its own cache entry.
 tasks.register('pnpm_build', PnpmTask) {
     dependsOn 'pnpm_install'
     args = ['run', 'build']
-    inputs.property('molgenisDotenv', rootProject.ext.molgenisDotenv)
     registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
 }
 
