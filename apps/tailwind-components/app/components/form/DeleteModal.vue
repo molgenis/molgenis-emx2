@@ -139,40 +139,43 @@ function fetchCascadeDeleteMessage() {
       </header>
     </template>
 
-    <Transition name="slide-up">
-      <FormError
-        v-show="deleteErrorMessage"
-        :message="deleteErrorMessage"
-        :show-prev-next-buttons="false"
-        class="sticky mx-4 bottom-0 transition-all transition-discrete"
-      >
-        <Button
-          v-if="showReAuthenticateButton"
-          type="outline"
-          size="small"
-          @click="reAuthenticate"
-          >Re-authenticate</Button
+    <ModalContentContainer>
+      <Transition name="slide-up">
+        <FormError
+          v-show="deleteErrorMessage"
+          :message="deleteErrorMessage"
+          :show-prev-next-buttons="false"
+          class="sticky mx-4 bottom-0 transition-all transition-discrete"
         >
-      </FormError>
-    </Transition>
-    <Transition name="slide-up">
-      <FormMessage
-        v-show="formMessage"
-        :message="formMessage"
-        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
-      />
-    </Transition>
+          <Button
+            v-if="showReAuthenticateButton"
+            type="outline"
+            size="small"
+            @click="reAuthenticate"
+            >Re-authenticate</Button
+          >
+        </FormError>
+      </Transition>
+      <Transition name="slide-up">
+        <FormMessage
+          v-show="formMessage"
+          :message="formMessage"
+          class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
+        />
+      </Transition>
 
-    <div class="w-[90%] m-auto py-4">
-      <div class="text-body-base py-2" v-if="cascadeDeleteMsg">
-        {{ cascadeDeleteMsg }}
+      <div class="w-[90%] mx-auto">
+        <DisplayRecord
+          :table-metadata="metadata"
+          :input-row-data="formValues"
+          :key-fields-only="true"
+        />
+
+        <div class="text-title-contrast-pop py-8" v-if="cascadeDeleteMsg">
+          {{ cascadeDeleteMsg }}
+        </div>
       </div>
-      <DisplayRecord
-        :table-metadata="metadata"
-        :input-row-data="formValues"
-        :key-fields-only="true"
-      />
-    </div>
+    </ModalContentContainer>
 
     <template #footer>
       <div class="flex justify-between items-center">
