@@ -368,15 +368,11 @@ jobs:
       - store_artifacts:
           path: apps/catalogue/test-results
 
-  test:
-    <<: *test_config
+  test-apps:
+    <<: *build_config
 
     steps:
     - pre_steps
-
-    - run:
-        name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
         name: <apps> check code format
@@ -391,6 +387,18 @@ jobs:
     - run:
         name: <apps> unit test the code
         command: ./gradlew :apps:test
+
+    - post_steps
+
+  test-backend:
+    <<: *test_config
+
+    steps:
+    - pre_steps
+
+    - run:
+        name: prepare sql test database
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
         name: <backend> check code format
@@ -642,7 +650,11 @@ workflows:
         filters:
           branches:
             ignore: master
-    - test:
+    - test-apps:
+       filters:
+         branches:
+           ignore: master
+    - test-backend:
        filters:
          branches:
            ignore: master
