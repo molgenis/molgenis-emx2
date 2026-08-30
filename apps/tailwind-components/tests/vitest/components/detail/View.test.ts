@@ -326,13 +326,25 @@ describe("DetailView", () => {
     ).toBe("spike");
   });
 
-  test("renders the menu from md up, and omits it on a phone", () => {
-    // The aside stacks above the record below xl, so below md the menu would cost a full screen
-    // before the record starts. jsdom evaluates no media query, so this pins the class, not the
-    // behaviour it asks for.
-    const classes = wrapper.get("nav").classes();
-    expect(classes).toContain("hidden");
-    expect(classes).toContain("md:block");
+  test("reveals the menu at the same width the layout gives it a column, so it never stacks", () => {
+    // One breakpoint governs both. If they drift apart the menu renders above the record instead
+    // of beside it, costing a screen of scrolling before the record starts. jsdom evaluates no
+    // media query, so this pins the classes and cannot prove the widths behave.
+    const revealAt = wrapper
+      .get("nav")
+      .classes()
+      .find((name) => name.endsWith(":block"));
+    const columnsAt = wrapper
+      .get("aside")
+      .classes()
+      .find((name) => name.endsWith(":sticky"));
+
+    expect(wrapper.get("nav").classes()).toContain("hidden");
+    // The invariant: whichever breakpoint the owner picks, both must name the same one.
+    expect(revealAt?.split(":")[0]).toBe(columnsAt?.split(":")[0]);
+    // The value he picked.
+    expect(revealAt).toBe("md:block");
+    expect(columnsAt).toBe("md:sticky");
   });
 
   test("renders no menu below two boxes", () => {
