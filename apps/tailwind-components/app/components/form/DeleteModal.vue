@@ -139,7 +139,6 @@ function fetchCascadeDeleteMessage() {
       </header>
     </template>
 
-    <section class="grid grid-cols-4 gap-1"></section>
     <Transition name="slide-up">
       <FormError
         v-show="deleteErrorMessage"
@@ -168,7 +167,11 @@ function fetchCascadeDeleteMessage() {
       <div class="text-body-base py-2" v-if="cascadeDeleteMsg">
         {{ cascadeDeleteMsg }}
       </div>
-      <DisplayRecord :table-metadata="metadata" :input-row-data="formValues" />
+      <DisplayRecord
+        :table-metadata="metadata"
+        :input-row-data="formValues"
+        :key-fields-only="true"
+      />
     </div>
 
     <template #footer>
