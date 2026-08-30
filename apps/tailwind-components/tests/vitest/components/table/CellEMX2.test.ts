@@ -36,8 +36,8 @@ describe("table/CellEMX2.vue", () => {
       props: { metadata: arrayColumn, data: eight },
     });
 
-    expect(wrapper.findComponent(ValueEMX2).props("collapse")).toBe(false);
-    expect(wrapper.findComponent(ShowMore).props("collapse")).toBe(false);
+    expect(wrapper.findComponent(ValueEMX2).props("truncate")).toBe(false);
+    expect(wrapper.findComponent(ShowMore).props("truncate")).toBe(false);
   });
 
   it("keeps far fewer values in the DOM than a record page does", () => {

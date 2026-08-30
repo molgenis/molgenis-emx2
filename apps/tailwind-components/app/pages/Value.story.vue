@@ -9,27 +9,27 @@
   >
     <div class="flex flex-wrap items-end gap-6 border-b border-gray-200 pb-4">
       <div class="flex flex-col gap-1">
-        <InputLabel :for="'values-per-array'">Values per array</InputLabel>
-        <InputInt id="values-per-array" v-model="itemCount" class="w-32" />
+        <InputLabel for="fixture-array-size"> Fixture array size </InputLabel>
+        <InputInt id="fixture-array-size" v-model="itemCount" class="w-32" />
       </div>
       <div class="flex flex-col gap-1">
-        <InputLabel :for="'lines-when-collapsed'">
+        <InputLabel for="lines-when-collapsed">
           Lines when collapsed
         </InputLabel>
         <InputInt id="lines-when-collapsed" v-model="maxLines" class="w-32" />
       </div>
       <div class="flex items-center gap-2">
-        <InputCheckbox id="collapse" v-model="collapse" />
-        <InputLabel :for="'collapse'">Collapse</InputLabel>
+        <InputCheckbox id="truncate" v-model="truncate" />
+        <InputLabel for="truncate">Truncate</InputLabel>
       </div>
       <div class="flex items-center gap-2">
         <InputCheckbox id="content-surface" v-model="onContentSurface" />
-        <InputLabel :for="'content-surface'">On a content surface</InputLabel>
+        <InputLabel for="content-surface">On a content surface</InputLabel>
       </div>
       <div class="flex flex-col gap-1">
-        <InputLabel :for="'values-rendered'"
-          >Values rendered at a time</InputLabel
-        >
+        <InputLabel for="values-rendered">
+          Values rendered at a time
+        </InputLabel>
         <InputInt id="values-rendered" v-model="renderLimit" class="w-32" />
       </div>
     </div>
@@ -50,8 +50,8 @@
           :metadata="column"
           :data="data"
           :maxLines="lines"
-          :renderLimit="tranche"
-          :collapse="collapse"
+          :renderLimit="pageSize"
+          :truncate="truncate"
         />
       </div>
     </div>
@@ -74,12 +74,9 @@ const renderLimit = ref<number | string>(1000);
 
 const count = computed(() => Math.max(0, Number(itemCount.value) || 0));
 const lines = computed(() => Math.max(1, Number(maxLines.value) || 1));
-const tranche = computed(() => Math.max(1, Number(renderLimit.value) || 1));
-// Values carry the content surface's link colour and do not adapt to a surface the
-// theme colours itself. The switch is what shows that.
+const pageSize = computed(() => Math.max(1, Number(renderLimit.value) || 1));
 const onContentSurface = ref(true);
-// A table cell turns this off: it bounds the value itself and opens a popup.
-const collapse = ref(true);
+const truncate = ref(true);
 
 function repeatTo<T>(base: T[], count: number): T[] {
   if (base.length === 0 || count <= 0) return [];
@@ -214,7 +211,6 @@ const byType = computed<Record<ColumnType, Case>>(() => {
     },
     CHECKBOX: { column: { ...refTable, refLabel: "${name}" }, data: people },
     MULTISELECT: { column: { ...refTable, refLabel: "${name}" }, data: people },
-    // No refLabel, so this exercises the fallback rendering of a ref object.
     ONTOLOGY: {
       column: ontologyTable,
       data: {

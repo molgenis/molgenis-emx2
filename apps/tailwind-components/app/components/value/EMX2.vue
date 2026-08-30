@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import {
   isFileType,
   isSingleOntologyType,
@@ -29,19 +28,13 @@ const props = withDefaults(
     metadata: IColumn;
     data: any;
     hideListSeparator?: boolean;
-    /** Lines a collapsed list occupies. */
     maxLines?: number;
-    /** How many values reach the DOM per tranche. */
     renderLimit?: number;
-    /**
-     * Set false where the caller bounds the value itself. A table cell does: it
-     * truncates to one line and offers its own control onto the cell popup.
-     */
-    collapse?: boolean;
+    truncate?: boolean;
   }>(),
   {
     hideListSeparator: false,
-    collapse: true,
+    truncate: true,
   }
 );
 
@@ -58,7 +51,7 @@ defineEmits<{
     :data="data"
     :hideListSeparator="hideListSeparator"
     :maxLines="maxLines"
-    :collapse="collapse"
+    :truncate="truncate"
     :renderLimit="renderLimit"
     @listRefCellClicked="$emit('valueClick', $event)"
   />
@@ -76,7 +69,7 @@ defineEmits<{
     :metadata="metadata"
     :data="data"
     :maxLines="maxLines"
-    :collapse="collapse"
+    :truncate="truncate"
   />
 
   <ValueDecimal

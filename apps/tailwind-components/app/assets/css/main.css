@@ -11,8 +11,7 @@
 @import url("./plugins/datepicker.css");
 
 @layer components {
-  /* Put this on a page background, banner or footer. Links and icons inside it
-     then take the theme's inverted colours. */
+  /* Switches text and icon colours to the theme's inverted set. */
   .surface-inverted {
     --text-color-link: var(--text-color-link-inverted);
     --text-color-icon-neutral: var(--text-color-link-inverted);
@@ -311,7 +310,6 @@
     --text-color-label-available: var(--color-black);
 
     /** tooltips */
-    /* blue-200 was 1.82 on white, below the 3:1 a graphic needs. */
     --text-color-icon-neutral: var(--color-blue-500);
 
     /* visualisations: need css and svg defintions */

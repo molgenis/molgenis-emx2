@@ -12,8 +12,6 @@ import {
   assertNumberValue,
   assertRowValue,
   assertStringValue,
-  assertTableValue,
-  toRefColumn,
 } from "../../utils/typeUtils";
 import ValueBool from "./Bool.vue";
 import ValueDate from "./Date.vue";
@@ -31,17 +29,14 @@ const props = withDefaults(
     metadata: IColumn;
     data?: columnValue[] | null;
     hideListSeparator?: boolean;
-    /** Lines a collapsed list occupies. */
     maxLines?: number;
-    /** How many values reach the DOM per tranche. */
     renderLimit?: number;
-    /** Set false where the caller bounds the value itself, such as a table cell. */
-    collapse?: boolean;
+    truncate?: boolean;
   }>(),
   {
     hideListSeparator: false,
     renderLimit: 1000,
-    collapse: true,
+    truncate: true,
   }
 );
 
@@ -49,12 +44,10 @@ const elementType = computed(
   () => props.metadata.columnType.split("_ARRAY")[0]
 );
 
-// A crawler does not click, so anything past `renderLimit` is unindexed. It is a
-// guard against a pathological refback, not a display bound.
 const rendered = ref(props.renderLimit);
 
 watch(
-  () => [props.renderLimit, props.data] as const,
+  [() => props.renderLimit, () => props.data],
   () => (rendered.value = props.renderLimit)
 );
 
@@ -81,12 +74,14 @@ function handleCellClick() {
   }
   emit("listRefCellClicked", { metadata: props.metadata, data: props.data });
 }
+
+const lastIndex = computed(() => Number(displayedData.value?.length) - 1);
 </script>
 
 <template>
   <ShowMore
     :maxLines="maxLines"
-    :collapse="collapse"
+    :truncate="truncate"
     :hasMore="hasUnrendered"
     @showMore="renderMore"
   >
@@ -164,13 +159,7 @@ function handleCellClick() {
         :data="assertStringValue(listElement)"
       />
       <span v-else>{{ elementType }}</span>
-      <span
-        v-if="
-          Number(displayedData?.length) - 1 !== Number(index) &&
-          !hideListSeparator
-        "
-        >,&nbsp;</span
-      >
+      <span v-if="index !== lastIndex && !hideListSeparator">,&nbsp;</span>
     </template>
   </ShowMore>
 </template>

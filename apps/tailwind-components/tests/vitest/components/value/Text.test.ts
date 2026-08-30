@@ -14,11 +14,10 @@ const long = "word ".repeat(120).trim();
 
 const mountText = (
   data: string | null,
-  props: { maxLines?: number; collapse?: boolean } = {}
+  props: { maxLines?: number; truncate?: boolean } = {}
 ) =>
   mount(ValueText, {
     props: { metadata, data, ...props },
-    global: { components: { ShowMore } },
   });
 
 describe("value/Text.vue", () => {
@@ -27,9 +26,9 @@ describe("value/Text.vue", () => {
       mountText(long, { maxLines: 3 }).findComponent(ShowMore).props("maxLines")
     ).toBe(3);
     expect(
-      mountText(long, { collapse: false })
+      mountText(long, { truncate: false })
         .findComponent(ShowMore)
-        .props("collapse")
+        .props("truncate")
     ).toBe(false);
   });
 

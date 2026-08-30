@@ -13,14 +13,13 @@ const props = withDefaults(
     maxLines?: number;
     lineStep?: number;
     /** Set false where the caller bounds the content itself, such as a table cell. */
-    collapse?: boolean;
-    /** The caller is holding back content that is not in the slot yet. */
+    truncate?: boolean;
     hasMore?: boolean;
   }>(),
   {
     maxLines: 3,
     lineStep: 5,
-    collapse: true,
+    truncate: true,
   }
 );
 
@@ -38,7 +37,7 @@ watch(
   (value) => (lines.value = value)
 );
 
-const isClamped = computed(() => props.collapse);
+const isClamped = computed(() => props.truncate);
 
 // Clamped until measured: the server cannot measure, so an unclamped first paint
 // would snap to the bound on hydration.
@@ -54,9 +53,9 @@ const isExpanded = computed(
 );
 
 // Never during render: reading scrollHeight forces a synchronous reflow.
-function measure() {
+function measureOverflow() {
   const element = target.value;
-  if (!element || !props.collapse) return;
+  if (!element || !props.truncate) return;
   const saved = element.style.cssText;
   element.style.display = "-webkit-box";
   element.style.webkitBoxOrient = "vertical";
@@ -82,19 +81,19 @@ let contentObserver: MutationObserver | undefined;
 function startObserving() {
   if (sizeObserver || typeof ResizeObserver === "undefined") return;
   if (!isClamped.value || !target.value) return;
-  sizeObserver = new ResizeObserver(measure);
+  sizeObserver = new ResizeObserver(measureOverflow);
   // The root, not the box: a ResizeObserver ignores a non-replaced inline element,
   // and an uncut box is inline, so narrowing the window would never re-clamp it.
   sizeObserver.observe(root.value ?? target.value);
   // A cut block keeps its height when its values change, so resize never fires.
-  // Attributes stay unobserved, or measure()'s own styles would wake it.
-  contentObserver = new MutationObserver(measure);
+  // Attributes stay unobserved, or measureOverflow()'s own styles would wake it.
+  contentObserver = new MutationObserver(measureOverflow);
   contentObserver.observe(target.value, {
     childList: true,
     subtree: true,
     characterData: true,
   });
-  measure();
+  measureOverflow();
 }
 
 function stopObserving() {
@@ -117,7 +116,7 @@ const canShowMore = computed(
   () => isClamped.value && (overflows.value || props.hasMore)
 );
 
-watch(canShowMore, () => nextTick(measure));
+watch(canShowMore, () => nextTick(measureOverflow));
 
 const canShowLess = computed(
   () => isExpanded.value && !overflows.value && !props.hasMore
@@ -133,12 +132,12 @@ function showMore() {
   } else {
     emit("showMore");
   }
-  nextTick(measure);
+  nextTick(measureOverflow);
 }
 
 function showLess() {
   lines.value = props.maxLines;
-  nextTick(measure);
+  nextTick(measureOverflow);
 }
 </script>
 
@@ -197,7 +196,7 @@ function showLess() {
   overflow: hidden;
 }
 
-/* Only once measured: --show-more-line comes from measure(), and an unset one
+/* Only once measured: --show-more-line comes from measureOverflow(), and an unset one
    makes mask-size invalid, which fades every line instead of the last. */
 .show-more-faded {
   -webkit-mask-image: var(--show-more-mask);
