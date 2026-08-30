@@ -32,11 +32,24 @@
     <h4 class="text-lg">Short content (no overflow)</h4>
     <ShowMore :maxLines="3">Short text that doesn't overflow.</ShowMore>
 
+    <h4 class="text-lg">
+      lines=3, content long enough to overflow at any viewport width
+    </h4>
+    <ShowMore :maxLines="3">{{ veryLong }}</ShowMore>
+
     <Markdown :source="spec" />
   </div>
 </template>
 
 <script setup lang="ts">
+const veryLong = (
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
+  "tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim " +
+  "veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea " +
+  "commodo consequat. Duis aute irure dolor in reprehenderit in voluptate " +
+  "velit esse cillum dolore eu fugiat nulla pariatur. "
+).repeat(20);
+
 const spec = `
 ## Spec
 
