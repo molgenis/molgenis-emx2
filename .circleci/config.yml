@@ -532,6 +532,8 @@ jobs:
     steps:
     - pre_steps
 
+    # release does not require test, so this can restore a cache written before
+    # master's cold run rather than by it.
     - restore_gradle_build_cache
     - restore_turbo_cache
 
