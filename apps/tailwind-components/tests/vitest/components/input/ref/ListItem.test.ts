@@ -12,9 +12,7 @@ function column(id: string, columnType: ColumnType, label: string): IColumn {
   return { id, label, columnType };
 }
 
-// Two SECTIONs, because DetailView hides the menu below two of them anyway.
-// Without them `showMenu` could not be seen to do anything.
-const metadata: ITableMetaData = {
+const enoughSectionsForAMenu: ITableMetaData = {
   id: "Pet",
   schemaId: "pet store",
   name: "Pet",
@@ -41,7 +39,7 @@ describe("InputRefListItem", () => {
 
   beforeEach(() => {
     wrapper = mount(InputRefListItem, {
-      props: { refData, refMetadata: metadata, refLabel: "name" },
+      props: { refData, refMetadata: enoughSectionsForAMenu, refLabel: "name" },
     });
   });
 

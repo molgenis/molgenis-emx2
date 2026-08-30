@@ -35,10 +35,6 @@ const twoSections = table([
 
 const twoSectionsRow: IRow = { name: "spike", weight: 15.7, diet: "insects" };
 
-/**
- * jsdom fires no intersection, so the suite drives a fake observer. It proves the wiring and the
- * mapping to the menu; whether a box really crosses the band is a browser's job to say.
- */
 class FakeIntersectionObserver {
   static instances: FakeIntersectionObserver[] = [];
   disconnected = false;
@@ -96,7 +92,7 @@ describe("DetailView", () => {
     wrapper = mount(DetailView, {
       props: { metadata: twoSections, rowData: twoSectionsRow },
     });
-    // useIntersectionObserver watches on the post flush, so the observers exist a tick after mount.
+    // The observers are created on the post-render flush, so they exist only a tick after mount.
     await nextTick();
   });
 
@@ -112,7 +108,6 @@ describe("DetailView", () => {
   });
 
   test("titles a heading box one level below a section box", () => {
-    // The two titles now render at the same size, so the tag is all the structure a reader gets.
     expect(wrapper.get("#about").get("h2").text()).toBe("About");
     expect(wrapper.get("#about").find("h3").exists()).toBe(false);
     expect(wrapper.get("#size").get("h3").text()).toBe("Size");
@@ -148,7 +143,7 @@ describe("DetailView", () => {
     ).toEqual([true, true, true]);
   });
 
-  test("marks the entry of the box now at the top, and only that entry", async () => {
+  test("marks the entry of the box now at the top, only that entry, and keeps it when another leaves the band", async () => {
     reportBox("size", true);
     await wrapper.vm.$nextTick();
     expect(menuCurrent(wrapper)).toEqual(["false", "true", "false"]);
@@ -157,8 +152,6 @@ describe("DetailView", () => {
     await wrapper.vm.$nextTick();
     expect(menuCurrent(wrapper)).toEqual(["false", "false", "true"]);
 
-    // A box leaving the band says nothing about where the reader now is, so the mark stays put
-    // rather than jumping to whichever box happened to report.
     reportBox("size", false);
     await wrapper.vm.$nextTick();
     expect(menuCurrent(wrapper)).toEqual(["false", "false", "true"]);
@@ -327,9 +320,6 @@ describe("DetailView", () => {
   });
 
   test("reveals the menu at the same width the layout gives it a column, so it never stacks", () => {
-    // One breakpoint governs both. If they drift apart the menu renders above the record instead
-    // of beside it, costing a screen of scrolling before the record starts. jsdom evaluates no
-    // media query, so this pins the classes and cannot prove the widths behave.
     const revealAt = wrapper
       .get("nav")
       .classes()
@@ -340,9 +330,7 @@ describe("DetailView", () => {
       .find((name) => name.endsWith(":sticky"));
 
     expect(wrapper.get("nav").classes()).toContain("hidden");
-    // The invariant: whichever breakpoint the owner picks, both must name the same one.
     expect(revealAt?.split(":")[0]).toBe(columnsAt?.split(":")[0]);
-    // The value he picked.
     expect(revealAt).toBe("lg:block");
     expect(columnsAt).toBe("lg:sticky");
   });
@@ -363,7 +351,6 @@ describe("DetailView", () => {
   });
 
   test("renders no field filter, beside the menu or above the record", () => {
-    // The default mount is the case that used to carry one in the sidebar.
     expect(wrapper.findAll('input[type="search"]')).toHaveLength(0);
     expect(wrapper.find("header").exists()).toBe(false);
 

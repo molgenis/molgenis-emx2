@@ -137,7 +137,6 @@ describe("groupRecordSections", () => {
       no: false,
     });
 
-    // 0 and false are values a reader wants to see, so only the empty set goes.
     expect(sections[0]?.fields.map((field) => field.id)).toEqual([
       "name",
       "zero",
