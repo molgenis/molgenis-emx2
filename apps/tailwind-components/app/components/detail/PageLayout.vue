@@ -24,14 +24,14 @@ const hasSidebar = computed(() => props.showSideNav && !!slots.sidebar);
     <header v-if="$slots.header" class="w-full">
       <slot name="header"></slot>
     </header>
-    <div class="md:flex md:items-start">
+    <div class="lg:flex lg:items-start">
       <aside
         v-if="hasSidebar"
-        class="md:w-82.5 md:sticky md:top-7.5 flex-shrink-0"
+        class="lg:w-82.5 lg:sticky lg:top-7.5 flex-shrink-0"
       >
         <slot name="sidebar"></slot>
       </aside>
-      <main :class="{ 'md:pl-7.5': hasSidebar }" class="grow min-w-0">
+      <main :class="{ 'lg:pl-7.5': hasSidebar }" class="grow min-w-0">
         <slot name="main"></slot>
       </main>
     </div>

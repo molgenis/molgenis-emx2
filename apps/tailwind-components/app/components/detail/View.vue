@@ -129,7 +129,7 @@ function keyValueText(value: columnValue): string {
     <template v-if="showLegend" #sidebar>
       <FormLegend
         :sections="legendGroups"
-        class="hidden md:block rounded-t-base rounded-b-alt shadow-primary"
+        class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
       >
         <template v-if="recordTitle" #title>
           <h2

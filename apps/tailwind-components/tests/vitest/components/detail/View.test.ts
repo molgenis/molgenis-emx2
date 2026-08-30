@@ -343,8 +343,8 @@ describe("DetailView", () => {
     // The invariant: whichever breakpoint the owner picks, both must name the same one.
     expect(revealAt?.split(":")[0]).toBe(columnsAt?.split(":")[0]);
     // The value he picked.
-    expect(revealAt).toBe("md:block");
-    expect(columnsAt).toBe("md:sticky");
+    expect(revealAt).toBe("lg:block");
+    expect(columnsAt).toBe("lg:sticky");
   });
 
   test("renders no menu below two boxes", () => {
