@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import OntologyTreeDisplay from "../../../../app/components/display/OntologyTreeDisplay.vue";
+import DisplayOntology from "../../../../app/components/display/Ontology.vue";
 import CustomTooltip from "../../../../app/components/CustomTooltip.vue";
 import type { IOntologyTreeItem } from "../../../../app/utils/buildOntologyTree";
 
@@ -11,7 +11,7 @@ const threeLevelTerms: IOntologyTreeItem[] = [
 ];
 
 function mountTree(collapseAll: boolean) {
-  return mount(OntologyTreeDisplay, {
+  return mount(DisplayOntology, {
     props: { value: threeLevelTerms, collapseAll },
   });
 }
@@ -25,7 +25,7 @@ function childListsByParentName(wrapper: ReturnType<typeof mountTree>) {
   }));
 }
 
-describe("display/OntologyTreeDisplay.vue collapse-all", () => {
+describe("display/Ontology.vue collapse-all", () => {
   it("expands only the root when collapse-all is false, deeper levels stay collapsed", () => {
     const wrapper = mountTree(false);
 
@@ -47,7 +47,7 @@ describe("display/OntologyTreeDisplay.vue collapse-all", () => {
   });
 });
 
-describe("display/OntologyTreeDisplay.vue expand control accessibility", () => {
+describe("display/Ontology.vue expand control accessibility", () => {
   it("sets aria-expanded to false on the expand control when collapsed", () => {
     const wrapper = mountTree(true);
     const button = wrapper.find("button");
@@ -61,7 +61,7 @@ describe("display/OntologyTreeDisplay.vue expand control accessibility", () => {
   });
 });
 
-describe("display/OntologyTreeDisplay.vue inverted", () => {
+describe("display/Ontology.vue inverted", () => {
   const singleItem: IOntologyTreeItem = {
     name: "Biobank",
     definition: "A collection of biological samples.",
@@ -72,7 +72,7 @@ describe("display/OntologyTreeDisplay.vue inverted", () => {
   ];
 
   it("uses hoverColor white for the single-item branch by default", () => {
-    const wrapper = mount(OntologyTreeDisplay, {
+    const wrapper = mount(DisplayOntology, {
       props: { value: singleItem },
     });
     expect(wrapper.findComponent(CustomTooltip).props("hoverColor")).toBe(
@@ -81,7 +81,7 @@ describe("display/OntologyTreeDisplay.vue inverted", () => {
   });
 
   it("uses hoverColor none for the single-item branch when inverted", () => {
-    const wrapper = mount(OntologyTreeDisplay, {
+    const wrapper = mount(DisplayOntology, {
       props: { value: singleItem, inverted: true },
     });
     expect(wrapper.findComponent(CustomTooltip).props("hoverColor")).toBe(
@@ -90,7 +90,7 @@ describe("display/OntologyTreeDisplay.vue inverted", () => {
   });
 
   it("uses hoverColor white for the flat-list branch by default", () => {
-    const wrapper = mount(OntologyTreeDisplay, {
+    const wrapper = mount(DisplayOntology, {
       props: { value: flatList },
     });
     const tooltips = wrapper.findAllComponents(CustomTooltip);
@@ -98,7 +98,7 @@ describe("display/OntologyTreeDisplay.vue inverted", () => {
   });
 
   it("uses hoverColor none for the flat-list branch when inverted", () => {
-    const wrapper = mount(OntologyTreeDisplay, {
+    const wrapper = mount(DisplayOntology, {
       props: { value: flatList, inverted: true },
     });
     const tooltips = wrapper.findAllComponents(CustomTooltip);
@@ -106,13 +106,13 @@ describe("display/OntologyTreeDisplay.vue inverted", () => {
   });
 });
 
-describe("display/OntologyTreeDisplay.vue renders every root", () => {
+describe("display/Ontology.vue renders every root", () => {
   it("renders more than ten roots without truncating any of them", () => {
     const manyRoots: IOntologyTreeItem[] = Array.from(
       { length: 15 },
       (_, i) => ({ name: `Root ${i}` })
     );
-    const wrapper = mount(OntologyTreeDisplay, {
+    const wrapper = mount(DisplayOntology, {
       props: { value: manyRoots },
     });
     expect(wrapper.findAll("li")).toHaveLength(15);
@@ -120,16 +120,16 @@ describe("display/OntologyTreeDisplay.vue renders every root", () => {
   });
 });
 
-describe("display/OntologyTreeDisplay.vue root markup", () => {
+describe("display/Ontology.vue root markup", () => {
   it("renders the flat list with no wrapper element around the ul", () => {
-    const wrapper = mount(OntologyTreeDisplay, {
+    const wrapper = mount(DisplayOntology, {
       props: { value: [{ name: "Genomics" }, { name: "Proteomics" }] },
     });
     expect(wrapper.element.tagName).toBe("UL");
   });
 
   it("renders the single item with no wrapper element around the span", () => {
-    const wrapper = mount(OntologyTreeDisplay, {
+    const wrapper = mount(DisplayOntology, {
       props: { value: { name: "Biobank" } },
     });
     expect(wrapper.element.tagName).toBe("SPAN");

@@ -74,7 +74,7 @@ const toggleCollapse = () => {
       class="break-inside-avoid"
       :class="{ hidden: collapsed }"
     >
-      <OntologyTreeNode
+      <OntologyNode
         v-for="child in node.children"
         :key="child.name"
         class="pt-1 pl-8"

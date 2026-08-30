@@ -3,7 +3,7 @@ import { computed } from "vue";
 import type { IOntologyTreeItem } from "../../utils/buildOntologyTree";
 import { buildOntologyTree } from "../../utils/buildOntologyTree";
 import CustomTooltip from "../CustomTooltip.vue";
-import OntologyTreeNode from "./OntologyTreeNode.vue";
+import OntologyNode from "./OntologyNode.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -65,7 +65,7 @@ const isList = computed(() => {
       </li>
     </template>
     <template v-else>
-      <OntologyTreeNode
+      <OntologyNode
         v-for="node in tree"
         :key="node.name"
         :node="node"

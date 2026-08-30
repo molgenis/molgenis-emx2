@@ -16,7 +16,7 @@ import BreadCrumbs from "../../../../../../../tailwind-components/app/components
 import SideNavigation from "../../../../../components/SideNavigation.vue";
 import ContentBlocks from "../../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
 import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import OntologyTreeDisplay from "../../../../../../../tailwind-components/app/components/display/OntologyTreeDisplay.vue";
+import DisplayOntology from "../../../../../../../tailwind-components/app/components/display/Ontology.vue";
 import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
 import type { Crumb } from "../../../../../../../tailwind-components/types/types";
 
@@ -172,7 +172,7 @@ useHead({
           id="sample_categories"
           title="Sample categories"
         >
-          <OntologyTreeDisplay
+          <DisplayOntology
             :value="collectionEvent.sampleCategories"
             :collapse-all="false"
           />
@@ -211,7 +211,7 @@ useHead({
           id="data_categories"
           title="Data categories"
         >
-          <OntologyTreeDisplay
+          <DisplayOntology
             :value="collectionEvent.dataCategories"
             :collapse-all="false"
           />
@@ -221,7 +221,7 @@ useHead({
           id="areas_of_information"
           title="Areas of information"
         >
-          <OntologyTreeDisplay
+          <DisplayOntology
             :value="collectionEvent.areasOfInformation"
             :collapse-all="false"
           />
@@ -231,7 +231,7 @@ useHead({
           id="standardized_tools"
           title="Standardized tools"
         >
-          <OntologyTreeDisplay
+          <DisplayOntology
             :value="collectionEvent.standardizedTools"
             :collapse-all="false"
           />

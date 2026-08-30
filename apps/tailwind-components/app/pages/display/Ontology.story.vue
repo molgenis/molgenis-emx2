@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import OntologyTreeDisplay from "../../components/display/OntologyTreeDisplay.vue";
+import { ref } from "vue";
+import DisplayOntology from "../../components/display/Ontology.vue";
 import type { IOntologyTreeItem } from "../../utils/buildOntologyTree";
 
 const singleItem: IOntologyTreeItem = { name: "Biobank" };
@@ -41,11 +42,13 @@ const hierarchicalTree: IOntologyTreeItem[] = [
     },
   },
 ];
+
+const inverted = ref(false);
 </script>
 
 <template>
   <Story
-    title="OntologyTreeDisplay"
+    title="DisplayOntology"
     description="Displays ontology values as single item, flat list, or collapsible tree depending on data structure."
   >
     <div class="p-5 space-y-6">
@@ -57,12 +60,12 @@ const hierarchicalTree: IOntologyTreeItem[] = [
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">No definition:</span>
-            <OntologyTreeDisplay :value="singleItem" />
+            <DisplayOntology :value="singleItem" />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">With definition:</span>
-            <OntologyTreeDisplay :value="singleWithDefinition" />
+            <DisplayOntology :value="singleWithDefinition" />
           </div>
         </div>
 
@@ -71,12 +74,12 @@ const hierarchicalTree: IOntologyTreeItem[] = [
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">No definitions:</span>
-            <OntologyTreeDisplay :value="flatList" />
+            <DisplayOntology :value="flatList" />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">With definitions:</span>
-            <OntologyTreeDisplay :value="flatListWithDefinitions" />
+            <DisplayOntology :value="flatListWithDefinitions" />
           </div>
         </div>
 
@@ -84,23 +87,47 @@ const hierarchicalTree: IOntologyTreeItem[] = [
           <h2 class="text-xl font-semibold text-record-heading">Inverted</h2>
           <p class="text-sm text-record-label">
             Dims the read-more tooltip's hover colour for use on a dark surface.
-            Only the single-item and flat-list branches pick it up.
+            Only the single-item and flat-list branches below pick it up; the
+            hierarchical tree's tooltip stays white regardless.
           </p>
 
-          <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
-            <span class="font-medium text-record-label">Single item:</span>
-            <OntologyTreeDisplay
-              :value="singleWithDefinition"
-              :inverted="true"
-            />
-          </div>
+          <fieldset class="border border-gray-900 mb-2">
+            <legend class="m-2 px-2">Props</legend>
+            <div class="mb-2">
+              <input
+                id="display-ontology-inverted"
+                class="ml-2 hover:cursor-pointer"
+                type="checkbox"
+                v-model="inverted"
+              />
+              <label
+                class="ml-1 hover:cursor-pointer"
+                for="display-ontology-inverted"
+              >
+                inverted
+              </label>
+            </div>
+          </fieldset>
 
-          <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-            <span class="font-medium text-record-label">Flat list:</span>
-            <OntologyTreeDisplay
-              :value="flatListWithDefinitions"
-              :inverted="true"
-            />
+          <div
+            class="p-4 rounded space-y-4"
+            :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
+          >
+            <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
+              <span class="font-medium text-record-label">Single item:</span>
+              <DisplayOntology
+                :value="singleWithDefinition"
+                :inverted="inverted"
+              />
+            </div>
+
+            <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+              <span class="font-medium text-record-label">Flat list:</span>
+              <DisplayOntology
+                :value="flatListWithDefinitions"
+                :inverted="inverted"
+              />
+            </div>
           </div>
         </div>
 
@@ -116,20 +143,14 @@ const hierarchicalTree: IOntologyTreeItem[] = [
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">Tree (collapsed):</span>
-            <OntologyTreeDisplay
-              :value="hierarchicalTree"
-              :collapse-all="true"
-            />
+            <DisplayOntology :value="hierarchicalTree" :collapse-all="true" />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label"
               >Tree (root expanded):</span
             >
-            <OntologyTreeDisplay
-              :value="hierarchicalTree"
-              :collapse-all="false"
-            />
+            <DisplayOntology :value="hierarchicalTree" :collapse-all="false" />
           </div>
         </div>
 
@@ -138,7 +159,7 @@ const hierarchicalTree: IOntologyTreeItem[] = [
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">Empty array:</span>
-            <OntologyTreeDisplay :value="[]" />
+            <DisplayOntology :value="[]" />
           </div>
         </div>
       </div>

@@ -13,7 +13,7 @@ import BreadCrumbs from "../../../../../../../tailwind-components/app/components
 import SideNavigation from "../../../../../components/SideNavigation.vue";
 import ContentBlocks from "../../../../../../../tailwind-components/app/components/content/ContentBlocks.vue";
 import ContentBlock from "../../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import OntologyTreeDisplay from "../../../../../../../tailwind-components/app/components/display/OntologyTreeDisplay.vue";
+import DisplayOntology from "../../../../../../../tailwind-components/app/components/display/Ontology.vue";
 import CatalogueItemList from "../../../../../components/CatalogueItemList.vue";
 import type { Crumb } from "../../../../../../../tailwind-components/types/types";
 const config = useRuntimeConfig();
@@ -231,7 +231,7 @@ if (subpopulation.comorbidity?.length) {
           id="main_medical_condition"
           title="Main medical condition"
         >
-          <OntologyTreeDisplay
+          <DisplayOntology
             :value="subpopulation.mainMedicalCondition"
             :collapse-all="false"
           />
@@ -241,7 +241,7 @@ if (subpopulation.comorbidity?.length) {
           id="comorbidity"
           title="Comorbidity"
         >
-          <OntologyTreeDisplay
+          <DisplayOntology
             :value="subpopulation.comorbidity"
             :collapse-all="false"
           />
