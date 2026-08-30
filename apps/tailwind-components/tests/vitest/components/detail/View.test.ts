@@ -326,6 +326,12 @@ describe("DetailView", () => {
     ).toBe("spike");
   });
 
+  test("renders the menu at every width, not only on a wide screen", () => {
+    // A narrow screen is not what anyone develops or reviews at, so a menu hidden there is a
+    // regression nobody would see. `hidden` is a switch, not a look.
+    expect(wrapper.get("nav").classes()).not.toContain("hidden");
+  });
+
   test("renders no menu below two boxes", () => {
     const single = mount(DetailView, {
       props: {
