@@ -8,6 +8,11 @@ const props = withDefaults(
     /** Keeps the ids unique when two legends render on one page. */
     idPrefix: string;
     label: string;
+    /**
+     * A record's sections sit at real URL fragments, so the record menu passes one and the entry
+     * becomes a link the browser navigates itself, which a reader can copy or open in a new tab.
+     * A form's fields sit in a modal with no address of their own, so the form legend passes none.
+     */
     href?: string;
     isActive?: boolean;
     errorCount?: MaybeRef<number>;
@@ -28,7 +33,7 @@ const emit = defineEmits<{
   (e: "goToSection", id: string): void;
 }>();
 
-/** Without an href there is nowhere to go, so the anchor asks the form to scroll. */
+/** With no href the browser has nothing to navigate to, so the click asks the caller to scroll. */
 function goTo(event: MouseEvent) {
   if (!props.href) {
     event.preventDefault();
