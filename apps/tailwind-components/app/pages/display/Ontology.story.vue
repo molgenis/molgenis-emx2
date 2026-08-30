@@ -43,7 +43,7 @@ const hierarchicalTree: IOntologyTreeItem[] = [
   },
 ];
 
-const whiteBackground = ref(true);
+const onContentSurface = ref(true);
 </script>
 
 <template>
@@ -53,42 +53,38 @@ const whiteBackground = ref(true);
   >
     <div class="p-5 space-y-6">
       <div>
-        <input
-          id="ontology-story-white-background"
-          class="hover:cursor-pointer"
-          type="checkbox"
-          v-model="whiteBackground"
-        />
-        <label
-          class="ml-1 hover:cursor-pointer"
-          for="ontology-story-white-background"
-        >
-          white background
-        </label>
+        <InputCheckbox id="content-surface" v-model="onContentSurface" />
+        <InputLabel :for="'content-surface'">On a content surface</InputLabel>
         <p class="text-sm text-record-label">
-          Mirrors what a real caller passes: the single item and flat list take
-          `inverted` from this switch and dim their tooltip hover accordingly,
-          the hierarchical tree's tooltip stays white regardless.
+          Turn this off to take the white surface away. The examples then pass
+          <code>inverted</code>, the way a real caller on a coloured surface
+          does, which dims the tooltip hover on the single item and the flat
+          list. The nested tree keeps a white tooltip either way.
         </p>
       </div>
 
       <div
-        class="p-6 rounded shadow-primary space-y-6 text-record-value"
-        :class="whiteBackground ? 'bg-content' : ''"
+        class="p-6 rounded shadow-primary space-y-6"
+        :class="
+          onContentSurface ? 'bg-content text-title-contrast' : 'text-title'
+        "
       >
         <div class="space-y-4">
           <h2 class="text-xl font-semibold text-record-heading">Single Item</h2>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">No definition:</span>
-            <DisplayOntology :value="singleItem" :inverted="!whiteBackground" />
+            <DisplayOntology
+              :value="singleItem"
+              :inverted="!onContentSurface"
+            />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">With definition:</span>
             <DisplayOntology
               :value="singleWithDefinition"
-              :inverted="!whiteBackground"
+              :inverted="!onContentSurface"
             />
           </div>
         </div>
@@ -98,14 +94,14 @@ const whiteBackground = ref(true);
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">No definitions:</span>
-            <DisplayOntology :value="flatList" :inverted="!whiteBackground" />
+            <DisplayOntology :value="flatList" :inverted="!onContentSurface" />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">With definitions:</span>
             <DisplayOntology
               :value="flatListWithDefinitions"
-              :inverted="!whiteBackground"
+              :inverted="!onContentSurface"
             />
           </div>
         </div>
@@ -125,7 +121,7 @@ const whiteBackground = ref(true);
             <DisplayOntology
               :value="hierarchicalTree"
               :collapse-all="true"
-              :inverted="!whiteBackground"
+              :inverted="!onContentSurface"
             />
           </div>
 
@@ -136,7 +132,7 @@ const whiteBackground = ref(true);
             <DisplayOntology
               :value="hierarchicalTree"
               :collapse-all="false"
-              :inverted="!whiteBackground"
+              :inverted="!onContentSurface"
             />
           </div>
         </div>
@@ -146,7 +142,7 @@ const whiteBackground = ref(true);
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">Empty array:</span>
-            <DisplayOntology :value="[]" :inverted="!whiteBackground" />
+            <DisplayOntology :value="[]" :inverted="!onContentSurface" />
           </div>
         </div>
       </div>
