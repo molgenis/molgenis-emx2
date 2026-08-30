@@ -216,8 +216,9 @@
     --text-color-pagination-button-hover: var(--color-blue-800);
     --text-color-link: var(--color-blue-500);
     --text-color-link-hover: var(--color-blue-800);
-    /* Never define this from --text-color-link. `.surface-inverted` redefines that
-       one from this one, and the cycle makes both invalid. */
+    /* Keep this independent of --text-color-link. `.surface-inverted` sets
+       --text-color-link from this token, so the reverse definition would form a
+       cycle and leave both invalid. */
     --text-color-link-inverted: var(--color-blue-500);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);

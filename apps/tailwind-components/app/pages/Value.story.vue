@@ -121,8 +121,8 @@ const termsBase = [
   ["Rash", "A change in skin colour or texture."],
 ].map(([name, definition]) => ({ name, definition }));
 
-// Keyed by ColumnType, so the compiler fails this page when a type is added
-// and left uncovered.
+// This object is typed as Record<ColumnType, Case>, so the compiler fails the
+// build when a new ColumnType is added and left uncovered here.
 const byType = computed<Record<ColumnType, Case>>(() => {
   const n = count.value;
   const people = repeatTo(peopleBase, n);

@@ -5,7 +5,8 @@ import ShowMore from "../../../app/components/ShowMore.vue";
 
 let observers = 0;
 let observed: HTMLElement[] = [];
-/** Re-measure, as a real resize would. Changing the stub alone leaves it stale. */
+/** Call measureOverflow() again, the way a real resize would. Changing the stub
+ * alone would leave the earlier measurement stale. */
 let resize = () => {};
 
 // jsdom lays nothing out, so scrollHeight and clientHeight are both 0 and the
@@ -136,8 +137,8 @@ describe("ShowMore.vue", () => {
   it("watches the root, which a ResizeObserver will actually report on", async () => {
     const w = await clamp({ maxLines: 3 });
 
-    // An uncut box is display:inline, and a ResizeObserver ignores a non-replaced
-    // inline element, so watching the box means narrowing never re-clamps.
+    // An uncut box is display:inline, and a ResizeObserver ignores inline
+    // elements, so watching the box would mean narrowing the window never re-clamps.
     expect(observed).toHaveLength(1);
     expect(observed[0]).toBe(w.find(".show-more-root").element);
   });

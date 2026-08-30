@@ -12,7 +12,8 @@ describe("CustomTooltip.vue", () => {
       .findComponent({ name: "VTooltip" })
       .props("showTriggers") as string[];
 
-    // 2.1.1 Keyboard: hover and touch alone leave a keyboard user with no way in.
+    // WCAG 2.1.1 (Keyboard) requires this, since hover and touch alone leave a
+    // keyboard user with no way in.
     expect(triggers).toContain("focus");
     expect(triggers).toContain("click");
     expect(triggers).toContain("hover");

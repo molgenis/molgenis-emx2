@@ -39,8 +39,8 @@ watch(
 
 const isClamped = computed(() => props.truncate);
 
-// Clamped until measured: the server cannot measure, so an unclamped first paint
-// would snap to the bound on hydration.
+// Clamp before the client measures. The server cannot measure, so an unclamped
+// first paint would snap to the bound as soon as the page hydrates.
 const isCut = computed(
   () => isClamped.value && (overflows.value || !measured.value)
 );
@@ -52,7 +52,7 @@ const isExpanded = computed(
     lines.value > props.maxLines
 );
 
-// Never during render: reading scrollHeight forces a synchronous reflow.
+// Do not call this during render. Reading scrollHeight forces a synchronous reflow.
 function measureOverflow() {
   const element = target.value;
   if (!element || !props.truncate) return;
@@ -67,7 +67,8 @@ function measureOverflow() {
   element.style.cssText = saved;
   overflows.value = full > bounded + 1;
   measured.value = true;
-  // Measured, not named: a hyperlink's own line-height runs 26px against 24px.
+  // Take the line height from the measurement rather than a named token. A
+  // hyperlink's own line-height is 26px where the token says 24px.
   element.style.setProperty("--show-more-line", `${bounded / lines.value}px`);
   const width = control.value?.offsetWidth;
   if (width) {
@@ -82,11 +83,13 @@ function startObserving() {
   if (sizeObserver || typeof ResizeObserver === "undefined") return;
   if (!isClamped.value || !target.value) return;
   sizeObserver = new ResizeObserver(measureOverflow);
-  // The root, not the box: a ResizeObserver ignores a non-replaced inline element,
-  // and an uncut box is inline, so narrowing the window would never re-clamp it.
+  // Observe the root, not the box. A ResizeObserver ignores inline elements, and
+  // an uncut box is inline, so watching the box would mean narrowing the window
+  // never re-clamps.
   sizeObserver.observe(root.value ?? target.value);
-  // A cut block keeps its height when its values change, so resize never fires.
-  // Attributes stay unobserved, or measureOverflow()'s own styles would wake it.
+  // A clamped block keeps its height when its content changes, so a resize
+  // observer never fires for it; watch content changes directly instead. Skip
+  // attribute changes, or measureOverflow()'s own inline styles would retrigger it.
   contentObserver = new MutationObserver(measureOverflow);
   contentObserver.observe(target.value, {
     childList: true,
@@ -173,22 +176,23 @@ function showLess() {
 </template>
 
 <style scoped>
-/* Prefixed only: the standard `line-clamp` shorthand wants a block container, and
-   setting both leaves the element clamped by neither. */
+/* Use the prefixed properties only. The standard line-clamp shorthand wants a
+   block container, and setting both leaves the element clamped by neither. */
 .show-more-root {
   position: relative;
   display: inline-block;
   max-width: 100%;
 }
 
-/* Values offer no break of their own: the separator is a non-breaking space and a
-   UUID is one long word. Without this the list is one line off the page. */
+/* Allow a break anywhere. The separator is a non-breaking space and a UUID is
+   one long word, so without this the list runs as one line off the page. */
 .show-more-box {
   overflow-wrap: anywhere;
 }
 
-/* Erases the tail of the last line, ellipsis and all, so the control needs no paint:
-   two themes back the page with a gradient, so no colour would match. */
+/* Erase the tail of the last line, ellipsis and all, so the control needs no
+   paint of its own. Two themes back the page with a gradient, so no flat
+   colour would match it. */
 .show-more {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -196,8 +200,9 @@ function showLess() {
   overflow: hidden;
 }
 
-/* Only once measured: --show-more-line comes from measureOverflow(), and an unset one
-   makes mask-size invalid, which fades every line instead of the last. */
+/* Apply the fade only once measured. --show-more-line comes from
+   measureOverflow(), and an unset value makes mask-size invalid, which fades
+   every line instead of the last one. */
 .show-more-faded {
   -webkit-mask-image: var(--show-more-mask);
   mask-image: var(--show-more-mask);
@@ -222,7 +227,8 @@ function showLess() {
   margin-left: 0.5em;
 }
 
-/* line-height is the text's, or a smaller control sits off the last line's baseline. */
+/* Inherit the text's line-height, or a smaller control would sit off the last
+   line's baseline. */
 .show-more-over {
   position: absolute;
   right: 0;
