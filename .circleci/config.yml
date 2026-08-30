@@ -294,18 +294,12 @@ jobs:
           command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
 
       - run:
-          name: install postgres client
-          command: apt-get update && apt-get install -y postgresql-client
+          name: install postgres client and java
+          command: apt-get update && apt-get install -y postgresql-client openjdk-21-jdk
 
       - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
-
-      - run:
-          name: Install Java
-          command: |
-            apt-get update
-            apt-get install -y openjdk-21-jdk
 
       - run:
           name: Show jars
