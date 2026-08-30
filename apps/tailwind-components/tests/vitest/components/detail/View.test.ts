@@ -326,10 +326,13 @@ describe("DetailView", () => {
     ).toBe("spike");
   });
 
-  test("renders the menu at every width, not only on a wide screen", () => {
-    // A narrow screen is not what anyone develops or reviews at, so a menu hidden there is a
-    // regression nobody would see. `hidden` is a switch, not a look.
-    expect(wrapper.get("nav").classes()).not.toContain("hidden");
+  test("renders the menu from md up, and omits it on a phone", () => {
+    // The aside stacks above the record below xl, so below md the menu would cost a full screen
+    // before the record starts. jsdom evaluates no media query, so this pins the class, not the
+    // behaviour it asks for.
+    const classes = wrapper.get("nav").classes();
+    expect(classes).toContain("hidden");
+    expect(classes).toContain("md:block");
   });
 
   test("renders no menu below two boxes", () => {

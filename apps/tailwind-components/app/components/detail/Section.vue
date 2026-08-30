@@ -44,7 +44,7 @@ if (props.trackInView) {
 
 <template>
   <!-- No `title`, because a heading box needs an h3 where ContentBlock emits an h2. -->
-  <ContentBlock ref="root" :id="section.id" class="scroll-mt-[30px]">
+  <ContentBlock ref="root" :id="section.id" class="scroll-mt-7.5">
     <h2
       v-if="section.label && section.kind === 'section'"
       class="mb-5 uppercase text-heading-4xl font-display"
