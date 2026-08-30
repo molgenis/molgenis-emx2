@@ -167,6 +167,16 @@ describe("Legend", () => {
     expect(untitled.get("nav").element.children).toHaveLength(1);
   });
 
+  test("wears the card on every caller, and adds no radius or shadow of its own", () => {
+    const wrapper = mount(Legend, {
+      props: { sections: [{ id: "about", label: "About" }] },
+    });
+
+    expect(wrapper.get("nav").classes().sort()).toEqual(
+      ["bg-form-legend", "mb-18", "px-12", "py-16"].sort()
+    );
+  });
+
   test("names its navigation landmark and labels every entry", () => {
     const wrapper = mount(Legend, {
       props: {

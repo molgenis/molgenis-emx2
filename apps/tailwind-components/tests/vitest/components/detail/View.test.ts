@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import { beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type {
   ColumnType,
   IColumn,
@@ -7,6 +7,8 @@ import type {
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
 import DetailView from "../../../../app/components/detail/View.vue";
+import FormLegend from "../../../../app/components/form/Legend.vue";
+import { whenInView } from "../../../../app/directives/whenInView";
 
 function column(id: string, columnType: ColumnType, label?: string): IColumn {
   return { id, label: label ?? id, columnType };
@@ -34,6 +36,46 @@ const twoSections = table([
 
 const twoSectionsRow: IRow = { name: "spike", weight: 15.7, diet: "insects" };
 
+/**
+ * jsdom fires no intersection, so the suite drives a fake observer. It proves the wiring and the
+ * mapping to the menu; whether a box really crosses the band is a browser's job to say.
+ */
+class FakeIntersectionObserver {
+  static instances: FakeIntersectionObserver[] = [];
+  targets: Element[] = [];
+  constructor(
+    public callback: (entries: { isIntersecting: boolean }[]) => void,
+    public options?: IntersectionObserverInit
+  ) {
+    FakeIntersectionObserver.instances.push(this);
+  }
+  observe(target: Element) {
+    this.targets.push(target);
+  }
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return [];
+  }
+}
+
+function scrollBoxToTop(boxId: string) {
+  const observer = FakeIntersectionObserver.instances.find((instance) =>
+    instance.targets.some((target) => target.id === boxId)
+  );
+  if (!observer) {
+    throw new Error(`no observer watches box ${boxId}`);
+  }
+  observer.callback([{ isIntersecting: true }]);
+}
+
+function menuCurrent(wrapper: ReturnType<typeof mount>) {
+  return wrapper
+    .find("nav")
+    .findAll("a")
+    .map((link) => link.attributes("aria-current"));
+}
+
 function menuLinks(wrapper: ReturnType<typeof mount>) {
   const nav = wrapper.find("nav");
   return nav.exists()
@@ -47,9 +89,16 @@ describe("DetailView", () => {
   let wrapper: ReturnType<typeof mount>;
 
   beforeEach(() => {
+    FakeIntersectionObserver.instances = [];
+    vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
     wrapper = mount(DetailView, {
       props: { metadata: twoSections, rowData: twoSectionsRow },
+      global: { directives: { "when-in-view": whenInView } },
     });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   test("renders a section and each of its headings as sibling boxes, in reading order", () => {
@@ -92,6 +141,65 @@ describe("DetailView", () => {
         ([, href]) => href && headingsOnly.find(href).exists()
       )
     ).toEqual([true, true, true]);
+  });
+
+  test("marks the entry of the box now at the top, and only that entry", async () => {
+    scrollBoxToTop("size");
+    await wrapper.vm.$nextTick();
+    expect(menuCurrent(wrapper)).toEqual(["false", "true", "false"]);
+
+    scrollBoxToTop("care");
+    await wrapper.vm.$nextTick();
+    expect(menuCurrent(wrapper)).toEqual(["false", "false", "true"]);
+  });
+
+  test("watches a band across the top of the viewport, which a box taller than it can still cross", () => {
+    expect(
+      FakeIntersectionObserver.instances.map((instance) =>
+        instance.targets.map((target) => target.id)
+      )
+    ).toEqual([["about"], ["size"], ["care"]]);
+
+    expect(
+      FakeIntersectionObserver.instances.map((instance) => instance.options)
+    ).toEqual([
+      { root: null, rootMargin: "0px 0px -80% 0px", threshold: 0 },
+      { root: null, rootMargin: "0px 0px -80% 0px", threshold: 0 },
+      { root: null, rootMargin: "0px 0px -80% 0px", threshold: 0 },
+    ]);
+  });
+
+  test("watches nothing at all when the menu is off", () => {
+    FakeIntersectionObserver.instances = [];
+
+    const noMenu = mount(DetailView, {
+      props: {
+        metadata: twoSections,
+        rowData: twoSectionsRow,
+        showMenu: false,
+      },
+      global: { directives: { "when-in-view": whenInView } },
+    });
+
+    expect(FakeIntersectionObserver.instances).toEqual([]);
+    expect(noMenu.find("nav").exists()).toBe(false);
+  });
+
+  test("rounds and lifts the record menu, and leaves a legend that asks for neither flat", () => {
+    const classes = wrapper.get("nav").classes();
+    expect(classes).toContain("rounded-t-base");
+    expect(classes).toContain("rounded-b-alt");
+    expect(classes).toContain("shadow-primary");
+
+    const legend = mount(FormLegend, {
+      props: { sections: [{ id: "about", label: "About" }] },
+    });
+    expect(
+      legend
+        .get("nav")
+        .classes()
+        .filter((name) => /^(rounded|shadow)/.test(name))
+    ).toEqual([]);
   });
 
   test("renders each field label and value", () => {

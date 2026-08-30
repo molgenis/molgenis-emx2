@@ -95,6 +95,16 @@ const showSidebar = computed(
   () => props.showMenu && toBoxes(sections.value).length > 1
 );
 
+const activeBoxId = ref<string | null>(null);
+
+// A record box is often taller than the viewport, so the spy watches a band across the top fifth of
+// it rather than asking for half a box to be visible, which a tall box can never be.
+const boxSpyOptions: IntersectionObserverInit = {
+  root: null,
+  rootMargin: "0px 0px -80% 0px",
+  threshold: 0,
+};
+
 // Under one section every entry would nest below it, which tells the reader nothing.
 const legendGroups = computed<LegendGroup[]>(() =>
   visibleSections.value.length === 1
@@ -103,17 +113,20 @@ const legendGroups = computed<LegendGroup[]>(() =>
         label: box.label ?? props.metadata.label,
         href: `#${box.id}`,
         isVisible: true,
+        isActive: box.id === activeBoxId.value,
       }))
     : visibleSections.value.map((section) => ({
         id: section.id,
         label: section.label ?? props.metadata.label,
         href: `#${menuAnchorId(section)}`,
         isVisible: true,
+        isActive: section.id === activeBoxId.value,
         headers: section.headings.map((heading) => ({
           id: heading.id,
           label: heading.label,
           href: `#${heading.id}`,
           isVisible: true,
+          isActive: heading.id === activeBoxId.value,
         })),
       }))
 );
@@ -178,11 +191,11 @@ function filterSections(
       <FormLegend
         v-if="showLegend"
         :sections="legendGroups"
-        class="hidden xl:block"
+        class="hidden xl:block rounded-t-base rounded-b-alt shadow-primary"
       >
         <template v-if="recordTitle" #title>
           <h2
-            class="pl-7 pb-4 text-heading-3xl font-display text-title-contrast"
+            class="pl-7 mb-6 text-heading-4xl font-display text-title-contrast"
           >
             {{ recordTitle }}
           </h2>
@@ -204,6 +217,9 @@ function filterSections(
         <DetailSection
           v-for="box in boxes"
           :key="box.id"
+          v-when-in-view="
+            showLegend ? [() => (activeBoxId = box.id), boxSpyOptions] : null
+          "
           :section="box"
           @valueClick="$emit('valueClick', $event)"
         />
