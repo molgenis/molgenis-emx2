@@ -337,63 +337,22 @@ describe("DetailView", () => {
     expect(single.get("#about").text()).toContain("spike");
   });
 
-  test("drops a filtered-out section from the sections and from the menu", async () => {
-    await wrapper.get('input[type="search"]').setValue("diet");
-
-    expect(
-      wrapper.findAll("section").map((section) => section.attributes("id"))
-    ).toEqual(["care"]);
-    expect(menuLinks(wrapper)).toEqual([]);
-  });
-
-  test("puts the one filter box under the legend in the sidebar when a menu renders", () => {
-    expect(wrapper.findAll('input[type="search"]')).toHaveLength(1);
-    expect(
-      wrapper
-        .get("aside")
-        .findAll('nav, input[type="search"]')
-        .map((element) => element.element.tagName.toLowerCase())
-    ).toEqual(["nav", "input"]);
+  test("renders no field filter, beside the menu or above the record", () => {
+    // The default mount is the case that used to carry one in the sidebar.
+    expect(wrapper.findAll('input[type="search"]')).toHaveLength(0);
     expect(wrapper.find("header").exists()).toBe(false);
-  });
 
-  test("falls back to the header for the one filter box when no menu renders", () => {
-    const single = mount(DetailView, {
-      props: {
-        metadata: table([
-          column("about", "SECTION", "About"),
-          column("name", "STRING", "Name"),
-        ]),
-        rowData: { name: "spike" },
-      },
-    });
-
-    expect(single.findAll('input[type="search"]')).toHaveLength(1);
-    expect(single.get("header").find('input[type="search"]').exists()).toBe(
-      true
-    );
-    expect(single.find("aside").exists()).toBe(false);
-  });
-
-  test("keeps the filter box labelled for a screen reader", () => {
-    const input = wrapper.get('input[type="search"]');
-    expect(wrapper.get(`label[for="${input.attributes("id")}"]`).text()).toBe(
-      "Filter fields"
-    );
-  });
-
-  test("renders neither menu nor filter when both are switched off", () => {
     const bare = mount(DetailView, {
       props: {
         metadata: twoSections,
         rowData: twoSectionsRow,
         showMenu: false,
-        showFilter: false,
       },
+      global: { directives: { "when-in-view": whenInView } },
     });
 
     expect(bare.find("nav").exists()).toBe(false);
-    expect(bare.find('input[type="search"]').exists()).toBe(false);
+    expect(bare.findAll('input[type="search"]')).toHaveLength(0);
     expect(
       bare.findAll("section").map((section) => section.attributes("id"))
     ).toEqual(["about", "size", "care"]);

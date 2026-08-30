@@ -150,7 +150,6 @@ function reAuthenticate() {
         :metadata="metadata"
         :row-data="formValues"
         :show-menu="false"
-        :show-filter="false"
       />
     </div>
 

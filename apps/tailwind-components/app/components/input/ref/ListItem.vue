@@ -88,7 +88,6 @@ function toLabel(row: columnValueObject) {
           :metadata="refMetadata"
           :row-data="refData"
           :show-menu="false"
-          :show-filter="false"
         />
       </div>
     </Accordion>

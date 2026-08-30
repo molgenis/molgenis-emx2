@@ -56,8 +56,4 @@ describe("InputRefListItem", () => {
       false
     );
   });
-
-  test("renders no field filter", () => {
-    expect(wrapper.find('input[type="search"]').exists()).toBe(false);
-  });
 });
