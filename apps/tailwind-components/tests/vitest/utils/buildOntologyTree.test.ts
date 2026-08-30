@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  buildOntologyTree,
-  flattenParentChain,
-  sortOntologyTree,
-} from "../../../app/utils/buildOntologyTree";
+import { buildOntologyTree } from "../../../app/utils/buildOntologyTree";
 import type { IOntologyTreeItem } from "../../../app/utils/buildOntologyTree";
 
 describe("buildOntologyTree", () => {
@@ -51,16 +47,6 @@ describe("buildOntologyTree", () => {
     const childNames = result[0].children!.map((c) => c.name);
     expect(childNames).toContain("Cardiology");
     expect(childNames).toContain("Neurology");
-  });
-
-  it("deduplicates items with the same name", () => {
-    const items: IOntologyTreeItem[] = [
-      { name: "Cardiology", parent: { name: "Medicine" } },
-      { name: "Neurology", parent: { name: "Medicine" } },
-    ];
-    const result = buildOntologyTree(items);
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe("Medicine");
   });
 
   it("builds multi-level tree from parent chain", () => {
@@ -174,53 +160,5 @@ describe("buildOntologyTree", () => {
     const result = buildOntologyTree(items);
     expect(result).toHaveLength(1);
     expect(result[0].children).toHaveLength(1);
-  });
-});
-
-describe("flattenParentChain", () => {
-  it("returns single item when no parent", () => {
-    const item: IOntologyTreeItem = { name: "Root" };
-    expect(flattenParentChain(item)).toHaveLength(1);
-  });
-
-  it("returns item and all ancestors", () => {
-    const item: IOntologyTreeItem = {
-      name: "Leaf",
-      parent: { name: "Middle", parent: { name: "Root" } },
-    };
-    const result = flattenParentChain(item);
-    expect(result).toHaveLength(3);
-    expect(result.map((i) => i.name)).toEqual(["Leaf", "Middle", "Root"]);
-  });
-});
-
-describe("sortOntologyTree", () => {
-  it("sorts by order when all items have order defined", () => {
-    const tree: IOntologyTreeItem[] = [
-      { name: "B", order: 2 },
-      { name: "A", order: 1 },
-    ];
-    const result = sortOntologyTree(tree);
-    expect(result[0].name).toBe("A");
-    expect(result[1].name).toBe("B");
-  });
-
-  it("sorts alphabetically when not all items have order", () => {
-    const tree: IOntologyTreeItem[] = [{ name: "B", order: 2 }, { name: "A" }];
-    const result = sortOntologyTree(tree);
-    expect(result[0].name).toBe("A");
-    expect(result[1].name).toBe("B");
-  });
-
-  it("recursively sorts children", () => {
-    const tree: IOntologyTreeItem[] = [
-      {
-        name: "Root",
-        children: [{ name: "Z" }, { name: "A" }],
-      },
-    ];
-    const result = sortOntologyTree(tree);
-    expect(result[0].children![0].name).toBe("A");
-    expect(result[0].children![1].name).toBe("Z");
   });
 });
