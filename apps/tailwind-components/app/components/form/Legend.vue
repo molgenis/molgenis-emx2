@@ -1,5 +1,5 @@
 <template>
-  <nav class="bg-form-legend px-12 py-16 mb-18" aria-label="Section navigation">
+  <nav class="bg-form-legend px-12 py-18 mb-18" aria-label="Section navigation">
     <slot name="title" />
     <ul class="list-none">
       <li v-for="(section, index) in sections" :key="section.id">

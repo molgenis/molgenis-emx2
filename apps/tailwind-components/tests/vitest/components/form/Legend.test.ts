@@ -174,7 +174,7 @@ describe("Legend", () => {
     });
 
     expect(wrapper.get("nav").classes().sort()).toEqual(
-      ["bg-form-legend", "mb-18", "px-12", "py-16"].sort()
+      ["bg-form-legend", "mb-18", "px-12", "py-18"].sort()
     );
   });
 
