@@ -441,8 +441,15 @@ jobs:
 
     steps:
     - pre_steps
-    - restore_gradle_build_cache
-    - restore_turbo_cache
+    # master runs cold, so its green proves the tests executed and the cache it
+    # saves below comes from a real run. Every branch restores that cache.
+    - when:
+        condition:
+          not:
+            equal: [ master, << pipeline.git.branch >> ]
+        steps:
+          - restore_gradle_build_cache
+          - restore_turbo_cache
 
     - run:
         name: prepare sql test database
