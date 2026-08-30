@@ -21,6 +21,7 @@ export type {
 
 export {
   fieldTypes,
+  isArrayLikeDetail,
   isEmpty,
   isFileType,
   isRefbackType,

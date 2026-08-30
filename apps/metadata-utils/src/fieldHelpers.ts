@@ -107,5 +107,10 @@ const isCollectionType = (columnType: string): boolean =>
 export const isMultiValuedType = (columnType: string): boolean =>
   columnType.endsWith("_ARRAY") || isCollectionType(columnType);
 
+// columnType can be missing, so guard here rather than loosening
+// isMultiValuedType's own type.
+export const isArrayLikeDetail = (column: IColumn): boolean =>
+  !!column.columnType && isMultiValuedType(column.columnType);
+
 export const isFileType = (columnType: string): boolean =>
   columnType === "FILE";

@@ -1,4 +1,3 @@
-import { isMultiValuedType } from "../../../metadata-utils/src";
 import type { IColumn } from "../../../metadata-utils/src/types";
 
 export function isRefLikeDetail(cellDetailColumn: IColumn) {
@@ -15,9 +14,3 @@ export function isRefLikeDetail(cellDetailColumn: IColumn) {
     type === "REFBACK"
   );
 }
-
-// A payload can reach the modal with no columnType at all, so guard here rather
-// than loosening the shared predicate's type.
-export const isArrayLikeDetail = (cellDetailColumn: IColumn) =>
-  !!cellDetailColumn.columnType &&
-  isMultiValuedType(cellDetailColumn.columnType);
