@@ -14,7 +14,7 @@
       :value="item.content"
       :collapse-all="true"
       :inverted="true"
-    ></DisplayOntology>
+    />
 
     <ContentMapped
       v-else-if="item?.type === 'MAPPED'"
