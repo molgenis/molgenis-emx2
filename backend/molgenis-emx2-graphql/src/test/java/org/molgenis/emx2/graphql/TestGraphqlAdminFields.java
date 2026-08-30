@@ -206,7 +206,7 @@ class TestGraphqlAdminFields {
     Map<String, Object> updateUser = new HashMap<>();
     updateUser.put("email", TEST_PERSOON);
     updateUser.put("password", "12345678");
-    updateUser.put("enabled", "false");
+    updateUser.put("enabled", false);
 
     ArrayList<Map<String, String>> revokedRoles = new ArrayList<>();
     Map<String, String> revokedRole = new HashMap<>();
