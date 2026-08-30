@@ -78,14 +78,6 @@ const showLegend = computed(() => props.showMenu && boxes.value.length > 1);
 
 const activeBoxId = ref<string | null>(null);
 
-// A record box is often taller than the viewport, so the spy watches a band across the top fifth of
-// it rather than asking for half a box to be visible, which a tall box can never be.
-const boxSpyOptions: IntersectionObserverInit = {
-  root: null,
-  rootMargin: "0px 0px -80% 0px",
-  threshold: 0,
-};
-
 // Under one section every entry would nest below it, which tells the reader nothing.
 const legendGroups = computed<LegendGroup[]>(() =>
   sections.value.length === 1
@@ -154,11 +146,10 @@ function keyValueText(value: columnValue): string {
         <DetailSection
           v-for="box in boxes"
           :key="box.id"
-          v-when-in-view="
-            showLegend ? [() => (activeBoxId = box.id), boxSpyOptions] : null
-          "
           :section="box"
+          :trackInView="showLegend"
           @valueClick="$emit('valueClick', $event)"
+          @inView="activeBoxId = box.id"
         />
       </div>
     </template>

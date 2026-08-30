@@ -1,5 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { nextTick } from "vue";
 import type {
   ColumnType,
   IColumn,
@@ -7,7 +8,6 @@ import type {
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
 import DetailView from "../../../../app/components/detail/View.vue";
-import { whenInView } from "../../../../app/directives/whenInView";
 
 function column(id: string, columnType: ColumnType, label?: string): IColumn {
   return { id, label: label ?? id, columnType };
@@ -41,6 +41,7 @@ const twoSectionsRow: IRow = { name: "spike", weight: 15.7, diet: "insects" };
  */
 class FakeIntersectionObserver {
   static instances: FakeIntersectionObserver[] = [];
+  disconnected = false;
   targets: Element[] = [];
   constructor(
     public callback: (entries: { isIntersecting: boolean }[]) => void,
@@ -52,20 +53,22 @@ class FakeIntersectionObserver {
     this.targets.push(target);
   }
   unobserve() {}
-  disconnect() {}
+  disconnect() {
+    this.disconnected = true;
+  }
   takeRecords() {
     return [];
   }
 }
 
-function scrollBoxToTop(boxId: string) {
+function reportBox(boxId: string, isIntersecting: boolean) {
   const observer = FakeIntersectionObserver.instances.find((instance) =>
     instance.targets.some((target) => target.id === boxId)
   );
   if (!observer) {
     throw new Error(`no observer watches box ${boxId}`);
   }
-  observer.callback([{ isIntersecting: true }]);
+  observer.callback([{ isIntersecting }]);
 }
 
 function menuCurrent(wrapper: ReturnType<typeof mount>) {
@@ -87,13 +90,14 @@ function menuLinks(wrapper: ReturnType<typeof mount>) {
 describe("DetailView", () => {
   let wrapper: ReturnType<typeof mount>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     FakeIntersectionObserver.instances = [];
     vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
     wrapper = mount(DetailView, {
       props: { metadata: twoSections, rowData: twoSectionsRow },
-      global: { directives: { "when-in-view": whenInView } },
     });
+    // useIntersectionObserver watches on the post flush, so the observers exist a tick after mount.
+    await nextTick();
   });
 
   afterEach(() => {
@@ -145,13 +149,31 @@ describe("DetailView", () => {
   });
 
   test("marks the entry of the box now at the top, and only that entry", async () => {
-    scrollBoxToTop("size");
+    reportBox("size", true);
     await wrapper.vm.$nextTick();
     expect(menuCurrent(wrapper)).toEqual(["false", "true", "false"]);
 
-    scrollBoxToTop("care");
+    reportBox("care", true);
     await wrapper.vm.$nextTick();
     expect(menuCurrent(wrapper)).toEqual(["false", "false", "true"]);
+
+    // A box leaving the band says nothing about where the reader now is, so the mark stays put
+    // rather than jumping to whichever box happened to report.
+    reportBox("size", false);
+    await wrapper.vm.$nextTick();
+    expect(menuCurrent(wrapper)).toEqual(["false", "false", "true"]);
+  });
+
+  test("stops watching its boxes when the record leaves the page", () => {
+    expect(
+      FakeIntersectionObserver.instances.map((o) => o.disconnected)
+    ).toEqual([false, false, false]);
+
+    wrapper.unmount();
+
+    expect(
+      FakeIntersectionObserver.instances.map((o) => o.disconnected)
+    ).toEqual([true, true, true]);
   });
 
   test("watches a band across the top of the viewport, which a box taller than it can still cross", () => {
@@ -170,7 +192,7 @@ describe("DetailView", () => {
     ]);
   });
 
-  test("watches nothing at all when the menu is off", () => {
+  test("watches nothing at all when the menu is off", async () => {
     FakeIntersectionObserver.instances = [];
 
     const noMenu = mount(DetailView, {
@@ -179,8 +201,8 @@ describe("DetailView", () => {
         rowData: twoSectionsRow,
         showMenu: false,
       },
-      global: { directives: { "when-in-view": whenInView } },
     });
+    await nextTick();
 
     expect(FakeIntersectionObserver.instances).toEqual([]);
     expect(noMenu.find("nav").exists()).toBe(false);
@@ -330,7 +352,6 @@ describe("DetailView", () => {
         rowData: twoSectionsRow,
         showMenu: false,
       },
-      global: { directives: { "when-in-view": whenInView } },
     });
 
     expect(bare.find("nav").exists()).toBe(false);
