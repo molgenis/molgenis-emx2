@@ -6,7 +6,15 @@
     </div>
     <div class="basis-1/2 bg-sidebar-gradient">
       <h2 class="text-title text-heading-xl px-4">Record sections (links)</h2>
-      <FormLegend :sections="recordSections" />
+      <FormLegend :sections="recordSections">
+        <template #title>
+          <h3
+            class="pl-7 pb-4 text-heading-3xl font-display text-title-contrast"
+          >
+            spike - dog
+          </h3>
+        </template>
+      </FormLegend>
     </div>
   </div>
 </template>

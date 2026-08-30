@@ -149,6 +149,24 @@ describe("Legend", () => {
     expect(first).not.toBe(second);
   });
 
+  test("renders a title above the entry list, and nothing at all without one", () => {
+    const sections = [{ id: "about", label: "About", href: "#about" }];
+
+    const titled = mount(Legend, {
+      props: { sections },
+      slots: { title: "<h2>spike - dog</h2>" },
+    });
+    const nav = titled.get("nav").element;
+    expect(nav.firstElementChild?.tagName.toLowerCase()).toBe("h2");
+    expect(titled.get("nav > h2").text()).toBe("spike - dog");
+
+    const untitled = mount(Legend, { props: { sections } });
+    expect(
+      untitled.get("nav").element.firstElementChild?.tagName.toLowerCase()
+    ).toBe("ul");
+    expect(untitled.get("nav").element.children).toHaveLength(1);
+  });
+
   test("names its navigation landmark and labels every entry", () => {
     const wrapper = mount(Legend, {
       props: {

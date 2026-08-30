@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, useId } from "vue";
 import type {
+  columnValue,
   IRow,
   ITableMetaData,
   LegendGroup,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
+import { flattenObject } from "../../utils/flattenObject";
 import {
   groupRecordSections,
   type RecordBox,
@@ -51,7 +53,7 @@ const visibleSections = computed(() =>
     : sections.value
 );
 
-// A section and each of its headings are separate boxes; the menu still nests them.
+// A section and each of its headings are separate boxes.
 const boxes = computed<RecordBox[]>(() => toBoxes(visibleSections.value));
 
 function toBoxes(sections: RecordSection[]): RecordBox[] {
@@ -93,20 +95,47 @@ const showSidebar = computed(
   () => props.showMenu && toBoxes(sections.value).length > 1
 );
 
+// Under one section every entry would nest below it, which tells the reader nothing.
 const legendGroups = computed<LegendGroup[]>(() =>
-  visibleSections.value.map((section) => ({
-    id: section.id,
-    label: section.label ?? props.metadata.label,
-    href: `#${menuAnchorId(section)}`,
-    isVisible: true,
-    headers: section.headings.map((heading) => ({
-      id: heading.id,
-      label: heading.label,
-      href: `#${heading.id}`,
-      isVisible: true,
-    })),
-  }))
+  visibleSections.value.length === 1
+    ? boxes.value.map((box) => ({
+        id: box.id,
+        label: box.label ?? props.metadata.label,
+        href: `#${box.id}`,
+        isVisible: true,
+      }))
+    : visibleSections.value.map((section) => ({
+        id: section.id,
+        label: section.label ?? props.metadata.label,
+        href: `#${menuAnchorId(section)}`,
+        isVisible: true,
+        headers: section.headings.map((heading) => ({
+          id: heading.id,
+          label: heading.label,
+          href: `#${heading.id}`,
+          isVisible: true,
+        })),
+      }))
 );
+
+/** No metadata names a row, so the primary key is the closest thing to the record's identity. */
+const recordTitle = computed(() =>
+  props.metadata.columns
+    .filter((column) => column.key === 1)
+    .map((column) => keyValueText(props.rowData?.[column.id]))
+    .filter(Boolean)
+    .join(" - ")
+);
+
+function keyValueText(value: columnValue): string {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  // A key column can be a REF, so its value is the referenced row.
+  return typeof value === "object"
+    ? flattenObject(value).trim()
+    : String(value);
+}
 
 function filterSections(
   sections: RecordSection[],
@@ -150,7 +179,15 @@ function filterSections(
         v-if="showLegend"
         :sections="legendGroups"
         class="hidden xl:block"
-      />
+      >
+        <template v-if="recordTitle" #title>
+          <h2
+            class="pl-7 pb-4 text-heading-3xl font-display text-title-contrast"
+          >
+            {{ recordTitle }}
+          </h2>
+        </template>
+      </FormLegend>
       <div v-if="showFilter" class="flex pb-[30px] xl:pb-0 xl:pt-5">
         <label :for="filterId" class="sr-only">Filter fields</label>
         <InputSearch

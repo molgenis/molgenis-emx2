@@ -142,7 +142,7 @@ describe("DetailView", () => {
     expect(topped.get("#mg_top_of_form").find("h2").exists()).toBe(false);
   });
 
-  test("renders a menu for one section with two headings, because every box is its own jump target", () => {
+  test("lists the boxes of a lone section as siblings, because nesting them all under it says nothing", () => {
     const oneSection = mount(DetailView, {
       props: {
         metadata: table([
@@ -165,10 +165,51 @@ describe("DetailView", () => {
     const topLevel = oneSection.get("nav").findAll(":scope > ul > li");
     expect(topLevel.map((entry) => entry.get("a").attributes("href"))).toEqual([
       "#mg_top_of_form",
+      "#details",
+      "#heading2",
     ]);
+    expect(oneSection.get("nav").findAll("ul ul")).toEqual([]);
+  });
+
+  test("titles the menu with every key value of the record, joined", () => {
+    const withKeys = (rowData: IRow) =>
+      mount(DetailView, {
+        props: {
+          metadata: table([
+            { ...column("name", "STRING", "Name"), key: 1 },
+            {
+              ...column("category", "REF", "Category"),
+              key: 1,
+              refSchemaId: "pet store",
+              refTableId: "Category",
+              refLabel: "${name}",
+              refLabelDefault: "${name}",
+            },
+            column("status", "STRING", "Status"),
+            column("details", "HEADING", "Details"),
+            column("weight", "DECIMAL", "Weight"),
+          ]),
+          rowData,
+        },
+      });
+
     expect(
-      topLevel[0]!.findAll("ul a").map((link) => link.attributes("href"))
-    ).toEqual(["#details", "#heading2"]);
+      withKeys({
+        name: "spike",
+        category: { name: "dog" },
+        status: "available",
+        weight: 15.7,
+      })
+        .get("nav")
+        .get("h2")
+        .text()
+    ).toBe("spike - dog");
+    expect(
+      withKeys({ name: "spike", status: "available", weight: 15.7 })
+        .get("nav")
+        .get("h2")
+        .text()
+    ).toBe("spike");
   });
 
   test("renders no menu below two boxes", () => {

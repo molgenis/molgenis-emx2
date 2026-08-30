@@ -1,5 +1,6 @@
 <template>
   <nav class="pt-4 pb-8 bg-form-legend" aria-label="Section navigation">
+    <slot name="title" />
     <ul class="list-none">
       <li v-for="(section, index) in sections" :key="section.id">
         <FormLegendHeader
