@@ -120,6 +120,25 @@ describe("display/Ontology.vue renders every root", () => {
   });
 });
 
+describe("display/Ontology.vue name affordance", () => {
+  it("gives a leaf's name span no pointer-cursor class", () => {
+    const wrapper = mountTree(true);
+    const leafSpan = wrapper.findAll("li").at(-1)!.find("span.flex");
+    expect(leafSpan.classes()).not.toContain("hover:cursor-pointer");
+  });
+
+  it("still toggles a branch's child list when its name span is clicked", async () => {
+    const wrapper = mountTree(true);
+    const rootItem = wrapper.findAll("li")[0];
+    const rootChildList = rootItem.find("ul");
+    expect(rootChildList.classes()).toContain("hidden");
+
+    await rootItem.find("span.flex").trigger("click");
+
+    expect(rootChildList.classes()).not.toContain("hidden");
+  });
+});
+
 describe("display/Ontology.vue root markup", () => {
   it("renders the flat list with no wrapper element around the ul", () => {
     const wrapper = mount(DisplayOntology, {

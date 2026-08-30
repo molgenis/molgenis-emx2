@@ -120,10 +120,9 @@ describe("buildOntologyTree", () => {
     ]);
   });
 
-  // The four cases below hold the five buildTree rules named in
-  // .plan/backlog/0108-one-ontology-tree/spec.md (criterion 4) that the
-  // suite above does not already exercise: repeated array entries, root
-  // nodes coexisting with a child of one of them in the same input, the
+  // The four cases below carry rules that catalogue's own deleted buildTree
+  // suite held and this one did not: repeated array entries, root nodes
+  // coexisting with a child of one of them in the same input, the
   // list-of-trees shape, and unique children under a repeated parent+child
   // pair.
   it("deduplicates the same item occurring multiple times in the input", () => {

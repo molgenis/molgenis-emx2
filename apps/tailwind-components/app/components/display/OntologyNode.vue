@@ -52,9 +52,9 @@ const toggleCollapse = () => {
       </span>
 
       <span
-        class="flex justify-center items-start hover:cursor-pointer"
+        class="flex justify-center items-start"
         :class="{ 'cursor-pointer hover:underline': node.children?.length }"
-        @click="toggleCollapse()"
+        @click="node.children?.length && toggleCollapse()"
       >
         {{ node.name }}
       </span>
