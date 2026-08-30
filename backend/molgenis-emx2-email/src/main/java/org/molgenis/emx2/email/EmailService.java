@@ -32,6 +32,10 @@ public class EmailService {
     props.put("mail.smtp.socketFactory.class", settings.getSocketFactoryClass());
     props.put("mail.smtp.socketFactory.fallback", settings.getSocketFactoryFallback());
 
+    // JavaMail defaults both to infinite, so an unreachable server blocks the calling thread
+    props.put("mail.smtp.connectiontimeout", "10000");
+    props.put("mail.smtp.timeout", "10000");
+
     props.put("mail.debug", settings.getDebug());
 
     senderEmail = settings.getSenderEmail();
