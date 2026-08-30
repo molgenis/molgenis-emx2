@@ -18,7 +18,6 @@ export interface RecordHeading {
   fields: RecordField[];
 }
 
-/** `label` is null for the section the backend synthesises above the first column. */
 export interface RecordSection {
   id: string;
   label: string | null;
@@ -26,7 +25,6 @@ export interface RecordSection {
   headings: RecordHeading[];
 }
 
-/** One rendered box. `kind` sets its title level, so the two-level tree survives flattening. */
 export interface RecordBox {
   kind: "section" | "heading";
   id: string;
@@ -36,11 +34,6 @@ export interface RecordBox {
 
 const TOP_SECTION_ID = "mg_top_of_form";
 
-/**
- * Groups a row's columns into the two-level tree the backend describes: SECTION
- * first, HEADING second. Drops what the reader cannot use: fields with no value,
- * sections and headings left empty, and `mg_` columns unless asked for.
- */
 export function groupRecordSections(
   metadata: ITableMetaData,
   rowData: IRow | undefined | null,
@@ -57,7 +50,7 @@ export function groupRecordSections(
     }
     if (column.columnType === "HEADING") {
       heading = { id: column.id, label: column.label, fields: [] };
-      currentSection(sections).headings.push(heading);
+      currentOrTopSection(sections).headings.push(heading);
       continue;
     }
     if (!isVisibleField(column, rowData, options.showMgColumns)) {
@@ -69,7 +62,7 @@ export function groupRecordSections(
       metadata: column,
       value: rowData?.[column.id],
     };
-    (heading ?? currentSection(sections)).fields.push(field);
+    (heading ?? currentOrTopSection(sections)).fields.push(field);
   }
 
   return sections
@@ -91,8 +84,7 @@ function newSection(id: string, label: string): RecordSection {
   };
 }
 
-/** A column before the first SECTION belongs to a section of its own. */
-function currentSection(sections: RecordSection[]): RecordSection {
+function currentOrTopSection(sections: RecordSection[]): RecordSection {
   const last = sections[sections.length - 1];
   if (last) {
     return last;
@@ -110,7 +102,6 @@ function isVisibleField(
   if (column.id.startsWith("mg_") && !showMgColumns) {
     return false;
   }
-  // A column the row does not carry reads as undefined, so this covers that too.
   return !isEmptyValue(rowData?.[column.id]);
 }
 

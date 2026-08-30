@@ -41,7 +41,6 @@ const sections = computed(() =>
   })
 );
 
-// A section and each of its headings are separate boxes.
 const boxes = computed<RecordBox[]>(() =>
   sections.value.flatMap((section) => [
     ...(hasOwnBox(section)
@@ -61,24 +60,20 @@ const boxes = computed<RecordBox[]>(() =>
   ])
 );
 
-/** The synthetic top section is nameless, so with every column under a heading it has nothing to show. */
 function hasOwnBox(section: RecordSection): boolean {
   return !!section.label || section.fields.length > 0;
 }
 
-/** A section that renders no box of its own would otherwise link the menu at a missing id. */
 function menuAnchorId(section: RecordSection): string {
   return hasOwnBox(section)
     ? section.id
     : section.headings[0]?.id ?? section.id;
 }
 
-// Every box is a jump target, so a section with two headings already needs a menu.
 const showLegend = computed(() => props.showMenu && boxes.value.length > 1);
 
 const activeBoxId = ref<string | null>(null);
 
-// Under one section every entry would nest below it, which tells the reader nothing.
 const legendGroups = computed<LegendGroup[]>(() =>
   sections.value.length === 1
     ? boxes.value.map((box) => ({
@@ -104,7 +99,6 @@ const legendGroups = computed<LegendGroup[]>(() =>
       }))
 );
 
-/** No metadata names a row, so the primary key is the closest thing to the record's identity. */
 const recordTitle = computed(() =>
   props.metadata.columns
     .filter((column) => column.key === 1)
@@ -117,7 +111,6 @@ function keyValueText(value: columnValue): string {
   if (value === null || value === undefined) {
     return "";
   }
-  // A key column can be a REF, so its value is the referenced row.
   return typeof value === "object"
     ? flattenObject(value).trim()
     : String(value);

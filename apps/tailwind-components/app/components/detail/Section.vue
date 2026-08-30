@@ -24,12 +24,15 @@ const emit = defineEmits<{
   (e: "inView"): void;
 }>();
 
+const TOP_FIFTH_OF_VIEWPORT = {
+  root: null,
+  rootMargin: "0px 0px -80% 0px",
+  threshold: 0,
+};
+
 const root = ref<ComponentPublicInstance | null>(null);
 
-// RefSelect renders one of these per option, so an untracked box builds no observer at all.
 if (props.trackInView) {
-  // A record box is often taller than the viewport, so the band is its top fifth rather than half
-  // of it, which a tall box can never reach.
   useIntersectionObserver(
     root,
     ([entry]) => {
@@ -37,13 +40,12 @@ if (props.trackInView) {
         emit("inView");
       }
     },
-    { root: null, rootMargin: "0px 0px -80% 0px", threshold: 0 }
+    TOP_FIFTH_OF_VIEWPORT
   );
 }
 </script>
 
 <template>
-  <!-- No `title`, because a heading box needs an h3 where ContentBlock emits an h2. -->
   <ContentBlock ref="root" :id="section.id" class="scroll-mt-7.5">
     <h2
       v-if="section.label && section.kind === 'section'"

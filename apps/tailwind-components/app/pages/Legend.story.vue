@@ -96,7 +96,6 @@ const sections: LegendSection[] = [
   },
 ];
 
-// A record menu carries an href, so each entry is a link a reader can copy.
 const recordSections: LegendGroup[] = [
   {
     label: "Main",

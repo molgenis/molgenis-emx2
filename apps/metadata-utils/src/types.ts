@@ -113,7 +113,6 @@ export interface IFieldError {
   message: string;
 }
 
-/** One clickable entry of a section menu. `href` makes it a real link. */
 export interface LegendEntry {
   id: string;
   label: string;
