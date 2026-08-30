@@ -476,8 +476,16 @@ jobs:
         name: <backend> check for programming flaws
         command: |
           ./gradlew --continue pmdMain pmdTest
+    # Split from sonar so each has its own timing, and because these two are
+    # cacheable where sonar, which uploads, never can be.
     - run:
-        name: run tests and push to sonar
+        name: run tests and merge coverage
+        command: |
+          ./gradlew test jacocoMergedReport -x :apps:test \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+
+    - run:
+        name: push results to sonar
         # sonar rejects an empty pullrequest.key, and master has no PR, so the
         # pull-request flags are only passed when there is one.
         command: |
@@ -485,7 +493,7 @@ jobs:
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
             SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
           fi
-          ./gradlew test jacocoMergedReport sonar -x :apps:test \
+          ./gradlew sonar \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
@@ -529,7 +537,8 @@ jobs:
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
-
+    # lint and test is now in separate task so release is faster
+    # TODO: discuss with team if we prefer depend on test?
     - run:
         name: build the docker image
         command: |
