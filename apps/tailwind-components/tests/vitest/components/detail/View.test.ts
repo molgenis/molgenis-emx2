@@ -109,7 +109,9 @@ describe("DetailView", () => {
   });
 
   test("titles a heading box one level below a section box", () => {
+    // The two titles now render at the same size, so the tag is all the structure a reader gets.
     expect(wrapper.get("#about").get("h2").text()).toBe("About");
+    expect(wrapper.get("#about").find("h3").exists()).toBe(false);
     expect(wrapper.get("#size").get("h3").text()).toBe("Size");
     expect(wrapper.get("#size").find("h2").exists()).toBe(false);
   });

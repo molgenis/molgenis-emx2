@@ -26,7 +26,7 @@ defineEmits<{
     >
       {{ section.label }}
     </h2>
-    <h3 v-else-if="section.label" class="mb-4 text-heading-3xl font-display">
+    <h3 v-else-if="section.label" class="mb-5 text-heading-4xl font-display">
       {{ section.label }}
     </h3>
 

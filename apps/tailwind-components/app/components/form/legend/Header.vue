@@ -37,22 +37,22 @@ function goTo(event: MouseEvent) {
 }
 </script>
 <template>
-  <div class="flex">
+  <div class="flex my-2">
     <div
       class="bg-button-primary w-[0.3125rem] min-w-[0.3125rem] h-7 min-h-7 transition-opacity"
       :class="{ 'opacity-0': !isActive }"
     />
-    <div class="flex gap-2">
+    <div class="flex gap-2 grow min-w-0">
       <a
         :id="`${idPrefix}-${id}`"
         :aria-describedby="errorCountId"
-        class="pl-7 truncate hover:overflow-visible bg-form-legend cursor-pointer"
+        class="pl-7 grow truncate hover:overflow-visible bg-form-legend cursor-pointer"
         :href="href ?? '#'"
         :aria-current="isActive"
         @click="goTo"
       >
         <span
-          class="text-title-contrast capitalize py-1"
+          class="text-title-contrast capitalize"
           :class="{ 'font-bold': isActive }"
         >
           {{ label }}

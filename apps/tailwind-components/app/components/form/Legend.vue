@@ -17,7 +17,7 @@
           @goToSection="emit('goToSection', $event)"
         />
         <ul v-for="header in section.headers" class="list-none">
-          <li class="pl-4 py-2" v-if="header.isVisible !== false">
+          <li class="pl-4" v-if="header.isVisible !== false">
             <FormLegendHeader
               :id="header.id"
               :idPrefix="idPrefix"
