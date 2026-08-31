@@ -57,6 +57,17 @@ It is possible to _delete_ rows from a table in EMX2 by using the upload functio
 You can do so by adding a column named `mg_delete` to your Excel or CSV sheet and mark those rows as `true` in this
 column for those you want to delete.
 
+#### CSV Query parameters
+- **`mode`**: The mode of operation on an existing table. Defaults to `override`.
+  - **`options`**:
+    - **`override`**: Replaces the entire table with the uploaded data.
+    - **`update`**: Updates existing rows and inserts new ones.
+  - ** example:
+  ```text
+  http://{SERVER_NAME}/{SCHEMA}/api/csv/{TABLE}?mode=update
+  ```
+  note: The `update` mode requires that the uploaded data contains the primary key values for the rows to be updated.
+
 ## FAQ
 
 ### How can I upload/download data when using columnType=file?
