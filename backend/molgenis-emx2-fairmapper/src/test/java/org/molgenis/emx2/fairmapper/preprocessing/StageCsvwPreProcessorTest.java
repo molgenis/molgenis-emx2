@@ -7,7 +7,8 @@ import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.util.HashSet;
 import java.util.Set;
-import org.eclipse.rdf4j.query.TupleQueryResult;
+import java.util.stream.Collectors;
+import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -196,27 +197,21 @@ class StageCsvwPreProcessorTest {
 
   private void assertHasVariables(String dataset, String... expectedTables) {
     Set<String> expected = new HashSet<>(Set.of(expectedTables));
-
-    String query =
-        """
-        PREFIX healthdcatap: <http://healthdataportal.eu/ns/health#>
-        SELECT ?table WHERE { <%s> healthdcatap:hasVariables ?table }
-        """
-            .formatted(dataset);
-    Set<String> actual = new HashSet<>();
-    try (SailRepositoryConnection conn = repository.getConnection();
-        TupleQueryResult result = conn.prepareTupleQuery(query).evaluate()) {
-      result.forEach(bindingSet -> actual.add(bindingSet.getValue("table").stringValue()));
-    }
+    Set<String> actual =
+        repository
+            .getConnection()
+            .getStatements(
+                Values.iri(dataset),
+                Values.iri("http://healthdataportal.eu/ns/health#hasVariables"),
+                null)
+            .stream()
+            .map(statement -> statement.getObject().toString())
+            .collect(Collectors.toSet());
 
     assertEquals(expected, actual);
   }
 
   private long countAllStatements() {
-    String query = "SELECT (COUNT(*) AS ?count) WHERE { ?s ?p ?o }";
-    try (SailRepositoryConnection conn = repository.getConnection();
-        TupleQueryResult result = conn.prepareTupleQuery(query).evaluate()) {
-      return Long.parseLong(result.next().getValue("count").stringValue());
-    }
+    return repository.getConnection().getStatements(null, null, null).stream().count();
   }
 }
