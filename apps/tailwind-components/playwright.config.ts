@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 import type { ConfigOptions } from "@nuxt/test-utils/playwright";
 
+const authFile = "playwright/.auth/user.json";
+
 export default defineConfig<ConfigOptions>({
   testDir: "./tests/e2e",
   maxFailures: process.env.CI ? 1 : 5,
@@ -40,15 +42,19 @@ export default defineConfig<ConfigOptions>({
     },
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-      testIgnore: "*/admin!*.spec.ts",
-      testMatch: "*/*.spec.ts",
-    },
-    {
-      name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        storageState: "e2e/.auth/user.json",
+        storageState: authFile,
+      },
+      testIgnore: "*/admin!*.spec.ts",
+      testMatch: "*/*.spec.ts",
+      dependencies: ["auth.setup"],
+    },
+    {
+      name: "chromium-admin",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: authFile,
       },
       testMatch: "*/admin!*.spec.ts",
       dependencies: ["auth.setup"],
