@@ -492,7 +492,7 @@ watch(
                   :metadata="tableMetadata"
                   :row-data="(option as recordValue)"
                   :show-mg-columns="showMgColumns"
-                  :show-menu="false"
+                  :show-legend="false"
                   :show-filter="false"
                   :show-cards="false"
                 />

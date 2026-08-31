@@ -22,14 +22,14 @@ const props = withDefaults(
     metadata: ITableMetaData;
     rowData?: IRow | null;
     showMgColumns?: boolean;
-    showMenu?: boolean;
+    showLegend?: boolean;
     showCards?: boolean;
     showFilter?: boolean;
   }>(),
   {
     rowData: null,
     showMgColumns: false,
-    showMenu: true,
+    showLegend: true,
     showCards: true,
     showFilter: false,
   }
@@ -72,13 +72,14 @@ function hasOwnBox(section: RecordSectionGroup): boolean {
   return !!section.label || section.fields.length > 0;
 }
 
-function menuAnchorId(section: RecordSectionGroup): string {
+function legendAnchorId(section: RecordSectionGroup): string {
   return hasOwnBox(section)
     ? section.id
     : section.headings[0]?.id ?? section.id;
 }
 
-const showLegend = computed(() => props.showMenu && boxes.value.length > 1);
+// Enough boxes to need navigating, and the caller has not turned the legend off.
+const hasLegend = computed(() => props.showLegend && boxes.value.length > 1);
 const showFilterBox = computed(() => props.showFilter);
 
 const activeBoxId = ref<string | null>(null);
@@ -95,7 +96,7 @@ const legendGroups = computed<LegendGroup[]>(() =>
     : sections.value.map((section) => ({
         id: section.id,
         label: section.label ?? props.metadata.label,
-        href: `#${menuAnchorId(section)}`,
+        href: `#${legendAnchorId(section)}`,
         isVisible: true,
         isActive: section.id === activeBoxId.value,
         headers: section.headings.map((heading) => ({
@@ -112,8 +113,8 @@ const title = computed(() => recordTitle(props.metadata, props.rowData));
 </script>
 
 <template>
-  <RecordPageLayout :show-side-nav="showLegend">
-    <template v-if="showLegend" #sidebar>
+  <RecordPageLayout :show-legend="hasLegend">
+    <template v-if="hasLegend" #sidebar>
       <FormLegend
         :sections="legendGroups"
         class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
@@ -144,7 +145,7 @@ const title = computed(() => recordTitle(props.metadata, props.rowData));
           :key="box.id"
           :section="box"
           :showCards="showCards"
-          :trackInView="showLegend"
+          :trackInView="hasLegend"
           @valueClick="$emit('valueClick', $event)"
           @inView="activeBoxId = box.id"
         />

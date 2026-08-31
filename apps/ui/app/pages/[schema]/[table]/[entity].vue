@@ -151,7 +151,7 @@ function handleCellClick(event: cellPayload) {
       :metadata="viewMetadata"
       :rowData="viewRowData"
       :showMgColumns="isAdmin"
-      :showMenu="true"
+      :showLegend="true"
       :showCards="true"
       :showFilter="true"
       @valueClick="handleCellClick($event)"

@@ -67,14 +67,14 @@ function reportBox(boxId: string, isIntersecting: boolean) {
   observer.callback([{ isIntersecting }]);
 }
 
-function menuCurrent(wrapper: ReturnType<typeof mount>) {
+function legendCurrent(wrapper: ReturnType<typeof mount>) {
   return wrapper
     .find("nav")
     .findAll("a")
     .map((link) => link.attributes("aria-current"));
 }
 
-function menuLinks(wrapper: ReturnType<typeof mount>) {
+function legendLinks(wrapper: ReturnType<typeof mount>) {
   const nav = wrapper.find("nav");
   return nav.exists()
     ? nav
@@ -114,7 +114,7 @@ describe("DisplayRecord", () => {
     expect(wrapper.get("#size").find("h2").exists()).toBe(false);
   });
 
-  test("renders no box for a top section holding nothing but headings, and aims its menu entry at the first box it does render", () => {
+  test("renders no box for a top section holding nothing but headings, and aims its legend entry at the first box it does render", () => {
     const headingsOnly = mount(DisplayRecord, {
       props: {
         metadata: table([
@@ -131,13 +131,13 @@ describe("DisplayRecord", () => {
     expect(
       headingsOnly.findAll("section").map((section) => section.attributes("id"))
     ).toEqual(["details", "care"]);
-    expect(menuLinks(headingsOnly)).toEqual([
+    expect(legendLinks(headingsOnly)).toEqual([
       ["Pet", "#details"],
       ["Details", "#details"],
       ["Care", "#care"],
     ]);
     expect(
-      menuLinks(headingsOnly).map(
+      legendLinks(headingsOnly).map(
         ([, href]) => href && headingsOnly.find(href).exists()
       )
     ).toEqual([true, true, true]);
@@ -146,15 +146,15 @@ describe("DisplayRecord", () => {
   test("marks the entry of the box now at the top, only that entry, and keeps it when another leaves the band", async () => {
     reportBox("size", true);
     await wrapper.vm.$nextTick();
-    expect(menuCurrent(wrapper)).toEqual(["false", "true", "false"]);
+    expect(legendCurrent(wrapper)).toEqual(["false", "true", "false"]);
 
     reportBox("care", true);
     await wrapper.vm.$nextTick();
-    expect(menuCurrent(wrapper)).toEqual(["false", "false", "true"]);
+    expect(legendCurrent(wrapper)).toEqual(["false", "false", "true"]);
 
     reportBox("size", false);
     await wrapper.vm.$nextTick();
-    expect(menuCurrent(wrapper)).toEqual(["false", "false", "true"]);
+    expect(legendCurrent(wrapper)).toEqual(["false", "false", "true"]);
   });
 
   test("stops watching its boxes when the record leaves the page", () => {
@@ -185,20 +185,20 @@ describe("DisplayRecord", () => {
     ]);
   });
 
-  test("watches nothing at all when the menu is off", async () => {
+  test("watches nothing at all when the legend is off", async () => {
     FakeIntersectionObserver.instances = [];
 
-    const noMenu = mount(DisplayRecord, {
+    const noLegend = mount(DisplayRecord, {
       props: {
         metadata: twoSections,
         rowData: twoSectionsRow,
-        showMenu: false,
+        showLegend: false,
       },
     });
     await nextTick();
 
     expect(FakeIntersectionObserver.instances).toEqual([]);
-    expect(noMenu.find("nav").exists()).toBe(false);
+    expect(noLegend.find("nav").exists()).toBe(false);
   });
 
   test("starts watching a box whose tracking turns on after mount", async () => {
@@ -208,13 +208,13 @@ describe("DisplayRecord", () => {
       props: {
         metadata: twoSections,
         rowData: twoSectionsRow,
-        showMenu: false,
+        showLegend: false,
       },
     });
     await nextTick();
     expect(FakeIntersectionObserver.instances).toEqual([]);
 
-    await latecomer.setProps({ showMenu: true });
+    await latecomer.setProps({ showLegend: true });
     await nextTick();
 
     expect(
@@ -231,8 +231,8 @@ describe("DisplayRecord", () => {
     expect(wrapper.get("#care").text()).toContain("insects");
   });
 
-  test("lists one menu entry per rendered section, targeting its anchor", () => {
-    expect(menuLinks(wrapper)).toEqual([
+  test("lists one legend entry per rendered section, targeting its anchor", () => {
+    expect(legendLinks(wrapper)).toEqual([
       ["About", "#about"],
       ["Size", "#size"],
       ["Care", "#care"],
@@ -252,7 +252,7 @@ describe("DisplayRecord", () => {
     expect(topLevel[1]!.findAll("ul a")).toEqual([]);
   });
 
-  test("names the unnamed top section after the table in the menu, and leaves the section itself unheaded", () => {
+  test("names the unnamed top section after the table in the legend, and leaves the section itself unheaded", () => {
     const topped = mount(DisplayRecord, {
       props: {
         metadata: table([
@@ -265,7 +265,7 @@ describe("DisplayRecord", () => {
       },
     });
 
-    expect(menuLinks(topped)).toEqual([
+    expect(legendLinks(topped)).toEqual([
       ["Pet", "#mg_top_of_form"],
       ["Care", "#care"],
     ]);
@@ -287,7 +287,7 @@ describe("DisplayRecord", () => {
       },
     });
 
-    expect(menuLinks(oneSection)).toEqual([
+    expect(legendLinks(oneSection)).toEqual([
       ["Pet", "#mg_top_of_form"],
       ["Details", "#details"],
       ["Heading2", "#heading2"],
@@ -301,7 +301,7 @@ describe("DisplayRecord", () => {
     expect(oneSection.get("nav").findAll("ul ul")).toEqual([]);
   });
 
-  test("titles the menu with every key value of the record, joined", () => {
+  test("titles the legend with every key value of the record, joined", () => {
     const withKeys = (rowData: IRow) =>
       mount(DisplayRecord, {
         props: {
@@ -342,7 +342,7 @@ describe("DisplayRecord", () => {
     ).toBe("spike");
   });
 
-  test("reveals the menu at the same width the layout gives it a column, so it never stacks", () => {
+  test("reveals the legend at the same width the layout gives it a column, so it never stacks", () => {
     const revealAt = wrapper
       .get("nav")
       .classes()
@@ -358,7 +358,7 @@ describe("DisplayRecord", () => {
     expect(columnsAt).toBe("lg:sticky");
   });
 
-  test("renders no menu below two boxes", () => {
+  test("renders no legend below two boxes", () => {
     const single = mount(DisplayRecord, {
       props: {
         metadata: table([
@@ -373,7 +373,7 @@ describe("DisplayRecord", () => {
     expect(single.get("#about").text()).toContain("spike");
   });
 
-  test("renders no field filter, beside the menu or above the record", () => {
+  test("renders no field filter, beside the legend or above the record", () => {
     expect(wrapper.findAll('input[type="search"]')).toHaveLength(0);
     expect(wrapper.find("header").exists()).toBe(false);
 
@@ -381,7 +381,7 @@ describe("DisplayRecord", () => {
       props: {
         metadata: twoSections,
         rowData: twoSectionsRow,
-        showMenu: false,
+        showLegend: false,
       },
     });
 
@@ -424,7 +424,7 @@ describe("DisplayRecord", () => {
     expect(withFilter.find('aside input[type="search"]').exists()).toBe(false);
   });
 
-  test("filters sections by field label, dropping a box and its menu entry together", async () => {
+  test("filters sections by field label, dropping a box and its legend entry together", async () => {
     const threeFlatSections = table([
       column("about", "SECTION", "About"),
       column("name", "STRING", "Name"),
@@ -446,7 +446,7 @@ describe("DisplayRecord", () => {
     expect(
       withFilter.findAll("section").map((section) => section.attributes("id"))
     ).toEqual(["size", "care"]);
-    expect(menuLinks(withFilter)).toEqual([
+    expect(legendLinks(withFilter)).toEqual([
       ["Size", "#size"],
       ["Care", "#care"],
     ]);

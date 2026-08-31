@@ -49,7 +49,7 @@ const displayLabel = computed(
       <Record
         :metadata="metadata"
         :row-data="rowData"
-        :show-menu="false"
+        :show-legend="false"
         :show-filter="false"
       />
     </div>

@@ -3,10 +3,10 @@ import { computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    showSideNav?: boolean;
+    showLegend?: boolean;
   }>(),
   {
-    showSideNav: true,
+    showLegend: true,
   }
 );
 
@@ -16,7 +16,7 @@ const slots = defineSlots<{
   main?: () => any;
 }>();
 
-const hasSidebar = computed(() => props.showSideNav && !!slots.sidebar);
+const hasSidebar = computed(() => props.showLegend && !!slots.sidebar);
 </script>
 
 <template>

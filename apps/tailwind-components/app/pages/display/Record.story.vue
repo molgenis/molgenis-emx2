@@ -21,10 +21,14 @@
       <fieldset class="p-4 border-2 mb-2 flex flex-wrap gap-4">
         <legend class="text-title font-bold">Record props</legend>
         <div>
-          <label class="text-title font-bold" for="show-menu">
-            Legend (showMenu):
+          <label class="text-title font-bold" for="show-legend">
+            Legend (showLegend):
           </label>
-          <InputCheckbox id="show-menu" v-model="showMenu" name="show-menu" />
+          <InputCheckbox
+            id="show-legend"
+            v-model="showLegend"
+            name="show-legend"
+          />
         </div>
         <div>
           <label class="text-title font-bold" for="show-cards">
@@ -63,7 +67,7 @@
         :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
         :metadata="metadata"
         :rowData="formValues"
-        :showMenu="showMenu"
+        :showLegend="showLegend"
         :showCards="showCards"
         :showFilter="showFilter"
         :showMgColumns="showMgColumns"
@@ -162,7 +166,7 @@ const rowIndex = ref<number>(
   route.query.rowIndex ? Number(route.query.rowIndex) : 0
 );
 
-const showMenu = ref(true);
+const showLegend = ref(true);
 const showCards = ref(true);
 const showFilter = ref(false);
 const showMgColumns = ref(false);
