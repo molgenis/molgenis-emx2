@@ -1,16 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import type { ConfigOptions } from "@nuxt/test-utils/playwright";
-import * as path from "path";
-import * as fs from "fs";
-import { fileURLToPath } from "url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const authDir = path.join(__dirname, "playwright/.auth");
-const authFile = path.join(authDir, "user.json");
-
-if (!fs.existsSync(authDir)) {
-  fs.mkdirSync(authDir, { recursive: true });
-}
+const authFile = "playwright/.auth/user.json";
 
 export default defineConfig<ConfigOptions>({
   testDir: "./tests/e2e",
