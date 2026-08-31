@@ -452,65 +452,6 @@ describe("DisplayRecord", () => {
     ]);
   });
 
-  function accordionToggle(wrapper: ReturnType<typeof mount>, label: string) {
-    const match = wrapper
-      .findAll("button")
-      .find((button) => button.text() === label);
-    if (!match) {
-      throw new Error(`no accordion toggle button labelled ${label}`);
-    }
-    return match;
-  }
-
-  test("collapsed wraps the record in an accordion closed by default, headed by the record's key, with no menu and no filter", () => {
-    const collapsibleMetadata = table([
-      { ...column("name", "STRING", "Name"), key: 1 },
-      column("about", "SECTION", "About"),
-      column("diet", "STRING", "Diet"),
-    ]);
-    const collapsed = mount(DisplayRecord, {
-      props: {
-        metadata: collapsibleMetadata,
-        rowData: { name: "spike", diet: "insects" },
-        collapsed: true,
-        showMenu: true,
-        showFilter: true,
-      },
-    });
-
-    expect(
-      accordionToggle(collapsed, "spike").attributes("aria-expanded")
-    ).toBe("false");
-    expect(collapsed.find("nav").exists()).toBe(false);
-    expect(collapsed.find('input[type="search"]').exists()).toBe(false);
-  });
-
-  test("expanding the collapsed accordion reveals the whole record, the menu and the filter", async () => {
-    const collapsibleMetadata = table([
-      { ...column("name", "STRING", "Name"), key: 1 },
-      column("about", "SECTION", "About"),
-      column("diet", "STRING", "Diet"),
-    ]);
-    const collapsed = mount(DisplayRecord, {
-      props: {
-        metadata: collapsibleMetadata,
-        rowData: { name: "spike", diet: "insects" },
-        collapsed: true,
-        showMenu: true,
-        showFilter: true,
-      },
-    });
-
-    await accordionToggle(collapsed, "spike").trigger("click");
-
-    expect(
-      accordionToggle(collapsed, "spike").attributes("aria-expanded")
-    ).toBe("true");
-    expect(collapsed.text()).toContain("insects");
-    expect(collapsed.find("nav").exists()).toBe(true);
-    expect(collapsed.find('input[type="search"]').exists()).toBe(true);
-  });
-
   test("shows mg_ columns only when asked", () => {
     const metadata = table([
       column("about", "SECTION", "About"),

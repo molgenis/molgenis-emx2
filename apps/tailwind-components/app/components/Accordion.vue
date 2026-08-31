@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, useId } from "vue";
+import { useId, ref } from "vue";
 import Button from "./Button.vue";
 
 const props = withDefaults(
@@ -17,16 +17,7 @@ const props = withDefaults(
 );
 
 const id = useId();
-// defineModel's default can't read a prop, so fall back to openByDefault when unbound.
-const boundExpanded = defineModel<boolean | undefined>("expanded", {
-  default: undefined,
-});
-const isExpanded = computed<boolean>({
-  get: () => boundExpanded.value ?? props.openByDefault,
-  set: (value) => {
-    boundExpanded.value = value;
-  },
-});
+const isExpanded = ref<boolean>(props.openByDefault);
 </script>
 
 <template>

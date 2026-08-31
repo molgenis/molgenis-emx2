@@ -2,8 +2,7 @@
 import { computed } from "vue";
 import { columnValueToString } from "../../../utils/columnValueToString";
 import Button from "../../Button.vue";
-import Accordion from "../../Accordion.vue";
-import DisplayRecord from "../../display/Record.vue";
+import RecordKeyAccordion from "../../display/RecordKeyAccordion.vue";
 
 import type {
   columnValueObject,
@@ -42,11 +41,11 @@ function toLabel(row: columnValueObject) {
 
 <template>
   <li :id="`input-refback-item-${label}`">
-    <Accordion
-      :label="(label as string)"
-      :open-by-default="false"
-      :in-list="true"
-      @click="emits('expand', props.refData)"
+    <RecordKeyAccordion
+      :metadata="refMetadata"
+      :row-data="refData"
+      :label="label"
+      @expand="emits('expand', refData)"
     >
       <template #toolbar>
         <div
@@ -83,14 +82,6 @@ function toLabel(row: columnValueObject) {
           />
         </div>
       </template>
-      <div @click="$event.stopPropagation()">
-        <DisplayRecord
-          :metadata="refMetadata"
-          :row-data="refData"
-          :show-menu="false"
-          :show-filter="false"
-        />
-      </div>
-    </Accordion>
+    </RecordKeyAccordion>
   </li>
 </template>

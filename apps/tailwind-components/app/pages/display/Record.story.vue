@@ -25,12 +25,11 @@
 
     <section>
       <h2 class="text-title text-heading-xl mb-2">
-        collapsed, inside an accordion labelled with the record's key
+        RecordKeyAccordion, labelled with the record's key, closed by default
       </h2>
-      <DisplayRecord
+      <RecordKeyAccordion
         :metadata="staticMetadata"
-        :rowData="staticRowData"
-        :collapsed="true"
+        :row-data="staticRowData"
       />
     </section>
 
@@ -65,6 +64,7 @@ import type {
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
 import DisplayRecord from "../../components/display/Record.vue";
+import RecordKeyAccordion from "../../components/display/RecordKeyAccordion.vue";
 import DemoDataControls from "../../DemoDataControls.vue";
 import { useRoute, useRouter } from "vue-router";
 

@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import { computed, ref, useId } from "vue";
 import type {
-  columnValue,
   IRow,
   ITableMetaData,
   LegendGroup,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
-import { flattenObject } from "../../utils/flattenObject";
 import {
   groupRecordSections,
   type RecordBox,
   type RecordSection as RecordSectionGroup,
 } from "../../utils/groupRecordSections";
-import Accordion from "../Accordion.vue";
+import { recordTitle } from "../../utils/recordTitle";
 import FormLegend from "../form/Legend.vue";
 import InputSearch from "../input/Search.vue";
 import RecordPageLayout from "./RecordPageLayout.vue";
@@ -27,7 +25,6 @@ const props = withDefaults(
     showMenu?: boolean;
     showCards?: boolean;
     showFilter?: boolean;
-    collapsed?: boolean;
   }>(),
   {
     rowData: null,
@@ -35,7 +32,6 @@ const props = withDefaults(
     showMenu: true,
     showCards: true,
     showFilter: false,
-    collapsed: false,
   }
 );
 
@@ -43,15 +39,13 @@ defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
 }>();
 
-const expanded = ref(!props.collapsed);
 const filterId = `display-record-filter-${useId()}`;
 const filterValue = ref("");
 
 const sections = computed(() =>
   groupRecordSections(props.metadata, props.rowData, {
     showMgColumns: props.showMgColumns,
-    filterTerm:
-      expanded.value && props.showFilter ? filterValue.value : undefined,
+    filterTerm: props.showFilter ? filterValue.value : undefined,
   })
 );
 
@@ -84,10 +78,8 @@ function menuAnchorId(section: RecordSectionGroup): string {
     : section.headings[0]?.id ?? section.id;
 }
 
-const showLegend = computed(
-  () => expanded.value && props.showMenu && boxes.value.length > 1
-);
-const showFilterBox = computed(() => expanded.value && props.showFilter);
+const showLegend = computed(() => props.showMenu && boxes.value.length > 1);
+const showFilterBox = computed(() => props.showFilter);
 
 const activeBoxId = ref<string | null>(null);
 
@@ -116,87 +108,21 @@ const legendGroups = computed<LegendGroup[]>(() =>
       }))
 );
 
-const recordTitle = computed(() =>
-  props.metadata.columns
-    .filter((column) => column.key === 1)
-    .map((column) => keyValueText(props.rowData?.[column.id]))
-    .filter(Boolean)
-    .join(" - ")
-);
-
-function keyValueText(value: columnValue): string {
-  if (value === null || value === undefined) {
-    return "";
-  }
-  return typeof value === "object"
-    ? flattenObject(value).trim()
-    : String(value);
-}
-
-const accordionLabel = computed(
-  () => recordTitle.value || props.metadata.label
-);
+const title = computed(() => recordTitle(props.metadata, props.rowData));
 </script>
 
 <template>
-  <Accordion
-    v-if="collapsed"
-    v-model:expanded="expanded"
-    :label="accordionLabel"
-    :open-by-default="false"
-  >
-    <RecordPageLayout :show-side-nav="showLegend">
-      <template v-if="showLegend" #sidebar>
-        <FormLegend
-          :sections="legendGroups"
-          class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
-        >
-          <template v-if="recordTitle" #title>
-            <h2
-              class="pl-7 mb-6 text-heading-4xl font-display text-title-contrast"
-            >
-              {{ recordTitle }}
-            </h2>
-          </template>
-        </FormLegend>
-      </template>
-
-      <template #main>
-        <div v-if="showFilterBox" class="pb-7.5">
-          <label :for="filterId" class="sr-only">Filter fields</label>
-          <InputSearch
-            :id="filterId"
-            v-model="filterValue"
-            class="w-3/5 lg:w-2/5"
-            placeholder="Filter fields..."
-          />
-        </div>
-        <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
-          <RecordSection
-            v-for="box in boxes"
-            :key="box.id"
-            :section="box"
-            :showCards="showCards"
-            :trackInView="showLegend"
-            @valueClick="$emit('valueClick', $event)"
-            @inView="activeBoxId = box.id"
-          />
-        </div>
-      </template>
-    </RecordPageLayout>
-  </Accordion>
-
-  <RecordPageLayout v-else :show-side-nav="showLegend">
+  <RecordPageLayout :show-side-nav="showLegend">
     <template v-if="showLegend" #sidebar>
       <FormLegend
         :sections="legendGroups"
         class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
       >
-        <template v-if="recordTitle" #title>
+        <template v-if="title" #title>
           <h2
             class="pl-7 mb-6 text-heading-4xl font-display text-title-contrast"
           >
-            {{ recordTitle }}
+            {{ title }}
           </h2>
         </template>
       </FormLegend>
