@@ -6,41 +6,7 @@
     </section>
 
     <section>
-      <h2 class="text-title text-heading-xl mb-2">showCards off</h2>
-      <DisplayRecord
-        :metadata="staticMetadata"
-        :rowData="staticRowData"
-        :showCards="false"
-      />
-    </section>
-
-    <section>
-      <h2 class="text-title text-heading-xl mb-2">showFilter on</h2>
-      <DisplayRecord
-        :metadata="staticMetadata"
-        :rowData="staticRowData"
-        :showFilter="true"
-      />
-    </section>
-
-    <section>
-      <h2 class="text-title text-heading-xl mb-2">
-        RecordKeyAccordion, labelled with the record's key, closed by default
-      </h2>
-      <RecordKeyAccordion
-        :metadata="staticMetadata"
-        :row-data="staticRowData"
-      />
-    </section>
-
-    <section>
       <h2 class="text-title text-heading-xl mb-2">Live record</h2>
-      <DisplayRecord
-        v-if="metadata"
-        :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
-        :metadata="metadata"
-        :rowData="formValues"
-      />
 
       <DemoDataControls
         v-model:metadata="metadata"
@@ -51,6 +17,94 @@
         :row-index="rowIndex"
       >
       </DemoDataControls>
+
+      <fieldset class="p-4 border-2 mb-2 flex flex-wrap gap-4">
+        <legend class="text-title font-bold">Record props</legend>
+        <div>
+          <label class="text-title font-bold" for="show-menu">
+            Legend (showMenu):
+          </label>
+          <InputCheckbox id="show-menu" v-model="showMenu" name="show-menu" />
+        </div>
+        <div>
+          <label class="text-title font-bold" for="show-cards">
+            Cards (showCards):
+          </label>
+          <InputCheckbox
+            id="show-cards"
+            v-model="showCards"
+            name="show-cards"
+          />
+        </div>
+        <div>
+          <label class="text-title font-bold" for="show-filter">
+            Field filter (showFilter):
+          </label>
+          <InputCheckbox
+            id="show-filter"
+            v-model="showFilter"
+            name="show-filter"
+          />
+        </div>
+        <div>
+          <label class="text-title font-bold" for="show-mg-columns">
+            mg_ columns (showMgColumns):
+          </label>
+          <InputCheckbox
+            id="show-mg-columns"
+            v-model="showMgColumns"
+            name="show-mg-columns"
+          />
+        </div>
+      </fieldset>
+
+      <DisplayRecord
+        v-if="metadata"
+        :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
+        :metadata="metadata"
+        :rowData="formValues"
+        :showMenu="showMenu"
+        :showCards="showCards"
+        :showFilter="showFilter"
+        :showMgColumns="showMgColumns"
+      />
+    </section>
+
+    <section>
+      <h2 class="text-title text-heading-xl mb-2">Live RecordKeyAccordion</h2>
+
+      <fieldset class="p-4 border-2 mb-2 flex flex-wrap gap-4">
+        <legend class="text-title font-bold">RecordKeyAccordion props</legend>
+        <div>
+          <label class="text-title font-bold" for="show-details">
+            Details (showDetails):
+          </label>
+          <InputCheckbox
+            id="show-details"
+            v-model="showDetails"
+            name="show-details"
+          />
+        </div>
+        <div>
+          <label class="text-title font-bold" for="open-by-default">
+            Open by default (openByDefault):
+          </label>
+          <InputCheckbox
+            id="open-by-default"
+            v-model="openByDefault"
+            name="open-by-default"
+          />
+        </div>
+      </fieldset>
+
+      <RecordKeyAccordion
+        v-if="metadata"
+        :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
+        :metadata="metadata"
+        :row-data="formValues"
+        :show-details="showDetails"
+        :open-by-default="openByDefault"
+      />
     </section>
   </div>
 </template>
@@ -107,6 +161,13 @@ const tableId = ref<string>((route.query.table as string) || "Pet");
 const rowIndex = ref<number>(
   route.query.rowIndex ? Number(route.query.rowIndex) : 0
 );
+
+const showMenu = ref(true);
+const showCards = ref(true);
+const showFilter = ref(false);
+const showMgColumns = ref(false);
+const showDetails = ref(true);
+const openByDefault = ref(false);
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   router.push({
