@@ -201,6 +201,29 @@ describe("DisplayRecord", () => {
     expect(noMenu.find("nav").exists()).toBe(false);
   });
 
+  test("starts watching a box whose tracking turns on after mount", async () => {
+    FakeIntersectionObserver.instances = [];
+
+    const latecomer = mount(DisplayRecord, {
+      props: {
+        metadata: twoSections,
+        rowData: twoSectionsRow,
+        showMenu: false,
+      },
+    });
+    await nextTick();
+    expect(FakeIntersectionObserver.instances).toEqual([]);
+
+    await latecomer.setProps({ showMenu: true });
+    await nextTick();
+
+    expect(
+      FakeIntersectionObserver.instances.flatMap((instance) =>
+        instance.targets.map((target) => target.id)
+      )
+    ).toContain("about");
+  });
+
   test("renders each field label and value", () => {
     const text = wrapper.get("#about").text();
     expect(text).toContain("Name");

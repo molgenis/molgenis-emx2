@@ -11,13 +11,13 @@ import { flattenObject } from "../../utils/flattenObject";
 import {
   groupRecordSections,
   type RecordBox,
-  type RecordSection,
+  type RecordSection as RecordSectionGroup,
 } from "../../utils/groupRecordSections";
 import Button from "../Button.vue";
 import FormLegend from "../form/Legend.vue";
 import InputSearch from "../input/Search.vue";
 import RecordPageLayout from "./RecordPageLayout.vue";
-import SectionBox from "./RecordSection.vue";
+import RecordSection from "./RecordSection.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -76,11 +76,11 @@ const boxes = computed<RecordBox[]>(() =>
   ])
 );
 
-function hasOwnBox(section: RecordSection): boolean {
+function hasOwnBox(section: RecordSectionGroup): boolean {
   return !!section.label || section.fields.length > 0;
 }
 
-function menuAnchorId(section: RecordSection): string {
+function menuAnchorId(section: RecordSectionGroup): string {
   return hasOwnBox(section)
     ? section.id
     : section.headings[0]?.id ?? section.id;
@@ -165,7 +165,7 @@ function keyValueText(value: columnValue): string {
         />
       </div>
       <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
-        <SectionBox
+        <RecordSection
           v-for="box in boxes"
           :key="box.id"
           :section="box"

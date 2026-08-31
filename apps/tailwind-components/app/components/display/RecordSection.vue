@@ -36,18 +36,18 @@ const TOP_FIFTH_OF_VIEWPORT = {
 };
 
 const root = ref<ComponentPublicInstance | null>(null);
+// Gate the TARGET, not the call: setup() runs once, so a later trackInView flip must still attach.
+const observedRoot = computed(() => (props.trackInView ? root.value : null));
 
-if (props.trackInView) {
-  useIntersectionObserver(
-    root,
-    ([entry]) => {
-      if (entry?.isIntersecting) {
-        emit("inView");
-      }
-    },
-    TOP_FIFTH_OF_VIEWPORT
-  );
-}
+useIntersectionObserver(
+  observedRoot,
+  ([entry]) => {
+    if (entry?.isIntersecting) {
+      emit("inView");
+    }
+  },
+  TOP_FIFTH_OF_VIEWPORT
+);
 </script>
 
 <template>
