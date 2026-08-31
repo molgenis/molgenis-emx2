@@ -12,7 +12,7 @@ import type { Ref } from "vue";
 
 import InputSearch from "./Search.vue";
 import InputListbox from "./Listbox.vue";
-import DetailView from "../detail/View.vue";
+import DisplayRecord from "../display/Record.vue";
 import InputRefSelectContainer from "./RefSelect/Container.vue";
 import InputRefSelectInputOption from "./RefSelect/InputOption.vue";
 import InputRefSelectToggle from "./RefSelect/Toggle.vue";
@@ -487,12 +487,14 @@ watch(
                 @deselect="deselect"
                 :collapse-hidden-content="!isExpanded ? true : null"
               >
-                <DetailView
+                <DisplayRecord
                   v-if="tableMetadata"
                   :metadata="tableMetadata"
                   :row-data="(option as recordValue)"
                   :show-mg-columns="showMgColumns"
                   :show-menu="false"
+                  :show-filter="false"
+                  :show-cards="false"
                 />
               </InputRefSelectInputOption>
             </div>

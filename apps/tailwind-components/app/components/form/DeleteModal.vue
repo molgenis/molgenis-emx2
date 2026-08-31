@@ -166,9 +166,11 @@ function fetchCascadeDeleteMessage() {
 
       <div class="w-[90%] mx-auto">
         <DisplayRecord
-          :table-metadata="metadata"
-          :input-row-data="formValues"
-          :key-fields-only="true"
+          :metadata="metadata"
+          :row-data="formValues"
+          :collapsed="true"
+          :show-menu="false"
+          :show-filter="false"
         />
 
         <div class="text-title-contrast-pop py-8" v-if="cascadeDeleteMsg">

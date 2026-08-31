@@ -7,7 +7,7 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
-import DetailView from "../../../../app/components/detail/View.vue";
+import DisplayRecord from "../../../../app/components/display/Record.vue";
 
 function column(id: string, columnType: ColumnType, label?: string): IColumn {
   return { id, label: label ?? id, columnType };
@@ -83,13 +83,13 @@ function menuLinks(wrapper: ReturnType<typeof mount>) {
     : [];
 }
 
-describe("DetailView", () => {
+describe("DisplayRecord", () => {
   let wrapper: ReturnType<typeof mount>;
 
   beforeEach(async () => {
     FakeIntersectionObserver.instances = [];
     vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
-    wrapper = mount(DetailView, {
+    wrapper = mount(DisplayRecord, {
       props: { metadata: twoSections, rowData: twoSectionsRow },
     });
     // The observers are created on the post-render flush, so they exist only a tick after mount.
@@ -115,7 +115,7 @@ describe("DetailView", () => {
   });
 
   test("renders no box for a top section holding nothing but headings, and aims its menu entry at the first box it does render", () => {
-    const headingsOnly = mount(DetailView, {
+    const headingsOnly = mount(DisplayRecord, {
       props: {
         metadata: table([
           column("mg_top_of_form", "SECTION", "_top"),
@@ -188,7 +188,7 @@ describe("DetailView", () => {
   test("watches nothing at all when the menu is off", async () => {
     FakeIntersectionObserver.instances = [];
 
-    const noMenu = mount(DetailView, {
+    const noMenu = mount(DisplayRecord, {
       props: {
         metadata: twoSections,
         rowData: twoSectionsRow,
@@ -230,7 +230,7 @@ describe("DetailView", () => {
   });
 
   test("names the unnamed top section after the table in the menu, and leaves the section itself unheaded", () => {
-    const topped = mount(DetailView, {
+    const topped = mount(DisplayRecord, {
       props: {
         metadata: table([
           column("mg_top_of_form", "SECTION", "_top"),
@@ -250,7 +250,7 @@ describe("DetailView", () => {
   });
 
   test("lists the boxes of a lone section as siblings, because nesting them all under it says nothing", () => {
-    const oneSection = mount(DetailView, {
+    const oneSection = mount(DisplayRecord, {
       props: {
         metadata: table([
           column("mg_top_of_form", "SECTION", "_top"),
@@ -280,7 +280,7 @@ describe("DetailView", () => {
 
   test("titles the menu with every key value of the record, joined", () => {
     const withKeys = (rowData: IRow) =>
-      mount(DetailView, {
+      mount(DisplayRecord, {
         props: {
           metadata: table([
             { ...column("name", "STRING", "Name"), key: 1 },
@@ -336,7 +336,7 @@ describe("DetailView", () => {
   });
 
   test("renders no menu below two boxes", () => {
-    const single = mount(DetailView, {
+    const single = mount(DisplayRecord, {
       props: {
         metadata: table([
           column("about", "SECTION", "About"),
@@ -354,7 +354,7 @@ describe("DetailView", () => {
     expect(wrapper.findAll('input[type="search"]')).toHaveLength(0);
     expect(wrapper.find("header").exists()).toBe(false);
 
-    const bare = mount(DetailView, {
+    const bare = mount(DisplayRecord, {
       props: {
         metadata: twoSections,
         rowData: twoSectionsRow,
@@ -370,7 +370,7 @@ describe("DetailView", () => {
   });
 
   test("renders each box as a plain heading and list, with no card and no lg:gap-2.5, when showCards is off", () => {
-    const noCards = mount(DetailView, {
+    const noCards = mount(DisplayRecord, {
       props: {
         metadata: twoSections,
         rowData: twoSectionsRow,
@@ -387,7 +387,7 @@ describe("DetailView", () => {
   });
 
   test("puts the field filter at the top of the record column, never the sidebar", () => {
-    const withFilter = mount(DetailView, {
+    const withFilter = mount(DisplayRecord, {
       props: {
         metadata: twoSections,
         rowData: twoSectionsRow,
@@ -410,7 +410,7 @@ describe("DetailView", () => {
       column("care", "SECTION", "Care"),
       column("diet", "STRING", "Diet"),
     ]);
-    const withFilter = mount(DetailView, {
+    const withFilter = mount(DisplayRecord, {
       props: {
         metadata: threeFlatSections,
         rowData: { name: "spike", weight: 15.7, diet: "insects" },
@@ -435,7 +435,7 @@ describe("DetailView", () => {
       column("about", "SECTION", "About"),
       column("diet", "STRING", "Diet"),
     ]);
-    const collapsed = mount(DetailView, {
+    const collapsed = mount(DisplayRecord, {
       props: {
         metadata: collapsibleMetadata,
         rowData: { name: "spike", diet: "insects" },
@@ -458,7 +458,7 @@ describe("DetailView", () => {
       column("about", "SECTION", "About"),
       column("diet", "STRING", "Diet"),
     ]);
-    const collapsed = mount(DetailView, {
+    const collapsed = mount(DisplayRecord, {
       props: {
         metadata: collapsibleMetadata,
         rowData: { name: "spike", diet: "insects" },
@@ -485,10 +485,10 @@ describe("DetailView", () => {
     const rowData: IRow = { name: "spike", mg_insertedBy: "admin" };
 
     expect(
-      mount(DetailView, { props: { metadata, rowData } }).text()
+      mount(DisplayRecord, { props: { metadata, rowData } }).text()
     ).not.toContain("Inserted by");
     expect(
-      mount(DetailView, {
+      mount(DisplayRecord, {
         props: { metadata, rowData, showMgColumns: true },
       }).text()
     ).toContain("Inserted by");

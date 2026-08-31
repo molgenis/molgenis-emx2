@@ -2,12 +2,12 @@
   <div class="flex flex-col gap-8 p-4">
     <section>
       <h2 class="text-title text-heading-xl mb-2">Static metadata</h2>
-      <DetailView :metadata="staticMetadata" :rowData="staticRowData" />
+      <DisplayRecord :metadata="staticMetadata" :rowData="staticRowData" />
     </section>
 
     <section>
       <h2 class="text-title text-heading-xl mb-2">showCards off</h2>
-      <DetailView
+      <DisplayRecord
         :metadata="staticMetadata"
         :rowData="staticRowData"
         :showCards="false"
@@ -16,7 +16,7 @@
 
     <section>
       <h2 class="text-title text-heading-xl mb-2">showFilter on</h2>
-      <DetailView
+      <DisplayRecord
         :metadata="staticMetadata"
         :rowData="staticRowData"
         :showFilter="true"
@@ -27,7 +27,7 @@
       <h2 class="text-title text-heading-xl mb-2">
         collapsed, showing the key columns with a control to expand
       </h2>
-      <DetailView
+      <DisplayRecord
         :metadata="staticMetadata"
         :rowData="staticRowData"
         :collapsed="true"
@@ -36,7 +36,7 @@
 
     <section>
       <h2 class="text-title text-heading-xl mb-2">Live record</h2>
-      <DetailView
+      <DisplayRecord
         v-if="metadata"
         :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
         :metadata="metadata"
@@ -64,7 +64,7 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
-import DetailView from "../../components/detail/View.vue";
+import DisplayRecord from "../../components/display/Record.vue";
 import DemoDataControls from "../../DemoDataControls.vue";
 import { useRoute, useRouter } from "vue-router";
 

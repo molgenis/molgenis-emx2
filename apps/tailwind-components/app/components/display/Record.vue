@@ -1,89 +1,189 @@
-<script lang="ts" setup>
-import { computed } from "vue";
-import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type { recordValue } from "../../../../metadata-utils/src/types";
-import ValueEMX2 from "../value/EMX2.vue";
+<script setup lang="ts">
+import { computed, ref, useId } from "vue";
+import type {
+  columnValue,
+  IRow,
+  ITableMetaData,
+  LegendGroup,
+} from "../../../../metadata-utils/src/types";
+import type { cellPayload } from "../../../types/types";
+import { flattenObject } from "../../utils/flattenObject";
+import {
+  groupRecordSections,
+  type RecordBox,
+  type RecordSection,
+} from "../../utils/groupRecordSections";
+import Button from "../Button.vue";
+import FormLegend from "../form/Legend.vue";
+import InputSearch from "../input/Search.vue";
+import RecordPageLayout from "./RecordPageLayout.vue";
+import SectionBox from "./RecordSection.vue";
 
 const props = withDefaults(
   defineProps<{
-    tableMetadata?: ITableMetaData;
-    inputRowData: recordValue;
+    metadata: ITableMetaData;
+    rowData?: IRow | null;
     showMgColumns?: boolean;
-    keyFieldsOnly?: boolean;
+    showMenu?: boolean;
+    showCards?: boolean;
+    showFilter?: boolean;
+    collapsed?: boolean;
   }>(),
   {
+    rowData: null,
     showMgColumns: false,
-    keyFieldsOnly: false,
+    showMenu: true,
+    showCards: true,
+    showFilter: false,
+    collapsed: false,
   }
 );
 
-const filteredTableMetadata = computed(() => {
-  return props.tableMetadata?.columns
-    .filter((column) => props.showMgColumns || !column.id.startsWith("mg_"))
-    .filter((column) => (props.keyFieldsOnly ? column.key === 1 : true));
-});
+defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
 
-const tableMetadataByHeadings = computed(() => {
-  if (filteredTableMetadata.value) {
-    const headings = filteredTableMetadata.value.reduce(
-      (results, row) => {
-        if (row.columnType === "HEADING") {
-          results[row.label] = [];
-        }
+// Expanding is the reader's call; `collapsed` only sets where they start.
+const expanded = ref(!props.collapsed);
+const filterId = `display-record-filter-${useId()}`;
+const filterValue = ref("");
 
-        return results;
-      },
-      { _base: [] } as Record<string, any>
-    );
+const sections = computed(() =>
+  groupRecordSections(props.metadata, props.rowData, {
+    showMgColumns: props.showMgColumns,
+    keyColumnsOnly: !expanded.value,
+    filterTerm:
+      expanded.value && props.showFilter ? filterValue.value : undefined,
+  })
+);
 
-    let currentHeading: string = "";
-    filteredTableMetadata.value?.forEach((row) => {
-      if (row.columnType === "HEADING") {
-        currentHeading = row.label;
-      }
+const boxes = computed<RecordBox[]>(() =>
+  sections.value.flatMap((section) => [
+    ...(hasOwnBox(section)
+      ? [
+          {
+            kind: "section" as const,
+            id: section.id,
+            label: section.label,
+            fields: section.fields,
+          },
+        ]
+      : []),
+    ...section.headings.map((heading) => ({
+      kind: "heading" as const,
+      ...heading,
+    })),
+  ])
+);
 
-      if (currentHeading === "" && row.columnType !== "HEADING") {
-        headings["_base"].push(row);
-      } else if (currentHeading !== "" && row.columnType !== "HEADING") {
-        headings[currentHeading].push(row);
-      } else {
-        return null;
-      }
-    });
+function hasOwnBox(section: RecordSection): boolean {
+  return !!section.label || section.fields.length > 0;
+}
 
-    return headings;
+function menuAnchorId(section: RecordSection): string {
+  return hasOwnBox(section)
+    ? section.id
+    : section.headings[0]?.id ?? section.id;
+}
+
+// The menu and the filter belong to the expanded record; collapsed shows neither.
+const showLegend = computed(
+  () => expanded.value && props.showMenu && boxes.value.length > 1
+);
+const showFilterBox = computed(() => expanded.value && props.showFilter);
+
+const activeBoxId = ref<string | null>(null);
+
+const legendGroups = computed<LegendGroup[]>(() =>
+  sections.value.length === 1
+    ? boxes.value.map((box) => ({
+        id: box.id,
+        label: box.label ?? props.metadata.label,
+        href: `#${box.id}`,
+        isVisible: true,
+        isActive: box.id === activeBoxId.value,
+      }))
+    : sections.value.map((section) => ({
+        id: section.id,
+        label: section.label ?? props.metadata.label,
+        href: `#${menuAnchorId(section)}`,
+        isVisible: true,
+        isActive: section.id === activeBoxId.value,
+        headers: section.headings.map((heading) => ({
+          id: heading.id,
+          label: heading.label,
+          href: `#${heading.id}`,
+          isVisible: true,
+          isActive: heading.id === activeBoxId.value,
+        })),
+      }))
+);
+
+const recordTitle = computed(() =>
+  props.metadata.columns
+    .filter((column) => column.key === 1)
+    .map((column) => keyValueText(props.rowData?.[column.id]))
+    .filter(Boolean)
+    .join(" - ")
+);
+
+function keyValueText(value: columnValue): string {
+  if (value === null || value === undefined) {
+    return "";
   }
-});
+  return typeof value === "object"
+    ? flattenObject(value).trim()
+    : String(value);
+}
 </script>
 
 <template>
-  <div v-for="(headingData, heading) in tableMetadataByHeadings">
-    <p v-if="heading !== '_base'" class="mb-1 text-record-heading font-bold">
-      {{ heading }}
-    </p>
-    <ul>
-      <li
-        v-for="row in headingData"
-        class="grid grid-cols-1 md:grid-cols-[1fr_3fr]"
+  <RecordPageLayout :show-side-nav="showLegend">
+    <template v-if="showLegend" #sidebar>
+      <FormLegend
+        :sections="legendGroups"
+        class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
       >
-        <div>
-          <span class="text-record-label">{{ row.label }}</span>
-        </div>
-        <div
-          class="text-record-value flex sm:flex-col md:flex-row"
-          :class="{
-            'md:flex-col': row.columnType.startsWith('HYPERLINK'),
-          }"
-        >
-          <ValueEMX2
-            :metadata="row"
-            :data="(inputRowData as recordValue)[row.id]"
-            :hide-list-separator="
-              row.columnType.startsWith('HYPERLINK') ? true : false
-            "
-          />
-        </div>
-      </li>
-    </ul>
-  </div>
+        <template v-if="recordTitle" #title>
+          <h2
+            class="pl-7 mb-6 text-heading-4xl font-display text-title-contrast"
+          >
+            {{ recordTitle }}
+          </h2>
+        </template>
+      </FormLegend>
+    </template>
+
+    <template #main>
+      <div v-if="showFilterBox" class="pb-7.5">
+        <label :for="filterId" class="sr-only">Filter fields</label>
+        <InputSearch
+          :id="filterId"
+          v-model="filterValue"
+          class="w-3/5 lg:w-2/5"
+          placeholder="Filter fields..."
+        />
+      </div>
+      <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
+        <SectionBox
+          v-for="box in boxes"
+          :key="box.id"
+          :section="box"
+          :showCards="showCards"
+          :trackInView="showLegend"
+          @valueClick="$emit('valueClick', $event)"
+          @inView="activeBoxId = box.id"
+        />
+      </div>
+      <div v-if="!expanded" class="pt-7.5">
+        <Button
+          type="text"
+          size="tiny"
+          label="Show all fields"
+          :aria-expanded="expanded"
+          @click="expanded = true"
+        />
+      </div>
+    </template>
+  </RecordPageLayout>
 </template>

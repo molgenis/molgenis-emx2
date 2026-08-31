@@ -5,7 +5,7 @@ import { computed, ref, useId } from "vue";
 import type { IRow } from "../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import DetailView from "../../../../../tailwind-components/app/components/detail/View.vue";
+import DisplayRecord from "../../../../../tailwind-components/app/components/display/Record.vue";
 import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
@@ -111,10 +111,13 @@ function handleCellClick(event: cellPayload) {
       </Button>
     </div>
 
-    <DetailView
+    <DisplayRecord
       :metadata="tableMetadata"
       :rowData="rowData"
       :showMgColumns="isAdmin"
+      :showMenu="true"
+      :showCards="true"
+      :showFilter="true"
       @valueClick="handleCellClick($event)"
     />
   </Container>
