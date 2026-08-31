@@ -7,7 +7,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
-import DetailView from "../detail/View.vue";
+import DisplayRecord from "../display/Record.vue";
 import { useSession } from "../../composables/useSession";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import Modal from "../Modal.vue";
@@ -16,6 +16,7 @@ import BaseIcon from "../BaseIcon.vue";
 import FormError from "./Error.vue";
 import FormMessage from "./Message.vue";
 import DraftLabel from "../label/DraftLabel.vue";
+import { useTable } from "../../composables/useTable";
 
 const props = withDefaults(
   defineProps<{
@@ -37,6 +38,7 @@ const visible = defineModel("visible", {
 });
 
 const deleteErrorMessage = ref<string>("");
+const cascadeDeleteMsg = ref<string | null>(null);
 
 const session = await useSession();
 const formMessage = ref<string>("");
@@ -44,6 +46,8 @@ const showReAuthenticateButton = ref<boolean>(false);
 
 const rowType = computed(() => props.metadata.id);
 const isDraft = ref(false);
+
+fetchCascadeDeleteMessage();
 
 function onCancel() {
   visible.value = false;
@@ -81,6 +85,21 @@ function reAuthenticate() {
     showReAuthenticateButton,
     formMessage
   );
+}
+
+function fetchCascadeDeleteMessage() {
+  const { cascadeDeleteConfirmationMsg } = useTable(
+    props.schemaId,
+    props.metadata.id
+  );
+  cascadeDeleteConfirmationMsg()
+    .then((msg) => {
+      cascadeDeleteMsg.value = msg;
+    })
+    .catch((err) => {
+      console.error("Error fetching cascade delete message", err);
+      cascadeDeleteMsg.value = null;
+    });
 }
 </script>
 
@@ -120,38 +139,43 @@ function reAuthenticate() {
       </header>
     </template>
 
-    <section class="grid grid-cols-4 gap-1"></section>
-    <Transition name="slide-up">
-      <FormError
-        v-show="deleteErrorMessage"
-        :message="deleteErrorMessage"
-        :show-prev-next-buttons="false"
-        class="sticky mx-4 bottom-0 transition-all transition-discrete"
-      >
-        <Button
-          v-if="showReAuthenticateButton"
-          type="outline"
-          size="small"
-          @click="reAuthenticate"
-          >Re-authenticate</Button
+    <ModalContentContainer>
+      <Transition name="slide-up">
+        <FormError
+          v-show="deleteErrorMessage"
+          :message="deleteErrorMessage"
+          :show-prev-next-buttons="false"
+          class="sticky mx-4 bottom-0 transition-all transition-discrete"
         >
-      </FormError>
-    </Transition>
-    <Transition name="slide-up">
-      <FormMessage
-        v-show="formMessage"
-        :message="formMessage"
-        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
-      />
-    </Transition>
+          <Button
+            v-if="showReAuthenticateButton"
+            type="outline"
+            size="small"
+            @click="reAuthenticate"
+            >Re-authenticate</Button
+          >
+        </FormError>
+      </Transition>
+      <Transition name="slide-up">
+        <FormMessage
+          v-show="formMessage"
+          :message="formMessage"
+          class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
+        />
+      </Transition>
 
-    <div class="w-[90%] m-auto py-4">
-      <DetailView
-        :metadata="metadata"
-        :row-data="formValues"
-        :show-menu="false"
-      />
-    </div>
+      <div class="w-[90%] mx-auto">
+        <DisplayRecord
+          :table-metadata="metadata"
+          :input-row-data="formValues"
+          :key-fields-only="true"
+        />
+
+        <div class="text-title-contrast-pop py-8" v-if="cascadeDeleteMsg">
+          {{ cascadeDeleteMsg }}
+        </div>
+      </div>
+    </ModalContentContainer>
 
     <template #footer>
       <div class="flex justify-between items-center">
