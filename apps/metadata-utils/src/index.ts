@@ -9,6 +9,7 @@ export {
   extractKeyFromRecord,
   buildFilterFromKeysObject,
   getTableMetaData,
+  getRecordTableMetaData,
 } from "./tableQuery";
 
 export type {

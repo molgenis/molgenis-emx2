@@ -3,6 +3,7 @@ import { useAsyncData } from "#app";
 import { useRoute, useRouter } from "#app/composables/router";
 import { computed, ref, useId } from "vue";
 import type { IRow } from "../../../../../metadata-utils/src/types";
+import { getRecordTableMetaData } from "../../../../../metadata-utils/src/tableQuery";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import DisplayRecord from "../../../../../tailwind-components/app/components/display/Record.vue";
@@ -10,9 +11,9 @@ import DeleteModal from "../../../../../tailwind-components/app/components/form/
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
+import fetchMetadata from "../../../../../tailwind-components/app/composables/fetchMetadata";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
-import resolveSubclassRecord from "../../../../../tailwind-components/app/composables/resolveSubclassRecord";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 import { useTablePermission } from "../../../../../tailwind-components/app/composables/useTablePermission";
 import { rowMatchesUserRole } from "../../../../../tailwind-components/app/utils/rowMatchesUserRole";
@@ -81,16 +82,33 @@ const viewMetadata = ref(tableMetadata);
 const viewRowData = ref(rowData.value);
 
 async function resolveView() {
-  const subclass = await resolveSubclassRecord(
-    schemaId,
+  const schemaMetadata = await fetchMetadata(schemaId);
+  const recordTableMetadata = getRecordTableMetaData(
+    schemaMetadata,
     tableId,
-    rowData.value,
-    entityKeysObject,
-    fetchTableMetadata,
-    fetchRowData
+    rowData.value
   );
-  viewMetadata.value = subclass ? subclass.tableMetadata : tableMetadata;
-  viewRowData.value = subclass ? subclass.row : rowData.value;
+  if (recordTableMetadata.id === tableId) {
+    viewMetadata.value = tableMetadata;
+    viewRowData.value = rowData.value;
+    return;
+  }
+
+  try {
+    viewRowData.value = await fetchRowData(
+      schemaId,
+      recordTableMetadata.id,
+      entityKeysObject
+    );
+    viewMetadata.value = recordTableMetadata;
+  } catch (error) {
+    console.error(
+      `Could not load "${recordTableMetadata.id}" for this row, showing "${tableId}" instead.`,
+      error
+    );
+    viewMetadata.value = tableMetadata;
+    viewRowData.value = rowData.value;
+  }
 }
 await resolveView();
 
