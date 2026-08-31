@@ -1,6 +1,18 @@
 import { defineConfig, devices } from "@playwright/test";
 import type { ConfigOptions } from "@nuxt/test-utils/playwright";
 
+const reporter = setReporter();
+
+function setReporter() {
+  if (process.env.CI) {
+    return [["list"], ["junit", { outputFile: "results.xml" }]];
+  } else if (process.env.E2E_NO_REPORTER === "true") {
+    return undefined;
+  } else {
+    return "html";
+  }
+}
+
 export default defineConfig<ConfigOptions>({
   testDir: "./tests/e2e",
   /* Run tests in files in parallel */
@@ -13,9 +25,7 @@ export default defineConfig<ConfigOptions>({
   /* a pass that needed a retry must not read as green */
   failOnFlakyTests: !!process.env.CI,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI
-    ? [["list"], ["junit", { outputFile: "results.xml" }]]
-    : "html",
+  reporter: reporter,
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
