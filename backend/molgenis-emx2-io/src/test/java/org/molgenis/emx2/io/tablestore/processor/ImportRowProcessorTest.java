@@ -1,6 +1,7 @@
 package org.molgenis.emx2.io.tablestore.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_DELETE;
@@ -112,6 +113,36 @@ class ImportRowProcessorTest {
 
     list = table.retrieveRows().stream().map(Row::getValueMap).toList();
     assertTrue(list.isEmpty());
+  }
+
+  @Test
+  void givenOverwriteMode_whenImportingRow_thenClearOmittedColumns() {
+    table.getMetadata().add(column("age").setType(ColumnType.STRING));
+    table.save(row("name", "Lewis", "age", "30"));
+
+    Task task = new Task();
+    ImportRowProcessor processor = new ImportRowProcessor(table, task, UpdateMode.OVERWRITE);
+    processor.process(List.of(row("name", "Lewis")).iterator(), new TableStoreForCsvInMemory());
+
+    Map<String, Object> actual =
+        table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS).getFirst().getValueMap();
+    assertEquals("Lewis", actual.get("name"));
+    assertNull(actual.get("age"));
+  }
+
+  @Test
+  void givenUpdateMode_whenImportingRow_thenPreserveOmittedColumns() {
+    table.getMetadata().add(column("age").setType(ColumnType.STRING));
+    table.save(row("name", "Lewis", "age", "30"));
+
+    Task task = new Task();
+    ImportRowProcessor processor = new ImportRowProcessor(table, task, UpdateMode.UPDATE);
+    processor.process(List.of(row("name", "Lewis")).iterator(), new TableStoreForCsvInMemory());
+
+    Map<String, Object> actual =
+        table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS).getFirst().getValueMap();
+    assertEquals("Lewis", actual.get("name"));
+    assertEquals("30", actual.get("age"));
   }
 
   private List<Map<String, Object>> importRows(Row... rows) {
