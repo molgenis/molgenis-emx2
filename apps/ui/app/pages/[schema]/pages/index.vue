@@ -253,12 +253,6 @@ async function onAddFormValues(value: IContainers) {
           </PageSelector>
         </fieldset>
       </form>
-      <h3
-        class="mt-7.5 mb-2.5 uppercase text-heading-3xl font-display text-title-contrast"
-      >
-        Select a template
-      </h3>
-      <NoResultsMessage label="No available templates" />
     </div>
     <template #footer>
       <div class="flex justify-between items-center flex-none h-modal-footer">
