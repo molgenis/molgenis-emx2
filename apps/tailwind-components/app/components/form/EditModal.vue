@@ -18,31 +18,8 @@
       <header
         class="pt-[36px] px-8 overflow-visible border-b border-divider flex-none"
       >
-        <div class="mb-5 relative flex items-center pr-14">
-          <h2
-            class="uppercase text-heading-4xl font-display text-title-contrast"
-          >
-            {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
-          </h2>
+        <slot name="header" :formValues="formValues" />
 
-          <DraftLabel v-if="isDraft" />
-          <div
-            v-if="showRoles"
-            class="gap-2.5 ml-auto flex shrink-0 items-center text-title-contrast"
-          >
-            <label class="whitespace-nowrap font-bold" for="roleSelector">
-              Access group
-            </label>
-            <InputListbox
-              id="roleSelector"
-              :value="selectedRole"
-              :options="[GLOBAL_ROLE].concat(roles)"
-              @update:modelValue="
-            (newRole?:IInputValue | IInputValueLabel | null) => (selectedRole = typeof
-            newRole === 'string'? newRole: '' ) "
-            />
-          </div>
-        </div>
         <button
           @click="onCancel"
           aria-label="Close modal"
@@ -155,8 +132,6 @@ import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type {
   columnId,
   columnValue,
-  IInputValue,
-  IInputValueLabel,
   IRow,
 } from "../../../../metadata-utils/src/types";
 import fetchColumnValues from "../../composables/fetchColumnValues";
@@ -168,7 +143,6 @@ import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import { getInitialFormValues } from "../../utils/typeUtils";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
-import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
 import FormError from "./Error.vue";
@@ -176,8 +150,6 @@ import Form from "./Form.vue";
 import FormLegend from "./Legend.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
-
-const GLOBAL_ROLE: string = "Global";
 
 const props = withDefaults(
   defineProps<{
@@ -198,8 +170,6 @@ const isInsert = ref(props.isInsert);
 const formValues = ref<Record<string, columnValue>>(initFormValues());
 const showFormMessage = ref(false);
 
-const selectedRole = ref<string>(getSelectedRole());
-
 const emit = defineEmits([
   "update:added",
   "update:updated",
@@ -219,14 +189,8 @@ const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
 const tableId = computed(() => props.metadata.id);
-const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
 const savingDraft = computed(
   () => saving.value && formValues.value["mg_draft"] === true
-);
-const roles = computed<string[]>(() => session.rowLevelRoles.value);
-const showRoles = computed(
-  () =>
-    session.isAdmin.value || session.isOwner.value || session.isManager.value
 );
 
 watch(
@@ -302,11 +266,6 @@ async function onSave(draft: boolean) {
 
   if (isReadyForSubmit) {
     try {
-      if (selectedRole.value && selectedRole.value !== GLOBAL_ROLE) {
-        formValues.value["mg_roles"] = [selectedRole.value];
-      } else {
-        formValues.value["mg_roles"] = [];
-      }
       formValues.value["mg_draft"] = draft;
       if (isInsert.value) {
         await insert(draft);
@@ -373,17 +332,6 @@ async function updateAutoIds() {
       autoIds
     );
     autoIds.forEach((col) => (formValues.value[col.id] = values[col.id]));
-  }
-}
-
-function getSelectedRole(): string {
-  if (
-    Array.isArray(props.formValues?.mg_roles) &&
-    typeof props.formValues.mg_roles[0] === "string"
-  ) {
-    return props.formValues.mg_roles[0];
-  } else {
-    return GLOBAL_ROLE;
   }
 }
 </script>

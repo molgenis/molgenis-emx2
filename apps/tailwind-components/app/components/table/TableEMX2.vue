@@ -330,7 +330,17 @@
     :isInsert="isCopy"
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
-  />
+  >
+    <template #header="{ formValues }">
+      <EditModalHeader
+        v-if="formValues"
+        :formValues="formValues"
+        :isInsert="isCopy"
+        :tableId="tableId"
+        :schemaId="schemaId"
+      />
+    </template>
+  </EditModal>
 
   <EditModal
     v-if="data?.tableMetadata && showAddModal"
@@ -341,7 +351,17 @@
     :isInsert="true"
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
-  />
+  >
+    <template #header="{ formValues }">
+      <EditModalHeader
+        v-if="formValues"
+        :formValues="formValues"
+        :isInsert="isCopy"
+        :tableId="tableId"
+        :schemaId="schemaId"
+      />
+    </template>
+  </EditModal>
 </template>
 
 <script setup lang="ts">
@@ -392,6 +412,7 @@ import DownloadButton from "./control/DownloadButton.vue";
 import RowControls from "./control/RowControls.vue";
 import Truncate from "./control/Truncate.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
+import EditModalHeader from "../form/EditModalHeader.vue";
 
 const props = withDefaults(
   defineProps<{
