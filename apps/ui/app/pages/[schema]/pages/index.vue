@@ -148,7 +148,8 @@ async function onAddFormValues(value: IContainers) {
           id="openAddNewPageDropdown"
           type="outline"
           :aria-expanded="visible"
-          aria-controls="addNewPageDropdown"
+          aria-haspopup="dialog"
+          aria-controls="pageSelectionMenu"
           @click="visible = true"
         >
           Add new page
@@ -161,11 +162,11 @@ async function onAddFormValues(value: IContainers) {
     >
       <div
         v-for="container in data.containers"
-        class="relative group border rounded-base w-full h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
+        class="relative group border rounded-base w-full h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend text-title-contrast"
       >
         <div
           v-if="enableEditing"
-          class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full text-button-text hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+          class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
           v-tooltip.bottom="`Edit`"
         >
           <NuxtLink
@@ -178,7 +179,7 @@ async function onAddFormValues(value: IContainers) {
         </div>
         <NuxtLink
           :to="setCmsViewUrl(schema, container.name)"
-          class="text-button-text hover:underline"
+          class="hover:underline"
         >
           {{ container.name }}
         </NuxtLink>
@@ -196,6 +197,7 @@ async function onAddFormValues(value: IContainers) {
     </div>
   </Container>
   <Modal
+    id="pageSelectionMenu"
     v-model:visible="visible"
     max-width="max-w-9/10"
     @closed="onClose"
