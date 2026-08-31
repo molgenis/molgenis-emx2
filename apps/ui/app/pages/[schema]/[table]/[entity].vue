@@ -3,7 +3,6 @@ import { useAsyncData } from "#app";
 import { useRoute, useRouter } from "#app/composables/router";
 import { computed, ref, useId } from "vue";
 import type { IRow } from "../../../../../metadata-utils/src/types";
-import { getRecordTableMetaData } from "../../../../../metadata-utils/src/tableQuery";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import DisplayRecord from "../../../../../tailwind-components/app/components/display/Record.vue";
@@ -11,9 +10,9 @@ import DeleteModal from "../../../../../tailwind-components/app/components/form/
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
-import fetchMetadata from "../../../../../tailwind-components/app/composables/fetchMetadata";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
+import fetchTableMetadataFromMgTableclass from "../../../../../tailwind-components/app/composables/fetchTableMetadataFromMgTableclass";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 import { useTablePermission } from "../../../../../tailwind-components/app/composables/useTablePermission";
 import { rowMatchesUserRole } from "../../../../../tailwind-components/app/utils/rowMatchesUserRole";
@@ -82,12 +81,11 @@ const viewMetadata = ref(tableMetadata);
 const viewRowData = ref(rowData.value);
 
 async function resolveView() {
-  const schemaMetadata = await fetchMetadata(schemaId);
-  const recordTableMetadata = getRecordTableMetaData(
-    schemaMetadata,
-    tableId,
-    rowData.value
-  );
+  const mgTableclass = rowData.value?.mg_tableclass;
+  const recordTableMetadata =
+    (await fetchTableMetadataFromMgTableclass(
+      typeof mgTableclass === "string" ? mgTableclass : undefined
+    )) ?? tableMetadata;
   if (recordTableMetadata.id === tableId) {
     viewMetadata.value = tableMetadata;
     viewRowData.value = rowData.value;

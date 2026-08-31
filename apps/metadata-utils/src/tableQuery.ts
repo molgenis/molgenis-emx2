@@ -8,7 +8,6 @@ import type {
   ISchemaMetaData,
   ITableMetaData,
   IColumn,
-  IRow,
   KeyObject,
 } from "./types";
 
@@ -320,44 +319,4 @@ export const getTableMetaData = (
     throw new Error(msg);
   }
   return tableMetaData;
-};
-
-/**
- * A row loaded against its parent table only carries the parent's columns.
- * `mg_tableclass` names the row's own table (`<schemaId>.<tableId>`); when
- * that names another table in this schema, this returns that table's
- * metadata. Otherwise, including an unknown table, it falls back to the
- * route table's metadata.
- */
-export const getRecordTableMetaData = (
-  schemaMetaData: ISchemaMetaData,
-  routeTableId: string,
-  record: IRow | null | undefined
-): ITableMetaData => {
-  const routeTableMetaData = getTableMetaData(schemaMetaData, routeTableId);
-
-  const mgTableclass = record?.mg_tableclass;
-  if (typeof mgTableclass !== "string") {
-    return routeTableMetaData;
-  }
-
-  const dotIndex = mgTableclass.indexOf(".");
-  if (dotIndex < 0) {
-    return routeTableMetaData;
-  }
-  const recordSchemaId = mgTableclass.slice(0, dotIndex);
-  const recordTableId = mgTableclass.slice(dotIndex + 1);
-  if (
-    recordSchemaId !== schemaMetaData.id ||
-    !recordTableId ||
-    recordTableId === routeTableId
-  ) {
-    return routeTableMetaData;
-  }
-
-  try {
-    return getTableMetaData(schemaMetaData, recordTableId);
-  } catch {
-    return routeTableMetaData;
-  }
 };
