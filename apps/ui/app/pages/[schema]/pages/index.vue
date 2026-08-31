@@ -45,10 +45,8 @@ const crumbs: Crumb[] = [
 
 const formMetadata = ref();
 const formValues = ref();
-const formType = ref<ICmsPageTypes | undefined>();
+const pageType = defineModel<ICmsPageTypes | undefined>();
 const showFormModal = ref<boolean>(false);
-// const showPageDropdown = ref<boolean>(false);
-// const showPageSelector = ref<boolean>(false);
 const visible = defineModel<boolean>("visible");
 
 const { isAdmin, session } = await useSession(schema);
@@ -86,30 +84,32 @@ const { data, refresh, error } = useAsyncData(
   }
 );
 
-// function onAddNewPageClick(type: ICmsPageTypes) {
-//   formValues.value = null;
-//   showPageDropdown.value = false;
-//   formType.value = type;
-//   if (formType.value === "ConfigurablePage") {
-//     formMetadata.value = data.value?.configurablePageMetadata;
-//   } else {
-//     formMetadata.value = data.value?.developerPageMetadata;
-//     const newPage = newDeveloperPage();
-//     formValues.value = newPage;
-//   }
-//   showFormModal.value = true;
-// }
+function onCreatePage() {
+  visible.value = false;
+  formValues.value = null;
+  showFormModal.value = false;
+  if (pageType.value === "ConfigurablePage") {
+    formMetadata.value = data.value?.configurablePageMetadata;
+  } else if (pageType.value === "DeveloperPage") {
+    formMetadata.value = data.value?.developerPageMetadata;
+    const newPage = newDeveloperPage();
+    formValues.value = newPage;
+  } else {
+    return undefined;
+  }
+  showFormModal.value = true;
+}
 
 async function onClose() {
   showFormModal.value = false;
   formMetadata.value = undefined;
   formValues.value = undefined;
-  formType.value = undefined;
+  pageType.value = undefined;
   await refresh();
 }
 
 async function onAddFormValues(value: IContainers) {
-  if (formType.value === "ConfigurablePage" && value.name) {
+  if (pageType.value === "ConfigurablePage" && value.name) {
     const bannerId = `Header-${randomId()}`;
     const sectionId = `Section-${randomId()}`;
     const headingId = `Heading-${randomId()}`;
@@ -143,46 +143,16 @@ async function onAddFormValues(value: IContainers) {
     <div class="flex pb-7.5 justify-between">
       <div class="w-3/5 xl:w-2/5 2xl:w-1/5" />
       <div class="flex gap-2.5">
-        <div class="relative" v-if="enableEditing">
-          <Button
-            id="openAddNewPageDropdown"
-            type="outline"
-            :aria-expanded="visible"
-            aria-controls="addNewPageDropdown"
-            @click="visible = true"
-          >
-            <!-- @click="showPageDropdown = !showPageDropdown" -->
-            Add new page
-          </Button>
-          <!-- icon="CaretDown"
-          iconPosition="right" -->
-          <!-- <div
-            id="addNewPageDropdown"
-            aria-labelledby="openAddNewPageDropdown"
-            class="absolute z-10 w-full shadow-md rounded-base"
-            :class="{
-              block: showPageDropdown,
-              hidden: !showPageDropdown,
-            }"
-          >
-            <Button
-              id="addNewConfigurablePageBtn"
-              type="secondary"
-              class="w-full"
-              @click="onAddNewPageClick('ConfigurablePage')"
-            >
-              Landing page
-            </Button>
-            <Button
-              id="addNewDeveloperPageBtn"
-              type="secondary"
-              class="w-full"
-              @click="onAddNewPageClick('DeveloperPage')"
-            >
-              developer page
-            </Button>
-          </div> -->
-        </div>
+        <Button
+          v-if="enableEditing"
+          id="openAddNewPageDropdown"
+          type="outline"
+          :aria-expanded="visible"
+          aria-controls="addNewPageDropdown"
+          @click="visible = true"
+        >
+          Add new page
+        </Button>
       </div>
     </div>
     <div
@@ -247,20 +217,18 @@ async function onAddFormValues(value: IContainers) {
               name="pageSelection"
               aria-describedby="LandingPageDefinition"
               class="sr-only"
+              v-model="pageType"
             />
             <div class="group">
-              <label
-                for="LandingPageInput"
-                class="font-bold hover:cursor-pointer"
-              >
-                <BaseIcon name="LandingPage" :width="92" />
-                <span>Landing page</span>
+              <label for="LandingPageInput" class="hover:cursor-pointer">
+                <BaseIcon name="Docs" :width="32" />
+                <span class="font-bold">Landing page</span>
+                <p id="LandingPageDefinition">
+                  Create a landing page to display general information. You can
+                  create new sections, titles, and more. Use this template to
+                  create a home page or a "Contact us" page.
+                </p>
               </label>
-              <p id="LandingPageDefinition">
-                Create a landing page to display general information. You can
-                create new sections, titles, and more. Use this template to
-                create a home page or a "Contact us" page.
-              </p>
             </div>
           </PageSelector>
           <PageSelector>
@@ -271,23 +239,36 @@ async function onAddFormValues(value: IContainers) {
               name="pageSelection"
               aria-describedby="DeveloperPageDefinition"
               class="sr-only"
+              v-model="pageType"
             />
-            <label
-              for="DeveloperPageInput"
-              class="font-bold hover:cursor-pointer"
-            >
-              <BaseIcon name="DeveloperPage" :width="92" />
-              <span>Developer page</span>
+            <label for="DeveloperPageInput" class="hover:cursor-pointer">
+              <BaseIcon name="CodeBlocks" :width="32" />
+              <span class="font-bold">Developer page</span>
+              <p id="DeveloperPageDefinition">
+                Build your own page from scratch using HTML, CSS, and
+                JavaScript. You may also import 3rd-party dependencies to add
+                additional functionality.
+              </p>
             </label>
-            <p id="DeveloperPageDefinition">
-              Build your own page from scratch using HTML, CSS, and JavaScript.
-              You may also import 3rd-party dependencies to add additional
-              functionality.
-            </p>
           </PageSelector>
         </fieldset>
       </form>
+      <h3
+        class="mt-7.5 mb-2.5 uppercase text-heading-3xl font-display text-title-contrast"
+      >
+        Select a template
+      </h3>
+      <NoResultsMessage label="No available templates" />
     </div>
+    <template #footer>
+      <div class="flex justify-between items-center flex-none h-modal-footer">
+        <ul class="flex items-center justify-end w-full gap-4">
+          <li>
+            <Button type="primary" @click="onCreatePage"> Create page </Button>
+          </li>
+        </ul>
+      </div>
+    </template>
   </Modal>
   <EditModal
     v-if="formMetadata && enableEditing"
