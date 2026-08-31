@@ -12,6 +12,7 @@ import PageHeader from "../../../../../tailwind-components/app/components/PageHe
 import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
+import resolveSubclassRecord from "../../../../../tailwind-components/app/composables/resolveSubclassRecord";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 import { useTablePermission } from "../../../../../tailwind-components/app/composables/useTablePermission";
 import { rowMatchesUserRole } from "../../../../../tailwind-components/app/utils/rowMatchesUserRole";
@@ -51,9 +52,10 @@ const showDeleteModal = ref(false);
 function afterRowDeleted() {
   router.push(`/${schemaId}/${tableId}`);
 }
-function afterEditClosed() {
+async function afterEditClosed() {
   showEditModal.value = false;
-  refresh();
+  await refresh();
+  await resolveView();
 }
 
 const { canUpdate, canDelete, isRowLevel, userRoles } = useTablePermission(
@@ -72,6 +74,25 @@ const rowIsModifiable = computed(
 const enableEditing = computed(() => canUpdate.value && rowIsModifiable.value);
 
 const enableDeleting = computed(() => canDelete.value && rowIsModifiable.value);
+
+// A subclass row loaded via its parent table only carries the parent's columns; resolve its
+// own table so the view renders every field the row has, without changing the route or edit/delete.
+const viewMetadata = ref(tableMetadata);
+const viewRowData = ref(rowData.value);
+
+async function resolveView() {
+  const subclass = await resolveSubclassRecord(
+    schemaId,
+    tableId,
+    rowData.value,
+    entityKeysObject,
+    fetchTableMetadata,
+    fetchRowData
+  );
+  viewMetadata.value = subclass ? subclass.tableMetadata : tableMetadata;
+  viewRowData.value = subclass ? subclass.row : rowData.value;
+}
+await resolveView();
 
 function handleCellClick(event: cellPayload) {
   cellDetailPayload.value = event;
@@ -112,8 +133,8 @@ function handleCellClick(event: cellPayload) {
     </div>
 
     <DisplayRecord
-      :metadata="tableMetadata"
-      :rowData="rowData"
+      :metadata="viewMetadata"
+      :rowData="viewRowData"
       :showMgColumns="isAdmin"
       :showMenu="true"
       :showCards="true"
