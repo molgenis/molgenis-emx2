@@ -29,7 +29,7 @@ const isExpanded = ref<boolean>(props.openByDefault);
     }"
   >
     <div
-      class="group flex justify-between items-center gap-5 text-button-text p-5 px-7.5"
+      class="group flex justify-between items-center gap-5 text-title-contrast p-5 px-7.5"
     >
       <div class="w-full">
         <button
@@ -51,9 +51,10 @@ const isExpanded = ref<boolean>(props.openByDefault);
         <slot name="toolbar"></slot>
       </div>
       <div class="flex justify-center items-center">
+        <!-- text-button-inline (Button's own inline color) is white in some themes, invisible on this surface, so force the surface-safe token -->
         <Button
           type="inline"
-          class="hover:bg-button-secondary-hover"
+          class="hover:bg-button-secondary-hover !text-title-contrast hover:!text-button-secondary"
           :id="`accordion__${id}-toggle-icon-only`"
           :icon-only="true"
           :icon="isExpanded ? 'caret-up' : 'caret-down'"
