@@ -58,7 +58,7 @@ definitions:
 
 
 commands:
-  checkout_steps:
+  pre_steps:
     steps:
     - run:
         name: Fresh Git Checkout to prevent missing objects
@@ -82,10 +82,6 @@ commands:
         name: run-pnpm-audit
         command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
         working_directory: apps
-
-  pre_steps:
-    steps:
-    - checkout_steps
     - run:
           name: Concatenate Build Files as key for cache
           command: |
@@ -180,12 +176,12 @@ jobs:
       TERM: dumb
 
     steps:
-      # checkout_steps calls `pnpm dlx`, so pnpm must exist before it runs.
+      # pre_steps calls `pnpm dlx`, so pnpm must exist before it runs.
       - run:
           name: Enable pnpm
           command: sudo corepack enable
 
-      - checkout_steps
+      - pre_steps
 
       - run:
           name: build the application without running tests to speed up the e2e tests
