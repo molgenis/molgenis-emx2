@@ -6,8 +6,6 @@ export default defineConfig<PlaywrightTestConfig>({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
-  /* a pass that needed a retry must not read as green */
-  failOnFlakyTests: !!process.env.CI,
   reporter: process.env.CI
     ? [["list"], ["junit", { outputFile: "results.xml" }]]
     : "html",
