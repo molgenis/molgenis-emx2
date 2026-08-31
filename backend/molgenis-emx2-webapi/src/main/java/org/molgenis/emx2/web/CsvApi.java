@@ -11,14 +11,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
@@ -212,13 +217,25 @@ public class CsvApi {
 
   private static void tableRetrieve(Context ctx) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
-    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeparator(ctx));
-    store.writeTable(table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
+    List<String> columnNames = getDownloadColumns(ctx, table);
+    List<Column> columns = table.getMetadata().getColumns();
+    Query query = getDownloadQuery(ctx, table);
+
     ctx.contentType(ACCEPT_CSV);
     ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
     ctx.status(200);
     ctx.res().setCharacterEncoding("UTF-8");
-    ctx.result(store.getCsvString(table.getName()));
+
+    try (Writer writer =
+        new BufferedWriter(
+            new OutputStreamWriter(ctx.res().getOutputStream(), StandardCharsets.UTF_8))) {
+      Consumer<Row> rowWriter = CsvTableWriter.rowWriter(columnNames, writer, getSeparator(ctx));
+      query.retrieveRows(
+          row -> {
+            ResolveComputedValue.apply(columns, List.of(row));
+            rowWriter.accept(row);
+          });
+    }
   }
 
   public static List<String> getDownloadColumns(Context ctx, Table table) {
@@ -229,19 +246,23 @@ public class CsvApi {
         .toList();
   }
 
-  public static List<Row> getDownloadRows(Context ctx, Table table) throws JsonProcessingException {
-    Query q = table.query();
+  private static Query getDownloadQuery(Context ctx, Table table) throws JsonProcessingException {
+    Query query = table.query();
     // extract filter argument if exists
     if (ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT) != null) {
       // gonna use the graphql filter parser so we can easily reuse graphql table level filter
       // expressions
-      q.where(
+      query.where(
           convertMapToFilterArray(
               table.getMetadata(),
               new ObjectMapper()
                   .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
     }
-    List<Row> rows = q.retrieveRows();
+    return query;
+  }
+
+  public static List<Row> getDownloadRows(Context ctx, Table table) throws JsonProcessingException {
+    List<Row> rows = getDownloadQuery(ctx, table).retrieveRows();
     List<Column> columns = table.getMetadata().getColumns();
     ResolveComputedValue.apply(columns, rows);
     return rows;
