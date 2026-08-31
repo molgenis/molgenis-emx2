@@ -19,7 +19,6 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.rdf.vocabulary.FDPO;
-import org.junit.jupiter.api.io.TempDir;
 
 class FdpRdfExtractorTest {
 
@@ -313,8 +312,7 @@ class FdpRdfExtractorTest {
               .withStrict();
 
       URI uri = root.toUri();
-      assertThrows(
-          MolgenisException.class, () -> extractor.addRdfToRepository(repository, uri));
+      assertThrows(MolgenisException.class, () -> extractor.addRdfToRepository(repository, uri));
     }
   }
 }
