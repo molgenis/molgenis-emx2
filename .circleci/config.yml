@@ -195,8 +195,10 @@ jobs:
           name: Install e2e deps and playwright browser
           command: |
             pnpm install
-            npx playwright install --with-deps chromium
+            npx playwright install chromium
           working_directory: e2e
+          # No --with-deps: the container runs as `molgenis`, and its sudo prompt hangs the step.
+          no_output_timeout: 5m
 
       - run:
           name: start the application in the background
