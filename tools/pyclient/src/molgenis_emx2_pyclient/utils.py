@@ -236,7 +236,7 @@ def prepare_between_filter(stmt: str, _table: str, schema_meta: Schema) -> dict:
     col_id = ''.join(_col.split('`'))
 
     col = schema_meta.get_table(by='name', value=_table).get_column(by='id', value=col_id)
-    if (col_type := col.get('columnType')) not in ['LONG', 'INT', 'DECIMAL']:
+    if (col_type := col.get('columnType')) not in ['LONG', 'INT', 'DECIMAL', 'NON_NEGATIVE_INT']:
         raise NotImplementedError(
             f"The filter 'between' is not implemented for columns of type"
             f" {col_type!r}.")
