@@ -162,9 +162,25 @@ jobs:
 
 
   test-e2e:
-    <<: *test_config
+    docker:
+    - image: cimg/openjdk:21.0-browsers
+    - image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
+    working_directory: ~/repo
+    resource_class: large
+    environment:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
 
     steps:
+      # pre_steps calls `pnpm dlx`, so pnpm must exist before it runs.
+      - run:
+          name: Enable pnpm
+          command: sudo corepack enable
+
       - pre_steps
 
       - run:
@@ -186,6 +202,10 @@ jobs:
           command: cp -r custom-app build/libs/custom-app
 
       - run:
+          name: install postgres client
+          command: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
@@ -195,9 +215,8 @@ jobs:
           name: Install e2e deps and playwright browser
           command: |
             pnpm install
-            npx playwright install chromium
+            npx playwright install --with-deps chromium
           working_directory: e2e
-          # No --with-deps: the container runs as `molgenis`, and its sudo prompt hangs the step.
           no_output_timeout: 5m
 
       - run:
