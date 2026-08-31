@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useIntersectionObserver } from "@vueuse/core";
-import { ref, type ComponentPublicInstance } from "vue";
+import { computed, ref, type ComponentPublicInstance } from "vue";
 import type { cellPayload } from "../../../types/types";
 import type { RecordBox } from "../../utils/groupRecordSections";
 import ContentBlock from "../content/ContentBlock.vue";
@@ -12,12 +12,17 @@ import ValueEMX2 from "../value/EMX2.vue";
 const props = withDefaults(
   defineProps<{
     section: RecordBox;
+    showCards?: boolean;
     trackInView?: boolean;
   }>(),
   {
+    showCards: true,
     trackInView: false,
   }
 );
+
+// Off, the box loses ContentBlock's card chrome and renders as a plain heading and list.
+const wrapper = computed(() => (props.showCards ? ContentBlock : "div"));
 
 const emit = defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
@@ -46,7 +51,7 @@ if (props.trackInView) {
 </script>
 
 <template>
-  <ContentBlock ref="root" :id="section.id" class="scroll-mt-7.5">
+  <component :is="wrapper" ref="root" :id="section.id" class="scroll-mt-7.5">
     <h2
       v-if="section.label && section.kind === 'section'"
       class="mb-5 uppercase text-heading-4xl font-display"
@@ -69,5 +74,5 @@ if (props.trackInView) {
         </DefinitionListDefinition>
       </template>
     </DefinitionList>
-  </ContentBlock>
+  </component>
 </template>

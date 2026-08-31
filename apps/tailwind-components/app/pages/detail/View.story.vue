@@ -6,6 +6,35 @@
     </section>
 
     <section>
+      <h2 class="text-title text-heading-xl mb-2">showCards off</h2>
+      <DetailView
+        :metadata="staticMetadata"
+        :rowData="staticRowData"
+        :showCards="false"
+      />
+    </section>
+
+    <section>
+      <h2 class="text-title text-heading-xl mb-2">showFilter on</h2>
+      <DetailView
+        :metadata="staticMetadata"
+        :rowData="staticRowData"
+        :showFilter="true"
+      />
+    </section>
+
+    <section>
+      <h2 class="text-title text-heading-xl mb-2">
+        collapsed, showing the key columns with a control to expand
+      </h2>
+      <DetailView
+        :metadata="staticMetadata"
+        :rowData="staticRowData"
+        :collapsed="true"
+      />
+    </section>
+
+    <section>
       <h2 class="text-title text-heading-xl mb-2">Live record</h2>
       <DetailView
         v-if="metadata"
@@ -47,7 +76,7 @@ const staticMetadata: ITableMetaData = {
   tableType: "DATA",
   columns: [
     { id: "mg_top_of_form", label: "_top", columnType: "SECTION" },
-    { id: "name", label: "Name", columnType: "STRING" },
+    { id: "name", label: "Name", columnType: "STRING", key: 1 },
     { id: "about", label: "About", columnType: "SECTION" },
     { id: "category", label: "Category", columnType: "STRING" },
     { id: "size", label: "Size", columnType: "HEADING" },

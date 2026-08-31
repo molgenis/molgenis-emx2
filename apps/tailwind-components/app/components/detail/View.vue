@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, useId } from "vue";
 import type {
   columnValue,
   IRow,
@@ -13,7 +13,9 @@ import {
   type RecordBox,
   type RecordSection,
 } from "../../utils/groupRecordSections";
+import Button from "../Button.vue";
 import FormLegend from "../form/Legend.vue";
+import InputSearch from "../input/Search.vue";
 import DetailPageLayout from "./PageLayout.vue";
 import DetailSection from "./Section.vue";
 
@@ -23,11 +25,17 @@ const props = withDefaults(
     rowData?: IRow | null;
     showMgColumns?: boolean;
     showMenu?: boolean;
+    showCards?: boolean;
+    showFilter?: boolean;
+    collapsed?: boolean;
   }>(),
   {
     rowData: null,
     showMgColumns: false,
     showMenu: true,
+    showCards: true,
+    showFilter: false,
+    collapsed: false,
   }
 );
 
@@ -35,9 +43,17 @@ defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
 }>();
 
+// Expanding is the reader's call; `collapsed` only sets where they start.
+const expanded = ref(!props.collapsed);
+const filterId = `detail-view-filter-${useId()}`;
+const filterValue = ref("");
+
 const sections = computed(() =>
   groupRecordSections(props.metadata, props.rowData, {
     showMgColumns: props.showMgColumns,
+    keyColumnsOnly: !expanded.value,
+    filterTerm:
+      expanded.value && props.showFilter ? filterValue.value : undefined,
   })
 );
 
@@ -70,7 +86,11 @@ function menuAnchorId(section: RecordSection): string {
     : section.headings[0]?.id ?? section.id;
 }
 
-const showLegend = computed(() => props.showMenu && boxes.value.length > 1);
+// The menu and the filter belong to the expanded record; collapsed shows neither.
+const showLegend = computed(
+  () => expanded.value && props.showMenu && boxes.value.length > 1
+);
+const showFilterBox = computed(() => expanded.value && props.showFilter);
 
 const activeBoxId = ref<string | null>(null);
 
@@ -135,14 +155,33 @@ function keyValueText(value: columnValue): string {
     </template>
 
     <template #main>
-      <div class="grid lg:gap-2.5 gap-0">
+      <div v-if="showFilterBox" class="pb-7.5">
+        <label :for="filterId" class="sr-only">Filter fields</label>
+        <InputSearch
+          :id="filterId"
+          v-model="filterValue"
+          class="w-3/5 lg:w-2/5"
+          placeholder="Filter fields..."
+        />
+      </div>
+      <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
         <DetailSection
           v-for="box in boxes"
           :key="box.id"
           :section="box"
+          :showCards="showCards"
           :trackInView="showLegend"
           @valueClick="$emit('valueClick', $event)"
           @inView="activeBoxId = box.id"
+        />
+      </div>
+      <div v-if="!expanded" class="pt-7.5">
+        <Button
+          type="text"
+          size="tiny"
+          label="Show all fields"
+          :aria-expanded="expanded"
+          @click="expanded = true"
         />
       </div>
     </template>

@@ -34,10 +34,16 @@ export interface RecordBox {
 
 const TOP_SECTION_ID = "mg_top_of_form";
 
+export interface GroupRecordSectionsOptions {
+  showMgColumns?: boolean;
+  filterTerm?: string;
+  keyColumnsOnly?: boolean;
+}
+
 export function groupRecordSections(
   metadata: ITableMetaData,
   rowData: IRow | undefined | null,
-  options: { showMgColumns?: boolean } = {}
+  options: GroupRecordSectionsOptions = {}
 ): RecordSection[] {
   const sections: RecordSection[] = [];
   let heading: RecordHeading | undefined;
@@ -53,7 +59,7 @@ export function groupRecordSections(
       currentOrTopSection(sections).headings.push(heading);
       continue;
     }
-    if (!isVisibleField(column, rowData, options.showMgColumns)) {
+    if (!isVisibleField(column, rowData, options)) {
       continue;
     }
     const field = {
@@ -97,9 +103,18 @@ function currentOrTopSection(sections: RecordSection[]): RecordSection {
 function isVisibleField(
   column: IColumn,
   rowData: IRow | undefined | null,
-  showMgColumns: boolean | undefined
+  options: GroupRecordSectionsOptions
 ): boolean {
-  if (column.id.startsWith("mg_") && !showMgColumns) {
+  if (column.id.startsWith("mg_") && !options.showMgColumns) {
+    return false;
+  }
+  if (options.keyColumnsOnly && column.key !== 1) {
+    return false;
+  }
+  if (
+    options.filterTerm &&
+    !column.label.toLowerCase().includes(options.filterTerm.toLowerCase())
+  ) {
     return false;
   }
   return !isEmptyValue(rowData?.[column.id]);

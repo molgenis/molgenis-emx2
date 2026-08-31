@@ -369,6 +369,113 @@ describe("DetailView", () => {
     ).toEqual(["about", "size", "care"]);
   });
 
+  test("renders each box as a plain heading and list, with no card and no lg:gap-2.5, when showCards is off", () => {
+    const noCards = mount(DetailView, {
+      props: {
+        metadata: twoSections,
+        rowData: twoSectionsRow,
+        showCards: false,
+      },
+    });
+
+    expect(noCards.findAll("section")).toHaveLength(0);
+    expect(noCards.get("#about").get("h2").text()).toBe("About");
+    expect(noCards.get("#about").text()).toContain("spike");
+    expect(noCards.get("main").get("div.grid").classes()).not.toContain(
+      "lg:gap-2.5"
+    );
+  });
+
+  test("puts the field filter at the top of the record column, never the sidebar", () => {
+    const withFilter = mount(DetailView, {
+      props: {
+        metadata: twoSections,
+        rowData: twoSectionsRow,
+        showFilter: true,
+      },
+    });
+
+    const main = withFilter.get("main").element;
+    const firstChild = main.firstElementChild as HTMLElement;
+    expect(firstChild.querySelector('input[type="search"]')).not.toBeNull();
+    expect(withFilter.find('aside input[type="search"]').exists()).toBe(false);
+  });
+
+  test("filters sections by field label, dropping a box and its menu entry together", async () => {
+    const threeFlatSections = table([
+      column("about", "SECTION", "About"),
+      column("name", "STRING", "Name"),
+      column("size", "SECTION", "Size"),
+      column("weight", "DECIMAL", "Weight"),
+      column("care", "SECTION", "Care"),
+      column("diet", "STRING", "Diet"),
+    ]);
+    const withFilter = mount(DetailView, {
+      props: {
+        metadata: threeFlatSections,
+        rowData: { name: "spike", weight: 15.7, diet: "insects" },
+        showFilter: true,
+      },
+    });
+
+    await withFilter.get('input[type="search"]').setValue("i");
+
+    expect(
+      withFilter.findAll("section").map((section) => section.attributes("id"))
+    ).toEqual(["size", "care"]);
+    expect(menuLinks(withFilter)).toEqual([
+      ["Size", "#size"],
+      ["Care", "#care"],
+    ]);
+  });
+
+  test("collapsed shows the key columns alone, with no menu and no filter, plus a control to expand", () => {
+    const collapsibleMetadata = table([
+      { ...column("name", "STRING", "Name"), key: 1 },
+      column("about", "SECTION", "About"),
+      column("diet", "STRING", "Diet"),
+    ]);
+    const collapsed = mount(DetailView, {
+      props: {
+        metadata: collapsibleMetadata,
+        rowData: { name: "spike", diet: "insects" },
+        collapsed: true,
+        showMenu: true,
+        showFilter: true,
+      },
+    });
+
+    expect(collapsed.text()).toContain("spike");
+    expect(collapsed.text()).not.toContain("insects");
+    expect(collapsed.find("nav").exists()).toBe(false);
+    expect(collapsed.find('input[type="search"]').exists()).toBe(false);
+    expect(collapsed.get("button").attributes("aria-expanded")).toBe("false");
+  });
+
+  test("expanding the collapsed record reveals the whole record, the menu and the filter", async () => {
+    const collapsibleMetadata = table([
+      { ...column("name", "STRING", "Name"), key: 1 },
+      column("about", "SECTION", "About"),
+      column("diet", "STRING", "Diet"),
+    ]);
+    const collapsed = mount(DetailView, {
+      props: {
+        metadata: collapsibleMetadata,
+        rowData: { name: "spike", diet: "insects" },
+        collapsed: true,
+        showMenu: true,
+        showFilter: true,
+      },
+    });
+
+    await collapsed.get("button").trigger("click");
+
+    expect(collapsed.text()).toContain("insects");
+    expect(collapsed.find("nav").exists()).toBe(true);
+    expect(collapsed.find('input[type="search"]').exists()).toBe(true);
+    expect(collapsed.find("button").exists()).toBe(false);
+  });
+
   test("shows mg_ columns only when asked", () => {
     const metadata = table([
       column("about", "SECTION", "About"),
