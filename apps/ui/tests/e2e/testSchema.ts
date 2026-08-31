@@ -1,12 +1,6 @@
 import type { APIRequestContext } from "@playwright/test";
 
-/* A spec that mutates schema-wide state gets its own copy of a template schema,
-   so it can run beside the specs that read the seeded ones. Not named *.spec.ts,
-   so playwright does not collect it. */
-
-/* A retry runs in a fresh worker process, so this suffix differs per attempt and
-   two attempts of one file can never touch the same schema. Schema names are
-   capped at 32 characters, so keep the caller's base short. */
+// a retry runs in a fresh worker, so each attempt gets its own schema name
 export const RUN_ID = Math.random().toString(36).slice(2, 8);
 
 export async function gql(
@@ -59,8 +53,7 @@ export async function createSchemaFromTemplate(
   await waitForTask(api, route, name, data.createSchema.taskId);
 }
 
-/* teardown must not throw: a beforeAll that failed leaves no schema, and an
-   afterAll error would replace the real cause in the report */
+// never throws: an afterAll error would replace the real cause in the report
 export async function deleteSchema(
   api: APIRequestContext,
   route: string,

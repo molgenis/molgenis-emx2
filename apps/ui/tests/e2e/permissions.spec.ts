@@ -17,8 +17,6 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 let api: APIRequestContext;
 const USERNAME = "dragonkeeper";
 const PASSWORD = "dragonkeeper";
-/* its own copy of the pet store, so revoking anonymous below stays local and
-   this file can run beside every spec that reads the seeded pet store */
 const SCHEMA = `permissions test ${RUN_ID}`;
 const SCHEMA_PATH = encodeURIComponent(SCHEMA);
 
@@ -135,8 +133,7 @@ async function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/* the PET_STORE template grants anonymous Viewer, and every user inherits the
-   anonymous role, so dragonkeeper reads the whole schema until this runs */
+// every user inherits the anonymous role, so dragonkeeper reads all until this runs
 async function dropAnonymousFromTestSchema() {
   return gql(
     api,

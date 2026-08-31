@@ -12,8 +12,6 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/ui/";
 
-/* its own copy of the type test model, so the row saved below cannot move the
-   totals filter-count-parity.spec.ts asserts against the seeded schema */
 const SCHEMA = `types create ${RUN_ID}`;
 const SCHEMA_PATH = encodeURIComponent(SCHEMA);
 const arrayField = `${SCHEMA}-Types-stringArrayType-form-field`;
