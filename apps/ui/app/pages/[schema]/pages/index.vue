@@ -203,11 +203,12 @@ async function onAddFormValues(value: IContainers) {
   >
     <div class="min-h-0 p-12.5">
       <form @submit.prevent>
-        <legend
-          class="mb-5 uppercase text-heading-3xl font-display text-title-contrast"
-        >
-          Select a page type
-        </legend>
+        <div class="mb-5 text-title-contrast">
+          <legend class="uppercase text-heading-3xl font-display">
+            Select a page type
+          </legend>
+          <p>Create a new page by using one of the following options</p>
+        </div>
         <fieldset class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
           <PageSelector>
             <input
@@ -224,9 +225,8 @@ async function onAddFormValues(value: IContainers) {
                 <BaseIcon name="Docs" :width="32" />
                 <span class="font-bold">Landing page</span>
                 <p id="LandingPageDefinition">
-                  Create a landing page to display general information. You can
-                  create new sections, titles, and more. Use this template to
-                  create a home page or a "Contact us" page.
+                  Create a generic page to display general information such as
+                  an contact page or a home page.
                 </p>
               </label>
             </div>
@@ -246,8 +246,7 @@ async function onAddFormValues(value: IContainers) {
               <span class="font-bold">Developer page</span>
               <p id="DeveloperPageDefinition">
                 Build your own page from scratch using HTML, CSS, and
-                JavaScript. You may also import 3rd-party dependencies to add
-                additional functionality.
+                JavaScript.
               </p>
             </label>
           </PageSelector>
