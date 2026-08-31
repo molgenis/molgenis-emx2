@@ -173,11 +173,16 @@ jobs:
       - run:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar -x test ci --no-daemon
+          # Node sizes its default heap from HOST memory, not the 8GB this job shares with postgres.
+          environment:
+            NODE_OPTIONS: --max-old-space-size=2048
 
       - run:
           name: build ssr catalogue
           command: pnpm build
           working_directory: apps/catalogue
+          environment:
+            NODE_OPTIONS: --max-old-space-size=2048
 
       - run:
           name: Put custom app next to jar
