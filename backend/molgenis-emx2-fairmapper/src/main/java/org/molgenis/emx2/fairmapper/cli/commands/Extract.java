@@ -40,7 +40,7 @@ public class Extract implements Runnable {
   public void run() {
     Repository repository = new SailRepository(new MemoryStore());
     URI endpoint = URI.create(rdf);
-    RdfExtractor extractor = new FdpRdfExtractor(new RemoteRdfExtractor(), endpoint);
+    RdfExtractor extractor = new FdpRdfExtractor(new RemoteRdfExtractor());
     extractor.addRdfToRepository(repository, endpoint);
     try (RepositoryConnection connection = repository.getConnection();
         FileOutputStream fos = new FileOutputStream(outputPath)) {
