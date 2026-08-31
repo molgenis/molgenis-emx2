@@ -30,7 +30,7 @@ public class CsvTableWriter {
       try {
         csvWriter.append(toValueMap(row));
       } catch (IOException ioe) {
-        throw new MolgenisException(ioe.getMessage());
+        throw new MolgenisException("Writing csv row failed", ioe);
       }
     };
   }
