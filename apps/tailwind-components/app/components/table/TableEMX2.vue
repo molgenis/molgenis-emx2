@@ -323,6 +323,7 @@
     @update:cancelled="afterClose"
   />
 
+  <!-- EditModal stays open after an insert, so update:added is what refreshes the table -->
   <EditModal
     v-if="data?.tableMetadata && showAddModal"
     :key="`add-modal-${tableId}`"
