@@ -59,6 +59,10 @@ definitions:
 
 commands:
   pre_steps:
+    parameters:
+      gradle_cache:
+        type: boolean
+        default: true
     steps:
     - run:
         name: Fresh Git Checkout to prevent missing objects
@@ -87,24 +91,27 @@ commands:
           command: |
               find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
           no_output_timeout: 5m
-    - restore_cache:
-        keys:
-          - gradle-{{ checksum "concatenated-build-gradle" }}
-          - gradle
-    - restore_cache:
-        keys:
-        - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-    - run:
-        name: Download Dependencies
-        command: ./gradlew dependencies --no-daemon
-    - save_cache:
-        paths:
-          - ~/.gradle/wrapper
-        key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-    - save_cache:
-        paths:
-          - ~/.gradle/caches
-        key: gradle-{{ checksum "concatenated-build-gradle" }}
+    - when:
+        condition: << parameters.gradle_cache >>
+        steps:
+        - restore_cache:
+            keys:
+              - gradle-{{ checksum "concatenated-build-gradle" }}
+              - gradle
+        - restore_cache:
+            keys:
+            - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+        - run:
+            name: Download Dependencies
+            command: ./gradlew dependencies --no-daemon
+        - save_cache:
+            paths:
+              - ~/.gradle/wrapper
+            key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+        - save_cache:
+            paths:
+              - ~/.gradle/caches
+            key: gradle-{{ checksum "concatenated-build-gradle" }}
     - setup_remote_docker:
         docker_layer_caching: true
     - run:
@@ -174,6 +181,9 @@ jobs:
     environment:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
+      # A cache restores to the absolute path it was saved from, and `~` is a different
+      # user on this image than on the one the other jobs use.
+      GRADLE_USER_HOME: /tmp/ci-cache/gradle
 
     steps:
       # pre_steps calls `pnpm dlx`, so pnpm must exist before it runs.
@@ -181,7 +191,20 @@ jobs:
           name: Enable pnpm
           command: sudo corepack enable
 
-      - pre_steps
+      - pre_steps:
+          gradle_cache: false
+
+      - restore_cache:
+          keys:
+            - test-e2e-gradle-v1-{{ checksum "concatenated-build-gradle" }}
+            - test-e2e-gradle-v1-
+      - run:
+          name: Download Dependencies
+          command: ./gradlew dependencies --no-daemon
+      - save_cache:
+          paths:
+            - /tmp/ci-cache/gradle
+          key: test-e2e-gradle-v1-{{ checksum "concatenated-build-gradle" }}
 
       - run:
           name: build the application without running tests to speed up the e2e tests
