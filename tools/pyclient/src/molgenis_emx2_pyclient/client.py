@@ -1,26 +1,22 @@
 import json
 import logging
 import pathlib
-import time
-import csv
-
 from functools import cache
 from io import BytesIO
 from warnings import warn
 
 import pandas as pd
 import requests
+import time
 
 from . import graphql_queries as queries
-from .constants import HEADING, DATE, DATETIME, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT, CHECKBOX, MULTISELECT
-from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
+from .constants import HEADING, SECTION, REF, RADIO, FILE, ONTOLOGY, SELECT
+from .exceptions import (NoSuchSchemaException, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
-                         NoContextManagerException, GraphQLException, InvalidTokenException,
-                         PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
-                         NoSuchColumnException, ReferenceException)
+                         NoContextManagerException, GraphQLException, TokenSigninException, NoSuchColumnException)
 from .metadata import Schema, Table
-from .utils import parse_nested_pkeys, convert_dtypes, prepare_filter, format_optional_params, prep_data_or_file, \
-    check_schema, csv_string_to_array, array_to_csv_string
+from .utils import parse_nested_pkeys, prepare_filter, format_optional_params, prep_data_or_file, \
+    check_schema, validate_graphql_response, response_to_dataframe
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -33,12 +29,11 @@ class Client:
     and perform operations on the server.
     """
 
-    def __init__(self, url: str, schema: str = None, token: str = None, job: str = None) -> None:
+    def __init__(self, url: str, schema: str | None = None, token: str | None = None, job: str | None = None) -> None:
         """
         Initializes a Client object with a server url.
         """
         self._as_context_manager = False
-        self._token = token
         self._job = job
 
         self.url: str = url if not url.endswith('/') else url[:-1]
@@ -48,11 +43,11 @@ class Client:
         self.username: str | None = None
 
         self.session: requests.Session = requests.Session()
-        self.session.headers = {'x-molgenis-token': self.token}
+        self.set_token(token)
         self._validate_url()
 
         self.schemas: list = self.get_schemas()
-        self.default_schema: str = self.set_schema(schema)
+        self.default_schema: str | None = self.set_schema(schema)
 
     def __repr__(self):
         class_name = type(self).__name__
@@ -106,7 +101,7 @@ class Client:
             url=self.api_graphql,
             json={'query': query, 'variables': variables}
         )
-        self._validate_graphql_response(response, mutation='signin')
+        validate_graphql_response(response, mutation='signin')
 
         response_json: dict = response.json().get('data', {}).get('signin', {})
 
@@ -136,7 +131,7 @@ class Client:
             url=self.api_graphql,
             json={'query': queries.signout()}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         status = response.json().get('data', {}).get('signout', {}).get('status')
         if status == 'SUCCESS':
@@ -176,7 +171,7 @@ class Client:
             url=self.api_graphql,
             json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json: dict = response.json()
         schemas = [Schema(**s) for s in response_json['data']['_schemas']]
@@ -188,15 +183,15 @@ class Client:
         return list(map(str, self.schemas))
 
     @property
-    def token(self):
+    def token(self) -> str | None:
         """Returns the token by a property to prevent it being modified."""
-        return self._token
+        return self.session.headers.get('x-molgenis-token')
 
-    def set_token(self, token: str):
+    def set_token(self, token: str | None) -> str | None:
         """Sets the token supplied as the argument as the client's token."""
-        if self.signin_status == 'success':
-            raise TokenSigninException("Cannot set a token on a client authorized with sign in.")
-        self._token = token
+        if token:
+            self.session.headers['x-molgenis-token'] = token
+        return token
 
     @property
     def version(self):
@@ -206,10 +201,10 @@ class Client:
             url=self.api_graphql,
             json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
         return response.json().get('data').get('_manifest').get('SpecificationVersion')
 
-    def save_schema(self, table: str, name: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
+    def save_schema(self, table: str, name: str | None = None, file: str | pathlib.Path | None = None, data: list | pd.DataFrame | None = None):
         """
         Imports or updates records in a table of a named schema.
         Deprecated and replaced by `save_table`.
@@ -217,7 +212,7 @@ class Client:
         warn("`save_schema` is deprecated. Use `save_table` instead.")
         return self.save_table(table, name, file, data)
 
-    def save_table(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
+    def save_table(self, table: str, schema: str | None = None, file: str | pathlib.Path | None = None, data: list | pd.DataFrame | None = None):
         """Imports or updates records in a table of a named schema.
 
         :param table: the name of the table
@@ -239,7 +234,7 @@ class Client:
 
         import_data = prep_data_or_file(file_path=file, data=data)
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
 
         response = self.session.post(
@@ -249,14 +244,14 @@ class Client:
         )
 
         try:
-            self._validate_graphql_response(response)
+            validate_graphql_response(response)
             log.info("Imported data into %s::%s.", current_schema, table)
         except PyclientException:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to import data into %s::%s\n%s", current_schema, table, errors)
             raise PyclientException(errors)
 
-    async def upload_file(self, file_path: str | pathlib.Path, schema: str = None):
+    async def upload_file(self, file_path: str | pathlib.Path, schema: str | None = None):
         """Uploads a file to a database on the EMX2 server.
 
         :param file_path: the path where the file is located.
@@ -321,7 +316,7 @@ class Client:
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         query_url = f"{self.url}/{current_schema}/graphql"
-        table_id = self.get_schema_metadata(current_schema).get_table(by='name', value=table).id
+        table_id = self.get_schema_metadata(name=current_schema).get_table(by='name', value=table).id
         query = queries.truncate()
 
         response = self.session.post(
@@ -329,8 +324,8 @@ class Client:
             json={"query": query, "variables": {"table": table_id}}
         )
 
-        self._validate_graphql_response(response, mutation='truncate',
-                                        fallback_error_message=f"Failed to truncate table {current_schema}::{table}.")
+        validate_graphql_response(response, mutation='truncate',
+                                       fallback_error_message=f"Failed to truncate table {current_schema}::{table}.")
         log.info(f"Truncated table {table!r}.")
 
 
@@ -362,7 +357,7 @@ class Client:
             raise PyclientException(msg)
         return msg
 
-    def delete_records(self, table: str, schema: str = None, file: str | pathlib.Path = None, data: list | pd.DataFrame = None):
+    def delete_records(self, table: str, schema: str | None = None, file: str | pathlib.Path | None = None, data: list | pd.DataFrame | None = None):
         """Deletes records from a table.
 
         :param table: the name of the table
@@ -384,7 +379,7 @@ class Client:
 
         import_data = prep_data_or_file(file_path=file, data=data)
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
         table_id = schema_metadata.get_table(by='name', value=table).id
 
         response = self.session.delete(
@@ -393,8 +388,8 @@ class Client:
             data=import_data
         )
 
-        self._validate_graphql_response(response, mutation='delete',
-                                        fallback_error_message=f"Failed to delete data from {current_schema}::{table}.")
+        validate_graphql_response(response, mutation='delete',
+                                       fallback_error_message=f"Failed to delete data from {current_schema}::{table}.")
 
         if response.status_code == 200:
             log.info("Deleted data from %s::%s.", current_schema, table)
@@ -404,9 +399,9 @@ class Client:
 
     def get(self,
             table: str,
-            columns: list[str] = None,
-            query_filter: str = None,
-            schema: str = None,
+            columns: list[str] | None = None,
+            query_filter: str | None = None,
+            schema: str| None = None,
             as_df: bool = False,
             parse_arrays: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a table using the EMX2 CSV API and
@@ -434,7 +429,7 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
         table_meta = schema_metadata.get_table(by='name', value=table)
         table_id = table_meta.id
 
@@ -446,39 +441,12 @@ class Client:
             filter_part = ""
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
         response = self.session.get(url=query_url)
-        self._validate_graphql_response(response=response,
-                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+        validate_graphql_response(response=response,
+                                       fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                f"{table!r}.\nStatus code: {response.status_code}.")
 
-        response_columns = pd.read_csv(BytesIO(response.content)).columns
-        dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_columns}
+        response_data = response_to_dataframe(response, table_meta, columns)
 
-        bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
-        date_columns = [c.name for c in table_meta.columns
-                        if c.get('columnType') in (DATE, DATETIME) and c.name in response_columns]
-        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False, na_values=[''], dtype=dtypes, parse_dates=date_columns, dialect=csv.excel)
-        response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
-        if parse_arrays:
-            array_columns = [c.name for c in table_meta.columns
-                        if (c.get('columnType').endswith('_ARRAY') or 
-                            c.get('columnType') in (CHECKBOX, MULTISELECT)) 
-                            and c.name in response_columns]
-            response_data[array_columns] = response_data[array_columns].map(csv_string_to_array)
-        response_data = response_data.astype(dtypes)
-
-        if columns:
-            try:
-                response_data = response_data[columns]
-            except KeyError as e:
-                if e.args[0].startswith("None of [Index(['"):
-                    missing_cols = e.args[0].split("None of [Index([")[1].split("]")[0]
-                    msg = f"Columns {missing_cols} not found."
-                elif "not in index" in e.args[0]:
-                    msg = f"Columns {e.args[0]}"
-                else:
-                    msg = f"Columns {e.args[0].split('Index(')[1].split(', dtype')} not in index."
-                raise NoSuchColumnException(msg)
-            response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
         if not as_df:
             response_data = response_data.to_dict('records')
 
@@ -486,9 +454,9 @@ class Client:
 
     def get_graphql(self,
                     table: str,
-                    columns: list[str] = None,
-                    query_filter: str = None,
-                    schema: str = None):
+                    columns: list[str] | None = None,
+                    query_filter: str | None = None,
+                    schema: str | None = None):
         """Retrieves data from a schema using the GraphQL API and returns as a list of dictionaries.
 
         :param table: the name of the table
@@ -508,7 +476,7 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
         table_meta = schema_metadata.get_table(by='name', value=table)
         table_id = table_meta.id
 
@@ -518,16 +486,16 @@ class Client:
         query = self._parse_get_table_query(table_id, current_schema, columns)
         response = self.session.post(url=query_url,
                                     json={"query": query, "variables": {"filter": filter_part}})
-        self._validate_graphql_response(response=response,
-                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+        validate_graphql_response(response=response,
+                                       fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                f"{table!r}.\nStatus code: {response.status_code}.")
         response_data = response.json().get('data').get(table_id, [])
-        response_data = self._parse_ontology(response_data, table_id, schema)
+        response_data = self._parse_ontology(response_data, table_id, current_schema)
 
         return response_data
 
-    async def export(self, schema: str = None, table: str = None,
-                     filename: str = None, as_excel: bool = False) -> BytesIO:
+    async def export(self, schema: str | None = None, table: str | None = None,
+                     filename: str | None = None, as_excel: bool = False) -> BytesIO:
         """Exports data from a schema to a file in the desired format.
 
         :param schema: the name of the schema
@@ -545,7 +513,7 @@ class Client:
         if table is not None and not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
-        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=current_schema)
 
         if filename:
             if filename.endswith('.xlsx'):
@@ -567,7 +535,7 @@ class Client:
                 # Export the whole schema
                 url = f"{self.url}/{current_schema}/api/excel?async=true"
                 response = self.session.get(url=url)
-                self._validate_graphql_response(response)
+                validate_graphql_response(response)
 
                 if filename:
                     with open(filename, "wb") as file:
@@ -580,7 +548,7 @@ class Client:
                 table_id = schema_metadata.get_table(by='name', value=table).id
                 url = f"{self.url}/{current_schema}/api/excel/{table_id}?async=true"
                 response = self.session.get(url=url)
-                self._validate_graphql_response(response)
+                validate_graphql_response(response)
 
                 if filename:
                     with open(filename, "wb") as file:
@@ -592,7 +560,7 @@ class Client:
             if table is None:
                 url = f"{self.url}/{current_schema}/api/zip?async=true"
                 response = self.session.get(url=url)
-                self._validate_graphql_response(response)
+                validate_graphql_response(response)
 
                 if filename:
                     with open(filename, "wb") as file:
@@ -606,7 +574,7 @@ class Client:
                 table_id = schema_metadata.get_table(by='name', value=table).id
                 url = f"{self.url}/{current_schema}/api/csv/{table_id}?async=true"
                 response = self.session.get(url=url)
-                self._validate_graphql_response(response)
+                validate_graphql_response(response)
 
                 if filename:
                     with open(filename, "wb") as file:
@@ -617,7 +585,7 @@ class Client:
 
         return BytesIO(response.content)
 
-    async def export_schema(self, schema: str = None, fmt: str = None, filename: str = None):
+    async def export_schema(self, schema: str | None = None, fmt: str | None = None, filename: str | None = None):
         """
         Exports the schema definition.
 
@@ -640,7 +608,7 @@ class Client:
 
         url = f"{self.url}/{current_schema}/api/{_fmt}"
         response = self.session.get(url=url)
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         if filename:
             with open(filename, "wb") as file:
@@ -650,8 +618,8 @@ class Client:
 
 
     async def create_schema(self, name: str,
-                            description: str = None,
-                            template: str = None,
+                            description: str | None = None,
+                            template: str | None = None,
                             include_demo_data: bool = False):
         """Creates a new schema on the EMX2 server.
 
@@ -680,7 +648,7 @@ class Client:
             json={'query': query, 'variables': variables}
         )
 
-        self._validate_graphql_response(
+        validate_graphql_response(
             response=response,
             mutation='createSchema',
             fallback_error_message=f"Failed to create schema {name!r}"
@@ -695,7 +663,7 @@ class Client:
         self.schemas = self.get_schemas()
         log.info(f"Created schema {name!r}")
 
-    async def delete_schema(self, name: str = None):
+    async def delete_schema(self, name: str | None = None):
         """Deletes a schema from the EMX2 server.
 
         :param name: the name of the new schema
@@ -714,7 +682,7 @@ class Client:
             json={'query': query, 'variables': variables}
         )
 
-        self._validate_graphql_response(
+        validate_graphql_response(
             response=response,
             mutation='deleteSchema',
             fallback_error_message=f"Failed to delete schema {current_schema!r}"
@@ -722,7 +690,7 @@ class Client:
         self.schemas = self.get_schemas()
         log.info(f"Deleted schema {current_schema!r}")
 
-    def update_schema(self, name: str = None, description: str = None):
+    def update_schema(self, name: str | None = None, description: str | None = None):
         """Updates a schema's description.
 
         :param name: the name of the new schema
@@ -743,16 +711,16 @@ class Client:
             json={'query': query, 'variables': variables}
         )
 
-        self._validate_graphql_response(
+        validate_graphql_response(
             response=response,
             mutation='updateSchema',
             fallback_error_message=f"Failed to update schema {current_schema!r}"
         )
         self.schemas = self.get_schemas()
 
-    async def recreate_schema(self, name: str = None,
-                              description: str = None,
-                              template: str = None,
+    async def recreate_schema(self, name: str | None = None,
+                              description: str | None = None,
+                              template: str | None = None,
                               include_demo_data: bool = False):
         """Recreates a schema on the EMX2 server by deleting and subsequently
         creating it without data on the EMX2 server.
@@ -791,7 +759,7 @@ class Client:
         self.schemas = self.get_schemas()
 
     @cache
-    def get_schema_metadata(self, name: str = None) -> Schema:
+    def get_schema_metadata(self, name: str | None = None) -> Schema:
         """Retrieves a schema's metadata and returns it in a metadata.Schema object.
 
         :param name: the name of the schema
@@ -802,13 +770,15 @@ class Client:
         """
         current_schema = check_schema(name, self.default_schema, self.schema_names)
 
+        if not current_schema:
+            raise NoSuchSchemaException(f"Cannot ")
+
         query = queries.list_schema_meta()
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/graphql",
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json = response.json()
 
@@ -820,58 +790,55 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
-    def get_schema_settings(self, name: str = None) -> list[dict]:
+    def get_schema_settings(self, name: str | None = None) -> list[dict]:
         """Retrieves the schema's settings and returns it as list of dictionaries."""
         current_schema = check_schema(name, self.default_schema, self.schema_names)
 
         query = queries.list_schema_settings()
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/graphql",
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json = response.json()
         settings = response_json.get('data').get('_schema').get('settings')
 
         return settings
 
-    def get_schema_members(self, name: str = None) -> list[dict]:
+    def get_schema_members(self, name: str | None = None) -> list[dict]:
         """Retrieves the schema's settings and returns it as a list of dictionaries."""
         current_schema = check_schema(name, self.default_schema, self.schema_names)
 
         query = queries.list_schema_members()
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/graphql",
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json = response.json()
         members = response_json.get('data').get('_schema').get('members')
 
         return members
 
-    def get_schema_roles(self, name: str = None) -> list[dict]:
+    def get_schema_roles(self, name: str | None = None) -> list[dict]:
         """Retrieves the schema's settings and returns it as a list of dictionaries."""
         current_schema = check_schema(name, self.default_schema, self.schema_names)
 
         query = queries.list_schema_roles()
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/graphql",
-            json={'query': query},
-            headers={'x-molgenis-token': self.token}
+            json={'query': query}
         )
-        self._validate_graphql_response(response)
+        validate_graphql_response(response)
 
         response_json = response.json()
         roles = response_json.get('data').get('_schema').get('roles')
 
         return roles
 
-    def set_schema(self, name: str) -> str:
+    def set_schema(self, name: str | None) -> str | None:
         """Sets the default schema to the schema supplied as argument.
         Raises NoSuchSchemaException if the schema cannot be found on the server.
 
@@ -939,81 +906,6 @@ class Client:
                 task = p_response.json().get('data').get('_tasks')[0]
         log.info(f"Completed task: {task.get('description')}")
 
-    def _validate_graphql_response(self, response, mutation: str = None, fallback_error_message: str = None):
-        """Validates a GraphQL response and prints the appropriate message.
-
-        :param response: a graphql response from the server
-        :type response: requests.Response
-        :param mutation: the name of the graphql mutation executed, optional
-        :type mutation: str
-        :param fallback_error_message: a fallback error message, optional
-        :type fallback_error_message: str
-
-        :returns: a success or error message
-        :rtype: string
-        """
-
-        if response.status_code == 503:
-            raise ServiceUnavailableError(f"Server with url {self.url!r} (temporarily) unavailable.")
-        if response.status_code == 404:
-            raise ServerNotFoundError(f"Server with url {self.url!r} not found.")
-        if response.status_code == 400:
-            if 'Invalid token or token expired' in response.text:
-                raise InvalidTokenException("Invalid token or token expired.")
-            if 'permission denied' in response.text:
-                raise PermissionDeniedException(f"Transaction failed: permission denied.")
-            if 'Graphql API error' in response.text:
-                msg = response.json().get("errors", [])[0].get('message')
-                log.error(msg)
-                raise GraphQLException(msg)
-            if "violates foreign key constraint" in response.text:
-                msg = response.json().get("errors", [])[0].get('message', '')
-                log.error(msg)
-                raise ReferenceException(msg)
-            if "Cannot create schema from template" in response.text:
-                msg = response.json().get("errors", [])[0].get('message', '')
-                log.error(msg)
-                raise NonExistentTemplateException("Selected template does not exist.")
-            if "Field \'members\' in type \'MolgenisSchema\' is undefined" in response.text:
-                msg = response.json().get("errors", [])[0].get('message')
-                log.error(msg)
-                raise PermissionDeniedException("Cannot access members on this schema.")
-
-            msg = response.json().get("errors", [])[0].get('message', '')
-            log.error(msg)
-            raise PyclientException("An unknown error occurred when trying to reach this server.")
-
-        if response.request.method == 'GET':
-            return
-
-        if response.status_code == 200:
-            return
-
-        response_json = response.json()
-        response_keys = response_json.keys()
-        if 'errors' not in response_keys and 'data' not in response_keys:
-            message = fallback_error_message
-            log.error(message)
-
-        elif 'errors' in response_keys:
-            message = response_json.get('errors')[0].get('message')
-            if 'permission denied' in message:
-                log.error("Insufficient permissions for this operations.")
-                raise PermissionDeniedException("Insufficient permissions for this operations.")
-            if 'AvailableDataModels' in message:
-                log.error("Selected template does not exist.")
-                raise NonExistentTemplateException("Selected template does not exist.")
-            log.error(message)
-            raise GraphQLException(message)
-
-        elif mutation is not None:
-            if response_json.get('data').get(mutation).get('status') == 'SUCCESS':
-                message = response_json.get('data').get(mutation).get('message')
-                log.info(message)
-            else:
-                message = f"Failed to validate response for {mutation!r}"
-                log.error(message)
-
     def _table_in_schema(self, table_name: str, schema_name: str) -> bool:
         """Checks whether the requested table is present in the schema.
 
@@ -1024,7 +916,7 @@ class Client:
         :returns: boolean indicating whether table is present
         :rtype: bool
         """
-        schema_data = self.get_schema_metadata(schema_name)
+        schema_data = self.get_schema_metadata(name=schema_name)
         if not hasattr(schema_data, 'tables'):
             return False
         if table_name in map(str, schema_data.tables):
@@ -1049,11 +941,11 @@ class Client:
             raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
 
-    def _parse_get_table_query(self, table_id: str, schema: str, columns: list = None) -> str:
+    def _parse_get_table_query(self, table_id: str, schema: str, columns: list | None = None) -> str:
         """Gathers a table's metadata and parses it to a GraphQL query
         for querying the table's contents.
         """
-        schema_metadata: Schema = self.get_schema_metadata(schema)
+        schema_metadata: Schema = self.get_schema_metadata(name=schema)
         table_metadata: Table = schema_metadata.get_table('id', table_id)
 
         if columns is not None:
@@ -1075,7 +967,7 @@ class Client:
                 if (ref_schema := col.get('refSchemaName', schema)) == schema:
                     pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
                 else:
-                    ref_schema_meta = self.get_schema_metadata(ref_schema)
+                    ref_schema_meta = self.get_schema_metadata(name=ref_schema)
                     pkeys = ref_schema_meta.get_pkeys(col.get('refTableId'))
                 query += f"    {col.get('id')} {{"
                 query += parse_nested_pkeys(pkeys)
@@ -1091,7 +983,7 @@ class Client:
 
     def _parse_ontology(self, data: list, table_id: str, schema: str) -> list:
         """Parses the ontology columns from a GraphQL response."""
-        schema_meta = self.get_schema_metadata(schema)
+        schema_meta = self.get_schema_metadata(name=schema)
         table_meta = schema_meta.get_table('id', table_id)
         parsed_data = []
         for row in data:
