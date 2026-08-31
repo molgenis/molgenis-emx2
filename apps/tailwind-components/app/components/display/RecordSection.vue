@@ -21,7 +21,6 @@ const props = withDefaults(
   }
 );
 
-// Off, the box loses ContentBlock's card chrome and renders as a plain heading and list.
 const wrapper = computed(() => (props.showCards ? ContentBlock : "div"));
 
 const emit = defineEmits<{

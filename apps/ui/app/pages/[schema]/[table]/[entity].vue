@@ -75,8 +75,7 @@ const enableEditing = computed(() => canUpdate.value && rowIsModifiable.value);
 
 const enableDeleting = computed(() => canDelete.value && rowIsModifiable.value);
 
-// A subclass row loaded via its parent table only carries the parent's columns; resolve its
-// own table so the view renders every field the row has, without changing the route or edit/delete.
+// A row loaded through its parent table carries only the parent's columns.
 const viewMetadata = ref(tableMetadata);
 const viewRowData = ref(rowData.value);
 

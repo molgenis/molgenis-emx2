@@ -43,7 +43,6 @@ defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
 }>();
 
-// Expanding is the reader's call; `collapsed` only sets where they start.
 const expanded = ref(!props.collapsed);
 const filterId = `display-record-filter-${useId()}`;
 const filterValue = ref("");
@@ -86,7 +85,6 @@ function menuAnchorId(section: RecordSectionGroup): string {
     : section.headings[0]?.id ?? section.id;
 }
 
-// The menu and the filter belong to the expanded record; collapsed shows neither.
 const showLegend = computed(
   () => expanded.value && props.showMenu && boxes.value.length > 1
 );
