@@ -41,10 +41,7 @@ export default defineConfig<ConfigOptions>({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: [
-        "typetest/types/create.spec.ts",
-        "filter-count-parity.spec.ts",
-      ],
+      testIgnore: "typetest/types/create.spec.ts",
     },
     {
       name: "with-auth",
@@ -55,15 +52,6 @@ export default defineConfig<ConfigOptions>({
       testIgnore: "tests/e2e/re-authtest.spec.ts",
       testMatch: "typetest/types/create.spec.ts",
       dependencies: ["auth.setup"],
-    },
-    /* counts rows the with-auth type tests create, so it depends on them for
-       ordering only. It still runs anonymously, without their storageState,
-       and may overlap chromium because it reads the type test schema. */
-    {
-      name: "after-type-test-mutations",
-      use: { ...devices["Desktop Chrome"] },
-      testMatch: "filter-count-parity.spec.ts",
-      dependencies: ["with-auth"],
     },
   ],
 });

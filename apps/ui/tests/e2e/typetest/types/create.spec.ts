@@ -1,15 +1,38 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, request as apiRequest } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
+import {
+  createSchemaFromTemplate,
+  deleteSchema,
+  signinAdmin,
+} from "../../testSchema";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/ui/";
 
-test.beforeEach(async ({ page }) => {});
+/* its own copy of the type test model, so the row saved below cannot move the
+   totals filter-count-parity.spec.ts asserts against the seeded schema */
+const SCHEMA = "types create";
+const SCHEMA_PATH = encodeURIComponent(SCHEMA);
+const arrayField = `${SCHEMA}-Types-stringArrayType-form-field`;
+
+let api: APIRequestContext;
+
+test.beforeAll(async () => {
+  api = await apiRequest.newContext();
+  await signinAdmin(api, route);
+  await createSchemaFromTemplate(api, route, SCHEMA, "TYPE_TEST");
+});
+
+test.afterAll(async () => {
+  await deleteSchema(api, route, SCHEMA);
+  await api.dispose();
+});
 
 test.describe("period input type", () => {
   test("it should be possible to create a period", async ({ page }) => {
-    await page.goto(`${route}type%20test/Types`);
+    await page.goto(`${route}${SCHEMA_PATH}/Types`);
     await page.getByRole("button", { name: "Add Types" }).click();
     await page.getByRole("textbox", { name: "period type" }).click();
     await page.getByRole("textbox", { name: "period type" }).fill("test");
@@ -31,50 +54,32 @@ test.describe("array input types", () => {
   test("it should be possible to create and remove multiple items", async ({
     page,
   }) => {
-    await page.goto(`${route}type%20test/Types`);
+    await page.goto(`${route}${SCHEMA_PATH}/Types`);
     await page.getByRole("button", { name: "Add Types" }).click();
+    await page.locator(`[id="${arrayField}-input_0"]`).click();
+    await page.locator(`[id="${arrayField}-input_0"]`).click();
+    await page.locator(`[id="${arrayField}-input_0"]`).fill("string1");
     await page
-      .locator('[id="type test-Types-stringArrayType-form-field-input_0"]')
-      .click();
-    await page
-      .locator('[id="type test-Types-stringArrayType-form-field-input_0"]')
-      .click();
-    await page
-      .locator('[id="type test-Types-stringArrayType-form-field-input_0"]')
-      .fill("string1");
-    await page
-      .locator('[id="type test-Types-stringArrayType-form-field"]')
+      .locator(`[id="${arrayField}"]`)
       .getByRole("button", { name: "Add an additional item" })
       .click();
+    await page.locator(`[id="${arrayField}-input_1"]`).click();
+    await page.locator(`[id="${arrayField}-input_1"]`).fill("string2");
     await page
-      .locator('[id="type test-Types-stringArrayType-form-field-input_1"]')
-      .click();
-    await page
-      .locator('[id="type test-Types-stringArrayType-form-field-input_1"]')
-      .fill("string2");
-    await page
-      .locator('[id="type test-Types-stringArrayType-form-field"]')
+      .locator(`[id="${arrayField}"]`)
       .getByRole("button", { name: "Add an additional item" })
       .click();
-    await page
-      .locator('[id="type test-Types-stringArrayType-form-field-input_2"]')
-      .click();
-    await page
-      .locator('[id="type test-Types-stringArrayType-form-field-input_2"]')
-      .fill("string3");
+    await page.locator(`[id="${arrayField}-input_2"]`).click();
+    await page.locator(`[id="${arrayField}-input_2"]`).fill("string3");
     await page.getByRole("button", { name: "Remove item" }).nth(1).click();
-    await expect(
-      page.locator('[id="type test-Types-stringArrayType-form-field-input_0"]')
-    ).toBeVisible();
-    await page
-      .locator('[id="type test-Types-stringArrayType-form-field-input_1"]')
-      .click();
-    await expect(
-      page.locator('[id="type test-Types-stringArrayType-form-field-input_0"]')
-    ).toHaveValue("string1");
-    await expect(
-      page.locator('[id="type test-Types-stringArrayType-form-field-input_1"]')
-    ).toHaveValue("string3");
+    await expect(page.locator(`[id="${arrayField}-input_0"]`)).toBeVisible();
+    await page.locator(`[id="${arrayField}-input_1"]`).click();
+    await expect(page.locator(`[id="${arrayField}-input_0"]`)).toHaveValue(
+      "string1"
+    );
+    await expect(page.locator(`[id="${arrayField}-input_1"]`)).toHaveValue(
+      "string3"
+    );
   });
 });
 
@@ -82,7 +87,7 @@ test.describe("Insert type record with only required fields", () => {
   test("it should be possible to create a record with only required fields", async ({
     page,
   }) => {
-    await page.goto(`${route}type%20test/Types`);
+    await page.goto(`${route}${SCHEMA_PATH}/Types`);
     await page.getByRole("button", { name: "Add Types" }).click();
     await page.getByRole("textbox", { name: "string type Required" }).click();
     await page
