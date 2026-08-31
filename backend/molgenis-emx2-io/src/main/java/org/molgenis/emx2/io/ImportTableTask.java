@@ -42,7 +42,7 @@ public class ImportTableTask extends Task {
     this.setDescription("Importing rows into %s".formatted(table.getName()));
 
     try {
-      source.processTable(table.getName(), new ImportRowProcessor(table, this));
+      source.processTable(table.getName(), new ImportRowProcessor(table, this, updateMode));
     } catch (Exception e) {
       this.setError("Import table (%s) failed: %s".formatted(table.getName(), e.getMessage()));
       throw e;
