@@ -4,6 +4,11 @@ import type { APIRequestContext } from "@playwright/test";
    so it can run beside the specs that read the seeded ones. Not named *.spec.ts,
    so playwright does not collect it. */
 
+/* A retry runs in a fresh worker process, so this suffix differs per attempt and
+   two attempts of one file can never touch the same schema. Schema names are
+   capped at 32 characters, so keep the caller's base short. */
+export const RUN_ID = Math.random().toString(36).slice(2, 8);
+
 export async function gql(
   api: APIRequestContext,
   url: string,
@@ -40,7 +45,6 @@ export async function createSchemaFromTemplate(
   name: string,
   template: string
 ) {
-  await deleteSchema(api, route, name).catch(() => {}); // a crashed earlier run leaves one behind
   const data = await gql(
     api,
     `${route}graphql`,
@@ -55,6 +59,8 @@ export async function createSchemaFromTemplate(
   await waitForTask(api, route, name, data.createSchema.taskId);
 }
 
+/* teardown must not throw: a beforeAll that failed leaves no schema, and an
+   afterAll error would replace the real cause in the report */
 export async function deleteSchema(
   api: APIRequestContext,
   route: string,
@@ -69,7 +75,9 @@ export async function deleteSchema(
       }
     }`,
     { id: name }
-  );
+  ).catch((error) => {
+    console.error(`could not drop ${name}:`, error);
+  });
 }
 
 // the import runs as a background task, so the schema is not there when createSchema returns

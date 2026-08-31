@@ -5,6 +5,7 @@ import {
   createSchemaFromTemplate,
   deleteSchema,
   gql,
+  RUN_ID,
   signinAdmin,
 } from "./testSchema";
 
@@ -18,7 +19,7 @@ const USERNAME = "dragonkeeper";
 const PASSWORD = "dragonkeeper";
 /* its own copy of the pet store, so revoking anonymous below stays local and
    this file can run beside every spec that reads the seeded pet store */
-const SCHEMA = "permissions test";
+const SCHEMA = `permissions test ${RUN_ID}`;
 const SCHEMA_PATH = encodeURIComponent(SCHEMA);
 
 test.describe.configure({ mode: "serial" });
