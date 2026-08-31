@@ -452,7 +452,17 @@ describe("DisplayRecord", () => {
     ]);
   });
 
-  test("collapsed shows the key columns alone, with no menu and no filter, plus a control to expand", () => {
+  function accordionToggle(wrapper: ReturnType<typeof mount>, label: string) {
+    const match = wrapper
+      .findAll("button")
+      .find((button) => button.text() === label);
+    if (!match) {
+      throw new Error(`no accordion toggle button labelled ${label}`);
+    }
+    return match;
+  }
+
+  test("collapsed wraps the record in an accordion closed by default, headed by the record's key, with no menu and no filter", () => {
     const collapsibleMetadata = table([
       { ...column("name", "STRING", "Name"), key: 1 },
       column("about", "SECTION", "About"),
@@ -468,14 +478,14 @@ describe("DisplayRecord", () => {
       },
     });
 
-    expect(collapsed.text()).toContain("spike");
-    expect(collapsed.text()).not.toContain("insects");
+    expect(
+      accordionToggle(collapsed, "spike").attributes("aria-expanded")
+    ).toBe("false");
     expect(collapsed.find("nav").exists()).toBe(false);
     expect(collapsed.find('input[type="search"]').exists()).toBe(false);
-    expect(collapsed.get("button").attributes("aria-expanded")).toBe("false");
   });
 
-  test("expanding the collapsed record reveals the whole record, the menu and the filter", async () => {
+  test("expanding the collapsed accordion reveals the whole record, the menu and the filter", async () => {
     const collapsibleMetadata = table([
       { ...column("name", "STRING", "Name"), key: 1 },
       column("about", "SECTION", "About"),
@@ -491,12 +501,14 @@ describe("DisplayRecord", () => {
       },
     });
 
-    await collapsed.get("button").trigger("click");
+    await accordionToggle(collapsed, "spike").trigger("click");
 
+    expect(
+      accordionToggle(collapsed, "spike").attributes("aria-expanded")
+    ).toBe("true");
     expect(collapsed.text()).toContain("insects");
     expect(collapsed.find("nav").exists()).toBe(true);
     expect(collapsed.find('input[type="search"]').exists()).toBe(true);
-    expect(collapsed.find("button").exists()).toBe(false);
   });
 
   test("shows mg_ columns only when asked", () => {

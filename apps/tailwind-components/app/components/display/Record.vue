@@ -13,7 +13,7 @@ import {
   type RecordBox,
   type RecordSection as RecordSectionGroup,
 } from "../../utils/groupRecordSections";
-import Button from "../Button.vue";
+import Accordion from "../Accordion.vue";
 import FormLegend from "../form/Legend.vue";
 import InputSearch from "../input/Search.vue";
 import RecordPageLayout from "./RecordPageLayout.vue";
@@ -50,7 +50,6 @@ const filterValue = ref("");
 const sections = computed(() =>
   groupRecordSections(props.metadata, props.rowData, {
     showMgColumns: props.showMgColumns,
-    keyColumnsOnly: !expanded.value,
     filterTerm:
       expanded.value && props.showFilter ? filterValue.value : undefined,
   })
@@ -133,10 +132,61 @@ function keyValueText(value: columnValue): string {
     ? flattenObject(value).trim()
     : String(value);
 }
+
+const accordionLabel = computed(
+  () => recordTitle.value || props.metadata.label
+);
 </script>
 
 <template>
-  <RecordPageLayout :show-side-nav="showLegend">
+  <Accordion
+    v-if="collapsed"
+    v-model:expanded="expanded"
+    :label="accordionLabel"
+    :open-by-default="false"
+  >
+    <RecordPageLayout :show-side-nav="showLegend">
+      <template v-if="showLegend" #sidebar>
+        <FormLegend
+          :sections="legendGroups"
+          class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
+        >
+          <template v-if="recordTitle" #title>
+            <h2
+              class="pl-7 mb-6 text-heading-4xl font-display text-title-contrast"
+            >
+              {{ recordTitle }}
+            </h2>
+          </template>
+        </FormLegend>
+      </template>
+
+      <template #main>
+        <div v-if="showFilterBox" class="pb-7.5">
+          <label :for="filterId" class="sr-only">Filter fields</label>
+          <InputSearch
+            :id="filterId"
+            v-model="filterValue"
+            class="w-3/5 lg:w-2/5"
+            placeholder="Filter fields..."
+          />
+        </div>
+        <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
+          <RecordSection
+            v-for="box in boxes"
+            :key="box.id"
+            :section="box"
+            :showCards="showCards"
+            :trackInView="showLegend"
+            @valueClick="$emit('valueClick', $event)"
+            @inView="activeBoxId = box.id"
+          />
+        </div>
+      </template>
+    </RecordPageLayout>
+  </Accordion>
+
+  <RecordPageLayout v-else :show-side-nav="showLegend">
     <template v-if="showLegend" #sidebar>
       <FormLegend
         :sections="legendGroups"
@@ -171,15 +221,6 @@ function keyValueText(value: columnValue): string {
           :trackInView="showLegend"
           @valueClick="$emit('valueClick', $event)"
           @inView="activeBoxId = box.id"
-        />
-      </div>
-      <div v-if="!expanded" class="pt-7.5">
-        <Button
-          type="text"
-          size="tiny"
-          label="Show all fields"
-          :aria-expanded="expanded"
-          @click="expanded = true"
         />
       </div>
     </template>

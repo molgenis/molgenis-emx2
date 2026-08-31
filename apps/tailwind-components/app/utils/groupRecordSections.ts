@@ -37,7 +37,6 @@ const TOP_SECTION_ID = "mg_top_of_form";
 export interface GroupRecordSectionsOptions {
   showMgColumns?: boolean;
   filterTerm?: string;
-  keyColumnsOnly?: boolean;
 }
 
 export function groupRecordSections(
@@ -106,9 +105,6 @@ function isVisibleField(
   options: GroupRecordSectionsOptions
 ): boolean {
   if (column.id.startsWith("mg_") && !options.showMgColumns) {
-    return false;
-  }
-  if (options.keyColumnsOnly && column.key !== 1) {
     return false;
   }
   if (

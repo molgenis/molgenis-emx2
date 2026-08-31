@@ -246,22 +246,6 @@ describe("groupRecordSections", () => {
     expect(sections.map((section) => section.id)).toEqual(["care"]);
   });
 
-  test("keeps only the key columns when keyColumnsOnly is set", () => {
-    const metadata = table([
-      column("about", "SECTION", "About"),
-      { ...column("name", "STRING", "Name"), key: 1 },
-      column("diet", "STRING", "Diet"),
-    ]);
-
-    const sections = groupRecordSections(
-      metadata,
-      { name: "spike", diet: "insects" },
-      { keyColumnsOnly: true }
-    );
-
-    expect(sections[0]?.fields.map((field) => field.id)).toEqual(["name"]);
-  });
-
   test("opens an unnamed section for columns that precede any SECTION", () => {
     const metadata = table([
       column("name", "STRING"),

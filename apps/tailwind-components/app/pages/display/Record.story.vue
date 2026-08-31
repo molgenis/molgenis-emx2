@@ -25,7 +25,7 @@
 
     <section>
       <h2 class="text-title text-heading-xl mb-2">
-        collapsed, showing the key columns with a control to expand
+        collapsed, inside an accordion labelled with the record's key
       </h2>
       <DisplayRecord
         :metadata="staticMetadata"
