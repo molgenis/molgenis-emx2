@@ -30,8 +30,11 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
             order
             block {
                 id
-                enableFullScreenWidth
                 mg_tableclass
+                
+                # ui settings for blocks: settings
+                enableFullScreenWidth
+                applyShadedBackground
                 
                 # page headings
                 title

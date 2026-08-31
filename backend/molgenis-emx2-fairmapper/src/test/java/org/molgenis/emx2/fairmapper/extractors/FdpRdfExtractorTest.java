@@ -19,6 +19,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.rdf.vocabulary.FDPO;
+import org.junit.jupiter.api.io.TempDir;
 
 class FdpRdfExtractorTest {
 
@@ -197,10 +198,6 @@ class FdpRdfExtractorTest {
     }
   }
 
-  /**
-   * The pipeline passes the URI the user typed, so the trailing slash has to be stripped from the
-   * URI the crawl queries with, not only from the one it fetches.
-   */
   @Test
   void shouldCrawlOnWhenRootHasTrailingSlash(@TempDir Path tempDir) throws IOException {
     SailRepository repository = new SailRepository(new MemoryStore());
