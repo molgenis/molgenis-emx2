@@ -1,5 +1,6 @@
 package org.molgenis.emx2.sql;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -15,19 +16,19 @@ class UpdateVersusSaveTableDataTest {
     persons.insert(Row.row("id", "p1", "name", "Joop", "age", 30));
 
     // verify initial data
-    assert persons.retrieveRows().size() == 1;
-    assert persons.retrieveRows().getFirst().getString("id").equals("p1");
-    assert persons.retrieveRows().getFirst().getString("name").equals("Joop");
-    assert persons.retrieveRows().getFirst().getInteger("age") == 30;
+    assertEquals(1, persons.retrieveRows().size());
+    assertEquals("p1", persons.retrieveRows().getFirst().getString("id"));
+    assertEquals("Joop", persons.retrieveRows().getFirst().getString("name"));
+    assertEquals(30, persons.retrieveRows().getFirst().getInteger("age"));
 
     // update data, name value is passed, so it should remain the same
     persons.update(Row.row("id", "p1", "age", 31));
 
     // verify updated data
-    assert persons.retrieveRows().size() == 1;
-    assert persons.retrieveRows().getFirst().getString("id").equals("p1");
-    assert persons.retrieveRows().getFirst().getString("name").equals("Joop");
-    assert persons.retrieveRows().getFirst().getInteger("age") == 31;
+    assertEquals(1, persons.retrieveRows().size());
+    assertEquals("p1", persons.retrieveRows().getFirst().getString("id"));
+    assertEquals("Joop", persons.retrieveRows().getFirst().getString("name"));
+    assertEquals(31, persons.retrieveRows().getFirst().getInteger("age"));
   }
 
   @Test
@@ -37,19 +38,19 @@ class UpdateVersusSaveTableDataTest {
     persons.insert(Row.row("id", "p1", "name", "Joop", "age", 30));
 
     // verify initial data
-    assert persons.retrieveRows().size() == 1;
-    assert persons.retrieveRows().getFirst().getString("id").equals("p1");
-    assert persons.retrieveRows().getFirst().getString("name").equals("Joop");
-    assert persons.retrieveRows().getFirst().getInteger("age") == 30;
+    assertEquals(1, persons.retrieveRows().size());
+    assertEquals("p1", persons.retrieveRows().getFirst().getString("id"));
+    assertEquals("Joop", persons.retrieveRows().getFirst().getString("name"));
+    assertEquals(30, persons.retrieveRows().getFirst().getInteger("age"));
 
     // save data
     persons.save(Row.row("id", "p1", "age", 31));
 
     // verify inserted data
-    assert persons.retrieveRows().size() == 1;
-    assert persons.retrieveRows().getFirst().getString("id").equals("p1");
-    assert persons.retrieveRows().getFirst().getString("name") == null;
-    assert persons.retrieveRows().getFirst().getInteger("age") == 31;
+    assertEquals(1, persons.retrieveRows().size());
+    assertEquals("p1", persons.retrieveRows().getFirst().getString("id"));
+    assertNull(persons.retrieveRows().getFirst().getString("name"));
+    assertEquals(31, persons.retrieveRows().getFirst().getInteger("age"));
   }
 
   private Table createPersonsTable() {
