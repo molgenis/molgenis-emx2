@@ -7,7 +7,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
-import RecordKeyAccordion from "../display/RecordKeyAccordion.vue";
+import RecordAccordion from "../display/RecordAccordion.vue";
 import { useSession } from "../../composables/useSession";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import Modal from "../Modal.vue";
@@ -165,7 +165,7 @@ function fetchCascadeDeleteMessage() {
       </Transition>
 
       <div class="w-[90%] mx-auto">
-        <RecordKeyAccordion :metadata="metadata" :row-data="formValues" />
+        <RecordAccordion :metadata="metadata" :row-data="formValues" />
 
         <div class="text-title-contrast-pop py-8" v-if="cascadeDeleteMsg">
           {{ cascadeDeleteMsg }}

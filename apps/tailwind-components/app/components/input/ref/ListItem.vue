@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { columnValueToString } from "../../../utils/columnValueToString";
 import Button from "../../Button.vue";
-import RecordKeyAccordion from "../../display/RecordKeyAccordion.vue";
+import RecordAccordion from "../../display/RecordAccordion.vue";
 
 import type {
   columnValueObject,
@@ -41,7 +41,7 @@ function toLabel(row: columnValueObject) {
 
 <template>
   <li :id="`input-refback-item-${label}`">
-    <RecordKeyAccordion
+    <RecordAccordion
       :metadata="refMetadata"
       :row-data="refData"
       :label="label"
@@ -82,6 +82,6 @@ function toLabel(row: columnValueObject) {
           />
         </div>
       </template>
-    </RecordKeyAccordion>
+    </RecordAccordion>
   </li>
 </template>

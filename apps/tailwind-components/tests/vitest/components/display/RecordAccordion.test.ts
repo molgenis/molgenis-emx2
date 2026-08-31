@@ -6,7 +6,7 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
-import RecordKeyAccordion from "../../../../app/components/display/RecordKeyAccordion.vue";
+import RecordAccordion from "../../../../app/components/display/RecordAccordion.vue";
 
 function column(id: string, columnType: ColumnType, label?: string): IColumn {
   return { id, label: label ?? id, columnType };
@@ -37,21 +37,21 @@ function toggle(wrapper: ReturnType<typeof mount>) {
   return match;
 }
 
-describe("RecordKeyAccordion", () => {
+describe("RecordAccordion", () => {
   test("is closed by default", () => {
-    const wrapper = mount(RecordKeyAccordion, { props: { metadata, rowData } });
+    const wrapper = mount(RecordAccordion, { props: { metadata, rowData } });
 
     expect(toggle(wrapper).attributes("aria-expanded")).toBe("false");
   });
 
   test("heads the accordion with the record's primary key", () => {
-    const wrapper = mount(RecordKeyAccordion, { props: { metadata, rowData } });
+    const wrapper = mount(RecordAccordion, { props: { metadata, rowData } });
 
     expect(toggle(wrapper).text()).toBe("spike");
   });
 
   test("a passed label wins over the derived one", () => {
-    const wrapper = mount(RecordKeyAccordion, {
+    const wrapper = mount(RecordAccordion, {
       props: { metadata, rowData, label: "Custom label" },
     });
 
@@ -59,7 +59,7 @@ describe("RecordKeyAccordion", () => {
   });
 
   test("opening the accordion reveals the record's fields", async () => {
-    const wrapper = mount(RecordKeyAccordion, { props: { metadata, rowData } });
+    const wrapper = mount(RecordAccordion, { props: { metadata, rowData } });
 
     await toggle(wrapper).trigger("click");
 
@@ -68,7 +68,7 @@ describe("RecordKeyAccordion", () => {
   });
 
   test("showDetails off renders the label alone, with no accordion", () => {
-    const wrapper = mount(RecordKeyAccordion, {
+    const wrapper = mount(RecordAccordion, {
       props: { metadata, rowData, showDetails: false },
     });
 
