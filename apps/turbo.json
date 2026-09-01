@@ -28,7 +28,6 @@
       ],
       "outputs": [
         "dist/**",
-        "public/_nuxt-styles/**",
         "showCase/**",
         "gen-docs/**",
         ".output/**",
