@@ -24,7 +24,6 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   test_config: &test_config
@@ -38,7 +37,6 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   release_config: &release_config
@@ -47,7 +45,6 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
       TERM: dumb
 
@@ -61,7 +58,17 @@ commands:
       layer_cache:
         type: boolean
         default: true
+      remote_docker:
+        type: boolean
+        default: true
     steps:
+    - run:
+        # Ticket 02 sizes fork counts off this: a JVM reporting the host's cores would make them meaningless.
+        name: Report CPUs the container and JVM see
+        command: |
+          echo "nproc: $(nproc)"
+          echo 'public class Cpus { public static void main(String[] a) { System.out.println("availableProcessors: " + Runtime.getRuntime().availableProcessors()); } }' > /tmp/Cpus.java
+          javac -d /tmp /tmp/Cpus.java && java -cp /tmp Cpus
     - run:
         name: Fresh Git Checkout to prevent missing objects
         command: |
@@ -110,13 +117,16 @@ commands:
             paths:
               - ~/.gradle/caches
             key: gradle-{{ checksum "concatenated-build-gradle" }}
-    # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
-    # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
-    - setup_remote_docker:
-        docker_layer_caching: << parameters.layer_cache >>
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - when:
+        condition: << parameters.remote_docker >>
+        steps:
+        # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
+        # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
+        - setup_remote_docker:
+            docker_layer_caching: << parameters.layer_cache >>
+        - run:
+            name: Sign in to docker
+            command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
   post_steps:
     steps:
@@ -177,7 +187,7 @@ jobs:
         POSTGRES_PASSWORD: postgres
         POSTGRES_DB: postgres
     working_directory: ~/repo
-    resource_class: large
+    resource_class: xlarge
     environment:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
@@ -195,6 +205,7 @@ jobs:
       - pre_steps:
           gradle_cache: false
           layer_cache: false
+          remote_docker: false
 
       - restore_cache:
           keys:
@@ -372,9 +383,12 @@ jobs:
 
   test-apps:
     <<: *build_config
+    resource_class: xlarge
 
     steps:
-    - pre_steps
+    - pre_steps:
+        layer_cache: false
+        remote_docker: false
 
     - run:
         name: <apps> check code format
@@ -394,9 +408,12 @@ jobs:
 
   test-backend:
     <<: *test_config
+    resource_class: xlarge
 
     steps:
-    - pre_steps
+    - pre_steps:
+        layer_cache: false
+        remote_docker: false
 
     - run:
         name: prepare sql test database
@@ -499,9 +516,12 @@ jobs:
 
   pr-preview:
     <<: *build_config
+    resource_class: medium
 
     steps:
-    - pre_steps
+    - pre_steps:
+        layer_cache: false
+        remote_docker: false
 
     - attach_workspace:
         at: .
@@ -544,9 +564,12 @@ jobs:
 
   emx2-pyclient:
     <<: *build_config
+    resource_class: medium
 
     steps:
-      - pre_steps
+      - pre_steps:
+          layer_cache: false
+          remote_docker: false
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
@@ -588,8 +611,9 @@ jobs:
       GHA_PREVIEW_NR: << pipeline.parameters.GHA_Meta >>
     
     steps:
-    - pre_steps
-    
+    - pre_steps:
+        layer_cache: false
+
     - run:
         name: delete preview on azure
         command: |
@@ -601,7 +625,8 @@ jobs:
     <<: *build_config
 
     steps:
-      - pre_steps
+      - pre_steps:
+          layer_cache: false
 
       # Check if we should run this week
       - run:
