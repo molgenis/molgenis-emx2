@@ -982,39 +982,45 @@ public class GraphqlTableFieldFactory {
 
   private DataFetcher fetcher(Schema schema, MutationType mutationType) {
     return dataFetchingEnvironment -> {
-      StringBuilder result = new StringBuilder();
-      boolean any = false;
-      for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
-        List<Map<String, Object>> rowsAslistOfMaps =
-            dataFetchingEnvironment.getArgument(tableMetadata.getIdentifier());
-        if (rowsAslistOfMaps != null) {
-          String tableName = tableMetadata.getTableName();
-          Table table = tableMetadata.getTable();
-          int count;
-          List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps);
-          switch (mutationType) {
-            case UPDATE:
-              count = table.update(rows);
-              result.append("updated " + count + " records to " + tableName + "\n");
-              break;
-            case INSERT:
-              count = table.insert(rows);
-              result.append("inserted " + count + " records to " + tableName + "\n");
-              break;
-            case SAVE:
-              count = table.save(rows);
-              result.append("upserted " + count + " records to " + tableName + "\n");
-              break;
-            case DELETE:
-              boolean strict = dataFetchingEnvironment.getArgumentOrDefault("strict", false);
-              count = table.delete(rows, strict);
-              result.append("delete " + count + " records from " + tableName + "\n");
-              break;
-          }
-          any = true;
-        }
+      if (schema.getMetadata().getTables().stream()
+          .noneMatch(t -> dataFetchingEnvironment.getArgument(t.getIdentifier()) != null)) {
+        throw new MolgenisException("None or invalid tables provided");
       }
-      if (!any) throw new MolgenisException("Error with save: no data provided");
+
+      StringBuilder result = new StringBuilder();
+      schema
+          .getDatabase()
+          .tx(
+              db -> {
+                Schema txSchema = db.getSchema(schema.getName());
+                for (TableMetadata tableMetadata : txSchema.getMetadata().getTables()) {
+                  List<Map<String, Object>> rowsAsListOfMaps =
+                      dataFetchingEnvironment.getArgument(tableMetadata.getIdentifier());
+                  if (rowsAsListOfMaps == null) {
+                    continue;
+                  }
+                  Table table = tableMetadata.getTable();
+                  String tableName = tableMetadata.getTableName();
+                  List<Row> rows = TypeUtils.convertToRows(tableMetadata, rowsAsListOfMaps);
+                  result.append(
+                      switch (mutationType) {
+                        case INSERT ->
+                            "inserted %d records to %s%n".formatted(table.insert(rows), tableName);
+                        case UPDATE ->
+                            "updated %d records to %s%n".formatted(table.update(rows), tableName);
+                        case SAVE ->
+                            "upserted %d records to %s%n".formatted(table.save(rows), tableName);
+                        case DELETE ->
+                            "delete %d records from %s%n"
+                                .formatted(
+                                    table.delete(
+                                        rows,
+                                        dataFetchingEnvironment.getArgumentOrDefault(
+                                            "strict", false)),
+                                    tableName);
+                      });
+                }
+              });
       return new GraphqlApiMutationResult(SUCCESS, result.toString());
     };
   }
