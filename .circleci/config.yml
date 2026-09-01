@@ -64,29 +64,10 @@ definitions:
 commands:
   pre_steps:
     parameters:
-      gradle_cache:
-        type: boolean
-        default: true
       layer_cache:
         type: boolean
         default: true
     steps:
-    - run:
-        # Gradle auto-loads every init.d/*.gradle under GRADLE_USER_HOME, so this needs no
-        # settings.gradle change and no flag on any gradlew call. Must run before any gradlew
-        # invocation below, so this stays first regardless of gradle_cache.
-        name: Point Gradle's local build cache outside GRADLE_USER_HOME/caches
-        command: |
-          mkdir -p /tmp/ci-cache/gradle/init.d
-          cat > /tmp/ci-cache/gradle/init.d/build-cache-dir.gradle \<<EOF
-          settingsEvaluated { settings ->
-              settings.buildCache {
-                  local {
-                      directory = new File("/tmp/ci-cache/gradle-build-cache")
-                  }
-              }
-          }
-          EOF
     - run:
         name: Fresh Git Checkout to prevent missing objects
         command: |
@@ -109,34 +90,6 @@ commands:
         name: run-pnpm-audit
         command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
         working_directory: apps
-    - run:
-          name: Concatenate Build Files as key for cache
-          command: |
-              find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
-          no_output_timeout: 5m
-    - when:
-        condition: << parameters.gradle_cache >>
-        steps:
-        - restore_cache:
-            keys:
-              - gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
-              - gradle-deps-v3-
-        - restore_cache:
-            keys:
-            - gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-        - run:
-            name: Download Dependencies
-            command: ./gradlew dependencies --no-daemon
-        - save_cache:
-            paths:
-              - /tmp/ci-cache/gradle/wrapper
-            key: gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-        # The local build cache lives outside this tree (/tmp/ci-cache/gradle-build-cache),
-        # so nothing else can ride along under this key.
-        - save_cache:
-            paths:
-              - /tmp/ci-cache/gradle/caches
-            key: gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
     # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
     # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
     - setup_remote_docker:
@@ -145,22 +98,22 @@ commands:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
-  restore_gradle_build_cache:
+  restore_gradle_cache:
     steps:
     - restore_cache:
         # Own branch first, its last save holds master's pool plus this branch's work.
         keys:
-          - gradle-buildcache-v4-{{ .Branch }}-
-          - gradle-buildcache-v4-master-
-          - gradle-buildcache-v4-
+          - gradle-v1-{{ .Branch }}-
+          - gradle-v1-master-
+          - gradle-v1-
 
-  save_gradle_build_cache:
+  save_gradle_cache:
     steps:
     - run:
         name: Cap the gradle build cache at 2GB, dropping the oldest entries first
         command: |
-          if [ -d /tmp/ci-cache/gradle-build-cache ]; then
-            cd /tmp/ci-cache/gradle-build-cache
+          if [ -d /tmp/ci-cache/gradle/caches/build-cache-1 ]; then
+            cd /tmp/ci-cache/gradle/caches/build-cache-1
             ls -lt | awk -v limit=2147483648 '$NF ~ /^[0-9a-f]{32}$/ { total += $5; if (total > limit) print $NF }' |
               while read -r entry; do rm -f "$entry"; done
             du -sh .
@@ -170,8 +123,8 @@ commands:
         when: always
     - save_cache:
         paths:
-          - /tmp/ci-cache/gradle-build-cache
-        key: gradle-buildcache-v4-{{ .Branch }}-{{ .Revision }}
+          - /tmp/ci-cache/gradle
+        key: gradle-v1-{{ .Branch }}-{{ .Revision }}
         when: always
 
   restore_turbo_cache:
@@ -226,7 +179,7 @@ jobs:
 
     - pre_steps
 
-    - restore_gradle_build_cache
+    - restore_gradle_cache
     - restore_turbo_cache
 
     - run:
@@ -278,15 +231,10 @@ jobs:
 
       # No image is built here, so the layer cache stores nothing and costs 200 credits a run.
       - pre_steps:
-          gradle_cache: false
           layer_cache: false
 
-      - restore_gradle_build_cache
+      - restore_gradle_cache
       - restore_turbo_cache
-
-      - run:
-          name: Download Dependencies
-          command: ./gradlew dependencies --no-daemon
 
       - run:
           name: build the application without running tests to speed up the e2e tests
@@ -453,7 +401,7 @@ jobs:
     steps:
     - pre_steps
 
-    - restore_gradle_build_cache
+    - restore_gradle_cache
     - restore_turbo_cache
 
     - run:
@@ -484,7 +432,7 @@ jobs:
 
     # No turbo restore: `:apps` is a runtimeOnly dependency, so a dry run of this job's
     # gradle call schedules no `:apps:*` task and nothing here reads the turbo cache.
-    - restore_gradle_build_cache
+    - restore_gradle_cache
 
     - run:
         name: prepare sql test database
@@ -514,7 +462,7 @@ jobs:
 
     # Every backend module compiles and every backend test runs here, plus pmd and
     # spotless. The only writer of this cache.
-    - save_gradle_build_cache
+    - save_gradle_cache
 
     - post_steps
 
@@ -641,9 +589,8 @@ jobs:
 
     steps:
       # Nothing is built or imaged here unless the commit subject names emx2-pyclient, so
-      # both caches cost an upload every run and repay it on almost none.
+      # the layer cache costs an upload every run and repays it on almost none.
       - pre_steps:
-          gradle_cache: false
           layer_cache: false
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
