@@ -410,11 +410,17 @@ jobs:
           ./gradlew --continue pmdMain pmdTest
     - run:
         name: run tests and push to sonar
+        # sonar rejects an empty pullrequest.key, and master has no PR, so the
+        # pull-request flags are only passed when there is one.
         command: |
+          SONAR_PR_ARGS=""
+          if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+            SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
+          fi
           ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          $SONAR_PR_ARGS
 
     - post_steps
 
@@ -651,14 +657,9 @@ workflows:
         filters:
           branches:
             ignore: master
-    - test-apps:
-       filters:
-         branches:
-           ignore: master
-    - test-backend:
-       filters:
-         branches:
-           ignore: master
+    # No branch filter: master runs both, so it fills the caches PRs restore from.
+    - test-apps
+    - test-backend
     - build:
         filters:
           branches:
