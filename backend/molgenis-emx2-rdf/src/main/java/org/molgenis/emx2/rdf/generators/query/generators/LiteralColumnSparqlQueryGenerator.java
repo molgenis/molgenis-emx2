@@ -19,10 +19,12 @@ import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 
 public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGenerator {
 
-  private final Variable subject;
   private final Column column;
-  protected final Variable object;
   private final boolean isRequired;
+  private final boolean inverse;
+
+  protected final Variable subject;
+  protected final Variable object;
   protected final Variable selector;
 
   public LiteralColumnSparqlQueryGenerator(Variable subject, Column column) {
@@ -32,16 +34,22 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
 
   public LiteralColumnSparqlQueryGenerator(
       Variable subject, Column column, Variable object, boolean isRequired) {
-    this(subject, column, object, object, isRequired);
+    this(subject, column, object, object, isRequired, false);
   }
 
   protected LiteralColumnSparqlQueryGenerator(
-      Variable subject, Column column, Variable object, Variable selector, boolean isRequired) {
+      Variable subject,
+      Column column,
+      Variable object,
+      Variable selector,
+      boolean isRequired,
+      boolean inverse) {
     this.subject = subject;
     this.column = column;
     this.object = object;
     this.selector = selector;
     this.isRequired = isRequired;
+    this.inverse = inverse;
   }
 
   @Override
@@ -67,7 +75,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
             .getSemanticsStringStream()
             .findFirst()
             .orElseThrow()
-            .transform(semanticString -> () -> semanticString);
+            .transform(this::inverseIfNeeded);
     GraphPattern pattern = GraphPatterns.tp(subject, predicate, object);
 
     return List.of(isRequired ? pattern : pattern.optional());
@@ -78,10 +86,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     List<Operand> aliases = new ArrayList<>();
 
     RdfPredicate[] semantics =
-        column
-            .getSemanticsStringStream()
-            .<RdfPredicate>map(i -> () -> i)
-            .toArray(RdfPredicate[]::new);
+        column.getSemanticsStringStream().map(this::inverseIfNeeded).toArray(RdfPredicate[]::new);
 
     for (int i = 0; i < semantics.length; i++) {
       Variable alias = SparqlBuilder.var(object.getVarName() + i);
@@ -102,6 +107,10 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     }
 
     return List.of(mainPattern);
+  }
+
+  private RdfPredicate inverseIfNeeded(String semanticString) {
+    return () -> (inverse ? "^" + semanticString : semanticString);
   }
 
   /**

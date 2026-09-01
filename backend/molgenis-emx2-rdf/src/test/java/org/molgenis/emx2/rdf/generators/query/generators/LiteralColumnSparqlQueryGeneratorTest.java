@@ -6,10 +6,12 @@ import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 
 class LiteralColumnSparqlQueryGeneratorTest {
 
@@ -125,6 +127,86 @@ class LiteralColumnSparqlQueryGeneratorTest {
             BIND( COALESCE( ?foo0, ?foo1 ) AS ?foo ) }""");
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
+  }
+
+  @Nested
+  class InverseTest {
+
+    @Test
+    void shouldHandleRequiredColumn() {
+      Column column =
+          createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
+      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
+      assertHasPatterns(mapper, "?start ^foaf:test ?foo .");
+      assertHasSelectors(mapper, "?foo");
+      assertHasGroupBy(mapper, "?foo");
+    }
+
+    @Test
+    void shouldHandleOptionalColumn() {
+      Column column =
+          createColumn(Column.column("foo").setRequired(false).setSemantics("foaf:test"));
+      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
+      assertHasPatterns(mapper, "OPTIONAL { ?start ^foaf:test ?foo . }");
+      assertHasSelectors(mapper, "?foo");
+      assertHasGroupBy(mapper, "?foo");
+    }
+
+    @Test
+    void givenColumnWithMultipleSemantics_thenReturnCoalesce() {
+      Column column =
+          createColumn(
+              Column.column("foo")
+                  .setRequired(false)
+                  .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
+      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
+      assertHasPatterns(
+          mapper,
+          """
+              OPTIONAL { OPTIONAL { ?start ^foaf:test ?foo0 . }
+              OPTIONAL { ?start ^foaf:alternative ?foo1 . }
+              OPTIONAL { ?start ^foaf:also_alternative ?foo2 . }
+              BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""");
+      assertHasSelectors(mapper, "?foo");
+      assertHasGroupBy(mapper, "?foo");
+    }
+
+    @Test
+    void givenColumnWithMultipleSemantics_whenRequired_thenReturnCoalesceWithFilter() {
+      Column column =
+          createColumn(
+              Column.column("foo")
+                  .setRequired(true)
+                  .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
+      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
+      assertHasPatterns(
+          mapper,
+          """
+          OPTIONAL { OPTIONAL { ?start ^foaf:test ?foo0 . }
+          OPTIONAL { ?start ^foaf:alternative ?foo1 . }
+          OPTIONAL { ?start ^foaf:also_alternative ?foo2 . }
+          BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""",
+          "FILTER ( BOUND( ?foo ) )");
+      assertHasSelectors(mapper, "?foo");
+      assertHasGroupBy(mapper, "?foo");
+    }
+
+    @Test
+    void givenColumn_whenSemanticIsIRI_thenSurroundWithPointBrackets() {
+      Column column =
+          createColumn(
+              Column.column("foo").setRequired(true).setSemantics("https://example.org/ns#test"));
+      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
+      assertHasPatterns(mapper, "?start ^<https://example.org/ns#test> ?foo .");
+      assertHasSelectors(mapper, "?foo");
+      assertHasGroupBy(mapper, "?foo");
+    }
+
+    private LiteralColumnSparqlQueryGenerator createInverseMapper(Column column) {
+      Variable object = ColumnNameSparqlEncoder.encodeSparqlVariable(column);
+      return new LiteralColumnSparqlQueryGenerator(
+          START, column, object, object, column.isRequired(), true);
+    }
   }
 
   private Column createColumn(Column column) {
