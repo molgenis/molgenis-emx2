@@ -63,6 +63,9 @@ commands:
       gradle_cache:
         type: boolean
         default: true
+      layer_cache:
+        type: boolean
+        default: true
     steps:
     - run:
         name: Fresh Git Checkout to prevent missing objects
@@ -112,8 +115,10 @@ commands:
             paths:
               - ~/.gradle/caches
             key: gradle-{{ checksum "concatenated-build-gradle" }}
+    # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
+    # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
     - setup_remote_docker:
-        docker_layer_caching: true
+        docker_layer_caching: << parameters.layer_cache >>
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
@@ -191,8 +196,10 @@ jobs:
           name: Enable pnpm
           command: sudo corepack enable
 
+      # No image is built here, so the layer cache stores nothing and costs 200 credits a run.
       - pre_steps:
           gradle_cache: false
+          layer_cache: false
 
       - restore_cache:
           keys:
