@@ -110,6 +110,9 @@ commands:
   save_gradle_cache:
     steps:
     - run:
+        # The du below reports build-cache-1 alone, so it reads far smaller than the size the
+        # save step uploads: that covers all of GRADLE_USER_HOME, dependencies and the gradle
+        # distribution included. Only build-cache-1 grows without bound, so only it is capped.
         name: Cap the gradle build cache at 2GB, dropping the oldest entries first
         command: |
           if [ -d /tmp/ci-cache/gradle/caches/build-cache-1 ]; then
