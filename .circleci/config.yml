@@ -624,7 +624,11 @@ jobs:
     <<: *build_config
 
     steps:
-      - pre_steps
+      # Nothing is built or imaged here unless the commit subject names emx2-pyclient, so
+      # both caches cost an upload every run and repay it on almost none.
+      - pre_steps:
+          gradle_cache: false
+          layer_cache: false
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
