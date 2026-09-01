@@ -48,7 +48,7 @@ class Transform:
         self.linked_resources()
 
         # transformations for 9.0.0
-        self.reused_variables()
+        # self.reused_variables()  # not in vac4eu or conception
         self.catalogues()
         self.datasets()
         self.variables()

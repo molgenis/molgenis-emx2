@@ -4,7 +4,7 @@
 from decouple import config
 from molgenis_emx2_pyclient import Client
 from catalogue_util.zip_handling import Zip
-from update.update_vac4eu_3_to_7 import Transform
+from update.update_vac4eu_3_to_9 import Transform
 import os
 import asyncio
 
@@ -16,9 +16,9 @@ DATA_MODEL_VERSION = config('MG_DATA_MODEL_VERSION')
 SOURCE_SERVER_URL = config('MG_SOURCE_SERVER_URL')
 SOURCE_SERVER_TOKEN = config('MG_SOURCE_SERVER_TOKEN')
 
-# Target server details
-TARGET_SERVER_URL = config('MG_TARGET_SERVER_URL')
-TARGET_SERVER_TOKEN = config('MG_TARGET_SERVER_TOKEN')
+# # Target server details
+# TARGET_SERVER_URL = config('MG_TARGET_SERVER_URL')
+# TARGET_SERVER_TOKEN = config('MG_TARGET_SERVER_TOKEN')
 
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
@@ -27,8 +27,8 @@ print('-----  Config variables loaded ----')
 print('SOURCE_SERVER_URL: ' + SOURCE_SERVER_URL)
 print('SOURCE_SERVER_TOKEN: *****')
 
-print('TARGET_SERVER_URL: ' + TARGET_SERVER_URL)
-print('TARGET_SERVER_TOKEN: *****')
+# print('TARGET_SERVER_URL: ' + TARGET_SERVER_URL)
+# print('TARGET_SERVER_TOKEN: *****')
 
 print('CATALOGUE_SCHEMA_NAME: ' + str(CATALOGUE_SCHEMA_NAME))
 
@@ -57,7 +57,7 @@ update.delete_data_model_file()
 update.transform_data()
 zip_handling.zip_data()
 
-# instantiate Client for target server:
-target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
-# upload catalogue data to target server
-asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', schema=CATALOGUE_SCHEMA_NAME))
+# # instantiate Client for target server:
+# target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
+# # upload catalogue data to target server
+# asyncio.run(target.upload_file(file_path=CATALOGUE_SCHEMA_NAME + '_upload.zip', schema=CATALOGUE_SCHEMA_NAME))
