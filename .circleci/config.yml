@@ -638,18 +638,21 @@ workflows:
     unless:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
-    # Listed longest-first among the jobs nothing blocks, so a queued pipeline starts the critical
-    # path earliest. build-preview-images is short but gates pr-preview, the longest chain.
     - build-preview-images:
         filters:
           branches:
             ignore: master
-    - test-backend
-    - test-e2e
-    - test-apps
     - pr-preview:
         requires:
           - build-preview-images
+        filters:
+          branches:
+            ignore: master
+    - test-apps
+    - test-backend
+    - test-e2e
+    - emx2-pyclient:
+        name: testPyPI release
         filters:
           branches:
             ignore: master
@@ -660,11 +663,6 @@ workflows:
        filters:
          branches:
            only: master
-    - emx2-pyclient:
-        name: testPyPI release
-        filters:
-          branches:
-            ignore: master
     - emx2-pyclient:
         name: PyPI release
         requires:
