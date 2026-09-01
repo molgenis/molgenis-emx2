@@ -1,5 +1,6 @@
 import { APIRequestContext, Page, expect } from "@playwright/test";
 import playwrightConfig from "../../../playwright.config";
+import { gql } from "../testSchema";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
@@ -10,12 +11,7 @@ export async function findAndDeleteRow(
   tableName: string,
   rowName: string
 ) {
-  await page
-    .getByRole("searchbox", { name: `Search ${tableName}` })
-    .fill(rowName);
-  await expect(
-    page.locator("div").filter({ hasText: rowName }).first()
-  ).toBeVisible();
+  await findRow(page, tableName, rowName);
   await page.getByRole("cell", { name: rowName }).hover();
   await page
     .getByRole("button", { name: `delete {"name":"${rowName}"}` })
@@ -24,6 +20,15 @@ export async function findAndDeleteRow(
   await expect(
     page.getByRole("cell", { name: `view row details ${rowName}` })
   ).toBeHidden();
+}
+
+export async function findRow(page: Page, tableName: string, rowName: string) {
+  await page
+    .getByRole("searchbox", { name: `Search ${tableName}` })
+    .fill(rowName);
+  await expect(
+    page.locator("div").filter({ hasText: rowName }).first()
+  ).toBeVisible();
 }
 
 export async function insertRow(page: Page, tableName: string) {
@@ -51,88 +56,13 @@ export async function timeout(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function gql(
+export async function addRlsToTables(
   api: APIRequestContext,
-  url: string,
-  query: string,
-  variables?: Record<string, unknown>
-) {
-  const response = await api.post(url, {
-    headers: { "Content-Type": "application/json" },
-    data: variables ? { query, variables } : { query },
-  });
-  const body = await response.json();
-  if (body.errors) {
-    throw new Error(`GraphQL error on ${url}: ${JSON.stringify(body.errors)}`);
-  }
-  return body.data;
-}
-
-export async function becomeAdmin(api: APIRequestContext) {
-  return gql(
-    api,
-    `${route}graphql`,
-    `mutation {
-      signin(email: "admin", password: "admin") {
-        status
-        message
-      }
-    }`
-  );
-}
-
-export async function dropAnonymousFromPetStore(api: APIRequestContext) {
-  return gql(
-    api,
-    `${route}pet%20store/graphql`,
-    `mutation drop($members: [String]) {
-      drop(members: $members) {
-        message
-      }
-    }`,
-    { members: ["anonymous"] }
-  );
-}
-
-export async function addPasswordToUser(
-  api: APIRequestContext,
-  userName: string,
-  password: string
+  schemaPath: string
 ) {
   return gql(
     api,
-    `${route}graphql`,
-    `mutation{
-      changePassword(email: "${userName}", password: "${password}"){
-        status,message
-      }
-    }`
-  );
-}
-
-export async function restoreAnonymousToPetStore(api: APIRequestContext) {
-  return gql(
-    api,
-    `${route}graphql`,
-    `mutation updateUser($updateUser: InputUpdateUser) {
-      updateUser(updateUser: $updateUser) {
-        status
-        message
-      }
-    }`,
-    {
-      updateUser: {
-        email: "anonymous",
-        roles: [{ schemaId: "pet store", role: "Viewer" }],
-      },
-    }
-  );
-}
-
-export async function addRlsToTables(api: APIRequestContext) {
-  return gql(
-    api,
-    `${route}pet%20store/graphql`,
+    `${route}${schemaPath}/graphql`,
     `mutation {
         change(
           roles: [
@@ -165,10 +95,13 @@ export async function addRlsToTables(api: APIRequestContext) {
   );
 }
 
-export async function removeRlsFromTables(api: APIRequestContext) {
+export async function removeRlsFromTables(
+  api: APIRequestContext,
+  schemaPath: string
+) {
   return gql(
     api,
-    `${route}pet%20store/graphql`,
+    `${route}${schemaPath}/graphql`,
     `mutation {
         change(
           roles: [

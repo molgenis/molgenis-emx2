@@ -2,14 +2,19 @@ import type { APIRequestContext } from "@playwright/test";
 import { request as apiRequest, expect, test } from "@playwright/test";
 import playwrightConfig from "../../playwright.config";
 import {
+  createSchemaFromTemplate,
+  deleteSchema,
+  RUN_ID,
   addPasswordToUser,
+  dropAnonymousFromTestSchema,
+  signinAdmin,
+} from "./testSchema";
+import {
   addRlsToTables,
-  becomeAdmin,
-  dropAnonymousFromPetStore,
   findAndDeleteRow,
+  findRow,
   insertRow,
   removeRlsFromTables,
-  restoreAnonymousToPetStore,
   signin,
   signout,
 } from "./testUtils/testUtils";
@@ -19,28 +24,31 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   : "/apps/ui/";
 
 let api: APIRequestContext;
+
 const USERNAME = "dragonkeeper";
 const PASSWORD = "dragonkeeper";
 const DRAGON_KEEPER = "DragonKeeper";
-const PET_STORE_PATH = "pet%20store/Pet";
+const SCHEMA = `permissions test ${RUN_ID}`;
+const SCHEMA_PATH = encodeURIComponent(SCHEMA);
 
 test.describe.configure({ mode: "serial" });
 
 test.beforeAll(async () => {
   api = await apiRequest.newContext();
-  await becomeAdmin(api);
-  await dropAnonymousFromPetStore(api);
-  await addPasswordToUser(api, USERNAME, PASSWORD);
+  await signinAdmin(api, route);
+  await createSchemaFromTemplate(api, route, SCHEMA, "PET_STORE");
+  await dropAnonymousFromTestSchema(api, route, SCHEMA_PATH);
+  await addPasswordToUser(api, route, USERNAME, PASSWORD);
 });
 
 test.afterAll(async () => {
-  await restoreAnonymousToPetStore(api);
+  await deleteSchema(api, route, SCHEMA);
   await api.dispose();
 });
 
 test.describe("when the dragonkeeper has permissions on the pet table only", () => {
   test("The dragonkeeper has the correct permissions", async ({ page }) => {
-    await page.goto(route + PET_STORE_PATH);
+    await page.goto(route + SCHEMA_PATH + "/Pet");
     await expect(
       page.getByText("The requested page could not be found.")
     ).toBeVisible();
@@ -51,7 +59,7 @@ test.describe("when the dragonkeeper has permissions on the pet table only", () 
 
     // check that other tables are not clickable
     await page.goto(route);
-    await page.getByText("pet store", { exact: true }).click();
+    await page.getByText(SCHEMA).click();
     await expect(page.getByText("Category")).toBeVisible();
     await expect(page.getByText("Order")).toBeVisible();
     await expect(page.getByText("User")).toBeVisible();
@@ -75,17 +83,17 @@ test.describe("when the dragonkeeper has permissions on the pet table only", () 
 
 test.describe("when the dragonkeeper has also permissions on the order table", () => {
   test.beforeAll(async () => {
-    await addRlsToTables(api);
+    await addRlsToTables(api, SCHEMA_PATH);
   });
 
   test.afterAll(async () => {
-    await removeRlsFromTables(api);
+    await removeRlsFromTables(api, SCHEMA_PATH);
   });
 
   test("the dragonkeeper can now see the order table", async ({ page }) => {
     await page.goto(route);
     await signin(page, USERNAME, PASSWORD);
-    await page.getByText("pet store", { exact: true }).click();
+    await page.getByText(SCHEMA).click();
     await page.getByText("Order", { exact: true }).click();
     await expect(page.getByText("No records found")).toBeVisible();
   });
@@ -95,7 +103,7 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
   }) => {
     await page.goto(route);
     await signin(page, USERNAME, PASSWORD);
-    await page.getByText("pet store", { exact: true }).click();
+    await page.getByText(SCHEMA).click();
     await page.getByText("Pet", { exact: true }).click();
     await expect(
       page
@@ -110,7 +118,7 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
   }) => {
     await page.goto(route);
     await signin(page, USERNAME, PASSWORD);
-    await page.getByText("pet store", { exact: true }).click();
+    await page.getByText(SCHEMA).click();
     await page.getByText("Pet", { exact: true }).click();
     await page.getByRole("button", { name: "Add" }).click();
     await expect(page.getByLabel("Name")).toBeVisible();
@@ -121,7 +129,7 @@ test.describe("when selecting a permission for a row", () => {
   test("as admin, for a new row", async ({ page }) => {
     await page.goto(route);
     await signin(page, "admin", "admin");
-    await page.goto(route + PET_STORE_PATH);
+    await page.goto(route + SCHEMA_PATH + "/Pet");
 
     await page.getByRole("button", { name: "Add Pet" }).click();
     await page.getByRole("combobox", { name: "Access group" }).click();
@@ -131,7 +139,8 @@ test.describe("when selecting a permission for a row", () => {
       .getByRole("textbox", { name: "name Required" })
       .fill("testDragon");
     await page
-      .locator('[id="pet store-Pet-category-form-field-input-radio-group"]')
+      .locator(`[id="${SCHEMA}-Pet-category-form-field-input-radio-group"]`)
+      .getByText("dragon")
       .getByText("dragon", { exact: true })
       .click();
     await page.getByRole("textbox", { name: "weight Required" }).fill("50000");
@@ -144,8 +153,9 @@ test.describe("when selecting a permission for a row", () => {
   test("as manager,when editing a row", async ({ page }) => {
     await page.goto(route);
     await signin(page, "shopmanager", "shopmanager");
-    await page.goto(route + PET_STORE_PATH);
+    await page.goto(route + SCHEMA_PATH + "/Pet");
 
+    await findRow(page, "Pet", "smaug");
     await expect(page.getByRole("cell", { name: DRAGON_KEEPER })).toBeVisible();
 
     await page.getByRole("cell", { name: "smaug" }).hover();

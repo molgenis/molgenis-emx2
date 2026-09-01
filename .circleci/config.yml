@@ -296,10 +296,14 @@ jobs:
             done            
 
       - run:
+          name: Install app dependencies
+          command: pnpm install
+          working_directory: apps
+
+      - run:
           name: Test tailwind components
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
-            pnpm install
             pnpm --filter tailwind-components run e2e
           working_directory: apps
 
@@ -316,7 +320,6 @@ jobs:
           name: Directory e2e tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/
-            pnpm install
             pnpm --filter directory run e2e
           working_directory: apps
 
@@ -330,7 +333,6 @@ jobs:
           name: UI tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/ui/
-            pnpm install
             pnpm --filter ui run e2e
           working_directory: apps
 
@@ -358,7 +360,6 @@ jobs:
           command: |
             cp -r /workspace/apps/catalogue/.output  /root/project/apps/catalogue/.output
             export NUXT_PUBLIC_API_BASE=http://localhost:8080/                  
-            pnpm install
             pnpm --filter catalogue run e2e
           working_directory: apps
 
