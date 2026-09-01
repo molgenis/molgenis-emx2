@@ -72,6 +72,22 @@ commands:
         default: true
     steps:
     - run:
+        # Gradle auto-loads every init.d/*.gradle under GRADLE_USER_HOME, so this needs no
+        # settings.gradle change and no flag on any gradlew call. Must run before any gradlew
+        # invocation below, so this stays first regardless of gradle_cache.
+        name: Point Gradle's local build cache outside GRADLE_USER_HOME/caches
+        command: |
+          mkdir -p /tmp/ci-cache/gradle/init.d
+          cat > /tmp/ci-cache/gradle/init.d/build-cache-dir.gradle \<<EOF
+          settingsEvaluated { settings ->
+              settings.buildCache {
+                  local {
+                      directory = new File("/tmp/ci-cache/gradle-build-cache")
+                  }
+              }
+          }
+          EOF
+    - run:
         name: Fresh Git Checkout to prevent missing objects
         command: |
           rm -rf .git
@@ -103,8 +119,8 @@ commands:
         steps:
         - restore_cache:
             keys:
-              - gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
-              - gradle-deps-v2-
+              - gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
+              - gradle-deps-v3-
         - restore_cache:
             keys:
             - gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
@@ -115,12 +131,12 @@ commands:
             paths:
               - /tmp/ci-cache/gradle/wrapper
             key: gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-        # Dependency jars only. The compiled build-cache entries live under a separate
-        # key (see restore/save_gradle_build_cache) and must not ride along here.
+        # The local build cache lives outside this tree (/tmp/ci-cache/gradle-build-cache),
+        # so nothing else can ride along under this key.
         - save_cache:
             paths:
-              - /tmp/ci-cache/gradle/caches/modules-2
-            key: gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
+              - /tmp/ci-cache/gradle/caches
+            key: gradle-deps-v3-{{ checksum "concatenated-build-gradle" }}
     # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
     # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
     - setup_remote_docker:
@@ -134,17 +150,17 @@ commands:
     - restore_cache:
         # Own branch first, its last save holds master's pool plus this branch's work.
         keys:
-          - gradle-buildcache-v3-{{ .Branch }}-
-          - gradle-buildcache-v3-master-
-          - gradle-buildcache-v3-
+          - gradle-buildcache-v4-{{ .Branch }}-
+          - gradle-buildcache-v4-master-
+          - gradle-buildcache-v4-
 
   save_gradle_build_cache:
     steps:
     - run:
         name: Cap the gradle build cache at 2GB, dropping the oldest entries first
         command: |
-          if [ -d /tmp/ci-cache/gradle/caches/build-cache-1 ]; then
-            cd /tmp/ci-cache/gradle/caches/build-cache-1
+          if [ -d /tmp/ci-cache/gradle-build-cache ]; then
+            cd /tmp/ci-cache/gradle-build-cache
             ls -lt | awk -v limit=2147483648 '$NF ~ /^[0-9a-f]{32}$/ { total += $5; if (total > limit) print $NF }' |
               while read -r entry; do rm -f "$entry"; done
             du -sh .
@@ -154,8 +170,8 @@ commands:
         when: always
     - save_cache:
         paths:
-          - /tmp/ci-cache/gradle/caches/build-cache-1
-        key: gradle-buildcache-v3-{{ .Branch }}-{{ .Revision }}
+          - /tmp/ci-cache/gradle-build-cache
+        key: gradle-buildcache-v4-{{ .Branch }}-{{ .Revision }}
         when: always
 
   restore_turbo_cache:
