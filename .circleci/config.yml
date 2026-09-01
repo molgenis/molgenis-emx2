@@ -657,7 +657,6 @@ workflows:
         filters:
           branches:
             ignore: master
-    # No branch filter: master runs both, so it fills the caches PRs restore from.
     - test-apps
     - test-backend
     - build:
