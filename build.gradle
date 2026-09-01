@@ -86,7 +86,9 @@ sonar {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
+    maxParallelForks = Runtime.runtime.availableProcessors()
+    // A fork's default heap is 25% of DETECTED memory, which on CI is the VM's, not this job's.
+    maxHeapSize = '2g'
 }
 
 // No tests here, and :apps reaches this classpath through :backend:molgenis-emx2-run, so an empty
