@@ -8,7 +8,7 @@ import { useLayoutMenu } from "./useLayoutMenu";
 export async function useLayoutState() {
   const route = useRoute();
   const schema = computed(() => route.params.schema as string);
-  const { session, signOut } = await useSession(schema.value);
+  const { session, signOut } = useSession(schema.value);
   const logoUrl = ref<string | undefined>(undefined);
 
   watch(

@@ -8,7 +8,7 @@ import Button from "../../../tailwind-components/app/components/Button.vue";
 
 const route = useRoute();
 const router = useRouter();
-const { session, reload: reloadSession } = await useSession(
+const { session, reload: reloadSession } = useSession(
   route.params.schema as string
 );
 

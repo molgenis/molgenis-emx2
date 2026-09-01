@@ -119,7 +119,7 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
-const { session } = await useSession(schemaId);
+const { session } = useSession(schemaId);
 const { canView, canInsert, canUpdate, canDelete, isRowLevel, userRoles } =
   useTablePermission(session, schemaId, tableId, tableMetadata.tableType);
 const enableFilters = true;

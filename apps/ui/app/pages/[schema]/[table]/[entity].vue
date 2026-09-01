@@ -46,7 +46,7 @@ try {
   // If the query parameter is malformed JSON, fall back to an empty object
   entityKeysObject = {};
 }
-const { isAdmin, session } = await useSession(schemaId);
+const { isAdmin, session } = useSession(schemaId);
 
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
 const { data: rowData, refresh } = await useAsyncData(

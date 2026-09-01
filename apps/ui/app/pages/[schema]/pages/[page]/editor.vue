@@ -39,7 +39,7 @@ const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
   : route.params.schema ?? "";
 const page = route.params.page as string;
-const { isAdmin } = await useSession(schema);
+const { isAdmin } = useSession(schema);
 
 useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
 

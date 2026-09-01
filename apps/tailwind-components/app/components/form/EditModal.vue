@@ -182,7 +182,7 @@ const visible = defineModel<boolean>("visible");
 // lazy init formContext (form) when modal is opened
 let form: UseForm | undefined;
 
-const session = await useSession(props.schemaId);
+const session = useSession(props.schemaId);
 
 const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
