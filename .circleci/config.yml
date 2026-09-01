@@ -650,10 +650,7 @@ workflows:
             ignore: master
     - test-apps
     - test-backend
-    - test-e2e:
-        filters:
-          branches:
-            ignore: master
+    - test-e2e
     - emx2-pyclient:
         name: testPyPI release
         filters:
