@@ -63,8 +63,8 @@ commands:
         default: true
     steps:
     - run:
-        # Ticket 02 sizes fork counts off availableProcessors(), and ticket 03/06 off the memory
-        # limit -XshowSettings:system prints; none of this may fail the job.
+        # Temporary: the fork count and the memory caps get sized off these numbers, and no
+        # instrumentation may fail a job.
         name: Report CPUs and memory the container and JVM see
         command: |
           set +e
