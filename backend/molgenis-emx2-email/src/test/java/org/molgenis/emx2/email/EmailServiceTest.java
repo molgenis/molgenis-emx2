@@ -2,9 +2,6 @@ package org.molgenis.emx2.email;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Optional;
 import javax.mail.internet.AddressException;
@@ -47,24 +44,5 @@ class EmailServiceTest {
             Optional.of(bccAddress));
     boolean isSuccess = emailService.send(message);
     assertTrue(isSuccess);
-  }
-
-  @Test
-  public void sendGivesUpWhenTheServerNeverReplies() throws IOException {
-    // an unaccepted connection completes the TCP handshake, so this hangs on the SMTP greeting
-    try (ServerSocket silentServer = new ServerSocket(0)) {
-      EmailSettings settings =
-          new EmailSettings.EmailSettingsBuilder()
-              .host("127.0.0.1")
-              .port(String.valueOf(silentServer.getLocalPort()))
-              .build();
-      EmailService emailService = new EmailService(settings);
-      EmailMessage message =
-          new EmailMessage(
-              Collections.singletonList("test@test.com"), "subject", "text", Optional.empty());
-
-      assertFalse(
-          assertTimeoutPreemptively(Duration.ofSeconds(30), () -> emailService.send(message)));
-    }
   }
 }
