@@ -221,7 +221,7 @@ public class ScriptTask extends Task {
           }
         } else {
           File parent = newFile.getParentFile();
-          if (!parent.isDirectory() && !parent.mkdirs()){
+          if (!parent.isDirectory() && !parent.mkdirs()) {
             throw new MolgenisException("Failed to unpack attachment ZIP file.");
           }
           try (FileOutputStream fos = new FileOutputStream(newFile)) {
