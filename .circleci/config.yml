@@ -203,15 +203,11 @@ jobs:
 
       - restore_cache:
           keys:
-            - test-e2e-gradle-v1-{{ checksum "concatenated-build-gradle" }}
-            - test-e2e-gradle-v1-
+            - test-e2e-gradle-v2-{{ checksum "concatenated-build-gradle" }}
+            - test-e2e-gradle-v2-
       - run:
           name: Download Dependencies
           command: ./gradlew dependencies --no-daemon
-      - save_cache:
-          paths:
-            - /tmp/ci-cache/gradle
-          key: test-e2e-gradle-v1-{{ checksum "concatenated-build-gradle" }}
 
       - run:
           name: build the application without running tests to speed up the e2e tests
@@ -219,6 +215,13 @@ jobs:
           # Node sizes its default heap from HOST memory, not the 8GB this job shares with postgres.
           environment:
             NODE_OPTIONS: --max-old-space-size=2048
+
+      # After the build, not after `dependencies`, so what the build itself pulls is cached too.
+      # A CircleCI cache key is immutable, hence v2: writing more under v1 would be a silent no-op.
+      - save_cache:
+          paths:
+            - /tmp/ci-cache/gradle
+          key: test-e2e-gradle-v2-{{ checksum "concatenated-build-gradle" }}
 
       - run:
           name: build ssr catalogue
