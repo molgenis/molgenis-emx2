@@ -400,7 +400,7 @@ jobs:
     - run: # Separate from spotless due to pmd running compile step (and therefore spotlessApply)
         name: <backend> check for programming flaws
         command: |
-          ./gradlew --continue pmdMain pmdTest
+          ./gradlew --continue pmdChanged
     - run:
         name: run tests and push to sonar
         command: |

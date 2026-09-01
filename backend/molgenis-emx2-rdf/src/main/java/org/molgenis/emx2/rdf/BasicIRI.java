@@ -16,6 +16,8 @@ public class BasicIRI {
   public static final IRI FDP_METADATAIDENTIFIER =
       iri("https://w3id.org/fdp/fdp-o#metadataIdentifier");
 
+  // aa
+
   public static final IRI LD_DATASET_CLASS = iri("http://purl.org/linked-data/cube#DataSet");
   public static final IRI LD_DATASET_PREDICATE = iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI LD_OBSERVATION = iri("http://purl.org/linked-data/cube#Observation");

@@ -43,6 +43,8 @@ public class ChangeLogExecutor {
     // hide
   }
 
+  // aa
+
   static void enableChangeLog(SqlDatabase db, SchemaMetadata schema) {
     // Create change log table
     org.jooq.Table<Record> changelogTable =
