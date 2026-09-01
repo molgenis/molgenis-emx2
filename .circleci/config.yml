@@ -402,10 +402,16 @@ jobs:
         command: |
           ./gradlew lint ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+        # Turbo lints 3 packages at once, each Node child sizing its heap from HOST memory.
+        # Unbounded that peaked at 8.40GB against this job's 8192MB cap.
+        environment:
+          NODE_OPTIONS: --max-old-space-size=2048
 
     - run:
         name: <apps> unit test the code
         command: ./gradlew :apps:test
+        environment:
+          NODE_OPTIONS: --max-old-space-size=2048
 
     - post_steps
 
@@ -519,7 +525,8 @@ jobs:
 
   pr-preview:
     <<: *build_config
-    resource_class: medium
+    # Measured peak: 639MB and 1.49 cores briefly, then idle polling. small fits.
+    resource_class: small
 
     steps:
     - pre_steps:
