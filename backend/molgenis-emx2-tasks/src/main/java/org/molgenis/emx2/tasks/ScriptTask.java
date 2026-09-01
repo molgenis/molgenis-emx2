@@ -203,22 +203,31 @@ public class ScriptTask extends Task {
       fos.write(extraFileContent);
     }
     if (extraFileExtension != null && extraFileExtension.toString().equalsIgnoreCase("zip")) {
-      try (ZipInputStream zis = new ZipInputStream(new FileInputStream(extraFilePath.toFile()))) {
-        byte[] buffer = new byte[1024];
-        ZipEntry entry;
-        while ((entry = zis.getNextEntry()) != null) {
-          File newFile = new File(tempDir.toFile(), entry.getName());
-          checkForZipSlip(tempDir, newFile);
+      unpackZipFile(tempDir, extraFilePath);
+    }
+  }
 
-          if (entry.isDirectory()) {
-            newFile.mkdirs();
-          } else {
-            new File(newFile.getParent()).mkdirs();
-            try (FileOutputStream fos = new FileOutputStream(newFile)) {
-              int length;
-              while ((length = zis.read(buffer)) > 0) {
-                fos.write(buffer, 0, length);
-              }
+  private void unpackZipFile(Path tempDir, Path extraFilePath) throws IOException {
+    try (ZipInputStream zis = new ZipInputStream(new FileInputStream(extraFilePath.toFile()))) {
+      byte[] buffer = new byte[1024];
+      ZipEntry entry;
+      while ((entry = zis.getNextEntry()) != null) {
+        File newFile = new File(tempDir.toFile(), entry.getName());
+        checkForZipSlip(tempDir, newFile);
+
+        if (entry.isDirectory()) {
+          if (!newFile.isDirectory() && !newFile.mkdirs()) {
+            throw new MolgenisException("Failed to unpack attachment ZIP file.");
+          }
+        } else {
+          File parent = newFile.getParentFile();
+          if (!parent.isDirectory() && !parent.mkdirs()){
+            throw new MolgenisException("Failed to unpack attachment ZIP file.");
+          }
+          try (FileOutputStream fos = new FileOutputStream(newFile)) {
+            int length;
+            while ((length = zis.read(buffer)) > 0) {
+              fos.write(buffer, 0, length);
             }
           }
         }
