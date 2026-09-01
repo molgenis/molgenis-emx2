@@ -2,7 +2,25 @@ plugins {
     id 'base'
 }
 
+tasks.register('generateSearchPaths') {
+    def output = file("search-paths.js")
+
+    doLast {
+        def paths = ['molgenis', 'catalogue', 'directory']
+            .collectMany { dir ->
+                fileTree(dir) {
+                    include '**/*.md'
+                }.files.collect { f -> f.path.replace(File.separator, '/').split("/docs")[1]
+                }
+            }
+
+        output.parentFile.mkdirs()
+        output.text = "window.docsifySearchPaths = ${groovy.json.JsonOutput.toJson(paths)};"
+    }
+}
+
 tasks.register('copyDistFiles', Copy) {
+    dependsOn generateSearchPaths
     from "."
     exclude 'build'
     into "${project.layout.buildDirectory.get()}/resources/main/public_html/apps/${project.name}"
