@@ -63,12 +63,15 @@ commands:
         default: true
     steps:
     - run:
-        # Ticket 02 sizes fork counts off this: a JVM reporting the host's cores would make them meaningless.
-        name: Report CPUs the container and JVM see
+        # Ticket 02 sizes fork counts off availableProcessors(), and ticket 03/06 off the memory
+        # limit -XshowSettings:system prints; none of this may fail the job.
+        name: Report CPUs and memory the container and JVM see
         command: |
+          set +e
           echo "nproc: $(nproc)"
+          java -XshowSettings:system -version
           echo 'public class Cpus { public static void main(String[] a) { System.out.println("availableProcessors: " + Runtime.getRuntime().availableProcessors()); } }' > /tmp/Cpus.java
-          javac -d /tmp /tmp/Cpus.java && java -cp /tmp Cpus
+          javac -d /tmp /tmp/Cpus.java && java -cp /tmp Cpus || true
     - run:
         name: Fresh Git Checkout to prevent missing objects
         command: |
