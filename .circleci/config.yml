@@ -300,6 +300,11 @@ jobs:
             done
 
       - run:
+          name: Install app dependencies
+          command: pnpm install
+          working_directory: apps
+
+      - run:
           name: Test tailwind components
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
