@@ -86,8 +86,10 @@ sonar {
 }
 
 tasks.withType(Test) {
-    // Guarded at 1: a 1-CPU box makes the plain halving evaluate below one legal fork.
-    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
+    // Temporary: 4 forks against job 89208's 2, to see whether tuned postgres takes the load.
+    // Revert both lines after the measurement. The Math.max guard is the part that stays.
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
+    maxHeapSize = '2g'
 }
 
 // No tests here, and :apps reaches this classpath through :backend:molgenis-emx2-run, so an empty
