@@ -190,7 +190,7 @@ jobs:
         POSTGRES_PASSWORD: postgres
         POSTGRES_DB: postgres
     working_directory: ~/repo
-    resource_class: xlarge
+    resource_class: large
     environment:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
@@ -208,7 +208,8 @@ jobs:
       - pre_steps:
           gradle_cache: false
           layer_cache: false
-          remote_docker: false
+          # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
+          remote_docker: true
 
       - restore_cache:
           keys:
@@ -386,7 +387,6 @@ jobs:
 
   test-apps:
     <<: *build_config
-    resource_class: xlarge
 
     steps:
     - pre_steps:
@@ -411,12 +411,12 @@ jobs:
 
   test-backend:
     <<: *test_config
-    resource_class: xlarge
 
     steps:
     - pre_steps:
         layer_cache: false
-        remote_docker: false
+        # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
+        remote_docker: true
 
     - run:
         name: prepare sql test database
