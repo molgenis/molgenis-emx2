@@ -87,7 +87,8 @@ sonar {
 
 tasks.withType(Test) {
     // Back to 2 forks for one cold measurement against the 4-fork run. Revert after.
-    maxParallelForks = Runtime.runtime.availableProcessors() / 2
+    // Guarded at 1: pr-preview runs on a 1-CPU box, where plain `/ 2` is not a legal fork count.
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
     // A fork's default heap is 25% of DETECTED memory, which on CI is the VM's, not this job's.
     maxHeapSize = '2g'
 }
