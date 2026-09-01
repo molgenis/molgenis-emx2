@@ -1,5 +1,5 @@
 name,description,html,css,javascript,dependencies,enable base styles,enable button styles,enable full screen,mg_draft
-dev-page-demo,Example developer page,"<div class=""custom-page text-title-contrast"">
+demo-dev-page,Example developer page,"<div class=""custom-page text-title-contrast"">
     <header class=""w-full bg-blue-50 h-72 flex justify-center items-center"">
         <div class=""text-center"">
             <h1 class=""font-display"">Developer Pages</h1>
