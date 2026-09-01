@@ -393,6 +393,8 @@ jobs:
         layer_cache: false
         # Not for docker: turbo lints 3 packages at once and 8GB is not enough for them.
         remote_docker: true
+        # Temporary control run: measure these two cold, then revert this line.
+        gradle_cache: false
 
     - run:
         name: <apps> check code format
@@ -424,6 +426,8 @@ jobs:
         layer_cache: false
         # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
         remote_docker: true
+        # Temporary control run: measure these two cold, then revert this line.
+        gradle_cache: false
 
     - run:
         name: prepare sql test database
