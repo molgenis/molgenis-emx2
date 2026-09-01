@@ -18,12 +18,19 @@ orbs:
   slack: circleci/slack@6.1.3
 
 definitions:
+  # A cache restores to the absolute path it was saved from, and `~` is a different user on
+  # test-e2e's image than on the other jobs', so both need this same explicit path.
+  cache_env: &cache_env
+    GRADLE_USER_HOME: /tmp/ci-cache/gradle
+    TURBO_CACHE_DIR: /tmp/ci-cache/turbo
+
   build_config: &build_config
     docker:
     - image: molgenis/ci-build:1.6.3
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
@@ -38,6 +45,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
@@ -47,6 +55,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
       TERM: dumb
@@ -94,22 +103,24 @@ commands:
         steps:
         - restore_cache:
             keys:
-              - gradle-{{ checksum "concatenated-build-gradle" }}
-              - gradle
+              - gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
+              - gradle-deps-v2-
         - restore_cache:
             keys:
-            - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+            - gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
         - run:
             name: Download Dependencies
             command: ./gradlew dependencies --no-daemon
         - save_cache:
             paths:
-              - ~/.gradle/wrapper
-            key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+              - /tmp/ci-cache/gradle/wrapper
+            key: gradle-wrapper-v2-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+        # Dependency jars only. The compiled build-cache entries live under a separate
+        # key (see restore/save_gradle_build_cache) and must not ride along here.
         - save_cache:
             paths:
-              - ~/.gradle/caches
-            key: gradle-{{ checksum "concatenated-build-gradle" }}
+              - /tmp/ci-cache/gradle/caches/modules-2
+            key: gradle-deps-v2-{{ checksum "concatenated-build-gradle" }}
     # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
     # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
     - setup_remote_docker:
@@ -117,6 +128,63 @@ commands:
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+  restore_gradle_build_cache:
+    steps:
+    - restore_cache:
+        # Own branch first, its last save holds master's pool plus this branch's work.
+        keys:
+          - gradle-buildcache-v3-{{ .Branch }}-
+          - gradle-buildcache-v3-master-
+          - gradle-buildcache-v3-
+
+  save_gradle_build_cache:
+    steps:
+    - run:
+        name: Cap the gradle build cache at 2GB, dropping the oldest entries first
+        command: |
+          if [ -d /tmp/ci-cache/gradle/caches/build-cache-1 ]; then
+            cd /tmp/ci-cache/gradle/caches/build-cache-1
+            ls -lt | awk -v limit=2147483648 '$NF ~ /^[0-9a-f]{32}$/ { total += $5; if (total > limit) print $NF }' |
+              while read -r entry; do rm -f "$entry"; done
+            du -sh .
+          else
+            echo "no gradle build cache to prune"
+          fi
+        when: always
+    - save_cache:
+        paths:
+          - /tmp/ci-cache/gradle/caches/build-cache-1
+        key: gradle-buildcache-v3-{{ .Branch }}-{{ .Revision }}
+        when: always
+
+  restore_turbo_cache:
+    steps:
+    - restore_cache:
+        keys:
+          - turbo-v3-{{ .Branch }}-
+          - turbo-v3-master-
+          - turbo-v3-
+
+  save_turbo_cache:
+    steps:
+    - run:
+        name: Cap the turbo cache at 2GB, dropping the oldest entries first
+        command: |
+          if ls /tmp/ci-cache/turbo/*.tar.zst >/dev/null 2>&1; then
+            cd /tmp/ci-cache/turbo
+            ls -lt *.tar.zst | awk -v limit=2147483648 '{ total += $5 } total > limit { sub(/\.tar\.zst$/, "", $NF); print $NF }' |
+              while read -r entry; do rm -f "$entry".tar.zst "$entry"-meta.json "$entry"-manifest.json; done
+            du -sh .
+          else
+            echo "no turbo cache to prune"
+          fi
+        when: always
+    - save_cache:
+        paths:
+          - /tmp/ci-cache/turbo
+        key: turbo-v3-{{ .Branch }}-{{ .Revision }}
+        when: always
 
   post_steps:
     steps:
@@ -141,6 +209,9 @@ jobs:
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 
     - pre_steps
+
+    - restore_gradle_build_cache
+    - restore_turbo_cache
 
     - run:
         name: build and push emx2 java docker images for the preview
@@ -179,11 +250,9 @@ jobs:
     working_directory: ~/repo
     resource_class: large
     environment:
+      <<: *cache_env
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
-      # A cache restores to the absolute path it was saved from, and `~` is a different
-      # user on this image than on the one the other jobs use.
-      GRADLE_USER_HOME: /tmp/ci-cache/gradle
 
     steps:
       # pre_steps calls `pnpm dlx`, so pnpm must exist before it runs.
@@ -196,10 +265,9 @@ jobs:
           gradle_cache: false
           layer_cache: false
 
-      - restore_cache:
-          keys:
-            - test-e2e-gradle-v2-{{ checksum "concatenated-build-gradle" }}
-            - test-e2e-gradle-v2-
+      - restore_gradle_build_cache
+      - restore_turbo_cache
+
       - run:
           name: Download Dependencies
           command: ./gradlew dependencies --no-daemon
@@ -210,13 +278,6 @@ jobs:
           # Node sizes its default heap from HOST memory, not the 8GB this job shares with postgres.
           environment:
             NODE_OPTIONS: --max-old-space-size=2048
-
-      # After the build, not after `dependencies`, so what the build itself pulls is cached too.
-      # A CircleCI cache key is immutable, hence v2: writing more under v1 would be a silent no-op.
-      - save_cache:
-          paths:
-            - /tmp/ci-cache/gradle
-          key: test-e2e-gradle-v2-{{ checksum "concatenated-build-gradle" }}
 
       - run:
           name: build ssr catalogue
@@ -376,6 +437,9 @@ jobs:
     steps:
     - pre_steps
 
+    - restore_gradle_build_cache
+    - restore_turbo_cache
+
     - run:
         name: <apps> check code format
         command: ./gradlew :apps:format
@@ -390,6 +454,10 @@ jobs:
         name: <apps> unit test the code
         command: ./gradlew :apps:test
 
+    # lint dependsOn build for every package, so this run produces the full turbo
+    # build set plus lint/checkFormat/test-ci entries. The only writer of this cache.
+    - save_turbo_cache
+
     - post_steps
 
   test-backend:
@@ -397,6 +465,10 @@ jobs:
 
     steps:
     - pre_steps
+
+    # No turbo restore: `:apps` is a runtimeOnly dependency, so a dry run of this job's
+    # gradle call schedules no `:apps:*` task and nothing here reads the turbo cache.
+    - restore_gradle_build_cache
 
     - run:
         name: prepare sql test database
@@ -423,6 +495,10 @@ jobs:
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
+
+    # Every backend module compiles and every backend test runs here, plus pmd and
+    # spotless. The only writer of this cache.
+    - save_gradle_build_cache
 
     - post_steps
 
@@ -454,7 +530,9 @@ jobs:
 
     steps:
     - pre_steps
-    
+
+    # No restore here: release is the acceptance artifact, and it does not consume
+    # cache entries whose validity rests on our own hand-written task declarations.
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
