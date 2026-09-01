@@ -391,7 +391,8 @@ jobs:
     steps:
     - pre_steps:
         layer_cache: false
-        remote_docker: false
+        # Not for docker: turbo lints 3 packages at once and 8GB is not enough for them.
+        remote_docker: true
 
     - run:
         name: <apps> check code format
