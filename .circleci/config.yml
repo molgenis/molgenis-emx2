@@ -44,11 +44,6 @@ definitions:
   release_config: &release_config
     docker:
       - image: molgenis/ci-build:1.6.3
-      - image: postgres:15-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -369,15 +364,11 @@ jobs:
       - store_artifacts:
           path: apps/catalogue/test-results
 
-  test:
-    <<: *test_config
+  test-apps:
+    <<: *build_config
 
     steps:
     - pre_steps
-
-    - run:
-        name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
         name: <apps> check code format
@@ -393,6 +384,18 @@ jobs:
         name: <apps> unit test the code
         command: ./gradlew :apps:test
 
+    - post_steps
+
+  test-backend:
+    <<: *test_config
+
+    steps:
+    - pre_steps
+
+    - run:
+        name: prepare sql test database
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+
     - run:
         name: <backend> check code format
         command: |
@@ -403,16 +406,23 @@ jobs:
           ./gradlew --continue pmdMain pmdTest
     - run:
         name: run tests and push to sonar
+        # sonar rejects an empty pullrequest.key, and master has no PR, so the
+        # pull-request flags are only passed when there is one.
         command: |
+          SONAR_PR_ARGS=""
+          if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+            SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
+          fi
           ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          $SONAR_PR_ARGS
 
     - post_steps
 
     # LAST step of this job on purpose: it writes a repo-root .env, which would otherwise change the
-    # gradle and turbo input hashes of every step after it.
+    # gradle and turbo input hashes of every step after it. PR #6717 takes .env out of those hashes,
+    # so this step can move once that lands.
     - run:
         name: <dev> a repo-root .env reaches the forked dev JVM
         command: |
@@ -444,21 +454,10 @@ jobs:
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
 
     - run:
-        name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
-
-    - run:
-        name: lint the code
+        name: build the docker image
         command: |
-          ./gradlew lint ci --no-daemon \
+          ./gradlew ci dockerBuild --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
-
-    - run:
-        name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
-        command: |
-          ./gradlew test jacocoMergedReport sonar ci dockerBuild --no-daemon \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
         name: either release or push only snapshots to docker
@@ -643,10 +642,8 @@ workflows:
         filters:
           branches:
             ignore: master
-    - test:
-       filters:
-         branches:
-           ignore: master
+    - test-apps
+    - test-backend
     - build:
         filters:
           branches:
@@ -660,6 +657,9 @@ workflows:
           branches:
             ignore: master
     - release:
+       requires:
+         - test-apps
+         - test-backend
        filters:
          branches:
            only: master
