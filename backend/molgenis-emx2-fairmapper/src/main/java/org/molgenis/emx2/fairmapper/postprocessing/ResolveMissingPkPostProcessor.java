@@ -1,5 +1,7 @@
 package org.molgenis.emx2.fairmapper.postprocessing;
 
+import static org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil.SUBJECT_NAME;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +48,6 @@ import org.slf4j.LoggerFactory;
 public class ResolveMissingPkPostProcessor implements PostProcessor {
 
   private static final Logger logger = LoggerFactory.getLogger(ResolveMissingPkPostProcessor.class);
-  private static final String SUBJECT = "_subject_";
   private static final int MAX_NR_ITERATIONS = 10;
 
   private final SchemaMetadata schema;
@@ -176,7 +177,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
   }
 
   private static String subjectField(Column column) {
-    return SUBJECT + column.getName();
+    return SUBJECT_NAME + column.getName();
   }
 
   private static boolean isFullyResolvedArray(Row row, Reference reference, int expectedSize) {

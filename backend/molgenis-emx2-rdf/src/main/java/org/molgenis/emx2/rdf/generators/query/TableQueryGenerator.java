@@ -14,12 +14,13 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.generators.*;
 
+import static org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil.SUBJECT_VARIABLE;
+
 public class TableQueryGenerator implements QueryGenerator {
 
   private static final Variable ANY_PREDICATE = SparqlBuilder.var("anyPredicate");
   private static final Variable ANY_OBJECT = SparqlBuilder.var("anyObject");
   private static final Variable TYPE_VARIABLE = SparqlBuilder.var("_type_");
-  public static final Variable SUBJECT_VARIABLE = SparqlBuilder.var("_subject_");
 
   @Override
   public String generate(TableMetadata tableMetadata) {

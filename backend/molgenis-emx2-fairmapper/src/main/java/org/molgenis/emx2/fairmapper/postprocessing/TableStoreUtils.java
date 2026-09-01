@@ -1,5 +1,7 @@
 package org.molgenis.emx2.fairmapper.postprocessing;
 
+import static org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil.SUBJECT_NAME;
+
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 import org.molgenis.emx2.MolgenisException;
@@ -13,8 +15,6 @@ public class TableStoreUtils {
     /* This utility class should not be instantiated */
   }
 
-  private static final String SUBJECT_VARIABLE = "_subject_";
-
   public static Row getRowForSubject(TableStore tableStore, TableMetadata table, String subject) {
     for (TableMetadata tableMetadata : table.getInheritanceTree()) {
       if (!tableStore.containsTable(tableMetadata.getTableName())) {
@@ -24,7 +24,7 @@ public class TableStoreUtils {
       Optional<Row> match =
           StreamSupport.stream(
                   tableStore.readTable(tableMetadata.getTableName()).spliterator(), false)
-              .filter(row -> row.getString(SUBJECT_VARIABLE).equals(subject))
+              .filter(row -> row.getString(SUBJECT_NAME).equals(subject))
               .findFirst();
 
       if (match.isPresent()) {
