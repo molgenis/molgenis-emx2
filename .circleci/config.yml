@@ -111,6 +111,28 @@ commands:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
+  restore_demo_dump:
+    steps:
+    - run:
+        name: Compute the demo-dump cache key over backend, data and the EMX2 jar
+        command: bash ci/e2e_demo_dump.sh key
+    - restore_cache:
+        keys:
+          - emx2-demo-dump-v1-{{ checksum "emx2-demo-dump-key" }}
+    - run:
+        name: Restore the cached demo database, or fall back to a full import
+        command: bash ci/e2e_demo_dump.sh restore
+
+  save_demo_dump:
+    steps:
+    - run:
+        name: Dump the imported demo database for the next run
+        command: bash ci/e2e_demo_dump.sh save
+    - save_cache:
+        paths:
+          - ~/emx2-demo-dump
+        key: emx2-demo-dump-v1-{{ checksum "emx2-demo-dump-key" }}
+
   post_steps:
     steps:
     - run:
@@ -222,12 +244,32 @@ jobs:
           command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
 
       - run:
-          name: install postgres client
-          command: apt-get update && apt-get install -y postgresql-client
+          # pg_dump refuses a server newer than itself, and the service is
+          # postgres 15, so the distribution's client is too old to fill the
+          # demo dump cache. The PGDG repo is the only source of a matching one.
+          name: install postgres client matching the postgres 15 service
+          command: |
+            apt-get update
+            apt-get install -y curl ca-certificates
+            install -d /usr/share/postgresql-common/pgdg
+            curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+              -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+            echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo "$VERSION_CODENAME")-pgdg main" \
+              > /etc/apt/sources.list.d/pgdg.list
+            apt-get update
+            if ! apt-get install -y postgresql-client-15; then
+              echo "postgresql-client-15 is unavailable, falling back to the distribution client"
+              echo "pg_dump will refuse the newer server, so the demo dump cache stays empty"
+              apt-get install -y postgresql-client
+            fi
+            psql --version
+            pg_dump --version
 
       - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+
+      - restore_demo_dump
 
       - run:
           name: Install Java
@@ -249,10 +291,14 @@ jobs:
           name: start the application in the background
           command: |
             export $( cat build/ci.properties | xargs )
-            export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
-            export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
-            export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
-            export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            if [ "${MOLGENIS_DEMO_DUMP_RESTORED:-false}" = "true" ]; then
+              echo "booting against the restored demo database, so no demo is imported"
+            else
+              export MOLGENIS_INCLUDE_CATALOGUE_DEMO=true
+              export MOLGENIS_INCLUDE_TYPE_TEST_DEMO=true
+              export MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO=true
+              export MOLGENIS_INCLUDE_DIRECTORY_DEMO=true
+            fi
             export E2E_BASE_URL=http://localhost:8080/
             export MOLGENIS_OIDC_CLIENT_ID=emx2-local
             export MOLGENIS_OIDC_CLIENT_SECRET=${LOCAL_OIDC_CLIENT_SECRET}
@@ -293,7 +339,9 @@ jobs:
               fi
 
               sleep 1
-            done            
+            done
+
+      - save_demo_dump
 
       - run:
           name: Test tailwind components
