@@ -39,8 +39,8 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      # Temporary: 6 on 4 cores. Forks blocked on postgres hold no core, so oversubscribe.
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6"
+      # Temporary: 4, the measured best. 6 raced a test that mutates the shared _SYSTEM_ schema.
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
       TERM: dumb
   release_config: &release_config
     docker:
