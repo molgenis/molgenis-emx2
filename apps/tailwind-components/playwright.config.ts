@@ -42,7 +42,7 @@ export default defineConfig<ConfigOptions>({
       use: {
         ...devices["Desktop Chrome"],
       },
-      testIgnore: "*/admin!*.spec.ts",
+      testIgnore: /admin\..*\.spec\.ts/,
       testMatch: "*/*.spec.ts",
     },
     {
@@ -51,7 +51,7 @@ export default defineConfig<ConfigOptions>({
         ...devices["Desktop Chrome"],
         storageState: "playwright/.auth/user.json",
       },
-      testMatch: "*/admin!*.spec.ts",
+      testMatch: /admin\..*\.spec\.ts/,
       dependencies: ["auth.setup"],
     },
   ],

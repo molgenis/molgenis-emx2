@@ -5,17 +5,30 @@ import { ref } from "vue";
 const useRouteMock = vi.fn();
 const useStateMock = vi.fn();
 const useAsyncDataMock = vi.fn();
+// only getRowLevelRoles calls $fetch directly, the rest goes through useAsyncData
+const fetchMock = vi.fn();
 
 mockNuxtImport("useRoute", () => vi.fn(() => useRouteMock()));
 mockNuxtImport("useState", () => vi.fn((key, init) => useStateMock(key, init)));
 mockNuxtImport("useAsyncData", () => vi.fn(() => useAsyncDataMock()));
+vi.stubGlobal("$fetch", fetchMock);
 
 import { useSession } from "../../../app/composables/useSession";
+
+function schemaRolesResponse(
+  roles: {
+    name: string;
+    permissions: { table: string; isRowLevel: boolean }[];
+  }[]
+) {
+  return { data: { _schema: { roles } } };
+}
 
 describe("useSession", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     useStateMock.mockImplementation((key, init) => ref(init()));
+    fetchMock.mockResolvedValue(schemaRolesResponse([]));
   });
 
   describe("for non schema path", () => {
@@ -78,6 +91,82 @@ describe("useSession", () => {
       expect(session.session.value?.roles).toEqual({
         abc: ["Editor"],
       });
+    });
+
+    test("should load the row level roles, the session is loaded before they are resolved", async () => {
+      useRouteMock.mockReturnValue({
+        params: { schema: "abc" },
+      });
+
+      useAsyncDataMock
+        .mockResolvedValueOnce({
+          data: ref({ data: { _session: { roles: ["Manager"] } } }),
+          error: ref(null),
+          pending: ref(false),
+        })
+        .mockResolvedValueOnce({
+          data: ref({
+            data: {
+              _session: {
+                email: "user@test.com",
+                admin: false,
+                token: "123",
+              },
+            },
+          }),
+          error: ref(null),
+          pending: ref(false),
+        });
+
+      fetchMock.mockResolvedValue(
+        schemaRolesResponse([
+          {
+            name: "DragonKeeper",
+            permissions: [{ table: "Pet", isRowLevel: true }],
+          },
+          {
+            name: "Viewer",
+            permissions: [{ table: "Pet", isRowLevel: false }],
+          },
+        ])
+      );
+
+      const session = await useSession("abc");
+
+      expect(session.isManager.value).toBe(true);
+      expect(fetchMock).toHaveBeenCalledWith("/abc/graphql", expect.anything());
+      expect(session.rowLevelRoles.value).toEqual(["DragonKeeper"]);
+    });
+
+    test("should not fetch the row level roles without owner, manager or admin rights", async () => {
+      useRouteMock.mockReturnValue({
+        params: { schema: "abc" },
+      });
+
+      useAsyncDataMock
+        .mockResolvedValueOnce({
+          data: ref({ data: { _session: { roles: ["Editor"] } } }),
+          error: ref(null),
+          pending: ref(false),
+        })
+        .mockResolvedValueOnce({
+          data: ref({
+            data: {
+              _session: {
+                email: "user@test.com",
+                admin: false,
+                token: "123",
+              },
+            },
+          }),
+          error: ref(null),
+          pending: ref(false),
+        });
+
+      const session = await useSession("abc");
+
+      expect(session.rowLevelRoles.value).toEqual([]);
+      expect(fetchMock).not.toHaveBeenCalled();
     });
   });
 

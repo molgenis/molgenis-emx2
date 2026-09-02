@@ -17,7 +17,6 @@ export const useSession = async (schemaId?: string) => {
   const isAdmin = computed(() => session.value?.admin || false);
   const isOwner = computed(() => hasRole("Owner"));
   const isManager = computed(() => hasRole("Manager"));
-  const rowLevelRoles = ref<string[]>(await getRowLevelRoles());
 
   const tablePermissions = computed<ITablePermission[]>(() =>
     schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
@@ -29,6 +28,8 @@ export const useSession = async (schemaId?: string) => {
   ) {
     await loadSession();
   }
+
+  const rowLevelRoles = ref<string[]>(await getRowLevelRoles());
 
   function hasRole(role: string): boolean {
     if (schemaId) {
