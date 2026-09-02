@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useId, ref } from "vue";
-import Button from "./Button.vue";
+import BaseIcon from "./BaseIcon.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -51,20 +51,20 @@ const isExpanded = ref<boolean>(props.openByDefault);
         <slot name="toolbar"></slot>
       </div>
       <div class="flex justify-center items-center">
-        <!-- text-button-inline (Button's own inline color) is white in some themes, invisible on this surface, so force the surface-safe token -->
-        <Button
-          type="inline"
-          class="hover:bg-button-secondary-hover !text-title-contrast hover:!text-button-secondary"
+        <!-- mouse-only duplicate of the label toggle above; out of the tab order so there is one tab stop for the toggle action -->
+        <button
+          type="button"
           :id="`accordion__${id}-toggle-icon-only`"
-          :icon-only="true"
-          :icon="isExpanded ? 'caret-up' : 'caret-down'"
-          :label="isExpanded ? 'Hide details' : 'Show details'"
+          class="p-1.5 rounded text-title-contrast hover:text-button-secondary hover:bg-button-secondary-hover cursor-pointer"
+          tabindex="-1"
+          aria-hidden="true"
           @click="isExpanded = !isExpanded"
-          :aria-labelledby="`accordion__${id}-toggle`"
-          :aria-controls="`accordion__${id}-content`"
-          :aria-expanded="isExpanded"
-          :aria-haspopup="true"
-        />
+        >
+          <BaseIcon
+            :name="isExpanded ? 'caret-up' : 'caret-down'"
+            :width="20"
+          />
+        </button>
       </div>
     </div>
     <div
