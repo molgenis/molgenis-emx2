@@ -188,22 +188,32 @@ async function fetchResourceOptions(): Promise<INode[]> {
       variables: scoped
         ? {
             resourcesFilter: {
-              _or: [
+              _and: [
+                { mg_tableclass: { not_equals: `${schema}.Networks` } },
+                { mg_tableclass: { not_equals: `${schema}.Catalogues` } },
                 {
-                  partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
-                },
-                {
-                  parentNetworks: { equals: [{ id: catalogueRouteParam }] },
-                },
-                {
-                  partOfNetworks: {
-                    childNetworks: { equals: [{ id: catalogueRouteParam }] },
-                  },
-                },
-                {
-                  partOfNetworks: {
-                    parentNetworks: { equals: [{ id: catalogueRouteParam }] },
-                  },
+                  _or: [
+                    {
+                      partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
+                    },
+                    {
+                      parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+                    },
+                    {
+                      partOfNetworks: {
+                        childNetworks: {
+                          equals: [{ id: catalogueRouteParam }],
+                        },
+                      },
+                    },
+                    {
+                      partOfNetworks: {
+                        parentNetworks: {
+                          equals: [{ id: catalogueRouteParam }],
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
             },
