@@ -41,9 +41,9 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      # 4, not 6. At 6 the concurrency reached postgres' limit: five test classes sat at or past
-      # the 10s client timeout in SqlDatabase and one failed. At 4 the worst stall was 5.7s.
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
+      # 6, not 4. At 6 the one class that failed held an exclusive lock on _SYSTEM_.Templates;
+      # that DDL is gone, so the concurrency 6 buys no longer queues behind it.
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6"
       TERM: dumb
   release_config: &release_config
     docker:
