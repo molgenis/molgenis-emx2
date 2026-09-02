@@ -11,11 +11,6 @@ public abstract class QueryBean implements Query {
   private Filter filter;
   private String[] searchTerms = new String[0];
 
-  protected QueryBean() {
-    this.select = new SelectColumn(null);
-    this.filter = new FilterBean(AND);
-  }
-
   protected QueryBean(String field) {
     this.select = new SelectColumn(field);
     this.filter = new FilterBean(AND);
