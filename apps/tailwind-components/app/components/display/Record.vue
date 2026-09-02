@@ -6,16 +6,13 @@ import type {
   LegendGroup,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
-import {
-  groupRecordSections,
-  type RecordBox,
-  type RecordSection as RecordSectionGroup,
-} from "../../utils/groupRecordSections";
+import type { RecordSection, RecordSectionGroup } from "../../../types/record";
+import { groupRecordSections } from "../../utils/groupRecordSections";
 import { recordTitle } from "../../utils/recordTitle";
 import FormLegend from "../form/Legend.vue";
 import InputSearch from "../input/Search.vue";
 import RecordPageLayout from "./RecordPageLayout.vue";
-import RecordSection from "./RecordSection.vue";
+import DisplayRecordSection from "./RecordSection.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -49,9 +46,9 @@ const sections = computed(() =>
   })
 );
 
-const boxes = computed<RecordBox[]>(() =>
+const recordSections = computed<RecordSection[]>(() =>
   sections.value.flatMap((section) => [
-    ...(hasOwnBox(section)
+    ...(hasOwnSection(section)
       ? [
           {
             kind: "section" as const,
@@ -68,25 +65,27 @@ const boxes = computed<RecordBox[]>(() =>
   ])
 );
 
-function hasOwnBox(section: RecordSectionGroup): boolean {
+function hasOwnSection(section: RecordSectionGroup): boolean {
   return !!section.label || section.fields.length > 0;
 }
 
 function legendAnchorId(section: RecordSectionGroup): string {
-  return hasOwnBox(section)
+  return hasOwnSection(section)
     ? section.id
     : section.headings[0]?.id ?? section.id;
 }
 
-// Enough boxes to need navigating, and the caller has not turned the legend off.
-const hasLegend = computed(() => props.showLegend && boxes.value.length > 1);
+// Enough sections to need navigating, and the caller has not turned the legend off.
+const hasLegend = computed(
+  () => props.showLegend && recordSections.value.length > 1
+);
 const showFilterBox = computed(() => props.showFilter);
 
 const activeBoxId = ref<string | null>(null);
 
 const legendGroups = computed<LegendGroup[]>(() =>
   sections.value.length === 1
-    ? boxes.value.map((box) => ({
+    ? recordSections.value.map((box) => ({
         id: box.id,
         label: box.label ?? props.metadata.label,
         href: `#${box.id}`,
@@ -140,8 +139,8 @@ const title = computed(() => recordTitle(props.metadata, props.rowData));
         />
       </div>
       <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
-        <RecordSection
-          v-for="box in boxes"
+        <DisplayRecordSection
+          v-for="box in recordSections"
           :key="box.id"
           :section="box"
           :showCards="showCards"

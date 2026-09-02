@@ -4,47 +4,20 @@ import type {
   IRow,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
-
-export interface RecordField {
-  id: string;
-  label: string;
-  metadata: IColumn;
-  value: columnValue;
-}
-
-export interface RecordHeading {
-  id: string;
-  label: string;
-  fields: RecordField[];
-}
-
-export interface RecordSection {
-  id: string;
-  label: string | null;
-  fields: RecordField[];
-  headings: RecordHeading[];
-}
-
-export interface RecordBox {
-  kind: "section" | "heading";
-  id: string;
-  label: string | null;
-  fields: RecordField[];
-}
+import type {
+  GroupRecordSectionsOptions,
+  RecordHeading,
+  RecordSectionGroup,
+} from "../../types/record";
 
 const TOP_SECTION_ID = "mg_top_of_form";
-
-export interface GroupRecordSectionsOptions {
-  showMgColumns?: boolean;
-  filterTerm?: string;
-}
 
 export function groupRecordSections(
   metadata: ITableMetaData,
   rowData: IRow | undefined | null,
   options: GroupRecordSectionsOptions = {}
-): RecordSection[] {
-  const sections: RecordSection[] = [];
+): RecordSectionGroup[] {
+  const sections: RecordSectionGroup[] = [];
   let heading: RecordHeading | undefined;
 
   for (const column of metadata.columns) {
@@ -80,7 +53,7 @@ export function groupRecordSections(
     );
 }
 
-function newSection(id: string, label: string): RecordSection {
+function newSection(id: string, label: string): RecordSectionGroup {
   return {
     id,
     label: id === TOP_SECTION_ID ? null : label,
@@ -89,7 +62,9 @@ function newSection(id: string, label: string): RecordSection {
   };
 }
 
-function currentOrTopSection(sections: RecordSection[]): RecordSection {
+function currentOrTopSection(
+  sections: RecordSectionGroup[]
+): RecordSectionGroup {
   const last = sections[sections.length - 1];
   if (last) {
     return last;
