@@ -50,11 +50,21 @@ export interface ICmsOrder {
   id: string;
   order: number;
 }
-
+export interface ICmsOrderWithBlockId {
+  id: string;
+  order: number;
+  block: {
+    id: string;
+    mg_tableclass: string;
+  };
+}
 export type ICmsPageTypes = "ConfigurablePage" | "DeveloperPage";
 
 export interface IDraggingInfo {
   dragging: boolean;
+  action: "create" | "move";
   componentName: string;
   componentType: string;
+  moveOrderId?: string;
+  parentId?: string;
 }

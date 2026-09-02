@@ -7,10 +7,19 @@ import Heading from "./Heading.vue";
 import Paragraph from "./Paragraph.vue";
 import Image from "./Image.vue";
 import NavigationGroups from "./Navigation/NavigationGroups.vue";
+import { hideAllPoppers } from "floating-vue";
 
 import EditModal from "../form/EditModal.vue";
 
-import { deleteBlock, deleteComponent, parsePageText } from "../../utils/cms";
+import {
+  deleteBlock,
+  deleteComponent,
+  parsePageText,
+  moveComponentUp,
+  moveBlockUp,
+  moveComponentDown,
+  moveBlockDown,
+} from "../../utils/cms";
 import type { IFile } from "../../../types/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
@@ -19,18 +28,21 @@ const props = withDefaults(
   defineProps<{
     component: IPageComponent;
     orderId: string;
+    order?: number;
     componentType: string;
     mg_tableclass: string;
     metadata?: ITableMetaData[];
     isEditable?: boolean;
     parent: string;
+    page: string;
   }>(),
   {
     isEditable: false,
+    order: 0,
   }
 );
 
-const emit = defineEmits(["updatePage"]);
+const emit = defineEmits(["updatePage", "dragging"]);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
@@ -70,9 +82,6 @@ function onDelete() {
 
 async function doDelete(): Promise<void> {
   currentlyDeleting.value = true;
-  console.log(
-    `Deleting ${props.componentType} ${props.component.id}  ${props.orderId}`
-  );
   if (props.componentType === "Component") {
     await deleteComponent(
       componentMetadata.value?.schemaId || "",
@@ -90,7 +99,61 @@ async function doDelete(): Promise<void> {
   }
   currentlyDeleting.value = false;
   showDeleteModal.value = false;
+  hideAllPoppers();
   emit("updatePage");
+}
+
+async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
+  if (action === "grab" || action === "release") {
+    emit("dragging", {
+      dragging: action === "grab",
+      componentType: props.componentType,
+      componentName: props.mg_tableclass.split(".")[1],
+      action: "move",
+      moveOrderId: props.orderId,
+      parentId: props.parent,
+    });
+    return;
+  }
+  if (action === "up") {
+    if (props.componentType === "Component") {
+      await moveComponentUp(
+        componentMetadata.value?.schemaId || "",
+        props.orderId,
+        props.order,
+        props.parent,
+        props.page
+      );
+    } else {
+      await moveBlockUp(
+        componentMetadata.value?.schemaId || "",
+        props.orderId,
+        props.order,
+        props.parent
+      );
+    }
+    emit("updatePage");
+  }
+  if (action === "down") {
+    if (props.componentType === "Component") {
+      await moveComponentDown(
+        componentMetadata.value?.schemaId || "",
+        props.orderId,
+        props.order,
+        props.parent,
+        props.page
+      );
+    } else {
+      await moveBlockDown(
+        componentMetadata.value?.schemaId || "",
+        props.orderId,
+        props.order,
+        props.parent
+      );
+    }
+    emit("updatePage");
+  }
+  hideAllPoppers();
 }
 </script>
 
@@ -107,6 +170,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
   <Section
     v-else-if="mg_tableclass.endsWith('.Sections')"
@@ -116,6 +180,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   >
     <slot></slot>
   </Section>
@@ -129,6 +194,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
   <Paragraph
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
@@ -139,6 +205,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
   <Image
     v-else-if="mg_tableclass.endsWith('.Images')"
@@ -151,6 +218,7 @@ async function doDelete(): Promise<void> {
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
   <NavigationGroups
     v-else-if="mg_tableclass.endsWith('.Navigation groups')"
