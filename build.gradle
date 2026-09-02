@@ -86,9 +86,9 @@ sonar {
 }
 
 tasks.withType(Test) {
-    // Temporary split: forks back to master's half while workers.max stays 4, to see which dial
-    // carried the 153s. The Math.max guard is the part that stays either way.
-    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
+    // One fork per core, paired with workers.max=4 in CI. Guarded at 1 because a 1-CPU box makes
+    // any halving evaluate below one legal fork. 6 forks overwhelmed postgres; 4 did not.
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
     maxHeapSize = '2g'
 }
 
