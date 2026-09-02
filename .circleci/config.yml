@@ -151,6 +151,11 @@ commands:
 jobs:
   build-preview-images:
     <<: *build_config
+    # Job-level environment REPLACES the anchor's, so TERM is restated here, not inherited.
+    environment:
+      # Temporary: 4, same question as test-backend and test-e2e. Its median CPU is 2.1 of 4.
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
+      TERM: dumb
 
     steps:
     - run: |
