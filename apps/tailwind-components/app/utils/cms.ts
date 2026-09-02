@@ -3,6 +3,8 @@ import type {
   IDeveloperPages,
   IDependenciesCSS,
   IDependenciesJS,
+  IBlocks,
+  IComponents,
 } from "../../types/cms";
 
 import { getContainersQuery } from "../gql/cmsPages";
@@ -49,6 +51,18 @@ export async function getPage(
     | IConfigurablePages
     | IDeveloperPages;
   return { page: currentPage, metadata: data._schema.tables };
+}
+
+export function setCmsPageType(value?: string): string | undefined {
+  if (!value || typeof value === "undefined") {
+    return undefined;
+  } else if (value.endsWith(".Configurable pages")) {
+    return "Landing page";
+  } else if (value.endsWith(".Developer pages")) {
+    return "Dev page";
+  } else {
+    return undefined;
+  }
 }
 
 export function setCmsEditorUrl(
@@ -174,6 +188,17 @@ export async function deleteBlock(
   await cmsFetch(schema, orderQuery, orderVar);
   await cmsFetch(schema, blockQuery, blockVars);
   await fullReorder(schema, page, "Block");
+}
+
+export async function deleteContainer(schema: string, page: string) {
+  const query = `mutation deletePage($container:[ContainersInput]) {
+    delete(Containers: $container) {
+      status
+      message
+    }
+  }`;
+  const variables = { container: { name: page } };
+  return await cmsFetch(schema, query, variables);
 }
 
 export async function addComponent(
@@ -453,6 +478,42 @@ async function AddBlockOrder(
     ],
   };
   await cmsFetch(schema, query, variables);
+}
+
+export async function updateBlocks(schema: string, newBlocks: IBlocks[]) {
+  const query = `mutation updateBlockContainers($blocks:[BlocksInput]) {
+    update(Blocks: $blocks) {
+      status
+      message
+    }
+  }`;
+
+  const variables = { blocks: newBlocks };
+  await cmsFetch(schema, query, variables);
+}
+
+export async function getPageComponents(
+  schema: string,
+  page: string
+): Promise<IComponents[]> {
+  const query = `query getPageComponents($filter: ComponentsFilter){
+    Components(filter: $filter) {
+      ...ComponentsAllFields3
+    }
+  }`;
+  const variables = {
+    filter: {
+      inBlock: {
+        inContainer: {
+          name: {
+            equals: page,
+          },
+        },
+      },
+    },
+  };
+  const { data } = await cmsFetch(schema, query, variables);
+  return data?.Components as IComponents[];
 }
 
 export function generateHtmlPreview(

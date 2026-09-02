@@ -9,6 +9,7 @@ import type {
   IConfigurablePages,
   IBlockOrders,
   IComponentOrders,
+  IComponents,
   IFile,
 } from "./cms.ts";
 
@@ -42,6 +43,7 @@ export interface FetchGraphqlResponse {
   data?: {
     ComponentOrders?: IComponentOrders[];
     BlockOrders?: IBlockOrders[];
+    Components?: IComponents[];
   };
   errors?: FetchGraphqlBody[];
 }

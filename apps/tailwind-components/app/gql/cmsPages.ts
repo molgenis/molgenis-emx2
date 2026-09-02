@@ -24,7 +24,12 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
         enableButtonStyles
         enableFullScreen
         
-        # Configurable pages
+        # Configurable pages: base block info
+        blocks {
+            ...BlocksAllFields2
+        }
+            
+        # Configurable pages: ordered for page rendering
         blockOrder(orderby: { order: ASC } ) {
             id
             order
