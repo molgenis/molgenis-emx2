@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -101,11 +102,11 @@ public class TableStoreForXlsxFile implements TableStore {
       headerRow.createCell(entry.getValue()).setCellValue(entry.getKey());
     }
 
-    // rowNum lives outside the lambda, so a Consumer<Row> can still count rows
-    int[] rowNum = {1};
+    AtomicInteger rowNum = new AtomicInteger(1);
     rows.produce(
         row -> {
-          org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum[0]);
+          int currentRow = rowNum.getAndIncrement();
+          org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(currentRow);
           for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
             try {
               String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
@@ -117,12 +118,11 @@ public class TableStoreForXlsxFile implements TableStore {
                       + "', column '"
                       + entry.getKey()
                       + "', at row "
-                      + rowNum[0]
+                      + currentRow
                       + ": "
                       + e.getMessage());
             }
           }
-          rowNum[0]++;
         });
     sheet.flushRows();
   }
