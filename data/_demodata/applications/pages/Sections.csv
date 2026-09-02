@@ -1,5 +1,5 @@
 id,in container,apply shaded background
 demo-landing-page-overview,demo-landing-page,
 demo-landing-page-features,demo-landing-page,true
-demo-landing-page-notice,demo-landing-page,
 demo-landing-page-information,demo-landing-page,
+demo-landing-page-notice,demo-landing-page,true

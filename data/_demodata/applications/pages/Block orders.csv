@@ -2,5 +2,5 @@ id,configurable page,block,order
 demo-landing-page-header-order,demo-landing-page,demo-page-banner,0
 demo-landing-page-overview-order,demo-landing-page,demo-landing-page-overview,1
 demo-landing-page-features-order,demo-landing-page,demo-landing-page-features,2
-demo-landing-page-notice-order,demo-landing-page,demo-landing-page-notice,3
-demo-landing-page-information-order,demo-landing-page,demo-landing-page-information,4
+demo-landing-page-information-order,demo-landing-page,demo-landing-page-information,3
+demo-landing-page-notice-order,demo-landing-page,demo-landing-page-notice,4
