@@ -227,10 +227,9 @@ public class CsvApi {
     ctx.res().setCharacterEncoding("UTF-8");
 
     try (Writer writer =
-        new BufferedWriter(
-            new OutputStreamWriter(ctx.res().getOutputStream(), StandardCharsets.UTF_8))) {
+        new BufferedWriter(new OutputStreamWriter(ctx.outputStream(), StandardCharsets.UTF_8))) {
       Consumer<Row> rowWriter = CsvTableWriter.rowWriter(columnNames, writer, getSeparator(ctx));
-      query.retrieveRows(
+      query.retrieveRowsStreaming(
           row -> {
             ResolveComputedValue.apply(columns, List.of(row));
             rowWriter.accept(row);

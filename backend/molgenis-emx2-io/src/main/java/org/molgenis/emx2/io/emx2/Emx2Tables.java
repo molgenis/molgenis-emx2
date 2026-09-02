@@ -47,8 +47,7 @@ public class Emx2Tables {
       query.where(
           f(MG_TABLECLASS, Operator.EQUALS, table.getSchema().getName() + "." + table.getName()));
     }
-    store.writeTable(
-        table.getName(), downloadColumnNames, consumer -> query.retrieveRows(consumer));
+    store.writeTableStreaming(table.getName(), downloadColumnNames, query::retrieveRowsStreaming);
 
     // in case of zip file we include the attached files
     if (store instanceof TableAndFileStore tableAndFileStore) {
