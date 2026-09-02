@@ -11,12 +11,12 @@ public abstract class QueryBean implements Query {
   private Filter filter;
   private String[] searchTerms = new String[0];
 
-  public QueryBean() {
+  protected QueryBean() {
     this.select = new SelectColumn(null);
     this.filter = new FilterBean(AND);
   }
 
-  public QueryBean(String field) {
+  protected QueryBean(String field) {
     this.select = new SelectColumn(field);
     this.filter = new FilterBean(AND);
   }
