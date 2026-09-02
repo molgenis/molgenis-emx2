@@ -1,18 +1,21 @@
-name,description,html,css,javascript,dependencies,enable base styles,enable button styles,enable full screen,mg_draft
+name,description,html,css,javascript,dependencies,enable base styles,enable button styles,enable full screen
 demo-dev-page,Example developer page,"<div class=""custom-page text-title-contrast"">
     <header class=""w-full bg-blue-50 h-72 flex justify-center items-center"">
         <div class=""text-center"">
             <h1 class=""font-display"">Developer Pages</h1>
-            <p class=""mb-0"">Create your own pages in a MOLGENIS database using HTML, CSS, and JavaScript</p>
+            <p class=""mb-0"">
+                Create your own pages in a MOLGENIS database using HTML, CSS, and JavaScript
+            </p>
         </div>
     </header>
     <div class=""section"">
         <div class=""section-content"">
             <h2 class=""font-display text-heading-2xl"">Overview</h2>
-            <p>The <span class=""font-bold"">Page Editor</span> is an EMX2 feature that allows users to create and edit
-                EMX2 pages with
-                HTML, CSS, and JavaScript. This option may be useful if you want to go beyond the features that are
-                offered in the
+            <p>
+                The <span class=""font-bold"">Page Editor</span> is an EMX2 feature
+                where you can create and edit custom pages in MOLGENIS using HTML,
+                CSS, and JavaScript. This option may be useful if you want to go
+                beyond the features that are offered in the
                 <span class=""font-bold"">Page Builder</span>.
             </p>
         </div>
@@ -20,55 +23,85 @@ demo-dev-page,Example developer page,"<div class=""custom-page text-title-contra
     <div class=""section bg-gray-100"">
         <div class=""section-content"">
             <h2 class=""font-display text-heading-2xl"">Get started</h2>
-            <p>To create your own page, follow these steps.</p>
+            <p>Here's how to create your own developer page</p>
             <ol>
-                <li>Sign in to your account and go to the <a href=""/apps/ui/cms/pages"" class=""underline"">Page
-                        Gallery</a>
+                <li>
+                    Sign in and go to the <a href=""/apps/ui/cms/pages"" class=""underline"">Page Gallery</a>
                 </li>
-                <li>Click the ""Add New Page"" button to view the page selection menu.</li>
-                <li>Select the page you want to build, click the ""ceate page"" button and fill in the required
-                    information. Your page will be available in the <a class=""underline"" href=""/apps/ui/cms/pages"">Page
-                        Gallery</a></li>
-                <li>Find your page in the gallery and click the edit button.</li>
-                <li>Edit your page and save the changes.</li>
+                <li>Click the ""Add New Page"" button</li>
+                <li>
+                    Select the ""Developer page"" option and click the ""create page"" button.
+                    Enter a name for the page and save
+                </li>
+                <li>
+                    In the <a class=""underline"" href=""/apps/ui/cms/pages"">Page Gallery</a>,
+                    click the edit button for your page in the gallery
+                </li>
+                <li>Start building your page!</li>
             </ol>
         </div>
     </div>
     <div class=""section"">
         <div class=""section-content"">
             <h2 class=""font-display text-heading-2xl"">Tips</h2>
-            <p>There are a few options that can be used to enhance your page. These can be found in your page's
-                settings, which can be accessed in the <a href=""/apps/ui/cms/DeveloperPages"" class=""underline"">Developer
-                    pages
-                    table</a>. </p>
+            <p>
+                Here are a few tips to further enhance your page, which are settings that can be accessed
+                via <a href=""/apps/ui/cms/DeveloperPages"" class=""underline"">Developer pages table</a>.
+            </p>
             <ul>
-                <li><span class=""font-bold"">You can hook into our tailwind theme</span>: To make it easier to build
-                    custom pages, you can piggyback off
-                    our theme. This makes styling pages and creating layouts a bit easier, and also allows you to create
-                    pages
-                    that look and feel like a
-                    MOLGENIS page. If you want use your own theme, go to the page's settings and change ""enable base
-                    styles"" to
-                    ""false"".
+                <li>
+                    <span class=""font-bold block"">
+                        You can hook into our tailwind theme
+                    </span>
+                    <span>
+                        To make it easier to build custom pages, you can piggyback off our
+                        theme (we use tailwind in our UI). This makes the process of
+                        designing pages bit easier and it also allows you to create pages
+                        that look and feel like a MOLGENIS page. This setting is enabled by
+                        default, but can be disabled by changing the ""enable base styles""
+                        option to ""false"".
+                    </span>
                 </li>
-                <li><span class=""font-bold"">Style buttons like a MOLGENIS button</span>: If your page uses buttons,
-                    you may also want to use our button styling. If you add the attribute <code>type=""submit""</code> to
-                    your button, our styles will be automatically applied. You can also disable this feature, by
-                    changing
-                    the ""enable button styles"" setting to ""false"".
+                <li>
+                    <span class=""font-bold block"">Style buttons like a MOLGENIS button</span>
+                    <span>
+                        If your page uses buttons, you can use our button styles. Add the
+                        attribute <code>type=""submit""</code> to your button and our styles
+                        will be automatically applied. You can also disable this feature, by
+                        changing ""enable button styles"" to ""false"". Only primary action
+                        buttons are supported.
+                    </span>
                 </li>
-                <li><span class=""font-bold"">Allow pages to fill the page</span>: By default, custom pages are
-                    have a fixed width. To allow
-                    a page to fill the entire width of a screen, change the setting ""enable
-                    full screen"" to ""false"". </li>
+                <li>
+                    <span class=""font-bold block"">Allow pages to fill the page</span>
+                    <span>
+                        By default, developer pages have a fixed width. This means that pages do not
+                        fill the entire width of the page. This is useful if you are creating
+                        landing pages or displaying general information. If you would to maximise
+                        the space available, this setting can disabled by changing the setting
+                        ""enable full screen"" to ""false"".
+                    </span>
+                </li>
+                <li>
+                    <span class=""font-bold block"">Add external dependencies</span>
+                    <span>
+                        It is also possible to use external CSS or JavaScript dependencies in your page.
+                        To do this, register them in the <a href=""/apps/ui/cms/DependenciesCSS"" class=""underline"">
+                        Dependencies CSS</a> or the <a href=""/apps/ui/cms/DependenciesJS"" class=""underline"">
+                        Dependencies JS</a> table, and then link them in the page settings menu.
+                        <span class=""font-bold"">WARNING:</span> Adding external dependencies may have unintended
+                        side effects with the appearance or functionality of the MOLGENIS UI. If issues
+                        arise, remove the dependency from your page.
+                    </span>
+                </li>
             </ul>
         </div>
     </div>
 </div>",".custom-page .section .section-content {
-    max-width: 712px;
+    max-width: 812px;
     margin: 0 auto;
 }
 
 .custom-page .section {
     padding: 2.5em 0;
-}","console.log(""Hello! This is my custom page"")",,true,true,false,
+}","console.log(""Hello! This is my custom page"")",,true,true,true
