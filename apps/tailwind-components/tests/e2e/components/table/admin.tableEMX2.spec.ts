@@ -1,12 +1,35 @@
 import { expect, test } from "@nuxt/test-utils/playwright";
-
+import { request as apiRequest } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
+import {
+  createSchemaFromTemplate,
+  deleteSchema,
+  RUN_ID,
+  signinAdmin,
+} from "../../../../../ui/tests/e2e/testSchema";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
+test.describe.configure({ mode: "serial" });
+
 test.use({ storageState: "playwright/.auth/user.json" });
+
+let api: APIRequestContext;
+const SCHEMA = `tableEMX2 test ${RUN_ID}`;
+const SCHEMA_PATH = encodeURIComponent(SCHEMA);
+
+test.beforeAll(async () => {
+  api = await apiRequest.newContext();
+  await signinAdmin(api, route);
+  await createSchemaFromTemplate(api, route, SCHEMA, "PET_STORE");
+});
+
+test.afterAll(async () => {
+  await deleteSchema(api, route, SCHEMA);
+  await api.dispose();
+});
 
 test("the row should be removed from the table after deletion", async ({
   page,
