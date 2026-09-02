@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DCAT;
@@ -248,7 +249,7 @@ class FdpRdfExtractorTest {
             .formatted(part.toUri()));
 
     new FdpRdfExtractor(new RemoteRdfExtractor())
-        .withCrawlSteps(new CrawlStep("part", partOf))
+        .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
         .addRdfToRepository(repository, root.toUri());
 
     try (RepositoryConnection connection = repository.getConnection()) {
@@ -291,7 +292,7 @@ class FdpRdfExtractorTest {
       Assertions.assertDoesNotThrow(
           () ->
               new FdpRdfExtractor(new RemoteRdfExtractor())
-                  .withCrawlSteps(new CrawlStep("part", partOf))
+                  .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
                   .addRdfToRepository(repository, root.toUri()));
 
       try (RepositoryConnection connection = repository.getConnection()) {
@@ -308,7 +309,7 @@ class FdpRdfExtractorTest {
 
       FdpRdfExtractor extractor =
           new FdpRdfExtractor(new RemoteRdfExtractor())
-              .withCrawlSteps(new CrawlStep("part", partOf))
+              .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
               .withStrict();
 
       URI uri = root.toUri();

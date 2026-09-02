@@ -1,15 +1,11 @@
 package org.molgenis.emx2.fairmapper.cli.commands;
 
-import static org.molgenis.emx2.fairmapper.extractors.FdpCrawlSteps.CATALOGS;
-import static org.molgenis.emx2.fairmapper.extractors.FdpCrawlSteps.CSVW;
-import static org.molgenis.emx2.fairmapper.extractors.FdpCrawlSteps.DATASETS;
-import static org.molgenis.emx2.fairmapper.extractors.FdpCrawlSteps.DISTRIBUTIONS;
-
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.fairmapper.extractors.CrawlSteps;
 import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
@@ -73,8 +69,7 @@ public class Harvest implements Runnable {
     URI rdfURI = getRdf();
 
     RdfExtractor extractor =
-        new FdpRdfExtractor(new RemoteRdfExtractor())
-            .withCrawlSteps(CATALOGS, DATASETS, DISTRIBUTIONS, CSVW);
+        new FdpRdfExtractor(new RemoteRdfExtractor()).withCrawlSteps(CrawlSteps.FDP.steps());
     SparqlSelectRdfTransformer transformer =
         new SparqlSelectRdfTransformer(
             new TableQueryGenerator(), schema.getMetadata(), List.of(tables));

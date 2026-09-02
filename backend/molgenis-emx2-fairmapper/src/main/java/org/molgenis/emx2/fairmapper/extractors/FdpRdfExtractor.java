@@ -30,7 +30,7 @@ public class FdpRdfExtractor implements RdfExtractor {
   private final boolean strict;
 
   public FdpRdfExtractor(RdfExtractor rdfExtractor) {
-    this(rdfExtractor, FdpCrawlSteps.DEFAULT, false);
+    this(rdfExtractor, CrawlSteps.FDP.steps(), false);
   }
 
   private FdpRdfExtractor(RdfExtractor rdfExtractor, List<CrawlStep> crawlSteps, boolean strict) {
@@ -39,8 +39,8 @@ public class FdpRdfExtractor implements RdfExtractor {
     this.strict = strict;
   }
 
-  public FdpRdfExtractor withCrawlSteps(CrawlStep... crawlSteps) {
-    return new FdpRdfExtractor(rdfExtractor, List.of(crawlSteps), strict);
+  public FdpRdfExtractor withCrawlSteps(List<CrawlStep> crawlSteps) {
+    return new FdpRdfExtractor(rdfExtractor, crawlSteps, strict);
   }
 
   public FdpRdfExtractor withStrict() {
