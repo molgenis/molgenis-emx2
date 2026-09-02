@@ -107,15 +107,15 @@ commands:
         command: find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
     - restore_cache:
         keys:
-          - gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
-          - gradle-deps-v1-
+          - gradle-deps-v4-{{ checksum "concatenated-build-gradle" }}
+          - gradle-deps-v4-
 
   save_gradle_deps:
     steps:
     - save_cache:
         paths:
           - /tmp/ci-cache/gradle
-        key: gradle-deps-v1-{{ checksum "concatenated-build-gradle" }}
+        key: gradle-deps-v4-{{ checksum "concatenated-build-gradle" }}
 
   restore_gradle_build_cache:
     steps:
@@ -129,12 +129,12 @@ commands:
         steps:
         - restore_cache:
             keys:
-              - gradle-buildcache-v1-master-
+              - gradle-buildcache-v4-master-
     - restore_cache:
         keys:
-          - gradle-buildcache-v1-{{ .Branch }}-
-          - gradle-buildcache-v1-master-
-          - gradle-buildcache-v1-
+          - gradle-buildcache-v4-{{ .Branch }}-
+          - gradle-buildcache-v4-master-
+          - gradle-buildcache-v4-
 
   save_gradle_build_cache:
     steps:
@@ -153,7 +153,7 @@ commands:
     - save_cache:
         paths:
           - /tmp/ci-cache/gradle-build-cache
-        key: gradle-buildcache-v1-{{ .Branch }}-{{ .Revision }}
+        key: gradle-buildcache-v4-{{ .Branch }}-{{ .Revision }}
         when: always
 
   restore_turbo_cache:
