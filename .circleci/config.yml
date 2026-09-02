@@ -497,7 +497,16 @@ jobs:
         command: |
           ./gradlew --continue pmdMain pmdTest
     - run:
-        name: run tests and push to sonar
+        name: run tests and merge coverage
+        # Split from sonar so each carries its own timing. The combined step grew from 51s to
+        # 101s over three runs while gradle's task counts stayed identical, and sonar's upload
+        # scales with the pull request where the tests do not. Costs one extra gradle
+        # configuration pass; fold it back once the growth is attributed.
+        command: |
+          ./gradlew test jacocoMergedReport --no-daemon -x :apps:test \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+    - run:
+        name: push results to sonar
         # sonar rejects an empty pullrequest.key, and master has no PR, so the
         # pull-request flags are only passed when there is one.
         command: |
@@ -505,7 +514,7 @@ jobs:
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
             SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
           fi
-          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
+          ./gradlew sonar --no-daemon -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
