@@ -28,7 +28,7 @@ export const buildRecordDetailsQueryFields = (
 
   const allColumns = tableMetaData?.columns;
   const dataColumns = allColumns
-    ?.filter((c) => c.id === "mg_tableclass" || !c.id.startsWith("mg_"))
+    ?.filter((c) => !c.id.startsWith("mg_"))
     .filter((c) => !["HEADING", "SECTION"].includes(c.columnType));
 
   const refTableQueryFields = (refColumn: IColumn): string => {
@@ -47,7 +47,7 @@ export const buildRecordDetailsQueryFields = (
     const allRefColumns = refTableMetaData?.columns;
 
     const refTableDataColumns = allRefColumns
-      ?.filter((c) => c.id === "mg_tableclass" || !c.id.startsWith("mg_"))
+      ?.filter((c) => !c.id.startsWith("mg_"))
       .filter((c) => !["HEADING", "SECTION"].includes(c.columnType));
 
     const refFields = refTableDataColumns?.map((column) => {
@@ -99,7 +99,10 @@ export const buildRecordDetailsQueryFields = (
     }
   });
 
-  const queryFields = fields ? fields.join(" ") : "";
+  const hasMgTableclass = allColumns?.some((c) => c.id === "mg_tableclass");
+  const queryFields =
+    (fields ? fields.join(" ") : "") +
+    (hasMgTableclass ? " mg_tableclass" : "");
 
   return queryFields;
 };

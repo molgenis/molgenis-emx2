@@ -24,10 +24,29 @@ describe("buildRecordDetailsQueryFields", () => {
     };
 
     const expectedFields =
-      "id pid acronym name type { order name label  codesystem code ontologyTermURI definition  } typeOther institution institutionAcronym email logo { id, size, filename, extension, url } address expertise country { order name label  codesystem code ontologyTermURI definition  } features { order name label  codesystem code ontologyTermURI definition  } role { order name label  codesystem code ontologyTermURI definition  } leadingResources { id pid acronym name website   description   logo { id, size, filename, extension, url }    fundingStatement acknowledgements  mg_tableclass } additionalResources { id pid acronym name website   description   logo { id, size, filename, extension, url }    fundingStatement acknowledgements  mg_tableclass } website description contacts {   roleDescription firstName lastName prefix initials   email orcid homepage photo { id, size, filename, extension, url } expertise } mg_tableclass";
+      "id pid acronym name type { order name label  codesystem code ontologyTermURI definition  } typeOther institution institutionAcronym email logo { id, size, filename, extension, url } address expertise country { order name label  codesystem code ontologyTermURI definition  } features { order name label  codesystem code ontologyTermURI definition  } role { order name label  codesystem code ontologyTermURI definition  } leadingResources { id pid acronym name website   description   logo { id, size, filename, extension, url }    fundingStatement acknowledgements  } additionalResources { id pid acronym name website   description   logo { id, size, filename, extension, url }    fundingStatement acknowledgements  } website description contacts {   roleDescription firstName lastName prefix initials   email orcid homepage photo { id, size, filename, extension, url } expertise } mg_tableclass";
 
     expect(
       buildRecordDetailsQueryFields(schemas, "catalogue", "Organisations")
     ).toEqual(expectedFields);
+  });
+
+  it("only appends mg_tableclass for a table that declares the column", () => {
+    const petStoreSchemas = { petStore: petStoreMetadata };
+    expect(
+      buildRecordDetailsQueryFields(petStoreSchemas, "petStore", "Pet")
+    ).not.toContain("mg_tableclass");
+
+    const catalogueSchemas = {
+      catalogue: catalogueMetadata,
+      CatalogueOntologies: catalogueOntologies,
+    };
+    expect(
+      buildRecordDetailsQueryFields(
+        catalogueSchemas,
+        "catalogue",
+        "Organisations"
+      )
+    ).toContain("mg_tableclass");
   });
 });
