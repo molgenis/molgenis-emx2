@@ -49,11 +49,10 @@ public class FdpRdfExtractor implements RdfExtractor {
 
   @Override
   public void addRdfToRepository(Repository repository, URI rootToAdd) {
-    IRI root = Values.iri(stripTrailingSlashes(rootToAdd));
-    logger.info("Crawling FAIR Data Point: {}", root);
-    rdfExtractor.addRdfToRepository(repository, root.stringValue());
+    logger.info("Crawling FAIR Data Point: {}", rootToAdd);
+    rdfExtractor.addRdfToRepository(repository, rootToAdd);
 
-    Set<IRI> frontier = Set.of(root);
+    Set<IRI> frontier = Set.of(Values.iri(rootToAdd.toString()));
     for (CrawlStep step : crawlSteps) {
       frontier = executeStep(repository, frontier, step);
     }
@@ -96,9 +95,5 @@ public class FdpRdfExtractor implements RdfExtractor {
         throw new MolgenisException("Unable to add RDF from " + iri, e);
       }
     }
-  }
-
-  private static String stripTrailingSlashes(URI uri) {
-    return uri.toString().replaceAll("/+$", "");
   }
 }
