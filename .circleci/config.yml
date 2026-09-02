@@ -35,6 +35,9 @@ definitions:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
         POSTGRES_DB: postgres
+      # This database is thrown away with the job, so durability buys nothing and only costs
+      # write throughput. A crash here loses a container nobody restarts.
+      command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -176,6 +179,9 @@ jobs:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
         POSTGRES_DB: postgres
+      # This database is thrown away with the job, so durability buys nothing and only costs
+      # write throughput. A crash here loses a container nobody restarts.
+      command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     working_directory: ~/repo
     resource_class: large
     environment:
