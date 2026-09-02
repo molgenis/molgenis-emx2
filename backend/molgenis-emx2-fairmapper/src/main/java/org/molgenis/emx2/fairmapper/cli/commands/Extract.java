@@ -11,7 +11,7 @@ import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
 import picocli.CommandLine;
@@ -40,7 +40,7 @@ public class Extract implements Runnable {
   public void run() {
     Repository repository = new SailRepository(new NativeStore());
     URI endpoint = URI.create(rdf);
-    RdfExtractor extractor = new FdpRdfExtractor(new RemoteRdfExtractor());
+    RdfExtractor extractor = new CrawlingRdfExtractor(new RemoteRdfExtractor());
     extractor.addRdfToRepository(repository, endpoint);
     try (RepositoryConnection connection = repository.getConnection();
         FileOutputStream fos = new FileOutputStream(outputPath)) {

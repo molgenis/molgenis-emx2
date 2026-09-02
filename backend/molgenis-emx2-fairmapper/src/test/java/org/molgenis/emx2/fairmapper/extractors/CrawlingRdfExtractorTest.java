@@ -21,7 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.rdf.vocabulary.FDPO;
 
-class FdpRdfExtractorTest {
+class CrawlingRdfExtractorTest {
 
   @TempDir static Path tempDir;
 
@@ -103,7 +103,7 @@ class FdpRdfExtractorTest {
 
     extracted = new SailRepository(new MemoryStore());
     valueFactory = extracted.getValueFactory();
-    new FdpRdfExtractor(new RemoteRdfExtractor()).addRdfToRepository(extracted, rootUri);
+    new CrawlingRdfExtractor(new RemoteRdfExtractor()).addRdfToRepository(extracted, rootUri);
   }
 
   @Test
@@ -191,7 +191,7 @@ class FdpRdfExtractorTest {
     Repository extract = new SailRepository(new MemoryStore());
     Assertions.assertDoesNotThrow(
         () ->
-            new FdpRdfExtractor(new RemoteRdfExtractor())
+            new CrawlingRdfExtractor(new RemoteRdfExtractor())
                 .addRdfToRepository(extract, URI.create(endpoint)));
     try (RepositoryConnection connection = extract.getConnection()) {
       connection.getStatements(null, null, null).forEach(System.out::println);
@@ -220,7 +220,7 @@ class FdpRdfExtractorTest {
         """
             .formatted(catalog.toUri()));
 
-    new FdpRdfExtractor(new RemoteRdfExtractor())
+    new CrawlingRdfExtractor(new RemoteRdfExtractor())
         .addRdfToRepository(repository, URI.create(root.toUri() + "//"));
 
     try (RepositoryConnection connection = repository.getConnection()) {
@@ -248,7 +248,7 @@ class FdpRdfExtractorTest {
         """
             .formatted(part.toUri()));
 
-    new FdpRdfExtractor(new RemoteRdfExtractor())
+    new CrawlingRdfExtractor(new RemoteRdfExtractor())
         .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
         .addRdfToRepository(repository, root.toUri());
 
@@ -291,7 +291,7 @@ class FdpRdfExtractorTest {
 
       Assertions.assertDoesNotThrow(
           () ->
-              new FdpRdfExtractor(new RemoteRdfExtractor())
+              new CrawlingRdfExtractor(new RemoteRdfExtractor())
                   .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
                   .addRdfToRepository(repository, root.toUri()));
 
@@ -307,8 +307,8 @@ class FdpRdfExtractorTest {
     void whenStrictMode_thenThrow() throws IOException {
       Files.writeString(root, "<%s> <%s> <%s> .%n".formatted(root.toUri(), partOf, data.toUri()));
 
-      FdpRdfExtractor extractor =
-          new FdpRdfExtractor(new RemoteRdfExtractor())
+      CrawlingRdfExtractor extractor =
+          new CrawlingRdfExtractor(new RemoteRdfExtractor())
               .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
               .withStrict();
 

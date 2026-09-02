@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.fairmapper.extractors.CrawlSteps;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
@@ -69,7 +69,7 @@ public class Harvest implements Runnable {
     URI rdfURI = getRdf();
 
     RdfExtractor extractor =
-        new FdpRdfExtractor(new RemoteRdfExtractor()).withCrawlSteps(CrawlSteps.FDP.steps());
+        new CrawlingRdfExtractor(new RemoteRdfExtractor()).withCrawlSteps(CrawlSteps.FDP.steps());
     SparqlSelectRdfTransformer transformer =
         new SparqlSelectRdfTransformer(
             new TableQueryGenerator(), schema.getMetadata(), List.of(tables));

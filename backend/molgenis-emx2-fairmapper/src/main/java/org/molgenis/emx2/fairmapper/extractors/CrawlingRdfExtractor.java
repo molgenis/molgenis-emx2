@@ -21,30 +21,30 @@ import org.slf4j.LoggerFactory;
  * same repository, so that the next step has triples to query. Fetching and querying therefore have
  * to alternate; a single SPARQL property path would find nothing beyond the first level.
  */
-public class FdpRdfExtractor implements RdfExtractor {
+public class CrawlingRdfExtractor implements RdfExtractor {
 
-  private static final Logger logger = LoggerFactory.getLogger(FdpRdfExtractor.class);
+  private static final Logger logger = LoggerFactory.getLogger(CrawlingRdfExtractor.class);
 
   private final RdfExtractor rdfExtractor;
   private final List<CrawlStep> crawlSteps;
   private final boolean strict;
 
-  public FdpRdfExtractor(RdfExtractor rdfExtractor) {
+  public CrawlingRdfExtractor(RdfExtractor rdfExtractor) {
     this(rdfExtractor, CrawlSteps.FDP.steps(), false);
   }
 
-  private FdpRdfExtractor(RdfExtractor rdfExtractor, List<CrawlStep> crawlSteps, boolean strict) {
+  private CrawlingRdfExtractor(RdfExtractor rdfExtractor, List<CrawlStep> crawlSteps, boolean strict) {
     this.rdfExtractor = rdfExtractor;
     this.crawlSteps = crawlSteps;
     this.strict = strict;
   }
 
-  public FdpRdfExtractor withCrawlSteps(List<CrawlStep> crawlSteps) {
-    return new FdpRdfExtractor(rdfExtractor, crawlSteps, strict);
+  public CrawlingRdfExtractor withCrawlSteps(List<CrawlStep> crawlSteps) {
+    return new CrawlingRdfExtractor(rdfExtractor, crawlSteps, strict);
   }
 
-  public FdpRdfExtractor withStrict() {
-    return new FdpRdfExtractor(rdfExtractor, crawlSteps, true);
+  public CrawlingRdfExtractor withStrict() {
+    return new CrawlingRdfExtractor(rdfExtractor, crawlSteps, true);
   }
 
   @Override
