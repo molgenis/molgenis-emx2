@@ -144,8 +144,11 @@ commands:
         when: always
     - store_test_results:
         path: ~/test-results
-#    - store_artifacts:
-#        path: ./build/libs
+    # store_test_results feeds the summary API, which drops the per-class timestamps. Keep the
+    # raw XML too: with timestamp plus duration you can count how many forks were really busy.
+    - store_artifacts:
+        path: ~/test-results
+        when: always
 
 # jobs for pull request and master
 jobs:
