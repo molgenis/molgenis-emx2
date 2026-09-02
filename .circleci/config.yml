@@ -106,6 +106,18 @@ commands:
           - gradle-v1-{{ .Branch }}-
           - gradle-v1-master-
           - gradle-v1-
+    # A restore takes the FIRST key that matches, so the step above never reaches master's pool
+    # on a branch that has run before. After a merge from master the branch's own pool has no
+    # entry for the code it just took in, and master's has all of them, so restore that too.
+    # Skipped on master, where the step above already restored this exact key.
+    - when:
+        condition:
+          not:
+            equal: [ master, << pipeline.git.branch >> ]
+        steps:
+        - restore_cache:
+            keys:
+              - gradle-v1-master-
 
   save_gradle_cache:
     steps:
@@ -137,6 +149,16 @@ commands:
           - turbo-v3-{{ .Branch }}-
           - turbo-v3-master-
           - turbo-v3-
+    # Same reason as the gradle cache above. Turbo's cache is flat <hash>.tar.zst files, so
+    # extracting master's pool over the branch's unions the two.
+    - when:
+        condition:
+          not:
+            equal: [ master, << pipeline.git.branch >> ]
+        steps:
+        - restore_cache:
+            keys:
+              - turbo-v3-master-
 
   save_turbo_cache:
     steps:
