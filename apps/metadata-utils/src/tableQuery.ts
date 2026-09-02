@@ -1,7 +1,7 @@
 import {
   isValueType,
   isRefType,
-  isArrayType,
+  isMultiValuedType,
   isFileType,
 } from "./fieldHelpers";
 import type {
@@ -201,11 +201,11 @@ const buildKeyFields = (
               )
             );
           }
-        } else if (isArrayType(column)) {
+        } else if (isMultiValuedType(column.columnType)) {
           console.log(
-            "TODO: buildRecordListQueryFields, key column isArrayType, skip for now"
+            "TODO: buildRecordListQueryFields, key column is multi-valued, skip for now"
           );
-        } else if (isFileType(column)) {
+        } else if (isFileType(column.columnType)) {
           console.log(
             "TODO: buildRecordListQueryFields, key column isFileType, skip for now"
           );
@@ -273,11 +273,11 @@ export const extractKeyFromRecord = (
             schemas
           );
         }
-      } else if (isArrayType(column)) {
+      } else if (isMultiValuedType(column.columnType)) {
         console.log(
-          "TODO: extractKeyFromRecord, key column isArrayType, skip for now"
+          "TODO: extractKeyFromRecord, key column is multi-valued, skip for now"
         );
-      } else if (isFileType(column)) {
+      } else if (isFileType(column.columnType)) {
         console.log(
           "TODO: extractKeyFromRecord, key column isFileType, skip for now"
         );
