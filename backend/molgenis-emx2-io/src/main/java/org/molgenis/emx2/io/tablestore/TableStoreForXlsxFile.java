@@ -50,6 +50,11 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
+    writeTableStreaming(name, columnNames, rows::forEach);
+  }
+
+  @Override
+  public void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
     SXSSFWorkbook wb;
     try {
       if (name.length() > 30)
@@ -64,11 +69,7 @@ public class TableStoreForXlsxFile implements TableStore {
             Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
       }
-      if (rows.iterator().hasNext()) {
-        writeRowsToSheet(name, columnNames, rows, wb);
-      } else {
-        writeHeaderOnlyToSheet(name, columnNames, wb);
-      }
+      writeRowsToSheet(name, columnNames, rows, wb);
       // write contents to a temp file and overwrite original
       try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
         wb.write(outputStream);
@@ -80,16 +81,8 @@ public class TableStoreForXlsxFile implements TableStore {
     }
   }
 
-  private void writeHeaderOnlyToSheet(String name, List<String> columnNames, Workbook wb) {
-    Sheet sheet = wb.createSheet(name);
-    org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(0);
-    for (int i = 0; i < columnNames.size(); i++) {
-      excelRow.createCell(i).setCellValue(columnNames.get(i));
-    }
-  }
-
   private void writeRowsToSheet(
-      String name, List<String> columnNames, Iterable<Row> rows, SXSSFWorkbook wb)
+      String name, List<String> columnNames, RowProducer rows, SXSSFWorkbook wb)
       throws IOException {
 
     // create the sheet
@@ -97,44 +90,40 @@ public class TableStoreForXlsxFile implements TableStore {
     // buffer the row so it gets flushed
     sheet.setRandomAccessWindowSize(wb.getRandomAccessWindowSize());
     Map<String, Integer> columnNameIndexMap = new LinkedHashMap<>();
-    int rowNum = 0;
-
-    // write the data
-    for (Row row : rows) {
-      // create header row
-      if (rowNum == 0) {
-        int columnIndex = 0;
-        // define the column indexes
-        for (String columnName : columnNames) {
-          columnNameIndexMap.put(columnName, columnIndex++);
-        }
-        // write a header row
-        org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
-        for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
-          excelRow.createCell(entry.getValue()).setCellValue(entry.getKey());
-        }
-        rowNum++;
-      }
-      // write a contents row
-      org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
-      for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
-        try {
-          String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
-          excelRow.createCell(entry.getValue()).setCellValue(cellValue);
-        } catch (IllegalArgumentException e) {
-          throw new MolgenisException(
-              "Error writing table '"
-                  + name
-                  + "', column '"
-                  + entry.getKey()
-                  + "', at row "
-                  + rowNum
-                  + ": "
-                  + e.getMessage());
-        }
-      }
-      rowNum++;
+    int columnIndex = 0;
+    for (String columnName : columnNames) {
+      columnNameIndexMap.put(columnName, columnIndex++);
     }
+
+    // write a header row
+    org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
+    for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
+      headerRow.createCell(entry.getValue()).setCellValue(entry.getKey());
+    }
+
+    // rowNum lives outside the lambda, so a Consumer<Row> can still count rows
+    int[] rowNum = {1};
+    rows.produce(
+        row -> {
+          org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum[0]);
+          for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
+            try {
+              String cellValue = ExcelIOUtil.toExcelFormat(row, entry.getKey());
+              excelRow.createCell(entry.getValue()).setCellValue(cellValue);
+            } catch (IllegalArgumentException e) {
+              throw new MolgenisException(
+                  "Error writing table '"
+                      + name
+                      + "', column '"
+                      + entry.getKey()
+                      + "', at row "
+                      + rowNum[0]
+                      + ": "
+                      + e.getMessage());
+            }
+          }
+          rowNum[0]++;
+        });
     sheet.flushRows();
   }
 
