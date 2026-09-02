@@ -33,6 +33,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                 mg_tableclass
                 
                 # ui settings for blocks: settings
+                columns
                 enableFullScreenWidth
                 applyShadedBackground
                 

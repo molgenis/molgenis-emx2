@@ -1,4 +1,4 @@
-id,in container,apply shaded background
-home-section-features,home,
-home-section-applications,home,true
-home-section-navigation,home,
+id,in container,apply shaded background,columns,
+home-section-features,home,1,
+home-section-applications,home,true,1,
+home-section-navigation,home,1,

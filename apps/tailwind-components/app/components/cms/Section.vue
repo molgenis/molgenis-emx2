@@ -6,12 +6,13 @@ import ComponentActions from "./ComponentActions.vue";
 const props = withDefaults(
   defineProps<ISections & { isEditable?: boolean }>(),
   {
+    columns: 1,
     enableFullScreenWidth: false,
     applyShadedBackground: false,
     isEditable: false,
   }
 );
-
+console.log(">", props.columns, props);
 const emit = defineEmits(["edit", "delete"]);
 const showMenu = ref<boolean>(false);
 </script>
@@ -42,10 +43,11 @@ const showMenu = ref<boolean>(false);
         class="flex items-center justify-center py-4 pr-8 w-0 relative h-full"
       >
         <div class="border border-dashed w-0 absolute top-3 bottom-3"></div>
-
-        <span class="text-button-disabled rotate-90 inline-block pb-6"
-          >Section</span
+        <span
+          class="text-button-disabled rotate-90 inline-block pb-6 whitespace-nowrap"
         >
+          Section<span v-if="columns > 1"> - {{ columns }} columns</span>
+        </span>
       </div>
     </VMenu>
 
@@ -60,6 +62,12 @@ const showMenu = ref<boolean>(false);
         :class="{
           'w-pg-section': !enableFullScreenWidth,
           'w-full': enableFullScreenWidth,
+          grid: columns > 1,
+          'gap-4': columns > 1,
+          'grid-cols-2': columns === 2,
+          'grid-cols-3': columns === 3,
+          'grid-cols-4': columns === 4,
+          'grid-cols-5': columns === 5,
         }"
       >
         <slot></slot>

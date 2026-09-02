@@ -105,28 +105,44 @@ const sidebarCollapsed = ref(false);
             @updatePage="$emit('updatePage')"
           />
           <template
-            v-for="orderedComponent in orderedBlock.block.componentOrder"
+            v-for="(orderedComponent, index) in orderedBlock.block
+              .componentOrder"
             :key="orderedComponent.id"
           >
-            <PageComponent
-              :mg_tableclass="orderedComponent.component.mg_tableclass"
-              :component="orderedComponent.component"
-              :orderId="orderedComponent.id"
-              componentType="Component"
-              :parent="orderedBlock.block.id"
-              :isEditable="isEditable"
-              :metadata="metadata"
-              @updatePage="$emit('updatePage')"
-            />
-            <ComponentDropZone
-              v-if="isEditable"
-              :draggingInfo="draggingInfo"
-              :schema="schema"
-              :order="orderedComponent.order + 1"
-              :parent="orderedBlock.block.id"
-              componentType="Component"
-              @updatePage="$emit('updatePage')"
-            />
+            <div>
+              <ComponentDropZone
+                v-if="index === 0 && isEditable"
+                :draggingInfo="draggingInfo"
+                :schema="schema"
+                :order="
+                  orderedBlock.block?.componentOrder
+                    ? orderedBlock.block.componentOrder[0].order
+                    : orderedBlock.block.order
+                "
+                :parent="orderedBlock.block.id"
+                componentType="Component"
+                @updatePage="$emit('updatePage')"
+              />
+              <PageComponent
+                :mg_tableclass="orderedComponent.component.mg_tableclass"
+                :component="orderedComponent.component"
+                :orderId="orderedComponent.id"
+                componentType="Component"
+                :parent="orderedBlock.block.id"
+                :isEditable="isEditable"
+                :metadata="metadata"
+                @updatePage="$emit('updatePage')"
+              />
+              <ComponentDropZone
+                v-if="isEditable"
+                :draggingInfo="draggingInfo"
+                :schema="schema"
+                :order="orderedComponent.order + 1"
+                :parent="orderedBlock.block.id"
+                componentType="Component"
+                @updatePage="$emit('updatePage')"
+              />
+            </div>
           </template>
         </PageComponent>
         <TextParagraph

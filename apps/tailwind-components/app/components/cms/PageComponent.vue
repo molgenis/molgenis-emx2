@@ -108,9 +108,11 @@ async function doDelete(): Promise<void> {
     @edit="showEditModal = true"
     @delete="onDelete"
   />
+
   <Section
     v-else-if="mg_tableclass.endsWith('.Sections')"
     :id="component.id"
+    :columns="component.columns"
     :enable-full-screen-width="component.enableFullScreenWidth"
     :applyShadedBackground="component.applyShadedBackground"
     :isEditable="editingIsEnabled"

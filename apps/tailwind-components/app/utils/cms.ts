@@ -210,16 +210,22 @@ export async function addBlock(
   if (componentType === "Section") {
     await AddSection(schema, id);
   }
+  if (componentType === "Section - 2 Columns") {
+    await AddSection(schema, id, 2);
+  }
+  if (componentType === "Section - 3 Columns") {
+    await AddSection(schema, id, 3);
+  }
   await AddBlockOrder(schema, id, order, page);
 }
 
-async function AddSection(schema: string, id: string) {
+async function AddSection(schema: string, id: string, columns: number = 1) {
   const query = `mutation insert($section:[SectionsInput]) {
     insert(Sections:$section) {
       message
     }
   }`;
-  const variables = { section: [{ id: `${id}` }] };
+  const variables = { section: [{ id: `${id}`, columns }] };
   await cmsFetch(schema, query, variables);
 }
 
