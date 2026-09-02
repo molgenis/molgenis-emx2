@@ -68,6 +68,9 @@ commands:
       layer_cache:
         type: boolean
         default: true
+      gradle_deps:
+        type: boolean
+        default: true
     steps:
     - run:
         name: Fresh Git Checkout to prevent missing objects
@@ -98,7 +101,12 @@ commands:
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
-    - restore_gradle_deps
+    # Off for the jobs that run no gradle target: restoring it costs them 8s to unpack
+    # dependencies nothing reads.
+    - when:
+        condition: << parameters.gradle_deps >>
+        steps:
+        - restore_gradle_deps
 
   restore_gradle_deps:
     steps:
@@ -586,7 +594,8 @@ jobs:
     <<: *build_config
 
     steps:
-    - pre_steps
+    - pre_steps:
+        gradle_deps: false
 
     - attach_workspace:
         at: .
@@ -635,6 +644,7 @@ jobs:
       # the layer cache costs an upload every run and repays it on almost none.
       - pre_steps:
           layer_cache: false
+          gradle_deps: false
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
@@ -676,7 +686,8 @@ jobs:
       GHA_PREVIEW_NR: << pipeline.parameters.GHA_Meta >>
     
     steps:
-    - pre_steps
+    - pre_steps:
+        gradle_deps: false
     
     - run:
         name: delete preview on azure
@@ -689,7 +700,8 @@ jobs:
     <<: *build_config
 
     steps:
-      - pre_steps
+      - pre_steps:
+          gradle_deps: false
 
       # Check if we should run this week
       - run:
