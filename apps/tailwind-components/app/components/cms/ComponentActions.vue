@@ -18,7 +18,7 @@ const emit = defineEmits(["edit", "delete", "move"]);
         @dragend="$emit('move', 'release')"
       >
         {{ name }}
-        <BaseIcon name="drag" :width="16" :height="16" />
+        <BaseIcon name="drag" :width="16" :height="16" class="ml-2" />
       </div>
       <div class="border-l border-dashed h-5"></div>
       <Button
