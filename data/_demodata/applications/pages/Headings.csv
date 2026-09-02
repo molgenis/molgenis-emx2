@@ -1,7 +1,7 @@
 id,in block,text,heading is centered,level
-demo-landing-page-overview-h-1,demo-landing-page-overview,Overview,false,2
-demo-landing-page-features-h-1,demo-landing-page-features,Features,false,2
+demo-landing-page-overview-h-1,demo-landing-page-overview,Overview,true,2
+demo-landing-page-features-h-1,demo-landing-page-features,Features,true,2
 demo-landing-page-features-h-2,demo-landing-page-features,Blocks,false,3
 demo-landing-page-features-h-3,demo-landing-page-features,Components,false,3
-demo-landing-page-information-h-1,demo-landing-page-information,Additional information,false,2
-demo-landing-page-notice-h-1,demo-landing-page-notice,Note,false,2
+demo-landing-page-information-h-1,demo-landing-page-information,Additional information,true,2
+demo-landing-page-notice-h-1,demo-landing-page-notice,Note,true,2
