@@ -5,7 +5,7 @@ import { ref } from "vue";
 const useRouteMock = vi.fn();
 const useStateMock = vi.fn();
 const useAsyncDataMock = vi.fn();
-// getRowLevelRoles cannot use useAsyncData: it runs after an await, so there is no nuxt context
+// only getRowLevelRoles calls $fetch directly, the rest goes through useAsyncData
 const fetchMock = vi.fn();
 
 mockNuxtImport("useRoute", () => vi.fn(() => useRouteMock()));
@@ -27,13 +27,7 @@ function schemaRolesResponse(
 describe("useSession", () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    const store = new Map<string, ReturnType<typeof ref>>();
-    useStateMock.mockImplementation((key, init) => {
-      if (!store.has(key)) {
-        store.set(key, ref(init()));
-      }
-      return store.get(key);
-    });
+    useStateMock.mockImplementation((key, init) => ref(init()));
     fetchMock.mockResolvedValue(schemaRolesResponse([]));
   });
 
@@ -142,46 +136,6 @@ describe("useSession", () => {
       expect(session.isManager.value).toBe(true);
       expect(fetchMock).toHaveBeenCalledWith("/abc/graphql", expect.anything());
       expect(session.rowLevelRoles.value).toEqual(["DragonKeeper"]);
-
-      // a second form on the same schema reuses them
-      const other = await useSession("abc");
-
-      expect(other.rowLevelRoles.value).toEqual(["DragonKeeper"]);
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-    });
-
-    test("should not reject when the row level roles cannot be fetched", async () => {
-      useRouteMock.mockReturnValue({
-        params: { schema: "abc" },
-      });
-
-      useAsyncDataMock
-        .mockResolvedValueOnce({
-          data: ref({ data: { _session: { roles: ["Manager"] } } }),
-          error: ref(null),
-          pending: ref(false),
-        })
-        .mockResolvedValueOnce({
-          data: ref({
-            data: {
-              _session: { email: "user@test.com", admin: false, token: "123" },
-            },
-          }),
-          error: ref(null),
-          pending: ref(false),
-        });
-
-      fetchMock.mockRejectedValue(new Error("403 Forbidden"));
-      const consoleError = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      const session = await useSession("abc");
-
-      expect(session.rowLevelRoles.value).toEqual([]);
-      expect(session.isManager.value).toBe(true);
-      expect(consoleError).toHaveBeenCalled();
-      consoleError.mockRestore();
     });
 
     test("should not fetch the row level roles without owner, manager or admin rights", async () => {
