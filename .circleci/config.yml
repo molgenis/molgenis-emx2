@@ -152,6 +152,10 @@ commands:
     - store_artifacts:
         path: ~/test-results
         when: always
+    # The step log is truncated to its last 400KB, which loses task dispatch. Keep the whole one.
+    - store_artifacts:
+        path: ~/gradle-logs
+        when: always
 
 # jobs for pull request and master
 jobs:
@@ -469,10 +473,15 @@ jobs:
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
             SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
           fi
-          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
+          # tee keeps the log on stdout AND whole on disk: CircleCI truncates a step log to its
+          # last 400KB, which loses the task dispatch this run exists to show. pipefail keeps the
+          # step failing on gradle's exit code rather than tee's.
+          set -o pipefail
+          mkdir -p ~/gradle-logs
+          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test --console=plain \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          $SONAR_PR_ARGS
+          $SONAR_PR_ARGS 2>&1 | tee ~/gradle-logs/test-backend.log
 
     - post_steps
 
