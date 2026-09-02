@@ -12,7 +12,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
@@ -38,7 +38,7 @@ public class HarvestingPipeline {
 
   public void execute() {
     logger.info("Starting harvesting pipeline: {}", harvestId);
-    Repository repository = new SailRepository(new MemoryStore());
+    Repository repository = new SailRepository(new NativeStore());
 
     if (config.dumpEnabled() && !outputDirectory().toFile().mkdirs()) {
       throw new MolgenisException("Could not create output directory: " + config.outputPath());

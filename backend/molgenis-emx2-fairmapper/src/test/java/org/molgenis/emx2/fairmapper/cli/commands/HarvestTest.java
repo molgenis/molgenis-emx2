@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.StageCsvwPreProcessor;
@@ -52,7 +52,7 @@ class HarvestTest {
   void shouldConfigureFdpExtractorAndSparqlTransformer() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
-    assertInstanceOf(FdpRdfExtractor.class, config.extractor());
+    assertInstanceOf(CrawlingRdfExtractor.class, config.extractor());
     assertInstanceOf(SparqlSelectRdfTransformer.class, config.transformer());
   }
 
