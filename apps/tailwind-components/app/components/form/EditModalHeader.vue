@@ -18,7 +18,7 @@ const { formValues, schemaId } = defineProps<{
   isInsert: boolean;
 }>();
 
-const session = await useSession(schemaId);
+const session = useSession(schemaId);
 
 const selectedRole = ref<string>(getSelectedRole());
 

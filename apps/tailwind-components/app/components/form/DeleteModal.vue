@@ -40,7 +40,7 @@ const visible = defineModel("visible", {
 const deleteErrorMessage = ref<string>("");
 const cascadeDeleteMsg = ref<string | null>(null);
 
-const session = await useSession();
+const session = useSession();
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 

@@ -49,7 +49,7 @@ const pageType = defineModel<ICmsPageTypes | undefined>();
 const showFormModal = ref<boolean>(false);
 const visible = defineModel<boolean>("visible");
 
-const { isAdmin, session } = await useSession(schema);
+const { isAdmin, session } = useSession(schema);
 const enableEditing = computed(() => {
   return (
     session.value?.roles?.[schema as string]?.includes("Manager") ||

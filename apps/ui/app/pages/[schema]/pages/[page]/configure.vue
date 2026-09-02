@@ -30,7 +30,7 @@ const crumbs: Crumb[] = [
   { label: page as string, url: "" },
 ];
 
-const { isAdmin, session } = await useSession(schema);
+const { isAdmin, session } = useSession(schema);
 const enableEditing = computed(() => {
   return (
     session.value?.roles?.[schema as string]?.includes("Manager") ||

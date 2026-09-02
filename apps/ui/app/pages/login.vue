@@ -74,7 +74,7 @@ async function signin() {
     loading.value = false;
 
     if (signinResp?.data.signin.status === "SUCCESS") {
-      await (await useSession(route.query.schema as string)).reload();
+      await useSession(route.query.schema as string).reload();
 
       // Send a message to the opener
       if (window && window.opener) {

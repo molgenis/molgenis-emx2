@@ -13,7 +13,7 @@ import BaseIcon from "../../BaseIcon.vue";
 import Modal from "../../Modal.vue";
 import { isMgError } from "../../../utils/typeUtils";
 
-const session = await useSession();
+const session = useSession();
 
 const props = defineProps<{
   schemaId: string;

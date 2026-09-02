@@ -8,7 +8,7 @@ import type {
 } from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
 
-export const useSession = async (schemaId?: string) => {
+export const useSession = (schemaId?: string) => {
   const router = useRouter();
   const session = useState("session", () => null as ISession | null);
 
@@ -17,17 +17,24 @@ export const useSession = async (schemaId?: string) => {
   const isAdmin = computed(() => session.value?.admin || false);
   const isOwner = computed(() => hasRole("Owner"));
   const isManager = computed(() => hasRole("Manager"));
-  const rowLevelRoles = ref<string[]>(await getRowLevelRoles());
+  const rowLevelRoles = ref<string[]>([]);
+  const isInitialized = ref(false);
 
   const tablePermissions = computed<ITablePermission[]>(() =>
     schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
   );
 
-  if (
-    !session.value ||
-    (schemaId && session.value.roles?.[schemaId] === undefined)
-  ) {
-    await loadSession();
+  initializeSession();
+
+  async function initializeSession() {
+    if (
+      !session.value ||
+      (schemaId && session.value.roles?.[schemaId] === undefined)
+    ) {
+      await loadSession();
+    }
+    rowLevelRoles.value = await getRowLevelRoles();
+    isInitialized.value = true;
   }
 
   function hasRole(role: string): boolean {
@@ -218,6 +225,7 @@ export const useSession = async (schemaId?: string) => {
     rowLevelRoles,
     session,
     tablePermissions,
+    isInitialized,
 
     getTablePermission,
     reload,

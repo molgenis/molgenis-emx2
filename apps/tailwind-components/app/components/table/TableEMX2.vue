@@ -479,7 +479,7 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-const { isAdmin, isOwner, isManager } = await useSession(props.schemaId);
+const { isAdmin, isOwner, isManager } = useSession(props.schemaId);
 
 const filters: UseFilters | null = props.enableFilters
   ? useFilters(

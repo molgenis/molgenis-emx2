@@ -34,7 +34,9 @@ describe("useSession", () => {
         pending: ref(false),
       });
 
-      const session = await useSession();
+      const session = useSession();
+
+      await vi.waitFor(() => expect(session.isInitialized.value).toBe(true));
 
       expect(session.isAdmin.value).toEqual(true);
       expect(session.session.value).toEqual({
@@ -73,7 +75,9 @@ describe("useSession", () => {
           pending: ref(false),
         });
 
-      const session = await useSession("abc");
+      const session = useSession("abc");
+
+      await vi.waitFor(() => expect(session.isInitialized.value).toBe(true));
 
       expect(session.session.value?.roles).toEqual({
         abc: ["Editor"],
@@ -98,7 +102,9 @@ describe("useSession", () => {
         pending: ref(false),
       });
 
-      const session = await useSession();
+      const session = useSession();
+
+      await vi.waitFor(() => expect(session.isInitialized.value).toBe(true));
 
       expect(session.session.value?.roles).toBeUndefined();
       expect(session.session.value?.tablePermissions).toBeUndefined();
@@ -150,7 +156,9 @@ describe("useSession", () => {
           .mockResolvedValueOnce(permissionsResult)
           .mockResolvedValueOnce(sessionResult);
 
-        const session = await useSession("pet store");
+        const session = useSession("pet store");
+
+        await vi.waitFor(() => expect(session.isInitialized.value).toBe(true));
 
         expect(session.session.value?.roles).toEqual({ "pet store": roles });
         expect(session.session.value?.tablePermissions).toEqual({
