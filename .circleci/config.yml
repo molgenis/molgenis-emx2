@@ -39,9 +39,8 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      # Temporary: 4 with maxParallelForks=4, since test forks may draw from this same budget.
-      # Temporary: 4g daemon heap against gradle.properties' 2048M, to see if compile is GC-bound.
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4 -Dorg.gradle.jvmargs=-Xmx4g"
+      # Temporary: 6 on 4 cores. Forks blocked on postgres hold no core, so oversubscribe.
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6"
       TERM: dumb
   release_config: &release_config
     docker:

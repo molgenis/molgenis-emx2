@@ -86,9 +86,8 @@ sonar {
 }
 
 tasks.withType(Test) {
-    // Temporary: 4 forks against job 89208's 2, to see whether tuned postgres takes the load.
-    // Revert both lines after the measurement. The Math.max guard is the part that stays.
-    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
+    // Temporary: 6 forks on 4 cores, paired with workers.max=6. The Math.max guard is what stays.
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors() + 2)
     maxHeapSize = '2g'
 }
 
