@@ -25,32 +25,30 @@ public class CrawlingRdfExtractor implements RdfExtractor {
 
   private static final Logger logger = LoggerFactory.getLogger(CrawlingRdfExtractor.class);
 
-  private final RdfExtractor rdfExtractor;
   private final List<CrawlStep> crawlSteps;
   private final boolean strict;
 
-  public CrawlingRdfExtractor(RdfExtractor rdfExtractor) {
-    this(rdfExtractor, CrawlSteps.FDP.steps(), false);
+  public CrawlingRdfExtractor() {
+    this(CrawlSteps.FDP.steps(), false);
   }
 
-  private CrawlingRdfExtractor(RdfExtractor rdfExtractor, List<CrawlStep> crawlSteps, boolean strict) {
-    this.rdfExtractor = rdfExtractor;
+  private CrawlingRdfExtractor(List<CrawlStep> crawlSteps, boolean strict) {
     this.crawlSteps = crawlSteps;
     this.strict = strict;
   }
 
   public CrawlingRdfExtractor withCrawlSteps(List<CrawlStep> crawlSteps) {
-    return new CrawlingRdfExtractor(rdfExtractor, crawlSteps, strict);
+    return new CrawlingRdfExtractor(crawlSteps, strict);
   }
 
   public CrawlingRdfExtractor withStrict() {
-    return new CrawlingRdfExtractor(rdfExtractor, crawlSteps, true);
+    return new CrawlingRdfExtractor(crawlSteps, true);
   }
 
   @Override
   public void addRdfToRepository(Repository repository, URI rootToAdd) {
     logger.info("Crawling FAIR Data Point: {}", rootToAdd);
-    rdfExtractor.addRdfToRepository(repository, rootToAdd);
+    fetch(repository, rootToAdd);
 
     Set<IRI> frontier = Set.of(Values.iri(rootToAdd.toString()));
     for (CrawlStep step : crawlSteps) {
@@ -71,7 +69,10 @@ public class CrawlingRdfExtractor implements RdfExtractor {
           step.predicate());
     }
 
-    results.forEach(iri -> fetch(repository, iri));
+    results.stream()
+        .map(iri -> URI.create(iri.stringValue()))
+        .forEach(iri -> fetch(repository, iri));
+
     return results;
   }
 
@@ -86,13 +87,14 @@ public class CrawlingRdfExtractor implements RdfExtractor {
     }
   }
 
-  private void fetch(Repository repository, IRI iri) {
-    try {
-      rdfExtractor.addRdfToRepository(repository, iri.stringValue());
-    } catch (RuntimeException e) {
-      logger.error("Could not add RDF from {}", iri, e);
+  private void fetch(Repository repository, URI uri) {
+    try (RepositoryConnection conn = repository.getConnection()) {
+      logger.info("Extracting rdf from endpoint: {}", uri);
+      conn.add(uri.toURL());
+    } catch (Exception e) {
+      logger.error("Could not add RDF from {}", uri, e);
       if (strict) {
-        throw new MolgenisException("Unable to add RDF from " + iri, e);
+        throw new MolgenisException("Unable to add RDF from " + uri, e);
       }
     }
   }

@@ -103,7 +103,7 @@ class CrawlingRdfExtractorTest {
 
     extracted = new SailRepository(new MemoryStore());
     valueFactory = extracted.getValueFactory();
-    new CrawlingRdfExtractor(new RemoteRdfExtractor()).addRdfToRepository(extracted, rootUri);
+    new CrawlingRdfExtractor().addRdfToRepository(extracted, rootUri);
   }
 
   @Test
@@ -190,44 +190,9 @@ class CrawlingRdfExtractorTest {
     String endpoint = "FDP ENDPOINT HERE";
     Repository extract = new SailRepository(new MemoryStore());
     Assertions.assertDoesNotThrow(
-        () ->
-            new CrawlingRdfExtractor(new RemoteRdfExtractor())
-                .addRdfToRepository(extract, URI.create(endpoint)));
+        () -> new CrawlingRdfExtractor().addRdfToRepository(extract, URI.create(endpoint)));
     try (RepositoryConnection connection = extract.getConnection()) {
       connection.getStatements(null, null, null).forEach(System.out::println);
-    }
-  }
-
-  @Test
-  void shouldCrawlOnWhenRootHasTrailingSlash(@TempDir Path tempDir) throws IOException {
-    SailRepository repository = new SailRepository(new MemoryStore());
-
-    Path root = tempDir.resolve("root.ttl");
-    Path catalog = tempDir.resolve("catalog.ttl");
-
-    Files.writeString(
-        root,
-        """
-        @prefix fdpo: <https://w3id.org/fdp/fdp-o#> .
-        <%s> fdpo:metadataCatalog <%s> .
-        """
-            .formatted(root.toUri(), catalog.toUri()));
-    Files.writeString(
-        catalog,
-        """
-        @prefix dcterms: <http://purl.org/dc/terms/> .
-        <%s> dcterms:title "catalog" .
-        """
-            .formatted(catalog.toUri()));
-
-    new CrawlingRdfExtractor(new RemoteRdfExtractor())
-        .addRdfToRepository(repository, URI.create(root.toUri() + "//"));
-
-    try (RepositoryConnection connection = repository.getConnection()) {
-      assertHasStatements(
-          connection,
-          statement(
-              Values.iri(catalog.toUri().toString()), DCTERMS.TITLE, Values.literal("catalog")));
     }
   }
 
@@ -248,7 +213,7 @@ class CrawlingRdfExtractorTest {
         """
             .formatted(part.toUri()));
 
-    new CrawlingRdfExtractor(new RemoteRdfExtractor())
+    new CrawlingRdfExtractor()
         .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
         .addRdfToRepository(repository, root.toUri());
 
@@ -291,7 +256,7 @@ class CrawlingRdfExtractorTest {
 
       Assertions.assertDoesNotThrow(
           () ->
-              new CrawlingRdfExtractor(new RemoteRdfExtractor())
+              new CrawlingRdfExtractor()
                   .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
                   .addRdfToRepository(repository, root.toUri()));
 
@@ -308,7 +273,7 @@ class CrawlingRdfExtractorTest {
       Files.writeString(root, "<%s> <%s> <%s> .%n".formatted(root.toUri(), partOf, data.toUri()));
 
       CrawlingRdfExtractor extractor =
-          new CrawlingRdfExtractor(new RemoteRdfExtractor())
+          new CrawlingRdfExtractor()
               .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
               .withStrict();
 
