@@ -225,7 +225,7 @@ public class CsvApi {
 
     // The cursor's transaction holds an ACCESS SHARE lock that blocks ALTER TABLE, so it is
     // closed before the client, whose speed we do not control, is written to.
-    Path csv = Files.createTempFile("emx2-download-", ".csv");
+    Path csv = Files.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".csv");
     try {
       try (Writer writer = Files.newBufferedWriter(csv, StandardCharsets.UTF_8)) {
         Consumer<Row> rowWriter = CsvTableWriter.rowWriter(columnNames, writer, getSeparator(ctx));
