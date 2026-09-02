@@ -174,58 +174,46 @@ const pageFilterTemplate: IFilter[] = [
 ];
 
 async function fetchResourceOptions(): Promise<INode[]> {
+  const orPart = `{ _or: [
+    {
+      partOfNetworks: { equals: [{ id: "${catalogueRouteParam}" }] },
+    },
+    {
+      parentNetworks: { equals: [{ id: "${catalogueRouteParam}" }] },
+    },
+    {
+      partOfNetworks: {
+        childNetworks: {
+          equals: [{ id: "${catalogueRouteParam}" }],
+        },
+      },
+    },
+    {
+      partOfNetworks: {
+        parentNetworks: {
+          equals: [{ id: "${catalogueRouteParam}" }],
+        },
+      },
+    },
+    ]}`;
+
   const { data, error } = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
       query: `
-            query Resources($resourcesFilter: ResourcesFilter) {
-              Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
+         { 
+            Resources(filter: {
+              _and: [
+                {mg_tableclass: {not_equals: "${schema}.Catalogues"}}
+                {mg_tableclass: {not_equals: "${schema}.Networks"}}
+                ${scoped ? orPart : ""}
+              ]
+            }, orderby: { id: ASC }) {
                 id
                 name
-              }
+                mg_tableclass
             }
-          `,
-      variables: scoped
-        ? {
-            resourcesFilter: {
-              _and: [
-                { mg_tableclass: { not_equals: `${schema}.Networks` } },
-                { mg_tableclass: { not_equals: `${schema}.Catalogues` } },
-                {
-                  _or: [
-                    {
-                      partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
-                    },
-                    {
-                      parentNetworks: { equals: [{ id: catalogueRouteParam }] },
-                    },
-                    {
-                      partOfNetworks: {
-                        childNetworks: {
-                          equals: [{ id: catalogueRouteParam }],
-                        },
-                      },
-                    },
-                    {
-                      partOfNetworks: {
-                        parentNetworks: {
-                          equals: [{ id: catalogueRouteParam }],
-                        },
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-          }
-        : {
-            resource: {
-              _or: [
-                { mg_tableclass: { equals: `${schema}.Networks` } },
-                { mg_tableclass: { equals: `${schema}.Catalogues` } },
-              ],
-            },
-          },
+          }`,
     },
   });
 
@@ -304,28 +292,40 @@ const filter = computed(() => {
 
 const fetchData = async () => {
   let resourcesFilter: any = {};
-  if (scoped) {
-    resourcesFilter = {
-      _or: [
-        {
-          parentNetworks: { equals: [{ id: catalogueRouteParam }] },
-        },
-        {
-          partOfNetworks: {
+
+  resourcesFilter = scoped
+    ? {
+        _and: [
+          { mg_tableclass: { not_equals: `${schema}.Catalogues` } },
+          { mg_tableclass: { not_equals: `${schema}.Networks` } },
+          {
             _or: [
-              { equals: [{ id: catalogueRouteParam }] },
-              {
-                childNetworks: { equals: [{ id: catalogueRouteParam }] },
-              },
               {
                 parentNetworks: { equals: [{ id: catalogueRouteParam }] },
               },
+              {
+                partOfNetworks: {
+                  _or: [
+                    { equals: [{ id: catalogueRouteParam }] },
+                    {
+                      childNetworks: { equals: [{ id: catalogueRouteParam }] },
+                    },
+                    {
+                      parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+                    },
+                  ],
+                },
+              },
             ],
           },
-        },
-      ],
-    };
-  }
+        ],
+      }
+    : {
+        _and: [
+          { mg_tableclass: { not_equals: `${schema}.Catalogues` } },
+          { mg_tableclass: { not_equals: `${schema}.Networks` } },
+        ],
+      };
 
   // add 'special' filter for harmonisation x-axis if 'resources' filter is set
   const resourceConditions = (
