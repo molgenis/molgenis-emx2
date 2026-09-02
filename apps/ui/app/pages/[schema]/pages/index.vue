@@ -13,12 +13,11 @@ import EditModal from "../../../../../tailwind-components/app/components/form/Ed
 import Message from "../../../../../tailwind-components/app/components/Message.vue";
 import NoResultsMessage from "../../../../../tailwind-components/app/components/text/NoResultsMessage.vue";
 import PageSelector from "../../../../../tailwind-components/app/components/cms/gallery/PageSelector.vue";
+import PageGalleryCard from "../../../../../tailwind-components/app/components/cms/gallery/PageGalleryCard.vue";
 
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import fetchTableData from "../../../../../tailwind-components/app/composables/fetchTableData";
 import {
-  setCmsEditorUrl,
-  setCmsViewUrl,
   newDeveloperPage,
   addBlock,
   addComponent,
@@ -160,30 +159,12 @@ async function onAddFormValues(value: IContainers) {
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 flew-wrap justify-start items-center gap-7.5"
       v-if="data?.containers"
     >
-      <div
+      <PageGalleryCard
         v-for="container in data.containers"
-        class="relative group border rounded-base w-full h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend text-title-contrast"
-      >
-        <div
-          v-if="enableEditing"
-          class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
-          v-tooltip.bottom="`Edit`"
-        >
-          <NuxtLink
-            :to="setCmsEditorUrl(schema, (container.mg_tableclass as string), container.name)"
-            class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
-          >
-            <BaseIcon name="Edit" :width="18" />
-            <span class="sr-only">edit page</span>
-          </NuxtLink>
-        </div>
-        <NuxtLink
-          :to="setCmsViewUrl(schema, container.name)"
-          class="hover:underline"
-        >
-          {{ container.name }}
-        </NuxtLink>
-      </div>
+        :isEditable="enableEditing"
+        :schema="schema"
+        :container="container"
+      />
     </div>
     <div v-else-if="!data?.containers" class="w-full text-center">
       <NoResultsMessage
