@@ -247,8 +247,12 @@ public class CsvApi {
         in.transferTo(out);
       }
     } finally {
-      Files.deleteIfExists(csv);
-      Files.deleteIfExists(tempDir);
+      // nested: a failure to delete the file must not skip the directory
+      try {
+        Files.deleteIfExists(csv);
+      } finally {
+        Files.deleteIfExists(tempDir);
+      }
     }
   }
 
