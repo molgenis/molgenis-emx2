@@ -24,7 +24,7 @@ public class ImportRowProcessor implements RowProcessor {
   public ImportRowProcessor(Table table, Task task, UpdateMode updateMode) {
     this.table = table;
     this.task = task;
-    this.updateMode = updateMode;
+    this.updateMode = java.util.Objects.requireNonNull(updateMode, "updateMode cannot be null");
   }
 
   @Override
