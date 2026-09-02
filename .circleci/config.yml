@@ -41,8 +41,9 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      # Temporary: 4, the measured best. 6 raced a test that mutates the shared _SYSTEM_ schema.
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
+      # Temporary: 6 workers, forks left at 4. Tests wait on postgres more than they compute, so
+      # a blocked worker holds no core. Watch the 10s query timeout: at 4 the worst stall was 5.7s.
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6"
       TERM: dumb
   release_config: &release_config
     docker:
