@@ -1,5 +1,5 @@
 import { useAsyncData, useRouter, useState } from "nuxt/app";
-import { computed, ref, type Ref } from "vue";
+import { computed, type Ref } from "vue";
 import type {
   ISession,
   ITablePermission,
@@ -13,6 +13,11 @@ export const useSession = async (schemaId?: string) => {
   const session = useState("session", () => null as ISession | null);
 
   let messageHandler: ((event: MessageEvent) => void) | null = null;
+
+  const rowLevelRolesState = useState<string[] | null>(
+    `rowLevelRoles_${schemaId ?? ""}`,
+    () => null
+  );
 
   const isAdmin = computed(() => session.value?.admin || false);
   const isOwner = computed(() => hasRole("Owner"));
@@ -29,7 +34,14 @@ export const useSession = async (schemaId?: string) => {
     await loadSession();
   }
 
-  const rowLevelRoles = ref<string[]>(await getRowLevelRoles());
+  // getRowLevelRoles checks isAdmin/isOwner/isManager, so the session has to be loaded first
+  if (rowLevelRolesState.value === null) {
+    rowLevelRolesState.value = await getRowLevelRoles();
+  }
+
+  const rowLevelRoles = computed<string[]>(
+    () => rowLevelRolesState.value ?? []
+  );
 
   function hasRole(role: string): boolean {
     if (schemaId) {
@@ -41,10 +53,11 @@ export const useSession = async (schemaId?: string) => {
 
   async function getRowLevelRoles(): Promise<string[]> {
     if (schemaId && (isAdmin.value || isOwner.value || isManager.value)) {
-      const response = await $fetch(`/${schemaId}/graphql`, {
-        method: "POST",
-        body: JSON.stringify({
-          query: `query {
+      try {
+        const response = await $fetch(`/${schemaId}/graphql`, {
+          method: "POST",
+          body: JSON.stringify({
+            query: `query {
                     _schema {
                       roles {
                         name
@@ -55,11 +68,16 @@ export const useSession = async (schemaId?: string) => {
                       }
                     }
                   }`,
-        }),
-      });
-      const schemaRoles: SchemaPermission[] =
-        response?.data?._schema?.roles || [];
-      return getRolesForSchema(schemaRoles);
+          }),
+        });
+        const schemaRoles: SchemaPermission[] =
+          response?.data?._schema?.roles || [];
+        return getRolesForSchema(schemaRoles);
+      } catch (error) {
+        // useSession is awaited in middleware and page setup, so never reject over an optional role list
+        console.error(`Error fetching row level roles for ${schemaId}`, error);
+        return [];
+      }
     } else {
       return [];
     }
@@ -117,6 +135,8 @@ export const useSession = async (schemaId?: string) => {
 
   async function reload() {
     session.value = null;
+    // the new session may have other rights, so the roles have to be resolved again
+    rowLevelRolesState.value = null;
 
     // parallel requests
     const [permissionsResult, sessionResult] = await Promise.all([
