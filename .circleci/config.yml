@@ -243,16 +243,8 @@ jobs:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-      # Only chromium: every playwright.config.ts uses devices["Desktop Chrome"], and no config sets channel.
-      # Installed from e2e/, which pins @playwright/test 1.62.0; the browser cache is shared with the apps suites.
-      - run:
-          name: Install e2e deps and playwright browser
-          command: |
-            pnpm install
-            npx playwright install --with-deps chromium
-          working_directory: e2e
-          no_output_timeout: 5m
-
+      # The demo import runs inside the application boot, so everything below that does not
+      # need a running application is placed between the start and the wait for it.
       - run:
           name: start the application in the background
           command: |
@@ -273,6 +265,21 @@ jobs:
             ps -p $(cat application.pid) || echo "❌ Process died immediately"
             echo "Last logs:"
             tail -200 application.log
+
+      # Only chromium: every playwright.config.ts uses devices["Desktop Chrome"], and no config sets channel.
+      # Installed from e2e/, which pins @playwright/test 1.62.0; the browser cache is shared with the apps suites.
+      - run:
+          name: Install e2e deps and playwright browser
+          command: |
+            pnpm install
+            npx playwright install --with-deps chromium
+          working_directory: e2e
+          no_output_timeout: 5m
+
+      - run:
+          name: Install app dependencies
+          command: pnpm install
+          working_directory: apps
 
       - run:
           name: Wait for application to be up, poll every 5 seconds
@@ -302,11 +309,6 @@ jobs:
 
               sleep 1
             done
-
-      - run:
-          name: Install app dependencies
-          command: pnpm install
-          working_directory: apps
 
       - run:
           name: Test tailwind components
