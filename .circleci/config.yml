@@ -41,9 +41,9 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      # Temporary: 6 workers, forks left at 4. Tests wait on postgres more than they compute, so
-      # a blocked worker holds no core. Watch the 10s query timeout: at 4 the worst stall was 5.7s.
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6"
+      # 4, not 6. At 6 the concurrency reached postgres' limit: five test classes sat at or past
+      # the 10s client timeout in SqlDatabase and one failed. At 4 the worst stall was 5.7s.
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
       TERM: dumb
   release_config: &release_config
     docker:
