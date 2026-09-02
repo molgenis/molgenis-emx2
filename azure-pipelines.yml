@@ -22,8 +22,11 @@ services:
   postgres: postgres
 
 steps:
-- script: |
-    git fetch --all --tags
+# Nyx derives the version from git tags at gradle configuration time, and the default checkout is
+# shallow and tagless.
+- checkout: self
+  fetchDepth: 0
+  fetchTags: true
 - script: |
     sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt-get update &&  sudo apt-get install postgresql-client python3.10 python3.10-venv -y
   displayName: postgresql client python3
