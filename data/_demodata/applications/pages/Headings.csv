@@ -1,4 +1,7 @@
 id,in block,text,heading is centered,level
-home-section-features-h2,home-section-features,Features,false,2
-home-section-applications-h2,home-section-applications,Applications,false,2
-home-section-navigation-heading,home-section-navigation,Get started with MOLGENIS,false,2
+demo-landing-page-overview-h-1,demo-landing-page-overview,Overview,true,2
+demo-landing-page-features-h-1,demo-landing-page-features,Features,true,2
+demo-landing-page-features-h-2,demo-landing-page-features,Blocks,false,3
+demo-landing-page-features-h-3,demo-landing-page-features,Components,false,3
+demo-landing-page-information-h-1,demo-landing-page-information,Additional information,true,2
+demo-landing-page-notice-h-1,demo-landing-page-notice,Note,true,2
