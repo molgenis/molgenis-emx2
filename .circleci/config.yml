@@ -22,6 +22,7 @@ definitions:
   # test-e2e's image than on the other jobs', so both need this same explicit path.
   cache_env: &cache_env
     GRADLE_USER_HOME: /tmp/ci-cache/gradle
+    GRADLE_BUILD_CACHE_DIR: /tmp/ci-cache/gradle-build-cache
     TURBO_CACHE_DIR: /tmp/ci-cache/turbo
 
   build_config: &build_config
@@ -97,19 +98,30 @@ commands:
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - restore_gradle_deps
 
-  restore_gradle_cache:
+  restore_gradle_deps:
     steps:
+    - run:
+        name: Concatenate build files as the dependency cache key
+        command: find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
     - restore_cache:
-        # Own branch first, its last save holds master's pool plus this branch's work.
         keys:
-          - gradle-v1-{{ .Branch }}-
-          - gradle-v1-master-
-          - gradle-v1-
-    # A restore takes the FIRST key that matches, so the step above never reaches master's pool
-    # on a branch that has run before. After a merge from master the branch's own pool has no
-    # entry for the code it just took in, and master's has all of them, so restore that too.
-    # Skipped on master, where the step above already restored this exact key.
+          - gradle-deps-v4-{{ checksum "concatenated-build-gradle" }}
+          - gradle-deps-v4-
+
+  save_gradle_deps:
+    steps:
+    - save_cache:
+        paths:
+          - /tmp/ci-cache/gradle
+        key: gradle-deps-v4-{{ checksum "concatenated-build-gradle" }}
+
+  restore_gradle_build_cache:
+    steps:
+    # A restore takes the FIRST key that matches, so a branch that has run before never reaches
+    # master's pool. After a merge from master the branch's own pool has no entry for the code it
+    # just took in, and master's has all of them, so restore both, least specific first.
     - when:
         condition:
           not:
@@ -117,18 +129,20 @@ commands:
         steps:
         - restore_cache:
             keys:
-              - gradle-v1-master-
+              - gradle-buildcache-v4-master-
+    - restore_cache:
+        keys:
+          - gradle-buildcache-v4-{{ .Branch }}-
+          - gradle-buildcache-v4-master-
+          - gradle-buildcache-v4-
 
-  save_gradle_cache:
+  save_gradle_build_cache:
     steps:
     - run:
-        # The du below reports build-cache-1 alone, so it reads far smaller than the size the
-        # save step uploads: that covers all of GRADLE_USER_HOME, dependencies and the gradle
-        # distribution included. Only build-cache-1 grows without bound, so only it is capped.
         name: Cap the gradle build cache at 2GB, dropping the oldest entries first
         command: |
-          if [ -d /tmp/ci-cache/gradle/caches/build-cache-1 ]; then
-            cd /tmp/ci-cache/gradle/caches/build-cache-1
+          if [ -d "$GRADLE_BUILD_CACHE_DIR" ]; then
+            cd "$GRADLE_BUILD_CACHE_DIR"
             ls -lt | awk -v limit=2147483648 '$NF ~ /^[0-9a-f]{32}$/ { total += $5; if (total > limit) print $NF }' |
               while read -r entry; do rm -f "$entry"; done
             du -sh .
@@ -138,8 +152,8 @@ commands:
         when: always
     - save_cache:
         paths:
-          - /tmp/ci-cache/gradle
-        key: gradle-v1-{{ .Branch }}-{{ .Revision }}
+          - /tmp/ci-cache/gradle-build-cache
+        key: gradle-buildcache-v4-{{ .Branch }}-{{ .Revision }}
         when: always
 
   restore_turbo_cache:
@@ -204,7 +218,7 @@ jobs:
 
     - pre_steps
 
-    - restore_gradle_cache
+    - restore_gradle_build_cache
     - restore_turbo_cache
 
     - run:
@@ -258,7 +272,7 @@ jobs:
       - pre_steps:
           layer_cache: false
 
-      - restore_gradle_cache
+      - restore_gradle_build_cache
       - restore_turbo_cache
 
       - run:
@@ -426,7 +440,7 @@ jobs:
     steps:
     - pre_steps
 
-    - restore_gradle_cache
+    - restore_gradle_build_cache
     - restore_turbo_cache
 
     - run:
@@ -457,7 +471,7 @@ jobs:
 
     # No turbo restore: `:apps` is a runtimeOnly dependency, so a dry run of this job's
     # gradle call schedules no `:apps:*` task and nothing here reads the turbo cache.
-    - restore_gradle_cache
+    - restore_gradle_build_cache
 
     - run:
         name: prepare sql test database
@@ -486,8 +500,9 @@ jobs:
           $SONAR_PR_ARGS
 
     # Every backend module compiles and every backend test runs here, plus pmd and
-    # spotless. The only writer of this cache.
-    - save_gradle_cache
+    # spotless. The only writer of these caches.
+    - save_gradle_deps
+    - save_gradle_build_cache
 
     - post_steps
 
