@@ -98,7 +98,7 @@ public class SqlQuery extends QueryBean {
   }
 
   @Override
-  public void retrieveRows(Consumer<Row> consumer, Option... options) {
+  public void retrieveRowsStreaming(Consumer<Row> consumer, Option... options) {
     SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
     if (logger.isInfoEnabled()) {
       logger.info(query.getSQL(ParamType.INLINED));
@@ -116,6 +116,8 @@ public class SqlQuery extends QueryBean {
                   }
                 }
               });
+    } catch (MolgenisException e) {
+      throw e;
     } catch (Exception e) {
       throw new SqlMolgenisException(QUERY_FAILED, e);
     }

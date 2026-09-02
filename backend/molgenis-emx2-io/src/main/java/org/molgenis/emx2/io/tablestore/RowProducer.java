@@ -5,5 +5,5 @@ import org.molgenis.emx2.Row;
 
 @FunctionalInterface
 public interface RowProducer {
-  void forEach(Consumer<Row> consumer);
+  void produce(Consumer<Row> consumer);
 }

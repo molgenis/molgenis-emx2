@@ -68,11 +68,11 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    writeTable(name, columnNames, rows::forEach);
+    writeTableStreaming(name, columnNames, rows::forEach);
   }
 
   @Override
-  public void writeTable(String name, List<String> columnNames, RowProducer rows) {
+  public void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
     if (columnNames.isEmpty()) {
       return;
     }
@@ -82,7 +82,7 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
     try (FileSystem zipfs = open()) {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       try (Writer writer = Files.newBufferedWriter(pathInZipfile)) {
-        rows.forEach(CsvTableWriter.rowWriter(columnNames, writer, COMMA));
+        rows.produce(CsvTableWriter.rowWriter(columnNames, writer, COMMA));
       }
     } catch (IOException ioe) {
       throw new MolgenisException("Export failed", ioe);

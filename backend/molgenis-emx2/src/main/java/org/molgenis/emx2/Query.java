@@ -28,7 +28,7 @@ public interface Query {
 
   List<Row> retrieveRows(Option... options);
 
-  default void retrieveRows(Consumer<Row> consumer, Option... options) {
+  default void retrieveRowsStreaming(Consumer<Row> consumer, Option... options) {
     retrieveRows(options).forEach(consumer);
   }
 
