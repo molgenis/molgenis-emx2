@@ -225,7 +225,9 @@ public class CsvApi {
 
     // The cursor's transaction holds an ACCESS SHARE lock that blocks ALTER TABLE, so it is
     // closed before the client, whose speed we do not control, is written to.
-    Path csv = Files.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".csv");
+    // the enclosing directory is created private to this user, the temp file alone would not be
+    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    Path csv = tempDir.resolve("download.csv");
     try {
       try (Writer writer = Files.newBufferedWriter(csv, StandardCharsets.UTF_8)) {
         Consumer<Row> rowWriter = CsvTableWriter.rowWriter(columnNames, writer, getSeparator(ctx));
@@ -246,6 +248,7 @@ public class CsvApi {
       }
     } finally {
       Files.deleteIfExists(csv);
+      Files.deleteIfExists(tempDir);
     }
   }
 
