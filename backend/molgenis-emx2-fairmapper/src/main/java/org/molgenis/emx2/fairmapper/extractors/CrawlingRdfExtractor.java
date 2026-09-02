@@ -21,39 +21,36 @@ import org.slf4j.LoggerFactory;
  * same repository, so that the next step has triples to query. Fetching and querying therefore have
  * to alternate; a single SPARQL property path would find nothing beyond the first level.
  */
-public class FdpRdfExtractor implements RdfExtractor {
+public class CrawlingRdfExtractor implements RdfExtractor {
 
-  private static final Logger logger = LoggerFactory.getLogger(FdpRdfExtractor.class);
+  private static final Logger logger = LoggerFactory.getLogger(CrawlingRdfExtractor.class);
 
-  private final RdfExtractor rdfExtractor;
   private final List<CrawlStep> crawlSteps;
   private final boolean strict;
 
-  public FdpRdfExtractor(RdfExtractor rdfExtractor) {
-    this(rdfExtractor, FdpCrawlSteps.DEFAULT, false);
+  public CrawlingRdfExtractor() {
+    this(CrawlSteps.FDP.steps(), false);
   }
 
-  private FdpRdfExtractor(RdfExtractor rdfExtractor, List<CrawlStep> crawlSteps, boolean strict) {
-    this.rdfExtractor = rdfExtractor;
+  private CrawlingRdfExtractor(List<CrawlStep> crawlSteps, boolean strict) {
     this.crawlSteps = crawlSteps;
     this.strict = strict;
   }
 
-  public FdpRdfExtractor withCrawlSteps(CrawlStep... crawlSteps) {
-    return new FdpRdfExtractor(rdfExtractor, List.of(crawlSteps), strict);
+  public CrawlingRdfExtractor withCrawlSteps(List<CrawlStep> crawlSteps) {
+    return new CrawlingRdfExtractor(crawlSteps, strict);
   }
 
-  public FdpRdfExtractor withStrict() {
-    return new FdpRdfExtractor(rdfExtractor, crawlSteps, true);
+  public CrawlingRdfExtractor withStrict() {
+    return new CrawlingRdfExtractor(crawlSteps, true);
   }
 
   @Override
   public void addRdfToRepository(Repository repository, URI rootToAdd) {
-    IRI root = Values.iri(stripTrailingSlashes(rootToAdd));
-    logger.info("Crawling FAIR Data Point: {}", root);
-    rdfExtractor.addRdfToRepository(repository, root.stringValue());
+    logger.info("Crawling FAIR Data Point: {}", rootToAdd);
+    fetch(repository, rootToAdd);
 
-    Set<IRI> frontier = Set.of(root);
+    Set<IRI> frontier = Set.of(Values.iri(rootToAdd.toString()));
     for (CrawlStep step : crawlSteps) {
       frontier = executeStep(repository, frontier, step);
     }
@@ -72,7 +69,10 @@ public class FdpRdfExtractor implements RdfExtractor {
           step.predicate());
     }
 
-    results.forEach(iri -> fetch(repository, iri));
+    results.stream()
+        .map(iri -> URI.create(iri.stringValue()))
+        .forEach(iri -> fetch(repository, iri));
+
     return results;
   }
 
@@ -87,18 +87,15 @@ public class FdpRdfExtractor implements RdfExtractor {
     }
   }
 
-  private void fetch(Repository repository, IRI iri) {
-    try {
-      rdfExtractor.addRdfToRepository(repository, iri.stringValue());
-    } catch (RuntimeException e) {
-      logger.error("Could not add RDF from {}", iri, e);
+  private void fetch(Repository repository, URI uri) {
+    try (RepositoryConnection conn = repository.getConnection()) {
+      logger.info("Extracting rdf from endpoint: {}", uri);
+      conn.add(uri.toURL());
+    } catch (Exception e) {
+      logger.error("Could not add RDF from {}", uri, e);
       if (strict) {
-        throw new MolgenisException("Unable to add RDF from " + iri, e);
+        throw new MolgenisException("Unable to add RDF from " + uri, e);
       }
     }
-  }
-
-  private static String stripTrailingSlashes(URI uri) {
-    return uri.toString().replaceAll("/+$", "");
   }
 }

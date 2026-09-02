@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DCAT;
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.rdf.vocabulary.FDPO;
 
-class FdpRdfExtractorTest {
+class CrawlingRdfExtractorTest {
 
   @TempDir static Path tempDir;
 
@@ -102,7 +103,7 @@ class FdpRdfExtractorTest {
 
     extracted = new SailRepository(new MemoryStore());
     valueFactory = extracted.getValueFactory();
-    new FdpRdfExtractor(new RemoteRdfExtractor()).addRdfToRepository(extracted, rootUri);
+    new CrawlingRdfExtractor().addRdfToRepository(extracted, rootUri);
   }
 
   @Test
@@ -189,44 +190,9 @@ class FdpRdfExtractorTest {
     String endpoint = "FDP ENDPOINT HERE";
     Repository extract = new SailRepository(new MemoryStore());
     Assertions.assertDoesNotThrow(
-        () ->
-            new FdpRdfExtractor(new RemoteRdfExtractor())
-                .addRdfToRepository(extract, URI.create(endpoint)));
+        () -> new CrawlingRdfExtractor().addRdfToRepository(extract, URI.create(endpoint)));
     try (RepositoryConnection connection = extract.getConnection()) {
       connection.getStatements(null, null, null).forEach(System.out::println);
-    }
-  }
-
-  @Test
-  void shouldCrawlOnWhenRootHasTrailingSlash(@TempDir Path tempDir) throws IOException {
-    SailRepository repository = new SailRepository(new MemoryStore());
-
-    Path root = tempDir.resolve("root.ttl");
-    Path catalog = tempDir.resolve("catalog.ttl");
-
-    Files.writeString(
-        root,
-        """
-        @prefix fdpo: <https://w3id.org/fdp/fdp-o#> .
-        <%s> fdpo:metadataCatalog <%s> .
-        """
-            .formatted(root.toUri(), catalog.toUri()));
-    Files.writeString(
-        catalog,
-        """
-        @prefix dcterms: <http://purl.org/dc/terms/> .
-        <%s> dcterms:title "catalog" .
-        """
-            .formatted(catalog.toUri()));
-
-    new FdpRdfExtractor(new RemoteRdfExtractor())
-        .addRdfToRepository(repository, URI.create(root.toUri() + "//"));
-
-    try (RepositoryConnection connection = repository.getConnection()) {
-      assertHasStatements(
-          connection,
-          statement(
-              Values.iri(catalog.toUri().toString()), DCTERMS.TITLE, Values.literal("catalog")));
     }
   }
 
@@ -247,8 +213,8 @@ class FdpRdfExtractorTest {
         """
             .formatted(part.toUri()));
 
-    new FdpRdfExtractor(new RemoteRdfExtractor())
-        .withCrawlSteps(new CrawlStep("part", partOf))
+    new CrawlingRdfExtractor()
+        .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
         .addRdfToRepository(repository, root.toUri());
 
     try (RepositoryConnection connection = repository.getConnection()) {
@@ -290,8 +256,8 @@ class FdpRdfExtractorTest {
 
       Assertions.assertDoesNotThrow(
           () ->
-              new FdpRdfExtractor(new RemoteRdfExtractor())
-                  .withCrawlSteps(new CrawlStep("part", partOf))
+              new CrawlingRdfExtractor()
+                  .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
                   .addRdfToRepository(repository, root.toUri()));
 
       try (RepositoryConnection connection = repository.getConnection()) {
@@ -306,9 +272,9 @@ class FdpRdfExtractorTest {
     void whenStrictMode_thenThrow() throws IOException {
       Files.writeString(root, "<%s> <%s> <%s> .%n".formatted(root.toUri(), partOf, data.toUri()));
 
-      FdpRdfExtractor extractor =
-          new FdpRdfExtractor(new RemoteRdfExtractor())
-              .withCrawlSteps(new CrawlStep("part", partOf))
+      CrawlingRdfExtractor extractor =
+          new CrawlingRdfExtractor()
+              .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
               .withStrict();
 
       URI uri = root.toUri();
