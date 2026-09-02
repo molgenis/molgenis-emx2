@@ -35,11 +35,11 @@ test("the row should be removed from the table after deletion", async ({
   page,
   goto,
 }) => {
-  await goto(`${route}table/EMX2.story?schema=pet+store&table=Category`, {
+  await goto(`${route}table/EMX2.story?schema=${SCHEMA_PATH}&table=Category`, {
     waitUntil: "hydration",
   });
   await expect(page.getByText("TableEMX2").first()).toBeVisible();
-  await expect(page.getByLabel("Schema:")).toHaveValue("pet store");
+  await expect(page.getByLabel("Schema:")).toHaveValue(SCHEMA);
   await page.getByRole("checkbox", { name: "Can insert:" }).check();
   await expect(
     page.getByRole("button", { name: "Add Category" })
@@ -71,11 +71,11 @@ test("the row should be copied and added to the table after copying", async ({
   page,
   goto,
 }) => {
-  await goto(`${route}table/EMX2.story?schema=pet+store&table=Pet`, {
+  await goto(`${route}table/EMX2.story?schema=${SCHEMA_PATH}&table=Pet`, {
     waitUntil: "hydration",
   });
   await expect(page.getByText("TableEMX2").first()).toBeVisible();
-  await expect(page.getByLabel("Schema:")).toHaveValue("pet store");
+  await expect(page.getByLabel("Schema:")).toHaveValue(SCHEMA);
   await page.getByRole("checkbox", { name: "Can insert:" }).check();
   await expect(page.getByRole("button", { name: "Add Pet" })).toBeVisible();
 
