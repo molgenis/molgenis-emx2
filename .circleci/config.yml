@@ -30,8 +30,10 @@ definitions:
     docker:
     - image: molgenis/ci-build:1.6.3
     - image: postgres:15-alpine
-      # The two settings docker-compose.yml and the helm chart already use. CI ran on defaults.
+      # The first two are what docker-compose.yml and the helm chart already use. The rest are
+      # CI-only: this database is discarded when the job ends, so it need not survive a crash.
       command: postgres -c shared_buffers=256MB -c max_locks_per_transaction=1024
+        -c fsync=off -c synchronous_commit=off -c full_page_writes=off -c max_wal_size=4GB
       environment:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
@@ -196,8 +198,10 @@ jobs:
     docker:
     - image: cimg/openjdk:21.0-browsers
     - image: postgres:15-alpine
-      # The two settings docker-compose.yml and the helm chart already use. CI ran on defaults.
+      # The first two are what docker-compose.yml and the helm chart already use. The rest are
+      # CI-only: this database is discarded when the job ends, so it need not survive a crash.
       command: postgres -c shared_buffers=256MB -c max_locks_per_transaction=1024
+        -c fsync=off -c synchronous_commit=off -c full_page_writes=off -c max_wal_size=4GB
       environment:
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
