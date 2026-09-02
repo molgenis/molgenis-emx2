@@ -1,22 +1,33 @@
-import { test, expect, request as apiRequest } from "@playwright/test";
-import type { APIRequestContext, Page } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
+import { request as apiRequest, expect, test } from "@playwright/test";
 import playwrightConfig from "../../playwright.config";
 import {
   createSchemaFromTemplate,
   deleteSchema,
-  gql,
   RUN_ID,
+  addPasswordToUser,
+  dropAnonymousFromTestSchema,
   signinAdmin,
 } from "./testSchema";
+import {
+  addRlsToTables,
+  findAndDeleteRow,
+  findRow,
+  insertRow,
+  removeRlsFromTables,
+  signin,
+  signout,
+} from "./testUtils/testUtils";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/ui/";
 
-// shared context so the signin cookie is reused by the follow-up mutations
 let api: APIRequestContext;
+
 const USERNAME = "dragonkeeper";
 const PASSWORD = "dragonkeeper";
+const DRAGON_KEEPER = "DragonKeeper";
 const SCHEMA = `permissions test ${RUN_ID}`;
 const SCHEMA_PATH = encodeURIComponent(SCHEMA);
 
@@ -26,8 +37,8 @@ test.beforeAll(async () => {
   api = await apiRequest.newContext();
   await signinAdmin(api, route);
   await createSchemaFromTemplate(api, route, SCHEMA, "PET_STORE");
-  await dropAnonymousFromTestSchema();
-  await addPasswordToDragonKeeper();
+  await dropAnonymousFromTestSchema(api, route, SCHEMA_PATH);
+  await addPasswordToUser(api, route, USERNAME, PASSWORD);
 });
 
 test.afterAll(async () => {
@@ -72,11 +83,11 @@ test.describe("when the dragonkeeper has permissions on the pet table only", () 
 
 test.describe("when the dragonkeeper has also permissions on the order table", () => {
   test.beforeAll(async () => {
-    await addRlsToTables();
+    await addRlsToTables(api, SCHEMA_PATH);
   });
 
   test.afterAll(async () => {
-    await removeRlsFromTables();
+    await removeRlsFromTables(api, SCHEMA_PATH);
   });
 
   test("the dragonkeeper can now see the order table", async ({ page }) => {
@@ -114,119 +125,58 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
   });
 });
 
-async function signin(page: Page, username: string, password: string) {
-  await page.getByRole("button", { name: "Signin" }).click();
-  await page.getByRole("textbox", { name: "Username" }).fill(username);
-  await page.getByRole("textbox", { name: "Password" }).fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await timeout(200);
-}
+test.describe("when selecting a permission for a row", () => {
+  test("as admin, for a new row", async ({ page }) => {
+    await page.goto(route);
+    await signin(page, "admin", "admin");
+    await page.goto(route + SCHEMA_PATH + "/Pet");
 
-async function signout(page: Page) {
-  await page.getByRole("button", { name: "Account" }).click();
-  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await timeout(200);
-}
+    await page.getByRole("button", { name: "Add Pet" }).click();
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: DRAGON_KEEPER }).click();
 
-async function timeout(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+    await page
+      .getByRole("textbox", { name: "name Required" })
+      .fill("testDragon");
+    await page
+      .locator(`[id="${SCHEMA}-Pet-category-form-field-input-radio-group"]`)
+      .getByText("dragon")
+      .getByText("dragon", { exact: true })
+      .click();
+    await page.getByRole("textbox", { name: "weight Required" }).fill("50000");
 
-// every user inherits the anonymous role, so dragonkeeper reads all until this runs
-async function dropAnonymousFromTestSchema() {
-  return gql(
-    api,
-    `${route}${SCHEMA_PATH}/graphql`,
-    `mutation drop($members: [String]) {
-      drop(members: $members) {
-        message
-      }
-    }`,
-    { members: ["anonymous"] }
-  );
-}
+    await insertRow(page, "Pet");
 
-async function addPasswordToDragonKeeper() {
-  return gql(
-    api,
-    `${route}graphql`,
-    `mutation{
-      changePassword(email: "${USERNAME}", password: "${PASSWORD}"){
-        status,message
-      }
-    }`
-  );
-}
+    await findAndDeleteRow(page, "Pet", "testDragon");
+  });
 
-async function addRlsToTables() {
-  return gql(
-    api,
-    `${route}${SCHEMA_PATH}/graphql`,
-    `mutation {
-        change(
-          roles: [
-            {
-              name: "DragonKeeper"
-              permissions: [
-                {
-                  table: "Order"
-                  select: true
-                  insert: true
-                  update: true
-                  delete: true
-                  isRowLevel: true
-                }
-                {
-                  table: "Category"
-                  select: true
-                  insert: true
-                  update: true
-                  delete: true
-                  isRowLevel: true
-                }
-              ]
-            }
-          ]
-        ) {
-          message
-        }
-      }`
-  );
-}
+  test("as manager,when editing a row", async ({ page }) => {
+    await page.goto(route);
+    await signin(page, "shopmanager", "shopmanager");
+    await page.goto(route + SCHEMA_PATH + "/Pet");
 
-async function removeRlsFromTables() {
-  return gql(
-    api,
-    `${route}${SCHEMA_PATH}/graphql`,
-    `mutation {
-        change(
-          roles: [
-            {
-              name: "DragonKeeper"
-              permissions: [
-                {
-                  table: "Order"
-                  select: false
-                  insert: false
-                  update: false
-                  delete: false
-                  isRowLevel: false
-                } 
-                {
-                  table: "Category"
-                  select: false
-                  insert: false
-                  update: false
-                  delete: false
-                  isRowLevel: false
-                }
-              ]
-            }
-          ]
-        ) {
-          message
-        }
-      }`
-  );
-}
+    await findRow(page, "Pet", "smaug");
+    await expect(page.getByRole("cell", { name: DRAGON_KEEPER })).toBeVisible();
+
+    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
+
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: "Global" }).click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(
+      page.getByRole("cell", { name: DRAGON_KEEPER })
+    ).not.toBeVisible();
+
+    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: DRAGON_KEEPER }).click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(page.getByRole("cell", { name: DRAGON_KEEPER })).toBeVisible();
+  });
+});

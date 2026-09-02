@@ -100,3 +100,37 @@ async function waitForTask(
   }
   throw new Error(`import of ${name} did not finish in time`);
 }
+
+export async function dropAnonymousFromTestSchema(
+  api: APIRequestContext,
+  route: string,
+  schemaPath: string
+) {
+  return gql(
+    api,
+    `${route}${schemaPath}/graphql`,
+    `mutation drop($members: [String]) {
+      drop(members: $members) {
+        message
+      }
+    }`,
+    { members: ["anonymous"] }
+  );
+}
+
+export async function addPasswordToUser(
+  api: APIRequestContext,
+  route: string,
+  userName: string,
+  password: string
+) {
+  return gql(
+    api,
+    `${route}graphql`,
+    `mutation{
+      changePassword(email: "${userName}", password: "${password}"){
+        status,message
+      }
+    }`
+  );
+}
