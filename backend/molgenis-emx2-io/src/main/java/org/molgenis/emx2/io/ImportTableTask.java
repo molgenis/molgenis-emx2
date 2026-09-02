@@ -12,19 +12,17 @@ public class ImportTableTask extends Task {
   private final UpdateMode updateMode;
   private final TableStore source;
 
-  public static final UpdateMode DEFAULT_MODE = UpdateMode.OVERWRITE;
-
   public ImportTableTask(TableStore source, Table table, boolean strict, UpdateMode updateMode) {
     super("Import table %s".formatted(table.getName()), strict);
     Objects.requireNonNull(source, "tableStore cannot be null");
     Objects.requireNonNull(table, "table cannot be null");
     this.table = table;
     this.source = source;
-    this.updateMode = updateMode;
+    this.updateMode = Objects.requireNonNull(updateMode, "updateMode cannot be null");
   }
 
   public ImportTableTask(TableStore source, Table table, boolean strict) {
-    this(source, table, strict, DEFAULT_MODE);
+    this(source, table, strict, UpdateMode.DEFAULT_MODE);
   }
 
   @Override
