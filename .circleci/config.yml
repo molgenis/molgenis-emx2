@@ -197,7 +197,8 @@ jobs:
     working_directory: ~/repo
     resource_class: large
     environment:
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      # Temporary: 4 to see whether test-e2e's gradle build answers the way test-backend's did.
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
       TERM: dumb
       # A cache restores to the absolute path it was saved from, and `~` is a different
       # user on this image than on the one the other jobs use.
