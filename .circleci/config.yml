@@ -104,7 +104,10 @@ commands:
     steps:
     - run:
         name: Concatenate build files as the dependency cache key
-        command: find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
+        # git, not find: find returns filesystem order, so the same tree hashes differently on
+        # different machines, and it also picks up generated copies such as the one under
+        # docs/build/resources. Either drifts the key and costs a cache hit.
+        command: git ls-files -z '*build.gradle' | xargs -0 cat > concatenated-build-gradle
     - restore_cache:
         keys:
           - gradle-deps-v4-{{ checksum "concatenated-build-gradle" }}
