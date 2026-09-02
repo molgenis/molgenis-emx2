@@ -86,8 +86,9 @@ sonar {
 }
 
 tasks.withType(Test) {
-    // Temporary: 4 forks, paired with workers.max=4. The Math.max guard is what stays.
-    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
+    // Temporary split: forks back to master's half while workers.max stays 4, to see which dial
+    // carried the 153s. The Math.max guard is the part that stays either way.
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
     maxHeapSize = '2g'
 }
 
