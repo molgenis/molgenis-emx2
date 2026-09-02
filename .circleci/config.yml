@@ -40,7 +40,8 @@ definitions:
     resource_class: large
     environment:
       # Temporary: 4 with maxParallelForks=4, since test forks may draw from this same budget.
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
+      # Temporary: 4g daemon heap against gradle.properties' 2048M, to see if compile is GC-bound.
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4 -Dorg.gradle.jvmargs=-Xmx4g"
       TERM: dumb
   release_config: &release_config
     docker:
