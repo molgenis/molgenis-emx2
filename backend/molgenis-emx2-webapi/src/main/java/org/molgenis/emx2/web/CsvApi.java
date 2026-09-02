@@ -255,11 +255,13 @@ public class CsvApi {
 
     String modeParam = ctx.queryParam(MODE_PARAM);
 
-    UpdateMode updateMode = UpdateMode.OVERWRITE;
+    UpdateMode updateMode = UpdateMode.DEFAULT_MODE;
 
     try {
       if (modeParam != null) {
-        updateMode = UpdateMode.valueOf(modeParam.toUpperCase());
+        String normalizedMode = modeParam.trim().toUpperCase(java.util.Locale.ROOT);
+        if ("OVERRIDE".equals(normalizedMode)) normalizedMode = UpdateMode.OVERWRITE.name();
+        updateMode = UpdateMode.valueOf(normalizedMode);
       }
     } catch (IllegalArgumentException e) {
       throw new BadRequestResponse("Invalid mode: " + modeParam);
