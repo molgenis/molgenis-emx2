@@ -99,4 +99,37 @@ public class TestMgColumns {
     r = t.retrieveRows().get(0);
     assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
   }
+
+  @Test
+  public void testSaveKeepsInsertedMetadata() {
+    Table t = schema.create(table("SavedOn", column("id").setPkey(), column("value")));
+
+    t.insert(row("id", 1, "value", "somevalue1"));
+    Row inserted = t.retrieveRows().getFirst();
+
+    t.save(row("id", 1, "value", "somevalue2"));
+
+    Row saved = t.retrieveRows().getFirst();
+    assertEquals("somevalue2", saved.getString("value"));
+    assertEquals(inserted.getDateTime(MG_INSERTEDON), saved.getDateTime(MG_INSERTEDON));
+    assertEquals(inserted.getString(MG_INSERTEDBY), saved.getString(MG_INSERTEDBY));
+    assertTrue(saved.getDateTime(MG_INSERTEDON).isBefore(saved.getDateTime(MG_UPDATEDON)));
+  }
+
+  @Test
+  public void testSaveKeepsInsertedMetadataInSubclass() {
+    schema.create(table("SavedOnSuper", column("id").setPkey(), column("value")));
+    Table t = schema.create(table("SavedOnSub").setInheritName("SavedOnSuper"));
+
+    t.insert(row("id", 1, "value", "somevalue1"));
+    Row inserted = t.retrieveRows().getFirst();
+
+    t.save(row("id", 1, "value", "somevalue2"));
+
+    Row saved = t.retrieveRows().getFirst();
+    assertEquals("somevalue2", saved.getString("value"));
+    assertEquals(inserted.getDateTime(MG_INSERTEDON), saved.getDateTime(MG_INSERTEDON));
+    assertEquals(inserted.getString(MG_INSERTEDBY), saved.getString(MG_INSERTEDBY));
+    assertTrue(saved.getDateTime(MG_INSERTEDON).isBefore(saved.getDateTime(MG_UPDATEDON)));
+  }
 }

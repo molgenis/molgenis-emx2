@@ -43,12 +43,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:devx
-      - image: postgres:15-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+      - image: molgenis/ci-build:1.6.3
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -59,6 +54,13 @@ definitions:
 
 commands:
   pre_steps:
+    parameters:
+      gradle_cache:
+        type: boolean
+        default: true
+      layer_cache:
+        type: boolean
+        default: true
     steps:
     - run:
         name: Fresh Git Checkout to prevent missing objects
@@ -87,26 +89,31 @@ commands:
           command: |
               find . -name 'build.gradle' -type f -exec cat {} \; > concatenated-build-gradle
           no_output_timeout: 5m
-    - restore_cache:
-        keys:
-          - gradle-{{ checksum "concatenated-build-gradle" }}
-          - gradle
-    - restore_cache:
-        keys:
-        - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-    - run:
-        name: Download Dependencies
-        command: ./gradlew dependencies --no-daemon
-    - save_cache:
-        paths:
-          - ~/.gradle/wrapper
-        key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-    - save_cache:
-        paths:
-          - ~/.gradle/caches
-        key: gradle-{{ checksum "concatenated-build-gradle" }}
+    - when:
+        condition: << parameters.gradle_cache >>
+        steps:
+        - restore_cache:
+            keys:
+              - gradle-{{ checksum "concatenated-build-gradle" }}
+              - gradle
+        - restore_cache:
+            keys:
+            - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+        - run:
+            name: Download Dependencies
+            command: ./gradlew dependencies --no-daemon
+        - save_cache:
+            paths:
+              - ~/.gradle/wrapper
+            key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+        - save_cache:
+            paths:
+              - ~/.gradle/caches
+            key: gradle-{{ checksum "concatenated-build-gradle" }}
+    # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
+    # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
     - setup_remote_docker:
-        docker_layer_caching: true
+        docker_layer_caching: << parameters.layer_cache >>
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
@@ -161,89 +168,84 @@ jobs:
     - post_steps
 
 
-  build:
-    <<: *build_config
+  test-e2e:
+    docker:
+    - image: cimg/openjdk:21.0-browsers
+    - image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres
+    working_directory: ~/repo
+    resource_class: large
+    environment:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
+      # A cache restores to the absolute path it was saved from, and `~` is a different
+      # user on this image than on the one the other jobs use.
+      GRADLE_USER_HOME: /tmp/ci-cache/gradle
 
     steps:
-      - pre_steps
+      # pre_steps calls `pnpm dlx`, so pnpm must exist before it runs.
+      - run:
+          name: Enable pnpm
+          command: sudo corepack enable
+
+      # No image is built here, so the layer cache stores nothing and costs 200 credits a run.
+      - pre_steps:
+          gradle_cache: false
+          layer_cache: false
+
+      - restore_cache:
+          keys:
+            - test-e2e-gradle-v2-{{ checksum "concatenated-build-gradle" }}
+            - test-e2e-gradle-v2-
+      - run:
+          name: Download Dependencies
+          command: ./gradlew dependencies --no-daemon
+
       - run:
           name: build the application without running tests to speed up the e2e tests
           command: ./gradlew shadowJar -x test ci --no-daemon
+          # Node sizes its default heap from HOST memory, not the 8GB this job shares with postgres.
+          environment:
+            NODE_OPTIONS: --max-old-space-size=2048
+
+      # After the build, not after `dependencies`, so what the build itself pulls is cached too.
+      # A CircleCI cache key is immutable, hence v2: writing more under v1 would be a silent no-op.
+      - save_cache:
+          paths:
+            - /tmp/ci-cache/gradle
+          key: test-e2e-gradle-v2-{{ checksum "concatenated-build-gradle" }}
 
       - run:
           name: build ssr catalogue
           command: pnpm build
           working_directory: apps/catalogue
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build/libs
-            - build/ci.properties
-            - apps/catalogue
-            - custom-app/
-
-  e2e-tests:
-    resource_class: large
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.62.1-jammy
-        environment:
-          JVM_OPTS: -Xmx6400m
-          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-          TERM: dumb
-      - image: postgres:15-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-    steps:
-      - checkout
-      - attach_workspace:
-            at: /workspace
-
-      - run:
-          name: Enable pnpm
-          command: |
-            corepack enable
-            corepack prepare pnpm@latest --activate
-            pnpm -v
-
-      - run: pnpm i -D @playwright/test@1.62.0
-
-      - run:
-          name: Install dependencies
-          command: |
-            pnpm install @playwright/test@1.62.0
-            npx playwright install chrome
-            npx playwright install
+          environment:
+            NODE_OPTIONS: --max-old-space-size=2048
 
       - run:
           name: Put custom app next to jar
-          command: cp -r /workspace/custom-app /workspace/build/libs/custom-app
+          command: cp -r custom-app build/libs/custom-app
 
       - run:
           name: install postgres client
-          command: apt-get update && apt-get install -y postgresql-client
+          command: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - run:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
+      # Only chromium: every playwright.config.ts uses devices["Desktop Chrome"], and no config sets channel.
+      # Installed from e2e/, which pins @playwright/test 1.62.0; the browser cache is shared with the apps suites.
       - run:
-          name: Install Java
+          name: Install e2e deps and playwright browser
           command: |
-            apt-get update
-            apt-get install -y openjdk-21-jdk
-
-      - run:
-          name: Show jars
-          command: |
-            ls -la /workspace/build/libs
-
-      - run:
-          name: Make jar executable
-          command: |
-            chmod +x /workspace/build/libs/molgenis-emx2-*-all.jar
+            pnpm install
+            npx playwright install --with-deps chromium
+          working_directory: e2e
+          no_output_timeout: 5m
 
       - run:
           name: start the application in the background
@@ -257,7 +259,7 @@ jobs:
             export MOLGENIS_OIDC_CLIENT_ID=emx2-local
             export MOLGENIS_OIDC_CLIENT_SECRET=${LOCAL_OIDC_CLIENT_SECRET}
             export MOLGENIS_OIDC_DISCOVERY_URL=https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration
-            nohup java -jar /workspace/build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
+            nohup java -jar build/libs/molgenis-emx2-*-all.jar > application.log 2>&1 < /dev/null &
             echo $! > application.pid
             echo "Started PID: $(cat application.pid)"
             sleep 5
@@ -293,13 +295,17 @@ jobs:
               fi
 
               sleep 1
-            done            
+            done
+
+      - run:
+          name: Install app dependencies
+          command: pnpm install
+          working_directory: apps
 
       - run:
           name: Test tailwind components
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/tailwind-components/#/
-            pnpm install
             pnpm --filter tailwind-components run e2e
           working_directory: apps
 
@@ -316,7 +322,6 @@ jobs:
           name: Directory e2e tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/
-            pnpm install
             pnpm --filter directory run e2e
           working_directory: apps
 
@@ -330,7 +335,6 @@ jobs:
           name: UI tests
           command: |
             export E2E_BASE_URL=http://localhost:8080/apps/ui/
-            pnpm install
             pnpm --filter ui run e2e
           working_directory: apps
 
@@ -343,9 +347,9 @@ jobs:
       - run:
           name: Run non ssr e2e tests
           command: |
-            export $( cat build/ci.properties | xargs )
-            pnpm install
-            npx playwright test --config e2e e2e/tests 
+            export $( cat ~/repo/build/ci.properties | xargs )
+            npx playwright test tests
+          working_directory: e2e
 
       - store_test_results:
           path: e2e/test-results
@@ -356,9 +360,7 @@ jobs:
       - run:
           name: Catalogue ssr tests
           command: |
-            cp -r /workspace/apps/catalogue/.output  /root/project/apps/catalogue/.output
-            export NUXT_PUBLIC_API_BASE=http://localhost:8080/                  
-            pnpm install
+            export NUXT_PUBLIC_API_BASE=http://localhost:8080/
             pnpm --filter catalogue run e2e
           working_directory: apps
 
@@ -368,15 +370,11 @@ jobs:
       - store_artifacts:
           path: apps/catalogue/test-results
 
-  test:
-    <<: *test_config
+  test-apps:
+    <<: *build_config
 
     steps:
     - pre_steps
-
-    - run:
-        name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
         name: <apps> check code format
@@ -392,6 +390,18 @@ jobs:
         name: <apps> unit test the code
         command: ./gradlew :apps:test
 
+    - post_steps
+
+  test-backend:
+    <<: *test_config
+
+    steps:
+    - pre_steps
+
+    - run:
+        name: prepare sql test database
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
+
     - run:
         name: <backend> check code format
         command: |
@@ -402,16 +412,23 @@ jobs:
           ./gradlew --continue pmdMain pmdTest
     - run:
         name: run tests and push to sonar
+        # sonar rejects an empty pullrequest.key, and master has no PR, so the
+        # pull-request flags are only passed when there is one.
         command: |
+          SONAR_PR_ARGS=""
+          if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+            SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
+          fi
           ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
+          $SONAR_PR_ARGS
 
     - post_steps
 
     # LAST step of this job on purpose: it writes a repo-root .env, which would otherwise change the
-    # gradle and turbo input hashes of every step after it.
+    # gradle and turbo input hashes of every step after it. PR #6717 takes .env out of those hashes,
+    # so this step can move once that lands.
     - run:
         name: <dev> a repo-root .env reaches the forked dev JVM
         command: |
@@ -443,21 +460,10 @@ jobs:
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
 
     - run:
-        name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
-
-    - run:
-        name: lint the code
+        name: build the docker image
         command: |
-          ./gradlew lint ci --no-daemon \
+          ./gradlew ci dockerBuild --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
-
-    - run:
-        name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
-        command: |
-          ./gradlew test jacocoMergedReport sonar ci dockerBuild --no-daemon \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
         name: either release or push only snapshots to docker
@@ -614,7 +620,6 @@ jobs:
             export $( cat build/ci.properties | xargs )
             bash ci/set_kubectl_config-azure.sh
             bash ci/create_or_update_k8s-azure.sh "emx2" latest false true
-          working_directory: repo
              
       - run:
           name: Message slack about a database cleanup
@@ -642,23 +647,18 @@ workflows:
         filters:
           branches:
             ignore: master
-    - test:
-       filters:
-         branches:
-           ignore: master
-    - build:
-        filters:
-          branches:
-            ignore: master
-    - e2e-tests:
-        requires:
-          - build
+    - test-apps
+    - test-backend
+    - test-e2e
     - emx2-pyclient:
         name: testPyPI release
         filters:
           branches:
             ignore: master
     - release:
+       requires:
+         - test-apps
+         - test-backend
        filters:
          branches:
            only: master
