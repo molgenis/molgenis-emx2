@@ -27,7 +27,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
   @Test
   void shouldHandleRequiredColumn() {
     Column column = createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
-    LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
+    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo .");
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
@@ -36,7 +36,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
   @Test
   void shouldHandleNoSemanticsForColumn() {
     Column column = createColumn(Column.column("foo").setRequired(true).setSemantics());
-    LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
+    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertTrue(mapper.getPatterns().isEmpty());
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
@@ -45,7 +45,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
   @Test
   void shouldHandleOptionalColumn() {
     Column column = createColumn(Column.column("foo").setRequired(false).setSemantics("foaf:test"));
-    LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
+    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(mapper, "OPTIONAL { ?start foaf:test ?foo . }");
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
@@ -58,7 +58,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
             Column.column("foo")
                 .setRequired(false)
                 .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
-    LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
+    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(
         mapper,
         """
@@ -77,7 +77,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
             Column.column("foo")
                 .setRequired(true)
                 .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
-    LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
+    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(
         mapper,
         """
@@ -94,7 +94,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
   void shouldNormalizeColumnName() {
     Column column =
         createColumn(Column.column("foo bar").setRequired(true).setSemantics("foaf:test"));
-    LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
+    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo___bar .");
     assertHasSelectors(mapper, "?foo___bar");
     assertHasGroupBy(mapper, "?foo___bar");
@@ -105,7 +105,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
     Column column =
         createColumn(
             Column.column("foo").setRequired(true).setSemantics("https://example.org/ns#test"));
-    LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
+    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(mapper, "?start <https://example.org/ns#test> ?foo .");
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
@@ -118,7 +118,7 @@ class LiteralColumnSparqlQueryGeneratorTest {
             Column.column("foo")
                 .setRequired(false)
                 .setSemantics("foaf:test", "http://example.org/ns#test"));
-    LiteralColumnSparqlQueryGenerator mapper = new LiteralColumnSparqlQueryGenerator(START, column);
+    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(
         mapper,
         """

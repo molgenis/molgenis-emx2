@@ -27,12 +27,17 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
   protected final Variable object;
   protected final Variable selector;
 
-  public LiteralColumnSparqlQueryGenerator(Variable subject, Column column) {
-    this(
+  public static LiteralColumnSparqlQueryGenerator of(Variable subject, Column column) {
+    return new LiteralColumnSparqlQueryGenerator(
         subject, column, ColumnNameSparqlEncoder.encodeSparqlVariable(column), column.isRequired());
   }
 
-  public LiteralColumnSparqlQueryGenerator(
+  public static LiteralColumnSparqlQueryGenerator forObject(
+      Variable subject, Column column, Variable object) {
+    return new LiteralColumnSparqlQueryGenerator(subject, column, object, true);
+  }
+
+  private LiteralColumnSparqlQueryGenerator(
       Variable subject, Column column, Variable object, boolean isRequired) {
     this(subject, column, object, object, isRequired, false);
   }

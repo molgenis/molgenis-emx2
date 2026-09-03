@@ -43,7 +43,7 @@ public class TableQueryGenerator implements QueryGenerator {
       } else if (column.isArray()) {
         mapper = new ArrayColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
       } else {
-        mapper = new LiteralColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
+        mapper = LiteralColumnSparqlQueryGenerator.of(SUBJECT_VARIABLE, column);
       }
 
       selectors.addAll(mapper.getSelectors());
