@@ -121,9 +121,9 @@ const sidebarCollapsed = ref(false);
                 v-if="isEditable && orderedBlock.block.columns > 1"
                 :draggingInfo="draggingInfo"
                 :schema="schema"
-                :order="orderedComponent.order + 1"
+                :order="orderedComponent.order"
                 :parent="orderedBlock.block.id"
-                :columnIndex="index"
+                :columnIndex="Number(index)+1"
                 componentType="Component"
                 @updatePage="$emit('updatePage')"
               />
@@ -150,6 +150,16 @@ const sidebarCollapsed = ref(false);
                 @updatePage="$emit('updatePage')"
               />
             </div>
+              <ComponentDropZone
+                v-if="isEditable && orderedBlock.block.columns > 1 && orderedBlock.block.componentOrder.length-1 === index"
+                :draggingInfo="draggingInfo"
+                :schema="schema"
+                :order="orderedComponent.order + 1"
+                :columnIndex="index+2"
+                :parent="orderedBlock.block.id"
+                componentType="Component"
+                @updatePage="$emit('updatePage')"
+              />
           </template>
         </PageComponent>
         <TextParagraph
