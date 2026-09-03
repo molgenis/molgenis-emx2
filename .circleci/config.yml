@@ -30,8 +30,6 @@ definitions:
     docker:
     - image: molgenis/ci-build:1.6.3
     - image: postgres:15-alpine
-      # The first two are what docker-compose.yml and the helm chart already use. The rest are
-      # CI-only: this database is discarded when the job ends, so it need not survive a crash.
       command: postgres -c shared_buffers=256MB -c max_locks_per_transaction=1024
         -c fsync=off -c synchronous_commit=off -c full_page_writes=off -c max_wal_size=4GB
       environment:
@@ -41,8 +39,6 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      # 6, not 4. At 6 the one class that failed held an exclusive lock on _SYSTEM_.Templates;
-      # that DDL is gone, so the concurrency 6 buys no longer queues behind it.
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6"
       TERM: dumb
   release_config: &release_config
@@ -69,8 +65,6 @@ commands:
         default: true
     steps:
     - run:
-        # Temporary: the fork count and the memory caps get sized off these numbers, and no
-        # instrumentation may fail a job.
         name: Report CPUs and memory the container and JVM see
         command: |
           set +e
@@ -147,12 +141,9 @@ commands:
         when: always
     - store_test_results:
         path: ~/test-results
-    # store_test_results feeds the summary API, which drops the per-class timestamps. Keep the
-    # raw XML too: with timestamp plus duration you can count how many forks were really busy.
     - store_artifacts:
         path: ~/test-results
         when: always
-    # The step log is truncated to its last 400KB, which loses task dispatch. Keep the whole one.
     - store_artifacts:
         path: ~/gradle-logs
         when: always
@@ -161,9 +152,7 @@ commands:
 jobs:
   build-preview-images:
     <<: *build_config
-    # Job-level environment REPLACES the anchor's, so TERM is restated here, not inherited.
     environment:
-      # Temporary: 4, same question as test-backend and test-e2e. Its median CPU is 2.1 of 4.
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
       TERM: dumb
 
@@ -203,8 +192,6 @@ jobs:
     docker:
     - image: cimg/openjdk:21.0-browsers
     - image: postgres:15-alpine
-      # The first two are what docker-compose.yml and the helm chart already use. The rest are
-      # CI-only: this database is discarded when the job ends, so it need not survive a crash.
       command: postgres -c shared_buffers=256MB -c max_locks_per_transaction=1024
         -c fsync=off -c synchronous_commit=off -c full_page_writes=off -c max_wal_size=4GB
       environment:
@@ -214,7 +201,6 @@ jobs:
     working_directory: ~/repo
     resource_class: large
     environment:
-      # Temporary: 4 to see whether test-e2e's gradle build answers the way test-backend's did.
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
       TERM: dumb
       # A cache restores to the absolute path it was saved from, and `~` is a different
@@ -314,7 +300,6 @@ jobs:
             RETRY=0
 
             while true; do
-              # Run curl, suppress output, get status code only
               STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
 
               echo "HTTP status: ${STATUS:-none}"
@@ -416,7 +401,6 @@ jobs:
         layer_cache: false
         # Not for docker: turbo lints 3 packages at once and 8GB is not enough for them.
         remote_docker: true
-        # Temporary control run: measure these two cold, then revert this line.
         gradle_cache: false
 
     - run:
@@ -429,7 +413,6 @@ jobs:
           ./gradlew lint ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
         # Turbo lints 3 packages at once, each Node child sizing its heap from HOST memory.
-        # Unbounded that peaked at 8.40GB against this job's 8192MB cap.
         environment:
           NODE_OPTIONS: --max-old-space-size=2048
 
@@ -449,7 +432,6 @@ jobs:
         layer_cache: false
         # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
         remote_docker: true
-        # Temporary control run: measure these two cold, then revert this line.
         gradle_cache: false
 
     - run:
@@ -473,9 +455,8 @@ jobs:
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
             SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
           fi
-          # tee keeps the log on stdout AND whole on disk: CircleCI truncates a step log to its
-          # last 400KB, which loses the task dispatch this run exists to show. pipefail keeps the
-          # step failing on gradle's exit code rather than tee's.
+          # CircleCI truncates a step log to its last 400KB, so tee keeps it whole on disk.
+          # pipefail keeps the step failing on gradle's exit code rather than tee's.
           set -o pipefail
           mkdir -p ~/gradle-logs
           ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test --console=plain \
@@ -558,7 +539,6 @@ jobs:
 
   pr-preview:
     <<: *build_config
-    # Measured peak: 639MB and 1.49 cores briefly, then idle polling. small fits.
     resource_class: small
 
     steps:
