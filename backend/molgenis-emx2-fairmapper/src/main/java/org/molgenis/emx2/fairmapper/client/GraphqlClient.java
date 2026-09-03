@@ -1,4 +1,4 @@
-package org.molgenis.emx2.graphql;
+package org.molgenis.emx2.fairmapper.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,12 +14,12 @@ import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.web.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GraphqlClient {
 
-  private static final String X_MOLGENIS_TOKEN_HEADER = "x-molgenis-token";
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private static final Logger logger = LoggerFactory.getLogger(GraphqlClient.class);
@@ -49,14 +49,14 @@ public class GraphqlClient {
           HttpRequest.newBuilder()
               .uri(endpoint.resolve(path))
               .header(Header.CONTENT_TYPE, String.valueOf(ContentType.APPLICATION_JSON))
-              .header(X_MOLGENIS_TOKEN_HEADER, token)
+              .header(Constants.X_MOLGENIS_TOKEN, token)
               .POST(HttpRequest.BodyPublishers.ofString(payload))
               .build();
 
       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
       logger.debug("Received response: {}", response);
 
-      if (response.statusCode() == HttpStatus.BAD_REQUEST.getCode()) {
+      if (response.statusCode() != HttpStatus.OK.getCode()) {
         handleError(response);
       }
 
@@ -76,9 +76,13 @@ public class GraphqlClient {
 
   private void handleError(HttpResponse<String> response) {
     try {
+      JsonNode jsonNode = MAPPER.readTree(response.body());
+      if (!jsonNode.has("error")) {
+        throw new MolgenisException("Unexpected response from graphql server: " + jsonNode);
+      }
+
       String errors =
-          MAPPER
-              .readTree(response.body())
+          jsonNode
               .get("errors")
               .valueStream()
               .map(json -> json.get("message").toString())

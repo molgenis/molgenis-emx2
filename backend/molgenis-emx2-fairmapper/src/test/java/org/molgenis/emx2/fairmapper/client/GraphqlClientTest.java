@@ -1,4 +1,4 @@
-package org.molgenis.emx2.graphql;
+package org.molgenis.emx2.fairmapper.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -82,6 +82,16 @@ class GraphqlClientTest extends ApiTestBase {
     assertTrue(exception.getMessage().startsWith("Failed to execute graphql query"));
   }
 
+  @Test
+  void shouldHandleSchemaNameWithSpaces() {
+    String schemaName = SCHEMA_NAME + " 2";
+    database.dropCreateSchema(schemaName);
+
+    GraphqlClient client = new GraphqlClient("http://localhost:" + port, token);
+    JsonNode data = client.sendSchemaQuery(SCHEMA_NAME, SCHEMA_QUERY);
+    assertTrue(data.has("_schema"));
+  }
+
   @Nested
   class MockServerTest {
 
@@ -105,6 +115,24 @@ class GraphqlClientTest extends ApiTestBase {
     }
 
     @Test
+    void givenNotFoundWithErrors_whenSendQuery_thenThrowsWithJoinedMessages() throws IOException {
+      withMockServer(
+          new StaticResponseHttpHandler(
+              404,
+              """
+              {
+                "errors": [
+                  {"message":"not found"}
+                ]
+              }"""),
+          client -> {
+            MolgenisException exception =
+                assertThrows(MolgenisException.class, () -> client.sendQuery("{}"));
+            assertEquals("\"not found\"", exception.getMessage());
+          });
+    }
+
+    @Test
     void givenBadRequestWithInvalidJson_whenSendQuery_thenThrowsWrappedException()
         throws IOException {
       withMockServer(
@@ -114,6 +142,18 @@ class GraphqlClientTest extends ApiTestBase {
                 assertThrows(MolgenisException.class, () -> client.sendQuery("{}"));
             assertTrue(
                 exception.getMessage().contains("Unable to read error message from response"));
+          });
+    }
+
+    @Test
+    void givenBadRequestWithoutErrorsField_whenSendQuery_thenThrowsUnexpectedResponse()
+        throws IOException {
+      withMockServer(
+          new StaticResponseHttpHandler(400, "{\"message\":\"boom\"}"),
+          client -> {
+            MolgenisException exception =
+                assertThrows(MolgenisException.class, () -> client.sendQuery("{}"));
+            assertTrue(exception.getMessage().contains("Unexpected response from graphql server"));
           });
     }
 
