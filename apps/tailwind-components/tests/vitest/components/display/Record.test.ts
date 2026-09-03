@@ -57,14 +57,29 @@ class FakeIntersectionObserver {
   }
 }
 
-function reportBox(boxId: string, isIntersecting: boolean) {
+function observerFor(boxId: string, within?: Element) {
   const observer = FakeIntersectionObserver.instances.find((instance) =>
-    instance.targets.some((target) => target.id === boxId)
+    instance.targets.some(
+      (target) => target.id === boxId && (!within || within.contains(target))
+    )
   );
   if (!observer) {
     throw new Error(`no observer watches box ${boxId}`);
   }
-  observer.callback([{ isIntersecting }]);
+  return observer;
+}
+
+function reportBox(boxId: string, isIntersecting: boolean) {
+  observerFor(boxId).callback([{ isIntersecting }]);
+}
+
+// Box ids repeat across wrappers, so a test mounting a second one must say which.
+function reportBoxIn(
+  wrapper: ReturnType<typeof mount>,
+  boxId: string,
+  isIntersecting: boolean
+) {
+  observerFor(boxId, wrapper.element as Element).callback([{ isIntersecting }]);
 }
 
 function legendCurrent(wrapper: ReturnType<typeof mount>) {
@@ -155,6 +170,55 @@ describe("DisplayRecord", () => {
     reportBox("size", false);
     await wrapper.vm.$nextTick();
     expect(legendCurrent(wrapper)).toEqual(["false", "false", "true"]);
+  });
+
+  test("marks the first legend entry active from the start, in both legend shapes, until a real box reports in view", async () => {
+    expect(legendCurrent(wrapper)).toEqual(["true", "false", "false"]);
+
+    reportBox("care", true);
+    await wrapper.vm.$nextTick();
+    expect(legendCurrent(wrapper)).toEqual(["false", "false", "true"]);
+
+    const oneSection = mount(DisplayRecord, {
+      props: {
+        metadata: table([
+          column("mg_top_of_form", "SECTION", "_top"),
+          column("name", "STRING", "Name"),
+          column("details", "HEADING", "Details"),
+          column("status", "STRING", "Status"),
+          column("heading2", "HEADING", "Heading2"),
+          column("weight", "DECIMAL", "Weight"),
+        ]),
+        rowData: { name: "spike", status: "available", weight: 15.7 },
+      },
+    });
+    await nextTick();
+    expect(legendCurrent(oneSection)).toEqual(["true", "false", "false"]);
+  });
+
+  test("treats a report naming a box the filter just dropped as no report, lighting up the first surviving entry", async () => {
+    const withFilter = mount(DisplayRecord, {
+      props: {
+        metadata: twoSections,
+        rowData: twoSectionsRow,
+        showFilter: true,
+      },
+    });
+    await nextTick();
+
+    reportBoxIn(withFilter, "care", true);
+    await nextTick();
+    expect(legendCurrent(withFilter)).toEqual(["false", "false", "true"]);
+
+    // "we" matches Weight alone, so the Care box the reader reported is dropped.
+    await withFilter.get('input[type="search"]').setValue("we");
+    await nextTick();
+
+    expect(legendLinks(withFilter)).toEqual([
+      ["About", "#about"],
+      ["Size", "#size"],
+    ]);
+    expect(legendCurrent(withFilter)).toEqual(["true", "false"]);
   });
 
   test("stops watching its boxes when the record leaves the page", () => {

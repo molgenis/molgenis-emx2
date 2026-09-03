@@ -81,7 +81,18 @@ const hasLegend = computed(
 );
 const showFilterBox = computed(() => props.showFilter);
 
-const activeBoxId = ref<string | null>(null);
+const reportedBoxId = ref<string | null>(null);
+// RecordSection's rootMargin excludes the page header, so no box reports inView
+// at scroll 0, and the filter can drop the box that did report. Either way the
+// first surviving box is the one the reader is on.
+const activeBoxId = computed(() => {
+  const reported = recordSections.value.some(
+    (box) => box.id === reportedBoxId.value
+  )
+    ? reportedBoxId.value
+    : null;
+  return reported ?? recordSections.value[0]?.id ?? null;
+});
 
 const legendGroups = computed<LegendGroup[]>(() =>
   sections.value.length === 1
@@ -146,7 +157,7 @@ const title = computed(() => recordTitle(props.metadata, props.rowData));
           :showCards="showCards"
           :trackInView="hasLegend"
           @valueClick="$emit('valueClick', $event)"
-          @inView="activeBoxId = box.id"
+          @inView="reportedBoxId = box.id"
         />
       </div>
     </template>
