@@ -1,4 +1,4 @@
-package org.molgenis.emx2.graphql;
+package org.molgenis.emx2.fairmapper.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,22 +23,22 @@ class GraphqlClientTest extends ApiTestBase {
   private static final String SCHEMA_NAME = GraphqlClientTest.class.getSimpleName();
   private static final String QUERY =
       """
-      query {
-        _schemas {
-          id
-        }
-      }
-      """;
+          query {
+            _schemas {
+              id
+            }
+          }
+          """;
   private static final String SCHEMA_QUERY =
       """
-      query {
-        _schema {
-          tables {
-            name
+          query {
+            _schema {
+              tables {
+                name
+              }
+            }
           }
-        }
-      }
-      """;
+          """;
   private static String token;
 
   @BeforeAll
@@ -91,12 +91,12 @@ class GraphqlClientTest extends ApiTestBase {
           new StaticResponseHttpHandler(
               400,
               """
-              {
-                "errors": [
-                  {"message":"boom"},
-                  {"message":"bang"}
-                ]
-              }"""),
+                      {
+                        "errors": [
+                          {"message":"boom"},
+                          {"message":"bang"}
+                        ]
+                      }"""),
           client -> {
             MolgenisException exception =
                 assertThrows(MolgenisException.class, () -> client.sendQuery("{}"));
