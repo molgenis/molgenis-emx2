@@ -99,10 +99,7 @@ export const buildRecordDetailsQueryFields = (
     }
   });
 
-  const hasMgTableclass = allColumns?.some((c) => c.id === "mg_tableclass");
-  const queryFields =
-    (fields ? fields.join(" ") : "") +
-    (hasMgTableclass ? " mg_tableclass" : "");
+  const queryFields = fields ? fields.join(" ") : "";
 
   return queryFields;
 };
