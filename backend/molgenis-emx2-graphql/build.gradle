@@ -4,4 +4,6 @@ dependencies {
     implementation project(':backend:molgenis-emx2-tasks')
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-datamodels')
+
+    testImplementation testFixtures(project(':backend:molgenis-emx2-webapi'))
 }
