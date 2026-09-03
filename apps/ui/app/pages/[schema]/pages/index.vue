@@ -164,6 +164,7 @@ async function onAddFormValues(value: IContainers) {
         :isEditable="enableEditing"
         :schema="schema"
         :container="container"
+        @deleted="refresh()"
       />
     </div>
     <div v-else-if="!data?.containers" class="w-full text-center">

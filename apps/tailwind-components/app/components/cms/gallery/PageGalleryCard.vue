@@ -1,29 +1,21 @@
 <script setup lang="ts">
 import { ref } from "vue";
+
+import PageGalleryCardAction from "./PageGalleryCardAction.vue";
+import BaseIcon from "../../BaseIcon.vue";
+
+import type { IContainers } from "../../../../types/cms.ts";
+import type { ICmsPageTypes } from "../../../../types/CmsComponents.ts";
+
 import {
   setCmsViewUrl,
   setCmsEditorUrl,
   setCmsPageType,
-  getPage,
-  getPageComponents,
-  updateBlocks,
-  deleteBlock,
-  deleteContainer,
 } from "../../../utils/cms.ts";
-import type {
-  IContainers,
-  IConfigurablePages,
-  IDeveloperPages,
-  IBlocks,
-} from "../../../../types/cms.ts";
-import PageGalleryCardAction from "./PageGalleryCardAction.vue";
-
-import BaseIcon from "../../BaseIcon.vue";
-
-interface IBlockIds {
-  blockId: string;
-  blockOrderId: string;
-}
+import {
+  deleteDeveloperPage,
+  deleteConfigurablePage,
+} from "../../../utils/cms/delete.ts";
 
 const props = withDefaults(
   defineProps<{
@@ -36,79 +28,105 @@ const props = withDefaults(
   }
 );
 
+const emits = defineEmits<{
+  (e: "deleted", value: boolean): void;
+}>();
+
 const currentPageType = ref<string | undefined>(
   setCmsPageType(props.container.mg_tableclass)
 );
 
+// async function deletePage() {
+//   if (props.container.mg_tableclass?.endsWith(".Configurable pages")) {
+//     // retrieve page metadata
+//     const pageData = await getPage(props.schema, props.container.name);
+//     const page = pageData.page as IConfigurablePages;
+//     console.log("Page:", page);
+
+//     // remove multiple links of components that are used in more than one place
+//     const components = await getPageComponents(
+//       props.schema,
+//       props.container.name
+//     );
+//     const currentPageBlocks = page.blocks?.map((block) => block.id);
+//     if (components && currentPageBlocks) {
+//       const componentsInMultipleBlocks = components
+//         .filter((component) => {
+//           return component.inBlock && component.inBlock.length > 1;
+//         })
+//         .map((component) => {
+//           const newComponent = component;
+//           const revisedComponents = newComponent.inBlock.filter(
+//             (block: IBlocks) => {
+//               return !currentPageBlocks?.includes(block.id);
+//             }
+//           );
+//           newComponent.inBlock = revisedComponents;
+//           return newComponent;
+//         });
+
+//       await updateComponents(props.schema, componentsInMultipleBlocks);
+//       // console.log(
+//       //   currentPageBlocks,
+//       //   "\n updates:",
+//       //   componentsInMultipleBlocks,
+//       //   "\n components:",
+//       //   components
+//       // );
+//     }
+
+//     // find blocks that are also used in multiple pages and remove
+//     // link to blocks on this page
+//     if (page.blocks) {
+//       const blocksInMultiplePages = page.blocks
+//         ?.filter((block) => {
+//           return block.inContainer && block.inContainer.length > 1;
+//         })
+//         .map((block) => {
+//           const newBlock = block;
+//           const revisedContainers = newBlock.inContainer.filter(
+//             (container: any) => {
+//               return container.name !== props.container.name;
+//             }
+//           );
+//           newBlock.inContainer = revisedContainers;
+//           return newBlock;
+//         }) as IBlocks[];
+
+//       // remove link to current block if multiple exist
+//       if (blocksInMultiplePages) {
+//         // console.log("remove multiple links in blocks:", blocksInMultiplePages);
+//         await updateBlocks(props.schema, blocksInMultiplePages);
+//       }
+//     }
+
+//     // get blocks
+//     const pageBlocks = page.blockOrder?.map((block) => {
+//       return { blockId: block.block.id, blockOrderId: block.id };
+//     }) as IBlockIds[];
+//     for (const block of pageBlocks) {
+//       // console.log("removing blocks", block.blockOrderId);
+//       await deleteBlock(props.schema, block.blockId, block.blockOrderId, props.container.name);
+//       await deleteContainer(props.schema, props.container.name);
+//     }
+//   }
+// }
+
 async function deletePage() {
-  if (props.container.mg_tableclass?.endsWith(".Configurable pages")) {
-    // retrieve page metadata
-    const pageData = await getPage(props.schema, props.container.name);
-    const page = pageData.page as IConfigurablePages;
-    console.log("Page:", page);
+  const pageTableClass = props.container.mg_tableclass as ICmsPageTypes;
+  const pageName = props.container.name;
+  console.log(`Deleting: ${pageName} (${pageTableClass})`);
 
-    // remove multiple links of components that are used in more than one place
-    const components = await getPageComponents(
-      props.schema,
-      props.container.name
-    );
-    const currentPageBlocks = page.blocks?.map((block) => block.id);
-    if (components && currentPageBlocks) {
-      const componentsInMultipleBlocks = components
-        .filter((component) => {
-          return component.inBlock && component.inBlock.length > 1;
-        })
-        .map((component) => {
-          const newComponent = component;
-          const revisedComponents = newComponent.inBlock.filter(
-            (block: IBlocks) => {
-              return !currentPageBlocks?.includes(block.id);
-            }
-          );
-          newComponent.inBlock = revisedComponents;
-          return newComponent;
-        });
-      console.log(
-        currentPageBlocks,
-        "\n updates:",
-        componentsInMultipleBlocks,
-        "\n components:",
-        components
-      );
-    }
-
-    // find blocks that are also used in other pages
-    if (page.blocks) {
-      const blocksInMultiplePages = page.blocks
-        ?.filter((block) => {
-          return block.inContainer && block.inContainer.length > 1;
-        })
-        .map((block) => {
-          const newBlock = block;
-          const revisedContainers = newBlock.inContainer.filter(
-            (container: any) => {
-              return container.name !== props.container.name;
-            }
-          );
-          newBlock.inContainer = revisedContainers;
-          return newBlock;
-        }) as IBlocks[];
-
-      // remove link to current block if multiple exist
-      if (blocksInMultiplePages) {
-        // console.log("remove blocks:", blocksInMultiplePages);
-        // await updateBlocks(props.schema, blocksInMultiplePages);
-      }
-    }
-
-    // get blocks
-    const pageBlocks = page.blockOrder?.map((block) => {
-      return { blockId: block.block.id, blockOrderId: block.id };
-    }) as IBlockIds[];
-    for (const block of pageBlocks) {
-      // await deleteBlock(props.schema, block.blockId, block.blockOrderId, props.container.name);
-      // await deleteContainer(props.schema, props.container.name);
-    }
+  if (pageTableClass.endsWith(".Developer pages")) {
+    await deleteDeveloperPage(props.schema, pageName);
+    emits("deleted", true);
+  } else if (pageTableClass.endsWith(".Configurable pages")) {
+    console.log("Configurable page clicked");
+    await deleteConfigurablePage(props.schema, pageName);
+    emits("deleted", true);
+  } else {
+    console.log("Page type", pageTableClass, "not defined");
+    return undefined;
   }
 }
 </script>
