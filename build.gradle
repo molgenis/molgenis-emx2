@@ -47,13 +47,13 @@ ext.dotenvValuesForForkedJvms = { ->
     }
     values
 }
-ext.forwardDotenvProps = { task ->
+ext.forwardDotenvAsSystemProperties = { task ->
     rootProject.ext.dotenvValuesForForkedJvms().each { key, value -> task.systemProperty key, value }
 }
 
 // .env says where to run, not what to run, so it stays out of a Test task's cache key: Gradle marks
 // systemProperties @Input but environment @Internal, and EnvironmentProperty reads either.
-ext.forwardDotenvPropsToTest = { task ->
+ext.forwardDotenvAsEnvironment = { task ->
     task.environment rootProject.ext.dotenvValuesForForkedJvms()
 }
 ext.resolveDotenvValue = { key ->
@@ -215,7 +215,7 @@ application {
     mainClass.set(javaMainClass)
 }
 
-tasks.withType(JavaExec).configureEach { forwardDotenvProps(it) }
+tasks.withType(JavaExec).configureEach { forwardDotenvAsSystemProperties(it) }
 
 tasks.named('run') { rootProject.ext.applyDotenvHeap(it) }
 
