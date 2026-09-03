@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -81,6 +82,9 @@ public class TestMgColumns {
     assertNotNull(r.getString(MG_INSERTEDBY));
     assertEquals(r.getString(MG_UPDATEDBY), r.getString(MG_INSERTEDBY));
 
+    // update without mg values, so they are set to the active user and the current time
+    r.clear(MG_UPDATEDBY);
+    r.clear(MG_UPDATEDON);
     t.update(r);
     r = t.retrieveRows().get(0);
     assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
@@ -95,6 +99,8 @@ public class TestMgColumns {
     assertNotNull(r.getString(MG_INSERTEDBY));
     assertEquals(r.getString(MG_UPDATEDBY), r.getString(MG_INSERTEDBY));
 
+    r.clear(MG_UPDATEDBY);
+    r.clear(MG_UPDATEDON);
     t.update(r);
     r = t.retrieveRows().get(0);
     assertTrue(r.getDateTime(MG_INSERTEDON).compareTo(r.getDateTime(MG_UPDATEDON)) < 0);
@@ -114,6 +120,97 @@ public class TestMgColumns {
     assertEquals(inserted.getDateTime(MG_INSERTEDON), saved.getDateTime(MG_INSERTEDON));
     assertEquals(inserted.getString(MG_INSERTEDBY), saved.getString(MG_INSERTEDBY));
     assertTrue(saved.getDateTime(MG_INSERTEDON).isBefore(saved.getDateTime(MG_UPDATEDON)));
+  }
+
+  @Test
+  public void testProvidedMgValuesAreUsedOnInsertUpdateAndSave() {
+    Table t = schema.create(table("ProvidedMg", column("id").setPkey(), column("value")));
+
+    LocalDateTime insertedOn = LocalDateTime.of(2001, 1, 1, 10, 0, 0);
+    LocalDateTime updatedOn = LocalDateTime.of(2002, 2, 2, 10, 0, 0);
+    t.insert(
+        row(
+            "id",
+            1,
+            "value",
+            "somevalue1",
+            MG_INSERTEDBY,
+            "importer1",
+            MG_INSERTEDON,
+            insertedOn,
+            MG_UPDATEDBY,
+            "importer2",
+            MG_UPDATEDON,
+            updatedOn));
+
+    Row inserted = t.retrieveRows().getFirst();
+    assertEquals("importer1", inserted.getString(MG_INSERTEDBY));
+    assertEquals(insertedOn, inserted.getDateTime(MG_INSERTEDON));
+    assertEquals("importer2", inserted.getString(MG_UPDATEDBY));
+    assertEquals(updatedOn, inserted.getDateTime(MG_UPDATEDON));
+
+    // update with provided values
+    LocalDateTime updatedOn2 = LocalDateTime.of(2003, 3, 3, 10, 0, 0);
+    t.update(
+        row("id", 1, "value", "somevalue2", MG_UPDATEDBY, "importer3", MG_UPDATEDON, updatedOn2));
+
+    Row updated = t.retrieveRows().getFirst();
+    assertEquals("somevalue2", updated.getString("value"));
+    assertEquals("importer1", updated.getString(MG_INSERTEDBY));
+    assertEquals(insertedOn, updated.getDateTime(MG_INSERTEDON));
+    assertEquals("importer3", updated.getString(MG_UPDATEDBY));
+    assertEquals(updatedOn2, updated.getDateTime(MG_UPDATEDON));
+
+    // update can also override the inserted metadata
+    LocalDateTime insertedOn2 = LocalDateTime.of(2005, 5, 5, 10, 0, 0);
+    t.update(
+        row(
+            "id",
+            1,
+            "value",
+            "somevalue2b",
+            MG_INSERTEDBY,
+            "importer3b",
+            MG_INSERTEDON,
+            insertedOn2));
+
+    updated = t.retrieveRows().getFirst();
+    assertEquals("importer3b", updated.getString(MG_INSERTEDBY));
+    assertEquals(insertedOn2, updated.getDateTime(MG_INSERTEDON));
+
+    // save on an existing row (insert on conflict) with provided values
+    LocalDateTime updatedOn3 = LocalDateTime.of(2004, 4, 4, 10, 0, 0);
+    LocalDateTime insertedOn3 = LocalDateTime.of(2006, 6, 6, 10, 0, 0);
+    t.save(
+        row(
+            "id",
+            1,
+            "value",
+            "somevalue3",
+            MG_INSERTEDBY,
+            "importer4b",
+            MG_INSERTEDON,
+            insertedOn3,
+            MG_UPDATEDBY,
+            "importer4",
+            MG_UPDATEDON,
+            updatedOn3));
+
+    Row saved = t.retrieveRows().getFirst();
+    assertEquals("somevalue3", saved.getString("value"));
+    assertEquals("importer4", saved.getString(MG_UPDATEDBY));
+    assertEquals(updatedOn3, saved.getDateTime(MG_UPDATEDON));
+    assertEquals("importer4b", saved.getString(MG_INSERTEDBY));
+    assertEquals(insertedOn3, saved.getDateTime(MG_INSERTEDON));
+
+    // without provided values the active user and current time are applied again
+    t.update(row("id", 1, "value", "somevalue4"));
+
+    Row fallback = t.retrieveRows().getFirst();
+    assertEquals(schema.getDatabase().getActiveUser(), fallback.getString(MG_UPDATEDBY));
+    assertTrue(fallback.getDateTime(MG_UPDATEDON).isAfter(updatedOn3));
+    assertEquals("importer4b", fallback.getString(MG_INSERTEDBY));
+    assertEquals(insertedOn3, fallback.getDateTime(MG_INSERTEDON));
   }
 
   @Test
