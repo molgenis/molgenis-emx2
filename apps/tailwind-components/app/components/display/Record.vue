@@ -1,89 +1,165 @@
-<script lang="ts" setup>
-import { computed } from "vue";
-import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type { recordValue } from "../../../../metadata-utils/src/types";
-import ValueEMX2 from "../value/EMX2.vue";
+<script setup lang="ts">
+import { computed, ref, useId } from "vue";
+import type {
+  IRow,
+  ITableMetaData,
+  LegendGroup,
+} from "../../../../metadata-utils/src/types";
+import type { cellPayload } from "../../../types/types";
+import type { RecordSection, RecordSectionGroup } from "../../../types/record";
+import { groupRecordSections } from "../../utils/groupRecordSections";
+import { recordTitle } from "../../utils/recordTitle";
+import FormLegend from "../form/Legend.vue";
+import InputSearch from "../input/Search.vue";
+import RecordPageLayout from "./RecordPageLayout.vue";
+import DisplayRecordSection from "./RecordSection.vue";
 
 const props = withDefaults(
   defineProps<{
-    tableMetadata?: ITableMetaData;
-    inputRowData: recordValue;
+    metadata: ITableMetaData;
+    rowData?: IRow | null;
     showMgColumns?: boolean;
-    keyFieldsOnly?: boolean;
+    showLegend?: boolean;
+    showCards?: boolean;
+    showFilter?: boolean;
   }>(),
   {
+    rowData: null,
     showMgColumns: false,
-    keyFieldsOnly: false,
+    showLegend: true,
+    showCards: true,
+    showFilter: false,
   }
 );
 
-const filteredTableMetadata = computed(() => {
-  return props.tableMetadata?.columns
-    .filter((column) => props.showMgColumns || !column.id.startsWith("mg_"))
-    .filter((column) => (props.keyFieldsOnly ? column.key === 1 : true));
+defineEmits<{
+  (e: "valueClick", payload: cellPayload): void;
+}>();
+
+const filterId = `display-record-filter-${useId()}`;
+const filterValue = ref("");
+
+const sections = computed(() =>
+  groupRecordSections(props.metadata, props.rowData, {
+    showMgColumns: props.showMgColumns,
+    filterTerm: props.showFilter ? filterValue.value : undefined,
+  })
+);
+
+const recordSections = computed<RecordSection[]>(() =>
+  sections.value.flatMap((section) => [
+    ...(hasOwnSection(section)
+      ? [
+          {
+            kind: "section" as const,
+            id: section.id,
+            label: section.label,
+            fields: section.fields,
+          },
+        ]
+      : []),
+    ...section.headings.map((heading) => ({
+      kind: "heading" as const,
+      ...heading,
+    })),
+  ])
+);
+
+function hasOwnSection(section: RecordSectionGroup): boolean {
+  return !!section.label || section.fields.length > 0;
+}
+
+function legendAnchorId(section: RecordSectionGroup): string {
+  return hasOwnSection(section)
+    ? section.id
+    : section.headings[0]?.id ?? section.id;
+}
+
+// Enough sections to need navigating, and the caller has not turned the legend off.
+const hasLegend = computed(
+  () => props.showLegend && recordSections.value.length > 1
+);
+const showFilterBox = computed(() => props.showFilter);
+
+const reportedBoxId = ref<string | null>(null);
+// RecordSection's rootMargin excludes the page header, so no box reports inView
+// at scroll 0, and the filter can drop the box that did report. Either way the
+// first surviving box is the one the reader is on.
+const activeBoxId = computed(() => {
+  const reported = recordSections.value.some(
+    (box) => box.id === reportedBoxId.value
+  )
+    ? reportedBoxId.value
+    : null;
+  return reported ?? recordSections.value[0]?.id ?? null;
 });
 
-const tableMetadataByHeadings = computed(() => {
-  if (filteredTableMetadata.value) {
-    const headings = filteredTableMetadata.value.reduce(
-      (results, row) => {
-        if (row.columnType === "HEADING") {
-          results[row.label] = [];
-        }
+const legendGroups = computed<LegendGroup[]>(() =>
+  sections.value.length === 1
+    ? recordSections.value.map((box) => ({
+        id: box.id,
+        label: box.label ?? props.metadata.label,
+        href: `#${box.id}`,
+        isVisible: true,
+        isActive: box.id === activeBoxId.value,
+      }))
+    : sections.value.map((section) => ({
+        id: section.id,
+        label: section.label ?? props.metadata.label,
+        href: `#${legendAnchorId(section)}`,
+        isVisible: true,
+        isActive: section.id === activeBoxId.value,
+        headers: section.headings.map((heading) => ({
+          id: heading.id,
+          label: heading.label,
+          href: `#${heading.id}`,
+          isVisible: true,
+          isActive: heading.id === activeBoxId.value,
+        })),
+      }))
+);
 
-        return results;
-      },
-      { _base: [] } as Record<string, any>
-    );
-
-    let currentHeading: string = "";
-    filteredTableMetadata.value?.forEach((row) => {
-      if (row.columnType === "HEADING") {
-        currentHeading = row.label;
-      }
-
-      if (currentHeading === "" && row.columnType !== "HEADING") {
-        headings["_base"].push(row);
-      } else if (currentHeading !== "" && row.columnType !== "HEADING") {
-        headings[currentHeading].push(row);
-      } else {
-        return null;
-      }
-    });
-
-    return headings;
-  }
-});
+const title = computed(() => recordTitle(props.metadata, props.rowData));
 </script>
 
 <template>
-  <div v-for="(headingData, heading) in tableMetadataByHeadings">
-    <p v-if="heading !== '_base'" class="mb-1 text-record-heading font-bold">
-      {{ heading }}
-    </p>
-    <ul>
-      <li
-        v-for="row in headingData"
-        class="grid grid-cols-1 md:grid-cols-[1fr_3fr]"
+  <RecordPageLayout :show-legend="hasLegend">
+    <template v-if="hasLegend" #sidebar>
+      <FormLegend
+        :sections="legendGroups"
+        class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
       >
-        <div>
-          <span class="text-record-label">{{ row.label }}</span>
-        </div>
-        <div
-          class="text-record-value flex sm:flex-col md:flex-row"
-          :class="{
-            'md:flex-col': row.columnType.startsWith('HYPERLINK'),
-          }"
-        >
-          <ValueEMX2
-            :metadata="row"
-            :data="(inputRowData as recordValue)[row.id]"
-            :hide-list-separator="
-              row.columnType.startsWith('HYPERLINK') ? true : false
-            "
-          />
-        </div>
-      </li>
-    </ul>
-  </div>
+        <template v-if="title" #title>
+          <h2
+            class="pl-7 mb-6 text-heading-4xl font-display text-title-contrast"
+          >
+            {{ title }}
+          </h2>
+        </template>
+      </FormLegend>
+    </template>
+
+    <template #main>
+      <div v-if="showFilterBox" class="pb-7.5">
+        <label :for="filterId" class="sr-only">Filter fields</label>
+        <InputSearch
+          :id="filterId"
+          v-model="filterValue"
+          class="w-3/5 lg:w-2/5"
+          placeholder="Filter fields..."
+        />
+      </div>
+      <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
+        <DisplayRecordSection
+          v-for="box in recordSections"
+          :key="box.id"
+          :section="box"
+          :showCards="showCards"
+          :trackInView="hasLegend"
+          @valueClick="$emit('valueClick', $event)"
+          @inView="reportedBoxId = box.id"
+        />
+      </div>
+    </template>
+  </RecordPageLayout>
 </template>

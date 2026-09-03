@@ -488,9 +488,13 @@ watch(
                 :collapse-hidden-content="!isExpanded ? true : null"
               >
                 <DisplayRecord
-                  :table-metadata="tableMetadata"
-                  :input-row-data="(option as recordValue)"
-                  :showMgColumns="showMgColumns"
+                  v-if="tableMetadata"
+                  :metadata="tableMetadata"
+                  :row-data="(option as recordValue)"
+                  :show-mg-columns="showMgColumns"
+                  :show-legend="false"
+                  :show-filter="false"
+                  :show-cards="false"
                 />
               </InputRefSelectInputOption>
             </div>
