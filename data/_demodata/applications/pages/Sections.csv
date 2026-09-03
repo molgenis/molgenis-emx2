@@ -1,4 +1,5 @@
-id,in container,apply shaded background,columns,
-home-section-features,home,1,
-home-section-applications,home,true,1,
-home-section-navigation,home,1,
+id,in container,apply shaded background,columns
+demo-landing-page-overview,demo-landing-page,,1
+demo-landing-page-features,demo-landing-page,true,1
+demo-landing-page-information,demo-landing-page,,1
+demo-landing-page-notice,demo-landing-page,true,1

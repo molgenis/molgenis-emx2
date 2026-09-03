@@ -27,6 +27,7 @@ const handleDragEvent = (value: IDraggingInfo) => {
 };
 const draggingInfo = ref<IDraggingInfo>({
   dragging: false,
+  action: "create",
   componentName: "",
   componentType: "",
 });
@@ -74,25 +75,31 @@ const sidebarCollapsed = ref(false);
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
           :orderId="orderedBlock.id"
+          :order="orderedBlock.order"
           componentType="Block"
           :parent="content.name"
+          :page="content.name"
           :isEditable="isEditable"
           :metadata="metadata"
           @updatePage="$emit('updatePage')"
+          @dragging="handleDragEvent"
         />
         <PageComponent
           v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
           :orderId="orderedBlock.id"
+          :order="orderedBlock.order"
           :parent="content.name"
+          :page="content.name"
           :isEditable="isEditable"
           componentType="Block"
           :metadata="metadata"
           @updatePage="$emit('updatePage')"
+          @dragging="handleDragEvent"
         >
           <ComponentDropZone
-            v-if="isEditable"
+            v-if="isEditable && !(orderedBlock.block.columns > 1)"
             :draggingInfo="draggingInfo"
             :schema="schema"
             :order="
@@ -111,15 +118,12 @@ const sidebarCollapsed = ref(false);
           >
             <div>
               <ComponentDropZone
-                v-if="index === 0 && isEditable"
+                v-if="isEditable && orderedBlock.block.columns > 1"
                 :draggingInfo="draggingInfo"
                 :schema="schema"
-                :order="
-                  orderedBlock.block?.componentOrder
-                    ? orderedBlock.block.componentOrder[0].order
-                    : orderedBlock.block.order
-                "
+                :order="orderedComponent.order + 1"
                 :parent="orderedBlock.block.id"
+                :columnIndex="index"
                 componentType="Component"
                 @updatePage="$emit('updatePage')"
               />
@@ -127,14 +131,17 @@ const sidebarCollapsed = ref(false);
                 :mg_tableclass="orderedComponent.component.mg_tableclass"
                 :component="orderedComponent.component"
                 :orderId="orderedComponent.id"
+                :order="orderedComponent.order"
                 componentType="Component"
                 :parent="orderedBlock.block.id"
+                :page="content.name"
                 :isEditable="isEditable"
                 :metadata="metadata"
                 @updatePage="$emit('updatePage')"
+                @dragging="handleDragEvent"
               />
               <ComponentDropZone
-                v-if="isEditable"
+                v-if="isEditable && !(orderedBlock.block.columns > 1)"
                 :draggingInfo="draggingInfo"
                 :schema="schema"
                 :order="orderedComponent.order + 1"

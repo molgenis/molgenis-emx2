@@ -13,7 +13,7 @@ const props = withDefaults(
   }
 );
 console.log(">", props.columns, props);
-const emit = defineEmits(["edit", "delete"]);
+const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
 </script>
 
@@ -37,6 +37,7 @@ const showMenu = ref<boolean>(false);
           :aria-controls="id"
           @edit="$emit('edit')"
           @delete="$emit('delete')"
+          @move="$emit('move', $event)"
         />
       </template>
       <div
