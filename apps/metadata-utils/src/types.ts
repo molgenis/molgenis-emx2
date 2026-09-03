@@ -72,6 +72,7 @@ export interface IColumn {
   refLinkId?: string;
   refSchemaId?: string; //should always be provided when refTableId is set even if in same schema
   refTableId?: string;
+  cascadeDelete?: boolean;
   required?: string | boolean;
   semantics?: string[];
   validation?: string;
