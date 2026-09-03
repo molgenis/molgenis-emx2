@@ -523,7 +523,11 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public String getSchemaName() {
-    return getSchema().getName();
+    SchemaMetadata schemaMetadata = getSchema();
+    if (schemaMetadata == null) {
+      return null;
+    }
+    return schemaMetadata.getName();
   }
 
   public List<Column> getPrimaryKeyColumns() {
