@@ -29,7 +29,11 @@ public class CrawlingRdfExtractor implements RdfExtractor {
   private final boolean strict;
 
   public CrawlingRdfExtractor() {
-    this(CrawlSteps.FDP.steps(), true);
+    this(true);
+  }
+
+  public CrawlingRdfExtractor(boolean strict) {
+    this(CrawlSteps.FDP.steps(), strict);
   }
 
   private CrawlingRdfExtractor(List<CrawlStep> crawlSteps, boolean strict) {
