@@ -1,4 +1,16 @@
-import type { IColumn } from "./types";
+import type { ColumnType, IColumn } from "./types";
+
+const SINGLE_REF_TYPES = new Set<string>([
+  "REF",
+  "SELECT",
+  "RADIO",
+] satisfies ColumnType[]);
+
+const REF_ARRAY_TYPES = new Set<string>([
+  "REF_ARRAY",
+  "CHECKBOX",
+  "MULTISELECT",
+] satisfies ColumnType[]);
 
 export const fieldTypes = () => {
   return [
@@ -80,10 +92,25 @@ export const isRefType = (column: IColumn) => {
   );
 };
 
-export const isArrayType = (column: IColumn) => {
-  return column.columnType.endsWith("_ARRAY");
-};
+export const isSingleRefType = (columnType: string): boolean =>
+  SINGLE_REF_TYPES.has(columnType);
 
-export const isFileType = (column: IColumn) => {
-  return column.columnType === "FILE";
-};
+export const isRefbackType = (columnType: string): boolean =>
+  columnType === "REFBACK";
+
+export const isSingleOntologyType = (columnType: string): boolean =>
+  columnType === "ONTOLOGY";
+
+const isCollectionType = (columnType: string): boolean =>
+  REF_ARRAY_TYPES.has(columnType) || isRefbackType(columnType);
+
+export const isMultiValuedType = (columnType: string): boolean =>
+  columnType.endsWith("_ARRAY") || isCollectionType(columnType);
+
+// columnType can be missing, so guard here rather than loosening
+// isMultiValuedType's own type.
+export const isArrayLikeDetail = (column: IColumn): boolean =>
+  !!column.columnType && isMultiValuedType(column.columnType);
+
+export const isFileType = (columnType: string): boolean =>
+  columnType === "FILE";
