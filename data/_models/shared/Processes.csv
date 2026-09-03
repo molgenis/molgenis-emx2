@@ -5,6 +5,7 @@ Processes,,General Information,heading,,,,,,,,,,,,,,"Patient registry, Patient r
 Processes,,id,auto_id,,,1,TRUE,,,,,,,,obo:NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry, FAIR Genomes",
 Processes,,individuals,multiselect,,,,,,Individuals,,,,,,obo:NCIT_C164337,A reference to one or more individuals associated to the process,"Patient registry, FAIR Genomes",
 Processes,,individuals,multiselect,,,,TRUE,erdera,Individuals,,,,,,obo:NCIT_C164337,A reference to one or more individuals associated to the process,Patient registry staging,
+Variant interpretation analyses,,probands,multiselect,,,,,,Individuals,,,probands.includes(Individuals),,,,The proband(s) for the analysis,Patient registry,
 Experiments,Processes,,,,,,,,,,,,,,sio:SIO_000994,"An experiment is an investigation that has the goal of verifying, falsifying, or establishing the validity of a hypothesis.","Patient registry, Patient registry staging, FAIR Genomes",
 NGS sequencing,Experiments,,,,,,,,,,,,,,obo:NCIT_C101293,Technologies that facilitate the rapid determination of the nucleotide sequence of large numbers of strands or segments of DNA or RNA,"Patient registry, Patient registry staging, FAIR Genomes",
 Experiments RNA,NGS sequencing,,,,,,,,,,,,,,obo:OBI_0001177,An RNA sequencing experiment,"Patient registry, Patient registry staging",
