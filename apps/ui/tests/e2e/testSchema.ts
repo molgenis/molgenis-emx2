@@ -39,9 +39,10 @@ export async function createSchemaFromTemplate(
   name: string,
   template: string
 ) {
+  const sanitizedRoute = sanitizeRoute(route);
   const data = await gql(
     api,
-    `${sanitizeRoute(route)}graphql`,
+    `${sanitizedRoute}graphql`,
     `mutation create($name: String, $template: String) {
       createSchema(name: $name, template: $template, includeDemoData: true) {
         message
@@ -50,7 +51,7 @@ export async function createSchemaFromTemplate(
     }`,
     { name, template }
   );
-  await waitForTask(api, route, name, data.createSchema.taskId);
+  await waitForTask(api, sanitizedRoute, name, data.createSchema.taskId);
 }
 
 // never throws: an afterAll error would replace the real cause in the report
