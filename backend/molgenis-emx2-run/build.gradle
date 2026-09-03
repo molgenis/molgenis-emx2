@@ -1,10 +1,19 @@
 dependencies {
-    implementation project(':apps') //fat jar with all js/html in resources/main/public_html
-    implementation project(':docs') //jar with docs
+    runtimeOnly project(':apps') //fat jar with all js/html in resources/main/public_html
+    runtimeOnly project(':docs') //jar with docs
 
     implementation project(':backend:molgenis-emx2-webapi') //all apis
     implementation project(':backend:molgenis-emx2-sql')
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-typescript')
     implementation project(':backend:molgenis-emx2-datamodels')
+}
+
+// No tests here, and :apps and :docs sit on this module's runtime classpath, so an empty test or
+// pmdTest task still makes gradle build the frontend. Blank them while there is nothing to run.
+tasks.named('test') {
+    if (sourceSets.test.allSource.empty) { testClassesDirs = files(); classpath = files() }
+}
+tasks.named('pmdTest') {
+    if (sourceSets.test.allSource.empty) { classpath = files() }
 }

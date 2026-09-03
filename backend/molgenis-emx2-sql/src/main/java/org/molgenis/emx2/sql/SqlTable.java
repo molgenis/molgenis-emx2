@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 public class SqlTable implements Table {
 
+  private static final Set<String> INSERT_METADATA_COLUMNS = Set.of(MG_INSERTEDBY, MG_INSERTEDON);
+
   private SqlDatabase db;
   private SqlTableMetadata metadata;
   private TableListener tableListener;
@@ -361,15 +363,9 @@ public class SqlTable implements Table {
       InsertOnDuplicateSetStep<org.jooq.Record> step2 =
           step.onConflict(table.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
               .doUpdate();
-      // remove mg_table as part of update key
-      for (Column column :
-          columns.stream()
-              .filter(
-                  c -> c.getName().equals(MG_TABLECLASS) || !Boolean.TRUE.equals(c.isReadonly()))
-              .toList()) {
-        step2.set(
-            column.getJooqField(),
-            (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
+
+      for (Column column : getColumnsToOverwriteOnConflict(columns)) {
+        step2.set(column.getJooqField(), (Object) getExcludedField(column));
       }
       if (!inherit) {
         step2.set(field(name(MG_UPDATEDBY)), getActiveUser(table));
@@ -378,6 +374,17 @@ public class SqlTable implements Table {
     }
 
     return step.returningResult(table.getMetadata().getPrimaryKeyFields()).fetch();
+  }
+
+  private static List<Column> getColumnsToOverwriteOnConflict(List<Column> columns) {
+    return columns.stream()
+        .filter(c -> MG_TABLECLASS.equals(c.getName()) || !Boolean.TRUE.equals(c.isReadonly()))
+        .filter(c -> !INSERT_METADATA_COLUMNS.contains(c.getName()))
+        .toList();
+  }
+
+  private static Field<Object> getExcludedField(Column column) {
+    return field(unquotedName("excluded.\"" + column.getName() + "\""));
   }
 
   private static void copyRecordValuesIntoRows(Row row, Record from, List<Column> toCopy) {

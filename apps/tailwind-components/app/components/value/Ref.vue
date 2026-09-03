@@ -1,9 +1,11 @@
 <template>
-  <span
-    class="underline hover:cursor-pointer text-link"
+  <button
+    type="button"
+    class="underline text-left hover:cursor-pointer text-link"
     @click="handleRefCellClicked"
-    >{{ refColumnLabel }}</span
   >
+    {{ refColumnLabel }}
+  </button>
 </template>
 
 <script setup lang="ts">
