@@ -16,7 +16,7 @@ class CsvTableWriterRowWriterTest {
   @Test
   void rowWriterWritesHeaderWhenNoRowsAreAccepted() throws IOException {
     StringWriter writer = new StringWriter();
-    CsvTableWriter.rowWriter(COLUMNS, writer, ',');
+    CsvTableWriter.newRowWriter(COLUMNS, writer, ',');
     writer.flush();
 
     assertEquals("id,name\n", writer.toString());
@@ -25,7 +25,7 @@ class CsvTableWriterRowWriterTest {
   @Test
   void rowWriterWritesHeaderAndRows() throws IOException {
     StringWriter writer = new StringWriter();
-    Consumer<Row> rowWriter = CsvTableWriter.rowWriter(COLUMNS, writer, ',');
+    Consumer<Row> rowWriter = CsvTableWriter.newRowWriter(COLUMNS, writer, ',');
 
     Row row = new Row();
     row.set("id", "id0");

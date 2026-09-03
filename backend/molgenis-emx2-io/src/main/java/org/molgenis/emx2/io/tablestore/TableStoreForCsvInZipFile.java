@@ -82,7 +82,7 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
     try (FileSystem zipfs = open()) {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
       try (Writer writer = Files.newBufferedWriter(pathInZipfile)) {
-        rows.produce(CsvTableWriter.rowWriter(columnNames, writer, COMMA));
+        rows.produce(CsvTableWriter.newRowWriter(columnNames, writer, COMMA));
       }
     } catch (IOException ioe) {
       throw new MolgenisException("Export failed", ioe);
