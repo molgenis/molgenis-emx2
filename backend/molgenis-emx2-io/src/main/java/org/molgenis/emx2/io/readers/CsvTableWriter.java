@@ -23,7 +23,7 @@ public class CsvTableWriter {
     }
   }
 
-  public static Consumer<Row> rowWriter(
+  public static Consumer<Row> newRowWriter(
       List<String> columnNames, Writer writer, Character seperator) throws IOException {
     CsvWriter<Map> csvWriter = createCsvWriter(columnNames, writer, seperator);
     return row -> {
