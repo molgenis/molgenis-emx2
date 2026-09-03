@@ -33,6 +33,8 @@ function onUpdateSelectedRole(newRole?: IInputValue | IInputValueLabel | null) {
   selectedRole.value = typeof newRole === "string" ? newRole : "";
   if (selectedRole.value && selectedRole.value !== GLOBAL_ROLE) {
     formValues["mg_roles"] = [selectedRole.value];
+  } else if (selectedRole.value === GLOBAL_ROLE) {
+    formValues["mg_roles"] = [];
   } else {
     delete formValues["mg_roles"];
   }
