@@ -11,7 +11,7 @@ import {
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
-  : "/apps/tailwind-components/#/";
+  : "/apps/tailwind-components/";
 
 test.describe.configure({ mode: "serial" });
 
