@@ -85,11 +85,15 @@ sonar {
     }
 }
 
-tasks.withType(Test) {
-    // One fork per core, paired with workers.max=4 in CI. Guarded at 1 because a 1-CPU box makes
-    // any halving evaluate below one legal fork. 6 forks overwhelmed postgres; 4 did not.
-    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors())
-    maxHeapSize = '2g'
+// Scoped to allprojects: bare tasks.withType(Test) here only configured the root project's own
+// (test-less) Test task, leaving every subproject's real test task at gradle's default 1 fork.
+allprojects {
+    tasks.withType(Test) {
+        // Guarded at 1 because a 1-CPU box makes a halving evaluate below one legal fork.
+        maxParallelForks = (findProperty('maxParallelForks')
+            ?: Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))) as int
+        maxHeapSize = '2g'
+    }
 }
 
 // No tests here, and :apps reaches this classpath through :backend:molgenis-emx2-run, so an empty
