@@ -1,5 +1,7 @@
 package org.molgenis.emx2.fairmapper.transform;
 
+import static org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil.SUBJECT_NAME;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,13 +15,10 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 import org.molgenis.emx2.rdf.generators.query.QueryGenerator;
-import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 
 public class SparqlSelectRdfTransformer implements RdfTransformer {
 
   private static final String ARRAY_SEPARATOR_REGEX = "\\|";
-  private static final String SUBJECT_COLUMN_PREFIX =
-      TableQueryGenerator.SUBJECT_VARIABLE.getVarName();
 
   private final QueryGenerator queryGenerator;
   private final SchemaMetadata schema;
@@ -108,7 +107,7 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
   private List<String> refArraySubjectColumnNames(TableMetadata tableMetadata) {
     return tableMetadata.getColumns().stream()
         .filter(column -> column.isReference() && column.isArray() && !column.isOntology())
-        .map(column -> SUBJECT_COLUMN_PREFIX + column.getName())
+        .map(column -> SUBJECT_NAME + column.getName())
         .toList();
   }
 

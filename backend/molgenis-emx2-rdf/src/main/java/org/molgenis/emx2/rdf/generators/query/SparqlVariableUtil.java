@@ -14,7 +14,6 @@ public class SparqlVariableUtil {
   public static final String SUBJECT_NAME = "_subject_";
   public static final Variable SUBJECT_VARIABLE = SparqlBuilder.var(SUBJECT_NAME);
 
-
   private SparqlVariableUtil() {
     // Utility class
   }
@@ -29,8 +28,7 @@ public class SparqlVariableUtil {
 
   public static Variable subjectVariable(Column column) {
     return prefixVariable(
-        SUBJECT_NAME,
-        ColumnNameSparqlEncoder.encodeSparqlVariable(column.getName()));
+        SUBJECT_NAME, ColumnNameSparqlEncoder.encodeSparqlVariable(column.getName()));
   }
 
   public static Variable prefixVariable(String prefix, Variable variable) {

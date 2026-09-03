@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf.generators.query;
 
+import static org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil.SUBJECT_VARIABLE;
+
 import java.util.*;
 import org.eclipse.rdf4j.sparqlbuilder.core.Groupable;
 import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
@@ -13,8 +15,6 @@ import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfValue;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.generators.*;
-
-import static org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil.SUBJECT_VARIABLE;
 
 public class TableQueryGenerator implements QueryGenerator {
 
