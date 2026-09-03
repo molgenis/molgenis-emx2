@@ -63,6 +63,9 @@ commands:
       remote_docker:
         type: boolean
         default: true
+      pnpm_audit:
+        type: boolean
+        default: true
     steps:
     - run:
         name: Report CPUs and memory the container and JVM see
@@ -90,10 +93,13 @@ commands:
           git config user.email "m.a.swertz@rug.nl"
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
-    - run:
-        name: run-pnpm-audit
-        command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
-        working_directory: apps
+    - when:
+        condition: << parameters.pnpm_audit >>
+        steps:
+        - run:
+            name: run-pnpm-audit
+            command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
+            working_directory: apps
     - run:
           name: Concatenate Build Files as key for cache
           command: |
@@ -434,6 +440,7 @@ jobs:
         # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
         remote_docker: true
         gradle_cache: false
+        pnpm_audit: false
 
     - run:
         name: prepare sql test database
@@ -594,6 +601,7 @@ jobs:
       - pre_steps:
           layer_cache: false
           remote_docker: false
+          pnpm_audit: false
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
