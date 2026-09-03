@@ -8,6 +8,7 @@ import type {
   IDeveloperPages,
   IConfigurablePages,
   IBlockOrders,
+  IBlocks,
   IComponentOrders,
   IComponents,
   IFile,
@@ -41,8 +42,9 @@ export interface FetchGraphqlBody {
 
 export interface FetchGraphqlResponse {
   data?: {
-    ComponentOrders?: IComponentOrders[];
     BlockOrders?: IBlockOrders[];
+    Blocks?: IBlocks[];
+    ComponentOrders?: IComponentOrders[];
     Components?: IComponents[];
   };
   errors?: FetchGraphqlBody[];
