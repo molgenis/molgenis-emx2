@@ -69,7 +69,8 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
       selectors.addAll(generator.getSelectors());
     } else {
       generator =
-          new LiteralColumnSparqlQueryGenerator(variable, rootColumn, encodedColumnPath(), true);
+          LiteralColumnSparqlQueryGenerator.forObject(
+              variable, rootColumn, encodedColumnPath());
 
       selectors.add(encodedColumnPath());
     }
@@ -83,7 +84,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     Variable subjectVariable = columnSubjectVariable();
 
     ColumnSparqlQueryGenerator mapper =
-        new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable, true);
+        LiteralColumnSparqlQueryGenerator.forObject(variable, rootColumn, columnVariable);
     patterns.addAll(mapper.getPatterns());
     addSubjectColumnvariable(subjectVariable, columnVariable);
     mapPrimaryKeys();
@@ -128,7 +129,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     if (rootColumn.isArray()) {
       return new ArrayColumnSparqlQueryGenerator(ref, column, extended);
     } else {
-      return new LiteralColumnSparqlQueryGenerator(ref, column, extended, true);
+      return LiteralColumnSparqlQueryGenerator.forObject(ref, column, extended);
     }
   }
 
