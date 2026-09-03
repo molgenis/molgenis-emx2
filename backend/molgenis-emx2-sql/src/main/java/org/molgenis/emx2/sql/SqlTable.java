@@ -347,13 +347,14 @@ public class SqlTable implements Table {
 
     // add all the rows as steps
     LocalDateTime now = LocalDateTime.now();
+    boolean mayOverrideMgValues = mayOverrideMgValues(table);
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
-        putIfMissing(values, MG_INSERTEDBY, () -> getActiveUser(table));
-        putIfMissing(values, MG_INSERTEDON, () -> now);
-        putIfMissing(values, MG_UPDATEDBY, () -> getActiveUser(table));
-        putIfMissing(values, MG_UPDATEDON, () -> now);
+        putMgValue(values, MG_INSERTEDBY, mayOverrideMgValues, () -> getActiveUser(table));
+        putMgValue(values, MG_INSERTEDON, mayOverrideMgValues, () -> now);
+        putMgValue(values, MG_UPDATEDBY, mayOverrideMgValues, () -> getActiveUser(table));
+        putMgValue(values, MG_UPDATEDON, mayOverrideMgValues, () -> now);
       }
       step.values(values.values());
     }
@@ -374,7 +375,8 @@ public class SqlTable implements Table {
         List<String> insertedColumnNames = columns.stream().map(Column::getName).toList();
         // insert metadata of the existing row is only overwritten when every row supplies it
         for (String insertMetadataColumn : INSERT_METADATA_COLUMNS) {
-          if (insertedColumnNames.contains(insertMetadataColumn)
+          if (mayOverrideMgValues
+              && insertedColumnNames.contains(insertMetadataColumn)
               && allRowsProvide(rows, insertMetadataColumn)) {
             step2.set(
                 field(name(insertMetadataColumn)), (Object) getExcludedField(insertMetadataColumn));
@@ -440,13 +442,18 @@ public class SqlTable implements Table {
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
     LocalDateTime now = LocalDateTime.now();
+    boolean mayOverrideMgValues = mayOverrideMgValues(table);
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
-        putIfMissing(values, MG_UPDATEDBY, () -> getActiveUser(table));
-        putIfMissing(values, MG_UPDATEDON, () -> now);
-        // insert metadata is only updated when supplied, never cleared
-        INSERT_METADATA_COLUMNS.forEach(column -> values.remove(column, null));
+        putMgValue(values, MG_UPDATEDBY, mayOverrideMgValues, () -> getActiveUser(table));
+        putMgValue(values, MG_UPDATEDON, mayOverrideMgValues, () -> now);
+        if (mayOverrideMgValues) {
+          // insert metadata is only updated when supplied, never cleared
+          INSERT_METADATA_COLUMNS.forEach(column -> values.remove(column, null));
+        } else {
+          INSERT_METADATA_COLUMNS.forEach(values::remove);
+        }
       }
 
       list.add(
@@ -464,14 +471,22 @@ public class SqlTable implements Table {
     return rows.stream().allMatch(row -> row.notNull(columnName));
   }
 
+  /** only admins and managers may decide what ends up in the mg_ metadata columns */
+  private static boolean mayOverrideMgValues(SqlTable table) {
+    return PermissionEvaluator.canManage(table.getSchema());
+  }
+
   /**
    * Keeps a value that was supplied in the row (e.g. mg_insertedBy on import), otherwise applies
-   * the default. Note that the key is only added when absent so the value order keeps matching the
-   * insert fields.
+   * the default. Note that the key is only replaced, never added, so the value order keeps matching
+   * the insert fields.
    */
-  private static void putIfMissing(
-      Map<String, Object> values, String key, Supplier<Object> defaultValue) {
-    if (values.get(key) == null) {
+  private static void putMgValue(
+      Map<String, Object> values,
+      String key,
+      boolean mayOverrideMgValues,
+      Supplier<Object> defaultValue) {
+    if (!mayOverrideMgValues || values.get(key) == null) {
       values.put(key, defaultValue.get());
     }
   }

@@ -10,17 +10,23 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
 public class TestMgColumns {
+  private static final String EDITOR_USER = "mgcolumns_editor";
+  private static Database database;
   private static Schema schema;
 
   @BeforeAll
   public static void setUp() {
-    Database database = TestDatabaseFactory.getTestDatabase();
+    database = TestDatabaseFactory.getTestDatabase();
+    database.becomeAdmin();
     schema = database.dropCreateSchema(TestMgColumns.class.getSimpleName());
+    if (!database.hasUser(EDITOR_USER)) database.addUser(EDITOR_USER);
+    schema.addMember(EDITOR_USER, Privileges.EDITOR.toString());
   }
 
   @Test
@@ -211,6 +217,63 @@ public class TestMgColumns {
     assertTrue(fallback.getDateTime(MG_UPDATEDON).isAfter(updatedOn3));
     assertEquals("importer4b", fallback.getString(MG_INSERTEDBY));
     assertEquals(insertedOn3, fallback.getDateTime(MG_INSERTEDON));
+  }
+
+  @Test
+  public void testProvidedMgValuesAreIgnoredWithoutManagePermission() {
+    Table t = schema.create(table("ProvidedMgAsEditor", column("id").setPkey(), column("value")));
+    LocalDateTime provided = LocalDateTime.of(2001, 1, 1, 10, 0, 0);
+
+    try {
+      database.setActiveUser(EDITOR_USER);
+      Table editorTable = database.getSchema(schema.getName()).getTable("ProvidedMgAsEditor");
+
+      editorTable.insert(
+          row(
+              "id",
+              1,
+              "value",
+              "somevalue1",
+              MG_INSERTEDBY,
+              "importer1",
+              MG_INSERTEDON,
+              provided,
+              MG_UPDATEDBY,
+              "importer2",
+              MG_UPDATEDON,
+              provided));
+
+      Row inserted = editorTable.retrieveRows().getFirst();
+      assertEquals(EDITOR_USER, inserted.getString(MG_INSERTEDBY));
+      assertEquals(EDITOR_USER, inserted.getString(MG_UPDATEDBY));
+      assertTrue(inserted.getDateTime(MG_INSERTEDON).isAfter(provided));
+      assertTrue(inserted.getDateTime(MG_UPDATEDON).isAfter(provided));
+
+      // same for update and for save on an existing row
+      editorTable.update(
+          row(
+              "id",
+              1,
+              "value",
+              "somevalue2",
+              MG_INSERTEDBY,
+              "importer1",
+              MG_UPDATEDBY,
+              "importer2"));
+      Row updated = editorTable.retrieveRows().getFirst();
+      assertEquals("somevalue2", updated.getString("value"));
+      assertEquals(EDITOR_USER, updated.getString(MG_INSERTEDBY));
+      assertEquals(EDITOR_USER, updated.getString(MG_UPDATEDBY));
+
+      editorTable.save(
+          row("id", 1, "value", "somevalue3", MG_INSERTEDBY, "importer1", MG_INSERTEDON, provided));
+      Row saved = editorTable.retrieveRows().getFirst();
+      assertEquals("somevalue3", saved.getString("value"));
+      assertEquals(EDITOR_USER, saved.getString(MG_INSERTEDBY));
+      assertTrue(saved.getDateTime(MG_INSERTEDON).isAfter(provided));
+    } finally {
+      database.becomeAdmin();
+    }
   }
 
   @Test
