@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IOntologyTreeItem } from "../../utils/buildOntologyTree";
+import type { IOntologyTreeItem } from "../../../types/types";
 import { buildOntologyTree } from "../../utils/buildOntologyTree";
 import CustomTooltip from "../CustomTooltip.vue";
 import OntologyNode from "./OntologyNode.vue";

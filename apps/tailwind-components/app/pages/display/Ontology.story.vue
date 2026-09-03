@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import DisplayOntology from "../../components/display/Ontology.vue";
-import type { IOntologyTreeItem } from "../../utils/buildOntologyTree";
+import type { IOntologyTreeItem } from "../../../types/types";
 
 const singleItem: IOntologyTreeItem = { name: "Biobank" };
 

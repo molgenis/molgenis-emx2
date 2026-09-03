@@ -2,7 +2,7 @@
 import { ref, watch } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import fetchOntologyAncestry from "../../composables/fetchOntologyAncestry";
-import type { IOntologyTreeItem } from "../../utils/buildOntologyTree";
+import type { IOntologyTreeItem } from "../../../types/types";
 import { resolveOntologyAncestry } from "../../utils/resolveOntologyAncestry";
 import DisplayOntology from "../display/Ontology.vue";
 

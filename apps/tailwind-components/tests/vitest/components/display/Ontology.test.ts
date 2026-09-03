@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import DisplayOntology from "../../../../app/components/display/Ontology.vue";
 import CustomTooltip from "../../../../app/components/CustomTooltip.vue";
-import type { IOntologyTreeItem } from "../../../../app/utils/buildOntologyTree";
+import type { IOntologyTreeItem } from "../../../../types/types";
 
 const medicine: IOntologyTreeItem = { name: "Medicine" };
 const cardiology: IOntologyTreeItem = { name: "Cardiology", parent: medicine };

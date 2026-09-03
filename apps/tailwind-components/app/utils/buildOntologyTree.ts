@@ -1,13 +1,4 @@
-export interface IOntologyTreeItem {
-  name: string;
-  label?: string;
-  definition?: string;
-  order?: number;
-  code?: string;
-  ontologyTermURI?: string;
-  parent?: IOntologyTreeItem;
-  children?: IOntologyTreeItem[];
-}
+import type { IOntologyTreeItem } from "../../types/types";
 
 export const buildOntologyTree = (
   items: IOntologyTreeItem | IOntologyTreeItem[] | null | undefined

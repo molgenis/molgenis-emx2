@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { resolveOntologyAncestry } from "../../../app/utils/resolveOntologyAncestry";
-import type { IOntologyTerm } from "../../../app/utils/resolveOntologyAncestry";
-import type { IOntologyTreeItem } from "../../../app/utils/buildOntologyTree";
+import type { IOntologyTerm, IOntologyTreeItem } from "../../../types/types";
 
 describe("resolveOntologyAncestry", () => {
   it("walks a .parent chain into a linked tree", () => {

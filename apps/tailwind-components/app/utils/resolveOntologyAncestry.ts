@@ -1,12 +1,4 @@
-import type { IOntologyTreeItem } from "./buildOntologyTree";
-
-export interface IOntologyTerm {
-  name: string;
-  label?: string;
-  definition?: string;
-  order?: number;
-  parent?: { name: string } | null;
-}
+import type { IOntologyTreeItem, IOntologyTerm } from "../../types/types";
 
 export const resolveOntologyAncestry = (
   values: IOntologyTreeItem[],

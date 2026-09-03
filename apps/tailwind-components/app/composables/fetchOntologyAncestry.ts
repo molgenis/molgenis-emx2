@@ -1,4 +1,4 @@
-import type { IOntologyTerm } from "../utils/resolveOntologyAncestry";
+import type { IOntologyTerm } from "../../types/types";
 import fetchGraphql from "./fetchGraphql";
 
 const resolved = new Map<string, Map<string, IOntologyTerm>>();

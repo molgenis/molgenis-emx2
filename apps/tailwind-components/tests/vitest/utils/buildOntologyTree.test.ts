@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildOntologyTree } from "../../../app/utils/buildOntologyTree";
-import type { IOntologyTreeItem } from "../../../app/utils/buildOntologyTree";
+import type { IOntologyTreeItem } from "../../../types/types";
 
 describe("buildOntologyTree", () => {
   it("returns empty array for null input", () => {
