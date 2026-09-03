@@ -42,7 +42,7 @@ public class SqlQuery extends QueryBean {
 
   private static final String QUERY_FAILED = "Query failed: ";
 
-  private static final int STREAMING_ROW_SIZE = 1000;
+  private static final int STREAMING_ROWS_PER_FETCH = 1000;
 
   private static final String ANY_SQL = "{0} = ANY ({1})";
   private static final String JSON_AGG_SQL = "jsonb_agg(item)";
@@ -110,7 +110,7 @@ public class SqlQuery extends QueryBean {
               config -> {
                 query.attach(config);
                 try (Cursor<org.jooq.Record> cursor =
-                    query.fetchSize(STREAMING_ROW_SIZE).fetchLazy()) {
+                    query.fetchSize(STREAMING_ROWS_PER_FETCH).fetchLazy()) {
                   for (org.jooq.Record r : cursor) {
                     consumer.accept(new SqlRow(r));
                   }
