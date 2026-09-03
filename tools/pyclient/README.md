@@ -18,6 +18,11 @@ Releases of the Molgenis EMX2 Pyclient follow the release number of the accompan
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ
 from the latest version of Molgenis EMX2.
 
+### 13.187.2
+
+- Fixed input check for `delete_records`
+- Added utility functions `validate_graphql_response` and `response_to_dataframe`
+
 ### 13.165.2
 
 - Fixed compatibility issue with pandas v2

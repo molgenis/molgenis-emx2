@@ -7,6 +7,7 @@ export default gql`
       tables {
         id
         schemaId
+        name
         label
         tableType
         description
@@ -21,6 +22,7 @@ export default gql`
           key
           refTableId
           refSchemaId
+          cascadeDelete
           refLinkId
           refLabel
           refLabelDefault
