@@ -3,11 +3,9 @@ Tests the Pyclient `get` method.
 """
 
 import os
-
 from pathlib import Path
 
 import pandas as pd
-
 import pytest
 from dotenv import load_dotenv
 
@@ -16,10 +14,9 @@ from src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, \
     NoSuchTableException, NoSuchColumnException
 
 load_dotenv()
-server_url = os.environ.get("MG_SERVER")
-username = os.environ.get("MG_USERNAME")
-password = os.environ.get("MG_PASSWORD")
-token = os.environ.get("MOLGENIS_TOKEN")
+server_url = os.environ.get("MG_SERVER", "http://localhost:8080/")
+username = os.environ.get("MG_USERNAME", "admin")
+password = os.environ.get("MG_PASSWORD", "admin")
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 
@@ -28,31 +25,31 @@ def test_schema_fail():
     """Tests failing get by giving no/incorrect schema name."""
     with Client(url=server_url) as client:
         client.signin(username, password)
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             client.get(schema="Pet Store", table="Pet")
-        assert excinfo.value.msg == "Schema 'Pet Store' not available."
+        assert exc_info.value.msg == "Schema 'Pet Store' not available."
 
 def test_table_fail():
     """Tests failing get by giving no/incorrect table name."""
     with Client(url=server_url) as client:
         client.signin(username, password)
-        with pytest.raises(NoSuchTableException) as excinfo:
+        with pytest.raises(NoSuchTableException) as exc_info:
             client.get(schema="pet store", table="Pets")
-        assert excinfo.value.msg == "Table 'Pets' not found in schema 'pet store'."
+        assert exc_info.value.msg == "Table 'Pets' not found in schema 'pet store'."
 
 def test_columns_fail():
     """Tests failing get by giving incorrect column names."""
     with Client(url=server_url) as client:
         client.signin(username, password)
-        with pytest.raises(NoSuchColumnException) as excinfo:
+        with pytest.raises(NoSuchColumnException) as exc_info:
             client.get(schema="pet store", table="Pet", columns=["Name"])
-        assert excinfo.value.msg == "Columns 'Name' not found."
-        with pytest.raises(NoSuchColumnException) as excinfo:
+        assert exc_info.value.msg == "Columns 'Name' not found."
+        with pytest.raises(NoSuchColumnException) as exc_info:
             client.get(schema="pet store", table="Pet", columns=["Name", "name"])
-        assert excinfo.value.msg == "Columns ['Name'] not in index"
-        with pytest.raises(NoSuchColumnException) as excinfo:
+        assert exc_info.value.msg == "Columns ['Name'] not in index"
+        with pytest.raises(NoSuchColumnException) as exc_info:
             client.get(schema="pet store", table="Pet", columns=["Name", "name2"])
-        assert excinfo.value.msg == "Columns 'Name', 'name2' not found."
+        assert exc_info.value.msg == "Columns 'Name', 'name2' not found."
 
 def test_columns_okay():
     """Tests get with specifying columns."""
@@ -71,9 +68,9 @@ def test_query_filter_fail():
 
     with Client(url=server_url) as client:
         client.signin(username, password)
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ValueError) as exc_info:
             client.get(table="Pet", schema="pet store", query_filter="name")
-        assert excinfo.value.args[0] == ("Cannot process statement 'name', ensure specifying one of the operators"
+        assert exc_info.value.args[0] == ("Cannot process statement 'name', ensure specifying one of the operators"
                                          " '==', '>', '<', '!=', 'between' in your statement.")
 
 def test_equals_filter():
@@ -156,14 +153,14 @@ def test_not_equals_filter():
         assert len(pets) == 8
 
         # Test ref
-        with pytest.raises(NotImplementedError) as excinfo:
+        with pytest.raises(NotImplementedError) as exc_info:
             client.get(table="Pet", schema="pet store", query_filter="category != cat")
-        assert str(excinfo.value) == "The filter '!=' is not implemented for columns of type 'RADIO'."
+        assert str(exc_info.value) == "The filter '!=' is not implemented for columns of type 'RADIO'."
 
         # Test ontology
-        with pytest.raises(NotImplementedError) as excinfo:
+        with pytest.raises(NotImplementedError) as exc_info:
             client.get(table="Pet", schema="pet store", query_filter="tags != 'red'")
-        assert str(excinfo.value) == "The filter '!=' is not implemented for columns of type 'ONTOLOGY_ARRAY'."
+        assert str(exc_info.value) == "The filter '!=' is not implemented for columns of type 'ONTOLOGY_ARRAY'."
 
 
 def test_between_filter():
@@ -184,9 +181,9 @@ def test_between_filter():
         assert len(orders) == 5
 
         # Test string
-        with pytest.raises(NotImplementedError) as excinfo:
+        with pytest.raises(NotImplementedError) as exc_info:
             client.get(table="Pet", schema="pet store", query_filter="name between [0, 5]")
-        assert str(excinfo.value) == "The filter 'between' is not implemented for columns of type 'STRING'."
+        assert str(exc_info.value) == "The filter 'between' is not implemented for columns of type 'STRING'."
 
 
 def test_multiple_filters():
@@ -212,7 +209,7 @@ def test_as_df():
         client.signin(username, password)
 
         pets = client.get(table="Pet", schema="pet store", as_df=True)
-        assert type(pets) == pd.DataFrame is not None
+        assert isinstance(pets, pd.DataFrame)
 
         assert sorted(pets.columns.to_list()) == ['category', 'mg_draft', 'name', 'orders', 'photoUrls', 'status', 'tags', 'weight']
         assert len(pets['weight'].to_list()) == 9

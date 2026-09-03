@@ -366,6 +366,7 @@
       :tableId="tableId"
       :tableLabel="tableMetadata.label"
       :pkey="editRowPrimaryKey"
+      :additionalMsg="cascadeDeleteMsg"
       @close="isDeleteModalShown = false"
       @confirmed="handleExecuteDelete"
     />
@@ -419,7 +420,7 @@
 </style>
 
 <script lang="ts">
-import { IColumn, ISetting, ITableMetaData } from "metadata-utils/src";
+import { IColumn, ISetting, ITableMetaData } from "metadata-utils";
 import Client from "../../client/client";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
@@ -513,6 +514,7 @@ export default {
       isDeleteAllModalShown: false,
       isTaskModalShown: false,
       isDeleteModalShown: false,
+      cascadeDeleteMsg: "",
       isEditModalShown: false,
       limit: this.showLimit,
       loading: false,
@@ -687,10 +689,18 @@ export default {
     },
     async handleDeleteRowRequest(key: Promise<any>) {
       this.editRowPrimaryKey = await key;
+      const cascadeDeleteMsg = await this.client
+        .fetchCascadeDeleteMsg(this.tableId)
+        .catch((error: any) => {
+          this.handleError(error);
+          return "";
+        });
+      this.cascadeDeleteMsg = cascadeDeleteMsg;
       this.isDeleteModalShown = true;
     },
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
+      this.cascadeDeleteMsg = "";
       const resp = await this.client
         ?.deleteRow(this.editRowPrimaryKey, this.tableId)
         .catch(this.handleError);

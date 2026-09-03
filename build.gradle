@@ -89,6 +89,12 @@ tasks.withType(Test) {
     maxParallelForks = Runtime.runtime.availableProcessors() / 2;
 }
 
+// No tests here, and :apps reaches this classpath through :backend:molgenis-emx2-run, so an empty
+// test task still makes gradle build the frontend.
+tasks.named('test') {
+    if (sourceSets.test.allSource.empty) { testClassesDirs = files(); classpath = files() }
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
