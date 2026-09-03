@@ -21,7 +21,7 @@ public enum GenomicQueryType {
           { stopPosition: { between: [%2$d , %3$d] } }
         ]}
       ]}"""),
-  GENE_ID("{ geneId: { equals: \"%s\" } }"),
+  GENE_ID("{ geneId: { equals: { name: \"%s\"} } }"),
   BRACKET(
       """
       { _and: [
