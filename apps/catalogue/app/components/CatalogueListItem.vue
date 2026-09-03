@@ -13,7 +13,6 @@
       v-if="item?.type === 'ONTOLOGY'"
       :value="item.content"
       :collapse-all="true"
-      :inverted="true"
     />
 
     <ContentMapped

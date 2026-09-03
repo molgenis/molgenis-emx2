@@ -1,18 +1,23 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type { IOntologyTreeItem } from "../../../types/types";
-import CustomTooltip from "../CustomTooltip.vue";
-import BaseIcon from "../BaseIcon.vue";
+import { useOntologyItemPaging } from "../../composables/useOntologyItemPaging";
+import OntologyRow from "./OntologyRow.vue";
 
 const props = withDefaults(
   defineProps<{
     node: IOntologyTreeItem;
     isRootNode?: boolean;
     collapseAll?: boolean;
+    maxItems?: number;
+    itemStep?: number;
+    hidden?: boolean;
   }>(),
   {
     collapseAll: true,
     isRootNode: false,
+    itemStep: 5,
+    hidden: false,
   }
 );
 
@@ -20,66 +25,51 @@ const collapsed = ref(props.collapseAll);
 const toggleCollapse = () => {
   collapsed.value = !collapsed.value;
 };
+
+const childPaging = useOntologyItemPaging(
+  computed(() => props.node.children?.length ?? 0),
+  computed(() => props.maxItems),
+  computed(() => props.itemStep)
+);
 </script>
 
 <template>
-  <li class="relative" :class="{ 'mt-2.5': !isRootNode }">
-    <div class="flex items-center">
-      <button
-        v-if="node.children?.length"
-        type="button"
-        class="text-link mr-1 mt-0.5 rounded-full hover:bg-link-hover hover:cursor-pointer p-0.5"
-        :class="{ 'rotate-180': collapsed, 'ml-[-0.5rem]': isRootNode }"
-        :aria-expanded="!collapsed"
-        :aria-label="(collapsed ? 'Expand ' : 'Collapse ') + node.name"
-        @click="toggleCollapse()"
-      >
-        <BaseIcon name="caret-up" :width="20" />
-      </button>
-      <span v-else-if="isRootNode" />
-      <span
-        v-else
-        class="relative"
-        style="top: -0.35rem"
-        :class="{ 'mr-2': isRootNode }"
-      >
-        <BaseIcon
-          name="collapsible-list-item"
-          :width="20"
-          class="text-disabled"
-          :class="{ invisible: isRootNode }"
-        />
-      </span>
-
-      <span
-        class="flex justify-center items-start"
-        :class="{ 'cursor-pointer hover:underline': node.children?.length }"
-        @click="node.children?.length && toggleCollapse()"
-      >
-        {{ node.name }}
-      </span>
-      <div class="inline-flex items-center whitespace-nowrap">
-        <div v-if="node.definition" class="inline-block ml-1">
-          <CustomTooltip
-            label="Read more"
-            hoverColor="white"
-            :content="node.definition"
-          />
-        </div>
-      </div>
-    </div>
+  <li class="relative" :class="{ hidden: hidden }">
+    <OntologyRow
+      :name="node.name"
+      :definition="node.definition"
+      :has-children="!!node.children?.length"
+      :collapsed="collapsed"
+      :marker="isRootNode ? 'blank' : 'connector'"
+      @toggle="toggleCollapse()"
+    />
 
     <ul
       v-if="node.children?.length"
       class="break-inside-avoid"
       :class="{ hidden: collapsed }"
     >
+      <!-- pl-8 only: a nested row sits on the same vertical rhythm as its
+           parent's rows, so indentation is horizontal, never vertical. -->
       <OntologyNode
-        v-for="child in node.children"
+        v-for="(child, index) in node.children"
         :key="child.name"
-        class="pt-1 pl-8"
+        class="pl-8"
         :node="child"
+        :max-items="maxItems"
+        :item-step="itemStep"
+        :hidden="childPaging.isHidden(index)"
       />
     </ul>
+    <button
+      v-if="node.children?.length && childPaging.showControl"
+      type="button"
+      class="text-link text-body-sm ml-8 mt-1"
+      :class="{ hidden: collapsed }"
+      :aria-expanded="childPaging.isFullyExpanded"
+      @click="childPaging.toggle"
+    >
+      {{ childPaging.controlLabel }}
+    </button>
   </li>
 </template>

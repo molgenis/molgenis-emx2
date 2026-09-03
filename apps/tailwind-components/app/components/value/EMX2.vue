@@ -48,6 +48,7 @@ defineEmits<{
     v-else-if="['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(metadata.columnType)"
     :metadata="metadata"
     :data="data"
+    :renderLimit="renderLimit"
   />
 
   <ValueList

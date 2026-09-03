@@ -16,17 +16,27 @@ function mountTree(collapseAll: boolean) {
   });
 }
 
+// A paging or render-limit control also lives in a trailing <li>, marked
+// list-none, so a row count must exclude it to count content rows only.
+function contentItems(wrapper: ReturnType<typeof mount>) {
+  return wrapper
+    .findAll("li")
+    .filter((li) => !li.classes().includes("list-none"));
+}
+
 function childListsByParentName(wrapper: ReturnType<typeof mountTree>) {
-  return wrapper.findAll("li").map((item) => ({
-    name: item.find("span.flex").text(),
-    childListHidden: item.find("ul").exists()
-      ? item.find("ul").classes().includes("hidden")
-      : null,
-  }));
+  return wrapper.findAll("li").map((item) => {
+    const list = item.find("ul");
+    return {
+      name: item.find("span.flex").text(),
+      // null: a leaf renders no child <ul> at all, collapsed or not.
+      childListHidden: list.exists() ? list.classes().includes("hidden") : null,
+    };
+  });
 }
 
 describe("display/Ontology.vue collapse-all", () => {
-  it("expands only the root when collapse-all is false, deeper levels stay collapsed", () => {
+  it("expands only the root when collapse-all is false, a collapsed child's list is present but hidden", () => {
     const wrapper = mountTree(false);
 
     expect(childListsByParentName(wrapper)).toEqual([
@@ -36,7 +46,7 @@ describe("display/Ontology.vue collapse-all", () => {
     ]);
   });
 
-  it("collapses every level when collapse-all is true", () => {
+  it("collapses every level when collapse-all is true, every child list is present but hidden", () => {
     const wrapper = mountTree(true);
 
     expect(childListsByParentName(wrapper)).toEqual([
@@ -61,7 +71,15 @@ describe("display/Ontology.vue expand control accessibility", () => {
   });
 });
 
-describe("display/Ontology.vue inverted", () => {
+// Surface-dependent colouring (caret, connector, tooltip icon rest colour)
+// is a pure CSS-cascade concern now: an ancestor's `.surface-inverted` class
+// drives it via `--text-color-link`/`--text-color-icon-neutral`. jsdom
+// computes no CSS from a stylesheet, so that is not testable here; it was
+// verified in the browser instead (see the theme-sweep screenshots).
+// hoverColor is the one part of this still a Vue prop, and it no longer
+// varies by anything DisplayOntology exposes, so there is exactly one value
+// to pin, everywhere a tooltip can render.
+describe("display/Ontology.vue tooltip hover colour", () => {
   const singleItem: IOntologyTreeItem = {
     name: "Biobank",
     definition: "A collection of biological samples.",
@@ -70,44 +88,39 @@ describe("display/Ontology.vue inverted", () => {
     { name: "Genomics", definition: "Study of genomes" },
     { name: "Proteomics", definition: "Study of proteins" },
   ];
+  const nestedWithDefinition: IOntologyTreeItem[] = [
+    {
+      name: "Pediatric cardiology",
+      definition: "Heart care for children",
+      parent: cardiology,
+    },
+  ];
 
-  it("uses hoverColor white for the single-item branch by default", () => {
-    const wrapper = mount(DisplayOntology, {
-      props: { value: singleItem },
-    });
+  it("uses hoverColor white for the single-item branch", () => {
+    const wrapper = mount(DisplayOntology, { props: { value: singleItem } });
     expect(wrapper.findComponent(CustomTooltip).props("hoverColor")).toBe(
       "white"
     );
   });
 
-  it("uses hoverColor none for the single-item branch when inverted", () => {
-    const wrapper = mount(DisplayOntology, {
-      props: { value: singleItem, inverted: true },
-    });
-    expect(wrapper.findComponent(CustomTooltip).props("hoverColor")).toBe(
-      "none"
-    );
-  });
-
-  it("uses hoverColor white for the flat-list branch by default", () => {
-    const wrapper = mount(DisplayOntology, {
-      props: { value: flatList },
-    });
+  it("uses hoverColor white for the flat-list branch", () => {
+    const wrapper = mount(DisplayOntology, { props: { value: flatList } });
     const tooltips = wrapper.findAllComponents(CustomTooltip);
     expect(tooltips.every((t) => t.props("hoverColor") === "white")).toBe(true);
   });
 
-  it("uses hoverColor none for the flat-list branch when inverted", () => {
+  it("uses hoverColor white for a non-root tree row", () => {
     const wrapper = mount(DisplayOntology, {
-      props: { value: flatList, inverted: true },
+      props: { value: nestedWithDefinition, collapseAll: false },
     });
-    const tooltips = wrapper.findAllComponents(CustomTooltip);
-    expect(tooltips.every((t) => t.props("hoverColor") === "none")).toBe(true);
+    expect(wrapper.findComponent(CustomTooltip).props("hoverColor")).toBe(
+      "white"
+    );
   });
 });
 
 describe("display/Ontology.vue renders every root", () => {
-  it("renders more than ten roots without truncating any of them", () => {
+  it("renders more than ten roots without truncating or hiding any of them", () => {
     const manyRoots: IOntologyTreeItem[] = Array.from(
       { length: 15 },
       (_, i) => ({ name: `Root ${i}` })
@@ -115,7 +128,9 @@ describe("display/Ontology.vue renders every root", () => {
     const wrapper = mount(DisplayOntology, {
       props: { value: manyRoots },
     });
-    expect(wrapper.findAll("li")).toHaveLength(15);
+    const items = wrapper.findAll("li");
+    expect(items).toHaveLength(15);
+    expect(items.every((li) => !li.classes().includes("hidden"))).toBe(true);
     expect(wrapper.text()).not.toContain("Show");
   });
 });
@@ -130,12 +145,11 @@ describe("display/Ontology.vue name affordance", () => {
   it("still toggles a branch's child list when its name span is clicked", async () => {
     const wrapper = mountTree(true);
     const rootItem = wrapper.findAll("li")[0];
-    const rootChildList = rootItem.find("ul");
-    expect(rootChildList.classes()).toContain("hidden");
+    expect(rootItem.find("ul").classes()).toContain("hidden");
 
     await rootItem.find("span.flex").trigger("click");
 
-    expect(rootChildList.classes()).not.toContain("hidden");
+    expect(rootItem.find("ul").classes()).not.toContain("hidden");
   });
 });
 
@@ -147,10 +161,176 @@ describe("display/Ontology.vue root markup", () => {
     expect(wrapper.element.tagName).toBe("UL");
   });
 
-  it("renders the single item with no wrapper element around the span", () => {
+  it("renders the single item as OntologyRow's own root, no extra wrapper around it", () => {
     const wrapper = mount(DisplayOntology, {
       props: { value: { name: "Biobank" } },
     });
-    expect(wrapper.element.tagName).toBe("SPAN");
+    // OntologyRow's own root is a <div>; a <span> here would nest a <div>
+    // inside a <span>, invalid HTML, and be one wrapper too many.
+    expect(wrapper.element.tagName).toBe("DIV");
+    expect(wrapper.element.classList.contains("flex")).toBe(true);
+  });
+});
+
+describe("display/Ontology.vue root-level item paging", () => {
+  const manyRoots: IOntologyTreeItem[] = Array.from({ length: 12 }, (_, i) => ({
+    name: `Root ${i}`,
+  }));
+
+  function mountPaged(maxItems: number, itemStep: number) {
+    return mount(DisplayOntology, {
+      props: { value: manyRoots, maxItems, itemStep },
+    });
+  }
+
+  it("shows maxItems rows and hides the rest without removing them from the DOM", () => {
+    const wrapper = mountPaged(5, 3);
+    const items = contentItems(wrapper);
+    expect(items).toHaveLength(12);
+    expect(
+      items.slice(0, 5).every((li) => !li.classes().includes("hidden"))
+    ).toBe(true);
+    expect(items.slice(5).every((li) => li.classes().includes("hidden"))).toBe(
+      true
+    );
+  });
+
+  it("reveals itemStep more rows on show more, and stays incomplete", async () => {
+    const wrapper = mountPaged(5, 3);
+    await wrapper.find("button").trigger("click");
+
+    const items = contentItems(wrapper);
+    expect(
+      items.slice(0, 8).every((li) => !li.classes().includes("hidden"))
+    ).toBe(true);
+    expect(items.slice(8).every((li) => li.classes().includes("hidden"))).toBe(
+      true
+    );
+    expect(wrapper.find("button").text()).toBe("Show more");
+  });
+
+  it("flips to show less once the level is exhausted, and resets to maxItems on click", async () => {
+    const wrapper = mountPaged(5, 3);
+    await wrapper.find("button").trigger("click"); // 5 -> 8
+    await wrapper.find("button").trigger("click"); // 8 -> 11
+    await wrapper.find("button").trigger("click"); // 11 -> 12, fully expanded
+
+    expect(wrapper.find("button").text()).toBe("Show less");
+    expect(
+      contentItems(wrapper).every((li) => !li.classes().includes("hidden"))
+    ).toBe(true);
+
+    await wrapper.find("button").trigger("click"); // reset
+
+    const items = contentItems(wrapper);
+    expect(wrapper.find("button").text()).toBe("Show more");
+    expect(
+      items.slice(0, 5).every((li) => !li.classes().includes("hidden"))
+    ).toBe(true);
+    expect(items.slice(5).every((li) => li.classes().includes("hidden"))).toBe(
+      true
+    );
+  });
+});
+
+describe("display/Ontology.vue two levels page independently", () => {
+  function buildTwoBranches(): IOntologyTreeItem[] {
+    const groupA: IOntologyTreeItem = { name: "Group A" };
+    const groupB: IOntologyTreeItem = { name: "Group B" };
+    const childrenOf = (parent: IOntologyTreeItem, prefix: string) =>
+      Array.from({ length: 6 }, (_, i) => ({
+        name: `${prefix}-item-${i}`,
+        parent,
+      }));
+    return [...childrenOf(groupA, "A"), ...childrenOf(groupB, "B")];
+  }
+
+  function hiddenFlags(
+    wrapper: ReturnType<typeof mount>,
+    prefix: string
+  ): boolean[] {
+    return wrapper
+      .findAll("li")
+      .filter((li) => li.find("span.flex").text().startsWith(prefix))
+      .map((li) => li.classes().includes("hidden"));
+  }
+
+  it("paging one branch's children leaves the sibling branch's paging untouched", async () => {
+    const wrapper = mount(DisplayOntology, {
+      props: {
+        value: buildTwoBranches(),
+        collapseAll: false,
+        maxItems: 3,
+        itemStep: 2,
+      },
+    });
+
+    expect(hiddenFlags(wrapper, "A-item")).toEqual([
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+    ]);
+    expect(hiddenFlags(wrapper, "B-item")).toEqual([
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+    ]);
+
+    const showMoreButtons = wrapper
+      .findAll("button")
+      .filter((b) => b.text() === "Show more");
+    expect(showMoreButtons).toHaveLength(2);
+
+    await showMoreButtons[0]!.trigger("click");
+
+    expect(hiddenFlags(wrapper, "A-item")).toEqual([
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+    ]);
+    expect(hiddenFlags(wrapper, "B-item")).toEqual([
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+    ]);
+  });
+});
+
+describe("display/Ontology.vue renderLimit safety valve", () => {
+  function buildFlatRoots(n: number): IOntologyTreeItem[] {
+    return Array.from({ length: n }, (_, i) => ({ name: `Node ${i}` }));
+  }
+
+  it("caps total rendered nodes at renderLimit; the rest is genuinely absent from the DOM", () => {
+    const wrapper = mount(DisplayOntology, {
+      props: { value: buildFlatRoots(10), renderLimit: 4 },
+    });
+    expect(contentItems(wrapper)).toHaveLength(4);
+    expect(wrapper.find("button").text()).toBe("Load more");
+  });
+
+  it("renderMore extends the budget by renderLimit and renders the rest", async () => {
+    const wrapper = mount(DisplayOntology, {
+      props: { value: buildFlatRoots(10), renderLimit: 4 },
+    });
+
+    await wrapper.find("button").trigger("click");
+    expect(contentItems(wrapper)).toHaveLength(8);
+
+    await wrapper.find("button").trigger("click");
+    expect(contentItems(wrapper)).toHaveLength(10);
+    expect(wrapper.find("button").exists()).toBe(false);
   });
 });

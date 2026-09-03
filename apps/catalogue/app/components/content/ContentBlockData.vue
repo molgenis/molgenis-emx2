@@ -38,30 +38,21 @@ const areasOfInformation = collectionEvents
         title="Data categories"
         :collapse-all="false"
       >
-        <DisplayOntology
-          :value="dataCategories"
-          :inverted="true"
-        ></DisplayOntology>
+        <DisplayOntology :value="dataCategories"></DisplayOntology>
       </ListCollapsible>
       <ListCollapsible
         v-if="sampleCategories?.length"
         title="Sample categories"
         :collapse-all="false"
       >
-        <DisplayOntology
-          :value="sampleCategories"
-          :inverted="true"
-        ></DisplayOntology>
+        <DisplayOntology :value="sampleCategories"></DisplayOntology>
       </ListCollapsible>
       <ListCollapsible
         v-if="areasOfInformation?.length"
         title="Areas of information"
         :collapse-all="false"
       >
-        <DisplayOntology
-          :value="areasOfInformation"
-          :inverted="true"
-        ></DisplayOntology>
+        <DisplayOntology :value="areasOfInformation"></DisplayOntology>
       </ListCollapsible>
     </div>
   </ContentBlock>

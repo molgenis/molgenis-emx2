@@ -9,6 +9,7 @@ import DisplayOntology from "../display/Ontology.vue";
 const props = defineProps<{
   metadata: IColumn;
   data: IOntologyTreeItem | IOntologyTreeItem[];
+  renderLimit?: number;
 }>();
 
 // Shown immediately, then swapped for the ancestor-linked tree once it resolves.
@@ -43,5 +44,11 @@ watch(
 </script>
 
 <template>
-  <DisplayOntology :value="resolvedValue" />
+  <DisplayOntology
+    :value="resolvedValue"
+    :collapse-all="false"
+    :max-items="10"
+    :item-step="5"
+    :render-limit="renderLimit"
+  />
 </template>
