@@ -264,7 +264,7 @@ public class CsvApi {
         .toList();
   }
 
-  private static Query getDownloadQuery(Context ctx, Table table) throws JsonProcessingException {
+  static Query getDownloadQuery(Context ctx, Table table) throws JsonProcessingException {
     Query query = table.query();
     // extract filter argument if exists
     if (ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT) != null) {
@@ -277,13 +277,6 @@ public class CsvApi {
                   .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
     }
     return query;
-  }
-
-  public static List<Row> getDownloadRows(Context ctx, Table table) throws JsonProcessingException {
-    List<Row> rows = getDownloadQuery(ctx, table).retrieveRows();
-    List<Column> columns = table.getMetadata().getColumns();
-    ResolveComputedValue.apply(columns, rows);
-    return rows;
   }
 
   private static void tableUpdate(Context ctx) {

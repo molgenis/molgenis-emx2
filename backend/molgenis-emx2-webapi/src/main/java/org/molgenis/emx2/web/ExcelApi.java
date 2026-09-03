@@ -2,7 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.io.FileUtils.getTempFile;
 import static org.molgenis.emx2.web.CsvApi.getDownloadColumns;
-import static org.molgenis.emx2.web.CsvApi.getDownloadRows;
+import static org.molgenis.emx2.web.CsvApi.getDownloadQuery;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.generateReportsToStore;
@@ -18,11 +18,13 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.ImportExcelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
+import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.tasks.Task;
 
 public class ExcelApi {
@@ -102,8 +104,17 @@ public class ExcelApi {
     tempDir.toFile().deleteOnExit();
     Path excelFile = tempDir.resolve("download.xlsx");
     TableStore excelStore = new TableStoreForXlsxFile(excelFile);
-    excelStore.writeTable(
-        table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
+    List<Column> columns = table.getMetadata().getColumns();
+    Query query = getDownloadQuery(ctx, table);
+    excelStore.writeTableStreaming(
+        table.getName(),
+        getDownloadColumns(ctx, table),
+        consumer ->
+            query.retrieveRowsStreaming(
+                row -> {
+                  ResolveComputedValue.apply(columns, List.of(row));
+                  consumer.accept(row);
+                }));
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
       ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.header(
@@ -114,7 +125,7 @@ public class ExcelApi {
               + table.getName()
               + System.currentTimeMillis()
               + ".xlsx");
-      outputStream.write(Files.readAllBytes(excelFile));
+      Files.copy(excelFile, outputStream);
       ctx.result("Export success");
     }
   }
