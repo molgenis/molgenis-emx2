@@ -78,7 +78,6 @@ class HarvestingPipelineTest {
     assertFileContentMatches(
         "extracted.ttl",
         """
-
         <https://example.com/test> <http://purl.org/dc/terms/title> "Harvester" .
         """);
   }
@@ -142,6 +141,22 @@ class HarvestingPipelineTest {
     assertEquals(1, Objects.requireNonNull(tempDir.toFile().list()).length);
   }
 
+  @Test
+  void shouldThrowBeforeExtractingWhenConfiguredTableDoesNotExistInSchema() {
+    StaticRdfExtractor extractor = new StaticRdfExtractor();
+    HarvestingPipelineConfig config =
+        new HarvestingPipelineConfig.Builder(FDP_URI, schema, extractor, transformer)
+            .setTables("names", "unknown-table")
+            .build();
+    HarvestingPipeline pipeline = new HarvestingPipeline(config);
+
+    MolgenisException exception = assertThrows(MolgenisException.class, pipeline::execute);
+
+    assertEquals(
+        "Unknown table(s) configured: unknown-table for schema: " + schema.getName(),
+        exception.getMessage());
+  }
+
   private static void assertFileContentMatches(String fileName, String fileContent) {
     try {
       String extracted = Files.readString(outputDirectory.resolve(fileName));
@@ -166,7 +181,8 @@ class HarvestingPipelineTest {
   private static class StaticRdfTransformer implements RdfTransformer {
 
     @Override
-    public InMemoryTableStore transform(Repository repository) {
+    public InMemoryTableStore transform(
+        Repository repository, SchemaMetadata schema, List<String> tables) {
       InMemoryTableStore store = new InMemoryTableStore();
       store.writeTable(
           "names", List.of("name"), List.of(Row.row("name", "foo"), Row.row("name", "bar")));

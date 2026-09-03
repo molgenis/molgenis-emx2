@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.repository.Repository;
@@ -14,6 +15,7 @@ import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.io.ImportSchemaTask;
@@ -37,6 +39,10 @@ public class HarvestingPipeline {
   }
 
   public void execute() {
+    logger.info("Validating harvesting config");
+    SchemaMetadata schema = config.schema().getMetadata();
+    validateTables(schema);
+
     logger.info("Starting harvesting pipeline: {}", harvestId);
     Repository repository = new SailRepository(new MemoryStore());
 
@@ -54,7 +60,7 @@ public class HarvestingPipeline {
       preProcess(repository);
     }
 
-    InMemoryTableStore transformed = transform(repository);
+    InMemoryTableStore transformed = transform(repository, schema);
 
     if (!config.postProcessors().isEmpty()) {
       postProcess(transformed);
@@ -79,8 +85,9 @@ public class HarvestingPipeline {
     }
   }
 
-  private InMemoryTableStore transform(Repository extracted) {
-    InMemoryTableStore transformed = config.transformer().transform(extracted);
+  private InMemoryTableStore transform(Repository extracted, SchemaMetadata schema) {
+    InMemoryTableStore transformed =
+        config.transformer().transform(extracted, schema, config.tables());
 
     if (config.dumpEnabled()) {
       writeTableStoreToZip(transformed, config.tables(), "transformed.zip");
@@ -147,5 +154,16 @@ public class HarvestingPipeline {
 
   private Path outputDirectory() {
     return Path.of(config.outputPath()).resolve(OUTPUT_DIRECTORY_NAME + harvestId);
+  }
+
+  private void validateTables(SchemaMetadata schema) {
+    String missing =
+        config.tables().stream()
+            .filter(name -> schema.getTableMetadata(name) == null)
+            .collect(Collectors.joining(", "));
+    if (!missing.isBlank()) {
+      throw new MolgenisException(
+          "Unknown table(s) configured: " + missing + " for schema: " + schema.getName());
+    }
   }
 }
