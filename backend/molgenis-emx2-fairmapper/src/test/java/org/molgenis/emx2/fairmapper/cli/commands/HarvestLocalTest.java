@@ -19,11 +19,12 @@ import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
+import org.molgenis.emx2.fairmapper.tasks.DatabaseDataLoader;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import picocli.CommandLine;
 
-class HarvestTest {
+class HarvestLocalTest {
 
   private static final String RDF_ENDPOINT = "https://example.org/fdp";
 
@@ -43,7 +44,7 @@ class HarvestTest {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA,TableB");
 
     assertEquals(URI.create(RDF_ENDPOINT), config.rdf());
-    assertEquals(schema.getName(), config.schema().getName());
+    assertEquals(schema.getName(), config.schemaName());
     assertEquals(List.of("TableA", "TableB"), config.tables());
   }
 
@@ -60,7 +61,7 @@ class HarvestTest {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
     assertEquals(1, config.postProcessors().size());
-    assertInstanceOf(DCATPostProcessor.class, config.postProcessors().get(0));
+    assertInstanceOf(DCATPostProcessor.class, config.postProcessors().getFirst());
 
     assertEquals(2, config.preProcessors().size());
     assertInstanceOf(TemporalRdfPreProcessor.class, config.preProcessors().get(0));
@@ -88,26 +89,20 @@ class HarvestTest {
   void shouldNotEnableDataLoadingWhenLoadOptionOmitted() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
-    assertFalse(config.loadDataEnabled());
+    assertFalse(config.loadEnabled());
   }
 
   @Test
   void shouldEnableDataLoadingWhenLoadOptionProvided() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-l");
 
-    assertTrue(config.loadDataEnabled());
-  }
-
-  @Test
-  void shouldEnableDataLoadingWhenLoadLongOptionProvided() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--load");
-
-    assertTrue(config.loadDataEnabled());
+    assertTrue(config.loadEnabled());
+    assertInstanceOf(DatabaseDataLoader.class, config.loader());
   }
 
   @Test
   void shouldThrowWhenSchemaDoesNotExist() {
-    Harvest harvest = new Harvest();
+    HarvestLocal harvest = new HarvestLocal();
     new CommandLine(harvest)
         .parseArgs("-r", RDF_ENDPOINT, "-s", "NonExistingSchema", "-t", "TableA");
 
@@ -117,17 +112,19 @@ class HarvestTest {
 
   @Test
   void shouldThrowWhenTableDoesNotExist() {
-    Harvest harvest = new Harvest();
+    HarvestLocal harvest = new HarvestLocal();
     new CommandLine(harvest)
         .parseArgs("-r", RDF_ENDPOINT, "-s", schema.getName(), "-t", "NonExistingTable");
 
     MolgenisException exception = assertThrows(MolgenisException.class, harvest::run);
-    assertEquals("Table not found: NonExistingTable", exception.getMessage());
+    assertEquals(
+        "Unknown table(s) configured: NonExistingTable for schema: " + schema.getName(),
+        exception.getMessage());
   }
 
   private HarvestingPipelineConfig runAndCaptureConfig(
       String rdf, String tables, String... extraArgs) {
-    Harvest harvest = spy(new Harvest());
+    HarvestLocal harvest = spy(new HarvestLocal());
     doNothing().when(harvest).runPipeline(any());
 
     String[] args =
