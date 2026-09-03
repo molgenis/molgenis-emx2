@@ -524,6 +524,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public String getSchemaName() {
     SchemaMetadata schemaMetadata = getSchema();
+    if (schemaMetadata == null) {
+      return null;
+    }
     return schemaMetadata.getName();
   }
 
