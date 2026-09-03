@@ -229,7 +229,7 @@ public class CsvApi {
     try (Writer writer =
         new BufferedWriter(new OutputStreamWriter(ctx.outputStream(), StandardCharsets.UTF_8))) {
       Consumer<Row> rowWriter = CsvTableWriter.rowWriter(columnNames, writer, getSeparator(ctx));
-      query.retrieveRowsStreaming(
+      query.streamRows(
           row -> {
             ResolveComputedValue.apply(columns, List.of(row));
             rowWriter.accept(row);

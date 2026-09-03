@@ -98,7 +98,7 @@ public class SqlQuery extends QueryBean {
   }
 
   @Override
-  public void retrieveRowsStreaming(Consumer<Row> consumer, Option... options) {
+  public void streamRows(Consumer<Row> consumer, Option... options) {
     SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
     if (logger.isInfoEnabled()) {
       logger.info(query.getSQL(ParamType.INLINED));
