@@ -1,12 +1,15 @@
 import { SessionExpiredError } from "../utils/sessionExpiredError";
 import type {
   columnValue,
+  IColumn,
+  ITableMetaData,
   TaskStatus,
   TruncateStatus,
 } from "../../../metadata-utils/src/types";
 import { useSession } from "./useSession";
 import { ref, type Ref } from "vue";
 import { useTask } from "./useTask";
+import fetchMetadata from "./fetchMetadata";
 
 interface TruncateResponse {
   data: {
@@ -82,6 +85,40 @@ export const useTable = (schemaId: string, tableId: string) => {
     }
   };
 
+  const cascadeDeleteConfirmationMsg = async () => {
+    const schema = await fetchMetadata(schemaId);
+    function findReferingTables(
+      tableId: string,
+      found: Record<string, ITableMetaData>
+    ) {
+      const referringTables = schema.tables
+        .filter((table) => table.id !== tableId && !found[table.id])
+        .filter((table: ITableMetaData) => {
+          return table.columns.find(
+            (column: IColumn) =>
+              column.refTableId === tableId &&
+              (column.columnType === "REF" ||
+                column.columnType === "SELECT" ||
+                column.columnType === "RADIO") &&
+              column.cascadeDelete
+          );
+        });
+      referringTables.forEach((table) => {
+        found[table.id] = table;
+        findReferingTables(table.id, found);
+      });
+    }
+    const found: Record<string, ITableMetaData> = {};
+    // recursively find tables that reference this table, passing the found tables so we don't get into an infinite loop
+    findReferingTables(tableId, found);
+    const cascadeTables = Object.values(found);
+
+    return cascadeTables.length
+      ? "Removing this row will also remove any rows in the following tables that reference this row: " +
+          cascadeTables.map((table) => table.name).join(", ")
+      : "";
+  };
+
   async function handleFetchError(error: any, message: string) {
     if (error.statusCode && error.statusCode >= 400) {
       const { hasSessionTimeout } = await useSession();
@@ -97,6 +134,7 @@ export const useTable = (schemaId: string, tableId: string) => {
   }
 
   return {
+    cascadeDeleteConfirmationMsg,
     deleteRecords,
     truncate,
   };

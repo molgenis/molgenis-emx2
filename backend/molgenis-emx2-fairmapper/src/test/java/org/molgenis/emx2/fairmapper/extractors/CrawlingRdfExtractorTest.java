@@ -256,7 +256,7 @@ class CrawlingRdfExtractorTest {
 
       Assertions.assertDoesNotThrow(
           () ->
-              new CrawlingRdfExtractor()
+              new CrawlingRdfExtractor(false)
                   .withCrawlSteps(List.of(new CrawlStep("part", partOf)))
                   .addRdfToRepository(repository, root.toUri()));
 
