@@ -17,7 +17,12 @@ vi.mock("../../../app/composables/useSession", () => ({
 
 import { useTask } from "../../../app/composables/useTask";
 import { useSession } from "../../../app/composables/useSession";
+import fetchMetadata from "../../../app/composables/fetchMetadata";
 import { useTable } from "../../../app/composables/useTable";
+
+vi.mock("../../../app/composables/fetchMetadata", () => ({
+  default: vi.fn(),
+}));
 
 describe("useTable", () => {
   const fetchMock = vi.fn();
@@ -26,6 +31,7 @@ describe("useTable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal("$fetch", fetchMock);
+    vi.mocked(fetchMetadata).mockResolvedValue({ tables: [] } as any);
 
     vi.mocked(useTask).mockReturnValue({
       pollStatus: pollStatusMock,
@@ -66,6 +72,124 @@ describe("useTable", () => {
 
     await expect(deleteRecords(new Set([{ id: "1" }]))).rejects.toBeInstanceOf(
       SessionExpiredError
+    );
+  });
+
+  test("cascadeDeleteConfirmationMsg returns a message for cascading child tables", async () => {
+    vi.mocked(fetchMetadata).mockResolvedValue({
+      tables: [
+        {
+          id: "Person",
+          name: "Person",
+          columns: [],
+        },
+        {
+          id: "Order",
+          name: "Order",
+          columns: [
+            {
+              refTableId: "Person",
+              columnType: "SELECT",
+              cascadeDelete: true,
+            },
+          ],
+        },
+        {
+          id: "OrderLine",
+          name: "Order line",
+          columns: [
+            {
+              refTableId: "Order",
+              columnType: "REF",
+              cascadeDelete: true,
+            },
+          ],
+        },
+      ],
+    } as any);
+
+    const { cascadeDeleteConfirmationMsg } = useTable("demo", "Person");
+
+    await expect(cascadeDeleteConfirmationMsg()).resolves.toBe(
+      "Removing this row will also remove any rows in the following tables that reference this row: Order, Order line"
+    );
+  });
+
+  test("cascadeDeleteConfirmationMsg returns empty string when no cascading refs exist", async () => {
+    vi.mocked(fetchMetadata).mockResolvedValue({
+      tables: [
+        {
+          id: "Person",
+          name: "Person",
+          columns: [],
+        },
+        {
+          id: "Audit",
+          name: "Audit",
+          columns: [
+            {
+              refTableId: "Person",
+              columnType: "REF",
+              cascadeDelete: false,
+            },
+          ],
+        },
+      ],
+    } as any);
+
+    const { cascadeDeleteConfirmationMsg } = useTable("demo", "Person");
+
+    await expect(cascadeDeleteConfirmationMsg()).resolves.toBe("");
+  });
+
+  test("cascadeDeleteConfirmationMsg includes indirectly referenced tables in nested cascade chains", async () => {
+    vi.mocked(fetchMetadata).mockResolvedValue({
+      tables: [
+        {
+          id: "Person",
+          name: "Person",
+          columns: [],
+        },
+        {
+          id: "Order",
+          name: "Order",
+          columns: [
+            {
+              refTableId: "Person",
+              columnType: "REF",
+              cascadeDelete: true,
+            },
+          ],
+        },
+        {
+          id: "Invoice",
+          name: "Invoice",
+          columns: [
+            {
+              refTableId: "Order",
+              columnType: "REF",
+              cascadeDelete: true,
+            },
+          ],
+        },
+        {
+          id: "Comment",
+          name: "Comment",
+          columns: [
+            {
+              refTableId: "Invoice",
+              columnType: "REF",
+              cascadeDelete: true,
+            },
+          ],
+        },
+      ],
+    } as any);
+
+    const { cascadeDeleteConfirmationMsg } = useTable("demo", "Person");
+
+    await expect(cascadeDeleteConfirmationMsg()).resolves.toBe(
+      "Removing this row will also remove any rows in the following tables that reference this row: Order, Invoice, Comment"
     );
   });
 

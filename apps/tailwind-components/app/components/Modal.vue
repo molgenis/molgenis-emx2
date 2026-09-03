@@ -7,6 +7,7 @@ import OptionalFocusTrap from "./OptionalFocusTrap.vue";
 
 withDefaults(
   defineProps<{
+    id?: string;
     title?: string;
     subtitle?: string;
     maxWidth?: string;
@@ -74,6 +75,7 @@ function hide() {
             target="modal-title"
           >
             <div
+              :id="id"
               role="dialog"
               aria-labelledby="modal-title"
               :aria-modal="true"
