@@ -23,7 +23,7 @@ export async function gql(
 export async function signinAdmin(api: APIRequestContext, route: string) {
   return gql(
     api,
-    `${route}graphql`,
+    `${sanitizeRoute(route)}graphql`,
     `mutation {
       signin(email: "admin", password: "admin") {
         status
@@ -41,7 +41,7 @@ export async function createSchemaFromTemplate(
 ) {
   const data = await gql(
     api,
-    `${route}graphql`,
+    `${sanitizeRoute(route)}graphql`,
     `mutation create($name: String, $template: String) {
       createSchema(name: $name, template: $template, includeDemoData: true) {
         message
@@ -61,7 +61,7 @@ export async function deleteSchema(
 ) {
   return gql(
     api,
-    `${route}graphql`,
+    `${sanitizeRoute(route)}graphql`,
     `mutation deleteSchema($id: String) {
       deleteSchema(id: $id) {
         message
@@ -133,4 +133,8 @@ export async function addPasswordToUser(
       }
     }`
   );
+}
+
+function sanitizeRoute(route: string) {
+  return route.endsWith("/#/") ? route.slice(0, -2) : route;
 }
