@@ -83,9 +83,6 @@ public class SqlQuery extends QueryBean {
   public List<Row> retrieveRows(Option... options) {
     SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
     try {
-      if (logger.isInfoEnabled()) {
-        logger.info(query.getSQL(ParamType.INLINED));
-      }
       List<Row> result = new ArrayList<>();
       Result<org.jooq.Record> fetch = query.fetch();
       for (org.jooq.Record r : fetch) {
@@ -100,9 +97,6 @@ public class SqlQuery extends QueryBean {
   @Override
   public void streamRows(Consumer<Row> consumer, Option... options) {
     SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
-    if (logger.isInfoEnabled()) {
-      logger.info(query.getSQL(ParamType.INLINED));
-    }
     try {
       schema
           .getJooq()
@@ -198,7 +192,12 @@ public class SqlQuery extends QueryBean {
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
     SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
-    return limitOffsetOrderBy(table, select, where, tableAlias);
+    SelectConnectByStep<org.jooq.Record> query =
+        limitOffsetOrderBy(table, select, where, tableAlias);
+    if (logger.isInfoEnabled()) {
+      logger.info(query.getSQL(ParamType.INLINED));
+    }
+    return query;
   }
 
   private SelectColumn getRefPrimaryKeySubselect(Column c) {
