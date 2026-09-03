@@ -82,7 +82,7 @@ export function setCmsViewUrl(schema: string, page: string): string {
   return `/${schema}/pages/${page}/`;
 }
 
-async function cmsFetch(
+export async function cmsFetch(
   schema: string,
   query: string,
   variables?: any
@@ -393,17 +393,6 @@ export async function deleteBlock(
   await fullReorder(schema, page, "Block");
 }
 
-export async function deleteContainer(schema: string, page: string) {
-  const query = `mutation deletePage($container:[ContainersInput]) {
-    delete(Containers: $container) {
-      status
-      message
-    }
-  }`;
-  const variables = { container: { name: page } };
-  return await cmsFetch(schema, query, variables);
-}
-
 export async function addComponent(
   schema: string,
   id: string,
@@ -704,42 +693,6 @@ async function AddBlockOrder(
     ],
   };
   await cmsFetch(schema, query, variables);
-}
-
-export async function updateBlocks(schema: string, newBlocks: IBlocks[]) {
-  const query = `mutation updateBlockContainers($blocks:[BlocksInput]) {
-    update(Blocks: $blocks) {
-      status
-      message
-    }
-  }`;
-
-  const variables = { blocks: newBlocks };
-  await cmsFetch(schema, query, variables);
-}
-
-export async function getPageComponents(
-  schema: string,
-  page: string
-): Promise<IComponents[]> {
-  const query = `query getPageComponents($filter: ComponentsFilter){
-    Components(filter: $filter) {
-      ...ComponentsAllFields3
-    }
-  }`;
-  const variables = {
-    filter: {
-      inBlock: {
-        inContainer: {
-          name: {
-            equals: page,
-          },
-        },
-      },
-    },
-  };
-  const { data } = await cmsFetch(schema, query, variables);
-  return data?.Components as IComponents[];
 }
 
 export function generateHtmlPreview(
