@@ -10,6 +10,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +45,7 @@ public class CsvApi {
 
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;
+  private static final String MODE_PARAM = "mode";
 
   private CsvApi() {
     // hide constructor
@@ -283,8 +285,23 @@ public class CsvApi {
   private static void tableUpdate(Context ctx) {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
+
+    String modeParam = ctx.queryParam(MODE_PARAM);
+
+    UpdateMode updateMode = UpdateMode.DEFAULT_MODE;
+
+    try {
+      if (modeParam != null) {
+        String normalizedMode = modeParam.trim().toUpperCase(java.util.Locale.ROOT);
+        if ("OVERRIDE".equals(normalizedMode)) normalizedMode = UpdateMode.OVERWRITE.name();
+        updateMode = UpdateMode.valueOf(normalizedMode);
+      }
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestResponse("Invalid mode: " + modeParam);
+    }
+
     tableStore.setCsvString(table.getName(), ctx.body());
-    Task task = new ImportTableTask(tableStore, table, false);
+    Task task = new ImportTableTask(tableStore, table, false, updateMode);
     task.run();
     ctx.status(200);
     ctx.contentType(ACCEPT_CSV);
