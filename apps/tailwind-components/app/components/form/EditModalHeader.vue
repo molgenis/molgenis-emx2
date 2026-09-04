@@ -20,14 +20,13 @@ const { formValues, schemaId } = defineProps<{
 
 const session = await useSession(schemaId);
 
-const selectedRole = ref<string>(getSelectedRole());
-
 const roles = computed<string[]>(() => session.rowLevelRoles.value);
 const isDraft = computed(() => formValues["mg_draft"] === true || false);
 const showRoles = computed(
   () =>
     session.isAdmin.value || session.isOwner.value || session.isManager.value
 );
+const selectedRole = ref<string>(getSelectedRole());
 
 function onUpdateSelectedRole(newRole?: IInputValue | IInputValueLabel | null) {
   selectedRole.value = typeof newRole === "string" ? newRole : "";
