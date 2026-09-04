@@ -2,13 +2,13 @@ import type { APIRequestContext } from "@playwright/test";
 import { request as apiRequest, expect, test } from "@playwright/test";
 import playwrightConfig from "../../playwright.config";
 import {
+  addPasswordToUser,
   createSchemaFromTemplate,
   deleteSchema,
-  RUN_ID,
-  addPasswordToUser,
   dropAnonymousFromTestSchema,
+  RUN_ID,
   signinAdmin,
-} from "./testSchema";
+} from "./e2eUtils";
 import {
   addRlsToTables,
   findAndDeleteRow,
