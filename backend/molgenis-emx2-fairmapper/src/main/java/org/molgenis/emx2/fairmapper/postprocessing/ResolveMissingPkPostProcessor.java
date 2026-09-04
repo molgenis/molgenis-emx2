@@ -1,16 +1,15 @@
 package org.molgenis.emx2.fairmapper.postprocessing;
 
+import static org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil.SUBJECT_NAME;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
-import org.molgenis.emx2.utils.TableSort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,17 +61,14 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
   public void process(InMemoryTableStore tableStore) {
     int nrIterations = 0;
 
-    List<TableMetadata> tables = schema.getTables();
-    TableSort.sortTableByDependency(tables);
-
     while (nrIterations < MAX_NR_ITERATIONS) {
       changesMade = false;
       nrIterations++;
 
-      for (TableMetadata table : tables) {
-        List<Column> referenceColumns = getReferenceColumnsForTable(table);
+      for (String tableName : schema.getTableNames()) {
+        List<Column> referenceColumns = getReferenceColumnsForTable(tableName);
         tableStore.processTable(
-            table.getTableName(),
+            tableName,
             (rows, source) ->
                 rows.forEachRemaining(row -> resolveRow(tableStore, row, referenceColumns)));
       }
@@ -83,44 +79,62 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
     }
   }
 
-  private List<Column> getReferenceColumnsForTable(TableMetadata table) {
-    return table.getColumns().stream().filter(Column::isReference).toList();
+  private List<Column> getReferenceColumnsForTable(String tableName) {
+    return schema.getTableMetadata(tableName).getColumns().stream()
+        .filter(Column::isReference)
+        .toList();
   }
 
   private void resolveRow(TableStore tableStore, Row row, List<Column> referenceColumns) {
     for (Column column : referenceColumns) {
-      String field = subjectField(column);
-      if (row.isNull(field, ColumnType.STRING)) {
-        continue;
-      }
-
       if (column.isArray()) {
-        resolveReference(
-            row,
-            column,
-            Arrays.stream(row.getStringArray(field))
-                .map(
-                    subject ->
-                        TableStoreUtils.getRowForSubject(tableStore, column.getRefTable(), subject))
-                .toList(),
-            (reference, values) -> row.setRefArray(reference.getColumnName(), values.toArray()));
+        resolveArrayReference(tableStore, row, column);
       } else {
-        resolveReference(
-            row,
-            column,
-            List.of(
-                TableStoreUtils.getRowForSubject(
-                    tableStore, column.getRefTable(), row.getString(field))),
-            (reference, values) -> row.set(reference.getColumnName(), values.getFirst()));
+        resolveSingleReference(tableStore, row, column);
       }
     }
   }
 
-  private void resolveReference(
-      Row row,
-      Column column,
-      List<Row> referencedRows,
-      BiConsumer<Reference, List<Object>> rowSetter) {
+  private void resolveSingleReference(TableStore tableStore, Row row, Column column) {
+    String field = subjectField(column);
+    if (!row.notNull(field)) {
+      return;
+    }
+
+    String subject = row.getString(field);
+    Row referencedRow = TableStoreUtils.getRowForSubject(tableStore, column.getRefTable(), subject);
+
+    for (Reference reference : column.getReferences()) {
+      if (row.notNull(reference.getColumnName())) {
+        continue;
+      }
+
+      Optional<Object> value = readAvailableValue(reference, referencedRow);
+      if (value.isEmpty() && pointsBackAtOwnTable(column, reference)) {
+        // These two rows depend on each other (see the class doc example): the referenced row
+        // can't resolve this on its own, so we write the value into both rows right here.
+        value = Optional.of(completeMutualKey(row, referencedRow, reference));
+      }
+
+      if (value.isPresent()) {
+        row.set(reference.getColumnName(), value.get());
+        changesMade = true;
+      }
+    }
+  }
+
+  private void resolveArrayReference(TableStore tableStore, Row row, Column column) {
+    String field = subjectField(column);
+    if (!row.notNull(field)) {
+      return;
+    }
+
+    TableMetadata refTable = column.getRefTable();
+    List<Row> referencedRows =
+        Arrays.stream(row.getStringArray(field))
+            .map(subject -> TableStoreUtils.getRowForSubject(tableStore, refTable, subject))
+            .toList();
+
     for (Reference reference : column.getReferences()) {
       // The field might already hold an empty array left over from extraction, not a real
       // result. Only treat it as resolved once it has as many values as there are rows.
@@ -133,8 +147,6 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
       for (Row referencedRow : referencedRows) {
         Optional<Object> value = readAvailableValue(reference, referencedRow);
         if (value.isEmpty() && pointsBackAtOwnTable(column, reference)) {
-          // These two rows depend on each other (see the class doc example): the referenced row
-          // can't resolve this on its own, so we write the value into both rows right here.
           value = Optional.of(completeMutualKey(row, referencedRow, reference));
         }
 
@@ -150,7 +162,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
       }
 
       if (allResolved) {
-        rowSetter.accept(reference, values);
+        row.setRefArray(reference.getColumnName(), values.toArray());
         changesMade = true;
       }
     }
@@ -161,12 +173,11 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
     if (referencedRow.notNull(reference.getReferencedColumnName())) {
       return Optional.of(referencedRow.getValueMap().get(reference.getReferencedColumnName()));
     }
-
     return Optional.empty();
   }
 
   private static String subjectField(Column column) {
-    return SparqlVariableUtil.SUBJECT_NAME + column.getName();
+    return SUBJECT_NAME + column.getName();
   }
 
   private static boolean isFullyResolvedArray(Row row, Reference reference, int expectedSize) {
