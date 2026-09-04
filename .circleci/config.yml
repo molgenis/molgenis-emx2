@@ -85,28 +85,31 @@ commands:
         working_directory: apps
         command: |
           # A registry outage must not block the build; a critical vulnerability still must.
-          # A parseable report means the registry answered; its exit code ignores --audit-level under --json.
-          for attempt in 1 2 3; do
-            pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --json > audit.json 2> audit.err || true
-            if jq -e '.metadata.vulnerabilities' audit.json > /dev/null 2>&1; then
-              jq -c '.metadata.vulnerabilities' audit.json
-              if [ "$(jq '.metadata.vulnerabilities.critical' audit.json)" -gt 0 ]; then
-                jq -r '.advisories[] | select(.severity == "critical") | "\(.module_name): \(.title) \(.url)"' audit.json
-                exit 1
-              fi
-              exit 0
-            fi
-            cat audit.err; echo "pnpm audit could not reach the npm registry (attempt $attempt/3)"; sleep 30
-          done
-          echo "npm registry unavailable, falling back to OSV-Scanner"
+          # node reads the reports: jq is missing from most job images. pnpm retries the registry itself.
+          # The exit code of `audit --json` ignores --audit-level, so the report decides.
+          pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --json > audit.json 2> audit.err || true
+          rc=0; node -e '
+            let r; try { r = JSON.parse(require("fs").readFileSync("audit.json", "utf8")); } catch (e) { process.exit(2); }
+            if (!r.metadata || !r.metadata.vulnerabilities) process.exit(2);
+            console.log(JSON.stringify(r.metadata.vulnerabilities));
+            const crit = Object.values(r.advisories).filter(a => a.severity === "critical");
+            crit.forEach(a => console.log(`${a.module_name}: ${a.title} ${a.url}`));
+            process.exit(crit.length ? 1 : 0);
+          ' || rc=$?
+          test $rc -ne 2 && exit $rc
+          cat audit.err; echo "npm registry unavailable, falling back to OSV-Scanner"
           curl -sSL --retry 3 -o /tmp/osv-scanner https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64
           chmod +x /tmp/osv-scanner
           # exit 1 means findings, anything else means the scan itself failed
           /tmp/osv-scanner scan source -L pnpm-lock.yaml --format json --verbosity error > osv.json || test $? -eq 1 || { echo "WARNING: OSV unavailable too, skipping dependency audit for this build"; exit 0; }
-          if jq -e '[.results[].packages[].vulnerabilities[] | select(.database_specific.severity == "CRITICAL")] | length > 0' osv.json > /dev/null; then
-            jq -r '.results[].packages[] | .package.name as $n | .vulnerabilities[] | select(.database_specific.severity == "CRITICAL") | "\($n): \(.id) \(.summary)"' osv.json
-            exit 1
-          fi
+          node -e '
+            const r = JSON.parse(require("fs").readFileSync("osv.json", "utf8"));
+            const crit = [];
+            for (const res of r.results || []) for (const p of res.packages || []) for (const v of p.vulnerabilities || [])
+              if ((v.database_specific || {}).severity === "CRITICAL") crit.push(`${p.package.name}: ${v.id} ${v.summary}`);
+            crit.forEach(l => console.log(l));
+            process.exit(crit.length ? 1 : 0);
+          '
     - run:
           name: Concatenate Build Files as key for cache
           command: |
