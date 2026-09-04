@@ -1,22 +1,46 @@
 import { expect, test } from "@nuxt/test-utils/playwright";
-
+import { request as apiRequest } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
 import playwrightConfig from "../../../../playwright.config";
+import {
+  createSchemaFromTemplate,
+  deleteSchema,
+  RUN_ID,
+  signinAdmin,
+} from "../../../../../ui/tests/e2e/e2eUtils";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/tailwind-components/#/";
 
+test.describe.configure({ mode: "serial" });
+
 test.use({ storageState: "playwright/.auth/user.json" });
+
+let api: APIRequestContext;
+const SCHEMA = `tableEMX2 test ${RUN_ID}`;
+const SCHEMA_PATH = encodeURIComponent(SCHEMA);
+
+test.beforeAll(async () => {
+  api = await apiRequest.newContext();
+  await signinAdmin(api, route);
+  await createSchemaFromTemplate(api, route, SCHEMA, "PET_STORE");
+});
+
+test.afterAll(async () => {
+  await deleteSchema(api, route, SCHEMA);
+  await api.dispose();
+});
 
 test("the row should be removed from the table after deletion", async ({
   page,
   goto,
 }) => {
-  await goto(`${route}table/EMX2.story?schema=pet+store&table=Category`, {
+  await goto(`${route}table/EMX2.story?schema=${SCHEMA_PATH}&table=Category`, {
     waitUntil: "hydration",
   });
   await expect(page.getByText("TableEMX2").first()).toBeVisible();
-  await expect(page.getByLabel("Schema:")).toHaveValue("pet store");
+  await expect(page.getByLabel("Schema:")).toHaveValue(SCHEMA);
   await page.getByRole("checkbox", { name: "Can insert:" }).check();
   await expect(
     page.getByRole("button", { name: "Add Category" })
@@ -27,6 +51,7 @@ test("the row should be removed from the table after deletion", async ({
   await page.getByRole("textbox", { name: "name Required" }).click();
   await page.getByRole("textbox", { name: "name Required" }).fill("deltest");
   await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.getByText(`inserted Category`).click();
   await page.getByRole("button", { name: "Cancel" }).click();
 
   // delete row
@@ -48,11 +73,11 @@ test("the row should be copied and added to the table after copying", async ({
   page,
   goto,
 }) => {
-  await goto(`${route}table/EMX2.story?schema=pet+store&table=Pet`, {
+  await goto(`${route}table/EMX2.story?schema=${SCHEMA_PATH}&table=Pet`, {
     waitUntil: "hydration",
   });
   await expect(page.getByText("TableEMX2").first()).toBeVisible();
-  await expect(page.getByLabel("Schema:")).toHaveValue("pet store");
+  await expect(page.getByLabel("Schema:")).toHaveValue(SCHEMA);
   await page.getByRole("checkbox", { name: "Can insert:" }).check();
   await expect(page.getByRole("button", { name: "Add Pet" })).toBeVisible();
 

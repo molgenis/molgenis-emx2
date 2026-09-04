@@ -39,17 +39,19 @@ export default defineConfig<ConfigOptions>({
     },
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-      testIgnore: "*/admin!*.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+      },
+      testIgnore: /admin\..*\.spec\.ts/,
       testMatch: "*/*.spec.ts",
     },
     {
-      name: "chromium",
+      name: "chromium-admin",
       use: {
         ...devices["Desktop Chrome"],
-        storageState: "e2e/.auth/user.json",
+        storageState: "playwright/.auth/user.json",
       },
-      testMatch: "*/admin!*.spec.ts",
+      testMatch: /admin\..*\.spec\.ts/,
       dependencies: ["auth.setup"],
     },
   ],

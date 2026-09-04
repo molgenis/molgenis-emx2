@@ -23,7 +23,7 @@ export async function gql(
 export async function signinAdmin(api: APIRequestContext, route: string) {
   return gql(
     api,
-    `${route}graphql`,
+    `${sanitizeRoute(route)}graphql`,
     `mutation {
       signin(email: "admin", password: "admin") {
         status
@@ -39,9 +39,10 @@ export async function createSchemaFromTemplate(
   name: string,
   template: string
 ) {
+  const sanitizedRoute = sanitizeRoute(route);
   const data = await gql(
     api,
-    `${route}graphql`,
+    `${sanitizedRoute}graphql`,
     `mutation create($name: String, $template: String) {
       createSchema(name: $name, template: $template, includeDemoData: true) {
         message
@@ -50,7 +51,7 @@ export async function createSchemaFromTemplate(
     }`,
     { name, template }
   );
-  await waitForTask(api, route, name, data.createSchema.taskId);
+  await waitForTask(api, sanitizedRoute, name, data.createSchema.taskId);
 }
 
 // never throws: an afterAll error would replace the real cause in the report
@@ -61,7 +62,7 @@ export async function deleteSchema(
 ) {
   return gql(
     api,
-    `${route}graphql`,
+    `${sanitizeRoute(route)}graphql`,
     `mutation deleteSchema($id: String) {
       deleteSchema(id: $id) {
         message
@@ -99,4 +100,42 @@ async function waitForTask(
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
   throw new Error(`import of ${name} did not finish in time`);
+}
+
+export async function dropAnonymousFromTestSchema(
+  api: APIRequestContext,
+  route: string,
+  schemaPath: string
+) {
+  return gql(
+    api,
+    `${route}${schemaPath}/graphql`,
+    `mutation drop($members: [String]) {
+      drop(members: $members) {
+        message
+      }
+    }`,
+    { members: ["anonymous"] }
+  );
+}
+
+export async function addPasswordToUser(
+  api: APIRequestContext,
+  route: string,
+  userName: string,
+  password: string
+) {
+  return gql(
+    api,
+    `${route}graphql`,
+    `mutation{
+      changePassword(email: "${userName}", password: "${password}"){
+        status,message
+      }
+    }`
+  );
+}
+
+function sanitizeRoute(route: string) {
+  return route.endsWith("/#/") ? route.slice(0, -2) : route;
 }
