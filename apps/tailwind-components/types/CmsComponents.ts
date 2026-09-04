@@ -72,3 +72,8 @@ export interface IDraggingInfo {
   moveOrderId?: string;
   parentId?: string;
 }
+
+export interface IDeleteContainerStatus {
+  wasDeleted: boolean;
+  error?: string | undefined;
+}

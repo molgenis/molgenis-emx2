@@ -5,6 +5,7 @@ import { useHead } from "#app";
 import { useAsyncData } from "nuxt/app";
 
 import Container from "../../../../../tailwind-components/app/components/Container.vue";
+import SideModal from "../../../../../tailwind-components/app/components/SideModal.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import BaseIcon from "../../../../../tailwind-components/app/components/BaseIcon.vue";
@@ -28,7 +29,10 @@ import { useSession } from "../../../../../tailwind-components/app/composables/u
 
 import type { Crumb } from "../../../../../tailwind-components/types/types";
 import type { IContainers } from "../../../../../tailwind-components/types/cms";
-import type { ICmsPageTypes } from "../../../../../tailwind-components/types/CmsComponents.js";
+import type {
+  ICmsPageTypes,
+  IDeleteContainerStatus,
+} from "../../../../../tailwind-components/types/CmsComponents.js";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -47,6 +51,8 @@ const formValues = ref();
 const pageType = defineModel<ICmsPageTypes | undefined>();
 const showFormModal = ref<boolean>(false);
 const visible = defineModel<boolean>("visible");
+const showStatusModal = ref<boolean>(false);
+const statusModalMessage = ref<string>();
 
 const { isAdmin, session } = await useSession(schema);
 const enableEditing = computed(() => {
@@ -130,6 +136,20 @@ async function onAddFormValues(value: IContainers) {
     await onClose();
   }
 }
+
+function openStatusModal(value: IDeleteContainerStatus) {
+  if (!value.wasDeleted) {
+    showStatusModal.value = true;
+    statusModalMessage.value = value.error;
+  } else {
+    refresh();
+  }
+}
+
+function closeStatusModal() {
+  showStatusModal.value = false;
+  statusModalMessage.value = undefined;
+}
 </script>
 
 <template>
@@ -164,7 +184,7 @@ async function onAddFormValues(value: IContainers) {
         :isEditable="enableEditing"
         :schema="schema"
         :container="container"
-        @deleted="refresh()"
+        @deleted="openStatusModal($event)"
       />
     </div>
     <div v-else-if="!data?.containers" class="w-full text-center">
@@ -259,4 +279,20 @@ async function onAddFormValues(value: IContainers) {
     @update:cancelled="onClose"
     @update:addedFormValues="onAddFormValues"
   />
+  <SideModal
+    ref="statusModal"
+    type="error"
+    :show="showStatusModal"
+    :slide-in-right="true"
+    :full-screen="false"
+    :include-footer="false"
+    @close="closeStatusModal"
+  >
+    <ContentBlockModal
+      title="Error"
+      class="!bg-invalid text-invalid [&_h2]:text-invalid"
+    >
+      <p>{{ statusModalMessage }}</p>
+    </ContentBlockModal>
+  </SideModal>
 </template>

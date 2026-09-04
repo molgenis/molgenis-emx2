@@ -5,7 +5,10 @@ import PageGalleryCardAction from "./PageGalleryCardAction.vue";
 import BaseIcon from "../../BaseIcon.vue";
 
 import type { IContainers } from "../../../../types/cms.ts";
-import type { ICmsPageTypes } from "../../../../types/CmsComponents.ts";
+import type {
+  ICmsPageTypes,
+  IDeleteContainerStatus,
+} from "../../../../types/CmsComponents.ts";
 
 import {
   setCmsViewUrl,
@@ -29,7 +32,7 @@ const props = withDefaults(
 );
 
 const emits = defineEmits<{
-  (e: "deleted", value: boolean): void;
+  (e: "deleted", value: IDeleteContainerStatus): void;
 }>();
 
 const currentPageType = ref<string | undefined>(
@@ -41,11 +44,11 @@ async function deletePage() {
   const pageName = props.container.name;
 
   if (pageTableClass.endsWith(".Developer pages")) {
-    await deleteDeveloperPage(props.schema, pageName);
-    emits("deleted", true);
+    const result = await deleteDeveloperPage(props.schema, pageName);
+    emits("deleted", result);
   } else if (pageTableClass.endsWith(".Configurable pages")) {
-    await deleteConfigurablePage(props.schema, pageName);
-    emits("deleted", true);
+    const result = await deleteConfigurablePage(props.schema, pageName);
+    emits("deleted", result);
   } else {
     return undefined;
   }
@@ -55,16 +58,16 @@ async function deletePage() {
 <template>
   <div
     :id="container.name"
-    class="relative group border rounded-base w-full h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center text-title-contrast"
+    class="relative group border rounded-base w-full h-36 hover:shadow-md transition-shadow text-title-contrast"
   >
     <NuxtLink
       :to="setCmsViewUrl(schema, container.name)"
-      class="hover:underline"
+      class="hover:underline h-full flex items-center justify-center text-center"
     >
-      {{ container.name }}
+      <span>{{ container.name }}</span>
     </NuxtLink>
     <div
-      class="absolute bottom-0 w-full p-2 flex items-center justify-between flex-row gap-2.5 bg-form-legend"
+      class="w-full p-2 flex items-center justify-between flex-row gap-2.5 bg-form-legend"
     >
       <div class="w-auto">
         <span class="ml-2.5 font-display text-body-sm" v-if="currentPageType">
