@@ -81,33 +81,25 @@ commands:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
     - run:
-        name: run-pnpm-audit
+        name: run-dependency-audit
         working_directory: apps
         command: |
-          # A registry outage must not block the build; a critical vulnerability still must.
-          # node reads the reports: jq is missing from most job images. pnpm retries the registry itself.
-          # The exit code of `audit --json` ignores --audit-level, so the report decides.
-          pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --json > audit.json 2> audit.err || true
-          rc=0; node -e '
-            let r; try { r = JSON.parse(require("fs").readFileSync("audit.json", "utf8")); } catch (e) { process.exit(2); }
-            if (!r.metadata || !r.metadata.vulnerabilities) process.exit(2);
-            console.log(JSON.stringify(r.metadata.vulnerabilities));
-            const crit = Object.values(r.advisories).filter(a => a.severity === "critical");
-            crit.forEach(a => console.log(`${a.module_name}: ${a.title} ${a.url}`));
-            process.exit(crit.length ? 1 : 0);
-          ' || rc=$?
-          test $rc -ne 2 && exit $rc
-          cat audit.err; echo "npm registry unavailable, falling back to OSV-Scanner"
-          curl -sSL --retry 3 -o /tmp/osv-scanner https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64
-          chmod +x /tmp/osv-scanner
-          # exit 1 means findings, anything else means the scan itself failed
-          /tmp/osv-scanner scan source -L pnpm-lock.yaml --format json --verbosity error > osv.json || test $? -eq 1 || { echo "WARNING: OSV unavailable too, skipping dependency audit for this build"; exit 0; }
+          # OSV-Scanner fetches advisories live, so a pinned binary stays current. Only an unreachable OSV API skips the audit.
+          curl -sSfL --retry 3 -o osv-scanner https://github.com/google/osv-scanner/releases/download/v2.5.1/osv-scanner_linux_amd64
+          echo "f9f25499a2c8cc367b3af45df2ea7eeca7fbccceab9c35079968f4b3652194be  osv-scanner" | sha256sum -c
+          chmod +x osv-scanner
+          rc=0; ./osv-scanner scan source -L pnpm-lock.yaml --format json --verbosity error > osv.json || rc=$?
+          if [ $rc -eq 0 ]; then echo "no vulnerabilities"; exit 0; fi
+          # 1 means findings, anything else means the scan itself failed
+          if [ $rc -ne 1 ]; then echo "WARNING: OSV-Scanner exit $rc, skipping dependency audit for this build"; exit 0; fi
           node -e '
             const r = JSON.parse(require("fs").readFileSync("osv.json", "utf8"));
-            const crit = [];
-            for (const res of r.results || []) for (const p of res.packages || []) for (const v of p.vulnerabilities || [])
-              if ((v.database_specific || {}).severity === "CRITICAL") crit.push(`${p.package.name}: ${v.id} ${v.summary}`);
-            crit.forEach(l => console.log(l));
+            const all = [], crit = [];
+            for (const res of r.results || []) for (const p of res.packages || []) for (const v of p.vulnerabilities || []) {
+              const line = `${(v.database_specific || {}).severity}: ${p.package.name} ${v.id} ${v.summary}`;
+              all.push(line); if ((v.database_specific || {}).severity === "CRITICAL") crit.push(line);
+            }
+            all.forEach(l => console.log(l));
             process.exit(crit.length ? 1 : 0);
           '
     - run:
@@ -212,7 +204,7 @@ jobs:
       GRADLE_USER_HOME: /tmp/ci-cache/gradle
 
     steps:
-      # pre_steps calls `pnpm dlx`, so pnpm must exist before it runs.
+      # `pnpm build` below needs pnpm, which this image does not enable.
       - run:
           name: Enable pnpm
           command: sudo corepack enable
