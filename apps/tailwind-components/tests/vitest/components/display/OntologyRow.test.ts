@@ -50,11 +50,22 @@ describe("display/OntologyRow.vue marker", () => {
       bullet: false,
       connector: true,
     });
-    // The asset's dashed arm sits 10px below its own box centre; the extra
-    // 10px in the y offset lands the arm, not the box, on the gutter centre.
-    expect(wrapper.find('[data-marker="connector"]').classes()).toContain(
-      "-translate-y-[calc(50%+10px)]"
+    const connector = wrapper.find('[data-marker="connector"]');
+    // tree-connector centres in the gutter like the caret and the bullet,
+    // so it carries no marker-specific positional offset.
+    expect(connector.classes()).toEqual(
+      expect.arrayContaining([
+        "absolute",
+        "left-1/2",
+        "top-1/2",
+        "-translate-x-1/2",
+        "-translate-y-1/2",
+      ])
     );
+    expect(connector.classes()).not.toContain("-translate-y-[calc(50%+10px)]");
+    // tree-connector's stroke starts on the box's horizontal centre, not
+    // collapsible-list-item's left edge, which is the whole point of the swap.
+    expect(connector.find("path").attributes("d")).toBe("M10 0V10H20");
   });
 
   it("renders no gutter at all for the standalone flush value, text sits flush left", async () => {

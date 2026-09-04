@@ -52,15 +52,12 @@ defineEmits<{ (e: "toggle"): void }>();
         data-marker="bullet"
         class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-current"
       />
-      <!-- collapsible-list-item is a 20x22 asset whose dashed arm sits at
-           y=21, not at its own y=11 centre; the extra 10px in the y offset
-           lands the arm, not the box, on the gutter's centre point. -->
       <BaseIcon
         v-else-if="marker === 'connector'"
         data-marker="connector"
-        name="collapsible-list-item"
+        name="tree-connector"
         :width="20"
-        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[calc(50%+10px)] text-disabled"
+        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-disabled"
       />
     </span>
     <span
