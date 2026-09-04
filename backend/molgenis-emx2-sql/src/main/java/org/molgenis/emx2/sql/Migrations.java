@@ -204,7 +204,6 @@ public class Migrations {
                 "migration33.sql",
                 "convert semantic field with urn/tag IRI to new IRI format");
           }
-
           if (version < 35) {
             executeMigrationFile(tdb, "migration34.sql", "add tableName column to Templates");
           }
