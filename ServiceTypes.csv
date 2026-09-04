@@ -1,0 +1,38 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,Sample collection service,,,"OBIB, ISO 20387",,,"A service that collects biological material and associated data from donors or study participants according to defined quality, ethical and procedural requirements."
+,Sample reception service,,,"OBIB, ISO 20388",,,A service that receives biological material and associated data and establishes custody within a biobank or research infrastructure.
+,Sample pre-analytical service,,,"OBIB, ISO 20389",,,"A service that preserves, stabilises, prepares or otherwise handles biological material prior to storage, analysis or distribution."
+,Sample storage service,,,"OBIB, ISO 20390",,,A service that maintains biological material under specified environmental and organisational conditions for future use.
+,Sample provision service,,,"OBIB, ISO 20391",,,"A service that selects, prepares and provides biological material and associated data to authorised recipients or users."
+,Sample quality control and report,,,"OBIB, ISO 20392",,,"A service that assesses, documents and reports the quality characteristics of biological material and associated data according to defined quality requirements."
+,Sample transport service,,,"OBIB, ISO 20393",,,A service that coordinates and performs the transport of biological material and associated data between locations under defined handling and environmental conditions.
+,Sample annotation service,,,"OBIB, ISO 20394",,,"A service that records, harmonises, curates and manages metadata associated with biological material and related research activities."
+,Sample data management service,,,"OBIB, ISO 20395",,,"A service that manages operational information of biospecimen-associated data, including sample tracking, inventory, and laboratory workflow information."
+,Histology preparation service,,,OBI,,,A service that prepares biological tissue specimens for microscopic or morphological examination.
+,Biomolecular extraction service,,,OBI,,,A service that isolates and prepares biomolecular components or analytes from biological material for downstream use or analysis.
+,Genomics service,,,NCIT,,,"A service that generates, analyses or interprets data related to genome structure, variation or function."
+,Transcriptomics service,,,NCIT,,,"A service that generates, analyses or interprets data related to RNA expression, regulation or transcript composition."
+,Proteomics service,,,NCIT,,,"A service that generates, analyses or interprets data related to protein composition, abundance, structure or function."
+,Metabolomics service,,,NCIT,,,"A service that generates, analyses or interprets data related to metabolites and other small molecular compounds in biological systems."
+,Analytical biochemistry service,,,NCIT,,,A service that performs chemical and biochemical quantitative and characterisation of biological samples or derived analytes.
+,Pharmacology service,,,NCIT,,,"A service that supports the investigation of the biological effects, activity, disposition or safety of therapeutic or experimental substances in biological systems."
+,Microscopy imaging service,,,NCIT,,,"A service that generates, acquires or supports microscopic imaging data from biological material or experimental systems."
+,Radiology imaging service,,,NCIT,,,"A service that generates, acquires or supports radiological imaging data for research or diagnostic purposes."
+,Experimental pathology service,,,NCIT,,,A service that evaluates and interprets morphological or pathological characteristics of biological material or experimental models.
+,Digital pathology service,,,NCIT,,,"A service that transforms, manages, processes, analyses or interprets digitised pathology images and associated data."
+,Imaging data analysis service,,,NCIT,,,"A service that processes, quantifies, analyses or interprets imaging-derived data from biological or clinical investigations."
+,Microbiology and virology service,,,NCIT,,,"A service that detects, characterises or studies microorganisms, viruses or related biological agents in research, diagnostic or surveillance contexts."
+,Cell culture service,,,NCIT,,,"A service that establishes, maintains, manipulates or provides in vitro 2D cellular model systems for research purposes."
+,3D model development service,,,NCIT,,,"A service that develops, maintains or supports advanced in vitro tissue-like 3D biological model systems (organoids, spheroids, etc.) for research purposes."
+,Animal model service,,,NCIT,,,"A service that develops, maintains, provides or supports the use of in vivo experimental animal models for research purposes."
+,Research data management service,,,NCIT,,,"A service that manages, organises, stores, governs, harmonises and enables access to research datasets and associated metadata across the research data lifecycle."
+,Bioinformatics service,,,NCIT,,,"A service that develops, applies or supports computational methods for the management, analysis or interpretation of biological or molecular data."
+,Biostatistics service,,,NCIT,,,"A service that supports statistical design, methodology, analysis and interpretation in biomedical or biological research."
+,Multi-omics integrative analysis service,,,NCIT,,,A service that integrates and analyses data from multiple molecular modalities to generate combined biological interpretations.
+,Research project design consultation,,,NCIT,,,"A service that supports the conceptual, methodological and operational design of biomedical or biological research projects."
+,Research project protocol development,,,NCIT,,,"A service that develops, documents or supports research protocols and associated procedural or regulatory requirements."
+,Laboratory training service,,,NCIT,,,"A service that provides training, guidance and competency support for laboratory procedures, biosafety practices and operational protocols."
+,"ELSI, regulatory and consent management service",,,NCIT,,,"A service that supports ethical, legal, social and regulatory requirements for biomedical and biobanking research, including the management of participant consent and related authorisations, as well as oversight of compliance, approvals and documentation processes."
+,Informed consent management,,,NCIT,"The service by which informed consent is obtained and documented by means of a written, signed, and dated informed consent form. This process may include obtaining assent from subjects with legally authorized representatives (informed consent process)."
+,Industry collaboration service,,,NCIT,,,"A service that supports collaboration between research organisations and industrial partners for scientific, technological or translational activities."
+,Other service,,,,,,A service that does not fall within the defined controlled vocabulary categories.
