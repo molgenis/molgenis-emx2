@@ -60,21 +60,21 @@ Navigation cards,,description,string,,,,,,,,,,An optional description that provi
 Navigation cards,,url,hyperlink,,TRUE,,,,,,,,A link to an internal or external page,pages
 Navigation cards,,url label,string,,,,,,,,,,A label to display instead of the URL,pages
 Navigation cards,,url is external,bool,,,,,,,,FALSE,,"If true, the link will be rendered as an external link",pages
-Navigation cards,,displayed in navigation group,multiselect,,,Navigation groups,,,,,,,A reference to the navigation list,pages
+Navigation cards,,displayed in navigation group,select,,,Navigation groups,,,,,,,A reference to the navigation list,pages
 Navigation cards,,order,int,,TRUE,,,,,,0,,Order the card should appear in when used in a navigation group,pages
 Blocks,,Configuration,section,,,,,,,,,,,pages
 Blocks,,UI settings,heading,,,,,,,,,,,pages
 Blocks,,enable full screen width,bool,,,,,,,,FALSE,,"If true, content will be expanded to the fit the full width of the screen",pages
 Sections,,apply shaded background,bool,,,,,,,,FALSE,,"If true, a light background color will be applied to provide visual distinction between blocks",pages
 Blocks,,Component connections,heading,,,,,,,,,,Link components and set the order in which they display on page. ,pages
-Blocks,,in container,multiselect,,,Configurable pages,,,,,,,A link to the configurable page where the block is displayed,pages
+Blocks,,in container,select,,,Configurable pages,,,,,,,A link to the configurable page where the block is displayed,pages
 Blocks,,components,refback,,,Components,in block,,,,,,The elements that are displayed in a block,pages
 Blocks,,component order,refback,,,Component orders,block,,,,,,,pages
 Blocks,,Metadata,heading,,,,,,,,,,,pages
 Blocks,,id,auto_id,1,TRUE,,,,,,,,An auto ID used to generate UI elements,pages
 Components,,Configuration,section,,,,,,,,,,,pages
 Components,,Component connections,heading,,,,,,,,,,Create links between components and blocks,pages
-Components,,in block,multiselect,,,Blocks,,,,,,,A link to the block where the component is used,pages
+Components,,in block,select,,,Blocks,,,,,,,A link to the block where the component is used,pages
 Components,,Metadata,heading,,,,,,,,,,,pages
 Components,,id,auto_id,1,TRUE,,,,,,,,An auto ID used to generate UI elements,pages
 Block orders,,,,,,,,,,,,,"The order blocks (headers, sections, etc.) appear on a page",pages
