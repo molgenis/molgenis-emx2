@@ -39,17 +39,14 @@ const currentPageType = ref<string | undefined>(
 async function deletePage() {
   const pageTableClass = props.container.mg_tableclass as ICmsPageTypes;
   const pageName = props.container.name;
-  console.log(`Deleting: ${pageName} (${pageTableClass})`);
 
   if (pageTableClass.endsWith(".Developer pages")) {
     await deleteDeveloperPage(props.schema, pageName);
     emits("deleted", true);
   } else if (pageTableClass.endsWith(".Configurable pages")) {
-    console.log("Configurable page clicked");
     await deleteConfigurablePage(props.schema, pageName);
     emits("deleted", true);
   } else {
-    console.log("Page type", pageTableClass, "not defined");
     return undefined;
   }
 }
