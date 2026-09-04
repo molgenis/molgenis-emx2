@@ -172,9 +172,11 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
+
   <Section
     v-else-if="mg_tableclass.endsWith('.Sections')"
     :id="component.id"
+    :columns="component.columns"
     :enable-full-screen-width="component.enableFullScreenWidth"
     :applyShadedBackground="component.applyShadedBackground"
     :isEditable="editingIsEnabled"

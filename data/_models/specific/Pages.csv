@@ -64,6 +64,7 @@ Navigation cards,,displayed in navigation group,multiselect,,,Navigation groups,
 Navigation cards,,order,int,,TRUE,,,,,,0,,Order the card should appear in when used in a navigation group,pages
 Blocks,,Configuration,section,,,,,,,,,,,pages
 Blocks,,UI settings,heading,,,,,,,,,,,pages
+Sections,,columns,int,,,,,,,,1,,"The amount [1 to 4] of columns in a sections",pages
 Blocks,,enable full screen width,bool,,,,,,,,FALSE,,"If true, content will be expanded to the fit the full width of the screen",pages
 Sections,,apply shaded background,bool,,,,,,,,FALSE,,"If true, a light background color will be applied to provide visual distinction between blocks",pages
 Blocks,,Component connections,heading,,,,,,,,,,Link components and set the order in which they display on page. ,pages
