@@ -3,8 +3,6 @@ import type {
   IDeveloperPages,
   IDependenciesCSS,
   IDependenciesJS,
-  IBlocks,
-  IComponents,
 } from "../../types/cms";
 
 import { getContainersQuery } from "../gql/cmsPages";
