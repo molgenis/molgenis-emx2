@@ -123,7 +123,7 @@ const sidebarCollapsed = ref(false);
                 :schema="schema"
                 :order="orderedComponent.order"
                 :parent="orderedBlock.block.id"
-                :columnIndex="Number(index)+1"
+                :columnIndex="Number(index) + 1"
                 componentType="Component"
                 @updatePage="$emit('updatePage')"
               />
@@ -150,16 +150,20 @@ const sidebarCollapsed = ref(false);
                 @updatePage="$emit('updatePage')"
               />
             </div>
-              <ComponentDropZone
-                v-if="isEditable && orderedBlock.block.columns > 1 && orderedBlock.block.componentOrder.length-1 === index"
-                :draggingInfo="draggingInfo"
-                :schema="schema"
-                :order="orderedComponent.order + 1"
-                :columnIndex="index+2"
-                :parent="orderedBlock.block.id"
-                componentType="Component"
-                @updatePage="$emit('updatePage')"
-              />
+            <ComponentDropZone
+              v-if="
+                isEditable &&
+                orderedBlock.block.columns > 1 &&
+                orderedBlock.block.componentOrder.length - 1 === index
+              "
+              :draggingInfo="draggingInfo"
+              :schema="schema"
+              :order="orderedComponent.order + 1"
+              :columnIndex="index + 2"
+              :parent="orderedBlock.block.id"
+              componentType="Component"
+              @updatePage="$emit('updatePage')"
+            />
           </template>
         </PageComponent>
         <TextParagraph

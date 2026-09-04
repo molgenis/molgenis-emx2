@@ -25,7 +25,7 @@ const props = withDefaults(
     order?: number;
     parent: string;
     draggingInfo: IDraggingInfo;
-    columnIndex?: string|number;
+    columnIndex?: string | number;
   }>(),
   {
     order: 0,

@@ -12,7 +12,6 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-console.log(">", props.columns, props);
 const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
 </script>
