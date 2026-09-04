@@ -1,5 +1,7 @@
 /* will produce a fat jar containing all html/js dist in public_html/apps*/
 
+import groovy.json.JsonSlurper
+
 plugins {
     id "java"
     id "com.github.node-gradle.node" version "7.1.0"
@@ -37,7 +39,16 @@ ext.listProjectFolders = { List<String> excludeNames = excludeFolders ->
 def workspaceDirs = listProjectFolders()
 println "Workspace dirs = $workspaceDirs"
 
-def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
+def buildOutputFolders = ["dist", "showCase", "gen-docs"]
+
+def buildOutputDirsForApp = { String appName ->
+    if (file("${appName}/nuxt.config.ts").exists()) {
+        return ["${appName}/.output"]
+    }
+    return ["dist", "showCase", "gen-docs", ".output"].collect { "${appName}/${it}" }
+}
+
+def registerAppInputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
     //include all files in root
     project.projectDir.listFiles().findAll { it.isFile() }.each {file ->
             task.inputs.file(file);
@@ -52,6 +63,10 @@ def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String>
                 }
         )
     }
+}
+
+def registerAppInputsOutputs(Task task, List<String> workspaceDirs, List<String> excludeFolders) {
+    registerAppInputs(task, workspaceDirs, excludeFolders)
     task.outputs.upToDateWhen { true }
 }
 
@@ -74,7 +89,12 @@ tasks.register('pnpm_build', PnpmTask) {
     dependsOn 'pnpm_install'
     args = ['run', 'build']
     inputs.property('molgenisDotenv', rootProject.ext.molgenisDotenv)
-    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+    registerAppInputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
+    outputs.files(workspaceDirs.collectMany { appName ->
+        buildOutputDirsForApp(appName).collect { dirPath ->
+            project.fileTree(dirPath) { exclude "**/node_modules/**" }
+        }
+    })
 }
 
 // Util task to clean up all apps files created during build
@@ -93,12 +113,14 @@ tasks.register("cleanApps", Delete) {
             def dir = project.file(dirName)
             if (dir.exists()) {
                 delete new File(dir, ".turbo")
-                delete new File(dir, "dist")
-                delete new File(dir, "showCase")
                 delete new File(dir, "node_modules") // optional
                 delete new File(dir, "build")
-                delete file("${project.projectDir}/.nuxt")
-                delete file("${project.projectDir}/.output")
+                delete new File(dir, ".nuxt")
+                delete new File(dir, ".output")
+                buildOutputDirsForApp(dirName).each { delete file(it) }
+                buildOutputFolders.each { folderName ->
+                    delete new File(dir, folderName)
+                }
             }
         }
     }
@@ -107,42 +129,38 @@ tasks.register("cleanApps", Delete) {
 }
 clean.dependsOn 'cleanApps';
 
-// Custom task to collect all dist folders into the resources directory
+// Locates the folder the jar packages per app
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
-abstract class CollectDistTask extends DefaultTask {
-    @TaskAction
-    void collect() {
-        File targetDir = project.layout.buildDirectory
-                .dir("generated/resources/public_html/apps")
-                .get()
-                .asFile
-
-        project.copy { spec ->
-            project.file(".").eachDir { dir ->
-                def showCaseDir = new File(dir, "showCase")
-                def distDir = new File(dir, "dist")
-                if (showCaseDir.exists()) {
-                    spec.from(showCaseDir) {
-                        into(dir.name)
-                    }
-                }
-                else if (distDir.exists()) {
-                    spec.from(distDir) {
-                        into(dir.name)
-                    }
-                }
-
-            }
-            spec.into(targetDir)
-        }
-
-        println "✅ Collected dist folders into $targetDir"
+abstract class AppOutputLocator {
+    // Gradle creates every directory a task declares as an output, so existence is
+    // not evidence that a build wrote anything.
+    static boolean holdsBuildOutput(File dir) {
+        String[] entries = dir.isDirectory() ? dir.list() : null
+        return entries != null && entries.length > 0
     }
-}
 
-tasks.register("collectDist", CollectDistTask) {
-    dependsOn("pnpm_build")
-    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+    static File packagedOutputDirForApp(File appsDirectory, String appName) {
+        File appDir = new File(appsDirectory, appName)
+        if (new File(appDir, "nuxt.config.ts").exists()) {
+            File nuxtPublicDir = new File(appDir, ".output/public")
+            return holdsBuildOutput(nuxtPublicDir) ? nuxtPublicDir : null
+        }
+        File showCaseDir = new File(appDir, "showCase")
+        if (holdsBuildOutput(showCaseDir)) {
+            return showCaseDir
+        }
+        File distDir = new File(appDir, "dist")
+        return holdsBuildOutput(distDir) ? distDir.canonicalFile : null
+    }
+
+    static boolean expectsPackagedOutput(File appsDirectory, String appName) {
+        File appDir = new File(appsDirectory, appName)
+        if (!new File(appDir, "nuxt.config.ts").exists()) {
+            return true
+        }
+        def buildScript = new JsonSlurper().parse(new File(appDir, "package.json")).scripts?.build ?: ""
+        return buildScript.contains("nuxt generate")
+    }
 }
 
 tasks.register('format', PnpmTask) {
@@ -152,7 +170,7 @@ tasks.register('format', PnpmTask) {
     } else {
         args = ['run', 'checkFormat']
     }
-    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders)
+    registerAppInputsOutputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
 }
 
 tasks.register('lint', PnpmTask) {
@@ -177,12 +195,30 @@ sourceSets {
     }
 }
 
-// Link the app build to the java jar
+// Link the app build to the java jar, reading each app's own output folder so no tree is staged twice
 tasks.named("processResources") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn("collectDist")
+    dependsOn("pnpm_build")
 
-    from(layout.buildDirectory.dir("generated/resources/public_html/apps")) {
-        into("public_html/apps")
+    def appsDir = project.projectDir
+    def packagedApps = workspaceDirs
+    doFirst {
+        def appsMissingOutput = packagedApps.findAll { appName ->
+            AppOutputLocator.packagedOutputDirForApp(appsDir, appName) == null &&
+                    AppOutputLocator.expectsPackagedOutput(appsDir, appName)
+        }
+        if (!appsMissingOutput.isEmpty()) {
+            throw new GradleException(appsMissingOutput.collect { appName ->
+                "App '${appName}' produced no packageable output: its output directory is missing or empty, so the jar would silently ship the app as an empty folder"
+            }.join("\n"))
+        }
+    }
+
+    workspaceDirs.each { appName ->
+        from(providers.provider {
+            AppOutputLocator.packagedOutputDirForApp(appsDir, appName) ?: []
+        }) {
+            into("public_html/apps/${appName}")
+        }
     }
 }

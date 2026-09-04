@@ -68,6 +68,15 @@ gradle.beforeProject { Project p ->
     }
 }
 
+buildCache {
+    local {
+        String override = System.getenv('GRADLE_BUILD_CACHE_DIR')
+        if (override) {
+            directory = new File(override)
+        }
+    }
+}
+
 rootProject.name = 'emx2'
 include(':apps')
 include(':docs')
