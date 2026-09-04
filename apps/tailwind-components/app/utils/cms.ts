@@ -52,6 +52,18 @@ export async function getPage(
   return { page: currentPage, metadata: data._schema.tables };
 }
 
+export function setCmsPageType(value?: string): string | undefined {
+  if (!value || typeof value === "undefined") {
+    return undefined;
+  } else if (value.endsWith(".Configurable pages")) {
+    return "Landing page";
+  } else if (value.endsWith(".Developer pages")) {
+    return "Dev page";
+  } else {
+    return undefined;
+  }
+}
+
 export function setCmsEditorUrl(
   schema: string,
   value: string,
@@ -68,7 +80,7 @@ export function setCmsViewUrl(schema: string, page: string): string {
   return `/${schema}/pages/${page}/`;
 }
 
-async function cmsFetch(
+export async function cmsFetch(
   schema: string,
   query: string,
   variables?: any
