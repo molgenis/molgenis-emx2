@@ -53,13 +53,51 @@ class UpdateVersusSaveTableDataTest {
     assertEquals(31, persons.retrieveRows().getFirst().getInteger("age"));
   }
 
+  @Test
+  void testUpdateTableDataWithRefColumn() {
+    Table personTable = createTableWithRefColumn();
+
+    // verify initial data
+    assertEquals(1, personTable.retrieveRows().size());
+
+    // make a column update
+    personTable.update(Row.row("id", "p1", "age", 31));
+
+    // verify updated data
+    assertEquals(1, personTable.retrieveRows().size());
+
+    assertEquals(31, personTable.retrieveRows().getFirst().getInteger("age"));
+  }
+
   private Table createPersonsTable() {
     Database database = TestDatabaseFactory.getTestDatabase();
-    Schema schema = database.dropCreateSchema(TestRefBack.class.getSimpleName());
+    Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
     return schema.create(
         table("Person")
             .add(column("id").setPkey())
             .add(column("name"))
             .add(column("age").setType(ColumnType.INT)));
+  }
+
+  private Table createTableWithRefColumn() {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
+    Table colorsTable = schema.create(table("Colors").add(column("name").setPkey()));
+    colorsTable.insert(Row.row("name", "red"), Row.row("name", "green"), Row.row("name", "blue"));
+    Table personTable =
+        schema.create(
+            table("Person")
+                .add(column("id").setPkey())
+                .add(column("name"))
+                .add(column("age").setType(ColumnType.INT))
+                .add(
+                    column("favoriteColor")
+                        .setType(ColumnType.RADIO)
+                        .setRefTable("Colors")
+                        .setRequired(true)));
+
+    personTable.insert(Row.row("id", "p1", "age", 30, "name", "Joop", "favoriteColor", "red"));
+
+    return personTable;
   }
 }
