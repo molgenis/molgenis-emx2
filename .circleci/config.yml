@@ -90,10 +90,7 @@ commands:
           curl -sSfL --retry 3 -o trivy.tgz https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.tar.gz
           echo "2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a  trivy.tgz" | sha256sum -c
           tar -xzf trivy.tgz trivy
-          # exit 2 means a critical finding, 1 means the scan itself failed
-          rc=0; ./trivy fs --scanners vuln --include-dev-deps --severity CRITICAL --exit-code 2 pnpm-lock.yaml || rc=$?
-          if [ $rc -eq 2 ]; then exit 1; fi
-          if [ $rc -ne 0 ]; then echo "WARNING: Trivy exit $rc, skipping dependency audit for this build"; fi
+          ./trivy fs --scanners vuln --include-dev-deps --severity CRITICAL --exit-code 1 pnpm-lock.yaml
     - run:
           name: Concatenate Build Files as key for cache
           command: |
