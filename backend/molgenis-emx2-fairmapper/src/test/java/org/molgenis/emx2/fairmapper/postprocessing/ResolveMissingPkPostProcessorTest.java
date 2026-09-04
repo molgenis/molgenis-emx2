@@ -500,6 +500,85 @@ class ResolveMissingPkPostProcessorTest {
     }
   }
 
+  @Nested
+  class IndirectBackReferenceTest {
+
+    private SchemaMetadata schema;
+
+    @BeforeEach
+    void setup() {
+      schema = new SchemaMetadata(IndirectBackReferenceTest.class.getSimpleName());
+
+      // Order  --customerGroup-->  CustomerGroup  --members-->  Customer  --order-->  Order
+      TableMetadata orders =
+          schema.create(
+              new TableMetadata("Order")
+                  .add(Column.column("id").setType(ColumnType.STRING).setPkey()));
+
+      schema.create(
+          new TableMetadata("Customer")
+              .add(Column.column("name").setType(ColumnType.STRING).setPkey())
+              .add(Column.column("order").setType(ColumnType.REF).setRefTable("Order").setPkey()));
+
+      schema.create(
+          new TableMetadata("CustomerGroup")
+              .add(Column.column("groupName").setType(ColumnType.STRING).setPkey())
+              .add(Column.column("members").setType(ColumnType.REF_ARRAY).setRefTable("Customer")));
+
+      orders.add(
+          Column.column("customerGroup").setType(ColumnType.REF).setRefTable("CustomerGroup"));
+    }
+
+    @Test
+    void shouldResolveCompositeKeyThroughIntermediateTable() {
+      store(
+          "Order",
+          new Row(
+              "_subject_",
+              "urn:order:1",
+              "id",
+              "order-1",
+              "_subject_customerGroup",
+              "urn:group:1"));
+
+      store(
+          "Customer",
+          new Row(
+              "_subject_",
+              "urn:customer:1",
+              "name",
+              "customer-1",
+              "_subject_order",
+              "urn:order:1"));
+
+      store(
+          "CustomerGroup",
+          new Row(
+              "_subject_",
+              "urn:group:1",
+              "groupName",
+              "group-1",
+              "_subject_members",
+              new String[] {"urn:customer:1"},
+              "members.name",
+              new String[0],
+              "members.order",
+              new String[0]));
+
+      ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+      resolver.process(tableStore);
+
+      Row order = tableStore.readTable("Order").iterator().next();
+      Row customer = tableStore.readTable("Customer").iterator().next();
+      Row group = tableStore.readTable("CustomerGroup").iterator().next();
+
+      assertEquals("group-1", order.getString("customerGroup"));
+      assertEquals("order-1", customer.getString("order"));
+      assertArrayEquals(new String[] {"customer-1"}, group.getStringArray("members.name"));
+      assertArrayEquals(new String[] {"order-1"}, group.getStringArray("members.order"));
+    }
+  }
+
   /** Writes rows for a table, deriving the column header from the union of all row keys. */
   private void store(String tableName, Row... rows) {
     tableStore.writeTable(

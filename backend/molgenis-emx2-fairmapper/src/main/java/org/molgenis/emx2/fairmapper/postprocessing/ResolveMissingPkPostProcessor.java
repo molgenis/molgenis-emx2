@@ -146,6 +146,8 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
       boolean allResolved = true;
       for (Row referencedRow : referencedRows) {
         Optional<Object> value = readAvailableValue(reference, referencedRow);
+        // These two rows depend on each other (see the class doc example): the referenced row
+        // can't resolve this on its own, so we write the value into both rows right here.
         if (value.isEmpty() && pointsBackAtOwnTable(column, reference)) {
           value = Optional.of(completeMutualKey(row, referencedRow, reference));
         }
