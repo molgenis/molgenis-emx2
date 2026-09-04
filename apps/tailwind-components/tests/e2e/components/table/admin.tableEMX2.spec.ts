@@ -7,7 +7,7 @@ import {
   deleteSchema,
   RUN_ID,
   signinAdmin,
-} from "../../../../../ui/tests/e2e/testSchema";
+} from "../../../../../ui/tests/e2e/e2eUtils";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
