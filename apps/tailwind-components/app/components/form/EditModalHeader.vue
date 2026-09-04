@@ -41,7 +41,9 @@ function onUpdateSelectedRole(newRole?: IInputValue | IInputValueLabel | null) {
 }
 
 function getSelectedRole(): string {
-  if (
+  if (showRoles.value === false) {
+    return "";
+  } else if (
     Array.isArray(formValues.mg_roles) &&
     typeof formValues.mg_roles[0] === "string"
   ) {
