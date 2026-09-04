@@ -2,8 +2,10 @@
 import { computed, ref, watch } from "vue";
 import type { IColumn, IRow } from "../../../metadata-utils/src/types";
 import { LAYOUTS, type DisplayConfig, type Layout } from "../types/display";
+import { resolveDisplay } from "../utils/displayUtils";
 import fetchMetadata from "../composables/fetchMetadata";
 import fetchTableMetadata from "../composables/fetchTableMetadata";
+import type { IValueLabel } from "../../types/types";
 
 const fixtureColumns: IColumn[] = [
   {
@@ -124,8 +126,19 @@ async function loadColumns() {
   liveColumns.value = metadata?.columns ?? [];
 }
 
+// Column overrides describe a fixture table. Switching table or entering
+// live mode drops them, so a picked column id never outlives the table it
+// named.
+function resetColumnOverrides() {
+  titleTemplate.value = "";
+  descriptionTemplate.value = "";
+  detailColumnIds.value = [];
+  logoColumnId.value = "";
+}
+
 watch(isLiveMode, (value) => {
   if (value) {
+    resetColumnOverrides();
     loadSchemaIds();
     loadTableIds().then(loadColumns);
   }
@@ -137,6 +150,7 @@ watch(schemaId, () => {
 });
 watch(tableId, () => {
   if (isLiveMode.value) {
+    resetColumnOverrides();
     loadColumns();
   }
 });
@@ -145,8 +159,46 @@ const columns = computed(() =>
   isLiveMode.value ? liveColumns.value : fixtureColumns
 );
 
-const titleTemplate = ref("${acronym} ${name}");
-const descriptionTemplate = ref("${description}");
+const columnOptions = computed<IValueLabel[]>(() =>
+  columns.value.map((column) => ({
+    value: column.id,
+    label: column.label || column.id,
+  }))
+);
+
+const logoColumnOptions = computed(() =>
+  columns.value.filter((column) => column.columnType === "FILE")
+);
+
+const LAYOUT_FILTER_OPTIONS: string[] = ["All", ...LAYOUTS];
+const layoutFilter = ref<string>("All");
+const visibleLayouts = computed<Layout[]>(() =>
+  layoutFilter.value === "All" ? [...LAYOUTS] : [layoutFilter.value as Layout]
+);
+
+// The pre-filled default. Never reimplements the defaulting rule.
+const defaultTitleTemplate = computed(
+  () => resolveDisplay(columns.value).titleTemplate
+);
+const titleTemplate = ref("");
+const titleTemplateModel = computed({
+  get: () => titleTemplate.value || defaultTitleTemplate.value,
+  set: (value: string) => {
+    titleTemplate.value = value;
+  },
+});
+
+const descriptionTemplate = ref("");
+const descriptionColumnId = computed({
+  get: () => {
+    const match = descriptionTemplate.value.match(/^\$\{(.+)\}$/);
+    return match ? match[1] : "";
+  },
+  set: (value: string) => {
+    descriptionTemplate.value = value ? `\${${value}}` : "";
+  },
+});
+
 const detailColumnIds = ref<string[]>([
   "website",
   "startYear",
@@ -155,15 +207,9 @@ const detailColumnIds = ref<string[]>([
 ]);
 const logoColumnId = ref("logo");
 
-function onDetailColumnsChange(event: Event) {
-  const select = event.target as HTMLSelectElement;
-  const selectedIds = Array.from(select.selectedOptions).map(
-    (option) => option.value
-  );
-  const kept = detailColumnIds.value.filter((id) => selectedIds.includes(id));
-  const added = selectedIds.filter((id) => !kept.includes(id));
-  detailColumnIds.value = [...kept, ...added];
-}
+const PAGE_SIZE_OPTIONS: string[] = ["2", "4", "5", "6", "8", "10", "25", "50"];
+const pageSizeOption = ref("10");
+const pageSize = computed(() => Number(pageSizeOption.value));
 
 function displayFor(layout: Layout): DisplayConfig {
   return {
@@ -179,16 +225,144 @@ function linkTo(row: IRow): string {
   return `#${encodeURIComponent(String(Object.values(row)[0] ?? ""))}`;
 }
 
-function panelTestId(layout: Layout, surface: "content" | "footer"): string {
+function panelTestId(
+  layout: Layout,
+  surface: "content" | "footer" | "transparent"
+): string {
   return `panel-${layout.toLowerCase()}-${surface}`;
 }
 </script>
 
 <template>
-  <div class="flex">
-    <div class="flex-1 flex flex-col gap-8">
+  <div>
+    <div
+      class="sticky top-0 z-10 bg-form p-4 mb-6 flex flex-wrap gap-4 items-start border-b border-theme"
+    >
+      <div class="flex flex-col gap-1">
+        <label class="text-title-contrast" for="ddl-layout">layout</label>
+        <InputSelect
+          id="ddl-layout"
+          class="w-36"
+          :options="LAYOUT_FILTER_OPTIONS"
+          v-model="layoutFilter"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-title-contrast" for="ddl-title-template">
+          titleTemplate
+        </label>
+        <InputString
+          id="ddl-title-template"
+          class="w-56"
+          v-model="titleTemplateModel"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-title-contrast" for="ddl-summary-column">
+          summary column
+        </label>
+        <select
+          id="ddl-summary-column"
+          class="w-40"
+          v-model="descriptionColumnId"
+        >
+          <option value="">(default)</option>
+          <option v-for="column in columns" :key="column.id" :value="column.id">
+            {{ column.label || column.id }}
+          </option>
+        </select>
+      </div>
+
+      <fieldset class="flex flex-col gap-1 border-0 p-0 m-0">
+        <legend class="text-title-contrast p-0">
+          detailColumns (order = pick order)
+        </legend>
+        <div class="w-56 max-h-24 overflow-y-auto border border-theme p-1">
+          <InputCheckboxGroup
+            id="ddl-detail-columns"
+            :options="columnOptions"
+            v-model="detailColumnIds"
+          />
+        </div>
+      </fieldset>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-title-contrast" for="ddl-logo-column">
+          logoColumn (FILE columns only)
+        </label>
+        <select
+          id="ddl-logo-column"
+          class="w-40"
+          v-model="logoColumnId"
+          :aria-describedby="
+            logoColumnOptions.length === 0 ? 'ddl-logo-empty-hint' : undefined
+          "
+        >
+          <option value="">(none)</option>
+          <option
+            v-for="column in logoColumnOptions"
+            :key="column.id"
+            :value="column.id"
+          >
+            {{ column.label || column.id }}
+          </option>
+        </select>
+        <p
+          v-if="logoColumnOptions.length === 0"
+          id="ddl-logo-empty-hint"
+          class="text-title-contrast"
+        >
+          This table has no FILE column.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-title-contrast" for="ddl-page-size">
+          pageSize
+        </label>
+        <InputSelect
+          id="ddl-page-size"
+          class="w-24"
+          :options="PAGE_SIZE_OPTIONS"
+          v-model="pageSizeOption"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1 justify-end">
+        <div class="flex items-center gap-1">
+          <InputCheckbox id="ddl-live-mode" v-model="isLiveMode" />
+          <label class="text-title-contrast" for="ddl-live-mode">
+            live mode (fetch from backend)
+          </label>
+        </div>
+      </div>
+
+      <div v-if="isLiveMode" class="flex flex-col gap-1">
+        <label class="text-title-contrast" for="ddl-schema">schema</label>
+        <InputSelect
+          id="ddl-schema"
+          class="w-40"
+          :options="schemaIds"
+          v-model="schemaId"
+        />
+      </div>
+
+      <div v-if="isLiveMode" class="flex flex-col gap-1">
+        <label class="text-title-contrast" for="ddl-table">table</label>
+        <InputSelect
+          id="ddl-table"
+          class="w-40"
+          :options="tableIds"
+          v-model="tableId"
+        />
+      </div>
+    </div>
+
+    <div class="flex-1 flex flex-col gap-8 px-4">
       <div
-        v-for="layoutOption in LAYOUTS"
+        v-for="layoutOption in visibleLayouts"
         :key="layoutOption"
         class="flex flex-col gap-2"
       >
@@ -204,12 +378,13 @@ function panelTestId(layout: Layout, surface: "content" | "footer"): string {
             :columns="isLiveMode ? undefined : fixtureColumns"
             :schema-id="isLiveMode ? schemaId : undefined"
             :table-id="isLiveMode ? tableId : undefined"
+            :page-size="pageSize"
             :link-to="linkTo"
           />
         </div>
 
         <div
-          class="bg-footer p-4"
+          class="bg-footer surface-inverted p-4"
           :data-testid="panelTestId(layoutOption, 'footer')"
         >
           <p class="mb-2 text-title font-bold">
@@ -221,127 +396,29 @@ function panelTestId(layout: Layout, surface: "content" | "footer"): string {
             :columns="isLiveMode ? undefined : fixtureColumns"
             :schema-id="isLiveMode ? schemaId : undefined"
             :table-id="isLiveMode ? tableId : undefined"
+            :page-size="pageSize"
+            :link-to="linkTo"
+          />
+        </div>
+
+        <div
+          :data-testid="panelTestId(layoutOption, 'transparent')"
+          class="surface-inverted p-4"
+        >
+          <p class="mb-2 text-title font-bold">
+            The page's own gradient (no background class, surface-inverted)
+          </p>
+          <DisplayDataList
+            :display="displayFor(layoutOption)"
+            :rows="isLiveMode ? undefined : fixtureRows"
+            :columns="isLiveMode ? undefined : fixtureColumns"
+            :schema-id="isLiveMode ? schemaId : undefined"
+            :table-id="isLiveMode ? tableId : undefined"
+            :page-size="pageSize"
             :link-to="linkTo"
           />
         </div>
       </div>
-    </div>
-
-    <div class="ml-4 mt-2 w-72">
-      <fieldset class="border border-theme mb-2 p-3">
-        <legend class="px-2">Props</legend>
-
-        <div class="mb-3">
-          <label
-            class="block text-title hover:cursor-pointer"
-            for="ddl-title-template"
-          >
-            titleTemplate
-          </label>
-          <input
-            id="ddl-title-template"
-            class="w-full"
-            type="text"
-            v-model="titleTemplate"
-          />
-        </div>
-
-        <div class="mb-3">
-          <label
-            class="block text-title hover:cursor-pointer"
-            for="ddl-description-template"
-          >
-            descriptionTemplate
-          </label>
-          <input
-            id="ddl-description-template"
-            class="w-full"
-            type="text"
-            v-model="descriptionTemplate"
-          />
-        </div>
-
-        <div class="mb-3">
-          <label
-            class="block text-title hover:cursor-pointer"
-            for="ddl-detail-columns"
-          >
-            detailColumns (order = pick order)
-          </label>
-          <select
-            id="ddl-detail-columns"
-            class="w-full"
-            multiple
-            :value="detailColumnIds"
-            @change="onDetailColumnsChange"
-          >
-            <option
-              v-for="column in columns"
-              :key="column.id"
-              :value="column.id"
-            >
-              {{ column.label || column.id }}
-            </option>
-          </select>
-          <p class="text-title">Picked: {{ detailColumnIds.join(", ") }}</p>
-        </div>
-
-        <div class="mb-3">
-          <label
-            class="block text-title hover:cursor-pointer"
-            for="ddl-logo-column"
-          >
-            logoColumn
-          </label>
-          <select id="ddl-logo-column" class="w-full" v-model="logoColumnId">
-            <option value="">(none)</option>
-            <option
-              v-for="column in columns"
-              :key="column.id"
-              :value="column.id"
-            >
-              {{ column.label || column.id }}
-            </option>
-          </select>
-        </div>
-      </fieldset>
-
-      <hr />
-
-      <fieldset class="border border-theme mt-2 p-3">
-        <legend class="px-2">Data mode</legend>
-        <div class="mb-2">
-          <input id="ddl-live-mode" type="checkbox" v-model="isLiveMode" />
-          <label
-            class="ml-1 text-title hover:cursor-pointer"
-            for="ddl-live-mode"
-          >
-            live mode (fetch from backend)
-          </label>
-        </div>
-
-        <div v-if="isLiveMode" class="mb-2">
-          <label class="block text-title hover:cursor-pointer" for="ddl-schema">
-            schema
-          </label>
-          <select id="ddl-schema" class="w-full" v-model="schemaId">
-            <option v-for="id in schemaIds" :key="id" :value="id">
-              {{ id }}
-            </option>
-          </select>
-        </div>
-
-        <div v-if="isLiveMode" class="mb-2">
-          <label class="block text-title hover:cursor-pointer" for="ddl-table">
-            table
-          </label>
-          <select id="ddl-table" class="w-full" v-model="tableId">
-            <option v-for="id in tableIds" :key="id" :value="id">
-              {{ id }}
-            </option>
-          </select>
-        </div>
-      </fieldset>
     </div>
   </div>
 </template>

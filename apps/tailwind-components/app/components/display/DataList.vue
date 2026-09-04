@@ -130,7 +130,7 @@ const rangeText = computed(() => {
   }
   const start = (currentPage.value - 1) * props.pageSize + 1;
   const end = Math.min(currentPage.value * props.pageSize, totalRows.value);
-  return `${start}-${end}`;
+  return `${start} - ${end}`;
 });
 
 function onPageUpdate(page: number) {
@@ -167,14 +167,18 @@ function onPageUpdate(page: number) {
       :link-to="linkTo"
     />
 
-    <p class="text-center text-pagination">
-      {{ rangeText }} of {{ totalRows }}
-    </p>
+    <!-- pt-5, not TableEMX2's pt-0: DataCards ends on a card border with a
+    -mb-[1px] overlap, so a flush pager would land right on that line. -->
     <Pagination
       :current-page="currentPage"
       :total-pages="totalPages"
       :show-page-selector="false"
+      class="pt-5 pb-[30px]"
       @update="onPageUpdate"
-    />
+    >
+      <template #info>
+        <span class="text-pagination">{{ rangeText }} of {{ totalRows }}</span>
+      </template>
+    </Pagination>
   </div>
 </template>

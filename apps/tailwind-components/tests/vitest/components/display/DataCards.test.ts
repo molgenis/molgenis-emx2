@@ -45,12 +45,12 @@ describe("DataCards.vue", () => {
     const gridWrapper = mount(DataCards, {
       props: { rows, resolved, columnCount: 2 },
     });
-    expect(gridWrapper.find("ul").classes()).toContain("grid-cols-2");
+    expect(gridWrapper.find("ul").classes()).toContain("lg:grid-cols-2");
 
     const listWrapper = mount(DataCards, {
       props: { rows, resolved, columnCount: 1 },
     });
-    expect(listWrapper.find("ul").classes()).not.toContain("grid-cols-2");
+    expect(listWrapper.find("ul").classes()).not.toContain("lg:grid-cols-2");
   });
 
   it("wraps the title in a real <a href> when linkTo is passed", () => {
@@ -146,5 +146,24 @@ describe("DataCards.vue", () => {
     expect(anchor.text()).toBe("");
     expect(card.text()).not.toContain("LL");
     expect(card.text()).not.toContain("2006");
+  });
+
+  it("borders every card with plain `border`, never `border-theme`, whose --border-width-theme is 0 in four themes", () => {
+    const listWrapper = mount(DataCards, {
+      props: { rows, resolved, columnCount: 1 },
+    });
+    const listItems = listWrapper.findAll("li");
+    expect(listItems[0].classes()).toContain("border");
+    expect(listItems[0].classes()).not.toContain("border-theme");
+    expect(listItems[0].classes()).not.toContain("lg:even:border-l-0");
+
+    const gridWrapper = mount(DataCards, {
+      props: { rows, resolved, columnCount: 2 },
+    });
+    const gridItems = gridWrapper.findAll("li");
+    expect(gridItems[0].classes()).toContain("border");
+    expect(gridItems[0].classes()).not.toContain("border-theme");
+    expect(gridItems[0].classes()).toContain("lg:even:border-l-0");
+    expect(gridItems[1].classes()).toContain("lg:even:border-l-0");
   });
 });

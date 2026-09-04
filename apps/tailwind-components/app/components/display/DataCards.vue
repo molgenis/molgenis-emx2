@@ -18,7 +18,15 @@ const props = withDefaults(
 );
 
 const gridClass = computed(() =>
-  props.columnCount === 2 ? "grid-cols-2" : "grid-cols-1"
+  props.columnCount === 2 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
+);
+
+// No gap: cells share a border instead of floating apart. -mb-[1px] pulls
+// each row up so stacked cells' horizontal borders overlap into one rule.
+// At the two-column density, the right-hand column drops its left border so
+// the shared vertical rule is single too.
+const itemClass = computed(() =>
+  props.columnCount === 2 ? "lg:even:border-l-0" : ""
 );
 
 function titleText(row: IRow): string {
@@ -48,11 +56,15 @@ function logoUrl(row: IRow): string | undefined {
 </script>
 
 <template>
-  <ul class="grid gap-4" role="list" :class="gridClass">
+  <ul class="grid" role="list" :class="gridClass">
+    <!-- Plain `border`, not `border-theme`: that utility also sets
+    --border-width-theme, which four themes zero out on purpose, leaving the
+    card with no visible edge. -->
     <li
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
-      class="border border-theme rounded-base p-4"
+      class="border p-11 relative -mb-[1px]"
+      :class="itemClass"
     >
       <img
         v-if="logoUrl(row)"

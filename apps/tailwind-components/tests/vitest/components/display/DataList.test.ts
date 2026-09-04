@@ -3,6 +3,8 @@ import { readdirSync } from "fs";
 import { resolve } from "path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import DataList from "../../../../app/components/display/DataList.vue";
+import DataCards from "../../../../app/components/display/DataCards.vue";
+import DataLinks from "../../../../app/components/display/DataLinks.vue";
 import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
 import type { DisplayConfig } from "../../../../app/types/display";
 
@@ -67,16 +69,29 @@ describe("DataList.vue", () => {
     });
 
     it.each([
-      ["CARDS", "ul.grid-cols-2"],
-      ["LIST", "ul.grid-cols-1"],
-      ["LINKS", "ul.list-disc"],
-    ] as const)("renders %s layout via display.layout", (layout, selector) => {
-      const display: DisplayConfig = { layout };
+      ["CARDS", 2],
+      ["LIST", 1],
+    ] as const)(
+      "renders %s layout via display.layout, at columnCount %i",
+      (layout, columnCount) => {
+        const display: DisplayConfig = { layout };
+        const wrapper = mount(DataList, {
+          props: { rows: makeRows(2), columns, display },
+        });
+
+        const rendered = wrapper.findComponent(DataCards);
+        expect(rendered.exists()).toBe(true);
+        expect(rendered.props("columnCount")).toBe(columnCount);
+      }
+    );
+
+    it("renders LINKS layout via display.layout", () => {
+      const display: DisplayConfig = { layout: "LINKS" };
       const wrapper = mount(DataList, {
         props: { rows: makeRows(2), columns, display },
       });
 
-      expect(wrapper.find(selector).exists()).toBe(true);
+      expect(wrapper.findComponent(DataLinks).exists()).toBe(true);
     });
 
     it("resolves display once and passes detailColumns down to the layout", () => {
@@ -121,21 +136,32 @@ describe("DataList.vue", () => {
     });
 
     it.each([
-      ["CARDS", "ul.grid-cols-2"],
-      ["LIST", "ul.grid-cols-1"],
-      ["LINKS", "ul.list-disc"],
+      ["CARDS", 2],
+      ["LIST", 1],
     ] as const)(
-      "renders %s layout via display.layout in fetch mode",
-      async (layout, selector) => {
+      "renders %s layout via display.layout in fetch mode, at columnCount %i",
+      async (layout, columnCount) => {
         const display: DisplayConfig = { layout };
         const wrapper = mount(DataList, {
           props: { schemaId: "test-schema", tableId: "pet", display },
         });
         await flushPromises();
 
-        expect(wrapper.find(selector).exists()).toBe(true);
+        const rendered = wrapper.findComponent(DataCards);
+        expect(rendered.exists()).toBe(true);
+        expect(rendered.props("columnCount")).toBe(columnCount);
       }
     );
+
+    it("renders LINKS layout via display.layout in fetch mode", async () => {
+      const display: DisplayConfig = { layout: "LINKS" };
+      const wrapper = mount(DataList, {
+        props: { schemaId: "test-schema", tableId: "pet", display },
+      });
+      await flushPromises();
+
+      expect(wrapper.findComponent(DataLinks).exists()).toBe(true);
+    });
 
     it("shows a ref cell as its label, not an object", async () => {
       fetchTableMetadataMock.mockResolvedValue({
@@ -167,7 +193,7 @@ describe("DataList.vue", () => {
       await flushPromises();
       fetchTableDataMock.mockClear();
 
-      const nextControl = wrapper.findAll("nav a").at(-1)!;
+      const nextControl = wrapper.findAll("nav button").at(-1)!;
       await nextControl.trigger("click");
       await flushPromises();
 
@@ -291,7 +317,7 @@ describe("DataList.vue", () => {
           const wrapper = mount(DataList, {
             props: { rows: makeRows(12), columns, pageSize: 5 },
           });
-          const nextControl = wrapper.findAll("nav a").at(-1)!;
+          const nextControl = wrapper.findAll("nav button").at(-1)!;
           await nextControl.trigger("click");
           expect(wrapper.findAll("tbody tr")[0].text()).toContain("Bird 5");
 
@@ -307,7 +333,7 @@ describe("DataList.vue", () => {
           props: { schemaId: "test-schema", tableId: "pet", pageSize: 3 },
         });
         await flushPromises();
-        const nextControl = wrapper.findAll("nav a").at(-1)!;
+        const nextControl = wrapper.findAll("nav button").at(-1)!;
         await nextControl.trigger("click");
         await flushPromises();
         fetchTableDataMock.mockClear();
@@ -332,7 +358,7 @@ describe("DataList.vue", () => {
 
       expect(wrapper.findAll("tbody tr").length).toBe(5);
 
-      const nextControl = wrapper.findAll("nav a").at(-1)!;
+      const nextControl = wrapper.findAll("nav button").at(-1)!;
       await nextControl.trigger("click");
 
       expect(wrapper.findAll("tbody tr").length).toBe(5);
@@ -344,32 +370,36 @@ describe("DataList.vue", () => {
         props: { rows: makeRows(12), columns, pageSize: 5 },
       });
 
-      expect(wrapper.findAll("nav a").length).toBe(2);
+      expect(wrapper.findAll("nav button").length).toBe(2);
       expect(wrapper.find("nav input").exists()).toBe(false);
     });
 
-    it("renders the range and the total itself, including the empty and floor cases", () => {
+    it("renders the range and the total between the prev and next controls, including the empty and floor cases", () => {
       const wrapper = mount(DataList, {
         props: { rows: makeRows(12), columns, pageSize: 5 },
       });
-      expect(wrapper.find("p").text()).toBe("1-5 of 12");
+      const listItems = wrapper.findAll("nav li");
+      expect(listItems).toHaveLength(3);
+      expect(listItems[0].find("button").exists()).toBe(true);
+      expect(listItems[1].text()).toBe("1 - 5 of 12");
+      expect(listItems[2].find("button").exists()).toBe(true);
 
       const empty = mount(DataList, {
         props: { rows: [], columns, pageSize: 5 },
       });
-      expect(empty.find("p").text()).toBe("0 of 0");
+      expect(empty.findAll("nav li")[1].text()).toBe("0 of 0");
     });
 
     it("clamps the end of a last page that is not full", async () => {
       const wrapper = mount(DataList, {
         props: { rows: makeRows(57), columns, pageSize: 10 },
       });
-      const nextControl = wrapper.findAll("nav a").at(-1)!;
+      const nextControl = wrapper.findAll("nav button").at(-1)!;
       for (let click = 0; click < 5; click++) {
         await nextControl.trigger("click");
       }
 
-      expect(wrapper.find("p").text()).toBe("51-57 of 57");
+      expect(wrapper.findAll("nav li")[1].text()).toBe("51 - 57 of 57");
     });
 
     it("adds no file under display/ named like a pagination component", () => {
