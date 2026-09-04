@@ -1,6 +1,6 @@
 import { APIRequestContext, Page, expect } from "@playwright/test";
 import playwrightConfig from "../../../playwright.config";
-import { gql } from "../testSchema";
+import { gql } from "../e2eUtils";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
