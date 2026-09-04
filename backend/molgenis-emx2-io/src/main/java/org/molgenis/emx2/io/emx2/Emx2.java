@@ -163,7 +163,8 @@ public class Emx2 {
                   value -> {
                     column.setLabel(row.getString(value), (value.split(":")[1]));
                   });
-          if (row.notEmpty(COLUMN_FORM_LABEL)) column.setFormLabel(row.getString(COLUMN_FORM_LABEL));
+          if (row.notEmpty(COLUMN_FORM_LABEL))
+            column.setFormLabel(row.getString(COLUMN_FORM_LABEL));
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {
