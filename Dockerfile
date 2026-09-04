@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre-noble
+FROM eclipse-temurin:25-jre-noble
 
 RUN apt update && \
     apt install -y --no-install-recommends python3 pipx && \
