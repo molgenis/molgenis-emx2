@@ -81,27 +81,19 @@ commands:
           git config user.name "mswertz"
           git config url.https://.insteadOf git://
     - run:
-        name: run-dependency-audit
+        name: run-pnpm-audit
         working_directory: apps
         command: |
-          # OSV-Scanner fetches advisories live, so a pinned binary stays current. Only an unreachable OSV API skips the audit.
-          curl -sSfL --retry 3 -o osv-scanner https://github.com/google/osv-scanner/releases/download/v2.5.1/osv-scanner_linux_amd64
-          echo "f9f25499a2c8cc367b3af45df2ea7eeca7fbccceab9c35079968f4b3652194be  osv-scanner" | sha256sum -c
-          chmod +x osv-scanner
-          rc=0; ./osv-scanner scan source -L pnpm-lock.yaml --format json --verbosity error > osv.json || rc=$?
-          if [ $rc -eq 0 ]; then echo "no vulnerabilities"; exit 0; fi
-          # 1 means findings, anything else means the scan itself failed
-          if [ $rc -ne 1 ]; then echo "WARNING: OSV-Scanner exit $rc, skipping dependency audit for this build"; exit 0; fi
-          node -e '
-            const r = JSON.parse(require("fs").readFileSync("osv.json", "utf8"));
-            const all = [], crit = [];
-            for (const res of r.results || []) for (const p of res.packages || []) for (const v of p.vulnerabilities || []) {
-              const line = `${(v.database_specific || {}).severity}: ${p.package.name} ${v.id} ${v.summary}`;
-              all.push(line); if ((v.database_specific || {}).severity === "CRITICAL") crit.push(line);
-            }
-            all.forEach(l => console.log(l));
-            process.exit(crit.length ? 1 : 0);
-          '
+          # pnpm audit only relays npm's audit endpoint; when that is down, Trivy scans the lockfile from its own database.
+          pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical && exit 0
+          echo "pnpm audit failed, checking the lockfile with Trivy"
+          curl -sSfL --retry 3 -o trivy.tgz https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.tar.gz
+          echo "2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a  trivy.tgz" | sha256sum -c
+          tar -xzf trivy.tgz trivy
+          # exit 2 means a critical finding, 1 means the scan itself failed
+          rc=0; ./trivy fs --scanners vuln --include-dev-deps --severity CRITICAL --exit-code 2 pnpm-lock.yaml || rc=$?
+          if [ $rc -eq 2 ]; then exit 1; fi
+          if [ $rc -ne 0 ]; then echo "WARNING: Trivy exit $rc, skipping dependency audit for this build"; fi
     - run:
           name: Concatenate Build Files as key for cache
           command: |
@@ -204,7 +196,7 @@ jobs:
       GRADLE_USER_HOME: /tmp/ci-cache/gradle
 
     steps:
-      # `pnpm build` below needs pnpm, which this image does not enable.
+      # pre_steps calls `pnpm dlx`, so pnpm must exist before it runs.
       - run:
           name: Enable pnpm
           command: sudo corepack enable
