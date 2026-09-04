@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, useId } from "vue";
-import BaseIcon from "./BaseIcon.vue";
+import { onMounted, ref, useId, computed } from "vue";
+import Button from "./Button.vue";
 import InputSelect from "./input/Select.vue";
 import constants from "../utils/constants";
 
@@ -25,6 +25,16 @@ const props = withDefaults(
     showPageSizeSelector: false,
     pageSize: constants.PAGE_SIZE_DEFAULT,
   }
+);
+
+const isAtStart = computed(() => props.currentPage <= 1);
+const isAtEnd = computed(() => props.currentPage >= props.totalPages);
+
+// A page number outside [1, totalPages] does not exist; a screen reader
+// must never be told to go there.
+const prevPageLabel = computed(() => Math.max(props.currentPage - 1, 1));
+const nextPageLabel = computed(() =>
+  Math.min(props.currentPage + 1, props.totalPages)
 );
 
 const emit = defineEmits(["update", "update:pageSize"]);
@@ -96,32 +106,31 @@ function changeCurrentPage(event: Event) {
     </span>
     <ul class="flex items-center justify-center list-none gap-2.5">
       <li v-if="showPageSelector && jumpToEdge">
-        <a
-          href="#"
-          @click.prevent="onFirstClick"
-          class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default"
-          :class="{
-            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
-              currentPage > 1,
-          }"
-        >
-          <span class="sr-only">Go to page first</span>
-          <BaseIcon name="double-arrow-left" :width="24" />
-        </a>
+        <Button
+          icon-only
+          type="tertiary"
+          size="small"
+          icon="double-arrow-left"
+          label="Go to page first"
+          :disabled="isAtStart"
+          @click="onFirstClick"
+        />
       </li>
       <li>
-        <a
-          href="#"
-          @click.prevent="onPrevClick"
-          class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default"
-          :class="{
-            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
-              currentPage > 1,
-          }"
-        >
-          <span class="sr-only">Go to page {{ currentPage - 1 }}</span>
-          <BaseIcon name="caret-left" :width="24" />
-        </a>
+        <Button
+          icon-only
+          type="tertiary"
+          size="small"
+          icon="caret-left"
+          :label="`Go to page ${prevPageLabel}`"
+          :disabled="isAtStart"
+          @click="onPrevClick"
+        />
+      </li>
+      <li v-if="$slots.info" class="flex justify-center items-center">
+        <div class="px-4 tracking-widest sm:px-5">
+          <slot name="info" />
+        </div>
       </li>
       <li v-if="showPageSelector" class="flex justify-center items-center">
         <div class="px-4 tracking-widest sm:px-5">
@@ -153,32 +162,26 @@ function changeCurrentPage(event: Event) {
         </div>
       </li>
       <li>
-        <a
-          href="#"
-          @click.prevent="onNextClick"
-          class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default"
-          :class="{
-            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
-              currentPage < totalPages,
-          }"
-        >
-          <span class="sr-only">Go to page {{ currentPage + 1 }}</span>
-          <BaseIcon name="caret-right" :width="24" />
-        </a>
+        <Button
+          icon-only
+          type="tertiary"
+          size="small"
+          icon="caret-right"
+          :label="`Go to page ${nextPageLabel}`"
+          :disabled="isAtEnd"
+          @click="onNextClick"
+        />
       </li>
       <li v-if="showPageSelector && jumpToEdge">
-        <a
-          href="#"
-          @click.prevent="onLastClick"
-          class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default"
-          :class="{
-            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
-              currentPage < totalPages,
-          }"
-        >
-          <span class="sr-only">Go to last page</span>
-          <BaseIcon name="double-arrow-right" :width="24" />
-        </a>
+        <Button
+          icon-only
+          type="tertiary"
+          size="small"
+          icon="double-arrow-right"
+          label="Go to last page"
+          :disabled="isAtEnd"
+          @click="onLastClick"
+        />
       </li>
 
       <li class="flex justify-center items-center" v-if="showPageSizeSelector">
