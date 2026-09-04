@@ -5,6 +5,7 @@ import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
+import org.molgenis.emx2.Column;
 
 public class SparqlVariableUtil {
 
@@ -21,6 +22,12 @@ public class SparqlVariableUtil {
 
   public static Variable subjectVariable(Variable variable) {
     return prefixVariable(TableQueryGenerator.SUBJECT_VARIABLE.getVarName(), variable);
+  }
+
+  public static Variable subjectVariable(Column column) {
+    return prefixVariable(
+        TableQueryGenerator.SUBJECT_VARIABLE.getVarName(),
+        ColumnNameSparqlEncoder.encodeSparqlVariable(column.getName()));
   }
 
   public static Variable prefixVariable(String prefix, Variable variable) {
