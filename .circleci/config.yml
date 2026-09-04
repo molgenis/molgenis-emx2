@@ -85,14 +85,18 @@ commands:
         working_directory: apps
         command: |
           # A registry outage must not block the build; a critical vulnerability still must.
+          # A parseable report means the registry answered; its exit code ignores --audit-level under --json.
           for attempt in 1 2 3; do
-            if pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical 2>&1 | tee audit.log; then
+            pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --json > audit.json 2> audit.err || true
+            if jq -e '.metadata.vulnerabilities' audit.json > /dev/null 2>&1; then
+              jq -c '.metadata.vulnerabilities' audit.json
+              if [ "$(jq '.metadata.vulnerabilities.critical' audit.json)" -gt 0 ]; then
+                jq -r '.advisories[] | select(.severity == "critical") | "\(.module_name): \(.title) \(.url)"' audit.json
+                exit 1
+              fi
               exit 0
             fi
-            if ! grep -q -E 'ERR_PNPM_AUDIT|ERR_PNPM_META_FETCH_FAIL|ECONNRESET|ECONNREFUSED|ETIMEDOUT|ENOTFOUND|fetch failed|Bad Gateway|Service Unavailable|Gateway Time-out' audit.log; then
-              exit 1
-            fi
-            echo "pnpm audit could not reach the npm registry (attempt $attempt/3)"; sleep 30
+            cat audit.err; echo "pnpm audit could not reach the npm registry (attempt $attempt/3)"; sleep 30
           done
           echo "npm registry unavailable, falling back to OSV-Scanner"
           curl -sSL --retry 3 -o /tmp/osv-scanner https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64
