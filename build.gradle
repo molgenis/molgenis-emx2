@@ -86,7 +86,8 @@ sonar {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
+    // Guarded at 1: pr-preview runs on a 1-CPU box, where halving evaluates to 0 and gradle refuses.
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
 }
 
 // No tests here, and :apps reaches this classpath through :backend:molgenis-emx2-run, so an empty
