@@ -534,7 +534,6 @@ jobs:
 
   pr-preview:
     <<: *build_config
-    resource_class: small
 
     steps:
     - pre_steps:
