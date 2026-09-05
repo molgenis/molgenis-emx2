@@ -428,7 +428,7 @@ jobs:
 
     steps:
     - pre_steps:
-        layer_cache: false
+        layer_cache: true
         # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
         remote_docker: true
 
