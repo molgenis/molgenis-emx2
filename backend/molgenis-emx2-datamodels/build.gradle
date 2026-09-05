@@ -20,3 +20,10 @@ sourceSets {
         }
     }
 }
+
+// Its @Tag("slow")/TestLoaders suites share one postgres using identically named static schema
+// fields, so an extra fork reloads the catalogue instead of dividing it; forced after
+// allprojects' Test config so evaluation order can't let the root's maxParallelForks win.
+tasks.withType(Test).configureEach {
+    maxParallelForks = 1
+}

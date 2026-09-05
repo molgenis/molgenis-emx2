@@ -163,10 +163,16 @@ class ResolveMissingPkPostProcessorTest {
   @Nested
   class CompositeKeyTest {
 
+    // A nested test class's simple name alone collides with
+    // org.molgenis.emx2.rdf.service.CompositeKeyTest on the shared Postgres cluster; kept short
+    // because a longer schema name pushes a default role's identifier past PostgreSQL's 63-byte
+    // limit, which the role cleanup on schema drop does not recover from.
+    private final String schemaName = "FairmapperCompositeKeyTest";
+
     @BeforeEach
     void setup() {
       Database database = TestDatabaseFactory.getTestDatabase();
-      schema = database.dropCreateSchema(CompositeKeyTest.class.getSimpleName()).getMetadata();
+      schema = database.dropCreateSchema(schemaName).getMetadata();
 
       schema.create(
           new TableMetadata("Organisations")
