@@ -24,7 +24,6 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   test_config: &test_config
@@ -38,7 +37,6 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
   release_config: &release_config
@@ -47,7 +45,6 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      JVM_OPTS: -Xmx6400m
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
       TERM: dumb
 
@@ -61,7 +58,18 @@ commands:
       layer_cache:
         type: boolean
         default: true
+      remote_docker:
+        type: boolean
+        default: true
     steps:
+    - run:
+        name: Report CPUs and memory the container and JVM see
+        command: |
+          set +e
+          echo "nproc: $(nproc)"
+          java -XshowSettings:system -version
+          echo 'public class Cpus { public static void main(String[] a) { System.out.println("availableProcessors: " + Runtime.getRuntime().availableProcessors()); } }' > /tmp/Cpus.java
+          javac -d /tmp /tmp/Cpus.java && java -cp /tmp Cpus || true
     - run:
         name: Fresh Git Checkout to prevent missing objects
         command: |
@@ -110,13 +118,16 @@ commands:
             paths:
               - ~/.gradle/caches
             key: gradle-{{ checksum "concatenated-build-gradle" }}
-    # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
-    # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
-    - setup_remote_docker:
-        docker_layer_caching: << parameters.layer_cache >>
-    - run:
-        name: Sign in to docker
-        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - when:
+        condition: << parameters.remote_docker >>
+        steps:
+        # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
+        # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
+        - setup_remote_docker:
+            docker_layer_caching: << parameters.layer_cache >>
+        - run:
+            name: Sign in to docker
+            command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
   post_steps:
     steps:
@@ -128,13 +139,21 @@ commands:
         when: always
     - store_test_results:
         path: ~/test-results
-#    - store_artifacts:
-#        path: ./build/libs
+    - store_artifacts:
+        path: ~/test-results
+        when: always
+    - store_artifacts:
+        path: ~/gradle-logs
+        when: always
 
 # jobs for pull request and master
 jobs:
   build-preview-images:
     <<: *build_config
+    # Job-level environment REPLACES the anchor's, so TERM is restated here, not inherited.
+    environment:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+      TERM: dumb
 
     steps:
     - run: |
@@ -195,6 +214,8 @@ jobs:
       - pre_steps:
           gradle_cache: false
           layer_cache: false
+          # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
+          remote_docker: true
 
       - restore_cache:
           keys:
@@ -276,7 +297,6 @@ jobs:
             RETRY=0
 
             while true; do
-              # Run curl, suppress output, get status code only
               STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
 
               echo "HTTP status: ${STATUS:-none}"
@@ -374,7 +394,10 @@ jobs:
     <<: *build_config
 
     steps:
-    - pre_steps
+    - pre_steps:
+        layer_cache: false
+        # Not for docker: turbo lints 3 packages at once and 8GB is not enough for them.
+        remote_docker: true
 
     - run:
         name: <apps> check code format
@@ -385,10 +408,15 @@ jobs:
         command: |
           ./gradlew lint ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+        # Turbo lints 3 packages at once, each Node child sizing its heap from HOST memory.
+        environment:
+          NODE_OPTIONS: --max-old-space-size=2048
 
     - run:
         name: <apps> unit test the code
         command: ./gradlew :apps:test
+        environment:
+          NODE_OPTIONS: --max-old-space-size=2048
 
     - post_steps
 
@@ -396,7 +424,10 @@ jobs:
     <<: *test_config
 
     steps:
-    - pre_steps
+    - pre_steps:
+        layer_cache: false
+        # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
+        remote_docker: true
 
     - run:
         name: prepare sql test database
@@ -419,10 +450,14 @@ jobs:
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
             SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
           fi
-          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test \
+          # CircleCI truncates a step log to its last 400KB, so tee keeps it whole on disk.
+          # pipefail keeps the step failing on gradle's exit code rather than tee's.
+          set -o pipefail
+          mkdir -p ~/gradle-logs
+          ./gradlew test jacocoMergedReport sonar --no-daemon -x :apps:test --console=plain \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
-          $SONAR_PR_ARGS
+          $SONAR_PR_ARGS 2>&1 | tee ~/gradle-logs/test-backend.log
 
     - post_steps
 
@@ -499,9 +534,12 @@ jobs:
 
   pr-preview:
     <<: *build_config
+    resource_class: small
 
     steps:
-    - pre_steps
+    - pre_steps:
+        layer_cache: false
+        remote_docker: false
 
     - attach_workspace:
         at: .
@@ -544,9 +582,12 @@ jobs:
 
   emx2-pyclient:
     <<: *build_config
+    resource_class: medium
 
     steps:
-      - pre_steps
+      - pre_steps:
+          layer_cache: false
+          remote_docker: false
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
@@ -588,8 +629,9 @@ jobs:
       GHA_PREVIEW_NR: << pipeline.parameters.GHA_Meta >>
     
     steps:
-    - pre_steps
-    
+    - pre_steps:
+        layer_cache: false
+
     - run:
         name: delete preview on azure
         command: |
@@ -601,7 +643,8 @@ jobs:
     <<: *build_config
 
     steps:
-      - pre_steps
+      - pre_steps:
+          layer_cache: false
 
       # Check if we should run this week
       - run:
@@ -637,21 +680,18 @@ workflows:
     unless:
       equal: [ "delete-pr-preview", << pipeline.parameters.GHA_Action >> ]
     jobs:
+    # Listed longest-first among the jobs nothing blocks, so a queued pipeline starts the critical
+    # path earliest. build-preview-images is short but gates pr-preview, the longest chain.
     - build-preview-images:
         filters:
           branches:
             ignore: master
+    - test-backend
+    - test-e2e
+    - test-apps
     - pr-preview:
         requires:
           - build-preview-images
-        filters:
-          branches:
-            ignore: master
-    - test-apps
-    - test-backend
-    - test-e2e
-    - emx2-pyclient:
-        name: testPyPI release
         filters:
           branches:
             ignore: master
@@ -662,6 +702,11 @@ workflows:
        filters:
          branches:
            only: master
+    - emx2-pyclient:
+        name: testPyPI release
+        filters:
+          branches:
+            ignore: master
     - emx2-pyclient:
         name: PyPI release
         requires:
