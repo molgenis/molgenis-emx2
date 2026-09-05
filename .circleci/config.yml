@@ -398,7 +398,6 @@ jobs:
         layer_cache: false
         # Not for docker: turbo lints 3 packages at once and 8GB is not enough for them.
         remote_docker: true
-        gradle_cache: false
 
     - run:
         name: <apps> check code format
