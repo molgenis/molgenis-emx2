@@ -28,8 +28,11 @@ steps:
   fetchDepth: 0
   fetchTags: true
 - script: |
-    sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt-get update &&  sudo apt-get install postgresql-client python3.10 python3.10-venv -y
+    sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt-get update &&  sudo apt-get install postgresql-client python3.10 pipx -y
   displayName: postgresql client python3
+- script: |
+    pipx ensurepath && pipx install uv
+  displayName: install uv
 - script: |
     psql -h localhost -p 5432 -U postgres < .circleci/initdb.sql
   displayName: initialize database

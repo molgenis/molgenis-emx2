@@ -20,7 +20,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.6.3
+    - image: molgenis/ci-build:1.6.4
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -28,7 +28,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.6.3
+    - image: molgenis/ci-build:1.6.4
     - image: postgres:15-alpine
       command: postgres -c shared_buffers=256MB -c max_locks_per_transaction=1024
         -c fsync=off -c synchronous_commit=off -c full_page_writes=off -c max_wal_size=4GB
@@ -43,7 +43,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.6.3
+      - image: molgenis/ci-build:1.6.4
     working_directory: ~/repo
     resource_class: large
     environment:
