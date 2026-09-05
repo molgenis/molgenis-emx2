@@ -47,7 +47,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6 -Dorg.gradle.caching=false"
       TERM: dumb
 
 
@@ -154,7 +154,7 @@ jobs:
     <<: *build_config
     # Job-level environment REPLACES the anchor's, so TERM is restated here, not inherited.
     environment:
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6"
       TERM: dumb
 
     steps:
@@ -202,7 +202,7 @@ jobs:
     working_directory: ~/repo
     resource_class: large
     environment:
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6"
       TERM: dumb
       # A cache restores to the absolute path it was saved from, and `~` is a different
       # user on this image than on the one the other jobs use.
