@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.jooq.*;
 import org.jooq.Record;
@@ -301,7 +302,6 @@ public class SqlTable implements Table {
   private static List<Column> getUpdateColumns(SqlTable table, Set<String> columnsProvided) {
     return getInsertColumns(table, columnsProvided).stream()
         .filter(c -> !c.isReadonly() && !c.isPrimaryKey())
-        .filter(c -> !c.getName().equals(MG_INSERTEDBY) && !c.getName().equals(MG_INSERTEDON))
         .filter(
             c ->
                 AUTO_ID.equals(c.getColumnType())
@@ -347,13 +347,14 @@ public class SqlTable implements Table {
 
     // add all the rows as steps
     LocalDateTime now = LocalDateTime.now();
+    boolean mayOverrideMgValues = mayOverrideMgValues(table);
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
-        values.put(MG_INSERTEDBY, getActiveUser(table));
-        values.put(MG_INSERTEDON, now);
-        values.put(MG_UPDATEDBY, getActiveUser(table));
-        values.put(MG_UPDATEDON, now);
+        putMgValue(values, MG_INSERTEDBY, mayOverrideMgValues, () -> getActiveUser(table));
+        putMgValue(values, MG_INSERTEDON, mayOverrideMgValues, () -> now);
+        putMgValue(values, MG_UPDATEDBY, mayOverrideMgValues, () -> getActiveUser(table));
+        putMgValue(values, MG_UPDATEDON, mayOverrideMgValues, () -> now);
       }
       step.values(values.values());
     }
@@ -368,8 +369,29 @@ public class SqlTable implements Table {
         step2.set(column.getJooqField(), (Object) getExcludedField(column));
       }
       if (!inherit) {
-        step2.set(field(name(MG_UPDATEDBY)), getActiveUser(table));
-        step2.set(field(name(MG_UPDATEDON)), now);
+        // the inserted values already hold either the row supplied value or the default,
+        // so on conflict we reuse them; if the column is not part of the insert we apply the
+        // default
+        List<String> insertedColumnNames = columns.stream().map(Column::getName).toList();
+        // insert metadata of the existing row is only overwritten when every row supplies it
+        for (String insertMetadataColumn : INSERT_METADATA_COLUMNS) {
+          if (mayOverrideMgValues
+              && insertedColumnNames.contains(insertMetadataColumn)
+              && allRowsProvide(rows, insertMetadataColumn)) {
+            step2.set(
+                field(name(insertMetadataColumn)), (Object) getExcludedField(insertMetadataColumn));
+          }
+        }
+        step2.set(
+            field(name(MG_UPDATEDBY)),
+            insertedColumnNames.contains(MG_UPDATEDBY)
+                ? (Object) getExcludedField(MG_UPDATEDBY)
+                : getActiveUser(table));
+        step2.set(
+            field(name(MG_UPDATEDON)),
+            insertedColumnNames.contains(MG_UPDATEDON)
+                ? (Object) getExcludedField(MG_UPDATEDON)
+                : now);
       }
     }
 
@@ -384,7 +406,11 @@ public class SqlTable implements Table {
   }
 
   private static Field<Object> getExcludedField(Column column) {
-    return field(unquotedName("excluded.\"" + column.getName() + "\""));
+    return getExcludedField(column.getName());
+  }
+
+  private static Field<Object> getExcludedField(String columnName) {
+    return field(unquotedName("excluded.\"" + columnName + "\""));
   }
 
   private static void copyRecordValuesIntoRows(Row row, Record from, List<Column> toCopy) {
@@ -416,11 +442,18 @@ public class SqlTable implements Table {
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
     LocalDateTime now = LocalDateTime.now();
+    boolean mayOverrideMgValues = mayOverrideMgValues(table);
     for (Row row : rows) {
-      Map values = getSelectedRowValues(columns, row);
+      Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
-        values.put(MG_UPDATEDBY, getActiveUser(table));
-        values.put(MG_UPDATEDON, now);
+        putMgValue(values, MG_UPDATEDBY, mayOverrideMgValues, () -> getActiveUser(table));
+        putMgValue(values, MG_UPDATEDON, mayOverrideMgValues, () -> now);
+        if (mayOverrideMgValues) {
+          // insert metadata is only updated when supplied, never cleared
+          INSERT_METADATA_COLUMNS.forEach(column -> values.remove(column, null));
+        } else {
+          INSERT_METADATA_COLUMNS.forEach(values::remove);
+        }
       }
 
       list.add(
@@ -432,6 +465,30 @@ public class SqlTable implements Table {
     }
 
     return Arrays.stream(table.getJooq().batch(list).execute()).reduce(Integer::sum).getAsInt();
+  }
+
+  private static boolean allRowsProvide(List<Row> rows, String columnName) {
+    return rows.stream().allMatch(row -> row.notNull(columnName));
+  }
+
+  /** only admins and managers may decide what ends up in the mg_ metadata columns */
+  private static boolean mayOverrideMgValues(SqlTable table) {
+    return PermissionEvaluator.canManage(table.getSchema());
+  }
+
+  /**
+   * Keeps a value that was supplied in the row (e.g. mg_insertedBy on import), otherwise applies
+   * the default. Note that the key is only replaced, never added, so the value order keeps matching
+   * the insert fields.
+   */
+  private static void putMgValue(
+      Map<String, Object> values,
+      String key,
+      boolean mayOverrideMgValues,
+      Supplier<Object> defaultValue) {
+    if (!mayOverrideMgValues || values.get(key) == null) {
+      values.put(key, defaultValue.get());
+    }
   }
 
   private static List<Column> getLocalStoredColumns(SqlTable table, List<Column> updateColumns) {
