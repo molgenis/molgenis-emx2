@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   isFileType,
-  isSingleOntologyType,
   isSingleRefType,
   isMultiValuedType,
 } from "../../../../metadata-utils/src";
@@ -18,7 +17,7 @@ import ValueHyperlink from "./Hyperlink.vue";
 import ValueInt from "./Int.vue";
 import ValueList from "./List.vue";
 import ValueLong from "./Long.vue";
-import ValueObject from "./Object.vue";
+import ValueOntology from "./Ontology.vue";
 import ValueRef from "./Ref.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
@@ -45,6 +44,13 @@ defineEmits<{
 
 <template>
   <template v-if="data == null || data === undefined"></template>
+  <ValueOntology
+    v-else-if="['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(metadata.columnType)"
+    :metadata="metadata"
+    :data="data"
+    :renderLimit="renderLimit"
+  />
+
   <ValueList
     v-else-if="isMultiValuedType(metadata.columnType)"
     :metadata="metadata"
@@ -96,13 +102,6 @@ defineEmits<{
   <ValueRef
     v-else-if="isSingleRefType(metadata.columnType)"
     :metadata="toRefColumn(metadata)"
-    :data="data"
-    @refCellClicked="$emit('valueClick', $event)"
-  />
-
-  <ValueObject
-    v-else-if="isSingleOntologyType(metadata.columnType)"
-    :metadata="metadata"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
   />

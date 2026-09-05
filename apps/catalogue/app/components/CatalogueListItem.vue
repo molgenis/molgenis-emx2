@@ -9,12 +9,11 @@
   </DefinitionListTerm>
 
   <DefinitionListDefinition :small="small">
-    <ContentOntology
+    <DisplayOntology
       v-if="item?.type === 'ONTOLOGY'"
-      :tree="buildTree(item.content)"
+      :value="item.content"
       :collapse-all="true"
-      :inverted="true"
-    ></ContentOntology>
+    />
 
     <ContentMapped
       v-else-if="item?.type === 'MAPPED'"
@@ -71,9 +70,8 @@ import type { IDefinitionListItem } from "../../interfaces/types";
 import DefinitionListTerm from "../../../tailwind-components/app/components/DefinitionListTerm.vue";
 import DefinitionListDefinition from "../../../tailwind-components/app/components/DefinitionListDefinition.vue";
 import ContentMapped from "./content/Mapped.vue";
-import ContentOntology from "./content/Ontology.vue";
+import DisplayOntology from "../../../tailwind-components/app/components/display/Ontology.vue";
 import CustomTooltip from "../../../tailwind-components/app/components/CustomTooltip.vue";
-import { buildTree } from "../utils/ontologyUtils";
 
 withDefaults(
   defineProps<{
