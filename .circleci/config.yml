@@ -39,7 +39,7 @@ definitions:
     working_directory: ~/repo
     resource_class: large
     environment:
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=4 -Dorg.gradle.project.maxParallelForks=2"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=6"
       TERM: dumb
   release_config: &release_config
     docker:
