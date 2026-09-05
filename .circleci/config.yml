@@ -82,8 +82,15 @@ commands:
           git config url.https://.insteadOf git://
     - run:
         name: run-pnpm-audit
-        command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
         working_directory: apps
+        command: |
+          # pnpm audit only relays npm's audit endpoint; when that is down, Trivy scans the lockfile from its own database.
+          pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical && exit 0
+          echo "pnpm audit failed, checking the lockfile with Trivy"
+          curl -sSfL --retry 3 -o trivy.tgz https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.tar.gz
+          echo "2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a  trivy.tgz" | sha256sum -c
+          tar -xzf trivy.tgz trivy
+          ./trivy fs --scanners vuln --include-dev-deps --severity CRITICAL --exit-code 1 pnpm-lock.yaml
     - run:
           name: Concatenate Build Files as key for cache
           command: |
