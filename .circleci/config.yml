@@ -152,11 +152,6 @@ commands:
 jobs:
   build-preview-images:
     <<: *build_config
-    # Job-level environment REPLACES the anchor's, so TERM is restated here, not inherited.
-    environment:
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-      TERM: dumb
-
     steps:
     - run: |
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
