@@ -73,7 +73,7 @@ commands:
           GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
             git fetch origin +refs/tags/*:refs/tags/* --prune
           git checkout -f "$CIRCLE_BRANCH"
-          # Nyx peels ~2000 tags per commit it walks; as loose refs that costs master 70s per gradle start.
+          # Nyx peels ~2000 tags per commit it walks; that costs master 70s per gradle start; packs are smaller
           git pack-refs --all
     - run:
         name: Setup git, todo, move to molgenisci user
