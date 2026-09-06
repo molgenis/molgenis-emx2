@@ -1,7 +1,13 @@
-import { flushPromises, mount } from "@vue/test-utils";
+import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
 import { readdirSync } from "fs";
 import { resolve } from "path";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { clearNuxtData } from "#app";
+
+// Every test shares one nuxtApp instance, and useAsyncData keeps a fetch's
+// cache entry alive until its owning component unmounts. Without this, the
+// next mount with the same schema/table/page reuses a PRIOR test's entry.
+enableAutoUnmount(afterEach);
 import Records from "../../../../app/components/display/Records.vue";
 import Pagination from "../../../../app/components/Pagination.vue";
 import ShowMore from "../../../../app/components/ShowMore.vue";
@@ -56,6 +62,10 @@ function makeRows(count: number): IRow[] {
 
 describe("Records.vue", () => {
   beforeEach(() => {
+    // useAsyncData caches by key in the shared nuxtApp instance this test
+    // environment reuses across tests; without this, one test's cached
+    // response leaks into the next mount of the same schema/table/page.
+    clearNuxtData();
     fetchTableDataMock.mockReset();
     fetchTableMetadataMock.mockReset();
     fetchTableMetadataMock.mockResolvedValue({ id: "pet", columns });
@@ -322,6 +332,9 @@ describe("Records.vue", () => {
       });
       await flushPromises();
       expect(wrapper.find("p").text()).toBe("1 - 3 of 3");
+      // Same schema/table/page as above: without unmounting first, the two
+      // instances would collide on the same useAsyncData cache entry.
+      wrapper.unmount();
 
       fetchTableDataMock.mockResolvedValueOnce({ rows: [], count: 0 });
       const empty = mount(Records, {

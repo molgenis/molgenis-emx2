@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
+import { computed, ref, useId, watch } from "vue";
+import { useAsyncData } from "#app";
+import type { IRow } from "../../../../metadata-utils/src/types";
 import type { DisplayConfig, Layout } from "../../types/display";
 import { resolveDisplay } from "../../utils/displayUtils";
 import fetchTableData from "../../composables/fetchTableData";
@@ -31,37 +32,70 @@ const props = withDefaults(
 );
 
 const currentPage = ref(1);
-const fetchedColumns = ref<IColumn[]>([]);
-const fetchedRows = ref<IRow[]>([]);
-const fetchedCount = ref(0);
 
-// A newer request racing past a slower one must win. Capture a request id
-// before the await and drop the write if a later request already landed.
-let latestRequestId = 0;
-let latestMetadataRequestId = 0;
-
-// Any input that changes what the result set IS goes back to page 1.
-// Registered before the data-fetch watcher below so, when both fire in the
-// same flush (e.g. filter changes), this one runs first.
+// Any input that changes what the result set IS goes back to page 1. This
+// must run before useAsyncData's own key/watch react to the same change, so
+// it stays "sync": useAsyncData's key watcher is sync internally, and a
+// "pre"-flush watcher here would run after it, one page too late.
 watch(
   () => [props.schemaId, props.tableId, props.filter, props.pageSize],
   () => {
     currentPage.value = 1;
+  },
+  { flush: "sync" }
+);
+
+// A newer request racing past a slower one must win. useAsyncData dedupes
+// its own keyed fetch; this id is for loadMore below, the one path that is
+// still a bare fetch outside that mechanism.
+let latestRequestId = 0;
+
+// Unique per instance's actual query: a record page renders several of
+// these side by side for different refbacks, each needing its own fetch and
+// its own place in the SSR payload. useId() is stable across the server
+// render and the client hydration of the SAME instance, unlike a random id.
+const instanceId = useId();
+const asyncDataKey = computed(
+  () =>
+    `records-${instanceId}-${props.schemaId}-${props.tableId}-${JSON.stringify(
+      props.filter ?? null
+    )}-${currentPage.value}`
+);
+
+const { data } = useAsyncData(
+  asyncDataKey,
+  async () => {
+    latestRequestId++;
+    const metadata = await fetchTableMetadata(props.schemaId, props.tableId);
+    const paginated = layoutMeta.value.paginated;
+    // pageSize belongs to the paging layouts; a layout that loads on demand
+    // has its own batch size and does not inherit a pager's.
+    const limit = paginated ? props.pageSize : layoutMeta.value.batchSize;
+    const offset = paginated ? (currentPage.value - 1) * props.pageSize : 0;
+    const response = await fetchTableData(props.schemaId, props.tableId, {
+      limit,
+      offset,
+      filter: props.filter,
+      expandLevel: 1,
+    });
+    return {
+      columns: metadata.columns,
+      rows: response.rows,
+      count: response.count,
+    };
+  },
+  {
+    watch: [
+      () => props.schemaId,
+      () => props.tableId,
+      () => props.filter,
+      () => props.pageSize,
+      currentPage,
+    ],
   }
 );
 
-watch(
-  () => [props.schemaId, props.tableId],
-  async () => {
-    const requestId = ++latestMetadataRequestId;
-    const metadata = await fetchTableMetadata(props.schemaId, props.tableId);
-    if (requestId !== latestMetadataRequestId) {
-      return;
-    }
-    fetchedColumns.value = metadata.columns;
-  },
-  { immediate: true }
-);
+const fetchedColumns = computed(() => data.value?.columns ?? []);
 
 const resolvedDisplay = computed(() =>
   resolveDisplay(fetchedColumns.value, props.displayConfig)
@@ -94,41 +128,24 @@ const layoutMeta = computed(() => {
   }
 });
 
-watch(
-  () =>
-    [
-      props.schemaId,
-      props.tableId,
-      props.filter,
-      props.pageSize,
-      currentPage.value,
-    ] as const,
-  async ([schemaId, tableId, filter, pageSize, page]) => {
-    const requestId = ++latestRequestId;
-    const paginated = layoutMeta.value.paginated;
-    // pageSize belongs to the paging layouts; a layout that loads on demand
-    // has its own batch size and does not inherit a pager's.
-    const limit = paginated ? pageSize : layoutMeta.value.batchSize;
-    const offset = paginated ? (page - 1) * pageSize : 0;
-    const response = await fetchTableData(schemaId, tableId, {
-      limit,
-      offset,
-      filter,
-      expandLevel: 1,
-    });
-    if (requestId !== latestRequestId) {
-      return;
-    }
-    fetchedRows.value = response.rows;
-    fetchedCount.value = response.count;
-  },
-  { immediate: true }
-);
+// useAsyncData REPLACES data.value on every fetch; LINKS/BULLETS need to
+// APPEND across "load more" clicks, so that accumulation lives in its own
+// ref, reseeded whenever a fresh keyed fetch replaces the whole result.
+const accumulatedRows = ref<IRow[]>(data.value?.rows ?? []);
+const accumulatedCount = ref(data.value?.count ?? 0);
+
+watch(data, (value) => {
+  accumulatedRows.value = value?.rows ?? [];
+  accumulatedCount.value = value?.count ?? 0;
+});
+
+const fetchedRows = computed(() => accumulatedRows.value);
+const fetchedCount = computed(() => accumulatedCount.value);
 
 // LINKS and BULLETS never move currentPage (they render no Pagination), so
-// this watcher only re-fires on schemaId/tableId/filter/pageSize for them,
-// which is exactly a fresh first batch. loadMore is the one path that
-// appends instead of replacing, for the "show more" control's own click.
+// the keyed fetch above only re-fires for them on schemaId/tableId/filter/
+// pageSize, which is exactly a fresh first batch. loadMore is the one path
+// that appends instead of replacing, for the "show more" control's own click.
 const remaining = computed(() =>
   Math.max(fetchedCount.value - fetchedRows.value.length, 0)
 );
@@ -150,8 +167,8 @@ async function loadMore() {
   if (requestId !== latestRequestId) {
     return;
   }
-  fetchedRows.value = [...fetchedRows.value, ...response.rows];
-  fetchedCount.value = response.count;
+  accumulatedRows.value = [...accumulatedRows.value, ...response.rows];
+  accumulatedCount.value = response.count;
 }
 
 const totalPages = computed(() =>
