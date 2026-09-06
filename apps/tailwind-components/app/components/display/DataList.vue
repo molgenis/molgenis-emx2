@@ -8,6 +8,7 @@ import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import Pagination from "../Pagination.vue";
 import DataTable from "./DataTable.vue";
 import DataCards from "./DataCards.vue";
+import DataRows from "./DataRows.vue";
 import DataLinks from "./DataLinks.vue";
 import DataBullets from "./DataBullets.vue";
 
@@ -119,15 +120,15 @@ const layoutView = computed(() => {
   const layout: Layout = resolved.value.layout;
   switch (layout) {
     case "TABLE":
-      return { component: DataTable, columnCount: undefined };
+      return { component: DataTable };
     case "CARDS":
-      return { component: DataCards, columnCount: 2 as const };
+      return { component: DataCards };
     case "LIST":
-      return { component: DataCards, columnCount: 1 as const };
+      return { component: DataRows };
     case "LINKS":
-      return { component: DataLinks, columnCount: undefined };
+      return { component: DataLinks };
     case "BULLETS":
-      return { component: DataBullets, columnCount: undefined };
+      return { component: DataBullets };
     default:
       return assertNever(layout);
   }
@@ -170,11 +171,10 @@ function onPageUpdate(page: number) {
       :rows="pagedRows"
       :resolved="resolved"
       :link-to="linkTo"
-      :column-count="layoutView.columnCount"
     />
 
-    <!-- pt-5: DataCards ends on a card border with a -mb-[1px] overlap, so
-    the pager needs a gap above it or it lands right on that line. -->
+    <!-- pt-5: CARDS and LIST end on a card border with a -mb-[1px] overlap,
+    so the pager needs a gap above it or it lands right on that line. -->
     <Pagination
       :current-page="currentPage"
       :total-pages="totalPages"

@@ -4,6 +4,7 @@ import { resolve } from "path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import DataList from "../../../../app/components/display/DataList.vue";
 import DataCards from "../../../../app/components/display/DataCards.vue";
+import DataRows from "../../../../app/components/display/DataRows.vue";
 import DataLinks from "../../../../app/components/display/DataLinks.vue";
 import DataBullets from "../../../../app/components/display/DataBullets.vue";
 import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
@@ -69,22 +70,24 @@ describe("DataList.vue", () => {
       expect(fetchTableMetadataMock).not.toHaveBeenCalled();
     });
 
-    it.each([
-      ["CARDS", 2],
-      ["LIST", 1],
-    ] as const)(
-      "renders %s layout via display.layout, at columnCount %i",
-      (layout, columnCount) => {
-        const display: DisplayConfig = { layout };
-        const wrapper = mount(DataList, {
-          props: { rows: makeRows(2), columns, display },
-        });
+    it("renders CARDS layout via display.layout", () => {
+      const display: DisplayConfig = { layout: "CARDS" };
+      const wrapper = mount(DataList, {
+        props: { rows: makeRows(2), columns, display },
+      });
 
-        const rendered = wrapper.findComponent(DataCards);
-        expect(rendered.exists()).toBe(true);
-        expect(rendered.props("columnCount")).toBe(columnCount);
-      }
-    );
+      expect(wrapper.findComponent(DataCards).exists()).toBe(true);
+    });
+
+    it("renders LIST layout via display.layout, not DataCards", () => {
+      const display: DisplayConfig = { layout: "LIST" };
+      const wrapper = mount(DataList, {
+        props: { rows: makeRows(2), columns, display },
+      });
+
+      expect(wrapper.findComponent(DataRows).exists()).toBe(true);
+      expect(wrapper.findComponent(DataCards).exists()).toBe(false);
+    });
 
     it("renders LINKS layout via display.layout", () => {
       const display: DisplayConfig = { layout: "LINKS" };
@@ -146,23 +149,26 @@ describe("DataList.vue", () => {
       expect(wrapper.findAll("tbody tr").length).toBe(3);
     });
 
-    it.each([
-      ["CARDS", 2],
-      ["LIST", 1],
-    ] as const)(
-      "renders %s layout via display.layout in fetch mode, at columnCount %i",
-      async (layout, columnCount) => {
-        const display: DisplayConfig = { layout };
-        const wrapper = mount(DataList, {
-          props: { schemaId: "test-schema", tableId: "pet", display },
-        });
-        await flushPromises();
+    it("renders CARDS layout via display.layout in fetch mode", async () => {
+      const display: DisplayConfig = { layout: "CARDS" };
+      const wrapper = mount(DataList, {
+        props: { schemaId: "test-schema", tableId: "pet", display },
+      });
+      await flushPromises();
 
-        const rendered = wrapper.findComponent(DataCards);
-        expect(rendered.exists()).toBe(true);
-        expect(rendered.props("columnCount")).toBe(columnCount);
-      }
-    );
+      expect(wrapper.findComponent(DataCards).exists()).toBe(true);
+    });
+
+    it("renders LIST layout via display.layout in fetch mode, not DataCards", async () => {
+      const display: DisplayConfig = { layout: "LIST" };
+      const wrapper = mount(DataList, {
+        props: { schemaId: "test-schema", tableId: "pet", display },
+      });
+      await flushPromises();
+
+      expect(wrapper.findComponent(DataRows).exists()).toBe(true);
+      expect(wrapper.findComponent(DataCards).exists()).toBe(false);
+    });
 
     it("renders LINKS layout via display.layout in fetch mode", async () => {
       const display: DisplayConfig = { layout: "LINKS" };

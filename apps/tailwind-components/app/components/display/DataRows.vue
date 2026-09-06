@@ -5,15 +5,24 @@ import { columnValueToString } from "../../utils/columnValueToString";
 import DataPairs from "./DataPairs.vue";
 import ShowMore from "../ShowMore.vue";
 
-const props = defineProps<{
-  rows: IRow[];
-  resolved: ResolvedDisplay;
-  linkTo?: (row: IRow) => string;
-  hideListSeparator?: boolean;
-  maxLines?: number;
-  renderLimit?: number;
-  truncate?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    rows: IRow[];
+    resolved: ResolvedDisplay;
+    linkTo?: (row: IRow) => string;
+    hideListSeparator?: boolean;
+    maxLines?: number;
+    renderLimit?: number;
+    truncate?: boolean;
+    hideEmpty?: boolean;
+  }>(),
+  {
+    // Vue casts an unset boolean prop to false unless a default is given.
+    // hideEmpty is DataPairs' default (true) to make, not DataRows', so
+    // this forwards a genuine undefined rather than silently overriding it.
+    hideEmpty: undefined,
+  }
+);
 
 function titleText(row: IRow): string {
   if (!props.resolved.titleTemplate) {
@@ -42,17 +51,16 @@ function logoUrl(row: IRow): string | undefined {
 </script>
 
 <template>
-  <ul class="grid grid-cols-1 lg:grid-cols-2" role="list">
+  <ul class="grid grid-cols-1" role="list">
     <!-- Plain `border`, not `border-theme`: that utility also sets
     --border-width-theme, which four themes zero out on purpose, leaving the
-    card with no visible edge. No grid gap: cells share a border instead of
-    floating apart. -mb-[1px] pulls each row up so stacked cells' horizontal
-    borders overlap into one rule, and lg:even:border-l-0 drops the second
-    column's left border so the shared vertical rule is single too. -->
+    row with no visible edge. No grid gap: rows share a border instead of
+    floating apart. -mb-[1px] pulls each row up so stacked rows' horizontal
+    borders overlap into one rule. -->
     <li
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
-      class="border p-11 relative -mb-[1px] lg:even:border-l-0"
+      class="border p-11 relative -mb-[1px]"
     >
       <img
         v-if="logoUrl(row)"
@@ -76,8 +84,10 @@ function logoUrl(row: IRow): string | undefined {
       </ShowMore>
       <DataPairs
         v-if="resolved.detailColumns.length"
+        wide
         :columns="resolved.detailColumns"
         :row="row"
+        :hide-empty="hideEmpty"
         :hide-list-separator="hideListSeparator"
         :max-lines="maxLines"
         :render-limit="renderLimit"
