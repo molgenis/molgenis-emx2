@@ -361,10 +361,17 @@ describe("Records.vue", () => {
       expect(wrapper.find("p").text()).toBe("51 - 57 of 57");
     });
 
-    it("adds no file under display/ named like a pagination component", () => {
-      const files = readdirSync(
-        resolve(__dirname, "../../../../app/components/display")
+    it("adds no file under display/ or display/records/ named like a pagination component", () => {
+      // Both directories, because the layouts moved into records/ and a
+      // single-level read of display/ stopped seeing them.
+      const displayDir = resolve(
+        __dirname,
+        "../../../../app/components/display"
       );
+      const files = [
+        ...readdirSync(displayDir),
+        ...readdirSync(resolve(displayDir, "records")),
+      ];
       const pagerFiles = files.filter((file) =>
         /pag(e|er|ination)/i.test(file)
       );
