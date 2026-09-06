@@ -433,6 +433,13 @@ function linkTo(row: IRow): string {
   return `#${encodeURIComponent(String(Object.values(row)[0] ?? ""))}`;
 }
 
+// Fixture mode has no backend for DisplayRecords to fetch through, so it
+// mounts a layout component directly and resolves the display config itself,
+// the same resolution DisplayRecords does internally in live mode.
+function resolvedFixtureDisplay(layout: Layout) {
+  return resolveDisplay(fixtureColumns, displayFor(layout));
+}
+
 function panelTestId(
   layout: Layout,
   surface: "content" | "footer" | "transparent"
@@ -617,16 +624,78 @@ function panelTestId(
           :data-testid="panelTestId(layoutOption, 'content')"
         >
           <p class="mb-2 text-title-contrast font-bold">Content surface</p>
-          <DisplayDataList
+          <DisplayRecords
+            v-if="isLiveMode"
+            :schema-id="schemaId"
+            :table-id="tableId"
             :display-config="displayFor(layoutOption)"
-            :rows="isLiveMode ? undefined : fixtureRows"
-            :columns="isLiveMode ? undefined : fixtureColumns"
-            :schema-id="isLiveMode ? schemaId : undefined"
-            :table-id="isLiveMode ? tableId : undefined"
-            :filter="isLiveMode ? filter : undefined"
+            :filter="filter"
             :page-size="pageSize"
             :link-to="linkTo"
           />
+          <template v-else>
+            <DisplayRecordsTable
+              v-if="layoutOption === 'TABLE'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :columns="resolvedFixtureDisplay(layoutOption).detailColumns"
+              :link-to="linkTo"
+            />
+            <DisplayRecordsCards
+              v-else-if="layoutOption === 'CARDS'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :subtitle-template="
+                resolvedFixtureDisplay(layoutOption).subtitleTemplate
+              "
+              :description-column="
+                resolvedFixtureDisplay(layoutOption).descriptionColumn
+              "
+              :detail-columns="
+                resolvedFixtureDisplay(layoutOption).detailColumns
+              "
+              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :link-to="linkTo"
+            />
+            <DisplayRecordsList
+              v-else-if="layoutOption === 'LIST'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :subtitle-template="
+                resolvedFixtureDisplay(layoutOption).subtitleTemplate
+              "
+              :description-column="
+                resolvedFixtureDisplay(layoutOption).descriptionColumn
+              "
+              :detail-columns="
+                resolvedFixtureDisplay(layoutOption).detailColumns
+              "
+              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :link-to="linkTo"
+            />
+            <DisplayRecordsLinks
+              v-else-if="layoutOption === 'LINKS'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :link-to="linkTo"
+            />
+            <DisplayRecordsBullets
+              v-else-if="layoutOption === 'BULLETS'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :link-to="linkTo"
+            />
+          </template>
         </div>
 
         <div
@@ -636,16 +705,78 @@ function panelTestId(
           <p class="mb-2 text-title font-bold">
             A colour the theme owns (footer)
           </p>
-          <DisplayDataList
+          <DisplayRecords
+            v-if="isLiveMode"
+            :schema-id="schemaId"
+            :table-id="tableId"
             :display-config="displayFor(layoutOption)"
-            :rows="isLiveMode ? undefined : fixtureRows"
-            :columns="isLiveMode ? undefined : fixtureColumns"
-            :schema-id="isLiveMode ? schemaId : undefined"
-            :table-id="isLiveMode ? tableId : undefined"
-            :filter="isLiveMode ? filter : undefined"
+            :filter="filter"
             :page-size="pageSize"
             :link-to="linkTo"
           />
+          <template v-else>
+            <DisplayRecordsTable
+              v-if="layoutOption === 'TABLE'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :columns="resolvedFixtureDisplay(layoutOption).detailColumns"
+              :link-to="linkTo"
+            />
+            <DisplayRecordsCards
+              v-else-if="layoutOption === 'CARDS'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :subtitle-template="
+                resolvedFixtureDisplay(layoutOption).subtitleTemplate
+              "
+              :description-column="
+                resolvedFixtureDisplay(layoutOption).descriptionColumn
+              "
+              :detail-columns="
+                resolvedFixtureDisplay(layoutOption).detailColumns
+              "
+              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :link-to="linkTo"
+            />
+            <DisplayRecordsList
+              v-else-if="layoutOption === 'LIST'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :subtitle-template="
+                resolvedFixtureDisplay(layoutOption).subtitleTemplate
+              "
+              :description-column="
+                resolvedFixtureDisplay(layoutOption).descriptionColumn
+              "
+              :detail-columns="
+                resolvedFixtureDisplay(layoutOption).detailColumns
+              "
+              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :link-to="linkTo"
+            />
+            <DisplayRecordsLinks
+              v-else-if="layoutOption === 'LINKS'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :link-to="linkTo"
+            />
+            <DisplayRecordsBullets
+              v-else-if="layoutOption === 'BULLETS'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :link-to="linkTo"
+            />
+          </template>
         </div>
 
         <div
@@ -655,16 +786,78 @@ function panelTestId(
           <p class="mb-2 text-title font-bold">
             The page's own gradient (no background class, surface-inverted)
           </p>
-          <DisplayDataList
+          <DisplayRecords
+            v-if="isLiveMode"
+            :schema-id="schemaId"
+            :table-id="tableId"
             :display-config="displayFor(layoutOption)"
-            :rows="isLiveMode ? undefined : fixtureRows"
-            :columns="isLiveMode ? undefined : fixtureColumns"
-            :schema-id="isLiveMode ? schemaId : undefined"
-            :table-id="isLiveMode ? tableId : undefined"
-            :filter="isLiveMode ? filter : undefined"
+            :filter="filter"
             :page-size="pageSize"
             :link-to="linkTo"
           />
+          <template v-else>
+            <DisplayRecordsTable
+              v-if="layoutOption === 'TABLE'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :columns="resolvedFixtureDisplay(layoutOption).detailColumns"
+              :link-to="linkTo"
+            />
+            <DisplayRecordsCards
+              v-else-if="layoutOption === 'CARDS'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :subtitle-template="
+                resolvedFixtureDisplay(layoutOption).subtitleTemplate
+              "
+              :description-column="
+                resolvedFixtureDisplay(layoutOption).descriptionColumn
+              "
+              :detail-columns="
+                resolvedFixtureDisplay(layoutOption).detailColumns
+              "
+              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :link-to="linkTo"
+            />
+            <DisplayRecordsList
+              v-else-if="layoutOption === 'LIST'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :subtitle-template="
+                resolvedFixtureDisplay(layoutOption).subtitleTemplate
+              "
+              :description-column="
+                resolvedFixtureDisplay(layoutOption).descriptionColumn
+              "
+              :detail-columns="
+                resolvedFixtureDisplay(layoutOption).detailColumns
+              "
+              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :link-to="linkTo"
+            />
+            <DisplayRecordsLinks
+              v-else-if="layoutOption === 'LINKS'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :link-to="linkTo"
+            />
+            <DisplayRecordsBullets
+              v-else-if="layoutOption === 'BULLETS'"
+              :rows="fixtureRows"
+              :title-template="
+                resolvedFixtureDisplay(layoutOption).titleTemplate
+              "
+              :link-to="linkTo"
+            />
+          </template>
         </div>
       </div>
     </div>

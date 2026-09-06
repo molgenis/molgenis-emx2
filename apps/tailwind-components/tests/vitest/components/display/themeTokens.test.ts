@@ -10,26 +10,30 @@ const FORBIDDEN_PATTERNS: { name: string; pattern: RegExp }[] = [
 ];
 
 const displayDir = join(__dirname, "../../../../app/components/display");
+const recordsDir = join(displayDir, "records");
 
-const dataComponentFiles = readdirSync(displayDir).filter(
-  (fileName) => fileName.startsWith("Data") && fileName.endsWith(".vue")
-);
+// The record-display family this suite guards: the Records.vue wrapper plus
+// every dumb layout under display/records/. Sibling files in display/ (e.g.
+// CodeBlock.vue, List.vue) belong to other components and are out of scope.
+const componentFiles = [
+  join(displayDir, "Records.vue"),
+  ...readdirSync(recordsDir)
+    .filter((fileName) => fileName.endsWith(".vue"))
+    .map((fileName) => join(recordsDir, fileName)),
+];
 
-describe("display/Data*.vue theme tokens", () => {
-  it("found at least one Data*.vue file to check", () => {
-    expect(dataComponentFiles.length).toBeGreaterThan(0);
+describe("display/**/*.vue theme tokens", () => {
+  it("found at least one component file to check", () => {
+    expect(componentFiles.length).toBeGreaterThan(0);
   });
 
-  it.each(dataComponentFiles)(
-    "%s uses only theme-token colours",
-    (fileName) => {
-      const contents = readFileSync(join(displayDir, fileName), "utf-8");
+  it.each(componentFiles)("%s uses only theme-token colours", (filePath) => {
+    const contents = readFileSync(filePath, "utf-8");
 
-      for (const { name, pattern } of FORBIDDEN_PATTERNS) {
-        expect(pattern.test(contents), `${fileName} contains a ${name}`).toBe(
-          false
-        );
-      }
+    for (const { name, pattern } of FORBIDDEN_PATTERNS) {
+      expect(pattern.test(contents), `${filePath} contains a ${name}`).toBe(
+        false
+      );
     }
-  );
+  });
 });

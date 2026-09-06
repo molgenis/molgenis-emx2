@@ -75,13 +75,14 @@ function asTemplate(columns: IColumn[]): string {
 // and leaves no subtitle behind.
 export function resolveTitleAndSubtitle(
   row: IRow,
-  resolvedDisplay: Pick<ResolvedDisplay, "titleTemplate" | "subtitleTemplate">
+  titleTemplate: string,
+  subtitleTemplate?: string
 ): { title: string; subtitle?: string } {
-  const title = resolvedDisplay.titleTemplate
-    ? columnValueToString(row, resolvedDisplay.titleTemplate) ?? ""
+  const title = titleTemplate
+    ? columnValueToString(row, titleTemplate) ?? ""
     : "";
-  const subtitle = resolvedDisplay.subtitleTemplate
-    ? columnValueToString(row, resolvedDisplay.subtitleTemplate) || undefined
+  const subtitle = subtitleTemplate
+    ? columnValueToString(row, subtitleTemplate) || undefined
     : undefined;
 
   if (!title && subtitle) {
