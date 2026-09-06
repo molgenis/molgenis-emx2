@@ -166,4 +166,39 @@ describe("DataCards.vue", () => {
     expect(gridItems[0].classes()).toContain("lg:even:border-l-0");
     expect(gridItems[1].classes()).toContain("lg:even:border-l-0");
   });
+
+  it("wraps detail pairs by their own min-width in LIST density, not by a viewport breakpoint, and keeps the stacked list in CARDS density", () => {
+    const listWrapper = mount(DataCards, {
+      props: { rows, resolved, columnCount: 1 },
+    });
+    expect(listWrapper.find("dl").classes()).toContain("flex-wrap");
+    expect(listWrapper.find("dl > div").classes()).toContain("min-w-[160px]");
+
+    const gridWrapper = mount(DataCards, {
+      props: { rows, resolved, columnCount: 2 },
+    });
+    expect(gridWrapper.find("dl").classes()).not.toContain("flex-wrap");
+    expect(gridWrapper.find("dl > div").classes()).not.toContain(
+      "min-w-[160px]"
+    );
+  });
+
+  it("forwards maxLines, renderLimit, truncate and hideListSeparator to value/EMX2.vue unchanged", () => {
+    const wrapper = mount(DataCards, {
+      props: {
+        rows,
+        resolved,
+        maxLines: 2,
+        renderLimit: 5,
+        truncate: false,
+        hideListSeparator: true,
+      },
+    });
+
+    const cellComponent = wrapper.findComponent(ValueEMX2);
+    expect(cellComponent.props("maxLines")).toBe(2);
+    expect(cellComponent.props("renderLimit")).toBe(5);
+    expect(cellComponent.props("truncate")).toBe(false);
+    expect(cellComponent.props("hideListSeparator")).toBe(true);
+  });
 });

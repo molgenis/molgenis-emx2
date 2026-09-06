@@ -89,4 +89,23 @@ describe("DataTable.vue", () => {
     expect(anchor.exists()).toBe(true);
     expect(anchor.text()).toBe("");
   });
+
+  it("forwards maxLines, renderLimit, truncate and hideListSeparator to value/EMX2.vue unchanged", () => {
+    const wrapper = mount(DataTable, {
+      props: {
+        rows,
+        resolved,
+        maxLines: 2,
+        renderLimit: 5,
+        truncate: false,
+        hideListSeparator: true,
+      },
+    });
+
+    const cellComponent = wrapper.findComponent(ValueEMX2);
+    expect(cellComponent.props("maxLines")).toBe(2);
+    expect(cellComponent.props("renderLimit")).toBe(5);
+    expect(cellComponent.props("truncate")).toBe(false);
+    expect(cellComponent.props("hideListSeparator")).toBe(true);
+  });
 });

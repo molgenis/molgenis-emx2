@@ -8,6 +8,10 @@ const props = defineProps<{
   rows: IRow[];
   resolved: ResolvedDisplay;
   linkTo?: (row: IRow) => string;
+  hideListSeparator?: boolean;
+  maxLines?: number;
+  renderLimit?: number;
+  truncate?: boolean;
 }>();
 
 function titleText(row: IRow): string {
@@ -56,7 +60,14 @@ function titleText(row: IRow): string {
             :key="column.id"
             class="py-2.5 px-2.5 text-table-row"
           >
-            <ValueEMX2 :metadata="column" :data="row[column.id]" />
+            <ValueEMX2
+              :metadata="column"
+              :data="row[column.id]"
+              :hide-list-separator="hideListSeparator"
+              :max-lines="maxLines"
+              :render-limit="renderLimit"
+              :truncate="truncate"
+            />
           </td>
         </tr>
       </tbody>

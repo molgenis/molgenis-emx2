@@ -11,6 +11,10 @@ const props = withDefaults(
     resolved: ResolvedDisplay;
     linkTo?: (row: IRow) => string;
     columnCount?: 1 | 2;
+    hideListSeparator?: boolean;
+    maxLines?: number;
+    renderLimit?: number;
+    truncate?: boolean;
   }>(),
   {
     columnCount: 2,
@@ -27,6 +31,23 @@ const gridClass = computed(() =>
 // the shared vertical rule is single too.
 const itemClass = computed(() =>
   props.columnCount === 2 ? "lg:even:border-l-0" : ""
+);
+
+// LIST density (columnCount 1) only: detail pairs sit label-above-value,
+// side by side while they fit, and wrap onto their own line when they do
+// not. The wrapping is driven by each pair's own min-width, not a viewport
+// breakpoint, so it degrades on its own regardless of how many detail
+// columns are configured. 160px matches the min-width the catalogue's own
+// ResourceCard.vue already gives its title column, the closest existing
+// precedent for a compact field-scale text block that needs room before it
+// wraps. CARDS density keeps the stacked label-beside-value rows.
+const detailsContainerClass = computed(() =>
+  props.columnCount === 1
+    ? "mt-3 flex flex-wrap gap-x-14 gap-y-2"
+    : "mt-3 grid gap-1"
+);
+const detailsPairClass = computed(() =>
+  props.columnCount === 1 ? "flex flex-col min-w-[160px]" : "flex gap-2"
 );
 
 function titleText(row: IRow): string {
@@ -81,17 +102,24 @@ function logoUrl(row: IRow): string | undefined {
       <p v-if="descriptionText(row)" class="mt-1 text-record-value">
         {{ descriptionText(row) }}
       </p>
-      <dl v-if="resolved.detailColumns.length" class="mt-3 grid gap-1">
+      <dl v-if="resolved.detailColumns.length" :class="detailsContainerClass">
         <div
           v-for="column in resolved.detailColumns"
           :key="column.id"
-          class="flex gap-2"
+          :class="detailsPairClass"
         >
           <dt class="text-record-label font-bold">
             {{ column.label || column.id }}
           </dt>
           <dd class="text-record-value">
-            <ValueEMX2 :metadata="column" :data="row[column.id]" />
+            <ValueEMX2
+              :metadata="column"
+              :data="row[column.id]"
+              :hide-list-separator="hideListSeparator"
+              :max-lines="maxLines"
+              :render-limit="renderLimit"
+              :truncate="truncate"
+            />
           </dd>
         </div>
       </dl>
