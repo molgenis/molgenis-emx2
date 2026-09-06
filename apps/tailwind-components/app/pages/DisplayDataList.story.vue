@@ -388,6 +388,27 @@ const PAGE_SIZE_OPTIONS: string[] = ["2", "4", "5", "6", "8", "10", "25", "50"];
 const pageSizeOption = ref("10");
 const pageSize = computed(() => Number(pageSizeOption.value));
 
+// DataList watches `filter` by identity, so it must come from a computed. An
+// object literal in the template would be a new object on every render, and
+// every render would refetch and reset to page 1.
+const filterText = ref("");
+const parsedFilter = computed<{
+  value?: Record<string, unknown>;
+  error?: string;
+}>(() => {
+  const text = filterText.value.trim();
+  if (!text) {
+    return {};
+  }
+  try {
+    return { value: JSON.parse(text) as Record<string, unknown> };
+  } catch {
+    return { error: "not valid JSON, so no filter is passed" };
+  }
+});
+const filter = computed(() => parsedFilter.value.value);
+const filterError = computed(() => parsedFilter.value.error);
+
 function displayFor(layout: Layout): DisplayConfig {
   return {
     layout,
@@ -537,6 +558,32 @@ function panelTestId(
           v-model="tableId"
         />
       </div>
+
+      <div v-if="isLiveMode" class="flex flex-col gap-1">
+        <label class="text-title-contrast" for="ddl-filter">
+          filter (GraphQL, as JSON)
+        </label>
+        <InputString
+          id="ddl-filter"
+          class="w-72"
+          placeholder='{"name":{"like":"pooky"}}'
+          v-model="filterText"
+          :aria-describedby="
+            filterError ? 'ddl-filter-error' : 'ddl-filter-hint'
+          "
+        />
+        <p
+          v-if="filterError"
+          id="ddl-filter-error"
+          class="text-title-contrast"
+          role="alert"
+        >
+          {{ filterError }}
+        </p>
+        <p v-else id="ddl-filter-hint" class="text-title-contrast">
+          Applies in live mode only. Paging and load more keep it.
+        </p>
+      </div>
     </div>
 
     <div class="flex-1 flex flex-col gap-8 px-4">
@@ -557,6 +604,7 @@ function panelTestId(
             :columns="isLiveMode ? undefined : fixtureColumns"
             :schema-id="isLiveMode ? schemaId : undefined"
             :table-id="isLiveMode ? tableId : undefined"
+            :filter="isLiveMode ? filter : undefined"
             :page-size="pageSize"
             :link-to="linkTo"
           />
@@ -575,6 +623,7 @@ function panelTestId(
             :columns="isLiveMode ? undefined : fixtureColumns"
             :schema-id="isLiveMode ? schemaId : undefined"
             :table-id="isLiveMode ? tableId : undefined"
+            :filter="isLiveMode ? filter : undefined"
             :page-size="pageSize"
             :link-to="linkTo"
           />
@@ -593,6 +642,7 @@ function panelTestId(
             :columns="isLiveMode ? undefined : fixtureColumns"
             :schema-id="isLiveMode ? schemaId : undefined"
             :table-id="isLiveMode ? tableId : undefined"
+            :filter="isLiveMode ? filter : undefined"
             :page-size="pageSize"
             :link-to="linkTo"
           />

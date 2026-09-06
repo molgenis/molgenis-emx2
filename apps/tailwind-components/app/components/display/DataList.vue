@@ -20,6 +20,8 @@ const props = withDefaults(
     columns?: IColumn[];
     schemaId?: string;
     tableId?: string;
+    // Watched by identity: pass a computed, not a literal, or every parent
+    // render refetches and resets to page 1.
     filter?: Record<string, unknown>;
     pageSize?: number;
     linkTo?: (row: IRow) => string;
