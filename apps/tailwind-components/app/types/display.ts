@@ -1,6 +1,6 @@
 import type { IColumn } from "../../../metadata-utils/src/types";
 
-export const LAYOUTS = ["TABLE", "CARDS", "LIST", "LINKS"] as const;
+export const LAYOUTS = ["TABLE", "CARDS", "LIST", "LINKS", "BULLETS"] as const;
 export type Layout = (typeof LAYOUTS)[number];
 
 export interface DisplayConfig {

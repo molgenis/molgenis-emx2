@@ -18,13 +18,12 @@ function titleText(row: IRow): string {
 </script>
 
 <template>
-  <p>
-    <template v-for="(row, rowIndex) in rows" :key="rowIndex">
-      <a v-if="linkTo" :href="linkTo(row)" class="text-link underline">{{
-        titleText(row)
-      }}</a>
+  <ul class="grid gap-1 pl-4 list-disc list-outside">
+    <li v-for="(row, rowIndex) in rows" :key="rowIndex">
+      <a v-if="linkTo" :href="linkTo(row)" class="text-link underline">
+        {{ titleText(row) }}
+      </a>
       <span v-else>{{ titleText(row) }}</span>
-      <span v-if="rowIndex < rows.length - 1">, </span>
-    </template>
-  </p>
+    </li>
+  </ul>
 </template>

@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import DataList from "../../../../app/components/display/DataList.vue";
 import DataCards from "../../../../app/components/display/DataCards.vue";
 import DataLinks from "../../../../app/components/display/DataLinks.vue";
+import DataBullets from "../../../../app/components/display/DataBullets.vue";
 import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
 import type { DisplayConfig } from "../../../../app/types/display";
 
@@ -92,6 +93,16 @@ describe("DataList.vue", () => {
       });
 
       expect(wrapper.findComponent(DataLinks).exists()).toBe(true);
+    });
+
+    it("renders BULLETS layout via display.layout, not DataLinks", () => {
+      const display: DisplayConfig = { layout: "BULLETS" };
+      const wrapper = mount(DataList, {
+        props: { rows: makeRows(2), columns, display },
+      });
+
+      expect(wrapper.findComponent(DataBullets).exists()).toBe(true);
+      expect(wrapper.findComponent(DataLinks).exists()).toBe(false);
     });
 
     it("resolves display once and passes detailColumns down to the layout", () => {

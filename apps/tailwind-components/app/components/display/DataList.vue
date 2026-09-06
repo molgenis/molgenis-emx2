@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
-import type { DisplayConfig } from "../../types/display";
+import type { DisplayConfig, Layout } from "../../types/display";
 import { resolveDisplay } from "../../utils/displayUtils";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
@@ -9,6 +9,7 @@ import Pagination from "../Pagination.vue";
 import DataTable from "./DataTable.vue";
 import DataCards from "./DataCards.vue";
 import DataLinks from "./DataLinks.vue";
+import DataBullets from "./DataBullets.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -108,6 +109,30 @@ const columns = computed(() =>
 
 const resolved = computed(() => resolveDisplay(columns.value, props.display));
 
+// The compiler proves every Layout is handled here; a value missing from
+// this switch is a typecheck failure, not a silent wrong render.
+function assertNever(layout: never): never {
+  throw new Error(`DataList: unhandled layout "${layout}"`);
+}
+
+const layoutView = computed(() => {
+  const layout: Layout = resolved.value.layout;
+  switch (layout) {
+    case "TABLE":
+      return { component: DataTable, columnCount: undefined };
+    case "CARDS":
+      return { component: DataCards, columnCount: 2 as const };
+    case "LIST":
+      return { component: DataCards, columnCount: 1 as const };
+    case "LINKS":
+      return { component: DataLinks, columnCount: undefined };
+    case "BULLETS":
+      return { component: DataBullets, columnCount: undefined };
+    default:
+      return assertNever(layout);
+  }
+});
+
 const totalRows = computed(() =>
   isFetchMode.value ? fetchedCount.value : props.rows?.length ?? 0
 );
@@ -140,31 +165,12 @@ function onPageUpdate(page: number) {
 
 <template>
   <div>
-    <DataTable
-      v-if="resolved.layout === 'TABLE'"
+    <component
+      :is="layoutView.component"
       :rows="pagedRows"
       :resolved="resolved"
       :link-to="linkTo"
-    />
-    <DataCards
-      v-else-if="resolved.layout === 'CARDS'"
-      :rows="pagedRows"
-      :resolved="resolved"
-      :column-count="2"
-      :link-to="linkTo"
-    />
-    <DataCards
-      v-else-if="resolved.layout === 'LIST'"
-      :rows="pagedRows"
-      :resolved="resolved"
-      :column-count="1"
-      :link-to="linkTo"
-    />
-    <DataLinks
-      v-else
-      :rows="pagedRows"
-      :resolved="resolved"
-      :link-to="linkTo"
+      :column-count="layoutView.columnCount"
     />
 
     <!-- pt-5: DataCards ends on a card border with a -mb-[1px] overlap, so
