@@ -2,9 +2,16 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import DataRows from "../../../../app/components/display/DataRows.vue";
 import DataPairs from "../../../../app/components/display/DataPairs.vue";
-import ShowMore from "../../../../app/components/ShowMore.vue";
+import ValueEMX2 from "../../../../app/components/value/EMX2.vue";
 import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
-import type { ResolvedDisplay } from "../../../../app/types/display";
+import type { DisplayConfig } from "../../../../app/types/display";
+
+const nameColumn: IColumn = {
+  id: "name",
+  label: "Name",
+  columnType: "STRING",
+  key: 1,
+};
 
 const ageColumn: IColumn = {
   id: "age",
@@ -12,22 +19,28 @@ const ageColumn: IColumn = {
   columnType: "INT",
 };
 
+const bioColumn: IColumn = {
+  id: "bio",
+  label: "Bio",
+  columnType: "TEXT",
+};
+
+// Title = name (the key column), description = bio (the only TEXT column),
+// detail = age (everything left over): all three slots come from
+// resolveDisplay's own defaults, not from an override.
+const columns: IColumn[] = [nameColumn, ageColumn, bioColumn];
+
 const rows: IRow[] = [
-  { name: "Tweety", age: 3 },
-  { name: "Sylvester", age: 5 },
+  { name: "Tweety", age: 3, bio: "A bird named Tweety" },
+  { name: "Sylvester", age: 5, bio: "A bird named Sylvester" },
 ];
 
-const resolved: ResolvedDisplay = {
-  layout: "LIST",
-  titleTemplate: "${name}",
-  descriptionTemplate: "A bird named ${name}",
-  detailColumns: [ageColumn],
-};
+const displayConfig: DisplayConfig = { layout: "LIST" };
 
 describe("DataRows.vue", () => {
   it("renders one row per record, with title and description, and passes its detail columns to DataPairs in the wide shape", () => {
     const wrapper = mount(DataRows, {
-      props: { rows, resolved },
+      props: { rows, columns, displayConfig },
     });
 
     const items = wrapper.findAll("li");
@@ -37,20 +50,38 @@ describe("DataRows.vue", () => {
 
     const pairsComponents = wrapper.findAllComponents(DataPairs);
     expect(pairsComponents.length).toBe(2);
-    expect(pairsComponents[0].props("columns")).toEqual(resolved.detailColumns);
+    expect(pairsComponents[0].props("columns")).toEqual([ageColumn]);
     expect(pairsComponents[0].props("row")).toEqual(rows[0]);
     expect(pairsComponents[0].props("wide")).toBe(true);
   });
 
+  it("renders from rows and displayConfig alone, with no columns prop, when titleTemplate is given explicitly", () => {
+    const wrapper = mount(DataRows, {
+      props: {
+        rows,
+        displayConfig: { layout: "LIST", titleTemplate: "${name}" },
+      },
+    });
+
+    expect(wrapper.findAll("li")[0].text()).toContain("Tweety");
+  });
+
   it("lays rows out in a single column", () => {
-    const wrapper = mount(DataRows, { props: { rows, resolved } });
+    const wrapper = mount(DataRows, {
+      props: { rows, columns, displayConfig },
+    });
     expect(wrapper.find("ul").classes()).toContain("grid-cols-1");
     expect(wrapper.find("ul").classes()).not.toContain("lg:grid-cols-2");
   });
 
   it("wraps the title in a real <a href> when linkTo is passed", () => {
     const wrapper = mount(DataRows, {
-      props: { rows, resolved, linkTo: (row: IRow) => `/records/${row.name}` },
+      props: {
+        rows,
+        columns,
+        displayConfig,
+        linkTo: (row: IRow) => `/records/${row.name}`,
+      },
     });
 
     const firstAnchor = wrapper.find("li a");
@@ -61,7 +92,7 @@ describe("DataRows.vue", () => {
 
   it("renders no anchor when linkTo is not passed", () => {
     const wrapper = mount(DataRows, {
-      props: { rows, resolved },
+      props: { rows, columns, displayConfig },
     });
 
     expect(wrapper.find("li a").exists()).toBe(false);
@@ -72,10 +103,6 @@ describe("DataRows.vue", () => {
       id: "logo",
       label: "Logo",
       columnType: "FILE",
-    };
-    const resolvedWithLogo: ResolvedDisplay = {
-      ...resolved,
-      logoColumn,
     };
     const wrapper = mount(DataRows, {
       props: {
@@ -92,7 +119,8 @@ describe("DataRows.vue", () => {
             },
           },
         ],
-        resolved: resolvedWithLogo,
+        columns: [...columns, logoColumn],
+        displayConfig: { layout: "LIST", logoColumnId: "logo" },
       },
     });
 
@@ -107,30 +135,22 @@ describe("DataRows.vue", () => {
       label: "Logo",
       columnType: "STRING",
     };
-    const resolvedWithLogo: ResolvedDisplay = {
-      ...resolved,
-      logoColumn,
-    };
     const wrapper = mount(DataRows, {
       props: {
         rows: [{ name: "Tweety", age: 3, logo: "not-a-file" }],
-        resolved: resolvedWithLogo,
+        columns: [...columns, logoColumn],
+        displayConfig: { layout: "LIST", logoColumnId: "logo" },
       },
     });
 
     expect(wrapper.find("img").exists()).toBe(false);
   });
 
-  it("renders no title text when resolved.titleTemplate is empty", () => {
-    const emptyResolved: ResolvedDisplay = {
-      layout: "LIST",
-      titleTemplate: "",
-      detailColumns: [],
-    };
+  it("renders no title text when titleTemplate resolves empty", () => {
     const wrapper = mount(DataRows, {
       props: {
         rows: [{ name: "LL", year: "2006" }],
-        resolved: emptyResolved,
+        displayConfig: { layout: "LIST", titleTemplate: "" },
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
     });
@@ -144,7 +164,9 @@ describe("DataRows.vue", () => {
   });
 
   it("borders every row with plain `border`, never `border-theme`, whose --border-width-theme is 0 in four themes", () => {
-    const wrapper = mount(DataRows, { props: { rows, resolved } });
+    const wrapper = mount(DataRows, {
+      props: { rows, columns, displayConfig },
+    });
     const items = wrapper.findAll("li");
     expect(items[0].classes()).toContain("border");
     expect(items[0].classes()).not.toContain("border-theme");
@@ -158,7 +180,8 @@ describe("DataRows.vue", () => {
     const wrapper = mount(DataRows, {
       props: {
         rows,
-        resolved,
+        columns,
+        displayConfig,
         maxLines: 2,
         renderLimit: 5,
         truncate: false,
@@ -183,36 +206,85 @@ describe("DataRows.vue", () => {
     // false rather than undefined unless the component declares an
     // explicit default, so DataRows must give hideEmpty an explicit
     // `undefined` default of its own to forward a genuine undefined.
-    const twoColumnsResolved: ResolvedDisplay = {
-      ...resolved,
-      detailColumns: [ageColumn, { id: "b", label: "B", columnType: "INT" }],
-    };
+    const bColumn: IColumn = { id: "b", label: "B", columnType: "INT" };
+    const twoDetailColumns = [...columns, bColumn];
     const omittedWrapper = mount(DataRows, {
-      props: { rows, resolved: twoColumnsResolved },
+      props: { rows, columns: twoDetailColumns, displayConfig },
     });
     expect(omittedWrapper.find("dl").attributes("data-fold-columns")).toBe("2");
 
     const disabledWrapper = mount(DataRows, {
-      props: { rows, resolved: twoColumnsResolved, hideEmpty: false },
+      props: {
+        rows,
+        columns: twoDetailColumns,
+        displayConfig,
+        hideEmpty: false,
+      },
     });
     expect(
       disabledWrapper.find("dl").attributes("data-fold-columns")
     ).toBeUndefined();
   });
 
-  it("forwards maxLines and truncate to ShowMore, without a default of its own, so the description is clamped", () => {
+  it("renders the description through value/EMX2.vue, forwarding maxLines and truncate unchanged so the clamp survives", () => {
     const wrapper = mount(DataRows, {
       props: {
         rows,
-        resolved,
+        columns,
+        displayConfig,
         maxLines: 7,
         truncate: false,
       },
     });
 
-    const showMore = wrapper.findComponent(ShowMore);
-    expect(showMore.exists()).toBe(true);
-    expect(showMore.props("maxLines")).toBe(7);
-    expect(showMore.props("truncate")).toBe(false);
+    const descriptionCell = wrapper.findComponent(ValueEMX2);
+    expect(descriptionCell.props("metadata")).toEqual(bioColumn);
+    expect(descriptionCell.props("data")).toBe("A bird named Tweety");
+    expect(descriptionCell.props("maxLines")).toBe(7);
+    expect(descriptionCell.props("truncate")).toBe(false);
+  });
+
+  it("renders no subtitle element when subtitleTemplate is not set", () => {
+    const wrapper = mount(DataRows, {
+      props: { rows, columns, displayConfig },
+    });
+
+    expect(wrapper.find("li span.mt-1\\.5").exists()).toBe(false);
+  });
+
+  it("renders the subtitle beside the title when subtitleTemplate is set", () => {
+    const wrapper = mount(DataRows, {
+      props: {
+        rows,
+        displayConfig: {
+          layout: "LIST",
+          titleTemplate: "${age}",
+          subtitleTemplate: "${name}",
+        },
+      },
+    });
+
+    const item = wrapper.findAll("li")[0];
+    expect(item.find(".font-bold").text()).toBe("3");
+    const subtitle = item.find("span.mt-1\\.5");
+    expect(subtitle.exists()).toBe(true);
+    expect(subtitle.text()).toBe("Tweety");
+  });
+
+  it("promotes the subtitle into the title slot, and renders no subtitle element, when the title is empty", () => {
+    const wrapper = mount(DataRows, {
+      props: {
+        rows,
+        displayConfig: {
+          layout: "LIST",
+          titleTemplate: "",
+          subtitleTemplate: "${name}",
+        },
+      },
+    });
+
+    const item = wrapper.findAll("li")[0];
+    expect(item.find(".font-bold").text()).toBe("Tweety");
+    expect(item.find("span.mt-1\\.5").exists()).toBe(false);
   });
 });

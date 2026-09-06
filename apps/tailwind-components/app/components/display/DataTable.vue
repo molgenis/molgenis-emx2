@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import type { IRow } from "../../../../metadata-utils/src/types";
-import type { ResolvedDisplay } from "../../types/display";
+import { computed } from "vue";
+import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
+import type { DisplayConfig } from "../../types/display";
 import { columnValueToString } from "../../utils/columnValueToString";
+import { resolveDisplay } from "../../utils/displayUtils";
 import ValueEMX2 from "../value/EMX2.vue";
 
 const props = defineProps<{
   rows: IRow[];
-  resolved: ResolvedDisplay;
+  columns?: IColumn[];
+  displayConfig?: DisplayConfig;
   linkTo?: (row: IRow) => string;
   hideListSeparator?: boolean;
   maxLines?: number;
@@ -14,11 +17,15 @@ const props = defineProps<{
   truncate?: boolean;
 }>();
 
+const resolved = computed(() =>
+  resolveDisplay(props.columns ?? [], props.displayConfig)
+);
+
 function titleText(row: IRow): string {
-  if (!props.resolved.titleTemplate) {
+  if (!resolved.value.titleTemplate) {
     return "";
   }
-  return columnValueToString(row, props.resolved.titleTemplate) ?? "";
+  return columnValueToString(row, resolved.value.titleTemplate) ?? "";
 }
 </script>
 

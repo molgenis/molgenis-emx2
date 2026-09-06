@@ -2,31 +2,31 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import DataBullets from "../../../../app/components/display/DataBullets.vue";
 import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
-import type { ResolvedDisplay } from "../../../../app/types/display";
+import type { DisplayConfig } from "../../../../app/types/display";
 
-const ageColumn: IColumn = {
-  id: "age",
-  label: "Age",
-  columnType: "INT",
+const nameColumn: IColumn = {
+  id: "name",
+  label: "Name",
+  columnType: "STRING",
+  key: 1,
 };
+
+const columns: IColumn[] = [nameColumn];
 
 const rows: IRow[] = [
   { name: "Tweety", age: 3 },
   { name: "Sylvester", age: 5 },
 ];
 
-const resolved: ResolvedDisplay = {
-  layout: "BULLETS",
-  titleTemplate: "${name}",
-  detailColumns: [ageColumn],
-};
+const displayConfig: DisplayConfig = { layout: "BULLETS" };
 
 describe("DataBullets.vue", () => {
   it("renders one bulleted anchor per record, with title text only", () => {
     const wrapper = mount(DataBullets, {
       props: {
         rows,
-        resolved,
+        columns,
+        displayConfig,
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
     });
@@ -47,7 +47,7 @@ describe("DataBullets.vue", () => {
 
   it("renders no anchor when linkTo is not passed", () => {
     const wrapper = mount(DataBullets, {
-      props: { rows, resolved },
+      props: { rows, columns, displayConfig },
     });
 
     expect(wrapper.find("a").exists()).toBe(false);
@@ -55,16 +55,23 @@ describe("DataBullets.vue", () => {
     expect(items[0].text()).toBe("Tweety");
   });
 
-  it("renders no title text when resolved.titleTemplate is empty", () => {
-    const emptyResolved: ResolvedDisplay = {
-      layout: "BULLETS",
-      titleTemplate: "",
-      detailColumns: [],
-    };
+  it("renders from rows and displayConfig alone, with no columns prop, when titleTemplate is given explicitly", () => {
+    const wrapper = mount(DataBullets, {
+      props: {
+        rows,
+        displayConfig: { layout: "BULLETS", titleTemplate: "${name}" },
+      },
+    });
+
+    const items = wrapper.findAll("li");
+    expect(items[0].text()).toBe("Tweety");
+  });
+
+  it("renders no title text when titleTemplate resolves empty", () => {
     const wrapper = mount(DataBullets, {
       props: {
         rows: [{ name: "LL", year: "2006" }],
-        resolved: emptyResolved,
+        displayConfig: { layout: "BULLETS", titleTemplate: "" },
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
     });

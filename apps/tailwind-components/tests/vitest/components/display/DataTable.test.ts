@@ -3,7 +3,14 @@ import { describe, expect, it } from "vitest";
 import DataTable from "../../../../app/components/display/DataTable.vue";
 import ValueEMX2 from "../../../../app/components/value/EMX2.vue";
 import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
-import type { ResolvedDisplay } from "../../../../app/types/display";
+import type { DisplayConfig } from "../../../../app/types/display";
+
+const nameColumn: IColumn = {
+  id: "name",
+  label: "Name",
+  columnType: "STRING",
+  key: 1,
+};
 
 const ageColumn: IColumn = {
   id: "age",
@@ -11,21 +18,19 @@ const ageColumn: IColumn = {
   columnType: "INT",
 };
 
+const columns: IColumn[] = [nameColumn, ageColumn];
+
 const rows: IRow[] = [
   { name: "Tweety", age: 3 },
   { name: "Sylvester", age: 5 },
 ];
 
-const resolved: ResolvedDisplay = {
-  layout: "TABLE",
-  titleTemplate: "${name}",
-  detailColumns: [ageColumn],
-};
+const displayConfig: DisplayConfig = { layout: "TABLE" };
 
 describe("DataTable.vue", () => {
   it("renders one table row per record, with the title in the first cell", () => {
     const wrapper = mount(DataTable, {
-      props: { rows, resolved },
+      props: { rows, columns, displayConfig },
     });
 
     const bodyRows = wrapper.find("tbody").findAll("tr");
@@ -36,7 +41,7 @@ describe("DataTable.vue", () => {
 
   it("renders detailColumns as the remaining columns, through value/EMX2.vue", () => {
     const wrapper = mount(DataTable, {
-      props: { rows, resolved },
+      props: { rows, columns, displayConfig },
     });
 
     const bodyRows = wrapper.find("tbody").findAll("tr");
@@ -50,9 +55,26 @@ describe("DataTable.vue", () => {
     expect(cellComponents[0].props("data")).toBe(3);
   });
 
+  it("renders from rows and displayConfig alone, with no columns prop, when titleTemplate is given explicitly", () => {
+    const wrapper = mount(DataTable, {
+      props: {
+        rows,
+        displayConfig: { layout: "TABLE", titleTemplate: "${name}" },
+      },
+    });
+
+    const bodyRows = wrapper.find("tbody").findAll("tr");
+    expect(bodyRows[0].findAll("td")[0].text()).toBe("Tweety");
+  });
+
   it("wraps the title in a real <a href> when linkTo is passed", () => {
     const wrapper = mount(DataTable, {
-      props: { rows, resolved, linkTo: (row: IRow) => `/records/${row.name}` },
+      props: {
+        rows,
+        columns,
+        displayConfig,
+        linkTo: (row: IRow) => `/records/${row.name}`,
+      },
     });
 
     const firstAnchor = wrapper.find("tbody tr td a");
@@ -63,22 +85,17 @@ describe("DataTable.vue", () => {
 
   it("renders no anchor when linkTo is not passed", () => {
     const wrapper = mount(DataTable, {
-      props: { rows, resolved },
+      props: { rows, columns, displayConfig },
     });
 
     expect(wrapper.find("tbody tr td a").exists()).toBe(false);
   });
 
-  it("renders no title text when resolved.titleTemplate is empty", () => {
-    const emptyResolved: ResolvedDisplay = {
-      layout: "TABLE",
-      titleTemplate: "",
-      detailColumns: [],
-    };
+  it("renders no title text when titleTemplate resolves empty", () => {
     const wrapper = mount(DataTable, {
       props: {
         rows: [{ name: "LL", year: "2006" }],
-        resolved: emptyResolved,
+        displayConfig: { layout: "TABLE", titleTemplate: "" },
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
     });
@@ -94,7 +111,8 @@ describe("DataTable.vue", () => {
     const wrapper = mount(DataTable, {
       props: {
         rows,
-        resolved,
+        columns,
+        displayConfig,
         maxLines: 2,
         renderLimit: 5,
         truncate: false,

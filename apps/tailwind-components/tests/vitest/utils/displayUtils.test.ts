@@ -31,9 +31,22 @@ describe("resolveDisplay", () => {
     expect(result.layout).toEqual("TABLE");
     expect(result.titleTemplate).toEqual("${firstName} ${lastName}");
     expect(result.titleTemplate).not.toContain("otherKey");
-    expect(result.descriptionTemplate).toEqual("${bio}");
+    expect(result.subtitleTemplate).toBeUndefined();
+    expect(result.descriptionColumn?.id).toEqual("bio");
     expect(result.detailColumns.map((c) => c.id)).toEqual(["email", "phone"]);
     expect(result.logoColumn).toBeUndefined();
+  });
+
+  test("descriptionColumn defaults to the first TEXT column, returned as a column", () => {
+    const bioColumn = column({ id: "bio", columnType: "TEXT", position: 2 });
+    const columns: IColumn[] = [
+      column({ id: "id", key: 1, position: 1 }),
+      bioColumn,
+    ];
+
+    const result = resolveDisplay(columns);
+
+    expect(result.descriptionColumn).toEqual(bioColumn);
   });
 
   test("a config that sets one slot keeps the defaults for the rest", () => {
@@ -45,16 +58,16 @@ describe("resolveDisplay", () => {
 
     const result = resolveDisplay(columns, {
       layout: "CARDS",
-      logoColumn: "name",
+      logoColumnId: "name",
     });
 
     expect(result.layout).toEqual("CARDS");
     expect(result.titleTemplate).toEqual("${acronym}");
-    expect(result.descriptionTemplate).toEqual("${description}");
+    expect(result.descriptionColumn?.id).toEqual("description");
     expect(result.logoColumn?.id).toEqual("name");
   });
 
-  test("an explicit titleTemplate and descriptionTemplate override the defaults", () => {
+  test("an explicit titleTemplate, subtitleTemplate and descriptionColumn override the defaults", () => {
     const columns: IColumn[] = [
       column({ id: "acronym", key: 1, position: 1 }),
       column({ id: "name", position: 2 }),
@@ -64,11 +77,13 @@ describe("resolveDisplay", () => {
     const result = resolveDisplay(columns, {
       layout: "CARDS",
       titleTemplate: "${name} (${acronym})",
-      descriptionTemplate: "custom description",
+      subtitleTemplate: "${name}",
+      descriptionColumnId: "name",
     });
 
     expect(result.titleTemplate).toEqual("${name} (${acronym})");
-    expect(result.descriptionTemplate).toEqual("custom description");
+    expect(result.subtitleTemplate).toEqual("${name}");
+    expect(result.descriptionColumn?.id).toEqual("name");
   });
 
   test("an explicit detailColumns list is resolved to columns, in the given order", () => {
@@ -80,7 +95,7 @@ describe("resolveDisplay", () => {
 
     const result = resolveDisplay(columns, {
       layout: "TABLE",
-      detailColumns: ["b", "a"],
+      detailColumnIds: ["b", "a"],
     });
 
     expect(result.detailColumns.map((c) => c.id)).toEqual(["b", "a"]);
@@ -90,7 +105,8 @@ describe("resolveDisplay", () => {
     const result = resolveDisplay([]);
 
     expect(result.titleTemplate).toEqual("");
-    expect(result.descriptionTemplate).toBeUndefined();
+    expect(result.subtitleTemplate).toBeUndefined();
+    expect(result.descriptionColumn).toBeUndefined();
     expect(result.detailColumns).toEqual([]);
     expect(result.logoColumn).toBeUndefined();
   });
@@ -104,7 +120,7 @@ describe("resolveDisplay", () => {
     expect(result.detailColumns).toEqual([]);
   });
 
-  test("a table with no TEXT column has no descriptionTemplate", () => {
+  test("a table with no TEXT column has no descriptionColumn", () => {
     const columns: IColumn[] = [
       column({ id: "id", key: 1, position: 1 }),
       column({ id: "name", position: 2 }),
@@ -112,7 +128,7 @@ describe("resolveDisplay", () => {
 
     const result = resolveDisplay(columns);
 
-    expect(result.descriptionTemplate).toBeUndefined();
+    expect(result.descriptionColumn).toBeUndefined();
   });
 
   test("a table with more than five non-key columns caps detailColumns at five, and excludes key, layout and mg_ columns", () => {

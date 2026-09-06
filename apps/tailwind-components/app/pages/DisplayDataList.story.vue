@@ -104,6 +104,20 @@ const fixtureRows: IRow[] = [
     country: "United Kingdom",
   },
   {
+    // Empty, not missing: demonstrates the promote rule (an empty title
+    // slot shows the subtitle's text instead) when titleTemplate is set to
+    // ${acronym} and subtitleTemplate to ${name}.
+    acronym: "",
+    name: "European Health Examination Survey",
+    description:
+      "A pilot survey harmonising health examinations across EU member states.",
+    website: "https://www.ehes.info",
+    logo: null,
+    startYear: 2009,
+    status: "Active",
+    country: "Multiple",
+  },
+  {
     acronym: "MoBa",
     name: "Norwegian Mother, Father and Child Cohort Study",
     description: null,
@@ -308,7 +322,8 @@ async function loadColumns() {
 // named.
 function resetColumnOverrides() {
   titleTemplate.value = "";
-  descriptionTemplate.value = "";
+  subtitleTemplate.value = "";
+  descriptionColumnId.value = "";
   detailColumnIds.value = [];
   logoColumnId.value = "";
 }
@@ -365,16 +380,8 @@ const titleTemplateModel = computed({
   },
 });
 
-const descriptionTemplate = ref("");
-const descriptionColumnId = computed({
-  get: () => {
-    const match = descriptionTemplate.value.match(/^\$\{(.+)\}$/);
-    return match ? match[1] : "";
-  },
-  set: (value: string) => {
-    descriptionTemplate.value = value ? `\${${value}}` : "";
-  },
-});
+const subtitleTemplate = ref("");
+const descriptionColumnId = ref("");
 
 const detailColumnIds = ref<string[]>([
   "website",
@@ -413,11 +420,12 @@ function displayFor(layout: Layout): DisplayConfig {
   return {
     layout,
     titleTemplate: titleTemplate.value || undefined,
-    descriptionTemplate: descriptionTemplate.value || undefined,
-    detailColumns: detailColumnIds.value.length
+    subtitleTemplate: subtitleTemplate.value || undefined,
+    descriptionColumnId: descriptionColumnId.value || undefined,
+    detailColumnIds: detailColumnIds.value.length
       ? detailColumnIds.value
       : undefined,
-    logoColumn: logoColumnId.value || undefined,
+    logoColumnId: logoColumnId.value || undefined,
   };
 }
 
@@ -456,6 +464,17 @@ function panelTestId(
           id="ddl-title-template"
           class="w-56"
           v-model="titleTemplateModel"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-title-contrast" for="ddl-subtitle-template">
+          subtitleTemplate
+        </label>
+        <InputString
+          id="ddl-subtitle-template"
+          class="w-56"
+          v-model="subtitleTemplate"
         />
       </div>
 
@@ -599,7 +618,7 @@ function panelTestId(
         >
           <p class="mb-2 text-title-contrast font-bold">Content surface</p>
           <DisplayDataList
-            :display="displayFor(layoutOption)"
+            :display-config="displayFor(layoutOption)"
             :rows="isLiveMode ? undefined : fixtureRows"
             :columns="isLiveMode ? undefined : fixtureColumns"
             :schema-id="isLiveMode ? schemaId : undefined"
@@ -618,7 +637,7 @@ function panelTestId(
             A colour the theme owns (footer)
           </p>
           <DisplayDataList
-            :display="displayFor(layoutOption)"
+            :display-config="displayFor(layoutOption)"
             :rows="isLiveMode ? undefined : fixtureRows"
             :columns="isLiveMode ? undefined : fixtureColumns"
             :schema-id="isLiveMode ? schemaId : undefined"
@@ -637,7 +656,7 @@ function panelTestId(
             The page's own gradient (no background class, surface-inverted)
           </p>
           <DisplayDataList
-            :display="displayFor(layoutOption)"
+            :display-config="displayFor(layoutOption)"
             :rows="isLiveMode ? undefined : fixtureRows"
             :columns="isLiveMode ? undefined : fixtureColumns"
             :schema-id="isLiveMode ? schemaId : undefined"

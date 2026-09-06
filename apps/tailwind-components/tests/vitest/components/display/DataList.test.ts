@@ -72,55 +72,78 @@ describe("DataList.vue", () => {
       expect(fetchTableMetadataMock).not.toHaveBeenCalled();
     });
 
-    it("renders CARDS layout via display.layout", () => {
-      const display: DisplayConfig = { layout: "CARDS" };
+    it("renders CARDS layout via displayConfig.layout", () => {
+      const displayConfig: DisplayConfig = { layout: "CARDS" };
       const wrapper = mount(DataList, {
-        props: { rows: makeRows(2), columns, display },
+        props: { rows: makeRows(2), columns, displayConfig },
       });
 
       expect(wrapper.findComponent(DataCards).exists()).toBe(true);
     });
 
-    it("renders LIST layout via display.layout, not DataCards", () => {
-      const display: DisplayConfig = { layout: "LIST" };
+    it("renders LIST layout via displayConfig.layout, not DataCards", () => {
+      const displayConfig: DisplayConfig = { layout: "LIST" };
       const wrapper = mount(DataList, {
-        props: { rows: makeRows(2), columns, display },
+        props: { rows: makeRows(2), columns, displayConfig },
       });
 
       expect(wrapper.findComponent(DataRows).exists()).toBe(true);
       expect(wrapper.findComponent(DataCards).exists()).toBe(false);
     });
 
-    it("renders LINKS layout via display.layout", () => {
-      const display: DisplayConfig = { layout: "LINKS" };
+    it("renders LINKS layout via displayConfig.layout", () => {
+      const displayConfig: DisplayConfig = { layout: "LINKS" };
       const wrapper = mount(DataList, {
-        props: { rows: makeRows(2), columns, display },
+        props: { rows: makeRows(2), columns, displayConfig },
       });
 
       expect(wrapper.findComponent(DataLinks).exists()).toBe(true);
     });
 
-    it("renders BULLETS layout via display.layout, not DataLinks", () => {
-      const display: DisplayConfig = { layout: "BULLETS" };
+    it("renders BULLETS layout via displayConfig.layout, not DataLinks", () => {
+      const displayConfig: DisplayConfig = { layout: "BULLETS" };
       const wrapper = mount(DataList, {
-        props: { rows: makeRows(2), columns, display },
+        props: { rows: makeRows(2), columns, displayConfig },
       });
 
       expect(wrapper.findComponent(DataBullets).exists()).toBe(true);
       expect(wrapper.findComponent(DataLinks).exists()).toBe(false);
     });
 
-    it("resolves display once and passes detailColumns down to the layout", () => {
-      const display: DisplayConfig = {
+    it("resolves displayConfig once and passes detailColumns down to the layout", () => {
+      const displayConfig: DisplayConfig = {
         layout: "TABLE",
-        detailColumns: ["age"],
+        detailColumnIds: ["age"],
       };
       const wrapper = mount(DataList, {
-        props: { rows: makeRows(1), columns, display },
+        props: { rows: makeRows(1), columns, displayConfig },
       });
 
       const headers = wrapper.findAll("th").map((th) => th.text());
       expect(headers).toEqual(["Title", "Age"]);
+    });
+
+    it("forwards maxLines, renderLimit, truncate, hideListSeparator and hideEmpty to the layout it renders", () => {
+      const listDisplayConfig: DisplayConfig = { layout: "LIST" };
+      const wrapper = mount(DataList, {
+        props: {
+          rows: makeRows(1),
+          columns,
+          displayConfig: listDisplayConfig,
+          maxLines: 2,
+          renderLimit: 5,
+          truncate: false,
+          hideListSeparator: true,
+          hideEmpty: false,
+        },
+      });
+
+      const layout = wrapper.findComponent(DataRows);
+      expect(layout.props("maxLines")).toBe(2);
+      expect(layout.props("renderLimit")).toBe(5);
+      expect(layout.props("truncate")).toBe(false);
+      expect(layout.props("hideListSeparator")).toBe(true);
+      expect(layout.props("hideEmpty")).toBe(false);
     });
   });
 
@@ -151,20 +174,20 @@ describe("DataList.vue", () => {
       expect(wrapper.findAll("tbody tr").length).toBe(3);
     });
 
-    it("renders CARDS layout via display.layout in fetch mode", async () => {
-      const display: DisplayConfig = { layout: "CARDS" };
+    it("renders CARDS layout via displayConfig.layout in fetch mode", async () => {
+      const displayConfig: DisplayConfig = { layout: "CARDS" };
       const wrapper = mount(DataList, {
-        props: { schemaId: "test-schema", tableId: "pet", display },
+        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
       });
       await flushPromises();
 
       expect(wrapper.findComponent(DataCards).exists()).toBe(true);
     });
 
-    it("renders LIST layout via display.layout in fetch mode, not DataCards", async () => {
-      const display: DisplayConfig = { layout: "LIST" };
+    it("renders LIST layout via displayConfig.layout in fetch mode, not DataCards", async () => {
+      const displayConfig: DisplayConfig = { layout: "LIST" };
       const wrapper = mount(DataList, {
-        props: { schemaId: "test-schema", tableId: "pet", display },
+        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
       });
       await flushPromises();
 
@@ -172,10 +195,10 @@ describe("DataList.vue", () => {
       expect(wrapper.findComponent(DataCards).exists()).toBe(false);
     });
 
-    it("renders LINKS layout via display.layout in fetch mode", async () => {
-      const display: DisplayConfig = { layout: "LINKS" };
+    it("renders LINKS layout via displayConfig.layout in fetch mode", async () => {
+      const displayConfig: DisplayConfig = { layout: "LINKS" };
       const wrapper = mount(DataList, {
-        props: { schemaId: "test-schema", tableId: "pet", display },
+        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
       });
       await flushPromises();
 
@@ -196,7 +219,7 @@ describe("DataList.vue", () => {
         props: {
           schemaId: "test-schema",
           tableId: "pet",
-          display: { layout: "TABLE", detailColumns: ["owner"] },
+          displayConfig: { layout: "TABLE", detailColumnIds: ["owner"] },
         },
       });
       await flushPromises();
@@ -310,14 +333,14 @@ describe("DataList.vue", () => {
     ] as const)(
       "requests %s's own batch size on the first fetch, not pageSize",
       async (layout, batchSize) => {
-        const display: DisplayConfig = { layout };
+        const displayConfig: DisplayConfig = { layout };
         fetchTableDataMock.mockResolvedValue({ rows: makeRows(3), count: 3 });
         mount(DataList, {
           props: {
             schemaId: "test-schema",
             tableId: "pet",
             pageSize: 3,
-            display,
+            displayConfig,
           },
         });
         await flushPromises();
@@ -331,14 +354,14 @@ describe("DataList.vue", () => {
     );
 
     it("shows remaining in the load-more control, advances offset on click, and drops the control at zero", async () => {
-      const display: DisplayConfig = { layout: "LINKS" };
+      const displayConfig: DisplayConfig = { layout: "LINKS" };
       fetchTableDataMock
         .mockResolvedValueOnce({ rows: makeRows(50), count: 130 })
         .mockResolvedValueOnce({ rows: makeRows(50), count: 130 })
         .mockResolvedValueOnce({ rows: makeRows(30), count: 130 });
 
       const wrapper = mount(DataList, {
-        props: { schemaId: "test-schema", tableId: "pet", display },
+        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
       });
       await flushPromises();
 
@@ -380,9 +403,9 @@ describe("DataList.vue", () => {
         .mockReturnValueOnce(loadMoreResponse)
         .mockResolvedValueOnce({ rows: makeRows(1), count: 1 });
 
-      const display: DisplayConfig = { layout: "LINKS" };
+      const displayConfig: DisplayConfig = { layout: "LINKS" };
       const wrapper = mount(DataList, {
-        props: { schemaId: "test-schema", tableId: "pet", display },
+        props: { schemaId: "test-schema", tableId: "pet", displayConfig },
       });
       await flushPromises();
 
@@ -528,9 +551,9 @@ describe("DataList.vue", () => {
     ] as const)(
       "renders Pagination for %s only when the layout pages (paginated: %s)",
       (layout, paginated) => {
-        const display: DisplayConfig = { layout };
+        const displayConfig: DisplayConfig = { layout };
         const wrapper = mount(DataList, {
-          props: { rows: makeRows(2), columns, display },
+          props: { rows: makeRows(2), columns, displayConfig },
         });
 
         expect(wrapper.findComponent(Pagination).exists()).toBe(paginated);
@@ -538,13 +561,13 @@ describe("DataList.vue", () => {
     );
 
     it("gives LINKS and BULLETS every row instead of one pageSize-wide slice", () => {
-      const linksDisplay: DisplayConfig = { layout: "LINKS" };
+      const linksDisplayConfig: DisplayConfig = { layout: "LINKS" };
       const wrapper = mount(DataList, {
         props: {
           rows: makeRows(12),
           columns,
           pageSize: 5,
-          display: linksDisplay,
+          displayConfig: linksDisplayConfig,
         },
       });
 
@@ -552,9 +575,9 @@ describe("DataList.vue", () => {
     });
 
     it("renders no load-more control and no range line for LINKS/BULLETS in fixture mode", () => {
-      const display: DisplayConfig = { layout: "LINKS" };
+      const displayConfig: DisplayConfig = { layout: "LINKS" };
       const wrapper = mount(DataList, {
-        props: { rows: makeRows(12), columns, display },
+        props: { rows: makeRows(12), columns, displayConfig },
       });
 
       expect(wrapper.findComponent(ShowMore).exists()).toBe(false);

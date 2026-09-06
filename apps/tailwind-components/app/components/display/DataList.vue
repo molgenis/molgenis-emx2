@@ -15,7 +15,7 @@ import DataBullets from "./DataBullets.vue";
 
 const props = withDefaults(
   defineProps<{
-    display?: DisplayConfig;
+    displayConfig?: DisplayConfig;
     rows?: IRow[];
     columns?: IColumn[];
     schemaId?: string;
@@ -25,6 +25,11 @@ const props = withDefaults(
     filter?: Record<string, unknown>;
     pageSize?: number;
     linkTo?: (row: IRow) => string;
+    hideListSeparator?: boolean;
+    maxLines?: number;
+    renderLimit?: number;
+    truncate?: boolean;
+    hideEmpty?: boolean;
   }>(),
   {
     pageSize: 10,
@@ -81,7 +86,9 @@ const columns = computed(() =>
   isFetchMode.value ? fetchedColumns.value : props.columns ?? []
 );
 
-const resolved = computed(() => resolveDisplay(columns.value, props.display));
+const resolvedDisplay = computed(() =>
+  resolveDisplay(columns.value, props.displayConfig)
+);
 
 // The compiler proves every Layout is handled here; a value missing from
 // this switch is a typecheck failure, not a silent wrong render.
@@ -93,7 +100,7 @@ function assertNever(layout: never): never {
 // demand through their own load-more instead, batchSize rows at a time: a
 // bulleted list takes one line each, a comma-separated run is compact.
 const layoutView = computed(() => {
-  const layout: Layout = resolved.value.layout;
+  const layout: Layout = resolvedDisplay.value.layout;
   switch (layout) {
     case "TABLE":
       return { component: DataTable, paginated: true, batchSize: undefined };
@@ -214,8 +221,14 @@ function onPageUpdate(page: number) {
     <component
       :is="layoutView.component"
       :rows="pagedRows"
-      :resolved="resolved"
+      :columns="columns"
+      :display-config="displayConfig"
       :link-to="linkTo"
+      :hide-list-separator="hideListSeparator"
+      :max-lines="maxLines"
+      :render-limit="renderLimit"
+      :truncate="truncate"
+      :hide-empty="hideEmpty"
     />
 
     <!-- pt-5: CARDS and LIST end on a card border with a -mb-[1px] overlap,

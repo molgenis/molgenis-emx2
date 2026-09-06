@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import { isFileValue, type IRow } from "../../../../metadata-utils/src/types";
-import type { ResolvedDisplay } from "../../types/display";
-import { columnValueToString } from "../../utils/columnValueToString";
+import { computed } from "vue";
+import {
+  isFileValue,
+  type IColumn,
+  type IRow,
+} from "../../../../metadata-utils/src/types";
+import type { DisplayConfig } from "../../types/display";
+import {
+  resolveDisplay,
+  resolveTitleAndSubtitle,
+} from "../../utils/displayUtils";
 import DataPairs from "./DataPairs.vue";
-import ShowMore from "../ShowMore.vue";
+import ValueEMX2 from "../value/EMX2.vue";
 
 const props = withDefaults(
   defineProps<{
     rows: IRow[];
-    resolved: ResolvedDisplay;
+    columns?: IColumn[];
+    displayConfig?: DisplayConfig;
     linkTo?: (row: IRow) => string;
     hideListSeparator?: boolean;
     maxLines?: number;
@@ -24,24 +33,20 @@ const props = withDefaults(
   }
 );
 
-function titleText(row: IRow): string {
-  if (!props.resolved.titleTemplate) {
-    return "";
-  }
-  return columnValueToString(row, props.resolved.titleTemplate) ?? "";
+const resolved = computed(() =>
+  resolveDisplay(props.columns ?? [], props.displayConfig)
+);
+
+function title(row: IRow): string {
+  return resolveTitleAndSubtitle(row, resolved.value).title;
 }
 
-function descriptionText(row: IRow): string | undefined {
-  if (!props.resolved.descriptionTemplate) {
-    return undefined;
-  }
-  return (
-    columnValueToString(row, props.resolved.descriptionTemplate) || undefined
-  );
+function subtitle(row: IRow): string | undefined {
+  return resolveTitleAndSubtitle(row, resolved.value).subtitle;
 }
 
 function logoUrl(row: IRow): string | undefined {
-  const logoColumn = props.resolved.logoColumn;
+  const logoColumn = resolved.value.logoColumn;
   if (!logoColumn) {
     return undefined;
   }
@@ -70,18 +75,26 @@ function logoUrl(row: IRow): string | undefined {
       />
       <div class="font-bold text-record-heading">
         <a v-if="linkTo" :href="linkTo(row)" class="text-link underline">
-          {{ titleText(row) }}
+          {{ title(row) }}
         </a>
-        <span v-else>{{ titleText(row) }}</span>
+        <span v-else>{{ title(row) }}</span>
       </div>
-      <ShowMore
-        v-if="descriptionText(row)"
-        class="mt-1 text-record-value"
-        :max-lines="maxLines"
-        :truncate="truncate"
+      <span
+        v-if="subtitle(row)"
+        class="mt-1.5 block md:inline text-record-value"
       >
-        {{ descriptionText(row) }}
-      </ShowMore>
+        {{ subtitle(row) }}
+      </span>
+      <div v-if="resolved.descriptionColumn" class="mt-1 text-record-value">
+        <ValueEMX2
+          :metadata="resolved.descriptionColumn"
+          :data="row[resolved.descriptionColumn.id]"
+          :hide-list-separator="hideListSeparator"
+          :max-lines="maxLines"
+          :render-limit="renderLimit"
+          :truncate="truncate"
+        />
+      </div>
       <DataPairs
         v-if="resolved.detailColumns.length"
         wide

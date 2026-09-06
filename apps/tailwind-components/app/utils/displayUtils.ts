@@ -1,15 +1,18 @@
-import type { IColumn } from "../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../metadata-utils/src/types";
 import type { DisplayConfig, ResolvedDisplay } from "../types/display";
+import { columnValueToString } from "./columnValueToString";
 
 const DEFAULT_LAYOUT = "TABLE";
 const MAX_DETAIL_COLUMNS = 5;
 
 export function resolveDisplay(
   columns: IColumn[],
-  config?: DisplayConfig
+  settings?: DisplayConfig
 ): ResolvedDisplay {
   const titleColumns = defaultTitleColumns(columns);
-  const descriptionColumn = defaultDescriptionColumn(columns);
+  const descriptionColumn = settings?.descriptionColumnId
+    ? columns.find((column) => column.id === settings.descriptionColumnId)
+    : defaultDescriptionColumn(columns);
 
   const usedColumnIds = new Set([
     ...titleColumns.map((column) => column.id),
@@ -17,16 +20,15 @@ export function resolveDisplay(
   ]);
 
   return {
-    layout: config?.layout ?? DEFAULT_LAYOUT,
-    titleTemplate: config?.titleTemplate ?? asTemplate(titleColumns),
-    descriptionTemplate:
-      config?.descriptionTemplate ??
-      (descriptionColumn ? asTemplate([descriptionColumn]) : undefined),
-    detailColumns: config?.detailColumns
-      ? findColumnsByIds(columns, config.detailColumns)
+    layout: settings?.layout ?? DEFAULT_LAYOUT,
+    titleTemplate: settings?.titleTemplate ?? asTemplate(titleColumns),
+    subtitleTemplate: settings?.subtitleTemplate,
+    descriptionColumn,
+    detailColumns: settings?.detailColumnIds
+      ? findColumnsByIds(columns, settings.detailColumnIds)
       : defaultDetailColumns(columns, usedColumnIds),
-    logoColumn: config?.logoColumn
-      ? columns.find((column) => column.id === config.logoColumn)
+    logoColumn: settings?.logoColumnId
+      ? columns.find((column) => column.id === settings.logoColumnId)
       : undefined,
   };
 }
@@ -65,4 +67,25 @@ function findColumnsByIds(columns: IColumn[], ids: string[]): IColumn[] {
 
 function asTemplate(columns: IColumn[]): string {
   return columns.map((column) => `\${${column.id}}`).join(" ");
+}
+
+// Mirrors catalogue's `resource.acronym || resource.name` /
+// `resource.acronym ? resource.name : ""`: when the title is empty, the
+// subtitle carries the record's identity, so it promotes into the title slot
+// and leaves no subtitle behind.
+export function resolveTitleAndSubtitle(
+  row: IRow,
+  resolvedDisplay: Pick<ResolvedDisplay, "titleTemplate" | "subtitleTemplate">
+): { title: string; subtitle?: string } {
+  const title = resolvedDisplay.titleTemplate
+    ? columnValueToString(row, resolvedDisplay.titleTemplate) ?? ""
+    : "";
+  const subtitle = resolvedDisplay.subtitleTemplate
+    ? columnValueToString(row, resolvedDisplay.subtitleTemplate) || undefined
+    : undefined;
+
+  if (!title && subtitle) {
+    return { title: subtitle };
+  }
+  return { title, subtitle };
 }

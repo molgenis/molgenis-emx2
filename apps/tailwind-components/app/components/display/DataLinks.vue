@@ -1,19 +1,33 @@
 <script setup lang="ts">
-import type { IRow } from "../../../../metadata-utils/src/types";
-import type { ResolvedDisplay } from "../../types/display";
+import { computed } from "vue";
+import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
+import type { DisplayConfig } from "../../types/display";
 import { columnValueToString } from "../../utils/columnValueToString";
+import { resolveDisplay } from "../../utils/displayUtils";
 
+// hideListSeparator/maxLines/renderLimit/truncate are unused here (DataLinks
+// renders the title only, no ValueEMX2), but every layout takes the same
+// config surface so DataList can forward them without a per-layout branch.
 const props = defineProps<{
   rows: IRow[];
-  resolved: ResolvedDisplay;
+  columns?: IColumn[];
+  displayConfig?: DisplayConfig;
   linkTo?: (row: IRow) => string;
+  hideListSeparator?: boolean;
+  maxLines?: number;
+  renderLimit?: number;
+  truncate?: boolean;
 }>();
 
+const resolved = computed(() =>
+  resolveDisplay(props.columns ?? [], props.displayConfig)
+);
+
 function titleText(row: IRow): string {
-  if (!props.resolved.titleTemplate) {
+  if (!resolved.value.titleTemplate) {
     return "";
   }
-  return columnValueToString(row, props.resolved.titleTemplate) ?? "";
+  return columnValueToString(row, resolved.value.titleTemplate) ?? "";
 }
 </script>
 
