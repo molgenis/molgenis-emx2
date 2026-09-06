@@ -10,7 +10,6 @@ import { clearNuxtData } from "#app";
 enableAutoUnmount(afterEach);
 import Records from "../../../../app/components/display/Records.vue";
 import Pagination from "../../../../app/components/Pagination.vue";
-import ShowMore from "../../../../app/components/ShowMore.vue";
 import RecordsCards from "../../../../app/components/display/records/Cards.vue";
 import RecordsList from "../../../../app/components/display/records/List.vue";
 import RecordsLinks from "../../../../app/components/display/records/Links.vue";
@@ -436,7 +435,7 @@ describe("Records.vue", () => {
       });
       await flushPromises();
 
-      const control = () => wrapper.findComponent(ShowMore).find("button");
+      const control = () => wrapper.find("button");
       expect(control().text()).toBe("Load more (80)");
 
       await control().trigger("click");
@@ -457,9 +456,7 @@ describe("Records.vue", () => {
         "pet",
         expect.objectContaining({ offset: 100, limit: 50 })
       );
-      expect(wrapper.findComponent(ShowMore).find("button").exists()).toBe(
-        false
-      );
+      expect(wrapper.find("button").exists()).toBe(false);
     });
 
     it("discards a stale load-more append when a filter change lands first", async () => {
@@ -480,7 +477,7 @@ describe("Records.vue", () => {
       });
       await flushPromises();
 
-      await wrapper.findComponent(ShowMore).find("button").trigger("click");
+      await wrapper.find("button").trigger("click");
       await wrapper.setProps({ filter: { a: 1 } });
       await flushPromises();
 
@@ -497,7 +494,7 @@ describe("Records.vue", () => {
         props: { schemaId: "test-schema", tableId: "pet", displayConfig },
       });
 
-      expect(wrapper.findComponent(ShowMore).props("hasMore")).toBe(false);
+      expect(wrapper.find("button").exists()).toBe(false);
       expect(wrapper.find("p.text-pagination").exists()).toBe(false);
     });
 
@@ -532,6 +529,44 @@ describe("Records.vue", () => {
         "pet",
         expect.objectContaining({ limit: 3, offset: 0 })
       );
+    });
+  });
+
+  describe("fetch failure", () => {
+    it("shows an error message naming the table instead of an empty layout", async () => {
+      fetchTableMetadataMock.mockRejectedValueOnce(new Error("boom"));
+      const wrapper = mount(Records, {
+        props: { schemaId: "test-schema", tableId: "pet" },
+      });
+      await flushPromises();
+
+      expect(wrapper.text()).toContain("Could not load pet");
+      expect(wrapper.find("table").exists()).toBe(false);
+    });
+  });
+
+  describe("filter identity", () => {
+    it("does not refetch or reset the page when a parent passes an equal but distinct filter object", async () => {
+      fetchTableDataMock.mockResolvedValue({ rows: makeRows(3), count: 9 });
+      const wrapper = mount(Records, {
+        props: {
+          schemaId: "test-schema",
+          tableId: "pet",
+          pageSize: 3,
+          filter: { a: 1 },
+        },
+      });
+      await flushPromises();
+      const nextControl = wrapper.findAll("nav a").at(-1)!;
+      await nextControl.trigger("click");
+      await flushPromises();
+      fetchTableDataMock.mockClear();
+
+      await wrapper.setProps({ filter: { a: 1 } });
+      await flushPromises();
+
+      expect(fetchTableDataMock).not.toHaveBeenCalled();
+      expect(wrapper.find("p").text()).toBe("4 - 6 of 9");
     });
   });
 });

@@ -6,8 +6,9 @@ import type { DisplayConfig } from "../../types/display";
 import { resolveDisplay, resolveLayout } from "../../utils/displayUtils";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import Button from "../Button.vue";
+import Message from "../Message.vue";
 import Pagination from "../Pagination.vue";
-import ShowMore from "../ShowMore.vue";
 import RecordsTable from "./records/Table.vue";
 import RecordsCards from "./records/Cards.vue";
 import RecordsList from "./records/List.vue";
@@ -19,8 +20,8 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     displayConfig?: DisplayConfig;
-    // Watched by identity: pass a computed, not a literal, or every parent
-    // render refetches and resets to page 1.
+    // Compared by value (JSON.stringify), not identity: a literal object
+    // here is fine.
     filter?: Record<string, unknown>;
     pageSize?: number;
     linkTo?: (row: IRow) => string;
@@ -64,6 +65,10 @@ const layoutMeta = computed(() => {
   }
 });
 
+// JSON.stringify once, so a filter passed as a fresh object literal every
+// render compares equal instead of refetching and resetting to page 1.
+const filterKey = computed(() => JSON.stringify(props.filter ?? null));
+
 // Any input that changes what the result set IS goes back to page 1. This
 // must run before useAsyncData's own key/watch react to the same change, so
 // it stays "sync": useAsyncData's key watcher is sync internally, and a
@@ -72,7 +77,7 @@ watch(
   () => [
     props.schemaId,
     props.tableId,
-    props.filter,
+    filterKey.value,
     props.pageSize,
     layout.value,
   ],
@@ -94,12 +99,10 @@ let latestRequestId = 0;
 const instanceId = useId();
 const asyncDataKey = computed(
   () =>
-    `records-${instanceId}-${props.schemaId}-${props.tableId}-${JSON.stringify(
-      props.filter ?? null
-    )}-${layout.value}-${currentPage.value}`
+    `records-${instanceId}-${props.schemaId}-${props.tableId}-${filterKey.value}-${layout.value}-${currentPage.value}`
 );
 
-const { data } = useAsyncData(
+const { data, error } = useAsyncData(
   asyncDataKey,
   async () => {
     latestRequestId++;
@@ -125,7 +128,7 @@ const { data } = useAsyncData(
     watch: [
       () => props.schemaId,
       () => props.tableId,
-      () => props.filter,
+      filterKey,
       () => props.pageSize,
       layout,
       currentPage,
@@ -201,7 +204,10 @@ function onPageUpdate(page: number) {
 </script>
 
 <template>
-  <div>
+  <Message v-if="error" :id="`${instanceId}-error`" invalid>
+    Could not load {{ tableId }}.
+  </Message>
+  <div v-else>
     <RecordsTable
       v-if="resolvedDisplay.layout === 'TABLE'"
       :rows="fetchedRows"
@@ -252,9 +258,9 @@ function onPageUpdate(page: number) {
       class="pt-5 pb-[30px]"
       @update="onPageUpdate"
     />
-    <ShowMore v-else :has-more="hasMore" @show-more="loadMore">
-      <template #more>Load more ({{ remaining }})</template>
-    </ShowMore>
+    <Button v-else-if="hasMore" type="text" size="small" @click="loadMore">
+      Load more ({{ remaining }})
+    </Button>
 
     <p v-if="layoutMeta.paginated" class="text-center text-pagination">
       {{ rangeText }} of {{ fetchedCount }}
