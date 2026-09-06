@@ -116,19 +116,22 @@ function assertNever(layout: never): never {
   throw new Error(`DataList: unhandled layout "${layout}"`);
 }
 
+// TABLE, CARDS and LIST page through Pagination. LINKS and BULLETS grow on
+// demand through their own ShowMore instead, so they get every row DataList
+// has rather than one pageSize-wide slice of it, and no pager or range line.
 const layoutView = computed(() => {
   const layout: Layout = resolved.value.layout;
   switch (layout) {
     case "TABLE":
-      return { component: DataTable };
+      return { component: DataTable, paginated: true };
     case "CARDS":
-      return { component: DataCards };
+      return { component: DataCards, paginated: true };
     case "LIST":
-      return { component: DataRows };
+      return { component: DataRows, paginated: true };
     case "LINKS":
-      return { component: DataLinks };
+      return { component: DataLinks, paginated: false };
     case "BULLETS":
-      return { component: DataBullets };
+      return { component: DataBullets, paginated: false };
     default:
       return assertNever(layout);
   }
@@ -145,6 +148,9 @@ const totalPages = computed(() =>
 const pagedRows = computed(() => {
   if (isFetchMode.value) {
     return fetchedRows.value;
+  }
+  if (!layoutView.value.paginated) {
+    return props.rows ?? [];
   }
   const start = (currentPage.value - 1) * props.pageSize;
   return (props.rows ?? []).slice(start, start + props.pageSize);
@@ -173,16 +179,19 @@ function onPageUpdate(page: number) {
       :link-to="linkTo"
     />
 
-    <!-- pt-5: CARDS and LIST end on a card border with a -mb-[1px] overlap,
-    so the pager needs a gap above it or it lands right on that line. -->
-    <Pagination
-      :current-page="currentPage"
-      :total-pages="totalPages"
-      class="pt-5 pb-[30px]"
-      @update="onPageUpdate"
-    />
-    <p class="text-center text-pagination">
-      {{ rangeText }} of {{ totalRows }}
-    </p>
+    <template v-if="layoutView.paginated">
+      <!-- pt-5: CARDS and LIST end on a card border with a -mb-[1px]
+      overlap, so the pager needs a gap above it or it lands right on that
+      line. -->
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        class="pt-5 pb-[30px]"
+        @update="onPageUpdate"
+      />
+      <p class="text-center text-pagination">
+        {{ rangeText }} of {{ totalRows }}
+      </p>
+    </template>
   </div>
 </template>

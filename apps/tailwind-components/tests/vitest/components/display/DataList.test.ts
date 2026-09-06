@@ -3,6 +3,7 @@ import { readdirSync } from "fs";
 import { resolve } from "path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import DataList from "../../../../app/components/display/DataList.vue";
+import Pagination from "../../../../app/components/Pagination.vue";
 import DataCards from "../../../../app/components/display/DataCards.vue";
 import DataRows from "../../../../app/components/display/DataRows.vue";
 import DataLinks from "../../../../app/components/display/DataLinks.vue";
@@ -423,6 +424,38 @@ describe("DataList.vue", () => {
         /pag(e|er|ination)/i.test(file)
       );
       expect(pagerFiles).toEqual([]);
+    });
+
+    it.each([
+      ["TABLE", true],
+      ["CARDS", true],
+      ["LIST", true],
+      ["LINKS", false],
+      ["BULLETS", false],
+    ] as const)(
+      "renders Pagination for %s only when the layout pages (paginated: %s)",
+      (layout, paginated) => {
+        const display: DisplayConfig = { layout };
+        const wrapper = mount(DataList, {
+          props: { rows: makeRows(2), columns, display },
+        });
+
+        expect(wrapper.findComponent(Pagination).exists()).toBe(paginated);
+      }
+    );
+
+    it("gives LINKS and BULLETS every row instead of one pageSize-wide slice", () => {
+      const linksDisplay: DisplayConfig = { layout: "LINKS" };
+      const wrapper = mount(DataList, {
+        props: {
+          rows: makeRows(12),
+          columns,
+          pageSize: 5,
+          display: linksDisplay,
+        },
+      });
+
+      expect(wrapper.findComponent(DataLinks).props("rows")).toHaveLength(12);
     });
   });
 });
