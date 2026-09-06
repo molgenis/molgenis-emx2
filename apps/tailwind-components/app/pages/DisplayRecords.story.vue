@@ -395,7 +395,7 @@ const PAGE_SIZE_OPTIONS: string[] = ["2", "4", "5", "6", "8", "10", "25", "50"];
 const pageSizeOption = ref("10");
 const pageSize = computed(() => Number(pageSizeOption.value));
 
-// DataList watches `filter` by identity, so it must come from a computed. An
+// DisplayRecords watches `filter` by identity, so it must come from a computed. An
 // object literal in the template would be a new object on every render, and
 // every render would refetch and reset to page 1.
 const filterText = ref("");
