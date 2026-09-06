@@ -13,8 +13,15 @@ export interface ResolvedDisplay {
 }
 import { columnValueToString } from "./columnValueToString";
 
-const DEFAULT_LAYOUT = "TABLE";
+const DEFAULT_LAYOUT: Layout = "TABLE";
 const MAX_DETAIL_COLUMNS = 5;
+
+// The layout never depends on columns, only on the caller's config, so a
+// caller that needs the layout before columns exist (a fetch keying itself
+// on it) can call this instead of resolveDisplay.
+export function resolveLayout(settings?: DisplayConfig): Layout {
+  return settings?.layout ?? DEFAULT_LAYOUT;
+}
 
 export function resolveDisplay(
   columns: IColumn[],
@@ -31,7 +38,7 @@ export function resolveDisplay(
   ]);
 
   return {
-    layout: settings?.layout ?? DEFAULT_LAYOUT,
+    layout: resolveLayout(settings),
     titleTemplate: settings?.titleTemplate ?? asTemplate(titleColumns),
     subtitleTemplate: settings?.subtitleTemplate,
     descriptionColumn,

@@ -500,5 +500,38 @@ describe("Records.vue", () => {
       expect(wrapper.findComponent(ShowMore).props("hasMore")).toBe(false);
       expect(wrapper.find("p.text-pagination").exists()).toBe(false);
     });
+
+    it("refetches with the new layout's own batch size when displayConfig.layout changes, and with pageSize again when it changes back", async () => {
+      fetchTableDataMock.mockResolvedValue({ rows: makeRows(3), count: 3 });
+      const wrapper = mount(Records, {
+        props: {
+          schemaId: "test-schema",
+          tableId: "pet",
+          pageSize: 3,
+          displayConfig: { layout: "CARDS" },
+        },
+      });
+      await flushPromises();
+      fetchTableDataMock.mockClear();
+
+      await wrapper.setProps({ displayConfig: { layout: "LINKS" } });
+      await flushPromises();
+
+      expect(fetchTableDataMock).toHaveBeenCalledWith(
+        "test-schema",
+        "pet",
+        expect.objectContaining({ limit: 50, offset: 0 })
+      );
+      fetchTableDataMock.mockClear();
+
+      await wrapper.setProps({ displayConfig: { layout: "TABLE" } });
+      await flushPromises();
+
+      expect(fetchTableDataMock).toHaveBeenCalledWith(
+        "test-schema",
+        "pet",
+        expect.objectContaining({ limit: 3, offset: 0 })
+      );
+    });
   });
 });

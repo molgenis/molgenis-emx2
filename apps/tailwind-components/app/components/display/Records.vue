@@ -2,8 +2,8 @@
 import { computed, ref, useId, watch } from "vue";
 import { useAsyncData } from "#app";
 import type { IRow } from "../../../../metadata-utils/src/types";
-import type { DisplayConfig, Layout } from "../../types/display";
-import { resolveDisplay } from "../../utils/displayUtils";
+import type { DisplayConfig } from "../../types/display";
+import { resolveDisplay, resolveLayout } from "../../utils/displayUtils";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import Pagination from "../Pagination.vue";
@@ -33,12 +33,49 @@ const props = withDefaults(
 
 const currentPage = ref(1);
 
+// The layout never depends on the fetched columns (resolveDisplay falls
+// back to config?.layout regardless of them), so it can be known, and used
+// to key the fetch, before that fetch has ever run.
+const layout = computed(() => resolveLayout(props.displayConfig));
+
+// The compiler proves every Layout is handled here; a value missing from
+// this switch is a typecheck failure, not a silent wrong render.
+function assertNever(value: never): never {
+  throw new Error(`Records: unhandled layout "${value}"`);
+}
+
+// TABLE, CARDS and LIST page through Pagination. LINKS and BULLETS grow on
+// demand through their own load-more instead, batchSize rows at a time: a
+// bulleted list takes one line each, a comma-separated run is compact.
+const layoutMeta = computed(() => {
+  switch (layout.value) {
+    case "TABLE":
+      return { paginated: true, batchSize: undefined };
+    case "CARDS":
+      return { paginated: true, batchSize: undefined };
+    case "LIST":
+      return { paginated: true, batchSize: undefined };
+    case "LINKS":
+      return { paginated: false, batchSize: 50 };
+    case "BULLETS":
+      return { paginated: false, batchSize: 20 };
+    default:
+      return assertNever(layout.value);
+  }
+});
+
 // Any input that changes what the result set IS goes back to page 1. This
 // must run before useAsyncData's own key/watch react to the same change, so
 // it stays "sync": useAsyncData's key watcher is sync internally, and a
 // "pre"-flush watcher here would run after it, one page too late.
 watch(
-  () => [props.schemaId, props.tableId, props.filter, props.pageSize],
+  () => [
+    props.schemaId,
+    props.tableId,
+    props.filter,
+    props.pageSize,
+    layout.value,
+  ],
   () => {
     currentPage.value = 1;
   },
@@ -59,7 +96,7 @@ const asyncDataKey = computed(
   () =>
     `records-${instanceId}-${props.schemaId}-${props.tableId}-${JSON.stringify(
       props.filter ?? null
-    )}-${currentPage.value}`
+    )}-${layout.value}-${currentPage.value}`
 );
 
 const { data } = useAsyncData(
@@ -90,6 +127,7 @@ const { data } = useAsyncData(
       () => props.tableId,
       () => props.filter,
       () => props.pageSize,
+      layout,
       currentPage,
     ],
   }
@@ -100,33 +138,6 @@ const fetchedColumns = computed(() => data.value?.columns ?? []);
 const resolvedDisplay = computed(() =>
   resolveDisplay(fetchedColumns.value, props.displayConfig)
 );
-
-// The compiler proves every Layout is handled here; a value missing from
-// this switch is a typecheck failure, not a silent wrong render.
-function assertNever(layout: never): never {
-  throw new Error(`Records: unhandled layout "${layout}"`);
-}
-
-// TABLE, CARDS and LIST page through Pagination. LINKS and BULLETS grow on
-// demand through their own load-more instead, batchSize rows at a time: a
-// bulleted list takes one line each, a comma-separated run is compact.
-const layoutMeta = computed(() => {
-  const layout: Layout = resolvedDisplay.value.layout;
-  switch (layout) {
-    case "TABLE":
-      return { paginated: true, batchSize: undefined };
-    case "CARDS":
-      return { paginated: true, batchSize: undefined };
-    case "LIST":
-      return { paginated: true, batchSize: undefined };
-    case "LINKS":
-      return { paginated: false, batchSize: 50 };
-    case "BULLETS":
-      return { paginated: false, batchSize: 20 };
-    default:
-      return assertNever(layout);
-  }
-});
 
 // useAsyncData REPLACES data.value on every fetch; LINKS/BULLETS need to
 // APPEND across "load more" clicks, so that accumulation lives in its own
