@@ -97,6 +97,20 @@ describe("records/Pairs.vue", () => {
     expect(fourDl).not.toContain("@sm:grid-cols-[repeat(2,minmax(160px,1fr))]");
   });
 
+  it("puts a container ancestor above the dl in the wide shape, because a band on the dl cannot be answered by the dl itself", () => {
+    const wrapper = mount(Pairs, {
+      props: { columns: [ageColumn, bioColumn], row, wide: true },
+    });
+    const dl = wrapper.find("dl");
+    expect(dl.exists()).toBe(true);
+    // jsdom cannot evaluate a container query, so this asserts the one thing
+    // it can see and the one thing that was wrong: the element carrying the
+    // bands must have a container ANCESTOR, not merely be one itself.
+    expect(dl.element.parentElement?.classList.contains("@container")).toBe(
+      true
+    );
+  });
+
   it("marks the dl for its fold-band's hide-when-empty rule by default in the wide shape, and drops the marker when hideEmpty is false", () => {
     // jsdom evaluates neither the @container max-width rule nor :has(), so
     // this can only assert the hook the scoped CSS rule keys off (the

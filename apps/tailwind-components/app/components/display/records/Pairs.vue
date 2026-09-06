@@ -107,24 +107,29 @@ const detailFoldColumns = computed<number | undefined>(() => {
 </script>
 
 <template>
-  <dl
-    v-if="wide"
-    class="mt-3"
-    :class="wideContainerClass"
-    :data-fold-columns="detailFoldColumns"
-  >
-    <template v-for="column in columns" :key="column.id">
-      <dt class="text-record-label font-bold">
-        {{ column.label || column.id }}
-      </dt>
-      <dd
-        class="text-record-value"
-        :class="{ 'max-w-xs': isNarrowType(column) }"
-      >
-        <ValueEMX2 :metadata="column" :data="row[column.id]" />
-      </dd>
-    </template>
-  </dl>
+  <!-- A container query is answered by an ANCESTOR container, never by the
+  element's own container-type. The bands below sit on the dl, so without this
+  wrapper they query nothing and no band ever matches: the pairs stay label-left
+  at every width. -->
+  <div v-if="wide" class="@container">
+    <dl
+      class="mt-3"
+      :class="wideContainerClass"
+      :data-fold-columns="detailFoldColumns"
+    >
+      <template v-for="column in columns" :key="column.id">
+        <dt class="text-record-label font-bold">
+          {{ column.label || column.id }}
+        </dt>
+        <dd
+          class="text-record-value"
+          :class="{ 'max-w-xs': isNarrowType(column) }"
+        >
+          <ValueEMX2 :metadata="column" :data="row[column.id]" />
+        </dd>
+      </template>
+    </dl>
+  </div>
   <dl v-else class="mt-3 grid gap-1">
     <div v-for="column in columns" :key="column.id" class="flex gap-2">
       <dt class="text-record-label font-bold">
