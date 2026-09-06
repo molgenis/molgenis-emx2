@@ -463,5 +463,9 @@ module.exports = {
       }),
     },
   },
-  plugins: ["@tailwindcss/typography", "@tailwindcss/forms"],
+  plugins: [
+    "@tailwindcss/typography",
+    "@tailwindcss/forms",
+    require("@tailwindcss/container-queries"),
+  ],
 };
