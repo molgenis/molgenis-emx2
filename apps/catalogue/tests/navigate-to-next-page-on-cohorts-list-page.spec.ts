@@ -16,6 +16,6 @@ test("navigate-to-next-page-on-cohorts-list-page", async ({ page, goto }) => {
     waitUntil: "hydration",
   });
   await page.getByRole("button", { name: "Collections" }).click();
-  await page.locator("button").filter({ hasText: "Go to page 2" }).click();
+  await page.locator("a").filter({ hasText: "Go to page 2" }).click();
   await expect(page.getByRole("main")).toContainText("SEPAGES");
 });

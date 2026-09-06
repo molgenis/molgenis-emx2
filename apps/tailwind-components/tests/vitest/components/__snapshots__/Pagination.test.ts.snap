@@ -3,23 +3,22 @@
 exports[`should render the pagination component with jump to edge 1`] = `
 "<nav role="navigation" class="pt-12.5 font-display text-heading-xl -mx-2.5" aria-labelledby="v-0Label"><span id="v-0Label" class="sr-only"> pagination navigation </span>
   <ul class="flex items-center justify-center list-none gap-2.5">
-    <li><button class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-alt group-[.button-bar]:last:rounded-r-alt duration-default ease-in-out tracking-widest uppercase rounded-alt font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover p-[11px] h-button-small w-button-small transition-colors v-popper--has-tooltip">
-        <!----><span class="sr-only">Go to page first </span>
-      </button></li>
-    <li><button class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-alt group-[.button-bar]:last:rounded-r-alt duration-default ease-in-out tracking-widest uppercase rounded-alt font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover p-[11px] h-button-small w-button-small transition-colors v-popper--has-tooltip">
-        <!----><span class="sr-only">Go to page 2 </span>
-      </button></li>
-    <!--v-if-->
+    <li><a href="#" class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover"><span class="sr-only">Go to page first</span>
+        <!---->
+      </a></li>
+    <li><a href="#" class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover"><span class="sr-only">Go to page 2</span>
+        <!---->
+      </a></li>
     <li class="flex justify-center items-center">
       <div class="px-4 tracking-widest sm:px-5"><label for="v-0" class="sr-only">go to specific page</label><span class="text-pagination"> Page </span></div><input id="v-0" class="sm:px-12 px-7.5 w-32 text-center border border-input rounded-alt bg-input text-pagination-input hover:text-pagination-hover hover:border-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest" value="3">
       <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap"><span class="text-pagination"> OF 34</span></div>
     </li>
-    <li><button class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-alt group-[.button-bar]:last:rounded-r-alt duration-default ease-in-out tracking-widest uppercase rounded-alt font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover p-[11px] h-button-small w-button-small transition-colors v-popper--has-tooltip">
-        <!----><span class="sr-only">Go to page 4 </span>
-      </button></li>
-    <li><button class="flex items-center justify-center border group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-alt group-[.button-bar]:last:rounded-r-alt duration-default ease-in-out tracking-widest uppercase rounded-alt font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover p-[11px] h-button-small w-button-small transition-colors v-popper--has-tooltip">
-        <!----><span class="sr-only">Go to last page </span>
-      </button></li>
+    <li><a href="#" class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover"><span class="sr-only">Go to page 4</span>
+        <!---->
+      </a></li>
+    <li><a href="#" class="flex justify-center border border-pagination rounded-alt bg-pagination text-pagination-button h-15 w-15 cursor-default cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover"><span class="sr-only">Go to last page</span>
+        <!---->
+      </a></li>
     <!--v-if-->
     <!--v-if-->
   </ul>

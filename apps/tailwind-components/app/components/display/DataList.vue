@@ -167,18 +167,16 @@ function onPageUpdate(page: number) {
       :link-to="linkTo"
     />
 
-    <!-- pt-5, not TableEMX2's pt-0: DataCards ends on a card border with a
-    -mb-[1px] overlap, so a flush pager would land right on that line. -->
+    <!-- pt-5: DataCards ends on a card border with a -mb-[1px] overlap, so
+    the pager needs a gap above it or it lands right on that line. -->
     <Pagination
       :current-page="currentPage"
       :total-pages="totalPages"
-      :show-page-selector="false"
       class="pt-5 pb-[30px]"
       @update="onPageUpdate"
-    >
-      <template #info>
-        <span class="text-pagination">{{ rangeText }} of {{ totalRows }}</span>
-      </template>
-    </Pagination>
+    />
+    <p class="text-center text-pagination">
+      {{ rangeText }} of {{ totalRows }}
+    </p>
   </div>
 </template>

@@ -193,7 +193,7 @@ describe("DataList.vue", () => {
       await flushPromises();
       fetchTableDataMock.mockClear();
 
-      const nextControl = wrapper.findAll("nav button").at(-1)!;
+      const nextControl = wrapper.findAll("nav a").at(-1)!;
       await nextControl.trigger("click");
       await flushPromises();
 
@@ -317,7 +317,7 @@ describe("DataList.vue", () => {
           const wrapper = mount(DataList, {
             props: { rows: makeRows(12), columns, pageSize: 5 },
           });
-          const nextControl = wrapper.findAll("nav button").at(-1)!;
+          const nextControl = wrapper.findAll("nav a").at(-1)!;
           await nextControl.trigger("click");
           expect(wrapper.findAll("tbody tr")[0].text()).toContain("Bird 5");
 
@@ -333,7 +333,7 @@ describe("DataList.vue", () => {
           props: { schemaId: "test-schema", tableId: "pet", pageSize: 3 },
         });
         await flushPromises();
-        const nextControl = wrapper.findAll("nav button").at(-1)!;
+        const nextControl = wrapper.findAll("nav a").at(-1)!;
         await nextControl.trigger("click");
         await flushPromises();
         fetchTableDataMock.mockClear();
@@ -358,48 +358,44 @@ describe("DataList.vue", () => {
 
       expect(wrapper.findAll("tbody tr").length).toBe(5);
 
-      const nextControl = wrapper.findAll("nav button").at(-1)!;
+      const nextControl = wrapper.findAll("nav a").at(-1)!;
       await nextControl.trigger("click");
 
       expect(wrapper.findAll("tbody tr").length).toBe(5);
       expect(wrapper.findAll("tbody tr")[0].text()).toContain("Bird 5");
     });
 
-    it("reuses Pagination with showPageSelector false: prev/next render, page-number box does not", () => {
+    it("reuses the unmodified Pagination component as-is: prev/next render, alongside its page-number box", () => {
       const wrapper = mount(DataList, {
         props: { rows: makeRows(12), columns, pageSize: 5 },
       });
 
-      expect(wrapper.findAll("nav button").length).toBe(2);
-      expect(wrapper.find("nav input").exists()).toBe(false);
+      expect(wrapper.findAll("nav a").length).toBe(2);
+      expect(wrapper.find("nav input").exists()).toBe(true);
     });
 
-    it("renders the range and the total between the prev and next controls, including the empty and floor cases", () => {
+    it("renders the range and the total itself, including the empty and floor cases", () => {
       const wrapper = mount(DataList, {
         props: { rows: makeRows(12), columns, pageSize: 5 },
       });
-      const listItems = wrapper.findAll("nav li");
-      expect(listItems).toHaveLength(3);
-      expect(listItems[0].find("button").exists()).toBe(true);
-      expect(listItems[1].text()).toBe("1 - 5 of 12");
-      expect(listItems[2].find("button").exists()).toBe(true);
+      expect(wrapper.find("p").text()).toBe("1 - 5 of 12");
 
       const empty = mount(DataList, {
         props: { rows: [], columns, pageSize: 5 },
       });
-      expect(empty.findAll("nav li")[1].text()).toBe("0 of 0");
+      expect(empty.find("p").text()).toBe("0 of 0");
     });
 
-    it("clamps the end of a last page that is not full", async () => {
+    it("clamps the end of a last page that is not full, after the next control advances", async () => {
       const wrapper = mount(DataList, {
         props: { rows: makeRows(57), columns, pageSize: 10 },
       });
-      const nextControl = wrapper.findAll("nav button").at(-1)!;
+      const nextControl = wrapper.findAll("nav a").at(-1)!;
       for (let click = 0; click < 5; click++) {
         await nextControl.trigger("click");
       }
 
-      expect(wrapper.findAll("nav li")[1].text()).toBe("51 - 57 of 57");
+      expect(wrapper.find("p").text()).toBe("51 - 57 of 57");
     });
 
     it("adds no file under display/ named like a pagination component", () => {
