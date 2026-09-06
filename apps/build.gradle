@@ -88,7 +88,6 @@ tasks.register('pnpm_install', PnpmTask) {
 tasks.register('pnpm_build', PnpmTask) {
     dependsOn 'pnpm_install'
     args = ['run', 'build']
-    inputs.property('molgenisDotenv', rootProject.ext.molgenisDotenv)
     registerAppInputs(delegate, workspaceDirs, excludeFolders + buildOutputFolders)
     outputs.files(workspaceDirs.collectMany { appName ->
         buildOutputDirsForApp(appName).collect { dirPath ->

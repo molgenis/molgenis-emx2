@@ -27,7 +27,7 @@ definitions:
 
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.6.3
+    - image: molgenis/ci-build:1.6.4
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -37,7 +37,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.6.3
+    - image: molgenis/ci-build:1.6.4
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -52,7 +52,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.6.3
+      - image: molgenis/ci-build:1.6.4
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -83,6 +83,8 @@ commands:
           GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" \
             git fetch origin +refs/tags/*:refs/tags/* --prune
           git checkout -f "$CIRCLE_BRANCH"
+          # Nyx peels ~2000 tags per commit it walks; that costs master 70s per gradle start; packs are smaller
+          git pack-refs --all
     - run:
         name: Setup git, todo, move to molgenisci user
         command: |

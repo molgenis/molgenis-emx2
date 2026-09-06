@@ -1,18 +1,21 @@
 # docker file for the ci
 # to build and publish (n.b. on apple silicon you need to set --platform)
-# docker buildx build -t molgenis/ci-build:1.2.2 --platform linux/amd64 .
-# docker push molgenis/ci-build:1.2.2
+# docker buildx build -t molgenis/ci-build:x.y.z --platform linux/amd64 .
+# docker push molgenis/ci-build:x.y.z
 
 FROM gradle:jdk21-noble
 RUN useradd -m molgenis
 
-RUN apt-get update && apt-get install vim python3 python3-venv python3-pip python3-setuptools python3-setuptools-whl -y
-RUN python3 -m pip config set global.break-system-packages true
+# Python
+RUN apt update && apt install vim python3 pipx -y
+RUN pipx ensurepath && pipx install uv
 RUN python3 --version
+RUN pipx run uv --version
+
 
 ENV NODE_VERSION=24.19.0
 RUN apt install -y curl
-USER molgenis 
+USER molgenis
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 ENV NVM_DIR=/home/molgenis/.nvm
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
@@ -29,7 +32,7 @@ RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 RUN pnpm --version
 
-USER root 
+USER root
 
 
 RUN apt update
@@ -39,7 +42,7 @@ RUN install -m 0755 -d /etc/apt/keyrings
 ##docker
 RUN curl -sSL https://get.docker.com/ | sh
 RUN mkdir ~/.docker
-RUN curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s 
+RUN curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
 
 # kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
@@ -52,7 +55,6 @@ RUN curl -fsSL https://get.helm.sh/helm-v3.14.4-linux-amd64.tar.gz \
  && mv linux-amd64/helm /usr/local/bin/helm \
  && chmod +x /usr/local/bin/helm \
  && rm -rf linux-amd64
-#
 
 # Azure CLI Tools
 RUN mkdir -p /etc/apt/keyrings
@@ -66,6 +68,6 @@ RUN apt-get install azure-cli -y
 RUN apt-get install postgresql-client -y
 
 # GemTools & FPM For debian and redhat packages
-RUN apt-get install ruby-dev -y 
+RUN apt-get install ruby-dev -y
 RUN gem install fpm
 USER molgenis
