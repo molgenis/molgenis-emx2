@@ -4,6 +4,7 @@ import { resolve } from "path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import DataList from "../../../../app/components/display/DataList.vue";
 import Pagination from "../../../../app/components/Pagination.vue";
+import ShowMore from "../../../../app/components/ShowMore.vue";
 import DataCards from "../../../../app/components/display/DataCards.vue";
 import DataRows from "../../../../app/components/display/DataRows.vue";
 import DataLinks from "../../../../app/components/display/DataLinks.vue";
@@ -302,6 +303,98 @@ describe("DataList.vue", () => {
 
       expect(wrapper.find("tbody tr").text()).toContain("second");
     });
+
+    it.each([
+      ["LINKS", 50],
+      ["BULLETS", 20],
+    ] as const)(
+      "requests %s's own batch size on the first fetch, not pageSize",
+      async (layout, batchSize) => {
+        const display: DisplayConfig = { layout };
+        fetchTableDataMock.mockResolvedValue({ rows: makeRows(3), count: 3 });
+        mount(DataList, {
+          props: {
+            schemaId: "test-schema",
+            tableId: "pet",
+            pageSize: 3,
+            display,
+          },
+        });
+        await flushPromises();
+
+        expect(fetchTableDataMock).toHaveBeenCalledWith(
+          "test-schema",
+          "pet",
+          expect.objectContaining({ limit: batchSize, offset: 0 })
+        );
+      }
+    );
+
+    it("shows remaining in the load-more control, advances offset on click, and drops the control at zero", async () => {
+      const display: DisplayConfig = { layout: "LINKS" };
+      fetchTableDataMock
+        .mockResolvedValueOnce({ rows: makeRows(50), count: 130 })
+        .mockResolvedValueOnce({ rows: makeRows(50), count: 130 })
+        .mockResolvedValueOnce({ rows: makeRows(30), count: 130 });
+
+      const wrapper = mount(DataList, {
+        props: { schemaId: "test-schema", tableId: "pet", display },
+      });
+      await flushPromises();
+
+      const control = () => wrapper.findComponent(ShowMore).find("button");
+      expect(control().text()).toBe("Load more (80)");
+
+      await control().trigger("click");
+      await flushPromises();
+
+      expect(fetchTableDataMock).toHaveBeenLastCalledWith(
+        "test-schema",
+        "pet",
+        expect.objectContaining({ offset: 50, limit: 50 })
+      );
+      expect(control().text()).toBe("Load more (30)");
+
+      await control().trigger("click");
+      await flushPromises();
+
+      expect(fetchTableDataMock).toHaveBeenLastCalledWith(
+        "test-schema",
+        "pet",
+        expect.objectContaining({ offset: 100, limit: 50 })
+      );
+      expect(wrapper.findComponent(ShowMore).find("button").exists()).toBe(
+        false
+      );
+    });
+
+    it("discards a stale load-more append when a filter change lands first", async () => {
+      let resolveLoadMore: (value: { rows: IRow[]; count: number }) => void;
+      const loadMoreResponse = new Promise<{ rows: IRow[]; count: number }>(
+        (resolve) => {
+          resolveLoadMore = resolve;
+        }
+      );
+      fetchTableDataMock
+        .mockResolvedValueOnce({ rows: makeRows(50), count: 130 })
+        .mockReturnValueOnce(loadMoreResponse)
+        .mockResolvedValueOnce({ rows: makeRows(1), count: 1 });
+
+      const display: DisplayConfig = { layout: "LINKS" };
+      const wrapper = mount(DataList, {
+        props: { schemaId: "test-schema", tableId: "pet", display },
+      });
+      await flushPromises();
+
+      await wrapper.findComponent(ShowMore).find("button").trigger("click");
+      await wrapper.setProps({ filter: { a: 1 } });
+      await flushPromises();
+
+      resolveLoadMore!({ rows: makeRows(50), count: 130 });
+      await flushPromises();
+
+      expect(wrapper.findComponent(DataLinks).props("rows")).toHaveLength(1);
+    });
   });
 
   describe("page reset", () => {
@@ -456,6 +549,16 @@ describe("DataList.vue", () => {
       });
 
       expect(wrapper.findComponent(DataLinks).props("rows")).toHaveLength(12);
+    });
+
+    it("renders no load-more control and no range line for LINKS/BULLETS in fixture mode", () => {
+      const display: DisplayConfig = { layout: "LINKS" };
+      const wrapper = mount(DataList, {
+        props: { rows: makeRows(12), columns, display },
+      });
+
+      expect(wrapper.findComponent(ShowMore).exists()).toBe(false);
+      expect(wrapper.find("p.text-pagination").exists()).toBe(false);
     });
   });
 });

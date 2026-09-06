@@ -6,6 +6,7 @@ import { resolveDisplay } from "../../utils/displayUtils";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import Pagination from "../Pagination.vue";
+import ShowMore from "../ShowMore.vue";
 import DataTable from "./DataTable.vue";
 import DataCards from "./DataCards.vue";
 import DataRows from "./DataRows.vue";
@@ -74,6 +75,39 @@ watch(
   { immediate: true }
 );
 
+const columns = computed(() =>
+  isFetchMode.value ? fetchedColumns.value : props.columns ?? []
+);
+
+const resolved = computed(() => resolveDisplay(columns.value, props.display));
+
+// The compiler proves every Layout is handled here; a value missing from
+// this switch is a typecheck failure, not a silent wrong render.
+function assertNever(layout: never): never {
+  throw new Error(`DataList: unhandled layout "${layout}"`);
+}
+
+// TABLE, CARDS and LIST page through Pagination. LINKS and BULLETS grow on
+// demand through their own load-more instead, batchSize rows at a time: a
+// bulleted list takes one line each, a comma-separated run is compact.
+const layoutView = computed(() => {
+  const layout: Layout = resolved.value.layout;
+  switch (layout) {
+    case "TABLE":
+      return { component: DataTable, paginated: true, batchSize: undefined };
+    case "CARDS":
+      return { component: DataCards, paginated: true, batchSize: undefined };
+    case "LIST":
+      return { component: DataRows, paginated: true, batchSize: undefined };
+    case "LINKS":
+      return { component: DataLinks, paginated: false, batchSize: 50 };
+    case "BULLETS":
+      return { component: DataBullets, paginated: false, batchSize: 20 };
+    default:
+      return assertNever(layout);
+  }
+});
+
 watch(
   () =>
     [
@@ -88,9 +122,13 @@ watch(
       return;
     }
     const requestId = ++latestRequestId;
-    const offset = (page - 1) * pageSize;
+    const paginated = layoutView.value.paginated;
+    // pageSize belongs to the paging layouts; a layout that loads on demand
+    // has its own batch size and does not inherit a pager's.
+    const limit = paginated ? pageSize : layoutView.value.batchSize;
+    const offset = paginated ? (page - 1) * pageSize : 0;
     const response = await fetchTableData(schemaId, tableId, {
-      limit: pageSize,
+      limit,
       offset,
       filter,
       expandLevel: 1,
@@ -104,38 +142,37 @@ watch(
   { immediate: true }
 );
 
-const columns = computed(() =>
-  isFetchMode.value ? fetchedColumns.value : props.columns ?? []
+// LINKS and BULLETS never move currentPage (they render no Pagination), so
+// this watcher only re-fires on schemaId/tableId/filter/pageSize for them,
+// which is exactly a fresh first batch. loadMore is the one path that
+// appends instead of replacing, for the "show more" control's own click.
+const remaining = computed(() =>
+  Math.max(fetchedCount.value - fetchedRows.value.length, 0)
 );
+const hasMore = computed(() => isFetchMode.value && remaining.value > 0);
 
-const resolved = computed(() => resolveDisplay(columns.value, props.display));
-
-// The compiler proves every Layout is handled here; a value missing from
-// this switch is a typecheck failure, not a silent wrong render.
-function assertNever(layout: never): never {
-  throw new Error(`DataList: unhandled layout "${layout}"`);
-}
-
-// TABLE, CARDS and LIST page through Pagination. LINKS and BULLETS grow on
-// demand through their own ShowMore instead, so they get every row DataList
-// has rather than one pageSize-wide slice of it, and no pager or range line.
-const layoutView = computed(() => {
-  const layout: Layout = resolved.value.layout;
-  switch (layout) {
-    case "TABLE":
-      return { component: DataTable, paginated: true };
-    case "CARDS":
-      return { component: DataCards, paginated: true };
-    case "LIST":
-      return { component: DataRows, paginated: true };
-    case "LINKS":
-      return { component: DataLinks, paginated: false };
-    case "BULLETS":
-      return { component: DataBullets, paginated: false };
-    default:
-      return assertNever(layout);
+async function loadMore() {
+  if (!isFetchMode.value || !props.schemaId || !props.tableId) {
+    return;
   }
-});
+  const batchSize = layoutView.value.batchSize;
+  if (batchSize === undefined) {
+    return;
+  }
+  const requestId = ++latestRequestId;
+  const offset = fetchedRows.value.length;
+  const response = await fetchTableData(props.schemaId, props.tableId, {
+    limit: batchSize,
+    offset,
+    filter: props.filter,
+    expandLevel: 1,
+  });
+  if (requestId !== latestRequestId) {
+    return;
+  }
+  fetchedRows.value = [...fetchedRows.value, ...response.rows];
+  fetchedCount.value = response.count;
+}
 
 const totalRows = computed(() =>
   isFetchMode.value ? fetchedCount.value : props.rows?.length ?? 0
@@ -179,19 +216,21 @@ function onPageUpdate(page: number) {
       :link-to="linkTo"
     />
 
-    <template v-if="layoutView.paginated">
-      <!-- pt-5: CARDS and LIST end on a card border with a -mb-[1px]
-      overlap, so the pager needs a gap above it or it lands right on that
-      line. -->
-      <Pagination
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        class="pt-5 pb-[30px]"
-        @update="onPageUpdate"
-      />
-      <p class="text-center text-pagination">
-        {{ rangeText }} of {{ totalRows }}
-      </p>
-    </template>
+    <!-- pt-5: CARDS and LIST end on a card border with a -mb-[1px] overlap,
+    so the pager needs a gap above it or it lands right on that line. -->
+    <Pagination
+      v-if="layoutView.paginated"
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      class="pt-5 pb-[30px]"
+      @update="onPageUpdate"
+    />
+    <ShowMore v-else-if="isFetchMode" :has-more="hasMore" @show-more="loadMore">
+      <template #more>Load more ({{ remaining }})</template>
+    </ShowMore>
+
+    <p v-if="layoutView.paginated" class="text-center text-pagination">
+      {{ rangeText }} of {{ totalRows }}
+    </p>
   </div>
 </template>
