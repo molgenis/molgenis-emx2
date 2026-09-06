@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { isFileValue, type IRow } from "../../../../metadata-utils/src/types";
+import {
+  isFileValue,
+  type IColumn,
+  type IRow,
+} from "../../../../metadata-utils/src/types";
 import type { ResolvedDisplay } from "../../types/display";
 import { columnValueToString } from "../../utils/columnValueToString";
 import ValueEMX2 from "../value/EMX2.vue";
@@ -33,22 +37,54 @@ const itemClass = computed(() =>
   props.columnCount === 2 ? "lg:even:border-l-0" : ""
 );
 
-// LIST density (columnCount 1) only: detail pairs sit label-above-value,
-// side by side while they fit, and wrap onto their own line when they do
-// not. The wrapping is driven by each pair's own min-width, not a viewport
-// breakpoint, so it degrades on its own regardless of how many detail
-// columns are configured. 160px matches the min-width the catalogue's own
-// ResourceCard.vue already gives its title column, the closest existing
-// precedent for a compact field-scale text block that needs room before it
-// wraps. CARDS density keeps the stacked label-beside-value rows.
+// LIST density (columnCount 1) only: detail pairs sit label-above-value on
+// a CSS grid, not a flex-wrap row. Every column gets an identical 1fr track,
+// so columns line up between records; auto-fit drops a track (wrapping the
+// next pair below) once 160px no longer fits. 160px matches the min-width
+// the catalogue's own ResourceCard.vue already gives its title column, the
+// closest existing precedent for a compact field-scale text block that
+// needs room before it wraps. Flexbox can size tracks by content, so it
+// cannot give every column the same width; a grid track can. CARDS density
+// keeps the stacked label-beside-value rows.
 const detailsContainerClass = computed(() =>
   props.columnCount === 1
-    ? "mt-3 flex flex-wrap gap-x-14 gap-y-2"
+    ? "mt-3 grid gap-x-14 gap-y-2 grid-cols-[repeat(auto-fit,minmax(160px,1fr))] @container"
     : "mt-3 grid gap-1"
 );
-const detailsPairClass = computed(() =>
-  props.columnCount === 1 ? "flex flex-col min-w-[160px]" : "flex gap-2"
-);
+
+// Caps a short fixed-format value's column so it does not stretch to the
+// full 1fr track. Neither TableEMX2 (every column gets one flat 240px,
+// `useColumnResize.ts`'s `defaultWidth`) nor any input or value component
+// sizes by columnType, so there is no per-type precedent to derive bands
+// from. `max-w-xs` (15rem = 240px) is the closest existing number in the
+// codebase to that one true precedent, so narrow types reuse it rather than
+// a new one; TEXT and everything else stay uncapped.
+const NARROW_DETAIL_TYPES = new Set([
+  "BOOL",
+  "INT",
+  "NON_NEGATIVE_INT",
+  "LONG",
+  "DECIMAL",
+  "DATE",
+  "UUID",
+]);
+
+// The container query is min-width based, so the base (unprefixed) shape
+// applies at the narrow end and @sm: overrides it once the container is
+// wide enough. The row sits at the narrow end here (label left, value
+// right, the classic definition-list shape once the grid has collapsed to
+// one column) and @sm:flex-col restores label-above-value once two 160px
+// tracks plus the 56px gap-x-14 fit: 160 + 56 + 160 = 376px = 23.5rem, close
+// enough to the plugin's 24rem @sm to reuse rather than an arbitrary value.
+function detailPairClass(column: IColumn): string {
+  if (props.columnCount !== 1) {
+    return "flex gap-2";
+  }
+  const widthCap = NARROW_DETAIL_TYPES.has(column.columnType)
+    ? " max-w-xs"
+    : "";
+  return `flex flex-row @sm:flex-col gap-2${widthCap}`;
+}
 
 function titleText(row: IRow): string {
   if (!props.resolved.titleTemplate) {
@@ -106,7 +142,7 @@ function logoUrl(row: IRow): string | undefined {
         <div
           v-for="column in resolved.detailColumns"
           :key="column.id"
-          :class="detailsPairClass"
+          :class="detailPairClass(column)"
         >
           <dt class="text-record-label font-bold">
             {{ column.label || column.id }}

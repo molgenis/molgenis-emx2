@@ -167,20 +167,82 @@ describe("DataCards.vue", () => {
     expect(gridItems[1].classes()).toContain("lg:even:border-l-0");
   });
 
-  it("wraps detail pairs by their own min-width in LIST density, not by a viewport breakpoint, and keeps the stacked list in CARDS density", () => {
+  it("lays LIST detail columns out on a CSS grid with equal 1fr columns that wrap by a 160px minimum, not flex-wrap", () => {
+    // jsdom performs no layout, so this asserts the class that carries the
+    // grid-template-columns value rather than a measured column width.
     const listWrapper = mount(DataCards, {
       props: { rows, resolved, columnCount: 1 },
     });
-    expect(listWrapper.find("dl").classes()).toContain("flex-wrap");
-    expect(listWrapper.find("dl > div").classes()).toContain("min-w-[160px]");
+    expect(listWrapper.find("dl").classes()).toContain(
+      "grid-cols-[repeat(auto-fit,minmax(160px,1fr))]"
+    );
+    expect(listWrapper.find("dl").classes()).not.toContain("flex-wrap");
 
     const gridWrapper = mount(DataCards, {
       props: { rows, resolved, columnCount: 2 },
     });
-    expect(gridWrapper.find("dl").classes()).not.toContain("flex-wrap");
-    expect(gridWrapper.find("dl > div").classes()).not.toContain(
-      "min-w-[160px]"
+    expect(gridWrapper.find("dl").classes()).not.toContain(
+      "grid-cols-[repeat(auto-fit,minmax(160px,1fr))]"
     );
+  });
+
+  it("caps a narrow-type detail column's width and leaves a text-type column uncapped, in LIST density only", () => {
+    const intColumn: IColumn = { id: "age", label: "Age", columnType: "INT" };
+    const textColumn: IColumn = {
+      id: "bio",
+      label: "Bio",
+      columnType: "TEXT",
+    };
+    const resolvedWithBoth: ResolvedDisplay = {
+      ...resolved,
+      detailColumns: [intColumn, textColumn],
+    };
+
+    const listWrapper = mount(DataCards, {
+      props: {
+        rows: [{ name: "Tweety", age: 3, bio: "A canary" }],
+        resolved: resolvedWithBoth,
+        columnCount: 1,
+      },
+    });
+    const listPairs = listWrapper.find("dl").findAll(":scope > div");
+    expect(listPairs[0].classes()).toContain("max-w-xs");
+    expect(listPairs[1].classes()).not.toContain("max-w-xs");
+
+    const gridWrapper = mount(DataCards, {
+      props: {
+        rows: [{ name: "Tweety", age: 3, bio: "A canary" }],
+        resolved: resolvedWithBoth,
+        columnCount: 2,
+      },
+    });
+    const gridPairs = gridWrapper.find("dl").findAll(":scope > div");
+    expect(gridPairs[0].classes()).not.toContain("max-w-xs");
+  });
+
+  it("carries the row shape (label left, value right) plus the container variant that restores label-above-value once the grid is wide enough, in LIST density only", () => {
+    // jsdom performs no layout and never evaluates a container query, so
+    // this asserts the classes that carry the behaviour: the container
+    // query is min-width based, so the row shape (label left of value) is
+    // the base class for the narrow end, and the @sm: variant switches back
+    // to the column shape (label above value) once two 160px tracks plus
+    // the 56px gap fit (376px = 23.5rem, close enough to the plugin's
+    // 24rem @sm to reuse it rather than an arbitrary value).
+    const listWrapper = mount(DataCards, {
+      props: { rows, resolved, columnCount: 1 },
+    });
+    expect(listWrapper.find("dl").classes()).toContain("@container");
+    const listPair = listWrapper.find("dl > div");
+    expect(listPair.classes()).toContain("flex-row");
+    expect(listPair.classes()).toContain("@sm:flex-col");
+
+    const gridWrapper = mount(DataCards, {
+      props: { rows, resolved, columnCount: 2 },
+    });
+    expect(gridWrapper.find("dl").classes()).not.toContain("@container");
+    const gridPair = gridWrapper.find("dl > div");
+    expect(gridPair.classes()).not.toContain("flex-row");
+    expect(gridPair.classes()).not.toContain("@sm:flex-col");
   });
 
   it("forwards maxLines, renderLimit, truncate and hideListSeparator to value/EMX2.vue unchanged", () => {
