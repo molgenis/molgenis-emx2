@@ -216,7 +216,9 @@ function displayFor(layout: Layout): DisplayConfig {
     layout,
     titleTemplate: titleTemplate.value || undefined,
     descriptionTemplate: descriptionTemplate.value || undefined,
-    detailColumns: detailColumnIds.value,
+    detailColumns: detailColumnIds.value.length
+      ? detailColumnIds.value
+      : undefined,
     logoColumn: logoColumnId.value || undefined,
   };
 }

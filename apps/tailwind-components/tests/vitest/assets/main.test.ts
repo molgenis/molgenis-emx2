@@ -13,42 +13,29 @@ function surfaceInvertedRule(): string {
   return mainCss.slice(start, end);
 }
 
+// Every role .surface-inverted must repoint so text stays readable on an
+// inverted surface, and the token it repoints to.
+const REPOINTED_ROLES: [role: string, target: string][] = [
+  ["--text-color-link", "--text-color-link-inverted"],
+  ["--text-color-icon-neutral", "--text-color-link-inverted"],
+  ["--text-color-record-heading", "--text-color-title"],
+  ["--text-color-record-label", "--text-color-title"],
+  ["--text-color-record-value", "--text-color-title"],
+  ["--text-color-table-column-header", "--text-color-title"],
+  ["--text-color-table-row", "--text-color-title"],
+  ["--text-color-pagination", "--text-color-pagination-inverted"],
+];
+
 describe(".surface-inverted in main.css", () => {
-  it("repoints link and icon tokens to the theme's inverted set", () => {
+  it("repoints every text role to a token that stays readable on an inverted surface", () => {
     const rule = surfaceInvertedRule();
-    expect(rule).toContain(
-      "--text-color-link: var(--text-color-link-inverted);"
-    );
-    expect(rule).toContain(
-      "--text-color-icon-neutral: var(--text-color-link-inverted);"
-    );
-  });
+    const missing = REPOINTED_ROLES.filter(
+      ([role, target]) => !rule.includes(`${role}: var(${target});`)
+    ).map(([role]) => role);
 
-  it("repoints record heading, label and value to a token the theme already defines for a colour it owns", () => {
-    const rule = surfaceInvertedRule();
-    expect(rule).toContain(
-      "--text-color-record-heading: var(--text-color-title);"
-    );
-    expect(rule).toContain(
-      "--text-color-record-label: var(--text-color-title);"
-    );
-    expect(rule).toContain(
-      "--text-color-record-value: var(--text-color-title);"
-    );
-  });
-
-  it("repoints the pager's range label to its defined inverted counterpart", () => {
-    const rule = surfaceInvertedRule();
-    expect(rule).toContain(
-      "--text-color-pagination: var(--text-color-pagination-inverted);"
-    );
-  });
-
-  it("repoints table column headers and rows to the same theme-owned colour, for lack of an inverted table-text token", () => {
-    const rule = surfaceInvertedRule();
-    expect(rule).toContain(
-      "--text-color-table-column-header: var(--text-color-title);"
-    );
-    expect(rule).toContain("--text-color-table-row: var(--text-color-title);");
+    expect(
+      missing,
+      `missing or wrong repoint for: ${missing.join(", ")}`
+    ).toEqual([]);
   });
 });
