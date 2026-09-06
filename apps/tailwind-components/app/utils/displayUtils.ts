@@ -1,5 +1,16 @@
 import type { IColumn, IRow } from "../../../metadata-utils/src/types";
-import type { DisplayConfig, ResolvedDisplay } from "../types/display";
+import type { DisplayConfig, Layout } from "../types/display";
+
+// What resolveDisplay returns: slots filled in and columns looked up.
+// Not part of the public contract; callers write a DisplayConfig.
+export interface ResolvedDisplay {
+  layout: Layout;
+  titleTemplate: string;
+  subtitleTemplate?: string;
+  descriptionColumn?: IColumn;
+  detailColumns: IColumn[];
+  logoColumn?: IColumn;
+}
 import { columnValueToString } from "./columnValueToString";
 
 const DEFAULT_LAYOUT = "TABLE";
