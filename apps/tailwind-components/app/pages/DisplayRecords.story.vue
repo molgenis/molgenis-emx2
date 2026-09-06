@@ -446,6 +446,36 @@ function panelTestId(
 ): string {
   return `panel-${layout.toLowerCase()}-${surface}`;
 }
+
+// The three surfaces every layout is shown on. `transparent` is not
+// decoration: it is the surface that exposed a contrast failure the other
+// two hid, so it stays alongside them rather than being sampled away.
+interface SurfaceDemo {
+  key: "content" | "footer" | "transparent";
+  wrapperClass: string;
+  headingClass: string;
+  heading: string;
+}
+const SURFACES: SurfaceDemo[] = [
+  {
+    key: "content",
+    wrapperClass: "bg-content p-4",
+    headingClass: "text-title-contrast",
+    heading: "Content surface",
+  },
+  {
+    key: "footer",
+    wrapperClass: "bg-footer surface-inverted p-4",
+    headingClass: "text-title",
+    heading: "A colour the theme owns (footer)",
+  },
+  {
+    key: "transparent",
+    wrapperClass: "surface-inverted p-4",
+    headingClass: "text-title",
+    heading: "The page's own gradient (no background class, surface-inverted)",
+  },
+];
 </script>
 
 <template>
@@ -620,171 +650,13 @@ function panelTestId(
       >
         <p class="text-title-contrast font-bold">{{ layoutOption }}</p>
         <div
-          class="bg-content p-4"
-          :data-testid="panelTestId(layoutOption, 'content')"
+          v-for="surface in SURFACES"
+          :key="surface.key"
+          :class="surface.wrapperClass"
+          :data-testid="panelTestId(layoutOption, surface.key)"
         >
-          <p class="mb-2 text-title-contrast font-bold">Content surface</p>
-          <DisplayRecords
-            v-if="isLiveMode"
-            :schema-id="schemaId"
-            :table-id="tableId"
-            :display-config="displayFor(layoutOption)"
-            :filter="filter"
-            :page-size="pageSize"
-            :link-to="linkTo"
-          />
-          <template v-else>
-            <DisplayRecordsTable
-              v-if="layoutOption === 'TABLE'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :columns="resolvedFixtureDisplay(layoutOption).detailColumns"
-              :link-to="linkTo"
-            />
-            <DisplayRecordsCards
-              v-else-if="layoutOption === 'CARDS'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :subtitle-template="
-                resolvedFixtureDisplay(layoutOption).subtitleTemplate
-              "
-              :description-column="
-                resolvedFixtureDisplay(layoutOption).descriptionColumn
-              "
-              :detail-columns="
-                resolvedFixtureDisplay(layoutOption).detailColumns
-              "
-              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
-              :link-to="linkTo"
-            />
-            <DisplayRecordsList
-              v-else-if="layoutOption === 'LIST'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :subtitle-template="
-                resolvedFixtureDisplay(layoutOption).subtitleTemplate
-              "
-              :description-column="
-                resolvedFixtureDisplay(layoutOption).descriptionColumn
-              "
-              :detail-columns="
-                resolvedFixtureDisplay(layoutOption).detailColumns
-              "
-              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
-              :link-to="linkTo"
-            />
-            <DisplayRecordsLinks
-              v-else-if="layoutOption === 'LINKS'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :link-to="linkTo"
-            />
-            <DisplayRecordsBullets
-              v-else-if="layoutOption === 'BULLETS'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :link-to="linkTo"
-            />
-          </template>
-        </div>
-
-        <div
-          class="bg-footer surface-inverted p-4"
-          :data-testid="panelTestId(layoutOption, 'footer')"
-        >
-          <p class="mb-2 text-title font-bold">
-            A colour the theme owns (footer)
-          </p>
-          <DisplayRecords
-            v-if="isLiveMode"
-            :schema-id="schemaId"
-            :table-id="tableId"
-            :display-config="displayFor(layoutOption)"
-            :filter="filter"
-            :page-size="pageSize"
-            :link-to="linkTo"
-          />
-          <template v-else>
-            <DisplayRecordsTable
-              v-if="layoutOption === 'TABLE'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :columns="resolvedFixtureDisplay(layoutOption).detailColumns"
-              :link-to="linkTo"
-            />
-            <DisplayRecordsCards
-              v-else-if="layoutOption === 'CARDS'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :subtitle-template="
-                resolvedFixtureDisplay(layoutOption).subtitleTemplate
-              "
-              :description-column="
-                resolvedFixtureDisplay(layoutOption).descriptionColumn
-              "
-              :detail-columns="
-                resolvedFixtureDisplay(layoutOption).detailColumns
-              "
-              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
-              :link-to="linkTo"
-            />
-            <DisplayRecordsList
-              v-else-if="layoutOption === 'LIST'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :subtitle-template="
-                resolvedFixtureDisplay(layoutOption).subtitleTemplate
-              "
-              :description-column="
-                resolvedFixtureDisplay(layoutOption).descriptionColumn
-              "
-              :detail-columns="
-                resolvedFixtureDisplay(layoutOption).detailColumns
-              "
-              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
-              :link-to="linkTo"
-            />
-            <DisplayRecordsLinks
-              v-else-if="layoutOption === 'LINKS'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :link-to="linkTo"
-            />
-            <DisplayRecordsBullets
-              v-else-if="layoutOption === 'BULLETS'"
-              :rows="fixtureRows"
-              :title-template="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :link-to="linkTo"
-            />
-          </template>
-        </div>
-
-        <div
-          :data-testid="panelTestId(layoutOption, 'transparent')"
-          class="surface-inverted p-4"
-        >
-          <p class="mb-2 text-title font-bold">
-            The page's own gradient (no background class, surface-inverted)
+          <p class="mb-2 font-bold" :class="surface.headingClass">
+            {{ surface.heading }}
           </p>
           <DisplayRecords
             v-if="isLiveMode"
