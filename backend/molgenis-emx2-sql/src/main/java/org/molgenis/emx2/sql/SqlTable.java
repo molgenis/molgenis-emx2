@@ -668,8 +668,13 @@ public class SqlTable implements Table {
 
   private List<Row> getRowsByRowKey(Collection<Row> rows) {
     Condition whereCondition = getByRowKey(rows);
+    // select typed fields instead of 'selectFrom(table)': the jooq table is untyped, so values
+    // would come back as raw jdbc objects (e.g. a PGInterval that Period.parse cannot read)
+    List<Field<?>> fields =
+        getMetadata().getMutationColumns().stream().<Field<?>>map(Column::getJooqField).toList();
     return getJooq()
-        .selectFrom(getJooqTable())
+        .select(fields)
+        .from(getJooqTable())
         .where(whereCondition)
         .fetch()
         .map(r -> new Row(r.intoMap()));
