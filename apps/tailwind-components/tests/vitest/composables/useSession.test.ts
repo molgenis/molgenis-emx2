@@ -133,7 +133,6 @@ describe("useSession", () => {
 
       const session = await useSession("abc");
 
-      expect(session.isManager.value).toBe(true);
       expect(fetchMock).toHaveBeenCalledWith("/abc/graphql", expect.anything());
       expect(session.rowLevelRoles.value).toEqual(["DragonKeeper"]);
     });

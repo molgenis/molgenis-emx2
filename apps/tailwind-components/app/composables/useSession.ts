@@ -19,7 +19,7 @@ export const useSession = async (schemaId?: string) => {
   const isManager = computed(() => hasRole("Manager"));
 
   const tablePermissions = computed<ITablePermission[]>(() =>
-    schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
+    schemaId ? (session.value?.tablePermissions?.[schemaId] ?? [] ): []
   );
 
   if (
