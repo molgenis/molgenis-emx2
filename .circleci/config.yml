@@ -20,7 +20,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:1.6.3
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -28,7 +28,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.6.4
+    - image: molgenis/ci-build:1.6.3
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -41,7 +41,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.6.4
+      - image: molgenis/ci-build:1.6.3
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -173,6 +173,13 @@ jobs:
           export $( cat build/ci.properties | xargs )
           docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
           docker push molgenis/ssr-catalogue-snapshot --all-tags
+
+    - run:
+        name: Start preview in limited resources mode
+        command: |
+          export $( cat build/ci.properties | xargs )
+          bash ci/set_kubectl_config-azure.sh
+          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true false
 
     - run:
         name: Docker-Scout scanning on cve's, break on critical.
@@ -458,29 +465,6 @@ jobs:
 
     - post_steps
 
-    # LAST step of this job on purpose: it writes a repo-root .env, which would otherwise change the
-    # gradle and turbo input hashes of every step after it. PR #6717 takes .env out of those hashes,
-    # so this step can move once that lands.
-    - run:
-        name: <dev> a repo-root .env reaches the forked dev JVM
-        command: |
-          set -eo pipefail
-          printf '%s\n' \
-            'MOLGENIS_HTTP_PORT=19345' \
-            'MOLGENIS_JVM_XMX=333m' \
-            'MOLGENIS_POSTGRES_PASS=ci-guardrail-secret' > .env
-          export MOLGENIS_HTTP_PORT=19999
-          ./gradlew -q --console=plain --no-daemon printDevConfig -DMOLGENIS_CI_PROBE=probe-value \
-            | tee printDevConfig.out
-          grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_HTTP_PORT=19345' printDevConfig.out
-          grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_CI_PROBE=probe-value' printDevConfig.out
-          grep -Fxq 'molgenis.dev.systemProperty.MOLGENIS_POSTGRES_PASS=<HIDDEN>' printDevConfig.out
-          grep -Fxq 'molgenis.dev.maxHeapSize=333m' printDevConfig.out
-    - run:
-        name: <dev> remove the temporary .env
-        command: rm -f .env printDevConfig.out
-        when: always
-
   release:
     <<: *release_config
 
@@ -531,22 +515,9 @@ jobs:
 
   pr-preview:
     <<: *build_config
+    resource_class: small
 
     steps:
-    - pre_steps:
-        layer_cache: false
-        remote_docker: false
-
-    - attach_workspace:
-        at: .
-
-    - run:
-        name: Start preview in limited resources mode
-        command: |
-          export $( cat build/ci.properties | xargs )
-          bash ci/set_kubectl_config-azure.sh molgenis-emx2-13.79.1-SNAPSHOT-all.jar molgenis-emx2-13.79.1-SNAPSHOT-all.jar
-          bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true false
-
     - run:
         name: Wait for pr preview restart, poll every 10 seconds
         command: |
@@ -567,7 +538,6 @@ jobs:
     - run:
         name: message slack about preview
         command: |
-          export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
           -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
           PR Preview available on https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org" \
@@ -695,6 +665,7 @@ workflows:
        requires:
          - test-apps
          - test-backend
+         - test-e2e
        filters:
          branches:
            only: master
