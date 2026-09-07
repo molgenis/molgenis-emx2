@@ -34,7 +34,7 @@
       >
         {{ session?.manifest.SpecificationVersion }}
       </a>
-      .
+      (git:{{ session?.manifest.ImplementationVersion }}).
       <span v-if="session?.manifest.DatabaseVersion">
         Database version: {{ session?.manifest.DatabaseVersion }}.
       </span>
