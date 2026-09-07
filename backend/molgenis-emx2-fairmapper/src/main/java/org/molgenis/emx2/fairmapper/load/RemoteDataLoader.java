@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper.tasks;
+package org.molgenis.emx2.fairmapper.load;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -41,7 +41,7 @@ public class RemoteDataLoader implements DataLoader {
   @Override
   public void load(InMemoryTableStore tableStore) {
     try {
-      // Suppressing because the directory creaFiles.createTempDirectory is owner-only
+      // Suppressing because the directory from Files.createTempDirectory is owner-only
       @SuppressWarnings("java:S5443")
       Path tempDir = Files.createTempDirectory("remote-data-loader-" + schema);
       Path zipPath = tempDir.resolve(schema + ".zip");

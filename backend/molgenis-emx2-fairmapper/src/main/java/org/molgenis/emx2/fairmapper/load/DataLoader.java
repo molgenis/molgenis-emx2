@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper.tasks;
+package org.molgenis.emx2.fairmapper.load;
 
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 

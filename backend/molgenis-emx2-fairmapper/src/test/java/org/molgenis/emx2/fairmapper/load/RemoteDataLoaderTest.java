@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper.tasks;
+package org.molgenis.emx2.fairmapper.load;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -97,7 +98,7 @@ class RemoteDataLoaderTest extends ApiTestBase {
 
   private void assertNoLeftoverTempDirectories(String schemaName) {
     Path tmpDir = Path.of(System.getProperty("java.io.tmpdir"));
-    try (var files = Files.list(tmpDir)) {
+    try (Stream<Path> files = Files.list(tmpDir)) {
       boolean leftoverExists =
           files
               .map(path -> path.getFileName().toString())
