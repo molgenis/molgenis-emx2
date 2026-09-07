@@ -24,23 +24,26 @@ const roles = computed<string[]>(() => session.rowLevelRoles.value);
 const isDraft = computed(() => formValues["mg_draft"] === true || false);
 const showRoles = computed(
   () =>
-    session.isAdmin.value || session.isOwner.value || session.isManager.value
+    (session.isAdmin.value ||
+      session.isOwner.value ||
+      session.isManager.value) &&
+    session.rowLevelRoles.value.length
 );
 const selectedRole = ref<string>(getSelectedRole());
 
 function onUpdateSelectedRole(newRole?: IInputValue | IInputValueLabel | null) {
   selectedRole.value = typeof newRole === "string" ? newRole : "";
-  if (selectedRole.value && selectedRole.value !== GLOBAL_ROLE) {
-    formValues["mg_roles"] = [selectedRole.value];
-  } else if (selectedRole.value === GLOBAL_ROLE) {
+  if (selectedRole.value === GLOBAL_ROLE) {
     formValues["mg_roles"] = [];
+  } else if (selectedRole.value) {
+    formValues["mg_roles"] = [selectedRole.value];
   } else {
     delete formValues["mg_roles"];
   }
 }
 
 function getSelectedRole(): string {
-  if (showRoles.value === false) {
+  if (!showRoles.value) {
     return "";
   } else if (
     Array.isArray(formValues.mg_roles) &&
