@@ -215,7 +215,7 @@ export const useSession = async (schemaId?: string) => {
   function showRolesForTable(tableId: string): boolean {
     return (
       (isAdmin.value || isOwner.value || isManager.value) &&
-      !!getTablePermission(tableId)?.isRowLevel &&
+      (getTablePermission(tableId)?.isRowLevel || false) &&
       !!rowLevelRoles.value.length
     );
   }
