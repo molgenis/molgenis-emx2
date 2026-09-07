@@ -451,7 +451,6 @@ async function AddHeader(schema: string, id: string) {
         id: `${id}`,
         title: "Title",
         subtitle: "A subtitle here",
-        backgroundImage: { id: "penguins" },
       },
     ],
   };
