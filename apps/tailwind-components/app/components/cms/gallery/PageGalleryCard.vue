@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+import Modal from "../../Modal.vue";
 import PageGalleryCardAction from "./PageGalleryCardAction.vue";
 import BaseIcon from "../../BaseIcon.vue";
 
@@ -31,6 +32,8 @@ const props = withDefaults(
   }
 );
 
+const showDeleteModal = ref<boolean>(false);
+
 const emits = defineEmits<{
   (e: "deleted", value: IDeleteContainerStatus): void;
 }>();
@@ -40,6 +43,7 @@ const currentPageType = ref<string | undefined>(
 );
 
 async function deletePage() {
+  showDeleteModal.value = false;
   const pageTableClass = props.container.mg_tableclass as ICmsPageTypes;
   const pageName = props.container.name;
 
@@ -58,19 +62,21 @@ async function deletePage() {
 <template>
   <div
     :id="container.name"
-    class="relative group border rounded-base w-full h-36 hover:shadow-md transition-shadow text-title-contrast"
+    class="relative group border rounded-base w-full hover:shadow-md transition-shadow text-title-contrast"
   >
-    <NuxtLink
-      :to="setCmsViewUrl(schema, container.name)"
-      class="hover:underline h-full flex items-center justify-center text-center"
-    >
-      <span>{{ container.name }}</span>
-    </NuxtLink>
+    <div class="h-32 flex items-center justify-center text-center p-7.5">
+      <NuxtLink
+        :to="setCmsViewUrl(schema, container.name)"
+        class="hover:underline"
+      >
+        {{ container.name }}
+      </NuxtLink>
+    </div>
     <div
-      class="w-full p-2 flex items-center justify-between flex-row gap-2.5 bg-form-legend"
+      class="flex items-center justify-between flex-row gap-2.5 p-2.5 bg-form-legend"
     >
       <div class="w-auto">
-        <span class="ml-2.5 font-display text-body-sm" v-if="currentPageType">
+        <span class="ml-2.5 font-display text-body-base" v-if="currentPageType">
           {{ currentPageType }}
         </span>
       </div>
@@ -89,11 +95,8 @@ async function deletePage() {
             <span class="sr-only">edit page</span>
           </NuxtLink>
         </PageGalleryCardAction>
-        <PageGalleryCardAction
-          class="p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
-          v-tooltip.bottom="`Delete`"
-        >
-          <button id="deletePage" @click="deletePage">
+        <PageGalleryCardAction v-tooltip.bottom="`Delete`">
+          <button id="deletePage" @click="showDeleteModal = true">
             <BaseIcon name="Trash" :width="18" />
             <span class="sr-only">delete page</span>
           </button>
@@ -101,4 +104,28 @@ async function deletePage() {
       </div>
     </div>
   </div>
+  <Modal
+    v-model:visible="showDeleteModal"
+    title="Delete page"
+    size="small"
+    @closed="showDeleteModal = false"
+  >
+    <div class="min-h-0 p-12.5 text-title-contrast">
+      <p>Are you sure you want to delete the page "{{ container.name }}"?</p>
+    </div>
+    <template #footer>
+      <div class="flex justify-between items-center flex-none h-modal-footer">
+        <ul class="flex items-center justify-end w-full gap-4">
+          <li>
+            <Button type="secondary" @click="showDeleteModal = false">
+              Cancel
+            </Button>
+          </li>
+          <li>
+            <Button type="primary" @click="deletePage"> Delete </Button>
+          </li>
+        </ul>
+      </div>
+    </template>
+  </Modal>
 </template>
