@@ -140,7 +140,8 @@ const filteredOntologies = computed(() => {
             :key="table.id"
             stacked
             :disabled="!canViewTable(table)"
-            @click="canViewTable(table) && navigateTo(`/${schema}/${table.id}`)">
+            @click="canViewTable(table) && navigateTo(`/${schema}/${table.id}`)"
+          >
             <TableCell stacked>
               <NuxtLink
                 v-if="canViewTable(table)"
