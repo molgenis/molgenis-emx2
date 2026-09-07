@@ -185,12 +185,13 @@ class ResolveMissingPkPostProcessorTest {
   }
 
   @Nested
-  class CompositeKeyTest {
+  class ResolveCompositeKeyTest {
 
     @BeforeEach
     void setup() {
       Database database = TestDatabaseFactory.getTestDatabase();
-      schema = database.dropCreateSchema(CompositeKeyTest.class.getSimpleName()).getMetadata();
+      schema =
+          database.dropCreateSchema(ResolveCompositeKeyTest.class.getSimpleName()).getMetadata();
 
       schema.create(
           new TableMetadata("Suppliers")
