@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
@@ -40,6 +41,9 @@ public class SqlQuery extends QueryBean {
   public static final String UNNEST_0 = "UNNEST({0})";
 
   private static final String QUERY_FAILED = "Query failed: ";
+
+  private static final int STREAMING_ROWS_PER_FETCH = 1000;
+
   private static final String ANY_SQL = "{0} = ANY ({1})";
   private static final String JSON_AGG_SQL = "jsonb_agg(item)";
   private static final String ROW_TO_JSON_SQL = "to_jsonb(item)";
@@ -77,6 +81,43 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public List<Row> retrieveRows(Option... options) {
+    SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
+    try {
+      List<Row> result = new ArrayList<>();
+      Result<org.jooq.Record> fetch = query.fetch();
+      for (org.jooq.Record r : fetch) {
+        result.add(new SqlRow(r));
+      }
+      return result;
+    } catch (Exception e) {
+      throw new SqlMolgenisException(QUERY_FAILED, e);
+    }
+  }
+
+  @Override
+  public void streamRows(Consumer<Row> consumer, Option... options) {
+    SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
+    try {
+      schema
+          .getJooq()
+          .transaction(
+              config -> {
+                query.attach(config);
+                try (Cursor<org.jooq.Record> cursor =
+                    query.fetchSize(STREAMING_ROWS_PER_FETCH).fetchLazy()) {
+                  for (org.jooq.Record r : cursor) {
+                    consumer.accept(new SqlRow(r));
+                  }
+                }
+              });
+    } catch (MolgenisException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new SqlMolgenisException(QUERY_FAILED, e);
+    }
+  }
+
+  private SelectConnectByStep<org.jooq.Record> buildRowQuery(Option... options) {
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
@@ -153,21 +194,10 @@ public class SqlQuery extends QueryBean {
     SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
     SelectConnectByStep<org.jooq.Record> query =
         limitOffsetOrderBy(table, select, where, tableAlias);
-
-    // execute
-    try {
-      List<Row> result = new ArrayList<>();
-      if (logger.isInfoEnabled()) {
-        logger.info(query.getSQL(ParamType.INLINED));
-      }
-      Result<org.jooq.Record> fetch = query.fetch();
-      for (org.jooq.Record r : fetch) {
-        result.add(new SqlRow(r));
-      }
-      return result;
-    } catch (Exception e) {
-      throw new SqlMolgenisException(QUERY_FAILED, e);
+    if (logger.isInfoEnabled()) {
+      logger.info(query.getSQL(ParamType.INLINED));
     }
+    return query;
   }
 
   private SelectColumn getRefPrimaryKeySubselect(Column c) {
