@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public interface Database extends HasSettingsInterface<Database> {
@@ -32,6 +33,10 @@ public interface Database extends HasSettingsInterface<Database> {
   SchemaInfo getSchemaInfo(String schemaName);
 
   Schema getSchema(String name);
+
+  default SchemaMetadata getSchemaMetadata(String schemaName) {
+    return Optional.ofNullable(getSchema(schemaName)).map(Schema::getMetadata).orElse(null);
+  }
 
   List<Table> getTablesFromAllSchemas(String tableId);
 

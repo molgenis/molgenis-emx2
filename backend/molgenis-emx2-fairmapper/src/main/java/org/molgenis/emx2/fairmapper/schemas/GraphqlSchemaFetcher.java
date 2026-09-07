@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.graphql.GraphqlClient;
+import org.molgenis.emx2.fairmapper.client.GraphqlClient;
 import org.molgenis.emx2.json.JsonUtil;
 
 public class GraphqlSchemaFetcher implements SchemaFetcher {

@@ -3,11 +3,12 @@ package org.molgenis.emx2.fairmapper.cli.commands;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.sql.SqlSchema;
-import org.molgenis.emx2.sql.SqlTable;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -36,19 +37,19 @@ public class GenerateQuery implements Runnable {
   @Override
   @SuppressWarnings("java:S106")
   public void run() {
-    SqlDatabase database = new SqlDatabase(false);
+    Database database = new SqlDatabase(false);
     database.becomeAdmin();
 
-    SqlSchema schema = database.getSchema(schemaName);
+    SchemaMetadata schema = database.getSchemaMetadata(schemaName);
     if (schema == null) {
       throw new MolgenisException("No schema found for: " + schemaName);
     }
 
-    SqlTable table = schema.getTable(tableName);
+    TableMetadata table = schema.getTableMetadata(tableName);
     if (table == null) {
       throw new MolgenisException("No table found for: " + schemaName);
     }
-    String generate = new TableQueryGenerator().generate(table.getMetadata());
+    String generate = new TableQueryGenerator().generate(table);
 
     if (output != null) {
       try {

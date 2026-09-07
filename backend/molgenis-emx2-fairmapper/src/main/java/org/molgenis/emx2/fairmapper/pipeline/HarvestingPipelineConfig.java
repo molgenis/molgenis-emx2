@@ -5,23 +5,20 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.fairmapper.client.GraphqlClient;
+import org.molgenis.emx2.fairmapper.client.GraphqlDatabase;
 import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.schemas.DatabaseSchemaFetcher;
-import org.molgenis.emx2.fairmapper.schemas.GraphqlSchemaFetcher;
 import org.molgenis.emx2.fairmapper.schemas.SchemaFetcher;
 import org.molgenis.emx2.fairmapper.tasks.DataLoader;
-import org.molgenis.emx2.fairmapper.tasks.DatabaseDataLoader;
 import org.molgenis.emx2.fairmapper.tasks.RemoteDataLoader;
 import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
-import org.molgenis.emx2.graphql.GraphqlClient;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 
 public record HarvestingPipelineConfig(
@@ -112,27 +109,6 @@ public record HarvestingPipelineConfig(
     }
 
     /**
-     * Sets up a pipeline that reads the target schema straight from a locally running database and
-     * loads harvested data into that same database.
-     */
-    public static Builder localConfig(
-        Database database, URI rdf, String schemaName, String... tables) {
-      Schema schema = database.getSchema(schemaName);
-      if (schema == null) {
-        throw new MolgenisException("Schema not found: " + schemaName);
-      }
-
-      return new Builder(
-              rdf,
-              defaultExtractor(rdf),
-              defaultTransformer(),
-              new DatabaseSchemaFetcher(database),
-              schemaName)
-          .setTables(tables)
-          .withLoader(new DatabaseDataLoader(schema, tables));
-    }
-
-    /**
      * Sets up a pipeline that reads the target schema from, and loads harvested data into, a remote
      * emx2 instance over HTTP.
      */
@@ -144,7 +120,7 @@ public record HarvestingPipelineConfig(
               rdf,
               defaultExtractor(rdf),
               defaultTransformer(),
-              new GraphqlSchemaFetcher(client),
+              new DatabaseSchemaFetcher(new GraphqlDatabase(client)),
               schemaName)
           .setTables(tables)
           .withLoader(newRemoteDataLoader(endpoint, token, schemaName, tables));

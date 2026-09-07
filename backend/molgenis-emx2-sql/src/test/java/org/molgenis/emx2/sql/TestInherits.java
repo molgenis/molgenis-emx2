@@ -515,7 +515,7 @@ class TestInherits {
         exception.getMessage());
     assertEquals(
         parentA,
-        db.getSchema(childSchemaName).getMetadata().getTableMetadata("MyShape").getImportSchema());
+        db.getSchemaMetadata(childSchemaName).getTableMetadata("MyShape").getImportSchema());
     db.getSchema(childSchemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(childSchemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(childSchemaName));
@@ -545,7 +545,7 @@ class TestInherits {
                     + schemaName
                     + ".MyShape': inheritance cannot be changed after the table is created."),
         exception.getMessage());
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertEquals("Shape", after.getInheritName());
     assertTrue(after.getColumnNames().contains("name"), after.getColumnNames().toString());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
@@ -576,7 +576,7 @@ class TestInherits {
                     + ".MyShape': inheritance cannot be changed after the table is created."),
         exception.getMessage());
 
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertNull(after.getInheritName());
     assertFalse(after.getColumnNames().contains("name"), after.getColumnNames().toString());
     db.getSchema(schemaName).getTable("MyShape").insert(row("myid", "m1", "size", 3));
@@ -607,7 +607,7 @@ class TestInherits {
         exception.getMessage());
     assertFalse(exception.getMessage().contains("already exists"), exception.getMessage());
 
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertNull(after.getInheritName());
     assertTrue(after.getColumnNames().contains("name"), after.getColumnNames().toString());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
@@ -644,7 +644,7 @@ class TestInherits {
                     + ".MyShape': inheritance cannot be changed after the table is created."),
         exception.getMessage());
 
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertNull(after.getImportSchema());
     assertEquals("Shape", after.getInheritName());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
@@ -675,7 +675,7 @@ class TestInherits {
                     + ".MyShape': inheritance cannot be changed after the table is created."),
         exception.getMessage());
 
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertEquals("Shape", after.getInheritName());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
@@ -694,8 +694,7 @@ class TestInherits {
             .setImportSchema(parentSchemaName)
             .setInheritName("Shape"));
 
-    TableMetadata parentTable =
-        db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape");
+    TableMetadata parentTable = db.getSchemaMetadata(parentSchemaName).getTableMetadata("Shape");
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> parentTable.alterName("Renamed"));
@@ -712,7 +711,7 @@ class TestInherits {
                     + RENAME_NOT_SUPPORTED_YET),
         exception.getMessage());
 
-    assertNotNull(db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape"));
+    assertNotNull(db.getSchemaMetadata(parentSchemaName).getTableMetadata("Shape"));
     db.getSchema(childSchemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(childSchemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(childSchemaName));
@@ -743,7 +742,7 @@ class TestInherits {
                     + RENAME_NOT_SUPPORTED_YET),
         exception.getMessage());
 
-    assertNotNull(db.getSchema(schemaName).getMetadata().getTableMetadata("Shape"));
+    assertNotNull(db.getSchemaMetadata(schemaName).getTableMetadata("Shape"));
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(schemaName));
@@ -760,7 +759,7 @@ class TestInherits {
         () -> schema.getMetadata().getTableMetadata("MyShape").alterName("MyRenamedShape"));
 
     assertNotNull(
-        db.getSchema(schemaName).getMetadata().getTableMetadata("MyRenamedShape"),
+        db.getSchemaMetadata(schemaName).getTableMetadata("MyRenamedShape"),
         "renaming a child is not blocked by the parent-rename guard");
     assertDoesNotThrow(() -> db.dropSchema(schemaName));
   }
@@ -796,7 +795,7 @@ class TestInherits {
                     + RENAME_NOT_SUPPORTED_YET),
         exception.getMessage());
 
-    assertNotNull(db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape"));
+    assertNotNull(db.getSchemaMetadata(parentSchemaName).getTableMetadata("Shape"));
     db.getSchema(childSchemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(childSchemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(childSchemaName));

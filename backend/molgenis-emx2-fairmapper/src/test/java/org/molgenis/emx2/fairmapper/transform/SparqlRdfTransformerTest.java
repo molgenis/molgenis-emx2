@@ -134,8 +134,7 @@ class SparqlRdfTransformerTest {
 
     SailRepository repository = readPetStoreTtl();
     TableStore store =
-        transformer.transform(
-            repository, database.getSchema(schemaName).getMetadata(), List.of("Pet"));
+        transformer.transform(repository, database.getSchemaMetadata(schemaName), List.of("Pet"));
 
     StringWriter writer = new StringWriter();
     CsvTableWriter.write(

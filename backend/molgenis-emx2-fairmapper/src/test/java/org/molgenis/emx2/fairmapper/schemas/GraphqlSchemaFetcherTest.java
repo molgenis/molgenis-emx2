@@ -16,7 +16,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.graphql.GraphqlClient;
+import org.molgenis.emx2.fairmapper.client.GraphqlClient;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.web.ApiTestBase;

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper.postprocessing;
+package org.molgenis.emx2.fairmapper.postprocessing.ontologies;
 
 import static org.molgenis.emx2.datamodels.util.CompareTools.assertEquals;
 
@@ -54,7 +54,7 @@ class ResolveOntologyPostProcessorTest {
                 Column.column("shape").setType(ColumnType.ONTOLOGY).setRefTable("shapes"),
                 Column.column("colors").setType(ColumnType.ONTOLOGY_ARRAY).setRefTable("colors")));
 
-    resolver = new ResolveOntologyPostProcessor(schema);
+    resolver = new ResolveOntologyPostProcessor(schema, database);
   }
 
   @Test

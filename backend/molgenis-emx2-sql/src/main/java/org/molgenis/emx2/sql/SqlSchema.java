@@ -196,7 +196,7 @@ public class SqlSchema implements Schema {
   private static void migrateTransaction(
       String targetSchemaName, SchemaMetadata mergeSchema, Database database) {
     SqlSchemaMetadata targetSchema =
-        (SqlSchemaMetadata) database.getSchema(targetSchemaName).getMetadata();
+        (SqlSchemaMetadata) database.getSchemaMetadata(targetSchemaName);
 
     // create list, sort dependency order
     List<TableMetadata> mergeTableList = new ArrayList<>();
