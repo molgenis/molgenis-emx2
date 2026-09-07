@@ -387,16 +387,30 @@ export async function addComponent(
   componentType: string
 ) {
   await prepareOrder(schema, order, parentBlock);
-  if (componentType === "Paragraph") {
-    await AddParagraph(schema, id);
+  let insertedComponent = false;
+  switch (componentType) {
+    case "Paragraph":
+      await AddParagraph(schema, id);
+      insertedComponent = true;
+      break;
+    case "Heading":
+      await AddHeading(schema, id);
+      insertedComponent = true;
+      break;
+    case "Image":
+      await AddImage(schema, id);
+      insertedComponent = true;
+      break;
+    case "NavigationGroups":
+      await AddNavigationGroup(schema, id);
+      break;
+    case "NavigationCards":
+      await AddNavigationCard(schema, id, parentBlock);
   }
-  if (componentType === "Heading") {
-    await AddHeading(schema, id);
+
+  if (insertedComponent) {
+    await AddOrder(schema, id, order, parentBlock);
   }
-  if (componentType === "Image") {
-    await AddImage(schema, id);
-  }
-  await AddOrder(schema, id, order, parentBlock);
 }
 
 export async function addBlock(
@@ -440,6 +454,39 @@ async function AddHeader(schema: string, id: string) {
         title: "Title",
         subtitle: "A subtitle here",
         backgroundImage: { id: "penguins" },
+      },
+    ],
+  };
+
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddNavigationGroup(schema: string, id: string) {
+  const query = `mutation insert($nav:[NavigationGroupsInput]) {
+    insert(NavigationGroups: $nav) {
+      status
+      message
+    }
+  }`;
+  const variables = { nav: [{ id: id }] };
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddNavigationCard(schema: string, id: string, parentId: string) {
+  const query = `mutation insert($element: [NavigationCardsInput]) {
+    insert(NavigationCards: $element) {
+      status
+      message
+    }
+  }`;
+  const variables = {
+    element: [
+      {
+        id: id,
+        title: "Title",
+        description: "A description about the link",
+        url: "https://molgenis.org",
+        displayedInNavigationGroup: { id: parentId },
       },
     ],
   };
