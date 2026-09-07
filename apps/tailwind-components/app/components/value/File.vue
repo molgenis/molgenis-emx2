@@ -35,7 +35,11 @@ const downloadUrl = computed(() => props.data?.url || "");
 </script>
 
 <template>
-  <span class="overflow-ellipsis whitespace-nowrap">
+  <!-- break-words, not nowrap: a filename is one unbroken token and overran
+  every container that does not clip. overflow-ellipsis did nothing here, since
+  text-overflow needs overflow:hidden and a width. A table cell still shows one
+  line, because CellEMX2 wraps the value in .truncate and white-space inherits. -->
+  <span class="break-words">
     <a
       v-if="downloadUrl"
       :href="downloadUrl"
@@ -44,7 +48,7 @@ const downloadUrl = computed(() => props.data?.url || "");
     >
       {{ fileName }}
     </a>
-    <span v-else class="truncate">{{ fileName }}</span>
+    <span v-else>{{ fileName }}</span>
 
     <span> ({{ formattedSize }})</span>
   </span>
