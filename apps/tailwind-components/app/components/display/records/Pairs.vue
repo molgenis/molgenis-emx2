@@ -130,15 +130,21 @@ const detailFoldColumns = computed<number | undefined>(() => {
       </template>
     </dl>
   </div>
-  <dl v-else class="mt-3 grid gap-1">
-    <div v-for="column in columns" :key="column.id" class="flex gap-2">
+  <!-- One grid for every pair, not a flex row each, so the values line up in
+  a column instead of each starting after its own label. The 1fr/2fr split is
+  DefinitionList.vue's ratio, which caps a long label at a third; `auto` would
+  let one long label eat the width, and this shape is only reached when the
+  container is already narrow. dt and dd are direct children because a wrapper
+  per pair would make each pair its own grid and lose the alignment. -->
+  <dl v-else class="mt-3 grid grid-cols-3 gap-x-4 gap-y-1">
+    <template v-for="column in columns" :key="column.id">
       <dt class="text-record-label font-bold">
         {{ column.label || column.id }}
       </dt>
-      <dd class="text-record-value">
+      <dd class="col-span-2 text-record-value">
         <ValueEMX2 :metadata="column" :data="row[column.id]" />
       </dd>
-    </div>
+    </template>
   </dl>
 </template>
 

@@ -15,13 +15,22 @@ describe("records/Pairs.vue", () => {
       props: { columns: [ageColumn, bioColumn], row },
     });
 
+    // grid-cols-3 plus col-span-2 on the dd is what puts every value at the
+    // same x. Without the track count the dd span means nothing, so both are
+    // asserted or neither guards the alignment.
     expect(wrapper.find("dl").classes()).toContain("grid");
-    expect(wrapper.find("dl").classes()).toContain("gap-1");
+    expect(wrapper.find("dl").classes()).toContain("grid-cols-3");
 
-    const pairs = wrapper.findAll("dl > div");
-    expect(pairs.length).toBe(2);
-    expect(pairs[0].find("dt").text()).toBe("Age");
-    expect(pairs[0].find("dd").text()).toBe("3");
+    // dt and dd are direct children of one grid, so every value starts at the
+    // same x. A wrapper per pair would make each pair its own grid and the
+    // value edge would go ragged.
+    const terms = wrapper.findAll("dl > dt");
+    const definitions = wrapper.findAll("dl > dd");
+    expect(terms.length).toBe(2);
+    expect(definitions.length).toBe(2);
+    expect(terms[0].text()).toBe("Age");
+    expect(definitions[0].text()).toBe("3");
+    expect(definitions[0].classes()).toContain("col-span-2");
 
     const cellComponents = wrapper.findAllComponents(ValueEMX2);
     expect(cellComponents.length).toBe(2);
