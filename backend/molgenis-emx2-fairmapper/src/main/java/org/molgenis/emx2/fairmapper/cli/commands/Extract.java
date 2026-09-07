@@ -35,19 +35,31 @@ public class Extract implements Runnable {
       description = "Write results to specified path")
   private String outputPath;
 
+  @SuppressWarnings("java:S2589")
   @Override
   public void run() {
-    Repository repository = new SailRepository(new NativeStore());
-    URI endpoint = URI.create(rdf);
-    RdfExtractor extractor = new CrawlingRdfExtractor();
-    extractor.addRdfToRepository(repository, endpoint);
-    try (RepositoryConnection connection = repository.getConnection();
-        FileOutputStream fos = new FileOutputStream(outputPath)) {
-      RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, fos);
-      connection.export(writer);
-      writer.endRDF();
-    } catch (IOException e) {
-      throw new MolgenisException("Something went wrong extracting endpoint: " + rdf, e);
+    Repository repository = null;
+    try {
+      repository = new SailRepository(new NativeStore());
+      URI endpoint = URI.create(rdf);
+      RdfExtractor extractor = new CrawlingRdfExtractor();
+      extractor.addRdfToRepository(repository, endpoint);
+      try (RepositoryConnection connection = repository.getConnection();
+          FileOutputStream fos = new FileOutputStream(outputPath)) {
+        RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, fos);
+        connection.export(writer);
+        writer.endRDF();
+      } catch (IOException e) {
+        if (repository.isInitialized()) {
+          repository.shutDown();
+        }
+
+        throw new MolgenisException("Something went wrong extracting endpoint: " + rdf, e);
+      }
+    } finally {
+      if (repository != null && repository.isInitialized()) {
+        repository.shutDown();
+      }
     }
   }
 }
