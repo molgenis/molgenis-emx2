@@ -11,7 +11,7 @@ import DraftLabel from "../label/DraftLabel.vue";
 
 const GLOBAL_ROLE: string = "Global";
 
-const { formValues, schemaId } = defineProps<{
+const { formValues, tableId, schemaId } = defineProps<{
   formValues: Record<columnId, columnValue>;
   tableId: string;
   schemaId: string;
@@ -22,13 +22,7 @@ const session = await useSession(schemaId);
 
 const roles = computed<string[]>(() => session.rowLevelRoles.value);
 const isDraft = computed(() => formValues["mg_draft"] === true || false);
-const showRoles = computed(
-  () =>
-    (session.isAdmin.value ||
-      session.isOwner.value ||
-      session.isManager.value) &&
-    session.rowLevelRoles.value.length
-);
+const showRoles = computed(() => session.showRolesForTable(tableId));
 const selectedRole = ref<string>(getSelectedRole());
 
 function onUpdateSelectedRole(newRole?: IInputValue | IInputValueLabel | null) {

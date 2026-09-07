@@ -212,10 +212,15 @@ export const useSession = async (schemaId?: string) => {
     );
   }
 
+  function showRolesForTable(tableId: string): boolean {
+    return (
+      (isAdmin.value || isOwner.value || isManager.value) &&
+      !!getTablePermission(tableId)?.isRowLevel &&
+      !!rowLevelRoles.value.length
+    );
+  }
+
   return {
-    isAdmin,
-    isManager,
-    isOwner,
     rowLevelRoles,
     session,
     tablePermissions,
@@ -225,6 +230,7 @@ export const useSession = async (schemaId?: string) => {
     hasSessionTimeout,
     reAuthenticate,
     signOut,
+    showRolesForTable,
   };
 };
 

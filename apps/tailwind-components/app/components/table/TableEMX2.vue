@@ -479,7 +479,7 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-const { isAdmin, isOwner, isManager } = await useSession(props.schemaId);
+const { showRolesForTable } = await useSession(props.schemaId);
 
 const filters: UseFilters | null = props.enableFilters
   ? useFilters(
@@ -662,9 +662,9 @@ const showDraftColumn = computed(() =>
 );
 
 const showRolesColumn = computed(() => {
-  const hasRolesRights = isAdmin.value || isOwner.value || isManager.value;
   return (
-    hasRolesRights && rows.value.some((row: TableRow) => row?.mg_roles?.length)
+    showRolesForTable(props.tableId) &&
+    rows.value.some((row: TableRow) => row.mg_roles?.length)
   );
 });
 
