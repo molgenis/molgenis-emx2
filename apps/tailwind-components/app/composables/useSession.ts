@@ -221,6 +221,7 @@ export const useSession = async (schemaId?: string) => {
   }
 
   return {
+    isAdmin,
     rowLevelRoles,
     session,
     tablePermissions,
