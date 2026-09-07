@@ -31,38 +31,34 @@ own process and fetches from the Java service like any other client. Everything 
 ships inside the jar.
 
 ```mermaid
----
-config:
-    markdownAutoWrap: false
----
 flowchart TB
-  browser["Browser<br/>apps served per schema"]
-  clients["API clients<br/>scripts, RDF harvesters, Beacon"]
-  ingress["nginx ingress<br/>routes by path"]
-  catalogue["ssr-catalogue<br/>Nuxt server :3000, own image"]
-  appsbuild["apps/ — pnpm + turbo<br/>26 apps into public_html/apps"]
+  browser["Browser<br>apps served per schema"]
+  clients["API clients<br>scripts, RDF harvesters, Beacon"]
+  ingress["nginx ingress<br>routes by path"]
+  catalogue["ssr-catalogue<br>Nuxt server on port 3000, own image"]
+  appsbuild["apps workspace, pnpm and turbo<br>26 apps into public_html/apps"]
 
-  subgraph java["Java service :8080 — molgenis-emx2-run fat jar"]
+  subgraph java["Java service on port 8080, molgenis-emx2-run fat jar"]
     direction TB
-    javalin["MolgenisWebservice — Javalin routes<br/>static file mapper registered last, it is greedy"]
-    cache["ApplicationCachePerUser<br/>session or token to user, then cached Database, Schema, GraphqlExecutor"]
-    surfaces["GraphQL · CSV/Excel/ZIP · RDF/SHACL · Beacon v2 · tasks, files, static apps"]
-    core["molgenis-emx2 — the only public contract<br/>Database, Schema, Table, Column, Row, Query, TableMetadata"]
-    sql["molgenis-emx2-sql — jOOQ implementation<br/>SET ROLE MG_USER_user on every connection"]
+    javalin["MolgenisWebservice, Javalin routes<br>static file mapper registered last, it is greedy"]
+    cache["ApplicationCachePerUser<br>session or token to user, then cached Database, Schema, GraphqlExecutor"]
+    surfaces["GraphQL, CSV, Excel, ZIP, RDF, SHACL, Beacon v2, tasks, files, static apps"]
+    core["molgenis-emx2, the only public contract<br>Database, Schema, Table, Column, Row, Query, TableMetadata"]
+    sql["molgenis-emx2-sql, jOOQ implementation<br>SET ROLE MG_USER_name on every connection"]
     javalin --> cache --> surfaces --> core --> sql
   end
 
   subgraph pg["PostgreSQL 15"]
     direction LR
-    meta["MOLGENIS<br/>metadata schema"]
-    data["one schema<br/>per dataset"]
-    system["_SYSTEM_<br/>jobs, scripts"]
+    meta["MOLGENIS<br>metadata schema"]
+    data["one schema<br>per dataset"]
+    system["SYSTEM schema<br>jobs, scripts"]
   end
 
   browser --> ingress
   clients --> ingress
-  ingress -->|"/"| catalogue
-  ingress -->|"/api, /schema/..., /apps"| javalin
+  ingress -->|"root path"| catalogue
+  ingress -->|"api, schema and apps paths"| javalin
   catalogue -.->|"GraphQL from the server"| javalin
   appsbuild -.->|"build time"| surfaces
   sql --> pg
@@ -80,23 +76,19 @@ the way back up, the notable thing is how little happens: the JSON was assembled
 travels to the client almost untouched.
 
 ```mermaid
----
-config:
-    markdownAutoWrap: false
----
 flowchart TB
-  s1["1 · Javalin matches a route<br/>MolgenisWebservice registers every *Api in order"]
-  s2["2 · Who is asking<br/>session attribute, else the x-molgenis-token header, else anonymous"]
-  s3["3 · ApplicationCachePerUser hands back the user's objects<br/>cached five minutes; a schema change clears everything"]
-  s4["4 · Resolve the schema from the path<br/>null when the caller's PostgreSQL role cannot see it"]
-  s5["5 · GraphqlExecutor runs the query<br/>the type system was shaped by PermissionEvaluator"]
-  s6["6 · SqlQuery builds one statement for the whole selection tree<br/>nested jsonb_agg, assembled by the database"]
-  s7["7 · The connection becomes the user<br/>RESET ROLE; SET jit='off'; SET ROLE MG_USER_user"]
-  s8["8 · PostgreSQL decides what is visible<br/>table grants and row level security policies"]
-  s9["9 · One JSON string comes back<br/>no row by row mapping into Java objects"]
-  s10["10 · The connection stops being the user<br/>RESET ROLE; RESET search_path, then back into the pool"]
-  s11["11 · GraphQL wraps data and errors into one body<br/>application/json with status 200, even when the body carries errors"]
-  s12["12 · Anything thrown leaves through one handler<br/>every exception becomes a 400 JSON body"]
+  s1["1. Javalin matches a route<br>MolgenisWebservice registers every Api class in order"]
+  s2["2. Who is asking<br>session attribute, else the x-molgenis-token header, else anonymous"]
+  s3["3. ApplicationCachePerUser hands back the user objects<br>cached five minutes, a schema change clears everything"]
+  s4["4. Resolve the schema from the path<br>null when the caller PostgreSQL role cannot see it"]
+  s5["5. GraphqlExecutor runs the query<br>the type system was shaped by PermissionEvaluator"]
+  s6["6. SqlQuery builds one statement for the whole selection tree<br>nested jsonb_agg, assembled by the database"]
+  s7["7. The connection becomes the user<br>RESET ROLE, then SET ROLE MG_USER_name"]
+  s8["8. PostgreSQL decides what is visible<br>table grants and row level security policies"]
+  s9["9. One JSON string comes back<br>no row by row mapping into Java objects"]
+  s10["10. The connection stops being the user<br>RESET ROLE and RESET search_path, then back into the pool"]
+  s11["11. GraphQL wraps data and errors into one body<br>sent as JSON with status 200, even when the body carries errors"]
+  s12["12. Anything thrown leaves through one handler<br>every exception becomes a 400 JSON body"]
 
   s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s7 --> s8
   s8 -->|"the request turns around here"| s9
@@ -122,22 +114,20 @@ and migrates the schema. That is why a single ZIP can define a database and fill
 transaction.
 
 ```mermaid
----
-config:
-    markdownAutoWrap: false
----
-  in1["CSV · Excel · ZIP upload<br/>async task, poll /api/tasks/{id}"]
-  in3["Model definition<br/>EMX2 sheets, JSON, YAML"]
-  in4["Profiles and demo data<br/>catalogue, directory, pet store"]
-  in5["File upload<br/>multipart, bytes into the database"]
+flowchart LR
+  in1["CSV, Excel and ZIP upload<br>runs as a background task"]
+  in2["GraphQL mutations<br>insert, update, save, delete"]
+  in3["Model definition<br>EMX2 sheets, JSON, YAML"]
+  in4["Profiles and demo data<br>catalogue, directory, pet store"]
+  in5["File upload<br>multipart, bytes into the database"]
 
-  schema["One schema<br/>rows, metadata, file bytes,<br/>settings, members and roles, changelog<br/><br/>served at /pet store/<br/>GraphQL at /pet store/graphql"]
+  schema["One schema<br>rows, metadata, file bytes<br>settings, members and roles, changelog<br>served on its own path, GraphQL beside it"]
 
-  out1["GraphQL queries<br/>rows, _agg, _groupBy"]
-  out2["CSV · Excel · ZIP export<br/>model, rows, members, changelog"]
-  out3["RDF<br/>Turtle, JSON-LD, N-Triples, SHACL"]
-  out4["Beacon v2 and Beacon VP<br/>counts held back below a threshold"]
-  out5["Files, reports, sitemap<br/>bytes streamed straight from a column"]
+  out1["GraphQL queries<br>rows, aggregates, group by"]
+  out2["CSV, Excel and ZIP export<br>model, rows, members, changelog"]
+  out3["RDF<br>Turtle, JSON-LD, N-Triples, SHACL"]
+  out4["Beacon v2 and Beacon VP<br>counts held back below a threshold"]
+  out5["Files, reports, sitemap<br>bytes streamed straight from a column"]
 
   in1 --> schema
   in2 --> schema
