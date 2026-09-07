@@ -164,7 +164,7 @@ jobs:
         name: Start preview in limited resources mode
         command: |
           export $( cat build/ci.properties | xargs )
-          bash ci/set_kubectl_config-azure.sh molgenis-emx2-13.79.1-SNAPSHOT-all.jar molgenis-emx2-13.79.1-SNAPSHOT-all.jar
+          bash ci/set_kubectl_config-azure.sh
           bash ci/create_or_update_k8s-azure.sh "preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}" ${TAG_NAME} true false
 
     - run:
