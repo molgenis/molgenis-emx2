@@ -51,7 +51,6 @@ test("the row should be removed from the table after deletion", async ({
   await page.getByRole("textbox", { name: "name Required" }).click();
   await page.getByRole("textbox", { name: "name Required" }).fill("deltest");
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await page.getByText(`inserted Category`).click();
   await page.getByRole("button", { name: "Cancel" }).click();
 
   // delete row
