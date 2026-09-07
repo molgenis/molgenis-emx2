@@ -87,6 +87,10 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
 
   private void resolveRow(TableStore tableStore, Row row, List<Column> referenceColumns) {
     for (Column column : referenceColumns) {
+      if (!row.notNull(subjectField(column))) {
+        continue;
+      }
+
       if (column.isArray()) {
         resolveArrayReference(tableStore, row, column);
       } else {
@@ -96,12 +100,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
   }
 
   private void resolveSingleReference(TableStore tableStore, Row row, Column column) {
-    String field = subjectField(column);
-    if (!row.notNull(field)) {
-      return;
-    }
-
-    String subject = row.getString(field);
+    String subject = row.getString(subjectField(column));
     Row referencedRow = TableStoreUtils.getRowForSubject(tableStore, column.getRefTable(), subject);
 
     for (Reference reference : column.getReferences()) {
@@ -124,14 +123,9 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
   }
 
   private void resolveArrayReference(TableStore tableStore, Row row, Column column) {
-    String field = subjectField(column);
-    if (!row.notNull(field)) {
-      return;
-    }
-
     TableMetadata refTable = column.getRefTable();
     List<Row> referencedRows =
-        Arrays.stream(row.getStringArray(field))
+        Arrays.stream(row.getStringArray(subjectField(column)))
             .map(subject -> TableStoreUtils.getRowForSubject(tableStore, refTable, subject))
             .toList();
 
