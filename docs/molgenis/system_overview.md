@@ -126,9 +126,7 @@ transaction.
 config:
     markdownAutoWrap: false
 ---
-flowchart LR
-  in1["CSV · Excel · ZIP upload<br/>async task, poll /api/tasks/id"]
-  in2["GraphQL mutations<br/>insert, update, save, delete"]
+  in1["CSV · Excel · ZIP upload<br/>async task, poll /api/tasks/{id}"]
   in3["Model definition<br/>EMX2 sheets, JSON, YAML"]
   in4["Profiles and demo data<br/>catalogue, directory, pet store"]
   in5["File upload<br/>multipart, bytes into the database"]
