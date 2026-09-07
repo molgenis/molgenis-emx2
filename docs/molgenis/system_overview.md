@@ -4,25 +4,68 @@ This page describes how EMX2 fits together as a whole: the components, how a req
 through them, how data gets in and out, and what the database actually holds. For the design
 decisions behind individual features, see [Architecture](./dev_architecture.md).
 
-## The one idea
+## The main idea:
 
 A MOLGENIS schema is a PostgreSQL schema. From that single decision the rest of the system
-follows. Each schema is served on its own URL path, gets its own GraphQL endpoint, gets a copy of
+follows. Each schema is served on its own URL path, gets its own endpoints, gets a copy of
 every app, and carries its own set of roles.
 
-The second decision matters as much: **authorization is not implemented in Java**. Every EMX2 user
-is a real PostgreSQL role named `MG_USER_<name>`, and `SqlUserAwareConnectionProvider` issues
-`SET ROLE` before handing a connection to jOOQ. Grants and row level security policies do the
-enforcing, so a query that should return nothing returns nothing even if the Java layer above it
-is wrong.
+Schemas, Tables, Columns, and rows live inside the running database as the `MOLGENIS` metadata schema, in
+`schema_metadata`, `table_metadata` and `column_metadata`. Everything else in the system is
+generated from them, at runtime, on every request. There is no scaffolding step and no generated
+code checked into a repository. Change a column in the schema editor and the database, the API,
+the forms, and the linked data output all change together.
 
-What the Java layer does instead is *shape the surface*. The GraphQL type system is generated per
-caller: a viewer sees table fields a counter does not, and an aggregator sees ranges where a viewer
-sees exact counts.
+### What the model generates
 
-The third decision is what makes app development cheap. Apps ask for GraphQL at the **relative**
-path `graphql`. A page served at `/pet store/tables/` resolves that to `/pet store/graphql` without
-knowing which schema it is in. The per-schema context is the URL prefix and nothing else.
+```mermaid
+flowchart LR
+  model["EMX2 model<br>tables, columns, types, keys, refs<br>validation, semantics, profiles"]
+
+  ddl["PostgreSQL<br>tables, foreign keys, indexes<br>search and refback triggers<br>row level security policies"]
+  api["GraphQL API<br>types, filters, aggregates, mutations<br>shaped again per caller"]
+  ui["Apps<br>tables, forms and filters<br>built from metadata at runtime"]
+  io["Import and export<br>the same sheet defines and travels with the data"]
+  rdf["Linked data<br>RDF, SHACL sets, Beacon entry types"]
+  types["Developer output<br>TypeScript types, OpenAPI per schema"]
+
+  model --> ddl
+  model --> api
+  model --> ui
+  model --> io
+  model --> rdf
+  model --> types
+```
+
+Two fields in that model are what make it a *FAIR* data schema rather than just a database
+definition. `semantics` holds ontology IRIs on a table or a column, so a column is not merely named
+`birthDate` but is declared to mean a specific term in a public vocabulary. `profiles` tags parts of
+the model as belonging to a published standard, which is how one schema can serve a catalogue, a
+Beacon and a FAIR Data Point at once. Add the `ONTOLOGY` column type, which makes a coded value a
+reference into a real ontology table, and interoperability becomes a property the model carries
+rather than something a later export step tries to reconstruct. See
+[Linked data](./semantics.md) and [App profiles](./dev_profiles.md).
+
+### Everything is served per schema
+
+A MOLGENIS schema is a PostgreSQL schema. Each one is served on its own URL path, gets its own
+GraphQL endpoint, gets a copy of every app, and carries its own set of roles.
+
+This is also what makes app development cheap. Apps ask for GraphQL at the **relative** path
+`graphql`. A page served at `/pet store/tables/` resolves that to `/pet store/graphql` without
+knowing which schema it is in. The per-schema context is the URL prefix and nothing else, so the
+same app works unchanged in every database on the server.
+
+### PostgreSQL enforces access, not Java
+
+**Authorization is not implemented in Java.** Every EMX2 user is a real PostgreSQL role named
+`MG_USER_<name>`, and `SqlUserAwareConnectionProvider` issues `SET ROLE` before handing a connection
+to jOOQ. Grants and row level security policies do the enforcing, so a query that should return
+nothing returns nothing even if the Java layer above it is wrong.
+
+What the Java layer does instead is *shape the surface*, and it shapes it out of the same metadata:
+the GraphQL type system is generated per caller, so a viewer sees table fields a counter does not,
+and an aggregator sees ranges where a viewer sees exact counts.
 
 ## Components
 
@@ -243,17 +286,16 @@ to the database without detours.
    data, then start the web service.
 2. `backend/molgenis-emx2-webapi/.../web/MolgenisWebservice.java` — every route in the system, in
    registration order.
-3. `backend/molgenis-emx2-webapi/.../web/ApplicationCachePerUser.java` — identity, caching and
-   invalidation. The busiest hinge in the codebase.
+3. `backend/molgenis-emx2-webapi/.../web/ApplicationCachePerUser.java` — identity, caching, and
+   invalidation.
 4. `backend/molgenis-emx2-graphql/.../GraphqlFactory.java` — where a caller's permissions become a
    GraphQL type system.
-5. `backend/molgenis-emx2/.../PermissionEvaluator.java` — the permission rules, with no SQL anywhere
-   near them.
+5. `backend/molgenis-emx2/.../PermissionEvaluator.java` — the permission rules.
 6. `backend/molgenis-emx2-sql/.../SqlQuery.java` — the read engine. One nested JSON query per
    GraphQL selection tree.
 7. `backend/molgenis-emx2-sql/.../SqlTable.java` — the write path. Every mutation batches through
    one transaction.
-8. `backend/molgenis-emx2-sql/.../SqlUserAwareConnectionProvider.java` — twenty lines that make
+8. `backend/molgenis-emx2-sql/.../SqlUserAwareConnectionProvider.java` — this makes
    PostgreSQL the authority on access.
 9. `backend/molgenis-emx2-sql/.../Migrations.java` — the full history of breaking schema changes,
    all in one transaction.
