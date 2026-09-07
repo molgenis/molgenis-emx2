@@ -120,23 +120,38 @@ travels to the client almost untouched.
 
 ```mermaid
 flowchart TB
-  s1["1. Javalin matches a route<br>MolgenisWebservice registers every Api class in order"]
-  s2["2. Who is asking<br>session attribute, else the x-molgenis-token header, else anonymous"]
-  s3["3. ApplicationCachePerUser hands back the user objects<br>cached five minutes, a schema change clears everything"]
-  s4["4. Resolve the schema from the path<br>null when the caller PostgreSQL role cannot see it"]
-  s5["5. GraphqlExecutor runs the query<br>the type system was shaped by PermissionEvaluator"]
-  s6["6. SqlQuery builds one statement for the whole selection tree<br>nested jsonb_agg, assembled by the database"]
-  s7["7. The connection becomes the user<br>RESET ROLE, then SET ROLE MG_USER_name"]
-  s8["8. PostgreSQL decides what is visible<br>table grants and row level security policies"]
-  s9["9. One JSON string comes back<br>no row by row mapping into Java objects"]
-  s10["10. The connection stops being the user<br>RESET ROLE and RESET search_path, then back into the pool"]
-  s11["11. GraphQL wraps data and errors into one body<br>sent as JSON with status 200, even when the body carries errors"]
-  s12["12. Anything thrown leaves through one handler<br>every exception becomes a 400 JSON body"]
+  s1["Step 1: match a route"]
+  s2["Step 2: identify the caller"]
+  s3["Step 3: take the user objects from cache"]
+  s4["Step 4: resolve the schema"]
+  s5["Step 5: run the GraphQL query"]
+  s6["Step 6: build one SQL statement"]
+  s7["Step 7: become the user"]
+  s8["Step 8: PostgreSQL decides"]
+  s9["Step 9: one JSON string returns"]
+  s10["Step 10: release the connection"]
+  s11["Step 11: wrap data and errors"]
+  s12["Step 12: errors take the same exit"]
 
   s1 --> s2 --> s3 --> s4 --> s5 --> s6 --> s7 --> s8
-  s8 -->|"the request turns around here"| s9
+  s8 -->|"turns around here"| s9
   s9 --> s10 --> s11 --> s12
 ```
+
+| Step | What happens |
+|:--|:--|
+| 1 | `MolgenisWebservice` registers every `*Api` class in order, static file serving last. |
+| 2 | The session attribute, else the `x-molgenis-token` header, else anonymous. |
+| 3 | `ApplicationCachePerUser` returns a `Database`, a `Schema` and a `GraphqlExecutor`, cached five minutes. |
+| 4 | The schema comes back null when the caller's PostgreSQL role cannot see it. |
+| 5 | `GraphqlExecutor` runs it against a type system already shaped by `PermissionEvaluator`. |
+| 6 | `SqlQuery` builds one nested `jsonb_agg` statement for the whole selection tree. |
+| 7 | `RESET ROLE`, then `SET ROLE MG_USER_<name>` on the connection. |
+| 8 | Table grants and row level security policies decide what comes back. |
+| 9 | The result arrives as one JSON string, with no row by row mapping into Java objects. |
+| 10 | `RESET ROLE` and `RESET search_path`, then the connection returns to the pool. |
+| 11 | Data and errors go into one JSON body, sent with status `200`. |
+| 12 | Any exception becomes a `400` JSON body through a single handler. |
 
 Three steps catch people out:
 
