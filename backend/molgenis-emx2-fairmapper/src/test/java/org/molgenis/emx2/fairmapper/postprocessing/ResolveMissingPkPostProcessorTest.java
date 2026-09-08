@@ -163,10 +163,9 @@ class ResolveMissingPkPostProcessorTest {
   @Nested
   class CompositeKeyTest {
 
-    // A nested test class's simple name alone collides with
-    // org.molgenis.emx2.rdf.service.CompositeKeyTest on the shared Postgres cluster; kept short
-    // because a longer schema name pushes a default role's identifier past PostgreSQL's 63-byte
-    // limit, which the role cleanup on schema drop does not recover from.
+    // Override schemaName to prevent collision with existing `CompositeKeyTest` testclasses.
+    // Using a short name to stay under Postgres' 63-byte identifier limit: the schema name
+    // is part of the role names EMX2 creates for it.
     private final String schemaName = "FairmapperCompositeKeyTest";
 
     @BeforeEach
