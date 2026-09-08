@@ -141,6 +141,10 @@ abstract class AppOutputLocator {
     static File packagedOutputDirForApp(File appsDirectory, String appName) {
         File appDir = new File(appsDirectory, appName)
         if (new File(appDir, "nuxt.config.ts").exists()) {
+            // An SSR app serves its own client bundle, so the jar must not ship a second copy.
+            if (!expectsPackagedOutput(appsDirectory, appName)) {
+                return null
+            }
             File nuxtPublicDir = new File(appDir, ".output/public")
             return holdsBuildOutput(nuxtPublicDir) ? nuxtPublicDir : null
         }
