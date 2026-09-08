@@ -351,6 +351,37 @@ public class SqlColumnExecutor {
                 .setRefBack("parent"));
   }
 
+  private static void validateKeyNotAddedToSubclass(Column c) {
+    TableMetadata table = c.getTable();
+    if (c.getKey() != 1
+        || AUTO_ID.equals(c.getColumnType())
+        || table == null
+        || table.getInheritName() == null
+        || table.getInheritedTable() == null
+        || table.getInheritedTable().getColumn(c.getName()) != null) {
+      return;
+    }
+    TableMetadata rootTable = table.getRootTable();
+    throw new MolgenisException(
+        String.format(
+            "Cannot make column '%s.%s' part of the primary key because table '%s' extends '%s'."
+                + " A subclass shares the primary key of its root table '%s' (%s), so rows that are"
+                + " unique in '%s' would still be duplicates in '%s'."
+                + " Either add key=1 columns to root table '%s', or use key=2 (or higher) to make"
+                + " '%s' unique within '%s' only",
+            table.getTableName(),
+            c.getName(),
+            table.getTableName(),
+            table.getInheritName(),
+            rootTable.getTableName(),
+            String.join(", ", rootTable.getPrimaryKeys()),
+            table.getTableName(),
+            rootTable.getTableName(),
+            rootTable.getTableName(),
+            c.getName(),
+            table.getTableName()));
+  }
+
   static void validateColumn(Column c) {
     try {
       if (c.getName() == null) {
@@ -364,6 +395,7 @@ public class SqlColumnExecutor {
                 + c.getName()
                 + "' failed: When key spans multiple columns, none of the columns can be nullable");
       }
+      validateKeyNotAddedToSubclass(c);
       if (c.isReference() && !c.isOntology() && c.getRefTableName() == null) {
         throw new MolgenisException(
             String.format(

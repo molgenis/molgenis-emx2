@@ -802,4 +802,56 @@ class TestInherits {
     assertDoesNotThrow(() -> db.dropSchema(childSchemaName));
     assertDoesNotThrow(() -> db.dropSchema(parentSchemaName));
   }
+
+  @Test
+  void addingPrimaryKeyColumnToSubclassIsRejected() {
+    String schemaName = TestInherits.class.getSimpleName() + "_subclass_pkey";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(
+        table(
+            "Patient",
+            column("name").setPkey(),
+            column("hospital").setPkey(),
+            column("birthDate").setType(DATE)));
+
+    MolgenisException createException =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema.create(
+                    table("Treatment", column("treatment").setPkey()).setInheritName("Patient")));
+    assertTrue(
+        createException
+            .getMessage()
+            .contains("Cannot make column 'Treatment.treatment' part of the primary key"),
+        createException.getMessage());
+    assertTrue(
+        createException.getMessage().contains("shares the primary key of its root table 'Patient'"),
+        createException.getMessage());
+
+    schema.create(table("Treatment", column("treatment")).setInheritName("Patient"));
+    TableMetadata treatment = schema.getMetadata().getTableMetadata("Treatment");
+
+    MolgenisException addException =
+        assertThrows(MolgenisException.class, () -> treatment.add(column("visit").setPkey()));
+    assertTrue(
+        addException.getMessage().contains("Cannot make column 'Treatment.visit'"),
+        addException.getMessage());
+
+    MolgenisException alterException =
+        assertThrows(
+            MolgenisException.class,
+            () -> treatment.alterColumn("treatment", column("treatment").setPkey()));
+    assertTrue(
+        alterException.getMessage().contains("Cannot make column 'Treatment.treatment'"),
+        alterException.getMessage());
+
+    assertDoesNotThrow(() -> treatment.add(column("caseNumber").setKey(2)));
+
+    db.getSchema(schemaName)
+        .getTable("Treatment")
+        .insert(row("name", "Spike", "hospital", "Piet", "treatment", "Vaccination"));
+
+    assertDoesNotThrow(() -> db.dropSchema(schemaName));
+  }
 }
