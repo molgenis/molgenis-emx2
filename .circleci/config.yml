@@ -232,7 +232,7 @@ jobs:
         name: build and push emx2 java docker images for the preview
         command: |
           set -o pipefail
-          ./gradlew -s --console=plain dockerPush ci -x test \
+          ./gradlew -s --no-daemon --console=plain dockerPush ci -x test \
           2>&1 | tee ~/gradle-logs/build-preview-images.log
 
     - run:
@@ -292,7 +292,7 @@ jobs:
 
       - run:
           name: build the application without running tests to speed up the e2e tests
-          command: ./gradlew shadowJar -x test ci
+          command: ./gradlew shadowJar -x test ci --no-daemon
           # Node sizes its default heap from HOST memory, not the 8GB this job shares with postgres.
           environment:
             NODE_OPTIONS: --max-old-space-size=2048
@@ -649,7 +649,7 @@ jobs:
             export REGEX="^.*(emx2-pyclient).*$"
             if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
               export $( cat build/ci.properties | xargs )
-              ./gradlew -s publishPython > pypi_output
+              ./gradlew -s --no-daemon publishPython > pypi_output
               curl -d "token=${SLACK_TOKEN}" \
               -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
               A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
