@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 
@@ -36,6 +37,16 @@ class LiteralColumnSparqlQueryGeneratorTest {
   @Test
   void shouldHandleNoSemanticsForColumn() {
     Column column = createColumn(Column.column("foo").setRequired(true).setSemantics());
+    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
+    assertTrue(mapper.getPatterns().isEmpty());
+    assertHasSelectors(mapper, "?foo");
+    assertHasGroupBy(mapper, "?foo");
+  }
+
+  @Test
+  void shouldHandleNullSemanticsForColumn() {
+    Column column =
+        createColumn(Column.column("foo").setRequired(true).setSemantics((Semantic[]) null));
     LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertTrue(mapper.getPatterns().isEmpty());
     assertHasSelectors(mapper, "?foo");

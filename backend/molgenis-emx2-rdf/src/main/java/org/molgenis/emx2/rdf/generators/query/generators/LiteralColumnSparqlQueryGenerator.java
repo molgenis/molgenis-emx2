@@ -67,23 +67,26 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     return (selector == null) ? Collections.emptyList() : List.of(selector);
   }
 
+  @SuppressWarnings("DataFlowIssue")
   @Override
   public List<GraphPattern> getPatterns() {
-    if (column.getSemantics() != null && column.getSemantics().length == 0) {
+    if (!column.hasSemantics()) {
       return Collections.emptyList();
-    } else if (column.getSemantics().length > 1) {
-      return multiSemanticPattern();
     }
 
-    RdfPredicate predicate =
-        column
-            .getSemanticsStringStream()
-            .findFirst()
-            .orElseThrow()
-            .transform(this::generatePredicate);
-    GraphPattern pattern = GraphPatterns.tp(subject, predicate, object);
+    if (column.getSemantics().length > 1) {
+      return multiSemanticPattern();
+    } else {
+      RdfPredicate predicate =
+          column
+              .getSemanticsStringStream()
+              .findFirst()
+              .orElseThrow()
+              .transform(this::generatePredicate);
+      GraphPattern pattern = GraphPatterns.tp(subject, predicate, object);
 
-    return List.of(isRequired ? pattern : pattern.optional());
+      return List.of(isRequired ? pattern : pattern.optional());
+    }
   }
 
   private List<GraphPattern> multiSemanticPattern() {
