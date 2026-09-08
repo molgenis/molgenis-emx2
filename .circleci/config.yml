@@ -23,7 +23,7 @@ definitions:
     GRADLE_USER_HOME: /tmp/ci-cache/gradle
     GRADLE_BUILD_CACHE_DIR: /tmp/ci-cache/gradle-build-cache
     TURBO_CACHE_DIR: /tmp/ci-cache/turbo
-    GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
+    GRADLE_OPTS: "-Dorg.gradle.workers.max=2 -Dorg.gradle.console=plain"
     TERM: dumb
 
   build_config: &build_config
@@ -225,7 +225,7 @@ jobs:
         name: build and push emx2 java docker images for the preview
         command: |
           set -o pipefail
-          ./gradlew -s --no-daemon --console=plain dockerPush ci -x test \
+          ./gradlew -s --no-daemon dockerPush ci -x test \
           2>&1 | tee ~/gradle-logs/build-preview-images.log
 
     - run:
@@ -459,7 +459,7 @@ jobs:
         name: <apps> lint the code
         command: |
           set -o pipefail
-          ./gradlew lint ci --console=plain \
+          ./gradlew lint ci \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           2>&1 | tee ~/gradle-logs/test-apps-lint.log
         # Turbo lints 3 packages at once, each Node child sizing its heap from HOST memory.
@@ -509,7 +509,7 @@ jobs:
           # CircleCI truncates a step log to its last 400KB, so tee keeps it whole on disk.
           # pipefail keeps the step failing on gradle's exit code rather than tee's.
           set -o pipefail
-          ./gradlew test jacocoMergedReport -x :apps:test --console=plain \
+          ./gradlew test jacocoMergedReport -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           2>&1 | tee ~/gradle-logs/test-backend.log
     - run:
@@ -550,7 +550,7 @@ jobs:
         name: build the docker image
         command: |
           set -o pipefail
-          ./gradlew ci dockerBuild --console=plain \
+          ./gradlew ci dockerBuild \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           2>&1 | tee ~/gradle-logs/release-dockerbuild.log
 
@@ -560,11 +560,11 @@ jobs:
           export $( cat build/ci.properties | xargs )
           set -o pipefail
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            ./gradlew -s --console=plain dockerPush 2>&1 | tee ~/gradle-logs/release-snapshot.log
+            ./gradlew -s dockerPush 2>&1 | tee ~/gradle-logs/release-snapshot.log
             docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
-            ./gradlew -s --console=plain dockerPush release 2>&1 | tee ~/gradle-logs/release-publish.log
+            ./gradlew -s dockerPush release 2>&1 | tee ~/gradle-logs/release-publish.log
             docker build apps/catalogue/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
