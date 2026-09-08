@@ -211,7 +211,7 @@ jobs:
       - pre_steps:
           gradle_cache: false
 
-      # without this step the job's postgres is OOM-killed; the remote-docker VM has the headroom
+      # same resource_class, but 15GB against the plain executor's 8GB, which postgres OOMs on
       - setup_remote_docker
 
       - restore_cache:
@@ -393,7 +393,7 @@ jobs:
     steps:
     - pre_steps
 
-    # without this step turbo's 3 parallel package builds are OOM-killed
+    # same resource_class, but 15GB against the plain executor's 8GB, which turbo's 3 linters OOM on
     - setup_remote_docker
 
     - run:
@@ -423,7 +423,7 @@ jobs:
     steps:
     - pre_steps
 
-    # without this step the job's postgres is OOM-killed; the remote-docker VM has the headroom
+    # same resource_class, but 15GB against the plain executor's 8GB, which postgres OOMs on
     - setup_remote_docker
 
     - run:
