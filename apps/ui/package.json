@@ -40,7 +40,7 @@
     "cross-env": "7.0.3",
     "if-env": "1.0.4",
     "metadata-utils": "workspace:*",
-    "nuxt": "4.4.8",
+    "nuxt": "4.5.1",
     "nuxt-monaco-editor": "1.4.0",
     "pinia": "3.0.3",
     "playwright-core": "1.62.0",
@@ -48,8 +48,8 @@
     "svgo": "4.0.2",
     "tailwind-components": "workspace:*",
     "tailwindcss": "3.4.17",
-    "typescript": "5.6.2",
+    "typescript": "5.9.2",
     "vitest": "4.1.8",
-    "vue-tsc": "3.2.1"
+    "vue-tsc": "3.3.10"
   }
 }

@@ -33,3 +33,9 @@ onlyBuiltDependencies:
   - core-js
   - esbuild
   - vue-demi
+
+overrides:
+  cookie@<0.7.0: '>=0.7.0'
+  esbuild@>=0.27.3 <0.28.1: '>=0.28.1'
+  nanoid@<3.3.18: '>=3.3.18'
+  postcss@<=8.5.22: '>=8.5.23'

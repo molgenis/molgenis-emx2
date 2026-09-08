@@ -1,4 +1,4 @@
-// @vitest-environment happy-dom
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { reactive, ref, nextTick } from "vue";
 import { flushPromises } from "@vue/test-utils";
@@ -12,13 +12,27 @@ vi.mock("../../../app/composables/fetchTableMetadata", () => ({
   default: vi.fn().mockResolvedValue({ columns: [] }),
 }));
 
-vi.mock("#app/composables/router", () => ({
-  useRoute: vi.fn(),
-  useRouter: vi.fn(),
-}));
+const mockSetup = vi.hoisted(() => {
+  const useRouteMock = vi.fn(() => ({ query: reactive({}) }));
+  const useRouterMock = vi.fn(() => ({
+    replace: vi.fn(),
+    beforeEach: vi.fn(),
+    beforeResolve: vi.fn(),
+    afterEach: vi.fn(),
+    options: {},
+  }));
+  const useStateMock = vi.fn();
+  const useAsyncDataMock = vi.fn();
 
-// @ts-ignore
-import { useRoute, useRouter } from "#app/composables/router";
+  return { useRouteMock, useRouterMock, useStateMock, useAsyncDataMock };
+});
+
+mockNuxtImport("useRoute", () => mockSetup.useRouteMock);
+mockNuxtImport("useRouter", () => mockSetup.useRouterMock);
+mockNuxtImport("useState", () =>
+  vi.fn((key, init) => mockSetup.useStateMock(key, init))
+);
+mockNuxtImport("useAsyncData", () => mockSetup.useAsyncDataMock);
 
 import {
   useFilters,
@@ -65,8 +79,8 @@ function setupMockRouter(queryInit: Record<string, string> = {}) {
   });
   const replaceCalls: Array<{ query: Record<string, unknown> }> = [];
 
-  useRoute.mockReturnValue({ query: mockQuery });
-  useRouter.mockReturnValue({
+  mockSetup.useRouteMock.mockReturnValue({ query: mockQuery });
+  mockSetup.useRouterMock.mockReturnValue({
     replace: (opts: any) => {
       replaceCalls.push(opts);
       const newQuery: Record<string, string | undefined> = opts.query ?? {};
@@ -85,8 +99,8 @@ function makeUrlSync(queryInit: Record<string, string> = {}) {
 }
 
 beforeEach(() => {
-  useRoute.mockReturnValue({ query: reactive({}) });
-  useRouter.mockReturnValue({ replace: vi.fn() });
+  mockSetup.useRouteMock.mockReturnValue({ query: reactive({}) });
+  mockSetup.useRouterMock.mockReturnValue({ replace: vi.fn() });
   sessionStorage.clear();
 });
 

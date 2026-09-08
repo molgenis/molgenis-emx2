@@ -6,7 +6,6 @@ import {
   useFetch,
   createError,
 } from "#app";
-import { logError } from "#imports";
 import { computed } from "vue";
 import type { ISetting } from "../../../../metadata-utils/src/types";
 import LayoutsLandingPage from "../../components/layouts/LandingPage.vue";
@@ -16,7 +15,6 @@ import LandingCardPrimary from "../../components/landing/CardPrimary.vue";
 import LandingCardSecondary from "../../components/landing/CardSecondary.vue";
 import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
 import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
-import ContentReadMore from "../../../../tailwind-components/app/components/ContentReadMore.vue";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -176,11 +174,8 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
 });
 
 if (error.value) {
-  const contextMsg = "Error on landing-page data fetch";
-  if (error.value.data) {
-    logError(error.value.data, contextMsg);
-  }
-  throw new Error(contextMsg);
+  console.error("Error on landing-page data fetch", error.value);
+  throw new Error("Error on landing-page data fetch");
 }
 
 function percentageLongitudinal(
@@ -257,7 +252,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
   <LayoutsLandingPage>
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description>
-        <ShowMore :lines="5">
+        <ShowMore>
           Welcome to the catalogue of
           <NuxtLink class="underline hover:bg-link-hover" :to="aboutLink">{{
             network.id
@@ -267,7 +262,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         </ShowMore>
       </template>
       <template v-else v-slot:description>
-        <ContentReadMore :text="description" />
+        <ShowMore>{{ description }}</ShowMore>
       </template>
     </PageHeader>
     <LandingPrimary>

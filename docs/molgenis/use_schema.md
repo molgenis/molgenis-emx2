@@ -75,16 +75,19 @@ names are case insensitive):
 
 - radio: foreign key (many-to-one)
     - values are shown as a radio group
+    - cascadeDelete: if set to TRUE, when the foreign record is deleted, the record in this table will also be deleted. Default value: FALSE
 - checkbox: multiple foreign key (many-to-many)
     - values are shown as a checkbox group
 - select: foreign key (many-to-one)
     - values are shown in a dropdown menu as a radio group
+    - cascadeDelete: if set to TRUE, when the foreign record is deleted, the record in this table will also be deleted. Default value: FALSE
 - multiselect: multiple foreign key (many-to-many)
     - values are shown in a dropdown menu as a checkbox group
 - refback: to describe link back to ref/ref_array (aka one_to_many/many_to_many)
     - values shown as an expandable card which displays the complete record when expanded. The foreign record can be edited or deleted if a user has permission to do so.
 - ref (deprecated) : foreign key (aka many-to-one)
     - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
+    - cascadeDelete: if set to TRUE, when the foreign record is deleted, the record in this table will also be deleted. Default value: FALSE
 - ref_array (deprecated): multiple foreign key (aka many-to-many).
     - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
 

@@ -81,7 +81,7 @@ class PetStoreRolesTest {
   }
 
   @Test
-  void aggregatorSeesNoRowsOnRowLevelSecuredTable() {
+  void aggregatorAggregatesOverAllRowsOfRowLevelSecuredTable() {
     String aggregatorSchema = SCHEMA + "Agg";
     String aggregator = "petstore_roles_aggregator";
     database.becomeAdmin();
@@ -95,15 +95,22 @@ class PetStoreRolesTest {
     schema.addMember(aggregator, Privileges.AGGREGATOR.toString());
 
     database.setActiveUser(aggregator);
+    Schema asAggregator = database.getSchema(aggregatorSchema);
+    assertThrows(
+        MolgenisException.class,
+        () -> asAggregator.getTable("Pet").retrieveRows(),
+        "aggregator must not be able to read rows");
+
     String json =
-        database
-            .getSchema(aggregatorSchema)
+        asAggregator
             .query(
                 "Pet_groupBy",
                 SelectColumn.s("count"),
                 SelectColumn.s("tags", SelectColumn.s("name")))
             .retrieveJSON();
-    assertEquals("{\"Pet_groupBy\": null}", json);
+    assertTrue(
+        json.contains("\"count\""),
+        "aggregator should get counts despite row level security, but got: " + json);
     database.becomeAdmin();
   }
 }

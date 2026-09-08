@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 public class SqlTable implements Table {
 
+  private static final Set<String> INSERT_METADATA_COLUMNS = Set.of(MG_INSERTEDBY, MG_INSERTEDON);
+
   private SqlDatabase db;
   private SqlTableMetadata metadata;
   private TableListener tableListener;
@@ -51,7 +53,7 @@ public class SqlTable implements Table {
 
   @Override
   public int insert(Iterable<Row> rows) {
-    validateMgRoles(rows);
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
     } catch (Exception e) {
@@ -66,7 +68,7 @@ public class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
-    validateMgRoles(rows);
+    rowOwnership().validateOwners(rows); // an update keeps the owner the row already has
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
     } catch (Exception e) {
@@ -81,7 +83,7 @@ public class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
-    validateMgRoles(rows);
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
@@ -89,40 +91,8 @@ public class SqlTable implements Table {
     }
   }
 
-  private void validateMgRoles(Iterable<Row> rows) {
-    if (PermissionEvaluator.canManage(getSchema())) return;
-    if (metadata.getColumn(MG_ROLES) == null) return;
-
-    List<String> userRoles = getSchema().getInheritedRolesForActiveUser();
-    List<String> rolesInSchema = getSchema().getRoles();
-
-    for (Row row : rows) {
-      String[] mgRoles = row.getStringArray(MG_ROLES);
-      if (mgRoles == null || mgRoles.length == 0) continue;
-
-      if (mgRoles.length > 1) {
-        throw new MolgenisException(
-            "mg_roles can only contain a single role, multiple were provided: "
-                + Arrays.toString(mgRoles));
-      }
-
-      String requestedRole = mgRoles[0];
-      if (!rolesInSchema.contains(requestedRole)) {
-        throw new MolgenisException(
-            "mg_roles value '"
-                + requestedRole
-                + "' is not a valid custom role in schema '"
-                + metadata.getSchemaName()
-                + "'");
-      }
-
-      if (!userRoles.contains(requestedRole)) {
-        throw new MolgenisException(
-            "Permission denied: you must be Manager or hold the role '"
-                + requestedRole
-                + "' to set mg_roles");
-      }
-    }
+  private RowOwnership rowOwnership() {
+    return new RowOwnership(getSchema(), metadata);
   }
 
   @Override
@@ -393,15 +363,9 @@ public class SqlTable implements Table {
       InsertOnDuplicateSetStep<org.jooq.Record> step2 =
           step.onConflict(table.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
               .doUpdate();
-      // remove mg_table as part of update key
-      for (Column column :
-          columns.stream()
-              .filter(
-                  c -> c.getName().equals(MG_TABLECLASS) || !Boolean.TRUE.equals(c.isReadonly()))
-              .toList()) {
-        step2.set(
-            column.getJooqField(),
-            (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
+
+      for (Column column : getColumnsToOverwriteOnConflict(columns)) {
+        step2.set(column.getJooqField(), (Object) getExcludedField(column));
       }
       if (!inherit) {
         step2.set(field(name(MG_UPDATEDBY)), getActiveUser(table));
@@ -410,6 +374,17 @@ public class SqlTable implements Table {
     }
 
     return step.returningResult(table.getMetadata().getPrimaryKeyFields()).fetch();
+  }
+
+  private static List<Column> getColumnsToOverwriteOnConflict(List<Column> columns) {
+    return columns.stream()
+        .filter(c -> MG_TABLECLASS.equals(c.getName()) || !Boolean.TRUE.equals(c.isReadonly()))
+        .filter(c -> !INSERT_METADATA_COLUMNS.contains(c.getName()))
+        .toList();
+  }
+
+  private static Field<Object> getExcludedField(Column column) {
+    return field(unquotedName("excluded.\"" + column.getName() + "\""));
   }
 
   private static void copyRecordValuesIntoRows(Row row, Record from, List<Column> toCopy) {

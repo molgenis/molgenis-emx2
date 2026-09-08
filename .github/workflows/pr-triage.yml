@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate pr-triage-teams.yml
         run: python3 .github/scripts/validate_pr_triage_teams.py
       - name: Run unit tests
@@ -45,7 +45,7 @@ jobs:
       # committers can push a branch here, and a same-repo PR supplies its
       # own workflow file anyway, so pinning the checkout would not close the
       # hole on its own.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Triage pull request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

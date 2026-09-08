@@ -23,7 +23,7 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
 
 <template>
   <div
-    class="inline-flex flex-row items-center gap-2 px-2 divide-x group border border-theme rounded-theme [background-image:var(--background-color-bulk-gradient)]"
+    class="inline-flex flex-row items-center gap-2 px-2 group border border-theme rounded-base [background-image:var(--background-color-bulk-gradient)]"
   >
     <div>
       <VDropdown
@@ -76,6 +76,7 @@ const singleRowSelected = computed(() => props.numberOfSelectedRows === 1);
         </template>
       </VDropdown>
     </div>
+    <div class="self-stretch my-2 -mx-2 border-l border-theme"></div>
     <div class="flex flex-row items-center gap-2 pl-2">
       <Button
         v-if="canDelete"

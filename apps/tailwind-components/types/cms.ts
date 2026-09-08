@@ -1,4 +1,4 @@
-// Generated (on: 2026-04-13T16:07:28.658752) from Generator.java for schema: cms
+// Generated (on: 2026-08-21T10:23:03.961841) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -47,6 +47,7 @@ export interface IBlocks extends IMgTableClass {
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
+  applyShadedBackground?: boolean;
 }
 
 export interface IBlocks_agg {
@@ -265,8 +266,10 @@ export interface IParagraphs_agg {
 
 export interface ISections extends IMgTableClass {
   enableFullScreenWidth?: boolean;
+  applyShadedBackground?: boolean;
   inContainer?: any;
-  isEditable?: boolean;
+  components?: IComponents[];
+  componentOrder?: IComponentOrders[];
   id: string;
 }
 
@@ -313,10 +316,4 @@ export interface IWebFetchPriorities extends IMgTableClass {
 
 export interface IWebFetchPriorities_agg {
   count: number;
-}
-
-export interface IDraggingInfo {
-  dragging: boolean;
-  componentName: string;
-  componentType: string;
 }

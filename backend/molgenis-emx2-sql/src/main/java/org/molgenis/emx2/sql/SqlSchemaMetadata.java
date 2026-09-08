@@ -245,21 +245,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public List<String> getInheritedRolesForUser(String username) {
-    if (username == null) return new ArrayList<>();
-    User user = getDatabase().getUser(username);
-    if (user.isAdmin()) {
-      // admin has all roles
-      return getDatabase().getRoleManager().getRoleNames(getName());
-    }
-    List<String> result = new ArrayList<>();
-    // need elevated privileges, so clear user and run as root
-    getDatabase()
-        .getJooqAsAdmin(
-            adminJooq ->
-                result.addAll(
-                    SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        adminJooq, getName(), username.trim())));
-    return result;
+    return getDatabase().getRoleManager().getInheritedRoleNamesForUser(getName(), username);
   }
 
   public List<String> getInheritedRolesForActiveUser() {

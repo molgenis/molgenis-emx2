@@ -24,14 +24,22 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
         enableButtonStyles
         enableFullScreen
         
-        # Configurable pages
+        # Configurable pages: base block info
+        blocks {
+            ...BlocksAllFields2
+        }
+            
+        # Configurable pages: ordered for page rendering
         blockOrder(orderby: { order: ASC } ) {
             id
             order
             block {
                 id
-                enableFullScreenWidth
                 mg_tableclass
+                
+                # ui settings for blocks: settings
+                enableFullScreenWidth
+                applyShadedBackground
                 
                 # page headings
                 title
