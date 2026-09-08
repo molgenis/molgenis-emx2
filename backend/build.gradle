@@ -44,7 +44,7 @@ subprojects {
         def sourceFiles = sourceSets.main.java.asFileTree.files + sourceSets.test.java.asFileTree.files
 
         def changedFiles = providers.exec {
-            commandLine "git", "diff", "--name-only", "origin/master", "--", "*.java"
+            commandLine "git", "diff", "--name-only", "origin/master...HEAD", "--", "*.java"
         }.standardOutput.asText.map { output ->
             output.readLines()
                     .collect { rootProject.file(it) }
