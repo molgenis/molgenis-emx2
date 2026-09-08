@@ -54,7 +54,7 @@ definitions:
     resource_class: large
     environment:
       <<: *cache_env
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
       TERM: dumb
 
 
@@ -549,7 +549,7 @@ jobs:
     - pre_steps
     - restore_gradle_deps
     - docker_setup
-    # Only turbo: release_config sets -Dorg.gradle.caching=false, so a gradle pool would never be read.
+    - restore_gradle_build_cache
     - restore_turbo_cache
 
     - run:
