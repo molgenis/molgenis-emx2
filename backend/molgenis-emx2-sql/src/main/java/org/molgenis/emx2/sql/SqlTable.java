@@ -156,7 +156,7 @@ public class SqlTable implements Table {
           for (Row row : rows) {
 
             // set table class if not set, and see for first time
-            if (row.notNull(MG_TABLECLASS)
+            if (row.notEmpty(MG_TABLECLASS)
                 && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
 
               // validate

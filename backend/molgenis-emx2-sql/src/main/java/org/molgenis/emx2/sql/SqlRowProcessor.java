@@ -40,7 +40,7 @@ public class SqlRowProcessor {
     Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
 
     for (Column column : columnsToProcess) {
-      if (column.hasDefaultValue() && !row.notNull(column.getName())) {
+      if (column.hasDefaultValue() && !row.notEmpty(column.getName())) {
         ResolveDefaultValue.apply(context, column, row);
       } else if (column.hasComputed()) {
         ResolveComputedValue.apply(context, column, row);

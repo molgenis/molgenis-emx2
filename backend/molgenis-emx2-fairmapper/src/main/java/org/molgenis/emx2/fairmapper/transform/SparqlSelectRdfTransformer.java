@@ -114,7 +114,7 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
 
   private void splitArrayColumns(Row row, List<String> columnNames) {
     for (String name : columnNames) {
-      if (row.notNull(name)) {
+      if (row.notEmpty(name)) {
         String[] split = row.getString(name).split(ARRAY_SEPARATOR_REGEX);
         row.set(name, split);
       }

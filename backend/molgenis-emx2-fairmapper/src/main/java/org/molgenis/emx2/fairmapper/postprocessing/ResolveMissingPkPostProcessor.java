@@ -53,11 +53,11 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
     Row referringRow = getRowForSubject(tableStore, column.getRefTableName(), subject);
 
     for (Reference reference : column.getReferences()) {
-      if (row.notNull(reference.getColumnName())) {
+      if (row.notEmpty(reference.getColumnName())) {
         continue;
       }
 
-      if (referringRow.notNull(reference.getReferencedColumnName())) {
+      if (referringRow.notEmpty(reference.getReferencedColumnName())) {
         Object newValue = referringRow.getValueMap().get(reference.getReferencedColumnName());
         logger.info(
             "Updating subject: {}, deriving column: {} from reference, setting new value: {}",
@@ -96,13 +96,13 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
             .toList();
 
     for (Reference reference : column.getReferences()) {
-      if (row.notNull(reference.getColumnName())) {
+      if (row.notEmpty(reference.getColumnName())) {
         continue;
       }
 
       List<Object> values = new ArrayList<>();
       for (Row referringRow : rows) {
-        if (referringRow.notNull(reference.getReferencedColumnName())) {
+        if (referringRow.notEmpty(reference.getReferencedColumnName())) {
           values.add(referringRow.getValueMap().get(reference.getReferencedColumnName()));
         } else {
           // This referenced row is missing its half of a composite key that points back to
