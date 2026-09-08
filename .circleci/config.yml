@@ -227,7 +227,11 @@ jobs:
 
     - run:
         name: build and push emx2 java docker images for the preview
-        command: ./gradlew -s --no-daemon dockerPush ci -x test
+        command: |
+          set -o pipefail
+          mkdir -p ~/gradle-logs
+          ./gradlew -s --no-daemon --console=plain dockerPush ci -x test \
+          2>&1 | tee ~/gradle-logs/build-preview-images.log
 
     - run:
         name: push ssr-catalogue docker images
@@ -462,8 +466,11 @@ jobs:
     - run:
         name: <apps> lint the code
         command: |
-          ./gradlew lint ci --no-daemon \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+          set -o pipefail
+          mkdir -p ~/gradle-logs
+          ./gradlew lint ci --no-daemon --console=plain \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+          2>&1 | tee ~/gradle-logs/test-apps-lint.log
         # Turbo lints 3 packages at once, each Node child sizing its heap from HOST memory.
         environment:
           NODE_OPTIONS: --max-old-space-size=2048
@@ -552,19 +559,24 @@ jobs:
     - run:
         name: build the docker image
         command: |
-          ./gradlew ci dockerBuild --no-daemon \
-          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password
+          set -o pipefail
+          mkdir -p ~/gradle-logs
+          ./gradlew ci dockerBuild --no-daemon --console=plain \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
+          2>&1 | tee ~/gradle-logs/release-dockerbuild.log
 
     - run:
         name: either release or push only snapshots to docker
         command: |
           export $( cat build/ci.properties | xargs )
+          set -o pipefail
+          mkdir -p ~/gradle-logs
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            ./gradlew -s --no-daemon dockerPush
+            ./gradlew -s --no-daemon --console=plain dockerPush 2>&1 | tee ~/gradle-logs/release-snapshot.log
             docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
-            ./gradlew -s --no-daemon dockerPush release
+            ./gradlew -s --no-daemon --console=plain dockerPush release 2>&1 | tee ~/gradle-logs/release-publish.log
             docker build apps/catalogue/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
