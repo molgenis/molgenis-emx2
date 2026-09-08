@@ -50,10 +50,6 @@ public class Extract implements Runnable {
         connection.export(writer);
         writer.endRDF();
       } catch (IOException e) {
-        if (repository.isInitialized()) {
-          repository.shutDown();
-        }
-
         throw new MolgenisException("Something went wrong extracting endpoint: " + rdf, e);
       }
     } finally {
