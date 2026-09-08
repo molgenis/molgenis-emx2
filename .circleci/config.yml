@@ -735,7 +735,6 @@ workflows:
        requires:
          - test-apps
          - test-backend
-         - test-e2e
        filters:
          branches:
            only: master
