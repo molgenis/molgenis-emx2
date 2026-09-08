@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ContentReadMore from "../ContentReadMore.vue";
+import ShowMore from "../ShowMore.vue";
 defineProps<{
   title?: string;
   description?: string;
@@ -14,7 +14,7 @@ defineProps<{
       {{ title }}
     </h2>
     <div class="mb-5 prose max-w-none" v-if="description">
-      <ContentReadMore :text="description" />
+      <ShowMore>{{ description }}</ShowMore>
     </div>
     <slot></slot>
   </section>
