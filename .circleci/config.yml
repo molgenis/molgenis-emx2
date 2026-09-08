@@ -18,8 +18,7 @@ orbs:
   slack: circleci/slack@6.1.3
 
 definitions:
-  # A cache restores to the absolute path it was saved from, and `~` is a different user on
-  # test-e2e's image than on the other jobs', so both need this same explicit path.
+  # A cache restores to the absolute path it was saved from, and `~` differs per image.
   cache_env: &cache_env
     GRADLE_USER_HOME: /tmp/ci-cache/gradle
     GRADLE_BUILD_CACHE_DIR: /tmp/ci-cache/gradle-build-cache
@@ -61,10 +60,6 @@ definitions:
 
 commands:
   pre_steps:
-    parameters:
-      gradle_deps:
-        type: boolean
-        default: true
     steps:
     - run:
         name: Report the CPUs and memory visible to the container and JVM
@@ -98,12 +93,6 @@ commands:
         name: run-pnpm-audit
         command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
         working_directory: apps
-    # Off for the jobs that run no gradle target: restoring it costs them 8s to unpack
-    # dependencies nothing reads.
-    - when:
-        condition: << parameters.gradle_deps >>
-        steps:
-        - restore_gradle_deps
 
   # The layer cache only pays where an image gets built: elsewhere it stores nothing, at 200 credits a run.
   docker_setup:
@@ -118,9 +107,6 @@ commands:
     steps:
     - run:
         name: Concatenate build files as the dependency cache key
-        # git, not find: find returns filesystem order, so the same tree hashes differently on
-        # different machines, and it also picks up generated copies such as the one under
-        # docs/build/resources. Either drifts the key and costs a cache hit.
         command: git ls-files -z '*build.gradle' | xargs -0 cat > concatenated-build-gradle
     - restore_cache:
         keys:
@@ -136,9 +122,7 @@ commands:
 
   restore_gradle_build_cache:
     steps:
-    # A restore takes the FIRST key that matches, so a branch that has run before never reaches
-    # master's pool. After a merge from master the branch's own pool has no entry for the code it
-    # just took in, and master's has all of them, so restore both, least specific first.
+    # A restore takes the FIRST key that matches, so master's pool needs its own step to be reached.
     - when:
         condition:
           not:
@@ -180,8 +164,7 @@ commands:
           - turbo-v3-{{ .Branch }}-
           - turbo-v3-master-
           - turbo-v3-
-    # Same reason as the gradle cache above. Turbo's cache is flat <hash>.tar.zst files, so
-    # extracting master's pool over the branch's unions the two.
+    # Same reason as the gradle cache above; the flat entries union rather than collide.
     - when:
         condition:
           not:
@@ -237,6 +220,7 @@ jobs:
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 
     - pre_steps
+    - restore_gradle_deps
     - docker_setup
 
     - restore_gradle_build_cache
@@ -298,6 +282,7 @@ jobs:
 
       # This job restores its own gradle cache below, into the GRADLE_USER_HOME set above.
       - pre_steps
+      - restore_gradle_deps
 
       # same resource_class, but 15GB against the plain executor's 8GB, which postgres OOMs on
       - setup_remote_docker
@@ -468,6 +453,7 @@ jobs:
 
     steps:
     - pre_steps
+    - restore_gradle_deps
 
     # same resource_class, but 15GB against the plain executor's 8GB, which turbo's 3 linters OOM on
     - setup_remote_docker
@@ -494,8 +480,7 @@ jobs:
         environment:
           NODE_OPTIONS: --max-old-space-size=2048
 
-    # lint dependsOn build for every package, so this run produces the full turbo
-    # build set plus lint/checkFormat/test-ci entries. The only writer of this cache.
+    # lint dependsOn build, so this run produces the whole set. The only writer of this cache.
     - save_turbo_cache
 
     - post_steps
@@ -505,12 +490,12 @@ jobs:
 
     steps:
     - pre_steps
+    - restore_gradle_deps
 
     # same resource_class, but 15GB against the plain executor's 8GB, which postgres OOMs on
     - setup_remote_docker
 
-    # No turbo restore: `:apps` is a runtimeOnly dependency, so a dry run of this job's
-    # gradle call schedules no `:apps:*` task and nothing here reads the turbo cache.
+    # No turbo restore: `:apps` is runtimeOnly, so this job schedules no `:apps:*` task.
     - restore_gradle_build_cache
 
     - run:
@@ -527,10 +512,7 @@ jobs:
           ./gradlew --continue pmdMain pmdTest
     - run:
         name: run tests and merge coverage
-        # Split from sonar so each carries its own timing. The combined step grew from 51s to
-        # 101s over three runs while gradle's task counts stayed identical, and sonar's upload
-        # scales with the pull request where the tests do not. Costs one extra gradle
-        # configuration pass; fold it back once the growth is attributed.
+        # Split from sonar so each carries its own timing.
         command: |
           # CircleCI truncates a step log to its last 400KB, so tee keeps it whole on disk.
           # pipefail keeps the step failing on gradle's exit code rather than tee's.
@@ -553,8 +535,7 @@ jobs:
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
 
-    # Every backend module compiles and every backend test runs here, plus pmd and
-    # spotless. The only writer of these caches.
+    # Every backend module, test, pmd and spotless runs here. The only writer of these caches.
     - save_gradle_deps
     - save_gradle_build_cache
 
@@ -565,10 +546,10 @@ jobs:
 
     steps:
     - pre_steps
+    - restore_gradle_deps
     - docker_setup
 
-    # No restore here: release is the acceptance artifact, and it does not consume
-    # cache entries whose validity rests on our own hand-written task declarations.
+    # No restore here: release is the acceptance artifact and consumes none of these entries.
 
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
@@ -650,10 +631,7 @@ jobs:
     resource_class: medium
 
     steps:
-      # No docker_setup: nothing is imaged here unless the commit subject names emx2-pyclient,
-      # so the layer cache would cost an upload every run and repay it on almost none.
-      - pre_steps:
-          gradle_deps: false
+      - pre_steps
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
@@ -695,8 +673,7 @@ jobs:
       GHA_PREVIEW_NR: << pipeline.parameters.GHA_Meta >>
     
     steps:
-    - pre_steps:
-        gradle_deps: false
+    - pre_steps
 
 
     - run:
@@ -710,8 +687,7 @@ jobs:
     <<: *build_config
 
     steps:
-      - pre_steps:
-          gradle_deps: false
+      - pre_steps
 
       # Check if we should run this week
       - run:
