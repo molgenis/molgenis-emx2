@@ -542,8 +542,8 @@ jobs:
     - pre_steps
     - restore_gradle_deps
     - docker_setup
-
-    # No restore here: release is the acceptance artifact and consumes none of these entries.
+    # Only turbo: release_config sets -Dorg.gradle.caching=false, so a gradle pool would never be read.
+    - restore_turbo_cache
 
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
