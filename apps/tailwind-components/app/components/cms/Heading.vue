@@ -3,7 +3,7 @@ import { ref } from "vue";
 import type { IHeadings } from "../../../types/cms";
 import ComponentActions from "./ComponentActions.vue";
 
-const emit = defineEmits(["edit", "delete"]);
+const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
 
 withDefaults(defineProps<IHeadings & { isEditable?: boolean }>(), {
@@ -31,6 +31,7 @@ withDefaults(defineProps<IHeadings & { isEditable?: boolean }>(), {
         :aria-controls="id"
         @edit="$emit('edit')"
         @delete="$emit('delete')"
+        @move="$emit('move', $event)"
       />
     </template>
     <component

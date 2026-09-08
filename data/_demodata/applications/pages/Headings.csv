@@ -1,4 +1,6 @@
-id,in block,text,heading is centered,level
-home-section-features-h2,home-section-features,Features,false,2
-home-section-applications-h2,home-section-applications,Applications,false,2
-home-section-navigation-heading,home-section-navigation,Get started with MOLGENIS,false,2
+text,level,heading is centered,heading is hidden,in block,id
+Overview,2,true,false,,Heading-3b20c947-9818-41a8-942d-e82d2a2f6002
+Features,2,false,false,,Heading-c3b5e1dd-720c-488b-abd1-b1ae6a31098a
+Section Heading,3,false,false,,Heading-5ab376f2-4418-46e0-919f-981ebf158250
+Section Heading,3,false,false,,Heading-888b033f-219c-4954-bf30-ecd0011ee692
+Note,2,false,false,,Heading-779ccce7-e314-4fb4-9853-6ff3cd2717de

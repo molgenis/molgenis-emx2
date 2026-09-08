@@ -59,6 +59,11 @@ public final class PermissionEvaluator {
     return schema.getDatabase().isAdmin();
   }
 
+  public static boolean isRowLevelRestricted(Schema schema, TableMetadata table) {
+    return !canManage(schema)
+        && permissionFor(schema, table).map(TablePermission::hasRowLevel).orElse(false);
+  }
+
   private static boolean hasRole(Schema schema, Privileges privilege) {
     return schema.getInheritedRolesForActiveUser().contains(privilege.toString());
   }

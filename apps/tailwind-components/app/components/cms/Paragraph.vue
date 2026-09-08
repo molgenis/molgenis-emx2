@@ -11,7 +11,7 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-const emit = defineEmits(["edit", "delete"]);
+const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
 
 const renderedText = computed<string | undefined>(() => {
@@ -39,6 +39,7 @@ const renderedText = computed<string | undefined>(() => {
         :aria-controls="id"
         @edit="$emit('edit')"
         @delete="$emit('delete')"
+        @move="$emit('move', $event)"
       />
     </template>
     <p

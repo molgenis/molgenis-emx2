@@ -3,12 +3,16 @@ import { ref } from "vue";
 import type { ISections } from "../../../types/cms";
 import ComponentActions from "./ComponentActions.vue";
 
-const props = withDefaults(defineProps<ISections>(), {
-  enableFullScreenWidth: false,
-  isEditable: false,
-});
+const props = withDefaults(
+  defineProps<ISections & { isEditable?: boolean }>(),
+  {
+    enableFullScreenWidth: false,
+    applyShadedBackground: false,
+    isEditable: false,
+  }
+);
 
-const emit = defineEmits(["edit", "delete"]);
+const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
 </script>
 
@@ -32,6 +36,7 @@ const showMenu = ref<boolean>(false);
           :aria-controls="id"
           @edit="$emit('edit')"
           @delete="$emit('delete')"
+          @move="$emit('move', $event)"
         />
       </template>
       <div
@@ -45,7 +50,12 @@ const showMenu = ref<boolean>(false);
       </div>
     </VMenu>
 
-    <div class="w-full py-8 justify-center items-center">
+    <div
+      class="w-full py-8 justify-center items-center"
+      :class="{
+        'bg-form-legend': applyShadedBackground,
+      }"
+    >
       <div
         class="m-auto"
         :class="{

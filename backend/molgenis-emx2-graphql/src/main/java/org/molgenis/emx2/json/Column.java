@@ -38,7 +38,7 @@ public class Column {
   private String refLabelDefault;
   private Integer position = null;
 
-  // private Boolean cascadeDelete = false;
+  private Boolean cascadeDelete = false;
   private String validation = null;
   private String visible = null;
   private String computed = null;
@@ -102,7 +102,7 @@ public class Column {
       }
     }
     this.refLabel = column.getRefLabel();
-    // this.cascadeDelete = column.isCascadeDelete();
+    this.cascadeDelete = column.isCascadeDelete();
     this.validation = column.getValidation();
     this.setRequired(column.getRequired());
     this.readonly = column.isReadonly();
@@ -142,7 +142,7 @@ public class Column {
     c.setRefLabel(refLabel);
     c.setKey(key);
     c.setPosition(position);
-    // c.setCascadeDelete(cascadeDelete);
+    c.setCascadeDelete(cascadeDelete);
     c.setRefBack(refBackName);
     c.setValidation(validation);
     c.setDescriptions(
@@ -208,13 +208,13 @@ public class Column {
     this.refTableId = refTableId;
   }
 
-  //  public Boolean getCascadeDelete() {
-  //    return cascadeDelete;
-  //  }
-  //
-  //  public void setCascadeDelete(Boolean cascadeDelete) {
-  //    this.cascadeDelete = cascadeDelete;
-  //  }
+  public Boolean getCascadeDelete() {
+    return cascadeDelete;
+  }
+
+  public void setCascadeDelete(Boolean cascadeDelete) {
+    this.cascadeDelete = cascadeDelete;
+  }
 
   public ColumnType getColumnType() {
     return columnType;
