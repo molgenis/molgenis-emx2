@@ -448,7 +448,6 @@ jobs:
     # same resource_class, but 15GB against the plain executor's 8GB, which turbo's 3 linters OOM on
     - setup_remote_docker
 
-    - restore_gradle_build_cache
     - restore_turbo_cache
 
     - run:
