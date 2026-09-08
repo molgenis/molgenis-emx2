@@ -38,7 +38,7 @@ async function createNewCard() {
   const cardId = `NavigationCard-${randomId()}`;
   const cardOrder = linksSorted.value?.length + 1 || 0;
   await addComponent(schema, cardId, props.id, cardOrder, "NavigationCards");
-  emit("edit");
+  emit("updatePage");
 }
 </script>
 
@@ -52,7 +52,7 @@ async function createNewCard() {
     <ul
       v-if="linksSorted"
       :id="id"
-      class="w-full my-2.5 list-none flex justify-center items-center flex-col md:flex-row gap-5"
+      class="w-full my-2.5 list-none grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center items-center gap-2.5 lg:gap-5"
     >
       <li v-for="card in linksSorted" :key="card.id">
         <NavigationGroupItem
@@ -63,9 +63,11 @@ async function createNewCard() {
           :urlIsExternal="card.urlIsExternal"
           :urlLabel="card.urlLabel"
           :order="card.order"
-          class="group w-full md:w-80"
           :isEditable="isEditable"
-          @edit="console.log('edit')"
+          @edit="
+            console.log('edit');
+            $emit('edit');
+          "
           @delete="console.log('delete')"
           @move="console.log('moving')"
         />

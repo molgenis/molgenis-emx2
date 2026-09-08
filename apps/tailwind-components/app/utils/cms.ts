@@ -406,6 +406,7 @@ export async function addComponent(
       break;
     case "NavigationCards":
       await AddNavigationCard(schema, id, parentBlock);
+      break;
   }
 
   if (insertedComponent) {

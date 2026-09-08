@@ -225,6 +225,8 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     :id="component.id"
     :links="component.links"
     :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @updatePage="$emit('updatePage')"
   />
   <Paragraph
     v-else
