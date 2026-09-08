@@ -24,10 +24,6 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-/**
- * Rows referenced by a mutation may be supplied by that same mutation, in any table order. See <a
- * href="https://github.com/molgenis/molgenis-emx2/issues/6210">issue 6210</a>.
- */
 class TestGraphqlMutationRefResolution {
 
   private static final String SCHEMA_NAME = TestGraphqlMutationRefResolution.class.getSimpleName();
@@ -64,9 +60,6 @@ class TestGraphqlMutationRefResolution {
 
   @Test
   void refAndRefArrayAreResolvedAgainstRowsFromTheSameMutation() throws IOException {
-    // the tables of a mutation are walked in an arbitrary order, so the referring table may well be
-    // inserted before the tables holding the rows it refers to; the mutation runs as one
-    // transaction with deferred constraints, so the refs are checked only once all rows are in
     execute(
         """
         mutation {
