@@ -99,7 +99,10 @@ const sidebarCollapsed = ref(false);
           @dragging="handleDragEvent"
         >
           <ComponentDropZone
-            v-if="isEditable && !(orderedBlock.block.columns > 1)"
+            v-if="
+              (isEditable && !(orderedBlock.block.columns > 1)) ||
+              !orderedBlock.block.componentOrder?.length
+            "
             :draggingInfo="draggingInfo"
             :schema="schema"
             :order="
