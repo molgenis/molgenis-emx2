@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 
-import NavigationCards from "./NavigationCards.vue";
+import NavigationGroupItem from "./NavigationGroupItem.vue";
 import Button from "../../Button.vue";
 
 import { addComponent, randomId } from "../../../utils/cms.ts";
@@ -32,7 +32,7 @@ const linksSorted = computed<INavigationCards[]>(() => {
   }) as INavigationCards[];
 });
 
-const emit = defineEmits(["edit", "delete", "move"]);
+const emit = defineEmits(["edit", "delete", "move", "updatePage"]);
 
 async function createNewCard() {
   const cardId = `NavigationCard-${randomId()}`;
@@ -55,28 +55,20 @@ async function createNewCard() {
       class="w-full my-2.5 list-none flex justify-center items-center flex-col md:flex-row gap-5"
     >
       <li v-for="card in linksSorted" :key="card.id">
-        <NavigationCards
+        <NavigationGroupItem
           :id="card.id"
           :title="card.title"
           :description="card.description"
           :url="card.url"
-          :url-is-external="card.urlIsExternal"
-          :url-label="card.urlLabel"
+          :urlIsExternal="card.urlIsExternal"
+          :urlLabel="card.urlLabel"
           :order="card.order"
           class="group w-full md:w-80"
-        >
-          <Button
-            v-if="isEditable"
-            class="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 group-focus:opacity-100"
-            iconOnly
-            icon="edit"
-            label="Edit Card"
-            type="secondary"
-            size="small"
-            aria-haspopup="true"
-            @click="emit('edit', 'Navigation cards', card)"
-          />
-        </NavigationCards>
+          :isEditable="isEditable"
+          @edit="console.log('edit')"
+          @delete="console.log('delete')"
+          @move="console.log('moving')"
+        />
       </li>
     </ul>
     <div class="my-5">
