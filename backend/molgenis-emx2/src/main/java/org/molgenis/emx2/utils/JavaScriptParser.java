@@ -32,10 +32,6 @@ public class JavaScriptParser {
     // hide constructor
   }
 
-  /**
-   * Returns the names of the variables a script reads from its context, e.g. the columns an
-   * expression depends on. Names the script declares itself are not returned.
-   */
   public static Set<String> getReferencedVariables(String script) {
     if (script == null || script.isBlank()) {
       return Set.of();
@@ -46,7 +42,7 @@ public class JavaScriptParser {
 
   private static Set<String> parseReferencedVariables(String script) {
     try {
-      FunctionNode ast =
+      FunctionNode parsedScript =
           new Parser(
                   ENVIRONMENT,
                   Source.sourceFor("expression", JavaScriptUtils.prepareScript(script)),
@@ -54,7 +50,7 @@ public class JavaScriptParser {
               .parse();
 
       ReferencedVariablesVisitor visitor = new ReferencedVariablesVisitor();
-      ast.accept(visitor);
+      parsedScript.accept(visitor);
       return visitor.getReferencedVariables();
     } catch (Exception exception) {
       LOGGER.debug("cannot parse script '{}', assuming it reads no variables", script, exception);
@@ -62,12 +58,6 @@ public class JavaScriptParser {
     }
   }
 
-  /**
-   * Collects every identifier that is read but not declared by the script itself. Whether an
-   * identifier is declared is decided per scope, using the scope chain the parser built: a name
-   * that is, say, the parameter of an arrow function only hides an outer variable of that same name
-   * within that arrow function, not in the rest of the script.
-   */
   private static final class ReferencedVariablesVisitor extends NodeVisitor<LexicalContext> {
 
     private final Set<String> referencedVariables = new HashSet<>();
