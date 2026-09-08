@@ -62,6 +62,27 @@ class TestJavaScriptParser {
   }
 
   @Test
+  void stillFindsOuterVariableWhenSameNameIsAlsoALambdaParameterElsewhere() {
+    // "price" is read directly (outer reference to column "price") AND, separately, used as the
+    // arrow function's own parameter name inside items.map(...). The parameter only shadows
+    // "price" within that lambda's body; it must not hide the unrelated outer read of "price".
+    assertEquals(
+        Set.of("price", "items"),
+        getReferencedVariables("price + items.map(price => price.discount).length"));
+  }
+
+  @Test
+  void stillFindsOuterVariableWhenSameNameIsAlsoDeclaredInABlock() {
+    assertEquals(Set.of("price"), getReferencedVariables("{ let price = 1; } price"));
+  }
+
+  @Test
+  void ignoresVariablesDeclaredAfterTheyAreUsed() {
+    // 'var' is hoisted, so x refers to the declaration below it and not to a column
+    assertEquals(Set.of("a", "b"), getReferencedVariables("x + b; var x = a"));
+  }
+
+  @Test
   void returnsEmptyForLiteralsWithoutVariables() {
     assertEquals(Set.of(), getReferencedVariables("true"));
   }

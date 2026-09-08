@@ -1,5 +1,7 @@
 package org.molgenis.emx2.utils;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.oracle.js.parser.ErrorManager;
 import com.oracle.js.parser.Parser;
 import com.oracle.js.parser.ScriptEnvironment;
@@ -7,12 +9,10 @@ import com.oracle.js.parser.Source;
 import com.oracle.js.parser.ir.FunctionNode;
 import com.oracle.js.parser.ir.IdentNode;
 import com.oracle.js.parser.ir.LexicalContext;
-import com.oracle.js.parser.ir.VarNode;
+import com.oracle.js.parser.ir.Scope;
 import com.oracle.js.parser.ir.visitor.NodeVisitor;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,35 +23,28 @@ public class JavaScriptParser {
   private static final ScriptEnvironment ENVIRONMENT =
       ScriptEnvironment.builder().ecmaScriptVersion(ScriptEnvironment.ES_STAGING).build();
 
-  private static final Map<String, Set<String>> CACHE = new ConcurrentHashMap<>();
-
   private static final int MAX_CACHE_SIZE = 10_000;
+
+  private static final Cache<String, Set<String>> CACHE =
+      Caffeine.newBuilder().maximumSize(MAX_CACHE_SIZE).build();
 
   private JavaScriptParser() {
     // hide constructor
   }
 
+  /**
+   * Returns the names of the variables a script reads from its context, e.g. the columns an
+   * expression depends on. Names the script declares itself are not returned.
+   */
   public static Set<String> getReferencedVariables(String script) {
     if (script == null || script.isBlank()) {
       return Set.of();
     }
 
-    Set<String> cached = CACHE.get(script);
-    if (cached != null) {
-      return cached;
-    }
-
-    Set<String> variables = parseReferencedVariables(script);
-    if (CACHE.size() < MAX_CACHE_SIZE) {
-      CACHE.put(script, variables);
-    }
-
-    return variables;
+    return CACHE.get(script, JavaScriptParser::parseReferencedVariables);
   }
 
   private static Set<String> parseReferencedVariables(String script) {
-    Set<String> variables = new HashSet<>();
-    Set<String> declared = new HashSet<>();
     try {
       FunctionNode ast =
           new Parser(
@@ -60,34 +53,50 @@ public class JavaScriptParser {
                   new ErrorManager.ThrowErrorManager())
               .parse();
 
-      ast.accept(
-          new NodeVisitor<>(new LexicalContext()) {
-            @Override
-            public boolean enterIdentNode(IdentNode identNode) {
-              if (!identNode.isPropertyName()) {
-                variables.add(identNode.getName());
-              }
-              return true;
-            }
-
-            @Override
-            public boolean enterFunctionNode(FunctionNode functionNode) {
-              functionNode.getParameters().forEach(parameter -> declared.add(parameter.getName()));
-              return true;
-            }
-
-            @Override
-            public boolean enterVarNode(VarNode varNode) {
-              declared.add(varNode.getName().getName());
-              return true;
-            }
-          });
+      ReferencedVariablesVisitor visitor = new ReferencedVariablesVisitor();
+      ast.accept(visitor);
+      return visitor.getReferencedVariables();
     } catch (Exception exception) {
       LOGGER.debug("cannot parse script '{}', assuming it reads no variables", script, exception);
       return Set.of();
     }
+  }
 
-    variables.removeAll(declared);
-    return Set.copyOf(variables);
+  /**
+   * Collects every identifier that is read but not declared by the script itself. Whether an
+   * identifier is declared is decided per scope, using the scope chain the parser built: a name
+   * that is, say, the parameter of an arrow function only hides an outer variable of that same name
+   * within that arrow function, not in the rest of the script.
+   */
+  private static final class ReferencedVariablesVisitor extends NodeVisitor<LexicalContext> {
+
+    private final Set<String> referencedVariables = new HashSet<>();
+
+    private ReferencedVariablesVisitor() {
+      super(new LexicalContext());
+    }
+
+    @Override
+    public boolean enterIdentNode(IdentNode identNode) {
+      if (!identNode.isPropertyName() && !isDeclaredInScope(identNode.getName())) {
+        referencedVariables.add(identNode.getName());
+      }
+      return true;
+    }
+
+    private boolean isDeclaredInScope(String name) {
+      for (Scope scope = getLexicalContext().getCurrentScope();
+          scope != null;
+          scope = scope.getParent()) {
+        if (scope.hasSymbol(name)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private Set<String> getReferencedVariables() {
+      return Set.copyOf(referencedVariables);
+    }
   }
 }

@@ -1,4 +1,5 @@
 dependencies {
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.4'
     implementation 'org.graalvm.js:js:25.2.4'
     implementation 'org.graalvm.js:js-language:25.2.4'
     implementation 'org.graalvm.js:js-scriptengine:25.2.4'

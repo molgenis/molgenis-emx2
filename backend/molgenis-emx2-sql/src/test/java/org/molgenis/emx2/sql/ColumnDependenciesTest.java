@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.ColumnDependencies.getExpressionVariables;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.SchemaMetadata;
 
 class ColumnDependenciesTest {
 
@@ -137,6 +139,50 @@ class ColumnDependenciesTest {
 
     assertEquals(
         List.of("a", "name"),
+        ColumnDependencies.sortByDependencies(columns).stream().map(Column::getName).toList());
+  }
+
+  @Test
+  void dependsOnColumnThatIsOnlyShadowedInsideALambda() {
+    List<Column> columns =
+        List.of(
+            column("a").setComputed("name + myList.map(name => name.value).length"),
+            column("name"));
+
+    assertEquals(
+        List.of("name", "a"),
+        ColumnDependencies.sortByDependencies(columns).stream().map(Column::getName).toList());
+  }
+
+  @Test
+  void sortsMultiWordColumnNamesOnTheirIdentifier() {
+    List<Column> columns =
+        List.of(
+            column("full name").setComputed("`${firstName} ${lastName}`"),
+            column("last name"),
+            column("filler"),
+            column("first name"));
+
+    assertEquals(
+        List.of("last name", "first name", "full name", "filler"),
+        ColumnDependencies.sortByDependencies(columns).stream().map(Column::getName).toList());
+  }
+
+  @Test
+  void sortsColumnsInheritedFromASuperclassBeforeTheColumnsThatUseThem() {
+    SchemaMetadata schema = new SchemaMetadata("my schema");
+    schema.create(
+        table("parent table", column("parent name")),
+        table(
+                "child table",
+                column("child greeting").setComputed("parentName + ' ' + childSuffix"),
+                column("child suffix"))
+            .setInheritName("parent table"));
+
+    List<Column> columns = schema.getTableMetadata("child table").getColumns();
+
+    assertEquals(
+        List.of("parent name", "child suffix", "child greeting"),
         ColumnDependencies.sortByDependencies(columns).stream().map(Column::getName).toList());
   }
 }

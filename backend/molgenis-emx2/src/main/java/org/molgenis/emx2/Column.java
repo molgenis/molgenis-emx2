@@ -762,6 +762,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     return defaultValue != null;
   }
 
+  public boolean hasComputedDefaultValue() {
+    return defaultValue != null && defaultValue.startsWith("=");
+  }
+
+  public String getDefaultValueExpression() {
+    return hasComputedDefaultValue() ? defaultValue.substring(1) : null;
+  }
+
   public boolean hasComputed() {
     return computed != null;
   }

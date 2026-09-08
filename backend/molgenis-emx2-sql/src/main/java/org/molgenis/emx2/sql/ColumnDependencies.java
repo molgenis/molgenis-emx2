@@ -14,7 +14,7 @@ import org.molgenis.emx2.utils.JavaScriptParser;
 final class ColumnDependencies {
 
   private final List<Column> columns;
-  private final Map<String, Set<String>> variablesByColumn = new HashMap<>();
+  private final Map<String, Set<String>> variablesByIdentifier = new HashMap<>();
   private final List<Column> sorted = new ArrayList<>();
   private final Set<String> resolved = new HashSet<>();
   private final Set<String> resolving = new LinkedHashSet<>();
@@ -22,7 +22,7 @@ final class ColumnDependencies {
   private ColumnDependencies(List<Column> columns) {
     this.columns = columns;
     for (Column column : columns) {
-      variablesByColumn.put(column.getName(), getExpressionVariables(column));
+      variablesByIdentifier.put(column.getIdentifier(), getExpressionVariables(column));
     }
   }
 
@@ -41,12 +41,11 @@ final class ColumnDependencies {
   }
 
   private static String getDefaultValueExpression(Column column) {
-    String defaultValue = column.getDefaultValue();
-    if (defaultValue == null || !defaultValue.startsWith("=")) {
+    String expression = column.getDefaultValueExpression();
+    if (expression == null) {
       return null;
     }
 
-    String expression = defaultValue.substring(1);
     return column.isRef() ? "(" + expression + ")" : expression;
   }
 
@@ -58,31 +57,31 @@ final class ColumnDependencies {
   }
 
   private void resolve(Column column) {
-    if (resolved.contains(column.getName())) {
+    if (resolved.contains(column.getIdentifier())) {
       return;
     }
 
-    resolving.add(column.getName());
+    resolving.add(column.getIdentifier());
     for (Column dependency : columns) {
       if (!dependsOn(column, dependency)) {
         continue;
       }
 
-      if (resolving.contains(dependency.getName())) {
+      if (resolving.contains(dependency.getIdentifier())) {
         throw new MolgenisException(
             "Circular dependency between " + column.getName() + " and " + dependency.getName());
       }
 
       resolve(dependency);
     }
-    resolving.remove(column.getName());
+    resolving.remove(column.getIdentifier());
 
-    resolved.add(column.getName());
+    resolved.add(column.getIdentifier());
     sorted.add(column);
   }
 
   private boolean dependsOn(Column column, Column dependency) {
-    return !dependency.getName().equals(column.getName())
-        && variablesByColumn.get(column.getName()).contains(dependency.getIdentifier());
+    return !dependency.getIdentifier().equals(column.getIdentifier())
+        && variablesByIdentifier.get(column.getIdentifier()).contains(dependency.getIdentifier());
   }
 }
