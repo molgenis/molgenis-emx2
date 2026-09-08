@@ -184,7 +184,6 @@ tasks.register('dockerBuild', Exec) {
     }
 
     commandLine docker, 'build',
-        '--build-arg', "JAR_FILE=${shadowJar.archiveFile.get().asFile.name}",
         '-t', "${imageName}:${tagName}",
         '-t', "${imageName}:latest",
         '.'
