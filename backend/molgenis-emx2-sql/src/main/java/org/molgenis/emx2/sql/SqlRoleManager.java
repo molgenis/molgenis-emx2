@@ -24,17 +24,24 @@ import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Role;
+import org.molgenis.emx2.User;
 
 public class SqlRoleManager {
 
   public static final String PG_ROLES = "pg_roles";
   public static final String ROLNAME = "rolname";
   public static final int PG_MAX_ID_LENGTH = 63;
-  public static final String RLS_ROLE_PREFIX = "RLS_";
+
+  /**
+   * Prefix of the internal roles that hold the row-restricted table grants. They are granted to
+   * their regular counterpart so privileges reach real users, which also makes them show up in
+   * every raw role listing. They are never assignable by a user.
+   */
+  private static final String RLS_ROLE_PREFIX = "RLS_";
 
   enum RlsPolicy {
-    VIEWER_BYPASS("mg_roles_viewer_bypass", "SELECT"),
-    EDITOR_BYPASS("mg_roles_editor_bypass", "ALL"),
+    SELECT_BYPASS("mg_roles_select_bypass", "SELECT"),
+    EDIT_BYPASS("mg_roles_edit_bypass", "ALL"),
     TABLE_GRANT_BYPASS("mg_roles_table_grant_bypass", "ALL"),
     ROW_MATCH("mg_roles_row_match", "ALL");
 
@@ -53,6 +60,29 @@ public class SqlRoleManager {
     this.database = database;
   }
 
+  private static boolean isInternalRlsRole(String roleName) {
+    return roleName != null && roleName.startsWith(RLS_ROLE_PREFIX);
+  }
+
+  static boolean isUserAssignableRole(String roleName) {
+    return !isInternalRlsRole(roleName) && !Privileges.isSystemRole(roleName);
+  }
+
+  private static List<String> withoutInternalRoles(List<String> roleNames) {
+    return roleNames.stream().filter(name -> !isInternalRlsRole(name)).toList();
+  }
+
+  private static void requireNotInternalRole(String roleName, String action) {
+    if (isInternalRlsRole(roleName)) {
+      throw new MolgenisException(
+          "Cannot "
+              + action
+              + " role '"
+              + roleName
+              + "': it is an internal row-level-security role");
+    }
+  }
+
   private DSLContext jooq() {
     return database.getJooq();
   }
@@ -64,7 +94,7 @@ public class SqlRoleManager {
 
   private void createRoleWithGrants(String schemaName, String roleName) {
     String fullRole = fullRoleName(schemaName, roleName);
-    String existsRole = fullRoleName(schemaName, Privileges.EXISTS.toString());
+    String memberRole = fullRoleName(schemaName, Privileges.MEMBER.toString());
     String ownerRole = fullRoleName(schemaName, Privileges.OWNER.toString());
     database.tx( // we need to lift to admin to create a role
         db -> {
@@ -75,7 +105,7 @@ public class SqlRoleManager {
             executeCreateRole(jooq, fullRole);
             grantWithAdminOption(jooq, name(fullRole), keyword("session_user"));
             grantWithAdminOption(jooq, name(fullRole), name(ownerRole));
-            grant(jooq, name(existsRole), name(fullRole));
+            grant(jooq, name(memberRole), name(fullRole));
           } finally {
             db.setActiveUser(currentUser);
           }
@@ -86,6 +116,7 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot delete system role: " + roleName);
     }
+    requireNotInternalRole(roleName, "delete");
     if (!roleExists(schemaName, roleName)) {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
@@ -124,7 +155,7 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot create system role: " + roleName);
     }
-    if (roleName.startsWith(RLS_ROLE_PREFIX)) {
+    if (isInternalRlsRole(roleName)) {
       throw new MolgenisException(
           "Cannot create role '"
               + roleName
@@ -185,6 +216,7 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot grant custom permissions to system role: " + roleName);
     }
+    requireNotInternalRole(roleName, "grant permissions to");
     if (!roleExists(schemaName, roleName)) {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
@@ -237,6 +269,7 @@ public class SqlRoleManager {
     if (isSystemRole(roleName)) {
       throw new MolgenisException("Cannot revoke permissions from system role: " + roleName);
     }
+    requireNotInternalRole(roleName, "revoke permissions from");
     if (!roleExists(schemaName, roleName)) {
       throw new MolgenisException("Role does not exist: " + roleName);
     }
@@ -339,8 +372,8 @@ public class SqlRoleManager {
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
     dropRlsPolicies(jooq, table);
 
-    createPolicy(jooq, table, VIEWER_BYPASS, hasSystemRoleMember(schemaName, Privileges.VIEWER));
-    createPolicy(jooq, table, EDITOR_BYPASS, hasSystemRoleMember(schemaName, Privileges.EDITOR));
+    createPolicy(jooq, table, SELECT_BYPASS, hasSystemRoleMember(schemaName, Privileges.EXISTS));
+    createPolicy(jooq, table, EDIT_BYPASS, hasSystemRoleMember(schemaName, Privileges.EDITOR));
     createPolicy(jooq, table, TABLE_GRANT_BYPASS, tableGrantBypass(schemaName, tableName));
     createPolicy(jooq, table, ROW_MATCH, rowMatchCondition);
   }
@@ -456,7 +489,7 @@ public class SqlRoleManager {
   }
 
   public void addMember(String schemaName, Member member) {
-    if (member.getRole().startsWith(RLS_ROLE_PREFIX)) {
+    if (isInternalRlsRole(member.getRole())) {
       throw new MolgenisException(
           "Add member(s) failed: Role '"
               + member.getRole()
@@ -540,6 +573,11 @@ public class SqlRoleManager {
   }
 
   public List<String> getRoleNames(String schemaName) {
+    return withoutInternalRoles(getAllRoleNamesIncludingInternal(schemaName));
+  }
+
+  /** Raw pg role listing, including the internal RLS_ roles; only for drop schema. */
+  List<String> getAllRoleNamesIncludingInternal(String schemaName) {
     String rolePrefix = rolePrefix(schemaName);
     return jooq()
         .select(field(ROLNAME))
@@ -548,14 +586,29 @@ public class SqlRoleManager {
         .fetch(r -> r.get(ROLNAME, String.class).substring(rolePrefix.length()));
   }
 
+  public List<String> getInheritedRoleNamesForUser(String schemaName, String username) {
+    if (username == null) return List.of();
+    User user = database.getUser(username);
+    if (user == null) return List.of();
+    if (user.isAdmin()) {
+      return getRoleNames(schemaName);
+    }
+    List<String> result = new ArrayList<>();
+    // need elevated privileges, so clear user and run as root
+    database.getJooqAsAdmin(
+        adminJooq ->
+            result.addAll(
+                SqlSchemaMetadataExecutor.getInheritedRoleForUser(
+                    adminJooq, schemaName, username.trim())));
+    return withoutInternalRoles(result);
+  }
+
   public List<Role> getRoles(String schemaName) {
-    return getRoleNames(schemaName).stream()
-        .filter(name -> !name.startsWith(RLS_ROLE_PREFIX))
-        .map(name -> getRole(schemaName, name))
-        .toList();
+    return getRoleNames(schemaName).stream().map(name -> getRole(schemaName, name)).toList();
   }
 
   public Role getRole(String schemaName, String roleName) {
+    requireNotInternalRole(roleName, "inspect");
     boolean system = isSystemRole(roleName);
     List<TablePermission> permissions = getPermissions(schemaName, roleName);
     if (!system) {
@@ -615,10 +668,7 @@ public class SqlRoleManager {
     if (roleNames.isEmpty()) return List.of();
 
     String customRoleName =
-        roleNames.stream()
-            .filter(r -> !r.startsWith(RLS_ROLE_PREFIX) && !isSystemRole(r))
-            .findFirst()
-            .orElse(null);
+        roleNames.stream().filter(SqlRoleManager::isUserAssignableRole).findFirst().orElse(null);
 
     TablePermission systemWildcard =
         roleNames.stream()
@@ -678,7 +728,8 @@ public class SqlRoleManager {
   }
 
   private List<TablePermission> systemPermissions(String roleName) {
-    if (roleName.equals(Privileges.EXISTS.toString())
+    if (roleName.equals(Privileges.MEMBER.toString())
+        || roleName.equals(Privileges.EXISTS.toString())
         || roleName.equals(Privileges.RANGE.toString())
         || roleName.equals(Privileges.AGGREGATOR.toString())
         || roleName.equals(Privileges.COUNT.toString())) {

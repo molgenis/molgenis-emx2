@@ -28,6 +28,7 @@
   --text-color-sub-menu: var(--raft-bg-inv);
   --text-color-sub-menu-hover: var(--raft-bg-inv);
   --text-color-link: var(--raft-accent);
+  --text-color-link-inverted: var(--raft-accent);
   --text-color-breadcrumb: var(--raft-accent);
 
   --background-color-button-primary: var(--raft-accent);

@@ -1,20 +1,107 @@
-name,description,html,css,javascript,dependencies,enable base styles,enable button styles, enable full screen
-myTestPage,An example page,"<h1>My test page</h1><div class="msg"><strong>Note!</strong>This page is still in development</div>",,,min.css,true,true,false,
-my-custom-page,,"<div class=""flex justify-center items-center p-7.5 bg-blue-100"">
-    <div class=""w-[90%]"">
-        <h1 id=""title"">My Page Title</h1>
-        <p id=""subtitle"" class=""text-base-2xl"">Welcome to my page!</p>
+name,description,html,css,javascript,dependencies,enable base styles,enable button styles,enable full screen
+demo-dev-page,Example developer page,"<div class=""custom-page text-title-contrast"">
+    <header class=""w-full bg-blue-50 h-72 flex justify-center items-center"">
+        <div class=""text-center"">
+            <h1 class=""font-display"">Developer Pages</h1>
+            <p class=""mb-0"">
+                Create your own pages in a MOLGENIS database using HTML, CSS, and JavaScript
+            </p>
+        </div>
+    </header>
+    <div class=""section"">
+        <div class=""section-content"">
+            <h2 class=""font-display text-heading-2xl"">Overview</h2>
+            <p>
+                The <span class=""font-bold"">Page Editor</span> is an EMX2 feature
+                where you can create and edit custom pages in MOLGENIS using HTML,
+                CSS, and JavaScript. This option may be useful if you want to go
+                beyond the features that are offered in the
+                <span class=""font-bold"">Page Builder</span>.
+            </p>
+        </div>
     </div>
-</div>","#title {
-    font-family: Helvetica, monospace, sans-serif;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 15%;
-    font-weight: bold;
+    <div class=""section bg-gray-100"">
+        <div class=""section-content"">
+            <h2 class=""font-display text-heading-2xl"">Get started</h2>
+            <p>Here's how to create your own developer page</p>
+            <ol>
+                <li>
+                    Sign in and go to the <a href=""/apps/ui/cms/pages"" class=""underline"">Page Gallery</a>
+                </li>
+                <li>Click the ""Add New Page"" button</li>
+                <li>
+                    Select the ""Developer page"" option and click the ""create page"" button.
+                    Enter a name for the page and save
+                </li>
+                <li>
+                    In the <a class=""underline"" href=""/apps/ui/cms/pages"">Page Gallery</a>,
+                    click the edit button for your page in the gallery
+                </li>
+                <li>Start building your page!</li>
+            </ol>
+        </div>
+    </div>
+    <div class=""section"">
+        <div class=""section-content"">
+            <h2 class=""font-display text-heading-2xl"">Tips</h2>
+            <p>
+                Here are a few tips to further enhance your page, which are settings that can be accessed
+                via <a href=""/apps/ui/cms/DeveloperPages"" class=""underline"">Developer pages table</a>.
+            </p>
+            <ul>
+                <li>
+                    <span class=""font-bold block"">
+                        You can hook into our tailwind theme
+                    </span>
+                    <span>
+                        To make it easier to build custom pages, you can piggyback off our
+                        theme (we use tailwind in our UI). This makes the process of
+                        designing pages bit easier and it also allows you to create pages
+                        that look and feel like a MOLGENIS page. This setting is enabled by
+                        default, but can be disabled by changing the ""enable base styles""
+                        option to ""false"".
+                    </span>
+                </li>
+                <li>
+                    <span class=""font-bold block"">Style buttons like a MOLGENIS button</span>
+                    <span>
+                        If your page uses buttons, you can use our button styles. Add the
+                        attribute <code>type=""submit""</code> to your button and our styles
+                        will be automatically applied. You can also disable this feature, by
+                        changing ""enable button styles"" to ""false"". Only primary action
+                        buttons are supported.
+                    </span>
+                </li>
+                <li>
+                    <span class=""font-bold block"">Allow pages to fill the page</span>
+                    <span>
+                        By default, developer pages have a fixed width. This means that pages do not
+                        fill the entire width of the page. This is useful if you are creating
+                        landing pages or displaying general information. If you would to maximise
+                        the space available, this setting can disabled by changing the setting
+                        ""enable full screen"" to ""false"".
+                    </span>
+                </li>
+                <li>
+                    <span class=""font-bold block"">Add external dependencies</span>
+                    <span>
+                        It is also possible to use external CSS or JavaScript dependencies in your page.
+                        To do this, register them in the <a href=""/apps/ui/cms/DependenciesCSS"" class=""underline"">
+                        Dependencies CSS</a> or the <a href=""/apps/ui/cms/DependenciesJS"" class=""underline"">
+                        Dependencies JS</a> table, and then link them in the page settings menu.
+                        <span class=""font-bold"">WARNING:</span> Adding external dependencies may have unintended
+                        side effects with the appearance or functionality of the MOLGENIS UI. If issues
+                        arise, remove the dependency from your page.
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>",".custom-page .section .section-content {
+    max-width: 812px;
+    margin: 0 auto;
 }
 
-#subtitle {
-    font-family: Helvetica, monospace, sans-serif;
-    font-size: 2.3rem;
-    font-weight: 100;
-}",,,true,true,true,
+.custom-page .section {
+    padding: 2.5em 0;
+}","console.log(""Hello! This is my custom page"")",,true,true,true

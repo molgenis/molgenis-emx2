@@ -116,6 +116,22 @@ When `-o` is given, a subdirectory `fairmapper-output-<harvest-id>` is created c
 * `postprocessed.zip` - the same, after post-processing has run. This is what would be loaded into
   the schema when `-l` is set.
 
+### `extract`
+
+Runs just the extract step (step 1 in above pipeline) for a given endpoint and writes the
+resulting RDF to a file, without running the rest of the pipeline. Useful for grabbing a snapshot
+of the source data to inspect or to reuse while iterating on `generate-query` output, without
+hitting the remote endpoint again.
+
+```bash
+fairmapper extract -r <fdp-endpoint> -o <output-file>
+```
+
+| Option           | Required | Description                                       |
+|------------------|----------|----------------------------------------------------|
+| `-r`, `--rdf`    | yes      | The FDP endpoint URI to extract RDF from.          |
+| `-o`, `--output` | yes      | File to write the extracted RDF (Turtle) to.       |
+
 ### `generate-query`
 
 Generates the SPARQL `SELECT` query that the transform step (step 3 in above pipeline) would use for a given table,
@@ -136,9 +152,10 @@ fairmapper generate-query <schema> <table> [-o <output-file>]
 1. Run `generate-query` for the table(s) you're working on and inspect the generated SPARQL. If a
    column isn't mapped the way you expect, check that column's `semantics` annotation in the
    schema.
-2. Load `extracted.ttl` (or `preprocessed.ttl`) from a previous `harvest -o` run into a SPARQL
-   tool (e.g. the [SPARQLbook](https://marketplace.visualstudio.com/items?itemName=Zazuko.sparql-notebook)
-   VS Code extension) and try out the query from step 1 against it interactively. This lets you
+2. Load `extracted.ttl` (or `preprocessed.ttl`) from a previous `harvest -o` run - or the output of
+   a standalone `extract` run - into a SPARQL tool (e.g. the
+   [SPARQLbook](https://marketplace.visualstudio.com/items?itemName=Zazuko.sparql-notebook) VS
+   Code extension) and try out the query from step 1 against it interactively. This lets you
    iterate on schema/semantics changes without re-running the extract step against the remote
    endpoint each time.
 3. Run `harvest` with `-o` and without `-l` first, to inspect `transformed.zip` and

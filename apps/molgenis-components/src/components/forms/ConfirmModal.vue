@@ -10,6 +10,9 @@
         </strong>
         <br />Are you sure ?
         <br />
+        <p v-if="additionalMsg" class="mt-2">
+          {{ additionalMsg }}
+        </p>
       </div>
     </template>
     <template v-slot:footer>
@@ -57,6 +60,10 @@ export default {
       required: false,
     },
     pkey: Object,
+    additionalMsg: {
+      type: String,
+      required: false,
+    },
     actionType: {
       type: String,
       required: false,

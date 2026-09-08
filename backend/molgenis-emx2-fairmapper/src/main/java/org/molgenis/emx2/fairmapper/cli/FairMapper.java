@@ -1,6 +1,7 @@
 package org.molgenis.emx2.fairmapper.cli;
 
 import java.util.Random;
+import org.molgenis.emx2.fairmapper.cli.commands.Extract;
 import org.molgenis.emx2.fairmapper.cli.commands.GenerateQuery;
 import org.molgenis.emx2.fairmapper.cli.commands.Harvest;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
@@ -10,7 +11,7 @@ import picocli.CommandLine;
     name = "fairmapper",
     mixinStandardHelpOptions = true,
     version = "0.1",
-    subcommands = {GenerateQuery.class, Harvest.class},
+    subcommands = {GenerateQuery.class, Harvest.class, Extract.class},
     description = "Tool for DCAT harvesting")
 public class FairMapper implements Runnable {
 
