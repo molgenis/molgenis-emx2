@@ -55,15 +55,9 @@ commands:
       gradle_cache:
         type: boolean
         default: true
-      layer_cache:
-        type: boolean
-        default: true
-      remote_docker:
-        type: boolean
-        default: true
     steps:
     - run:
-        name: Report CPUs and memory the container and JVM see
+        name: Report the CPUs and memory visible to the container and JVM
         command: |
           set +e
           echo "nproc: $(nproc)"
@@ -120,16 +114,14 @@ commands:
             paths:
               - ~/.gradle/caches
             key: gradle-{{ checksum "concatenated-build-gradle" }}
-    - when:
-        condition: << parameters.remote_docker >>
-        steps:
-        # Load-bearing for memory, not only for docker: this switches the job to a Linux VM,
-        # which is 15GB where the plain docker executor is 8GB. Removing it OOM-kills postgres.
-        - setup_remote_docker:
-            docker_layer_caching: << parameters.layer_cache >>
-        - run:
-            name: Sign in to docker
-            command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+  # The layer cache only pays where an image gets built: elsewhere it stores nothing, at 200 credits a run.
+  docker_setup:
+    steps:
+    - setup_remote_docker:
+        docker_layer_caching: true
+    - run:
+        name: Sign in to docker
+        command: docker login -u $DOCKER_USER -p $DOCKER_PASS
 
   post_steps:
     steps:
@@ -157,6 +149,7 @@ jobs:
         echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
 
     - pre_steps
+    - docker_setup
 
     - run:
         name: build and push emx2 java docker images for the preview
@@ -214,12 +207,12 @@ jobs:
           name: Enable pnpm
           command: sudo corepack enable
 
-      # No image is built here, so the layer cache stores nothing and costs 200 credits a run.
+      # This job restores its own gradle cache below, into the GRADLE_USER_HOME set above.
       - pre_steps:
           gradle_cache: false
-          layer_cache: false
-          # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
-          remote_docker: true
+
+      # without this step the job's postgres is OOM-killed; the remote-docker VM has the headroom
+      - setup_remote_docker
 
       - restore_cache:
           keys:
@@ -398,10 +391,10 @@ jobs:
     <<: *build_config
 
     steps:
-    - pre_steps:
-        layer_cache: false
-        # Not for docker: turbo lints 3 packages at once and 8GB is not enough for them.
-        remote_docker: true
+    - pre_steps
+
+    # without this step turbo's 3 parallel package builds are OOM-killed
+    - setup_remote_docker
 
     - run:
         name: <apps> check code format
@@ -428,10 +421,10 @@ jobs:
     <<: *test_config
 
     steps:
-    - pre_steps:
-        layer_cache: false
-        # Not for docker: postgres OOMs on the plain executor's 8GB, the VM gives 15GB.
-        remote_docker: true
+    - pre_steps
+
+    # without this step the job's postgres is OOM-killed; the remote-docker VM has the headroom
+    - setup_remote_docker
 
     - run:
         name: prepare sql test database
@@ -470,7 +463,8 @@ jobs:
 
     steps:
     - pre_steps
-    
+    - docker_setup
+
     - run:
         name: Switch git remote to HTTPS for Nyx tag push
         command: git remote set-url origin https://github.com/molgenis/molgenis-emx2.git
@@ -551,9 +545,7 @@ jobs:
     resource_class: medium
 
     steps:
-      - pre_steps:
-          layer_cache: false
-          remote_docker: false
+      - pre_steps
       - run:
           name: Reset TWINE_PASSWORD in case of release to PyPI (default is testPyPI token)
           command: |
@@ -595,8 +587,7 @@ jobs:
       GHA_PREVIEW_NR: << pipeline.parameters.GHA_Meta >>
     
     steps:
-    - pre_steps:
-        layer_cache: false
+    - pre_steps
 
     - run:
         name: delete preview on azure
@@ -609,8 +600,7 @@ jobs:
     <<: *build_config
 
     steps:
-      - pre_steps:
-          layer_cache: false
+      - pre_steps
 
       # Check if we should run this week
       - run:
