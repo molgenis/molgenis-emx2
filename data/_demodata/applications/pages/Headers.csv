@@ -1,2 +1,2 @@
-id,in container,title,subtitle,background image,title is centered
-demo-page-banner,"demo-landing-page",Page Builder,"Create custom pages using the Page Builder interface",molgenis-default-banner-img,true
+title,subtitle,background image,title is centered,enable full screen width,in container,components,component order,id
+Page Builder,Create custom pages using the Page Builder interface,penguins,true,false,,,,Header-671d90d3-add2-4c9a-8ecb-49d6f0e9c421
