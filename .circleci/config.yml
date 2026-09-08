@@ -222,7 +222,6 @@ jobs:
     - pre_steps
     - restore_gradle_deps
     - docker_setup
-
     - restore_gradle_build_cache
     - restore_turbo_cache
 
