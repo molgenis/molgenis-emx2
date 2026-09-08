@@ -83,6 +83,9 @@ commands:
           # Nyx peels ~2000 tags per commit it walks; that costs master 70s per gradle start; packs are smaller
           git pack-refs --all
     - run:
+        name: Make the directory the long steps tee their whole log into
+        command: mkdir -p ~/gradle-logs
+    - run:
         name: Setup git, todo, move to molgenisci user
         command: |
           git config --global --add safe.directory '*'
@@ -229,8 +232,7 @@ jobs:
         name: build and push emx2 java docker images for the preview
         command: |
           set -o pipefail
-          mkdir -p ~/gradle-logs
-          ./gradlew -s --no-daemon --console=plain dockerPush ci -x test \
+          ./gradlew -s --console=plain dockerPush ci -x test \
           2>&1 | tee ~/gradle-logs/build-preview-images.log
 
     - run:
@@ -290,7 +292,7 @@ jobs:
 
       - run:
           name: build the application without running tests to speed up the e2e tests
-          command: ./gradlew shadowJar -x test ci --no-daemon
+          command: ./gradlew shadowJar -x test ci
           # Node sizes its default heap from HOST memory, not the 8GB this job shares with postgres.
           environment:
             NODE_OPTIONS: --max-old-space-size=2048
@@ -467,8 +469,7 @@ jobs:
         name: <apps> lint the code
         command: |
           set -o pipefail
-          mkdir -p ~/gradle-logs
-          ./gradlew lint ci --no-daemon --console=plain \
+          ./gradlew lint ci --console=plain \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           2>&1 | tee ~/gradle-logs/test-apps-lint.log
         # Turbo lints 3 packages at once, each Node child sizing its heap from HOST memory.
@@ -518,8 +519,7 @@ jobs:
           # CircleCI truncates a step log to its last 400KB, so tee keeps it whole on disk.
           # pipefail keeps the step failing on gradle's exit code rather than tee's.
           set -o pipefail
-          mkdir -p ~/gradle-logs
-          ./gradlew test jacocoMergedReport --no-daemon -x :apps:test --console=plain \
+          ./gradlew test jacocoMergedReport -x :apps:test --console=plain \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           2>&1 | tee ~/gradle-logs/test-backend.log
     - run:
@@ -531,7 +531,7 @@ jobs:
           if [ -n "$CIRCLE_PULL_REQUEST" ]; then
             SONAR_PR_ARGS="-Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}"
           fi
-          ./gradlew sonar --no-daemon -x :apps:test \
+          ./gradlew sonar -x :apps:test \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           $SONAR_PR_ARGS
@@ -560,8 +560,7 @@ jobs:
         name: build the docker image
         command: |
           set -o pipefail
-          mkdir -p ~/gradle-logs
-          ./gradlew ci dockerBuild --no-daemon --console=plain \
+          ./gradlew ci dockerBuild --console=plain \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
           2>&1 | tee ~/gradle-logs/release-dockerbuild.log
 
@@ -570,13 +569,12 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           set -o pipefail
-          mkdir -p ~/gradle-logs
           if [[ "$TAG_NAME" == *"SNAPSHOT"* ]]; then
-            ./gradlew -s --no-daemon --console=plain dockerPush 2>&1 | tee ~/gradle-logs/release-snapshot.log
+            ./gradlew -s --console=plain dockerPush 2>&1 | tee ~/gradle-logs/release-snapshot.log
             docker build apps/catalogue/ -t molgenis/ssr-catalogue-snapshot:latest -t molgenis/ssr-catalogue-snapshot:${TAG_NAME}
             docker push molgenis/ssr-catalogue-snapshot --all-tags
           else
-            ./gradlew -s --no-daemon --console=plain dockerPush release 2>&1 | tee ~/gradle-logs/release-publish.log
+            ./gradlew -s --console=plain dockerPush release 2>&1 | tee ~/gradle-logs/release-publish.log
             docker build apps/catalogue/ -t molgenis/ssr-catalogue:latest -t molgenis/ssr-catalogue:${TAG_NAME}
             docker push molgenis/ssr-catalogue --all-tags
           fi
@@ -651,7 +649,7 @@ jobs:
             export REGEX="^.*(emx2-pyclient).*$"
             if [[ $(git log -1 --pretty=format:%s) =~ $REGEX ]]; then
               export $( cat build/ci.properties | xargs )
-              ./gradlew -s --no-daemon publishPython > pypi_output
+              ./gradlew -s publishPython > pypi_output
               curl -d "token=${SLACK_TOKEN}" \
               -d "text=*<${CIRCLE_PULL_REQUEST}|Circle-CI » Molgenis » Molgenis-emx2 » PR-${CIRCLE_PULL_REQUEST##*/} #${CIRCLE_BUILD_NUM}>*
               A new molgenis-emx2-pyclient version is released: $( grep 'View at:' pypi_output -A 1 | grep -v 'View at:' )" \
