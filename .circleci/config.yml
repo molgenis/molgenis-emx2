@@ -289,8 +289,8 @@ jobs:
 
       - run:
           name: build ssr catalogue
-          command: pnpm build
-          working_directory: apps/catalogue
+          command: pnpm exec turbo run build --filter=catalogue
+          working_directory: apps
           environment:
             NODE_OPTIONS: --max-old-space-size=2048
 
