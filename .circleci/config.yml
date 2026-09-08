@@ -90,11 +90,11 @@ commands:
         command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
         working_directory: apps
 
-  # The layer cache only pays where an image gets built: elsewhere it stores nothing, at 200 credits a run.
+  # No layer cache: it doubled the spin-up and added a 34s teardown, to save a base image and one
+  # apt layer. Every COPY layer here holds jars that change each build.
   docker_setup:
     steps:
-    - setup_remote_docker:
-        docker_layer_caching: true
+    - setup_remote_docker
     - run:
         name: Sign in to docker
         command: docker login -u $DOCKER_USER -p $DOCKER_PASS
