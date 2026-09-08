@@ -280,7 +280,7 @@ public class SqlColumnExecutor {
         throw new MolgenisException(
             "refSchema '" + column.getRefSchemaName() + "' does not exist or permission denied");
       }
-      refSchema = schema.getDatabase().getSchema(column.getRefSchemaName()).getMetadata();
+      refSchema = schema.getDatabase().getSchemaMetadata(column.getRefSchemaName());
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
