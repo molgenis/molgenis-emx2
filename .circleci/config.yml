@@ -229,11 +229,6 @@ jobs:
         name: build and push emx2 java docker images for the preview
         command: ./gradlew -s --no-daemon dockerPush ci -x test
 
-    - persist_to_workspace:
-        root: .
-        paths:
-          - build/ci.properties
-
     - run:
         name: push ssr-catalogue docker images
         command: |
