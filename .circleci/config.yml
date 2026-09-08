@@ -19,20 +19,19 @@ orbs:
 
 definitions:
   # A cache restores to the absolute path it was saved from, and `~` differs per image.
-  cache_env: &cache_env
+  job_env: &job_env
     GRADLE_USER_HOME: /tmp/ci-cache/gradle
     GRADLE_BUILD_CACHE_DIR: /tmp/ci-cache/gradle-build-cache
     TURBO_CACHE_DIR: /tmp/ci-cache/turbo
+    GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
+    TERM: dumb
 
   build_config: &build_config
     docker:
     - image: molgenis/ci-build:1.6.3
     working_directory: ~/repo
     resource_class: large
-    environment:
-      <<: *cache_env
-      GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
-      TERM: dumb
+    environment: *job_env
   test_config: &test_config
     docker:
     - image: molgenis/ci-build:1.6.3
@@ -43,19 +42,13 @@ definitions:
         POSTGRES_DB: postgres
     working_directory: ~/repo
     resource_class: large
-    environment:
-      <<: *cache_env
-      GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
-      TERM: dumb
+    environment: *job_env
   release_config: &release_config
     docker:
       - image: molgenis/ci-build:1.6.3
     working_directory: ~/repo
     resource_class: large
-    environment:
-      <<: *cache_env
-      GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
-      TERM: dumb
+    environment: *job_env
 
 
 commands:
@@ -269,10 +262,7 @@ jobs:
         POSTGRES_DB: postgres
     working_directory: ~/repo
     resource_class: large
-    environment:
-      <<: *cache_env
-      GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
-      TERM: dumb
+    environment: *job_env
 
     steps:
       # pre_steps calls `pnpm dlx`, so pnpm must exist before it runs.
