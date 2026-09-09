@@ -1,10 +1,5 @@
-import { computed, reactive, ref, watch, type Ref } from "vue";
+import { computed, ref, watch, type Ref } from "vue";
 
-/**
- * Mirrors filter/Tree.vue's SHOW_MORE_THRESHOLD/STEP behaviour, but hides
- * rows past the bound with CSS instead of slicing them out of the DOM: a
- * crawler and a screen reader still see the whole level.
- */
 export function useOntologyItemPaging(
   itemCount: Ref<number>,
   maxItems: Ref<number | undefined>,
@@ -14,15 +9,16 @@ export function useOntologyItemPaging(
 
   watch(maxItems, (value) => (visibleCount.value = value));
 
-  const isBounded = computed(() => maxItems.value != null);
+  const isBounded = computed(() => maxItems.value !== undefined);
 
   const isFullyExpanded = computed(
     () => !isBounded.value || (visibleCount.value ?? 0) >= itemCount.value
   );
 
-  const showControl = computed(
-    () => isBounded.value && itemCount.value > (maxItems.value as number)
-  );
+  const showControl = computed(() => {
+    const bound = maxItems.value;
+    return bound !== undefined && itemCount.value > bound;
+  });
 
   const controlLabel = computed(() =>
     isFullyExpanded.value ? "Show less" : "Show more"
@@ -47,13 +43,11 @@ export function useOntologyItemPaging(
     }
   }
 
-  // reactive(), not a plain object: a v-if or attribute binding on a nested
-  // computed ref reads the ref itself (always truthy), never its .value.
-  return reactive({
+  return {
     isFullyExpanded,
     showControl,
     controlLabel,
     isHidden,
     toggle,
-  });
+  };
 }

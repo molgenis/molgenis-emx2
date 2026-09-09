@@ -13,7 +13,6 @@ const props = defineProps<{
 }>();
 
 // Shown immediately, then swapped for the ancestor-linked tree once it resolves.
-// Avoids a blank record view while the ancestry request is in flight.
 const resolvedValue = ref<IOntologyTreeItem | IOntologyTreeItem[]>(props.data);
 
 watch(

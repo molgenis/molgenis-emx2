@@ -17,8 +17,16 @@ function markersPresent(wrapper: Awaited<ReturnType<typeof mountRow>>) {
 }
 
 function gutter(wrapper: Awaited<ReturnType<typeof mountRow>>) {
-  return wrapper.find("span.relative.w-5.h-5.shrink-0");
+  return wrapper.find("span.marker-gutter");
 }
+
+const positioningClasses = [
+  "absolute",
+  "left-1/2",
+  "top-1/2",
+  "-translate-x-1/2",
+  "-translate-y-1/2",
+];
 
 describe("display/OntologyRow.vue marker", () => {
   it("shows the caret and no other marker when the row has children", async () => {
@@ -51,18 +59,11 @@ describe("display/OntologyRow.vue marker", () => {
       connector: true,
     });
     const connector = wrapper.find('[data-marker="connector"]');
-    // tree-connector centres in the gutter like the caret and the bullet,
-    // so it carries no marker-specific positional offset.
-    expect(connector.classes()).toEqual(
-      expect.arrayContaining([
-        "absolute",
-        "left-1/2",
-        "top-1/2",
-        "-translate-x-1/2",
-        "-translate-y-1/2",
-      ])
-    );
-    expect(connector.classes()).not.toContain("-translate-y-[calc(50%+10px)]");
+    // Centring is the gutter's CSS now, so the marker itself carries no offset class.
+    expect(gutter(wrapper).element).toBe(connector.element.parentElement);
+    expect(
+      connector.classes().some((c) => positioningClasses.includes(c))
+    ).toBe(false);
     // tree-connector's stroke starts on the box's horizontal centre, not
     // collapsible-list-item's left edge, which is the whole point of the swap.
     expect(connector.find("path").attributes("d")).toBe("M10 0V10H20");
@@ -96,12 +97,8 @@ describe("display/OntologyRow.vue marker", () => {
     // name span's immediate previous sibling: text starts at the same x
     // by construction, not by a pixel measurement jsdom cannot make.
     expect(gutter(blank).classes()).toEqual(gutter(caret).classes());
-    expect(
-      blank.find("span.relative.w-5.h-5.shrink-0 + span.flex").exists()
-    ).toBe(true);
-    expect(
-      caret.find("span.relative.w-5.h-5.shrink-0 + span.flex").exists()
-    ).toBe(true);
+    expect(blank.find("span.marker-gutter + span.flex").exists()).toBe(true);
+    expect(caret.find("span.marker-gutter + span.flex").exists()).toBe(true);
   });
 });
 
@@ -119,12 +116,14 @@ describe("display/OntologyRow.vue gutter contributes nothing to row height", () 
     "keeps the fixed-size gutter box for the %s marker",
     async (markerName, props) => {
       const wrapper = await mountRow(props);
-      const gutter = wrapper.find("span.relative");
-      expect(gutter.classes()).toEqual(
-        expect.arrayContaining(["relative", "w-5", "h-5", "shrink-0"])
+      const gutterEl = gutter(wrapper);
+      expect(gutterEl.classes()).toEqual(
+        expect.arrayContaining(["marker-gutter", "shrink-0"])
       );
-      expect(wrapper.find(`[data-marker="${markerName}"]`).classes()).toContain(
-        "absolute"
+      const marker = wrapper.find(`[data-marker="${markerName}"]`);
+      expect(marker.element.parentElement).toBe(gutterEl.element);
+      expect(marker.classes().some((c) => positioningClasses.includes(c))).toBe(
+        false
       );
     }
   );

@@ -26,7 +26,13 @@ const toggleCollapse = () => {
   collapsed.value = !collapsed.value;
 };
 
-const childPaging = useOntologyItemPaging(
+const {
+  isHidden: isChildHidden,
+  showControl: showChildControl,
+  isFullyExpanded: isChildFullyExpanded,
+  controlLabel: childControlLabel,
+  toggle: toggleChild,
+} = useOntologyItemPaging(
   computed(() => props.node.children?.length ?? 0),
   computed(() => props.maxItems),
   computed(() => props.itemStep)
@@ -58,18 +64,18 @@ const childPaging = useOntologyItemPaging(
         :node="child"
         :max-items="maxItems"
         :item-step="itemStep"
-        :hidden="childPaging.isHidden(index)"
+        :hidden="isChildHidden(index)"
       />
     </ul>
     <button
-      v-if="node.children?.length && childPaging.showControl"
+      v-if="node.children?.length && showChildControl"
       type="button"
       class="text-link text-body-sm ml-8 mt-1"
       :class="{ hidden: collapsed }"
-      :aria-expanded="childPaging.isFullyExpanded"
-      @click="childPaging.toggle"
+      :aria-expanded="isChildFullyExpanded"
+      @click="toggleChild"
     >
-      {{ childPaging.controlLabel }}
+      {{ childControlLabel }}
     </button>
   </li>
 </template>

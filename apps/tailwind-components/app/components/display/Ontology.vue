@@ -14,8 +14,7 @@ const props = withDefaults(
   defineProps<{
     value: IOntologyTreeItem | IOntologyTreeItem[];
     collapseAll?: boolean;
-    /** Rows a level shows before the control. Unset means no bound: every
-     *  catalogue call site relies on this to render exactly as it does today. */
+    /** Rows a level shows before the control; unset means no bound. */
     maxItems?: number;
     itemStep?: number;
     renderLimit?: number;
@@ -33,8 +32,7 @@ const isList = computed(() => {
   return tree.value.every((node) => !node.children?.length);
 });
 
-// Whole-tree budget on total nodes rendered, not per level: total node count
-// is what costs. Beyond it a node is genuinely absent from the DOM.
+// Beyond this budget a node is genuinely absent from the DOM, unlike item paging which only hides.
 const rendered = ref(props.renderLimit);
 
 watch(
@@ -54,7 +52,13 @@ function renderMore() {
   rendered.value += props.renderLimit;
 }
 
-const rootPaging = useOntologyItemPaging(
+const {
+  isHidden: isRootHidden,
+  showControl: showRootControl,
+  isFullyExpanded: isRootFullyExpanded,
+  controlLabel: rootControlLabel,
+  toggle: toggleRoot,
+} = useOntologyItemPaging(
   computed(() => limitedTree.value.length),
   computed(() => props.maxItems),
   computed(() => props.itemStep)
@@ -73,7 +77,7 @@ const rootPaging = useOntologyItemPaging(
       <li
         v-for="(item, index) in limitedTree"
         :key="item.name"
-        :class="{ hidden: rootPaging.isHidden(index) }"
+        :class="{ hidden: isRootHidden(index) }"
       >
         <OntologyRow
           :name="item.name"
@@ -91,19 +95,19 @@ const rootPaging = useOntologyItemPaging(
         :is-root-node="true"
         :max-items="maxItems"
         :item-step="itemStep"
-        :hidden="rootPaging.isHidden(index)"
+        :hidden="isRootHidden(index)"
       />
     </template>
     <!-- Kept as trailing <li>s, not siblings of the <ul>, so the component
          keeps ONE root element whether or not a control is showing. -->
-    <li v-if="rootPaging.showControl" class="list-none">
+    <li v-if="showRootControl" class="list-none">
       <button
         type="button"
         class="text-link text-body-sm"
-        :aria-expanded="rootPaging.isFullyExpanded"
-        @click="rootPaging.toggle"
+        :aria-expanded="isRootFullyExpanded"
+        @click="toggleRoot"
       >
-        {{ rootPaging.controlLabel }}
+        {{ rootControlLabel }}
       </button>
     </li>
     <li v-if="hasUnrendered" class="list-none">

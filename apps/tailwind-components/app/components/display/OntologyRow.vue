@@ -8,11 +8,7 @@ withDefaults(
     definition?: string | null;
     hasChildren?: boolean;
     collapsed?: boolean;
-    /** "bullet": a flat-list row. "connector": a non-root tree leaf. "blank":
-     *  a tree root leaf — no icon, but the gutter stays so its text lines up
-     *  with sibling rows that DO carry a caret. "flush": the standalone
-     *  single value, which has no siblings to line up with, so no gutter
-     *  at all and the text sits flush left. */
+    /** "flush", "blank", "bullet" or "connector" marker. */
     marker?: "flush" | "blank" | "bullet" | "connector";
   }>(),
   {
@@ -27,19 +23,15 @@ defineEmits<{ (e: "toggle"): void }>();
 
 <template>
   <div class="flex items-center">
-    <!-- Fixed size, and every marker is positioned, not flowed: the tallest
-         marker (the caret's 24x24 hit target) must never set the row's
-         height, so none of them may occupy flow space here. Omitted only for
-         "flush", which has no sibling row to keep text aligned with. -->
     <span
       v-if="hasChildren || marker !== 'flush'"
-      class="relative w-5 h-5 shrink-0"
+      class="marker-gutter shrink-0"
     >
       <button
         v-if="hasChildren"
         type="button"
         data-marker="caret"
-        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-link rounded-full hover:bg-link-hover hover:cursor-pointer p-0.5"
+        class="text-link rounded-full hover:bg-link-hover hover:cursor-pointer p-0.5"
         :class="{ 'rotate-180': collapsed }"
         :aria-expanded="!collapsed"
         :aria-label="(collapsed ? 'Expand ' : 'Collapse ') + name"
@@ -50,14 +42,14 @@ defineEmits<{ (e: "toggle"): void }>();
       <span
         v-else-if="marker === 'bullet'"
         data-marker="bullet"
-        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-current"
+        class="w-1.5 h-1.5 rounded-full bg-current"
       />
       <BaseIcon
         v-else-if="marker === 'connector'"
         data-marker="connector"
         name="tree-connector"
         :width="20"
-        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-disabled"
+        class="text-disabled"
       />
     </span>
     <span
@@ -69,10 +61,6 @@ defineEmits<{ (e: "toggle"): void }>();
     </span>
     <div class="inline-flex items-center whitespace-nowrap">
       <div v-if="definition" class="inline-block ml-1">
-        <!-- The row's own colours are a CSS-cascade concern now
-             (.surface-inverted on an ancestor); hoverColor only ever chose
-             between two fixed values here, never one derived from a
-             surface, so it stays the content-surface one. -->
         <CustomTooltip
           label="Read more"
           hoverColor="white"
@@ -82,3 +70,18 @@ defineEmits<{ (e: "toggle"): void }>();
     </div>
   </div>
 </template>
+
+<style scoped>
+.marker-gutter {
+  position: relative;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+.marker-gutter > * {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+</style>
