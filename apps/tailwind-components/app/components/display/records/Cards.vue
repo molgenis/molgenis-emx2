@@ -56,11 +56,14 @@ function logoUrl(row: IRow): string | undefined {
       :key="rowIndex"
       class="border p-11 relative -mb-[1px] lg:even:border-l-0"
     >
+      <!-- Floated, and first in source order, so the title and description wrap
+      around it rather than starting below. max-w caps a wide logo: a float at
+      max-w-full would take the whole row and defeat the point. -->
       <img
         v-if="logoUrl(row)"
         :src="logoUrl(row)"
         :alt="title(row)"
-        class="max-h-16 max-w-full mb-2 object-contain"
+        class="float-right ml-4 mb-2 max-h-16 max-w-[40%] object-contain"
       />
       <div class="font-bold text-record-heading">
         <NuxtLink v-if="linkTo" :to="linkTo(row)" class="text-link underline">

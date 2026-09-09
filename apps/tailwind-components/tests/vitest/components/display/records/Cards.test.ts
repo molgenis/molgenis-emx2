@@ -116,6 +116,9 @@ describe("records/Cards.vue", () => {
     const img = wrapper.find("img");
     expect(img.attributes("src")).toBe("https://example.org/tweety.png");
     expect(img.attributes("alt")).toBe("Tweety");
+    // top-right: the float is what places it, so assert it rather than
+    // only that an img exists.
+    expect(img.classes()).toContain("float-right");
   });
 
   it("renders no logo when logoColumn does not resolve to a file value", () => {
