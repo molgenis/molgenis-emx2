@@ -28,11 +28,8 @@ steps:
   fetchDepth: 0
   fetchTags: true
 - script: |
-    sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt-get update &&  sudo apt-get install postgresql-client python3.10 pipx -y
+    sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt-get update &&  sudo apt-get install postgresql-client python3.10 python3.10-venv -y
   displayName: postgresql client python3
-- script: |
-    pipx ensurepath && pipx install uv
-  displayName: install uv
 - script: |
     psql -h localhost -p 5432 -U postgres < .circleci/initdb.sql
   displayName: initialize database
@@ -52,7 +49,6 @@ steps:
     MOLGENIS_POSTGRES_USER: molgenis
     MOLGENIS_POSTGRES_PASS: molgenis
     MOLGENIS_POSTGRES_URI: jdbc:postgresql://localhost/molgenis
-    JVM_OPTS: -Xmx3200m
     NODE_OPTIONS: "--max-old-space-size=4096"
     GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
     CI: true

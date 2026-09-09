@@ -131,7 +131,7 @@ const filteredOntologies = computed(() => {
     <ContentBlock class="mt-1" title="data tables">
       <Table>
         <template #head>
-          <TableHeadRow>
+          <TableHeadRow stacked>
             <TableHead>label</TableHead>
             <TableHead>description</TableHead>
           </TableHeadRow>
@@ -139,15 +139,25 @@ const filteredOntologies = computed(() => {
         <template #body>
           <TableRow
             v-for="table in filteredTables"
+            :key="table.id"
+            stacked
             :disabled="!canViewTable(table)"
-            @click="canViewTable(table) && navigateTo(`${schema}/${table.id}`)"
+            @click="canViewTable(table) && navigateTo(`/${schema}/${table.id}`)"
           >
-            <TableCell>
-              <span :class="{ 'text-disabled': !canViewTable(table) }">
+            <TableCell stacked>
+              <NuxtLink
+                v-if="canViewTable(table)"
+                :to="`/${schema}/${table.id}`"
+                class="block min-h-11 sm:min-h-0"
+                @click.stop
+              >
+                {{ table.label }}
+              </NuxtLink>
+              <span v-else class="block min-h-11 sm:min-h-0 text-disabled">
                 {{ table.label }}
               </span>
             </TableCell>
-            <TableCell>
+            <TableCell stacked label="description">
               <span :class="{ 'text-disabled': !canViewTable(table) }">
                 {{ table.description }}
               </span>
@@ -160,7 +170,7 @@ const filteredOntologies = computed(() => {
     <ContentBlock v-if="ontologies.length" class="mt-1" title="ontologies">
       <Table>
         <template #head>
-          <TableHeadRow>
+          <TableHeadRow stacked>
             <TableHead>label</TableHead>
             <TableHead>description</TableHead>
           </TableHeadRow>
@@ -168,10 +178,22 @@ const filteredOntologies = computed(() => {
         <template #body>
           <TableRow
             v-for="ontology in filteredOntologies"
+            :key="ontology.id"
+            stacked
             @click="navigateTo(`${schema}/${ontology.id}`)"
           >
-            <TableCell>{{ ontology.label }}</TableCell>
-            <TableCell>{{ ontology.description }}</TableCell>
+            <TableCell stacked>
+              <NuxtLink
+                :to="`/${schema}/${ontology.id}`"
+                class="block min-h-11 sm:min-h-0"
+                @click.stop
+              >
+                {{ ontology.label }}
+              </NuxtLink>
+            </TableCell>
+            <TableCell stacked label="description">{{
+              ontology.description
+            }}</TableCell>
           </TableRow>
         </template>
       </Table>
