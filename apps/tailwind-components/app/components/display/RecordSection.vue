@@ -2,7 +2,7 @@
 import { useIntersectionObserver } from "@vueuse/core";
 import { computed, ref, type ComponentPublicInstance } from "vue";
 import type { cellPayload } from "../../../types/types";
-import type { RecordSection } from "../../../types/record";
+import type { RecordLayout, RecordSection } from "../../../types/record";
 import ContentBlock from "../content/ContentBlock.vue";
 import DefinitionList from "../DefinitionList.vue";
 import DefinitionListDefinition from "../DefinitionListDefinition.vue";
@@ -12,16 +12,18 @@ import ValueEMX2 from "../value/EMX2.vue";
 const props = withDefaults(
   defineProps<{
     section: RecordSection;
-    showCards?: boolean;
+    layout?: RecordLayout;
     trackInView?: boolean;
   }>(),
   {
-    showCards: true,
+    layout: "CARDS",
     trackInView: false,
   }
 );
 
-const wrapper = computed(() => (props.showCards ? ContentBlock : "div"));
+const wrapper = computed(() =>
+  props.layout === "CARDS" ? ContentBlock : "div"
+);
 
 const emit = defineEmits<{
   (e: "valueClick", payload: cellPayload): void;

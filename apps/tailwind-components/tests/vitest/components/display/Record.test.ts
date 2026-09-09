@@ -421,12 +421,12 @@ describe("DisplayRecord", () => {
     expect(single.get("#about").text()).toContain("spike");
   });
 
-  test("renders each box as a plain heading and list, with no card and no lg:gap-2.5, when showCards is off", () => {
+  test("renders each box as a plain heading and list, with no card and no lg:gap-2.5, when the layout is PLAIN", () => {
     const noCards = mount(DisplayRecord, {
       props: {
         metadata: twoSections,
         rowData: twoSectionsRow,
-        showCards: false,
+        layout: "PLAIN",
       },
     });
 

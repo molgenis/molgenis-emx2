@@ -196,7 +196,6 @@ function handleCellClick(event: cellPayload) {
       :rowData="recordRow"
       :showMgColumns="isAdmin"
       :showLegend="true"
-      :showCards="true"
       @valueClick="handleCellClick($event)"
     />
   </Container>

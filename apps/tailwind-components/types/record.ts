@@ -14,6 +14,9 @@ export interface RecordHeading {
 }
 
 /** The grouped shape groupRecordSections() builds: a SECTION with its own fields and HEADINGs. */
+/** How a record renders its sections: boxed, or flat on the page. */
+export type RecordLayout = "CARDS" | "PLAIN";
+
 export interface RecordSectionGroup {
   id: string;
   label: string | null;

@@ -29,13 +29,13 @@
           />
         </div>
         <div>
-          <label class="text-title font-bold" for="show-cards">
-            Cards (showCards):
+          <label class="text-title font-bold" for="record-layout">
+            Cards (layout):
           </label>
           <InputCheckbox
-            id="show-cards"
-            v-model="showCards"
-            name="show-cards"
+            id="record-layout"
+            v-model="useCardLayout"
+            name="record-layout"
           />
         </div>
         <div>
@@ -56,7 +56,7 @@
         :metadata="metadata"
         :rowData="formValues"
         :showLegend="showLegend"
-        :showCards="showCards"
+        :layout="useCardLayout ? 'CARDS' : 'PLAIN'"
         :showMgColumns="showMgColumns"
       />
     </section>
@@ -86,7 +86,7 @@ const rowIndex = ref<number>(
 );
 
 const showLegend = ref(true);
-const showCards = ref(true);
+const useCardLayout = ref(true);
 const showMgColumns = ref(false);
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {

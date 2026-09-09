@@ -494,7 +494,7 @@ watch(
                   :show-mg-columns="showMgColumns"
                   :show-legend="false"
                   :show-filter="false"
-                  :show-cards="false"
+                  layout="PLAIN"
                 />
               </InputRefSelectInputOption>
             </div>

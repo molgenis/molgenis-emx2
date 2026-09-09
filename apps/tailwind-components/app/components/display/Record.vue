@@ -6,7 +6,11 @@ import type {
   LegendGroup,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
-import type { RecordSection, RecordSectionGroup } from "../../../types/record";
+import type {
+  RecordLayout,
+  RecordSection,
+  RecordSectionGroup,
+} from "../../../types/record";
 import { groupRecordSections } from "../../utils/groupRecordSections";
 import { recordTitle } from "../../utils/recordTitle";
 import FormLegend from "../form/Legend.vue";
@@ -19,12 +23,12 @@ const props = withDefaults(
     rowData: IRow | null;
     showMgColumns?: boolean;
     showLegend?: boolean;
-    showCards?: boolean;
+    layout?: RecordLayout;
   }>(),
   {
     showMgColumns: false,
     showLegend: true,
-    showCards: true,
+    layout: "CARDS",
   }
 );
 
@@ -130,12 +134,15 @@ const title = computed(() => recordTitle(props.metadata, props.rowData));
     </template>
 
     <template #main>
-      <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
+      <div
+        class="grid"
+        :class="layout === 'CARDS' ? 'lg:gap-2.5 gap-0' : 'gap-7.5'"
+      >
         <DisplayRecordSection
           v-for="recordSection in recordSections"
           :key="recordSection.id"
           :section="recordSection"
-          :showCards="showCards"
+          :layout="layout"
           :trackInView="hasLegend"
           @valueClick="$emit('valueClick', $event)"
           @inView="reportedSectionId = recordSection.id"
