@@ -11,6 +11,7 @@ import static org.molgenis.emx2.Row.row;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -143,6 +144,25 @@ class ImportRowProcessorTest {
         table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS).getFirst().getValueMap();
     assertEquals("Lewis", actual.get("name"));
     assertEquals("30", actual.get("age"));
+  }
+
+  @Test
+  void givenMoreRowsThanBatchSize_thenImportAllRows() {
+    int rowCount = 250;
+    Row[] rows =
+        IntStream.range(0, rowCount).mapToObj(i -> row("name", "Person" + i)).toArray(Row[]::new);
+
+    Task task = new Task().start();
+    ImportRowProcessor processor = new ImportRowProcessor(table, task);
+    processor.process(List.of(rows).iterator(), new TableStoreForCsvInMemory());
+
+    List<String> actual =
+        table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS).stream()
+            .map(r -> r.getString("name"))
+            .toList();
+    assertEquals(rowCount, actual.size());
+    assertTrue(actual.containsAll(List.of("Person0", "Person99", "Person100", "Person249")));
+    assertEquals(rowCount, task.getProgress());
   }
 
   private List<Map<String, Object>> importRows(Row... rows) {
