@@ -73,20 +73,16 @@ const DETAIL_COLUMN_FOLD_STRUCTURE: Record<number, string> = {
 };
 const MAX_SUPPORTED_FOLD_COLUMNS = 6;
 
-const wideContainerClass = computed(() => {
-  const base =
-    "@container grid grid-cols-[auto_1fr] items-baseline gap-x-4 gap-y-2";
+const wideFoldStructureClass = computed(() => {
   const detailColumnCount = props.columns.length;
   if (detailColumnCount < 2) {
     // A single pair can never fail to fit on its own row, so it always
     // shows label left, value right; no wide structure is needed.
-    return base;
+    return "";
   }
-  const wideStructure =
-    DETAIL_COLUMN_FOLD_STRUCTURE[
-      Math.min(detailColumnCount, MAX_SUPPORTED_FOLD_COLUMNS)
-    ];
-  return `${base} ${wideStructure}`;
+  return DETAIL_COLUMN_FOLD_STRUCTURE[
+    Math.min(detailColumnCount, MAX_SUPPORTED_FOLD_COLUMNS)
+  ];
 });
 
 // Which fold band's hide-when-empty rule (see the <style> block) applies to
@@ -113,12 +109,12 @@ const detailFoldColumns = computed<number | undefined>(() => {
   at every width. -->
   <div v-if="wide" class="@container">
     <dl
-      class="mt-3"
-      :class="wideContainerClass"
+      class="mt-3 @container grid grid-cols-[auto_1fr] items-baseline gap-x-4 gap-y-2"
+      :class="wideFoldStructureClass"
       :data-fold-columns="detailFoldColumns"
     >
       <template v-for="column in columns" :key="column.id">
-        <dt class="text-record-label font-bold">
+        <dt class="text-title-contrast font-normal opacity-70">
           {{ column.label || column.id }}
         </dt>
         <dd
@@ -138,7 +134,7 @@ const detailFoldColumns = computed<number | undefined>(() => {
   per pair would make each pair its own grid and lose the alignment. -->
   <dl v-else class="mt-3 grid grid-cols-3 gap-x-4 gap-y-1">
     <template v-for="column in columns" :key="column.id">
-      <dt class="text-record-label font-bold">
+      <dt class="text-title-contrast font-normal opacity-70">
         {{ column.label || column.id }}
       </dt>
       <dd class="col-span-2 text-record-value">

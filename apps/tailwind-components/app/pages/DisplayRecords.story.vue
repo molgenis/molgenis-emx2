@@ -36,7 +36,9 @@ const fixtureRows: IRow[] = [
       size: 4213,
       filename: "lifelines.png",
       extension: "png",
-      url: "https://molgenis.github.io/images/logo.png",
+      // A data URI, not a hosted URL: it always resolves, so the
+      // logoColumn slot never shows a broken-image icon.
+      url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' rx='6' fill='%236b7280'/><text x='20' y='25' font-size='14' fill='white' text-anchor='middle' font-family='sans-serif'>LL</text></svg>",
     },
     startYear: 2006,
     status: "Active",
@@ -53,7 +55,7 @@ const fixtureRows: IRow[] = [
       size: 3877,
       filename: "ukb.png",
       extension: "png",
-      url: "https://molgenis.github.io/images/logo.png",
+      url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' rx='6' fill='%236b7280'/><text x='20' y='25' font-size='14' fill='white' text-anchor='middle' font-family='sans-serif'>UK</text></svg>",
     },
     startYear: 2006,
     status: "Active",
@@ -160,7 +162,7 @@ const fixtureRows: IRow[] = [
       size: 3540,
       filename: "rotterdam.png",
       extension: "png",
-      url: "https://molgenis.github.io/images/logo.png",
+      url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' rx='6' fill='%236b7280'/><text x='20' y='25' font-size='14' fill='white' text-anchor='middle' font-family='sans-serif'>RS</text></svg>",
     },
     startYear: 1990,
     status: "Active",
@@ -362,6 +364,13 @@ const logoColumnOptions = computed(() =>
   columns.value.filter((column) => column.columnType === "FILE")
 );
 
+const logoColumnSelectOptions = computed<IValueLabel[]>(() =>
+  logoColumnOptions.value.map((column) => ({
+    value: column.id,
+    label: column.label || column.id,
+  }))
+);
+
 const LAYOUT_FILTER_OPTIONS: string[] = ["All", ...LAYOUTS];
 const layoutFilter = ref<string>("All");
 const visibleLayouts = computed<Layout[]>(() =>
@@ -519,16 +528,16 @@ const SURFACES: SurfaceDemo[] = [
         <label class="text-title-contrast" for="ddl-summary-column">
           summary column
         </label>
-        <select
+        <InputListbox
           id="ddl-summary-column"
           class="w-40"
-          v-model="descriptionColumnId"
-        >
-          <option value="">(default)</option>
-          <option v-for="column in columns" :key="column.id" :value="column.id">
-            {{ column.label || column.id }}
-          </option>
-        </select>
+          placeholder="(default)"
+          :options="columnOptions"
+          :key="`summary-${tableId}-${isLiveMode}`"
+          @update:modelValue="
+            (value: any) => (descriptionColumnId = value?.value ?? '')
+          "
+        />
       </div>
 
       <fieldset class="flex flex-col gap-1 border-0 p-0 m-0">
@@ -548,23 +557,19 @@ const SURFACES: SurfaceDemo[] = [
         <label class="text-title-contrast" for="ddl-logo-column">
           logoColumn (FILE columns only)
         </label>
-        <select
+        <InputListbox
           id="ddl-logo-column"
           class="w-40"
-          v-model="logoColumnId"
+          placeholder="(none)"
+          :options="logoColumnSelectOptions"
+          :key="`logo-${tableId}-${isLiveMode}`"
           :aria-describedby="
             logoColumnOptions.length === 0 ? 'ddl-logo-empty-hint' : undefined
           "
-        >
-          <option value="">(none)</option>
-          <option
-            v-for="column in logoColumnOptions"
-            :key="column.id"
-            :value="column.id"
-          >
-            {{ column.label || column.id }}
-          </option>
-        </select>
+          @update:modelValue="
+            (value: any) => (logoColumnId = value?.value ?? '')
+          "
+        />
         <p
           v-if="logoColumnOptions.length === 0"
           id="ddl-logo-empty-hint"
