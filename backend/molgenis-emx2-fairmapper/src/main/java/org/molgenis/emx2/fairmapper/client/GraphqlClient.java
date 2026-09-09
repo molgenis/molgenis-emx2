@@ -61,7 +61,7 @@ public class GraphqlClient {
       }
 
       JsonNode jsonNode = MAPPER.readTree(response.body());
-      if (jsonNode.has("error")) {
+      if (jsonNode.has("errors")) {
         throwErrors(jsonNode);
       }
 
@@ -81,7 +81,7 @@ public class GraphqlClient {
   private void handleError(HttpResponse<String> response) {
     try {
       JsonNode jsonNode = MAPPER.readTree(response.body());
-      if (!jsonNode.has("error")) {
+      if (!jsonNode.has("errors")) {
         throw new MolgenisException("Unexpected response from graphql server: " + jsonNode);
       }
 
