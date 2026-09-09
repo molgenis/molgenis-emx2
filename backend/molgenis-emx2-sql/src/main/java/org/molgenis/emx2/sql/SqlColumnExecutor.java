@@ -353,28 +353,22 @@ public class SqlColumnExecutor {
 
   private static void validateKeyNotAddedToSubclass(Column column) {
     TableMetadata table = column.getTable();
-    if (!column.isPrimaryKey() || column.isAutoId() || column.isInherited()) {
+    if (!column.isPrimaryKey()
+        || column.isAutoId()
+        || table == null
+        || table.getInheritedTable() == null
+        || column.isInherited()) {
       return;
     }
-    TableMetadata rootTable = table.getRootTable();
     throw new MolgenisException(
         String.format(
-            "Cannot make column '%s.%s' part of the primary key because table '%s' extends '%s'."
-                + " A subclass shares the primary key of its root table '%s' (%s), so rows that are"
-                + " unique in '%s' would still be duplicates in '%s'."
-                + " Either add key=1 columns to root table '%s', or use key=2 (or higher) to make"
-                + " '%s' unique within '%s' only",
+            "Cannot make column '%s.%s' part of the primary key: table '%s' extends '%s' and a"
+                + " subclass shares the primary key of its root table '%s'",
             table.getTableName(),
             column.getName(),
             table.getTableName(),
             table.getInheritName(),
-            rootTable.getTableName(),
-            String.join(", ", rootTable.getPrimaryKeys()),
-            table.getTableName(),
-            rootTable.getTableName(),
-            rootTable.getTableName(),
-            column.getName(),
-            table.getTableName()));
+            table.getRootTable().getTableName()));
   }
 
   static void validateColumn(Column c) {
