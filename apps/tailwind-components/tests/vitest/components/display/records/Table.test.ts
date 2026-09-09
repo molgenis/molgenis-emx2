@@ -23,8 +23,9 @@ describe("records/Table.vue", () => {
 
     const bodyRows = wrapper.find("tbody").findAll("tr");
     expect(bodyRows.length).toBe(2);
-    expect(bodyRows[0].findAll("td")[0].text()).toBe("Tweety");
-    expect(bodyRows[1].findAll("td")[0].text()).toBe("Sylvester");
+    // TableCell renders a stacked mobile label ahead of the value; the value lives in its own div.
+    expect(bodyRows[0].findAll("td")[0].find("div").text()).toBe("Tweety");
+    expect(bodyRows[1].findAll("td")[0].find("div").text()).toBe("Sylvester");
   });
 
   it("renders columns as the remaining columns, through value/EMX2.vue", () => {
@@ -35,7 +36,7 @@ describe("records/Table.vue", () => {
     const bodyRows = wrapper.find("tbody").findAll("tr");
     const firstRowCells = bodyRows[0].findAll("td");
     expect(firstRowCells.length).toBe(2);
-    expect(firstRowCells[1].text()).toBe("3");
+    expect(firstRowCells[1].find("div").text()).toBe("3");
 
     const cellComponents = wrapper.findAllComponents(ValueEMX2);
     expect(cellComponents.length).toBe(2);
@@ -77,10 +78,19 @@ describe("records/Table.vue", () => {
       },
     });
 
-    const firstCell = wrapper.find("tbody tr td");
-    expect(firstCell.text()).toBe("");
     const anchor = wrapper.find("tbody tr td a");
     expect(anchor.exists()).toBe(true);
     expect(anchor.text()).toBe("");
+  });
+
+  it("repeats each column's label on its cell, for the stacked mobile layout", () => {
+    const wrapper = mount(Table, {
+      props: { rows, titleTemplate: "${name}", columns: [ageColumn] },
+    });
+
+    const firstDataRow = wrapper.find("tbody").findAll("tr")[0];
+    const cells = firstDataRow.findAll("td");
+    expect(cells[0].text()).toContain("Title");
+    expect(cells[1].text()).toContain("Age");
   });
 });

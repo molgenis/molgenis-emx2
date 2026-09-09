@@ -2,6 +2,11 @@
 import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
 import { columnValueToString } from "../../../utils/columnValueToString";
 import ValueEMX2 from "../../value/EMX2.vue";
+import Table from "../../Table.vue";
+import TableRow from "../../TableRow.vue";
+import TableHeadRow from "../../TableHeadRow.vue";
+import TableCell from "../../TableCell.vue";
+import TableHeadCell from "../../table/TableHeadCell.vue";
 
 const props = defineProps<{
   rows: IRow[];
@@ -20,46 +25,33 @@ function titleText(row: IRow): string {
 
 <template>
   <div class="overflow-x-auto">
-    <table class="w-full table-auto">
-      <thead>
-        <tr>
-          <th
-            scope="col"
-            class="py-2.5 px-2.5 text-left text-table-column-header"
-          >
-            Title
-          </th>
-          <th
-            v-for="column in columns"
-            :key="column.id"
-            scope="col"
-            class="py-2.5 px-2.5 text-left text-table-column-header"
-          >
+    <Table>
+      <template #head>
+        <TableHeadRow stacked>
+          <TableHeadCell>Title</TableHeadCell>
+          <TableHeadCell v-for="column in columns" :key="column.id">
             {{ column.label || column.id }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(row, rowIndex) in rows"
-          :key="rowIndex"
-          class="border-b border-theme"
-        >
-          <td class="py-2.5 px-2.5 font-bold text-table-row">
+          </TableHeadCell>
+        </TableHeadRow>
+      </template>
+      <template #body>
+        <TableRow v-for="(row, rowIndex) in rows" :key="rowIndex" stacked>
+          <TableCell stacked label="Title">
             <a v-if="linkTo" :href="linkTo(row)" class="text-link underline">
               {{ titleText(row) }}
             </a>
             <span v-else>{{ titleText(row) }}</span>
-          </td>
-          <td
+          </TableCell>
+          <TableCell
             v-for="column in columns"
             :key="column.id"
-            class="py-2.5 px-2.5 text-table-row"
+            stacked
+            :label="column.label || column.id"
           >
             <ValueEMX2 :metadata="column" :data="row[column.id]" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </TableCell>
+        </TableRow>
+      </template>
+    </Table>
   </div>
 </template>
