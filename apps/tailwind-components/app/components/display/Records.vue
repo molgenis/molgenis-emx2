@@ -251,8 +251,6 @@ function onPageUpdate(page: number) {
       :navLabel="tableId"
     />
 
-    <!-- pt-5: CARDS and LIST end on a card border with a -mb-[1px] overlap,
-    so the pager needs a gap above it or it lands right on that line. -->
     <Pagination
       v-if="layoutMeta.paginated"
       :current-page="currentPage"

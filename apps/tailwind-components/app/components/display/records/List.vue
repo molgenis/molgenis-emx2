@@ -54,11 +54,6 @@ function logoUrl(row: IRow): string | undefined {
 
 <template>
   <ul class="grid grid-cols-1" role="list">
-    <!-- Plain `border`, not `border-theme`: that utility also sets
-    --border-width-theme, which four themes zero out on purpose, leaving the
-    row with no visible edge. No grid gap: rows share a border instead of
-    floating apart. -mb-[1px] pulls each row up so stacked rows' horizontal
-    borders overlap into one rule. -->
     <li
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"

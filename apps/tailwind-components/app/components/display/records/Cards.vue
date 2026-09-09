@@ -45,20 +45,11 @@ function logoUrl(row: IRow): string | undefined {
 
 <template>
   <ul class="grid grid-cols-1 lg:grid-cols-2" role="list">
-    <!-- Plain `border`, not `border-theme`: that utility also sets
-    --border-width-theme, which four themes zero out on purpose, leaving the
-    card with no visible edge. No grid gap: cells share a border instead of
-    floating apart. -mb-[1px] pulls each row up so stacked cells' horizontal
-    borders overlap into one rule, and lg:even:border-l-0 drops the second
-    column's left border so the shared vertical rule is single too. -->
     <li
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
       class="border p-11 relative -mb-[1px] lg:even:border-l-0"
     >
-      <!-- Floated, and first in source order, so the title and description wrap
-      around it rather than starting below. max-w caps a wide logo: a float at
-      max-w-full would take the whole row and defeat the point. -->
       <img
         v-if="logoUrl(row)"
         :src="logoUrl(row)"

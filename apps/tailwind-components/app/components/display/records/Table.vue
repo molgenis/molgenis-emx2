@@ -27,11 +27,6 @@ function titleText(row: IRow): string {
   <div class="overflow-x-auto">
     <Table>
       <template #head>
-        <!-- TableHead, not table/TableHeadCell: its padding is deliberately the
-        same first/last rule as TableCell's, so headers line up with body cells,
-        and it makes nowrap opt-in rather than forcing overflow-hidden, which
-        clips a long column label with no ellipsis. The colour token is ours;
-        neither shared component sets one. -->
         <TableHeadRow stacked>
           <TableHead class="text-table-column-header">Title</TableHead>
           <TableHead
