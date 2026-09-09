@@ -11,10 +11,21 @@
 @import url("./plugins/datepicker.css");
 
 @layer components {
-  /* Switches text and icon colours to the theme's inverted set. */
+  /* Switches text and icon colours to the theme's inverted set. No theme
+     defines an inverted record- or table-text token, so those roles reuse
+     --text-color-title, which is already defined per theme for a colour the
+     theme owns rather than the content surface. This is the only such token
+     every theme defines, so five roles collapse to one colour here; nothing
+     else on offer preserves the label/value/header distinction. */
   .surface-inverted {
     --text-color-link: var(--text-color-link-inverted);
     --text-color-icon-neutral: var(--text-color-link-inverted);
+    --text-color-record-heading: var(--text-color-title);
+    --text-color-record-label: var(--text-color-title);
+    --text-color-record-value: var(--text-color-title);
+    --text-color-table-column-header: var(--text-color-title);
+    --text-color-table-row: var(--text-color-title);
+    --text-color-pagination: var(--text-color-pagination-inverted);
   }
 
   :root {

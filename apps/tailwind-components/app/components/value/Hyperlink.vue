@@ -8,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-  <span class="overflow-ellipsis whitespace-nowrap text-link">
+  <span class="break-words text-link">
     <BaseIcon name="external-link" class="inline mr-2" />
     <a class="underline" target="_blank" :href="data ?? undefined">{{
       data
