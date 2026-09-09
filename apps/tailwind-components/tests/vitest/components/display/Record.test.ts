@@ -73,15 +73,6 @@ function reportBox(boxId: string, isIntersecting: boolean) {
   observerFor(boxId).callback([{ isIntersecting }]);
 }
 
-// Box ids repeat across wrappers, so a test mounting a second one must say which.
-function reportBoxIn(
-  wrapper: ReturnType<typeof mount>,
-  boxId: string,
-  isIntersecting: boolean
-) {
-  observerFor(boxId, wrapper.element as Element).callback([{ isIntersecting }]);
-}
-
 function legendCurrent(wrapper: ReturnType<typeof mount>) {
   return wrapper
     .find("nav")
@@ -196,29 +187,22 @@ describe("DisplayRecord", () => {
     expect(legendCurrent(oneSection)).toEqual(["true", "false", "false"]);
   });
 
-  test("treats a report naming a box the filter just dropped as no report, lighting up the first surviving entry", async () => {
-    const withFilter = mount(DisplayRecord, {
-      props: {
-        metadata: twoSections,
-        rowData: twoSectionsRow,
-        showFilter: true,
-      },
+  test("treats a report naming a box the row's data just dropped as no report, lighting up the first surviving entry", async () => {
+    reportBox("care", true);
+    await nextTick();
+    expect(legendCurrent(wrapper)).toEqual(["false", "false", "true"]);
+
+    // Emptying diet drops the Care section entirely, so the reported box no longer exists.
+    await wrapper.setProps({
+      rowData: { name: "spike", weight: 15.7, diet: "" },
     });
     await nextTick();
 
-    reportBoxIn(withFilter, "care", true);
-    await nextTick();
-    expect(legendCurrent(withFilter)).toEqual(["false", "false", "true"]);
-
-    // "we" matches Weight alone, so the Care box the reader reported is dropped.
-    await withFilter.get('input[type="search"]').setValue("we");
-    await nextTick();
-
-    expect(legendLinks(withFilter)).toEqual([
+    expect(legendLinks(wrapper)).toEqual([
       ["About", "#about"],
       ["Size", "#size"],
     ]);
-    expect(legendCurrent(withFilter)).toEqual(["true", "false"]);
+    expect(legendCurrent(wrapper)).toEqual(["true", "false"]);
   });
 
   test("stops watching its boxes when the record leaves the page", () => {
@@ -437,25 +421,6 @@ describe("DisplayRecord", () => {
     expect(single.get("#about").text()).toContain("spike");
   });
 
-  test("renders no field filter, beside the legend or above the record", () => {
-    expect(wrapper.findAll('input[type="search"]')).toHaveLength(0);
-    expect(wrapper.find("header").exists()).toBe(false);
-
-    const bare = mount(DisplayRecord, {
-      props: {
-        metadata: twoSections,
-        rowData: twoSectionsRow,
-        showLegend: false,
-      },
-    });
-
-    expect(bare.find("nav").exists()).toBe(false);
-    expect(bare.findAll('input[type="search"]')).toHaveLength(0);
-    expect(
-      bare.findAll("section").map((section) => section.attributes("id"))
-    ).toEqual(["about", "size", "care"]);
-  });
-
   test("renders each box as a plain heading and list, with no card and no lg:gap-2.5, when showCards is off", () => {
     const noCards = mount(DisplayRecord, {
       props: {
@@ -471,49 +436,6 @@ describe("DisplayRecord", () => {
     expect(noCards.get("main").get("div.grid").classes()).not.toContain(
       "lg:gap-2.5"
     );
-  });
-
-  test("puts the field filter at the top of the record column, never the sidebar", () => {
-    const withFilter = mount(DisplayRecord, {
-      props: {
-        metadata: twoSections,
-        rowData: twoSectionsRow,
-        showFilter: true,
-      },
-    });
-
-    const main = withFilter.get("main").element;
-    const firstChild = main.firstElementChild as HTMLElement;
-    expect(firstChild.querySelector('input[type="search"]')).not.toBeNull();
-    expect(withFilter.find('aside input[type="search"]').exists()).toBe(false);
-  });
-
-  test("filters sections by field label, dropping a box and its legend entry together", async () => {
-    const threeFlatSections = table([
-      column("about", "SECTION", "About"),
-      column("name", "STRING", "Name"),
-      column("size", "SECTION", "Size"),
-      column("weight", "DECIMAL", "Weight"),
-      column("care", "SECTION", "Care"),
-      column("diet", "STRING", "Diet"),
-    ]);
-    const withFilter = mount(DisplayRecord, {
-      props: {
-        metadata: threeFlatSections,
-        rowData: { name: "spike", weight: 15.7, diet: "insects" },
-        showFilter: true,
-      },
-    });
-
-    await withFilter.get('input[type="search"]').setValue("i");
-
-    expect(
-      withFilter.findAll("section").map((section) => section.attributes("id"))
-    ).toEqual(["size", "care"]);
-    expect(legendLinks(withFilter)).toEqual([
-      ["Size", "#size"],
-      ["Care", "#care"],
-    ]);
   });
 
   test("shows mg_ columns only when asked", () => {

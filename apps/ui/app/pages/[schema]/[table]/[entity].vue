@@ -205,7 +205,6 @@ function handleCellClick(event: cellPayload) {
       :showMgColumns="isAdmin"
       :showLegend="true"
       :showCards="true"
-      :showFilter="true"
       @valueClick="handleCellClick($event)"
     />
   </Container>

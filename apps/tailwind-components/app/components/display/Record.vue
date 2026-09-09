@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useId } from "vue";
+import { computed, ref } from "vue";
 import type {
   IRow,
   ITableMetaData,
@@ -10,7 +10,6 @@ import type { RecordSection, RecordSectionGroup } from "../../../types/record";
 import { groupRecordSections } from "../../utils/groupRecordSections";
 import { recordTitle } from "../../utils/recordTitle";
 import FormLegend from "../form/Legend.vue";
-import InputSearch from "../input/Search.vue";
 import RecordPageLayout from "./RecordPageLayout.vue";
 import DisplayRecordSection from "./RecordSection.vue";
 
@@ -21,14 +20,12 @@ const props = withDefaults(
     showMgColumns?: boolean;
     showLegend?: boolean;
     showCards?: boolean;
-    showFilter?: boolean;
   }>(),
   {
     rowData: null,
     showMgColumns: false,
     showLegend: true,
     showCards: true,
-    showFilter: false,
   }
 );
 
@@ -36,13 +33,9 @@ defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
 }>();
 
-const filterId = `display-record-filter-${useId()}`;
-const filterValue = ref("");
-
 const sections = computed(() =>
   groupRecordSections(props.metadata, props.rowData, {
     showMgColumns: props.showMgColumns,
-    filterTerm: props.showFilter ? filterValue.value : undefined,
   })
 );
 
@@ -75,16 +68,14 @@ function legendAnchorId(section: RecordSectionGroup): string {
     : section.headings[0]?.id ?? section.id;
 }
 
-// Enough sections to need navigating, and the caller has not turned the legend off.
 const hasLegend = computed(
   () => props.showLegend && recordSections.value.length > 1
 );
-const showFilterBox = computed(() => props.showFilter);
 
 const reportedBoxId = ref<string | null>(null);
 // RecordSection's rootMargin excludes the page header, so no box reports inView
-// at scroll 0, and the filter can drop the box that did report. Either way the
-// first surviving box is the one the reader is on.
+// at scroll 0, and a row's data can drop the section that did report. Either way
+// the first surviving box is the one the reader is on.
 const activeBoxId = computed(() => {
   const reported = recordSections.value.some(
     (box) => box.id === reportedBoxId.value
@@ -140,15 +131,6 @@ const title = computed(() => recordTitle(props.metadata, props.rowData));
     </template>
 
     <template #main>
-      <div v-if="showFilterBox" class="pb-7.5">
-        <label :for="filterId" class="sr-only">Filter fields</label>
-        <InputSearch
-          :id="filterId"
-          v-model="filterValue"
-          class="w-3/5 lg:w-2/5"
-          placeholder="Filter fields..."
-        />
-      </div>
       <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
         <DisplayRecordSection
           v-for="box in recordSections"

@@ -82,12 +82,6 @@ function isVisibleField(
   if (column.id.startsWith("mg_") && !options.showMgColumns) {
     return false;
   }
-  if (
-    options.filterTerm &&
-    !column.label.toLowerCase().includes(options.filterTerm.toLowerCase())
-  ) {
-    return false;
-  }
   return !isEmptyValue(rowData?.[column.id]);
 }
 

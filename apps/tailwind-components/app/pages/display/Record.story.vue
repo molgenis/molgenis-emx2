@@ -39,16 +39,6 @@
           />
         </div>
         <div>
-          <label class="text-title font-bold" for="show-filter">
-            Field filter (showFilter):
-          </label>
-          <InputCheckbox
-            id="show-filter"
-            v-model="showFilter"
-            name="show-filter"
-          />
-        </div>
-        <div>
           <label class="text-title font-bold" for="show-mg-columns">
             mg_ columns (showMgColumns):
           </label>
@@ -67,7 +57,6 @@
         :rowData="formValues"
         :showLegend="showLegend"
         :showCards="showCards"
-        :showFilter="showFilter"
         :showMgColumns="showMgColumns"
       />
     </section>
@@ -98,7 +87,6 @@ const rowIndex = ref<number>(
 
 const showLegend = ref(true);
 const showCards = ref(true);
-const showFilter = ref(false);
 const showMgColumns = ref(false);
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
