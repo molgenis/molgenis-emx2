@@ -499,12 +499,9 @@ public class SqlColumnExecutor {
   }
 
   static void executeRemoveRefConstraints(DSLContext jooq, Column column) {
-    if (column.isRef()) {
+    if (column.isReference()) {
       SqlColumnRefExecutor.removeRefConstraints(jooq, column);
-    } else if (column.isRefArray()) {
       removeRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 
