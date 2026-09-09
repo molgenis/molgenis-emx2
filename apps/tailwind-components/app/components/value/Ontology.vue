@@ -12,7 +12,6 @@ const props = defineProps<{
   renderLimit?: number;
 }>();
 
-// Shown immediately, then swapped for the ancestor-linked tree once it resolves.
 const resolvedValue = ref<IOntologyTreeItem | IOntologyTreeItem[]>(props.data);
 
 watch(

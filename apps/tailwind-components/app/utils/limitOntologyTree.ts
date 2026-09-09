@@ -11,11 +11,6 @@ export function countOntologyNodes(nodes: IOntologyTreeItem[]): number {
   return total;
 }
 
-/**
- * Depth-first pre-order cut against a whole-tree node budget: a node past
- * the limit, and its whole subtree, is genuinely dropped. Item paging only
- * hides with CSS; this is the one place DOM absence is accepted.
- */
 export function limitOntologyTree(
   nodes: IOntologyTreeItem[],
   limit: number

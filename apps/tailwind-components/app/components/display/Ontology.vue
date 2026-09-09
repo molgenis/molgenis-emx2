@@ -14,7 +14,6 @@ const props = withDefaults(
   defineProps<{
     value: IOntologyTreeItem | IOntologyTreeItem[];
     collapseAll?: boolean;
-    /** Rows a level shows before the control; unset means no bound. */
     maxItems?: number;
     itemStep?: number;
     renderLimit?: number;
@@ -32,7 +31,6 @@ const isList = computed(() => {
   return tree.value.every((node) => !node.children?.length);
 });
 
-// Beyond this budget a node is genuinely absent from the DOM, unlike item paging which only hides.
 const rendered = ref(props.renderLimit);
 
 watch(
@@ -98,8 +96,6 @@ const {
         :hidden="isRootHidden(index)"
       />
     </template>
-    <!-- Kept as trailing <li>s, not siblings of the <ul>, so the component
-         keeps ONE root element whether or not a control is showing. -->
     <li v-if="showRootControl" class="list-none">
       <button
         type="button"

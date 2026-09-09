@@ -172,6 +172,20 @@ describe("display/Ontology.vue root markup", () => {
   });
 });
 
+describe("display/Ontology.vue nested row spacing", () => {
+  it("a nested row takes no vertical spacing of its own, so it keeps its parent's rhythm", () => {
+    const wrapper = mountTree(false);
+
+    const nestedRow = contentItems(wrapper)[1]; // Cardiology: first row one level in
+    const classes = nestedRow!.classes();
+
+    expect(classes).toContain("pl-8");
+    expect(classes.some((c) => /^(pt|pb|py|mt|mb|my|space-y)-/.test(c))).toBe(
+      false
+    );
+  });
+});
+
 describe("display/Ontology.vue root-level item paging", () => {
   const manyRoots: IOntologyTreeItem[] = Array.from({ length: 12 }, (_, i) => ({
     name: `Root ${i}`,

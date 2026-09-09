@@ -55,8 +55,6 @@ const {
       class="break-inside-avoid"
       :class="{ hidden: collapsed }"
     >
-      <!-- pl-8 only: a nested row sits on the same vertical rhythm as its
-           parent's rows, so indentation is horizontal, never vertical. -->
       <OntologyNode
         v-for="(child, index) in node.children"
         :key="child.name"

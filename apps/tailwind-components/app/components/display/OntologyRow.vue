@@ -8,7 +8,6 @@ withDefaults(
     definition?: string | null;
     hasChildren?: boolean;
     collapsed?: boolean;
-    /** "flush", "blank", "bullet" or "connector" marker. */
     marker?: "flush" | "blank" | "bullet" | "connector";
   }>(),
   {
