@@ -12,10 +12,7 @@ import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfValue;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.rdf.generators.query.generators.ArrayColumnSparqlQueryGenerator;
-import org.molgenis.emx2.rdf.generators.query.generators.ColumnSparqlQueryGenerator;
-import org.molgenis.emx2.rdf.generators.query.generators.LiteralColumnSparqlQueryGenerator;
-import org.molgenis.emx2.rdf.generators.query.generators.ReferenceColumnSparqlQueryGenerator;
+import org.molgenis.emx2.rdf.generators.query.generators.*;
 
 public class TableQueryGenerator implements QueryGenerator {
 
@@ -34,17 +31,21 @@ public class TableQueryGenerator implements QueryGenerator {
     groups.add(SUBJECT_VARIABLE);
 
     for (Column column : tableMetadata.getColumns()) {
-      if (!column.hasSemantics()) {
-        continue;
-      }
-
       ColumnSparqlQueryGenerator mapper;
-      if (column.isReference()) {
-        mapper = new ReferenceColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
-      } else if (column.isArray()) {
-        mapper = new ArrayColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
+      if (column.hasSemantics()) {
+        if (column.isReference()) {
+          mapper = new ReferenceColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
+        } else if (column.isArray()) {
+          mapper = new ArrayColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
+        } else {
+          mapper = LiteralColumnSparqlQueryGenerator.of(SUBJECT_VARIABLE, column);
+        }
       } else {
-        mapper = new LiteralColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
+        Column referencedColumn = column.getReferenceRefback();
+        if (referencedColumn == null || !referencedColumn.hasSemantics()) {
+          continue;
+        }
+        mapper = new RefbackColumnSparqlQueryGenerator(SUBJECT_VARIABLE, referencedColumn, column);
       }
 
       selectors.addAll(mapper.getSelectors());
