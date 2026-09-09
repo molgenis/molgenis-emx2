@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 
 import NavigationGroupItem from "./NavigationGroupItem.vue";
-import Button from "../../Button.vue";
+import NoResultsMessage from "../../text/NoResultsMessage.vue";
 
 import { addComponent, randomId } from "../../../utils/cms.ts";
 
@@ -11,8 +11,6 @@ import type {
   INavigationGroups,
   INavigationCards,
 } from "../../../../types/cms";
-
-import type { IPageComponent } from "../../../../types/CmsComponents";
 
 const props = withDefaults(
   defineProps<INavigationGroups & { isEditable?: boolean }>(),
@@ -64,22 +62,22 @@ async function createNewCard() {
           :urlLabel="card.urlLabel"
           :order="card.order"
           :isEditable="isEditable"
-          @edit="
-            console.log('edit');
-            $emit('edit');
-          "
-          @delete="console.log('delete')"
-          @move="console.log('moving')"
+          @edit="$emit('edit')"
         />
       </li>
     </ul>
+    <div class="text-center" v-else>
+      <NoResultsMessage
+        label="No Navigation Cards found. Click the button below to create a new one"
+      />
+    </div>
     <div class="my-5">
       <button
         class="text-title-contrast flex justify-start items-center gap-1 m-auto"
         @click="createNewCard"
       >
         <BaseIcon name="Plus" :width="18" />
-        <span>Add a new navigation card</span>
+        <span>Add Navigation Card</span>
       </button>
     </div>
     <slot></slot>

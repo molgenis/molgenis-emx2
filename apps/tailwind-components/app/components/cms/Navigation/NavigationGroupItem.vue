@@ -29,8 +29,6 @@ const showMenu = ref<boolean>(false);
         :id="`${id}-toolbar`"
         :aria-controls="id"
         @edit="$emit('edit')"
-        @delete="$emit('delete')"
-        @move="$emit('move', $event)"
       />
     </template>
     <NavigationCards
