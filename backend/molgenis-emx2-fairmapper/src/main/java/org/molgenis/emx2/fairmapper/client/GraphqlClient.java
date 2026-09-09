@@ -61,6 +61,10 @@ public class GraphqlClient {
       }
 
       JsonNode jsonNode = MAPPER.readTree(response.body());
+      if (jsonNode.has("error")) {
+        throwErrors(jsonNode);
+      }
+
       if (!jsonNode.has("data")) {
         throw new MolgenisException("Unexpected response from graphql server: " + jsonNode);
       }
@@ -81,17 +85,21 @@ public class GraphqlClient {
         throw new MolgenisException("Unexpected response from graphql server: " + jsonNode);
       }
 
-      String errors =
-          jsonNode
-              .get("errors")
-              .valueStream()
-              .map(json -> json.get("message").toString())
-              .collect(Collectors.joining(", "));
-
-      throw new MolgenisException(errors);
+      throwErrors(jsonNode);
     } catch (JsonProcessingException e) {
       throw new MolgenisException(
           "Unable to read error message from response: " + response.body(), e);
     }
+  }
+
+  private static void throwErrors(JsonNode jsonNode) {
+    String errors =
+        jsonNode
+            .get("errors")
+            .valueStream()
+            .map(json -> json.get("message").toString())
+            .collect(Collectors.joining(", "));
+
+    throw new MolgenisException(errors);
   }
 }

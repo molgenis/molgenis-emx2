@@ -133,6 +133,26 @@ class GraphqlClientTest extends ApiTestBase {
     }
 
     @Test
+    void givenOkResponseWithErrors_whenSendQuery_thenThrowsWithJoinedMessages() throws IOException {
+      withMockServer(
+          new StaticResponseHttpHandler(
+              200,
+              """
+              {
+                "data": null,
+                "errors": [
+                  {"message":"boom"},
+                  {"message":"bang"}
+                ]
+              }"""),
+          client -> {
+            MolgenisException exception =
+                assertThrows(MolgenisException.class, () -> client.sendQuery("{}"));
+            assertEquals("\"boom\", \"bang\"", exception.getMessage());
+          });
+    }
+
+    @Test
     void givenBadRequestWithInvalidJson_whenSendQuery_thenThrowsWrappedException()
         throws IOException {
       withMockServer(
