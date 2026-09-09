@@ -351,14 +351,9 @@ public class SqlColumnExecutor {
                 .setRefBack("parent"));
   }
 
-  private static void validateKeyNotAddedToSubclass(Column c) {
-    TableMetadata table = c.getTable();
-    if (c.getKey() != 1
-        || AUTO_ID.equals(c.getColumnType())
-        || table == null
-        || table.getInheritName() == null
-        || table.getInheritedTable() == null
-        || table.getInheritedTable().getColumn(c.getName()) != null) {
+  private static void validateKeyNotAddedToSubclass(Column column) {
+    TableMetadata table = column.getTable();
+    if (!column.isPrimaryKey() || column.isAutoId() || column.isInherited()) {
       return;
     }
     TableMetadata rootTable = table.getRootTable();
@@ -370,7 +365,7 @@ public class SqlColumnExecutor {
                 + " Either add key=1 columns to root table '%s', or use key=2 (or higher) to make"
                 + " '%s' unique within '%s' only",
             table.getTableName(),
-            c.getName(),
+            column.getName(),
             table.getTableName(),
             table.getInheritName(),
             rootTable.getTableName(),
@@ -378,7 +373,7 @@ public class SqlColumnExecutor {
             table.getTableName(),
             rootTable.getTableName(),
             rootTable.getTableName(),
-            c.getName(),
+            column.getName(),
             table.getTableName()));
   }
 
