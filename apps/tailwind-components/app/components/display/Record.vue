@@ -16,13 +16,12 @@ import DisplayRecordSection from "./RecordSection.vue";
 const props = withDefaults(
   defineProps<{
     metadata: ITableMetaData;
-    rowData?: IRow | null;
+    rowData: IRow | null;
     showMgColumns?: boolean;
     showLegend?: boolean;
     showCards?: boolean;
   }>(),
   {
-    rowData: null,
     showMgColumns: false,
     showLegend: true,
     showCards: true,
