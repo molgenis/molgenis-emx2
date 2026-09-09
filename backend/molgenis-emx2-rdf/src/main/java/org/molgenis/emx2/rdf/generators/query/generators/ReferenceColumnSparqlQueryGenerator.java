@@ -69,7 +69,8 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
       selectors.addAll(generator.getSelectors());
     } else {
       generator =
-          LiteralColumnSparqlQueryGenerator.forRequiredObject(variable, rootColumn, encodedColumnPath());
+          LiteralColumnSparqlQueryGenerator.forRequiredObject(
+              variable, rootColumn, encodedColumnPath());
 
       selectors.add(encodedColumnPath());
     }

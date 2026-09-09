@@ -190,8 +190,7 @@ class ResolveMissingPkPostProcessorTest {
     @BeforeEach
     void setup() {
       Database database = TestDatabaseFactory.getTestDatabase();
-      schema =
-          database.dropCreateSchema(ResolveCompositeKeyTest.class.getSimpleName()).getMetadata();
+      schema = database.dropCreateSchema("FairmapperCompositeKeyTest").getMetadata();
 
       schema.create(
           new TableMetadata("Suppliers")
