@@ -59,7 +59,7 @@ function getSelectedRole(): string {
     <DraftLabel v-if="isDraft" />
     <div
       v-if="showRoles"
-      class="gap-2.5 ml-auto flex shrink-0 items-center text-title-contrast"
+      class="gap-2.5 w-1/3 ml-auto flex shrink-0 items-center text-title-contrast"
     >
       <label class="whitespace-nowrap font-bold" for="roleSelector">
         Access group
