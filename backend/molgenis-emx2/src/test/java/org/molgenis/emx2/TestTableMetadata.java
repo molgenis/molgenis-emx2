@@ -192,6 +192,35 @@ class TestTableMetadata {
   }
 
   @Test
+  void labelTemplateForSingleColumnKey() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(table("Resources", column("id").setType(ColumnType.STRING).setKey(1)));
+
+    assertEquals("${id}", schema.getTableMetadata("Resources").getLabelTemplate());
+  }
+
+  @Test
+  void labelTemplateForCompositeKeyIncludingReference() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(table("Resources", column("id").setType(ColumnType.STRING).setKey(1)));
+    schema.create(
+        table(
+            "Contacts",
+            column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1),
+            column("name").setType(ColumnType.STRING).setKey(1)));
+
+    assertEquals("${resource.id} ${name}", schema.getTableMetadata("Contacts").getLabelTemplate());
+  }
+
+  @Test
+  void labelTemplateForTableWithoutPrimaryKeyIsEmpty() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(table("Notes", column("text")));
+
+    assertEquals("", schema.getTableMetadata("Notes").getLabelTemplate());
+  }
+
+  @Test
   void testRetrieveColumnByIdentifier() {
     SchemaMetadata schema = new SchemaMetadata("schema name");
 

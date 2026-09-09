@@ -96,6 +96,7 @@ export interface ITableMetaData {
   schemaId: string;
   name: string;
   label: string;
+  labelTemplate?: string;
   description?: string;
   tableType: TableType;
   columns: IColumn[];

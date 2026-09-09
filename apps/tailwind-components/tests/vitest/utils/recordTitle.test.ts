@@ -45,4 +45,33 @@ describe("recordTitle", () => {
     expect(recordTitle(metadata, {})).toBe("");
     expect(recordTitle(metadata, null)).toBe("");
   });
+
+  test("a key value of 0 or false still renders", () => {
+    const metadata = table([
+      { id: "rank", label: "Rank", columnType: "INT", key: 1 },
+      { id: "active", label: "Active", columnType: "BOOL", key: 1 },
+    ]);
+
+    expect(recordTitle(metadata, { rank: 0, active: false })).toBe("0 - false");
+  });
+
+  test("renders through the table's label template when it has one", () => {
+    const metadata = {
+      ...table([{ id: "name", label: "Name", columnType: "STRING", key: 1 }]),
+      labelTemplate: "${name} the pet",
+    };
+
+    expect(recordTitle(metadata, { name: "spike" })).toBe("spike the pet");
+  });
+
+  test("renders empty, not undefined, when the template fails to interpolate", () => {
+    // A row carrying an "id" key of null drives columnValueToString to its
+    // undefined-returning branch once the template throws.
+    const metadata = {
+      ...table([{ id: "id", label: "Id", columnType: "STRING", key: 1 }]),
+      labelTemplate: "${missing}",
+    };
+
+    expect(recordTitle(metadata, { id: null })).toBe("");
+  });
 });
