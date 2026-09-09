@@ -212,3 +212,16 @@ export interface Settings {
 export interface SystemSettings extends Settings {
   isOidcEnabled: boolean;
 }
+
+export interface SchemaPermission {
+  name: string;
+  permissions: TablePermission[];
+}
+
+export interface TablePermission {
+  table: string;
+  isRowLevel: boolean;
+  insert: boolean;
+  update: boolean;
+  delete: boolean;
+}

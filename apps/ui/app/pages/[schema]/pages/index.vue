@@ -225,13 +225,16 @@ function closeStatusModal() {
               v-model="pageType"
             />
             <div class="group">
-              <label for="LandingPageInput" class="hover:cursor-pointer">
+              <label
+                for="LandingPageInput"
+                class="block hover:cursor-pointer p-7.5"
+              >
                 <BaseIcon name="Docs" :width="32" />
                 <span class="font-bold">Landing page</span>
-                <p id="LandingPageDefinition">
+                <span class="block" id="LandingPageDefinition">
                   Create a generic page to display general information such as
                   an contact page or a home page.
-                </p>
+                </span>
               </label>
             </div>
           </PageSelector>
@@ -245,13 +248,16 @@ function closeStatusModal() {
               class="sr-only"
               v-model="pageType"
             />
-            <label for="DeveloperPageInput" class="hover:cursor-pointer">
+            <label
+              for="DeveloperPageInput"
+              class="block p-7.5 hover:cursor-pointer"
+            >
               <BaseIcon name="CodeBlocks" :width="32" />
               <span class="font-bold">Developer page</span>
-              <p id="DeveloperPageDefinition">
+              <span class="block" id="DeveloperPageDefinition">
                 Build your own page from scratch using HTML, CSS, and
                 JavaScript.
-              </p>
+              </span>
             </label>
           </PageSelector>
         </fieldset>

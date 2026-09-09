@@ -163,10 +163,15 @@ class ResolveMissingPkPostProcessorTest {
   @Nested
   class CompositeKeyTest {
 
+    // Override schemaName to prevent collision with existing `CompositeKeyTest` testclasses.
+    // Using a short name to stay under Postgres' 63-byte identifier limit: the schema name
+    // is part of the role names EMX2 creates for it.
+    private final String schemaName = "FairmapperCompositeKeyTest";
+
     @BeforeEach
     void setup() {
       Database database = TestDatabaseFactory.getTestDatabase();
-      schema = database.dropCreateSchema(CompositeKeyTest.class.getSimpleName()).getMetadata();
+      schema = database.dropCreateSchema(schemaName).getMetadata();
 
       schema.create(
           new TableMetadata("Organisations")
