@@ -22,6 +22,18 @@ const rows: IRow[] = [
   { name: "Sylvester", age: 5, bio: "A bird named Sylvester" },
 ];
 
+// NuxtLink resolves to vue-router's RouterLink, which the plain test
+// environment has none of, so it must be stubbed down to a real <a> to
+// assert on href/text the way the app's own router would render it.
+const global = {
+  stubs: {
+    NuxtLink: {
+      props: ["to"],
+      template: '<a :href="to"><slot /></a>',
+    },
+  },
+};
+
 describe("records/List.vue", () => {
   it("renders one row per record, with title and description, and passes its detail columns to Pairs in the wide shape", () => {
     const wrapper = mount(RecordsList, {
@@ -60,6 +72,7 @@ describe("records/List.vue", () => {
         titleTemplate: "${name}",
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
+      global,
     });
 
     const firstAnchor = wrapper.find("li a");
@@ -76,7 +89,7 @@ describe("records/List.vue", () => {
     expect(wrapper.find("li a").exists()).toBe(false);
   });
 
-  it("renders the logo image with an empty alt when logoColumn resolves to a file value", () => {
+  it("renders the logo image with the record's title as alt when logoColumn resolves to a file value", () => {
     const logoColumn: IColumn = {
       id: "logo",
       label: "Logo",
@@ -104,7 +117,7 @@ describe("records/List.vue", () => {
 
     const img = wrapper.find("img");
     expect(img.attributes("src")).toBe("https://example.org/tweety.png");
-    expect(img.attributes("alt")).toBe("");
+    expect(img.attributes("alt")).toBe("Tweety");
   });
 
   it("renders no logo when logoColumn does not resolve to a file value", () => {
@@ -131,6 +144,7 @@ describe("records/List.vue", () => {
         titleTemplate: "",
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
+      global,
     });
 
     const item = wrapper.find("li");

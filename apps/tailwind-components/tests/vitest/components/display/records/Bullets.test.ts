@@ -8,6 +8,18 @@ const rows: IRow[] = [
   { name: "Sylvester", age: 5 },
 ];
 
+// NuxtLink resolves to vue-router's RouterLink, which the plain test
+// environment has none of, so it must be stubbed down to a real <a> to
+// assert on href/text the way the app's own router would render it.
+const global = {
+  stubs: {
+    NuxtLink: {
+      props: ["to"],
+      template: '<a :href="to"><slot /></a>',
+    },
+  },
+};
+
 describe("records/Bullets.vue", () => {
   it("renders one bulleted anchor per record, with title text only", () => {
     const wrapper = mount(Bullets, {
@@ -16,6 +28,7 @@ describe("records/Bullets.vue", () => {
         titleTemplate: "${name}",
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
+      global,
     });
 
     const items = wrapper.findAll("li");
@@ -32,12 +45,47 @@ describe("records/Bullets.vue", () => {
     expect(wrapper.text()).not.toContain("3");
   });
 
-  it("renders no anchor when linkTo is not passed", () => {
+  it("renders a nav landmark, labelled, wrapping the ul/li list, when linkTo is passed", () => {
+    const wrapper = mount(Bullets, {
+      props: {
+        rows,
+        titleTemplate: "${name}",
+        linkTo: (row: IRow) => `/records/${row.name}`,
+      },
+      global,
+    });
+
+    const nav = wrapper.find("nav");
+    expect(nav.exists()).toBe(true);
+    expect(nav.attributes("aria-label")).toBeTruthy();
+    expect(nav.find("ul").exists()).toBe(true);
+    expect(nav.findAll("li").length).toBe(2);
+  });
+
+  it("takes the nav's accessible name from navLabel", () => {
+    const wrapper = mount(Bullets, {
+      props: {
+        rows,
+        titleTemplate: "${name}",
+        linkTo: (row: IRow) => `/records/${row.name}`,
+        navLabel: "Related patients",
+      },
+      global,
+    });
+
+    expect(wrapper.find("nav").attributes("aria-label")).toBe(
+      "Related patients"
+    );
+  });
+
+  it("renders no anchor and no nav when linkTo is not passed", () => {
     const wrapper = mount(Bullets, {
       props: { rows, titleTemplate: "${name}" },
+      global,
     });
 
     expect(wrapper.find("a").exists()).toBe(false);
+    expect(wrapper.find("nav").exists()).toBe(false);
     const items = wrapper.findAll("li");
     expect(items[0].text()).toBe("Tweety");
   });
@@ -49,6 +97,7 @@ describe("records/Bullets.vue", () => {
         titleTemplate: "",
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
+      global,
     });
 
     const anchor = wrapper.find("li a");

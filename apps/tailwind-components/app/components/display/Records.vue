@@ -211,42 +211,44 @@ function onPageUpdate(page: number) {
     <RecordsTable
       v-if="resolvedDisplay.layout === 'TABLE'"
       :rows="fetchedRows"
-      :title-template="resolvedDisplay.titleTemplate"
+      :titleTemplate="resolvedDisplay.titleTemplate"
       :columns="resolvedDisplay.detailColumns"
-      :link-to="linkTo"
+      :linkTo="linkTo"
     />
     <RecordsCards
       v-else-if="resolvedDisplay.layout === 'CARDS'"
       :rows="fetchedRows"
-      :title-template="resolvedDisplay.titleTemplate"
-      :subtitle-template="resolvedDisplay.subtitleTemplate"
-      :description-column="resolvedDisplay.descriptionColumn"
-      :detail-columns="resolvedDisplay.detailColumns"
-      :logo-column="resolvedDisplay.logoColumn"
-      :link-to="linkTo"
+      :titleTemplate="resolvedDisplay.titleTemplate"
+      :subtitleTemplate="resolvedDisplay.subtitleTemplate"
+      :descriptionColumn="resolvedDisplay.descriptionColumn"
+      :detailColumns="resolvedDisplay.detailColumns"
+      :logoColumn="resolvedDisplay.logoColumn"
+      :linkTo="linkTo"
     />
     <RecordsList
       v-else-if="resolvedDisplay.layout === 'LIST'"
       :rows="fetchedRows"
-      :title-template="resolvedDisplay.titleTemplate"
-      :subtitle-template="resolvedDisplay.subtitleTemplate"
-      :description-column="resolvedDisplay.descriptionColumn"
-      :detail-columns="resolvedDisplay.detailColumns"
-      :logo-column="resolvedDisplay.logoColumn"
-      :link-to="linkTo"
-      :hide-empty="hideEmpty"
+      :titleTemplate="resolvedDisplay.titleTemplate"
+      :subtitleTemplate="resolvedDisplay.subtitleTemplate"
+      :descriptionColumn="resolvedDisplay.descriptionColumn"
+      :detailColumns="resolvedDisplay.detailColumns"
+      :logoColumn="resolvedDisplay.logoColumn"
+      :linkTo="linkTo"
+      :hideEmpty="hideEmpty"
     />
     <RecordsLinks
       v-else-if="resolvedDisplay.layout === 'LINKS'"
       :rows="fetchedRows"
-      :title-template="resolvedDisplay.titleTemplate"
-      :link-to="linkTo"
+      :titleTemplate="resolvedDisplay.titleTemplate"
+      :linkTo="linkTo"
+      :navLabel="tableId"
     />
     <RecordsBullets
       v-else-if="resolvedDisplay.layout === 'BULLETS'"
       :rows="fetchedRows"
-      :title-template="resolvedDisplay.titleTemplate"
-      :link-to="linkTo"
+      :titleTemplate="resolvedDisplay.titleTemplate"
+      :linkTo="linkTo"
+      :navLabel="tableId"
     />
 
     <!-- pt-5: CARDS and LIST end on a card border with a -mb-[1px] overlap,

@@ -59,13 +59,13 @@ function logoUrl(row: IRow): string | undefined {
       <img
         v-if="logoUrl(row)"
         :src="logoUrl(row)"
-        alt=""
+        :alt="title(row)"
         class="max-h-16 max-w-full mb-2 object-contain"
       />
       <div class="font-bold text-record-heading">
-        <a v-if="linkTo" :href="linkTo(row)" class="text-link underline">
+        <NuxtLink v-if="linkTo" :to="linkTo(row)" class="text-link underline">
           {{ title(row) }}
-        </a>
+        </NuxtLink>
         <span v-else>{{ title(row) }}</span>
       </div>
       <span
