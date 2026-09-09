@@ -13,6 +13,8 @@ import org.molgenis.emx2.tasks.Task;
 /** executes the import */
 public class ImportRowProcessor implements RowProcessor {
 
+  private static final int BATCH_SIZE = 100;
+
   private final Table table;
   private final Task task;
   private final UpdateMode updateMode;
@@ -34,50 +36,52 @@ public class ImportRowProcessor implements RowProcessor {
     List<Row> importBatch = new ArrayList<>();
     List<Row> deleteBatch = new ArrayList<>();
     List<Column> columns = table.getMetadata().getColumns();
+
     while (iterator.hasNext()) {
       Row row = iterator.next();
-
       if (row.isEmpty()) {
         continue;
       }
-
-      boolean isDrop = row.getValueMap().get(MG_DELETE) != null && row.getBoolean(MG_DELETE);
-
-      if (isDrop) {
+      if (isMarkedForDeletion(row)) {
         deleteBatch.add(row);
       } else {
         addFileAttachmentsToRow(source, columns, row, index);
         importBatch.add(row);
       }
       index++;
+      if (importBatch.size() >= BATCH_SIZE) {
+        flushImportBatch(importBatch, index);
+      }
+    }
+    flushImportBatch(importBatch, index);
+    flushDeleteBatch(deleteBatch);
+  }
 
-      if (importBatch.size() >= 100) {
-        if (updateMode == UpdateMode.OVERWRITE) {
-          table.save(importBatch);
-        } else {
-          table.update(importBatch);
-        }
-        task.setProgress(index);
-        task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
-        importBatch.clear();
-      }
+  private void flushImportBatch(List<Row> importBatch, int index) {
+    if (importBatch.isEmpty()) {
+      return;
     }
-    // remaining
-    if (!importBatch.isEmpty()) {
-      if (updateMode == UpdateMode.OVERWRITE) {
-        table.save(importBatch);
-      } else {
-        table.update(importBatch);
-      }
-      task.setProgress(index);
-      task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
+    if (updateMode == UpdateMode.OVERWRITE) {
+      table.save(importBatch);
+    } else {
+      table.update(importBatch);
     }
-    // delete
-    if (!deleteBatch.isEmpty()) {
-      table.delete(deleteBatch);
-      task.setProgress(deleteBatch.size());
-      task.setDescription("Deleted " + task.getProgress() + " rows from " + table.getName());
+    task.setProgress(index);
+    task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
+    importBatch.clear();
+  }
+
+  private void flushDeleteBatch(List<Row> deleteBatch) {
+    if (deleteBatch.isEmpty()) {
+      return;
     }
+    table.delete(deleteBatch);
+    task.setProgress(deleteBatch.size());
+    task.setDescription("Deleted " + task.getProgress() + " rows from " + table.getName());
+  }
+
+  private static boolean isMarkedForDeletion(Row row) {
+    return row.getValueMap().get(MG_DELETE) != null && row.getBoolean(MG_DELETE);
   }
 
   private void addFileAttachmentsToRow(
