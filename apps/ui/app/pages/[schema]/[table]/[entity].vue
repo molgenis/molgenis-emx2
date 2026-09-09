@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { createError, showError, useAsyncData } from "#app";
 import { useRoute, useRouter } from "#app/composables/router";
-import { computed, ref, useId } from "vue";
-import type {
-  IRow,
-  ITableMetaData,
-} from "../../../../../metadata-utils/src/types";
+import { computed, ref, useId, watch } from "vue";
+import type { IRow } from "../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import DisplayRecord from "../../../../../tailwind-components/app/components/display/Record.vue";
@@ -47,20 +44,9 @@ try {
 }
 const { isAdmin, session } = await useSession(schemaId);
 
-interface RecordData {
-  tableMetadata: ITableMetaData;
-  rowData: IRow;
-  // A row loaded through its parent table carries only the parent's columns.
-  viewMetadata: ITableMetaData;
-  viewRowData: IRow;
-}
-
-async function fetchRecordData(): Promise<RecordData> {
-  const tableMetadata = await fetchTableMetadata(schemaId, tableId);
-
-  let rowData: IRow;
+async function fetchUrlRow(): Promise<IRow> {
   try {
-    rowData = await fetchRowData(schemaId, tableId, entityKeysObject);
+    return await fetchRowData(schemaId, tableId, entityKeysObject);
   } catch (error) {
     if (error instanceof RowNotFoundError) {
       const message = `Could not find this row in table "${tableId}" of schema "${schemaId}". ${DATA_NOT_FOUND_ERROR}`;
@@ -72,46 +58,45 @@ async function fetchRecordData(): Promise<RecordData> {
       `Could not load this row in table "${tableId}" of schema "${schemaId}".`
     );
   }
+}
 
-  const parsed = parseMgTableclass(rowData.mg_tableclass);
+async function fetchRecordData() {
+  const urlTable = await fetchTableMetadata(schemaId, tableId);
+  const urlRow = await fetchUrlRow();
+
+  // A row loaded through its parent table carries only the parent's columns.
+  function fallbackToUrlTable() {
+    return { urlTable, urlRow, recordTable: urlTable, recordRow: urlRow };
+  }
+
+  const parsed = parseMgTableclass(urlRow.mg_tableclass);
   if (!parsed || parsed.tableId === tableId) {
-    return {
-      tableMetadata,
-      rowData,
-      viewMetadata: tableMetadata,
-      viewRowData: rowData,
-    };
+    return fallbackToUrlTable();
   }
 
   try {
-    const subMetadata = await fetchTableMetadata(
+    const recordTable = await fetchTableMetadata(
       parsed.schemaId,
       parsed.tableId
     );
-    const subRowData = await fetchRowData(
+    const recordRow = await fetchRowData(
       parsed.schemaId,
       parsed.tableId,
       entityKeysObject
     );
-    return {
-      tableMetadata,
-      rowData,
-      viewMetadata: subMetadata,
-      viewRowData: subRowData,
-    };
+    return { urlTable, urlRow, recordTable, recordRow };
   } catch (error) {
     console.error(
       `Could not load "${parsed.tableId}" for this row, showing "${tableId}" instead.`,
       error
     );
-    return {
-      tableMetadata,
-      rowData,
-      viewMetadata: tableMetadata,
-      viewRowData: rowData,
-    };
+    return fallbackToUrlTable();
   }
 }
+
+// useAsyncData resets data to undefined when a later refresh() fails; keep the last
+// good page state so a failed refresh cannot leave the page reading null data.
+let lastGoodRecordData: Awaited<ReturnType<typeof fetchRecordData>> | undefined;
 
 const {
   data: recordData,
@@ -119,17 +104,28 @@ const {
   refresh,
 } = await useAsyncData(
   `${schemaId}/${tableId}/${keys || JSON.stringify(entityKeysObject)}`,
-  fetchRecordData
+  fetchRecordData,
+  { default: () => lastGoodRecordData }
 );
 if (recordError.value) {
   throw createError(recordError.value);
 }
+watch(
+  recordData,
+  (value) => {
+    if (value) lastGoodRecordData = value;
+  },
+  { immediate: true }
+);
+watch(recordError, (error) => {
+  if (error) showError(error);
+});
 
 // Safe: the throw above guarantees recordData is populated before first render.
-const tableMetadata = computed(() => recordData.value!.tableMetadata);
-const rowData = computed(() => recordData.value!.rowData);
-const viewMetadata = computed(() => recordData.value!.viewMetadata);
-const viewRowData = computed(() => recordData.value!.viewRowData);
+const urlTable = computed(() => recordData.value!.urlTable);
+const urlRow = computed(() => recordData.value!.urlRow);
+const recordTable = computed(() => recordData.value!.recordTable);
+const recordRow = computed(() => recordData.value!.recordRow);
 
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
@@ -137,24 +133,20 @@ const showDeleteModal = ref(false);
 function afterRowDeleted() {
   router.push(`/${schemaId}/${tableId}`);
 }
-async function afterEditClosed() {
+function afterEditClosed() {
   showEditModal.value = false;
-  await refresh();
-  // refresh() can fail; the computeds above assume recordData is never null, so surface it here.
-  if (recordError.value) {
-    showError(recordError.value);
-  }
+  refresh();
 }
 
 const { canUpdate, canDelete, isRowLevel, userRoles } = useTablePermission(
   session,
   schemaId,
   tableId,
-  tableMetadata.value.tableType
+  urlTable.value.tableType
 );
 
 const rowIsModifiable = computed(
-  () => !isRowLevel.value || rowMatchesUserRole(rowData.value, userRoles.value)
+  () => !isRowLevel.value || rowMatchesUserRole(urlRow.value, userRoles.value)
 );
 
 const enableEditing = computed(() => canUpdate.value && rowIsModifiable.value);
@@ -175,7 +167,7 @@ function handleCellClick(event: cellPayload) {
           :align="'left'"
           :crumbs="[
             { label: schemaId, url: `/${schemaId}` },
-            { label: tableMetadata.label, url: `/${schemaId}/${tableId}` },
+            { label: urlTable.label, url: `/${schemaId}/${tableId}` },
           ]"
         />
       </template>
@@ -200,8 +192,8 @@ function handleCellClick(event: cellPayload) {
     </div>
 
     <DisplayRecord
-      :metadata="viewMetadata"
-      :rowData="viewRowData"
+      :metadata="recordTable"
+      :rowData="recordRow"
       :showMgColumns="isAdmin"
       :showLegend="true"
       :showCards="true"
@@ -218,23 +210,23 @@ function handleCellClick(event: cellPayload) {
   />
 
   <DeleteModal
-    v-if="tableMetadata && rowData && showDeleteModal"
+    v-if="urlTable && urlRow && showDeleteModal"
     :showButton="false"
     :schemaId="schemaId"
-    :metadata="tableMetadata"
-    :formValues="rowData"
+    :metadata="urlTable"
+    :formValues="urlRow"
     v-model:visible="showDeleteModal"
     @update:deleted="afterRowDeleted"
     @update:cancelled="showDeleteModal = false"
   />
 
   <EditModal
-    v-if="tableMetadata && rowData && showEditModal"
+    v-if="urlTable && urlRow && showEditModal"
     :key="`edit-modal-${useId()}`"
     :showButton="false"
     :schemaId="schemaId"
-    :metadata="tableMetadata"
-    :formValues="rowData"
+    :metadata="urlTable"
+    :formValues="urlRow"
     :isInsert="false"
     v-model:visible="showEditModal"
     @update:cancelled="afterEditClosed"
