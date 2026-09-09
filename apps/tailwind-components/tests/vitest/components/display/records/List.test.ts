@@ -57,12 +57,15 @@ describe("records/List.vue", () => {
     expect(pairsComponents[0].props("wide")).toBe(true);
   });
 
-  it("lays rows out in a single column", () => {
+  it("separates rows with a hairline rather than boxing each one, which is what makes a list a list and not a grid of cards", () => {
     const wrapper = mount(RecordsList, {
       props: { rows, titleTemplate: "${name}" },
     });
-    expect(wrapper.find("ul").classes()).toContain("grid-cols-1");
-    expect(wrapper.find("ul").classes()).not.toContain("lg:grid-cols-2");
+    const items = wrapper.findAll("li");
+    expect(items.length).toBe(rows.length);
+    expect(items[0].classes()).toContain("border-t");
+    expect(items[0].classes()).toContain("first:border-t-0");
+    expect(items[0].classes()).not.toContain("border");
   });
 
   it("wraps the title in a real <a href> when linkTo is passed", () => {
@@ -153,15 +156,6 @@ describe("records/List.vue", () => {
     expect(anchor.text()).toBe("");
     expect(item.text()).not.toContain("LL");
     expect(item.text()).not.toContain("2006");
-  });
-
-  it("borders every row with plain `border`, never `border-theme`, whose --border-width-theme is 0 in four themes", () => {
-    const wrapper = mount(RecordsList, {
-      props: { rows, titleTemplate: "${name}" },
-    });
-    const items = wrapper.findAll("li");
-    expect(items[0].classes()).toContain("border");
-    expect(items[0].classes()).not.toContain("border-theme");
   });
 
   it("lets Pairs' own hideEmpty default apply when List is not given one, and forwards an explicit false", () => {

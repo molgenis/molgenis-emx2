@@ -6,6 +6,8 @@ import {
 } from "../../../../../metadata-utils/src/types";
 import { resolveTitleAndSubtitle } from "../../../utils/displayUtils";
 import Pairs from "./Pairs.vue";
+import CardList from "../../CardList.vue";
+import CardListItem from "../../CardListItem.vue";
 import ValueEMX2 from "../../value/EMX2.vue";
 
 const props = withDefaults(
@@ -53,13 +55,9 @@ function logoUrl(row: IRow): string | undefined {
 </script>
 
 <template>
-  <ul class="grid grid-cols-1" role="list">
-    <li
-      v-for="(row, rowIndex) in rows"
-      :key="rowIndex"
-      class="border p-11 relative -mb-[1px]"
-    >
-      <div class="grid grid-cols-12 gap-6">
+  <CardList role="list">
+    <CardListItem v-for="(row, rowIndex) in rows" :key="rowIndex">
+      <div class="grid grid-cols-12 gap-6 py-12.5 px-5 lg:px-12.5">
         <div v-if="logoUrl(row)" class="col-span-3">
           <div class="flex items-center justify-center h-full w-full">
             <img
@@ -101,6 +99,6 @@ function logoUrl(row: IRow): string | undefined {
           />
         </div>
       </div>
-    </li>
-  </ul>
+    </CardListItem>
+  </CardList>
 </template>
