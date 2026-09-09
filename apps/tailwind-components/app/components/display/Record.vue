@@ -93,25 +93,26 @@ const legendGroups = computed<LegendGroup[]>(() =>
     ? recordSections.value.map((recordSection) => ({
         id: recordSection.id,
         label: recordSection.label ?? props.metadata.label,
-        href: `#${recordSection.id}`,
         isVisible: true,
         isActive: recordSection.id === activeSectionId.value,
       }))
     : sections.value.map((section) => ({
         id: section.id,
         label: section.label ?? props.metadata.label,
-        href: `#${legendAnchorId(section)}`,
         isVisible: true,
         isActive: section.id === activeSectionId.value,
         headers: section.headings.map((heading) => ({
           id: heading.id,
           label: heading.label,
-          href: `#${heading.id}`,
           isVisible: true,
           isActive: heading.id === activeSectionId.value,
         })),
       }))
 );
+
+function goToSection(id: string): void {
+  document.getElementById(id)?.scrollIntoView();
+}
 
 const title = computed(() => recordTitle(props.metadata, props.rowData));
 </script>
@@ -122,6 +123,7 @@ const title = computed(() => recordTitle(props.metadata, props.rowData));
       <FormLegend
         :sections="legendGroups"
         class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
+        @goToSection="goToSection"
       >
         <template v-if="title" #title>
           <h2

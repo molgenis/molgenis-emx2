@@ -80,13 +80,9 @@ function legendCurrent(wrapper: ReturnType<typeof mount>) {
     .map((link) => link.attributes("aria-current"));
 }
 
-function legendLinks(wrapper: ReturnType<typeof mount>) {
+function legendLabels(wrapper: ReturnType<typeof mount>) {
   const nav = wrapper.find("nav");
-  return nav.exists()
-    ? nav
-        .findAll("a")
-        .map((link) => [link.text(), link.attributes("href")] as const)
-    : [];
+  return nav.exists() ? nav.findAll("a").map((link) => link.text()) : [];
 }
 
 describe("DisplayRecord", () => {
@@ -137,16 +133,7 @@ describe("DisplayRecord", () => {
     expect(
       headingsOnly.findAll("section").map((section) => section.attributes("id"))
     ).toEqual(["details", "care"]);
-    expect(legendLinks(headingsOnly)).toEqual([
-      ["Pet", "#details"],
-      ["Details", "#details"],
-      ["Care", "#care"],
-    ]);
-    expect(
-      legendLinks(headingsOnly).map(
-        ([, href]) => href && headingsOnly.find(href).exists()
-      )
-    ).toEqual([true, true, true]);
+    expect(legendLabels(headingsOnly)).toEqual(["Pet", "Details", "Care"]);
   });
 
   test("marks the entry of the box now at the top, only that entry, and keeps it when another leaves the band", async () => {
@@ -198,10 +185,7 @@ describe("DisplayRecord", () => {
     });
     await nextTick();
 
-    expect(legendLinks(wrapper)).toEqual([
-      ["About", "#about"],
-      ["Size", "#size"],
-    ]);
+    expect(legendLabels(wrapper)).toEqual(["About", "Size"]);
     expect(legendCurrent(wrapper)).toEqual(["true", "false"]);
   });
 
@@ -279,25 +263,41 @@ describe("DisplayRecord", () => {
     expect(wrapper.get("#care").text()).toContain("insects");
   });
 
-  test("lists one legend entry per rendered section, targeting its anchor", () => {
-    expect(legendLinks(wrapper)).toEqual([
-      ["About", "#about"],
-      ["Size", "#size"],
-      ["Care", "#care"],
-    ]);
+  test("lists one legend entry per rendered section", () => {
+    expect(legendLabels(wrapper)).toEqual(["About", "Size", "Care"]);
   });
 
   test("nests a heading entry inside its own section's entry", () => {
     const topLevel = wrapper.get("nav").findAll(":scope > ul > li");
 
-    expect(topLevel.map((entry) => entry.get("a").attributes("href"))).toEqual([
-      "#about",
-      "#care",
+    expect(topLevel.map((entry) => entry.get("a").text())).toEqual([
+      "About",
+      "Care",
     ]);
-    expect(
-      topLevel[0]!.findAll("ul a").map((link) => link.attributes("href"))
-    ).toEqual(["#size"]);
+    expect(topLevel[0]!.findAll("ul a").map((link) => link.text())).toEqual([
+      "Size",
+    ]);
     expect(topLevel[1]!.findAll("ul a")).toEqual([]);
+  });
+
+  test("scrolls a section into view when its legend entry is clicked", async () => {
+    // document.getElementById only finds attached elements, so this mount needs a real DOM parent.
+    const attached = mount(DisplayRecord, {
+      props: { metadata: twoSections, rowData: twoSectionsRow },
+      attachTo: document.body,
+    });
+    await nextTick();
+
+    const scrollIntoView = vi.fn();
+    const sizeSection = document.getElementById("size")!;
+    sizeSection.scrollIntoView = scrollIntoView;
+
+    await attached.get("nav").findAll("a")[1]!.trigger("click");
+
+    expect(scrollIntoView).toHaveBeenCalledOnce();
+    expect(scrollIntoView.mock.instances[0]).toBe(sizeSection);
+
+    attached.unmount();
   });
 
   test("names the unnamed top section after the table in the legend, and leaves the section itself unheaded", () => {
@@ -313,10 +313,7 @@ describe("DisplayRecord", () => {
       },
     });
 
-    expect(legendLinks(topped)).toEqual([
-      ["Pet", "#mg_top_of_form"],
-      ["Care", "#care"],
-    ]);
+    expect(legendLabels(topped)).toEqual(["Pet", "Care"]);
     expect(topped.get("#mg_top_of_form").find("h2").exists()).toBe(false);
   });
 
@@ -335,16 +332,12 @@ describe("DisplayRecord", () => {
       },
     });
 
-    expect(legendLinks(oneSection)).toEqual([
-      ["Pet", "#mg_top_of_form"],
-      ["Details", "#details"],
-      ["Heading2", "#heading2"],
-    ]);
+    expect(legendLabels(oneSection)).toEqual(["Pet", "Details", "Heading2"]);
     const topLevel = oneSection.get("nav").findAll(":scope > ul > li");
-    expect(topLevel.map((entry) => entry.get("a").attributes("href"))).toEqual([
-      "#mg_top_of_form",
-      "#details",
-      "#heading2",
+    expect(topLevel.map((entry) => entry.get("a").text())).toEqual([
+      "Pet",
+      "Details",
+      "Heading2",
     ]);
     expect(oneSection.get("nav").findAll("ul ul")).toEqual([]);
   });

@@ -46,8 +46,12 @@ const emit = defineEmits(["goToSection"]);
 
 const idPrefix = `form-legend-header-${useId()}`;
 
-// fallback for the default section
+// Fallback for the default section. A nested heading counts as active, or the
+// legend lights its first section alongside the heading the reader is actually on.
 const noSectionsActive = computed(() => {
-  return !props.sections.some((section) => section.isActive);
+  return !props.sections.some(
+    (section) =>
+      section.isActive || section.headers?.some((header) => header.isActive)
+  );
 });
 </script>
