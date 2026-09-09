@@ -108,7 +108,7 @@ const blocksOpen = ref<boolean>(true);
         </li>
         <li>
           <DraggableComponent
-            icon="view-normal"
+            icon="columns"
             componentName="Section - 2 Columns"
             componentType="Block"
             @dragging="handleDragEvent"
@@ -116,7 +116,7 @@ const blocksOpen = ref<boolean>(true);
         </li>
         <li>
           <DraggableComponent
-            icon="view-normal"
+            icon="columns"
             componentName="Section - 3 Columns"
             componentType="Block"
             @dragging="handleDragEvent"

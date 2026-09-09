@@ -46,7 +46,6 @@ export interface IBlocks extends IMgTableClass {
   title?: string;
   subtitle?: string;
   backgroundImage?: any;
-  columns?: number;
   titleIsCentered?: boolean;
   applyShadedBackground?: boolean;
 }
@@ -266,7 +265,6 @@ export interface IParagraphs_agg {
 }
 
 export interface ISections extends IMgTableClass {
-  columns?: number;
   enableFullScreenWidth?: boolean;
   applyShadedBackground?: boolean;
   inContainer?: any;
