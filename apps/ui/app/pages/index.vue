@@ -53,18 +53,19 @@ const filter = ref("");
   <Container>
     <PageHeader title="Databases" />
 
-    <div class="flex flex-row justify-center items-center mb-4">
+    <div class="flex flex-row justify-center items-center mb-4 px-5 lg:px-0">
       <InputSearch
         v-model="filter"
         placeholder="Search databases"
         id="search-input"
+        class="w-full sm:w-auto"
       />
     </div>
 
     <ContentBlock class="mt-1" title="" description="">
       <Table>
         <template #head>
-          <TableHeadRow>
+          <TableHeadRow stacked>
             <TableHead>name</TableHead>
             <TableHead>description</TableHead>
           </TableHeadRow>
@@ -72,10 +73,22 @@ const filter = ref("");
         <template #body>
           <TableRow
             v-for="database in databases"
+            :key="database.id"
+            stacked
             @click="navigateTo(`/${database.id}`)"
           >
-            <TableCell>{{ database.label }}</TableCell>
-            <TableCell>{{ database.description }}</TableCell>
+            <TableCell stacked>
+              <NuxtLink
+                :to="`/${database.id}`"
+                class="block min-h-11 sm:min-h-0"
+                @click.stop
+              >
+                {{ database.label }}
+              </NuxtLink>
+            </TableCell>
+            <TableCell stacked label="description">{{
+              database.description
+            }}</TableCell>
           </TableRow>
         </template>
       </Table>
