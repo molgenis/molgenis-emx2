@@ -4,107 +4,14 @@
     <div class="flex overflow-hidden items-center gap-2">
       <div class="truncate min-w-0" ref="cellRef">
         <slot>
-          <template v-if="metadata && data !== undefined && data !== null">
-            <ValueList
-              v-if="
-                metadata.columnType.endsWith('ARRAY') ||
-                metadata.columnType === 'MULTISELECT' ||
-                metadata.columnType === 'CHECKBOX'
-              "
-              :metadata="metadata"
-              :data="assertListValue(data)"
-              @listRefCellClicked="$emit('cellClicked', $event)"
-            />
-
-            <ValueString
-              v-else-if="
-                metadata.columnType === 'STRING' ||
-                metadata.columnType === 'DATE' ||
-                metadata.columnType === 'DATETIME' ||
-                metadata.columnType === 'AUTO_ID' ||
-                metadata.columnType === 'UUID' ||
-                metadata.columnType === 'PERIOD'
-              "
-              :metadata="metadata"
-              :data="assertStringValue(data)"
-            />
-
-            <ValueText
-              v-else-if="metadata.columnType === 'TEXT'"
-              :metadata="metadata"
-              :data="assertStringValue(data)"
-            />
-
-            <ValueDecimal
-              v-else-if="metadata.columnType === 'DECIMAL'"
-              :metadata="metadata"
-              :data="assertNumberValue(data)"
-            />
-
-            <ValueLong
-              v-else-if="metadata.columnType === 'LONG'"
-              :metadata="metadata"
-              :data="typeof data === 'number' ? data : Number(data)"
-            />
-
-            <ValueInt
-              v-else-if="
-                metadata.columnType === 'INT' ||
-                metadata.columnType === 'NON_NEGATIVE_INT'
-              "
-              :metadata="metadata"
-              :data="typeof data === 'number' ? data : Number(data)"
-            />
-
-            <ValueRef
-              v-else-if="
-                metadata.columnType === 'REF' ||
-                metadata.columnType === 'RADIO' ||
-                metadata.columnType === 'SELECT'
-              "
-              :metadata="toRefColumn(metadata)"
-              :data="assertRowValue(data)"
-              @refCellClicked="$emit('cellClicked', $event)"
-            />
-
-            <ValueObject
-              v-else-if="metadata.columnType === 'ONTOLOGY'"
-              :metadata="metadata"
-              :data="assertRowValue(data)"
-              @refCellClicked="$emit('cellClicked', $event)"
-            />
-
-            <ValueBool
-              v-else-if="metadata.columnType === 'BOOL'"
-              :metadata="metadata"
-              :data="assertBooleanValue(data)"
-            />
-
-            <ValueEmail
-              v-else-if="metadata.columnType === 'EMAIL'"
-              :metadata="metadata"
-              :data="assertStringValue(data)"
-            />
-
-            <ValueHyperlink
-              v-else-if="metadata.columnType === 'HYPERLINK'"
-              :metadata="metadata"
-              :data="assertStringValue(data)"
-            />
-
-            <ValueRefBack
-              v-else-if="metadata.columnType === 'REFBACK'"
-              :metadata="toRefColumn(metadata)"
-              :data="assertTableValue(data)"
-              @refBackCellClicked="$emit('cellClicked', $event)"
-            />
-
-            <ValueFile
-              v-else-if="metadata.columnType === 'FILE'"
-              :metadata="metadata"
-              :data="assertFileValue(data)"
-            />
-          </template>
+          <ValueEMX2
+            v-if="metadata && data !== undefined && data !== null"
+            :metadata="metadata"
+            :data="data"
+            :truncate="false"
+            :renderLimit="CELL_RENDER_LIMIT"
+            @valueClick="$emit('cellClicked', $event)"
+          />
           <template v-else>
             <span class="min-h-4 inline-block"></span>
           </template>
@@ -129,30 +36,10 @@ import type {
   IColumn,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
-import {
-  assertBooleanValue,
-  assertFileValue,
-  assertListValue,
-  assertNumberValue,
-  assertRowValue,
-  assertStringValue,
-  assertTableValue,
-  toRefColumn,
-} from "../../utils/typeUtils";
 import Button from "../Button.vue";
-import ValueBool from "../value/Bool.vue";
-import ValueDecimal from "../value/Decimal.vue";
-import ValueEmail from "../value/Email.vue";
-import ValueFile from "../value/File.vue";
-import ValueHyperlink from "../value/Hyperlink.vue";
-import ValueInt from "../value/Int.vue";
-import ValueList from "../value/List.vue";
-import ValueLong from "../value/Long.vue";
-import ValueObject from "../value/Object.vue";
-import ValueRef from "../value/Ref.vue";
-import ValueRefBack from "../value/RefBack.vue";
-import ValueString from "../value/String.vue";
-import ValueText from "../value/Text.vue";
+import ValueEMX2 from "../value/EMX2.vue";
+
+const CELL_RENDER_LIMIT = 10;
 
 const props = defineProps<{
   metadata?: IColumn;
