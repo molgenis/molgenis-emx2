@@ -35,11 +35,11 @@ const TOP_FIFTH_OF_VIEWPORT = {
 };
 
 const root = ref<ComponentPublicInstance | null>(null);
-// Gate the TARGET, not the call: setup() runs once, so a later trackInView flip must still attach.
-const observedRoot = computed(() => (props.trackInView ? root.value : null));
+// setup() runs once, so the observer must exist unconditionally; give it the element only while tracking is on, or a legend that appears later never attaches.
+const trackedSection = computed(() => (props.trackInView ? root.value : null));
 
 useIntersectionObserver(
-  observedRoot,
+  trackedSection,
   ([entry]) => {
     if (entry?.isIntersecting) {
       emit("inView");

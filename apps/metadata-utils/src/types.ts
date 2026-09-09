@@ -115,7 +115,7 @@ export interface IFieldError {
   message: string;
 }
 
-export interface LegendEntry {
+interface LegendEntry {
   id: string;
   label: string;
   href?: string;

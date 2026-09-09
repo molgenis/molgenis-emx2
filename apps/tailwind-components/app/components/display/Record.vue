@@ -72,40 +72,40 @@ const hasLegend = computed(
   () => props.showLegend && recordSections.value.length > 1
 );
 
-const reportedBoxId = ref<string | null>(null);
-// RecordSection's rootMargin excludes the page header, so no box reports inView
-// at scroll 0, and a row's data can drop the section that did report. Either way
-// the first surviving box is the one the reader is on.
-const activeBoxId = computed(() => {
+const reportedSectionId = ref<string | null>(null);
+// RecordSection's rootMargin excludes the page header, so no section reports
+// inView at scroll 0, and a row's data can drop the section that did report.
+// Either way the first surviving section is the one the reader is on.
+const activeSectionId = computed(() => {
   const reported = recordSections.value.some(
-    (box) => box.id === reportedBoxId.value
+    (recordSection) => recordSection.id === reportedSectionId.value
   )
-    ? reportedBoxId.value
+    ? reportedSectionId.value
     : null;
   return reported ?? recordSections.value[0]?.id ?? null;
 });
 
 const legendGroups = computed<LegendGroup[]>(() =>
   sections.value.length === 1
-    ? recordSections.value.map((box) => ({
-        id: box.id,
-        label: box.label ?? props.metadata.label,
-        href: `#${box.id}`,
+    ? recordSections.value.map((recordSection) => ({
+        id: recordSection.id,
+        label: recordSection.label ?? props.metadata.label,
+        href: `#${recordSection.id}`,
         isVisible: true,
-        isActive: box.id === activeBoxId.value,
+        isActive: recordSection.id === activeSectionId.value,
       }))
     : sections.value.map((section) => ({
         id: section.id,
         label: section.label ?? props.metadata.label,
         href: `#${legendAnchorId(section)}`,
         isVisible: true,
-        isActive: section.id === activeBoxId.value,
+        isActive: section.id === activeSectionId.value,
         headers: section.headings.map((heading) => ({
           id: heading.id,
           label: heading.label,
           href: `#${heading.id}`,
           isVisible: true,
-          isActive: heading.id === activeBoxId.value,
+          isActive: heading.id === activeSectionId.value,
         })),
       }))
 );
@@ -133,13 +133,13 @@ const title = computed(() => recordTitle(props.metadata, props.rowData));
     <template #main>
       <div class="grid" :class="showCards ? 'lg:gap-2.5 gap-0' : 'gap-7.5'">
         <DisplayRecordSection
-          v-for="box in recordSections"
-          :key="box.id"
-          :section="box"
+          v-for="recordSection in recordSections"
+          :key="recordSection.id"
+          :section="recordSection"
           :showCards="showCards"
           :trackInView="hasLegend"
           @valueClick="$emit('valueClick', $event)"
-          @inView="reportedBoxId = box.id"
+          @inView="reportedSectionId = recordSection.id"
         />
       </div>
     </template>
