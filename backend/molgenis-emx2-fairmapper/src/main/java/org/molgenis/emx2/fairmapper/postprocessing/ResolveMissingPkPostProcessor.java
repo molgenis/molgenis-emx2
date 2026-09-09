@@ -77,6 +77,10 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
         break;
       }
     }
+
+    if (nrIterations >= MAX_NR_ITERATIONS) {
+      logger.warn("Max number of iterations exceeded for missing pk post processor");
+    }
   }
 
   private List<Column> getReferenceColumnsForTable(String tableName) {
@@ -112,7 +116,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
       if (value.isEmpty() && pointsBackAtOwnTable(column, reference)) {
         // These two rows depend on each other (see the class doc example): the referenced row
         // can't resolve this on its own, so we write the value into both rows right here.
-        value = Optional.of(completeMutualKey(row, referencedRow, reference));
+        value = Optional.ofNullable(completeMutualKey(row, referencedRow, reference));
       }
 
       if (value.isPresent()) {
