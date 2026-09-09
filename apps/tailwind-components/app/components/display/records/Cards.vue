@@ -8,6 +8,8 @@ import { resolveTitleAndSubtitle } from "../../../utils/displayUtils";
 import Pairs from "./Pairs.vue";
 import ValueEMX2 from "../../value/EMX2.vue";
 
+const DESCRIPTION_LINES = 4;
+
 const props = defineProps<{
   rows: IRow[];
   titleTemplate: string;
@@ -48,7 +50,7 @@ function logoUrl(row: IRow): string | undefined {
     <li
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
-      class="border p-11 relative -mb-[1px] lg:even:border-l-0"
+      class="border py-12.5 px-5 lg:px-12.5 relative -mb-[1px] lg:even:border-l-0"
     >
       <img
         v-if="logoUrl(row)"
@@ -56,12 +58,16 @@ function logoUrl(row: IRow): string | undefined {
         :alt="title(row)"
         class="float-right ml-4 mb-2 max-h-16 max-w-[40%] object-contain"
       />
-      <div class="font-bold text-record-heading">
-        <NuxtLink v-if="linkTo" :to="linkTo(row)" class="text-link underline">
+      <h2 class="font-extrabold text-record-heading">
+        <NuxtLink
+          v-if="linkTo"
+          :to="linkTo(row)"
+          class="text-link hover:underline hover:bg-link-hover"
+        >
           {{ title(row) }}
         </NuxtLink>
         <span v-else>{{ title(row) }}</span>
-      </div>
+      </h2>
       <span
         v-if="subtitle(row)"
         class="mt-1.5 block md:inline text-record-value"
@@ -72,6 +78,7 @@ function logoUrl(row: IRow): string | undefined {
         <ValueEMX2
           :metadata="descriptionColumn"
           :data="row[descriptionColumn.id]"
+          :maxLines="DESCRIPTION_LINES"
         />
       </div>
       <Pairs v-if="detailColumns?.length" :columns="detailColumns" :row="row" />
