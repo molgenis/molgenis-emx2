@@ -65,8 +65,20 @@ test("should show auto id after saving", async ({ page }) => {
   await expect(page.getByText("Demo data controls")).toBeVisible();
   await page.getByRole("button", { name: "Add Order" }).click();
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  await expect(page.getByRole("textbox", { name: "orderId" })).toHaveValue(
-    /ORDER:.+/
-  );
+
+  await expect
+    .poll(
+      async () => {
+        const orderIdField = page.getByRole("textbox", { name: "orderId" });
+        if ((await orderIdField.count()) === 0) {
+          return "";
+        }
+        return await orderIdField.inputValue();
+      },
+      {
+        timeout: 10000,
+        message: "waiting for the generated ORDER ID after save",
+      }
+    )
+    .toMatch(/ORDER:.+/);
 });
