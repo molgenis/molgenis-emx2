@@ -50,7 +50,7 @@ function logoUrl(row: IRow): string | undefined {
     <li
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
-      class="border py-12.5 px-5 lg:px-12.5 relative -mb-[1px] lg:even:border-l-0"
+      class="border p-11 relative -mb-[1px] lg:even:border-l-0"
     >
       <img
         v-if="logoUrl(row)"

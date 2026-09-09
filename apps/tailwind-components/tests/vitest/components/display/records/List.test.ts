@@ -78,7 +78,7 @@ describe("records/List.vue", () => {
     const firstAnchor = wrapper.find("li a");
     expect(firstAnchor.attributes("href")).toBe("/records/Tweety");
     expect(firstAnchor.text()).toBe("Tweety");
-    expect(firstAnchor.classes()).toContain("underline");
+    expect(firstAnchor.classes()).toContain("hover:underline");
   });
 
   it("renders no anchor when linkTo is not passed", () => {
@@ -229,7 +229,7 @@ describe("records/List.vue", () => {
     });
 
     const item = wrapper.findAll("li")[0];
-    expect(item.find(".font-bold").text()).toBe("3");
+    expect(item.find("h2").text()).toBe("3");
     const subtitle = item.find("span.mt-1\\.5");
     expect(subtitle.exists()).toBe(true);
     expect(subtitle.text()).toBe("Tweety");
@@ -245,7 +245,7 @@ describe("records/List.vue", () => {
     });
 
     const item = wrapper.findAll("li")[0];
-    expect(item.find(".font-bold").text()).toBe("Tweety");
+    expect(item.find("h2").text()).toBe("Tweety");
     expect(item.find("span.mt-1\\.5").exists()).toBe(false);
   });
 });

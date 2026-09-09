@@ -59,37 +59,48 @@ function logoUrl(row: IRow): string | undefined {
       :key="rowIndex"
       class="border p-11 relative -mb-[1px]"
     >
-      <img
-        v-if="logoUrl(row)"
-        :src="logoUrl(row)"
-        :alt="title(row)"
-        class="max-h-16 max-w-full mb-2 object-contain"
-      />
-      <div class="font-bold text-record-heading">
-        <NuxtLink v-if="linkTo" :to="linkTo(row)" class="text-link underline">
-          {{ title(row) }}
-        </NuxtLink>
-        <span v-else>{{ title(row) }}</span>
+      <div class="grid grid-cols-12 gap-6">
+        <div v-if="logoUrl(row)" class="col-span-3">
+          <div class="flex items-center justify-center h-full w-full">
+            <img
+              :src="logoUrl(row)"
+              :alt="title(row)"
+              class="max-h-16 max-w-full object-contain"
+            />
+          </div>
+        </div>
+        <div :class="logoUrl(row) ? 'col-span-9' : 'col-span-12'">
+          <h2 class="font-extrabold text-record-heading">
+            <NuxtLink
+              v-if="linkTo"
+              :to="linkTo(row)"
+              class="text-link hover:underline hover:bg-link-hover"
+            >
+              {{ title(row) }}
+            </NuxtLink>
+            <span v-else>{{ title(row) }}</span>
+          </h2>
+          <span
+            v-if="subtitle(row)"
+            class="mt-1.5 block md:inline text-record-value"
+          >
+            {{ subtitle(row) }}
+          </span>
+          <div v-if="descriptionColumn" class="mt-1 text-record-value">
+            <ValueEMX2
+              :metadata="descriptionColumn"
+              :data="row[descriptionColumn.id]"
+            />
+          </div>
+          <Pairs
+            v-if="detailColumns?.length"
+            wide
+            :columns="detailColumns"
+            :row="row"
+            :hide-empty="hideEmpty"
+          />
+        </div>
       </div>
-      <span
-        v-if="subtitle(row)"
-        class="mt-1.5 block md:inline text-record-value"
-      >
-        {{ subtitle(row) }}
-      </span>
-      <div v-if="descriptionColumn" class="mt-1 text-record-value">
-        <ValueEMX2
-          :metadata="descriptionColumn"
-          :data="row[descriptionColumn.id]"
-        />
-      </div>
-      <Pairs
-        v-if="detailColumns?.length"
-        wide
-        :columns="detailColumns"
-        :row="row"
-        :hide-empty="hideEmpty"
-      />
     </li>
   </ul>
 </template>
