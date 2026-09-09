@@ -23,11 +23,11 @@ class RefbackColumnSparqlQueryGeneratorTest {
 
   @Test
   void shouldWrapPatternInOptional_whenRefbackColumnNotRequired() {
-    Column owningColumn = createColumn(Column.column("pet").setSemantics("foaf:pet"));
+    Column referencedColumn = createColumn(Column.column("pet").setSemantics("foaf:pet"));
     Column refbackColumn = createColumn(Column.column("owner").setRequired(false));
 
     RefbackColumnSparqlQueryGenerator mapper =
-        new RefbackColumnSparqlQueryGenerator(SUBJECT, owningColumn, refbackColumn);
+        new RefbackColumnSparqlQueryGenerator(SUBJECT, referencedColumn, refbackColumn);
 
     assertHasPatterns(mapper, "OPTIONAL { ?pet ^foaf:pet ?_subject_owner_single . }");
     assertHasSelectors(
@@ -38,11 +38,11 @@ class RefbackColumnSparqlQueryGeneratorTest {
 
   @Test
   void shouldNotWrapPatternInOptional_whenRefbackColumnRequired() {
-    Column owningColumn = createColumn(Column.column("pet").setSemantics("foaf:pet"));
+    Column referencedColumn = createColumn(Column.column("pet").setSemantics("foaf:pet"));
     Column refbackColumn = createColumn(Column.column("owner").setRequired(true));
 
     RefbackColumnSparqlQueryGenerator mapper =
-        new RefbackColumnSparqlQueryGenerator(SUBJECT, owningColumn, refbackColumn);
+        new RefbackColumnSparqlQueryGenerator(SUBJECT, referencedColumn, refbackColumn);
 
     assertHasPatterns(mapper, "?pet ^foaf:pet ?_subject_owner_single .");
     assertHasSelectors(
@@ -53,11 +53,11 @@ class RefbackColumnSparqlQueryGeneratorTest {
 
   @Test
   void shouldReturnEmptyPatterns_whenOwningColumnHasNoSemantics() {
-    Column owningColumn = createColumn(Column.column("pet").setSemantics());
+    Column referencedColumn = createColumn(Column.column("pet").setSemantics());
     Column refbackColumn = createColumn(Column.column("owner").setRequired(false));
 
     RefbackColumnSparqlQueryGenerator mapper =
-        new RefbackColumnSparqlQueryGenerator(SUBJECT, owningColumn, refbackColumn);
+        new RefbackColumnSparqlQueryGenerator(SUBJECT, referencedColumn, refbackColumn);
 
     assertTrue(mapper.getPatterns().isEmpty());
     assertHasSelectors(
@@ -68,11 +68,11 @@ class RefbackColumnSparqlQueryGeneratorTest {
 
   @Test
   void shouldNormalizeRefbackColumnName() {
-    Column owningColumn = createColumn(Column.column("pet").setSemantics("foaf:pet"));
+    Column referencedColumn = createColumn(Column.column("pet").setSemantics("foaf:pet"));
     Column refbackColumn = createColumn(Column.column("owner extra").setRequired(false));
 
     RefbackColumnSparqlQueryGenerator mapper =
-        new RefbackColumnSparqlQueryGenerator(SUBJECT, owningColumn, refbackColumn);
+        new RefbackColumnSparqlQueryGenerator(SUBJECT, referencedColumn, refbackColumn);
 
     assertHasPatterns(mapper, "OPTIONAL { ?pet ^foaf:pet ?_subject_owner___extra_single . }");
     assertHasSelectors(
@@ -83,12 +83,12 @@ class RefbackColumnSparqlQueryGeneratorTest {
 
   @Test
   void givenOwningColumnWithMultipleSemantics_thenCoalesce() {
-    Column owningColumn =
+    Column referencedColumn =
         createColumn(Column.column("pet").setSemantics("foaf:pet", "foaf:pet_alt"));
     Column refbackColumn = createColumn(Column.column("owner").setRequired(false));
 
     RefbackColumnSparqlQueryGenerator mapper =
-        new RefbackColumnSparqlQueryGenerator(SUBJECT, owningColumn, refbackColumn);
+        new RefbackColumnSparqlQueryGenerator(SUBJECT, referencedColumn, refbackColumn);
 
     assertHasPatterns(
         mapper,

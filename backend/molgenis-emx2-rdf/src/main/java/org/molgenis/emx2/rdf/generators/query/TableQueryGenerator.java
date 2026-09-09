@@ -32,19 +32,21 @@ public class TableQueryGenerator implements QueryGenerator {
     groups.add(SUBJECT_VARIABLE);
 
     for (Column column : tableMetadata.getColumns()) {
-      Column semanticSource = column.hasSemantics() ? column : column.getReferenceRefback();
-      if (semanticSource == null || !semanticSource.hasSemantics()) {
-        continue;
-      }
       ColumnSparqlQueryGenerator mapper;
-      if (semanticSource != column) {
-        mapper = new RefbackColumnSparqlQueryGenerator(SUBJECT_VARIABLE, semanticSource, column);
-      } else if (column.isReference()) {
-        mapper = new ReferenceColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
-      } else if (column.isArray()) {
-        mapper = new ArrayColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
+      if (column.hasSemantics()) {
+        if (column.isReference()) {
+          mapper = new ReferenceColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
+        } else if (column.isArray()) {
+          mapper = new ArrayColumnSparqlQueryGenerator(SUBJECT_VARIABLE, column);
+        } else {
+          mapper = LiteralColumnSparqlQueryGenerator.of(SUBJECT_VARIABLE, column);
+        }
       } else {
-        mapper = LiteralColumnSparqlQueryGenerator.of(SUBJECT_VARIABLE, column);
+        Column referencedColumn = column.getReferenceRefback();
+        if (referencedColumn == null || !referencedColumn.hasSemantics()) {
+          continue;
+        }
+        mapper = new RefbackColumnSparqlQueryGenerator(SUBJECT_VARIABLE, referencedColumn, column);
       }
 
       selectors.addAll(mapper.getSelectors());
