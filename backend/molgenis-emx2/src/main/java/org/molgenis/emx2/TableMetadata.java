@@ -440,6 +440,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return null;
   }
 
+  public boolean isSubclass() {
+    return getInheritedTable() != null;
+  }
+
   public TableMetadata requireInheritedTable() {
     TableMetadata inheritedTable = getInheritedTable();
     if (inheritedTable == null) {

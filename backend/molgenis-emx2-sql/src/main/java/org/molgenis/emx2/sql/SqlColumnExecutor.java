@@ -356,7 +356,7 @@ public class SqlColumnExecutor {
     if (!column.isPrimaryKey()
         || column.isAutoId()
         || table == null
-        || table.getInheritedTable() == null
+        || !table.isSubclass()
         || column.isInherited()) {
       return;
     }
