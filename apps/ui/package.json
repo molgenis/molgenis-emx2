@@ -45,7 +45,7 @@
     "pinia": "3.0.3",
     "playwright-core": "1.62.0",
     "prettier": "2.8.8",
-    "svgo": "4.0.2",
+    "svgo": "4.1.0",
     "tailwind-components": "workspace:*",
     "tailwindcss": "3.4.17",
     "typescript": "5.9.2",
