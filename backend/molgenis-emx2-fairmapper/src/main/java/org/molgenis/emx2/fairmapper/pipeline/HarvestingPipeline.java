@@ -12,7 +12,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
@@ -36,37 +36,45 @@ public class HarvestingPipeline {
     this.config = config;
   }
 
+  @SuppressWarnings("java:S2589")
   public void execute() {
     logger.info("Starting harvesting pipeline: {}", harvestId);
-    Repository repository = new SailRepository(new MemoryStore());
 
-    if (config.dumpEnabled() && !outputDirectory().toFile().mkdirs()) {
-      throw new MolgenisException("Could not create output directory: " + config.outputPath());
+    Repository repository = null;
+    try {
+      repository = new SailRepository(new NativeStore());
+
+      if (config.dumpEnabled() && !outputDirectory().toFile().mkdirs()) {
+        throw new MolgenisException("Could not create output directory: " + config.outputPath());
+      }
+
+      config.extractor().addRdfToRepository(repository, config.rdf());
+
+      if (config.dumpEnabled()) {
+        writeRepositoryToFile(repository, "extracted.ttl");
+      }
+
+      if (!config.preProcessors().isEmpty()) {
+        preProcess(repository);
+      }
+
+      InMemoryTableStore transformed = transform(repository);
+
+      if (!config.postProcessors().isEmpty()) {
+        postProcess(transformed);
+      }
+
+      if (config.loadDataEnabled()) {
+        load(transformed);
+      } else {
+        logger.info("No data loaded for harvesting pipeline: {}", harvestId);
+      }
+      logger.info("Finished harvesting pipeline: {}", harvestId);
+    } finally {
+      if (repository != null && repository.isInitialized()) {
+        repository.shutDown();
+      }
     }
-
-    config.extractor().addRdfToRepository(repository, config.rdf());
-
-    if (config.dumpEnabled()) {
-      writeRepositoryToFile(repository, "extracted.ttl");
-    }
-
-    if (!config.preProcessors().isEmpty()) {
-      preProcess(repository);
-    }
-
-    InMemoryTableStore transformed = transform(repository);
-
-    if (!config.postProcessors().isEmpty()) {
-      postProcess(transformed);
-    }
-
-    if (config.loadDataEnabled()) {
-      load(transformed);
-    } else {
-      logger.info("No data loaded for harvesting pipeline: {}", harvestId);
-    }
-
-    logger.info("Finished harvesting pipeline: {}", harvestId);
   }
 
   private void preProcess(Repository extract) {

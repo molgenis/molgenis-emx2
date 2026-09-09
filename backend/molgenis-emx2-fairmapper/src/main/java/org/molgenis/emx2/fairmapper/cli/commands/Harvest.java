@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.CrawlSteps;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
-import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.StageCsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
@@ -67,7 +68,7 @@ public class Harvest implements Runnable {
 
     URI rdfURI = getRdf();
 
-    RdfExtractor extractor = new FdpRdfExtractor(new RemoteRdfExtractor(), rdfURI);
+    RdfExtractor extractor = new CrawlingRdfExtractor().withCrawlSteps(CrawlSteps.FDP.steps());
     SparqlSelectRdfTransformer transformer =
         new SparqlSelectRdfTransformer(
             new TableQueryGenerator(), schema.getMetadata(), List.of(tables));
@@ -76,7 +77,10 @@ public class Harvest implements Runnable {
         new HarvestingPipelineConfig.Builder(rdfURI, schema, extractor, transformer)
             .setTables(tables)
             .withPostProcessors(new DCATPostProcessor(schema.getMetadata()))
-            .withPreProcessors(new TemporalRdfPreProcessor(), new TypicalAgeRdfPreProcessor());
+            .withPreProcessors(
+                new TemporalRdfPreProcessor(),
+                new TypicalAgeRdfPreProcessor(),
+                new StageCsvwPreProcessor());
 
     if (outputPath != null) {
       builder.withDumpEnabled(outputPath);
