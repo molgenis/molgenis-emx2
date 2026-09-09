@@ -1,7 +1,7 @@
 // Generated (on: 2026-09-09T13:15:51.804548) from Generator.java for schema: cms
 
 export interface IMgTableClass {
-  mg_tableclass: string;
+  mg_tableclass?: string;
 }
 
 export interface IFile {
