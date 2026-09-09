@@ -251,7 +251,7 @@ Exceptions (such as an `IOException`) should usually at some point lead to a `Mo
 Some exceptions exist, such as API code that should throw one of the Javalin `HttpResponseException` exceptions to ensure a server returns the correct HTTP code.
 
 ### We use loggers that corresponds to the class
-For logging, we use the following snippet (replace `MyClass` with the actual class name):
+For logging, we use the following snippet as part of an actual class (replace `MyClass` with the actual class name):
 ```java
 public class MyClass {
   private static final Logger logger = LoggerFactory.getLogger(MyClass.class);
