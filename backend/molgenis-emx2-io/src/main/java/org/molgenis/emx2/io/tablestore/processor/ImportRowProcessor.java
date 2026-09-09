@@ -52,7 +52,11 @@ public class ImportRowProcessor implements RowProcessor {
       index++;
 
       if (importBatch.size() >= 100) {
-        table.save(importBatch);
+        if (updateMode == UpdateMode.OVERWRITE) {
+          table.save(importBatch);
+        } else {
+          table.update(importBatch);
+        }
         task.setProgress(index);
         task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
         importBatch.clear();
