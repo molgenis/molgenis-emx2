@@ -57,47 +57,42 @@ function logoUrl(row: IRow): string | undefined {
 <template>
   <CardList role="list">
     <CardListItem v-for="(row, rowIndex) in rows" :key="rowIndex">
-      <div class="grid grid-cols-12 gap-6 py-12.5 px-5 lg:px-12.5">
-        <div v-if="logoUrl(row)" class="col-span-3">
-          <div class="flex items-center justify-center h-full w-full">
-            <img
-              :src="logoUrl(row)"
-              :alt="title(row)"
-              class="max-h-16 max-w-full object-contain"
-            />
-          </div>
-        </div>
-        <div :class="logoUrl(row) ? 'col-span-9' : 'col-span-12'">
-          <h2 class="font-extrabold text-record-heading">
-            <NuxtLink
-              v-if="linkTo"
-              :to="linkTo(row)"
-              class="text-link hover:underline hover:bg-link-hover"
-            >
-              {{ title(row) }}
-            </NuxtLink>
-            <span v-else>{{ title(row) }}</span>
-          </h2>
-          <span
-            v-if="subtitle(row)"
-            class="mt-1.5 block md:inline text-record-value"
+      <div class="py-12.5 px-5 lg:px-12.5">
+        <img
+          v-if="logoUrl(row)"
+          :src="logoUrl(row)"
+          :alt="title(row)"
+          class="float-right ml-4 mb-2 max-h-16 max-w-[40%] object-contain"
+        />
+        <h2 class="font-extrabold text-record-heading">
+          <NuxtLink
+            v-if="linkTo"
+            :to="linkTo(row)"
+            class="text-link hover:underline hover:bg-link-hover"
           >
-            {{ subtitle(row) }}
-          </span>
-          <div v-if="descriptionColumn" class="mt-1 text-record-value">
-            <ValueEMX2
-              :metadata="descriptionColumn"
-              :data="row[descriptionColumn.id]"
-            />
-          </div>
-          <Pairs
-            v-if="detailColumns?.length"
-            wide
-            :columns="detailColumns"
-            :row="row"
-            :hide-empty="hideEmpty"
+            {{ title(row) }}
+          </NuxtLink>
+          <span v-else>{{ title(row) }}</span>
+        </h2>
+        <span
+          v-if="subtitle(row)"
+          class="mt-1.5 block md:inline text-record-value"
+        >
+          {{ subtitle(row) }}
+        </span>
+        <div v-if="descriptionColumn" class="mt-1 text-record-value">
+          <ValueEMX2
+            :metadata="descriptionColumn"
+            :data="row[descriptionColumn.id]"
           />
         </div>
+        <Pairs
+          v-if="detailColumns?.length"
+          wide
+          :columns="detailColumns"
+          :row="row"
+          :hide-empty="hideEmpty"
+        />
       </div>
     </CardListItem>
   </CardList>
