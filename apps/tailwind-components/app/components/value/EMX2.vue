@@ -57,7 +57,6 @@ defineEmits<{
     :collapseAll="false"
     :maxItems="10"
     :itemStep="5"
-    :renderLimit="renderLimit"
   />
 
   <ValueList

@@ -23,8 +23,8 @@ function mountTree(collapseAll: boolean) {
   });
 }
 
-// A paging or render-limit control also lives in a trailing <li>, marked
-// list-none, so a row count must exclude it to count content rows only.
+// A paging control also lives in a trailing <li>, marked list-none, so a
+// row count must exclude it to count content rows only.
 function contentItems(wrapper: ReturnType<typeof mount>) {
   return wrapper
     .findAll("li")
@@ -385,32 +385,5 @@ describe("value/Ontology.vue two levels page independently", () => {
       true,
       true,
     ]);
-  });
-});
-
-describe("value/Ontology.vue renderLimit safety valve", () => {
-  function buildFlatRoots(n: number): IOntologyTreeItem[] {
-    return Array.from({ length: n }, (_, i) => ({ name: `Node ${i}` }));
-  }
-
-  it("caps total rendered nodes at renderLimit; the rest is genuinely absent from the DOM", () => {
-    const wrapper = mount(ValueOntology, {
-      props: { value: buildFlatRoots(10), renderLimit: 4 },
-    });
-    expect(contentItems(wrapper)).toHaveLength(4);
-    expect(wrapper.find("button").text()).toBe("Load more");
-  });
-
-  it("renderMore extends the budget by renderLimit and renders the rest", async () => {
-    const wrapper = mount(ValueOntology, {
-      props: { value: buildFlatRoots(10), renderLimit: 4 },
-    });
-
-    await wrapper.find("button").trigger("click");
-    expect(contentItems(wrapper)).toHaveLength(8);
-
-    await wrapper.find("button").trigger("click");
-    expect(contentItems(wrapper)).toHaveLength(10);
-    expect(wrapper.find("button").exists()).toBe(false);
   });
 });

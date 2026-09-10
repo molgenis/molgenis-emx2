@@ -5,10 +5,6 @@ import type { IOntologyTreeItem } from "../../../types/types";
 import fetchOntologyAncestry from "../../composables/fetchOntologyAncestry";
 import { buildOntologyTree } from "../../utils/buildOntologyTree";
 import { resolveOntologyAncestry } from "../../utils/resolveOntologyAncestry";
-import {
-  countOntologyNodes,
-  limitOntologyTree,
-} from "../../utils/limitOntologyTree";
 import { useOntologyItemPaging } from "../../composables/useOntologyItemPaging";
 import OntologyNode from "./OntologyNode.vue";
 import OntologyRow from "./OntologyRow.vue";
@@ -20,12 +16,10 @@ const props = withDefaults(
     collapseAll?: boolean;
     maxItems?: number;
     itemStep?: number;
-    renderLimit?: number;
   }>(),
   {
     collapseAll: true,
     itemStep: 5,
-    renderLimit: 1000,
   }
 );
 
@@ -61,25 +55,6 @@ const isList = computed(() => {
   return tree.value.every((node) => !node.children?.length);
 });
 
-const rendered = ref(props.renderLimit);
-
-watch(
-  [() => props.renderLimit, () => props.value],
-  () => (rendered.value = props.renderLimit)
-);
-
-const limitedTree = computed(() =>
-  limitOntologyTree(tree.value, rendered.value)
-);
-
-const hasUnrendered = computed(
-  () => countOntologyNodes(tree.value) > rendered.value
-);
-
-function renderMore() {
-  rendered.value += props.renderLimit;
-}
-
 const {
   isHidden: isRootHidden,
   showControl: showRootControl,
@@ -87,7 +62,7 @@ const {
   controlLabel: rootControlLabel,
   toggle: toggleRoot,
 } = useOntologyItemPaging(
-  computed(() => limitedTree.value.length),
+  computed(() => tree.value.length),
   computed(() => props.maxItems),
   computed(() => props.itemStep)
 );
@@ -103,7 +78,7 @@ const {
   <ul v-else class="text-body-base" :class="[isList ? 'grid gap-1' : '']">
     <template v-if="isList">
       <li
-        v-for="(item, index) in limitedTree"
+        v-for="(item, index) in tree"
         :key="item.name"
         :class="{ hidden: isRootHidden(index) }"
       >
@@ -116,7 +91,7 @@ const {
     </template>
     <template v-else>
       <OntologyNode
-        v-for="(node, index) in limitedTree"
+        v-for="(node, index) in tree"
         :key="node.name"
         :node="node"
         :collapse-all="collapseAll"
@@ -134,11 +109,6 @@ const {
         @click="toggleRoot"
       >
         {{ rootControlLabel }}
-      </button>
-    </li>
-    <li v-if="hasUnrendered" class="list-none">
-      <button type="button" class="text-link text-body-sm" @click="renderMore">
-        Load more
       </button>
     </li>
   </ul>

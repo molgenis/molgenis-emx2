@@ -90,7 +90,7 @@ const compact = ref(false);
 const collapseAll = ref(false);
 const maxItems = ref<number | string>(10);
 const itemStep = ref<number | string>(5);
-const renderLimit = ref<number | string>(1000);
+const termLimit = ref<number | string>(1000);
 
 function atLeastOne(value: number | string) {
   return Math.max(1, Number(value) || 1);
@@ -101,8 +101,8 @@ watch([schemaId, tableId], ([schema, table]) => {
 });
 
 watch(
-  [schemaId, tableId],
-  async ([schema, table]) => {
+  [schemaId, tableId, termLimit],
+  async ([schema, table, limit]) => {
     allTerms.value = [];
     loadError.value = "";
     if (!schema || !table) {
@@ -111,11 +111,15 @@ watch(
     try {
       const data = await fetchGraphql(
         schema,
-        `{ ${table}(limit: 100000) { name } }`,
+        `{ ${table}(limit: ${atLeastOne(limit)}) { name } }`,
         {}
       );
-      // A reply for a table the reader has already left is dropped.
-      if (schema !== schemaId.value || table !== tableId.value) {
+      // A reply for a table or limit the reader has already left is dropped.
+      if (
+        schema !== schemaId.value ||
+        table !== tableId.value ||
+        limit !== termLimit.value
+      ) {
         return;
       }
       allTerms.value = data?.[table] ?? [];
@@ -149,8 +153,8 @@ const termCount = computed(() => allTerms.value.length);
       <h1 class="text-lg font-bold">From a database</h1>
       <p class="text-body-base">
         This part needs a running backend, and stays empty without one. Pick an
-        ontology schema and table. The section loads every term of that table.
-        By default it renders them as a record: the tree, with the ancestors it
+        ontology schema and table. The section loads up to that many terms. By
+        default it renders them as a record: the tree, with the ancestors it
         fetches. Compact renders them as a table cell does.
       </p>
       <Suspense>
@@ -167,6 +171,14 @@ const termCount = computed(() => allTerms.value.length);
             {{ termCount }} terms in {{ schemaId }} › {{ tableId }}
           </p>
           <div class="flex flex-wrap items-end gap-6">
+            <div class="flex flex-col gap-1">
+              <InputLabel for="database-term-limit">Terms to load</InputLabel>
+              <InputInt
+                id="database-term-limit"
+                v-model="termLimit"
+                class="w-32"
+              />
+            </div>
             <div class="flex items-center gap-2">
               <InputCheckbox id="database-compact" v-model="compact" />
               <InputLabel for="database-compact">
@@ -193,22 +205,11 @@ const termCount = computed(() => allTerms.value.length);
                 class="w-32"
               />
             </div>
-            <div class="flex flex-col gap-1">
-              <InputLabel for="database-render-limit">
-                Values rendered at a time
-              </InputLabel>
-              <InputInt
-                id="database-render-limit"
-                v-model="renderLimit"
-                class="w-32"
-              />
-            </div>
           </div>
           <ValueEMX2
             v-if="compact"
             :metadata="ontologyColumn"
             :data="allTerms"
-            :renderLimit="atLeastOne(renderLimit)"
             compact
           />
           <ValueOntology
@@ -218,7 +219,6 @@ const termCount = computed(() => allTerms.value.length);
             :collapseAll="collapseAll"
             :maxItems="atLeastOne(maxItems)"
             :itemStep="atLeastOne(itemStep)"
-            :renderLimit="atLeastOne(renderLimit)"
           />
         </div>
       </Suspense>
