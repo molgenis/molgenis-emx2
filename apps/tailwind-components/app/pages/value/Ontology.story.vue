@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import type {
+  columnValue,
+  IColumn,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
+import DemoDataControls from "../../DemoDataControls.vue";
+import Field from "../../components/Field.vue";
+import ValueEMX2 from "../../components/value/EMX2.vue";
 import ValueOntology from "../../components/value/Ontology.vue";
 import type { IOntologyTreeItem } from "../../../types/types";
 
@@ -69,6 +79,27 @@ const surfaces = [
     wrapperClass: "text-title surface-inverted",
   },
 ];
+
+const route = useRoute();
+const router = useRouter();
+const loadFromDatabase = ref(!!route.query.schema);
+const schemaId = ref((route.query.schema as string) || "CatalogueOntologies");
+const tableId = ref((route.query.table as string) || "Keywords");
+const tableMetadata = ref<ITableMetaData>();
+const pickedTerms = ref<columnValue>([]);
+
+watch([schemaId, tableId], ([schema, table]) => {
+  pickedTerms.value = [];
+  router.push({ query: { schema, table } });
+});
+
+const pickedColumn = computed<IColumn>(() => ({
+  id: "picked-terms",
+  label: "Picked terms",
+  columnType: "ONTOLOGY_ARRAY",
+  refSchemaId: schemaId.value,
+  refTableId: tableId.value,
+}));
 </script>
 
 <template>
@@ -162,6 +193,48 @@ const surfaces = [
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="space-y-4">
+      <h1 class="text-lg font-bold">From a database</h1>
+      <p class="text-body-base">
+        This part needs a running backend. Pick an ontology schema and table,
+        then pick terms. The record fetches the ancestors of the picked terms.
+        The table cell shows only the picked terms.
+      </p>
+      <div class="flex items-center gap-2">
+        <InputCheckbox id="load-from-database" v-model="loadFromDatabase" />
+        <InputLabel for="load-from-database">
+          Load terms from a database
+        </InputLabel>
+      </div>
+      <Suspense v-if="loadFromDatabase">
+        <div
+          class="p-6 rounded shadow-primary space-y-6 bg-content text-title-contrast"
+        >
+          <DemoDataControls
+            v-model:metadata="tableMetadata"
+            v-model:schemaId="schemaId"
+            v-model:tableId="tableId"
+          />
+          <Field
+            id="picked-terms"
+            type="ONTOLOGY_ARRAY"
+            label="Pick terms"
+            v-model="pickedTerms"
+            :ref-schema-id="schemaId"
+            :ref-table-id="tableId"
+          />
+          <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+            <span class="font-medium text-record-label">As a record:</span>
+            <ValueEMX2 :metadata="pickedColumn" :data="pickedTerms" />
+          </div>
+          <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
+            <span class="font-medium text-record-label">As a table cell:</span>
+            <ValueEMX2 :metadata="pickedColumn" :data="pickedTerms" compact />
+          </div>
+        </div>
+      </Suspense>
     </div>
   </div>
 </template>
