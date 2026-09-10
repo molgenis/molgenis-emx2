@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import NavigationCards from "./NavigationCards.vue";
+import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
+
+import NavigationGroupItem from "./NavigationGroupItem.vue";
+import NoResultsMessage from "../../text/NoResultsMessage.vue";
+
+import { addComponent, randomId } from "../../../utils/cms.ts";
+
 import type {
   INavigationGroups,
   INavigationCards,
 } from "../../../../types/cms";
-import type { IPageComponent } from "../../../../types/CmsComponents";
-
-import Button from "../../Button.vue";
 
 const props = withDefaults(
   defineProps<INavigationGroups & { isEditable?: boolean }>(),
@@ -15,48 +19,67 @@ const props = withDefaults(
   }
 );
 
-const linksSorted = props.links?.sort(
-  (a: INavigationCards, b: INavigationCards) => {
-    return (a.order ?? 0) - (b.order ?? 0);
-  }
-) as INavigationCards[];
+const route = useRoute();
+const schema = Array.isArray(route.params.schema)
+  ? (route.params.schema[0] as string)
+  : route.params.schema ?? "";
 
-const emit = defineEmits<{
-  (e: "edit", component: string, metadata: IPageComponent): void;
-}>();
+const linksSorted = computed<INavigationCards[]>(() => {
+  return props.links?.sort((a: INavigationCards, b: INavigationCards) => {
+    return (a.order ?? 0) - (b.order ?? 0);
+  }) as INavigationCards[];
+});
+
+const emit = defineEmits(["edit", "delete", "move", "updatePage"]);
+
+async function createNewCard() {
+  const cardId = `NavigationCard-${randomId()}`;
+  const cardOrder = linksSorted.value?.length + 1 || 0;
+  await addComponent(schema, cardId, props.id, cardOrder, "NavigationCards");
+  emit("updatePage");
+}
 </script>
 
 <template>
-  <nav aria-label="Go to page">
+  <nav
+    aria-label="Go to page"
+    :class="{
+      'border p-7.5 px-2.5': !linksSorted,
+    }"
+  >
     <ul
+      v-if="linksSorted"
       :id="id"
-      class="w-full m-0 list-none flex justify-center items-center flex-col md:flex-row gap-5"
+      class="w-full my-2.5 list-none grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center items-center gap-2.5 lg:gap-5"
     >
       <li v-for="card in linksSorted" :key="card.id">
-        <NavigationCards
+        <NavigationGroupItem
           :id="card.id"
           :title="card.title"
           :description="card.description"
           :url="card.url"
-          :url-is-external="card.urlIsExternal"
-          :url-label="card.urlLabel"
+          :urlIsExternal="card.urlIsExternal"
+          :urlLabel="card.urlLabel"
           :order="card.order"
-          class="group w-full md:w-80"
-        >
-          <Button
-            v-if="isEditable"
-            class="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 group-focus:opacity-100"
-            iconOnly
-            icon="edit"
-            label="Edit Card"
-            type="secondary"
-            size="small"
-            aria-haspopup="true"
-            @click="emit('edit', 'Navigation cards', card)"
-          />
-        </NavigationCards>
+          :isEditable="isEditable"
+          @edit="$emit('edit')"
+        />
       </li>
     </ul>
+    <div class="text-center" v-else>
+      <NoResultsMessage
+        label="No Navigation Cards found. Click the button below to create a new one"
+      />
+    </div>
+    <div class="my-5">
+      <button
+        class="text-title-contrast flex justify-start items-center gap-1 m-auto"
+        @click="createNewCard"
+      >
+        <BaseIcon name="Plus" :width="18" />
+        <span>Add Navigation Card</span>
+      </button>
+    </div>
     <slot></slot>
   </nav>
 </template>
