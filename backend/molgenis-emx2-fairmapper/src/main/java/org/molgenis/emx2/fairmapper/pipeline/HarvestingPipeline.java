@@ -40,11 +40,11 @@ public class HarvestingPipeline {
 
   @SuppressWarnings("java:S2589")
   public void execute() {
+    logger.info("Starting harvesting pipeline: {}", harvestId);
+
     logger.info("Validating harvesting config");
     SchemaMetadata schema = config.schema().getMetadata();
     validateTables(schema);
-
-    logger.info("Starting harvesting pipeline: {}", harvestId);
 
     Repository repository = null;
     try {

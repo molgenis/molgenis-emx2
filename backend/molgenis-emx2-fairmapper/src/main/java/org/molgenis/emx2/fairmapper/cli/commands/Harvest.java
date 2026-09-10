@@ -63,7 +63,7 @@ public class Harvest implements Runnable {
 
     Database database = setupDatabase();
     Schema schema = validateSchema(database);
-    String[] tables = validateTables(schema);
+    String[] tables = this.tablesArg.split(",");
 
     URI rdfURI = getRdf();
 
@@ -114,16 +114,5 @@ public class Harvest implements Runnable {
       throw new MolgenisException("Schema not found: " + schemaName);
     }
     return schema;
-  }
-
-  private String[] validateTables(Schema schema) {
-    logger.info("Validating table names: {}", tablesArg);
-    String[] tables = this.tablesArg.split(",");
-    for (String table : tables) {
-      if (schema.getTable(table) == null) {
-        throw new MolgenisException("Table not found: " + table);
-      }
-    }
-    return tables;
   }
 }
