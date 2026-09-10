@@ -24,14 +24,14 @@
     "build": "tsc -p tsconfig.build.json && vite build --emptyOutDir false",
     "preview": "vite preview",
     "format": "prettier src test --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js",
+    "checkFormat": "prettier src test --check --config ../.prettierrc.js",
     "lint": "vue-tsc --noEmit"
   },
   "devDependencies": {
     "prettier": "2.8.8",
     "typescript": "5.9.2",
     "vite": "7.3.5",
-    "vitest": "4.1.8",
+    "vitest": "4.1.11",
     "vue": "3.5.22",
     "vue-tsc": "3.3.10"
   }

@@ -27,6 +27,7 @@ const handleDragEvent = (value: IDraggingInfo) => {
 };
 const draggingInfo = ref<IDraggingInfo>({
   dragging: false,
+  action: "create",
   componentName: "",
   componentType: "",
 });
@@ -74,25 +75,34 @@ const sidebarCollapsed = ref(false);
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
           :orderId="orderedBlock.id"
+          :order="orderedBlock.order"
           componentType="Block"
           :parent="content.name"
+          :page="content.name"
           :isEditable="isEditable"
           :metadata="metadata"
           @updatePage="$emit('updatePage')"
+          @dragging="handleDragEvent"
         />
         <PageComponent
           v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"
           :orderId="orderedBlock.id"
+          :order="orderedBlock.order"
           :parent="content.name"
+          :page="content.name"
           :isEditable="isEditable"
           componentType="Block"
           :metadata="metadata"
           @updatePage="$emit('updatePage')"
+          @dragging="handleDragEvent"
         >
           <ComponentDropZone
-            v-if="isEditable"
+            v-if="
+              (isEditable && !(orderedBlock.block.columns > 1)) ||
+              !orderedBlock.block.componentOrder?.length
+            "
             :draggingInfo="draggingInfo"
             :schema="schema"
             :order="
@@ -105,24 +115,54 @@ const sidebarCollapsed = ref(false);
             @updatePage="$emit('updatePage')"
           />
           <template
-            v-for="orderedComponent in orderedBlock.block.componentOrder"
+            v-for="(orderedComponent, index) in orderedBlock.block
+              .componentOrder"
             :key="orderedComponent.id"
           >
-            <PageComponent
-              :mg_tableclass="orderedComponent.component.mg_tableclass"
-              :component="orderedComponent.component"
-              :orderId="orderedComponent.id"
-              componentType="Component"
-              :parent="orderedBlock.block.id"
-              :isEditable="isEditable"
-              :metadata="metadata"
-              @updatePage="$emit('updatePage')"
-            />
+            <div>
+              <ComponentDropZone
+                v-if="isEditable && orderedBlock.block.columns > 1"
+                :draggingInfo="draggingInfo"
+                :schema="schema"
+                :order="orderedComponent.order"
+                :parent="orderedBlock.block.id"
+                :columnIndex="Number(index) + 1"
+                componentType="Component"
+                @updatePage="$emit('updatePage')"
+              />
+              <PageComponent
+                :mg_tableclass="orderedComponent.component.mg_tableclass"
+                :component="orderedComponent.component"
+                :orderId="orderedComponent.id"
+                :order="orderedComponent.order"
+                componentType="Component"
+                :parent="orderedBlock.block.id"
+                :page="content.name"
+                :isEditable="isEditable"
+                :metadata="metadata"
+                @updatePage="$emit('updatePage')"
+                @dragging="handleDragEvent"
+              />
+              <ComponentDropZone
+                v-if="isEditable && !(orderedBlock.block.columns > 1)"
+                :draggingInfo="draggingInfo"
+                :schema="schema"
+                :order="orderedComponent.order + 1"
+                :parent="orderedBlock.block.id"
+                componentType="Component"
+                @updatePage="$emit('updatePage')"
+              />
+            </div>
             <ComponentDropZone
-              v-if="isEditable"
+              v-if="
+                isEditable &&
+                orderedBlock.block.columns > 1 &&
+                orderedBlock.block.componentOrder.length - 1 === index
+              "
               :draggingInfo="draggingInfo"
               :schema="schema"
               :order="orderedComponent.order + 1"
+              :columnIndex="index + 2"
               :parent="orderedBlock.block.id"
               componentType="Component"
               @updatePage="$emit('updatePage')"
