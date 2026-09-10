@@ -135,7 +135,7 @@ public class SqlQuery extends QueryBean {
 
     // if empty selection, we will add the default selection here, incl File and Refback
     // will generally be all you need
-    if (select == null || select.getColumnNames().isEmpty()) {
+    if (select.getColumnNames().isEmpty()) {
       for (Column c :
           table.getColumns().stream()
               .filter(
