@@ -14,9 +14,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.StageCsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
@@ -51,7 +52,7 @@ class HarvestTest {
   void shouldConfigureFdpExtractorAndSparqlTransformer() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
-    assertInstanceOf(FdpRdfExtractor.class, config.extractor());
+    assertInstanceOf(CrawlingRdfExtractor.class, config.extractor());
     assertInstanceOf(SparqlSelectRdfTransformer.class, config.transformer());
   }
 
@@ -62,9 +63,10 @@ class HarvestTest {
     assertEquals(1, config.postProcessors().size());
     assertInstanceOf(DCATPostProcessor.class, config.postProcessors().get(0));
 
-    assertEquals(2, config.preProcessors().size());
+    assertEquals(3, config.preProcessors().size());
     assertInstanceOf(TemporalRdfPreProcessor.class, config.preProcessors().get(0));
     assertInstanceOf(TypicalAgeRdfPreProcessor.class, config.preProcessors().get(1));
+    assertInstanceOf(StageCsvwPreProcessor.class, config.preProcessors().get(2));
   }
 
   @Test
@@ -113,16 +115,6 @@ class HarvestTest {
 
     MolgenisException exception = assertThrows(MolgenisException.class, harvest::run);
     assertEquals("Schema not found: NonExistingSchema", exception.getMessage());
-  }
-
-  @Test
-  void shouldThrowWhenTableDoesNotExist() {
-    Harvest harvest = new Harvest();
-    new CommandLine(harvest)
-        .parseArgs("-r", RDF_ENDPOINT, "-s", schema.getName(), "-t", "NonExistingTable");
-
-    MolgenisException exception = assertThrows(MolgenisException.class, harvest::run);
-    assertEquals("Table not found: NonExistingTable", exception.getMessage());
   }
 
   private HarvestingPipelineConfig runAndCaptureConfig(

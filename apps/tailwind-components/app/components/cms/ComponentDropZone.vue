@@ -25,9 +25,11 @@ const props = withDefaults(
     order?: number;
     parent: string;
     draggingInfo: IDraggingInfo;
+    columnIndex?: string | number;
   }>(),
   {
     order: 0,
+    columnIndex: -1,
   }
 );
 
@@ -129,6 +131,7 @@ async function moveComponentToBlock() {
           :style="{ height: distance + 'px' }"
         >
           <p class="text-title-contrast pointer-events-none">
+            <span v-if="columnIndex !== -1">Location {{ columnIndex }} - </span>
             {{ props.draggingInfo.action === "create" ? "Add new" : "Move" }}
             {{ props.draggingInfo.componentName }}
             <span class="hidden" :class="{ '!inline': hover }">here</span>

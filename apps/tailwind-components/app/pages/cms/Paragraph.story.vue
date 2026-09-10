@@ -13,7 +13,7 @@ import TextParagraph from "../../components/cms/Paragraph.vue";
     />
     <TextParagraph
       id="paragraph-centered"
-      :is-centered="true"
+      :paragraphIsCentered="true"
       text="<strong>This a centered paragraph</strong>. Ex culpa minim irure sunt ut
       dolor laborum tempor consequat cupidatat laboris. Duis veniam esse
       deserunt dolor exercitation culpa reprehenderit. Exercitation eiusmod est
