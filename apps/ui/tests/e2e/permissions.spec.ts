@@ -1,0 +1,182 @@
+import type { APIRequestContext } from "@playwright/test";
+import { request as apiRequest, expect, test } from "@playwright/test";
+import playwrightConfig from "../../playwright.config";
+import {
+  addPasswordToUser,
+  createSchemaFromTemplate,
+  deleteSchema,
+  dropAnonymousFromTestSchema,
+  RUN_ID,
+  signinAdmin,
+} from "./e2eUtils";
+import {
+  addRlsToTables,
+  findAndDeleteRow,
+  findRow,
+  insertRow,
+  removeRlsFromTables,
+  signin,
+  signout,
+} from "./testUtils/testUtils";
+
+const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
+  ? playwrightConfig?.use?.baseURL
+  : "/apps/ui/";
+
+let api: APIRequestContext;
+
+const USERNAME = "dragonkeeper";
+const PASSWORD = "dragonkeeper";
+const DRAGON_KEEPER = "DragonKeeper";
+const SCHEMA = `permissions test ${RUN_ID}`;
+const SCHEMA_PATH = encodeURIComponent(SCHEMA);
+
+test.describe.configure({ mode: "serial" });
+
+test.beforeAll(async () => {
+  api = await apiRequest.newContext();
+  await signinAdmin(api, route);
+  await createSchemaFromTemplate(api, route, SCHEMA, "PET_STORE");
+  await dropAnonymousFromTestSchema(api, route, SCHEMA_PATH);
+  await addPasswordToUser(api, route, USERNAME, PASSWORD);
+});
+
+test.afterAll(async () => {
+  await deleteSchema(api, route, SCHEMA);
+  await api.dispose();
+});
+
+test.describe("when the dragonkeeper has permissions on the pet table only", () => {
+  test("The dragonkeeper has the correct permissions", async ({ page }) => {
+    await page.goto(route + SCHEMA_PATH + "/Pet");
+    await expect(
+      page.getByText("The requested page could not be found.")
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Home" }).click();
+    await expect(page).toHaveURL(route);
+
+    await signin(page, USERNAME, PASSWORD);
+
+    // check that other tables are not clickable
+    await page.goto(route);
+    await page.getByText(SCHEMA).click();
+    await expect(page.getByText("Category")).toBeVisible();
+    await expect(page.getByText("Order")).toBeVisible();
+    await expect(page.getByText("User")).toBeVisible();
+
+    await page.getByText("Pet", { exact: true }).click();
+    await expect(page.getByText("No records found")).toBeVisible();
+
+    await signout(page);
+    await expect(page.getByLabel("error")).toBeVisible();
+
+    await signin(page, "admin", "admin");
+    await page.getByRole("searchbox", { name: "Search Pet" }).fill("pooky");
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^pooky$/ })
+        .first()
+    ).toBeVisible();
+  });
+});
+
+test.describe("when the dragonkeeper has also permissions on the order table", () => {
+  test.beforeAll(async () => {
+    await addRlsToTables(api, SCHEMA_PATH);
+  });
+
+  test.afterAll(async () => {
+    await removeRlsFromTables(api, SCHEMA_PATH);
+  });
+
+  test("the dragonkeeper can now see the order table", async ({ page }) => {
+    await page.goto(route);
+    await signin(page, USERNAME, PASSWORD);
+    await page.getByText(SCHEMA).click();
+    await page.getByText("Order", { exact: true }).click();
+    await expect(page.getByText("No records found")).toBeVisible();
+  });
+
+  test("the dragonkeeper can now see smaug in the pet table", async ({
+    page,
+  }) => {
+    await page.goto(route);
+    await signin(page, USERNAME, PASSWORD);
+    await page.getByText(SCHEMA).click();
+    await page.getByText("Pet", { exact: true }).click();
+    await expect(
+      page
+        .locator("div")
+        .filter({ hasText: /^smaug$/ })
+        .first()
+    ).toBeVisible();
+  });
+
+  test("the dragonkeeper can now add pets to the pet table", async ({
+    page,
+  }) => {
+    await page.goto(route);
+    await signin(page, USERNAME, PASSWORD);
+    await page.getByText(SCHEMA).click();
+    await page.getByText("Pet", { exact: true }).click();
+    await page.getByRole("button", { name: "Add" }).click();
+    await expect(page.getByLabel("Name")).toBeVisible();
+  });
+});
+
+test.describe("when selecting a permission for a row", () => {
+  test("as admin, for a new row", async ({ page }) => {
+    await page.goto(route);
+    await signin(page, "admin", "admin");
+    await page.goto(route + SCHEMA_PATH + "/Pet");
+
+    await page.getByRole("button", { name: "Add Pet" }).click();
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: DRAGON_KEEPER }).click();
+
+    await page
+      .getByRole("textbox", { name: "name Required" })
+      .fill("testDragon");
+    await page
+      .locator(`[id="${SCHEMA}-Pet-category-form-field-input-radio-group"]`)
+      .getByText("dragon")
+      .getByText("dragon", { exact: true })
+      .click();
+    await page.getByRole("textbox", { name: "weight Required" }).fill("50000");
+
+    await insertRow(page, "Pet");
+
+    await findAndDeleteRow(page, "Pet", "testDragon");
+  });
+
+  test("as manager,when editing a row", async ({ page }) => {
+    await page.goto(route);
+    await signin(page, "shopmanager", "shopmanager");
+    await page.goto(route + SCHEMA_PATH + "/Pet");
+
+    await findRow(page, "Pet", "smaug");
+    await expect(page.getByRole("cell", { name: DRAGON_KEEPER })).toBeVisible();
+
+    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
+
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: "Global" }).click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(
+      page.getByRole("cell", { name: DRAGON_KEEPER })
+    ).not.toBeVisible();
+
+    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: DRAGON_KEEPER }).click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(page.getByRole("cell", { name: DRAGON_KEEPER })).toBeVisible();
+  });
+});

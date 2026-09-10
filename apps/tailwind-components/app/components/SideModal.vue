@@ -133,7 +133,7 @@ const bgClass = computed(() => {
 
           <div v-if="includeFooter" class="absolute inset-x-0 bottom-0">
             <div
-              :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
+              :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-modal-footer`"
             >
               <slot name="footer" :hide="hide"></slot>
             </div>

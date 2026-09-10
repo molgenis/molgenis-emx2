@@ -29,6 +29,7 @@ By default, the following prefixed names are available:
 |---------------|------------------------------------------------|
 | afr           | http://purl.allotrope.org/ontologies/result#   |
 | afrl          | http://purl.allotrope.org/ontologies/role#     |
+| csvw          | http://www.w3.org/ns/csvw#                     |
 | dc            | http://purl.org/dc/elements/1.1/               |
 | dcat          | http://www.w3.org/ns/dcat#                     |
 | dcatap        | http://data.europa.eu/r5r/                     |

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
+import { ref } from "vue";
 import { getCranioSchemaNames } from "./utils/getCranioSchemaNames";
 import { getSchemaName } from "./utils/getSchemaName";
 import { getOrganisation } from "./utils/getOrganisation";

@@ -3,20 +3,23 @@
 import { useRuntimeConfig } from "#app";
 import { shallowRef } from "vue";
 import { useRoute } from "vue-router";
+import { toLogoPath } from "../utils/logoPath";
 
 defineProps<{
   link?: string;
   image?: string;
+  alt?: string;
 }>();
 
 const config = useRuntimeConfig();
 const route = useRoute();
-const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
+const logoFileName =
+  (route.query.logo as string) || (config.public.emx2Logo as string);
 
 // load the svg data from the public folder
 const svg = shallowRef();
 if (logoFileName) {
-  svg.value = `/_nuxt-styles/logos/${logoFileName}.svg`;
+  svg.value = toLogoPath(logoFileName);
 }
 </script>
 <template>
@@ -25,10 +28,16 @@ if (logoFileName) {
     <img
       v-if="image"
       :src="image"
+      :alt="alt"
       class="w-50px h-auto"
       style="background-color: white"
     />
-    <img v-else-if="svg" :src="svg" alt="logo" />
+    <img
+      v-else-if="svg"
+      :src="svg"
+      :alt="alt ?? 'logo'"
+      class="object-contain max-h-12.5 max-w-96 py-1"
+    />
     <img
       v-else
       class="w-50px h-auto"

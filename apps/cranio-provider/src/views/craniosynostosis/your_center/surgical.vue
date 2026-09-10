@@ -19,8 +19,11 @@ import {
   uniqueValues,
   sum,
   sumObjectValues,
-  ernCenterPalette,
 } from "../../../utils";
+import {
+  ernYourCenterPalette,
+  columnHoverFillColor,
+} from "../../../utils/variables";
 import {
   filterAgeAtSurgeryData,
   prepareDiagnosisFilters,
@@ -189,7 +192,7 @@ onMounted(() => {
         <InputLabel id="surgeryTypeInput" label="Select a type of surgery" />
         <select
           id="surgeryTypeInput"
-          class="inputs select"
+          class="custom-select"
           v-model="selectedSurgeryType"
           @change="updateComplicationsChart"
         >
@@ -217,12 +220,13 @@ onMounted(() => {
           xvar="secondaryCategory"
           yvar="value"
           group="name"
-          :columnColorPalette="ernCenterPalette"
           :xAxisLabel="complicationsChart?.xAxisLabel"
           :yAxisLabel="complicationsChart?.yAxisLabel"
           :yMin="0"
           :yMax="complicationsChart?.yAxisMaxValue"
           :yTickValues="complicationsChart?.yAxisTicks"
+          :columnColorPalette="ernYourCenterPalette"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="200"
           :chartMargins="{
             top: complicationsChart?.topMargin,
@@ -239,7 +243,7 @@ onMounted(() => {
         <InputLabel id="diagnosisInput" label="Select a diagnosis" />
         <select
           id="diagnosisInput"
-          class="inputs select"
+          class="custom-select"
           v-model="selectedDiagnosis"
           @change="
             updateInterventionsChart();
@@ -298,12 +302,13 @@ onMounted(() => {
           xvar="secondaryCategory"
           yvar="value"
           group="timeValue"
-          :columnColorPalette="ernCenterPalette"
           :xAxisLabel="surgeryAgeChart?.xAxisLabel"
           :yAxisLabel="surgeryAgeChart?.yAxisLabel"
           :yMin="0"
           :yMax="surgeryAgeChart?.yAxisMaxValue"
           :yTickValues="surgeryAgeChart?.yAxisTicks"
+          :columnColorPalette="ernYourCenterPalette"
+          :columnHoverFill="columnHoverFillColor"
           :columnPaddingInner="0.2"
           :columnPaddingOuter="0.3"
           :chartHeight="225"

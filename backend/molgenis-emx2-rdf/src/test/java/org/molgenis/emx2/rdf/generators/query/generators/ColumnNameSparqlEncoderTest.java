@@ -11,18 +11,18 @@ class ColumnNameSparqlEncoderTest {
   @Test
   void shouldDecodeSparqlVariable() {
     Column column = Column.column("order_id");
-    assertEquals("order_id", ColumnNameSparqlEncoder.encodeSparqlVariable(column));
+    assertEquals("order_id", ColumnNameSparqlEncoder.encodeSparqlVariable(column).getVarName());
   }
 
   @Test
   void shouldReplaceSpace() {
-    String actual = ColumnNameSparqlEncoder.encodeSparqlVariable("delivery method");
+    String actual = ColumnNameSparqlEncoder.encodeSparqlVariable("delivery method").getVarName();
     assertEquals("delivery___method", actual);
   }
 
   @Test
   void shouldReplaceDot() {
-    String actual = ColumnNameSparqlEncoder.encodeSparqlVariable("delivery.method");
+    String actual = ColumnNameSparqlEncoder.encodeSparqlVariable("delivery.method").getVarName();
     assertEquals("delivery__method", actual);
   }
 

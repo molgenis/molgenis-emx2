@@ -19,6 +19,7 @@
     >
       <option
         v-if="!required"
+        value=""
         :selected="modelValue === undefined || modelValue === null"
       >
         {{ placeholder }}

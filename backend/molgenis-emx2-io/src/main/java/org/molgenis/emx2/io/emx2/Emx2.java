@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.emx2;
 
+import static java.util.Arrays.stream;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -12,6 +13,7 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public class Emx2 {
 
+  public static final String MOLGENIS_TABLE = "molgenis";
   public static final String TABLE_NAME = "tableName";
   public static final String COLUMN_NAME = "columnName";
   public static final String OLD_NAME = "oldName";
@@ -37,6 +39,7 @@ public class Emx2 {
   private static final String TABLE_TYPE = "tableType";
   private static final String PROFILES = "profiles";
   private static final String COLUMN_FORM_LABEL = "formLabel";
+  private static final String CASCADE_DELETE = "cascadeDelete";
 
   private Emx2() {
     // hidden
@@ -122,6 +125,8 @@ public class Emx2 {
           if (row.notNull(REF_TABLE)) column.setRefTable(row.getString(REF_TABLE));
           if (row.notNull(REF_LINK)) column.setRefLink(row.getString(REF_LINK));
           if (row.notNull(REF_BACK)) column.setRefBack(row.getString(REF_BACK));
+          if (row.notNull(CASCADE_DELETE))
+            column.setCascadeDelete(TypeUtils.toBool(row.getString(CASCADE_DELETE)));
           if (row.notNull(REQUIRED)) column.setRequired(row.getString(REQUIRED));
           if (row.notNull(DEFAULT_VALUE)) column.setDefaultValue(row.getString(DEFAULT_VALUE));
           if (row.notNull(DESCRIPTION)) column.setDescription(row.getString(DESCRIPTION));
@@ -181,29 +186,30 @@ public class Emx2 {
   }
 
   public static List getHeaders(SchemaMetadata schema) {
-    List headers = new ArrayList();
-    headers.addAll(
-        List.of(
-            TABLE_NAME,
-            TABLE_EXTENDS,
-            TABLE_TYPE,
-            COLUMN_NAME,
-            COLUMN_FORM_LABEL,
-            COLUMN_TYPE,
-            KEY,
-            REQUIRED,
-            READ_ONLY,
-            REF_SCHEMA,
-            REF_TABLE,
-            REF_LINK,
-            REF_BACK,
-            REF_JS_TEMPLATE,
-            DEFAULT_VALUE,
-            VALIDATION,
-            VISIBLE,
-            COMPUTED,
-            SEMANTICS,
-            PROFILES));
+    List headers =
+        new ArrayList(
+            List.of(
+                TABLE_NAME,
+                TABLE_EXTENDS,
+                TABLE_TYPE,
+                COLUMN_NAME,
+                COLUMN_FORM_LABEL,
+                COLUMN_TYPE,
+                KEY,
+                REQUIRED,
+                READ_ONLY,
+                REF_SCHEMA,
+                REF_TABLE,
+                REF_LINK,
+                REF_BACK,
+                CASCADE_DELETE,
+                REF_JS_TEMPLATE,
+                DEFAULT_VALUE,
+                VALIDATION,
+                VISIBLE,
+                COMPUTED,
+                SEMANTICS,
+                PROFILES));
     // add label locales that are used
     schema
         .getLocales()
@@ -255,14 +261,20 @@ public class Emx2 {
       row.setString(REQUIRED, null);
       row.setString(DEFAULT_VALUE, null);
       row.setString(READ_ONLY, null);
-      row.setString(REF_SCHEMA, null);
+      row.setString(
+          REF_SCHEMA,
+          table.getImportSchema() != null && !table.getImportSchema().equals(table.getSchemaName())
+              ? table.getImportSchema()
+              : null);
       row.setString(REF_TABLE, null);
       row.setString(REF_LINK, null);
       row.setString(REF_BACK, null);
       row.setString(VALIDATION, null);
       row.setString(VISIBLE, null);
       row.setString(COMPUTED, null);
-      if (table.getSemantics() != null) row.setStringArray(SEMANTICS, table.getSemantics());
+      if (table.getSemantics() != null)
+        row.setStringArray(
+            SEMANTICS, stream(table.getSemantics()).map(Semantic::toString).toArray(String[]::new));
       if (table.getProfiles() != null) row.setStringArray(PROFILES, table.getProfiles());
       for (Map.Entry<String, String> entry : table.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {
@@ -302,6 +314,8 @@ public class Emx2 {
         if (column.getRefTableName() != null) row.setString(REF_TABLE, column.getRefTableName());
         if (column.getRefLink() != null) row.setString(REF_LINK, column.getRefLink());
         if (column.getRefBack() != null) row.setString(REF_BACK, column.getRefBack());
+        if (column.isCascadeDelete() != null)
+          row.set(CASCADE_DELETE, column.isCascadeDelete().toString());
         if (column.getRefLabel() != null) row.setString(REF_JS_TEMPLATE, column.getRefLabel());
         for (Map.Entry<String, String> label : column.getDescriptions().entrySet()) {
           if (label.getKey().equals("en")) {

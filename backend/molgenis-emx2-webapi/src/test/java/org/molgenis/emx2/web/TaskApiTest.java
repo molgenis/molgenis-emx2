@@ -35,7 +35,7 @@ class TaskApiTest extends ApiTestBase {
     return Stream.of(
         Arguments.of(Method.GET, "/api/tasks", "Unable to list tasks: can only be done by admin"),
         Arguments.of(
-            Method.GET, "/api/tasks/clear", "Unable to clear tasks: can only be done by admin"),
+            Method.POST, "/api/tasks/clear", "Unable to clear tasks: can only be done by admin"),
         Arguments.of(
             Method.GET,
             "/api/tasks/scheduled",
@@ -62,7 +62,7 @@ class TaskApiTest extends ApiTestBase {
         Arguments.of(
             Method.GET, "/my-schema/api/tasks", "Unable to list tasks: can only be done by admin"),
         Arguments.of(
-            Method.GET,
+            Method.POST,
             "/my-schema/api/tasks/clear",
             "Unable to clear tasks: can only be done by admin"),
         Arguments.of(
@@ -98,7 +98,7 @@ class TaskApiTest extends ApiTestBase {
             "/my-schema/my-app/api/tasks",
             "Unable to list tasks: can only be done by admin"),
         Arguments.of(
-            Method.GET,
+            Method.POST,
             "/my-schema/my-app/api/tasks/clear",
             "Unable to clear tasks: can only be done by admin"),
         Arguments.of(

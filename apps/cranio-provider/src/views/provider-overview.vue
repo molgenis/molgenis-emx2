@@ -19,6 +19,7 @@ import { generateColorPalette } from "../utils/generateColorPalette";
 import { getDashboardChart } from "../../../metadata-utils/src/viz/getUiDashboardCharts";
 import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz.js";
 import { parseChartTitle } from "../utils/parseChartTitle";
+import { ernYourCenterPalette, columnHoverFillColor } from "../utils/variables";
 
 import type {
   ICharts,
@@ -199,7 +200,8 @@ onMounted(() => {
           :yMax="patientsByWorkstreamChart.yAxisMaxValue"
           :yTickValues="patientsByWorkstreamChart.yAxisTicks"
           xAxisLineBreaker=" "
-          :columnColorPalette="patientsByWorkstreamPalette"
+          :columnFill="ernYourCenterPalette['Your center']"
+          :columnHoverFill="columnHoverFillColor"
           :chartHeight="300"
           :chartMargins="{
             top: patientsByWorkstreamChart.topMargin,

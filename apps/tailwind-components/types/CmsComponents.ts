@@ -7,12 +7,21 @@ import type {
   INavigationGroups,
   IDeveloperPages,
   IConfigurablePages,
+  IBlockOrders,
+  IBlocks,
+  IComponentOrders,
+  IComponents,
+  IFile,
 } from "./cms.ts";
 
 import type { ITableMetaData } from "../../metadata-utils/src/types.js";
 
+export interface IHeadersExtended extends IHeaders {
+  image?: IFile;
+}
+
 export interface IPageComponent
-  extends IHeaders,
+  extends IHeadersExtended,
     ISections,
     IHeadings,
     IParagraphs,
@@ -25,3 +34,46 @@ export interface IContainerMetadata {
 }
 
 export type ICmsJsFetchPriority = "high" | "low" | "auto";
+
+export interface FetchGraphqlBody {
+  status?: string;
+  message: string;
+}
+
+export interface FetchGraphqlResponse {
+  data?: {
+    BlockOrders?: IBlockOrders[];
+    Blocks?: IBlocks[];
+    ComponentOrders?: IComponentOrders[];
+    Components?: IComponents[];
+  };
+  errors?: FetchGraphqlBody[];
+}
+
+export interface ICmsOrder {
+  id: string;
+  order: number;
+}
+export interface ICmsOrderWithBlockId {
+  id: string;
+  order: number;
+  block: {
+    id: string;
+    mg_tableclass: string;
+  };
+}
+export type ICmsPageTypes = "ConfigurablePage" | "DeveloperPage";
+
+export interface IDraggingInfo {
+  dragging: boolean;
+  action: "create" | "move";
+  componentName: string;
+  componentType: string;
+  moveOrderId?: string;
+  parentId?: string;
+}
+
+export interface IDeleteContainerStatus {
+  wasDeleted: boolean;
+  error?: string | undefined;
+}

@@ -1,5 +1,6 @@
 package org.molgenis.emx2;
 
+import static java.util.Arrays.stream;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.ColumnType.*;
@@ -9,11 +10,13 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.jetbrains.annotations.Nullable;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
 
-public class Column extends HasLabelsDescriptionsAndSettings<Column> implements Comparable<Column> {
+public class Column extends HasLabelsDescriptionsAndSettings<Column>
+    implements Comparable<Column>, HasSemantics {
 
   // basics
   private TableMetadata table; // table this column is part of
@@ -41,7 +44,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private String[] semantics = null; // absolute IRI or prefixed name
+  private Semantic[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
   private Boolean readonly = false;
@@ -94,13 +97,25 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return columnName.trim();
   }
 
-  public String[] getSemantics() {
+  @Nullable
+  @Override
+  public Semantic[] getSemantics() {
     return semantics;
   }
 
-  public Column setSemantics(String... semantics) {
+  public Column setSemantics(Semantic[] semantics) {
     this.semantics = semantics;
     return this;
+  }
+
+  public Column setSemantics(String... semantics) {
+    return setSemantics(
+        semantics == null ? null : stream(semantics).map(Semantic::new).toArray(Semantic[]::new));
+  }
+
+  @Override
+  public SemanticPrefixes getSemanticPrefixes() {
+    return getSchema().getSemanticPrefixes();
   }
 
   public String[] getProfiles() {
@@ -217,7 +232,18 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
 
       // other relation
       else if (schema != null) {
-        return schema.getTableMetadata(this.refTable);
+        TableMetadata refTableMetadata = schema.getTableMetadata(this.refTable);
+        if (refTableMetadata == null) {
+          throw new MissingRefTableException(
+              "refTable '"
+                  + this.refTable
+                  + "' does not exist or permission denied in schema '"
+                  + schema.getName()
+                  + "', referenced by column '"
+                  + this.getQualifiedName()
+                  + "'");
+        }
+        return refTableMetadata;
       }
     }
     throw new MolgenisException(
@@ -404,8 +430,14 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     }
     // in complex table rename scenarios the refTable might not be available
     // todo, never have to check if null
-    if (this.getRefTable() != null) {
-      for (Column c : this.getRefTable().getColumns()) {
+    TableMetadata refTableMetadata;
+    try {
+      refTableMetadata = this.getRefTable();
+    } catch (MissingRefTableException refTableNotAvailable) {
+      return null;
+    }
+    if (refTableMetadata != null) {
+      for (Column c : refTableMetadata.getColumns()) {
         if (c.isRefback()
             && c.getRefTableName().equals(this.getTableName())
             && c.getRefSchemaName().equals(this.getSchemaName())
@@ -730,25 +762,19 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return defaultValue != null;
   }
 
+  public boolean hasComputedDefaultValue() {
+    return defaultValue != null && defaultValue.startsWith("=");
+  }
+
+  public String getDefaultValueExpression() {
+    return hasComputedDefaultValue() ? defaultValue.substring(1) : null;
+  }
+
   public boolean hasComputed() {
     return computed != null;
   }
 
   public boolean isAutoId() {
     return AUTO_ID.equals(getColumnType());
-  }
-
-  public boolean isMgEditRoleColumn() {
-    return MG_EDIT_ROLE.equals(this.getName());
-  }
-
-  public boolean hasDependencyOn(Column column) {
-    boolean onComputed = getComputed() != null && getComputed().contains(column.getName());
-    boolean onDefaultValue =
-        getDefaultValue() != null && getDefaultValue().contains(column.getName());
-    boolean onRequired = getRequired() != null && getRequired().contains(column.getName());
-    boolean onValidate = getValidation() != null && getValidation().contains(column.getName());
-    boolean onVisible = getVisible() != null && getVisible().contains(column.getName());
-    return onComputed || onDefaultValue || onRequired || onValidate || onVisible;
   }
 }

@@ -105,8 +105,10 @@ public class GraphqlFactory {
         if (tableField.hasViewPermission(table)) {
           queryBuilder.field(tableField.tableQueryField(table));
         }
-        queryBuilder.field(tableField.tableAggField(table));
-        queryBuilder.field(tableField.tableGroupByField(table));
+        if (tableField.hasAggregatePermission(table)) {
+          queryBuilder.field(tableField.tableAggField(table));
+          queryBuilder.field(tableField.tableGroupByField(table));
+        }
       }
     }
     mutationBuilder.field(tableField.insertMutation(schema));

@@ -12,16 +12,18 @@ import PageHeader from "../../../tailwind-components/app/components/PageHeader.v
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import ContentBlockCatalogues from "../components/content/ContentBlockCatalogues.vue";
 import ContentBlock from "../../../tailwind-components/app/components/content/ContentBlock.vue";
+import { landingPageRedirect } from "../utils/landingPageRedirect";
 
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
   middleware: [
     function (to) {
-      const cohortOnly =
-        to.query["cohort-only"] === "true" ||
-        useRuntimeConfig().public.cohortOnly;
-      if (cohortOnly) {
-        return navigateTo(`/all`, {
+      const target = landingPageRedirect(
+        to.query,
+        useRuntimeConfig().public.cohortOnly
+      );
+      if (target) {
+        return navigateTo(target, {
           replace: true,
         });
       }

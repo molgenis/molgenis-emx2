@@ -13,6 +13,7 @@ import graphql.parser.Parser;
 import graphql.parser.ParserOptions;
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -156,7 +157,12 @@ public class GraphqlExecutor {
       }
     }
     if (executionResult.getErrors().size() > 0) {
-      throw new MolgenisException(executionResult.getErrors().get(0).getMessage());
+      List<GraphQLError> errors = executionResult.getErrors();
+      MolgenisException exception = new MolgenisException(errors.get(0).getMessage());
+      for (GraphQLError remainingError : errors.subList(1, errors.size())) {
+        exception.addSuppressed(new MolgenisException(remainingError.getMessage()));
+      }
+      throw exception;
     }
 
     if (logger.isInfoEnabled())

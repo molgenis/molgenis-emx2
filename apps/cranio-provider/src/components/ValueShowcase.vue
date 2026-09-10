@@ -15,7 +15,7 @@ defineProps<{
   </div>
 </template>
 
-<style lang="scss">
+<style lang="css">
 .value-showcase {
   display: grid;
   grid-template-areas: "icon" "title" "description";
@@ -23,36 +23,37 @@ defineProps<{
   align-items: center;
   text-align: center;
   gap: 0.3em;
+}
 
-  @media (min-width: 712px) {
+.value-showcase .icon {
+  grid-area: icon;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 1em;
+}
+
+.value-showcase .icon svg {
+  width: 28pt;
+  height: 28pt;
+}
+
+.value-showcase .title {
+  grid-area: title;
+  font-weight: bold;
+  font-size: 15pt;
+  margin: 0;
+}
+
+.value-showcase .description {
+  grid-area: description;
+}
+
+@media (min-width: 712px) {
+  .value-showcase {
     grid-template-areas: "icon title" "icon description";
     align-items: center;
     text-align: left;
-  }
-
-  .icon {
-    grid-area: icon;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 1em;
-
-    svg {
-      $size: 28pt;
-      width: $size;
-      height: $size;
-    }
-  }
-
-  .title {
-    grid-area: title;
-    font-weight: bold;
-    font-size: 15pt;
-    margin: 0;
-  }
-
-  .description {
-    grid-area: description;
   }
 }
 </style>

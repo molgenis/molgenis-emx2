@@ -62,7 +62,7 @@ public class SelectColumn {
     return children.values();
   }
 
-  public Collection<String> getColumNames() {
+  public Collection<String> getColumnNames() {
     return children.keySet();
   }
 

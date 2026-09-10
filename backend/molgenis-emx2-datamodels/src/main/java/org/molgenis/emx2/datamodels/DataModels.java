@@ -29,6 +29,7 @@ public class DataModels {
     IMAGE_TEST("_profiles/ImageTest.yaml"),
     PET_STORE("_profiles/PetStore.yaml"),
     TYPE_TEST("_profiles/TypeTest.yaml"),
+    UI_DASHBOARD("_profiles/DataViz.yaml"),
     MG_CMS("_profiles/Pages.yaml");
 
     public static boolean hasProfile(String nameOther) {
@@ -54,7 +55,6 @@ public class DataModels {
 
   public enum Regular {
     ERN_DASHBOARD(DashboardLoader::new),
-    UI_DASHBOARD(UiDashboardLoader::new),
     PATIENT_REGISTRY_DEMO(PatientRegistryDemoLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),

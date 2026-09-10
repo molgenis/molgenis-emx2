@@ -10,14 +10,21 @@ import { getContainersQuery } from "../gql/cmsPages";
 import type {
   IContainerMetadata,
   ICmsJsFetchPriority,
+  FetchGraphqlResponse,
+  ICmsOrder,
+  ICmsOrderWithBlockId,
 } from "../../types/CmsComponents";
 
-export function newDeveloperPage(): IDeveloperPages {
+export function randomId(): string {
+  return crypto.randomUUID();
+}
+
+export function newDeveloperPage(initialHtml?: string): IDeveloperPages {
   return {
     mg_tableclass: "",
     name: "",
     description: "",
-    html: "",
+    html: initialHtml || "",
     css: "",
     javascript: "",
     dependencies: [],
@@ -43,6 +50,652 @@ export async function getPage(
     | IConfigurablePages
     | IDeveloperPages;
   return { page: currentPage, metadata: data._schema.tables };
+}
+
+export function setCmsPageType(value?: string): string | undefined {
+  if (!value || typeof value === "undefined") {
+    return undefined;
+  } else if (value.endsWith(".Configurable pages")) {
+    return "Landing page";
+  } else if (value.endsWith(".Developer pages")) {
+    return "Dev page";
+  } else {
+    return undefined;
+  }
+}
+
+export function setCmsEditorUrl(
+  schema: string,
+  value: string,
+  page: string
+): string {
+  if (value.endsWith(".Developer pages")) {
+    return `/${schema}/pages/${page}/editor`;
+  } else {
+    return `/${schema}/pages/${page}/configure`;
+  }
+}
+
+export function setCmsViewUrl(schema: string, page: string): string {
+  return `/${schema}/pages/${page}/`;
+}
+
+export async function cmsFetch(
+  schema: string,
+  query: string,
+  variables?: any
+): Promise<FetchGraphqlResponse> {
+  const url: string = `/${schema}/graphql`;
+  const response = (await $fetch(url, {
+    method: "POST",
+    body: { query: query, variables: variables },
+  })) as unknown as FetchGraphqlResponse;
+
+  if (response?.errors?.[0]?.message) {
+    console.error(response.errors[0].message);
+  }
+
+  return response;
+}
+
+async function getBlockAbove(
+  schema: string,
+  blockOrderId: string,
+  page: string
+): Promise<{ id: string; type: string } | undefined> {
+  const blockOrders = await getBlockOrder(schema, page);
+
+  let lastBlock: { id: string; type: string } | undefined;
+  blockOrders?.every((block, index) => {
+    if (block.block.id === blockOrderId && index > 0) {
+      return false;
+    } else {
+      lastBlock = { id: block.block.id, type: block.block.mg_tableclass };
+      return true;
+    }
+  });
+  return lastBlock;
+}
+
+async function getBlockBelow(
+  schema: string,
+  blockId: string,
+  page: string
+): Promise<{ id: string; type: string } | undefined> {
+  const blockOrders = await getBlockOrder(schema, page);
+  let blockBelow: { id: string; type: string } | undefined;
+  blockOrders?.every((block, index) => {
+    if (block.block.id === blockId) {
+      return false;
+    } else {
+      const selected = blockOrders[index + 2];
+      if (selected) {
+        blockBelow = {
+          id: selected?.block.id,
+          type: selected.block.mg_tableclass,
+        };
+      }
+      return true;
+    }
+  });
+  return blockBelow;
+}
+
+export async function moveComponentUp(
+  schema: string,
+  componentOrderId: string,
+  order: number,
+  blockId: string,
+  page: string
+) {
+  if (order === 0) {
+    const blockAbove = await getBlockAbove(schema, blockId, page);
+    if (!blockAbove || blockAbove?.type !== "cms.Sections") {
+      return;
+    }
+    await moveComponentTo(
+      schema,
+      componentOrderId,
+      blockId,
+      blockAbove.id,
+      1000
+    );
+  } else {
+    await moveComponentTo(
+      schema,
+      componentOrderId,
+      blockId,
+      blockId,
+      order - 1
+    );
+  }
+}
+async function GetLastOrderOfBlock(
+  schema: string,
+  blockId: string
+): Promise<number> {
+  const query = `query getComponents($filter:ComponentOrdersFilter, $orderby:[ComponentOrdersorderby]) {
+    ComponentOrders(filter:$filter,orderby:$orderby) {
+      order
+    }
+  }`;
+  const variables = {
+    filter: {
+      block: { id: { equals: blockId } },
+    },
+    orderby: [{ order: "DESC" }],
+  };
+  const { data } = await cmsFetch(schema, query, variables);
+
+  if (data?.ComponentOrders?.[0]) {
+    return data.ComponentOrders[0].order || 0;
+  }
+  return 0;
+}
+
+export async function moveComponentDown(
+  schema: string,
+  componentOrderId: string,
+  order: number,
+  blockId: string,
+  page: string
+) {
+  if (order === (await GetLastOrderOfBlock(schema, blockId))) {
+    const blockBelow = await getBlockBelow(schema, blockId, page);
+    if (!blockBelow || blockBelow?.type !== "cms.Sections") {
+      return;
+    }
+
+    await moveComponentTo(schema, componentOrderId, blockId, blockBelow.id, 0);
+  } else {
+    await moveComponentTo(
+      schema,
+      componentOrderId,
+      blockId,
+      blockId,
+      order + 2
+    );
+  }
+}
+
+export async function moveBlockUp(
+  schema: string,
+  blockOrderId: string,
+  order: number,
+  page: string
+) {
+  const newOrder = Math.max(0, order - 1);
+  const query = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: blockOrderId,
+      order: newOrder,
+    },
+  };
+
+  await prepareBlockOrder(schema, newOrder, page);
+  await cmsFetch(schema, query, vars);
+  await fullReorder(schema, page, "Block");
+}
+
+export async function moveBlockDown(
+  schema: string,
+  blockOrderId: string,
+  order: number,
+  page: string
+) {
+  const newOrder = order + 1;
+  const query = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: blockOrderId,
+      order: newOrder,
+    },
+  };
+
+  await prepareBlockOrder(schema, newOrder + 1, page);
+  await cmsFetch(schema, query, vars);
+  await fullReorder(schema, page, "Block");
+}
+
+export async function moveComponentTo(
+  schema: string,
+  componentOrderId: string,
+  oldBlockId: string,
+  newBlockId: string,
+  order: number
+) {
+  const query = `mutation update($value:[ComponentOrdersInput]){update(ComponentOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: componentOrderId,
+      block: {
+        id: newBlockId,
+      },
+      order: order,
+    },
+  };
+  await prepareOrder(schema, order, newBlockId);
+  await cmsFetch(schema, query, vars);
+  await fullReorder(schema, oldBlockId, "Component");
+  if (oldBlockId !== newBlockId) {
+    await fullReorder(schema, newBlockId, "Component");
+  }
+}
+
+export async function moveBlockTo(
+  schema: string,
+  blockOrderId: string,
+  page: string,
+  order: number
+) {
+  const query = `mutation update($value:[BlockOrdersInput]){update(BlockOrders:$value){message}}`;
+  const vars = {
+    value: {
+      id: blockOrderId,
+      order: order,
+    },
+  };
+  await prepareBlockOrder(schema, order, page);
+  await cmsFetch(schema, query, vars);
+}
+
+export async function deleteComponent(
+  schema: string,
+  componentId: string,
+  componentOrderid: string,
+  block: string,
+  reorder: boolean = true
+) {
+  const orderQuery = `mutation delete($orderId:[ComponentOrdersInput]) {
+    delete(ComponentOrders:$orderId){
+      message
+    }
+  }`;
+
+  const componentQuery = `mutation delete($componentId:[ComponentsInput]) {
+    delete(Components:$componentId) {
+      message
+    }
+  }`;
+
+  const orderVars = { orderId: [{ id: `${componentOrderid}` }] };
+  const componentVars = { componentId: [{ id: `${componentId}` }] };
+
+  await cmsFetch(schema, orderQuery, orderVars);
+  await cmsFetch(schema, componentQuery, componentVars);
+
+  if (reorder) {
+    await fullReorder(schema, block, "Component");
+  }
+}
+
+async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
+  const query = `query getComponents($filter: ComponentOrdersFilter) {
+    ComponentOrders(filter:$filter) {
+      id
+      order
+      component {
+        id
+      }
+    }
+  }`;
+
+  const variables = {
+    filter: { block: { id: { equals: blockId } } },
+    orderby: [{ order: "ASC" }],
+  };
+
+  const { data } = (await cmsFetch(
+    schema,
+    query,
+    variables
+  )) as FetchGraphqlResponse;
+
+  if (data?.ComponentOrders) {
+    const itemsToRemove = data.ComponentOrders as {
+      id: string;
+      component: { id: string };
+    }[];
+    for (const item of itemsToRemove) {
+      await deleteComponent(schema, item.component.id, item.id, blockId, false);
+    }
+  }
+}
+
+export async function deleteBlock(
+  schema: string,
+  blockId: string,
+  blockOrderid: string,
+  page: string
+) {
+  await deleteAllComponentsFromBlock(schema, blockId);
+
+  const orderQuery = `mutation delete($pkey:[BlockOrdersInput]){
+    delete(BlockOrders:$pkey) {
+      message
+    }
+  }`;
+
+  const blockQuery = `mutation delete($pkey:[BlocksInput]){
+    delete(Blocks:$pkey) {
+      message
+    }
+  }`;
+
+  const orderVar = { pkey: [{ id: `${blockOrderid}` }] };
+  const blockVars = { pkey: [{ id: `${blockId}` }] };
+
+  await cmsFetch(schema, orderQuery, orderVar);
+  await cmsFetch(schema, blockQuery, blockVars);
+  await fullReorder(schema, page, "Block");
+}
+
+export async function addComponent(
+  schema: string,
+  id: string,
+  parentBlock: string,
+  order: number,
+  componentType: string
+) {
+  await prepareOrder(schema, order, parentBlock);
+  if (componentType === "Paragraph") {
+    await AddParagraph(schema, id);
+  }
+  if (componentType === "Heading") {
+    await AddHeading(schema, id);
+  }
+  if (componentType === "Image") {
+    await AddImage(schema, id);
+  }
+  await AddOrder(schema, id, order, parentBlock);
+}
+
+export async function addBlock(
+  schema: string,
+  id: string,
+  page: string,
+  order: number,
+  componentType: string
+) {
+  await prepareBlockOrder(schema, order, page);
+  if (componentType === "Header") {
+    await AddHeader(schema, id);
+  }
+  if (componentType === "Section") {
+    await AddSection(schema, id);
+  }
+  if (componentType === "Section - 2 Columns") {
+    await AddSection(schema, id, 2);
+  }
+  if (componentType === "Section - 3 Columns") {
+    await AddSection(schema, id, 3);
+  }
+  await AddBlockOrder(schema, id, order, page);
+}
+
+async function AddSection(schema: string, id: string, columns: number = 1) {
+  const query = `mutation insert($section:[SectionsInput]) {
+    insert(Sections:$section) {
+      message
+    }
+  }`;
+  const variables = { section: [{ id: `${id}`, columns }] };
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddHeader(schema: string, id: string) {
+  const query = `mutation insert($header:[HeadersInput]) {
+    insert(Headers:$header) {
+      message
+    }
+  }`;
+
+  const variables = {
+    header: [
+      {
+        id: `${id}`,
+        title: "Title",
+        subtitle: "A subtitle here",
+      },
+    ],
+  };
+
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddImage(schema: string, id: string) {
+  const query = `mutation insert($image:[ImagesInput]) {
+    insert(Images:$image) {
+      status
+      message
+    }
+  }`;
+  const variables = { image: [{ id: `${id}` }] };
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddHeading(schema: string, id: string) {
+  const query = `mutation insert($heading:[HeadingsInput]) {
+    insert(Headings:$heading) {
+      status
+      message
+    }
+  }`;
+  const variables = { heading: [{ id: `${id}`, text: "Section Heading" }] };
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddParagraph(schema: string, id: string) {
+  const query = `mutation insert($paragraph:[ParagraphsInput]){
+    insert(Paragraphs:$paragraph){
+      status
+      message
+    }
+  }`;
+  const variables = { paragraph: [{ id: `${id}`, text: "My new paragraph" }] };
+  await cmsFetch(schema, query, variables);
+}
+
+async function fullReorder(
+  schema: string,
+  parent: string,
+  type: "Component" | "Block"
+) {
+  let filter: any = {
+    block: { id: { equals: parent } },
+  };
+  if (type === "Block") {
+    filter = {
+      configurablePage: { name: { equals: parent } },
+    };
+  }
+
+  const query = `query get${type}s($filter: ${type}OrdersFilter) {
+    ${type}Orders(filter:$filter) {
+      id
+      order
+    }
+  }`;
+
+  const variables = { filter: filter, orderby: [{ order: "ASC" }] };
+
+  const { data } = await cmsFetch(schema, query, variables);
+  const items = type === "Block" ? data?.BlockOrders : data?.ComponentOrders;
+
+  if (items) {
+    let order: number = 0;
+    const itemsToUpdate = (items as ICmsOrder[])
+      .sort((a: ICmsOrder, b: ICmsOrder) => a.order - b.order)
+      .map((item: ICmsOrder) => {
+        return { id: item.id, order: order++ };
+      });
+
+    if (itemsToUpdate.length) {
+      const query = `mutation update($value:[${type}OrdersInput]) {
+        update(${type}Orders:$value){
+          message
+        }
+      }`;
+      const variables = { value: itemsToUpdate };
+      await cmsFetch(schema, query, variables);
+    }
+  }
+}
+
+async function prepareOrder(schema: string, order: number, block: string) {
+  const query = `query getComponents($filter:ComponentOrdersFilter, $orderby:[ComponentOrdersorderby]) {
+    ComponentOrders(filter:$filter,orderby:$orderby) {
+      id
+      order
+    }
+  }`;
+  const variables = {
+    filter: {
+      block: { id: { equals: block } },
+      order: { between: [order, null] },
+    },
+    orderby: [{ order: "ASC" }],
+  };
+
+  const { data } = await cmsFetch(schema, query, variables);
+
+  if (data?.ComponentOrders) {
+    const componentsToUpdate = (data.ComponentOrders as ICmsOrder[]).map(
+      (item: ICmsOrder) => {
+        return { id: item.id, order: item.order + 1 };
+      }
+    );
+
+    if (componentsToUpdate.length) {
+      const updateQuery = `mutation update($value:[ComponentOrdersInput]) {
+        update(ComponentOrders:$value) {
+          message
+        }
+      }`;
+      const updateVars = { value: componentsToUpdate };
+      await cmsFetch(schema, updateQuery, updateVars);
+    }
+  }
+}
+
+async function getBlockOrder(
+  schema: string,
+  page: string,
+  fromOrder: number = 0
+): Promise<ICmsOrderWithBlockId[] | undefined> {
+  const query = `query getBlocks($filter: BlockOrdersFilter, $orderby:[BlockOrdersorderby]) {
+    BlockOrders(filter:$filter,orderby:$orderby) {
+      id
+      block {
+        id
+        mg_tableclass
+      }
+      order
+    }
+  }`;
+
+  const variables = {
+    filter: {
+      configurablePage: { equals: [{ name: page }] },
+      order: { between: [fromOrder, null] },
+    },
+    orderby: [{ order: "ASC" }],
+  };
+
+  const { data } = await cmsFetch(schema, query, variables);
+  if (data?.BlockOrders) {
+    const blocksToUpdate = (data.BlockOrders as ICmsOrderWithBlockId[]).map(
+      (block: ICmsOrderWithBlockId) => {
+        return {
+          id: block.id,
+          order: block.order,
+          block: {
+            id: block.block.id,
+            mg_tableclass: block.block.mg_tableclass,
+          },
+        };
+      }
+    );
+    return blocksToUpdate;
+  }
+}
+
+async function prepareBlockOrder(schema: string, order: number, page: string) {
+  const blocksToUpdate = await getBlockOrder(schema, page, order);
+  const updatedBlocks = blocksToUpdate?.map((block: ICmsOrder) => {
+    block.order = block.order + 1;
+    return block;
+  });
+
+  if (updatedBlocks?.length) {
+    const updateQuery = `mutation update($value:[BlockOrdersInput]) {
+      update(BlockOrders:$value) {
+        message
+      }
+    }`;
+
+    const updateVars = { value: updatedBlocks };
+    await cmsFetch(schema, updateQuery, updateVars);
+  }
+}
+
+async function AddOrder(
+  schema: string,
+  id: string,
+  order: number,
+  parentBlock: string
+) {
+  const query = `mutation insert($value:[ComponentOrdersInput]) {
+    insert(ComponentOrders:$value) {
+      message
+    }
+  }`;
+
+  const variables = {
+    value: [
+      {
+        id: `${id}-order`,
+        block: {
+          id: parentBlock,
+        },
+        component: {
+          id: `${id}`,
+        },
+        order: order,
+      },
+    ],
+  };
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddBlockOrder(
+  schema: string,
+  id: string,
+  order: number,
+  page: string
+) {
+  const query = `mutation insert($value:[BlockOrdersInput]) {
+    insert(BlockOrders:$value) {
+      message
+    }
+  }`;
+
+  const variables = {
+    value: [
+      {
+        id: `${id}-order`,
+        configurablePage: {
+          name: page,
+        },
+        block: {
+          id: `${id}`,
+        },
+        order: order,
+      },
+    ],
+  };
+  await cmsFetch(schema, query, variables);
 }
 
 export function generateHtmlPreview(

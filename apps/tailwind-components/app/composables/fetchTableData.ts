@@ -1,7 +1,7 @@
-import { createError } from "nuxt/app";
 import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 import type { columnValue, IColumn } from "../../../metadata-utils/src/types";
 import { DATA_NOT_FOUND_ERROR } from "../utils/constants";
+import { fetchErrorToNuxtError } from "../utils/fetchErrorToNuxtError";
 import fetchMetadata from "./fetchMetadata";
 
 export interface ITableDataResponse {
@@ -48,23 +48,34 @@ export default async (
   const filter = properties?.filter ? properties?.filter : {};
   const orderby = properties?.orderby ? [properties?.orderby] : [];
 
-  const { data } = await $fetch(`/${schemaId}/graphql`, {
-    method: "POST",
-    body: {
-      query,
-      variables: { filter, orderby },
-    },
-  }).catch((error) => {
-    const message = `Could not fetch data for table: ${tableId} in schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
-    console.error(message, error);
-    throw createError({
-      ...error,
-      message,
+  const response = await $fetch
+    .raw(`/${schemaId}/graphql`, {
+      method: "POST",
+      body: {
+        query,
+        variables: { filter, orderby },
+      },
+    })
+    .catch((error) => {
+      const message = getTableErrorMessage(error, schemaId, tableId);
+      console.error(message, error);
+      throw fetchErrorToNuxtError(error, message);
     });
-  });
+
+  const data = response?._data.data ?? {};
 
   return { rows: data[tableId], count: data[`${tableId}_agg`].count };
 };
+
+function getTableErrorMessage(error: any, schemaId: string, tableId: string) {
+  const responseBody =
+    error?.response?._data ?? error?.data ?? error?.response?.body;
+  if (responseBody?.errors[0]?.message?.includes("FieldUndefined")) {
+    return "This table contains a reference to data you don't have permission to view. Contact your administrator to request access.";
+  } else {
+    return `Could not fetch data for table: ${tableId} in schema: ${schemaId}. ${DATA_NOT_FOUND_ERROR}`;
+  }
+}
 
 export const getColumnIds = async (
   schemaId: string,

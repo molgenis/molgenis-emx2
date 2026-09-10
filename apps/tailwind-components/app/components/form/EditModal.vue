@@ -16,17 +16,9 @@
   <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header
-        class="pt-[36px] px-8 overflow-y-auto border-b border-divider flex-none"
+        class="pt-[36px] px-8 overflow-visible border-b border-divider flex-none"
       >
-        <div class="mb-5 relative flex items-center">
-          <h2
-            class="uppercase text-heading-4xl font-display text-title-contrast"
-          >
-            {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
-          </h2>
-
-          <DraftLabel v-if="isDraft" />
-        </div>
+        <slot name="header" :formValues="formValues" />
 
         <button
           @click="onCancel"
@@ -106,7 +98,7 @@
           @required-next="form?.gotoNextRequiredField"
           @required-prev="form?.gotoPreviousRequiredField"
         />
-        <menu class="flex items-center justify-end h-[116px]">
+        <menu class="flex items-center justify-end h-modal-footer">
           <div class="flex gap-4">
             <Button type="secondary" :disabled="saving" @click="onCancel">
               Cancel
@@ -151,7 +143,6 @@ import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import { getInitialFormValues } from "../../utils/typeUtils";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
-import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
 import FormError from "./Error.vue";
@@ -183,12 +174,24 @@ const emit = defineEmits([
   "update:added",
   "update:updated",
   "update:cancelled",
+  "update:addedFormValues",
 ]);
 
 const visible = defineModel<boolean>("visible");
 
 // lazy init formContext (form) when modal is opened
 let form: UseForm | undefined;
+
+const session = await useSession(props.schemaId);
+
+const saveErrorMessage = ref<string>("");
+const formMessage = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
+
+const tableId = computed(() => props.metadata.id);
+const savingDraft = computed(
+  () => saving.value && formValues.value["mg_draft"] === true
+);
 
 watch(
   visible,
@@ -204,10 +207,6 @@ watch(
   { immediate: true }
 );
 
-const savingDraft = computed(
-  () => saving.value && formValues.value["mg_draft"] === true
-);
-
 watch(formValues.value, () => {
   formMessage.value = "";
 });
@@ -215,14 +214,6 @@ watch(formValues.value, () => {
 watch(formValues.value, () => {
   formMessage.value = "";
 });
-
-const session = await useSession();
-const saveErrorMessage = ref<string>("");
-const formMessage = ref<string>("");
-const showReAuthenticateButton = ref<boolean>(false);
-
-const tableId = computed(() => props.metadata.id);
-const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
 
 function initFormValues() {
   const values =
@@ -299,9 +290,10 @@ async function insert(draft: boolean) {
 
   isInsert.value = false;
   await updateAutoIds();
-  emit("update:added", resp);
   formMessage.value = `inserted  ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
+  emit("update:added", resp);
+  emit("update:addedFormValues", formValues.value);
 }
 
 async function update(draft: boolean) {
@@ -310,9 +302,9 @@ async function update(draft: boolean) {
     throw new Error(`No response from server on update`);
   }
 
-  emit("update:updated", resp);
   formMessage.value = `saved ${tableId.value}${draft ? " as draft" : ""}`;
   showFormMessage.value = true;
+  emit("update:updated", resp);
 }
 
 function reAuthenticate() {

@@ -4,6 +4,7 @@ import static org.eclipse.rdf4j.model.util.Statements.statement;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.SemanticTestUtils.toSemantic;
 import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
 
 import java.util.List;
@@ -22,9 +23,9 @@ import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.DefaultNamespace;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.rdf.DefaultNamespace;
 
 class ArrayLiteralColumnSparqlQueryGeneratorTest {
 
@@ -43,7 +44,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
     ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
     assertHasPatterns(mapper, "?start foaf:test ?foo_single .");
     assertHasSelectors(
-        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
+        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
     assertHasGroupBy(mapper);
   }
 
@@ -53,7 +54,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
     ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
     assertTrue(mapper.getPatterns().isEmpty());
     assertHasSelectors(
-        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
+        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
     assertHasGroupBy(mapper);
   }
 
@@ -66,6 +67,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
                 .setSemantics(
                     "foaf:test",
                     "https://xmlns.com/foaf/0.1/alternative",
+                    "<https://xmlns.com/foaf/0.1/alternative_second>",
                     "foaf:also_alternative"));
     ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
 
@@ -74,11 +76,12 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
         """
         OPTIONAL { OPTIONAL { ?start foaf:test ?foo_single0 . }
         OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative> ?foo_single1 . }
-        OPTIONAL { ?start foaf:also_alternative ?foo_single2 . }
-        BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2 ) AS ?foo_single ) }""",
+        OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative_second> ?foo_single2 . }
+        OPTIONAL { ?start foaf:also_alternative ?foo_single3 . }
+        BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2, ?foo_single3 ) AS ?foo_single ) }""",
         "FILTER ( BOUND( ?foo_single ) )");
     assertHasSelectors(
-        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = ',' ) AS ?foo )");
+        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
     assertHasGroupBy(mapper);
   }
 
@@ -87,9 +90,9 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
     List<Column> columns =
         List.of(
             createColumn(
-                Column.column("foo").setRequired(true).setSemantics(FOAF.FIRST_NAME.toString())),
+                Column.column("foo").setRequired(true).setSemantics(toSemantic(FOAF.FIRST_NAME))),
             createColumn(
-                Column.column("bar").setRequired(true).setSemantics(FOAF.LAST_NAME.toString())));
+                Column.column("bar").setRequired(true).setSemantics(toSemantic(FOAF.LAST_NAME))));
 
     SelectQuery query = Queries.SELECT().prefix(DefaultNamespace.FOAF.getNamespace());
     for (Column column : columns) {
@@ -111,8 +114,8 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
       try (TupleQueryResult queryResult =
           connection.prepareTupleQuery(QueryLanguage.SPARQL, query.getQueryString()).evaluate()) {
         BindingSet binding = queryResult.next();
-        assertEquals(literal("foo1,foo2"), binding.getValue("foo"));
-        assertEquals(literal("bar1,bar2"), binding.getValue("bar"));
+        assertEquals(literal("foo1|foo2"), binding.getValue("foo"));
+        assertEquals(literal("bar1|bar2"), binding.getValue("bar"));
         assertFalse(queryResult.hasNext());
       }
     }

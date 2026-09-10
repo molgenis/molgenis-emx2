@@ -149,9 +149,19 @@ export type schemaId = string;
 export interface ISession {
   email: string;
   admin: boolean;
-  roles: Record<schemaId, string[]>;
-  schemas?: string[];
+  roles?: Record<schemaId, string[]>;
+  tablePermissions?: Record<schemaId, ITablePermission[]>;
+  schemas?: Schema[];
   token?: string;
+}
+export interface ITablePermission {
+  name: string;
+  id: string;
+  canView: boolean;
+  canInsert: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  isRowLevel: boolean;
 }
 
 export interface RefPayload {
@@ -201,4 +211,17 @@ export interface Settings {
 }
 export interface SystemSettings extends Settings {
   isOidcEnabled: boolean;
+}
+
+export interface SchemaPermission {
+  name: string;
+  permissions: TablePermission[];
+}
+
+export interface TablePermission {
+  table: string;
+  isRowLevel: boolean;
+  insert: boolean;
+  update: boolean;
+  delete: boolean;
 }

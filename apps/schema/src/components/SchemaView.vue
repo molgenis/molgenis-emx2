@@ -4,7 +4,7 @@
       <span v-if="schema.tables && schema.tables?.length > 0">
         <span v-for="(table, index) in schema.tables" :key="index">
           <TableView
-            v-if="table.inheritName === undefined"
+            v-if="isRootTable(table, schema.name)"
             v-model="schema.tables[index]"
             :schema="schema"
             :schemaNames="schemaNames"
@@ -61,6 +61,7 @@
 import TableView from "./TableView.vue";
 import OntologyView from "./OntologyView.vue";
 import TableEditModal from "./TableEditModal.vue";
+import { isRootTable } from "../inheritSchema";
 
 export default {
   components: {
@@ -91,6 +92,7 @@ export default {
     };
   },
   methods: {
+    isRootTable,
     addOntology(ontology) {
       if (!Array.isArray(this.schema.ontologies)) {
         this.schema.ontologies = [];

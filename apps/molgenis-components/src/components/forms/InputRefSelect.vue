@@ -62,6 +62,7 @@ import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import ButtonAction from "./ButtonAction.vue";
 import { applyJsTemplate } from "../utils";
+import { resolveTablePermission } from "../../client/client";
 
 export default {
   name: "InputRefSelect",
@@ -69,6 +70,7 @@ export default {
   data: function () {
     return {
       showSelect: false,
+      tablePermission: undefined,
     };
   },
   components: {
@@ -100,12 +102,23 @@ export default {
     title() {
       return "Select " + this.tableId; //todo need a label
     },
-    tablePermission() {
-      return this.tablePermissions?.find((p) => p.id === this.tableId);
-    },
+  },
+  watch: {
+    schemaId: "loadPermission",
+    tableId: "loadPermission",
+  },
+  created() {
+    this.loadPermission();
   },
   methods: {
     applyJsTemplate,
+    async loadPermission() {
+      this.tablePermission = await resolveTablePermission(
+        this.schemaId,
+        this.tableId,
+        this.tablePermissions
+      );
+    },
     async select(event) {
       this.showSelect = false;
       this.$emit("update:modelValue", await event);

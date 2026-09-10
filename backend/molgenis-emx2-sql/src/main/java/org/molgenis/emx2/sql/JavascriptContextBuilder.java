@@ -45,6 +45,9 @@ public class JavascriptContextBuilder {
       context.put(column.getIdentifier(), getRefFromRow(row, column));
     } else if (column.isFile()) {
       // skip file
+    } else if (column.isArray()) {
+      Object value = Optional.ofNullable(row.get(column)).orElse(new Object[0]);
+      context.put(column.getIdentifier(), value);
     } else {
       context.put(column.getIdentifier(), row.get(column));
     }
@@ -56,9 +59,10 @@ public class JavascriptContextBuilder {
       for (Reference ref : c.getReferences()) {
         if (!ref.isOverlapping()) {
           // must be a list
-          if (row.getValueMap().get(ref.getColumnName()) != null) {
+          Object values = row.get(ref.getColumnName(), ref.getPrimitiveType());
+          if (values != null) {
             int i = 0;
-            for (Object value : (Object[]) row.get(ref.getColumnName(), ref.getPrimitiveType())) {
+            for (Object value : (Object[]) values) {
               if (i == result.size()) {
                 result.add(new LinkedHashMap<>());
               }
@@ -86,10 +90,8 @@ public class JavascriptContextBuilder {
     if (path.size() == 1) {
       result.put(path.get(0), value);
     } else {
-      if (result.get(path.get(0)) == null) {
-        result.put(path.get(0), new LinkedHashMap<>());
-      }
-      putMap((Map) result.get(path.get(0)), path.subList(1, path.size()), value);
+      result.computeIfAbsent(path.getFirst(), k -> new LinkedHashMap<>());
+      putMap((Map) result.get(path.getFirst()), path.subList(1, path.size()), value);
     }
   }
 
@@ -101,8 +103,9 @@ public class JavascriptContextBuilder {
     if (column.getSchema().getDatabase() == null) return;
     Map<String, Supplier<Object>> bindings =
         column.getSchema().getDatabase().getJavaScriptBindings();
-    for (String key : bindings.keySet()) {
-      context.put(key, bindings.get(key).get());
+
+    for (Map.Entry<String, Supplier<Object>> entry : bindings.entrySet()) {
+      context.put(entry.getKey(), entry.getValue().get());
     }
   }
 }

@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -17,6 +18,10 @@ import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BeaconApi {
+
+  private BeaconApi() {
+    /* This utility class should not be instantiated */
+  }
 
   private static final ApplicationCachePerUser APPLICATION_CACHE =
       ApplicationCachePerUser.getInstance();
@@ -98,7 +103,7 @@ public class BeaconApi {
     entryTypeRequest(ctx, new BeaconRequestBody(ctx));
   }
 
-  private static void postEntryType(Context ctx) throws Exception {
+  private static void postEntryType(Context ctx) throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(ctx.body(), BeaconRequestBody.class);
     beaconRequest.addRequestParameters(ctx);

@@ -1,4 +1,4 @@
-import { ISetting } from "metadata-utils";
+import type { ISetting } from "../../../../metadata-utils/src/types";
 
 export interface ITablePermission {
   name: string;

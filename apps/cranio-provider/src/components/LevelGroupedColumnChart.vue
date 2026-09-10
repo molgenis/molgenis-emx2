@@ -8,17 +8,14 @@ import {
   // @ts-expect-error
 } from "molgenis-viz";
 import { generateAxisTickData } from "../../../tailwind-components/app/utils/viz";
-import { ernYourCenterPalette } from "../utils/variables";
+import { ernYourCenterPalette, columnHoverFillColor } from "../utils/variables";
 
 import type {
   ICharts,
   IChartData,
 } from "../../../metadata-utils/src/viz/UiDashboard";
-import type {
-  IAxisTickData,
-  ICleftTypes,
-  ISiteErnCleftTypeCounts,
-} from "../types";
+import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
+import type { ICleftTypes, ISiteErnCleftTypeCounts } from "../types";
 
 const props = withDefaults(
   defineProps<{
@@ -73,7 +70,7 @@ const chartDescription = computed<string>(() => {
   }
 });
 
-const chartTicks = ref<IAxisTickData>();
+const chartTicks = ref<NumericAxisTickData>();
 const chartFilters = ref<string[]>();
 const selectedFilter = ref<string>();
 
@@ -126,7 +123,7 @@ if (props.chart.dataPoints) {
       :yMax="chartTicks?.limit"
       :yTickValues="chartTicks?.ticks"
       :columnColorPalette="ernYourCenterPalette"
-      columnHoverFill="#EE7032"
+      :columnHoverFill="columnHoverFillColor"
       :chartHeight="250"
       :chartMargins="{
         top: chart.topMargin,

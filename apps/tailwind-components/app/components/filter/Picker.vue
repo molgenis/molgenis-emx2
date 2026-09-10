@@ -427,28 +427,28 @@ function updateVisibility(value: boolean) {
     </div>
 
     <template #footer>
-      <div class="py-3 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <Button type="text" size="tiny" icon="checklist" @click="selectAll">
+      <div class="py-3 flex justify-between items-center h-modal-footer">
+        <menu class="flex items-center gap-2">
+          <Button type="text" size="small" icon="checklist" @click="selectAll">
             Select all
           </Button>
-          <Button type="text" size="tiny" icon="trash" @click="clearSelection">
+          <Button type="text" size="small" icon="trash" @click="clearSelection">
             Clear
           </Button>
           <Button
             type="text"
-            size="tiny"
+            size="small"
             icon="restart-alt"
             @click="resetToDefaults"
           >
             Reset
           </Button>
-        </div>
+        </menu>
         <div class="flex items-center gap-2">
-          <Button type="secondary" size="small" @click="cancelAndClose">
+          <Button type="secondary" size="medium" @click="cancelAndClose">
             Cancel
           </Button>
-          <Button type="primary" size="small" @click="applyAndClose">
+          <Button type="primary" size="medium" @click="applyAndClose">
             Apply
           </Button>
         </div>

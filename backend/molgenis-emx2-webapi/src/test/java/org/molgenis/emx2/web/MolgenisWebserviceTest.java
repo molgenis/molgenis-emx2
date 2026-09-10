@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mockStatic;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
@@ -95,7 +96,23 @@ class MolgenisWebserviceTest extends ApiTestBase {
   void testSettingServiceUrl() {
     MolgenisWebservice webservice = new MolgenisWebservice();
     assertTrue(webservice.hostUrl.toString().startsWith("http:"));
-    assertTrue(webservice.hostUrl.toString().endsWith(":8081"));
+    assertTrue(webservice.hostUrl.toString().endsWith(":" + port));
+  }
+
+  @Test
+  void startRefreshesHostUrlForEachService() throws Exception {
+    URL hostUrlBeforeSecondService = MolgenisWebservice.hostUrl;
+    MolgenisWebservice secondService = null;
+    try {
+      secondService = startWebservice();
+      assertNotEquals(port, secondService.getPort());
+      assertTrue(MolgenisWebservice.hostUrl.toString().endsWith(":" + secondService.getPort()));
+    } finally {
+      if (secondService != null) {
+        secondService.stop();
+      }
+      MolgenisWebservice.hostUrl = hostUrlBeforeSecondService;
+    }
   }
 
   @Test

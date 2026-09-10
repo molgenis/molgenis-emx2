@@ -176,7 +176,9 @@ const formError = ref<string | null>(null);
     <ContentBlockModal title="Trigger">
       <form @submit.prevent.default="" class="flex flex-col gap-3">
         <div>
-          <InputLabel for="name" class="">Name</InputLabel>
+          <InputLabel for="name" class="text-title-contrast font-bold">
+            Name
+          </InputLabel>
           <InputString
             id="name"
             placeholder="Name"
@@ -184,7 +186,9 @@ const formError = ref<string | null>(null);
           />
         </div>
         <div>
-          <InputLabel for="cssSelector">Css Selector</InputLabel>
+          <InputLabel for="cssSelector" class="text-title-contrast font-bold">
+            Css Selector
+          </InputLabel>
           <InputTextArea
             id="cssSelector"
             placeholder="Css Selector"

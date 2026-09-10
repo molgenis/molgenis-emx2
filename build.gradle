@@ -1,8 +1,8 @@
 plugins {
     id "java"
-    id "org.sonarqube" version "7.2.3.7755"
+    id "org.sonarqube" version "7.3.1.8318"
     id 'maven-publish'
-    id 'com.gradleup.shadow' version '8.3.10'
+    id 'com.gradleup.shadow' version '8.3.11'
     id 'application'
 }
 
@@ -16,12 +16,69 @@ ext {
     javaVersion = JavaVersion.VERSION_21
 }
 
+// A warm Gradle daemon does not pass -D to forked JVMs, so .env is read here and forwarded instead.
+// Mirror apps/dev-env.js: it parses the same file and the two must agree.
+def javascriptTrim = { String text -> text.replaceAll('^[\\s\\u00A0\\uFEFF]+|[\\s\\u00A0\\uFEFF]+$', '') }
+def stripSurroundingQuotes = { String value ->
+    def quoted = value.length() >= 2 &&
+            ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'")))
+    quoted ? value.substring(1, value.length() - 1) : value
+}
+def parseDotenvLine = { String line, Map into ->
+    def trimmed = javascriptTrim(line)
+    if (trimmed.isEmpty() || trimmed.startsWith('#')) return
+    def separator = trimmed.indexOf('=')
+    if (separator < 0) return
+    into[javascriptTrim(trimmed.substring(0, separator))] =
+            stripSurroundingQuotes(javascriptTrim(trimmed.substring(separator + 1)))
+}
+ext.molgenisDotenv = { ->
+    def envFile = new File(rootDir, '.env')
+    def result = [:]
+    if (envFile.exists()) envFile.eachLine { parseDotenvLine(it, result) }
+    result
+}()
+ext.dotenvValuesForForkedJvms = { ->
+    def commandLineKeys = System.getProperties().stringPropertyNames().findAll { it.startsWith('MOLGENIS_') }
+    def values = new TreeMap<String, String>()
+    (rootProject.molgenisDotenv.keySet() + commandLineKeys).each { key ->
+        def value = System.getProperty(key) ?: rootProject.molgenisDotenv[key]
+        if (value != null) values[key] = String.valueOf(value)
+    }
+    values
+}
+ext.forwardDotenvAsSystemProperties = { task ->
+    rootProject.ext.dotenvValuesForForkedJvms().each { key, value -> task.systemProperty key, value }
+}
+
+// .env says where to run, not what to run, so it stays out of a Test task's cache key: Gradle marks
+// systemProperties @Input but environment @Internal, and EnvironmentProperty reads either.
+ext.forwardDotenvAsEnvironment = { task ->
+    task.environment rootProject.ext.dotenvValuesForForkedJvms()
+}
+ext.resolveDotenvValue = { key ->
+    System.getProperty(key) ?: rootProject.molgenisDotenv[key] ?: System.getenv(key)
+}
+ext.applyDotenvHeap = { task ->
+    def heap = rootProject.ext.resolveDotenvValue('MOLGENIS_JVM_XMX')
+    if (heap) task.maxHeapSize = heap
+}
+
 allprojects {
     if(rootProject.nyxState.releaseScope.previousVersion == rootProject.version) {
         version = rootProject.nyxState.releaseScope.previousVersion + "-SNAPSHOT"
     }
     else {
         version = rootProject.version.replace("SNAPSHOT.1","SNAPSHOT")
+    }
+
+    // Manifests carry the commit hash, so ignore them or every test re-keys per commit.
+    normalization {
+        runtimeClasspath {
+            metaInf {
+                ignoreManifest()
+            }
+        }
     }
 }
 println "Corrected version checking for optional snapshot: " + rootProject.version
@@ -38,7 +95,14 @@ sonar {
 }
 
 tasks.withType(Test) {
-    maxParallelForks = Runtime.runtime.availableProcessors() / 2;
+    // Guarded at 1: pr-preview runs on a 1-CPU box, where halving evaluates to 0 and gradle refuses.
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
+}
+
+// No tests here, and :apps reaches this classpath through :backend:molgenis-emx2-run, so an empty
+// test task still makes gradle build the frontend.
+tasks.named('test') {
+    if (sourceSets.test.allSource.empty) { testClassesDirs = files(); classpath = files() }
 }
 
 repositories {
@@ -120,7 +184,6 @@ tasks.register('dockerBuild', Exec) {
     }
 
     commandLine docker, 'build',
-        '--build-arg', "JAR_FILE=${shadowJar.archiveFile.get().asFile.name}",
         '-t', "${imageName}:${tagName}",
         '-t', "${imageName}:latest",
         '.'
@@ -165,6 +228,26 @@ String getGitHash() {
 
 application {
     mainClass.set(javaMainClass)
+}
+
+tasks.withType(JavaExec).configureEach { forwardDotenvAsSystemProperties(it) }
+
+tasks.named('run') { rootProject.ext.applyDotenvHeap(it) }
+
+// Prints the realized launch configuration of the dev task so a CI step can grep it; that grep is
+// the only automated exercise of the .env path, which is invisible to CI because .env is gitignored.
+tasks.register('printDevConfig') {
+    group = 'help'
+    description = 'Prints the realized dev task system properties and heap without starting the application'
+    def devTask = project(':backend:molgenis-emx2-webapi').tasks.named('dev', JavaExec).get()
+    def devSystemProperties = new TreeMap<String, String>(devTask.systemProperties.collectEntries { key, value ->
+        [key, key.toUpperCase() =~ /PASS|SECRET|TOKEN/ ? '<HIDDEN>' : String.valueOf(value)]
+    })
+    def devHeap = devTask.maxHeapSize ?: 'unbounded'
+    doLast {
+        devSystemProperties.each { key, value -> println "molgenis.dev.systemProperty.${key}=${value}" }
+        println "molgenis.dev.maxHeapSize=${devHeap}"
+    }
 }
 
 jar {

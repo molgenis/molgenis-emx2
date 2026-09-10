@@ -17,7 +17,7 @@ test("landing-page-molgenis", async ({ page, goto }) => {
   });
   await expect(page).toHaveScreenshot({
     fullPage: true,
-    maxDiffPixelRatio: 0.4,
+    maxDiffPixelRatio: 0.05,
   });
 });
 
@@ -27,7 +27,7 @@ test("landing-page-umcg", async ({ page, goto }) => {
   });
   await expect(page).toHaveScreenshot({
     fullPage: true,
-    maxDiffPixelRatio: 0.4,
+    maxDiffPixelRatio: 0.05,
   });
 });
 
@@ -37,6 +37,26 @@ test("landing-page-aumc", async ({ page, goto }) => {
   });
   await expect(page).toHaveScreenshot({
     fullPage: true,
-    maxDiffPixelRatio: 0.4,
+    maxDiffPixelRatio: 0.05,
+  });
+});
+
+test("landing-page-hdsu", async ({ page, goto }) => {
+  await goto("/?theme=hdsu", {
+    waitUntil: "hydration",
+  });
+  await expect(page).toHaveScreenshot({
+    fullPage: true,
+    maxDiffPixelRatio: 0.05,
+  });
+});
+
+test("landing-page-uncan-connect", async ({ page, goto }) => {
+  await goto("/?theme=uncan-connect", {
+    waitUntil: "hydration",
+  });
+  await expect(page).toHaveScreenshot({
+    fullPage: true,
+    maxDiffPixelRatio: 0.05,
   });
 });
