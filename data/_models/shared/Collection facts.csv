@@ -10,4 +10,4 @@ Collection facts,,anatomy,ontology,,,CatalogueOntologies,Anatomical location,,,,
 Collection facts,,number of samples,int,,,,,,,,,Number of samples for this dimension combination,DataCatalogueFlat
 Collection facts,,number of donors,int,,,,,,,,,Number of donors for this dimension combination,DataCatalogueFlat
 Collection facts,,last update,date,,,,,,,,,Date these counts were last updated,DataCatalogueFlat
-Collection facts,,source,ref,,,,Organisation roles,,,,,Owning catalogue or national node these facts originate from,DataCatalogueFlat
+Collection facts,,source,ref,,,,OrgUnits or Biobanks,,,,,Owning catalogue or national node these facts originate from,DataCatalogueFlat
