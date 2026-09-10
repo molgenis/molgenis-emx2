@@ -2,7 +2,6 @@
 import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type {
-  columnValue,
   IColumn,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
@@ -86,8 +85,17 @@ const loadFromDatabase = ref(!!route.query.schema);
 const schemaId = ref((route.query.schema as string) || "CatalogueOntologies");
 const tableId = ref((route.query.table as string) || "Keywords");
 const tableMetadata = ref<ITableMetaData>();
-const allTerms = ref<columnValue>([]);
+const allTerms = ref<IOntologyTreeItem[]>([]);
 const loadError = ref("");
+const compact = ref(false);
+const collapseAll = ref(false);
+const maxItems = ref<number | string>(10);
+const itemStep = ref<number | string>(5);
+const renderLimit = ref<number | string>(1000);
+
+function atLeastOne(value: number | string) {
+  return Math.max(1, Number(value) || 1);
+}
 
 watch([schemaId, tableId], ([schema, table]) => {
   router.push({ query: { schema, table } });
@@ -128,9 +136,7 @@ const ontologyColumn = computed<IColumn>(() => ({
   refTableId: tableId.value,
 }));
 
-const termCount = computed(() =>
-  Array.isArray(allTerms.value) ? allTerms.value.length : 0
-);
+const termCount = computed(() => allTerms.value.length);
 </script>
 
 <template>
@@ -144,8 +150,9 @@ const termCount = computed(() =>
       <h1 class="text-lg font-bold">From a database</h1>
       <p class="text-body-base">
         This part needs a running backend. Pick an ontology schema and table.
-        The section loads every term of that table. The record fetches their
-        ancestors and draws the tree. The table cell shows the terms as links.
+        The section loads every term of that table. By default it renders them
+        as a record: the tree, with the ancestors it fetches. Compact renders
+        them as a table cell does.
       </p>
       <div class="flex items-center gap-2">
         <InputCheckbox id="load-from-database" v-model="loadFromDatabase" />
@@ -166,14 +173,60 @@ const termCount = computed(() =>
           <p v-else class="text-body-sm">
             {{ termCount }} terms in {{ schemaId }} › {{ tableId }}
           </p>
-          <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-            <span class="font-medium text-record-label">As a record:</span>
-            <ValueEMX2 :metadata="ontologyColumn" :data="allTerms" />
+          <div class="flex flex-wrap items-end gap-6">
+            <div class="flex items-center gap-2">
+              <InputCheckbox id="database-compact" v-model="compact" />
+              <InputLabel for="database-compact">
+                Compact, as in a table cell
+              </InputLabel>
+            </div>
+            <div class="flex items-center gap-2">
+              <InputCheckbox id="database-collapse-all" v-model="collapseAll" />
+              <InputLabel for="database-collapse-all">Collapse all</InputLabel>
+            </div>
+            <div class="flex flex-col gap-1">
+              <InputLabel for="database-max-items">Items per level</InputLabel>
+              <InputInt
+                id="database-max-items"
+                v-model="maxItems"
+                class="w-32"
+              />
+            </div>
+            <div class="flex flex-col gap-1">
+              <InputLabel for="database-item-step">Show more step</InputLabel>
+              <InputInt
+                id="database-item-step"
+                v-model="itemStep"
+                class="w-32"
+              />
+            </div>
+            <div class="flex flex-col gap-1">
+              <InputLabel for="database-render-limit">
+                Values rendered at a time
+              </InputLabel>
+              <InputInt
+                id="database-render-limit"
+                v-model="renderLimit"
+                class="w-32"
+              />
+            </div>
           </div>
-          <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
-            <span class="font-medium text-record-label">As a table cell:</span>
-            <ValueEMX2 :metadata="ontologyColumn" :data="allTerms" compact />
-          </div>
+          <ValueEMX2
+            v-if="compact"
+            :metadata="ontologyColumn"
+            :data="allTerms"
+            :renderLimit="atLeastOne(renderLimit)"
+            compact
+          />
+          <ValueOntology
+            v-else
+            :metadata="ontologyColumn"
+            :value="allTerms"
+            :collapseAll="collapseAll"
+            :maxItems="atLeastOne(maxItems)"
+            :itemStep="atLeastOne(itemStep)"
+            :renderLimit="atLeastOne(renderLimit)"
+          />
         </div>
       </Suspense>
     </div>
