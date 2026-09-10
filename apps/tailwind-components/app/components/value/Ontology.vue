@@ -1,52 +1,115 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import type { IColumn } from "../../../../metadata-utils/src/types";
-import fetchOntologyAncestry from "../../composables/fetchOntologyAncestry";
+import { computed, ref, watch } from "vue";
 import type { IOntologyTreeItem } from "../../../types/types";
-import { resolveOntologyAncestry } from "../../utils/resolveOntologyAncestry";
-import DisplayOntology from "../display/Ontology.vue";
+import { buildOntologyTree } from "../../utils/buildOntologyTree";
+import {
+  countOntologyNodes,
+  limitOntologyTree,
+} from "../../utils/limitOntologyTree";
+import { useOntologyItemPaging } from "../../composables/useOntologyItemPaging";
+import OntologyNode from "./OntologyNode.vue";
+import OntologyRow from "./OntologyRow.vue";
 
-const props = defineProps<{
-  metadata: IColumn;
-  data: IOntologyTreeItem | IOntologyTreeItem[];
-  renderLimit?: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    value: IOntologyTreeItem | IOntologyTreeItem[];
+    collapseAll?: boolean;
+    maxItems?: number;
+    itemStep?: number;
+    renderLimit?: number;
+  }>(),
+  {
+    collapseAll: true,
+    itemStep: 5,
+    renderLimit: 1000,
+  }
+);
 
-const resolvedValue = ref<IOntologyTreeItem | IOntologyTreeItem[]>(props.data);
+const tree = computed(() => buildOntologyTree(props.value));
+
+const isList = computed(() => {
+  return tree.value.every((node) => !node.children?.length);
+});
+
+const rendered = ref(props.renderLimit);
 
 watch(
-  () => props.data,
-  async (value) => {
-    resolvedValue.value = value;
-    const schemaId = props.metadata.refSchemaId;
-    const tableId = props.metadata.refTableId;
-    if (!value || !schemaId || !tableId) {
-      return;
-    }
+  [() => props.renderLimit, () => props.value],
+  () => (rendered.value = props.renderLimit)
+);
 
-    const values = Array.isArray(value) ? value : [value];
-    const termNames = values.map((term) => term.name);
-    try {
-      const termsByName = await fetchOntologyAncestry(
-        schemaId,
-        tableId,
-        termNames
-      );
-      resolvedValue.value = resolveOntologyAncestry(values, termsByName);
-    } catch (err) {
-      console.error("Failed to resolve ontology ancestry", err);
-    }
-  },
-  { immediate: true }
+const limitedTree = computed(() =>
+  limitOntologyTree(tree.value, rendered.value)
+);
+
+const hasUnrendered = computed(
+  () => countOntologyNodes(tree.value) > rendered.value
+);
+
+function renderMore() {
+  rendered.value += props.renderLimit;
+}
+
+const {
+  isHidden: isRootHidden,
+  showControl: showRootControl,
+  isFullyExpanded: isRootFullyExpanded,
+  controlLabel: rootControlLabel,
+  toggle: toggleRoot,
+} = useOntologyItemPaging(
+  computed(() => limitedTree.value.length),
+  computed(() => props.maxItems),
+  computed(() => props.itemStep)
 );
 </script>
 
 <template>
-  <DisplayOntology
-    :value="resolvedValue"
-    :collapse-all="false"
-    :max-items="10"
-    :item-step="5"
-    :render-limit="renderLimit"
+  <OntologyRow
+    v-if="isList && tree.length === 1"
+    :name="tree[0]?.name ?? ''"
+    :definition="tree[0]?.definition"
+    marker="flush"
   />
+  <ul v-else class="text-body-base" :class="[isList ? 'grid gap-1' : '']">
+    <template v-if="isList">
+      <li
+        v-for="(item, index) in limitedTree"
+        :key="item.name"
+        :class="{ hidden: isRootHidden(index) }"
+      >
+        <OntologyRow
+          :name="item.name"
+          :definition="item.definition"
+          marker="bullet"
+        />
+      </li>
+    </template>
+    <template v-else>
+      <OntologyNode
+        v-for="(node, index) in limitedTree"
+        :key="node.name"
+        :node="node"
+        :collapse-all="collapseAll"
+        :is-root-node="true"
+        :max-items="maxItems"
+        :item-step="itemStep"
+        :hidden="isRootHidden(index)"
+      />
+    </template>
+    <li v-if="showRootControl" class="list-none">
+      <button
+        type="button"
+        class="text-link text-body-sm"
+        :aria-expanded="isRootFullyExpanded"
+        @click="toggleRoot"
+      >
+        {{ rootControlLabel }}
+      </button>
+    </li>
+    <li v-if="hasUnrendered" class="list-none">
+      <button type="button" class="text-link text-body-sm" @click="renderMore">
+        Load more
+      </button>
+    </li>
+  </ul>
 </template>

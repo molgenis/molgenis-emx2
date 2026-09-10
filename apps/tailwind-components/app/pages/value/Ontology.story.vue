@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DisplayOntology from "../../components/display/Ontology.vue";
+import ValueOntology from "../../components/value/Ontology.vue";
 import type { IOntologyTreeItem } from "../../../types/types";
 
 const singleItem: IOntologyTreeItem = { name: "Biobank" };
@@ -89,12 +89,12 @@ const surfaces = [
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">No definition:</span>
-            <DisplayOntology :value="singleItem" />
+            <ValueOntology :value="singleItem" />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">With definition:</span>
-            <DisplayOntology :value="singleWithDefinition" />
+            <ValueOntology :value="singleWithDefinition" />
           </div>
         </div>
 
@@ -103,12 +103,12 @@ const surfaces = [
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">No definitions:</span>
-            <DisplayOntology :value="flatList" />
+            <ValueOntology :value="flatList" />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">With definitions:</span>
-            <DisplayOntology :value="flatListWithDefinitions" />
+            <ValueOntology :value="flatListWithDefinitions" />
           </div>
         </div>
 
@@ -124,14 +124,14 @@ const surfaces = [
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">Tree (collapsed):</span>
-            <DisplayOntology :value="hierarchicalTree" :collapse-all="true" />
+            <ValueOntology :value="hierarchicalTree" :collapse-all="true" />
           </div>
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label"
               >Tree (root expanded):</span
             >
-            <DisplayOntology :value="hierarchicalTree" :collapse-all="false" />
+            <ValueOntology :value="hierarchicalTree" :collapse-all="false" />
           </div>
         </div>
 
@@ -148,7 +148,7 @@ const surfaces = [
           <div class="grid grid-cols-[200px_1fr] gap-2 items-start">
             <span class="font-medium text-record-label">Mixed:</span>
             <div :id="`measure-tree-${surface.key}`">
-              <DisplayOntology :value="mixedRootTree" :collapse-all="false" />
+              <ValueOntology :value="mixedRootTree" :collapse-all="false" />
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@ const surfaces = [
 
           <div class="grid grid-cols-[200px_1fr] gap-2 items-center">
             <span class="font-medium text-record-label">Empty array:</span>
-            <DisplayOntology :value="[]" />
+            <ValueOntology :value="[]" />
           </div>
         </div>
       </div>

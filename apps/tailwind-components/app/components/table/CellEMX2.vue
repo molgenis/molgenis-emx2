@@ -10,7 +10,6 @@
             :data="data"
             :truncate="false"
             :renderLimit="CELL_RENDER_LIMIT"
-            flatOntology
             @valueClick="$emit('cellClicked', $event)"
           />
           <template v-else>

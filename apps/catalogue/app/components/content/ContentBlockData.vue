@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ICollectionEvents } from "../../../interfaces/catalogue";
 import ListCollapsible from "../ListCollapsible.vue";
-import DisplayOntology from "../../../../tailwind-components/app/components/display/Ontology.vue";
+import ValueOntology from "../../../../tailwind-components/app/components/value/Ontology.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 
 const { collectionEvents } = defineProps<{
@@ -38,21 +38,21 @@ const areasOfInformation = collectionEvents
         title="Data categories"
         :collapse-all="false"
       >
-        <DisplayOntology :value="dataCategories"></DisplayOntology>
+        <ValueOntology :value="dataCategories"></ValueOntology>
       </ListCollapsible>
       <ListCollapsible
         v-if="sampleCategories?.length"
         title="Sample categories"
         :collapse-all="false"
       >
-        <DisplayOntology :value="sampleCategories"></DisplayOntology>
+        <ValueOntology :value="sampleCategories"></ValueOntology>
       </ListCollapsible>
       <ListCollapsible
         v-if="areasOfInformation?.length"
         title="Areas of information"
         :collapse-all="false"
       >
-        <DisplayOntology :value="areasOfInformation"></DisplayOntology>
+        <ValueOntology :value="areasOfInformation"></ValueOntology>
       </ListCollapsible>
     </div>
   </ContentBlock>

@@ -9,7 +9,7 @@
   </DefinitionListTerm>
 
   <DefinitionListDefinition :small="small">
-    <DisplayOntology
+    <ValueOntology
       v-if="item?.type === 'ONTOLOGY'"
       :value="item.content"
       :collapse-all="true"
@@ -70,7 +70,7 @@ import type { IDefinitionListItem } from "../../interfaces/types";
 import DefinitionListTerm from "../../../tailwind-components/app/components/DefinitionListTerm.vue";
 import DefinitionListDefinition from "../../../tailwind-components/app/components/DefinitionListDefinition.vue";
 import ContentMapped from "./content/Mapped.vue";
-import DisplayOntology from "../../../tailwind-components/app/components/display/Ontology.vue";
+import ValueOntology from "../../../tailwind-components/app/components/value/Ontology.vue";
 import CustomTooltip from "../../../tailwind-components/app/components/CustomTooltip.vue";
 
 withDefaults(

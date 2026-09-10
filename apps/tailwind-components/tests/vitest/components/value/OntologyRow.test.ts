@@ -1,6 +1,6 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import OntologyRow from "../../../../app/components/display/OntologyRow.vue";
+import OntologyRow from "../../../../app/components/value/OntologyRow.vue";
 
 async function mountRow(props: Record<string, unknown>) {
   const wrapper = mount(OntologyRow, { props: { name: "Term", ...props } });
@@ -28,7 +28,7 @@ const positioningClasses = [
   "-translate-y-1/2",
 ];
 
-describe("display/OntologyRow.vue marker", () => {
+describe("value/OntologyRow.vue marker", () => {
   it("shows the caret and no other marker when the row has children", async () => {
     const wrapper = await mountRow({
       hasChildren: true,
@@ -102,7 +102,7 @@ describe("display/OntologyRow.vue marker", () => {
   });
 });
 
-describe("display/OntologyRow.vue gutter contributes nothing to row height", () => {
+describe("value/OntologyRow.vue gutter contributes nothing to row height", () => {
   // Pins the fix for a bug seen twice: a marker's own intrinsic size (a
   // 24x24 caret button, a 22px-tall connector icon) fed back into the row's
   // height because it sat in normal flow. The gutter is fixed-size and every

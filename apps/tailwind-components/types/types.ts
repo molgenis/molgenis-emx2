@@ -71,7 +71,8 @@ export interface ITreeNodeState extends ITreeNode {
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
 
-export interface IOntologyTreeItem {
+// A type, not an interface, so a term with its ancestors fits a row as a columnValue.
+export type IOntologyTreeItem = {
   name: string;
   label?: string;
   definition?: string;
@@ -80,7 +81,7 @@ export interface IOntologyTreeItem {
   ontologyTermURI?: string;
   parent?: IOntologyTreeItem;
   children?: IOntologyTreeItem[];
-}
+};
 
 export interface IOntologyTerm {
   name: string;
