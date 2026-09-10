@@ -1,8 +1,6 @@
 package org.molgenis.emx2.io.tablestore.processor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_DELETE;
 import static org.molgenis.emx2.Query.Option.INCLUDE_FILE_CONTENTS;
@@ -148,21 +146,55 @@ class ImportRowProcessorTest {
 
   @Test
   void givenMoreRowsThanBatchSize_thenImportAllRows() {
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
+    TableMetadata metadata =
+        TableMetadata.table(
+            "PersonWithAge",
+            column("name").setType(ColumnType.STRING).setPkey(),
+            column("age").setType(ColumnType.INT));
+    schema.create(metadata);
+    table = schema.getTable("PersonWithAge");
     int rowCount = 250;
     Row[] rows =
-        IntStream.range(0, rowCount).mapToObj(i -> row("name", "Person" + i)).toArray(Row[]::new);
+        IntStream.range(0, rowCount)
+            .mapToObj(i -> row("name", "Person" + i, "age", i))
+            .toArray(Row[]::new);
 
     Task task = new Task().start();
     ImportRowProcessor processor = new ImportRowProcessor(table, task);
     processor.process(List.of(rows).iterator(), new TableStoreForCsvInMemory());
-
+    // assert test setup
     List<String> actual =
         table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS).stream()
             .map(r -> r.getString("name"))
             .toList();
     assertEquals(rowCount, actual.size());
     assertTrue(actual.containsAll(List.of("Person0", "Person99", "Person100", "Person249")));
-    assertEquals(rowCount, task.getProgress());
+
+    // now update some rows
+    Row[] updates =
+        IntStream.range(0, rowCount)
+            .mapToObj(i -> row("name", "Person" + i, "age", i * 2))
+            .toArray(Row[]::new);
+
+    Task updatesTask = new Task().start();
+    ImportRowProcessor updatesProcessor =
+        new ImportRowProcessor(table, updatesTask, UpdateMode.UPDATE);
+    updatesProcessor.process(List.of(updates).iterator(), new TableStoreForCsvInMemory());
+    List<Row> afterUpdates = table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
+    assertEquals(rowCount, afterUpdates.size());
+
+    // assert ages are now updated
+    assertEquals(Integer.valueOf(2), ageOf(afterUpdates, "Person1"));
+    assertEquals(Integer.valueOf(198), ageOf(afterUpdates, "Person99"));
+  }
+
+  private Integer ageOf(List<Row> rows, String name) {
+    return rows.stream()
+        .filter(r -> name.equals(r.getString("name")))
+        .findFirst()
+        .orElseThrow()
+        .getInteger("age");
   }
 
   private List<Map<String, Object>> importRows(Row... rows) {

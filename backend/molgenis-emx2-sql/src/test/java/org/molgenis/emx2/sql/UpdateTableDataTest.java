@@ -21,7 +21,7 @@ class UpdateVersusSaveTableDataTest {
     assertEquals("Joop", persons.retrieveRows().getFirst().getString("name"));
     assertEquals(30, persons.retrieveRows().getFirst().getInteger("age"));
 
-    // update data, name value is passed, so it should remain the same
+    // update data, no name value is passed, so it should remain the same
     persons.update(Row.row("id", "p1", "age", 31));
 
     // verify updated data
@@ -65,7 +65,7 @@ class UpdateVersusSaveTableDataTest {
 
     // verify updated data
     assertEquals(1, personTable.retrieveRows().size());
-
+    assertEquals("red", personTable.retrieveRows().getFirst().getString("favoriteColor"));
     assertEquals(31, personTable.retrieveRows().getFirst().getInteger("age"));
   }
 
