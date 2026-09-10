@@ -133,7 +133,7 @@ describe("DisplayRecord", () => {
     expect(
       headingsOnly.findAll("section").map((section) => section.attributes("id"))
     ).toEqual(["details", "care"]);
-    expect(legendLabels(headingsOnly)).toEqual(["Pet", "Details", "Care"]);
+    expect(legendLabels(headingsOnly)).toEqual(["Details", "Care"]);
   });
 
   test("marks the entry of the box now at the top, only that entry, and keeps it when another leaves the band", async () => {
@@ -171,7 +171,7 @@ describe("DisplayRecord", () => {
       },
     });
     await nextTick();
-    expect(legendCurrent(oneSection)).toEqual(["true", "false", "false"]);
+    expect(legendCurrent(oneSection)).toEqual(["true", "false"]);
   });
 
   test("treats a report naming a box the row's data just dropped as no report, lighting up the first surviving entry", async () => {
@@ -331,7 +331,7 @@ describe("DisplayRecord", () => {
     attached.unmount();
   });
 
-  test("names the unnamed top section after the table in the legend, and leaves the section itself unheaded", () => {
+  test("gives the unnamed top section no legend entry, and leaves the section itself unheaded", () => {
     const topped = mount(DisplayRecord, {
       props: {
         metadata: table([
@@ -344,7 +344,7 @@ describe("DisplayRecord", () => {
       },
     });
 
-    expect(legendLabels(topped)).toEqual(["Pet", "Care"]);
+    expect(legendLabels(topped)).toEqual(["Care"]);
     expect(topped.get("#mg_top_of_form").find("h2").exists()).toBe(false);
   });
 
@@ -363,10 +363,9 @@ describe("DisplayRecord", () => {
       },
     });
 
-    expect(legendLabels(oneSection)).toEqual(["Pet", "Details", "Heading2"]);
+    expect(legendLabels(oneSection)).toEqual(["Details", "Heading2"]);
     const topLevel = oneSection.get("nav").findAll(":scope > ul > li");
     expect(topLevel.map((entry) => entry.get("a").text())).toEqual([
-      "Pet",
       "Details",
       "Heading2",
     ]);

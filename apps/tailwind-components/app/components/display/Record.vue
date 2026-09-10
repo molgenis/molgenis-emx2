@@ -91,26 +91,38 @@ const activeSectionId = computed(() => {
   return reported ?? recordSections.value[0]?.id ?? null;
 });
 
+// A section the model never declared has no name of its own, so it gets no entry;
+// its headings still do, and they are what a reader navigates by.
 const legendGroups = computed<LegendGroup[]>(() =>
   sections.value.length === 1
-    ? recordSections.value.map((recordSection) => ({
-        id: recordSection.id,
-        label: recordSection.label ?? props.metadata.label,
-        isVisible: true,
-        isActive: recordSection.id === activeSectionId.value,
-      }))
-    : sections.value.map((section) => ({
-        id: section.id,
-        label: section.label ?? props.metadata.label,
-        isVisible: true,
-        isActive: section.id === activeSectionId.value,
-        headers: section.headings.map((heading) => ({
+    ? recordSections.value
+        .filter((recordSection) => recordSection.label)
+        .map((recordSection) => ({
+          id: recordSection.id,
+          label: recordSection.label as string,
+          isVisible: true,
+          isActive: recordSection.id === activeSectionId.value,
+        }))
+    : sections.value.flatMap((section) => {
+        const headers = section.headings.map((heading) => ({
           id: heading.id,
           label: heading.label,
           isVisible: true,
           isActive: heading.id === activeSectionId.value,
-        })),
-      }))
+        }));
+        // An unnamed section contributes its headings directly, rather than an entry with no text.
+        return section.label
+          ? [
+              {
+                id: section.id,
+                label: section.label,
+                isVisible: true,
+                isActive: section.id === activeSectionId.value,
+                headers,
+              },
+            ]
+          : headers;
+      })
 );
 
 function goToSection(id: string): void {
