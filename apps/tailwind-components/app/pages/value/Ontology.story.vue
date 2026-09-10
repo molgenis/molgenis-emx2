@@ -81,7 +81,6 @@ const surfaces = [
 
 const route = useRoute();
 const router = useRouter();
-const loadFromDatabase = ref(!!route.query.schema);
 const schemaId = ref((route.query.schema as string) || "CatalogueOntologies");
 const tableId = ref((route.query.table as string) || "Keywords");
 const tableMetadata = ref<ITableMetaData>();
@@ -102,11 +101,11 @@ watch([schemaId, tableId], ([schema, table]) => {
 });
 
 watch(
-  [loadFromDatabase, schemaId, tableId],
-  async ([load, schema, table]) => {
+  [schemaId, tableId],
+  async ([schema, table]) => {
     allTerms.value = [];
     loadError.value = "";
-    if (!load || !schema || !table) {
+    if (!schema || !table) {
       return;
     }
     try {
@@ -149,18 +148,12 @@ const termCount = computed(() => allTerms.value.length);
     <div class="space-y-4">
       <h1 class="text-lg font-bold">From a database</h1>
       <p class="text-body-base">
-        This part needs a running backend. Pick an ontology schema and table.
-        The section loads every term of that table. By default it renders them
-        as a record: the tree, with the ancestors it fetches. Compact renders
-        them as a table cell does.
+        This part needs a running backend, and stays empty without one. Pick an
+        ontology schema and table. The section loads every term of that table.
+        By default it renders them as a record: the tree, with the ancestors it
+        fetches. Compact renders them as a table cell does.
       </p>
-      <div class="flex items-center gap-2">
-        <InputCheckbox id="load-from-database" v-model="loadFromDatabase" />
-        <InputLabel for="load-from-database">
-          Load terms from a database
-        </InputLabel>
-      </div>
-      <Suspense v-if="loadFromDatabase">
+      <Suspense>
         <div
           class="p-6 rounded shadow-primary space-y-6 bg-content text-title-contrast"
         >
