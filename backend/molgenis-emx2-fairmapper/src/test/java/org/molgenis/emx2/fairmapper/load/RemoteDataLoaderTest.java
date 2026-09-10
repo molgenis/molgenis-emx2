@@ -50,6 +50,8 @@ class RemoteDataLoaderTest extends ApiTestBase {
             .getTable("Person")
             .retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
     CompareTools.assertEquals(rows, List.of(Row.row("name", "Lewis"), Row.row("name", "Robin")));
+
+    assertNoLeftoverTempDirectories(SCHEMA_NAME);
   }
 
   @Test
@@ -80,15 +82,6 @@ class RemoteDataLoaderTest extends ApiTestBase {
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> loader.load(tableStore));
     assertTrue(exception.getMessage().startsWith("Something went wrong when uploading zip data"));
-    assertNoLeftoverTempDirectories(SCHEMA_NAME);
-  }
-
-  @Test
-  void givenLoadCompletes_whenSuccessful_thenNoTempFilesAreLeftBehind() {
-    RemoteDataLoader loader = new RemoteDataLoader(endpoint, token, SCHEMA_NAME);
-
-    loader.load(personTableStore());
-
     assertNoLeftoverTempDirectories(SCHEMA_NAME);
   }
 
