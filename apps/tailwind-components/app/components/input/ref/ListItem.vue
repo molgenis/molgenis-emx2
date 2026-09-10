@@ -42,9 +42,9 @@ function toLabel(row: columnValueObject) {
 <template>
   <li :id="`input-refback-item-${label}`">
     <RecordAccordion
-      :metadata="refMetadata"
-      :row-data="refData"
-      :label="label"
+      :columns="refMetadata.columns"
+      :row="refData"
+      :title-template="refLabel"
       @expand="emits('expand', refData)"
     >
       <template #toolbar>

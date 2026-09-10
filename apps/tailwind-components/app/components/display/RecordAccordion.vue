@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type {
-  IRow,
-  ITableMetaData,
-} from "../../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
 import { recordTitle } from "../../utils/recordTitle";
 import Accordion from "../Accordion.vue";
 import Record from "./Record.vue";
 
 const props = withDefaults(
   defineProps<{
-    metadata: ITableMetaData;
-    rowData: IRow | null;
-    label?: string;
+    columns: IColumn[];
+    row: IRow;
+    titleTemplate?: string;
     showDetails?: boolean;
     openByDefault?: boolean;
   }>(),
@@ -26,16 +23,11 @@ defineEmits<{
   (e: "expand"): void;
 }>();
 
-// A blank accordion header is unusable, so fall back to the table label.
+// A blank accordion header is unusable, so a template that yields nothing falls back to the primary key.
 const displayLabel = computed(
   () =>
-    props.label ??
-    (recordTitle(
-      props.metadata.columns,
-      props.rowData,
-      props.metadata.labelTemplate
-    ) ||
-      props.metadata.label)
+    recordTitle(props.columns, props.row, props.titleTemplate) ||
+    recordTitle(props.columns, props.row)
 );
 </script>
 
@@ -51,12 +43,7 @@ const displayLabel = computed(
       <slot name="toolbar" />
     </template>
     <div @click="$event.stopPropagation()">
-      <!-- rowData is this component's own prop, nullable for a caller with no row yet; Record itself always requires one. -->
-      <Record
-        :columns="metadata.columns"
-        :row="rowData ?? {}"
-        :show-legend="false"
-      />
+      <Record :columns="columns" :row="row" :show-legend="false" />
     </div>
   </Accordion>
 </template>

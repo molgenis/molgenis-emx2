@@ -40,8 +40,9 @@
       <RecordAccordion
         v-if="metadata"
         :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
-        :metadata="metadata"
-        :row-data="formValues"
+        :columns="metadata.columns"
+        :row="formValues"
+        :title-template="metadata.labelTemplate"
         :show-details="showDetails"
         :open-by-default="openByDefault"
       />

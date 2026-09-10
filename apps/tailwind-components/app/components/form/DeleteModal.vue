@@ -7,6 +7,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
+import { visibleColumns } from "../../utils/visibleColumns";
 import RecordAccordion from "../display/RecordAccordion.vue";
 import { useSession } from "../../composables/useSession";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
@@ -45,6 +46,9 @@ const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
 const rowType = computed(() => props.metadata.id);
+const visibleMetadataColumns = computed(() =>
+  visibleColumns(props.metadata.columns)
+);
 const isDraft = ref(false);
 
 fetchCascadeDeleteMessage();
@@ -165,7 +169,11 @@ function fetchCascadeDeleteMessage() {
       </Transition>
 
       <div class="w-[90%] mx-auto">
-        <RecordAccordion :metadata="metadata" :row-data="formValues" />
+        <RecordAccordion
+          :columns="visibleMetadataColumns"
+          :row="formValues"
+          :title-template="metadata.labelTemplate"
+        />
 
         <div class="text-title-contrast-pop py-8" v-if="cascadeDeleteMsg">
           {{ cascadeDeleteMsg }}
