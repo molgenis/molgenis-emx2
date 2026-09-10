@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   isFileType,
+  isSingleOntologyType,
   isSingleRefType,
   isMultiValuedType,
 } from "../../../../metadata-utils/src";
@@ -17,6 +18,7 @@ import ValueHyperlink from "./Hyperlink.vue";
 import ValueInt from "./Int.vue";
 import ValueList from "./List.vue";
 import ValueLong from "./Long.vue";
+import ValueObject from "./Object.vue";
 import ValueOntology from "./Ontology.vue";
 import ValueRef from "./Ref.vue";
 import ValueString from "./String.vue";
@@ -30,10 +32,12 @@ const props = withDefaults(
     maxLines?: number;
     renderLimit?: number;
     truncate?: boolean;
+    flatOntology?: boolean;
   }>(),
   {
     hideListSeparator: false,
     truncate: true,
+    flatOntology: false,
   }
 );
 
@@ -45,7 +49,10 @@ defineEmits<{
 <template>
   <template v-if="data == null || data === undefined"></template>
   <ValueOntology
-    v-else-if="['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(metadata.columnType)"
+    v-else-if="
+      !flatOntology &&
+      ['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(metadata.columnType)
+    "
     :metadata="metadata"
     :data="data"
     :renderLimit="renderLimit"
@@ -102,6 +109,13 @@ defineEmits<{
   <ValueRef
     v-else-if="isSingleRefType(metadata.columnType)"
     :metadata="toRefColumn(metadata)"
+    :data="data"
+    @refCellClicked="$emit('valueClick', $event)"
+  />
+
+  <ValueObject
+    v-else-if="isSingleOntologyType(metadata.columnType)"
+    :metadata="metadata"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
   />
