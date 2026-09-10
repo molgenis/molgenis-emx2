@@ -44,9 +44,6 @@ const databases = computed(() =>
     .filter(filterDatabases)
     .sort((a, b) => a.label.localeCompare(b.label))
 );
-const handleSearchRequest = (search: string) => {
-  filter.value = search;
-};
 const filter = ref("");
 </script>
 <template>
