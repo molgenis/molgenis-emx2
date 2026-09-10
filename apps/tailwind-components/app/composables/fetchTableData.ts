@@ -104,6 +104,7 @@ function buildRefFieldGql(
   let result = ` ${col.id}${limitArg} {${subFields} }`;
   if (isCollection) result += ` ${col.id}_agg { count }`;
   return result;
+}
 
 function getTableErrorMessage(error: any, schemaId: string, tableId: string) {
   const responseBody =
