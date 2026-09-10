@@ -1,7 +1,6 @@
 package org.molgenis.emx2.fairmapper.load;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
@@ -11,7 +10,8 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 import okhttp3.*;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.web.Constants;
 import org.slf4j.Logger;
@@ -30,16 +30,15 @@ public class RemoteDataLoader implements DataLoader {
   private final URL endpoint;
   private final String token;
 
-  public RemoteDataLoader(String endpoint, String token, String schema, String[] tables)
-      throws MalformedURLException {
+  public RemoteDataLoader(String endpoint, String token, String schema, String[] tables) {
     this.schema = schema;
     this.tables = tables;
-    this.endpoint = URI.create(endpoint).resolve(schema + "/api/zip").toURL();
+    this.endpoint = uploadUrl(endpoint, schema);
     this.token = token;
   }
 
   @Override
-  public void load(InMemoryTableStore tableStore) {
+  public void load(TableStore tableStore) {
     try {
       // Suppressing because the directory from Files.createTempDirectory is owner-only
       @SuppressWarnings("java:S5443")
@@ -72,7 +71,9 @@ public class RemoteDataLoader implements DataLoader {
     logger.info("Uploading data to table store: {}", zipPath);
     try (Response response = OK_HTTP_CLIENT.newCall(request).execute()) {
       if (!response.isSuccessful()) {
-        throw new MolgenisException("Unexpected code " + response);
+        ResponseBody body = response.body();
+        String message = body != null ? body.string() : response.toString();
+        throw new MolgenisException("Unexpected response: " + message);
       }
     } catch (IOException e) {
       throw new MolgenisException("Something went wrong when uploading zip data", e);
@@ -87,16 +88,24 @@ public class RemoteDataLoader implements DataLoader {
         .build();
   }
 
-  private void writeTableStoreToZip(InMemoryTableStore store, Path zipPath) {
+  private void writeTableStoreToZip(TableStore store, Path zipPath) {
     TableStoreForCsvInZipFile zip = new TableStoreForCsvInZipFile(zipPath);
     for (String tableName : tables) {
+      List<Row> rows =
+          StreamSupport.stream(store.readTable(tableName).spliterator(), false).toList();
       List<String> columnNames =
-          StreamSupport.stream(store.readTable(tableName).spliterator(), false)
-              .flatMap(row -> row.getColumnNames().stream())
-              .distinct()
-              .toList();
+          rows.stream().flatMap(row -> row.getColumnNames().stream()).distinct().toList();
 
-      zip.writeTable(tableName, columnNames, store.readTable(tableName));
+      zip.writeTable(tableName, columnNames, rows);
+    }
+  }
+
+  public static URL uploadUrl(String endpoint, String schema) {
+    try {
+      String base = endpoint.endsWith("/") ? endpoint : endpoint + "/";
+      return URI.create(base).resolve(schema + "/api/zip").toURL();
+    } catch (IOException e) {
+      throw new MolgenisException("Unable to stage zip file for upload", e);
     }
   }
 }
