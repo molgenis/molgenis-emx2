@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { IOntologyTreeItem } from "../../../types/types";
 import { useOntologyItemPaging } from "../../composables/useOntologyItemPaging";
 import OntologyRow from "./OntologyRow.vue";
@@ -22,6 +22,12 @@ const props = withDefaults(
 );
 
 const collapsed = ref(props.collapseAll);
+
+watch(
+  () => props.collapseAll,
+  (value) => (collapsed.value = value)
+);
+
 const toggleCollapse = () => {
   collapsed.value = !collapsed.value;
 };

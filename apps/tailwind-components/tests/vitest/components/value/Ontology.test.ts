@@ -110,6 +110,17 @@ describe("value/Ontology.vue collapse-all", () => {
       { name: "Pediatric cardiology", childListHidden: null },
     ]);
   });
+
+  it("re-applies collapse-all to the root when the prop changes", async () => {
+    const wrapper = mountTree(false);
+
+    await wrapper.setProps({ collapseAll: true });
+
+    expect(childListsByParentName(wrapper)[0]).toEqual({
+      name: "Medicine",
+      childListHidden: true,
+    });
+  });
 });
 
 describe("value/Ontology.vue expand control accessibility", () => {
