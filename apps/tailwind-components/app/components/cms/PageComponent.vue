@@ -172,9 +172,11 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
+
   <Section
     v-else-if="mg_tableclass.endsWith('.Sections')"
     :id="component.id"
+    :columns="component.columns"
     :enable-full-screen-width="component.enableFullScreenWidth"
     :applyShadedBackground="component.applyShadedBackground"
     :isEditable="editingIsEnabled"
@@ -200,7 +202,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
     class="mb-2.5 last:mb-0"
     :id="component.id"
-    :paragraph-is-centered="component.paragraphIsCentered"
+    :paragraphIsCentered="component.paragraphIsCentered"
     :text="parsePageText(component.text)"
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
