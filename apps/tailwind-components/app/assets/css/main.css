@@ -11,10 +11,15 @@
 @import url("./plugins/datepicker.css");
 
 @layer components {
-  /* Switches text and icon colours to the theme's inverted set. */
+  /* Switches text and icon colours to the theme's inverted set.
+     Label shares the heading colour: no theme defines a muted inverted
+     text colour yet, so this is a known gap awaiting design, not an oversight. */
   .surface-inverted {
     --text-color-link: var(--text-color-link-inverted);
     --text-color-icon-neutral: var(--text-color-link-inverted);
+    --text-color-record-heading: var(--text-color-title);
+    --text-color-record-value: var(--text-color-title);
+    --text-color-record-label: var(--text-color-title);
   }
 
   :root {

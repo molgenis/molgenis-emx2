@@ -1,0 +1,11 @@
+<template>
+  <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M10 0V10H20"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-dasharray="4 4"
+    />
+  </svg>
+</template>
