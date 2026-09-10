@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import {
   isFileType,
   isSingleOntologyType,
@@ -33,20 +32,14 @@ const props = withDefaults(
     maxLines?: number;
     renderLimit?: number;
     truncate?: boolean;
+    compact?: boolean;
   }>(),
   {
     hideListSeparator: false,
     truncate: true,
+    compact: false,
   }
 );
-
-const carriesAncestry = computed(() => {
-  if (!["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(props.metadata.columnType)) {
-    return false;
-  }
-  const terms = Array.isArray(props.data) ? props.data : [props.data];
-  return terms.some((term) => term?.parent);
-});
 
 defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
@@ -56,7 +49,10 @@ defineEmits<{
 <template>
   <template v-if="data == null || data === undefined"></template>
   <ValueOntology
-    v-else-if="carriesAncestry"
+    v-else-if="
+      !compact && ['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(metadata.columnType)
+    "
+    :metadata="metadata"
     :value="data"
     :collapseAll="false"
     :maxItems="10"

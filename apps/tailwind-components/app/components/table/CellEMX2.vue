@@ -10,6 +10,7 @@
             :data="data"
             :truncate="false"
             :renderLimit="CELL_RENDER_LIMIT"
+            compact
             @valueClick="$emit('cellClicked', $event)"
           />
           <template v-else>

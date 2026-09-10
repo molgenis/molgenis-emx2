@@ -20,7 +20,6 @@ import PageHeader from "../../../../../tailwind-components/app/components/PageHe
 import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import ValueEMX2 from "../../../../../tailwind-components/app/components/value/EMX2.vue";
 import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
-import { withOntologyAncestry } from "../../../../../tailwind-components/app/composables/fetchOntologyAncestry";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 import { useTablePermission } from "../../../../../tailwind-components/app/composables/useTablePermission";
@@ -52,10 +51,7 @@ const { isAdmin, session } = await useSession(schemaId);
 const tableMetadata = await fetchTableMetadata(schemaId, tableId);
 const { data: rowData, refresh } = await useAsyncData(
   keys || JSON.stringify(entityKeysObject),
-  () =>
-    fetchRowData(schemaId, tableId, entityKeysObject).then((row) =>
-      withOntologyAncestry(row, tableMetadata.columns)
-    )
+  () => fetchRowData(schemaId, tableId, entityKeysObject)
 );
 
 const sections = computed(() => {

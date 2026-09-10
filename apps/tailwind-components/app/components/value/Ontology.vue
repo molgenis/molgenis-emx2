@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { IOntologyTreeItem } from "../../../types/types";
+import fetchOntologyAncestry from "../../composables/fetchOntologyAncestry";
 import { buildOntologyTree } from "../../utils/buildOntologyTree";
+import { resolveOntologyAncestry } from "../../utils/resolveOntologyAncestry";
 import {
   countOntologyNodes,
   limitOntologyTree,
@@ -13,6 +16,7 @@ import OntologyRow from "./OntologyRow.vue";
 const props = withDefaults(
   defineProps<{
     value: IOntologyTreeItem | IOntologyTreeItem[];
+    metadata?: IColumn;
     collapseAll?: boolean;
     maxItems?: number;
     itemStep?: number;
@@ -25,7 +29,33 @@ const props = withDefaults(
   }
 );
 
-const tree = computed(() => buildOntologyTree(props.value));
+const resolvedValue = ref(props.value);
+
+watch(
+  [() => props.value, () => props.metadata],
+  async ([value, metadata]) => {
+    resolvedValue.value = value;
+    const schemaId = metadata?.refSchemaId;
+    const tableId = metadata?.refTableId;
+    if (!value || !schemaId || !tableId) {
+      return;
+    }
+    const terms = Array.isArray(value) ? value : [value];
+    try {
+      const termsByName = await fetchOntologyAncestry(
+        schemaId,
+        tableId,
+        terms.map((term) => term.name)
+      );
+      resolvedValue.value = resolveOntologyAncestry(terms, termsByName);
+    } catch (err) {
+      console.error("Failed to resolve ontology ancestry", err);
+    }
+  },
+  { immediate: true }
+);
+
+const tree = computed(() => buildOntologyTree(resolvedValue.value));
 
 const isList = computed(() => {
   return tree.value.every((node) => !node.children?.length);

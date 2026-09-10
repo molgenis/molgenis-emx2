@@ -1,8 +1,15 @@
-import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { flushPromises, mount } from "@vue/test-utils";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import ValueOntology from "../../../../app/components/value/Ontology.vue";
 import CustomTooltip from "../../../../app/components/CustomTooltip.vue";
+import type { IColumn } from "../../../../../metadata-utils/src/types";
 import type { IOntologyTreeItem } from "../../../../types/types";
+
+vi.mock("../../../../app/composables/fetchGraphql", () => ({
+  default: vi.fn(),
+}));
+
+import fetchGraphql from "../../../../app/composables/fetchGraphql";
 
 const medicine: IOntologyTreeItem = { name: "Medicine" };
 const cardiology: IOntologyTreeItem = { name: "Cardiology", parent: medicine };
@@ -34,6 +41,54 @@ function childListsByParentName(wrapper: ReturnType<typeof mountTree>) {
     };
   });
 }
+
+describe("value/Ontology.vue ancestors", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("fetches the record's ancestors and renders them above its term", async () => {
+    vi.mocked(fetchGraphql).mockResolvedValueOnce({
+      Diagnoses: [
+        { name: "Cardiology", parent: { name: "Medicine" } },
+        { name: "Medicine", parent: null },
+      ],
+    });
+    const metadata: IColumn = {
+      id: "diagnosis",
+      label: "Diagnosis",
+      columnType: "ONTOLOGY",
+      refSchemaId: "OntologySchema",
+      refTableId: "Diagnoses",
+    };
+
+    const wrapper = mount(ValueOntology, {
+      props: { metadata, value: { name: "Cardiology" } },
+    });
+    await flushPromises();
+
+    expect(wrapper.findAll("li span.flex").map((span) => span.text())).toEqual([
+      "Medicine",
+      "Cardiology",
+    ]);
+  });
+
+  it("renders the term as it is when the column has no ref table, and fetches nothing", async () => {
+    const metadata: IColumn = {
+      id: "diagnosis",
+      label: "Diagnosis",
+      columnType: "ONTOLOGY",
+    };
+
+    const wrapper = mount(ValueOntology, {
+      props: { metadata, value: { name: "Cardiology" } },
+    });
+    await flushPromises();
+
+    expect(fetchGraphql).not.toHaveBeenCalled();
+    expect(wrapper.text()).toContain("Cardiology");
+  });
+});
 
 describe("value/Ontology.vue collapse-all", () => {
   it("expands only the root when collapse-all is false, a collapsed child's list is present but hidden", () => {

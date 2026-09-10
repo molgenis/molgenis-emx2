@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { IColumn } from "../../../../metadata-utils/src/types";
 
 vi.mock("../../../app/composables/fetchGraphql", () => ({
   default: vi.fn(),
@@ -11,77 +10,14 @@ beforeEach(() => {
 });
 
 async function loadModule() {
-  const { default: fetchOntologyAncestry, withOntologyAncestry } = await import(
+  const { default: fetchOntologyAncestry } = await import(
     "../../../app/composables/fetchOntologyAncestry"
   );
   const { default: fetchGraphql } = await import(
     "../../../app/composables/fetchGraphql"
   );
-  return {
-    fetchOntologyAncestry,
-    withOntologyAncestry,
-    fetchGraphql: vi.mocked(fetchGraphql),
-  };
+  return { fetchOntologyAncestry, fetchGraphql: vi.mocked(fetchGraphql) };
 }
-
-describe("withOntologyAncestry", () => {
-  it("gives each ontology term on the row its ancestors, keeping single and array shapes", async () => {
-    const { withOntologyAncestry, fetchGraphql } = await loadModule();
-    fetchGraphql.mockResolvedValueOnce({
-      Diagnoses: [
-        { name: "Cardiology", parent: { name: "Medicine" } },
-        { name: "Medicine", parent: null },
-      ],
-    });
-    const columns: IColumn[] = [
-      {
-        id: "diagnosis",
-        label: "Diagnosis",
-        columnType: "ONTOLOGY",
-        refSchemaId: "OntologySchema",
-        refTableId: "Diagnoses",
-      },
-      {
-        id: "diagnoses",
-        label: "Diagnoses",
-        columnType: "ONTOLOGY_ARRAY",
-        refSchemaId: "OntologySchema",
-        refTableId: "Diagnoses",
-      },
-    ];
-
-    const row = await withOntologyAncestry(
-      {
-        diagnosis: { name: "Cardiology" },
-        diagnoses: [{ name: "Cardiology" }],
-      },
-      columns
-    );
-
-    expect(row.diagnosis).toMatchObject({
-      name: "Cardiology",
-      parent: { name: "Medicine" },
-    });
-    expect(row.diagnoses).toMatchObject([
-      { name: "Cardiology", parent: { name: "Medicine" } },
-    ]);
-  });
-
-  it("leaves a column with no ref table as it is, and fetches nothing", async () => {
-    const { withOntologyAncestry, fetchGraphql } = await loadModule();
-    const columns: IColumn[] = [
-      { id: "diagnosis", label: "Diagnosis", columnType: "ONTOLOGY" },
-    ];
-
-    const row = await withOntologyAncestry(
-      { diagnosis: { name: "Cardiology" } },
-      columns
-    );
-
-    expect(row.diagnosis).toEqual({ name: "Cardiology" });
-    expect(fetchGraphql).not.toHaveBeenCalled();
-  });
-});
 
 describe("fetchOntologyAncestry", () => {
   it("requests only names its map does not already hold", async () => {

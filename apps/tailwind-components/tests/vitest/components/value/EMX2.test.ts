@@ -111,31 +111,26 @@ describe("value/EMX2.vue", () => {
     expect(wrapper.findComponent(ValueList).props("truncate")).toBe(false);
   });
 
-  it("draws the ontology tree only when the value carries its ancestors", () => {
-    const withAncestor = mount(EMX2Value, {
-      props: {
-        metadata: ontology,
-        data: { name: "Cardiology", parent: { name: "Medicine" } },
-      },
-    });
-
-    expect(
-      withAncestor.findAll("li span.flex").map((span) => span.text())
-    ).toEqual(["Medicine", "Cardiology"]);
-
-    const flatSingle = mount(EMX2Value, {
+  it("renders an ontology value as the tree, and as links when compact", () => {
+    const tree = mount(EMX2Value, {
       props: { metadata: ontology, data: { name: "Term 1" } },
     });
 
-    expect(flatSingle.findComponent(ValueOntology).exists()).toBe(false);
-    expect(flatSingle.get("button").text()).toBe("Term 1");
+    expect(tree.findComponent(ValueOntology).exists()).toBe(true);
 
-    const flatArray = mount(EMX2Value, {
-      props: { metadata: ontologyArray, data: eightTerms },
+    const compactSingle = mount(EMX2Value, {
+      props: { metadata: ontology, data: { name: "Term 1" }, compact: true },
     });
 
-    expect(flatArray.findComponent(ValueOntology).exists()).toBe(false);
-    expect(flatArray.findComponent(ValueList).exists()).toBe(true);
+    expect(compactSingle.findComponent(ValueOntology).exists()).toBe(false);
+    expect(compactSingle.get("button").text()).toBe("Term 1");
+
+    const compactArray = mount(EMX2Value, {
+      props: { metadata: ontologyArray, data: eightTerms, compact: true },
+    });
+
+    expect(compactArray.findComponent(ValueOntology).exists()).toBe(false);
+    expect(compactArray.findComponent(ValueList).exists()).toBe(true);
   });
 
   it("bounds CHECKBOX and MULTISELECT, which are multi-valued without an _ARRAY suffix", () => {
