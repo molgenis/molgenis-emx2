@@ -25,7 +25,7 @@ export interface IValueLabel {
 }
 
 export interface ICleftTypes {
-  "All patients": number;
+  All: number;
   CL: number;
   CP: number;
   CLA: number;
