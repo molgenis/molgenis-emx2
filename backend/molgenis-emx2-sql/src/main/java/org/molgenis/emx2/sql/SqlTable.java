@@ -673,8 +673,28 @@ public class SqlTable implements Table {
     return ((SqlDatabase) getSchema().getDatabase()).getJooq();
   }
 
-  private List<Row> getRowsByRowKey(Collection<Row> rows) {
-    Condition whereCondition = getByRowKey(rows);
+  /**
+   * The current state of rows as identified by their primary key values, including the columns
+   * inherited from any superclass.
+   */
+  private List<Row> getRowsByRowKey(Collection<Row> keyColumns) {
+    List<Row> localRows = getLocalRowsByRowKey(keyColumns);
+    SqlTable inheritedTable = getInheritedTable();
+    if (inheritedTable == null || localRows.isEmpty()) {
+      return localRows;
+    }
+    List<Column> primaryKeyColumns = getMetadata().getPrimaryKeyColumns();
+    List<Row> inheritedRows = inheritedTable.getRowsByRowKey(localRows);
+    // local values win over the inherited ones, the key columns are identical in both
+    return merge(pair(localRows, inheritedRows, primaryKeyColumns), primaryKeyColumns);
+  }
+
+  /**
+   * The current state of rows as identified by their primary key values, not including the columns
+   * inherited from any superclass.
+   */
+  private List<Row> getLocalRowsByRowKey(Collection<Row> keyColumns) {
+    Condition whereCondition = getByRowKey(keyColumns);
     // select typed fields instead of 'selectFrom(table)': the jooq table is untyped, so values
     // would come back as raw jdbc objects (e.g. a PGInterval that Period.parse cannot read)
     List<Field<?>> fields =

@@ -69,6 +69,29 @@ class UpdateVersusSaveTableDataTest {
     assertEquals(31, personTable.retrieveRows().getFirst().getInteger("age"));
   }
 
+  @Test
+  void testUpdateTableDataOnInheritedTableKeepsRequiredParentColumn() {
+    // setup
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema("UpdatePartialInheritedTable");
+    schema.create(
+        table("Person").add(column("id").setPkey()).add(column("email").setRequired(true)));
+    Table employee =
+        schema.create(
+            table("Employee")
+                .setInheritName("Person")
+                .add(column("salary").setType(ColumnType.INT)));
+
+    employee.insert(Row.row("id", "p1", "email", "known@example.com", "salary", 100));
+
+    // update data, no email value is passed, so it should remain the same
+    employee.update(Row.row("id", "p1", "salary", 200));
+
+    assertEquals(1, employee.retrieveRows().size());
+    assertEquals(200, employee.retrieveRows().getFirst().getInteger("salary"));
+    assertEquals("known@example.com", employee.retrieveRows().getFirst().getString("email"));
+  }
+
   private Table createPersonsTable() {
     Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
