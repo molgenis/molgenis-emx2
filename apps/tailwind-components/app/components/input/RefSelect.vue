@@ -493,7 +493,6 @@ watch(
                   :row-data="(option as recordValue)"
                   :show-mg-columns="showMgColumns"
                   :show-legend="false"
-                  :show-filter="false"
                   layout="PLAIN"
                 />
               </InputRefSelectInputOption>

@@ -46,12 +46,7 @@ const displayLabel = computed(
       <slot name="toolbar" />
     </template>
     <div @click="$event.stopPropagation()">
-      <Record
-        :metadata="metadata"
-        :row-data="rowData"
-        :show-legend="false"
-        :show-filter="false"
-      />
+      <Record :metadata="metadata" :row-data="rowData" :show-legend="false" />
     </div>
   </Accordion>
 </template>

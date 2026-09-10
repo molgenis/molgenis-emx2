@@ -300,6 +300,37 @@ describe("DisplayRecord", () => {
     attached.unmount();
   });
 
+  test("scrolls a headings-only section's entry to the first heading it did render", async () => {
+    const attached = mount(DisplayRecord, {
+      props: {
+        metadata: table([
+          column("mg_top_of_form", "SECTION", "_top"),
+          column("details", "HEADING", "Details"),
+          column("name", "STRING", "Name"),
+          column("care", "SECTION", "Care"),
+          column("diet", "STRING", "Diet"),
+        ]),
+        rowData: { name: "spike", diet: "insects" },
+      },
+      attachTo: document.body,
+    });
+    await nextTick();
+
+    // The top section rendered no box of its own, so nothing carries its id.
+    expect(document.getElementById("mg_top_of_form")).toBeNull();
+
+    const scrollIntoView = vi.fn();
+    const detailsSection = document.getElementById("details")!;
+    detailsSection.scrollIntoView = scrollIntoView;
+
+    await attached.get("nav").findAll("a")[0]!.trigger("click");
+
+    expect(scrollIntoView).toHaveBeenCalledOnce();
+    expect(scrollIntoView.mock.instances[0]).toBe(detailsSection);
+
+    attached.unmount();
+  });
+
   test("names the unnamed top section after the table in the legend, and leaves the section itself unheaded", () => {
     const topped = mount(DisplayRecord, {
       props: {

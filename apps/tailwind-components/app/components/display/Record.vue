@@ -111,7 +111,10 @@ const legendGroups = computed<LegendGroup[]>(() =>
 );
 
 function goToSection(id: string): void {
-  document.getElementById(id)?.scrollIntoView();
+  // A section that rendered no box of its own has no element under its own id,
+  // so its entry aims at the first heading it did render.
+  const group = sections.value.find((section) => section.id === id);
+  document.getElementById(group ? legendAnchorId(group) : id)?.scrollIntoView();
 }
 
 const title = computed(() => recordTitle(props.metadata, props.rowData));
