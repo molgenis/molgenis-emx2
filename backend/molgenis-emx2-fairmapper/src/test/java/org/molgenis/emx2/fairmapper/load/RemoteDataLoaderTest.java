@@ -38,8 +38,7 @@ class RemoteDataLoaderTest extends ApiTestBase {
 
   @Test
   void givenSuccessfulResponse_whenLoad_thenUploadsDataToTargetSchema() {
-    RemoteDataLoader loader =
-        new RemoteDataLoader(endpoint, token, SCHEMA_NAME, new String[] {"Person"});
+    RemoteDataLoader loader = new RemoteDataLoader(endpoint, token, SCHEMA_NAME);
 
     loader.load(personTableStore());
 
@@ -53,8 +52,7 @@ class RemoteDataLoaderTest extends ApiTestBase {
 
   @Test
   void givenUnsuccessfulResponse_whenLoad_thenThrows() {
-    RemoteDataLoader loader =
-        new RemoteDataLoader(endpoint, token, "non-existent-schema", new String[] {"Person"});
+    RemoteDataLoader loader = new RemoteDataLoader(endpoint, token, "non-existent-schema");
 
     InMemoryTableStore tableStore = personTableStore();
     MolgenisException exception =
@@ -74,8 +72,7 @@ class RemoteDataLoaderTest extends ApiTestBase {
 
   @Test
   void givenServerUnreachable_whenLoad_thenThrowsWrappingIOException() {
-    RemoteDataLoader loader =
-        new RemoteDataLoader("http://localhost:1", token, SCHEMA_NAME, new String[] {"Person"});
+    RemoteDataLoader loader = new RemoteDataLoader("http://localhost:1", token, SCHEMA_NAME);
 
     InMemoryTableStore tableStore = personTableStore();
     MolgenisException exception =
@@ -86,8 +83,7 @@ class RemoteDataLoaderTest extends ApiTestBase {
 
   @Test
   void givenLoadCompletes_whenSuccessful_thenNoTempFilesAreLeftBehind() {
-    RemoteDataLoader loader =
-        new RemoteDataLoader(endpoint, token, SCHEMA_NAME, new String[] {"Person"});
+    RemoteDataLoader loader = new RemoteDataLoader(endpoint, token, SCHEMA_NAME);
 
     loader.load(personTableStore());
 

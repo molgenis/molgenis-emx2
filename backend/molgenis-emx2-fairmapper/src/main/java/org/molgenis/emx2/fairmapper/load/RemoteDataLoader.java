@@ -26,13 +26,11 @@ public class RemoteDataLoader implements DataLoader {
       new OkHttpClient.Builder().callTimeout(Duration.ofSeconds(60)).build();
 
   private final String schema;
-  private final String[] tables;
   private final URL endpoint;
   private final String token;
 
-  public RemoteDataLoader(String endpoint, String token, String schema, String[] tables) {
+  public RemoteDataLoader(String endpoint, String token, String schema) {
     this.schema = schema;
-    this.tables = tables;
     this.endpoint = uploadUrl(endpoint, schema);
     this.token = token;
   }
@@ -55,9 +53,13 @@ public class RemoteDataLoader implements DataLoader {
     }
   }
 
-  private void deleteTempFiles(Path zipPath, Path tempDir) throws IOException {
-    Files.deleteIfExists(zipPath);
-    Files.deleteIfExists(tempDir);
+  private void deleteTempFiles(Path zipPath, Path tempDir) {
+    try {
+      Files.deleteIfExists(zipPath);
+      Files.deleteIfExists(tempDir);
+    } catch (IOException e) {
+      throw new MolgenisException("Unable to delete temp files for upload", e);
+    }
   }
 
   private void upload(Path zipPath) {
@@ -90,7 +92,7 @@ public class RemoteDataLoader implements DataLoader {
 
   private void writeTableStoreToZip(TableStore store, Path zipPath) {
     TableStoreForCsvInZipFile zip = new TableStoreForCsvInZipFile(zipPath);
-    for (String tableName : tables) {
+    for (String tableName : store.getTableNames()) {
       List<Row> rows =
           StreamSupport.stream(store.readTable(tableName).spliterator(), false).toList();
       List<String> columnNames =
