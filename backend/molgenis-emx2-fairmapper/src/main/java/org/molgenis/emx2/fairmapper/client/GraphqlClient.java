@@ -23,6 +23,8 @@ public class GraphqlClient {
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private static final Logger logger = LoggerFactory.getLogger(GraphqlClient.class);
+  private static final String ERRORS_FIELD = "errors";
+  private static final String DATA_FIELD = "data";
 
   private final String token;
   private final URI endpoint;
@@ -61,15 +63,15 @@ public class GraphqlClient {
       }
 
       JsonNode jsonNode = MAPPER.readTree(response.body());
-      if (jsonNode.has("errors")) {
+      if (jsonNode.has(ERRORS_FIELD)) {
         throwErrors(jsonNode);
       }
 
-      if (!jsonNode.has("data")) {
+      if (!jsonNode.has(DATA_FIELD)) {
         throw new MolgenisException("Unexpected response from graphql server: " + jsonNode);
       }
 
-      return jsonNode.get("data");
+      return jsonNode.get(DATA_FIELD);
     } catch (IOException e) {
       throw new MolgenisException("Failed to execute graphql query", e);
     } catch (InterruptedException e) {
@@ -81,7 +83,7 @@ public class GraphqlClient {
   private void handleError(HttpResponse<String> response) {
     try {
       JsonNode jsonNode = MAPPER.readTree(response.body());
-      if (!jsonNode.has("errors")) {
+      if (!jsonNode.has(ERRORS_FIELD)) {
         throw new MolgenisException("Unexpected response from graphql server: " + jsonNode);
       }
 
@@ -95,7 +97,7 @@ public class GraphqlClient {
   private static void throwErrors(JsonNode jsonNode) {
     String errors =
         jsonNode
-            .get("errors")
+            .get(ERRORS_FIELD)
             .valueStream()
             .map(json -> json.get("message").toString())
             .collect(Collectors.joining(", "));
