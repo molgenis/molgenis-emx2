@@ -6,6 +6,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import okhttp3.*;
@@ -96,8 +97,7 @@ public class RemoteDataLoader implements DataLoader {
       List<Row> rows =
           StreamSupport.stream(store.readTable(tableName).spliterator(), false).toList();
       List<String> columnNames =
-          rows.stream().flatMap(row -> row.getColumnNames().stream()).distinct().toList();
-
+          rows.isEmpty() ? List.of() : new ArrayList<>(rows.getFirst().getColumnNames());
       zip.writeTable(tableName, columnNames, rows);
     }
   }

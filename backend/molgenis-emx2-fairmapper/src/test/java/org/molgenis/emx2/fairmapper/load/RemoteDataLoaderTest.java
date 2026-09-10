@@ -30,7 +30,9 @@ class RemoteDataLoaderTest extends ApiTestBase {
     schema
         .getMetadata()
         .create(
-            TableMetadata.table("Person").add(Column.column("name", ColumnType.STRING).setPkey()));
+            TableMetadata.table("Person").add(Column.column("name", ColumnType.STRING).setPkey()),
+            TableMetadata.table("EmptyTable")
+                .add(Column.column("name", ColumnType.STRING).setPkey()));
 
     token = JWTgenerator.createTemporaryToken(database);
     endpoint = "http://localhost:" + port;
@@ -88,6 +90,23 @@ class RemoteDataLoaderTest extends ApiTestBase {
     loader.load(personTableStore());
 
     assertNoLeftoverTempDirectories(SCHEMA_NAME);
+  }
+
+  @Test
+  void givenTableWithNoRows_whenLoad_thenUploadsSuccessfully() {
+    RemoteDataLoader loader = new RemoteDataLoader(endpoint, token, SCHEMA_NAME);
+
+    InMemoryTableStore tableStore = new InMemoryTableStore();
+    tableStore.writeTable("EmptyTable", List.of("name"), List.of());
+
+    loader.load(tableStore);
+
+    List<Row> rows =
+        database
+            .getSchema(SCHEMA_NAME)
+            .getTable("EmptyTable")
+            .retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
+    assertTrue(rows.isEmpty());
   }
 
   private InMemoryTableStore personTableStore() {
