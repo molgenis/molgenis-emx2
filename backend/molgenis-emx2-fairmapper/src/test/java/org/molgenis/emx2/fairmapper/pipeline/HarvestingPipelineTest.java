@@ -152,10 +152,10 @@ class HarvestingPipelineTest {
     HarvestingPipeline pipeline = new HarvestingPipeline(config);
 
     MolgenisException exception = assertThrows(MolgenisException.class, pipeline::execute);
-
     assertEquals(
         "Unknown table(s) configured: unknown-table for schema: " + schema.getName(),
         exception.getMessage());
+    assertFalse(extractor.called);
   }
 
   private static void assertFileContentMatches(String fileName, String fileContent) {
@@ -169,8 +169,11 @@ class HarvestingPipelineTest {
 
   private static class StaticRdfExtractor implements RdfExtractor {
 
+    private boolean called = false;
+
     @Override
     public void addRdfToRepository(Repository repository, URI rootToAdd) {
+      called = true;
       try (RepositoryConnection connection = repository.getConnection()) {
         connection.add(
             valueFactory.createStatement(
