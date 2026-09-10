@@ -1,6 +1,7 @@
 package org.molgenis.emx2.fairmapper.load;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,9 +22,10 @@ public class RemoteDataLoader implements DataLoader {
 
   private static final Logger logger = LoggerFactory.getLogger(RemoteDataLoader.class);
   private static final MediaType ZIP = MediaType.parse(Constants.ACCEPT_ZIP);
+  private static final Duration UPLOAD_TIMEOUT = Duration.ofSeconds(60);
 
   private static final OkHttpClient OK_HTTP_CLIENT =
-      new OkHttpClient.Builder().callTimeout(Duration.ofSeconds(60)).build();
+      new OkHttpClient.Builder().callTimeout(UPLOAD_TIMEOUT).build();
 
   private final String schema;
   private final URL endpoint;
@@ -77,6 +79,10 @@ public class RemoteDataLoader implements DataLoader {
         String message = body != null ? body.string() : response.toString();
         throw new MolgenisException("Unexpected response: " + message);
       }
+    } catch (InterruptedIOException e) {
+      throw new MolgenisException(
+          "Waiting for uploading zip data timed out, upload task is probably still running on the server",
+          e);
     } catch (IOException e) {
       throw new MolgenisException("Something went wrong when uploading zip data", e);
     }
