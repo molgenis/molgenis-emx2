@@ -1,0 +1,122 @@
+package org.molgenis.emx2.fairmapper.load;
+
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.StreamSupport;
+import okhttp3.*;
+import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.web.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class RemoteDataLoader implements DataLoader {
+
+  private static final Logger logger = LoggerFactory.getLogger(RemoteDataLoader.class);
+  private static final MediaType ZIP = MediaType.parse(Constants.ACCEPT_ZIP);
+  private static final Duration UPLOAD_TIMEOUT = Duration.ofSeconds(60);
+
+  private static final OkHttpClient OK_HTTP_CLIENT =
+      new OkHttpClient.Builder().callTimeout(UPLOAD_TIMEOUT).build();
+
+  private final String schema;
+  private final URL endpoint;
+  private final String token;
+
+  public RemoteDataLoader(String endpoint, String token, String schema) {
+    this.schema = schema;
+    this.endpoint = uploadUrl(endpoint, schema);
+    this.token = token;
+  }
+
+  @Override
+  public void load(TableStore tableStore) {
+    try {
+      // Suppressing because the directory from Files.createTempDirectory is owner-only
+      @SuppressWarnings("java:S5443")
+      Path tempDir = Files.createTempDirectory("remote-data-loader-" + schema);
+      Path zipPath = tempDir.resolve(schema + ".zip");
+      try {
+        writeTableStoreToZip(tableStore, zipPath);
+        upload(zipPath);
+      } finally {
+        deleteTempFiles(zipPath, tempDir);
+      }
+    } catch (IOException e) {
+      throw new MolgenisException("Unable to stage zip file for upload", e);
+    }
+  }
+
+  private void deleteTempFiles(Path zipPath, Path tempDir) {
+    try {
+      Files.deleteIfExists(zipPath);
+      Files.deleteIfExists(tempDir);
+    } catch (IOException e) {
+      throw new MolgenisException("Unable to delete temp files for upload", e);
+    }
+  }
+
+  private void upload(Path zipPath) {
+    Request request =
+        new Request.Builder()
+            .url(endpoint)
+            .header(Constants.X_MOLGENIS_TOKEN, token)
+            .post(requestBody(zipPath))
+            .build();
+
+    logger.info("Uploading data to table store: {}", zipPath);
+    try (Response response = OK_HTTP_CLIENT.newCall(request).execute()) {
+      if (!response.isSuccessful()) {
+        ResponseBody body = response.body();
+        String message = body != null ? body.string() : response.toString();
+        throw new MolgenisException("Unexpected response: " + message);
+      }
+    } catch (InterruptedIOException e) {
+      throw new MolgenisException(
+          "Waiting for uploading zip data timed out, upload task is probably still running on the server",
+          e);
+    } catch (IOException e) {
+      throw new MolgenisException("Something went wrong when uploading zip data", e);
+    }
+  }
+
+  private RequestBody requestBody(Path zipPath) {
+    return new MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart(
+            "file", zipPath.getFileName().toString(), RequestBody.create(zipPath.toFile(), ZIP))
+        .build();
+  }
+
+  private void writeTableStoreToZip(TableStore store, Path zipPath) {
+    TableStoreForCsvInZipFile zip = new TableStoreForCsvInZipFile(zipPath);
+    for (String tableName : store.getTableNames()) {
+      List<Row> rows =
+          StreamSupport.stream(store.readTable(tableName).spliterator(), false).toList();
+      List<String> columnNames =
+          rows.isEmpty() ? List.of() : new ArrayList<>(rows.getFirst().getColumnNames());
+      zip.writeTable(tableName, columnNames, rows);
+    }
+  }
+
+  public static URL uploadUrl(String endpoint, String schema) {
+    HttpUrl base = HttpUrl.parse(endpoint);
+    if (base == null) {
+      throw new IllegalArgumentException("Invalid endpoint: " + endpoint);
+    }
+    return base.newBuilder()
+        .addPathSegment(schema)
+        .addPathSegment("api")
+        .addPathSegment("zip")
+        .build()
+        .url();
+  }
+}
