@@ -24,6 +24,7 @@ public class Schema {
   }
 
   public Schema(SchemaMetadata schema, boolean minimal) {
+    this.name = schema.getName();
     this.settings =
         schema.getSettings().entrySet().stream()
             .filter(entry -> !MOLGENIS_JWT_SHARED_SECRET.equals(entry.getKey()))
@@ -40,7 +41,10 @@ public class Schema {
   }
 
   public SchemaMetadata getSchemaMetadata() {
-    SchemaMetadata s = new SchemaMetadata(name);
+    SchemaMetadata s = new SchemaMetadata();
+    if (name != null) {
+      s.setName(name);
+    }
     s.setSettings(
         this.settings.stream()
             .filter(d -> d.value() != null)
