@@ -351,6 +351,26 @@ public class SqlColumnExecutor {
                 .setRefBack("parent"));
   }
 
+  private static void validateKeyNotAddedToSubclass(Column column) {
+    TableMetadata table = column.getTable();
+    if (!column.isPrimaryKey()
+        || column.isAutoId()
+        || table == null
+        || !table.isSubclass()
+        || column.isInherited()) {
+      return;
+    }
+    throw new MolgenisException(
+        String.format(
+            "Cannot make column '%s.%s' part of the primary key: table '%s' extends '%s' and a"
+                + " subclass shares the primary key of its root table '%s'",
+            table.getTableName(),
+            column.getName(),
+            table.getTableName(),
+            table.getInheritName(),
+            table.getRootTable().getTableName()));
+  }
+
   static void validateColumn(Column c) {
     try {
       if (c.getName() == null) {
@@ -364,6 +384,7 @@ public class SqlColumnExecutor {
                 + c.getName()
                 + "' failed: When key spans multiple columns, none of the columns can be nullable");
       }
+      validateKeyNotAddedToSubclass(c);
       if (c.isReference() && !c.isOntology() && c.getRefTableName() == null) {
         throw new MolgenisException(
             String.format(
