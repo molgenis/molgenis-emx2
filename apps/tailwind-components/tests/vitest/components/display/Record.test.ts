@@ -288,6 +288,23 @@ describe("DisplayRecord", () => {
     attached.unmount();
   });
 
+  test("marks a section active on click, even when it never crosses the band", async () => {
+    // A section already on screen fires no intersection, so the click itself has to mark it.
+    const attached = mount(DisplayRecord, {
+      props: { columns: twoSections, row: twoSectionsRow },
+      attachTo: document.body,
+    });
+    await nextTick();
+    expect(legendCurrent(attached)).toEqual(["true", "false", "false"]);
+
+    // no reportBox call: nothing crosses the band, exactly as when it is already in view
+    await attached.get("nav").findAll("a")[2]!.trigger("click");
+    await nextTick();
+
+    expect(legendCurrent(attached)).toEqual(["false", "false", "true"]);
+    attached.unmount();
+  });
+
   test("scrolls a headings-only section's entry to the first heading it did render", async () => {
     const attached = mount(DisplayRecord, {
       props: {

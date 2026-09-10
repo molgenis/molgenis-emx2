@@ -121,7 +121,11 @@ function goToSection(id: string): void {
   // A section that rendered no box of its own has no element under its own id,
   // so its entry aims at the first heading it did render.
   const group = sections.value.find((section) => section.id === id);
-  document.getElementById(group ? legendAnchorId(group) : id)?.scrollIntoView();
+  const targetId = group ? legendAnchorId(group) : id;
+  // Mark it read straight away: a section already on screen never crosses the
+  // band, so the observer would report nothing and the click would do nothing.
+  reportedSectionId.value = targetId;
+  document.getElementById(targetId)?.scrollIntoView();
 }
 
 const title = computed(() =>
