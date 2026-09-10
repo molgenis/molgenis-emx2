@@ -25,6 +25,7 @@ const props = withDefaults(
     showLegend?: boolean;
     layout?: RecordLayout;
     filterTerm?: string;
+    titleTemplate?: string;
   }>(),
   {
     showMgColumns: false,
@@ -119,7 +120,13 @@ function goToSection(id: string): void {
   document.getElementById(group ? legendAnchorId(group) : id)?.scrollIntoView();
 }
 
-const title = computed(() => recordTitle(props.metadata, props.rowData));
+const title = computed(() =>
+  recordTitle(
+    props.metadata.columns,
+    props.rowData,
+    props.titleTemplate ?? props.metadata.labelTemplate
+  )
+);
 </script>
 
 <template>

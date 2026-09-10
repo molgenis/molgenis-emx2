@@ -48,6 +48,18 @@
             name="show-mg-columns"
           />
         </div>
+        <div>
+          <label class="text-title font-bold" for="title-template">
+            Title template (titleTemplate):
+          </label>
+          <input
+            id="title-template"
+            v-model="titleTemplate"
+            type="text"
+            class="border-2 px-1"
+            placeholder="e.g. ${name}, a good dog"
+          />
+        </div>
       </fieldset>
 
       <DisplayRecord
@@ -58,6 +70,7 @@
         :showLegend="showLegend"
         :layout="useCardLayout ? 'CARDS' : 'PLAIN'"
         :showMgColumns="showMgColumns"
+        :titleTemplate="titleTemplate || undefined"
       />
     </section>
   </div>
@@ -88,6 +101,7 @@ const rowIndex = ref<number>(
 const showLegend = ref(true);
 const useCardLayout = ref(true);
 const showMgColumns = ref(false);
+const titleTemplate = ref("");
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   router.push({

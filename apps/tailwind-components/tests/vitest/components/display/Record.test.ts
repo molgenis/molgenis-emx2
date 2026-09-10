@@ -414,6 +414,48 @@ describe("DisplayRecord", () => {
     ).toBe("spike");
   });
 
+  test("titles the legend with the titleTemplate prop, ahead of the table's own labelTemplate", () => {
+    const metadata = {
+      ...table([
+        { ...column("name", "STRING", "Name"), key: 1 },
+        column("status", "STRING", "Status"),
+        column("details", "HEADING", "Details"),
+        column("weight", "DECIMAL", "Weight"),
+      ]),
+      labelTemplate: "${name} the pet",
+    };
+    const rowData = { name: "spike", status: "available", weight: 15.7 };
+
+    expect(
+      mount(DisplayRecord, {
+        props: { metadata, rowData, titleTemplate: "${name}, a good dog" },
+      })
+        .get("nav")
+        .get("h2")
+        .text()
+    ).toBe("spike, a good dog");
+  });
+
+  test("titles the legend with the table's labelTemplate when no titleTemplate prop is given", () => {
+    const metadata = {
+      ...table([
+        { ...column("name", "STRING", "Name"), key: 1 },
+        column("status", "STRING", "Status"),
+        column("details", "HEADING", "Details"),
+        column("weight", "DECIMAL", "Weight"),
+      ]),
+      labelTemplate: "${name} the pet",
+    };
+    const rowData = { name: "spike", status: "available", weight: 15.7 };
+
+    expect(
+      mount(DisplayRecord, { props: { metadata, rowData } })
+        .get("nav")
+        .get("h2")
+        .text()
+    ).toBe("spike the pet");
+  });
+
   test("reveals the legend at the same width the layout gives it a column, so it never stacks", () => {
     const revealAt = wrapper
       .get("nav")

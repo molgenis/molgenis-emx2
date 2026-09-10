@@ -30,7 +30,12 @@ defineEmits<{
 const displayLabel = computed(
   () =>
     props.label ??
-    (recordTitle(props.metadata, props.rowData) || props.metadata.label)
+    (recordTitle(
+      props.metadata.columns,
+      props.rowData,
+      props.metadata.labelTemplate
+    ) ||
+      props.metadata.label)
 );
 </script>
 

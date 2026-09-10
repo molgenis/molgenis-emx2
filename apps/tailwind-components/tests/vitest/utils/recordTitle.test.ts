@@ -1,77 +1,80 @@
 import { describe, expect, test } from "vitest";
-import type {
-  IColumn,
-  ITableMetaData,
-} from "../../../metadata-utils/src/types";
+import type { IColumn } from "../../../metadata-utils/src/types";
 import { recordTitle } from "../../../app/utils/recordTitle";
-
-function table(columns: IColumn[]): ITableMetaData {
-  return {
-    id: "Pet",
-    schemaId: "pet store",
-    name: "Pet",
-    label: "Pet",
-    tableType: "DATA",
-    columns,
-  };
-}
 
 describe("recordTitle", () => {
   test("joins every key column's value", () => {
-    const metadata = table([
+    const columns: IColumn[] = [
       { id: "name", label: "Name", columnType: "STRING", key: 1 },
       { id: "category", label: "Category", columnType: "STRING", key: 1 },
       { id: "diet", label: "Diet", columnType: "STRING" },
-    ]);
+    ];
 
     expect(
-      recordTitle(metadata, { name: "spike", category: "dog", diet: "insects" })
+      recordTitle(columns, {
+        name: "spike",
+        category: "dog",
+        diet: "insects",
+      })
     ).toBe("spike - dog");
   });
 
   test("flattens a ref key value into text", () => {
-    const metadata = table([
+    const columns: IColumn[] = [
       { id: "category", label: "Category", columnType: "REF", key: 1 },
-    ]);
+    ];
 
-    expect(recordTitle(metadata, { category: { name: "dog" } })).toBe("dog");
+    expect(recordTitle(columns, { category: { name: "dog" } })).toBe("dog");
   });
 
   test("is empty when the row carries no key value", () => {
-    const metadata = table([
+    const columns: IColumn[] = [
       { id: "name", label: "Name", columnType: "STRING", key: 1 },
-    ]);
+    ];
 
-    expect(recordTitle(metadata, {})).toBe("");
-    expect(recordTitle(metadata, null)).toBe("");
+    expect(recordTitle(columns, {})).toBe("");
+    expect(recordTitle(columns, null)).toBe("");
   });
 
   test("a key value of 0 or false still renders", () => {
-    const metadata = table([
+    const columns: IColumn[] = [
       { id: "rank", label: "Rank", columnType: "INT", key: 1 },
       { id: "active", label: "Active", columnType: "BOOL", key: 1 },
-    ]);
+    ];
 
-    expect(recordTitle(metadata, { rank: 0, active: false })).toBe("0 - false");
+    expect(recordTitle(columns, { rank: 0, active: false })).toBe("0 - false");
   });
 
-  test("renders through the table's label template when it has one", () => {
-    const metadata = {
-      ...table([{ id: "name", label: "Name", columnType: "STRING", key: 1 }]),
-      labelTemplate: "${name} the pet",
-    };
+  test("renders an interpolated template when one is given", () => {
+    const columns: IColumn[] = [
+      { id: "name", label: "Name", columnType: "STRING", key: 1 },
+    ];
 
-    expect(recordTitle(metadata, { name: "spike" })).toBe("spike the pet");
+    expect(recordTitle(columns, { name: "spike" }, "${name} the pet")).toBe(
+      "spike the pet"
+    );
   });
 
   test("renders empty, not undefined, when the template fails to interpolate", () => {
     // A row carrying an "id" key of null drives columnValueToString to its
     // undefined-returning branch once the template throws.
-    const metadata = {
-      ...table([{ id: "id", label: "Id", columnType: "STRING", key: 1 }]),
-      labelTemplate: "${missing}",
-    };
+    const columns: IColumn[] = [
+      { id: "id", label: "Id", columnType: "STRING", key: 1 },
+    ];
 
-    expect(recordTitle(metadata, { id: null })).toBe("");
+    expect(recordTitle(columns, { id: null }, "${missing}")).toBe("");
+  });
+
+  test("a plain-text template renders literally; one with a stray backtick throws and falls through to the flattened row", () => {
+    const columns: IColumn[] = [
+      { id: "breed", label: "Breed", columnType: "STRING" },
+    ];
+
+    expect(recordTitle(columns, { breed: "terrier" }, "Favorite Pet")).toBe(
+      "Favorite Pet"
+    );
+    expect(recordTitle(columns, { breed: "terrier" }, "It`s a pet")).toBe(
+      " terrier"
+    );
   });
 });

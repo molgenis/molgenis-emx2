@@ -1,21 +1,22 @@
 import type {
   columnValue,
+  IColumn,
   IRow,
-  ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import { columnValueToString } from "./columnValueToString";
 import { flattenObject } from "./flattenObject";
 
-/** The record's name: its table's label template, else its primary key values joined. */
+/** The record's name: the given template rendered, else its primary key values joined. */
 export function recordTitle(
-  metadata: ITableMetaData,
-  rowData?: IRow | null
+  columns: IColumn[],
+  rowData: IRow | null,
+  template?: string
 ): string {
-  if (metadata.labelTemplate) {
+  if (template) {
     // A template that fails to interpolate must still return "", never undefined, so a caller's `|| fallback` runs.
-    return columnValueToString(rowData, metadata.labelTemplate) || "";
+    return columnValueToString(rowData, template) || "";
   }
-  return metadata.columns
+  return columns
     .filter((column) => column.key === 1)
     .map((column) => keyValueText(rowData?.[column.id]))
     .filter(Boolean)
