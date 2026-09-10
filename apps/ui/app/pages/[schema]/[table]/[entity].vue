@@ -8,6 +8,7 @@ import Button from "../../../../../tailwind-components/app/components/Button.vue
 import DisplayRecord from "../../../../../tailwind-components/app/components/display/Record.vue";
 import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
+import InputSearch from "../../../../../tailwind-components/app/components/input/Search.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
 import fetchRowData, {
@@ -33,6 +34,7 @@ let entityKeysObject: IRow = {};
 
 const showModal = ref(false);
 const cellDetailPayload = ref<cellPayload>();
+const filterValue = ref("");
 
 try {
   if (keys) {
@@ -173,22 +175,30 @@ function handleCellClick(event: cellPayload) {
       </template>
     </PageHeader>
 
-    <div class="flex pb-[30px] gap-[10px] justify-end">
-      <Button
-        type="outline"
-        icon="edit"
-        @click="showEditModal = true"
-        v-if="enableEditing"
-        >Edit
-      </Button>
-      <Button
-        type="outline"
-        icon="trash"
-        @click="showDeleteModal = true"
-        v-if="enableDeleting"
-      >
-        Delete
-      </Button>
+    <div class="flex pb-[30px] gap-[10px] justify-between">
+      <InputSearch
+        class="w-3/5 xl:w-2/5 2xl:w-1/5"
+        v-model="filterValue"
+        :placeholder="`Filter fields...`"
+        id="filter-input"
+      />
+      <div class="flex gap-[10px]">
+        <Button
+          type="outline"
+          icon="edit"
+          @click="showEditModal = true"
+          v-if="enableEditing"
+          >Edit
+        </Button>
+        <Button
+          type="outline"
+          icon="trash"
+          @click="showDeleteModal = true"
+          v-if="enableDeleting"
+        >
+          Delete
+        </Button>
+      </div>
     </div>
 
     <DisplayRecord
@@ -196,6 +206,7 @@ function handleCellClick(event: cellPayload) {
       :rowData="recordRow"
       :showMgColumns="isAdmin"
       :showLegend="true"
+      :filterTerm="filterValue"
       @valueClick="handleCellClick($event)"
     />
   </Container>

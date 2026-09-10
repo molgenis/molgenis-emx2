@@ -24,6 +24,7 @@ const props = withDefaults(
     showMgColumns?: boolean;
     showLegend?: boolean;
     layout?: RecordLayout;
+    filterTerm?: string;
   }>(),
   {
     showMgColumns: false,
@@ -39,6 +40,7 @@ defineEmits<{
 const sections = computed(() =>
   groupRecordSections(props.metadata, props.rowData, {
     showMgColumns: props.showMgColumns,
+    filterTerm: props.filterTerm,
   })
 );
 

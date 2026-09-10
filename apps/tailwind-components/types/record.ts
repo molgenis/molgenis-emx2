@@ -34,4 +34,5 @@ export interface RecordSection {
 
 export interface GroupRecordSectionsOptions {
   showMgColumns?: boolean;
+  filterTerm?: string;
 }

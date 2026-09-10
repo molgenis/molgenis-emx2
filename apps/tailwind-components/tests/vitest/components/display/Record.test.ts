@@ -462,6 +462,29 @@ describe("DisplayRecord", () => {
     );
   });
 
+  test("filters sections by field label from the filterTerm prop, dropping a box and its legend entry together", () => {
+    const threeFlatSections = table([
+      column("about", "SECTION", "About"),
+      column("name", "STRING", "Name"),
+      column("size", "SECTION", "Size"),
+      column("weight", "DECIMAL", "Weight"),
+      column("care", "SECTION", "Care"),
+      column("diet", "STRING", "Diet"),
+    ]);
+    const filtered = mount(DisplayRecord, {
+      props: {
+        metadata: threeFlatSections,
+        rowData: { name: "spike", weight: 15.7, diet: "insects" },
+        filterTerm: "i",
+      },
+    });
+
+    expect(
+      filtered.findAll("section").map((section) => section.attributes("id"))
+    ).toEqual(["size", "care"]);
+    expect(legendLabels(filtered)).toEqual(["Size", "Care"]);
+  });
+
   test("shows mg_ columns only when asked", () => {
     const metadata = table([
       column("about", "SECTION", "About"),
