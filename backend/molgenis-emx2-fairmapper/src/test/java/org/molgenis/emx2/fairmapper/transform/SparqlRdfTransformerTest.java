@@ -145,6 +145,18 @@ class SparqlRdfTransformerTest {
     assertEquals(expected, writer.toString());
   }
 
+  @Test
+  void givenUnknownTable_thenThrow() {
+    SailRepository repository = readPetStoreTtl();
+    List<String> tables = List.of("unknown-1", "unknown-2");
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class, () -> transformer.transform(repository, schema, tables));
+    assertEquals(
+        "Unknown table(s) provided to transformer: unknown-1, unknown-2 for schema: SparqlRdfTransformerTest",
+        exception.getMessage());
+  }
+
   private SailRepository createRepositoryWithStatements(Statement... statements) {
     SailRepository repository = new SailRepository(new MemoryStore());
 

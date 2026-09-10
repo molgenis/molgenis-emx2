@@ -3,6 +3,7 @@ package org.molgenis.emx2.fairmapper.transform;
 import static org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil.SUBJECT_NAME;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.Repository;
@@ -27,6 +28,8 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
   @Override
   public InMemoryTableStore transform(
       Repository repository, SchemaMetadata schema, List<String> tables) {
+    checkTableExistence(schema, tables);
+
     InMemoryTableStore tableStore = new InMemoryTableStore();
     try (RepositoryConnection conn = repository.getConnection()) {
       tables.forEach(table -> addTableDataToStore(table, schema, conn, tableStore));
@@ -90,6 +93,20 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
         .filter(column -> column.isReference() && column.isArray() && !column.isOntology())
         .map(column -> SUBJECT_NAME + column.getName())
         .toList();
+  }
+
+  private static void checkTableExistence(SchemaMetadata schema, List<String> tables) {
+    String missing =
+        tables.stream()
+            .filter(name -> null == schema.getTableMetadata(name))
+            .collect(Collectors.joining(", "));
+    if (!missing.isBlank()) {
+      throw new MolgenisException(
+          "Unknown table(s) provided to transformer: "
+              + missing
+              + " for schema: "
+              + schema.getName());
+    }
   }
 
   private void splitArrayColumns(Row row, List<String> columnNames) {
