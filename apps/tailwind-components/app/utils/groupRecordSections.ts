@@ -2,25 +2,19 @@ import type {
   columnValue,
   IColumn,
   IRow,
-  ITableMetaData,
 } from "../../../metadata-utils/src/types";
-import type {
-  GroupRecordSectionsOptions,
-  RecordHeading,
-  RecordSectionGroup,
-} from "../../types/record";
+import type { RecordHeading, RecordSectionGroup } from "../../types/record";
 
 const TOP_SECTION_ID = "mg_top_of_form";
 
 export function groupRecordSections(
-  metadata: ITableMetaData,
-  rowData: IRow | undefined | null,
-  options: GroupRecordSectionsOptions = {}
+  columns: IColumn[],
+  row: IRow
 ): RecordSectionGroup[] {
   const sections: RecordSectionGroup[] = [];
   let heading: RecordHeading | undefined;
 
-  for (const column of metadata.columns) {
+  for (const column of columns) {
     if (column.columnType === "SECTION") {
       sections.push(newSection(column.id, column.label));
       heading = undefined;
@@ -31,14 +25,14 @@ export function groupRecordSections(
       currentOrTopSection(sections).headings.push(heading);
       continue;
     }
-    if (!isVisibleField(column, rowData, options)) {
+    if (isEmptyValue(row[column.id])) {
       continue;
     }
     const field = {
       id: column.id,
       label: column.label,
       metadata: column,
-      value: rowData?.[column.id],
+      value: row[column.id],
     };
     (heading ?? currentOrTopSection(sections)).fields.push(field);
   }
@@ -72,23 +66,6 @@ function currentOrTopSection(
   const top = newSection(TOP_SECTION_ID, "");
   sections.push(top);
   return top;
-}
-
-function isVisibleField(
-  column: IColumn,
-  rowData: IRow | undefined | null,
-  options: GroupRecordSectionsOptions
-): boolean {
-  if (column.id.startsWith("mg_") && !options.showMgColumns) {
-    return false;
-  }
-  if (
-    options.filterTerm &&
-    !column.label.toLowerCase().includes(options.filterTerm.toLowerCase())
-  ) {
-    return false;
-  }
-  return !isEmptyValue(rowData?.[column.id]);
 }
 
 function isEmptyValue(value: columnValue): boolean {

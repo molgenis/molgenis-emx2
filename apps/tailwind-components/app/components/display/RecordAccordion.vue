@@ -51,7 +51,12 @@ const displayLabel = computed(
       <slot name="toolbar" />
     </template>
     <div @click="$event.stopPropagation()">
-      <Record :metadata="metadata" :row-data="rowData" :show-legend="false" />
+      <!-- rowData is this component's own prop, nullable for a caller with no row yet; Record itself always requires one. -->
+      <Record
+        :columns="metadata.columns"
+        :row="rowData ?? {}"
+        :show-legend="false"
+      />
     </div>
   </Accordion>
 </template>

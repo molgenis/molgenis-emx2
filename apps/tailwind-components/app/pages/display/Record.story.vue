@@ -49,6 +49,18 @@
           />
         </div>
         <div>
+          <label class="text-title font-bold" for="filter-term">
+            Field filter (filterTerm):
+          </label>
+          <input
+            id="filter-term"
+            v-model="filterTerm"
+            type="text"
+            class="border-2 px-1"
+            placeholder="e.g. name"
+          />
+        </div>
+        <div>
           <label class="text-title font-bold" for="title-template">
             Title template (titleTemplate):
           </label>
@@ -65,11 +77,10 @@
       <DisplayRecord
         v-if="metadata"
         :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
-        :metadata="metadata"
-        :rowData="formValues"
+        :columns="storyColumns"
+        :row="formValues"
         :showLegend="showLegend"
         :layout="useCardLayout ? 'CARDS' : 'PLAIN'"
-        :showMgColumns="showMgColumns"
         :titleTemplate="titleTemplate || undefined"
       />
     </section>
@@ -77,10 +88,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import type {
   columnId,
   columnValue,
+  IColumn,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
 import DisplayRecord from "../../components/display/Record.vue";
@@ -101,7 +113,22 @@ const rowIndex = ref<number>(
 const showLegend = ref(true);
 const useCardLayout = ref(true);
 const showMgColumns = ref(false);
+const filterTerm = ref("");
 const titleTemplate = ref("");
+
+// Record no longer filters columns itself; the story reproduces the old
+// showMgColumns/filterTerm controls here, the way any caller now must.
+const storyColumns = computed<IColumn[]>(() =>
+  (metadata.value?.columns ?? []).filter((column) => {
+    if (column.columnType === "HEADING" || column.columnType === "SECTION") {
+      return true;
+    }
+    if (column.id.startsWith("mg_") && !showMgColumns.value) {
+      return false;
+    }
+    return column.label.toLowerCase().includes(filterTerm.value.toLowerCase());
+  })
+);
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
   router.push({

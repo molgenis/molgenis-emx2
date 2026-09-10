@@ -2,7 +2,7 @@
 import { createError, showError, useAsyncData } from "#app";
 import { useRoute, useRouter } from "#app/composables/router";
 import { computed, ref, useId, watch } from "vue";
-import type { IRow } from "../../../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
 import DisplayRecord from "../../../../../tailwind-components/app/components/display/Record.vue";
@@ -20,6 +20,7 @@ import { useTablePermission } from "../../../../../tailwind-components/app/compo
 import { DATA_NOT_FOUND_ERROR } from "../../../../../tailwind-components/app/utils/constants";
 import { fetchErrorToNuxtError } from "../../../../../tailwind-components/app/utils/fetchErrorToNuxtError";
 import { parseMgTableclass } from "../../../../../tailwind-components/app/utils/parseMgTableclass";
+import { visibleColumns } from "../../../../../tailwind-components/app/utils/visibleColumns";
 import { rowMatchesUserRole } from "../../../../../tailwind-components/app/utils/rowMatchesUserRole";
 import type { cellPayload } from "../../../../../tailwind-components/types/types";
 import Container from "../../../../../tailwind-components/app/components/Container.vue";
@@ -159,6 +160,15 @@ function handleCellClick(event: cellPayload) {
   cellDetailPayload.value = event;
   showModal.value = true;
 }
+
+// Choosing which columns to show is the caller's job: HEADING/SECTION carry
+// structure and always pass; a field is dropped by admin-only mg_ prefix or filter text.
+const recordColumns = computed<IColumn[]>(() =>
+  visibleColumns(recordTable.value.columns, {
+    term: filterValue.value,
+    showMgColumns: isAdmin.value,
+  })
+);
 </script>
 
 <template>
@@ -202,11 +212,10 @@ function handleCellClick(event: cellPayload) {
     </div>
 
     <DisplayRecord
-      :metadata="recordTable"
-      :rowData="recordRow"
-      :showMgColumns="isAdmin"
+      :columns="recordColumns"
+      :row="recordRow"
+      :titleTemplate="recordTable.labelTemplate"
       :showLegend="true"
-      :filterTerm="filterValue"
       @valueClick="handleCellClick($event)"
     />
   </Container>

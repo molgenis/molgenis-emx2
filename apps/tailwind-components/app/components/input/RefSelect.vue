@@ -25,10 +25,12 @@ import { fetchGraphql } from "#imports";
 import fetchTableData from "../../composables/fetchTableData";
 
 import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
+import { visibleColumns } from "../../utils/visibleColumns";
 import { fetchTableMetadata } from "#imports";
 import type { ITableDataResponse } from "../../composables/fetchTableData";
 import type { IInputProps } from "../../../types/types";
 import type {
+  IColumn,
   ITableMetaData,
   columnValueObject,
   recordValue,
@@ -149,6 +151,12 @@ async function loadOptions(filter: IQueryMetaData) {
     counter.value = 0;
   }
 }
+
+const optionColumns = computed<IColumn[]>(() =>
+  visibleColumns(tableMetadata.value?.columns ?? [], {
+    showMgColumns: props.showMgColumns,
+  })
+);
 
 const namesForOrderByInput = computed<IInputValueLabel[]>(() => {
   return (
@@ -489,9 +497,8 @@ watch(
               >
                 <DisplayRecord
                   v-if="tableMetadata"
-                  :metadata="tableMetadata"
-                  :row-data="(option as recordValue)"
-                  :show-mg-columns="showMgColumns"
+                  :columns="optionColumns"
+                  :row="(option as recordValue)"
                   :show-legend="false"
                   layout="PLAIN"
                 />

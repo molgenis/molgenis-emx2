@@ -31,8 +31,3 @@ export interface RecordSection {
   label: string | null;
   fields: RecordField[];
 }
-
-export interface GroupRecordSectionsOptions {
-  showMgColumns?: boolean;
-  filterTerm?: string;
-}

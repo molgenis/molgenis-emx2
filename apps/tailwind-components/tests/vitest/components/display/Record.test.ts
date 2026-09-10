@@ -5,7 +5,6 @@ import type {
   ColumnType,
   IColumn,
   IRow,
-  ITableMetaData,
 } from "../../../../../metadata-utils/src/types";
 import DisplayRecord from "../../../../app/components/display/Record.vue";
 
@@ -13,25 +12,14 @@ function column(id: string, columnType: ColumnType, label?: string): IColumn {
   return { id, label: label ?? id, columnType };
 }
 
-function table(columns: IColumn[]): ITableMetaData {
-  return {
-    id: "Pet",
-    schemaId: "pet store",
-    name: "Pet",
-    label: "Pet",
-    tableType: "DATA",
-    columns,
-  };
-}
-
-const twoSections = table([
+const twoSections: IColumn[] = [
   column("about", "SECTION", "About"),
   column("name", "STRING", "Name"),
   column("size", "HEADING", "Size"),
   column("weight", "DECIMAL", "Weight"),
   column("care", "SECTION", "Care"),
   column("diet", "STRING", "Diet"),
-]);
+];
 
 const twoSectionsRow: IRow = { name: "spike", weight: 15.7, diet: "insects" };
 
@@ -92,7 +80,7 @@ describe("DisplayRecord", () => {
     FakeIntersectionObserver.instances = [];
     vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
     wrapper = mount(DisplayRecord, {
-      props: { metadata: twoSections, rowData: twoSectionsRow },
+      props: { columns: twoSections, row: twoSectionsRow },
     });
     // The observers are created on the post-render flush, so they exist only a tick after mount.
     await nextTick();
@@ -119,14 +107,14 @@ describe("DisplayRecord", () => {
   test("renders no box for a top section holding nothing but headings, and aims its legend entry at the first box it does render", () => {
     const headingsOnly = mount(DisplayRecord, {
       props: {
-        metadata: table([
+        columns: [
           column("mg_top_of_form", "SECTION", "_top"),
           column("details", "HEADING", "Details"),
           column("name", "STRING", "Name"),
           column("care", "SECTION", "Care"),
           column("diet", "STRING", "Diet"),
-        ]),
-        rowData: { name: "spike", diet: "insects" },
+        ],
+        row: { name: "spike", diet: "insects" },
       },
     });
 
@@ -159,15 +147,15 @@ describe("DisplayRecord", () => {
 
     const oneSection = mount(DisplayRecord, {
       props: {
-        metadata: table([
+        columns: [
           column("mg_top_of_form", "SECTION", "_top"),
           column("name", "STRING", "Name"),
           column("details", "HEADING", "Details"),
           column("status", "STRING", "Status"),
           column("heading2", "HEADING", "Heading2"),
           column("weight", "DECIMAL", "Weight"),
-        ]),
-        rowData: { name: "spike", status: "available", weight: 15.7 },
+        ],
+        row: { name: "spike", status: "available", weight: 15.7 },
       },
     });
     await nextTick();
@@ -181,7 +169,7 @@ describe("DisplayRecord", () => {
 
     // Emptying diet drops the Care section entirely, so the reported box no longer exists.
     await wrapper.setProps({
-      rowData: { name: "spike", weight: 15.7, diet: "" },
+      row: { name: "spike", weight: 15.7, diet: "" },
     });
     await nextTick();
 
@@ -222,8 +210,8 @@ describe("DisplayRecord", () => {
 
     const noLegend = mount(DisplayRecord, {
       props: {
-        metadata: twoSections,
-        rowData: twoSectionsRow,
+        columns: twoSections,
+        row: twoSectionsRow,
         showLegend: false,
       },
     });
@@ -238,8 +226,8 @@ describe("DisplayRecord", () => {
 
     const latecomer = mount(DisplayRecord, {
       props: {
-        metadata: twoSections,
-        rowData: twoSectionsRow,
+        columns: twoSections,
+        row: twoSectionsRow,
         showLegend: false,
       },
     });
@@ -283,7 +271,7 @@ describe("DisplayRecord", () => {
   test("scrolls a section into view when its legend entry is clicked", async () => {
     // document.getElementById only finds attached elements, so this mount needs a real DOM parent.
     const attached = mount(DisplayRecord, {
-      props: { metadata: twoSections, rowData: twoSectionsRow },
+      props: { columns: twoSections, row: twoSectionsRow },
       attachTo: document.body,
     });
     await nextTick();
@@ -303,14 +291,14 @@ describe("DisplayRecord", () => {
   test("scrolls a headings-only section's entry to the first heading it did render", async () => {
     const attached = mount(DisplayRecord, {
       props: {
-        metadata: table([
+        columns: [
           column("mg_top_of_form", "SECTION", "_top"),
           column("details", "HEADING", "Details"),
           column("name", "STRING", "Name"),
           column("care", "SECTION", "Care"),
           column("diet", "STRING", "Diet"),
-        ]),
-        rowData: { name: "spike", diet: "insects" },
+        ],
+        row: { name: "spike", diet: "insects" },
       },
       attachTo: document.body,
     });
@@ -334,13 +322,13 @@ describe("DisplayRecord", () => {
   test("gives the unnamed top section no legend entry, and leaves the section itself unheaded", () => {
     const topped = mount(DisplayRecord, {
       props: {
-        metadata: table([
+        columns: [
           column("mg_top_of_form", "SECTION", "_top"),
           column("name", "STRING", "Name"),
           column("care", "SECTION", "Care"),
           column("diet", "STRING", "Diet"),
-        ]),
-        rowData: { name: "spike", diet: "insects" },
+        ],
+        row: { name: "spike", diet: "insects" },
       },
     });
 
@@ -351,15 +339,15 @@ describe("DisplayRecord", () => {
   test("lists the boxes of a lone section as siblings, because nesting them all under it says nothing", () => {
     const oneSection = mount(DisplayRecord, {
       props: {
-        metadata: table([
+        columns: [
           column("mg_top_of_form", "SECTION", "_top"),
           column("name", "STRING", "Name"),
           column("details", "HEADING", "Details"),
           column("status", "STRING", "Status"),
           column("heading2", "HEADING", "Heading2"),
           column("weight", "DECIMAL", "Weight"),
-        ]),
-        rowData: { name: "spike", status: "available", weight: 15.7 },
+        ],
+        row: { name: "spike", status: "available", weight: 15.7 },
       },
     });
 
@@ -373,10 +361,10 @@ describe("DisplayRecord", () => {
   });
 
   test("titles the legend with every key value of the record, joined", () => {
-    const withKeys = (rowData: IRow) =>
+    const withKeys = (row: IRow) =>
       mount(DisplayRecord, {
         props: {
-          metadata: table([
+          columns: [
             { ...column("name", "STRING", "Name"), key: 1 },
             {
               ...column("category", "REF", "Category"),
@@ -389,8 +377,8 @@ describe("DisplayRecord", () => {
             column("status", "STRING", "Status"),
             column("details", "HEADING", "Details"),
             column("weight", "DECIMAL", "Weight"),
-          ]),
-          rowData,
+          ],
+          row,
         },
       });
 
@@ -413,46 +401,23 @@ describe("DisplayRecord", () => {
     ).toBe("spike");
   });
 
-  test("titles the legend with the titleTemplate prop, ahead of the table's own labelTemplate", () => {
-    const metadata = {
-      ...table([
-        { ...column("name", "STRING", "Name"), key: 1 },
-        column("status", "STRING", "Status"),
-        column("details", "HEADING", "Details"),
-        column("weight", "DECIMAL", "Weight"),
-      ]),
-      labelTemplate: "${name} the pet",
-    };
-    const rowData = { name: "spike", status: "available", weight: 15.7 };
+  test("titles the legend with the titleTemplate prop", () => {
+    const columns: IColumn[] = [
+      { ...column("name", "STRING", "Name"), key: 1 },
+      column("status", "STRING", "Status"),
+      column("details", "HEADING", "Details"),
+      column("weight", "DECIMAL", "Weight"),
+    ];
+    const row = { name: "spike", status: "available", weight: 15.7 };
 
     expect(
       mount(DisplayRecord, {
-        props: { metadata, rowData, titleTemplate: "${name}, a good dog" },
+        props: { columns, row, titleTemplate: "${name}, a good dog" },
       })
         .get("nav")
         .get("h2")
         .text()
     ).toBe("spike, a good dog");
-  });
-
-  test("titles the legend with the table's labelTemplate when no titleTemplate prop is given", () => {
-    const metadata = {
-      ...table([
-        { ...column("name", "STRING", "Name"), key: 1 },
-        column("status", "STRING", "Status"),
-        column("details", "HEADING", "Details"),
-        column("weight", "DECIMAL", "Weight"),
-      ]),
-      labelTemplate: "${name} the pet",
-    };
-    const rowData = { name: "spike", status: "available", weight: 15.7 };
-
-    expect(
-      mount(DisplayRecord, { props: { metadata, rowData } })
-        .get("nav")
-        .get("h2")
-        .text()
-    ).toBe("spike the pet");
   });
 
   test("reveals the legend at the same width the layout gives it a column, so it never stacks", () => {
@@ -474,11 +439,11 @@ describe("DisplayRecord", () => {
   test("renders no legend below two boxes", () => {
     const single = mount(DisplayRecord, {
       props: {
-        metadata: table([
+        columns: [
           column("about", "SECTION", "About"),
           column("name", "STRING", "Name"),
-        ]),
-        rowData: { name: "spike" },
+        ],
+        row: { name: "spike" },
       },
     });
 
@@ -489,8 +454,8 @@ describe("DisplayRecord", () => {
   test("renders each box as a plain heading and list, with no card and no lg:gap-2.5, when the layout is PLAIN", () => {
     const noCards = mount(DisplayRecord, {
       props: {
-        metadata: twoSections,
-        rowData: twoSectionsRow,
+        columns: twoSections,
+        row: twoSectionsRow,
         layout: "PLAIN",
       },
     });
@@ -501,46 +466,5 @@ describe("DisplayRecord", () => {
     expect(noCards.get("main").get("div.grid").classes()).not.toContain(
       "lg:gap-2.5"
     );
-  });
-
-  test("filters sections by field label from the filterTerm prop, dropping a box and its legend entry together", () => {
-    const threeFlatSections = table([
-      column("about", "SECTION", "About"),
-      column("name", "STRING", "Name"),
-      column("size", "SECTION", "Size"),
-      column("weight", "DECIMAL", "Weight"),
-      column("care", "SECTION", "Care"),
-      column("diet", "STRING", "Diet"),
-    ]);
-    const filtered = mount(DisplayRecord, {
-      props: {
-        metadata: threeFlatSections,
-        rowData: { name: "spike", weight: 15.7, diet: "insects" },
-        filterTerm: "i",
-      },
-    });
-
-    expect(
-      filtered.findAll("section").map((section) => section.attributes("id"))
-    ).toEqual(["size", "care"]);
-    expect(legendLabels(filtered)).toEqual(["Size", "Care"]);
-  });
-
-  test("shows mg_ columns only when asked", () => {
-    const metadata = table([
-      column("about", "SECTION", "About"),
-      column("name", "STRING", "Name"),
-      column("mg_insertedBy", "STRING", "Inserted by"),
-    ]);
-    const rowData: IRow = { name: "spike", mg_insertedBy: "admin" };
-
-    expect(
-      mount(DisplayRecord, { props: { metadata, rowData } }).text()
-    ).not.toContain("Inserted by");
-    expect(
-      mount(DisplayRecord, {
-        props: { metadata, rowData, showMgColumns: true },
-      }).text()
-    ).toContain("Inserted by");
   });
 });

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type {
+  IColumn,
   IRow,
-  ITableMetaData,
   LegendGroup,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
@@ -19,16 +19,13 @@ import DisplayRecordSection from "./RecordSection.vue";
 
 const props = withDefaults(
   defineProps<{
-    metadata: ITableMetaData;
-    rowData: IRow | null;
-    showMgColumns?: boolean;
+    columns: IColumn[];
+    row: IRow;
     showLegend?: boolean;
     layout?: RecordLayout;
-    filterTerm?: string;
     titleTemplate?: string;
   }>(),
   {
-    showMgColumns: false,
     showLegend: true,
     layout: "CARDS",
   }
@@ -38,12 +35,7 @@ defineEmits<{
   (e: "valueClick", payload: cellPayload): void;
 }>();
 
-const sections = computed(() =>
-  groupRecordSections(props.metadata, props.rowData, {
-    showMgColumns: props.showMgColumns,
-    filterTerm: props.filterTerm,
-  })
-);
+const sections = computed(() => groupRecordSections(props.columns, props.row));
 
 const recordSections = computed<RecordSection[]>(() =>
   sections.value.flatMap((section) => [
@@ -133,11 +125,7 @@ function goToSection(id: string): void {
 }
 
 const title = computed(() =>
-  recordTitle(
-    props.metadata.columns,
-    props.rowData,
-    props.titleTemplate ?? props.metadata.labelTemplate
-  )
+  recordTitle(props.columns, props.row, props.titleTemplate)
 );
 </script>
 
