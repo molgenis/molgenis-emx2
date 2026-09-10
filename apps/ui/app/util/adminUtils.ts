@@ -1,5 +1,6 @@
 import { $fetch } from "ofetch";
-import type { ISetting } from "../../../metadata-utils/src/types";
+import type { IRole, ISchemaInfo, IUser } from "../interfaces/interfaces";
+
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
 
@@ -43,7 +44,7 @@ function createUpdateUser(user: IUser) {
   return updateUser;
 }
 
-export function createUser(newUserName: string, newPassword: string) {
+export async function createUser(newUserName: string, newPassword: string) {
   if (!newUserName || !newPassword) return;
 
   return $fetch(API_GRAPHQL, {
@@ -79,7 +80,7 @@ export async function getRoles(schemas: ISchemaInfo[]): Promise<string[]> {
     });
 }
 
-export function getSchemas() {
+export async function getSchemas() {
   return $fetch<{ data: { _schemas: ISchemaInfo[] } }>(API_GRAPHQL, {
     method: "post",
     body: {
@@ -140,17 +141,6 @@ export function isValidPassword(password1: string, password2: string) {
   return password1.length > 7 && password1 === password2;
 }
 
-export interface IUser {
-  //TODO split into communication and internal interface
-  email: string;
-  settings: ISetting[];
-  enabled: boolean;
-  tokens?: string[];
-  roles?: IRole[];
-  revokedRoles?: IRole[];
-  password?: string;
-}
-
 interface IAdminResponse {
   data: {
     _admin: {
@@ -158,16 +148,6 @@ interface IAdminResponse {
       userCount: number;
     };
   };
-}
-
-export interface ISchemaInfo {
-  id: string;
-  label: string;
-}
-
-export interface IRole {
-  schemaId: string;
-  role: string;
 }
 
 interface IUpdateUser {

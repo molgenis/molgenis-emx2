@@ -126,29 +126,28 @@
 <script setup lang="ts">
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
+import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
+import Container from "../../../../tailwind-components/app/components/Container.vue";
+import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
+import Table from "../../../../tailwind-components/app/components/Table.vue";
+import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
+import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
+import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
+import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
+import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
+import EditUserModal from "../../components/EditUserModal.vue";
+import NewUserModal from "../../components/NewUserModal.vue";
+import TokenManagement from "../../components/TokenManagement.vue";
+import type { ISchemaInfo, IUser } from "../../interfaces/interfaces.ts";
 import {
   createUser,
   deleteUser,
   getRoles,
   getSchemas,
   getUsers,
-  type ISchemaInfo,
-  type IUser,
-} from "~/util/adminUtils";
-import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import Table from "../../../../tailwind-components/app/components/Table.vue";
-import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
-import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
-import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
-import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
-import Container from "../../../../tailwind-components/app/components/Container.vue";
-import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
-import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
-import Button from "../../../../tailwind-components/app/components/Button.vue";
-import NewUserModal from "../../components/NewUserModal.vue";
-import EditUserModal from "../../components/EditUserModal.vue";
-import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
-import TokenManagement from "../../components/TokenManagement.vue";
+} from "../../util/adminUtils";
 
 /**
  * Todo:
@@ -180,8 +179,7 @@ const schema = ref<string>("");
 
 retrieveUsers();
 schemas.value = await getSchemas();
-// @ts-expect-error
-schema.value = schemas.value.length ? schemas.value[0].id : "";
+schema.value = schemas.value[0]?.id || "";
 roles.value = await getRoles(schemas.value);
 
 const usernames = computed(() => {
