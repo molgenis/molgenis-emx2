@@ -1,0 +1,7 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Quality info,,,,,,,,,,,,Quality management and certification information for a resource,DataCatalogueFlat
+Quality info,,resource,ref,1,TRUE,,Resources,,,,,Resource this quality information applies to,DataCatalogueFlat
+Quality info,,name,string,1,TRUE,,,,,,,Name or identifier of this quality entry,DataCatalogueFlat
+Quality info,,standard,string,,,,,,,,,Quality management standard or certification scheme (e.g. ISO 20387),DataCatalogueFlat
+Quality info,,certification number,string,,,,,,,,,Certification or accreditation number,DataCatalogueFlat
+Quality info,,has certification,bool,,,,,,,,,Whether a certification has been obtained,DataCatalogueFlat

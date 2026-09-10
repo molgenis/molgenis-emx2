@@ -158,9 +158,13 @@ public class QueryBuilder {
         if (column.isOntology()) {
           columnSb.append(column.getIdentifier()).append("{");
           for (Column subCol : column.getRefTable().getColumnsWithoutHeadings()) {
-            if (!EXCLUDED_COLUMNS.contains(subCol.getName())) {
-              columnSb.append(subCol.getIdentifier()).append(",");
+            // a ref/ontology subcolumn (e.g. nested ontology ROR.country -> Countries) needs a
+            // subselection; emitting it as a scalar leaf fails with SubselectionRequired. Skip any
+            // reference by type, generalising the name-based parent/children exclusion.
+            if (EXCLUDED_COLUMNS.contains(subCol.getName()) || subCol.isReference()) {
+              continue;
             }
+            columnSb.append(subCol.getIdentifier()).append(",");
           }
           columnSb.append("},");
           continue;

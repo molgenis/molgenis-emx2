@@ -1,0 +1,21 @@
+id,collection,sex,age group,sample type,disease,anatomy,number of samples,number of donors,last update,source,imported from
+directory_factID_EXT_GBR-1-198_1,bbmri-eric:ID:EXT_GBR-1-198:collection:1,Male,Adult (25-44 years),,,,54,43,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_GBR-1-198_2,bbmri-eric:ID:EXT_GBR-1-198:collection:1,Female,Adult (25-44 years),,,,31,28,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_GBR-1-198_3,bbmri-eric:ID:EXT_GBR-1-198:collection:1,Male,Middle-aged (45-64 years),,,,22,18,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_GBR-1-198_4,bbmri-eric:ID:EXT_GBR-1-198:collection:1,Female,Middle-aged (45-64 years),,,,19,17,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_GBR-1-198_5,bbmri-eric:ID:EXT_GBR-1-198:collection:1,Male,Aged (65-79 years),,,,9,7,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_GBR-1-198_6,bbmri-eric:ID:EXT_GBR-1-198:collection:1,Female,Aged (65-79 years),,,,12,9,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_GBR-1-198_7,bbmri-eric:ID:EXT_GBR-1-198:collection:1,,,,,,401,168,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_76823_8,bbmri-eric:ID:EXT_76823:collection:MainCollection,Male,,,,,2,2,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_76823_9,bbmri-eric:ID:EXT_76823:collection:MainCollection,Female,Adult (25-44 years),,,,4,4,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_76823_10,bbmri-eric:ID:EXT_76823:collection:MainCollection,Male,Adult (25-44 years),,,,6,6,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_76823_11,bbmri-eric:ID:EXT_76823:collection:MainCollection,,,,,,9,3,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_IBG_12,bbmri-eric:ID:EXT_IBG:collection:RareDisease-1,Male,Adult (25-44 years),,,,96,92,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_IBG_13,bbmri-eric:ID:EXT_IBG:collection:RareDisease-1,Female,Adult (25-44 years),,,,88,84,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_IBG_14,bbmri-eric:ID:EXT_IBG:collection:RareDisease-1,Male,Middle-aged (45-64 years),,,,40,38,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_IBG_15,bbmri-eric:ID:EXT_IBG:collection:RareDisease-1,Female,Aged (65+ years),,,,15,14,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_QBB_16,bbmri-eric:ID:EXT_QBB:collection:covid19,Male,Adult (25-44 years),,,,6000,1000,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_QBB_17,bbmri-eric:ID:EXT_QBB:collection:covid19,Female,Adult (25-44 years),,,,6000,1000,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_QBB_18,bbmri-eric:ID:EXT_QBB:collection:covid19,Male,Middle-aged (45-64 years),,,,3200,520,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_BB-iMM_19,bbmri-eric:ID:EXT_BB-iMM:collection:covid19,Male,Adult (25-44 years),,,,1800,90,2024-07-19,directory_nn_EXT,bbmri-eric-directory
+directory_factID_EXT_BB-iMM_20,bbmri-eric:ID:EXT_BB-iMM:collection:covid19,Female,Middle-aged (45-64 years),,,,1700,80,2024-07-19,directory_nn_EXT,bbmri-eric-directory
