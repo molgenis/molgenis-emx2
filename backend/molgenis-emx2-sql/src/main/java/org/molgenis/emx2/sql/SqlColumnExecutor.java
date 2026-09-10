@@ -512,8 +512,8 @@ public class SqlColumnExecutor {
     if (newColumn.getDefaultValue() != null && newColumn.isReference()) {
       // we can't do this for references yet
       Object defaultValue = newColumn.getDefaultValue();
-      if (newColumn.getDefaultValue().startsWith("=")) {
-        defaultValue = executeJavascript(newColumn.getDefaultValue().substring(1));
+      if (newColumn.hasComputedDefaultValue()) {
+        defaultValue = executeJavascript(newColumn.getDefaultValueExpression());
       }
       defaultValue = getTypedValue(defaultValue, newColumn.getPrimitiveColumnType());
       jooq.alterTable(newColumn.getJooqTable())

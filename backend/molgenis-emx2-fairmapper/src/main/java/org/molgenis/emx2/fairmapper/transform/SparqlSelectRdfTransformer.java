@@ -9,7 +9,6 @@ import org.eclipse.rdf4j.query.*;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
@@ -21,43 +20,28 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
   private static final String ARRAY_SEPARATOR_REGEX = "\\|";
 
   private final QueryGenerator queryGenerator;
-  private final SchemaMetadata schema;
-  private final List<String> tables;
 
-  public SparqlSelectRdfTransformer(
-      QueryGenerator queryGenerator, SchemaMetadata schema, List<String> tables) {
+  public SparqlSelectRdfTransformer(QueryGenerator queryGenerator) {
     this.queryGenerator = queryGenerator;
-    this.schema = schema;
-    this.tables = tables;
-
-    checkTableExistence(schema, tables);
-  }
-
-  private static void checkTableExistence(SchemaMetadata schema, List<String> tables) {
-    String missing =
-        tables.stream()
-            .filter(name -> null == schema.getTableMetadata(name))
-            .collect(Collectors.joining(", "));
-    if (!missing.isBlank()) {
-      throw new MolgenisException(
-          "Unknown table(s) provided to transformer: "
-              + missing
-              + " for schema: "
-              + schema.getName());
-    }
   }
 
   @Override
-  public InMemoryTableStore transform(Repository repository) {
+  public InMemoryTableStore transform(
+      Repository repository, SchemaMetadata schema, List<String> tables) {
+    checkTableExistence(schema, tables);
+
     InMemoryTableStore tableStore = new InMemoryTableStore();
     try (RepositoryConnection conn = repository.getConnection()) {
-      tables.forEach(table -> addTableDataToStore(table, conn, tableStore));
+      tables.forEach(table -> addTableDataToStore(table, schema, conn, tableStore));
     }
     return tableStore;
   }
 
   private void addTableDataToStore(
-      String table, RepositoryConnection conn, InMemoryTableStore tableStore) {
+      String table,
+      SchemaMetadata schema,
+      RepositoryConnection conn,
+      InMemoryTableStore tableStore) {
     TableMetadata tableMetadata = schema.getTableMetadata(table);
     String query = queryGenerator.generate(tableMetadata);
     TupleQuery prepared = conn.prepareTupleQuery(QueryLanguage.SPARQL, query);
@@ -109,6 +93,20 @@ public class SparqlSelectRdfTransformer implements RdfTransformer {
         .filter(column -> column.isReference() && column.isArray() && !column.isOntology())
         .map(column -> SUBJECT_NAME + column.getName())
         .toList();
+  }
+
+  private static void checkTableExistence(SchemaMetadata schema, List<String> tables) {
+    String missing =
+        tables.stream()
+            .filter(name -> null == schema.getTableMetadata(name))
+            .collect(Collectors.joining(", "));
+    if (!missing.isBlank()) {
+      throw new MolgenisException(
+          "Unknown table(s) provided to transformer: "
+              + missing
+              + " for schema: "
+              + schema.getName());
+    }
   }
 
   private void splitArrayColumns(Row row, List<String> columnNames) {
