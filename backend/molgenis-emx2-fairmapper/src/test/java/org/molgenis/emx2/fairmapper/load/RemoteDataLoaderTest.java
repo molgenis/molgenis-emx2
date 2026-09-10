@@ -19,7 +19,7 @@ import org.molgenis.emx2.web.ApiTestBase;
 
 class RemoteDataLoaderTest extends ApiTestBase {
 
-  private static final String SCHEMA_NAME = RemoteDataLoaderTest.class.getSimpleName();
+  private static final String SCHEMA_NAME = RemoteDataLoaderTest.class.getSimpleName() + " test";
 
   private static String token;
   private static String endpoint;
@@ -161,22 +161,17 @@ class RemoteDataLoaderTest extends ApiTestBase {
     }
 
     @Test
-    void givenSchemaWithSpaces_whenUploadUrl_thenThrowsIllegalArgumentException() {
-      assertThrows(
-          IllegalArgumentException.class,
-          () -> RemoteDataLoader.uploadUrl("http://localhost:8080", "my schema"));
+    void givenSchemaWithSpaces_whenUploadUrl_thenEncodesSpaces() {
+      URL url = RemoteDataLoader.uploadUrl("http://localhost:8080", "my schema");
+
+      assertEquals("http://localhost:8080/my%20schema/api/zip", url.toString());
     }
 
     @Test
-    void givenEndpointWithUnknownProtocol_whenUploadUrl_thenThrowsMolgenisException() {
-      MolgenisException exception =
-          assertThrows(
-              MolgenisException.class,
-              () -> RemoteDataLoader.uploadUrl("unknown-protocol://localhost", "mySchema"));
-
-      assertEquals(
-          "Unable to stage zip file for upload: unknown protocol: unknown-protocol",
-          exception.getMessage());
+    void givenEndpointWithUnknownProtocol_whenUploadUrl_thenThrowsIllegalArgumentException() {
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> RemoteDataLoader.uploadUrl("unknown-protocol://localhost", "mySchema"));
     }
   }
 }

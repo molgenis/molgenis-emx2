@@ -1,7 +1,6 @@
 package org.molgenis.emx2.fairmapper.load;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -103,11 +102,15 @@ public class RemoteDataLoader implements DataLoader {
   }
 
   public static URL uploadUrl(String endpoint, String schema) {
-    try {
-      String base = endpoint.endsWith("/") ? endpoint : endpoint + "/";
-      return URI.create(base).resolve(schema + "/api/zip").toURL();
-    } catch (IOException e) {
-      throw new MolgenisException("Unable to stage zip file for upload", e);
+    HttpUrl base = HttpUrl.parse(endpoint);
+    if (base == null) {
+      throw new IllegalArgumentException("Invalid endpoint: " + endpoint);
     }
+    return base.newBuilder()
+        .addPathSegment(schema)
+        .addPathSegment("api")
+        .addPathSegment("zip")
+        .build()
+        .url();
   }
 }
