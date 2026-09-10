@@ -1,0 +1,6 @@
+query {
+    _schemas {
+        tableSchema: name
+        description
+    }
+}

@@ -11,6 +11,7 @@ import org.molgenis.emx2.TableMetadata;
 
 public class Schema {
 
+  private String name;
   private List<Table> tables = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
 
@@ -23,6 +24,7 @@ public class Schema {
   }
 
   public Schema(SchemaMetadata schema, boolean minimal) {
+    this.name = schema.getName();
     this.settings =
         schema.getSettings().entrySet().stream()
             .filter(entry -> !MOLGENIS_JWT_SHARED_SECRET.equals(entry.getKey()))
@@ -40,6 +42,9 @@ public class Schema {
 
   public SchemaMetadata getSchemaMetadata() {
     SchemaMetadata s = new SchemaMetadata();
+    if (name != null) {
+      s.setName(name);
+    }
     s.setSettings(
         this.settings.stream()
             .filter(d -> d.value() != null)
@@ -80,6 +85,14 @@ public class Schema {
     return s;
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
   public List<Table> getTables() {
     return tables;
   }
@@ -94,5 +107,32 @@ public class Schema {
 
   public void setSettings(List<Setting> settings) {
     this.settings = settings;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    Schema schema = (Schema) o;
+    return Objects.equals(name, schema.name)
+        && Objects.equals(tables, schema.tables)
+        && Objects.equals(settings, schema.settings);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, tables, settings);
+  }
+
+  @Override
+  public String toString() {
+    return "Schema{"
+        + "name='"
+        + name
+        + '\''
+        + ", tables="
+        + tables
+        + ", settings="
+        + settings
+        + '}';
   }
 }
