@@ -20,6 +20,7 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.Table;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.Schema;
 
 public class SqlColumnExecutor {
   private SqlColumnExecutor() {
@@ -276,11 +277,12 @@ public class SqlColumnExecutor {
     // check table doesn't exist
     SchemaMetadata refSchema = schema;
     if (column.getRefSchemaName() != null) {
-      if (schema.getDatabase().getSchema(column.getRefSchemaName()) == null) {
+      Schema columnRefSchema = schema.getDatabase().getSchema(column.getRefSchemaName());
+      if (columnRefSchema == null) {
         throw new MolgenisException(
             "refSchema '" + column.getRefSchemaName() + "' does not exist or permission denied");
       }
-      refSchema = schema.getDatabase().getSchema(column.getRefSchemaName()).getMetadata();
+      refSchema = columnRefSchema.getMetadata();
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
