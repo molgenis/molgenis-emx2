@@ -2,7 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Variant interpretations,,,,,,,,,,,,,obo:NGBO_6000125, A genetic variation analysis which assign a formal classification to a detected genetic variant.,Patient registry
 Variant interpretations,,id,auto_id,1,TRUE,,,,,,,,obo:NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry"
 Variant interpretations,,interpretation analysis,select,,,,Variant interpretation analyses,,,,,,,,Patient registry
-Variant interpretations,,proband,select,,,,Variant interpretation analyses,,,,,,,,Patient registry
+Variant interpretations,,individual,select,,,,Individuals,,,,,,http://www.ebi.ac.uk/efo/EFO_0000542,An individual used as a specimen in an analysis,Patient registry
 Variant interpretations,,Variant Definition,heading,,,,,,,,,,,,Patient registry
 Variant interpretations,,status,ontology,,,CatalogueOntologies,Status,,,,,,sio:SIO_000033,"The status of the variant interpretation indicates the state or progress (e.g., draft of final interpretation)",Patient registry
 Variant interpretations,,variant,select,,,,Genomic variants,,,,,,obo:NCIT_C164813,"The variant under consensus",Patient registry
@@ -11,6 +11,7 @@ Variant interpretations,,parental origin,ontology,,,CatalogueOntologies,Variant 
 Variant interpretations,,inheritance,ontology_array,,,CatalogueOntologies,Inheritance pattern,,,,,,obo:GENO_0000141,"The pattern in which a genetic trait or condition is passed from one generation to the next, as determined by genetic interactions between alleles of the causal gene, and interactions between these alleles and the environment.",Patient registry
 Variant interpretations,,zygosity,ontology,,,CatalogueOntologies,Zygosity,,,,,,obo:GENO_0000133,"An allelic state that describes the degree of similarity between features in a 'single locus complement', within the genome of a cell or organism (i.e., whether the alleles or haplotypes that reside at the same location on paired chromosomes are the same or different).",Patient registry
 Variant interpretations,,mosaicism,bool,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C92976,The presence of more than one genetically distinct cell line in germ and/or somatic cells.,Patient registry
+Variant interpretations,,mosaic percentage,decimal,,,,,,,,,,,The estimated proportion of mosaic cells.,Patient registry
 Variant interpretations,,Consensus Classification,heading,,,,,,,,,,,,Patient registry
 Variant interpretations,,disease,ontology,,,CatalogueOntologies,Diseases,,,,,,obo:NCIT_C15607,"The diagnosis assigned for this particular observation (e.g., ""Spinocerebellar ataxia type 34"")",Patient registry
 Variant interpretations,,classification,ontology,,,CatalogueOntologies,Variant classifications,,,,,,obo:NGBO_6000303,"A clinical variant interpretation that represents a sequence variant that is previously reported and is a recognized cause of the disorder (e.g., ""Pathogenic"")",Patient registry
