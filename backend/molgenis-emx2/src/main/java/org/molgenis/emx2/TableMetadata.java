@@ -8,6 +8,7 @@ import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -531,6 +532,25 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getPrimaryKeyColumns() {
     return getKey(1);
+  }
+
+  /**
+   * Default label template for a row of this table: the primary key columns, in key order, each as
+   * {@code ${path}}, mirroring {@link Column#getRefLabelDefault()} but with no back-reference to
+   * exclude because there is no referencing column here.
+   */
+  public String getLabelTemplate() {
+    return getPrimaryKeyColumns().stream()
+        .flatMap(
+            pk ->
+                pk.isReference()
+                    ? pk.getReferences().stream()
+                        .filter(ref -> !ref.isOverlapping())
+                        .map(
+                            ref ->
+                                "${" + pk.getName() + "." + String.join(".", ref.getPath()) + "}")
+                    : Stream.of("${" + pk.getName() + "}"))
+        .collect(Collectors.joining(" "));
   }
 
   public List<Column> getKey(int key) {

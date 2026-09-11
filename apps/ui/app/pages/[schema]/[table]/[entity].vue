@@ -1,28 +1,26 @@
 <script setup lang="ts">
-import { useAsyncData } from "#app";
+import { createError, showError, useAsyncData } from "#app";
 import { useRoute, useRouter } from "#app/composables/router";
-import { computed, ref, useId } from "vue";
-import type {
-  columnValue,
-  IColumn,
-  IRow,
-} from "../../../../../metadata-utils/src/types";
+import { computed, ref, useId, watch } from "vue";
+import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
 import Button from "../../../../../tailwind-components/app/components/Button.vue";
-import ContentBlock from "../../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import DefinitionList from "../../../../../tailwind-components/app/components/DefinitionList.vue";
-import DefinitionListDefinition from "../../../../../tailwind-components/app/components/DefinitionListDefinition.vue";
-import DefinitionListTerm from "../../../../../tailwind-components/app/components/DefinitionListTerm.vue";
+import DisplayRecord from "../../../../../tailwind-components/app/components/display/Record.vue";
 import DeleteModal from "../../../../../tailwind-components/app/components/form/DeleteModal.vue";
 import EditModal from "../../../../../tailwind-components/app/components/form/EditModal.vue";
 import InputSearch from "../../../../../tailwind-components/app/components/input/Search.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
 import CellDetailModal from "../../../../../tailwind-components/app/components/table/cellDetail/CellDetailModal.vue";
-import ValueEMX2 from "../../../../../tailwind-components/app/components/value/EMX2.vue";
-import fetchRowData from "../../../../../tailwind-components/app/composables/fetchRowData";
+import fetchRowData, {
+  RowNotFoundError,
+} from "../../../../../tailwind-components/app/composables/fetchRowData";
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
 import { useTablePermission } from "../../../../../tailwind-components/app/composables/useTablePermission";
+import { DATA_NOT_FOUND_ERROR } from "../../../../../tailwind-components/app/utils/constants";
+import { fetchErrorToNuxtError } from "../../../../../tailwind-components/app/utils/fetchErrorToNuxtError";
+import { parseMgTableclass } from "../../../../../tailwind-components/app/utils/parseMgTableclass";
+import { visibleColumns } from "../../../../../tailwind-components/app/utils/visibleColumns";
 import { rowMatchesUserRole } from "../../../../../tailwind-components/app/utils/rowMatchesUserRole";
 import type { cellPayload } from "../../../../../tailwind-components/types/types";
 import Container from "../../../../../tailwind-components/app/components/Container.vue";
@@ -37,6 +35,7 @@ let entityKeysObject: IRow = {};
 
 const showModal = ref(false);
 const cellDetailPayload = ref<cellPayload>();
+const filterValue = ref("");
 
 try {
   if (keys) {
@@ -48,69 +47,88 @@ try {
 }
 const { isAdmin, session } = await useSession(schemaId);
 
-const tableMetadata = await fetchTableMetadata(schemaId, tableId);
-const { data: rowData, refresh } = await useAsyncData(
-  keys || JSON.stringify(entityKeysObject),
-  () => fetchRowData(schemaId, tableId, entityKeysObject)
-);
-
-const sections = computed(() => {
-  return tableMetadata.columns
-    .map((column) => {
-      return {
-        key: column.id,
-        value: rowData.value?.[column.id],
-        metadata: column,
-      };
-    })
-    .filter((item) => {
-      return !item.key.startsWith("mg_") || isAdmin.value;
-    })
-    .filter((item) => {
-      return (
-        (rowData.value && rowData.value.hasOwnProperty(item.key)) ||
-        item.metadata.columnType === "HEADING"
-      );
-    })
-    .reduce((acc, item) => {
-      if (item.metadata.columnType === "HEADING") {
-        // If the item is a heading, create a new section
-        acc.push({ heading: item.metadata.label as string, fields: [] });
-      } else {
-        // If first item is not a section heading, create a default section
-        if (acc.length === 0) {
-          acc.push({ heading: "", fields: [] });
-        }
-        // Add the item to the last section
-        const lastSection = acc[acc.length - 1];
-        if (lastSection) {
-          lastSection.fields.push(item);
-        }
-      }
-      return acc;
-    }, [] as { heading: string; fields: { key: string; value: columnValue; metadata: IColumn }[] }[])
-    .filter((section) => {
-      // Filter out empty sections
-      return section.fields.length > 0;
-    });
-});
-
-const filterValue = ref("");
-
-const filteredSections = computed(() => {
-  if (!filterValue.value) {
-    return sections.value;
+async function fetchUrlRow(): Promise<IRow> {
+  try {
+    return await fetchRowData(schemaId, tableId, entityKeysObject);
+  } catch (error) {
+    if (error instanceof RowNotFoundError) {
+      const message = `Could not find this row in table "${tableId}" of schema "${schemaId}". ${DATA_NOT_FOUND_ERROR}`;
+      console.error(message, error);
+      throw createError({ status: 404, message });
+    }
+    throw fetchErrorToNuxtError(
+      error,
+      `Could not load this row in table "${tableId}" of schema "${schemaId}".`
+    );
   }
-  const lowerCaseFilter = filterValue.value.toLowerCase();
-  return sections.value
-    .map((section) => {
-      const filteredFields = section.fields.filter((field) =>
-        field.metadata.label.toLowerCase().includes(lowerCaseFilter)
-      );
-      return { ...section, fields: filteredFields };
-    })
-    .filter((section) => section.fields.length > 0);
+}
+
+async function fetchRecordData() {
+  const urlTable = await fetchTableMetadata(schemaId, tableId);
+  const urlRow = await fetchUrlRow();
+
+  // A row loaded through its parent table carries only the parent's columns.
+  function fallbackToUrlTable() {
+    return { urlTable, urlRow, recordTable: urlTable, recordRow: urlRow };
+  }
+
+  const parsed = parseMgTableclass(urlRow.mg_tableclass);
+  if (!parsed || parsed.tableId === tableId) {
+    return fallbackToUrlTable();
+  }
+
+  try {
+    const recordTable = await fetchTableMetadata(
+      parsed.schemaId,
+      parsed.tableId
+    );
+    const recordRow = await fetchRowData(
+      parsed.schemaId,
+      parsed.tableId,
+      entityKeysObject
+    );
+    return { urlTable, urlRow, recordTable, recordRow };
+  } catch (error) {
+    console.error(
+      `Could not load "${parsed.tableId}" for this row, showing "${tableId}" instead.`,
+      error
+    );
+    return fallbackToUrlTable();
+  }
+}
+
+// useAsyncData resets data to undefined when a later refresh() fails; keep the last
+// good page state so a failed refresh cannot leave the page reading null data.
+let lastGoodRecordData: Awaited<ReturnType<typeof fetchRecordData>> | undefined;
+
+const {
+  data: recordData,
+  error: recordError,
+  refresh,
+} = await useAsyncData(
+  `${schemaId}/${tableId}/${keys || JSON.stringify(entityKeysObject)}`,
+  fetchRecordData,
+  { default: () => lastGoodRecordData }
+);
+if (recordError.value) {
+  throw createError(recordError.value);
+}
+watch(
+  recordData,
+  (value) => {
+    if (value) lastGoodRecordData = value;
+  },
+  { immediate: true }
+);
+watch(recordError, (error) => {
+  if (error) showError(error);
 });
+
+// Safe: the throw above guarantees recordData is populated before first render.
+const urlTable = computed(() => recordData.value!.urlTable);
+const urlRow = computed(() => recordData.value!.urlRow);
+const recordTable = computed(() => recordData.value!.recordTable);
+const recordRow = computed(() => recordData.value!.recordRow);
 
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
@@ -127,13 +145,11 @@ const { canUpdate, canDelete, isRowLevel, userRoles } = useTablePermission(
   session,
   schemaId,
   tableId,
-  tableMetadata.tableType
+  urlTable.value.tableType
 );
 
 const rowIsModifiable = computed(
-  () =>
-    !isRowLevel.value ||
-    (!!rowData.value && rowMatchesUserRole(rowData.value, userRoles.value))
+  () => !isRowLevel.value || rowMatchesUserRole(urlRow.value, userRoles.value)
 );
 
 const enableEditing = computed(() => canUpdate.value && rowIsModifiable.value);
@@ -144,6 +160,15 @@ function handleCellClick(event: cellPayload) {
   cellDetailPayload.value = event;
   showModal.value = true;
 }
+
+// Choosing which columns to show is the caller's job: HEADING/SECTION carry
+// structure and always pass; a field is dropped by admin-only mg_ prefix or filter text.
+const recordColumns = computed<IColumn[]>(() =>
+  visibleColumns(recordTable.value.columns, {
+    term: filterValue.value,
+    showMgColumns: isAdmin.value,
+  })
+);
 </script>
 
 <template>
@@ -154,7 +179,7 @@ function handleCellClick(event: cellPayload) {
           :align="'left'"
           :crumbs="[
             { label: schemaId, url: `/${schemaId}` },
-            { label: tableId, url: `/${schemaId}/${tableId}` },
+            { label: urlTable.label, url: `/${schemaId}/${tableId}` },
           ]"
         />
       </template>
@@ -167,7 +192,6 @@ function handleCellClick(event: cellPayload) {
         :placeholder="`Filter fields...`"
         id="filter-input"
       />
-
       <div class="flex gap-[10px]">
         <Button
           type="outline"
@@ -187,38 +211,13 @@ function handleCellClick(event: cellPayload) {
       </div>
     </div>
 
-    <ContentBlock
-      class="mt-1"
-      :title="entityId"
-      :description="tableMetadata?.label || tableId"
-    >
-      <section
-        v-for="section in filteredSections"
-        class="first:pt-[50px] last:pb-[100px]"
-        :class="section.heading ? 'pt-[50px]' : ''"
-      >
-        <h3
-          v-if="section.heading"
-          class="text-heading-3xl font-display text-title-contrast mb-4"
-        >
-          {{ section.heading }}
-        </h3>
-        <DefinitionList :compact="false">
-          <template v-for="field in section.fields">
-            <DefinitionListTerm class="text-title-contrast">
-              {{ field.metadata.label }}
-            </DefinitionListTerm>
-            <DefinitionListDefinition class="text-title-contrast">
-              <ValueEMX2
-                :data="field.value"
-                :metadata="field.metadata"
-                @valueClick="handleCellClick($event)"
-              />
-            </DefinitionListDefinition>
-          </template>
-        </DefinitionList>
-      </section>
-    </ContentBlock>
+    <DisplayRecord
+      :columns="recordColumns"
+      :row="recordRow"
+      :titleTemplate="recordTable.labelTemplate"
+      :showLegend="true"
+      @valueClick="handleCellClick($event)"
+    />
   </Container>
 
   <CellDetailModal
@@ -230,23 +229,23 @@ function handleCellClick(event: cellPayload) {
   />
 
   <DeleteModal
-    v-if="tableMetadata && rowData && showDeleteModal"
+    v-if="urlTable && urlRow && showDeleteModal"
     :showButton="false"
     :schemaId="schemaId"
-    :metadata="tableMetadata"
-    :formValues="rowData"
+    :metadata="urlTable"
+    :formValues="urlRow"
     v-model:visible="showDeleteModal"
     @update:deleted="afterRowDeleted"
     @update:cancelled="showDeleteModal = false"
   />
 
   <EditModal
-    v-if="tableMetadata && rowData && showEditModal"
+    v-if="urlTable && urlRow && showEditModal"
     :key="`edit-modal-${useId()}`"
     :showButton="false"
     :schemaId="schemaId"
-    :metadata="tableMetadata"
-    :formValues="rowData"
+    :metadata="urlTable"
+    :formValues="urlRow"
     :isInsert="false"
     v-model:visible="showEditModal"
     @update:cancelled="afterEditClosed"
