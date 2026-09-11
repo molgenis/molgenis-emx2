@@ -270,8 +270,10 @@ public class SqlTable implements Table {
       List<Column> primaryKeyColumns =
           Collections.unmodifiableList(table.getMetadata().getPrimaryKeyColumns());
 
+      boolean skipBinaryData =
+          updateColumns.stream().anyMatch(c -> c.getJooqField().getDataType().isBinary());
       // Retrieve the current values for the rows to update
-      List<Row> rowsToUpdate = table.getRowsByRowKey(rows);
+      List<Row> rowsToUpdate = table.getRowsByRowKey(rows, skipBinaryData);
       // Pair the rows to update with the corresponding rows from the database
       List<UpdatePair> updatePairs = pair(rows, rowsToUpdate, primaryKeyColumns);
       // Update the rows from the db with the update values
@@ -677,14 +679,14 @@ public class SqlTable implements Table {
    * The current state of rows as identified by their primary key values, including the columns
    * inherited from any superclass.
    */
-  private List<Row> getRowsByRowKey(Collection<Row> keyColumns) {
-    List<Row> localRows = getLocalRowsByRowKey(keyColumns);
+  private List<Row> getRowsByRowKey(Collection<Row> keyColumns, boolean skipBinaryData) {
+    List<Row> localRows = getLocalRowsByRowKey(keyColumns, skipBinaryData);
     SqlTable inheritedTable = getInheritedTable();
     if (inheritedTable == null || localRows.isEmpty()) {
       return localRows;
     }
     List<Column> primaryKeyColumns = getMetadata().getPrimaryKeyColumns();
-    List<Row> inheritedRows = inheritedTable.getRowsByRowKey(localRows);
+    List<Row> inheritedRows = inheritedTable.getRowsByRowKey(localRows, skipBinaryData);
     // local values win over the inherited ones, the key columns are identical in both
     return merge(pair(localRows, inheritedRows, primaryKeyColumns), primaryKeyColumns);
   }
@@ -693,12 +695,17 @@ public class SqlTable implements Table {
    * The current state of rows as identified by their primary key values, not including the columns
    * inherited from any superclass.
    */
-  private List<Row> getLocalRowsByRowKey(Collection<Row> keyColumns) {
+  private List<Row> getLocalRowsByRowKey(Collection<Row> keyColumns, boolean skipBinaryData) {
     Condition whereCondition = getByRowKey(keyColumns);
     // select typed fields instead of 'selectFrom(table)': the jooq table is untyped, so values
     // would come back as raw jdbc objects (e.g. a PGInterval that Period.parse cannot read)
     List<Field<?>> fields =
         getMetadata().getMutationColumns().stream().<Field<?>>map(Column::getJooqField).toList();
+    // skip binary data if requested
+    if (skipBinaryData) {
+      fields =
+          fields.stream().filter(f -> !f.getDataType().isBinary()).collect(Collectors.toList());
+    }
     return getJooq()
         .select(fields)
         .from(getJooqTable())
