@@ -267,8 +267,22 @@ public class SqlTable implements Table {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
       SqlRowProcessor rowProcessor = new SqlRowProcessor(table.getMetadata().getColumns());
       List<Row> rows = subclassRows.get(subclassName);
-      rowProcessor.validateAndCompute(rows);
-      count.set(count.get() + table.updateBatch(table, rows, updateColumns));
+      List<Column> primaryKeyColumns =
+          Collections.unmodifiableList(table.getMetadata().getPrimaryKeyColumns());
+
+      boolean skipBinaryData =
+          updateColumns.stream().anyMatch(c -> c.getJooqField().getDataType().isBinary());
+      // Retrieve the current values for the rows to update
+      List<Row> rowsToUpdate = table.getRowsByRowKey(rows, skipBinaryData);
+      // Pair the rows to update with the corresponding rows from the database
+      List<UpdatePair> updatePairs = pair(rows, rowsToUpdate, primaryKeyColumns);
+      // Update the rows from the db with the update values
+      List<Row> updatePreview = merge(updatePairs, primaryKeyColumns);
+      // Validate
+      rowProcessor.validateAndCompute(updatePreview);
+
+      count.set(count.get() + table.updateBatch(table, updatePreview, updateColumns));
+
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
       List<Row> rows = subclassRows.get(subclassName);
@@ -285,6 +299,86 @@ public class SqlTable implements Table {
     }
     // clear the list
     subclassRows.get(subclassName).clear();
+  }
+
+  /**
+   * Merges each pair into one row: values provided in the request override the values currently in
+   * the database, except for the key columns that identify the row. Columns the request doesn't
+   * mention keep their current value, so validation and computation see the complete row.
+   */
+  static List<Row> merge(List<UpdatePair> updatePairs, List<Column> primaryKeyColumns) {
+    Set<String> keyColumnNames = getKeyColumnNames(primaryKeyColumns);
+    List<Row> result = new ArrayList<>();
+    for (UpdatePair updatePair : updatePairs) {
+      result.add(
+          updatePair.existing() == null
+              ? updatePair.row()
+              : updatePair.existing().overrideWith(updatePair.row(), keyColumnNames));
+    }
+    return result;
+  }
+
+  /** key columns by their stored names, so composite refs are covered per reference column */
+  private static Set<String> getKeyColumnNames(List<Column> keyColumns) {
+    Set<String> names = new LinkedHashSet<>();
+    for (Column key : keyColumns) {
+      if (key.isReference()) {
+        key.getReferences().forEach(ref -> names.add(ref.getColumnName()));
+      } else {
+        names.add(key.getName());
+      }
+    }
+    return names;
+  }
+
+  /** a row as provided in the request, together with its current state in the database (if any) */
+  record UpdatePair(Row row, Row existing) {}
+
+  /**
+   * Pairs each row with the row that currently exists in the database, matched on the values of the
+   * given key columns. Order and size of the result follow 'rows'; 'existing' is null when no row
+   * with that key was found.
+   */
+  static List<UpdatePair> pair(
+      List<Row> rows, List<Row> rowsToUpdate, List<Column> primaryKeyColumns) {
+    if (primaryKeyColumns.isEmpty()) {
+      throw new MolgenisException("Cannot pair rows: no key columns provided");
+    }
+    Map<List<Object>, Row> existingByKey = new LinkedHashMap<>();
+    for (Row existing : rowsToUpdate) {
+      existingByKey.put(getKeyValues(existing, primaryKeyColumns), existing);
+    }
+    List<UpdatePair> result = new ArrayList<>();
+    for (Row row : rows) {
+      result.add(new UpdatePair(row, existingByKey.get(getKeyValues(row, primaryKeyColumns))));
+    }
+    return result;
+  }
+
+  /**
+   * Key of a row as a list of typed values, decomposing references into their underlying columns so
+   * rows coming from the database compare equal to rows coming from the request.
+   */
+  private static List<Object> getKeyValues(Row row, List<Column> keyColumns) {
+    List<Object> keyValues = new ArrayList<>();
+    for (Column key : keyColumns) {
+      if (key.isReference()) {
+        for (Reference ref : key.getReferences()) {
+          keyValues.add(normalizeKeyValue(row.get(ref.getColumnName(), ref.getPrimitiveType())));
+        }
+      } else {
+        keyValues.add(normalizeKeyValue(row.get(key.getName(), key.getPrimitiveColumnType())));
+      }
+    }
+    return keyValues;
+  }
+
+  /** arrays don't implement equals/hashCode by value, so use list equality instead */
+  private static Object normalizeKeyValue(Object value) {
+    if (value instanceof Object[] array) {
+      return Arrays.asList(array);
+    }
+    return value;
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
@@ -570,7 +664,7 @@ public class SqlTable implements Table {
         throw new MolgenisException(
             "Delete on table " + table.getName() + " failed: no primary key set");
       }
-      Condition whereCondition = table.getWhereConditionForBatchDelete(rows);
+      Condition whereCondition = table.getByRowKey(rows);
       return table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
     }
 
@@ -581,7 +675,46 @@ public class SqlTable implements Table {
     return ((SqlDatabase) getSchema().getDatabase()).getJooq();
   }
 
-  private Condition getWhereConditionForBatchDelete(Collection<Row> rows) {
+  /**
+   * The current state of rows as identified by their primary key values, including the columns
+   * inherited from any superclass.
+   */
+  private List<Row> getRowsByRowKey(Collection<Row> keyColumns, boolean skipBinaryData) {
+    List<Row> localRows = getLocalRowsByRowKey(keyColumns, skipBinaryData);
+    SqlTable inheritedTable = getInheritedTable();
+    if (inheritedTable == null || localRows.isEmpty()) {
+      return localRows;
+    }
+    List<Column> primaryKeyColumns = getMetadata().getPrimaryKeyColumns();
+    List<Row> inheritedRows = inheritedTable.getRowsByRowKey(localRows, skipBinaryData);
+    // local values win over the inherited ones, the key columns are identical in both
+    return merge(pair(localRows, inheritedRows, primaryKeyColumns), primaryKeyColumns);
+  }
+
+  /**
+   * The current state of rows as identified by their primary key values, not including the columns
+   * inherited from any superclass.
+   */
+  private List<Row> getLocalRowsByRowKey(Collection<Row> keyColumns, boolean skipBinaryData) {
+    Condition whereCondition = getByRowKey(keyColumns);
+    // select typed fields instead of 'selectFrom(table)': the jooq table is untyped, so values
+    // would come back as raw jdbc objects (e.g. a PGInterval that Period.parse cannot read)
+    List<Field<?>> fields =
+        getMetadata().getMutationColumns().stream().<Field<?>>map(Column::getJooqField).toList();
+    // skip binary data if requested
+    if (skipBinaryData) {
+      fields =
+          fields.stream().filter(f -> !f.getDataType().isBinary()).collect(Collectors.toList());
+    }
+    return getJooq()
+        .select(fields)
+        .from(getJooqTable())
+        .where(whereCondition)
+        .fetch()
+        .map(r -> new Row(r.intoMap()));
+  }
+
+  private Condition getByRowKey(Collection<Row> rows) {
     List<Condition> conditions = new ArrayList<>();
     for (Row r : rows) {
       List<Condition> rowCondition = new ArrayList<>();
