@@ -269,9 +269,9 @@ public class SqlTable implements Table {
       List<Row> rows = subclassRows.get(subclassName);
       List<Column> primaryKeyColumns =
           Collections.unmodifiableList(table.getMetadata().getPrimaryKeyColumns());
-
-      boolean skipBinaryData =
-          updateColumns.stream().anyMatch(c -> c.getJooqField().getDataType().isBinary());
+      // check that columnsProvided contains all primary key columns
+      validateIsRowKeyProvided(primaryKeyColumns, columnsProvided);
+      boolean skipBinaryData = containsBinaryField(updateColumns);
       // Retrieve the current values for the rows to update
       List<Row> rowsToUpdate = table.getRowsByRowKey(rows, skipBinaryData);
       // Pair the rows to update with the corresponding rows from the database
@@ -301,10 +301,16 @@ public class SqlTable implements Table {
     subclassRows.get(subclassName).clear();
   }
 
+  private static boolean containsBinaryField(List<Column> updateColumns) {
+    return updateColumns.stream()
+        .filter(c -> c.getJooqField() != null)
+        .anyMatch(c -> c.getJooqField().getDataType().isBinary());
+  }
+
   /**
    * Merges each pair into one row: values provided in the request override the values currently in
    * the database, except for the key columns that identify the row. Columns the request doesn't
-   * mention keep their current value, so validation and computation see the complete row.
+   * mention keep their current value.
    */
   static List<Row> merge(List<UpdatePair> updatePairs, List<Column> primaryKeyColumns) {
     Set<String> keyColumnNames = getKeyColumnNames(primaryKeyColumns);
@@ -318,7 +324,6 @@ public class SqlTable implements Table {
     return result;
   }
 
-  /** key columns by their stored names, so composite refs are covered per reference column */
   private static Set<String> getKeyColumnNames(List<Column> keyColumns) {
     Set<String> names = new LinkedHashSet<>();
     for (Column key : keyColumns) {
@@ -336,8 +341,7 @@ public class SqlTable implements Table {
 
   /**
    * Pairs each row with the row that currently exists in the database, matched on the values of the
-   * given key columns. Order and size of the result follow 'rows'; 'existing' is null when no row
-   * with that key was found.
+   * given key columns.
    */
   static List<UpdatePair> pair(
       List<Row> rows, List<Row> rowsToUpdate, List<Column> primaryKeyColumns) {
@@ -379,6 +383,14 @@ public class SqlTable implements Table {
       return Arrays.asList(array);
     }
     return value;
+  }
+
+  private static void validateIsRowKeyProvided(
+      List<Column> primaryKeyColumns, Set<String> columnsProvided) {
+    if (!columnsProvided.containsAll(primaryKeyColumns.stream().map(Column::getName).toList())) {
+      throw new MolgenisException(
+          "Update failed: not all primary key columns are provided in the request");
+    }
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
