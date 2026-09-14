@@ -140,7 +140,7 @@ import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue"
 import EditUserModal from "../../components/EditUserModal.vue";
 import NewUserModal from "../../components/NewUserModal.vue";
 import TokenManagement from "../../components/TokenManagement.vue";
-import type { ISchemaInfo, IUser } from "../../interfaces/interfaces.ts";
+import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
 import {
   createUser,
   deleteUser,
@@ -167,13 +167,13 @@ const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const showTokenModal = ref(false);
 const showDeleteUserModal = ref(false);
-const selectedUser = ref<IUser | null>(null);
+const selectedUser = ref<User | null>(null);
 
 const currentPage = ref(1);
-const users = ref<IUser[]>([]);
+const users = ref<User[]>([]);
 const userCount = ref(0);
 const totalPages = ref(0);
-const schemas = ref<ISchemaInfo[]>([]);
+const schemas = ref<SchemaInfo[]>([]);
 const roles = ref<string[]>([]);
 const schema = ref<string>("");
 
@@ -205,27 +205,27 @@ async function retrieveUsers() {
     userCount.value % LIMIT > 0 ? Math.floor(divided) + 1 : divided;
 }
 
-async function removeUser(user: IUser) {
+async function removeUser(user: User) {
   await deleteUser(user);
   await retrieveUsers();
 }
 
-function editUser(user: IUser) {
+function editUser(user: User) {
   selectedUser.value = user;
   showEditUserModal.value = true;
 }
 
-function showDeleteUserConfirmation(user: IUser) {
+function showDeleteUserConfirmation(user: User) {
   selectedUser.value = user;
   showDeleteUserModal.value = true;
 }
 
-function manageTokens(user: IUser) {
+function manageTokens(user: User) {
   selectedUser.value = user;
   showTokenModal.value = true;
 }
 
-function canDelete(user: IUser) {
+function canDelete(user: User) {
   return (
     user.email !== "anonymous" &&
     user.email !== "admin" &&

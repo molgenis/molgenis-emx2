@@ -1,22 +1,22 @@
 import type { ISetting } from "../../../metadata-utils/src";
 
-export interface IUser {
+export interface User {
   //TODO split into communication and internal interface
   email: string;
   settings: ISetting[];
   enabled: boolean;
   tokens?: string[];
-  roles?: IRole[];
-  revokedRoles?: IRole[];
+  roles?: Role[];
+  revokedRoles?: Role[];
   password?: string;
 }
 
-export interface ISchemaInfo {
+export interface SchemaInfo {
   id: string;
   label: string;
 }
 
-export interface IRole {
+export interface Role {
   schemaId: string;
   role: string;
 }
