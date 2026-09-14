@@ -6,7 +6,7 @@ import Section from "./Section.vue";
 import Heading from "./Heading.vue";
 import Paragraph from "./Paragraph.vue";
 import Image from "./Image.vue";
-import NavigationCards from "./Navigation/NavigationCards.vue";
+import NavigationCardWithActions from "./Navigation/NavigationCardWithActions.vue";
 import { hideAllPoppers } from "floating-vue";
 
 import EditModal from "../form/EditModal.vue";
@@ -221,7 +221,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
-  <NavigationCards
+  <NavigationCardWithActions
     v-else-if="mg_tableclass.endsWith('.Navigation cards')"
     :id="component.id"
     :title="component?.title"
@@ -259,6 +259,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     v-model:visible="showDeleteModal"
     title="Delete"
     :subtitle="`${componentMetadata?.name}`"
+    size="medium"
   >
     <p class="p-8">Are you sure you want to delete this component?</p>
     <template #footer>

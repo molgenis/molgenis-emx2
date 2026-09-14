@@ -38,7 +38,6 @@ const showMenu = ref<boolean>(false);
       :url="url"
       :urlLabel="urlLabel"
       :urlIsExternal="urlIsExternal"
-      :order="order"
     />
   </VMenu>
   <NavigationCards
@@ -49,6 +48,5 @@ const showMenu = ref<boolean>(false);
     :url="url"
     :urlLabel="urlLabel"
     :urlIsExternal="urlIsExternal"
-    :order="order"
   />
 </template>
