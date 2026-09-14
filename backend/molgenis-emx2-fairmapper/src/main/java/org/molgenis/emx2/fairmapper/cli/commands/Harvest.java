@@ -92,7 +92,7 @@ public class Harvest implements Runnable {
     new HarvestingPipeline(builder.build()).execute();
   }
 
-  private SchemaMetadata fetchSchemaMetadata() {
+  SchemaMetadata fetchSchemaMetadata() {
     return database().getSchemaMetadata(schemaName);
   }
 

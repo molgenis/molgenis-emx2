@@ -276,7 +276,7 @@ public class SqlColumnExecutor {
     // check table doesn't exist
     SchemaMetadata refSchema = schema;
     if (column.getRefSchemaName() != null) {
-      if (schema.getDatabase().getSchema(column.getRefSchemaName()) == null) {
+      if (schema.getDatabase().getSchemaMetadata(column.getRefSchemaName()) == null) {
         throw new MolgenisException(
             "refSchema '" + column.getRefSchemaName() + "' does not exist or permission denied");
       }

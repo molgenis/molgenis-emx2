@@ -277,40 +277,39 @@ class SqlTableMetadataExecutor {
     }
   }
 
-  static void executeDropTable(DSLContext jooq, TableMetadata table) {
+  static void executeDropTable(DSLContext jooq, org.molgenis.emx2.Table table) {
     try {
       // disableChangeLog
-      disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
+      disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table.getMetadata());
 
       // drop search trigger
       jooq.execute(
           "DROP FUNCTION IF EXISTS {0} CASCADE",
-          name(table.getSchema().getName(), getSearchTriggerName(table.getTableName())));
+          name(table.getSchema().getName(), getSearchTriggerName(table.getName())));
 
       // drop trigger function if extended
       dropMgTableClassCannotUpdateCheck((SqlTableMetadata) table, jooq);
 
       // drop audit trigger
       jooq.execute(
-          ChangeLogUtils.buildAuditTriggerRemove(
-              table.getSchema().getName(), table.getTableName()));
+          ChangeLogUtils.buildAuditTriggerRemove(table.getSchema().getName(), table.getName()));
       jooq.execute(
           ChangeLogUtils.buildProcessAuditFunctionRemove(
-              table.getSchema().getName(), table.getTableName()));
+              table.getSchema().getName(), table.getName()));
 
       // drop RLS policies before columns, as policies may depend on the mg_roles column
-      SqlRoleManager.dropRlsPolicies(jooq, getJooqTable(table));
+      SqlRoleManager.dropRlsPolicies(jooq, getJooqTable(table.getMetadata()));
 
       // drop all triggers from all columns
-      List<Column> columns = table.getStoredColumns();
+      List<Column> columns = table.getMetadata().getStoredColumns();
       sortColumnsByDependency(columns);
       for (Column c : columns) {
         executeRemoveColumn(jooq, c);
       }
 
       // drop the table
-      jooq.dropTable(name(table.getSchema().getName(), table.getTableName())).execute();
-      MetadataUtils.deleteTable(jooq, table);
+      jooq.dropTable(name(table.getSchema().getName(), table.getName())).execute();
+      MetadataUtils.deleteTable(jooq, table.getMetadata());
     } catch (DataAccessException dae) {
       throw new SqlMolgenisException("Drop table failed", dae);
     }

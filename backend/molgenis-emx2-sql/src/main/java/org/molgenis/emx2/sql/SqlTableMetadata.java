@@ -17,10 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class SqlTableMetadata extends TableMetadata {
+
   private static Logger logger = LoggerFactory.getLogger(SqlTableMetadata.class);
+
+  private final SqlDatabase database;
 
   SqlTableMetadata(SqlSchemaMetadata schema, TableMetadata metadata) {
     super(schema, metadata);
+    this.database = schema.getDatabase();
   }
 
   @Override
@@ -458,7 +462,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private SqlDatabase getDatabase() {
-    return (SqlDatabase) getSchema().getDatabase();
+    return database;
   }
 
   @Override
@@ -471,8 +475,8 @@ class SqlTableMetadata extends TableMetadata {
 
   private static void dropTransaction(Database db, String schemaName, String tableName) {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
-    TableMetadata tm = db.getSchemaMetadata(schemaName).getTableMetadata(tableName);
-    executeDropTable(jooq, tm);
-    MetadataUtils.deleteTable(jooq, tm);
+    Table table = db.getSchema(schemaName).getTable(tableName);
+    executeDropTable(jooq, table);
+    MetadataUtils.deleteTable(jooq, table.getMetadata());
   }
 }

@@ -67,15 +67,15 @@ public class TestValidation {
     // see https://github.com/molgenis/molgenis-emx2/issues/2331
     TableMetadata pet = schema.getTable("Pet").getMetadata();
     pet.alterColumn("tags", pet.getColumn("tags").setVisible("false").setRequired(true));
-    pet.getTable()
-        .insert(
-            row(
-                "name",
-                "mickey",
-                "category",
-                "mouse",
-                "weight",
-                3)); // this should not fail on required tags
+    Table petTable = schema.getTable("Pet");
+    petTable.insert(
+        row(
+            "name",
+            "mickey",
+            "category",
+            "mouse",
+            "weight",
+            3)); // this should not fail on required tags
   }
 
   @Test
@@ -83,14 +83,14 @@ public class TestValidation {
     // see https://github.com/molgenis/molgenis-emx2/issues/2384
     TableMetadata pet = schema.getTable("Pet").getMetadata();
     pet.alterColumn("details", pet.getColumn("details").setRequired(true));
-    pet.getTable()
-        .insert(
-            row(
-                "name",
-                "mickey2",
-                "category",
-                "mouse",
-                "weight",
-                3)); // this should not fail on required details
+    Table petTable = schema.getTable("Pet");
+    petTable.insert(
+        row(
+            "name",
+            "mickey2",
+            "category",
+            "mouse",
+            "weight",
+            3)); // this should not fail on required details
   }
 }

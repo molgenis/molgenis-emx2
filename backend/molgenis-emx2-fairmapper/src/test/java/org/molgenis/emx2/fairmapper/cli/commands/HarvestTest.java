@@ -4,15 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,7 +19,6 @@ import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
-import org.molgenis.emx2.fairmapper.schemas.SchemaFetcher;
 import org.molgenis.emx2.fairmapper.tasks.RemoteDataLoader;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
 import picocli.CommandLine;
@@ -98,9 +94,7 @@ class HarvestTest {
     Harvest harvest = spy(new Harvest());
     doNothing().when(harvest).runPipeline(any());
 
-    SchemaFetcher schemaFetcher = mock(SchemaFetcher.class);
-    when(schemaFetcher.fetch(SCHEMA_NAME)).thenReturn(Optional.of(new SchemaMetadata(SCHEMA_NAME)));
-    doReturn(schemaFetcher).when(harvest).schemaFetcher();
+    doReturn(new SchemaMetadata(SCHEMA_NAME)).when(harvest).fetchSchemaMetadata();
 
     String[] args =
         Stream.concat(

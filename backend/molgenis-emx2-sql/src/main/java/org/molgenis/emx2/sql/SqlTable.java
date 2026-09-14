@@ -106,7 +106,12 @@ public class SqlTable implements Table {
       SqlDatabase database, String schemaName, String tableName) {
     SqlTable t = database.getSchema(schemaName).getTable(tableName);
     if (t.getMetadata().getColumn(MG_TABLECLASS) != null) {
-      SqlTable rootTable = (SqlTable) t.getMetadata().getRootTable().getTable();
+      TableMetadata rootTableMetadata = t.getMetadata().getRootTable();
+      SqlTable rootTable =
+          database
+              .getSchema(rootTableMetadata.getSchemaName())
+              .getTable(rootTableMetadata.getTableName());
+
       String mg_table = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database

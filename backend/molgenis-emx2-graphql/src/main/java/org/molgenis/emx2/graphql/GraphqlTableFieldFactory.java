@@ -599,9 +599,10 @@ public class GraphqlTableFieldFactory {
     }
   }
 
-  public static FilterBean[] convertMapToFilterArray(
-      TableMetadata table, Map<String, Object> filter) {
+  public static FilterBean[] convertMapToFilterArray(Table table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
+    TableMetadata tableMetadata = table.getMetadata();
+
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
       if (entry.getKey().equals(FILTER_OR) || entry.getKey().equals(FILTER_AND)) {
         List<Map<String, Object>> nested = (List<Map<String, Object>>) entry.getValue();
@@ -627,14 +628,18 @@ public class GraphqlTableFieldFactory {
           subFilters.add(
               or(
                   ((List<Map<String, Object>>) entry.getValue())
-                      .stream().map(v -> createKeyFilter(table, v, Operator.EQUALS)).toList()));
+                      .stream()
+                          .map(v -> createKeyFilter(tableMetadata, v, Operator.EQUALS))
+                          .toList()));
         }
       } else if (entry.getKey().equals(FILTER_NOT_EQUALS)) {
         if (entry.getValue() != null) {
           subFilters.add(
               or(
                   ((List<Map<String, Object>>) entry.getValue())
-                      .stream().map(v -> createKeyFilter(table, v, Operator.NOT_EQUALS)).toList()));
+                      .stream()
+                          .map(v -> createKeyFilter(tableMetadata, v, Operator.NOT_EQUALS))
+                          .toList()));
         }
 
       } else if (entry.getKey().equals(FILTER_MATCH_INCLUDING_CHILDREN)
@@ -658,13 +663,13 @@ public class GraphqlTableFieldFactory {
         // skip match all, handled on parent column
       } else {
         // find column by escaped name
-        Column c = table.getColumnByIdIncludingSubclasses(entry.getKey());
+        Column c = tableMetadata.getColumnByIdIncludingSubclasses(entry.getKey());
         if (c == null)
           throw new GraphqlException(
               "Graphql API error: Column "
                   + entry.getKey()
                   + " unknown in table "
-                  + table.getTableName());
+                  + tableMetadata.getTableName());
         Map remainingOperators = new LinkedHashMap<>((Map) entry.getValue());
         // although nested, this should apply on this level, not sublevel
         if (remainingOperators.containsKey(FILTER_MATCH_INCLUDING_CHILDREN)) {
@@ -724,8 +729,7 @@ public class GraphqlTableFieldFactory {
                           .getSchema()
                           .getDatabase()
                           .getSchema(c.getRefTable().getSchemaName())
-                          .getTable(c.getRefTableName())
-                          .getMetadata(),
+                          .getTable(c.getRefTableName()),
                       remainingOperators)));
         } else {
           subFilters.add(convertMapToFilter(c.getName(), (Map<String, Object>) entry.getValue()));
@@ -777,22 +781,26 @@ public class GraphqlTableFieldFactory {
   }
 
   /** creates a list like List.of(field1,field2, path1, List.of(pathsubfield1), ...) */
-  private SelectColumn[] convertMapSelection(
-      TableMetadata table, DataFetchingFieldSelectionSet selection) {
+  private SelectColumn[] convertMapSelection(Table table, DataFetchingFieldSelectionSet selection) {
     List<SelectColumn> result = new ArrayList<>();
-    if (selection == null) return new SelectColumn[0];
+    if (selection == null) {
+      return new SelectColumn[0];
+    }
+
+    if (table == null) {
+      return result.toArray(SelectColumn[]::new);
+    }
+
+    TableMetadata tableMetadata = table.getMetadata();
     Map<String, Column> columnIdentifierMap =
-        table != null
-            ? table.getColumnsIncludingSubclasses().stream()
-                .collect(
-                    Collectors.toMap(
-                        Column::getIdentifier,
-                        Function.identity(),
-                        // might be duplicates from subclass
-                        (existing, replacement) -> existing))
-            :
-            // in case of file table will be empty
-            Map.of();
+        tableMetadata.getColumnsIncludingSubclasses().stream()
+            .collect(
+                Collectors.toMap(
+                    Column::getIdentifier,
+                    Function.identity(),
+                    // might be duplicates from subclass
+                    (existing, replacement) -> existing));
+
     for (SelectedField s : selection.getFields()) {
       String name = s.getName();
 
@@ -813,7 +821,13 @@ public class GraphqlTableFieldFactory {
             name.endsWith("_agg") ? "_agg" : name.endsWith("_groupBy") ? "_groupBy" : "";
 
         if (column != null) {
-          TableMetadata refTable = column.isReference() ? column.getRefTable() : null;
+          Table refTable =
+              column.isReference()
+                  ? schema
+                      .getDatabase()
+                      .getSchema(column.getRefSchemaName())
+                      .getTable(column.getRefTable().getTableName())
+                  : null;
 
           SelectColumn nested =
               new SelectColumn(
@@ -866,7 +880,7 @@ public class GraphqlTableFieldFactory {
 
   private DataFetcher fetcherForTableQueryField(TableMetadata aTable) {
     return dataFetchingEnvironment -> {
-      Table table = aTable.getTable();
+      Table table = schema.getTable(aTable.getTableName());
       Query q = table.query();
       String fieldName = dataFetchingEnvironment.getField().getName();
       if (fieldName.endsWith("_agg")) {
@@ -875,13 +889,12 @@ public class GraphqlTableFieldFactory {
         q = table.groupBy();
       }
       long step = System.currentTimeMillis();
-      q.select(convertMapSelection(aTable, dataFetchingEnvironment.getSelectionSet()));
+      q.select(convertMapSelection(table, dataFetchingEnvironment.getSelectionSet()));
       Map<String, Object> args = dataFetchingEnvironment.getArguments();
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
             convertMapToFilterArray(
-                table.getMetadata(),
-                dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
+                table, dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
       }
       if (args.containsKey(GraphqlConstants.LIMIT)) {
         q.limit((int) args.get(GraphqlConstants.LIMIT));
@@ -984,12 +997,11 @@ public class GraphqlTableFieldFactory {
     return dataFetchingEnvironment -> {
       StringBuilder result = new StringBuilder();
       boolean any = false;
-      for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
+      for (Table table : schema.getTablesSorted()) {
         List<Map<String, Object>> rowsAslistOfMaps =
-            dataFetchingEnvironment.getArgument(tableMetadata.getIdentifier());
+            dataFetchingEnvironment.getArgument(table.getMetadata().getIdentifier());
         if (rowsAslistOfMaps != null) {
-          String tableName = tableMetadata.getTableName();
-          Table table = tableMetadata.getTable();
+          String tableName = table.getMetadata().getTableName();
           int count;
           List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps);
           switch (mutationType) {

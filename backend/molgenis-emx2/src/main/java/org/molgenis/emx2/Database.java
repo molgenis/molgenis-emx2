@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public interface Database extends HasSettingsInterface<Database> {
+public interface Database extends HasSettingsInterface<Database>, Banaan {
 
   void tx(Transaction transaction);
 

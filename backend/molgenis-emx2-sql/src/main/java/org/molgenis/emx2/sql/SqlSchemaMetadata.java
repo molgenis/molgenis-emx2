@@ -23,6 +23,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   // preserved)
   private Map<String, TablePermission> permissionsByTableCache = null;
 
+  private Database database;
+
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
     this.name = copy.getName();
@@ -239,9 +241,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return getDatabase().getJooq();
   }
 
-  @Override
   public SqlDatabase getDatabase() {
-    return (SqlDatabase) super.getDatabase();
+    return (SqlDatabase) database;
   }
 
   public List<String> getInheritedRolesForUser(String username) {

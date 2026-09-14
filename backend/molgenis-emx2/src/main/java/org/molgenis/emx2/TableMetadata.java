@@ -425,14 +425,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public TableMetadata getInheritedTable() {
     if (inheritName != null && getSchema() != null) {
       if (getImportSchema() != null && getSchema().getDatabase() != null) {
-        Schema importedSchema = getSchema().getDatabase().getSchema(getImportSchema());
+        SchemaMetadata importedSchema =
+            getSchema().getDatabase().getSchemaMetadata(getImportSchema());
         if (importedSchema == null) {
           throw new MolgenisException(cannotInheritMessage() + schemaNotFoundReason());
         }
-        if (importedSchema.getTable(inheritName) == null) {
+        if (importedSchema.getTableMetadata(inheritName) == null) {
           throw new MolgenisException(cannotInheritMessage() + parentTableNotFoundReason());
         }
-        return importedSchema.getTable(inheritName).getMetadata();
+        return importedSchema.getTableMetadata(inheritName);
       } else {
         return getSchema().getTableMetadata(inheritName);
       }
@@ -627,9 +628,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return 0;
   }
 
-  public Table getTable() {
-    return getSchema().getDatabase().getSchema(this.getSchemaName()).getTable(getTableName());
-  }
+  //  public Table getTable() {
+  //    return getSchema().getDatabase().getSchema(this.getSchemaName()).getTable(getTableName());
+  //  }
 
   public List<Column> getColumnsWithoutMetadata() {
     return getColumns().stream().filter(c -> !c.isSystemColumn()).collect(Collectors.toList());
