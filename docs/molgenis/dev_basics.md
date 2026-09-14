@@ -37,10 +37,14 @@ Make sure the name of the branch is short and concise. Branches must start with 
 |:---------|:----------------------------------------------------------------------|
 | `feat/`  | New features                                                          |
 | `fix/`   | bug fixes or minor changes                                            |
+| `ref/`   | refactoring of existing code                                          |
+| `spike/` | experimental code                                                     |
 | `docs/`  | for anything related to documentation                                 |
 | `chore/` | non-production code changes (e.g., updating dependencies, jobs, etc.) |
 
 For example, if you are adding a new component to the library. Name the branch like so:
+
+In case multiple branches are created that are part of an overarching change, one could create branches with the structure `feat/<big project>/name` to indicate multiple branches belong together. 
 
 ```bash
 git switch -c feat/my-new-component
