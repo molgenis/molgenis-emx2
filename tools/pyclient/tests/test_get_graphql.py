@@ -6,13 +6,11 @@ import os
 from pathlib import Path
 
 import pytest
-from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, \
     NoSuchTableException, NoSuchColumnException
 
-load_dotenv()
 server_url = os.environ.get("MG_SERVER", "http://localhost:8080/")
 username = os.environ.get("MG_USERNAME", "admin")
 password = os.environ.get("MG_PASSWORD", "admin")

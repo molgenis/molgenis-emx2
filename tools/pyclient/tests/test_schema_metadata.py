@@ -5,27 +5,26 @@ Tests for methods concerning schema metadata.
 import os
 
 import pytest
-from dotenv import load_dotenv
+
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import PermissionDeniedException
 
-load_dotenv()
-server_url = os.environ.get("MG_SERVER")
-username = os.environ.get("MG_USERNAME")
-password = os.environ.get("MG_PASSWORD")
+server_url = os.environ.get("MG_SERVER", "http://localhost:8080/")
+username = os.environ.get("MG_USERNAME", "admin")
+password = os.environ.get("MG_PASSWORD", "admin")
 
 
 def test_get_schema_metadata():
     """Tests the `get_schema_metadata` method."""
     with Client(url=server_url) as client:
-        schema_metadata = client.get_schema_metadata("pet store")
+        schema_metadata = client.get_schema_metadata(name="pet store")
         assert len(schema_metadata.tables) == 5
 
 
 def test_get_schema_settings():
     """Tests the `get_schema_settings` method."""
     with Client(url=server_url) as client:
-        schema_settings = client.get_schema_settings("pet store")
+        schema_settings = client.get_schema_settings(name="pet store")
         assert len(schema_settings) == 1
         assert len(schema_settings[0].values()) == 2
 
@@ -33,9 +32,9 @@ def test_get_schema_settings():
 def test_get_schema_members():
     """Tests the `get_schema_members` method."""
     with Client(url=server_url) as client:
-        with pytest.raises(PermissionDeniedException) as excinfo:
-            schema_members = client.get_schema_members("pet store")
-        assert excinfo.value.msg == "Cannot access members on this schema."
+        with pytest.raises(PermissionDeniedException) as exc_info:
+            client.get_schema_members("pet store")
+        assert exc_info.value.msg == "Cannot access members on this schema."
 
     with Client(url=server_url) as client:
         client.signin(username, password)
