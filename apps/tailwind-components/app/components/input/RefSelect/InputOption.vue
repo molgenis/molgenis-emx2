@@ -105,7 +105,7 @@ watch(
     <div
       :id="`${id}-ref-dropdown-option-${optionElemId}-content`"
       :aria-labelledby="`${id}-ref-dropdown-option-${optionElemId}-toggle`"
-      class="px-4"
+      class="px-4 pt-4 pb-2"
       :class="{
         hidden: disabled || !isExpanded,
       }"
