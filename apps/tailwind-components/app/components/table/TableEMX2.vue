@@ -373,7 +373,6 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
-  ITablePermission,
   ITableSettings,
   sortDirection,
 } from "../../../types/types";
