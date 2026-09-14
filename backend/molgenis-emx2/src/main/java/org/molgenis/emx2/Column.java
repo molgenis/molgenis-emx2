@@ -692,6 +692,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     return getKey() == 1;
   }
 
+  public boolean isInherited() {
+    TableMetadata table = getTable();
+    if (table == null) {
+      return false;
+    }
+    TableMetadata inheritedTable = table.getInheritedTable();
+    return inheritedTable != null && inheritedTable.getColumn(getName()) != null;
+  }
+
   public boolean isRefArray() {
     return getColumnType().isRefArray();
   }
