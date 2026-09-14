@@ -303,7 +303,7 @@ public class SqlTable implements Table {
 
   private static boolean containsBinaryField(List<Column> updateColumns) {
     return updateColumns.stream()
-        .filter(c -> c.getJooqField() != null)
+        .filter(c -> !c.isRefback()) // workaround for exeption thrown on refback.getJooqField
         .anyMatch(c -> c.getJooqField().getDataType().isBinary());
   }
 
