@@ -179,7 +179,7 @@ testNetwork2,,Cynexo,,false,Cynexo-testNetwork2
 testNetworkofNetworks,,Cynexo,,false,Cynexo-testNetworkofNetworks
 testNetwork1,,Cynexo,,false,Cynexo-testNetwork1
 OOM,,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,false,Malta Congenital Anomalies Registry Directorate for Health Information and Research-OOM
-UMCG,,,Data originator,true,UMCG
+UMCG,University Medical Center Groningen,,Data originator,true,University Medical Center Groningen-UMCG
 testUMC,,testUMC (organisation),,false,testUMC (organisation)-testUMC
 TestDataSourceID,University College London,,Researcher,false,University College London-TestDataSourceID
 TestDataSourceID,Inserm,,Researcher,false,Inserm-TestDataSourceID
