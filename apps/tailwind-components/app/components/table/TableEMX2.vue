@@ -172,10 +172,6 @@
                   <td
                     class="sticky left-0 z-20 w-12 !p-0 align-middle border-b shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
                   >
-                    <!-- block, so the checkbox has no inline baseline to sit on,
-                         and !p-0 so the last row's extra bottom padding does not
-                         push it off centre; align-middle then centres it in the
-                         cell however tall the row turns out to be. -->
                     <Checkbox
                       class="block mx-auto"
                       :model-value="selectedRows.has(row._rowIdString)"
