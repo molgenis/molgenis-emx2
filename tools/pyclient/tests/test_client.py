@@ -449,13 +449,14 @@ async def test_report_task_progress(caplog):
             "Completed task: Import csv file in "
         ]
         for cm in caplog.messages:
-            assert any(map(lambda ms: cm.startswith(ms), message_starts))
+            assert any(map(cm.startswith, message_starts))
 
 
 def test_validate_graphql_response(caplog):
     """Tests the `_validate_graphql_response` method."""
 
     class MockResponse(Response):
+        """Mocks a requests Response."""
 
         def __init__(self, status_code, text=None, json_data=None, method=None):
             super().__init__()
@@ -465,6 +466,7 @@ def test_validate_graphql_response(caplog):
             self.url = server_url
 
             class Request:
+                """Mocks a request."""
                 def __init__(self, _method: str):
                     self.method = _method
 
@@ -539,12 +541,10 @@ def test_validate_graphql_response(caplog):
                                       " to reach this server.")
 
         response = MockResponse(300, method='GET')
-        val = validate_graphql_response(response)
-        assert not val
+        assert not validate_graphql_response(response)
 
         response = MockResponse(200)
-        val = validate_graphql_response(response)
-        assert not val
+        assert not validate_graphql_response(response)
 
         fallback_msg = "Was supposed to do something."
         response = MockResponse(300, text="Something something",
@@ -576,7 +576,7 @@ def test_validate_graphql_response(caplog):
 @pytest.mark.asyncio
 async def test_export_schema():
     """Tests the export_schema functionality."""
-    with (Client(url=server_url) as client):
+    with Client(url=server_url) as client:
         client.signin(username, password)
 
         with pytest.raises(NotImplementedError) as exc_info:
