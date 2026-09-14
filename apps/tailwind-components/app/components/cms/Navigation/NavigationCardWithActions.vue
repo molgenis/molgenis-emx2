@@ -30,7 +30,7 @@ const showMenu = ref<boolean>(false);
         :aria-controls="id"
         @edit="$emit('edit')"
         @delete="$emit('delete')"
-        @move="$emit('move')"
+        @move="$emit('move', $event)"
       />
     </template>
     <NavigationCards
