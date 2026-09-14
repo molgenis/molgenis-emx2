@@ -42,6 +42,13 @@ class TestMgColumns {
     return table.retrieveRows().getFirst();
   }
 
+  private static Row rowById(Table table, int id) {
+    return table.retrieveRows().stream()
+        .filter(row -> id == row.getInteger("id"))
+        .findFirst()
+        .orElseThrow();
+  }
+
   private static void assertInsertedMetadata(Row row, String by, LocalDateTime on) {
     assertEquals(by, row.getString(MG_INSERTEDBY));
     assertEquals(on, row.getDateTime(MG_INSERTEDON));
@@ -98,9 +105,9 @@ class TestMgColumns {
 
   @Test
   void testUpdatedOn() {
-    Table t = schema.create(table("UpdatedOn", column("id").setPkey()));
-    t.insert(row("id", 1));
-    assertUpdatedOnMovesForwardOnUpdate(t);
+    Table updatedOnTable = schema.create(table("UpdatedOn", column("id").setPkey()));
+    updatedOnTable.insert(row("id", 1));
+    assertUpdatedOnMovesForwardOnUpdate(updatedOnTable);
 
     // to make sure also test with subclass
     Table subclass = schema.create(table("UpdatedOnSub").setInheritName("UpdatedOn"));
@@ -149,55 +156,56 @@ class TestMgColumns {
 
   @Test
   void testProvidedMgValuesAreUsedOnInsertUpdateAndSave() {
-    Table t = schema.create(table("ProvidedMg", column("id").setPkey(), column("value")));
+    Table providedMgTable =
+        schema.create(table("ProvidedMg", column("id").setPkey(), column("value")));
 
-    t.insert(
+    providedMgTable.insert(
         row("id", 1, "value", "somevalue1")
             .set(MG_INSERTEDBY, "importer1")
             .set(MG_INSERTEDON, IN_2001)
             .set(MG_UPDATEDBY, "importer2")
             .set(MG_UPDATEDON, IN_2002));
 
-    Row inserted = onlyRow(t);
+    Row inserted = onlyRow(providedMgTable);
     assertInsertedMetadata(inserted, "importer1", IN_2001);
     assertUpdatedMetadata(inserted, "importer2", IN_2002);
 
     // update with provided values
-    t.update(
+    providedMgTable.update(
         row("id", 1, "value", "somevalue2")
             .set(MG_UPDATEDBY, "importer3")
             .set(MG_UPDATEDON, IN_2003));
 
-    Row updated = onlyRow(t);
+    Row updated = onlyRow(providedMgTable);
     assertEquals("somevalue2", updated.getString("value"));
     assertInsertedMetadata(updated, "importer1", IN_2001);
     assertUpdatedMetadata(updated, "importer3", IN_2003);
 
     // update can also override the inserted metadata
-    t.update(
+    providedMgTable.update(
         row("id", 1, "value", "somevalue2b")
             .set(MG_INSERTEDBY, "importer3b")
             .set(MG_INSERTEDON, IN_2005));
 
-    assertInsertedMetadata(onlyRow(t), "importer3b", IN_2005);
+    assertInsertedMetadata(onlyRow(providedMgTable), "importer3b", IN_2005);
 
     // save on an existing row (insert on conflict) with provided values
-    t.save(
+    providedMgTable.save(
         row("id", 1, "value", "somevalue3")
             .set(MG_INSERTEDBY, "importer4b")
             .set(MG_INSERTEDON, IN_2006)
             .set(MG_UPDATEDBY, "importer4")
             .set(MG_UPDATEDON, IN_2004));
 
-    Row saved = onlyRow(t);
+    Row saved = onlyRow(providedMgTable);
     assertEquals("somevalue3", saved.getString("value"));
     assertInsertedMetadata(saved, "importer4b", IN_2006);
     assertUpdatedMetadata(saved, "importer4", IN_2004);
 
     // without provided values the active user and current time are applied again
-    t.update(row("id", 1, "value", "somevalue4"));
+    providedMgTable.update(row("id", 1, "value", "somevalue4"));
 
-    Row fallback = onlyRow(t);
+    Row fallback = onlyRow(providedMgTable);
     assertEquals(schema.getDatabase().getActiveUser(), fallback.getString(MG_UPDATEDBY));
     assertTrue(fallback.getDateTime(MG_UPDATEDON).isAfter(IN_2004));
     assertInsertedMetadata(fallback, "importer4b", IN_2006);
@@ -247,5 +255,32 @@ class TestMgColumns {
     } finally {
       database.becomeAdmin();
     }
+  }
+
+  @Test
+  void testSaveOverwritesInsertedMetadataOnlyWhenEveryRowProvidesIt() {
+    Table partialMgTable =
+        schema.create(table("PartialMg", column("id").setPkey(), column("value")));
+    partialMgTable.insert(
+        row("id", 1, "value", "a").set(MG_INSERTEDBY, "importer1").set(MG_INSERTEDON, IN_2001),
+        row("id", 2, "value", "b").set(MG_INSERTEDBY, "importer1").set(MG_INSERTEDON, IN_2001));
+
+    // one row of the batch leaves the inserted metadata empty, so the existing values are kept
+    partialMgTable.save(
+        row("id", 1, "value", "a2").set(MG_INSERTEDBY, "importer2").set(MG_INSERTEDON, IN_2003),
+        row("id", 2, "value", "b2").set(MG_INSERTEDBY, null).set(MG_INSERTEDON, null));
+
+    assertEquals("a2", rowById(partialMgTable, 1).getString("value"));
+    assertEquals("b2", rowById(partialMgTable, 2).getString("value"));
+    assertInsertedMetadata(rowById(partialMgTable, 1), "importer1", IN_2001);
+    assertInsertedMetadata(rowById(partialMgTable, 2), "importer1", IN_2001);
+
+    // when every row provides it the existing values are overwritten
+    partialMgTable.save(
+        row("id", 1, "value", "a3").set(MG_INSERTEDBY, "importer3").set(MG_INSERTEDON, IN_2004),
+        row("id", 2, "value", "b3").set(MG_INSERTEDBY, "importer4").set(MG_INSERTEDON, IN_2005));
+
+    assertInsertedMetadata(rowById(partialMgTable, 1), "importer3", IN_2004);
+    assertInsertedMetadata(rowById(partialMgTable, 2), "importer4", IN_2005);
   }
 }
