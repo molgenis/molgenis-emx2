@@ -1,7 +1,10 @@
 <template>
   <thead>
     <tr>
-      <TableHeadCell class="sticky left-0 bg-table z-20 w-12"> </TableHeadCell>
+      <TableHeadCell
+        class="sticky left-0 bg-table z-20 w-12 shadow-[inset_-1px_0_0_var(--border-color-theme)]"
+      >
+      </TableHeadCell>
       <TableHeadCell v-if="showRolesColumn" class="w-48">
         <TableHeaderAction
           :column="{ id: 'mg_roles', label: 'Role' }"
