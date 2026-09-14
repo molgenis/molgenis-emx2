@@ -494,13 +494,13 @@ def test_validate_graphql_response(caplog):
         assert exc_info.value.msg == (f"Server with url"
                                       f" '{server_url}' not found.")
 
-        error_text = "Invalid token or token expired"
+        error_text = "Invalid token or token expired."
         response = MockResponse(400, text=error_text)
         with pytest.raises(InvalidTokenException) as exc_info:
             validate_graphql_response(response)
         assert exc_info.value.msg == error_text
 
-        error_text = "Cannot perform operation: permission denied"
+        error_text = "Transaction failed: permission denied."
         response = MockResponse(400, error_text)
         with pytest.raises(PermissionDeniedException) as exc_info:
             validate_graphql_response(response)
