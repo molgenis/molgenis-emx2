@@ -140,7 +140,7 @@ Erasmus Hospital,,ROR,ROR:05j1gs298,https://ror.org/05j1gs298,,,Belgium,Brussels
 University of Coimbra,,ROR,ROR:04z8k9a98,https://ror.org/04z8k9a98,,,Portugal,Coimbra,40.20564,-8.41955,https://www.uc.pt,"education, funder"
 University of Debrecen,,ROR,ROR:02xf66n48,https://ror.org/02xf66n48,,,Hungary,Debrecen,47.53167,21.62444,https://unideb.hu,"education, funder"
 CHU Dijon Bourgogne,,ROR,ROR:0377z4z10,https://ror.org/0377z4z10,,CHU de Dijon; Centre Hospitalier Régional Universitaire de Dijon; Centre Hospitalier Universitaire Dijon Bourgogne,France,Dijon,47.31667,5.01667,https://www.chu-dijon.fr,healthcare
-Mater Misericordiae University Hospital,MMUH,ROR,ROR:040hqpc16,https://ror.org/040hqpc16,,The Mater ,Ireland,Dublin,53.33306,-6.24889,http://www.mater.ie/,healthcare
+Mater Misericordiae University Hospital,MMUH,ROR,ROR:040hqpc16,https://ror.org/040hqpc16,,The Mater,Ireland,Dublin,53.33306,-6.24889,http://www.mater.ie/,healthcare
 Düsseldorf University Hospital,,ROR,ROR:006k2kk72,https://ror.org/006k2kk72,,,Germany,Düsseldorf,51.22172,6.77616,https://www.uni-duesseldorf.de/home/en/university-hospital.html,healthcare
 Essen University Hospital,,ROR,ROR:02na8dn90,https://ror.org/02na8dn90,,,Germany,Essen,51.45657,7.01228,https://www.uk-essen.de,"funder, healthcare"
 University of Ferrara,,ROR,ROR:041zkgm14,https://ror.org/041zkgm14,,,Italy,Ferrara,44.83804,11.62057,https://www.unife.it,"education, funder"
@@ -264,7 +264,7 @@ Sanofi (France),,ROR,ROR:02n6c9837,https://ror.org/02n6c9837,,Sanofi-Aventis,Fra
 Takeda (Japan),,ROR,ROR:04hjbmv12,https://ror.org/04hjbmv12,,,Japan,Osaka,34.69379,135.50107,http://www.takeda.com,"company, funder"
 Université de Bordeaux,,ROR,ROR:057qpr032,https://ror.org/057qpr032,,,France,Bordeaux,44.84044,-0.5805,https://www.u-bordeaux.fr,"education, funder"
 University College London,UCL,ROR,ROR:02jx3x895,https://ror.org/02jx3x895,,"London University; University College, London",United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574,http://www.ucl.ac.uk/,"education, funder"
-University of KwaZulu-Natal,UKZN ,ROR,ROR:04qzfn040,https://ror.org/04qzfn040,,,South Africa,Durban,-29.8579,31.0292,https://www.ukzn.ac.za,"education, funder"
+University of KwaZulu-Natal,UKZN,ROR,ROR:04qzfn040,https://ror.org/04qzfn040,,,South Africa,Durban,-29.8579,31.0292,https://www.ukzn.ac.za,"education, funder"
 University of Ulster,UU,ROR,ROR:01yp9g959,https://ror.org/01yp9g959,,,United Kingdom of Great Britain and Northern Ireland (the),Coleraine,55.13333,-6.66667,https://www.ulster.ac.uk,"education, funder"
 University of Messina,UNIME,ROR,ROR:05ctdxz19,https://ror.org/05ctdxz19,,,Italy,Messina,38.19394,15.55256,https://www.unime.it,"education, funder"
 University of Dundee,,ROR,ROR:03h2bxq36,https://ror.org/03h2bxq36,,Universitas Dundensis,United Kingdom of Great Britain and Northern Ireland (the),Dundee,56.46913,-2.97489,https://www.dundee.ac.uk,"education, funder"
@@ -332,3 +332,5 @@ Alexander Monro Ziekenhuis,,ROR,ROR:014ef6110,https://ror.org/014ef6110,,,Nether
 Maastricht University,,ROR,ROR:02jz4aj89,https://ror.org/02jz4aj89,,Universiteit Maastricht,Netherlands (the),Maastricht,50.84833,5.68889,https://www.maastrichtuniversity.nl,"education,funder"
 Heidelberg Institute of Global Health,HIGH,ROR,ROR:052rvyy58,https://ror.org/052rvyy58,,Heidelberger Institut für Global Health,Germany,Heidelberg,49.40768,8.69079,https://www.klinikum.uni-heidelberg.de/heidelberger-institut-fuer-global-health/,facility
 London School of Hygiene & Tropical Medicine,LSHTM,ROR,ROR:00a0jsq62,https://ror.org/00a0jsq62,,,United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574,http://www.lshtm.ac.uk/,"education,funder"
+Hamad Medical Corporation,HMC,ROR,ROR:02zwb6n98,https://ror.org/02zwb6n98,,,Qatar,Doha,25.28545,51.53096,https://www.hamad.qa/EN/Pages/default.aspx,"funder,nonprofit"
+Instituto de Salud Carlos III,ISCIII,ROR,ROR:00ca2c886,https://ror.org/00ca2c886,,Carlos III Health Institute,Spain,Madrid,40.4165,-3.70256,https://www.isciii.es/,"funder,nonprofit"
