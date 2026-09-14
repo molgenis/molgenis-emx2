@@ -140,6 +140,7 @@
                   :showRolesColumn="showRolesColumn"
                   :isResizing="isResizing"
                   :columnWidths="columnWidths"
+                  :selectColumnWidth="stickySelectColumnWidth"
                   @sort-requested="handleSortRequest"
                   @start-resize="startResize($event.event, $event.id)"
                 />
@@ -155,6 +156,7 @@
                 :showRolesColumn="showRolesColumn"
                 :isResizing="isResizing"
                 :columnWidths="columnWidths"
+                :selectColumnWidth="stickySelectColumnWidth"
                 @sort-requested="handleSortRequest"
                 @start-resize="startResize($event.event, $event.id)"
               />
@@ -170,7 +172,8 @@
                   }"
                 >
                   <td
-                    class="sticky left-0 z-20 w-12 !p-0 align-middle border-b shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
+                    class="sticky left-0 z-20 !p-0 align-middle border-b shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
+                    :style="selectColumnStyle"
                   >
                     <Checkbox
                       class="block mx-auto"
@@ -209,7 +212,8 @@
                   >
                     <template #row-actions v-if="colIndex === 0">
                       <div
-                        class="absolute left-12 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                        :style="{ left: `${stickySelectColumnWidth}px` }"
+                        class="absolute h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                       >
                         <Button
                           v-if="canDeleteRow(row)"
@@ -257,6 +261,12 @@
                       </div>
                     </template>
                   </TableCellEMX2>
+
+                  <!-- Matches the filler column in the header -->
+                  <td
+                    aria-hidden="true"
+                    class="border-b group-hover:bg-hover"
+                  />
                 </tr>
               </tbody>
             </table>
@@ -443,6 +453,12 @@ const props = withDefaults(
 );
 
 const stickySelectColumnWidth = 48;
+
+const selectColumnStyle = {
+  width: `${stickySelectColumnWidth}px`,
+  minWidth: `${stickySelectColumnWidth}px`,
+  maxWidth: `${stickySelectColumnWidth}px`,
+};
 
 const canEdit = computed(
   () => props.canInsert || props.canUpdate || props.canDelete

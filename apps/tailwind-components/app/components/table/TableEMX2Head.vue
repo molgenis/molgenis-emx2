@@ -2,7 +2,12 @@
   <thead>
     <tr>
       <TableHeadCell
-        class="sticky left-0 bg-table z-20 w-12 shadow-[inset_-1px_0_0_var(--border-color-theme)]"
+        class="sticky left-0 bg-table z-20 shadow-[inset_-1px_0_0_var(--border-color-theme)]"
+        :style="{
+          width: `${selectColumnWidth}px`,
+          minWidth: `${selectColumnWidth}px`,
+          maxWidth: `${selectColumnWidth}px`,
+        }"
       >
       </TableHeadCell>
       <TableHeadCell v-if="showRolesColumn" class="w-48">
@@ -49,6 +54,7 @@
           @sort-requested="$emit('sort-requested', column.id)"
         />
       </TableHeadCell>
+      <TableHeadCell aria-hidden="true" />
     </tr>
   </thead>
 </template>
@@ -68,6 +74,7 @@ defineProps<{
   };
   columns: any;
   columnWidths: Record<string, number>;
+  selectColumnWidth: number;
   isResizing: boolean;
   showDraftColumn?: boolean;
   showRolesColumn?: boolean;
