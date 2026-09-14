@@ -242,8 +242,8 @@ async def test_export():
         df = pd.read_csv(csv_data)
         assert len(df.columns) == 8
         await client.export(schema="pet store", table="Pet", filename="pet.csv")
-        assert (Path(__file__).parent.parent / "pet.csv").exists()
-        (Path(__file__).parent.parent / "pet.csv").unlink()
+        assert (Path(__file__).parent / "pet.csv").exists()
+        (Path(__file__).parent / "pet.csv").unlink()
 
         # Test ZIP
         zip_data: BytesIO = await client.export(schema="pet store")
@@ -251,8 +251,8 @@ async def test_export():
             file_names = zf.namelist()
         assert len(file_names) == 9
         await client.export(schema="pet store", filename="pet store.zip")
-        assert (Path(__file__).parent.parent / "pet store.zip").exists()
-        (Path(__file__).parent.parent / "pet store.zip").unlink()
+        assert (Path(__file__).parent / "pet store.zip").exists()
+        (Path(__file__).parent / "pet store.zip").unlink()
 
         # Test XLSX table
         xlsx_data: BytesIO = await client.export(schema="pet store",
@@ -261,8 +261,8 @@ async def test_export():
         assert len(book.sheet_names) == 1
         await client.export(schema="pet store", table="Pet", as_excel=True,
                             filename="pet.xlsx")
-        assert (Path(__file__).parent.parent / "pet.xlsx").exists()
-        (Path(__file__).parent.parent / "pet.xlsx").unlink()
+        assert (Path(__file__).parent / "pet.xlsx").exists()
+        (Path(__file__).parent / "pet.xlsx").unlink()
 
         # Test XLSX tables as sheets
         xlsx_data: BytesIO = await client.export(schema="pet store",
@@ -271,8 +271,8 @@ async def test_export():
         assert len(book.sheet_names) == 9
         await client.export(schema="pet store", as_excel=True,
                             filename="pet store.xlsx")
-        assert (Path(__file__).parent.parent / "pet store.xlsx").exists()
-        (Path(__file__).parent.parent / "pet store.xlsx").unlink()
+        assert (Path(__file__).parent / "pet store.xlsx").exists()
+        (Path(__file__).parent / "pet store.xlsx").unlink()
 
 
 @pytest.mark.asyncio
@@ -593,23 +593,23 @@ async def test_export_schema():
                                                filename="pet store.csv")
         csv_schema = pd.read_csv(csv_bytes)
         assert len(csv_schema.columns) == 23
-        assert (Path(__file__).parent.parent / "pet store.csv").exists()
-        (Path(__file__).parent.parent / "pet store.csv").unlink()
+        assert (Path(__file__).parent / "pet store.csv").exists()
+        (Path(__file__).parent / "pet store.csv").unlink()
 
         json_bytes = await client.export_schema("pet store",
                                                 fmt="json")
         json_schema = json.load(json_bytes)
         assert len(json_schema['tables']) == 5
         assert len(json_schema['settings']) == 1
-        assert not (Path(__file__).parent.parent / "pet store.json").exists()
+        assert not (Path(__file__).parent / "pet store.json").exists()
 
         yaml_bytes = await client.export_schema("pet store",
                                                 filename="pet store.yaml")
         yaml_schema = yaml.safe_load(yaml_bytes)
         assert (len(yaml_schema['tables']), len(yaml_schema['settings'])
                 ) == (5, 1)
-        assert (Path(__file__).parent.parent / "pet store.yaml").exists()
-        (Path(__file__).parent.parent / "pet store.yaml").unlink()
+        assert (Path(__file__).parent / "pet store.yaml").exists()
+        (Path(__file__).parent / "pet store.yaml").unlink()
 
 
 @pytest.mark.asyncio
@@ -631,8 +631,7 @@ async def test_symmetry():
                                               parse_arrays=parse_arrays)
                     for to_file in [False, True]:
                         if to_file:
-                            path = (Path(__file__).parent.parent
-                                    / f"{table.name}.csv")
+                            path = Path(__file__).parent / f"{table.name}.csv"
                             data_to_csv(table_before, filename=path)
                             await client.upload_file(file_path=path,
                                                      schema=schema)
