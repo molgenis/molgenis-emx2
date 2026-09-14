@@ -1,7 +1,7 @@
 <template>
-  <td class="p-2 border-b min-h-8">
+  <td class="border-b min-h-8">
     <slot name="row-actions"></slot>
-    <div class="flex overflow-hidden items-center gap-2">
+    <div class="flex overflow-hidden items-center gap-2 pl-2">
       <div class="truncate min-w-0" ref="cellRef">
         <slot>
           <ValueEMX2
