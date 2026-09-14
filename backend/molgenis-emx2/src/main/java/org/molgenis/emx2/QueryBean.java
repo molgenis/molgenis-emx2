@@ -3,21 +3,15 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.Operator.AND;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class QueryBean implements Query {
+public abstract class QueryBean implements Query {
   private SelectColumn select;
   private Filter filter;
   private String[] searchTerms = new String[0];
 
-  public QueryBean() {
-    this.select = new SelectColumn(null);
-    this.filter = new FilterBean(AND);
-  }
-
-  public QueryBean(String field) {
+  protected QueryBean(String field) {
     this.select = new SelectColumn(field);
     this.filter = new FilterBean(AND);
   }
@@ -32,16 +26,6 @@ public class QueryBean implements Query {
   public Query where(Filter... filters) {
     this.filter.addSubfilters(filters);
     return this;
-  }
-
-  @Override
-  public List<Row> retrieveRows(Option... options) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public String retrieveJSON() {
-    throw new UnsupportedOperationException();
   }
 
   @Override
