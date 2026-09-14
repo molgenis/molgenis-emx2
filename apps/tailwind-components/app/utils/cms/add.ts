@@ -1,21 +1,6 @@
 import { cmsFetch } from "../cms";
 
-export async function AddNavigationGroup(schema: string, id: string) {
-  const query = `mutation insert($nav:[NavigationGroupsInput]) {
-    insert(NavigationGroups: $nav) {
-      status
-      message
-    }
-  }`;
-  const variables = { nav: [{ id: id }] };
-  await cmsFetch(schema, query, variables);
-}
-
-export async function AddNavigationCard(
-  schema: string,
-  id: string,
-  parentId: string
-) {
+export async function AddNavigationCard(schema: string, id: string) {
   const query = `mutation insert($element: [NavigationCardsInput]) {
     insert(NavigationCards: $element) {
       status
@@ -29,7 +14,6 @@ export async function AddNavigationCard(
         title: "Title",
         description: "A description about the link",
         url: "https://molgenis.org",
-        displayedInNavigationGroup: { id: parentId },
       },
     ],
   };

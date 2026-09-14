@@ -1,4 +1,4 @@
-// Generated (on: 2026-09-09T13:15:51.804548) from Generator.java for schema: cms
+// Generated (on: 2026-09-14T10:35:25.301382) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -75,7 +75,7 @@ export interface IComponents extends IMgTableClass {
   width?: string;
   height?: string;
   imageIsCentered?: boolean;
-  links?: INavigationCards[];
+  items?: string[];
   text?: string;
   paragraphIsCentered?: boolean;
   level?: number;
@@ -86,9 +86,6 @@ export interface IComponents extends IMgTableClass {
   url: string;
   urlLabel?: string;
   urlIsExternal?: boolean;
-  displayedInNavigationGroup?: any;
-  order: number;
-  items?: string[];
 }
 
 export interface IComponents_agg {
@@ -224,23 +221,11 @@ export interface INavigationCards extends IMgTableClass {
   url: string;
   urlLabel?: string;
   urlIsExternal?: boolean;
-  displayedInNavigationGroup?: any;
-  order: number;
   inBlock?: any;
   id: string;
 }
 
 export interface INavigationCards_agg {
-  count: number;
-}
-
-export interface INavigationGroups extends IMgTableClass {
-  links?: INavigationCards[];
-  inBlock?: any;
-  id: string;
-}
-
-export interface INavigationGroups_agg {
   count: number;
 }
 

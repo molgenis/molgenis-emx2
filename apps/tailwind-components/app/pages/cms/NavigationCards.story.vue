@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import NavigationGroups from "../../components/cms/Navigation/NavigationGroups.vue";
+import NavigationCards from "../../components/cms/Navigation/NavigationCards.vue";
+import type { INavigationCards } from "../../../types/cms.ts";
 
-const links = [
+const cards: INavigationCards[] = [
   {
     id: "EFDMXMMRhW91",
     title: "Learn more",
@@ -10,7 +11,6 @@ const links = [
     url: "https://molgenis.github.io/molgenis-emx2/#/",
     urlLabel: "Read the docs",
     urlIsExternal: true,
-    order: 0,
   },
   {
     id: "2UoF7nu62PnR",
@@ -20,7 +20,6 @@ const links = [
     url: "https://github.com/molgenis/molgenis-emx2",
     urlLabel: "Go to github",
     urlIsExternal: true,
-    order: 1,
   },
   {
     id: "UKX8WqOxwP9a",
@@ -30,13 +29,20 @@ const links = [
     url: "mailto:some.email@test.com",
     urlLabel: "Contact",
     urlIsExternal: true,
-    order: 2,
   },
 ];
 </script>
 
 <template>
-  <div class="my-5">
-    <NavigationGroups id="navigation-group" :links="links" />
+  <div class="my-5 grid grid-cols-3 gap-7.5">
+    <NavigationCards
+      v-for="card in cards"
+      :id="card.id"
+      :title="card.title"
+      :description="card.description"
+      :url="card.url"
+      :urlLabel="card.urlLabel"
+      :urlIsExternal="card.urlIsExternal"
+    />
   </div>
 </template>

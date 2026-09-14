@@ -15,7 +15,7 @@ import type {
   ICmsOrderWithBlockId,
 } from "../../types/CmsComponents";
 
-import { AddNavigationCard, AddNavigationGroup } from "./cms/add";
+import { AddNavigationCard } from "./cms/add";
 
 export function randomId(): string {
   return crypto.randomUUID();
@@ -414,12 +414,8 @@ export async function addComponent(
     await AddImage(schema, id);
   }
 
-  if (componentType === "NavigationGroups") {
-    await AddNavigationGroup(schema, id);
-  }
-
   if (componentType === "NavigationCards") {
-    await AddNavigationCard(schema, id, parentBlock);
+    await AddNavigationCard(schema, id);
   }
 
   await AddOrder(schema, id, order, parentBlock);

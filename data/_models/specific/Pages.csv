@@ -52,7 +52,6 @@ Ordered lists,Components,,,,,,,,,,,,<ol> elements,pages
 Ordered lists,,items,text_array,,,,,,,,,,,pages
 Unordered lists,Components,,,,,,,,,,,,<ul> elements,pages
 Unordered lists,,items,text_array,,,,,,,,,,,pages
-Navigation groups,Components,,,,,,,,,,,,<nav> elements,pages
 Navigation cards,Components,,,,,,,,,,,,,pages
 Navigation cards,,title,string,,,,,,,,,,An optional title for the card,pages
 Navigation cards,,description,string,,,,,,,,,,An optional description that provides context for the link,pages
