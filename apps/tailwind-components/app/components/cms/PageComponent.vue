@@ -200,7 +200,6 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
   />
   <Paragraph
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
-    class="mb-2.5 last:mb-0"
     :id="component.id"
     :paragraphIsCentered="component.paragraphIsCentered"
     :text="parsePageText(component.text)"
