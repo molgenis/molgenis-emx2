@@ -171,7 +171,9 @@
                   <TableCellEMX2
                     class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
                   >
-                    <div class="flex justify-center items-center h-full">
+                    <div
+                      class="flex justify-center items-center h-full px-[0.625rem] py-[0.9375rem]"
+                    >
                       <Checkbox
                         :model-value="selectedRows.has(row._rowIdString)"
                         @update:model-value="toggleRowSelection(row)"
