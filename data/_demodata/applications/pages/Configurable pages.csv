@@ -1,2 +1,2 @@
-name,description
-demo-landing-page,Example of a page built using the page builder UI
+name,description,blocks,block order
+demo-landing-page,Example of a page built using the page builder UI,,"Header-671d90d3-add2-4c9a-8ecb-49d6f0e9c421-order,Section-9fbfc6b6-4783-46f7-809f-fdb006ec895c-order,Section-d7128bcc-7abb-4741-9117-a1fb15054d26-order,Section-0d580519-23c4-4871-9373-720f86cd1644-order"

@@ -1,7 +1,7 @@
-id,in block,text,heading is centered,level
-demo-landing-page-overview-h-1,demo-landing-page-overview,Overview,true,2
-demo-landing-page-features-h-1,demo-landing-page-features,Features,true,2
-demo-landing-page-features-h-2,demo-landing-page-features,Blocks,false,3
-demo-landing-page-features-h-3,demo-landing-page-features,Components,false,3
-demo-landing-page-information-h-1,demo-landing-page-information,Additional information,true,2
-demo-landing-page-notice-h-1,demo-landing-page-notice,Note,true,2
+text,level,heading is centered,heading is hidden,in block,id,mg_draft
+Overview,2,true,false,,Heading-3b20c947-9818-41a8-942d-e82d2a2f6002,
+Features,2,false,false,,Heading-c3b5e1dd-720c-488b-abd1-b1ae6a31098a,
+Section Heading,3,false,false,,Heading-5ab376f2-4418-46e0-919f-981ebf158250,
+Section Heading,3,false,false,,Heading-888b033f-219c-4954-bf30-ecd0011ee692,
+Columns,2,false,false,,Heading-2713d3ab-0f52-484d-825f-a6c67a1e9d7d,false
+Note,2,false,false,,Heading-73d04d21-e0f6-412a-a2b0-a8a8c65e269b,false

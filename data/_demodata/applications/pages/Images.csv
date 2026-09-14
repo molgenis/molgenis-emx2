@@ -1,4 +1,4 @@
-id,alt,image
-molgenis-default-banner-img,a person pointing at a computer screen,molgenis-banner
-molgenis-logo,MOLGENIS open source software,molgenis-logo-blue-text
-penguins,two penguins walking in the grass,penguins
+display name,image,alt,width,height,image is centered,in block,id
+,molgenis-banner,a person pointing at a computer screen,325px,,true,,molgenis-default-banner-img,
+,molgenis-logo-blue-text,MOLGENIS open source software,325px,,true,,molgenis-logo,
+,penguins,two penguins walking in the grass,325px,,true,,penguins,

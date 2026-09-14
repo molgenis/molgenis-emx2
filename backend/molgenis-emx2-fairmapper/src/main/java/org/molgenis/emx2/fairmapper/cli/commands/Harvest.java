@@ -1,16 +1,16 @@
 package org.molgenis.emx2.fairmapper.cli.commands;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.CrawlSteps;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
-import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.StageCsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
@@ -63,20 +63,22 @@ public class Harvest implements Runnable {
 
     Database database = setupDatabase();
     Schema schema = validateSchema(database);
-    String[] tables = validateTables(schema);
+    String[] tables = this.tablesArg.split(",");
 
     URI rdfURI = getRdf();
 
-    RdfExtractor extractor = new FdpRdfExtractor(new RemoteRdfExtractor(), rdfURI);
+    RdfExtractor extractor = new CrawlingRdfExtractor().withCrawlSteps(CrawlSteps.FDP.steps());
     SparqlSelectRdfTransformer transformer =
-        new SparqlSelectRdfTransformer(
-            new TableQueryGenerator(), schema.getMetadata(), List.of(tables));
+        new SparqlSelectRdfTransformer(new TableQueryGenerator());
 
     HarvestingPipelineConfig.Builder builder =
         new HarvestingPipelineConfig.Builder(rdfURI, schema, extractor, transformer)
             .setTables(tables)
             .withPostProcessors(new DCATPostProcessor(schema.getMetadata()))
-            .withPreProcessors(new TemporalRdfPreProcessor(), new TypicalAgeRdfPreProcessor());
+            .withPreProcessors(
+                new TemporalRdfPreProcessor(),
+                new TypicalAgeRdfPreProcessor(),
+                new StageCsvwPreProcessor());
 
     if (outputPath != null) {
       builder.withDumpEnabled(outputPath);
@@ -112,16 +114,5 @@ public class Harvest implements Runnable {
       throw new MolgenisException("Schema not found: " + schemaName);
     }
     return schema;
-  }
-
-  private String[] validateTables(Schema schema) {
-    logger.info("Validating table names: {}", tablesArg);
-    String[] tables = this.tablesArg.split(",");
-    for (String table : tables) {
-      if (schema.getTable(table) == null) {
-        throw new MolgenisException("Table not found: " + table);
-      }
-    }
-    return tables;
   }
 }

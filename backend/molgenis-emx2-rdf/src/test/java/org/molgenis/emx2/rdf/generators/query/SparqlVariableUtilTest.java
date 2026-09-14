@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Column;
 
 class SparqlVariableUtilTest {
 
@@ -18,6 +19,12 @@ class SparqlVariableUtilTest {
   void shouldPrefixWithSubjectVariable() {
     Variable variable = SparqlBuilder.var("foo");
     assertEquals("_subject_foo", SparqlVariableUtil.subjectVariable(variable).getVarName());
+  }
+
+  @Test
+  void shouldNormalizeAndPrefixColumnNameWithSubjectVariable() {
+    Column column = new Column("foo bar");
+    assertEquals("_subject_foo___bar", SparqlVariableUtil.subjectVariable(column).getVarName());
   }
 
   @Test

@@ -1,16 +1,16 @@
-id,block,component,order
-demo-landing-page-overview-h-1-order,demo-landing-page-overview,demo-landing-page-overview-h-1,0
-demo-landing-page-overview-p-1-order,demo-landing-page-overview,demo-landing-page-overview-p-1,1
-demo-landing-page-overview-p-2-order,demo-landing-page-overview,demo-landing-page-overview-p-2,2
-demo-landing-page-features-h-1-order,demo-landing-page-features,demo-landing-page-features-h-1,3
-demo-landing-page-features-p-1-order,demo-landing-page-features,demo-landing-page-features-p-1,4
-demo-landing-page-features-h-2-order,demo-landing-page-features,demo-landing-page-features-h-2,6
-demo-landing-page-features-p-2-order,demo-landing-page-features,demo-landing-page-features-p-2,7
-demo-landing-page-features-h-3-order,demo-landing-page-features,demo-landing-page-features-h-3,8
-demo-landing-page-features-p-3-order,demo-landing-page-features,demo-landing-page-features-p-3,9
-demo-landing-page-notice-h-1-order,demo-landing-page-notice,demo-landing-page-notice-h-1,0
-demo-landing-page-notice-p-1-order,demo-landing-page-notice,demo-landing-page-notice-p-1,1
-demo-landing-page-notice-image,demo-landing-page-notice,penguins,2
-demo-landing-page-information-h-1-order,demo-landing-page-information,demo-landing-page-information-h-1,0
-demo-landing-page-information-p-1-order,demo-landing-page-information,demo-landing-page-information-p-1,1
-demo-landing-page-information-nav-group-order,demo-landing-page-information,demo-landing-page-information-nav-group,2
+id,block,component,order,mg_draft
+Heading-3b20c947-9818-41a8-942d-e82d2a2f6002-order,Section-9fbfc6b6-4783-46f7-809f-fdb006ec895c,Heading-3b20c947-9818-41a8-942d-e82d2a2f6002,0,
+Paragraph-c95d9bcb-eb18-4d4b-88e5-90e253da7e45-order,Section-9fbfc6b6-4783-46f7-809f-fdb006ec895c,Paragraph-c95d9bcb-eb18-4d4b-88e5-90e253da7e45,1,
+Paragraph-bac45e4b-41dd-4cd7-a29b-9c6c353a69f3-order,Section-9fbfc6b6-4783-46f7-809f-fdb006ec895c,Paragraph-bac45e4b-41dd-4cd7-a29b-9c6c353a69f3,2,
+Heading-c3b5e1dd-720c-488b-abd1-b1ae6a31098a-order,Section-d7128bcc-7abb-4741-9117-a1fb15054d26,Heading-c3b5e1dd-720c-488b-abd1-b1ae6a31098a,0,
+Paragraph-b205bdee-6cda-4be0-9f06-83f42004234e-order,Section-d7128bcc-7abb-4741-9117-a1fb15054d26,Paragraph-b205bdee-6cda-4be0-9f06-83f42004234e,1,
+Heading-5ab376f2-4418-46e0-919f-981ebf158250-order,Section-d7128bcc-7abb-4741-9117-a1fb15054d26,Heading-5ab376f2-4418-46e0-919f-981ebf158250,2,
+Paragraph-718c410d-7365-4883-8013-ce4c0026d981-order,Section-d7128bcc-7abb-4741-9117-a1fb15054d26,Paragraph-718c410d-7365-4883-8013-ce4c0026d981,3,
+Heading-888b033f-219c-4954-bf30-ecd0011ee692-order,Section-d7128bcc-7abb-4741-9117-a1fb15054d26,Heading-888b033f-219c-4954-bf30-ecd0011ee692,4,
+Paragraph-cd8cb63f-9b00-42eb-a480-a0619099fa1e-order,Section-d7128bcc-7abb-4741-9117-a1fb15054d26,Paragraph-cd8cb63f-9b00-42eb-a480-a0619099fa1e,5,
+Heading-2713d3ab-0f52-484d-825f-a6c67a1e9d7d-order,Section - 2 Columns-098afdaf-d4c5-4538-84a8-f3545ab7ed69,Heading-2713d3ab-0f52-484d-825f-a6c67a1e9d7d,0,
+Heading-73d04d21-e0f6-412a-a2b0-a8a8c65e269b-order,Section - 2 Columns-098afdaf-d4c5-4538-84a8-f3545ab7ed69,Heading-73d04d21-e0f6-412a-a2b0-a8a8c65e269b,1,
+Paragraph-22accdee-142a-4e63-9b7f-3c36157e9481-order,Section - 2 Columns-098afdaf-d4c5-4538-84a8-f3545ab7ed69,Paragraph-22accdee-142a-4e63-9b7f-3c36157e9481,2,
+Paragraph-88b13313-e03c-421b-9493-9b0bf3866e51-order,Section - 2 Columns-098afdaf-d4c5-4538-84a8-f3545ab7ed69,Paragraph-88b13313-e03c-421b-9493-9b0bf3866e51,3,
+Paragraph-7a8a2365-d33c-46b1-b898-507f6092a726-order,Section - 2 Columns-098afdaf-d4c5-4538-84a8-f3545ab7ed69,Paragraph-7a8a2365-d33c-46b1-b898-507f6092a726,4,
+Image-ab01cc7c-6744-438a-a437-7078afd2152d-order,Section - 2 Columns-098afdaf-d4c5-4538-84a8-f3545ab7ed69,penguins,5,

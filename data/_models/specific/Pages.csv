@@ -34,7 +34,7 @@ Headers,,subtitle,string,,,,,,,,,,An optional secondary title that describes the
 Headers,,background image,select,,,Images,,,,,,,An image to display in the background of the header,pages
 Headers,,title is centered,bool,,,,,,,,FALSE,,"If true, the title and subtitle will be center aligned",pages
 Text elements,Components,,,,,,,,,,,,All text elements,pages
-Text elements,,text,text,,,,,,,,,,"The content to display. URLs can be generated using markdown format ""[label](url)"". This also works for emails if ""mailto"" is defined ""[user@website.com](mailto:user@website.com)"".",pages
+Text elements,,text,text,,,,,,,,,,"The content to display",pages
 Headings,Text elements,,,,,,,,,,,,<h*> elements,pages
 Headings,,level,int,,,,,,,"if (level && (level < 1 || level > 6)) ""Level must corresponding to an HTML heading element. Use a level from 1 to 6.""",2,,Enter an HTML Heading element level (1-6). Please note that heading levels corresponds to page hierarchy and it should not be used to style headings; this should be done elsewhere. ,pages
 Headings,,heading is centered,bool,,,,,,,,FALSE,,"If true, the heading will be center aligned",pages
@@ -64,6 +64,7 @@ Navigation cards,,displayed in navigation group,select,,,Navigation groups,,,,,,
 Navigation cards,,order,int,,TRUE,,,,,,0,,Order the card should appear in when used in a navigation group,pages
 Blocks,,Configuration,section,,,,,,,,,,,pages
 Blocks,,UI settings,heading,,,,,,,,,,,pages
+Sections,,columns,int,,,,,,,"if (columns && (columns < 1 || columns > 4)) ""Choose between 1 and 4""",1,,"The amount (1 to 4) of columns in a sections",pages
 Blocks,,enable full screen width,bool,,,,,,,,FALSE,,"If true, content will be expanded to the fit the full width of the screen",pages
 Sections,,apply shaded background,bool,,,,,,,,FALSE,,"If true, a light background color will be applied to provide visual distinction between blocks",pages
 Blocks,,Component connections,heading,,,,,,,,,,Link components and set the order in which they display on page. ,pages
