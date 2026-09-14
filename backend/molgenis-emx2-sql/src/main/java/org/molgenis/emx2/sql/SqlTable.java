@@ -359,9 +359,6 @@ public class SqlTable implements Table {
     return getJooq().insertInto(getJooqTable(), insertFields.toArray(new Field[0]));
   }
 
-  /**
-   * @param mgDefaults the mg_ metadata to apply, or null when this table does not store it
-   */
   private void addRowsToInsertStep(
       InsertValuesStepN<org.jooq.Record> step,
       List<Row> rows,
@@ -376,9 +373,6 @@ public class SqlTable implements Table {
     }
   }
 
-  /**
-   * @param mgDefaults the mg_ metadata to apply, or null when this table does not store it
-   */
   private void addUpdateOnConflictClause(
       InsertValuesStepN<org.jooq.Record> step,
       List<Row> rows,
@@ -395,11 +389,6 @@ public class SqlTable implements Table {
     }
   }
 
-  /**
-   * The inserted values already hold either the value supplied in the row or the default, so on
-   * conflict we reuse them; if the column is not part of the insert we apply the default. Insert
-   * metadata of the existing row is only overwritten when every row supplies it.
-   */
   private static void setMgValuesOnConflict(
       InsertOnDuplicateSetStep<org.jooq.Record> onConflict,
       List<Row> rows,
@@ -427,10 +416,6 @@ public class SqlTable implements Table {
             : mgDefaults.now());
   }
 
-  /**
-   * The mg_ metadata applied to rows that do not supply their own, collected once per batch so
-   * every row in it gets the same timestamp and user.
-   */
   private record MgDefaults(String user, LocalDateTime now, boolean mayOverride) {
     static MgDefaults of(SqlTable table) {
       return new MgDefaults(getActiveUser(table), LocalDateTime.now(), mayOverrideMgValues(table));
@@ -518,7 +503,6 @@ public class SqlTable implements Table {
     return rows.stream().allMatch(row -> row.notNull(columnName));
   }
 
-  /** only admins and managers may decide what ends up in the mg_ metadata columns */
   private static boolean mayOverrideMgValues(SqlTable table) {
     return PermissionEvaluator.canManage(table.getSchema());
   }
