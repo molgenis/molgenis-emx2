@@ -23,10 +23,10 @@ def test_schema_fail():
     """Tests failing upload by giving incorrect schema name."""
     with Client(url=server_url) as client:
         client.signin(username, password)
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             client.save_table(schema="Pet store", table="Pet",
                               file=RESOURCES_DIR / "insert" / "Pet.csv")
-        assert excinfo.value.msg == "Schema 'Pet store' not available."
+        assert exc_info.value.msg == "Schema 'Pet store' not available."
 
 
 def test_table_fail():
@@ -35,11 +35,11 @@ def test_table_fail():
         client.signin(username, password)
 
         # Test failing table name
-        with pytest.raises(NoSuchTableException) as excinfo:
+        with pytest.raises(NoSuchTableException) as exc_info:
             client.save_table(schema="pet store", table="Pets",
                               file=RESOURCES_DIR / "insert" / "Pet.csv")
-        assert excinfo.value.msg == ("Table 'Pets' not found in"
-                                     " schema 'pet store'.")
+        assert exc_info.value.msg == ("Table 'Pets' not found in"
+                                      " schema 'pet store'.")
 
 
 def test_missing_file():
@@ -48,11 +48,11 @@ def test_missing_file():
         client.signin(username, password)
 
         # Test missing file and data
-        with pytest.raises(FileNotFoundError) as excinfo:
+        with pytest.raises(FileNotFoundError) as exc_info:
             client.save_table(schema="pet store", table="Pet")
 
-        assert str(excinfo.value) == ("No data to import."
-                                      " Specify a file location or a dataset.")
+        assert str(exc_info.value) == ("No data to import."
+                                       " Specify a file location or a dataset.")
 
 
 def test_incorrect_file_name():
@@ -61,12 +61,12 @@ def test_incorrect_file_name():
         client.signin(username, password)
 
         # Test file upload incorrect name
-        with pytest.raises(FileNotFoundError) as excinfo:
+        with pytest.raises(FileNotFoundError) as exc_info:
             client.save_table(schema="pet store", table="Pet",
                               file=RESOURCES_DIR / "insert" / "Pat.csv")
 
-        assert excinfo.value.args[1] == "No such file or directory"
-        assert str(excinfo.value.filename).endswith(
+        assert exc_info.value.args[1] == "No such file or directory"
+        assert str(exc_info.value.filename).endswith(
             str(RESOURCES_DIR / "insert" / "Pat.csv"))
 
 
