@@ -2,8 +2,8 @@ package org.molgenis.emx2.sql;
 
 import static java.lang.Boolean.TRUE;
 
-import org.molgenis.emx2.SchemaMetadataProvider;
 import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.SchemaMetadataProvider;
 import org.molgenis.emx2.utils.TypeUtils;
 
 public class ChangeLogUtils {

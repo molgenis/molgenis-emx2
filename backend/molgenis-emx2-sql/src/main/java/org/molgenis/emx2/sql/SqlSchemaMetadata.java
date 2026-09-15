@@ -76,14 +76,16 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public void reload() {
     if (logger.isInfoEnabled()) {
-      logger.info("loading schema '{}' as user {}", getName(), getSchemaMetadataProvider().getActiveUser());
+      logger.info(
+          "loading schema '{}' as user {}", getName(), getSchemaMetadataProvider().getActiveUser());
     }
     long start = System.currentTimeMillis();
     MetadataUtils.loadSchemaMetadata(getSchemaMetadataProvider().getJooq(), this);
     this.tables.clear();
     this.rolesCache = null;
     this.permissionsByTableCache = null;
-    for (TableMetadata table : MetadataUtils.loadTables(getSchemaMetadataProvider().getJooq(), this)) {
+    for (TableMetadata table :
+        MetadataUtils.loadTables(getSchemaMetadataProvider().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
     if (logger.isInfoEnabled()) {
@@ -245,7 +247,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public List<String> getInheritedRolesForUser(String username) {
-    return getSchemaMetadataProvider().getRoleManager().getInheritedRoleNamesForUser(getName(), username);
+    return getSchemaMetadataProvider()
+        .getRoleManager()
+        .getInheritedRoleNamesForUser(getName(), username);
   }
 
   public List<String> getInheritedRolesForActiveUser() {
@@ -262,7 +266,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     if (permissionsByTableCache == null) {
       Map<String, TablePermission> byTable = new LinkedHashMap<>();
       for (TablePermission p :
-          getSchemaMetadataProvider().getRoleManager().getTablePermissionsForActiveUser(getName())) {
+          getSchemaMetadataProvider()
+              .getRoleManager()
+              .getTablePermissionsForActiveUser(getName())) {
         byTable.putIfAbsent(p.table(), p);
       }
       permissionsByTableCache = Collections.unmodifiableMap(byTable);
