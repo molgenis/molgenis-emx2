@@ -52,11 +52,11 @@ public class TestSettings {
 
           assertEquals("value", schema.getMetadata().getSetting("key"));
 
-          assertEquals("value", db.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
+          assertEquals("value", db.getSchemaMetadata("testSchemaSettings").getSetting("key"));
 
           db.clearCache();
 
-          assertEquals("value", db.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
+          assertEquals("value", db.getSchemaMetadata("testSchemaSettings").getSetting("key"));
 
           db.becomeAdmin();
         });
@@ -97,13 +97,13 @@ public class TestSettings {
 
           db.clearCache();
           Map<String, String> test =
-              db.getSchema("testTableSettings").getTable("test").getMetadata().getSettings();
+              db.getSchemaMetadata("testTableSettings").getTableMetadata("test").getSettings();
           assertEquals(1, test.size());
           assertEquals("value", test.get("key"));
 
           assertEquals(
               "value",
-              db.getSchema("testTableSettings").getTable("test").getMetadata().getSetting("key"));
+              db.getSchemaMetadata("testTableSettings").getTableMetadata("test").getSetting("key"));
 
           db.becomeAdmin();
         });
