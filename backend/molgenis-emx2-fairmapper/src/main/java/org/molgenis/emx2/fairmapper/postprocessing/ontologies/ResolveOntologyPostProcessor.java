@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper.postprocessing;
+package org.molgenis.emx2.fairmapper.postprocessing.ontologies;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -6,6 +6,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.SelectColumn;
+import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
