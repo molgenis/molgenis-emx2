@@ -4,12 +4,10 @@ import static org.molgenis.emx2.SelectColumn.s;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 
 public class OntologyIriMapper {
@@ -54,17 +52,19 @@ public class OntologyIriMapper {
         irisPerOntology.getOrDefault(ontology.getName(), new HashMap<>());
     // Skips adding if already done.
     if (irisPerName.isEmpty()) {
-      for (Row row : queryOntology(ontology)) {
-        if (row.getString("ontologyTermURI") == null) continue;
-        irisPerName.put(row.getString("name"), Values.iri(row.getString("ontologyTermURI")));
-      }
+      ontology
+          .query()
+          .select(s("name"), s("ontologyTermURI"))
+          .streamRows(
+              row -> {
+                String uri = row.getString("ontologyTermURI");
+                if (uri != null) {
+                  irisPerName.put(row.getString("name"), Values.iri(uri));
+                }
+              });
       irisPerOntology.put(ontology.getName(), irisPerName);
       irisPerSchema.put(ontology.getSchema().getName(), irisPerOntology);
     }
-  }
-
-  private List<Row> queryOntology(Table table) {
-    return table.query().select(s("name"), s("ontologyTermURI")).retrieveRows();
   }
 
   /**
