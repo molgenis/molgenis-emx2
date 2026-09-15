@@ -427,7 +427,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       if (getImportSchema() != null && getSchema().getSchemaMetadataProvider() != null) {
         SchemaMetadata importedSchema;
         try {
-          importedSchema = getSchema().getSchemaMetadataProvider().getSchemaMetadata(getImportSchema());
+          importedSchema =
+              getSchema().getSchemaMetadataProvider().getSchemaMetadata(getImportSchema());
         } catch (MolgenisException e) {
           throw new MolgenisException(cannotInheritMessage() + schemaNotFoundReason());
         }
