@@ -117,9 +117,10 @@
             :style="{ left: guideX + 'px' }"
           />
 
-          <div
-            class="overflow-x-auto overscroll-x-contain bg-table rounded-t-base"
-            v-on:scroll.native="handleStickyHeaderOffset"
+          <ScrollAreaHorizontal
+            class="bg-table rounded-t-base"
+            :start-inset="stickySelectColumnWidth"
+            @scroll="handleStickyHeaderOffset"
           >
             <div
               v-if="useStickyHeader"
@@ -139,6 +140,7 @@
                   :showRolesColumn="showRolesColumn"
                   :isResizing="isResizing"
                   :columnWidths="columnWidths"
+                  :selectColumnWidth="stickySelectColumnWidth"
                   @sort-requested="handleSortRequest"
                   @start-resize="startResize($event.event, $event.id)"
                 />
@@ -154,6 +156,7 @@
                 :showRolesColumn="showRolesColumn"
                 :isResizing="isResizing"
                 :columnWidths="columnWidths"
+                :selectColumnWidth="stickySelectColumnWidth"
                 @sort-requested="handleSortRequest"
                 @start-resize="startResize($event.event, $event.id)"
               />
@@ -168,16 +171,16 @@
                     'hover:cursor-pointer': canEdit,
                   }"
                 >
-                  <TableCellEMX2
-                    class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
+                  <td
+                    class="sticky left-0 z-20 !p-0 align-middle border-b shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
+                    :style="selectColumnStyle"
                   >
-                    <div class="flex justify-center items-center h-full">
-                      <Checkbox
-                        :model-value="selectedRows.has(row._rowIdString)"
-                        @update:model-value="toggleRowSelection(row)"
-                      />
-                    </div>
-                  </TableCellEMX2>
+                    <Checkbox
+                      class="block mx-auto"
+                      :model-value="selectedRows.has(row._rowIdString)"
+                      @update:model-value="toggleRowSelection(row)"
+                    />
+                  </td>
 
                   <TableCellEMX2
                     v-if="showRolesColumn"
@@ -209,7 +212,8 @@
                   >
                     <template #row-actions v-if="colIndex === 0">
                       <div
-                        class="absolute left-12 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                        :style="{ left: `${stickySelectColumnWidth}px` }"
+                        class="absolute h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                       >
                         <Button
                           v-if="canDeleteRow(row)"
@@ -257,6 +261,12 @@
                       </div>
                     </template>
                   </TableCellEMX2>
+
+                  <!-- Matches the filler column in the header -->
+                  <td
+                    aria-hidden="true"
+                    class="border-b group-hover:bg-hover"
+                  />
                 </tr>
               </tbody>
             </table>
@@ -269,7 +279,7 @@
                 :label="emptyRowsLabel"
               />
             </div>
-          </div>
+          </ScrollAreaHorizontal>
         </div>
 
         <div
@@ -393,6 +403,7 @@ import FilterSidebarContent from "../filter/SidebarContent.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
+import ScrollAreaHorizontal from "../ScrollAreaHorizontal.vue";
 import Sidebar from "../Sidebar.vue";
 
 import { useAsyncData } from "nuxt/app";
@@ -440,6 +451,14 @@ const props = withDefaults(
     useStickyHeader: () => true,
   }
 );
+
+const stickySelectColumnWidth = 48;
+
+const selectColumnStyle = {
+  width: `${stickySelectColumnWidth}px`,
+  minWidth: `${stickySelectColumnWidth}px`,
+  maxWidth: `${stickySelectColumnWidth}px`,
+};
 
 const canEdit = computed(
   () => props.canInsert || props.canUpdate || props.canDelete
