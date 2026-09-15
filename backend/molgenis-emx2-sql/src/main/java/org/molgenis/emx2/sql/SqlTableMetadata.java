@@ -331,18 +331,19 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     long start = System.currentTimeMillis();
-    if (getColumn(name) == null) return; // return silently, idempotent
-    getDatabase().tx(db -> sync(dropColumnTransaction(db, getSchemaName(), getTableName(), name)));
+    getDatabase()
+        .tx(db -> sync(dropColumnTransaction(db, getSchemaName(), getTableName(), column)));
     log(start, "removed column '" + name + "' from ");
   }
 
   private static SqlTableMetadata dropColumnTransaction(
-      Database db, String schemaName, String tableName, String columnName) {
+      Database db, String schemaName, String tableName, Column column) {
     SqlTableMetadata tm =
         (SqlTableMetadata) db.getSchemaMetadata(schemaName).getTableMetadata(tableName);
     DSLContext jooq = ((SqlDatabase) db).getJooq();
-    SqlColumnExecutor.executeRemoveColumn(jooq, tm.getColumn(columnName));
-    tm.columns.remove(columnName);
+
+    SqlColumnExecutor.executeRemoveColumn(jooq, column);
+    tm.columns.remove(column.getName());
     SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, tm, tableName);
     return tm;
   }
