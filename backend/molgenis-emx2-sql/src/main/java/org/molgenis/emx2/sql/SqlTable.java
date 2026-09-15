@@ -265,14 +265,15 @@ public class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      SqlRowProcessor rowProcessor = new SqlRowProcessor(table.getMetadata().getColumns());
+      SqlRowProcessor rowProcessor =
+          new SqlRowProcessor(schema.getDatabase(), table.getMetadata().getColumns());
       List<Row> rows = subclassRows.get(subclassName);
       rowProcessor.validateAndCompute(rows);
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
       List<Row> rows = subclassRows.get(subclassName);
-      SqlRowProcessor rowProcessor = new SqlRowProcessor(insertColumns);
+      SqlRowProcessor rowProcessor = new SqlRowProcessor(schema.getDatabase(), insertColumns);
       rowProcessor.validateAndCompute(rows);
       count.set(
           count.get()
