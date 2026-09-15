@@ -2,8 +2,10 @@ package org.molgenis.emx2.rdf.generators;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
@@ -11,6 +13,7 @@ import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
+import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 
 public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGenerator {
 
@@ -29,13 +32,20 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
   }
 
   protected void processRows(RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
-    List<Row> rows = getRows(table, primaryKey);
+    processRows(rowConsumer(rdfMapData, table), table, primaryKey);
+  }
 
-    switch (table.getMetadata().getTableType()) {
-      case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(rdfMapData, table, row));
-      case DATA -> rows.forEach(row -> dataRowToRdf(rdfMapData, table, row));
-      default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
-    }
+  protected Consumer<Row> rowConsumer(RdfMapData rdfMapData, Table table) {
+    return row -> {
+      List<Column> columns = table.getMetadata().getColumns();
+      ResolveComputedValue.apply(columns, List.of(row));
+
+      switch (table.getMetadata().getTableType()) {
+        case ONTOLOGIES -> ontologyRowToRdf(rdfMapData, table, row);
+        case DATA -> dataRowToRdf(rdfMapData, table, row);
+        default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
+      }
+    };
   }
 
   protected void processDataRowTable(final Table table, final IRI subject) {
