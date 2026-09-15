@@ -97,7 +97,8 @@ class SqlTableMetadataExecutor {
       executeAddMetaColumns(table);
     }
 
-    if (ChangeLogUtils.isChangeSchema(table.getSchema().getSchemaMetadataProvider(), table.getSchemaName())) {
+    if (ChangeLogUtils.isChangeSchema(
+        table.getSchema().getSchemaMetadataProvider(), table.getSchemaName())) {
       // setup trigger processing function
       jooq.execute(
           ChangeLogUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
