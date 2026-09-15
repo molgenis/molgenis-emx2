@@ -27,7 +27,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
     this.name = copy.getName();
     this.description = copy.getDescription();
-    this.database = db;
+    this.schemaMetadataProvider = db;
     this.sync(copy);
   }
 
@@ -76,14 +76,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public void reload() {
     if (logger.isInfoEnabled()) {
-      logger.info("loading schema '{}' as user {}", getName(), getDatabase().getActiveUser());
+      logger.info("loading schema '{}' as user {}", getName(), getSchemaMetadataProvider().getActiveUser());
     }
     long start = System.currentTimeMillis();
-    MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
+    MetadataUtils.loadSchemaMetadata(getSchemaMetadataProvider().getJooq(), this);
     this.tables.clear();
     this.rolesCache = null;
     this.permissionsByTableCache = null;
-    for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
+    for (TableMetadata table : MetadataUtils.loadTables(getSchemaMetadataProvider().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
     if (logger.isInfoEnabled()) {
@@ -93,7 +93,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public boolean exists() {
-    return MetadataUtils.schemaExists(getDatabase().getJooq(), this.getName());
+    return MetadataUtils.schemaExists(getSchemaMetadataProvider().getJooq(), this.getName());
   }
 
   @Override
@@ -110,7 +110,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SchemaMetadata create(TableMetadata... tables) {
-    getDatabase()
+    getSchemaMetadataProvider()
         .tx(
             database -> {
               SqlSchema s = (SqlSchema) database.getSchema(getName());
@@ -138,7 +138,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               }
               sync(sm);
             });
-    getDatabase().getListener().schemaChanged(getName());
+    getSchemaMetadataProvider().getListener().schemaChanged(getName());
     return this;
   }
 
@@ -156,12 +156,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public void drop(String tableName) {
-    getDatabase()
+    getSchemaMetadataProvider()
         .tx(
             database -> {
               sync(dropTransaction(tableName, database));
             });
-    getDatabase().getListener().schemaChanged(getName());
+    getSchemaMetadataProvider().getListener().schemaChanged(getName());
   }
 
   private SqlSchemaMetadata dropTransaction(String tableName, Database database) {
@@ -177,18 +177,18 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SchemaMetadata setSettings(Map<String, String> settings) {
-    if (PermissionEvaluator.canManage(getDatabase().getSchema(getName()))) {
-      getDatabase()
+    if (PermissionEvaluator.canManage(getSchemaMetadataProvider().getSchema(getName()))) {
+      getSchemaMetadataProvider()
           .tx(
               db -> {
                 sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
               });
-      getDatabase().getListener().schemaChanged(getName());
+      getSchemaMetadataProvider().getListener().schemaChanged(getName());
       return this;
     } else {
       throw new MolgenisException(
           "Permission denied for user "
-              + getDatabase().getActiveUser()
+              + getSchemaMetadataProvider().getActiveUser()
               + " to change setting on schema "
               + getName()
               + ". You need at least MANAGER permission for schema settings");
@@ -236,22 +236,22 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   protected DSLContext getJooq() {
-    return getDatabase().getJooq();
+    return getSchemaMetadataProvider().getJooq();
   }
 
   @Override
-  public SqlDatabase getDatabase() {
-    return (SqlDatabase) super.getDatabase();
+  public SqlDatabase getSchemaMetadataProvider() {
+    return (SqlDatabase) super.getSchemaMetadataProvider();
   }
 
   public List<String> getInheritedRolesForUser(String username) {
-    return getDatabase().getRoleManager().getInheritedRoleNamesForUser(getName(), username);
+    return getSchemaMetadataProvider().getRoleManager().getInheritedRoleNamesForUser(getName(), username);
   }
 
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser());
+      rolesCache = getInheritedRolesForUser(getSchemaMetadataProvider().getActiveUser());
     }
     return rolesCache;
   }
@@ -262,7 +262,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     if (permissionsByTableCache == null) {
       Map<String, TablePermission> byTable = new LinkedHashMap<>();
       for (TablePermission p :
-          getDatabase().getRoleManager().getTablePermissionsForActiveUser(getName())) {
+          getSchemaMetadataProvider().getRoleManager().getTablePermissionsForActiveUser(getName())) {
         byTable.putIfAbsent(p.table(), p);
       }
       permissionsByTableCache = Collections.unmodifiableMap(byTable);
@@ -275,7 +275,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public String getRoleForUser(String user) {
-    SqlRoleManager roleManager = getDatabase().getRoleManager();
+    SqlRoleManager roleManager = getSchemaMetadataProvider().getRoleManager();
     if (user == null) user = ANONYMOUS;
     user = user.trim();
     for (Member m : roleManager.getMembers(getName())) {

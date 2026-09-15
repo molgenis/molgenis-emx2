@@ -14,7 +14,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   // optional
   protected String description;
   // optional
-  protected Banaan database;
+  protected SchemaMetadataProvider schemaMetadataProvider;
 
   public SchemaMetadata() {}
 
@@ -31,14 +31,14 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   public SchemaMetadata(SchemaMetadata schema) {
     this.name = schema.getName();
     this.description = schema.getDescription();
-    this.database = schema.getDatabase();
+    this.schemaMetadataProvider = schema.getSchemaMetadataProvider();
     this.setSettingsWithoutReload(schema.getSettings());
   }
 
   public SchemaMetadata(Database db, SchemaMetadata schema) {
     this.name = schema.getName();
     this.description = schema.getDescription();
-    this.database = db;
+    this.schemaMetadataProvider = db;
     this.setSettingsWithoutReload(schema.getSettings());
   }
 
@@ -126,12 +126,12 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     return getTables().stream().filter(table -> table.getInheritName() == null).toList();
   }
 
-  public Banaan getDatabase() {
-    return database;
+  public SchemaMetadataProvider getSchemaMetadataProvider() {
+    return schemaMetadataProvider;
   }
 
-  public void setDatabase(Database database) {
-    this.database = database;
+  public void setSchemaMetadataProvider(SchemaMetadataProvider schemaMetadataProvider) {
+    this.schemaMetadataProvider = schemaMetadataProvider;
   }
 
   public SemanticPrefixes getSemanticPrefixes() {

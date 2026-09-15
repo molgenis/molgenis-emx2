@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public interface Database extends HasSettingsInterface<Database>, Banaan {
+public interface Database extends HasSettingsInterface<Database>, SchemaMetadataProvider {
 
   void tx(Transaction transaction);
 

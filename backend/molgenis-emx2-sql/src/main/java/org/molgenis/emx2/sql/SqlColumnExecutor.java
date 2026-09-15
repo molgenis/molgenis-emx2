@@ -277,7 +277,7 @@ public class SqlColumnExecutor {
     SchemaMetadata refSchema = schema;
     if (column.getRefSchemaName() != null) {
       try {
-        refSchema = schema.getDatabase().getSchemaMetadata(column.getRefSchemaName());
+        refSchema = schema.getSchemaMetadataProvider().getSchemaMetadata(column.getRefSchemaName());
         if (refSchema == null) {
           throw new MolgenisException("Unable to find Schema");
         }
@@ -504,7 +504,7 @@ public class SqlColumnExecutor {
         column
             .getTable()
             .getSchema()
-            .getDatabase()
+            .getSchemaMetadataProvider()
             .getListener()
             .schemaChanged(column.getReferenceRefback().getSchemaName());
       }

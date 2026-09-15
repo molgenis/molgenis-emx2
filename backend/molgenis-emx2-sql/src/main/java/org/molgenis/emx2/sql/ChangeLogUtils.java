@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static java.lang.Boolean.TRUE;
 
-import org.molgenis.emx2.Banaan;
+import org.molgenis.emx2.SchemaMetadataProvider;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -59,7 +59,7 @@ public class ChangeLogUtils {
         .formatted(schemaName, ChangeLogUtils.buildFunctionName(tableName));
   }
 
-  public static boolean isChangeSchema(Banaan db, String schemaName) {
+  public static boolean isChangeSchema(SchemaMetadataProvider db, String schemaName) {
     return TRUE.equals(
         TypeUtils.toBool(
             db.getSchemaMetadata(schemaName).getSetting(Constants.IS_CHANGELOG_ENABLED)));

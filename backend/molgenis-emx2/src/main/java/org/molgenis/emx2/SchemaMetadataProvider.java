@@ -1,6 +1,6 @@
 package org.molgenis.emx2;
 
-public interface Banaan {
+public interface SchemaMetadataProvider {
 
   SchemaMetadata getSchemaMetadata(String schemaName);
 
