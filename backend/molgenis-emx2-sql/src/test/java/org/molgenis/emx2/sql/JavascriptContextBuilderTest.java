@@ -18,9 +18,7 @@ class JavascriptContextBuilderTest {
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
-    schema =
-        database
-            .dropCreateSchema(JavascriptContextBuilderTest.class.getSimpleName());
+    schema = database.dropCreateSchema(JavascriptContextBuilderTest.class.getSimpleName());
     schema.create(table("Category", column("id", ColumnType.INT).setPkey()));
     schema.create(
         table(
