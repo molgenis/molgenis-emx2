@@ -200,7 +200,7 @@ public class SqlSchema implements Schema {
 
     // create list, sort dependency order
     List<TableMetadata> mergeTableList = new ArrayList<>();
-    mergeSchema.setDatabase(database);
+    mergeSchema.setSchemaMetadataProvider(database);
     for (String tableName : mergeSchema.getTableNames()) {
       mergeTableList.add(mergeSchema.getTableMetadata(tableName));
     }
