@@ -722,7 +722,7 @@ public class GraphqlTableFieldFactory {
                   convertMapToFilterArray(
                       table
                           .getSchema()
-                          .getDatabase()
+                          .getSchemaMetadataProvider()
                           .getSchemaMetadata(c.getRefSchemaName())
                           .getTableMetadata(c.getRefTableName()),
                       remainingOperators)));
