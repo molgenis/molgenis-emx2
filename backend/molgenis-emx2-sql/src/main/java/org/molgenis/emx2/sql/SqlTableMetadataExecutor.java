@@ -97,7 +97,8 @@ class SqlTableMetadataExecutor {
       executeAddMetaColumns(table);
     }
 
-    if (ChangeLogUtils.isChangeSchema(table.getSchema().getDatabase(), table.getSchemaName())) {
+    if (ChangeLogUtils.isChangeSchema(
+        table.getSchema().getSchemaMetadataProvider(), table.getSchemaName())) {
       // setup trigger processing function
       jooq.execute(
           ChangeLogUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
@@ -280,7 +281,7 @@ class SqlTableMetadataExecutor {
   static void executeDropTable(DSLContext jooq, TableMetadata table) {
     try {
       // disableChangeLog
-      disableChangeLog((SqlDatabase) table.getSchema().getDatabase(), table);
+      disableChangeLog((SqlDatabase) table.getSchema().getSchemaMetadataProvider(), table);
 
       // drop search trigger
       jooq.execute(

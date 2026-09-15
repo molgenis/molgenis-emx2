@@ -95,7 +95,7 @@ class TestEvaluateExpressions {
   void testCheckValidationSuccess() {
     String validation = "true && true";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
-    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(db, tableMetadata.getColumns());
     assertDoesNotThrow(() -> rowProcessor.validateAndCompute(new Row()));
   }
 
@@ -103,7 +103,7 @@ class TestEvaluateExpressions {
   void testCheckValidationWithCapitalColumnNameSuccess() {
     String validation = "name === 'pietje'";
     TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
-    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(db, tableMetadata.getColumns());
     assertDoesNotThrow(() -> rowProcessor.validateAndCompute(new Row("Name", "pietje")));
   }
 
@@ -113,7 +113,7 @@ class TestEvaluateExpressions {
     TableMetadata tableMetadata = table("Test", new Column("Name").setValidation(validation));
     List<Column> columns = tableMetadata.getColumns();
     Row row = new Row("Name", "piet");
-    SqlRowProcessor rowProcessor = new SqlRowProcessor(columns);
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(db, columns);
     assertThrows(MolgenisException.class, () -> rowProcessor.validateAndCompute(row));
   }
 
@@ -129,7 +129,7 @@ class TestEvaluateExpressions {
         this is very invalid\\n
              ^\\n,
         """;
-    SqlRowProcessor rowProcessor = new SqlRowProcessor(columns);
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(db, columns);
     assertThrows(MolgenisException.class, () -> rowProcessor.validateAndCompute(row), expected);
   }
 
@@ -138,7 +138,7 @@ class TestEvaluateExpressions {
     String validation = "false";
     TableMetadata tableMetadata = table("Test", new Column("name").setValidation(validation));
     try {
-      SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+      SqlRowProcessor rowProcessor = new SqlRowProcessor(db, tableMetadata.getColumns());
       rowProcessor.validateAndCompute(new Row("name", "test"));
     } catch (MolgenisException exception) {
       assertEquals("Validation error on column 'name': false.", exception.getMessage());
