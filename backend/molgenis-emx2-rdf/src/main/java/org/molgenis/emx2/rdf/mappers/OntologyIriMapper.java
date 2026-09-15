@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf.mappers;
 
+import static org.molgenis.emx2.OntologyColumn.NAME;
+import static org.molgenis.emx2.OntologyColumn.ONTOLOGY_TERM_URI;
 import static org.molgenis.emx2.SelectColumn.s;
 
 import java.util.Collection;
@@ -54,10 +56,10 @@ public class OntologyIriMapper {
     if (irisPerName.isEmpty()) {
       ontology
           .query()
-          .select(s("name"), s("ontologyTermURI"))
+          .select(s(NAME.toString()), s(ONTOLOGY_TERM_URI.toString()))
           .streamRows(
               row -> {
-                String uri = row.getString("ontologyTermURI");
+                String uri = row.getString(ONTOLOGY_TERM_URI.toString());
                 if (uri != null) {
                   irisPerName.put(row.getString("name"), Values.iri(uri));
                 }
