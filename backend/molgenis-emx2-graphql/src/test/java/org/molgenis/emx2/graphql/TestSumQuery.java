@@ -115,7 +115,7 @@ public class TestSumQuery {
 
   @Test
   public void testSumQueryGroupByRef() {
-    Table table = schema.getTable(SAMPLES).getMetadata().getTable();
+    Table table = schema.getTable(SAMPLES);
     Query query1 = table.groupBy();
     query1.select(s(SUM_FIELD, s(N)), s(TYPE, s(NAME)));
     final String json = query1.retrieveJSON();
@@ -125,7 +125,7 @@ public class TestSumQuery {
 
   @Test
   public void testSumQueryGroupByRefArray() {
-    Table table = schema.getTable(SAMPLES).getMetadata().getTable();
+    Table table = schema.getTable(SAMPLES);
     Query query1 = table.groupBy();
     query1.select(s(SUM_FIELD, s(N)), s(TYPE_ARRAY, s(NAME)));
     final String json = query1.retrieveJSON();
@@ -136,7 +136,7 @@ public class TestSumQuery {
 
   @Test
   public void testSumQueryGroupByString() {
-    Table table = schema.getTable(SAMPLES).getMetadata().getTable();
+    Table table = schema.getTable(SAMPLES);
     Query query1 = table.groupBy();
     query1.select(s(SUM_FIELD, s(N)), s(TAG));
     final String json = query1.retrieveJSON();
@@ -150,7 +150,7 @@ public class TestSumQuery {
 
   @Test
   public void testSumQueryGroupByStringArray() {
-    Table table = schema.getTable(SAMPLES).getMetadata().getTable();
+    Table table = schema.getTable(SAMPLES);
     Query query1 = table.groupBy();
     query1.select(s(SUM_FIELD, s(N)), s(COLORS));
     final String json = query1.retrieveJSON();
@@ -164,7 +164,7 @@ public class TestSumQuery {
 
   @Test
   public void testCombination() throws JsonProcessingException {
-    Table table = schema.getTable(SAMPLES).getMetadata().getTable();
+    Table table = schema.getTable(SAMPLES);
     Query query1 = table.groupBy();
     query1.select(s(SUM_FIELD, s(N)), s(TYPE_ARRAY, s(NAME)), s(TYPE, s(NAME)));
     String json = query1.retrieveJSON();

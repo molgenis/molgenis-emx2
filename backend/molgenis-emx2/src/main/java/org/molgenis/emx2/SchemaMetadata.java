@@ -14,7 +14,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   // optional
   protected String description;
   // optional
-  protected Database database;
+  protected Banaan database;
 
   public SchemaMetadata() {}
 
@@ -126,7 +126,7 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     return getTables().stream().filter(table -> table.getInheritName() == null).toList();
   }
 
-  public Database getDatabase() {
+  public Banaan getDatabase() {
     return database;
   }
 
