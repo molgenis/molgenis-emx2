@@ -54,7 +54,7 @@ public abstract class RdfGenerator {
 
     List<Row> rows = query.retrieveRows();
     List<Column> columns = table.getMetadata().getColumns();
-    ResolveComputedValue.apply(columns, rows);
+    ResolveComputedValue.apply(table.getSchema().getDatabase(), columns, rows);
     return rows;
   }
 
