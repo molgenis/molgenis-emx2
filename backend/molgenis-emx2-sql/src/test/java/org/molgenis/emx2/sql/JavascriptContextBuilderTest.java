@@ -8,19 +8,18 @@ import static org.molgenis.emx2.TableMetadata.table;
 import java.util.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.Row;
-import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.*;
 
 class JavascriptContextBuilderTest {
 
   private static Schema schema;
+  private static Database database;
 
   @BeforeAll
   static void setUp() {
+    database = TestDatabaseFactory.getTestDatabase();
     schema =
-        TestDatabaseFactory.getTestDatabase()
+        database
             .dropCreateSchema(JavascriptContextBuilderTest.class.getSimpleName());
     schema.create(table("Category", column("id", ColumnType.INT).setPkey()));
     schema.create(
@@ -36,7 +35,7 @@ class JavascriptContextBuilderTest {
     List<Column> columns = List.of(column("STRING array", ColumnType.STRING_ARRAY));
     Row row = row("STRING array", "aa,bb");
 
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, columns, row);
 
     assertAll(
         () -> assertEquals(Set.of("sTRINGArray"), context.keySet()),
@@ -50,7 +49,7 @@ class JavascriptContextBuilderTest {
     List<Column> columns = List.of(column("STRING array", ColumnType.STRING_ARRAY));
     Row row = row();
 
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, columns, row);
 
     assertAll(
         () -> assertNotNull(context.get("sTRINGArray")),
@@ -62,7 +61,7 @@ class JavascriptContextBuilderTest {
     List<Column> columns = List.of(column("first name", ColumnType.STRING));
     Row row = row("first name", "Alice");
 
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, columns, row);
 
     assertEquals("Alice", context.get("firstName"));
   }
@@ -72,7 +71,7 @@ class JavascriptContextBuilderTest {
     List<Column> columns = List.of(column("profile image", ColumnType.FILE));
     Row row = row();
 
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, columns, row);
 
     assertFalse(context.containsKey("profileImage"));
   }
@@ -82,7 +81,7 @@ class JavascriptContextBuilderTest {
     List<Column> columns = List.of(column("count", ColumnType.INT));
     Row row = row();
 
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, columns, row);
 
     assertTrue(context.containsKey("count"));
     assertNull(context.get("count"));
@@ -90,7 +89,7 @@ class JavascriptContextBuilderTest {
 
   @Test
   void testEmptyColumnListYieldsEmptyContext() {
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(List.of(), row());
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, List.of(), row());
 
     assertTrue(context.isEmpty());
   }
@@ -100,7 +99,7 @@ class JavascriptContextBuilderTest {
     Column column = schema.getTable("Item").getMetadata().getColumn("category");
     Row row = row("category", 42);
 
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(List.of(column), row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, List.of(column), row);
 
     assertInstanceOf(Map.class, context.get("category"));
     assertEquals(42, ((Map<?, ?>) context.get("category")).get("id"));
@@ -111,7 +110,7 @@ class JavascriptContextBuilderTest {
     Column column = schema.getTable("Item").getMetadata().getColumn("tags");
     Row row = row("tags", "1,2,3");
 
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(List.of(column), row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, List.of(column), row);
 
     assertInstanceOf(List.class, context.get("tags"));
     List<?> list = (List<?>) context.get("tags");
@@ -127,7 +126,7 @@ class JavascriptContextBuilderTest {
     Column column = schema.getTable("Item").getMetadata().getColumn("tags");
     Row row = row("tags", "");
 
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(List.of(column), row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, List.of(column), row);
     Map<String, Object> tags = new HashMap<>();
     tags.put("tags", new ArrayList<>());
     assertEquals(tags, context);
