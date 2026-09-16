@@ -10,4 +10,5 @@
     </description>
 
     <rule ref="category/java/codestyle.xml/UseExplicitTypes" />
+    <rule ref="category/java/codestyle.xml/ControlStatementBraces" />
 </ruleset>
