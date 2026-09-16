@@ -73,15 +73,17 @@ const ontologies = computed<ITableMetaData[]>(
       ) ?? []
 );
 
-const { tablePermissions, getTablePermission } = await useSession(schema);
+const { tablePermissionsForSession, getTablePermissionForSession } =
+  await useSession(schema);
 
 // no permissions at all means the backend did not supply them; fall back to
 // showing every table rather than ghosting the whole list
 // empty permissions means the user has no access to any tables, so ghost all but ontologies
 function canViewTable(table: ITableMetaData): boolean {
-  if (!tablePermissions.value) return true;
+  if (!tablePermissionsForSession.value) return true;
   return (
-    getTablePermission(table.id)?.canView || table.tableType === "ONTOLOGIES"
+    getTablePermissionForSession(table.id)?.canView ||
+    table.tableType === "ONTOLOGIES"
   );
 }
 
