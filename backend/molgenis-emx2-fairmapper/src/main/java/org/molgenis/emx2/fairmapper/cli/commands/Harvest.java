@@ -1,7 +1,6 @@
 package org.molgenis.emx2.fairmapper.cli.commands;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
@@ -64,14 +63,13 @@ public class Harvest implements Runnable {
 
     Database database = setupDatabase();
     Schema schema = validateSchema(database);
-    String[] tables = validateTables(schema);
+    String[] tables = this.tablesArg.split(",");
 
     URI rdfURI = getRdf();
 
     RdfExtractor extractor = new CrawlingRdfExtractor().withCrawlSteps(CrawlSteps.FDP.steps());
     SparqlSelectRdfTransformer transformer =
-        new SparqlSelectRdfTransformer(
-            new TableQueryGenerator(), schema.getMetadata(), List.of(tables));
+        new SparqlSelectRdfTransformer(new TableQueryGenerator());
 
     HarvestingPipelineConfig.Builder builder =
         new HarvestingPipelineConfig.Builder(rdfURI, schema, extractor, transformer)
@@ -116,16 +114,5 @@ public class Harvest implements Runnable {
       throw new MolgenisException("Schema not found: " + schemaName);
     }
     return schema;
-  }
-
-  private String[] validateTables(Schema schema) {
-    logger.info("Validating table names: {}", tablesArg);
-    String[] tables = this.tablesArg.split(",");
-    for (String table : tables) {
-      if (schema.getTable(table) == null) {
-        throw new MolgenisException("Table not found: " + table);
-      }
-    }
-    return tables;
   }
 }

@@ -64,6 +64,14 @@ const blocksOpen = ref<boolean>(true);
             @dragging="handleDragEvent"
           />
         </li>
+        <li>
+          <DraggableComponent
+            icon="AddLink"
+            componentName="NavigationCards"
+            componentLabel="Navigation card"
+            @dragging="handleDragEvent"
+          />
+        </li>
       </ul>
     </div>
 
