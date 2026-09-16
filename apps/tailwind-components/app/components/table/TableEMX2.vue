@@ -172,7 +172,7 @@
                     class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
                   >
                     <div
-                      class="flex justify-center items-center h-full px-2.5 py-3.75"
+                      class="flex justify-center items-center h-full px-[0.625rem] py-[0.9375rem]"
                     >
                       <Checkbox
                         :model-value="selectedRows.has(row._rowIdString)"
@@ -198,7 +198,7 @@
                   <TableCellEMX2
                     v-for="(column, colIndex) in sortedVisibleColumns"
                     :style="{ width: columnWidths[column.id] + 'px' }"
-                    class="text-table-row group-hover:bg-hover"
+                    class="text-table-row group-hover:bg-hover px-2.5 py-[0.9375rem]"
                     :class="{
                       'w-60 lg:w-full': columns.length <= 5,
                       'w-60': columns.length > 5,
