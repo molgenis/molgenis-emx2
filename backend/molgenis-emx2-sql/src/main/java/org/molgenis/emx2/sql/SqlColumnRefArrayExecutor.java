@@ -31,16 +31,10 @@ class SqlColumnRefArrayExecutor {
 
   static void removeRefArrayConstraints(DSLContext jooq, Column ref) {
     jooq.execute(
-        "DROP TRIGGER IF EXISTS {0} ON {1}",
-        name(getReferenceExistsCheckName(ref)), ref.getJooqTable());
-    jooq.execute(
-        "DROP FUNCTION IF EXISTS {0} ",
+        "DROP FUNCTION IF EXISTS {0} CASCADE",
         name(ref.getSchemaName(), getReferenceExistsCheckName(ref)));
     jooq.execute(
-        "DROP TRIGGER IF EXISTS {0} ON {1}",
-        name(getReferedCheckName(ref)), ref.getRefTable().getJooqTable());
-    jooq.execute(
-        "DROP FUNCTION IF EXISTS {0}", name(ref.getSchemaName(), getReferedCheckName(ref)));
+        "DROP FUNCTION IF EXISTS {0} CASCADE", name(ref.getSchemaName(), getReferedCheckName(ref)));
   }
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
