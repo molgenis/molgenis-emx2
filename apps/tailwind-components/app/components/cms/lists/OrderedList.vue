@@ -5,7 +5,7 @@ defineProps<IOrderedLists>();
 </script>
 
 <template>
-  <ol :id="id" class="list-decimal ml-7.5 mb-2.5 md:ml-10 w-full">
+  <ol :id="id" class="list-decimal ml-7.5 my-2.5 md:ml-10 w-full">
     <ListItem v-for="item in orderedItems" :text="item" />
   </ol>
 </template>
