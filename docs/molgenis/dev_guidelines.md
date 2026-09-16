@@ -177,14 +177,15 @@ Example:
 ```java
 class MyClassTest {
   private static final String SCHEMA_NAME = MyClassTest.class.getSimpleName();
+  private static final String SCHEMA_NAME_LINKED = SCHEMA_NAME + "_linkedSchemaThatMustBeRemovedFirst";
   static Database database;
 
   @BeforeAll
   public static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
-    database.dropSchemaIfExists(SCHEMA_NAME + "_linkedSchemaThatMustBeRemovedFirst"); // Add this if needed.
+    database.dropSchemaIfExists(SCHEMA_NAME_LINKED); // Add this if needed.
     database.dropCreateSchema(SCHEMA_NAME);
-    database.dropCreateSchema(SCHEMA_NAME + "_linkedSchemaThatMustBeRemovedFirst");
+    database.dropCreateSchema(SCHEMA_NAME_LINKED);
   }
 
   // No `@AfterAll` that removes the schemas!
