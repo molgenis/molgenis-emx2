@@ -1,4 +1,4 @@
-import type { ComputedRef } from "vue";
+import type { ComputedRef, MaybeRef } from "vue";
 export type KeyObject = {
   [key: string]: KeyObject | string;
 };
@@ -96,6 +96,7 @@ export interface ITableMetaData {
   schemaId: string;
   name: string;
   label: string;
+  labelTemplate?: string;
   description?: string;
   tableType: TableType;
   columns: IColumn[];
@@ -114,9 +115,20 @@ export interface IFieldError {
   message: string;
 }
 
-interface LegendItem {
+interface LegendEntry {
   id: string;
   label: string;
+  href?: string;
+  isActive?: ComputedRef<boolean> | boolean;
+  errorCount?: MaybeRef<number>;
+  isVisible?: MaybeRef<boolean>;
+}
+
+export interface LegendGroup extends LegendEntry {
+  headers?: LegendEntry[];
+}
+
+interface LegendItem extends LegendEntry {
   type: HeadingType;
   errorCount: ComputedRef<number>;
   isVisible: ComputedRef<boolean>;
