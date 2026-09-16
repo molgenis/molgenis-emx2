@@ -66,7 +66,7 @@ const blocksOpen = ref<boolean>(true);
         </li>
         <li>
           <DraggableComponent
-            icon="image"
+            icon="ListBulleted"
             componentName="UnorderedLists"
             componentLabel="Unordered list"
             @dragging="handleDragEvent"
@@ -74,7 +74,7 @@ const blocksOpen = ref<boolean>(true);
         </li>
         <li>
           <DraggableComponent
-            icon="image"
+            icon="ListNumbered"
             componentName="OrderedLists"
             componentLabel="Ordered list"
             @dragging="handleDragEvent"
