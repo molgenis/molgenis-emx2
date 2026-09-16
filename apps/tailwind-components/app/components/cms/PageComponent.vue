@@ -6,6 +6,8 @@ import Section from "./Section.vue";
 import Heading from "./Heading.vue";
 import Paragraph from "./Paragraph.vue";
 import Image from "./Image.vue";
+import EditableOrderedList from "./lists/EditableOrderedList.vue";
+import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
 import NavigationCardWithActions from "./Navigation/NavigationCardWithActions.vue";
 import { hideAllPoppers } from "floating-vue";
 
@@ -229,6 +231,24 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     :url="component.url"
     :urlLabel="component.urlLabel"
     :urlIsExternal="component.urlIsExternal"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableOrderedList
+    v-else-if="mg_tableclass.endsWith('.Ordered lists')"
+    :id="component.id"
+    :items="component.items"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableUnorderedList
+    v-else-if="mg_tableclass.endsWith('.Unordered lists')"
+    :id="component.id"
+    :items="component.items"
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"

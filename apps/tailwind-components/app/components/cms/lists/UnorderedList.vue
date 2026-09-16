@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import ListItem from "./ListItem.vue";
 import type { IUnorderedLists } from "../../../../types/cms.ts";
-
-const props = withDefaults(
-  defineProps<IUnorderedLists & { isEditable?: boolean }>(),
-  {
-    isEditable: false,
-  }
-);
+defineProps<IUnorderedLists>();
 </script>
 
 <template>
