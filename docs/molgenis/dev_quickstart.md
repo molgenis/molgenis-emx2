@@ -156,7 +156,7 @@ When setting up WSL, there are a few things to keep in mind:
 
 last updated 18 aug 2026
 
-### IntelliJ plugins
+### IntelliJ IDEA plugins
 
 We advise using the following plugins:
 - [google-java-format](https://plugins.jetbrains.com/plugin/8527-google-java-format)
@@ -167,7 +167,16 @@ To set up connected mode:
     3. Go to Settings -> Tools -> SonarQube for IDE  -> Project Settings
     4. Select `Bind project to SonarQube`
     5. Select `Search in list...` for project key and select `molgenis-emx2`
-- [Vue.js](https://plugins.jetbrains.com/plugin/9442-vue-js)
+- (requires Ultimate) [Vue.js](https://plugins.jetbrains.com/plugin/9442-vue-js)
+  - When developing front-end code, we suggest using VS code instead. 
+
+### VS code
+
+Some of us also develop using VS code:
+
+- It automatically will discover the gradle tasks
+- To enable autoformatting of java using spottless,
+  install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
 
 ### Pre-commit hook
 
@@ -178,7 +187,7 @@ push stuff that breaks the build. We have included a gradle task for this if you
 ./gradlew installPreCommitGitFormatApplyHook
 ```
 
-### Running tests in intellij
+### Running tests in intellij IDEA
 
 To enable gradle to run tests you must set the test runner to gradle.
 
@@ -217,14 +226,6 @@ This drops roles across the **whole Postgres instance**, not just one database, 
 
 Build test ('gradle test') will create database schemas, users, roles and passwords. If you don't like that than please consider to use a different database
 instance for 'test'. You can use environment variables MOLGENIS*POSTGRES*\*\* for this. See [Installation guide](run).
-
-### VS code
-
-Some of us also develop using VS code:
-
-- It automatically will discover the gradle tasks
-- To enable autoformatting of java using spottless,
-  install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
 
 ### To enable metrics while running using gradle
 

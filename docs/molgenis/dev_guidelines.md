@@ -150,6 +150,22 @@ End-to-end / Integration tests are run by Playwright and use `.spec.ts`.
 
 Within our code base we decided to not use the java 'var' syntax but always use explicity typing.
 
+### Test schema's use their class name for their test schema
+When creating a schema for running tests, use the test class name as schema name. If a test requires multiple schema's, use it as the base and add a postfix:
+```java
+public class MyClassTest {
+  private static final String SCHEMA_NAME = MyClassTest.class.getSimpleName();
+  private static final String SCHEMA_NAME_USECASE = SCHEMA_NAME + "_usecase";
+  static Database database;
+
+  @BeforeAll
+  public static void beforeAll() {
+    database.dropCreateSchema(SCHEMA_NAME);
+    database.dropCreateSchema(SCHEMA_NAME_OTHER_TEST);
+  }
+}
+```
+
 ### We don't tear down testing schemas
 
 Any schemas created in tests through `TestDatabaseFactory` aren't removed after the tests are finished.
@@ -160,14 +176,15 @@ Example:
 
 ```java
 class MyClassTest {
+  private static final String SCHEMA_NAME = MyClassTest.class.getSimpleName();
   static Database database;
 
   @BeforeAll
   public static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
-    database.dropSchemaIfExists("linkedSchemaThatMustBeRemovedFirst"); // Add this if needed.
-    database.dropCreateSchema("mySchemaName");
-    database.dropCreateSchema("linkedSchemaThatMustBeRemovedFirst");
+    database.dropSchemaIfExists(SCHEMA_NAME + "_linkedSchemaThatMustBeRemovedFirst"); // Add this if needed.
+    database.dropCreateSchema(SCHEMA_NAME);
+    database.dropCreateSchema(SCHEMA_NAME + "_linkedSchemaThatMustBeRemovedFirst");
   }
 
   // No `@AfterAll` that removes the schemas!

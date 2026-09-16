@@ -44,7 +44,7 @@ Make sure the name of the branch is short and concise. Branches must start with 
 
 For example, if you are adding a new component to the library. Name the branch like so:
 
-In case multiple branches are created that are part of an overarching change, one could create branches with the structure `feat/<big project>/name` to indicate multiple branches belong together. 
+In case multiple branches are created that are part of an overarching change, one should create branches with the structure `feat/<big project>/name` to indicate multiple branches belong together. 
 
 ```bash
 git switch -c feat/my-new-component
