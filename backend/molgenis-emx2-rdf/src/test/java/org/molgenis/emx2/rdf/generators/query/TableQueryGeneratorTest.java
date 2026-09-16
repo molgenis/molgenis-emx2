@@ -16,6 +16,7 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries;
 import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
@@ -288,5 +289,60 @@ class TableQueryGeneratorTest {
         "Product",
         Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics(semantics),
         Column.column("price").setType(ColumnType.DECIMAL));
+  }
+
+  @Nested
+  class RefBackTest {
+
+    private SchemaMetadata petSchema(boolean required) {
+      return new SchemaMetadata("Pet")
+          .create(
+              TableMetadata.table("Pet")
+                  .add(
+                      Column.column("name", ColumnType.STRING)
+                          .setSemantics("foaf:pet_name")
+                          .setPkey(),
+                      Column.column("owner", ColumnType.REF)
+                          .setRefTable("Person")
+                          .setRefLink("name")
+                          .setRequired(required)),
+              TableMetadata.table("Person")
+                  .add(
+                      Column.column("name", ColumnType.STRING)
+                          .setSemantics("foaf:first_name")
+                          .setPkey(),
+                      Column.column("pet", ColumnType.REFBACK)
+                          .setSemantics("foaf:pet")
+                          .setRefTable("Pet")
+                          .setRefBack("owner")));
+    }
+
+    @Test
+    void whenRefback_thenLoopBack() {
+      String query = new TableQueryGenerator().generate(petSchema(false).getTableMetadata("Pet"));
+      assertEquals(
+          """
+        SELECT ?_subject_ ?name ( GROUP_CONCAT( DISTINCT STR( ?_subject_owner_single ) ; SEPARATOR = '|' ) AS ?_subject_owner )
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        ?_subject_ foaf:pet_name ?name .
+        OPTIONAL { ?_subject_ ^foaf:pet ?_subject_owner_single . } }
+        GROUP BY ?_subject_ ?name
+        """,
+          removePrefixesFromQuery(query));
+    }
+
+    @Test
+    void givenRefback_whenRequired_thenDropOptional() {
+      String query = new TableQueryGenerator().generate(petSchema(true).getTableMetadata("Pet"));
+      assertEquals(
+          """
+            SELECT ?_subject_ ?name ( GROUP_CONCAT( DISTINCT STR( ?_subject_owner_single ) ; SEPARATOR = '|' ) AS ?_subject_owner )
+            WHERE { ?_subject_ ?anyPredicate ?anyObject .
+            ?_subject_ foaf:pet_name ?name .
+            ?_subject_ ^foaf:pet ?_subject_owner_single . }
+            GROUP BY ?_subject_ ?name
+            """,
+          removePrefixesFromQuery(query));
+    }
   }
 }

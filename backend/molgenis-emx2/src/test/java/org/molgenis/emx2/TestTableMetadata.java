@@ -192,6 +192,23 @@ class TestTableMetadata {
   }
 
   @Test
+  void detachedTableRequireInheritedTableThrowsMolgenisExceptionNotNpe() {
+    TableMetadata detached = table("Employee").setInheritName("Contact");
+
+    MolgenisException exception =
+        assertThrows(MolgenisException.class, detached::requireInheritedTable);
+
+    assertTrue(exception.getMessage().contains("cannot inherit"));
+  }
+
+  @Test
+  void detachedTableGetSchemaNameThrowsMolgenisException() {
+    TableMetadata detached = table("Employee");
+
+    assertThrows(MolgenisException.class, detached::getSchemaName);
+  }
+
+  @Test
   void testRetrieveColumnByIdentifier() {
     SchemaMetadata schema = new SchemaMetadata("schema name");
 

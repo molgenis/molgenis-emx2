@@ -4,7 +4,9 @@
       This database was created using
       <a href="https://www.molgenis.org/">MOLGENIS open source software</a>
       <span v-if="manifest.SpecificationVersion">
-        using version {{ manifest.SpecificationVersion }}</span
+        using version {{ manifest.SpecificationVersion }} (git:{{
+          manifest.ImplementationVersion
+        }})</span
       >
     </p>
   </div>

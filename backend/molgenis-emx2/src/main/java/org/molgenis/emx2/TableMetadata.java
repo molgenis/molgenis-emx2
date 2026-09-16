@@ -440,6 +440,10 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return null;
   }
 
+  public boolean isSubclass() {
+    return getInheritedTable() != null;
+  }
+
   public TableMetadata requireInheritedTable() {
     TableMetadata inheritedTable = getInheritedTable();
     if (inheritedTable == null) {
@@ -483,7 +487,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   protected String qualifiedTableName() {
-    if (getSchemaName() != null) {
+    if (getSchema() != null && getSchemaName() != null) {
       return getSchemaName() + "." + getTableName();
     }
     return getTableName();
@@ -523,6 +527,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public String getSchemaName() {
+    if (getSchema() == null) {
+      throw new MolgenisException("Table '" + getTableName() + "' is not attached to a schema");
+    }
     return getSchema().getName();
   }
 

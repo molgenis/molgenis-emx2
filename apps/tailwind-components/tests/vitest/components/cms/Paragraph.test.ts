@@ -17,6 +17,8 @@ const wrapper = mount(Paragraph, {
 describe("Custom pages: paragraphs", () => {
   test("Paragraph is rendered and text is centered", async () => {
     expect(wrapper.vm.$el.tagName).toBe("P");
-    expect(wrapper.attributes("class")).toBe("text-title-contrast text-center");
+    expect(wrapper.attributes("class")).toBe(
+      "mb-2.5 text-title-contrast [&_a]:underline [&_a]:decoration-solid text-center"
+    );
   });
 });

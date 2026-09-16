@@ -4,11 +4,13 @@ import type {
   IHeadings,
   IParagraphs,
   IImages,
-  INavigationGroups,
+  INavigationCards,
   IDeveloperPages,
   IConfigurablePages,
   IBlockOrders,
+  IBlocks,
   IComponentOrders,
+  IComponents,
   IFile,
 } from "./cms.ts";
 
@@ -24,7 +26,7 @@ export interface IPageComponent
     IHeadings,
     IParagraphs,
     IImages,
-    INavigationGroups {}
+    INavigationCards {}
 
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;
@@ -40,8 +42,10 @@ export interface FetchGraphqlBody {
 
 export interface FetchGraphqlResponse {
   data?: {
-    ComponentOrders?: IComponentOrders[];
     BlockOrders?: IBlockOrders[];
+    Blocks?: IBlocks[];
+    ComponentOrders?: IComponentOrders[];
+    Components?: IComponents[];
   };
   errors?: FetchGraphqlBody[];
 }
@@ -67,4 +71,9 @@ export interface IDraggingInfo {
   componentType: string;
   moveOrderId?: string;
   parentId?: string;
+}
+
+export interface IDeleteContainerStatus {
+  wasDeleted: boolean;
+  error?: string | undefined;
 }
