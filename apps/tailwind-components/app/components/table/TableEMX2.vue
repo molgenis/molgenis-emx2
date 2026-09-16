@@ -172,7 +172,7 @@
                     class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
                   >
                     <div
-                      class="flex justify-center items-center h-full px-[0.625rem] py-[0.9375rem]"
+                      class="flex justify-center items-center h-full px-2.5 py-3.75"
                     >
                       <Checkbox
                         :model-value="selectedRows.has(row._rowIdString)"
