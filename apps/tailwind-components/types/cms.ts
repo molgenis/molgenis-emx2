@@ -1,4 +1,4 @@
-// Generated (on: 2026-09-14T10:35:25.301382) from Generator.java for schema: cms
+// Generated (on: 2026-09-16T11:45:07.164987) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -75,7 +75,7 @@ export interface IComponents extends IMgTableClass {
   width?: string;
   height?: string;
   imageIsCentered?: boolean;
-  items?: string[];
+  orderedItems?: string[];
   text?: string;
   paragraphIsCentered?: boolean;
   level?: number;
@@ -86,6 +86,7 @@ export interface IComponents extends IMgTableClass {
   url: string;
   urlLabel?: string;
   urlIsExternal?: boolean;
+  unorderedItems?: string[];
 }
 
 export interface IComponents_agg {
@@ -230,7 +231,7 @@ export interface INavigationCards_agg {
 }
 
 export interface IOrderedLists extends IMgTableClass {
-  items?: string[];
+  orderedItems?: string[];
   inBlock?: any;
   id: string;
 }
@@ -279,7 +280,7 @@ export interface ITextElements_agg {
 }
 
 export interface IUnorderedLists extends IMgTableClass {
-  items?: string[];
+  unorderedItems?: string[];
   inBlock?: any;
   id: string;
 }

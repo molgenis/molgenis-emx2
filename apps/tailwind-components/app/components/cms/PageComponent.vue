@@ -239,7 +239,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
   <EditableOrderedList
     v-else-if="mg_tableclass.endsWith('.Ordered lists')"
     :id="component.id"
-    :items="component.items"
+    :orderedItems="component.orderedItems"
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
@@ -248,7 +248,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
   <EditableUnorderedList
     v-else-if="mg_tableclass.endsWith('.Unordered lists')"
     :id="component.id"
-    :items="component.items"
+    :unorderedItems="component.unorderedItems"
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
@@ -274,7 +274,6 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     "
     v-model:visible="showEditModal"
   />
-
   <Modal
     v-model:visible="showDeleteModal"
     title="Delete"

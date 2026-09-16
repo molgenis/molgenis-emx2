@@ -32,7 +32,7 @@ export async function AddOrderedList(schema: string, id: string) {
     element: [
       {
         id: id,
-        items: ["Item 1", "Item 2", "Item 3"],
+        orderedItems: ["Item 1", "Item 2", "Item 3"],
       },
     ],
   };
@@ -50,7 +50,7 @@ export async function AddUnorderedList(schema: string, id: string) {
     element: [
       {
         id: id,
-        items: ["Item 1", "Item 2", "Item 3"],
+        unorderedItems: ["Item 1", "Item 2", "Item 3"],
       },
     ],
   };

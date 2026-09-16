@@ -34,7 +34,7 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <UnorderedList :id="id" :items="items" />
+    <UnorderedList :id="id" :unorderedItems="unorderedItems" />
   </VMenu>
-  <UnorderedList v-else :id="id" :items="items" />
+  <UnorderedList v-else :id="id" :unorderedItems="unorderedItems" />
 </template>

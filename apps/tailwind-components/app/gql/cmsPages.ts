@@ -98,6 +98,10 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         url
                         urlLabel
                         urlIsExternal
+                        
+                        # lists: unordered and ordered
+                        orderedItems
+                        unorderedItems
                     }
                 }
             }
