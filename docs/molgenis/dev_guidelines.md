@@ -151,7 +151,7 @@ End-to-end / Integration tests are run by Playwright and use `.spec.ts`.
 Within our code base we decided to not use the java 'var' syntax but always use explicity typing.
 
 ### Test schemas use the name of the test class they are part of
-When creating a schema for running tests, use the test class name as schema name. If a test requires multiple schema's, use it as the base and add a postfix:
+When creating a schema for running tests, use the test class name as schema name. If a test requires multiple schemas, use it as the base and add a suffix:
 ```java
 public class MyClassTest {
   private static final String SCHEMA_NAME = MyClassTest.class.getSimpleName();
@@ -161,7 +161,7 @@ public class MyClassTest {
   @BeforeAll
   public static void beforeAll() {
     database.dropCreateSchema(SCHEMA_NAME);
-    database.dropCreateSchema(SCHEMA_NAME_OTHER_TEST);
+    database.dropCreateSchema(SCHEMA_NAME_USECASE);
   }
 }
 ```

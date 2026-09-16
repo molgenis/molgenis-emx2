@@ -187,11 +187,11 @@ push stuff that breaks the build. We have included a gradle task for this if you
 ./gradlew installPreCommitGitFormatApplyHook
 ```
 
-### Running tests in intellij IDEA
+### Running tests in IntelliJ IDEA
 
 To enable gradle to run tests you must set the test runner to gradle.
 
-In Intellij, go to settings -> Build, Execution, Deployment -> Build tools -> Gradle and then set Run tests using 'IntelliJ' (counter intuitive, don't choose gradle).
+In IntelliJ IDEA, go to settings -> Build, Execution, Deployment -> Build tools -> Gradle and then set Run tests using 'IntelliJ' (counter intuitive, don't choose gradle).
 
 See https://linked2ev.github.io/devsub/2019/09/30/Intellij-junit4-gradle-issue/
 
