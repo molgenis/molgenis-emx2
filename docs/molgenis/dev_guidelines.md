@@ -1,5 +1,16 @@
 # Development Guidelines
 
+## General
+
+### We minimize the use of in-line code comments
+
+Use of in-line code comments should be used sparingly. For example, when citing a source or to explain why a certain mechanism is implemented. For Java, the preferred solution is to split code into separate methods and use Javadoc instead of needing in-line comments (though exceptions can be made when deemed better).
+
+### Whenever possible, we split large code changes into multiple small PRs
+
+To ensure code reviewing stays clear and not too much work, we keep PRs small and split large code changes (whenever possible) over multiple PRs.
+One could for example use [stacked pull requests](https://docs.github.com/en/pull-requests/get-started/about-stacked-prs) to achieve this as well. 
+
 ## For frontend development
 
 To ensure consistency in the MOLGENIS interfaces, frontend components must follow the same structure. Please follow these guidelines when developing components or creating new ones.
@@ -139,6 +150,22 @@ End-to-end / Integration tests are run by Playwright and use `.spec.ts`.
 
 Within our code base we decided to not use the java 'var' syntax but always use explicity typing.
 
+### Test schemas use the name of the test class they are part of
+When creating a schema for running tests, use the test class name as schema name. If a test requires multiple schemas, use it as the base and add a suffix:
+```java
+public class MyClassTest {
+  private static final String SCHEMA_NAME = MyClassTest.class.getSimpleName();
+  private static final String SCHEMA_NAME_USECASE = SCHEMA_NAME + "_usecase";
+  static Database database;
+
+  @BeforeAll
+  public static void beforeAll() {
+    database.dropCreateSchema(SCHEMA_NAME);
+    database.dropCreateSchema(SCHEMA_NAME_USECASE);
+  }
+}
+```
+
 ### We don't tear down testing schemas
 
 Any schemas created in tests through `TestDatabaseFactory` aren't removed after the tests are finished.
@@ -149,14 +176,16 @@ Example:
 
 ```java
 class MyClassTest {
+  private static final String SCHEMA_NAME = MyClassTest.class.getSimpleName();
+  private static final String SCHEMA_NAME_LINKED = SCHEMA_NAME + "_linkedSchemaThatMustBeRemovedFirst";
   static Database database;
 
   @BeforeAll
   public static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
-    database.dropSchemaIfExists("linkedSchemaThatMustBeRemovedFirst"); // Add this if needed.
-    database.dropCreateSchema("mySchemaName");
-    database.dropCreateSchema("linkedSchemaThatMustBeRemovedFirst");
+    database.dropSchemaIfExists(SCHEMA_NAME_LINKED); // Add this if needed.
+    database.dropCreateSchema(SCHEMA_NAME);
+    database.dropCreateSchema(SCHEMA_NAME_LINKED);
   }
 
   // No `@AfterAll` that removes the schemas!
@@ -184,3 +213,65 @@ Above the floor, don't repeat yourself: CSV import and the GraphQL `change` muta
 Needing a mock usually means the test sits below the `Schema` API.
 Move it up to where a real schema exists rather than mocking the layer beneath.
 A few older tests do mock internals; they're the shape we're moving away from, not a precedent.
+
+### We use `requireNonNull` for contructor parameters.
+As parameters given to a constructor are usually vital for the functioning of that class, we validate that the parameters given through a constructor are **not** `null`:
+
+```java
+import static java.util.Objects.requireNonNull;
+
+public MyClass(MyDep myDep, MyOtherDep myOtherDep) {
+	this.myDep = requireNonNull(myDep);
+	this.myOtherDep = requireNonNull(myOtherDep);
+}
+```
+
+### We use templates for log messages
+When using a logger, we use templates (and no string concatenation) for variables:
+```java
+logger.debug("Value [{}] was inserted between [{}] and [{}].", val, below, above);
+```
+
+### We use `Objects` for equals/hash
+
+When creating an equals/hash method for a class, we use `Objects` to do so. For example:
+```java
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    MyClass that = (MyClass) o;
+    return Objects.equals(var1, that.var1) && Objects.equals(var2, that.var2);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(var1, var2);
+  }
+```
+
+### When an object is closable, we use try-with-resources where possible
+To reduce accidentally forgetting to close a closable object, we use try-with-resources as much as possible.
+
+```java
+try (FileOutputStream output = new FileOutputStream("filename.txt")) {
+  // do stuff
+}
+```
+
+### If a method can return `null`, we add `@Nullable` or use `Optional` instead
+Whenever a method can return `null`, this should be made very clear. Adding `@Nullable` will ensure this.
+
+Alternatively, one could consider returning an `Optional` object instead of allowing `null` to be returned.
+
+### Exceptions should lead to a (subclass of a) `MolgenisException` or a Javalin exception
+
+Exceptions (such as an `IOException`) should usually at some point lead to a `MolgenisException` (or a subclass of it).
+Some exceptions exist, such as API code that should throw one of the Javalin `HttpResponseException` exceptions to ensure a server returns the correct HTTP code.
+
+### We use loggers that corresponds to the class
+For logging, we use the following snippet as part of an actual class (replace `MyClass` with the actual class name):
+```java
+public class MyClass {
+  private static final Logger logger = LoggerFactory.getLogger(MyClass.class);
+}
+```
