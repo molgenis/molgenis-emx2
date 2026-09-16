@@ -762,21 +762,19 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     return defaultValue != null;
   }
 
+  public boolean hasComputedDefaultValue() {
+    return defaultValue != null && defaultValue.startsWith("=");
+  }
+
+  public String getDefaultValueExpression() {
+    return hasComputedDefaultValue() ? defaultValue.substring(1) : null;
+  }
+
   public boolean hasComputed() {
     return computed != null;
   }
 
   public boolean isAutoId() {
     return AUTO_ID.equals(getColumnType());
-  }
-
-  public boolean hasDependencyOn(Column column) {
-    boolean onComputed = getComputed() != null && getComputed().contains(column.getName());
-    boolean onDefaultValue =
-        getDefaultValue() != null && getDefaultValue().contains(column.getName());
-    boolean onRequired = getRequired() != null && getRequired().contains(column.getName());
-    boolean onValidate = getValidation() != null && getValidation().contains(column.getName());
-    boolean onVisible = getVisible() != null && getVisible().contains(column.getName());
-    return onComputed || onDefaultValue || onRequired || onValidate || onVisible;
   }
 }

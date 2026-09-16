@@ -64,6 +64,14 @@ const blocksOpen = ref<boolean>(true);
             @dragging="handleDragEvent"
           />
         </li>
+        <li>
+          <DraggableComponent
+            icon="AddLink"
+            componentName="NavigationCards"
+            componentLabel="Navigation card"
+            @dragging="handleDragEvent"
+          />
+        </li>
       </ul>
     </div>
 
@@ -102,6 +110,22 @@ const blocksOpen = ref<boolean>(true);
           <DraggableComponent
             icon="view-normal"
             componentName="Section"
+            componentType="Block"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="columns"
+            componentName="Section - 2 Columns"
+            componentType="Block"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="columns"
+            componentName="Section - 3 Columns"
             componentType="Block"
             @dragging="handleDragEvent"
           />
