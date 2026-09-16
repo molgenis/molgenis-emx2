@@ -31,28 +31,35 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
     tables.forEach(i -> processRows(rdfMapData, i, primaryKey));
   }
 
-  protected void processRows(RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
-    processRows(rowConsumer(rdfMapData, table), table, primaryKey);
-  }
-
-  protected Consumer<Row> rowConsumer(RdfMapData rdfMapData, Table table) {
-    return row -> {
-      List<Column> columns = table.getMetadata().getColumns();
-      ResolveComputedValue.apply(columns, List.of(row));
-
-      switch (table.getMetadata().getTableType()) {
-        case ONTOLOGIES -> ontologyRowToRdf(rdfMapData, table, row);
-        case DATA -> dataRowToRdf(rdfMapData, table, row);
-        default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
-      }
-    };
-  }
-
   protected void processDataRowTable(final Table table, final IRI subject) {
     table
         .getMetadata()
         .getSemanticsIriStream()
         .forEach(object -> getWriter().processTriple(subject, RDF.TYPE, object));
+  }
+
+  protected void processRows(RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
+    switch (table.getMetadata().getTableType()) {
+      case ONTOLOGIES -> processRows(ontologyRowConsumer(rdfMapData, table), table, primaryKey);
+      case DATA -> processRows(dataRowConsumer(rdfMapData, table), table, primaryKey);
+      default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
+    }
+  }
+
+  protected Consumer<Row> ontologyRowConsumer(RdfMapData rdfMapData, Table table) {
+    return row -> {
+      List<Column> columns = table.getMetadata().getColumns();
+      ResolveComputedValue.apply(columns, List.of(row));
+      ontologyRowToRdf(rdfMapData, table, row);
+    };
+  }
+
+  protected Consumer<Row> dataRowConsumer(RdfMapData rdfMapData, Table table) {
+    return row -> {
+      List<Column> columns = table.getMetadata().getColumns();
+      ResolveComputedValue.apply(columns, List.of(row));
+      dataRowToRdf(rdfMapData, table, row);
+    };
   }
 
   protected abstract void ontologyRowToRdf(RdfMapData rdfMapData, Table table, Row row);
