@@ -10,5 +10,8 @@ const text = computed<string>(() => {
 </script>
 
 <template>
-  <li class="text-title-contrast mb-1 last:mb-0" v-html="text" />
+  <li
+    class="text-title-contrast mb-1 last:mb-0 [&_a]:underline [&_a]:decoration-solid"
+    v-html="text"
+  />
 </template>
