@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 
-import Banner from "./Banner.vue";
+import EditableHeader from "./header/EditableHeader.vue";
 import EditableSection from "./section/EditableSection.vue";
 import EditableHeading from "./heading/EditableHeading.vue";
 import Paragraph from "./paragraph/Paragraph.vue";
@@ -167,7 +167,7 @@ function asSingularName(value: string): string {
 </script>
 
 <template>
-  <Banner
+  <EditableHeader
     v-if="mg_tableclass.endsWith('.Headers')"
     :id="component.id"
     :title="component.title"
