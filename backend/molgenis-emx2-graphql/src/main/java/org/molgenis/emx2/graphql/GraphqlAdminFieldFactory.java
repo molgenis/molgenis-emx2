@@ -52,6 +52,21 @@ public class GraphqlAdminFieldFactory {
                   .build())
           .build();
 
+  private static final GraphQLOutputType schemaPermissionType =
+      GraphQLObjectType.newObject()
+          .name("_AdminSchemaPermissionType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_ID)
+                  .type(Scalars.GraphQLString)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ROLES)
+                  .type(GraphQLList.list(outputRolesType))
+                  .build())
+          .build();
+
   // retrieve user list, user count
   public static GraphQLFieldDefinition queryAdminField(Database db) {
     String userCount = "userCount";
@@ -71,6 +86,11 @@ public class GraphqlAdminFieldFactory {
                     .name(userCount)
                     .type(Scalars.GraphQLInt)
                     .build())
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(SCHEMA_ROLES)
+                    .type(GraphQLList.list(schemaPermissionType))
+                    .build())
             .build();
 
     return GraphQLFieldDefinition.newFieldDefinition()
@@ -87,11 +107,30 @@ public class GraphqlAdminFieldFactory {
                 if (selectedField.getName().equals(userCount)) {
                   result.put(userCount, db.countUsers());
                 }
+                if (selectedField.getName().equals(SCHEMA_ROLES)) {
+                  result.put(SCHEMA_ROLES, getPermissions(db));
+                }
               }
               return result;
             })
         .type(adminType)
         .build();
+  }
+
+  private static List<Map<String, Object>> getPermissions(Database db) {
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (String schemaName : db.getSchemaNames()) {
+      Map<String, Object> schemaRoles = new LinkedHashMap<>();
+      schemaRoles.put(SCHEMA_ID, schemaName);
+      schemaRoles.put(
+          ROLES,
+          db.getSchema(schemaName).getRoleInfos().stream()
+              .map(GraphqlSchemaFieldFactory::roleToMap)
+              .filter(role -> !role.get(SYSTEM).equals(true))
+              .toList());
+      result.add(schemaRoles);
+    }
+    return result;
   }
 
   private static Object getUsers(SelectedField selectedField, Database db) {
