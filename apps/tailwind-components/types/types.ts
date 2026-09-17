@@ -232,7 +232,7 @@ export interface SystemSettings extends Settings {
   isOidcEnabled: boolean;
 }
 
-export interface SchemaPermission {
+export interface SchemaRole {
   name: string;
   permissions: TablePermission[];
 }

@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
-import DisplayRecordsTable from "../../../../tailwind-components/app/components/display/records/Table.vue";
 import constants from "../../../../tailwind-components/app/utils/constants.ts";
-import type { ITableSettings } from "../../../../tailwind-components/types/types.ts";
+import type {
+  ITableSettings,
+  SchemaRole,
+} from "../../../../tailwind-components/types/types.ts";
+import { getSchemaPermissions } from "~/util/adminUtils.ts";
+
+const schemaPermissions = ref<SchemaRole[]>([]);
+schemaPermissions.value = await getSchemaPermissions();
 
 const rows: IRow[] = [
   {
@@ -69,11 +75,22 @@ function handlePageSizeChange(pageSize: string) {
     placeholder="Search roles"
     id="search-input"
   />
-  <DisplayRecordsTable
-    :rows="rows"
-    :columns="COLUMNS"
-    :titleTemplate="'Roles'"
-  />
+  <Table>
+    <template #head>
+      <TableHeadRow>
+        <TableHead v-for="column in COLUMNS">
+          {{ column.label }}
+        </TableHead>
+      </TableHeadRow>
+    </template>
+    <template #body>
+      {{ JSON.stringify(schemaPermissions) }}
+      <TableRow v-for="schemaPermission in schemaPermissions">
+        {{ schemaPermission.name }}
+      </TableRow>
+    </template>
+    <template #foot> </template>
+  </Table>
   <!-- v-if="count > smallestPageSize" -->
   <Pagination
     class="pt-0 pb-[30px]"
