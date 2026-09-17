@@ -6,7 +6,6 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.fairmapper.client.GraphqlClient;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
-import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
