@@ -1,11 +1,9 @@
 package org.molgenis.emx2.fairmapper.postprocessing.ontologies;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.slf4j.Logger;
@@ -13,14 +11,16 @@ import org.slf4j.LoggerFactory;
 
 public class ResolveOntologyPostProcessor implements PostProcessor {
 
-  private static final String ONTOLOGY_TERM_URI = "ontologyTermURI";
   private static final Logger logger = LoggerFactory.getLogger(ResolveOntologyPostProcessor.class);
 
   private final Map<String, Map<String, String>> ontologyValues = new HashMap<>();
   private final SchemaMetadata schema;
+  private final OntologyMappingFetcher ontologyMappingFetcher;
 
-  public ResolveOntologyPostProcessor(SchemaMetadata schema) {
+  public ResolveOntologyPostProcessor(
+      SchemaMetadata schema, OntologyMappingFetcher ontologyMappingFetcher) {
     this.schema = schema;
+    this.ontologyMappingFetcher = ontologyMappingFetcher;
   }
 
   @Override
@@ -103,17 +103,7 @@ public class ResolveOntologyPostProcessor implements PostProcessor {
   }
 
   private Map<String, String> generateMapping(Column column) {
-    List<Row> ontologyRows =
-        column
-            .getRefTable()
-            .getTable()
-            .query()
-            .select(SelectColumn.s(ONTOLOGY_TERM_URI), SelectColumn.s("name"))
-            .retrieveRows();
-
-    return ontologyRows.stream()
-        .filter(row -> row.getString(ONTOLOGY_TERM_URI) != null)
-        .collect(Collectors.toMap(r -> r.getString(ONTOLOGY_TERM_URI), r -> r.getString("name")));
+    return ontologyMappingFetcher.getMapping(column.getRefSchemaName(), column.getRefTableName());
   }
 
   private static String referenceKey(Column column) {
