@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import sanitizeHtml from "sanitize-html";
+import { sanitizeHtmlText } from "../../utils/cms/sanitizeHtmlText.ts";
 
 import ComponentActions from "./ComponentActions.vue";
 import type { IParagraphs } from "../../../types/cms";
@@ -17,9 +17,7 @@ const showMenu = ref<boolean>(false);
 
 const text = computed<string | undefined>(() => {
   if (props.text) {
-    return sanitizeHtml(props.text, {
-      allowedTags: ["a", "code", "em", "i", "span", "strong"],
-    });
+    return sanitizeHtmlText(props.text);
   }
 });
 </script>

@@ -6,6 +6,8 @@ import Section from "./Section.vue";
 import Heading from "./Heading.vue";
 import Paragraph from "./Paragraph.vue";
 import Image from "./Image.vue";
+import EditableOrderedList from "./lists/EditableOrderedList.vue";
+import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
 import NavigationCardWithActions from "./Navigation/NavigationCardWithActions.vue";
 import { hideAllPoppers } from "floating-vue";
 
@@ -234,6 +236,24 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
+  <EditableOrderedList
+    v-else-if="mg_tableclass.endsWith('.Ordered lists')"
+    :id="component.id"
+    :orderedItems="component.orderedItems"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableUnorderedList
+    v-else-if="mg_tableclass.endsWith('.Unordered lists')"
+    :id="component.id"
+    :unorderedItems="component.unorderedItems"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
   <Paragraph
     v-else
     id="component-does-not-exist-message"
@@ -254,7 +274,6 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     "
     v-model:visible="showEditModal"
   />
-
   <Modal
     v-model:visible="showDeleteModal"
     title="Delete"

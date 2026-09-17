@@ -50,7 +50,9 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
       })
     "
   >
-    <BaseIcon v-if="icon" :name="icon" :width="16" :height="16" />
+    <span class="w-[16px]">
+      <BaseIcon v-if="icon" :name="icon" :width="16" :height="16" />
+    </span>
     <span class="block w-auto text-left">
       {{ props.componentLabel || props.componentName }}
       <span class="" v-if="showPleaseDragMe"> - Please drag me </span>
