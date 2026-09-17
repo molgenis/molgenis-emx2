@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { hideAllPoppers } from "floating-vue";
 
+import Paragraph from "./paragraph/Paragraph.vue";
 import EditableHeader from "./header/EditableHeader.vue";
 import EditableSection from "./section/EditableSection.vue";
 import EditableHeading from "./heading/EditableHeading.vue";
-import Paragraph from "./paragraph/Paragraph.vue";
 import EditableParagraph from "./paragraph/EditableParagraph.vue";
 import EditableImage from "./image/EditableImage.vue";
 import EditableOrderedList from "./lists/EditableOrderedList.vue";
 import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
-import { hideAllPoppers } from "floating-vue";
 
 import EditModal from "../form/EditModal.vue";
 

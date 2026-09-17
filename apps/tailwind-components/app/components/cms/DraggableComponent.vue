@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { IDraggingInfo } from "../../../types/CmsComponents";
+
 const props = withDefaults(
   defineProps<{
     componentLabel?: string;
@@ -21,6 +22,7 @@ const startDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
   emit("dragging", componentInfo);
   showPleaseDragMe.value = false;
 };
+
 const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
   emit("dragging", componentInfo);
 };

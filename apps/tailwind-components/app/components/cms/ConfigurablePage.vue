@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type { IConfigurablePages } from "../../../types/cms";
-import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type { IDraggingInfo } from "../../../types/CmsComponents";
+import { ref } from "vue";
 
 import PageComponent from "./PageComponent.vue";
 import Paragraph from "./paragraph/Paragraph.vue";
 import AddComponentPalette from "./AddComponentPalette.vue";
 import ComponentDropZone from "./ComponentDropZone.vue";
-import { ref } from "vue";
+
+import type { IConfigurablePages } from "../../../types/cms";
+import type { ITableMetaData } from "../../../../metadata-utils/src";
+import type { IDraggingInfo } from "../../../types/CmsComponents";
 
 const props = withDefaults(
   defineProps<{
