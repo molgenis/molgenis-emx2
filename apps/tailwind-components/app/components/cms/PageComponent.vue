@@ -298,9 +298,9 @@ function asSingularName(value: string | undefined): string | undefined {
         class="mb-1"
       >
         By deleting this component, all other linked components or files linked
-        will be removed
+        will be removed.
       </p>
-      <p>This action cannot be undone</p>
+      <p>This action cannot be undone.</p>
     </div>
     <template #footer>
       <menu class="flex items-center justify-end h-[116px]">
