@@ -8,7 +8,7 @@ import Paragraph from "./Paragraph.vue";
 import Image from "./Image.vue";
 import EditableOrderedList from "./lists/EditableOrderedList.vue";
 import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
-import NavigationCardWithActions from "./Navigation/NavigationCardWithActions.vue";
+import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
 import { hideAllPoppers } from "floating-vue";
 
 import EditModal from "../form/EditModal.vue";
@@ -223,7 +223,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
-  <NavigationCardWithActions
+  <EditableNavigationCard
     v-else-if="mg_tableclass.endsWith('.Navigation cards')"
     :id="component.id"
     :title="component?.title"
