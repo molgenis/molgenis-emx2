@@ -2,7 +2,7 @@
 import { ref, computed } from "vue";
 
 import Banner from "./Banner.vue";
-import Section from "./Section.vue";
+import EditableSection from "./section/EditableSection.vue";
 import Heading from "./Heading.vue";
 import Paragraph from "./Paragraph.vue";
 import Image from "./Image.vue";
@@ -175,7 +175,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     @move="handleMoveEvent"
   />
 
-  <Section
+  <EditableSection
     v-else-if="mg_tableclass.endsWith('.Sections')"
     :id="component.id"
     :columns="component.columns"
@@ -187,7 +187,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     @move="handleMoveEvent"
   >
     <slot></slot>
-  </Section>
+  </EditableSection>
   <Heading
     v-else-if="mg_tableclass.endsWith('.Headings')"
     :id="component.id"
