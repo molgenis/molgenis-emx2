@@ -4,9 +4,11 @@ import java.net.URI;
 import java.util.UUID;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.fairmapper.client.GraphqlClient;
 import org.molgenis.emx2.fairmapper.extractors.CrawlSteps;
 import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
+import org.molgenis.emx2.fairmapper.load.RemoteDataLoader;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
@@ -57,6 +59,18 @@ public class Harvest implements Runnable {
       description = "Write intermediate post processing results to files")
   private boolean enableLoading;
 
+  @CommandLine.Option(
+      names = {"--endpoint"},
+      required = true,
+      description = "Base URL of the remote emx2 instance")
+  private String endpoint;
+
+  @CommandLine.Option(
+      names = {"--token"},
+      required = true,
+      description = "Authentication token for the remote emx2 instance")
+  private String token;
+
   @Override
   public void run() {
     logger.info("Starting harvest with ID: {}", HARVEST_ID);
@@ -67,25 +81,40 @@ public class Harvest implements Runnable {
 
     URI rdfURI = getRdf();
 
-    RdfExtractor extractor = new CrawlingRdfExtractor().withCrawlSteps(CrawlSteps.FDP.steps());
-    SparqlSelectRdfTransformer transformer =
+    RdfExtractor rdfExtractor = new CrawlingRdfExtractor().withCrawlSteps(CrawlSteps.FDP.steps());
+    SparqlSelectRdfTransformer rdfTransformer =
         new SparqlSelectRdfTransformer(new TableQueryGenerator());
 
-    HarvestingPipelineConfig.Builder builder =
-        new HarvestingPipelineConfig.Builder(rdfURI, schema, extractor, transformer)
+    GraphqlClient graphqlClient = new GraphqlClient(endpoint, token);
+
+    SchemaMetadataProvider schemaMetadataProvider =
+        new SchemaMetadataProvider() {
+          @Override
+          public SchemaMetadata getSchemaMetadata(String schemaName) {
+            return null;
+          }
+
+          @Override
+          public DatabaseListener getListener() {
+            return null;
+          }
+        };
+
+    HarvestingPipelineConfig.Builder builder = new HarvestingPipelineConfig.Builder(
+            rdfURI, schemaName, schemaMetadataProvider, rdfExtractor, rdfTransformer)
             .setTables(tables)
             .withPostProcessors(new DCATPostProcessor(database, schema.getMetadata()))
             .withPreProcessors(
-                new TemporalRdfPreProcessor(),
-                new TypicalAgeRdfPreProcessor(),
-                new StageCsvwPreProcessor());
+                    new TemporalRdfPreProcessor(),
+                    new TypicalAgeRdfPreProcessor(),
+                    new StageCsvwPreProcessor());
 
     if (outputPath != null) {
       builder.withDumpEnabled(outputPath);
     }
 
     if (enableLoading) {
-      builder.enableDataLoading();
+      builder.withDataLoader(new RemoteDataLoader(endpoint, token, schemaName));
     }
 
     runPipeline(builder);
