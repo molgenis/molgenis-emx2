@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NavigationCards from "../../components/cms/Navigation/NavigationCards.vue";
+import NavigationCards from "../../components/cms/navigationCard/NavigationCard.vue";
 import type { INavigationCards } from "../../../types/cms.ts";
 
 const cards: INavigationCards[] = [
