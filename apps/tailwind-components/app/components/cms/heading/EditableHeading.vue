@@ -9,6 +9,7 @@ const props = withDefaults(
   {
     level: 2,
     headingIsCentered: false,
+    headingIsHidden: false,
     isEditable: false,
   }
 );
@@ -43,6 +44,7 @@ const showMenu = ref<boolean>(false);
       :class="{
         group: isEditable,
         underline: showMenu,
+        'sr-only': headingIsHidden,
       }"
     />
   </VMenu>

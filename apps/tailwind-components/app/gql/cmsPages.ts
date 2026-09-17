@@ -73,6 +73,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         # Headings
                         level
                         headingIsCentered
+                        headingIsHidden
                         
                         # Paragraphs
                         paragraphIsCentered

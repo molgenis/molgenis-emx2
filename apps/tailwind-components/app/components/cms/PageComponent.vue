@@ -198,7 +198,8 @@ function asSingularName(value: string): string {
   <EditableHeading
     v-else-if="mg_tableclass.endsWith('.Headings')"
     :id="component.id"
-    :heading-is-centered="component.headingIsCentered"
+    :headingIsCentered="component.headingIsCentered"
+    :headingIsHidden="component.headingIsHidden"
     :level="component.level"
     class="mb-5"
     :text="parsePageText(component.text)"
