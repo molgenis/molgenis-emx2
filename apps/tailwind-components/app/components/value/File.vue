@@ -35,7 +35,7 @@ const downloadUrl = computed(() => props.data?.url || "");
 </script>
 
 <template>
-  <span class="break-words">
+  <span class="overflow-ellipsis whitespace-nowrap">
     <a
       v-if="downloadUrl"
       :href="downloadUrl"
@@ -44,7 +44,7 @@ const downloadUrl = computed(() => props.data?.url || "");
     >
       {{ fileName }}
     </a>
-    <span v-else>{{ fileName }}</span>
+    <span v-else class="truncate">{{ fileName }}</span>
 
     <span> ({{ formattedSize }})</span>
   </span>
