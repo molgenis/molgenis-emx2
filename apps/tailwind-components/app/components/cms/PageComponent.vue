@@ -4,7 +4,8 @@ import { ref, computed } from "vue";
 import Banner from "./Banner.vue";
 import EditableSection from "./section/EditableSection.vue";
 import Heading from "./Heading.vue";
-import Paragraph from "./Paragraph.vue";
+import Paragraph from "./paragraph/Paragraph.vue";
+import EditableParagraph from "./paragraph/EditableParagraph.vue";
 import Image from "./Image.vue";
 import EditableOrderedList from "./lists/EditableOrderedList.vue";
 import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
@@ -157,6 +158,12 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
   }
   hideAllPoppers();
 }
+
+function asSingularName(value: string): string {
+  return value.toLowerCase().endsWith("s")
+    ? value.slice(0, value.length - 1)
+    : value;
+}
 </script>
 
 <template>
@@ -200,7 +207,7 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
-  <Paragraph
+  <EditableParagraph
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
     :id="component.id"
     :paragraphIsCentered="component.paragraphIsCentered"
@@ -276,11 +283,16 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
   />
   <Modal
     v-model:visible="showDeleteModal"
-    title="Delete"
-    :subtitle="`${componentMetadata?.name}`"
+    :title="`Delete ${asSingularName(componentMetadata?.name as string)}`"
     size="medium"
   >
-    <p class="p-8">Are you sure you want to delete this component?</p>
+    <div class="p-8 text-title-contrast">
+      <p>
+        Are you sure you want to delete this
+        <strong>{{ asSingularName(componentMetadata?.name as string) }}</strong
+        >?
+      </p>
+    </div>
     <template #footer>
       <menu class="flex items-center justify-end h-[116px]">
         <div class="flex gap-4">
