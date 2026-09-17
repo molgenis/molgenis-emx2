@@ -39,7 +39,7 @@ const sidebarCollapsed = ref(false);
   <div
     :class="{
       flex: isEditable,
-      'gap-6': isEditable,
+      'gap-7.5': isEditable,
     }"
   >
     <Sidebar

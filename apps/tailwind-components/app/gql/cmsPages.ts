@@ -91,17 +91,13 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         height
                         imageIsCentered
                         
-                        # navigation groups and cards
-                        links {
-                            id
-                            title
-                            description
-                            url
-                            urlLabel
-                            urlIsExternal
-                            order
-                        }
-                        
+                        # navigation cards
+                        id
+                        title
+                        description
+                        url
+                        urlLabel
+                        urlIsExternal
                     }
                 }
             }

@@ -52,16 +52,12 @@ Ordered lists,Components,,,,,,,,,,,,<ol> elements,pages
 Ordered lists,,items,text_array,,,,,,,,,,,pages
 Unordered lists,Components,,,,,,,,,,,,<ul> elements,pages
 Unordered lists,,items,text_array,,,,,,,,,,,pages
-Navigation groups,Components,,,,,,,,,,,,<nav> elements,pages
-Navigation groups,,links,refback,,,Navigation cards,displayed in navigation group,,,,,,A reference to one or more card that contains a link to another page,pages
 Navigation cards,Components,,,,,,,,,,,,,pages
 Navigation cards,,title,string,,,,,,,,,,An optional title for the card,pages
 Navigation cards,,description,string,,,,,,,,,,An optional description that provides context for the link,pages
 Navigation cards,,url,hyperlink,,TRUE,,,,,,,,A link to an internal or external page,pages
 Navigation cards,,url label,string,,,,,,,,,,A label to display instead of the URL,pages
 Navigation cards,,url is external,bool,,,,,,,,FALSE,,"If true, the link will be rendered as an external link",pages
-Navigation cards,,displayed in navigation group,select,,,Navigation groups,,,,,,,A reference to the navigation list,pages
-Navigation cards,,order,int,,TRUE,,,,,,0,,Order the card should appear in when used in a navigation group,pages
 Blocks,,Configuration,section,,,,,,,,,,,pages
 Blocks,,UI settings,heading,,,,,,,,,,,pages
 Sections,,columns,int,,,,,,,"if (columns && (columns < 1 || columns > 4)) ""Choose between 1 and 4""",1,,"The amount (1 to 4) of columns in a sections",pages
