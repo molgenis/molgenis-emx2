@@ -1,21 +1,19 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
-import TextHeading from "../../../../app/components/cms/Heading.vue";
+import EditableHeading from "../../../../app/components/cms/heading/EditableHeading.vue";
 
-const wrapper = mount(TextHeading, {
+const wrapper = mount(EditableHeading, {
   props: {
     id: "test-heading",
-    headingLevel: "H2",
+    level: 2,
     headingIsCentered: true,
-  },
-  slots: {
-    default: "Heading 2",
+    text: "Heading 2",
   },
 });
 
-describe("Text Headings", () => {
-  test("Heading is rendered and text is centered", async () => {
+describe("Cms:Headings:", () => {
+  test("The correct heading level is rendered and the text is centered", async () => {
     expect(wrapper.vm.$el.tagName).toBe("H2");
     expect(wrapper.attributes("class")).toContain(
       "text-title text-heading-5xl w-full flex justify-center text-center"

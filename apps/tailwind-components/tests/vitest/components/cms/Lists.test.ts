@@ -22,9 +22,8 @@ const orderedListWrapper = mount(OrderedList, {
   props: { id: "ordered-list-test", orderedItems: testItems },
 });
 
-describe("PageBuilder: Unordered Lists", () => {
+describe("Cms:Lists:", () => {
   test("Unordered list items render with html", async () => {
-    console.log(unorderedListWrapper.html());
     expect(unorderedListWrapper.vm.$el.tagName).toBe("UL");
     expect(unorderedListWrapper.findAll("li").length).toBe(4);
     expect(unorderedListWrapper.find("li").text()).toBe(testItems[0]);
@@ -34,7 +33,6 @@ describe("PageBuilder: Unordered Lists", () => {
   });
 
   test("Ordered list items render with html", async () => {
-    console.log(orderedListWrapper.html());
     expect(orderedListWrapper.vm.$el.tagName).toBe("OL");
     expect(orderedListWrapper.findAll("li").length).toBe(4);
     expect(orderedListWrapper.find("li").text()).toBe(testItems[0]);
