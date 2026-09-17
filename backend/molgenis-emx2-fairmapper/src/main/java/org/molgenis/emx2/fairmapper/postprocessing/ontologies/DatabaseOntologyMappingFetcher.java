@@ -3,9 +3,13 @@ package org.molgenis.emx2.fairmapper.postprocessing.ontologies;
 import java.util.HashMap;
 import java.util.Map;
 import org.molgenis.emx2.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabaseOntologyMappingFetcher implements OntologyMappingFetcher {
 
+  private static final Logger logger =
+      LoggerFactory.getLogger(DatabaseOntologyMappingFetcher.class);
   private static final String ONTOLOGY_TERM_URI = "ontologyTermURI";
 
   private final Database database;
