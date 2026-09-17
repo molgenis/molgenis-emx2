@@ -1,6 +1,8 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
@@ -82,6 +84,55 @@ class TestGraphqlAdminFields {
           } catch (Exception e) {
             assertTrue(e.getMessage().contains("FieldUndefined"));
           }
+          tdb.becomeAdmin();
+        });
+  }
+
+  @Test
+  void shouldListCustomRolesPerSchemaForAdmin() {
+    database.tx(
+        tdb -> {
+          tdb.becomeAdmin();
+          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+          schema.create(
+              table("Patient").add(column("id").setPkey()).add(column("name")),
+              table("Doctor").add(column("id").setPkey()).add(column("name")));
+          schema.createRole("PatientViewer");
+          schema.grant(
+              "PatientViewer", new TablePermission("Patient").select(true).rowLevel(false));
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+
+          try {
+            JsonNode schemaRoles =
+                execute(
+                        "{_admin{schemaRoles{schemaId roles{name system permissions{table select insert}}}}}")
+                    .at("/_admin/schemaRoles");
+
+            JsonNode testSchemaRoles = null;
+            for (JsonNode entry : schemaRoles) {
+              if (SCHEMA_NAME.equals(entry.get("schemaId").asText())) {
+                testSchemaRoles = entry.get("roles");
+              }
+            }
+            assertNotNull(testSchemaRoles);
+            assertEquals(1, testSchemaRoles.size());
+
+            JsonNode role = testSchemaRoles.get(0);
+            assertEquals("PatientViewer", role.get("name").asText());
+            assertFalse(role.get("system").asBoolean());
+            JsonNode permission = role.at("/permissions/0");
+            assertEquals("Patient", permission.get("table").asText());
+            assertTrue(permission.get("select").asBoolean());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+
+          tdb.setActiveUser(ANONYMOUS);
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+          MolgenisException exception =
+              assertThrows(
+                  MolgenisException.class, () -> execute("{_admin{schemaRoles{schemaId}}}"));
+          assertTrue(exception.getMessage().contains("FieldUndefined"));
           tdb.becomeAdmin();
         });
   }
