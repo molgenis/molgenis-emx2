@@ -6,7 +6,7 @@ import EditableSection from "./section/EditableSection.vue";
 import EditableHeading from "./heading/EditableHeading.vue";
 import Paragraph from "./paragraph/Paragraph.vue";
 import EditableParagraph from "./paragraph/EditableParagraph.vue";
-import Image from "./Image.vue";
+import EditableImage from "./image/EditableImage.vue";
 import EditableOrderedList from "./lists/EditableOrderedList.vue";
 import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
@@ -217,14 +217,14 @@ function asSingularName(value: string): string {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
-  <Image
+  <EditableImage
     v-else-if="mg_tableclass.endsWith('.Images')"
     :id="component.id"
     :image="component.image"
     :width="component.width"
     :height="component.height"
     :alt="component.alt"
-    :image-is-centered="component.imageIsCentered"
+    :imageIsCentered="component.imageIsCentered"
     :isEditable="editingIsEnabled"
     @edit="showEditModal = true"
     @delete="onDelete"
