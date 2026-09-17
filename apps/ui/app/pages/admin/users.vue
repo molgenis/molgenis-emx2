@@ -126,29 +126,28 @@
 <script setup lang="ts">
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
+import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
+import Container from "../../../../tailwind-components/app/components/Container.vue";
+import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
+import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
+import Table from "../../../../tailwind-components/app/components/Table.vue";
+import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
+import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
+import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
+import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
+import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
+import EditUserModal from "../../components/EditUserModal.vue";
+import NewUserModal from "../../components/NewUserModal.vue";
+import TokenManagement from "../../components/TokenManagement.vue";
+import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
 import {
   createUser,
   deleteUser,
   getRoles,
   getSchemas,
   getUsers,
-  type ISchemaInfo,
-  type IUser,
-} from "~/util/adminUtils";
-import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
-import Table from "../../../../tailwind-components/app/components/Table.vue";
-import TableHead from "../../../../tailwind-components/app/components/TableHead.vue";
-import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
-import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
-import ShowMore from "../../../../tailwind-components/app/components/ShowMore.vue";
-import Container from "../../../../tailwind-components/app/components/Container.vue";
-import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
-import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
-import Button from "../../../../tailwind-components/app/components/Button.vue";
-import NewUserModal from "../../components/NewUserModal.vue";
-import EditUserModal from "../../components/EditUserModal.vue";
-import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue";
-import TokenManagement from "../../components/TokenManagement.vue";
+} from "../../util/adminUtils";
 
 /**
  * Todo:
@@ -168,20 +167,19 @@ const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const showTokenModal = ref(false);
 const showDeleteUserModal = ref(false);
-const selectedUser = ref<IUser | null>(null);
+const selectedUser = ref<User | null>(null);
 
 const currentPage = ref(1);
-const users = ref<IUser[]>([]);
+const users = ref<User[]>([]);
 const userCount = ref(0);
 const totalPages = ref(0);
-const schemas = ref<ISchemaInfo[]>([]);
+const schemas = ref<SchemaInfo[]>([]);
 const roles = ref<string[]>([]);
 const schema = ref<string>("");
 
 retrieveUsers();
 schemas.value = await getSchemas();
-// @ts-expect-error
-schema.value = schemas.value.length ? schemas.value[0].id : "";
+schema.value = schemas.value[0]?.id || "";
 roles.value = await getRoles(schemas.value);
 
 const usernames = computed(() => {
@@ -207,27 +205,27 @@ async function retrieveUsers() {
     userCount.value % LIMIT > 0 ? Math.floor(divided) + 1 : divided;
 }
 
-async function removeUser(user: IUser) {
+async function removeUser(user: User) {
   await deleteUser(user);
   await retrieveUsers();
 }
 
-function editUser(user: IUser) {
+function editUser(user: User) {
   selectedUser.value = user;
   showEditUserModal.value = true;
 }
 
-function showDeleteUserConfirmation(user: IUser) {
+function showDeleteUserConfirmation(user: User) {
   selectedUser.value = user;
   showDeleteUserModal.value = true;
 }
 
-function manageTokens(user: IUser) {
+function manageTokens(user: User) {
   selectedUser.value = user;
   showTokenModal.value = true;
 }
 
-function canDelete(user: IUser) {
+function canDelete(user: User) {
   return (
     user.email !== "anonymous" &&
     user.email !== "admin" &&
