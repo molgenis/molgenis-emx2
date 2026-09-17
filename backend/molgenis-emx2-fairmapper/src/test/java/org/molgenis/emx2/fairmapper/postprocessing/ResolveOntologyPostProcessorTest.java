@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.fairmapper.postprocessing.ontologies.DatabaseOntologyMappingFetcher;
@@ -16,7 +15,6 @@ import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-@Disabled
 class ResolveOntologyPostProcessorTest {
 
   private static final String SCHEMA_NAME = ResolveOntologyPostProcessorTest.class.getSimpleName();
@@ -57,7 +55,8 @@ class ResolveOntologyPostProcessorTest {
                 Column.column("colors").setType(ColumnType.ONTOLOGY_ARRAY).setRefTable("colors")));
 
     resolver =
-        new ResolveOntologyPostProcessor(schema, new DatabaseOntologyMappingFetcher(database));
+        new ResolveOntologyPostProcessor(
+            schema.getMetadata(), new DatabaseOntologyMappingFetcher(database));
   }
 
   @Test
