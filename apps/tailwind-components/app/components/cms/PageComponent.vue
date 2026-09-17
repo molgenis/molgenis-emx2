@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 
 import Banner from "./Banner.vue";
 import EditableSection from "./section/EditableSection.vue";
-import Heading from "./Heading.vue";
+import EditableHeading from "./heading/EditableHeading.vue";
 import Paragraph from "./paragraph/Paragraph.vue";
 import EditableParagraph from "./paragraph/EditableParagraph.vue";
 import Image from "./Image.vue";
@@ -195,7 +195,7 @@ function asSingularName(value: string): string {
   >
     <slot></slot>
   </EditableSection>
-  <Heading
+  <EditableHeading
     v-else-if="mg_tableclass.endsWith('.Headings')"
     :id="component.id"
     :heading-is-centered="component.headingIsCentered"
@@ -289,8 +289,7 @@ function asSingularName(value: string): string {
     <div class="p-8 text-title-contrast">
       <p>
         Are you sure you want to delete this
-        <strong>{{ asSingularName(componentMetadata?.name as string) }}</strong
-        >?
+        {{ asSingularName(componentMetadata?.name as string).toLowerCase() }}?
       </p>
     </div>
     <template #footer>
