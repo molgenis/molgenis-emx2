@@ -159,10 +159,11 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
   hideAllPoppers();
 }
 
-function asSingularName(value: string): string {
-  return value.toLowerCase().endsWith("s")
-    ? value.slice(0, value.length - 1)
-    : value;
+function asSingularName(value: string | undefined): string | undefined {
+  if (value && value !== "" && value.toLowerCase().endsWith("s")) {
+    return value.slice(0, value.length - 1).toLowerCase();
+  }
+  return value;
 }
 </script>
 
@@ -284,14 +285,22 @@ function asSingularName(value: string): string {
   />
   <Modal
     v-model:visible="showDeleteModal"
-    :title="`Delete ${asSingularName(componentMetadata?.name as string)}`"
+    :title="`Delete ${asSingularName(componentMetadata?.name as string)}?`"
     size="medium"
   >
     <div class="p-8 text-title-contrast">
-      <p>
+      <p class="mb-1 font-bold">
         Are you sure you want to delete this
-        {{ asSingularName(componentMetadata?.name as string).toLowerCase() }}?
+        {{ asSingularName(componentMetadata?.name) }}?
       </p>
+      <p
+        v-if="['Sections'].includes(componentMetadata?.name as string)"
+        class="mb-1"
+      >
+        By deleting this component, all other linked components or files linked
+        will be removed
+      </p>
+      <p>This action cannot be undone</p>
     </div>
     <template #footer>
       <menu class="flex items-center justify-end h-[116px]">
