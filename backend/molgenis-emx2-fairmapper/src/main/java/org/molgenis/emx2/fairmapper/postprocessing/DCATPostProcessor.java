@@ -1,14 +1,17 @@
 package org.molgenis.emx2.fairmapper.postprocessing;
 
 import java.util.List;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.fairmapper.postprocessing.ontologies.DatabaseOntologyMappingFetcher;
+import org.molgenis.emx2.fairmapper.postprocessing.ontologies.ResolveOntologyPostProcessor;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 
 public class DCATPostProcessor implements PostProcessor {
 
   private final List<PostProcessor> postProcessors;
 
-  public DCATPostProcessor(SchemaMetadata schema) {
+  public DCATPostProcessor(Database database, SchemaMetadata schema) {
     this.postProcessors =
         List.of(
             // Base id field off of acronym or name
@@ -23,7 +26,7 @@ public class DCATPostProcessor implements PostProcessor {
                 "Catalogues", "type", "http://semanticscience.org/resource/SIO_001067"),
 
             // Resolve semantic uri of ontologies to their designated names
-            new ResolveOntologyPostProcessor(schema),
+            new ResolveOntologyPostProcessor(schema, new DatabaseOntologyMappingFetcher(database)),
             new ResolveMissingPkPostProcessor(schema),
 
             // Drop rows left with an incomplete primary key (e.g. unused Organisations that
