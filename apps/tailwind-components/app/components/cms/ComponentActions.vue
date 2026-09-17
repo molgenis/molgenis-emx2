@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import Button from "../Button.vue";
 import BaseIcon from "../BaseIcon.vue";
 
