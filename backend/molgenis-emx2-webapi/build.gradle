@@ -12,18 +12,18 @@ dependencies {
     implementation project(':backend:molgenis-emx2-email')
     implementation project(':backend:molgenis-emx2-analytics')
 
-    implementation 'org.graalvm.polyglot:polyglot:25.2.4'
-    implementation 'io.swagger.parser.v3:swagger-parser:2.1.45'
+    implementation 'org.graalvm.polyglot:polyglot:25.3.4.1'
+    implementation 'io.swagger.parser.v3:swagger-parser:2.1.48'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'com.squareup.okhttp3:okhttp-brotli:4.12.0'
     implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
     implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.4'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.4'
 
-    implementation 'io.prometheus:prometheus-metrics-core:1.8.0'
-    implementation 'io.prometheus:prometheus-metrics-instrumentation-jvm:1.8.0'
-    implementation 'io.prometheus:prometheus-metrics-exporter-httpserver:1.8.0'
-    implementation 'io.prometheus:prometheus-metrics-exporter-servlet-jakarta:1.8.0'
+    implementation 'io.prometheus:prometheus-metrics-core:1.9.0'
+    implementation 'io.prometheus:prometheus-metrics-instrumentation-jvm:1.9.0'
+    implementation 'io.prometheus:prometheus-metrics-exporter-httpserver:1.9.0'
+    implementation 'io.prometheus:prometheus-metrics-exporter-servlet-jakarta:1.9.0'
 
     testImplementation 'io.rest-assured:rest-assured:5.5.7'
     testImplementation 'org.apache.poi:poi:5.5.1'
