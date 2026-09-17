@@ -4,7 +4,7 @@ import type {
   IHeadings,
   IParagraphs,
   IImages,
-  INavigationGroups,
+  INavigationCards,
   IDeveloperPages,
   IConfigurablePages,
   IBlockOrders,
@@ -26,7 +26,7 @@ export interface IPageComponent
     IHeadings,
     IParagraphs,
     IImages,
-    INavigationGroups {}
+    INavigationCards {}
 
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;
