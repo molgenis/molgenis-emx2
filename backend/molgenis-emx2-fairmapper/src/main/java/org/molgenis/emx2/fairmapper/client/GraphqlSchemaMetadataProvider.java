@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
-import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.SchemaMetadataProvider;
@@ -34,17 +33,6 @@ public class GraphqlSchemaMetadataProvider implements SchemaMetadataProvider {
     } catch (IOException e) {
       throw new MolgenisException("Unable to map query result to SchemaMetaData", e);
     }
-  }
-
-  @Override
-  public DatabaseListener getListener() {
-    return new DatabaseListener() {
-
-      @Override
-      public void onUserChange() {
-        // no-op
-      }
-    };
   }
 
   private String readFile(String fileName) {
