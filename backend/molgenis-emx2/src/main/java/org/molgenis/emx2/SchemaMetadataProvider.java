@@ -4,5 +4,13 @@ public interface SchemaMetadataProvider {
 
   SchemaMetadata getSchemaMetadata(String schemaName);
 
-  DatabaseListener getListener();
+  default DatabaseListener getListener() {
+    return new DatabaseListener() {
+      @Override
+      public void onUserChange() {
+        // no-op
+      }
+    };
+  }
+  ;
 }
