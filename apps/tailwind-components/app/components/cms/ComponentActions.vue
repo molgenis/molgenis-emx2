@@ -7,7 +7,7 @@ const emit = defineEmits(["edit", "delete", "move"]);
 </script>
 <template>
   <div
-    class="z-40 absolute left-0 top-0 inline-flex flex-row items-center gap-2 p-1 divide-x group border border-theme rounded-theme [background-image:var(--background-color-bulk-gradient)] shadow-lg"
+    class="z-40 absolute left-0 top-0 inline-flex flex-row items-center gap-2.5 p-1 px-2.5 divide-x group border rounded-base [background-image:var(--background-color-bulk-gradient)] shadow-lg"
   >
     <div class="flex flex-row items-center gap-2">
       <div
