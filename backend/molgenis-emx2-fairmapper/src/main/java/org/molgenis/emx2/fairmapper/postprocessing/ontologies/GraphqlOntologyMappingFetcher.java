@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.fairmapper.client.GraphqlClient;
+import org.molgenis.emx2.utils.TypeUtils;
 
 class GraphqlOntologyMappingFetcher implements OntologyMappingFetcher {
 
@@ -15,13 +16,13 @@ class GraphqlOntologyMappingFetcher implements OntologyMappingFetcher {
 
   private static final String QUERY =
       """
-          query {
-              %s {
-                  name
-                  ontologyTermURI
-              }
+      query {
+          %s {
+              name
+              ontologyTermURI
           }
-          """;
+      }
+      """;
 
   private final GraphqlClient client;
 
@@ -31,14 +32,21 @@ class GraphqlOntologyMappingFetcher implements OntologyMappingFetcher {
 
   @Override
   public Map<String, String> getMapping(String schemaName, String tableName) {
-    JsonNode jsonNode = client.sendSchemaQuery(schemaName, QUERY.formatted(tableName));
-    if (!jsonNode.has(tableName)) {
+    String pascal = TypeUtils.convertToPascalCase(tableName);
+    JsonNode jsonNode = client.sendSchemaQuery(schemaName, QUERY.formatted(pascal));
+    if (!jsonNode.has(pascal)) {
       throw new MolgenisException(
           "No data returned for table: " + tableName + " in schema: " + schemaName);
     }
 
     List<OntologyMapping> ontologyMappings =
-        MAPPER.convertValue(jsonNode.get(tableName), new TypeReference<>() {});
+        MAPPER.convertValue(jsonNode.get(pascal), new TypeReference<>() {});
+    if (ontologyMappings == null) {
+      throw new MolgenisException(
+          "Unable to convert json node to a list of OntologyMappings: "
+              + jsonNode.get(pascal).toString());
+    }
+
     return ontologyMappings.stream()
         .filter(mapping -> mapping.ontologyTermURI() != null)
         .collect(Collectors.toMap(OntologyMapping::ontologyTermURI, OntologyMapping::name));
