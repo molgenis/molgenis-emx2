@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
 });
 
 const emit = defineEmits(["edit", "delete", "move"]);
-const showMenu = ref<boolean>(true);
+const showMenu = ref<boolean>(false);
 </script>
 
 <template>
