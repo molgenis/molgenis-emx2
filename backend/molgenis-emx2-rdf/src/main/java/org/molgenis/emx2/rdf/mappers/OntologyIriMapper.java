@@ -9,6 +9,7 @@ import java.util.Map;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 
@@ -40,9 +41,11 @@ public class OntologyIriMapper {
   }
 
   private void addDataTable(Table table) {
+    Database database = table.getSchema().getDatabase();
     for (Column column : table.getMetadata().getColumns()) {
       if (column.isOntology()) {
-        addOntologyTable(column.getRefTable().getTable());
+        addOntologyTable(
+            database.getSchema(column.getRefSchemaName()).getTable(column.getRefTableName()));
       }
     }
   }

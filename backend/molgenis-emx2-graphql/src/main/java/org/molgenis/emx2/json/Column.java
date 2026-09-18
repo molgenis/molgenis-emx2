@@ -77,7 +77,7 @@ public class Column {
       this.columnType = column.getColumnType();
     }
     if (column.isReference()) {
-      if (column.getSchema().getDatabase() != null) {
+      if (column.getSchema().getSchemaMetadataProvider() != null) {
         this.refSchemaId = column.getRefSchemaName();
         this.refSchemaName = column.getRefSchemaName();
         this.refTableId = column.getRefTable().getIdentifier();
@@ -85,13 +85,13 @@ public class Column {
       }
       this.refTableName = column.getRefTableName();
       if (column.getRefLinkColumn() != null) {
-        if (column.getTable().getSchema().getDatabase() != null) {
+        if (column.getTable().getSchema().getSchemaMetadataProvider() != null) {
           this.refLinkId = column.getRefLinkColumn().getIdentifier();
         }
         this.refLinkName = column.getRefLink();
       }
       if (column.getRefBack() != null) {
-        if (column.getTable().getSchema().getDatabase() != null) {
+        if (column.getTable().getSchema().getSchemaMetadataProvider() != null) {
           org.molgenis.emx2.Column refBackColumn = column.getRefBackColumn();
           if (refBackColumn == null)
             throw new MolgenisException(

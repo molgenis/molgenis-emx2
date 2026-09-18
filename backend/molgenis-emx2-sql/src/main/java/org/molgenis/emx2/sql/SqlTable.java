@@ -108,7 +108,11 @@ public class SqlTable implements Table {
       SqlDatabase database, String schemaName, String tableName) {
     SqlTable t = database.getSchema(schemaName).getTable(tableName);
     if (t.getMetadata().getColumn(MG_TABLECLASS) != null) {
-      SqlTable rootTable = (SqlTable) t.getMetadata().getRootTable().getTable();
+      TableMetadata rootTableMetadata = t.getMetadata().getRootTable();
+      SqlTable rootTable =
+          database
+              .getSchema(rootTableMetadata.getSchemaName())
+              .getTable(rootTableMetadata.getTableName());
       String mg_table = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database
@@ -265,14 +269,15 @@ public class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      SqlRowProcessor rowProcessor = new SqlRowProcessor(table.getMetadata().getColumns());
+      SqlRowProcessor rowProcessor =
+          new SqlRowProcessor(schema.getDatabase(), table.getMetadata().getColumns());
       List<Row> rows = subclassRows.get(subclassName);
       rowProcessor.validateAndCompute(rows);
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
       List<Row> rows = subclassRows.get(subclassName);
-      SqlRowProcessor rowProcessor = new SqlRowProcessor(insertColumns);
+      SqlRowProcessor rowProcessor = new SqlRowProcessor(schema.getDatabase(), insertColumns);
       rowProcessor.validateAndCompute(rows);
       count.set(
           count.get()

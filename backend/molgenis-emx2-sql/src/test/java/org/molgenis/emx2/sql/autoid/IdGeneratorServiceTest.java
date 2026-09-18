@@ -138,7 +138,7 @@ class IdGeneratorServiceTest {
 
     // Exhaust id pool of c1
     for (int i = 0; i < 10; i++) {
-      t1.getTable().insert(Row.row("id", i));
+      schema.getTable(t1.getTableName()).insert(Row.row("id", i));
       database.getJooq().insertInto(t1.getJooqTable(), service.generateIdForColumn(c1)).execute();
     }
 
