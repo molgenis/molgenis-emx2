@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed } from "vue";
 import type { IImages } from "../../../../types/cms";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
@@ -7,19 +7,29 @@ const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   imageIsCentered: false,
 });
 
-const src = ref<string>();
-if (props.image?.url) {
-  src.value = props.image.url.replace("Components", "Images");
-}
+// required: remove Components table ID from page and point to Images table
+const src = computed<string | undefined>(() => {
+  if (!props.image?.url) {
+    return undefined;
+  }
+  return props.image.url.replace("Components", "Images");
+});
 
-let style: string = "";
-if (src.value && props.width) {
-  style = style + `width: ${props.width};`;
-}
+const style = computed<string | undefined>(() => {
+  const css = [];
+  if (src.value && props.width) {
+    css.push(`width: ${props.width};`);
+  }
 
-if (src.value && props.height) {
-  style = style + `height: ${props.height};`;
-}
+  if (src.value && props.height) {
+    css.push(`height: ${props.height};`);
+  }
+  if (css) {
+    return css.join(" ");
+  } else {
+    return undefined;
+  }
+});
 </script>
 
 <template>
@@ -27,7 +37,8 @@ if (src.value && props.height) {
     :id="id"
     :src="src"
     :alt="alt"
-    :style="style"
+    class="my-5"
     :class="{ 'm-auto': imageIsCentered }"
+    :style="style"
   />
 </template>
