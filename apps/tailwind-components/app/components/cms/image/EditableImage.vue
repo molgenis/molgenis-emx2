@@ -22,7 +22,7 @@ const showMenu = ref<boolean>(true);
     showGroup="component-menu"
     :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 200 }"
+    :delay="{ show: 100, hide: 50 }"
     :placement="imageIsCentered ? 'bottom' : 'bottom-start'"
     noAutoFocus
   >

@@ -19,7 +19,7 @@ const showMenu = ref<boolean>(false);
     v-if="isEditable"
     v-model:show="showMenu"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 200 }"
+    :delay="{ show: 100, hide: 50 }"
     placement="bottom-start"
     noAutoFocus
   >

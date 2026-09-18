@@ -25,8 +25,8 @@ const showMenu = ref<boolean>(false);
     showGroup="component-menu"
     :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 200 }"
-    :placement="headingIsCentered ? 'bottom-auto' : 'bottom-start'"
+    :delay="{ show: 100, hide: 50 }"
+    :placement="headingIsCentered ? 'bottom' : 'bottom-start'"
     noAutoFocus
   >
     <template #popper>
