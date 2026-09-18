@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { hideAllPoppers } from "floating-vue";
 
 import Paragraph from "./paragraph/Paragraph.vue";
@@ -56,7 +56,6 @@ const schemaTableName = ref<string>(
   props.mg_tableclass.split(".")[1] as string
 );
 
-const headerComponentImage = ref<IFile>();
 const formComponentData = computed<IPageComponent>(() => props.component);
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
   if (props.metadata) {
@@ -68,15 +67,24 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
 });
 
 // this is required to flatten the File type and preserve the component-image link
-if (
-  props.mg_tableclass.endsWith(".Headers") &&
-  Object.keys(formComponentData.value).includes("backgroundImage")
-) {
-  headerComponentImage.value = formComponentData.value.backgroundImage.image;
-  formComponentData.value.backgroundImage = {
-    id: formComponentData.value.backgroundImage.id,
-  };
+const headerComponentImage = ref<IFile>();
+function setHeaderComponentImage() {
+  if (
+    props.mg_tableclass.endsWith(".Headers") &&
+    Object.keys(formComponentData.value).includes("backgroundImage")
+  ) {
+    headerComponentImage.value = formComponentData.value.backgroundImage.image;
+    formComponentData.value.backgroundImage = {
+      id: formComponentData.value.backgroundImage.id,
+    };
+  }
 }
+
+setHeaderComponentImage();
+watch(
+  () => formComponentData.value,
+  () => setHeaderComponentImage()
+);
 
 function onDelete() {
   showDeleteModal.value = true;
