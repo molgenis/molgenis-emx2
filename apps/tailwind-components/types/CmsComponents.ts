@@ -3,6 +3,8 @@ import type {
   ISections,
   IHeadings,
   IParagraphs,
+  IUnorderedLists,
+  IOrderedLists,
   IImages,
   INavigationCards,
   IDeveloperPages,
@@ -25,6 +27,8 @@ export interface IPageComponent
     ISections,
     IHeadings,
     IParagraphs,
+    IUnorderedLists,
+    IOrderedLists,
     IImages,
     INavigationCards {}
 
