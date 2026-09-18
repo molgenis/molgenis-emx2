@@ -15,7 +15,9 @@ test("selecting the service tab should show the service details", async ({
   await page.goto(getAppRoute());
   await page.getByRole("button", { name: "Services" }).first().click();
   await expect(page.getByRole("main")).toContainText("Biobank Service");
-  await expect(page.getByText("	Sample storage service, Microbiology and virology service")).toBeVisible();
+  await expect(
+    page.getByText("	Sample storage service, Microbiology and virology service")
+  ).toBeVisible();
   await expect(
     page
       .locator("small")
