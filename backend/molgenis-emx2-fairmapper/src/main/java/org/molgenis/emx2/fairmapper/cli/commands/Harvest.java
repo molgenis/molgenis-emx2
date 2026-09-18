@@ -1,13 +1,13 @@
 package org.molgenis.emx2.fairmapper.cli.commands;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.fairmapper.client.GraphqlClient;
+import org.molgenis.emx2.fairmapper.client.GraphqlSchemaMetadataProvider;
 import org.molgenis.emx2.fairmapper.extractors.CrawlSteps;
 import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
-import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
 import org.molgenis.emx2.fairmapper.load.RemoteDataLoader;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
@@ -17,7 +17,6 @@ import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
-import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -75,39 +74,24 @@ public class Harvest implements Runnable {
   public void run() {
     logger.info("Starting harvest with ID: {}", HARVEST_ID);
 
-    Database database = setupDatabase();
-    Schema schema = validateSchema(database);
-    String[] tables = this.tablesArg.split(",");
+    SchemaMetadataProvider schemaMetadataProvider = getSchemaMetadataProvider();
+    SchemaMetadata schema =
+        Optional.ofNullable(schemaMetadataProvider.getSchemaMetadata(schemaName))
+            .orElseThrow(() -> new MolgenisException("Schema not found: " + schemaName));
 
-    URI rdfURI = getRdf();
-
-    RdfExtractor rdfExtractor = new CrawlingRdfExtractor().withCrawlSteps(CrawlSteps.FDP.steps());
-    SparqlSelectRdfTransformer rdfTransformer =
-        new SparqlSelectRdfTransformer(new TableQueryGenerator());
-
-    GraphqlClient graphqlClient = new GraphqlClient(endpoint, token);
-
-    SchemaMetadataProvider schemaMetadataProvider =
-        new SchemaMetadataProvider() {
-          @Override
-          public SchemaMetadata getSchemaMetadata(String schemaName) {
-            return null;
-          }
-
-          @Override
-          public DatabaseListener getListener() {
-            return null;
-          }
-        };
-
-    HarvestingPipelineConfig.Builder builder = new HarvestingPipelineConfig.Builder(
-            rdfURI, schemaName, schemaMetadataProvider, rdfExtractor, rdfTransformer)
-            .setTables(tables)
-            .withPostProcessors(new DCATPostProcessor(database, schema.getMetadata()))
+    HarvestingPipelineConfig.Builder builder =
+        new HarvestingPipelineConfig.Builder(
+                URI.create(rdf),
+                schemaName,
+                schemaMetadataProvider,
+                new CrawlingRdfExtractor().withCrawlSteps(CrawlSteps.FDP.steps()),
+                new SparqlSelectRdfTransformer(new TableQueryGenerator()))
+            .setTables(this.tablesArg.split(","))
+            .withPostProcessors(new DCATPostProcessor(new GraphqlClient(endpoint, token), schema))
             .withPreProcessors(
-                    new TemporalRdfPreProcessor(),
-                    new TypicalAgeRdfPreProcessor(),
-                    new StageCsvwPreProcessor());
+                new TemporalRdfPreProcessor(),
+                new TypicalAgeRdfPreProcessor(),
+                new StageCsvwPreProcessor());
 
     if (outputPath != null) {
       builder.withDumpEnabled(outputPath);
@@ -120,28 +104,11 @@ public class Harvest implements Runnable {
     runPipeline(builder);
   }
 
+  SchemaMetadataProvider getSchemaMetadataProvider() {
+    return new GraphqlSchemaMetadataProvider(new GraphqlClient(endpoint, token));
+  }
+
   public void runPipeline(HarvestingPipelineConfig.Builder builder) {
     new HarvestingPipeline(builder.build()).execute();
-  }
-
-  @NotNull
-  private URI getRdf() {
-    return URI.create(rdf);
-  }
-
-  private static Database setupDatabase() {
-    logger.info("Accessing database");
-    SqlDatabase database = new SqlDatabase(false);
-    database.becomeAdmin();
-    return database;
-  }
-
-  private Schema validateSchema(Database database) {
-    logger.info("Retrieving schema information: {}", schemaName);
-    Schema schema = database.getSchema(schemaName);
-    if (schema == null) {
-      throw new MolgenisException("Schema not found: " + schemaName);
-    }
-    return schema;
   }
 }
