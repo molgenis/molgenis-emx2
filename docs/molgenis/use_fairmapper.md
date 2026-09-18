@@ -29,17 +29,17 @@ you can inspect (and debug) what happened at every stage.
    post-processing steps implemented in Java, for example: deriving an `id` column from other
    columns, resolving ontology term URIs to their names in the target schema, resolving rows that
    are missing a primary key, and dropping rows that still have no usable primary key.
-5. **Load** - the final table store is imported into the target schema and its tables using
-   MOLGENIS EMX2's regular import task infrastructure (data only, existing schema structure is
-   left untouched).
+5. **Load** - the final table store is packaged as a ZIP file and uploaded to the target
+   EMX2 instance's regular ZIP import API (data only, existing schema structure is left
+   untouched).
 
 # How to use the FAIR Mapper
 
 ## Prerequisites: a target schema to harvest into
 
 The FAIR Mapper only ever loads *data*, it never creates schemas, tables or columns for you. So
-before you run a harvest, the target schema and its tables must already exist in the database
-you're connecting to. It can be created by MOLGENIS EMX2 itself (e.g. through the UI's
+before you run a harvest, the target schema and its tables must already exist on the EMX2 instance
+you point `harvest` at. It can be created by MOLGENIS EMX2 itself (e.g. through the UI's
 [schema creation](use_database.md), by uploading a `molgenis.csv`/schema definition, or via the
 GraphQL/REST admin API).
 
@@ -58,6 +58,17 @@ predicates map onto your columns:
 This is the same `semantics` mechanism used elsewhere in EMX2's RDF support (see
 [Linked data](semantics.md) for the full reference), including the list of predefined namespace
 prefixes (`dcat:`, `dcterms:`, `healthdcatap:`, ...) you can use instead of full IRIs.
+
+## Prerequisites: an EMX2 endpoint and access token
+
+`harvest` talks to the target EMX2 instance entirely over HTTP: it looks up the target schema's
+metadata through its GraphQL API, and (when `-l` is set) uploads the harvested data through its
+regular ZIP import API. The machine running the FAIR Mapper needs:
+
+* `--endpoint` - the base URL of the target EMX2 instance, e.g. `https://my-emx2.example.org`.
+  This can point at a local or a remote instance.
+* `--token` - an API token for that instance with read access to the target schema (and write
+  access too, if you're loading data). See [Tokens](use_tokens.md) for how to generate one.
 
 ## Build instructions
 
@@ -80,10 +91,11 @@ The FAIR Mapper is a [picocli](https://picocli.info/)-based CLI with the main cl
 java -jar backend/molgenis-emx2-fairmapper/build/libs/fairmapper-<version>-cli.jar <command> [options]
 ```
 
-It connects to the database using the same environment variables as the rest of MOLGENIS EMX2
-(`MOLGENIS_POSTGRES_URI`, `MOLGENIS_POSTGRES_USER`, `MOLGENIS_POSTGRES_PASS`), so make sure these
-point at the Postgres instance that holds the target schema, and that the schema/tables you want
-to harvest into already exist.
+`generate-query` connects directly to Postgres using the same environment variables as the rest of
+MOLGENIS EMX2 (`MOLGENIS_POSTGRES_URI`, `MOLGENIS_POSTGRES_USER`, `MOLGENIS_POSTGRES_PASS`), so
+make sure these point at the Postgres instance that holds the schema you're generating a query
+for. `harvest` talks to the target EMX2 instance over HTTP/GraphQL instead (see
+`--endpoint`/`--token` below).
 
 ?>**Tip**: since the command gets long, it's convenient to define a shell alias, e.g.:
 
@@ -97,16 +109,18 @@ Runs the full harvesting pipeline described above: extract, pre-process, transfo
 post-process and (optionally) load.
 
 ```bash
-fairmapper harvest -r <fdp-endpoint> -s <schema> -t <table1,table2,...> [-o <output-dir>] [-l]
+fairmapper harvest -r <fdp-endpoint> -s <schema> -t <table1,table2,...> --endpoint <emx2-url> --token <token> [-o <output-dir>] [-l]
 ```
 
-| Option           | Required | Description                                                                                                                                      |
-|------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `-r`, `--rdf`    | yes      | The FDP endpoint URI to harvest from.                                                                                                            |
-| `-s`, `--schema` | yes      | Name of the MOLGENIS schema that contains the target tables.                                                                                     |
-| `-t`, `--tables` | yes      | Comma-separated list of table names (in that schema) to harvest.                                                                                 |
-| `-o`, `--output` | no       | Directory to write intermediate results to. If omitted, nothing is dumped to disk.                                                               |
-| `-l`, `--load`   | no       | Flag. If set, the harvested data is actually imported into the schema. If omitted, the pipeline runs but nothing is loaded, useful for dry runs. |
+| Option           | Required | Description                                                                                                                                                    |
+|------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `-r`, `--rdf`    | yes      | The FDP endpoint URI to harvest from.                                                                                                                          |
+| `-s`, `--schema` | yes      | Name of the schema (on the target EMX2 instance) that contains the target tables.                                                                             |
+| `-t`, `--tables` | yes      | Comma-separated list of table names (in that schema) to harvest.                                                                                               |
+| `--endpoint`     | yes      | Base URL of the target EMX2 instance, used to look up the schema's metadata and, when `-l` is set, to upload the harvested data.                              |
+| `--token`        | yes      | API token for the target EMX2 instance. See [Tokens](use_tokens.md) for how to generate one.                                                                  |
+| `-o`, `--output` | no       | Directory to write intermediate results to. If omitted, nothing is dumped to disk.                                                                             |
+| `-l`, `--load`   | no       | Flag. If set, the harvested data is actually uploaded and imported into the schema. If omitted, the pipeline runs but nothing is loaded, useful for dry runs. |
 
 When `-o` is given, a subdirectory `fairmapper-output-<harvest-id>` is created containing:
 
