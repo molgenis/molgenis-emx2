@@ -473,6 +473,90 @@ class CsvApiTest extends ApiTestBase {
     assertTrue(result.contains("green,,,colors"));
   }
 
+  @Test
+  void shouldUpdateTableDataUsingModeParam() {
+    String schemaName = SCHEMA_NAME + "Mode";
+    Schema schema = database.dropCreateSchema(schemaName);
+    schema.create(
+        table(
+            "Person",
+            column("id", STRING).setKey(1),
+            column("name", STRING),
+            column("age", STRING)));
+
+    String path = "/" + schemaName + "/api/csv/Person";
+
+    // insert initial row with both 'name' and 'age' set
+    given()
+        .sessionId(sessionId)
+        .body("id,name,age\r\np1,Joop,30\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    // default mode is 'overwrite': the omitted 'name' column should be cleared
+    given()
+        .sessionId(sessionId)
+        .body("id,age\r\np1,31\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    String result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
+    assertTrue(result.contains("p1,,31"));
+
+    // restore the initial row
+    given()
+        .sessionId(sessionId)
+        .body("id,name,age\r\np1,Joop,30\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    // mode=update should preserve the omitted 'name' column
+    given()
+        .sessionId(sessionId)
+        .queryParam("mode", "update")
+        .body("id,age\r\np1,31\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
+    assertTrue(result.contains("p1,Joop,31"));
+  }
+
+  @Test
+  void givenInvalidModeValue_thenBadRequest() {
+    String schemaName = SCHEMA_NAME + "ModeInvalid";
+    Schema schema = database.dropCreateSchema(schemaName);
+    schema.create(table("Person", column("id", STRING).setKey(1)));
+
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .queryParam("mode", "bogus")
+            .body("id\r\np1\r\n")
+            .when()
+            .post("/" + schemaName + "/api/csv/Person");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Invalid mode: bogus"
+            }
+          ]
+        }""",
+        response.body().asString());
+  }
+
   private String[] toSortedArray(String string) {
     String[] lines = string.split("\n");
     Arrays.sort(lines);
