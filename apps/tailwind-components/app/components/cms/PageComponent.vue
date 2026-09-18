@@ -17,7 +17,6 @@ import EditModal from "../form/EditModal.vue";
 import {
   deleteBlock,
   deleteComponent,
-  parsePageText,
   moveComponentUp,
   moveBlockUp,
   moveComponentDown,
@@ -57,19 +56,8 @@ const schemaTableName = ref<string>(
   props.mg_tableclass.split(".")[1] as string
 );
 
-const componentData = ref<IPageComponent>(props.component);
 const headerComponentImage = ref<IFile>();
-
-if (
-  props.mg_tableclass.endsWith(".Headers") &&
-  Object.keys(componentData.value).includes("backgroundImage")
-) {
-  headerComponentImage.value = componentData.value.backgroundImage.image;
-  componentData.value.backgroundImage = {
-    id: componentData.value.backgroundImage.id,
-  };
-}
-
+const formComponentData = ref<IPageComponent>(props.component);
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
   if (props.metadata) {
     return props.metadata.filter(
@@ -78,6 +66,17 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
   }
   return undefined;
 });
+
+// this is required to flatten the File type and preserve the component-image link
+if (
+  props.mg_tableclass.endsWith(".Headers") &&
+  Object.keys(formComponentData.value).includes("backgroundImage")
+) {
+  headerComponentImage.value = formComponentData.value.backgroundImage.image;
+  formComponentData.value.backgroundImage = {
+    id: formComponentData.value.backgroundImage.id,
+  };
+}
 
 function onDelete() {
   showDeleteModal.value = true;
@@ -159,6 +158,17 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
   hideAllPoppers();
 }
 
+function onShowEdit() {
+  showEditModal.value = true;
+  hideAllPoppers();
+}
+
+function onEdited() {
+  showEditModal.value = false;
+  hideAllPoppers();
+  emit("updatePage");
+}
+
 function asSingularName(value: string | undefined): string | undefined {
   if (value && value !== "" && value.toLowerCase().endsWith("s")) {
     return value.slice(0, value.length - 1).toLowerCase();
@@ -170,27 +180,18 @@ function asSingularName(value: string | undefined): string | undefined {
 <template>
   <EditableHeader
     v-if="mg_tableclass.endsWith('.Headers')"
-    :id="component.id"
-    :title="component.title"
-    :subtitle="component.subtitle"
-    :background-image="component.backgroundImage"
+    v-bind="component"
     :image="headerComponentImage"
-    :enable-full-screen-width="component.enableFullScreenWidth"
-    :title-is-centered="component.titleIsCentered"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
   />
-
   <EditableSection
     v-else-if="mg_tableclass.endsWith('.Sections')"
-    :id="component.id"
-    :columns="component.columns"
-    :enable-full-screen-width="component.enableFullScreenWidth"
-    :applyShadedBackground="component.applyShadedBackground"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
   >
@@ -198,68 +199,49 @@ function asSingularName(value: string | undefined): string | undefined {
   </EditableSection>
   <EditableHeading
     v-else-if="mg_tableclass.endsWith('.Headings')"
-    :id="component.id"
-    :headingIsCentered="component.headingIsCentered"
-    :headingIsHidden="component.headingIsHidden"
-    :level="component.level"
-    class="mb-5"
-    :text="parsePageText(component.text)"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
   />
   <EditableParagraph
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
-    :id="component.id"
-    :paragraphIsCentered="component.paragraphIsCentered"
-    :text="parsePageText(component.text)"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
   />
   <EditableImage
     v-else-if="mg_tableclass.endsWith('.Images')"
-    :id="component.id"
-    :image="component.image"
-    :width="component.width"
-    :height="component.height"
-    :alt="component.alt"
-    :imageIsCentered="component.imageIsCentered"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
   />
   <EditableNavigationCard
     v-else-if="mg_tableclass.endsWith('.Navigation cards')"
-    :id="component.id"
-    :title="component?.title"
-    :description="component?.description"
-    :url="component.url"
-    :urlLabel="component.urlLabel"
-    :urlIsExternal="component.urlIsExternal"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
   />
   <EditableOrderedList
     v-else-if="mg_tableclass.endsWith('.Ordered lists')"
-    :id="component.id"
-    :orderedItems="component.orderedItems"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
   />
   <EditableUnorderedList
     v-else-if="mg_tableclass.endsWith('.Unordered lists')"
-    :id="component.id"
-    :unorderedItems="component.unorderedItems"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
     @move="handleMoveEvent"
   />
@@ -275,12 +257,9 @@ function asSingularName(value: string | undefined): string | undefined {
     :showButton="false"
     :schemaId="componentMetadata.schemaId"
     :metadata="componentMetadata"
-    :formValues="(componentData as Record<string,any>)"
+    :formValues="(formComponentData as Record<string,any>)"
     :isInsert="false"
-    @update:updated="
-      $emit('updatePage');
-      showEditModal = false;
-    "
+    @update:updated="onEdited"
     v-model:visible="showEditModal"
   />
   <Modal
