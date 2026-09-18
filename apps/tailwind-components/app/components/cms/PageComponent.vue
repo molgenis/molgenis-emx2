@@ -57,7 +57,7 @@ const schemaTableName = ref<string>(
 );
 
 const headerComponentImage = ref<IFile>();
-const formComponentData = ref<IPageComponent>(props.component);
+const formComponentData = computed<IPageComponent>(() => props.component);
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
   if (props.metadata) {
     return props.metadata.filter(
