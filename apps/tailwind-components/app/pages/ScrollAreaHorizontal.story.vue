@@ -19,7 +19,7 @@
     <h4 class="text-lg">startInset=48: the pinned column stays opaque</h4>
     <ScrollAreaHorizontal
       class="bg-table border border-theme border-color-theme rounded-base"
-      :start-inset="48"
+      :startInset="48"
     >
       <div class="flex gap-4 p-4 w-max">
         <div class="sticky left-0 w-12 shrink-0 bg-table text-table-row">

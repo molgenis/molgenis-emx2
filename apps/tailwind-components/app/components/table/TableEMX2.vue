@@ -119,7 +119,7 @@
 
           <ScrollAreaHorizontal
             class="bg-table rounded-t-base"
-            :start-inset="stickySelectColumnWidth"
+            :startInset="STICKY_SELECT_COLUMN_WIDTH"
             @scroll="handleStickyHeaderOffset"
           >
             <div
@@ -140,7 +140,7 @@
                   :showRolesColumn="showRolesColumn"
                   :isResizing="isResizing"
                   :columnWidths="columnWidths"
-                  :selectColumnWidth="stickySelectColumnWidth"
+                  :selectColumnWidth="STICKY_SELECT_COLUMN_WIDTH"
                   @sort-requested="handleSortRequest"
                   @start-resize="startResize($event.event, $event.id)"
                 />
@@ -156,7 +156,7 @@
                 :showRolesColumn="showRolesColumn"
                 :isResizing="isResizing"
                 :columnWidths="columnWidths"
-                :selectColumnWidth="stickySelectColumnWidth"
+                :selectColumnWidth="STICKY_SELECT_COLUMN_WIDTH"
                 @sort-requested="handleSortRequest"
                 @start-resize="startResize($event.event, $event.id)"
               />
@@ -209,7 +209,7 @@
                   >
                     <template #row-actions v-if="colIndex === 0">
                       <div
-                        :style="{ left: `${stickySelectColumnWidth}px` }"
+                        :style="{ left: `${STICKY_SELECT_COLUMN_WIDTH}px` }"
                         class="absolute h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                       >
                         <Button
@@ -449,12 +449,12 @@ const props = withDefaults(
   }
 );
 
-const stickySelectColumnWidth = 48;
+const STICKY_SELECT_COLUMN_WIDTH = 48;
 
 const selectColumnStyle = {
-  width: `${stickySelectColumnWidth}px`,
-  minWidth: `${stickySelectColumnWidth}px`,
-  maxWidth: `${stickySelectColumnWidth}px`,
+  width: `${STICKY_SELECT_COLUMN_WIDTH}px`,
+  minWidth: `${STICKY_SELECT_COLUMN_WIDTH}px`,
+  maxWidth: `${STICKY_SELECT_COLUMN_WIDTH}px`,
 };
 
 const canEdit = computed(
