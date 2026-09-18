@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { ISections } from "../../../types/cms";
-import ComponentActions from "./ComponentActions.vue";
+import Section from "./Section.vue";
+import ComponentActions from "../ComponentActions.vue";
+import type { ISections } from "../../../../types/cms";
 
 const props = withDefaults(
   defineProps<ISections & { isEditable?: boolean }>(),
@@ -12,6 +13,7 @@ const props = withDefaults(
     isEditable: false,
   }
 );
+
 const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
 </script>
@@ -24,7 +26,7 @@ const showMenu = ref<boolean>(false);
       showGroup="component-menu"
       :triggers="['hover', 'focus']"
       :popperTriggers="['hover', 'focus']"
-      :delay="{ show: 100, hide: 200 }"
+      :delay="{ show: 100, hide: 50 }"
       placement="auto"
       noAutoFocus
       class="h-auto"
@@ -50,27 +52,6 @@ const showMenu = ref<boolean>(false);
         </span>
       </div>
     </VMenu>
-
-    <div
-      class="w-full py-8 justify-center items-center"
-      :class="{
-        'bg-form-legend': applyShadedBackground,
-      }"
-    >
-      <div
-        class="m-auto"
-        :class="{
-          'w-pg-section': !enableFullScreenWidth,
-          'w-full': enableFullScreenWidth,
-          grid: columns > 1,
-          'gap-7.5': columns > 1,
-          'grid-cols-2': columns === 2,
-          'grid-cols-3': columns === 3,
-          'grid-cols-4': columns === 4,
-        }"
-      >
-        <slot></slot>
-      </div>
-    </div>
+    <Section v-bind="props"><slot></slot></Section>
   </div>
 </template>

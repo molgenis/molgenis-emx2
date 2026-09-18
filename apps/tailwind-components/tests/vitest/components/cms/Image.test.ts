@@ -1,15 +1,16 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
-import Image from "../../../../app/components/cms/Image.vue";
+import EditableImage from "../../../../app/components/cms/image/EditableImage.vue";
 
-const componentWithoutImage = mount(Image, {
+const componentWithoutImage = mount(EditableImage, {
   props: {
     id: "vitest-image",
+    isEditable: true,
   },
 });
 
-const componentWithImage = mount(Image, {
+const componentWithImage = mount(EditableImage, {
   props: {
     id: "vitest-image",
     image: {
@@ -24,7 +25,7 @@ const componentWithImage = mount(Image, {
   },
 });
 
-describe("CMS: Image component", () => {
+describe("Cms:Image:", () => {
   test("displays generic message if image is undefined", () => {
     expect(componentWithoutImage.findAll("img").length).toEqual(0);
     const spanText = componentWithoutImage.find("span").text();
