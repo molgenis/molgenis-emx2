@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.web.ApiTestBase;
 
 class GraphqlSchemaMetadataProviderTest extends ApiTestBase {
