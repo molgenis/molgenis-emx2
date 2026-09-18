@@ -8,11 +8,11 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from directory.src.molgenis_emx2.directory_client.directory import Directory
-from directory.src.molgenis_emx2.directory_client.directory_client import (
+from tools.directory.src.molgenis_emx2.directory_client.directory import Directory
+from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
     DirectorySession,
 )
-from directory.src.molgenis_emx2.directory_client.pid_service import (
+from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
     DummyPidService,
     NoOpPidService,
     PidService,
