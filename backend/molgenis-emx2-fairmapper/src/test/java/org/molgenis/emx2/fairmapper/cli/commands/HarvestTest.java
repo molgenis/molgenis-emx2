@@ -2,9 +2,7 @@ package org.molgenis.emx2.fairmapper.cli.commands;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -44,7 +42,7 @@ class HarvestTest {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA,TableB");
 
     assertEquals(URI.create(RDF_ENDPOINT), config.rdf());
-    assertEquals(schema.getName(), config.schema().getName());
+    assertEquals(schema.getName(), config.schemaName());
     assertEquals(List.of("TableA", "TableB"), config.tables());
   }
 
@@ -90,28 +88,39 @@ class HarvestTest {
   void shouldNotEnableDataLoadingWhenLoadOptionOmitted() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
-    assertFalse(config.loadDataEnabled());
+    assertFalse(config.loadEnabled());
   }
 
   @Test
   void shouldEnableDataLoadingWhenLoadOptionProvided() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-l");
 
-    assertTrue(config.loadDataEnabled());
+    assertTrue(config.loadEnabled());
   }
 
   @Test
   void shouldEnableDataLoadingWhenLoadLongOptionProvided() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--load");
 
-    assertTrue(config.loadDataEnabled());
+    assertTrue(config.loadEnabled());
   }
 
   @Test
   void shouldThrowWhenSchemaDoesNotExist() {
-    Harvest harvest = new Harvest();
+    Harvest harvest = spy(new Harvest());
+    doReturn((SchemaMetadataProvider) schemaName -> null).when(harvest).getSchemaMetadataProvider();
     new CommandLine(harvest)
-        .parseArgs("-r", RDF_ENDPOINT, "-s", "NonExistingSchema", "-t", "TableA");
+        .parseArgs(
+            "-r",
+            RDF_ENDPOINT,
+            "-s",
+            "NonExistingSchema",
+            "-t",
+            "TableA",
+            "--endpoint",
+            "http://localhost:8080",
+            "--token",
+            "token123");
 
     MolgenisException exception = assertThrows(MolgenisException.class, harvest::run);
     assertEquals("Schema not found: NonExistingSchema", exception.getMessage());
@@ -120,11 +129,24 @@ class HarvestTest {
   private HarvestingPipelineConfig runAndCaptureConfig(
       String rdf, String tables, String... extraArgs) {
     Harvest harvest = spy(new Harvest());
+    doReturn((SchemaMetadataProvider) schemaName -> schema.getMetadata())
+        .when(harvest)
+        .getSchemaMetadataProvider();
     doNothing().when(harvest).runPipeline(any());
 
     String[] args =
         Stream.concat(
-                Stream.of("-r", rdf, "-s", schema.getName(), "-t", tables),
+                Stream.of(
+                    "-r",
+                    rdf,
+                    "-s",
+                    schema.getName(),
+                    "-t",
+                    tables,
+                    "--endpoint",
+                    "http://localhost:8080",
+                    "--token",
+                    "token123"),
                 Arrays.stream(extraArgs))
             .toArray(String[]::new);
     new CommandLine(harvest).execute(args);
