@@ -22,7 +22,7 @@ public class Emx2Files {
         // query the identifiers of this, and then retrieve (slow, but scalable) and write
         List<Row> rows = table.select(s(c.getName())).retrieveRows();
         for (Row r : rows) {
-          if (r.notNull(c.getName())) {
+          if (r.notEmpty(c.getName())) {
 
             // get the files one by one
             List<Row> fileRows =
