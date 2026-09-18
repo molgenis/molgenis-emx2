@@ -15,10 +15,11 @@ import com.google.common.net.MediaType;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.NotAcceptableResponse;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Column;
@@ -192,7 +193,7 @@ public class RDFApi {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
     Schema schema = getSchema(ctx);
     ShaclSet shaclSet = retrieveShaclSet(ctx, sanitize(ctx.queryParam("validate")));
-    runRdfValidationService(ctx, schema, format, shaclSet, method, schema);
+    runRdfService(ctx, schema, format, shaclSet, method, schema);
   }
 
   private static void rdfForTable(Context ctx, RDFFormat format)
@@ -226,20 +227,10 @@ public class RDFApi {
       final Method method,
       final Object... methodArgs)
       throws IOException {
-    format = setFormat(ctx, format);
-    String baseUrl = extractBaseURL(ctx);
-
-    Class serviceClass = RdfSchemaService.class;
-    Class[] serviceArgClasses =
-        new Class[] {String.class, Schema.class, RDFFormat.class, OutputStream.class};
-
-    try (OutputStream out = ctx.outputStream()) {
-      Object[] serviceArgs = new Object[] {baseUrl, schema, format, out};
-      runService(ctx, format, serviceClass, serviceArgClasses, serviceArgs, method, methodArgs);
-    }
+    runRdfService(ctx, schema, format, null, method, methodArgs);
   }
 
-  private static void runRdfValidationService(
+  private static void runRdfService(
       final Context ctx,
       final Schema schema,
       RDFFormat format,
@@ -249,16 +240,45 @@ public class RDFApi {
       throws IOException {
     format = setFormat(ctx, format);
     String baseUrl = extractBaseURL(ctx);
+    String tmpFilename = "download." + format.getDefaultFileExtension();
 
-    Class serviceClass = RdfSchemaValidationService.class;
-    Class[] serviceArgClasses =
-        new Class[] {
-          String.class, Schema.class, RDFFormat.class, OutputStream.class, ShaclSet.class
-        };
+    Class serviceClass;
+    Class[] serviceArgClasses;
+    Object[] serviceArgs;
 
-    try (OutputStream out = ctx.outputStream()) {
-      Object[] serviceArgs = new Object[] {baseUrl, schema, format, out, shaclSet};
-      runService(ctx, format, serviceClass, serviceArgClasses, serviceArgs, method, methodArgs);
+    if (shaclSet == null) {
+      serviceClass = RdfSchemaService.class;
+      serviceArgClasses =
+          new Class[] {String.class, Schema.class, RDFFormat.class, OutputStream.class};
+      serviceArgs = new Object[] {baseUrl, schema, format, null}; // null is placeholder
+    } else {
+      serviceClass = RdfSchemaValidationService.class;
+      serviceArgClasses =
+          new Class[] {
+            String.class, Schema.class, RDFFormat.class, OutputStream.class, ShaclSet.class
+          };
+      serviceArgs = new Object[] {baseUrl, schema, format, null, shaclSet}; // null is placeholder
+    }
+
+    Path tmpDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    Path tmpFile = tmpDir.resolve(tmpFilename);
+    try {
+      try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tmpFile.toFile()))) {
+        serviceArgs[3] = out; // replace placeholder
+        runService(ctx, format, serviceClass, serviceArgClasses, serviceArgs, method, methodArgs);
+      }
+
+      try (InputStream in = Files.newInputStream(tmpFile);
+          OutputStream out = ctx.outputStream()) {
+        in.transferTo(out);
+      }
+    } finally {
+      // nested: a failure to delete the file must not skip the directory
+      try {
+        Files.deleteIfExists(tmpFile);
+      } finally {
+        Files.deleteIfExists(tmpDir);
+      }
     }
   }
 
