@@ -74,7 +74,7 @@ public class Harvest implements Runnable {
     HarvestingPipelineConfig.Builder builder =
         new HarvestingPipelineConfig.Builder(rdfURI, schema, extractor, transformer)
             .setTables(tables)
-            .withPostProcessors(new DCATPostProcessor(schema.getMetadata()))
+            .withPostProcessors(new DCATPostProcessor(database, schema.getMetadata()))
             .withPreProcessors(
                 new TemporalRdfPreProcessor(),
                 new TypicalAgeRdfPreProcessor(),
