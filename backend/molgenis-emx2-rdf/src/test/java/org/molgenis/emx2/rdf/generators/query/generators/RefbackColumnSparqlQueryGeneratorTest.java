@@ -92,10 +92,9 @@ class RefbackColumnSparqlQueryGeneratorTest {
 
     assertHasPatterns(
         mapper,
-        """
-        OPTIONAL { OPTIONAL { ?pet ^foaf:pet ?_subject_owner_single0 . }
-        OPTIONAL { ?pet ^foaf:pet_alt ?_subject_owner_single1 . }
-        BIND( COALESCE( ?_subject_owner_single0, ?_subject_owner_single1 ) AS ?_subject_owner_single ) }""");
+        "OPTIONAL { ?pet ^foaf:pet ?_subject_owner_single0 . }",
+        "OPTIONAL { ?pet ^foaf:pet_alt ?_subject_owner_single1 . }",
+        "BIND( COALESCE( ?_subject_owner_single0, ?_subject_owner_single1 ) AS ?_subject_owner_single )");
     assertHasSelectors(
         mapper,
         "( GROUP_CONCAT( DISTINCT STR( ?_subject_owner_single ) ; SEPARATOR = '|' ) AS ?_subject_owner )");

@@ -72,11 +72,10 @@ class LiteralColumnSparqlQueryGeneratorTest {
     LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(
         mapper,
-        """
-            OPTIONAL { OPTIONAL { ?start foaf:test ?foo0 . }
-            OPTIONAL { ?start foaf:alternative ?foo1 . }
-            OPTIONAL { ?start foaf:also_alternative ?foo2 . }
-            BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""");
+        "OPTIONAL { ?start foaf:test ?foo0 . }",
+        "OPTIONAL { ?start foaf:alternative ?foo1 . }",
+        "OPTIONAL { ?start foaf:also_alternative ?foo2 . }",
+        "BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo )");
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
   }
@@ -91,11 +90,10 @@ class LiteralColumnSparqlQueryGeneratorTest {
     LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(
         mapper,
-        """
-        OPTIONAL { OPTIONAL { ?start foaf:test ?foo0 . }
-        OPTIONAL { ?start foaf:alternative ?foo1 . }
-        OPTIONAL { ?start foaf:also_alternative ?foo2 . }
-        BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""",
+        "OPTIONAL { ?start foaf:test ?foo0 . }",
+        "OPTIONAL { ?start foaf:alternative ?foo1 . }",
+        "OPTIONAL { ?start foaf:also_alternative ?foo2 . }",
+        "BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo )",
         "FILTER ( BOUND( ?foo ) )");
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
@@ -132,10 +130,9 @@ class LiteralColumnSparqlQueryGeneratorTest {
     LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
     assertHasPatterns(
         mapper,
-        """
-            OPTIONAL { OPTIONAL { ?start foaf:test ?foo0 . }
-            OPTIONAL { ?start <http://example.org/ns#test> ?foo1 . }
-            BIND( COALESCE( ?foo0, ?foo1 ) AS ?foo ) }""");
+        "OPTIONAL { ?start foaf:test ?foo0 . }",
+        "OPTIONAL { ?start <http://example.org/ns#test> ?foo1 . }",
+        "BIND( COALESCE( ?foo0, ?foo1 ) AS ?foo )");
     assertHasSelectors(mapper, "?foo");
     assertHasGroupBy(mapper, "?foo");
   }
@@ -173,11 +170,10 @@ class LiteralColumnSparqlQueryGeneratorTest {
       LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
       assertHasPatterns(
           mapper,
-          """
-              OPTIONAL { OPTIONAL { ?start ^foaf:test ?foo0 . }
-              OPTIONAL { ?start ^foaf:alternative ?foo1 . }
-              OPTIONAL { ?start ^foaf:also_alternative ?foo2 . }
-              BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""");
+          "OPTIONAL { ?start ^foaf:test ?foo0 . }",
+          "OPTIONAL { ?start ^foaf:alternative ?foo1 . }",
+          "OPTIONAL { ?start ^foaf:also_alternative ?foo2 . }",
+          "BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo )");
       assertHasSelectors(mapper, "?foo");
       assertHasGroupBy(mapper, "?foo");
     }
@@ -192,11 +188,10 @@ class LiteralColumnSparqlQueryGeneratorTest {
       LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
       assertHasPatterns(
           mapper,
-          """
-          OPTIONAL { OPTIONAL { ?start ^foaf:test ?foo0 . }
-          OPTIONAL { ?start ^foaf:alternative ?foo1 . }
-          OPTIONAL { ?start ^foaf:also_alternative ?foo2 . }
-          BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo ) }""",
+          "OPTIONAL { ?start ^foaf:test ?foo0 . }",
+          "OPTIONAL { ?start ^foaf:alternative ?foo1 . }",
+          "OPTIONAL { ?start ^foaf:also_alternative ?foo2 . }",
+          "BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo )",
           "FILTER ( BOUND( ?foo ) )");
       assertHasSelectors(mapper, "?foo");
       assertHasGroupBy(mapper, "?foo");

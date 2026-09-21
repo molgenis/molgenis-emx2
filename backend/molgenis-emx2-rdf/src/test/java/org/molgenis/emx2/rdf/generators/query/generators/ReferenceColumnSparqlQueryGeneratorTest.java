@@ -331,10 +331,10 @@ class ReferenceColumnSparqlQueryGeneratorTest {
           mapper,
           """
         OPTIONAL { ?order schema:product ?product .
-        OPTIONAL { OPTIONAL { ?product schema:name ?product__name0 . }
+        OPTIONAL { ?product schema:name ?product__name0 . }
         OPTIONAL { ?product schema:alternativeName ?product__name1 . }
         OPTIONAL { ?product schema:altName ?product__name2 . }
-        BIND( COALESCE( ?product__name0, ?product__name1, ?product__name2 ) AS ?product__name ) }
+        BIND( COALESCE( ?product__name0, ?product__name1, ?product__name2 ) AS ?product__name )
         FILTER ( BOUND( ?product__name ) ) }""");
       assertHasSelectors(mapper, "( ?product AS ?_subject_product )", "?product__name");
       assertHasGroupBy(mapper, "?product", "?product__name");
@@ -353,11 +353,10 @@ class ReferenceColumnSparqlQueryGeneratorTest {
       assertHasPatterns(
           mapper,
           "?order schema:product ?product .",
-          """
-          OPTIONAL { OPTIONAL { ?product schema:name ?product__name0 . }
-          OPTIONAL { ?product schema:alternativeName ?product__name1 . }
-          OPTIONAL { ?product schema:altName ?product__name2 . }
-          BIND( COALESCE( ?product__name0, ?product__name1, ?product__name2 ) AS ?product__name ) }""",
+          "OPTIONAL { ?product schema:name ?product__name0 . }",
+          "OPTIONAL { ?product schema:alternativeName ?product__name1 . }",
+          "OPTIONAL { ?product schema:altName ?product__name2 . }",
+          "BIND( COALESCE( ?product__name0, ?product__name1, ?product__name2 ) AS ?product__name )",
           "FILTER ( BOUND( ?product__name ) )");
       assertHasSelectors(mapper, "( ?product AS ?_subject_product )", "?product__name");
       assertHasGroupBy(mapper, "?product", "?product__name");

@@ -73,12 +73,11 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
 
     assertHasPatterns(
         mapper,
-        """
-        OPTIONAL { OPTIONAL { ?start foaf:test ?foo_single0 . }
-        OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative> ?foo_single1 . }
-        OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative_second> ?foo_single2 . }
-        OPTIONAL { ?start foaf:also_alternative ?foo_single3 . }
-        BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2, ?foo_single3 ) AS ?foo_single ) }""",
+        "OPTIONAL { ?start foaf:test ?foo_single0 . }",
+        "OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative> ?foo_single1 . }",
+        "OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative_second> ?foo_single2 . }",
+        "OPTIONAL { ?start foaf:also_alternative ?foo_single3 . }",
+        "BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2, ?foo_single3 ) AS ?foo_single )",
         "FILTER ( BOUND( ?foo_single ) )");
     assertHasSelectors(
         mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
