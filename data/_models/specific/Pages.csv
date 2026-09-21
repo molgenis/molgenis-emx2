@@ -1,86 +1,144 @@
-tableName,tableExtends,columnName,columnType,key,required,refTable,refBack,refLabel,visible,validation,defaultValue,semantics,description,profiles
-Containers,,,,,,,,,,,,,"All page types (configurable, developer, etc.)",pages
-Containers,,name,string,1,TRUE,,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hypens.""",,,"A unique name for the container. Only letters or hypens are allowed. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
-Containers,,description,text,,,,,,,,,,,pages
-Developer pages,Containers,,,,,,,,,,,,"Pages built with the html, css, and javascript.",pages
-Developer pages,,Code,section,,,,,,,,,,,pages
-Developer pages,,html,text,,,,,,,,,,,pages
-Developer pages,,css,text,,,,,,,,,,,pages
-Developer pages,,javascript,text,,,,,,,,,,,pages
-Developer pages,,Settings,section,,,,,,,,,,,pages
-Developer pages,,dependencies,ref_array,,,Dependencies,,,,,,,The external dependencies used in the page,pages
-Developer pages,,enable base styles,bool,,,,,,,,TRUE,,"If true (default), minimal styles are added to the page to align with the rest of the MOLGENIS frontend.",pages
-Developer pages,,enable button styles,bool,,,,,,,,TRUE,,"If true (default) and base styles are enabled, then buttons used in the custom page will be styled using the MOLGENIS styles. Use ""type='submit'"" to use primary styles.",pages
-Developer pages,,enable full screen,bool,,,,,,,,FALSE,,"If true, custom pages will fit the width of the screen. (Default: false)",pages
-Dependencies,,,,,,,,,,,,,External dependencies used in the developer pages,pages
-Dependencies,,name,string,1,TRUE,,,,,,,,A name is a label used to identify a dependency,pages
-Dependencies,,url,hyperlink,,,,,,,,,,URL to the dependency,pages
-Dependencies,,fetch priority,ontology,,,Web fetch priorities,,,,,,,"If defined, a setting higher priority level will indicate that a dependency should be retrieved ahead of other dependency",pages
-Dependencies CSS,Dependencies,,,,,,,,,,,,External CSS dependencies used in custom pages,pages
-Dependencies JS,Dependencies,,,,,,,,,,,,External JavaScript dependencies used in custom pages,pages
-Dependencies JS,,async,bool,,,,,,,,FALSE,,"If true, the dependency will be loaded in parallel and executed as soon as it is loaded. This setting will override any ""defer"" setting",pages
-Dependencies JS,,defer,bool,,,,,,,,FALSE,,"If true, the dependency will be loaded after content is parsed. This setting will be ignored if async is defined",pages
-Configurable pages,Containers,,,,,,,,,,,,Pages built with the drag-and-drop interface,pages
-Configurable pages,,blocks,refback,,,Blocks,in container,,,,,,,pages
-Configurable pages,,block order,refback,,,Block orders,configurable page,,,,,,,pages
-Blocks,,,,,,,,,,,,,Subcontainers with in a page used to group components,pages
-Sections,Blocks,,,,,,,,,,,,Subcontainers for providing context to components,pages
-Components,,,,,,,,,,,,,Content to display in the frontend,pages
-Components,,Content,section,,,,,,,,,,,pages
-Headers,Blocks,,,,,,,,,,,,<header> elements,pages
-Headers,,Content,section,,,,,,,,,,,pages
-Headers,,title,string,,,,,,,,,,A title for the page,pages
-Headers,,subtitle,string,,,,,,,,,,An optional secondary title that describes the page,pages
-Headers,,background image,select,,,Images,,,,,,,An image to display in the background of the header,pages
-Headers,,title is centered,bool,,,,,,,,FALSE,,"If true, the title and subtitle will be center aligned",pages
-Text elements,Components,,,,,,,,,,,,All text elements,pages
-Text elements,,text,text,,,,,,,,,,"The content to display",pages
-Headings,Text elements,,,,,,,,,,,,<h*> elements,pages
-Headings,,level,int,,,,,,,"if (level && (level < 1 || level > 6)) ""Level must corresponding to an HTML heading element. Use a level from 1 to 6.""",2,,Enter an HTML Heading element level (1-6). Please note that heading levels corresponds to page hierarchy and it should not be used to style headings; this should be done elsewhere. ,pages
-Headings,,heading is centered,bool,,,,,,,,FALSE,,"If true, the heading will be center aligned",pages
-Headings,,heading is hidden,bool,,,,,,,,FALSE,,"If true, the heading will be visually hidden",pages
-Paragraphs,Text elements,,,,,,,,,,,,<p> elements,pages
-Paragraphs,,paragraph is centered,bool,,,,,,,,FALSE,,"If true, the paragraph will be centered aligned ",pages
-Images,Components,,,,,,,,,,,,<img> elements,pages
-Images,,display name,string,,,,,,,,,,An optional name to display in place of the filename,pages
-Images,,image,file,,,,,,,,,,Select an image file,pages
-Images,,alt,string,,,,,,,,,,A description of the image for accessibility compliance,pages
-Images,,width,string,,,,,,,,325px,,"The width of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
-Images,,height,string,,,,,,,,,,"The height of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
-Images,,image is centered,bool,,,,,,,,TRUE,,"If true (default), the image will be centered aligned",pages
-Ordered lists,Components,,,,,,,,,,,,<ol> elements,pages
-Ordered lists,,ordered items,text_array,,,,,,,,,,,pages
-Unordered lists,Components,,,,,,,,,,,,<ul> elements,pages
-Unordered lists,,unordered items,text_array,,,,,,,,,,,pages
-Navigation cards,Components,,,,,,,,,,,,,pages
-Navigation cards,,title,string,,,,,,,,,,An optional title for the card,pages
-Navigation cards,,description,string,,,,,,,,,,An optional description that provides context for the link,pages
-Navigation cards,,url,hyperlink,,TRUE,,,,,,,,A link to an internal or external page,pages
-Navigation cards,,url label,string,,,,,,,,,,A label to display instead of the URL,pages
-Navigation cards,,url is external,bool,,,,,,,,FALSE,,"If true, the link will be rendered as an external link",pages
-Blocks,,Configuration,section,,,,,,,,,,,pages
-Blocks,,UI settings,heading,,,,,,,,,,,pages
-Sections,,columns,int,,,,,,,"if (columns && (columns < 1 || columns > 4)) ""Choose between 1 and 4""",1,,"The amount (1 to 4) of columns in a sections",pages
-Blocks,,enable full screen width,bool,,,,,,,,FALSE,,"If true, content will be expanded to the fit the full width of the screen",pages
-Sections,,apply shaded background,bool,,,,,,,,FALSE,,"If true, a light background color will be applied to provide visual distinction between blocks",pages
-Blocks,,Component connections,heading,,,,,,,,,,Link components and set the order in which they display on page. ,pages
-Blocks,,in container,select,,,Configurable pages,,,,,,,A link to the configurable page where the block is displayed,pages
-Blocks,,components,refback,,,Components,in block,,,,,,The elements that are displayed in a block,pages
-Blocks,,component order,refback,,,Component orders,block,,,,,,,pages
-Blocks,,Metadata,heading,,,,,,,,,,,pages
-Blocks,,id,auto_id,1,TRUE,,,,,,,,An auto ID used to generate UI elements,pages
-Components,,Configuration,section,,,,,,,,,,,pages
-Components,,Component connections,heading,,,,,,,,,,Create links between components and blocks,pages
-Components,,in block,select,,,Blocks,,,,,,,A link to the block where the component is used,pages
-Components,,Metadata,heading,,,,,,,,,,,pages
-Components,,id,auto_id,1,TRUE,,,,,,,,An auto ID used to generate UI elements,pages
-Block orders,,,,,,,,,,,,,"The order blocks (headers, sections, etc.) appear on a page",pages
-Block orders,,id,auto_id,1,,,,,,,,,,pages
-Block orders,,configurable page,select,,,Configurable pages,,,,,,,A configurable page where a block is used,pages
-Block orders,,block,select,,,Blocks,,,,,,,The specific block you would like to order,pages
-Block orders,,order,int,,,,,,,,,,The order in which it appears on the page where 0 is the first item,pages
-Component orders,,,,,,,,,,,,,The order of components with blocks,pages
-Component orders,,id,auto_id,1,,,,,,,,,,pages
-Component orders,,block,select,,,Blocks,,,,,,,A block page where a component is used,pages
-Component orders,,component,select,,,Components,,,,,,,The component that you would like to order,pages
-Component orders,,order,int,,,,,,,,,,The order in which the component appears within the block where 0 is the first item,pages
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refBack,refLabel,visible,validation,defaultValue,semantics,description,profiles
+Containers,,,,,,,,,,,,,,"All page types (configurable, developer, etc.)",pages
+Containers,,name,string,1,TRUE,,,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hypens.""",,sio:000116,"A unique name for the container. Only letters or hypens are allowed. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
+Containers,,description,text,,,,,,,,,,sio:000136,,pages
+Developer pages,Containers,,,,,,,,,,,,,"Pages built with the html, css, and javascript.",pages
+Developer pages,,Code,section,,,,,,,,,,,,pages
+Developer pages,,html,text,,,,,,,,,,edam:format_2331,,pages
+Developer pages,,css,text,,,,,,,,,,,,pages
+Developer pages,,javascript,text,,,,,,,,,,swo:0000108,,pages
+Developer pages,,Settings,section,,,,,,,,,,,,pages
+Developer pages,,dependencies,ref_array,,,,Dependencies,,,,,,,The external dependencies used in the page,pages
+Developer pages,,enable base styles,bool,,,,,,,,,TRUE,,"If true (default), minimal styles are added to the page to align with the rest of the MOLGENIS frontend.",pages
+Developer pages,,enable button styles,bool,,,,,,,,,TRUE,,"If true (default) and base styles are enabled, then buttons used in the custom page will be styled using the MOLGENIS styles. Use ""type='submit'"" to use primary styles.",pages
+Developer pages,,enable full screen,bool,,,,,,,,,FALSE,,"If true, custom pages will fit the width of the screen. (Default: false)",pages
+Dependencies,,,,,,,,,,,,,,External dependencies used in the developer pages,pages
+Dependencies,,name,string,1,TRUE,,,,,,,,sio:000116,A name is a label used to identify a dependency,pages
+Dependencies,,url,hyperlink,,,,,,,,,,sio:000811,URL to the dependency,pages
+Dependencies,,fetch priority,ontology,,,,Web fetch priorities,,,,,,,"If defined, a setting higher priority level will indicate that a dependency should be retrieved ahead of other dependency",pages
+Dependencies CSS,Dependencies,,,,,,,,,,,,,External CSS dependencies used in custom pages,pages
+Dependencies JS,Dependencies,,,,,,,,,,,,,External JavaScript dependencies used in custom pages,pages
+Dependencies JS,,async,bool,,,,,,,,,FALSE,,"If true, the dependency will be loaded in parallel and executed as soon as it is loaded. This setting will override any ""defer"" setting",pages
+Dependencies JS,,defer,bool,,,,,,,,,FALSE,,"If true, the dependency will be loaded after content is parsed. This setting will be ignored if async is defined",pages
+Configurable pages,Containers,,,,,,,,,,,,,Pages built with the drag-and-drop interface,pages
+Configurable pages,,blocks,refback,,,,Blocks,in container,,,,,,The blocks that are displayed on a page,pages
+Configurable pages,,block order,refback,,,,Block orders,configurable page,,,,,,The order in which blocks are displayed on a page,pages
+Blocks,,,,,,,,,,,,,sio:000111,Subcontainers with in a page used to group components,pages
+Sections,Blocks,,,,,,,,,,,,sio:000111,Subcontainers for providing context to components,pages
+Components,,,,,,,,,,,,,,Content to display in the frontend,pages
+Headers,Blocks,,,,,,,,,,,,NCIT:C68829,<header> elements,pages
+Headers,,title,string,,,,,,,,,,sio:000185,A title for the page,pages
+Headers,,subtitle,string,,,,,,,,,,sio:000471,An optional secondary title that describes the page,pages
+Headers,,background image,select,,,,Images,,,,,,SIO:000179,An image to display in the background of the header,pages
+Headers,,title is centered,bool,,,,,,,,,FALSE,,"If true, the title and subtitle will be center aligned",pages
+Text elements,Components,,,,,,,,,,,,sio:000651,All text elements,pages
+Text elements,,text,text,,,,,,,,,,sio:000651,The content to display,pages
+Headings,Text elements,,,,,,,,,,,,ncit:C68829,<h*> elements,pages
+Headings,,level,int,,,,,,,,"if (level && (level < 1 || level > 6)) ""Level must corresponding to an HTML heading element. Use a level from 1 to 6.""",2,,Enter an HTML Heading element level (1-6). Please note that heading levels corresponds to page hierarchy and it should not be used to style headings; this should be done elsewhere. ,pages
+Headings,,heading is centered,bool,,,,,,,,,FALSE,,"If true, the heading will be center aligned",pages
+Headings,,heading is hidden,bool,,,,,,,,,FALSE,ncit:C45671,"If true, the heading will be visually hidden. To undo this setting, you must navigate to the CMS schema",pages
+Paragraphs,Text elements,,,,,,,,,,,,sio:000110,<p> elements,pages
+Paragraphs,,paragraph is centered,bool,,,,,,,,,FALSE,,"If true, the paragraph will be centered aligned ",pages
+Images,Components,,,,,,,,,,,,sio:000081,<img> elements,pages
+Images,,display name,string,,,,,,,,,,sio:000116,An optional name to display in place of the filename,pages
+Images,,image,file,,,,,,,,,,SIO:000179,Select an image file,pages
+Images,,alt,string,,,,,,,,,,sio:000136,A description of the image for accessibility compliance,pages
+Images,,width,string,,,,,,,,,325px,sio:000042,"The width of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
+Images,,height,string,,,,,,,,,,sio:000040,"The height of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
+Images,,image is centered,bool,,,,,,,,,TRUE,,"If true (default), the image will be centered aligned",pages
+Ordered lists,Components,,,,,,,,,,,,sio:001258,<ol> elements,pages
+Ordered lists,,ordered items,text_array,,,,,,,,,,sio:001261,Text items to display,pages
+Unordered lists,Components,,,,,,,,,,,,sio:001258,<ul> elements,pages
+Unordered lists,,unordered items,text_array,,,,,,,,,,sio:001260,Text items to display,pages
+Navigation cards,Components,,,,,,,,,,,,sio:000811,Card components for creating links to other pages,pages
+Navigation cards,,title,string,,,,,,,,,,sio:000185,An optional title for the card,pages
+Navigation cards,,description,string,,,,,,,,,,sio:000136,An optional description that provides context for the link,pages
+Navigation cards,,url,hyperlink,,TRUE,,,,,,,,sio:000811,A link to an internal or external page,pages
+Navigation cards,,url label,string,,,,,,,,,,sio:000179,A label to display instead of the URL,pages
+Navigation cards,,url is external,bool,,,,,,,,,FALSE,ncit:C44280,"If true, the link will be rendered as an external link",pages
+Charts,Components,,,,,,,,,,,,sio:SIO_000904,Visualisations and configurations to be displayed on a page,pages
+Charts,,chart type,ontology,,,CatalogueOntologies,Data viz chart types,,,,,,sio:SIO_000904,"The visualisation to be displayed e.g., column chart, map, etc.",pages
+Charts,,chart title,string,,,,,,,,,,sio:SIO_000473,A title that summarises a visualisation,pages
+Charts,,chart description,string,,,,,,,,,,sio:SIO_000474,Additional information about the visualisation to be placed below the title,pages
+Charts,,chart data,refback,,,,Chart data,displayed in chart,,,,,sio:SIO_000089,Data that is displayed in the chart,pages
+Chart data,,,,,,,,,,,,,sio:SIO_000089,Data that is displayed in the chart,pages
+Chart data,,id,string,1,TRUE,,,,,,,,sio:SIO_000115,A value that identifies a specific point in the chart,pages
+Statistical chart data,Chart data,,,,,,,,,,,,sio:SIO_000089,"Data used in statistical visualisations, e.g., column charts, line charts, etc.",pages
+Statistical chart data,,x value,string,,TRUE,,,,,,,,sio:SIO_000465,"Value to display along the x-axis, e.g., ""Group A"", 100, etc.",pages
+Statistical chart data,,x label,string,,,,,,,,,,sio:SIO_000179,An optional label that will displayed in place of the x-value,pages
+Statistical chart data,,y value,string,,TRUE,,,,,,,,sio:SIO_000465,"Value to display along the y-axis, e.g., ""Group B"", 100, etc.",pages
+Statistical chart data,,y label,string,,,,,,,,,,sio:SIO_000179,An optional label that will displayed in place of the y-value,pages
+Statistical chart data,,primary group value,string,,,,,,,,,,"sio:SIO_000455,sio:SIO_000456","A primary category axis is a category axis that either defines the sole value range or holds the larger set of categorical values specified by the secondary category axis. For example, if you need to group the categories listed in the ""name"" column, then define the grouping levels here.",pages
+Statistical chart data,,primary group label,string,,,,,,,,,,sio:SIO_000179,"An alternative label that will be displayed instead of the value in ""primary group value"" column",pages
+Statistical chart data,,secondary group value,string,,,,,,,,,,"sio:SIO_000455,sio:SIO_000457",A secondary category axis is a category axis that defines a finer granular part (or subset) of the value range of the primary category axis.,pages
+Statistical chart data,,secondary group label,string,,,,,,,,,,sio:SIO_000179,"An alternative label that will be displayed instead of the value in ""secondary group value"" column",pages
+Map dot distribution data,Chart data,,,,,,,,,,,,sio:SIO_000089,Dataset that contains one or more observations at a specific location,pages
+Map dot distribution data,,location name,string,,,,,,,,,,sio:SIO_000116,A name that identifies a location,pages
+Map dot distribution data,,alternate id,string,,,,,,,,,,sio:SIO_000115,An alternate value that identifiers a location,pages
+Map dot distribution data,,city,string,,,,,,,,,,sio:SIO_000665,A city is a relatively large and permanent settlement.,pages
+Map dot distribution data,,country,ontology,,,CatalogueOntologies,Countries,,,,,,sio:SIO_000664,A country is a region legally identified as a distinct entity in political geography.,pages
+Map dot distribution data,,continent,ontology,,,CatalogueOntologies,Continents,,,,,,ncit:C76349,One of the large landmasses of the earth.,pages
+Map dot distribution data,,latitude,decimal,,,,,,,,,,sio:SIO_000319,Latitude is a geographic coordinate which refers to the angle from a point on the Earth's surface to the equatorial plane,pages
+Map dot distribution data,,longitude,decimal,,,,,,,,,,sio:SIO_000318,Longitude is a geographic position that refers to the angle east or west of a reference meridian between the two geographical poles to another meridian that passes through an arbitrary point.,pages
+Map dot distribution data,,website,hyperlink,,,,,,,,,,sio:SIO_000296,A URL to a resource that provides additional information about the location,pages
+Map dot distribution data,,tooltip content,text,,,,,,,,,,sio:SIO_000473,"Content to display in the tooltip. You may write in html or as plain text. By default, the tooltip will display the name and information about the location (if defined).",pages
+Chart data,,fill color,string,,,,,,,,,,obo:GSSO_004945,"If defined, the background color of the specific data point element will use this value (e.g., ""#000"", ""blue"", etc.)",pages
+Chart data,,stroke color,string,,,,,,,,,,obo:GSSO_004945,"If defined, the border of the specific data point element will use this value (e.g., ""#000"", ""blue"", etc.)",pages
+Chart data,,sort order,int,,,,,,,,,0,sio:SIO_001316,A numerical value indicating the sorting method for data points. A zero indicates a value will appear earlier in the dataset,pages
+Chart data,,displayed in chart,ref,,,,Charts,,,,,,sio:SIO_000904,A link the visualisation where this data point will be displayed,pages
+Charts,,color palette,refback,,,,Chart palette,used in chart,,,,,obo:PATO_0000014,A color palette that maps each distinct group to a color. Data point colors will always override this setting,pages
+Charts,,legend position,ontology,,,CatalogueOntologies,Data viz legend positions,,,,,top,"sio:SIO_000468,sio:SIO_000056",The position of the legend in relation to the chart,pages
+Charts,,top margin,int,,,,,,,,"(function () {
+  if (topMargin !== null && topMargin < 0) {
+  return ""The top margin cannot be less than 0""
+  }
+  if (topMargin !== null && topMargin > 250) {
+  return ""The top margin cannot be more than 250""
+  }
+})();",30,obo:NCIT_C69201,A number that indicates the amount of white space to add to the top of the chart,pages
+Charts,,right margin,int,,,,,,,,"(function () {
+  if (rightMargin !== null && rightMargin < 0) {
+  return ""The right margin cannot be less than 0""
+  }
+  if (rightMargin !== null && rightMargin > 250) {
+  return ""The right margin cannot be more than 250""
+  }
+})();",5,obo:NCIT_C69210,A number that indicates the amount of white space to add to the right of the chart,pages
+Charts,,bottom margin,int,,,,,,,,"(function () {
+  if (bottomMargin !== null && bottomMargin < 0) {
+  return ""The bottom margin cannot be less than 0""
+  }
+  if (bottomMargin !== null && bottomMargin > 250) {
+  return ""The bottom margin cannot be more than 250""
+  }
+})();",60,obo:NCIT_C69201,A number that indicates the amount of white space to add to the bottom of the chart,pages
+Charts,,left margin,int,,,,,,,,"(function () {
+  if (leftMargin !== null && leftMargin < 0) {
+  return ""The left margin cannot be less than 0""
+  }
+  if (leftMargin !== null && leftMargin > 250) {
+  return ""The left margin cannot be more than 250""
+  }
+})();",60,"sio:SIO_000468,sio:SIO_000056",A number that indicates the amount of white space to add to the left of the chart,pages
+Sections,,columns,int,,,,,,,,,,,The number of columns to create within a section (1-4),pages
+Blocks,,enable full screen width,bool,,,,,,,,,,,"If true, content will be expanded to fit the entire width of the screen",pages
+Sections,,apply shaded background,bool,,,,,,,,,,,"If true, a light background color will be applied to provide visual distinction between blocks",pages
+Blocks,,in container,select,,,,Configurable pages,,,,,,,"The container that displays this block (i.e., page)",pages
+Blocks,,components,refback,,,,Components,in block,,,,,,"The components that are displayed in the block",pages
+Blocks,,component order,refback,,,,Component orders,block,,,,,sio:SIO_001316,"Components that are displayed in the block and the order in which they are displayed",pages
+Blocks,,id,auto_id,1,TRUE,,,,,,,,sio:SIO_000115,An identifier that is unique to a block within a page,pages
+Components,,in block,select,,,,Blocks,,,,,,,A link between the component and the block that associated with,pages
+Components,,id,auto_id,1,TRUE,,,,,,,,sio:SIO_000115,An value that identifies a specific instance of a component,pages
+Block orders,,id,auto_id,1,,,,,,,,,sio:SIO_000115,An identifier that is unique to an order in which a block appears on a page,pages
+Block orders,,configurable page,select,,,,Configurable pages,,,,,,,A configurable page where a block is used,pages
+Block orders,,block,select,,,,Blocks,,,,,,,The specific block you would like to order,pages
+Block orders,,order,int,,,,,,,,,,sio:SIO_001316,The order in which it appears on the page where 0 is the first item,pages
+Component orders,,,,,,,,,,,,,sio:SIO_001316,The order of components with blocks,pages
+Component orders,,id,auto_id,1,,,,,,,,,sio:SIO_000115,An ID that identifies the order of a component within a block,pages
+Component orders,,block,select,,,,Blocks,,,,,,,A block page where a component is used,pages
+Component orders,,component,select,,,,Components,,,,,,,The component that you would like to order,pages
+Component orders,,order,int,,,,,,,,,,sio:SIO_001316,The order in which the component appears within the block where 0 is the first item,pages
+Chart palette,,,,,,,,,,,,,obo:PATO_0000014,Color palette for distinct groups in a dataset,pages
+Chart palette,,value,string,1,TRUE,,,,,,,,obo:NCIT_C46002,A distinct value in the dataset found in the primary group or secondary group columns.,pages
+Chart palette,,color,string,1,TRUE,,,,,,,,obo:GSSO_004945,"The color code. CSS colors are allowed: hex, rgb, hsl, etc.",pages
+Chart palette,,used in chart,ref,,,,Charts,,,,,,edam:topic_0092,A link to the chart that uses this color palette,pages
