@@ -66,6 +66,22 @@ const blocksOpen = ref<boolean>(true);
         </li>
         <li>
           <DraggableComponent
+            icon="ListBulleted"
+            componentName="UnorderedLists"
+            componentLabel="Unordered list"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="ListNumbered"
+            componentName="OrderedLists"
+            componentLabel="Ordered list"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
             icon="AddLink"
             componentName="NavigationCards"
             componentLabel="Navigation card"

@@ -49,9 +49,9 @@ Images,,width,string,,,,,,,,325px,,"The width of an image. Use CSS units: 10px, 
 Images,,height,string,,,,,,,,,,"The height of an image. Use CSS units: 10px, 50%, 5em, etc.",pages
 Images,,image is centered,bool,,,,,,,,TRUE,,"If true (default), the image will be centered aligned",pages
 Ordered lists,Components,,,,,,,,,,,,<ol> elements,pages
-Ordered lists,,items,text_array,,,,,,,,,,,pages
+Ordered lists,,ordered items,text_array,,,,,,,,,,,pages
 Unordered lists,Components,,,,,,,,,,,,<ul> elements,pages
-Unordered lists,,items,text_array,,,,,,,,,,,pages
+Unordered lists,,unordered items,text_array,,,,,,,,,,,pages
 Navigation cards,Components,,,,,,,,,,,,,pages
 Navigation cards,,title,string,,,,,,,,,,An optional title for the card,pages
 Navigation cards,,description,string,,,,,,,,,,An optional description that provides context for the link,pages
