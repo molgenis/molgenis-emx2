@@ -105,24 +105,24 @@ class TestGraphqlAdminFields {
           try {
             JsonNode schemaRoles =
                 execute(
-                        "{_admin{schemaRoles{schemaId roles{name system permissions{table select insert}}}}}")
+                        "{_admin{schemaRoles{schemaId roleName permissions{table select insert update delete isRowLevel}}}}")
                     .at("/_admin/schemaRoles");
 
-            JsonNode testSchemaRoles = null;
+            List<JsonNode> testSchemaRoles = new ArrayList<>();
             for (JsonNode entry : schemaRoles) {
               if (SCHEMA_NAME.equals(entry.get("schemaId").asText())) {
-                testSchemaRoles = entry.get("roles");
+                testSchemaRoles.add(entry);
               }
             }
-            assertNotNull(testSchemaRoles);
             assertEquals(1, testSchemaRoles.size());
 
-            JsonNode role = testSchemaRoles.get(0);
-            assertEquals("PatientViewer", role.get("name").asText());
-            assertFalse(role.get("system").asBoolean());
-            JsonNode permission = role.at("/permissions/0");
+            JsonNode schemaRole = testSchemaRoles.get(0);
+            assertEquals("PatientViewer", schemaRole.get("roleName").asText());
+            JsonNode permission = schemaRole.at("/permissions/0");
             assertEquals("Patient", permission.get("table").asText());
             assertTrue(permission.get("select").asBoolean());
+            assertFalse(permission.path("insert").asBoolean());
+            assertFalse(permission.path("isRowLevel").asBoolean());
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
