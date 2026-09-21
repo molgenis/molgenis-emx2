@@ -3,8 +3,10 @@ import type {
   ISections,
   IHeadings,
   IParagraphs,
+  IUnorderedLists,
+  IOrderedLists,
   IImages,
-  INavigationGroups,
+  INavigationCards,
   IDeveloperPages,
   IConfigurablePages,
   IBlockOrders,
@@ -25,8 +27,10 @@ export interface IPageComponent
     ISections,
     IHeadings,
     IParagraphs,
+    IUnorderedLists,
+    IOrderedLists,
     IImages,
-    INavigationGroups {}
+    INavigationCards {}
 
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;

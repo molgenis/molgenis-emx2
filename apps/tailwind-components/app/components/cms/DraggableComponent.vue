@@ -4,6 +4,7 @@ import type { IDraggingInfo } from "../../../types/CmsComponents";
 import Button from "../Button.vue";
 const props = withDefaults(
   defineProps<{
+    componentLabel?: string;
     componentName: string;
     componentType?: string;
     icon?: string;
@@ -27,8 +28,8 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
 </script>
 
 <template>
-  <Button
-    class="!justify-start w-full mb-1 cursor-grab relative"
+  <button
+    class="grid grid-cols-[18px_1fr_18px] items-center w-full mb-1 h-button-small px-5 text-heading-sm gap-3 cursor-grab bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover"
     draggable="true"
     @click="showPleaseDragMe = true"
     @mouseleave="showPleaseDragMe = false"
@@ -48,15 +49,14 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
         componentType,
       })
     "
-    type="secondary"
-    size="tiny"
-    :icon="icon"
-    icon-position="left"
   >
-    <div class="flex items-center">
-      <span>{{ props.componentName }}</span>
+    <span class="w-[16px]">
+      <BaseIcon v-if="icon" :name="icon" :width="16" :height="16" />
+    </span>
+    <span class="block w-auto text-left">
+      {{ props.componentLabel || props.componentName }}
       <span class="" v-if="showPleaseDragMe"> - Please drag me </span>
-      <BaseIcon name="drag" :width="16" :height="16" class="absolute right-1" />
-    </div>
-  </Button>
+    </span>
+    <BaseIcon name="drag" :width="16" :height="16" />
+  </button>
 </template>

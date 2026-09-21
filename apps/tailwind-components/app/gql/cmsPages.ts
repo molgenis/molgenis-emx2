@@ -38,6 +38,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                 mg_tableclass
                 
                 # ui settings for blocks: settings
+                columns
                 enableFullScreenWidth
                 applyShadedBackground
                 
@@ -90,17 +91,17 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         height
                         imageIsCentered
                         
-                        # navigation groups and cards
-                        links {
-                            id
-                            title
-                            description
-                            url
-                            urlLabel
-                            urlIsExternal
-                            order
-                        }
+                        # navigation cards
+                        id
+                        title
+                        description
+                        url
+                        urlLabel
+                        urlIsExternal
                         
+                        # lists: unordered and ordered
+                        orderedItems
+                        unorderedItems
                     }
                 }
             }
