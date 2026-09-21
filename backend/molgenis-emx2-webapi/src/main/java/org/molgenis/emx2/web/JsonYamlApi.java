@@ -32,21 +32,33 @@ public class JsonYamlApi {
   }
 
   private static void deleteSchemaYAML(Context ctx) throws IOException {
-    SchemaMetadata schema = yamlToSchema(ctx.body());
-    getSchema(ctx).discard(schema);
+    Schema schema = getSchema(ctx);
+    if (schema == null || !PermissionEvaluator.canManage(schema)) {
+      throw new MolgenisException("Unable to discard YAML schema");
+    }
+
+    schema.discard(yamlToSchema(ctx.body()));
     ctx.status(200);
     ctx.result("{ \"message\": \"remove metadata success\" }");
   }
 
   static void postSchemaYAML(Context ctx) throws IOException {
-    SchemaMetadata otherSchema = yamlToSchema(ctx.body());
-    getSchema(ctx).migrate(otherSchema);
+    Schema schema = getSchema(ctx);
+    if (schema == null || !PermissionEvaluator.canManage(schema)) {
+      throw new MolgenisException("Unable to post schema YAML");
+    }
+
+    schema.migrate(yamlToSchema(ctx.body()));
     ctx.status(200);
     ctx.result("{ \"message\": \"add/update metadata success\" }");
   }
 
   static void getSchemaYAML(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Unable to download schema YAML");
+    }
+
     String json = schemaToYaml(schema.getMetadata(), true);
     ctx.contentType(ACCEPT_YAML);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
@@ -58,14 +70,23 @@ public class JsonYamlApi {
   }
 
   private static void deleteSchemaJSON(Context ctx) throws IOException {
-    SchemaMetadata schema = jsonToSchema(ctx.body());
-    getSchema(ctx).discard(schema);
+    Schema schema = getSchema(ctx);
+    if (schema == null || !PermissionEvaluator.canManage(schema)) {
+      throw new MolgenisException("Unable to discard schema JSON");
+    }
+
+    SchemaMetadata schemaMetadata = jsonToSchema(ctx.body());
+    schema.discard(schemaMetadata);
     ctx.status(200);
     ctx.result("{ \"message\": \"removed metadata items success\" }");
   }
 
   static void postSchemaJSON(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
+    if (schema == null || !PermissionEvaluator.canManage(schema)) {
+      throw new MolgenisException("Unable to post schema JSON");
+    }
+
     SchemaMetadata otherSchema = jsonToSchema(ctx.body());
     schema.migrate(otherSchema);
     ctx.status(200);
@@ -74,6 +95,10 @@ public class JsonYamlApi {
 
   static void getSchemaJSON(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      throw new MolgenisException("Unable to download schema JSON");
+    }
+
     String json = JsonUtil.schemaToJson(schema.getMetadata(), true);
     ctx.status(200);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
