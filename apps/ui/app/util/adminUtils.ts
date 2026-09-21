@@ -123,7 +123,7 @@ export async function getSchemaPermissions() {
     },
   })
     .then((response) => {
-      const schemaRoles = response?.data._admin.schemaRoles || [];
+      const schemaRoles: SchemaRole[] = response?.data._admin.schemaRoles || [];
       return schemaRoles;
     })
     .catch((error) => {

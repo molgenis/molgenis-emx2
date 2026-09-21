@@ -233,6 +233,11 @@ export interface SystemSettings extends Settings {
 }
 
 export interface SchemaRole {
+  schemaId: string;
+  roles: Role[];
+}
+
+export interface Role {
   name: string;
   permissions: TablePermission[];
 }

@@ -8,8 +8,8 @@ import type {
 } from "../../../../tailwind-components/types/types.ts";
 import { getSchemaPermissions } from "~/util/adminUtils.ts";
 
-const schemaPermissions = ref<SchemaRole[]>([]);
-schemaPermissions.value = await getSchemaPermissions();
+const schemaRoles = ref<SchemaRole[]>([]);
+schemaRoles.value = filterSchemaRoles(await getSchemaPermissions());
 
 const rows: IRow[] = [
   {
@@ -65,6 +65,10 @@ function handlePageSizeChange(pageSize: string) {
   settings.value.page = 1;
   // refresh();
 }
+
+function filterSchemaRoles(schemeRoles: SchemaRole[]) {
+  return schemeRoles.filter((role) => role.permissions.length);
+}
 </script>
 
 <template>
@@ -84,8 +88,10 @@ function handlePageSizeChange(pageSize: string) {
       </TableHeadRow>
     </template>
     <template #body>
-      {{ JSON.stringify(schemaPermissions) }}
-      <TableRow v-for="schemaPermission in schemaPermissions">
+      <TableRow v-for="schemaRole in schemaRoles" :key="schemaRole.name">
+        <TableCell>{{ schemaRole.schemaId }}</TableCell>
+        <TableCell>{{ schemaRole.schemaId }}</TableCell>
+        <TableCell>
         {{ schemaPermission.name }}
       </TableRow>
     </template>
