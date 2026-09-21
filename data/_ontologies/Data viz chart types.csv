@@ -8,5 +8,5 @@ order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
 7,Progress meter,,,,,,,"Chart that displays the progress towards a specific outcome (i.e., percentage complete). A horizontal bar is drawn and the amount ""filled"" indicates progress. This chart is useful for monitoring outcomes such as participant recruitment. It is recommend to use percentages as it's easier to compare multiple progress meters."
 8,Scatterplot,,,,SIO,sio:000423,http://semanticscience.org/resource/SIO_000423,
 9,Data highlight,,,,,,,"Display of a single qualitative value. This is useful for emphasing results (e.g., number of patients)"
-11,Dot Distribution Map,,,,,,,Map that displays observations are a specific geographic location
+11,Dot distribution map,,,,,,,Map that displays observations are a specific geographic location
 12,Table,,,,SIO,sio:000419,http://semanticscience.org/resource/SIO_000419,
