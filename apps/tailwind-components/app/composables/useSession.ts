@@ -3,7 +3,7 @@ import { computed, ref, type Ref } from "vue";
 import type {
   ISession,
   ITablePermission,
-  SchemaRole,
+  Role,
   TablePermission,
 } from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
@@ -11,10 +11,7 @@ import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow"
 export const useSession = async (schemaId?: string) => {
   const router = useRouter();
   const session = useState<ISession | null>("session", () => null);
-  const schemaPermissions = useState<SchemaRole[]>(
-    "schemaPermissions",
-    () => []
-  );
+  const schemaPermissions = useState<Role[]>("schemaPermissions", () => []);
   let messageHandler: ((event: MessageEvent) => void) | null = null;
 
   const isAdmin = computed(() => session.value?.admin || false);
@@ -62,8 +59,8 @@ export const useSession = async (schemaId?: string) => {
                   }`,
         }),
       });
-      const schemaRoles: SchemaRole[] = response?.data?._schema?.roles || [];
-      schemaPermissions.value = schemaRoles;
+      const roles: Role[] = response?.data?._schema?.roles || [];
+      schemaPermissions.value = roles;
     }
   }
 
@@ -248,14 +245,14 @@ export const useSession = async (schemaId?: string) => {
   };
 };
 
-function getRolesForSchema(roles: SchemaRole[]): string[] {
+function getRolesForSchema(roles: Role[]): string[] {
   return (
     roles
-      .filter((role: SchemaRole) =>
+      .filter((role: Role) =>
         role.permissions.some(
           (permission: TablePermission) => permission.isRowLevel
         )
       )
-      .map((role: SchemaRole) => role.name) || []
+      .map((role: Role) => role.name) || []
   );
 }

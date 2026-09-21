@@ -119,7 +119,7 @@ export async function getSchemaPermissions() {
   return $fetch<AdminResponse>(API_GRAPHQL, {
     method: "post",
     body: {
-      query: `{ _admin { schemaRoles { schemaId, roles { name, permissions { delete, select, update, insert, isRowLevel } } } } }`,
+      query: `{ _admin { schemaRoles { schemaId, roleName, permissions { table, select, insert, update, delete, isRowLevel } } } }`,
     },
   })
     .then((response) => {
