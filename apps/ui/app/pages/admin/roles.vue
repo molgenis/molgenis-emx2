@@ -15,6 +15,7 @@ const COLUMNS: IColumn[] = [
   { label: "Schema", id: "schemaId", columnType: "STRING" },
   { label: "Role Name", id: "roleName", columnType: "STRING" },
   { label: "Tables", id: "tables", columnType: "STRING_ARRAY" },
+  { label: "Users", id: "users", columnType: "STRING_ARRAY" },
 ];
 
 const settings = defineModel<ITableSettings>("settings", {
@@ -43,10 +44,14 @@ function filterSchemaRoles(schemaRoles: SchemaRole[]) {
   return schemaRoles.filter((schemaRole) => schemaRole.permissions.length);
 }
 
-function tableNames(schemaRole: SchemaRole) {
+function getTableNames(schemaRole: SchemaRole) {
   return schemaRole.permissions
     .map((permission) => permission.table)
     .join(", ");
+}
+
+function getUserNames(schemaRole: SchemaRole) {
+  return schemaRole.users.join(", ");
 }
 </script>
 
@@ -73,7 +78,8 @@ function tableNames(schemaRole: SchemaRole) {
       >
         <TableCell>{{ schemaRole.schemaId }}</TableCell>
         <TableCell>{{ schemaRole.roleName }}</TableCell>
-        <TableCell>{{ tableNames(schemaRole) }}</TableCell>
+        <TableCell>{{ getTableNames(schemaRole) }}</TableCell>
+        <TableCell>{{ getUserNames(schemaRole) }}</TableCell>
       </TableRow>
     </template>
     <template #foot> </template>
