@@ -1,9 +1,10 @@
 import { $fetch } from "ofetch";
-import type { ISetting } from "../../../metadata-utils/src/types";
+import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
+
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
 
-export async function deleteUser(user: IUser) {
+export async function deleteUser(user: User) {
   return $fetch(API_GRAPHQL, {
     method: "post",
     body: {
@@ -15,7 +16,7 @@ export async function deleteUser(user: IUser) {
   });
 }
 
-export async function updateUser(user: IUser) {
+export async function updateUser(user: User) {
   const updateUser = createUpdateUser(user);
   return $fetch(API_GRAPHQL, {
     method: "post",
@@ -28,7 +29,7 @@ export async function updateUser(user: IUser) {
   });
 }
 
-function createUpdateUser(user: IUser) {
+function createUpdateUser(user: User) {
   let updateUser: IUpdateUser = {
     email: user.email,
     enabled: user.enabled,
@@ -56,7 +57,7 @@ export function createUser(newUserName: string, newPassword: string) {
   });
 }
 
-export async function getRoles(schemas: ISchemaInfo[]): Promise<string[]> {
+export async function getRoles(schemas: SchemaInfo[]): Promise<string[]> {
   if (!schemas.length || !schemas[0]) return [];
 
   const gqlUrl = "../../" + schemas[0].id + GRAPHQL;
@@ -80,7 +81,7 @@ export async function getRoles(schemas: ISchemaInfo[]): Promise<string[]> {
 }
 
 export function getSchemas() {
-  return $fetch<{ data: { _schemas: ISchemaInfo[] } }>(API_GRAPHQL, {
+  return $fetch<{ data: { _schemas: SchemaInfo[] } }>(API_GRAPHQL, {
     method: "post",
     body: {
       query: "{_schemas{id,label}}",
@@ -113,13 +114,13 @@ export async function getUsers() {
     });
 }
 
-function buildUsers(dataUsers: IUser[]): IUser[] {
+function buildUsers(dataUsers: User[]): User[] {
   return dataUsers.map((user) => {
     return { ...user, tokens: getTokens(user) };
   });
 }
 
-function getTokens(user: IUser) {
+function getTokens(user: User) {
   if (user.settings.length) {
     const tokens = user.settings.find((setting) => {
       return setting.key === "access-tokens";
@@ -140,40 +141,19 @@ export function isValidPassword(password1: string, password2: string) {
   return password1.length > 7 && password1 === password2;
 }
 
-export interface IUser {
-  //TODO split into communication and internal interface
-  email: string;
-  settings: ISetting[];
-  enabled: boolean;
-  tokens?: string[];
-  roles?: IRole[];
-  revokedRoles?: IRole[];
-  password?: string;
-}
-
 interface IAdminResponse {
   data: {
     _admin: {
-      users: IUser[];
+      users: User[];
       userCount: number;
     };
   };
-}
-
-export interface ISchemaInfo {
-  id: string;
-  label: string;
-}
-
-export interface IRole {
-  schemaId: string;
-  role: string;
 }
 
 interface IUpdateUser {
   email: string;
   enabled: boolean;
   password?: string;
-  roles?: IRole[];
-  revokedRoles: IRole[];
+  roles?: Role[];
+  revokedRoles: Role[];
 }
