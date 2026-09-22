@@ -68,10 +68,6 @@ Statistical chart data,,x value,string,,TRUE,,,,,,,,sio:SIO_000465,"Value to dis
 Statistical chart data,,x label,string,,,,,,,,,,sio:SIO_000179,An optional label that will displayed in place of the x-value,pages
 Statistical chart data,,y value,string,,TRUE,,,,,,,,sio:SIO_000465,"Value to display along the y-axis, e.g., ""Group B"", 100, etc.",pages
 Statistical chart data,,y label,string,,,,,,,,,,sio:SIO_000179,An optional label that will displayed in place of the y-value,pages
-Statistical chart data,,primary group value,string,,,,,,,,,,"sio:SIO_000455,sio:SIO_000456","A primary category axis is a category axis that either defines the sole value range or holds the larger set of categorical values specified by the secondary category axis. For example, if you need to group the categories listed in the ""name"" column, then define the grouping levels here.",pages
-Statistical chart data,,primary group label,string,,,,,,,,,,sio:SIO_000179,"An alternative label that will be displayed instead of the value in ""primary group value"" column",pages
-Statistical chart data,,secondary group value,string,,,,,,,,,,"sio:SIO_000455,sio:SIO_000457",A secondary category axis is a category axis that defines a finer granular part (or subset) of the value range of the primary category axis.,pages
-Statistical chart data,,secondary group label,string,,,,,,,,,,sio:SIO_000179,"An alternative label that will be displayed instead of the value in ""secondary group value"" column",pages
 Map dot distribution data,Chart data,,,,,,,,,,,,sio:SIO_000089,Dataset that contains one or more observations at a specific location,pages
 Map dot distribution data,,location name,string,,,,,,,,,,sio:SIO_000116,A name that identifies a location,pages
 Map dot distribution data,,alternate id,string,,,,,,,,,,sio:SIO_000115,An alternate value that identifiers a location,pages
@@ -82,6 +78,10 @@ Map dot distribution data,,latitude,decimal,,,,,,,,,,sio:SIO_000319,Latitude is 
 Map dot distribution data,,longitude,decimal,,,,,,,,,,sio:SIO_000318,Longitude is a geographic position that refers to the angle east or west of a reference meridian between the two geographical poles to another meridian that passes through an arbitrary point.,pages
 Map dot distribution data,,website,hyperlink,,,,,,,,,,sio:SIO_000296,A URL to a resource that provides additional information about the location,pages
 Map dot distribution data,,tooltip content,text,,,,,,,,,,sio:SIO_000473,"Content to display in the tooltip. You may write in html or as plain text. By default, the tooltip will display the name and information about the location (if defined).",pages
+Chart data,,primary group value,string,,,,,,,,,,"sio:SIO_000455,sio:SIO_000456","A primary category axis is a category axis that either defines the sole value range or holds the larger set of categorical values specified by the secondary category axis. For example, if you need to group the categories listed in the ""name"" column, then define the grouping levels here.",pages
+Chart data,,primary group label,string,,,,,,,,,,sio:SIO_000179,"An alternative label that will be displayed instead of the value in ""primary group value"" column",pages
+Statistical chart data,,secondary group value,string,,,,,,,,,,"sio:SIO_000455,sio:SIO_000457",A secondary category axis is a category axis that defines a finer granular part (or subset) of the value range of the primary category axis.,pages
+Statistical chart data,,secondary group label,string,,,,,,,,,,sio:SIO_000179,"An alternative label that will be displayed instead of the value in ""secondary group value"" column",pages
 Chart data,,fill color,string,,,,,,,,,,obo:GSSO_004945,"If defined, the background color of the specific data point element will use this value (e.g., ""#000"", ""blue"", etc.)",pages
 Chart data,,stroke color,string,,,,,,,,,,obo:GSSO_004945,"If defined, the border of the specific data point element will use this value (e.g., ""#000"", ""blue"", etc.)",pages
 Chart data,,sort order,int,,,,,,,,,0,sio:SIO_001316,A numerical value indicating the sorting method for data points. A zero indicates a value will appear earlier in the dataset,pages
