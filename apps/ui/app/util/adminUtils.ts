@@ -113,7 +113,7 @@ export async function getUsers() {
     });
 }
 
-function buildUsers(dataUsers: IUser[]) {
+function buildUsers(dataUsers: IUser[]): IUser[] {
   return dataUsers.map((user) => {
     return { ...user, tokens: getTokens(user) };
   });
