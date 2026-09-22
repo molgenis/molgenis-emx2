@@ -83,7 +83,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(VIEWER, VIEWER);
       Response response = postJson("/" + SCHEMA + "/api/json", EMPTY_SCHEMA);
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to post schema JSON"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
 
     @Test
@@ -100,7 +101,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(VIEWER, VIEWER);
       Response response = deleteJson("/" + SCHEMA + "/api/json", EMPTY_SCHEMA);
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to discard schema JSON"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
   }
 
@@ -139,7 +141,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(VIEWER, VIEWER);
       Response response = postYaml("/" + SCHEMA + "/api/yaml", EMPTY_SCHEMA);
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to post schema YAML"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
 
     @Test
@@ -155,7 +158,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(VIEWER, VIEWER);
       Response response = deleteYaml("/" + SCHEMA + "/api/yaml", EMPTY_SCHEMA);
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to discard YAML schema"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
   }
 
@@ -168,7 +172,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       Response response =
           given().sessionId(sessionId).when().get("/" + NON_EXISTING_SCHEMA + "/api/json");
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to download schema JSON"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
 
     @Test
@@ -176,7 +181,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(MANAGER, MANAGER);
       Response response = postJson("/" + NON_EXISTING_SCHEMA + "/api/json", EMPTY_SCHEMA);
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to post schema JSON"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
 
     @Test
@@ -184,7 +190,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(MANAGER, MANAGER);
       Response response = deleteJson("/" + NON_EXISTING_SCHEMA + "/api/json", EMPTY_SCHEMA);
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to discard schema JSON"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
 
     @Test
@@ -193,7 +200,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       Response response =
           given().sessionId(sessionId).when().get("/" + NON_EXISTING_SCHEMA + "/api/yaml");
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to download schema YAML"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
 
     @Test
@@ -201,7 +209,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(MANAGER, MANAGER);
       Response response = postYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", EMPTY_SCHEMA);
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to post schema YAML"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
 
     @Test
@@ -209,7 +218,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       login(MANAGER, MANAGER);
       Response response = deleteYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", EMPTY_SCHEMA);
       assertEquals(400, response.getStatusCode());
-      assertEquals(errorMessage("Unable to discard YAML schema"), response.getBody().asString());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
     }
   }
 
