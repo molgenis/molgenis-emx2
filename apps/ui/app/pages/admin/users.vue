@@ -141,12 +141,8 @@ import EditUserModal from "../../components/EditUserModal.vue";
 import NewUserModal from "../../components/NewUserModal.vue";
 import TokenManagement from "../../components/TokenManagement.vue";
 import useAdminSettings from "../../composables/useAdminSettings.ts";
-import {
-  getRoles,
-  getSchemas,
-  type ISchemaInfo,
-  type IUser,
-} from "../../util/adminUtils";
+import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
+import { getRoles, getSchemas } from "../../util/adminUtils";
 
 /**
  * Todo:
@@ -165,22 +161,21 @@ const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const showTokenModal = ref(false);
 const showDeleteUserModal = ref(false);
-const selectedUser = ref<IUser | null>(null);
+const selectedUser = ref<User | null>(null);
 
 const currentPage = ref(1);
-const schemas = ref<ISchemaInfo[]>([]);
+const schemas = ref<SchemaInfo[]>([]);
 const roles = ref<string[]>([]);
 const schema = ref<string>("");
 
 const adminSettings = useAdminSettings();
 
 schemas.value = await getSchemas();
-// @ts-expect-error
-schema.value = schemas.value.length ? schemas.value[0].id : "";
+schema.value = schemas.value[0]?.id || "";
 roles.value = await getRoles(schemas.value);
 
 const usernames = computed(() => {
-  return adminSettings.users.map((user) => user.email);
+  return adminSettings.users.map((user: User) => user.email);
 });
 
 async function updateCurrentPage(newPage: number) {
@@ -188,22 +183,22 @@ async function updateCurrentPage(newPage: number) {
   await adminSettings.retrieveUsers(newPage);
 }
 
-function openEditUserModal(user: IUser) {
+function openEditUserModal(user: User) {
   selectedUser.value = user;
   showEditUserModal.value = true;
 }
 
-function showDeleteUserConfirmation(user: IUser) {
+function showDeleteUserConfirmation(user: User) {
   selectedUser.value = user;
   showDeleteUserModal.value = true;
 }
 
-function openManageTokensModal(user: IUser) {
+function openManageTokensModal(user: User) {
   selectedUser.value = user;
   showTokenModal.value = true;
 }
 
-function canDelete(user: IUser) {
+function canDelete(user: User) {
   return (
     user.email !== "anonymous" &&
     user.email !== "admin" &&
