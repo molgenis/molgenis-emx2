@@ -30,7 +30,7 @@ export async function updateUser(user: User) {
 }
 
 function createUpdateUser(user: User) {
-  let updateUser: IUpdateUser = {
+  let updateUser: UpdateUser = {
     email: user.email,
     enabled: user.enabled,
     revokedRoles: user.revokedRoles || [],
@@ -97,7 +97,7 @@ export function getSchemas() {
 }
 
 export async function getUsers() {
-  return $fetch<IAdminResponse>(API_GRAPHQL, {
+  return $fetch<AdminResponse>(API_GRAPHQL, {
     method: "post",
     body: {
       query: `{ _admin { users { email, settings, {key, value}, enabled, roles { schemaId, role } } userCount } }`,
@@ -141,7 +141,7 @@ export function isValidPassword(password1: string, password2: string) {
   return password1.length > 7 && password1 === password2;
 }
 
-interface IAdminResponse {
+interface AdminResponse {
   data: {
     _admin: {
       users: User[];
@@ -150,7 +150,7 @@ interface IAdminResponse {
   };
 }
 
-interface IUpdateUser {
+interface UpdateUser {
   email: string;
   enabled: boolean;
   password?: string;
