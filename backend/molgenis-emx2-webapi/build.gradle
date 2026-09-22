@@ -21,7 +21,7 @@ dependencies {
     implementation group: 'com.github.ben-manes.caffeine', name:'caffeine', version:caffeineVersion
 
     implementation group: 'io.prometheus', name:'prometheus-metrics-core', version:prometheusVersion
-    implementation group: 'io.prometheus', name:'prometheus-metrics-instrumentation', version:prometheusVersion
+    implementation group: 'io.prometheus', name:'prometheus-metrics-instrumentation-jvm', version:prometheusVersion
     implementation group: 'io.prometheus', name:'prometheus-metrics-exporter-httpserver', version:prometheusVersion
     implementation group: 'io.prometheus', name:'prometheus-metrics-exporter-servlet-jakarta', version:prometheusVersion
 
