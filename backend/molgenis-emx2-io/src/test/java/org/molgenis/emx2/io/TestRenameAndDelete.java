@@ -1,8 +1,9 @@
 package org.molgenis.emx2.io;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,11 +23,12 @@ public class TestRenameAndDelete {
 
   static Database db;
   static Schema schema;
+  static String schemaName = TestRenameAndDelete.class.getSimpleName();
 
   @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema(TestRenameAndDelete.class.getSimpleName());
+    schema = db.dropCreateSchema(schemaName);
   }
 
   @Test
@@ -58,7 +60,7 @@ public class TestRenameAndDelete {
     imt.run();
 
     // check schema for the changes
-    schema = db.getSchema(TestRenameAndDelete.class.getSimpleName());
+    schema = db.getSchema(schemaName);
     assertNull(schema.getTable("myTable"));
     assertNotNull(schema.getTable("otherTable"));
     assertNull(schema.getTable("otherTable").getMetadata().getColumn("a"));
@@ -89,8 +91,9 @@ public class TestRenameAndDelete {
 
   @Test
   public void testRenameWhenRefs() throws IOException {
-    schema = db.dropCreateSchema(TestRenameAndDelete.class.getSimpleName());
-    PET_STORE.getImportTask(schema, false).run();
+    db.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(db, schemaName, "", false).run();
+    schema = db.getSchema(schemaName);
     assertNotNull(schema.getTable("Category"));
 
     // now we gonna rename a table which has a ref from Category to Type
@@ -104,5 +107,31 @@ public class TestRenameAndDelete {
 
     assertNull(schema.getTable("Category"));
     assertNotNull(schema.getTable("Type"));
+  }
+
+  @Test
+  public void testRenamedTableStillAcceptsInsertsViaCsvImport() {
+    Schema renameSchema = db.dropCreateSchema("TestRenameThenInsert");
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory();
+    store.writeTable(
+        "molgenis",
+        List.of("tableName", "columnName", "key"),
+        List.of(
+            new Row("tableName", "myTable"),
+            new Row("tableName", "myTable", "columnName", "a", "key", "1")));
+    new ImportMetadataTask(renameSchema, store, true).run();
+    renameSchema.getTable("myTable").insert(new Row("a", "before"));
+
+    store = new TableStoreForCsvInMemory();
+    store.writeTable(
+        "molgenis",
+        List.of("tableName", "oldName"),
+        List.of(new Row("tableName", "otherTable", "oldName", "myTable")));
+    new ImportMetadataTask(renameSchema, store, true).run();
+
+    db.clearCache();
+    Schema reloaded = db.getSchema("TestRenameThenInsert");
+    reloaded.getTable("otherTable").insert(new Row("a", "after"));
+    assertEquals(2, reloaded.getTable("otherTable").retrieveRows().size());
   }
 }

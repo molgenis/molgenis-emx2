@@ -92,6 +92,7 @@
 import { request } from "graphql-request";
 
 import {
+  constants,
   ButtonAction,
   ButtonDanger,
   ButtonAlt,
@@ -136,23 +137,27 @@ export default {
       template: null,
       templates: [
         "PET_STORE",
-        "FAIR_DATA_HUB",
+        "MG_CMS",
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
-        "RD3",
-        "JRC_COMMON_DATA_ELEMENTS",
+        "DATA_CATALOGUE_RWE_STAGING",
+        "UMCG_COHORT_STAGING",
+        "UMCU_COHORTS_STAGING",
+        "INTEGRATE_COHORTS_STAGING",
+        "PATIENT_REGISTRY",
+        "PATIENT_REGISTRY_ID_BANK",
+        "PATIENT_REGISTRY_STAGING",
         "FAIR_GENOMES",
-        "DCAT",
-        "FAIR_DATA_POINT",
-        "BEACON_V2",
         "ERN_DASHBOARD",
+        "UI_DASHBOARD",
         "BIOBANK_DIRECTORY",
         "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
-        "GDI",
         "DATA_CATALOGUE_AGGREGATES",
+        "TYPE_TEST",
+        "PATIENT_REGISTRY_DEMO",
       ],
       includeDemoData: false,
     };
@@ -167,7 +172,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = /^[a-zA-Z][-a-zA-Z0-9_ ]*$/;
+      const simpleName = constants.SCHEMA_NAME_REGEX;
       if (name === null) {
         return undefined;
       }
@@ -178,7 +183,7 @@ export default {
       ) {
         return undefined;
       } else {
-        return "Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters";
+        return "Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
     },
     executeCreateSchema() {

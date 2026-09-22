@@ -1,10 +1,16 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import devProxy from "../dev-proxy.config";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: "",
+  base: command === "serve" ? "/" : "apps/schema/",
   server: {
-    proxy: require("../dev-proxy.config"),
+    proxy: devProxy,
   },
-});
+  test: {
+    globals: true,
+    environment: "jsdom",
+    include: ["tests/**/*.test.ts"],
+  },
+}));

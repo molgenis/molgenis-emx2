@@ -1,8 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.emx2.ColumnType.EMAIL;
-import static org.molgenis.emx2.ColumnType.HYPERLINK;
+import static org.molgenis.emx2.ColumnType.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,8 +14,10 @@ public class TestColumnTypeValidation {
       assertEquals("Validation failed: test is not valid EMAIL", e.getMessage());
     }
 
+    EMAIL.validate("c.stroomberg@rug.com");
     EMAIL.validate("teSt@hoMe.nL");
     EMAIL.validate("test+test@home.nl");
+    EMAIL.validate("üse@bar.com");
   }
 
   @Test
@@ -28,5 +29,16 @@ public class TestColumnTypeValidation {
     }
 
     HYPERLINK.validate("http://test.com");
+  }
+
+  @Test
+  public void testNonNegativeIntValidation() {
+    try {
+      NON_NEGATIVE_INT.validate(-1);
+    } catch (MolgenisException e) {
+      assertEquals("Validation failed: -1 is not valid NON_NEGATIVE_INT", e.getMessage());
+    }
+
+    NON_NEGATIVE_INT.validate(0);
   }
 }

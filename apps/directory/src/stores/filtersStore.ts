@@ -1,74 +1,70 @@
+import * as _ from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 import { createFilters } from "../filter-config/facetConfigurator";
 import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
-import { useBiobanksStore } from "./biobanksStore";
-import { useSettingsStore } from "./settingsStore";
-import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
+import { useBiobanksStore } from "./biobanksStore";
+import { useCheckoutStore } from "./checkoutStore";
+import { useSettingsStore } from "./settingsStore";
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
-import { convertArrayToChunks } from "../functions/arrayUtilities";
-import { IOntologyItem } from "../interfaces/interfaces";
-import * as _ from "lodash";
+import useErrorHandler from "../composables/errorHandler";
+import flattenOntologyBranch from "../functions/flattenOntologyBranch";
+import {
+  IFilterDetails,
+  IFilterOption,
+  IOntologyItem,
+} from "../interfaces/interfaces";
+import router from "../router";
+
+const { setError, clearError } = useErrorHandler();
+const DIAGNOSIS_AVAILABLE = "Diagnosisavailable";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
   const checkoutStore = useCheckoutStore();
+  const settingsStore = useSettingsStore();
 
   const { baseQuery, getBiobankCards } = biobankStore;
 
-  const settingsStore = useSettingsStore();
-
   const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
-  let bookmarkWaitingForApplication = ref(false);
+  const bookmarkWaitingForApplication = ref(false);
+  const bookmarkTriggeredFilter = ref(false);
 
-  /** check for url manipulations */
-  let bookmarkTriggeredFilter = ref(false);
+  const filters = ref<Record<string, any>>({});
+  const filterType = ref<Record<string, any>>({});
 
-  /** check for filter manipulations */
-  let filterTriggeredBookmark = ref(false);
+  const filterOptions = ref<
+    Record<string, IFilterOption[] | Record<string, IOntologyItem[]>>
+  >({});
+  const filterFacets = ref<IFilterDetails[]>([]);
+  const filterFacetsById = ref<Record<string, IFilterDetails>>({});
 
-  let filters = ref<Record<string, any>>({});
-  let filterType = ref<Record<string, any>>({});
-  let filterOptionsCache = ref<Record<string, any>>({});
-  let filterFacets = ref<any[]>([]);
-  const facetDetailsDictionary = ref<Record<string, any>>({});
+  const filtersReadyToRender = ref(false);
 
-  let filtersReadyToRender = ref(false);
+  const indeterminateDiseases = ref<Record<string, boolean>>({});
+  const selectedDiseases = ref<Record<string, boolean>>({});
+  const diseases = ref<Record<string, IOntologyItem>>({});
 
   watch(
     () => settingsStore.configurationFetched,
     () => {
-      filterFacets.value = createFilters(settingsStore.config.filterFacets);
+      filterFacetsById.value = createFilters(settingsStore.config.filterFacets);
+      filterFacets.value = Object.values(filterFacetsById.value);
       filtersReadyToRender.value = true;
     }
   );
 
-  const facetDetails = computed<Record<string, any>>(() => {
-    if (
-      !Object.keys(facetDetailsDictionary.value).length &&
-      settingsStore.configurationFetched
-    )
-      /** extract the components types so we can use that in adding the correct query parts */
-      filterFacets.value.forEach((filterFacet) => {
-        facetDetailsDictionary.value[filterFacet.facetIdentifier] = {
-          ...filterFacet,
-        };
-      });
-
-    return facetDetailsDictionary.value;
-  });
-
-  const filtersReady = computed(() => {
-    return filterOptionsCache.value
-      ? Object.keys(filterOptionsCache.value).length > 0
+  const filterOptionsReady = computed(() => {
+    return filterOptions.value
+      ? Object.keys(filterOptions.value).length > 0
       : false;
   });
 
   function getValuePropertyForFacet(facetIdentifier: string) {
-    return facetDetails.value[facetIdentifier].filterValueAttribute;
+    return filterFacetsById.value[facetIdentifier].filterValueAttribute;
   }
 
   const hasActiveFilters = computed(() => {
@@ -85,6 +81,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       Record<string, any>
     ]) => {
       settingsStore.currentPage = 1;
+      bookmarkWaitingForApplication.value = false;
       updateQueryAndBookmark(newFilters, newFilterType);
       getBiobankCards();
     },
@@ -96,13 +93,21 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     immediate: true,
   });
 
-  watch(filtersReady, (filtersReady) => {
+  watch(filterOptionsReady, (filtersReady) => {
+    const route = router.currentRoute.value;
     if (filtersReady) {
       const waitForStore = setTimeout(() => {
-        applyBookmark();
+        if (route.query) {
+          applyBookmark(route.query as Record<string, string>);
+        }
+
         clearTimeout(waitForStore);
       }, 350);
     }
+  });
+
+  watch(selectedDiseases, setIndeterminateDiseases, {
+    deep: true,
   });
 
   function checkOntologyDescendantsIfMatches(
@@ -139,97 +144,59 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return codeFound || nameFound || labelFound;
   }
 
-  function flattenOntologyBranch(
-    branch: IOntologyItem,
-    flattenedBranches: IOntologyItem[] = []
-  ) {
-    if (!branch.children?.length) {
-      return [...flattenedBranches, branch];
-    } else {
-      for (const child of branch.children) {
-        flattenedBranches = flattenOntologyBranch(child, flattenedBranches);
-        delete child.children;
-        flattenedBranches?.push(child);
-      }
-    }
-    return flattenedBranches;
-  }
-
   function updateOntologyFilter(
     filterName: string,
-    value: any,
+    value: IOntologyItem,
     add: boolean,
     fromBookmark: any = false
   ) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
-    /** value can be a child (single value), or a parent with its children > make it into an array of values */
-    let processedValue = value;
-
-    if (value.children?.length) {
-      let copyBranch = JSON.parse(JSON.stringify(value));
-      let allChildrenValues = flattenOntologyBranch(copyBranch);
-      delete copyBranch.children;
-      allChildrenValues.push(copyBranch);
-
-      let deduplicatedValues: IOntologyItem[] = [];
-      let codesProcessed: string[] = [];
-
-      for (const childValue of allChildrenValues) {
-        if (!codesProcessed.includes(childValue.code)) {
-          deduplicatedValues.push(childValue);
-          codesProcessed.push(childValue.code);
-        }
-      }
-
-      processedValue = deduplicatedValues;
-    }
-
-    const multipleOptions = Array.isArray(processedValue);
+    const childValues = flattenOntologyBranch(value);
+    const processedValues = _.uniqBy(childValues, "code");
 
     if (add) {
-      multipleOptions
-        ? addOntologyOptions(filterName, processedValue)
-        : addOntologyOption(filterName, processedValue);
+      addOntologyOptions(filterName, processedValues);
     } else {
-      multipleOptions
-        ? removeOntologyOptions(filterName, processedValue)
-        : removeOntologyOption(filterName, processedValue);
+      removeOntologyOptions(filterName, processedValues);
     }
   }
 
-  function addOntologyOption(filterName: string, value: IOntologyItem) {
+  function addOntologyOptions(filterName: string, options: IOntologyItem[]) {
+    let ontologySet = options;
+
+    if (getFilterType(DIAGNOSIS_AVAILABLE) === "all") {
+      const diagnosisAvailableCount =
+        filters.value.Diagnosisavailable?.length || 0;
+      const limit = 50;
+      const slotsRemaining = limit - diagnosisAvailableCount;
+      ontologySet = ontologySet.slice(0, slotsRemaining);
+    }
+
+    const newSelectedDiseases = ontologySet.reduce(
+      (accum: Record<string, boolean>, option: IOntologyItem) => {
+        accum[option.name] = true;
+        return accum;
+      },
+      {}
+    );
+
+    selectedDiseases.value = {
+      ...selectedDiseases.value,
+      ...newSelectedDiseases,
+    };
+
     if (filters.value[filterName]) {
-      /** sanity check, if it is there already then the job is done */
-      if (
-        filters.value[filterName].some(
-          (option: IOntologyItem) => option.name === value.name
-        )
-      )
-        return;
-
-      filters.value[filterName].push(value);
+      filters.value[filterName] = _.uniqBy(
+        filters.value[filterName].concat(ontologySet),
+        "name"
+      );
     } else {
-      filters.value[filterName] = [value];
+      filters.value[filterName] = ontologySet;
     }
   }
 
-  function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
-    if (filters.value[filterName]) {
-      const existingValues = filters.value[filterName].map(
-        (option: IOntologyItem) => option.name
-      );
-      const filterOptionsToAdd = value.filter(
-        (newValue: IOntologyItem) => !existingValues.includes(newValue.name)
-      );
-      filters.value[filterName] =
-        filters.value[filterName].concat(filterOptionsToAdd);
-    } else {
-      filters.value[filterName] = value;
-    }
-  }
-
-  /** did not move this to be used in filteroptions because the store is async. */
+  /** did not move this to be used in filterOptions because the store is async. */
   function getOntologyAttributes(filterFacet: Record<string, any>) {
     const { filterLabelAttribute, filterValueAttribute } = filterFacet;
     return [
@@ -241,23 +208,29 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   async function getOntologyOptionsForCodes(
-    filterFacet: Record<string, any>,
-    codes: any[][]
+    filterDetails: IFilterDetails,
+    codes: any[]
   ) {
-    const { sourceTable, sortColumn, sortDirection } = filterFacet;
-    const attributes = getOntologyAttributes(filterFacet);
+    const { sourceTable, sortColumn, sortDirection } = filterDetails;
+    const attributes = getOntologyAttributes(filterDetails);
 
-    let codesToQuery = convertArrayToChunks(codes, 600);
+    const codesToQuery = _.chunk(codes, 600);
     const ontologyResults = [];
 
     for (const codeBlock of codesToQuery) {
-      const ontologyResult = await new QueryEMX2(graphqlEndpointOntologyFilter)
-        .table(sourceTable)
-        .select(attributes)
-        .orWhere("code")
-        .in(codeBlock)
-        .orderBy(sourceTable, sortColumn, sortDirection)
-        .execute();
+      let ontologyResult;
+      try {
+        clearError();
+        ontologyResult = await new QueryEMX2(graphqlEndpointOntologyFilter)
+          .table(sourceTable)
+          .select(attributes)
+          .orWhere("code")
+          .in(codeBlock)
+          .orderBy(sourceTable, sortColumn, sortDirection)
+          .execute();
+      } catch (error) {
+        setError(error);
+      }
 
       if (ontologyResult && ontologyResult[sourceTable]) {
         ontologyResults.push(...ontologyResult[sourceTable]);
@@ -267,62 +240,78 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return ontologyResults;
   }
 
-  function removeOntologyOption(filterName: string, value: IOntologyItem) {
-    /** can't remove an option which is not present. Jobs done. */
-    if (!filters.value[filterName]) return;
+  function removeOntologyOptions(filterName: string, values: IOntologyItem[]) {
+    if (!filters.value[filterName]) {
+      selectedDiseases.value = {};
+      indeterminateDiseases.value = {};
+      return;
+    }
 
-    filters.value[filterName] = filters.value[filterName].filter(
-      (option: IOntologyItem) => option.name !== value.name
-    );
+    const valuesToRemove = getValuesToRemove(values);
 
-    /** everything is deselected, remove the filter entirely */
-    if (filters.value[filterName].length === 0)
-      delete filters.value[filterName];
-  }
-
-  function removeOntologyOptions(filterName: string, value: IOntologyItem[]) {
-    /** can't remove an option which is not present. Jobs done. */
-    if (!filters.value[filterName]) return;
-
-    const valuesToRemove = value.map((value) => value.name);
+    valuesToRemove.forEach((name: string) => {
+      delete selectedDiseases.value[name];
+    });
 
     filters.value[filterName] = filters.value[filterName].filter(
       (option: IOntologyItem) => !valuesToRemove.includes(option.name)
     );
 
-    /** everything is deselected, remove the filter entirely */
-    if (filters.value[filterName].length === 0)
+    if (filters.value[filterName].length === 0) {
       delete filters.value[filterName];
+    }
+  }
+
+  function getValuesToRemove(values: IOntologyItem[]) {
+    return values.reduce((accum: string[], value) => {
+      accum.push(value.name);
+      if (value.parent) {
+        value.parent.forEach((parent) => {
+          accum.push(parent.name);
+        });
+      }
+      return accum;
+    }, []);
   }
 
   function clearAllFilters() {
     filters.value = {};
-    createBookmark(filters.value, checkoutStore.selectedCollections);
+    selectedDiseases.value = {};
+    indeterminateDiseases.value = {};
+    createBookmark(
+      filters.value,
+      checkoutStore.selectedCollections,
+      checkoutStore.selectedServices,
+      filterType.value
+    );
   }
 
-  function updateFilter(filterName: string, value: any, fromBookmark: any) {
-    bookmarkTriggeredFilter.value = fromBookmark;
+  function updateFilter(
+    filterName: string,
+    value?: IFilterOption[] | string | boolean,
+    fromBookmark?: boolean
+  ) {
+    bookmarkTriggeredFilter.value = fromBookmark ?? false;
 
-    /** filter reset, so delete */
-    if (
-      value === null ||
-      value === "" ||
-      value === undefined ||
-      value.length === 0
-    ) {
+    if (typeof value === "string" || typeof value === "boolean") {
+      if (!value) {
+        delete filters.value[filterName];
+        checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
+      } else {
+        filters.value[filterName] = value;
+        checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
+      }
+    } else if (Array.isArray(value) && value.length) {
+      filters.value[filterName] = value;
+
+      checkoutStore.setSearchHistory(
+        `${filterName} filtered on ${value
+          .map((v: Record<string, any>) => v.text)
+          .join(", ")}`
+      );
+    } else {
       delete filters.value[filterName];
       checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
-    } else {
-      filters.value[filterName] = value;
-      if (typeof value === "string" || typeof value === "boolean") {
-        checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
-      } else {
-        checkoutStore.setSearchHistory(
-          `${filterName} filtered on ${value
-            .map((v: Record<string, any>) => v.text)
-            .join(", ")}`
-        );
-      }
     }
   }
 
@@ -330,11 +319,23 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filters.value[filterName];
   }
 
-  function updateFilterType(filterName: string, value: any, fromBookmark: any) {
+  function updateFilterType(
+    filterName: string,
+    value: any,
+    fromBookmark: boolean
+  ) {
+    if (
+      filterName === DIAGNOSIS_AVAILABLE &&
+      (filterType.value[filterName] === "any" ||
+        filterType.value[filterName] === undefined) &&
+      filters.value[filterName]?.length > 50
+    ) {
+      filters.value[filterName] = filters.value[filterName].slice(0, 50);
+    }
+
     bookmarkTriggeredFilter.value = fromBookmark;
 
     if (value === "" || value === undefined || value.length === 0) {
-      /** filter reset, so delete */
       delete filterType.value[filterName];
     } else {
       filterType.value[filterName] = value;
@@ -352,36 +353,91 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     applyFiltersToQuery(
       baseQuery,
       newFilters,
-      facetDetails.value,
+      filterFacetsById.value,
       newFilterTypes
     );
 
     if (!bookmarkTriggeredFilter.value) {
-      createBookmark(newFilters, checkoutStore.selectedCollections);
+      createBookmark(
+        newFilters,
+        checkoutStore.selectedCollections,
+        checkoutStore.selectedServices,
+        newFilterTypes
+      );
     }
     bookmarkTriggeredFilter.value = false;
   }
 
+  function setDiseases(newDiseases: IOntologyItem[]): void {
+    const allDiseases = newDiseases.flatMap((diseaseRoot) => {
+      return flattenOntologyBranch(diseaseRoot);
+    });
+    diseases.value = _.keyBy(allDiseases, "name");
+    setIndeterminateDiseases();
+  }
+
+  function setIndeterminateDiseases() {
+    indeterminateDiseases.value = {};
+    const stack = Object.keys(selectedDiseases.value);
+    while (stack.length) {
+      const key: string = stack.pop()!;
+      const node = diseases.value[key];
+      node?.parent?.forEach((parent: Record<string, any>) => {
+        indeterminateDiseases.value[parent.name] = true;
+        stack.push(parent.name);
+      });
+    }
+  }
+
+  function isIndeterminate(diseaseName: string): boolean {
+    return indeterminateDiseases.value[diseaseName];
+  }
+
+  function deselectDiseaseLeavingChildren(diseaseName: string): void {
+    if (selectedDiseases.value[diseaseName]) {
+      delete selectedDiseases.value[diseaseName];
+    }
+  }
+
+  function setFilterOptions(
+    filterName: string,
+    newFilterOptions: IFilterOption[] | Record<string, IOntologyItem[]>
+  ) {
+    filterOptions.value[filterName] = newFilterOptions;
+  }
+
+  function getFilterOptions(
+    filterName: string
+  ): IFilterOption[] | Record<string, IOntologyItem[]> {
+    return filterOptions.value[filterName] || [];
+  }
+
   return {
-    facetDetails,
-    updateFilter,
-    clearAllFilters,
-    updateOntologyFilter,
-    getFilterValue,
-    updateFilterType,
-    getFilterType,
-    getValuePropertyForFacet,
     checkOntologyDescendantsIfMatches,
-    ontologyItemMatchesQuery,
+    clearAllFilters,
+    deselectDiseaseLeavingChildren,
+    getFilterOptions,
+    getFilterType,
+    getFilterValue,
     getOntologyOptionsForCodes,
-    filterOptionsCache,
+    getValuePropertyForFacet,
+    isIndeterminate,
+    ontologyItemMatchesQuery,
+    setDiseases,
+    setFilterOptions,
+    updateFilter,
+    updateFilterType,
+    updateOntologyFilter,
+    bookmarkWaitingForApplication,
+    facetDetails: filterFacetsById,
+    filterFacets,
+    filterOptions,
+    filterOptionsReady,
+    filtersReadyToRender,
+    filters,
+    filterType,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,
-    filters,
-    filterFacets,
-    filtersReady,
-    bookmarkWaitingForApplication,
-    filterTriggeredBookmark,
-    filtersReadyToRender,
+    selectedDiseases,
   };
 });

@@ -1,0 +1,279 @@
+import type { Link, Menu, MgError } from "../../types/types";
+import type { IColumn, ITableMetaData } from "../../../metadata-utils/src";
+import type {
+  columnValue,
+  columnValueObject,
+  fileValue,
+  IRefColumn,
+  IRow,
+} from "../../../metadata-utils/src/types";
+import { executeExpression } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
+
+export function getInitialFormValues(metadata: ITableMetaData) {
+  return metadata.columns.reduce(
+    (accum: Record<string, any>, column: IColumn) => {
+      if (column.defaultValue !== undefined) {
+        if (column.defaultValue.startsWith("=")) {
+          try {
+            accum[column.id] = executeExpression(
+              `(${column.defaultValue.substr(1)})`,
+              {},
+              metadata
+            );
+          } catch (error) {
+            console.error(
+              `Default value expression failed for column ${column.id}: ${error}`
+            );
+          }
+        } else if (column.columnType === "BOOL") {
+          accum[column.id] = getBooleanValue(column.defaultValue);
+        } else {
+          accum[column.id] = column.defaultValue;
+        }
+      }
+      return accum;
+    },
+    {}
+  );
+}
+
+function getBooleanValue(value: any): boolean | undefined {
+  if (value === "TRUE" || value === "true" || value === true) {
+    return true;
+  } else if (value === "FALSE" || value === "false" || value === false) {
+    return false;
+  } else {
+    return undefined;
+  }
+}
+
+export function getOntologyArrayValues(val: any): string[] {
+  return Array.isArray(val)
+    ? val
+        .filter((value: columnValueObject) => value)
+        .map((value: columnValueObject) => value["name"] as string)
+    : [];
+}
+
+export function assertStringValue(
+  value: columnValue
+): string | undefined | null {
+  if (typeof value !== "string" && value !== null && value !== undefined) {
+    throw new Error(`Expected a string value, but got ${typeof value}`);
+  }
+  return value;
+}
+
+export function assertNumberValue(
+  value: columnValue
+): number | undefined | null {
+  if (typeof value === "string") {
+    const num = Number(value);
+    if (isNaN(num)) {
+      throw new Error(`Expected a number value, but got ${typeof value}`);
+    }
+    return num;
+  }
+
+  if (typeof value !== "number" && value !== null && value !== undefined) {
+    throw new Error(`Expected a number value, but got ${typeof value}`);
+  }
+  return value;
+}
+
+export function assertBooleanValue(
+  value: columnValue
+): boolean | undefined | null {
+  if (typeof value !== "boolean" && value !== null && value !== undefined) {
+    throw new Error(`Expected a boolean value, but got ${typeof value}`);
+  }
+  return value;
+}
+
+export function assertRowValue(value: columnValue): IRow | undefined | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error(`Expected an object value, but got ${typeof value}`);
+  }
+  return value;
+}
+
+export function assertTableValue(
+  value: columnValue
+): IRow[] | undefined | null {
+  if (value === null || value === undefined) {
+    return value;
+  }
+  if (!Array.isArray(value)) {
+    throw new Error(`Expected an array value, but got ${typeof value}`);
+  }
+  value.forEach(assertRowValue);
+  return value as IRow[];
+}
+
+export function assertFileValue(
+  value: columnValue
+): fileValue | undefined | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error(`Expected an object value, but got ${typeof value}`);
+  }
+  // allow empty objects to be treated as undefined file values :S
+  if (isEmptyObject(value)) {
+    return undefined;
+  }
+  if (!("filename" in value) || typeof value.filename !== "string") {
+    throw new Error(`Expected an object with a string 'filename' property`);
+  }
+  return value as fileValue;
+}
+
+export function assertListValue(
+  value: columnValue
+): columnValue[] | undefined | null {
+  if (value === null || value === undefined) {
+    return value;
+  }
+  if (!Array.isArray(value)) {
+    throw new Error(`Expected an array value, but got ${typeof value}`);
+  }
+  return value as columnValue[];
+}
+
+export function assertRefColumn(column: IColumn): asserts column is IRefColumn {
+  if (
+    !(
+      column.refTableId &&
+      typeof column.refTableId === "string" &&
+      column.refSchemaId &&
+      typeof column.refSchemaId === "string"
+    )
+  ) {
+    throw new Error("Column is not a valid reference column");
+  }
+}
+
+export function assertRefColumnValue(
+  column: columnValue
+): asserts column is IRow {
+  if (
+    column == null ||
+    Array.isArray(column) ||
+    typeof column !== "object" ||
+    Object.getPrototypeOf(column) !== Object.prototype
+  ) {
+    throw new Error("Value is not a valid reference column value");
+  }
+}
+
+export function assertMenu(menu: unknown): asserts menu is Menu {
+  if (!Array.isArray(menu)) {
+    throw new Error(`Expected menu to be an array, but got ${typeof menu}`);
+  }
+  menu.forEach((item, index) => {
+    if (typeof item.label !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'label' property`
+      );
+    }
+    if (typeof item.link !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'link' property`
+      );
+    }
+    if (item.role && typeof item.role !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'role' property`
+      );
+    }
+    if (item.key && typeof item.key !== "string") {
+      throw new Error(
+        `Expected menu item at index ${index} to have a string 'key' property`
+      );
+    }
+    if (item.submenu && item.submenu && !Array.isArray(item.submenu)) {
+      throw new Error(
+        `Expected menu item at index ${index} to have an array 'submenu' property`
+      );
+    }
+    if (item.submenu) {
+      assertMenu(item.submenu);
+    }
+  });
+}
+
+export function toRefColumn(column: IColumn): IRefColumn {
+  assertRefColumn(column);
+  return column;
+}
+
+export function toRefColumnValue(column: columnValue): IRow {
+  assertRefColumnValue(column);
+  return column;
+}
+
+function isEmptyObject(column: columnValue) {
+  return (
+    column &&
+    typeof column === "object" &&
+    !Array.isArray(column) &&
+    Object.keys(column).length === 0
+  );
+}
+
+export function isMgError(error: unknown): error is MgError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as any).message === "string" &&
+    "statusCode" in error &&
+    typeof (error as any).statusCode === "number" &&
+    "data" in error &&
+    typeof (error as any).data === "object" &&
+    (error as any).data !== null &&
+    "errors" in (error as any).data &&
+    Array.isArray((error as any).data.errors) &&
+    (error as any).data.errors.every(
+      (err: any) =>
+        typeof err === "object" &&
+        err !== null &&
+        "message" in err &&
+        typeof err.message === "string"
+    )
+  );
+}
+
+export function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
+export function isLink(value: unknown): value is Link {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "link" in value &&
+    typeof (value as Link).link === "string" &&
+    (typeof (value as Link).isSpaLink === "boolean" ||
+      (value as Link).isSpaLink === undefined)
+  );
+}
+
+export function parseLinkSetting(linkSetting: string): Link {
+  const linkSettingObject = JSON.parse(linkSetting);
+  isLink(linkSettingObject);
+  return {
+    link: linkSettingObject.link,
+    isSpaLink:
+      linkSettingObject.isSpaLink === "true" ||
+      linkSettingObject.isSpaLink === true,
+  };
+}
+
+export function getIntInput(inputValue?: string | number | null) {
+  if ((typeof inputValue !== "number" && !inputValue) || inputValue === "-") {
+    return inputValue;
+  } else {
+    const numericValue =
+      typeof inputValue === "string" ? Number.parseInt(inputValue) : inputValue;
+    return numericValue;
+  }
+}

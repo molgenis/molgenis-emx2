@@ -14,23 +14,29 @@ Loading a database with a beacon profile will make the Beacon API available, com
 - [Beacon VP (EJPRD) specification](https://github.com/ejp-rd-vp/vp-api-specs/tree/v4.0_spec) served
   at `<server>/<database>/api/beacon_vp`
 
+### Definitions
+
+Two terms recur throughout this documentation and the Beacon v2 framework:
+
+- **Entry type** — a *category* of data the Beacon serves, such as Individuals, Genomic Variants, Datasets,
+  Analyses, Cohorts and Runs. Each entry type maps to an EMX2 table, is associated with an ontology concept, and
+  backs one model endpoint (e.g. `/individuals`, `/g_variants`). The available entry types and their schemas are
+  described by the `/configuration` and `/entry_types` endpoints.
+- **Entry** — a *single record* of an entry type, i.e. one row returned from the corresponding table. For example,
+  `GET /individuals/Ind001` retrieves one entry of entry type Individuals.
+
 ### Setup
 
 #### Create a database
 
-The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing a Beacon data template for your database. More
+The easiest way to enable Beacon v2 in MOLGENIS EMX2 is by choosing a Beacon-compatible database template for your database like `PATIENT_REGISTRY`. More
 information about how to create a database is found [here](use_database.md).
 This will add a number of tables that define the content of your Beacon v2, for
-example [Analyses](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Analyses.csv)
-and [Biosamples](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Biosamples.csv).
-Using the 'FAIR_DATA_HUB' template including the example data will result in an instantly working Beacon v2 API.
+example [Analyses](<https://github.com/molgenis/molgenis-emx2/blob/master/data/_demodata/applications/patient_registry/Variant interpretation analyses.csv>)
+and [Individuals](https://github.com/molgenis/molgenis-emx2/blob/master/data/_demodata/applications/patient_registry/Individuals.csv).
+Using the `PATIENT_REGISTRY` database template including the example data will result in an instantly working Beacon v2
+API.
 The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
-
-The following data templates include a Beacon profile:
-
-- BeaconV2
-- FAIRDataHub <More info about these profiles?>
-- GDI
 
 After setup, the API is available at `<server>/<database>/api/beacon`.
 For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org` and your database name is `fdp` the Beacon v2
@@ -38,15 +44,15 @@ API is located at `https://emx2.test.molgenis.org/fdp/api/beacon`.
 
 #### Endpoint metadata
 
-All beacon-compliant templates include an **Endpoint table**. This table contains the organizational data for the
+All beacon-compliant database templates include an **Endpoint table**. This table contains the organizational data for the
 endpoints displayed in your beacon's informational endpoints. You can edit this data using
-the [Table Explorer](use_quickstart.md#7-view-tables-data).
+the [Table Explorer](use_quickstart?id=_7-view-tables-data).
 
 #### Load data
 
 There are several ways to [load data](use_quickstart?id=_8-enter-data) in MOLGENIS EMX2. You can download the database
 model in csv files (inside a zip container), or xls format. Edit these files and upload them again as
-explained [here](http://localhost:8080/apps/docs/#/molgenis/use_quickstart?id=_8-enter-data)
+explained [here](use_quickstart?id=_9-download-your-data-schema)
 
 ### Endpoints
 
@@ -69,10 +75,6 @@ Model endpoints for which record-level GET and POST requests are implemented are
 
 - `/analyses` for entry type [Analyses](https://docs.genomebeacons.org/schemas-md/analyses_defaultSchema/). Data is
   retrieved from the _Analyses_ table.
-- `/biosamples` for entry type [Biosamples](https://docs.genomebeacons.org/schemas-md/biosamples_defaultSchema/). Data
-  is retrieved from the _Biosamples_ table.
-- `/cohorts` for entry type [Cohorts](https://docs.genomebeacons.org/schemas-md/cohorts_defaultSchema/). Data is
-  retrieved from the _Cohorts_ table.
 - `/datasets` for entry type [Datasets](https://docs.genomebeacons.org/schemas-md/datasets_defaultSchema/). Returns the
   names and timestamps of available database schemas.
 - `/g_variants` for entry
@@ -84,24 +86,25 @@ Model endpoints for which record-level GET and POST requests are implemented are
   Data is retrieved from the _Individuals_ table.
 - `/filtering_terms` returns a list of the filtering terms accepted by that Beacon instance.
 
-
 ### Permissions
 
-By default, a new database with a Beacon profile will have **VIEWER** permission for all users including anonymous requests. How to set up
+By default, a new database with a Beacon profile will have **VIEWER** permission for all users including anonymous
+requests. How to set up
 permissions for a database is found [here](use_permissions.md).
 
-Request are **Record** requests by default and therefor **VIEWER** permission on the data is needed to perform the queries.
+Request are **Record** requests by default and therefor **VIEWER** permission on the data is needed to perform the
+queries.
 For GET request this can be altered via de requestedGranularity parameter:
 
 `<server>/<database>/api/beacon/individuals/requestedsGranulariy=count`
 
 For post request via query.requestedGranularity:
+
 ```{
 "query": {
   "requestedGranularity": "count"
 }
 ```
-
 
 Beacon offers 3 different response types
 
@@ -161,8 +164,6 @@ The identifier can be supplied in the URL path as follows:
 For instance:
 
 - `<server>/<database>/api/beacon/analyses/A01`
-- `<server>/<database>/api/beacon/biosamples/Sample0001`
-- `<server>/<database>/api/beacon/cohorts/Cohort0001`
 - `<server>/<database>/api/beacon/individuals/Ind001`
 - `<server>/<database>/api/beacon/runs/SRR10903401`
 
@@ -174,10 +175,6 @@ List of available links:
 
 - `/analyses/<analysis-id>`
 - `/analyses/<analysis-id>/g_variants`
-- `/biosamples/<sample-id>`
-- `/biosamples/<sample-id>/analyses`
-- `/biosamples/<sample-id>/g_variants`
-- `/biosamples/<sample-id>/runs`
 - `/individuals/<individual-id>`
 - `/individuals/<individual-id>/analyses`
 - `/individuals/<individual-id>/biosamples`
@@ -193,22 +190,43 @@ On genomic variation, a number of different genomic queries are accepted via GET
 endpoint.
 
 - Sequence
-  query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=32936732&referenceName=13&referenceBases=G&alternateBases=C)
+  query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?start=32936732&referenceName=13&referenceBases=G&alternateBases=C)
 - Bracket
-  query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=2347952&end=2547955&referenceName=20)
+  query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?start=2347952&end=2547955&referenceName=20)
 - Range
-  query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13)
-- Gene query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?geneId=TERC)
+  query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13)
+- Gene query, [example](https://vkgl.molgeniscloud.org/Beacon/api/beacon/g_variants?geneId=TERC)
+
+### Beacon JSLT templates
+
+The Template Editor allows administrators to customize the data structure for each entry type in accordance with the
+Beacon specification.
+
+Use the Template Editor to define or edit the Beacon JSLT template used for each entry type (e.g., individual,
+biosample, genomicVariant, cohort, etc.). This template governs how data retrieved from the underlying table is
+formatted into the Beacon API response.
+This enables more flexible data handling and ensures your data conforms to the GA4GH Beacon standard while supporting
+your specific use cases.
+
+#### Accessing the Template Editor
+- Log in as admin.
+- Go to the Admin menu.
+- Click the Templates tab.
+- Click on the entity type you want to configure.
+- Select the target schema/database for the template.
+- Edit the template using the built-in editor.
+- Save your changes — they will be immediately applied to the API responses.
+
 
 ### Semantics
 
 All tables and columns of the Beacon
-v2 [EMX2 model](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/molgenis.csv) are coded
+v2 [EMX2 model](https://github.com/molgenis/molgenis-emx2/blob/master/data/_models/shared) are coded
 with ontologies.
 References to predefined lookup lists, such as _platformModel_ in _Runs_, point to OntologyTables such
-as [SequencingInstrumentModels](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/ontologies/SequencingInstrumentModels.csv).
+as [SequencingInstrumentModels](<https://github.com/molgenis/molgenis-emx2/blob/master/data/_ontologies/Sequencing instrument models.csv>).
 The complete list of ontology lookups can be
-found [here](https://github.com/molgenis/molgenis-emx2/tree/master/data/fairdatahub/ontologies).
+found [here](https://github.com/molgenis/molgenis-emx2/tree/master/data/_ontologies/).
 These semantics help to disambiguate terms and facilitate interoperability, for instance by exporting the data via the
 RDF API.
 
@@ -222,7 +240,82 @@ Note that not all variables from the Beacon v2 models have been implemented.
 As per Beacon design philosophy, the variables and filter options of this implementation will grow and adapt to
 community specific needs.
 
-# Beacon VP
+### Beacon VP
 
 The Beacon VP spec is exactly modeled after the specification Virtual Platform EJP-RD specification v4
 found [here](https://github.com/ejp-rd-vp/vp-api-specs/tree/v4.0_spec)
+
+## Performance
+
+To evaluate the real-world performance of our Beacon endpoint, we used the publicly available VKGL dataset, which
+contains over 200K genomic variants and loaded this on a MOLGENIS instance running on an Azure virtual machine. We
+expanded the dataset to a total of 5.4 million records by duplicating the variants. This allowed us to test various
+queries and assess how performance scales as the dataset size increases.
+
+### Azure VM
+
+#### Dataset
+
+[VKGL Public Consensus](https://vkgl.molgeniscloud.org/Public/tables/#/PublicConsensus)
+
+#### Software
+
+MOLGENIS version: v11.2.1.\
+Database version: v21.\
+PostgreSQL version: v14.10.
+
+#### Hardware
+
+[Azure B2ms](https://learn.microsoft.com/nl-nl/azure/virtual-machines/sizes-b-series-burstable) (2vCPU, 8GB memory)
+
+#### Query performance
+
+Median value of 9 request
+
+- No parameters, `/g_variants`
+- Gene id query, `/g_variants?geneId=COL3A1`
+- Range query, `/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13`
+
+| nRecords | No params | geneId | range |
+|----------|-----------|--------|-------|
+| 200K     | 31ms      | 34ms   | 35ms  |
+| 1M       | 36ms      | 30ms   | 38ms  |
+| 2.0M     | 89ms      | 78ms   | 83ms  |
+| 5.4M     | 1871ms    | 830ms  | 794ms |
+
+#### Total request time
+
+Median value of 9 request
+
+| nRecords | No params | geneId | range |
+|----------|-----------|--------|-------|
+| 200K     | 129ms     | 152ms  | 138ms |
+| 1M       | 143ms     | 131ms  | 154ms |
+| 2.0M     | 170ms     | 166ms  | 200ms |
+| 5.4M     | 2012ms    | 1023ms | 918ms |
+
+### Local
+
+To gain more insight on the influence of hardware, we also benchmarked performance on a local machine.
+
+#### Hardware
+
+MacBook PRO (M1 PRO, 16GB memory)
+
+#### Query performance (median value of 9 request)
+
+| nRecords | No params | geneId | range |
+|----------|-----------|--------|-------|
+| 200K     | 27ms      | 39ms   | 35ms  |
+| 1M       | 54ms      | 89ms   | 75ms  |
+| 2.0M     | 148ms     | 200ms  | 188ms |
+| 5.4M     | 341ms     | 424ms  | 400ms |
+
+#### Total request time (median value of 9 request)
+
+| nRecords | No params | geneId | range |
+|----------|-----------|--------|-------|
+| 200K     | 141ms     | 143ms  | 176ms |
+| 1M       | 164ms     | 181ms  | 160ms |
+| 2.0M     | 218ms     | 220ms  | 229ms |
+| 5.4M     | 472ms     | 527ms  | 504ms |

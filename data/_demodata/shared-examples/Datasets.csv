@@ -1,0 +1,10 @@
+resource,name,dataset type,description,since version
+Beacon v2,Beacon v2 Demo Dataset,Collected dataset,demo dataset for evaluating the Beacon v2 implementation,2025-04-16
+Beacon v2,datasetId01,Collected dataset,demo dataset for evaluating the Beacon v2 implementation,2025-04-16
+Beacon v2,datasetId02,Collected dataset,demo dataset for evaluating the Beacon v2 implementation,2025-04-16
+Beacon v2,datasetId03,Collected dataset,demo dataset for evaluating the Beacon v2 implementation,2025-04-16
+Beacon v2,minDatId04,Collected dataset,demo dataset for evaluating the Beacon v2 implementation,2025-04-16
+Beacon v2,oneFileId05,Collected dataset,demo dataset for evaluating the Beacon v2 implementation,2025-04-16
+Beacon v2,filesetId06,Collected dataset,demo dataset for evaluating the Beacon v2 implementation,2025-04-16
+Beacon v2,dataAndFilesId07,Collected dataset,demo dataset for evaluating the Beacon v2 implementation,2025-04-16
+Beacon v2,allOtherDistrId08,Collected dataset,demo dataset for evaluating the Beacon v2 implementation,2025-04-16

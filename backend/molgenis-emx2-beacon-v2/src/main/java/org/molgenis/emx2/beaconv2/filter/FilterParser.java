@@ -30,7 +30,7 @@ public interface FilterParser {
     if (id != null && entryTypeId != null) {
       EntryType entryType = EntryType.findByName(entryTypeId);
       String graphQlId = entryType.getSingular().toLowerCase();
-      return "{ %sId: { id: { equals: \"%s\" } } }".formatted(graphQlId, id);
+      return "{ %s: { id: { equals: \"%s\" } } }".formatted(graphQlId, id);
     } else if (id != null) {
       return "{ id: { equals: \"%s\" } }".formatted(id);
     }

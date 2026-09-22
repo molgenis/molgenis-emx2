@@ -64,13 +64,15 @@ def create_schema():
             $name: String,
             $description: String,
             $template: String,
-            $includeDemoData: Boolean
+            $includeDemoData: Boolean,
+            $parentJob: String
         ) {
             createSchema(
                 name: $name,
                 description: $description,
                 template: $template,
-                includeDemoData: $includeDemoData
+                includeDemoData: $includeDemoData,
+                parentJob: $parentJob
               ) {
                   status
                   message
@@ -131,6 +133,10 @@ def update_schema():
         }
     """
 
+def truncate():
+    """GraphQL query to truncate a table."""
+    return """mutation($table: String) {truncate(tables: [$table]) {message}}"""
+
 
 def list_schemas():
     """GraphQL query to view all available schemas."""
@@ -147,8 +153,7 @@ def list_schemas():
 
 
 def list_schema_meta():
-    """GraphQL query to view metadata about a schema including
-    the definition of tables and columns, as well as schema settings and members.
+    """GraphQL query to view metadata about a schema including the definition of tables and columns.
     """
     return """
       { 
@@ -165,8 +170,6 @@ def list_schema_meta():
                     value
                 }
                 id
-                schemaName
-                schemaId
                 inheritName
                 inheritId
                 descriptions {
@@ -205,26 +208,40 @@ def list_schema_meta():
                     computed
                     semantics
                 }
-                settings {
-                    key
-                    value
-                }
                 semantics
                 tableType
             }
-            members {
-                email
-                role
-            }
-            settings {
-                key
-                value
-            }
-            roles {
-                name
-            }
         }
       }
+    """
+
+def list_schema_settings():
+    return """
+    {
+      _schema {
+        settings {
+          key value
+        }
+      }
+    }
+    """
+
+def list_schema_members():
+    return """
+    {
+      _schema {
+        members {email role}
+      }
+    }
+    """
+
+def list_schema_roles():
+    return """
+    {
+      _schema {
+        roles {name}
+      }
+    }
     """
 
 
@@ -243,7 +260,7 @@ def version_number():
     )
 
 
-def task_status(task_id: str) -> str:
+def task_status(task_id: str | int) -> str:
     """GraphQL query to retrieve a task's status."""
     return (
         """

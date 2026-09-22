@@ -2,6 +2,7 @@ dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-sql')
     implementation project(':backend:molgenis-emx2-email')
+    testImplementation project(':backend:molgenis-emx2-io')
     implementation group: 'org.apache.commons', name:'commons-text', version:commonsTextVersion
     implementation group: 'org.quartz-scheduler', name:'quartz', version:quartzVersion
 }

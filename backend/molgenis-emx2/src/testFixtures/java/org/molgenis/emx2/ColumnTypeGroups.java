@@ -1,0 +1,41 @@
+package org.molgenis.emx2;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class ColumnTypeGroups {
+  public static Set<ColumnType> EXCLUDE_REFERENCE_HEADING;
+  public static Set<ColumnType> EXCLUDE_FILE_REFERENCE_HEADING;
+  public static Set<ColumnType> EXCLUDE_FILE_PERIOD_REFERENCE_HEADING;
+  public static Set<ColumnType> EXCLUDE_ARRAY_FILE_REFERENCE_HEADING;
+
+  static {
+    EXCLUDE_REFERENCE_HEADING =
+        Arrays.stream(ColumnType.values())
+            .filter(columnType -> !columnType.isReference())
+            .filter(columnType -> !columnType.isHeading())
+            .collect(Collectors.toUnmodifiableSet());
+
+    EXCLUDE_FILE_REFERENCE_HEADING =
+        EXCLUDE_REFERENCE_HEADING.stream()
+            .filter(columnType -> !columnType.isFile())
+            .collect(Collectors.toUnmodifiableSet());
+
+    EXCLUDE_FILE_PERIOD_REFERENCE_HEADING =
+        EXCLUDE_FILE_REFERENCE_HEADING.stream()
+            .filter(
+                columnType ->
+                    !Set.of(ColumnType.PERIOD, ColumnType.PERIOD_ARRAY)
+                        .contains(columnType.getBaseType()))
+            .collect(Collectors.toUnmodifiableSet());
+
+    EXCLUDE_ARRAY_FILE_REFERENCE_HEADING =
+        Arrays.stream(ColumnType.values())
+            .filter(columnType -> !columnType.isArray())
+            .filter(columnType -> !columnType.isFile())
+            .filter(columnType -> !columnType.isReference())
+            .filter(columnType -> !columnType.isHeading())
+            .collect(Collectors.toUnmodifiableSet());
+  }
+}

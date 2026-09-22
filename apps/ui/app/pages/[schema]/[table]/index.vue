@@ -1,0 +1,169 @@
+<script setup lang="ts">
+import { computed, ref, useId } from "vue";
+import type {
+  Crumb,
+  ITableSettings,
+  sortDirection,
+} from "../../../../../tailwind-components/types/types";
+import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
+import { useRoute, useRouter } from "#app/composables/router";
+import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
+import { useTablePermission } from "../../../../../tailwind-components/app/composables/useTablePermission";
+import Message from "../../../../../tailwind-components/app/components/Message.vue";
+import { watch } from "vue";
+import { useHead } from "#app";
+import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
+import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
+import { getPrimaryKey } from "../../../../../tailwind-components/app/utils/getPrimaryKey";
+import { keySlug } from "../../../../../tailwind-components/app/utils/navigationUtils";
+import Button from "../../../../../tailwind-components/app/components/Button.vue";
+import constants from "../../../../../tailwind-components/app/utils/constants";
+import { definePageMeta } from "#imports";
+import Container from "../../../../../tailwind-components/app/components/Container.vue";
+import type { IRow } from "../../../../../metadata-utils/src/types";
+
+const route = useRoute();
+const router = useRouter();
+const schemaId = route.params.schema as string;
+const tableId = route.params.table as string;
+
+useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
+
+definePageMeta({
+  layout: "wide",
+});
+
+const currentPage = computed(() => {
+  const queryPageNumber = Number(route.query?.page);
+  return !isNaN(queryPageNumber) && typeof queryPageNumber === "number"
+    ? Math.round(queryPageNumber)
+    : 1;
+});
+
+const currentPageSize = computed(() => {
+  const queryPageSizeNumber = Number(route.query?.pagesize);
+  if (!constants.PAGE_SIZE_OPTIONS.includes(queryPageSizeNumber)) {
+    return constants.PAGE_SIZE_DEFAULT;
+  }
+  return !isNaN(queryPageSizeNumber) && typeof queryPageSizeNumber === "number"
+    ? Math.round(queryPageSizeNumber)
+    : constants.PAGE_SIZE_DEFAULT;
+});
+
+const orderbyColumn = computed(() => route.query.orderby as string);
+const orderbyDirection = computed(() =>
+  route.query.order ? (route.query.order as sortDirection) : "ASC"
+);
+
+const search = computed(() => route.query.search as string);
+
+const tableSettings = ref<ITableSettings>({
+  page: currentPage.value,
+  pageSize: currentPageSize.value,
+  orderby: {
+    column: orderbyColumn.value,
+    direction: orderbyDirection.value,
+  },
+  search: search.value || "",
+  orderedColumnsIds: route.query.columns
+    ? (route.query.columns as string).split(",")
+    : [],
+});
+
+const tableMetadata = await fetchTableMetadata(schemaId, tableId);
+
+function handleSettingsUpdate() {
+  const query = {
+    ...route.query,
+    orderby: tableSettings.value.orderby.column,
+    order: !tableSettings.value.orderby.column
+      ? undefined
+      : tableSettings.value.orderby.direction,
+    search:
+      tableSettings.value.search === ""
+        ? undefined
+        : tableSettings.value.search,
+    page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
+    columns: tableSettings.value.orderedColumnsIds.length
+      ? tableSettings.value.orderedColumnsIds.join(",")
+      : undefined,
+    pagesize:
+      tableSettings.value.pageSize === constants.PAGE_SIZE_DEFAULT
+        ? undefined
+        : tableSettings.value.pageSize,
+  };
+
+  router.push({ query });
+}
+
+async function handleViewRowRequest(row: IRow) {
+  const primaryKeys = await getPrimaryKey(row, tableId, schemaId);
+
+  router.push({
+    path: `/${schemaId}/${tableId}/${keySlug(primaryKeys)}`,
+    query: {
+      keys: JSON.stringify(primaryKeys),
+    },
+  });
+}
+
+const crumbs: Crumb[] = [
+  { label: schemaId, url: `/${schemaId}` },
+  { label: tableMetadata.label || tableMetadata.id, url: "" },
+];
+
+const currentBreadCrumb = computed(
+  () => tableMetadata.label ?? tableMetadata.id
+);
+
+watch(tableSettings, handleSettingsUpdate, { deep: true });
+
+const { session } = await useSession(schemaId);
+const { canView, canInsert, canUpdate, canDelete, isRowLevel, userRoles } =
+  useTablePermission(session, schemaId, tableId, tableMetadata.tableType);
+const enableFilters = true;
+</script>
+<template>
+  <Container :wide="true">
+    <PageHeader :title="tableMetadata?.label ?? ''" align="left">
+      <template #prefix>
+        <BreadCrumbs
+          :align="'left'"
+          :crumbs="crumbs"
+          :current="currentBreadCrumb"
+        />
+      </template>
+    </PageHeader>
+
+    <Message v-if="!canView" id="table-no-view-permission" invalid>
+      You don't have permission to view this table. Please sign in or contact
+      your administrator to request access.
+    </Message>
+
+    <TableEMX2
+      v-else
+      :schemaId="schemaId"
+      :tableId="tableId"
+      :enable-filters="enableFilters"
+      v-model:settings="tableSettings"
+      :canInsert="canInsert"
+      :canUpdate="canUpdate"
+      :canDelete="canDelete"
+      :isRowLevel="isRowLevel"
+      :userRoles="userRoles"
+      @view-details="handleViewRowRequest"
+    >
+      <template #additional-row-actions="{ row }">
+        <Button
+          :id="useId()"
+          :icon-only="true"
+          type="inline"
+          icon="info"
+          label="view row details"
+          @click="handleViewRowRequest(row)"
+        />
+      </template>
+    </TableEMX2>
+  </Container>
+</template>

@@ -1,15 +1,11 @@
 package org.molgenis.emx2.sql;
 
 import static java.lang.Boolean.TRUE;
-import static org.molgenis.emx2.Privileges.MANAGER;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChanges;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.executeGetChangesCount;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.getOntologyTableDefinition;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
-import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +19,9 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   private static Logger logger = LoggerFactory.getLogger(SqlSchemaMetadata.class);
   // cache for retrieved roles
   private List<String> rolesCache = null;
+  // cache for the active user's table permissions, indexed by table name (insertion order
+  // preserved)
+  private Map<String, TablePermission> permissionsByTableCache = null;
 
   // copy constructor
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
@@ -83,6 +82,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
     this.rolesCache = null;
+    this.permissionsByTableCache = null;
     for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
@@ -115,10 +115,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             database -> {
               SqlSchema s = (SqlSchema) database.getSchema(getName());
               SqlSchemaMetadata sm = s.getMetadata();
-              List<TableMetadata> tableList = new ArrayList<>();
-              tableList.addAll(List.of(tables));
-              if (tableList.size() > 1) sortTableByDependency(tableList);
-              for (TableMetadata table : tableList) {
+              if (tables.length > 1) {
+                // make use of dependency sorting etc
+                s.migrate(new SchemaMetadata().create(tables));
+              } else {
+                TableMetadata table = tables[0];
+                List<TableMetadata> tableList = new ArrayList<>();
+                tableList.addAll(List.of(tables));
                 validateTableIdentifierIsUnique(sm, table);
                 SqlTableMetadata result = null;
                 if (TableType.ONTOLOGIES.equals(table.getTableType())) {
@@ -126,7 +129,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                       new SqlTableMetadata(
                           sm,
                           getOntologyTableDefinition(
-                              table.getTableName(), table.getDescriptions()));
+                              table.getTableName(), table.getLabels(), table.getDescriptions()));
                 } else {
                   result = new SqlTableMetadata(sm, table);
                 }
@@ -139,7 +142,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return this;
   }
 
-  private static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
+  static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
     for (TableMetadata existingTable : sm.getTables()) {
       if (!existingTable.getTableName().equals(table.getTableName())
           && existingTable.getIdentifier().equals(table.getIdentifier())) {
@@ -174,7 +177,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SchemaMetadata setSettings(Map<String, String> settings) {
-    if (getDatabase().isAdmin() || hasActiveUserRole(MANAGER.toString())) {
+    if (PermissionEvaluator.canManage(getDatabase().getSchema(getName()))) {
       getDatabase()
           .tx(
               db -> {
@@ -241,62 +244,48 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return (SqlDatabase) super.getDatabase();
   }
 
-  public void renameTable(TableMetadata table, String newName) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(renameTableTransaction(db, getName(), table.getTableName(), newName));
-            });
-  }
-
-  private static SqlSchemaMetadata renameTableTransaction(
-      Database db, String schemaName, String tableName, String newName) {
-    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
-    validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
-    SqlTableMetadata tm = sm.getTableMetadata(tableName);
-    tm.alterName(newName);
-    sm.tables.remove(tableName);
-    sm.tables.put(newName, tm);
-    return sm;
-  }
-
-  public List<String> getIneritedRolesForUser(String user) {
-    if (user == null) return new ArrayList<>();
-    if (ADMIN_USER.equals(user)) {
-      // admin has all roles
-      return executeGetRoles(getJooq(), getName());
-    }
-    final String username = user.trim();
-    List<String> result = new ArrayList<>();
-    // need elevated privileges, so clear user and run as root
-    getDatabase()
-        .getJooqAsAdmin(
-            adminJooq ->
-                result.addAll(
-                    SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        adminJooq, getName(), username)));
-    return result;
+  public List<String> getInheritedRolesForUser(String username) {
+    return getDatabase().getRoleManager().getInheritedRoleNamesForUser(getName(), username);
   }
 
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
+      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser());
     }
     return rolesCache;
   }
 
+  public Map<String, TablePermission> getPermissionsByTableForActiveUser() {
+    // cached because per-table lookups in PermissionEvaluator are called very often during query
+    // and schema building; is cleared along with rolesCache in reload()
+    if (permissionsByTableCache == null) {
+      Map<String, TablePermission> byTable = new LinkedHashMap<>();
+      for (TablePermission p :
+          getDatabase().getRoleManager().getTablePermissionsForActiveUser(getName())) {
+        byTable.putIfAbsent(p.table(), p);
+      }
+      permissionsByTableCache = Collections.unmodifiableMap(byTable);
+    }
+    return permissionsByTableCache;
+  }
+
+  public List<TablePermission> getPermissionsForActiveUser() {
+    return List.copyOf(getPermissionsByTableForActiveUser().values());
+  }
+
   public String getRoleForUser(String user) {
+    SqlRoleManager roleManager = getDatabase().getRoleManager();
     if (user == null) user = ANONYMOUS;
     user = user.trim();
-    for (Member m : executeGetMembers(getJooq(), this)) {
-      if (m.getUser().equals(user)) return m.getRole();
+    for (Member m : roleManager.getMembers(getName())) {
+      if (roleManager.isSystemRole(m.getRole()) && m.getUser().equals(user)) return m.getRole();
     }
     return null;
   }
 
-  public List<Change> getChanges(int limit) {
-    return executeGetChanges(getJooq(), this, limit);
+  public List<Change> getChanges(int limit, int offset) {
+    return executeGetChanges(getJooq(), this, limit, offset);
   }
 
   public Integer getChangesCount() {

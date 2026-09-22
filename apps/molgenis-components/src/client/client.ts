@@ -1,21 +1,30 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
+import type { AxiosError, AxiosResponse } from "axios";
 import type {
   IColumn,
   ISchemaMetaData,
   ISetting,
   ITableMetaData,
-} from "metadata-utils";
-import { IRow } from "../Interfaces/IRow";
-import { deepClone } from "../components/utils";
-import type { aggFunction } from "./IClient";
-import { IClient, INewClient } from "./IClient";
-import { IQueryMetaData } from "./IQueryMetaData";
+} from "../../../metadata-utils/src/types";
+import type { IRow } from "../Interfaces/IRow";
+import type { ITablePermission } from "../components/account/Interfaces";
+import { deepClone, getKeyValue } from "../components/utils";
+import type { AggFunction } from "./IClient";
+import type { IClient, INewClient } from "./IClient";
+import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
+import { toFormData } from "../../../metadata-utils/src/toFormData";
 
 // application wide cache for schema meta data
-const schemaCache = new Map<string, ISchemaMetaData>();
+const schemaCache = new Map<string, Promise<ISchemaMetaData>>();
 
-export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
+export {
+  request,
+  fetchSchemaMetaData,
+  convertRowToPrimaryKey,
+  fetchTablePermissions,
+  resolveTablePermission,
+};
 const client: IClient = {
   newClient: (schemaId?: string): INewClient => {
     return {
@@ -35,6 +44,39 @@ const client: IClient = {
         return deepClone(schema).tables.find(
           (table: ITableMetaData) => table.id === tableId
         );
+      },
+      fetchCascadeDeleteMsg: async (tableId: string) => {
+        const schema = await fetchSchemaMetaData(schemaId);
+        function findReferingTables(
+          tableId: string,
+          found: Record<string, ITableMetaData>
+        ) {
+          const referringTables = schema.tables
+            .filter((table) => table.id !== tableId && !found[table.id])
+            .filter((table: ITableMetaData) => {
+              return table.columns.find(
+                (column: IColumn) =>
+                  column.refTableId === tableId &&
+                  (column.columnType === "REF" ||
+                    column.columnType === "SELECT" ||
+                    column.columnType === "RADIO") &&
+                  column.cascadeDelete
+              );
+            });
+          referringTables.forEach((table) => {
+            found[table.id] = table;
+            findReferingTables(table.id, found);
+          });
+        }
+        const found: Record<string, ITableMetaData> = {};
+        // recursively find tables that reference this table, passing the found tables so we don't get into an infinite loop
+        findReferingTables(tableId, found);
+        const cascadeTables = Object.values(found);
+
+        return cascadeTables.length
+          ? "Removing this row will also remove any rows in the following tables that reference this row: " +
+              cascadeTables.map((table) => table.name).join(", ")
+          : "";
       },
       fetchTableData: async (
         tableId: string,
@@ -62,8 +104,7 @@ const client: IClient = {
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
-          (table: ITableMetaData) =>
-            table.id === tableId && table.schemaId === schemaMetaData.id
+          (table: ITableMetaData) => table.id === tableId
         );
         const filter = tableMetaData?.columns
           ?.filter((column: IColumn) => column.key === 1)
@@ -93,7 +134,7 @@ const client: IClient = {
         selectedColumn: { id: string; column: string }, //should these be id?
         selectedRow: { id: string; column: string }, //should these be id?
         filter: Object,
-        aggFunction?: aggFunction,
+        aggFunction?: AggFunction,
         aggField?: string
       ) => {
         const aggregateQuery = `
@@ -158,31 +199,49 @@ const client: IClient = {
       fetchOntologyOptions: async (tableName: string) => {
         return fetchOntologyOptions(tableName, schemaId);
       },
+      getPrimaryKeyFields,
     };
   },
 };
 export default client;
 
+async function getPrimaryKeyFields(
+  schemaId: string,
+  tableId: string
+): Promise<string[]> {
+  return fetchSchemaMetaData(schemaId).then((schema) => {
+    const table = schema.tables.find((table) => table.id === tableId);
+    if (!table) {
+      throw new Error(`Table ${tableId} not found in schema ${schemaId}`);
+    }
+    const keyFields = table.columns
+      .filter((column) => column.key === 1)
+      .map((column) => column.id);
+    return keyFields;
+  });
+}
+
 const metadataQuery = `{
   _schema {
     id,
     tables {
-      schemaId,
       id,
+      name,
       label, 
       description,
       tableType,
-      schemaId,
       semantics,
       columns {
         id,
         name,
         label,
+        formLabel,
         description,
         columnType,
         key,
         refTableId,
         refSchemaId,
+        cascadeDelete,
         refLinkId,
         refLabel,
         refLabelDefault,
@@ -230,7 +289,7 @@ const deleteRow = async (row: IRow, tableId: string, schemaId?: string) => {
 };
 
 const deleteAllTableData = (tableId: string, schemaId?: string) => {
-  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
+  const query = `mutation {truncate(tables:"${tableId}" async:true){taskId message}}`;
   return axios.post(graphqlURL(schemaId), { query });
 };
 
@@ -239,22 +298,23 @@ const fetchSchemaMetaData = async (
 ): Promise<ISchemaMetaData> => {
   const currentschemaId = schemaId ? schemaId : "CACHE_OF_CURRENT_SCHEMA";
   if (schemaCache.has(currentschemaId)) {
-    return schemaCache.get(currentschemaId) as ISchemaMetaData;
+    return schemaCache.get(currentschemaId) as Promise<ISchemaMetaData>;
   }
-  return await axios
+
+  const promise = axios
     .post(graphqlURL(schemaId), { query: metadataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
-      if (schemaId == null) {
-        schemaCache.set(currentschemaId, schema);
-      }
-      schemaCache.set(schema.id, schema);
       return deepClone(schema);
     })
     .catch((error: AxiosError) => {
       console.log(error);
+      schemaCache.delete(currentschemaId);
       throw error;
     });
+
+  schemaCache.set(currentschemaId, promise);
+  return promise;
 };
 
 const fetchTableData = async (
@@ -271,7 +331,7 @@ const fetchTableData = async (
 
   const schemaId = metadata.id;
   const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
-  const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
+  const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:[${tableId}orderby] ) {
         ${tableId}(
           filter:$filter,
           limit:${limit}, 
@@ -287,7 +347,7 @@ const fetchTableData = async (
         }`;
 
   const filter = properties.filter ? properties.filter : {};
-  const orderby = properties.orderby ? properties.orderby : {};
+  const orderby = properties.orderby ? [properties.orderby] : [];
   const resp = await axios
     .post(graphqlURL(schemaId), {
       query: tableDataQuery,
@@ -307,6 +367,7 @@ const fetchOntologyOptions = async (
   const tableDataQuery = `query ${tableId} {
         ${tableId}(
           limit:100000
+          orderby: { order: ASC }
           )
           {
           	order 
@@ -332,6 +393,40 @@ const fetchSettings = async (schemaId?: string) => {
     ._settings;
 };
 
+// session scoped cache of table permissions per schema, so a form referencing
+// another schema can resolve insert/update/delete rights without refetching
+const tablePermissionsCache = new Map<string, Promise<ITablePermission[]>>();
+
+const fetchTablePermissions = (
+  schemaId: string
+): Promise<ITablePermission[]> => {
+  if (!tablePermissionsCache.has(schemaId)) {
+    tablePermissionsCache.set(
+      schemaId,
+      request(
+        graphqlURL(schemaId),
+        "{_session{tablePermissions{id,name,canView,canInsert,canUpdate,canDelete,isRowLevel}}}"
+      ).then((response) => response?._session?.tablePermissions ?? [])
+    );
+  }
+  return tablePermissionsCache.get(schemaId)!;
+};
+
+// resolve the permission of a referenced table: same-schema references are
+// already in the seed (the current session), a reference to another schema is
+// fetched (and cached) from that schema
+const resolveTablePermission = async (
+  schemaId: string,
+  tableId: string,
+  seed: ITablePermission[] = []
+): Promise<ITablePermission | undefined> => {
+  const match = (p: ITablePermission) => p.id === tableId || p.name === tableId;
+  return (
+    seed.find(match) ??
+    (schemaId ? (await fetchTablePermissions(schemaId)).find(match) : undefined)
+  );
+};
+
 const request = async (url: string, graphql: string, variables?: any) => {
   const data: { query: string; variables?: any } = { query: graphql };
   if (variables) {
@@ -352,41 +447,6 @@ const request = async (url: string, graphql: string, variables?: any) => {
     });
 };
 
-const isFileValue = (value: File) => {
-  if (window && "File" in window) {
-    return value instanceof File;
-  } else {
-    throw "Files can only be uploaded via a browser client";
-  }
-};
-
-const toFormData = (rowData: IRow) => {
-  if (!FormData) {
-    throw "Files can only be uploaded via a browser client";
-  }
-  const formData = new FormData();
-  let nonFileValue: { [key: string]: string } = {};
-  let fileValues: { [key: string]: string } = {};
-
-  // split into file and non-file entries
-  for (const [key, value] of Object.entries(rowData)) {
-    isFileValue(value)
-      ? (fileValues[key] = value)
-      : (nonFileValue[key] = value);
-  }
-
-  // add the file objects to the formData and place a link to the object in the variables
-  for (const [key, value] of Object.entries(fileValues)) {
-    const id = Math.random().toString(36);
-    formData.append(id, value);
-    nonFileValue[key] = id;
-  }
-
-  formData.append("variables", JSON.stringify({ value: [nonFileValue] }));
-
-  return formData;
-};
-
 async function convertRowToPrimaryKey(
   row: IRow,
   tableId: string,
@@ -394,8 +454,7 @@ async function convertRowToPrimaryKey(
 ): Promise<Record<string, any>> {
   const schema = await fetchSchemaMetaData(schemaId);
   const tableMetadata = schema.tables.find(
-    (table: ITableMetaData) =>
-      table.id === tableId && table.schemaId === schema.id
+    (table: ITableMetaData) => table.id === tableId
   );
   if (!tableMetadata?.columns) {
     throw new Error("Empty columns in metadata");
@@ -404,7 +463,7 @@ async function convertRowToPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
+        if (column.key === 1 && (cellValue || cellValue === 0)) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
@@ -415,23 +474,5 @@ async function convertRowToPrimaryKey(
       },
       Promise.resolve({})
     );
-  }
-
-  async function getKeyValue(
-    cellValue: any,
-    column: IColumn,
-    schemaId: string
-  ) {
-    if (typeof cellValue === "string") {
-      return cellValue;
-    } else {
-      if (column.refTableId) {
-        return await convertRowToPrimaryKey(
-          cellValue,
-          column.refTableId,
-          schemaId
-        );
-      }
-    }
   }
 }

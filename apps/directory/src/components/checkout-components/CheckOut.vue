@@ -1,58 +1,46 @@
 <template>
   <div>
     <button
-      class="btn btn-primary"
+      class="btn btn-primary text-nowrap"
       @click="showCart = !showCart"
       :disabled="disableButton"
     >
       <span>{{ uiText["request"] }}</span
-      ><span class="badge badge-light ml-2">
-        {{ collectionSelectionCount }}</span
-      >
+      ><span class="badge badge-light ml-2"> {{ nItemsInCart }}</span>
     </button>
-    <negotiator-selection v-model="showCart" :bookmark="bookmark" />
+    <NegotiatorSelection v-model="showCart" :bookmark="bookmark" />
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, ref } from "vue";
 import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useSettingsStore } from "../../stores/settingsStore";
-import NegotiatorSelection from "../popovers/NegotiatorSelection.vue";
+import NegotiatorSelection from "../cart/NegotiatorSelection.vue";
 
-export default {
-  setup() {
-    const settingsStore = useSettingsStore();
-    const checkoutStore = useCheckoutStore();
-    return { settingsStore, checkoutStore };
-  },
-  components: {
-    NegotiatorSelection,
-  },
-  props: {
-    disabled: {
-      type: Boolean,
-      required: false,
-      default: () => false,
-    },
-    bookmark: {
-      type: Boolean,
-      required: false,
-      default: () => true,
-    },
-  },
-  computed: {
-    uiText() {
-      return this.settingsStore.uiText;
-    },
-    collectionSelectionCount() {
-      return this.checkoutStore.collectionSelectionCount;
-    },
-    disableButton() {
-      return this.disabled || this.collectionSelectionCount === 0;
-    },
-  },
-  data: () => ({
-    showCart: false,
-  }),
-};
+const settingsStore = useSettingsStore();
+const checkoutStore = useCheckoutStore();
+
+const props = withDefaults(
+  defineProps<{
+    disabled?: boolean;
+    bookmark?: boolean;
+  }>(),
+  {
+    disabled: false,
+    bookmark: false,
+  }
+);
+
+const showCart = ref(false);
+
+const uiText = computed(() => settingsStore.uiText);
+const nItemsInCart = computed(
+  () =>
+    checkoutStore.collectionSelectionCount + checkoutStore.serviceSelectionCount
+);
+
+const disableButton = computed(
+  () => props.disabled || nItemsInCart.value === 0
+);
 </script>

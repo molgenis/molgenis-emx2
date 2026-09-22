@@ -1,19 +1,30 @@
 import gql from "graphql-tag";
-import { deepClone, ITableMetaData, IColumn } from "molgenis-components";
+import { deepClone } from "molgenis-components";
+import type { IColumn, ITableMetaData } from "metadata-utils";
+import { isCrossSchemaSubclass, isRootTable } from "./inheritSchema";
 
 export const schemaQuery = gql`
   {
     _session {
       schemas
+      admin
       roles
+      tablePermissions {
+        name
+        id
+        canView
+        canInsert
+        canUpdate
+        canDelete
+      }
     }
     _schema {
       name
       tables {
         name
-        schemaName
         tableType
         inheritName
+        inheritSchemaName
         labels {
           locale
           value
@@ -50,6 +61,8 @@ export const schemaQuery = gql`
           validation
           visible
           computed
+          formLabel
+          cascadeDelete
         }
       }
     }
@@ -63,10 +76,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     //normal tables
     let tables = !schema.tables
       ? []
-      : schema.tables.filter(
-          (table) =>
-            table.tableType !== "ONTOLOGIES" && table.schemaName === schema.name
-        );
+      : schema.tables.filter((table) => table.tableType !== "ONTOLOGIES");
     tables.forEach((t) => {
       t.oldName = t.name;
       if (t.columns) {
@@ -83,10 +93,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     });
     schema.ontologies = !schema.tables
       ? []
-      : schema.tables.filter(
-          (table) =>
-            table.tableType === "ONTOLOGIES" && table.schemaName === schema.name
-        );
+      : schema.tables.filter((table) => table.tableType === "ONTOLOGIES");
     //set old name so we can delete them properly
     schema.ontologies.forEach((o) => {
       o.oldName = o.name;
@@ -103,7 +110,7 @@ export function convertToSubclassTables(rawSchema: any) {
   //columns of subclasses should be put in root tables, sorted by position
   // this because position can only edited in context of root table
   schema.tables.forEach((table) => {
-    if (table.inheritName === undefined) {
+    if (isRootTable(table, schema.name)) {
       getSubclassTables(schema, table.name).forEach((subclass) => {
         //get columns from subclass tables
         table.columns.push(...subclass.columns);
@@ -128,7 +135,9 @@ export function convertToSubclassTables(rawSchema: any) {
 
 export function getSubclassTables(schema, tableName) {
   let subclasses = schema.tables.filter(
-    (table) => table.inheritName === tableName
+    (table) =>
+      table.inheritName === tableName &&
+      !isCrossSchemaSubclass(table, schema.name)
   );
   return subclasses.concat(
     subclasses
@@ -205,7 +214,6 @@ export function addTableIdsLabelsDescription(originalTable: ITableMetaData) {
   table.id = convertToPascalCase(table.name);
   table.label = getLocalizedLabel(table);
   table.description = getLocalizedDescription(table, "en");
-  table.schemaId = table.schemaName;
   table.inheritId = convertToPascalCase(table.inheritName);
   table.columns = table.columns.map((column) => {
     column.id = convertToCamelCase(column.name);

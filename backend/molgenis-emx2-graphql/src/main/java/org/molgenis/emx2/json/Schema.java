@@ -5,10 +5,12 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
 public class Schema {
+
   private List<Table> tables = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
 
@@ -44,6 +46,7 @@ public class Schema {
             .collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
       TableMetadata tm = s.create(table(t.getName()));
+      tm.setImportSchema(t.getInheritSchemaName());
       tm.setInheritName(t.getInheritName());
       tm.setSettings(
           t.getSettings().stream()
@@ -64,8 +67,9 @@ public class Schema {
               .filter(d -> d.value() != null)
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       for (Column c : t.getColumns()) {
-        int i = 1;
-        if (!c.isInherited()) {
+        if (c.getName().equals(Constants.MG_TOP_OF_FORM)) {
+          // skip
+        } else if (!c.isInherited()) {
           // we remove clearly inherited columns here
           org.molgenis.emx2.Column cm = c.getColumnMetadata(tm);
           tm.add(cm);

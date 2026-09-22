@@ -1,0 +1,8 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Subpopulation counts,,,,,,,,,,,,"Number of participants per cohort age group, optionally divided per sex","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",
+Subpopulation counts,,resource,ref,1,TRUE,,Resources,,,,,Resource id,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",
+Subpopulation counts,,subpopulation,ref,1,TRUE,,Subpopulations,resource,,,,Subpopulations for these counts,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",
+Subpopulation counts,,age group,ontology,1,TRUE,CatalogueOntologies,Age groups,,,,,Select the age group for these counts,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",
+Subpopulation counts,,N total,int,,,,,,,,,Total number,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",
+Subpopulation counts,,N female,int,,,,,,,,,Number of females,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",
+Subpopulation counts,,N male,int,,,,,,,,,Number of males,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",

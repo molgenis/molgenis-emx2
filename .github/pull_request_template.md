@@ -1,10 +1,17 @@
-What are the main changes you did:
+### What are the main changes you did
+
 - explain what you changed and essential considerations.
 
-how to test:
+### How to test
+
 - explain here what to do to test this (or point to unit tests)
 
-todo:
+### Checklist
+
+- [ ] checked that code complies with the [dev guidelines](https://github.com/molgenis/molgenis-emx2/blob/master/docs/molgenis/dev_guidelines.md)
+- [ ] frontend code follows good semantic HTML practices and meets accessibility guidelines [Accessibility guide](https://github.com/molgenis/molgenis-emx2/blob/master/docs/molgenis/dev_accessibility.md)
 - [ ] updated docs in case of new feature
 - [ ] added/updated tests
 - [ ] added/updated testplan to include a test for this fix, including ref to bug using # notation
+
+By creating this pull request I have agreed with the [contributor terms](https://github.com/molgenis/molgenis-emx2/blob/master/CONTRIBUTING.md)

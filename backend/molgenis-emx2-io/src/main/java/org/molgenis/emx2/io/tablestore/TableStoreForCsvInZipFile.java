@@ -8,7 +8,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -17,6 +16,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
 public class TableStoreForCsvInZipFile implements TableAndFileStore {
   static final String CSV_EXTENSION = ".csv";
@@ -68,24 +68,24 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    if (columnNames.isEmpty()) {
-      return;
-    }
+    writeTableStreaming(name, columnNames, rows::forEach);
+  }
+
+  @Override
+  public void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
     if (!Files.exists(zipFilePath)) {
       create();
     }
+    if (columnNames.isEmpty()) {
+      return;
+    }
     try (FileSystem zipfs = open()) {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
-      Writer writer = Files.newBufferedWriter(pathInZipfile);
-      if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, columnNames, writer, COMMA);
-      } else {
-        // only header in case no rows provided
-        writer.write(columnNames.stream().collect(Collectors.joining("" + COMMA)));
+      try (Writer writer = Files.newBufferedWriter(pathInZipfile)) {
+        rows.produce(CsvTableWriter.newRowWriter(columnNames, writer, COMMA));
       }
-      writer.close();
     } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe);
+      throw new MolgenisException("Export failed", ioe);
     }
   }
 
@@ -176,11 +176,19 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
     }
   }
 
-  // magic function to allow file in subfolder
   private ZipEntry getEntry(ZipFile zf, String name) {
+    String nameWithoutSpaces = name.replace(" ", "").toLowerCase();
     List<? extends ZipEntry> result =
         // find all files that have name as prefix
-        zf.stream().filter(e -> new File(e.getName()).getName().startsWith(name + ".")).toList();
+        zf.stream()
+            .filter(
+                entry ->
+                    new File(entry.getName())
+                        .getName()
+                        .replace(" ", "")
+                        .toLowerCase()
+                        .startsWith(nameWithoutSpaces + "."))
+            .toList();
     if (result.size() > 1) {
       throw new MolgenisException(
           "Import failed, contains multiple files of name " + name + " in different subfolders");

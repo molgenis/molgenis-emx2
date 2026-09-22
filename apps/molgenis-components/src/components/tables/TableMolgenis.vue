@@ -104,7 +104,8 @@ export default {
   computed: {
     dataColumns() {
       const columnsWithoutHeaders = this.columns.filter(
-        (column) => column.columnType !== "HEADING"
+        (column) =>
+          column.columnType !== "HEADING" && column.columnType !== "SECTION"
       );
 
       return columnsWithoutHeaders.map((column) => {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Page list</h1>
+    <h1>Manage pages</h1>
     <table class="table">
       <thead>
         <tr>
@@ -23,12 +23,7 @@
 </template>
 
 <script>
-import { ShowMore } from "molgenis-components";
-
 export default {
-  components: {
-    ShowMore,
-  },
   props: {
     session: Object,
   },

@@ -7,13 +7,10 @@ import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.PetStoreLoader.COLORS;
-import static org.molgenis.emx2.datamodels.PetStoreLoader.TAG;
 import static org.molgenis.emx2.sql.SqlQuery.SUM_FIELD;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import graphql.ExecutionResult;
-import graphql.GraphQL;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,6 +19,10 @@ import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestSumQuery {
+
+  public static final String TAG = "Tag";
+  public static final String COLORS = "colors";
+
   private static final String TEST_SUM_QUERY = "TestSumQuery";
   static Database database;
   static Schema schema;
@@ -173,9 +174,9 @@ public class TestSumQuery {
     assertTrue(json.contains("9")); // for Type b, Type a
 
     // test that the graphql also works
-    GraphQL graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, null);
+    GraphqlExecutor graphql = new GraphqlExecutor(schema);
     ExecutionResult result =
-        graphql.execute(
+        graphql.executeWithoutSession(
             """
             {Samples_groupBy {
               count
@@ -189,7 +190,7 @@ public class TestSumQuery {
             """);
     json = JsonUtil.getWriter().writeValueAsString(result.toSpecification().get("data"));
     assertEquals(
-        """
+"""
 {
   "Samples_groupBy" : [
     {

@@ -7,7 +7,7 @@ import PrintViewList from "./components/PrintViewList.vue";
 import ProfileManager from "./components/ProfileManager.vue";
 import VueScrollTo from "vue-scrollto";
 
-import "molgenis-components/dist/style.css";
+import "../../molgenis-components/dist/molgenis-components.css";
 
 const router = createRouter({
   history: createWebHashHistory(),

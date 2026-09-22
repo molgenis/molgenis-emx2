@@ -5,26 +5,26 @@ import static org.molgenis.emx2.ColumnType.AUTO_ID;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.MutationType.*;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
-import static org.molgenis.emx2.sql.SqlTypeUtils.applyValidationAndComputed;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
 
-import java.io.StringReader;
-import java.io.Writer;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.jooq.*;
+import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
-import org.postgresql.copy.CopyManager;
-import org.postgresql.core.BaseConnection;
+import org.molgenis.emx2.sql.autoid.IdGeneratorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class SqlTable implements Table {
+public class SqlTable implements Table {
+
+  private static final Set<String> INSERT_METADATA_COLUMNS = Set.of(MG_INSERTEDBY, MG_INSERTEDON);
+
   private SqlDatabase db;
   private SqlTableMetadata metadata;
   private TableListener tableListener;
@@ -46,74 +46,6 @@ class SqlTable implements Table {
     return metadata;
   }
 
-  public void copyOut(Writer writer) {
-    db.getJooq()
-        .connection(
-            connection -> {
-              try {
-                CopyManager cm = new CopyManager(connection.unwrap(BaseConnection.class));
-                String selectQuery =
-                    "select "
-                        + this.getMetadata().getLocalColumnNames().stream()
-                            .map(c -> "\"" + c + "\"")
-                            .collect(Collectors.joining(","))
-                        + " from \""
-                        + getSchema().getMetadata().getName()
-                        + "\".\""
-                        + getName()
-                        + "\"";
-                cm.copyOut(
-                    "COPY (" + selectQuery + " ) TO STDOUT WITH (FORMAT CSV,HEADER )", writer);
-              } catch (Exception e) {
-                throw new SqlMolgenisException("copyOut failed: ", e);
-              }
-            });
-  }
-
-  public void copyIn(Iterable<Row> rows) {
-    db.getJooq()
-        .connection(
-            connection -> {
-              try {
-                CopyManager cm = new CopyManager(connection.unwrap(BaseConnection.class));
-
-                // must be batched
-                StringBuilder tmp = new StringBuilder();
-                tmp.append(
-                    this.getMetadata().getLocalColumnNames().stream()
-                            .map(c -> "\"" + c + "\"")
-                            .collect(Collectors.joining(","))
-                        + "\n");
-                for (Row row : rows) {
-                  StringBuilder line = new StringBuilder();
-                  for (Column c : this.getMetadata().getStoredColumns()) {
-                    if (!row.containsName(c.getName())) {
-                      line.append(",");
-                    } else {
-                      Object value = getTypedValue(c, row);
-                      line.append(value + ",");
-                    }
-                  }
-                  tmp.append(line.substring(0, line.length() - 1) + "\n");
-                }
-
-                String tableName =
-                    "\"" + getSchema().getMetadata().getName() + "\".\"" + getName() + "\"";
-
-                String columnNames =
-                    "("
-                        + this.getMetadata().getLocalColumnNames().stream()
-                            .map(c -> "\"" + c + "\"")
-                            .collect(Collectors.joining(","))
-                        + ")";
-                String sql = "COPY " + tableName + columnNames + " FROM STDIN (FORMAT CSV,HEADER )";
-                cm.copyIn(sql, new StringReader(tmp.toString()));
-              } catch (Exception e) {
-                throw new SqlMolgenisException("copyOut failed: ", e);
-              }
-            });
-  }
-
   @Override
   public int insert(Row... rows) {
     return insert(Arrays.asList(rows));
@@ -121,6 +53,7 @@ class SqlTable implements Table {
 
   @Override
   public int insert(Iterable<Row> rows) {
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
     } catch (Exception e) {
@@ -135,6 +68,7 @@ class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
+    rowOwnership().validateOwners(rows); // an update keeps the owner the row already has
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
     } catch (Exception e) {
@@ -149,11 +83,16 @@ class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
       throw new SqlMolgenisException("Upsert into table '" + getName() + "' failed", e);
     }
+  }
+
+  private RowOwnership rowOwnership() {
+    return new RowOwnership(getSchema(), metadata);
   }
 
   @Override
@@ -173,7 +112,7 @@ class SqlTable implements Table {
       String mg_table = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database
-          .getJooq()
+          .getJooqWithExtendedTimeout()
           .deleteFrom(rootTable.getJooqTable())
           .where(field(MG_TABLECLASS).equal(mg_table))
           .execute();
@@ -181,7 +120,7 @@ class SqlTable implements Table {
     // else in normal table simply call delete
     else {
       // truncate would be faster, but then we need add code to remove and re-add foreign keys
-      database.getJooq().deleteFrom(t.getJooqTable()).execute();
+      database.getJooqWithExtendedTimeout().deleteFrom(t.getJooqTable()).execute();
     }
     logger.info(database.getActiveUser() + " truncated table " + tableName);
   }
@@ -217,7 +156,7 @@ class SqlTable implements Table {
           for (Row row : rows) {
 
             // set table class if not set, and see for first time
-            if (row.notNull(MG_TABLECLASS)
+            if (row.notEmpty(MG_TABLECLASS)
                 && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
 
               // validate
@@ -326,16 +265,18 @@ class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      List<Row> rows =
-          applyValidationAndComputed(
-              table.getMetadata().getColumns(), subclassRows.get(subclassName));
+      SqlRowProcessor rowProcessor = new SqlRowProcessor(table.getMetadata().getColumns());
+      List<Row> rows = subclassRows.get(subclassName);
+      rowProcessor.validateAndCompute(rows);
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(insertColumns, subclassRows.get(subclassName));
+      List<Row> rows = subclassRows.get(subclassName);
+      SqlRowProcessor rowProcessor = new SqlRowProcessor(insertColumns);
+      rowProcessor.validateAndCompute(rows);
       count.set(
           count.get()
-              + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns));
+              + table.insertBatch(rows, SAVE.equals(transactionType), insertColumns).size());
     } else {
       throw new MolgenisException(
           "Internal error in executeBatch: transaction type "
@@ -347,26 +288,26 @@ class SqlTable implements Table {
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
-    return table.getMetadata().getColumns().stream()
+    return table.getMetadata().getColumnsWithoutHeadings().stream()
         .filter(
             c ->
                 !c.isRefback()
-                    || c.getReferences().stream()
-                        .anyMatch(r -> columnsProvided.contains(r.getName())))
+                    || (c.isReference()
+                        && c.getReferences().stream()
+                            .anyMatch(r -> columnsProvided.contains(r.getColumnName()))))
         .toList();
   }
 
   private static List<Column> getUpdateColumns(SqlTable table, Set<String> columnsProvided) {
     return getInsertColumns(table, columnsProvided).stream()
         .filter(c -> !c.isReadonly() && !c.isPrimaryKey())
-        .filter(c -> !c.getName().equals(MG_INSERTEDBY) && !c.getName().equals(MG_INSERTEDON))
         .filter(
             c ->
                 AUTO_ID.equals(c.getColumnType())
                     || c.getComputed() != null
                     || (c.isReference()
                         ? c.getReferences().stream()
-                            .anyMatch(r -> columnsProvided.contains(r.getName()))
+                            .anyMatch(r -> columnsProvided.contains(r.getColumnName()))
                         : columnsProvided.contains(c.getName())))
         .toList();
   }
@@ -375,58 +316,138 @@ class SqlTable implements Table {
     return this.tableListener;
   }
 
-  private static int insertBatch(
-      SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
-    int count = 0;
+  private List<Record> insertBatch(
+      List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
+    boolean inherit = getMetadata().getInheritName() != null;
     if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      count = inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
+      insertIntoInheritedTable(rows, updateOnConflict, updateColumns);
     }
 
-    List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.size() == 0) return count;
-    List<Field> insertFields =
-        columns.stream().map(c -> c.getJooqField()).collect(Collectors.toList());
-    InsertValuesStepN<org.jooq.Record> step =
-        table.getJooq().insertInto(table.getJooqTable(), insertFields.toArray(new Field[0]));
+    List<Column> columns = getLocalStoredColumns(this, updateColumns);
+    if (columns.isEmpty()) {
+      return Collections.emptyList();
+    }
 
-    // add all the rows as steps
-    LocalDateTime now = LocalDateTime.now();
+    MgDefaults mgDefaults = inherit ? null : MgDefaults.of(this);
+
+    InsertValuesStepN<org.jooq.Record> step = createInsertStep(columns);
+    addRowsToInsertStep(step, rows, columns, mgDefaults);
+    if (updateOnConflict) {
+      addUpdateOnConflictClause(step, rows, columns, mgDefaults);
+    }
+
+    return step.returningResult(getMetadata().getPrimaryKeyFields()).fetch();
+  }
+
+  private void insertIntoInheritedTable(
+      List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
+    SqlTable inheritedTable = getInheritedTable();
+    List<Record> records = inheritedTable.insertBatch(rows, updateOnConflict, updateColumns);
+
+    List<Column> autoIdColumns =
+        inheritedTable.getMetadata().getPrimaryKeyColumns().stream()
+            .filter(c -> AUTO_ID.equals(c.getColumnType()))
+            .toList();
+
+    for (int i = 0; i < records.size(); i++) {
+      copyRecordValuesIntoRows(rows.get(i), records.get(i), autoIdColumns);
+    }
+  }
+
+  private InsertValuesStepN<org.jooq.Record> createInsertStep(List<Column> columns) {
+    List<Field> insertFields = columns.stream().map(Column::getJooqField).toList();
+    return getJooq().insertInto(getJooqTable(), insertFields.toArray(new Field[0]));
+  }
+
+  private void addRowsToInsertStep(
+      InsertValuesStepN<org.jooq.Record> step,
+      List<Row> rows,
+      List<Column> columns,
+      MgDefaults mgDefaults) {
     for (Row row : rows) {
-      // get values
-      Map values = getSelectedRowValues(columns, row);
-      if (!inherit) {
-        values.put(MG_INSERTEDBY, getActiveUser(table));
-        values.put(MG_INSERTEDON, now);
-        values.put(MG_UPDATEDBY, getActiveUser(table));
-        values.put(MG_UPDATEDON, now);
+      Map<String, Object> values = getSelectedRowValues(columns, row);
+      if (mgDefaults != null) {
+        mgDefaults.applyToInsert(values);
       }
       step.values(values.values());
     }
+  }
 
-    // optionally, add conflict clause
-    if (updateOnConflict) {
-      InsertOnDuplicateSetStep<org.jooq.Record> step2 =
-          step.onConflict(table.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
-              .doUpdate();
-      // remove mg_table as part of update key
-      for (Column column :
-          columns.stream()
-              .filter(
-                  c -> c.getName().equals(MG_TABLECLASS) || !Boolean.TRUE.equals(c.isReadonly()))
-              .toList()) {
-        step2.set(
-            column.getJooqField(),
-            (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
-      }
-      if (!inherit) {
-        step2.set(field(name(MG_UPDATEDBY)), getActiveUser(table));
-        step2.set(field(name(MG_UPDATEDON)), now);
+  private void addUpdateOnConflictClause(
+      InsertValuesStepN<org.jooq.Record> step,
+      List<Row> rows,
+      List<Column> columns,
+      MgDefaults mgDefaults) {
+    InsertOnDuplicateSetStep<org.jooq.Record> onConflict =
+        step.onConflict(getMetadata().getPrimaryKeyFields().toArray(new Field[0])).doUpdate();
+
+    for (Column column : getColumnsToOverwriteOnConflict(columns)) {
+      onConflict.set(column.getJooqField(), (Object) getExcludedField(column));
+    }
+    if (mgDefaults != null) {
+      setMgValuesOnConflict(onConflict, rows, columns, mgDefaults);
+    }
+  }
+
+  private static void setMgValuesOnConflict(
+      InsertOnDuplicateSetStep<org.jooq.Record> onConflict,
+      List<Row> rows,
+      List<Column> columns,
+      MgDefaults mgDefaults) {
+    List<String> insertedColumnNames = columns.stream().map(Column::getName).toList();
+
+    for (String insertMetadataColumn : INSERT_METADATA_COLUMNS) {
+      if (mgDefaults.mayOverride()
+          && insertedColumnNames.contains(insertMetadataColumn)
+          && allRowsProvide(rows, insertMetadataColumn)) {
+        onConflict.set(
+            field(name(insertMetadataColumn)), (Object) getExcludedField(insertMetadataColumn));
       }
     }
+    onConflict.set(
+        field(name(MG_UPDATEDBY)),
+        insertedColumnNames.contains(MG_UPDATEDBY)
+            ? getExcludedField(MG_UPDATEDBY)
+            : mgDefaults.user());
+    onConflict.set(
+        field(name(MG_UPDATEDON)),
+        insertedColumnNames.contains(MG_UPDATEDON)
+            ? getExcludedField(MG_UPDATEDON)
+            : mgDefaults.now());
+  }
 
-    return step.execute();
+  private record MgDefaults(String user, LocalDateTime now, boolean mayOverride) {
+    static MgDefaults of(SqlTable table) {
+      return new MgDefaults(getActiveUser(table), LocalDateTime.now(), mayOverrideMgValues(table));
+    }
+
+    void applyToInsert(Map<String, Object> values) {
+      putMgValue(values, MG_INSERTEDBY, mayOverride, user);
+      putMgValue(values, MG_INSERTEDON, mayOverride, now);
+      putMgValue(values, MG_UPDATEDBY, mayOverride, user);
+      putMgValue(values, MG_UPDATEDON, mayOverride, now);
+    }
+  }
+
+  private static List<Column> getColumnsToOverwriteOnConflict(List<Column> columns) {
+    return columns.stream()
+        .filter(c -> MG_TABLECLASS.equals(c.getName()) || !Boolean.TRUE.equals(c.isReadonly()))
+        .filter(c -> !INSERT_METADATA_COLUMNS.contains(c.getName()))
+        .toList();
+  }
+
+  private static Field<Object> getExcludedField(Column column) {
+    return getExcludedField(column.getName());
+  }
+
+  private static Field<Object> getExcludedField(String columnName) {
+    return field(unquotedName("excluded.\"" + columnName + "\""));
+  }
+
+  private static void copyRecordValuesIntoRows(Row row, Record from, List<Column> toCopy) {
+    for (Column column : toCopy) {
+      row.set(column.getName(), from.getValue(column.getName()));
+    }
   }
 
   private static String getActiveUser(SqlTable table) {
@@ -437,7 +458,7 @@ class SqlTable implements Table {
     return user;
   }
 
-  private static int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
+  private int updateBatch(SqlTable table, List<Row> rows, List<Column> updateColumns) {
     boolean inherit = table.getMetadata().getInheritName() != null;
     int count = 0;
     if (inherit) {
@@ -452,11 +473,19 @@ class SqlTable implements Table {
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
     LocalDateTime now = LocalDateTime.now();
+    String activeUser = getActiveUser(table);
+    boolean mayOverrideMgValues = mayOverrideMgValues(table);
     for (Row row : rows) {
-      Map values = getSelectedRowValues(columns, row);
+      Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
-        values.put(MG_UPDATEDBY, getActiveUser(table));
-        values.put(MG_UPDATEDON, now);
+        putMgValue(values, MG_UPDATEDBY, mayOverrideMgValues, activeUser);
+        putMgValue(values, MG_UPDATEDON, mayOverrideMgValues, now);
+        if (mayOverrideMgValues) {
+          // insert metadata is only updated when supplied, never cleared
+          INSERT_METADATA_COLUMNS.forEach(column -> values.remove(column, null));
+        } else {
+          INSERT_METADATA_COLUMNS.forEach(values::remove);
+        }
       }
 
       list.add(
@@ -470,6 +499,21 @@ class SqlTable implements Table {
     return Arrays.stream(table.getJooq().batch(list).execute()).reduce(Integer::sum).getAsInt();
   }
 
+  private static boolean allRowsProvide(List<Row> rows, String columnName) {
+    return rows.stream().allMatch(row -> row.notEmpty(columnName));
+  }
+
+  private static boolean mayOverrideMgValues(SqlTable table) {
+    return PermissionEvaluator.canManage(table.getSchema());
+  }
+
+  private static void putMgValue(
+      Map<String, Object> values, String key, boolean mayOverrideMgValues, Object defaultValue) {
+    if (!mayOverrideMgValues || values.get(key) == null) {
+      values.put(key, defaultValue);
+    }
+  }
+
   private static List<Column> getLocalStoredColumns(SqlTable table, List<Column> updateColumns) {
     List<String> updateColumnNames = updateColumns.stream().map(c -> c.getName()).toList();
     List<Column> storedColumns =
@@ -480,9 +524,18 @@ class SqlTable implements Table {
     return expandedColumns;
   }
 
-  private static Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
+  private Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {
     Map<String, Object> selectedValues = new LinkedHashMap<>();
-    selection.forEach(c -> selectedValues.put(c.getName(), getTypedValue(c, row)));
+    for (Column column : selection) {
+      if (AUTO_ID.equals(column.getColumnType())
+          && !metadata.getColumn(column.getName()).isReference()
+          && row.isNull(column.getName(), column.getPrimitiveColumnType())) {
+        selectedValues.put(column.getName(), new IdGeneratorService().generateIdForColumn(column));
+      } else {
+        selectedValues.put(column.getName(), getTypedValue(column, row));
+      }
+    }
+
     return selectedValues;
   }
 
@@ -491,7 +544,7 @@ class SqlTable implements Table {
     for (Column key : pkeyFields) {
       if (key.isReference()) {
         for (Reference ref : key.getReferences()) {
-          result.add(ref.getJooqField().eq(row.get(ref.getName(), ref.getPrimitiveType())));
+          result.add(ref.getJooqField().eq(row.get(ref.getColumnName(), ref.getPrimitiveType())));
         }
       } else {
         result.add(key.getJooqField().eq(row.get(key)));
@@ -501,33 +554,51 @@ class SqlTable implements Table {
   }
 
   @Override
-  public int delete(Iterable<Row> rows) {
+  public int delete(Iterable<Row> rows, boolean strict) {
     long start = System.currentTimeMillis();
 
-    AtomicInteger count = new AtomicInteger(0);
+    AtomicInteger nrDeleted = new AtomicInteger(0);
     try {
       db.tx(
           db2 -> {
-            SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
-
-            // delete in batches
             int batchSize = 1000;
+            int currentBatchSize = 0;
+            int nrRowsToDelete = 0;
+
+            SqlTable table = (SqlTable) db2.getSchema(getSchema().getName()).getTable(getName());
             List<Row> batch = new ArrayList<>();
+
             for (Row row : rows) {
+              nrRowsToDelete++;
               batch.add(row);
-              count.set(count.get() + 1);
-              if (count.get() % batchSize == 0) {
-                deleteBatch(table, batch);
+              currentBatchSize++;
+              if (currentBatchSize % batchSize == 0) {
+                nrDeleted.addAndGet(deleteBatch(table, batch));
                 batch.clear();
+                currentBatchSize = 0;
               }
             }
 
             // delete remaining elements
-            deleteBatch(table, batch);
+            nrDeleted.addAndGet(deleteBatch(table, batch));
 
             // finally delete in superclass
             if (table.getMetadata().getInheritName() != null) {
               table.getInheritedTable().delete(rows);
+            }
+
+            // Validate that we deleted exactly the number of rows we intended to delete
+            if (nrDeleted.get() != nrRowsToDelete && strict) {
+              throw new MolgenisException(
+                  "Delete failed: attempted to delete "
+                      + nrRowsToDelete
+                      + " rows but only deleted "
+                      + nrDeleted.get()
+                      + " row"
+                      + (nrDeleted.get() == 1 ? "" : "s")
+                      + ". Some specified rows do not exist in table "
+                      + getName()
+                      + ". Transaction rolled back.");
             }
 
             // notify handlers
@@ -539,9 +610,8 @@ class SqlTable implements Table {
       throw new SqlMolgenisException("Delete into table " + getName() + " failed", e);
     }
 
-    log(db.getActiveUser(), getName(), start, count, "deleted");
-
-    return count.get();
+    log(db.getActiveUser(), getName(), start, nrDeleted, "deleted");
+    return nrDeleted.get();
   }
 
   @Override
@@ -568,12 +638,7 @@ class SqlTable implements Table {
     return query().search(terms);
   }
 
-  @Override
-  public int delete(Row... rows) {
-    return delete(Arrays.asList(rows));
-  }
-
-  private static void deleteBatch(SqlTable table, Collection<Row> rows) {
+  private static int deleteBatch(SqlTable table, Collection<Row> rows) {
     if (!rows.isEmpty()) {
       List<String> keyNames =
           table.getMetadata().getPrimaryKeyFields().stream()
@@ -586,8 +651,10 @@ class SqlTable implements Table {
             "Delete on table " + table.getName() + " failed: no primary key set");
       }
       Condition whereCondition = table.getWhereConditionForBatchDelete(rows);
-      table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
+      return table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
     }
+
+    return 0;
   }
 
   private DSLContext getJooq() {
@@ -620,7 +687,9 @@ class SqlTable implements Table {
         if (!ref.isOverlapping()) {
           columnCondition.add(
               ref.getJooqField()
-                  .eq(cast(r.get(ref.getName(), ref.getPrimitiveType()), ref.getJooqField())));
+                  .eq(
+                      cast(
+                          r.get(ref.getColumnName(), ref.getPrimitiveType()), ref.getJooqField())));
         }
       }
     } else if (key.isRefback()) {
@@ -651,8 +720,8 @@ class SqlTable implements Table {
   }
 
   @Override
-  public List<Row> retrieveRows() {
-    return this.query().retrieveRows();
+  public List<Row> retrieveRows(Query.Option... options) {
+    return this.query().retrieveRows(options);
   }
 
   @Override

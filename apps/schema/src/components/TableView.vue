@@ -12,20 +12,17 @@
           >
             Table: {{ table.name }}
             <span v-if="table.semantics" class="small">
-              (<a
-                :href="purl"
-                target="_blank"
-                v-for="purl in table.semantics"
-                :key="purl"
-                >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+              (<template v-for="(semantics, index) in table.semantics"
+                ><template v-if="index > 0">,</template
+                >{{ semantics }}</template
               >)
             </span>
           </h4>
           <TableEditModal
             v-if="isManager"
-            v-model="table"
+            :modelValue="table"
             :schema="schema"
-            @update:modelValue="$emit('update:modelValue', table)"
+            @update:modelValue="updateTable"
             :locales="locales"
           />
           <IconDanger
@@ -60,6 +57,13 @@
           </table>
         </div>
 
+        <div v-if="isCrossSchemaSubclass(table, schema.name)" class="mb-2">
+          <label style="display: inline">Extends:</label>
+          <span class="ml-2">
+            {{ table.inheritSchemaName }}.{{ table.inheritName }}
+          </span>
+        </div>
+
         <div v-if="table.tableType !== 'ONTOLOGIES'">
           <div>
             <div class="hoverContainer mb-2">
@@ -84,9 +88,11 @@
               v-if="table.subclasses"
             >
               <thead>
-                <th style="width: 25ch" scope="col">subclass</th>
-                <th style="width: 25ch" scope="col">extends</th>
-                <th scope="col">description</th>
+                <tr>
+                  <th style="width: 25ch" scope="col">subclass</th>
+                  <th style="width: 25ch" scope="col">extends</th>
+                  <th scope="col">description</th>
+                </tr>
               </thead>
               <tbody>
                 <tr
@@ -104,10 +110,10 @@
                     {{ subclass.name }}
                     <TableEditModal
                       v-if="isManager"
-                      v-model="table.subclasses[index]"
+                      :modelValue="table.subclasses[index]"
                       :schema="schema"
                       :rootTable="table"
-                      @update:modelValue="$emit('update:modelValue', table)"
+                      @update:modelValue="updateSubclass(index, $event)"
                     />
                     <IconDanger
                       v-if="isManager"
@@ -169,7 +175,7 @@
               <template #item="{ element, index }">
                 <ColumnView
                   :style="
-                    isSubclassDropped(element)
+                    isColumnOwnerDropped(table, element)
                       ? 'text-decoration: line-through'
                       : ''
                   "
@@ -209,6 +215,8 @@ import ColumnView from "./ColumnView.vue";
 import Draggable from "vuedraggable";
 import TableEditModal from "./TableEditModal.vue";
 import ColumnEditModal from "./ColumnEditModal.vue";
+import { isCrossSchemaSubclass } from "../inheritSchema";
+import { applyTableRename, isColumnOwnerDropped } from "../tableModel";
 
 export default {
   components: {
@@ -246,6 +254,21 @@ export default {
     };
   },
   methods: {
+    isCrossSchemaSubclass,
+    updateTable(updatedTable) {
+      applyTableRename(updatedTable, this.table.name, updatedTable.name);
+      this.table = updatedTable;
+      this.$emit("update:modelValue", this.table);
+    },
+    updateSubclass(index, updatedSubclass) {
+      applyTableRename(
+        this.table,
+        this.table.subclasses[index].name,
+        updatedSubclass.name
+      );
+      this.table.subclasses.splice(index, 1, updatedSubclass);
+      this.$emit("update:modelValue", this.table);
+    },
     updateColumn(index, column) {
       this.table.columns.splice(index, 1, column);
       this.$emit("update:modelValue", this.table);
@@ -303,15 +326,7 @@ export default {
       }
       this.$emit("update:modelValue", this.table);
     },
-    isSubclassDropped(column) {
-      if (column.table === this.table.name) {
-        return this.table.drop;
-      } else {
-        return this.table.subclasses?.find(
-          (subclass) => subclass.name === column.table
-        ).drop;
-      }
-    },
+    isColumnOwnerDropped,
     createSubclass(subclass) {
       if (!this.table.subclasses) {
         //need to $set otherwise vue doesn't see the change

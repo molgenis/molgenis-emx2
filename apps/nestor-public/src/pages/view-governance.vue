@@ -1,0 +1,25 @@
+<script setup lang="ts">
+// @ts-expect-error
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+</script>
+
+<template>
+  <Page class="nestor-page">
+    <PageHeader
+      title="NESTOR Registry"
+      subtitle="Governance"
+      titlePositionX="center"
+      titlePositionY="center"
+      height="medium"
+    />
+    <PageSection
+      aria-labelledby="governance-section-title"
+      :verticalPadding="2"
+    >
+      <h2 id="disclaimer-section-title">Project Governance</h2>
+      <MessageBox type="warning">
+        <span>This page is under construction.</span>
+      </MessageBox>
+    </PageSection>
+  </Page>
+</template>

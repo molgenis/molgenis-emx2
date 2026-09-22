@@ -1,0 +1,5 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,antenatal,Antenatal onset,,HPO,0030674,,Antenatal onset
+2,at birth,Congenital onset,,HPO,003577,,A phenotypic abnormality that is present at birth.
+3,date,Onset Date,,NCIT,C93613,,The date (and time) on which the event began.
+4,unknown,Unknown or not reported,,NCIT,C43234,,Not provided or available.

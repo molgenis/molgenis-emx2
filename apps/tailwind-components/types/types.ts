@@ -1,20 +1,103 @@
+import type {
+  columnValue,
+  IColumn,
+  IRefColumn,
+} from "../../metadata-utils/src/types";
+
+export type Resp<T> = {
+  data: Record<string, T[]>;
+};
+export interface MgError {
+  message: string;
+  statusCode: number;
+  data: { errors: { message: string }[] };
+}
+
+export interface Schema {
+  id: string;
+  label: string;
+  description: string;
+}
 export interface INode {
   name: string;
   description?: string;
 }
 
+export interface IValueLabel {
+  value: any;
+  label?: string;
+}
+
 export interface ITreeNode extends INode {
-  children: 
-  ITreeNode[];
+  parent?: string;
+  label?: string;
+  children: ITreeNode[];
+}
+
+export interface ITreeNodeState extends ITreeNode {
+  /* if a node should be shown, used for search filter */
+  visible?: boolean;
+  /* label will be shown if provided instead of name */
+  label?: string;
+  /* code from a code system */
+  code?: string;
+  /* code system if provided */
+  codesystem?: string;
+  /* uri where the code comes from */
+  uri?: string;
+  /* if a node is selected, intermediate or unselected*/
+  selected?: SelectionState; //'unselected','selected','intermediate'
+  /* if a node should be shown expanded */
+  expanded?: boolean;
+  /* helper to quickly navigate to parent node */
+  parent?: string;
+  /* helper to quickly navigate to parent node */
+  parentNode?: ITreeNodeState;
+  /* extension of children */
+  children: ITreeNodeState[];
+  /* if a node is selectable */
+  selectable: boolean;
+  /* pagination: current offset for loading more children */
+  loadMoreOffset?: number;
+  /* pagination: total count of children available */
+  loadMoreTotal?: number;
+  /* pagination: whether there are more children to load */
+  loadMoreHasMore?: boolean;
+  /* whether this node is showing all children (bypassing search filter) */
+  showingAll?: boolean;
+  unfilteredTotal?: number;
+  hiddenByCount?: boolean;
+}
+
+export type SelectionState = "selected" | "intermediate" | "unselected";
+
+export interface IOntologyTreeItem {
+  name: string;
+  label?: string;
+  definition?: string;
+  order?: number;
+  code?: string;
+  ontologyTermURI?: string;
+  parent?: IOntologyTreeItem;
+  children?: IOntologyTreeItem[];
+}
+
+export interface IOntologyTerm {
+  name: string;
+  label?: string;
+  definition?: string;
+  order?: number;
+  parent?: { name: string } | null;
 }
 
 export type ButtonType =
   | "primary"
   | "secondary"
   | "tertiary"
+  | "text"
   | "outline"
-  | "disabled"
-  | "filterWell";
+  | "filterWell"
+  | "inline";
 
 export type ButtonSize = "tiny" | "small" | "medium" | "large";
 
@@ -27,3 +110,137 @@ export type INotificationType =
   | "error"
   | "warning"
   | "info";
+
+export type sortDirection = "ASC" | "DESC";
+export interface ITableSettings {
+  page: number;
+  pageSize: number;
+  orderby: {
+    column: string;
+    direction: sortDirection;
+  };
+  orderedColumnsIds: string[];
+  search?: string;
+}
+
+export interface ISectionField {
+  meta: IColumn;
+  value: any;
+}
+
+export interface ISection {
+  meta: IColumn;
+  fields: ISectionField[];
+}
+
+export interface IFile {
+  id?: string;
+  size?: number;
+  filename?: string;
+  extension?: string;
+  url?: string;
+}
+
+export interface IDocumentation {
+  name: string;
+  description?: string;
+  url?: string;
+  file?: IFile;
+}
+
+export interface IRadioOptionsData {
+  value: columnValue;
+  label?: string;
+  checked?: boolean | undefined;
+}
+
+export interface IInputProps {
+  id: string;
+  placeholder?: string;
+  describedBy?: string;
+  invalid?: boolean;
+  valid?: boolean | undefined;
+  disabled?: boolean | undefined;
+}
+
+export type schemaId = string;
+
+export interface ISession {
+  email: string;
+  admin: boolean;
+  roles?: Record<schemaId, string[]>;
+  tablePermissions?: Record<schemaId, ITablePermission[]>;
+  schemas?: Schema[];
+  token?: string;
+}
+export interface ITablePermission {
+  name: string;
+  id: string;
+  canView: boolean;
+  canInsert: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  isRowLevel: boolean;
+}
+
+export interface RefPayload {
+  metadata: IRefColumn;
+  data: columnValue;
+}
+
+export interface ColumnPayload {
+  metadata: IColumn;
+  data: columnValue;
+}
+
+export interface ListPayload {
+  metadata: IColumn;
+  data: columnValue[];
+}
+
+export type cellPayload = ColumnPayload | RefPayload | ListPayload;
+
+export interface Section {
+  heading: string;
+  fields: {
+    key: string;
+    value: columnValue;
+    metadata: IColumn;
+  }[];
+}
+
+export interface Crumb {
+  url: string;
+  label: string;
+}
+export interface Link {
+  link: string;
+  isSpaLink?: boolean;
+}
+export interface MenuItem extends Link {
+  label: string;
+  role?: string;
+  key?: string;
+  submenu?: Menu;
+}
+
+export type Menu = MenuItem[];
+export interface Settings {
+  [key: string]: unknown;
+}
+export interface SystemSettings extends Settings {
+  isOidcEnabled: boolean;
+}
+
+export interface SchemaPermission {
+  name: string;
+  permissions: TablePermission[];
+}
+
+export interface TablePermission {
+  table: string;
+  isRowLevel: boolean;
+  insert: boolean;
+  update: boolean;
+  delete: boolean;
+}

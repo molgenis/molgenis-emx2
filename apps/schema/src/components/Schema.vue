@@ -17,10 +17,18 @@
           >
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
-          <ButtonAction href="./#/print" target="_blank" class="ml-2">
+          <ButtonAction
+            :href="`/${schema.name}/schema/#/print`"
+            target="_blank"
+            class="ml-2"
+          >
             Show printable table
           </ButtonAction>
-          <ButtonAction href="./#/print-list" target="_blank" class="ml-2">
+          <ButtonAction
+            :href="`/${schema.name}/schema/#/print-list`"
+            target="_blank"
+            class="ml-2"
+          >
             Show printable list
           </ButtonAction>
           <MessageError v-if="error" class="ml-2 m-0 p-2">
@@ -44,6 +52,7 @@
           @update:modelValue="handleInput"
           :key="key"
           :isManager="isManager"
+          :schemaNames="schemaNames"
         />
       </div>
       <div class="bg-white col ml-2 overflow-auto">
@@ -107,6 +116,7 @@ import {
   addOldNamesAndRemoveMeta,
   convertToSubclassTables,
 } from "../utils.ts";
+import { toSaveTables } from "../tableModel";
 import gql from "graphql-tag";
 
 export default {
@@ -159,43 +169,7 @@ export default {
       this.warning = "submitting changes";
       this.success = null;
       //copy so in case of error user can continue to edit
-      let schema = deepClone(this.schema);
-      let tables = schema.tables ? schema.tables : [];
-
-      //transform subclasses back into their original tables.
-      //create a map of tables
-      let tableMap = {};
-      tables.forEach((table) => {
-        tableMap[table.name] = table;
-        if (table.subclasses) {
-          table.subclasses.forEach((subclass) => {
-            tableMap[subclass.name] = subclass;
-          });
-          delete table.subclasses;
-        }
-      });
-      //redistribute the columns to subclasses
-      tables.forEach((table) => {
-        if (table.columns !== undefined) {
-          table.columns.forEach((column) => {
-            if (column.table !== table.oldName) {
-              if (tableMap[column.table].columns === undefined) {
-                tableMap[column.table].columns = [];
-              }
-              tableMap[column.table].columns.push(column);
-            }
-          });
-        }
-      });
-      tables.forEach((table) => {
-        delete table.schemaId;
-        table.columns = table.columns
-          ? table.columns.filter((column) => column.table === table.name)
-          : [];
-      });
-      tables = Object.values(tableMap);
-      //add ontologies
-      tables.push(...schema.ontologies);
+      const tables = toSaveTables(deepClone(this.schema));
       request(
         "graphql",
         gql`

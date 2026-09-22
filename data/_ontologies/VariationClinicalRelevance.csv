@@ -1,6 +1,0 @@
-name,definition,codesystem,code,ontologyTermURI
-Pathogenic,"A genetic variant that is known to directly contribute to the development of disease.",NCIT,C168799,http://purl.obolibrary.org/obo/NCIT_C168799
-Likely pathogenic,"A genetic variant that is known to have a high likelihood (greater than 90% certainty) to contribute to the development of a disease.",NCIT,C168800,http://purl.obolibrary.org/obo/NCIT_C168800
-Uncertain Significance,"A variation in a genetic sequence whose association with disease risk is unknown.",NCIT,C94187,http://purl.obolibrary.org/obo/NCIT_C94187
-Likely benign,"A genetic variant that is not expected to contribute to the development of a disease, but the scientific evidence may be insufficient to prove this conclusively.",NCIT,C168801,http://purl.obolibrary.org/obo/NCIT_C168801
-Benign,"A genetic variant that is known to not contribute to the development of a disease.",NCIT,C168802,http://purl.obolibrary.org/obo/NCIT_C168802

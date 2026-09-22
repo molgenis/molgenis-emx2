@@ -4,7 +4,7 @@ import App from "./App.vue";
 import ViewReport from "./components/ViewEditReport.vue";
 import ListReports from "./components/ListReports.vue";
 
-import "molgenis-components/dist/style.css";
+import "../../molgenis-components/dist/molgenis-components.css";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -15,7 +15,7 @@ const router = createRouter({
       props: true,
     },
     {
-      path: "/:id",
+      path: "/:index",
       name: "edit",
       component: ViewReport,
       props: true,

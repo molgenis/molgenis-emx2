@@ -2,15 +2,20 @@ package org.molgenis.emx2.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import java.io.IOException;
 import java.io.StringWriter;
 import org.jooq.DSLContext;
+import org.jooq.JSON;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -79,12 +84,12 @@ public class JsonUtil {
   }
 
   public static ObjectWriter getWriter() {
-
     if (writer == null) {
       DefaultPrettyPrinter printer =
           new DefaultPrettyPrinter()
               .withArrayIndenter(new DefaultIndenter("  ", "\n"))
               .withObjectIndenter(new DefaultIndenter("  ", "\n"));
+
       writer =
           new ObjectMapper()
               .addMixIn(SchemaMetadata.class, MixinForJsonIgnore.class)
@@ -97,6 +102,27 @@ public class JsonUtil {
               .writer(printer);
     }
     return writer;
+  }
+
+  public static SimpleModule getJooqJsonModule() {
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(
+        JSON.class,
+        new JsonSerializer<>() {
+          @Override
+          public void serialize(JSON json, JsonGenerator gen, SerializerProvider sp)
+              throws IOException {
+            gen.writeRawValue(json.data());
+          }
+        });
+    return module;
+  }
+
+  public static ObjectMapper getJooqMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+
+    mapper.registerModule(getJooqJsonModule());
+    return mapper;
   }
 
   @JsonIgnoreType

@@ -1,9 +1,14 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+</script>
+
 <template>
   <Page>
     <PageHeader
       title="ERN ReCONNET"
       subtitle="European Reference Network on Rare and Complex Connective Tissue and Musculoskeletal Diseases"
-      :imageSrc="ProjectBannerImage"
+      imageSrc="img/ern-reconnet-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title">
       <h2 id="welcome-title">About the ERN ReCONNET registry!</h2>
@@ -13,8 +18,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup>
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
-import ProjectBannerImage from "../assets/ern-reconnet-header.jpg";
-</script>

@@ -5,3 +5,11 @@ dependencies {
 
     testImplementation project(':backend:molgenis-emx2-tasks')
 }
+
+//gradle generateTypes --args='schemaname path.ts'
+tasks.register('generateTypes', JavaExec) {
+    group = 'application'
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir = rootProject.projectDir
+    mainClass.set('org.molgenis.emx2.typescript.AToolToGenerateTypeScriptTypes')
+}

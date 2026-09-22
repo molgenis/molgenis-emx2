@@ -11,6 +11,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
+import org.molgenis.emx2.io.tablestore.processor.RowProcessor;
 
 /** can only handle one table */
 public class TableStoreForCsvFile implements TableStore {

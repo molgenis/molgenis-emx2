@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
+import static org.molgenis.emx2.TableMetadata.SCHEMA_NAME_MESSAGE;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
@@ -42,6 +43,10 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   }
 
   private void validateSchemaName(String name) {
+    // we only allow _SYSTEM_
+    if (!name.matches(Constants.SCHEMA_NAME_REGEX) && !name.equals("_SYSTEM_")) {
+      throw new MolgenisException("Invalid schema name '" + name + SCHEMA_NAME_MESSAGE);
+    }
     if (name == null || name.isEmpty())
       throw new MolgenisException("Create schema failed: Schema name was null or empty");
     if (name.equalsIgnoreCase(OIDC_LOGIN_PATH) || name.equalsIgnoreCase(OIDC_CALLBACK_PATH))
@@ -117,6 +122,10 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     return result;
   }
 
+  public List<TableMetadata> getRootTables() {
+    return getTables().stream().filter(table -> table.getInheritName() == null).toList();
+  }
+
   public Database getDatabase() {
     return database;
   }
@@ -125,12 +134,16 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     this.database = database;
   }
 
+  public SemanticPrefixes getSemanticPrefixes() {
+    return new SemanticPrefixes(this);
+  }
+
   public List<TableMetadata> getTablesIncludingExternal() {
     Map<String, TableMetadata> tables = new LinkedHashMap<>();
     for (String tableName : getTableNames()) {
       tables.put(tableName, getTableMetadata(tableName));
     }
-    // add exteral references recursively
+    // add external references recursively
     for (String tableName : getTableNames()) {
       addExternalTablesRecursive(tables, getTableMetadata(tableName));
     }

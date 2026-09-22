@@ -1,31 +1,86 @@
-# import
+# Catalogue
 
-## Project setup
-```
-npm install
-```
+The MOLGENIS EMX2 data catalogue app, built with [Nuxt](https://nuxt.com/docs).
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Setup
 
-### Override default development server and schema using var
-### example:
-```console
-MOLGENIS_APPS_HOST=https://emx2-catalogue.test.molgenis.org
-MOLGENIS_APPS_SCHEMA=LifeCycle
+Install the dependencies from the `apps/` workspace root (this installs all
+frontend apps, including this one):
+
+```bash
+cd apps
+pnpm install
 ```
 
-### Compiles and minifies for production
-```
-npm run build
+## Development Server
+
+Start the development server from the app directory. The app runs on
+http://localhost:3000.
+
+```bash
+cd apps/catalogue
+pnpm dev
 ```
 
-### Lints and fixes files
-```
-npm run lint
+Set a non-default (api)proxy target with `NUXT_PUBLIC_API_BASE`, for example:
+
+```bash
+NUXT_PUBLIC_API_BASE=http://localhost:8080 pnpm dev
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Production
+
+set api-proxy target with
+`NUXT_PUBLIC_API_BASE`
+
+Build the application for production:
+
+```bash
+pnpm build
+```
+
+Locally preview production build:
+
+```bash
+pnpm preview
+```
+
+Checkout the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+#### Running the styles
+
+The file `tailwind.config.js` contains all the Molgenis design tokens. The file `main.css` is the base stylesheet and `styles.css` is the stylesheet actually loaded. You can easily flip between one style and another during the develop process. See below for the UMCG example.
+
+##### theme
+
+This theme used the Molgenis theme as its source using the [Tailwind presets](https://tailwindcss.com/docs/presets) option.
+
+A non default emx2 theme is loaded by passing the `EMX2_THEME` environment variable to the startup command.
+For example during development
+
+```sh
+EMX2_THEME=umcg pnpm dev
+```
+
+##### feature flags
+
+The following feature flag(s) are used to toggle certain app features via the runtime config
+
+- `cohortOnly` (boolean): when set to true the networks part is hidden ( see docker file for passing flag via container)
+- `CATALOGUE_STORE_IS_ENABLED` (boolean): when enabled, the shopping cart will be activated on the collections page (defined in the advanced settings tab)
+- `CATALOGUE_STORE_URL` (string/url): when the store is enabled it needs a url to send the request to
+- `CATALOGUE_STORE_VERSION` (string): when the store is enabled it needs to know the version of the request api it communicates to. Currently allowed versions are: [`negotiatorV3`]
+
+### debug/test options
+
+Runtime config options can be set via query param to test/debug options:
+
+- theme: `theme=[theme-name]`
+- logo: `logo=[logo-file-name-without-extension]`
+- feature flag cohorts only: `cohort-only=true` // defaults to false
+
+for example `.../catalogue-demo/catalogue?cohort-only=true&theme=umcg&logo=UMCGkort.woordbeeld`
+
+### generate types
+
+./gradlew generateTypes --args='catalogue-demo apps/catalogue/interfaces/catalogue.ts'

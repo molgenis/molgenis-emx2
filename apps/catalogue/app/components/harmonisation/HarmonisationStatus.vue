@@ -1,0 +1,26 @@
+<script setup lang="ts">
+import { computed } from "vue";
+import type { HarmonisationStatus } from "../../../interfaces/types";
+import HarmonisationStatusIcon from "./HarmonisationStatusIcon.vue";
+
+const props = defineProps<{
+  status: HarmonisationStatus;
+}>();
+
+const label = computed(() => {
+  switch (props.status) {
+    case "unmapped":
+      return "No data";
+    case "partial":
+      return "Partial";
+    case "complete":
+      return "Completed";
+  }
+});
+</script>
+
+<template>
+  <div class="flex items-center gap-2">
+    <HarmonisationStatusIcon :status="status" size="large" /> {{ label }}
+  </div>
+</template>

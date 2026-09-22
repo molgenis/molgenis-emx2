@@ -1,0 +1,7 @@
+user,role
+anonymous,Viewer
+customer,Range
+shopmanager,Manager
+shopowner,Owner
+shopviewer,Viewer
+dragonkeeper,DragonKeeper

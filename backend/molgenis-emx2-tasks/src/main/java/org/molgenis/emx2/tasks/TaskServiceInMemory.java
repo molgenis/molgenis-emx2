@@ -1,24 +1,21 @@
 package org.molgenis.emx2.tasks;
 
 import static org.molgenis.emx2.tasks.TaskStatus.RUNNING;
+import static org.molgenis.emx2.tasks.TaskStatus.WAITING;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TaskServiceInMemory implements TaskService {
   Logger logger = LoggerFactory.getLogger(TaskServiceInMemory.class.getSimpleName());
-  private ExecutorService executorService;
-  private Map<String, Task> tasks = new LinkedHashMap<>();
+  private final ExecutorService executorService;
+  private final Map<String, Task> tasks = new ConcurrentHashMap<>();
 
   public TaskServiceInMemory() {
-    executorService =
-        new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+    executorService = Executors.newSingleThreadExecutor();
   }
 
   @Override
@@ -28,13 +25,43 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public String submit(Task task) {
-    tasks.put(task.getId(), task);
-    executorService.submit(task);
+    if (task.getParentTask() != null && tasks.containsKey(task.getParentTask().getId())) {
+      Task parentTask = tasks.get(task.getParentTask().getId());
+      parentTask.addSubTask(task);
+      if (parentTask.getStatus() != RUNNING) {
+        String errorMessage =
+            "Child task started but parent task was not running with status: "
+                + parentTask.getStatus();
+        task.setError(errorMessage);
+        parentTask.completeWithError(errorMessage);
+        throw new MolgenisException(errorMessage);
+      }
+      task.run();
+    } else {
+      tasks.put(task.getId(), task);
+      executorService.submit(task);
+    }
     return task.getId();
   }
 
+  public Task cancel(String taskId) {
+    Task task = tasks.get(taskId);
+    if (task == null) {
+      throw new MolgenisException("Task with id '" + taskId + "' not found");
+    }
+    if (!RUNNING.equals(task.getStatus()) && !WAITING.equals(task.getStatus())) {
+      throw new MolgenisException("Cannot cancel task with status: " + task.getStatus());
+    }
+
+    task.setStatus(TaskStatus.CANCELLED);
+    task.stop();
+
+    logger.info("Cancelled task " + taskId);
+    return task;
+  }
+
   @Override
-  public String submitTaskFromName(String name, String parameters) {
+  public ScriptTask getScript(String name) {
     throw new UnsupportedOperationException("Not supported when using in memory task service");
   }
 
@@ -65,10 +92,7 @@ public class TaskServiceInMemory implements TaskService {
             toBeDeleted.add(key);
           }
         });
-    toBeDeleted.forEach(
-        key -> {
-          tasks.remove(key);
-        });
+    toBeDeleted.forEach(tasks::remove);
   }
 
   @Override

@@ -4,7 +4,7 @@
       <div class="card-text">
         <span class="float-right">
           <RowButton
-            v-if="canEdit"
+            v-if="canUpdate"
             type="edit"
             class="d-inline"
             :tableId="tableId"
@@ -13,7 +13,7 @@
             @edit="$emit('edit', row)"
           />
           <RowButton
-            v-if="canEdit"
+            v-if="canDelete"
             type="delete"
             class="mt-0"
             :tableId="tableId"
@@ -78,7 +78,8 @@ export default {
     tableId: String,
     row: Object,
     template: String,
-    canEdit: Boolean,
+    canUpdate: Boolean,
+    canDelete: Boolean,
   },
   methods: {
     getKey(row) {

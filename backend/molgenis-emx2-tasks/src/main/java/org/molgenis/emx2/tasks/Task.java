@@ -23,7 +23,7 @@ public class Task implements Runnable, Iterable<Task> {
   // for the toString method
   @JsonIgnore
   private static final ObjectMapper mapper =
-      new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+      new ObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
 
   @JsonIgnore private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
   // human readable description
@@ -37,11 +37,12 @@ public class Task implements Runnable, Iterable<Task> {
   // user who submitted
   private String submitUser;
   // start time to measure run time
-  private long submitTimeMilliseconds = System.currentTimeMillis();
+  private final long submitTimeMilliseconds = System.currentTimeMillis();
   // start time to measure run time
   private long startTimeMilliseconds;
   // end time to calculate run time
   private long endTimeMilliseconds;
+  private boolean includeDemoData;
   // subtasks/steps in this task
   private List<Task> subTasks = new ArrayList<>();
   // parent task
@@ -87,8 +88,12 @@ public class Task implements Runnable, Iterable<Task> {
     this.subTasks.add(task);
   }
 
-  private void setParentTask(Task parentTask) {
+  public void setParentTask(Task parentTask) {
     this.parentTask = parentTask;
+  }
+
+  public Task getParentTask() {
+    return this.parentTask;
   }
 
   public List<Task> getSubTasks() {
@@ -194,7 +199,10 @@ public class Task implements Runnable, Iterable<Task> {
     Objects.requireNonNull(status, "status can not be null");
     if (RUNNING.equals(status)) {
       this.startTimeMilliseconds = System.currentTimeMillis();
-    } else if (ERROR.equals(status) || COMPLETED.equals(status) || SKIPPED.equals(status)) {
+    } else if (ERROR.equals(status)
+        || COMPLETED.equals(status)
+        || SKIPPED.equals(status)
+        || CANCELLED.equals(status)) {
       if (startTimeMilliseconds == 0) {
         this.startTimeMilliseconds = System.currentTimeMillis();
       }
@@ -314,10 +322,6 @@ public class Task implements Runnable, Iterable<Task> {
     return failureAddress;
   }
 
-  public void setFailureAddress(String failureAddress) {
-    this.failureAddress = failureAddress;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -354,7 +358,10 @@ public class Task implements Runnable, Iterable<Task> {
     // currently we only log at setStatus changes to not overload database
     if (this.parentTask != null) {
       this.parentTask.handleChange();
-    } else if (this.changedHandler != null) {
+    }
+    if (this.changedHandler
+        != null) { // todo: do we want this? changed it because task run from scripts can have a
+      // parent and need to be updated in the db
       this.changedHandler.handleChange(this);
     }
   }
@@ -375,6 +382,13 @@ public class Task implements Runnable, Iterable<Task> {
 
   @JsonIgnore
   public boolean isRunning() {
-    return !status.equals(ERROR) && !status.equals(COMPLETED);
+    return !status.equals(ERROR)
+        && !status.equals(COMPLETED)
+        && !status.equals(SKIPPED)
+        && !status.equals(CANCELLED);
+  }
+
+  public boolean isIncludeDemoData() {
+    return includeDemoData;
   }
 }

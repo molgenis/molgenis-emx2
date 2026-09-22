@@ -1,0 +1,2 @@
+resource,id,type,name,organisation,other organisation,department,website,email,logo,logo_filename,role,is lead organisation,mg_draft
+XYZ,org1,Organisation,,,,,,org@org.org,,,,,false

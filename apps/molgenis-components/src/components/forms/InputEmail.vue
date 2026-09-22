@@ -13,8 +13,7 @@
         :name="name"
         :value="modelValue"
         @input="
-          //@ts-ignore
-          emit('update:modelValue', $event.target?.value)
+          $emit('update:modelValue', ($event.target as HTMLInputElement).value)
         "
         type="text"
         class="form-control"
@@ -23,53 +22,57 @@
         :placeholder="placeholder"
         :readonly="readonly"
       />
+      <template v-slot:append>
+        <slot name="append"></slot>
+      </template>
     </InputGroup>
   </FormGroup>
 </template>
 
-<script setup lang="ts">
-import { computed } from "vue";
+<script lang="ts">
 import constants from "../constants";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import BaseInputProps from "./baseInputs/BaseInputProps";
+import BaseInput from "./baseInputs/BaseInput.vue";
 
-let props = defineProps({
-  ...BaseInputProps,
-  modelValue: {
-    type: String,
-    default: null,
+export default {
+  name: "InputEmail",
+  components: { FormGroup, InputGroup },
+  extends: BaseInput,
+  props: {
+    stringLength: {
+      type: Number,
+      default: 255,
+    },
+    additionalValidValidationStrings: {
+      type: Array,
+      default: [],
+    },
   },
-  stringLength: {
-    type: Number,
-    default: 255,
+  computed: {
+    stringError() {
+      if (typeof this.modelValue === "string") {
+        if (this.modelValue.length > this.stringLength) {
+          return `Please limit to ${this.stringLength} characters.`;
+        } else if (!this.validateEmail(this.modelValue)) {
+          return `Please enter a valid email address`;
+        } else {
+          return this.errorMessage;
+        }
+      } else {
+        return this.errorMessage;
+      }
+    },
   },
-  additionalValidValidationStrings: {
-    type: Array,
-    default: [],
+  methods: {
+    validateEmail(email: string) {
+      return (
+        this.additionalValidValidationStrings.includes(email) ||
+        email?.match(constants.EMAIL_REGEX)
+      );
+    },
   },
-});
-
-const emit = defineEmits(["update:modelValue"]);
-
-function validateEmail(email: string) {
-  return (
-    props.additionalValidValidationStrings.includes(email) ||
-    email?.match(constants.EMAIL_REGEX)
-  );
-}
-
-const stringError = computed(() => {
-  if (typeof props.modelValue === "string") {
-    if (props.modelValue.length > props.stringLength) {
-      return `Please limit to ${props.stringLength} characters.`;
-    } else if (!validateEmail(props.modelValue)) {
-      return `Please enter a valid email address`;
-    } else {
-      return props.errorMessage;
-    }
-  }
-});
+};
 </script>
 
 <style scoped>
@@ -111,7 +114,7 @@ span:hover .hoverIcon {
       id="input-email5"
       v-model="value"
       :stringLength="8"
-      label="maximum stringLength (4)"
+      label="maximum stringLength (8)"
     />
   </div>
 </template>

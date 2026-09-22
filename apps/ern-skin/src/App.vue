@@ -1,6 +1,35 @@
+<script setup lang="ts">
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
+
+import type { ISession } from "../../tailwind-components/types/types";
+
+// @ts-ignore
+import { Molgenis } from "molgenis-components";
+// @ts-ignore
+import { AppFooter } from "molgenis-viz";
+
+const route = useRoute();
+const session = ref<ISession>();
+const page = ref(null);
+
+watch(
+  () => session.value,
+  () => {
+    if (session.value) {
+      route.params.email = session.value.email;
+    }
+  }
+);
+</script>
+
 <template>
   <Molgenis id="__top" v-model="session">
-    <router-view :session="session" :page="page" />
+    <router-view
+      :session="session"
+      :page="page"
+      :key="JSON.stringify($route.params)"
+    />
     <AppFooter
       id="ernSkinFooter"
       first-column-title="ERN-SKin"
@@ -23,16 +52,16 @@
         <li id="project-logo-link">
           <a href="https://ern-skin.eu">
             <img
-              src="/ern-skin-logo.png"
+              src="/img/ern-skin-logo.png"
               alt="ERN-Skin"
               class="ern-skin-logo"
             />
           </a>
         </li>
         <li class="eu-logos">
-          <img src="/ern-logo.png" class="logo ern-logo" />
+          <img src="/img/ern-logo.png" class="logo ern-logo" />
           <img
-            src="/ern-skin-funding.png"
+            src="/img/ern-skin-funding.png"
             class="logo funding-logo"
             alt="funded by the European Union"
           />
@@ -42,12 +71,3 @@
     </AppFooter>
   </Molgenis>
 </template>
-
-<script setup>
-import { ref } from "vue";
-import { Molgenis } from "molgenis-components";
-import AppFooter from "./components/AppFooter.vue";
-
-const session = ref(null);
-const page = ref(null);
-</script>

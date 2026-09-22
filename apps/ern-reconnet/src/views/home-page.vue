@@ -1,10 +1,15 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection, LinkCardGroup } from "molgenis-viz";
+</script>
+
 <template>
   <Page>
     <PageHeader
       class="app-page-header"
       title="ERN ReCONNET"
       subtitle="European Reference Network on Rare and Complex Connective Tissue and Musculoskeletal Diseases"
-      :imageSrc="ProjectBannerImage"
+      imageSrc="img/ern-reconnet-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title" :verticalPadding="2">
       <h2 id="welcome-title">Welcome to the ERN ReCONNET registry!</h2>
@@ -25,24 +30,27 @@
       </ul>
     </PageSection>
     <PageSection
-      class="quick-links"
       width="full"
       aria-labelledby="quicklinks-card-title"
       :horizontalPadding="0"
       :verticalPadding="0"
     >
       <h2 class="visually-hidden" id="quicklinks-card-title">quick links</h2>
-      <div class="quicklink-cards">
-        <LinkCard id="quicklinks-about" :imageSrc="AboutImage">
-          <router-link :to="{ name: 'about-us' }">About Us</router-link>
-        </LinkCard>
-        <LinkCard id="quicklink-documents" :imageSrc="DocumentsImage">
-          <router-link :to="{ name: 'documents' }">Documents</router-link>
-        </LinkCard>
-        <LinkCard id="quicklink-dashboard" :imageSrc="DashboardImage">
-          <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
-        </LinkCard>
-      </div>
+      <LinkCardGroup
+        :linkCards="[
+          { name: 'about-us', label: 'About Us' },
+          {
+            name: 'documents',
+            label: 'Documents',
+            imageSrc: 'img/ern-reconnet-docs-header.jpg',
+          },
+          {
+            name: 'dashboard',
+            label: 'Dashboard',
+            imageSrc: 'img/ern-reconnet-dashboard-header.jpg',
+          },
+        ]"
+      />
     </PageSection>
     <PageSection aria-labelledby="aims-title" :verticalPadding="2">
       <h2 id="aims-title">Aims of the ERN ReCONNET Registry</h2>
@@ -79,61 +87,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup>
-import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
-import ProjectBannerImage from "../assets/ern-reconnet-header.jpg";
-import AboutImage from "../assets/ern-reconnet-about-header.jpg";
-import DocumentsImage from "../assets/ern-reconnet-docs-header.jpg";
-import DashboardImage from "../assets/ern-reconnet-dashboard-header.jpg";
-</script>
-
-<style lang="scss">
-.quick-links {
-  background-color: $gray-100;
-
-  .toggle {
-    background: none;
-    border: none;
-    color: $blue-900;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: bold;
-    font-size: 14pt;
-  }
-
-  .quicklink-cards {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    flex-wrap: wrap;
-
-    .link-card {
-      height: 10em;
-      flex-grow: 1;
-
-      &:nth-child(1) {
-        .card-background-filter {
-          background-color: $blue-800;
-          opacity: 0.6;
-        }
-      }
-
-      &:nth-child(2) {
-        .card-background-filter {
-          background-color: $blue-500;
-          opacity: 0.6;
-        }
-      }
-
-      &:nth-child(3) {
-        .card-background-filter {
-          background-color: $blue-green-800;
-          opacity: 0.6;
-        }
-      }
-    }
-  }
-}
-</style>

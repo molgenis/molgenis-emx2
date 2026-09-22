@@ -1,12 +1,14 @@
 <template>
   <div>
     <table class="layout-table w-100">
-      <component
-        v-for="attribute in attributes"
-        :is="component(attribute.type)"
-        :attribute="attribute"
-        :key="attribute.id"
-      />
+      <tbody>
+        <component
+          v-for="attribute in attributes"
+          :is="component(attribute.type)"
+          :attribute="attribute"
+          :key="attribute.id"
+        />
+      </tbody>
     </table>
 
     <component
@@ -28,19 +30,18 @@
         v-for="sub_collection of renderObject.sub_collections"
         :key="sub_collection.id"
         :collection="sub_collection"
-      ></subcollection>
+      />
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import mref from "./view-components/mref.vue";
 import array from "./view-components/array.vue";
 import string from "./view-components/string.vue";
 import longtext from "./view-components/longtext.vue";
 import quality from "./view-components/quality.vue";
 import hyperlink from "./view-components/hyperlink.vue";
-import FactsTable from "./custom-view-components/FactsTable.vue";
 import Subcollection from "./view-components/Subcollection.vue";
 
 export default {
@@ -52,7 +53,6 @@ export default {
     array,
     string,
     hyperlink,
-    FactsTable,
     Subcollection,
   },
   props: {
@@ -66,14 +66,18 @@ export default {
       return this.viewmodel;
     },
     attributes() {
-      return this.renderObject.attributes.filter((attr) => !attr.component);
+      return this.renderObject.attributes.filter(
+        (attr: Record<string, any>) => !attr.component
+      );
     },
     customComponents() {
-      return this.renderObject.attributes.filter((attr) => attr.component);
+      return this.renderObject.attributes.filter(
+        (attr: Record<string, any>) => attr.component
+      );
     },
   },
   methods: {
-    component(type) {
+    component(type: string) {
       switch (type) {
         case "categoricalmref": {
           return "mref";
@@ -96,6 +100,6 @@ export default {
 
 <style>
 .layout-table {
-  border-collapse: unset; /* override theme */
+  border-collapse: unset;
 }
 </style>

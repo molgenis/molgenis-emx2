@@ -31,11 +31,6 @@ export interface sexCasesIF {
   _sum: { n: number };
 }
 
-export interface chartAxisSettingsIF {
-  ticks: string[] | number[];
-  ymax: number | null;
-}
-
 export interface nestedSelectedFiltersQueryIF {
   name?: {
     equals: string;

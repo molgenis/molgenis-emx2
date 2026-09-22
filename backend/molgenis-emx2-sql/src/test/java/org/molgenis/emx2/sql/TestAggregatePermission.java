@@ -4,14 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -19,14 +18,20 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 
 public class TestAggregatePermission {
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+
   private static Database db;
   static Schema schema;
+  static String schemaName = TestAggregatePermission.class.getSimpleName();
 
   @BeforeAll
   public static void setUp() throws SQLException {
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema(TestAggregatePermission.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+
+    db.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(db, schemaName, "", true).run();
+    schema = db.getSchema(schemaName);
+    schema.revoke("DragonKeeper", "Pet");
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
     db.setActiveUser("AGGREGATE_TEST_USER");
@@ -35,7 +40,8 @@ public class TestAggregatePermission {
   @Test
   public void shouldBeAggregatorRole() {
     List<String> roles = schema.getInheritedRolesForActiveUser();
-    assertEquals(3, roles.size());
+    // Aggregator implies Range, Exists and Member
+    assertEquals(4, roles.size());
     assertTrue(roles.contains(AGGREGATOR.toString()));
   }
 
@@ -53,31 +59,27 @@ public class TestAggregatePermission {
 
   @Test
   public void testAggregatorCanRetrieveCountsWithMinimum10() {
-    assertTrue(schema.query("Pet_agg", s(COUNT_FIELD)).retrieveJSON().contains("10"));
+    String json = schema.query("Pet_agg", s(COUNT_FIELD)).retrieveJSON();
+    assertTrue(json.contains("10"));
   }
 
   @Test
   public void testAggregatorPermissionGroupByThresholds() throws JsonProcessingException {
-    try {
-      AGGREGATE_COUNT_THRESHOLD = 5;
-      String json = schema.query("Pet_groupBy", s("count"), s("tags", s("name"))).retrieveJSON();
-      Map<String, List<Map<String, Object>>> result = new ObjectMapper().readValue(json, Map.class);
-      List<Integer> counts =
-          result.get("Pet_groupBy").stream()
-              .map(object -> (Integer) object.get(COUNT_FIELD))
-              .toList();
-      counts.forEach(count -> assertEquals(count, AGGREGATE_COUNT_THRESHOLD));
+    String json = schema.query("Pet_groupBy", s("count"), s("tags", s("name"))).retrieveJSON();
+    List<Integer> counts =
+        MAPPER
+            .readTree(json)
+            .get("Pet_groupBy")
+            .valueStream()
+            .map(node -> node.get(COUNT_FIELD).asInt())
+            .toList();
+    counts.forEach(count -> assertEquals(AGGREGATE_COUNT_THRESHOLD, count));
 
-      json =
-          schema
-              .query("Pet_groupBy", s(COUNT_FIELD), s(SUM_FIELD, s("weight")), s("tags", s("name")))
-              .retrieveJSON();
-      assertTrue(json.contains("16.21")); // should be a sum of all 'green'
-    } finally {
-      AGGREGATE_COUNT_THRESHOLD =
-          1; // no other tests affected, but reset just to make sure. Todo: later this becomes a
-      // setting.
-    }
+    json =
+        schema
+            .query("Pet_groupBy", s(COUNT_FIELD), s(SUM_FIELD, s("weight")), s("tags", s("name")))
+            .retrieveJSON();
+    assertTrue(json.contains("16.21")); // should be a sum of all 'green'
   }
 
   @Test

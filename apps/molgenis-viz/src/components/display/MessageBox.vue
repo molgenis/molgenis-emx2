@@ -70,6 +70,7 @@ export default {
 
   .message-text {
     padding: 1.1em;
+    gap: 0.5em;
 
     p {
       margin-bottom: 0;

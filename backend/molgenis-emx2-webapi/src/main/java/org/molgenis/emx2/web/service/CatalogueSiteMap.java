@@ -1,72 +1,111 @@
 package org.molgenis.emx2.web.service;
 
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
+import static org.molgenis.emx2.web.util.EncodingHelpers.encodeQueryParam;
 
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
 import java.net.MalformedURLException;
-import java.util.Map;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.Table;
+import org.molgenis.emx2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CatalogueSiteMap {
   private static final Logger logger = LoggerFactory.getLogger(CatalogueSiteMap.class);
 
-  private static final String APP_NAME = "ssr-catalogue";
-  private static final Map<String, String> resourceTypes =
-      Map.of(
-          "Cohort study",
-          "cohorts",
-          "Study",
-          "studies",
-          "Network",
-          "networks",
-          "Databank",
-          "databanks",
-          "Data source",
-          "datasources");
+  private static final String RESOURCE = "resource";
+
+  private enum ResourcePath {
+    NETWORKS("networks"),
+    CATALOGUES("catalogues"),
+    COLLECTIONS("collections");
+
+    public final String value;
+
+    ResourcePath(String value) {
+      this.value = value;
+    }
+  }
 
   private final Schema schema;
   private final String baseUrl;
-  private final String resourceBasePath;
+  private final String networkTableClass;
+  private final String catalogueTableClass;
+  private final String collectionTableClass;
 
   public CatalogueSiteMap(Schema schema, String baseUrl) {
     this.schema = schema;
     this.baseUrl = baseUrl;
-
-    this.resourceBasePath = baseUrl + '/' + APP_NAME;
+    networkTableClass = "%s.%s".formatted(schema.getName(), "Networks");
+    catalogueTableClass = "%s.%s".formatted(schema.getName(), "Catalogues");
+    collectionTableClass = "%s.%s".formatted(schema.getName(), "Collections");
   }
 
   public String buildSiteMap() {
     try {
       WebSitemapGenerator wsg = new WebSitemapGenerator(baseUrl);
-      Table collectionsTables = schema.getTable("Collections");
-      collectionsTables
-          .select(s("id"), s("type"))
+      Table resourceTable = schema.getTable("Resources");
+      if (resourceTable == null) {
+        throw new MolgenisException(
+            "Expected table 'Resources' not found in schema: %s".formatted(schema.getName()));
+      }
+      resourceTable
+          .select(s("id"), s(Constants.MG_TABLECLASS))
           .retrieveRows()
           .forEach(
-              collection -> {
-                String collectionPath = resourceTypes.get(collection.getString("type"));
-                if (collectionPath == null) {
-                  collectionPath = "collections";
-                }
-                String collectionId = collection.getString("id");
-                try {
-                  wsg.addUrl(urlForResource(resourceBasePath, collectionPath, collectionId));
-                } catch (MalformedURLException e) {
-                  logger.error(
-                      "Failed to generate sitemap url (schema: ("
-                          + schema.getName()
-                          + " , path: "
-                          + collectionPath
-                          + " , id: "
-                          + collectionId,
-                      e);
+              resource -> {
+                String collectionId = resource.getString("id");
+                ResourcePath resourcePath = getResourcePath(resource);
+                if (resourcePath != null) {
+                  try {
+                    wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
+                  } catch (MalformedURLException e) {
+                    logger.error(
+                        "Failed to generate sitemap url (schema: {} , path: {} , id: {})",
+                        schema.getName(),
+                        resourcePath.value,
+                        collectionId,
+                        e);
+                  }
                 }
               });
+
+      Table variableTable = schema.getTable("Variables");
+
+      if (variableTable != null) {
+        variableTable
+            .select(s("name"), s(RESOURCE), s("table"))
+            .where(
+                f(
+                    RESOURCE,
+                    or(
+                        f(
+                            Constants.MG_TABLECLASS,
+                            Operator.EQUALS,
+                            schema.getName() + "." + "Networks"),
+                        f(
+                            Constants.MG_TABLECLASS,
+                            Operator.EQUALS,
+                            schema.getName() + "." + "Catalogues"))))
+            .retrieveRows()
+            .forEach(
+                variable -> {
+                  try {
+                    wsg.addUrl(urlForVariable(variable));
+                  } catch (MalformedURLException e) {
+                    logger.error(
+                        "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
+                        schema.getName(),
+                        "variables",
+                        variable.getString("name"),
+                        e);
+                  }
+                });
+      }
+
       return String.join(System.lineSeparator(), wsg.writeAsStrings());
     } catch (MalformedURLException e) {
       String errorDescription = "Error initializing WebSitemapGenerator";
@@ -75,10 +114,52 @@ public class CatalogueSiteMap {
     }
   }
 
+  private ResourcePath getResourcePath(Row resource) {
+    String tableClass = resource.getString(Constants.MG_TABLECLASS);
+    if (networkTableClass.equals(tableClass)) {
+      return ResourcePath.NETWORKS;
+    } else if (catalogueTableClass.equals(tableClass)) {
+      return ResourcePath.CATALOGUES;
+    } else if (collectionTableClass.equals(tableClass)) {
+      return ResourcePath.COLLECTIONS;
+    } else {
+      return null;
+    }
+  }
+
   private WebSitemapUrl urlForResource(
-      String resourceBasePath, String resourceName, String resourceId)
+      String resourceBasePath, ResourcePath resourcePath, String resourceId)
       throws MalformedURLException {
-    return new WebSitemapUrl.Options(resourceBasePath + "/all/" + resourceName + "/" + resourceId)
+    return new WebSitemapUrl.Options(
+            "%s/all/%s/%s"
+                .formatted(
+                    resourceBasePath,
+                    encodePathSegment(resourcePath.value),
+                    encodePathSegment(resourceId)))
+        .build();
+  }
+
+  private WebSitemapUrl urlForVariable(Row variable) throws MalformedURLException {
+    String variableId = variable.getString("name");
+    String resource = variable.getString(RESOURCE);
+    String table = variable.getString("table");
+
+    // human-readable key
+    String variableIdPathSegment = String.join("-", variableId, resource, table, resource);
+
+    // JSON query parameter value
+    String variableIdQueryParamValue =
+        String.format(
+            "{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"},\"table\":{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"}}}",
+            variableId, resource, table, resource);
+
+    // note segment and query have their own encoding
+    return new WebSitemapUrl.Options(
+            "%s/all/variables/%s%s"
+                .formatted(
+                    baseUrl,
+                    encodePathSegment(variableIdPathSegment),
+                    "?keys=" + encodeQueryParam(variableIdQueryParamValue)))
         .build();
   }
 }

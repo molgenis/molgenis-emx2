@@ -49,6 +49,7 @@ import InputLong from "./InputLong.vue";
 import InputString from "./InputString.vue";
 import InputText from "./InputText.vue";
 import BaseInput from "./baseInputs/BaseInput.vue";
+import InputNonNegativeInt from "./InputNonNegativeInt.vue";
 
 export default {
   name: "ArrayInput",
@@ -74,6 +75,7 @@ export default {
         EMAIL_ARRAY: InputEmail,
         HYPERLINK_ARRAY: InputHyperlink,
         INT_ARRAY: InputInt,
+        NON_NEGATIVE_INT_ARRAY: InputNonNegativeInt,
         LONG_ARRAY: InputLong,
         STRING_ARRAY: InputString,
         TEXT_ARRAY: InputText,
@@ -142,6 +144,19 @@ export default {
       </div>
       <div>
         {{ intValue }}
+      </div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <h3><label>Non negative integer array</label></h3>
+        <ArrayInput
+            id="array-non-negative-integer"
+            columnType="NON_NEGATIVE_INT_ARRAY"
+            v-model="nonNegativeIntValue"
+        />
+      </div>
+      <div>
+        {{ nonNegativeIntValue }}
       </div>
     </DemoItem>
     <DemoItem>
@@ -268,6 +283,7 @@ export default {
       stringValue: ["String array value"],
       emptyStringValue: [],
       intValue: [1, 3, 3, 7],
+      nonNegativeIntValue: [2, 6, 4],
       decimalValue: [3.7, 4.2],
       longValue: ["1234567890123456789"],
       textValue: [ipsum],

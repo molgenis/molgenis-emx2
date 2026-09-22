@@ -1,0 +1,89 @@
+package org.molgenis.emx2.rdf.generators;
+
+import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
+import static org.molgenis.emx2.rdf.IriGenerator.*;
+
+import java.util.List;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.*;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.rdf.PrimaryKey;
+import org.molgenis.emx2.rdf.RdfMapData;
+import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
+import org.molgenis.emx2.rdf.writers.RdfWriter;
+
+public class SemanticRdfGenerator extends RdfRowsGenerator {
+  public SemanticRdfGenerator(RdfWriter writer, String baseURL) {
+    super(writer, baseURL);
+  }
+
+  @Override
+  public void generate(Schema schema) {
+    List<Table> tables = schema.getTablesSorted();
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+
+    generatePrefixes(schema);
+    generateCustomRdf(schema);
+    describeRoot();
+    tables.forEach(i -> processRows(rdfMapData, i, null));
+  }
+
+  @Override
+  public void generate(Table table) {
+    generate(table, (PrimaryKey) null);
+  }
+
+  /**
+   * Does nothing as in semantic mode the column IRIs are non-existing, therefore there is nothing
+   * to describe.
+   */
+  @Override
+  public void generate(Table table, Column column) {}
+
+  @Override
+  protected void ontologyRowToRdf(RdfMapData rdfMapData, Table table, Row row) {
+    final IRI subject = rowIRI(getBaseURL(), table, row);
+
+    if (row.getString("name") != null) {
+      getWriter().processTriple(subject, RDFS.LABEL, Values.literal(row.getString("name")));
+    }
+    if (row.getString("definition") != null) {
+      getWriter()
+          .processTriple(subject, SKOS.DEFINITION, Values.literal(row.getString("definition")));
+    }
+    if (row.getString("ontologyTermURI") != null) {
+      getWriter().processTriple(subject, OWL.SAMEAS, Values.iri(row.getString("ontologyTermURI")));
+    }
+  }
+
+  @Override
+  protected void dataRowToRdf(RdfMapData rdfMapData, Table table, Row row) {
+    if (row.isDraft()) return;
+
+    final IRI subject = rowIRI(getBaseURL(), table, row);
+    processDataRowTable(table, subject);
+    table
+        .getMetadata()
+        .getColumns()
+        .forEach(column -> processDataRowColumn(rdfMapData, row, column, subject));
+  }
+
+  private void processDataRowColumn(
+      final RdfMapData rdfMapData, final Row row, final Column column, final IRI subject) {
+    if (!column.hasSemantics()) {
+      return;
+    }
+
+    for (final Value value : retrieveValues(rdfMapData, row, column)) {
+      column
+          .getSemanticsIriStream()
+          .forEach(predicate -> getWriter().processTriple(subject, predicate, value));
+
+      if (column.getColumnType().isFile()) {
+        generateFileTriples((IRI) value, row, column);
+      }
+    }
+  }
+}

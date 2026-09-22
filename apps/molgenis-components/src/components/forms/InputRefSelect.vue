@@ -32,7 +32,9 @@
             :tableId="tableId"
             :filter="filter"
             :schemaId="schemaId"
-            :canEdit="canEdit"
+            :canInsert="tablePermission?.canInsert"
+            :canUpdate="tablePermission?.canUpdate"
+            :canDelete="tablePermission?.canDelete"
             @select="select($event)"
             @deselect="deselect(selectIdx)"
           >
@@ -60,6 +62,7 @@ import FormGroup from "./FormGroup.vue";
 import ButtonAlt from "./ButtonAlt.vue";
 import ButtonAction from "./ButtonAction.vue";
 import { applyJsTemplate } from "../utils";
+import { resolveTablePermission } from "../../client/client";
 
 export default {
   name: "InputRefSelect",
@@ -67,6 +70,7 @@ export default {
   data: function () {
     return {
       showSelect: false,
+      tablePermission: undefined,
     };
   },
   components: {
@@ -88,10 +92,10 @@ export default {
       type: String,
       required: true,
     },
-    canEdit: {
-      type: Boolean,
+    tablePermissions: {
+      type: Array,
       required: false,
-      default: () => false,
+      default: () => [],
     },
   },
   computed: {
@@ -99,8 +103,22 @@ export default {
       return "Select " + this.tableId; //todo need a label
     },
   },
+  watch: {
+    schemaId: "loadPermission",
+    tableId: "loadPermission",
+  },
+  created() {
+    this.loadPermission();
+  },
   methods: {
     applyJsTemplate,
+    async loadPermission() {
+      this.tablePermission = await resolveTablePermission(
+        this.schemaId,
+        this.tableId,
+        this.tablePermissions
+      );
+    },
     async select(event) {
       this.showSelect = false;
       this.$emit("update:modelValue", await event);

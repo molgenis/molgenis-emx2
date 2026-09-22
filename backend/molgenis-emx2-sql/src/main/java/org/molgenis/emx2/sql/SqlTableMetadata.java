@@ -1,16 +1,16 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.Constants.MG_EDIT_ROLE;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
-import static org.molgenis.emx2.Privileges.EDITOR;
 import static org.molgenis.emx2.sql.MetadataUtils.deleteColumn;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
+import static org.molgenis.emx2.sql.SqlSchemaMetadata.validateTableIdentifierIsUnique;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.*;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.slf4j.Logger;
@@ -103,8 +103,19 @@ class SqlTableMetadata extends TableMetadata {
     long start = System.currentTimeMillis();
     String oldName = getTableName();
     if (!getTableName().equals(newName)) {
+      List<MetadataUtils.TableRef> children =
+          MetadataUtils.getInheritingChildren(getJooq(), getSchemaName(), getTableName());
+      if (!children.isEmpty()) {
+        throw new MolgenisException(
+            "Cannot rename table '"
+                + qualifiedTableName()
+                + "': table '"
+                + children.get(0).qualifiedName()
+                + "' inherits from it. Renaming a table with inheriting children is not supported yet.");
+      }
       getDatabase()
           .tx(db -> sync(alterNameTransaction(db, getSchemaName(), getTableName(), newName)));
+      ((SqlSchemaMetadata) getSchema()).reload();
       getDatabase().getListener().schemaChanged(getSchemaName());
       log(start, "altered table from '" + oldName + "' to  " + getTableName());
     }
@@ -114,13 +125,26 @@ class SqlTableMetadata extends TableMetadata {
   // ensure the transaction has no side effects on 'this' until completed
   private static SqlTableMetadata alterNameTransaction(
       Database db, String schemaName, String tableName, String newName) {
-    SqlTableMetadata tm =
-        (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
+    SqlTableMetadata tm = sm.getTableMetadata(tableName);
+
+    validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
 
     // drop triggers for this table
     for (Column column : tm.getStoredColumns()) {
       SqlColumnExecutor.executeRemoveRefConstraints(tm.getJooq(), column);
     }
+
+    // get references pointing to 'me'
+    List<Column> refColumns =
+        MetadataUtils.getReferencesToTable(tm.getJooq(), schemaName, tableName);
+
+    // get refbacks pointing to 'me'
+    List<Column> refbackColumns =
+        tm.getColumns().stream()
+            .filter(c -> c.getReferenceRefback() != null)
+            .map(c -> c.getReferenceRefback())
+            .toList();
 
     // rename table and triggers
     SqlTableMetadataExecutor.executeAlterName(tm.getJooq(), tm, newName);
@@ -128,6 +152,22 @@ class SqlTableMetadata extends TableMetadata {
     // update metadata
     MetadataUtils.alterTableName(tm.getJooq(), tm, newName);
     tm.tableName = newName;
+
+    // rename refs.refTable
+    refColumns.forEach(
+        ref -> {
+          ref.setRefTable(newName);
+          MetadataUtils.saveColumnMetadata(tm.getJooq(), ref);
+          db.getListener().schemaChanged(ref.getSchemaName());
+        });
+
+    // rename refbacks.refTable
+    refbackColumns.forEach(
+        refBack -> {
+          refBack.setRefTable(newName);
+          MetadataUtils.saveColumnMetadata(tm.getJooq(), refBack);
+          db.getListener().schemaChanged(refBack.getSchemaName());
+        });
 
     // recreate triggers for this table
     for (Column column : tm.getStoredColumns()) {
@@ -219,11 +259,6 @@ class SqlTableMetadata extends TableMetadata {
               + newColumn.getRefTableName());
     }
 
-    // if changing 'ref' then check if not refBack exists
-    if (!oldColumn.getColumnType().equals(newColumn.getColumnType())) {
-      tm.checkNotRefback(columnName, oldColumn);
-    }
-
     // drop old key, if touched
     if (oldColumn.getKey() > 0 && newColumn.getKey() != oldColumn.getKey()) {
       executeDropKey(tm.getJooq(), oldColumn.getTable(), oldColumn.getKey());
@@ -231,9 +266,6 @@ class SqlTableMetadata extends TableMetadata {
 
     // drop referential constraints around this column
     executeRemoveRefConstraints(tm.getJooq(), oldColumn);
-
-    // remove refBacks if exist
-    executeRemoveRefback(oldColumn, newColumn);
 
     // add ontology table if needed
     if (newColumn.isOntology()) {
@@ -260,11 +292,24 @@ class SqlTableMetadata extends TableMetadata {
     // add the new
     tm.columns.put(column.getName(), newColumn);
 
+    // if changing 'ref' then check if not refBack exists
+    Column referenceRefBack = oldColumn.getReferenceRefback();
+    if (referenceRefBack != null) {
+      // delete if changed to non ref
+      if (!newColumn.isReference()) {
+        referenceRefBack.getTable().dropColumn(referenceRefBack.getName());
+      }
+      // else update refback if renamed
+      else if (!oldColumn.getName().equals(newColumn.getName())) {
+        referenceRefBack
+            .getTable()
+            .alterColumn(
+                referenceRefBack.getName(), referenceRefBack.setRefBack(newColumn.getName()));
+      }
+    }
+
     // reapply ref constrainst
     executeCreateRefConstraints(tm.getJooq(), newColumn);
-
-    // check if refBack constraints need updating
-    reapplyRefbackContraints(oldColumn, newColumn);
 
     // create/update key, if touched
     if (newColumn.getKey() != oldColumn.getKey()) {
@@ -278,32 +323,12 @@ class SqlTableMetadata extends TableMetadata {
     return tm;
   }
 
-  private void checkNotRefback(String name, Column oldColumn) {
-    if (oldColumn.isReference()) {
-      for (Column c : oldColumn.getRefTable().getColumns()) {
-        if (c.isRefback()
-            && c.getRefTableName().equals(oldColumn.getTableName())
-            && oldColumn.getName().equals(c.getRefBack())) {
-          throw new MolgenisException(
-              "Drop/alter column '"
-                  + name
-                  + "' failed: cannot remove reference while refBack for it exists ("
-                  + c.getTableName()
-                  + "."
-                  + c.getRefBackColumn());
-        }
-      }
-    }
-  }
-
   @Override
   public void dropColumn(String name) {
     Column column = getColumn(name);
     if (column == null) {
       throw new MolgenisException("Drop column " + name + " failed: column does not exist");
     }
-    // if changing 'ref' then check if not refBack exists
-    checkNotRefback(name, column);
 
     long start = System.currentTimeMillis();
     if (getColumn(name) == null) return; // return silently, idempotent
@@ -318,94 +343,48 @@ class SqlTableMetadata extends TableMetadata {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     SqlColumnExecutor.executeRemoveColumn(jooq, tm.getColumn(columnName));
     tm.columns.remove(columnName);
+    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, tm, tableName);
     return tm;
   }
 
   @Override
   public TableMetadata setInheritName(String otherTable) {
-    long start = System.currentTimeMillis();
-    if (getInheritName() != null && getInheritName().equals(otherTable)) {
-      return this; // nothing to do
-    }
     if (getInheritName() != null) {
-      throw new MolgenisException(
-          "Table '"
-              + getTableName()
-              + "'can only extend one table. Therefore it cannot extend '"
-              + otherTable
-              + "' because it already extends other table '"
-              + getInheritName()
-              + "'");
-    }
-    TableMetadata other;
-    if (getImportSchema() != null) {
-      // check for duplicate table name
-      Schema otherSchema = getSchema().getDatabase().getSchema(getImportSchema());
-      if (otherSchema == null || otherSchema.getMetadata().getTableMetadata(otherTable) == null) {
-        throw new MolgenisException(
-            "Inheritance failed. Other schema.table '"
-                + getImportSchema()
-                + "."
-                + otherTable
-                + "' does not exist in this database");
+      if (getInheritName().equals(otherTable)) {
+        return this; // nothing to do
       }
-      other = otherSchema.getMetadata().getTableMetadata(otherTable);
-    } else {
-      other = getSchema().getTableMetadata(otherTable);
-      if (other == null)
-        throw new MolgenisException(
-            "Inheritance failed. Other table '" + otherTable + "' does not exist in this schema");
+      throw new MolgenisException(inheritanceIsFixed("change tableExtends"));
     }
-    if (other.getPrimaryKeys().isEmpty())
-      throw new MolgenisException(
-          "Set inheritance failed: To extend table '"
-              + otherTable
-              + "' it must have primary key set");
-    getDatabase()
-        .tx(
-            tdb ->
-                // extends means we copy primary key column from parent to child, make it foreign
-                // key
-                // to
-                // parent, and make it primary key of this table also.
-                sync(
-                    setInheritTransaction(
-                        tdb,
-                        getSchemaName(),
-                        getTableName(),
-                        getImportSchema() != null ? getImportSchema() : getSchemaName(),
-                        otherTable)));
-    log(start, "set inherit on ");
-    super.setInheritName(otherTable);
+    if (otherTable != null) {
+      throw new MolgenisException(inheritanceIsFixed("set tableExtends"));
+    }
     return this;
-  }
-
-  // static function to ensure this is not altered until end of transaction
-  private static SqlTableMetadata setInheritTransaction(
-      Database db,
-      String schemaName,
-      String tableName,
-      String inheritSchema,
-      String inheritedName) {
-    DSLContext jooq = ((SqlDatabase) db).getJooq();
-    SqlTableMetadata tm =
-        (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
-    TableMetadata om = db.getSchema(inheritSchema).getTable(inheritedName).getMetadata();
-    executeSetInherit(jooq, tm, om);
-    tm.inheritName = inheritedName;
-    MetadataUtils.saveTableMetadata(jooq, tm);
-    return tm;
   }
 
   @Override
   public TableMetadata removeInherit() {
-    throw new MolgenisException("remove tableExtends not yet implemented");
+    throw new MolgenisException(inheritanceIsFixed("remove tableExtends"));
+  }
+
+  @Override
+  public TableMetadata setImportSchema(String importSchema) {
+    if (getInheritName() != null && !Objects.equals(getImportSchema(), importSchema)) {
+      throw new MolgenisException(inheritanceIsFixed("change refSchema"));
+    }
+    return super.setImportSchema(importSchema);
+  }
+
+  private String inheritanceIsFixed(String action) {
+    return "Cannot "
+        + action
+        + " of table '"
+        + qualifiedTableName()
+        + "': inheritance cannot be changed after the table is created.";
   }
 
   @Override
   public TableMetadata setSettings(Map<String, String> settings) {
-    if (getDatabase().isAdmin()
-        || ((SqlSchemaMetadata) getSchema()).hasActiveUserRole(EDITOR.toString())) {
+    if (PermissionEvaluator.canUpdate(getDatabase().getSchema(getSchemaName()), this)) {
       getDatabase()
           .tx(
               db ->
@@ -432,21 +411,6 @@ class SqlTableMetadata extends TableMetadata {
     MetadataUtils.saveTableMetadata(db.getJooq(), tm);
     db.getListener().schemaChanged(schemaName);
     return tm;
-  }
-
-  @Override
-  public void enableRowLevelSecurity() {
-    this.add(column(MG_EDIT_ROLE).setIndex(true));
-
-    getJooq().execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", getJooqTable());
-    getJooq()
-        .execute(
-            "CREATE POLICY {0} ON {1} USING (pg_has_role(current_user, {2}, 'member')) WITH CHECK (pg_has_role(current_user, {2}, 'member'))",
-            name("RLS/" + getSchema().getName() + "/" + getTableName()),
-            getJooqTable(),
-            name(MG_EDIT_ROLE));
-    // set RLS on the table
-    // add policy for 'viewer' and 'editor'.
   }
 
   @Override

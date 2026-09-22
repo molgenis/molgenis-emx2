@@ -18,7 +18,7 @@ import "meta.jslt" as meta
         "entryTypes":
         {for (.entryTypes)
             .name: {
-                "id": .id,
+                "id": .externalId,
                 "name": .name,
                 "partOfSpecification": "Beacon v2.0.0-draft.4",
                 "description": .description,

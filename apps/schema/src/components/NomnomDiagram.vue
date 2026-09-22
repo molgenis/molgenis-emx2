@@ -43,6 +43,8 @@ export default {
           .forEach((column) => {
             if (
               column.columnType.includes("REF") ||
+              column.columnType.includes("SELECT") ||
+              column.columnType.includes("RADIO") ||
               column.columnType.includes("ONTOLOGY")
             ) {
               result += `${column.name}: ${column.columnType.toLowerCase()}(${
@@ -115,7 +117,11 @@ export default {
                 res += `[<${type}>${column.refTableName}]<- ${column.name} [<table>${table.name}]\n`;
               } else if (
                 column.columnType === "REF_ARRAY" ||
-                column.columnType === "REF"
+                column.columnType === "REF" ||
+                column.columnType === "RADIO" ||
+                column.columnType === "SELECT" ||
+                column.columnType === "MULTISELECT" ||
+                column.columnType === "CHECKBOX"
               ) {
                 const type = column.refSchemaName ? "external" : "table";
                 res += `[<${type}>${column.refTableName}]<- ${column.name} [<table>${table.name}]\n`;

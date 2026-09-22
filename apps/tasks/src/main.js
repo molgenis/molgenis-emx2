@@ -3,7 +3,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import App from "./App.vue";
 import ListScripts from "./components/ListScripts.vue";
 import ListJobs from "./components/ListJobs.vue";
-import "molgenis-components/dist/style.css";
+import "../../molgenis-components/dist/molgenis-components.css";
 
 const router = createRouter({
   history: createWebHashHistory(),

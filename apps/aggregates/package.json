@@ -1,5 +1,5 @@
 {
-  "name": "force-dashboard",
+  "name": "aggregates",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,17 +10,19 @@
     "checkFormat": "prettier src  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "@heroicons/vue": "^2.0.18",
-    "graphql-request": "5.2.0",
-    "molgenis-components": "*",
-    "molgenis-viz": "*",
-    "vue": "3.4.37",
+    "@heroicons/vue": "2.0.18",
+    "d3-scale-chromatic": "3.1.0",
+    "graphql-request": "6.1.0",
+    "molgenis-components": "workspace:*",
+    "molgenis-viz": "workspace:*",
+    "tailwind-components": "workspace:*",
+    "vue": "3.5.22",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "4.6.2",
+    "@vitejs/plugin-vue": "5.2.4",
     "prettier": "2.8.8",
-    "vite": "4.5.3"
+    "vite": "7.3.5"
   },
   "browserslist": [
     "> 1%",

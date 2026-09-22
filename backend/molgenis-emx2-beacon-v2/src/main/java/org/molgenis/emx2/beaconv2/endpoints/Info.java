@@ -1,9 +1,15 @@
 package org.molgenis.emx2.beaconv2.endpoints;
 
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
+import java.util.List;
 import org.molgenis.emx2.*;
 
 public class Info {
@@ -30,15 +36,20 @@ public class Info {
     }
     if (schema.getTable(ENDPOINT_TABLE) == null) return null;
 
-    String query =
-        """
-            SELECT * FROM "%1$s"."%2$s" WHERE id = '%3$s'
-            """
-            .formatted(schema.getName(), ENDPOINT_TABLE, TABLE_ID);
+    List<Row> infoRows =
+        database
+            .getSchema(schema.getName())
+            .getTable(ENDPOINT_TABLE)
+            .where(f("id", EQUALS, TABLE_ID))
+            .retrieveRows();
 
-    Row row = database.getSchema(schema.getName()).retrieveSql(query).get(0);
+    if (infoRows.isEmpty()) return null;
+
+    Row infoRow = infoRows.getFirst();
 
     ObjectMapper mapper = new ObjectMapper();
-    return mapper.valueToTree(row.getValueMap());
+    mapper.registerModule(new JavaTimeModule());
+    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    return mapper.valueToTree(infoRow.getValueMap());
   }
 }

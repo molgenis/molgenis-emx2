@@ -6,26 +6,33 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.jooq.Result;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.sql.SqlSchema;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
   private SqlDatabase database;
   private String systemSchemaName;
+  private URL hostUrl;
 
-  public TaskServiceInDatabase(String systemSchemaName) {
+  public TaskServiceInDatabase(String systemSchemaName, URL hostUrl) {
     this.database = new SqlDatabase(false);
     this.systemSchemaName = systemSchemaName;
+    this.hostUrl = hostUrl;
     this.init();
   }
 
@@ -82,48 +89,42 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           }
         });
     try {
-      return (new ObjectMapper().readValue(json.toString(), Task.class));
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return (mapper.readValue(json.toString(), Task.class));
     } catch (Exception e) {
       throw new MolgenisException("getTask(" + id + ") failed", e);
     }
   }
 
   @Override
-  public String submitTaskFromName(final String scriptName, final String parameters) {
-    StringBuilder result = new StringBuilder();
-    String defaultUser = database.getActiveUser();
-    database.tx(
-        db -> {
-          db.becomeAdmin();
-          Schema systemSchema = db.getSchema(this.systemSchemaName);
-
-          ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
-          String user =
-              scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
-
-          db.setActiveUser(user);
-          // submit the script
-          result.append(
-              this.submit(
-                  scriptTask
-                      .parameters(parameters)
-                      .token(
-                          JWTgenerator.createTemporaryToken(
-                              systemSchema.getDatabase(),
-                              systemSchema.getDatabase().getActiveUser()))
-                      .submitUser(user)));
-        });
-    return result.toString();
+  public ScriptTask getScript(String scriptName) {
+    SqlSchema systemSchema = database.getSchema(this.systemSchemaName);
+    ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
+    return scriptTask.setServerUrl(hostUrl).token(JWTgenerator.createTemporaryToken(database));
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
-    List<Row> rows =
-        systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
+    Table table = systemSchema.getTable("Scripts");
+    List<Row> rows = table.where(f("name", EQUALS, scriptName)).retrieveRows();
     if (rows.size() != 1) {
       throw new MolgenisException("Script " + scriptName + " not found");
     }
+    Row scriptMetadata = rows.getFirst();
 
-    Row scriptMetadata = rows.get(0);
+    String columnName = "extraFile";
+    String fileId = scriptMetadata.getString("extraFile");
+    List<Row> fileRows =
+        table
+            .query()
+            .select(s(columnName, s("contents"), s("mimetype"), s("filename"), s("extension")))
+            .where(f(columnName, f("id", EQUALS, fileId)))
+            .retrieveRows();
+    byte[] fileContents = new byte[0];
+    if (!fileRows.isEmpty()) {
+      fileContents = fileRows.getFirst().getBinary(columnName + "_contents");
+    }
+    scriptMetadata.set(columnName + "_contents", fileContents);
     return new ScriptTask(scriptMetadata);
   }
 
@@ -200,6 +201,14 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                       .setType(ColumnType.EMAIL)
                       .setDescription("Email address to be notified when a job fails"));
             }
+            if (!scriptsMetadata.getColumnNames().contains("extraFile")) {
+              scriptsMetadata.add(
+                  column("extraFile")
+                      .setLabel("extra file")
+                      .setType(ColumnType.FILE)
+                      .setDescription(
+                          "Upload a file required for running the script. A ZIP file will be automatically extracted."));
+            }
           } else {
             Table scripTypes =
                 schema.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
@@ -217,7 +226,12 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                         column("dependencies")
                             .setType(ColumnType.TEXT)
                             .setDescription(
-                                "For python, this should match requirements format for 'pip install -r requirements.txt'"),
+                                "For Python, this should match requirements format for 'pip install -r requirements.txt'"),
+                        column("extraFile")
+                            .setLabel("extra file")
+                            .setType(ColumnType.FILE)
+                            .setDescription(
+                                "Upload a file required for running the script. A ZIP file will be automatically extracted."),
                         column("outputFileExtension")
                             .setDescription("Extension, without the '.'. E.g. 'txt' or 'json'"),
                         column("disabled")
@@ -261,13 +275,11 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                                 "output of the script, if output extension != null and based on OUTPUT_FILE environment variable")));
             // import defaults
             String demoScript =
-                """
+"""
 import os;
-import numpy as np
 import sys
 # you can get parameters via sys.argv[1]
 print('Hello, world!')
-a = np.array([1, 2, 3, 4, 5, 6])
 print("MOLGENIS_TOKEN="+os.environ['MOLGENIS_TOKEN']);
 if len(sys.argv) >= 2:
     print("sys.argv[1]="+sys.argv[1]);
@@ -283,13 +295,12 @@ f.close()
                     "hello world",
                     "script",
                     demoScript,
-                    "dependencies",
-                    "numpy==1.23.4", // it has a dependency :-)
                     "type",
                     "python",
                     "outputFileExtension",
                     "txt"));
-            scripTypes.insert(row("name", "python")); // lowercase by convention
+            scripTypes.insert(
+                row("name", "python"), row("name", "bash")); // lowercase by convention
             jobStatus.insert(
                 Arrays.stream(TaskStatus.values()).map(value -> row("name", value)).toList());
           } // else, migrations in the future
@@ -323,8 +334,8 @@ f.close()
               .getMetadata()
               .setSetting(
                   "menu",
-                  """
-[{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
+"""
+[{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Tables","href":"tables","role":"Editor","key":"eq1fcr","submenu":[]},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
 """);
         });
   }
@@ -335,5 +346,12 @@ f.close()
 
   public Table getJobTable() {
     return database.getSchema(systemSchemaName).getTable("Jobs");
+  }
+
+  @Override
+  public Set<String> getJobIds() {
+    return getJobTable().retrieveRows().stream()
+        .map(row -> row.getString("id"))
+        .collect(Collectors.toSet());
   }
 }

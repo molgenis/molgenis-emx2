@@ -13,7 +13,6 @@ All frontend apps in EMX2 are developed using the following tools.
 - [vuejs](https://vuejs.org/): javascript framework for building web apps
 - [Bootstrap 4.x](https://getbootstrap.com/)\*: frontend library for layout and styling (we use last release of v4).
 - [vite](https://vitejs.dev): for application bundling
-- [yarn workspaces](https://yarnpkg.com/features/workspaces): to autowire local dependencies.
 
 In addition, some of the projects use [Sass](https://sass-lang.com) to compile css. SASS and SCSS can be activated in the vue component files by adding the `lang="scss"` to `<style>` tag.
 
@@ -26,24 +25,24 @@ All frontend applications are located in the `apps` folder. In this folder are t
 - 'molgenis-components': general layout and styling
 - 'molgenis-viz': a number of D3 components for creating visualizations and dashboards
 
-These libraries need to be built as it creates a library that can be used in other applications. From time to time, you may need to rebuild the libraries if a library is changed. To build the component libraries, run the following yarn workspace script.
+These libraries need to be built as it creates a library that can be used in other applications. From time to time, you may need to rebuild the libraries if a library is changed. To build the component libraries, run the following pnpm workspace script.
 
 ```bash
 # if not already in apps/
 cd apps
 
-# build both component libraries
-yarn build:libs
+# build all apps including the component libraries
+pnpm build
 ```
 
 The component libraries are also apps. They create a 'showCase' app that is served as the app code. To view this run:
 
 ```bash
-cd apps
-yarn molgenis-components
+cd apps/molgenis-components
+pnpm dev
 ```
 
-**Note**: The `molgenis-viz` library requires a database as the charts require a dataset to generate. You can use `yarn dev` in the molgenis-viz folder, but you may get an error that the data is missing.
+**Note**: The `molgenis-viz` library requires a database as the charts require a dataset to generate. You can use `pnpm dev` in the molgenis-viz folder, but you may get an error that the data is missing.
 
 ## Getting started
 
@@ -68,25 +67,14 @@ If you would like to create a new vue app. There are few ways to get started. Yo
 
 1. Copy the `hello-world` demo: a demo application that can be used as a starting for new applications.
 2. Copy an existing app and delete any unecessary files
-3. Create a new vue app using `yarn create vue@latest`
+3. Create a new vue app using `pnpm init vue@latest`
 4. Manually create folder and required files. `mkdir my-app`
 
 The first three options allow you to create apps fairly quickly, but it also requires you to delete files and adjust the configurations. If you would like to create an app manually, follow the [manually creating a frontend application](#manually-creating-a-frontend-application) guide at the end of this page. Before you get started, have a look at the other applications to see how they are structured and configured.
 
-#### Register your application in the yarn workspace
+#### Register your application in the pnpm workspace
 
-In the apps folder, you will find a `package.json` file. This is where the workspace configurations are defined and all the apps are added to the workspace. Add your application to the list of workspaces so that you have access to all local dependencies.
-
-```json
-{
-  "private": true,
-  "workspaces": [
-    // ...
-    "my-app"
-  ]
-  // ...
-}
-```
+In the apps folder, you will find a `pnpm-workspace.yaml` file. This is where the workspace configurations are defined and all the apps are added to the workspace. Add your application to the list of workspaces so that you have access to all local dependencies.
 
 ### Contributing to an existing app
 
@@ -94,24 +82,44 @@ If you would like to add a feature to an existing app or fix something, then the
 
 #### Core MOLGENIS EMX2 applications
 
-In the apps folder, there are several core frontend applications (e.g., settings, table, schema, etc.). These require a molgenis-emx2 backend in order to develop the frontend. You can start the server using docker.
+In the apps folder, there are several core frontend applications (e.g., settings, table, schema, etc.). These require a molgenis-emx2 backend in order to develop the frontend. Start Postgres with docker-compose, then start the backend with gradle.
 
 ```bash
-docker-compose up
+docker-compose up -d postgres
+./gradlew dev
 ```
 
-The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use yarn serve. For example, to preview the app `apps/schema`, run the following command.
+Start only the `postgres` service. A bare `docker-compose up` also brings up a backend on `:8080` and Postgres on `:5432` — the defaults every other checkout on your machine shares. To give this worktree a database and a port of its own, see [Parallel dev stacks](dev_quickstart.md#parallel-dev-stacks-one-per-worktree).
+
+The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use `pnpm dev`. For example, to preview the app `apps/schema`, run the following command.
 
 ```bash
 cd apps/schema
-yarn serve
+pnpm dev
 ```
+
+#### Server-side rendered applications (catalogue)
+
+Most apps are single-page applications (SPAs): `pnpm build` creates a static `dist/` folder that Gradle bundles into the EMX2 jar. The `catalogue` app is different: it is a [Nuxt](https://nuxt.com) app with server-side rendering (SSR). Its build output is a Node.js server, not a static folder, so it is **not** included in the jar. This means the catalogue is not available on `http://localhost:8080` when you run `./gradlew run`.
+
+To develop the catalogue app, run it separately and point it at your backend:
+
+```bash
+# terminal 1: start the backend (and the SPA apps) on http://localhost:8080
+./gradlew run
+
+# terminal 2: start the catalogue app on http://localhost:3000
+cd apps/catalogue
+NUXT_PUBLIC_API_BASE=http://localhost:8080 pnpm dev
+```
+
+In production the catalogue runs as its own container (`molgenis/ssr-catalogue`, see `docker-compose.yml`) next to the backend. See [apps/catalogue/README.md](https://github.com/molgenis/molgenis-emx2/blob/master/apps/catalogue/README.md) for more details.
 
 ## Deploying your application
 
 When you have finished building your app, commit your changes and open a new PR. See our [contributing guidelines](https://github.com/molgenis/molgenis-emx2/blog/master/CONTRIBUTING.md) for more information on contributing to the EMX2 code base. When your PR is accepted and merged with the main EMX2 branch, a [new release](https://github.com/molgenis/molgenis-emx2/releases) will be created. Then, update your server with the latest version of EMX2.
 
-On your server, all vue apps are served at `/apps/<app-name>`. This mirrors EMX2 folder structure so the URL will match the name of the folder (e.g., `/apps/molgenis-viz`). If your app is designed to work with a schema, it will be accessible at `/<schema>/<app-name>/`.
+On your server, all SPA vue apps are served at `/apps/<app-name>`. This mirrors EMX2 folder structure so the URL will match the name of the folder (e.g., `/apps/molgenis-viz`). If your app is designed to work with a schema, it will be accessible at `/<schema>/<app-name>/`. SSR apps such as the catalogue are deployed as a separate container instead (see "Server-side rendered applications" above).
 
 ## Troubleshooting
 
@@ -124,14 +132,14 @@ First, start the development server.
 cd apps/<your-app>
 
 # start the dev server
-yarn dev
+pnpm dev
 ```
 
-Once started, the app is served at [http://localhost:5173](http://localhost:5173). If the server is running and the app cannot be found, check the `vite.config.js` file to see if the port has changed.
+Read the port off the dev server's own banner rather than assuming one: an app gets Vite's default [http://localhost:5173](http://localhost:5173) (Nuxt: `3000`) and walks upwards from there whenever another app already holds it.
 
 ### How do I view my app on the server?
 
-On the server, applications are available at `/apps/<app-name>/`. The path of the app will match the name of the folder in the `apps/` directory. If you app interacts with a schema, it will accessible at `/<schema-name>/<app-name>/`.
+On the server, SPA applications are available at `/apps/<app-name>/`. The path of the app will match the name of the folder in the `apps/` directory. If you app interacts with a schema, it will accessible at `/<schema-name>/<app-name>/`. SSR apps such as the catalogue run as a separate container and are not served under `/apps/` (see "Server-side rendered applications" above).
 
 If you continue to have issues, make sure your app has been merged with the main emx2 branch and the server is updated with the latest version of MOLGENIS EMX2.
 
@@ -140,7 +148,7 @@ If you continue to have issues, make sure your app has been merged with the main
 It is likely that the component libraries need to built or rebuilt. In the `apps/` folder, run the following command.
 
 ```bash
-yarn build:libs
+pnpm build
 ```
 
 If that does not resolve the issue, consider deleting the `node_modules` folder, and then reinstalling dependencies and rebuilding the component libraries.
@@ -152,10 +160,10 @@ cd apps/
 rm -rf node_modules
 
 # reinstall dependencies
-yarn
+pnpm install
 
 # rebuild component libraries
-yarn build:libs
+pnpm build
 ```
 
 ### I would like to use the molgenis-viz library, but the styles aren't loading
@@ -189,7 +197,7 @@ It is possible to run your app against a clean server. We use [gradle](https://g
 ./gradlew run
 ```
 
-Gradle may take some time to build. Once it's ready, the app will be visible on port `8080`
+Gradle may take some time to build. Once it's ready, the app will be visible on the port the backend bound: `MOLGENIS_HTTP_PORT` if your repo-root `.env` declares one, otherwise the `8080` default.
 
 ### I want to display my app by default
 
@@ -223,17 +231,17 @@ cd *my-app*
 
 #### Create the package.json file
 
-First, create a `package.json` file in your new app. It is easier to create this using yarn. Follow the prompts and provide as much details as possible.
+First, create a `package.json` file in your new app. It is easier to create this using pnpm. Follow the prompts and provide as much details as possible.
 
 ```bash
-yarn init
+pnpm init
 ```
 
-Once the file is created, add the yarn scripts, browserlists, and minimum dependencies. Copy the following code and paste it into the `package.json` file. In the dependencies list, you will need to add the `molgenis-components` library. Rather than specifying a specific version, use `*` to target any local build. If you would like to use the visualization library, add `"molgenis-viz": "*"` to the list of dependencies.
+Once the file is created, add the pnpm scripts, browserlists, and minimum dependencies. Copy the following code and paste it into the `package.json` file. In the dependencies list, you will need to add the `molgenis-components` library. Rather than specifying a specific version, use `*` to target any local build. If you would like to use the visualization library, add `"molgenis-viz": "*"` to the list of dependencies.
 
 ```json
 {
-  // .... content created by yarn init
+  // .... content created by pnpm init
   "dependencies": {
     "molgenis-components": "*"
   },
@@ -255,14 +263,14 @@ Our frontend applications do not use that many dependencies. We try to keep the 
 At the very least, you will need the following dependencies to your project.
 
 ```bash
-yarn add vue vue-router
-yarn add -D @vitejs/plugin-vue prettier vite
+pnpm add vue vue-router
+pnpm add -D @vitejs/plugin-vue prettier vite
 ```
 
 If you would like to interact with the MOLGENIS GraphQL API, install the following dependency:
 
 ```bash
-yarn add graphql-request
+pnpm install graphql-request
 ```
 
 #### Add vite.config.js file
@@ -273,48 +281,37 @@ Add the `vite.config.js` file to your project
 touch vite.config.js
 ```
 
-Use the `vite.config.js` file to configure how the application is run and built. At a minimum, the following configurations are needed.
+Use the `vite.config.js` file to configure how the application is run and built. At a minimum, the following configurations are needed. This is `apps/schema/vite.config.js` with the folder name changed.
 
 ```js
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import devProxy from "../dev-proxy.config";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: "",
+  base: command === "serve" ? "/" : "apps/my-app/",
   server: {
-    proxy: require("../dev-proxy.config")
-  }
-});
+    proxy: devProxy,
+  },
+}));
 ```
 
-By default, all proxy configurations are stored in the `dev-proxy.config.js` file (located in the `apps` folder). This allows you to point the local dev server to an existing EMX2 instance. This may be useful if you would like to query data from a specific database. You can either change the proxy configs in this file or use a `.env` file to store this information.
+`base` is `/` while the dev server runs and `apps/<app-name>/` in a build, because on a server the app is served from that subpath.
+
+##### Choosing the backend your dev server proxies to
+
+`apps/dev-proxy.config.js` is shared by most of the Vite apps. It routes `/graphql`, `/api`, `/reports`, `/theme.css` and their schema-prefixed variants to the backend named by `MOLGENIS_APPS_HOST` set in `.env`; when that is not declared it derives `http://localhost:${MOLGENIS_HTTP_PORT}` from `.env`, then an ambient `MOLGENIS_APPS_HOST` from the shell, and falls back to the shared remote `https://emx2.dev.molgenis.org` last. `MOLGENIS_APPS_SCHEMA` fills in the schema for the routes that do not carry one (default `pet store`).
+
+**Do not create a per-app `.env`, and do not call `dotenv` inside `vite.config.js`.** Those keys are read from a single gitignored `.env` at the **repo root**, which `apps/dev-env.js` loads as an import side effect. `dev-proxy.config.js` requires `dev-env.js`, so importing the shared proxy already loads it — there is nothing to wire up in your app.
 
 ```sh
-# .env file
-MOLGENIS_APPS_HOST=....
-MOLGENIS_APPS_SCHEMA=....
+# <repo root>/.env
+MOLGENIS_HTTP_PORT=8083
+MOLGENIS_APPS_SCHEMA=pet store
 ```
 
-Then, load it into the `vite.config.js` file.
-
-```js
-// vite.config.json with .env file
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-
-export default defineConfig(() => {
-  require("dotenv").config({ path: `./.env` });
-
-  return {
-    plugins: [vue()],
-    base: "",
-    server: {
-      proxy: require("../dev-proxy.config")
-    }
-  };
-});
-```
+A per-app `.env` would let one app talk to a backend the checkout never declared, with nothing on screen to reveal the divergence. One file at the root is what keeps every app, the backend and the e2e suites on the same stack. What to put in it: [Parallel dev stacks](dev_quickstart.md#parallel-dev-stacks-one-per-worktree), or [Frontend only](dev_quickstart.md#frontend-only-point-an-app-at-a-backend-you-did-not-start) if you use a backend somebody else runs.
 
 If you are using components for the `molgenis-viz` component library, you will also need import the styles. To use these, add the following configuration after the `server` configuration.
 
@@ -402,16 +399,16 @@ cp ../aggregates/index.html .
 
 Open the index.html file, add update the message with the name of your app. In addition, make sure the script tag points to the `main.ts` file.
 
-By this point, you should have enough to view your app. Run the `yarn dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
+By this point, you should have enough to view your app. Run the `pnpm dev` command to start the dev server. The app will be served at [http://localhost:5173](http://localhost:5173).
 
 ### Generate typescript types for an app
 
 To generate the typescript interfaces for a given schema, run:
 `./gradlew generateTypes --args=[schemaName] [full-path+file-name]`
 
-for example on unix: `./gradlew generateTypes --args='catalogue /Users/john/Code/emx2/molgenis-emx2/apps/nuxt3-ssr/interfaces/generated/types.ts'`
+for example on unix: `./gradlew generateTypes --args='catalogue /Users/john/Code/emx2/molgenis-emx2/apps/catalogue/interfaces/generated/types.ts'`
 "
-or on windows: `.\gradlew generateTypes --args='"catalogue" "C:\Users\john\Code\emx2\molgenis-emx2\apps\nuxt3-ssr\interfaces\generated\types.ts"' `
+or on windows: `.\gradlew generateTypes --args='"catalogue" "C:\Users\john\Code\emx2\molgenis-emx2\apps\catalogue\interfaces\generated\types.ts"' `
 
 The first param is the schema name, second param is the full path to the file the interfaces get generated into.
 Note that the file is either created or overridden, and that the folder must already exist.

@@ -1,0 +1,3 @@
+id,pid,name,local name,acronym,type,type other,description,start year,license,issued,modified,release type,release description
+Beacon v2,,Beacon v2,,,Other type,Demo datasets for Beacon v2,Demo datasets for Beacon v2,2025,https://www.gnu.org/licenses/lgpl-3.0.html#license-text,2025-01-01T00:00:00,2025-01-01T00:00:00,Closed dataset,"Datasets were created for a specific purpose (e.g., testing)"
+MOLGENIS,,MOLGENIS,,,Other type,MOLGENIS open source software,,,https://github.com/molgenis/molgenis-emx2/blob/master/LICENSE,2021-04-10T00:00:00,,,

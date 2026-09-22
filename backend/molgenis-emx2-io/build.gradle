@@ -1,11 +1,12 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-tasks')
+
     implementation group: 'org.simpleflatmapper', name:'sfm-csv', version:simpleflatmapperVersion
     implementation group: 'com.github.pjfanning', name:'excel-streaming-reader', version:excelStreamingReaderVersion
     implementation group: 'org.apache.commons', name:'commons-lang3', version:commonsLang3Version
     implementation group: 'commons-io', name:'commons-io', version:commonsIoVersion
-
+    
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-datamodels')
 }

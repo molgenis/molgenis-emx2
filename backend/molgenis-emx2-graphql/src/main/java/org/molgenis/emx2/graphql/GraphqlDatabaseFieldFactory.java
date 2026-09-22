@@ -2,7 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.DESCRIPTION;
 import static org.molgenis.emx2.Constants.SETTINGS;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
+import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -18,6 +18,27 @@ import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
+
+  static final GraphQLType lastUpdateMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("ChangesType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(OPERATION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(STAMP).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition().name(USERID).type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLENAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_NAME)
+                  .type(Scalars.GraphQLString))
+          .build();
 
   public static final GraphQLType outputSchemasType =
       new GraphQLObjectType.Builder()
@@ -62,22 +83,33 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(Constants.INCLUDE_DEMO_DATA)
                 .type(Scalars.GraphQLBoolean))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.PARENT_JOB).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
               String template = dataFetchingEnvironment.getArgument(Constants.TEMPLATE);
+              String parentTaskId = dataFetchingEnvironment.getArgument(Constants.PARENT_JOB);
               Boolean includeDemoData =
                   dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
 
               GraphqlApiMutationResult result =
                   new GraphqlApiMutationResult(SUCCESS, "Schema %s created", name);
 
-              Schema schema = database.createSchema(name, description);
               if (template != null) {
-                Task task = DataModels.getImportTask(schema, template, includeDemoData);
+                Task task =
+                    DataModels.getImportTask(
+                        database, name, description, template, includeDemoData);
+                if (parentTaskId != null) {
+                  Task parentTask = taskService.getTask(parentTaskId);
+                  task.setParentTask(parentTask);
+                }
                 String id = taskService.submit(task);
                 result.setTaskId(id);
+              } else {
+                database.createSchema(name, description);
+                database.getListener().onSchemaChange();
               }
 
               return result;
@@ -107,39 +139,20 @@ public class GraphqlDatabaseFieldFactory {
                 .name(GraphqlConstants.KEYS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsType))
-        .dataFetcher(dataFetchingEnvironment -> mapSettingsToGraphql(database.getSettings()));
-  }
-
-  public GraphQLFieldDefinition.Builder createSettingsMutation(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name(("createSetting"))
-        .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.SETTINGS_VALUE)
-                .type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
-              String value = dataFetchingEnvironment.getArgument(Constants.SETTINGS_VALUE);
-              database.setSetting(key, value);
-              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s created", key);
-            });
-  }
+              final List<String> selectedKeys =
+                  dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
 
-  public GraphQLFieldDefinition.Builder deleteSettingsMutation(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name(("deleteSetting"))
-        .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
-              database.removeSetting(key);
-              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s deleted", key);
+              Map<String, String> filtered = new HashMap<>();
+              for (Map.Entry<String, String> setting : database.getSettings().entrySet()) {
+                if (selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey())) {
+                  filtered.put(setting.getKey(), setting.getValue());
+                }
+              }
+              filtered.put(Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
+
+              return mapSettingsToGraphql(filtered);
             });
   }
 
@@ -184,7 +197,7 @@ public class GraphqlDatabaseFieldFactory {
                   .type(GraphQLList.list(GraphQLTypeReference.typeRef("MolgenisTask"))))
           .build();
 
-  public GraphQLFieldDefinition tasksQueryField(TaskService taskService) {
+  public GraphQLFieldDefinition tasksQueryField(TaskService taskService, Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_tasks")
         .type(GraphQLList.list(outputTaskType))
@@ -195,7 +208,21 @@ public class GraphqlDatabaseFieldFactory {
               if (id != null) {
                 return List.of(taskService.getTask(id));
               }
-              return taskService.listTasks();
+
+              GraphqlSessionHandlerInterface sessionHandler =
+                  dataFetchingEnvironment
+                      .getGraphQlContext()
+                      .get(GraphqlSessionHandlerInterface.class);
+
+              boolean isAdmin =
+                  Optional.ofNullable(database.getUser(sessionHandler.getCurrentUser()))
+                      .map(User::isAdmin)
+                      .orElse(false);
+              if (isAdmin) {
+                return taskService.listTasks();
+              }
+
+              throw new MolgenisException("Listing all tasks is only allowed for admin users");
             })
         .build();
   }
@@ -264,6 +291,13 @@ public class GraphqlDatabaseFieldFactory {
               return new GraphqlApiMutationResult(SUCCESS, messageBuilder.toString().trim());
             })
         .build();
+  }
+
+  public GraphQLFieldDefinition.Builder lastUpdateQuery(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_lastUpdate")
+        .type(GraphQLList.list(lastUpdateMetadataType))
+        .dataFetcher(dataFetchingEnvironment -> database.getLastUpdated());
   }
 
   private static void dropUsers(

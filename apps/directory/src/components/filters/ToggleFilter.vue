@@ -3,45 +3,34 @@
     @click="filterSelection = !filterSelection"
     class="btn btn-outline-secondary"
     :class="filterSelection ? 'bg-secondary text-white' : 'bg-white'"
+    type="button"
+    :aria-label="`${trueOption.text}-filter`"
   >
     <input type="checkbox" v-model="filterSelection" />
     {{ trueOption.text }}
   </button>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
-export default {
-  setup() {
-    const filtersStore = useFiltersStore();
 
-    return { filtersStore };
+const filtersStore = useFiltersStore();
+
+const props = defineProps<{
+  facetIdentifier: string;
+  options: () => Promise<Array<{ text: string; value: string }>>;
+  trueOption: { text: string; value: string };
+}>();
+
+const filterSelection = computed<boolean>({
+  get() {
+    return filtersStore.getFilterValue(props.facetIdentifier) || false;
   },
-  props: {
-    facetIdentifier: {
-      type: String,
-      required: true,
-    },
-    options: {
-      type: [Function],
-      required: true,
-    },
-    trueOption: {
-      type: Object,
-      required: true,
-    },
+  set(value: boolean) {
+    filtersStore.updateFilter(props.facetIdentifier, value);
   },
-  computed: {
-    filterSelection: {
-      get() {
-        return this.filtersStore.getFilterValue(this.facetIdentifier) || false;
-      },
-      set(value) {
-        this.filtersStore.updateFilter(this.facetIdentifier, value || null);
-      },
-    },
-  },
-};
+});
 </script>
 
 <style scoped>

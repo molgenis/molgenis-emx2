@@ -48,7 +48,9 @@ export default {
   computed: {
     visibleFilters() {
       return this.filters.filter(
-        (column) => column.showFilter && column.columnType !== "HEADING"
+        (column) =>
+          column.showFilter &&
+          !["HEADING", "SECTION"].includes(column.columnType)
       );
     },
   },

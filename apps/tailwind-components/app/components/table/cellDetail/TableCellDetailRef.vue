@@ -1,0 +1,132 @@
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import type {
+  columnValue,
+  IColumn,
+  IRefColumn,
+  IRow,
+  ITableMetaData,
+} from "../../../../../metadata-utils/src/types";
+import type { cellPayload } from "../../../../types/types";
+import fetchRowData from "../../../composables/fetchRowData";
+import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
+import fetchTableMetadata from "../../../composables/fetchTableMetadata";
+import DefinitionList from "../../DefinitionList.vue";
+import DefinitionListDefinition from "../../DefinitionListDefinition.vue";
+import DefinitionListTerm from "../../DefinitionListTerm.vue";
+import ValueEMX2 from "../../value/EMX2.vue";
+
+const props = withDefaults(
+  defineProps<{
+    metadata: IRefColumn;
+    columnValue: IRow;
+    schema: string;
+    showDataOwner?: boolean;
+  }>(),
+  {
+    showDataOwner: false,
+  }
+);
+
+const loading = ref(true);
+const refRow = ref<IRow>({});
+const refRowMetadata = ref<ITableMetaData>();
+
+const emit = defineEmits<{
+  (e: "onRefClick", payload: cellPayload): void;
+}>();
+
+await fetchData(props.columnValue, props.metadata.refTableId, props.schema);
+
+async function fetchData(row: IRow, tableId: string, schema: string) {
+  loading.value = true;
+  const rowKey = await fetchRowPrimaryKey(row, tableId, schema);
+
+  refRow.value = await fetchRowData(schema, tableId, rowKey);
+  refRowMetadata.value = await fetchTableMetadata(schema, tableId);
+
+  loading.value = false;
+}
+
+const sections = computed(() => {
+  if (!refRowMetadata.value) {
+    return [];
+  }
+
+  return refRowMetadata.value.columns
+    .map((column) => {
+      return {
+        key: column.id,
+        value: refRow.value[column.id],
+        metadata: column,
+      };
+    })
+    .filter((item) => {
+      return !item.key.startsWith("mg_") || props.showDataOwner;
+    })
+    .filter((item) => {
+      return (
+        refRow.value.hasOwnProperty(item.key) ||
+        item.metadata.columnType === "HEADING"
+      );
+    })
+    .reduce((acc: ICellDetailSection[], item) => {
+      if (item.metadata.columnType === "HEADING") {
+        acc.push({ heading: item.metadata.label as string, fields: [] });
+      } else {
+        if (acc.length === 0) {
+          const defaultSection = { heading: "", fields: [] };
+          acc.push(defaultSection);
+        }
+        const lastSection = acc[acc.length - 1];
+        if (lastSection) {
+          lastSection.fields.push(item);
+        }
+      }
+      return acc;
+    }, [])
+    .filter((section) => {
+      // Filter out empty sections
+      return section.fields.length > 0;
+    });
+});
+
+interface ICellDetailSection {
+  heading: string;
+  fields: {
+    key: string;
+    value: columnValue;
+    metadata: IColumn;
+  }[];
+}
+</script>
+
+<template>
+  <section
+    v-if="!loading"
+    v-for="section in sections"
+    class="px-8 first:pt-[50px] last:pb-[50px]"
+    :class="section.heading ? 'pt-[50px]' : ''"
+  >
+    <h3
+      v-if="section.heading"
+      class="text-heading-3xl font-display text-title-contrast mb-4"
+    >
+      {{ section.heading }}
+    </h3>
+    <DefinitionList :compact="false">
+      <template v-for="field in section.fields">
+        <DefinitionListTerm class="text-title-contrast">
+          {{ field.metadata.label }}
+        </DefinitionListTerm>
+        <DefinitionListDefinition class="text-title-contrast">
+          <ValueEMX2
+            :data="field.value"
+            :metadata="field.metadata"
+            @valueClick="$emit('onRefClick', $event)"
+          />
+        </DefinitionListDefinition>
+      </template>
+    </DefinitionList>
+  </section>
+</template>

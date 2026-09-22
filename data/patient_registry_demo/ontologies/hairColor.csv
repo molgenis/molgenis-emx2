@@ -1,0 +1,5 @@
+order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
+1,white,White,,,,,,
+2,lightBlond,Light Blond,,,,,,
+3,darkBlond,Dark Blond,,,,,,
+4,red,Red,,,,,,

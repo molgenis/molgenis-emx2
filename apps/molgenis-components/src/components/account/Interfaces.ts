@@ -1,11 +1,22 @@
-import { ISetting } from "metadata-utils";
+import type { ISetting } from "../../../../metadata-utils/src/types";
+
+export interface ITablePermission {
+  name: string;
+  id: string;
+  canView: boolean;
+  canInsert: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  isRowLevel: boolean;
+}
 
 export interface ISession {
   email?: string;
   locale?: string;
   roles?: string[];
+  tablePermissions?: ITablePermission[];
   schemas?: any;
-  settings?: Record<string, string>;
+  settings?: Record<string, string | number | boolean>;
   manifest?: IManifest;
   token?: string;
 }

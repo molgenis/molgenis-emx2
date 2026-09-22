@@ -114,13 +114,20 @@ direction TB
     }
     if (table.subclasses) {
       table.subclasses.forEach((subclass) => {
-        graph += ` \`${subclass.inherit}\` <|-- \`${subclass.name}\` \n`;
+        graph += ` \`${subclass.inheritName}\` <|-- \`${subclass.name}\` \n`;
       });
     }
     table.columns.forEach((column) => {
-      if (column.columnType === "REF" || column.columnType === "REF_ARRAY") {
-        graph += `  class \`${column.refTable}\`\n`;
-        graph += `  \`${column.refTable}\` <-- \`${column.table}\` : ${column.name} \n`;
+      if (
+        column.columnType === "REF" ||
+        column.columnType === "REF_ARRAY" ||
+        column.columnType === "RADIO" ||
+        column.columnType === "CHECKBOX" ||
+        column.columnType === "SELECT" ||
+        column.columnType === "MULTISELECT"
+      ) {
+        graph += `  class \`${column.refTableName}\`\n`;
+        graph += `  \`${column.refTableName}\` <-- \`${column.table}\` : ${column.name} \n`;
       }
     });
   });

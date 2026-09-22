@@ -17,6 +17,10 @@ class SigninError(PyclientException):
     """Thrown when a signing in to a server failed."""
 
 
+class SignoutError(PyclientException):
+    """Thrown when a signing out of a server failed."""
+
+
 class NoSuchSchemaException(PyclientException):
     """Thrown when a schema is requested that is not found on the server."""
 
@@ -59,3 +63,6 @@ class TokenSigninException(PyclientException):
 
 class NonExistentTemplateException(PyclientException):
     """Thrown when creation of schema with non-existent template is attempted."""
+
+class ReferenceException(PyclientException):
+    """Thrown when update or deletion of an entry that is referenced in another table is attempted."""

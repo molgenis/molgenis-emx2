@@ -1,4 +1,7 @@
 dependencies {
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.4'
     implementation group: 'org.graalvm.js', name:'js', version:graalvmVersion
+    implementation 'org.graalvm.js:js-language:25.2.4'
     implementation group: 'org.graalvm.js', name:'js-scriptengine', version:graalvmVersion
+    testImplementation 'io.javalin:javalin-testtools:6.7.0'
 }

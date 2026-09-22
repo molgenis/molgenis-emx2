@@ -6,25 +6,29 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "vite lint",
-    "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "test": "vitest",
+    "test-ci": "node --experimental-strip-types --test tests/*.test.js && vitest run",
+    "format": "prettier src tests --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src tests --check --config ../.prettierrc.js"
   },
   "dependencies": {
     "core-js": "3.34.0",
-    "graphql-request": "5.2.0",
+    "graphql-request": "6.1.0",
     "graphql-tag": "2.12.6",
-    "metadata-utils": "*",
-    "molgenis-components": "*",
-    "vue": "3.4.37",
+    "mermaid": "11.16.1",
+    "metadata-utils": "workspace:*",
+    "molgenis-components": "workspace:*",
+    "nomnoml": "1.6.2",
+    "vue": "3.5.22",
     "vue-router": "4.4.3",
     "vue-scrollto": "2.20.0",
-    "vuedraggable": "4.1.0",
-    "nomnoml": "1.6.2",
-    "mermaid": "10.6.1"
+    "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "vite": "4.5.3",
-    "@vitejs/plugin-vue": "4.6.2",
-    "prettier": "2.8.8"
+    "@vitejs/plugin-vue": "5.2.4",
+    "@vue/test-utils": "2.4.6",
+    "prettier": "2.8.8",
+    "vite": "7.3.5",
+    "vitest": "4.1.11"
   }
 }

@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Scatter Plot"
-      imageSrc="scatter-plot-header.jpg"
+      imageSrc="img/scatter-plot-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">

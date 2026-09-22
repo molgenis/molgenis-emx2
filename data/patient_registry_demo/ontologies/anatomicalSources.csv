@@ -1,0 +1,23 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,urinaryBladder,Bladder,,UBERON,0006912,http://purl.obolibrary.org/obo/UBERON_0006912,urinary bladder muscularis mucosa
+2,bone,Bone,,NCIT,C12366,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C12366,The structural organ comprised of specialized connective tissue that forms the skeletal components of the body.
+3,brain,Brain,,UBERON,0000955,http://purl.obolibrary.org/obo/UBERON_0000955,
+4,esophagus,Oesophagus,,UBERON,0001043,http://purl.obolibrary.org/obo/UBERON_0001043,
+5,eye,Eyes,,UBERON,0000970,http://purl.obolibrary.org/obo/UBERON_0000970,
+6,adiposeTissue,Fat tissue,,UBERON,0001013,http://purl.obolibrary.org/obo/UBERON_0001013,
+7,mucosaOfStomach,Gastric mucosa,,UBERON,0001199,http://purl.obolibrary.org/obo/UBERON_0001199,
+8,reproductiveSystemMucosa,Genital mucosa,,UBERON,0019042,http://purl.obolibrary.org/obo/UBERON_0019042,
+9,heart,Heart,,UBERON,0000948,http://purl.obolibrary.org/obo/UBERON_0000948,
+10,intestine,Intestine,,UBERON,0000160,http://purl.obolibrary.org/obo/UBERON_0000160,
+11,kidney,Kidney,,UBERON,0002113,http://purl.obolibrary.org/obo/UBERON_0002113,
+12,larynx,Larynx,,UBERON,0001737,http://purl.obolibrary.org/obo/UBERON_0001737,
+13,liver,Liver,,UBERON,0002107,http://purl.obolibrary.org/obo/UBERON_0002107,
+14,lowerAirways,Lower airways,,,,,
+15,lung,Lung,,UBERON,0002048,http://purl.obolibrary.org/obo/UBERON_0002048,
+16,muscle,Muscle,,NCIT,C13056,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C13056,
+17,oralMucosa,Oral mucosa,,NCIT,C77637,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C77637,"Moist tissue lining the oral cavity, containing mucous secreting glands."
+18,ovary,Ovary,,UBERON,0000992,http://purl.obolibrary.org/obo/UBERON_0000992,
+19,pharynx,Pharynx,,UBERON,6562,http://purl.obolibrary.org/obo/UBERON_0006562,
+20,spleen,Spleen,,UBERON,0002106,http://purl.obolibrary.org/obo/UBERON_0002106,
+21,testis,Testis,,UBERON,0000473,http://purl.obolibrary.org/obo/UBERON_0000473,
+22,carinaOfTrachea,Tracheae,,UBERON,0006679,http://purl.obolibrary.org/obo/UBERON_0006679,

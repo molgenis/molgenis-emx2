@@ -18,13 +18,13 @@ import "range.jslt" as range
                 "results":
                 [for (.results) {
                     "id": .id,
-                    "biosampleId": .biosampleId.id,
-                    "individualId": .individualId.id,
-                    "runDate": .runDate,
+                    "biosampleId": .sampleId,
+                    "individualId": .individuals[0].id,
+                    "runDate": .dateOfSequencing,
                     "librarySource": ontology(.librarySource),
                     "librarySelection": .librarySelection,
                     "libraryStrategy": .libraryStrategy.name,
-                    "libraryLayout": .libraryLayout,
+                    "libraryLayout": .libraryLayout.name,
                     "platform": .platform.name,
                     "platformModel": ontology(.platformModel)
                 }]

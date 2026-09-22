@@ -29,10 +29,10 @@ public abstract class DatabaseListener {
     return this.schemaRemoved;
   }
 
-  public abstract void userChanged();
+  public abstract void onUserChange();
 
   /** Abstract method, called on each commit. When override call to reset the listener */
-  public void afterCommit() {
+  public void onSchemaChange() {
     this.schemaRemoved.clear();
     this.schemaChanged.clear();
   }

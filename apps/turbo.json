@@ -1,0 +1,78 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NUXT_PUBLIC_API_BASE",
+    "MOLGENIS_APPS_HOST",
+    "MOLGENIS_HTTP_PORT"
+  ],
+  "globalDependencies": ["dev-env.js", "dev-proxy.config.js"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "**/*",
+        "!node_modules/**",
+        "!dist/**",
+        "!*.log",
+        "!.gradle",
+        "!build",
+        "!.nuxt",
+        "!.output",
+        "!.turbo",
+        "!tests/**",
+        "!test/**",
+        "!__screenshots__/**",
+        "!playwright.config.*",
+        "!vitest.config.*",
+        "!**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"
+      ],
+      "outputs": [
+        "dist/**",
+        "showCase/**",
+        "gen-docs/**",
+        ".output/**",
+        ".nuxt/tsconfig*.json"
+      ],
+      "cache": true
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true
+    },
+    "lint": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true
+    },
+    "format": {
+      "inputs": [
+        "**/*.{ts,tsx,js,jsx,vue,json,md,yml,yaml}",
+        ".prettierrc.*",
+        "../.prettierrc.*",
+        "package.json"
+      ],
+      "outputs": [],
+      "cache": true
+    },
+    "checkFormat": {
+      "inputs": [
+        "**/*.{ts,tsx,js,jsx,vue,json,md,yml,yaml}",
+        ".prettierrc.*",
+        "../.prettierrc.*",
+        "package.json"
+      ],
+      "outputs": [],
+      "cache": true
+    },
+    "test-ci": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true
+    },
+    "e2e": {
+      "outputs": [],
+      "cache": true
+    }
+  }
+}

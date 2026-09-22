@@ -1,43 +1,75 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { defineNuxtConfig } from "nuxt/config";
+import * as fs from "fs";
+import { resolve } from "path";
+import { apiBase } from "../dev-env.js";
+
+const sourceCodeMapPath = resolve("./sourceCodeMap.json");
+const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
+  ? JSON.parse(fs.readFileSync(sourceCodeMapPath, "utf-8"))
+  : { none: "none" };
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss', 'floating-vue/nuxt', '@nuxt/test-utils/module'],
+  experimental: {
+    watcher: "parcel",
+  },
+  modules: [
+    "@nuxt/test-utils/module",
+    "floating-vue/nuxt",
+    "@nuxtjs/tailwindcss",
+    "nuxt-monaco-editor",
+  ],
+  ignore: [
+    ".gradle/**",
+    ".git/**",
+    "node_modules/**",
+    "dist/**",
+    "coverage/**",
+  ],
+  imports: {
+    autoImport: false,
+  },
   tailwindcss: {
-    cssPath: '~/assets/css/main.css',
-    configPath: '~/tailwind.config.js'
+    cssPath: "~/assets/css/main.css",
+    configPath: "~/tailwind.config.js",
   },
-  ssr: process.env.NUXT_PUBLIC_IS_SSR === 'false' ? false : true,
+
+  ssr: process.env.NUXT_PUBLIC_IS_SSR === "false" ? false : true,
+
   router: {
-    options: process.env.NUXT_PUBLIC_IS_SSR === 'false' ? {
-      hashMode: true
-    } : {}
+    options:
+      process.env.NUXT_PUBLIC_IS_SSR === "false"
+        ? {
+            hashMode: true,
+          }
+        : {},
   },
+
   nitro: {
     prerender: {
-      ignore: ['/_tailwind/']
-    }
+      ignore: ["/_tailwind/"],
+    },
   },
+
   app: {
     head: {
       htmlAttrs: {
-        'data-theme': ''
-      }
-    }
+        "data-theme": "",
+      },
+    },
   },
-  components: [
-    {
-      path: "~/components/global/icons",
-      global: true,
-    },
-    {
-      path: "~/components/viz",
-      pathPrefix: false
-    },
-    "~/components",
-  ],
+
   runtimeConfig: {
     public: {
-      apiBase: "https://emx2.dev.molgenis.org/", // "http://localhost:8080/",
+      apiBase: apiBase(
+        process.env.CI
+          ? "http://localhost:8080/"
+          : "https://emx2.dev.molgenis.org/"
+      ),
+      sourceCodeMap: sourceCodeMap,
     },
   },
-})
+
+  compatibilityDate: "2024-08-23",
+});

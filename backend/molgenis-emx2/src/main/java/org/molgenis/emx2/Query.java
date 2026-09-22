@@ -2,8 +2,13 @@ package org.molgenis.emx2;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public interface Query {
+  enum Option {
+    INCLUDE_FILE_CONTENTS,
+    EXCLUDE_MG_COLUMNS
+  }
 
   Query select(SelectColumn... columns);
 
@@ -21,7 +26,11 @@ public interface Query {
 
   Query orderBy(String column, Order order);
 
-  List<Row> retrieveRows();
+  List<Row> retrieveRows(Option... options);
+
+  default void streamRows(Consumer<Row> consumer, Option... options) {
+    retrieveRows(options).forEach(consumer);
+  }
 
   String retrieveJSON();
 

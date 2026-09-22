@@ -1,6 +1,0 @@
-id,aligner,analysisDate,biosampleId,individualId,pipelineName,pipelineRef,runId,variantCaller
-A01,bwa-0.7.8,2021-01-21,Sample0001,Ind001,Pipeline-panel-0001-v1,https://doi.org/10.48511/workflowhub.workflow.111.1,SRR10903401,GATK4.0
-A02,bwa-0.7.8,2021-02-12,Sample0001,Ind001,Pipeline-panel-0001-v2,https://doi.org/10.48511/workflowhub.workflow.111.1,SRR10903402,GATK3.0
-A03,bwa-0.8.0,2022-01-10,Sample0001,Ind001,Pipeline-panel-0001-v1,https://doi.org/10.48511/workflowhub.workflow.111.1,SRR10903403,GATK3.0
-A04,bwa-0.9.0,2022-02-11,Sample0002,Ind002,Pipeline-panel-0001-v2,https://doi.org/10.48511/workflowhub.workflow.111.1,SRR10903404,GATK4.0
-MinA05,,2022-03-14,,,Pipeline-panel-0001-v3,,,

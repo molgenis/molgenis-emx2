@@ -1,3 +1,14 @@
+<script lang="ts" setup>
+import { ref } from "vue";
+// @ts-expect-error
+import { Molgenis } from "molgenis-components";
+// @ts-expect-error
+import { AppFooter } from "molgenis-viz";
+
+const session = ref(null);
+const page = ref(null);
+</script>
+
 <template>
   <Molgenis id="__top" v-model="session">
     <router-view :session="session" :page="page" />
@@ -20,6 +31,12 @@
         <li>
           <router-link :to="{ name: 'governance' }">Governance</router-link>
         </li>
+        <li>
+          <router-link :to="{ name: 'privacy' }">Privacy Policy</router-link>
+        </li>
+        <li>
+          <router-link :to="{ name: 'disclaimer' }">Disclaimer</router-link>
+        </li>
       </template>
       <template v-slot:column-links-2>
         <li>
@@ -30,7 +47,7 @@
         <li id="genturis-logo-link">
           <a href="https://www.genturis.eu/">
             <img
-              src="/genturis-registry-logo.png"
+              src="/img/genturis-registry-logo.png"
               class="genturis-logo logo-small"
               alt="registry for the european reference network on genetic tumour risk syndromes"
             />
@@ -38,28 +55,11 @@
         </li>
         <li id="genturis-funding-logo">
           <img
-            src="/ern-funded-by-eu.svg"
+            src="/img/ern-funded-by-eu.svg"
             alt="european reference network funded by the european union"
           />
-        </li>
-      </template>
-      <template v-slot:site-citation>
-        <li>
-          <router-link :to="{ name: 'privacy' }">Privacy Policy</router-link>
-        </li>
-        <li>
-          <router-link :to="{ name: 'disclaimer' }">Disclaimer</router-link>
         </li>
       </template>
     </AppFooter>
   </Molgenis>
 </template>
-
-<script setup>
-import { ref } from "vue";
-import { Molgenis } from "molgenis-components";
-import AppFooter from "./components/AppFooter.vue";
-
-const session = ref(null);
-const page = ref(null);
-</script>

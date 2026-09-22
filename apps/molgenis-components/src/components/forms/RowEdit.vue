@@ -5,10 +5,11 @@
       :key="JSON.stringify(column)"
       :id="`${id}-${column.id}`"
       :modelValue="internalValues[column.id]"
+      :expressionData="internalValues"
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
-      :label="column.label"
+      :label="column.formLabel ?? column.label"
       :schemaId="column.refSchemaId || schemaMetaData.id"
       :pkey="pkey"
       :readonly="
@@ -21,6 +22,7 @@
       :required="column.required"
       :tableId="column.refTableId"
       :canEdit="canEdit"
+      :tablePermissions="tablePermissions"
       :filter="refFilter[column.id]"
       @update:modelValue="handleModelValueUpdate($event, column)"
     />
@@ -95,6 +97,11 @@ export default {
       required: false,
       default: () => true,
     },
+    tablePermissions: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
     errorPerColumn: {
       type: Object,
       default: () => ({}),
@@ -112,7 +119,8 @@ export default {
     shownColumnsWithoutMeta() {
       const columnsWithoutMeta = this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column: IColumn) => !column.id?.startsWith("mg_")
+            (column: IColumn) =>
+              !column.id?.startsWith("mg_") && column.id !== "_mg_top_of_form"
           )
         : [];
       return columnsWithoutMeta.filter(this.showColumn);
@@ -120,9 +128,7 @@ export default {
   },
   methods: {
     showColumn(column: IColumn) {
-      if (column.columnType === AUTO_ID) {
-        return this.pkey;
-      } else if (column.refLinkId) {
+      if (column.refLinkId) {
         return this.internalValues[column.refLinkId];
       } else {
         const isColumnVisible = this.visibleColumns
@@ -189,7 +195,7 @@ export default {
               equals: await convertRowToPrimaryKey(
                 this.internalValues[changedColumn.id],
                 overlappingKey.refTableId,
-                overlappingKey.refSchemaId
+                overlappingKey.refSchemaId || this.schemaMetaData.schemaId
               ),
             },
           };
@@ -232,6 +238,10 @@ export default {
             this.errorPerColumn[column.id] =
               "Default value expression failed: " + error;
           }
+        } else if (column.columnType === "BOOL") {
+          this.internalValues[column.id] = getBooleanDefaultValue(
+            column.defaultValue
+          );
         } else {
           this.internalValues[column.id] = column.defaultValue;
         }
@@ -240,6 +250,16 @@ export default {
     this.onValuesUpdate();
   },
 };
+
+function getBooleanDefaultValue(value: any): boolean | undefined {
+  if (value === "TRUE" || value === "true" || value === true) {
+    return true;
+  } else if (value === "FALSE" || value === "false" || value === false) {
+    return false;
+  } else {
+    return undefined;
+  }
+}
 </script>
 
 <docs>
@@ -309,7 +329,6 @@ export default {
         const client = this.$Client.newClient(this.schemaId);
         this.schemaMetadata = await client.fetchSchemaMetaData();
         this.tableMetadata = await client.fetchTableMetaData(this.tableId);
-        //this.rowData = (await client.fetchTableData(this.tableId))[this.tableId];
         this.showRowEdit = true;
       },
     },

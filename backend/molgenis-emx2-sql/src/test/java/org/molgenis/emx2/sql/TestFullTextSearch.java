@@ -8,7 +8,7 @@ import static org.molgenis.emx2.ColumnType.TEXT;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -76,8 +76,10 @@ public class TestFullTextSearch {
 
   @Test
   public void nestedSearch() {
-    Schema schema = db.dropCreateSchema(TestFullTextSearch.class.getSimpleName() + "nested");
-    PET_STORE.getImportTask(schema, true).run();
+    String schemaName = TestFullTextSearch.class.getSimpleName() + "nested";
+    db.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(db, schemaName, "", true).run();
+    Schema schema = db.getSchema(schemaName);
 
     List<Row> result =
         schema.query("Order").where(f(Operator.TEXT_SEARCH, "Delivered")).retrieveRows();

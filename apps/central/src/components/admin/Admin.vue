@@ -6,11 +6,11 @@
       @cancel="showSigninForm = false"
     />
     <Spinner v-if="loading" />
-    <MessageError v-else-if="session.email !== 'admin'">
+    <MessageError v-else-if="!session.admin">
       Permission denied, please log in as an administrator to view this page.
     </MessageError>
     <MessageError v-else-if="error">{{ error }}</MessageError>
-    <div v-else>
+    <div v-else class="card">
       <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs">
           <li
@@ -19,6 +19,7 @@
               users: 'Users',
               settings: 'Settings',
               privacyPolicy: 'Privacy policy',
+              templates: 'Templates',
             }"
             :key="key"
           >

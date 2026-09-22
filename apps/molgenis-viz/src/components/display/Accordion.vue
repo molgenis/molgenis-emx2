@@ -142,7 +142,7 @@ $border-radius: 6px;
       border-radius: $border-radius $border-radius 0 0;
     }
     .accordion-content {
-      padding: 0 12px;
+      padding: 1.25rem;
     }
   }
 }

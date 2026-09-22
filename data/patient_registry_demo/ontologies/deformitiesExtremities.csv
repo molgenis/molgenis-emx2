@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,flexureContractures,Flexure contractures,,,,,
+2,pseudosyndactyly,Pseudosyndactyly,,,,,
+3,mittenDeformities,Mitten deformities,,,,,

@@ -18,7 +18,7 @@ Navigate to the `apps` folder and install the dependencies.
 
 ```sh
 cd apps
-yarn
+pnpm install
 ```
 
 Copy the `hello-world` example app.
@@ -27,7 +27,7 @@ Copy the `hello-world` example app.
 cp hello-world <app-name>
 ```
 
-Add your new app to the workspace. (All apps are part of the same yarn workspace. Add new apps to the `package.json` file.)
+Add your new app to the workspace. (All apps are part of the same npm workspace. Add new apps to the `package.json` file.)
 
 ```json
 // in package.json
@@ -45,5 +45,5 @@ Navigate to your app and start the development server.
 
 ```sh
 cd <app-name>
-yarn dev
+pnpm dev
 ```

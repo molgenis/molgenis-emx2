@@ -12,6 +12,69 @@ Schema settings currently supported:
 * pages - will be set by the pages app, access via settings app
 * reports - will be set by the reports app
 
+### New ui (tailwind-based) settings (Alpha non-stable feature)
+
+#### Landing page
+Set the landing page with the optional SYSTEM_LANDING_PAGE setting
+
+- key: ```SYSTEM_LANDING_PAGE```
+- value: a string containing valid json object with the following properties:
+
+```ts
+interface Link {
+    link: string;
+    isSpaLink?: boolean;
+}
+```
+
+example with external link ( i.e. all links outside of the 'ui' app)
+
+```json
+{"link": "/directory-demo/directory#/catalogue", "isSpaLink": false}
+```
+
+example with internal link ( i.e. all within of the 'ui' app)
+
+```json
+{"link": "pet%20store/Pet", "isSpaLink": true}
+```
+#### Banner
+Set the application banner with the optional SYSTEM_BANNER_HTML setting:
+
+- key: ```SYSTEM_BANNER_HTML```
+- value: a string containing just simple text or valid HTML code to be displayed in the banner on top of the page. 
+
+If not set or an empty string, no banner will be shown.
+
+Please note that most standard HTML style tags are rendered without their default browser styling (e.g. h1 is not shown as a large bold heading by default). 
+To apply custom styling, an explicit style element with CSS should be included in the value and applied to the text. 
+
+for example:
+```html
+<style>
+    .warning {
+        width: 100%;
+        background-color: #ec6707;
+        line-height: 2;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+            }
+</style>
+    <span class="warning">Warning banner example</span>
+```
+
+or just hook into the tailwind system:
+
+```html
+<div role="banner" class="p-7.5 w-[90%] bg-warning">
+    <h2 class="text-body-base">Warning</h2>
+    <p class="text-center">This is a tailwind styled banner</p>
+</div>
+```
+
+
 ## User management
 
 Currently you can use the admin menu to view the users currently registered in the system. In addition you can create a

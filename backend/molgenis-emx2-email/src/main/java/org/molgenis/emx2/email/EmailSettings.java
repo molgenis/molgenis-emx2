@@ -4,9 +4,11 @@ import org.apache.logging.log4j.util.Strings;
 
 public class EmailSettings {
 
-  private String host;
+  private final String host;
 
   private final String port;
+  private final String connectionTimeout;
+  private final String readTimeout;
   private final String starttlsEnable;
   private final String sslProtocols;
   private final String socketFactoryPort;
@@ -19,69 +21,81 @@ public class EmailSettings {
   private final String smtpAuthenticatorSenderPassword;
 
   private EmailSettings(EmailSettingsBuilder builder) {
-    this.host = builder.host;
-    this.port = builder.port;
+    host = builder.host;
+    port = builder.port;
+    connectionTimeout = builder.connectionTimeout;
+    readTimeout = builder.readTimeout;
 
-    this.starttlsEnable = builder.starttlsEnable;
-    this.sslProtocols = builder.sslProtocols;
+    starttlsEnable = builder.starttlsEnable;
+    sslProtocols = builder.sslProtocols;
 
-    this.socketFactoryPort = builder.socketFactoryPort;
-    this.socketFactoryClass = builder.socketFactoryClass;
-    this.socketFactoryFallback = builder.socketFactoryFallback;
-    this.debug = builder.debug;
+    socketFactoryPort = builder.socketFactoryPort;
+    socketFactoryClass = builder.socketFactoryClass;
+    socketFactoryFallback = builder.socketFactoryFallback;
+    debug = builder.debug;
 
-    this.auth = builder.auth;
-    this.senderEmail = builder.senderEmail;
-    this.smtpAuthenticatorSenderPassword = builder.smtpAuthenticatorSenderPassword;
+    auth = builder.auth;
+    senderEmail = builder.senderEmail;
+    smtpAuthenticatorSenderPassword = builder.smtpAuthenticatorSenderPassword;
   }
 
   public String getHost() {
-    return this.host;
+    return host;
   }
 
   public String getSenderEmail() {
-    return this.senderEmail;
+    return senderEmail;
   }
 
   public String getSmtpAuthenticatorSenderPassword() {
-    return this.smtpAuthenticatorSenderPassword;
+    return smtpAuthenticatorSenderPassword;
   }
 
   public String getPort() {
-    return this.port;
+    return port;
+  }
+
+  public String getConnectionTimeout() {
+    return connectionTimeout;
+  }
+
+  public String getReadTimeout() {
+    return readTimeout;
   }
 
   public String getStarttlsEnable() {
-    return this.starttlsEnable;
+    return starttlsEnable;
   }
 
   public String getSslProtocols() {
-    return this.sslProtocols;
+    return sslProtocols;
   }
 
   public String getSocketFactoryPort() {
-    return this.socketFactoryPort;
+    return socketFactoryPort;
   }
 
   public String getSocketFactoryClass() {
-    return this.socketFactoryClass;
+    return socketFactoryClass;
   }
 
   public String getSocketFactoryFallback() {
-    return this.socketFactoryFallback;
+    return socketFactoryFallback;
   }
 
   public String getDebug() {
-    return this.debug;
+    return debug;
   }
 
   public String getAuth() {
-    return this.auth;
+    return auth;
   }
 
   public static class EmailSettingsBuilder {
     private String host = "smtpout1.molgenis.net";
     private String port = "25"; // / 587 / 2525
+    private String connectionTimeout = "10000";
+    private String readTimeout = "10000";
     private String starttlsEnable = Boolean.FALSE.toString();
     private String sslProtocols = "TLSv1.2";
     private String socketFactoryPort = Strings.EMPTY;
@@ -104,6 +118,16 @@ public class EmailSettings {
 
     public EmailSettingsBuilder port(String port) {
       this.port = port;
+      return this;
+    }
+
+    public EmailSettingsBuilder connectionTimeout(String connectionTimeout) {
+      this.connectionTimeout = connectionTimeout;
+      return this;
+    }
+
+    public EmailSettingsBuilder readTimeout(String readTimeout) {
+      this.readTimeout = readTimeout;
       return this;
     }
 

@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Row.row;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,8 +20,10 @@ public class TestValidation {
   @BeforeAll
   public static void setup() {
     db = TestDatabaseFactory.getTestDatabase();
-    schema = db.dropCreateSchema(TestValidation.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+    String schemaName = TestValidation.class.getSimpleName();
+    db.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(db, schemaName, "", true).run();
+    schema = db.getSchema(schemaName);
   }
 
   @Test

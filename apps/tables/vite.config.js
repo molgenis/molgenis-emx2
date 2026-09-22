@@ -1,10 +1,14 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import devProxy from "../dev-proxy.config";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: "",
+  // css: {
+
+  // }
+  base: command === "serve" ? "/" : "apps/tables/",
   server: {
-    proxy: require("../dev-proxy.config"),
+    proxy: devProxy,
   },
-});
+}));

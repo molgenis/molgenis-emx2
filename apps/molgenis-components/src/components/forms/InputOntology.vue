@@ -7,6 +7,7 @@
     :errorMessage="errorMessage"
   >
     <MessageError v-if="error">{{ error }}</MessageError>
+    <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
     <div
       class="p-0 m-0"
       :class="{ dropdown: !showExpanded, 'border rounded': !showExpanded }"
@@ -14,12 +15,14 @@
     >
       <div
         class="border-0 text-left form-control"
-        style="height: auto"
+        style="height: auto; cursor: pointer"
         @click="toggleFocus"
       >
         <span
           class="btn btn-sm btn-primary text-white mr-1"
-          v-for="selectedTerm in selectionWithoutChildren"
+          v-for="selectedTerm in selectionWithoutChildren.sort(
+            (a, b) => a.order - b.order
+          )"
           :key="selectedTerm"
           @click.stop="deselect(selectedTerm.name)"
         >
@@ -55,12 +58,13 @@
           />
         </span>
         <span class="d-inline-block float-right">
-          <i
-            class="p-2 fa fa-times"
-            style="vertical-align: middle"
-            @click.stop="clearSelection"
-            v-if="!showExpanded && selectionWithoutChildren.length > 0"
-          />
+          <span @click.prevent.stop="clearSelection" style="cursor: pointer">
+            <i
+              class="p-2 fa fa-times"
+              style="vertical-align: middle"
+              v-if="!showExpanded && selectionWithoutChildren.length > 0"
+            ></i>
+          </span>
           <i
             class="p-2 fa fa-caret-down"
             style="vertical-align: middle"
@@ -112,6 +116,7 @@ import BaseInput from "./baseInputs/BaseInput.vue";
 import FormGroup from "./FormGroup.vue";
 import InputOntologySubtree from "./InputOntologySubtree.vue";
 import MessageError from "./MessageError.vue";
+import MessageWarning from "./MessageWarning.vue";
 //@ts-ignore
 import vClickOutside from "click-outside-vue3";
 import Spinner from "../layout/Spinner.vue";
@@ -165,6 +170,7 @@ export default {
   data() {
     return {
       error: null,
+      warning: null,
       // used for drop down focus state
       focus: false,
       //huge object with all the terms, flattened
@@ -283,7 +289,12 @@ export default {
       }
       this.emitValue();
       this.$refs.search.focus();
+      if (!this.isMultiSelect) {
+        //close on select
+        this.focus = false;
+      }
       this.key++;
+      this.search = null;
     },
     deselect(item: string) {
       if (this.isMultiSelect) {
@@ -335,7 +346,8 @@ export default {
       if (this.isMultiSelect) {
         this.$emit("update:modelValue", selectedTerms);
       } else {
-        this.$emit("update:modelValue", selectedTerms[0]);
+        //need explicit 'null' to ensure value is emitted in form
+        this.$emit("update:modelValue", selectedTerms[0] || null);
       }
     },
     applySelection(value: Record<string, any>) {
@@ -394,7 +406,10 @@ export default {
       this.searchResultCount = 0;
       if (this.search) {
         //first hide all
-        Object.values(this.terms).forEach((t: any) => (t.visible = false));
+        Object.values(this.terms).forEach((t: any) => {
+          t.visible = false;
+          t.selectable = false;
+        });
         //split and sanitize search terms
         let searchTerms = this.search
           .trim()
@@ -414,6 +429,7 @@ export default {
             )
           ) {
             term.visible = true;
+            term.selectable = true;
             this.searchResultCount++;
 
             //also make parents visible
@@ -426,12 +442,19 @@ export default {
                 }
               }
             }
+
+            //also make children selectable and visible
+            this.getAllChildren(term).forEach((t) => {
+              t.visible = true;
+              t.selectable = true;
+            });
           }
         });
       } else {
-        //no search  = all visible
+        //no search  = all visible and selectable
         Object.values(this.terms).forEach((t: any) => {
           t.visible = true;
+          t.selectable = true;
           this.searchResultCount++;
         });
       }
@@ -454,7 +477,11 @@ export default {
       },
     },
     data() {
-      if (this.data) {
+      if (!this.data || !this.data.length) {
+        this.loading = false;
+        this.warning = `Ontology '${this.tableId}' in schema '${this.schemaId}' is empty`;
+      } else {
+        this.warning = null;
         this.searchResultCount = 0;
 
         //convert to tree of terms
@@ -468,16 +495,19 @@ export default {
             terms[term.name].label = term.label;
             terms[term.name].code = term.code;
             terms[term.name].codesystem = term.codesystem;
+            terms[term.name].order = term.order;
           } else {
             //else simply add the record
             terms[term.name] = {
               name: term.name,
               visible: true,
+              selectable: true,
               selected: "unselected",
               definition: term.definition,
               code: term.code,
               codesystem: term.codesystem,
               label: term.label,
+              order: term.order,
             };
           }
           if (term.parent) {
@@ -488,6 +518,7 @@ export default {
               terms[term.parent.name] = {
                 name: term.parent.name,
                 visible: true,
+                selectable: true,
                 selected: "unselected",
               };
             }
@@ -601,7 +632,7 @@ function getSelectedChildNodes(term: Record<string, any>) {
           :showExpanded="true"
           description="please choose your options in tree below"
           :options="options"
-          :isMultiSelect="unselected"
+          :isMultiSelect="true"
       />
       <div>You selected: {{ value5 }}</div>
     </demo-item>

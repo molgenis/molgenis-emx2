@@ -1,66 +1,64 @@
 # How to install and run
 
-You can start molgenis-emx2:
+MOLGENIS EMX2 can be started in multiple ways:
+* using Docker Compose
+* using Java and PostgreSQL
+* using Kubernetes
 
-* using docker compose
-* using java commandline + postgresql
-* using kubernetes
+## Using Docker Compose
 
-Details below:
+Prerequisites:
+* Docker Compose
 
-## Using docker compose
-
-* Install [Docker compose](https://docs.docker.com/compose/install/).
+Steps:
 * Download
   molgenis-emx2 <a href="https://raw.githubusercontent.com/mswertz/molgenis-emx2/master/docker-compose.yml" download>
   docker-compose.yml</a> file
-* In directory with docker-compose.yml run:
+* In the directory containing the docker-compose.yml file run: 
 
-```
-docker-compose up
-``` 
+  `docker-compose up`
 
-To update to latest release, run:
+* To update to the latest release, run:
 
-```console
-docker-compose pull
-```
+  `docker-compose pull`
 
-Stop by typing ctrl+c.
 
-N.B.
+Stop the execution of the process by pressing CTRL+C.
 
-* because postgres starts slow, emx2 will restart 2-4 times because of 'ConnectException: Connection refused'. This is
-  normal.
-* the data of postgresql will be stored in 'psql_data' folder. Remove this folder you want a clean start.
-* if you want
-  particular [molgenis-emx2 version](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1)
-  then add version in docker-compose.yml file 'molgenis/molgenis-emx2:version'
+Note:
+* because PostgreSQL starts slowly EMX2 will restart 2-4 times because of 'ConnectException: Connection refused'. This is
+  expected behaviour.
+* the data of the PostgreSQL database will be stored in 'psql_data' folder. Remove this folder you want a clean start.
+* if you want to use a specific [molgenis-emx2 version](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1)
+  add the version number in the docker-compose.yml file with the key `molgenis/molgenis-emx2:version`
 
-## Using java and your own postgresql
+## Using Java and your local PostgreSQL database
 
-* Install java (we use java 17)
-* Download a molgenis-emx2-version-all.jar from [releases](https://github.com/molgenis/molgenis-emx2/releases).
-* Download and install [Postgresql](https://www.postgresql.org/download/) (we use 13)
-* Create postgresql database with name 'molgenis' and with superadmin user/pass 'molgenis'. On Linux/Mac commandline:
+Prerequisites:
+* Java version 21
+* PostgreSQL version 15
+
+Steps:
+* Download a molgenis-emx2-version-all.jar file from [releases](https://github.com/molgenis/molgenis-emx2/releases).
+* Create a PostgreSQL database with name 'molgenis' and with superadmin username/password combination 'molgenis'. 
     ```console
     sudo -u postgres psql
     postgres=# create database molgenis;
     postgres=# create user molgenis with superuser encrypted password 'molgenis';
     postgres=# grant all privileges on database molgenis to molgenis;
     ```
-* Start molgenis-emx2; will run on 8080
-    ```console
-    java -jar molgenis-emx2-<version>-all.jar
-    ```
+* Start molgenis-emx2
+    
+  `java -jar molgenis-emx2-<version>-all.jar`
 
-Optionally, you can change defaults using either java properties or using env variables:
+The process will run on HTTP port 8080.
 
-* MOLGENIS_POSTGRES_URI
-* MOLGENIS_POSTGRES_USER
-* MOLGENIS_POSTGRES_PASS
-* MOLGENIS_HTTP_PORT
-* MOLGENIS_ADMIN_PW
+Optionally, the following default values can be modified using either Java properties or using environment variables:
+* `MOLGENIS_POSTGRES_URI`
+* `MOLGENIS_POSTGRES_USER`
+* `MOLGENIS_POSTGRES_PASS`
+* `MOLGENIS_HTTP_PORT`
+* `MOLGENIS_ADMIN_PW`
 
 For example:
 
@@ -72,7 +70,7 @@ java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=909
 
 If you have Kubernetes server then you can install using [Helm](https://helm.sh/docs/).
 
-Add helm chart repository (once)
+Add Helm chart repository (once)
 
 ```console
 helm repo add emx2 https://github.com/molgenis/molgenis-ops-helm/tree/master/charts/molgenis-emx2
@@ -84,10 +82,10 @@ Run the latest release (see [Helm docs](https://helm.sh/docs/intro/using_helm/))
 helm install emx2/emx2
 ```
 
-Update helm repository to get newest release
+Refresh the Helm repository to get the latest release
 
 ```console
 helm repo update
 ```
 
-Alternatively, [download latest helm chart](https://github.com/mswertz/molgenis-emx2/tree/master/docs/helm-charts)
+Alternatively, [download the latest version of Helm Chart](https://github.com/mswertz/molgenis-emx2/tree/master/docs/helm-charts)

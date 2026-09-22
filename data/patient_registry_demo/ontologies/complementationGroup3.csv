@@ -1,0 +1,12 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,ercc2,ERCC2,,,,,
+2,ercc3,ERCC3,,,,,
+3,gtf2e2,GTF2E2,,,,,
+4,gtf2h5,GTF2H5,,,,,
+5,tars1,TARS1,,,,,
+6,mplkip,MPLKIP,,,,,
+7,rnf113a,RNF113A,,,,,
+8,mars1,MARS1,,,,,
+9,aars1,AARS1,,,,,
+10,unknown,Unknown,,,,,
+11,other,Other,,,,,

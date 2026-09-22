@@ -10,10 +10,10 @@ import static org.molgenis.emx2.Operator.NOT_EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.*;
 
 class SqlQueryWithRefTests {
 
@@ -26,10 +26,10 @@ class SqlQueryWithRefTests {
 
   @Test
   void testQueryByRef() {
-    var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
-    var resources =
+    Schema schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
+    Table resources =
         schema.create(table("Resources", column("id", STRING).setKey(1), column("name", STRING)));
-    var datasets =
+    Table datasets =
         schema.create(
             table(
                 "Datasets",
@@ -37,19 +37,19 @@ class SqlQueryWithRefTests {
                 column("resource", REF).setPkey().setRefTable("Resources")));
     resources.insert(row("id", "1", "name", "resource1"), row("id", "2", "name", "resource2"));
     datasets.insert(row("id", "1", "resource", "1"), row("id", "2", "resource", "2"));
-    var query = datasets.query();
+    Query query = datasets.query();
     query.where(f("resource", EQUALS, "1"));
-    var rows = query.retrieveRows();
+    List<Row> rows = query.retrieveRows();
     assertEquals(1, rows.size(), "Expected one row");
     database.dropSchema(schema.getName());
   }
 
   @Test
   void testQueryNotRef() {
-    var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
-    var resources =
+    Schema schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
+    Table resources =
         schema.create(table("Resources", column("id", STRING).setKey(1), column("name", STRING)));
-    var datasets =
+    Table datasets =
         schema.create(
             table(
                 "Datasets",
@@ -57,20 +57,20 @@ class SqlQueryWithRefTests {
                 column("resource", REF).setPkey().setRefTable("Resources")));
     resources.insert(row("id", "1", "name", "resource1"), row("id", "2", "name", "resource2"));
     datasets.insert(row("id", "1", "resource", "1"), row("id", "2", "resource", "2"));
-    var query = datasets.query();
+    Query query = datasets.query();
     query.where(f("resource", NOT_EQUALS, "1"));
-    var rows = query.retrieveRows();
+    List<Row> rows = query.retrieveRows();
     assertEquals(1, rows.size(), "Expected one row");
     database.dropSchema(schema.getName());
   }
 
   @Test
   void testQueryByRefCompound() {
-    var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
-    var resources =
+    Schema schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
+    Table resources =
         schema.create(
             table("Resources", column("id", STRING).setPkey(), column("name", STRING).setPkey()));
-    var datasets =
+    Table datasets =
         schema.create(
             table(
                 "Datasets",
@@ -80,20 +80,20 @@ class SqlQueryWithRefTests {
     datasets.insert(
         row("id", "1", "resource.id", "1", "resource.name", "resource1"),
         row("id", "2", "resource.id", "2", "resource.name", "resource2"));
-    var query = datasets.query();
+    Query query = datasets.query();
     query.where(f("resource.id", EQUALS, "1"));
-    var rows = query.retrieveRows();
+    List<Row> rows = query.retrieveRows();
     assertEquals(1, rows.size(), "Expected one row");
     database.dropSchema(schema.getName());
   }
 
   @Test
   void testQueryByRefCompound2() {
-    var schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
-    var resources =
+    Schema schema = database.dropCreateSchema(SqlQueryWithRefTests.class.getSimpleName());
+    Table resources =
         schema.create(
             table("Resources", column("id", STRING).setPkey(), column("name", STRING).setPkey()));
-    var datasets =
+    Table datasets =
         schema.create(
             table(
                 "Datasets",
@@ -103,7 +103,7 @@ class SqlQueryWithRefTests {
     datasets.insert(
         row("id", "1", "resource.id", "1", "resource.name", "resource1"),
         row("id", "2", "resource.id", "2", "resource.name", "resource2"));
-    var query = datasets.query();
+    Query query = datasets.query();
 
     query.where(f("resource", EQUALS, "1"));
     assertThrows(

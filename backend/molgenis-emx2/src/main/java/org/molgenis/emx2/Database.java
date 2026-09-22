@@ -47,6 +47,10 @@ public interface Database extends HasSettingsInterface<Database> {
 
   void removeUser(String name);
 
+  void setEnabledUser(String name, boolean enabled);
+
+  void setAdminUser(String name, boolean admin);
+
   void setActiveUser(String username);
 
   String getActiveUser();
@@ -97,4 +101,14 @@ public interface Database extends HasSettingsInterface<Database> {
   Database setBindings(Map<String, Supplier<Object>> bindings);
 
   Map<String, Supplier<Object>> getJavaScriptBindings();
+
+  List<LastUpdate> getLastUpdated();
+
+  List<Member> loadUserRoles();
+
+  void revokeRoles(String userName, List<Map<String, String>> revokedRoles);
+
+  void updateRoles(String userName, List<Map<String, String>> roles);
+
+  String resolveJwtSharedSecret();
 }

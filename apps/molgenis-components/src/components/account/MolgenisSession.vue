@@ -67,7 +67,7 @@ import { ISetting } from "metadata-utils";
 
 const { cookies } = useCookies();
 const query = `{
-  _session { email, roles, schemas, token, settings{key,value} },
+  _session { email, admin, roles, tablePermissions{name,id,canView,canInsert,canUpdate,canDelete,isRowLevel}, schemas, token, settings{key,value} },
   _settings (keys: ["menu", "page.", "cssURL", "logoURL", "isOidcEnabled","locales", "additionalCss", "additionalFooterHtml", "additionalJs"]){ key, value },
   _manifest { ImplementationVersion,SpecificationVersion,DatabaseVersion }
 }`;
@@ -116,7 +116,7 @@ export default defineComponent({
     },
     oidcLoginUrl() {
       const redirectParam = window?.location?.href
-        ? `?redirect=${window.location.href}`
+        ? `?redirect=${encodeURIComponent(window.location.href)}`
         : "";
       return "/_login" + redirectParam;
     },
@@ -141,6 +141,9 @@ export default defineComponent({
           setting.value?.startsWith("[") || setting.value?.startsWith("{")
             ? this.parseJson(setting.value)
             : setting.value;
+        if (this.session.settings === undefined) {
+          this.session.settings = {};
+        }
         this.session.settings[setting.key] = value;
       });
     },
@@ -174,6 +177,16 @@ export default defineComponent({
       // schemaSettings override dbSettings if set
       if (schemaSettings && schemaSettings._settings) {
         this.loadSettings(schemaSettings);
+        //remove central menu if not set in schemaSettings
+        if (
+          this.session.settings &&
+          schemaSettings._settings.find((setting) => setting.key === "menu") ===
+            undefined &&
+          dbSettings?._settings.find((setting) => setting.key === "menu") !==
+            undefined
+        ) {
+          delete this.session.settings.menu;
+        }
         this.session.manifest = schemaSettings._manifest;
       }
       //set default locale

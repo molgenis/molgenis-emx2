@@ -1,4 +1,6 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation group: 'javax.mail', name:'mail', version:javaxVersion
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.14.4'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.14.4'
 }

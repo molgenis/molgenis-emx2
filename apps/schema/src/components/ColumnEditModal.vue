@@ -56,6 +56,10 @@
                   column.columnType === 'REF' ||
                   column.columnType === 'REF_ARRAY' ||
                   column.columnType === 'REFBACK' ||
+                  column.columnType === 'RADIO' ||
+                  column.columnType === 'CHECKBOX' ||
+                  column.columnType === 'SELECT' ||
+                  column.columnType === 'MULTISELECT' ||
                   column.columnType === 'ONTOLOGY' ||
                   column.columnType === 'ONTOLOGY_ARRAY'
                 "
@@ -67,6 +71,15 @@
                     column.refTableName === undefined || column.name === ''
                       ? 'Referenced table is required'
                       : undefined
+                  "
+                  :noOptionsProvidedMessage="
+                    'No ' +
+                    (column.columnType.includes('ONTOLOGY')
+                      ? 'ontology table'
+                      : 'data table') +
+                    ' found in schema \'' +
+                    (column.refSchemaName || schema.name) +
+                    '\''
                   "
                   :options="tableNames"
                   label="refTable"
@@ -84,6 +97,17 @@
                   v-model="column.refLabel"
                   label="refLabel"
                   description="(Optional) customize how ref values should be shown. E.g. '${name}' or '${firstName} ${lastName}'"
+                />
+                <InputBoolean
+                  v-if="
+                    column.columnType === 'REF' ||
+                    column.columnType === 'SELECT' ||
+                    column.columnType === 'RADIO'
+                  "
+                  id="columns_cascadeDelete"
+                  v-model="column.cascadeDelete"
+                  label="cascadeDelete"
+                  description="When checked, deleting a row in the referenced table will also delete all rows in this table that refer to it. When unchecked, deleting a row in the referenced table will be blocked if there are rows in this table that refer to it."
                 />
               </div>
               <div class="col-4" v-if="column.columnType === 'REFBACK'">
@@ -188,7 +212,7 @@
                   label="computed"
                   :description="
                     column.columnType == AUTO_ID
-                      ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix of your auto id'
+                      ? 'Use pattern like \'pre${mg_autoid}post\' to customize prefix/postfix. Additional options for mg_autoid: format=letters|numbers|mixed, length=number. Example: ${mg_autoid(format=letters, length=8)}'
                       : 'When set only the input will be readonly and value computed using this formula'
                   "
                 />
@@ -196,11 +220,21 @@
             </div>
             <div class="row">
               <div class="col-4">
-                <InputString
+                <ArrayInput
                   id="column_semantics"
+                  columnType="STRING_ARRAY"
                   v-model="column.semantics"
                   :list="true"
                   label="semantics"
+                />
+              </div>
+
+              <div class="col-4">
+                <InputString
+                  id="column_form_label"
+                  v-model="column.formLabel"
+                  label="form label"
+                  description="(Optional) customize label shown on forms"
                 />
               </div>
             </div>
@@ -267,6 +301,7 @@
 
 <script lang="ts">
 import {
+  constants,
   //@ts-ignore
   ButtonAction, //@ts-ignore
   ButtonAlt, //@ts-ignore
@@ -276,6 +311,7 @@ import {
   InputRadio, //@ts-ignore
   InputSelect, //@ts-ignore
   InputString, //@ts-ignore
+  ArrayInput, //@ts-ignore
   InputText, //@ts-ignore
   InputTextLocalized, //@ts-ignore
   LayoutForm, //@ts-ignore
@@ -289,6 +325,7 @@ import {
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
+import { findRootTable } from "../tableModel";
 
 const AUTO_ID = "AUTO_ID";
 
@@ -297,6 +334,7 @@ export default {
     LayoutForm,
     InputText,
     InputString,
+    ArrayInput,
     InputBoolean,
     InputSelect,
     InputRadio,
@@ -369,11 +407,9 @@ export default {
   computed: {
     //current table object unedited
     originalTable() {
-      return this.schema.tables.find(
-        (table: Record<string, any>) =>
-          table.name === this.tableName ||
-          table.name === this.column.table ||
-          (table.subclasses && table.subclasses.includes(this.column.table))
+      return (
+        findRootTable(this.schema.tables, this.tableName) ||
+        findRootTable(this.schema.tables, this.column.table)
       );
     },
     //current table object edited
@@ -417,7 +453,7 @@ export default {
     },
     //listing of all tables, used for refs
     tableNames() {
-      if (this.refSchema !== undefined) {
+      if (this.column.refSchemaName && this.refSchema.tables) {
         if (
           this.column.columnType === "ONTOLOGY" ||
           this.column.columnType === "ONTOLOGY_ARRAY"
@@ -445,14 +481,16 @@ export default {
       if (this.column.name === undefined || this.column.name === "") {
         return "Name is required";
       }
-      if (!this.column.name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
-        return "Name should start with letter, followed by letter, number, whitespace or underscore ([a-zA-Z][a-zA-Z0-9_ ]*)";
+      if (!this.column.name.match(constants.COLUMN_NAME_REGEX)) {
+        return "Name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.";
       }
       if (
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
-        this.originalTable.columns?.filter(
-          (c: Record<string, any>) => c.name === this.column.name
+        (
+          this.originalTable?.columns?.filter(
+            (c: Record<string, any>) => c.name === this.column.name
+          ) ?? []
         ).length > 0
       ) {
         return "Name should be unique";
@@ -466,6 +504,7 @@ export default {
   },
   methods: {
     showModal() {
+      this.reset();
       this.modalVisible = true;
     },
     apply() {
@@ -488,7 +527,12 @@ export default {
       return this.table.columns
         .filter(
           (c: Record<string, any>) =>
-            (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
+            (c.columnType === "REF" ||
+              c.columnType === "REF_ARRAY" ||
+              c.columnType === "RADIO" ||
+              c.columnType === "SELECT" ||
+              c.columnType === "MULTISELECT" ||
+              c.columnType === "CHECKBOX") &&
             c.name !== this.modelValue?.name
         )
         .map((c: Record<string, any>) => c.name);
@@ -541,7 +585,7 @@ export default {
         this.column = { table: this.tableName, columnType: "STRING" };
       }
       //if reference to external schema
-      if (this.column.refSchema != undefined) {
+      if (this.column.refSchemaName != undefined) {
         this.loadRefSchema();
       }
       this.setupRequiredSelect();
@@ -575,7 +619,7 @@ function getRefTableColumns(
     const inheritedTable = tables.find(
       (otherTable: Record<string, any>) => table.inheritName === otherTable.name
     );
-    return [...inheritedTable?.columns, ...table?.columns];
+    return [...(inheritedTable?.columns || []), ...(table?.columns || [])];
   } else {
     return table?.columns || [];
   }

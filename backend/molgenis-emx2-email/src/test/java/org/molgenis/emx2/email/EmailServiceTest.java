@@ -2,6 +2,9 @@ package org.molgenis.emx2.email;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Optional;
 import javax.mail.internet.AddressException;
@@ -44,5 +47,32 @@ class EmailServiceTest {
             Optional.of(bccAddress));
     boolean isSuccess = emailService.send(message);
     assertTrue(isSuccess);
+  }
+
+  @Test
+  public void sendGivesUpWhenTheServerNeverReplies() throws IOException {
+    try (ServerSocket silentServer = new ServerSocket(0)) {
+      EmailSettings settings =
+          new EmailSettings.EmailSettingsBuilder()
+              .host("127.0.0.1")
+              .port(String.valueOf(silentServer.getLocalPort()))
+              .connectionTimeout("200")
+              .readTimeout("200")
+              .build();
+      EmailService emailService = new EmailService(settings);
+      EmailMessage message =
+          new EmailMessage(
+              Collections.singletonList("test@test.com"), "subject", "text", Optional.empty());
+
+      assertFalse(
+          assertTimeoutPreemptively(Duration.ofSeconds(5), () -> emailService.send(message)));
+    }
+  }
+
+  @Test
+  public void defaultsBoundTheWaitOnAnUnresponsiveServer() {
+    EmailSettings settings = new EmailSettings.EmailSettingsBuilder().build();
+    assertTrue(Integer.parseInt(settings.getConnectionTimeout()) > 0);
+    assertTrue(Integer.parseInt(settings.getReadTimeout()) > 0);
   }
 }

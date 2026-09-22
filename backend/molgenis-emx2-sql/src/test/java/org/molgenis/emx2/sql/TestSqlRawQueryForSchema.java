@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.util.List;
 import java.util.Map;
@@ -22,16 +22,20 @@ public class TestSqlRawQueryForSchema {
 
   @Test
   public void testSql() {
-    Schema schema = database.dropCreateSchema(TestSqlRawQueryForSchema.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+    String schemaName = TestSqlRawQueryForSchema.class.getSimpleName();
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
+    Schema schema = database.getSchema(schemaName);
     List<Row> rows = schema.retrieveSql("Select * from \"Pet\"");
-    assertEquals(8, rows.size());
+    assertEquals(10, rows.size());
   }
 
   @Test
   public void testSqlParameterized() {
-    Schema schema = database.dropCreateSchema(TestSqlRawQueryForSchema.class.getSimpleName());
-    PET_STORE.getImportTask(schema, true).run();
+    String schemaName = TestSqlRawQueryForSchema.class.getSimpleName();
+    database.dropSchemaIfExists(schemaName);
+    PET_STORE.getImportTask(database, schemaName, "", true).run();
+    Schema schema = database.getSchema(schemaName);
 
     List<Row> rows =
         schema.retrieveSql("Select * from \"Pet\" p where p.name=${name}", Map.of("name", "spike"));

@@ -13,20 +13,16 @@
       >
         {{ ontology.name }}
         <span v-if="ontology.semantics" class="small">
-          (<a
-            :href="purl"
-            target="_blank"
-            v-for="purl in ontology.semantics"
-            :key="purl"
-            >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+          (<template v-for="(semantics, index) in ontology.semantics"
+            ><template v-if="index > 0">,</template>{{ semantics }}</template
           >)
         </span>
       </div>
       <TableEditModal
         v-if="isManager"
-        v-model="ontology"
+        :modelValue="ontology"
         :schema="schema"
-        @update:modelValue="$emit('update:modelValue', ontology)"
+        @update:modelValue="updateOntology"
       />
       <IconDanger
         v-if="isManager"
@@ -57,6 +53,7 @@
 import { IconAction, IconDanger } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import TableEditModal from "./TableEditModal.vue";
+import { applyTableRename } from "../tableModel";
 
 export default {
   components: {
@@ -89,6 +86,15 @@ export default {
     };
   },
   methods: {
+    updateOntology(updatedOntology) {
+      applyTableRename(
+        updatedOntology,
+        this.ontology.name,
+        updatedOntology.name
+      );
+      this.ontology = updatedOntology;
+      this.$emit("update:modelValue", this.ontology);
+    },
     validateName() {
       if (!this.name) {
         return "Ontology name is required";

@@ -1,0 +1,450 @@
+from pathlib import Path
+
+import logging
+import pandas as pd
+import time
+import zipfile
+from datetime import datetime
+from io import BytesIO
+from molgenis_emx2_pyclient import Client
+from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
+from molgenis_emx2_pyclient.metadata import Table
+
+from .constants import BASE_DIR, changelog_query, SchemaType
+from .exceptions import MissingContactException, ReferenceDeleteError, StagingMigratorException, \
+    MissingHRICoreException, NoSuchResourceException, DraftException
+from .utils import prepare_primary_keys, resource_ref_cols, load_table, \
+    set_all_delete, check_hricore, process_contacts, check_draft
+
+log = logging.getLogger('Molgenis EMX2 Migrator')
+
+CATALOGUE = "catalogue"
+
+
+class StagingMigrator(Client):
+    """
+    The StagingMigrator class is used to migrate updated data from a source schema to a target.
+    The class subclasses the Molgenis EMX2 Pyclient to access the API on the server
+    """
+
+    def __init__(self, url: str,
+                 source: str = None,
+                 target: str = CATALOGUE,
+                 staging_area: str = None,
+                 catalogue: str = None,
+                 token: str = None):
+        """Sets up the StagingMigrator by logging in to the client."""
+        super().__init__(url=url, token=token)
+
+        self.source = None
+        self.resource_ids = None
+        self.warnings = []
+        self.errors = []
+
+        if catalogue is not None:
+            log.warning("Parameter 'catalogue' is deprecated, use 'target' instead.")
+            self.target = catalogue
+        else:
+            self.target = target
+        if staging_area is not None:
+            log.warning("Parameter 'staging_area' is deprecated, use 'source' instead.")
+            self.set_source(staging_area)
+        elif source is not None:
+            self.set_source(source)
+        self._verify_schemas()
+
+    def __repr__(self):
+        class_name = type(self).__name__
+        args = [
+            f"source={self.source!r}",
+            f"target={self.target!r}"
+        ]
+        return f"{class_name}({', '.join(args)})"
+
+    def set_staging_area(self, staging_area: str):
+        log.warning("Method 'set_staging_area' is deprecated, use 'set_target' instead.")
+
+        return self.set_source(staging_area)
+
+    def set_source(self, source: str):
+        """Sets the source schema and verifies its existence."""
+        self.source = source
+        self._verify_schemas()
+        self.resource_ids = self.get_resource_ids()
+
+    def set_catalogue(self, catalogue: str):
+        log.warning("Method 'set_catalogue' is deprecated, use 'set_target' instead.")
+        return self.set_target(catalogue)
+
+    def set_target(self, target: str):
+        """Sets the target schema and verifies its existence."""
+        self.target = target
+        self._verify_schemas()
+
+    def get_resource_ids(self):
+        """
+        Fetches the identifiers of the resources in the source schema.
+        """
+        try:
+            return self.get(table="Resources", schema=self.source, as_df=True)["id"].to_list()
+        except KeyError:
+            msg = f"Table 'Resources' in schema {self.source!r} has no column 'id'."
+            self.errors.append(msg)
+            raise NoSuchColumnException(msg)
+
+    def migrate(self, keep_zips: bool = False):
+        """Performs the migration of the source schema to the target schema."""
+
+        # Download data from the target schema for upload in case of an error during execution
+        self.download_schema_zip(schema=self.target, schema_type='target', include_system_columns=True)
+
+        # Create zipfile for uploading
+        zip_stream = self.create_zip()
+
+        # Upload the zip to the target schema
+        self.upload_zip_stream(zip_stream)
+
+        if not keep_zips:
+            # Remove any downloaded files from disk
+            self.cleanup()
+
+    def create_zip(self):
+        """
+        Creates a ZIP file containing tables to be uploaded to the target schema.
+        """
+        source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
+                                                    include_system_columns=True)
+
+        source_profile = self._get_source_profile()
+        source_metadata = self.get_schema_metadata(self.source)
+        upload_stream = BytesIO()
+        updated_tables = list()
+        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
+            for file_name in sorted(source_archive.namelist()):
+
+                # Add files in '_files' folder
+                if '_files/' in file_name:
+                    upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
+                    continue
+
+                try:
+                    table: Table = source_metadata.get_table('name', Path(file_name).stem)
+                except NoSuchTableException:
+                    log.debug(f"Skipping file {file_name!r}.")
+                    continue
+                log.debug(f"Processing table {table.name!r}.")
+                updated_table: pd.DataFrame = self._get_filtered(table)
+
+                if source_profile in ["CohortsStaging", "UMCGCohortsStaging", "UMCUCohorts"]:
+                    if table.id == "Organisations":
+                        updated_table = self.process_organisations(updated_table)
+                    if table.id == "Contacts":
+                        collections = load_table("source", self.get_schema_metadata(self.source).get_table('id', 'Collections'))
+                        try:
+                            updated_table = process_contacts(updated_table, collections)
+                        except MissingContactException as e:
+                            self.errors.append(e)
+                            raise e
+                    if table.id in ["CollectionEvents", "Subpopulations"]:
+                        updated_table = self._copy_resource_columns(updated_table)
+                    if table.id == "Collections":
+                        try:
+                            check_hricore(updated_table, source_profile)
+                        except MissingHRICoreException as ve:
+                            self.warnings.append(ve.msg)
+                            log.warning(ve.msg)
+
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
+                    updated_tables.append(Path(file_name).stem)
+
+        # Return zip
+        if len(updated_tables) == 0:
+            log.info(f"No data to migrate.")
+            upload_stream.flush()
+            return upload_stream
+        log.info(f"Migrating tables {', '.join(updated_tables)}.")
+
+        filepath = BASE_DIR.joinpath(f"update.zip")
+        if Path(filepath).exists():
+            Path(filepath).unlink()
+        Path(filepath).write_bytes(upload_stream.getbuffer())
+        return upload_stream
+
+    def delete_resource(self):
+        """Deletes the contents of the source schema from the target schema."""
+
+        # Check if software supports deletion through import
+        if self.version < "13.8.0":
+            msg = "The delete functionality is not implemented for EMX2 software running a version below 13.8.0"
+            self.errors.append(msg)
+            raise NotImplementedError(msg)
+        source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
+                                                    include_system_columns=True)
+
+        source_metadata = self.get_schema_metadata(self.source)
+        upload_stream = BytesIO()
+        updated_tables = list()
+        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
+            for file_name in source_archive.namelist():
+
+                # Add files in '_files' folder
+                if '_files/' in file_name:
+                    upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
+                    continue
+
+                try:
+                    table: Table = source_metadata.get_table('name', Path(file_name).stem)
+                except NoSuchTableException:
+                    log.debug(f"Skipping file {file_name!r}.")
+                    continue
+                log.debug(f"Preparing table {table.name!r} for deletion.")
+                updated_table: pd.DataFrame = set_all_delete(table)
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv(index=False))
+                    updated_tables.append(Path(file_name).stem)
+
+        if len(updated_tables) == 0:
+            upload_stream.flush()
+            return
+
+        (BASE_DIR / "update.zip").write_bytes(upload_stream.getbuffer())
+
+        self.upload_zip_stream(upload_stream)
+        if len(self.errors) != 0:
+            if "delete on table \"Resources\" violates foreign key constraint" in self.errors[-1]:
+                error_msg = (f"{self.errors[-1].split('Details: ')[1].split(' in ')[0]}. "
+                             f"First delete it manually from 'Resources.data resources' in the catalogue.")
+                self.cleanup()
+                raise ReferenceDeleteError(error_msg)
+            else:
+                self.cleanup()
+                raise StagingMigratorException(self.errors[-1])
+        self.cleanup()
+
+    def _get_filtered(self, table: Table) -> pd.DataFrame:
+        """
+        Filters the table for rows in present in the source schema
+        that have not been updated or published yet in the target schema.
+        """
+        # Specify the primary keys
+        primary_keys = prepare_primary_keys(self.get_schema_metadata(self.source), table.name)
+
+        # Find columns that reference 'Resources'
+        if table.name in ["Collections", "Networks", "Catalogues"]:
+            ref_cols = ["id"]
+        else:
+            ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
+
+        # Load the data for the table from the ZIP files
+        source_df = load_table('source', table)
+        target_df = load_table('target', table)
+
+        # Checks whether the source table contains draft records
+        try:
+            check_draft(source_df, table.name)
+        except DraftException as de:
+            self.errors.append(de.msg)
+            raise de
+
+        # Filter the rows in the target table that reference the Resource identifiers
+        target_df = target_df.loc[target_df[ref_cols].isin(self.resource_ids).any(axis=1)]
+
+        # Return if both tables are empty
+        if len(source_df.index) + len(target_df.index) == 0:
+            return source_df
+
+        # Create mapping of indices from the source table to the target table
+        merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
+
+        # Filter rows not present in the target's table
+        new_df = source_df.loc[~source_df.index.isin(merge_df["index_x"])].copy()
+
+        # Filter rows not present in the source's table
+        missing_df = target_df.loc[~target_df.index.isin(merge_df["index_y"])].copy()
+        missing_df["mg_delete"] = 'true'
+
+        # Filter updated rows
+        merge_df = merge_df.loc[merge_df["mg_updatedOn_x"] > merge_df["mg_updatedOn_y"]]
+        updated_df = source_df.iloc[merge_df["index_x"]]
+
+        # Combine the new, updated and missing rows
+        filtered_df = pd.concat([new_df, updated_df, missing_df])
+        filtered_df = filtered_df[[col for col in filtered_df.columns if (not col.startswith('mg_') or col == 'mg_delete')]]
+
+        return filtered_df
+
+    def process_organisations(self, source_orgs: pd.DataFrame) -> pd.DataFrame:
+        """Processes the organisations table by combining information from CatalogueOntologies."""
+        ontology_organisations = self.get("Organisations", schema="CatalogueOntologies", as_df=True)
+
+        def pid_func(org: str):
+            return ontology_organisations.set_index('name')[
+                "ontologyTermURI"].to_dict(
+            ).get(org, None)
+        def website_func(org: str):
+            return ontology_organisations.set_index('name')["website"].to_dict().get(org, None)
+
+        missing_orgs = source_orgs.loc[source_orgs["organisation"].isna(), ["resource", "id"]]
+        for row in missing_orgs.itertuples():
+            msg = f"No organisation for (resource, id) = ({row.resource}, {row.id})"
+            log.warning(msg)
+            self.warnings.append(msg)
+
+        target_orgs = source_orgs.copy()
+        target_orgs["organisation name"] = target_orgs["organisation"].copy()
+        target_orgs["organisation pid"] = target_orgs["organisation"].apply(pid_func)
+        target_orgs["organisation website"] = target_orgs["organisation"].apply(website_func)
+
+        return target_orgs
+
+
+    def download_schema_zip(self, schema: str, schema_type: SchemaType,
+                            include_system_columns: bool = True) -> Path:
+        """Download target schema as zip, save in case upload fails."""
+        filepath = BASE_DIR.joinpath(f"{schema_type}.zip")
+        if Path(filepath).exists():
+            Path(filepath).unlink()
+
+        api_zip_url = f"{self.url}/{schema}/api/zip"
+        if include_system_columns:
+            api_zip_url += '?includeSystemColumns=true'
+        resp = self.session.get(api_zip_url, allow_redirects=True)
+
+        if resp.content:
+            Path(filepath).write_bytes(resp.content)
+            log.debug(f"Downloaded {schema_type!r} schema to {filepath!s}.")
+        else:
+            log.error("Error: download failed.")
+        return filepath
+
+
+    def _verify_schemas(self):
+        """Ensures the source and target are available."""
+        if self.source is not None:
+            if self.source not in self.schema_names:
+                error_msg = f"Schema {self.source!r} not found on server. Available schemas: {', '.join(self.schema_names)}."
+                self.errors.append(error_msg)
+                raise NoSuchSchemaException(error_msg)
+        if self.target not in self.schema_names:
+            error_msg = f"Schema {self.target!r} not found on server. Available schemas: {', '.join(self.schema_names)}."
+            self.errors.append(error_msg)
+            raise NoSuchSchemaException(error_msg)
+
+        if self.source == self.target:
+            error_msg = "Target schema must be different from source schema."
+            self.errors.append(error_msg)
+            raise NoSuchSchemaException(error_msg)
+
+    def add_data_resource(self, resource: str):
+        """Adds the source id to the target's data resources."""
+
+        update_filepath = BASE_DIR / "update.zip"
+        if not update_filepath.exists():
+            return
+        with zipfile.ZipFile(update_filepath, 'r') as update_zip:
+            try:
+                u_collections = pd.read_csv(BytesIO(update_zip.read("Collections.csv")))
+            except KeyError:
+                return
+
+        t_catalogues = self.get(schema=self.target, table="Catalogues", query_filter=f"id == {resource}", as_df=True)
+        if len(t_catalogues.index) == 0:
+            msg = f"Resource {resource!r} not found in table 'Catalogues' for target {self.target!r}."
+            self.errors.append(msg)
+            raise NoSuchResourceException(msg)
+
+        if type(t_catalogues["data resources"][0]) != float:
+            new_collections = [res for res in u_collections["id"] if res not in t_catalogues["data resources"].str.split(',')]
+        else:
+            new_collections = [res for res in u_collections["id"]]
+
+        if len(new_collections) == 0:
+            return
+
+        new_values = [] if type(t_catalogues.loc[0, "data resources"]) == float else t_catalogues.loc[0, "data resources"].split(',')
+        new_values.extend(new_collections)
+        t_catalogues.loc[0, "data resources"] = ','.join(new_collections)
+
+        self.save_table(schema=self.target, table="Catalogues", data=t_catalogues)
+
+
+
+    def upload_zip_stream(self, zip_stream: BytesIO):
+        """Uploads the zip file containing the tables from the source schema
+        to the target schema.
+        """
+        upload_url = f"{self.url}/{self.target}/api/zip?async=true"
+
+        response = self.session.post(
+            url=upload_url,
+            files={'file': (f"{BASE_DIR}/update.zip", zip_stream.getvalue())}
+        )
+
+        response_status = response.status_code
+        if response.status_code != 200:
+            log.error(f"Migration failed with error {response_status}:\n{str(response.text)}")
+        else:
+            response_url = f"{self.url}{response.json().get('url')}"
+            upload_status = self.session.get(response_url).json().get('status')
+            while upload_status == 'RUNNING':
+                time.sleep(2)
+                upload_status = self.session.get(response_url).json().get('status')
+            upload_description = self.session.get(response_url).json().get('description')
+
+            if upload_status == 'ERROR':
+                error_msg = f"Migration failed, reason: {upload_description}."
+                log.error(error_msg)
+                self.errors.append(error_msg)
+                log.debug(self.session.get(response_url).json())
+                raise StagingMigratorException(error_msg)
+            else:
+                log.info("Upload completed successfully.")
+
+
+    def last_change(self, source: str = None) -> datetime | None:
+        """Retrieves the datetime of the latest change made on the source schema.
+        Returns None if the changelog is disabled or empty.
+        """
+        source = source or self.source
+
+        response = self.session.post(url=f"{self.url}/{source}/settings/graphql",
+                                         json={"query": changelog_query}, headers=self.session.headers)
+        changelog = response.json().get('data').get('_changes')
+        if len(changelog) == 0:
+            return None
+        change_date_str = changelog[0].get('stamp')
+        change_datetime = datetime.strptime(change_date_str, '%Y-%m-%d %H:%M:%S.%f')
+
+        return change_datetime
+
+    @staticmethod
+    def cleanup():
+        """Deletes the downloaded files after successful migration."""
+        zip_files = ['target.zip', 'source.zip', 'update.zip']
+        for zp in zip_files:
+            filename = f"{BASE_DIR}/{zp}"
+            if Path(filename).exists():
+                log.debug(f"Deleting file {zp!r}.")
+                Path(filename).unlink()
+
+    def _copy_resource_columns(self, table_df: pd.DataFrame) -> pd.DataFrame:
+        """Inserts values for columns 'publisher', 'creator', 'contact point' from Collections into this table."""
+        collections = load_table('source', self.get_schema_metadata(self.source).get_table('name', 'Collections'))
+        table_df["creator"] = table_df["resource"].map(collections.set_index('id')["creator.id"].to_dict())
+        table_df["publisher"] = table_df["resource"].map(collections.set_index('id')["publisher.id"].to_dict())
+        table_df["contact point.first name"] = table_df["resource"].map(collections.set_index('id')["contact point.first name"].to_dict())
+        table_df["contact point.last name"] = table_df["resource"].map(collections.set_index('id')["contact point.last name"].to_dict())
+        return table_df
+
+    def _get_source_profile(self) -> str | None:
+        """Returns the profile(s) of the source, defaults to None."""
+        source_meta = self.get_schema_metadata(self.source)
+        if "Profiles" not in map(lambda t: t.id, source_meta.tables):
+            return None
+        try:
+            return source_meta.get_table('id', "Profiles").descriptions[0].get('value')
+        except AttributeError:
+            return None

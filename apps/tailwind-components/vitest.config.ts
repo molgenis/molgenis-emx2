@@ -1,7 +1,24 @@
-import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { defineVitestConfig } from "@nuxt/test-utils/config";
 
 export default defineVitestConfig({
   test: {
-    environment: "happy-dom"
-  }
-})
+    setupFiles: ["./tests/vitest/setup.ts"],
+    hookTimeout: 20000,
+    environment: "nuxt",
+    include: ["tests/vitest/**/**/*.test.ts"],
+    coverage: {
+      include: [
+        "app/components/**/*.vue",
+        "app/composables/**/*.ts",
+        "app/utils/**/*.ts",
+      ],
+      exclude: [
+        "app/components/global/**/*.vue",
+        "server/**",
+        "tests/**",
+        "app/types/**",
+      ],
+      reporter: ["text", "lcov"],
+    },
+  },
+});

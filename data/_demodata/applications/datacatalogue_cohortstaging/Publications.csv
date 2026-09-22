@@ -1,2 +1,2 @@
-doi,title,authors,year,journal,volume,number,pagination,publisher,school,abstract
-https://doi1234.nl,publication test cohort,,,,,,,,,
+index,resource,doi,is design publication,title,authors,year,journal,volume,number,pagination,publisher,school,abstract
+0.0,testCohort,https://doi1234.nl,true,publication test cohort,,,,,,,,,

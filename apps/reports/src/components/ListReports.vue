@@ -1,12 +1,6 @@
 <template>
   <Spinner v-if="!session" />
-  <MessageWarning
-    v-else-if="
-      !session ||
-      !session.roles ||
-      !['Viewer'].some((r) => session.roles.includes(r))
-    "
-  >
+  <MessageWarning v-else-if="!session?.roles?.includes('Viewer')">
     Schema doesn't exist or you don't have permission to view. Might you need to
     login?
   </MessageWarning>
@@ -32,7 +26,7 @@
       >
       <TableSimple
         @rowClick="open"
-        :columns="['id', 'name']"
+        :columns="['id', 'description']"
         :rows="reportsWithId"
         class="bg-white"
         selectColumn="id"
@@ -101,7 +95,7 @@ export default {
       if (this.reports) {
         let index = 0;
         return this.reports.map((report) => {
-          report.id = index++;
+          report.index = index++;
           return report;
         });
       }
@@ -116,7 +110,7 @@ export default {
     },
     async add() {
       this.error = null;
-      this.reports.push({ name: "new report", sql: "" });
+      this.reports.push({ id: "uniqueid", description: "new report", sql: "" });
       await this.client
         .saveSetting("reports", this.reports)
         .catch((error) => (this.error = error));
@@ -124,14 +118,16 @@ export default {
     },
     async deleteSelected() {
       this.error = null;
-      this.selection.forEach((id) => this.reports.splice(id, 1));
+      this.reports = this.reports.filter(
+        (report) => !this.selection.includes(report.id)
+      );
       await this.client
         .saveSetting("reports", this.reports)
         .catch((error) => (this.error = error));
       this.reload();
     },
     open(row) {
-      this.$router.push({ name: "edit", params: { id: row.id } });
+      this.$router.push({ name: "edit", params: { index: row.index } });
     },
     downloadSelected() {
       window.open(

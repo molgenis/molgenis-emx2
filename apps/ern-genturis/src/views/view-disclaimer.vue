@@ -1,10 +1,15 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+</script>
+
 <template>
   <Page id="page-disclaimer">
     <PageHeader
       class="genturis-header"
       title="Genturis Registry"
       subtitle="Disclaimer"
-      imageSrc="genturis-carousel.jpg"
+      imageSrc="img/genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
     />
@@ -28,7 +33,3 @@
     </PageSection>
   </Page>
 </template>
-
-<script setup>
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-</script>

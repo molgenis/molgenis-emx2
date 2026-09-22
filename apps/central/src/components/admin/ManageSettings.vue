@@ -1,23 +1,33 @@
 <template>
   <div>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <h3>Manage system settings</h3>
 
     <table class="table table-hover table-bordered bg-white">
-      <thead>
+      <tr>
         <th style="width: 1px">
-          <IconAction icon="plus" @click="handleCreateRequest" />
+          <IconAction
+            icon="plus"
+            @click="handleCreateRequest"
+            aria-label="Add"
+          />
         </th>
         <th>key</th>
         <th>value</th>
-      </thead>
+      </tr>
       <tbody v-if="settings">
         <tr v-for="setting in settings" :key="setting.key">
           <td>
             <div style="display: flex">
-              <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
+              <IconAction
+                icon="edit"
+                @click="handleRowEditRequest(setting)"
+                :aria-label="`Edit-${setting.key}`"
+              />
               <IconDanger
                 icon="trash"
                 @click="handleRowDeleteRequest(setting)"
+                :aria-label="`Remove-${setting.key}`"
               />
             </div>
           </td>
@@ -43,11 +53,15 @@
             <InputString
               v-model="settingKey"
               label="key"
+              id="settings-key"
+              name="key"
               :readonly="isKeyReadOnly"
             />
             <InputText
               v-model="settingValue"
               label="setting value"
+              id="settings-value"
+              name="value"
               :readonly="isValueReadOnly"
             />
           </LayoutForm>
@@ -74,6 +88,7 @@ import {
   InputText,
   ButtonAlt,
   ButtonAction,
+  MessageError,
 } from "molgenis-components";
 
 export default {
@@ -87,6 +102,7 @@ export default {
     InputText,
     ButtonAlt,
     ButtonAction,
+    MessageError,
   },
   data() {
     return {
@@ -138,6 +154,7 @@ export default {
       this.showModal = true;
     },
     async createSetting() {
+      this.graphqlError = null;
       const createMutation = gql`
         mutation change($settings: [MolgenisSettingsInput]) {
           change(settings: $settings) {
@@ -153,11 +170,14 @@ export default {
         },
       };
 
-      await request("graphql", createMutation, variables).catch((e) => {
-        console.error(e);
-      });
-      this.fetchSettings();
-      this.showModal = false;
+      try {
+        await request("graphql", createMutation, variables);
+        this.fetchSettings();
+        this.showModal = false;
+      } catch (e) {
+        this.graphqlError =
+          e.response?.errors?.[0]?.message || "An error occurred.";
+      }
     },
     async deleteSetting() {
       const deleteMutation = gql`

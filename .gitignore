@@ -5,6 +5,7 @@ build/
 !gradle-wrapper.jar
 out
 dist
+/*.jar
 
 .DS_Store
 .idea
@@ -12,6 +13,7 @@ target/
 .settings/
 .project
 .classpath
+.claude
 examplefiles
 *.iml
 *.ipr
@@ -19,6 +21,7 @@ examplefiles
 *.DS_Store
 git.properties
 psql_data
+/.env
 */data/elasticsearch/
 /data/elasticsearch/
 test-output/
@@ -40,15 +43,17 @@ mvnw.cmd
 release.properties
 tls
 **/**/bin/
+.venv
+.vscode/
 
 yarn_error.log
 .nyc_output
 coverage
 
-apps/nuxt3-ssr/assets/css/*.css
-!apps/nuxt3-ssr/assets/css/main.css
+apps/catalogue/assets/css/*.css
+!apps/catalogue/assets/css/main.css
 
-apps/nuxt3-ssr/utils/fingerprint.js
+apps/catalogue/utils/fingerprint.js
 /test-results/
 /playwright-report/
 /playwright/.cache/
@@ -56,7 +61,33 @@ apps/nuxt3-ssr/utils/fingerprint.js
 #python build
 **/version.txt
 
+# python
+venv
+requirements.txt
+
 #playwright
 playwright-report
 CHANGELOG.md
 e2e/.auth/
+
+# python
+__pycache__
+venv
+requirements.txt
+e2e/.auth
+e2e/e2e/.auth
+e2e/test-results/
+apps/tailwind-components/test-results/.last-run.json
+
+# vscode
+*.code-workspace
+apps/**/test-results/
+apps/tailwind-components/playwright/.auth/user.json
+
+.turbo
+.claude
+.playwright-cli
+apps/**/.nuxtrc
+.plan
+
+fairmapper-output-*/

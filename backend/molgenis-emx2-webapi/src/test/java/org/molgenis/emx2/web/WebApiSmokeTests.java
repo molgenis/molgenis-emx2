@@ -1,0 +1,1609 @@
+package org.molgenis.emx2.web;
+
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Constants.ANONYMOUS;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
+import static org.molgenis.emx2.web.Constants.*;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.Assert;
+import io.restassured.filter.session.SessionFilter;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSender;
+import java.io.*;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.junit.jupiter.api.*;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.Order;
+import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
+import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
+import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.web.controllers.MetricsController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
+@TestMethodOrder(MethodOrderer.MethodName.class)
+@Tag("slow")
+class WebApiSmokeTests extends ApiTestBase {
+
+  static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
+
+  private static final String EXCEPTION_CONTENT_TYPE = "application/json";
+
+  private static final String ADMIN_PASS =
+      (String) EnvironmentProperty.getParameter(MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+
+  public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  public static final String PET_SHOP_VIEWER = "shopviewer";
+  public static final String PET_SHOP_MANAGER = "shopmanager";
+
+  public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
+  public static final String TABLE_WITH_SPACES = "table with spaces";
+  public static final String PET_STORE_SCHEMA = "pet store";
+
+  private static Schema schema;
+
+  @BeforeAll
+  static void before() {
+    setAdminSession();
+    setupDatabase();
+  }
+
+  private static void setupDatabase() {
+    // Always create test database from scratch to avoid instability due to side effects.
+    database.dropSchemaIfExists(PET_STORE_SCHEMA);
+    PET_STORE.getImportTask(database, PET_STORE_SCHEMA, "", true).run();
+    schema = database.getSchema(PET_STORE_SCHEMA);
+
+    // grant a user permission
+    database.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
+    database.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
+    database.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
+    schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
+    schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
+    schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
+    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+    database.grantCreateSchema(PET_SHOP_OWNER);
+    if (schema.getTable(TABLE_WITH_SPACES) == null) {
+      schema.create(table(TABLE_WITH_SPACES, column("name", STRING).setKey(1)));
+    }
+  }
+
+  private static void setAdminSession() {
+    login(database.getAdminUserName(), ADMIN_PASS);
+  }
+
+  @AfterAll
+  static void after() {
+    // Always clean up database to avoid instability due to side effects.
+    database.dropSchemaIfExists(PET_STORE_SCHEMA);
+    database.dropSchemaIfExists("pet store yaml");
+    database.dropSchemaIfExists("pet store json");
+  }
+
+  @Test
+  void testLoginMultithreaded() throws InterruptedException {
+    String testUser = "test@test.com";
+    String password = "somepass";
+
+    String createUserQuery =
+        "{ \"query\": \"mutation { signup(email: \\\""
+            + testUser
+            + "\\\", password: \\\""
+            + password
+            + "\\\") { message }}\"}";
+
+    String signinQuery =
+        "{\"query\":\"mutation{signin(email:\\\""
+            + testUser
+            + "\\\",password:\\\""
+            + password
+            + "\\\"){message}}\"}";
+
+    String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
+
+    given().sessionId(sessionId).body(createUserQuery).post("/api/graphql").asString();
+
+    int threadCount = 10;
+    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    CountDownLatch readyLatch = new CountDownLatch(threadCount);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch doneLatch = new CountDownLatch(threadCount);
+
+    ConcurrentLinkedQueue<Throwable> failures = new ConcurrentLinkedQueue<>();
+
+    for (int i = 0; i < threadCount; i++) {
+      executor.submit(
+          () -> {
+            try {
+              readyLatch.countDown();
+              startLatch.await();
+
+              String signinResult =
+                  given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
+
+              try {
+                assertTrue(
+                    signinResult.contains("Signed in"),
+                    "Login failed in thread: " + Thread.currentThread().getName());
+              } catch (AssertionError e) {
+                logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+              }
+
+              String sessionResult =
+                  given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
+
+              assertFalse(
+                  sessionResult.contains(ADMIN_USER),
+                  "ADMIN_USER present in thread: " + Thread.currentThread().getName());
+
+              try {
+                assertTrue(
+                    sessionResult.contains(testUser),
+                    "Session check failed in thread: " + Thread.currentThread().getName());
+              } catch (AssertionError e) {
+                logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+              }
+
+            } catch (Throwable t) {
+              failures.add(t); // only assertFalse failure or unexpected errors will be added
+            } finally {
+              doneLatch.countDown();
+            }
+          });
+    }
+
+    readyLatch.await();
+    startLatch.countDown();
+    doneLatch.await();
+    executor.shutdown();
+
+    if (!failures.isEmpty()) {
+      for (Throwable t : failures) {
+        t.printStackTrace();
+      }
+      fail(
+          "One or more critical assertions failed (ADMIN_USER presence). Total failures: "
+              + failures.size());
+    }
+
+    // Restore admin session to not break the other tests
+    setAdminSession();
+  }
+
+  @Test
+  void testApiRoot() {
+    String result =
+        given()
+            .sessionId(sessionId)
+            .expect()
+            .statusCode(200)
+            .when()
+            .get("/api")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("Welcome to MOLGENIS EMX2"));
+  }
+
+  @Test
+  void testReports() throws IOException {
+    // create a new schema for report
+    database.dropSchemaIfExists("pet store reports");
+    PET_STORE.getImportTask(database, "pet store reports", "", true).run();
+
+    // check if reports work
+    byte[] zipContents =
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report1");
+    File zipFile = createTempFile(zipContents, ".zip");
+    TableStore store = new TableStoreForCsvInZipFile(zipFile.toPath());
+    store.containsTable("pet report");
+
+    // check if reports work with parameters
+    zipContents =
+        getContentAsByteArray(
+            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report2&name=spike,pooky");
+    zipFile = createTempFile(zipContents, ".zip");
+    store = new TableStoreForCsvInZipFile(zipFile.toPath());
+    store.containsTable("pet report with parameters");
+
+    // check if reports work
+    byte[] excelContents =
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report1");
+    File excelFile = createTempFile(excelContents, ".xlsx");
+    store = new TableStoreForXlsxFile(excelFile.toPath());
+    assertTrue(store.containsTable("report1"));
+
+    // check if reports work with parameters
+    excelContents =
+        getContentAsByteArray(
+            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report2&name=spike,pooky");
+    excelFile = createTempFile(excelContents, ".xlsx");
+    store = new TableStoreForXlsxFile(excelFile.toPath());
+    assertTrue(store.containsTable("report2"));
+    assertTrue(excelContents.length > 0);
+
+    // test json report api
+    String jsonResults =
+        given()
+            .sessionId(sessionId)
+            .get("/pet store reports/api/reports/json?id=report1")
+            .asString();
+    assertFalse(
+        jsonResults.contains("report1"),
+        "single result should not include report name"); // are we sure about this?
+    jsonResults =
+        given()
+            .sessionId(sessionId)
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
+            .asString();
+    assertTrue(
+        jsonResults.contains("report1"),
+        "multiple results should use the report name to nest results");
+    // check that id is for keys
+    jsonResults =
+        given()
+            .sessionId(sessionId)
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
+            .asString();
+    assertTrue(jsonResults.contains("report1"), "should use report id as key");
+    assertTrue(jsonResults.contains("report2"), "should use report id as key");
+
+    jsonResults =
+        given()
+            .sessionId(sessionId)
+            .get("/pet store reports/api/reports/json?id=report2&name=spike,pooky")
+            .asString();
+    assertTrue(jsonResults.contains("pooky"));
+
+    // test report using jsonb_agg
+    jsonResults =
+        given()
+            .sessionId(sessionId)
+            .get("/pet store reports/api/reports/json?id=report3")
+            .asString();
+    ObjectMapper objectMapper = new ObjectMapper();
+    List<Object> jsonbResult = objectMapper.readValue(jsonResults, List.class);
+    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
+
+    // test report using jsonb rows
+    jsonResults =
+        given()
+            .sessionId(sessionId)
+            .get("/pet store reports/api/reports/json?id=report4")
+            .asString();
+    Object result = objectMapper.readValue(jsonResults, Object.class);
+    assertTrue(result.toString().contains("pooky"));
+
+    // test report using json objects
+    jsonResults =
+        given()
+            .sessionId(sessionId)
+            .get("/pet store reports/api/reports/json?id=report5")
+            .asString();
+    Object jsonResult = objectMapper.readValue(jsonResults, Object.class);
+    assertTrue(jsonResult.toString().contains("pooky"));
+
+    jsonResults =
+        given()
+            .sessionId(sessionId)
+            .get("/pet store reports/api/reports/json?id=report4,report5")
+            .asString();
+    Map<String, Object> multipleResults = objectMapper.readValue(jsonResults, Map.class);
+    // Check if multiple result are returned as proper json
+    assertFalse(multipleResults.get("report4").toString().startsWith("{\""));
+  }
+
+  private byte[] getContentAsByteArray(String fileType, String path) {
+    return given().sessionId(sessionId).accept(fileType).when().get(path).asByteArray();
+  }
+
+  @Test
+  void testJsonYamlApi() {
+    String schemaJson = given().sessionId(sessionId).when().get("/pet store/api/json").asString();
+
+    database.dropCreateSchema("pet store json");
+
+    given()
+        .sessionId(sessionId)
+        .body(schemaJson)
+        .when()
+        .post("/pet store json/api/json")
+        .then()
+        .statusCode(200);
+
+    String schemaJson2 =
+        given().sessionId(sessionId).when().get("/pet store json/api/json").asString();
+
+    assertEquals(schemaJson, schemaJson2.replace("pet store json", PET_STORE_SCHEMA));
+
+    String schemaYaml = given().sessionId(sessionId).when().get("/pet store/api/yaml").asString();
+
+    database.dropCreateSchema("pet store yaml");
+
+    given()
+        .sessionId(sessionId)
+        .body(schemaYaml)
+        .when()
+        .post("/pet store yaml/api/yaml")
+        .then()
+        .statusCode(200);
+
+    String schemaYaml2 =
+        given().sessionId(sessionId).when().get("/pet store yaml/api/yaml").asString();
+
+    assertEquals(schemaYaml, schemaYaml2.replace("pet store yaml", PET_STORE_SCHEMA));
+
+    given()
+        .sessionId(sessionId)
+        .body(schemaYaml2)
+        .when()
+        .delete("/pet store yaml/api/yaml")
+        .then()
+        .statusCode(200);
+
+    given()
+        .sessionId(sessionId)
+        .body(schemaJson2)
+        .when()
+        .delete("/pet store json/api/json")
+        .then()
+        .statusCode(200);
+
+    database.dropSchemaIfExists("pet store yaml");
+    database.dropSchemaIfExists("pet store json");
+  }
+
+  @Test
+  void testExcelApi() throws IOException, InterruptedException {
+
+    // download json schema
+    String schemaCSV =
+        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
+
+    // create a new schema for excel
+    database.dropCreateSchema("pet store excel");
+
+    // download excel contents from schema
+    byte[] excelContents = getContentAsByteArray(ACCEPT_EXCEL, "/pet store/api/excel");
+    File excelFile = createTempFile(excelContents, ".xlsx");
+
+    // upload excel into new schema
+    String message =
+        given()
+            .sessionId(sessionId)
+            .multiPart(excelFile)
+            .when()
+            .post("/pet store excel/api/excel?async=true")
+            .asString();
+
+    Map<String, String> val = new ObjectMapper().readValue(message, Map.class);
+    String url = val.get("url");
+    String id = val.get("id");
+
+    // poll task until complete
+    Response poll = given().sessionId(sessionId).when().get(url);
+    int count = 0;
+    // poll while running
+    // (previously we checked on 'complete' but then it also fired if subtask was complete)
+    while (poll.body().asString().contains("UNKNOWN")
+        || poll.body().asString().contains("RUNNING")) {
+      if (count++ > 100) {
+        throw new MolgenisException("failed: polling took too long");
+      }
+      poll = given().sessionId(sessionId).when().get(url);
+      Thread.sleep(500);
+    }
+    assertFalse(
+        poll.body().asString().contains("FAILED") || poll.body().asString().contains("ERROR"));
+
+    // check if id in tasks list
+    assertTrue(
+        given()
+            .sessionId(sessionId)
+            .multiPart(excelFile)
+            .when()
+            .get("/pet store/api/tasks")
+            .asString()
+            .contains(id));
+
+    // check if schema equal using json representation
+    String schemaCSV2 =
+        given()
+            .sessionId(sessionId)
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/pet store excel/api/csv")
+            .asString();
+
+    assertTrue(schemaCSV2.contains("Pet"));
+
+    // delete a new schema for excel
+    database.dropSchema("pet store excel");
+  }
+
+  private File createTempFile(byte[] zipContents, String extension) throws IOException {
+    File tempFile = File.createTempFile("some", extension);
+    tempFile.deleteOnExit();
+    OutputStream os = new FileOutputStream(tempFile);
+    os.write(zipContents);
+    os.flush();
+    os.close();
+    return tempFile;
+  }
+
+  @Test
+  void testGraphqlApi() {
+    String path = "/api/graphql";
+
+    // session filter will take care of sessions if applicable
+    SessionFilter sessionFilter = new SessionFilter();
+
+    String result =
+        given()
+            .filter(sessionFilter)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("anonymous"));
+
+    // if anonymous then should not be able to see users
+    result =
+        given()
+            .filter(sessionFilter)
+            .body("{\"query\":\"{_admin{userCount}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("errors"));
+
+    result =
+        given()
+            .filter(sessionFilter)
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + database.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + ADMIN_PASS
+                    + "\\\"){message}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("Signed in"));
+
+    result =
+        given()
+            .filter(sessionFilter)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains(database.getAdminUserName()));
+
+    // if admin then should  be able to see users
+    result =
+        given()
+            .filter(sessionFilter)
+            .body("{\"query\":\"{_admin{userCount}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertFalse(result.contains("Error"));
+
+    String schemaPath = "/pet store/api/graphql";
+    result =
+        given()
+            .filter(sessionFilter)
+            .body("{\"query\":\"{Pet{name}}\"}")
+            .when()
+            .post(schemaPath)
+            .asString();
+    assertTrue(result.contains("spike"));
+
+    result =
+        given()
+            .filter(sessionFilter)
+            .contentType("multipart/form-data")
+            .multiPart(
+                "query", "mutation insert($value:[OrderInput]){insert(Order:$value){message}}")
+            .multiPart(
+                "variables",
+                "{\"value\":[{\"quantity\":\"5\",\"price\":22,\"pet\":{\"name\":\"pooky\"}}]}")
+            .when()
+            .post(schemaPath)
+            .asString();
+    assertTrue(result.contains("inserted 1 record"));
+
+    result =
+        given()
+            .filter(sessionFilter)
+            .body("{\"query\":\"mutation{signout{message}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("signed out"));
+
+    // if anonymous then should not be able to see users
+    result =
+        given()
+            .filter(sessionFilter)
+            .body("{\"query\":\"{_admin{userCount}}\"}")
+            .when()
+            .post(path)
+            .asString();
+    assertTrue(result.contains("errors"));
+  }
+
+  @Test
+  void testGraphqlGetRequestsCannotExecuteMutations() {
+    // queries via GET remain possible
+    String result =
+        given().queryParam("query", "{_session{email}}").when().get("/api/graphql").asString();
+    assertTrue(result.contains("anonymous"));
+
+    // mutations via GET are rejected (would enable CSRF via links/images)
+    given()
+        .queryParam("query", "mutation{signin(email:\"admin\",password:\"admin\"){message}}")
+        .when()
+        .get("/api/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+
+    // also on the schema endpoints
+    given()
+        .queryParam("query", "mutation{drop(tables:[\"Pet\"]){message}}")
+        .when()
+        .get("/pet store/graphql")
+        .then()
+        .statusCode(400)
+        .body("errors[0].message", containsString("Only query operations are allowed"));
+    assertNotNull(schema.getTable("Pet"));
+
+    // same mutation via POST still works for signin
+    String postResult =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + database.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + ADMIN_PASS
+                    + "\\\"){message}}\"}")
+            .when()
+            .post("/api/graphql")
+            .asString();
+    assertTrue(postResult.contains("Signed in"));
+  }
+
+  @Test
+  void testBootstrapThemeService() {
+    // should success
+    String css = given().when().get("/pet store/tables/theme.css?primaryColor=123123").asString();
+    Assert.assertTrue(css.contains("123123"));
+
+    // should fail
+    css = given().when().get("/pet store/tables/theme.css?primaryColor=pink").asString();
+    Assert.assertTrue(css.contains("pink"));
+  }
+
+  @Test
+  void testMolgenisWebservice_redirectToFirstMenuItem() {
+    given()
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet%20store/tables"))
+        .when()
+        .get("/pet store/");
+
+    schema
+        .getMetadata()
+        .setSetting(
+            "menu",
+            "[{\"label\":\"home\",\"href\":\"../blaat\", \"role\":\"Manager\"},{\"label\":\"home\",\"href\":\"../blaat2\", \"role\":\"Viewer\"}]");
+
+    // sign in as shopviewer
+    String shopViewerSessionId =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){message}}\"}")
+            .when()
+            .post("/api/graphql")
+            .sessionId();
+
+    given()
+        .sessionId(shopViewerSessionId)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet%20store/blaat2"))
+        .when()
+        .get("/pet store/");
+
+    // sign in as shopviewer
+    String shopManagerSessionId =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message}}\"}")
+            .when()
+            .post("/api/graphql")
+            .sessionId();
+
+    given()
+        .sessionId(shopManagerSessionId)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", is("/pet%20store/blaat"))
+        .when()
+        .get("/pet store/");
+
+    schema.getMetadata().removeSetting("menu");
+    database.becomeAdmin();
+  }
+
+  @Test
+  void testTokenBasedAuth() throws JsonProcessingException {
+
+    // check if we can use temporary token
+    String token = getToken("shopmanager", "shopmanager");
+    String result;
+
+    // without token we are anonymous
+    assertTrue(
+        given()
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("anonymous"));
+
+    // with token we are shopmanager
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+
+    // can we create a long lived token
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .body(
+                "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\",tokenName:\\\"mytoken\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
+
+    // with long lived token we are shopmanager
+    // also test using an alternative auth token key (should make no difference)
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN[1], token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+
+    // get token for admin
+    result =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+
+    // as admin can we create a long lived token for others
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .body(
+                "{\"query\":\"mutation{createToken(email:\\\"shopmanager\\\" tokenName:\\\"mytoken\\\"){message,token}}\"}")
+            .when()
+            .post("/api/graphql")
+            .getBody()
+            .asString();
+    token = new ObjectMapper().readTree(result).at("/data/createToken/token").textValue();
+
+    // with long lived token we are shopmanager
+    // also test using an alternative auth token key (should make no difference)
+    assertTrue(
+        given()
+            .header(MOLGENIS_TOKEN[1], token)
+            .body("{\"query\":\"{_session{email}}\"}")
+            .post("/api/graphql")
+            .getBody()
+            .asString()
+            .contains("shopmanager"));
+  }
+
+  @Test
+  void testMolgenisWebservice_robotsDotTxt() {
+    when().get("/robots.txt").then().statusCode(200).body(equalTo("User-agent: *\nAllow: /"));
+  }
+
+  @Test
+  void testRdfApiRequest() {
+    final String urlPrefix = "http://localhost:" + port;
+
+    final String defaultContentType = "text/turtle";
+    final String jsonldContentType = "application/ld+json";
+    final String ttlContentType = "text/turtle";
+    final String n3ContentType = "text/n3";
+    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8";
+    final String defaultContentTypeWithInvalidCharset = "text/turtle; charset=utf-16";
+
+    // skip 'all schemas' test because data is way to big (i.e.
+    // get("http://localhost:PORT/api/rdf");)
+
+    // Validate individual API points for /api/rdf
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category");
+    rdfApiRequest(200, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf/Category/column/name");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category/name=cat");
+    rdfApiRequestMinimalExpect(400).get(urlPrefix + "/pet store/api/rdf/doesnotexist");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
+
+    // Validate API point with charset
+    rdfApiContentTypeRequest(200, defaultContentTypeWithCharset, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, defaultContentTypeWithInvalidCharset, EXCEPTION_CONTENT_TYPE)
+        .get(urlPrefix + "/pet store/api/rdf");
+
+    // Validate convenience API points
+    rdfApiRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/jsonld");
+    rdfApiRequest(200, ttlContentType).get(urlPrefix + "/pet store/api/ttl");
+
+    // Validate non-default content-type for /api/rdf
+    rdfApiContentTypeRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/rdf");
+
+    // Validate convenience API points with incorrect given content-type request
+    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
+        .get(urlPrefix + "/pet store/api/jsonld");
+    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
+        .get(urlPrefix + "/pet store/api/ttl");
+
+    // Validate head for API points
+    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/rdf");
+    rdfApiRequest(200, jsonldContentType).head(urlPrefix + "/pet store/api/jsonld");
+    rdfApiRequest(200, ttlContentType).head(urlPrefix + "/pet store/api/ttl");
+
+    // Validate head for API points with incorrect given content-type for convenience API points
+    rdfApiContentTypeRequest(200, ttlContentType, jsonldContentType)
+        .head(urlPrefix + "/pet store/api/jsonld");
+    rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
+        .head(urlPrefix + "/pet store/api/ttl");
+
+    // Validate SHACL validation requests
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf?validate=fdp-v1.2");
+    rdfApiRequest(400, EXCEPTION_CONTENT_TYPE)
+        .get(urlPrefix + "/pet store/api/rdf?validate=nonExisting"); // TODO: expect 404
+
+    // TODO: Fix HEAD to be equal to GET requests
+    //  (out-of-scope because changes also influence other requests to RDF API)
+    // Validate head for SHACL validation requests
+    //    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet
+    // store/api/rdf?validate=fdp-v1.2");
+    //    rdfApiRequest(404, EXCEPTION_CONTENT_TYPE)
+    //            .head(urlPrefix + "/pet store/api/rdf?validate=nonExisting");
+
+    // Validate SHACL SETS API request
+    rdfApiRequest(200, ACCEPT_YAML).get(urlPrefix + "/api/rdf?shacls");
+    rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
+        .get(urlPrefix + "/api/rdf?shacls");
+
+    // Validate head for SHACL SETS API request
+    rdfApiRequest(200, ACCEPT_YAML).head(urlPrefix + "/api/rdf?shacls");
+    rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
+        .head(urlPrefix + "/api/rdf?shacls");
+
+    // Validate multi-content type negotiation
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/ld+json", jsonldContentType);
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", n3ContentType)
+        .head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
+        .head(urlPrefix + "/pet store/api/rdf");
+  }
+
+  @Test
+  void testRdfApiContent() {
+    // Output from global API call.
+    String resultBase =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("http://localhost:" + port + "/api/rdf?schemas=pet store")
+            .getBody()
+            .asString();
+
+    // Output from global API call with invalid schema.
+    // TODO: https://github.com/molgenis/molgenis-emx2/issues/4954 (fix to return 204)
+    String resultBaseNonExisting =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("http://localhost:" + port + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
+            .getBody()
+            .asString();
+
+    // Output shacl sets
+    String resultShaclSetsYaml =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("http://localhost:" + port + "/api/rdf?shacls")
+            .getBody()
+            .asString();
+
+    // Output schema API call.
+    String resultSchema =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("http://localhost:" + port + "/pet store/api/rdf")
+            .getBody()
+            .asString();
+
+    String resultShaclNonTurtleSucceed =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .get("http://localhost:" + port + "/pet store/api/jsonld?validate=hri-v2.0.2")
+            .getBody()
+            .asString();
+
+    assertAll(
+        // Validate base API.
+        () -> assertFalse(resultBase.contains("CatalogueOntologies")),
+        () ->
+            assertTrue(
+                resultBaseNonExisting.contains(
+                    "Schema 'thisSchemaTotallyDoesNotExist' unknown or permission denied")),
+        () -> assertTrue(resultBase.contains("foaf:accountName")),
+        // Validate schema API.
+        () -> assertTrue(resultSchema.contains("foaf:accountName")),
+        // Test on small snippet to validate "files:" is absent (and all other fields are present)
+        () ->
+            assertTrue(
+                resultShaclSetsYaml.contains(
+                    """
+                    - id: dcat-ap-v3
+                      name: DCAT-AP
+                      version: 3.0.0
+                      sources:
+                      - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
+                    - id: hri-v2.0.2""")),
+        () ->
+            assertTrue(
+                resultShaclNonTurtleSucceed.contains(
+                    """
+                            "@type": [
+                                        "http://www.w3.org/ns/shacl#ValidationReport"
+                                    ],""")));
+  }
+
+  /**
+   * Request that does not define a content type but does validate on this.
+   *
+   * @param expectStatusCode
+   * @param expectContentType
+   * @return
+   */
+  private RequestSender rdfApiRequest(int expectStatusCode, String expectContentType) {
+    return given()
+        .sessionId(sessionId)
+        .expect()
+        .statusCode(expectStatusCode)
+        .header("Content-Type", expectContentType)
+        .when();
+  }
+
+  /**
+   * Request that does define a content type and validates on this.
+   *
+   * @param expectStatusCode
+   * @param contentType
+   * @return
+   */
+  private RequestSender rdfApiContentTypeRequest(int expectStatusCode, String contentType) {
+    return rdfApiContentTypeRequest(expectStatusCode, contentType, contentType);
+  }
+
+  /**
+   * Request that defines given & expected content types individually and validates on this.
+   *
+   * @param expectStatusCode
+   * @param expectedContentType
+   * @return
+   */
+  private RequestSender rdfApiContentTypeRequest(
+      int expectStatusCode, String givenContentType, String expectedContentType) {
+    return given()
+        .sessionId(sessionId)
+        .header("Accept", givenContentType)
+        .expect()
+        .statusCode(expectStatusCode)
+        .header("Content-Type", expectedContentType)
+        .when();
+  }
+
+  /**
+   * Request that only validates on status code.
+   *
+   * @param expectStatusCode
+   * @return
+   */
+  private RequestSender rdfApiRequestMinimalExpect(int expectStatusCode) {
+    return given().sessionId(sessionId).expect().statusCode(expectStatusCode).when();
+  }
+
+  @Test
+  void downloadCsvTable() {
+    Response response = downloadPet("/pet store/api/csv/Pet");
+    assertTrue(
+        response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
+    assertTrue(response.getBody().asString().contains("pooky,cat,,available,,9.4"));
+  }
+
+  @Test
+  void downloadCsvTableWithSystemColumns() {
+    Response response = downloadPet("/pet store/api/csv/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+    assertTrue(response.getBody().asString().contains("mg_"));
+  }
+
+  @Test
+  void downloadExcelTable() throws IOException {
+    Response response = downloadPet("/pet store/api/excel/Pet");
+    List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
+    assertEquals("name,category,photoUrls,status,tags,weight,orders,mg_draft", rows.get(0));
+    assertEquals(
+        "pooky,cat,,available,,9.4,ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919,", rows.get(1));
+  }
+
+  @Test
+  void downloadExelTableWithSystemColumns() throws IOException {
+    Response response = downloadPet("/pet store/api/excel/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true");
+    List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
+    assertTrue(rows.get(0).contains("mg_"));
+  }
+
+  @Test
+  void downloadZipTable() throws IOException, InterruptedException {
+    File file = TestUtils.responseToFile(downloadPet("/pet store/api/zip/Pet"));
+    List<File> files = TestUtils.extractFileFromZip(file);
+    String result = Files.readString(files.get(0).toPath());
+    assertTrue(result.contains("name,category,photoUrls,status,tags,weight"));
+    assertTrue(result.contains("pooky,cat,,available,,9.4"));
+  }
+
+  @Test
+  void downloadZipTableWithSystemColumns() throws IOException, InterruptedException {
+    File file =
+        TestUtils.responseToFile(
+            downloadPet("/pet store/api/zip/Pet?" + INCLUDE_SYSTEM_COLUMNS + "=true"));
+    List<File> files = TestUtils.extractFileFromZip(file);
+    String result = Files.readString(files.get(0).toPath());
+    assertTrue(result.contains("mg_"));
+  }
+
+  private Response downloadPet(String requestString) {
+    return given()
+        .sessionId(sessionId)
+        .accept(ACCEPT_EXCEL)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get(requestString);
+  }
+
+  @Test
+  void testRoot() {
+    given()
+        .sessionId(sessionId)
+        .redirects()
+        .follow(false)
+        .expect()
+        .statusCode(302)
+        .header("Location", "/apps/central/")
+        .when()
+        .get("/")
+        .getHeader("Location");
+  }
+
+  @Test
+  @Disabled("unstable")
+  void testScriptExecution() throws JsonProcessingException, InterruptedException {
+    // get token for admin
+    String token = getToken("admin", "admin");
+    String result;
+
+    // submit simple
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .post("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    String taskId = new ObjectMapper().readTree(result).at("/id").textValue();
+
+    // poll until completed
+    String taskUrl = "/api/tasks/" + taskId;
+    // poll task until complete
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+    String status = new ObjectMapper().readTree(result).at("/status").textValue();
+    int count = 0;
+    // poll while running
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 10) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
+      result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+    }
+    if (result.contains("ERROR")) {
+      fail(result);
+    }
+
+    String outputURL = "/api/tasks/" + taskId + "/output";
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(outputURL).getBody().asString();
+    if (result.equals("Readme")) {
+      System.out.println("testScriptExcution error: " + result);
+    }
+    assertEquals("Readme", result);
+
+    // now with parameters
+
+    // submit simple
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .body("blaat")
+            .when()
+            .post("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    taskId = new ObjectMapper().readTree(result).at("/id").textValue();
+
+    // poll until completed
+    taskUrl = "/api/tasks/" + taskId;
+    // poll task until complete
+    result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+    status = new ObjectMapper().readTree(result).at("/status").textValue();
+    count = 0;
+    // poll while running
+    // (previously we checked on 'complete' but then it also fired if subtask was complete)
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 10) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
+      result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+    }
+    if (result.contains("ERROR")) {
+      fail(result);
+    }
+
+    assertTrue(result.contains("sys.argv[1]=blaat")); // the expected output
+  }
+
+  @Test
+  void testScriptScheduling() throws JsonProcessingException, InterruptedException {
+    // clear stale job rows so waitForScriptToComplete does not pick up an old one
+    deleteJobsForScript("hello world");
+    deleteJobsForScript("test");
+    try {
+      database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
+    } catch (MolgenisException e) {
+      // ignore error when there is nothing to clean up
+    }
+
+    String token = getToken("admin", "admin");
+    String result;
+
+    // simply retrieve the results using get
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get(SYSTEM_PREFIX + "/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    assertEquals("Readme", result);
+
+    // simply retrieve the results using get, outside schema
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/scripts/hello+world")
+            .getBody()
+            .asString();
+    assertEquals("Readme", result);
+
+    // or async using post and then we get a task id
+    // simply retrieve the results using get
+    // todo: also allow anonymous
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .post(SYSTEM_PREFIX + "/api/scripts/hello+world")
+            .asString();
+
+    Row jobMetadata = waitForScriptToComplete("hello world");
+    // retrieve the file
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .get(SYSTEM_PREFIX + "/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .asString();
+    assertEquals("Readme", result);
+    // also works outside schema
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("blaat")
+            .get("/api/tasks/" + jobMetadata.getString("id") + "/output")
+            .asString();
+    assertEquals("Readme", result);
+
+    // save a scheduled script that fires every second
+    given()
+        .header(MOLGENIS_TOKEN[0], token)
+        .when()
+        .body(
+            "{\"query\":\"mutation{insert(Scripts:{name:\\\"test\\\",cron:\\\"0/5 * * * * ?\\\",script:\\\"print('test123')\\\"}){message}}\"}")
+        .post(SYSTEM_PREFIX + "/api/graphql")
+        .getBody()
+        .asString();
+
+    // see that it is listed
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/tasks/scheduled")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("test")); // should contain our script
+
+    // delete the scripts
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .body("{\"query\":\"mutation{delete(Scripts:{name:\\\"test\\\"}){message}}\"}")
+            .post(SYSTEM_PREFIX + "/api/graphql")
+            .getBody()
+            .asString();
+
+    assertTrue(result.contains("delete 1 records from Scripts"));
+
+    // script should be deleted
+    assertTrue(
+        database
+            .getSchema(SYSTEM_SCHEMA)
+            .getTable("Scripts")
+            .where(f("name", EQUALS, "test"))
+            .retrieveRows()
+            .isEmpty(),
+        "script should be deleted");
+
+    // check if the jobs that ran were okay
+    assertNotNull(jobMetadata, "should have at least a job");
+    System.out.println(jobMetadata);
+    assertEquals("COMPLETED", jobMetadata.getString("status"));
+
+    // script should be unscheduled
+    result =
+        given()
+            .header(MOLGENIS_TOKEN[0], token)
+            .when()
+            .get("/api/tasks/scheduled")
+            .getBody()
+            .asString();
+    assertTrue(result.contains("[]"), "script should be unscheduled");
+  }
+
+  @Test
+  @Disabled("unstable; fails on CI around 50% of the time")
+  // todo update / rewrite test to be more stable in CI env
+  void testExecuteSubtaskInScriptTask() throws JsonProcessingException, InterruptedException {
+    String parentJobName = "parentJobTest";
+    Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
+    jobs.delete(row("name", parentJobName));
+    database.dropSchemaIfExists("ScriptWithFileUpload");
+    String script =
+        """
+            import asyncio
+            import logging
+            import os
+            from molgenis_emx2_pyclient import Client
+
+            async def main():
+                logging.basicConfig(level='INFO')
+                logging.getLogger("requests").setLevel(logging.WARNING)
+                logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+                async with Client('http://localhost:%d', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+                    await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
+                                template="PET_STORE", include_demo_data=False)
+
+            if __name__ == '__main__':
+                asyncio.run(main())
+
+            """
+            .formatted(port);
+    jobs.insert(
+        row(
+            "name",
+            parentJobName,
+            "type",
+            "python",
+            "script",
+            script,
+            "dependencies",
+            "--extra-index-url https://test.pypi.org/simple/\n"
+                + "molgenis-emx2-pyclient>=11.22.0"));
+    String result =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .post("/api/scripts/" + parentJobName)
+            .getBody()
+            .asString();
+
+    String url = new ObjectMapper().readTree(result).at("/url").textValue();
+    assertTrue(testJobSuccess(url));
+
+    String failingJobName = "failingJobTest";
+    jobs.delete(row("name", failingJobName));
+    database.dropSchemaIfExists("ScriptWithFileUpload");
+    String scriptFail = script.replace("PET_STORE", "PET_STORES");
+    jobs.insert(
+        row(
+            "name",
+            failingJobName,
+            "type",
+            "python",
+            "script",
+            scriptFail,
+            "dependencies",
+            "--extra-index-url https://test.pypi.org/simple/\n"
+                + "molgenis-emx2-pyclient>=11.22.0"));
+
+    result =
+        given()
+            .sessionId(sessionId)
+            .when()
+            .post("/api/scripts/" + failingJobName)
+            .getBody()
+            .asString();
+
+    url = new ObjectMapper().readTree(result).at("/url").textValue();
+    assertFalse(testJobSuccess(url));
+  }
+
+  private static boolean testJobSuccess(String url)
+      throws InterruptedException, JsonProcessingException {
+    String result = given().sessionId(sessionId).get(url).asString();
+
+    String status = "WAITING";
+    int count = 0;
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 30) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
+      result = given().sessionId(sessionId).get(url).asString();
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+    }
+    return !status.equals("ERROR");
+  }
+
+  private static String getToken(String email, String password) throws JsonProcessingException {
+    String mutation =
+        """
+            mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
+            """
+            .formatted(email, password);
+
+    Map<String, String> request = new HashMap<>();
+    request.put("query", mutation);
+
+    String result = given().body(request).when().post("/api/graphql").getBody().asString();
+    return new ObjectMapper().readTree(result).at("/data/signin/token").textValue();
+  }
+
+  @Test
+  void testJSONLDonJSONLDEndpoint() {
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .contentType("application/ld+json")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld");
+
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .contentType("application/ld+json")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld/Pet");
+  }
+
+  @Test
+  void testTurtleOnTTLEndpoint() {
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .contentType("text/turtle")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/ttl");
+
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .contentType("text/turtle")
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/ttl/Pet");
+  }
+
+  @Test
+  void testThatTablesWithSpaceCanBeDownloaded() {
+    Table table = schema.getTable(TABLE_WITH_SPACES);
+
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/jsonld/" + table.getIdentifier());
+
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/ttl/" + table.getIdentifier());
+
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/excel/" + table.getIdentifier());
+
+    given()
+        .sessionId(sessionId)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/pet store/api/csv/" + table.getIdentifier());
+  }
+
+  @Test
+  void testProfileApi() {
+    String result = given().get("/api/profiles").getBody().asString();
+    assertTrue(result.contains("Samples"));
+  }
+
+  @Test
+  void testAnalyticsApi() throws JsonProcessingException {
+
+    // clear a "my-trigger" row a previous run may have left behind
+    Table triggerTable = database.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger");
+    List<Row> staleTrigger = triggerTable.where(f("name", EQUALS, "my-trigger")).retrieveRows();
+    if (!staleTrigger.isEmpty()) {
+      triggerTable.delete(staleTrigger);
+    }
+    String adminToken = getToken("admin", "admin");
+
+    // add a trigger
+    Map<String, String> addRequest = new HashMap<>();
+    addRequest.put("name", "my-trigger");
+    addRequest.put("cssSelector", "#my-favorite-button");
+
+    String resp =
+        given()
+            .header(X_MOLGENIS_TOKEN, adminToken)
+            .when()
+            .body(addRequest)
+            .post("/pet store/api/trigger")
+            .getBody()
+            .asString();
+    assertEquals("{\"status\":\"SUCCESS\"}", resp);
+
+    // fetch a triggers
+    String triggers = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals(
+        "[{\"name\":\"my-trigger\",\"cssSelector\":\"#my-favorite-button\",\"schemaName\":\"pet store\",\"appName\":null}]",
+        triggers);
+
+    // update a trigger
+    Map<String, String> updateRequest = new HashMap<>();
+    updateRequest.put("cssSelector", "#my-update-button");
+
+    String updateResp =
+        given()
+            .header(X_MOLGENIS_TOKEN, adminToken)
+            .when()
+            .body(updateRequest)
+            .put("/pet store/api/trigger/my-trigger")
+            .getBody()
+            .asString();
+    assertEquals("{\"status\":\"SUCCESS\"}", updateResp);
+
+    // re-fetch a triggers to check update
+    String updated = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals(
+        "[{\"name\":\"my-trigger\",\"cssSelector\":\"#my-update-button\",\"schemaName\":\"pet store\",\"appName\":null}]",
+        updated);
+
+    // delete a trigger
+    given()
+        .header(X_MOLGENIS_TOKEN, adminToken)
+        .delete("/pet store/api/trigger/my-trigger")
+        .getBody()
+        .asString();
+    assertEquals("{\"status\":\"SUCCESS\"}", resp);
+
+    // refetch triggers
+    String triggersAfterDelete = given().get("/pet store/api/trigger").getBody().asString();
+    assertEquals("[]", triggersAfterDelete);
+  }
+
+  @Test
+  void signIn() throws JsonProcessingException {
+    String token = getToken("admin", "admin");
+    assertTrue(token.length() > 10);
+  }
+
+  private void deleteJobsForScript(String scriptName) {
+    Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
+    List<Row> staleJobs = jobs.where(f("script", f("name", EQUALS, scriptName))).retrieveRows();
+    if (!staleJobs.isEmpty()) {
+      jobs.delete(staleJobs);
+    }
+  }
+
+  private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
+    Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
+    Filter f = f("script", f("name", EQUALS, scriptName));
+    int count = 0;
+    Row firstJob = null;
+    // should run every 5 secs, lets give it some time to complete at least 1 job
+    while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 60) {
+      List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
+      if (jobList.size() > 0) {
+        firstJob = jobList.get(0);
+      }
+      count++; // timing could make this test flakey
+      Thread.sleep(1000);
+    }
+    return firstJob;
+  }
+
+  @Test
+  void unknownSchemaShouldNotResultInRedirect() {
+    given().expect().statusCode(404).when().get("/malicious");
+    given().expect().statusCode(404).when().get("/malicious/");
+  }
+
+  @Test
+  void testGraphqlUnknownSchemaReturns404() {
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    given()
+        .queryParam("query", "{_schema{id}}")
+        .when()
+        .get("/thisSchemaDoesNotExist/graphql")
+        .then()
+        .statusCode(404)
+        .contentType(EXCEPTION_CONTENT_TYPE)
+        .body("errors[0].message", containsString("Schema 'thisSchemaDoesNotExist' unknown"));
+
+    // a schema the user cannot see returns the same 404, so the response does
+    // not reveal whether a schema exists
+    given()
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(404)
+        .body("errors[0].message", containsString("unknown"));
+
+    given()
+        .sessionId(sessionId)
+        .body("{\"query\":\"{_schema{id}}\"}")
+        .when()
+        .post(SYSTEM_PREFIX + "/graphql")
+        .then()
+        .statusCode(200);
+  }
+
+  @Test
+  void testMetricsEndpoint() {
+    given()
+        .expect()
+        .statusCode(200)
+        .body(containsString("jvm_memory_used_bytes"))
+        .when()
+        .get(MetricsController.METRICS_PATH);
+  }
+
+  @Test
+  void testClearTasks() {
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
+
+    given()
+        .sessionId(sessionId)
+        .when()
+        .post("/pet store/api/tasks/clear")
+        .then()
+        .statusCode(200)
+        .body(containsString("SUCCESS"));
+  }
+}

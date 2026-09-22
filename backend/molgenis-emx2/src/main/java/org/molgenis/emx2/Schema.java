@@ -14,8 +14,6 @@ public interface Schema {
 
   List<String> getInheritedRolesForActiveUser();
 
-  boolean hasActiveUserRole(Privileges privileges);
-
   Table create(TableMetadata table);
 
   void create(TableMetadata... table);
@@ -64,7 +62,11 @@ public interface Schema {
 
   String getName();
 
-  List<Change> getChanges(int limit);
+  default List<Change> getChanges(int limit) {
+    return getChanges(limit, 0);
+  }
+
+  List<Change> getChanges(int limit, int offset);
 
   Integer getChangesCount();
 
@@ -73,4 +75,24 @@ public interface Schema {
   boolean hasSetting(String emailHost);
 
   Table getTableById(String id);
+
+  Table getTableByNameOrIdCaseInsensitive(String name);
+
+  boolean hasTableWithNameOrIdCaseInsensitive(String fileName);
+
+  void createRole(String roleName);
+
+  void deleteRole(String roleName);
+
+  void grant(String roleName, TablePermission permission);
+
+  void revoke(String roleName, String tableName);
+
+  Role getRoleInfo(String roleName);
+
+  List<Role> getRoleInfos();
+
+  List<TablePermission> getPermissionsForActiveUser();
+
+  Map<String, TablePermission> getPermissionsByTableForActiveUser();
 }

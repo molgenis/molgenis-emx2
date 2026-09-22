@@ -9,7 +9,7 @@
         <Logger name="org.pac4j" level="debug" additivity="false">
             <Appender-ref ref="Console" level="debug"/>
         </Logger>
-        <Root level="info">
+        <Root level="${sys:log4j2.level:-INFO}">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

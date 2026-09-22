@@ -1,0 +1,8 @@
+order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
+1,cs,Cockayne Syndrome,,,,,,
+3,ttd,TTD,,,,,,
+4,xp,Xeroderma Pigmentosum,,,,,,
+5,bloom,Bloom,,,,,,
+6,werner,Werner,,,,,,
+2,hp,Hereditary Poikiloderma,,,,,,
+7,albinism,Albinism,,,,,,

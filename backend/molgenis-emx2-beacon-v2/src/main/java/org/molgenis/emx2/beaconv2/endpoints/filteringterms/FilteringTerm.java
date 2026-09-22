@@ -1,7 +1,9 @@
 package org.molgenis.emx2.beaconv2.endpoints.filteringterms;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
+import org.molgenis.emx2.Column;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FilteringTerm {
@@ -10,18 +12,56 @@ public class FilteringTerm {
   private String id;
   private String label;
   private String scope;
+  @JsonIgnore private Column column;
 
-  public FilteringTerm(String type, String id, String label, String scope) {
-    this.type = type;
-    this.id = id;
-    this.label = label;
-    this.scope = Character.toLowerCase(scope.charAt(0)) + scope.substring(1);
+  public FilteringTerm(Column column, String type, String id, String label, String scope) {
+    setColumn(column);
+    setType(type);
+    setId(id);
+    setLabel(label);
+    setScope(Character.toLowerCase(scope.charAt(0)) + scope.substring(1));
   }
 
   public FilteringTerm(String type, String id, String scope) {
     this.type = type;
     this.id = id;
     this.scope = Character.toLowerCase(scope.charAt(0)) + scope.substring(1);
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public void setScope(String scope) {
+    this.scope = scope;
+  }
+
+  public Column getColumn() {
+    return column;
+  }
+
+  public void setColumn(Column column) {
+    this.column = column;
   }
 
   @Override

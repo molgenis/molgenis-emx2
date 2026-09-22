@@ -20,6 +20,57 @@ E.g. http://localhost:8080/pet%20store/tables/ will serve app in /apps/tables/ (
 Then within your app, you will have graphql simply at 'graphql' path. This makes it easy to have apps run in different
 contexts.
 
+## Custom apps
+
+MOLGENIS has a feature where you can add a folder next to the ```
+molgenis-emx2-<version>-all.jar``` named ```custom-app``` where you can serve your own app.
+
+Within this folder, you can then place your own ```html``` files, optionally in subfolders and then they will be 
+available on ```https://<molgenis-url>/apps/``` and ```https://<molgenis-url>/<schema>/```
+
+**Example**: 
+```cli
+molgenis-emx2-<version>-all.jar
+custom-app
+     |_ my-app
+          |_ index.html
+          |_ assets
+                |_ my-theme.css
+```
+
+This is now accessible on ```https://<molgenis-url>/apps/example-app```. It automatically searches for an html file when no 
+extension is given. This also makes it work with SPA.
+
+### Serving your own Single Page Application (SPA)
+
+To correctly serve a SPA using a framework like Vue with a router, it is recommended that you use hash routing. Else you have to know on exacty which schema you want it to be served and set the base accordingly in the app.
+
+**Vue3 example**
+```javascript
+const router = createRouter({
+  history: createWebHashHistory(import.meta.env.BASE_URL),
+  routes
+})
+```
+
+**Example custom app using Vue3**
+
+On schema: ```https://<your-molgenis-url>/pet%20store/example-app```
+
+On app: ```https://<your-molgenis-url>/apps/example-app```
+
+### Customizing the folder
+
+You can also use an environment variable to point to the folder. It has to be the complete path like:
+
+```CUSTOM_APP_PATH=c:/path/to/app```
+
+Or you can start the jar with the following command
+```
+java -DCUSTOM_APP_PATH=c:/path/to/app -jar molgenis-emx2-<version>-SNAPSHOT-all.jar
+```
+
+
 ## Each schema has settings endpoint
 
 To ease creation of user settings, each schema has _settings endpoint in grahpq that can be edited by users with the manager

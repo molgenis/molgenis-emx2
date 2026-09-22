@@ -1,0 +1,21 @@
+<script setup lang="ts">
+import ShowMore from "../ShowMore.vue";
+defineProps<{
+  title?: string;
+  description?: string;
+}>();
+</script>
+
+<template>
+  <section
+    class="bg-content py-18 lg:px-12.5 px-5 text-title-contrast xl:rounded-base last:rounded-b-alt shadow-primary xl:border-b-0 border-b-[1px] overflow-hidden"
+  >
+    <h2 class="mb-5 uppercase text-heading-4xl font-display" v-if="title">
+      {{ title }}
+    </h2>
+    <div class="mb-5 prose max-w-none" v-if="description">
+      <ShowMore>{{ description }}</ShowMore>
+    </div>
+    <slot></slot>
+  </section>
+</template>

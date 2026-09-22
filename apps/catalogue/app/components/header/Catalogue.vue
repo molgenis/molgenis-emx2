@@ -1,0 +1,157 @@
+<script setup lang="ts">
+import { useRoute, useRuntimeConfig } from "#app";
+import { useCartStore } from "#imports";
+import { computed, ref } from "vue";
+import type { UIResource } from "../../../interfaces/types";
+import Container from "../../../../tailwind-components/app/components/Container.vue";
+import Logo from "../../../../tailwind-components/app/components/Logo.vue";
+import MainNavigation from "../../components/MainNavigation.vue";
+import HamburgerMenu from "../../components/HamburgerMenu.vue";
+import CartHeaderButton from "../../components/cart/HeaderButton.vue";
+import CartModal from "../../components/cart/Modal.vue";
+
+const route = useRoute();
+const config = useRuntimeConfig();
+const cartStore = useCartStore();
+
+const props = defineProps<{
+  catalogue?: UIResource;
+  variableCount: number;
+  collectionCount: number;
+  networkCount: number;
+  logoSrc?: string;
+  logoTitle?: string;
+}>();
+
+const logoAlt = computed(
+  () => props.catalogue?.name || props.catalogue?.acronym
+);
+
+const cohortOnly = computed(() => {
+  const routeSetting = route.query["cohort-only"] as string;
+  return routeSetting === "true" || config.public.cohortOnly;
+});
+
+const catalogueRouteParam = route.params.catalogue as string;
+
+const menu: { label: string; link: string }[] = [];
+
+const showCartModal = ref<boolean>(false);
+
+// the variable route does not set the resourceType param, therefore check the route name
+if (
+  route.params.resourceType ||
+  [
+    "schema-catalogue-catalogue-variables",
+    "catalogue-variables",
+    "catalogue-variables-variable",
+  ].includes(route.name as string)
+) {
+  menu.push({
+    label: "overview",
+    link: `/${catalogueRouteParam}`,
+  });
+}
+
+if (props.collectionCount > 0) {
+  menu.push({
+    label: "Collections",
+    link: `/${catalogueRouteParam}/collections`,
+  });
+}
+
+if (props.networkCount > 0 && !cohortOnly.value) {
+  menu.push({
+    label: "Networks",
+    link: `/${catalogueRouteParam}/networks`,
+  });
+}
+
+if (props.variableCount > 0 && !cohortOnly.value)
+  menu.push({
+    label: "Variables",
+    link: `/${catalogueRouteParam}/variables`,
+  });
+
+if (cohortOnly.value) {
+  menu.push({
+    label: "Introduction",
+    link: `/${catalogueRouteParam}/introduction`,
+  });
+  menu.push({
+    label: "About",
+    link: `/${catalogueRouteParam}/about`,
+  });
+} else if (catalogueRouteParam && catalogueRouteParam !== "all") {
+  menu.push({
+    label: "About",
+    link: `/${catalogueRouteParam}/about/${catalogueRouteParam}`,
+  });
+}
+
+if (!cohortOnly.value) {
+  menu.push({
+    label: "Other catalogues",
+    link: `/`,
+  });
+  menu.push({
+    label: "Add data",
+    link: "/" + config.public.schema + "/pages/#/data-manager-portal",
+  });
+  menu.push({
+    label: "Manuals",
+    link: "/apps/docs/#/catalogue/",
+  });
+}
+</script>
+
+<template>
+  <header class="antialiased px-5 lg:px-0 xl:bg-navigation-dynamic">
+    <Container>
+      <div class="items-center justify-between hidden xl:flex h-25">
+        <Logo
+          :link="`/${catalogueRouteParam}`"
+          :image="catalogue?.logo?.url ?? logoSrc"
+          :alt="logoAlt"
+          :inverted="true"
+        />
+        <MainNavigation :navigation="menu" :invert="true" />
+        <!--  <div class="w-[450px]">
+           <SearchBar />
+        </div>-->
+
+        <CartHeaderButton
+          v-if="cartStore.isEnabled"
+          @click="showCartModal = !showCartModal"
+        />
+        <!-- <HeaderButton label="Account" icon="user" /> -->
+      </div>
+
+      <div class="pt-5 xl:hidden">
+        <div class="relative flex items-center h-12.5 justify-between mb-4">
+          <HamburgerMenu :navigation="menu" />
+          <div class="absolute -translate-x-1/2 left-1/2">
+            <a
+              :href="`/${catalogueRouteParam}`"
+              class="flex items-center text-center gap-1 tracking-widest transition-colors font-display text-heading-xl hover:underline text-menu"
+              >{{ logoTitle }}</a
+            >
+          </div>
+          <div class="flex gap-3">
+            <CartHeaderButton
+              @click="showCartModal = !showCartModal"
+              v-if="cartStore.isEnabled"
+            />
+            <!-- <HeaderButton label="Account" icon="user" /> -->
+          </div>
+        </div>
+
+        <MainNavigation :navigation="menu" :showMoreButton="false" />
+        <div class="w-full pt-6">
+          <!-- <SearchBar /> -->
+        </div>
+      </div>
+    </Container>
+    <CartModal :show="showCartModal" @close="showCartModal = false" />
+  </header>
+</template>

@@ -11,8 +11,10 @@ import org.molgenis.emx2.Table;
 
 public class CrossSchemaReferenceExample {
 
+  public static final String PARENT = "Parent";
+
   public static void create(Schema schema1, Schema schema2) {
-    Table parent = schema1.create(table("Parent", column("name").setPkey(), column("hobby")));
+    Table parent = schema1.create(table(PARENT, column("name").setPkey(), column("hobby")));
     parent.insert(row("name", "parent1", "hobby", "stamps"));
 
     Table child =
@@ -23,7 +25,7 @@ public class CrossSchemaReferenceExample {
                 column("parent")
                     .setType(REF)
                     .setRefSchemaName(schema1.getName())
-                    .setRefTable("Parent")));
+                    .setRefTable(PARENT)));
     child.insert(row("name", "child1", "parent", "parent1"));
 
     Table pet = schema1.create(table("Pet", column("name").setPkey(), column("species")));
@@ -44,5 +46,15 @@ public class CrossSchemaReferenceExample {
     Table cat =
         schema2.create(table("Mouse").setImportSchema(schema1.getName()).setInheritName("Pet"));
     cat.insert(row("name", "mickey", "species", "mouse"));
+
+    // for test if tables can have same name but different structure between schemas
+    schema2.create(
+        table(
+            PARENT,
+            column("name").setPkey(),
+            column("parents")
+                .setType(REF_ARRAY)
+                .setRefSchemaName(schema1.getName())
+                .setRefTable(PARENT)));
   }
 }

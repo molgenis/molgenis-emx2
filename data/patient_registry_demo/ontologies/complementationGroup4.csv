@@ -1,0 +1,11 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,xpa,XPA,,,,,
+2,xpb,XPB,,,,,
+3,xpc,XPC,,,,,
+4,xpd,XPD,,,,,
+5,xpe,XPE,,,,,
+6,xpf,XPF,,,,,
+7,xpg,XPG,,,,,
+8,xpv,XPV,,,,,
+9,unknown,Unknown,,,,,
+10,other,Other,,,,,

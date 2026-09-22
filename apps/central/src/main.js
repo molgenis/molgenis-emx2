@@ -6,7 +6,8 @@ import Admin from "./components/admin/Admin.vue";
 import ManageSettings from "./components/admin/ManageSettings.vue";
 import ManageUsers from "./components/admin/ManageUsers.vue";
 import ManagePrivacyPolicy from "./components/admin/ManagePrivacyPolicy.vue";
-import "molgenis-components/dist/style.css";
+import ManageTemplates from "./components/admin/ManageTemplates.vue";
+import "../../molgenis-components/dist/molgenis-components.css";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -25,6 +26,7 @@ const router = createRouter({
           path: "privacyPolicy",
           component: ManagePrivacyPolicy,
         },
+        { name: "templates", path: "templates", component: ManageTemplates },
       ],
     },
   ],

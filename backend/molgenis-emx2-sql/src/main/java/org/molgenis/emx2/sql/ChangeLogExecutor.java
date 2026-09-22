@@ -1,9 +1,6 @@
 package org.molgenis.emx2.sql;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
-import static org.jooq.impl.DSL.select;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.CHAR;
 import static org.jooq.impl.SQLDataType.JSON;
 import static org.jooq.impl.SQLDataType.TIMESTAMP;
@@ -15,26 +12,32 @@ import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.getRolePrefix;
 
 import java.sql.Timestamp;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import org.jooq.DSLContext;
-import org.jooq.Field;
+import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.Record6;
-import org.jooq.Result;
-import org.molgenis.emx2.Change;
+import org.molgenis.emx2.*;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
 
 public class ChangeLogExecutor {
 
-  public static final String MG_CHANGLOG = "mg_changelog";
-  private static final Field<String> OPERATION = field(name("operation"), CHAR(1).nullable(false));
-  private static final Field<Timestamp> STAMP = field(name("stamp"), TIMESTAMP.nullable(false));
-  private static final Field<String> USERID = field(name("userid"), VARCHAR.nullable(false));
-  private static final Field<String> TABLENAME = field(name("tablename"), VARCHAR.nullable(false));
-  private static final Field<org.jooq.JSON> OLD = field(name("old"), JSON.nullable(true));
-  private static final Field<org.jooq.JSON> NEW = field(name("new"), JSON.nullable(true));
+  static final int CHANGELOG_LIMIT_CAP = 1000;
+
+  private static final Field<String> OPERATION =
+      field(name(Constants.CHANGELOG_OPERATION), CHAR(1).nullable(false));
+  private static final Field<Timestamp> STAMP =
+      field(name(Constants.CHANGELOG_STAMP), TIMESTAMP.nullable(false));
+  private static final Field<String> USERID =
+      field(name(Constants.CHANGELOG_USERID), VARCHAR.nullable(false));
+  private static final Field<String> TABLENAME =
+      field(name(Constants.CHANGELOG_TABLENAME), VARCHAR.nullable(false));
+  private static final Field<org.jooq.JSON> OLD =
+      field(name(Constants.CHANGELOG_OLD), JSON.nullable(true));
+  private static final Field<org.jooq.JSON> NEW =
+      field(name(Constants.CHANGELOG_NEW), JSON.nullable(true));
+  private static final Field<String> SCHEMA_NAME =
+      field(name("table_schema"), VARCHAR.nullable(false));
 
   private ChangeLogExecutor() {
     // hide
@@ -42,7 +45,8 @@ public class ChangeLogExecutor {
 
   static void enableChangeLog(SqlDatabase db, SchemaMetadata schema) {
     // Create change log table
-    org.jooq.Table<Record> changelogTable = table(name(schema.getName(), MG_CHANGLOG));
+    org.jooq.Table<Record> changelogTable =
+        table(name(schema.getName(), Constants.CHANGELOG_TABLE));
     db.getJooq()
         .createTableIfNotExists(changelogTable)
         .columns(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)
@@ -77,7 +81,9 @@ public class ChangeLogExecutor {
   }
 
   static void executeDropChangeLogTableForSchema(SqlDatabase db, Schema schema) {
-    db.getJooq().dropTableIfExists(table(name(schema.getName(), MG_CHANGLOG))).execute();
+    db.getJooq()
+        .dropTableIfExists(table(name(schema.getName(), Constants.CHANGELOG_TABLE)))
+        .execute();
   }
 
   static void disableChangeLog(SqlDatabase db, SchemaMetadata schema) {
@@ -100,15 +106,26 @@ public class ChangeLogExecutor {
                 table.getSchemaName(), table.getTableName()));
   }
 
-  static List<Change> executeGetChanges(DSLContext jooq, SchemaMetadata schema, int limit) {
+  static List<Change> executeGetChanges(
+      DSLContext jooq, SchemaMetadata schema, int limit, int offset) {
+    if (limit > CHANGELOG_LIMIT_CAP) {
+      throw new MolgenisException(
+          "Requested "
+              + limit
+              + " changes, but the maximum allowed is "
+              + CHANGELOG_LIMIT_CAP
+              + ".");
+    }
+
     if (!hasChangeLogTable(jooq, schema)) {
       return Collections.emptyList();
     }
     Result<Record6<String, Timestamp, String, String, org.jooq.JSON, org.jooq.JSON>> result =
         jooq.select(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)
-            .from(table(name(schema.getName(), MG_CHANGLOG)))
+            .from(table(name(schema.getName(), Constants.CHANGELOG_TABLE)))
             .orderBy(STAMP.desc())
             .limit(limit)
+            .offset(offset)
             .fetch();
 
     return result.stream()
@@ -125,9 +142,63 @@ public class ChangeLogExecutor {
         .toList();
   }
 
+  static List<LastUpdate> executeLastUpdates(DSLContext jooq) {
+
+    // get a list of schema's with changelogs, need due to limited support for cross schema queries
+    List<String> schemasWithChangeLog = getSchemasWithChangeLog(jooq);
+
+    if (schemasWithChangeLog.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // get the last updated table and details from all schema's that have a change log
+    SelectLimitPercentStep<Record5<String, Timestamp, String, String, String>> query =
+        jooq.select(
+                OPERATION,
+                STAMP,
+                USERID,
+                TABLENAME,
+                inline(schemasWithChangeLog.get(0)).as(SCHEMA_NAME))
+            .from(table(name(schemasWithChangeLog.get(0), Constants.CHANGELOG_TABLE)))
+            .orderBy(STAMP.desc())
+            .limit(1);
+
+    // union the select for schema's in a loop
+    for (int i = 1; i < schemasWithChangeLog.size(); i++) {
+      query.unionAll(
+          jooq.select(
+                  OPERATION,
+                  STAMP,
+                  USERID,
+                  TABLENAME,
+                  inline(schemasWithChangeLog.get(i)).as(SCHEMA_NAME))
+              .from(table(name(schemasWithChangeLog.get(i), Constants.CHANGELOG_TABLE)))
+              .orderBy(STAMP.desc())
+              .limit(1));
+    }
+
+    // execute to query with all the unions
+    Result<Record5<String, Timestamp, String, String, String>> result = query.fetch();
+
+    // transform the result in to records
+    return result.stream()
+        .map(
+            r -> {
+              char operation = r.getValue(OPERATION, char.class);
+              Timestamp stamp = r.getValue(STAMP, Timestamp.class);
+              String userId = r.getValue(USERID, String.class);
+              String tableName = r.getValue(TABLENAME, String.class);
+              String schemaName = r.getValue(SCHEMA_NAME, String.class);
+
+              return new LastUpdate(operation, stamp, userId, tableName, schemaName);
+            })
+        .sorted(Comparator.comparing(LastUpdate::stamp))
+        .toList();
+  }
+
   static Integer executeGetChangesCount(DSLContext jooq, SchemaMetadata schema) {
     if (hasChangeLogTable(jooq, schema)) {
-      return jooq.fetchCount(table(name(schema.getName(), MG_CHANGLOG)));
+      return jooq.fetchCount(table(name(schema.getName(), Constants.CHANGELOG_TABLE)));
     } else {
       // do not query db when changelog table does not exist
       return 0;
@@ -139,6 +210,16 @@ public class ChangeLogExecutor {
         select()
             .from(table(name("information_schema", "tables")))
             .where(field("table_schema").eq(schema.getName()))
-            .and(field("table_name").eq(MG_CHANGLOG)));
+            .and(field("table_name").eq(Constants.CHANGELOG_TABLE)));
+  }
+
+  static List<String> getSchemasWithChangeLog(DSLContext jooq) {
+    Result<Record> result =
+        jooq.select()
+            .from(table(name("information_schema", "tables")))
+            .where(field("table_name").eq(Constants.CHANGELOG_TABLE))
+            .fetch();
+
+    return result.stream().map(r -> r.getValue(SCHEMA_NAME, String.class)).toList();
   }
 }

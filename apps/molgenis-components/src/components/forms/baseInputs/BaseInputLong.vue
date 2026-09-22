@@ -3,27 +3,28 @@
     :id="id"
     :value="modelValue"
     class="form-control"
-    :class="{ 'is-invalid': errorMessage || bigIntError }"
+    :class="{ 'is-invalid': errorMessage }"
     :aria-describedby="id + 'Help'"
     :placeholder="placeholder"
     :readonly="readonly"
-    :required="required"
+    :required="isRequired(required)"
     @keypress="handleKeyValidity($event)"
     @input="emitIfValid($event)"
   />
 </template>
 
-<script>
-import BaseInput from "./BaseInput.vue";
+<script lang="ts">
 import constants from "../../constants";
-import { isNumericKey, flipSign, getBigIntError } from "../../utils";
+import { flipMinusSign, isNumericKey } from "../../utils";
+import { isRequired } from "../formUtils/formUtils";
+import BaseInput from "./BaseInput.vue";
 
 const { CODE_MINUS } = constants;
 
 export default {
   extends: BaseInput,
   methods: {
-    emitIfValid(event) {
+    emitIfValid(event: any) {
       const value = event.target.value;
       if (value?.length) {
         this.$emit("update:modelValue", value);
@@ -31,22 +32,16 @@ export default {
         this.$emit("update:modelValue", null);
       }
     },
-    handleKeyValidity(event) {
-      const keyCode = event.which ? event.which : event.keyCode;
+    handleKeyValidity(event: any) {
+      const keyCode = event.which ?? event.keyCode;
       if (keyCode === CODE_MINUS) {
-        this.$emit("update:modelValue", flipSign(event.target.value));
+        this.$emit("update:modelValue", flipMinusSign(event.target.value));
       }
       if (!isNumericKey(event)) {
         event.preventDefault();
       }
     },
-  },
-  computed: {
-    bigIntError() {
-      if (this.modelValue) {
-        return getBigIntError(this.modelValue);
-      }
-    },
+    isRequired,
   },
   emits: ["update:modelValue"],
 };

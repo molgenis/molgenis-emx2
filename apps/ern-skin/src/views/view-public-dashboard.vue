@@ -1,5 +1,138 @@
+<script setup lang="ts">
+import { ref } from "vue";
+import {
+  Page,
+  Dashboard,
+  DashboardRow,
+  DashboardChart,
+  LoadingScreen,
+  MessageBox,
+  GeoMercator,
+  DataValueHighlights,
+  DataTable,
+  PieChart2,
+  ColumnChart,
+  WorldGeoJson,
+  // @ts-ignore
+} from "molgenis-viz";
+
+import type {
+  IComponents,
+  IStatistics,
+  IOrganisations,
+} from "../../../metadata-utils/src/viz/ErnDashboard";
+
+import { getComponentStats } from "../../../metadata-utils/src/viz/getErnDashboardComponent";
+import { getOrganisations } from "../../../metadata-utils/src/viz/getErnDashboardOrganisations";
+import {
+  generateAxisTickData,
+  asDataObject,
+} from "../../../tailwind-components/app/utils/viz";
+
+import type { IRecordStringNumber } from "../../../metadata-utils/src/viz/types";
+import type { NumericAxisTickData } from "../../../tailwind-components/types/viz";
+
+interface IDataProviders extends IOrganisations {
+  providerIdentifier: string;
+  hasSubmittedData: string;
+}
+
+const loading = ref<boolean>(true);
+const error = ref<string>();
+const highlightsChart = ref<IComponents>();
+const highlightsData = ref<IRecordStringNumber>();
+const ageGroupChart = ref<IComponents>();
+const ageGroupData = ref<IStatistics[]>();
+const ageGroupAxis = ref<NumericAxisTickData>();
+const patientsByGroupChart = ref<IComponents>();
+const patientsByGroupData = ref<IStatistics[]>();
+const sexAtBirthChart = ref<IComponents>();
+const sexAtBirthData = ref<IRecordStringNumber>();
+const organisationsChart = ref<IOrganisations[]>();
+const organisationsData = ref<IDataProviders[]>();
+
+async function loadData() {
+  const highlightsResponse = await getComponentStats(
+    "../api/graphql",
+    "highlights"
+  );
+  const patientsByGroupResponse = await getComponentStats(
+    "../api/graphql",
+    "enrolment"
+  );
+  const ageResponse = await getComponentStats("../api/graphql", "age");
+  const sexResponse = await getComponentStats("../api/graphql", "sex");
+  const organisationsResponse = await getOrganisations("../api/graphql");
+
+  highlightsChart.value = highlightsResponse[0];
+  patientsByGroupChart.value = patientsByGroupResponse[0];
+  ageGroupChart.value = ageResponse[0];
+  sexAtBirthChart.value = sexResponse[0];
+  organisationsChart.value = organisationsResponse;
+}
+
+function prepareData() {
+  highlightsData.value = asDataObject(
+    highlightsChart.value?.statistics as IStatistics[],
+    "label",
+    "value"
+  );
+
+  patientsByGroupData.value = patientsByGroupChart.value?.statistics?.map(
+    (row: IStatistics) => {
+      return {
+        ...row,
+        "thematic disease group": row.label,
+        patients: row.value,
+      };
+    }
+  );
+
+  ageGroupData.value = ageGroupChart.value?.statistics?.map(
+    (row: IStatistics) => {
+      return { ...row, category: `${row.label};${row.description}` };
+    }
+  );
+  ageGroupAxis.value = generateAxisTickData(
+    ageGroupData.value as IStatistics[],
+    "value"
+  );
+
+  const sexAtBirthFiltered = sexAtBirthChart.value?.statistics?.filter(
+    (row: IStatistics) => row.value && row.value > 0
+  );
+  sexAtBirthData.value = asDataObject(
+    sexAtBirthFiltered as IStatistics[],
+    "label",
+    "value",
+    true
+  );
+
+  organisationsData.value = organisationsChart.value?.map(
+    (row: IOrganisations) => {
+      const providerInformation =
+        row.providerInformation && row.providerInformation[0]
+          ? row.providerInformation[0]
+          : undefined;
+      return {
+        ...row,
+        hasSubmittedData: providerInformation?.hasSubmittedData
+          ? "Submitted"
+          : "Not Submitted",
+        providerIdentifier: providerInformation?.providerIdentifier,
+      } as IDataProviders;
+    }
+  );
+}
+
+loadData()
+  .then(() => prepareData())
+  .catch((err) => (error.value = err))
+  .finally(() => (loading.value = false));
+</script>
+
 <template>
-  <Page id="page-dashboard">
+  <Page id="skinPublicDashboard">
     <LoadingScreen v-if="loading" />
     <div class="page-section padding-h-2" v-else-if="!loading && error">
       <MessageBox type="error">
@@ -16,7 +149,7 @@
         <DataValueHighlights
           id="skinRegistryHighlights"
           title="ERN Skin at a glance"
-          :data="registryHighlights"
+          :data="highlightsData"
         />
       </DashboardRow>
       <DashboardRow :columns="2">
@@ -25,7 +158,7 @@
             chartId="ernSkinOrganisationsMap"
             title="Status of data by healthcare provider"
             :geojson="WorldGeoJson"
-            :chartData="organisations"
+            :chartData="organisationsData"
             rowId="code"
             latitude="latitude"
             longitude="longitude"
@@ -49,7 +182,7 @@
               water: '#061428',
             }"
             :tooltipTemplate="
-              (row) => {
+              (row: IDataProviders) => {
                 return `
               <p class='title'>
                 ${row.name}
@@ -62,7 +195,7 @@
                 <span class='location-country'>${row.country}</span>
               </p>
               `;
-              }
+            }
             "
             :zoomLimits="[0.3, 10]"
             :enableLegendClicks="true"
@@ -73,7 +206,7 @@
           <DataTable
             tableId="registryPatientsByGroup"
             caption=" Summary of patients enrolled by thematic disease group"
-            :data="patientsByGroup"
+            :data="patientsByGroupData"
             :columnOrder="['thematic disease group', 'patients']"
           />
         </DashboardChart>
@@ -83,15 +216,16 @@
           <ColumnChart
             chartId="registryPatientsByAgeGroup"
             title="Number of patients by age category"
-            :chartData="ageByGroup"
+            :chartData="ageGroupData"
             columnFill="#02818a"
             xvar="category"
             yvar="value"
             xAxisLineBreaker=";"
-            :yMax="ageByGroupMax"
-            :yTickValues="ageByGroupTicks"
+            :yMin="0"
+            :yMax="ageGroupAxis?.limit"
+            :yTickValues="ageGroupAxis?.ticks"
             :chartHeight="225"
-            :chartMargins="{ top: 10, right: 5, bottom: 40, left: 25 }"
+            :chartMargins="{ top: 25, right: 2, bottom: 40, left: 25 }"
             :columnPaddingInner="0.2"
           />
         </DashboardChart>
@@ -99,246 +233,15 @@
           <PieChart2
             chartId="registryPatientsBySexAtBirth"
             title="Sex at birth"
-            :chartData="sexAtBirth"
+            :chartData="sexAtBirthData"
             legendPosition="bottom"
-            :chartHeight="150"
+            :chartHeight="165"
             :asDonutChart="true"
             :enableLegendHovering="true"
-            :chartMargins="10"
+            :chartMargins="5"
           />
         </DashboardChart>
       </DashboardRow>
     </Dashboard>
   </Page>
 </template>
-
-<script setup>
-import { ref, onMounted } from "vue";
-import gql from "graphql-tag";
-import { request } from "graphql-request";
-import {
-  Page,
-  Dashboard,
-  DashboardRow,
-  DashboardChart,
-  LoadingScreen,
-  MessageBox,
-  GeoMercator,
-  DataValueHighlights,
-  DataTable,
-  PieChart2,
-  ColumnChart,
-  WorldGeoJson,
-} from "molgenis-viz";
-
-import { seqAlong } from "../utils/utils";
-import { max } from "d3";
-const d3 = { max };
-
-let loading = ref(true);
-let error = ref(null);
-let registryHighlights = ref({});
-let organisations = ref([]);
-let ageByGroup = ref([]);
-let ageByGroupMax = ref(0);
-let ageByGroupTicks = ref([]);
-let patientsByGroup = ref([]);
-let sexAtBirth = ref([]);
-
-async function getOrganisations() {
-  const query = gql`
-    {
-      Organisations {
-        name
-        code
-        city
-        country
-        latitude
-        longitude
-        providerInformation {
-          providerIdentifier
-          hasSubmittedData
-        }
-      }
-    }
-  `;
-  const response = await request("../api/graphql", query);
-  organisations.value = response.Organisations.map((row) => {
-    return {
-      ...row,
-      hasSubmittedData: row.providerInformation[0].hasSubmittedData
-        ? "Submitted"
-        : "Not Submitted",
-      providerIdentifier: row.providerInformation[0].providerIdentifier,
-    };
-  });
-}
-
-async function getStatistics() {
-  const query = gql`
-    {
-      Components {
-        name
-        statistics {
-          label
-          value
-          valueOrder
-          description
-        }
-      }
-    }
-  `;
-  const response = await request("../api/graphql", query);
-  const data = response.Components;
-
-  const highlights = data
-    .filter((row) => row.name === "highlights")[0]
-    ["statistics"].map((row) => [row.label, row.value]);
-  registryHighlights.value = Object.fromEntries(highlights);
-
-  patientsByGroup.value = data
-    .filter((row) => row.name === "enrolment")[0]
-    ["statistics"].map((row) => {
-      return {
-        ...row,
-        "thematic disease group": row.label,
-        patients: row.value,
-      };
-    });
-
-  ageByGroup.value = data
-    .filter((row) => row.name === "age")[0]
-    ["statistics"].sort((current, next) =>
-      current.valueOrder < next.valueOrder ? -1 : 1
-    )
-    .map((row) => {
-      return {
-        ...row,
-        category: `${row.label};${row.description}`,
-      };
-    });
-
-  const maxvalue = d3.max(ageByGroup.value, (row) => row.value);
-  ageByGroupMax.value = Math.round(maxvalue / 10) * 10;
-
-  ageByGroupTicks.value = seqAlong(0, ageByGroupMax.value, 2);
-
-  const patientsBySex = data
-    .filter((row) => row.name === "sex")[0]
-    ["statistics"].map((row) => [row.label, row.value])
-    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
-  sexAtBirth.value = Object.fromEntries(patientsBySex);
-}
-
-async function loadData() {
-  await getOrganisations();
-  await getStatistics();
-}
-
-onMounted(() => {
-  loadData()
-    .catch((err) => {
-      if (err.response) {
-        error.value = err.response.errors[0].message;
-      } else {
-        error.value = err;
-      }
-    })
-    .finally(() => (loading.value = false));
-});
-</script>
-
-<style lang="scss">
-.d3-viz {
-  &.d3-pie,
-  &.d3-geo-mercator {
-    .chart-context {
-      text-align: center;
-      .chart-title {
-        @include setChartTitle;
-      }
-    }
-  }
-
-  &.d3-column-chart {
-    .chart-title {
-      @include setChartTitle;
-    }
-  }
-}
-
-#ernSkinOrganisationsMap {
-  & + .d3-viz-legend {
-    padding: 0.6em 0.8em;
-    label {
-      margin-bottom: 0;
-    }
-  }
-}
-
-#registryPatientsByGroup {
-  caption {
-    @include setChartTitle;
-  }
-  thead {
-    th {
-      font-size: 0.8rem;
-    }
-  }
-  tbody {
-    td {
-      font-size: 0.88rem;
-      padding: 0.5em 0.4em;
-    }
-  }
-}
-
-#skinRegistryHighlights {
-  .data-highlight {
-    padding: 0.8em 1em;
-    .data-label {
-      margin-bottom: 0.15em;
-      font-size: 0.75rem;
-      color: $gray-000;
-    }
-
-    .data-value {
-      &::after {
-        font-size: 1.8rem;
-      }
-    }
-  }
-}
-
-#registryPatientsByAgeGroup {
-  .chart-area {
-    .chart-axes {
-      .tick {
-        text {
-          tspan {
-            font-size: 0.8em;
-          }
-        }
-      }
-    }
-  }
-}
-
-#registryPatientsBySexAtBirth {
-  .chart-area {
-    .pie-labels {
-      .pie-label-text {
-        font-size: 0.7rem !important;
-      }
-    }
-  }
-}
-
-.d3-pie > .chart-legend {
-  .legend-item {
-    .item-label {
-      font-size: 0.95rem;
-    }
-  }
-}
-</style>

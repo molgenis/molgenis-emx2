@@ -1,11 +1,12 @@
 <template>
-  <MessageBox type="error" v-if="error" class="file-list-error">
-    <p><strong>Unable to retrieve files</strong></p>
+  <LoadingScreen v-if="loading" style="height: 150px" />
+  <MessageBox type="error" v-if="!loading && error" class="file-list-error">
+    <p><strong>Unable to retrieve files:</strong></p>
     <p>{{ error }}</p>
   </MessageBox>
   <MessageBox
     type="error"
-    v-else-if="!data.length && !error"
+    v-else-if="!loading && !data"
     class="file-list-error"
   >
     <div class="p-2">
@@ -38,25 +39,34 @@
       <p>Repeat the process for each file.</p>
     </div>
   </MessageBox>
-  <ul class="file-list" v-else>
-    <li class="file" v-for="file in data" :key="file.id">
+  <ul class="file-list" v-else-if="!loading && !error && data">
+    <li class="file" v-for="file in data">
       <p class="file-element file-name">
         <span v-if="labelsColumn && Object.hasOwn(file, labelsColumn)">
           {{ file[labelsColumn] }}
         </span>
         <span v-else>
-          {{ file[fileColumn].filename }}
+          {{ (file[fileColumn] as FileProperties).filename }}
         </span>
       </p>
       <p class="file-element file-format">
-        {{ file[fileColumn].extension }}
+        {{ (file[fileColumn] as FileProperties).extension }}
       </p>
       <p class="file-element file-size">
-        {{ (file[fileColumn].size / Math.pow(1024, 2)).toFixed(2) }} MB
+        {{
+          (
+            (file[fileColumn] as FileProperties).size / Math.pow(1024, 2)
+          ).toFixed(2)
+        }}
+        MB
       </p>
-      <a class="file-element file-url" :href="file[fileColumn].url">
+      <a
+        class="file-element file-url"
+        :href="(file[fileColumn] as FileProperties).url"
+        download
+      >
         <span class="visually-hidden">
-          Download {{ file[fileColumn].filename }}
+          Download {{ (file[fileColumn] as FileProperties).filename }}
         </span>
         <ArrowDownTrayIcon class="heroicons" />
       </a>
@@ -65,14 +75,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
 import MessageBox from "./MessageBox.vue";
+import LoadingScreen from "./LoadingScreen.vue";
 import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps<{
   table: string;
+  filter?: string;
   labelsColumn?: string;
   fileColumn: string;
 }>();
@@ -85,12 +97,25 @@ interface FileProperties {
   url: string;
 }
 
+interface FileColumn {
+  [key: string]: FileProperties;
+}
+
+interface FilesData {
+  [key: string]: string | FileColumn[] | FileProperties;
+}
+
+interface FilesResponse {
+  [key: string]: FilesData[];
+}
+
 const error = ref<Error | null>(null);
-const data: Record<string, FileProperties>[] = ref([]);
+const loading = ref(true);
+const data = ref<FilesData[]>();
 
 async function getFiles() {
   const query = gql`query {
-    ${props.table} {
+     ${props.table} ( ${props.filter || ""}, orderby: {order: ASC}) {
       ${props.labelsColumn || ""}
       ${props.fileColumn} {
         id
@@ -101,19 +126,41 @@ async function getFiles() {
       }
     }
   }`;
-  const response = await request("../api/graphql", query);
-  data.value = response[props.table];
+
+  console.log("QUERY", query);
+  const response: FilesResponse = await request("../api/graphql", query);
+  console.log("RESPONSE", response);
+  const files = response[props.table as keyof FilesResponse];
+  data.value = files as unknown as FilesData[];
 }
 
 onMounted(() => {
-  getFiles().catch((err) => {
-    if (!err.response.errors.length) {
-      error.value = err;
-    } else {
-      error.value = err.response.errors[0].message;
-    }
-  });
+  getFiles()
+    .catch((err) => {
+      if (err?.response?.errors?.length > 0 && err.response.errors[0].message) {
+        error.value = err.response.errors[0].message;
+      } else {
+        error.value = err?.message || "An unexpected error occurred.";
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 });
+
+watch(
+  () => props.filter,
+  async (newFilter, oldFilter) => {
+    if (newFilter !== oldFilter) {
+      loading.value = true;
+      getFiles()
+        .catch((err) => {
+          error.value = err.response?.errors[0].message || err;
+        })
+        .finally(() => (loading.value = false));
+    }
+  }
+);
 </script>
 
 <style lang="scss">
@@ -122,7 +169,6 @@ onMounted(() => {
     @include setIconSize(24px);
   }
 }
-
 .file-list {
   list-style: none;
   padding: 0;
@@ -173,6 +219,10 @@ onMounted(() => {
         background-color: $yellow-400;
         color: $blue-800;
       }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 }

@@ -1,7 +1,9 @@
 plugins {
     id "jacoco"
     id "java"
-    id "com.diffplug.spotless" version "6.25.0" apply false
+    id 'java-test-fixtures'
+    id "com.diffplug.spotless" version "8.9.0" apply false
+    id 'pmd'
 }
 
 repositories {
@@ -13,8 +15,10 @@ repositories {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'java-test-fixtures'
     apply plugin: 'jacoco'
     apply plugin: "com.diffplug.spotless"
+    apply plugin: "pmd"
 
     repositories {
         mavenLocal()
@@ -25,13 +29,23 @@ subprojects {
 
     spotless {
         java {
-            googleJavaFormat('1.22.0')
+            googleJavaFormat('1.28.0')
         }
     }
+
+    pmd {
+        consoleOutput = true
+        toolVersion = "7.26.0"
+        ruleSetFiles = files("${project.rootDir}/pmd_ruleset.xml")
+        ruleSets = []
+    }
+
     compileJava.dependsOn 'spotlessApply'
 
-    task format {
+    tasks.register('format') {
         dependsOn spotlessApply
+        dependsOn pmdMain
+        dependsOn pmdTest
     }
 
     /* default dependencies for all projects*/
@@ -47,13 +61,14 @@ subprojects {
         implementation group: 'com.fasterxml.jackson.core', name:'jackson-annotations', version:jacksonVersion
         implementation group: 'com.graphql-java', name:'graphql-java', version:graphqlVersion
         implementation group: 'com.graphql-java', name:'graphql-java-extended-scalars', version:graphqlScalarsVersion
-        implementation group: 'com.sparkjava', name:'spark-core', version:sparkJavaVersion
         implementation group: 'org.pac4j', name:'pac4j-core', version:pac4jVersion
         implementation group: 'org.pac4j', name:'pac4j-oidc', version:pac4jVersion
         implementation group: 'org.pac4j', name:'pac4j-http', version:pac4jVersion
-        implementation group: 'org.pac4j', name:'spark-pac4j', version:sparkPac4jVersion
+        implementation 'io.javalin:javalin:6.7.0'
+        implementation 'org.pac4j:javalin-pac4j:7.0.0'
         implementation group: 'org.javers', name:'javers-core', version:javersVersion
         implementation group: 'com.nimbusds', name:'nimbus-jose-jwt', version:nimbusdsVersion
+        implementation 'org.bouncycastle:bcprov-jdk18on:1.85'
         implementation group: 'com.schibsted.spt.data', name:'jslt', version:schibstedVersion
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-api', version:rdf4jVersion
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-jsonld', version:rdf4jVersion
@@ -64,17 +79,35 @@ subprojects {
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-ntriples', version:rdf4jVersion
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-nquads', version:rdf4jVersion
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-shacl', version:rdf4jVersion
+        implementation 'org.eclipse.rdf4j:rdf4j-sail-nativerdf:5.3.2'
 
-        //also used outside test
+        // also used outside test
         implementation group: 'org.junit.jupiter', name:'junit-jupiter', version:junitVersion
         testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine', version:junitVersion
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
         testImplementation group: 'org.mockito', name:'mockito-core', version:mockitoVersion
-        //allows to set environment variables in test
+        // allows to set environment variables in test
         testImplementation group: 'com.github.stefanbirkner', name:'system-lambda', version:systemLambdaVersion
+        // Allow generic test fixtures to be available everywhere
+        testImplementation testFixtures(project(':backend:molgenis-emx2'))
+
+        // test fixture dependencies
+        testFixturesImplementation group: 'org.junit.jupiter', name:'junit-jupiter', version:junitVersion
+        testFixturesImplementation group: 'org.junit.jupiter', name:'junit-jupiter-engine', version:junitVersion
+        testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-api', version:rdf4jVersion
+        testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-jsonld', version:rdf4jVersion
+        testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-turtle', version:rdf4jVersion
+        testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-n3', version:rdf4jVersion
+        testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-trig', version:rdf4jVersion
+        testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-rdfxml', version:rdf4jVersion
+        testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-ntriples', version:rdf4jVersion
+        testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-nquads', version:rdf4jVersion
+        testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-shacl', version:rdf4jVersion
+        testFixturesImplementation 'org.apache.commons:commons-collections4:4.5.0'
     }
 
     jacoco {
-        toolVersion = "0.8.12"
+        toolVersion = "0.8.15"
     }
     jacocoTestReport {
         reports {
@@ -84,8 +117,10 @@ subprojects {
         }
     }
 
-    targetCompatibility = rootProject.ext.javaVersion
-    sourceCompatibility = rootProject.ext.javaVersion
+    java {
+        targetCompatibility = rootProject.ext.javaVersion
+        sourceCompatibility = rootProject.ext.javaVersion
+    }
 
     jar {
         reproducibleFileOrder = true
@@ -101,34 +136,38 @@ subprojects {
     }
 
     test {
-        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED")
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "-XX:+EnableDynamicAgentLoading")
         useJUnitPlatform()
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
+            showExceptions = true
+            exceptionFormat = "full"
+            showCauses = true
+            showStackTraces = true
 
             showStandardStreams = false
         }
     }
-    test.dependsOn ":backend:initDatabase"
+
+    tasks.withType(Test).configureEach { rootProject.ext.forwardDotenvAsEnvironment(it) }
+    tasks.withType(JavaExec).configureEach { rootProject.ext.forwardDotenvAsSystemProperties(it) }
+
+    test.dependsOn ":backend:molgenis-emx2-sql:initDatabase"
 
     tasks.register('testFast', Test) {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
         useJUnitPlatform {
             excludeTags "slow"
         }
-        failFast true
+        failFast = true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
+            showExceptions = true
+            exceptionFormat = "full"
+            showCauses = true
+            showStackTraces = true
 
             showStandardStreams = false
         }
@@ -138,39 +177,31 @@ subprojects {
         useJUnitPlatform {
             excludeTags "windowsFail"
         }
-        failFast true
+        failFast = true
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
 
-            showExceptions true
-            exceptionFormat "full"
-            showCauses true
-            showStackTraces true
+            showExceptions = true
+            exceptionFormat = "full"
+            showCauses = true
+            showStackTraces = true
 
             showStandardStreams = false
         }
     }
 }
 
+/* have webapi tests run after all other modules (starts web service, needs exclusive DB access) */
+project(":backend:molgenis-emx2-webapi").test.dependsOn subprojects.findAll {
+    it != project(":backend:molgenis-emx2-webapi") && it != project(":backend:molgenis-emx2-nonparallel-tests")
+}.collect { ":backend:${it.name}:test" }
+
 /* have the non-parallel test package run last*/
 project(":backend:molgenis-emx2-nonparallel-tests").test.dependsOn subprojects.findAll { it != project(":backend:molgenis-emx2-nonparallel-tests") }.collect { ":backend:${it.name}:test" }
 
-/* task to init database */
-task initDatabase(type: JavaExec, dependsOn: ':backend:molgenis-emx2-sql:compileJava') {
-    main = 'org.molgenis.emx2.sql.InitDatabase'
-    classpath = project("molgenis-emx2-sql").sourceSets.test.runtimeClasspath
-    def outputFile = file("$buildDir/initDatabase.txt")
-    doLast {
-        //for caching purposes
-        outputFile.text = "This is the output of the runMainClass task."
-    }
-    outputs.file(outputFile)
-    outputs.upToDateWhen { outputFile.exists() }
-}
-
 /* generate java test coverage report*/
 test.dependsOn subprojects.test
-task jacocoMergedReport(type: JacocoReport) {
+tasks.register('jacocoMergedReport', JacocoReport) {
     dependsOn test
     additionalSourceDirs.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)
     sourceDirectories.setFrom files(subprojects.sourceSets.main.allSource.srcDirs)

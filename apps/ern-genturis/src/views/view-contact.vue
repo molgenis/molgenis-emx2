@@ -1,10 +1,16 @@
+<script setup lang="ts">
+// @ts-ignore
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+import Address from "../components/Address.vue";
+</script>
+
 <template>
   <Page id="page-contact-us">
     <PageHeader
       class="genturis-header"
       title="ERN Genturis Registry"
       subtitle="Contact Us"
-      imageSrc="genturis-carousel.jpg"
+      imageSrc="img/genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
     />
@@ -21,11 +27,7 @@
         <a href="mailto:genturis-registry@umcg.nl">genturis-registry@umcg.nl</a>
         or at the following address.
       </p>
-      <GenturisAddress :centerText="true" />
+      <Address :show-email="true" />
     </PageSection>
   </Page>
 </template>
-
-<script setup>
-import { Page, PageHeader, PageSection } from "molgenis-viz";
-</script>

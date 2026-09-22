@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(':backend:molgenis-emx2')
+    implementation project(':backend:molgenis-emx2-beacon-v2')
+    implementation project(':backend:molgenis-emx2-sql')
+    implementation project(':backend:molgenis-emx2-datamodels')
+    implementation project(':backend:molgenis-emx2-graphql')
+    testImplementation testFixtures(project(':backend:molgenis-emx2-datamodels'))
+}

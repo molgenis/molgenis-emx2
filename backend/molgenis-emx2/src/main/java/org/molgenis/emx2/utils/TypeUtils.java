@@ -1,6 +1,6 @@
 package org.molgenis.emx2.utils;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -19,6 +19,8 @@ import org.jooq.types.YearToSecond;
 import org.molgenis.emx2.*;
 
 public class TypeUtils {
+  private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
+
   private static final String LOOSE_PARSER_FORMAT =
       "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSSSS][.SSSSSSS][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
@@ -137,10 +139,10 @@ public class TypeUtils {
       if (value == null) {
         return null; // NOSONAR
       }
-      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value)) {
+      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || value.equals("1")) {
         return true;
       }
-      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value)) {
+      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || value.equals("0")) {
         return false;
       }
     }
@@ -156,17 +158,30 @@ public class TypeUtils {
   }
 
   public static Double toDecimal(Object v) {
-    if (v == null) return null;
-    if (v instanceof String string) {
-      if ("".equals(string)) {
+    switch (v) {
+      case null -> {
         return null;
-      } else {
-        return Double.parseDouble(string);
+      }
+      case String string -> {
+        if (string.isBlank()) {
+          return null;
+        } else {
+          return Double.parseDouble(string);
+        }
+      }
+      case BigDecimal bigDecimal -> {
+        return bigDecimal.doubleValue();
+      }
+      case Integer integer -> {
+        return Double.valueOf(integer);
+      }
+      case Long decimal -> {
+        return Double.valueOf(decimal);
+      }
+      default -> {
+        return (Double) v;
       }
     }
-    if (v instanceof BigDecimal bigDecimal) return bigDecimal.doubleValue();
-    if (v instanceof Integer integer) return Double.valueOf(integer);
-    return (Double) v;
   }
 
   public static Double[] toDecimalArray(Object v) {
@@ -249,37 +264,31 @@ public class TypeUtils {
 
   public static JSONB toJsonb(Object v) {
     if (v == null) return null;
+    if (v instanceof JSONB) { // Ensures JSONB is validated
+      v = v.toString();
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
-        return org.jooq.JSONB.valueOf(value);
+        try {
+          v = objectMapper.getReader().readTree(value);
+        } catch (Exception e) {
+          throw new MolgenisException("Invalid json", e);
+        }
       } else {
         return null;
       }
     }
-    return (JSONB) v;
+    if (v instanceof JsonNode) {
+      return org.jooq.JSONB.valueOf(objectMapper.validate((JsonNode) v).toString());
+    }
+
+    // Other input is invalid (no casting due to ensuring validateJson() is executed).
+    throw new ClassCastException("Cannot cast '" + v.toString() + "' to JSONB");
   }
 
   public static JSONB[] toJsonbArray(Object v) {
-    // non standard so not using the generic function
-    if (v == null) return null; // NOSONAR
-    if (v instanceof String) {
-      String value = toString(v);
-      if (value != null) {
-        v = List.of(JSONB.valueOf(value));
-      } else {
-        return null;
-      }
-    }
-    if (v instanceof String[]) {
-      v = toStringArray(v);
-    }
-    if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
-    if (v instanceof Object[]) v = List.of((Object[]) v);
-    if (v instanceof List) {
-      return ((List<Object>) v).stream().map(TypeUtils::toJsonb).toArray(JSONB[]::new);
-    }
-    return (JSONB[]) v;
+    return (JSONB[]) processArray(v, TypeUtils::toJsonb, JSONB[]::new, JSONB.class);
   }
 
   public static String toText(Object v) {
@@ -310,17 +319,20 @@ public class TypeUtils {
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {
+    if (columnType.isArray()) return columnType;
     return switch (columnType.getBaseType()) {
       case UUID -> ColumnType.UUID_ARRAY;
       case STRING -> ColumnType.STRING_ARRAY;
       case BOOL -> ColumnType.BOOL_ARRAY;
       case INT -> ColumnType.INT_ARRAY;
+      case NON_NEGATIVE_INT -> ColumnType.NON_NEGATIVE_INT_ARRAY;
+      case LONG -> ColumnType.LONG_ARRAY;
       case DECIMAL -> ColumnType.DECIMAL_ARRAY;
       case TEXT -> ColumnType.TEXT_ARRAY;
       case DATE -> ColumnType.DATE_ARRAY;
       case DATETIME -> ColumnType.DATETIME_ARRAY;
       case PERIOD -> ColumnType.PERIOD_ARRAY;
-      case JSONB -> ColumnType.JSONB_ARRAY;
+      case JSON -> ColumnType.STRING_ARRAY; // only used for filters
       default ->
           throw new UnsupportedOperationException(
               "Unsupported array columnType found:" + columnType);
@@ -340,19 +352,26 @@ public class TypeUtils {
   }
 
   private static List<String> splitCsvString(String value) {
-    // thanks stackoverflow
     ArrayList<String> result = new ArrayList<>();
     boolean notInsideComma = true;
     int start = 0;
-    for (int i = 0; i < value.length() - 1; i++) {
+    for (int i = 0; i < value.length(); i++) {
       if (value.charAt(i) == ',' && notInsideComma) {
         String v = trimQuotes(value.substring(start, i));
-        if (!"".equals(v)) result.add(v != null ? v.trim() : null);
+        if (v != null && !v.trim().isEmpty()) {
+          result.add(v.trim());
+        }
         start = i + 1;
-      } else if (value.charAt(i) == '"') notInsideComma = !notInsideComma;
+      } else if (value.charAt(i) == '"') {
+        notInsideComma = !notInsideComma;
+      }
     }
-    String v = trimQuotes(value.substring(start));
-    if (v != null && !"".equals(v)) result.add(v.trim());
+    if (start < value.length()) {
+      String v = trimQuotes(value.substring(start));
+      if (v != null && !v.trim().isEmpty()) {
+        result.add(v.trim());
+      }
+    }
     return result;
   }
 
@@ -371,9 +390,8 @@ public class TypeUtils {
       case FILE -> SQLDataType.BINARY;
       case UUID -> SQLDataType.UUID;
       case UUID_ARRAY -> SQLDataType.UUID.getArrayDataType();
-      case STRING, EMAIL, HYPERLINK -> SQLDataType.VARCHAR(255);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY ->
-          SQLDataType.VARCHAR(255).getArrayDataType();
+      case STRING -> SQLDataType.VARCHAR(255);
+      case STRING_ARRAY -> SQLDataType.VARCHAR(255).getArrayDataType();
       case INT -> SQLDataType.INTEGER;
       case INT_ARRAY -> SQLDataType.INTEGER.getArrayDataType();
       case LONG -> SQLDataType.BIGINT;
@@ -391,8 +409,8 @@ public class TypeUtils {
       case PERIOD -> SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter());
       case PERIOD_ARRAY ->
           SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
-      case JSONB -> SQLDataType.JSONB;
-      case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
+      case JSON -> SQLDataType.JSONB;
+
       default ->
           // should never happen
           throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
@@ -403,8 +421,8 @@ public class TypeUtils {
     return switch (columnType.getBaseType()) {
       case UUID -> TypeUtils.toUuid(v);
       case UUID_ARRAY -> TypeUtils.toUuidArray(v);
-      case STRING, EMAIL, HYPERLINK -> TypeUtils.toString(v);
-      case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> TypeUtils.toStringArray(v);
+      case STRING, FILE -> TypeUtils.toString(v);
+      case STRING_ARRAY -> TypeUtils.toStringArray(v);
       case BOOL -> TypeUtils.toBool(v);
       case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
       case INT -> TypeUtils.toInt(v);
@@ -421,8 +439,8 @@ public class TypeUtils {
       case DATETIME_ARRAY -> TypeUtils.toDateTimeArray(v);
       case PERIOD -> TypeUtils.toPeriod(v);
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
-      case JSONB -> TypeUtils.toJsonb(v);
-      case JSONB_ARRAY -> TypeUtils.toJsonbArray(v);
+      case JSON -> TypeUtils.toJsonb(v);
+
       default ->
           throw new UnsupportedOperationException(
               "Unsupported columnType columnType found:" + columnType);
@@ -486,29 +504,26 @@ public class TypeUtils {
     }
   }
 
-  public static Iterable<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
+  public static List<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
+    return convertToRows(metadata, map, false);
+  }
+
+  public static List<Row> convertToPrimaryKeyRows(
+      TableMetadata metadata, List<Map<String, Object>> map) {
+    return convertToRows(metadata, map, true);
+  }
+
+  private static List<Row> convertToRows(
+      TableMetadata metadata, List<Map<String, Object>> map, boolean primaryKeyOnly) {
     List<Row> rows = new ArrayList<>();
-    for (Map<String, Object> object : map) {
+    for (Map<String, Object> field : map) {
       Row row = new Row();
-      for (Column column : metadata.getColumns()) {
-        if (object.containsKey(column.getIdentifier())) {
-          if (column.isRef()) {
-            convertRefToRow((Map<String, Object>) object.get(column.getIdentifier()), row, column);
-          } else if (column.isReference()) {
-            // REFBACK, REF_ARRAY
-            convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getIdentifier()), row, column);
-          } else if (column.isFile()) {
-            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getIdentifier());
-            if (bfw == null || !bfw.isSkip()) {
-              // also necessary in case of 'null' to ensure all file metadata fields are made empty
-              // skip is used when use submitted only metadata (that they received in query)
-              row.setBinary(
-                  column.getName(), (BinaryFileWrapper) object.get(column.getIdentifier()));
-            }
-          } else {
-            row.set(column.getName(), object.get(column.getIdentifier()));
-          }
+      List<Column> columns =
+          primaryKeyOnly ? metadata.getPrimaryKeyColumns() : metadata.getColumns();
+      for (Column column : columns) {
+        if (field.containsKey(column.getIdentifier())) {
+          Object fieldValue = field.get(column.getIdentifier());
+          addFieldObjectToRow(column, fieldValue, row);
         }
       }
       rows.add(row);
@@ -516,16 +531,32 @@ public class TypeUtils {
     return rows;
   }
 
-  protected static void convertRefArrayToRow(
-      List<Map<String, Object>> list, Row row, Column column) {
+  public static void addFieldObjectToRow(Column column, Object object, Row row) {
+    if (column.isRef()) {
+      convertRefToRow((Map<String, Object>) object, row, column);
+    } else if (column.isReference()) {
+      // REFBACK, REF_ARRAY
+      convertRefArrayToRow((List<Map<String, Object>>) object, row, column);
+    } else if (column.isFile()) {
+      BinaryFileWrapper bfw = (BinaryFileWrapper) object;
+      if (bfw == null || !bfw.isSkip()) {
+        // also necessary in case of 'null' to ensure all file metadata fields are made empty
+        // skip is used when use submitted only metadata (that they received in query)
+        row.setBinary(column.getName(), (BinaryFileWrapper) object);
+      }
+    } else {
+      row.set(column.getName(), object);
+    }
+  }
 
+  public static void convertRefArrayToRow(List<Map<String, Object>> list, Row row, Column column) {
     List<Reference> refs = column.getReferences();
     for (Reference ref : refs) {
       if (!ref.isOverlapping()) {
-        if (!list.isEmpty()) {
-          row.set(ref.getName(), getRefValueFromList(ref.getPath(), list));
+        if (list == null || list.isEmpty()) {
+          row.set(ref.getColumnName(), null);
         } else {
-          row.set(ref.getName(), new ArrayList<>());
+          row.set(ref.getColumnName(), getRefValueFromList(ref.getPath(), list));
         }
       }
     }
@@ -556,14 +587,14 @@ public class TypeUtils {
     }
   }
 
-  protected static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
+  public static void convertRefToRow(Map<String, Object> map, Row row, Column column) {
     for (Reference ref : column.getReferences()) {
       if (!ref.isOverlapping()) {
-        String name = ref.getName();
+        String name = ref.getColumnName();
         if (map == null) {
           row.set(name, null);
         } else {
-          row.set(ref.getName(), getRefValueFromMap(ref.getPath(), map));
+          row.set(ref.getColumnName(), getRefValueFromMap(ref.getPath(), map));
         }
       }
     }

@@ -6,7 +6,12 @@
         v-if="showHeaderIfNeeded"
         class="form-inline justify-content-between mb-2 bg-white"
       >
-        <InputSearch id="input-search" v-if="tableId" v-model="searchTerms" />
+        <InputSearch
+          id="input-search"
+          v-if="tableId"
+          v-model="searchTerms"
+          ref="inputSearch"
+        />
         <Pagination class="ml-2" v-model="page" :limit="limit" :count="count" />
       </form>
       <Spinner v-if="loading" />
@@ -27,7 +32,7 @@
           </template>
           <template v-slot:rowcolheader>
             <RowButtonAdd
-              v-if="canEdit"
+              v-if="canInsert ?? canEdit"
               :id="'row-button-add-' + tableId"
               :tableId="tableId"
               :schemaId="schemaId"
@@ -53,7 +58,7 @@
               :rowKey="slotProps.rowKey"
             />
             <RowButtonEdit
-              v-if="canEdit"
+              v-if="canUpdate ?? canEdit"
               :id="'row-button-edit-' + tableId"
               :tableId="tableId"
               :schemaId="schemaId"
@@ -62,7 +67,7 @@
               class="text-left"
             />
             <RowButtonDelete
-              v-if="canEdit"
+              v-if="canDelete ?? canEdit"
               :id="'row-button-del-' + tableId"
               :tableId="tableId"
               :tableLabel="tableMetadata.label"
@@ -128,6 +133,9 @@ export default {
       type: Boolean,
       default: false,
     },
+    canInsert: { default: false },
+    canUpdate: { default: false },
+    canDelete: { default: false },
     filter: {
       type: Object,
       required: false,
@@ -160,12 +168,15 @@ export default {
   methods: {
     select(value: IRow) {
       this.$emit("select", value);
+      (this.$refs.inputSearch as typeof InputSearch).clearInput();
     },
     selectNew(value: IRow) {
       this.$emit("update:newRow", value);
+      (this.$refs.inputSearch as typeof InputSearch).clearInput();
     },
     deselect(value: IRow) {
       this.$emit("deselect", value);
+      (this.$refs.inputSearch as typeof InputSearch).clearInput();
     },
     async loadData() {
       this.loading = true;
