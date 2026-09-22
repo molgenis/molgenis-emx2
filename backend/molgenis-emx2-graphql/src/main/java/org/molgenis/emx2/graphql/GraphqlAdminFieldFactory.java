@@ -70,6 +70,11 @@ public class GraphqlAdminFieldFactory {
                   .name(PERMISSIONS)
                   .type(GraphQLList.list(outputPermissionType))
                   .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(USERS)
+                  .type(GraphQLList.list(Scalars.GraphQLString))
+                  .build())
           .build();
 
   // retrieve user list, user count
@@ -123,6 +128,7 @@ public class GraphqlAdminFieldFactory {
   }
 
   private static List<Map<String, Object>> getSchemaRoles(Database db) {
+    Map<String, List<String>> usersPerRole = getUsersPerRole(db.loadUserRoles());
     List<Map<String, Object>> result = new ArrayList<>();
     for (String schemaName : db.getSchemaNames()) {
       for (Role role : db.getSchema(schemaName).getRoleInfos()) {
@@ -133,10 +139,21 @@ public class GraphqlAdminFieldFactory {
         schemaRole.put(SCHEMA_ID, schemaName);
         schemaRole.put(ROLE_NAME, role.name());
         schemaRole.put(PERMISSIONS, permissionsToList(role));
+        schemaRole.put(USERS, usersPerRole.getOrDefault(schemaName + "/" + role.name(), List.of()));
         result.add(schemaRole);
       }
     }
     return result;
+  }
+
+  private static Map<String, List<String>> getUsersPerRole(List<Member> members) {
+    Map<String, List<String>> usersPerRole = new LinkedHashMap<>();
+    for (Member member : members) {
+      usersPerRole
+          .computeIfAbsent(member.getRole(), role -> new ArrayList<>())
+          .add(member.getUser());
+    }
+    return usersPerRole;
   }
 
   private static Object getUsers(SelectedField selectedField, Database db) {

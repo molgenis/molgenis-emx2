@@ -1,6 +1,6 @@
 import { $fetch } from "ofetch";
-import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
 import type { SchemaRole } from "../../../tailwind-components/types/types";
+import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
 
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
@@ -81,7 +81,7 @@ export async function getRoles(schemas: SchemaInfo[]): Promise<string[]> {
     });
 }
 
-export async function getSchemas() {
+export function getSchemas() {
   return $fetch<{ data: { _schemas: SchemaInfo[] } }>(API_GRAPHQL, {
     method: "post",
     body: {
@@ -115,24 +115,7 @@ export async function getUsers() {
     });
 }
 
-export async function getSchemaPermissions() {
-  return $fetch<AdminResponse>(API_GRAPHQL, {
-    method: "post",
-    body: {
-      query: `{ _admin { schemaRoles { schemaId, roleName, users, permissions { table, select, insert, update, delete, isRowLevel } } } }`,
-    },
-  })
-    .then((response) => {
-      const schemaRoles: SchemaRole[] = response?.data._admin.schemaRoles || [];
-      return schemaRoles;
-    })
-    .catch((error) => {
-      handleError("Error loading schema permissions: ", error.value);
-      return [];
-    });
-}
-
-function buildUsers(dataUsers: User[]) {
+function buildUsers(dataUsers: User[]): User[] {
   return dataUsers.map((user) => {
     return { ...user, tokens: getTokens(user) };
   });

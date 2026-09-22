@@ -3,7 +3,7 @@
     <ContentBlock
       class="w-full mt-3"
       title="User management"
-      :description="`${userCount} users found`"
+      :description="`${adminSettings.userCount} users found`"
     >
       <Button
         icon="plus"
@@ -26,7 +26,7 @@
           </TableHeadRow>
         </template>
         <template #body>
-          <TableRow v-for="user in users">
+          <TableRow v-for="user in adminSettings.users">
             <TableCell>
               <div class="flex gap-1">
                 <Button
@@ -35,7 +35,7 @@
                   type="secondary"
                   size="small"
                   :label="`Edit user: ${user.email}`"
-                  @click="editUser(user)"
+                  @click="openEditUserModal(user)"
                 />
                 <Button
                   v-if="canDelete(user)"
@@ -81,7 +81,7 @@
                 <Button
                   type="secondary"
                   size="tiny"
-                  @click="manageTokens(user)"
+                  @click="openManageTokensModal(user)"
                 >
                   {{ user.tokens?.length }} tokens
                 </Button>
@@ -94,7 +94,7 @@
         v-if="showNewUserModal"
         v-model:visible="showNewUserModal"
         :usernames="usernames"
-        @addUser="addUser"
+        @addUser="adminSettings.addUser"
       />
 
       <EditUserModal
@@ -103,21 +103,21 @@
         :schemas="schemas"
         :roles="roles"
         :user="selectedUser"
-        @userUpdated="retrieveUsers"
+        @userUpdated="adminSettings.retrieveUsers"
       />
 
       <DeleteUserConfirmation
         v-if="selectedUser && showDeleteUserModal"
         v-model:visible="showDeleteUserModal"
         :user="selectedUser"
-        @deleteUser="removeUser(selectedUser)"
+        @deleteUser="adminSettings.removeUser(selectedUser)"
       />
 
       <TokenManagement
         v-if="selectedUser && showTokenModal"
         v-model:visible="showTokenModal"
         :user="selectedUser"
-        @userUpdated="retrieveUsers"
+        @userUpdated="adminSettings.retrieveUsers"
       />
     </ContentBlock>
   </Container>
@@ -140,14 +140,9 @@ import DeleteUserConfirmation from "../../components/DeleteUserConfirmation.vue"
 import EditUserModal from "../../components/EditUserModal.vue";
 import NewUserModal from "../../components/NewUserModal.vue";
 import TokenManagement from "../../components/TokenManagement.vue";
+import useAdminSettings from "../../composables/useAdminSettings.ts";
 import type { SchemaInfo, User } from "../../interfaces/interfaces.ts";
-import {
-  createUser,
-  deleteUser,
-  getRoles,
-  getSchemas,
-  getUsers,
-} from "../../util/adminUtils";
+import { getRoles, getSchemas } from "../../util/adminUtils";
 
 /**
  * Todo:
@@ -162,7 +157,6 @@ definePageMeta({
   middleware: "admin-only",
 });
 
-const LIMIT = 100;
 const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const showTokenModal = ref(false);
@@ -170,47 +164,26 @@ const showDeleteUserModal = ref(false);
 const selectedUser = ref<User | null>(null);
 
 const currentPage = ref(1);
-const users = ref<User[]>([]);
-const userCount = ref(0);
-const totalPages = ref(0);
 const schemas = ref<SchemaInfo[]>([]);
 const roles = ref<string[]>([]);
 const schema = ref<string>("");
 
-retrieveUsers();
+const adminSettings = useAdminSettings();
+
 schemas.value = await getSchemas();
 schema.value = schemas.value[0]?.id || "";
 roles.value = await getRoles(schemas.value);
 
 const usernames = computed(() => {
-  return users.value.map((user) => user.email);
+  return adminSettings.users.map((user: User) => user.email);
 });
 
-async function addUser(userName: string, password: string) {
-  await createUser(userName, password);
-  retrieveUsers();
-}
-
-function updateCurrentPage(newPage: number) {
+async function updateCurrentPage(newPage: number) {
   currentPage.value = newPage;
-  retrieveUsers();
+  await adminSettings.retrieveUsers(newPage);
 }
 
-async function retrieveUsers() {
-  const { newUsers, newUserCount } = await getUsers();
-  users.value = newUsers;
-  userCount.value = newUserCount;
-  const divided = userCount.value / LIMIT;
-  totalPages.value =
-    userCount.value % LIMIT > 0 ? Math.floor(divided) + 1 : divided;
-}
-
-async function removeUser(user: User) {
-  await deleteUser(user);
-  await retrieveUsers();
-}
-
-function editUser(user: User) {
+function openEditUserModal(user: User) {
   selectedUser.value = user;
   showEditUserModal.value = true;
 }
@@ -220,7 +193,7 @@ function showDeleteUserConfirmation(user: User) {
   showDeleteUserModal.value = true;
 }
 
-function manageTokens(user: User) {
+function openManageTokensModal(user: User) {
   selectedUser.value = user;
   showTokenModal.value = true;
 }
