@@ -3,7 +3,6 @@ package org.molgenis.emx2.fairmapper.client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
@@ -34,7 +33,6 @@ class GraphqlSchemaMetadataProviderTest extends ApiTestBase {
   }
 
   @Test
-  @Disabled("One fails because the schema is cached?")
   void shouldGetSchemaMetaData() {
     SchemaMetadata retrieved = schemaMetadataProvider.getSchemaMetadata(SCHEMA_NAME);
     org.molgenis.emx2.json.Schema actual = new org.molgenis.emx2.json.Schema(retrieved);

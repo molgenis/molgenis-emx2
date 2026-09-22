@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -60,6 +61,11 @@ public abstract class ApiTestBase {
     // set default rest assured settings
     RestAssured.port = port;
     RestAssured.baseURI = "http://localhost";
+  }
+
+  @BeforeEach
+  void setUp() {
+    ApplicationCachePerUser.getInstance().clearAllCaches();
   }
 
   static MolgenisWebservice startWebservice() throws Exception {
