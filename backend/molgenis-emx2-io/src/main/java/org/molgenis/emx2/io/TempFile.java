@@ -25,7 +25,7 @@ public class TempFile implements AutoCloseable {
   }
 
   public TempFile(String filename) throws IOException {
-    tmpDir = Files.createTempDirectory(TMP_DIR_PREFIX);
+    tmpDir = Files.createTempDirectory(TMP_DIR_PREFIX); // NOSONAR
     tmpFile = tmpDir.resolve(filename);
   }
 
