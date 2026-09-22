@@ -1,14 +1,10 @@
 import { reactive, ref } from "vue";
-import {
-  createUser,
-  deleteUser,
-  getUsers,
-  type IUser,
-} from "../util/adminUtils";
+import type { User } from "../interfaces/interfaces";
+import { createUser, deleteUser, getUsers } from "../util/adminUtils";
 
 const LIMIT = 100;
 
-const users = ref<IUser[]>([]);
+const users = ref<User[]>([]);
 const userCount = ref(0);
 
 export default function useAdminSettings() {
@@ -30,7 +26,7 @@ export default function useAdminSettings() {
     retrieveUsers();
   }
 
-  async function removeUser(user: IUser) {
+  async function removeUser(user: User) {
     await deleteUser(user);
     await retrieveUsers();
   }
