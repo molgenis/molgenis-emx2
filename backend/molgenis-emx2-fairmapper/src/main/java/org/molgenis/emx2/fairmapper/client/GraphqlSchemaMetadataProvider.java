@@ -11,6 +11,8 @@ import org.molgenis.emx2.json.JsonUtil;
 
 public class GraphqlSchemaMetadataProvider implements SchemaMetadataProvider {
 
+  private static final String SCHEMA_FIELD = "_schema";
+
   private final GraphqlClient client;
 
   public GraphqlSchemaMetadataProvider(GraphqlClient client) {
@@ -21,17 +23,18 @@ public class GraphqlSchemaMetadataProvider implements SchemaMetadataProvider {
   public SchemaMetadata getSchemaMetadata(String schemaName) {
     String query = readFile("schema-query.graphql");
     JsonNode result = client.sendSchemaQuery(schemaName, query);
-    if (!result.has("_schema")) {
+    if (!result.has(SCHEMA_FIELD)) {
       throw new MolgenisException("No schema returned in graphql response: " + result);
     }
 
     try {
-      SchemaMetadata schema = JsonUtil.jsonToSchema(result.get("_schema").toString());
+      SchemaMetadata schema = JsonUtil.jsonToSchema(result.get(SCHEMA_FIELD).toString());
       schema.setSchemaMetadataProvider(this);
       schema.setName(schemaName);
       return schema;
     } catch (IOException e) {
-      throw new MolgenisException("Unable to map query result to SchemaMetaData", e);
+      throw new MolgenisException(
+          "Unable to map query result to SchemaMetaData: " + result.get(SCHEMA_FIELD), e);
     }
   }
 
