@@ -2,7 +2,7 @@ import { reactive, ref } from "vue";
 import type { User } from "../interfaces/interfaces";
 import { createUser, deleteUser, getUsers } from "../util/adminUtils";
 
-const LIMIT = 100;
+const LIMIT = 10;
 
 const users = ref<User[]>([]);
 const userCount = ref(0);
@@ -13,7 +13,7 @@ export default function useAdminSettings() {
   retrieveUsers();
 
   async function retrieveUsers(currentPage: number = 1) {
-    const { newUsers, newUserCount } = await getUsers();
+    const { newUsers, newUserCount } = await getUsers(currentPage, LIMIT);
     users.value = newUsers;
     userCount.value = newUserCount;
     const divided = userCount.value / LIMIT;
