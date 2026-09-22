@@ -3,15 +3,15 @@ dependencies {
     implementation project(':backend:molgenis-emx2-graphql')
     implementation project(':backend:molgenis-emx2-sql')
 
-    implementation('org.eclipse.rdf4j:rdf4j-sparqlbuilder:5.3.2')
-    implementation("org.eclipse.rdf4j:rdf4j-queryresultio-text:5.3.2")
+    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-sparqlbuilder', version:rdf4jVersion
+    implementation group: 'org.eclipse.rdf4j', name:'rdf4j-queryresultio-text', version:rdf4jVersion
 
     testImplementation project(':backend:molgenis-emx2-io')
     testImplementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-datamodels')
 
-    testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-sparqlbuilder:5.3.2'
-    testFixturesImplementation "org.eclipse.rdf4j:rdf4j-queryresultio-text:5.3.2"
+    testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-sparqlbuilder', version:rdf4jVersion
+    testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-queryresultio-text', version:rdf4jVersion
     testFixturesImplementation project(':backend:molgenis-emx2')
 }
 //we use shacls from data folder

@@ -64,12 +64,12 @@ subprojects {
         implementation group: 'org.pac4j', name:'pac4j-core', version:pac4jVersion
         implementation group: 'org.pac4j', name:'pac4j-oidc', version:pac4jVersion
         implementation group: 'org.pac4j', name:'pac4j-http', version:pac4jVersion
-        implementation 'io.javalin:javalin:6.7.0'
-        implementation 'org.pac4j:javalin-pac4j:7.0.0'
+        implementation group: 'io.javalin', name:'javalin', version:javalinVersion
+        implementation group: 'org.pac4j', name:'javalin-pac4j', version:javalinPac4jVersion
         implementation group: 'org.javers', name:'javers-core', version:javersVersion
-        implementation group: 'com.nimbusds', name:'nimbus-jose-jwt', version:nimbusdsVersion
-        implementation 'org.bouncycastle:bcprov-jdk18on:1.85'
-        implementation group: 'com.schibsted.spt.data', name:'jslt', version:schibstedVersion
+        implementation group: 'com.nimbusds', name:'nimbus-jose-jwt', version:nimbusJoseJwtVersion
+        implementation group: 'org.bouncycastle', name:'bcprov-jdk18on', version:bcProvJdk18OnVersion
+        implementation group: 'com.schibsted.spt.data', name:'jslt', version:schibstedJsltVersion
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-api', version:rdf4jVersion
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-jsonld', version:rdf4jVersion
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-turtle', version:rdf4jVersion
@@ -79,12 +79,12 @@ subprojects {
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-ntriples', version:rdf4jVersion
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-nquads', version:rdf4jVersion
         implementation group: 'org.eclipse.rdf4j', name:'rdf4j-shacl', version:rdf4jVersion
-        implementation 'org.eclipse.rdf4j:rdf4j-sail-nativerdf:5.3.2'
+        implementation group: 'org.eclipse.rdf4j', name:'rdf4j-sail-nativerdf', version:rdf4jVersion
 
         // also used outside test
         implementation group: 'org.junit.jupiter', name:'junit-jupiter', version:junitVersion
         testRuntimeOnly group: 'org.junit.jupiter', name:'junit-jupiter-engine', version:junitVersion
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        testRuntimeOnly group: 'org.junit.jupiter', name:'junit-platform-launcher', version:junitVersion
         testImplementation group: 'org.mockito', name:'mockito-core', version:mockitoVersion
         // allows to set environment variables in test
         testImplementation group: 'com.github.stefanbirkner', name:'system-lambda', version:systemLambdaVersion
@@ -103,7 +103,7 @@ subprojects {
         testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-ntriples', version:rdf4jVersion
         testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-rio-nquads', version:rdf4jVersion
         testFixturesImplementation group: 'org.eclipse.rdf4j', name:'rdf4j-shacl', version:rdf4jVersion
-        testFixturesImplementation 'org.apache.commons:commons-collections4:4.5.0'
+        testFixturesImplementation group: 'org.apache.commons', name:'commons-collections4', version:commonsCollectionsVersion
     }
 
     jacoco {

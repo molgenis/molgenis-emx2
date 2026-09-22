@@ -1,12 +1,12 @@
 dependencies {
     implementation group: 'org.postgresql', name:'postgresql', version:postgresqlVersion
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.4'
+    implementation group: 'com.github.ben-manes.caffeine', name:'caffeine', version:caffeineVersion
     implementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-datamodels')
     testImplementation project(':backend:molgenis-emx2-tasks')
-    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8';
+    testImplementation group: 'uk.org.webcompere', name:'system-stubs-jupiter', version:systemStubsJupiterVersion
 }
 
 //tool should be here otherwise requires build of unnecessary modules

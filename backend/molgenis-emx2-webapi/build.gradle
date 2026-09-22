@@ -16,26 +16,27 @@ dependencies {
     implementation group: 'io.swagger.parser.v3', name:'swagger-parser', version:swaggerParserVersion
     implementation group: 'com.squareup.okhttp3', name:'okhttp', version:squareupVersion
     implementation group: 'com.squareup.okhttp3', name:'okhttp-brotli', version:squareupVersion
-    implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
+    implementation group: 'com.github.dfabulich', name:'sitemapgen4j', version:sitemapgen4jVersion
     implementation group: 'de.larsgrefer.sass', name:'sass-embedded-host', version:sassEmbeddedHostVersion
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.4'
+    implementation group: 'com.github.ben-manes.caffeine', name:'caffeine', version:caffeineVersion
 
-    implementation 'io.prometheus:prometheus-metrics-core:1.8.0'
-    implementation 'io.prometheus:prometheus-metrics-instrumentation-jvm:1.8.0'
-    implementation 'io.prometheus:prometheus-metrics-exporter-httpserver:1.8.0'
-    implementation 'io.prometheus:prometheus-metrics-exporter-servlet-jakarta:1.8.0'
+    implementation group: 'io.prometheus', name:'prometheus-metrics-core', version:prometheusVersion
+    implementation group: 'io.prometheus', name:'prometheus-metrics-instrumentation', version:prometheusVersion
+    implementation group: 'io.prometheus', name:'prometheus-metrics-exporter-httpserver', version:prometheusVersion
+    implementation group: 'io.prometheus', name:'prometheus-metrics-exporter-servlet-jakarta', version:prometheusVersion
 
     testImplementation group: 'io.rest-assured', name:'rest-assured', version:restAssuredVersion
     testImplementation group: 'org.apache.poi', name:'poi', version:poiVersion
     testImplementation group: 'org.apache.poi', name:'poi-ooxml', version:poiVersion
     testImplementation group: 'net.lingala.zip4j', name:'zip4j', version:zip4jVersion
-    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.4'
+    testImplementation group: 'uk.org.webcompere', name:'system-stubs-jupiter', version:systemStubsJupiterVersion
+    testImplementation group: 'org.junit.jupiter', name:'junit-jupiter', version:junitVersion
 
     testFixturesApi project(':backend:molgenis-emx2-sql')
     testFixturesApi project(':backend:molgenis-emx2')
-    testFixturesApi 'io.rest-assured:rest-assured:5.5.7'
-    testFixturesImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8'
+    testFixturesApi group: 'io.rest-assured', name:'rest-assured', version:restAssuredVersion
+
+    testFixturesImplementation group: 'uk.org.webcompere', name:'system-stubs-jupiter', version:systemStubsJupiterVersion
 }
 
 tasks.register('dev', JavaExec) {
