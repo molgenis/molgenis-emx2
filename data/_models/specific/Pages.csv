@@ -84,3 +84,10 @@ Component orders,,id,auto_id,1,,,,,,,,,,pages
 Component orders,,block,select,,,Blocks,,,,,,,A block page where a component is used,pages
 Component orders,,component,select,,,Components,,,,,,,The component that you would like to order,pages
 Component orders,,order,int,,,,,,,,,,The order in which the component appears within the block where 0 is the first item,pages
+FileLists,Blocks,,,,,,,,,,,,filelists,pages
+FileLists,,tag,string,,,,,,,,,,Set tag to list all files uploaded with that tag. Leave empty to show files uploaded in this block,pages
+Files,Components,,,,,,,,,,,,file elements,pages
+Files,,label,string,,,,,,,,,,An optional name to display in place of the filename,pages
+Files,,file,file,,,,,,,,,,Select an file,pages
+Files,,tag,string,,,,,,,,,,Group sets of files together,pages
+Files,,external link,string,,,,,,,,,,"Optional, add a tag for use in grouping files",pages

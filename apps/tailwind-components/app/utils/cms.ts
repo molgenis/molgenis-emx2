@@ -414,6 +414,10 @@ export async function addComponent(
     await AddImage(schema, id);
   }
 
+  if (componentType === "File") {
+    await AddFile(schema, id);
+  }
+
   if (componentType === "NavigationCards") {
     await AddNavigationCard(schema, id);
   }
@@ -428,6 +432,7 @@ export async function addBlock(
   order: number,
   componentType: string
 ) {
+  console.log(componentType, "componentType");
   await prepareBlockOrder(schema, order, page);
   if (componentType === "Header") {
     await AddHeader(schema, id);
@@ -441,6 +446,9 @@ export async function addBlock(
   if (componentType === "Section - 3 Columns") {
     await AddSection(schema, id, 3);
   }
+  if (componentType === "FileList") {
+    await AddFileList(schema, id);
+  }
   await AddBlockOrder(schema, id, order, page);
 }
 
@@ -451,6 +459,17 @@ async function AddSection(schema: string, id: string, columns: number = 1) {
     }
   }`;
   const variables = { section: [{ id: `${id}`, columns }] };
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddFileList(schema: string, id: string) {
+  console.log("Adding file list with id:", id);
+  const query = `mutation insert($fileList:[FileListsInput]) {
+    insert(FileLists:$fileList) {
+      message
+    }
+  }`;
+  const variables = { fileList: [{ id: `${id}` }] };
   await cmsFetch(schema, query, variables);
 }
 
@@ -482,6 +501,17 @@ async function AddImage(schema: string, id: string) {
     }
   }`;
   const variables = { image: [{ id: `${id}` }] };
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddFile(schema: string, id: string) {
+  const query = `mutation insert($file:[FilesInput]) {
+    insert(Files:$file) {
+      status
+      message
+    }
+  }`;
+  const variables = { file: [{ id: `${id}` }] };
   await cmsFetch(schema, query, variables);
 }
 

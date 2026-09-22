@@ -12,6 +12,7 @@ import type {
   IComponentOrders,
   IComponents,
   IFile,
+  IFiles,
 } from "./cms.ts";
 
 import type { ITableMetaData } from "../../metadata-utils/src/types.js";
@@ -26,6 +27,7 @@ export interface IPageComponent
     IHeadings,
     IParagraphs,
     IImages,
+    IFiles,
     INavigationCards {}
 
 export interface IContainerMetadata {

@@ -85,6 +85,20 @@ const sidebarCollapsed = ref(false);
           @dragging="handleDragEvent"
         />
         <PageComponent
+          v-if="orderedBlock.block.mg_tableclass.endsWith('.FileLists')"
+          :mg_tableclass="orderedBlock.block.mg_tableclass"
+          :component="orderedBlock.block"
+          :orderId="orderedBlock.id"
+          :order="orderedBlock.order"
+          componentType="Block"
+          :parent="content.name"
+          :page="content.name"
+          :isEditable="isEditable"
+          :metadata="metadata"
+          @updatePage="$emit('updatePage')"
+          @dragging="handleDragEvent"
+        />
+        <PageComponent
           v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
           :mg_tableclass="orderedBlock.block.mg_tableclass"
           :component="orderedBlock.block"

@@ -1,4 +1,4 @@
-// Generated (on: 2026-09-14T10:35:25.301382) from Generator.java for schema: cms
+// Generated (on: 2026-09-22T14:16:10.280051) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -7,6 +7,7 @@ export interface IMgTableClass {
 export interface IFile {
   id?: string;
   size?: number;
+  filename?: string;
   extension?: string;
   url?: string;
 }
@@ -43,6 +44,7 @@ export interface IBlocks extends IMgTableClass {
   components?: IComponents[];
   componentOrder?: IComponentOrders[];
   id: string;
+  tag?: string;
   title?: string;
   subtitle?: string;
   backgroundImage?: any;
@@ -69,6 +71,10 @@ export interface IComponentOrders_agg {
 export interface IComponents extends IMgTableClass {
   inBlock?: any;
   id: string;
+  label?: string;
+  file?: IFile;
+  tag?: string;
+  externalLink?: string;
   displayName?: string;
   image?: IFile;
   alt?: string;
@@ -168,6 +174,32 @@ export interface IDeveloperPages extends IMgTableClass {
 }
 
 export interface IDeveloperPages_agg {
+  count: number;
+}
+
+export interface IFileLists extends IMgTableClass {
+  enableFullScreenWidth?: boolean;
+  inContainer?: any;
+  components?: IComponents[];
+  componentOrder?: IComponentOrders[];
+  id: string;
+  tag?: string;
+}
+
+export interface IFileLists_agg {
+  count: number;
+}
+
+export interface IFiles extends IMgTableClass {
+  inBlock?: any;
+  id: string;
+  label?: string;
+  file?: IFile;
+  tag?: string;
+  externalLink?: string;
+}
+
+export interface IFiles_agg {
   count: number;
 }
 

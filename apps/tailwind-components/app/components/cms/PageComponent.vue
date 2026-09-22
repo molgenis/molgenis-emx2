@@ -5,6 +5,8 @@ import Banner from "./Banner.vue";
 import Section from "./Section.vue";
 import Heading from "./Heading.vue";
 import Paragraph from "./Paragraph.vue";
+import EditableFileDownloadItem from "./FileDownloadItem/EditableFileDownloadItem.vue";
+import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
 import Image from "./Image.vue";
 import NavigationCardWithActions from "./Navigation/NavigationCardWithActions.vue";
 import { hideAllPoppers } from "floating-vue";
@@ -217,6 +219,27 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     :alt="component.alt"
     :image-is-centered="component.imageIsCentered"
     :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableFileDownload
+    v-else-if="mg_tableclass.endsWith('.FileLists')"
+    :id="component.id"
+    :isEditable="editingIsEnabled"
+    :tag="component.tag"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableFileDownloadItem
+    v-else-if="mg_tableclass.endsWith('.Files')"
+    :id="component.id"
+    :isEditable="editingIsEnabled"
+    :filelabel="component.label"
+    :file="component.file"
+    :tag="component.tag"
+    :externallink="component.externalLink"
     @edit="showEditModal = true"
     @delete="onDelete"
     @move="handleMoveEvent"

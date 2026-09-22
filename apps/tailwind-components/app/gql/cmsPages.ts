@@ -58,6 +58,9 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                     id
                 }
                 titleIsCentered
+
+                # Filelist
+                tag
                 
                 # components
                 componentOrder(orderby: {order:ASC}) {
@@ -91,6 +94,18 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         height
                         imageIsCentered
                         
+                        # Files
+                        file {
+                            id
+                            size
+                            filename
+                            extension
+                            url
+                        }
+                        label
+                        tag
+                        externalLink
+
                         # navigation cards
                         id
                         title
