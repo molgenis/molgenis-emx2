@@ -43,14 +43,20 @@ class DatabaseOntologyMappingFetcherTest {
 
   @Test
   void givenNonExistingSchemaName_thenEmptyMapping() {
-    Map<String, String> actual = mappingFetcher.getMapping("non-existing", "colors");
-    assertTrue(actual.isEmpty());
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class, () -> mappingFetcher.getMapping("non-existing", "colors"));
+    assertEquals("No schema found with name: non-existing", exception.getMessage());
   }
 
   @Test
   void givenNonExistingTableName_thenEmptyMapping() {
-    Map<String, String> actual = mappingFetcher.getMapping(SCHEMA_NAME, "non-existing");
-    assertTrue(actual.isEmpty());
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class, () -> mappingFetcher.getMapping(SCHEMA_NAME, "non-existing"));
+    assertEquals(
+        "No table with name: non-existing found for schema DatabaseOntologyMappingFetcherTest",
+        exception.getMessage());
   }
 
   private void addColor(String name, String semanticTermURI) {
