@@ -34,7 +34,7 @@ public class JsonYamlApi {
   private static void deleteSchemaYAML(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null || !PermissionEvaluator.canManage(schema)) {
-      throw new MolgenisException("Unable to discard YAML schema");
+      throw new MolgenisException("Schema not found or insufficient access");
     }
 
     schema.discard(yamlToSchema(ctx.body()));
@@ -45,7 +45,7 @@ public class JsonYamlApi {
   static void postSchemaYAML(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null || !PermissionEvaluator.canManage(schema)) {
-      throw new MolgenisException("Unable to post schema YAML");
+      throw new MolgenisException("Schema not found or insufficient access");
     }
 
     schema.migrate(yamlToSchema(ctx.body()));
@@ -56,7 +56,7 @@ public class JsonYamlApi {
   static void getSchemaYAML(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null) {
-      throw new MolgenisException("Unable to download schema YAML");
+      throw new MolgenisException("Schema not found or insufficient access");
     }
 
     String json = schemaToYaml(schema.getMetadata(), true);
@@ -72,7 +72,7 @@ public class JsonYamlApi {
   private static void deleteSchemaJSON(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null || !PermissionEvaluator.canManage(schema)) {
-      throw new MolgenisException("Unable to discard schema JSON");
+      throw new MolgenisException("Schema not found or insufficient access");
     }
 
     SchemaMetadata schemaMetadata = jsonToSchema(ctx.body());
@@ -84,7 +84,7 @@ public class JsonYamlApi {
   static void postSchemaJSON(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null || !PermissionEvaluator.canManage(schema)) {
-      throw new MolgenisException("Unable to post schema JSON");
+      throw new MolgenisException("Schema not found or insufficient access");
     }
 
     SchemaMetadata otherSchema = jsonToSchema(ctx.body());
@@ -96,7 +96,7 @@ public class JsonYamlApi {
   static void getSchemaJSON(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null) {
-      throw new MolgenisException("Unable to download schema JSON");
+      throw new MolgenisException("Schema not found or insufficient access");
     }
 
     String json = JsonUtil.schemaToJson(schema.getMetadata(), true);
