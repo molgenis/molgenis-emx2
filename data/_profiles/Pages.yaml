@@ -4,5 +4,3 @@ description: Custom pages for EMX2
 profileTags: pages
 demoData: _demodata/applications/pages
 setViewPermission: anonymous
-ontologiesToFixedSchema: CatalogueOntologies
-setFixedSchemaViewPermission: anonymous
