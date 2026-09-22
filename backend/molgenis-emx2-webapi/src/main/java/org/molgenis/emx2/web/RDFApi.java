@@ -35,7 +35,7 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 
 public class RDFApi {
   private static final String TMP_FILENAME = "download.tmp";
-  private static final String QUERY_STRING_SHACL = "shacl";
+  private static final String QUERY_STRING_SHACLS = "shacls";
   private static final String QUERY_STRING_VALIDATE = "validate";
 
   private static final Map<MediaType, RDFFormat> mediaTypeRdfFormatMap = new HashMap<>();
@@ -95,7 +95,7 @@ public class RDFApi {
   }
 
   private static void databaseHead(Context ctx, RDFFormat format) {
-    if (ctx.queryParam(QUERY_STRING_SHACL) != null) {
+    if (ctx.queryParam(QUERY_STRING_SHACLS) != null) {
       ctx.contentType(ACCEPT_YAML);
     } else {
       setFormat(ctx, format);
@@ -103,7 +103,7 @@ public class RDFApi {
   }
 
   private static void databaseGet(Context ctx, RDFFormat format) throws IOException {
-    if (ctx.queryParam(QUERY_STRING_SHACL) != null) {
+    if (ctx.queryParam(QUERY_STRING_SHACLS) != null) {
       shaclSetsYaml(ctx);
     } else {
       rdfForDatabase(ctx, format);
