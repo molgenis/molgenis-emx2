@@ -15,10 +15,11 @@ import com.google.common.net.MediaType;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.NotAcceptableResponse;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Column;
@@ -171,8 +172,7 @@ public class RDFApi {
     }
   }
 
-  private static void schemaGet(Context ctx, RDFFormat format)
-      throws IOException, NoSuchMethodException {
+  private static void schemaGet(Context ctx, RDFFormat format) throws NoSuchMethodException {
     if (ctx.queryParam("validate") != null) {
       shaclForSchema(ctx, format);
     } else {
@@ -180,30 +180,26 @@ public class RDFApi {
     }
   }
 
-  private static void rdfForSchema(Context ctx, RDFFormat format)
-      throws IOException, NoSuchMethodException {
+  private static void rdfForSchema(Context ctx, RDFFormat format) throws NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
     Schema schema = getSchema(ctx);
     runRdfService(ctx, schema, format, method, schema);
   }
 
-  private static void shaclForSchema(Context ctx, RDFFormat format)
-      throws IOException, NoSuchMethodException {
+  private static void shaclForSchema(Context ctx, RDFFormat format) throws NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
     Schema schema = getSchema(ctx);
     ShaclSet shaclSet = retrieveShaclSet(ctx, sanitize(ctx.queryParam("validate")));
     runRdfValidationService(ctx, schema, format, shaclSet, method, schema);
   }
 
-  private static void rdfForTable(Context ctx, RDFFormat format)
-      throws IOException, NoSuchMethodException {
+  private static void rdfForTable(Context ctx, RDFFormat format) throws NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class);
     Table table = getTableByIdOrName(ctx);
     runRdfService(ctx, table.getSchema(), format, method, table);
   }
 
-  private static void rdfForRow(Context ctx, RDFFormat format)
-      throws IOException, NoSuchMethodException {
+  private static void rdfForRow(Context ctx, RDFFormat format) throws NoSuchMethodException {
     Method method =
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class);
     Table table = getTableByIdOrName(ctx);
@@ -211,8 +207,7 @@ public class RDFApi {
     runRdfService(ctx, table.getSchema(), format, method, table, primaryKey);
   }
 
-  private static void rdfForColumn(Context ctx, RDFFormat format)
-      throws IOException, NoSuchMethodException {
+  private static void rdfForColumn(Context ctx, RDFFormat format) throws NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, Column.class);
     Table table = getTableByIdOrName(ctx);
     Column column = table.getMetadata().getColumn(sanitize(ctx.pathParam("column")));
@@ -224,19 +219,17 @@ public class RDFApi {
       final Schema schema,
       RDFFormat format,
       final Method method,
-      final Object... methodArgs)
-      throws IOException {
+      final Object... methodArgs) {
     format = setFormat(ctx, format);
     String baseUrl = extractBaseURL(ctx);
 
-    Class serviceClass = RdfSchemaService.class;
+    Class<? extends RdfService<RdfApiGenerator>> serviceClass = RdfSchemaService.class;
     Class[] serviceArgClasses =
         new Class[] {String.class, Schema.class, RDFFormat.class, OutputStream.class};
-
-    try (OutputStream out = ctx.outputStream()) {
-      Object[] serviceArgs = new Object[] {baseUrl, schema, format, out};
-      runService(ctx, format, serviceClass, serviceArgClasses, serviceArgs, method, methodArgs);
-    }
+    // serviceArgs[3] (null) is a placeholder
+    Object[] serviceArgs = new Object[] {baseUrl, schema, format, null};
+    runServiceWrapper(
+        ctx, format, serviceClass, serviceArgClasses, serviceArgs, method, methodArgs);
   }
 
   private static void runRdfValidationService(
@@ -245,44 +238,76 @@ public class RDFApi {
       RDFFormat format,
       final ShaclSet shaclSet,
       final Method method,
-      final Object... methodArgs)
-      throws IOException {
+      final Object... methodArgs) {
     format = setFormat(ctx, format);
     String baseUrl = extractBaseURL(ctx);
 
-    Class serviceClass = RdfSchemaValidationService.class;
+    Class<? extends RdfService<RdfApiGenerator>> serviceClass = RdfSchemaValidationService.class;
     Class[] serviceArgClasses =
         new Class[] {
           String.class, Schema.class, RDFFormat.class, OutputStream.class, ShaclSet.class
         };
+    // serviceArgs[3] (null) is a placeholder
+    Object[] serviceArgs = new Object[] {baseUrl, schema, format, null, shaclSet};
+    runServiceWrapper(
+        ctx, format, serviceClass, serviceArgClasses, serviceArgs, method, methodArgs);
+  }
 
-    try (OutputStream out = ctx.outputStream()) {
-      Object[] serviceArgs = new Object[] {baseUrl, schema, format, out, shaclSet};
+  private static void runServiceWrapper(
+      final Context ctx,
+      final RDFFormat format,
+      final Class<? extends RdfService<RdfApiGenerator>> serviceClass,
+      final Class[] serviceArgClasses,
+      final Object[] serviceArgs,
+      final Method method,
+      final Object... methodArgs) {
+    try {
       runService(ctx, format, serviceClass, serviceArgClasses, serviceArgs, method, methodArgs);
+    } catch (IOException e) {
+      throw new MolgenisException("An exception occurred related to IO: " + e.getMessage());
     }
   }
 
   private static void runService(
       final Context ctx,
       final RDFFormat format,
-      final Class<? extends RdfService> serviceClass,
+      final Class<? extends RdfService<RdfApiGenerator>> serviceClass,
       final Class[] serviceArgClasses,
       final Object[] serviceArgs,
       final Method method,
-      final Object... methodArgs) {
-    ctx.contentType(format.getDefaultMIMEType());
+      final Object... methodArgs)
+      throws IOException {
+    Path tmpDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    Path tmpFile = tmpDir.resolve("download." + format.getDefaultFileExtension());
 
-    try (RdfService<?> rdfService =
-        serviceClass.getConstructor(serviceArgClasses).newInstance(serviceArgs)) {
-      method.invoke(rdfService.getGenerator(), methodArgs);
-    } catch (InvocationTargetException
-        | IllegalAccessException
-        | InstantiationException
-        | NoSuchMethodException e) {
-      // Any exceptions thrown should purely be due to bugs in this specific code.
-      String errMsg = "Failed to set up the correct RdfService: ";
-      logger.error(errMsg, e);
-      throw new RuntimeException(errMsg + e.getCause());
+    try {
+      try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tmpFile.toFile()))) {
+        serviceArgs[3] = out;
+        try (RdfService<RdfApiGenerator> rdfService =
+            serviceClass.getConstructor(serviceArgClasses).newInstance(serviceArgs)) {
+          method.invoke(rdfService.getGenerator(), methodArgs);
+        } catch (InvocationTargetException e) {
+          String errMsg = "An error occurred while running the RdfService: ";
+          logger.error(errMsg, e);
+          throw new MolgenisException(errMsg + e.getCause());
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException e) {
+          // Any exceptions thrown should purely be due to bugs in this specific code.
+          String errMsg = "Failed to set up the correct RdfService: ";
+          logger.error(errMsg, e);
+          throw new RuntimeException(errMsg + e.getCause());
+        }
+      }
+      try (InputStream in = Files.newInputStream(tmpFile);
+          OutputStream out = ctx.outputStream()) {
+        in.transferTo(out);
+      }
+    } finally {
+      // nested: a failure to delete the file must not skip the directory
+      try {
+        Files.deleteIfExists(tmpFile);
+      } finally {
+        Files.deleteIfExists(tmpDir);
+      }
     }
   }
 
