@@ -97,12 +97,12 @@ export function getSchemas() {
 }
 
 export async function getUsers(
-  offset: number,
-  limit: number
+  userOffset: number,
+  userLimit: number
 ): Promise<{ newUsers: User[]; newUserCount: number }> {
   const query = `
   { _admin 
-    { users (limit: ${limit}, offset: ${offset})
+    { users (limit: ${userLimit}, offset: ${userOffset})
       { email,
         settings {key, value}, 
         enabled, 
