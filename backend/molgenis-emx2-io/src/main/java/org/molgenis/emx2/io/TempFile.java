@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Currently this class only exist to reduce duplicate code (based on CsvApi implementation).
- * Before harmonization of the different implementations for creating tmp files, this class should
- * be rewritten according to the required specs.
+ * Currently this class only exist to reduce duplicate code (based on CsvApi implementation). Before
+ * harmonization of the different implementations for creating tmp files, this class should be
+ * rewritten according to the required specs.
  */
 public class TempFile implements AutoCloseable {
   private static final String TMP_DIR_PREFIX = "tempfiles-delete-on-finish";
