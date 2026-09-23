@@ -188,19 +188,25 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
   class ReferenceArrayTest {
 
     @Test
-    void givenArrayReference_whenSemanticsEmpty_thenOnlySelectSubjectId() {
+    void givenArrayReference_thenUseCollectionMapper() {
       SailRepository repository =
           repository(
               statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
               statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI + 2)),
               statement(PRODUCT_IRI + 2, DCTERMS.TITLE, "cat"),
               statement(PRODUCT_IRI, DCTERMS.TITLE, "dog"),
+              statement(PRODUCT_IRI, DCTERMS.DESCRIPTION, "don't use description"),
               statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
               statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"));
 
       SchemaMetadata schema =
           new SchemaMetadata(SCHEMA_NAME)
-              .create(productTableWithSemantics("dcterms:title"), arrayOrderTable(true));
+              .create(
+                  productTableWithSemantics("dcterms:title")
+                      .add(
+                          Column.column("description", ColumnType.STRING)
+                              .setSemantics("dcterms:description")),
+                  arrayOrderTable(true));
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
         String query = GENERATOR.generate(schema.getTableMetadata("Order"));
