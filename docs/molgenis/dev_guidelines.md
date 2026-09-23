@@ -258,8 +258,8 @@ try (FileOutputStream output = new FileOutputStream("filename.txt")) {
 }
 ```
 
-### If a method can return `null`, we add `@Nullable` or use `Optional` instead
-Whenever a method can return `null`, this should be made very clear. Adding `@Nullable` will ensure this.
+### If a method can return `null`, it is encouraged to add `@Nullable` or use `Optional` instead
+Whenever a method can return `null`, adding `@Nullable` will make it extra clear this is expected behaviour.
 
 Alternatively, one could consider returning an `Optional` object instead of allowing `null` to be returned.
 
