@@ -125,3 +125,7 @@ prometheus = ["prometheus-metrics-core", "prometheus-metrics-exporter-httpserver
 rdf4j-rio = ["rdf4j-rio-api", "rdf4j-rio-jsonld", "rdf4j-rio-n3", "rdf4j-rio-nquads", "rdf4j-rio-ntriples", "rdf4j-rio-rdfxml", "rdf4j-rio-trig", "rdf4j-rio-turtle"]
 
 [plugins]
+diffplug-spotless = { id = "com.diffplug.spotless", version = "8.9.0" }
+gradleup-shadow = { id = "com.gradleup.shadow", version = "8.3.11" }
+nodeGradle-node = { id = "com.github.node-gradle.node", version = "7.1.0" }
+sonarqube = { id = "org.sonarqube", version = "7.3.1.8318" }
