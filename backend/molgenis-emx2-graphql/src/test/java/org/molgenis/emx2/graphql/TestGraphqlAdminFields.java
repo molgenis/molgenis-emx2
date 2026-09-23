@@ -138,6 +138,111 @@ class TestGraphqlAdminFields {
   }
 
   @Test
+  void shouldLimitAndOffsetSchemaRoles() {
+    database.tx(
+        tdb -> {
+          tdb.becomeAdmin();
+          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+          schema.create(
+              table("Patient").add(column("id").setPkey()).add(column("name")),
+              table("Doctor").add(column("id").setPkey()).add(column("name")),
+              table("Hospital").add(column("name").setPkey()).add(column("city")));
+          for (String tableName : List.of("Patient", "Doctor", "Hospital")) {
+            schema.createRole(tableName + "Viewer");
+            schema.grant(
+                tableName + "Viewer", new TablePermission(tableName).select(true).rowLevel(false));
+          }
+          schema.createRole("RoleWithoutPermissions");
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+
+          try {
+            JsonNode admin =
+                execute("{_admin{schemaRoles(limit: 1000){schemaId roleName} schemaRoleCount}}")
+                    .at("/_admin");
+            JsonNode all = admin.get("schemaRoles");
+            assertEquals(all.size(), admin.get("schemaRoleCount").intValue());
+
+            for (JsonNode schemaRole : all) {
+              assertNotEquals("RoleWithoutPermissions", schemaRole.get("roleName").asText());
+            }
+
+            JsonNode firstPage =
+                execute("{_admin{schemaRoles(limit: 2, offset: 0){schemaId roleName}}}")
+                    .at("/_admin/schemaRoles");
+            assertEquals(2, firstPage.size());
+            assertEquals(all.get(0), firstPage.get(0));
+            assertEquals(all.get(1), firstPage.get(1));
+
+            JsonNode secondPage =
+                execute("{_admin{schemaRoles(limit: 2, offset: 2){schemaId roleName}}}")
+                    .at("/_admin/schemaRoles");
+            assertEquals(all.get(2), secondPage.get(0));
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  @Test
+  void shouldSearchSchemaRoles() {
+    database.tx(
+        tdb -> {
+          tdb.becomeAdmin();
+          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+          schema.create(
+              table("Patient").add(column("id").setPkey()).add(column("name")),
+              table("Hospital").add(column("name").setPkey()).add(column("city")));
+          schema.createRole("PatientViewer");
+          schema.grant("PatientViewer", new TablePermission("Patient").select(true));
+          schema.createRole("HospitalEditor");
+          schema.grant("HospitalEditor", new TablePermission("Hospital").insert(true));
+          tdb.addUser(TEST_PERSOON);
+          schema.addMember(TEST_PERSOON, "HospitalEditor");
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+
+          try {
+            assertEquals(
+                List.of("PatientViewer"),
+                roleNames(searchSchemaRoles("patientview")),
+                "should match on role name, ignoring case");
+            assertEquals(
+                List.of("PatientViewer"),
+                roleNames(searchSchemaRoles("Patient")),
+                "should match on granted table");
+            assertEquals(
+                List.of("HospitalEditor"),
+                roleNames(searchSchemaRoles(TEST_PERSOON)),
+                "should match on member");
+            assertEquals(
+                List.of("HospitalEditor", "PatientViewer"),
+                roleNames(searchSchemaRoles(SCHEMA_NAME)).stream().sorted().toList(),
+                "should match on schema id");
+            assertEquals(0, roleNames(searchSchemaRoles("noSuchRole")).size());
+
+            JsonNode count =
+                execute("{_admin{schemaRoleCount(search: \"patientview\")}}")
+                    .at("/_admin/schemaRoleCount");
+            assertEquals(1, count.intValue());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  private JsonNode searchSchemaRoles(String search) throws IOException {
+    return execute("{_admin{schemaRoles(search: \"" + search + "\"){schemaId roleName}}}")
+        .at("/_admin/schemaRoles");
+  }
+
+  private List<String> roleNames(JsonNode schemaRoles) {
+    List<String> result = new ArrayList<>();
+    for (JsonNode schemaRole : schemaRoles) {
+      result.add(schemaRole.get("roleName").asText());
+    }
+    return result;
+  }
+
+  @Test
   void testSetUserAdmin() throws JsonProcessingException {
     database.becomeAdmin();
     graphql = new GraphqlExecutor(database, new TaskServiceInMemory());

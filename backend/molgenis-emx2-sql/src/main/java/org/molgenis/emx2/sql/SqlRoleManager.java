@@ -604,7 +604,19 @@ public class SqlRoleManager {
   }
 
   public List<Role> getRoles(String schemaName) {
-    return getRoleNames(schemaName).stream().map(name -> getRole(schemaName, name)).toList();
+    Map<String, List<TablePermission>> permissionsPerRole = getPermissionsPerRole(schemaName);
+    Set<String> rootTables = rootTableNames(schemaName);
+    return getRoleNames(schemaName).stream()
+        .map(
+            roleName ->
+                isSystemRole(roleName)
+                    ? new Role(roleName, true, systemPermissions(roleName))
+                    : new Role(
+                        roleName,
+                        false,
+                        withinRootTables(
+                            permissionsPerRole.getOrDefault(roleName, List.of()), rootTables)))
+        .toList();
   }
 
   public Role getRole(String schemaName, String roleName) {
@@ -612,16 +624,68 @@ public class SqlRoleManager {
     boolean system = isSystemRole(roleName);
     List<TablePermission> permissions = getPermissions(schemaName, roleName);
     if (!system) {
-      Set<String> rootTables =
-          database.getSchema(schemaName).getMetadata().getRootTables().stream()
-              .map(TableMetadata::getTableName)
-              .collect(Collectors.toSet());
-      permissions =
-          permissions.stream()
-              .filter(permission -> rootTables.contains(permission.table()))
-              .toList();
+      permissions = withinRootTables(permissions, rootTableNames(schemaName));
     }
     return new Role(roleName, system, permissions);
+  }
+
+  private Set<String> rootTableNames(String schemaName) {
+    return database.getSchema(schemaName).getMetadata().getRootTables().stream()
+        .map(TableMetadata::getTableName)
+        .collect(Collectors.toSet());
+  }
+
+  private static List<TablePermission> withinRootTables(
+      List<TablePermission> permissions, Set<String> rootTables) {
+    return permissions.stream()
+        .filter(permission -> rootTables.contains(permission.table()))
+        .toList();
+  }
+
+  private Map<String, List<TablePermission>> getPermissionsPerRole(String schemaName) {
+    String rolePrefix = rolePrefix(schemaName);
+    Map<String, Map<String, TablePermission>> permissionsPerRole = new LinkedHashMap<>();
+    try {
+      Result<Record> rows =
+          jooq()
+              .fetch(
+                  """
+                      SELECT g.grantee,
+                        g.table_name,
+                        bool_or(g.privilege_type = 'SELECT') AS can_select,
+                        bool_or(g.privilege_type = 'INSERT') AS can_insert,
+                        bool_or(g.privilege_type = 'UPDATE') AS can_update,
+                        bool_or(g.privilege_type = 'DELETE') AS can_delete
+                       FROM information_schema.role_table_grants g
+                       WHERE g.table_schema = {0} AND starts_with(g.grantee, {1})
+                       GROUP BY g.grantee, g.table_name""",
+                  inline(schemaName), inline(rolePrefix));
+      for (Record row : rows) {
+        String grantee = row.get("grantee", String.class).substring(rolePrefix.length());
+        boolean isRowLevel = isInternalRlsRole(grantee);
+        String roleName = isRowLevel ? grantee.substring(RLS_ROLE_PREFIX.length()) : grantee;
+        TablePermission permission =
+            permissionsPerRole
+                .computeIfAbsent(roleName, role -> new LinkedHashMap<>())
+                .computeIfAbsent(row.get("table_name", String.class), TablePermission::new);
+        mergeGrants(permission, row, isRowLevel);
+      }
+    } catch (Exception e) {
+      throw new SqlMolgenisException("Failed to get permissions for schema " + schemaName, e);
+    }
+    Map<String, List<TablePermission>> result = new LinkedHashMap<>();
+    permissionsPerRole.forEach(
+        (roleName, permissions) -> result.put(roleName, List.copyOf(permissions.values())));
+    return result;
+  }
+
+  private static void mergeGrants(TablePermission permission, Record row, boolean isRowLevel) {
+    permission
+        .select(orBool(permission.select(), grantedOrNull(row, "can_select")))
+        .insert(orBool(permission.insert(), grantedOrNull(row, "can_insert")))
+        .update(orBool(permission.update(), grantedOrNull(row, "can_update")))
+        .delete(orBool(permission.delete(), grantedOrNull(row, "can_delete")))
+        .rowLevel(orBool(permission.isRowLevel(), isRowLevel ? Boolean.TRUE : null));
   }
 
   public List<TablePermission> getPermissions(String schemaName, String roleName) {
