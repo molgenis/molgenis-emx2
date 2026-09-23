@@ -152,6 +152,43 @@ class TestImportTableTask {
         "Transaction failed: mg_generate_autoid: failed to generate unique ID after 100 attempts for TestImportTableTask.autoid.id.");
   }
 
+  @Test
+  void givenCsvWithFileColumnValue_thenFail() {
+    Table patient = createPatientTableWithScan();
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(',');
+    store.setCsvString("Patient", "id,name,scan\np1,Alice,scan1.png\n");
+
+    ImportTableTask task = new ImportTableTask(store, patient, false);
+    MolgenisException exception = assertThrows(MolgenisException.class, task::run);
+
+    assertTrue(exception.getMessage().contains("scan"), exception.getMessage());
+    assertEquals(0, patient.retrieveRows().size());
+  }
+
+  @Test
+  void givenCsvWithEmptyFileColumnValue_thenImport() {
+    Table patient = createPatientTableWithScan();
+    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(',');
+    store.setCsvString("Patient", "id,name,scan\np1,Alice,\n");
+
+    new ImportTableTask(store, patient, false).run();
+
+    List<Row> rows = patient.retrieveRows();
+    assertEquals(1, rows.size());
+    assertNull(rows.getFirst().getString("scan"));
+  }
+
+  private Table createPatientTableWithScan() {
+    database.dropCreateSchema(SCHEMA_NAME);
+    schema = database.getSchema(SCHEMA_NAME);
+    return schema.create(
+        TableMetadata.table(
+            "Patient",
+            Column.column("id", ColumnType.STRING).setPkey(),
+            Column.column("name", ColumnType.STRING),
+            Column.column("scan", ColumnType.FILE)));
+  }
+
   private TableStoreForCsvInMemory getCsvStoreForTableFromFile(String table, String file)
       throws IOException {
     Path path =
