@@ -10,7 +10,7 @@
     "dev": "pnpm run generate-source-map && nuxt dev --dotenv=../../.env",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
+    "postinstall": "nuxt prepare",
     "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
     "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore",
     "test": "vitest",
