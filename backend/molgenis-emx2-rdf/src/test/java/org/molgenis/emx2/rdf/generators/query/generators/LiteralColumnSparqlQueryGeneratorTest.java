@@ -1,222 +1,321 @@
 package org.molgenis.emx2.rdf.generators.query.generators;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
+import static org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryTestUtils.*;
 
-import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
-import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
+import java.util.Map;
+import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.Semantic;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
+import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
+import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 
 class LiteralColumnSparqlQueryGeneratorTest {
 
-  private static final Variable START = SparqlBuilder.var("start");
-  private TableMetadata table;
+  private static final String IRI = "https://example.com/person";
+  public static final TableQueryGenerator GENERATOR = new TableQueryGenerator();
 
-  @BeforeEach
-  void setUp() {
-    table =
-        new SchemaMetadata(getClass().getSimpleName()).create(new TableMetadata("arrayliterals"));
+  @Test
+  void shouldMapRequiredColumn() {
+    SailRepository repository =
+        repository(
+            statement(IRI, FOAF.FIRST_NAME, "Bau"),
+            statement(IRI, FOAF.LAST_NAME, "Terham"),
+            statement(IRI + 2, FOAF.LAST_NAME, "Lewis"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("name").setSemantics("foaf:firstName").setRequired(true)));
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?name
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          ?_subject_ foaf:firstName ?name . }
+          GROUP BY ?_subject_ ?name
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
+      assertHasResults(bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Bau"));
+    }
   }
 
   @Test
-  void shouldHandleRequiredColumn() {
-    Column column = createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
-    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
-    assertHasPatterns(mapper, "?start foaf:test ?foo .");
-    assertHasSelectors(mapper, "?foo");
-    assertHasGroupBy(mapper, "?foo");
+  void shouldMapOptional() {
+    String iri1 = IRI + 1;
+    String iri2 = IRI + 2;
+
+    SailRepository repository =
+        repository(
+            statement(iri1, FOAF.FIRST_NAME, "Bau"),
+            statement(iri1, FOAF.LAST_NAME, "Terham"),
+            statement(iri2, FOAF.FIRST_NAME, "Lewis"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("lastName").setSemantics("foaf:lastName").setRequired(false)));
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?lastName
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ foaf:lastName ?lastName . } }
+          GROUP BY ?_subject_ ?lastName
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
+      assertHasResults(
+          bindingSets,
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "lastName", "Terham"));
+    }
   }
 
   @Test
   void shouldHandleNoSemanticsForColumn() {
-    Column column = createColumn(Column.column("foo").setRequired(true).setSemantics());
-    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
-    assertTrue(mapper.getPatterns().isEmpty());
-    assertHasSelectors(mapper, "?foo");
-    assertHasGroupBy(mapper, "?foo");
+    String iri1 = IRI + 1;
+    SailRepository repository = repository(statement(iri1, FOAF.FIRST_NAME, "Bau"));
+
+    TableMetadata table =
+        new SchemaMetadata().create(TableMetadata.table("Person", Column.column("name")));
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_
+          WHERE { ?_subject_ ?anyPredicate ?anyObject . }
+          GROUP BY ?_subject_
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
+      assertHasResults(bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1));
+    }
   }
 
   @Test
   void shouldHandleNullSemanticsForColumn() {
-    Column column =
-        createColumn(Column.column("foo").setRequired(true).setSemantics((Semantic[]) null));
-    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
-    assertTrue(mapper.getPatterns().isEmpty());
-    assertHasSelectors(mapper, "?foo");
-    assertHasGroupBy(mapper, "?foo");
+    String iri1 = IRI + 1;
+    SailRepository repository = repository(statement(iri1, FOAF.FIRST_NAME, "Bau"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person", Column.column("name").setSemantics((Semantic[]) null)));
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_
+          WHERE { ?_subject_ ?anyPredicate ?anyObject . }
+          GROUP BY ?_subject_
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
+      assertHasResults(bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1));
+    }
   }
 
   @Test
-  void shouldHandleOptionalColumn() {
-    Column column = createColumn(Column.column("foo").setRequired(false).setSemantics("foaf:test"));
-    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
-    assertHasPatterns(mapper, "OPTIONAL { ?start foaf:test ?foo . }");
-    assertHasSelectors(mapper, "?foo");
-    assertHasGroupBy(mapper, "?foo");
+  void shouldMapMultipleSemantic() {
+    String iri1 = IRI + 1;
+    String iri2 = IRI + 2;
+    String iri3 = IRI + 3;
+    String iri4 = IRI + 4;
+
+    SailRepository repository =
+        repository(
+            statement(iri1, FOAF.FIRST_NAME, "Lewis"),
+            statement(iri2, FOAF.GIVEN_NAME, "Robin"),
+            statement(iri3, FOAF.FIRST_NAME, "Demetrius"),
+            statement(iri3, FOAF.GIVEN_NAME, "Also Demetrius"),
+            statement(iri4, FOAF.LAST_NAME, "Terham"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("name").setSemantics("foaf:firstName", "foaf:givenName")));
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?name
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ foaf:firstName ?name0 . }
+          OPTIONAL { ?_subject_ foaf:givenName ?name1 . }
+          BIND( COALESCE( ?name0, ?name1 ) AS ?name ) }
+          GROUP BY ?_subject_ ?name
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
+      assertHasResults(
+          bindingSets,
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "name", "Robin"),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri3, "name", "Demetrius"),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri4),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Lewis"));
+    }
   }
 
   @Test
-  void givenColumnWithMultipleSemantics_thenReturnCoalesce() {
-    Column column =
-        createColumn(
-            Column.column("foo")
-                .setRequired(false)
-                .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
-    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
-    assertHasPatterns(
-        mapper,
-        "OPTIONAL { ?start foaf:test ?foo0 . }",
-        "OPTIONAL { ?start foaf:alternative ?foo1 . }",
-        "OPTIONAL { ?start foaf:also_alternative ?foo2 . }",
-        "BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo )");
-    assertHasSelectors(mapper, "?foo");
-    assertHasGroupBy(mapper, "?foo");
-  }
+  void shouldMapMultipleSemanticWithFilter() {
+    String iri1 = IRI + 1;
+    String iri2 = IRI + 2;
+    String iri3 = IRI + 3;
+    String iri4 = IRI + 4;
 
-  @Test
-  void givenColumnWithMultipleSemantics_whenRequired_thenReturnCoalesceWithFilter() {
-    Column column =
-        createColumn(
-            Column.column("foo")
-                .setRequired(true)
-                .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
-    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
-    assertHasPatterns(
-        mapper,
-        "OPTIONAL { ?start foaf:test ?foo0 . }",
-        "OPTIONAL { ?start foaf:alternative ?foo1 . }",
-        "OPTIONAL { ?start foaf:also_alternative ?foo2 . }",
-        "BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo )",
-        "FILTER ( BOUND( ?foo ) )");
-    assertHasSelectors(mapper, "?foo");
-    assertHasGroupBy(mapper, "?foo");
+    SailRepository repository =
+        repository(
+            statement(iri1, FOAF.FIRST_NAME, "Lewis"),
+            statement(iri2, FOAF.GIVEN_NAME, "Robin"),
+            statement(iri3, FOAF.FIRST_NAME, "Demetrius"),
+            statement(iri3, FOAF.GIVEN_NAME, "Also Demetrius"),
+            statement(iri4, FOAF.LAST_NAME, "Terham"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("name")
+                        .setSemantics("foaf:firstName", "foaf:givenName")
+                        .setRequired(true)));
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?name
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ foaf:firstName ?name0 . }
+          OPTIONAL { ?_subject_ foaf:givenName ?name1 . }
+          BIND( COALESCE( ?name0, ?name1 ) AS ?name )
+          FILTER ( BOUND( ?name ) ) }
+          GROUP BY ?_subject_ ?name
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
+      assertHasResults(
+          bindingSets,
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "name", "Robin"),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri3, "name", "Demetrius"),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Lewis"));
+    }
   }
 
   @Test
   void shouldNormalizeColumnName() {
-    Column column =
-        createColumn(Column.column("foo bar").setRequired(true).setSemantics("foaf:test"));
-    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
-    assertHasPatterns(mapper, "?start foaf:test ?foo___bar .");
-    assertHasSelectors(mapper, "?foo___bar");
-    assertHasGroupBy(mapper, "?foo___bar");
+    SailRepository repository =
+        repository(statement("https://example.com/person", FOAF.FIRST_NAME, "Bau"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person", Column.column("foo bar").setSemantics("foaf:firstName")));
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?foo___bar
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ foaf:firstName ?foo___bar . } }
+          GROUP BY ?_subject_ ?foo___bar
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
+      assertHasResults(
+          bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "foo___bar", "Bau"));
+    }
   }
 
   @Test
   void givenColumn_whenSemanticIsIRI_thenSurroundWithPointBrackets() {
-    Column column =
-        createColumn(
-            Column.column("foo").setRequired(true).setSemantics("https://example.org/ns#test"));
-    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
-    assertHasPatterns(mapper, "?start <https://example.org/ns#test> ?foo .");
-    assertHasSelectors(mapper, "?foo");
-    assertHasGroupBy(mapper, "?foo");
+    SailRepository repository =
+        repository(
+            statement(
+                "https://example.com/person", Values.iri("https://example.org/ns#test"), "Bau"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("foo bar").setSemantics("https://example.org/ns#test")));
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?foo___bar
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ <https://example.org/ns#test> ?foo___bar . } }
+          GROUP BY ?_subject_ ?foo___bar
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
+      assertHasResults(
+          bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "foo___bar", "Bau"));
+    }
   }
 
   @Test
   void givenColumnWithMultipleSemantics_whenSemanticIsIRI_thenSurroundWithPointyBrackets() {
-    Column column =
-        createColumn(
-            Column.column("foo")
-                .setRequired(false)
-                .setSemantics("foaf:test", "http://example.org/ns#test"));
-    LiteralColumnSparqlQueryGenerator mapper = LiteralColumnSparqlQueryGenerator.of(START, column);
-    assertHasPatterns(
-        mapper,
-        "OPTIONAL { ?start foaf:test ?foo0 . }",
-        "OPTIONAL { ?start <http://example.org/ns#test> ?foo1 . }",
-        "BIND( COALESCE( ?foo0, ?foo1 ) AS ?foo )");
-    assertHasSelectors(mapper, "?foo");
-    assertHasGroupBy(mapper, "?foo");
-  }
+    String iri1 = IRI + 1;
+    String iri2 = IRI + 2;
 
-  @Nested
-  class InverseTest {
+    SailRepository repository =
+        repository(
+            statement(iri1, FOAF.FIRST_NAME, "Lewis"),
+            statement(iri2, Values.iri("https://example.org/ns#test"), "Robin"));
 
-    @Test
-    void shouldHandleRequiredColumn() {
-      Column column =
-          createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
-      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
-      assertHasPatterns(mapper, "?start ^foaf:test ?foo .");
-      assertHasSelectors(mapper, "?foo");
-      assertHasGroupBy(mapper, "?foo");
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("name")
+                        .setSemantics("foaf:firstName", "https://example.org/ns#test")));
+
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?name
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ foaf:firstName ?name0 . }
+          OPTIONAL { ?_subject_ <https://example.org/ns#test> ?name1 . }
+          BIND( COALESCE( ?name0, ?name1 ) AS ?name ) }
+          GROUP BY ?_subject_ ?name
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
+      assertHasResults(
+          bindingSets,
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Lewis"),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "name", "Robin"));
     }
-
-    @Test
-    void shouldHandleOptionalColumn() {
-      Column column =
-          createColumn(Column.column("foo").setRequired(false).setSemantics("foaf:test"));
-      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
-      assertHasPatterns(mapper, "OPTIONAL { ?start ^foaf:test ?foo . }");
-      assertHasSelectors(mapper, "?foo");
-      assertHasGroupBy(mapper, "?foo");
-    }
-
-    @Test
-    void givenColumnWithMultipleSemantics_thenReturnCoalesce() {
-      Column column =
-          createColumn(
-              Column.column("foo")
-                  .setRequired(false)
-                  .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
-      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
-      assertHasPatterns(
-          mapper,
-          "OPTIONAL { ?start ^foaf:test ?foo0 . }",
-          "OPTIONAL { ?start ^foaf:alternative ?foo1 . }",
-          "OPTIONAL { ?start ^foaf:also_alternative ?foo2 . }",
-          "BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo )");
-      assertHasSelectors(mapper, "?foo");
-      assertHasGroupBy(mapper, "?foo");
-    }
-
-    @Test
-    void givenColumnWithMultipleSemantics_whenRequired_thenReturnCoalesceWithFilter() {
-      Column column =
-          createColumn(
-              Column.column("foo")
-                  .setRequired(true)
-                  .setSemantics("foaf:test", "foaf:alternative", "foaf:also_alternative"));
-      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
-      assertHasPatterns(
-          mapper,
-          "OPTIONAL { ?start ^foaf:test ?foo0 . }",
-          "OPTIONAL { ?start ^foaf:alternative ?foo1 . }",
-          "OPTIONAL { ?start ^foaf:also_alternative ?foo2 . }",
-          "BIND( COALESCE( ?foo0, ?foo1, ?foo2 ) AS ?foo )",
-          "FILTER ( BOUND( ?foo ) )");
-      assertHasSelectors(mapper, "?foo");
-      assertHasGroupBy(mapper, "?foo");
-    }
-
-    @Test
-    void givenColumn_whenSemanticIsIRI_thenSurroundWithPointBrackets() {
-      Column column =
-          createColumn(
-              Column.column("foo").setRequired(true).setSemantics("https://example.org/ns#test"));
-      LiteralColumnSparqlQueryGenerator mapper = createInverseMapper(column);
-      assertHasPatterns(mapper, "?start ^<https://example.org/ns#test> ?foo .");
-      assertHasSelectors(mapper, "?foo");
-      assertHasGroupBy(mapper, "?foo");
-    }
-
-    private LiteralColumnSparqlQueryGenerator createInverseMapper(Column column) {
-      Variable object = ColumnNameSparqlEncoder.encodeSparqlVariable(column);
-      return new LiteralColumnSparqlQueryGenerator(
-          START, column, object, object, column.isRequired(), true);
-    }
-  }
-
-  private Column createColumn(Column column) {
-    table.add(column);
-    return table.getColumn(column.getName());
   }
 }
