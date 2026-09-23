@@ -1,4 +1,5 @@
 import { $fetch } from "ofetch";
+import type { SchemaRole } from "../../../tailwind-components/types/types";
 import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
 
 const GRAPHQL = "/graphql";
@@ -156,11 +157,29 @@ export function isValidPassword(password1: string, password2: string) {
   return password1.length > 7 && password1 === password2;
 }
 
+export async function getSchemaPermissions() {
+  return $fetch<AdminResponse>(API_GRAPHQL, {
+    method: "post",
+    body: {
+      query: `{ _admin { schemaRoles { schemaId, roleName, users, permissions { table, select, insert, update, delete, isRowLevel } } } }`,
+    },
+  })
+    .then((response) => {
+      const schemaRoles: SchemaRole[] = response?.data._admin.schemaRoles || [];
+      return schemaRoles;
+    })
+    .catch((error) => {
+      handleError("Error loading schema permissions: ", error.value);
+      return [];
+    });
+}
+
 interface AdminResponse {
   data: {
     _admin: {
       users: User[];
       userCount: number;
+      schemaRoles: SchemaRole[];
     };
   };
 }
