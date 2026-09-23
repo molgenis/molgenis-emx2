@@ -1,15 +1,25 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
+import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
 import constants from "../../../../tailwind-components/app/utils/constants.ts";
 import type {
   ITableSettings,
   SchemaRole,
 } from "../../../../tailwind-components/types/types.ts";
-import { getSchemaPermissions } from "~/util/adminUtils.ts";
+import { getSchemaPermissions } from "../../util/adminUtils.ts";
 
 const schemaRoles = ref<SchemaRole[]>([]);
 schemaRoles.value = filterSchemaRoles(await getSchemaPermissions());
+
+const rows = computed(() =>
+  schemaRoles.value.map((schemaRole) => ({
+    schemaId: schemaRole.schemaId,
+    roleName: schemaRole.roleName,
+    tables: getTableNames(schemaRole),
+    users: getUserNames(schemaRole),
+  }))
+);
 
 const COLUMNS: IColumn[] = [
   { label: "Schema", id: "schemaId", columnType: "STRING" },
@@ -63,7 +73,8 @@ function getUserNames(schemaRole: SchemaRole) {
     placeholder="Search roles"
     id="search-input"
   />
-  <Table>
+  <TableInteractive :columns="COLUMNS" :rows="rows" />
+  <!-- <Table>
     <template #head>
       <TableHeadRow>
         <TableHead v-for="column in COLUMNS" :key="column.id">
@@ -83,7 +94,7 @@ function getUserNames(schemaRole: SchemaRole) {
       </TableRow>
     </template>
     <template #foot> </template>
-  </Table>
+  </Table> -->
   <Pagination
     class="pt-0 pb-[30px]"
     :current-page="settings.page"
