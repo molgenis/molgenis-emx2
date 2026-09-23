@@ -109,6 +109,42 @@ class ReferenceColumnSparqlQueryGeneratorTest {
         "?product__manufacturer__manufacturer_id");
   }
 
+  @Test
+  void shouldResolveCrossSchemaReferences() {
+    Schema schemaA = database.dropCreateSchema(getClass().getSimpleName() + "ref_a");
+    Schema schemaB = database.dropCreateSchema(getClass().getSimpleName() + "ref_b");
+
+    schemaB.create(productTableWithSemantics("schema:name"));
+    // To check whether we always check on schema's, not just when we don't find the table.
+    schemaA.create(productTableWithSemantics("schema:invalid"));
+
+    TableMetadata orders =
+        schemaA
+            .create(
+                TableMetadata.table(
+                    "Order",
+                    Column.column("id")
+                        .setPkey()
+                        .setType(ColumnType.STRING)
+                        .setSemantics("schema:id"),
+                    Column.column("product")
+                        .setType(ColumnType.REF)
+                        .setRefTable("Product")
+                        .setRefSchemaName(schemaB.getName())
+                        .setRequired(true)
+                        .setSemantics("schema:product")))
+            .getMetadata();
+
+    Column column = orders.getColumn("product");
+    ReferenceColumnSparqlQueryGenerator mapper =
+        new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
+
+    assertHasPatterns(
+        mapper, "?order schema:product ?product .", "?product schema:name ?product__name .");
+    assertHasSelectors(mapper, "( ?product AS ?_subject_product )", "?product__name");
+    assertHasGroupBy(mapper, "?product", "?product__name");
+  }
+
   @Nested
   class ReferenceArrayTest {
 
@@ -201,42 +237,6 @@ class ReferenceColumnSparqlQueryGeneratorTest {
           "( GROUP_CONCAT( DISTINCT STR( ?product__name_single ) ; SEPARATOR = '|' ) AS ?product__name )");
       assertHasGroupBy(mapper);
     }
-  }
-
-  @Test
-  void shouldResolveCrossSchemaReferences() {
-    Schema schemaA = database.dropCreateSchema(getClass().getSimpleName() + "ref_a");
-    Schema schemaB = database.dropCreateSchema(getClass().getSimpleName() + "ref_b");
-
-    schemaB.create(productTableWithSemantics("schema:name"));
-    // To check whether we always check on schema's, not just when we don't find the table.
-    schemaA.create(productTableWithSemantics("schema:invalid"));
-
-    TableMetadata orders =
-        schemaA
-            .create(
-                TableMetadata.table(
-                    "Order",
-                    Column.column("id")
-                        .setPkey()
-                        .setType(ColumnType.STRING)
-                        .setSemantics("schema:id"),
-                    Column.column("product")
-                        .setType(ColumnType.REF)
-                        .setRefTable("Product")
-                        .setRefSchemaName(schemaB.getName())
-                        .setRequired(true)
-                        .setSemantics("schema:product")))
-            .getMetadata();
-
-    Column column = orders.getColumn("product");
-    ReferenceColumnSparqlQueryGenerator mapper =
-        new ReferenceColumnSparqlQueryGenerator(ORDER_VAR, column);
-
-    assertHasPatterns(
-        mapper, "?order schema:product ?product .", "?product schema:name ?product__name .");
-    assertHasSelectors(mapper, "( ?product AS ?_subject_product )", "?product__name");
-    assertHasGroupBy(mapper, "?product", "?product__name");
   }
 
   @Nested
