@@ -58,6 +58,9 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                     id
                 }
                 titleIsCentered
+                pageHeaderHeight {
+                    name
+                }
                 
                 # components
                 componentOrder(orderby: {order:ASC}) {
