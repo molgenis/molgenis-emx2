@@ -4,10 +4,7 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
@@ -26,8 +23,8 @@ public class SparqlQueryTestUtils {
 
   @SafeVarargs
   static void assertHasResults(TupleQueryResult result, Map<String, String>... expectedResults) {
-    List<Map<String, String>> expected = Arrays.stream(expectedResults).toList();
-    List<Map<String, String>> actual = new ArrayList<>();
+    Set<Map<String, String>> expected = Arrays.stream(expectedResults).collect(Collectors.toSet());
+    Set<Map<String, String>> actual = new HashSet<>();
 
     while (result.hasNext()) {
       BindingSet binding = result.next();
