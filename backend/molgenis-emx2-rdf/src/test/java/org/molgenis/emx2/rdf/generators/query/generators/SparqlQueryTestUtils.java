@@ -59,4 +59,16 @@ public class SparqlQueryTestUtils {
     TupleQuery prepared = connection.prepareTupleQuery(QueryLanguage.SPARQL, query);
     return prepared.evaluate();
   }
+
+  /**
+   * Asserts that the generated query matches the expected query, ignoring the {@code PREFIX}
+   * declarations at the top of the generated query.
+   */
+  static void assertQueryEquals(String expectedQueryWithoutPrefixes, String actualGeneratedQuery) {
+    assertEquals(expectedQueryWithoutPrefixes, removePrefixesFromQuery(actualGeneratedQuery));
+  }
+
+  private static String removePrefixesFromQuery(String query) {
+    return query.replaceAll("PREFIX .*\n", "");
+  }
 }
