@@ -3,11 +3,13 @@ package org.molgenis.emx2.rdf.generators.query.generators;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.Statements;
@@ -22,32 +24,20 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 public class SparqlQueryTestUtils {
 
-  static void assertHasResults(TupleQueryResult result, List<Map<String, String>> expectedResults) {
-    Iterator<Map<String, String>> iterator = expectedResults.iterator();
+  @SafeVarargs
+  static void assertHasResults(TupleQueryResult result, Map<String, String>... expectedResults) {
+    List<Map<String, String>> expected = Arrays.stream(expectedResults).toList();
+    List<Map<String, String>> actual = new ArrayList<>();
+
     while (result.hasNext()) {
-      BindingSet actual = result.next();
-
-      if (!iterator.hasNext()) {
-        fail("Found more results than expected");
-      }
-      Map<String, String> expected = iterator.next();
-
-      assertEquals(
-          actual.getBindingNames(),
-          expected.keySet(),
-          () -> "Binding names of actual: " + actual + " does not match expected: " + expected);
-
-      for (String bindingName : actual.getBindingNames()) {
-        assertEquals(
-            expected.get(bindingName),
-            actual.getValue(bindingName).stringValue(),
-            () -> "Values of actual: " + actual + " does not match expected: " + expected);
-      }
+      BindingSet binding = result.next();
+      actual.add(
+          binding.getBindingNames().stream()
+              .collect(
+                  Collectors.toMap(Function.identity(), b -> binding.getValue(b).stringValue())));
     }
 
-    if (iterator.hasNext()) {
-      fail("Found less results than expected");
-    }
+    assertEquals(expected, actual);
   }
 
   static SailRepository repository(Statement... statements) {
@@ -62,6 +52,10 @@ public class SparqlQueryTestUtils {
 
   static Statement statement(String subject, IRI predicate, String object) {
     return Statements.statement(iri(subject), predicate, literal(object), null);
+  }
+
+  static Statement statement(String subject, IRI predicate, IRI object) {
+    return Statements.statement(iri(subject), predicate, object, null);
   }
 
   static TupleQueryResult executeQuery(SailRepositoryConnection connection, String query) {

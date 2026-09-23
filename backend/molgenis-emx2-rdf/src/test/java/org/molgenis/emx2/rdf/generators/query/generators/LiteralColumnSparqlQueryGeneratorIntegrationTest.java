@@ -2,7 +2,6 @@ package org.molgenis.emx2.rdf.generators.query.generators;
 
 import static org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryTestUtils.*;
 
-import java.util.List;
 import java.util.Map;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -35,8 +34,7 @@ class LiteralColumnSparqlQueryGeneratorIntegrationTest {
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
       TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
-      assertHasResults(
-          bindingSets, List.of(Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Bau")));
+      assertHasResults(bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Bau"));
     }
   }
 
@@ -62,9 +60,8 @@ class LiteralColumnSparqlQueryGeneratorIntegrationTest {
       TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
       assertHasResults(
           bindingSets,
-          List.of(
-              Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2),
-              Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "lastName", "Terham")));
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "lastName", "Terham"));
     }
   }
 
@@ -94,11 +91,10 @@ class LiteralColumnSparqlQueryGeneratorIntegrationTest {
       TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
       assertHasResults(
           bindingSets,
-          List.of(
-              Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "name", "Robin"),
-              Map.of(SparqlVariableUtil.SUBJECT_NAME, iri3, "name", "Demetrius"),
-              Map.of(SparqlVariableUtil.SUBJECT_NAME, iri4),
-              Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Lewis")));
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "name", "Robin"),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri3, "name", "Demetrius"),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri4),
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Lewis"));
     }
   }
 }
