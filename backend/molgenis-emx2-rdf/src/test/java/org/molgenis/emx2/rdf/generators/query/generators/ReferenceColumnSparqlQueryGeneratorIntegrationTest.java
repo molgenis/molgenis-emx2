@@ -1,7 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query.generators;
 
 import static org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryTestUtils.*;
-import static org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryTestUtils.assertHasResults;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +40,15 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
       String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?id ( ?product AS ?_subject_product )
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          ?_subject_ dcterms:identifier ?id .
+          ?_subject_ dcterms:relation ?product . }
+          GROUP BY ?_subject_ ?id ?product
+          """,
+          query);
       TupleQueryResult bindingSets = executeQuery(connection, query);
       assertHasResults(
           bindingSets,
@@ -73,6 +81,17 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
       String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?id ( ?product AS ?_subject_product ) ?product__name ?product__description
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          ?_subject_ dcterms:identifier ?id .
+          ?_subject_ dcterms:relation ?product .
+          ?product dcterms:title ?product__name .
+          ?product dcterms:description ?product__description . }
+          GROUP BY ?_subject_ ?id ?product ?product__name ?product__description
+          """,
+          query);
       TupleQueryResult bindingSets = executeQuery(connection, query);
       assertHasResults(
           bindingSets,
@@ -125,6 +144,19 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
       String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?id ( ?product AS ?_subject_product ) ?product__name ( ?product__manufacturer AS ?_subject_product__manufacturer ) ?product__manufacturer__firstName ?product__manufacturer__lastName
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          ?_subject_ dcterms:identifier ?id .
+          ?_subject_ dcterms:relation ?product .
+          ?product dcterms:title ?product__name .
+          ?product dcterms:creator ?product__manufacturer .
+          ?product__manufacturer foaf:firstName ?product__manufacturer__firstName .
+          ?product__manufacturer foaf:lastName ?product__manufacturer__lastName . }
+          GROUP BY ?_subject_ ?id ?product ?product__name ?product__manufacturer ?product__manufacturer__firstName ?product__manufacturer__lastName
+          """,
+          query);
       TupleQueryResult bindingSets = executeQuery(connection, query);
       assertHasResults(
           bindingSets,
@@ -169,6 +201,16 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
       String query = GENERATOR.generate(schemaA.getTableMetadata("Order"));
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ?id ( ?product AS ?_subject_product ) ?product__name
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          ?_subject_ dcterms:identifier ?id .
+          ?_subject_ dcterms:relation ?product .
+          ?product dcterms:title ?product__name . }
+          GROUP BY ?_subject_ ?id ?product ?product__name
+          """,
+          query);
       TupleQueryResult bindingSets = executeQuery(connection, query);
       assertHasResults(
           bindingSets,
@@ -210,6 +252,16 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
         String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        assertQueryEquals(
+            """
+            SELECT ?_subject_ ?id ( GROUP_CONCAT( DISTINCT STR( ?products ) ; SEPARATOR = '|' ) AS ?_subject_products ) ( GROUP_CONCAT( DISTINCT STR( ?products__name_single ) ; SEPARATOR = '|' ) AS ?products__name )
+            WHERE { ?_subject_ ?anyPredicate ?anyObject .
+            ?_subject_ dcterms:identifier ?id .
+            ?_subject_ dcterms:relation ?products .
+            ?products dcterms:title ?products__name_single . }
+            GROUP BY ?_subject_ ?id
+            """,
+            query);
         TupleQueryResult bindingSets = executeQuery(connection, query);
         assertHasResults(
             bindingSets,
@@ -242,6 +294,16 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
         String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        assertQueryEquals(
+            """
+            SELECT ?_subject_ ?id ( GROUP_CONCAT( DISTINCT STR( ?products ) ; SEPARATOR = '|' ) AS ?_subject_products ) ( GROUP_CONCAT( DISTINCT STR( ?products__name_single ) ; SEPARATOR = '|' ) AS ?products__name )
+            WHERE { ?_subject_ ?anyPredicate ?anyObject .
+            ?_subject_ dcterms:identifier ?id .
+            OPTIONAL { ?_subject_ dcterms:relation ?products .
+            ?products dcterms:title ?products__name_single . } }
+            GROUP BY ?_subject_ ?id
+            """,
+            query);
         TupleQueryResult bindingSets = executeQuery(connection, query);
         assertHasResults(
             bindingSets,
@@ -285,6 +347,16 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
         String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        assertQueryEquals(
+            """
+            SELECT ?_subject_ ?id ( ?product AS ?_subject_product ) ?product__name
+            WHERE { ?_subject_ ?anyPredicate ?anyObject .
+            ?_subject_ dcterms:identifier ?id .
+            ?_subject_ dcterms:relation ?product .
+            ?product dcterms:title ?product__name . }
+            GROUP BY ?_subject_ ?id ?product ?product__name
+            """,
+            query);
         TupleQueryResult bindingSets = executeQuery(connection, query);
         assertHasResults(
             bindingSets,
@@ -315,6 +387,16 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
         String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        assertQueryEquals(
+            """
+            SELECT ?_subject_ ?id ( ?product AS ?_subject_product ) ?product__name
+            WHERE { ?_subject_ ?anyPredicate ?anyObject .
+            ?_subject_ dcterms:identifier ?id .
+            OPTIONAL { ?_subject_ dcterms:relation ?product .
+            ?product dcterms:title ?product__name . } }
+            GROUP BY ?_subject_ ?id ?product ?product__name
+            """,
+            query);
         TupleQueryResult bindingSets = executeQuery(connection, query);
         assertHasResults(
             bindingSets,
@@ -355,6 +437,19 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
         String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        assertQueryEquals(
+            """
+            SELECT ?_subject_ ?id ( ?product AS ?_subject_product ) ?product__name
+            WHERE { ?_subject_ ?anyPredicate ?anyObject .
+            ?_subject_ dcterms:identifier ?id .
+            OPTIONAL { ?_subject_ dcterms:relation ?product .
+            OPTIONAL { ?product dcterms:title ?product__name0 . }
+            OPTIONAL { ?product dcterms:alternative ?product__name1 . }
+            BIND( COALESCE( ?product__name0, ?product__name1 ) AS ?product__name )
+            FILTER ( BOUND( ?product__name ) ) } }
+            GROUP BY ?_subject_ ?id ?product ?product__name
+            """,
+            query);
         TupleQueryResult bindingSets = executeQuery(connection, query);
         assertHasResults(
             bindingSets,
@@ -400,6 +495,19 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
         String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        assertQueryEquals(
+            """
+            SELECT ?_subject_ ?id ( ?product AS ?_subject_product ) ?product__name
+            WHERE { ?_subject_ ?anyPredicate ?anyObject .
+            ?_subject_ dcterms:identifier ?id .
+            ?_subject_ dcterms:relation ?product .
+            OPTIONAL { ?product dcterms:title ?product__name0 . }
+            OPTIONAL { ?product dcterms:alternative ?product__name1 . }
+            BIND( COALESCE( ?product__name0, ?product__name1 ) AS ?product__name )
+            FILTER ( BOUND( ?product__name ) ) }
+            GROUP BY ?_subject_ ?id ?product ?product__name
+            """,
+            query);
         TupleQueryResult bindingSets = executeQuery(connection, query);
         assertHasResults(
             bindingSets,
@@ -461,6 +569,15 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
         String query = GENERATOR.generate(schema.getTableMetadata("Shape"));
+        assertQueryEquals(
+            """
+            SELECT ?_subject_ ?name ?color
+            WHERE { ?_subject_ ?anyPredicate ?anyObject .
+            ?_subject_ dcterms:title ?name .
+            ?_subject_ dcterms:relation ?color . }
+            GROUP BY ?_subject_ ?name ?color
+            """,
+            query);
         TupleQueryResult bindingSets = executeQuery(connection, query);
         assertHasResults(
             bindingSets,
@@ -504,6 +621,15 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
       try (SailRepositoryConnection connection = repository.getConnection()) {
         String query = GENERATOR.generate(schema.getTableMetadata("Shape"));
+        assertQueryEquals(
+            """
+            SELECT ?_subject_ ?name ( GROUP_CONCAT( DISTINCT STR( ?color_single ) ; SEPARATOR = '|' ) AS ?color )
+            WHERE { ?_subject_ ?anyPredicate ?anyObject .
+            ?_subject_ dcterms:title ?name .
+            ?_subject_ dcterms:relation ?color_single . }
+            GROUP BY ?_subject_ ?name
+            """,
+            query);
         TupleQueryResult bindingSets = executeQuery(connection, query);
         assertHasResults(
             bindingSets,

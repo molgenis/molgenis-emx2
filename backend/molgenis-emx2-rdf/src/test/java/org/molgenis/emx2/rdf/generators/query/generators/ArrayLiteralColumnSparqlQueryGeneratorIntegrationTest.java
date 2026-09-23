@@ -37,7 +37,16 @@ class ArrayLiteralColumnSparqlQueryGeneratorIntegrationTest {
                     Column.column("name", ColumnType.STRING_ARRAY).setSemantics("foaf:firstName")));
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
-      TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?name_single ) ; SEPARATOR = '|' ) AS ?name )
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ foaf:firstName ?name_single . } }
+          GROUP BY ?_subject_
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
       assertHasResults(
           bindingSets,
           Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius"));
@@ -57,7 +66,15 @@ class ArrayLiteralColumnSparqlQueryGeneratorIntegrationTest {
             .create(TableMetadata.table("Person", Column.column("name", ColumnType.STRING_ARRAY)));
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
-      TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_
+          WHERE { ?_subject_ ?anyPredicate ?anyObject . }
+          GROUP BY ?_subject_
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
       assertHasResults(bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI));
     }
   }
@@ -79,7 +96,18 @@ class ArrayLiteralColumnSparqlQueryGeneratorIntegrationTest {
                         .setSemantics("foaf:firstName", "foaf:givenName")));
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
-      TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?name_single ) ; SEPARATOR = '|' ) AS ?name )
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ foaf:firstName ?name_single0 . }
+          OPTIONAL { ?_subject_ foaf:givenName ?name_single1 . }
+          BIND( COALESCE( ?name_single0, ?name_single1 ) AS ?name_single ) }
+          GROUP BY ?_subject_
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
       assertHasResults(
           bindingSets,
           Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius"));
@@ -127,7 +155,16 @@ class ArrayLiteralColumnSparqlQueryGeneratorIntegrationTest {
                     Column.column("name", ColumnType.STRING_ARRAY).setSemantics("foaf:firstName")));
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
-      TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
+      String query = GENERATOR.generate(table);
+      assertQueryEquals(
+          """
+          SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?name_single ) ; SEPARATOR = '|' ) AS ?name )
+          WHERE { ?_subject_ ?anyPredicate ?anyObject .
+          OPTIONAL { ?_subject_ foaf:firstName ?name_single . } }
+          GROUP BY ?_subject_
+          """,
+          query);
+      TupleQueryResult bindingSets = executeQuery(connection, query);
       assertHasResults(
           bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin"));
     }
