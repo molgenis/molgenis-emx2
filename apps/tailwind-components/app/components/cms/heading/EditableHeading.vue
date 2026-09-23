@@ -39,14 +39,16 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <Heading
-      v-bind="props"
-      :class="{
-        group: isEditable,
-        underline: showMenu,
-        'sr-only': headingIsHidden,
-      }"
-    />
+    <div>
+      <Heading
+        v-bind="props"
+        :class="{
+          group: isEditable,
+          underline: showMenu,
+          'sr-only': headingIsHidden,
+        }"
+      />
+    </div>
   </VMenu>
   <Heading v-else v-bind="props" />
 </template>

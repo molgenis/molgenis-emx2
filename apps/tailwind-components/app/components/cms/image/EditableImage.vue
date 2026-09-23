@@ -36,14 +36,16 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <div
-      v-if="!props.image?.url"
-      class="w-full flex items-center justify-center text-center gap-2 text-title-contrast py-5 border border-button-tertiary rounded-base mb-2.5 hover:border-button-tertiary-hover"
-    >
-      <BaseIcon name="Image" :width="21" />
-      <span>Click the edit button to upload an image</span>
+    <div>
+      <div
+        v-if="!props.image?.url"
+        class="w-full flex items-center justify-center text-center gap-2 text-title-contrast py-5 border border-button-tertiary rounded-base mb-2.5 hover:border-button-tertiary-hover"
+      >
+        <BaseIcon name="Image" :width="21" />
+        <span>Click the edit button to upload an image</span>
+      </div>
+      <Image v-else v-bind="props" />
     </div>
-    <Image v-else v-bind="props" />
   </VMenu>
   <Image v-else v-bind="props" />
 </template>
