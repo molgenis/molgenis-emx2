@@ -1,4 +1,12 @@
 [versions]
+# General
+g-googleJavaFormat = "1.28.0"
+g-jacoco = "0.8.15"
+g-pmd = "7.26.0"
+g-node = "24.19.0"
+g-pnpm = "10.24.0"
+
+# Java dependencies
 bcprov-jdk18on = "1.85"
 caffeine = "3.2.4"
 commons-collections4 = "4.5.0"

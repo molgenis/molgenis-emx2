@@ -29,13 +29,13 @@ subprojects {
 
     spotless {
         java {
-            googleJavaFormat('1.28.0')
+            googleJavaFormat(libs.versions.g.googleJavaFormat)
         }
     }
 
     pmd {
         consoleOutput = true
-        toolVersion = "7.26.0"
+        toolVersion = libs.versions.g.pmd
         ruleSetFiles = files("${project.rootDir}/pmd_ruleset.xml")
         ruleSets = []
     }
@@ -84,7 +84,7 @@ subprojects {
     }
 
     jacoco {
-        toolVersion = "0.8.15"
+        toolVersion = libs.versions.g.jacoco
     }
     jacocoTestReport {
         reports {
