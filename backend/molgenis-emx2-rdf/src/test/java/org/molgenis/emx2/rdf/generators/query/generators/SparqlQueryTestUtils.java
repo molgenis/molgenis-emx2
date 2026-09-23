@@ -18,8 +18,25 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 
 public class SparqlQueryTestUtils {
+
+  private static final TableQueryGenerator GENERATOR = new TableQueryGenerator();
+
+  @SafeVarargs
+  static void assertQueryAndResults(
+      TableMetadata table,
+      SailRepository repository,
+      String expectedQuery,
+      Map<String, String>... expectedResults) {
+    String generatedQuery = GENERATOR.generate(table);
+    assertQueryEquals(expectedQuery, generatedQuery);
+    try (SailRepositoryConnection connection = repository.getConnection()) {
+      assertHasResults(executeQuery(connection, generatedQuery), expectedResults);
+    }
+  }
 
   @SafeVarargs
   static void assertHasResults(TupleQueryResult result, Map<String, String>... expectedResults) {
