@@ -3,6 +3,7 @@ package org.molgenis.emx2.rdf.generators.query.generators;
 import static org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryTestUtils.*;
 import static org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryTestUtils.assertHasResults;
 
+import java.util.List;
 import java.util.Map;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
@@ -12,12 +13,10 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Column;
-import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
+import org.molgenis.emx2.sql.SqlColumnExecutor;
 
 class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
 
@@ -28,36 +27,6 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
   private static final String ORDER_IRI = "https://example.com/order";
   private static final String MANUFACTURER_IRI = "https://example.com/manufacturer";
   public static final TableQueryGenerator GENERATOR = new TableQueryGenerator();
-
-  @Test
-  void givenReference_thenOnlyUseKey() {
-    SailRepository repository =
-        repository(
-            statement(PRODUCT_IRI, DCTERMS.TITLE, "pet"),
-            statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
-            statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
-            statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"));
-
-    SchemaMetadata schema =
-        new SchemaMetadata(SCHEMA_NAME)
-            .create(productTableWithSemantics("dcterms:title"), orderTable(true));
-
-    try (SailRepositoryConnection connection = repository.getConnection()) {
-      String query = GENERATOR.generate(schema.getTableMetadata("Order"));
-      TupleQueryResult bindingSets = executeQuery(connection, query);
-      assertHasResults(
-          bindingSets,
-          Map.of(
-              SparqlVariableUtil.SUBJECT_NAME,
-              ORDER_IRI,
-              "product__name",
-              "pet",
-              SparqlVariableUtil.SUBJECT_NAME + "product",
-              PRODUCT_IRI,
-              "id",
-              "order1"));
-    }
-  }
 
   @Test
   void givenReference_whenPrimaryKeyHasNoSemantics_thenSkip() {
@@ -82,37 +51,6 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
               PRODUCT_IRI,
               "id",
               "order1"));
-    }
-  }
-
-  @Test
-  void givenReference_whenOptional_thenAddOptional() {
-    SailRepository repository =
-        repository(
-            statement(PRODUCT_IRI, DCTERMS.TITLE, "pet"),
-            statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
-            statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
-            statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"));
-
-    SchemaMetadata schema =
-        new SchemaMetadata(SCHEMA_NAME)
-            .create(productTableWithSemantics("dcterms:title"), orderTable(false));
-
-    try (SailRepositoryConnection connection = repository.getConnection()) {
-      String query = GENERATOR.generate(schema.getTableMetadata("Order"));
-      TupleQueryResult bindingSets = executeQuery(connection, query);
-      assertHasResults(
-          bindingSets,
-          Map.of(
-              SparqlVariableUtil.SUBJECT_NAME,
-              ORDER_IRI,
-              SparqlVariableUtil.SUBJECT_NAME + "product",
-              PRODUCT_IRI,
-              "product__name",
-              "pet",
-              "id",
-              "order1"),
-          Map.of(SparqlVariableUtil.SUBJECT_NAME, ORDER_IRI + 2, "id", "order2"));
     }
   }
 
@@ -211,34 +149,38 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
   @Test
   void shouldResolveCrossSchemaReferences() {
     SailRepository repository =
-            repository(
-                    statement(PRODUCT_IRI, DCTERMS.TITLE, "pet"),
-                    statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
-                    statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
-                    statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"));
+        repository(
+            statement(PRODUCT_IRI, DCTERMS.TITLE, "pet"),
+            statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
+            statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
+            statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"));
 
     SchemaMetadata schemaB = new SchemaMetadata(SCHEMA_NAME + "B");
     schemaB.create(productTableWithSemantics("dcterms:title"));
 
     SchemaMetadata schemaA = new SchemaMetadata(SCHEMA_NAME + "A");
     TableMetadata order = orderTable(true);
-    order.getColumn("product").setRefSchemaName(schemaB.getName());
+    order.alterColumn(order.getColumn("product").setRefSchemaName(schemaB.getName()));
     schemaA.create(order);
+
+    SchemaMetadataProvider provider = new ListSchemaMetadataProvider(schemaA, schemaB);
+    schemaA.setSchemaMetadataProvider(provider);
+    schemaB.setSchemaMetadataProvider(provider);
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
       String query = GENERATOR.generate(schemaA.getTableMetadata("Order"));
       TupleQueryResult bindingSets = executeQuery(connection, query);
       assertHasResults(
-              bindingSets,
-              Map.of(
-                      SparqlVariableUtil.SUBJECT_NAME,
-                      ORDER_IRI,
-                      "product__name",
-                      "pet",
-                      SparqlVariableUtil.SUBJECT_NAME + "product",
-                      PRODUCT_IRI,
-                      "id",
-                      "order1"));
+          bindingSets,
+          Map.of(
+              SparqlVariableUtil.SUBJECT_NAME,
+              ORDER_IRI,
+              "product__name",
+              "pet",
+              SparqlVariableUtil.SUBJECT_NAME + "product",
+              PRODUCT_IRI,
+              "id",
+              "order1"));
     }
   }
 
@@ -323,30 +265,251 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
   class SingleSemanticTest {
 
     @Test
-    void shouldDoSimplifiedPatternOnSingleSemantic() {}
+    void givenReference_thenOnlyUseKey() {
+      SailRepository repository =
+          repository(
+              statement(PRODUCT_IRI, DCTERMS.TITLE, "pet"),
+              statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
+              statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
+              statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"));
+
+      SchemaMetadata schema =
+          new SchemaMetadata(SCHEMA_NAME)
+              .create(productTableWithSemantics("dcterms:title"), orderTable(true));
+
+      try (SailRepositoryConnection connection = repository.getConnection()) {
+        String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        TupleQueryResult bindingSets = executeQuery(connection, query);
+        assertHasResults(
+            bindingSets,
+            Map.of(
+                SparqlVariableUtil.SUBJECT_NAME,
+                ORDER_IRI,
+                "product__name",
+                "pet",
+                SparqlVariableUtil.SUBJECT_NAME + "product",
+                PRODUCT_IRI,
+                "id",
+                "order1"));
+      }
+    }
 
     @Test
-    void whenRelationIsOptional_thenAddOptionalClause() {}
+    void givenReference_whenOptional_thenAddOptional() {
+      SailRepository repository =
+          repository(
+              statement(PRODUCT_IRI, DCTERMS.TITLE, "pet"),
+              statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
+              statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
+              statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"));
+
+      SchemaMetadata schema =
+          new SchemaMetadata(SCHEMA_NAME)
+              .create(productTableWithSemantics("dcterms:title"), orderTable(false));
+
+      try (SailRepositoryConnection connection = repository.getConnection()) {
+        String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        TupleQueryResult bindingSets = executeQuery(connection, query);
+        assertHasResults(
+            bindingSets,
+            Map.of(
+                SparqlVariableUtil.SUBJECT_NAME,
+                ORDER_IRI,
+                SparqlVariableUtil.SUBJECT_NAME + "product",
+                PRODUCT_IRI,
+                "product__name",
+                "pet",
+                "id",
+                "order1"),
+            Map.of(SparqlVariableUtil.SUBJECT_NAME, ORDER_IRI + 2, "id", "order2"));
+      }
+    }
   }
 
   @Nested
   class MultipleSemanticsTest {
 
     @Test
-    void shouldUseOrCoalesce() {}
+    void shouldUseOrCoalesce() {
+      SailRepository repository =
+          repository(
+              statement(PRODUCT_IRI, DCTERMS.TITLE, "dog"),
+              statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
+              statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
+              statement(PRODUCT_IRI + 2, DCTERMS.ALTERNATIVE, "cat"),
+              statement(ORDER_IRI + 2, DCTERMS.RELATION, Values.iri(PRODUCT_IRI + 2)),
+              statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"),
+              statement(ORDER_IRI + 3, DCTERMS.IDENTIFIER, "order3"));
+
+      SchemaMetadata schema =
+          new SchemaMetadata(SCHEMA_NAME)
+              .create(
+                  productTableWithSemantics("dcterms:title", "dcterms:alternative"),
+                  orderTable(false));
+
+      try (SailRepositoryConnection connection = repository.getConnection()) {
+        String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        TupleQueryResult bindingSets = executeQuery(connection, query);
+        assertHasResults(
+            bindingSets,
+            Map.of(SparqlVariableUtil.SUBJECT_NAME, ORDER_IRI + 3, "id", "order3"),
+            Map.of(
+                SparqlVariableUtil.SUBJECT_NAME,
+                ORDER_IRI,
+                SparqlVariableUtil.SUBJECT_NAME + "product",
+                PRODUCT_IRI,
+                "product__name",
+                "dog",
+                "id",
+                "order1"),
+            Map.of(
+                SparqlVariableUtil.SUBJECT_NAME,
+                ORDER_IRI + 2,
+                SparqlVariableUtil.SUBJECT_NAME + "product",
+                PRODUCT_IRI + 2,
+                "product__name",
+                "cat",
+                "id",
+                "order2"));
+      }
+    }
 
     @Test
-    void whenRequired_thenIncludeFilter() {}
+    void whenRequired_thenIncludeFilter() {
+      SailRepository repository =
+          repository(
+              statement(PRODUCT_IRI, DCTERMS.TITLE, "dog"),
+              statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
+              statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
+              statement(PRODUCT_IRI + 2, DCTERMS.ALTERNATIVE, "cat"),
+              statement(ORDER_IRI + 2, DCTERMS.RELATION, Values.iri(PRODUCT_IRI + 2)),
+              statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"),
+              statement(PRODUCT_IRI + 3, DCTERMS.TITLE, "dog"));
+
+      SchemaMetadata schema =
+          new SchemaMetadata(SCHEMA_NAME)
+              .create(
+                  productTableWithSemantics("dcterms:title", "dcterms:alternative"),
+                  orderTable(true));
+
+      try (SailRepositoryConnection connection = repository.getConnection()) {
+        String query = GENERATOR.generate(schema.getTableMetadata("Order"));
+        TupleQueryResult bindingSets = executeQuery(connection, query);
+        assertHasResults(
+            bindingSets,
+            Map.of(
+                SparqlVariableUtil.SUBJECT_NAME,
+                ORDER_IRI,
+                SparqlVariableUtil.SUBJECT_NAME + "product",
+                PRODUCT_IRI,
+                "product__name",
+                "dog",
+                "id",
+                "order1"),
+            Map.of(
+                SparqlVariableUtil.SUBJECT_NAME,
+                ORDER_IRI + 2,
+                SparqlVariableUtil.SUBJECT_NAME + "product",
+                PRODUCT_IRI + 2,
+                "product__name",
+                "cat",
+                "id",
+                "order2"));
+      }
+    }
   }
 
   @Nested
   class OntologyReferencesTest {
 
-    @Test
-    void shouldHandleOntologyReferences() {}
+    private static final String SHAPE_IRI = "https://example.com/shape";
+    private static final String COLOR_IRI = "https://example.com/color";
 
     @Test
-    void shouldHandleOntologyArrayReferences() {}
+    void shouldHandleOntologyReferences() {
+      SchemaMetadata schema =
+          new SchemaMetadata(SCHEMA_NAME)
+              .create(productTableWithSemantics("dcterms:title"), orderTable(true));
+      schema.create(SqlColumnExecutor.getOntologyTableDefinition("colors", Map.of(), Map.of()));
+      schema.create(
+          TableMetadata.table(
+              "Shape",
+              Column.column("name")
+                  .setPkey()
+                  .setType(ColumnType.STRING)
+                  .setSemantics("dcterms:title"),
+              Column.column("color")
+                  .setType(ColumnType.ONTOLOGY)
+                  .setRefTable("colors")
+                  .setRequired(true)
+                  .setSemantics("dcterms:relation")));
+
+      SailRepository repository =
+          repository(
+              statement(SHAPE_IRI, DCTERMS.TITLE, "square"),
+              statement(SHAPE_IRI, DCTERMS.RELATION, Values.iri(COLOR_IRI)),
+              statement(
+                  COLOR_IRI,
+                  Values.iri("http://purl.obolibrary.org/obo/NCIT_C114456"),
+                  "don't use this"));
+
+      try (SailRepositoryConnection connection = repository.getConnection()) {
+        String query = GENERATOR.generate(schema.getTableMetadata("Shape"));
+        TupleQueryResult bindingSets = executeQuery(connection, query);
+        assertHasResults(
+            bindingSets,
+            Map.of(
+                SparqlVariableUtil.SUBJECT_NAME, SHAPE_IRI, "name", "square", "color", COLOR_IRI));
+      }
+    }
+
+    @Test
+    void shouldHandleOntologyArrayReferences() {
+      SchemaMetadata schema =
+          new SchemaMetadata(SCHEMA_NAME)
+              .create(productTableWithSemantics("dcterms:title"), orderTable(true));
+      schema.create(SqlColumnExecutor.getOntologyTableDefinition("colors", Map.of(), Map.of()));
+      schema.create(
+          TableMetadata.table(
+              "Shape",
+              Column.column("name")
+                  .setPkey()
+                  .setType(ColumnType.STRING)
+                  .setSemantics("dcterms:title"),
+              Column.column("color")
+                  .setType(ColumnType.ONTOLOGY_ARRAY)
+                  .setRefTable("colors")
+                  .setRequired(true)
+                  .setSemantics("dcterms:relation")));
+
+      SailRepository repository =
+          repository(
+              statement(SHAPE_IRI, DCTERMS.TITLE, "square"),
+              statement(SHAPE_IRI, DCTERMS.RELATION, Values.iri(COLOR_IRI)),
+              statement(SHAPE_IRI, DCTERMS.RELATION, Values.iri(COLOR_IRI + 2)),
+              statement(
+                  COLOR_IRI,
+                  Values.iri("http://purl.obolibrary.org/obo/NCIT_C114456"),
+                  "don't use this"),
+              statement(
+                  COLOR_IRI + 2,
+                  Values.iri("http://purl.obolibrary.org/obo/NCIT_C114456"),
+                  "nor this one"));
+
+      try (SailRepositoryConnection connection = repository.getConnection()) {
+        String query = GENERATOR.generate(schema.getTableMetadata("Shape"));
+        TupleQueryResult bindingSets = executeQuery(connection, query);
+        assertHasResults(
+            bindingSets,
+            Map.of(
+                SparqlVariableUtil.SUBJECT_NAME,
+                SHAPE_IRI,
+                "name",
+                "square",
+                "color",
+                COLOR_IRI + "|" + COLOR_IRI + 2));
+      }
+    }
   }
 
   private TableMetadata orderTable(boolean productRequired) {
@@ -383,5 +546,22 @@ class ReferenceColumnSparqlQueryGeneratorIntegrationTest {
     return TableMetadata.table(
         "Product",
         Column.column("name").setType(ColumnType.STRING).setPkey().setSemantics(semantics));
+  }
+
+  private static class ListSchemaMetadataProvider implements SchemaMetadataProvider {
+
+    private final List<SchemaMetadata> schemas;
+
+    private ListSchemaMetadataProvider(SchemaMetadata... schemas) {
+      this.schemas = List.of(schemas);
+    }
+
+    @Override
+    public SchemaMetadata getSchemaMetadata(String schemaName) {
+      return schemas.stream()
+          .filter(schema -> schema.getName().equals(schemaName))
+          .findFirst()
+          .orElseThrow(() -> new IllegalStateException("No schema found for: " + schemaName));
+    }
   }
 }
