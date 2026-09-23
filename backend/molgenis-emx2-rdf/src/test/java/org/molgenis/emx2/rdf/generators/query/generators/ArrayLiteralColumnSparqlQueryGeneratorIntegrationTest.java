@@ -2,7 +2,6 @@ package org.molgenis.emx2.rdf.generators.query.generators;
 
 import static org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryTestUtils.*;
 
-import java.util.List;
 import java.util.Map;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.query.TupleQueryResult;
@@ -41,7 +40,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorIntegrationTest {
       TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
       assertHasResults(
           bindingSets,
-          List.of(Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius")));
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius"));
     }
   }
 
@@ -59,7 +58,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorIntegrationTest {
 
     try (SailRepositoryConnection connection = repository.getConnection()) {
       TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
-      assertHasResults(bindingSets, List.of(Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI)));
+      assertHasResults(bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI));
     }
   }
 
@@ -83,7 +82,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorIntegrationTest {
       TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
       assertHasResults(
           bindingSets,
-          List.of(Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius")));
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius"));
     }
   }
 
@@ -108,7 +107,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorIntegrationTest {
       TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
       assertHasResults(
           bindingSets,
-          List.of(Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius")));
+          Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius"));
     }
   }
 
@@ -130,8 +129,7 @@ class ArrayLiteralColumnSparqlQueryGeneratorIntegrationTest {
     try (SailRepositoryConnection connection = repository.getConnection()) {
       TupleQueryResult bindingSets = executeQuery(connection, GENERATOR.generate(table));
       assertHasResults(
-          bindingSets,
-          List.of(Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin")));
+          bindingSets, Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin"));
     }
   }
 }
