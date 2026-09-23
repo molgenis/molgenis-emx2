@@ -14,11 +14,11 @@ const items = [
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-7.5 text-title-contrast">
     <div class="p-2.5">
       <p class="font-bold mb-2.5">Ordered List</p>
-      <OrderedList id="ordered-list-demo" :items="items" />
+      <OrderedList id="ordered-list-demo" :orderedItems="items" />
     </div>
     <div class="p-2.5">
       <p class="font-bold mb-2.5">Unordered List</p>
-      <UnorderedList id="unordered-list-demo" :items="items" />
+      <UnorderedList id="unordered-list-demo" :unorderedItems="items" />
     </div>
   </div>
 </template>

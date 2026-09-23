@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-import NavigationCards from "./NavigationCards.vue";
+import NavigationCard from "./NavigationCard.vue";
 import ComponentActions from "../ComponentActions.vue";
 
 import type { INavigationCards } from "../../../../types/cms";
@@ -19,7 +19,7 @@ const showMenu = ref<boolean>(false);
     v-if="isEditable"
     v-model:show="showMenu"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 200 }"
+    :delay="{ show: 100, hide: 50 }"
     placement="bottom-start"
     noAutoFocus
   >
@@ -33,7 +33,7 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <NavigationCards
+    <NavigationCard
       :id="id"
       :title="title"
       :description="description"
@@ -42,7 +42,7 @@ const showMenu = ref<boolean>(false);
       :urlIsExternal="urlIsExternal"
     />
   </VMenu>
-  <NavigationCards
+  <NavigationCard
     v-else
     :id="id"
     :title="title"

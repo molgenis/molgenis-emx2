@@ -5,13 +5,16 @@ import { ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn as useAnimationFrame } from "@vueuse/core";
 import { hideAllPoppers } from "floating-vue";
+
 import {
   addBlock,
   addComponent,
   moveBlockTo,
   moveComponentTo,
 } from "../../utils/cms";
+
 import type { IDraggingInfo } from "../../../types/CmsComponents";
+
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
 
@@ -59,6 +62,7 @@ useAnimationFrame(() => {
     0
   );
 });
+
 async function handleDrop() {
   if (props.draggingInfo.action === "create") {
     await addComponentToBlock();
@@ -66,6 +70,7 @@ async function handleDrop() {
     await moveComponentToBlock();
   }
 }
+
 async function addComponentToBlock() {
   if (props.draggingInfo.componentType === "Component") {
     await addComponent(
@@ -87,6 +92,7 @@ async function addComponentToBlock() {
   hideAllPoppers();
   emit("updatePage");
 }
+
 async function moveComponentToBlock() {
   if (props.draggingInfo.componentType === "Component") {
     await moveComponentTo(
