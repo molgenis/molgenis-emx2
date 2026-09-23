@@ -1,19 +1,30 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { useDebounceFn } from "@vueuse/core";
+import type { ITableSettings } from "../../../types/types.ts";
+import { FILTER_DEBOUNCE } from "../../composables/useFilters";
 import Table from "../Table.vue";
-const props = defineProps<{
-  columns: { id: string; label: string }[];
-  rows: Record<string, unknown>[];
-  settings: {
-    search: string | undefined;
-    page: number;
-    pageSize: number;
-    totalRowCount: number;
-  };
-}>();
+
+const props = withDefaults(
+  defineProps<{
+    columns: { id: string; label: string }[];
+    rows: Record<string, unknown>[];
+    count: number;
+    settings: ITableSettings;
+    searchPlaceholder?: string;
+  }>(),
+  {
+    searchPlaceholder: "Search",
+  }
+);
 
 const emit = defineEmits<{
-  (event: "update:settings", value: typeof props.settings): void;
+  (event: "update:settings", value: ITableSettings): void;
 }>();
+
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(props.count / props.settings.pageSize))
+);
 
 function handlePagingRequest(page: number) {
   emit("update:settings", { ...props.settings, page });
@@ -27,18 +38,18 @@ function handlePageSizeChange(pageSize: string) {
   });
 }
 
-function handleSearchChange(search?: string) {
+const handleSearchChange = useDebounceFn((search?: string) => {
   emit("update:settings", { ...props.settings, search, page: 1 });
-}
+}, FILTER_DEBOUNCE);
 </script>
 
 <template>
   <InputSearch
     class="w-3/5 xl:w-2/5 2xl:w-1/5"
     size="medium"
-    modelValue="settings.search"
+    :model-value="settings.search"
     @update:model-value="handleSearchChange($event)"
-    placeholder="Search roles"
+    :placeholder="searchPlaceholder"
     id="search-input"
   />
   <Table>
@@ -50,7 +61,7 @@ function handleSearchChange(search?: string) {
       </TableHeadRow>
     </template>
     <template #body>
-      <TableRow v-for="row in rows" :key="`${row.schemaId}/${row.roleName}`">
+      <TableRow v-for="(row, index) in rows" :key="index">
         <TableCell v-for="column in columns" :key="column.id">
           {{ row[column.id] }}
         </TableCell>
@@ -61,7 +72,7 @@ function handleSearchChange(search?: string) {
   <Pagination
     class="pt-0 pb-[30px]"
     :current-page="settings.page"
-    :totalPages="Math.ceil(settings.totalRowCount / settings.pageSize)"
+    :totalPages="totalPages"
     :jumpToEdge="true"
     :pageSize="settings.pageSize"
     :showPageSizeSelector="true"
