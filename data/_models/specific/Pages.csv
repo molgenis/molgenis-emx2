@@ -33,6 +33,7 @@ Headers,,title,string,,,,,,,,,,A title for the page,pages
 Headers,,subtitle,string,,,,,,,,,,An optional secondary title that describes the page,pages
 Headers,,background image,select,,,Images,,,,,,,An image to display in the background of the header,pages
 Headers,,title is centered,bool,,,,,,,,FALSE,,"If true, the title and subtitle will be center aligned",pages
+Headers,,page header height,ontology,,,Cms page header heights,,,,,default,,"The height of the page header component (e.g., default, small, larger, etc.)",pages
 Text elements,Components,,,,,,,,,,,,All text elements,pages
 Text elements,,text,text,,,,,,,,,,"The content to display",pages
 Headings,Text elements,,,,,,,,,,,,<h*> elements,pages

@@ -1,4 +1,4 @@
-// Generated (on: 2026-09-16T11:45:07.164987) from Generator.java for schema: cms
+// Generated (on: 2026-09-23T14:16:19.659763) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -47,11 +47,29 @@ export interface IBlocks extends IMgTableClass {
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
+  pageHeaderHeight?: IOntologyNode;
   columns?: number;
   applyShadedBackground?: boolean;
 }
 
 export interface IBlocks_agg {
+  count: number;
+}
+
+export interface ICmsPageHeaderHeights extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICmsPageHeaderHeights;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICmsPageHeaderHeights[];
+}
+
+export interface ICmsPageHeaderHeights_agg {
   count: number;
 }
 
@@ -177,6 +195,7 @@ export interface IHeaders extends IMgTableClass {
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
+  pageHeaderHeight?: IOntologyNode;
   enableFullScreenWidth?: boolean;
   inContainer?: any;
   components?: IComponents[];
