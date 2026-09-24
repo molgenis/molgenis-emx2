@@ -1,133 +1,157 @@
 package org.molgenis.emx2.rdf.generators.query.generators;
 
-import static org.eclipse.rdf4j.model.util.Statements.statement;
-import static org.eclipse.rdf4j.model.util.Values.iri;
-import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.SemanticTestUtils.toSemantic;
-import static org.molgenis.emx2.rdf.generators.MapperAssertions.*;
+import static org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryTestUtils.*;
 
-import java.util.List;
-import org.eclipse.rdf4j.model.IRI;
+import java.util.Map;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.QueryLanguage;
-import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
-import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
-import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
-import org.eclipse.rdf4j.sparqlbuilder.core.query.Queries;
-import org.eclipse.rdf4j.sparqlbuilder.core.query.SelectQuery;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.DefaultNamespace;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
 
 class ArrayLiteralColumnSparqlQueryGeneratorTest {
 
-  private static final Variable START = SparqlBuilder.var("start");
-  private TableMetadata table;
-
-  @BeforeEach
-  void setUp() {
-    table =
-        new SchemaMetadata(getClass().getSimpleName()).create(new TableMetadata("arrayliterals"));
-  }
+  private static final String IRI = "https://example.com/person";
 
   @Test
   void shouldConcatSelectors() {
-    Column column = createColumn(Column.column("foo").setRequired(true).setSemantics("foaf:test"));
-    ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
-    assertHasPatterns(mapper, "?start foaf:test ?foo_single .");
-    assertHasSelectors(
-        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
-    assertHasGroupBy(mapper);
+    SailRepository repository =
+        repository(
+            statement(IRI, FOAF.FIRST_NAME, "Lewis"),
+            statement(IRI, FOAF.FIRST_NAME, "Robin"),
+            statement(IRI, FOAF.FIRST_NAME, "Demetrius"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("name", ColumnType.STRING_ARRAY).setSemantics("foaf:firstName")));
+
+    assertQueryAndResults(
+        table,
+        repository,
+        """
+        SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?name_single ) ; SEPARATOR = '|' ) AS ?name )
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject_ foaf:firstName ?name_single . } }
+        GROUP BY ?_subject_
+        """,
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius"));
   }
 
   @Test
   void shouldHandleNoSemantics() {
-    Column column = createColumn(Column.column("foo").setRequired(true).setSemantics());
-    ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
-    assertTrue(mapper.getPatterns().isEmpty());
-    assertHasSelectors(
-        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
-    assertHasGroupBy(mapper);
+    SailRepository repository =
+        repository(
+            statement(IRI, FOAF.FIRST_NAME, "Lewis"),
+            statement(IRI, FOAF.FIRST_NAME, "Robin"),
+            statement(IRI, FOAF.FIRST_NAME, "Demetrius"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(TableMetadata.table("Person", Column.column("name", ColumnType.STRING_ARRAY)));
+
+    assertQueryAndResults(
+        table,
+        repository,
+        """
+        SELECT ?_subject_
+        WHERE { ?_subject_ ?anyPredicate ?anyObject . }
+        GROUP BY ?_subject_
+        """,
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI));
   }
 
   @Test
   void givenMultipleSemantics_thenConcatBindValue() {
-    Column column =
-        createColumn(
-            Column.column("foo")
-                .setRequired(true)
-                .setSemantics(
-                    "foaf:test",
-                    "https://xmlns.com/foaf/0.1/alternative",
-                    "<https://xmlns.com/foaf/0.1/alternative_second>",
-                    "foaf:also_alternative"));
-    ColumnSparqlQueryGenerator mapper = new ArrayColumnSparqlQueryGenerator(START, column);
+    SailRepository repository =
+        repository(
+            statement(IRI, FOAF.FIRST_NAME, "Lewis"),
+            statement(IRI, FOAF.FIRST_NAME, "Robin"),
+            statement(IRI, FOAF.FIRST_NAME, "Demetrius"));
 
-    assertHasPatterns(
-        mapper,
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("name", ColumnType.STRING_ARRAY)
+                        .setSemantics("foaf:firstName", "foaf:givenName")));
+
+    assertQueryAndResults(
+        table,
+        repository,
         """
-        OPTIONAL { OPTIONAL { ?start foaf:test ?foo_single0 . }
-        OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative> ?foo_single1 . }
-        OPTIONAL { ?start <https://xmlns.com/foaf/0.1/alternative_second> ?foo_single2 . }
-        OPTIONAL { ?start foaf:also_alternative ?foo_single3 . }
-        BIND( COALESCE( ?foo_single0, ?foo_single1, ?foo_single2, ?foo_single3 ) AS ?foo_single ) }""",
-        "FILTER ( BOUND( ?foo_single ) )");
-    assertHasSelectors(
-        mapper, "( GROUP_CONCAT( DISTINCT STR( ?foo_single ) ; SEPARATOR = '|' ) AS ?foo )");
-    assertHasGroupBy(mapper);
+        SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?name_single ) ; SEPARATOR = '|' ) AS ?name )
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject_ foaf:firstName ?name_single0 . }
+        OPTIONAL { ?_subject_ foaf:givenName ?name_single1 . }
+        BIND( COALESCE( ?name_single0, ?name_single1 ) AS ?name_single ) }
+        GROUP BY ?_subject_
+        """,
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius"));
+  }
+
+  @Disabled("This use case is currently a known limitation")
+  @Test
+  void givenMultipleSemantics_whenDifferentSemanticsUsedForSameCollection_thenCombine() {
+    SailRepository repository =
+        repository(
+            statement(IRI, FOAF.FIRST_NAME, "Lewis"),
+            statement(IRI, FOAF.GIVEN_NAME, "Robin"),
+            statement(IRI, FOAF.FIRST_NAME, "Demetrius"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("name", ColumnType.STRING_ARRAY)
+                        .setSemantics("foaf:firstName", "foaf:givenName")));
+
+    assertQueryAndResults(
+        table,
+        repository,
+        """
+        SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?name_single ) ; SEPARATOR = '|' ) AS ?name )
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject_ foaf:firstName ?name_single0 . }
+        OPTIONAL { ?_subject_ foaf:givenName ?name_single1 . }
+        BIND( COALESCE( ?name_single0, ?name_single1 ) AS ?name_single ) }
+        GROUP BY ?_subject_
+        """,
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Demetrius"));
   }
 
   @Test
   void givenCollection_whenValueAppearsMultipleTimes_thenDistinct() {
-    List<Column> columns =
-        List.of(
-            createColumn(
-                Column.column("foo").setRequired(true).setSemantics(toSemantic(FOAF.FIRST_NAME))),
-            createColumn(
-                Column.column("bar").setRequired(true).setSemantics(toSemantic(FOAF.LAST_NAME))));
+    SailRepository repository =
+        repository(
+            statement(IRI, FOAF.FIRST_NAME, "Lewis"),
+            statement(IRI, FOAF.FIRST_NAME, "Robin"),
+            statement(IRI, FOAF.FIRST_NAME, "Robin"));
 
-    SelectQuery query = Queries.SELECT().prefix(DefaultNamespace.FOAF.getNamespace());
-    for (Column column : columns) {
-      ArrayColumnSparqlQueryGenerator collectionColumnMapper =
-          new ArrayColumnSparqlQueryGenerator(START, column);
-      collectionColumnMapper.getSelectors().forEach(query::select);
-      collectionColumnMapper.getGroupBy().forEach(query::groupBy);
-      collectionColumnMapper.getPatterns().forEach(query::where);
-    }
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "Person",
+                    Column.column("name", ColumnType.STRING_ARRAY).setSemantics("foaf:firstName")));
 
-    SailRepository repository = new SailRepository(new MemoryStore());
-    try (SailRepositoryConnection connection = repository.getConnection()) {
-      addTripletToRepository(connection, FOAF.FIRST_NAME, "foo1");
-      addTripletToRepository(connection, FOAF.FIRST_NAME, "foo2");
-      addTripletToRepository(connection, FOAF.LAST_NAME, "bar1");
-      addTripletToRepository(connection, FOAF.LAST_NAME, "bar2");
-      connection.commit();
-
-      try (TupleQueryResult queryResult =
-          connection.prepareTupleQuery(QueryLanguage.SPARQL, query.getQueryString()).evaluate()) {
-        BindingSet binding = queryResult.next();
-        assertEquals(literal("foo1|foo2"), binding.getValue("foo"));
-        assertEquals(literal("bar1|bar2"), binding.getValue("bar"));
-        assertFalse(queryResult.hasNext());
-      }
-    }
-  }
-
-  private void addTripletToRepository(
-      SailRepositoryConnection connection, IRI predicate, String object) {
-    connection.add(statement(iri("https://example.com/bob"), predicate, literal(object), null));
-  }
-
-  private Column createColumn(Column column) {
-    table.add(column);
-    return table.getColumn(column.getName());
+    assertQueryAndResults(
+        table,
+        repository,
+        """
+        SELECT ?_subject_ ( GROUP_CONCAT( DISTINCT STR( ?name_single ) ; SEPARATOR = '|' ) AS ?name )
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject_ foaf:firstName ?name_single . } }
+        GROUP BY ?_subject_
+        """,
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin"));
   }
 }
