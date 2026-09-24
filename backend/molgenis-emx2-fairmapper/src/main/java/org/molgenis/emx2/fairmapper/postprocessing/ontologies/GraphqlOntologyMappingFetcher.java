@@ -32,19 +32,19 @@ class GraphqlOntologyMappingFetcher implements OntologyMappingFetcher {
 
   @Override
   public Map<String, String> getMapping(String schemaName, String tableName) {
-    String pascal = TypeUtils.convertToPascalCase(tableName);
-    JsonNode jsonNode = client.sendSchemaQuery(schemaName, QUERY.formatted(pascal));
-    if (!jsonNode.has(pascal)) {
+    String tableNamePascalCase = TypeUtils.convertToPascalCase(tableName);
+    JsonNode jsonNode = client.sendSchemaQuery(schemaName, QUERY.formatted(tableNamePascalCase));
+    if (!jsonNode.has(tableNamePascalCase)) {
       throw new MolgenisException(
           "No data returned for table: " + tableName + " in schema: " + schemaName);
     }
 
     List<OntologyMapping> ontologyMappings =
-        MAPPER.convertValue(jsonNode.get(pascal), new TypeReference<>() {});
+        MAPPER.convertValue(jsonNode.get(tableNamePascalCase), new TypeReference<>() {});
     if (ontologyMappings == null) {
       throw new MolgenisException(
           "Unable to convert json node to a list of OntologyMappings: "
-              + jsonNode.get(pascal).toString());
+              + jsonNode.get(tableNamePascalCase).toString());
     }
 
     return ontologyMappings.stream()
