@@ -122,7 +122,7 @@ def convert_collections_to_collections(coll, mappings):
     links = pd.concat([links_1, links_2])
     coll = pd.concat([parent_coll, to_promote_coll, to_curate_coll])
     # Attribute-level operations which apply to all Collections
-    coll["held by"] = coll["biobank"]
+    coll["custodian"] = coll["biobank"]
     coll["type"] = "Biobank"
     return coll, links
 
@@ -241,7 +241,7 @@ async def main():
             columns=[
                 "id",
                 "name",
-                "held by",
+                "custodian",
                 "type",
                 "description",
             ]
@@ -258,13 +258,13 @@ async def main():
         # Post-process data
         # Link collections to their newly minted legal-entity organisations
         jp_orgs = organisations.loc[organisations["id"].str.startswith(jp_prefix)]
-        collections.loc[~collections["held by"].isin(biobanks["id"]), "held by"] = (
+        collections.loc[~collections["custodian"].isin(biobanks["id"]), "custodian"] = (
             jp_orgs.set_index("name")
             .loc[
                 data["Biobanks"]
                 .set_index("id")
                 .loc[
-                    collections.loc[~collections["held by"].isin(biobanks["id"]), "held by"],
+                    collections.loc[~collections["custodian"].isin(biobanks["id"]), "custodian"],
                     "juridical_person",
                 ],
                 "id",
