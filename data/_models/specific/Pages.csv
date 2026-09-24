@@ -29,8 +29,9 @@ Components,,,,,,,,,,,,,,Content to display in the frontend,pages
 Headers,Blocks,,,,,,,,,,,,NCIT:C68829,<header> elements,pages
 Headers,,title,string,,,,,,,,,,sio:000185,A title for the page,pages
 Headers,,subtitle,string,,,,,,,,,,sio:000471,An optional secondary title that describes the page,pages
-Headers,,background image,select,,,,Images,,,,,,SIO:000179,An image to display in the background of the header,pages
+Headers,,background image,select,,,,Images,,${image?.filename},,,,SIO:000179,An image to display in the background of the header,pages
 Headers,,title is centered,bool,,,,,,,,,FALSE,,"If true, the title and subtitle will be center aligned",pages
+Headers,,page header height,ontology,,,,Cms page header heights,,,,,default,,"The height of the page header component (e.g., default, small, larger, etc.)",pages
 Text elements,Components,,,,,,,,,,,,sio:000651,All text elements,pages
 Text elements,,text,text,,,,,,,,,,sio:000651,The content to display,pages
 Headings,Text elements,,,,,,,,,,,,ncit:C68829,<h*> elements,pages

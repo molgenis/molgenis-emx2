@@ -91,7 +91,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
 
   private void resolveRow(TableStore tableStore, Row row, List<Column> referenceColumns) {
     for (Column column : referenceColumns) {
-      if (!row.notNull(subjectField(column))) {
+      if (!row.notEmpty(subjectField(column))) {
         continue;
       }
 
@@ -108,7 +108,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
     Row referencedRow = TableStoreUtils.getRowForSubject(tableStore, column.getRefTable(), subject);
 
     for (Reference reference : column.getReferences()) {
-      if (row.notNull(reference.getColumnName())) {
+      if (row.notEmpty(reference.getColumnName())) {
         continue;
       }
 
@@ -170,7 +170,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
 
   /** Returns {@code reference}'s value if {@code referencedRow} already has it. Read-only. */
   private static Optional<Object> readAvailableValue(Reference reference, Row referencedRow) {
-    if (referencedRow.notNull(reference.getReferencedColumnName())) {
+    if (referencedRow.notEmpty(reference.getReferencedColumnName())) {
       return Optional.of(referencedRow.getValueMap().get(reference.getReferencedColumnName()));
     }
     return Optional.empty();

@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import OrderedList from "./OrderedList.vue";
-import type { IOrderedLists } from "../../../../types/cms.ts";
+import Heading from "./Heading.vue";
 import ComponentActions from "../ComponentActions.vue";
+import type { IHeadings } from "../../../../types/cms";
 
 const props = withDefaults(
-  defineProps<IOrderedLists & { isEditable?: boolean }>(),
+  defineProps<IHeadings & { isEditable?: boolean }>(),
   {
+    level: 2,
+    headingIsCentered: false,
+    headingIsHidden: false,
     isEditable: false,
   }
 );
@@ -18,15 +21,17 @@ const showMenu = ref<boolean>(false);
 <template>
   <VMenu
     v-if="isEditable"
-    v-model:show="showMenu"
+    v-model:shown="showMenu"
+    showGroup="component-menu"
+    :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
     :delay="{ show: 100, hide: 50 }"
-    placement="bottom-start"
+    :placement="headingIsCentered ? 'bottom' : 'bottom-start'"
     noAutoFocus
   >
     <template #popper>
       <ComponentActions
-        name="OrderedLists"
+        name="Heading"
         :id="`${id}-toolbar`"
         :aria-controls="id"
         @edit="$emit('edit')"
@@ -34,7 +39,16 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <OrderedList :id="id" :orderedItems="orderedItems" />
+    <div>
+      <Heading
+        v-bind="props"
+        :class="{
+          group: isEditable,
+          underline: showMenu,
+          'sr-only': headingIsHidden,
+        }"
+      />
+    </div>
   </VMenu>
-  <OrderedList v-else :id="id" :orderedItems="orderedItems" />
+  <Heading v-else v-bind="props" />
 </template>

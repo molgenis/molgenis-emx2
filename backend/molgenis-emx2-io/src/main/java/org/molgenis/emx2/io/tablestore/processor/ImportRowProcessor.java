@@ -70,8 +70,13 @@ public class ImportRowProcessor implements RowProcessor {
       TableStore source, List<Column> columns, Row row, int index) {
     // add file attachments, if applicable
     for (Column c : columns) {
-      if (cellRefersToAttachment(source, c, row)) {
-        BinaryFileWrapper fileWrapper = getFileWrapper((TableAndFileStore) source, c, row, index);
+      if (cellRefersToAttachment(c, row)) {
+        if (!(source instanceof TableAndFileStore fileStore)) {
+          throw new MolgenisException(
+              "Failed to read file attachment for table '%s' column '%s' row '%d': file contents cannot be found because this import format does not contain files. Use a zip file or a directory with a '_files' folder to import files."
+                  .formatted(table.getName(), c.getName(), index));
+        }
+        BinaryFileWrapper fileWrapper = getFileWrapper(fileStore, c, row, index);
         row.setBinary(c.getName(), fileWrapper);
       }
     }
@@ -94,9 +99,7 @@ public class ImportRowProcessor implements RowProcessor {
     }
   }
 
-  private static boolean cellRefersToAttachment(TableStore source, Column column, Row row) {
-    return column.isFile()
-        && source instanceof TableAndFileStore
-        && row.getValueMap().get(column.getName()) != null;
+  private static boolean cellRefersToAttachment(Column column, Row row) {
+    return column.isFile() && row.getString(column.getName()) != null;
   }
 }

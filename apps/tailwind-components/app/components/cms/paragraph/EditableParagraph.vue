@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import OrderedList from "./OrderedList.vue";
-import type { IOrderedLists } from "../../../../types/cms.ts";
+import Paragraph from "./Paragraph.vue";
 import ComponentActions from "../ComponentActions.vue";
+import type { IParagraphs } from "../../../../types/cms";
 
 const props = withDefaults(
-  defineProps<IOrderedLists & { isEditable?: boolean }>(),
+  defineProps<IParagraphs & { isEditable?: boolean }>(),
   {
+    paragraphIsCentered: false,
     isEditable: false,
   }
 );
-
 const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
 </script>
@@ -18,15 +18,17 @@ const showMenu = ref<boolean>(false);
 <template>
   <VMenu
     v-if="isEditable"
-    v-model:show="showMenu"
+    v-model:shown="showMenu"
+    showGroup="component-menu"
+    :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
     :delay="{ show: 100, hide: 50 }"
-    placement="bottom-start"
+    :placement="paragraphIsCentered ? 'bottom-auto' : 'bottom-start'"
     noAutoFocus
   >
     <template #popper>
       <ComponentActions
-        name="OrderedLists"
+        name="Paragraph"
         :id="`${id}-toolbar`"
         :aria-controls="id"
         @edit="$emit('edit')"
@@ -34,7 +36,7 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <OrderedList :id="id" :orderedItems="orderedItems" />
+    <Paragraph v-bind="props" />
   </VMenu>
-  <OrderedList v-else :id="id" :orderedItems="orderedItems" />
+  <Paragraph v-else v-bind="props" />
 </template>
