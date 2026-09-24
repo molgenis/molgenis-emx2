@@ -26,14 +26,28 @@ const settings = ref<ITableSettings>({
 
 const customRoles = ref<CustomRole[]>([]);
 
-const rows = computed(() =>
-  customRoles.value.map((customRole) => ({
+const rows = computed(() => {
+  const offset = (settings.value.page - 1) * settings.value.pageSize;
+
+  const transformedRoles = customRoles.value.map((customRole) => ({
     schemaId: customRole.schemaId,
     roleName: customRole.roleName,
     tables: getTableNames(customRole),
     users: getUserNames(customRole),
-  }))
-);
+  }));
+
+  const filteredRoles = transformedRoles.filter((role) => {
+    const search = settings.value?.search?.toLowerCase() || "";
+    return (
+      role.schemaId.toLowerCase().includes(search) ||
+      role.roleName.toLowerCase().includes(search) ||
+      role.tables.toLowerCase().includes(search) ||
+      role.users.toLowerCase().includes(search)
+    );
+  });
+
+  return filteredRoles.slice(offset, offset + settings.value.pageSize);
+});
 
 let latestRequest = 0;
 
