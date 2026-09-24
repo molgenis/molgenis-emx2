@@ -5,9 +5,9 @@ import TableInteractive from "../../../../tailwind-components/app/components/tab
 import constants from "../../../../tailwind-components/app/utils/constants.ts";
 import type {
   ITableSettings,
-  SchemaRole,
+  CustomRole,
 } from "../../../../tailwind-components/types/types.ts";
-import { getSchemaPermissions } from "../../util/adminUtils.ts";
+import { getCustomRoles } from "../../util/adminUtils.ts";
 
 const COLUMNS: IColumn[] = [
   { label: "Schema", id: "schemaId", columnType: "STRING" },
@@ -24,49 +24,42 @@ const settings = ref<ITableSettings>({
   orderedColumnsIds: [],
 });
 
-const schemaRoles = ref<SchemaRole[]>([]);
-const schemaRoleCount = ref(0);
+const customRoles = ref<CustomRole[]>([]);
 
 const rows = computed(() =>
-  schemaRoles.value.map((schemaRole) => ({
-    schemaId: schemaRole.schemaId,
-    roleName: schemaRole.roleName,
-    tables: getTableNames(schemaRole),
-    users: getUserNames(schemaRole),
+  customRoles.value.map((customRole) => ({
+    schemaId: customRole.schemaId,
+    roleName: customRole.roleName,
+    tables: getTableNames(customRole),
+    users: getUserNames(customRole),
   }))
 );
 
 let latestRequest = 0;
 
-async function loadSchemaRoles() {
+async function loadCustomRoles() {
   const request = ++latestRequest;
-  const { page, pageSize, search } = settings.value;
-  const loaded = await getSchemaPermissions(
-    pageSize,
-    (page - 1) * pageSize,
-    search
-  );
+  const loaded = await getCustomRoles();
   if (request === latestRequest) {
-    schemaRoles.value = loaded.schemaRoles;
-    schemaRoleCount.value = loaded.schemaRoleCount;
+    customRoles.value = loaded.customRoles;
   }
 }
 
-await loadSchemaRoles();
+await loadCustomRoles();
 
 async function handleSettingsChange(updated: ITableSettings) {
   settings.value = updated;
-  await loadSchemaRoles();
+  await loadCustomRoles();
 }
 
-function getTableNames(schemaRole: SchemaRole) {
-  return schemaRole.permissions
+function getTableNames(customRole: CustomRole) {
+  return customRole.permissions
     .map((permission) => permission.table)
     .join(", ");
 }
 
-function getUserNames(schemaRole: SchemaRole) {
-  return schemaRole.users.join(", ");
+function getUserNames(customRole: CustomRole) {
+  return customRole.users.join(", ");
 }
 </script>
 
@@ -74,7 +67,7 @@ function getUserNames(schemaRole: SchemaRole) {
   <TableInteractive
     :columns="COLUMNS"
     :rows="rows"
-    :count="schemaRoleCount"
+    :count="customRoles.length"
     :settings="settings"
     @update:settings="handleSettingsChange"
     search-placeholder="Search roles"
