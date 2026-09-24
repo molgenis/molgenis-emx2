@@ -1,5 +1,5 @@
 import { $fetch } from "ofetch";
-import type { SchemaRole } from "../../../tailwind-components/types/types";
+import type { CustomRole } from "../../../tailwind-components/types/types";
 import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
 
 const GRAPHQL = "/graphql";
@@ -157,35 +157,35 @@ export function isValidPassword(password1: string, password2: string) {
   return password1.length > 7 && password1 === password2;
 }
 
-export async function getSchemaPermissions(
-  limit: number,
-  offset: number,
-  search?: string
-): Promise<{ schemaRoles: SchemaRole[]; schemaRoleCount: number }> {
-  const query = `query schemaRoles($limit: Int, $offset: Int, $search: String) {
+export async function getCustomRoles(): Promise<{
+  customRoles: CustomRole[];
+}> {
+  const query = `query customRoles{
     _admin {
-      schemaRoles (limit: $limit, offset: $offset, search: $search) {
-        schemaId, roleName, users, permissions { table, select, insert, update, delete, isRowLevel }
+      customRoles {
+        schemaId, 
+        roleName, 
+        users, 
+        permissions { 
+          table, select, insert, update, delete, isRowLevel 
+        }
       }
-      schemaRoleCount (search: $search)
     }
   }`;
   return $fetch<AdminResponse>(API_GRAPHQL, {
     method: "post",
     body: {
       query,
-      variables: { limit, offset, search },
     },
   })
     .then((response) => {
       return {
-        schemaRoles: response?.data._admin.schemaRoles || [],
-        schemaRoleCount: response?.data._admin.schemaRoleCount ?? 0,
+        customRoles: response?.data._admin.customRoles || [],
       };
     })
     .catch((error) => {
-      handleError("Error loading schema permissions: ", error.value);
-      return { schemaRoles: [], schemaRoleCount: 0 };
+      handleError("Error loading custom roles: ", error.value);
+      return { customRoles: [] };
     });
 }
 
@@ -194,8 +194,7 @@ interface AdminResponse {
     _admin: {
       users: User[];
       userCount: number;
-      schemaRoles: SchemaRole[];
-      schemaRoleCount: number;
+      customRoles: CustomRole[];
     };
   };
 }
