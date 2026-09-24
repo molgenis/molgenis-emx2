@@ -51,18 +51,14 @@
 </template>
 
 <script setup lang="ts">
+import type { ITableSettings } from "../../../types/types.ts";
 import TableHeadCell from "./TableHeadCell.vue";
 import TableHeaderAction from "./TableHeaderAction.vue";
 
 defineProps<{
   schemaId: string;
   tableId: string;
-  settings: {
-    orderby: {
-      column: string;
-      direction: "ASC" | "DESC";
-    };
-  };
+  settings: ITableSettings;
   columns: any;
   columnWidths: Record<string, number>;
   isResizing: boolean;

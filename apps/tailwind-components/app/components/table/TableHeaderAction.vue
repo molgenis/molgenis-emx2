@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import ArrowUp from "../global/icons/ArrowUp.vue";
-import ArrowDown from "../global/icons/ArrowDown.vue";
 import { useId } from "vue";
+import type { ITableSettings } from "../../../types/types.ts";
+import ArrowDown from "../global/icons/ArrowDown.vue";
+import ArrowUp from "../global/icons/ArrowUp.vue";
 
 defineProps<{
   column: {
     id: string;
     label: string;
   };
-  schemaId: string;
-  tableId: string;
   isResizing?: boolean;
-  settings: {
-    orderby: {
-      column: string;
-      direction: "ASC" | "DESC";
-    };
-  };
+  settings: ITableSettings;
 }>();
 
 const mgAriaSortMappings: Record<string, string> = {
@@ -33,7 +27,7 @@ const emit = defineEmits<{
 <template>
   <div class="flex justify-start items-center gap-1">
     <button
-      :id="`table-emx2-${id}-${schemaId}-${tableId}-${column.label}-sort-btn`"
+      :id="`table-emx2-${id}-${column.label}-sort-btn`"
       type="button"
       @click.prevent
       class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
