@@ -52,9 +52,9 @@ public class GraphqlAdminFieldFactory {
                   .build())
           .build();
 
-  private static final GraphQLOutputType schemaRoleType =
+  private static final GraphQLOutputType customRoleType =
       GraphQLObjectType.newObject()
-          .name("_AdminSchemaRoleType")
+          .name("_AdminCustomRoleType")
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(SCHEMA_ID)
@@ -98,8 +98,8 @@ public class GraphqlAdminFieldFactory {
                     .build())
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
-                    .name(SCHEMA_ROLES)
-                    .type(GraphQLList.list(schemaRoleType))
+                    .name(CUSTOM_ROLES)
+                    .type(GraphQLList.list(customRoleType))
                     .build())
             .build();
 
@@ -117,8 +117,8 @@ public class GraphqlAdminFieldFactory {
                 if (selectedField.getName().equals(userCount)) {
                   result.put(userCount, db.countUsers());
                 }
-                if (selectedField.getName().equals(SCHEMA_ROLES)) {
-                  result.put(SCHEMA_ROLES, getSchemaRoles(db));
+                if (selectedField.getName().equals(CUSTOM_ROLES)) {
+                  result.put(CUSTOM_ROLES, getCustomRoles(db));
                 }
               }
               return result;
@@ -127,7 +127,7 @@ public class GraphqlAdminFieldFactory {
         .build();
   }
 
-  private static List<Map<String, Object>> getSchemaRoles(Database db) {
+  private static List<Map<String, Object>> getCustomRoles(Database db) {
     Map<String, List<String>> usersPerRole = getUsersPerRole(db.loadUserRoles());
     List<Map<String, Object>> result = new ArrayList<>();
     for (String schemaName : db.getSchemaNames()) {
@@ -135,12 +135,12 @@ public class GraphqlAdminFieldFactory {
         if (role.isSystemRole()) {
           continue;
         }
-        Map<String, Object> schemaRole = new LinkedHashMap<>();
-        schemaRole.put(SCHEMA_ID, schemaName);
-        schemaRole.put(ROLE_NAME, role.name());
-        schemaRole.put(PERMISSIONS, permissionsToList(role));
-        schemaRole.put(USERS, usersPerRole.getOrDefault(schemaName + "/" + role.name(), List.of()));
-        result.add(schemaRole);
+        Map<String, Object> customRole = new LinkedHashMap<>();
+        customRole.put(SCHEMA_ID, schemaName);
+        customRole.put(ROLE_NAME, role.name());
+        customRole.put(PERMISSIONS, permissionsToList(role));
+        customRole.put(USERS, usersPerRole.getOrDefault(schemaName + "/" + role.name(), List.of()));
+        result.add(customRole);
       }
     }
     return result;

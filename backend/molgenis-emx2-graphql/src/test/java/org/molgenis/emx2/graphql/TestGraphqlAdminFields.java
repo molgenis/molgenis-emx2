@@ -103,22 +103,22 @@ class TestGraphqlAdminFields {
           graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
 
           try {
-            JsonNode schemaRoles =
+            JsonNode customRoles =
                 execute(
-                        "{_admin{schemaRoles{schemaId roleName permissions{table select insert update delete isRowLevel}}}}")
-                    .at("/_admin/schemaRoles");
+                        "{_admin{customRoles{schemaId roleName permissions{table select insert update delete isRowLevel}}}}")
+                    .at("/_admin/customRoles");
 
-            List<JsonNode> testSchemaRoles = new ArrayList<>();
-            for (JsonNode entry : schemaRoles) {
+            List<JsonNode> testCustomRoles = new ArrayList<>();
+            for (JsonNode entry : customRoles) {
               if (SCHEMA_NAME.equals(entry.get("schemaId").asText())) {
-                testSchemaRoles.add(entry);
+                testCustomRoles.add(entry);
               }
             }
-            assertEquals(1, testSchemaRoles.size());
+            assertEquals(1, testCustomRoles.size());
 
-            JsonNode schemaRole = testSchemaRoles.get(0);
-            assertEquals("PatientViewer", schemaRole.get("roleName").asText());
-            JsonNode permission = schemaRole.at("/permissions/0");
+            JsonNode customRole = testCustomRoles.get(0);
+            assertEquals("PatientViewer", customRole.get("roleName").asText());
+            JsonNode permission = customRole.at("/permissions/0");
             assertEquals("Patient", permission.get("table").asText());
             assertTrue(permission.get("select").asBoolean());
             assertFalse(permission.path("insert").asBoolean());
@@ -131,7 +131,7 @@ class TestGraphqlAdminFields {
           graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
           MolgenisException exception =
               assertThrows(
-                  MolgenisException.class, () -> execute("{_admin{schemaRoles{schemaId}}}"));
+                  MolgenisException.class, () -> execute("{_admin{customRoles{schemaId}}}"));
           assertTrue(exception.getMessage().contains("FieldUndefined"));
           tdb.becomeAdmin();
         });
