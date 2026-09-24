@@ -234,7 +234,7 @@ export interface SystemSettings extends Settings {
   isOidcEnabled: boolean;
 }
 
-export interface SchemaRole {
+export interface CustomRole {
   schemaId: string;
   roleName: string;
   users: string[];
