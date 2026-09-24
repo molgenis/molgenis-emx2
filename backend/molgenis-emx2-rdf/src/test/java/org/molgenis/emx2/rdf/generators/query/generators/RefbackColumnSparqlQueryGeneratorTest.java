@@ -13,8 +13,7 @@ import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
 
 class RefbackColumnSparqlQueryGeneratorTest {
 
-  private static final String SCHEMA =
-      RefbackColumnSparqlQueryGeneratorTest.class.getSimpleName();
+  private static final String SCHEMA = RefbackColumnSparqlQueryGeneratorTest.class.getSimpleName();
 
   private static final String PERSON_IRI = "https://example.com/person";
   private static final String PET_IRI = "https://example.com/pet";
