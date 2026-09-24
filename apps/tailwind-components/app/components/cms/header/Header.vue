@@ -6,10 +6,13 @@ defineProps<IHeaders & { image?: IFile }>();
 <template>
   <header
     :id="id"
-    class="group relative flex justify-center items-center h-72"
+    class="group relative flex justify-center items-center"
     :class="{
       'text-gray-100 bg-cover bg-center': image?.url,
       'text-title': !image?.url,
+      'h-72': pageHeaderHeight?.name == 'default' || !pageHeaderHeight?.name,
+      'h-48': pageHeaderHeight?.name === 'small',
+      'h-96': pageHeaderHeight?.name == 'large',
     }"
     :style="image?.url ? `background-image: url(${image?.url})` : ''"
   >
