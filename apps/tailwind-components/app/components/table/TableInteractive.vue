@@ -4,6 +4,8 @@ import { useDebounceFn } from "@vueuse/core";
 import type { ITableSettings } from "../../../types/types.ts";
 import { FILTER_DEBOUNCE } from "../../composables/useFilters";
 import Table from "../Table.vue";
+import TableHeadCell from "./TableHeadCell.vue";
+import TableHeaderAction from "./TableHeaderAction.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -41,6 +43,17 @@ function handlePageSizeChange(pageSize: string) {
 const handleSearchChange = useDebounceFn((search?: string) => {
   emit("update:settings", { ...props.settings, search, page: 1 });
 }, FILTER_DEBOUNCE);
+
+function handleSortRequest(columnId: string) {
+  const isSameColumn = props.settings.orderby.column === columnId;
+  const newDirection =
+    isSameColumn && props.settings.orderby.direction === "ASC" ? "DESC" : "ASC";
+
+  emit("update:settings", {
+    ...props.settings,
+    orderby: { column: columnId, direction: newDirection },
+  });
+}
 </script>
 
 <template>
@@ -56,7 +69,13 @@ const handleSearchChange = useDebounceFn((search?: string) => {
     <template #head>
       <TableHeadRow>
         <TableHead v-for="column in columns" :key="column.id">
-          {{ column.label }}
+          <TableHeadCell>
+            <TableHeaderAction
+              :column="column"
+              :settings="settings"
+              @sortRequested="handleSortRequest"
+            />
+          </TableHeadCell>
         </TableHead>
       </TableHeadRow>
     </template>
