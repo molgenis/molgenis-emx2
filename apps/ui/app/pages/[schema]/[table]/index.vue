@@ -8,6 +8,8 @@ import type {
 import fetchTableMetadata from "../../../../../tailwind-components/app/composables/fetchTableMetadata";
 import { useRoute, useRouter } from "#app/composables/router";
 import { useSession } from "../../../../../tailwind-components/app/composables/useSession";
+import { useTablePermission } from "../../../../../tailwind-components/app/composables/useTablePermission";
+import Message from "../../../../../tailwind-components/app/components/Message.vue";
 import { watch } from "vue";
 import { useHead } from "#app";
 import TableEMX2 from "../../../../../tailwind-components/app/components/table/TableEMX2.vue";
@@ -117,7 +119,9 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
-const { isAdmin, session } = await useSession(schemaId);
+const { session } = await useSession(schemaId);
+const { canView, canInsert, canUpdate, canDelete, isRowLevel, userRoles } =
+  useTablePermission(session, schemaId, tableId, tableMetadata.tableType);
 const enableFilters = true;
 </script>
 <template>
@@ -132,12 +136,22 @@ const enableFilters = true;
       </template>
     </PageHeader>
 
+    <Message v-if="!canView" id="table-no-view-permission" invalid>
+      You don't have permission to view this table. Please sign in or contact
+      your administrator to request access.
+    </Message>
+
     <TableEMX2
+      v-else
       :schemaId="schemaId"
       :tableId="tableId"
       :enable-filters="enableFilters"
       v-model:settings="tableSettings"
-      :isEditable="session?.roles?.[schemaId]?.includes('Editor') || isAdmin"
+      :canInsert="canInsert"
+      :canUpdate="canUpdate"
+      :canDelete="canDelete"
+      :isRowLevel="isRowLevel"
+      :userRoles="userRoles"
       @view-details="handleViewRowRequest"
     >
       <template #additional-row-actions="{ row }">

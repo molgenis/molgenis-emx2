@@ -202,9 +202,6 @@ export interface IOntologyItem {
   children?: IOntologyItem[];
 }
 
-export interface IOntologyParentTreeItem
-  extends Omit<IOntologyItem, "children"> {}
-
 // generic emx2 graphql api response type, pass in query structure as T
 export interface GqlResp<T> {
   data: Record<string, T[]>;
@@ -275,7 +272,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   ontologyTableId: string;
   ontologySchema: string;
   filter?: Record<string, IFilter>;
-  columnId: string;
+  columnId?: string;
   refFields?: filterRefField;
   // optional function to build the filter based on the selected options
   // if empty the default builder will be used
@@ -314,6 +311,7 @@ export type IFilterCondition = {
 
 export interface IOntologyFilter extends IAbstractFilter {
   conditions: IFilterCondition[];
+  options?: IOntologyRespItem[];
   config: IOntologyFilterConfig;
 }
 

@@ -1,6 +1,16 @@
 import type { columnValue } from "./types";
 
-export const toFormData = (rowData: Record<string, columnValue>) => {
+export const toFormData = (
+  rowData: Record<string, columnValue>,
+  stripMgComputedFields: boolean = true
+) => {
+  if (stripMgComputedFields) {
+    delete rowData["mg_insertedBy"];
+    delete rowData["mg_insertedOn"];
+    delete rowData["mg_updatedBy"];
+    delete rowData["mg_updatedOn"];
+  }
+
   if (!FormData) {
     throw "Files can only be uploaded via a browser client";
   }

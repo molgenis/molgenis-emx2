@@ -318,11 +318,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(REF_LABEL_DEFAULT)
                   .type(Scalars.GraphQLString))
-          // TODO
-          //          .field(
-          //              GraphQLFieldDefinition.newFieldDefinition()
-          //                  .name(CASCADE_DELETE)
-          //                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CASCADE_DELETE)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(VALIDATION_EXPRESSION)
@@ -374,6 +373,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.INHERIT_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.INHERIT_SCHEMA_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -470,11 +473,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(OLD_NAME)
                   .type(Scalars.GraphQLString))
-          // TODO
-          //          .field(
-          //              GraphQLInputObjectField.newInputObjectField()
-          //                  .name(CASCADE_DELETE)
-          //                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(CASCADE_DELETE)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DESCRIPTIONS)
@@ -522,6 +524,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(INHERIT_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(INHERIT_SCHEMA_NAME)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()

@@ -40,8 +40,8 @@ describe("variableToCartItem", () => {
     } as IVariables;
 
     expect(variableToCartItem(variable)).toEqual({
-      id: "variable:network1:cohort1:core:height",
-      label: "network1: core.height",
+      id: "variable:network1:core:height",
+      label: "network1:core.height",
       type: "variable",
     });
   });

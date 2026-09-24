@@ -165,4 +165,25 @@ print('unreachable')
             .contains(
                 "Script failed: Invalid file name 'venv.zip'. Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'."));
   }
+
+  @Test
+  public void testWriteOutputFile_whenFailing() {
+    ScriptTask scriptTask =
+        new ScriptTask("error")
+            .type(PYTHON)
+            .script(
+                """
+                import os
+
+                OUTPUT_FILE = os.environ.get("OUTPUT_FILE")
+
+                with open(OUTPUT_FILE, 'w') as f:
+                    f.write("Hello world")
+
+                raise ValueError("Something happened.")
+                """);
+    scriptTask.run();
+    assertEquals(ERROR, scriptTask.getStatus());
+    assertEquals("Hello world", new String(scriptTask.getOutput()));
+  }
 }

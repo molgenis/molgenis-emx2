@@ -11,15 +11,13 @@ The structure of vue files should start with the `script` element first, and the
 ```vue
 <!-- MyComponent.vue -->
 <script setup lang="ts">
-  ...
+...
 </script>
 
-<template>
-  ...
-</template>
+<template>...</template>
 
 <style>
-  ...
+...
 </style>
 ```
 
@@ -45,18 +43,13 @@ Component interfaces should have a clear and unique name.
 
 ```vue
 <script setup lang="ts">
-
 interface IComponent {
   count: number;
 }
 
-const props = withDefaults(
-  defineProps<IComponent>(),
-  {
-    count: 0
-  }
-);
-
+const props = withDefaults(defineProps<IComponent>(), {
+  count: 0,
+});
 </script>
 ```
 
@@ -91,7 +84,7 @@ Good semantic html practices covers a lot of areas. In principle, it is importan
 - Text elements use clear, concise language. It is recommended to avoid using technical jargon in the UI. When writing text, keep in mind that they are two terms: the internal, technical word and the public-facing term.
 - Error messages clearly describe the issue and inform users how to resolve it. Do not use phrases such as "Oops! Something went wrong".
 
-There are additional things to consider. Please refer to the [Accessibility guidelines](docs/molgenis/dev_accessibility.md) page for more information and instructions on how to review PRs.
+There are additional things to consider. Please refer to the [Accessibility guidelines](./dev_accessibility.md) page for more information and instructions on how to review PRs.
 
 ### 6. Naming conventions
 
@@ -135,6 +128,11 @@ const layout = ref<Layout>("grid");
 
 When a plain string (for example from a route query or setting) must be narrowed to such a type at runtime, use a type guard or assertion function instead of a cast. See `apps/tailwind-components/app/utils/typeUtils.ts` for examples.
 
+### 8. Vitest file extensions are `.test.ts` and for Playwright files `.spec.ts`
+
+Unit tests, run by Vitest use the `.test.ts` extension.
+End-to-end / Integration tests are run by Playwright and use `.spec.ts`.
+
 ## For java development
 
 ### We don't use var
@@ -160,12 +158,29 @@ class MyClassTest {
     database.dropCreateSchema("mySchemaName");
     database.dropCreateSchema("linkedSchemaThatMustBeRemovedFirst");
   }
-  
+
   // No `@AfterAll` that removes the schemas!
-  
+
   @Test
   void testSomething() {
     // Do stuff.
   }
 }
 ```
+
+### We test at the lowest layer that can hold the behaviour
+
+The floor is the `Schema` API.
+Below it, package-internal helpers and executors are implementation: a test there breaks on refactors while proving nothing a user can observe.
+
+Two things that look like exceptions and are not.
+Reading raw SQL to verify state is fine, the subject is still the Schema-level behaviour.
+And where the behaviour is a stored SQL function with no java surface, the SQL is the unit and gets tested directly.
+
+Above the floor, don't repeat yourself: CSV import and the GraphQL `change` mutation each get one test that the payload arrives, not a copy of the rule they share.
+
+### We don't mock
+
+Needing a mock usually means the test sits below the `Schema` API.
+Move it up to where a real schema exists rather than mocking the layer beneath.
+A few older tests do mock internals; they're the shape we're moving away from, not a precedent.

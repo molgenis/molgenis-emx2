@@ -13,22 +13,22 @@ _:134aef2e3b6242f4b9e44b41c17a820310 a sh:ValidationReport;
   sh:result _:134aef2e3b6242f4b9e44b41c17a820311, _:134aef2e3b6242f4b9e44b41c17a820312 .
 
 _:134aef2e3b6242f4b9e44b41c17a820311 a sh:ValidationResult;
-  sh:focusNode <http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke>;
+  sh:focusNode <http://localhost:8080/PetStoreTest/api/rdf/User/username=bofke>;
   rsx:shapesGraph rdf4j:SHACLShapeGraph;
-  sh:resultPath <http://localhost:8080/petStoreNr1/api/rdf/User/column/username>;
+  sh:resultPath <http://localhost:8080/PetStoreTest/api/rdf/User/column/username>;
   sh:sourceConstraintComponent sh:MinCountConstraintComponent;
   sh:resultSeverity sh:Violation;
   sh:sourceShape _:134aef2e3b6242f4b9e44b41c17a82039 .
 
 _:134aef2e3b6242f4b9e44b41c17a82039 a sh:PropertyShape;
   sh:name "username";
-  sh:path <http://localhost:8080/petStoreNr1/api/rdf/User/column/username>;
+  sh:path <http://localhost:8080/PetStoreTest/api/rdf/User/column/username>;
   sh:minCount 1 .
 
 _:134aef2e3b6242f4b9e44b41c17a820312 a sh:ValidationResult;
-  sh:focusNode <http://localhost:8080/petStoreNr1/api/rdf/User/username=plofke>;
+  sh:focusNode <http://localhost:8080/PetStoreTest/api/rdf/User/username=plofke>;
   rsx:shapesGraph rdf4j:SHACLShapeGraph;
-  sh:resultPath <http://localhost:8080/petStoreNr1/api/rdf/User/column/username>;
+  sh:resultPath <http://localhost:8080/PetStoreTest/api/rdf/User/column/username>;
   sh:sourceConstraintComponent sh:MinCountConstraintComponent;
   sh:resultSeverity sh:Violation;
   sh:sourceShape _:134aef2e3b6242f4b9e44b41c17a82039 .

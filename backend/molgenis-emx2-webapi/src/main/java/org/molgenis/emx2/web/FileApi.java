@@ -28,7 +28,7 @@ public class FileApi {
       throw new MolgenisException(
           "Download failed: Table '" + tableName + "' not found in schema " + schema.getName());
     }
-    Column c = t.getMetadata().getColumn(columnName);
+    Column c = t.getMetadata().getColumnByNameIncludingSubclasses(columnName);
     if (c == null) {
       throw new MolgenisException(
           "Download failed: Column '"

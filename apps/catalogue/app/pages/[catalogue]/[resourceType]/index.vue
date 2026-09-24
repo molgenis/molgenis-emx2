@@ -32,7 +32,10 @@ import {
   mergeWithPageDefaults,
   toPathQueryConditions,
 } from "../../../utils/filterUtils";
-import { buildQueryFilter } from "../../../utils/buildQueryFilter";
+import {
+  buildQueryFilter,
+  mergeFilterAndClauses,
+} from "../../../utils/buildQueryFilter";
 import { computed, ref } from "vue";
 import { logError } from "../../../utils/errorLogger";
 import type { Crumb } from "../../../../../tailwind-components/types/types";
@@ -276,12 +279,11 @@ const gqlFilter = computed(() => {
 
   if (route.params.resourceType === "collections") {
     result.mg_tableclass = { equals: `${schema}.Collections` };
-  }
-  if (route.params.resourceType === "networks") {
-    result._or = [
+  } else if (route.params.resourceType === "networks") {
+    result = mergeFilterAndClauses(result, [
       { mg_tableclass: { equals: `${schema}.Networks` } },
       { mg_tableclass: { equals: `${schema}.Catalogues` } },
-    ];
+    ]);
   }
 
   // add hard coded page specific filters

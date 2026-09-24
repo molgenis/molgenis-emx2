@@ -69,7 +69,8 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
       selectors.addAll(generator.getSelectors());
     } else {
       generator =
-          new LiteralColumnSparqlQueryGenerator(variable, rootColumn, encodedColumnPath(), true);
+          LiteralColumnSparqlQueryGenerator.forRequiredObject(
+              variable, rootColumn, encodedColumnPath());
 
       selectors.add(encodedColumnPath());
     }
@@ -83,7 +84,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     Variable subjectVariable = columnSubjectVariable();
 
     ColumnSparqlQueryGenerator mapper =
-        new LiteralColumnSparqlQueryGenerator(variable, rootColumn, columnVariable, true);
+        LiteralColumnSparqlQueryGenerator.forRequiredObject(variable, rootColumn, columnVariable);
     patterns.addAll(mapper.getPatterns());
     addSubjectColumnvariable(subjectVariable, columnVariable);
     mapPrimaryKeys();
@@ -101,7 +102,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
   private void mapPrimaryKeys() {
     TableMetadata refTable = rootColumn.getRefTable();
     for (Column column : refTable.getPrimaryKeyColumns()) {
-      if (column.getSemantics() == null || column.getSemantics().length == 0) {
+      if (!column.hasSemantics()) {
         logger.warn("Column {} has no semantics", column.getName());
         continue;
       }
@@ -128,7 +129,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     if (rootColumn.isArray()) {
       return new ArrayColumnSparqlQueryGenerator(ref, column, extended);
     } else {
-      return new LiteralColumnSparqlQueryGenerator(ref, column, extended, true);
+      return LiteralColumnSparqlQueryGenerator.forRequiredObject(ref, column, extended);
     }
   }
 

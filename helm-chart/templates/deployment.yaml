@@ -53,6 +53,8 @@ spec:
               value: {{ .Values.catalogue.includeCatalogueDemo | quote }}
             - name: MOLGENIS_INCLUDE_DIRECTORY_DEMO
               value: {{ .Values.directory.includeDirectoryDemo | quote }}
+            - name: MOLGENIS_INCLUDE_CMS
+              value: {{ .Values.includeCms | quote }}
             - name: MOLGENIS_METRICS_ENABLED
               value: {{ .Values.metrics.enabled | quote }}
             - name: MOLGENIS_SERVICE_URL

@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {
+  isFileType,
+  isSingleOntologyType,
+  isSingleRefType,
+  isMultiValuedType,
+} from "../../../../metadata-utils/src";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
 import { toRefColumn } from "../../utils/typeUtils";
@@ -13,19 +19,25 @@ import ValueInt from "./Int.vue";
 import ValueList from "./List.vue";
 import ValueLong from "./Long.vue";
 import ValueObject from "./Object.vue";
+import ValueOntology from "./Ontology.vue";
 import ValueRef from "./Ref.vue";
-import ValueRefBack from "./RefBack.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     metadata: IColumn;
     data: any;
     hideListSeparator?: boolean;
+    maxLines?: number;
+    renderLimit?: number;
+    truncate?: boolean;
+    compact?: boolean;
   }>(),
   {
     hideListSeparator: false,
+    truncate: true,
+    compact: false,
   }
 );
 
@@ -36,15 +48,25 @@ defineEmits<{
 
 <template>
   <template v-if="data == null || data === undefined"></template>
-  <ValueList
+  <ValueOntology
     v-else-if="
-      metadata.columnType.endsWith('ARRAY') ||
-      metadata.columnType === 'CHECKBOX' ||
-      metadata.columnType === 'MULTISELECT'
+      !compact && ['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(metadata.columnType)
     "
+    :metadata="metadata"
+    :value="data"
+    :collapseAll="false"
+    :maxItems="10"
+    :itemStep="10"
+  />
+
+  <ValueList
+    v-else-if="isMultiValuedType(metadata.columnType)"
     :metadata="metadata"
     :data="data"
     :hideListSeparator="hideListSeparator"
+    :maxLines="maxLines"
+    :truncate="truncate"
+    :renderLimit="renderLimit"
     @listRefCellClicked="$emit('valueClick', $event)"
   />
 
@@ -60,6 +82,8 @@ defineEmits<{
     v-else-if="metadata.columnType === 'TEXT'"
     :metadata="metadata"
     :data="data"
+    :maxLines="maxLines"
+    :truncate="truncate"
   />
 
   <ValueDecimal
@@ -84,14 +108,14 @@ defineEmits<{
   />
 
   <ValueRef
-    v-else-if="['REF', 'RADIO', 'SELECT'].includes(metadata.columnType)"
+    v-else-if="isSingleRefType(metadata.columnType)"
     :metadata="toRefColumn(metadata)"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueObject
-    v-else-if="['ONTOLOGY'].includes(metadata.columnType)"
+    v-else-if="isSingleOntologyType(metadata.columnType)"
     :metadata="metadata"
     :data="data"
     @refCellClicked="$emit('valueClick', $event)"
@@ -115,15 +139,8 @@ defineEmits<{
     :data="data"
   />
 
-  <ValueRefBack
-    v-else-if="metadata.columnType === 'REFBACK'"
-    :metadata="toRefColumn(metadata)"
-    :data="data"
-    @refBackCellClicked="$emit('valueClick', $event)"
-  />
-
   <ValueFile
-    v-else-if="metadata.columnType === 'FILE'"
+    v-else-if="isFileType(metadata.columnType)"
     :metadata="metadata"
     :data="data"
   />

@@ -14,13 +14,3 @@ export function isRefLikeDetail(cellDetailColumn: IColumn) {
     type === "REFBACK"
   );
 }
-
-export const isArrayLikeDetail = (cellDetailColumn: IColumn) => {
-  const type = cellDetailColumn.columnType;
-  return (
-    type?.endsWith("_ARRAY") ||
-    type === "MULTISELECT" ||
-    type === "CHECKBOX" ||
-    type === "REFBACK"
-  );
-};

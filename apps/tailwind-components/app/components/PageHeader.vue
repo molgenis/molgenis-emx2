@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSlots } from "vue";
 import BaseIcon from "./BaseIcon.vue";
-import ContentReadMore from "./ContentReadMore.vue";
+import ShowMore from "./ShowMore.vue";
 import Button from "./Button.vue";
 
 const slots: ReturnType<typeof useSlots> = useSlots();
@@ -25,7 +25,9 @@ withDefaults(
 </script>
 
 <template>
-  <header class="flex flex-col px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0">
+  <header
+    class="surface-inverted flex flex-col px-5 pt-5 pb-6 antialiased lg:pb-10 lg:px-0"
+  >
     <div class="mb-6" v-if="slots.prefix">
       <slot name="prefix"></slot>
     </div>
@@ -83,7 +85,7 @@ withDefaults(
         class="mt-1 mb-0 lg:mb-5 text-body-lg"
         :class="{ 'text-center': align === 'center' }"
       >
-        <ContentReadMore v-if="truncate" :text="description" />
+        <ShowMore v-if="truncate">{{ description }}</ShowMore>
         <p v-else>{{ description }}</p>
       </div>
     </div>

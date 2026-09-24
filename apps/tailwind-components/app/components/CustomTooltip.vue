@@ -30,7 +30,7 @@ const hoverColorClass = computed(() => {
   <div class="flex justify-center w-6 h-6">
     <VTooltip
       :aria-id="ariaId"
-      :showTriggers="['hover', 'touch']"
+      :showTriggers="['hover', 'focus', 'touch', 'click']"
       :distance="12"
     >
       <button

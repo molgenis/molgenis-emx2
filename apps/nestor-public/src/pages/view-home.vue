@@ -5,7 +5,7 @@ import Address from "../components/Address.vue";
 </script>
 
 <template>
-  <Page id="page-home">
+  <Page class="nestor-page">
     <PageHeader
       title="NESTOR Registry"
       subtitle="The Netherlands Genetic Tumour Risk Registry"

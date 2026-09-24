@@ -64,7 +64,7 @@ async function loadData() {
   );
   const enrollmentResponse = await getComponentStats(
     "../api/graphql",
-    "enrollmentByDiseaseGroup"
+    "enrollmentBySyndromeGroup"
   );
   const organisationsResponse = await getOrganisations("../api/graphql");
 
@@ -99,7 +99,7 @@ function prepareData() {
     .map((row: IStatistics) => {
       return {
         ...row,
-        "Thematic Disease Group": row.label,
+        "Thematic Syndrome Group": row.label,
         "Number of Patients": row.value,
       };
     })
@@ -190,10 +190,10 @@ function prepareData() {
         </DashboardChart>
         <DashboardChart>
           <DataTable
-            tableId="diseaseGroupEnrollment"
-            caption="Summary of patients enrolled by thematic disease group"
+            tableId="syndromeGroupEnrollment"
+            caption="Summary of patients enrolled by thematic syndrome group"
             :data="enrollmentData"
-            :columnOrder="['Thematic Disease Group', 'Number of Patients']"
+            :columnOrder="['Thematic Syndrome Group', 'Number of Patients']"
             :enableRowHighlighting="true"
           />
         </DashboardChart>

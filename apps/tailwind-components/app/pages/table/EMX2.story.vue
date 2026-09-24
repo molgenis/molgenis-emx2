@@ -16,7 +16,9 @@ const tableSettings = ref<ITableSettings>({
 const router = useRouter();
 const route = useRoute();
 
-const isEditable = ref(false);
+const canInsert = ref(false);
+const canUpdate = ref(false);
+const canDelete = ref(false);
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>((route.query.schema as string) || "");
 const tableId = ref<string>((route.query.table as string) || "");
@@ -39,19 +41,35 @@ watch([schemaId, tableId], ([newSchemaId, newTableId]) => {
         v-model:schemaId="schemaId"
         v-model:tableId="tableId"
       />
-      <label class="text-title font-bold" for="is-editable"
-        >Is Editable:
-      </label>
-      <InputCheckbox id="is-editable" v-model="isEditable" name="is-editable" />
+      <div>
+        <label class="text-title font-bold" for="can-insert">
+          Can insert:
+        </label>
+        <InputCheckbox id="can-insert" v-model="canInsert" name="can-insert" />
+      </div>
+      <div>
+        <label class="text-title font-bold" for="can-update">
+          Can update:
+        </label>
+        <InputCheckbox id="can-update" v-model="canUpdate" name="can-update" />
+      </div>
+      <div>
+        <label class="text-title font-bold" for="can-delete">
+          Can delete:
+        </label>
+        <InputCheckbox id="can-delete" v-model="canDelete" name="can-delete" />
+      </div>
       <div class="py-10" />
 
       <TableEMX2
         v-model:settings="tableSettings"
         :key="`${schemaId}-${tableId}`"
-        :schema-id="schemaId"
-        :table-id="tableId ?? ''"
-        :is-editable="isEditable"
-        :enable-filters="true"
+        :schemaId="schemaId"
+        :tableId="tableId ?? ''"
+        :canInsert="canInsert"
+        :canUpdate="canUpdate"
+        :canDelete="canDelete"
+        :enableFilters="true"
       />
     </div>
   </div>

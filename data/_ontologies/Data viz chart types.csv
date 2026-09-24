@@ -1,0 +1,12 @@
+order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
+1,Bar chart,,,,SIO,sio:000444,http://semanticscience.org/resource/SIO_000444,"Chart where bars are drawn horizontally as the y-axis has qualitative data and the x-axis has quantitative data. By default, bars are ordered from largest to smallest value"
+2,Column chart,,,,SIO,sio:000445,http://semanticscience.org/resource/SIO_000445,"Chart where bars are drawn vertically. This is best suited for datasets where the x and y axes are qualitative"
+3,Grouped bar chart,,,,SIO,,,"Chart where bars are drawn horizontally as the y-axis has qualitative data and the x-axis has quantitative data and are further arranged by a second set of qualitative data. By default, bars are ordered from largest to smallest value"
+4,Grouped column chart,,,,SIO,,,Chart where bars are drawn vertically as the x and y axes have quantitative data and are further arranged by a second set of qualitative data. 
+5,Line chart,,,,SIO,sio:000442,http://semanticscience.org/resource/SIO_000442,
+6,Pie chart,,,,SIO,sio:000929,http://semanticscience.org/resource/SIO_000929,"Chart for visualising percentages where each slice represents a percentage of a whole (100%). It is recommended to limit the number of slices (~5) and combine groups with less than 5% of the total. Alternatively, use a bar chart to visualise data"
+7,Progress meter,,,,,,,"Chart that displays the progress towards a specific outcome (i.e., percentage complete). A horizontal bar is drawn and the amount ""filled"" indicates progress. This chart is useful for monitoring outcomes such as participant recruitment. It is recommend to use percentages as it's easier to compare multiple progress meters."
+8,Scatterplot,,,,SIO,sio:000423,http://semanticscience.org/resource/SIO_000423,
+9,Data highlight,,,,,,,"Display of a single qualitative value. This is useful for emphasing results (e.g., number of patients)"
+11,Dot distribution map,,,,,,,Map that displays observations are a specific geographic location
+12,Table,,,,SIO,sio:000419,http://semanticscience.org/resource/SIO_000419,

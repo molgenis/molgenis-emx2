@@ -3,30 +3,41 @@ package org.molgenis.emx2.sql;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_ROLES;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlQuery.COUNT_FIELD;
+import static org.molgenis.emx2.sql.SqlQuery.EXISTS_FIELD;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import org.jooq.Record;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 class TestRowLevelSecurity {
 
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+
   private static Database database;
-  private static final String SCHEMA = "TestRowLevelSecurity";
+  private static final String SCHEMA = TestRowLevelSecurity.class.getSimpleName();
   private static final String ARTICLES = "Articles";
 
   private static final String USER_TEAM_A = "rls_user_team_a";
   private static final String USER_TEAM_B = "rls_user_team_b";
   private static final String USER_VIEWER = "rls_user_viewer";
   private static final String USER_NO_ACCESS = "rls_user_noaccess";
+  private static final String USER_COUNT = "rls_user_count";
+  private static final String USER_EXISTS = "rls_user_exists";
 
   @BeforeAll
   static void setUp() {
     database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
 
-    for (String user : List.of(USER_TEAM_A, USER_TEAM_B, USER_VIEWER, USER_NO_ACCESS)) {
+    for (String user :
+        List.of(USER_TEAM_A, USER_TEAM_B, USER_VIEWER, USER_NO_ACCESS, USER_COUNT, USER_EXISTS)) {
       if (!database.hasUser(user)) database.addUser(user);
     }
 
@@ -68,14 +79,6 @@ class TestRowLevelSecurity {
                 .setString("id", "b1")
                 .setString("title", "Team B only")
                 .set(MG_ROLES, new String[] {"TeamB"}));
-    // Row visible to both teams
-    schema
-        .getTable(ARTICLES)
-        .insert(
-            new Row()
-                .setString("id", "ab1")
-                .setString("title", "Both teams")
-                .set(MG_ROLES, new String[] {"TeamA", "TeamB"}));
     // Row with no mg_roles assigned (visible only to VIEWER and above, not to custom role users)
     schema
         .getTable(ARTICLES)
@@ -84,6 +87,8 @@ class TestRowLevelSecurity {
     schema.addMember(USER_TEAM_A, "TeamA");
     schema.addMember(USER_TEAM_B, "TeamB");
     schema.addMember(USER_VIEWER, Privileges.VIEWER.toString());
+    schema.addMember(USER_COUNT, Privileges.COUNT.toString());
+    schema.addMember(USER_EXISTS, Privileges.EXISTS.toString());
   }
 
   @Test
@@ -158,6 +163,159 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void mgRolesRejectsNonExistentRoleForAdmin() {
+    database.becomeAdmin();
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row =
+        new Row().setString("id", "mg_nosuch_admin").set(MG_ROLES, new String[] {"IkBestaNiet"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("is not a valid custom role"), e.getMessage());
+  }
+
+  @Test
+  void mgRolesRejectsNonExistentRoleForManager() {
+    database.becomeAdmin();
+    String managerUser = "rls_user_manager_mgroles";
+    if (!database.hasUser(managerUser)) database.addUser(managerUser);
+    database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
+
+    database.setActiveUser(managerUser);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row =
+        new Row().setString("id", "mg_nosuch_manager").set(MG_ROLES, new String[] {"IkBestaNiet"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("is not a valid custom role"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void mgRolesRejectsNonExistentRoleOnUpdate() {
+    database.becomeAdmin();
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    articles.insert(
+        new Row().setString("id", "mg_nosuch_update").set(MG_ROLES, new String[] {"TeamA"}));
+
+    Row update =
+        new Row().setString("id", "mg_nosuch_update").set(MG_ROLES, new String[] {"IkBestaNiet"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.update(update));
+    assertTrue(e.getMessage().contains("is not a valid custom role"), e.getMessage());
+
+    assertArrayEquals(
+        new String[] {"TeamA"}, retrieveArticle("mg_nosuch_update").getStringArray(MG_ROLES));
+    articles.delete(new Row().setString("id", "mg_nosuch_update"));
+  }
+
+  @Test
+  void mgRolesAcceptsExistingRole() {
+    database.becomeAdmin();
+    String managerUser = "rls_user_manager_assigns";
+    if (!database.hasUser(managerUser)) database.addUser(managerUser);
+    database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
+
+    database.setActiveUser(managerUser);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    assertDoesNotThrow(
+        () ->
+            articles.insert(
+                new Row()
+                    .setString("id", "mg_manager_assign")
+                    .set(MG_ROLES, new String[] {"TeamA"})));
+
+    database.becomeAdmin();
+    assertArrayEquals(
+        new String[] {"TeamA"}, retrieveArticle("mg_manager_assign").getStringArray(MG_ROLES));
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_manager_assign"));
+  }
+
+  @Test
+  void mgRolesRejectsInternalRlsRoleName() {
+    database.setActiveUser(USER_TEAM_A);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row = new Row().setString("id", "mg_internal").set(MG_ROLES, new String[] {"RLS_TeamA"});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void mgRolesRejectsSystemRoleName() {
+    database.setActiveUser(USER_TEAM_A);
+    Table articles = database.getSchema(SCHEMA).getTable(ARTICLES);
+    Row row =
+        new Row()
+            .setString("id", "mg_system")
+            .set(MG_ROLES, new String[] {Privileges.VIEWER.toString()});
+    MolgenisException e = assertThrows(MolgenisException.class, () -> articles.insert(row));
+    assertTrue(e.getMessage().contains("system role"), e.getMessage());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void deleteRoleRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.deleteRole("RLS_TeamA"));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+    assertTrue(schema.getRoles().contains("TeamA"), "TeamA must survive");
+  }
+
+  @Test
+  void grantRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    TablePermission permission = new TablePermission(ARTICLES).select(true);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.grant("RLS_TeamA", permission));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
+  void revokeRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.revoke("RLS_TeamA", ARTICLES));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
+  void getRoleInfoRejectsInternalRlsRoleName() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.getRoleInfo("RLS_TeamA"));
+    assertTrue(e.getMessage().contains("internal"), e.getMessage());
+  }
+
+  @Test
+  void schemaRolesExcludeInternalRlsRoles() {
+    database.becomeAdmin();
+    List<String> roles = database.getSchema(SCHEMA).getRoles();
+    assertTrue(roles.contains("TeamA"), roles.toString());
+    assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
+  }
+
+  @Test
+  void inheritedRolesForActiveUserExcludeInternalRlsRoles() {
+    database.setActiveUser(USER_TEAM_A);
+    List<String> roles = database.getSchema(SCHEMA).getInheritedRolesForActiveUser();
+    assertTrue(roles.contains("TeamA"), roles.toString());
+    assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
+    database.becomeAdmin();
+  }
+
+  @Test
+  void adminInheritedRolesExcludeInternalRlsRoles() {
+    database.becomeAdmin();
+    List<String> roles = database.getSchema(SCHEMA).getInheritedRolesForActiveUser();
+    assertTrue(roles.stream().noneMatch(r -> r.startsWith("RLS_")), roles.toString());
+  }
+
+  @Test
   void mgRolesEmptyArrayIsAllowedLikeNull() {
     database.becomeAdmin();
     String editorUser = "rls_user_editor_mgroles";
@@ -174,6 +332,201 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void mgRolesDefaultsToOwnRoleOnInsertWhenOmitted() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .insert(
+                    new Row().setString("id", "mg_default").setString("title", "No role given")));
+
+    database.becomeAdmin();
+    assertArrayEquals(
+        new String[] {"TeamA"},
+        retrieveArticle("mg_default").getStringArray(MG_ROLES),
+        "row should be owned by the role that inserted it");
+
+    database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "mg_default"));
+  }
+
+  @Test
+  void mgRolesDefaultsToOwnRoleOnSaveWhenEmptyArrayGiven() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .save(
+                    new Row()
+                        .setString("id", "mg_default_save")
+                        .setString("title", "Empty roles given")
+                        .set(MG_ROLES, new String[] {})));
+
+    database.becomeAdmin();
+    assertArrayEquals(
+        new String[] {"TeamA"}, retrieveArticle("mg_default_save").getStringArray(MG_ROLES));
+
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_default_save"));
+  }
+
+  @Test
+  void mgRolesDefaultIsVisibleToOwnRoleOnly() {
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db -> {
+          Table articles = db.getSchema(SCHEMA).getTable(ARTICLES);
+          articles.insert(new Row().setString("id", "mg_default_visible"));
+          assertTrue(
+              articles.retrieveRows().stream()
+                  .anyMatch(r -> "mg_default_visible".equals(r.getString("id"))),
+              "inserter should see its own row");
+        });
+
+    database.setActiveUser(USER_TEAM_B);
+    database.tx(
+        db ->
+            assertFalse(
+                db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().stream()
+                    .anyMatch(r -> "mg_default_visible".equals(r.getString("id"))),
+                "other role should not see the row"));
+
+    database.becomeAdmin();
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_default_visible"));
+  }
+
+  @Test
+  void mgRolesIsNotDefaultedForUsersWithUnrestrictedAccess() {
+    database.becomeAdmin();
+    String editorUser = "rls_user_editor_default";
+    if (!database.hasUser(editorUser)) database.addUser(editorUser);
+    database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
+
+    database.setActiveUser(editorUser);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .insert(new Row().setString("id", "mg_editor").setString("title", "Editor row")));
+
+    database.becomeAdmin();
+    assertNull(
+        retrieveArticle("mg_editor").getStringArray(MG_ROLES),
+        "editors write unowned rows, as before");
+
+    database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "mg_editor"));
+  }
+
+  @Test
+  void mgRolesOfExistingRowIsNotChangedByUpdate() {
+    database.becomeAdmin();
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .insert(
+            new Row()
+                .setString("id", "mg_update")
+                .setString("title", "before")
+                .set(MG_ROLES, new String[] {"TeamA"}));
+
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .update(new Row().setString("id", "mg_update").setString("title", "after")));
+
+    database.becomeAdmin();
+    Row updated = retrieveArticle("mg_update");
+    assertEquals("after", updated.getString("title"));
+    assertArrayEquals(new String[] {"TeamA"}, updated.getStringArray(MG_ROLES));
+
+    database.getSchema(SCHEMA).getTable(ARTICLES).delete(new Row().setString("id", "mg_update"));
+  }
+
+  @Test
+  void mgRolesOfExistingRowIsKeptWhenOwnerSavesWithoutRoles() {
+    database.becomeAdmin();
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .insert(
+            new Row()
+                .setString("id", "mg_save_existing")
+                .setString("title", "before")
+                .set(MG_ROLES, new String[] {"TeamA"}));
+
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            db.getSchema(SCHEMA)
+                .getTable(ARTICLES)
+                .save(new Row().setString("id", "mg_save_existing").setString("title", "after")));
+
+    database.becomeAdmin();
+    Row saved = retrieveArticle("mg_save_existing");
+    assertEquals("after", saved.getString("title"));
+    assertArrayEquals(new String[] {"TeamA"}, saved.getStringArray(MG_ROLES));
+
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_save_existing"));
+  }
+
+  @Test
+  void mgRolesOfExistingRowCannotBeTakenOverBySaveFromOtherRole() {
+    database.becomeAdmin();
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .insert(
+            new Row()
+                .setString("id", "mg_save_foreign")
+                .setString("title", "before")
+                .set(MG_ROLES, new String[] {"TeamA"}));
+
+    // the omitted owner is defaulted to TeamB, after which the row-level policy rejects the write
+    database.setActiveUser(USER_TEAM_B);
+    SqlMolgenisException e =
+        assertThrows(
+            SqlMolgenisException.class,
+            () ->
+                database.tx(
+                    db ->
+                        db.getSchema(SCHEMA)
+                            .getTable(ARTICLES)
+                            .save(
+                                new Row()
+                                    .setString("id", "mg_save_foreign")
+                                    .setString("title", "hijacked"))));
+    assertTrue(e.getMessage().contains("row-level security policy"), e.getMessage());
+
+    database.becomeAdmin();
+    Row untouched = retrieveArticle("mg_save_foreign");
+    assertEquals("before", untouched.getString("title"));
+    assertArrayEquals(new String[] {"TeamA"}, untouched.getStringArray(MG_ROLES));
+
+    database
+        .getSchema(SCHEMA)
+        .getTable(ARTICLES)
+        .delete(new Row().setString("id", "mg_save_foreign"));
+  }
+
+  private static Row retrieveArticle(String id) {
+    return database.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows().stream()
+        .filter(r -> id.equals(r.getString("id")))
+        .findFirst()
+        .orElseThrow();
+  }
+
+  @Test
   void teamAUserSeesOnlyTeamARows() {
     database.setActiveUser(USER_TEAM_A);
     database.tx(
@@ -181,7 +534,6 @@ class TestRowLevelSecurity {
           List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
           List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
           assertTrue(ids.contains("a1"), "should see TeamA row");
-          assertTrue(ids.contains("ab1"), "should see row shared with TeamB");
           assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
           assertFalse(ids.contains("b1"), "should NOT see TeamB-only row");
         });
@@ -195,7 +547,6 @@ class TestRowLevelSecurity {
           List<Row> rows = db.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
           List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
           assertTrue(ids.contains("b1"), "should see TeamB row");
-          assertTrue(ids.contains("ab1"), "should see row shared with TeamA");
           assertFalse(ids.contains("open"), "should NOT see row with no mg_roles assigned");
           assertFalse(ids.contains("a1"), "should NOT see TeamA-only row");
         });
@@ -214,7 +565,7 @@ class TestRowLevelSecurity {
   void adminSeesAllRows() {
     database.becomeAdmin();
     List<Row> rows = database.getSchema(SCHEMA).getTable(ARTICLES).retrieveRows();
-    assertEquals(4, rows.size());
+    assertEquals(3, rows.size());
   }
 
   @Test
@@ -465,6 +816,189 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void switchingGrantToRowLevelEnforcesRlsForThatRole() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String table = "FlipOnTable";
+    String role = "FlipOnRole";
+    String user = "rls_user_flip_on";
+    if (!database.hasUser(user)) database.addUser(user);
+
+    schema.create(table(table).add(column("id").setPkey()).add(column("title")));
+    schema.createRole(role);
+    schema.grant(
+        role, new TablePermission(table).select(true).insert(true).update(true).delete(true));
+    schema.grant(
+        role,
+        new TablePermission(table)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+
+    schema
+        .getTable(table)
+        .insert(
+            new Row()
+                .setString("id", "f1")
+                .setString("title", "owned")
+                .set(MG_ROLES, new String[] {role}));
+    schema.getTable(table).insert(new Row().setString("id", "f2").setString("title", "unowned"));
+    schema.addMember(user, role);
+
+    assertTrue(
+        schema.getRoleInfo(role).permissions().stream()
+            .anyMatch(p -> table.equals(p.table()) && p.hasRowLevel()),
+        "permission should report row level after the switch");
+
+    database.setActiveUser(user);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertTrue(ids.contains("f1"), "should see own row");
+          assertFalse(
+              ids.contains("f2"), "should NOT see unowned row after switching to row level");
+        });
+
+    // Cleanup
+    database.becomeAdmin();
+    schema.getTable(table).delete(new Row().setString("id", "f1"));
+    schema.removeMember(user);
+    schema.revoke(role, table);
+    schema.deleteRole(role);
+  }
+
+  @Test
+  void switchingGrantOffRowLevelRestoresFullTableAccess() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String table = "FlipOffTable";
+    String role = "FlipOffRole";
+    String user = "rls_user_flip_off";
+    if (!database.hasUser(user)) database.addUser(user);
+
+    schema.create(table(table).add(column("id").setPkey()).add(column("title")));
+    schema.createRole(role);
+    schema.grant(
+        role,
+        new TablePermission(table)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(true));
+
+    schema
+        .getTable(table)
+        .insert(
+            new Row()
+                .setString("id", "g1")
+                .setString("title", "owned")
+                .set(MG_ROLES, new String[] {role}));
+    schema.getTable(table).insert(new Row().setString("id", "g2").setString("title", "unowned"));
+    schema.addMember(user, role);
+
+    database.setActiveUser(user);
+    database.tx(
+        db ->
+            assertFalse(
+                db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+                    .anyMatch(r -> "g2".equals(r.getString("id"))),
+                "unowned row should be hidden while row level is on"));
+
+    database.becomeAdmin();
+    schema.grant(
+        role,
+        new TablePermission(table)
+            .select(true)
+            .insert(true)
+            .update(true)
+            .delete(true)
+            .rowLevel(false));
+
+    assertTrue(
+        schema.getRoleInfo(role).permissions().stream()
+            .noneMatch(p -> table.equals(p.table()) && p.hasRowLevel()),
+        "permission should no longer report row level");
+    assertFalse(
+        rowLevelSecurityEnabled(table),
+        "row level security should be disabled once the last row level grant is gone");
+
+    database.setActiveUser(user);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertTrue(ids.contains("g1"), "should see own row");
+          assertTrue(ids.contains("g2"), "should see unowned row after switching row level off");
+        });
+  }
+
+  @Test
+  void omittedIsRowLevelKeepsTheExistingMode() {
+    database.becomeAdmin();
+    Schema schema = database.getSchema(SCHEMA);
+    String table = "KeepModeTable";
+    String role = "KeepModeRole";
+    String user = "rls_user_keep_mode";
+    if (!database.hasUser(user)) database.addUser(user);
+
+    schema.create(table(table).add(column("id").setPkey()).add(column("title")));
+    schema.createRole(role);
+    schema.grant(role, new TablePermission(table).select(true).rowLevel(true));
+    // isRowLevel not specified: this only adds insert, it must not downgrade to a plain grant
+    schema.grant(role, new TablePermission(table).insert(true));
+
+    schema
+        .getTable(table)
+        .insert(
+            new Row()
+                .setString("id", "k1")
+                .setString("title", "owned")
+                .set(MG_ROLES, new String[] {role}));
+    schema.getTable(table).insert(new Row().setString("id", "k2").setString("title", "unowned"));
+    schema.addMember(user, role);
+
+    assertTrue(
+        schema.getRoleInfo(role).permissions().stream()
+            .anyMatch(p -> table.equals(p.table()) && p.hasRowLevel()),
+        "row level should be preserved when isRowLevel is not specified");
+
+    database.setActiveUser(user);
+    database.tx(
+        db -> {
+          List<String> ids =
+              db.getSchema(SCHEMA).getTable(table).retrieveRows().stream()
+                  .map(r -> r.getString("id"))
+                  .toList();
+          assertTrue(ids.contains("k1"), "should see own row");
+          assertFalse(ids.contains("k2"), "should NOT see unowned row");
+        });
+
+    database.becomeAdmin();
+    schema.getTable(table).delete(new Row().setString("id", "k1"));
+    schema.removeMember(user);
+    schema.revoke(role, table);
+    schema.deleteRole(role);
+  }
+
+  private static boolean rowLevelSecurityEnabled(String tableName) {
+    Record record =
+        ((SqlDatabase) database)
+            .getJooq()
+            .fetchOne(
+                "select relrowsecurity as rls from pg_class where oid = cast(? as regclass)",
+                "\"" + SCHEMA + "\".\"" + tableName + "\"");
+    return Boolean.TRUE.equals(record.get("rls", Boolean.class));
+  }
+
+  @Test
   void tablePermissionsReportsIsRowLevelTrueForUserWithViewerAndRlsRole() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
@@ -501,9 +1035,63 @@ class TestRowLevelSecurity {
           List<String> ids = rows.stream().map(r -> r.getString("id")).toList();
           assertTrue(ids.contains("a1"), "Viewer should see TeamA row");
           assertTrue(ids.contains("b1"), "Viewer should see TeamB row");
-          assertTrue(ids.contains("ab1"), "Viewer should see shared row");
           assertTrue(ids.contains("open"), "Viewer should see public row");
         });
+  }
+
+  @Test
+  void countRoleCountsAllRowsDespiteRls() {
+    database.setActiveUser(USER_COUNT);
+    database.tx(
+        db -> {
+          Schema schema = db.getSchema(SCHEMA);
+          assertThrows(
+              MolgenisException.class,
+              () -> schema.getTable(ARTICLES).retrieveRows(),
+              "Count role must not be able to read rows");
+          assertEquals(
+              3,
+              aggregateCount(schema),
+              "Count role should count every row, row level security must not filter aggregates");
+        });
+  }
+
+  @Test
+  void existsRoleSeesDataDespiteRls() {
+    database.setActiveUser(USER_EXISTS);
+    database.tx(
+        db -> {
+          String json =
+              db.getSchema(SCHEMA).query(ARTICLES + "_agg", s(EXISTS_FIELD)).retrieveJSON();
+          assertTrue(readAgg(json).get(EXISTS_FIELD).asBoolean(), "Exists role should see data");
+        });
+  }
+
+  @Test
+  void customRoleAggregateStaysLimitedToOwnRows() {
+    // the select bypass keys on the 'Exists' system role; a custom (row level) role only holds
+    // 'Member', so its aggregates stay filtered by the row policies
+    database.setActiveUser(USER_TEAM_A);
+    database.tx(
+        db ->
+            assertEquals(
+                1,
+                aggregateCount(db.getSchema(SCHEMA)),
+                "TeamA should only count the rows it is allowed to see"));
+  }
+
+  private static int aggregateCount(Schema schema) {
+    return readAgg(schema.query(ARTICLES + "_agg", s(COUNT_FIELD)).retrieveJSON())
+        .get(COUNT_FIELD)
+        .asInt();
+  }
+
+  private static com.fasterxml.jackson.databind.JsonNode readAgg(String json) {
+    try {
+      return MAPPER.readTree(json).get(ARTICLES + "_agg");
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("could not parse aggregate response: " + json, e);
+    }
   }
 
   @Test

@@ -60,11 +60,9 @@
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>
               <div v-if="user.roles && user.roles.length > 3">
-                <ShowMore>
-                  <template v-slot:button>
-                    <Button type="secondary" size="tiny">
-                      show all {{ user.roles.length }} roles
-                    </Button>
+                <ShowMore :maxLines="3">
+                  <template #more>
+                    show all {{ user.roles.length }} roles
                   </template>
                   <div v-for="role in user.roles">
                     {{ role.schemaId }} ({{ role.role }})

@@ -13,7 +13,7 @@ public class AToolToCleanDatabase {
 
   public static void deleteAll() {
     SqlDatabase db = new SqlDatabase(true);
-    DSLContext jooq = db.getJooq();
+    DSLContext jooq = db.getJooqWithExtendedTimeout();
     db.becomeAdmin();
     try {
       String sql =

@@ -8,7 +8,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -69,24 +68,24 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    if (columnNames.isEmpty()) {
-      return;
-    }
+    writeTableStreaming(name, columnNames, rows::forEach);
+  }
+
+  @Override
+  public void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
     if (!Files.exists(zipFilePath)) {
       create();
     }
+    if (columnNames.isEmpty()) {
+      return;
+    }
     try (FileSystem zipfs = open()) {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);
-      Writer writer = Files.newBufferedWriter(pathInZipfile);
-      if (rows.iterator().hasNext()) {
-        CsvTableWriter.write(rows, columnNames, writer, COMMA);
-      } else {
-        // only header in case no rows provided
-        writer.write(columnNames.stream().collect(Collectors.joining("" + COMMA)));
+      try (Writer writer = Files.newBufferedWriter(pathInZipfile)) {
+        rows.produce(CsvTableWriter.newRowWriter(columnNames, writer, COMMA));
       }
-      writer.close();
     } catch (IOException ioe) {
-      throw new MolgenisException("Import failed", ioe);
+      throw new MolgenisException("Export failed", ioe);
     }
   }
 

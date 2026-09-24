@@ -6,7 +6,9 @@
         :all-rows-selected="
           numberOfSelectedRows === Math.min(settings.pageSize, rows.length)
         "
-        :can-edit="props.isEditable"
+        :canUpdate="canUpdate"
+        :canDelete="canDelete"
+        :canModifySelection="selectionIsModifiable"
         @row-action="handleRowAction"
       />
       <div
@@ -32,7 +34,7 @@
 
       <div class="flex gap-[10px]">
         <Button
-          v-if="props.isEditable && data?.tableMetadata"
+          v-if="canInsert && data?.tableMetadata"
           type="primary"
           size="medium"
           icon="add-circle"
@@ -51,6 +53,22 @@
           :schemaId="schemaId"
           :tableId="tableId"
         />
+
+        <Truncate
+          v-if="canDelete && data?.tableMetadata"
+          v-slot="{ showConfirmationModal }"
+          :metadata="data.tableMetadata"
+          @update:truncated="afterRowDeleted"
+        >
+          <Button
+            type="outline"
+            size="medium"
+            @click="showConfirmationModal"
+            :disabled="!rows.length"
+          >
+            Truncate
+          </Button>
+        </Truncate>
 
         <slot name="toolbar-end" />
       </div>
@@ -118,6 +136,7 @@
                   :settings="settings"
                   :columns="sortedVisibleColumns"
                   :showDraftColumn="showDraftColumn"
+                  :showRolesColumn="showRolesColumn"
                   :isResizing="isResizing"
                   :columnWidths="columnWidths"
                   @sort-requested="handleSortRequest"
@@ -132,24 +151,23 @@
                 :settings="settings"
                 :columns="sortedVisibleColumns"
                 :showDraftColumn="showDraftColumn"
+                :showRolesColumn="showRolesColumn"
                 :isResizing="isResizing"
                 :columnWidths="columnWidths"
                 @sort-requested="handleSortRequest"
                 @start-resize="startResize($event.event, $event.id)"
               />
-              <tbody
-                class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
-              >
+              <tbody class="mb-3 [&_tr:last-child_td]:border-none">
                 <tr
                   v-if="rows"
                   v-for="row in rows"
-                  class="group h-[50px]"
+                  class="group h-13"
                   :class="{
-                    'hover:cursor-pointer': props.isEditable,
+                    'hover:cursor-pointer': canEdit,
                   }"
                 >
                   <TableCellEMX2
-                    class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
+                    class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 h-13 py-0 px-2.5"
                   >
                     <div class="flex justify-center items-center h-full">
                       <Checkbox
@@ -160,8 +178,15 @@
                   </TableCellEMX2>
 
                   <TableCellEMX2
+                    v-if="showRolesColumn"
+                    class="text-table-row group-hover:bg-hover w-48 h-13 py-0 pl-2 pr-2.5"
+                  >
+                    {{ row.mg_roles?.[0] ?? "" }}
+                  </TableCellEMX2>
+
+                  <TableCellEMX2
                     v-if="showDraftColumn"
-                    class="text-table-row group-hover:bg-hover"
+                    class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
                   >
                     <DraftLabel v-if="row?.mg_draft === true" type="inline" />
                   </TableCellEMX2>
@@ -169,11 +194,10 @@
                   <TableCellEMX2
                     v-for="(column, colIndex) in sortedVisibleColumns"
                     :style="{ width: columnWidths[column.id] + 'px' }"
-                    class="text-table-row group-hover:bg-hover"
+                    class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
                     :class="{
                       'w-60 lg:w-full': columns.length <= 5,
                       'w-60': columns.length > 5,
-                      'h-11': !row[column.id],
                     }"
                     :scope="column.key === 1 ? 'row' : null"
                     :metadata="column"
@@ -185,7 +209,7 @@
                         class="absolute left-12 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                       >
                         <Button
-                          v-if="isEditable"
+                          v-if="canDeleteRow(row)"
                           :id="`delete-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
@@ -199,7 +223,7 @@
                           {{ row._rowIdString }}
                         </Button>
                         <Button
-                          v-if="isEditable"
+                          v-if="canEditRow(row)"
                           :id="`edit-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
@@ -213,7 +237,7 @@
                           {{ row._rowIdString }}
                         </Button>
                         <Button
-                          v-if="isEditable"
+                          v-if="canCloneRow(row)"
                           :id="`copy-button-${row._rowIdString}`"
                           :icon-only="true"
                           type="inline"
@@ -235,7 +259,7 @@
             </table>
             <div
               class="sticky left-0 flex justify-center items-center py-2.5"
-              v-if="status === 'success' && !rows?.length"
+              v-if="!rows?.length"
             >
               <TextNoResultsMessage
                 class="w-full text-center"
@@ -303,7 +327,17 @@
     :isInsert="isCopy"
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
-  />
+  >
+    <template #header="{ formValues }">
+      <EditModalHeader
+        v-if="formValues"
+        :formValues="formValues"
+        :isInsert="isCopy"
+        :tableId="tableId"
+        :schemaId="schemaId"
+      />
+    </template>
+  </EditModal>
 
   <EditModal
     v-if="data?.tableMetadata && showAddModal"
@@ -314,7 +348,17 @@
     :isInsert="true"
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
-  />
+  >
+    <template #header="{ formValues }">
+      <EditModalHeader
+        v-if="formValues"
+        :formValues="formValues"
+        :isInsert="isCopy"
+        :tableId="tableId"
+        :schemaId="schemaId"
+      />
+    </template>
+  </EditModal>
 </template>
 
 <script setup lang="ts">
@@ -326,6 +370,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
+  ITablePermission,
   ITableSettings,
   sortDirection,
 } from "../../../types/types";
@@ -334,52 +379,67 @@ import { sortColumns } from "../../utils/sortColumns";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
+import { rowMatchesUserRole } from "../../utils/rowMatchesUserRole";
 
-import type { IGraphQLFilter } from "../../../types/filters";
-import type { UseFilters } from "../../../types/filters";
+import type { IGraphQLFilter, UseFilters } from "../../../types/filters";
 import { useFilters } from "../../composables/useFilters";
 import TableCellEMX2 from "./CellEMX2.vue";
 
+import ActiveFilters from "../filter/ActiveFilters.vue";
+import FilterSidebarContent from "../filter/SidebarContent.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
 import Sidebar from "../Sidebar.vue";
-import FilterSidebarContent from "../filter/SidebarContent.vue";
-import ActiveFilters from "../filter/ActiveFilters.vue";
 
 import { useAsyncData } from "nuxt/app";
 import { useColumnResize } from "../../composables/useColumnResize";
+import { useSession } from "../../composables/useSession";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
 import Button from "../Button.vue";
+import Checkbox from "../input/Checkbox.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import DraftLabel from "../label/DraftLabel.vue";
-import Checkbox from "../input/Checkbox.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
-import RowControls from "./control/RowControls.vue";
-import DeleteRows from "./control/DeleteRows.vue";
 import TableControlColumns from "./control/Columns.vue";
-import TableEMX2Head from "./TableEMX2Head.vue";
+import DeleteRows from "./control/DeleteRows.vue";
 import DownloadButton from "./control/DownloadButton.vue";
+import RowControls from "./control/RowControls.vue";
+import Truncate from "./control/Truncate.vue";
+import TableEMX2Head from "./TableEMX2Head.vue";
+import EditModalHeader from "../form/EditModalHeader.vue";
 
 const props = withDefaults(
   defineProps<{
     schemaId: string;
     tableId: string;
-    isEditable?: boolean;
+    canInsert?: boolean;
+    canUpdate?: boolean;
+    canDelete?: boolean;
+    isRowLevel?: boolean;
+    userRoles?: string[];
     filter?: IGraphQLFilter;
     hideSearch?: boolean;
     enableFilters?: boolean;
     useStickyHeader?: boolean;
   }>(),
   {
-    isEditable: () => false,
+    canInsert: () => false,
+    canUpdate: () => false,
+    canDelete: () => false,
+    isRowLevel: () => false,
+    userRoles: () => [],
     filter: () => ({}),
     hideSearch: false,
     enableFilters: true,
     useStickyHeader: () => true,
   }
+);
+
+const canEdit = computed(
+  () => props.canInsert || props.canUpdate || props.canDelete
 );
 
 const emit = defineEmits<{
@@ -416,10 +476,7 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-type TableRow = {
-  _rowId: Record<string, columnValue>;
-  _rowIdString: string;
-} & Record<string, columnValue>;
+const { showRolesForTable } = await useSession(props.schemaId);
 
 const filters: UseFilters | null = props.enableFilters
   ? useFilters(
@@ -462,7 +519,7 @@ const effectiveFilter = computed(() =>
   filters ? filters.gqlFilter.value : props.filter
 );
 
-const { data, refresh, status } = useAsyncData(
+const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
     const tableMetadata = await fetchTableMetadata(
@@ -481,20 +538,22 @@ const { data, refresh, status } = useAsyncData(
     });
 
     // add unique row identifier for selection purposes
-    const rows: TableRow[] = await Promise.all(
-      tableData.rows.map(async (row) => {
-        const primaryKey = await getPrimaryKey(
-          row,
-          props.tableId,
-          props.schemaId
-        );
-        return {
-          ...row,
-          _rowId: primaryKey,
-          _rowIdString: JSON.stringify(primaryKey),
-        };
-      })
-    );
+    const rows: TableRow[] = tableData.rows?.length
+      ? await Promise.all(
+          tableData.rows.map(async (row) => {
+            const primaryKey = await getPrimaryKey(
+              row,
+              props.tableId,
+              props.schemaId
+            );
+            return {
+              ...row,
+              _rowId: primaryKey,
+              _rowIdString: JSON.stringify(primaryKey),
+            };
+          })
+        )
+      : [];
 
     return {
       tableMetadata,
@@ -549,6 +608,22 @@ function updateStickyHeaderWidth() {
   }
 }
 
+function mayModifyRow(row: IRow): boolean {
+  return !props.isRowLevel || rowMatchesUserRole(row, props.userRoles);
+}
+
+function canEditRow(row: IRow): boolean {
+  return props.canUpdate && mayModifyRow(row);
+}
+
+function canCloneRow(row: IRow): boolean {
+  return props.canInsert && mayModifyRow(row);
+}
+
+function canDeleteRow(row: IRow): boolean {
+  return props.canDelete && mayModifyRow(row);
+}
+
 let widthsInitialized = false;
 watch(
   () => columns.value,
@@ -571,8 +646,8 @@ const rows = computed((): TableRow[] =>
 
 const hasFiltersOrSearch = computed(
   () =>
-    (filters?.activeFilters.value.length ?? 0) > 0 ||
-    (filters?.searchValue.value ?? "").length > 0
+    (filters?.activeFilters.value.length ?? 0) ||
+    (filters?.searchValue.value ?? "").length
 );
 
 const emptyRowsLabel = computed(() =>
@@ -582,6 +657,13 @@ const emptyRowsLabel = computed(() =>
 const showDraftColumn = computed(() =>
   rows.value.some((row: TableRow) => row?.mg_draft === true)
 );
+
+const showRolesColumn = computed(() => {
+  return (
+    showRolesForTable(props.tableId) &&
+    rows.value.some((row: TableRow) => row.mg_roles?.length)
+  );
+});
 
 const count = computed(() => data.value?.count ?? 0);
 
@@ -639,6 +721,14 @@ const sortedVisibleColumns = computed(() =>
 );
 
 const numberOfSelectedRows = computed(() => selectedRows.value.size);
+
+const selectionIsModifiable = computed(
+  () =>
+    !props.isRowLevel ||
+    rows.value
+      .filter((row) => selectedRows.value.has(row._rowIdString))
+      .every((row) => rowMatchesUserRole(row, props.userRoles))
+);
 
 function handleColumnsUpdate(newColumns: IColumn[]) {
   settings.value.orderedColumnsIds = newColumns.map((col) => col.id);
@@ -772,4 +862,10 @@ async function afterRowDeleted() {
   // maybe notify user, and do more stuff
   await refresh();
 }
+
+type TableRow = {
+  _rowId: Record<string, columnValue>;
+  _rowIdString: string;
+  mg_roles?: string[];
+} & Record<string, columnValue>;
 </script>

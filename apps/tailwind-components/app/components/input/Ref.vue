@@ -440,7 +440,7 @@ const onBlur = useDebounceFn(() => {
     size="tiny"
     iconPosition="right"
     class="mr-2 underline cursor-pointer"
-    :class="{ 'pl-2': displayAsSelect }"
+    :class="{ 'ml-2': displayAsSelect }"
   >
     Clear
   </Button>

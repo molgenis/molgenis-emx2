@@ -44,6 +44,7 @@
   --background-color-button-outline-hover: var(--color-gray-900);
 
   --text-color-menu: var(--text-color-title);
+  --text-color-menu-dynamic: var(--color-green-500);
   --text-color-sub-menu: var(--color-green-500);
   --text-color-sub-menu-hover: var(--color-white);
   --background-color-content: var(--color-gray-700);
@@ -66,6 +67,7 @@
   --background-color-dropdown: var(--color-gray-900);
 
   --text-color-search-filter-action: var(--color-green-500);
+  --text-color-icon-neutral: var(--color-green-500);
   --text-color-link: var(--color-green-500);
   --text-color-link-inverted: var(--color-green-500);
   --text-color-button-input-toggle: var(--color-gray-400);

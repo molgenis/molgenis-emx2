@@ -278,9 +278,22 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
                     "Templates",
                     column("endpoint").setPkey(),
                     column("schema").setPkey(),
+                    column("tableName"),
                     column("template").setType(ColumnType.TEXT)));
+            addTemplatesTableReference((SqlDatabase) tdb);
           }
         });
+  }
+
+  static void addTemplatesTableReference(SqlDatabase db) {
+    db.getJooq()
+        .execute(
+            "ALTER TABLE {0} ADD CONSTRAINT {1} FOREIGN KEY (\"schema\", \"tableName\")"
+                + " REFERENCES {2} (\"table_schema\", \"table_name\")"
+                + " ON UPDATE CASCADE ON DELETE CASCADE",
+            DSL.table(name(SYSTEM_SCHEMA, "Templates")),
+            name("Templates_tableName_fkey"),
+            DSL.table(name(MOLGENIS, "table_metadata")));
   }
 
   @Override

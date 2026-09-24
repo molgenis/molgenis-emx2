@@ -9,16 +9,18 @@ const props = withDefaults(
     tableMetadata?: ITableMetaData;
     inputRowData: recordValue;
     showMgColumns?: boolean;
+    keyFieldsOnly?: boolean;
   }>(),
   {
     showMgColumns: false,
+    keyFieldsOnly: false,
   }
 );
 
 const filteredTableMetadata = computed(() => {
-  return props.tableMetadata?.columns.filter(
-    (column) => props.showMgColumns || !column.id.startsWith("mg_")
-  );
+  return props.tableMetadata?.columns
+    .filter((column) => props.showMgColumns || !column.id.startsWith("mg_"))
+    .filter((column) => (props.keyFieldsOnly ? column.key === 1 : true));
 });
 
 const tableMetadataByHeadings = computed(() => {

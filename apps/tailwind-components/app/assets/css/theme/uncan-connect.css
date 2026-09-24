@@ -1,0 +1,196 @@
+:root[data-theme="uncan-connect"] {
+  --uncan-accent: #ffab00;
+  --uncan-accent-soft: #fff4cb;
+  --uncan-bg: #7a39c4;
+  --uncan-bg-alt: #ac3cb4;
+  --uncan-bg-alt-deep: #7a2a80;
+  --uncan-bg-alt-soft: #f7e8f8;
+  --uncan-bg-deep: #2d1b4e;
+  --uncan-fg: #ffffff;
+  --uncan-fg-alt: #1a1128;
+  --uncan-muted: rgba(255, 255, 255, 0.8);
+  --uncan-neutral: #6d6d6d;
+  --uncan-neutral-soft: #f4f4f4;
+
+  --box-shadow-primary: 0px 10px 20px rgba(0, 0, 0, 0.1);
+  --box-shadow-search-input: none;
+  --box-shadow-pagination-gray: 0px 10px 20px rgba(0, 0, 0, 0.1);
+  --box-shadow-input-hover: inset 0 0 1px 1px var(--uncan-bg);
+
+  --color-gradient1: var(--uncan-bg);
+  --color-gradient2: var(--uncan-bg);
+  --opacity-background-gradient: 100;
+
+  --background-image-sidebar-gradient: linear-gradient(
+    180deg,
+    var(--uncan-bg) 0%,
+    rgba(122, 57, 196, 0) 86.02%
+  );
+  --background-image-base-gradient: linear-gradient(
+    180deg,
+    var(--uncan-bg-alt) 0%,
+    var(--uncan-bg-deep) 133.81%
+  );
+  --background-color-bulk-gradient: linear-gradient(
+    90deg,
+    var(--uncan-bg-alt) 0%,
+    var(--uncan-bg) 100%
+  );
+
+  --text-color-logo-text: var(--uncan-fg);
+
+  --background-color-button-primary: var(--uncan-accent);
+  --background-color-button-primary-hover: var(--uncan-accent-soft);
+  --background-color-button-secondary: var(--uncan-bg-alt);
+  --background-color-button-secondary-hover: var(--uncan-bg-deep);
+  --background-color-button-tertiary: var(--uncan-bg);
+  --background-color-button-tertiary-hover: var(--uncan-bg-alt);
+  --background-color-button-outline: var(--uncan-fg);
+  --background-color-button-outline-hover: var(--uncan-neutral-soft);
+  --background-color-button-disabled: var(--uncan-neutral-soft);
+  --background-color-button-disabled-hover: var(--uncan-neutral-soft);
+  --background-color-button-filter: var(--uncan-bg-alt-soft);
+  --background-color-button-filter-hover: var(--uncan-bg-deep);
+  --background-color-button-inline-hover: var(--uncan-bg-deep);
+  --background-color-button-tree-node-toggle: var(--uncan-bg-alt);
+  --background-color-search-button: var(--uncan-bg-alt);
+  --background-color-search-button-hover: var(--uncan-bg-deep);
+
+  --background-color-app-wrapper: var(--uncan-bg-deep);
+  --background-color-navigation: rgba(0, 0, 0, 0.2);
+  --background-color-navigation-dynamic: rgba(0, 0, 0, 0.2);
+  --background-color-navigation-sticky: var(--uncan-bg-deep);
+  --background-color-search-results-view-tabs: var(--uncan-bg-alt);
+  --background-color-search-filter-group-toggle: var(--uncan-bg-deep);
+  --background-color-pagination: var(--uncan-bg-alt);
+  --background-color-pagination-hover: var(--uncan-bg-deep);
+  --background-color-pagination-input: var(--uncan-fg);
+  --background-color-footer: rgba(43, 31, 68, 0.7);
+  --background-color-modal-footer: var(--uncan-bg-deep);
+
+  --background-color-tab: var(--uncan-fg);
+  --background-color-tab-hover: var(--uncan-bg);
+  --background-color-tab-active: var(--uncan-bg-alt);
+  --background-color-link-hover: var(--uncan-neutral-soft);
+  --background-color-hover: var(--uncan-neutral-soft);
+  --background-color-disabled: var(--uncan-neutral-soft);
+  --background-color-invalid: var(--color-red-200);
+  --background-color-input: var(--uncan-fg);
+  --background-color-input-checked: var(--uncan-accent);
+  --background-color-input-focused: var(--uncan-accent);
+  --background-color-table: var(--uncan-fg);
+
+  --background-color-label-available: var(--uncan-bg-alt);
+  --background-color-label-available-hover: var(--uncan-bg-deep);
+
+  --text-color-button-primary: var(--uncan-fg-alt);
+  --text-color-button-primary-hover: var(--uncan-fg-alt);
+  --text-color-button-secondary: var(--uncan-fg);
+  --text-color-button-secondary-hover: var(--uncan-fg);
+  --text-color-button-tertiary: var(--uncan-fg);
+  --text-color-button-tertiary-hover: var(--uncan-fg);
+  --text-color-button-outline: var(--uncan-bg);
+  --text-color-button-outline-hover: var(--uncan-bg-alt);
+  --text-color-button-disabled: var(--uncan-neutral);
+  --text-color-button-disabled-hover: var(--uncan-neutral);
+  --text-color-button-filter: var(--uncan-bg-alt-deep);
+  --text-color-button-text: var(--uncan-fg);
+  --text-color-button-text-disabled: var(--uncan-muted);
+  --text-color-button-inline: var(--uncan-fg);
+  --text-color-button-inline-disabled: var(--uncan-muted);
+  --text-color-button-tree-node-toggle: var(--uncan-fg);
+  --text-color-button-tree-node-toggle-hover: var(--uncan-accent);
+
+  --text-color-menu: var(--uncan-fg);
+  --text-color-menu-dynamic: var(--uncan-fg);
+  --text-color-sub-menu: var(--uncan-bg);
+  --text-color-sub-menu-hover: var(--uncan-bg-alt);
+  --text-color-breadcrumb: var(--uncan-muted);
+  --text-color-breadcrumb-arrow: var(--uncan-fg);
+  --text-color-title: var(--uncan-fg);
+  --text-color-title-contrast: var(--uncan-fg-alt);
+  --text-color-title-contrast-pop: var(--uncan-bg);
+  --text-color-sub-title-contrast: var(--uncan-fg-alt);
+  --text-color-form-header: var(--text-color-title-contrast);
+  --text-color-input-description: var(--uncan-fg-alt);
+  --text-color-input: var(--uncan-fg-alt);
+  --text-color-favorite: var(--uncan-fg);
+  --text-color-favorite-hover: var(--uncan-accent);
+  --text-color-icon-neutral: var(--uncan-neutral);
+  --text-color-search-button: var(--uncan-fg);
+  --text-color-search-button-hover: var(--uncan-accent);
+  --text-color-search-results-view-tabs: var(--uncan-bg);
+  --text-color-search-results-view-tabs-hover: var(--uncan-bg-alt);
+  --text-color-search-filter-title: var(--uncan-fg);
+  --text-color-search-filter-action: var(--uncan-fg);
+  --text-color-search-filter-action-mobile: var(--uncan-bg);
+  --text-color-search-filter-group-title: var(--uncan-fg);
+  --text-color-search-filter-group-title-mobile: var(--uncan-fg-alt);
+  --text-color-search-filter-group-checkbox: var(--uncan-accent);
+  --text-color-search-filter-group-toggle: var(--uncan-fg);
+  --text-color-search-filter-title-inverted: var(--uncan-fg-alt);
+  --text-color-search-filter-action-inverted: var(--uncan-bg);
+  --text-color-search-filter-group-title-inverted: var(--uncan-fg-alt);
+  --text-color-search-filter-group-checkbox-inverted: var(--uncan-bg);
+  --text-color-search-filter-group-toggle-inverted: var(--uncan-fg-alt);
+  --text-color-tooltip-hover-dark: var(--uncan-bg);
+  --text-color-tooltip-hover-light: var(--uncan-fg);
+  --text-color-pagination: var(--uncan-fg);
+  --text-color-pagination-inverted: var(--uncan-neutral);
+  --text-color-pagination-input: var(--uncan-fg-alt);
+  --text-color-pagination-hover: var(--uncan-fg);
+  --text-color-pagination-button: var(--uncan-fg);
+  --text-color-pagination-button-hover: var(--uncan-fg);
+  --text-color-link: var(--uncan-bg);
+  --text-color-link-hover: var(--uncan-bg-alt);
+  --text-color-link-inverted: var(--uncan-fg);
+  --text-color-table-column-header: var(--uncan-neutral);
+  --text-color-table-row: var(--uncan-fg-alt);
+  --text-color-record-heading: var(--uncan-bg);
+  --text-color-record-label: var(--uncan-neutral);
+  --text-color-record-value: var(--uncan-fg-alt);
+  --text-color-definition-list-term: var(--uncan-neutral);
+  --text-color-label-available: var(--uncan-fg);
+
+  --text-color-invalid: var(--color-red-700);
+  --text-color-valid: var(--color-green-900);
+  --text-color-disabled: var(--uncan-neutral);
+
+  --text-content-required: "*";
+  --text-color-required: var(--uncan-neutral);
+
+  --border-color-button-primary: var(--uncan-accent);
+  --border-color-button-primary-hover: var(--uncan-accent-soft);
+  --border-color-button-secondary: var(--uncan-bg-alt);
+  --border-color-button-secondary-hover: var(--uncan-bg);
+  --border-color-button-tertiary: var(--uncan-bg);
+  --border-color-button-tertiary-hover: var(--uncan-bg-alt);
+  --border-color-button-outline: var(--uncan-bg);
+  --border-color-button-outline-hover: var(--uncan-bg-alt);
+  --border-color-button-disabled: var(--uncan-neutral-soft);
+  --border-color-button-disabled-hover: var(--uncan-neutral-soft);
+  --border-color-button-filter: var(--uncan-bg-alt);
+  --border-color-button-filter-hover: var(--uncan-accent);
+  --border-color-menu-active: var(--uncan-accent);
+  --border-color-search-button: var(--uncan-fg);
+  --border-color-search-input: var(--uncan-fg);
+  --border-color-search-input-mobile: var(--uncan-neutral-soft);
+  --border-color-pagination: var(--color-transparent);
+  --border-color-pagination-hover: var(--uncan-bg-deep);
+  --border-color-input-focused: var(--uncan-accent);
+  --border-color-input-inverted: var(--uncan-neutral);
+
+  --border-radius-alt: var(--radius-alt);
+
+  --border-width-theme: 0px;
+  --border-color-footer: var(--color-transparent);
+  --border-color-filter-divider: rgba(255, 255, 255, 0.2);
+
+  --outline-color-select: var(--uncan-neutral-soft);
+
+  --border-width-form-required: 0;
+  --background-color-form-required: var(--uncan-bg);
+  --border-radius-form-required: var(--border-radius-base);
+  --background-color-form-required-btn-hover: var(--uncan-bg-alt);
+  --border-color-form-required: var(--uncan-bg-alt);
+}

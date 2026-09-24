@@ -69,27 +69,35 @@ async function saveSetting() {
   statusModalData.value.message = "";
   isSaving.value = true;
 
+  const query = `mutation saveDeveloperPage($page: [DeveloperPagesInput]) {
+    save(DeveloperPages: $page) {
+      status
+      message
+    }
+  }`;
+
   const response = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: `mutation save($page:[DeveloperPageInput]){save(DeveloperPage:$page){status message}}`,
+      query: query,
       variables: { page: pageData.value },
     },
   }).catch((err) => {
     statusModalData.value = {
       type: "error",
-      message: err.error ? err.error[0].message : err,
+      message: err?.errors?.[0].message || err,
     };
     console.error(statusModalData.value.message);
+    showStatusModal.value = true;
   });
 
-  if (response.data?.save) {
+  if (response?.data?.save) {
     statusModalData.value = {
       type: "success",
       message: `Updated "${page}"`,
     };
+    showStatusModal.value = true;
   }
-  showStatusModal.value = true;
 }
 
 const enableSaveButton = computed<boolean>(

@@ -5,7 +5,7 @@ import { useHead } from "#app";
 
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import ConfigurablePage from "../../../../../../tailwind-components/app/components/pages/ConfigurablePage.vue";
+import ConfigurablePage from "../../../../../../tailwind-components/app/components/cms/ConfigurablePage.vue";
 import { getPage } from "../../../../../../tailwind-components/app/utils/cms";
 
 import { useSession } from "../../../../../../tailwind-components/app/composables/useSession";
@@ -27,7 +27,8 @@ const pageData = ref(await getPage(schema as string, page));
 const crumbs: Crumb[] = [
   { label: schema as string, url: `/${schema}` },
   { label: "Pages", url: `/${schema}/pages` },
-  { label: page as string, url: "" },
+  { label: page as string, url: `/${schema}/pages/${page}` },
+  { label: "edit", url: "" },
 ];
 
 const { isAdmin, session } = await useSession(schema);

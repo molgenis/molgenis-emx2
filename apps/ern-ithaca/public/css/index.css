@@ -1,0 +1,231 @@
+.app-page,
+.app-footer {
+  --brand-blue-900: #071732;
+  --brand-blue-600: #124480;
+  --brand-red-orange-900: #b92d1e;
+  --brand-red-orange-300: hsl(6, 72%, 82%);
+  --gray-050: #f6f6f6;
+  --gray-transparent-050: hsla(0, 0%, 0%, 0.05);
+  --brand-border: 1px solid var(--brand-red-orange-900);
+  --box-shadow: 0 0 4px 3px var(--gray-transparent-050);
+  --max-width: 60vw;
+  --viz-chart-title-font-size: 1.1rem;
+  font-size: 13pt;
+}
+
+.app-page .page-header {
+  height: 21em;
+}
+
+.app-page .page-header.header-image-background {
+  background-position: 0 100%;
+}
+
+.app-page .page-header .background-image-filter {
+  opacity: 0.5;
+}
+
+.app-page .page-section .page-section-content h2 {
+  color: var(--brand-blue-600);
+  margin-bottom: 0.25em;
+}
+
+.app-page .page-section.section-background-brand {
+  background-color: var(--brand-blue-900);
+}
+
+.quick-links-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+.quick-links-container .link-card {
+  flex-grow: 1;
+  padding: 1em 0.5em;
+  height: 72px;
+  text-align: center;
+  background-color: white;
+  box-shadow: 5px 5px 0 0 var(--brand-red-orange-900);
+}
+
+.quick-links-container .link-card .card-content a {
+  font-size: 11pt;
+  color: var(--brand-blue-900);
+}
+
+.quick-links-container .link-card .card-content svg {
+  width: 16px;
+  height: 16px;
+  margin-top: -2px;
+  color: var(--brand-red-orange-900);
+  stroke-width: 3px;
+}
+
+.quick-links-container .link-card:hover {
+  background-color: var(--brand-blue-600);
+}
+
+.quick-links-container .link-card:hover .card-content a {
+  text-decoration: underline;
+  color: white;
+}
+
+.quick-links-container .link-card:hover .card-content svg {
+  color: white;
+}
+
+.icon-cards-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1em;
+  padding: 2em 0;
+}
+
+.icon-cards-container .icon-card {
+  width: 100%;
+  position: relative;
+  flex-grow: 1;
+  padding: 1em 0.75em;
+  padding-top: 1.75em;
+  background-color: white;
+  border-top: var(--brand-border);
+  box-shadow: var(--box-shadow);
+}
+
+.icon-cards-container .icon-card .card-icon {
+  position: absolute;
+  top: -1.25em;
+  left: calc(50% - 0.75em);
+  padding: 0.5em 0.75em;
+  border-radius: 50%;
+  background-color: white;
+  color: var(--brand-blue-600);
+  border: var(--brand-border);
+  z-index: 1;
+}
+
+.icon-cards-container .icon-card .card-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.icon-cards-container .icon-card p {
+  margin-bottom: 0;
+}
+
+.icon-cards-container .icon-card p.card-heading {
+  text-transform: uppercase;
+  font-size: 11pt;
+  letter-spacing: 2px;
+  color: var(--brand-blue-600);
+  font-weight: bold;
+  text-align: center;
+}
+
+.icon-cards-container .icon-card p.card-description {
+  font-size: 11pt;
+  color: var(--gray-600);
+}
+
+.d3-viz.d3-geo-mercator .chart-context {
+    text-align: center;
+}
+
+.d3-viz.d3-geo-mercator .chart-context .chart-title {
+    font-size: var(--viz-chart-title-font-size);
+    padding: 0;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend {
+    padding: 0.6em 0.75em;
+}
+
+.d3-viz.d3-geo-mercator .d3-viz-legend label {
+    margin-bottom: 0;
+    font-size: 0.8rem;
+}
+
+.d3-viz.d3-table caption {
+    font-size: var(--viz-chart-title-font-size);
+    padding: 0;
+    margin-bottom: 0.5em;
+    text-align: center;
+}
+
+.d3-viz.d3-table thead th {
+    font-size: 0.8rem;
+    padding: 0.4em 0.2em;
+}
+
+.d3-viz.d3-table tbody td {
+    font-size: 0.9rem;
+    padding: 0.4em 0.2em;
+}
+
+.dashboard-box.custom-data-highlight {
+    background-color: var(--brand-blue-900);
+}
+
+.custom-data-highlight data span {
+    display: block;
+    margin-bottom: 0.15em;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: white;
+    letter-spacing: 0.08em;
+}
+
+.custom-data-highlight data::after {
+    content: attr(value);
+        display: block;
+        font-size: 1.8rem;
+        text-align: center;
+        color: white;
+}
+
+
+.project-logo {
+  max-width: 225px;
+}
+
+#ithacaFooter {
+  background-color: var(--gray-050);
+}
+
+#ithacaFooter .footer-links .footer-list li svg {
+  width: 16px;
+  margin-top: -2px;
+}
+
+#publicDashboard .dashboard-content,
+#publicDashboard .dashboard-content .dashboard-chart-layout {
+    gap: 1.5em;
+}
+
+@media (min-width: 636px) {
+  .icon-cards-container {
+    flex-wrap: nowrap;
+  }
+}
+
+@media (min-width: 812px) {
+  .quick-links-container {
+    flex-direction: row;
+  }
+}
+
+@media screen and (min-width: 1800px) {
+    #publicDashboard .dashboard-content {
+        max-width: 60vw;
+    }
+  }

@@ -45,7 +45,7 @@ const COLOR_MAPPING: Record<ButtonType, string> = {
     "tracking-widest uppercase rounded-alt font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover",
   tertiary:
     "tracking-widest uppercase rounded-alt font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover",
-  text: "group pl-0 pr-0 flex items-center text-button-text hover:bg-hover hover:text-link-hover cursor-pointer disabled:cursor-not-allowed disabled:text-button-text-disabled disabled:hover:bg-transparent border-none h-auto",
+  text: "group px-2 flex items-center text-button-text hover:bg-hover hover:text-link-hover cursor-pointer disabled:cursor-not-allowed disabled:text-button-text-disabled disabled:hover:bg-transparent border-none h-auto",
   outline:
     "tracking-widest uppercase rounded-alt font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
   filterWell:

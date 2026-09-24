@@ -106,6 +106,7 @@ module.exports = {
         8.75: "2.1875rem",
         10.5: "2.625rem",
         12.5: "3.125rem",
+        13: "3.25rem",
         15: "3.75rem",
         25: "6.25rem",
         95: "23.75rem",
@@ -124,6 +125,8 @@ module.exports = {
         "button-small": "2.625rem",
         "button-default": "3.125rem",
         "button-large": "3.5rem",
+        "modal-footer": "5.125rem",
+        "sidebar-footer": "7.25rem",
       }),
       width: {
         "button-switch": "var(--width-button-switch)",
@@ -171,7 +174,8 @@ module.exports = {
         "button-outline": "var(--background-color-button-outline)",
         "button-outline-hover": "var(--background-color-button-outline-hover)",
         "button-disabled": "var(--background-color-button-disabled)",
-        "button-disabled-hover": "var(background-color-button-disabled-hover)",
+        "button-disabled-hover":
+          "var(--background-color-button-disabled-hover)",
         "button-filter": "var(--background-color-button-filter)",
         "button-filter-hover": "var(--background-color-button-filter-hover)",
         "button-tree-node-toggle":
@@ -245,6 +249,7 @@ module.exports = {
           "color-mix(var(--background-color-button-primary), var(--background-color-content) 70%)",
         "dashboard-dropzone-hover":
           "color-mix(var(--background-color-button-primary), var(--background-color-content) 85%)",
+        banner: "var(--background-color-banner)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -273,6 +278,7 @@ module.exports = {
         "button-cart-remove": "var(--text-color-button-cart-remove)",
         "button-cart-count": "var(--text-color-button-cart-count)",
         menu: "var(--text-color-menu)",
+        "menu-dynamic": "var(--text-color-menu-dynamic)",
         "sub-menu": "var(--text-color-sub-menu)",
         "sub-menu-hover": "var(--text-color-sub-menu-hover)",
         "breadcrumb-arrow": "var(--text-color-breadcrumb-arrow)",

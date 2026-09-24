@@ -8,7 +8,7 @@
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
-      @update:modelValue="(value: columnValueObject) => (file = value)"
+      @update:modelValue="(value) => (file = value)"
     />
   </InputTestContainer>
   <form @submit.prevent></form>
@@ -25,6 +25,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import type { columnValueObject } from "../../../../metadata-utils/src/types";
-const file = ref<columnValueObject | null>();
+import type { IFile } from "../../../types/types";
+const file = ref<IFile | File | null>();
 </script>

@@ -10,6 +10,7 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
@@ -40,6 +41,9 @@ public class SqlQuery extends QueryBean {
   public static final String UNNEST_0 = "UNNEST({0})";
 
   private static final String QUERY_FAILED = "Query failed: ";
+
+  private static final int STREAMING_ROWS_PER_FETCH = 1000;
+
   private static final String ANY_SQL = "{0} = ANY ({1})";
   private static final String JSON_AGG_SQL = "jsonb_agg(item)";
   private static final String ROW_TO_JSON_SQL = "to_jsonb(item)";
@@ -77,6 +81,43 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public List<Row> retrieveRows(Option... options) {
+    SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
+    try {
+      List<Row> result = new ArrayList<>();
+      Result<org.jooq.Record> fetch = query.fetch();
+      for (org.jooq.Record r : fetch) {
+        result.add(new SqlRow(r));
+      }
+      return result;
+    } catch (Exception e) {
+      throw new SqlMolgenisException(QUERY_FAILED, e);
+    }
+  }
+
+  @Override
+  public void streamRows(Consumer<Row> consumer, Option... options) {
+    SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
+    try {
+      schema
+          .getJooq()
+          .transaction(
+              config -> {
+                query.attach(config);
+                try (Cursor<org.jooq.Record> cursor =
+                    query.fetchSize(STREAMING_ROWS_PER_FETCH).fetchLazy()) {
+                  for (org.jooq.Record r : cursor) {
+                    consumer.accept(new SqlRow(r));
+                  }
+                }
+              });
+    } catch (MolgenisException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new SqlMolgenisException(QUERY_FAILED, e);
+    }
+  }
+
+  private SelectConnectByStep<org.jooq.Record> buildRowQuery(Option... options) {
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
@@ -94,7 +135,7 @@ public class SqlQuery extends QueryBean {
 
     // if empty selection, we will add the default selection here, incl File and Refback
     // will generally be all you need
-    if (select == null || select.getColumNames().isEmpty()) {
+    if (select == null || select.getColumnNames().isEmpty()) {
       for (Column c :
           table.getColumns().stream()
               .filter(
@@ -128,10 +169,10 @@ public class SqlQuery extends QueryBean {
 
     // we don't accept '.' notation in query select anymore
     else {
-      if (select.getColumNames().stream().anyMatch(name -> name.contains("."))) {
+      if (select.getColumnNames().stream().anyMatch(name -> name.contains("."))) {
         throw new MolgenisException(
             "select columns cannot contain dot. Use subselects. Error: "
-                + (select.getColumNames().stream()
+                + (select.getColumnNames().stream()
                     .filter(name -> name.contains("."))
                     .collect(Collectors.joining(","))));
       }
@@ -153,21 +194,10 @@ public class SqlQuery extends QueryBean {
     SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
     SelectConnectByStep<org.jooq.Record> query =
         limitOffsetOrderBy(table, select, where, tableAlias);
-
-    // execute
-    try {
-      List<Row> result = new ArrayList<>();
-      if (logger.isInfoEnabled()) {
-        logger.info(query.getSQL(ParamType.INLINED));
-      }
-      Result<org.jooq.Record> fetch = query.fetch();
-      for (org.jooq.Record r : fetch) {
-        result.add(new SqlRow(r));
-      }
-      return result;
-    } catch (Exception e) {
-      throw new SqlMolgenisException(QUERY_FAILED, e);
+    if (logger.isInfoEnabled()) {
+      logger.info(query.getSQL(ParamType.INLINED));
     }
+    return query;
   }
 
   private SelectColumn getRefPrimaryKeySubselect(Column c) {
@@ -219,13 +249,13 @@ public class SqlQuery extends QueryBean {
           fields.add(field(name(alias(tableAlias), column.getName() + "_extension")));
         }
       } else if (column.isRef() || column.isRefArray()) {
-        shouldNotExpandBeyondPkey(select, column);
+        checkNotExpandedBeyondPkey(select, column);
         fields.addAll(
             column.getReferences().stream()
                 .map(ref -> field(name(alias(tableAlias), ref.getColumnName())))
                 .toList());
       } else if (column.isRefback()) {
-        shouldNotExpandBeyondPkey(select, column);
+        checkNotExpandedBeyondPkey(select, column);
         // will come from refJoin table
         fields.addAll(
             column.getReferences().stream()
@@ -243,7 +273,7 @@ public class SqlQuery extends QueryBean {
     return fields;
   }
 
-  private static void shouldNotExpandBeyondPkey(SelectColumn select, Column column) {
+  private static void checkNotExpandedBeyondPkey(SelectColumn select, Column column) {
     select
         .getSubselect()
         .forEach(
@@ -490,7 +520,7 @@ public class SqlQuery extends QueryBean {
         SEARCH_INCLUDING_PARENTS:
           // check for table level filter for ontologies (weird getColumn), apply to "name" columm
           if (filter.getOperator().getName().equals(filter.getColumn())) {
-            return whereCondition(
+            return whereColumnOperator(
                 tableAlias,
                 // use the table itself
                 new Column("name")
@@ -503,7 +533,7 @@ public class SqlQuery extends QueryBean {
         // else use default
         default:
           // then it must be a column filter
-          return whereCondition(
+          return whereColumnOperator(
               subAlias,
               getColumnByName(table, filter.getColumn()),
               filter.getOperator(),
@@ -1169,13 +1199,13 @@ public class SqlQuery extends QueryBean {
         }
       } else {
         conditions.add(
-            whereCondition(tableAlias, column, filters.getOperator(), filters.getValues()));
+            whereColumnOperator(tableAlias, column, filters.getOperator(), filters.getValues()));
       }
     }
     return conditions.isEmpty() ? null : and(conditions);
   }
 
-  private Condition whereCondition(
+  private Condition whereColumnOperator(
       String tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
     Name columnName = name(alias(tableAlias), column.getName());
     ColumnType columnType = column.getColumnType();

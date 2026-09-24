@@ -17,8 +17,8 @@ export function resourceToCartItem(resource: IResources): ICartItem {
 export function variableToCartItem(variable: IVariables): ICartItem {
   const key = getKey(variable);
   return {
-    id: `variable:${key.resource.id}:${key.table.resource.id}:${key.table.name}:${key.name}`,
-    label: `${variable.resource.id}: ${variable.table.name}.${variable.name}`,
+    id: `variable:${key.resource.id}:${key.table.name}:${key.name}`,
+    label: `${variable.resource.id}:${variable.table.name}.${variable.name}`,
     type: "variable",
   };
 }

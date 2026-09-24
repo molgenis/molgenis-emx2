@@ -5,6 +5,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public enum Privileges {
+  // can see that the schema exists and use it, without any permission on its data.
+  // this role is granted to custom roles and used in the policy for schema_metadata
+  MEMBER("Member"),
   // can only see if data exists on aggregate queries
   EXISTS("Exists"),
   // can only see a certain range of counts exists on aggregate queries

@@ -6,8 +6,8 @@ import org.eclipse.rdf4j.model.vocabulary.DCAT;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.QueryResults;
-import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 /**
  * Enriches a repository by extracting the start and end year from {@code dcterms:temporal}
@@ -48,15 +48,15 @@ public class TemporalRdfPreProcessor implements RdfPreProcessor {
       """;
 
   @Override
-  public void process(SailRepository repository) {
-    try (SailRepositoryConnection conn = repository.getConnection()) {
+  public void process(Repository repository) {
+    try (RepositoryConnection conn = repository.getConnection()) {
       constructForIri(conn, DCAT.DATASET);
       constructForIri(conn, DCAT.CATALOG);
       conn.commit();
     }
   }
 
-  private static void constructForIri(SailRepositoryConnection conn, IRI iri) {
+  private static void constructForIri(RepositoryConnection conn, IRI iri) {
     GraphQuery graphQuery = conn.prepareGraphQuery(QueryLanguage.SPARQL, CONSTRUCT.formatted(iri));
     Model result = QueryResults.asModel(graphQuery.evaluate());
     result.forEach(conn::add);

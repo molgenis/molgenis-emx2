@@ -1,4 +1,3 @@
-title,description,url,url label,url is external,displayed in navigation group,order,id
-Get started,Learn how to use MOLGENIS,https://molgenis.github.io/molgenis-emx2,Read the docs,true,home-section-nav-group,0,mg-get-started-link
-View code,Visit our GitHub repository,https://github.com/molgenis/molgenis-emx2,Go to GitHub,true,home-section-nav-group,1,mg-view-code-link
-Contact us,Get in touch with us,https://molgenis.org,Contact,true,home-section-nav-group,2,mg-contact-us-link
+title,description,url,url label,url is external,in block,id
+Learn more,"If you would like to learn about MOLGENIS, take a look at our platform guide.",https://molgenis.github.io/molgenis-emx2/#/molgenis/,MOLGENIS Platform Guide,true,,NavigationCards-dc3aa3c7-9b51-47e3-b12b-cd4a0adee4ff
+View the code,MOLGENIS EMX2 is open-source! Have a look at our GitHub repository to see what we are working on.,https://github.com/molgenis/molgenis-emx2,MOLGENIS-EMX2,true,,NavigationCards-67bcc426-f19d-4fc9-a014-9fc09a19d74d
