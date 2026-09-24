@@ -11,7 +11,6 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.*;
-import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 
@@ -100,18 +99,7 @@ public class GraphqlAdminFieldFactory {
             .field(
                 GraphQLFieldDefinition.newFieldDefinition()
                     .name(SCHEMA_ROLES)
-                    .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt))
-                    .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt))
-                    .argument(
-                        GraphQLArgument.newArgument().name(SEARCH).type(Scalars.GraphQLString))
                     .type(GraphQLList.list(schemaRoleType))
-                    .build())
-            .field(
-                GraphQLFieldDefinition.newFieldDefinition()
-                    .name(SCHEMA_ROLE_COUNT)
-                    .argument(
-                        GraphQLArgument.newArgument().name(SEARCH).type(Scalars.GraphQLString))
-                    .type(Scalars.GraphQLInt)
                     .build())
             .build();
 
@@ -130,12 +118,7 @@ public class GraphqlAdminFieldFactory {
                   result.put(userCount, db.countUsers());
                 }
                 if (selectedField.getName().equals(SCHEMA_ROLES)) {
-                  result.put(SCHEMA_ROLES, getSchemaRoles(selectedField, db));
-                }
-                if (selectedField.getName().equals(SCHEMA_ROLE_COUNT)) {
-                  result.put(
-                      SCHEMA_ROLE_COUNT,
-                      (int) schemaRoles(db, searchArgument(selectedField)).count());
+                  result.put(SCHEMA_ROLES, getSchemaRoles(db));
                 }
               }
               return result;
@@ -144,66 +127,23 @@ public class GraphqlAdminFieldFactory {
         .build();
   }
 
-  private static List<Map<String, Object>> getSchemaRoles(
-      SelectedField selectedField, Database db) {
-    Map<String, Object> args = selectedField.getArguments();
-    int limit = args.containsKey(LIMIT) ? (int) args.get(LIMIT) : 100;
-    int offset = args.containsKey(OFFSET) ? (int) args.get(OFFSET) : 0;
-    return schemaRoles(db, searchArgument(selectedField))
-        .skip(offset)
-        .limit(limit)
-        .map(SchemaRole::toGraphql)
-        .toList();
-  }
-
-  private static String searchArgument(SelectedField selectedField) {
-    return (String) selectedField.getArguments().get(SEARCH);
-  }
-
-  private static Stream<SchemaRole> schemaRoles(Database db, String search) {
+  private static List<Map<String, Object>> getSchemaRoles(Database db) {
     Map<String, List<String>> usersPerRole = getUsersPerRole(db.loadUserRoles());
-    return db.getSchemaNames().stream()
-        .flatMap(schemaName -> schemaRolesOf(db, schemaName, usersPerRole))
-        .filter(schemaRole -> schemaRole.matches(search));
-  }
-
-  private static Stream<SchemaRole> schemaRolesOf(
-      Database db, String schemaName, Map<String, List<String>> usersPerRole) {
-    return db.getSchema(schemaName).getRoleInfos().stream()
-        .filter(role -> !role.isSystemRole() && !role.permissions().isEmpty())
-        .map(
-            role ->
-                new SchemaRole(
-                    schemaName,
-                    role,
-                    usersPerRole.getOrDefault(schemaName + "/" + role.name(), List.of())));
-  }
-
-  private record SchemaRole(String schemaId, Role role, List<String> users) {
-    private boolean matches(String search) {
-      if (search == null || search.isBlank()) {
-        return true;
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (String schemaName : db.getSchemaNames()) {
+      for (Role role : db.getSchema(schemaName).getRoleInfos()) {
+        if (role.isSystemRole()) {
+          continue;
+        }
+        Map<String, Object> schemaRole = new LinkedHashMap<>();
+        schemaRole.put(SCHEMA_ID, schemaName);
+        schemaRole.put(ROLE_NAME, role.name());
+        schemaRole.put(PERMISSIONS, permissionsToList(role));
+        schemaRole.put(USERS, usersPerRole.getOrDefault(schemaName + "/" + role.name(), List.of()));
+        result.add(schemaRole);
       }
-      String query = search.toLowerCase();
-      return contains(schemaId, query)
-          || contains(role.name(), query)
-          || users.stream().anyMatch(user -> contains(user, query))
-          || role.permissions().stream()
-              .anyMatch(permission -> contains(permission.table(), query));
     }
-
-    private static boolean contains(String value, String query) {
-      return value != null && value.toLowerCase().contains(query);
-    }
-
-    private Map<String, Object> toGraphql() {
-      Map<String, Object> schemaRole = new LinkedHashMap<>();
-      schemaRole.put(SCHEMA_ID, schemaId);
-      schemaRole.put(ROLE_NAME, role.name());
-      schemaRole.put(PERMISSIONS, permissionsToList(role));
-      schemaRole.put(USERS, users);
-      return schemaRole;
-    }
+    return result;
   }
 
   private static Map<String, List<String>> getUsersPerRole(List<Member> members) {
