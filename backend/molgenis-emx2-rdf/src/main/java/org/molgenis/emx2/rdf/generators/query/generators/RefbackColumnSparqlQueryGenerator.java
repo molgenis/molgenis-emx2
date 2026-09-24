@@ -13,7 +13,7 @@ import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
  *
  * <pre>{@code
  * Person --------- foaf:pet --------> Pet
- * (refbackColumn)                     (referencedColumn)
+ * (referencedColumn)                  (refbackColumn)
  * }</pre>
  *
  * <p>The pattern follows {@code foaf:pet} backwards from {@code Pet}, e.g. {@code ?pet ^foaf:pet
@@ -23,8 +23,8 @@ public class RefbackColumnSparqlQueryGenerator extends LiteralColumnSparqlQueryG
 
   /**
    * @param subject variable for the current row
-   * @param referenced the reference column on the other table
-   * @param refbackColumn the refback column itself
+   * @param referenced the refback column on the other table, which carries the semantics
+   * @param refbackColumn the plain reference column this refback resolves for
    */
   public RefbackColumnSparqlQueryGenerator(
       Variable subject, Column referenced, Column refbackColumn) {
