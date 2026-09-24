@@ -7,7 +7,7 @@ defineProps<IHeadings>();
   <component
     :is="`h${level}`"
     :id="id"
-    class="text-title"
+    class="text-title mb-2.5"
     :class="{
       'text-heading-6xl': level === 1,
       'text-heading-5xl': level === 2,
