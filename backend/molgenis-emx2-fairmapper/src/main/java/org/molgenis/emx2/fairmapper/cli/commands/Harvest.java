@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.fairmapper.client.CachingSchemaMetadataProvider;
 import org.molgenis.emx2.fairmapper.client.GraphqlClient;
 import org.molgenis.emx2.fairmapper.client.GraphqlSchemaMetadataProvider;
 import org.molgenis.emx2.fairmapper.extractors.CrawlSteps;
@@ -105,7 +106,8 @@ public class Harvest implements Runnable {
   }
 
   SchemaMetadataProvider getSchemaMetadataProvider() {
-    return new GraphqlSchemaMetadataProvider(new GraphqlClient(endpoint, token));
+    return new CachingSchemaMetadataProvider(
+        new GraphqlSchemaMetadataProvider(new GraphqlClient(endpoint, token)));
   }
 
   public void runPipeline(HarvestingPipelineConfig.Builder builder) {
