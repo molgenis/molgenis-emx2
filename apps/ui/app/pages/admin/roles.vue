@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../../metadata-utils/src/types.ts";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
 import constants from "../../../../tailwind-components/app/utils/constants.ts";
 import type {
-  ITableSettings,
   CustomRole,
+  ITableSettings,
 } from "../../../../tailwind-components/types/types.ts";
 import { getCustomRoles } from "../../util/adminUtils.ts";
 
@@ -26,7 +26,7 @@ const settings = ref<ITableSettings>({
 
 const customRoles = ref<CustomRole[]>([]);
 
-const rows = computed(() => {
+const rows = computed<IRow[]>(() => {
   const offset = (settings.value.page - 1) * settings.value.pageSize;
 
   const transformedRoles = customRoles.value.map((customRole) => ({
@@ -46,7 +46,21 @@ const rows = computed(() => {
     );
   });
 
-  return filteredRoles.slice(offset, offset + settings.value.pageSize);
+  const sortedRoles = filteredRoles.sort(
+    (a: Record<string, string>, b: Record<string, string>) => {
+      const { column, direction } = settings.value.orderby;
+      if (!column) return 0;
+
+      const aValue = a[column]?.toLowerCase() ?? "";
+      const bValue = b[column]?.toLowerCase() ?? "";
+
+      if (aValue < bValue) return direction === "ASC" ? -1 : 1;
+      if (aValue > bValue) return direction === "ASC" ? 1 : -1;
+      return 0;
+    }
+  );
+
+  return sortedRoles.slice(offset, offset + settings.value.pageSize);
 });
 
 let latestRequest = 0;
@@ -81,7 +95,7 @@ function getUserNames(customRole: CustomRole) {
   <TableInteractive
     :columns="COLUMNS"
     :rows="rows"
-    :count="customRoles.length"
+    :rowCount="customRoles.length"
     :settings="settings"
     @update:settings="handleSettingsChange"
     search-placeholder="Search roles"

@@ -4,6 +4,7 @@ import { computed } from "vue";
 import Container from "../../../tailwind-components/app/components/Container.vue";
 import PageHeader from "../../../tailwind-components/app/components/PageHeader.vue";
 import Tab from "../../../tailwind-components/app/components/Tab.vue";
+import Users from "./admin/users.vue";
 
 const route = useRoute();
 
@@ -29,6 +30,7 @@ const activeTab = computed(() => {
         <Tab :active="activeTab === 'settings'">Settings</Tab>
       </NuxtLink>
     </div>
-    <NuxtPage />
+    <Users v-if="activeTab === 'users'" />
+    <NuxtPage v-else />
   </Container>
 </template>
