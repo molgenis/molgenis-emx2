@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
 import type { IColumn, IRow } from "../../../../metadata-utils/src/types.ts";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
@@ -8,6 +9,10 @@ import type {
   ITableSettings,
 } from "../../../../tailwind-components/types/types.ts";
 import { getCustomRoles } from "../../util/adminUtils.ts";
+
+definePageMeta({
+  middleware: "admin-only",
+});
 
 const COLUMNS: IColumn[] = [
   { label: "Schema", id: "schemaId", columnType: "STRING" },
