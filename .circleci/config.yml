@@ -306,8 +306,8 @@ jobs:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-      # The demo import runs inside the application boot, so everything below that does not
-      # need a running application is placed between the start and the wait for it.
+      # The demo import runs inside the application boot, so steps that do not
+      # need a running application go between the start and the wait for it.
       - run:
           name: start the application in the background
           command: |
