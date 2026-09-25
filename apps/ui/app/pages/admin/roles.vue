@@ -30,6 +30,8 @@ const settings = ref<ITableSettings>({
 });
 
 const customRoles = ref<CustomRole[]>([]);
+let latestRequest = 0;
+await loadCustomRoles();
 
 const rows = computed<IRow[]>(() => {
   const offset = (settings.value.page - 1) * settings.value.pageSize;
@@ -41,17 +43,7 @@ const rows = computed<IRow[]>(() => {
     users: getUserNames(customRole),
   }));
 
-  const filteredRoles = transformedRoles.filter((role) => {
-    const search = settings.value?.search?.toLowerCase() || "";
-    return (
-      role.schemaId.toLowerCase().includes(search) ||
-      role.roleName.toLowerCase().includes(search) ||
-      role.tables.toLowerCase().includes(search) ||
-      role.users.toLowerCase().includes(search)
-    );
-  });
-
-  const sortedRoles = filteredRoles.sort(
+  const sortedRoles = transformedRoles.sort(
     (a: Record<string, string>, b: Record<string, string>) => {
       const { column, direction } = settings.value.orderby;
       if (!column) return 0;
@@ -64,11 +56,24 @@ const rows = computed<IRow[]>(() => {
       return 0;
     }
   );
+  const filteredRoles = sortedRoles.filter((role) => {
+    const search = settings.value?.search?.toLowerCase() || "";
+    return (
+      role.schemaId.toLowerCase().includes(search) ||
+      role.roleName.toLowerCase().includes(search) ||
+      role.tables.toLowerCase().includes(search) ||
+      role.users.toLowerCase().includes(search)
+    );
+  });
 
-  return sortedRoles.slice(offset, offset + settings.value.pageSize);
+  return filteredRoles;
 });
 
-let latestRequest = 0;
+const paginatedRows = computed(() => {
+  const start = (settings.value.page - 1) * settings.value.pageSize;
+  const end = start + settings.value.pageSize;
+  return rows.value.slice(start, end);
+});
 
 async function loadCustomRoles() {
   const request = ++latestRequest;
@@ -77,8 +82,6 @@ async function loadCustomRoles() {
     customRoles.value = loaded.customRoles;
   }
 }
-
-await loadCustomRoles();
 
 async function handleSettingsChange(updated: ITableSettings) {
   settings.value = updated;
@@ -99,8 +102,8 @@ function getUserNames(customRole: CustomRole) {
 <template>
   <TableInteractive
     :columns="COLUMNS"
-    :rows="rows"
-    :rowCount="customRoles.length"
+    :rows="paginatedRows"
+    :rowCount="rows.length"
     :settings="settings"
     @update:settings="handleSettingsChange"
     search-placeholder="Search roles"
