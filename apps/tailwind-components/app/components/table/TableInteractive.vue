@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import { useDebounceFn } from "@vueuse/core";
+import { computed } from "vue";
+import type { IRow } from "../../../../metadata-utils/src/types.ts";
 import type { ITableSettings } from "../../../types/types.ts";
 import { FILTER_DEBOUNCE } from "../../composables/useFilters";
 import Table from "../Table.vue";
+import TableCell from "../TableCell.vue";
+import TableHead from "../TableHead.vue";
+import TableRow from "../TableRow.vue";
 import TableHeadCell from "./TableHeadCell.vue";
 import TableHeaderAction from "./TableHeaderAction.vue";
 
 const props = withDefaults(
   defineProps<{
     columns: { id: string; label: string }[];
-    rows: Record<string, unknown>[];
+    rows: IRow[];
     rowCount: number;
     settings: ITableSettings;
     searchPlaceholder?: string;
