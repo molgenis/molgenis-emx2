@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 import Modal from "../../Modal.vue";
 import PageGalleryCardAction from "./PageGalleryCardAction.vue";
@@ -38,9 +38,9 @@ const emits = defineEmits<{
   (e: "deleted", value: IDeleteContainerStatus): void;
 }>();
 
-const currentPageType = ref<string | undefined>(
-  setCmsPageType(props.container.mg_tableclass)
-);
+const currentPageType = computed<string | undefined>(() => {
+  return setCmsPageType(props.container.mg_tableclass);
+});
 
 async function deletePage() {
   showDeleteModal.value = false;
