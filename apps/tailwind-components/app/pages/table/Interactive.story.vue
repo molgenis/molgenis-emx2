@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import TableInteractive from "~/components/table/TableInteractive.vue";
-import type { ITableSettings } from "~~/types/types";
+import type { IRow } from "../../../../metadata-utils/src/types";
+import type { ITableSettings } from "../../../types/types";
+import TableInteractive from "../../components/table/TableInteractive.vue";
 
 const columns = [
   { id: "name", label: "Name" },
   { id: "email", label: "Email" },
   { id: "role", label: "Role" },
 ];
-const rows = [
+
+const rows: IRow[] = [
   { name: "John Doe", email: "john.doe@example.com", role: "User" },
   { name: "Jane Smith", email: "jane.smith@example.com", role: "Admin" },
   { name: "Alice Johnson", email: "alice.johnson@example.com", role: "User" },
