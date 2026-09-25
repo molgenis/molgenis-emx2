@@ -11,7 +11,7 @@ const props = withDefaults(
   defineProps<{
     columns: { id: string; label: string }[];
     rows: Record<string, unknown>[];
-    count: number;
+    rowCount: number;
     settings: ITableSettings;
     searchPlaceholder?: string;
   }>(),
@@ -25,7 +25,7 @@ const emit = defineEmits<{
 }>();
 
 const totalPages = computed(() =>
-  Math.max(1, Math.ceil(props.count / props.settings.pageSize))
+  Math.max(1, Math.ceil(props.rowCount / props.settings.pageSize))
 );
 
 function handlePagingRequest(page: number) {
