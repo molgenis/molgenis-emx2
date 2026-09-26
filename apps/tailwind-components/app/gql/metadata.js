@@ -9,6 +9,7 @@ export default gql`
         schemaId
         name
         label
+        labelTemplate
         tableType
         description
         semantics
