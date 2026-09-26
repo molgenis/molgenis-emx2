@@ -9,14 +9,20 @@ import org.molgenis.emx2.tasks.Task;
 
 public class ImportTableTask extends Task {
   private final Table table;
+  private final UpdateMode updateMode;
   private final TableStore source;
 
-  public ImportTableTask(TableStore source, Table table, boolean strict) {
+  public ImportTableTask(TableStore source, Table table, boolean strict, UpdateMode updateMode) {
     super("Import table %s".formatted(table.getName()), strict);
     Objects.requireNonNull(source, "tableStore cannot be null");
     Objects.requireNonNull(table, "table cannot be null");
     this.table = table;
     this.source = source;
+    this.updateMode = Objects.requireNonNull(updateMode, "updateMode cannot be null");
+  }
+
+  public ImportTableTask(TableStore source, Table table, boolean strict) {
+    this(source, table, strict, UpdateMode.DEFAULT_MODE);
   }
 
   @Override
@@ -34,7 +40,7 @@ public class ImportTableTask extends Task {
     this.setDescription("Importing rows into %s".formatted(table.getName()));
 
     try {
-      source.processTable(table.getName(), new ImportRowProcessor(table, this));
+      source.processTable(table.getName(), new ImportRowProcessor(table, this, updateMode));
     } catch (Exception e) {
       this.setError("Import table (%s) failed: %s".formatted(table.getName(), e.getMessage()));
       throw e;
