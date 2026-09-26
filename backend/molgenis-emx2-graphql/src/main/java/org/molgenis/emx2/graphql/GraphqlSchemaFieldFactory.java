@@ -112,7 +112,7 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField().name(KEY).type(Scalars.GraphQLString))
           .build();
-  private static final GraphQLType outputPermissionType =
+  static final GraphQLType outputPermissionType =
       new GraphQLObjectType.Builder()
           .name("MolgenisPermissionType")
           .field(
@@ -559,22 +559,24 @@ public class GraphqlSchemaFieldFactory {
     Map<String, Object> roleMap = new LinkedHashMap<>();
     roleMap.put(GraphqlConstants.NAME, role.name());
     roleMap.put(GraphqlConstants.SYSTEM, role.isSystemRole());
-    roleMap.put(
-        GraphqlConstants.PERMISSIONS,
-        role.permissions().stream()
-            .map(
-                p -> {
-                  Map<String, Object> permMap = new LinkedHashMap<>();
-                  permMap.put(TABLE, p.table());
-                  permMap.put(GraphqlConstants.SELECT, p.select());
-                  permMap.put(GraphqlConstants.INSERT, p.insert());
-                  permMap.put(GraphqlConstants.UPDATE, p.update());
-                  permMap.put(GraphqlConstants.DELETE, p.delete());
-                  permMap.put(GraphqlConstants.IS_ROW_LEVEL, p.isRowLevel());
-                  return permMap;
-                })
-            .toList());
+    roleMap.put(GraphqlConstants.PERMISSIONS, permissionsToList(role));
     return roleMap;
+  }
+
+  static List<Map<String, Object>> permissionsToList(Role role) {
+    return role.permissions().stream()
+        .map(
+            p -> {
+              Map<String, Object> permMap = new LinkedHashMap<>();
+              permMap.put(TABLE, p.table());
+              permMap.put(GraphqlConstants.SELECT, p.select());
+              permMap.put(GraphqlConstants.INSERT, p.insert());
+              permMap.put(GraphqlConstants.UPDATE, p.update());
+              permMap.put(GraphqlConstants.DELETE, p.delete());
+              permMap.put(GraphqlConstants.IS_ROW_LEVEL, p.isRowLevel());
+              return permMap;
+            })
+        .toList();
   }
 
   private static DataFetcher<?> queryFetcher(Schema schema) {
