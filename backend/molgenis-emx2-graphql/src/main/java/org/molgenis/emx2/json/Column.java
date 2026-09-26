@@ -3,7 +3,9 @@ package org.molgenis.emx2.json;
 import static java.util.Arrays.stream;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.MolgenisException;
@@ -66,7 +68,7 @@ public class Column {
     this.name = column.getName();
     this.labels =
         column.getLabels().entrySet().stream()
-            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
+            .filter(entry -> entry.getValue() != null && !entry.getValue().trim().isEmpty())
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.formLabel = column.getFormLabel();
@@ -109,7 +111,7 @@ public class Column {
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
-            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
+            .filter(entry -> entry.getValue() != null && !entry.getValue().trim().isEmpty())
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics =
@@ -446,5 +448,186 @@ public class Column {
 
   public void setFormLabel(String formLabel) {
     this.formLabel = formLabel;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    Column column = (Column) o;
+    return drop == column.drop
+        && inherited == column.inherited
+        && Objects.equals(table, column.table)
+        && Objects.equals(id, column.id)
+        && Objects.equals(name, column.name)
+        && Objects.equals(label, column.label)
+        && Objects.equals(section, column.section)
+        && Objects.equals(heading, column.heading)
+        && Objects.equals(description, column.description)
+        && Objects.equals(labels, column.labels)
+        && Objects.equals(formLabel, column.formLabel)
+        && Objects.equals(oldName, column.oldName)
+        && Objects.equals(key, column.key)
+        && Objects.equals(required, column.required)
+        && Objects.equals(readonly, column.readonly)
+        && Objects.equals(defaultValue, column.defaultValue)
+        && Objects.equals(refSchemaId, column.refSchemaId)
+        && Objects.equals(refSchemaName, column.refSchemaName)
+        && Objects.equals(refTableId, column.refTableId)
+        && Objects.equals(refTableName, column.refTableName)
+        && Objects.equals(refLinkId, column.refLinkId)
+        && Objects.equals(refLinkName, column.refLinkName)
+        && Objects.equals(refBackId, column.refBackId)
+        && Objects.equals(refBackName, column.refBackName)
+        && Objects.equals(refLabel, column.refLabel)
+        && Objects.equals(refLabelDefault, column.refLabelDefault)
+        && Objects.equals(position, column.position)
+        && Objects.equals(cascadeDelete, column.cascadeDelete)
+        && Objects.equals(validation, column.validation)
+        && Objects.equals(visible, column.visible)
+        && Objects.equals(computed, column.computed)
+        && Objects.equals(descriptions, column.descriptions)
+        && columnType == column.columnType
+        && Objects.deepEquals(semantics, column.semantics)
+        && Objects.deepEquals(profiles, column.profiles);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        table,
+        id,
+        name,
+        label,
+        section,
+        heading,
+        description,
+        labels,
+        formLabel,
+        drop,
+        oldName,
+        key,
+        required,
+        readonly,
+        defaultValue,
+        refSchemaId,
+        refSchemaName,
+        refTableId,
+        refTableName,
+        refLinkId,
+        refLinkName,
+        refBackId,
+        refBackName,
+        refLabel,
+        refLabelDefault,
+        position,
+        cascadeDelete,
+        validation,
+        visible,
+        computed,
+        descriptions,
+        columnType,
+        Arrays.hashCode(semantics),
+        Arrays.hashCode(profiles),
+        inherited);
+  }
+
+  @Override
+  public String toString() {
+    return "Column{"
+        + "table='"
+        + table
+        + '\''
+        + ", id='"
+        + id
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", label='"
+        + label
+        + '\''
+        + ", section='"
+        + section
+        + '\''
+        + ", heading='"
+        + heading
+        + '\''
+        + ", description='"
+        + description
+        + '\''
+        + ", labels="
+        + labels
+        + ", formLabel='"
+        + formLabel
+        + '\''
+        + ", drop="
+        + drop
+        + ", oldName='"
+        + oldName
+        + '\''
+        + ", key="
+        + key
+        + ", required='"
+        + required
+        + '\''
+        + ", readonly="
+        + readonly
+        + ", defaultValue='"
+        + defaultValue
+        + '\''
+        + ", refSchemaId='"
+        + refSchemaId
+        + '\''
+        + ", refSchemaName='"
+        + refSchemaName
+        + '\''
+        + ", refTableId='"
+        + refTableId
+        + '\''
+        + ", refTableName='"
+        + refTableName
+        + '\''
+        + ", refLinkId='"
+        + refLinkId
+        + '\''
+        + ", refLinkName='"
+        + refLinkName
+        + '\''
+        + ", refBackId='"
+        + refBackId
+        + '\''
+        + ", refBackName='"
+        + refBackName
+        + '\''
+        + ", refLabel='"
+        + refLabel
+        + '\''
+        + ", refLabelDefault='"
+        + refLabelDefault
+        + '\''
+        + ", position="
+        + position
+        + ", cascadeDelete="
+        + cascadeDelete
+        + ", validation='"
+        + validation
+        + '\''
+        + ", visible='"
+        + visible
+        + '\''
+        + ", computed='"
+        + computed
+        + '\''
+        + ", descriptions="
+        + descriptions
+        + ", columnType="
+        + columnType
+        + ", semantics="
+        + Arrays.toString(semantics)
+        + ", profiles="
+        + Arrays.toString(profiles)
+        + ", inherited="
+        + inherited
+        + '}';
   }
 }
