@@ -20,6 +20,8 @@ git checkout <branch name here>
 Then you can either build + run the whole molgenis.jar, or use docker-compose to instantiate the backend and only run one app, described below. Or you can run
 it inside IntelliJ. Work on apps only? See [Frontend only: point an app at a backend you did not start](#frontend-only-point-an-app-at-a-backend-you-did-not-start). Keep more than one checkout? Read [Parallel dev stacks](#parallel-dev-stacks-one-per-worktree) first.
 
+!> When switching between branches after already having build another branch, be sure to run `gradle clean` before building the new branch.
+
 ## Build whole system
 
 Requires [Postgresql 15](https://www.postgresql.org/download/) and Java 21 (e.g., [OpenJDK 21](https://adoptium.net/)):
@@ -88,6 +90,8 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
   ```
   Look at the dev server's own banner for the actual port: Vite apps start at `5173` and Nuxt apps at `3000`, and drift upwards when that port is taken.
 
+!> Sometimes a `gradle clean` is required when front-end changes are made (f.e. when working on an app and some changes were made to tailwind-components as well). 
+
 ## Frontend only: point an app at a backend you did not start
 
 If you only work on apps, you need no Postgres, no Java and no backend of your own. Install the workspace once (`cd apps && pnpm install`), then create a gitignored `.env` at the repo root with nothing but the host of a backend that already exists:
@@ -150,16 +154,29 @@ When setting up WSL, there are a few things to keep in mind:
 
 ## Tips
 
-last updated 24 nov 2022
+last updated 18 aug 2026
 
-### IntelliJ plugins
+### IntelliJ IDEA plugins
 
-- We use IntelliJ 2021.3.1 with
-  - vue plugin
-  - google-java-format plugin
-  - prettier plugin, set run for files to include '.vue' and 'on save'
-  - auto save and auto format using 'save actions' plugin
-  - SonarQube plugin
+We advise using the following plugins:
+- [google-java-format](https://plugins.jetbrains.com/plugin/8527-google-java-format)
+- [SonarQube for IDE](https://plugins.jetbrains.com/plugin/7973-sonarqube-for-ide)  
+To set up connected mode:
+    1. Go to Settings -> Tools -> SonarQube for IDE
+    2. Under `Connections to SonarQube` add a new connection with `molgenis` as (external) organization
+    3. Go to Settings -> Tools -> SonarQube for IDE  -> Project Settings
+    4. Select `Bind project to SonarQube`
+    5. Select `Search in list...` for project key and select `molgenis-emx2`
+- (requires Ultimate) [Vue.js](https://plugins.jetbrains.com/plugin/9442-vue-js)
+  - When developing front-end code, we suggest using VS code instead. 
+
+### VS code
+
+Some of us also develop using VS code:
+
+- It automatically will discover the gradle tasks
+- To enable autoformatting of java using spottless,
+  install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
 
 ### Pre-commit hook
 
@@ -170,11 +187,11 @@ push stuff that breaks the build. We have included a gradle task for this if you
 ./gradlew installPreCommitGitFormatApplyHook
 ```
 
-### Running tests in intellij
+### Running tests in IntelliJ IDEA
 
 To enable gradle to run tests you must set the test runner to gradle.
 
-In Intellij, go to settings -> Build, Execution, Deployment -> Build tools -> Gradle and then set Run tests using 'IntelliJ' (counter intuitive, don't choose gradle).
+In IntelliJ IDEA, go to settings -> Build, Execution, Deployment -> Build tools -> Gradle and then set Run tests using 'IntelliJ' (counter intuitive, don't choose gradle).
 
 See https://linked2ev.github.io/devsub/2019/09/30/Intellij-junit4-gradle-issue/
 
@@ -209,14 +226,6 @@ This drops roles across the **whole Postgres instance**, not just one database, 
 
 Build test ('gradle test') will create database schemas, users, roles and passwords. If you don't like that than please consider to use a different database
 instance for 'test'. You can use environment variables MOLGENIS*POSTGRES*\*\* for this. See [Installation guide](run).
-
-### VS code
-
-Some of us also develop using VS code:
-
-- It automatically will discover the gradle tasks
-- To enable autoformatting of java using spottless,
-  install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
 
 ### To enable metrics while running using gradle
 
