@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.MolgenisException;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
@@ -40,5 +41,16 @@ class SqlDatabaseTest {
     settings.put(Constants.IS_OIDC_ENABLED, "false");
     sqlDatabase.setSettings(settings);
     assertFalse(sqlDatabase.isOidcEnabled());
+  }
+
+  @Test
+  void whenSchemaMetadataDoesNotExist_thenThrowMolgenisException() {
+    assertThrows(
+        MolgenisException.class, () -> sqlDatabase.getSchemaMetadata("non-existent-schema"));
+  }
+
+  @Test
+  void whenSchemaDoesNotExist_thenReturnNull() {
+    assertNull(sqlDatabase.getSchema("non-existent-schema"));
   }
 }

@@ -288,16 +288,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
     // get all implemented columns (keep superclass because of type)
     List<Column> columnList =
-        new ArrayList<>(
-            columns.values().stream()
-                .filter(c -> !c.isSystemColumn())
-                .collect(Collectors.toList()));
+        new ArrayList<>(columns.values().stream().filter(c -> !c.isSystemColumn()).toList());
     Collections.sort(columnList);
 
     // add meta behind non-meta
     List<Column> metaList =
-        new ArrayList<>(
-            columns.values().stream().filter(c -> c.isSystemColumn()).collect(Collectors.toList()));
+        new ArrayList<>(columns.values().stream().filter(Column::isSystemColumn).toList());
     columnList.addAll(metaList);
 
     for (Column c : columnList) {
@@ -310,7 +306,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public List<String> getColumnNames() {
-    return getColumns().stream().map(c -> c.getName()).collect(Collectors.toList());
+    return getColumns().stream().map(Column::getName).collect(Collectors.toList());
   }
 
   public List<String> getNonInheritedColumnNames() {
@@ -628,8 +624,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   @Override
   public int compareTo(Object o) {
-    if (o instanceof TableMetadata) {
-      return getTableName().compareTo(((TableMetadata) o).getTableName());
+    if (o instanceof TableMetadata metadata) {
+      return getTableName().compareTo((metadata).getTableName());
     }
     return 0;
   }

@@ -154,7 +154,7 @@ public class TestBatchRequestsForSpeed {
     assertEquals(8, personTable.getMetadata().getColumns().size());
 
     // drop a fromTable
-    db.getSchema("testCreate").getMetadata().drop(personTable.getName());
+    db.getSchemaMetadata("testCreate").drop(personTable.getName());
     assertNull(db.getSchema("testCreate").getTable(personTable.getName()));
 
     // make sure nothing was left behind in backend
