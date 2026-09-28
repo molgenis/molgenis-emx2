@@ -44,7 +44,9 @@ public class SparqlQueryTestUtils {
     Set<Map<String, String>> expected = Arrays.stream(expectedResults).collect(Collectors.toSet());
     Set<Map<String, String>> actual = new HashSet<>();
 
+    int nrResults = 0;
     while (result.hasNext()) {
+      nrResults++;
       BindingSet binding = result.next();
       actual.add(
           binding.getBindingNames().stream()
@@ -52,6 +54,8 @@ public class SparqlQueryTestUtils {
                   Collectors.toMap(Function.identity(), b -> binding.getValue(b).stringValue())));
     }
 
+    assertEquals(
+        nrResults, actual.size(), "actual results and the nr of query results do not match");
     assertEquals(expected, actual);
   }
 
