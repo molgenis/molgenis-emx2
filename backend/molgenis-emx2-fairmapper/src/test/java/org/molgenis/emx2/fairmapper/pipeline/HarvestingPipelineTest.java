@@ -21,7 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
-import org.molgenis.emx2.fairmapper.load.LocalDataLoader;
+import org.molgenis.emx2.fairmapper.load.LocalDataUploader;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
@@ -57,7 +57,7 @@ class HarvestingPipelineTest {
             .setTables(tables)
             .withPreProcessors(new StaticPreProcessor())
             .withPostProcessors(new StaticPostProcessor())
-            .withDataLoader(new LocalDataLoader(schema, tables))
+            .withDataLoader(new LocalDataUploader(schema, tables))
             .build();
     HarvestingPipeline pipeline = new HarvestingPipeline(config);
     pipeline.execute();
