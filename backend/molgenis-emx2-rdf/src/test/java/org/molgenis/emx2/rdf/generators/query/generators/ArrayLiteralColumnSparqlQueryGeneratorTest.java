@@ -134,7 +134,8 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
         repository(
             statement(IRI, FOAF.FIRST_NAME, "Lewis"),
             statement(IRI, FOAF.FIRST_NAME, "Robin"),
-            statement(IRI, FOAF.FIRST_NAME, "Robin"));
+            statement(IRI, FOAF.FIRST_NAME, "Robin"),
+            statement(IRI, FOAF.FIRST_NAME, "Robin "));
 
     TableMetadata table =
         new SchemaMetadata()
@@ -152,6 +153,6 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
         OPTIONAL { ?_subject_ foaf:firstName ?name_single . } }
         GROUP BY ?_subject_
         """,
-        Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin"));
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, IRI, "name", "Lewis|Robin|Robin "));
   }
 }
