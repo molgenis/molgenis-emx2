@@ -1,6 +1,7 @@
 package org.molgenis.emx2.fairmapper.cli.commands;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.fairmapper.client.CachingSchemaMetadataProvider;
