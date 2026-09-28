@@ -1817,6 +1817,6 @@ public class SqlQuery extends QueryBean {
   }
 
   private Schema getSchema() {
-    return schema.getSchemaMetadataProvider().getSchema(schema.getName());
+    return schema.getDatabase().getSchema(schema.getName());
   }
 }

@@ -76,16 +76,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   public void reload() {
     if (logger.isInfoEnabled()) {
-      logger.info(
-          "loading schema '{}' as user {}", getName(), getSchemaMetadataProvider().getActiveUser());
+      logger.info("loading schema '{}' as user {}", getName(), getDatabase().getActiveUser());
     }
     long start = System.currentTimeMillis();
-    MetadataUtils.loadSchemaMetadata(getSchemaMetadataProvider().getJooq(), this);
+    MetadataUtils.loadSchemaMetadata(getDatabase().getJooq(), this);
     this.tables.clear();
     this.rolesCache = null;
     this.permissionsByTableCache = null;
-    for (TableMetadata table :
-        MetadataUtils.loadTables(getSchemaMetadataProvider().getJooq(), this)) {
+    for (TableMetadata table : MetadataUtils.loadTables(getDatabase().getJooq(), this)) {
       super.create(new SqlTableMetadata(this, table));
     }
     if (logger.isInfoEnabled()) {
@@ -95,7 +93,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public boolean exists() {
-    return MetadataUtils.schemaExists(getSchemaMetadataProvider().getJooq(), this.getName());
+    return MetadataUtils.schemaExists(getDatabase().getJooq(), this.getName());
   }
 
   @Override
@@ -112,7 +110,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SchemaMetadata create(TableMetadata... tables) {
-    getSchemaMetadataProvider()
+    getDatabase()
         .tx(
             database -> {
               SqlSchema s = (SqlSchema) database.getSchema(getName());
@@ -158,11 +156,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public void drop(String tableName) {
-    getSchemaMetadataProvider()
-        .tx(
-            database -> {
-              sync(dropTransaction(tableName, database));
-            });
+    getDatabase().tx(database -> sync(dropTransaction(tableName, database)));
     getSchemaMetadataProvider().getListener().schemaChanged(getName());
   }
 
@@ -179,8 +173,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public SchemaMetadata setSettings(Map<String, String> settings) {
-    if (PermissionEvaluator.canManage(getSchemaMetadataProvider().getSchema(getName()))) {
-      getSchemaMetadataProvider()
+    if (PermissionEvaluator.canManage(getDatabase().getSchema(getName()))) {
+      getDatabase()
           .tx(
               db -> {
                 sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
@@ -190,7 +184,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     } else {
       throw new MolgenisException(
           "Permission denied for user "
-              + getSchemaMetadataProvider().getActiveUser()
+              + getDatabase().getActiveUser()
               + " to change setting on schema "
               + getName()
               + ". You need at least MANAGER permission for schema settings");
@@ -238,24 +232,21 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   protected DSLContext getJooq() {
-    return getSchemaMetadataProvider().getJooq();
+    return getDatabase().getJooq();
   }
 
-  @Override
-  public SqlDatabase getSchemaMetadataProvider() {
+  public SqlDatabase getDatabase() {
     return (SqlDatabase) super.getSchemaMetadataProvider();
   }
 
   public List<String> getInheritedRolesForUser(String username) {
-    return getSchemaMetadataProvider()
-        .getRoleManager()
-        .getInheritedRoleNamesForUser(getName(), username);
+    return getDatabase().getRoleManager().getInheritedRoleNamesForUser(getName(), username);
   }
 
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getInheritedRolesForUser(getSchemaMetadataProvider().getActiveUser());
+      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser());
     }
     return rolesCache;
   }
@@ -266,9 +257,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     if (permissionsByTableCache == null) {
       Map<String, TablePermission> byTable = new LinkedHashMap<>();
       for (TablePermission p :
-          getSchemaMetadataProvider()
-              .getRoleManager()
-              .getTablePermissionsForActiveUser(getName())) {
+          getDatabase().getRoleManager().getTablePermissionsForActiveUser(getName())) {
         byTable.putIfAbsent(p.table(), p);
       }
       permissionsByTableCache = Collections.unmodifiableMap(byTable);
@@ -281,7 +270,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   public String getRoleForUser(String user) {
-    SqlRoleManager roleManager = getSchemaMetadataProvider().getRoleManager();
+    SqlRoleManager roleManager = getDatabase().getRoleManager();
     if (user == null) user = ANONYMOUS;
     user = user.trim();
     for (Member m : roleManager.getMembers(getName())) {
