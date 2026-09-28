@@ -1,6 +1,8 @@
-Technology name	Name of the applied measuring technique/assay.	String			0..1	MIABIS-COLLECTION-29-01, MIABIS-SERVICE-09-01	Collection, Service
-Technology description	Text description of the applied measuring technique/assay.	String			0..1	MIABIS-COLLECTION-29-01, MIABIS-SERVICE-09-02	Collection, Service
-Technology provider	Name of the vendor whose measuring technique/assay was applied in creating the dataset	String			0..1	MIABIS-COLLECTION-29-01, MIABIS-SERVICE-09-03	Collection, Service
-Technology device	The vendor-stated name of the measuring device or platform applied to measure/derive data	String			0..1	MIABIS-COLLECTION-29-01, MIABIS-SERVICE-09-04	Collection, Service
-Technology software name 	Software/firmware name of the measuring device applied	String			0..1	MIABIS-COLLECTION-29-01, MIABIS-SERVICE-09-05	Collection, Service
-Technology software version	Software/firmware  and version of the measuring device applied	String			0..2	MIABIS-COLLECTION-29-01, MIABIS-SERVICE-09-06	Collection, Service
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,computed,defaultValue,visible
+Technologies,,,,,,,,,,,,"Technologies, methodological approaches, instruments, or computational platforms used. This includes specific instruments, assays, pipeliines, platforms or computational implementations.",DataCatalogueFlat,,,
+Technologies,,name,string,1,TRUE,,,,,,foaf:name,"Name of the applied measuring technique/assay.",DataCatalogueFlat,,,
+Technologies,,description,text,,,,,,,,,"Text description of the applied measuring technique/assay.",DataCatalogueFlat,,,
+Technologies,,provider,string,,,,,,,,,"Name of the vendor whose measuring technique/assay was applied in creating the dataset.",DataCatalogueFlat,,,
+Technologies,,device,string,,,,,,,,,"The vendor-stated name of the measuring device or platform applied to measure/derive data.",DataCatalogueFlat,,,
+Technologies,,software name,string,,,,,,,,,"Software/firmware name of the measuring device applied.",DataCatalogueFlat,,,
+Technologies,,software version,string,,,,,,,,,"Software/firmware version of the measuring device applied.",DataCatalogueFlat,,,
