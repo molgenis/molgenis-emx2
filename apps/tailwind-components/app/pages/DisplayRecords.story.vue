@@ -665,74 +665,74 @@ const SURFACES: SurfaceDemo[] = [
           </p>
           <DisplayRecords
             v-if="isLiveMode"
-            :schema-id="schemaId"
-            :table-id="tableId"
-            :display-config="displayFor(layoutOption)"
+            :schemaId="schemaId"
+            :tableId="tableId"
+            :displayConfig="displayFor(layoutOption)"
             :filter="filter"
-            :page-size="pageSize"
-            :link-to="linkTo"
+            :pageSize="pageSize"
+            :linkTo="linkTo"
           />
           <template v-else>
             <DisplayRecordsTable
               v-if="layoutOption === 'TABLE'"
               :rows="fixtureRows"
-              :title-template="
+              :titleTemplate="
                 resolvedFixtureDisplay(layoutOption).titleTemplate
               "
               :columns="resolvedFixtureDisplay(layoutOption).detailColumns"
-              :link-to="linkTo"
+              :linkTo="linkTo"
             />
             <DisplayRecordsCards
               v-else-if="layoutOption === 'CARDS'"
               :rows="fixtureRows"
-              :title-template="
+              :titleTemplate="
                 resolvedFixtureDisplay(layoutOption).titleTemplate
               "
-              :subtitle-template="
+              :subtitleTemplate="
                 resolvedFixtureDisplay(layoutOption).subtitleTemplate
               "
-              :description-column="
+              :descriptionColumn="
                 resolvedFixtureDisplay(layoutOption).descriptionColumn
               "
-              :detail-columns="
+              :detailColumns="
                 resolvedFixtureDisplay(layoutOption).detailColumns
               "
-              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
-              :link-to="linkTo"
+              :logoColumn="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :linkTo="linkTo"
             />
             <DisplayRecordsList
               v-else-if="layoutOption === 'LIST'"
               :rows="fixtureRows"
-              :title-template="
+              :titleTemplate="
                 resolvedFixtureDisplay(layoutOption).titleTemplate
               "
-              :subtitle-template="
+              :subtitleTemplate="
                 resolvedFixtureDisplay(layoutOption).subtitleTemplate
               "
-              :description-column="
+              :descriptionColumn="
                 resolvedFixtureDisplay(layoutOption).descriptionColumn
               "
-              :detail-columns="
+              :detailColumns="
                 resolvedFixtureDisplay(layoutOption).detailColumns
               "
-              :logo-column="resolvedFixtureDisplay(layoutOption).logoColumn"
-              :link-to="linkTo"
+              :logoColumn="resolvedFixtureDisplay(layoutOption).logoColumn"
+              :linkTo="linkTo"
             />
             <DisplayRecordsLinks
               v-else-if="layoutOption === 'LINKS'"
               :rows="fixtureRows"
-              :title-template="
+              :titleTemplate="
                 resolvedFixtureDisplay(layoutOption).titleTemplate
               "
-              :link-to="linkTo"
+              :linkTo="linkTo"
             />
             <DisplayRecordsBullets
               v-else-if="layoutOption === 'BULLETS'"
               :rows="fixtureRows"
-              :title-template="
+              :titleTemplate="
                 resolvedFixtureDisplay(layoutOption).titleTemplate
               "
-              :link-to="linkTo"
+              :linkTo="linkTo"
             />
           </template>
         </div>

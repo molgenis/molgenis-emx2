@@ -253,8 +253,8 @@ function onPageUpdate(page: number) {
 
     <Pagination
       v-if="layoutMeta.paginated"
-      :current-page="currentPage"
-      :total-pages="totalPages"
+      :currentPage="currentPage"
+      :totalPages="totalPages"
       class="pt-5 pb-[30px]"
       @update="onPageUpdate"
     />

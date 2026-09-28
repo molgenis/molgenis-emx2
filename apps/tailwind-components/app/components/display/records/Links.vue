@@ -13,9 +13,9 @@ defineProps<{
 <template>
   <LinkList
     :rows="rows"
-    :title-template="titleTemplate"
-    :link-to="linkTo"
-    :nav-label="navLabel"
+    :titleTemplate="titleTemplate"
+    :linkTo="linkTo"
+    :navLabel="navLabel"
     inline
   />
 </template>
