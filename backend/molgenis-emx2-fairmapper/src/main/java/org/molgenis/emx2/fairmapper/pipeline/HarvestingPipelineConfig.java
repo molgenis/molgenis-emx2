@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.SchemaMetadataProvider;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
-import org.molgenis.emx2.fairmapper.load.DataLoader;
+import org.molgenis.emx2.fairmapper.load.DataUploader;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
@@ -21,14 +21,14 @@ public record HarvestingPipelineConfig(
     RdfTransformer transformer,
     List<RdfPreProcessor> preProcessors,
     List<PostProcessor> postProcessors,
-    DataLoader dataLoader) {
+    DataUploader dataUploader) {
 
   public boolean dumpEnabled() {
     return outputPath != null;
   }
 
   public boolean loadEnabled() {
-    return dataLoader != null;
+    return dataUploader != null;
   }
 
   public static class Builder {
@@ -38,7 +38,7 @@ public record HarvestingPipelineConfig(
     private final RdfTransformer transformer;
     private final SchemaMetadataProvider schemaMetadataProvider;
     private final String schemaName;
-    private DataLoader dataLoader = null;
+    private DataUploader dataUploader = null;
 
     private List<String> tables = new ArrayList<>();
     private String outputPath = null;
@@ -79,8 +79,8 @@ public record HarvestingPipelineConfig(
       return this;
     }
 
-    public Builder withDataLoader(DataLoader dataLoader) {
-      this.dataLoader = dataLoader;
+    public Builder withDataLoader(DataUploader dataUploader) {
+      this.dataUploader = dataUploader;
       return this;
     }
 
@@ -95,7 +95,7 @@ public record HarvestingPipelineConfig(
           transformer,
           preProcessors,
           postProcessors,
-          dataLoader);
+              dataUploader);
     }
   }
 }
