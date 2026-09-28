@@ -71,9 +71,9 @@ class ArrayLiteralColumnSparqlQueryGeneratorTest {
   void givenMultipleSemantics_thenConcatBindValue() {
     SailRepository repository =
         repository(
-            statement(IRI, FOAF.FIRST_NAME, "Lewis"),
-            statement(IRI, FOAF.FIRST_NAME, "Robin"),
-            statement(IRI, FOAF.FIRST_NAME, "Demetrius"));
+            statement(IRI, FOAF.GIVEN_NAME, "Lewis"),
+            statement(IRI, FOAF.GIVEN_NAME, "Robin"),
+            statement(IRI, FOAF.GIVEN_NAME, "Demetrius"));
 
     TableMetadata table =
         new SchemaMetadata()
