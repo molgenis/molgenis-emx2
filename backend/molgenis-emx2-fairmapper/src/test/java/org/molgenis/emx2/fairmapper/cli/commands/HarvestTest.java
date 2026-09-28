@@ -93,14 +93,14 @@ class HarvestTest {
 
   @Test
   void shouldEnableDataLoadingWhenLoadOptionProvided() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-l");
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-u");
 
     assertTrue(config.loadEnabled());
   }
 
   @Test
   void shouldEnableDataLoadingWhenLoadLongOptionProvided() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--load");
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--upload");
 
     assertTrue(config.loadEnabled());
   }

@@ -95,7 +95,7 @@ public record HarvestingPipelineConfig(
           transformer,
           preProcessors,
           postProcessors,
-              dataUploader);
+          dataUploader);
     }
   }
 }
