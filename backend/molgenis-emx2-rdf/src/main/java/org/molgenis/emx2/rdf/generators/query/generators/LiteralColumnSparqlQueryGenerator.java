@@ -11,7 +11,6 @@ import org.eclipse.rdf4j.sparqlbuilder.core.Projectable;
 import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
 import org.eclipse.rdf4j.sparqlbuilder.core.Variable;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
-import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatternNotTriples;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
 import org.eclipse.rdf4j.sparqlbuilder.rdf.RdfPredicate;
 import org.molgenis.emx2.Column;
@@ -106,15 +105,12 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
     Expression<?> coalesce = Expressions.coalesce(aliases.toArray(new Operand[0]));
     semanticPatterns.add(Expressions.bind(coalesce, object));
 
-    GraphPatternNotTriples mainPattern =
-        GraphPatterns.and(semanticPatterns.toArray(new GraphPattern[0])).optional();
-
     if (isRequired) {
       Expression<?> bound = Expressions.bound(object);
-      return List.of(mainPattern, filter(bound.getQueryString()));
+      semanticPatterns.add(filter(bound.getQueryString()));
     }
 
-    return List.of(mainPattern);
+    return semanticPatterns;
   }
 
   private RdfPredicate generatePredicate(String semanticString) {
