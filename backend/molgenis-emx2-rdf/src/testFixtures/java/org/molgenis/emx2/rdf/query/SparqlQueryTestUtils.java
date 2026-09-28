@@ -39,7 +39,8 @@ public class SparqlQueryTestUtils {
   }
 
   @SafeVarargs
-  public static void assertHasResults(TupleQueryResult result, Map<String, String>... expectedResults) {
+  public static void assertHasResults(
+      TupleQueryResult result, Map<String, String>... expectedResults) {
     Set<Map<String, String>> expected = Arrays.stream(expectedResults).collect(Collectors.toSet());
     Set<Map<String, String>> actual = new HashSet<>();
 
