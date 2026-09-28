@@ -5,8 +5,6 @@
         class="sticky left-0 bg-table z-20 shadow-[inset_-1px_0_0_var(--border-color-theme)]"
         :style="{
           width: `${selectColumnWidth}px`,
-          minWidth: `${selectColumnWidth}px`,
-          maxWidth: `${selectColumnWidth}px`,
         }"
       >
       </TableHeadCell>
