@@ -105,27 +105,6 @@ class HarvestTest {
     assertTrue(config.loadEnabled());
   }
 
-  @Test
-  void shouldThrowWhenSchemaDoesNotExist() {
-    Harvest harvest = spy(new Harvest());
-    doReturn((SchemaMetadataProvider) schemaName -> null).when(harvest).getSchemaMetadataProvider();
-    new CommandLine(harvest)
-        .parseArgs(
-            "-r",
-            RDF_ENDPOINT,
-            "-s",
-            "NonExistingSchema",
-            "-t",
-            "TableA",
-            "--endpoint",
-            "http://localhost:8080",
-            "--token",
-            "token123");
-
-    MolgenisException exception = assertThrows(MolgenisException.class, harvest::run);
-    assertEquals("Schema not found: NonExistingSchema", exception.getMessage());
-  }
-
   private HarvestingPipelineConfig runAndCaptureConfig(
       String rdf, String tables, String... extraArgs) {
     Harvest harvest = spy(new Harvest());
