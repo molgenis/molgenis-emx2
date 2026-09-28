@@ -70,7 +70,7 @@ public class HarvestingPipeline {
       }
 
       if (config.loadEnabled()) {
-        config.dataLoader().load(transformed);
+        config.dataUploader().upload(transformed);
       } else {
         logger.info("No data loaded for harvesting pipeline: {}", harvestId);
       }
