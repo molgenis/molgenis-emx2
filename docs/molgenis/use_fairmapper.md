@@ -29,7 +29,7 @@ you can inspect (and debug) what happened at every stage.
    post-processing steps implemented in Java, for example: deriving an `id` column from other
    columns, resolving ontology term URIs to their names in the target schema, resolving rows that
    are missing a primary key, and dropping rows that still have no usable primary key.
-5. **Load** - the final table store is packaged as a ZIP file and uploaded to the target
+5. **Upload** - the final table store is packaged as a ZIP file and uploaded to the target
    EMX2 instance's regular ZIP import API (data only, existing schema structure is left
    untouched).
 
@@ -62,13 +62,13 @@ prefixes (`dcat:`, `dcterms:`, `healthdcatap:`, ...) you can use instead of full
 ## Prerequisites: an EMX2 endpoint and access token
 
 `harvest` talks to the target EMX2 instance entirely over HTTP: it looks up the target schema's
-metadata through its GraphQL API, and (when `-l` is set) uploads the harvested data through its
+metadata through its GraphQL API, and (when `-u` is set) uploads the harvested data through its
 regular ZIP import API. The machine running the FAIR Mapper needs:
 
-* `--endpoint` - the base URL of the target EMX2 instance, e.g. `https://my-emx2.example.org`.
+* `-e`, `--endpoint` - the base URL of the target EMX2 instance, e.g. `https://my-emx2.example.org`.
   This can point at a local or a remote instance.
-* `--token` - an API token for that instance with read access to the target schema (and write
-  access too, if you're loading data). See [Tokens](use_tokens.md) for how to generate one.
+* `-to`, `--token` - an API token for that instance with read access to the target schema (and write
+  access too, if you're uploading data). See [Tokens](use_tokens.md) for how to generate one.
 
 ## Build instructions
 
@@ -106,10 +106,10 @@ alias fairmapper='java -jar /path/to/fairmapper-<version>-cli.jar'
 ### `harvest`
 
 Runs the full harvesting pipeline described above: extract, pre-process, transform,
-post-process and (optionally) load.
+post-process and (optionally) upload.
 
 ```bash
-fairmapper harvest -r <fdp-endpoint> -s <schema> -t <table1,table2,...> --endpoint <emx2-url> --token <token> [-o <output-dir>] [-l]
+fairmapper harvest -r <fdp-endpoint> -s <schema> -t <table1,table2,...> -e <emx2-url> -to <token> [-o <output-dir>] [-u]
 ```
 
 | Option           | Required | Description                                                                                                                                                    |
@@ -117,18 +117,18 @@ fairmapper harvest -r <fdp-endpoint> -s <schema> -t <table1,table2,...> --endpoi
 | `-r`, `--rdf`    | yes      | The FDP endpoint URI to harvest from.                                                                                                                          |
 | `-s`, `--schema` | yes      | Name of the schema (on the target EMX2 instance) that contains the target tables.                                                                             |
 | `-t`, `--tables` | yes      | Comma-separated list of table names (in that schema) to harvest.                                                                                               |
-| `--endpoint`     | yes      | Base URL of the target EMX2 instance, used to look up the schema's metadata and, when `-l` is set, to upload the harvested data.                              |
-| `--token`        | yes      | API token for the target EMX2 instance. See [Tokens](use_tokens.md) for how to generate one.                                                                  |
+| `-e`, `--endpoint` | yes    | Base URL of the target EMX2 instance, used to look up the schema's metadata and, when `-u` is set, to upload the harvested data.                              |
+| `-to`, `--token` | yes      | API token for the target EMX2 instance. See [Tokens](use_tokens.md) for how to generate one.                                                                  |
 | `-o`, `--output` | no       | Directory to write intermediate results to. If omitted, nothing is dumped to disk.                                                                             |
-| `-l`, `--load`   | no       | Flag. If set, the harvested data is actually uploaded and imported into the schema. If omitted, the pipeline runs but nothing is loaded, useful for dry runs. |
+| `-u`, `--upload` | no       | Flag. If set, the harvested data is uploaded and imported into the schema. If omitted, the pipeline runs but nothing is uploaded, useful for dry runs.       |
 
 When `-o` is given, a subdirectory `fairmapper-output-<harvest-id>` is created containing:
 
 * `extracted.ttl` - the raw RDF extracted from the source, before any pre-processing.
 * `preprocessed.ttl` - the RDF after pre-processing (only written if pre-processors are configured).
 * `transformed.zip` - a CSV-in-ZIP export of the table store right after the transform step.
-* `postprocessed.zip` - the same, after post-processing has run. This is what would be loaded into
-  the schema when `-l` is set.
+* `postprocessed.zip` - the same, after post-processing has run. This is what would be uploaded to
+  the schema when `-u` is set.
 
 ### `extract`
 
@@ -172,6 +172,6 @@ fairmapper generate-query <schema> <table> [-o <output-file>]
    Code extension) and try out the query from step 1 against it interactively. This lets you
    iterate on schema/semantics changes without re-running the extract step against the remote
    endpoint each time.
-3. Run `harvest` with `-o` and without `-l` first, to inspect `transformed.zip` and
-   `postprocessed.zip` and confirm the data looks correct before actually loading it.
-4. Once satisfied, re-run `harvest` with `-l` to import the data into the schema.
+3. Run `harvest` with `-o` and without `-u` first, to inspect `transformed.zip` and
+   `postprocessed.zip` and confirm the data looks correct before actually uploading it.
+4. Once satisfied, re-run `harvest` with `-u` to import the data into the schema.
