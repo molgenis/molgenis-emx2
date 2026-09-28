@@ -30,7 +30,7 @@ const organisationName = computed(
           </div>
         </span>
         <div v-if="organisation?.organisation?.country">
-          {{ organisation?.organisation?.country?.name }}
+          {{ organisation?.organisation?.country.name }}
         </div>
       </span>
       <a
