@@ -1,6 +1,6 @@
 package org.molgenis.emx2.rdf.generators.query.generators;
 
-import static org.molgenis.emx2.rdf.generators.query.generators.SparqlQueryTestUtils.*;
+import static org.molgenis.emx2.rdf.query.SparqlQueryTestUtils.*;
 
 import java.util.Map;
 import org.eclipse.rdf4j.model.util.Values;

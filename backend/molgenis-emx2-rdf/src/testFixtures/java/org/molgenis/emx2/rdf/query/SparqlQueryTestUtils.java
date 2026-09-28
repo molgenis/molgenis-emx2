@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.generators.query.generators;
+package org.molgenis.emx2.rdf.query;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -26,7 +26,7 @@ public class SparqlQueryTestUtils {
   private static final TableQueryGenerator GENERATOR = new TableQueryGenerator();
 
   @SafeVarargs
-  static void assertQueryAndResults(
+  public static void assertQueryAndResults(
       TableMetadata table,
       SailRepository repository,
       String expectedQuery,
@@ -39,7 +39,7 @@ public class SparqlQueryTestUtils {
   }
 
   @SafeVarargs
-  static void assertHasResults(TupleQueryResult result, Map<String, String>... expectedResults) {
+  public static void assertHasResults(TupleQueryResult result, Map<String, String>... expectedResults) {
     Set<Map<String, String>> expected = Arrays.stream(expectedResults).collect(Collectors.toSet());
     Set<Map<String, String>> actual = new HashSet<>();
 
@@ -54,7 +54,7 @@ public class SparqlQueryTestUtils {
     assertEquals(expected, actual);
   }
 
-  static SailRepository repository(Statement... statements) {
+  public static SailRepository repository(Statement... statements) {
     SailRepository repository = new SailRepository(new MemoryStore());
     try (RepositoryConnection connection = repository.getConnection()) {
       for (Statement statement : statements) {
@@ -64,15 +64,15 @@ public class SparqlQueryTestUtils {
     return repository;
   }
 
-  static Statement statement(String subject, IRI predicate, String object) {
+  public static Statement statement(String subject, IRI predicate, String object) {
     return Statements.statement(iri(subject), predicate, literal(object), null);
   }
 
-  static Statement statement(String subject, IRI predicate, IRI object) {
+  public static Statement statement(String subject, IRI predicate, IRI object) {
     return Statements.statement(iri(subject), predicate, object, null);
   }
 
-  static TupleQueryResult executeQuery(SailRepositoryConnection connection, String query) {
+  public static TupleQueryResult executeQuery(SailRepositoryConnection connection, String query) {
     TupleQuery prepared = connection.prepareTupleQuery(QueryLanguage.SPARQL, query);
     return prepared.evaluate();
   }
