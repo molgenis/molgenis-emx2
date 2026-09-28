@@ -25,9 +25,9 @@ const organisationName = computed(
           <template v-if="organisation?.organisation?.acronym">
             ({{ organisation.organisation.acronym }})
           </template>
-          <div class="font-semibold" v-if="organisation?.department">
+          <span v-if="organisation?.department">
             {{ organisation?.department}}
-          </div>
+          </span>
         </span>
         <div v-if="organisation?.organisation?.country">
           {{ organisation?.organisation?.country.name }}
