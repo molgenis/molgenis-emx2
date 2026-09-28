@@ -124,7 +124,7 @@
           >
             <div
               v-if="useStickyHeader"
-              class="fixed top-0 z-20 overflow-hidden aria-hidden=true"
+              class="fixed top-0 z-[36] overflow-hidden aria-hidden=true"
               :class="{ hidden: !showStickyHeader }"
             >
               <table
@@ -160,7 +160,7 @@
                 @sort-requested="handleSortRequest"
                 @start-resize="startResize($event.event, $event.id)"
               />
-              <tbody class="mb-3 [&_tr:last-child_td]:border-none">
+              <tbody class="mb-3 [&_tr:last-child_td]:after:hidden">
                 <tr
                   v-if="rows"
                   v-for="row in rows"
@@ -170,7 +170,7 @@
                   }"
                 >
                   <td
-                    class="sticky left-0 z-20 group-hover:z-40 w-12 h-13 py-0 px-2.5 align-middle border-b shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
+                    class="sticky left-0 z-20 group-hover:z-40 w-12 h-13 py-0 px-2.5 align-middle after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
                     :style="selectColumnStyle"
                   >
                     <Checkbox
@@ -179,7 +179,7 @@
                       @update:model-value="toggleRowSelection(row)"
                     />
                     <div
-                      class="absolute left-full inset-y-0 flex flex-row text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none items-center justify-start flex-nowrap gap-1"
+                      class="absolute left-full top-0 bottom-px flex flex-row text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none items-center justify-start flex-nowrap gap-1"
                     >
                       <Button
                         v-if="canDeleteRow(row)"
@@ -258,7 +258,7 @@
                   <!-- Matches the filler column in the header -->
                   <td
                     aria-hidden="true"
-                    class="border-b group-hover:bg-hover"
+                    class="relative after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none after:z-[35] group-hover:bg-hover"
                   />
                 </tr>
               </tbody>
