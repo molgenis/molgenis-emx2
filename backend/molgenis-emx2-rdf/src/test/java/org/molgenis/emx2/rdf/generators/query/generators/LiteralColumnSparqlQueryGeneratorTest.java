@@ -149,10 +149,10 @@ class LiteralColumnSparqlQueryGeneratorTest {
         BIND( COALESCE( ?name0, ?name1 ) AS ?name ) }
         GROUP BY ?_subject_ ?name
         """,
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Lewis"),
         Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "name", "Robin"),
         Map.of(SparqlVariableUtil.SUBJECT_NAME, iri3, "name", "Demetrius"),
-        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri4),
-        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Lewis"));
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri4));
   }
 
   @Test
@@ -191,9 +191,9 @@ class LiteralColumnSparqlQueryGeneratorTest {
         FILTER ( BOUND( ?name ) ) }
         GROUP BY ?_subject_ ?name
         """,
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Lewis"),
         Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "name", "Robin"),
-        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri3, "name", "Demetrius"),
-        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Lewis"));
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri3, "name", "Demetrius"));
   }
 
   @Test

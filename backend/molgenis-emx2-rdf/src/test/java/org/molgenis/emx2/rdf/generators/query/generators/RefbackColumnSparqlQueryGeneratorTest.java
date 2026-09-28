@@ -125,7 +125,11 @@ class RefbackColumnSparqlQueryGeneratorTest {
         repository(
             statement(PERSON_IRI, FOAF.FIRST_NAME, "Bau"),
             statement(PERSON_IRI, DCTERMS.ALTERNATIVE, Values.iri(PET_IRI)),
-            statement(PET_IRI, FOAF.TITLE, "Pip"));
+            statement(PET_IRI, FOAF.TITLE, "Pip"),
+            statement(PERSON_IRI + 2, FOAF.FIRST_NAME, "Lewis"),
+            statement(PERSON_IRI + 2, DCTERMS.RELATION, Values.iri(PET_IRI + 2)),
+            statement(PERSON_IRI + 2, DCTERMS.ALTERNATIVE, Values.iri(PET_IRI + 2)),
+            statement(PET_IRI + 2, FOAF.TITLE, "Kip"));
 
     SchemaMetadata schema =
         new SchemaMetadata(SCHEMA)
@@ -151,7 +155,14 @@ class RefbackColumnSparqlQueryGeneratorTest {
             "name",
             "Pip",
             SparqlVariableUtil.SUBJECT_NAME + "owner",
-            PERSON_IRI));
+            PERSON_IRI),
+        Map.of(
+            SparqlVariableUtil.SUBJECT_NAME,
+            PET_IRI + 2,
+            "name",
+            "Kip",
+            SparqlVariableUtil.SUBJECT_NAME + "owner",
+            PERSON_IRI + 2));
   }
 
   @Test

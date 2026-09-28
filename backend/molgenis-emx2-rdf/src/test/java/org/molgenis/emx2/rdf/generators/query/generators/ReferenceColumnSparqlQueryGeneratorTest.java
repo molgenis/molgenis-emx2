@@ -210,12 +210,12 @@ class ReferenceColumnSparqlQueryGeneratorTest {
       SailRepository repository =
           repository(
               statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI)),
-              statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI + 2)),
-              statement(PRODUCT_IRI + 2, DCTERMS.TITLE, "cat"),
+              statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
               statement(PRODUCT_IRI, DCTERMS.TITLE, "dog"),
               statement(PRODUCT_IRI, DCTERMS.DESCRIPTION, "don't use description"),
-              statement(ORDER_IRI, DCTERMS.IDENTIFIER, "order1"),
-              statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"));
+              statement(PRODUCT_IRI + 2, DCTERMS.TITLE, "cat"),
+              statement(ORDER_IRI + 2, DCTERMS.IDENTIFIER, "order2"),
+              statement(ORDER_IRI, DCTERMS.RELATION, Values.iri(PRODUCT_IRI + 2)));
 
       SchemaMetadata schema =
           new SchemaMetadata(SCHEMA_NAME)
