@@ -17,7 +17,7 @@ Resources,,latitude,decimal,,,,,,,,SIO:000319,Latitude of this resource's locati
 Resources,,longitude,decimal,,,,,,,,SIO:000318,Longitude of this resource's location,DataCatalogueFlat,,,
 Resources,,last data refresh,date,,,,,,,,,Date of the most recent data refresh received from the source,DataCatalogueFlat,,,
 Resources,,withdrawn,bool,,,,,,,,,Whether this resource has been withdrawn,DataCatalogueFlat,,,
-Collections,,type,ontology_array,,TRUE,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
+Collections,,type,ontology_array,,TRUE,CatalogueOntologies,Resource types,,,,,"Type of resource, e.g. registry, cohort, sample collection","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,
 Catalogues,,catalogue type,ontology,,,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,"DataCatalogueFlat,NetworksStaging",,,
 Catalogues,,main catalogue,bool,,,,,,,,,Is this the main catalogue of this catalogue server?,"DataCatalogueFlat,NetworksStaging",,,
 Collections,,cohort type,ontology_array,,,CatalogueOntologies,Cohort study types,,,,,Type of cohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,,type?.some(item => item.name === 'Cohort study')
