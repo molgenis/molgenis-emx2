@@ -25,6 +25,17 @@ const rows: IRow[] = [
   { name: "Jack King", email: "jack.king@example.com", role: "Moderator" },
 ];
 
+const selectedRows = ref<Map<string, Record<string, any>>>(new Map());
+const settings = ref<ITableSettings>({
+  page: 1,
+  pageSize: 10,
+  orderby: {
+    column: "name",
+    direction: "ASC",
+  },
+  orderedColumnsIds: [],
+});
+
 const appliedRows = computed(() => {
   const { column, direction } = settings.value.orderby;
 
@@ -54,15 +65,14 @@ const slicedRows = computed(() => {
 
 const rowCount = computed(() => appliedRows.value.length);
 
-const settings = ref<ITableSettings>({
-  page: 1,
-  pageSize: 10,
-  orderby: {
-    column: "name",
-    direction: "ASC",
-  },
-  orderedColumnsIds: [],
-});
+function toggleRowSelection(row: IRow) {
+  const rowKey = row["email"] as string;
+  if (selectedRows.value.has(rowKey)) {
+    selectedRows.value.delete(rowKey);
+  } else {
+    selectedRows.value.set(rowKey, row);
+  }
+}
 </script>
 
 <template>
@@ -71,6 +81,9 @@ const settings = ref<ITableSettings>({
     :rows="slicedRows"
     :rowCount="rowCount"
     :settings="settings"
+    :selectedRows="selectedRows"
+    rowIdKey="email"
     @update:settings="(value) => (settings = value)"
+    @toggleRowSelection="toggleRowSelection"
   />
 </template>
