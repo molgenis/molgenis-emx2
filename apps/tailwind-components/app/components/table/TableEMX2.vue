@@ -157,19 +157,17 @@
                 @sort-requested="handleSortRequest"
                 @start-resize="startResize($event.event, $event.id)"
               />
-              <tbody
-                class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
-              >
+              <tbody class="mb-3 [&_tr:last-child_td]:border-none">
                 <tr
                   v-if="rows"
                   v-for="row in rows"
-                  class="group h-[50px]"
+                  class="group h-13"
                   :class="{
                     'hover:cursor-pointer': canEdit,
                   }"
                 >
                   <TableCellEMX2
-                    class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
+                    class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 h-13 py-0 px-2.5"
                   >
                     <div class="flex justify-center items-center h-full">
                       <Checkbox
@@ -181,14 +179,14 @@
 
                   <TableCellEMX2
                     v-if="showRolesColumn"
-                    class="text-table-row group-hover:bg-hover w-48"
+                    class="text-table-row group-hover:bg-hover w-48 h-13 py-0 pl-2 pr-2.5"
                   >
                     {{ row.mg_roles?.[0] ?? "" }}
                   </TableCellEMX2>
 
                   <TableCellEMX2
                     v-if="showDraftColumn"
-                    class="text-table-row group-hover:bg-hover"
+                    class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
                   >
                     <DraftLabel v-if="row?.mg_draft === true" type="inline" />
                   </TableCellEMX2>
@@ -196,11 +194,10 @@
                   <TableCellEMX2
                     v-for="(column, colIndex) in sortedVisibleColumns"
                     :style="{ width: columnWidths[column.id] + 'px' }"
-                    class="text-table-row group-hover:bg-hover"
+                    class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
                     :class="{
                       'w-60 lg:w-full': columns.length <= 5,
                       'w-60': columns.length > 5,
-                      'h-11': !row[column.id],
                     }"
                     :scope="column.key === 1 ? 'row' : null"
                     :metadata="column"
