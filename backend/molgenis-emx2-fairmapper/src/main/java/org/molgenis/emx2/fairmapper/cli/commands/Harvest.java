@@ -60,13 +60,13 @@ public class Harvest implements Runnable {
   private boolean enableLoading;
 
   @CommandLine.Option(
-      names = {"--endpoint"},
+      names = {"-e", "--endpoint"},
       required = true,
       description = "Base URL of the remote emx2 instance")
   private String endpoint;
 
   @CommandLine.Option(
-      names = {"--token"},
+      names = {"-to", "--token"},
       required = true,
       description = "Authentication token for the remote emx2 instance")
   private String token;
