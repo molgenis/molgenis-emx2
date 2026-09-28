@@ -281,7 +281,9 @@ class StagingMigrator(Client):
         ontology_organisations = self.get("Organisations", schema="CatalogueOntologies", as_df=True)
 
         def pid_func(org: str):
-            return ontology_organisations.set_index('name')["code"].to_dict().get(org, None)
+            return ontology_organisations.set_index('name')[
+                "ontologyTermURI"].to_dict(
+            ).get(org, None)
         def website_func(org: str):
             return ontology_organisations.set_index('name')["website"].to_dict().get(org, None)
 

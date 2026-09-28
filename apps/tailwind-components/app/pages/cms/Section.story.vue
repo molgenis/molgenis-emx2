@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Section from "../../components/cms/Section.vue";
-import Heading from "../../components/cms/Heading.vue";
-import Paragraph from "../../components/cms/Paragraph.vue";
+import Section from "../../components/cms/section/Section.vue";
+import Heading from "../../components/cms/heading/Heading.vue";
+import Paragraph from "../../components/cms/paragraph/Paragraph.vue";
 </script>
 
 <template>

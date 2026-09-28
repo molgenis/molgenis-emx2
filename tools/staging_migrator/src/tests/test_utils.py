@@ -48,7 +48,7 @@ def test_check_hricore():
 
     with pytest.raises(MissingHRICoreException) as e:
         check_hricore(resources_df, "UMCGCohortsStaging")
-    assert str(e.value) == "Message: Value 'hricore' not set to 'Yes' for resource 'B, C'\n"
+    assert str(e.value) == "Message: Value 'hricore' not set to 'Yes' for resource 'B, C'"
 
 def test_check_draft():
     """Tests the `check_draft` utility function."""
@@ -61,4 +61,4 @@ def test_check_draft():
     resources_df = pd.read_csv(io.StringIO(resources_csv))
     with pytest.raises(DraftException) as e:
         check_draft(resources_df, "Resources")
-    assert str(e.value) == "Message: Table 'Resources' contains 1 draft record.\n"
+    assert str(e.value) == "Message: Table 'Resources' contains 1 draft record."

@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
+import PageComponent from "./PageComponent.vue";
+import Paragraph from "./paragraph/Paragraph.vue";
+import AddComponentPalette from "./AddComponentPalette.vue";
+import ComponentDropZone from "./ComponentDropZone.vue";
+
 import type { IConfigurablePages } from "../../../types/cms";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { IDraggingInfo } from "../../../types/CmsComponents";
-
-import PageComponent from "./PageComponent.vue";
-import TextParagraph from "./Paragraph.vue";
-import AddComponentPalette from "./AddComponentPalette.vue";
-import ComponentDropZone from "./ComponentDropZone.vue";
-import { ref } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -39,7 +40,7 @@ const sidebarCollapsed = ref(false);
   <div
     :class="{
       flex: isEditable,
-      'gap-6': isEditable,
+      'gap-7.5': isEditable,
     }"
   >
     <Sidebar
@@ -99,7 +100,10 @@ const sidebarCollapsed = ref(false);
           @dragging="handleDragEvent"
         >
           <ComponentDropZone
-            v-if="isEditable"
+            v-if="
+              (isEditable && !(orderedBlock.block.columns > 1)) ||
+              !orderedBlock.block.componentOrder?.length
+            "
             :draggingInfo="draggingInfo"
             :schema="schema"
             :order="
@@ -112,34 +116,61 @@ const sidebarCollapsed = ref(false);
             @updatePage="$emit('updatePage')"
           />
           <template
-            v-for="orderedComponent in orderedBlock.block.componentOrder"
+            v-for="(orderedComponent, index) in orderedBlock.block
+              .componentOrder"
             :key="orderedComponent.id"
           >
-            <PageComponent
-              :mg_tableclass="orderedComponent.component.mg_tableclass"
-              :component="orderedComponent.component"
-              :orderId="orderedComponent.id"
-              :order="orderedComponent.order"
-              componentType="Component"
-              :parent="orderedBlock.block.id"
-              :page="content.name"
-              :isEditable="isEditable"
-              :metadata="metadata"
-              @updatePage="$emit('updatePage')"
-              @dragging="handleDragEvent"
-            />
+            <div>
+              <ComponentDropZone
+                v-if="isEditable && orderedBlock.block.columns > 1"
+                :draggingInfo="draggingInfo"
+                :schema="schema"
+                :order="orderedComponent.order"
+                :parent="orderedBlock.block.id"
+                :columnIndex="Number(index) + 1"
+                componentType="Component"
+                @updatePage="$emit('updatePage')"
+              />
+              <PageComponent
+                :mg_tableclass="orderedComponent.component.mg_tableclass"
+                :component="orderedComponent.component"
+                :orderId="orderedComponent.id"
+                :order="orderedComponent.order"
+                componentType="Component"
+                :parent="orderedBlock.block.id"
+                :page="content.name"
+                :isEditable="isEditable"
+                :metadata="metadata"
+                @updatePage="$emit('updatePage')"
+                @dragging="handleDragEvent"
+              />
+              <ComponentDropZone
+                v-if="isEditable && !(orderedBlock.block.columns > 1)"
+                :draggingInfo="draggingInfo"
+                :schema="schema"
+                :order="orderedComponent.order + 1"
+                :parent="orderedBlock.block.id"
+                componentType="Component"
+                @updatePage="$emit('updatePage')"
+              />
+            </div>
             <ComponentDropZone
-              v-if="isEditable"
+              v-if="
+                isEditable &&
+                orderedBlock.block.columns > 1 &&
+                orderedBlock.block.componentOrder.length - 1 === index
+              "
               :draggingInfo="draggingInfo"
               :schema="schema"
               :order="orderedComponent.order + 1"
+              :columnIndex="index + 2"
               :parent="orderedBlock.block.id"
               componentType="Component"
               @updatePage="$emit('updatePage')"
             />
           </template>
         </PageComponent>
-        <TextParagraph
+        <Paragraph
           v-else
           id="block-does-not-exist-message"
           name="Error"
