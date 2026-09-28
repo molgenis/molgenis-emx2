@@ -138,7 +138,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               }
               sync(sm);
             });
-    getSchemaMetadataProvider().getListener().schemaChanged(getName());
+    getDatabase().getListener().schemaChanged(getName());
     return this;
   }
 
@@ -157,7 +157,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public void drop(String tableName) {
     getDatabase().tx(database -> sync(dropTransaction(tableName, database)));
-    getSchemaMetadataProvider().getListener().schemaChanged(getName());
+    getDatabase().getListener().schemaChanged(getName());
   }
 
   private SqlSchemaMetadata dropTransaction(String tableName, Database database) {
@@ -179,7 +179,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
               db -> {
                 sync(setSettingsTransaction((SqlDatabase) db, getName(), settings));
               });
-      getSchemaMetadataProvider().getListener().schemaChanged(getName());
+      getDatabase().getListener().schemaChanged(getName());
       return this;
     } else {
       throw new MolgenisException(

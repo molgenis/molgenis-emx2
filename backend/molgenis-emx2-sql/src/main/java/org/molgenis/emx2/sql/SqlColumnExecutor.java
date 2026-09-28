@@ -501,10 +501,8 @@ public class SqlColumnExecutor {
       // if has refback also drop that automatically
       if (column.getReferenceRefback() != null) {
         SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
-        column
-            .getTable()
-            .getSchema()
-            .getSchemaMetadataProvider()
+        ((SqlSchemaMetadata) column.getTable().getSchema())
+            .getDatabase()
             .getListener()
             .schemaChanged(column.getReferenceRefback().getSchemaName());
       }
