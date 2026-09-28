@@ -453,8 +453,6 @@ const STICKY_SELECT_COLUMN_WIDTH = 48;
 
 const selectColumnStyle = {
   width: `${STICKY_SELECT_COLUMN_WIDTH}px`,
-  minWidth: `${STICKY_SELECT_COLUMN_WIDTH}px`,
-  maxWidth: `${STICKY_SELECT_COLUMN_WIDTH}px`,
 };
 
 const canEdit = computed(
