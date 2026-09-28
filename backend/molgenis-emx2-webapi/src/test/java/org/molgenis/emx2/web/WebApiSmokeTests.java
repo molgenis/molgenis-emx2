@@ -1126,8 +1126,9 @@ class WebApiSmokeTests extends ApiTestBase {
 
   @Test
   void testScriptScheduling() throws JsonProcessingException, InterruptedException {
-    // make sure the 'test' script is not there already from a previous test
-    database.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
+    // clear stale job rows so waitForScriptToComplete does not pick up an old one
+    deleteJobsForScript("hello world");
+    deleteJobsForScript("test");
     try {
       database.getSchema(SYSTEM_SCHEMA).getTable("Scripts").delete(row("name", "test"));
     } catch (MolgenisException e) {
@@ -1438,7 +1439,12 @@ class WebApiSmokeTests extends ApiTestBase {
   @Test
   void testAnalyticsApi() throws JsonProcessingException {
 
-    database.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger").truncate();
+    // clear a "my-trigger" row a previous run may have left behind
+    Table triggerTable = database.getSchema(SYSTEM_SCHEMA).getTable("AnalyticsTrigger");
+    List<Row> staleTrigger = triggerTable.where(f("name", EQUALS, "my-trigger")).retrieveRows();
+    if (!staleTrigger.isEmpty()) {
+      triggerTable.delete(staleTrigger);
+    }
     String adminToken = getToken("admin", "admin");
 
     // add a trigger
@@ -1499,6 +1505,14 @@ class WebApiSmokeTests extends ApiTestBase {
   void signIn() throws JsonProcessingException {
     String token = getToken("admin", "admin");
     assertTrue(token.length() > 10);
+  }
+
+  private void deleteJobsForScript(String scriptName) {
+    Table jobs = database.getSchema(SYSTEM_SCHEMA).getTable("Jobs");
+    List<Row> staleJobs = jobs.where(f("script", f("name", EQUALS, scriptName))).retrieveRows();
+    if (!staleJobs.isEmpty()) {
+      jobs.delete(staleJobs);
+    }
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {

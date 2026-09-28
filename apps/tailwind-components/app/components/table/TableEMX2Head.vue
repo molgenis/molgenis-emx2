@@ -2,6 +2,15 @@
   <thead>
     <tr>
       <TableHeadCell class="sticky left-0 bg-table z-20 w-12"> </TableHeadCell>
+      <TableHeadCell v-if="showRolesColumn" class="w-48">
+        <TableHeaderAction
+          :column="{ id: 'mg_roles', label: 'Role' }"
+          :schemaId="schemaId"
+          :tableId="tableId"
+          :settings="settings"
+          @sort-requested="$emit('sort-requested')"
+        />
+      </TableHeadCell>
       <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
         <TableHeaderAction
           :column="{ id: 'mg_draft', label: 'Draft' }"
@@ -58,5 +67,6 @@ defineProps<{
   columnWidths: Record<string, number>;
   isResizing: boolean;
   showDraftColumn?: boolean;
+  showRolesColumn?: boolean;
 }>();
 </script>

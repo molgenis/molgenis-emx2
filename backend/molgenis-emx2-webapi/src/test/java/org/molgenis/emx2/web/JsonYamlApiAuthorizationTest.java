@@ -8,10 +8,7 @@ import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
 import io.restassured.response.Response;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.Schema;
@@ -20,7 +17,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 @Tag("slow")
 class JsonYamlApiAuthorizationTest extends ApiTestBase {
 
-  private static final String SCHEMA = "pet store jsonyaml auth";
+  private static final String SCHEMA = JsonYamlApiAuthorizationTest.class.getSimpleName();
   private static final String VIEWER = "jsonyamlauth_viewer";
   private static final String MANAGER = "jsonyamlauth_manager";
 
@@ -28,8 +25,8 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
       (String)
           EnvironmentProperty.getParameter(MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, ColumnType.STRING);
 
-  private static final String EMPTY_SCHEMA_JSON = "{\"name\":\"" + SCHEMA + "\",\"tables\":[]}";
-  private static final String EMPTY_SCHEMA_YAML = "name: \"" + SCHEMA + "\"\ntables: []\n";
+  private static final String EMPTY_SCHEMA = "{ }";
+  private static final String NON_EXISTING_SCHEMA = "nonexisting";
 
   @BeforeAll
   static void setup() {
@@ -51,63 +48,179 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
     database.dropSchemaIfExists(SCHEMA);
   }
 
-  // --- /api/json ---
+  @Nested
+  class JsonTest {
 
-  @Test
-  void postJsonAsManager_succeeds() {
-    // round-trip the live schema dump because an empty-tables payload isn't a meaningful migrate
-    login(database.getAdminUserName(), ADMIN_PASS);
-    String schemaJson =
-        given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/json").asString();
+    @Test
+    void getJsonAsViewer_succeeds() {
+      login(VIEWER, VIEWER);
+      Response response = given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/json");
+      assertEquals(200, response.getStatusCode());
+    }
 
-    login(MANAGER, MANAGER);
-    Response response = postJson("/" + SCHEMA + "/api/json", schemaJson);
-    assertEquals(200, response.getStatusCode());
+    @Test
+    void getJsonAnonymous_succeeds() {
+      Response response = given().when().get("/" + SCHEMA + "/api/json");
+      assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    void postJsonAsManager_succeeds() {
+      // round-trip the live schema dump because an empty-tables payload isn't a meaningful migrate
+      login(database.getAdminUserName(), ADMIN_PASS);
+      String schemaJson =
+          given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/json").asString();
+
+      login(MANAGER, MANAGER);
+      Response response = postJson("/" + SCHEMA + "/api/json", schemaJson);
+      assertEquals(200, response.getStatusCode());
+      assertEquals(
+          "{ \"message\": \"add/update metadata success\" }", response.getBody().asString());
+    }
+
+    @Test
+    void postJsonAsViewer_isRejected() {
+      login(VIEWER, VIEWER);
+      Response response = postJson("/" + SCHEMA + "/api/json", EMPTY_SCHEMA);
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
+
+    @Test
+    void deleteJsonAsManager_succeeds() {
+      login(MANAGER, MANAGER);
+      Response response = deleteJson("/" + SCHEMA + "/api/json", EMPTY_SCHEMA);
+      assertEquals(200, response.getStatusCode());
+      assertEquals(
+          "{ \"message\": \"removed metadata items success\" }", response.getBody().asString());
+    }
+
+    @Test
+    void deleteJsonAsViewer_isRejected() {
+      login(VIEWER, VIEWER);
+      Response response = deleteJson("/" + SCHEMA + "/api/json", EMPTY_SCHEMA);
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
   }
 
-  @Test
-  void postJsonAsViewer_isRejected() {
-    login(VIEWER, VIEWER);
-    assertEquals(400, postJson("/" + SCHEMA + "/api/json", EMPTY_SCHEMA_JSON).getStatusCode());
+  @Nested
+  class YamlTest {
+
+    @Test
+    void getYamlAsViewer_succeeds() {
+      login(VIEWER, VIEWER);
+      Response response = given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/yaml");
+      assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    void getYamlAnonymous_succeeds() {
+      Response response = given().when().get("/" + SCHEMA + "/api/yaml");
+      assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    void postYamlAsManager_succeeds() {
+      // round-trip the live schema dump because an empty-tables payload isn't a meaningful migrate
+      login(database.getAdminUserName(), ADMIN_PASS);
+      String schemaYaml =
+          given().sessionId(sessionId).when().get("/" + SCHEMA + "/api/yaml").asString();
+
+      login(MANAGER, MANAGER);
+      Response response = postYaml("/" + SCHEMA + "/api/yaml", schemaYaml);
+      assertEquals(200, response.getStatusCode());
+      assertEquals(
+          "{ \"message\": \"add/update metadata success\" }", response.getBody().asString());
+    }
+
+    @Test
+    void postYamlAsViewer_isRejected() {
+      login(VIEWER, VIEWER);
+      Response response = postYaml("/" + SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
+
+    @Test
+    void deleteYamlAsManager_succeeds() {
+      login(MANAGER, MANAGER);
+      Response response = deleteYaml("/" + SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      assertEquals(200, response.getStatusCode());
+      assertEquals("{ \"message\": \"remove metadata success\" }", response.getBody().asString());
+    }
+
+    @Test
+    void deleteYamlAsViewer_isRejected() {
+      login(VIEWER, VIEWER);
+      Response response = deleteYaml("/" + SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
   }
 
-  @Test
-  void postJsonAnonymous_isRejected() {
-    Response response =
-        given()
-            .contentType("application/json")
-            .body(EMPTY_SCHEMA_JSON)
-            .when()
-            .post("/" + SCHEMA + "/api/json");
-    assertEquals(400, response.getStatusCode());
-  }
+  @Nested
+  class NullSchemaTest {
 
-  @Test
-  void deleteJsonAsViewer_isRejected() {
-    login(VIEWER, VIEWER);
-    Response response =
-        given()
-            .sessionId(sessionId)
-            .contentType("application/json")
-            .body(EMPTY_SCHEMA_JSON)
-            .when()
-            .delete("/" + SCHEMA + "/api/json");
-    assertEquals(400, response.getStatusCode());
-  }
+    @Test
+    void getJsonNullSchema_isRejected() {
+      login(MANAGER, MANAGER);
+      Response response =
+          given().sessionId(sessionId).when().get("/" + NON_EXISTING_SCHEMA + "/api/json");
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
 
-  // --- /api/yaml: RestAssured has no encoder for application/x-yaml, so we send the raw body
-  //     without a content type (matches WebApiSmokeTests.testJsonYamlApi).
+    @Test
+    void postJsonNullSchema_isRejected() {
+      login(MANAGER, MANAGER);
+      Response response = postJson("/" + NON_EXISTING_SCHEMA + "/api/json", EMPTY_SCHEMA);
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
 
-  @Test
-  void postYamlAsViewer_isRejected() {
-    login(VIEWER, VIEWER);
-    Response response =
-        given()
-            .sessionId(sessionId)
-            .body(EMPTY_SCHEMA_YAML)
-            .when()
-            .post("/" + SCHEMA + "/api/yaml");
-    assertEquals(400, response.getStatusCode());
+    @Test
+    void deleteJsonNullSchema_isRejected() {
+      login(MANAGER, MANAGER);
+      Response response = deleteJson("/" + NON_EXISTING_SCHEMA + "/api/json", EMPTY_SCHEMA);
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
+
+    @Test
+    void getYamlNullSchema_isRejected() {
+      login(MANAGER, MANAGER);
+      Response response =
+          given().sessionId(sessionId).when().get("/" + NON_EXISTING_SCHEMA + "/api/yaml");
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
+
+    @Test
+    void postYamlNullSchema_isRejected() {
+      login(MANAGER, MANAGER);
+      Response response = postYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
+
+    @Test
+    void deleteYamlNullSchema_isRejected() {
+      login(MANAGER, MANAGER);
+      Response response = deleteYaml("/" + NON_EXISTING_SCHEMA + "/api/yaml", EMPTY_SCHEMA);
+      assertEquals(400, response.getStatusCode());
+      assertEquals(
+          errorMessage("Schema not found or insufficient access"), response.getBody().asString());
+    }
   }
 
   private static Response postJson(String path, String body) {
@@ -117,5 +230,34 @@ class JsonYamlApiAuthorizationTest extends ApiTestBase {
         .body(body)
         .when()
         .post(path);
+  }
+
+  private static Response deleteJson(String path, String body) {
+    return given()
+        .sessionId(sessionId)
+        .contentType("application/json")
+        .body(body)
+        .when()
+        .delete(path);
+  }
+
+  private static Response postYaml(String path, String body) {
+    return given().sessionId(sessionId).body(body).when().post(path);
+  }
+
+  private static Response deleteYaml(String path, String body) {
+    return given().sessionId(sessionId).body(body).when().delete(path);
+  }
+
+  private static String errorMessage(String message) {
+    return """
+      {
+        "errors" : [
+          {
+            "message" : "%s"
+          }
+        ]
+      }"""
+        .formatted(message);
   }
 }

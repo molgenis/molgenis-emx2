@@ -26,15 +26,10 @@
     </div>
     <div v-if="session?.manifest">
       Software version:
-      <a
-        :href="
-          'https://github.com/molgenis/molgenis-emx2/releases/tag/' +
-          session?.manifest.SpecificationVersion
-        "
-      >
+      <a :href="versionHref">
         {{ session?.manifest.SpecificationVersion }}
       </a>
-      .
+      (git:{{ session?.manifest.ImplementationVersion }}).
       <span v-if="session?.manifest.DatabaseVersion">
         Database version: {{ session?.manifest.DatabaseVersion }}.
       </span>
@@ -43,9 +38,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+
 const props = defineProps<{
   session?: any;
 }>();
+
+// A SNAPSHOT build has no release tag, so point those at the commit they were built from.
+const versionHref = computed(() => {
+  const manifest = props.session?.manifest;
+  return manifest?.SpecificationVersion?.includes("SNAPSHOT")
+    ? `https://github.com/molgenis/molgenis-emx2/commit/${manifest.ImplementationVersion}`
+    : `https://github.com/molgenis/molgenis-emx2/releases/tag/${manifest?.SpecificationVersion}`;
+});
 </script>
 
 <style scoped>

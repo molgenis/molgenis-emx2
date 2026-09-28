@@ -318,11 +318,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(REF_LABEL_DEFAULT)
                   .type(Scalars.GraphQLString))
-          // TODO
-          //          .field(
-          //              GraphQLFieldDefinition.newFieldDefinition()
-          //                  .name(CASCADE_DELETE)
-          //                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(CASCADE_DELETE)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(VALIDATION_EXPRESSION)
@@ -474,11 +473,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(OLD_NAME)
                   .type(Scalars.GraphQLString))
-          // TODO
-          //          .field(
-          //              GraphQLInputObjectField.newInputObjectField()
-          //                  .name(CASCADE_DELETE)
-          //                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(CASCADE_DELETE)
+                  .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(DESCRIPTIONS)

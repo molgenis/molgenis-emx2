@@ -60,9 +60,9 @@ public class InMemoryRDFHandler implements RDFHandler {
             2021, 2, 8, 12, 15, 0, FIELD_UNDEFINED, FIELD_UNDEFINED);
   }
 
-  InMemoryRDFHandler() {}
+  public InMemoryRDFHandler() {}
 
-  InMemoryRDFHandler(boolean fixValuesForComparison) {
+  public InMemoryRDFHandler(boolean fixValuesForComparison) {
     this.fixValuesForComparison = fixValuesForComparison;
   }
 

@@ -55,8 +55,9 @@
 
 <script lang="ts" setup>
 import { computed, nextTick } from "vue";
+import { isArrayLikeDetail } from "../../../../../metadata-utils/src";
 import type { cellPayload } from "../../../../types/types";
-import { isArrayLikeDetail, isRefLikeDetail } from "../../../utils/refUtils";
+import { isRefLikeDetail } from "../../../utils/refUtils";
 import { toRefColumn, toRefColumnValue } from "../../../utils/typeUtils";
 
 const props = defineProps<{

@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { expect, test } from "vitest";
 import PageHeader from "../../../app/components/PageHeader.vue";
-import ContentReadMore from "../../../app/components/ContentReadMore.vue";
+import ShowMore from "../../../app/components/ShowMore.vue";
 
 const pageHeaderSimple = mount(PageHeader, {
   props: {
@@ -10,6 +10,7 @@ const pageHeaderSimple = mount(PageHeader, {
   },
 });
 
-test("PageHeader should contain truncation component by default (for description)", async () => {
-  expect(pageHeaderSimple.findComponent(ContentReadMore).exists()).toBe(true);
+test("PageHeader bounds its description, on the house default rather than its own", async () => {
+  expect(pageHeaderSimple.findComponent(ShowMore).exists()).toBe(true);
+  expect(pageHeaderSimple.findComponent(ShowMore).props("maxLines")).toBe(3);
 });

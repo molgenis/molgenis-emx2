@@ -38,15 +38,10 @@
       <MolgenisFooter v-else>
         <span v-if="session?.manifest">
           Software version:
-          <a
-            :href="
-              'https://github.com/molgenis/molgenis-emx2/releases/tag/' +
-              session.manifest.SpecificationVersion
-            "
-          >
+          <a :href="versionHref">
             {{ session.manifest.SpecificationVersion }}
           </a>
-          .
+          (git:{{ session.manifest.ImplementationVersion }}).
           <span v-if="session.manifest.DatabaseVersion">
             Database version: {{ session.manifest.DatabaseVersion }}.
           </span>
@@ -141,6 +136,14 @@ const emit = defineEmits<{
 }>();
 
 const session = ref<Record<string, any> | null>(null);
+
+// A SNAPSHOT build has no release tag, so point those at the commit they were built from.
+const versionHref = computed(() => {
+  const manifest = session.value?.manifest;
+  return manifest?.SpecificationVersion?.includes("SNAPSHOT")
+    ? `https://github.com/molgenis/molgenis-emx2/commit/${manifest.ImplementationVersion}`
+    : `https://github.com/molgenis/molgenis-emx2/releases/tag/${manifest?.SpecificationVersion}`;
+});
 const logoURL = ref<string | null>(null);
 const timestamp = ref(Date.now());
 const analyticsId = ref<string | null>(null);

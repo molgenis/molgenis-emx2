@@ -84,12 +84,12 @@ public class JsonUtil {
   }
 
   public static ObjectWriter getWriter() {
-
     if (writer == null) {
       DefaultPrettyPrinter printer =
           new DefaultPrettyPrinter()
               .withArrayIndenter(new DefaultIndenter("  ", "\n"))
               .withObjectIndenter(new DefaultIndenter("  ", "\n"));
+
       writer =
           new ObjectMapper()
               .addMixIn(SchemaMetadata.class, MixinForJsonIgnore.class)

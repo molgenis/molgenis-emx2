@@ -106,6 +106,7 @@ module.exports = {
         8.75: "2.1875rem",
         10.5: "2.625rem",
         12.5: "3.125rem",
+        13: "3.25rem",
         15: "3.75rem",
         25: "6.25rem",
         95: "23.75rem",
@@ -248,6 +249,7 @@ module.exports = {
           "color-mix(var(--background-color-button-primary), var(--background-color-content) 70%)",
         "dashboard-dropzone-hover":
           "color-mix(var(--background-color-button-primary), var(--background-color-content) 85%)",
+        banner: "var(--background-color-banner)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",

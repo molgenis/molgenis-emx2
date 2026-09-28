@@ -12,13 +12,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
@@ -212,13 +219,42 @@ public class CsvApi {
 
   private static void tableRetrieve(Context ctx) throws IOException {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
-    TableStoreForCsvInMemory store = new TableStoreForCsvInMemory(getSeparator(ctx));
-    store.writeTable(table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
-    ctx.contentType(ACCEPT_CSV);
-    ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
-    ctx.status(200);
-    ctx.res().setCharacterEncoding("UTF-8");
-    ctx.result(store.getCsvString(table.getName()));
+    List<String> columnNames = getDownloadColumns(ctx, table);
+    List<Column> columns = table.getMetadata().getColumns();
+    Query query = getDownloadQuery(ctx, table);
+
+    // The cursor's transaction holds an ACCESS SHARE lock that blocks ALTER TABLE, so it is
+    // closed before the client, whose speed we do not control, is written to.
+    // the enclosing directory is created private to this user, the temp file alone would not be
+    Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
+    Path csv = tempDir.resolve("download.csv");
+    try {
+      try (Writer writer = Files.newBufferedWriter(csv, StandardCharsets.UTF_8)) {
+        Consumer<Row> rowWriter =
+            CsvTableWriter.newRowWriter(columnNames, writer, getSeparator(ctx));
+        query.streamRows(
+            row -> {
+              ResolveComputedValue.apply(columns, List.of(row));
+              rowWriter.accept(row);
+            });
+      }
+
+      ctx.contentType(ACCEPT_CSV);
+      ctx.header("Content-Disposition", "attachment; filename=\"" + table.getName() + ".csv\"");
+      ctx.status(200);
+      ctx.res().setCharacterEncoding("UTF-8");
+      try (InputStream in = Files.newInputStream(csv);
+          OutputStream out = ctx.outputStream()) {
+        in.transferTo(out);
+      }
+    } finally {
+      // nested: a failure to delete the file must not skip the directory
+      try {
+        Files.deleteIfExists(csv);
+      } finally {
+        Files.deleteIfExists(tempDir);
+      }
+    }
   }
 
   public static List<String> getDownloadColumns(Context ctx, Table table) {
@@ -229,22 +265,19 @@ public class CsvApi {
         .toList();
   }
 
-  public static List<Row> getDownloadRows(Context ctx, Table table) throws JsonProcessingException {
-    Query q = table.query();
+  static Query getDownloadQuery(Context ctx, Table table) throws JsonProcessingException {
+    Query query = table.query();
     // extract filter argument if exists
     if (ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT) != null) {
       // gonna use the graphql filter parser so we can easily reuse graphql table level filter
       // expressions
-      q.where(
+      query.where(
           convertMapToFilterArray(
               table.getMetadata(),
               new ObjectMapper()
                   .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
     }
-    List<Row> rows = q.retrieveRows();
-    List<Column> columns = table.getMetadata().getColumns();
-    ResolveComputedValue.apply(columns, rows);
-    return rows;
+    return query;
   }
 
   private static void tableUpdate(Context ctx) {

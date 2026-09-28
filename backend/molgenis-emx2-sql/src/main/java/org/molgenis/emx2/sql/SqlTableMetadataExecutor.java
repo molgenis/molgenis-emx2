@@ -35,6 +35,9 @@ class SqlTableMetadataExecutor {
     // grant rights to schema manager, editor and viewer role
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.MEMBER.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.EXISTS.toString()));
     // todo: Do we need to add RANGE, AGGREGATOR and VIEWER here also?
     jooq.execute(
@@ -65,8 +68,7 @@ class SqlTableMetadataExecutor {
     for (Column column : table.getNonInheritedColumns()) {
       if (!column.isHeading()) {
         validateColumn(column);
-        if (table.getInheritName() == null
-            || table.getInheritedTable().getColumn(column.getName()) == null) {
+        if (!column.isInherited()) {
           executeCreateColumn(jooq, column);
         }
       } else {
@@ -79,9 +81,7 @@ class SqlTableMetadataExecutor {
 
     // then create (composite) foreign keys
     for (Column column : table.getStoredColumns()) {
-      if ((table.getInheritName() == null
-              || table.getInheritedTable().getColumn(column.getName()) == null)
-          && column.isReference()) {
+      if (!column.isInherited() && column.isReference()) {
         SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
       }
     }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.SETTING_SEMANTIC_PREFIXES;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
 import org.junit.jupiter.api.Test;
@@ -20,9 +21,10 @@ class SqlSchemaMetadataTest {
     Schema schema = database.dropCreateSchema(getClass().getSimpleName());
     database.becomeAdmin();
 
-    List<String> expectedRoles =
-        Arrays.stream(Privileges.values()).map(Privileges::toString).toList();
-    assertEquals(expectedRoles, schema.getInheritedRolesForActiveUser());
+    // pg_roles is scanned without ORDER BY, so only the membership is defined
+    Set<String> expectedRoles =
+        Arrays.stream(Privileges.values()).map(Privileges::toString).collect(Collectors.toSet());
+    assertEquals(expectedRoles, Set.copyOf(schema.getInheritedRolesForActiveUser()));
   }
 
   @Test

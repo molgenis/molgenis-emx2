@@ -7,6 +7,8 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -77,5 +79,29 @@ class JsonUtilTest {
 
     assertTrue(yaml.contains("inheritName: \"Shape\""), yaml);
     assertFalse(yaml.contains("inheritSchemaName"), yaml);
+  }
+
+  @Test
+  void writerOmitsEmptyCollections() throws IOException {
+    String json = JsonUtil.getWriter().writeValueAsString(new org.molgenis.emx2.json.Schema());
+
+    assertFalse(json.contains("\"tables\""), "empty table list must be omitted: " + json);
+    assertFalse(json.contains("\"settings\""), "empty settings list must be omitted: " + json);
+  }
+
+  @Test
+  void writerIncludesFalseBooleanValues() throws IOException {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("active", false);
+    String json = JsonUtil.getWriter().writeValueAsString(map);
+    assertTrue(json.contains("\"active\" : false"), "false boolean must be serialized: " + json);
+  }
+
+  @Test
+  void writerExcludesFalseBooleanValues() throws IOException {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("noKey", null);
+    String json = JsonUtil.getWriter().writeValueAsString(map);
+    assertFalse(json.contains("\"noKey\""), "null values must be omitted: " + json);
   }
 }

@@ -18,7 +18,9 @@ const { data } = await $fetch("/api/graphql", {
 <template>
   <div class="mb-0 text-center lg:pb-5 text-title text-body-lg">
     <span v-if="data">
-      Software version: {{ data?._manifest.SpecificationVersion }}
+      Software version: {{ data?._manifest.SpecificationVersion }} (git:{{
+        data?._manifest.ImplementationVersion
+      }})
     </span>
   </div>
 </template>
