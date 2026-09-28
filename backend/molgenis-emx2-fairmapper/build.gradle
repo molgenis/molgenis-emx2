@@ -43,8 +43,6 @@ dependencies {
     implementation libs.picocli
     annotationProcessor libs.picocli.codegen
 
-    testImplementation("org.awaitility:awaitility:4.3.0")
-
     testImplementation testFixtures(project(':backend:molgenis-emx2-webapi'))
     testImplementation project(':backend:molgenis-emx2-datamodels')
 }
