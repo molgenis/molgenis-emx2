@@ -742,13 +742,13 @@ class TestGraphqlSchemaFields {
   @Test
   void testAddAlterDropColumn() throws IOException {
     execute("mutation{change(columns:{table:\"Pet\",name:\"test\"}){message}}");
-    assertNotNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+    assertNotNull(database.getSchemaMetadata(schemaName).getTableMetadata("Pet").getColumn("test"));
     execute(
         "mutation{change(columns:{table:\"Pet\", oldName:\"test\",name:\"test2\", key:3, columnType:\"INT\"}){message}}");
 
     database.clearCache(); // cannot know here, server clears caches
 
-    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+    assertNull(database.getSchemaMetadata(schemaName).getTableMetadata("Pet").getColumn("test"));
     assertEquals(
         ColumnType.INT,
         database
@@ -762,7 +762,7 @@ class TestGraphqlSchemaFields {
 
     database.clearCache(); // cannot know here, server clears caches
 
-    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
+    assertNull(database.getSchemaMetadata(schemaName).getTableMetadata("Pet").getColumn("test2"));
 
     execute(
         "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", visible:\"blaat\"}){message}}");
