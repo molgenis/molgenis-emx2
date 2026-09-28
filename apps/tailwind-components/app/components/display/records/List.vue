@@ -10,24 +10,16 @@ import CardList from "../../CardList.vue";
 import CardListItem from "../../CardListItem.vue";
 import ValueEMX2 from "../../value/EMX2.vue";
 
-const props = withDefaults(
-  defineProps<{
-    rows: IRow[];
-    titleTemplate: string;
-    subtitleTemplate?: string;
-    descriptionColumn?: IColumn;
-    detailColumns?: IColumn[];
-    logoColumn?: IColumn;
-    linkTo?: (row: IRow) => string;
-    hideEmpty?: boolean;
-  }>(),
-  {
-    // Vue casts an unset boolean prop to false unless a default is given.
-    // hideEmpty is Pairs' default (true) to make, not List's, so this
-    // forwards a genuine undefined rather than silently overriding it.
-    hideEmpty: undefined,
-  }
-);
+const props = defineProps<{
+  rows: IRow[];
+  titleTemplate: string;
+  subtitleTemplate?: string;
+  descriptionColumn?: IColumn;
+  detailColumns?: IColumn[];
+  logoColumn?: IColumn;
+  linkTo?: (row: IRow) => string;
+  showEmpty?: boolean;
+}>();
 
 function title(row: IRow): string {
   return resolveTitleAndSubtitle(
@@ -91,7 +83,7 @@ function logoUrl(row: IRow): string | undefined {
           wide
           :columns="detailColumns"
           :row="row"
-          :hide-empty="hideEmpty"
+          :showEmpty="showEmpty"
         />
       </div>
     </CardListItem>

@@ -158,16 +158,7 @@ describe("records/List.vue", () => {
     expect(item.text()).not.toContain("2006");
   });
 
-  it("lets Pairs' own hideEmpty default apply when List is not given one, and forwards an explicit false", () => {
-    // vue-test-utils' props() reports the CHILD's already-resolved value,
-    // defaults included, so it cannot distinguish "forwarded true" from
-    // "forwarded undefined, defaulted to true" on its own; the rendered
-    // data-fold-columns attribute (Pairs.test.ts covers what it means) is
-    // what actually reveals whether the default reached Pairs. A
-    // boolean-typed prop that is never passed resolves to Vue's automatic
-    // false rather than undefined unless the component declares an
-    // explicit default, so List must give hideEmpty an explicit
-    // `undefined` default of its own to forward a genuine undefined.
+  it("hides empty details by default, and shows them when showEmpty is set", () => {
     const bColumn: IColumn = { id: "b", label: "B", columnType: "INT" };
     const omittedWrapper = mount(RecordsList, {
       props: {
@@ -183,7 +174,7 @@ describe("records/List.vue", () => {
         rows,
         titleTemplate: "${name}",
         detailColumns: [ageColumn, bColumn],
-        hideEmpty: false,
+        showEmpty: true,
       },
     });
     expect(

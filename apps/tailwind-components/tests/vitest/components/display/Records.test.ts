@@ -143,20 +143,40 @@ describe("Records.vue", () => {
       expect(headers).toEqual(["Title", "Age"]);
     });
 
-    it("forwards hideEmpty to the layout it renders", async () => {
+    it("hides empty details in LIST by default", async () => {
+      fetchTableMetadataMock.mockResolvedValue({
+        id: "pet",
+        columns: [
+          ...columns,
+          { id: "color", label: "Color", columnType: "STRING" },
+        ],
+      });
+      const wrapper = mount(Records, {
+        props: {
+          schemaId: "test-schema",
+          tableId: "pet",
+          displayConfig: { layout: "LIST" },
+        },
+      });
+      await flushPromises();
+
+      expect(wrapper.find("dl").attributes("data-fold-columns")).toBe("2");
+    });
+
+    it("forwards showEmpty to the layout it renders", async () => {
       const listDisplayConfig: DisplayConfig = { layout: "LIST" };
       const wrapper = mount(Records, {
         props: {
           schemaId: "test-schema",
           tableId: "pet",
           displayConfig: listDisplayConfig,
-          hideEmpty: false,
+          showEmpty: true,
         },
       });
       await flushPromises();
 
       const layout = wrapper.findComponent(RecordsList);
-      expect(layout.props("hideEmpty")).toBe(false);
+      expect(layout.props("showEmpty")).toBe(true);
     });
 
     it("shows a ref cell as its label, not an object", async () => {

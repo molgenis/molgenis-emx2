@@ -25,7 +25,7 @@ const props = withDefaults(
     filter?: Record<string, unknown>;
     pageSize?: number;
     linkTo?: (row: IRow) => string;
-    hideEmpty?: boolean;
+    showEmpty?: boolean;
   }>(),
   {
     pageSize: 10,
@@ -234,7 +234,7 @@ function onPageUpdate(page: number) {
       :detailColumns="resolvedDisplay.detailColumns"
       :logoColumn="resolvedDisplay.logoColumn"
       :linkTo="linkTo"
-      :hideEmpty="hideEmpty"
+      :showEmpty="showEmpty"
     />
     <RecordsLinks
       v-else-if="resolvedDisplay.layout === 'LINKS'"

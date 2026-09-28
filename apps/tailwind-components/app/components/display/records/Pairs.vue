@@ -9,18 +9,12 @@ import ValueEMX2 from "../../value/EMX2.vue";
 // the per-type cap, hideEmpty and the fold bands, exists only to answer
 // "what happens once side-by-side stops fitting", so it has no meaning
 // when wide is false and Cards never triggers it.
-const props = withDefaults(
-  defineProps<{
-    columns: IColumn[];
-    row: IRow;
-    wide?: boolean;
-    hideEmpty?: boolean;
-  }>(),
-  {
-    wide: false,
-    hideEmpty: true,
-  }
-);
+const props = defineProps<{
+  columns: IColumn[];
+  row: IRow;
+  wide?: boolean;
+  showEmpty?: boolean;
+}>();
 
 // Caps a short fixed-format value's width so it does not stretch across the
 // full remaining track. Neither TableEMX2 (every column gets one flat
@@ -91,7 +85,7 @@ const wideFoldStructureClass = computed(() => {
 // nothing: a single detail column never folds, and hideEmpty lets a caller
 // keep every slot in both states.
 const detailFoldColumns = computed<number | undefined>(() => {
-  if (!props.hideEmpty) {
+  if (props.showEmpty) {
     return undefined;
   }
   const detailColumnCount = props.columns.length;

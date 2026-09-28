@@ -120,10 +120,7 @@ describe("records/Pairs.vue", () => {
     );
   });
 
-  it("marks the dl for its fold-band's hide-when-empty rule by default in the wide shape, and drops the marker when hideEmpty is false", () => {
-    // jsdom evaluates neither the @container max-width rule nor :has(), so
-    // this can only assert the hook the scoped CSS rule keys off (the
-    // data-fold-columns attribute), not the visual hide/show outcome.
+  it("marks the dl for its fold-band's hide-when-empty rule by default in the wide shape, and drops the marker when showEmpty is set", () => {
     const defaultWrapper = mount(Pairs, {
       props: { columns: [ageColumn, bioColumn], row, wide: true },
     });
@@ -134,7 +131,7 @@ describe("records/Pairs.vue", () => {
         columns: [ageColumn, bioColumn],
         row,
         wide: true,
-        hideEmpty: false,
+        showEmpty: true,
       },
     });
     expect(
