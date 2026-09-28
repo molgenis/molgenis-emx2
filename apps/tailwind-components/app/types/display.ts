@@ -3,13 +3,12 @@ import type { IColumn } from "../../../metadata-utils/src/types";
 export const LAYOUTS = ["TABLE", "CARDS", "LIST", "LINKS", "BULLETS"] as const;
 export type Layout = (typeof LAYOUTS)[number];
 
-// What a caller writes: columns named by id, everything optional.
 export interface DisplayConfig {
   layout: Layout;
-  titleTemplate?: string; // "${acronym} ${name}", the syntax refLabel uses
+  titleTemplate?: string;
   subtitleTemplate?: string;
   descriptionColumnId?: string;
-  detailColumnIds?: string[]; // rendered in this order
+  detailColumnIds?: string[];
   logoColumnId?: string;
 }
 

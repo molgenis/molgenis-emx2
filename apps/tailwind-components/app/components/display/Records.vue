@@ -20,8 +20,6 @@ const props = withDefaults(
     schemaId: string;
     tableId: string;
     displayConfig?: DisplayConfig;
-    // Compared by value (JSON.stringify), not identity: a literal object
-    // here is fine.
     filter?: Record<string, unknown>;
     pageSize?: number;
     linkTo?: (row: IRow) => string;
@@ -34,20 +32,12 @@ const props = withDefaults(
 
 const currentPage = ref(1);
 
-// The layout never depends on the fetched columns (resolveDisplay falls
-// back to config?.layout regardless of them), so it can be known, and used
-// to key the fetch, before that fetch has ever run.
 const layout = computed(() => resolveLayout(props.displayConfig));
 
-// The compiler proves every Layout is handled here; a value missing from
-// this switch is a typecheck failure, not a silent wrong render.
 function assertNever(value: never): never {
   throw new Error(`Records: unhandled layout "${value}"`);
 }
 
-// TABLE, CARDS and LIST page through Pagination. LINKS and BULLETS grow on
-// demand through their own load-more instead, batchSize rows at a time: a
-// bulleted list takes one line each, a comma-separated run is compact.
 const layoutMeta = computed(() => {
   switch (layout.value) {
     case "TABLE":
@@ -65,14 +55,8 @@ const layoutMeta = computed(() => {
   }
 });
 
-// JSON.stringify once, so a filter passed as a fresh object literal every
-// render compares equal instead of refetching and resetting to page 1.
 const filterKey = computed(() => JSON.stringify(props.filter ?? null));
 
-// Any input that changes what the result set IS goes back to page 1. This
-// must run before useAsyncData's own key/watch react to the same change, so
-// it stays "sync": useAsyncData's key watcher is sync internally, and a
-// "pre"-flush watcher here would run after it, one page too late.
 watch(
   () => [
     props.schemaId,
@@ -84,18 +68,13 @@ watch(
   () => {
     currentPage.value = 1;
   },
+  // sync: must reset the page before useAsyncData's own key watcher refetches.
   { flush: "sync" }
 );
 
-// A newer request racing past a slower one must win. useAsyncData dedupes
-// its own keyed fetch; this id is for loadMore below, the one path that is
-// still a bare fetch outside that mechanism.
 let latestRequestId = 0;
 
-// Unique per instance's actual query: a record page renders several of
-// these side by side for different refbacks, each needing its own fetch and
-// its own place in the SSR payload. useId() is stable across the server
-// render and the client hydration of the SAME instance, unlike a random id.
+// useId, not a random id: the key must match between server render and hydration.
 const instanceId = useId();
 const asyncDataKey = computed(
   () =>
@@ -108,8 +87,6 @@ const { data, error } = useAsyncData(
     latestRequestId++;
     const metadata = await fetchTableMetadata(props.schemaId, props.tableId);
     const paginated = layoutMeta.value.paginated;
-    // pageSize belongs to the paging layouts; a layout that loads on demand
-    // has its own batch size and does not inherit a pager's.
     const limit = paginated ? props.pageSize : layoutMeta.value.batchSize;
     const offset = paginated ? (currentPage.value - 1) * props.pageSize : 0;
     const response = await fetchTableData(props.schemaId, props.tableId, {
@@ -142,9 +119,6 @@ const resolvedDisplay = computed(() =>
   resolveDisplay(fetchedColumns.value, props.displayConfig)
 );
 
-// useAsyncData REPLACES data.value on every fetch; LINKS/BULLETS need to
-// APPEND across "load more" clicks, so that accumulation lives in its own
-// ref, reseeded whenever a fresh keyed fetch replaces the whole result.
 const accumulatedRows = ref<IRow[]>(data.value?.rows ?? []);
 const accumulatedCount = ref(data.value?.count ?? 0);
 
@@ -156,10 +130,6 @@ watch(data, (value) => {
 const fetchedRows = computed(() => accumulatedRows.value);
 const fetchedCount = computed(() => accumulatedCount.value);
 
-// LINKS and BULLETS never move currentPage (they render no Pagination), so
-// the keyed fetch above only re-fires for them on schemaId/tableId/filter/
-// pageSize, which is exactly a fresh first batch. loadMore is the one path
-// that appends instead of replacing, for the "show more" control's own click.
 const remaining = computed(() =>
   Math.max(fetchedCount.value - fetchedRows.value.length, 0)
 );

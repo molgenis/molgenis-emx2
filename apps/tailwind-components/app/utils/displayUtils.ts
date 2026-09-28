@@ -1,18 +1,11 @@
 import type { IColumn, IRow } from "../../../metadata-utils/src/types";
-import type {
-  DisplayConfig,
-  Layout,
-  ResolvedDisplay,
-} from "../types/display";
+import type { DisplayConfig, Layout, ResolvedDisplay } from "../types/display";
 
 import { columnValueToString } from "./columnValueToString";
 
 const DEFAULT_LAYOUT: Layout = "TABLE";
 const MAX_DETAIL_COLUMNS = 5;
 
-// The layout never depends on columns, only on the caller's config, so a
-// caller that needs the layout before columns exist (a fetch keying itself
-// on it) can call this instead of resolveDisplay.
 export function resolveLayout(settings?: DisplayConfig): Layout {
   return settings?.layout ?? DEFAULT_LAYOUT;
 }
@@ -81,10 +74,6 @@ function asTemplate(columns: IColumn[]): string {
   return columns.map((column) => `\${${column.id}}`).join(" ");
 }
 
-// Mirrors catalogue's `resource.acronym || resource.name` /
-// `resource.acronym ? resource.name : ""`: when the title is empty, the
-// subtitle carries the record's identity, so it promotes into the title slot
-// and leaves no subtitle behind.
 export function resolveTitleAndSubtitle(
   row: IRow,
   titleTemplate: string,

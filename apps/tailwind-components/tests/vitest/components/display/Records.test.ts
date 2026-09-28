@@ -4,9 +4,7 @@ import { resolve } from "path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { clearNuxtData } from "#app";
 
-// Every test shares one nuxtApp instance, and useAsyncData keeps a fetch's
-// cache entry alive until its owning component unmounts. Without this, the
-// next mount with the same schema/table/page reuses a PRIOR test's entry.
+// useAsyncData keeps a cache entry alive until its component unmounts.
 enableAutoUnmount(afterEach);
 import Records from "../../../../app/components/display/Records.vue";
 import Pagination from "../../../../app/components/Pagination.vue";
@@ -61,9 +59,6 @@ function makeRows(count: number): IRow[] {
 
 describe("Records.vue", () => {
   beforeEach(() => {
-    // useAsyncData caches by key in the shared nuxtApp instance this test
-    // environment reuses across tests; without this, one test's cached
-    // response leaks into the next mount of the same schema/table/page.
     clearNuxtData();
     fetchTableDataMock.mockReset();
     fetchTableMetadataMock.mockReset();
@@ -351,8 +346,6 @@ describe("Records.vue", () => {
       });
       await flushPromises();
       expect(wrapper.find("p").text()).toBe("1 - 3 of 3");
-      // Same schema/table/page as above: without unmounting first, the two
-      // instances would collide on the same useAsyncData cache entry.
       wrapper.unmount();
 
       fetchTableDataMock.mockResolvedValueOnce({ rows: [], count: 0 });
@@ -381,8 +374,6 @@ describe("Records.vue", () => {
     });
 
     it("adds no file under display/ or display/records/ named like a pagination component", () => {
-      // Both directories, because the layouts moved into records/ and a
-      // single-level read of display/ stopped seeing them.
       const displayDir = resolve(
         __dirname,
         "../../../../app/components/display"

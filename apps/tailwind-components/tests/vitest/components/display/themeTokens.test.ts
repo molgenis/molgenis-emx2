@@ -12,9 +12,6 @@ const FORBIDDEN_PATTERNS: { name: string; pattern: RegExp }[] = [
 const displayDir = join(__dirname, "../../../../app/components/display");
 const recordsDir = join(displayDir, "records");
 
-// The record-display family this suite guards: the Records.vue wrapper plus
-// every dumb layout under display/records/. Sibling files in display/ (e.g.
-// CodeBlock.vue, List.vue) belong to other components and are out of scope.
 const componentFiles = [
   join(displayDir, "Records.vue"),
   ...readdirSync(recordsDir)

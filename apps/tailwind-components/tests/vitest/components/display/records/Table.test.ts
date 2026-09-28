@@ -23,7 +23,6 @@ describe("records/Table.vue", () => {
 
     const bodyRows = wrapper.find("tbody").findAll("tr");
     expect(bodyRows.length).toBe(2);
-    // TableCell renders a stacked mobile label ahead of the value; the value lives in its own div.
     expect(bodyRows[0].findAll("td")[0].find("div").text()).toBe("Tweety");
     expect(bodyRows[1].findAll("td")[0].find("div").text()).toBe("Sylvester");
   });

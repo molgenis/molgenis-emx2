@@ -15,15 +15,9 @@ describe("records/Pairs.vue", () => {
       props: { columns: [ageColumn, bioColumn], row },
     });
 
-    // grid-cols-3 plus col-span-2 on the dd is what puts every value at the
-    // same x. Without the track count the dd span means nothing, so both are
-    // asserted or neither guards the alignment.
     expect(wrapper.find("dl").classes()).toContain("grid");
     expect(wrapper.find("dl").classes()).toContain("grid-cols-3");
 
-    // dt and dd are direct children of one grid, so every value starts at the
-    // same x. A wrapper per pair would make each pair its own grid and the
-    // value edge would go ragged.
     const terms = wrapper.findAll("dl > dt");
     const definitions = wrapper.findAll("dl > dd");
     expect(terms.length).toBe(2);
@@ -74,9 +68,6 @@ describe("records/Pairs.vue", () => {
   });
 
   it("picks the wide-structure container-query band from the column count", () => {
-    // jsdom never evaluates a container query, so this asserts the classes
-    // that carry the behaviour. Two different counts are checked so the
-    // band lookup itself, not just its presence, is covered.
     const twoWrapper = mount(Pairs, {
       props: { columns: [ageColumn, bioColumn], row, wide: true },
     });
@@ -112,9 +103,6 @@ describe("records/Pairs.vue", () => {
     });
     const dl = wrapper.find("dl");
     expect(dl.exists()).toBe(true);
-    // jsdom cannot evaluate a container query, so this asserts the one thing
-    // it can see and the one thing that was wrong: the element carrying the
-    // bands must have a container ANCESTOR, not merely be one itself.
     expect(dl.element.parentElement?.classList.contains("@container")).toBe(
       true
     );

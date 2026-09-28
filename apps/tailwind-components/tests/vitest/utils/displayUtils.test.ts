@@ -13,16 +13,11 @@ function column(overrides: Partial<IColumn> & Pick<IColumn, "id">): IColumn {
 describe("resolveDisplay", () => {
   test("with no config, builds every slot from structural metadata alone", () => {
     const columns: IColumn[] = [
-      // out of position order: proves the title sorts by position rather
-      // than by array order
       column({ id: "lastName", key: 1, position: 2 }),
       column({ id: "firstName", key: 1, position: 1 }),
       column({ id: "bio", columnType: "TEXT", position: 3 }),
       column({ id: "email", position: 4 }),
       column({ id: "phone", position: 5 }),
-      // key of a second, non-primary unique constraint: not key === 1, so
-      // must be excluded from both the title (only key === 1 counts) and
-      // the details (any key column is excluded, not just key === 1)
       column({ id: "otherKey", key: 2, position: 6 }),
     ];
 

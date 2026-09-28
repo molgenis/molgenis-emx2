@@ -36,8 +36,6 @@ const fixtureRows: IRow[] = [
       size: 4213,
       filename: "lifelines.png",
       extension: "png",
-      // A data URI, not a hosted URL: it always resolves, so the
-      // logoColumn slot never shows a broken-image icon.
       url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><rect width='40' height='40' rx='6' fill='%236b7280'/><text x='20' y='25' font-size='14' fill='white' text-anchor='middle' font-family='sans-serif'>LL</text></svg>",
     },
     startYear: 2006,
@@ -106,9 +104,6 @@ const fixtureRows: IRow[] = [
     country: "United Kingdom",
   },
   {
-    // Empty, not missing: demonstrates the promote rule (an empty title
-    // slot shows the subtitle's text instead) when titleTemplate is set to
-    // ${acronym} and subtitleTemplate to ${name}.
     acronym: "",
     name: "European Health Examination Survey",
     description:
@@ -319,9 +314,6 @@ async function loadColumns() {
   liveColumns.value = metadata?.columns ?? [];
 }
 
-// Column overrides describe a fixture table. Switching table or entering
-// live mode drops them, so a picked column id never outlives the table it
-// named.
 function resetColumnOverrides() {
   titleTemplate.value = "";
   subtitleTemplate.value = "";
@@ -377,7 +369,6 @@ const visibleLayouts = computed<Layout[]>(() =>
   layoutFilter.value === "All" ? [...LAYOUTS] : [layoutFilter.value as Layout]
 );
 
-// The pre-filled default. Never reimplements the defaulting rule.
 const defaultTitleTemplate = computed(
   () => resolveDisplay(columns.value).titleTemplate
 );
@@ -404,9 +395,6 @@ const PAGE_SIZE_OPTIONS: string[] = ["2", "4", "5", "6", "8", "10", "25", "50"];
 const pageSizeOption = ref("10");
 const pageSize = computed(() => Number(pageSizeOption.value));
 
-// DisplayRecords watches `filter` by identity, so it must come from a computed. An
-// object literal in the template would be a new object on every render, and
-// every render would refetch and reset to page 1.
 const filterText = ref("");
 const parsedFilter = computed<{
   value?: Record<string, unknown>;
@@ -442,9 +430,6 @@ function linkTo(row: IRow): string {
   return `#${encodeURIComponent(String(Object.values(row)[0] ?? ""))}`;
 }
 
-// Fixture mode has no backend for DisplayRecords to fetch through, so it
-// mounts a layout component directly and resolves the display config itself,
-// the same resolution DisplayRecords does internally in live mode.
 function resolvedFixtureDisplay(layout: Layout) {
   return resolveDisplay(fixtureColumns, displayFor(layout));
 }
@@ -456,9 +441,6 @@ function panelTestId(
   return `panel-${layout.toLowerCase()}-${surface}`;
 }
 
-// The three surfaces every layout is shown on. `transparent` is not
-// decoration: it is the surface that exposed a contrast failure the other
-// two hid, so it stays alongside them rather than being sampled away.
 interface SurfaceDemo {
   key: "content" | "footer" | "transparent";
   wrapperClass: string;

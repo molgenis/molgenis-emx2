@@ -13,8 +13,6 @@ function surfaceInvertedRule(): string {
   return mainCss.slice(start, end);
 }
 
-// Every role .surface-inverted must repoint so text stays readable on an
-// inverted surface, and the token it repoints to.
 const REPOINTED_ROLES: [role: string, target: string][] = [
   ["--text-color-link", "--text-color-link-inverted"],
   ["--text-color-icon-neutral", "--text-color-link-inverted"],

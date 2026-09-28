@@ -22,9 +22,6 @@ const rows: IRow[] = [
   { name: "Sylvester", age: 5, bio: "A bird named Sylvester" },
 ];
 
-// NuxtLink resolves to vue-router's RouterLink, which the plain test
-// environment has none of, so it must be stubbed down to a real <a> to
-// assert on href/text the way the app's own router would render it.
 const global = {
   stubs: {
     NuxtLink: {

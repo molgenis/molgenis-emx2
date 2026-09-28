@@ -8,9 +8,6 @@ const props = withDefaults(
     titleTemplate: string;
     linkTo?: (row: IRow) => string;
     navLabel?: string;
-    // Links renders titles as a comma-separated run on one line; Bullets
-    // stacks them one per line. Same list, only the layout option differs,
-    // the way ChartLegend takes stackLegend rather than being two components.
     inline?: boolean;
   }>(),
   {

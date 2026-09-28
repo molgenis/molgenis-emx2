@@ -22,9 +22,6 @@ const rows: IRow[] = [
   { name: "Sylvester", age: 5, bio: "A bird named Sylvester" },
 ];
 
-// NuxtLink resolves to vue-router's RouterLink, which the plain test
-// environment has none of, so it must be stubbed down to a real <a> to
-// assert on href/text the way the app's own router would render it.
 const global = {
   stubs: {
     NuxtLink: {
@@ -116,8 +113,6 @@ describe("records/Cards.vue", () => {
     const img = wrapper.find("img");
     expect(img.attributes("src")).toBe("https://example.org/tweety.png");
     expect(img.attributes("alt")).toBe("Tweety");
-    // top-right: the float is what places it, so assert it rather than
-    // only that an img exists.
     expect(img.classes()).toContain("float-right");
   });
 
