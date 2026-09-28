@@ -1,7 +1,6 @@
 package org.molgenis.emx2.fairmapper.cli.commands;
 
 import java.net.URI;
-import java.util.Optional;
 import java.util.UUID;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.fairmapper.client.CachingSchemaMetadataProvider;
@@ -76,9 +75,7 @@ public class Harvest implements Runnable {
     logger.info("Starting harvest with ID: {}", HARVEST_ID);
 
     SchemaMetadataProvider schemaMetadataProvider = getSchemaMetadataProvider();
-    SchemaMetadata schema =
-        Optional.ofNullable(schemaMetadataProvider.getSchemaMetadata(schemaName))
-            .orElseThrow(() -> new MolgenisException("Schema not found: " + schemaName));
+    SchemaMetadata schema = schemaMetadataProvider.getSchemaMetadata(schemaName);
 
     HarvestingPipelineConfig.Builder builder =
         new HarvestingPipelineConfig.Builder(
