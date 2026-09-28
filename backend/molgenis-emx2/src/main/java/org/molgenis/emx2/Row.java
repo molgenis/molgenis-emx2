@@ -396,7 +396,7 @@ public class Row {
     return values.containsKey(columnName);
   }
 
-  public boolean notNull(String columnName) {
+  public boolean notEmpty(String columnName) {
     return values.get(columnName) != null && !values.get(columnName).toString().trim().equals("");
   }
 

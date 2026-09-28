@@ -49,6 +49,6 @@ public class DropMissingPkRowPostProcessor implements PostProcessor {
   }
 
   private static boolean hasAllPkValues(Row row, List<Column> pkColumns) {
-    return pkColumns.stream().allMatch(pk -> row.notNull(pk.getName()));
+    return pkColumns.stream().allMatch(pk -> row.notEmpty(pk.getName()));
   }
 }
