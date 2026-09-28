@@ -12,7 +12,6 @@ import InputSearch from "../input/Search.vue";
 import Pagination from "../Pagination.vue";
 import Table from "../Table.vue";
 import TableCell from "../TableCell.vue";
-import TableHead from "../TableHead.vue";
 import TableRow from "../TableRow.vue";
 import RowControls from "./control/RowControls.vue";
 import TableHeadCell from "./TableHeadCell.vue";
@@ -100,8 +99,8 @@ function getRowKey(row: IRow): string {
     <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
       size="medium"
-      :model-value="settings.search"
-      @update:model-value="handleSearchChange($event)"
+      :modelValue="settings.search"
+      @update:modelValue="handleSearchChange($event)"
       :placeholder="searchPlaceholder"
       id="search-input"
     />
@@ -141,7 +140,7 @@ function getRowKey(row: IRow): string {
   </Table>
   <Pagination
     class="pt-0 pb-[30px]"
-    :current-page="settings.page"
+    :currentPage="settings.page"
     :totalPages="totalPages"
     :jumpToEdge="true"
     :pageSize="settings.pageSize"
