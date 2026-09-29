@@ -16,7 +16,7 @@ describe("Cms:Headings:", () => {
   test("The correct heading level is rendered and the text is centered", async () => {
     expect(wrapper.vm.$el.tagName).toBe("H2");
     expect(wrapper.attributes("class")).toContain(
-      "text-title text-heading-5xl w-full flex justify-center text-center"
+      "text-title mb-2.5 text-heading-5xl w-full flex justify-center text-center"
     );
   });
 });

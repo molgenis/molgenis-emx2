@@ -34,17 +34,17 @@ import "range.jslt" as range
                 // Clinical observations -> [ diseases ]
                 [for (.clinicalObservations)  {// TODO: handle multiple disease per clinical observation?
                     let disease = .diseases[0]
-                    "diseaseCode": ontology($disease.disease),
+                    "diseaseCode": ontology($clinicalDiagnosis.disease),
                     "ageOfOnset": {
-                        "ageGroup": ontology($disease.ageAtOnset_ageGroup),
-                        "age": { "iso8601duration": $disease.ageAtOnset}
+                        "ageGroup": ontology($clinicalDiagnosis.ageAtOnset_ageGroup),
+                        "age": { "iso8601duration": $clinicalDiagnosis.ageAtOnset}
                     },
                     "ageAtDiagnosis": {
-                        "ageGroup": ontology($disease.ageAtDiagnosis_ageGroup),
-                        "age": { "iso8601duration": $disease.ageAtDiagnosis_age_iso8601duration }
+                        "ageGroup": ontology($clinicalDiagnosis.ageAtDiagnosis_ageGroup),
+                        "age": { "iso8601duration": $clinicalDiagnosis.ageAtDiagnosis_age_iso8601duration }
 
                     },
-                    "severity": ontology($disease.severity)
+                    "severity": ontology($clinicalDiagnosis.severity)
                     }
                 ],
 

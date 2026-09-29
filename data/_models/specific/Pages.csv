@@ -122,8 +122,8 @@ Charts,,left margin,int,,,,,,,,"(function () {
   }
 })();",60,"sio:SIO_000468,sio:SIO_000056",A number that indicates the amount of white space to add to the left of the chart,pages
 Sections,,columns,int,,,,,,,,,,,The number of columns to create within a section (1-4),pages
-Blocks,,enable full screen width,bool,,,,,,,,,,,"If true, content will be expanded to fit the entire width of the screen",pages
-Sections,,apply shaded background,bool,,,,,,,,,,,"If true, a light background color will be applied to provide visual distinction between blocks",pages
+Blocks,,enable full screen width,bool,,,,,,,,,FALSE,,"If true, content will be expanded to fit the entire width of the screen",pages
+Sections,,apply shaded background,bool,,,,,,,,,FALSE,,"If true, a light background color will be applied to provide visual distinction between blocks",pages
 Blocks,,in container,select,,,,Configurable pages,,,,,,,"The container that displays this block (i.e., page)",pages
 Blocks,,components,refback,,,,Components,in block,,,,,,"The components that are displayed in the block",pages
 Blocks,,component order,refback,,,,Component orders,block,,,,,sio:SIO_001316,"Components that are displayed in the block and the order in which they are displayed",pages

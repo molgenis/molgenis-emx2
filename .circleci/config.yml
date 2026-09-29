@@ -87,8 +87,15 @@ commands:
           git config url.https://.insteadOf git://
     - run:
         name: run-pnpm-audit
-        command:  pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical
         working_directory: apps
+        command: |
+          # pnpm audit only relays npm's audit endpoint; when that is down, Trivy scans the lockfile from its own database.
+          pnpm dlx --config.minimumReleaseAge=0 pnpm@11.0.0-rc.1 --config.manage-package-manager-versions=false audit --audit-level=critical && exit 0
+          echo "pnpm audit failed, checking the lockfile with Trivy"
+          curl -sSfL --retry 3 -o trivy.tgz https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.tar.gz
+          echo "2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a  trivy.tgz" | sha256sum -c
+          tar -xzf trivy.tgz trivy
+          ./trivy fs --scanners vuln --include-dev-deps --severity CRITICAL --exit-code 1 pnpm-lock.yaml
 
   # No layer cache: it doubled the spin-up and added a 34s teardown, to save a base image and one
   # apt layer. Every COPY layer here holds jars that change each build.
@@ -306,16 +313,8 @@ jobs:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-      # Only chromium: every playwright.config.ts uses devices["Desktop Chrome"], and no config sets channel.
-      # Installed from e2e/, which pins @playwright/test 1.62.0; the browser cache is shared with the apps suites.
-      - run:
-          name: Install e2e deps and playwright browser
-          command: |
-            pnpm install
-            npx playwright install --with-deps chromium
-          working_directory: e2e
-          no_output_timeout: 5m
-
+      # The demo import runs inside the application boot, so steps that do not
+      # need a running application go between the start and the wait for it.
       - run:
           name: start the application in the background
           command: |
@@ -336,6 +335,21 @@ jobs:
             ps -p $(cat application.pid) || echo "❌ Process died immediately"
             echo "Last logs:"
             tail -200 application.log
+
+      # Only chromium: every playwright.config.ts uses devices["Desktop Chrome"], and no config sets channel.
+      # Installed from e2e/, which pins @playwright/test 1.62.0; the browser cache is shared with the apps suites.
+      - run:
+          name: Install e2e deps and playwright browser
+          command: |
+            pnpm install
+            npx playwright install --with-deps chromium
+          working_directory: e2e
+          no_output_timeout: 5m
+
+      - run:
+          name: Install app dependencies
+          command: pnpm install
+          working_directory: apps
 
       - run:
           name: Wait for application to be up, poll every 5 seconds
@@ -364,11 +378,6 @@ jobs:
 
               sleep 1
             done
-
-      - run:
-          name: Install app dependencies
-          command: pnpm install
-          working_directory: apps
 
       - run:
           name: Test tailwind components
