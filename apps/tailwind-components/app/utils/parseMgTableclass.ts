@@ -1,4 +1,3 @@
-// mg_tableclass is "<schemaId>.<tableId>"; a schema id cannot contain a dot but a table id can.
 export function parseMgTableclass(
   value: unknown
 ): { schemaId: string; tableId: string } | undefined {

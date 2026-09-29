@@ -116,8 +116,6 @@ const showMgColumns = ref(false);
 const filterTerm = ref("");
 const titleTemplate = ref("");
 
-// Record no longer filters columns itself; the story reproduces the old
-// showMgColumns/filterTerm controls here, the way any caller now must.
 const storyColumns = computed<IColumn[]>(() =>
   (metadata.value?.columns ?? []).filter((column) => {
     if (column.columnType === "HEADING" || column.columnType === "SECTION") {

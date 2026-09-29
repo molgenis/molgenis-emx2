@@ -23,7 +23,6 @@ defineEmits<{
   (e: "expand"): void;
 }>();
 
-// A blank accordion header is unusable, so a template that yields nothing falls back to the primary key.
 const displayLabel = computed(
   () =>
     recordTitle(props.columns, props.row, props.titleTemplate) ||

@@ -51,7 +51,7 @@ const isExpanded = ref<boolean>(props.openByDefault);
         <slot name="toolbar"></slot>
       </div>
       <div class="flex justify-center items-center">
-        <!-- mouse-only duplicate of the label toggle above; out of the tab order so there is one tab stop for the toggle action -->
+        <!-- mouse-only duplicate, so the toggle keeps one tab stop -->
         <button
           type="button"
           :id="`accordion__${id}-toggle-icon-only`"

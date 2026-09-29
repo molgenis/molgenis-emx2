@@ -67,7 +67,6 @@ async function fetchRecordData() {
   const urlTable = await fetchTableMetadata(schemaId, tableId);
   const urlRow = await fetchUrlRow();
 
-  // A row loaded through its parent table carries only the parent's columns.
   function fallbackToUrlTable() {
     return { urlTable, urlRow, recordTable: urlTable, recordRow: urlRow };
   }
@@ -97,8 +96,7 @@ async function fetchRecordData() {
   }
 }
 
-// useAsyncData resets data to undefined when a later refresh() fails; keep the last
-// good page state so a failed refresh cannot leave the page reading null data.
+// useAsyncData sets data to undefined when a refresh fails, so keep the last good state.
 let lastGoodRecordData: Awaited<ReturnType<typeof fetchRecordData>> | undefined;
 
 const {
@@ -124,7 +122,6 @@ watch(recordError, (error) => {
   if (error) showError(error);
 });
 
-// Safe: the throw above guarantees recordData is populated before first render.
 const urlTable = computed(() => recordData.value!.urlTable);
 const urlRow = computed(() => recordData.value!.urlRow);
 const recordTable = computed(() => recordData.value!.recordTable);
@@ -161,8 +158,6 @@ function handleCellClick(event: cellPayload) {
   showModal.value = true;
 }
 
-// Choosing which columns to show is the caller's job: HEADING/SECTION carry
-// structure and always pass; a field is dropped by admin-only mg_ prefix or filter text.
 const recordColumns = computed<IColumn[]>(() =>
   visibleColumns(recordTable.value.columns, {
     term: filterValue.value,

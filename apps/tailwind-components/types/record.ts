@@ -13,8 +13,6 @@ export interface RecordHeading {
   fields: RecordField[];
 }
 
-/** The grouped shape groupRecordSections() builds: a SECTION with its own fields and HEADINGs. */
-/** How a record renders its sections: boxed, or flat on the page. */
 export type RecordLayout = "CARDS" | "PLAIN";
 
 export interface RecordSectionGroup {
@@ -24,7 +22,6 @@ export interface RecordSectionGroup {
   headings: RecordHeading[];
 }
 
-/** What display/RecordSection.vue renders as its `section` prop: one section or one heading. */
 export interface RecordSection {
   kind: "section" | "heading";
   id: string;

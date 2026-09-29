@@ -37,7 +37,6 @@ const TOP_FIFTH_OF_VIEWPORT = {
 };
 
 const root = ref<ComponentPublicInstance | null>(null);
-// setup() runs once, so the observer must exist unconditionally; give it the element only while tracking is on, or a legend that appears later never attaches.
 const trackedSection = computed(() => (props.trackInView ? root.value : null));
 
 useIntersectionObserver(

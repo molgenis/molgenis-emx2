@@ -82,7 +82,6 @@ describe("DisplayRecord", () => {
     wrapper = mount(DisplayRecord, {
       props: { columns: twoSections, row: twoSectionsRow },
     });
-    // The observers are created on the post-render flush, so they exist only a tick after mount.
     await nextTick();
   });
 
@@ -167,7 +166,6 @@ describe("DisplayRecord", () => {
     await nextTick();
     expect(legendCurrent(wrapper)).toEqual(["false", "false", "true"]);
 
-    // Emptying diet drops the Care section entirely, so the reported box no longer exists.
     await wrapper.setProps({
       row: { name: "spike", weight: 15.7, diet: "" },
     });
@@ -269,7 +267,6 @@ describe("DisplayRecord", () => {
   });
 
   test("scrolls a section into view when its legend entry is clicked", async () => {
-    // document.getElementById only finds attached elements, so this mount needs a real DOM parent.
     const attached = mount(DisplayRecord, {
       props: { columns: twoSections, row: twoSectionsRow },
       attachTo: document.body,
@@ -289,7 +286,6 @@ describe("DisplayRecord", () => {
   });
 
   test("marks a section active on click, even when it never crosses the band", async () => {
-    // A section already on screen fires no intersection, so the click itself has to mark it.
     const attached = mount(DisplayRecord, {
       props: { columns: twoSections, row: twoSectionsRow },
       attachTo: document.body,
@@ -297,7 +293,6 @@ describe("DisplayRecord", () => {
     await nextTick();
     expect(legendCurrent(attached)).toEqual(["true", "false", "false"]);
 
-    // no reportBox call: nothing crosses the band, exactly as when it is already in view
     await attached.get("nav").findAll("a")[2]!.trigger("click");
     await nextTick();
 
@@ -321,7 +316,6 @@ describe("DisplayRecord", () => {
     });
     await nextTick();
 
-    // The top section rendered no box of its own, so nothing carries its id.
     expect(document.getElementById("mg_top_of_form")).toBeNull();
 
     const scrollIntoView = vi.fn();

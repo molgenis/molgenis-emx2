@@ -56,8 +56,6 @@ describe("recordTitle", () => {
   });
 
   test("renders empty, not undefined, when the template fails to interpolate", () => {
-    // A row carrying an "id" key of null drives columnValueToString to its
-    // undefined-returning branch once the template throws.
     const columns: IColumn[] = [
       { id: "id", label: "Id", columnType: "STRING", key: 1 },
     ];

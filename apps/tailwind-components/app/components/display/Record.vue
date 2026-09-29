@@ -71,9 +71,6 @@ const hasLegend = computed(
 );
 
 const reportedSectionId = ref<string | null>(null);
-// RecordSection's rootMargin excludes the page header, so no section reports
-// inView at scroll 0, and a row's data can drop the section that did report.
-// Either way the first surviving section is the one the reader is on.
 const activeSectionId = computed(() => {
   const reported = recordSections.value.some(
     (recordSection) => recordSection.id === reportedSectionId.value
@@ -83,8 +80,6 @@ const activeSectionId = computed(() => {
   return reported ?? recordSections.value[0]?.id ?? null;
 });
 
-// A section the model never declared has no name of its own, so it gets no entry;
-// its headings still do, and they are what a reader navigates by.
 const legendGroups = computed<LegendSection[]>(() =>
   sections.value.length === 1
     ? recordSections.value
@@ -105,7 +100,6 @@ const legendGroups = computed<LegendSection[]>(() =>
           isVisible: true,
           isActive: heading.id === activeSectionId.value,
         }));
-        // An unnamed section contributes its headings directly, rather than an entry with no text.
         return section.label
           ? [
               {
@@ -126,12 +120,8 @@ const legendGroups = computed<LegendSection[]>(() =>
 );
 
 function goToSection(id: string): void {
-  // A section that rendered no box of its own has no element under its own id,
-  // so its entry aims at the first heading it did render.
   const group = sections.value.find((section) => section.id === id);
   const targetId = group ? legendAnchorId(group) : id;
-  // Mark it read straight away: a section already on screen never crosses the
-  // band, so the observer would report nothing and the click would do nothing.
   reportedSectionId.value = targetId;
   document.getElementById(targetId)?.scrollIntoView();
 }

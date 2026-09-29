@@ -44,8 +44,6 @@ describe("visibleColumns", () => {
   });
 
   test("keeps every heading and section, so a filter cannot flatten the structure", () => {
-    // A term matching no field at all must still leave the structure intact,
-    // or a section disappears while its fields still match somewhere else.
     expect(idsOf(visibleColumns(columns, { term: "nothing matches" }))).toEqual(
       ["about", "size"]
     );

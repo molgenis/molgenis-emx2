@@ -38,8 +38,6 @@ const props = defineProps<{
 }>();
 const emit = defineEmits(["goToSection"]);
 
-// Fallback for the default section. A nested heading counts as active, or the
-// legend lights its first section alongside the heading the reader is actually on.
 const noSectionsActive = computed(() => {
   return !props.sections.some(
     (section) =>
