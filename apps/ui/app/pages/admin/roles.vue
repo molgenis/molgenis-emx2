@@ -5,6 +5,7 @@ import type { IColumn, IRow } from "../../../../metadata-utils/src/types.ts";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
 import constants from "../../../../tailwind-components/app/utils/constants.ts";
+import { errorToMessage } from "../../../../tailwind-components/app/utils/errorToMessage.ts";
 import type {
   CustomRole,
   ITableSettings,
@@ -35,6 +36,7 @@ const settings = ref<ITableSettings>({
 const customRoles = ref<CustomRole[]>([]);
 const selectedRows = ref<string[]>([]);
 const showDeleteRoleModal = ref(false);
+const deleteErrorMessage = ref("");
 
 let latestRequest = 0;
 
@@ -116,8 +118,7 @@ function handleRowAction(payload: { action: string }) {
       }
       break;
     case "delete-selection":
-      console.log("Delete action for multiple rows:", selectedRows.value);
-      showDeleteRoleModal.value = true;
+      openDeleteRoleModal();
       break;
     case "select-all-on-page":
       paginatedRows.value.forEach((row) => {
@@ -149,9 +150,21 @@ async function handleDeleteRoles() {
   const rowsToDelete = rows.value.filter((row) =>
     selectedRows.value.includes(row[ROW_KEY_FIELD] as string)
   );
-  await deleteRoles(rowsToDelete);
+  try {
+    await deleteRoles(rowsToDelete);
+  } catch (error) {
+    console.error("Error deleting roles", error);
+    deleteErrorMessage.value = errorToMessage(error, "Error deleting roles");
+    return;
+  }
   showDeleteRoleModal.value = false;
+  selectedRows.value = [];
   await loadCustomRoles();
+}
+
+function openDeleteRoleModal() {
+  deleteErrorMessage.value = "";
+  showDeleteRoleModal.value = true;
 }
 </script>
 
@@ -173,6 +186,7 @@ async function handleDeleteRoles() {
   <DeleteRolesConfirmation
     v-if="showDeleteRoleModal"
     :selectedRoles="selectedRows"
+    :errorMessage="deleteErrorMessage"
     v-model:visible="showDeleteRoleModal"
     @deleteRoles="handleDeleteRoles"
   />

@@ -2,9 +2,11 @@
 import { computed } from "vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
 import Modal from "../../../tailwind-components/app/components/Modal.vue";
+import FormError from "../../../tailwind-components/app/components/form/Error.vue";
 
 const props = defineProps<{
   selectedRoles: string[];
+  errorMessage?: string;
 }>();
 
 const emit = defineEmits(["deleteRoles"]);
@@ -31,17 +33,18 @@ const rolesString = computed(() => props.selectedRoles.join(", "));
         </div>
       </div>
     </div>
+    <Transition name="slide-up">
+      <FormError
+        v-show="errorMessage"
+        :message="errorMessage ?? ''"
+        :show-prev-next-buttons="false"
+        class="sticky mx-4 bottom-0 transition-all transition-discrete"
+      />
+    </Transition>
     <template #footer>
       <div class="m-1">
         <div class="flex gap-1">
-          <Button
-            icon="trash"
-            size="small"
-            @click="
-              emit('deleteRoles');
-              visible = false;
-            "
-          >
+          <Button icon="trash" size="small" @click="emit('deleteRoles')">
             Delete
           </Button>
           <Button icon="cross" size="small" @click="visible = false">
