@@ -123,12 +123,10 @@ interface LegendItem {
   isVisible?: MaybeRef<boolean>;
   isActive?: ComputedRef<boolean> | boolean;
 }
-
 export interface LegendSection extends LegendItem {
   type: "SECTION";
   headers: LegendHeading[];
 }
-
 export interface LegendHeading extends LegendItem {
   type: "HEADING";
 }
