@@ -85,7 +85,7 @@ function getRowKey(row: IRow): string {
 </script>
 
 <template>
-  <div class="flex mb-[30px] justify-between h-50px">
+  <div class="flex mb-[30px] justify-between h-50px w-full">
     <RowControls
       :numberOfSelectedRows="numberOfSelectedRows"
       :allRowsSelected="

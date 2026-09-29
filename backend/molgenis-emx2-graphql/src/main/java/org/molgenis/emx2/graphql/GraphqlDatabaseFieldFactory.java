@@ -266,6 +266,19 @@ public class GraphqlDatabaseFieldFactory {
         .build();
   }
 
+  static final GraphQLInputObjectType inputDropRoleType =
+      GraphQLInputObjectType.newInputObject()
+          .name("DropRoleInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(SCHEMA_ID)
+                  .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(Constants.ROLE)
+                  .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
+          .build();
+
   public GraphQLFieldDefinition dropMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("drop")
@@ -275,6 +288,10 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputDropSettingType)))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(Constants.ROLE)
+                .type(GraphQLList.list(inputDropRoleType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();
@@ -284,6 +301,8 @@ public class GraphqlDatabaseFieldFactory {
                       dropUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
                       dropSettings(
                           db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
+                      dropRoles(
+                          db, dataFetchingEnvironment.getArgument(Constants.ROLE), messageBuilder);
                     } catch (Exception e) {
                       throw new GraphqlException("change failed", e);
                     }
@@ -306,6 +325,22 @@ public class GraphqlDatabaseFieldFactory {
       for (Map<String, ?> userAsMap : userList) {
         database.removeUser((String) userAsMap.get(EMAIL));
         messageBuilder.append("Dropped user '" + userAsMap.get(EMAIL) + "'. ");
+      }
+    }
+  }
+
+  private static void dropRoles(
+      Database database, List<Map<String, String>> roleList, StringBuilder messageBuilder) {
+    if (roleList != null) {
+      for (Map<String, String> roleAsMap : roleList) {
+        String schemaName = roleAsMap.get(SCHEMA_ID);
+        String roleName = roleAsMap.get(Constants.ROLE);
+        Schema schema = database.getSchema(schemaName);
+        if (schema == null) {
+          throw new MolgenisException("Schema '" + schemaName + "' does not exist");
+        }
+        schema.deleteRole(roleName);
+        messageBuilder.append("Dropped role '" + roleName + "' from schema '" + schemaName + "'. ");
       }
     }
   }
