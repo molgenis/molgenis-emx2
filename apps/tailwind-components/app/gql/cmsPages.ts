@@ -58,9 +58,6 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                     id
                 }
                 titleIsCentered
-
-                # Filelist
-                tag
                 
                 # components
                 componentOrder(orderby: {order:ASC}) {
@@ -105,6 +102,9 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         label
                         tag
                         externalLink
+
+                        # Filelist
+                        shownTag
 
                         # navigation cards
                         id

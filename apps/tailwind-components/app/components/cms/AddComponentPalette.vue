@@ -80,6 +80,14 @@ const blocksOpen = ref<boolean>(true);
             @dragging="handleDragEvent"
           />
         </li>
+        <li>
+          <DraggableComponent
+            icon="UploadFile"
+            componentName="FileList"
+            componentLabel="File list"
+            @dragging="handleDragEvent"
+          />
+        </li>
       </ul>
     </div>
 
@@ -134,15 +142,6 @@ const blocksOpen = ref<boolean>(true);
           <DraggableComponent
             icon="columns"
             componentName="Section - 3 Columns"
-            componentType="Block"
-            @dragging="handleDragEvent"
-          />
-        </li>
-        <li>
-          <DraggableComponent
-            icon="UploadFile"
-            componentName="FileList"
-            componentLabel="File List"
             componentType="Block"
             @dragging="handleDragEvent"
           />

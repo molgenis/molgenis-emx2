@@ -3,6 +3,8 @@ import type {
   IDeveloperPages,
   IDependenciesCSS,
   IDependenciesJS,
+  IFiles,
+  IFile,
 } from "../../types/cms";
 
 import { getContainersQuery } from "../gql/cmsPages";
@@ -98,6 +100,43 @@ export async function cmsFetch(
   }
 
   return response;
+}
+
+export async function getFiles(
+  schema: string,
+  tag: string,
+  orderby: "tag" | "label" | "file" | "externalLink" = "tag",
+  direction: "ASC" | "DESC" = "ASC"
+): Promise<IFiles[]> {
+  const query = `query getFiles($filter:FilesFilter, $orderby:[Filesorderby]) {
+    Files(filter:$filter,orderby:$orderby) {
+      label
+      file {
+         id
+         size
+         filename
+         extension
+         url
+      }
+      tag
+      externalLink
+    }
+  }`;
+
+  let variables = {
+    filter: {},
+    orderby: [{ [orderby]: direction }],
+  };
+  if (tag !== "") {
+    variables.filter = { tag: { equals: tag } };
+  }
+
+  const url: string = `/${schema}/graphql`;
+  const response = (await $fetch(url, {
+    method: "POST",
+    body: { query: query, variables: variables },
+  })) as { data: { Files?: IFiles[] } };
+  return response.data?.Files ?? [];
 }
 
 async function getBlockAbove(
@@ -418,6 +457,10 @@ export async function addComponent(
     await AddFile(schema, id);
   }
 
+  if (componentType === "FileList") {
+    await AddFileList(schema, id);
+  }
+
   if (componentType === "NavigationCards") {
     await AddNavigationCard(schema, id);
   }
@@ -446,9 +489,6 @@ export async function addBlock(
   if (componentType === "Section - 3 Columns") {
     await AddSection(schema, id, 3);
   }
-  if (componentType === "FileList") {
-    await AddFileList(schema, id);
-  }
   await AddBlockOrder(schema, id, order, page);
 }
 
@@ -459,17 +499,6 @@ async function AddSection(schema: string, id: string, columns: number = 1) {
     }
   }`;
   const variables = { section: [{ id: `${id}`, columns }] };
-  await cmsFetch(schema, query, variables);
-}
-
-async function AddFileList(schema: string, id: string) {
-  console.log("Adding file list with id:", id);
-  const query = `mutation insert($fileList:[FileListsInput]) {
-    insert(FileLists:$fileList) {
-      message
-    }
-  }`;
-  const variables = { fileList: [{ id: `${id}` }] };
   await cmsFetch(schema, query, variables);
 }
 
@@ -504,7 +533,7 @@ async function AddImage(schema: string, id: string) {
   await cmsFetch(schema, query, variables);
 }
 
-async function AddFile(schema: string, id: string) {
+export async function AddFile(schema: string, id: string) {
   const query = `mutation insert($file:[FilesInput]) {
     insert(Files:$file) {
       status
@@ -512,6 +541,17 @@ async function AddFile(schema: string, id: string) {
     }
   }`;
   const variables = { file: [{ id: `${id}` }] };
+  await cmsFetch(schema, query, variables);
+}
+
+async function AddFileList(schema: string, id: string) {
+  console.log("Adding file list with id:", id);
+  const query = `mutation insert($fileList:[FileListsInput]) {
+    insert(FileLists:$fileList) {
+      message
+    }
+  }`;
+  const variables = { fileList: [{ id: `${id}` }] };
   await cmsFetch(schema, query, variables);
 }
 

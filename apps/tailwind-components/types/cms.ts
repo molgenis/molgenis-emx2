@@ -1,4 +1,4 @@
-// Generated (on: 2026-09-22T14:16:10.280051) from Generator.java for schema: cms
+// Generated (on: 2026-09-29T11:04:51.146729) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -44,7 +44,6 @@ export interface IBlocks extends IMgTableClass {
   components?: IComponents[];
   componentOrder?: IComponentOrders[];
   id: string;
-  tag?: string;
   title?: string;
   subtitle?: string;
   backgroundImage?: any;
@@ -71,10 +70,7 @@ export interface IComponentOrders_agg {
 export interface IComponents extends IMgTableClass {
   inBlock?: any;
   id: string;
-  label?: string;
-  file?: IFile;
-  tag?: string;
-  externalLink?: string;
+  shownTag?: string;
   displayName?: string;
   image?: IFile;
   alt?: string;
@@ -83,15 +79,20 @@ export interface IComponents extends IMgTableClass {
   imageIsCentered?: boolean;
   items?: string[];
   text?: string;
-  paragraphIsCentered?: boolean;
   level?: number;
   headingIsCentered?: boolean;
   headingIsHidden?: boolean;
+  paragraphIsCentered?: boolean;
   title?: string;
   description?: string;
   url: string;
   urlLabel?: string;
   urlIsExternal?: boolean;
+  useExternalLink?: boolean;
+  file?: IFile;
+  externalLink?: string;
+  label?: string;
+  tag?: string;
 }
 
 export interface IComponents_agg {
@@ -178,12 +179,9 @@ export interface IDeveloperPages_agg {
 }
 
 export interface IFileLists extends IMgTableClass {
-  enableFullScreenWidth?: boolean;
-  inContainer?: any;
-  components?: IComponents[];
-  componentOrder?: IComponentOrders[];
+  inBlock?: any;
   id: string;
-  tag?: string;
+  shownTag?: string;
 }
 
 export interface IFileLists_agg {
@@ -193,10 +191,11 @@ export interface IFileLists_agg {
 export interface IFiles extends IMgTableClass {
   inBlock?: any;
   id: string;
-  label?: string;
+  useExternalLink?: boolean;
   file?: IFile;
-  tag?: string;
   externalLink?: string;
+  label?: string;
+  tag?: string;
 }
 
 export interface IFiles_agg {
@@ -300,10 +299,10 @@ export interface ITextElements extends IMgTableClass {
   text?: string;
   inBlock?: any;
   id: string;
-  paragraphIsCentered?: boolean;
   level?: number;
   headingIsCentered?: boolean;
   headingIsHidden?: boolean;
+  paragraphIsCentered?: boolean;
 }
 
 export interface ITextElements_agg {
