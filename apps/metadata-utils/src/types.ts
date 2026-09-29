@@ -119,9 +119,9 @@ interface LegendEntry {
   id: string;
   label: string;
   href?: string;
-  isActive?: ComputedRef<boolean> | boolean;
   errorCount?: MaybeRef<number>;
   isVisible?: MaybeRef<boolean>;
+  isActive?: ComputedRef<boolean> | boolean;
 }
 
 export interface LegendGroup extends LegendEntry {
