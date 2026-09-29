@@ -6,6 +6,8 @@ import type {
   DatasetRow,
 } from "../../types/viz";
 
+import type { IChartData } from "../../types/cms";
+
 import { select, scaleBand, scaleLinear } from "d3";
 const d3 = { select, scaleLinear, scaleBand };
 
@@ -62,7 +64,7 @@ export function breakXAxisLabels(svg: any, breakXAxisLabelsAt: string) {
  * @returns an object containing the limit (i.e., max value) and ticks
  */
 export function generateAxisTickData(
-  data: DatasetRow[],
+  data: IChartData[],
   key: string
 ): NumericAxisTickData {
   const values: number[] = [
@@ -211,14 +213,24 @@ export function newCategoricalAxisGenerator({
  * @returns Record<string,number>
  */
 export function asDataObject(
-  data: DatasetRow[],
+  data: IChartData[],
   labelKey: string,
   valueKey: string,
   sortData?: boolean
 ): Record<string, number> {
-  let result = data.map((row: DatasetRow) => [row[labelKey], row[valueKey]]);
+  let result = data.map((row: IChartData) => [
+    row[labelKey as keyof IChartData],
+    row[valueKey as keyof IChartData],
+  ]);
   if (sortData) {
-    result = result.sort((current, next) => (current[1] < next[1] ? 1 : -1));
+    result = result.sort((current, next) => {
+      // @ts-expect-error
+      if (current[1] < next[1]) {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
   }
   return Object.fromEntries(result);
 }
