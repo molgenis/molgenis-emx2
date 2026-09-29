@@ -198,7 +198,8 @@ loadData()
               `;
             }
             "
-            :zoomLimits="[0.3, 25]"
+            :chartScale="2"
+            :zoomLimits="[0.5, 10]"
             :enableLegendClicks="true"
             :chartHeight="440"
           />
