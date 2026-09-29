@@ -181,15 +181,15 @@ function onPageUpdate(page: number) {
     <RecordsTable
       v-if="resolvedDisplay.layout === 'TABLE'"
       :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
+      :titleColumn="resolvedDisplay.titleColumn"
       :columns="resolvedDisplay.detailColumns"
       :linkTo="linkTo"
     />
     <RecordsCards
       v-else-if="resolvedDisplay.layout === 'CARDS'"
       :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
-      :subtitleTemplate="resolvedDisplay.subtitleTemplate"
+      :titleColumn="resolvedDisplay.titleColumn"
+      :subtitleColumn="resolvedDisplay.subtitleColumn"
       :descriptionColumn="resolvedDisplay.descriptionColumn"
       :detailColumns="resolvedDisplay.detailColumns"
       :logoColumn="resolvedDisplay.logoColumn"
@@ -198,8 +198,8 @@ function onPageUpdate(page: number) {
     <RecordsList
       v-else-if="resolvedDisplay.layout === 'LIST'"
       :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
-      :subtitleTemplate="resolvedDisplay.subtitleTemplate"
+      :titleColumn="resolvedDisplay.titleColumn"
+      :subtitleColumn="resolvedDisplay.subtitleColumn"
       :descriptionColumn="resolvedDisplay.descriptionColumn"
       :detailColumns="resolvedDisplay.detailColumns"
       :logoColumn="resolvedDisplay.logoColumn"
@@ -209,14 +209,14 @@ function onPageUpdate(page: number) {
     <RecordsLinks
       v-else-if="resolvedDisplay.layout === 'LINKS'"
       :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
+      :titleColumn="resolvedDisplay.titleColumn"
       :linkTo="linkTo"
       :navLabel="tableId"
     />
     <RecordsBullets
       v-else-if="resolvedDisplay.layout === 'BULLETS'"
       :rows="fetchedRows"
-      :titleTemplate="resolvedDisplay.titleTemplate"
+      :titleColumn="resolvedDisplay.titleColumn"
       :linkTo="linkTo"
       :navLabel="tableId"
     />

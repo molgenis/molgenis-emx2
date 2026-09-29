@@ -1,7 +1,13 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import Bullets from "../../../../../app/components/display/records/Bullets.vue";
-import type { IRow } from "../../../../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../../../../metadata-utils/src/types";
+
+const nameColumn: IColumn = {
+  id: "name",
+  label: "Name",
+  columnType: "STRING",
+};
 
 const rows: IRow[] = [
   { name: "Tweety", age: 3 },
@@ -22,7 +28,7 @@ describe("records/Bullets.vue", () => {
     const wrapper = mount(Bullets, {
       props: {
         rows,
-        titleTemplate: "${name}",
+        titleColumn: nameColumn,
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
       global,
@@ -46,7 +52,7 @@ describe("records/Bullets.vue", () => {
     const wrapper = mount(Bullets, {
       props: {
         rows,
-        titleTemplate: "${name}",
+        titleColumn: nameColumn,
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
       global,
@@ -63,7 +69,7 @@ describe("records/Bullets.vue", () => {
     const wrapper = mount(Bullets, {
       props: {
         rows,
-        titleTemplate: "${name}",
+        titleColumn: nameColumn,
         linkTo: (row: IRow) => `/records/${row.name}`,
         navLabel: "Related patients",
       },
@@ -77,7 +83,7 @@ describe("records/Bullets.vue", () => {
 
   it("renders no anchor and no nav when linkTo is not passed", () => {
     const wrapper = mount(Bullets, {
-      props: { rows, titleTemplate: "${name}" },
+      props: { rows, titleColumn: nameColumn },
       global,
     });
 
@@ -87,11 +93,10 @@ describe("records/Bullets.vue", () => {
     expect(items[0].text()).toBe("Tweety");
   });
 
-  it("renders no title text when titleTemplate resolves empty", () => {
+  it("renders no title text when no titleColumn is set", () => {
     const wrapper = mount(Bullets, {
       props: {
         rows: [{ name: "LL", year: "2006" }],
-        titleTemplate: "",
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
       global,

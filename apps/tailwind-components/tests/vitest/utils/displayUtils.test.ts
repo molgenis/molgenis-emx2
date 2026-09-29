@@ -24,9 +24,8 @@ describe("resolveDisplay", () => {
     const result = resolveDisplay(columns);
 
     expect(result.layout).toEqual("TABLE");
-    expect(result.titleTemplate).toEqual("${firstName} ${lastName}");
-    expect(result.titleTemplate).not.toContain("otherKey");
-    expect(result.subtitleTemplate).toBeUndefined();
+    expect(result.titleColumn).toBeUndefined();
+    expect(result.subtitleColumn).toBeUndefined();
     expect(result.descriptionColumn?.id).toEqual("bio");
     expect(result.detailColumns.map((c) => c.id)).toEqual(["email", "phone"]);
     expect(result.logoColumn).toBeUndefined();
@@ -57,12 +56,12 @@ describe("resolveDisplay", () => {
     });
 
     expect(result.layout).toEqual("CARDS");
-    expect(result.titleTemplate).toEqual("${acronym}");
+    expect(result.titleColumn?.id).toEqual("acronym");
     expect(result.descriptionColumn?.id).toEqual("description");
     expect(result.logoColumn?.id).toEqual("name");
   });
 
-  test("an explicit titleTemplate, subtitleTemplate and descriptionColumn override the defaults", () => {
+  test("an explicit titleColumn, subtitleColumn and descriptionColumn override the defaults", () => {
     const columns: IColumn[] = [
       column({ id: "acronym", key: 1, position: 1 }),
       column({ id: "name", position: 2 }),
@@ -71,13 +70,13 @@ describe("resolveDisplay", () => {
 
     const result = resolveDisplay(columns, {
       layout: "CARDS",
-      titleTemplate: "${name} (${acronym})",
-      subtitleTemplate: "${name}",
+      titleColumn: "name",
+      subtitleColumn: "acronym",
       descriptionColumnId: "name",
     });
 
-    expect(result.titleTemplate).toEqual("${name} (${acronym})");
-    expect(result.subtitleTemplate).toEqual("${name}");
+    expect(result.titleColumn?.id).toEqual("name");
+    expect(result.subtitleColumn?.id).toEqual("acronym");
     expect(result.descriptionColumn?.id).toEqual("name");
   });
 
@@ -96,22 +95,22 @@ describe("resolveDisplay", () => {
     expect(result.detailColumns.map((c) => c.id)).toEqual(["b", "a"]);
   });
 
-  test("an empty columns array still resolves, with an empty title and no other slots", () => {
+  test("an empty columns array still resolves, with no title and no other slots", () => {
     const result = resolveDisplay([]);
 
-    expect(result.titleTemplate).toEqual("");
-    expect(result.subtitleTemplate).toBeUndefined();
+    expect(result.titleColumn).toBeUndefined();
+    expect(result.subtitleColumn).toBeUndefined();
     expect(result.descriptionColumn).toBeUndefined();
     expect(result.detailColumns).toEqual([]);
     expect(result.logoColumn).toBeUndefined();
   });
 
-  test("a table whose only column is its key has a title and no detail columns", () => {
+  test("a table whose only column is its key has that key as title and no detail columns", () => {
     const columns: IColumn[] = [column({ id: "id", key: 1, position: 1 })];
 
     const result = resolveDisplay(columns);
 
-    expect(result.titleTemplate).toEqual("${id}");
+    expect(result.titleColumn?.id).toEqual("id");
     expect(result.detailColumns).toEqual([]);
   });
 
@@ -149,5 +148,48 @@ describe("resolveDisplay", () => {
       "c4",
       "c5",
     ]);
+  });
+
+  test("the default title is the only key=1 column, returned as a column", () => {
+    const idColumn = column({ id: "id", key: 1, position: 1 });
+    const result = resolveDisplay([
+      idColumn,
+      column({ id: "name", position: 2 }),
+    ]);
+
+    expect(result.titleColumn).toEqual(idColumn);
+  });
+
+  test("a composite key has no default title", () => {
+    const result = resolveDisplay([
+      column({ id: "a", key: 1, position: 1 }),
+      column({ id: "b", key: 1, position: 2 }),
+    ]);
+
+    expect(result.titleColumn).toBeUndefined();
+  });
+
+  test("an explicit titleColumn or subtitleColumn naming no column resolves to no title, without throwing", () => {
+    const result = resolveDisplay([column({ id: "id", key: 1, position: 1 })], {
+      layout: "TABLE",
+      titleColumn: "nope",
+      subtitleColumn: "nope",
+    });
+
+    expect(result.titleColumn).toBeUndefined();
+    expect(result.subtitleColumn).toBeUndefined();
+  });
+
+  test("the title and subtitle columns are not default detail columns", () => {
+    const result = resolveDisplay(
+      [
+        column({ id: "id", key: 1, position: 1 }),
+        column({ id: "name", position: 2 }),
+        column({ id: "email", position: 3 }),
+      ],
+      { layout: "TABLE", subtitleColumn: "name" }
+    );
+
+    expect(result.detailColumns.map((c) => c.id)).toEqual(["email"]);
   });
 });

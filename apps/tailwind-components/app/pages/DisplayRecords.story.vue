@@ -15,7 +15,7 @@ const fixtureColumns: IColumn[] = [
     key: 1,
     position: 1,
   },
-  { id: "name", label: "Name", columnType: "STRING", key: 1, position: 2 },
+  { id: "name", label: "Name", columnType: "STRING", position: 2 },
   { id: "description", label: "Description", columnType: "TEXT" },
   { id: "website", label: "Website", columnType: "HYPERLINK" },
   { id: "logo", label: "Logo", columnType: "FILE" },
@@ -315,8 +315,8 @@ async function loadColumns() {
 }
 
 function resetColumnOverrides() {
-  titleTemplate.value = "";
-  subtitleTemplate.value = "";
+  titleColumn.value = "";
+  subtitleColumn.value = "";
   descriptionColumnId.value = "";
   detailColumnIds.value = [];
   logoColumnId.value = "";
@@ -369,18 +369,8 @@ const visibleLayouts = computed<Layout[]>(() =>
   layoutFilter.value === "All" ? [...LAYOUTS] : [layoutFilter.value as Layout]
 );
 
-const defaultTitleTemplate = computed(
-  () => resolveDisplay(columns.value).titleTemplate
-);
-const titleTemplate = ref("");
-const titleTemplateModel = computed({
-  get: () => titleTemplate.value || defaultTitleTemplate.value,
-  set: (value: string) => {
-    titleTemplate.value = value;
-  },
-});
-
-const subtitleTemplate = ref("");
+const titleColumn = ref("");
+const subtitleColumn = ref("name");
 const descriptionColumnId = ref("");
 
 const detailColumnIds = ref<string[]>([
@@ -416,8 +406,8 @@ const filterError = computed(() => parsedFilter.value.error);
 function displayFor(layout: Layout): DisplayConfig {
   return {
     layout,
-    titleTemplate: titleTemplate.value || undefined,
-    subtitleTemplate: subtitleTemplate.value || undefined,
+    titleColumn: titleColumn.value || undefined,
+    subtitleColumn: subtitleColumn.value || undefined,
     descriptionColumnId: descriptionColumnId.value || undefined,
     detailColumnIds: detailColumnIds.value.length
       ? detailColumnIds.value
@@ -485,24 +475,34 @@ const SURFACES: SurfaceDemo[] = [
       </div>
 
       <div class="flex flex-col gap-1">
-        <label class="text-title-contrast" for="ddl-title-template">
-          titleTemplate
+        <label class="text-title-contrast" for="ddl-title-column">
+          titleColumn
         </label>
-        <InputString
-          id="ddl-title-template"
-          class="w-56"
-          v-model="titleTemplateModel"
+        <InputListbox
+          id="ddl-title-column"
+          class="w-40"
+          placeholder="(default)"
+          :options="columnOptions"
+          :key="`title-${tableId}-${isLiveMode}`"
+          @update:modelValue="
+            (value: any) => (titleColumn = value?.value ?? '')
+          "
         />
       </div>
 
       <div class="flex flex-col gap-1">
-        <label class="text-title-contrast" for="ddl-subtitle-template">
-          subtitleTemplate
+        <label class="text-title-contrast" for="ddl-subtitle-column">
+          subtitleColumn
         </label>
-        <InputString
-          id="ddl-subtitle-template"
-          class="w-56"
-          v-model="subtitleTemplate"
+        <InputListbox
+          id="ddl-subtitle-column"
+          class="w-40"
+          placeholder="(default)"
+          :options="columnOptions"
+          :key="`subtitle-${tableId}-${isLiveMode}`"
+          @update:modelValue="
+            (value: any) => (subtitleColumn = value?.value ?? '')
+          "
         />
       </div>
 
@@ -658,20 +658,16 @@ const SURFACES: SurfaceDemo[] = [
             <DisplayRecordsTable
               v-if="layoutOption === 'TABLE'"
               :rows="fixtureRows"
-              :titleTemplate="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
+              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
               :columns="resolvedFixtureDisplay(layoutOption).detailColumns"
               :linkTo="linkTo"
             />
             <DisplayRecordsCards
               v-else-if="layoutOption === 'CARDS'"
               :rows="fixtureRows"
-              :titleTemplate="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :subtitleTemplate="
-                resolvedFixtureDisplay(layoutOption).subtitleTemplate
+              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
+              :subtitleColumn="
+                resolvedFixtureDisplay(layoutOption).subtitleColumn
               "
               :descriptionColumn="
                 resolvedFixtureDisplay(layoutOption).descriptionColumn
@@ -685,11 +681,9 @@ const SURFACES: SurfaceDemo[] = [
             <DisplayRecordsList
               v-else-if="layoutOption === 'LIST'"
               :rows="fixtureRows"
-              :titleTemplate="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
-              :subtitleTemplate="
-                resolvedFixtureDisplay(layoutOption).subtitleTemplate
+              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
+              :subtitleColumn="
+                resolvedFixtureDisplay(layoutOption).subtitleColumn
               "
               :descriptionColumn="
                 resolvedFixtureDisplay(layoutOption).descriptionColumn
@@ -703,17 +697,13 @@ const SURFACES: SurfaceDemo[] = [
             <DisplayRecordsLinks
               v-else-if="layoutOption === 'LINKS'"
               :rows="fixtureRows"
-              :titleTemplate="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
+              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
               :linkTo="linkTo"
             />
             <DisplayRecordsBullets
               v-else-if="layoutOption === 'BULLETS'"
               :rows="fixtureRows"
-              :titleTemplate="
-                resolvedFixtureDisplay(layoutOption).titleTemplate
-              "
+              :titleColumn="resolvedFixtureDisplay(layoutOption).titleColumn"
               :linkTo="linkTo"
             />
           </template>

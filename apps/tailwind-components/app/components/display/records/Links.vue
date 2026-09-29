@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { IRow } from "../../../../../metadata-utils/src/types";
+import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
 import LinkList from "./LinkList.vue";
 
 defineProps<{
   rows: IRow[];
-  titleTemplate: string;
+  titleColumn?: IColumn;
   linkTo?: (row: IRow) => string;
   navLabel?: string;
 }>();
@@ -13,7 +13,7 @@ defineProps<{
 <template>
   <LinkList
     :rows="rows"
-    :titleTemplate="titleTemplate"
+    :titleColumn="titleColumn"
     :linkTo="linkTo"
     :navLabel="navLabel"
     inline

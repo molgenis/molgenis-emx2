@@ -5,8 +5,8 @@ export type Layout = (typeof LAYOUTS)[number];
 
 export interface DisplayConfig {
   layout: Layout;
-  titleTemplate?: string;
-  subtitleTemplate?: string;
+  titleColumn?: string;
+  subtitleColumn?: string;
   descriptionColumnId?: string;
   detailColumnIds?: string[];
   logoColumnId?: string;
@@ -14,8 +14,8 @@ export interface DisplayConfig {
 
 export interface ResolvedDisplay {
   layout: Layout;
-  titleTemplate: string;
-  subtitleTemplate?: string;
+  titleColumn?: IColumn;
+  subtitleColumn?: IColumn;
   descriptionColumn?: IColumn;
   detailColumns: IColumn[];
   logoColumn?: IColumn;

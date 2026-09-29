@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { IColumn, IRow } from "../../../../../metadata-utils/src/types";
-import { columnValueToString } from "../../../utils/columnValueToString";
+import { computed } from "vue";
 import ValueEMX2 from "../../value/EMX2.vue";
 import Table from "../../Table.vue";
 import TableRow from "../../TableRow.vue";
@@ -10,17 +10,14 @@ import TableHead from "../../TableHead.vue";
 
 const props = defineProps<{
   rows: IRow[];
-  titleTemplate?: string;
+  titleColumn?: IColumn;
   columns: IColumn[];
   linkTo?: (row: IRow) => string;
 }>();
 
-function titleText(row: IRow): string {
-  if (!props.titleTemplate) {
-    return "";
-  }
-  return columnValueToString(row, props.titleTemplate) ?? "";
-}
+const otherColumns = computed(() =>
+  props.columns.filter((column) => column.id !== props.titleColumn?.id)
+);
 </script>
 
 <template>
@@ -28,11 +25,11 @@ function titleText(row: IRow): string {
     <Table>
       <template #head>
         <TableHeadRow stacked>
-          <TableHead v-if="titleTemplate" class="text-table-column-header"
-            >Title</TableHead
-          >
+          <TableHead v-if="titleColumn" class="text-table-column-header">
+            {{ titleColumn.label || titleColumn.id }}
+          </TableHead>
           <TableHead
-            v-for="column in columns"
+            v-for="column in otherColumns"
             :key="column.id"
             class="text-table-column-header"
           >
@@ -42,14 +39,22 @@ function titleText(row: IRow): string {
       </template>
       <template #body>
         <TableRow v-for="(row, rowIndex) in rows" :key="rowIndex" stacked>
-          <TableCell v-if="titleTemplate" stacked label="Title">
+          <TableCell
+            v-if="titleColumn"
+            stacked
+            :label="titleColumn.label || titleColumn.id"
+          >
             <a v-if="linkTo" :href="linkTo(row)" class="text-link underline">
-              {{ titleText(row) }}
+              <ValueEMX2 :metadata="titleColumn" :data="row[titleColumn.id]" />
             </a>
-            <span v-else>{{ titleText(row) }}</span>
+            <ValueEMX2
+              v-else
+              :metadata="titleColumn"
+              :data="row[titleColumn.id]"
+            />
           </TableCell>
           <TableCell
-            v-for="column in columns"
+            v-for="column in otherColumns"
             :key="column.id"
             stacked
             :label="column.label || column.id"

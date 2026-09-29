@@ -135,7 +135,7 @@ describe("Records.vue", () => {
       await flushPromises();
 
       const headers = wrapper.findAll("th").map((th) => th.text());
-      expect(headers).toEqual(["Title", "Age"]);
+      expect(headers).toEqual(["Name", "Age"]);
     });
 
     it("hides empty details in LIST by default", async () => {
