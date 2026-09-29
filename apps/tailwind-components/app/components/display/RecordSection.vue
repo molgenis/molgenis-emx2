@@ -66,11 +66,13 @@ useIntersectionObserver(
       <template v-for="field in section.fields" :key="field.id">
         <DefinitionListTerm>{{ field.label }}</DefinitionListTerm>
         <DefinitionListDefinition>
-          <ValueEMX2
-            :metadata="field.metadata"
-            :data="field.value"
-            @valueClick="$emit('valueClick', $event)"
-          />
+          <slot name="value" :field="field">
+            <ValueEMX2
+              :metadata="field.metadata"
+              :data="field.value"
+              @valueClick="$emit('valueClick', $event)"
+            />
+          </slot>
         </DefinitionListDefinition>
       </template>
     </DefinitionList>

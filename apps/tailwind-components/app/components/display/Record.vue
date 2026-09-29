@@ -133,6 +133,10 @@ const title = computed(() =>
 
 <template>
   <RecordPageLayout :show-legend="hasLegend">
+    <template v-if="$slots.header" #header>
+      <slot name="header" />
+    </template>
+
     <template v-if="hasLegend" #sidebar>
       <FormLegend
         :sections="legendGroups"
@@ -162,7 +166,11 @@ const title = computed(() =>
           :trackInView="hasLegend"
           @valueClick="$emit('valueClick', $event)"
           @inView="reportedSectionId = recordSection.id"
-        />
+        >
+          <template v-if="$slots.value" #value="{ field }">
+            <slot name="value" :field="field" />
+          </template>
+        </DisplayRecordSection>
       </div>
     </template>
   </RecordPageLayout>

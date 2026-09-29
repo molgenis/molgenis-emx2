@@ -478,4 +478,31 @@ describe("DisplayRecord", () => {
       "lg:gap-2.5"
     );
   });
+
+  test("puts the value slot's content in place of one field's value, and the other fields still render their own values", () => {
+    const withSlot = mount(DisplayRecord, {
+      props: { columns: twoSections, row: twoSectionsRow },
+      slots: {
+        value: `<template #value="{ field }"><b v-if="field.id === 'name'">slotted {{ field.value }}</b></template>`,
+      },
+    });
+
+    expect(withSlot.get("#about b").text()).toBe("slotted spike");
+    expect(withSlot.get("#size").text()).toContain("15.7");
+    expect(withSlot.get("#care").text()).toContain("insects");
+    expect(withSlot.findAll("b")).toHaveLength(1);
+  });
+
+  test("renders the header slot's content in the record header", () => {
+    const withHeader = mount(DisplayRecord, {
+      props: { columns: twoSections, row: twoSectionsRow },
+      slots: { header: "<span>Home / Pets</span>" },
+    });
+
+    expect(withHeader.get("header").text()).toBe("Home / Pets");
+  });
+
+  test("renders no header element when the caller gives no header slot", () => {
+    expect(wrapper.find("header").exists()).toBe(false);
+  });
 });
