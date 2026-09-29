@@ -25,7 +25,7 @@ const rows: IRow[] = [
   { name: "Jack King", email: "jack.king@example.com", role: "Moderator" },
 ];
 
-const selectedRows = ref<Map<string, Record<string, any>>>(new Map());
+const selectedRows = ref<string[]>([]);
 const settings = ref<ITableSettings>({
   page: 1,
   pageSize: 10,
@@ -67,10 +67,56 @@ const rowCount = computed(() => appliedRows.value.length);
 
 function toggleRowSelection(row: IRow) {
   const rowKey = row["email"] as string;
-  if (selectedRows.value.has(rowKey)) {
-    selectedRows.value.delete(rowKey);
+  const index = selectedRows.value.indexOf(rowKey);
+  if (index !== -1) {
+    selectedRows.value.splice(index, 1);
   } else {
-    selectedRows.value.set(rowKey, row);
+    selectedRows.value.push(rowKey);
+  }
+}
+
+function handleRowAction(payload: { action: string }) {
+  if ("action" in payload) {
+    const action = payload.action;
+    const singleRowSelected =
+      selectedRows.value.length === 1
+        ? rows.find((row) => selectedRows.value.includes(row.email as string))
+        : null;
+    switch (action) {
+      case "delete-selection":
+        if (singleRowSelected) {
+          alert(`Delete row: ${singleRowSelected.name}`);
+        } else if (selectedRows.value.length) {
+          alert(`Delete ${selectedRows.value.length} selected rows`);
+        }
+        break;
+      case "edit-selection":
+        if (singleRowSelected) {
+          alert(`Edit row: ${singleRowSelected.name}`);
+        }
+        break;
+      case "view-details":
+        if (singleRowSelected) {
+          alert(`View details for row: ${singleRowSelected.name}`);
+        }
+        break;
+      case "select-all-on-page":
+        slicedRows.value.forEach((row) => {
+          selectedRows.value.push(row.email as string);
+        });
+        break;
+      case "select-none":
+        selectedRows.value = [];
+        break;
+      case "select-drafts":
+        selectedRows.value = [];
+        slicedRows.value.forEach((row) => {
+          if (row.mg_draft === true) {
+            selectedRows.value.push(row.email as string);
+          }
+        });
+        break;
+    }
   }
 }
 </script>
@@ -85,5 +131,6 @@ function toggleRowSelection(row: IRow) {
     rowIdKey="email"
     @update:settings="(value) => (settings = value)"
     @toggleRowSelection="toggleRowSelection"
+    @rowAction="handleRowAction"
   />
 </template>
