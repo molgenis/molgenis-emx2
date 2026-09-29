@@ -23,6 +23,46 @@ Finally there is one role that carries no permission on data at all:
   it does not bypass row-level security, so a user who only reaches a table through **member** sees
   aggregates over the rows they are allowed to see, and nothing more.
 
+## What each role can query in GraphQL
+
+Roles inherit from each other in this order: **member** < **exists** < **range** < **aggregator** <
+**count** < **viewer** < **editor** < **manager** < **owner**. Each role can do everything the roles
+before it can. For every table the [GraphQL API](dev_graphql.md#table-query-and-mutation-functions)
+offers a row query (`Pet`), an aggregate query (`Pet_agg`) and a grouped aggregate query
+(`Pet_groupBy`). Which of these you can use depends on your role:
+
+| Query | Member | Exists | Range | Aggregator | Count | Viewer and up |
+|-------|--------|--------|-------|------------|-------|---------------|
+| Retrieve rows: `Pet { name }` | – | – | – | – | – | ✓ |
+| `Pet_agg { exists }` | – | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `Pet_agg { count }` | – | – | rounded up to 10, 20, 30, … | exact, but at least 10 | exact | exact |
+| `Pet_agg { min, max, avg, sum }` | – | – | – | – | – | ✓ |
+| `Pet_groupBy { count }` | – | – | – | – | exact | exact |
+| `Pet_groupBy { sum }` | – | – | – | – | ✓ | ✓ |
+| Group by an ontology column: `Pet_groupBy { count, tags { name } }` | – | – | – | – | ✓ | ✓ |
+| Group by any other column: `Pet_groupBy { count, category { name } }` | – | – | – | – | – | ✓ |
+| `filter` and `search` arguments on the queries above | – | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Retrieve rows from ontology tables: `Tag { name }` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+The same number of matching rows is reported differently per role in `Pet_agg { count }`:
+
+| Actual number of rows | Range | Aggregator | Count, Viewer and up |
+|-----------------------|-------|------------|----------------------|
+| 0 | 0 | 10 | 0 |
+| 3 | 10 | 10 | 3 |
+| 10 | 10 | 10 | 10 |
+| 14 | 20 | 14 | 14 |
+| 27 | 30 | 27 | 27 |
+
+Notes:
+
+* A query field that your role does not allow is left out of the GraphQL schema, so asking for it
+  returns a validation error rather than an empty result.
+* A custom role that has been granted **select** on a table gets the same access as **viewer** on
+  that table, limited to the rows it may see when [row-level security](#row-level-security) is
+  enabled. Without **select** on a table, a custom role cannot query that table at all.
+* Ontology tables can be read by every role, including **member**.
+
 
 ## Custom roles
 
