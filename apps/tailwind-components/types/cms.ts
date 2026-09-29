@@ -1,4 +1,4 @@
-// Generated (on: 2026-09-29T14:54:19.348353) from Generator.java for schema: cms
+// Generated (on: 2026-09-29T15:03:59.210278) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -127,12 +127,12 @@ export interface ICharts extends IMgTableClass {
   xAxisTitle?: string;
   xAxisMinValue?: number;
   xAxisMaxValue?: number;
-  xAxisTicks?: string[];
+  xAxisTicks?: number[];
   breakXAxisTickLabelsAt?: string;
   yAxisTitle?: string;
   yAxisMinValue?: number;
   yAxisMaxValue?: number;
-  yAxisTicks?: string[];
+  yAxisTicks?: number[];
   breakYAxisTickLabelsAt?: string;
 }
 
@@ -218,12 +218,12 @@ export interface IComponents extends IMgTableClass {
   xAxisTitle?: string;
   xAxisMinValue?: number;
   xAxisMaxValue?: number;
-  xAxisTicks?: string[];
+  xAxisTicks?: number[];
   breakXAxisTickLabelsAt?: string;
   yAxisTitle?: string;
   yAxisMinValue?: number;
   yAxisMaxValue?: number;
-  yAxisTicks?: string[];
+  yAxisTicks?: number[];
   breakYAxisTickLabelsAt?: string;
 }
 
@@ -510,12 +510,12 @@ export interface IStatisticalCharts extends IMgTableClass {
   xAxisTitle?: string;
   xAxisMinValue?: number;
   xAxisMaxValue?: number;
-  xAxisTicks?: string[];
+  xAxisTicks?: number[];
   breakXAxisTickLabelsAt?: string;
   yAxisTitle?: string;
   yAxisMinValue?: number;
   yAxisMaxValue?: number;
-  yAxisTicks?: string[];
+  yAxisTicks?: number[];
   breakYAxisTickLabelsAt?: string;
   legendIsEnabled?: boolean;
   legendPosition?: IOntologyNode;

@@ -71,13 +71,13 @@ Statistical charts,,X Axis Configuration,heading,,,,,,,,,,,sio:SIO_000452,,pages
 Statistical charts,,x axis title,string,,,,,,,,,,,"sio:SIO_000452, sio:SIO_000179",The title of the x-axis,pages
 Statistical charts,,x axis min value,int,,,,,,,,,,0,"sio:SIO_000452, sio:SIO_001113",The minimum value that will displayed on the x-axis. (Only applies to charts with a numeric x-axis),pages
 Statistical charts,,x axis max value,int,,,,,,,,,,,"sio:SIO_000452, sio:SIO_001114",The maximum value that will displayed on the x-axis. (Only applies to charts with a numeric x-axis),pages
-Statistical charts,,x axis ticks,string_array,,,,,,,,,,,sio:SIO_000452,An array of custom breakpoints to use in place of the auto-generated ones,pages
+Statistical charts,,x axis ticks,int_array,,,,,,,,,,,sio:SIO_000452,An array of custom breakpoints to use in place of the auto-generated ones,pages
 Statistical charts,,break x axis tick labels at,string,,,,,,,,,,,"sio:SIO_000452, sio:SIO_000513",A character to split x-axis tick labels to create new lines,pages
 Statistical charts,,Y Axis Configuration,heading,,,,,,,,,,,sio:SIO_000453,,pages
 Statistical charts,,y axis title,string,,,,,,,,,,,"sio:SIO_000453, sio:SIO_000179",The title of the y-axis,pages
 Statistical charts,,y axis min value,int,,,,,,,,,,0,"sio:SIO_000453, sio:SIO_001113",The minimum value that will displayed on the y-axis. (Only applies to charts with a numeric y-axis),pages
 Statistical charts,,y axis max value,int,,,,,,,,,,,"sio:SIO_000453, sio:SIO_001114",The maximum value that will displayed on the y-axis. (Only applies to charts with a numeric y-axis),pages
-Statistical charts,,y axis ticks,string_array,,,,,,,,,,,sio:SIO_000453,An array of custom breakpoints to use in place of the auto-generated ones,pages
+Statistical charts,,y axis ticks,int_array,,,,,,,,,,,sio:SIO_000453,An array of custom breakpoints to use in place of the auto-generated ones,pages
 Statistical charts,,break y axis tick labels at,string,,,,,,,,,,,"sio:SIO_000453, sio:SIO_000513",A character to split y-axis tick labels to create new lines,pages
 Charts,,Legend,heading,,,,,,,,,,,sio:SIO_000468,,pages
 Charts,,legend is enabled,bool,,,,,,,,,,TRUE,sio:SIO_000468,"If true, a legend will be displayed",pages
