@@ -541,16 +541,23 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
    */
   public String getLabelTemplate() {
     return getPrimaryKeyColumns().stream()
-        .flatMap(
-            pk ->
-                pk.isReference()
-                    ? pk.getReferences().stream()
-                        .filter(ref -> !ref.isOverlapping())
-                        .map(
-                            ref ->
-                                "${" + pk.getName() + "." + String.join(".", ref.getPath()) + "}")
-                    : Stream.of("${" + pk.getName() + "}"))
+        .flatMap(this::labelTemplateParts)
         .collect(Collectors.joining(" "));
+  }
+
+  private Stream<String> labelTemplateParts(Column pk) {
+    if (pk.isReference()) {
+      try {
+        return pk.getReferences().stream()
+            .filter(ref -> !ref.isOverlapping())
+            .map(ref -> "${" + pk.getName() + "." + String.join(".", ref.getPath()) + "}")
+            .toList()
+            .stream();
+      } catch (MolgenisException e) {
+        // a detached schema, such as one built from profiles, cannot resolve every ref table
+      }
+    }
+    return Stream.of("${" + pk.getName() + "}");
   }
 
   public List<Column> getKey(int key) {
