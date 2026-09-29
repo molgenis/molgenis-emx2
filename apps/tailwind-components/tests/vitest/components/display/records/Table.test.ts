@@ -67,19 +67,32 @@ describe("records/Table.vue", () => {
     expect(wrapper.find("tbody tr td a").exists()).toBe(false);
   });
 
-  it("renders no title text when titleTemplate resolves empty", () => {
+  it("renders no Title column when titleTemplate is absent or empty", () => {
+    for (const titleTemplate of [undefined, ""]) {
+      const wrapper = mount(Table, {
+        props: {
+          rows,
+          titleTemplate,
+          columns: [ageColumn],
+          linkTo: (row: IRow) => `/records/${row.name}`,
+        },
+      });
+
+      const headers = wrapper.find("thead").findAll("th");
+      expect(headers.map((th) => th.text())).toEqual(["Age"]);
+      const cells = wrapper.find("tbody").findAll("tr")[0].findAll("td");
+      expect(cells.length).toBe(1);
+      expect(cells[0].text()).toContain("Age");
+      expect(wrapper.find("tbody tr td a").exists()).toBe(false);
+    }
+  });
+
+  it("renders the Title column when titleTemplate is set", () => {
     const wrapper = mount(Table, {
-      props: {
-        rows: [{ name: "LL", year: "2006" }],
-        titleTemplate: "",
-        columns: [],
-        linkTo: (row: IRow) => `/records/${row.name}`,
-      },
+      props: { rows, titleTemplate: "${name}", columns: [ageColumn] },
     });
 
-    const anchor = wrapper.find("tbody tr td a");
-    expect(anchor.exists()).toBe(true);
-    expect(anchor.text()).toBe("");
+    expect(wrapper.find("thead").findAll("th")[0].text()).toBe("Title");
   });
 
   it("repeats each column's label on its cell, for the stacked mobile layout", () => {

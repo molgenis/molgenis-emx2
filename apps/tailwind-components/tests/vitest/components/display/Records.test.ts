@@ -309,7 +309,7 @@ describe("Records.vue", () => {
       await flushPromises();
 
       const headers = wrapper.findAll("th").map((th) => th.text());
-      expect(headers).toEqual(["Title", "Weight"]);
+      expect(headers).toEqual(["Weight"]);
     });
 
     it("discards a stale response when a newer request resolves later", async () => {

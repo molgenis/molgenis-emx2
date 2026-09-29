@@ -10,7 +10,7 @@ import TableHead from "../../TableHead.vue";
 
 const props = defineProps<{
   rows: IRow[];
-  titleTemplate: string;
+  titleTemplate?: string;
   columns: IColumn[];
   linkTo?: (row: IRow) => string;
 }>();
@@ -28,7 +28,9 @@ function titleText(row: IRow): string {
     <Table>
       <template #head>
         <TableHeadRow stacked>
-          <TableHead class="text-table-column-header">Title</TableHead>
+          <TableHead v-if="titleTemplate" class="text-table-column-header"
+            >Title</TableHead
+          >
           <TableHead
             v-for="column in columns"
             :key="column.id"
@@ -40,7 +42,7 @@ function titleText(row: IRow): string {
       </template>
       <template #body>
         <TableRow v-for="(row, rowIndex) in rows" :key="rowIndex" stacked>
-          <TableCell stacked label="Title">
+          <TableCell v-if="titleTemplate" stacked label="Title">
             <a v-if="linkTo" :href="linkTo(row)" class="text-link underline">
               {{ titleText(row) }}
             </a>
