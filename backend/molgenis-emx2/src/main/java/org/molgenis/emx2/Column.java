@@ -210,7 +210,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     SchemaMetadata schema = getSchema();
     if (this.refSchemaName != null) {
       try {
-        schema = getSchema().getDatabase().getSchema(this.refSchemaName).getMetadata();
+        schema = getSchema().getDatabase().getSchemaMetadata(this.refSchemaName);
       } catch (Exception e) {
         throw new MolgenisException(
             "refSchema '"
@@ -690,6 +690,15 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
 
   public boolean isPrimaryKey() {
     return getKey() == 1;
+  }
+
+  public boolean isInherited() {
+    TableMetadata table = getTable();
+    if (table == null) {
+      return false;
+    }
+    TableMetadata inheritedTable = table.getInheritedTable();
+    return inheritedTable != null && inheritedTable.getColumn(getName()) != null;
   }
 
   public boolean isRefArray() {

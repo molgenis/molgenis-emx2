@@ -15,6 +15,8 @@ import type {
   ICmsOrderWithBlockId,
 } from "../../types/CmsComponents";
 
+import { AddNavigationCard, AddOrderedList, AddUnorderedList } from "./cms/add";
+
 export function randomId(): string {
   return crypto.randomUUID();
 }
@@ -399,15 +401,31 @@ export async function addComponent(
   componentType: string
 ) {
   await prepareOrder(schema, order, parentBlock);
+
   if (componentType === "Paragraph") {
     await AddParagraph(schema, id);
   }
+
   if (componentType === "Heading") {
     await AddHeading(schema, id);
   }
+
   if (componentType === "Image") {
     await AddImage(schema, id);
   }
+
+  if (componentType === "NavigationCards") {
+    await AddNavigationCard(schema, id);
+  }
+
+  if (componentType === "OrderedLists") {
+    await AddOrderedList(schema, id);
+  }
+
+  if (componentType === "UnorderedLists") {
+    await AddUnorderedList(schema, id);
+  }
+
   await AddOrder(schema, id, order, parentBlock);
 }
 
@@ -810,14 +828,4 @@ export function parsePageText(value?: string): string {
 export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
-}
-
-export function renderTextUrls(string: string): string {
-  let paragraph = string;
-  const urlPattern = /\[(.*?)\]\((.*?)\)/g;
-  paragraph = paragraph.replaceAll(
-    urlPattern,
-    '<a href="$2" class="underline decoration-solid">$1</a>'
-  );
-  return paragraph;
 }

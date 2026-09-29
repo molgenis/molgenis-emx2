@@ -62,7 +62,7 @@ public class ChangeLogUtils {
   public static boolean isChangeSchema(Database db, String schemaName) {
     return TRUE.equals(
         TypeUtils.toBool(
-            db.getSchema(schemaName).getMetadata().getSetting(Constants.IS_CHANGELOG_ENABLED)));
+            db.getSchemaMetadata(schemaName).getSetting(Constants.IS_CHANGELOG_ENABLED)));
   }
 
   private static String buildFunctionName(String tableName) {

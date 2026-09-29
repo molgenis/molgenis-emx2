@@ -165,7 +165,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   }
 
   private SqlSchemaMetadata dropTransaction(String tableName, Database database) {
-    SqlSchemaMetadata sm = (SqlSchemaMetadata) database.getSchema(getName()).getMetadata();
+    SqlSchemaMetadata sm = (SqlSchemaMetadata) database.getSchemaMetadata(getName());
     sm.getTableMetadata(tableName).drop();
     sm.tables.remove(tableName);
     return sm;

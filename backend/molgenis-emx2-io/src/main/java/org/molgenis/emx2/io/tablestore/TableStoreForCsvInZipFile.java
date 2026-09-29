@@ -73,11 +73,11 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
 
   @Override
   public void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
-    if (columnNames.isEmpty()) {
-      return;
-    }
     if (!Files.exists(zipFilePath)) {
       create();
+    }
+    if (columnNames.isEmpty()) {
+      return;
     }
     try (FileSystem zipfs = open()) {
       Path pathInZipfile = zipfs.getPath(File.separator + name + CSV_EXTENSION);

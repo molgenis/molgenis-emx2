@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { renderTextUrls } from "../../utils/cms";
-import ComponentActions from "./ComponentActions.vue";
-import type { IParagraphs } from "../../../types/cms";
+import { ref } from "vue";
+import Paragraph from "./Paragraph.vue";
+import ComponentActions from "../ComponentActions.vue";
+import type { IParagraphs } from "../../../../types/cms";
 
 const props = withDefaults(
   defineProps<IParagraphs & { isEditable?: boolean }>(),
@@ -13,12 +13,6 @@ const props = withDefaults(
 );
 const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
-
-const renderedText = computed<string | undefined>(() => {
-  if (props.text) {
-    return renderTextUrls(props.text);
-  }
-});
 </script>
 
 <template>
@@ -28,7 +22,7 @@ const renderedText = computed<string | undefined>(() => {
     showGroup="component-menu"
     :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 200 }"
+    :delay="{ show: 100, hide: 50 }"
     :placement="paragraphIsCentered ? 'bottom-auto' : 'bottom-start'"
     noAutoFocus
   >
@@ -42,27 +36,7 @@ const renderedText = computed<string | undefined>(() => {
         @move="$emit('move', $event)"
       />
     </template>
-    <p
-      :id="id"
-      class="text-title-contrast"
-      :class="{
-        'text-center': paragraphIsCentered,
-        'text-left': !paragraphIsCentered,
-        underline: showMenu,
-      }"
-      v-html="renderedText"
-    />
+    <Paragraph v-bind="props" />
   </VMenu>
-
-  <p
-    v-else
-    :id="id"
-    class="text-title-contrast"
-    :class="{
-      'text-center': paragraphIsCentered,
-      'text-left': !paragraphIsCentered,
-      underline: showMenu,
-    }"
-    v-html="renderedText"
-  />
+  <Paragraph v-else v-bind="props" />
 </template>

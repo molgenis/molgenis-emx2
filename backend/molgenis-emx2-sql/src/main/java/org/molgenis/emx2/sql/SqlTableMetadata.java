@@ -33,7 +33,7 @@ class SqlTableMetadata extends TableMetadata {
   private static SqlTableMetadata addTransaction(
       Database db, String schemaName, String tableName, Column[] column) {
     SqlTableMetadata tm =
-        (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+        (SqlTableMetadata) db.getSchemaMetadata(schemaName).getTableMetadata(tableName);
 
     // first per-column actions, then multi-column action such as composite keys/refs
     int position = MetadataUtils.getMaxPosition(tm.getJooq(), schemaName) + 1;
@@ -125,7 +125,7 @@ class SqlTableMetadata extends TableMetadata {
   // ensure the transaction has no side effects on 'this' until completed
   private static SqlTableMetadata alterNameTransaction(
       Database db, String schemaName, String tableName, String newName) {
-    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
+    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchemaMetadata(schemaName);
     SqlTableMetadata tm = sm.getTableMetadata(tableName);
 
     validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
@@ -143,7 +143,7 @@ class SqlTableMetadata extends TableMetadata {
     List<Column> refbackColumns =
         tm.getColumns().stream()
             .filter(c -> c.getReferenceRefback() != null)
-            .map(c -> c.getReferenceRefback())
+            .map(Column::getReferenceRefback)
             .toList();
 
     // rename table and triggers
@@ -233,7 +233,7 @@ class SqlTableMetadata extends TableMetadata {
   private static SqlTableMetadata alterColumnTransaction(
       String schemaName, String tableName, String columnName, Column column, Database db) {
     SqlTableMetadata tm =
-        (SqlTableMetadata) db.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+        (SqlTableMetadata) db.getSchemaMetadata(schemaName).getTableMetadata(tableName);
     Column newColumn = new Column(tm, column);
     Column oldColumn = tm.getColumn(columnName);
 
@@ -331,18 +331,19 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     long start = System.currentTimeMillis();
-    if (getColumn(name) == null) return; // return silently, idempotent
-    getDatabase().tx(db -> sync(dropColumnTransaction(db, getSchemaName(), getTableName(), name)));
+    getDatabase()
+        .tx(db -> sync(dropColumnTransaction(db, getSchemaName(), getTableName(), column)));
     log(start, "removed column '" + name + "' from ");
   }
 
   private static SqlTableMetadata dropColumnTransaction(
-      Database db, String schemaName, String tableName, String columnName) {
+      Database db, String schemaName, String tableName, Column column) {
     SqlTableMetadata tm =
-        (SqlTableMetadata) db.getSchema(schemaName).getTable(tableName).getMetadata();
+        (SqlTableMetadata) db.getSchemaMetadata(schemaName).getTableMetadata(tableName);
     DSLContext jooq = ((SqlDatabase) db).getJooq();
-    SqlColumnExecutor.executeRemoveColumn(jooq, tm.getColumn(columnName));
-    tm.columns.remove(columnName);
+
+    SqlColumnExecutor.executeRemoveColumn(jooq, column);
+    tm.columns.remove(column.getName());
     SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, tm, tableName);
     return tm;
   }
@@ -471,7 +472,7 @@ class SqlTableMetadata extends TableMetadata {
 
   private static void dropTransaction(Database db, String schemaName, String tableName) {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
-    TableMetadata tm = db.getSchema(schemaName).getTable(tableName).getMetadata();
+    TableMetadata tm = db.getSchemaMetadata(schemaName).getTableMetadata(tableName);
     executeDropTable(jooq, tm);
     MetadataUtils.deleteTable(jooq, tm);
   }
