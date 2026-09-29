@@ -226,7 +226,7 @@ class TestTableMetadata {
   }
 
   @Test
-  void labelTemplateForKeyReferenceThatCannotBeResolvedFallsBackToColumnName() {
+  void labelTemplateForKeyReferenceThatCannotBeResolvedThrows() {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(
         table(
@@ -238,7 +238,9 @@ class TestTableMetadata {
                 .setKey(1),
             column("name").setType(ColumnType.STRING).setKey(1)));
 
-    assertEquals("${resource} ${name}", schema.getTableMetadata("Contacts").getLabelTemplate());
+    TableMetadata contacts = schema.getTableMetadata("Contacts");
+
+    assertThrows(MolgenisException.class, contacts::getLabelTemplate);
   }
 
   @Test
