@@ -201,8 +201,6 @@ export async function deleteRoles(roles: IRow[]) {
       query: `mutation drop($role:[DropRoleInput]) {drop(role:$role){status, message}}`,
       variables: { role },
     },
-  }).catch((error) => {
-    handleError("Error deleting custom roles: ", error.value);
   });
 }
 
