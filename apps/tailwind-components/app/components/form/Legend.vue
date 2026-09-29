@@ -5,7 +5,6 @@
       <li v-for="(section, index) in sections" :key="section.id">
         <FormLegendHeader
           :id="section.id"
-          :idPrefix="idPrefix"
           :label="section.label"
           :isActive="
             section.isActive ? true : false || (noSectionsActive && index === 0)
@@ -17,7 +16,6 @@
           <li class="pl-4" v-if="header.isVisible !== false">
             <FormLegendHeader
               :id="header.id"
-              :idPrefix="idPrefix"
               :label="header.label"
               :isActive="header.isActive ? true : false"
               :errorCount="header.errorCount"
@@ -32,15 +30,13 @@
 
 <script lang="ts" setup>
 import type { LegendSection } from "../../../../metadata-utils/src/types";
-import { computed, useId } from "vue";
+import { computed } from "vue";
 import FormLegendHeader from "./legend/Header.vue";
 
 const props = defineProps<{
   sections: LegendSection[];
 }>();
 const emit = defineEmits(["goToSection"]);
-
-const idPrefix = `form-legend-header-${useId()}`;
 
 // Fallback for the default section. A nested heading counts as active, or the
 // legend lights its first section alongside the heading the reader is actually on.

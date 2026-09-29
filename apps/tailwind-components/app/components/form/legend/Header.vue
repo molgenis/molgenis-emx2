@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import type { MaybeRef } from "vue";
-import { computed, unref } from "vue";
+import { computed, unref, useId } from "vue";
 import FormLegendErrorCounter from "./ErrorCounter.vue";
 const props = withDefaults(
   defineProps<{
     id: string;
-    idPrefix: string;
     label: string;
     isActive?: boolean;
     errorCount?: MaybeRef<number>;
@@ -16,10 +15,9 @@ const props = withDefaults(
   }
 );
 
+const anchorId = `form-legend-header-${useId()}-${props.id}`;
 const errorCountId = computed(() =>
-  (unref(props.errorCount) ?? 0) > 0
-    ? `${props.idPrefix}-${props.id}-error-count`
-    : undefined
+  (unref(props.errorCount) ?? 0) > 0 ? `${anchorId}-error-count` : undefined
 );
 
 const emit = defineEmits<{
@@ -34,7 +32,7 @@ const emit = defineEmits<{
     />
     <div class="flex gap-2 grow min-w-0">
       <a
-        :id="`${idPrefix}-${id}`"
+        :id="anchorId"
         :aria-describedby="errorCountId"
         class="pl-7 grow truncate hover:overflow-visible bg-form-legend cursor-pointer"
         href="#"
