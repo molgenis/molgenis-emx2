@@ -1,4 +1,5 @@
 import { $fetch } from "ofetch";
+import type { IRow } from "../../../metadata-utils/src/types";
 import type { CustomRole } from "../../../tailwind-components/types/types";
 import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
 
@@ -81,7 +82,7 @@ export async function getRoles(schemas: SchemaInfo[]): Promise<string[]> {
     });
 }
 
-export function getSchemas() {
+export async function getSchemas() {
   return $fetch<{ data: { _schemas: SchemaInfo[] } }>(API_GRAPHQL, {
     method: "post",
     body: {
@@ -187,6 +188,28 @@ export async function getCustomRoles(): Promise<{
       handleError("Error loading custom roles: ", error.value);
       return { customRoles: [] };
     });
+}
+
+export async function deleteRoles(roles: IRow[]) {
+  const rolesAsString = roles.map(
+    (role) => role.schemaId + "/" + role.roleName
+  );
+  const query = `
+  mutation {
+   drop(
+      roles: ${JSON.stringify(rolesAsString)}
+    ) {
+      message
+    }
+  }`;
+  return $fetch(API_GRAPHQL, {
+    method: "post",
+    body: {
+      query,
+    },
+  }).catch((error) => {
+    handleError("Error deleting custom roles: ", error.value);
+  });
 }
 
 interface AdminResponse {
