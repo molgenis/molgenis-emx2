@@ -2,18 +2,21 @@
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
 import type { IColumn, IRow } from "../../../../metadata-utils/src/types.ts";
+import Button from "../../../../tailwind-components/app/components/Button.vue";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
 import constants from "../../../../tailwind-components/app/utils/constants.ts";
 import type {
   CustomRole,
   ITableSettings,
 } from "../../../../tailwind-components/types/types.ts";
-import { getCustomRoles } from "../../util/adminUtils.ts";
+import DeleteRolesConfirmation from "../../components/DeleteRolesConfirmation.vue";
+import { deleteRoles, getCustomRoles } from "../../util/adminUtils.ts";
 
 definePageMeta({
   middleware: "admin-only",
 });
 
+const ROW_KEY_FIELD = "keyString";
 const COLUMNS: IColumn[] = [
   { label: "Schema", id: "schemaId", columnType: "STRING" },
   { label: "Role Name", id: "roleName", columnType: "STRING" },
@@ -28,12 +31,13 @@ const settings = ref<ITableSettings>({
   search: "",
   orderedColumnsIds: [],
 });
-const ROW_KEY_FIELD = "keyString";
 
 const customRoles = ref<CustomRole[]>([]);
 const selectedRows = ref<string[]>([]);
+const showDeleteRoleModal = ref(false);
 
 let latestRequest = 0;
+
 await loadCustomRoles();
 
 const rows = computed<IRow[]>(() => {
@@ -102,26 +106,18 @@ function handleRowSelection(row: IRow) {
 
 function handleRowAction(payload: { action: string }) {
   const action = payload.action;
-  const singleRowSelected =
-    selectedRows.value.length === 1
-      ? rows.value.find((row) =>
-          selectedRows.value.includes(row[ROW_KEY_FIELD] as string)
-        )
-      : null;
   switch (action) {
     case "edit-selection":
-      if (singleRowSelected) {
-        // Handle edit action for the selected row
-        console.log("Edit action for:", singleRowSelected);
+      if (selectedRows.value.length === 1) {
+        const singleSelectedRow = rows.value.find((row) =>
+          selectedRows.value.includes(row[ROW_KEY_FIELD] as string)
+        );
+        console.log("Edit action for:", singleSelectedRow);
       }
       break;
     case "delete-selection":
-      if (singleRowSelected) {
-        // Handle delete action for the selected row
-        console.log("Delete action for:", singleRowSelected);
-      } else {
-        console.log("Delete action for multiple rows:", selectedRows.value);
-      }
+      console.log("Delete action for multiple rows:", selectedRows.value);
+      showDeleteRoleModal.value = true;
       break;
     case "select-all-on-page":
       paginatedRows.value.forEach((row) => {
@@ -148,6 +144,15 @@ function getTableNames(customRole: CustomRole) {
 function getUserNames(customRole: CustomRole) {
   return customRole.users.join(", ");
 }
+
+async function handleDeleteRoles() {
+  const rowsToDelete = rows.value.filter((row) =>
+    selectedRows.value.includes(row[ROW_KEY_FIELD] as string)
+  );
+  await deleteRoles(rowsToDelete);
+  showDeleteRoleModal.value = false;
+  await loadCustomRoles();
+}
 </script>
 
 <template>
@@ -162,5 +167,13 @@ function getUserNames(customRole: CustomRole) {
     @toggleRowSelection="handleRowSelection"
     @rowAction="handleRowAction"
     @update:settings="handleSettingsChange"
+  >
+    <template #buttons><Button>Add Role</Button></template>
+  </TableInteractive>
+  <DeleteRolesConfirmation
+    v-if="showDeleteRoleModal"
+    :selectedRoles="selectedRows"
+    v-model:visible="showDeleteRoleModal"
+    @deleteRoles="handleDeleteRoles"
   />
 </template>
