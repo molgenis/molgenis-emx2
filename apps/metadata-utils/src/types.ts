@@ -115,7 +115,7 @@ export interface IFieldError {
   message: string;
 }
 
-interface LegendEntry {
+interface LegendItem {
   id: string;
   label: string;
   href?: string;
@@ -124,16 +124,17 @@ interface LegendEntry {
   isActive?: ComputedRef<boolean> | boolean;
 }
 
-export interface LegendGroup extends LegendEntry {
-  headers?: LegendEntry[];
+export interface LegendGroup extends LegendItem {
+  headers?: LegendItem[];
 }
 
-export interface LegendHeading extends LegendEntry {
-  type: "HEADING";
-}
-export interface LegendSection extends LegendEntry {
+export interface LegendSection extends LegendItem {
   type: "SECTION";
   headers: LegendHeading[];
+}
+
+export interface LegendHeading extends LegendItem {
+  type: "HEADING";
 }
 
 export type columnId = string;
