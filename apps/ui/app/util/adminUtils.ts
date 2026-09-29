@@ -191,21 +191,15 @@ export async function getCustomRoles(): Promise<{
 }
 
 export async function deleteRoles(roles: IRow[]) {
-  const rolesAsString = roles.map(
-    (role) => role.schemaId + "/" + role.roleName
-  );
-  const query = `
-  mutation {
-   drop(
-      roles: ${JSON.stringify(rolesAsString)}
-    ) {
-      message
-    }
-  }`;
+  const role = roles.map((role) => ({
+    schemaId: role.schemaId,
+    role: role.roleName,
+  }));
   return $fetch(API_GRAPHQL, {
     method: "post",
     body: {
-      query,
+      query: `mutation drop($role:[DropRoleInput]) {drop(role:$role){status, message}}`,
+      variables: { role },
     },
   }).catch((error) => {
     handleError("Error deleting custom roles: ", error.value);
