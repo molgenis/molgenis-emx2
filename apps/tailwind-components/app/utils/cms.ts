@@ -544,6 +544,42 @@ export async function AddFile(schema: string, id: string) {
   await cmsFetch(schema, query, variables);
 }
 
+export async function AddLink(schema: string, id: string, externalLink: string, label: string, tag: string) {
+  const query = `mutation insert($file:[FilesInput]) {
+    insert(Files:$file) {
+      status
+      message
+    }
+  }`;
+  const variables = { file: [{ id: `${id}` , useExternalLink: true, externalLink, label, tag}] };
+  await cmsFetch(schema, query, variables);
+}
+
+
+export async function UploadFile(schema: string, id: string, label?: string, tag?: string,  file?: IFile) {
+  const query = `mutation insert($file:[FilesInput]) {
+    insert(Files:$file) {
+      status
+      message
+    }
+  }`;
+  const formData = new FormData();
+  formData.append('query', query);
+  formData.append('variables', JSON.stringify({ file: [{ id: `${id}` , file:'file', label, tag, useExternalLink: false }] }));
+  formData.append('file', file as Blob);
+
+  const url: string = `/${schema}/graphql`;
+  const response = (await $fetch(url, {
+    method: "POST",
+    body: formData,
+  })) as unknown as FetchGraphqlResponse;
+
+  if (response?.errors?.[0]?.message) {
+    console.error(response.errors[0].message);
+  }
+  return response;
+}
+
 async function AddFileList(schema: string, id: string) {
   console.log("Adding file list with id:", id);
   const query = `mutation insert($fileList:[FileListsInput]) {

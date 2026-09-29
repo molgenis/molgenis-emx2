@@ -232,12 +232,13 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     @edit="showEditModal = true"
     @delete="onDelete"
     @move="handleMoveEvent"
+    @update-page="$emit('updatePage')"
   />
   <EditableFileDownloadItem
     v-else-if="mg_tableclass.endsWith('.Files')"
     :id="component.id"
     :isEditable="editingIsEnabled"
-    :filelabel="component.label"
+    :label="component.label"
     :file="component.file"
     :tag="component.tag"
     :externalLink="component.externalLink"
