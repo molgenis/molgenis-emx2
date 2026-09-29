@@ -1,4 +1,4 @@
-// Generated (on: 2026-09-29T11:19:53.008800) from Generator.java for schema: cms
+// Generated (on: 2026-09-29T14:54:19.348353) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -120,8 +120,8 @@ export interface ICharts extends IMgTableClass {
   enableClickEvents?: boolean;
   inBlock?: any;
   id: string;
-  x?: string;
-  y?: string;
+  x: string;
+  y: string;
   primaryGroupValues?: string;
   secondaryGroupValues?: string;
   xAxisTitle?: string;
@@ -211,8 +211,8 @@ export interface IComponents extends IMgTableClass {
   enableAnimations?: boolean;
   enableHoverEvents?: boolean;
   enableClickEvents?: boolean;
-  x?: string;
-  y?: string;
+  x: string;
+  y: string;
   primaryGroupValues?: string;
   secondaryGroupValues?: string;
   xAxisTitle?: string;
@@ -503,8 +503,8 @@ export interface IStatisticalCharts extends IMgTableClass {
   chartTitle?: string;
   chartDescription?: string;
   chartData?: IChartData[];
-  x?: string;
-  y?: string;
+  x: string;
+  y: string;
   primaryGroupValues?: string;
   secondaryGroupValues?: string;
   xAxisTitle?: string;
