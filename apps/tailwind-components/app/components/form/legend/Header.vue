@@ -7,7 +7,6 @@ const props = withDefaults(
     id: string;
     idPrefix: string;
     label: string;
-    href?: string;
     isActive?: boolean;
     errorCount?: MaybeRef<number>;
   }>(),
@@ -26,13 +25,6 @@ const errorCountId = computed(() =>
 const emit = defineEmits<{
   (e: "goToSection", id: string): void;
 }>();
-
-function scrollIfNotALink(event: MouseEvent) {
-  if (!props.href) {
-    event.preventDefault();
-    emit("goToSection", props.id);
-  }
-}
 </script>
 <template>
   <div class="flex my-2">
@@ -45,9 +37,9 @@ function scrollIfNotALink(event: MouseEvent) {
         :id="`${idPrefix}-${id}`"
         :aria-describedby="errorCountId"
         class="pl-7 grow truncate hover:overflow-visible bg-form-legend cursor-pointer"
-        :href="href ?? '#'"
+        href="#"
         :aria-current="isActive"
-        @click="scrollIfNotALink"
+        @click.prevent="emit('goToSection', id)"
       >
         <span
           class="text-title-contrast capitalize"

@@ -118,14 +118,10 @@ export interface IFieldError {
 interface LegendItem {
   id: string;
   label: string;
-  href?: string;
+  type: HeadingType;
   errorCount?: MaybeRef<number>;
   isVisible?: MaybeRef<boolean>;
   isActive?: ComputedRef<boolean> | boolean;
-}
-
-export interface LegendGroup extends LegendItem {
-  headers?: LegendItem[];
 }
 
 export interface LegendSection extends LegendItem {

@@ -7,11 +7,8 @@
           :id="section.id"
           :idPrefix="idPrefix"
           :label="section.label"
-          :href="section.href"
           :isActive="
-            section.isActive
-              ? true
-              : false || (noSectionsActive && index === 0 && !section.href)
+            section.isActive ? true : false || (noSectionsActive && index === 0)
           "
           :errorCount="section.errorCount"
           @goToSection="emit('goToSection', $event)"
@@ -22,7 +19,6 @@
               :id="header.id"
               :idPrefix="idPrefix"
               :label="header.label"
-              :href="header.href"
               :isActive="header.isActive ? true : false"
               :errorCount="header.errorCount"
               @goToSection="emit('goToSection', $event)"
@@ -35,12 +31,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { LegendGroup } from "../../../../metadata-utils/src/types";
+import type { LegendSection } from "../../../../metadata-utils/src/types";
 import { computed, useId } from "vue";
 import FormLegendHeader from "./legend/Header.vue";
 
 const props = defineProps<{
-  sections: LegendGroup[];
+  sections: LegendSection[];
 }>();
 const emit = defineEmits(["goToSection"]);
 
@@ -51,7 +47,7 @@ const idPrefix = `form-legend-header-${useId()}`;
 const noSectionsActive = computed(() => {
   return !props.sections.some(
     (section) =>
-      section.isActive || section.headers?.some((header) => header.isActive)
+      section.isActive || section.headers.some((header) => header.isActive)
   );
 });
 </script>

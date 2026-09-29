@@ -3,37 +3,12 @@ import { describe, expect, test } from "vitest";
 import Legend from "../../../../app/components/form/Legend.vue";
 
 describe("Legend", () => {
-  test("links to the href an entry carries, and stays quiet on click", async () => {
+  test("asks the form to scroll when an entry is clicked", async () => {
     const wrapper = mount(Legend, {
       props: {
         sections: [
-          {
-            id: "about",
-            label: "About",
-            href: "#about",
-            isVisible: true,
-            headers: [
-              { id: "size", label: "Size", href: "#size", isVisible: true },
-            ],
-          },
+          { id: "about", label: "About", isVisible: true, headers: [] },
         ],
-      },
-    });
-
-    const links = wrapper.findAll("a");
-    expect(links.map((link) => link.attributes("href"))).toEqual([
-      "#about",
-      "#size",
-    ]);
-
-    await links[0]!.trigger("click");
-    expect(wrapper.emitted("goToSection")).toBeUndefined();
-  });
-
-  test("asks the form to scroll when an entry carries no href", async () => {
-    const wrapper = mount(Legend, {
-      props: {
-        sections: [{ id: "about", label: "About", isVisible: true }],
       },
     });
 
@@ -44,27 +19,12 @@ describe("Legend", () => {
     expect(wrapper.emitted("goToSection")).toEqual([["about"]]);
   });
 
-  test("marks no entry current when entries are links and none is active", () => {
-    const wrapper = mount(Legend, {
-      props: {
-        sections: [
-          { id: "about", label: "About", href: "#about" },
-          { id: "care", label: "Care", href: "#care" },
-        ],
-      },
-    });
-
-    expect(
-      wrapper.findAll("a").map((link) => link.attributes("aria-current"))
-    ).toEqual(["false", "false"]);
-  });
-
   test("still falls back to the first entry when a form legend has no active section", () => {
     const wrapper = mount(Legend, {
       props: {
         sections: [
-          { id: "about", label: "About" },
-          { id: "care", label: "Care" },
+          { id: "about", label: "About", headers: [] },
+          { id: "care", label: "Care", headers: [] },
         ],
       },
     });
@@ -78,8 +38,8 @@ describe("Legend", () => {
     const wrapper = mount(Legend, {
       props: {
         sections: [
-          { id: "about", label: "About", errorCount: 2 },
-          { id: "care", label: "Care", errorCount: 0 },
+          { id: "about", label: "About", errorCount: 2, headers: [] },
+          { id: "care", label: "Care", errorCount: 0, headers: [] },
         ],
       },
     });
@@ -98,8 +58,7 @@ describe("Legend", () => {
           {
             id: "about",
             label: "About",
-            href: "#about",
-            headers: [{ id: "size", label: "Size", href: "#size" }],
+            headers: [{ id: "size", label: "Size" }],
           },
         ],
       },
@@ -118,10 +77,7 @@ describe("Legend", () => {
           {
             id: "about",
             label: "About",
-            href: "#about",
-            headers: [
-              { id: "size", label: "Size", href: "#size", isVisible: false },
-            ],
+            headers: [{ id: "size", label: "Size", isVisible: false }],
           },
         ],
       },
@@ -138,7 +94,9 @@ describe("Legend", () => {
           <Legend :sections="sections" />
           <Legend :sections="sections" />
         </div>`,
-        data: () => ({ sections: [{ id: "about", label: "About" }] }),
+        data: () => ({
+          sections: [{ id: "about", label: "About", headers: [] }],
+        }),
       },
       { global: { components: { Legend } } }
     );
@@ -150,7 +108,7 @@ describe("Legend", () => {
   });
 
   test("renders a title above the entry list, and nothing at all without one", () => {
-    const sections = [{ id: "about", label: "About", href: "#about" }];
+    const sections = [{ id: "about", label: "About", headers: [] }];
 
     const titled = mount(Legend, {
       props: { sections },
@@ -174,11 +132,8 @@ describe("Legend", () => {
           {
             id: "about",
             label: "About",
-            href: "#about",
             isVisible: true,
-            headers: [
-              { id: "size", label: "Size", href: "#size", isVisible: true },
-            ],
+            headers: [{ id: "size", label: "Size", isVisible: true }],
           },
         ],
       },

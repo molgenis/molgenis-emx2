@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import type {
   IColumn,
   IRow,
-  LegendGroup,
+  LegendSection,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
 import type {
@@ -85,20 +85,23 @@ const activeSectionId = computed(() => {
 
 // A section the model never declared has no name of its own, so it gets no entry;
 // its headings still do, and they are what a reader navigates by.
-const legendGroups = computed<LegendGroup[]>(() =>
+const legendGroups = computed<LegendSection[]>(() =>
   sections.value.length === 1
     ? recordSections.value
         .filter((recordSection) => recordSection.label)
         .map((recordSection) => ({
           id: recordSection.id,
           label: recordSection.label as string,
+          type: "SECTION" as const,
+          headers: [],
           isVisible: true,
           isActive: recordSection.id === activeSectionId.value,
         }))
-    : sections.value.flatMap((section) => {
+    : sections.value.flatMap((section): LegendSection[] => {
         const headers = section.headings.map((heading) => ({
           id: heading.id,
           label: heading.label,
+          type: "HEADING" as const,
           isVisible: true,
           isActive: heading.id === activeSectionId.value,
         }));
@@ -108,12 +111,17 @@ const legendGroups = computed<LegendGroup[]>(() =>
               {
                 id: section.id,
                 label: section.label,
+                type: "SECTION" as const,
                 isVisible: true,
                 isActive: section.id === activeSectionId.value,
                 headers,
               },
             ]
-          : headers;
+          : headers.map((heading) => ({
+              ...heading,
+              type: "SECTION" as const,
+              headers: [],
+            }));
       })
 );
 
