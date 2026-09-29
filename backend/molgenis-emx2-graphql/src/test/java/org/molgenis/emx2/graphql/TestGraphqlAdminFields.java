@@ -138,6 +138,36 @@ class TestGraphqlAdminFields {
   }
 
   @Test
+  void shouldDropCustomRoleOfSchema() {
+    database.tx(
+        tdb -> {
+          tdb.becomeAdmin();
+          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+          schema.create(table("Patient").add(column("id").setPkey()).add(column("name")));
+          schema.createRole("PatientViewer");
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+
+          try {
+            String message =
+                execute(
+                        "mutation{drop(role:{schemaId:\""
+                            + SCHEMA_NAME
+                            + "\",role:\"PatientViewer\"}){message}}")
+                    .at("/drop/message")
+                    .asText();
+            assertEquals(
+                "Dropped role 'PatientViewer' from schema '" + SCHEMA_NAME + "'.", message);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+
+          assertTrue(
+              tdb.getSchema(SCHEMA_NAME).getRoleInfos().stream()
+                  .noneMatch(role -> role.name().equals("PatientViewer")));
+        });
+  }
+
+  @Test
   void testSetUserAdmin() throws JsonProcessingException {
     database.becomeAdmin();
     graphql = new GraphqlExecutor(database, new TaskServiceInMemory());
