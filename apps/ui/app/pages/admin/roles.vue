@@ -28,17 +28,19 @@ const settings = ref<ITableSettings>({
   search: "",
   orderedColumnsIds: [],
 });
+const ROW_KEY_FIELD = "keyString";
 
 const customRoles = ref<CustomRole[]>([]);
+const selectedRows = ref<string[]>([]);
+
 let latestRequest = 0;
 await loadCustomRoles();
 
 const rows = computed<IRow[]>(() => {
-  const offset = (settings.value.page - 1) * settings.value.pageSize;
-
   const transformedRoles = customRoles.value.map((customRole) => ({
     schemaId: customRole.schemaId,
     roleName: customRole.roleName,
+    keyString: `${customRole.schemaId}/${customRole.roleName}`,
     tables: getTableNames(customRole),
     users: getUserNames(customRole),
   }));
@@ -88,6 +90,55 @@ async function handleSettingsChange(updated: ITableSettings) {
   await loadCustomRoles();
 }
 
+function handleRowSelection(row: IRow) {
+  const rowKey = row[ROW_KEY_FIELD] as string;
+  const index = selectedRows.value.indexOf(rowKey);
+  if (index !== -1) {
+    selectedRows.value.splice(index, 1);
+  } else {
+    selectedRows.value.push(rowKey);
+  }
+}
+
+function handleRowAction(payload: { action: string }) {
+  const action = payload.action;
+  const singleRowSelected =
+    selectedRows.value.length === 1
+      ? rows.value.find((row) =>
+          selectedRows.value.includes(row[ROW_KEY_FIELD] as string)
+        )
+      : null;
+  switch (action) {
+    case "edit-selection":
+      if (singleRowSelected) {
+        // Handle edit action for the selected row
+        console.log("Edit action for:", singleRowSelected);
+      }
+      break;
+    case "delete-selection":
+      if (singleRowSelected) {
+        // Handle delete action for the selected row
+        console.log("Delete action for:", singleRowSelected);
+      } else {
+        console.log("Delete action for multiple rows:", selectedRows.value);
+      }
+      break;
+    case "select-all-on-page":
+      paginatedRows.value.forEach((row) => {
+        const rowKey = row[ROW_KEY_FIELD] as string;
+        if (!selectedRows.value.includes(rowKey)) {
+          selectedRows.value.push(rowKey);
+        }
+      });
+      break;
+    case "select-none":
+      selectedRows.value = [];
+      break;
+    default:
+      console.warn("Unknown action:", action);
+  }
+}
+
 function getTableNames(customRole: CustomRole) {
   return customRole.permissions
     .map((permission) => permission.table)
@@ -101,11 +152,15 @@ function getUserNames(customRole: CustomRole) {
 
 <template>
   <TableInteractive
+    searchPlaceholder="Search roles"
+    :rowIdKey="ROW_KEY_FIELD"
     :columns="COLUMNS"
     :rows="paginatedRows"
     :rowCount="rows.length"
     :settings="settings"
+    :selectedRows="selectedRows"
+    @toggleRowSelection="handleRowSelection"
+    @rowAction="handleRowAction"
     @update:settings="handleSettingsChange"
-    search-placeholder="Search roles"
   />
 </template>
