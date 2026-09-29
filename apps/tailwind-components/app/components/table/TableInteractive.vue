@@ -24,7 +24,7 @@ const props = withDefaults(
     rowCount: number;
     rowIdKey: string;
     settings: ITableSettings;
-    selectedRows?: Map<string, Record<string, columnValue>>;
+    selectedRows?: string[];
     searchPlaceholder?: string;
   }>(),
   {
@@ -32,7 +32,7 @@ const props = withDefaults(
   }
 );
 
-const numberOfSelectedRows = computed(() => props.selectedRows?.size || 0);
+const numberOfSelectedRows = computed(() => props.selectedRows?.length || 0);
 
 const emit = defineEmits<{
   (event: "update:settings", value: ITableSettings): void;
@@ -126,7 +126,7 @@ function getRowKey(row: IRow): string {
         >
           <div class="flex justify-center items-center h-full">
             <Checkbox
-              :modelValue="props.selectedRows?.has(getRowKey(row))"
+              :modelValue="props.selectedRows?.includes(getRowKey(row))"
               @update:modelValue="toggleRowSelection(row)"
             />
           </div>
