@@ -130,11 +130,8 @@ export interface LegendGroup extends LegendEntry {
 
 export interface LegendHeading extends LegendEntry {
   type: "HEADING";
-  errorCount: ComputedRef<number>;
-  isVisible: ComputedRef<boolean>;
-  isActive: ComputedRef<boolean> | boolean;
 }
-export interface LegendSection extends Omit<LegendHeading, "type"> {
+export interface LegendSection extends LegendEntry {
   type: "SECTION";
   headers: LegendHeading[];
 }
