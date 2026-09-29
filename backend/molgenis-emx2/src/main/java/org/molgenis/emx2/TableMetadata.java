@@ -534,11 +534,6 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getKey(1);
   }
 
-  /**
-   * Default label template for a row of this table: the primary key columns, in key order, each as
-   * {@code ${path}}, mirroring {@link Column#getRefLabelDefault()} but with no back-reference to
-   * exclude because there is no referencing column here.
-   */
   public String getLabelTemplate() {
     return getPrimaryKeyColumns().stream()
         .flatMap(this::labelTemplateParts)
