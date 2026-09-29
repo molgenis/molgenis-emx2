@@ -128,18 +128,15 @@ export interface LegendGroup extends LegendEntry {
   headers?: LegendEntry[];
 }
 
-export interface LegendSection extends LegendEntry {
-  type: "SECTION";
-  errorCount: ComputedRef<number>;
-  isVisible: ComputedRef<boolean>;
-  isActive: ComputedRef<boolean> | boolean;
-  headers: LegendHeading[];
-}
 export interface LegendHeading extends LegendEntry {
   type: "HEADING";
   errorCount: ComputedRef<number>;
   isVisible: ComputedRef<boolean>;
   isActive: ComputedRef<boolean> | boolean;
+}
+export interface LegendSection extends Omit<LegendHeading, "type"> {
+  type: "SECTION";
+  headers: LegendHeading[];
 }
 
 export type columnId = string;
