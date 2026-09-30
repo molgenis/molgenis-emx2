@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import EditableFileDownloadItem from "./FileDownloadItem/EditableFileDownloadItem.vue";
-import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
-import NavigationCardWithActions from "./Navigation/NavigationCardWithActions.vue";
 import { hideAllPoppers } from "floating-vue";
 
 import Paragraph from "./paragraph/Paragraph.vue";
@@ -13,6 +10,8 @@ import EditableParagraph from "./paragraph/EditableParagraph.vue";
 import EditableImage from "./image/EditableImage.vue";
 import EditableOrderedList from "./lists/EditableOrderedList.vue";
 import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
+import EditableFileDownloadItem from "./FileDownloadItem/EditableFileDownloadItem.vue";
+import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
 
 import EditModal from "../form/EditModal.vue";
@@ -256,7 +255,7 @@ function asSingularName(value: string | undefined): string | undefined {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
-  <NavigationCardWithActions
+  <EditableNavigationCard
     v-else-if="mg_tableclass.endsWith('.Navigation cards')"
     v-bind="component"
     :isEditable="editingIsEnabled"
