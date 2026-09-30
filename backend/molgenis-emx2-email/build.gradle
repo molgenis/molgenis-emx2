@@ -1,6 +1,6 @@
 dependencies {
     implementation project(':backend:molgenis-emx2')
-    implementation libs.mail
+    implementation libs.javax.mail
     testImplementation libs.junit.jupiter.api
     testRuntimeOnly libs.junit.jupiter.engine
 }

@@ -1,5 +1,5 @@
 dependencies {
     implementation libs.caffeine
-    implementation libs.bundles.js
+    implementation libs.bundles.graalvm.js
     testImplementation libs.javalin.testtools
 }
