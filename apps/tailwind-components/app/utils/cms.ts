@@ -132,7 +132,7 @@ export async function getFiles(
   }
 
   const url: string = `/${schema}/graphql`;
-  const response:any = await $fetch(url, {
+  const response: any = await $fetch(url, {
     method: "POST",
     body: { query: query, variables: variables },
   });
