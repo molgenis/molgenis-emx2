@@ -75,7 +75,8 @@ export function generateAxisTickData(
   const limit = max < 10 ? 10 : max;
   const interval = calculateInterval(limit);
   const limitAdjusted = Math.ceil(limit / interval) * interval;
-  const ticks = seqAlongBy(0, limitAdjusted, interval);
+  const startingVal = min < 0 ? min : 0;
+  const ticks = seqAlongBy(startingVal, limitAdjusted, interval);
   return { limit: limitAdjusted, ticks: ticks, max: max, min: min };
 }
 

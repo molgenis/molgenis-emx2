@@ -91,7 +91,15 @@ const yAxisData = computed<NumericAxisTickData>(() => {
     ticks.ticks = props.yAxisTicks;
   }
 
+  if (props.yAxisMinValue) {
+    ticks.min = props.yAxisMinValue;
+  }
+
   return ticks;
+});
+
+const hasNegativeValues = computed<boolean>(() => {
+  return yAxisData.value?.min < 0 || false;
 });
 
 const xAxisData = computed<CategoricalAxisTickData>(() => {
@@ -112,8 +120,10 @@ const xScale = computed(() => {
 });
 
 const yScale = computed(() => {
+  const domainMin = yAxisData.value.min < 0 ? yAxisData.value.min : 0;
   return newNumericAxisGenerator({
     domainLimit: yAxisData.value.limit,
+    domainMin: domainMin,
     rangeStart: height.value,
   });
 });
@@ -168,7 +178,7 @@ function renderColumns() {
       .attr("y", yScale.value(0))
       .attr("height", 0)
       .transition()
-      .delay(300)
+      .delay(100)
       .duration(500);
   }
 
@@ -176,7 +186,6 @@ function renderColumns() {
     .attr("y", (row: IChartData) => {
       const yValue = parseFloat(row.yValue);
       const yScaleValue = Math.max(0, yValue);
-      console.log(yScale.value(yScaleValue));
       return yScale.value(yScaleValue);
     })
     .attr("height", (row: IChartData) => {
@@ -233,7 +242,7 @@ watch(
 <template>
   <div ref="container" class="grid gap-2.5 w-full chart_layout_default">
     <ChartTitle
-      :title="chartTitle as string"
+      :title="(chartTitle as string)"
       :description="chartDescription"
       style="grid-area: context"
     />
@@ -273,7 +282,7 @@ watch(
                 :x="xScale(row.xValue)"
                 :y="yScale(parseInt(row.yValue))"
                 :dx="xScale.bandwidth() / 2"
-                dy="-0.35em"
+                :dy="parseInt(row.yValue) < 0 ? '1.15em' : '-0.35em'"
               >
                 {{ row.yLabel || row.yValue }}
               </text>
@@ -282,7 +291,23 @@ watch(
           <g
             class="axes [&_text]:fill-chart-text [&_text]:text-body-sm [&_line]:stroke-chart-paths [&_path]:stroke-chart-paths"
           >
-            <g class="x-axis" :transform="`translate(0,${height})`"></g>
+            <g class="x-axis-zero" v-if="hasNegativeValues">
+              <line
+                class="domain"
+                stroke="black"
+                :x1="0"
+                :x2="width"
+                :y1="yScale(0)"
+                :y2="yScale(0)"
+              ></line>
+            </g>
+            <g
+              class="x-axis"
+              :transform="`translate(0,${height})`"
+              :class="{
+                '[&_path]:hidden [&_line]:hidden': hasNegativeValues,
+              }"
+            ></g>
             <g class="y-axis"></g>
           </g>
         </g>
