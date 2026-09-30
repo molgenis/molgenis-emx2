@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ScriptTask extends Task {
-  private static Logger logger = LoggerFactory.getLogger(ScriptTask.class);
-  private String name;
+  private static final Logger logger = LoggerFactory.getLogger(ScriptTask.class);
+  private final String name;
   private ScriptType type;
   private String script;
   private String outputFileExtension;
@@ -127,18 +127,17 @@ public class ScriptTask extends Task {
           this.addSubTask("Script complete with error").setError(error);
         }
         process.waitFor();
+        // get any output file if exists
+        if (Files.exists(tempOutputFile) && Files.size(tempOutputFile) > 0) {
+          this.handleOutput(tempOutputFile.toFile());
+          this.output = Files.readAllBytes(tempOutputFile);
+        }
+        if (!TaskStatus.CANCELLED.equals(getStatus())) {
+          this.complete();
+        }
         // Check for errors
         if (process.exitValue() > 0) {
           this.setError("Script failed. Exit value: " + process.exitValue());
-        } else {
-          // get any output file if exists
-          if (Files.exists(tempOutputFile) && Files.size(tempOutputFile) > 0) {
-            this.handleOutput(tempOutputFile.toFile());
-            this.output = Files.readAllBytes(tempOutputFile);
-          }
-          if (!TaskStatus.CANCELLED.equals(getStatus())) {
-            this.complete();
-          }
         }
       } finally {
         if (tempDir != null) {

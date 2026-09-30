@@ -48,11 +48,29 @@ export interface IBlocks extends IMgTableClass {
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
+  pageHeaderHeight?: IOntologyNode;
   columns?: number;
   applyShadedBackground?: boolean;
 }
 
 export interface IBlocks_agg {
+  count: number;
+}
+
+export interface ICmsPageHeaderHeights extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICmsPageHeaderHeights;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICmsPageHeaderHeights[];
+}
+
+export interface ICmsPageHeaderHeights_agg {
   count: number;
 }
 
@@ -77,7 +95,7 @@ export interface IComponents extends IMgTableClass {
   width?: string;
   height?: string;
   imageIsCentered?: boolean;
-  items?: string[];
+  orderedItems?: string[];
   text?: string;
   level?: number;
   headingIsCentered?: boolean;
@@ -93,6 +111,7 @@ export interface IComponents extends IMgTableClass {
   externalLink?: string;
   label?: string;
   tag?: string;
+  unorderedItems?: string[];
 }
 
 export interface IComponents_agg {
@@ -207,6 +226,7 @@ export interface IHeaders extends IMgTableClass {
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
+  pageHeaderHeight?: IOntologyNode;
   enableFullScreenWidth?: boolean;
   inContainer?: any;
   components?: IComponents[];
@@ -261,7 +281,7 @@ export interface INavigationCards_agg {
 }
 
 export interface IOrderedLists extends IMgTableClass {
-  items?: string[];
+  orderedItems?: string[];
   inBlock?: any;
   id: string;
 }
@@ -310,7 +330,7 @@ export interface ITextElements_agg {
 }
 
 export interface IUnorderedLists extends IMgTableClass {
-  items?: string[];
+  unorderedItems?: string[];
   inBlock?: any;
   id: string;
 }

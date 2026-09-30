@@ -1,9 +1,9 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
-import PageBanner from "../../../../app/components/cms/Banner.vue";
+import EditableHeader from "../../../../app/components/cms/header/EditableHeader.vue";
 
-const defaultBanner = mount(PageBanner, {
+const defaultBanner = mount(EditableHeader, {
   props: {
     id: "vitest-page-banner",
     title: "My Page Banner",
@@ -13,7 +13,7 @@ const defaultBanner = mount(PageBanner, {
 
 const demoImage = "/path/to/some/image.jpg";
 
-const bannerWithImage = mount(PageBanner, {
+const bannerWithImage = mount(EditableHeader, {
   props: {
     id: "vitest-page-banner",
     title: "My Page Banner",
@@ -23,8 +23,8 @@ const bannerWithImage = mount(PageBanner, {
   },
 });
 
-describe("Custom Pages: banner", () => {
-  test("by default, banners have a title and a subtitle", async () => {
+describe("Cms:Header:", () => {
+  test("by default, headers have a title and a subtitle", async () => {
     expect(defaultBanner.find("h1").exists()).toBeTruthy();
     expect(defaultBanner.find("p").exists()).toBeTruthy();
   });

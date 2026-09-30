@@ -1,0 +1,5 @@
+id,chart type,chart title,chart description
+demo-bar-chart,Bar chart,Types of landmarks in the Netherlands,
+demo-column-chart,Column chart,Landmarks built in the Netherlands by century,
+demo-grouped-bar-chart,Grouped bar chart,Types of landmarks in the Netherlands by century built,
+demo-map-dot-distribution,Dot distribution map,Landmarks in the Netherlands,""
