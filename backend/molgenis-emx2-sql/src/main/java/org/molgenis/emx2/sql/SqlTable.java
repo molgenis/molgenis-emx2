@@ -303,7 +303,7 @@ public class SqlTable implements Table {
 
   private static boolean containsBinaryField(List<Column> updateColumns) {
     return updateColumns.stream()
-        .filter(c -> !c.isRefback()) // workaround for exeption thrown on refback.getJooqField
+        .filter(c -> !c.isRefback()) // workaround for exception thrown on refback.getJooqField
         .anyMatch(c -> c.getJooqField().getDataType().isBinary());
   }
 
@@ -387,7 +387,17 @@ public class SqlTable implements Table {
 
   private static void validateIsRowKeyProvided(
       List<Column> primaryKeyColumns, Set<String> columnsProvided) {
-    if (!columnsProvided.containsAll(primaryKeyColumns.stream().map(Column::getName).toList())) {
+    List<String> keyColumnNames = new ArrayList<>();
+    for (Column key : primaryKeyColumns) {
+      if (key.isReference()) {
+        for (Reference ref : key.getReferences()) {
+          keyColumnNames.add(ref.getColumnName());
+        }
+      } else {
+        keyColumnNames.add(key.getName());
+      }
+    }
+    if (!columnsProvided.containsAll(keyColumnNames)) {
       throw new MolgenisException(
           "Update failed: not all primary key columns are provided in the request");
     }

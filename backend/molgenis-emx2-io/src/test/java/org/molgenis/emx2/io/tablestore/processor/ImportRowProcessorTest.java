@@ -151,13 +151,14 @@ class ImportRowProcessorTest {
         TableMetadata.table(
             "PersonWithAge",
             column("name").setType(ColumnType.STRING).setPkey(),
-            column("age").setType(ColumnType.INT));
+            column("age").setType(ColumnType.INT),
+            column("city").setType(ColumnType.STRING));
     schema.create(metadata);
     table = schema.getTable("PersonWithAge");
     int rowCount = 250;
     Row[] rows =
         IntStream.range(0, rowCount)
-            .mapToObj(i -> row("name", "Person" + i, "age", i))
+            .mapToObj(i -> row("name", "Person" + i, "age", i, "city", "City" + i))
             .toArray(Row[]::new);
 
     Task task = new Task().start();
@@ -171,7 +172,7 @@ class ImportRowProcessorTest {
     assertEquals(rowCount, actual.size());
     assertTrue(actual.containsAll(List.of("Person0", "Person99", "Person100", "Person249")));
 
-    // now update some rows
+    // now update all rows, leaving out the city column
     Row[] updates =
         IntStream.range(0, rowCount)
             .mapToObj(i -> row("name", "Person" + i, "age", i * 2))
@@ -183,18 +184,18 @@ class ImportRowProcessorTest {
     updatesProcessor.process(List.of(updates).iterator(), new TableStoreForCsvInMemory());
     List<Row> afterUpdates = table.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
     assertEquals(rowCount, afterUpdates.size());
+    assertEquals(rowCount, updatesTask.getProgress());
 
-    // assert ages are now updated
-    assertEquals(Integer.valueOf(2), ageOf(afterUpdates, "Person1"));
-    assertEquals(Integer.valueOf(198), ageOf(afterUpdates, "Person99"));
+    // assert ages are updated and cities are kept, for a row in each batch
+    for (int i : List.of(1, 150, 249)) {
+      Row updated = rowOf(afterUpdates, "Person" + i);
+      assertEquals(Integer.valueOf(i * 2), updated.getInteger("age"));
+      assertEquals("City" + i, updated.getString("city"));
+    }
   }
 
-  private Integer ageOf(List<Row> rows, String name) {
-    return rows.stream()
-        .filter(r -> name.equals(r.getString("name")))
-        .findFirst()
-        .orElseThrow()
-        .getInteger("age");
+  private Row rowOf(List<Row> rows, String name) {
+    return rows.stream().filter(r -> name.equals(r.getString("name"))).findFirst().orElseThrow();
   }
 
   private List<Map<String, Object>> importRows(Row... rows) {

@@ -10,7 +10,7 @@ import static org.molgenis.emx2.TestResourceLoader.getFile;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
-class UpdateVersusSaveTableDataTest {
+class UpdateTableDataTest {
 
   private static final int MOLGENIS_PNG_SIZE = 37458;
 
@@ -135,6 +135,26 @@ class UpdateVersusSaveTableDataTest {
     assertEquals("known@example.com", employee.retrieveRows().getFirst().getString("email"));
   }
 
+  @Test
+  void testUpdateTableDataWithRefToCompositeKeyAsPkey() {
+    Table employeeTable = createTableWithRefToCompositeKeyAsPkey();
+
+    // verify initial data
+    assertEquals(1, employeeTable.retrieveRows().size());
+
+    // update data, no department value is passed, so it should remain the same
+    employeeTable.update(
+        Row.row("person.firstName", "Donald", "person.lastName", "Duck", "salary", 200));
+
+    // verify updated data
+    assertEquals(1, employeeTable.retrieveRows().size());
+    Row updated = employeeTable.retrieveRows().getFirst();
+    assertEquals("Donald", updated.getString("person.firstName"));
+    assertEquals("Duck", updated.getString("person.lastName"));
+    assertEquals("Sales", updated.getString("department"));
+    assertEquals(200, updated.getInteger("salary"));
+  }
+
   private Table createPersonsTable() {
     Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
@@ -181,5 +201,35 @@ class UpdateVersusSaveTableDataTest {
     personTable.insert(Row.row("id", "p1", "age", 30, "name", "Joop", "favoriteColor", "red"));
 
     return personTable;
+  }
+
+  private Table createTableWithRefToCompositeKeyAsPkey() {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
+    Table personTable =
+        schema.create(
+            table("Person").add(column("firstName").setPkey()).add(column("lastName").setPkey()));
+    personTable.insert(
+        Row.row("firstName", "Donald", "lastName", "Duck"),
+        Row.row("firstName", "Mickey", "lastName", "Mouse"));
+    Table employeeTable =
+        schema.create(
+            table("Employee")
+                .add(column("person").setType(ColumnType.REF).setRefTable("Person").setPkey())
+                .add(column("department"))
+                .add(column("salary").setType(ColumnType.INT)));
+
+    employeeTable.insert(
+        Row.row(
+            "person.firstName",
+            "Donald",
+            "person.lastName",
+            "Duck",
+            "department",
+            "Sales",
+            "salary",
+            100));
+
+    return employeeTable;
   }
 }
