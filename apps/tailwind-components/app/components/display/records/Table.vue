@@ -44,9 +44,13 @@ const otherColumns = computed(() =>
             stacked
             :label="titleColumn.label || titleColumn.id"
           >
-            <a v-if="linkTo" :href="linkTo(row)" class="text-link underline">
+            <NuxtLink
+              v-if="linkTo"
+              :to="linkTo(row)"
+              class="text-link underline"
+            >
               <ValueEMX2 :metadata="titleColumn" :data="row[titleColumn.id]" />
-            </a>
+            </NuxtLink>
             <ValueEMX2
               v-else
               :metadata="titleColumn"

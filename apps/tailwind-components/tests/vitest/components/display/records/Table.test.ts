@@ -51,7 +51,7 @@ describe("records/Table.vue", () => {
     expect(ageCells[0].props("data")).toBe(3);
   });
 
-  it("wraps the title in a real <a href> when linkTo is passed", () => {
+  it("wraps the title in a NuxtLink when linkTo is passed", () => {
     const wrapper = mount(Table, {
       props: {
         rows,
@@ -59,10 +59,19 @@ describe("records/Table.vue", () => {
         columns: [ageColumn],
         linkTo: (row: IRow) => `/records/${row.name}`,
       },
+      global: {
+        stubs: {
+          NuxtLink: {
+            props: ["to"],
+            template: '<a data-nuxt-link :href="to"><slot /></a>',
+          },
+        },
+      },
     });
 
     const firstAnchor = wrapper.find("tbody tr td a");
     expect(firstAnchor.attributes("href")).toBe("/records/Tweety");
+    expect(firstAnchor.attributes()).toHaveProperty("data-nuxt-link");
     expect(firstAnchor.text()).toBe("Tweety");
     expect(firstAnchor.classes()).toContain("underline");
   });
