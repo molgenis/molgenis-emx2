@@ -723,7 +723,7 @@ public class GraphqlTableFieldFactory {
                       table
                           .getSchema()
                           .getSchemaMetadataProvider()
-                          .getSchemaMetadata(c.getRefSchemaName())
+                          .getSchemaMetadata(c.getRefTable().getSchemaName())
                           .getTableMetadata(c.getRefTableName()),
                       remainingOperators)));
         } else {
