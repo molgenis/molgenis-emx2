@@ -87,12 +87,8 @@ class TestInherits {
                 .add(column("directs").setType(REF_ARRAY).setRefTable("Employee")));
 
     Schema otherSchema = db.createSchema(TestInherits.class.getSimpleName() + "1");
-    Table ceo =
-        otherSchema.create(
-            table("CEO")
-                .setInheritName("Manager")
-                .setImportSchema(s.getName())
-                .add(column("title")));
+    otherSchema.create(
+        table("CEO").setInheritName("Manager").setImportSchema(s.getName()).add(column("title")));
 
     // try to add column that already exists in parent
     try {
@@ -515,7 +511,7 @@ class TestInherits {
         exception.getMessage());
     assertEquals(
         parentA,
-        db.getSchema(childSchemaName).getMetadata().getTableMetadata("MyShape").getImportSchema());
+        db.getSchemaMetadata(childSchemaName).getTableMetadata("MyShape").getImportSchema());
     db.getSchema(childSchemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(childSchemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(childSchemaName));
@@ -545,7 +541,7 @@ class TestInherits {
                     + schemaName
                     + ".MyShape': inheritance cannot be changed after the table is created."),
         exception.getMessage());
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertEquals("Shape", after.getInheritName());
     assertTrue(after.getColumnNames().contains("name"), after.getColumnNames().toString());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
@@ -576,7 +572,7 @@ class TestInherits {
                     + ".MyShape': inheritance cannot be changed after the table is created."),
         exception.getMessage());
 
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertNull(after.getInheritName());
     assertFalse(after.getColumnNames().contains("name"), after.getColumnNames().toString());
     db.getSchema(schemaName).getTable("MyShape").insert(row("myid", "m1", "size", 3));
@@ -607,7 +603,7 @@ class TestInherits {
         exception.getMessage());
     assertFalse(exception.getMessage().contains("already exists"), exception.getMessage());
 
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertNull(after.getInheritName());
     assertTrue(after.getColumnNames().contains("name"), after.getColumnNames().toString());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
@@ -644,7 +640,7 @@ class TestInherits {
                     + ".MyShape': inheritance cannot be changed after the table is created."),
         exception.getMessage());
 
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertNull(after.getImportSchema());
     assertEquals("Shape", after.getInheritName());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
@@ -675,7 +671,7 @@ class TestInherits {
                     + ".MyShape': inheritance cannot be changed after the table is created."),
         exception.getMessage());
 
-    TableMetadata after = db.getSchema(schemaName).getMetadata().getTableMetadata("MyShape");
+    TableMetadata after = db.getSchemaMetadata(schemaName).getTableMetadata("MyShape");
     assertEquals("Shape", after.getInheritName());
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
@@ -694,8 +690,7 @@ class TestInherits {
             .setImportSchema(parentSchemaName)
             .setInheritName("Shape"));
 
-    TableMetadata parentTable =
-        db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape");
+    TableMetadata parentTable = db.getSchemaMetadata(parentSchemaName).getTableMetadata("Shape");
 
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> parentTable.alterName("Renamed"));
@@ -712,7 +707,7 @@ class TestInherits {
                     + RENAME_NOT_SUPPORTED_YET),
         exception.getMessage());
 
-    assertNotNull(db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape"));
+    assertNotNull(db.getSchemaMetadata(parentSchemaName).getTableMetadata("Shape"));
     db.getSchema(childSchemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(childSchemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(childSchemaName));
@@ -743,7 +738,7 @@ class TestInherits {
                     + RENAME_NOT_SUPPORTED_YET),
         exception.getMessage());
 
-    assertNotNull(db.getSchema(schemaName).getMetadata().getTableMetadata("Shape"));
+    assertNotNull(db.getSchemaMetadata(schemaName).getTableMetadata("Shape"));
     db.getSchema(schemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(schemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(schemaName));
@@ -760,7 +755,7 @@ class TestInherits {
         () -> schema.getMetadata().getTableMetadata("MyShape").alterName("MyRenamedShape"));
 
     assertNotNull(
-        db.getSchema(schemaName).getMetadata().getTableMetadata("MyRenamedShape"),
+        db.getSchemaMetadata(schemaName).getTableMetadata("MyRenamedShape"),
         "renaming a child is not blocked by the parent-rename guard");
     assertDoesNotThrow(() -> db.dropSchema(schemaName));
   }
@@ -796,10 +791,62 @@ class TestInherits {
                     + RENAME_NOT_SUPPORTED_YET),
         exception.getMessage());
 
-    assertNotNull(db.getSchema(parentSchemaName).getMetadata().getTableMetadata("Shape"));
+    assertNotNull(db.getSchemaMetadata(parentSchemaName).getTableMetadata("Shape"));
     db.getSchema(childSchemaName).getTable("MyShape").insert(row("name", "s1", "size", 3));
     assertEquals(1, db.getSchema(childSchemaName).getTable("MyShape").retrieveRows().size());
     assertDoesNotThrow(() -> db.dropSchema(childSchemaName));
     assertDoesNotThrow(() -> db.dropSchema(parentSchemaName));
+  }
+
+  @Test
+  void addingPrimaryKeyColumnToSubclassIsRejected() {
+    String schemaName = TestInherits.class.getSimpleName() + "_subclass_pkey";
+    Schema schema = db.dropCreateSchema(schemaName);
+    schema.create(
+        table(
+            "Patient",
+            column("name").setPkey(),
+            column("hospital").setPkey(),
+            column("birthDate").setType(DATE)));
+
+    MolgenisException createException =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                schema.create(
+                    table("Treatment", column("treatment").setPkey()).setInheritName("Patient")));
+    assertTrue(
+        createException
+            .getMessage()
+            .contains("Cannot make column 'Treatment.treatment' part of the primary key"),
+        createException.getMessage());
+    assertTrue(
+        createException.getMessage().contains("shares the primary key of its root table 'Patient'"),
+        createException.getMessage());
+
+    schema.create(table("Treatment", column("treatment")).setInheritName("Patient"));
+    TableMetadata treatment = schema.getMetadata().getTableMetadata("Treatment");
+
+    MolgenisException addException =
+        assertThrows(MolgenisException.class, () -> treatment.add(column("visit").setPkey()));
+    assertTrue(
+        addException.getMessage().contains("Cannot make column 'Treatment.visit'"),
+        addException.getMessage());
+
+    MolgenisException alterException =
+        assertThrows(
+            MolgenisException.class,
+            () -> treatment.alterColumn("treatment", column("treatment").setPkey()));
+    assertTrue(
+        alterException.getMessage().contains("Cannot make column 'Treatment.treatment'"),
+        alterException.getMessage());
+
+    assertDoesNotThrow(() -> treatment.add(column("caseNumber").setKey(2)));
+
+    db.getSchema(schemaName)
+        .getTable("Treatment")
+        .insert(row("name", "Spike", "hospital", "Piet", "treatment", "Vaccination"));
+
+    assertDoesNotThrow(() -> db.dropSchema(schemaName));
   }
 }

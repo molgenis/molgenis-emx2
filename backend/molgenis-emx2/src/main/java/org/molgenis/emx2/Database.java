@@ -33,6 +33,15 @@ public interface Database extends HasSettingsInterface<Database> {
 
   Schema getSchema(String name);
 
+  default SchemaMetadata getSchemaMetadata(String schemaName) {
+    Schema schema = getSchema(schemaName);
+    if (schema == null) {
+      throw new MolgenisException("Could not find schema metadata with name " + schemaName);
+    }
+
+    return schema.getMetadata();
+  }
+
   List<Table> getTablesFromAllSchemas(String tableId);
 
   User addUser(String name);
