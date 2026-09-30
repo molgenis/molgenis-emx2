@@ -119,16 +119,22 @@ const resolvedDisplay = computed(() =>
   resolveDisplay(fetchedColumns.value, props.displayConfig)
 );
 
-const accumulatedRows = ref<IRow[]>(data.value?.rows ?? []);
-const accumulatedCount = ref(data.value?.count ?? 0);
+const appendedRows = ref<IRow[]>([]);
+const appendedCount = ref<number>();
 
-watch(data, (value) => {
-  accumulatedRows.value = value?.rows ?? [];
-  accumulatedCount.value = value?.count ?? 0;
+watch(data, () => {
+  appendedRows.value = [];
+  appendedCount.value = undefined;
 });
 
-const fetchedRows = computed(() => accumulatedRows.value);
-const fetchedCount = computed(() => accumulatedCount.value);
+// Derived from data, not copied: the server renders after the fetch but runs no watchers.
+const fetchedRows = computed(() => [
+  ...(data.value?.rows ?? []),
+  ...appendedRows.value,
+]);
+const fetchedCount = computed(
+  () => appendedCount.value ?? data.value?.count ?? 0
+);
 
 const remaining = computed(() =>
   Math.max(fetchedCount.value - fetchedRows.value.length, 0)
@@ -151,8 +157,8 @@ async function loadMore() {
   if (requestId !== latestRequestId) {
     return;
   }
-  accumulatedRows.value = [...accumulatedRows.value, ...response.rows];
-  accumulatedCount.value = response.count;
+  appendedRows.value = [...appendedRows.value, ...response.rows];
+  appendedCount.value = response.count;
 }
 
 const totalPages = computed(() =>
