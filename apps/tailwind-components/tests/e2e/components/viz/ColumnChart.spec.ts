@@ -84,7 +84,7 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
 
   test("clicking on a columns emits data point", async ({ page }) => {
     await page.locator("#column-chart-demo-1 g.columns rect").first().click();
-    const selection = await page.locator("output:first-child");
+    const selection = await page.locator("output").first();
     expect(await selection.innerText()).toBe(
       'Clicked element: { "id": "value-jan", "xValue": "Jan", "yValue": "18" }'
     );
