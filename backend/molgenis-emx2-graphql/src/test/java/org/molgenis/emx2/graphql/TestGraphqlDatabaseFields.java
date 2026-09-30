@@ -154,6 +154,53 @@ public class TestGraphqlDatabaseFields {
     // todo: default user should be anonymous?
     assertTrue(database.isAdmin());
 
+    GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
+
+    if (database.hasUser("pietje")) database.removeUser("pietje");
+    execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
+    assertTrue(database.hasUser("pietje"));
+    assertTrue(database.checkUserPassword("pietje", "blaat123"));
+
+    assertTrue(
+        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}", sessionManager)
+            .at("/data/signin/message")
+            .textValue()
+            .contains("Signed in"));
+    assertEquals("pietje", sessionManager.getCurrentUser());
+
+    database.setActiveUser("pietje");
+    assertTrue(
+        execute("mutation{changePassword(password:\"blaat124\"){message}}")
+            .at("/data/changePassword/message")
+            .textValue()
+            .contains("Password changed"));
+    assertTrue(database.checkUserPassword("pietje", "blaat124"));
+
+    execute("mutation{signout{message}}", sessionManager);
+    assertNull(sessionManager.getCurrentUser());
+
+    // back to superuser
+    database.becomeAdmin();
+  }
+
+  @Test
+  public void testLoginWithWrongPassword() throws IOException {
+    GraphqlSessionHandlerInterface sessionManager = signinAsAdmin();
+
+    // a separate user, as a failed sign in blocks the user from signing in for a while
+    if (database.hasUser("jantje")) database.removeUser("jantje");
+    execute("mutation{signup(email:\"jantje\",password:\"blaat123\"){message}}");
+
+    assertTrue(
+        execute("mutation{signin(email:\"jantje\",password:\"blaat12\"){message}}", sessionManager)
+            .at("/data/signin/message")
+            .textValue()
+            .contains("failed"));
+    // still admin
+    assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
+  }
+
+  private GraphqlSessionHandlerInterface signinAsAdmin() throws IOException {
     // read admin password from environment if necessary
     String adminPass =
         (String)
@@ -186,40 +233,7 @@ public class TestGraphqlDatabaseFields {
             + "\") {message}}",
         sessionManager);
     assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
-
-    if (database.hasUser("pietje")) database.removeUser("pietje");
-    execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
-    assertTrue(database.hasUser("pietje"));
-    assertTrue(database.checkUserPassword("pietje", "blaat123"));
-
-    assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}", sessionManager)
-            .at("/data/signin/message")
-            .textValue()
-            .contains("failed"));
-    // still admin
-    assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
-
-    assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}", sessionManager)
-            .at("/data/signin/message")
-            .textValue()
-            .contains("Signed in"));
-    assertEquals("pietje", sessionManager.getCurrentUser());
-
-    database.setActiveUser("pietje");
-    assertTrue(
-        execute("mutation{changePassword(password:\"blaat124\"){message}}")
-            .at("/data/changePassword/message")
-            .textValue()
-            .contains("Password changed"));
-    assertTrue(database.checkUserPassword("pietje", "blaat124"));
-
-    execute("mutation{signout{message}}", sessionManager);
-    assertNull(sessionManager.getCurrentUser());
-
-    // back to superuser
-    database.becomeAdmin();
+    return sessionManager;
   }
 
   @Test

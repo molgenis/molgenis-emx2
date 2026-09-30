@@ -14,14 +14,20 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.signin.RateLimit;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
+
+  private final RateLimit rateLimit = RateLimit.getInstance();
 
   static final GraphQLObjectType outputTablePermissionsType =
       GraphQLObjectType.newObject()
@@ -121,7 +127,22 @@ public class GraphqlSessionFieldFactory {
             dataFetchingEnvironment -> {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
+              if (userName == null) {
+                return new GraphqlApiMutationResult(
+                    FAILED, "Sign in as '%s' failed: user or password not provided", userName);
+              }
+
+              Optional<Instant> blockedUntil = rateLimit.getRateLimit(userName);
+              if (blockedUntil.isPresent()) {
+                return new GraphqlApiMutationResult(
+                    FAILED,
+                    "Sign in as '%s' failed: too many attempts, try again after %s",
+                    userName,
+                    blockedUntil.get().truncatedTo(ChronoUnit.SECONDS));
+              }
+
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
+                rateLimit.onSuccess(userName);
                 if (database.getUser(userName).getEnabled()) {
                   GraphqlSessionHandlerInterface sessionHandler =
                       dataFetchingEnvironment
@@ -142,6 +163,7 @@ public class GraphqlSessionFieldFactory {
                       FAILED, "User '%s' disabled: check with your administrator", userName);
                 }
               } else {
+                rateLimit.onFailure(userName);
                 return new GraphqlApiMutationResult(
                     FAILED, "Sign in as '%s' failed: user or password unknown", userName);
               }
