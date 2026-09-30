@@ -72,7 +72,7 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
     await page.locator("g.columns rect").first().click();
     const selection = await page.locator("output");
     expect(await selection.innerText()).toBe(
-      'Clicked element: { "id": "value-0", "xValue": "Group A", "yValue": "42" }'
+      'Clicked element: { "id": "value-jan", "xValue": "Jan", "yValue": "18" }'
     );
   });
 });
