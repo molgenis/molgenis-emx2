@@ -475,7 +475,6 @@ export async function addBlock(
   order: number,
   componentType: string
 ) {
-  console.log(componentType, "componentType");
   await prepareBlockOrder(schema, order, page);
   if (componentType === "Header") {
     await AddHeader(schema, id);
@@ -599,7 +598,6 @@ export async function UploadFile(
 }
 
 async function AddFileList(schema: string, id: string) {
-  console.log("Adding file list with id:", id);
   const query = `mutation insert($fileList:[FileListsInput]) {
     insert(FileLists:$fileList) {
       message

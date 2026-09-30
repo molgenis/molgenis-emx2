@@ -1,6 +1,6 @@
 const { appsHost } = require("./dev-env");
 
-const HOST = appsHost("http://localhost:8080");
+const HOST = appsHost("https://emx2.dev.molgenis.org");
 const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "pet store";
 
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
