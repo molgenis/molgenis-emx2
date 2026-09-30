@@ -37,6 +37,7 @@ public class RDFApi {
   private static final String TMP_FILENAME = "download.tmp";
   private static final String QUERY_STRING_SHACLS = "shacls";
   private static final String QUERY_STRING_VALIDATE = "validate";
+  private static final String PATH_STRING_SCHEMA = "{schema}";
 
   private static final Map<MediaType, RDFFormat> mediaTypeRdfFormatMap = new HashMap<>();
   private static final List<MediaType> acceptedMediaTypes = new ArrayList<>(); // order of priority
@@ -80,17 +81,20 @@ public class RDFApi {
       Javalin app, String prefix, String apiLocation, RDFFormat format) {
     app.get(prefix + apiLocation, ctx -> databaseGet(ctx, format));
     app.head(prefix + apiLocation, ctx -> databaseHead(ctx, format));
-    app.get(prefix + "{schema}" + apiLocation, ctx -> schemaGet(ctx, format));
-    app.head(prefix + "{schema}" + apiLocation, ctx -> setFormat(ctx, format));
-    app.get(prefix + "{schema}" + apiLocation + "/{table}", ctx -> tableGet(ctx, format));
-    app.head(prefix + "{schema}" + apiLocation + "/{table}", ctx -> setFormat(ctx, format));
-    app.get(prefix + "{schema}" + apiLocation + "/{table}/{row}", ctx -> rowGet(ctx, format));
-    app.head(prefix + "{schema}" + apiLocation + "/{table}/{row}", ctx -> setFormat(ctx, format));
+    app.get(prefix + PATH_STRING_SCHEMA + apiLocation, ctx -> schemaGet(ctx, format));
+    app.head(prefix + PATH_STRING_SCHEMA + apiLocation, ctx -> setFormat(ctx, format));
+    app.get(prefix + PATH_STRING_SCHEMA + apiLocation + "/{table}", ctx -> tableGet(ctx, format));
+    app.head(prefix + PATH_STRING_SCHEMA + apiLocation + "/{table}", ctx -> setFormat(ctx, format));
     app.get(
-        prefix + "{schema}" + apiLocation + "/{table}/column/{column}",
+        prefix + PATH_STRING_SCHEMA + apiLocation + "/{table}/{row}", ctx -> rowGet(ctx, format));
+    app.head(
+        prefix + PATH_STRING_SCHEMA + apiLocation + "/{table}/{row}",
+        ctx -> setFormat(ctx, format));
+    app.get(
+        prefix + PATH_STRING_SCHEMA + apiLocation + "/{table}/column/{column}",
         ctx -> columnGet(ctx, format));
     app.head(
-        prefix + "{schema}" + apiLocation + "/{table}/column/{column}",
+        prefix + PATH_STRING_SCHEMA + apiLocation + "/{table}/column/{column}",
         ctx -> setFormat(ctx, format));
   }
 
