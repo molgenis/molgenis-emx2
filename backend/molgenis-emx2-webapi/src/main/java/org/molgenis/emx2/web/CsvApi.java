@@ -221,6 +221,7 @@ public class CsvApi {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     List<String> columnNames = getDownloadColumns(ctx, table);
     List<Column> columns = table.getMetadata().getColumns();
+    Database database = table.getSchema().getDatabase();
     Query query = getDownloadQuery(ctx, table);
 
     // The cursor's transaction holds an ACCESS SHARE lock that blocks ALTER TABLE, so it is
@@ -234,7 +235,7 @@ public class CsvApi {
             CsvTableWriter.newRowWriter(columnNames, writer, getSeparator(ctx));
         query.streamRows(
             row -> {
-              ResolveComputedValue.apply(columns, List.of(row));
+              ResolveComputedValue.apply(database, columns, List.of(row));
               rowWriter.accept(row);
             });
       }
