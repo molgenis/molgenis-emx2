@@ -13,8 +13,12 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
   });
 
   test("columns and labels are rendered:", async ({ page }) => {
-    const columns = await page.locator("g.columns rect").all();
-    const columnLabels = await page.locator("g.columns text").all();
+    const columns = await page
+      .locator("#column-chart-demo-1 g.columns rect")
+      .all();
+    const columnLabels = await page
+      .locator("#column-chart-demo-1 g.columns text")
+      .all();
     expect(columns.length).toEqual(6);
     expect(columnLabels.length).toEqual(6);
     expect(await columnLabels[0].getAttribute("class")).toContain(
@@ -23,7 +27,9 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
   });
 
   test("axis titles are rendered", async ({ page }) => {
-    const axisTitles = await page.locator("g.titles text").all();
+    const axisTitles = await page
+      .locator("#column-chart-demo-1 g.titles text")
+      .all();
     expect(axisTitles.length).toEqual(2);
     expect(await axisTitles[0].getAttribute("class")).toContain(
       "fill-chart-text"
@@ -31,46 +37,54 @@ test.describe("ColumnChart", { tag: "@tw-components @tw-viz" }, () => {
   });
 
   test("axes are rendered", async ({ page }) => {
-    const axisLines = await page.locator("g.axes g path").all();
+    const axisLines = await page
+      .locator("#column-chart-demo-1 g.axes g path")
+      .all();
     expect(axisLines.length).toEqual(2);
 
-    const yAxisTicks = await page.locator("g.axes g.y-axis g.tick").all();
+    const yAxisTicks = await page
+      .locator("#column-chart-demo-1 g.axes g.y-axis g.tick")
+      .all();
     const yAxisTickLines = await page
-      .locator("g.axes g.y-axis g.tick line")
+      .locator("#column-chart-demo-1 g.axes g.y-axis g.tick line")
       .all();
     const yAxisTickLabels = await page
-      .locator("g.axes g.y-axis g.tick text")
+      .locator("#column-chart-demo-1 g.axes g.y-axis g.tick text")
       .all();
     expect(yAxisTicks.length).toEqual(5);
     expect(yAxisTickLines.length).toEqual(5);
     expect(yAxisTickLabels.length).toEqual(5);
 
-    const xAxisTicks = await page.locator("g.axes g.x-axis g.tick").all();
+    const xAxisTicks = await page
+      .locator("#column-chart-demo-1 g.axes g.x-axis g.tick")
+      .all();
     const xAxisTickLines = await page
-      .locator("g.axes g.x-axis g.tick line")
+      .locator("#column-chart-demo-1 g.axes g.x-axis g.tick line")
       .all();
     const xAxisTickLabels = await page
-      .locator("g.axes g.x-axis g.tick text")
+      .locator("#column-chart-demo-1 g.axes g.x-axis g.tick text")
       .all();
     expect(xAxisTicks.length).toEqual(6);
     expect(xAxisTickLines.length).toEqual(6);
     expect(xAxisTickLabels.length).toEqual(6);
 
-    const axes = await page.locator("g.axes");
+    const axes = await page.locator("#column-chart-demo-1 g.axes");
     expect(await axes.getAttribute("class")).toBe(
       "axes [&_text]:fill-chart-text [&_text]:text-body-sm [&_line]:stroke-chart-paths [&_path]:stroke-chart-paths"
     );
   });
 
   test("hovering on column reveals data point", async ({ page }) => {
-    await page.locator("g.columns rect").first().hover();
-    const rectTextElem = await page.locator("g.columns g:first-child text");
+    await page.locator("#column-chart-demo-1 g.columns rect").first().hover();
+    const rectTextElem = await page.locator(
+      "#column-chart-demo-1 g.columns g:first-child text"
+    );
     expect(await rectTextElem.getAttribute("style")).toBe("opacity: 1;");
   });
 
   test("clicking on a columns emits data point", async ({ page }) => {
-    await page.locator("g.columns rect").first().click();
-    const selection = await page.locator("output");
+    await page.locator("#column-chart-demo-1 g.columns rect").first().click();
+    const selection = await page.locator("output:first-child");
     expect(await selection.innerText()).toBe(
       'Clicked element: { "id": "value-jan", "xValue": "Jan", "yValue": "18" }'
     );
