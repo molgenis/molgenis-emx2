@@ -20,7 +20,6 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-
 const emit = defineEmits(["updatePage"]);
 const handleDragEvent = (value: IDraggingInfo) => {
   draggingInfo.value = value;

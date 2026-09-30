@@ -22,8 +22,9 @@ const showMenu = ref<boolean>(false);
 const showAddLinkModal = ref<boolean>(false);
 const showAddFileModal = ref<boolean>(false);
 const currentlySaving = ref<boolean>(false);
-const linkModel = ref({externalLink: "", label: "", tag: ""});
-const fileModel = ref({file: undefined, label: "", tag: ""});
+const linkModel = ref({ externalLink: "", label: "", tag: "" });
+const fileModel = ref({ file: undefined, label: "", tag: "" });
+const rerenderKey = ref<string>(crypto.randomUUID());
 const linkmetadata: ITableMetaData = {
   label: "Hyperlink",
   id: "Types",
@@ -77,28 +78,33 @@ const filemetadata: ITableMetaData = {
 const fileform = useForm(filemetadata, fileModel);
 const linkform = useForm(linkmetadata, linkModel);
 
-function doSave() {
-  currentlySaving.value = true;
-  setTimeout(() => {
-    currentlySaving.value = false;
-    showAddFileModal.value = false;
-    showAddLinkModal.value = false;
-  }, 1000);
-}
-
 async function addNewFile() {
-    currentlySaving.value = true;
-  await UploadFile(props.schema, "File-" + crypto.randomUUID(), fileModel.value.label, fileModel.value.tag, fileModel.value.file);
+  currentlySaving.value = true;
+  await UploadFile(
+    props.schema,
+    "File-" + crypto.randomUUID(),
+    fileModel.value.label,
+    fileModel.value.tag,
+    fileModel.value.file
+  );
   showAddFileModal.value = false;
   currentlySaving.value = false;
+  rerenderKey.value = crypto.randomUUID();
   emit("updatePage");
 }
 async function addNewLink() {
   currentlySaving.value = true;
-  await AddLink(props.schema, "Link-" + crypto.randomUUID(), linkModel.value.externalLink, linkModel.value.label, linkModel.value.tag);
+  await AddLink(
+    props.schema,
+    "Link-" + crypto.randomUUID(),
+    linkModel.value.externalLink,
+    linkModel.value.label,
+    linkModel.value.tag
+  );
   showAddLinkModal.value = false;
   currentlySaving.value = false;
-  linkModel.value = {externalLink: "", label: "", tag: ""};
+  linkModel.value = { externalLink: "", label: "", tag: "" };
+  rerenderKey.value = crypto.randomUUID();
   emit("updatePage");
 }
 </script>
@@ -116,18 +122,18 @@ async function addNewLink() {
     >
       <template #popper>
         <div>
-        <ComponentActions
-          name="File list"
-          :id="`${id}-toolbar`"
-          :aria-controls="id"
-          @edit="$emit('edit')"
-          @delete="$emit('delete')"
-          @move="$emit('move', $event)"
-        />
+          <ComponentActions
+            name="File list"
+            :id="`${id}-toolbar`"
+            :aria-controls="id"
+            @edit="$emit('edit')"
+            @delete="$emit('delete')"
+            @move="$emit('move', $event)"
+          />
         </div>
       </template>
       <div>
-          <FileDownload v-bind="props" />
+        <FileDownload v-bind="props" :key="rerenderKey" />
       </div>
     </VMenu>
     <div class="flex gap-2">
@@ -139,14 +145,15 @@ async function addNewLink() {
       </Button>
     </div>
 
-
-    <Modal v-model:visible="showAddLinkModal" class="max-h-title" size="medium" subtitle="Add a new external link" title="add link">
-
+    <Modal
+      v-model:visible="showAddLinkModal"
+      subtitle="Add a new external link"
+      title="add link"
+    >
       <div class="p-8">
         <ClientOnly>
-        <FormFields id="form-hyperlink" :form="linkform" />
+          <FormFields id="form-hyperlink" :form="linkform" />
         </ClientOnly>
-
       </div>
 
       <template #footer>
@@ -155,7 +162,11 @@ async function addNewLink() {
             <Button type="secondary" @click="showAddLinkModal = false">
               Cancel
             </Button>
-            <Button type="primary" @click="addNewLink()" :disabled="currentlySaving">
+            <Button
+              type="primary"
+              @click="addNewLink()"
+              :disabled="currentlySaving"
+            >
               Add link
               <BaseIcon
                 v-if="currentlySaving"
@@ -166,15 +177,17 @@ async function addNewLink() {
           </div>
         </menu>
       </template>
-  </Modal>
+    </Modal>
 
-      <Modal v-model:visible="showAddFileModal" class="max-h-title" size="medium" subtitle="Add a new file" title="add file">
-
+    <Modal
+      v-model:visible="showAddFileModal"
+      subtitle="Add a new file"
+      title="add file"
+    >
       <div class="p-8">
         <ClientOnly>
-        <FormFields id="form-file" :form="fileform" />
+          <FormFields id="form-file" :form="fileform" />
         </ClientOnly>
-
       </div>
 
       <template #footer>
@@ -183,7 +196,11 @@ async function addNewLink() {
             <Button type="secondary" @click="showAddFileModal = false">
               Cancel
             </Button>
-            <Button type="primary" @click="addNewFile()" :disabled="currentlySaving">
+            <Button
+              type="primary"
+              @click="addNewFile()"
+              :disabled="currentlySaving"
+            >
               Add file
               <BaseIcon
                 v-if="currentlySaving"
@@ -194,8 +211,7 @@ async function addNewLink() {
           </div>
         </menu>
       </template>
-  </Modal>
-
+    </Modal>
   </div>
 
   <FileDownload v-else v-bind="props" />

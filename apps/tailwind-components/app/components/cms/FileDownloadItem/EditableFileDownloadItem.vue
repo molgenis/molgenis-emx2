@@ -32,16 +32,18 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <div
-      v-if="!props.file?.url && !props.externalLink"
-      class="w-full flex items-center justify-center text-center gap-2 text-title-contrast py-5 border border-button-tertiary rounded-base mb-2.5 hover:border-button-tertiary-hover"
-    >
-      <BaseIcon name="UploadFile" :width="21" />
-      <span
-        >Click the edit button to upload an file or set an external link</span
+    <div>
+      <div
+        v-if="!props.file?.url && !props.externalLink"
+        class="w-full flex items-center justify-center text-center gap-2 text-title-contrast py-5 border border-button-tertiary rounded-base mb-2.5 hover:border-button-tertiary-hover"
       >
+        <BaseIcon name="UploadFile" :width="21" />
+        <span
+          >Click the edit button to upload an file or set an external link</span
+        >
+      </div>
+      <FileDownloadItem v-else v-bind="props" />
     </div>
-    <FileDownloadItem v-else v-bind="props" />
   </VMenu>
   <FileDownloadItem v-else v-bind="props" />
 </template>

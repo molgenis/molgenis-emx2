@@ -228,11 +228,11 @@ async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
     :id="component.id"
     :isEditable="editingIsEnabled"
     :shownTag="component.shownTag"
-    :schema="componentMetadata?.schemaId"
+    :schema="componentMetadata?.schemaId || ''"
     @edit="showEditModal = true"
     @delete="onDelete"
     @move="handleMoveEvent"
-    @update-page="$emit('updatePage')"
+    @updatePage="$emit('updatePage')"
   />
   <EditableFileDownloadItem
     v-else-if="mg_tableclass.endsWith('.Files')"

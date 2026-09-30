@@ -14,9 +14,7 @@ const displayName = computed<string | undefined>(() => {
     return props.externalLink;
   }
   if (props.file?.filename) {
-    return props.file.filename.split(".")
-      .slice(0, -1)
-      .join(".");
+    return props.file.filename.split(".").slice(0, -1).join(".");
   }
   if (props.file?.url) {
     return props.file?.url;
@@ -32,12 +30,17 @@ const link = computed<string | undefined>(() => {
 });
 
 const linkIcon = computed<string | undefined>(() => {
-  if(props.file?.extension === "png" || props.file?.extension === "jpg" || props.file?.extension === "jpeg" || props.file?.extension === "gif"){
+  if (
+    props.file?.extension === "png" ||
+    props.file?.extension === "jpg" ||
+    props.file?.extension === "jpeg" ||
+    props.file?.extension === "gif"
+  ) {
     return "Image";
-  }else if (props.file?.url) {
+  } else if (props.file?.url) {
     return "UploadFile";
-  } else{
-  return "ExternalLink";
+  } else {
+    return "ExternalLink";
   }
 });
 
@@ -59,23 +62,33 @@ const fileSize = function (size: number) {
     target="_blank"
     rel="noopener noreferrer"
     class="w-full flex border rounded-base hover:border-button-tertiary-hover mb-2.5 justify-between gap-2 cursor-pointer"
-    :download="props.file?.url?true:false"
+    :download="props.file?.url ? true : false"
   >
     <span class="flex items-center gap-1 p-2.5 text-title-contrast">
       <BaseIcon :name="linkIcon || ''" :width="16" />
       {{ displayName }}
-      <span v-if="props.tag" class="text-body-xs text- bg-button-primary text-button-primary rounded-full px-2.5 py-1 ml-2">
+      <span
+        v-if="props.tag"
+        class="text-body-xs text- bg-button-primary text-button-primary rounded-full px-2.5 py-1 ml-2"
+      >
         {{ props.tag }}
       </span>
     </span>
-    <span v-if="props.file?.extension" class="text-body-sm text-title-contrast p-2.5">
+    <span
+      v-if="props.file?.extension"
+      class="text-body-sm text-title-contrast p-2.5"
+    >
       {{ props.file?.extension }}
     </span>
-    <span v-if="props.file?.size" class="text-body-sm text-title-contrast p-2.5">
+    <span
+      v-if="props.file?.size"
+      class="text-body-sm text-title-contrast p-2.5"
+    >
       {{ fileSize(props.file?.size) }}
     </span>
     <span
-      class="flex rounded-base px-3.5 rounded-l-none bg-button-primary text-button-primary" >
+      class="flex rounded-base px-3.5 rounded-l-none bg-button-primary text-button-primary"
+    >
       <BaseIcon
         :name="externalLink ? 'ExternalLink' : 'Download'"
         :width="20"
