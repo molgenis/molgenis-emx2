@@ -11,6 +11,7 @@ import EditableImage from "./image/EditableImage.vue";
 import EditableOrderedList from "./lists/EditableOrderedList.vue";
 import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
+import EditableColumnChart from "./columnChart/EditableColumnChart.vue";
 
 import EditModal from "../form/EditModal.vue";
 
@@ -247,6 +248,17 @@ function asSingularName(value: string | undefined): string | undefined {
   />
   <EditableUnorderedList
     v-else-if="mg_tableclass.endsWith('.Unordered lists')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableColumnChart
+    v-else-if="
+      mg_tableclass.endsWith('.Statistical charts') &&
+      component.chartType?.name === 'Column chart'
+    "
     v-bind="component"
     :isEditable="editingIsEnabled"
     @edit="onShowEdit"

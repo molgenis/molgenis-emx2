@@ -34,7 +34,14 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <ColumnChart v-bind="props" />
+    <p v-if="!chartData" class="text-title-contrast">
+      No data available to build the chart. Go to
+      <a href="../../StatisticalChartData" class="underline">
+        Chart data table
+      </a>
+      to add data or edit existing records.
+    </p>
+    <ColumnChart v-else v-bind="props" />
   </VMenu>
-  <ColumnChart v-else v-bind="props" />
+  <ColumnChart v-else-if="!isEditable && chartData" v-bind="props" />
 </template>

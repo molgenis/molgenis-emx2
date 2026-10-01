@@ -14,6 +14,7 @@ import type {
   IComponentOrders,
   IComponents,
   IFile,
+  IStatisticalCharts,
 } from "./cms.ts";
 
 import type { ITableMetaData } from "../../metadata-utils/src/types.js";
@@ -30,7 +31,8 @@ export interface IPageComponent
     IUnorderedLists,
     IOrderedLists,
     IImages,
-    INavigationCards {}
+    INavigationCards,
+    IStatisticalCharts {}
 
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;
