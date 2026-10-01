@@ -73,6 +73,7 @@ export interface NumericAxisTickData {
 export interface CategoricalAxisTickData {
   count: number;
   domains: string[];
+  palette: Record<string, any>;
 }
 
 export interface NewNumericAxisGeneratorProps {

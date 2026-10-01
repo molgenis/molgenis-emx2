@@ -13,12 +13,12 @@ const recruitmentDataExample = [
 ];
 
 const data = [
-  { id: "value-jan", xValue: "Jan", yValue: "-32" },
+  { id: "value-jan", xValue: "Jan", yValue: "-32", fillColor: "#e14f62" },
   { id: "value-feb", xValue: "Feb", yValue: "17", yLabel: "+17" },
   { id: "value-mar", xValue: "Mar", yValue: "6", yLabel: "+6" },
-  { id: "value-apr", xValue: "Apr", yValue: "-25" },
-  { id: "value-may", xValue: "May", yValue: "-28" },
-  { id: "value-jun", xValue: "Jun", yValue: "-40" },
+  { id: "value-apr", xValue: "Apr", yValue: "-25", fillColor: "#e14f62" },
+  { id: "value-may", xValue: "May", yValue: "-28", fillColor: "#e14f62" },
+  { id: "value-jun", xValue: "Jun", yValue: "-40", fillColor: "#e14f62" },
 ];
 
 const chartClick1 = ref<Record<string, number>>();
@@ -52,7 +52,7 @@ const chartClick2 = ref<Record<string, number>>();
       <ColumnChart
         id="column-chart-demo-2"
         chartTitle="Participant recruitment goals"
-        chartDescription="The difference of participant recruitment in relation to the target per month (n=50)"
+        chartDescription="The difference of participant recruitment in relation to the target per month (n=50). This is chart that demonstrates negative numbers and custom colors."
         :chartData="data"
         x="xValue"
         y="yValue"

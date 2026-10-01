@@ -12,6 +12,7 @@ import {
   scaleLinear,
   axisLeft,
 } from "d3";
+
 const d3 = {
   select,
   selectAll,
@@ -72,6 +73,10 @@ const height = computed<number>(() => {
   return props.chartHeight - props.topMargin - internalBottomMargin.value;
 });
 
+const internalLeftMargin = computed<number>(() => {
+  return props.yAxisTitle ? props.leftMargin : 25;
+});
+
 const internalBottomMargin = computed<number>(() => {
   return props.xAxisTitle || props.breakXAxisTickLabelsAt
     ? props.bottomMargin
@@ -103,11 +108,20 @@ const hasNegativeValues = computed<boolean>(() => {
 });
 
 const xAxisData = computed<CategoricalAxisTickData>(() => {
-  const data = { count: 0, domains: [] as string[] };
+  const data = {
+    count: 0,
+    domains: [],
+    palette: [],
+  } as CategoricalAxisTickData;
   if (props.chartData) {
     const values = props.chartData.map((row: IChartData) => row.xValue);
+    const valueColors = props.chartData.map((row: IChartData) => [
+      row.xValue,
+      row.fillColor || undefined,
+    ]);
     data.count = values.length;
     data.domains = values;
+    data.palette = Object.fromEntries(valueColors);
   }
   return data;
 });
@@ -128,14 +142,19 @@ const yScale = computed(() => {
   });
 });
 
-const colorPalette = computed<IChartPalette>(() => {
-  const mappings = xAxisData.value.domains.map((value: string) => {
-    const color = props.colorPalette
-      ? props.colorPalette[value as unknown as number]
-      : props.fillColor;
+const colorPalette = computed<Record<string, string>>(() => {
+  const valueColorMapping = xAxisData.value.domains.map((value: string) => {
+    let color;
+    if (xAxisData.value.palette[value]) {
+      color = xAxisData.value.palette[value];
+    } else if (props.colorPalette) {
+      color = props.colorPalette[value as unknown as number];
+    } else {
+      color = props.fillColor;
+    }
     return [value, color];
   });
-  return Object.fromEntries(mappings);
+  return Object.fromEntries(valueColorMapping);
 });
 
 function renderChartAxes() {
@@ -218,7 +237,7 @@ function renderChart() {
 
   width.value =
     (parentElem.value?.offsetWidth || props.chartWidth) -
-    props.leftMargin -
+    internalLeftMargin.value -
     props.rightMargin;
 
   renderChartAxes();
@@ -252,11 +271,11 @@ watch(
         :width="width"
         :height="props.chartHeight"
         preserve-aspect-ratio="xMinYMin"
-        :viewBox="`0 0 ${width + leftMargin} ${props.chartHeight}`"
+        :viewBox="`0 0 ${width + internalLeftMargin} ${props.chartHeight}`"
       >
         <g
           class="chart-area"
-          :transform="`translate(${leftMargin}, ${topMargin})`"
+          :transform="`translate(${internalLeftMargin * 1.3}, ${topMargin})`"
         >
           <g class="columns">
             <g
@@ -330,7 +349,7 @@ watch(
             class="fill-chart-text -rotate-90 text-body-base"
             text-anchor="middle"
             :x="-height * 0.55"
-            :y="leftMargin / 2"
+            :y="internalLeftMargin / 2"
             dy="-0.8em"
           >
             {{ yAxisTitle }}
