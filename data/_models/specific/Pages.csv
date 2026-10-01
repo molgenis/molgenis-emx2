@@ -58,8 +58,8 @@ Navigation cards,,url,hyperlink,,TRUE,,,,,,,,,sio:000811,A link to an internal o
 Navigation cards,,url label,string,,,,,,,,,,,sio:000179,A label to display instead of the URL,pages
 Navigation cards,,url is external,bool,,,,,,,,,,FALSE,ncit:C44280,"If true, the link will be rendered as an external link",pages
 Charts,Components,,,,,,,,,,,,,sio:SIO_000904,Visualisations and configurations to be displayed on a page,pages
-Charts,,chart type,ontology,,,,Data viz chart types,,,,,,,sio:SIO_000904,"The visualisation to be displayed e.g., column chart, map, etc.",pages
-Charts,,chart title,string,,,,,,,,,,,sio:SIO_000473,A title that summarises a visualisation,pages
+Charts,,chart type,ontology,,TRUE,,Data viz chart types,,,,,,,sio:SIO_000904,"The visualisation to be displayed e.g., column chart, map, etc.",pages
+Charts,,chart title,string,,TRUE,,,,,,,,,sio:SIO_000473,A title that summarises a visualisation,pages
 Charts,,chart description,string,,,,,,,,,,,sio:SIO_000474,Additional information about the visualisation to be placed below the title,pages
 Charts,,chart data,refback,,,,Chart data,displayed in chart,,,,,,sio:SIO_000089,Data that is displayed in the chart,pages
 Statistical charts,Charts,,,,,,,,,,,,,sio:SIO_000083,"Definitions and configuration of bar charts, column charts, etc.",pages
@@ -108,7 +108,7 @@ Statistical chart data,,secondary group label,string,,,,,,,,,,,sio:SIO_000179,"A
 Chart data,,fill color,string,,,,,,,,,,,obo:GSSO_004945,"If defined, the background color of the specific data point element will use this value (e.g., ""#000"", ""blue"", etc.)",pages
 Chart data,,stroke color,string,,,,,,,,,,,obo:GSSO_004945,"If defined, the border of the specific data point element will use this value (e.g., ""#000"", ""blue"", etc.)",pages
 Chart data,,sort order,int,,,,,,,,,,0,sio:SIO_001316,A numerical value indicating the sorting method for data points. A zero indicates a value will appear earlier in the dataset,pages
-Chart data,,displayed in chart,ref,,,,Charts,,,,,,,sio:SIO_000904,A link the visualisation where this data point will be displayed,pages
+Chart data,,displayed in chart,ref,,,,Charts,,${chartTitle},,,,,sio:SIO_000904,A link the visualisation where this data point will be displayed,pages
 Charts,,Appearance,heading,,,,,,,,,,,,"Use the following fields to define colors for all data points in a chart. Colors can be defined using CSS values (e.g., ""blue"", ""#000"", etc.)",pages
 Charts,,fill color,string,,,,,,,,,,#014f9e,obo:GSSO_004945,"If defined, the background color all data points",pages
 Charts,,stroke color,string,,,,,,,,,,,obo:GSSO_004945,The border color of all data points,pages

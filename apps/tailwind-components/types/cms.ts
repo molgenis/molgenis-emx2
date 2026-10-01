@@ -1,4 +1,4 @@
-// Generated (on: 2026-09-29T15:03:59.210278) from Generator.java for schema: cms
+// Generated (on: 2026-10-01T14:36:48.335684) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -96,8 +96,8 @@ export interface IChartPalette_agg {
 }
 
 export interface ICharts extends IMgTableClass {
-  chartType?: IOntologyNode;
-  chartTitle?: string;
+  chartType: IOntologyNode;
+  chartTitle: string;
   chartDescription?: string;
   chartData?: IChartData[];
   legendIsEnabled?: boolean;
@@ -189,8 +189,8 @@ export interface IComponents extends IMgTableClass {
   urlLabel?: string;
   urlIsExternal?: boolean;
   unorderedItems?: string[];
-  chartType?: IOntologyNode;
-  chartTitle?: string;
+  chartType: IOntologyNode;
+  chartTitle: string;
   chartDescription?: string;
   chartData?: IChartData[];
   legendIsEnabled?: boolean;
@@ -499,8 +499,8 @@ export interface IStatisticalChartData_agg {
 }
 
 export interface IStatisticalCharts extends IMgTableClass {
-  chartType?: IOntologyNode;
-  chartTitle?: string;
+  chartType: IOntologyNode;
+  chartTitle: string;
   chartDescription?: string;
   chartData?: IChartData[];
   x: string;
