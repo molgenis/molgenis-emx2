@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { IFiles } from "../../../../types/cms";
-import { readableFileSize } from "~/utils/readableFileSize";
+import { readableFileSize } from "../../../utils/readableFileSize";
 
 const props = withDefaults(defineProps<IFiles>(), {});
 const emit = defineEmits(["edit", "delete", "move"]);
