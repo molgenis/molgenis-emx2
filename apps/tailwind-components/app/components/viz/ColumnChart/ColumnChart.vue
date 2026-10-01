@@ -145,7 +145,7 @@ const yScale = computed(() => {
 const colorPalette = computed<Record<string, string>>(() => {
   const valueColorMapping = xAxisData.value.domains.map((value: string) => {
     let color;
-    if (xAxisData.value.palette[value]) {
+    if (xAxisData.value.palette?.[value]) {
       color = xAxisData.value.palette[value];
     } else if (props.colorPalette) {
       color = props.colorPalette[value as unknown as number];
