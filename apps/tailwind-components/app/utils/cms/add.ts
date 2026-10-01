@@ -56,3 +56,25 @@ export async function AddUnorderedList(schema: string, id: string) {
   };
   await cmsFetch(schema, query, variables);
 }
+
+export async function AddColumnChart(schema: string, id: string) {
+  console.log("adding column chart", schema, id);
+  const query = `mutation insert($element: [StatisticalChartsInput]) {
+    insert(StatisticalCharts: $element) {
+      status
+      message
+    }
+  }`;
+
+  const variables = {
+    element: [
+      {
+        id: id,
+        chartType: { name: "Column chart" },
+        chartTitle: "My column chart",
+      },
+    ],
+  };
+
+  await cmsFetch(schema, query, variables);
+}
