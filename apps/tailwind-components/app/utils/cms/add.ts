@@ -1,6 +1,6 @@
-import type { FetchGraphqlResponse } from "~~/types/CmsComponents";
+import type { FetchGraphqlResponse } from "../../../types/CmsComponents";
 import { cmsFetch } from "../cms";
-import type { IFile } from "~~/types/types";
+import type { IFile } from "../../../types/types";
 
 export async function AddNavigationCard(schema: string, id: string) {
   const query = `mutation insert($element: [NavigationCardsInput]) {
