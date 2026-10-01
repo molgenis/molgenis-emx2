@@ -58,7 +58,6 @@ export async function AddUnorderedList(schema: string, id: string) {
 }
 
 export async function AddColumnChart(schema: string, id: string) {
-  console.log("adding column chart", schema, id);
   const query = `mutation insert($element: [StatisticalChartsInput]) {
     insert(StatisticalCharts: $element) {
       status

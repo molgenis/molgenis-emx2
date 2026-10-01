@@ -84,7 +84,7 @@ const handleDragEvent = (event: DragEvent) => {
           <li>
             <DraggableComponent
               icon="AddChart"
-              componentName="ColumnChart"
+              componentName="ColumnCharts"
               componentLabel="Column chart"
               @dragging="handleDragEvent"
             />

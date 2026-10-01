@@ -26,7 +26,7 @@ const showMenu = ref<boolean>(false);
   >
     <template #popper>
       <ComponentActions
-        name="OrderedLists"
+        name="ColumnCharts"
         :id="`${id}-toolbar`"
         :aria-controls="id"
         @edit="$emit('edit')"

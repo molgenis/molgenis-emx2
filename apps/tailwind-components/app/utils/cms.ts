@@ -431,7 +431,7 @@ export async function addComponent(
     await AddUnorderedList(schema, id);
   }
 
-  if (componentType === "ColumnChart") {
+  if (componentType === "ColumnCharts") {
     await AddColumnChart(schema, id);
   }
 
