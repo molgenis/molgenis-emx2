@@ -134,6 +134,7 @@ public class GraphqlSessionFieldFactory {
 
               Optional<Instant> blockedUntil = rateLimit.getRateLimit(userName);
               if (blockedUntil.isPresent()) {
+                rateLimit.onBlocked();
                 return new GraphqlApiMutationResult(
                     FAILED,
                     "Sign in as '%s' failed: too many attempts, try again after %s",
