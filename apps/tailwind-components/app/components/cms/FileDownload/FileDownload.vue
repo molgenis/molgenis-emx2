@@ -26,11 +26,17 @@ watch([() => props.showFilesWithTag, () => props.schema], loadFiles, {
 <template>
   <div class="w-full py-8 justify-center items-center">
     <div class="m-auto w-pg-section">
-      <FileDownloadItem
-        v-for="file in files"
-        :key="file.id || file.label"
-        v-bind="file"
-      />
+      <p :id="`${id}-list-title`" class="sr-only">
+        files available for download
+      </p>
+      <ul :aria-labelledBy="`${id}-list-title`">
+        <li v-for="file in files">
+          <FileDownloadItem
+            :key="file.id || file.alternateFileName"
+            v-bind="file"
+          />
+        </li>
+      </ul>
     </div>
   </div>
 </template>

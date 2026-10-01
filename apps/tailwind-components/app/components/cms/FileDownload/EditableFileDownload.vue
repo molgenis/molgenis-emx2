@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { IFileLists } from "../../../../types/cms";
-import { UploadFile, AddLink } from "../../../utils/cms";
+import { UploadFile, AddLink } from "../../../utils/cms/add";
 import ComponentActions from "../ComponentActions.vue";
 import FileDownload from "./FileDownload.vue";
 import Button from "../../Button.vue";

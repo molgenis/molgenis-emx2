@@ -4,7 +4,6 @@ import type {
   IDependenciesCSS,
   IDependenciesJS,
   IFiles,
-  IFile,
 } from "../../types/cms";
 
 import { getContainersQuery } from "../gql/cmsPages";
@@ -17,7 +16,13 @@ import type {
   ICmsOrderWithBlockId,
 } from "../../types/CmsComponents";
 
-import { AddNavigationCard, AddOrderedList, AddUnorderedList } from "./cms/add";
+import {
+  AddFile,
+  AddFileList,
+  AddNavigationCard,
+  AddOrderedList,
+  AddUnorderedList,
+} from "./cms/add";
 
 export function randomId(): string {
   return crypto.randomUUID();
@@ -105,7 +110,11 @@ export async function cmsFetch(
 export async function getFiles(
   schema: string,
   fileTag: string,
-  orderby: "fileTag" | "alternateFileName" | "file" | "linkToExternalFile" = "fileTag",
+  orderby:
+    | "fileTag"
+    | "alternateFileName"
+    | "file"
+    | "linkToExternalFile" = "fileTag",
   direction: "ASC" | "DESC" = "ASC"
 ): Promise<IFiles[]> {
   const query = `query getFiles($filter:FilesFilter, $orderby:[Filesorderby]) {
@@ -537,91 +546,6 @@ async function AddImage(schema: string, id: string) {
     }
   }`;
   const variables = { image: [{ id: `${id}` }] };
-  await cmsFetch(schema, query, variables);
-}
-
-export async function AddFile(schema: string, id: string) {
-  const query = `mutation insert($file:[FilesInput]) {
-    insert(Files:$file) {
-      status
-      message
-    }
-  }`;
-  const variables = { file: [{ id: `${id}` }] };
-  await cmsFetch(schema, query, variables);
-}
-
-export async function AddLink(
-  schema: string,
-  id: string,
-  linkToExternalFile: string,
-  alternateFileName: string,
-  fileTag: string
-) {
-  const query = `mutation insert($file:[FilesInput]) {
-    insert(Files:$file) {
-      status
-      message
-    }
-  }`;
-  const variables = {
-    file: [
-      {
-        id: `${id}`,
-        fileIsAnExternalLink: true,
-        linkToExternalFile,
-        alternateFileName,
-        fileTag,
-      },
-    ],
-  };
-  await cmsFetch(schema, query, variables);
-}
-
-export async function UploadFile(
-  schema: string,
-  id: string,
-  alternateFileName?: string,
-  fileTag?: string,
-  file?: IFile
-) {
-  const query = `mutation insert($file:[FilesInput]) {
-    insert(Files:$file) {
-      status
-      message
-    }
-  }`;
-  const formData = new FormData();
-  formData.append("query", query);
-  formData.append(
-    "variables",
-    JSON.stringify({
-      file: [
-        { id: `${id}`, file: "file", alternateFileName, fileTag, fileIsAnExternalLink: false },
-      ],
-    })
-  );
-  formData.append("file", file as Blob);
-
-  const url: string = `/${schema}/graphql`;
-  const response = (await $fetch(url, {
-    method: "POST",
-    body: formData,
-  })) as unknown as FetchGraphqlResponse;
-
-  if (response?.errors?.[0]?.message) {
-    console.error(response.errors[0].message);
-  }
-  return response;
-}
-
-async function AddFileList(schema: string, id: string) {
-  const query = `mutation insert($fileList:[FileListsInput]) {
-    insert(FileLists:$fileList) {
-      message
-    }
-  }`;
-  const variables = { fileList: [{ id: `${id}` }] };
   await cmsFetch(schema, query, variables);
 }
 

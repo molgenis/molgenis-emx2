@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { IFiles } from "../../../../types/cms";
+import { readableFileSize } from "~/utils/readableFileSize";
 
 const props = withDefaults(defineProps<IFiles>(), {});
 const emit = defineEmits(["edit", "delete", "move"]);
@@ -43,26 +44,11 @@ const linkIcon = computed<string | undefined>(() => {
     return "ExternalLink";
   }
 });
-
-const fileSize = function (size: number) {
-  if (isNaN(size)) return "Unknown";
-  if (size < 1024) return size + " Bytes";
-  if (size < 1024 * 1024) return (size / 1024).toFixed(0) + " KB";
-  if (size < 1024 * 1024 * 1024)
-    return (size / (1024 * 1024)).toFixed(0) + " MB";
-  if (size < 1024 * 1024 * 1024 * 1024)
-    return (size / (1024 * 1024 * 1024)).toFixed(2) + " GB";
-  return (size / (1024 * 1024 * 1024 * 1024)).toFixed(2) + " TB";
-};
 </script>
 
 <template>
-  <a
-    :href="link"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="w-full flex border rounded-base hover:border-button-tertiary-hover mb-2.5 justify-between gap-2 cursor-pointer"
-    :download="props.file?.url ? true : false"
+  <div
+    class="w-full border rounded-base mb-2.5 gap-2 grid grid-cols-[1fr_minmax(0,10rem)_minmax(0,10rem)_50px] whitespace-nowrap"
   >
     <span class="flex items-center gap-1 p-2.5 text-title-contrast">
       <BaseIcon :name="linkIcon || ''" :width="16" />
@@ -74,26 +60,35 @@ const fileSize = function (size: number) {
         {{ props.fileTag }}
       </span>
     </span>
-    <span
-      v-if="props.file?.extension"
-      class="text-body-sm text-title-contrast p-2.5"
-    >
-      {{ props.file?.extension }}
+    <span class="py-2.5">
+      <span
+        v-if="props.file?.extension"
+        class="text-body-sm text-title-contrast"
+      >
+        {{ props.file?.extension }}
+      </span>
     </span>
-    <span
-      v-if="props.file?.size"
-      class="text-body-sm text-title-contrast p-2.5"
-    >
-      {{ fileSize(props.file?.size) }}
+    <span class="py-2.5">
+      <span v-if="props.file?.size" class="text-body-sm text-title-contrast">
+        {{ readableFileSize(props.file?.size) }}
+      </span>
     </span>
-    <span
-      class="flex rounded-base px-3.5 rounded-l-none bg-button-primary text-button-primary"
+    <a
+      :href="link"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="flex rounded-base justify-content px-3.5 rounded-l-none bg-button-primary text-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+      :download="props.file?.url ? true : false"
     >
+      <span v-if="props.fileIsAnExternalLink" class="hidden">
+        Link to {{ linkToExternalFile }}</span
+      >
+      <span v-else class="hidden"> Download {{ file?.filename }}</span>
       <BaseIcon
         :name="linkToExternalFile ? 'ExternalLink' : 'Download'"
         :width="20"
         class="text"
       />
-    </span>
-  </a>
+    </a>
+  </div>
 </template>
