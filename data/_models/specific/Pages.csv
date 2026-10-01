@@ -63,10 +63,10 @@ Charts,,chart title,string,,TRUE,,,,,,,,,sio:SIO_000473,A title that summarises 
 Charts,,chart description,string,,,,,,,,,,,sio:SIO_000474,Additional information about the visualisation to be placed below the title,pages
 Charts,,chart data,refback,,,,Chart data,displayed in chart,,,,,,sio:SIO_000089,Data that is displayed in the chart,pages
 Statistical charts,Charts,,,,,,,,,,,,,sio:SIO_000083,"Definitions and configuration of bar charts, column charts, etc.",pages
-Statistical charts,,x,string,,TRUE,,,,,,,TRUE,x value,sio:SIO_000452,The name of the variable that contains the x-axis data,pages
-Statistical charts,,y,string,,TRUE,,,,,,,TRUE,y value,sio:SIO_000453,The name of the variable that contains the y-axis data,pages
-Statistical charts,,primary group values,string,,,,,,,,,TRUE,primary group values,"sio:SIO_000455,sio:SIO_000456",The name of the variable that contains the primary grouping values,pages
-Statistical charts,,secondary group values,string,,,,,,,,,TRUE,secondary group values,"sio:SIO_000455,sio:SIO_000457",The name of the variable that contains the secondary grouping values,pages
+Statistical charts,,x,string,,TRUE,,,,,,,TRUE,xValue,sio:SIO_000452,The name of the variable that contains the x-axis data,pages
+Statistical charts,,y,string,,TRUE,,,,,,,TRUE,yValue,sio:SIO_000453,The name of the variable that contains the y-axis data,pages
+Statistical charts,,primary group values,string,,,,,,,,,TRUE,primaryGroupValues,"sio:SIO_000455,sio:SIO_000456",The name of the variable that contains the primary grouping values,pages
+Statistical charts,,secondary group values,string,,,,,,,,,TRUE,secondaryGroupValues,"sio:SIO_000455,sio:SIO_000457",The name of the variable that contains the secondary grouping values,pages
 Statistical charts,,X Axis Configuration,heading,,,,,,,,,,,sio:SIO_000452,,pages
 Statistical charts,,x axis title,string,,,,,,,,,,,"sio:SIO_000452, sio:SIO_000179",The title of the x-axis,pages
 Statistical charts,,x axis min value,int,,,,,,,,,,0,"sio:SIO_000452, sio:SIO_001113",The minimum value that will displayed on the x-axis. (Only applies to charts with a numeric x-axis),pages
@@ -107,7 +107,7 @@ Statistical chart data,,secondary group value,string,,,,,,,,,,,"sio:SIO_000455,s
 Statistical chart data,,secondary group label,string,,,,,,,,,,,sio:SIO_000179,"An alternative label that will be displayed instead of the value in ""secondary group value"" column",pages
 Chart data,,fill color,string,,,,,,,,,,,obo:GSSO_004945,"If defined, the background color of the specific data point element will use this value (e.g., ""#000"", ""blue"", etc.)",pages
 Chart data,,stroke color,string,,,,,,,,,,,obo:GSSO_004945,"If defined, the border of the specific data point element will use this value (e.g., ""#000"", ""blue"", etc.)",pages
-Chart data,,sort order,int,,,,,,,,,,0,sio:SIO_001316,A numerical value indicating the sorting method for data points. A zero indicates a value will appear earlier in the dataset,pages
+Chart data,,sort order,int,,,,,,,,,,,sio:SIO_001316,A numerical value indicating the sorting method for data points. A zero indicates a value will appear earlier in the dataset,pages
 Chart data,,displayed in chart,ref,,,,Charts,,${chartTitle},,,,,sio:SIO_000904,A link the visualisation where this data point will be displayed,pages
 Charts,,Appearance,heading,,,,,,,,,,,,"Use the following fields to define colors for all data points in a chart. Colors can be defined using CSS values (e.g., ""blue"", ""#000"", etc.)",pages
 Charts,,fill color,string,,,,,,,,,,#014f9e,obo:GSSO_004945,"If defined, the background color all data points",pages
@@ -123,7 +123,7 @@ Charts,,chart width,int,,,,,,,,"(function () {
 })();",,300,,The width of the chart (default: 300),pages
 Charts,,chart height,int,,,,,,,,"(function () {
   if (chartHeight !== null && chartHeight < 0) {
-  return """"Height cannot be less than 0""""
+  return ""Height cannot be less than 0""
   }
 })();",,300,,The height of the chart (default: 300),pages
 Charts,,top margin,int,,,,,,,,"(function () {
