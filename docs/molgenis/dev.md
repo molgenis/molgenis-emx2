@@ -5,6 +5,7 @@ There are a number of guides available to help you get started with EMX2. We enc
 - Concepts and guidelines
     - [Development basics](./dev_basics.md)
     - [Principles](./dev_principles.md)
+    - [System overview](./system_overview.md)
     - [MOLGENIS Architecture](./dev_architecture.md)
     - [Developer guidelines](./dev_guidelines.md)
     - [Accessibility guidelines](./dev_accessibility.md)
