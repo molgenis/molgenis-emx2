@@ -104,13 +104,13 @@ export async function cmsFetch(
 
 export async function getFiles(
   schema: string,
-  tag: string,
-  orderby: "tag" | "label" | "file" | "externalLink" = "tag",
+  fileTag: string,
+  orderby: "fileTag" | "alternateFileName" | "file" | "linkToExternalFile" = "fileTag",
   direction: "ASC" | "DESC" = "ASC"
 ): Promise<IFiles[]> {
   const query = `query getFiles($filter:FilesFilter, $orderby:[Filesorderby]) {
     Files(filter:$filter,orderby:$orderby) {
-      label
+      alternateFileName
       file {
          id
          size
@@ -118,8 +118,8 @@ export async function getFiles(
          extension
          url
       }
-      tag
-      externalLink
+      fileTag
+      linkToExternalFile
     }
   }`;
 
@@ -127,8 +127,8 @@ export async function getFiles(
     filter: {},
     orderby: [{ [orderby]: direction }],
   };
-  if (tag !== "") {
-    variables.filter = { tag: { equals: tag } };
+  if (fileTag !== "") {
+    variables.filter = { fileTag: { equals: fileTag } };
   }
 
   const url: string = `/${schema}/graphql`;
@@ -554,9 +554,9 @@ export async function AddFile(schema: string, id: string) {
 export async function AddLink(
   schema: string,
   id: string,
-  externalLink: string,
-  label: string,
-  tag: string
+  linkToExternalFile: string,
+  alternateFileName: string,
+  fileTag: string
 ) {
   const query = `mutation insert($file:[FilesInput]) {
     insert(Files:$file) {
@@ -565,7 +565,15 @@ export async function AddLink(
     }
   }`;
   const variables = {
-    file: [{ id: `${id}`, useExternalLink: true, externalLink, label, tag }],
+    file: [
+      {
+        id: `${id}`,
+        fileIsAnExternalLink: true,
+        linkToExternalFile,
+        alternateFileName,
+        fileTag,
+      },
+    ],
   };
   await cmsFetch(schema, query, variables);
 }
@@ -573,8 +581,8 @@ export async function AddLink(
 export async function UploadFile(
   schema: string,
   id: string,
-  label?: string,
-  tag?: string,
+  alternateFileName?: string,
+  fileTag?: string,
   file?: IFile
 ) {
   const query = `mutation insert($file:[FilesInput]) {
@@ -588,7 +596,9 @@ export async function UploadFile(
   formData.append(
     "variables",
     JSON.stringify({
-      file: [{ id: `${id}`, file: "file", label, tag, useExternalLink: false }],
+      file: [
+        { id: `${id}`, file: "file", alternateFileName, fileTag, fileIsAnExternalLink: false },
+      ],
     })
   );
   formData.append("file", file as Blob);

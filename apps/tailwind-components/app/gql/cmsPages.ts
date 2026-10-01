@@ -103,12 +103,13 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                             extension
                             url
                         }
-                        label
-                        tag
-                        externalLink
-
+                        alternateFileName
+                        fileTag
+                        linkToExternalFile
+                        fileIsAnExternalLink
+                        
                         # Filelist
-                        shownTag
+                        showFilesWithTag
 
                         # navigation cards
                         id

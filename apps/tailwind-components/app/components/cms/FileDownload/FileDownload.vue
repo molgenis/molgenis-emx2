@@ -12,10 +12,13 @@ const props = withDefaults(
 let files = ref<IFiles[]>([]);
 
 const loadFiles = async () => {
-  files.value = await getFiles(props.schema || "", props.shownTag || "");
+  files.value = await getFiles(
+    props.schema || "",
+    props.showFilesWithTag || ""
+  );
 };
 
-watch([() => props.shownTag, () => props.schema], loadFiles, {
+watch([() => props.showFilesWithTag, () => props.schema], loadFiles, {
   immediate: true,
 });
 </script>

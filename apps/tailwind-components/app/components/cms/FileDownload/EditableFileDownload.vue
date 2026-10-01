@@ -22,8 +22,12 @@ const showMenu = ref<boolean>(false);
 const showAddLinkModal = ref<boolean>(false);
 const showAddFileModal = ref<boolean>(false);
 const currentlySaving = ref<boolean>(false);
-const linkModel = ref({ externalLink: "", label: "", tag: "" });
-const fileModel = ref({ file: undefined, label: "", tag: "" });
+const linkModel = ref({
+  linkToExternalFile: "",
+  alternateFileName: "",
+  fileTag: "",
+});
+const fileModel = ref({ file: undefined, alternateFileName: "", fileTag: "" });
 const rerenderKey = ref<string>(crypto.randomUUID());
 const linkmetadata: ITableMetaData = {
   label: "Hyperlink",
@@ -33,18 +37,18 @@ const linkmetadata: ITableMetaData = {
   tableType: "DATA",
   columns: [
     {
-      id: "externalLink",
+      id: "linkToExternalFile",
       columnType: "HYPERLINK" as ColumnType,
       label: "External Link",
       required: true,
     },
     {
-      id: "label",
+      id: "alternateFileName",
       columnType: "String" as ColumnType,
       label: "Label",
     },
     {
-      id: "tag",
+      id: "fileTag",
       columnType: "String" as ColumnType,
       label: "Tag",
     },
@@ -64,12 +68,12 @@ const filemetadata: ITableMetaData = {
       required: true,
     },
     {
-      id: "label",
+      id: "alternateFileName",
       columnType: "String" as ColumnType,
       label: "Label",
     },
     {
-      id: "tag",
+      id: "fileTag",
       columnType: "String" as ColumnType,
       label: "Tag",
     },
@@ -83,8 +87,8 @@ async function addNewFile() {
   await UploadFile(
     props.schema,
     "File-" + crypto.randomUUID(),
-    fileModel.value.label,
-    fileModel.value.tag,
+    fileModel.value.alternateFileName,
+    fileModel.value.fileTag,
     fileModel.value.file
   );
   showAddFileModal.value = false;
@@ -97,13 +101,17 @@ async function addNewLink() {
   await AddLink(
     props.schema,
     "Link-" + crypto.randomUUID(),
-    linkModel.value.externalLink,
-    linkModel.value.label,
-    linkModel.value.tag
+    linkModel.value.linkToExternalFile,
+    linkModel.value.alternateFileName,
+    linkModel.value.fileTag
   );
   showAddLinkModal.value = false;
   currentlySaving.value = false;
-  linkModel.value = { externalLink: "", label: "", tag: "" };
+  linkModel.value = {
+    linkToExternalFile: "",
+    alternateFileName: "",
+    fileTag: "",
+  };
   rerenderKey.value = crypto.randomUUID();
   emit("updatePage");
 }

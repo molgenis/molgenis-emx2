@@ -34,7 +34,7 @@ const showMenu = ref<boolean>(false);
     </template>
     <div>
       <div
-        v-if="!props.file?.url && !props.externalLink"
+        v-if="!props.file?.url && !props.linkToExternalFile"
         class="w-full flex items-center justify-center text-center gap-2 text-title-contrast py-5 border border-button-tertiary rounded-base mb-2.5 hover:border-button-tertiary-hover"
       >
         <BaseIcon name="UploadFile" :width="21" />

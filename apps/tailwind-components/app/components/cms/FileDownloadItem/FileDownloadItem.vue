@@ -7,11 +7,11 @@ const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
 
 const displayName = computed<string | undefined>(() => {
-  if (props.label) {
-    return props.label;
+  if (props.alternateFileName) {
+    return props.alternateFileName;
   }
-  if (props.externalLink) {
-    return props.externalLink;
+  if (props.linkToExternalFile) {
+    return props.linkToExternalFile;
   }
   if (props.file?.filename) {
     return props.file.filename.split(".").slice(0, -1).join(".");
@@ -24,8 +24,8 @@ const displayName = computed<string | undefined>(() => {
 const link = computed<string | undefined>(() => {
   if (props.file?.url) {
     return props.file?.url;
-  } else if (props.externalLink) {
-    return props.externalLink;
+  } else if (props.linkToExternalFile) {
+    return props.linkToExternalFile;
   }
 });
 
@@ -68,10 +68,10 @@ const fileSize = function (size: number) {
       <BaseIcon :name="linkIcon || ''" :width="16" />
       {{ displayName }}
       <span
-        v-if="props.tag"
+        v-if="props.fileTag"
         class="text-body-xs text- bg-button-primary text-button-primary rounded-full px-2.5 py-1 ml-2"
       >
-        {{ props.tag }}
+        {{ props.fileTag }}
       </span>
     </span>
     <span
@@ -90,7 +90,7 @@ const fileSize = function (size: number) {
       class="flex rounded-base px-3.5 rounded-l-none bg-button-primary text-button-primary"
     >
       <BaseIcon
-        :name="externalLink ? 'ExternalLink' : 'Download'"
+        :name="linkToExternalFile ? 'ExternalLink' : 'Download'"
         :width="20"
         class="text"
       />
