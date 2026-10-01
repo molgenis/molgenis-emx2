@@ -88,7 +88,7 @@ async function signin() {
       } else {
         route.query.redirectTo
           ? navigateTo({
-              path: sanitizeRedirectPath(route.query.redirectTo as string),
+              path: sanitizeRedirectPath(route.query.redirectTo),
               replace: true,
             })
           : navigateTo({ path: "/", replace: true });

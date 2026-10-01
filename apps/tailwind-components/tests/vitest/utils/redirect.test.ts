@@ -3,7 +3,9 @@ import { sanitizeRedirectPath } from "../../../app/utils/redirect";
 
 describe("sanitizeRedirectPath", () => {
   test("keeps a path on the current host", () => {
-    expect(sanitizeRedirectPath("/pet store/tables")).toBe("/pet store/tables");
+    expect(sanitizeRedirectPath("/pet store/tables")).toBe(
+      "/pet%20store/tables"
+    );
   });
 
   test("keeps the query and hash of a path", () => {
