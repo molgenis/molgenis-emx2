@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.SchemaMetadataProvider;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
-import org.molgenis.emx2.fairmapper.load.DataUploader;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
+import org.molgenis.emx2.fairmapper.upload.DataUploader;
 
 public record HarvestingPipelineConfig(
     URI rdf,
@@ -27,7 +27,7 @@ public record HarvestingPipelineConfig(
     return outputPath != null;
   }
 
-  public boolean loadEnabled() {
+  public boolean uploadEnabled() {
     return dataUploader != null;
   }
 
@@ -79,7 +79,7 @@ public record HarvestingPipelineConfig(
       return this;
     }
 
-    public Builder withDataLoader(DataUploader dataUploader) {
+    public Builder withDataUploader(DataUploader dataUploader) {
       this.dataUploader = dataUploader;
       return this;
     }

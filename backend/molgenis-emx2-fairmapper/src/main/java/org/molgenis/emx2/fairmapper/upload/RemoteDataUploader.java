@@ -1,4 +1,4 @@
-package org.molgenis.emx2.fairmapper.load;
+package org.molgenis.emx2.fairmapper.upload;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;

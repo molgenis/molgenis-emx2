@@ -8,7 +8,6 @@ import org.molgenis.emx2.fairmapper.client.GraphqlClient;
 import org.molgenis.emx2.fairmapper.client.GraphqlSchemaMetadataProvider;
 import org.molgenis.emx2.fairmapper.extractors.CrawlSteps;
 import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
-import org.molgenis.emx2.fairmapper.load.RemoteDataUploader;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
@@ -16,6 +15,7 @@ import org.molgenis.emx2.fairmapper.preprocessing.StageCsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
+import org.molgenis.emx2.fairmapper.upload.RemoteDataUploader;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ public class Harvest implements Runnable {
   @CommandLine.Option(
       names = {"-u", "--upload"},
       description = "Write intermediate post processing results to files")
-  private boolean enableLoading;
+  private boolean enableUpload;
 
   @CommandLine.Option(
       names = {"-e", "--endpoint"},
@@ -95,8 +95,8 @@ public class Harvest implements Runnable {
       builder.withDumpEnabled(outputPath);
     }
 
-    if (enableLoading) {
-      builder.withDataLoader(new RemoteDataUploader(endpoint, token, schemaName));
+    if (enableUpload) {
+      builder.withDataUploader(new RemoteDataUploader(endpoint, token, schemaName));
     }
 
     runPipeline(builder);
