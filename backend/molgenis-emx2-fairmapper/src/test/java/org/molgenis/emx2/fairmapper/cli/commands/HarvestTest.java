@@ -85,24 +85,24 @@ class HarvestTest {
   }
 
   @Test
-  void shouldNotEnableDataLoadingWhenLoadOptionOmitted() {
+  void shouldNotEnableUploadWhenUploadOptionOmitted() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
-    assertFalse(config.loadEnabled());
+    assertFalse(config.uploadEnabled());
   }
 
   @Test
-  void shouldEnableDataLoadingWhenLoadOptionProvided() {
+  void shouldEnableUploadWhenUploadOptionProvided() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-u");
 
-    assertTrue(config.loadEnabled());
+    assertTrue(config.uploadEnabled());
   }
 
   @Test
-  void shouldEnableDataLoadingWhenLoadLongOptionProvided() {
+  void shouldEnableUploadWhenUploadLongOptionProvided() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--upload");
 
-    assertTrue(config.loadEnabled());
+    assertTrue(config.uploadEnabled());
   }
 
   private HarvestingPipelineConfig runAndCaptureConfig(

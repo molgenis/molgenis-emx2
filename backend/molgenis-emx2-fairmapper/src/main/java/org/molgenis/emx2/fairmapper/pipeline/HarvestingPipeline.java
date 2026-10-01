@@ -69,10 +69,10 @@ public class HarvestingPipeline {
         postProcess(transformed);
       }
 
-      if (config.loadEnabled()) {
+      if (config.uploadEnabled()) {
         config.dataUploader().upload(transformed);
       } else {
-        logger.info("No data loaded for harvesting pipeline: {}", harvestId);
+        logger.info("No data uploaded for harvesting pipeline: {}", harvestId);
       }
       logger.info("Finished harvesting pipeline: {}", harvestId);
     } finally {

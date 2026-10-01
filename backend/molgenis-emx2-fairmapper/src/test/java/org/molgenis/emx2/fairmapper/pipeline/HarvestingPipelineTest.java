@@ -21,10 +21,10 @@ import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
-import org.molgenis.emx2.fairmapper.load.LocalDataUploader;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
+import org.molgenis.emx2.fairmapper.upload.LocalDataUploader;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -57,7 +57,7 @@ class HarvestingPipelineTest {
             .setTables(tables)
             .withPreProcessors(new StaticPreProcessor())
             .withPostProcessors(new StaticPostProcessor())
-            .withDataLoader(new LocalDataUploader(schema, tables))
+            .withDataUploader(new LocalDataUploader(schema, tables))
             .build();
     HarvestingPipeline pipeline = new HarvestingPipeline(config);
     pipeline.execute();
@@ -124,7 +124,7 @@ class HarvestingPipelineTest {
   }
 
   @Test
-  void shouldLoadData() {
+  void shouldUploadData() {
     List<Row> names = schema.getTable("names").retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
     CompareTools.assertEquals(names, List.of(Row.row("name", "foo"), Row.row("name", "bar")));
     List<Row> products = schema.getTable("products").retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
