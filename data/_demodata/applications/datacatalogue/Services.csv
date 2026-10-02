@@ -1,0 +1,2 @@
+id,name,description,provider
+directory_service_bbmri-eric:serviceID:EXT_IBG,"Blood and Tissue Samples: Proccessing, QC and Storage","The service includes standardized pre-analytical workflows, aliquoting, nucleic acid isolation, and cryopreservation under controlled conditions, ensuring high-quality, traceable biospecimens for downstream research applications.",bbmri-eric:ID:EXT_IBG
