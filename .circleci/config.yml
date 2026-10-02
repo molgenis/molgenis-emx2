@@ -261,7 +261,7 @@ jobs:
 
   test-e2e:
     docker:
-    - image: cimg/openjdk:21.0.12-browsers
+    - image: cimg/openjdk:25.0.4-browsers
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
