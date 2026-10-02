@@ -16,6 +16,7 @@ import type {
   IFile,
   IFiles,
   IFileLists,
+  IStatisticalCharts,
 } from "./cms.ts";
 
 import type { ITableMetaData } from "../../metadata-utils/src/types.js";
@@ -34,7 +35,8 @@ export interface IPageComponent
     IImages,
     IFiles,
     IFileLists,
-    INavigationCards {}
+    INavigationCards,
+    IStatisticalCharts {}
 
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;

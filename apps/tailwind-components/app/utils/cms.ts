@@ -17,11 +17,12 @@ import type {
 } from "../../types/CmsComponents";
 
 import {
-  AddFile,
-  AddFileList,
   AddNavigationCard,
   AddOrderedList,
   AddUnorderedList,
+  AddColumnChart,
+  AddFile,
+  AddFileList,
 } from "./cms/add";
 
 export function randomId(): string {
@@ -480,6 +481,10 @@ export async function addComponent(
 
   if (componentType === "UnorderedLists") {
     await AddUnorderedList(schema, id);
+  }
+
+  if (componentType === "ColumnCharts") {
+    await AddColumnChart(schema, id);
   }
 
   await AddOrder(schema, id, order, parentBlock);
