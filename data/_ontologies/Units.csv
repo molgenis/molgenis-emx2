@@ -1786,3 +1786,9 @@ Million per Cubic Millimeter,,,NCIT,NCIT_C67308,http://purl.obolibrary.org/obo/N
 Arbitrary Unit per Milliliter,,,NCIT,NCIT_C191361,http://purl.obolibrary.org/obo/NCIT_C191361
 Count,,,NCIT,NCIT_C25463,http://purl.obolibrary.org/obo/NCIT_C25463
 Heart Rate,,,NCIT,NCIT_C49677,http://purl.obolibrary.org/obo/NCIT_C49677
+Per Arbitrary Unit,Per Arbitrary Unit,,NCIT,NCIT_C222918,http://purl.obolibrary.org/obo/NCIT_C222918
+Per Cubic Centimeter,Per Cubic Centimeter,,NCIT,NCIT_C204709,http://purl.obolibrary.org/obo/NCIT_C204709
+Per Cubic Meter,Per Cubic Meter,,NCIT,NCIT_C222919,http://purl.obolibrary.org/obo/NCIT_C222919
+Per Gram,Per Gram,,NCIT,NCIT_C198369,http://purl.obolibrary.org/obo/NCIT_C198369
+Per Square Meter,Per Square Meter,,NCIT,NCIT_C222924,http://purl.obolibrary.org/obo/NCIT_C222924
+
