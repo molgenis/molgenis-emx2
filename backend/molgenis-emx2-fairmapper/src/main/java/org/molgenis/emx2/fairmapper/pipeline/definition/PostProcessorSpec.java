@@ -10,7 +10,13 @@ import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
  * implementation has to be listed in {@link JsonSubTypes} below.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonSubTypes({@JsonSubTypes.Type(CoalesceFieldSpec.class)})
+@JsonSubTypes({
+  @JsonSubTypes.Type(CoalesceFieldSpec.class),
+  @JsonSubTypes.Type(ResolveStaticFieldSpec.class),
+  @JsonSubTypes.Type(ResolveOntologiesSpec.class),
+  @JsonSubTypes.Type(ResolveMissingPkSpec.class),
+  @JsonSubTypes.Type(DropMissingPkSpec.class)
+})
 public interface PostProcessorSpec {
 
   /**

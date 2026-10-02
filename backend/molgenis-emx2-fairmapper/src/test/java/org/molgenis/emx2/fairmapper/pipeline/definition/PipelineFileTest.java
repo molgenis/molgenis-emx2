@@ -82,6 +82,17 @@ class PipelineFileTest {
   }
 
   @Test
+  void shouldRejectUnknownBareName() {
+    assertInvalid(
+        """
+        steps:
+          - postprocessing:
+              - resolve-ontologys
+        """,
+        "resolve-ontologys");
+  }
+
+  @Test
   void shouldRejectUnknownStage() {
     assertInvalid(
         """
