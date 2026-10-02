@@ -259,8 +259,9 @@ watch(
 </script>
 
 <template>
-  <div ref="container" class="grid gap-2.5 w-full chart_layout_default">
+  <div ref="container" class="grid gap-1 w-full chart_layout_default">
     <ChartTitle
+      :id="`${id}-context`"
       :title="(chartTitle as string)"
       :description="chartDescription"
       style="grid-area: context"
