@@ -1,5 +1,6 @@
 <template>
-  <nav class="pt-4 pb-8 bg-form-legend">
+  <nav class="bg-form-legend px-12 py-18 mb-18" aria-label="Section navigation">
+    <slot name="title" />
     <ul class="list-none">
       <li v-for="(section, index) in sections" :key="section.id">
         <FormLegendHeader
@@ -12,7 +13,7 @@
           @goToSection="emit('goToSection', $event)"
         />
         <ul v-for="header in section.headers" class="list-none">
-          <li class="pl-4 py-2" v-if="header.isVisible">
+          <li class="pl-4" v-if="header.isVisible !== false">
             <FormLegendHeader
               :id="header.id"
               :label="header.label"
@@ -37,8 +38,10 @@ const props = defineProps<{
 }>();
 const emit = defineEmits(["goToSection"]);
 
-// fallback for the default section
 const noSectionsActive = computed(() => {
-  return !props.sections.some((section) => section.isActive);
+  return !props.sections.some(
+    (section) =>
+      section.isActive || section.headers.some((header) => header.isActive)
+  );
 });
 </script>
