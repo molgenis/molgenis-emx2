@@ -3,6 +3,7 @@ import type {
   IDeveloperPages,
   IDependenciesCSS,
   IDependenciesJS,
+  IFiles,
 } from "../../types/cms";
 
 import { getContainersQuery } from "../gql/cmsPages";
@@ -20,6 +21,8 @@ import {
   AddOrderedList,
   AddUnorderedList,
   AddColumnChart,
+  AddFile,
+  AddFileList,
 } from "./cms/add";
 
 export function randomId(): string {
@@ -103,6 +106,47 @@ export async function cmsFetch(
   }
 
   return response;
+}
+
+export async function getFiles(
+  schema: string,
+  fileTag: string,
+  orderby:
+    | "fileTag"
+    | "alternateFileName"
+    | "file"
+    | "linkToExternalFile" = "fileTag",
+  direction: "ASC" | "DESC" = "ASC"
+): Promise<IFiles[]> {
+  const query = `query getFiles($filter:FilesFilter, $orderby:[Filesorderby]) {
+    Files(filter:$filter,orderby:$orderby) {
+      alternateFileName
+      file {
+         id
+         size
+         filename
+         extension
+         url
+      }
+      fileTag
+      linkToExternalFile
+    }
+  }`;
+
+  let variables = {
+    filter: {},
+    orderby: [{ [orderby]: direction }],
+  };
+  if (fileTag !== "") {
+    variables.filter = { fileTag: { equals: fileTag } };
+  }
+
+  const url: string = `/${schema}/graphql`;
+  const response: any = await $fetch(url, {
+    method: "POST",
+    body: { query: query, variables: variables },
+  });
+  return response.data?.Files ?? [];
 }
 
 async function getBlockAbove(
@@ -417,6 +461,14 @@ export async function addComponent(
 
   if (componentType === "Image") {
     await AddImage(schema, id);
+  }
+
+  if (componentType === "File") {
+    await AddFile(schema, id);
+  }
+
+  if (componentType === "FileList") {
+    await AddFileList(schema, id);
   }
 
   if (componentType === "NavigationCards") {

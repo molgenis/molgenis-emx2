@@ -213,6 +213,7 @@ watch(
     "
   >
     <ChartTitle
+      :id="`${id}-context`"
       :title="title"
       :description="description"
       style="grid-area: context"

@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.RdfUtils.*;
 
 import java.util.*;
+import java.util.function.Consumer;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -19,7 +20,6 @@ import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
-import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 
 /** A superclass for any class that contains logic of representing data in RDF. */
 public abstract class RdfGenerator {
@@ -40,7 +40,8 @@ public abstract class RdfGenerator {
     return baseURL;
   }
 
-  protected List<Row> getRows(final Table table, final PrimaryKey primaryKey) {
+  protected void processRows(
+      final Consumer<Row> consumer, final Table table, final PrimaryKey primaryKey) {
     Query query = table.query();
 
     if (primaryKey != null) {
@@ -52,10 +53,7 @@ public abstract class RdfGenerator {
       query.where(f("mg_tableclass", EQUALS, tableName));
     }
 
-    List<Row> rows = query.retrieveRows();
-    List<Column> columns = table.getMetadata().getColumns();
-    ResolveComputedValue.apply(columns, rows);
-    return rows;
+    query.streamRows(consumer);
   }
 
   /**

@@ -264,6 +264,39 @@ class TestRowLevelSecurity {
   }
 
   @Test
+  void deleteRowLevelRoleInSchemaWithSubclassTable() {
+    database.becomeAdmin();
+    Schema schema = database.dropCreateSchema(SCHEMA + "Inherit");
+    schema.create(
+        table("Patient").add(column("id").setPkey()).add(column("name")),
+        table("InPatient").setInheritName("Patient").add(column("ward")));
+    schema.createRole("PatientViewer");
+    schema.grant("PatientViewer", new TablePermission("Patient").select(true).rowLevel(true));
+
+    database.tx(db -> db.getSchema(schema.getName()).deleteRole("PatientViewer"));
+
+    assertFalse(database.getSchema(schema.getName()).getRoles().contains("PatientViewer"));
+  }
+
+  @Test
+  void deleteRoleRejectsMgRolesReferenceFromSubclassRow() {
+    database.becomeAdmin();
+    Schema schema = database.dropCreateSchema(SCHEMA + "InheritRef");
+    schema.create(
+        table("Patient").add(column("id").setPkey()).add(column("name")),
+        table("InPatient").setInheritName("Patient").add(column("ward")));
+    schema.createRole("PatientViewer");
+    schema.grant("PatientViewer", new TablePermission("Patient").select(true).rowLevel(true));
+    schema
+        .getTable("InPatient")
+        .insert(new Row().setString("id", "p1").set(MG_ROLES, new String[] {"PatientViewer"}));
+
+    MolgenisException e =
+        assertThrows(MolgenisException.class, () -> schema.deleteRole("PatientViewer"));
+    assertTrue(e.getMessage().contains("still reference it in mg_roles"), e.getMessage());
+  }
+
+  @Test
   void grantRejectsInternalRlsRoleName() {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);

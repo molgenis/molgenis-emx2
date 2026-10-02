@@ -14,6 +14,8 @@ import type {
   IComponentOrders,
   IComponents,
   IFile,
+  IFiles,
+  IFileLists,
   IStatisticalCharts,
 } from "./cms.ts";
 
@@ -31,6 +33,8 @@ export interface IPageComponent
     IUnorderedLists,
     IOrderedLists,
     IImages,
+    IFiles,
+    IFileLists,
     INavigationCards,
     IStatisticalCharts {}
 

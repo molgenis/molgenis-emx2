@@ -204,6 +204,22 @@ const handleDragEvent = (event: DragEvent) => {
             @dragging="handleDragEvent"
           />
         </li>
+        <li>
+          <DraggableComponent
+            icon="UploadFile"
+            componentName="File"
+            componentLabel="File"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="UploadFile"
+            componentName="FileList"
+            componentLabel="File list"
+            @dragging="handleDragEvent"
+          />
+        </li>
       </ul>
     </div> -->
 

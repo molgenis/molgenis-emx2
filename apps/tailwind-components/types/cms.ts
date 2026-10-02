@@ -1,4 +1,4 @@
-// Generated (on: 2026-10-01T14:36:48.335684) from Generator.java for schema: cms
+// Generated (on: 2026-10-01T13:13:59.107872) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -9,6 +9,7 @@ export interface IFile {
   size?: number;
   extension?: string;
   url?: string;
+  filename?: string;
 }
 
 export interface ITreeNode {
@@ -118,8 +119,6 @@ export interface ICharts extends IMgTableClass {
   enableAnimations?: boolean;
   enableHoverEvents?: boolean;
   enableClickEvents?: boolean;
-  inBlock?: any;
-  id: string;
   x: string;
   y: string;
   primaryGroupValues?: string;
@@ -134,6 +133,8 @@ export interface ICharts extends IMgTableClass {
   yAxisMaxValue?: number;
   yAxisTicks?: number[];
   breakYAxisTickLabelsAt?: string;
+  inBlock?: any;
+  id: string;
 }
 
 export interface ICharts_agg {
@@ -171,6 +172,11 @@ export interface IComponentOrders_agg {
 export interface IComponents extends IMgTableClass {
   inBlock?: any;
   id: string;
+  fileIsAnExternalLink?: boolean;
+  file?: IFile;
+  linkToExternalFile?: string;
+  alternateFileName?: string;
+  fileTag?: string;
   displayName?: string;
   image?: IFile;
   alt?: string;
@@ -183,6 +189,7 @@ export interface IComponents extends IMgTableClass {
   headingIsCentered?: boolean;
   headingIsHidden?: boolean;
   paragraphIsCentered?: boolean;
+  showFilesWithTag?: string;
   title?: string;
   description?: string;
   url: string;
@@ -358,6 +365,30 @@ export interface IDeveloperPages extends IMgTableClass {
 }
 
 export interface IDeveloperPages_agg {
+  count: number;
+}
+
+export interface IFileLists extends IMgTableClass {
+  showFilesWithTag?: string;
+  inBlock?: any;
+  id: string;
+}
+
+export interface IFileLists_agg {
+  count: number;
+}
+
+export interface IFiles extends IMgTableClass {
+  fileIsAnExternalLink?: boolean;
+  file?: IFile;
+  linkToExternalFile?: string;
+  alternateFileName?: string;
+  fileTag?: string;
+  inBlock?: any;
+  id: string;
+}
+
+export interface IFiles_agg {
   count: number;
 }
 

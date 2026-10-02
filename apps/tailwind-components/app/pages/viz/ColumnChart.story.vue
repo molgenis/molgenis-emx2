@@ -30,6 +30,7 @@ const chartClick2 = ref<Record<string, number>>();
     <div>
       <ColumnChart
         id="column-chart-demo-1"
+        :chartType="{ name: 'ColumnChart' }"
         chartTitle="Participants recruited by month"
         chartDescription="Participants (n=214) recruited from January 2026 to June 2026"
         :chartData="recruitmentDataExample"
@@ -51,6 +52,7 @@ const chartClick2 = ref<Record<string, number>>();
     <div>
       <ColumnChart
         id="column-chart-demo-2"
+        :chartType="{ name: 'ColumnChart' }"
         chartTitle="Participant recruitment goals"
         chartDescription="The difference of participant recruitment in relation to the target per month (n=50). This is chart that demonstrates negative numbers and custom colors."
         :chartData="data"

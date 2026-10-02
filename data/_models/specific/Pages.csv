@@ -57,7 +57,15 @@ Navigation cards,,description,string,,,,,,,,,,,sio:000136,An optional descriptio
 Navigation cards,,url,hyperlink,,TRUE,,,,,,,,,sio:000811,A link to an internal or external page,pages
 Navigation cards,,url label,string,,,,,,,,,,,sio:000179,A label to display instead of the URL,pages
 Navigation cards,,url is external,bool,,,,,,,,,,FALSE,ncit:C44280,"If true, the link will be rendered as an external link",pages
-Charts,Components,,,,,,,,,,,,,sio:SIO_000904,Visualisations and configurations to be displayed on a page,pages
+FileLists,Components,,,,,,,,,,,,,,filelists,pages
+FileLists,,show files with tag,string,,,,,,,,,,,,Limit files by a specific tag or leave empty to show all files,pages
+Files,Components,,,,,,,,,,,,,,file elements,pages
+Files,,file is an external link,bool,,,,,,,,,FALSE,,,"If true, you can create a link to a file hosted elsewhere",pages
+Files,,file,file,,,,,,,fileIsAnExternalLink===false,,,,,Select an file,pages
+Files,,link to external file,string,,,,,,,fileIsAnExternalLink===true,,,,,Link to an external file,pages
+Files,,alternate file name,string,,,,,,,,,,,,An optional name to display in place of the filename,pages
+Files,,file tag,string,,,,,,,,,,,,Set tag to group files,pages
+Charts,Components,,,,,,,,,,,,sio:SIO_000904,,Visualisations and configurations to be displayed on a page,pages
 Charts,,chart type,ontology,,TRUE,,Data viz chart types,,,,,,,sio:SIO_000904,"The visualisation to be displayed e.g., column chart, map, etc.",pages
 Charts,,chart title,string,,TRUE,,,,,,,,,sio:SIO_000473,A title that summarises a visualisation,pages
 Charts,,chart description,string,,,,,,,,,,,sio:SIO_000474,Additional information about the visualisation to be placed below the title,pages
@@ -133,7 +141,7 @@ Charts,,top margin,int,,,,,,,,"(function () {
   if (topMargin !== null && topMargin > 250) {
   return ""The top margin cannot be more than 250""
   }
-})();",,30,obo:NCIT_C69201,A number that indicates the amount of white space to add to the top of the chart,pages
+})();",,35,obo:NCIT_C69201,A number that indicates the amount of white space to add to the top of the chart,pages
 Charts,,right margin,int,,,,,,,,"(function () {
   if (rightMargin !== null && rightMargin < 0) {
   return ""The right margin cannot be less than 0""

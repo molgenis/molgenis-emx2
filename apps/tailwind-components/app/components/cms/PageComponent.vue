@@ -10,6 +10,8 @@ import EditableParagraph from "./paragraph/EditableParagraph.vue";
 import EditableImage from "./image/EditableImage.vue";
 import EditableOrderedList from "./lists/EditableOrderedList.vue";
 import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
+import EditableFileDownloadItem from "./FileDownloadItem/EditableFileDownloadItem.vue";
+import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
 import EditableColumnChart from "./columnChart/EditableColumnChart.vue";
 
@@ -227,6 +229,30 @@ function asSingularName(value: string | undefined): string | undefined {
     v-bind="component"
     :isEditable="editingIsEnabled"
     @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableFileDownload
+    v-else-if="mg_tableclass.endsWith('.FileLists')"
+    :id="component.id"
+    :isEditable="editingIsEnabled"
+    :showFilesWithTag="component.showFilesWithTag"
+    :schema="componentMetadata?.schemaId || ''"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+    @updatePage="$emit('updatePage')"
+  />
+  <EditableFileDownloadItem
+    v-else-if="mg_tableclass.endsWith('.Files')"
+    :id="component.id"
+    :isEditable="editingIsEnabled"
+    :labalternateFileNameel="component.alternateFileName"
+    :file="component.file"
+    :fileTag="component.fileTag"
+    :linkToExternalFile="component.linkToExternalFile"
+    :fileIsAnExternalLink="component.fileIsAnExternalLink"
+    @edit="showEditModal = true"
     @delete="onDelete"
     @move="handleMoveEvent"
   />

@@ -95,6 +95,22 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         height
                         imageIsCentered
                         
+                        # Files
+                        file {
+                            id
+                            size
+                            filename
+                            extension
+                            url
+                        }
+                        alternateFileName
+                        fileTag
+                        linkToExternalFile
+                        fileIsAnExternalLink
+                        
+                        # Filelist
+                        showFilesWithTag
+
                         # navigation cards
                         id
                         title
