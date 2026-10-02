@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,12 +23,14 @@ import org.molgenis.emx2.MolgenisException;
  * network calls are made and no components are created.
  *
  * <p>The stages are listed under {@code steps}, each entry naming one stage. Each stage may appear
- * at most once. For now only the {@code postprocessing} stage is supported:
+ * at most once. For now only the {@code postprocessing} stage is supported. A post-processor
+ * without arguments can be written as a bare name:
  *
  * <pre>
  * steps:
  *   - postprocessing:
  *       - coalesce-field: { table: Collections, field: id, derive-from: [acronym, name] }
+ *       - resolve-ontologies
  * </pre>
  */
 public final class PipelineFile {
@@ -73,7 +77,8 @@ public final class PipelineFile {
     List<PostProcessorSpec> postProcessors = List.of();
     for (Map.Entry<String, JsonNode> stage : stages(root.path(STEPS))) {
       if (POST_PROCESSING.equals(stage.getKey())) {
-        postProcessors = MAPPER.treeToValue(stage.getValue(), new TypeReference<>() {});
+        postProcessors =
+            MAPPER.treeToValue(expandBareNames(stage.getValue()), new TypeReference<>() {});
         postProcessors.forEach(PostProcessorSpec::validate);
       } else {
         throw new MolgenisException(
@@ -106,6 +111,27 @@ public final class PipelineFile {
               return stage;
             })
         .toList();
+  }
+
+  /**
+   * Rewrites each bare name in {@code list} (e.g. {@code resolve-ontologies}) to a name without
+   * arguments ({@code resolve-ontologies: {}}), the form Jackson expects for a named type.
+   */
+  private static JsonNode expandBareNames(JsonNode list) {
+    if (!list.isArray()) {
+      return list;
+    }
+    ArrayNode expanded = MAPPER.createArrayNode();
+    for (JsonNode entry : list) {
+      if (entry.isTextual()) {
+        ObjectNode named = MAPPER.createObjectNode();
+        named.putObject(entry.asText());
+        expanded.add(named);
+      } else {
+        expanded.add(entry);
+      }
+    }
+    return expanded;
   }
 
   private static MolgenisException invalid(JsonProcessingException e) {

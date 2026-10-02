@@ -1,12 +1,13 @@
 package org.molgenis.emx2.fairmapper.pipeline.definition;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.fairmapper.pipeline.definition.PostProcessorSpecParsing.assertInvalid;
+import static org.molgenis.emx2.fairmapper.pipeline.definition.PostProcessorSpecParsing.parse;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.molgenis.emx2.MolgenisException;
 
 class CoalesceFieldSpecTest {
 
@@ -112,29 +113,5 @@ class CoalesceFieldSpecTest {
         coalesce-field: { table: Collections, field: id, derive-from: [acronym], strict: maybe }
         """,
         "maybe");
-  }
-
-  /** Parses a single post-processing entry by wrapping it in a minimal pipeline file. */
-  private static PostProcessorSpec parse(String entry) {
-    List<PostProcessorSpec> specs = PipelineFile.parse(pipelineFile(entry)).postProcessors();
-    assertEquals(1, specs.size());
-    return specs.getFirst();
-  }
-
-  private static void assertInvalid(String entry, String expectedMessagePart) {
-    MolgenisException exception =
-        assertThrows(MolgenisException.class, () -> PipelineFile.parse(pipelineFile(entry)));
-    assertTrue(
-        exception.getMessage().contains(expectedMessagePart),
-        () -> "Expected '" + expectedMessagePart + "' in: " + exception.getMessage());
-  }
-
-  private static String pipelineFile(String entry) {
-    return """
-        steps:
-          - postprocessing:
-              - %s
-        """
-        .formatted(entry.strip().replace("\n", "\n        "));
   }
 }
