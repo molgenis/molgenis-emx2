@@ -18,8 +18,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.signin.SigninDataFetcher;
 import org.molgenis.emx2.sql.JWTgenerator;
-import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
 
@@ -117,35 +117,7 @@ public class GraphqlSessionFieldFactory {
         .type(GraphqlApiMutationResultWithToken.typeForSignResult)
         .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .argument(GraphQLArgument.newArgument().name(PASSWORD).type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String userName = dataFetchingEnvironment.getArgument(EMAIL);
-              String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
-              if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
-                if (database.getUser(userName).getEnabled()) {
-                  GraphqlSessionHandlerInterface sessionHandler =
-                      dataFetchingEnvironment
-                          .getGraphQlContext()
-                          .get(GraphqlSessionHandlerInterface.class);
-                  sessionHandler.createSession(userName);
-                  // token can only be created as that user
-                  // to make sure we don't change database user we create new instance
-                  Database temp = new SqlDatabase(false);
-                  temp.setActiveUser(userName);
-                  return new GraphqlApiMutationResultWithToken(
-                      GraphqlApiMutationResult.Status.SUCCESS,
-                      JWTgenerator.createTemporaryToken(temp, userName),
-                      "Signed in as '%s'",
-                      userName);
-                } else {
-                  return new GraphqlApiMutationResult(
-                      FAILED, "User '%s' disabled: check with your administrator", userName);
-                }
-              } else {
-                return new GraphqlApiMutationResult(
-                    FAILED, "Sign in as '%s' failed: user or password unknown", userName);
-              }
-            })
+        .dataFetcher(new SigninDataFetcher(database))
         .build();
   }
 
