@@ -1,8 +1,10 @@
 package org.molgenis.emx2.fairmapper.pipeline.definition;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.fairmapper.pipeline.definition.TestPipelineFiles.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,7 +12,8 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.molgenis.emx2.MolgenisException;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
@@ -21,34 +24,89 @@ class PipelineFileTest {
   private static final PipelineContext CONTEXT = new PipelineContext(null, null);
 
   @Test
-  void shouldCreateCoalesceFieldPostProcessor() {
-    List<PostProcessor> postProcessors =
-        postProcessorsOf(
+  void shouldReadCompletePipelineFile() {
+    PipelineDefinition definition =
+        PipelineFile.parse(
             """
+            schema: catalogue
+            tables: [Catalogues, Collections]
+            output: ./output-dir
+            emx2:
+              endpoint: https://emx2.example.org
+              token: my-token
             steps:
-              - postprocessing:
-                  - coalesce-field:
-                      table: Collections
-                      field: id
-                      derive-from: [acronym, name]
+              - extract: { url: https://fdp.example.org, crawl: fdp, strict: false }
+              - preprocessing: [temporal, stage-csvw]
+              - transform
+              - postprocessing: [resolve-missing-pk]
+              - upload
             """);
 
-    InMemoryTableStore store = storeWithRow(new Row("name", "Biobank X"));
-    postProcessors.forEach(postProcessor -> postProcessor.process(store));
-
-    assertEquals("Biobank X", firstRow(store).getString("id"));
+    assertEquals("catalogue", definition.schema());
+    assertEquals(List.of("Catalogues", "Collections"), definition.tables());
+    assertEquals("./output-dir", definition.output());
+    assertEquals(new Emx2Settings("https://emx2.example.org", "my-token"), definition.emx2());
+    assertEquals(URI.create("https://fdp.example.org"), definition.extract().url());
+    assertFalse(definition.extract().strict());
+    assertEquals(List.of(new TemporalSpec(), new StageCsvwSpec()), definition.preProcessors());
+    assertEquals(List.of(new ResolveMissingPkSpec()), definition.postProcessors());
+    assertTrue(definition.upload());
   }
 
   @Test
-  void shouldKeepListedOrderOfPostProcessors() {
+  void shouldLeaveOutOptionalPartsWhenNotListed() {
+    PipelineDefinition definition = PipelineFile.parse(withSteps(""));
+
+    assertNull(definition.output());
+    assertEquals(List.of(), definition.preProcessors());
+    assertEquals(List.of(), definition.postProcessors());
+    assertFalse(definition.upload());
+  }
+
+  @Test
+  void shouldIgnoreOrderOfStages() {
+    PipelineDefinition definition =
+        PipelineFile.parse(
+            steps(
+                """
+                - upload
+                - postprocessing: [resolve-missing-pk]
+                - transform
+                - extract: { url: https://fdp.example.org }
+                """));
+
+    assertTrue(definition.upload());
+    assertEquals(List.of(new ResolveMissingPkSpec()), definition.postProcessors());
+  }
+
+  @Test
+  void shouldAcceptEmptyOptionsForStagesWithoutOptions() {
+    PipelineDefinition definition =
+        PipelineFile.parse(steps(EXTRACT + "- transform: {}\n- upload: {}\n"));
+
+    assertTrue(definition.upload());
+  }
+
+  @Test
+  void shouldAcceptPreAndPostProcessingWithoutEntries() {
+    PipelineDefinition definition =
+        PipelineFile.parse(withSteps("- preprocessing\n- postprocessing: []\n"));
+
+    assertEquals(List.of(), definition.preProcessors());
+    assertEquals(List.of(), definition.postProcessors());
+  }
+
+  @Test
+  void shouldCreateWorkingPostProcessorsInListedOrder() {
     List<PostProcessor> postProcessors =
-        postProcessorsOf(
-            """
-            steps:
-              - postprocessing:
-                  - coalesce-field: { table: Collections, field: id, derive-from: [acronym] }
-                  - coalesce-field: { table: Collections, field: label, derive-from: [id] }
-            """);
+        PipelineFile.parse(
+                withSteps(
+                    """
+                    - postprocessing:
+                        - coalesce-field: { table: Collections, field: id, derive-from: [acronym] }
+                        - coalesce-field: { table: Collections, field: label, derive-from: [id] }
+                    """))
+            .createPostProcessors(CONTEXT);
 
     InMemoryTableStore store = storeWithRow(new Row("acronym", "BX"));
     postProcessors.forEach(postProcessor -> postProcessor.process(store));
@@ -57,103 +115,114 @@ class PipelineFileTest {
   }
 
   @Test
-  void shouldReadPreProcessingAndPostProcessingStages() {
-    PipelineDefinition definition =
-        PipelineFile.parse(
-            """
-            steps:
-              - preprocessing: [temporal, stage-csvw]
-              - postprocessing: [resolve-missing-pk]
-            """);
-
-    assertEquals(List.of(new TemporalSpec(), new StageCsvwSpec()), definition.preProcessors());
-    assertEquals(List.of(new ResolveMissingPkSpec()), definition.postProcessors());
-  }
-
-  @Test
-  void shouldDefaultToNoPreOrPostProcessorsWhenStagesAreLeftOut() {
-    PipelineDefinition definition = PipelineFile.parse("steps: []");
-
-    assertEquals(List.of(), definition.preProcessors());
-    assertEquals(List.of(), definition.postProcessors());
-  }
-
-  @Test
   void shouldReadFromPath(@TempDir Path dir) throws IOException {
     Path file = dir.resolve("pipeline.yaml");
-    Files.writeString(
-        file,
-        """
-        steps:
-          - postprocessing:
-              - coalesce-field: { table: Collections, field: id, derive-from: [name] }
-        """);
+    Files.writeString(file, withSteps(""));
 
-    assertEquals(1, PipelineFile.read(file).createPostProcessors(CONTEXT).size());
+    assertEquals("catalogue", PipelineFile.read(file).schema());
+  }
+
+  @Test
+  void shouldRejectMissingSchema() {
+    assertInvalid(withSteps("").replace("schema: catalogue\n", ""), "schema is required");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"", "tables: []\n"})
+  void shouldRejectMissingTables(String tables) {
+    assertInvalid(
+        withSteps("").replace("tables: [Collections]\n", tables),
+        "tables must list at least one table");
+  }
+
+  @Test
+  void shouldRejectMissingEmx2() {
+    assertInvalid(
+        """
+        schema: catalogue
+        tables: [Collections]
+        steps: []
+        """,
+        "emx2 is required");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"  endpoint: http://localhost:8080\n", "  token: token\n"})
+  void shouldRejectIncompleteEmx2(String missingLine) {
+    assertInvalid(withSteps("").replace(missingLine, ""), "emx2 requires endpoint and token");
+  }
+
+  @Test
+  void shouldRejectUnknownTopLevelField() {
+    assertInvalid("stepz: []\n" + withSteps(""), "stepz");
+  }
+
+  @Test
+  void shouldRejectUnknownEmx2Field() {
+    assertInvalid(
+        withSteps("").replace("  token: token\n", "  token: token\n  user: me\n"), "user");
+  }
+
+  @Test
+  void shouldRejectMissingSteps() {
+    assertInvalid(SETTINGS, "'steps' must be a list");
+  }
+
+  @Test
+  void shouldRejectMissingExtractStage() {
+    assertInvalid(steps(TRANSFORM), "the extract stage is required");
+  }
+
+  @Test
+  void shouldRejectMissingTransformStage() {
+    assertInvalid(steps(EXTRACT), "the transform stage is required");
+  }
+
+  @Test
+  void shouldRejectOptionsOnTransformStage() {
+    assertInvalid(
+        steps(EXTRACT + "- transform: { fast: true }\n"), "stage 'transform' takes no options");
+  }
+
+  @Test
+  void shouldRejectOptionsOnUploadStage() {
+    assertInvalid(withSteps("- upload: { fast: true }\n"), "stage 'upload' takes no options");
+  }
+
+  @Test
+  void shouldRejectUnknownStage() {
+    assertInvalid(withSteps("- postprocesing: []\n"), "unknown stage 'postprocesing'");
+  }
+
+  @Test
+  void shouldRejectUnknownBareStage() {
+    assertInvalid(withSteps("- uplod\n"), "unknown stage 'uplod'");
+  }
+
+  @Test
+  void shouldRejectStageListedMoreThanOnce() {
+    assertInvalid(withSteps("- transform\n"), "stage 'transform' is listed more than once");
+  }
+
+  @Test
+  void shouldRejectStepNamingMoreThanOneStage() {
+    assertInvalid(steps(EXTRACT + "- { transform: {}, upload: {} }\n"), "exactly one stage");
   }
 
   @Test
   void shouldRejectUnknownPostProcessor() {
     assertInvalid(
-        """
-        steps:
-          - postprocessing:
-              - coalesce-feild: { table: Collections, field: id, derive-from: [name] }
-        """,
+        withSteps(
+            """
+            - postprocessing:
+                - coalesce-feild: { table: Collections, field: id, derive-from: [name] }
+            """),
         "coalesce-feild");
   }
 
   @Test
-  void shouldRejectUnknownBareName() {
-    assertInvalid(
-        """
-        steps:
-          - postprocessing:
-              - resolve-ontologys
-        """,
-        "resolve-ontologys");
-  }
-
-  @Test
-  void shouldRejectUnknownStage() {
-    assertInvalid(
-        """
-        steps:
-          - postprocesing: []
-        """,
-        "unknown stage 'postprocesing'");
-  }
-
-  @Test
-  void shouldRejectStageListedMoreThanOnce() {
-    assertInvalid(
-        """
-        steps:
-          - postprocessing: []
-          - postprocessing: []
-        """,
-        "stage 'postprocessing' is listed more than once");
-  }
-
-  @Test
-  void shouldRejectUnknownTopLevelField() {
-    assertInvalid(
-        """
-        stepz: []
-        """,
-        "unknown field 'stepz'");
-  }
-
-  private static List<PostProcessor> postProcessorsOf(String yaml) {
-    return PipelineFile.parse(yaml).createPostProcessors(CONTEXT);
-  }
-
-  private static void assertInvalid(String yaml, String expectedMessagePart) {
-    MolgenisException exception =
-        assertThrows(MolgenisException.class, () -> PipelineFile.parse(yaml));
-    assertTrue(
-        exception.getMessage().contains(expectedMessagePart),
-        () -> "Expected '" + expectedMessagePart + "' in: " + exception.getMessage());
+  void shouldRejectUnknownBarePostProcessor() {
+    assertInvalid(withSteps("- postprocessing: [resolve-ontologys]\n"), "resolve-ontologys");
   }
 
   private static InMemoryTableStore storeWithRow(Row row) {
