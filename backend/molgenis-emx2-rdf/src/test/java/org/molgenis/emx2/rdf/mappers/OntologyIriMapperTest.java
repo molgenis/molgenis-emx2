@@ -3,14 +3,14 @@ package org.molgenis.emx2.rdf.mappers;
 import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;
 import org.junit.jupiter.api.AfterAll;
@@ -146,7 +146,6 @@ class OntologyIriMapperTest {
     final String mockIRI = "http://example.com/mockIRI";
 
     Row row = new Row(Map.ofEntries(entry("name", mockName), entry("ontologyTermURI", mockIRI)));
-    List<Row> rows = List.of(row);
 
     TableMetadata tableMetadata = mock(TableMetadata.class);
     when(tableMetadata.getTableType()).thenReturn(TableType.ONTOLOGIES);
@@ -156,7 +155,14 @@ class OntologyIriMapperTest {
 
     Query query = mock(Query.class);
     when(query.select(any(SelectColumn.class), any(SelectColumn.class))).thenReturn(query);
-    when(query.retrieveRows()).thenReturn(rows);
+    doAnswer(
+            invocation -> {
+              Consumer<Row> consumer = invocation.getArgument(0);
+              consumer.accept(row);
+              return null;
+            })
+        .when(query)
+        .streamRows(any(Consumer.class));
 
     Table table = mock(Table.class);
     when(table.getMetadata()).thenReturn(tableMetadata);

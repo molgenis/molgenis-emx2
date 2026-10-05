@@ -1,4 +1,4 @@
-// Generated (on: 2026-09-23T14:16:19.659763) from Generator.java for schema: cms
+// Generated (on: 2026-10-01T13:13:59.107872) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -9,6 +9,7 @@ export interface IFile {
   size?: number;
   extension?: string;
   url?: string;
+  filename?: string;
 }
 
 export interface ITreeNode {
@@ -43,16 +44,74 @@ export interface IBlocks extends IMgTableClass {
   components?: IComponents[];
   componentOrder?: IComponentOrders[];
   id: string;
+  columns?: number;
+  applyShadedBackground?: boolean;
   title?: string;
   subtitle?: string;
   backgroundImage?: any;
   titleIsCentered?: boolean;
   pageHeaderHeight?: IOntologyNode;
-  columns?: number;
-  applyShadedBackground?: boolean;
 }
 
 export interface IBlocks_agg {
+  count: number;
+}
+
+export interface IChartData extends IMgTableClass {
+  id: string;
+  primaryGroupValue?: string;
+  primaryGroupLabel?: string;
+  fillColor?: string;
+  strokeColor?: string;
+  sortOrder?: number;
+  displayedInChart?: ICharts;
+  locationName?: string;
+  alternateId?: string;
+  city?: string;
+  country?: string;
+  continent?: string;
+  latitude?: number;
+  longitude?: number;
+  website?: string;
+  tooltipContent?: string;
+  xValue: string;
+  xLabel?: string;
+  yValue: string;
+  yLabel?: string;
+  secondaryGroupValue?: string;
+  secondaryGroupLabel?: string;
+}
+
+export interface IChartData_agg {
+  count: number;
+}
+
+export interface IChartPalette extends IMgTableClass {
+  value: string;
+  color: string;
+  usedInChart?: ICharts;
+}
+
+export interface IChartPalette_agg {
+  count: number;
+}
+
+export interface ICharts extends IMgTableClass {
+  chartType?: IOntologyNode;
+  chartTitle?: string;
+  chartDescription?: string;
+  chartData?: IChartData[];
+  colorPalette?: IChartPalette[];
+  legendPosition?: IOntologyNode;
+  topMargin?: number;
+  rightMargin?: number;
+  bottomMargin?: number;
+  leftMargin?: number;
+  inBlock?: any;
+  id: string;
+}
+
+export interface ICharts_agg {
   count: number;
 }
 
@@ -87,6 +146,11 @@ export interface IComponentOrders_agg {
 export interface IComponents extends IMgTableClass {
   inBlock?: any;
   id: string;
+  fileIsAnExternalLink?: boolean;
+  file?: IFile;
+  linkToExternalFile?: string;
+  alternateFileName?: string;
+  fileTag?: string;
   displayName?: string;
   image?: IFile;
   alt?: string;
@@ -94,17 +158,28 @@ export interface IComponents extends IMgTableClass {
   height?: string;
   imageIsCentered?: boolean;
   orderedItems?: string[];
-  text?: string;
-  paragraphIsCentered?: boolean;
-  level?: number;
-  headingIsCentered?: boolean;
-  headingIsHidden?: boolean;
+  unorderedItems?: string[];
+  showFilesWithTag?: string;
   title?: string;
   description?: string;
   url: string;
   urlLabel?: string;
   urlIsExternal?: boolean;
-  unorderedItems?: string[];
+  text?: string;
+  paragraphIsCentered?: boolean;
+  level?: number;
+  headingIsCentered?: boolean;
+  headingIsHidden?: boolean;
+  chartType?: IOntologyNode;
+  chartTitle?: string;
+  chartDescription?: string;
+  chartData?: IChartData[];
+  colorPalette?: IChartPalette[];
+  legendPosition?: IOntologyNode;
+  topMargin?: number;
+  rightMargin?: number;
+  bottomMargin?: number;
+  leftMargin?: number;
 }
 
 export interface IComponents_agg {
@@ -137,6 +212,40 @@ export interface IContainers extends IMgTableClass {
 }
 
 export interface IContainers_agg {
+  count: number;
+}
+
+export interface IDataVizChartTypes extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: IDataVizChartTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IDataVizChartTypes[];
+}
+
+export interface IDataVizChartTypes_agg {
+  count: number;
+}
+
+export interface IDataVizLegendPositions extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: IDataVizLegendPositions;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IDataVizLegendPositions[];
+}
+
+export interface IDataVizLegendPositions_agg {
   count: number;
 }
 
@@ -190,6 +299,30 @@ export interface IDeveloperPages_agg {
   count: number;
 }
 
+export interface IFileLists extends IMgTableClass {
+  showFilesWithTag?: string;
+  inBlock?: any;
+  id: string;
+}
+
+export interface IFileLists_agg {
+  count: number;
+}
+
+export interface IFiles extends IMgTableClass {
+  fileIsAnExternalLink?: boolean;
+  file?: IFile;
+  linkToExternalFile?: string;
+  alternateFileName?: string;
+  fileTag?: string;
+  inBlock?: any;
+  id: string;
+}
+
+export interface IFiles_agg {
+  count: number;
+}
+
 export interface IHeaders extends IMgTableClass {
   title?: string;
   subtitle?: string;
@@ -232,6 +365,29 @@ export interface IImages extends IMgTableClass {
 }
 
 export interface IImages_agg {
+  count: number;
+}
+
+export interface IMapDotDistributionData extends IMgTableClass {
+  id: string;
+  locationName?: string;
+  alternateId?: string;
+  city?: string;
+  country?: string;
+  continent?: string;
+  latitude?: number;
+  longitude?: number;
+  website?: string;
+  tooltipContent?: string;
+  primaryGroupValue?: string;
+  primaryGroupLabel?: string;
+  fillColor?: string;
+  strokeColor?: string;
+  sortOrder?: number;
+  displayedInChart?: ICharts;
+}
+
+export interface IMapDotDistributionData_agg {
   count: number;
 }
 
@@ -281,6 +437,26 @@ export interface ISections extends IMgTableClass {
 }
 
 export interface ISections_agg {
+  count: number;
+}
+
+export interface IStatisticalChartData extends IMgTableClass {
+  id: string;
+  xValue: string;
+  xLabel?: string;
+  yValue: string;
+  yLabel?: string;
+  primaryGroupValue?: string;
+  primaryGroupLabel?: string;
+  secondaryGroupValue?: string;
+  secondaryGroupLabel?: string;
+  fillColor?: string;
+  strokeColor?: string;
+  sortOrder?: number;
+  displayedInChart?: ICharts;
+}
+
+export interface IStatisticalChartData_agg {
   count: number;
 }
 

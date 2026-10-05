@@ -175,7 +175,7 @@ public class SqlRoleManager {
       DSLContext jooq, String schemaName, String roleName, Collection<String> tableNames) {
     SchemaMetadata schemaMetadata = database.getSchemaMetadata(schemaName);
     for (String tableName : tableNames) {
-      if (schemaMetadata.getTableMetadata(tableName).getColumn(MG_ROLES) == null) {
+      if (schemaMetadata.getTableMetadata(tableName).getLocalColumn(MG_ROLES) == null) {
         continue;
       }
       int count =
