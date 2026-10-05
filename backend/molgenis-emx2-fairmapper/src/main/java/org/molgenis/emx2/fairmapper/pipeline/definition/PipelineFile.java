@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
@@ -22,29 +23,58 @@ import org.molgenis.emx2.MolgenisException;
  * Reads a pipeline file into a {@link PipelineDefinition}. Only reads and validates the file; no
  * network calls are made and no components are created.
  *
- * <p>The stages are listed under {@code steps}, each entry naming one stage. Each stage may appear
- * at most once. For now only the {@code preprocessing} and {@code postprocessing} stages are
- * supported. A pre-processor or post-processor without arguments can be written as a bare name:
- *
  * <pre>
+ * schema: catalogue
+ * tables: [Catalogues, Collections]
+ * output: ./output-dir              # optional
+ * emx2:
+ *   endpoint: https://emx2.example.org
+ *   token: my-token
  * steps:
+ *   - extract: { url: https://fdp.example.org, crawl: fdp }
  *   - preprocessing: [temporal, typical-age]
+ *   - transform
  *   - postprocessing:
  *       - coalesce-field: { table: Collections, field: id, derive-from: [acronym, name] }
  *       - resolve-ontologies
+ *   - upload
  * </pre>
+ *
+ * <p>Each entry under {@code steps} names one stage. A stage may appear at most once, and the order
+ * in which the stages are listed doesn't matter. The Extract and Transform stages are required.
+ * Stages, pre-processors and post-processors without options can be written as a bare name.
  */
 public final class PipelineFile {
 
   private static final String STEPS = "steps";
+  private static final String EXTRACT = "extract";
   private static final String PRE_PROCESSING = "preprocessing";
+  private static final String TRANSFORM = "transform";
   private static final String POST_PROCESSING = "postprocessing";
+  private static final String UPLOAD = "upload";
 
   private static final JsonMapper MAPPER =
       JsonMapper.builder(new YAMLFactory())
           .propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
           .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
           .build();
+
+  /** Top-level fields of a pipeline file, everything except {@code steps}. */
+  private record Settings(String schema, List<String> tables, String output, Emx2Settings emx2) {
+
+    void validate() {
+      if (schema == null) {
+        throw new MolgenisException("Invalid pipeline file: schema is required");
+      }
+      if (tables == null || tables.isEmpty()) {
+        throw new MolgenisException("Invalid pipeline file: tables must list at least one table");
+      }
+      if (emx2 == null) {
+        throw new MolgenisException("Invalid pipeline file: emx2 is required");
+      }
+      emx2.validate();
+    }
+  }
 
   private PipelineFile() {}
 
@@ -68,32 +98,56 @@ public final class PipelineFile {
     if (root == null || !root.isObject()) {
       throw new MolgenisException("Invalid pipeline file: expected a map at the top level");
     }
-    root.fieldNames()
-        .forEachRemaining(
-            name -> {
-              if (!STEPS.equals(name)) {
-                throw new MolgenisException("Invalid pipeline file: unknown field '" + name + "'");
-              }
-            });
+    ObjectNode settingsNode = root.deepCopy();
+    settingsNode.remove(STEPS);
+    Settings settings = MAPPER.treeToValue(settingsNode, Settings.class);
+    settings.validate();
 
+    ExtractSpec extract = null;
     List<PreProcessorSpec> preProcessors = List.of();
+    boolean transform = false;
     List<PostProcessorSpec> postProcessors = List.of();
+    boolean upload = false;
+
     for (Map.Entry<String, JsonNode> stage : stages(root.path(STEPS))) {
-      if (PRE_PROCESSING.equals(stage.getKey())) {
-        preProcessors =
-            MAPPER.treeToValue(expandBareNames(stage.getValue()), new TypeReference<>() {});
-      } else if (POST_PROCESSING.equals(stage.getKey())) {
-        postProcessors =
-            MAPPER.treeToValue(expandBareNames(stage.getValue()), new TypeReference<>() {});
-        postProcessors.forEach(PostProcessorSpec::validate);
-      } else {
-        throw new MolgenisException(
-            "Invalid pipeline file: unknown stage '" + stage.getKey() + "'");
+      JsonNode options = stage.getValue();
+      switch (stage.getKey()) {
+        case EXTRACT -> {
+          extract = MAPPER.treeToValue(objectOrEmpty(options), ExtractSpec.class);
+          extract.validate();
+        }
+        case PRE_PROCESSING -> preProcessors = specs(options, new TypeReference<>() {});
+        case TRANSFORM -> transform = withoutOptions(stage);
+        case POST_PROCESSING -> {
+          postProcessors = specs(options, new TypeReference<>() {});
+          postProcessors.forEach(PostProcessorSpec::validate);
+        }
+        case UPLOAD -> upload = withoutOptions(stage);
+        default ->
+            throw new MolgenisException(
+                "Invalid pipeline file: unknown stage '" + stage.getKey() + "'");
       }
     }
-    return new PipelineDefinition(preProcessors, postProcessors);
+
+    if (extract == null) {
+      throw new MolgenisException("Invalid pipeline file: the extract stage is required");
+    }
+    if (!transform) {
+      throw new MolgenisException("Invalid pipeline file: the transform stage is required");
+    }
+
+    return new PipelineDefinition(
+        settings.schema(),
+        settings.tables(),
+        settings.output(),
+        settings.emx2(),
+        extract,
+        preProcessors,
+        postProcessors,
+        upload);
   }
 
+  /** Lists the stages under {@code steps} as name and options, the options being null if none. */
   private static List<Map.Entry<String, JsonNode>> stages(JsonNode steps) {
     if (!steps.isArray()) {
       throw new MolgenisException("Invalid pipeline file: 'steps' must be a list");
@@ -103,11 +157,15 @@ public final class PipelineFile {
         .valueStream()
         .map(
             step -> {
-              if (!step.isObject() || step.size() != 1) {
+              Map.Entry<String, JsonNode> stage;
+              if (step.isTextual()) {
+                stage = Map.entry(step.asText(), NullNode.getInstance());
+              } else if (step.isObject() && step.size() == 1) {
+                stage = step.properties().iterator().next();
+              } else {
                 throw new MolgenisException(
                     "Invalid pipeline file: each step must name exactly one stage, got: " + step);
               }
-              Map.Entry<String, JsonNode> stage = step.properties().iterator().next();
               if (!seen.add(stage.getKey())) {
                 throw new MolgenisException(
                     "Invalid pipeline file: stage '"
@@ -117,6 +175,27 @@ public final class PipelineFile {
               return stage;
             })
         .toList();
+  }
+
+  private static <T> List<T> specs(JsonNode options, TypeReference<List<T>> type)
+      throws JsonProcessingException {
+    if (options.isNull()) {
+      return List.of();
+    }
+    return MAPPER.treeToValue(expandBareNames(options), type);
+  }
+
+  private static boolean withoutOptions(Map.Entry<String, JsonNode> stage) {
+    JsonNode options = stage.getValue();
+    if (!options.isNull() && !(options.isObject() && options.isEmpty())) {
+      throw new MolgenisException(
+          "Invalid pipeline file: stage '" + stage.getKey() + "' takes no options");
+    }
+    return true;
+  }
+
+  private static JsonNode objectOrEmpty(JsonNode options) {
+    return options.isNull() ? MAPPER.createObjectNode() : options;
   }
 
   /**

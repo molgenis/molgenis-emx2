@@ -3,7 +3,6 @@ package org.molgenis.emx2.fairmapper.pipeline.definition;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
-import org.molgenis.emx2.MolgenisException;
 
 final class PostProcessorSpecParsing {
 
@@ -16,19 +15,15 @@ final class PostProcessorSpecParsing {
   }
 
   static void assertInvalid(String entry, String expectedMessagePart) {
-    MolgenisException exception =
-        assertThrows(MolgenisException.class, () -> PipelineFile.parse(pipelineFile(entry)));
-    assertTrue(
-        exception.getMessage().contains(expectedMessagePart),
-        () -> "Expected '" + expectedMessagePart + "' in: " + exception.getMessage());
+    TestPipelineFiles.assertInvalid(pipelineFile(entry), expectedMessagePart);
   }
 
   private static String pipelineFile(String entry) {
-    return """
-        steps:
-          - postprocessing:
-              - %s
+    return TestPipelineFiles.withSteps(
         """
-        .formatted(entry.strip().replace("\n", "\n        "));
+        - postprocessing:
+            - %s
+        """
+            .formatted(entry.strip().replace("\n", "\n      ")));
   }
 }

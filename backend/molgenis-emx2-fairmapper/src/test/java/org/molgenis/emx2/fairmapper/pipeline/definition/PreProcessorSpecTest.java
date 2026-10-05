@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.fairmapper.preprocessing.StageCsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
@@ -66,18 +65,10 @@ class PreProcessorSpecTest {
   }
 
   private static void assertInvalid(String list, String expectedMessagePart) {
-    MolgenisException exception =
-        assertThrows(MolgenisException.class, () -> PipelineFile.parse(pipelineFile(list)));
-    assertTrue(
-        exception.getMessage().contains(expectedMessagePart),
-        () -> "Expected '" + expectedMessagePart + "' in: " + exception.getMessage());
+    TestPipelineFiles.assertInvalid(pipelineFile(list), expectedMessagePart);
   }
 
   private static String pipelineFile(String list) {
-    return """
-        steps:
-          - preprocessing: %s
-        """
-        .formatted(list);
+    return TestPipelineFiles.withSteps("- preprocessing: " + list);
   }
 }
