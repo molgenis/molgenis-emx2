@@ -13,13 +13,13 @@ import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
  * {@code info@example.org}. RDF sources express emails as {@code mailto:} IRIs, whereas EMX2 stores
  * the bare address. Only EMAIL and EMAIL_ARRAY columns are touched.
  */
-public class EmailPostProcessor implements PostProcessor {
+public class ResolveEmailPostProcessor implements PostProcessor {
 
   private static final String MAILTO_PREFIX = "mailto:";
 
   private final SchemaMetadata schema;
 
-  public EmailPostProcessor(SchemaMetadata schema) {
+  public ResolveEmailPostProcessor(SchemaMetadata schema) {
     this.schema = schema;
   }
 
@@ -39,7 +39,7 @@ public class EmailPostProcessor implements PostProcessor {
 
   private List<Column> emailColumns(String tableName) {
     return schema.getTableMetadata(tableName).getDownloadColumnNames().stream()
-        .filter(EmailPostProcessor::isEmailColumn)
+        .filter(ResolveEmailPostProcessor::isEmailColumn)
         .toList();
   }
 
@@ -57,7 +57,7 @@ public class EmailPostProcessor implements PostProcessor {
     if (column.isArray()) {
       String[] stripped =
           Arrays.stream(row.getStringArray(columnName))
-              .map(EmailPostProcessor::stripPrefix)
+              .map(ResolveEmailPostProcessor::stripPrefix)
               .toArray(String[]::new);
       row.set(columnName, stripped);
     } else {

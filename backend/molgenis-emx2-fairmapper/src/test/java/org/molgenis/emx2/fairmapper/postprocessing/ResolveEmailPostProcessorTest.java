@@ -17,9 +17,9 @@ import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-class EmailPostProcessorTest {
+class ResolveEmailPostProcessorTest {
 
-  private static final String SCHEMA_NAME = EmailPostProcessorTest.class.getSimpleName();
+  private static final String SCHEMA_NAME = ResolveEmailPostProcessorTest.class.getSimpleName();
 
   private InMemoryTableStore tableStore;
   private SchemaMetadata schema;
@@ -54,7 +54,7 @@ class EmailPostProcessorTest {
   })
   void shouldRemoveEmailPrefix(String input, String expected) {
     store("Contacts", new Row("id", "contact-1", "email", input));
-    new EmailPostProcessor(schema).process(tableStore);
+    new ResolveEmailPostProcessor(schema).process(tableStore);
     assertEquals(expected, contact().getString("email"));
   }
 
@@ -62,7 +62,7 @@ class EmailPostProcessorTest {
   void shouldHandleNullValue() {
     store("Contacts", new Row("id", "contact-1", "email", null));
 
-    new EmailPostProcessor(schema).process(tableStore);
+    new ResolveEmailPostProcessor(schema).process(tableStore);
 
     assertNull(contact().getString("email"));
   }
@@ -71,7 +71,7 @@ class EmailPostProcessorTest {
   void shouldHandleEmptyValue() {
     store("Contacts", new Row("id", "contact-1", "email", ""));
 
-    new EmailPostProcessor(schema).process(tableStore);
+    new ResolveEmailPostProcessor(schema).process(tableStore);
 
     // Row.getString normalizes an empty value to null; the point here is that it survives
     // processing without failing and without gaining a value
@@ -82,7 +82,7 @@ class EmailPostProcessorTest {
   void shouldLeaveRowWithoutEmailColumnUntouched() {
     store("Contacts", new Row("id", "contact-1", "name", "John Doe"));
 
-    new EmailPostProcessor(schema).process(tableStore);
+    new ResolveEmailPostProcessor(schema).process(tableStore);
 
     CompareTools.assertEquals(List.of(new Row("id", "contact-1", "name", "John Doe")), contacts());
   }
@@ -99,7 +99,7 @@ class EmailPostProcessorTest {
             "homepage",
             "mailto:BME.Seccbioimage@tue.nl"));
 
-    new EmailPostProcessor(schema).process(tableStore);
+    new ResolveEmailPostProcessor(schema).process(tableStore);
 
     Row contact = contact();
     assertEquals("mailto:BME.Seccbioimage@tue.nl", contact.getString("name"));
@@ -114,7 +114,7 @@ class EmailPostProcessorTest {
         new Row("id", "contact-2", "email", "mailto:two@tue.nl"),
         new Row("id", "contact-3", "email", "three@tue.nl"));
 
-    new EmailPostProcessor(schema).process(tableStore);
+    new ResolveEmailPostProcessor(schema).process(tableStore);
 
     CompareTools.assertEquals(
         List.of(
@@ -129,7 +129,7 @@ class EmailPostProcessorTest {
     store("Contacts", new Row("id", "contact-1", "email", "mailto:contact@tue.nl"));
     store("Organisations", new Row("id", "org-1", "email", "mailto:org@tue.nl"));
 
-    new EmailPostProcessor(schema).process(tableStore);
+    new ResolveEmailPostProcessor(schema).process(tableStore);
 
     assertEquals("contact@tue.nl", contact().getString("email"));
     assertEquals("org@tue.nl", organisation().getString("email"));
@@ -148,7 +148,7 @@ class EmailPostProcessorTest {
               "alternativeEmails",
               new String[] {"mailto:one@tue.nl", "mailto:two@tue.nl"}));
 
-      new EmailPostProcessor(schema).process(tableStore);
+      new ResolveEmailPostProcessor(schema).process(tableStore);
 
       assertArrayEquals(
           new String[] {"one@tue.nl", "two@tue.nl"}, contact().getStringArray("alternativeEmails"));
@@ -164,7 +164,7 @@ class EmailPostProcessorTest {
               "alternativeEmails",
               new String[] {"mailto:one@tue.nl", "two@tue.nl"}));
 
-      new EmailPostProcessor(schema).process(tableStore);
+      new ResolveEmailPostProcessor(schema).process(tableStore);
 
       assertArrayEquals(
           new String[] {"one@tue.nl", "two@tue.nl"}, contact().getStringArray("alternativeEmails"));
@@ -207,7 +207,7 @@ class EmailPostProcessorTest {
               "contactPoint.email",
               "mailto:BME.Seccbioimage@tue.nl"));
 
-      new EmailPostProcessor(schema).process(tableStore);
+      new ResolveEmailPostProcessor(schema).process(tableStore);
 
       Row collection = collection();
       assertEquals("contact-1", collection.getString("contactPoint.id"));
@@ -227,7 +227,7 @@ class EmailPostProcessorTest {
               "contributors.email",
               new String[] {"mailto:one@tue.nl", "mailto:two@tue.nl"}));
 
-      new EmailPostProcessor(schema).process(tableStore);
+      new ResolveEmailPostProcessor(schema).process(tableStore);
 
       Row collection = collection();
       assertArrayEquals(
@@ -250,7 +250,7 @@ class EmailPostProcessorTest {
               "contactPoint.email",
               "mailto:one@tue.nl"));
 
-      new EmailPostProcessor(schema).process(tableStore);
+      new ResolveEmailPostProcessor(schema).process(tableStore);
 
       assertEquals("one@tue.nl", contact().getString("email"));
       assertEquals("one@tue.nl", collection().getString("contactPoint.email"));
