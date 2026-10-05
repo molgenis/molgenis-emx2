@@ -217,19 +217,26 @@ Post-processors:
 
 ### `extract`
 
-Runs just the extract step (step 1 in above pipeline) for a given endpoint and writes the
-resulting RDF to a file, without running the rest of the pipeline. Useful for grabbing a snapshot
-of the source data to inspect or to reuse while iterating on `generate-query` output, without
-hitting the remote endpoint again.
+Runs just the extract step (step 1 in above pipeline) and writes the resulting RDF to a file,
+without running the rest of the pipeline. Useful for grabbing a snapshot of the source data to
+inspect or to reuse while iterating on `generate-query` output, without hitting the remote endpoint
+again.
 
 ```bash
 fairmapper extract -r <fdp-endpoint> -o <output-file>
+fairmapper extract -c <pipeline-file> -o <output-file>
 ```
 
-| Option           | Required | Description                                       |
-|------------------|----------|----------------------------------------------------|
-| `-r`, `--rdf`    | yes      | The FDP endpoint URI to extract RDF from.          |
-| `-o`, `--output` | yes      | File to write the extracted RDF (Turtle) to.       |
+With `-r`, the FDP at the given endpoint is crawled. With `-c`, the `extract` step of a
+[pipeline file](#the-pipeline-file) is run, with its `url`, `crawl` and `strict` options; this is
+useful for trying out your own crawl steps. The whole pipeline file is checked, so it has to be a
+valid pipeline file, not just an `extract` step.
+
+| Option           | Required        | Description                                                  |
+|------------------|-----------------|--------------------------------------------------------------|
+| `-r`, `--rdf`    | one of `-r`/`-c` | The FDP endpoint URI to extract RDF from.                    |
+| `-c`, `--config` | one of `-r`/`-c` | The pipeline file whose `extract` step to run.              |
+| `-o`, `--output` | yes             | File to write the extracted RDF (Turtle) to.                 |
 
 ### `generate-query`
 
