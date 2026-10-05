@@ -155,6 +155,41 @@ class UpdateTableDataTest {
     assertEquals(200, updated.getInteger("salary"));
   }
 
+  @Test
+  void testUpdateTableDataWithRefToCompositeKey() {
+    Table projectTable = createTableWithRefToCompositeKey();
+
+    // update the ref to a composite key, no name value is passed, so it should remain the same
+    projectTable.update(Row.row("id", "pr1", "lead.firstName", "Mickey", "lead.lastName", "Mouse"));
+
+    // verify updated data
+    assertEquals(1, projectTable.retrieveRows().size());
+    Row updated = projectTable.retrieveRows().getFirst();
+    assertEquals("Mickey", updated.getString("lead.firstName"));
+    assertEquals("Mouse", updated.getString("lead.lastName"));
+    assertEquals("Moon landing", updated.getString("name"));
+  }
+
+  @Test
+  void testUpdateTableDataWithRefArrayToCompositeKey() {
+    Table projectTable = createTableWithRefToCompositeKey();
+
+    // update the ref_array to a composite key, no other values are passed, so they should remain
+    projectTable.update(
+        Row.row("id", "pr1")
+            .setStringArray("members.firstName", "Donald", "Mickey")
+            .setStringArray("members.lastName", "Duck", "Mouse"));
+
+    // verify updated data
+    assertEquals(1, projectTable.retrieveRows().size());
+    Row updated = projectTable.retrieveRows().getFirst();
+    assertArrayEquals(
+        new String[] {"Donald", "Mickey"}, updated.getStringArray("members.firstName"));
+    assertArrayEquals(new String[] {"Duck", "Mouse"}, updated.getStringArray("members.lastName"));
+    assertEquals("Donald", updated.getString("lead.firstName"));
+    assertEquals("Moon landing", updated.getString("name"));
+  }
+
   private Table createPersonsTable() {
     Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
@@ -231,5 +266,38 @@ class UpdateTableDataTest {
             100));
 
     return employeeTable;
+  }
+
+  private Table createTableWithRefToCompositeKey() {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
+    Table personTable =
+        schema.create(
+            table("Person").add(column("firstName").setPkey()).add(column("lastName").setPkey()));
+    personTable.insert(
+        Row.row("firstName", "Donald", "lastName", "Duck"),
+        Row.row("firstName", "Mickey", "lastName", "Mouse"));
+    Table projectTable =
+        schema.create(
+            table("Project")
+                .add(column("id").setPkey())
+                .add(column("name"))
+                .add(column("lead").setType(ColumnType.REF).setRefTable("Person"))
+                .add(column("members").setType(ColumnType.REF_ARRAY).setRefTable("Person")));
+
+    projectTable.insert(
+        Row.row(
+                "id",
+                "pr1",
+                "name",
+                "Moon landing",
+                "lead.firstName",
+                "Donald",
+                "lead.lastName",
+                "Duck")
+            .setStringArray("members.firstName", "Donald")
+            .setStringArray("members.lastName", "Duck"));
+
+    return projectTable;
   }
 }
