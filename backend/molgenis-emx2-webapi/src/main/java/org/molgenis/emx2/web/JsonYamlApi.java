@@ -18,6 +18,10 @@ import org.molgenis.emx2.json.JsonUtil;
 
 public class JsonYamlApi {
 
+  public static final String MESSAGE = "message";
+  public static final String WARNING = "warning";
+  public static final String MISMATCH_MESSAGE = "schema name mismatch";
+
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private JsonYamlApi() {
@@ -47,9 +51,9 @@ public class JsonYamlApi {
     schema.discard(otherSchema);
 
     HashMap<String, String> response = new HashMap<>();
-    response.put("message", "remove metadata success");
+    response.put(MESSAGE, "remove metadata success");
     if (!Objects.equals(otherSchema.getName(), schema.getName())) {
-      response.put("warning", "schema name mismatch");
+      response.put(WARNING, MISMATCH_MESSAGE);
     }
 
     ctx.status(200);
@@ -66,9 +70,9 @@ public class JsonYamlApi {
     schema.migrate(otherSchema);
 
     HashMap<String, String> response = new HashMap<>();
-    response.put("message", "add/update metadata success");
+    response.put(MESSAGE, "add/update metadata success");
     if (!Objects.equals(otherSchema.getName(), schema.getName())) {
-      response.put("warning", "schema name mismatch");
+      response.put(WARNING, MISMATCH_MESSAGE);
     }
 
     ctx.status(200);
@@ -101,9 +105,9 @@ public class JsonYamlApi {
     schema.discard(otherSchema);
 
     HashMap<String, String> response = new HashMap<>();
-    response.put("message", "removed metadata items success");
+    response.put(MESSAGE, "removed metadata items success");
     if (!Objects.equals(otherSchema.getName(), schema.getName())) {
-      response.put("warning", "schema name mismatch");
+      response.put(WARNING, MISMATCH_MESSAGE);
     }
 
     ctx.status(200);
@@ -120,9 +124,9 @@ public class JsonYamlApi {
     schema.migrate(otherSchema);
 
     Map<String, String> response = new HashMap<>();
-    response.put("message", "add/update metadata success");
+    response.put(MESSAGE, "add/update metadata success");
     if (!Objects.equals(schema.getName(), otherSchema.getName())) {
-      response.put("warning", "schema name mismatch");
+      response.put(WARNING, MISMATCH_MESSAGE);
     }
 
     ctx.status(200);
