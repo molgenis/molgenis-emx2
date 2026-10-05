@@ -86,11 +86,11 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     ColumnSparqlQueryGenerator mapper =
         LiteralColumnSparqlQueryGenerator.forRequiredObject(variable, rootColumn, columnVariable);
     patterns.addAll(mapper.getPatterns());
-    addSubjectColumnvariable(subjectVariable, columnVariable);
+    addSubjectColumnVariable(subjectVariable, columnVariable);
     mapPrimaryKeys();
   }
 
-  private void addSubjectColumnvariable(Variable subjectVariable, Variable columnVariable) {
+  private void addSubjectColumnVariable(Variable subjectVariable, Variable columnVariable) {
     if (rootColumn.isArray()) {
       selectors.add(SparqlVariableUtil.concatAs(encodedColumnPath(), subjectVariable));
     } else {
