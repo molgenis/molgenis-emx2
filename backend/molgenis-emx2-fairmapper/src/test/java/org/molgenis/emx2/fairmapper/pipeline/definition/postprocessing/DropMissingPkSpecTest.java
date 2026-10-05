@@ -1,8 +1,8 @@
-package org.molgenis.emx2.fairmapper.pipeline.definition;
+package org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.fairmapper.pipeline.definition.PostProcessorSpecParsing.assertInvalid;
-import static org.molgenis.emx2.fairmapper.pipeline.definition.PostProcessorSpecParsing.parse;
+import static org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing.PostProcessorSpecParsing.assertInvalid;
+import static org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing.PostProcessorSpecParsing.parse;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -14,6 +14,7 @@ import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.fairmapper.pipeline.definition.PipelineContext;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 
 class DropMissingPkSpecTest {

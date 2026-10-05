@@ -4,6 +4,7 @@ import java.util.List;
 import org.molgenis.emx2.SchemaMetadataProvider;
 import org.molgenis.emx2.fairmapper.client.GraphqlClient;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
+import org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing.PostProcessorSpec;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;

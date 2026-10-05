@@ -1,7 +1,8 @@
-package org.molgenis.emx2.fairmapper.pipeline.definition;
+package org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.molgenis.emx2.fairmapper.pipeline.definition.*;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 
 /**
@@ -15,7 +16,8 @@ import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
   @JsonSubTypes.Type(ResolveStaticFieldSpec.class),
   @JsonSubTypes.Type(ResolveOntologiesSpec.class),
   @JsonSubTypes.Type(ResolveMissingPkSpec.class),
-  @JsonSubTypes.Type(DropMissingPkSpec.class)
+  @JsonSubTypes.Type(DropMissingPkSpec.class),
+  @JsonSubTypes.Type(ResolveEmailSpec.class)
 })
 public interface PostProcessorSpec {
 

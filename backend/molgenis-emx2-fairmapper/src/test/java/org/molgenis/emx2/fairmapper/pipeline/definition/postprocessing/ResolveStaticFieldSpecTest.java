@@ -1,8 +1,8 @@
-package org.molgenis.emx2.fairmapper.pipeline.definition;
+package org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.fairmapper.pipeline.definition.PostProcessorSpecParsing.assertInvalid;
-import static org.molgenis.emx2.fairmapper.pipeline.definition.PostProcessorSpecParsing.parse;
+import static org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing.PostProcessorSpecParsing.assertInvalid;
+import static org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing.PostProcessorSpecParsing.parse;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

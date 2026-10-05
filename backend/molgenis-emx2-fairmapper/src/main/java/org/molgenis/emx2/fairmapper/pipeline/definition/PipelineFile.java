@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing.PostProcessorSpec;
 
 /**
  * Reads a pipeline file into a {@link PipelineDefinition}. Only reads and validates the file; no

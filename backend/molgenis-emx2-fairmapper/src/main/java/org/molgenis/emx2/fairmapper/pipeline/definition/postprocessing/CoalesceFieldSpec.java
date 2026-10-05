@@ -1,8 +1,9 @@
-package org.molgenis.emx2.fairmapper.pipeline.definition;
+package org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.fairmapper.pipeline.definition.PipelineContext;
 import org.molgenis.emx2.fairmapper.postprocessing.CoalesceFieldPostProcessor;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 

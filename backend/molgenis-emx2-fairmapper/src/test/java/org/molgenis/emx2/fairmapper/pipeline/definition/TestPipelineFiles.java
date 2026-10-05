@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.molgenis.emx2.MolgenisException;
 
 /** Builds valid pipeline files around the part a test is about. */
-final class TestPipelineFiles {
+public final class TestPipelineFiles {
 
   static final String SETTINGS =
       """
@@ -22,21 +22,21 @@ final class TestPipelineFiles {
   private TestPipelineFiles() {}
 
   /** A pipeline file with the required settings and stages, plus {@code extraSteps}. */
-  static String withSteps(String extraSteps) {
+  public static String withSteps(String extraSteps) {
     return steps(EXTRACT + TRANSFORM + extraSteps);
   }
 
   /** A pipeline file with the required settings, a transform stage and {@code extractStep}. */
-  static String withExtract(String extractStep) {
+  public static String withExtract(String extractStep) {
     return steps(extractStep.strip() + "\n" + TRANSFORM);
   }
 
   /** A pipeline file with the required settings and exactly the given {@code steps}. */
-  static String steps(String steps) {
+  public static String steps(String steps) {
     return SETTINGS + "steps:\n" + steps.indent(2);
   }
 
-  static void assertInvalid(String yaml, String expectedMessagePart) {
+  public static void assertInvalid(String yaml, String expectedMessagePart) {
     MolgenisException exception =
         assertThrows(MolgenisException.class, () -> PipelineFile.parse(yaml));
     assertTrue(

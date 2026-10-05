@@ -15,6 +15,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing.ResolveMissingPkSpec;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 

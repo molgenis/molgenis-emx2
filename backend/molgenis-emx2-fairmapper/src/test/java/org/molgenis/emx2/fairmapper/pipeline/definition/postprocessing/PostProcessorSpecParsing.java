@@ -1,8 +1,10 @@
-package org.molgenis.emx2.fairmapper.pipeline.definition;
+package org.molgenis.emx2.fairmapper.pipeline.definition.postprocessing;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import org.molgenis.emx2.fairmapper.pipeline.definition.PipelineFile;
+import org.molgenis.emx2.fairmapper.pipeline.definition.TestPipelineFiles;
 
 final class PostProcessorSpecParsing {
 
