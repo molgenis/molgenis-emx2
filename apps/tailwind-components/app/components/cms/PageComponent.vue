@@ -100,7 +100,9 @@ async function doDelete(): Promise<void> {
       componentMetadata.value?.schemaId || "",
       props.component.id,
       props.orderId,
-      props.parent
+      props.parent,
+      true,
+      props.mg_tableclass
     );
   } else {
     await deleteBlock(

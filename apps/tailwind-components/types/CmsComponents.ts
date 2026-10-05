@@ -17,6 +17,7 @@ import type {
   IFiles,
   IFileLists,
   IStatisticalCharts,
+  IStatisticalChartData,
 } from "./cms.ts";
 
 import type { ITableMetaData } from "../../metadata-utils/src/types.js";
@@ -56,6 +57,7 @@ export interface FetchGraphqlResponse {
     Blocks?: IBlocks[];
     ComponentOrders?: IComponentOrders[];
     Components?: IComponents[];
+    ChartData?: IStatisticalChartData[];
   };
   errors?: FetchGraphqlBody[];
 }
