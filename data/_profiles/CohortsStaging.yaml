@@ -8,8 +8,6 @@ demoData: _demodata/applications/datacatalogue_cohortstaging
 
 settings: _settings/datacatalogue_cohortstaging
 
-# settings:
-
 # special options
 ontologiesToFixedSchema: CatalogueOntologies
 setFixedSchemaViewPermission: anonymous

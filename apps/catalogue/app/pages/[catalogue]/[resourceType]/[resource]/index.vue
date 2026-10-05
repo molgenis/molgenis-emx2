@@ -179,6 +179,7 @@ const resourceQuery = `
         id
         name
         website
+        department
         isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
         otherOrganisation
