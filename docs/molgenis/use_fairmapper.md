@@ -10,12 +10,13 @@ FAIR-published metadata, instead of having to import CSV/Excel files by hand.
 
 ## How does the pipeline work?
 
-A harvest run is a pipeline of five steps. Each step's output can optionally be dumped to disk so
-you can inspect (and debug) what happened at every stage.
+A harvest run is a pipeline of five steps, described in a [pipeline file](#the-pipeline-file).
+Each step's output can optionally be dumped to disk so you can inspect (and debug) what happened at
+every stage.
 
-1. **Extract** - fetch all RDF from the source. For an FDP endpoint this means: resolve the FDP's
-   metadata catalog(s), then resolve every dataset in those catalogs, and load all resulting RDF
-   into a temporary, in-memory RDF4J repository.
+1. **Extract** - fetch all RDF from the source into a temporary RDF4J repository. Starting from the
+   source URL, the extract step can follow links level by level (crawl steps). For an FDP this
+   means: resolve the FDP's metadata catalog(s), then every dataset in those catalogs, and so on.
 2. **Pre-processing** - enrich the extracted RDF with additional statements before it is queried.
    Pre-processors run SPARQL `CONSTRUCT` queries against the repository and add the results back
    into it. For example, deriving a plain `dcat:startDate`/`dcat:endDate` from a
@@ -26,9 +27,9 @@ you can inspect (and debug) what happened at every stage.
    enriched repository, and write the results into an in-memory `TableStore` (effectively a CSV
    per table).
 4. **Post-processing** - the tabular data produced by the transform step is further cleaned up by
-   post-processing steps implemented in Java, for example: deriving an `id` column from other
-   columns, resolving ontology term URIs to their names in the target schema, resolving rows that
-   are missing a primary key, and dropping rows that still have no usable primary key.
+   post-processors, for example: deriving an `id` column from other columns, resolving ontology
+   term URIs to their names in the target schema, resolving rows that are missing a primary key,
+   and dropping rows that still have no usable primary key.
 5. **Upload** - the final table store is packaged as a ZIP file and uploaded to the target
    EMX2 instance's regular ZIP import API (data only, existing schema structure is left
    untouched).
@@ -62,13 +63,13 @@ prefixes (`dcat:`, `dcterms:`, `healthdcatap:`, ...) you can use instead of full
 ## Prerequisites: an EMX2 endpoint and access token
 
 `harvest` talks to the target EMX2 instance entirely over HTTP: it looks up the target schema's
-metadata through its GraphQL API, and (when `-u` is set) uploads the harvested data through its
-regular ZIP import API. The machine running the FAIR Mapper needs:
+metadata through its GraphQL API, and (when the pipeline file has an `upload` step) uploads the
+harvested data through its regular ZIP import API. The `emx2` section of the pipeline file needs:
 
-* `-e`, `--endpoint` - the base URL of the target EMX2 instance, e.g. `https://my-emx2.example.org`.
-  This can point at a local or a remote instance.
-* `-to`, `--token` - an API token for that instance with read access to the target schema (and write
-  access too, if you're uploading data). See [Tokens](use_tokens.md) for how to generate one.
+* `endpoint` - the base URL of the target EMX2 instance, e.g. `https://my-emx2.example.org`. This
+  can point at a local or a remote instance.
+* `token` - an API token for that instance with read access to the target schema (and write access
+  too, if you're uploading data). See [Tokens](use_tokens.md) for how to generate one.
 
 ## Build instructions
 
@@ -94,8 +95,8 @@ java -jar backend/molgenis-emx2-fairmapper/build/libs/fairmapper-<version>-cli.j
 `generate-query` connects directly to Postgres using the same environment variables as the rest of
 MOLGENIS EMX2 (`MOLGENIS_POSTGRES_URI`, `MOLGENIS_POSTGRES_USER`, `MOLGENIS_POSTGRES_PASS`), so
 make sure these point at the Postgres instance that holds the schema you're generating a query
-for. `harvest` talks to the target EMX2 instance over HTTP/GraphQL instead (see
-`--endpoint`/`--token` below).
+for. `harvest` talks to the target EMX2 instance over HTTP/GraphQL instead (see the `emx2` section
+of the [pipeline file](#the-pipeline-file)).
 
 ?>**Tip**: since the command gets long, it's convenient to define a shell alias, e.g.:
 
@@ -105,30 +106,114 @@ alias fairmapper='java -jar /path/to/fairmapper-<version>-cli.jar'
 
 ### `harvest`
 
-Runs the full harvesting pipeline described above: extract, pre-process, transform,
-post-process and (optionally) upload.
+Runs the harvest described by a [pipeline file](#the-pipeline-file): extract, pre-process,
+transform, post-process and (optionally) upload.
 
 ```bash
-fairmapper harvest -r <fdp-endpoint> -s <schema> -t <table1,table2,...> -e <emx2-url> -to <token> [-o <output-dir>] [-u]
+fairmapper harvest -c <pipeline-file>
 ```
 
-| Option           | Required | Description                                                                                                                                                    |
-|------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `-r`, `--rdf`    | yes      | The FDP endpoint URI to harvest from.                                                                                                                          |
-| `-s`, `--schema` | yes      | Name of the schema (on the target EMX2 instance) that contains the target tables.                                                                             |
-| `-t`, `--tables` | yes      | Comma-separated list of table names (in that schema) to harvest.                                                                                               |
-| `-e`, `--endpoint` | yes    | Base URL of the target EMX2 instance, used to look up the schema's metadata and, when `-u` is set, to upload the harvested data.                              |
-| `-to`, `--token` | yes      | API token for the target EMX2 instance. See [Tokens](use_tokens.md) for how to generate one.                                                                  |
-| `-o`, `--output` | no       | Directory to write intermediate results to. If omitted, nothing is dumped to disk.                                                                             |
-| `-u`, `--upload` | no       | Flag. If set, the harvested data is uploaded and imported into the schema. If omitted, the pipeline runs but nothing is uploaded, useful for dry runs.       |
+| Option           | Required | Description                                       |
+|------------------|----------|---------------------------------------------------|
+| `-c`, `--config` | yes      | The pipeline file (YAML) that describes the harvest. |
 
-When `-o` is given, a subdirectory `fairmapper-output-<harvest-id>` is created containing:
+The whole pipeline file is checked before anything is fetched, so a typo in a step name or a
+missing option fails straight away.
+
+When `output` is set in the pipeline file, a subdirectory `fairmapper-output-<harvest-id>` is
+created in that directory, containing:
 
 * `extracted.ttl` - the raw RDF extracted from the source, before any pre-processing.
 * `preprocessed.ttl` - the RDF after pre-processing (only written if pre-processors are configured).
 * `transformed.zip` - a CSV-in-ZIP export of the table store right after the transform step.
 * `postprocessed.zip` - the same, after post-processing has run. This is what would be uploaded to
-  the schema when `-u` is set.
+  the schema when the pipeline file has an `upload` step.
+
+#### The pipeline file
+
+A pipeline file describes one harvest. This example harvests DCAT metadata from a FAIR Data Point
+into a catalogue schema:
+
+```yaml
+schema: catalogue
+tables: [Catalogues, Collections, Organisations]
+# output: ./fairmapper-output   # uncomment to dump the result of every stage
+emx2:
+  endpoint: https://emx2.example.org
+  token: your-token
+steps:
+  - extract:
+      url: https://fdp.example.org
+      crawl: fdp
+  - preprocessing: [temporal, typical-age, stage-csvw]
+  - transform
+  - postprocessing:
+      - coalesce-field: { table: Collections, field: id, derive-from: [acronym, name], strict: false }
+      - coalesce-field: { table: Catalogues, field: id, derive-from: [acronym, name], strict: false }
+      - coalesce-field: { table: Organisations, field: id, derive-from: [organisation name], strict: false }
+      - resolve-static: { table: Collections, field: type, value: http://semanticscience.org/resource/SIO_001067 }
+      - resolve-static: { table: Catalogues, field: type, value: http://semanticscience.org/resource/SIO_001067 }
+      - resolve-ontologies
+      - resolve-missing-pk
+      - drop-missing-pk: { tables: [Organisations] }
+  # - upload   # uncomment to upload; leave out for a dry run
+```
+
+The same file, with comments, is in the repository at
+`backend/molgenis-emx2-fairmapper/examples/stage-fdp.yml`.
+
+| Field            | Required | Description                                                                                                  |
+|------------------|----------|--------------------------------------------------------------------------------------------------------------|
+| `schema`         | yes      | Name of the schema (on the target EMX2 instance) that contains the target tables. Data is uploaded into it. |
+| `tables`         | yes      | List of table names (in that schema) to harvest.                                                            |
+| `output`         | no       | Directory to write intermediate results to. If omitted, nothing is dumped to disk.                          |
+| `emx2.endpoint`  | yes      | Base URL of the target EMX2 instance.                                                                       |
+| `emx2.token`     | yes      | API token for the target EMX2 instance.                                                                     |
+| `steps`          | yes      | The steps of the harvest, see below.                                                                        |
+
+Each entry under `steps` names one step. A step can be listed at most once, and the order in which
+they are listed doesn't matter: they always run in the order extract, preprocessing, transform,
+postprocessing, upload. Steps, pre-processors and post-processors without options can be written as
+a bare name (`- transform`).
+
+| Step             | Required | Options                                                                                                   |
+|------------------|----------|-----------------------------------------------------------------------------------------------------------|
+| `extract`        | yes      | `url` (required): where to fetch the RDF from. `crawl`: links to follow from there, see below. `strict` (default `true`): stop the harvest when a resource can't be fetched. |
+| `preprocessing`  | no       | List of pre-processors, run in the listed order.                                                          |
+| `transform`      | yes      | None.                                                                                                     |
+| `postprocessing` | no       | List of post-processors, run in the listed order. The same post-processor can be listed more than once. |
+| `upload`         | no       | None. Leave it out for a dry run.                                                                         |
+
+`crawl` is either `fdp` (follow an FDP's catalogs, datasets, distributions and their download URLs)
+or a list of crawl steps, each with a `name` (used in logging) and the `predicate` to follow. A
+predicate is a full IRI or a prefixed name using the predefined namespace prefixes (see
+[Linked data](semantics.md)):
+
+```yaml
+crawl:
+  - { name: catalog, predicate: fdp-o:metadataCatalog }
+  - { name: dataset, predicate: dcat:dataset }
+```
+
+Without `crawl`, only the document at `url` is fetched.
+
+Pre-processors (none take options):
+
+| Name          | What it does                                                                                       |
+|---------------|----------------------------------------------------------------------------------------------------|
+| `temporal`    | Adds `dcat:startDate`/`dcat:endDate` years to datasets and catalogs from their `dcterms:temporal` interval. |
+| `typical-age` | Normalises abbreviated Health-DCAT-AP `minTypicalAge`/`maxTypicalAge` predicates.                   |
+| `stage-csvw`  | Links the CSVW tables of a dataset's distributions to the dataset.                                  |
+
+Post-processors:
+
+| Name                 | Options                                                        | What it does                                                                                        |
+|----------------------|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| `coalesce-field`     | `table`, `field`, `derive-from`, `strict` (default `true`)     | Sets `field` to the first non-empty of the `derive-from` fields. When `strict`, a row with none of them fails the harvest. |
+| `resolve-static`     | `table`, `field`, `value`                                      | Sets `field` to `value` on every row of `table`.                                                    |
+| `resolve-ontologies` | none                                                           | Replaces ontology term IRIs with their names in the target schema.                                  |
+| `resolve-missing-pk` | none                                                           | Fills in references whose primary key wasn't known right after the transform step.                 |
+| `drop-missing-pk`    | `tables`                                                       | Drops rows in `tables` that still have an incomplete primary key.                                   |
 
 ### `extract`
 
@@ -166,12 +251,13 @@ fairmapper generate-query <schema> <table> [-o <output-file>]
 1. Run `generate-query` for the table(s) you're working on and inspect the generated SPARQL. If a
    column isn't mapped the way you expect, check that column's `semantics` annotation in the
    schema.
-2. Load `extracted.ttl` (or `preprocessed.ttl`) from a previous `harvest -o` run - or the output of
+2. Load `extracted.ttl` (or `preprocessed.ttl`) from a previous `harvest` run with `output` set - or the output of
    a standalone `extract` run - into a SPARQL tool (e.g. the
    [SPARQLbook](https://marketplace.visualstudio.com/items?itemName=Zazuko.sparql-notebook) VS
    Code extension) and try out the query from step 1 against it interactively. This lets you
    iterate on schema/semantics changes without re-running the extract step against the remote
    endpoint each time.
-3. Run `harvest` with `-o` and without `-u` first, to inspect `transformed.zip` and
-   `postprocessed.zip` and confirm the data looks correct before actually uploading it.
-4. Once satisfied, re-run `harvest` with `-u` to import the data into the schema.
+3. Run `harvest` with `output` set and without an `upload` step first, to inspect
+   `transformed.zip` and `postprocessed.zip` and confirm the data looks correct before actually
+   uploading it.
+4. Once satisfied, add the `upload` step and re-run `harvest` to import the data into the schema.
