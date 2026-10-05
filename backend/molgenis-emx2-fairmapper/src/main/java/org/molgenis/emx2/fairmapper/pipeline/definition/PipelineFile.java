@@ -23,11 +23,12 @@ import org.molgenis.emx2.MolgenisException;
  * network calls are made and no components are created.
  *
  * <p>The stages are listed under {@code steps}, each entry naming one stage. Each stage may appear
- * at most once. For now only the {@code postprocessing} stage is supported. A post-processor
- * without arguments can be written as a bare name:
+ * at most once. For now only the {@code preprocessing} and {@code postprocessing} stages are
+ * supported. A pre-processor or post-processor without arguments can be written as a bare name:
  *
  * <pre>
  * steps:
+ *   - preprocessing: [temporal, typical-age]
  *   - postprocessing:
  *       - coalesce-field: { table: Collections, field: id, derive-from: [acronym, name] }
  *       - resolve-ontologies
@@ -36,6 +37,7 @@ import org.molgenis.emx2.MolgenisException;
 public final class PipelineFile {
 
   private static final String STEPS = "steps";
+  private static final String PRE_PROCESSING = "preprocessing";
   private static final String POST_PROCESSING = "postprocessing";
 
   private static final JsonMapper MAPPER =
@@ -74,9 +76,13 @@ public final class PipelineFile {
               }
             });
 
+    List<PreProcessorSpec> preProcessors = List.of();
     List<PostProcessorSpec> postProcessors = List.of();
     for (Map.Entry<String, JsonNode> stage : stages(root.path(STEPS))) {
-      if (POST_PROCESSING.equals(stage.getKey())) {
+      if (PRE_PROCESSING.equals(stage.getKey())) {
+        preProcessors =
+            MAPPER.treeToValue(expandBareNames(stage.getValue()), new TypeReference<>() {});
+      } else if (POST_PROCESSING.equals(stage.getKey())) {
         postProcessors =
             MAPPER.treeToValue(expandBareNames(stage.getValue()), new TypeReference<>() {});
         postProcessors.forEach(PostProcessorSpec::validate);
@@ -85,7 +91,7 @@ public final class PipelineFile {
             "Invalid pipeline file: unknown stage '" + stage.getKey() + "'");
       }
     }
-    return new PipelineDefinition(postProcessors);
+    return new PipelineDefinition(preProcessors, postProcessors);
   }
 
   private static List<Map.Entry<String, JsonNode>> stages(JsonNode steps) {

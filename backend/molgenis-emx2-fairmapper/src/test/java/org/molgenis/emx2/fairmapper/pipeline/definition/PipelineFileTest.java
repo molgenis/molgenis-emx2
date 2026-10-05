@@ -57,6 +57,28 @@ class PipelineFileTest {
   }
 
   @Test
+  void shouldReadPreProcessingAndPostProcessingStages() {
+    PipelineDefinition definition =
+        PipelineFile.parse(
+            """
+            steps:
+              - preprocessing: [temporal, stage-csvw]
+              - postprocessing: [resolve-missing-pk]
+            """);
+
+    assertEquals(List.of(new TemporalSpec(), new StageCsvwSpec()), definition.preProcessors());
+    assertEquals(List.of(new ResolveMissingPkSpec()), definition.postProcessors());
+  }
+
+  @Test
+  void shouldDefaultToNoPreOrPostProcessorsWhenStagesAreLeftOut() {
+    PipelineDefinition definition = PipelineFile.parse("steps: []");
+
+    assertEquals(List.of(), definition.preProcessors());
+    assertEquals(List.of(), definition.postProcessors());
+  }
+
+  @Test
   void shouldReadFromPath(@TempDir Path dir) throws IOException {
     Path file = dir.resolve("pipeline.yaml");
     Files.writeString(
