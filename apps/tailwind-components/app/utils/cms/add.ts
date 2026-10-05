@@ -1,4 +1,6 @@
+import type { FetchGraphqlResponse } from "../../../types/CmsComponents";
 import { cmsFetch } from "../cms";
+import type { IFile } from "../../../types/types";
 
 export async function AddNavigationCard(schema: string, id: string) {
   const query = `mutation insert($element: [NavigationCardsInput]) {
@@ -54,5 +56,96 @@ export async function AddUnorderedList(schema: string, id: string) {
       },
     ],
   };
+  await cmsFetch(schema, query, variables);
+}
+
+export async function AddFile(schema: string, id: string) {
+  const query = `mutation insert($file:[FilesInput]) {
+    insert(Files:$file) {
+      status
+      message
+    }
+  }`;
+  const variables = { file: [{ id: `${id}` }] };
+  await cmsFetch(schema, query, variables);
+}
+
+export async function AddLink(
+  schema: string,
+  id: string,
+  linkToExternalFile: string,
+  alternateFileName: string,
+  fileTag: string
+) {
+  const query = `mutation insert($file:[FilesInput]) {
+    insert(Files:$file) {
+      status
+      message
+    }
+  }`;
+  const variables = {
+    file: [
+      {
+        id: `${id}`,
+        fileIsAnExternalLink: true,
+        linkToExternalFile,
+        alternateFileName,
+        fileTag,
+      },
+    ],
+  };
+  await cmsFetch(schema, query, variables);
+}
+
+export async function UploadFile(
+  schema: string,
+  id: string,
+  alternateFileName?: string,
+  fileTag?: string,
+  file?: IFile
+) {
+  const query = `mutation insert($file:[FilesInput]) {
+    insert(Files:$file) {
+      status
+      message
+    }
+  }`;
+  const formData = new FormData();
+  formData.append("query", query);
+  formData.append(
+    "variables",
+    JSON.stringify({
+      file: [
+        {
+          id: `${id}`,
+          file: "file",
+          alternateFileName,
+          fileTag,
+          fileIsAnExternalLink: false,
+        },
+      ],
+    })
+  );
+  formData.append("file", file as Blob);
+
+  const url: string = `/${schema}/graphql`;
+  const response = (await $fetch(url, {
+    method: "POST",
+    body: formData,
+  })) as unknown as FetchGraphqlResponse;
+
+  if (response?.errors?.[0]?.message) {
+    console.error(response.errors[0].message);
+  }
+  return response;
+}
+
+export async function AddFileList(schema: string, id: string) {
+  const query = `mutation insert($fileList:[FileListsInput]) {
+    insert(FileLists:$fileList) {
+      message
+    }
+  }`;
+  const variables = { fileList: [{ id: `${id}` }] };
   await cmsFetch(schema, query, variables);
 }

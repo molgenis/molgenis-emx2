@@ -1,6 +1,6 @@
 import { defineNuxtRouteMiddleware, navigateTo } from "#app";
+import { sanitizeRedirectPath } from "../../../tailwind-components/app/utils/redirect";
 
-// Add sc
 export default defineNuxtRouteMiddleware((to, from) => {
   // handle redirect to login with schema
   if (to.path === "/login" && from.params.schema && !to.query.schema) {
@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
       replace: true,
       query: {
         schema: from.params.schema,
-        redirectTo: from.path,
+        redirectTo: sanitizeRedirectPath(from.path),
       },
     });
   }
@@ -20,7 +20,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
       path: "/login",
       replace: true,
       query: {
-        redirectTo: from.path,
+        redirectTo: sanitizeRedirectPath(from.path),
       },
     });
   }
