@@ -39,9 +39,22 @@ const showMenu = ref<boolean>(false);
       <a href="../../StatisticalChartData" class="underline">
         Chart data table
       </a>
-      to add data or edit existing records.
+      to add data.
     </p>
-    <ColumnChart v-else v-bind="props" />
+    <div v-else class="group relative">
+      <ColumnChart v-bind="props">
+        <template #additionalChartInfo>
+          <a
+            :href="`../../StatisticalChartData?displayedInChart.id=${id}`"
+            target="_blank"
+            class="text-title-contrast flex justify-start items-center gap-1 underline mt-2.5 -mb-3"
+          >
+            <span>edit data</span>
+            <BaseIcon name="ExternalLink" :width="16" />
+          </a>
+        </template>
+      </ColumnChart>
+    </div>
   </VMenu>
   <ColumnChart v-else-if="!isEditable && chartData" v-bind="props" />
 </template>

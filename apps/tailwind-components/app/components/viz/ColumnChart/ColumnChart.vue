@@ -265,7 +265,9 @@ watch(
       :title="(chartTitle as string)"
       :description="chartDescription"
       style="grid-area: context"
-    />
+    >
+      <slot name="additionalChartInfo"></slot>
+    </ChartTitle>
     <div style="grid-area: chart">
       <svg
         :id="id"

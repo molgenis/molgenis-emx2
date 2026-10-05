@@ -376,7 +376,7 @@ export async function deleteComponent(
   const orderVars = { orderId: [{ id: `${componentOrderid}` }] };
   const componentVars = { componentId: [{ id: `${componentId}` }] };
 
-  if (componentType?.endsWith(".Statistical charts")) { 
+  if (componentType?.endsWith(".Statistical charts")) {
     await deleteChartData(schema, componentId);
   }
 
