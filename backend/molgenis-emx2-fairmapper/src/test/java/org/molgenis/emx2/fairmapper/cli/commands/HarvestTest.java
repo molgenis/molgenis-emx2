@@ -4,135 +4,204 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
-import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.postprocessing.CoalesceFieldPostProcessor;
+import org.molgenis.emx2.fairmapper.postprocessing.DropMissingPkRowPostProcessor;
+import org.molgenis.emx2.fairmapper.postprocessing.ResolveMissingPkPostProcessor;
+import org.molgenis.emx2.fairmapper.postprocessing.ResolveStaticFieldPostProcessor;
+import org.molgenis.emx2.fairmapper.postprocessing.ontologies.ResolveOntologyPostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.StageCsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
 import picocli.CommandLine;
 
 class HarvestTest {
 
-  private static final String RDF_ENDPOINT = "https://example.org/fdp";
+  private static final Path EXAMPLE_PIPELINE_FILE = Path.of("examples/stage-fdp.yml");
 
-  private Schema schema;
+  private static final String SETTINGS =
+      """
+      schema: catalogue
+      tables: [TableA, TableB]
+      emx2:
+        endpoint: http://localhost:8080
+        token: token123
+      """;
 
-  @BeforeEach
-  void setUp() {
-    Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(getClass().getSimpleName());
-    schema.create(
-        TableMetadata.table("TableA", Column.column("id").setType(ColumnType.STRING).setPkey()),
-        TableMetadata.table("TableB", Column.column("id").setType(ColumnType.STRING).setPkey()));
-  }
+  @TempDir private Path dir;
 
   @Test
-  void shouldPassRdfSchemaAndTablesIntoConfig() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA,TableB");
+  void shouldPassSourceSchemaAndTablesIntoConfig() throws IOException {
+    HarvestingPipelineConfig config = runAndCaptureConfig(withSteps(""));
 
-    assertEquals(URI.create(RDF_ENDPOINT), config.rdf());
-    assertEquals(schema.getName(), config.schemaName());
+    assertEquals(URI.create("https://example.org/fdp"), config.rdf());
+    assertEquals("catalogue", config.schemaName());
     assertEquals(List.of("TableA", "TableB"), config.tables());
   }
 
   @Test
-  void shouldConfigureFdpExtractorAndSparqlTransformer() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
+  void shouldConfigureCrawlingExtractorAndSparqlTransformer() throws IOException {
+    HarvestingPipelineConfig config = runAndCaptureConfig(withSteps(""));
 
     assertInstanceOf(CrawlingRdfExtractor.class, config.extractor());
     assertInstanceOf(SparqlSelectRdfTransformer.class, config.transformer());
   }
 
   @Test
-  void shouldConfigureDcatPreAndPostProcessors() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
+  void shouldCreatePreAndPostProcessorsListedInPipelineFile() throws IOException {
+    HarvestingPipelineConfig config =
+        runAndCaptureConfig(
+            withSteps(
+                """
+                - preprocessing: [stage-csvw, temporal]
+                - postprocessing:
+                    - resolve-missing-pk
+                    - resolve-static: { table: TableA, field: type, value: x }
+                """));
 
-    assertEquals(1, config.postProcessors().size());
-    assertInstanceOf(DCATPostProcessor.class, config.postProcessors().get(0));
-
-    assertEquals(3, config.preProcessors().size());
-    assertInstanceOf(TemporalRdfPreProcessor.class, config.preProcessors().get(0));
-    assertInstanceOf(TypicalAgeRdfPreProcessor.class, config.preProcessors().get(1));
-    assertInstanceOf(StageCsvwPreProcessor.class, config.preProcessors().get(2));
+    assertTypes(
+        List.of(StageCsvwPreProcessor.class, TemporalRdfPreProcessor.class),
+        config.preProcessors());
+    assertTypes(
+        List.of(ResolveMissingPkPostProcessor.class, ResolveStaticFieldPostProcessor.class),
+        config.postProcessors());
   }
 
   @Test
-  void shouldEnableDumpingWithGivenOutputPathWhenOutputOptionProvided() {
+  void shouldNotConfigurePreOrPostProcessorsWhenStagesAreLeftOut() throws IOException {
+    HarvestingPipelineConfig config = runAndCaptureConfig(withSteps(""));
+
+    assertEquals(List.of(), config.preProcessors());
+    assertEquals(List.of(), config.postProcessors());
+  }
+
+  @Test
+  void shouldEnableDumpingWhenOutputIsSet() throws IOException {
     HarvestingPipelineConfig config =
-        runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-o", "/tmp/harvest-output");
+        runAndCaptureConfig("output: /tmp/harvest-output\n" + withSteps(""));
 
     assertTrue(config.dumpEnabled());
     assertEquals("/tmp/harvest-output", config.outputPath());
   }
 
   @Test
-  void shouldNotEnableDumpingWhenOutputOptionOmitted() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
+  void shouldNotEnableDumpingWhenOutputIsLeftOut() throws IOException {
+    HarvestingPipelineConfig config = runAndCaptureConfig(withSteps(""));
 
     assertFalse(config.dumpEnabled());
     assertNull(config.outputPath());
   }
 
   @Test
-  void shouldNotEnableUploadWhenUploadOptionOmitted() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
+  void shouldEnableUploadWhenUploadStageIsListed() throws IOException {
+    HarvestingPipelineConfig config = runAndCaptureConfig(withSteps("- upload\n"));
+
+    assertTrue(config.uploadEnabled());
+  }
+
+  @Test
+  void shouldNotEnableUploadWhenUploadStageIsLeftOut() throws IOException {
+    HarvestingPipelineConfig config = runAndCaptureConfig(withSteps(""));
 
     assertFalse(config.uploadEnabled());
   }
 
   @Test
-  void shouldEnableUploadWhenUploadOptionProvided() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-u");
+  void shouldNotRunPipelineForInvalidPipelineFile() throws IOException {
+    Harvest harvest = stubbedHarvest();
 
-    assertTrue(config.uploadEnabled());
+    int exitCode =
+        new CommandLine(harvest).execute("--config", write(SETTINGS + "steps: []").toString());
+
+    assertNotEquals(0, exitCode);
+    verify(harvest, never()).runPipeline(any());
   }
 
   @Test
-  void shouldEnableUploadWhenUploadLongOptionProvided() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--upload");
+  void shouldRequireConfigOption() {
+    Harvest harvest = stubbedHarvest();
 
-    assertTrue(config.uploadEnabled());
+    int exitCode = new CommandLine(harvest).execute();
+
+    assertNotEquals(0, exitCode);
+    verify(harvest, never()).runPipeline(any());
   }
 
-  private HarvestingPipelineConfig runAndCaptureConfig(
-      String rdf, String tables, String... extraArgs) {
-    Harvest harvest = spy(new Harvest());
-    doReturn((SchemaMetadataProvider) schemaName -> schema.getMetadata())
-        .when(harvest)
-        .getSchemaMetadataProvider();
-    doNothing().when(harvest).runPipeline(any());
+  @Test
+  void shouldConfigureDcatHarvestFromExamplePipelineFile() {
+    HarvestingPipelineConfig config = runAndCaptureConfig(EXAMPLE_PIPELINE_FILE);
 
-    String[] args =
-        Stream.concat(
-                Stream.of(
-                    "-r",
-                    rdf,
-                    "-s",
-                    schema.getName(),
-                    "-t",
-                    tables,
-                    "--endpoint",
-                    "http://localhost:8080",
-                    "--token",
-                    "token123"),
-                Arrays.stream(extraArgs))
-            .toArray(String[]::new);
-    new CommandLine(harvest).execute(args);
+    assertEquals(List.of("Catalogues", "Collections", "Organisations"), config.tables());
+    assertTypes(
+        List.of(
+            TemporalRdfPreProcessor.class,
+            TypicalAgeRdfPreProcessor.class,
+            StageCsvwPreProcessor.class),
+        config.preProcessors());
+    assertTypes(
+        List.of(
+            CoalesceFieldPostProcessor.class,
+            CoalesceFieldPostProcessor.class,
+            CoalesceFieldPostProcessor.class,
+            ResolveStaticFieldPostProcessor.class,
+            ResolveStaticFieldPostProcessor.class,
+            ResolveOntologyPostProcessor.class,
+            ResolveMissingPkPostProcessor.class,
+            DropMissingPkRowPostProcessor.class),
+        config.postProcessors());
+    assertFalse(config.uploadEnabled());
+    assertFalse(config.dumpEnabled());
+  }
+
+  private static String withSteps(String extraSteps) {
+    return SETTINGS
+        + "steps:\n"
+        + ("- extract: { url: https://example.org/fdp, crawl: fdp }\n- transform\n" + extraSteps)
+            .indent(2);
+  }
+
+  private static void assertTypes(List<Class<?>> expected, List<?> actual) {
+    assertEquals(expected, actual.stream().map(Object::getClass).toList());
+  }
+
+  private HarvestingPipelineConfig runAndCaptureConfig(String pipelineFile) throws IOException {
+    return runAndCaptureConfig(write(pipelineFile));
+  }
+
+  private static HarvestingPipelineConfig runAndCaptureConfig(Path pipelineFile) {
+    Harvest harvest = stubbedHarvest();
+    new CommandLine(harvest).execute("--config", pipelineFile.toString());
 
     ArgumentCaptor<HarvestingPipelineConfig.Builder> captor =
         ArgumentCaptor.forClass(HarvestingPipelineConfig.Builder.class);
     verify(harvest).runPipeline(captor.capture());
     return captor.getValue().build();
+  }
+
+  private static Harvest stubbedHarvest() {
+    SchemaMetadata schema = new SchemaMetadata("catalogue");
+    Harvest harvest = spy(new Harvest());
+    doReturn((SchemaMetadataProvider) schemaName -> schema)
+        .when(harvest)
+        .getSchemaMetadataProvider(any());
+    doNothing().when(harvest).runPipeline(any());
+    return harvest;
+  }
+
+  private Path write(String pipelineFile) throws IOException {
+    Path file = dir.resolve("pipeline.yaml");
+    Files.writeString(file, pipelineFile);
+    return file;
   }
 }
