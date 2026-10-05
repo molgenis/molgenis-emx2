@@ -11,6 +11,7 @@ import type {
   ITableSettings,
 } from "../../../../tailwind-components/types/types.ts";
 import DeleteRolesConfirmation from "../../components/DeleteRolesConfirmation.vue";
+import EditRoleModal from "../../components/EditRoleModal.vue";
 import { deleteRoles, getCustomRoles } from "../../util/adminUtils.ts";
 
 definePageMeta({
@@ -37,6 +38,7 @@ const customRoles = ref<CustomRole[]>([]);
 const selectedRows = ref<string[]>([]);
 const showDeleteRoleModal = ref(false);
 const deleteErrorMessage = ref("");
+const showEditRoleModal = ref(false);
 
 let latestRequest = 0;
 
@@ -181,8 +183,11 @@ function openDeleteRoleModal() {
     @rowAction="handleRowAction"
     @update:settings="handleSettingsChange"
   >
-    <template #buttons><Button>Add Role</Button></template>
+    <template #buttons>
+      <Button @click="showEditRoleModal = true">Add Role</Button>
+    </template>
   </TableInteractive>
+
   <DeleteRolesConfirmation
     v-if="showDeleteRoleModal"
     :selectedRoles="selectedRows"
@@ -190,4 +195,6 @@ function openDeleteRoleModal() {
     v-model:visible="showDeleteRoleModal"
     @deleteRoles="handleDeleteRoles"
   />
+
+  <EditRoleModal v-model:visible="showEditRoleModal"></EditRoleModal>
 </template>
