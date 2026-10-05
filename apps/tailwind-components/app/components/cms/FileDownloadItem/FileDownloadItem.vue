@@ -48,7 +48,7 @@ const linkIcon = computed<string | undefined>(() => {
 
 <template>
   <div
-    class="w-full border rounded-base mb-2.5 gap-2 grid grid-cols-[1fr_minmax(0,10rem)_minmax(0,10rem)_50px] whitespace-nowrap"
+    class="w-full border p-3.5 rounded-base mb-2.5 gap-2 grid grid-cols-[1fr_minmax(0,10rem)_minmax(0,10rem)_50px] whitespace-nowrap"
   >
     <span class="flex items-center gap-1 p-2.5 text-title-contrast">
       <BaseIcon :name="linkIcon || ''" :width="16" />
