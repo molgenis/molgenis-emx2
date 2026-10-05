@@ -160,13 +160,14 @@ class UpdateTableDataTest {
     Table projectTable = createTableWithRefToCompositeKey();
 
     // update the ref to a composite key, no name value is passed, so it should remain the same
-    projectTable.update(Row.row("id", "pr1", "lead.firstName", "Mickey", "lead.lastName", "Mouse"));
+    projectTable.update(
+        Row.row("id", "pr1", "organization.id", "org1", "lead.firstName", "Mickey"));
 
     // verify updated data
     assertEquals(1, projectTable.retrieveRows().size());
     Row updated = projectTable.retrieveRows().getFirst();
+    assertEquals("org1", updated.getString("organization.id"));
     assertEquals("Mickey", updated.getString("lead.firstName"));
-    assertEquals("Mouse", updated.getString("lead.lastName"));
     assertEquals("Moon landing", updated.getString("name"));
   }
 
@@ -176,16 +177,15 @@ class UpdateTableDataTest {
 
     // update the ref_array to a composite key, no other values are passed, so they should remain
     projectTable.update(
-        Row.row("id", "pr1")
-            .setStringArray("members.firstName", "Donald", "Mickey")
-            .setStringArray("members.lastName", "Duck", "Mouse"));
+        Row.row("id", "pr1", "organization.id", "org1")
+            .setStringArray("members.firstName", "Donald", "Mickey"));
 
     // verify updated data
     assertEquals(1, projectTable.retrieveRows().size());
     Row updated = projectTable.retrieveRows().getFirst();
+    assertEquals("org1", updated.getString("organization.id"));
     assertArrayEquals(
         new String[] {"Donald", "Mickey"}, updated.getStringArray("members.firstName"));
-    assertArrayEquals(new String[] {"Duck", "Mouse"}, updated.getStringArray("members.lastName"));
     assertEquals("Donald", updated.getString("lead.firstName"));
     assertEquals("Moon landing", updated.getString("name"));
   }
@@ -271,19 +271,36 @@ class UpdateTableDataTest {
   private Table createTableWithRefToCompositeKey() {
     Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
+    Table organizationTable = schema.create(table("Organization").add(column("id").setPkey()));
+    organizationTable.insert(Row.row("id", "org1"));
     Table personTable =
         schema.create(
-            table("Person").add(column("firstName").setPkey()).add(column("lastName").setPkey()));
+            table("Person")
+                .add(
+                    column("organization")
+                        .setType(ColumnType.REF)
+                        .setRefTable("Organization")
+                        .setPkey())
+                .add(column("firstName").setPkey()));
     personTable.insert(
-        Row.row("firstName", "Donald", "lastName", "Duck"),
-        Row.row("firstName", "Mickey", "lastName", "Mouse"));
+        Row.row("organization.id", "org1", "firstName", "Donald"),
+        Row.row("organization.id", "org1", "firstName", "Mickey"));
     Table projectTable =
         schema.create(
             table("Project")
                 .add(column("id").setPkey())
                 .add(column("name"))
-                .add(column("lead").setType(ColumnType.REF).setRefTable("Person"))
-                .add(column("members").setType(ColumnType.REF_ARRAY).setRefTable("Person")));
+                .add(column("organization").setType(ColumnType.REF).setRefTable("Organization"))
+                .add(
+                    column("lead")
+                        .setType(ColumnType.REF)
+                        .setRefTable("Person")
+                        .setRefLink("organization"))
+                .add(
+                    column("members")
+                        .setType(ColumnType.REF_ARRAY)
+                        .setRefTable("Person")
+                        .setRefLink("organization")));
 
     projectTable.insert(
         Row.row(
@@ -291,12 +308,11 @@ class UpdateTableDataTest {
                 "pr1",
                 "name",
                 "Moon landing",
+                "organization.id",
+                "org1",
                 "lead.firstName",
-                "Donald",
-                "lead.lastName",
-                "Duck")
-            .setStringArray("members.firstName", "Donald")
-            .setStringArray("members.lastName", "Duck"));
+                "Donald")
+            .setStringArray("members.firstName", "Donald"));
 
     return projectTable;
   }
