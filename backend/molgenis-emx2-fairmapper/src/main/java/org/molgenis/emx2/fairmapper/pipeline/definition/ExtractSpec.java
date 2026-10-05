@@ -5,6 +5,8 @@ import java.net.URI;
 import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.fairmapper.extractors.CrawlStep;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
 
 /**
  * Pipeline file entry for the Extract stage.
@@ -43,5 +45,9 @@ public record ExtractSpec(
     if (!url.isAbsolute()) {
       throw new MolgenisException("Invalid pipeline file: extract url must be absolute: " + url);
     }
+  }
+
+  public RdfExtractor create() {
+    return new CrawlingRdfExtractor(strict).withCrawlSteps(crawl);
   }
 }

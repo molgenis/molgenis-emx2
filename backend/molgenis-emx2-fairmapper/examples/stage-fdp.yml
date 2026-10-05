@@ -1,0 +1,54 @@
+# Harvests DCAT (and Health-DCAT-AP) metadata from a FAIR Data Point into a catalogue schema.
+# Replace the endpoint, token, schema and FDP url with your own.
+schema: catalogue
+tables: [ Catalogues, Collections, Organisations ]
+# output: ./fairmapper-output   # uncomment to dump the result of every stage
+emx2:
+  endpoint: https://emx2.example.org
+  token: your-token
+steps:
+  - extract:
+      url: https://fdp.example.org
+      crawl: fdp
+  - preprocessing: [ temporal, typical-age, stage-csvw ]
+  - transform
+  - postprocessing:
+      # Base the id field on the acronym or name
+      - coalesce-field: {
+        table: Collections,
+        field: id,
+        derive-from: [ acronym, name ],
+        strict: false
+      }
+      - coalesce-field: {
+        table: Catalogues,
+        field: id,
+        derive-from: [ acronym, name ],
+        strict: false
+      }
+      - coalesce-field: {
+        table: Organisations,
+        field: id,
+        derive-from: [ organisation name ],
+        strict: false
+      }
+      # Set the type of collections and catalogues to a fixed value
+      - resolve-static: {
+        table: Collections,
+        field: type,
+        value: http://semanticscience.org/resource/SIO_001067
+      }
+      - resolve-static: {
+        table: Catalogues,
+        field: type,
+        value: http://semanticscience.org/resource/SIO_001067
+      }
+      # Resolve the IRIs of ontology terms to their names in the target schema
+      - resolve-ontologies
+      - resolve-missing-pk
+      # Drop rows left with an incomplete primary key (e.g. unused Organisations that were never
+      # referenced by another table)
+      - drop-missing-pk: {
+        tables: [ Organisations ]
+      }
+  # - upload   # uncomment to upload; leave out for a dry run
