@@ -190,6 +190,65 @@ class UpdateTableDataTest {
     assertEquals("Moon landing", updated.getString("name"));
   }
 
+  @Test
+  void testUpdateTableDataWithRefLinkToCompositeKey() {
+    Table contactsTable = createTableWithRefLinkToCompositeKey();
+
+    // update the ref with refLink, its 'resource' part is shared with the contact's own key
+    contactsTable.update(Row.row("resource", "r1", "name", "Joop", "organisation", "rug"));
+
+    // verify updated data
+    assertEquals(1, contactsTable.retrieveRows().size());
+    Row updated = contactsTable.retrieveRows().getFirst();
+    assertEquals("r1", updated.getString("resource"));
+    assertEquals("rug", updated.getString("organisation"));
+    assertArrayEquals(new String[] {"umcg"}, updated.getStringArray("previousOrganisations"));
+    assertEquals("joop@example.com", updated.getString("email"));
+  }
+
+  @Test
+  void testUpdateTableDataWithRefArrayWithRefLinkToCompositeKey() {
+    Table contactsTable = createTableWithRefLinkToCompositeKey();
+
+    // update the ref_array with refLink, no other values are passed, so they should remain
+    contactsTable.update(
+        Row.row("resource", "r1", "name", "Joop")
+            .setStringArray("previousOrganisations", "umcg", "rug"));
+
+    // verify updated data
+    assertEquals(1, contactsTable.retrieveRows().size());
+    Row updated = contactsTable.retrieveRows().getFirst();
+    assertArrayEquals(
+        new String[] {"umcg", "rug"}, updated.getStringArray("previousOrganisations"));
+    assertEquals("umcg", updated.getString("organisation"));
+    assertEquals("joop@example.com", updated.getString("email"));
+  }
+
+  @Test
+  void testUpdateTableDataWithAllColumnsAndRefLinkToCompositeKey() {
+    Table contactsTable = createTableWithRefLinkToCompositeKey();
+
+    // update all columns at once, as a form save does
+    contactsTable.update(
+        Row.row(
+                "resource",
+                "r1",
+                "name",
+                "Joop",
+                "organisation",
+                "rug",
+                "email",
+                "joop@rug.example.com")
+            .setStringArray("previousOrganisations", "umcg"));
+
+    // verify updated data
+    assertEquals(1, contactsTable.retrieveRows().size());
+    Row updated = contactsTable.retrieveRows().getFirst();
+    assertEquals("rug", updated.getString("organisation"));
+    assertArrayEquals(new String[] {"umcg"}, updated.getStringArray("previousOrganisations"));
+    assertEquals("joop@rug.example.com", updated.getString("email"));
+  }
+
   private Table createPersonsTable() {
     Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
@@ -299,5 +358,50 @@ class UpdateTableDataTest {
             .setStringArray("members.lastName", "Duck"));
 
     return projectTable;
+  }
+
+  private Table createTableWithRefLinkToCompositeKey() {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema(this.getClass().getSimpleName());
+    Table resourcesTable = schema.create(table("Resources").add(column("id").setPkey()));
+    resourcesTable.insert(Row.row("id", "r1"));
+    Table organisationsTable =
+        schema.create(
+            table("Organisations")
+                .add(column("resource").setType(ColumnType.REF).setRefTable("Resources").setPkey())
+                .add(column("id").setPkey()));
+    organisationsTable.insert(
+        Row.row("resource", "r1", "id", "umcg"), Row.row("resource", "r1", "id", "rug"));
+    // 'organisation' and 'previousOrganisations' share their 'resource' key part with the contact
+    Table contactsTable =
+        schema.create(
+            table("Contacts")
+                .add(column("resource").setType(ColumnType.REF).setRefTable("Resources").setPkey())
+                .add(column("name").setPkey())
+                .add(
+                    column("organisation")
+                        .setType(ColumnType.REF)
+                        .setRefTable("Organisations")
+                        .setRefLink("resource"))
+                .add(
+                    column("previousOrganisations")
+                        .setType(ColumnType.REF_ARRAY)
+                        .setRefTable("Organisations")
+                        .setRefLink("resource"))
+                .add(column("email")));
+
+    contactsTable.insert(
+        Row.row(
+                "resource",
+                "r1",
+                "name",
+                "Joop",
+                "organisation",
+                "umcg",
+                "email",
+                "joop@example.com")
+            .setStringArray("previousOrganisations", "umcg"));
+
+    return contactsTable;
   }
 }
