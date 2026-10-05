@@ -9,10 +9,18 @@ class CachingSchemaMetadataProviderTest {
 
   @Test
   void shouldCacheSchemaMetadata() {
-    CachingSchemaMetadataProvider cachingSchemaMetadataProvider =
+    CachingSchemaMetadataProvider provider =
         new CachingSchemaMetadataProvider(schemaName -> new SchemaMetadata());
-    SchemaMetadata schemaMetadata = cachingSchemaMetadataProvider.getSchemaMetadata("foo");
-    assertSame(schemaMetadata, cachingSchemaMetadataProvider.getSchemaMetadata("foo"));
-    assertNotSame(schemaMetadata, cachingSchemaMetadataProvider.getSchemaMetadata("bar"));
+    SchemaMetadata schemaMetadata = provider.getSchemaMetadata("foo");
+    assertSame(schemaMetadata, provider.getSchemaMetadata("foo"));
+    assertNotSame(schemaMetadata, provider.getSchemaMetadata("bar"));
+  }
+
+  @Test
+  void shouldSetProvider() {
+    CachingSchemaMetadataProvider provider =
+        new CachingSchemaMetadataProvider(schemaName -> new SchemaMetadata());
+    SchemaMetadata schemaMetadata = provider.getSchemaMetadata("foo");
+    assertSame(provider, schemaMetadata.getSchemaMetadataProvider());
   }
 }

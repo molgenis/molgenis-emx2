@@ -16,6 +16,8 @@ public class CachingSchemaMetadataProvider implements SchemaMetadataProvider {
 
   @Override
   public SchemaMetadata getSchemaMetadata(String schemaName) {
-    return cache.computeIfAbsent(schemaName, delegate::getSchemaMetadata);
+    SchemaMetadata schemaMetadata = cache.computeIfAbsent(schemaName, delegate::getSchemaMetadata);
+    schemaMetadata.setSchemaMetadataProvider(this);
+    return schemaMetadata;
   }
 }
