@@ -226,6 +226,62 @@ class TestGraphqlMutationTransaction {
         book.retrieveRows(EXCLUDE_MG_COLUMNS));
   }
 
+  @Test
+  void dataMutationCombinedWithOtherMutationIsRejected() {
+    book.insert(row("title", "the hobbit"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    """
+                    mutation {
+                      insert(Author: { name: "tolkien", country: "uk" }) { message }
+                      truncate(tables: ["Book"]) { message }
+                    }
+                    """));
+    assertEquals(
+        "Data mutations (insert, save, update, delete) cannot be combined with other mutations: truncate",
+        exception.getMessage());
+
+    CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(
+        List.of(row("title", "the hobbit", "author", null)), book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
+  void typenameDoesNotDisableTransaction() {
+    author.insert(row("name", "tolkien", "country", "uk"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    """
+                    mutation {
+                      __typename
+                      update(Author: { name: "tolkien", country: "new zealand" }) { message }
+                      save(Book: { title: "lord of the rings", author: { name: "does not exist" } }) { message }
+                    }
+                    """));
+    assertFailedOnBook(exception);
+
+    CompareTools.assertEquals(
+        List.of(row("name", "tolkien", "country", "uk")), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(List.of(), book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
+  void mutationWithoutDataMutationsIsExecuted() throws IOException {
+    book.insert(row("title", "the hobbit"));
+
+    execute("mutation { truncate(tables: [\"Book\"]) { message } }");
+
+    CompareTools.assertEquals(List.of(), book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
   private void assertFailedOnBook(MolgenisException exception) {
     assertTrue(
         exception.getMessage().contains("Book"),
