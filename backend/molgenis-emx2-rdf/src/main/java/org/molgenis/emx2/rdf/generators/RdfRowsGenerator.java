@@ -49,7 +49,7 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
   protected Consumer<Row> ontologyRowConsumer(RdfMapData rdfMapData, Table table) {
     return row -> {
       List<Column> columns = table.getMetadata().getColumns();
-      ResolveComputedValue.apply(columns, List.of(row));
+      ResolveComputedValue.apply(table.getSchema().getDatabase(), columns, List.of(row));
       ontologyRowToRdf(rdfMapData, table, row);
     };
   }
@@ -57,7 +57,7 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
   protected Consumer<Row> dataRowConsumer(RdfMapData rdfMapData, Table table) {
     return row -> {
       List<Column> columns = table.getMetadata().getColumns();
-      ResolveComputedValue.apply(columns, List.of(row));
+      ResolveComputedValue.apply(table.getSchema().getDatabase(), columns, List.of(row));
       dataRowToRdf(rdfMapData, table, row);
     };
   }
