@@ -109,7 +109,7 @@ class TestGraphqlMutationTransaction {
                     """
                     mutation {
                       update(
-                        Author: { name: "tolkien", country: "new zealand" }
+                        Author: { name: "tolkien", country: "new-zealand" }
                         Book: { title: "lord of the rings", author: { name: "does not exist" } }
                       ) { message }
                     }
