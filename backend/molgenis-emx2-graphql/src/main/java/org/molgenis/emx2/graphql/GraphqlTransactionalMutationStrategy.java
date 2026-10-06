@@ -1,5 +1,10 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.graphql.GraphqlConstants.DELETE;
+import static org.molgenis.emx2.graphql.GraphqlConstants.INSERT;
+import static org.molgenis.emx2.graphql.GraphqlConstants.SAVE;
+import static org.molgenis.emx2.graphql.GraphqlConstants.UPDATE;
+
 import graphql.ExecutionResult;
 import graphql.ExecutionResultImpl;
 import graphql.GraphqlErrorBuilder;
@@ -11,17 +16,11 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.MutationType;
 import org.molgenis.emx2.Schema;
 
 class GraphqlTransactionalMutationStrategy extends AsyncSerialExecutionStrategy {
 
-  private static final Set<String> DATA_MUTATIONS =
-      Set.of(
-          MutationType.INSERT.toString(),
-          MutationType.SAVE.toString(),
-          MutationType.DELETE.toString(),
-          MutationType.UPDATE.toString());
+  private static final Set<String> DATA_MUTATIONS = Set.of(INSERT, SAVE, UPDATE, DELETE);
 
   private final Schema schema;
 
