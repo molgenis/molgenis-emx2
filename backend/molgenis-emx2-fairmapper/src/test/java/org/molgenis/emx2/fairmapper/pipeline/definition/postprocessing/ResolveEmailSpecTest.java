@@ -14,12 +14,12 @@ class ResolveEmailSpecTest {
 
   @Test
   void givenBareName_whenParsed_thenCreateSpec() {
-    assertEquals(new ResolveOntologiesSpec(), parse("resolve-email"));
+    assertEquals(new ResolveEmailSpec(), parse("resolve-email"));
   }
 
   @Test
   void givenEmptyArguments_whenParsed_thenSameAsBareName() {
-    assertEquals(new ResolveOntologiesSpec(), parse("resolve-email: {}"));
+    assertEquals(new ResolveEmailSpec(), parse("resolve-email: {}"));
   }
 
   @Test
