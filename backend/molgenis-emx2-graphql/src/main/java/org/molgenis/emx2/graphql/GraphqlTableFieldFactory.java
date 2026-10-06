@@ -981,13 +981,15 @@ public class GraphqlTableFieldFactory {
 
   private DataFetcher fetcher(Schema schema, MutationType mutationType) {
     return dataFetchingEnvironment -> {
-      if (schema.getMetadata().getTables().stream()
+      Schema currentSchema =
+          dataFetchingEnvironment.getGraphQlContext().getOrDefault(Schema.class, schema);
+      if (currentSchema.getMetadata().getTables().stream()
           .noneMatch(t -> dataFetchingEnvironment.getArgument(t.getIdentifier()) != null)) {
         throw new MolgenisException("None or invalid tables provided");
       }
 
       StringBuilder result = new StringBuilder();
-      schema
+      currentSchema
           .getDatabase()
           .tx(
               db -> {

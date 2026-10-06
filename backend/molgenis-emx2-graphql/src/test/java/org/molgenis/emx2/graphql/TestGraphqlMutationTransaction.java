@@ -181,6 +181,51 @@ class TestGraphqlMutationTransaction {
     assertEquals("None or invalid tables provided", exception.getMessage());
   }
 
+  @Test
+  void mutationFieldIsRolledBackWhenAnotherMutationFieldFails() {
+    author.insert(row("name", "tolkien", "country", "uk"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    """
+                    mutation {
+                      update(Author: { name: "tolkien", country: "new zealand" }) { message }
+                      insert(Book: { title: "the hobbit" }) { message }
+                      save(Book: { title: "lord of the rings", author: { name: "does not exist" } }) { message }
+                    }
+                    """));
+    assertFailedOnBook(exception);
+
+    CompareTools.assertEquals(
+        List.of(row("name", "tolkien", "country", "uk")), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(List.of(), book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
+  void multiFieldMutationIsCommittedWhenAllFieldsSucceed() throws IOException {
+    author.insert(row("name", "tolkien", "country", "uk"));
+    book.insert(row("title", "the hobbit", "author", "tolkien"));
+
+    execute(
+        """
+        mutation {
+          delete(Book: { title: "the hobbit" }) { message }
+          update(Author: { name: "tolkien", country: "new zealand" }) { message }
+          insert(Book: { title: "lord of the rings", author: { name: "tolkien" } }) { message }
+        }
+        """);
+
+    CompareTools.assertEquals(
+        List.of(row("name", "tolkien", "country", "new zealand")),
+        author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(
+        List.of(row("title", "lord of the rings", "author", "tolkien")),
+        book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
   private void assertFailedOnBook(MolgenisException exception) {
     assertTrue(
         exception.getMessage().contains("Book"),
