@@ -4,6 +4,7 @@ import { computed, ref } from "vue";
 import type {
   IColumn,
   IRow,
+  ITableMetaData,
   TableType,
 } from "../../../../metadata-utils/src/types.ts";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
@@ -16,7 +17,11 @@ import type {
 } from "../../../../tailwind-components/types/types.ts";
 import DeleteRolesConfirmation from "../../components/DeleteRolesConfirmation.vue";
 import EditRoleModal from "../../components/EditRoleModal.vue";
-import { deleteRoles, getCustomRoles } from "../../util/adminUtils.ts";
+import {
+  deleteRoles,
+  getCustomRoles,
+  getSchemas,
+} from "../../util/adminUtils.ts";
 
 definePageMeta({
   middleware: "admin-only",
@@ -30,7 +35,7 @@ const COLUMNS: IColumn[] = [
   { label: "Users", id: "users", columnType: "STRING" },
 ];
 
-const TABLE_METADATA = {
+const TABLE_METADATA: ITableMetaData = {
   id: "roles",
   schemaId: "roles",
   name: "Roles",
@@ -56,6 +61,10 @@ const showEditRoleModal = ref(false);
 let latestRequest = 0;
 
 await loadCustomRoles();
+const schemaOptions = (await getSchemas()).map((schema) => ({
+  label: schema.label,
+  value: schema.id,
+}));
 
 const rows = computed<IRow[]>(() => {
   const transformedRoles = customRoles.value.map((customRole) => ({
@@ -209,5 +218,10 @@ function openDeleteRoleModal() {
     @deleteRoles="handleDeleteRoles"
   />
 
-  <EditRoleModal v-model:visible="showEditRoleModal"></EditRoleModal>
+  <EditRoleModal
+    v-model:visible="showEditRoleModal"
+    :isInsert="true"
+    :tableMetadata="TABLE_METADATA"
+    :schemaOptions="schemaOptions"
+  />
 </template>
