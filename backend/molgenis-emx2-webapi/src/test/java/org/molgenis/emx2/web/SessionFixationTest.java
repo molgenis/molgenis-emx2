@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -53,10 +54,11 @@ class SessionFixationTest extends ApiTestBase {
   }
 
   private static String signin(String sessionId, String username) {
+    RequestSpecification request = given();
     if (sessionId != null) {
-      given().sessionId(sessionId);
+      request.sessionId(sessionId);
     }
-    return given()
+    return request
         .body(
             """
             {"query":"mutation{signin(email:\\"%s\\",password:\\"%s\\"){message}}"}
