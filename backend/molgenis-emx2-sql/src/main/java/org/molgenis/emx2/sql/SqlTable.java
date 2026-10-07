@@ -308,7 +308,8 @@ public class SqlTable implements Table {
 
   private static boolean containsBinaryField(List<Column> updateColumns) {
     return updateColumns.stream()
-        .filter(c -> !c.isRefback()) // workaround for exception thrown on refback.getJooqField
+        // references are never binary, and getJooqField throws for refback or composite keys
+        .filter(c -> !c.isReference())
         .anyMatch(c -> c.getJooqField().getDataType().isBinary());
   }
 
