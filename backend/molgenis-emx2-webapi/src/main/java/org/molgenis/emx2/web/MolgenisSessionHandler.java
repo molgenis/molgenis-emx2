@@ -32,20 +32,18 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   @Override
   public synchronized void createSession(String username) {
     HttpSession session = request.getSession(true);
+    String previousSessionId = session.getId();
+    String previousUsername = (String) session.getAttribute(USERNAME);
+    unregisterSession(previousUsername, previousSessionId);
+
+    String sessionId = request.changeSessionId();
     session.setMaxInactiveInterval(30 * 60); // 30 minutes
     session.setAttribute(USERNAME, username);
-
-    // register this session
-    Set<String> sessions =
-        userSessions.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet());
-    if (!sessions.contains(session.getId())) {
-      sessions.add(session.getId());
-      sessionGauge.inc(1);
-    }
+    registerSession(username, sessionId);
 
     logger.info(
         "Session {} linked to user {}. This user now has {} sessions with {} total",
-        session.getId(),
+        sessionId,
         username,
         userSessions.get(username).size(),
         sessionGauge.get());
@@ -56,23 +54,39 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
     HttpSession session = request.getSession(false);
     if (session != null) {
       String username = (String) session.getAttribute(USERNAME);
+      String sessionId = session.getId();
       session.invalidate();
-      sessionGauge.dec(1);
+      unregisterSession(username, sessionId);
 
-      // remove from registry
-      Set<String> sessions = userSessions.get(username);
-      int sessionCountForUser = 0;
-      if (sessions != null) {
-        sessions.remove(session.getId());
-        sessionCountForUser = sessions.size();
-      }
       logger.info(
           "session {} invalidated. User {} now has {} sessions with {} total",
-          session.getId(),
+          sessionId,
           username,
-          sessionCountForUser,
+          sessionCountForUser(username),
           sessionGauge.get());
     }
+  }
+
+  private static void registerSession(String username, String sessionId) {
+    Set<String> sessions =
+        userSessions.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet());
+    if (sessions.add(sessionId)) {
+      sessionGauge.inc(1);
+    }
+  }
+
+  private static void unregisterSession(String username, String sessionId) {
+    if (username == null) return;
+    Set<String> sessions = userSessions.get(username);
+    if (sessions != null && sessions.remove(sessionId)) {
+      sessionGauge.dec(1);
+    }
+  }
+
+  private static int sessionCountForUser(String username) {
+    if (username == null) return 0;
+    Set<String> sessions = userSessions.get(username);
+    return sessions == null ? 0 : sessions.size();
   }
 
   @Override
