@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
-import type { IColumn, IRow } from "../../../../metadata-utils/src/types.ts";
+import type {
+  IColumn,
+  IRow,
+  TableType,
+} from "../../../../metadata-utils/src/types.ts";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import TableInteractive from "../../../../tailwind-components/app/components/table/TableInteractive.vue";
 import constants from "../../../../tailwind-components/app/utils/constants.ts";
@@ -22,9 +26,18 @@ const ROW_KEY_FIELD = "keyString";
 const COLUMNS: IColumn[] = [
   { label: "Schema", id: "schemaId", columnType: "STRING" },
   { label: "Role Name", id: "roleName", columnType: "STRING" },
-  { label: "Tables", id: "tables", columnType: "STRING_ARRAY" },
-  { label: "Users", id: "users", columnType: "STRING_ARRAY" },
+  { label: "Tables", id: "tables", columnType: "STRING" },
+  { label: "Users", id: "users", columnType: "STRING" },
 ];
+
+const TABLE_METADATA = {
+  id: "roles",
+  schemaId: "roles",
+  name: "Roles",
+  label: "Roles",
+  tableType: "DATA" as TableType,
+  columns: COLUMNS,
+};
 
 const settings = ref<ITableSettings>({
   page: 1,
@@ -174,11 +187,11 @@ function openDeleteRoleModal() {
   <TableInteractive
     searchPlaceholder="Search roles"
     :rowIdKey="ROW_KEY_FIELD"
-    :columns="COLUMNS"
     :rows="paginatedRows"
     :rowCount="rows.length"
     :settings="settings"
     :selectedRows="selectedRows"
+    :tableMetadata="TABLE_METADATA"
     @toggleRowSelection="handleRowSelection"
     @rowAction="handleRowAction"
     @update:settings="handleSettingsChange"
