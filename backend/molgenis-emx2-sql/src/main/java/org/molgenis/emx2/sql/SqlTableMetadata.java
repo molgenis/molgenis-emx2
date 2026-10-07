@@ -459,7 +459,7 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   private SqlDatabase getDatabase() {
-    return (SqlDatabase) getSchema().getDatabase();
+    return (SqlDatabase) getSchema().getSchemaMetadataProvider();
   }
 
   @Override

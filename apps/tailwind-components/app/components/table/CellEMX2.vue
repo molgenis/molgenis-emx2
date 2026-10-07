@@ -1,5 +1,7 @@
 <template>
-  <td class="border-b">
+  <td
+    class="relative after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none after:z-[35]"
+  >
     <slot name="row-actions"></slot>
     <div class="flex overflow-hidden items-center gap-2">
       <div class="truncate min-w-0" ref="cellRef">
