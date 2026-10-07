@@ -250,7 +250,7 @@ onMounted(() => {
 });
 
 watch(
-  () => [props.chartData, props.x, props.y, props.xAxisTitle, props.yAxisTitle],
+  () => [props],
   () => {
     renderChart();
   },
