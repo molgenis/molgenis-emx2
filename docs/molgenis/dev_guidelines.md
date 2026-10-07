@@ -234,7 +234,9 @@ logger.debug("Value [{}] was inserted between [{}] and [{}].", val, below, above
 
 ### We use `Objects` for equals/hash
 
-When creating an equals/hash method for a class, we use `Objects` to do so. For example:
+When creating an equals/hash method for a class, we use `Objects` to do so (the generate functionality in IntelliJ IDEA can generate these by selecting the option `java.utils.Objects.equals() and hash() (Java 7 and higher)`).
+
+Example:
 ```java
   @Override
   public boolean equals(Object o) {
@@ -249,8 +251,8 @@ When creating an equals/hash method for a class, we use `Objects` to do so. For 
   }
 ```
 
-### When an object is closable, we use try-with-resources where possible
-To reduce accidentally forgetting to close a closable object, we use try-with-resources as much as possible.
+### When an object is `Closeable`, we use try-with-resources where possible
+To reduce accidentally forgetting to close a closable object, we use try-with-resources where possible.
 
 ```java
 try (FileOutputStream output = new FileOutputStream("filename.txt")) {

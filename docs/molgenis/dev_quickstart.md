@@ -90,7 +90,7 @@ Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
   ```
   Look at the dev server's own banner for the actual port: Vite apps start at `5173` and Nuxt apps at `3000`, and drift upwards when that port is taken.
 
-!> Sometimes a `gradle clean` is required when front-end changes are made (f.e. when working on an app and some changes were made to tailwind-components as well). 
+!> Sometimes a `gradle clean` is required when front-end changes are made. For example, when changes are made to `tailwind-components` while working on `ui`, the changes to `tailwind-components` (which are need for `ui`) might not always be registered until it is cleaned up and rebuild. 
 
 ## Frontend only: point an app at a backend you did not start
 
@@ -153,8 +153,6 @@ When setting up WSL, there are a few things to keep in mind:
 - When using VSCode, install the WSL extension and after this, add all other extensions to the WSL window. This is needed for extensions and intellisense to properly work.
 
 ## Tips
-
-last updated 18 aug 2026
 
 ### IntelliJ IDEA plugins
 
