@@ -69,7 +69,7 @@ Charts,Components,,,,,,,,,,,,sio:SIO_000904,,Visualisations and configurations t
 Charts,,chart type,ontology,,TRUE,,Data viz chart types,,,,,,,sio:SIO_000904,"The visualisation to be displayed e.g., column chart, map, etc.",pages
 Charts,,chart title,string,,TRUE,,,,,,,,,sio:SIO_000473,A title that summarises a visualisation,pages
 Charts,,chart description,string,,,,,,,,,,,sio:SIO_000474,Additional information about the visualisation to be placed below the title,pages
-Charts,,chart data,refback,,,,Chart data,displayed in chart,,,,,,sio:SIO_000089,Data that is displayed in the chart,pages
+Charts,,chart data,refback,,,,Chart data,displayed in chart,,,,,,sio:SIO_000089,"NOTE: do not add or edit data points this way. Please go to the 'Statistical chart data' table to manage data. This field will be hidden when the visibility issue is fixed.",pages
 Statistical charts,Charts,,,,,,,,,,,,,sio:SIO_000083,"Definitions and configuration of bar charts, column charts, etc.",pages
 Statistical charts,,x,string,,TRUE,,,,,,,TRUE,xValue,sio:SIO_000452,The name of the variable that contains the x-axis data,pages
 Statistical charts,,y,string,,TRUE,,,,,,,TRUE,yValue,sio:SIO_000453,The name of the variable that contains the y-axis data,pages
