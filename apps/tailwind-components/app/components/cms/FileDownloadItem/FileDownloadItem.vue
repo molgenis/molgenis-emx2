@@ -48,7 +48,7 @@ const linkIcon = computed<string | undefined>(() => {
 
 <template>
   <div
-    class="w-full border rounded-base mb-2.5 grid grid-cols-[1fr_50px] justify-stretch"
+    class="w-full border rounded-base mb-2.5 grid grid-cols-[1fr_50px] justify-stretch text-title-contrast"
   >
     <div
       class="w-full p-2.5 gap-2 grid grid-cols-[1fr_minmax(0,10rem)_minmax(0,10rem)_50px] whitespace-nowrap"
