@@ -22,7 +22,7 @@ class SessionFixationTest extends ApiTestBase {
   }
 
   @Test
-  void givenAuthenticatedSession_whenSigninAgain_thenSessionIdIsRotated() {
+  void givenAuthenticatedSession_whenSignInAgain_thenSessionIdIsRotated() {
     String preLoginSessionId = signin(null, DOCTOR);
     String postLoginSessionId = signin(preLoginSessionId, PATIENT);
 
@@ -41,7 +41,7 @@ class SessionFixationTest extends ApiTestBase {
   }
 
   @Test
-  void givenAuthenticatedSession_whenSigninAgain_thenSessionGaugeIsUnchanged() {
+  void givenAuthenticatedSession_whenSignInAgain_thenSessionGaugeIsUnchanged() {
     String firstSessionId = signin(null, DOCTOR);
     double gaugeAfterFirstSignin = MolgenisSessionHandler.sessionGauge.get();
 
@@ -53,11 +53,10 @@ class SessionFixationTest extends ApiTestBase {
   }
 
   private static String signin(String sessionId, String username) {
-    var request = given();
     if (sessionId != null) {
-      request.sessionId(sessionId);
+      given().sessionId(sessionId);
     }
-    return request
+    return given()
         .body(
             """
             {"query":"mutation{signin(email:\\"%s\\",password:\\"%s\\"){message}}"}
