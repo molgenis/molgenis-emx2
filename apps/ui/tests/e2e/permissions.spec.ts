@@ -1,34 +1,54 @@
-import { test, expect, request as apiRequest } from "@playwright/test";
-import type { APIRequestContext, Page } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
+import { request as apiRequest, expect, test } from "@playwright/test";
 import playwrightConfig from "../../playwright.config";
+import {
+  addPasswordToUser,
+  createSchemaFromTemplate,
+  deleteSchema,
+  dropAnonymousFromTestSchema,
+  RUN_ID,
+  signinAdmin,
+} from "./e2eUtils";
+import {
+  addRlsToTables,
+  findAndDeleteRow,
+  findRow,
+  insertRow,
+  removeRlsFromTables,
+  signin,
+  signout,
+} from "./testUtils/testUtils";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? playwrightConfig?.use?.baseURL
   : "/apps/ui/";
-// test.use({ storageState: "playwright/.auth/user.json" });
 
-// shared context so the signin cookie is reused by the follow-up mutations
 let api: APIRequestContext;
+
 const USERNAME = "dragonkeeper";
 const PASSWORD = "dragonkeeper";
+const DRAGON_KEEPER = "DragonKeeper";
+const SCHEMA = `permissions test ${RUN_ID}`;
+const SCHEMA_PATH = encodeURIComponent(SCHEMA);
 
 test.describe.configure({ mode: "serial" });
 
 test.beforeAll(async () => {
   api = await apiRequest.newContext();
-  await becomeAdmin();
-  await dropAnonymousFromPetStore();
-  await addPasswordToDragonKeeper();
+  await signinAdmin(api, route);
+  await createSchemaFromTemplate(api, route, SCHEMA, "PET_STORE");
+  await dropAnonymousFromTestSchema(api, route, SCHEMA_PATH);
+  await addPasswordToUser(api, route, USERNAME, PASSWORD);
 });
 
 test.afterAll(async () => {
-  await restoreAnonymousToPetStore();
+  await deleteSchema(api, route, SCHEMA);
   await api.dispose();
 });
 
 test.describe("when the dragonkeeper has permissions on the pet table only", () => {
   test("The dragonkeeper has the correct permissions", async ({ page }) => {
-    await page.goto(route + "pet%20store/Pet");
+    await page.goto(route + SCHEMA_PATH + "/Pet");
     await expect(
       page.getByText("The requested page could not be found.")
     ).toBeVisible();
@@ -39,7 +59,7 @@ test.describe("when the dragonkeeper has permissions on the pet table only", () 
 
     // check that other tables are not clickable
     await page.goto(route);
-    await page.getByText("pet store").click();
+    await page.getByText(SCHEMA).click();
     await expect(page.getByText("Category")).toBeVisible();
     await expect(page.getByText("Order")).toBeVisible();
     await expect(page.getByText("User")).toBeVisible();
@@ -63,17 +83,17 @@ test.describe("when the dragonkeeper has permissions on the pet table only", () 
 
 test.describe("when the dragonkeeper has also permissions on the order table", () => {
   test.beforeAll(async () => {
-    await addRlsToTables();
+    await addRlsToTables(api, SCHEMA_PATH);
   });
 
   test.afterAll(async () => {
-    await removeRlsFromTables();
+    await removeRlsFromTables(api, SCHEMA_PATH);
   });
 
   test("the dragonkeeper can now see the order table", async ({ page }) => {
     await page.goto(route);
     await signin(page, USERNAME, PASSWORD);
-    await page.getByText("pet store").click();
+    await page.getByText(SCHEMA).click();
     await page.getByText("Order", { exact: true }).click();
     await expect(page.getByText("No records found")).toBeVisible();
   });
@@ -83,7 +103,7 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
   }) => {
     await page.goto(route);
     await signin(page, USERNAME, PASSWORD);
-    await page.getByText("pet store").click();
+    await page.getByText(SCHEMA).click();
     await page.getByText("Pet", { exact: true }).click();
     await expect(
       page
@@ -98,167 +118,65 @@ test.describe("when the dragonkeeper has also permissions on the order table", (
   }) => {
     await page.goto(route);
     await signin(page, USERNAME, PASSWORD);
-    await page.getByText("pet store").click();
+    await page.getByText(SCHEMA).click();
     await page.getByText("Pet", { exact: true }).click();
     await page.getByRole("button", { name: "Add" }).click();
     await expect(page.getByLabel("Name")).toBeVisible();
   });
 });
 
-async function signin(page: Page, username: string, password: string) {
-  await page.getByRole("button", { name: "Signin" }).click();
-  await page.getByRole("textbox", { name: "Username" }).fill(username);
-  await page.getByRole("textbox", { name: "Password" }).fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await timeout(200);
-}
+test.describe("when selecting a permission for a row", () => {
+  test("as admin, for a new row", async ({ page }) => {
+    await page.goto(route);
+    await signin(page, "admin", "admin");
+    await page.goto(route + SCHEMA_PATH + "/Pet");
 
-async function signout(page: Page) {
-  await page.getByRole("button", { name: "Account" }).click();
-  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await timeout(200);
-}
+    await page.getByRole("button", { name: "Add Pet" }).click();
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: DRAGON_KEEPER }).click();
 
-async function timeout(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+    await page
+      .getByRole("textbox", { name: "name Required" })
+      .fill("testDragon");
+    await page
+      .locator(`[id="${SCHEMA}-Pet-category-form-field-input-radio-group"]`)
+      .getByText("dragon")
+      .getByText("dragon", { exact: true })
+      .click();
+    await page.getByRole("textbox", { name: "weight Required" }).fill("50000");
 
-async function gql(
-  url: string,
-  query: string,
-  variables?: Record<string, unknown>
-) {
-  const response = await api.post(url, {
-    headers: { "Content-Type": "application/json" },
-    data: variables ? { query, variables } : { query },
+    await insertRow(page, "Pet");
+
+    await findAndDeleteRow(page, "Pet", "testDragon");
   });
-  const body = await response.json();
-  if (body.errors) {
-    throw new Error(`GraphQL error on ${url}: ${JSON.stringify(body.errors)}`);
-  }
-  return body.data;
-}
 
-async function becomeAdmin() {
-  return gql(
-    `${route}graphql`,
-    `mutation {
-      signin(email: "admin", password: "admin") {
-        status
-        message
-      }
-    }`
-  );
-}
+  test("as manager,when editing a row", async ({ page }) => {
+    await page.goto(route);
+    await signin(page, "shopmanager", "shopmanager");
+    await page.goto(route + SCHEMA_PATH + "/Pet");
 
-async function dropAnonymousFromPetStore() {
-  return gql(
-    `${route}pet%20store/graphql`,
-    `mutation drop($members: [String]) {
-      drop(members: $members) {
-        message
-      }
-    }`,
-    { members: ["anonymous"] }
-  );
-}
+    await findRow(page, "Pet", "smaug");
+    await expect(page.getByRole("cell", { name: DRAGON_KEEPER })).toBeVisible();
 
-async function addPasswordToDragonKeeper() {
-  return gql(
-    `${route}graphql`,
-    `mutation{
-      changePassword(email: "${USERNAME}", password: "${PASSWORD}"){
-        status,message
-      }
-    }`
-  );
-}
+    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
 
-async function restoreAnonymousToPetStore() {
-  return gql(
-    `${route}graphql`,
-    `mutation updateUser($updateUser: InputUpdateUser) {
-      updateUser(updateUser: $updateUser) {
-        status
-        message
-      }
-    }`,
-    {
-      updateUser: {
-        email: "anonymous",
-        roles: [{ schemaId: "pet store", role: "Viewer" }],
-      },
-    }
-  );
-}
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: "Global" }).click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
 
-async function addRlsToTables() {
-  return gql(
-    `${route}pet%20store/graphql`,
-    `mutation {
-        change(
-          roles: [
-            {
-              name: "DragonKeeper"
-              permissions: [
-                {
-                  table: "Order"
-                  select: true
-                  insert: true
-                  update: true
-                  delete: true
-                  isRowLevel: true
-                }
-                {
-                  table: "Category"
-                  select: true
-                  insert: true
-                  update: true
-                  delete: true
-                  isRowLevel: true
-                }
-              ]
-            }
-          ]
-        ) {
-          message
-        }
-      }`
-  );
-}
+    await expect(
+      page.getByRole("cell", { name: DRAGON_KEEPER })
+    ).not.toBeVisible();
 
-async function removeRlsFromTables() {
-  return gql(
-    `${route}pet%20store/graphql`,
-    `mutation {
-        change(
-          roles: [
-            {
-              name: "DragonKeeper"
-              permissions: [
-                {
-                  table: "Order"
-                  select: false
-                  insert: false
-                  update: false
-                  delete: false
-                  isRowLevel: false
-                } 
-                {
-                  table: "Category"
-                  select: false
-                  insert: false
-                  update: false
-                  delete: false
-                  isRowLevel: false
-                }
-              ]
-            }
-          ]
-        ) {
-          message
-        }
-      }`
-  );
-}
+    await page.getByRole("cell", { name: "smaug" }).hover();
+    await page.getByRole("button", { name: 'edit {"name":"smaug"}' }).click();
+    await page.getByRole("combobox", { name: "Access group" }).click();
+    await page.getByRole("option", { name: DRAGON_KEEPER }).click();
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+
+    await expect(page.getByRole("cell", { name: DRAGON_KEEPER })).toBeVisible();
+  });
+});

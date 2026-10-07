@@ -19,7 +19,7 @@
       :id="`listbox-${id}-options`"
       :aria-expanded="isExpanded"
       :tabindex="isExpanded ? 1 : 0"
-      class="absolute b-0 w-full z-10 bg-input"
+      class="absolute top-full w-full z-10 bg-input"
       :class="{
         hidden: disabled || !isExpanded,
       }"

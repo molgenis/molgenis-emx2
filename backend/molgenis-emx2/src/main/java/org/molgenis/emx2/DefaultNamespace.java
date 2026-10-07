@@ -8,6 +8,7 @@ import org.eclipse.rdf4j.model.impl.SimpleNamespace;
 public enum DefaultNamespace {
   AFR("afr", "http://purl.allotrope.org/ontologies/result#"),
   AFRL("afrl", "http://purl.allotrope.org/ontologies/role#"),
+  CSVW("csvw", "http://www.w3.org/ns/csvw#"),
   DC("dc", "http://purl.org/dc/elements/1.1/"),
   DCAT("dcat", "http://www.w3.org/ns/dcat#"),
   DCATAP("dcatap", "http://data.europa.eu/r5r/"),

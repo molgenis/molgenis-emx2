@@ -275,24 +275,26 @@ public class GraphqlTableFieldFactory {
                           .type(GraphQLList.list(createTableOrderByInputType(col.getRefTable())))
                           .build()));
         }
-        tableBuilder.field(
-            GraphQLFieldDefinition.newFieldDefinition()
-                .name(id + "_agg")
-                .type(createTableAggregationType(col.getRefTable()))
-                .argument(
-                    GraphQLArgument.newArgument()
-                        .name(GraphqlConstants.FILTER_ARGUMENT)
-                        .type(getTableFilterInputType(col.getRefTable()))
-                        .build()));
-        tableBuilder.field(
-            GraphQLFieldDefinition.newFieldDefinition()
-                .name(id + "_groupBy")
-                .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
-                .argument(
-                    GraphQLArgument.newArgument()
-                        .name(GraphqlConstants.FILTER_ARGUMENT)
-                        .type(getTableFilterInputType(col.getRefTable()))
-                        .build()));
+        if (hasAggregatePermission(col.getRefTable())) {
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id + "_agg")
+                  .type(createTableAggregationType(col.getRefTable()))
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .type(getTableFilterInputType(col.getRefTable()))
+                          .build()));
+          tableBuilder.field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(id + "_groupBy")
+                  .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
+                  .argument(
+                      GraphQLArgument.newArgument()
+                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .type(getTableFilterInputType(col.getRefTable()))
+                          .build()));
+        }
         break;
       default:
         throw new UnsupportedOperationException("Not yet implemented type " + col.getColumnType());
@@ -301,6 +303,10 @@ public class GraphqlTableFieldFactory {
 
   boolean hasViewPermission(TableMetadata table) {
     return PermissionEvaluator.canView(schema, table);
+  }
+
+  boolean hasAggregatePermission(TableMetadata table) {
+    return PermissionEvaluator.canExists(schema, table);
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
@@ -716,10 +722,9 @@ public class GraphqlTableFieldFactory {
                   convertMapToFilterArray(
                       table
                           .getSchema()
-                          .getDatabase()
-                          .getSchema(c.getRefTable().getSchemaName())
-                          .getTable(c.getRefTableName())
-                          .getMetadata(),
+                          .getSchemaMetadataProvider()
+                          .getSchemaMetadata(c.getRefTable().getSchemaName())
+                          .getTableMetadata(c.getRefTableName()),
                       remainingOperators)));
         } else {
           subFilters.add(convertMapToFilter(c.getName(), (Map<String, Object>) entry.getValue()));
@@ -858,9 +863,9 @@ public class GraphqlTableFieldFactory {
     }
   }
 
-  private DataFetcher fetcherForTableQueryField(TableMetadata aTable) {
+  private DataFetcher fetcherForTableQueryField(TableMetadata tableMetadata) {
+    Table table = schema.getTable(tableMetadata.getTableName());
     return dataFetchingEnvironment -> {
-      Table table = aTable.getTable();
       Query q = table.query();
       String fieldName = dataFetchingEnvironment.getField().getName();
       if (fieldName.endsWith("_agg")) {
@@ -869,7 +874,7 @@ public class GraphqlTableFieldFactory {
         q = table.groupBy();
       }
       long step = System.currentTimeMillis();
-      q.select(convertMapSelection(aTable, dataFetchingEnvironment.getSelectionSet()));
+      q.select(convertMapSelection(table.getMetadata(), dataFetchingEnvironment.getSelectionSet()));
       Map<String, Object> args = dataFetchingEnvironment.getArguments();
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
@@ -884,7 +889,7 @@ public class GraphqlTableFieldFactory {
         q.offset((int) args.get(GraphqlConstants.OFFSET));
       }
       if (args.containsKey(GraphqlConstants.ORDERBY)) {
-        q.orderBy(convertOrderByIdsToNames(aTable, args));
+        q.orderBy(convertOrderByIdsToNames(table.getMetadata(), args));
       }
 
       String search = dataFetchingEnvironment.getArgument(GraphqlConstants.SEARCH);
@@ -976,39 +981,44 @@ public class GraphqlTableFieldFactory {
 
   private DataFetcher fetcher(Schema schema, MutationType mutationType) {
     return dataFetchingEnvironment -> {
-      StringBuilder result = new StringBuilder();
-      boolean any = false;
-      for (TableMetadata tableMetadata : schema.getMetadata().getTables()) {
-        List<Map<String, Object>> rowsAslistOfMaps =
-            dataFetchingEnvironment.getArgument(tableMetadata.getIdentifier());
-        if (rowsAslistOfMaps != null) {
-          String tableName = tableMetadata.getTableName();
-          Table table = tableMetadata.getTable();
-          int count;
-          List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), rowsAslistOfMaps);
-          switch (mutationType) {
-            case UPDATE:
-              count = table.update(rows);
-              result.append("updated " + count + " records to " + tableName + "\n");
-              break;
-            case INSERT:
-              count = table.insert(rows);
-              result.append("inserted " + count + " records to " + tableName + "\n");
-              break;
-            case SAVE:
-              count = table.save(rows);
-              result.append("upserted " + count + " records to " + tableName + "\n");
-              break;
-            case DELETE:
-              boolean strict = dataFetchingEnvironment.getArgumentOrDefault("strict", false);
-              count = table.delete(rows, strict);
-              result.append("delete " + count + " records from " + tableName + "\n");
-              break;
-          }
-          any = true;
-        }
+      if (schema.getMetadata().getTables().stream()
+          .noneMatch(t -> dataFetchingEnvironment.getArgument(t.getIdentifier()) != null)) {
+        throw new MolgenisException("None or invalid tables provided");
       }
-      if (!any) throw new MolgenisException("Error with save: no data provided");
+
+      StringBuilder result = new StringBuilder();
+      schema
+          .getDatabase()
+          .tx(
+              db -> {
+                Schema txSchema = db.getSchema(schema.getName());
+                for (Table table : txSchema.getTablesSorted()) {
+                  List<Map<String, Object>> rowsAsListOfMaps =
+                      dataFetchingEnvironment.getArgument(table.getMetadata().getIdentifier());
+                  if (rowsAsListOfMaps == null) {
+                    continue;
+                  }
+                  String tableName = table.getName();
+                  List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), rowsAsListOfMaps);
+                  result.append(
+                      switch (mutationType) {
+                        case INSERT ->
+                            "inserted %d records to %s%n".formatted(table.insert(rows), tableName);
+                        case UPDATE ->
+                            "updated %d records to %s%n".formatted(table.update(rows), tableName);
+                        case SAVE ->
+                            "upserted %d records to %s%n".formatted(table.save(rows), tableName);
+                        case DELETE ->
+                            "delete %d records from %s%n"
+                                .formatted(
+                                    table.delete(
+                                        rows,
+                                        dataFetchingEnvironment.getArgumentOrDefault(
+                                            "strict", false)),
+                                    tableName);
+                      });
+                }
+              });
       return new GraphqlApiMutationResult(SUCCESS, result.toString());
     };
   }

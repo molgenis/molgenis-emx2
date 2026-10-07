@@ -27,7 +27,8 @@ const pageData = ref(await getPage(schema as string, page));
 const crumbs: Crumb[] = [
   { label: schema as string, url: `/${schema}` },
   { label: "Pages", url: `/${schema}/pages` },
-  { label: page as string, url: "" },
+  { label: page as string, url: `/${schema}/pages/${page}` },
+  { label: "edit", url: "" },
 ];
 
 const { isAdmin, session } = await useSession(schema);

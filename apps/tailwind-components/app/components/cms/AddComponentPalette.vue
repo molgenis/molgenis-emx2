@@ -64,6 +64,46 @@ const blocksOpen = ref<boolean>(true);
             @dragging="handleDragEvent"
           />
         </li>
+        <li>
+          <DraggableComponent
+            icon="ListBulleted"
+            componentName="UnorderedLists"
+            componentLabel="Unordered list"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="ListNumbered"
+            componentName="OrderedLists"
+            componentLabel="Ordered list"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="AddLink"
+            componentName="NavigationCards"
+            componentLabel="Navigation card"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="UploadFile"
+            componentName="File"
+            componentLabel="File"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="UploadFile"
+            componentName="FileList"
+            componentLabel="File list"
+            @dragging="handleDragEvent"
+          />
+        </li>
       </ul>
     </div>
 
@@ -102,6 +142,22 @@ const blocksOpen = ref<boolean>(true);
           <DraggableComponent
             icon="view-normal"
             componentName="Section"
+            componentType="Block"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="columns"
+            componentName="Section - 2 Columns"
+            componentType="Block"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
+            icon="columns"
+            componentName="Section - 3 Columns"
             componentType="Block"
             @dragging="handleDragEvent"
           />

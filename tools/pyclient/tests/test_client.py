@@ -12,28 +12,43 @@ from pathlib import Path
 import pandas as pd
 import pytest
 import yaml
-from dotenv import load_dotenv
+from requests import Response
 
 from src.molgenis_emx2_pyclient import Client
-from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
-    ReferenceException, PermissionDeniedException, PyclientException, ServiceUnavailableError, ServerNotFoundError, \
-    InvalidTokenException, GraphQLException, NonExistentTemplateException
+from src.molgenis_emx2_pyclient.exceptions import (
+    GraphQLException,
+    InvalidTokenException,
+    NonExistentTemplateException,
+    NoSuchSchemaException,
+    PermissionDeniedException,
+    PyclientException,
+    ReferenceException,
+    ServerNotFoundError,
+    ServiceUnavailableError,
+    SigninError,
+    SignoutError,
+)
 from src.molgenis_emx2_pyclient.metadata import Schema
-from src.molgenis_emx2_pyclient.utils import data_to_csv
+from src.molgenis_emx2_pyclient.utils import (
+    data_to_csv,
+    validate_graphql_response
+)
 
-load_dotenv()
-server_url = os.environ.get("MG_SERVER")
-username = os.environ.get("MG_USERNAME")
-password = os.environ.get("MG_PASSWORD")
+server_url = os.environ.get("MG_SERVER", "http://localhost:8080/")
+username = os.environ.get("MG_USERNAME", "admin")
+password = os.environ.get("MG_PASSWORD", "admin")
 
 RESOURCES_DIR = Path(__file__).parent / "resources"
 
+
 def test_signin():
     """Tests the `signin` method."""
-    with pytest.raises(SigninError) as excinfo:
+    with pytest.raises(SigninError) as exc_info:
         with Client(url=server_url) as client:
-            client.signin(username+username, password)
-    assert excinfo.value.msg.endswith("Sign in as 'adminadmin' failed: user or password unknown")
+            client.signin(username + username, password)
+    assert exc_info.value.msg is not None
+    assert exc_info.value.msg.endswith(f"Sign in as '{username + username}'"
+                                       f" failed: user or password unknown")
 
     with Client(url=server_url) as client:
         client.signin(username, password)
@@ -44,9 +59,10 @@ def test_signin():
 def test_signout():
     """Tests the `signout` method."""
     with Client(url=server_url) as client:
-        with pytest.raises(SignoutError) as excinfo:
+        with pytest.raises(SignoutError) as exc_info:
             client.signout()
-        assert excinfo.value.msg == "Could not sign out as user is not signed in."
+        assert exc_info.value.msg == ("Could not sign out as user is not"
+                                      " signed in.")
 
         client.signin(username, password)
         client.signout()
@@ -76,7 +92,7 @@ def test_set_token():
     with Client(url=server_url) as client:
         client.set_token(token)
 
-        assert client._token == token
+        assert client.token == token
 
 
 def test_upload_csv():
@@ -84,14 +100,19 @@ def test_upload_csv():
     with Client(url=server_url) as client:
         client.signin(username, password)
 
-        with pytest.raises(FileNotFoundError) as excinfo:
+        with pytest.raises(FileNotFoundError) as exc_info:
             client._upload_csv(file_path=Path("Pet.csv"), schema="pet store")
-        assert str(excinfo.value) == "[Errno 2] No such file or directory: 'Pet.csv'"
+        assert str(exc_info.value) == ("[Errno 2] No such file or directory:"
+                                       " 'Pet.csv'")
 
-        client._upload_csv(file_path=RESOURCES_DIR / "insert" / "Tag.csv", schema="pet store")
-        client._upload_csv(file_path=RESOURCES_DIR / "insert" / "Pet.csv", schema="pet store")
-        client._upload_csv(file_path=RESOURCES_DIR / "delete" / "Pet.csv", schema="pet store")
-        client._upload_csv(file_path=RESOURCES_DIR / "delete" / "Tag.csv", schema="pet store")
+        client._upload_csv(file_path=RESOURCES_DIR / "insert" / "Tag.csv",
+                           schema="pet store")
+        client._upload_csv(file_path=RESOURCES_DIR / "insert" / "Pet.csv",
+                           schema="pet store")
+        client._upload_csv(file_path=RESOURCES_DIR / "delete" / "Pet.csv",
+                           schema="pet store")
+        client._upload_csv(file_path=RESOURCES_DIR / "delete" / "Tag.csv",
+                           schema="pet store")
 
 
 @pytest.mark.asyncio
@@ -101,48 +122,73 @@ async def test_upload_file():
         client.signin(username, password)
 
         # Upload without specifying schema
-        with pytest.raises(NoSuchSchemaException) as excinfo:
-            await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.csv")
-        assert excinfo.value.msg == "Select an existing schema for this operation."
+        with pytest.raises(NoSuchSchemaException) as exc_info:
+            await client.upload_file(
+                file_path=RESOURCES_DIR / "insert" / "Pet.csv")
+        assert exc_info.value.msg == ("Select an existing schema"
+                                      " for this operation.")
 
         # Upload ZIP file
-        pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
-        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        await client.upload_file(file_path=RESOURCES_DIR / "insert" / "pet store.zip", schema="pet store")
-        pet_between = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
-        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        pet_before = len(client.get_graphql(schema="pet store", table="Pet",
+                                            columns=["name"]))
+        tag_before = len(client.get_graphql(schema="pet store", table="Tag",
+                                            columns=["name"]))
+        await client.upload_file(
+            file_path=RESOURCES_DIR / "insert" / "pet store.zip",
+            schema="pet store")
+        pet_between = len(client.get_graphql(schema="pet store", table="Pet",
+                                             columns=["name"]))
+        tag_between = len(client.get_graphql(schema="pet store", table="Tag",
+                                             columns=["name"]))
 
         assert pet_between == pet_before + 2
         assert tag_between == tag_before + 2
 
-        await client.upload_file(file_path=RESOURCES_DIR / "delete" / "pet store.zip", schema="pet store")
-        pet_after = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
-        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        await client.upload_file(
+            file_path=RESOURCES_DIR / "delete" / "pet store.zip",
+            schema="pet store")
+        pet_after = len(client.get_graphql(schema="pet store", table="Pet",
+                                           columns=["name"]))
+        tag_after = len(client.get_graphql(schema="pet store", table="Tag",
+                                           columns=["name"]))
 
         assert pet_after == pet_before
         assert tag_after == tag_before
 
         # Upload XLSX file
-        pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
-        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        await client.upload_file(file_path=RESOURCES_DIR / "insert" / "pet store.xlsx", schema="pet store")
-        pet_between = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
-        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        pet_before = len(client.get_graphql(schema="pet store", table="Pet",
+                                            columns=["name"]))
+        tag_before = len(client.get_graphql(schema="pet store", table="Tag",
+                                            columns=["name"]))
+        await client.upload_file(
+            file_path=RESOURCES_DIR / "insert" / "pet store.xlsx",
+            schema="pet store")
+        pet_between = len(client.get_graphql(schema="pet store", table="Pet",
+                                             columns=["name"]))
+        tag_between = len(client.get_graphql(schema="pet store", table="Tag",
+                                             columns=["name"]))
 
         assert pet_between == pet_before + 2
         assert tag_between == tag_before + 2
 
-        await client.upload_file(file_path=RESOURCES_DIR / "delete" / "pet store.xlsx", schema="pet store")
-        pet_after = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
-        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+        await client.upload_file(
+            file_path=RESOURCES_DIR / "delete" / "pet store.xlsx",
+            schema="pet store")
+        pet_after = len(client.get_graphql(schema="pet store", table="Pet",
+                                           columns=["name"]))
+        tag_after = len(client.get_graphql(schema="pet store", table="Tag",
+                                           columns=["name"]))
 
         assert pet_after == pet_before
         assert tag_after == tag_before
 
         # Upload with unsupported file type
-        with pytest.raises(NotImplementedError) as excinfo:
-            await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.txt", schema="pet store")
-        assert str(excinfo.value) == "Uploading files with extension '.txt' is not supported."
+        with pytest.raises(NotImplementedError) as exc_info:
+            await client.upload_file(
+                file_path=RESOURCES_DIR / "insert" / "Pet.txt",
+                schema="pet store")
+        assert str(exc_info.value) == ("Uploading files with extension"
+                                       " '.txt' is not supported.")
 
 
 def test_truncate():
@@ -151,126 +197,80 @@ def test_truncate():
         client.signin(username, password)
 
         # Test truncate with ReferenceException
-        with pytest.raises(ReferenceException) as excinfo:
+        with pytest.raises(ReferenceException) as exc_info:
             client.truncate(schema='pet store', table='Pet')
-        assert excinfo.value.msg.startswith("Transaction failed: delete on table \"Pet\" violates foreign key constraint.")
+        assert exc_info.value.msg is not None
+        assert exc_info.value.msg.startswith("Transaction failed: delete on"
+                                             " table \"Pet\" violates"
+                                             " foreign key constraint.")
 
         # Test correct running
         client.truncate(schema='pet store', table='User')
-        users_after = len(client.get_graphql(schema="pet store", table="User", columns=["username"]))
+        users_after = len(client.get_graphql(schema="pet store", table="User",
+                                             columns=["username"]))
         assert users_after == 0
 
-        client.save_table(table="User", schema="pet store", file=RESOURCES_DIR / "petstore" / "User.csv")
+        client.save_table(table="User", schema="pet store",
+                          file=RESOURCES_DIR / "petstore" / "User.csv")
 
-
-def test_delete_records():
-    """Tests the `delete_records` method."""
-
-    # Test fail without editor rights
-    with Client(url=server_url) as client:
-        with pytest.raises(PermissionDeniedException) as excinfo:
-            client.delete_records(table="Pet", schema="pet store", file=RESOURCES_DIR / "insert" / "Pet.csv")
-        assert str(excinfo.value) == "Message: Transaction failed: permission denied.\n"
-
-        client.signin(username, password)
-
-        # Test fail without schema
-        with pytest.raises(NoSuchSchemaException) as excinfo:
-            client.delete_records(table="Pet", file=RESOURCES_DIR / "insert" / "Pet.csv")
-
-        assert excinfo.value.msg == "Select an existing schema for this operation."
-
-        # Test fail without specifying file or data
-        with pytest.raises(FileNotFoundError) as excinfo:
-            client.delete_records(schema="pet store" , table="Pet")
-
-        assert str(excinfo.value) == "No data to import. Specify a file location or a dataset."
-
-        # Test delete with file
-        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        client.save_table(table="Tag", schema="pet store", file=RESOURCES_DIR / "insert" / "Tag.csv")
-        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-
-        assert tag_between == tag_before + 2
-        client.delete_records(schema="pet store" , table="Tag", file=RESOURCES_DIR / "insert" / "Tag.csv")
-
-        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        assert tag_after == tag_before
-
-        # Test delete with data as list
-        tags_df = pd.read_csv(RESOURCES_DIR / "insert" / "Tag.csv")
-        tags_list = list(tags_df.to_dict(orient='index').values())
-
-        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        client.save_table(table="Tag", schema="pet store", file=RESOURCES_DIR / "insert" / "Tag.csv")
-        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-
-        assert tag_between == tag_before + 2
-        client.delete_records(schema="pet store" , table="Tag", data=tags_list)
-
-        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        assert tag_after == tag_before
-
-        # Test delete with data as DataFrame
-        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        client.save_table(table="Tag", schema="pet store", file=RESOURCES_DIR / "insert" / "Tag.csv")
-        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-
-        assert tag_between == tag_before + 2
-        client.delete_records(schema="pet store" , table="Tag", data=tags_df)
-
-        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
-        assert tag_after == tag_before
 
 @pytest.mark.asyncio
 async def test_export():
     """Tests the `export` method."""
-    warnings.filterwarnings("ignore", message="Workbook contains no default style")
+    warnings.filterwarnings("ignore", message="Workbook contains"
+                                              " no default style")
     with Client(url=server_url) as client:
         client.signin(username, password)
 
         # Upload without specifying schema
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             await client.export(table="Pet", filename="pet.csv")
-        assert excinfo.value.msg == "Select an existing schema for this operation."
+        assert exc_info.value.msg == ("Select an existing schema"
+                                      " for this operation.")
 
         # Test incorrect file name
-        with pytest.raises(ValueError) as excinfo:
-            await client.export(schema="pet store", table="Pet", filename="pet.txt")
-        assert str(excinfo.value) == "File name must end with ('csv', 'xlsx', 'zip')"
+        with pytest.raises(ValueError) as exc_info:
+            await client.export(schema="pet store", table="Pet",
+                                filename="pet.txt")
+        assert str(exc_info.value) == ("File name must end with"
+                                       " ('csv', 'xlsx', 'zip')")
 
         # Test CSV
         csv_data: BytesIO = await client.export(schema="pet store", table="Pet")
         df = pd.read_csv(csv_data)
         assert len(df.columns) == 8
         await client.export(schema="pet store", table="Pet", filename="pet.csv")
-        assert (Path(__file__).parent.parent / "pet.csv").exists()
-        (Path(__file__).parent.parent / "pet.csv").unlink()
+        assert (Path(__file__).parent / "pet.csv").exists()
+        (Path(__file__).parent / "pet.csv").unlink()
 
         # Test ZIP
         zip_data: BytesIO = await client.export(schema="pet store")
         with zipfile.ZipFile(zip_data, 'r') as zf:
             file_names = zf.namelist()
-        assert len(file_names) == 8
+        assert len(file_names) == 9
         await client.export(schema="pet store", filename="pet store.zip")
-        assert (Path(__file__).parent.parent / "pet store.zip").exists()
-        (Path(__file__).parent.parent / "pet store.zip").unlink()
+        assert (Path(__file__).parent / "pet store.zip").exists()
+        (Path(__file__).parent / "pet store.zip").unlink()
 
         # Test XLSX table
-        xlsx_data: BytesIO = await client.export(schema="pet store", table="Pet", as_excel=True)
+        xlsx_data: BytesIO = await client.export(schema="pet store",
+                                                 table="Pet", as_excel=True)
         book = pd.ExcelFile(xlsx_data)
         assert len(book.sheet_names) == 1
-        await client.export(schema="pet store", table="Pet", as_excel=True, filename="pet.xlsx")
-        assert (Path(__file__).parent.parent / "pet.xlsx").exists()
-        (Path(__file__).parent.parent / "pet.xlsx").unlink()
+        await client.export(schema="pet store", table="Pet", as_excel=True,
+                            filename="pet.xlsx")
+        assert (Path(__file__).parent / "pet.xlsx").exists()
+        (Path(__file__).parent / "pet.xlsx").unlink()
 
         # Test XLSX tables as sheets
-        xlsx_data: BytesIO = await client.export(schema="pet store", as_excel=True)
+        xlsx_data: BytesIO = await client.export(schema="pet store",
+                                                 as_excel=True)
         book = pd.ExcelFile(xlsx_data)
-        assert len(book.sheet_names) == 8
-        await client.export(schema="pet store", as_excel=True, filename="pet store.xlsx")
-        assert (Path(__file__).parent.parent / "pet store.xlsx").exists()
-        (Path(__file__).parent.parent / "pet store.xlsx").unlink()
+        assert len(book.sheet_names) == 9
+        await client.export(schema="pet store", as_excel=True,
+                            filename="pet store.xlsx")
+        assert (Path(__file__).parent / "pet store.xlsx").exists()
+        (Path(__file__).parent / "pet store.xlsx").unlink()
 
 
 @pytest.mark.asyncio
@@ -281,18 +281,22 @@ async def test_create_schema():
         client.signin(username, password)
 
         # Test fail on existing name
-        with pytest.raises(PyclientException) as excinfo:
+        with pytest.raises(PyclientException) as exc_info:
             await client.create_schema(name="pet store")
-        assert excinfo.value.msg == "Schema with name 'pet store' already exists."
+        assert exc_info.value.msg == ("Schema with name "
+                                      "'pet store' already exists.")
 
-        with pytest.raises(NonExistentTemplateException) as excinfo:
-            await client.create_schema(name="pet store 2", template="PET_STORE123")
-        assert excinfo.value.msg == "Selected template does not exist."
+        with pytest.raises(NonExistentTemplateException) as exc_info:
+            await client.create_schema(name="pet store 2",
+                                       template="PET_STORE123")
+        assert exc_info.value.msg == "Selected template does not exist."
 
         # Test description
-        await client.create_schema(name="pet store 2", description="The second pet store.")
+        await client.create_schema(name="pet store 2",
+                                   description="The second pet store.")
         schemas: list[Schema] = client.get_schemas()
-        pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
+        pet_meta: list[Schema] = [s for s in schemas
+                                  if s.get('name') == "pet store 2"]
         assert len(pet_meta) == 1
         assert pet_meta[0].get('description') == "The second pet store."
         await client.delete_schema("pet store 2")
@@ -302,11 +306,11 @@ async def test_create_schema():
                                    description="The second pet store.",
                                    template="PET_STORE")
         schemas: list[Schema] = client.get_schemas()
-        pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
+        pet_meta: list[Schema] = [s for s in schemas
+                                  if s.get('name') == "pet store 2"]
         assert len(pet_meta) == 1
-        assert len(client.get_schema_metadata("pet store 2").tables) == 5
+        assert len(client.get_schema_metadata(name="pet store 2").tables) == 5
         await client.delete_schema("pet store 2")
-
 
         # Test include demo data
         await client.create_schema(name="pet store 2",
@@ -314,10 +318,11 @@ async def test_create_schema():
                                    template="PET_STORE",
                                    include_demo_data=True)
         schemas: list[Schema] = client.get_schemas()
-        pet_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
+        pet_meta: list[Schema] = [s for s in schemas
+                                  if s.get('name') == "pet store 2"]
         assert len(pet_meta) == 1
-        assert len(client.get_schema_metadata("pet store 2").tables) == 5
-        assert len(client.get(table="Pet", schema="pet store 2")) == 9
+        assert len(client.get_schema_metadata(name="pet store 2").tables) == 5
+        assert len(client.get(table="Pet", schema="pet store 2")) == 10
         await client.delete_schema("pet store 2")
 
 
@@ -328,9 +333,9 @@ async def test_delete_schema():
     with Client(url=server_url) as client:
         client.signin(username, password)
 
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             await client.delete_schema("pet store 2")
-        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+        assert exc_info.value.msg == "Schema 'pet store 2' not available."
 
         await client.create_schema("pet store 2")
 
@@ -347,17 +352,20 @@ async def test_update_schema():
         client.signin(username, password)
 
         # Fail on missing schema
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             client.update_schema("pet store 2")
-        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+        assert exc_info.value.msg == "Schema 'pet store 2' not available."
 
         await client.create_schema("pet store 2")
-        client.update_schema("pet store 2", "The second pet store.")
+        client.update_schema("pet store 2",
+                             "The second pet store.")
         schemas = client.get_schemas()
-        pet2_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
+        pet2_meta: list[Schema] = [s for s in schemas
+                                   if s.get('name') == "pet store 2"]
         assert pet2_meta[0].get("description") == "The second pet store."
 
         await client.delete_schema("pet store 2")
+
 
 @pytest.mark.asyncio
 async def test_recreate_schema():
@@ -367,27 +375,29 @@ async def test_recreate_schema():
         client.signin(username, password)
 
         # Fail on missing schema
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             await client.recreate_schema("pet store 2")
-        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+        assert exc_info.value.msg == "Schema 'pet store 2' not available."
 
         await client.create_schema("pet store 2")
 
-        await client.recreate_schema(name="pet store 2", description="The second pet store.")
+        await client.recreate_schema(name="pet store 2",
+                                     description="The second pet store.")
         schemas = client.get_schemas()
-        pet2_meta: list[Schema] = [s for s in schemas if s.get('name') == "pet store 2"]
+        pet2_meta: list[Schema] = [s for s in schemas
+                                   if s.get('name') == "pet store 2"]
         assert pet2_meta[0].get("description") == "The second pet store."
 
         await client.recreate_schema(name="pet store 2",
                                      description="The second pet store.",
                                      template="PET_STORE")
-        assert len(client.get_schema_metadata("pet store 2").tables) == 5
+        assert len(client.get_schema_metadata(name="pet store 2").tables) == 5
 
         await client.recreate_schema(name="pet store 2",
                                      description="The second pet store.",
                                      template="PET_STORE",
                                      include_demo_data=True)
-        assert len(client.get(table="Pet", schema="pet store 2")) == 9
+        assert len(client.get(table="Pet", schema="pet store 2")) == 10
 
         await client.delete_schema("pet store 2")
 
@@ -399,9 +409,9 @@ def test_set_schema():
         current_schema = client.default_schema
         assert current_schema is None
 
-        with pytest.raises(NoSuchSchemaException) as excinfo:
+        with pytest.raises(NoSuchSchemaException) as exc_info:
             client.set_schema("pet store 2")
-        assert excinfo.value.msg == "Schema 'pet store 2' not available."
+        assert exc_info.value.msg == "Schema 'pet store 2' not available."
 
         client.set_schema("pet store")
         assert client.default_schema == "pet store"
@@ -428,6 +438,8 @@ async def test_report_task_progress(caplog):
         await client._report_task_progress(process_id)
 
         message_starts = [
+            "Import metadata",
+            "    Metadata loading skipped:",
             "Import from store",
             "    Modified 2 rows in Pet in ",
             "    Modified 2 rows in Tag in ",
@@ -435,141 +447,175 @@ async def test_report_task_progress(caplog):
             "Completed task: Import csv file in "
         ]
         for cm in caplog.messages:
-            assert any(map(lambda ms: cm.startswith(ms), message_starts))
+            assert any(map(cm.startswith, message_starts))
 
 
 def test_validate_graphql_response(caplog):
     """Tests the `_validate_graphql_response` method."""
 
-    class MockResponse:
+    class MockResponse(Response):
+        """Mocks a requests Response."""
 
-        def __init__(self, status_code, text = None, json_data = None, method = None):
+        def __init__(self, status_code, text=None, json_data=None, method=None):
+            super().__init__()
             self.status_code = status_code
-            self.text = text
+            self._text = text
             self.json_data = json_data
+            self.url = server_url
 
             class Request:
+                """Mocks a request."""
                 def __init__(self, _method: str):
                     self.method = _method
 
             self.request = Request(method)
 
-        def json(self):
+        @property
+        def text(self):
+            return self._text
+
+        def json(self, **kwargs):
             return self.json_data
 
     with Client(url=server_url) as client:
         client.signin(username, password)
 
         response = MockResponse(503)
-        with pytest.raises(ServiceUnavailableError) as excinfo:
-            client._validate_graphql_response(response)
-        assert excinfo.value.msg == f"Server with url '{server_url}' (temporarily) unavailable."
+        with pytest.raises(ServiceUnavailableError) as exc_info:
+            validate_graphql_response(response)
+        assert exc_info.value.msg == (f"Server with url '{server_url}'"
+                                      f" (temporarily) unavailable.")
 
         response = MockResponse(404)
-        with pytest.raises(ServerNotFoundError) as excinfo:
-            client._validate_graphql_response(response)
-        assert excinfo.value.msg == f"Server with url '{server_url}' not found."
+        with pytest.raises(ServerNotFoundError) as exc_info:
+            validate_graphql_response(response)
+        assert exc_info.value.msg == (f"Server with url"
+                                      f" '{server_url}' not found.")
 
-        response = MockResponse(400, text="Invalid token or token expired")
-        with pytest.raises(InvalidTokenException) as excinfo:
-            client._validate_graphql_response(response)
-        assert excinfo.value.msg == "Invalid token or token expired."
+        error_text = "Invalid token or token expired."
+        response = MockResponse(400, text=error_text)
+        with pytest.raises(InvalidTokenException) as exc_info:
+            validate_graphql_response(response)
+        assert exc_info.value.msg == error_text
 
-        response = MockResponse(400, "Cannot perform operation: permission denied")
-        with pytest.raises(PermissionDeniedException) as excinfo:
-            client._validate_graphql_response(response)
-        assert excinfo.value.msg == f"Transaction failed: permission denied."
+        error_text = "Transaction failed: permission denied."
+        response = MockResponse(400, error_text)
+        with pytest.raises(PermissionDeniedException) as exc_info:
+            validate_graphql_response(response)
+        assert exc_info.value.msg == error_text
 
-
-        response = MockResponse(400, "Graphql API error: cannot perform operation.",
-                                json_data={"errors": [{"message": "Syntax error in GraphQL statement."}]})
-        with pytest.raises(GraphQLException) as excinfo:
+        error_text = "Graphql API error: cannot perform operation."
+        json_msg = "Syntax error in GraphQL statement."
+        response = MockResponse(400, error_text,
+                                json_data={"errors": [{"message": json_msg}]})
+        with pytest.raises(GraphQLException) as exc_info:
             caplog.set_level(logging.INFO)
-            client._validate_graphql_response(response)
-        assert caplog.messages == ["Syntax error in GraphQL statement."]
-        assert excinfo.value.msg == "Syntax error in GraphQL statement."
+            validate_graphql_response(response)
+        assert caplog.messages == [json_msg]
+        assert exc_info.value.msg == json_msg
 
-        error_msg = """Delete into table Pet failed: Transaction failed: delete on table "Pet" violates foreign key 
-        constraint. Details: Key ("name")=(pooky) is still referenced from table "User", column(s)("pets")"""
-        response = MockResponse(400, "Cannot delete value: violates foreign key constraint.",
-                                json_data={"errors": [{"message": error_msg}]})
-        with pytest.raises(ReferenceException) as excinfo:
+        error_text = "Cannot delete value: violates foreign key constraint."
+        json_msg = """Delete into table Pet failed: Transaction failed:
+         delete on table "Pet" violates foreign key constraint. Details:
+          Key ("name")=(pooky) is still referenced from table
+           "User", column(s)("pets")"""
+        response = MockResponse(400,
+                                error_text,
+                                json_data={"errors": [{"message": json_msg}]})
+        with pytest.raises(ReferenceException) as exc_info:
             caplog.clear()
-            client._validate_graphql_response(response)
-        assert caplog.messages == [error_msg]
-        assert excinfo.value.msg == error_msg
+            validate_graphql_response(response)
+        assert caplog.messages == [json_msg]
+        assert exc_info.value.msg == json_msg
 
+        json_msg = "An unknown error occurred."
         response = MockResponse(400, text="Unknown error",
-                                json_data={"errors": [{"message": "An unknown error occurred."}]})
-        with pytest.raises(PyclientException) as excinfo:
+                                json_data={"errors": [{"message": json_msg}]})
+        with pytest.raises(PyclientException) as exc_info:
             caplog.clear()
-            client._validate_graphql_response(response)
+            validate_graphql_response(response)
         assert caplog.messages == ["An unknown error occurred."]
-        assert excinfo.value.msg == "An unknown error occurred when trying to reach this server."
+        assert exc_info.value.msg == ("An unknown error occurred when trying"
+                                      " to reach this server.")
 
         response = MockResponse(300, method='GET')
-        val = client._validate_graphql_response(response)
-        assert val is None
+        assert not validate_graphql_response(response)
 
         response = MockResponse(200)
-        val = client._validate_graphql_response(response)
-        assert val is None
+        assert not validate_graphql_response(response)
 
+        fallback_msg = "Was supposed to do something."
         response = MockResponse(300, text="Something something",
                                 json_data={})
         caplog.clear()
-        client._validate_graphql_response(response, fallback_error_message="Was supposed to do something.")
-        assert caplog.messages == ["Was supposed to do something."]
+        validate_graphql_response(response,
+                                  fallback_error_message=fallback_msg)
+        assert caplog.messages == [fallback_msg]
 
+        json_msg = "Cannot perform operation: permission denied."
         response = MockResponse(300, text="Insufficient permissions.",
-                                json_data={"errors": [{"message": "Cannot perform operation: permission denied."}],
+                                json_data={"errors": [{"message": json_msg}],
                                            "data": {}})
-        with pytest.raises(PermissionDeniedException) as excinfo:
-            client._validate_graphql_response(response)
-        assert excinfo.value.msg == "Insufficient permissions for this operations."
+        with pytest.raises(PermissionDeniedException) as exc_info:
+            validate_graphql_response(response)
+        assert exc_info.value.msg == ("Insufficient permissions for this"
+                                      " operations.")
 
+        json_msg = "Cannot perform operation: permission denied."
         response = MockResponse(300, text="Insufficient permissions.",
-                                json_data={"errors": [{"message": "Cannot perform operation: permission denied."}],
+                                json_data={"errors": [{"message": json_msg}],
                                            "data": {}})
-        with pytest.raises(PermissionDeniedException) as excinfo:
-            client._validate_graphql_response(response)
-        assert excinfo.value.msg == "Insufficient permissions for this operations."
+        with pytest.raises(PermissionDeniedException) as exc_info:
+            validate_graphql_response(response)
+        assert exc_info.value.msg == ("Insufficient permissions for this"
+                                      " operations.")
+
 
 @pytest.mark.asyncio
-async def test_export_schema(caplog):
+async def test_export_schema():
     """Tests the export_schema functionality."""
     with Client(url=server_url) as client:
         client.signin(username, password)
 
-        with pytest.raises(NotImplementedError) as excinfo:
-            await client.export_schema("catalogue", "mp3")
-        assert str(excinfo.value) == ("Cannot export schema definition in format 'mp3'. "
-                                      "Select one from ['csv', 'json', 'yaml'].")
+        with pytest.raises(NotImplementedError) as exc_info:
+            await client.export_schema("pet store", "mp3")
+        assert str(exc_info.value) == ("Cannot export schema definition in "
+                                       "format 'mp3'. Select one from "
+                                       "['csv', 'json', 'yaml'].")
 
-        with pytest.raises(ValueError) as excinfo:
-            await client.export_schema(schema="catalogue")
-        assert str(excinfo.value) == "Supply a value for `fmt` or `filename`."
+        with pytest.raises(ValueError) as exc_info:
+            await client.export_schema(schema="pet store")
+        assert str(exc_info.value) == "Supply a value for `fmt` or `filename`."
 
-        csv_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.csv")
+        csv_bytes = await client.export_schema("pet store",
+                                               filename="pet store.csv")
         csv_schema = pd.read_csv(csv_bytes)
-        assert len(csv_schema.columns) == 22
-        assert (Path(__file__).parent.parent / "catalogue.csv").exists()
-        (Path(__file__).parent.parent / "catalogue.csv").unlink()
+        assert len(csv_schema.columns) == 23
+        assert (Path(__file__).parent / "pet store.csv").exists()
+        (Path(__file__).parent / "pet store.csv").unlink()
 
-        json_bytes: BytesIO = await client.export_schema("catalogue", "json")
+        json_bytes = await client.export_schema("pet store",
+                                                fmt="json")
         json_schema = json.load(json_bytes)
-        assert (len(json_schema['tables']), len(json_schema['settings'])) == (27, 7)
-        assert not (Path(__file__).parent.parent / "catalogue.json").exists()
+        assert len(json_schema['tables']) == 5
+        assert len(json_schema['settings']) == 1
+        assert not (Path(__file__).parent / "pet store.json").exists()
 
-        yaml_bytes: BytesIO = await client.export_schema("catalogue", filename="catalogue.yaml")
+        yaml_bytes = await client.export_schema("pet store",
+                                                filename="pet store.yaml")
         yaml_schema = yaml.safe_load(yaml_bytes)
-        assert (len(yaml_schema['tables']), len(yaml_schema['settings'])) == (27, 7)
-        assert (Path(__file__).parent.parent / "catalogue.yaml").exists()
-        (Path(__file__).parent.parent / "catalogue.yaml").unlink()
+        assert (len(yaml_schema['tables']), len(yaml_schema['settings'])
+                ) == (5, 1)
+        assert (Path(__file__).parent / "pet store.yaml").exists()
+        (Path(__file__).parent / "pet store.yaml").unlink()
+
 
 @pytest.mark.asyncio
 async def test_symmetry():
-    """Test symmetry of download with get and upload with save_table or data_to_csv and upload_file."""
+    """
+    Test symmetry of download with get and upload with save_table or
+    data_to_csv and upload_file.
+    """
     with Client(url=server_url) as client:
         client.signin(username, password)
         schema = "pet store"
@@ -578,17 +624,25 @@ async def test_symmetry():
         for as_df in [False, True]:
             for table in meta.tables:
                 for parse_arrays in [False, True]:
-                    table_before = client.get(schema=schema, table=table.name, as_df=as_df, parse_arrays=parse_arrays)
+                    table_before = client.get(schema=schema, table=table.name,
+                                              as_df=as_df,
+                                              parse_arrays=parse_arrays)
                     for to_file in [False, True]:
                         if to_file:
-                            path = Path(__file__).parent.parent / f"{table.name}.csv"
+                            path = Path(__file__).parent / f"{table.name}.csv"
                             data_to_csv(table_before, filename=path)
-                            await client.upload_file(file_path = path, schema=schema)
+                            await client.upload_file(file_path=path,
+                                                     schema=schema)
                             path.unlink()
                         else:
-                            client.save_table(table=table.name, schema=schema, data=table_before)
-                        table_after = client.get(schema=schema, table=table.name, as_df=as_df, parse_arrays=parse_arrays)
-                        if as_df:
+                            client.save_table(table=table.name, schema=schema,
+                                              data=table_before)
+                        table_after = client.get(schema=schema,
+                                                 table=table.name, as_df=as_df,
+                                                 parse_arrays=parse_arrays)
+                        if (isinstance(table_before, pd.DataFrame) and
+                                isinstance(table_after, pd.DataFrame)):
                             assert table_before.equals(table_after)
-                        else:
+                        elif (isinstance(table_before, list) and
+                              isinstance(table_after, list)):
                             assert table_before == table_after

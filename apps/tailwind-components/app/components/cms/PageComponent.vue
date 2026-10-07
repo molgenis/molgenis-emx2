@@ -1,16 +1,29 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
+import { hideAllPoppers } from "floating-vue";
 
-import Banner from "./Banner.vue";
-import Section from "./Section.vue";
-import Heading from "./Heading.vue";
-import Paragraph from "./Paragraph.vue";
-import Image from "./Image.vue";
-import NavigationGroups from "./Navigation/NavigationGroups.vue";
+import Paragraph from "./paragraph/Paragraph.vue";
+import EditableHeader from "./header/EditableHeader.vue";
+import EditableSection from "./section/EditableSection.vue";
+import EditableHeading from "./heading/EditableHeading.vue";
+import EditableParagraph from "./paragraph/EditableParagraph.vue";
+import EditableImage from "./image/EditableImage.vue";
+import EditableOrderedList from "./lists/EditableOrderedList.vue";
+import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
+import EditableFileDownloadItem from "./FileDownloadItem/EditableFileDownloadItem.vue";
+import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
+import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
 
 import EditModal from "../form/EditModal.vue";
 
-import { deleteBlock, deleteComponent, parsePageText } from "../../utils/cms";
+import {
+  deleteBlock,
+  deleteComponent,
+  moveComponentUp,
+  moveBlockUp,
+  moveComponentDown,
+  moveBlockDown,
+} from "../../utils/cms";
 import type { IFile } from "../../../types/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
@@ -19,18 +32,21 @@ const props = withDefaults(
   defineProps<{
     component: IPageComponent;
     orderId: string;
+    order?: number;
     componentType: string;
     mg_tableclass: string;
     metadata?: ITableMetaData[];
     isEditable?: boolean;
     parent: string;
+    page: string;
   }>(),
   {
     isEditable: false,
+    order: 0,
   }
 );
 
-const emit = defineEmits(["updatePage"]);
+const emit = defineEmits(["updatePage", "dragging"]);
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
@@ -42,19 +58,7 @@ const schemaTableName = ref<string>(
   props.mg_tableclass.split(".")[1] as string
 );
 
-const componentData = ref<IPageComponent>(props.component);
-const headerComponentImage = ref<IFile>();
-
-if (
-  props.mg_tableclass.endsWith(".Headers") &&
-  Object.keys(componentData.value).includes("backgroundImage")
-) {
-  headerComponentImage.value = componentData.value.backgroundImage.image;
-  componentData.value.backgroundImage = {
-    id: componentData.value.backgroundImage.id,
-  };
-}
-
+const formComponentData = computed<IPageComponent>(() => props.component);
 const componentMetadata = computed<ITableMetaData | undefined>(() => {
   if (props.metadata) {
     return props.metadata.filter(
@@ -64,15 +68,32 @@ const componentMetadata = computed<ITableMetaData | undefined>(() => {
   return undefined;
 });
 
+// this is required to flatten the File type and preserve the component-image link
+const headerComponentImage = ref<IFile>();
+function setHeaderComponentImage() {
+  if (
+    props.mg_tableclass.endsWith(".Headers") &&
+    Object.keys(formComponentData.value).includes("backgroundImage")
+  ) {
+    headerComponentImage.value = formComponentData.value.backgroundImage.image;
+    formComponentData.value.backgroundImage = {
+      id: formComponentData.value.backgroundImage.id,
+    };
+  }
+}
+
+setHeaderComponentImage();
+watch(
+  () => formComponentData.value,
+  () => setHeaderComponentImage()
+);
+
 function onDelete() {
   showDeleteModal.value = true;
 }
 
 async function doDelete(): Promise<void> {
   currentlyDeleting.value = true;
-  console.log(
-    `Deleting ${props.componentType} ${props.component.id}  ${props.orderId}`
-  );
   if (props.componentType === "Component") {
     await deleteComponent(
       componentMetadata.value?.schemaId || "",
@@ -90,72 +111,173 @@ async function doDelete(): Promise<void> {
   }
   currentlyDeleting.value = false;
   showDeleteModal.value = false;
+  hideAllPoppers();
   emit("updatePage");
+}
+
+async function handleMoveEvent(action: "up" | "down" | "grab" | "release") {
+  if (action === "grab" || action === "release") {
+    emit("dragging", {
+      dragging: action === "grab",
+      componentType: props.componentType,
+      componentName: props.mg_tableclass.split(".")[1],
+      action: "move",
+      moveOrderId: props.orderId,
+      parentId: props.parent,
+    });
+    return;
+  }
+  if (action === "up") {
+    if (props.componentType === "Component") {
+      await moveComponentUp(
+        componentMetadata.value?.schemaId || "",
+        props.orderId,
+        props.order,
+        props.parent,
+        props.page
+      );
+    } else {
+      await moveBlockUp(
+        componentMetadata.value?.schemaId || "",
+        props.orderId,
+        props.order,
+        props.parent
+      );
+    }
+    emit("updatePage");
+  }
+  if (action === "down") {
+    if (props.componentType === "Component") {
+      await moveComponentDown(
+        componentMetadata.value?.schemaId || "",
+        props.orderId,
+        props.order,
+        props.parent,
+        props.page
+      );
+    } else {
+      await moveBlockDown(
+        componentMetadata.value?.schemaId || "",
+        props.orderId,
+        props.order,
+        props.parent
+      );
+    }
+    emit("updatePage");
+  }
+  hideAllPoppers();
+}
+
+function onShowEdit() {
+  showEditModal.value = true;
+  hideAllPoppers();
+}
+
+function onEdited() {
+  showEditModal.value = false;
+  hideAllPoppers();
+  emit("updatePage");
+}
+
+function asSingularName(value: string | undefined): string | undefined {
+  if (value && value !== "" && value.toLowerCase().endsWith("s")) {
+    return value.slice(0, value.length - 1).toLowerCase();
+  }
+  return value;
 }
 </script>
 
 <template>
-  <Banner
+  <EditableHeader
     v-if="mg_tableclass.endsWith('.Headers')"
-    :id="component.id"
-    :title="component.title"
-    :subtitle="component.subtitle"
-    :background-image="component.backgroundImage"
+    v-bind="component"
     :image="headerComponentImage"
-    :enable-full-screen-width="component.enableFullScreenWidth"
-    :title-is-centered="component.titleIsCentered"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
-  <Section
+  <EditableSection
     v-else-if="mg_tableclass.endsWith('.Sections')"
-    :id="component.id"
-    :enable-full-screen-width="component.enableFullScreenWidth"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
+    @move="handleMoveEvent"
   >
     <slot></slot>
-  </Section>
-  <Heading
+  </EditableSection>
+  <EditableHeading
     v-else-if="mg_tableclass.endsWith('.Headings')"
-    :id="component.id"
-    :heading-is-centered="component.headingIsCentered"
-    :level="component.level"
-    class="mb-5"
-    :text="parsePageText(component.text)"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
-  <Paragraph
+  <EditableParagraph
     v-else-if="mg_tableclass.endsWith('.Paragraphs')"
-    class="mb-2.5 last:mb-0"
-    :id="component.id"
-    :paragraph-is-centered="component.paragraphIsCentered"
-    :text="parsePageText(component.text)"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    @edit="showEditModal = true"
+    @edit="onShowEdit"
     @delete="onDelete"
+    @move="handleMoveEvent"
   />
-  <Image
+  <EditableImage
     v-else-if="mg_tableclass.endsWith('.Images')"
-    :id="component.id"
-    :image="component.image"
-    :width="component.width"
-    :height="component.height"
-    :alt="component.alt"
-    :image-is-centered="component.imageIsCentered"
+    v-bind="component"
     :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableFileDownload
+    v-else-if="mg_tableclass.endsWith('.FileLists')"
+    :id="component.id"
+    :isEditable="editingIsEnabled"
+    :showFilesWithTag="component.showFilesWithTag"
+    :schema="componentMetadata?.schemaId || ''"
     @edit="showEditModal = true"
     @delete="onDelete"
+    @move="handleMoveEvent"
+    @updatePage="$emit('updatePage')"
   />
-  <NavigationGroups
-    v-else-if="mg_tableclass.endsWith('.Navigation groups')"
+  <EditableFileDownloadItem
+    v-else-if="mg_tableclass.endsWith('.Files')"
     :id="component.id"
-    :links="component.links"
     :isEditable="editingIsEnabled"
+    :labalternateFileNameel="component.alternateFileName"
+    :file="component.file"
+    :fileTag="component.fileTag"
+    :linkToExternalFile="component.linkToExternalFile"
+    :fileIsAnExternalLink="component.fileIsAnExternalLink"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableNavigationCard
+    v-else-if="mg_tableclass.endsWith('.Navigation cards')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableOrderedList
+    v-else-if="mg_tableclass.endsWith('.Ordered lists')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableUnorderedList
+    v-else-if="mg_tableclass.endsWith('.Unordered lists')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
   />
   <Paragraph
     v-else
@@ -169,21 +291,30 @@ async function doDelete(): Promise<void> {
     :showButton="false"
     :schemaId="componentMetadata.schemaId"
     :metadata="componentMetadata"
-    :formValues="(componentData as Record<string,any>)"
+    :formValues="(formComponentData as Record<string,any>)"
     :isInsert="false"
-    @update:updated="
-      $emit('updatePage');
-      showEditModal = false;
-    "
+    @update:updated="onEdited"
     v-model:visible="showEditModal"
   />
-
   <Modal
     v-model:visible="showDeleteModal"
-    title="Delete"
-    :subtitle="`${componentMetadata?.name}`"
+    :title="`Delete ${asSingularName(componentMetadata?.name as string)}?`"
+    size="medium"
   >
-    <p class="p-8">Are you sure you want to delete this component?</p>
+    <div class="p-8 text-title-contrast">
+      <p class="mb-1 font-bold">
+        Are you sure you want to delete this
+        {{ asSingularName(componentMetadata?.name) }}?
+      </p>
+      <p
+        v-if="['Sections'].includes(componentMetadata?.name as string)"
+        class="mb-1"
+      >
+        By deleting this component, all other linked components or files linked
+        will be removed.
+      </p>
+      <p>This action cannot be undone.</p>
+    </div>
     <template #footer>
       <menu class="flex items-center justify-end h-[116px]">
         <div class="flex gap-4">

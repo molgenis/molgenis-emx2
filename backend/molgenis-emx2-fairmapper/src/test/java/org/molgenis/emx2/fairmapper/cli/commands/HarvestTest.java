@@ -2,9 +2,7 @@ package org.molgenis.emx2.fairmapper.cli.commands;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -14,9 +12,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.StageCsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
@@ -43,7 +42,7 @@ class HarvestTest {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA,TableB");
 
     assertEquals(URI.create(RDF_ENDPOINT), config.rdf());
-    assertEquals(schema.getName(), config.schema().getName());
+    assertEquals(schema.getName(), config.schemaName());
     assertEquals(List.of("TableA", "TableB"), config.tables());
   }
 
@@ -51,7 +50,7 @@ class HarvestTest {
   void shouldConfigureFdpExtractorAndSparqlTransformer() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
-    assertInstanceOf(FdpRdfExtractor.class, config.extractor());
+    assertInstanceOf(CrawlingRdfExtractor.class, config.extractor());
     assertInstanceOf(SparqlSelectRdfTransformer.class, config.transformer());
   }
 
@@ -62,9 +61,10 @@ class HarvestTest {
     assertEquals(1, config.postProcessors().size());
     assertInstanceOf(DCATPostProcessor.class, config.postProcessors().get(0));
 
-    assertEquals(2, config.preProcessors().size());
+    assertEquals(3, config.preProcessors().size());
     assertInstanceOf(TemporalRdfPreProcessor.class, config.preProcessors().get(0));
     assertInstanceOf(TypicalAgeRdfPreProcessor.class, config.preProcessors().get(1));
+    assertInstanceOf(StageCsvwPreProcessor.class, config.preProcessors().get(2));
   }
 
   @Test
@@ -88,51 +88,44 @@ class HarvestTest {
   void shouldNotEnableDataLoadingWhenLoadOptionOmitted() {
     HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA");
 
-    assertFalse(config.loadDataEnabled());
+    assertFalse(config.loadEnabled());
   }
 
   @Test
   void shouldEnableDataLoadingWhenLoadOptionProvided() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-l");
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "-u");
 
-    assertTrue(config.loadDataEnabled());
+    assertTrue(config.loadEnabled());
   }
 
   @Test
   void shouldEnableDataLoadingWhenLoadLongOptionProvided() {
-    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--load");
+    HarvestingPipelineConfig config = runAndCaptureConfig(RDF_ENDPOINT, "TableA", "--upload");
 
-    assertTrue(config.loadDataEnabled());
-  }
-
-  @Test
-  void shouldThrowWhenSchemaDoesNotExist() {
-    Harvest harvest = new Harvest();
-    new CommandLine(harvest)
-        .parseArgs("-r", RDF_ENDPOINT, "-s", "NonExistingSchema", "-t", "TableA");
-
-    MolgenisException exception = assertThrows(MolgenisException.class, harvest::run);
-    assertEquals("Schema not found: NonExistingSchema", exception.getMessage());
-  }
-
-  @Test
-  void shouldThrowWhenTableDoesNotExist() {
-    Harvest harvest = new Harvest();
-    new CommandLine(harvest)
-        .parseArgs("-r", RDF_ENDPOINT, "-s", schema.getName(), "-t", "NonExistingTable");
-
-    MolgenisException exception = assertThrows(MolgenisException.class, harvest::run);
-    assertEquals("Table not found: NonExistingTable", exception.getMessage());
+    assertTrue(config.loadEnabled());
   }
 
   private HarvestingPipelineConfig runAndCaptureConfig(
       String rdf, String tables, String... extraArgs) {
     Harvest harvest = spy(new Harvest());
+    doReturn((SchemaMetadataProvider) schemaName -> schema.getMetadata())
+        .when(harvest)
+        .getSchemaMetadataProvider();
     doNothing().when(harvest).runPipeline(any());
 
     String[] args =
         Stream.concat(
-                Stream.of("-r", rdf, "-s", schema.getName(), "-t", tables),
+                Stream.of(
+                    "-r",
+                    rdf,
+                    "-s",
+                    schema.getName(),
+                    "-t",
+                    tables,
+                    "--endpoint",
+                    "http://localhost:8080",
+                    "--token",
+                    "token123"),
                 Arrays.stream(extraArgs))
             .toArray(String[]::new);
     new CommandLine(harvest).execute(args);

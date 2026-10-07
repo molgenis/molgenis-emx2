@@ -3,13 +3,19 @@ import type {
   ISections,
   IHeadings,
   IParagraphs,
+  IUnorderedLists,
+  IOrderedLists,
   IImages,
-  INavigationGroups,
+  INavigationCards,
   IDeveloperPages,
   IConfigurablePages,
   IBlockOrders,
+  IBlocks,
   IComponentOrders,
+  IComponents,
   IFile,
+  IFiles,
+  IFileLists,
 } from "./cms.ts";
 
 import type { ITableMetaData } from "../../metadata-utils/src/types.js";
@@ -23,8 +29,12 @@ export interface IPageComponent
     ISections,
     IHeadings,
     IParagraphs,
+    IUnorderedLists,
+    IOrderedLists,
     IImages,
-    INavigationGroups {}
+    IFiles,
+    IFileLists,
+    INavigationCards {}
 
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;
@@ -40,8 +50,10 @@ export interface FetchGraphqlBody {
 
 export interface FetchGraphqlResponse {
   data?: {
-    ComponentOrders?: IComponentOrders[];
     BlockOrders?: IBlockOrders[];
+    Blocks?: IBlocks[];
+    ComponentOrders?: IComponentOrders[];
+    Components?: IComponents[];
   };
   errors?: FetchGraphqlBody[];
 }
@@ -50,5 +62,26 @@ export interface ICmsOrder {
   id: string;
   order: number;
 }
-
+export interface ICmsOrderWithBlockId {
+  id: string;
+  order: number;
+  block: {
+    id: string;
+    mg_tableclass: string;
+  };
+}
 export type ICmsPageTypes = "ConfigurablePage" | "DeveloperPage";
+
+export interface IDraggingInfo {
+  dragging: boolean;
+  action: "create" | "move";
+  componentName: string;
+  componentType: string;
+  moveOrderId?: string;
+  parentId?: string;
+}
+
+export interface IDeleteContainerStatus {
+  wasDeleted: boolean;
+  error?: string | undefined;
+}

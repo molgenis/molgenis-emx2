@@ -3,9 +3,7 @@ package org.molgenis.emx2.json;
 import static java.util.Arrays.stream;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.molgenis.emx2.*;
 
 public class Table {
@@ -44,7 +42,7 @@ public class Table {
     this.description = tableMetadata.getDescription();
     this.labels =
         tableMetadata.getLabels().entrySet().stream()
-            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
+            .filter(entry -> entry.getValue() != null && !entry.getValue().trim().isEmpty())
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.id = tableMetadata.getIdentifier();
@@ -57,7 +55,7 @@ public class Table {
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
-            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
+            .filter(entry -> entry.getValue() != null && !entry.getValue().trim().isEmpty())
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics =
@@ -83,8 +81,8 @@ public class Table {
       this.columns.add(jsonColumn);
     }
     // should always have a section as first column
-    if (this.columns.size() > 0
-        && !this.columns.get(0).getColumnType().equals(ColumnType.SECTION)) {
+    if (!this.columns.isEmpty()
+        && !this.columns.getFirst().getColumnType().equals(ColumnType.SECTION)) {
       Column firstHeading = new Column();
       firstHeading.setId(Constants.MG_TOP_OF_FORM);
       firstHeading.setName(Constants.MG_TOP_OF_FORM);
@@ -92,7 +90,7 @@ public class Table {
       firstHeading.setColumnType(ColumnType.SECTION);
       firstHeading.setSection(Constants.MG_TOP_OF_FORM);
       firstHeading.setTable(this.name);
-      this.columns.add(0, firstHeading);
+      this.columns.addFirst(firstHeading);
     }
     this.tableType = tableMetadata.getTableType();
     this.profiles = tableMetadata.getProfiles();
@@ -248,5 +246,107 @@ public class Table {
 
   public void setSchemaId(String schemaId) {
     this.schemaId = schemaId;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) return false;
+    Table table = (Table) o;
+    return drop == table.drop
+        && Objects.equals(schemaId, table.schemaId)
+        && Objects.equals(name, table.name)
+        && Objects.equals(label, table.label)
+        && Objects.equals(description, table.description)
+        && Objects.equals(oldName, table.oldName)
+        && Objects.deepEquals(pkey, table.pkey)
+        && Objects.equals(inheritId, table.inheritId)
+        && Objects.equals(inheritName, table.inheritName)
+        && Objects.equals(inheritSchemaName, table.inheritSchemaName)
+        && Objects.equals(labels, table.labels)
+        && Objects.equals(descriptions, table.descriptions)
+        && Objects.equals(unique, table.unique)
+        && Objects.equals(columns, table.columns)
+        && Objects.equals(settings, table.settings)
+        && Objects.deepEquals(semantics, table.semantics)
+        && Objects.deepEquals(profiles, table.profiles)
+        && Objects.equals(id, table.id)
+        && tableType == table.tableType;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        schemaId,
+        name,
+        label,
+        description,
+        oldName,
+        drop,
+        Arrays.hashCode(pkey),
+        inheritId,
+        inheritName,
+        inheritSchemaName,
+        labels,
+        descriptions,
+        unique,
+        columns,
+        settings,
+        Arrays.hashCode(semantics),
+        Arrays.hashCode(profiles),
+        id,
+        tableType);
+  }
+
+  @Override
+  public String toString() {
+    return "Table{"
+        + "schemaId='"
+        + schemaId
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", label='"
+        + label
+        + '\''
+        + ", description='"
+        + description
+        + '\''
+        + ", oldName='"
+        + oldName
+        + '\''
+        + ", drop="
+        + drop
+        + ", pkey="
+        + Arrays.toString(pkey)
+        + ", inheritId='"
+        + inheritId
+        + '\''
+        + ", inheritName='"
+        + inheritName
+        + '\''
+        + ", inheritSchemaName='"
+        + inheritSchemaName
+        + '\''
+        + ", labels="
+        + labels
+        + ", descriptions="
+        + descriptions
+        + ", unique="
+        + unique
+        + ", columns="
+        + columns
+        + ", settings="
+        + settings
+        + ", semantics="
+        + Arrays.toString(semantics)
+        + ", profiles="
+        + Arrays.toString(profiles)
+        + ", id='"
+        + id
+        + '\''
+        + ", tableType="
+        + tableType
+        + '}';
   }
 }

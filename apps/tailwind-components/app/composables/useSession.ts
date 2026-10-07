@@ -1,13 +1,72 @@
 import { useAsyncData, useRouter, useState } from "nuxt/app";
-import { computed, type Ref } from "vue";
-import type { ISession, ITablePermission } from "../../types/types";
+import { computed, ref, type Ref } from "vue";
+import type {
+  ISession,
+  ITablePermission,
+  SchemaPermission,
+  TablePermission,
+} from "../../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
 
 export const useSession = async (schemaId?: string) => {
   const router = useRouter();
-  const session = useState("session", () => null as ISession | null);
-
+  const session = useState<ISession | null>("session", () => null);
+  const schemaPermissions = useState<SchemaPermission[]>(
+    "schemaPermissions",
+    () => []
+  );
   let messageHandler: ((event: MessageEvent) => void) | null = null;
+
+  const isAdmin = computed(() => session.value?.admin || false);
+  const isOwner = computed(() => hasRole("Owner"));
+  const isManager = computed(() => hasRole("Manager"));
+
+  if (
+    !session.value ||
+    (schemaId && session.value.roles?.[schemaId] === undefined)
+  ) {
+    await loadSession().then(loadSchemaPermissions);
+  }
+
+  const tablePermissionsForSession = computed<ITablePermission[]>(() =>
+    schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
+  );
+
+  const rowLevelRoles = computed<string[]>(() =>
+    getRolesForSchema(schemaPermissions.value)
+  );
+
+  function hasRole(role: string): boolean {
+    if (schemaId) {
+      return session.value?.roles?.[schemaId]?.includes(role) || false;
+    } else {
+      return false;
+    }
+  }
+
+  async function loadSchemaPermissions(): Promise<void> {
+    if (schemaId && (isAdmin.value || isOwner.value || isManager.value)) {
+      const response = await $fetch(`/${schemaId}/graphql`, {
+        method: "POST",
+        body: JSON.stringify({
+          query: `query {
+                    _schema {
+                      roles {
+                        name
+                        permissions {
+                          table
+                          isRowLevel
+                        }
+                      }
+                    }
+                  }`,
+        }),
+      });
+      const schemaRoles: SchemaPermission[] =
+        response?.data?._schema?.roles || [];
+      schemaPermissions.value = schemaRoles;
+    }
+  }
 
   async function fetchSessionDetails() {
     return $fetch("/api/graphql", {
@@ -149,33 +208,55 @@ export const useSession = async (schemaId?: string) => {
 
     reload();
   }
-  const isAdmin = computed(() => session.value?.admin || false);
 
-  const tablePermissions = computed<ITablePermission[]>(() =>
-    schemaId ? session.value?.tablePermissions?.[schemaId] ?? [] : []
-  );
-
-  function getTablePermission(tableId: string): ITablePermission | undefined {
-    return tablePermissions.value.find(
+  function getTablePermissionForSession(
+    tableId: string
+  ): ITablePermission | undefined {
+    return tablePermissionsForSession.value.find(
       (permission) => permission.id === tableId || permission.name === tableId
     );
   }
 
-  if (
-    !session.value ||
-    (schemaId && session.value.roles?.[schemaId] === undefined)
-  ) {
-    await loadSession();
+  function isTableRowLevel(tableId: string): boolean {
+    return schemaPermissions.value.some((schemaPermission) =>
+      schemaPermission.permissions.some(
+        (permission) =>
+          (permission.table === tableId || permission.table === "*") &&
+          permission.isRowLevel
+      )
+    );
+  }
+
+  function showRolesForTable(tableId: string): boolean {
+    return (
+      (isAdmin.value || isOwner.value || isManager.value) &&
+      isTableRowLevel(tableId)
+    );
   }
 
   return {
     isAdmin,
+    rowLevelRoles,
     session,
-    tablePermissions,
-    getTablePermission,
+    tablePermissionsForSession,
+
+    getTablePermissionForSession,
     reload,
     hasSessionTimeout,
     reAuthenticate,
     signOut,
+    showRolesForTable,
   };
 };
+
+function getRolesForSchema(roles: SchemaPermission[]): string[] {
+  return (
+    roles
+      .filter((role: SchemaPermission) =>
+        role.permissions.some(
+          (permission: TablePermission) => permission.isRowLevel
+        )
+      )
+      .map((role: SchemaPermission) => role.name) || []
+  );
+}

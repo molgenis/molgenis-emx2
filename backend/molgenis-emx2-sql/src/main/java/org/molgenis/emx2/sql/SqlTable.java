@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 public class SqlTable implements Table {
 
+  private static final Set<String> INSERT_METADATA_COLUMNS = Set.of(MG_INSERTEDBY, MG_INSERTEDON);
+
   private SqlDatabase db;
   private SqlTableMetadata metadata;
   private TableListener tableListener;
@@ -51,7 +53,7 @@ public class SqlTable implements Table {
 
   @Override
   public int insert(Iterable<Row> rows) {
-    validateMgRoles(rows);
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return executeTransaction(db, getSchema().getName(), getName(), rows, INSERT);
     } catch (Exception e) {
@@ -66,7 +68,7 @@ public class SqlTable implements Table {
 
   @Override
   public int update(Iterable<Row> rows) {
-    validateMgRoles(rows);
+    rowOwnership().validateOwners(rows); // an update keeps the owner the row already has
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, UPDATE);
     } catch (Exception e) {
@@ -81,7 +83,7 @@ public class SqlTable implements Table {
 
   @Override
   public int save(Iterable<Row> rows) {
-    validateMgRoles(rows);
+    rowOwnership().validateAndAssignOwnerWhenOmitted(rows);
     try {
       return this.executeTransaction(db, getSchema().getName(), getName(), rows, SAVE);
     } catch (Exception e) {
@@ -89,40 +91,8 @@ public class SqlTable implements Table {
     }
   }
 
-  private void validateMgRoles(Iterable<Row> rows) {
-    if (PermissionEvaluator.canManage(getSchema())) return;
-    if (metadata.getColumn(MG_ROLES) == null) return;
-
-    List<String> userRoles = getSchema().getInheritedRolesForActiveUser();
-    List<String> rolesInSchema = getSchema().getRoles();
-
-    for (Row row : rows) {
-      String[] mgRoles = row.getStringArray(MG_ROLES);
-      if (mgRoles == null || mgRoles.length == 0) continue;
-
-      if (mgRoles.length > 1) {
-        throw new MolgenisException(
-            "mg_roles can only contain a single role, multiple were provided: "
-                + Arrays.toString(mgRoles));
-      }
-
-      String requestedRole = mgRoles[0];
-      if (!rolesInSchema.contains(requestedRole)) {
-        throw new MolgenisException(
-            "mg_roles value '"
-                + requestedRole
-                + "' is not a valid custom role in schema '"
-                + metadata.getSchemaName()
-                + "'");
-      }
-
-      if (!userRoles.contains(requestedRole)) {
-        throw new MolgenisException(
-            "Permission denied: you must be Manager or hold the role '"
-                + requestedRole
-                + "' to set mg_roles");
-      }
-    }
+  private RowOwnership rowOwnership() {
+    return new RowOwnership(getSchema(), metadata);
   }
 
   @Override
@@ -138,7 +108,11 @@ public class SqlTable implements Table {
       SqlDatabase database, String schemaName, String tableName) {
     SqlTable t = database.getSchema(schemaName).getTable(tableName);
     if (t.getMetadata().getColumn(MG_TABLECLASS) != null) {
-      SqlTable rootTable = (SqlTable) t.getMetadata().getRootTable().getTable();
+      TableMetadata rootTableMetadata = t.getMetadata().getRootTable();
+      SqlTable rootTable =
+          database
+              .getSchema(rootTableMetadata.getSchemaName())
+              .getTable(rootTableMetadata.getTableName());
       String mg_table = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database
@@ -186,7 +160,7 @@ public class SqlTable implements Table {
           for (Row row : rows) {
 
             // set table class if not set, and see for first time
-            if (row.notNull(MG_TABLECLASS)
+            if (row.notEmpty(MG_TABLECLASS)
                 && !subclassRows.containsKey(row.getString(MG_TABLECLASS))) {
 
               // validate
@@ -295,18 +269,33 @@ public class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      SqlRowProcessor rowProcessor = new SqlRowProcessor(table.getMetadata().getColumns());
+      SqlRowProcessor rowProcessor =
+          new SqlRowProcessor(schema.getDatabase(), table.getMetadata().getColumns());
       List<Row> rows = subclassRows.get(subclassName);
-      rowProcessor.validateAndCompute(rows);
-      count.set(count.get() + table.updateBatch(table, rows, updateColumns));
+      List<Column> primaryKeyColumns =
+          Collections.unmodifiableList(table.getMetadata().getPrimaryKeyColumns());
+      // check that columnsProvided contains all primary key columns
+      validateIsRowKeyProvided(primaryKeyColumns, columnsProvided);
+      boolean skipBinaryData = containsBinaryField(updateColumns);
+      // Retrieve the current values for the rows to update
+      List<Row> rowsToUpdate = table.getRowsByRowKey(rows, skipBinaryData);
+      // Pair the rows to update with the corresponding rows from the database
+      List<UpdatePair> updatePairs = pair(rows, rowsToUpdate, primaryKeyColumns);
+      // Update the rows from the db with the update values
+      List<Row> updatePreview = merge(updatePairs, primaryKeyColumns);
+      // Validate
+      rowProcessor.validateAndCompute(updatePreview);
+
+      count.set(count.get() + table.updateBatch(table, updatePreview, updateColumns));
+
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
       List<Row> rows = subclassRows.get(subclassName);
-      SqlRowProcessor rowProcessor = new SqlRowProcessor(insertColumns);
+      SqlRowProcessor rowProcessor = new SqlRowProcessor(schema.getDatabase(), insertColumns);
       rowProcessor.validateAndCompute(rows);
       count.set(
           count.get()
-              + table.insertBatch(table, rows, SAVE.equals(transactionType), insertColumns).size());
+              + table.insertBatch(rows, SAVE.equals(transactionType), insertColumns).size());
     } else {
       throw new MolgenisException(
           "Internal error in executeBatch: transaction type "
@@ -315,6 +304,109 @@ public class SqlTable implements Table {
     }
     // clear the list
     subclassRows.get(subclassName).clear();
+  }
+
+  private static boolean containsBinaryField(List<Column> updateColumns) {
+    return updateColumns.stream()
+        // references are never binary, and getJooqField throws for refback or composite keys
+        .filter(c -> !c.isReference())
+        .anyMatch(c -> c.getJooqField().getDataType().isBinary());
+  }
+
+  /**
+   * Merges each pair into one row: values provided in the request override the values currently in
+   * the database, except for the key columns that identify the row. Columns the request doesn't
+   * mention keep their current value.
+   */
+  static List<Row> merge(List<UpdatePair> updatePairs, List<Column> primaryKeyColumns) {
+    Set<String> keyColumnNames = getKeyColumnNames(primaryKeyColumns);
+    List<Row> result = new ArrayList<>();
+    for (UpdatePair updatePair : updatePairs) {
+      result.add(
+          updatePair.existing() == null
+              ? updatePair.row()
+              : updatePair.existing().overrideWith(updatePair.row(), keyColumnNames));
+    }
+    return result;
+  }
+
+  private static Set<String> getKeyColumnNames(List<Column> keyColumns) {
+    Set<String> names = new LinkedHashSet<>();
+    for (Column key : keyColumns) {
+      if (key.isReference()) {
+        key.getReferences().forEach(ref -> names.add(ref.getColumnName()));
+      } else {
+        names.add(key.getName());
+      }
+    }
+    return names;
+  }
+
+  /** a row as provided in the request, together with its current state in the database (if any) */
+  record UpdatePair(Row row, Row existing) {}
+
+  /**
+   * Pairs each row with the row that currently exists in the database, matched on the values of the
+   * given key columns.
+   */
+  static List<UpdatePair> pair(
+      List<Row> rows, List<Row> rowsToUpdate, List<Column> primaryKeyColumns) {
+    if (primaryKeyColumns.isEmpty()) {
+      throw new MolgenisException("Cannot pair rows: no key columns provided");
+    }
+    Map<List<Object>, Row> existingByKey = new LinkedHashMap<>();
+    for (Row existing : rowsToUpdate) {
+      existingByKey.put(getKeyValues(existing, primaryKeyColumns), existing);
+    }
+    List<UpdatePair> result = new ArrayList<>();
+    for (Row row : rows) {
+      result.add(new UpdatePair(row, existingByKey.get(getKeyValues(row, primaryKeyColumns))));
+    }
+    return result;
+  }
+
+  /**
+   * Key of a row as a list of typed values, decomposing references into their underlying columns so
+   * rows coming from the database compare equal to rows coming from the request.
+   */
+  private static List<Object> getKeyValues(Row row, List<Column> keyColumns) {
+    List<Object> keyValues = new ArrayList<>();
+    for (Column key : keyColumns) {
+      if (key.isReference()) {
+        for (Reference ref : key.getReferences()) {
+          keyValues.add(normalizeKeyValue(row.get(ref.getColumnName(), ref.getPrimitiveType())));
+        }
+      } else {
+        keyValues.add(normalizeKeyValue(row.get(key.getName(), key.getPrimitiveColumnType())));
+      }
+    }
+    return keyValues;
+  }
+
+  /** arrays don't implement equals/hashCode by value, so use list equality instead */
+  private static Object normalizeKeyValue(Object value) {
+    if (value instanceof Object[] array) {
+      return Arrays.asList(array);
+    }
+    return value;
+  }
+
+  private static void validateIsRowKeyProvided(
+      List<Column> primaryKeyColumns, Set<String> columnsProvided) {
+    List<String> keyColumnNames = new ArrayList<>();
+    for (Column key : primaryKeyColumns) {
+      if (key.isReference()) {
+        for (Reference ref : key.getReferences()) {
+          keyColumnNames.add(ref.getColumnName());
+        }
+      } else {
+        keyColumnNames.add(key.getName());
+      }
+    }
+    if (!columnsProvided.containsAll(keyColumnNames)) {
+      throw new MolgenisException(
+          "Update failed: not all primary key columns are provided in the request");
+    }
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
@@ -331,7 +423,6 @@ public class SqlTable implements Table {
   private static List<Column> getUpdateColumns(SqlTable table, Set<String> columnsProvided) {
     return getInsertColumns(table, columnsProvided).stream()
         .filter(c -> !c.isReadonly() && !c.isPrimaryKey())
-        .filter(c -> !c.getName().equals(MG_INSERTEDBY) && !c.getName().equals(MG_INSERTEDON))
         .filter(
             c ->
                 AUTO_ID.equals(c.getColumnType())
@@ -348,68 +439,131 @@ public class SqlTable implements Table {
   }
 
   private List<Record> insertBatch(
-      SqlTable table, List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
-    boolean inherit = table.getMetadata().getInheritName() != null;
+      List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
+    boolean inherit = getMetadata().getInheritName() != null;
     if (inherit) {
-      SqlTable inheritedTable = table.getInheritedTable();
-      List<Record> records =
-          inheritedTable.insertBatch(inheritedTable, rows, updateOnConflict, updateColumns);
-
-      List<Column> autoIdColumns =
-          inheritedTable.getMetadata().getPrimaryKeyColumns().stream()
-              .filter(c -> AUTO_ID.equals(c.getColumnType()))
-              .toList();
-
-      // Copy the generated auto id's from the parent table
-      for (int i = 0; i < records.size(); i++) {
-        copyRecordValuesIntoRows(rows.get(i), records.get(i), autoIdColumns);
-      }
+      insertIntoInheritedTable(rows, updateOnConflict, updateColumns);
     }
 
-    List<Column> columns = getLocalStoredColumns(table, updateColumns);
+    List<Column> columns = getLocalStoredColumns(this, updateColumns);
     if (columns.isEmpty()) {
       return Collections.emptyList();
     }
 
-    List<Field> insertFields = columns.stream().map(Column::getJooqField).toList();
-    InsertValuesStepN<org.jooq.Record> step =
-        table.getJooq().insertInto(table.getJooqTable(), insertFields.toArray(new Field[0]));
+    MgDefaults mgDefaults = inherit ? null : MgDefaults.of(this);
 
-    // add all the rows as steps
-    LocalDateTime now = LocalDateTime.now();
+    InsertValuesStepN<org.jooq.Record> step = createInsertStep(columns);
+    addRowsToInsertStep(step, rows, columns, mgDefaults);
+    if (updateOnConflict) {
+      addUpdateOnConflictClause(step, rows, columns, mgDefaults);
+    }
+
+    return step.returningResult(getMetadata().getPrimaryKeyFields()).fetch();
+  }
+
+  private void insertIntoInheritedTable(
+      List<Row> rows, boolean updateOnConflict, List<Column> updateColumns) {
+    SqlTable inheritedTable = getInheritedTable();
+    List<Record> records = inheritedTable.insertBatch(rows, updateOnConflict, updateColumns);
+
+    List<Column> autoIdColumns =
+        inheritedTable.getMetadata().getPrimaryKeyColumns().stream()
+            .filter(c -> AUTO_ID.equals(c.getColumnType()))
+            .toList();
+
+    for (int i = 0; i < records.size(); i++) {
+      copyRecordValuesIntoRows(rows.get(i), records.get(i), autoIdColumns);
+    }
+  }
+
+  private InsertValuesStepN<org.jooq.Record> createInsertStep(List<Column> columns) {
+    List<Field> insertFields = columns.stream().map(Column::getJooqField).toList();
+    return getJooq().insertInto(getJooqTable(), insertFields.toArray(new Field[0]));
+  }
+
+  private void addRowsToInsertStep(
+      InsertValuesStepN<org.jooq.Record> step,
+      List<Row> rows,
+      List<Column> columns,
+      MgDefaults mgDefaults) {
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
-      if (!inherit) {
-        values.put(MG_INSERTEDBY, getActiveUser(table));
-        values.put(MG_INSERTEDON, now);
-        values.put(MG_UPDATEDBY, getActiveUser(table));
-        values.put(MG_UPDATEDON, now);
+      if (mgDefaults != null) {
+        mgDefaults.applyToInsert(values);
       }
       step.values(values.values());
     }
+  }
 
-    // optionally, add conflict clause
-    if (updateOnConflict) {
-      InsertOnDuplicateSetStep<org.jooq.Record> step2 =
-          step.onConflict(table.getMetadata().getPrimaryKeyFields().toArray(new Field[0]))
-              .doUpdate();
-      // remove mg_table as part of update key
-      for (Column column :
-          columns.stream()
-              .filter(
-                  c -> c.getName().equals(MG_TABLECLASS) || !Boolean.TRUE.equals(c.isReadonly()))
-              .toList()) {
-        step2.set(
-            column.getJooqField(),
-            (Object) field(unquotedName("excluded.\"" + column.getName() + "\"")));
-      }
-      if (!inherit) {
-        step2.set(field(name(MG_UPDATEDBY)), getActiveUser(table));
-        step2.set(field(name(MG_UPDATEDON)), now);
+  private void addUpdateOnConflictClause(
+      InsertValuesStepN<org.jooq.Record> step,
+      List<Row> rows,
+      List<Column> columns,
+      MgDefaults mgDefaults) {
+    InsertOnDuplicateSetStep<org.jooq.Record> onConflict =
+        step.onConflict(getMetadata().getPrimaryKeyFields().toArray(new Field[0])).doUpdate();
+
+    for (Column column : getColumnsToOverwriteOnConflict(columns)) {
+      onConflict.set(column.getJooqField(), (Object) getExcludedField(column));
+    }
+    if (mgDefaults != null) {
+      setMgValuesOnConflict(onConflict, rows, columns, mgDefaults);
+    }
+  }
+
+  private static void setMgValuesOnConflict(
+      InsertOnDuplicateSetStep<org.jooq.Record> onConflict,
+      List<Row> rows,
+      List<Column> columns,
+      MgDefaults mgDefaults) {
+    List<String> insertedColumnNames = columns.stream().map(Column::getName).toList();
+
+    for (String insertMetadataColumn : INSERT_METADATA_COLUMNS) {
+      if (mgDefaults.mayOverride()
+          && insertedColumnNames.contains(insertMetadataColumn)
+          && allRowsProvide(rows, insertMetadataColumn)) {
+        onConflict.set(
+            field(name(insertMetadataColumn)), (Object) getExcludedField(insertMetadataColumn));
       }
     }
+    onConflict.set(
+        field(name(MG_UPDATEDBY)),
+        insertedColumnNames.contains(MG_UPDATEDBY)
+            ? getExcludedField(MG_UPDATEDBY)
+            : mgDefaults.user());
+    onConflict.set(
+        field(name(MG_UPDATEDON)),
+        insertedColumnNames.contains(MG_UPDATEDON)
+            ? getExcludedField(MG_UPDATEDON)
+            : mgDefaults.now());
+  }
 
-    return step.returningResult(table.getMetadata().getPrimaryKeyFields()).fetch();
+  private record MgDefaults(String user, LocalDateTime now, boolean mayOverride) {
+    static MgDefaults of(SqlTable table) {
+      return new MgDefaults(getActiveUser(table), LocalDateTime.now(), mayOverrideMgValues(table));
+    }
+
+    void applyToInsert(Map<String, Object> values) {
+      putMgValue(values, MG_INSERTEDBY, mayOverride, user);
+      putMgValue(values, MG_INSERTEDON, mayOverride, now);
+      putMgValue(values, MG_UPDATEDBY, mayOverride, user);
+      putMgValue(values, MG_UPDATEDON, mayOverride, now);
+    }
+  }
+
+  private static List<Column> getColumnsToOverwriteOnConflict(List<Column> columns) {
+    return columns.stream()
+        .filter(c -> MG_TABLECLASS.equals(c.getName()) || !Boolean.TRUE.equals(c.isReadonly()))
+        .filter(c -> !INSERT_METADATA_COLUMNS.contains(c.getName()))
+        .toList();
+  }
+
+  private static Field<Object> getExcludedField(Column column) {
+    return getExcludedField(column.getName());
+  }
+
+  private static Field<Object> getExcludedField(String columnName) {
+    return field(unquotedName("excluded.\"" + columnName + "\""));
   }
 
   private static void copyRecordValuesIntoRows(Row row, Record from, List<Column> toCopy) {
@@ -441,11 +595,19 @@ public class SqlTable implements Table {
     // create batch of updates
     List<UpdateConditionStep> list = new ArrayList();
     LocalDateTime now = LocalDateTime.now();
+    String activeUser = getActiveUser(table);
+    boolean mayOverrideMgValues = mayOverrideMgValues(table);
     for (Row row : rows) {
-      Map values = getSelectedRowValues(columns, row);
+      Map<String, Object> values = getSelectedRowValues(columns, row);
       if (!inherit) {
-        values.put(MG_UPDATEDBY, getActiveUser(table));
-        values.put(MG_UPDATEDON, now);
+        putMgValue(values, MG_UPDATEDBY, mayOverrideMgValues, activeUser);
+        putMgValue(values, MG_UPDATEDON, mayOverrideMgValues, now);
+        if (mayOverrideMgValues) {
+          // insert metadata is only updated when supplied, never cleared
+          INSERT_METADATA_COLUMNS.forEach(column -> values.remove(column, null));
+        } else {
+          INSERT_METADATA_COLUMNS.forEach(values::remove);
+        }
       }
 
       list.add(
@@ -457,6 +619,21 @@ public class SqlTable implements Table {
     }
 
     return Arrays.stream(table.getJooq().batch(list).execute()).reduce(Integer::sum).getAsInt();
+  }
+
+  private static boolean allRowsProvide(List<Row> rows, String columnName) {
+    return rows.stream().allMatch(row -> row.notEmpty(columnName));
+  }
+
+  private static boolean mayOverrideMgValues(SqlTable table) {
+    return PermissionEvaluator.canManage(table.getSchema());
+  }
+
+  private static void putMgValue(
+      Map<String, Object> values, String key, boolean mayOverrideMgValues, Object defaultValue) {
+    if (!mayOverrideMgValues || values.get(key) == null) {
+      values.put(key, defaultValue);
+    }
   }
 
   private static List<Column> getLocalStoredColumns(SqlTable table, List<Column> updateColumns) {
@@ -595,7 +772,7 @@ public class SqlTable implements Table {
         throw new MolgenisException(
             "Delete on table " + table.getName() + " failed: no primary key set");
       }
-      Condition whereCondition = table.getWhereConditionForBatchDelete(rows);
+      Condition whereCondition = table.getByRowKey(rows);
       return table.getJooq().deleteFrom(table.getJooqTable()).where(whereCondition).execute();
     }
 
@@ -606,7 +783,46 @@ public class SqlTable implements Table {
     return ((SqlDatabase) getSchema().getDatabase()).getJooq();
   }
 
-  private Condition getWhereConditionForBatchDelete(Collection<Row> rows) {
+  /**
+   * The current state of rows as identified by their primary key values, including the columns
+   * inherited from any superclass.
+   */
+  private List<Row> getRowsByRowKey(Collection<Row> keyColumns, boolean skipBinaryData) {
+    List<Row> localRows = getLocalRowsByRowKey(keyColumns, skipBinaryData);
+    SqlTable inheritedTable = getInheritedTable();
+    if (inheritedTable == null || localRows.isEmpty()) {
+      return localRows;
+    }
+    List<Column> primaryKeyColumns = getMetadata().getPrimaryKeyColumns();
+    List<Row> inheritedRows = inheritedTable.getRowsByRowKey(localRows, skipBinaryData);
+    // local values win over the inherited ones, the key columns are identical in both
+    return merge(pair(localRows, inheritedRows, primaryKeyColumns), primaryKeyColumns);
+  }
+
+  /**
+   * The current state of rows as identified by their primary key values, not including the columns
+   * inherited from any superclass.
+   */
+  private List<Row> getLocalRowsByRowKey(Collection<Row> keyColumns, boolean skipBinaryData) {
+    Condition whereCondition = getByRowKey(keyColumns);
+    // select typed fields instead of 'selectFrom(table)': the jooq table is untyped, so values
+    // would come back as raw jdbc objects (e.g. a PGInterval that Period.parse cannot read)
+    List<Field<?>> fields =
+        getMetadata().getMutationColumns().stream().<Field<?>>map(Column::getJooqField).toList();
+    // skip binary data if requested
+    if (skipBinaryData) {
+      fields =
+          fields.stream().filter(f -> !f.getDataType().isBinary()).collect(Collectors.toList());
+    }
+    return getJooq()
+        .select(fields)
+        .from(getJooqTable())
+        .where(whereCondition)
+        .fetch()
+        .map(r -> new Row(r.intoMap()));
+  }
+
+  private Condition getByRowKey(Collection<Row> rows) {
     List<Condition> conditions = new ArrayList<>();
     for (Row r : rows) {
       List<Condition> rowCondition = new ArrayList<>();

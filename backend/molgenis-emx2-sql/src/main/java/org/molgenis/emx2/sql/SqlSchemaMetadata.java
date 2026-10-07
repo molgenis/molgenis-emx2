@@ -27,7 +27,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   protected SqlSchemaMetadata(Database db, SqlSchemaMetadata copy) {
     this.name = copy.getName();
     this.description = copy.getDescription();
-    this.database = db;
+    this.schemaMetadataProvider = db;
     this.sync(copy);
   }
 
@@ -156,16 +156,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public void drop(String tableName) {
-    getDatabase()
-        .tx(
-            database -> {
-              sync(dropTransaction(tableName, database));
-            });
+    getDatabase().tx(database -> sync(dropTransaction(tableName, database)));
     getDatabase().getListener().schemaChanged(getName());
   }
 
   private SqlSchemaMetadata dropTransaction(String tableName, Database database) {
-    SqlSchemaMetadata sm = (SqlSchemaMetadata) database.getSchema(getName()).getMetadata();
+    SqlSchemaMetadata sm = (SqlSchemaMetadata) database.getSchemaMetadata(getName());
     sm.getTableMetadata(tableName).drop();
     sm.tables.remove(tableName);
     return sm;
@@ -239,27 +235,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return getDatabase().getJooq();
   }
 
-  @Override
   public SqlDatabase getDatabase() {
-    return (SqlDatabase) super.getDatabase();
+    return (SqlDatabase) super.getSchemaMetadataProvider();
   }
 
   public List<String> getInheritedRolesForUser(String username) {
-    if (username == null) return new ArrayList<>();
-    User user = getDatabase().getUser(username);
-    if (user.isAdmin()) {
-      // admin has all roles
-      return getDatabase().getRoleManager().getRoleNames(getName());
-    }
-    List<String> result = new ArrayList<>();
-    // need elevated privileges, so clear user and run as root
-    getDatabase()
-        .getJooqAsAdmin(
-            adminJooq ->
-                result.addAll(
-                    SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        adminJooq, getName(), username.trim())));
-    return result;
+    return getDatabase().getRoleManager().getInheritedRoleNamesForUser(getName(), username);
   }
 
   public List<String> getInheritedRolesForActiveUser() {

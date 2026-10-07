@@ -363,56 +363,56 @@ class CsvApiTest extends ApiTestBase {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\n";
+        "tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,cascadeDelete,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description,semantics\nTestMetaTable,TestDesc,:TestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,:TestSem,,,TestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,:TestSem,,,TestDesc\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName\nTestMetaTable",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,:TestSem,,,TestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,:TestSem,,,TestDesc\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,:TestSem,,,NewTestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,:TestSem,,,NewTestDesc\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,semantics\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,NewTestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,,NewTestDesc\n");
 
     // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description,semantics\nTestMetaTable,,:NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,:NewTestSem,,,\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,:NewTestSem,,,\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description,semantics\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,,,\n");
 
     // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         schemaName,
         "tableName,description,semantics\nTestMetaTable,TestDesc,\":TestSem1,:TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,\":TestSem1,:TestSem2\",,,TestDesc\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,\":TestSem1,:TestSem2\",,,TestDesc\n");
   }
 
   @Test
@@ -471,6 +471,90 @@ class CsvApiTest extends ApiTestBase {
 
     result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
     assertTrue(result.contains("green,,,colors"));
+  }
+
+  @Test
+  void shouldUpdateTableDataUsingModeParam() {
+    String schemaName = SCHEMA_NAME + "Mode";
+    Schema schema = database.dropCreateSchema(schemaName);
+    schema.create(
+        table(
+            "Person",
+            column("id", STRING).setKey(1),
+            column("name", STRING),
+            column("age", STRING)));
+
+    String path = "/" + schemaName + "/api/csv/Person";
+
+    // insert initial row with both 'name' and 'age' set
+    given()
+        .sessionId(sessionId)
+        .body("id,name,age\r\np1,Joop,30\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    // default mode is 'overwrite': the omitted 'name' column should be cleared
+    given()
+        .sessionId(sessionId)
+        .body("id,age\r\np1,31\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    String result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
+    assertTrue(result.contains("p1,,31"));
+
+    // restore the initial row
+    given()
+        .sessionId(sessionId)
+        .body("id,name,age\r\np1,Joop,30\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    // mode=update should preserve the omitted 'name' column
+    given()
+        .sessionId(sessionId)
+        .queryParam("mode", "update")
+        .body("id,age\r\np1,31\r\n")
+        .when()
+        .post(path)
+        .then()
+        .statusCode(200);
+
+    result = given().sessionId(sessionId).accept(ACCEPT_CSV).when().get(path).asString();
+    assertTrue(result.contains("p1,Joop,31"));
+  }
+
+  @Test
+  void givenInvalidModeValue_thenBadRequest() {
+    String schemaName = SCHEMA_NAME + "ModeInvalid";
+    Schema schema = database.dropCreateSchema(schemaName);
+    schema.create(table("Person", column("id", STRING).setKey(1)));
+
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .queryParam("mode", "bogus")
+            .body("id\r\np1\r\n")
+            .when()
+            .post("/" + schemaName + "/api/csv/Person");
+
+    assertEquals(400, response.getStatusCode());
+    assertEquals(
+        """
+        {
+          "errors" : [
+            {
+              "message" : "Invalid mode: bogus"
+            }
+          ]
+        }""",
+        response.body().asString());
   }
 
   private String[] toSortedArray(String string) {

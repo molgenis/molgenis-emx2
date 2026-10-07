@@ -21,6 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.util.CompareTools;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
+import org.molgenis.emx2.fairmapper.load.LocalDataUploader;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.RdfTransformer;
@@ -33,12 +34,14 @@ class HarvestingPipelineTest {
   private static final URI FDP_URI = URI.create("https://example.com/fdp");
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
   private static final IRI TEST_SUBJECT = valueFactory.createIRI("https://example.com/test");
+  public static final String SCHEMA_NAME = HarvestingPipelineTest.class.getSimpleName();
 
   @TempDir private static Path tempDir;
   private static Path outputDirectory;
   private static Schema schema;
   private static StaticRdfExtractor rdfExtractor;
   private static StaticRdfTransformer transformer;
+  private static Database database;
 
   @BeforeAll
   static void runPipeline() {
@@ -46,13 +49,15 @@ class HarvestingPipelineTest {
 
     rdfExtractor = new StaticRdfExtractor();
     transformer = new StaticRdfTransformer();
+    String[] tables = {"names", "products"};
     HarvestingPipelineConfig config =
-        new HarvestingPipelineConfig.Builder(FDP_URI, schema, rdfExtractor, transformer)
+        new HarvestingPipelineConfig.Builder(
+                FDP_URI, SCHEMA_NAME, database, rdfExtractor, transformer)
             .withDumpEnabled(tempDir.toString())
-            .setTables("names", "products")
+            .setTables(tables)
             .withPreProcessors(new StaticPreProcessor())
             .withPostProcessors(new StaticPostProcessor())
-            .enableDataLoading()
+            .withDataLoader(new LocalDataUploader(schema, tables))
             .build();
     HarvestingPipeline pipeline = new HarvestingPipeline(config);
     pipeline.execute();
@@ -65,8 +70,8 @@ class HarvestingPipelineTest {
   }
 
   private static void setupSchema() {
-    Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(HarvestingPipelineTest.class.getSimpleName());
+    database = TestDatabaseFactory.getTestDatabase();
+    schema = database.dropCreateSchema(SCHEMA_NAME);
     schema.create(
         TableMetadata.table(
             "products", Column.column("barcode").setPkey().setType(ColumnType.STRING)),
@@ -130,7 +135,8 @@ class HarvestingPipelineTest {
   @Test
   void shouldSkipDumpingWhenDisabled() {
     HarvestingPipelineConfig config =
-        new HarvestingPipelineConfig.Builder(FDP_URI, schema, rdfExtractor, transformer)
+        new HarvestingPipelineConfig.Builder(
+                FDP_URI, SCHEMA_NAME, database, rdfExtractor, transformer)
             .setTables("names", "products")
             .withPreProcessors(new StaticPreProcessor())
             .withPostProcessors(new StaticPostProcessor())
@@ -140,6 +146,22 @@ class HarvestingPipelineTest {
 
     // Should only contain the output directory from the setup method
     assertEquals(1, Objects.requireNonNull(tempDir.toFile().list()).length);
+  }
+
+  @Test
+  void shouldThrowBeforeExtractingWhenConfiguredTableDoesNotExistInSchema() {
+    StaticRdfExtractor extractor = new StaticRdfExtractor();
+    HarvestingPipelineConfig config =
+        new HarvestingPipelineConfig.Builder(FDP_URI, SCHEMA_NAME, database, extractor, transformer)
+            .setTables("names", "unknown-table")
+            .build();
+    HarvestingPipeline pipeline = new HarvestingPipeline(config);
+
+    MolgenisException exception = assertThrows(MolgenisException.class, pipeline::execute);
+    assertEquals(
+        "Unknown table(s) configured: unknown-table for schema: " + schema.getName(),
+        exception.getMessage());
+    assertFalse(extractor.called);
   }
 
   private static void assertFileContentMatches(String fileName, String fileContent) {
@@ -153,8 +175,11 @@ class HarvestingPipelineTest {
 
   private static class StaticRdfExtractor implements RdfExtractor {
 
+    private boolean called = false;
+
     @Override
     public void addRdfToRepository(Repository repository, URI rootToAdd) {
+      called = true;
       try (RepositoryConnection connection = repository.getConnection()) {
         connection.add(
             valueFactory.createStatement(
@@ -166,7 +191,8 @@ class HarvestingPipelineTest {
   private static class StaticRdfTransformer implements RdfTransformer {
 
     @Override
-    public InMemoryTableStore transform(Repository repository) {
+    public InMemoryTableStore transform(
+        Repository repository, SchemaMetadata schema, List<String> tables) {
       InMemoryTableStore store = new InMemoryTableStore();
       store.writeTable(
           "names", List.of("name"), List.of(Row.row("name", "foo"), Row.row("name", "bar")));

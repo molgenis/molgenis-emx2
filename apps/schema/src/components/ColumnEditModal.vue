@@ -98,6 +98,17 @@
                   label="refLabel"
                   description="(Optional) customize how ref values should be shown. E.g. '${name}' or '${firstName} ${lastName}'"
                 />
+                <InputBoolean
+                  v-if="
+                    column.columnType === 'REF' ||
+                    column.columnType === 'SELECT' ||
+                    column.columnType === 'RADIO'
+                  "
+                  id="columns_cascadeDelete"
+                  v-model="column.cascadeDelete"
+                  label="cascadeDelete"
+                  description="When checked, deleting a row in the referenced table will also delete all rows in this table that refer to it. When unchecked, deleting a row in the referenced table will be blocked if there are rows in this table that refer to it."
+                />
               </div>
               <div class="col-4" v-if="column.columnType === 'REFBACK'">
                 <InputSelect
@@ -476,8 +487,10 @@ export default {
       if (
         (this.modelValue === undefined ||
           this.modelValue.name !== this.column.name) &&
-        this.originalTable.columns?.filter(
-          (c: Record<string, any>) => c.name === this.column.name
+        (
+          this.originalTable?.columns?.filter(
+            (c: Record<string, any>) => c.name === this.column.name
+          ) ?? []
         ).length > 0
       ) {
         return "Name should be unique";
