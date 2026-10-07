@@ -242,9 +242,8 @@ function asSingularName(value: string | undefined): string | undefined {
   />
   <EditableFileDownload
     v-else-if="mg_tableclass.endsWith('.FileLists')"
-    :id="component.id"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    :showFilesWithTag="component.showFilesWithTag"
     :schema="componentMetadata?.schemaId || ''"
     @edit="showEditModal = true"
     @delete="onDelete"
@@ -253,13 +252,8 @@ function asSingularName(value: string | undefined): string | undefined {
   />
   <EditableFileDownloadItem
     v-else-if="mg_tableclass.endsWith('.Files')"
-    :id="component.id"
+    v-bind="component"
     :isEditable="editingIsEnabled"
-    :labalternateFileNameel="component.alternateFileName"
-    :file="component.file"
-    :fileTag="component.fileTag"
-    :linkToExternalFile="component.linkToExternalFile"
-    :fileIsAnExternalLink="component.fileIsAnExternalLink"
     @edit="showEditModal = true"
     @delete="onDelete"
     @move="handleMoveEvent"
