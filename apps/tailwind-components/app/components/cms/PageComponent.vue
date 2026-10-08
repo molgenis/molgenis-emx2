@@ -13,6 +13,7 @@ import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
 import EditableFileDownloadItem from "./FileDownloadItem/EditableFileDownloadItem.vue";
 import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
+import EditableButton from "./button/EditableButton.vue";
 
 import EditModal from "../form/EditModal.vue";
 
@@ -273,6 +274,14 @@ function asSingularName(value: string | undefined): string | undefined {
   />
   <EditableUnorderedList
     v-else-if="mg_tableclass.endsWith('.Unordered lists')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableButton
+    v-else-if="mg_tableclass.endsWith('.Buttons')"
     v-bind="component"
     :isEditable="editingIsEnabled"
     @edit="onShowEdit"

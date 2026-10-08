@@ -1,4 +1,4 @@
-// Generated (on: 2026-10-01T13:13:59.107872) from Generator.java for schema: cms
+// Generated (on: 2026-10-07T16:14:17.748348) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -8,8 +8,8 @@ export interface IFile {
   id?: string;
   size?: number;
   extension?: string;
-  url?: string;
   filename?: string;
+  url?: string;
 }
 
 export interface ITreeNode {
@@ -54,6 +54,20 @@ export interface IBlocks extends IMgTableClass {
 }
 
 export interface IBlocks_agg {
+  count: number;
+}
+
+export interface IButtons extends IMgTableClass {
+  buttonLink?: string;
+  buttonLabel?: string;
+  buttonType?: string;
+  buttonSize?: string;
+  buttonIsCentered?: boolean;
+  inBlock?: any;
+  id: string;
+}
+
+export interface IButtons_agg {
   count: number;
 }
 
@@ -159,6 +173,11 @@ export interface IComponents extends IMgTableClass {
   imageIsCentered?: boolean;
   orderedItems?: string[];
   unorderedItems?: string[];
+  buttonLink?: string;
+  buttonLabel?: string;
+  buttonStyle?: string;
+  buttonSize?: string;
+  buttonIsCentered?: boolean;
   showFilesWithTag?: string;
   title?: string;
   description?: string;

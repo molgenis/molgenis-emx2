@@ -90,6 +90,14 @@ const blocksOpen = ref<boolean>(true);
         </li>
         <li>
           <DraggableComponent
+            icon="AddLink"
+            componentName="Buttons"
+            componentLabel="Button"
+            @dragging="handleDragEvent"
+          />
+        </li>
+        <li>
+          <DraggableComponent
             icon="UploadFile"
             componentName="File"
             componentLabel="File"

@@ -149,3 +149,14 @@ export async function AddFileList(schema: string, id: string) {
   const variables = { fileList: [{ id: `${id}` }] };
   await cmsFetch(schema, query, variables);
 }
+
+export async function AddButton(schema: string, id: string) {
+  const query = `mutation insert($button:[ButtonsInput]){
+    insert(Buttons:$button){
+      status
+      message
+    }
+  }`;
+  const variables = { button: [{ id: `${id}` }] };
+  await cmsFetch(schema, query, variables);
+}

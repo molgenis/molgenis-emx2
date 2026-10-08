@@ -22,6 +22,7 @@ import {
   AddNavigationCard,
   AddOrderedList,
   AddUnorderedList,
+  AddButton,
 } from "./cms/add";
 
 export function randomId(): string {
@@ -480,6 +481,10 @@ export async function addComponent(
 
   if (componentType === "UnorderedLists") {
     await AddUnorderedList(schema, id);
+  }
+
+  if (componentType === "Buttons") {
+    await AddButton(schema, id);
   }
 
   await AddOrder(schema, id, order, parentBlock);
