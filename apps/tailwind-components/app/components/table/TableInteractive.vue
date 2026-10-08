@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useDebounceFn } from "@vueuse/core";
-import { computed } from "vue";
+import { computed, defineEmits, defineProps, withDefaults } from "vue";
 import type {
-  columnValue,
   IRow,
+  ITableMetaData,
 } from "../../../../metadata-utils/src/types.ts";
 import type { ITableSettings } from "../../../types/types.ts";
 import { FILTER_DEBOUNCE } from "../../composables/useFilters";
@@ -13,19 +13,20 @@ import Pagination from "../Pagination.vue";
 import Table from "../Table.vue";
 import TableCell from "../TableCell.vue";
 import TableRow from "../TableRow.vue";
+import TableCellEMX2 from "./CellEMX2.vue";
 import RowControls from "./control/RowControls.vue";
 import TableHeadCell from "./TableHeadCell.vue";
 import TableHeaderAction from "./TableHeaderAction.vue";
 
 const props = withDefaults(
   defineProps<{
-    columns: { id: string; label: string }[];
     rows: IRow[];
     rowCount: number;
     rowIdKey: string;
     settings: ITableSettings;
     selectedRows?: string[];
     searchPlaceholder?: string;
+    tableMetadata: ITableMetaData;
   }>(),
   {
     searchPlaceholder: "Search",
@@ -98,11 +99,11 @@ function getRowKey(row: IRow): string {
     />
     <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
+      id="search-input"
       size="medium"
       :modelValue="settings.search"
-      @update:modelValue="handleSearchChange($event)"
       :placeholder="searchPlaceholder"
-      id="search-input"
+      @update:modelValue="handleSearchChange($event)"
     />
     <slot name="buttons" />
   </div>
@@ -110,7 +111,7 @@ function getRowKey(row: IRow): string {
     <template #head>
       <TableHeadRow>
         <TableHeadCell class="left-0 bg-table z-20 w-12"> </TableHeadCell>
-        <TableHeadCell v-for="column in columns" :key="column.id">
+        <TableHeadCell v-for="column in tableMetadata.columns" :key="column.id">
           <TableHeaderAction
             :column="column"
             :settings="settings"
@@ -131,9 +132,12 @@ function getRowKey(row: IRow): string {
             />
           </div>
         </TableCell>
-        <TableCell v-for="column in columns" :key="column.id">
-          {{ row[column.id] }}
-        </TableCell>
+        <TableCellEMX2
+          v-for="column in tableMetadata.columns"
+          :key="column.id"
+          :metadata="column"
+          :data="row[column.id]"
+        />
       </TableRow>
     </template>
     <template #foot> </template>
