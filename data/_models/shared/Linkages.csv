@@ -2,6 +2,8 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Linkages,,,,,,,,,,,,"Links between resources, e.g. data source and databank","DataCatalogueFlat,EMA,RWEStaging",
 Linkages,,resource,ref,1,TRUE,,Resources,,,,,Main resource for this linkage,"DataCatalogueFlat,EMA,RWEStaging",
 Linkages,,linked resource,ref,1,TRUE,,Resources,,,,,Linked resource,"DataCatalogueFlat,EMA,RWEStaging",
+Linkages,,relationship type,string,,,,,,,,,"Type of relationship between the resources (e.g. wasDerivedFrom, isPartOf, recordLinkage)","DataCatalogueFlat,EMA,RWEStaging",
+Linkages,,source selection,text,,,,,,,,,Description of which slice or selection of the source resource was used,"DataCatalogueFlat,EMA,RWEStaging",
 Linkages,,other linked resource,,,,,,,,,,"If other linked resource, enter the name of the data source (default = not applicable)",EMA,
 Linkages,,linkage strategy,ontology,,,CatalogueOntologies,Linkage strategies,,,,,The linkage method that was used to link resources,"DataCatalogueFlat,EMA,RWEStaging",
 Linkages,,linkage variable,text,,,,,,,,,"If a single variable (or linkage key) is used to link resources, provide a name and description of the variable","DataCatalogueFlat,EMA,RWEStaging",
