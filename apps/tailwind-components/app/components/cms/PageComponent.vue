@@ -3,6 +3,8 @@ import { ref, computed, watch } from "vue";
 import { hideAllPoppers } from "floating-vue";
 
 import Paragraph from "./paragraph/Paragraph.vue";
+import Heading from "./heading/Heading.vue";
+
 import EditableHeader from "./header/EditableHeader.vue";
 import EditableSection from "./section/EditableSection.vue";
 import EditableHeading from "./heading/EditableHeading.vue";
@@ -10,7 +12,10 @@ import EditableParagraph from "./paragraph/EditableParagraph.vue";
 import EditableImage from "./image/EditableImage.vue";
 import EditableOrderedList from "./lists/EditableOrderedList.vue";
 import EditableUnorderedList from "./lists/EditableUnorderedList.vue";
+import EditableFileDownloadItem from "./FileDownloadItem/EditableFileDownloadItem.vue";
+import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
+import EditableColumnChart from "./columnChart/EditableColumnChart.vue";
 
 import EditModal from "../form/EditModal.vue";
 
@@ -45,6 +50,10 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["updatePage", "dragging"]);
+
+const componentDisplayName = computed<string>(() => {
+  return asSingularName(componentMetadata.value?.name as string) as string;
+});
 const showEditModal = ref<boolean>(false);
 const showDeleteModal = ref<boolean>(false);
 const currentlyDeleting = ref<boolean>(false);
@@ -97,7 +106,9 @@ async function doDelete(): Promise<void> {
       componentMetadata.value?.schemaId || "",
       props.component.id,
       props.orderId,
-      props.parent
+      props.parent,
+      true,
+      props.mg_tableclass
     );
   } else {
     await deleteBlock(
@@ -229,6 +240,24 @@ function asSingularName(value: string | undefined): string | undefined {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
+  <EditableFileDownload
+    v-else-if="mg_tableclass.endsWith('.FileLists')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    :schema="componentMetadata?.schemaId || ''"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+    @updatePage="$emit('updatePage')"
+  />
+  <EditableFileDownloadItem
+    v-else-if="mg_tableclass.endsWith('.Files')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="showEditModal = true"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
   <EditableNavigationCard
     v-else-if="mg_tableclass.endsWith('.Navigation cards')"
     v-bind="component"
@@ -253,6 +282,17 @@ function asSingularName(value: string | undefined): string | undefined {
     @delete="onDelete"
     @move="handleMoveEvent"
   />
+  <EditableColumnChart
+    v-else-if="
+      mg_tableclass.endsWith('.Statistical charts') &&
+      component.chartType?.name === 'Column chart'
+    "
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
   <Paragraph
     v-else
     id="component-does-not-exist-message"
@@ -269,16 +309,25 @@ function asSingularName(value: string | undefined): string | undefined {
     :isInsert="false"
     @update:updated="onEdited"
     v-model:visible="showEditModal"
-  />
+  >
+    <template #header>
+      <Heading
+        id="component-form-edit-heading"
+        :level="2"
+        class="font-display mb-5"
+        :text="`Edit ${componentDisplayName}`"
+      />
+    </template>
+  </EditModal>
   <Modal
     v-model:visible="showDeleteModal"
-    :title="`Delete ${asSingularName(componentMetadata?.name as string)}?`"
+    :title="`Delete ${componentDisplayName}?`"
     size="medium"
   >
     <div class="p-8 text-title-contrast">
       <p class="mb-1 font-bold">
         Are you sure you want to delete this
-        {{ asSingularName(componentMetadata?.name) }}?
+        {{ componentDisplayName }}?
       </p>
       <p
         v-if="['Sections'].includes(componentMetadata?.name as string)"
