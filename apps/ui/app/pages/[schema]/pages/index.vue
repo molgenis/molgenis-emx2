@@ -154,7 +154,11 @@ function closeStatusModal() {
 
 <template>
   <Container>
-    <PageHeader title="Pages" align="left">
+    <PageHeader
+      title="Page gallery"
+      align="left"
+      description="View, manage, and create pages"
+    >
       <template #prefix>
         <BreadCrumbs :crumbs="crumbs" align="left" />
       </template>
@@ -203,15 +207,15 @@ function closeStatusModal() {
     v-model:visible="visible"
     max-width="max-w-9/10"
     @closed="onClose"
-    title="Page selector"
+    title="Create a new page"
   >
     <div class="min-h-0 p-12.5">
       <form @submit.prevent>
         <div class="mb-5 text-title-contrast">
           <legend class="uppercase text-heading-3xl font-display">
-            Select a page type
+            Select a page
           </legend>
-          <p>Create a new page by using one of the following options</p>
+          <p>Choose one the following page types</p>
         </div>
         <fieldset class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
           <PageSelector>

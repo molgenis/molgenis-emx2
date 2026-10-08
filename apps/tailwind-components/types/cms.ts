@@ -111,16 +111,42 @@ export interface IChartPalette_agg {
 }
 
 export interface ICharts extends IMgTableClass {
-  chartType?: IOntologyNode;
-  chartTitle?: string;
+  chartType: IOntologyNode;
+  chartTitle: string;
   chartDescription?: string;
   chartData?: IChartData[];
-  colorPalette?: IChartPalette[];
+  legendIsEnabled?: boolean;
   legendPosition?: IOntologyNode;
+  legendIsHorizontal?: boolean;
+  legendMarkerType?: IOntologyNode;
+  fillColor?: string;
+  strokeColor?: string;
+  hoverFillColor?: string;
+  hoverStrokeColor?: string;
+  colorPalette?: IChartPalette[];
+  chartWidth?: number;
+  chartHeight?: number;
   topMargin?: number;
   rightMargin?: number;
   bottomMargin?: number;
   leftMargin?: number;
+  enableAnimations?: boolean;
+  enableHoverEvents?: boolean;
+  enableClickEvents?: boolean;
+  x: string;
+  y: string;
+  primaryGroupValues?: string;
+  secondaryGroupValues?: string;
+  xAxisTitle?: string;
+  xAxisMinValue?: number;
+  xAxisMaxValue?: number;
+  xAxisTicks?: number[];
+  breakXAxisTickLabelsAt?: string;
+  yAxisTitle?: string;
+  yAxisMinValue?: number;
+  yAxisMaxValue?: number;
+  yAxisTicks?: number[];
+  breakYAxisTickLabelsAt?: string;
   inBlock?: any;
   id: string;
 }
@@ -172,7 +198,11 @@ export interface IComponents extends IMgTableClass {
   height?: string;
   imageIsCentered?: boolean;
   orderedItems?: string[];
-  unorderedItems?: string[];
+  text?: string;
+  level?: number;
+  headingIsCentered?: boolean;
+  headingIsHidden?: boolean;
+  paragraphIsCentered?: boolean;
   buttonLink?: string;
   buttonLabel?: string;
   buttonStyle?: string;
@@ -184,21 +214,43 @@ export interface IComponents extends IMgTableClass {
   url: string;
   urlLabel?: string;
   urlIsExternal?: boolean;
-  text?: string;
-  paragraphIsCentered?: boolean;
-  level?: number;
-  headingIsCentered?: boolean;
-  headingIsHidden?: boolean;
-  chartType?: IOntologyNode;
-  chartTitle?: string;
+  unorderedItems?: string[];
+  chartType: IOntologyNode;
+  chartTitle: string;
   chartDescription?: string;
   chartData?: IChartData[];
-  colorPalette?: IChartPalette[];
+  legendIsEnabled?: boolean;
   legendPosition?: IOntologyNode;
+  legendIsHorizontal?: boolean;
+  legendMarkerType?: IOntologyNode;
+  fillColor?: string;
+  strokeColor?: string;
+  hoverFillColor?: string;
+  hoverStrokeColor?: string;
+  colorPalette?: IChartPalette[];
+  chartWidth?: number;
+  chartHeight?: number;
   topMargin?: number;
   rightMargin?: number;
   bottomMargin?: number;
   leftMargin?: number;
+  enableAnimations?: boolean;
+  enableHoverEvents?: boolean;
+  enableClickEvents?: boolean;
+  x: string;
+  y: string;
+  primaryGroupValues?: string;
+  secondaryGroupValues?: string;
+  xAxisTitle?: string;
+  xAxisMinValue?: number;
+  xAxisMaxValue?: number;
+  xAxisTicks?: number[];
+  breakXAxisTickLabelsAt?: string;
+  yAxisTitle?: string;
+  yAxisMinValue?: number;
+  yAxisMaxValue?: number;
+  yAxisTicks?: number[];
+  breakYAxisTickLabelsAt?: string;
 }
 
 export interface IComponents_agg {
@@ -248,6 +300,23 @@ export interface IDataVizChartTypes extends IMgTableClass {
 }
 
 export interface IDataVizChartTypes_agg {
+  count: number;
+}
+
+export interface IDataVizLegendMarkers extends IMgTableClass {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: IDataVizLegendMarkers;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: IDataVizLegendMarkers[];
+}
+
+export interface IDataVizLegendMarkers_agg {
   count: number;
 }
 
@@ -479,14 +548,59 @@ export interface IStatisticalChartData_agg {
   count: number;
 }
 
+export interface IStatisticalCharts extends IMgTableClass {
+  chartType: IOntologyNode;
+  chartTitle: string;
+  chartDescription?: string;
+  chartData?: IChartData[];
+  x: string;
+  y: string;
+  primaryGroupValues?: string;
+  secondaryGroupValues?: string;
+  xAxisTitle?: string;
+  xAxisMinValue?: number;
+  xAxisMaxValue?: number;
+  xAxisTicks?: number[];
+  breakXAxisTickLabelsAt?: string;
+  yAxisTitle?: string;
+  yAxisMinValue?: number;
+  yAxisMaxValue?: number;
+  yAxisTicks?: number[];
+  breakYAxisTickLabelsAt?: string;
+  legendIsEnabled?: boolean;
+  legendPosition?: IOntologyNode;
+  legendIsHorizontal?: boolean;
+  legendMarkerType?: IOntologyNode;
+  fillColor?: string;
+  strokeColor?: string;
+  hoverFillColor?: string;
+  hoverStrokeColor?: string;
+  colorPalette?: IChartPalette[];
+  chartWidth?: number;
+  chartHeight?: number;
+  topMargin?: number;
+  rightMargin?: number;
+  bottomMargin?: number;
+  leftMargin?: number;
+  enableAnimations?: boolean;
+  enableHoverEvents?: boolean;
+  enableClickEvents?: boolean;
+  inBlock?: any;
+  id: string;
+}
+
+export interface IStatisticalCharts_agg {
+  count: number;
+}
+
 export interface ITextElements extends IMgTableClass {
   text?: string;
   inBlock?: any;
   id: string;
-  paragraphIsCentered?: boolean;
   level?: number;
   headingIsCentered?: boolean;
   headingIsHidden?: boolean;
+  paragraphIsCentered?: boolean;
 }
 
 export interface ITextElements_agg {

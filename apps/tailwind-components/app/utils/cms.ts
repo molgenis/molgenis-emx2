@@ -17,13 +17,16 @@ import type {
 } from "../../types/CmsComponents";
 
 import {
-  AddFile,
-  AddFileList,
   AddNavigationCard,
   AddOrderedList,
   AddUnorderedList,
+  AddColumnChart,
+  AddFile,
+  AddFileList,
   AddButton,
 } from "./cms/add";
+
+import { deleteChartData } from "./cms/delete";
 
 export function randomId(): string {
   return crypto.randomUUID();
@@ -356,7 +359,8 @@ export async function deleteComponent(
   componentId: string,
   componentOrderid: string,
   block: string,
-  reorder: boolean = true
+  reorder: boolean = true,
+  componentType?: string
 ) {
   const orderQuery = `mutation delete($orderId:[ComponentOrdersInput]) {
     delete(ComponentOrders:$orderId){
@@ -373,6 +377,10 @@ export async function deleteComponent(
   const orderVars = { orderId: [{ id: `${componentOrderid}` }] };
   const componentVars = { componentId: [{ id: `${componentId}` }] };
 
+  if (componentType?.endsWith(".Statistical charts")) {
+    await deleteChartData(schema, componentId);
+  }
+
   await cmsFetch(schema, orderQuery, orderVars);
   await cmsFetch(schema, componentQuery, componentVars);
 
@@ -387,6 +395,7 @@ async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
       id
       order
       component {
+        mg_tableclass
         id
       }
     }
@@ -406,10 +415,17 @@ async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
   if (data?.ComponentOrders) {
     const itemsToRemove = data.ComponentOrders as {
       id: string;
-      component: { id: string };
+      component: { id: string; mg_tableclass?: string };
     }[];
     for (const item of itemsToRemove) {
-      await deleteComponent(schema, item.component.id, item.id, blockId, false);
+      await deleteComponent(
+        schema,
+        item.component.id,
+        item.id,
+        blockId,
+        false,
+        item.component?.mg_tableclass
+      );
     }
   }
 }
@@ -481,6 +497,10 @@ export async function addComponent(
 
   if (componentType === "UnorderedLists") {
     await AddUnorderedList(schema, id);
+  }
+
+  if (componentType === "ColumnCharts") {
+    await AddColumnChart(schema, id);
   }
 
   if (componentType === "Buttons") {

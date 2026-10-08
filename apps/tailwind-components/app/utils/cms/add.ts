@@ -150,6 +150,27 @@ export async function AddFileList(schema: string, id: string) {
   await cmsFetch(schema, query, variables);
 }
 
+export async function AddColumnChart(schema: string, id: string) {
+  const query = `mutation insert($element: [StatisticalChartsInput]) {
+    insert(StatisticalCharts: $element) {
+      status
+      message
+    }
+  }`;
+
+  const variables = {
+    element: [
+      {
+        id: id,
+        chartType: { name: "Column chart" },
+        chartTitle: "My column chart",
+      },
+    ],
+  };
+
+  await cmsFetch(schema, query, variables);
+}
+
 export async function AddButton(schema: string, id: string) {
   const query = `mutation insert($button:[ButtonsInput]){
     insert(Buttons:$button){
