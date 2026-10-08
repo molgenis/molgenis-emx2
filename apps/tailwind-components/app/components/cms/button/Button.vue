@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import Button from "../../Button.vue";
 import type { ButtonType, ButtonSize } from "../../../../types/types.ts";
 import type { IButtons } from "../../../../types/cms.ts";
