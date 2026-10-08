@@ -107,6 +107,8 @@ public class GraphqlFactory {
         }
         if (tableField.hasAggregatePermission(table)) {
           queryBuilder.field(tableField.tableAggField(table));
+        }
+        if (tableField.hasGroupByPermission(table)) {
           queryBuilder.field(tableField.tableGroupByField(table));
         }
       }
