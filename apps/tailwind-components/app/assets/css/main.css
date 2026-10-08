@@ -18,8 +18,11 @@
     --text-color-link: var(--text-color-link-inverted);
     --text-color-icon-neutral: var(--text-color-link-inverted);
     --text-color-record-heading: var(--text-color-title);
-    --text-color-record-value: var(--text-color-title);
     --text-color-record-label: var(--text-color-title);
+    --text-color-record-value: var(--text-color-title);
+    --text-color-table-column-header: var(--text-color-title);
+    --text-color-table-row: var(--text-color-title);
+    --text-color-pagination: var(--text-color-pagination-inverted);
   }
 
   :root {

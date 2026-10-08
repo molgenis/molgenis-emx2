@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import type { ChartTitle } from "../../../types/viz";
-
+import Heading from "../cms/heading/Heading.vue";
 defineProps<ChartTitle>();
 </script>
 
 <template>
-  <div>
-    <h3 class="text-title text-heading-4xl" :class="{ 'mb-5': !description }">
-      {{ title }}
-    </h3>
-    <p v-if="description" class="text-title-contrast">{{ description }}</p>
+  <div class="text-title-contrast">
+    <Heading :id="`${id}-title`" :text="title" :level="3" class="!mb-0" />
+    <p :id="`${id}-description`" v-if="description">{{ description }}</p>
+    <slot></slot>
   </div>
 </template>

@@ -3,6 +3,7 @@
     <div class="bg-white container" :key="JSON.stringify(session)">
       <h1>Up/Download for {{ schema }}</h1>
       <MessageError v-if="error">{{ error }}</MessageError>
+      <MessageWarning v-if="warning">{{ warning }}</MessageWarning>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <div v-if="taskId" class="pb-3">
         <h4>Progress of current upload:</h4>
@@ -110,11 +111,11 @@
 import {
   ButtonAction,
   InputFile,
-  Spinner,
   MessageError,
   MessageSuccess,
   MessageWarning,
   Molgenis,
+  Spinner,
   Task,
 } from "molgenis-components";
 import { request } from "graphql-request";
@@ -138,6 +139,7 @@ export default {
       tables: [],
       file: null,
       error: null,
+      warning: null,
       success: null,
       loading: false,
       taskId: null,
@@ -204,6 +206,7 @@ export default {
                   } else {
                     // it's a regular response
                     this.success = response.message;
+                    this.warning = response.warning ? response.warning : null;
                   }
                   this.error = null;
                 });
