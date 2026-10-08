@@ -5,6 +5,7 @@ from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import (
@@ -346,6 +347,8 @@ class StagingMigrator(Client):
                 if (not col.startswith("mg_") or col == "mg_delete")
             ]
         ]
+
+        filtered_df = filtered_df.replace({np.nan: None})
 
         return filtered_df
 
