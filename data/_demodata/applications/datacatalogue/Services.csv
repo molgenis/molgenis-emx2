@@ -1,0 +1,2 @@
+id,name,description,provider,service type,keywords,technology,access description,access description url,status
+biobank_service_1234,Biobank Service,Service provided by this biobank,bbmri-eric:ID:EXT_IBG,"Microbiology and virology service,Sample storage service","microbiology,virology",Biobanking machine 3000,Accessible to everyone,https://myservice-access.example.org,ongoing

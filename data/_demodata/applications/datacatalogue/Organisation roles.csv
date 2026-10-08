@@ -1,0 +1,190 @@
+resource,id,organisation,organisation not in ROR,role,is lead organisation
+main catalogue,UMCG,University Medical Center Groningen,,,True
+testCohort2,Test organisation without ROR,,Test organisation without ROR,"Data provider,Surveillance",False
+FEF,UEF,University of Eastern Finland,,,True
+PANIC,UEF,University of Eastern Finland,,,True
+SYSDIMET,UEF,University of Eastern Finland,,,True
+OOM,OvGU,Otto-von-Guericke University Magdeburg,,,False
+OOM,BBMRI-ERIC,Biobanking and Biomolecular Resources Research Infrastructure Consortium,,,False
+FORCE-NEN,VUMC,Amsterdam UMC Location Vrije Universiteit Amsterdam,,,False
+FORCE-NEN collections,VUMC,Amsterdam UMC Location Vrije Universiteit Amsterdam,,,False
+PSYCONN,Lentis,Lentis,,,True
+testCohort2,UMC,University Medical Center Utrecht,,Data provider,True
+testCohort1,UMC,University Medical Center Utrecht,,"Researcher,Surveillance",False
+testCohort2,UMCG,University Medical Center Groningen,,"Data provider,Surveillance",False
+testCohort1,Erasmus MC,Erasmus MC,,"Data provider,Surveillance",False
+IPEC,Lentis,Lentis,,,False
+PSYCONN,GGZ Drenthe,GGZ Drenthe,,,True
+IPEC,GGZ Drenthe,GGZ Drenthe,,,False
+OOM,FISABIO,Fundación para el Fomento de la Investigación Sanitaria y Biomédica de la Comunitat Valenciana,,Researcher,False
+OOM,Centre Hospitalier Universitaire de Toulouse,Centre Hospitalier Universitaire de Toulouse,,,False
+GenR,Erasmus MC,Erasmus MC,,,True
+GenR Next,Erasmus MC,Erasmus MC,,,True
+RS1,Erasmus MC,Erasmus MC,,,True
+RS2,Erasmus MC,Erasmus MC,,,True
+RS3,Erasmus MC,Erasmus MC,,,True
+FORCE-NEN,Erasmus MC,Erasmus MC,,,False
+FORCE-NEN collections,Erasmus MC,Erasmus MC,,,False
+LifeCycle,Erasmus MC,Erasmus MC,,,False
+OOM,Novartis (Netherlands),Novartis (Netherlands),,,False
+OOM,AU,Aarhus University,,Researcher,False
+SEA,CNR IFC; IFC,Istituto di Fisiologia Clinica,,"Researcher,Surveillance",True
+SPF,CNR IFC; IFC,Istituto di Fisiologia Clinica,,"Researcher,Surveillance",True
+OOM,CNR IFC; IFC,Istituto di Fisiologia Clinica,,"Researcher,Surveillance",False
+testNetwork1,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,False
+FORCE-NEN,MMC,Máxima Medisch Centrum,,,False
+testNetwork2,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,False
+testNetworkofNetworks,CNR IFC; IFC,Istituto di Fisiologia Clinica,,,False
+SWS,University of Southampton,University of Southampton,,,True
+ACCESS,Pharmo Institute,Pharmo Institute,,Researcher,False
+OOM,Pharmo Institute,Pharmo Institute,,Researcher,False
+OOM,GSK,GlaxoSmithKline (United Kingdom),,,True
+MBRN,UiO,University of Oslo,,,True
+NOMA,UiO,University of Oslo,,,True
+ACCESS,BIPS,Leibniz Institute for Prevention Research and Epidemiology - BIPS,,,False
+OOM,BIPS,Leibniz Institute for Prevention Research and Epidemiology - BIPS,,,False
+FORCE-NEN,AZM; MUMC,Maastricht University Medical Centre,,,False
+FORCE-NEN collections,AZM; MUMC,Maastricht University Medical Centre,,,False
+OOM,Sanofi (France),Sanofi (France),,,False
+CONSTANCES,INSERM,Inserm,,,True
+EDEN,INSERM,Inserm,,,True
+ELFE,INSERM,Inserm,,,True
+PELAGIE,INSERM,Inserm,,,True
+Sepages,INSERM,Inserm,,,True
+FORCE-NEN collections,MMC,Máxima Medisch Centrum,,,False
+OOM,DIHI,Duke Institute for Health Innovation,,,False
+CELSPAC-TNG,RI,RECETOX,,,True
+HPV,Tampere University,Tampere University,,,True
+WDC,Tampere University,Tampere University,,,False
+DNBC,UCPH,University of Copenhagen,,,True
+ACCESS,Institut Universitari d'Investigació en Atenció Primària Jordi Gol,Institut Universitari d'Investigació en Atenció Primària Jordi Gol,,,False
+PSYCONN,GGZ Friesland,GGZ Friesland,,,True
+IPEC,GGZ Friesland,GGZ Friesland,,,False
+EUROCAT NNL,UMCG,University Medical Center Groningen,,,True
+FORCE-NEN,UMCG,University Medical Center Groningen,,,True
+FORCE-NEN collections,UMCG,University Medical Center Groningen,,,True
+Immune-Image_Task_6.2a,UMCG,University Medical Center Groningen,,,True
+Immune-Image_Task_6.2b,UMCG,University Medical Center Groningen,,,True
+Immune-Image_Task_6.3,UMCG,University Medical Center Groningen,,,True
+IPEC,UMCG,University Medical Center Groningen,,,True
+PSYCONN,UMCG,University Medical Center Groningen,,,True
+testNetwork1,UMCG,University Medical Center Groningen,,,True
+testNetwork2,UMCG,University Medical Center Groningen,,,True
+testNetworkofNetworks,UMCG,University Medical Center Groningen,,,True
+BAMSE,UMCG,University Medical Center Groningen,,,False
+ANAGRAFICA,UMCG,University Medical Center Groningen,,,False
+ARISE,UMCG,University Medical Center Groningen,,,False
+ARS_PS,UMCG,University Medical Center Groningen,,,False
+ATHLETE,UMCG,University Medical Center Groningen,,,False
+COD_FARMACI_SPF,UMCG,University Medical Center Groningen,,,False
+DAHLIA,UMCG,University Medical Center Groningen,,,False
+DRIVE 2019/20,UMCG,University Medical Center Groningen,,,False
+ELSPAC,UMCG,University Medical Center Groningen,,,False
+EUChildNetwork,UMCG,University Medical Center Groningen,,,False
+EXE,UMCG,University Medical Center Groningen,,,False
+FARMACEUTICA,UMCG,University Medical Center Groningen,,,False
+FEIBA-GO,UMCG,University Medical Center Groningen,,,False
+FinACAF,UMCG,University Medical Center Groningen,,,False
+GECKO,UMCG,University Medical Center Groningen,,,False
+HBCS,UMCG,University Medical Center Groningen,,,False
+INMA,UMCG,University Medical Center Groningen,,,False
+INSPECT,UMCG,University Medical Center Groningen,,,False
+IPF,UMCG,University Medical Center Groningen,,,False
+LEMS,UMCG,University Medical Center Groningen,,,False
+LEONARDO,UMCG,University Medical Center Groningen,,,False
+NBC1967-1976,UMCG,University Medical Center Groningen,,,False
+OPTI,UMCG,University Medical Center Groningen,,,False
+PASS,UMCG,University Medical Center Groningen,,,False
+PERSEUS,UMCG,University Medical Center Groningen,,,False
+PHT,UMCG,University Medical Center Groningen,,,False
+RMR,UMCG,University Medical Center Groningen,,,False
+SALM,UMCG,University Medical Center Groningen,,,False
+SAPALDIA,UMCG,University Medical Center Groningen,,,False
+SPA,UMCG,University Medical Center Groningen,,,False
+SPECIALISTICA,UMCG,University Medical Center Groningen,,,False
+SSc-ILD,UMCG,University Medical Center Groningen,,,False
+testCohort3,UMCG,University Medical Center Groningen,,,False
+testCohort4,UMCG,University Medical Center Groningen,,,False
+THALIA,UMCG,University Medical Center Groningen,,,False
+VCN,UMCG,University Medical Center Groningen,,,False
+HELIX,BIGH; BIGH-CERCA,Barcelona Institute for Global Health,,,True
+AVOHILMO,THL,Finnish Institute for Health and Welfare,,"Data originator,Researcher",True
+DHL,THL,Finnish Institute for Health and Welfare,,"Data originator,Researcher",True
+OOM,THL,Finnish Institute for Health and Welfare,,"Data originator,Researcher",False
+mtFIT study,NKI; NKI-AVL,The Netherlands Cancer Institute,,,True
+FORCE-NEN,NKI; NKI-AVL,The Netherlands Cancer Institute,,,False
+FORCE-NEN collections,NKI; NKI-AVL,The Netherlands Cancer Institute,,,False
+FinnGeDi,University of Oulu,University of Oulu,,,True
+NFBC1966,University of Oulu,University of Oulu,,,True
+NFBC1966 G0,University of Oulu,University of Oulu,,,True
+NFBC1986,University of Oulu,University of Oulu,,,True
+WDC,University of Oulu,University of Oulu,,,False
+ADVANCE Coverage POC,SSI,Statens Serum Institut,,,True
+CON,SSI,Statens Serum Institut,,,True
+OOM,SSI,Statens Serum Institut,,,False
+OOM,University of Ferrara,University of Ferrara,,,False
+OOM,AEMPS,Agencia Española de Medicamentos y Productos Sanitarios,,,False
+G21,Universidade do Porto,Universidade do Porto,,,True
+RAINE,UWA,The University of Western Australia,,,True
+OOM,Uppsala University,Uppsala University,,,False
+OOM,Netherlands Pharmacovigilance Centre Lareb,Netherlands Pharmacovigilance Centre Lareb,,,False
+OOM,Takeda (Japan),Takeda (Japan),,,False
+ENVIRONAGE,Hasselt University,Hasselt University,,,True
+OOM,UKZN,University of KwaZulu-Natal,,,False
+KANC,VDU,Vytautas Magnus University,,,True
+OOM,Janssen (Belgium),Janssen (Belgium),,,False
+ALSPAC,University of Bristol,University of Bristol,,,True
+OOM,Swansea University,Swansea University,,,False
+LSC,Universität Innsbruck,Universität Innsbruck,,,True
+mCRC-VHIO,VHIO; VHIO-CERCA,Vall d'Hebron Institute of Oncology,,,True
+CSC,KI,Karolinska Institutet,,,True
+WDC,KI,Karolinska Institutet,,,False
+ACCESS,UMC,University Medical Center Utrecht,,Researcher,True
+CRC-Cohort,BBMRI-ERIC,Biobanking and Biomolecular Resources Research Infrastructure Consortium,,,True
+EFEMERIS_PRESCRIPTION,Centre Hospitalier Universitaire de Toulouse,Centre Hospitalier Universitaire de Toulouse,,,True
+BIB,BRI,Bradford Royal Infirmary,,,True
+MoBa,NIPH,Norwegian Institute of Public Health,,,True
+FORCE-NEN,UMC,University Medical Center Utrecht,,Researcher,True
+FORCE-NEN collections,UMC,University Medical Center Utrecht,,Researcher,True
+OOM,UMC,University Medical Center Utrecht,,Researcher,True
+DIAGNOSTIC,Université de Bordeaux,Université de Bordeaux,,Researcher,True
+ACCESS,Université de Bordeaux,Université de Bordeaux,,Researcher,False
+OOM,Université de Bordeaux,Université de Bordeaux,,Researcher,False
+OOM,ARS,Agenzia Regionale di Sanità della Toscana,,,False
+testCohort1,LUMC,Leiden University Medical Center,,"Data provider,Other",True
+testCohort1,UMCG,University Medical Center Groningen,,"Data originator,Data provider,Researcher,Surveillance,Other",True
+MOLGENIS,UMCG,University Medical Center Groningen,,,True
+OOM,UiO,University of Oslo,,,False
+OOM,UU,University of Ulster,,,False
+IPEC,UCPH,University of Copenhagen,,,False
+OOM,UMCG,University Medical Center Groningen,,,False
+OOM,University of Dundee,University of Dundee,,,False
+HPV,University of Oulu,University of Oulu,,,False
+LongITools,University of Oulu,University of Oulu,,,False
+MAT,University of Oulu,University of Oulu,,,False
+ABL,ARS,Agenzia Regionale di Sanità della Toscana,,,True
+AP,ARS,Agenzia Regionale di Sanità della Toscana,,,True
+ARS_ANAG_MED_RES_storico,ARS,Agenzia Regionale di Sanità della Toscana,,,True
+SEA,ARS,Agenzia Regionale di Sanità della Toscana,,,True
+SPF,ARS,Agenzia Regionale di Sanità della Toscana,,,True
+OOM,UNIME,University of Messina,,,False
+ACCESS,UNIME,University of Messina,,,False
+OOM,KUL,KU Leuven,,,False
+testNetwork1,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,False
+testNetwork2,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,False
+testNetworkofNetworks,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,False
+ABCD,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,True
+DFBC,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,,True
+testNetwork2,Cynexo,,Cynexo,,False
+testNetworkofNetworks,Cynexo,,Cynexo,,False
+testNetwork1,Cynexo,,Cynexo,,False
+OOM,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,False
+UMCG,UMCG,University Medical Center Groningen,,Data originator,True
+testUMC,testUMC (organisation),,testUMC (organisation),,False
+TestDataSourceID,UCL,University College London,,Researcher,False
+TestDataSourceID,INSERM,Inserm,,Researcher,False
+TestDataSourceID,Amsterdam University Medical Centers,Amsterdam University Medical Centers,,Data originator,True
+TestDatabank1,UMCG,University Medical Center Groningen,,Data originator,True
+TestDatabank2,UMC,University Medical Center Utrecht,,Data originator,False
+MOLGENIS,MOLGENIS,,MOLGENIS,,
+bbmri-eric:ID:EXT_GBR-1-198:collection:1,Newcastle University,Newcastle University,,,True
