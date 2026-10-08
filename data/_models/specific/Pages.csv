@@ -57,12 +57,12 @@ Navigation cards,,description,string,,,,,,,,,,,sio:000136,An optional descriptio
 Navigation cards,,url,hyperlink,,TRUE,,,,,,,,,sio:000811,A link to an internal or external page,pages
 Navigation cards,,url label,string,,,,,,,,,,,sio:000179,A label to display instead of the URL,pages
 Navigation cards,,url is external,bool,,,,,,,,,,FALSE,ncit:C44280,"If true, the link will be rendered as an external link",pages
-Buttons,Components,,,,,,,,,,,,,Buttons,pages
-Buttons,,button link,string,,,,,,,,,"mailto:support@molgenis.org",,link added to the button,pages
-Buttons,,button label,string,,,,,,,,,"Email us",,Text as displayed on the button,pages
-Buttons,,button type,string,,,,,,,,,"primary",,"The type of the button [primary, secondary, tertiary, text, outline, filterWell, inline]",pages
-Buttons,,button size,string,,,,,,,,,"medium",,"The size of the button [tiny, small, medium, large]",pages
-Buttons,,button is centered,bool,,,,,,,,,TRUE,,"If true, the button will be center aligned ",pages
+Buttons,Components,,,,,,,,,,,,,,Buttons,pages
+Buttons,,button link,string,,,,,,,,,,"mailto:support@molgenis.org",,link added to the button,pages
+Buttons,,button label,string,,,,,,,,,,"Email us",,Text as displayed on the button,pages
+Buttons,,button type,string,,,,,,,,,,"primary",,"The type of the button [primary, secondary, tertiary, text, outline, filterWell, inline]",pages
+Buttons,,button size,string,,,,,,,,,,"medium",,"The size of the button [tiny, small, medium, large]",pages
+Buttons,,button is centered,bool,,,,,,,,,,TRUE,,"If true, the button will be center aligned ",pages
 FileLists,Components,,,,,,,,,,,,,,filelists,pages
 FileLists,,show files with tag,string,,,,,,,,,,,,Limit files by a specific tag or leave empty to show all files,pages
 Files,Components,,,,,,,,,,,,,,file elements,pages
