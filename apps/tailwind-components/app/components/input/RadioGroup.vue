@@ -17,6 +17,7 @@ withDefaults(
   >(),
   {
     align: "vertical",
+    showClearButton: false,
   }
 );
 const modelValue = defineModel<columnValue>();
