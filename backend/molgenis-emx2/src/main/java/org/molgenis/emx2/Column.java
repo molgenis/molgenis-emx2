@@ -225,7 +225,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
 
     if (this.refTable != null && getTable() != null) {
       // self relation (same name, same schema), prevent endless loop
-      if ((schema == null || getSchema().getName().equals(schema.getName()))
+      if ((schema == null || Objects.equals(getSchema().getName(), schema.getName()))
           && this.refTable.equals(getTable().getTableName())) {
         return getTable(); // this table
       }

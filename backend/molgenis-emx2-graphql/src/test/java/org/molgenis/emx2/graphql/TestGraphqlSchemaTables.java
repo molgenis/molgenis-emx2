@@ -31,8 +31,11 @@ class TestGraphqlSchemaTables {
   private static final String CHILD_COLUMN = "surface";
   private static final String NON_INHERITING_TABLE = "Note";
   private static final String NON_INHERITING_COLUMN = "id";
+  private static final String LINK_TABLE = "Link";
+  private static final String LINK_REF_COLUMN = "note";
+  private static final String LINK_LABEL_COLUMN = "label";
   private static final String TABLES_QUERY =
-      "{_schema{tables{name,inheritName,inheritSchemaName,inheritId,columns{name,inherited}}}}";
+      "{_schema{tables{name,inheritName,inheritSchemaName,inheritId,labelTemplate,columns{name,inherited}}}}";
 
   private static GraphqlExecutor graphql;
 
@@ -50,6 +53,15 @@ class TestGraphqlSchemaTables {
             .setImportSchema(PARENT_SCHEMA)
             .add(column(CHILD_COLUMN)));
     child.create(table(NON_INHERITING_TABLE).add(column(NON_INHERITING_COLUMN).setPkey()));
+    child.create(
+        table(LINK_TABLE)
+            .add(
+                column(LINK_REF_COLUMN)
+                    .setType(org.molgenis.emx2.ColumnType.REF)
+                    .setRefTable(NON_INHERITING_TABLE)
+                    .setRequired(true)
+                    .setKey(1))
+            .add(column(LINK_LABEL_COLUMN).setRequired(true).setKey(1)));
     graphql = new GraphqlExecutor(child);
   }
 
@@ -115,6 +127,22 @@ class TestGraphqlSchemaTables {
   void schemaMarksNoColumnInheritedForNonInheritingTable() throws IOException {
     JsonNode note = tableByName(execute(TABLES_QUERY), NON_INHERITING_TABLE);
     assertFalse(isInherited(note, NON_INHERITING_COLUMN), note.toString());
+  }
+
+  @Test
+  void schemaExposesLabelTemplateForSingleColumnKey() throws IOException {
+    JsonNode note = tableByName(execute(TABLES_QUERY), NON_INHERITING_TABLE);
+    assertEquals(
+        "${" + NON_INHERITING_COLUMN + "}", note.get("labelTemplate").asText(), note.toString());
+  }
+
+  @Test
+  void schemaExposesLabelTemplateForCompositeKeyWithReference() throws IOException {
+    JsonNode link = tableByName(execute(TABLES_QUERY), LINK_TABLE);
+    assertEquals(
+        "${" + LINK_REF_COLUMN + "." + NON_INHERITING_COLUMN + "} ${" + LINK_LABEL_COLUMN + "}",
+        link.get("labelTemplate").asText(),
+        link.toString());
   }
 
   private static boolean isInherited(JsonNode table, String columnName) {
