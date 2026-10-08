@@ -1,16 +1,24 @@
 order,name,label,parent,codesystem,code,ontologyTermURI,definition
-,ANTIBODIES,Antibodies titer (IgM and IgG),,,,,
-,IMAGING_DATA,Imaging data,,Miabis,,,Y/N if imaging data are collected from the participants in the sample collection/study
-,NAV,Not available,,,,,Not available
-,TREATMENT_PROTOCOL,Treatment protocol (types of drugs used),,,,,
-,NATIONAL_REGISTRIES,National registries,,Miabis,,,Y/N if register data is associated to the participants in the sample collection/study
-,DiseaseDuration,Data on disease duration and disease outcome,,,,,
-,SURVEY_DATA,Survey data,,Miabis,,http://purl.obolibrary.org/obo/OMIABIS_0000060,Y/N if information from surveys are collected from the participants in the sample collection/study
-,OTHER,Other,,Miabis,,,Other
-,CLINICAL_SYMPTOMS,Data on clinical symptoms,,,,,
-,CT,"CT imaging of lungs, alternatively Xray",,,,,
-,PHYSIOLOGICAL_BIOCHEMICAL_MEASUREMENTS,Physiological/Biochemical measurements,,Miabis,,,Y/N if Measurements/tests performed during a clinical/home visit and from samples taken from donor
-,GENEALOGICAL_RECORDS,Genealogical records,,Miabis,,,Y/N if genealogical records are associated with the participants in the sample collection/study
-,MEDICAL_RECORDS,Medical records,,Miabis,,http://purl.obolibrary.org/obo/OMIABIS_0001027,Y/N if medical records are collected from the participants in the sample collection/study
-,BIOLOGICAL_SAMPLES,Biological samples,,,,,Y/N if biological samples are collected from the participants in the sample collection/study
-,BLOOD,Blood count and other lab results especially at the moment of hospital admission,,,,,
+,Antibodies,Antibodies titer (IgM and IgG),,,,,
+,Biochemical dataset,Biochemical dataset,,MIABIS,,,Dataset on the chemical substances and vital processes occurring in living organisms.
+,Blood,Blood count and other lab results,,,,,"Blood count and other lab results, especially at the moment of hospital admission."
+,Body image,Body (Radiological) image,,MIABIS,,,Dataset containing images produced with the use of X-ray and other forms of radiant energy.
+,Clinical dataset,Clinical dataset,,MIABIS,,,Data obtained through patient examination or treatment.
+,Disease duration,Dataset on disease duration and disease outcome,,,,,Dataset on disease duration and disease outcome
+,Environmental dataset,Environmental dataset,,MIABIS,,,Dataset on the environmental qualities which may sustain an organism or a community of organisms.
+,Genealogical records,Genealogical records,,MIABIS,,,"A document about the family relationships of persons related as members of a domestic group linked through descent from a common ancestor, marriage, or adoption."
+,Genomic dataset,Genomic dataset,,MIABIS,,,Genomic data is data about the genomes of an organism.
+,IMAGING_DATA,Imaging data (deprecated),,,,,"Deprecated value, please use a more specific imaging type instead. Y/N if imaging data are collected from the participants in the collection."
+,Lifestyle dataset,Lifestyle dataset,,MIABIS,,,Dataset on manner of living that reflects the person's values and attitudes.
+,Metabolomic dataset,Metabolomic dataset,,MIAIBS,,,Dataset on the quantity and identity of all of the low molecular weight molecules in a biological entity or sample that are products of or participants in various metabolic processes.
+,NATIONAL_REGISTRIES,National registries (deprecated),,,,,"Deprecated value, do not add to new collections. Y/N if register data is associated to the participants in the collection."
+,Not available,Not available,,,,,Not available
+,Other sample-derived dataset,Other sample-derived dataset,,MIABIS,,,"A sample-derived dataset which does not fit with any of the other dataset categories"
+,Photo image,Photo image,,MIABIS,,,"Dataset of photographs. Photographs are images created by projecting an image onto a photosensitive surface such as a chemically treated plate or film, CCD receptor, etc."
+,Physiological dataset,Physiological dataset,,MIABIS,,,"A measurement datum that contains the assessment information about the functioning of a major organ system, the extent of disease or disability, as well as the provision and/or response to therapeutic interventions."
+,Proteomic dataset,Proteomic dataset,,MIABIS,,,"Dataset on the global analysis of cellular proteins. Proteomics aims to resolve comprehensively, to quantify, and to characterize proteins."
+,Psychological dataset,Psychological/Neurophysiological dataset,,MIABIS,,,"Dataset describing the behavior and mind, including conscious and unconscious phenomena, as well as feeling and thought."
+,SURVEY_DATA,Survey data (deprecated),,,,,"Deprecated value, please use a more specific type like 'Environmental dataset' or 'Lifestyle dataset' instead. Y/N if information from surveys are collected from the participants in the sample collection/study."
+,Transcriptomic Dataset,Transcriptomic Dataset,,MIABIS,,,"Transcriptomic data is data about RNA transcribed by a cell, cells or organism. This includes mRNA, tRNA and cDNA."
+,Treatment protocol,Treatment protocol,,,,,Treatment protocol (types of drugs used)
+,Whole slide image,Whole slide image,,MIABIS,,,"Dataset on images of cells or tissue sections on a slide."
