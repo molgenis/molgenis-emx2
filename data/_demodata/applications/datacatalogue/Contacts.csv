@@ -1,5 +1,5 @@
 resource,role,role description,first name,last name,display name,prefix,initials,title,organisation,email,orcid,homepage,photo,photo_filename,expertise,mg_draft
-MOLGENIS,,,Morris,Swertz,Morris Swertz,,,,,test@email.org,,,,,,False
+MOLGENIS,,,Morris,Swertz,Morris Swertz,,,,MOLGENIS,test@email.org,,,,,,False
 testCohort1,Data manager,test description for data manager role,datamgr first name,datamgr last name,datamgr first name datamgr last name,datamgr surname prefix,D.M.,dr.,LUMC,test@email.nl,test orcid,https://kanariepiet.com,39cf39f46d5a4a3997a3b4fba8e17d6c,ac8e9674448a42fdb12f49eb0cf329da.jpg,test expertise for data manager role,False
 main catalogue,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
 FORCE-NEN,Principal Investigator,,Rob,Boss,Rob Boss,,R,dr.,UMC,rob.boss@email.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Rob_Boss,,,Painting,
