@@ -1,4 +1,4 @@
-// Generated (on: 2026-10-01T13:13:59.107872) from Generator.java for schema: cms
+// Generated (on: 2026-10-09T14:36:50.634907) from Generator.java for schema: cms
 
 export interface IMgTableClass {
   mg_tableclass?: string;
@@ -8,8 +8,8 @@ export interface IFile {
   id?: string;
   size?: number;
   extension?: string;
-  url?: string;
   filename?: string;
+  url?: string;
 }
 
 export interface ITreeNode {
@@ -119,6 +119,8 @@ export interface ICharts extends IMgTableClass {
   enableAnimations?: boolean;
   enableHoverEvents?: boolean;
   enableClickEvents?: boolean;
+  inBlock?: any;
+  id: string;
   x: string;
   y: string;
   primaryGroupValues?: string;
@@ -133,8 +135,6 @@ export interface ICharts extends IMgTableClass {
   yAxisMaxValue?: number;
   yAxisTicks?: number[];
   breakYAxisTickLabelsAt?: string;
-  inBlock?: any;
-  id: string;
 }
 
 export interface ICharts_agg {
@@ -172,6 +172,9 @@ export interface IComponentOrders_agg {
 export interface IComponents extends IMgTableClass {
   inBlock?: any;
   id: string;
+  html?: string;
+  css?: string;
+  js?: string;
   fileIsAnExternalLink?: boolean;
   file?: IFile;
   linkToExternalFile?: string;
@@ -190,11 +193,6 @@ export interface IComponents extends IMgTableClass {
   headingIsHidden?: boolean;
   paragraphIsCentered?: boolean;
   showFilesWithTag?: string;
-  title?: string;
-  description?: string;
-  url: string;
-  urlLabel?: string;
-  urlIsExternal?: boolean;
   unorderedItems?: string[];
   chartType: IOntologyNode;
   chartTitle: string;
@@ -232,6 +230,11 @@ export interface IComponents extends IMgTableClass {
   yAxisMaxValue?: number;
   yAxisTicks?: number[];
   breakYAxisTickLabelsAt?: string;
+  title?: string;
+  description?: string;
+  url: string;
+  urlLabel?: string;
+  urlIsExternal?: boolean;
 }
 
 export interface IComponents_agg {
@@ -264,6 +267,18 @@ export interface IContainers extends IMgTableClass {
 }
 
 export interface IContainers_agg {
+  count: number;
+}
+
+export interface ICustomComponents extends IMgTableClass {
+  html?: string;
+  css?: string;
+  js?: string;
+  inBlock?: any;
+  id: string;
+}
+
+export interface ICustomComponents_agg {
   count: number;
 }
 

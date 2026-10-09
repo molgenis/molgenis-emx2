@@ -70,6 +70,14 @@ const handleDragEvent = (event: DragEvent) => {
               @dragging="handleDragEvent"
             />
           </li>
+          <li>
+            <DraggableComponent
+              icon="Colorize"
+              componentName="CustomComponents"
+              componentLabel="Custom component"
+              @dragging="handleDragEvent"
+            />
+          </li>
         </ul>
       </Accordion>
     </div>
