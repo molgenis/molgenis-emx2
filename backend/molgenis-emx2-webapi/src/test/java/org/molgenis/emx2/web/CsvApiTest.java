@@ -355,6 +355,34 @@ class CsvApiTest extends ApiTestBase {
   }
 
   @Test
+  void givenColumns_whenDownloadingTable_thenOnlyThoseColumns() {
+    String result =
+        given()
+            .sessionId(sessionId)
+            .queryParam("columns", "weight,name")
+            .queryParam("filter", "{\"name\":{\"equals\":\"pooky\"}}")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + SCHEMA_NAME + "/api/csv/Pet")
+            .asString();
+    assertEquals("weight,name", result.lines().findFirst().orElseThrow());
+    assertEquals("9.4,pooky", result.lines().skip(1).findFirst().orElseThrow());
+  }
+
+  @Test
+  void givenUnknownColumn_whenDownloadingTable_thenBadRequest() {
+    Response response =
+        given()
+            .sessionId(sessionId)
+            .queryParam("columns", "colour")
+            .accept(ACCEPT_CSV)
+            .when()
+            .get("/" + SCHEMA_NAME + "/api/csv/Pet");
+    assertEquals(400, response.getStatusCode());
+    assertTrue(response.asString().contains("colour"));
+  }
+
+  @Test
   void shouldUpdateTableMetadata() throws IOException {
 
     // fresh schema for testing
