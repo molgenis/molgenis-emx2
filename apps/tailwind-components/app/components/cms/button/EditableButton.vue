@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import Paragraph from "./Paragraph.vue";
+import Button from "./Button.vue";
 import ComponentActions from "../ComponentActions.vue";
-import type { IParagraphs } from "../../../../types/cms";
+import type { IButtons } from "../../../../types/cms.ts";
 
-const props = withDefaults(
-  defineProps<IParagraphs & { isEditable?: boolean }>(),
-  {
-    paragraphIsCentered: false,
-    isEditable: false,
-  }
-);
+const props = withDefaults(defineProps<IButtons & { isEditable?: boolean }>(), {
+  buttonIsCentered: false,
+  isEditable: false,
+});
 const emit = defineEmits(["edit", "delete", "move"]);
 const showMenu = ref<boolean>(false);
 </script>
@@ -23,12 +20,12 @@ const showMenu = ref<boolean>(false);
     :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
     :delay="{ show: 100, hide: 50 }"
-    :placement="paragraphIsCentered ? 'bottom' : 'bottom-start'"
+    :placement="buttonIsCentered ? 'bottom' : 'bottom-start'"
     noAutoFocus
   >
     <template #popper>
       <ComponentActions
-        name="Paragraph"
+        name="Button"
         :id="`${id}-toolbar`"
         :aria-controls="id"
         @edit="$emit('edit')"
@@ -36,7 +33,7 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <Paragraph v-bind="props" />
+    <Button v-bind="props" />
   </VMenu>
-  <Paragraph v-else v-bind="props" />
+  <Button v-else v-bind="props" />
 </template>

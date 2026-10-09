@@ -111,6 +111,13 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         # Filelist
                         showFilesWithTag
 
+                        #Buttons
+                        buttonLabel
+                        buttonLink
+                        buttonType
+                        buttonSize
+                        buttonIsCentered
+
                         # navigation cards
                         id
                         title

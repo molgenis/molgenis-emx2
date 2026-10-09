@@ -16,6 +16,7 @@ import EditableFileDownloadItem from "./FileDownloadItem/EditableFileDownloadIte
 import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
 import EditableColumnChart from "./columnChart/EditableColumnChart.vue";
+import EditableButton from "./button/EditableButton.vue";
 
 import EditModal from "../form/EditModal.vue";
 
@@ -287,6 +288,14 @@ function asSingularName(value: string | undefined): string | undefined {
       mg_tableclass.endsWith('.Statistical charts') &&
       component.chartType?.name === 'Column chart'
     "
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableButton
+    v-else-if="mg_tableclass.endsWith('.Buttons')"
     v-bind="component"
     :isEditable="editingIsEnabled"
     @edit="onShowEdit"
