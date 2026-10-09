@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import type { IFileLists } from "../../../../types/cms";
 import { UploadFile, AddLink } from "../../../utils/cms/add";
+import { randomId } from "../../../utils/cms";
 import ComponentActions from "../ComponentActions.vue";
 import FileDownload from "./FileDownload.vue";
 import Button from "../../Button.vue";
@@ -28,7 +29,7 @@ const linkModel = ref({
   fileTag: "",
 });
 const fileModel = ref({ file: undefined, alternateFileName: "", fileTag: "" });
-const rerenderKey = ref<string>(crypto.randomUUID());
+const rerenderKey = ref<string>(randomId());
 const linkmetadata: ITableMetaData = {
   label: "Hyperlink",
   id: "Types",
@@ -86,21 +87,21 @@ async function addNewFile() {
   currentlySaving.value = true;
   await UploadFile(
     props.schema,
-    "File-" + crypto.randomUUID(),
+    "File-" + randomId(),
     fileModel.value.alternateFileName,
     fileModel.value.fileTag,
     fileModel.value.file
   );
   showAddFileModal.value = false;
   currentlySaving.value = false;
-  rerenderKey.value = crypto.randomUUID();
+  rerenderKey.value = randomId();
   emit("updatePage");
 }
 async function addNewLink() {
   currentlySaving.value = true;
   await AddLink(
     props.schema,
-    "Link-" + crypto.randomUUID(),
+    "Link-" + randomId(),
     linkModel.value.linkToExternalFile,
     linkModel.value.alternateFileName,
     linkModel.value.fileTag
@@ -112,7 +113,7 @@ async function addNewLink() {
     alternateFileName: "",
     fileTag: "",
   };
-  rerenderKey.value = crypto.randomUUID();
+  rerenderKey.value = randomId();
   emit("updatePage");
 }
 </script>
@@ -144,7 +145,7 @@ async function addNewLink() {
         <FileDownload v-bind="props" :key="rerenderKey" />
       </div>
     </VMenu>
-    <div class="flex gap-2">
+    <div class="flex gap-2 mb-2.5">
       <Button icon="UploadFile" size="tiny" @click="showAddFileModal = true">
         <span>Add a new file</span>
       </Button>
