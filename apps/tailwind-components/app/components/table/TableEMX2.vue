@@ -380,6 +380,8 @@
       :schemaId="schemaId"
       :tableId="tableId"
       :filters="filters"
+      :columns="defaultSortedColumns"
+      :visibleColumns="sortedVisibleColumns"
       v-model:downloadHref="downloadHref"
     />
     <template #footer>
@@ -736,9 +738,14 @@ watch(
   { immediate: true }
 );
 
+// all columns in backend order, i.e. what a download without column selection gives
+const defaultSortedColumns = computed(() =>
+  sortColumns([...(columns.value ?? [])])
+);
+
 const sortedColumns = computed(() => {
   // sort from backend
-  let sortedColumns = sortColumns([...(columns.value ?? [])]);
+  let sortedColumns = [...defaultSortedColumns.value];
 
   if (settings.value.orderedColumnsIds?.length) {
     // override visibility with user settings
