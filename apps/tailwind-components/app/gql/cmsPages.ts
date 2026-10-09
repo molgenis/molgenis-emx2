@@ -122,6 +122,11 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         # lists: unordered and ordered
                         orderedItems
                         unorderedItems
+
+                        # custom components
+                        html
+                        css
+                        js
                         
                         # statistical charts
                         chartType {

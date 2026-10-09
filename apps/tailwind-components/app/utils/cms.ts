@@ -23,6 +23,7 @@ import {
   AddColumnChart,
   AddFile,
   AddFileList,
+  AddCustomComponent,
 } from "./cms/add";
 
 import { deleteChartData } from "./cms/delete";
@@ -500,6 +501,10 @@ export async function addComponent(
 
   if (componentType === "ColumnCharts") {
     await AddColumnChart(schema, id);
+  }
+
+  if (componentType === "CustomComponents") {
+    await AddCustomComponent(schema, id);
   }
 
   await AddOrder(schema, id, order, parentBlock);
