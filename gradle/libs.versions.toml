@@ -17,8 +17,7 @@ javers-core = "6.14.0"
 jooq = "3.21.9"
 graalvm-js = "25.4.4.1.1"
 jslt = "0.1.15"
-junit-jupiter = "5.14.4"
-junit-platform-launcher = "6.1.3"
+junit = "6.1.3"
 log4j = "2.26.1"
 javax-mail = "1.4.7"
 mockito-core = "5.24.0"
@@ -66,10 +65,10 @@ graalvm-js = { module = "org.graalvm.js:js", version.ref = "graalvm-js" }
 graalvm-js-language = { module = "org.graalvm.js:js-language", version.ref = "graalvm-js" }
 graalvm-js-scriptengine = { module = "org.graalvm.js:js-scriptengine", version.ref = "graalvm-js" }
 jslt = { module = "com.schibsted.spt.data:jslt", version.ref = "jslt" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
-junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
-junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform-launcher" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
 javax-mail = { module = "javax.mail:mail", version.ref = "javax-mail" }
