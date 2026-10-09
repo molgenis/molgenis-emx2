@@ -30,6 +30,7 @@
     - [Introduction](dev.md)
     - [Principles](dev_principles.md)
     - [Developer Guidelines](dev_guidelines.md)
+    - [System overview](system_overview.md)
     - [Architecture](dev_architecture.md)
     - [How to build](dev_quickstart.md)
     - [Basic concepts](dev_basics.md)
