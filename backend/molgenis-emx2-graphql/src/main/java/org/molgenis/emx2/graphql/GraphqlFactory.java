@@ -119,8 +119,7 @@ public class GraphqlFactory {
     GraphQL graphql =
         GraphQL.newGraphQL(
                 GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-            .mutationExecutionStrategy(
-                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
+            .mutationExecutionStrategy(new GraphqlTransactionalMutationStrategy(schema))
             .build();
 
     if (logger.isInfoEnabled()) {
