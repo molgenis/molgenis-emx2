@@ -57,7 +57,7 @@ const recordSections = computed<RecordSection[]>(() =>
 );
 
 function hasOwnSection(section: RecordSectionGroup): boolean {
-  return !!section.label || section.fields.length > 0;
+  return section.fields.length > 0;
 }
 
 function legendAnchorId(section: RecordSectionGroup): string {

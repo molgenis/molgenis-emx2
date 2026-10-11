@@ -123,6 +123,26 @@ describe("DisplayRecord", () => {
     expect(legendLabels(headingsOnly)).toEqual(["Details", "Care"]);
   });
 
+  test("renders no box for a named section holding nothing but headings, and keeps its legend entry", () => {
+    const headingsOnly = mount(DisplayRecord, {
+      props: {
+        columns: [
+          column("about", "SECTION", "About"),
+          column("size", "HEADING", "Size"),
+          column("weight", "DECIMAL", "Weight"),
+          column("care", "SECTION", "Care"),
+          column("diet", "STRING", "Diet"),
+        ],
+        row: { weight: 15.7, diet: "insects" },
+      },
+    });
+
+    expect(
+      headingsOnly.findAll("section").map((section) => section.attributes("id"))
+    ).toEqual(["size", "care"]);
+    expect(legendLabels(headingsOnly)).toEqual(["About", "Size", "Care"]);
+  });
+
   test("marks the entry of the box now at the top, only that entry, and keeps it when another leaves the band", async () => {
     reportBox("size", true);
     await wrapper.vm.$nextTick();
