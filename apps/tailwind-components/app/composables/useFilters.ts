@@ -22,7 +22,9 @@ import { buildGraphQLFilter } from "../utils/buildGqlFilter";
 import { formatFilterValue } from "../utils/formatFilterValue";
 import {
   computeDefaultFilters,
+  enumValueOptions,
   isCountableType,
+  isEnumColumnType,
   isExcludedColumn,
 } from "../utils/filterUtils";
 import { BOOL_LABELS } from "../utils/filterUtils";
@@ -92,6 +94,7 @@ function buildNestedMeta(labelParts: string[], col: IColumn): NestedColumnMeta {
     columnType: col.columnType,
     refTableId: col.refTableId ?? null,
     refSchemaId: col.refSchemaId ?? null,
+    values: col.values,
   };
 }
 
@@ -233,6 +236,7 @@ export function useFilters(
       refTableId: nested.refTableId ?? undefined,
       refSchemaId: nested.refSchemaId ?? undefined,
       refLabel: nested.refLabel ?? undefined,
+      values: nested.values,
     } as IColumn;
   }
 
@@ -397,7 +401,12 @@ export function useFilters(
     if (!countedOptionsCache.has(columnId))
       countedOptionsCache.set(
         columnId,
-        computed(() => countsMap.value.get(columnId) ?? [])
+        computed(() => {
+          const column = resolveColumn(columnId);
+          return column && isEnumColumnType(column.columnType)
+            ? enumValueOptions(column.values)
+            : countsMap.value.get(columnId) ?? [];
+        })
       );
     return countedOptionsCache.get(columnId)!;
   }
