@@ -148,3 +148,29 @@ describe("value/EMX2.vue", () => {
     }
   });
 });
+
+describe("value/EMX2.vue with enum columns", () => {
+  it("renders an ENUM value as its text", () => {
+    const wrapper = mount(EMX2Value, {
+      props: {
+        metadata: { id: "status", label: "Status", columnType: "ENUM" },
+        data: "open",
+      },
+    });
+
+    expect(wrapper.text()).toEqual("open");
+  });
+
+  it("renders every element of an ENUM_ARRAY value, through the list", () => {
+    const wrapper = mount(EMX2Value, {
+      props: {
+        metadata: { id: "tags", label: "Tags", columnType: "ENUM_ARRAY" },
+        data: ["research", "rare"],
+      },
+    });
+
+    expect(wrapper.findComponent(ValueList).exists()).toBe(true);
+    expect(wrapper.text()).toContain("research");
+    expect(wrapper.text()).toContain("rare");
+  });
+});

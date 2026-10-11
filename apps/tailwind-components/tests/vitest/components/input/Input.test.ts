@@ -37,4 +37,25 @@ describe("input", () => {
     expect(wrapper.html()).toContain("select");
     expect(wrapper.html()).toContain("test-select-radio-group");
   });
+
+  const twentyOne = Array.from({ length: 21 }, (_, i) => `v${i}`);
+  it.each([
+    ["ENUM with 2 values", "ENUM", ["a", "b"], 'input[type="radio"]', 2],
+    ["ENUM with 21 values", "ENUM", twentyOne, '[role="combobox"]', 1],
+    [
+      "ENUM_ARRAY with 3 values",
+      "ENUM_ARRAY",
+      ["a", "b", "c"],
+      'input[type="checkbox"]',
+      3,
+    ],
+  ] as const)(
+    "routes %s to its widget",
+    (_title, type, values, selector, expected) => {
+      const wrapper = mount(Input, {
+        props: { id: "test-enum", type, modelValue: null, values: [...values] },
+      });
+      expect(wrapper.findAll(selector).length).toEqual(expected);
+    }
+  );
 });

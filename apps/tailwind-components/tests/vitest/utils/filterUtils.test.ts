@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
+  enumValueOptions,
   filterValueToTreeSelection,
+  isEnumColumnType,
   treeSelectionToFilterValue,
 } from "../../../app/utils/filterUtils";
 import type { IFilterValue } from "../../../types/filters";
@@ -192,5 +194,28 @@ describe("treeSelectionToFilterValue", () => {
         { name: "Unknown Person" },
       ],
     });
+  });
+});
+
+describe("enum filter options", () => {
+  it("builds one option per allowed value, in order, without counts", () => {
+    expect(enumValueOptions(["yes", "no", "unknown"])).toEqual([
+      { name: "yes", count: 0 },
+      { name: "no", count: 0 },
+      { name: "unknown", count: 0 },
+    ]);
+  });
+
+  it("builds no options for a column without values", () => {
+    expect(enumValueOptions(undefined)).toEqual([]);
+  });
+
+  it.each([
+    ["ENUM", true],
+    ["ENUM_ARRAY", true],
+    ["STRING", false],
+    ["STRING_ARRAY", false],
+  ])("isEnumColumnType(%s) is %s", (columnType, expected) => {
+    expect(isEnumColumnType(columnType)).toBe(expected);
   });
 });

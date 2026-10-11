@@ -36,6 +36,7 @@ export default gql`
           computed
           visible
           validation
+          values
         }
       }
     }
