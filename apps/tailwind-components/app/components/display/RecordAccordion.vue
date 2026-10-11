@@ -10,11 +10,9 @@ const props = withDefaults(
     columns: IColumn[];
     row: IRow;
     titleTemplate?: string;
-    showDetails?: boolean;
     openByDefault?: boolean;
   }>(),
   {
-    showDetails: true,
     openByDefault: false,
   }
 );
@@ -31,9 +29,7 @@ const displayLabel = computed(
 </script>
 
 <template>
-  <span v-if="!showDetails">{{ displayLabel }}</span>
   <Accordion
-    v-else
     :label="displayLabel"
     :open-by-default="openByDefault"
     @click="$emit('expand')"

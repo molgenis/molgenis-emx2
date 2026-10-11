@@ -16,16 +16,6 @@
       <fieldset class="p-4 border-2 mb-2 flex flex-wrap gap-4">
         <legend class="text-title font-bold">RecordAccordion props</legend>
         <div>
-          <label class="text-title font-bold" for="show-details">
-            Details (showDetails):
-          </label>
-          <InputCheckbox
-            id="show-details"
-            v-model="showDetails"
-            name="show-details"
-          />
-        </div>
-        <div>
           <label class="text-title font-bold" for="open-by-default">
             Open by default (openByDefault):
           </label>
@@ -43,7 +33,6 @@
         :columns="metadata.columns"
         :row="formValues"
         :title-template="metadata.rowLabelTemplate"
-        :show-details="showDetails"
         :open-by-default="openByDefault"
       />
     </section>
@@ -72,7 +61,6 @@ const rowIndex = ref<number>(
   route.query.rowIndex ? Number(route.query.rowIndex) : 0
 );
 
-const showDetails = ref(true);
 const openByDefault = ref(false);
 
 watch([schemaId, tableId], ([newSchemaId, newTableId]) => {

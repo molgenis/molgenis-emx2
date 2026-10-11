@@ -66,13 +66,4 @@ describe("RecordAccordion", () => {
     expect(toggle(wrapper).attributes("aria-expanded")).toBe("true");
     expect(wrapper.text()).toContain("insects");
   });
-
-  test("showDetails off renders the label alone, with no accordion", () => {
-    const wrapper = mount(RecordAccordion, {
-      props: { columns, row, showDetails: false },
-    });
-
-    expect(wrapper.text()).toBe("spike");
-    expect(wrapper.findAll("button")).toHaveLength(0);
-  });
 });
