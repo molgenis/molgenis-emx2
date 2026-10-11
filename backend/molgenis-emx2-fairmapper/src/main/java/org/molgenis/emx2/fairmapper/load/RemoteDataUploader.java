@@ -18,9 +18,9 @@ import org.molgenis.emx2.web.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RemoteDataLoader implements DataLoader {
+public class RemoteDataUploader implements DataUploader {
 
-  private static final Logger logger = LoggerFactory.getLogger(RemoteDataLoader.class);
+  private static final Logger logger = LoggerFactory.getLogger(RemoteDataUploader.class);
   private static final MediaType ZIP = MediaType.parse(Constants.ACCEPT_ZIP);
   private static final Duration UPLOAD_TIMEOUT = Duration.ofSeconds(60);
 
@@ -31,14 +31,14 @@ public class RemoteDataLoader implements DataLoader {
   private final URL endpoint;
   private final String token;
 
-  public RemoteDataLoader(String endpoint, String token, String schema) {
+  public RemoteDataUploader(String endpoint, String token, String schema) {
     this.schema = schema;
     this.endpoint = uploadUrl(endpoint, schema);
     this.token = token;
   }
 
   @Override
-  public void load(TableStore tableStore) {
+  public void upload(TableStore tableStore) {
     try {
       // Suppressing because the directory from Files.createTempDirectory is owner-only
       @SuppressWarnings("java:S5443")

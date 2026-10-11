@@ -123,6 +123,7 @@ watch(
 <template>
   <div ref="container" class="grid gap-2.5 w-full chart_layout_default">
     <ChartTitle
+      :id="`${id}-context`"
       :title="title"
       :description="description"
       style="grid-area: context"

@@ -17,9 +17,9 @@ import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.web.ApiTestBase;
 
-class RemoteDataLoaderTest extends ApiTestBase {
+class RemoteDataUploaderTest extends ApiTestBase {
 
-  private static final String SCHEMA_NAME = RemoteDataLoaderTest.class.getSimpleName() + " test";
+  private static final String SCHEMA_NAME = RemoteDataUploaderTest.class.getSimpleName() + " test";
 
   private static String token;
   private static String endpoint;
@@ -39,10 +39,10 @@ class RemoteDataLoaderTest extends ApiTestBase {
   }
 
   @Test
-  void givenSuccessfulResponse_whenLoad_thenUploadsDataToTargetSchema() {
-    RemoteDataLoader loader = new RemoteDataLoader(endpoint, token, SCHEMA_NAME);
+  void givenSuccessfulResponse_whenUpload_thenUploadsDataToTargetSchema() {
+    RemoteDataUploader loader = new RemoteDataUploader(endpoint, token, SCHEMA_NAME);
 
-    loader.load(personTableStore());
+    loader.upload(personTableStore());
 
     List<Row> rows =
         database
@@ -55,12 +55,12 @@ class RemoteDataLoaderTest extends ApiTestBase {
   }
 
   @Test
-  void givenUnsuccessfulResponse_whenLoad_thenThrows() {
-    RemoteDataLoader loader = new RemoteDataLoader(endpoint, token, "non-existent-schema");
+  void givenUnsuccessfulResponse_whenUpload_thenThrows() {
+    RemoteDataUploader loader = new RemoteDataUploader(endpoint, token, "non-existent-schema");
 
     InMemoryTableStore tableStore = personTableStore();
     MolgenisException exception =
-        assertThrows(MolgenisException.class, () -> loader.load(tableStore));
+        assertThrows(MolgenisException.class, () -> loader.upload(tableStore));
     assertEquals(
         """
         Unexpected response: {
@@ -75,24 +75,24 @@ class RemoteDataLoaderTest extends ApiTestBase {
   }
 
   @Test
-  void givenServerUnreachable_whenLoad_thenThrowsWrappingIOException() {
-    RemoteDataLoader loader = new RemoteDataLoader("http://localhost:1", token, SCHEMA_NAME);
+  void givenServerUnreachable_whenUpload_thenThrowsWrappingIOException() {
+    RemoteDataUploader loader = new RemoteDataUploader("http://localhost:1", token, SCHEMA_NAME);
 
     InMemoryTableStore tableStore = personTableStore();
     MolgenisException exception =
-        assertThrows(MolgenisException.class, () -> loader.load(tableStore));
+        assertThrows(MolgenisException.class, () -> loader.upload(tableStore));
     assertTrue(exception.getMessage().startsWith("Something went wrong when uploading zip data"));
     assertNoLeftoverTempDirectories(SCHEMA_NAME);
   }
 
   @Test
-  void givenTableWithNoRows_whenLoad_thenUploadsSuccessfully() {
-    RemoteDataLoader loader = new RemoteDataLoader(endpoint, token, SCHEMA_NAME);
+  void givenTableWithNoRows_whenUpload_thenUploadsSuccessfully() {
+    RemoteDataUploader loader = new RemoteDataUploader(endpoint, token, SCHEMA_NAME);
 
     InMemoryTableStore tableStore = new InMemoryTableStore();
     tableStore.writeTable("EmptyTable", List.of("name"), List.of());
 
-    loader.load(tableStore);
+    loader.upload(tableStore);
 
     List<Row> rows =
         database
@@ -127,28 +127,28 @@ class RemoteDataLoaderTest extends ApiTestBase {
 
     @Test
     void givenEndpointWithoutPath_whenUploadUrl_thenAppendsSchemaAndApiZip() {
-      URL url = RemoteDataLoader.uploadUrl("http://localhost:8080", "mySchema");
+      URL url = RemoteDataUploader.uploadUrl("http://localhost:8080", "mySchema");
 
       assertEquals("http://localhost:8080/mySchema/api/zip", url.toString());
     }
 
     @Test
     void givenEndpointWithTrailingSlash_whenUploadUrl_thenAppendsSchemaAndApiZip() {
-      URL url = RemoteDataLoader.uploadUrl("http://localhost:8080/", "mySchema");
+      URL url = RemoteDataUploader.uploadUrl("http://localhost:8080/", "mySchema");
 
       assertEquals("http://localhost:8080/mySchema/api/zip", url.toString());
     }
 
     @Test
     void givenEndpointWithPathAndTrailingSlash_whenUploadUrl_thenAppendsAfterPath() {
-      URL url = RemoteDataLoader.uploadUrl("http://localhost:8080/emx2/", "mySchema");
+      URL url = RemoteDataUploader.uploadUrl("http://localhost:8080/emx2/", "mySchema");
 
       assertEquals("http://localhost:8080/emx2/mySchema/api/zip", url.toString());
     }
 
     @Test
     void givenEndpointWithPathWithoutTrailingSlash_whenUploadUrl_thenReplacesLastSegment() {
-      URL url = RemoteDataLoader.uploadUrl("http://localhost:8080/emx2", "mySchema");
+      URL url = RemoteDataUploader.uploadUrl("http://localhost:8080/emx2", "mySchema");
 
       assertEquals("http://localhost:8080/emx2/mySchema/api/zip", url.toString());
     }
@@ -157,12 +157,12 @@ class RemoteDataLoaderTest extends ApiTestBase {
     void givenInvalidEndpoint_whenUploadUrl_thenThrowsIllegalArgumentException() {
       assertThrows(
           IllegalArgumentException.class,
-          () -> RemoteDataLoader.uploadUrl("not a valid uri", "mySchema"));
+          () -> RemoteDataUploader.uploadUrl("not a valid uri", "mySchema"));
     }
 
     @Test
     void givenSchemaWithSpaces_whenUploadUrl_thenEncodesSpaces() {
-      URL url = RemoteDataLoader.uploadUrl("http://localhost:8080", "my schema");
+      URL url = RemoteDataUploader.uploadUrl("http://localhost:8080", "my schema");
 
       assertEquals("http://localhost:8080/my%20schema/api/zip", url.toString());
     }
@@ -171,7 +171,7 @@ class RemoteDataLoaderTest extends ApiTestBase {
     void givenEndpointWithUnknownProtocol_whenUploadUrl_thenThrowsIllegalArgumentException() {
       assertThrows(
           IllegalArgumentException.class,
-          () -> RemoteDataLoader.uploadUrl("unknown-protocol://localhost", "mySchema"));
+          () -> RemoteDataUploader.uploadUrl("unknown-protocol://localhost", "mySchema"));
     }
   }
 }

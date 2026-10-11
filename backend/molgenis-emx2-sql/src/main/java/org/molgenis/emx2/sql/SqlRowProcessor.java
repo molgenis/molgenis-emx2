@@ -15,9 +15,11 @@ public class SqlRowProcessor {
 
   private final List<Column> columnsToProcess;
   private final List<Column> columns;
+  private final Database database;
 
-  public SqlRowProcessor(List<Column> columns) {
+  public SqlRowProcessor(Database database, List<Column> columns) {
     this.columns = columns;
+    this.database = database;
     this.columnsToProcess =
         ColumnDependencies.sortByDependencies(
             columns.stream().filter(not(Column::isHeading)).filter(not(Column::isAutoId)).toList());
@@ -30,7 +32,7 @@ public class SqlRowProcessor {
   }
 
   public void validateAndCompute(Row row) throws MolgenisException {
-    Map<String, Object> context = JavascriptContextBuilder.fromRow(columns, row);
+    Map<String, Object> context = JavascriptContextBuilder.fromRow(database, columns, row);
 
     for (Column column : columnsToProcess) {
       if (column.hasDefaultValue() && !row.notEmpty(column.getName())) {
