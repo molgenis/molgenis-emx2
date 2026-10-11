@@ -128,10 +128,10 @@ An enumeration needs no ontology or reference table. The list belongs to the col
 
 The allowed values of an `enum` or `enum_array` column. Write them in one cell, separated by commas. MOLGENIS keeps them in the order you write them, in the forms and in the API.
 
-| tableName | columnName | columnType | values                  |
-|-----------|------------|------------|-------------------------|
-| Pet       | status     | enum       | available,pending,sold  |
-| Pet       | tags       | enum_array | friendly,shy,loud       |
+| tableName | columnName      | columnType | values         |
+|-----------|-----------------|------------|----------------|
+| Types     | enum type       | enum       | yes,no,unknown |
+| Types     | enum array type | enum_array | red,green,blue |
 
 MOLGENIS checks the list when you save the model. It rejects the model, names the column, and saves nothing if:
 
