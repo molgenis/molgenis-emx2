@@ -13,7 +13,7 @@ import org.molgenis.emx2.SchemaMetadata;
 class DetachedSchemaJsonTest {
 
   @Test
-  void detachedSchemaWithUnresolvableKeyRefSerialisesWithoutLabelTemplate() throws IOException {
+  void detachedSchemaWithUnresolvableKeyRefSerialisesWithoutRowLabelTemplate() throws IOException {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(
         table(
@@ -28,6 +28,6 @@ class DetachedSchemaJsonTest {
     String json = JsonUtil.schemaToJson(schema);
 
     assertTrue(json.contains("\"Contacts\""), json);
-    assertFalse(json.contains("labelTemplate"), json);
+    assertFalse(json.contains("rowLabelTemplate"), json);
   }
 }

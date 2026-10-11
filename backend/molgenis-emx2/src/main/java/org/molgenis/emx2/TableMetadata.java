@@ -539,7 +539,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getKey(1);
   }
 
-  public String getLabelTemplate() {
+  public String getRowLabelTemplate() {
     return getPrimaryKeyColumns().stream()
         .flatMap(
             pk ->

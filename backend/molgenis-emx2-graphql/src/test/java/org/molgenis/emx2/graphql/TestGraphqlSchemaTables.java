@@ -35,7 +35,7 @@ class TestGraphqlSchemaTables {
   private static final String LINK_REF_COLUMN = "note";
   private static final String LINK_LABEL_COLUMN = "label";
   private static final String TABLES_QUERY =
-      "{_schema{tables{name,inheritName,inheritSchemaName,inheritId,labelTemplate,columns{name,inherited}}}}";
+      "{_schema{tables{name,inheritName,inheritSchemaName,inheritId,rowLabelTemplate,columns{name,inherited}}}}";
 
   private static GraphqlExecutor graphql;
 
@@ -130,18 +130,18 @@ class TestGraphqlSchemaTables {
   }
 
   @Test
-  void schemaExposesLabelTemplateForSingleColumnKey() throws IOException {
+  void schemaExposesRowLabelTemplateForSingleColumnKey() throws IOException {
     JsonNode note = tableByName(execute(TABLES_QUERY), NON_INHERITING_TABLE);
     assertEquals(
-        "${" + NON_INHERITING_COLUMN + "}", note.get("labelTemplate").asText(), note.toString());
+        "${" + NON_INHERITING_COLUMN + "}", note.get("rowLabelTemplate").asText(), note.toString());
   }
 
   @Test
-  void schemaExposesLabelTemplateForCompositeKeyWithReference() throws IOException {
+  void schemaExposesRowLabelTemplateForCompositeKeyWithReference() throws IOException {
     JsonNode link = tableByName(execute(TABLES_QUERY), LINK_TABLE);
     assertEquals(
         "${" + LINK_REF_COLUMN + "." + NON_INHERITING_COLUMN + "} ${" + LINK_LABEL_COLUMN + "}",
-        link.get("labelTemplate").asText(),
+        link.get("rowLabelTemplate").asText(),
         link.toString());
   }
 

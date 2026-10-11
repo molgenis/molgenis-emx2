@@ -172,7 +172,7 @@ function fetchCascadeDeleteMessage() {
         <RecordAccordion
           :columns="visibleMetadataColumns"
           :row="formValues"
-          :title-template="metadata.labelTemplate"
+          :title-template="metadata.rowLabelTemplate"
         />
 
         <div class="text-title-contrast-pop py-8" v-if="cascadeDeleteMsg">

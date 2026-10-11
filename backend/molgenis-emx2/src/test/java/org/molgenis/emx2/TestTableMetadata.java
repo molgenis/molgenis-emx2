@@ -192,15 +192,15 @@ class TestTableMetadata {
   }
 
   @Test
-  void labelTemplateForSingleColumnKey() {
+  void rowLabelTemplateForSingleColumnKey() {
     SchemaMetadata schema = new SchemaMetadata("Schema");
     schema.create(table("Resources", column("id").setType(ColumnType.STRING).setKey(1)));
 
-    assertEquals("${id}", schema.getTableMetadata("Resources").getLabelTemplate());
+    assertEquals("${id}", schema.getTableMetadata("Resources").getRowLabelTemplate());
   }
 
   @Test
-  void labelTemplateForCompositeKeyIncludingReference() {
+  void rowLabelTemplateForCompositeKeyIncludingReference() {
     SchemaMetadata schema = new SchemaMetadata("Schema");
     schema.create(table("Resources", column("id").setType(ColumnType.STRING).setKey(1)));
     schema.create(
@@ -209,11 +209,12 @@ class TestTableMetadata {
             column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1),
             column("name").setType(ColumnType.STRING).setKey(1)));
 
-    assertEquals("${resource.id} ${name}", schema.getTableMetadata("Contacts").getLabelTemplate());
+    assertEquals(
+        "${resource.id} ${name}", schema.getTableMetadata("Contacts").getRowLabelTemplate());
   }
 
   @Test
-  void labelTemplateForKeyReferenceInSchemaWithoutName() {
+  void rowLabelTemplateForKeyReferenceInSchemaWithoutName() {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(table("Resources", column("id").setType(ColumnType.STRING).setKey(1)));
     schema.create(
@@ -222,11 +223,12 @@ class TestTableMetadata {
             column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1),
             column("name").setType(ColumnType.STRING).setKey(1)));
 
-    assertEquals("${resource.id} ${name}", schema.getTableMetadata("Contacts").getLabelTemplate());
+    assertEquals(
+        "${resource.id} ${name}", schema.getTableMetadata("Contacts").getRowLabelTemplate());
   }
 
   @Test
-  void labelTemplateForKeyReferenceThatCannotBeResolvedThrows() {
+  void rowLabelTemplateForKeyReferenceThatCannotBeResolvedThrows() {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(
         table(
@@ -240,15 +242,15 @@ class TestTableMetadata {
 
     TableMetadata contacts = schema.getTableMetadata("Contacts");
 
-    assertThrows(MolgenisException.class, contacts::getLabelTemplate);
+    assertThrows(MolgenisException.class, contacts::getRowLabelTemplate);
   }
 
   @Test
-  void labelTemplateForTableWithoutPrimaryKeyIsEmpty() {
+  void rowLabelTemplateForTableWithoutPrimaryKeyIsEmpty() {
     SchemaMetadata schema = new SchemaMetadata("Schema");
     schema.create(table("Notes", column("text")));
 
-    assertEquals("", schema.getTableMetadata("Notes").getLabelTemplate());
+    assertEquals("", schema.getTableMetadata("Notes").getRowLabelTemplate());
   }
 
   @Test

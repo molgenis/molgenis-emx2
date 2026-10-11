@@ -209,7 +209,7 @@ const recordColumns = computed<IColumn[]>(() =>
     <DisplayRecord
       :columns="recordColumns"
       :row="recordRow"
-      :titleTemplate="recordTable.labelTemplate"
+      :titleTemplate="recordTable.rowLabelTemplate"
       :showLegend="true"
       @valueClick="handleCellClick($event)"
     />

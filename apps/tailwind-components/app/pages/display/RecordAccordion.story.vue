@@ -42,7 +42,7 @@
         :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
         :columns="metadata.columns"
         :row="formValues"
-        :title-template="metadata.labelTemplate"
+        :title-template="metadata.rowLabelTemplate"
         :show-details="showDetails"
         :open-by-default="openByDefault"
       />
