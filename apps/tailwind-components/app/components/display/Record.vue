@@ -14,7 +14,7 @@ import type {
 import { groupRecordSections } from "../../utils/groupRecordSections";
 import { recordTitle } from "../../utils/recordTitle";
 import FormLegend from "../form/Legend.vue";
-import RecordPageLayout from "./RecordPageLayout.vue";
+import SidebarLayout from "./SidebarLayout.vue";
 import DisplayRecordSection from "./RecordSection.vue";
 
 const props = withDefaults(
@@ -132,7 +132,7 @@ const title = computed(() =>
 </script>
 
 <template>
-  <RecordPageLayout :show-legend="hasLegend">
+  <SidebarLayout :show-legend="hasLegend">
     <template v-if="$slots.header" #header>
       <slot name="header" />
     </template>
@@ -173,5 +173,5 @@ const title = computed(() =>
         </DisplayRecordSection>
       </div>
     </template>
-  </RecordPageLayout>
+  </SidebarLayout>
 </template>
