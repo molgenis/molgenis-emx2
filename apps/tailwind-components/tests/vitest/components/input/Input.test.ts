@@ -58,4 +58,11 @@ describe("input", () => {
       expect(wrapper.findAll(selector).length).toEqual(expected);
     }
   );
+
+  it("still renders the enum input when the column has no values", () => {
+    const wrapper = mount(Input, {
+      props: { id: "test-enum", type: "ENUM", modelValue: null },
+    });
+    expect(wrapper.find("#test-enum-radio-group").exists()).toBe(true);
+  });
 });

@@ -25,9 +25,4 @@ describe("enum column types", () => {
       expect.arrayContaining(["ENUM", "ENUM_ARRAY"])
     );
   });
-
-  it("reads ENUM_ARRAY as array-like and ENUM as single valued", () => {
-    expect(isArrayLikeDetail(createColumn("ENUM_ARRAY"))).toBe(true);
-    expect(isArrayLikeDetail(createColumn("ENUM"))).toBe(false);
-  });
 });

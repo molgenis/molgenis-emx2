@@ -297,11 +297,11 @@
     @blur="emit('blur')"
   />
   <InputEnum
-    v-else-if="['ENUM', 'ENUM_ARRAY'].includes(typeUpperCase) && values"
+    v-else-if="['ENUM', 'ENUM_ARRAY'].includes(typeUpperCase)"
     :id="id"
     :isArray="typeUpperCase === 'ENUM_ARRAY'"
     v-model="modelValue as string | string[] | null | undefined"
-    :values="values"
+    :values="values ?? []"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"

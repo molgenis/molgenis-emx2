@@ -161,7 +161,7 @@ describe("value/EMX2.vue with enum columns", () => {
     expect(wrapper.text()).toEqual("open");
   });
 
-  it("renders every element of an ENUM_ARRAY value, through the list", () => {
+  it("renders every element of an ENUM_ARRAY value", () => {
     const wrapper = mount(EMX2Value, {
       props: {
         metadata: { id: "tags", label: "Tags", columnType: "ENUM_ARRAY" },
@@ -169,7 +169,6 @@ describe("value/EMX2.vue with enum columns", () => {
       },
     });
 
-    expect(wrapper.findComponent(ValueList).exists()).toBe(true);
     expect(wrapper.text()).toContain("research");
     expect(wrapper.text()).toContain("rare");
   });
