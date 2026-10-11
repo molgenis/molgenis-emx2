@@ -40,7 +40,7 @@ public class Table {
     this.schemaId = tableMetadata.getSchemaName();
     this.name = tableMetadata.getTableName();
     this.label = tableMetadata.getLabel();
-    if (tableMetadata.getSchema().getDatabase() != null) {
+    if (tableMetadata.getSchema().getSchemaMetadataProvider() != null) {
       this.labelTemplate = tableMetadata.getLabelTemplate();
     }
     this.description = tableMetadata.getDescription();
