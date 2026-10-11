@@ -210,7 +210,7 @@ describe("DisplayRecord", () => {
       props: {
         columns: twoSections,
         row: twoSectionsRow,
-        showLegend: false,
+        showTableOfContents: false,
       },
     });
     await nextTick();
@@ -226,13 +226,13 @@ describe("DisplayRecord", () => {
       props: {
         columns: twoSections,
         row: twoSectionsRow,
-        showLegend: false,
+        showTableOfContents: false,
       },
     });
     await nextTick();
     expect(FakeIntersectionObserver.instances).toEqual([]);
 
-    await latecomer.setProps({ showLegend: true });
+    await latecomer.setProps({ showTableOfContents: true });
     await nextTick();
 
     expect(

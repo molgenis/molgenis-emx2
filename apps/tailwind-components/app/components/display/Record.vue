@@ -21,12 +21,12 @@ const props = withDefaults(
   defineProps<{
     columns: IColumn[];
     row: IRow;
-    showLegend?: boolean;
+    showTableOfContents?: boolean;
     layout?: RecordLayout;
     titleTemplate?: string;
   }>(),
   {
-    showLegend: true,
+    showTableOfContents: true,
     layout: "CARDS",
   }
 );
@@ -66,8 +66,8 @@ function legendAnchorId(section: RecordSectionGroup): string {
     : section.headings[0]?.id ?? section.id;
 }
 
-const hasLegend = computed(
-  () => props.showLegend && recordSections.value.length > 1
+const hasTableOfContents = computed(
+  () => props.showTableOfContents && recordSections.value.length > 1
 );
 
 const reportedSectionId = ref<string | null>(null);
@@ -132,12 +132,12 @@ const title = computed(() =>
 </script>
 
 <template>
-  <SidebarLayout :show-legend="hasLegend">
+  <SidebarLayout :show-sidebar="hasTableOfContents">
     <template v-if="$slots.header" #header>
       <slot name="header" />
     </template>
 
-    <template v-if="hasLegend" #sidebar>
+    <template v-if="hasTableOfContents" #sidebar>
       <FormLegend
         :sections="legendGroups"
         class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
@@ -163,7 +163,7 @@ const title = computed(() =>
           :key="recordSection.id"
           :section="recordSection"
           :layout="layout"
-          :trackInView="hasLegend"
+          :trackInView="hasTableOfContents"
           @valueClick="$emit('valueClick', $event)"
           @inView="reportedSectionId = recordSection.id"
         >

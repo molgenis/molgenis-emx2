@@ -19,13 +19,13 @@
       <fieldset class="p-4 border-2 mb-2 flex flex-wrap gap-4">
         <legend class="text-title font-bold">Record props</legend>
         <div>
-          <label class="text-title font-bold" for="show-legend">
-            Legend (showLegend):
+          <label class="text-title font-bold" for="show-table-of-contents">
+            Table of contents (showTableOfContents):
           </label>
           <InputCheckbox
-            id="show-legend"
-            v-model="showLegend"
-            name="show-legend"
+            id="show-table-of-contents"
+            v-model="showTableOfContents"
+            name="show-table-of-contents"
           />
         </div>
         <div>
@@ -79,7 +79,7 @@
         :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
         :columns="storyColumns"
         :row="formValues"
-        :showLegend="showLegend"
+        :showTableOfContents="showTableOfContents"
         :layout="useCardLayout ? 'CARDS' : 'PLAIN'"
         :titleTemplate="titleTemplate || undefined"
       />
@@ -110,7 +110,7 @@ const rowIndex = ref<number>(
   route.query.rowIndex ? Number(route.query.rowIndex) : 0
 );
 
-const showLegend = ref(true);
+const showTableOfContents = ref(true);
 const useCardLayout = ref(true);
 const showMgColumns = ref(false);
 const filterTerm = ref("");

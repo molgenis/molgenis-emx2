@@ -210,7 +210,7 @@ const recordColumns = computed<IColumn[]>(() =>
       :columns="recordColumns"
       :row="recordRow"
       :titleTemplate="recordTable.rowLabelTemplate"
-      :showLegend="true"
+      :showTableOfContents="true"
       @valueClick="handleCellClick($event)"
     />
   </Container>

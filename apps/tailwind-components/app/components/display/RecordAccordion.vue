@@ -42,7 +42,7 @@ const displayLabel = computed(
       <slot name="toolbar" />
     </template>
     <div @click="$event.stopPropagation()">
-      <Record :columns="columns" :row="row" :show-legend="false" />
+      <Record :columns="columns" :row="row" :show-table-of-contents="false" />
     </div>
   </Accordion>
 </template>

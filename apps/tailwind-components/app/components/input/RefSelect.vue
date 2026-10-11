@@ -499,7 +499,7 @@ watch(
                   v-if="tableMetadata"
                   :columns="optionColumns"
                   :row="(option as recordValue)"
-                  :show-legend="false"
+                  :show-table-of-contents="false"
                   layout="PLAIN"
                 />
               </InputRefSelectInputOption>
