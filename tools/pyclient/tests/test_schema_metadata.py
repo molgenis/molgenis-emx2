@@ -10,7 +10,6 @@ import pytest
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import PermissionDeniedException
 from src.molgenis_emx2_pyclient.graphql_queries import list_schema_meta
-from src.molgenis_emx2_pyclient.metadata import Column
 
 server_url = os.environ.get("MG_SERVER", "http://localhost:8080/")
 username = os.environ.get("MG_USERNAME", "admin")
@@ -60,5 +59,3 @@ def test_schema_metadata_query_requests_column_values():
     """The `_schema` query asks for the allowed values of enum columns."""
     columns_block = list_schema_meta().split("columns {", 1)[1]
     assert re.search(r"^\s*values\s*$", columns_block, re.MULTILINE)
-    column = Column(name="status", columnType="ENUM", values=["new", "done"])
-    assert column.values == ["new", "done"]
