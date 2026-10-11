@@ -1,4 +1,5 @@
 import type { IColumn } from "metadata-utils";
+import { getColumnTypesWithEditableValues } from "metadata-utils";
 
 export interface EditorColumn extends Omit<Partial<IColumn>, "table"> {
   table: string;
@@ -82,6 +83,9 @@ export function toSaveTables(schema: EditorSchema): EditorTable[] {
     });
   });
   tables.forEach((table) => {
+    (table.columns || []).forEach(cleanValues);
+  });
+  tables.forEach((table) => {
     table.columns = (table.columns || []).filter(
       (column) => column.table === table.name
     );
@@ -96,6 +100,16 @@ function removeComputedFields(table: EditorTable): EditorTable {
     return col;
   });
   return table;
+}
+
+function cleanValues(column: EditorColumn): void {
+  if (!getColumnTypesWithEditableValues().includes(column.columnType ?? "")) {
+    delete column.values;
+  } else if (column.values) {
+    column.values = column.values
+      .map((value) => (value ?? "").trim())
+      .filter((value) => value !== "");
+  }
 }
 
 function withSubclasses(rootTable: EditorTable): EditorTable[] {

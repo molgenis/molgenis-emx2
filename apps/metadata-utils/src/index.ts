@@ -30,3 +30,8 @@ export {
   isMultiValuedType,
   isValueType,
 } from "./fieldHelpers";
+
+export {
+  getSelectableColumnTypes,
+  getColumnTypesWithEditableValues,
+} from "./columnTypeHelpers";

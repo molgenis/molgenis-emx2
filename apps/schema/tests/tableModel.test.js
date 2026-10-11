@@ -211,3 +211,39 @@ test("the save payload sends subclasses as tables of their own", async () => {
   );
   assert.strictEqual(payload[0].subclasses, undefined);
 });
+
+function saveColumns(columns) {
+  return {
+    name: "s",
+    tables: [{ name: "T", oldName: "T", columns }],
+  };
+}
+
+test("values of an enum column are trimmed and blanks dropped on save", async () => {
+  const { toSaveTables } = await import(moduleUrl);
+  const [table] = toSaveTables(
+    saveColumns([
+      {
+        name: "a",
+        table: "T",
+        columnType: "ENUM",
+        values: [" x ", "", null, "  ", "y"],
+      },
+      { name: "b", table: "T", columnType: "ENUM_ARRAY", values: ["z"] },
+    ])
+  );
+  assert.deepStrictEqual(table.columns[0].values, ["x", "y"]);
+  assert.deepStrictEqual(table.columns[1].values, ["z"]);
+});
+
+test("a column changed away from enum does not save its values", async () => {
+  const { toSaveTables } = await import(moduleUrl);
+  const [table] = toSaveTables(
+    saveColumns([
+      { name: "a", table: "T", columnType: "STRING", values: ["x", "y"] },
+      { name: "b", table: "T", columnType: "INT", values: null },
+    ])
+  );
+  assert.ok(!("values" in table.columns[0]));
+  assert.ok(!("values" in table.columns[1]));
+});
