@@ -52,9 +52,13 @@ class Publisher:
 
     async def publish(self, state: PublishingState):
         """
-        Copies staging data to the combined tables. This happens in two phases:
+        Copies staging data to the combined tables. This happens in three phases:
         1. New/existing rows are upserted in the Directory tables
-        2. Removed rows are deleted from the Directory tables
+        2. Removed rows are deleted from non-persistent Directory tables
+        3. Removed rows are set to 'withdrawn' for persistent Directory tables
+
+        For certain tables (Biobanks, Collections, Networks), data is never deleted from
+        the main schema, but rather the withdrawn attribute is set to 'True'
         """
         self.printer.print("💾 Saving new and updated data to Directory tables")
         with self.printer.indentation():
