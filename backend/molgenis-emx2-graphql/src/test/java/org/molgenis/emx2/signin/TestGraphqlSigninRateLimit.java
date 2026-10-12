@@ -78,7 +78,6 @@ class TestGraphqlSigninRateLimit {
       database.removeUser(BLOCKED_COUNT_USER);
     }
 
-    // other tests in this JVM also count sign-ins, so compare against the value before
     signin(BLOCKED_COUNT_USER, "wrong");
     double before = blockedCount();
     assertTrue(signin(BLOCKED_COUNT_USER, "wrong").contains("too many attempts"));
@@ -86,7 +85,6 @@ class TestGraphqlSigninRateLimit {
   }
 
   private double blockedCount() {
-    // counter names are stored without the _total suffix
     CounterSnapshot snapshot =
         (CounterSnapshot)
             PrometheusRegistry.defaultRegistry.scrape().stream()
