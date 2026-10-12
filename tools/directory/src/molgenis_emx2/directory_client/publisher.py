@@ -157,9 +157,12 @@ class Publisher:
             production_ids = set(existing_table.rows_by_id.keys())
             deleted_ids = production_ids.difference(staging_ids)
             # FIXME Ideally use CSV Update method, but do it ugly for now
-            data_to_withdraw = self.session.get(schema=self.session.directory_schema, table=staging_table.full_name, as_df=True)
-            data_to_withdraw = data_to_withdraw.loc[data_to_withdraw['id'].isin(deleted_ids)]
-            data_to_withdraw['withdrawn'] = True
+            data_to_withdraw = []
+            for deleted_id in deleted_ids:
+                row_to_withdraw = self.session.get(schema=self.session.directory_schema, table=staging_table.full_name, query_filter=f'id == {deleted_id}')[0]
+                row_to_withdraw['withdrawn'] = True
+                data_to_withdraw.append(row_to_withdraw)
+            # TODO: show warning for every id that we prevented deletion of and/or show warnings at the node (staging) level
             try:
                 self.session.save_table(
                     schema=self.session.directory_schema, table = staging_table.full_name, data=data_to_withdraw
