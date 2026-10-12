@@ -7,7 +7,13 @@ describe("Legend", () => {
     const wrapper = mount(Legend, {
       props: {
         sections: [
-          { id: "about", label: "About", isVisible: true, headers: [] },
+          {
+            id: "about",
+            label: "About",
+            type: "SECTION" as const,
+            isVisible: true,
+            headers: [],
+          },
         ],
       },
     });
@@ -23,8 +29,13 @@ describe("Legend", () => {
     const wrapper = mount(Legend, {
       props: {
         sections: [
-          { id: "about", label: "About", headers: [] },
-          { id: "care", label: "Care", headers: [] },
+          {
+            id: "about",
+            label: "About",
+            type: "SECTION" as const,
+            headers: [],
+          },
+          { id: "care", label: "Care", type: "SECTION" as const, headers: [] },
         ],
       },
     });
@@ -38,8 +49,20 @@ describe("Legend", () => {
     const wrapper = mount(Legend, {
       props: {
         sections: [
-          { id: "about", label: "About", errorCount: 2, headers: [] },
-          { id: "care", label: "Care", errorCount: 0, headers: [] },
+          {
+            id: "about",
+            label: "About",
+            type: "SECTION" as const,
+            errorCount: 2,
+            headers: [],
+          },
+          {
+            id: "care",
+            label: "Care",
+            type: "SECTION" as const,
+            errorCount: 0,
+            headers: [],
+          },
         ],
       },
     });
@@ -57,8 +80,9 @@ describe("Legend", () => {
         sections: [
           {
             id: "about",
+            type: "SECTION" as const,
             label: "About",
-            headers: [{ id: "size", label: "Size" }],
+            headers: [{ id: "size", label: "Size", type: "HEADING" as const }],
           },
         ],
       },
@@ -76,8 +100,16 @@ describe("Legend", () => {
         sections: [
           {
             id: "about",
+            type: "SECTION" as const,
             label: "About",
-            headers: [{ id: "size", label: "Size", isVisible: false }],
+            headers: [
+              {
+                id: "size",
+                label: "Size",
+                type: "HEADING" as const,
+                isVisible: false,
+              },
+            ],
           },
         ],
       },
@@ -95,7 +127,14 @@ describe("Legend", () => {
           <Legend :sections="sections" />
         </div>`,
         data: () => ({
-          sections: [{ id: "about", label: "About", headers: [] }],
+          sections: [
+            {
+              id: "about",
+              label: "About",
+              type: "SECTION" as const,
+              headers: [],
+            },
+          ],
         }),
       },
       { global: { components: { Legend } } }
@@ -108,7 +147,9 @@ describe("Legend", () => {
   });
 
   test("renders a title above the entry list, and nothing at all without one", () => {
-    const sections = [{ id: "about", label: "About", headers: [] }];
+    const sections = [
+      { id: "about", label: "About", type: "SECTION" as const, headers: [] },
+    ];
 
     const titled = mount(Legend, {
       props: { sections },
@@ -131,9 +172,17 @@ describe("Legend", () => {
         sections: [
           {
             id: "about",
+            type: "SECTION" as const,
             label: "About",
             isVisible: true,
-            headers: [{ id: "size", label: "Size", isVisible: true }],
+            headers: [
+              {
+                id: "size",
+                label: "Size",
+                type: "HEADING" as const,
+                isVisible: true,
+              },
+            ],
           },
         ],
       },

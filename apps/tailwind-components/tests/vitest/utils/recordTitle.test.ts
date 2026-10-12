@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { IColumn } from "../../../metadata-utils/src/types";
+import type { IColumn } from "../../../../metadata-utils/src/types";
 import { recordTitle } from "../../../app/utils/recordTitle";
 
 describe("recordTitle", () => {
