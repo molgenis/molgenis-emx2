@@ -68,6 +68,10 @@ class Publisher:
         with self.printer.indentation():
             self._delete_data(state)
 
+        self.printer.print("↩️ Withdrawing removed data in Directory tables")
+        with self.printer.indentation():
+            await self._withdraw_data(state)
+
     async def _upsert_data(self, state):
         try:
             await self.session.upload_data(
@@ -78,6 +82,9 @@ class Publisher:
 
     def _delete_data(self, state):
         for table in reversed(state.data_to_publish.import_order):
+            # Check whether deletion is allowed or 'withdrawn' should be used
+            if 'withdrawn' in table.meta.attributes:
+                continue
             try:
                 with self.printer.indentation():
                     self._delete_rows(
@@ -105,7 +112,7 @@ class Publisher:
         # Remove ids that we are not allowed to delete
         undeletable_ids = state.quality_info.get_qualities(table.type).keys()
         deletable_ids = deleted_ids.difference(undeletable_ids)
-
+        #FIXME: double check this <- currently this never happens
         # For deleted biobanks, update the handle
         if table.type == TableType.BIOBANKS:
             self.pid_manager.terminate_biobanks(
@@ -138,3 +145,24 @@ class Publisher:
 
                     code = existing_table.rows_by_id[id_]["national_node"]
                     state.report.add_node_warnings(Node.of(code), [warning])
+
+    async def _withdraw_data(self, state):
+        data_to_withdraw = []
+        for staging_table in reversed(state.data_to_publish.import_order):
+            if 'withdrawn' not in staging_table.meta.attributes:
+                continue
+            existing_table = state.existing_data.table_by_type[staging_table.type]
+            # Compare the ids from staging and production to see what was deleted
+            staging_ids = staging_table.rows_by_id.keys()
+            production_ids = set(existing_table.rows_by_id.keys())
+            deleted_ids = production_ids.difference(staging_ids)
+            # FIXME Ideally use CSV Update method, but do it ugly for now
+            data_to_withdraw = self.session.get(schema=self.session.directory_schema, table=staging_table.full_name, as_df=True)
+            data_to_withdraw = data_to_withdraw.loc[data_to_withdraw['id'].isin(deleted_ids)]
+            data_to_withdraw['withdrawn'] = True
+            try:
+                self.session.save_table(
+                    schema=self.session.directory_schema, table = staging_table.full_name, data=data_to_withdraw
+                )
+            except MolgenisRequestError as e:
+                raise DirectoryError("Error importing data to combined tables") from e
