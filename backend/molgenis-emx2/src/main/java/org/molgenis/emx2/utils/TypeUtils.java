@@ -541,8 +541,10 @@ public class TypeUtils {
       BinaryFileWrapper bfw = (BinaryFileWrapper) object;
       if (bfw == null || !bfw.isSkip()) {
         // also necessary in case of 'null' to ensure all file metadata fields are made empty
-        // skip is used when use submitted only metadata (that they received in query)
-        row.setBinary(column.getName(), (BinaryFileWrapper) object);
+        row.setBinary(column.getName(), bfw);
+      } else {
+        // skip is used when user submitted only metadata (that they received in query)
+        row.keepFile(column.getName());
       }
     } else {
       row.set(column.getName(), object);
