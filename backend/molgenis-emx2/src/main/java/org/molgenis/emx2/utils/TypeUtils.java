@@ -517,6 +517,10 @@ public class TypeUtils {
       TableMetadata metadata, List<Map<String, Object>> map, boolean primaryKeyOnly) {
     List<Row> rows = new ArrayList<>();
     for (Map<String, Object> field : map) {
+      if (field == null) {
+        throw new MolgenisException(
+            "Row %d of table %s is null".formatted(rows.size() + 1, metadata.getTableName()));
+      }
       Row row = new Row();
       List<Column> columns =
           primaryKeyOnly
