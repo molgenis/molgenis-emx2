@@ -451,6 +451,26 @@ describe("DisplayRecord", () => {
     ).toBe("spike, a good dog");
   });
 
+  test("wraps a legend title that has no spaces, so a long key stays inside the legend", () => {
+    const row = { name: "bbmri-eric:ID:DE_biobank1:collection:coll1" };
+
+    expect(
+      mount(DisplayRecord, {
+        props: {
+          columns: [
+            { ...column("name", "STRING", "Name"), key: 1 },
+            column("details", "HEADING", "Details"),
+            column("weight", "DECIMAL", "Weight"),
+          ],
+          row: { ...row, weight: 15.7 },
+        },
+      })
+        .get("nav")
+        .get("h2")
+        .classes()
+    ).toContain("break-words");
+  });
+
   test("reveals the legend at the same width the layout gives it a column, so it never stacks", () => {
     const revealAt = wrapper
       .get("nav")

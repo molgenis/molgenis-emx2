@@ -3,10 +3,12 @@ import { computed, ref } from "vue";
 import type {
   IColumn,
   IRow,
+  LegendHeading,
   LegendSection,
 } from "../../../../metadata-utils/src/types";
 import type { cellPayload } from "../../../types/types";
 import type {
+  RecordHeading,
   RecordLayout,
   RecordSection,
   RecordSectionGroup,
@@ -80,44 +82,52 @@ const activeSectionId = computed(() => {
   return reported ?? recordSections.value[0]?.id ?? null;
 });
 
-const legendGroups = computed<LegendSection[]>(() =>
-  sections.value.length === 1
-    ? recordSections.value
-        .filter((recordSection) => recordSection.label)
-        .map((recordSection) => ({
-          id: recordSection.id,
-          label: recordSection.label as string,
-          type: "SECTION" as const,
-          headers: [],
-          isVisible: true,
-          isActive: recordSection.id === activeSectionId.value,
-        }))
-    : sections.value.flatMap((section): LegendSection[] => {
-        const headers = section.headings.map((heading) => ({
-          id: heading.id,
-          label: heading.label,
-          type: "HEADING" as const,
-          isVisible: true,
-          isActive: heading.id === activeSectionId.value,
-        }));
-        return section.label
-          ? [
-              {
-                id: section.id,
-                label: section.label,
-                type: "SECTION" as const,
-                isVisible: true,
-                isActive: section.id === activeSectionId.value,
-                headers,
-              },
-            ]
-          : headers.map((heading) => ({
-              ...heading,
-              type: "SECTION" as const,
-              headers: [],
-            }));
-      })
-);
+const legendGroups = computed<LegendSection[]>(() => {
+  if (sections.value.length === 1) {
+    return recordSections.value
+      .filter((recordSection) => recordSection.label)
+      .map((recordSection) =>
+        legendSection(recordSection.id, recordSection.label as string)
+      );
+  }
+  return sections.value.flatMap((section) => {
+    if (section.label) {
+      return [
+        legendSection(
+          section.id,
+          section.label,
+          section.headings.map(legendHeading)
+        ),
+      ];
+    }
+    return section.headings.map((heading) =>
+      legendSection(heading.id, heading.label)
+    );
+  });
+});
+
+function legendSection(
+  id: string,
+  label: string,
+  headers: LegendHeading[] = []
+): LegendSection {
+  return {
+    id,
+    label,
+    type: "SECTION",
+    headers,
+    isActive: id === activeSectionId.value,
+  };
+}
+
+function legendHeading(heading: RecordHeading): LegendHeading {
+  return {
+    id: heading.id,
+    label: heading.label,
+    type: "HEADING",
+    isActive: heading.id === activeSectionId.value,
+  };
+}
 
 function goToSection(id: string): void {
   const group = sections.value.find((section) => section.id === id);
@@ -145,7 +155,7 @@ const title = computed(() =>
       >
         <template v-if="title" #title>
           <h2
-            class="pl-7 mb-6 text-heading-4xl font-display text-title-contrast"
+            class="pl-7 mb-6 break-words text-heading-4xl font-display text-title-contrast"
           >
             {{ title }}
           </h2>
