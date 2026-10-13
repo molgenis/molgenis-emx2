@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.web.Constants.*;
 
 import io.swagger.v3.oas.models.*;
@@ -22,6 +21,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
+import org.molgenis.emx2.graphql.GraphqlTableFragmentGenerator;
 
 public class OpenApiYamlGenerator {
 
@@ -223,11 +223,7 @@ public class OpenApiYamlGenerator {
 
   private static Schema<?> rowSchema(TableMetadata table) {
     Schema<?> row = new ObjectSchema();
-    for (Column column : table.getColumnsWithoutHeadings()) {
-      if (column.isRefback()
-          || column.isSystemColumn() && !MG_TABLECLASS.equals(column.getName())) {
-        continue;
-      }
+    for (Column column : GraphqlTableFragmentGenerator.rowColumns(table)) {
       row.addProperties(column.getIdentifier(), columnSchema(column.getColumnType()));
     }
     return row;

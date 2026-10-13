@@ -1,23 +1,35 @@
 package org.molgenis.emx2.graphql;
 
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
+
 import graphql.language.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.PermissionEvaluator;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.TableMetadata;
 
 public class GraphqlTableFragmentGenerator {
   private final Schema schema;
+  private final boolean rowShape;
 
-  private GraphqlTableFragmentGenerator(Schema schema) {
+  private GraphqlTableFragmentGenerator(Schema schema, boolean rowShape) {
     this.schema = schema;
+    this.rowShape = rowShape;
+  }
+
+  public static String rowSelection(Schema schema, TableMetadata table) {
+    GraphqlTableFragmentGenerator generator = new GraphqlTableFragmentGenerator(schema, true);
+    return AstPrinter.printAstCompact(
+        generator.buildFragment(table, 1, 1, table.getIdentifier()).getSelectionSet());
   }
 
   public static Map<String, String> generate(Schema schema) {
-    GraphqlTableFragmentGenerator generator = new GraphqlTableFragmentGenerator(schema);
+    GraphqlTableFragmentGenerator generator = new GraphqlTableFragmentGenerator(schema, false);
     Map<String, String> fragments = new LinkedHashMap<>();
     for (TableMetadata table : schema.getMetadata().getTables()) {
       for (int depth = 1; depth <= 3; depth++) {
@@ -44,6 +56,9 @@ public class GraphqlTableFragmentGenerator {
       TableMetadata table, int depth, int maxDepth, String fragmentName) {
     String nestedFragmentName = depth == 0 ? table.getIdentifier() + "KeyFields" : fragmentName;
     List<Column> columns = depth == 0 ? table.getPrimaryKeyColumns() : table.getStoredColumns();
+    if (rowShape) {
+      columns = rowColumns(table, depth);
+    }
 
     String typeName = getTableTypeName(table);
     List<Selection<?>> selections = new ArrayList<>();
@@ -56,6 +71,9 @@ public class GraphqlTableFragmentGenerator {
             file.add(Field.newField("id").build());
             file.add(Field.newField("filename").build());
             file.add(Field.newField("extension").build());
+            if (rowShape) {
+              file.add(Field.newField("url").build());
+            }
             selections.add(
                 Field.newField(column.getIdentifier())
                     .selectionSet(SelectionSet.newSelectionSet(file).build())
@@ -81,6 +99,30 @@ public class GraphqlTableFragmentGenerator {
         .typeCondition(TypeName.newTypeName(typeName).build())
         .selectionSet(selectionSet)
         .build();
+  }
+
+  public static List<Column> rowColumns(TableMetadata table) {
+    return table.getColumnsIncludingSubclasses().stream()
+        .filter(
+            column ->
+                !column.isHeading()
+                    && !column.isRefback()
+                    && (!column.isSystemColumn() || MG_TABLECLASS.equals(column.getName())))
+        .collect(
+            Collectors.toMap(
+                Column::getName, c -> c, (first, ignored) -> first, LinkedHashMap::new))
+        .values()
+        .stream()
+        .toList();
+  }
+
+  private List<Column> rowColumns(TableMetadata table, int depth) {
+    List<Column> columns = depth == 0 ? table.getPrimaryKeyColumns() : rowColumns(table);
+    return columns.stream().filter(column -> !column.isReference() || canView(column)).toList();
+  }
+
+  private boolean canView(Column column) {
+    return PermissionEvaluator.canView(schema, column.getRefTable());
   }
 
   private String getTableTypeName(TableMetadata table) {
