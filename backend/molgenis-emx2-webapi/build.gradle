@@ -20,6 +20,7 @@ dependencies {
     implementation libs.sass.embedded.host
     implementation libs.caffeine
     implementation libs.bundles.prometheus
+    implementation libs.matomo
 
     testImplementation libs.rest.assured
     testImplementation libs.bundles.poi
