@@ -22,6 +22,7 @@ import {
   getCustomRoles,
   getSchemas,
 } from "../../util/adminUtils.ts";
+import EditModal from "../../../../tailwind-components/app/components/form/EditModal.vue";
 
 definePageMeta({
   middleware: "admin-only",
@@ -218,10 +219,17 @@ function openDeleteRoleModal() {
     @deleteRoles="handleDeleteRoles"
   />
 
-  <EditRoleModal
+  <EditModal
+    v-model:visible="showEditRoleModal"
+    schemaId="role"
+    :metadata="TABLE_METADATA"
+    :isInsert="true"
+  />
+
+  <!-- <EditRoleModal
     v-model:visible="showEditRoleModal"
     :isInsert="true"
     :tableMetadata="TABLE_METADATA"
     :schemaOptions="schemaOptions"
-  />
+  /> -->
 </template>
