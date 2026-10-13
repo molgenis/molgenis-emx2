@@ -3,6 +3,7 @@ import { ref } from "vue";
 import type { IFiles } from "../../../../types/cms";
 import ComponentActions from "../ComponentActions.vue";
 import FileDownloadItem from "./FileDownloadItem.vue";
+import UploadNeeded from "../UploadNeeded.vue";
 
 const props = withDefaults(defineProps<IFiles & { isEditable?: boolean }>(), {
   isEditable: false,
@@ -33,15 +34,10 @@ const showMenu = ref<boolean>(false);
       />
     </template>
     <div>
-      <div
-        v-if="!props.file?.url && !props.linkToExternalFile"
-        class="w-full flex items-center justify-center text-center gap-2 text-title-contrast py-5 border border-button-tertiary rounded-base mb-2.5 hover:border-button-tertiary-hover"
+      <UploadNeeded v-if="!props.file?.url && !props.linkToExternalFile"
+        >Click the edit button to upload an file or set an external
+        link</UploadNeeded
       >
-        <BaseIcon name="UploadFile" :width="21" />
-        <span
-          >Click the edit button to upload an file or set an external link</span
-        >
-      </div>
       <FileDownloadItem v-else v-bind="props" />
     </div>
   </VMenu>

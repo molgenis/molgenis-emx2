@@ -117,13 +117,14 @@
             :style="{ left: guideX + 'px' }"
           />
 
-          <div
-            class="overflow-x-auto overscroll-x-contain bg-table rounded-t-base"
-            v-on:scroll.native="handleStickyHeaderOffset"
+          <ScrollAreaHorizontal
+            class="bg-table rounded-t-base"
+            :startInset="STICKY_SELECT_COLUMN_WIDTH"
+            @scroll="handleStickyHeaderOffset"
           >
             <div
               v-if="useStickyHeader"
-              class="fixed top-0 z-20 overflow-hidden aria-hidden=true"
+              class="fixed top-0 z-[36] overflow-hidden aria-hidden=true"
               :class="{ hidden: !showStickyHeader }"
             >
               <table
@@ -139,6 +140,7 @@
                   :showRolesColumn="showRolesColumn"
                   :isResizing="isResizing"
                   :columnWidths="columnWidths"
+                  :selectColumnWidth="STICKY_SELECT_COLUMN_WIDTH"
                   @sort-requested="handleSortRequest"
                   @start-resize="startResize($event.event, $event.id)"
                 />
@@ -154,10 +156,11 @@
                 :showRolesColumn="showRolesColumn"
                 :isResizing="isResizing"
                 :columnWidths="columnWidths"
+                :selectColumnWidth="STICKY_SELECT_COLUMN_WIDTH"
                 @sort-requested="handleSortRequest"
                 @start-resize="startResize($event.event, $event.id)"
               />
-              <tbody class="mb-3 [&_tr:last-child_td]:border-none">
+              <tbody class="mb-3 [&_tr:last-child_td]:after:hidden">
                 <tr
                   v-if="rows"
                   v-for="row in rows"
@@ -166,16 +169,63 @@
                     'hover:cursor-pointer': canEdit,
                   }"
                 >
-                  <TableCellEMX2
-                    class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 h-13 py-0 px-2.5"
+                  <td
+                    class="sticky left-0 z-20 group-hover:z-40 w-12 h-13 py-0 px-2.5 align-middle after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
+                    :style="selectColumnStyle"
                   >
-                    <div class="flex justify-center items-center h-full">
-                      <Checkbox
-                        :model-value="selectedRows.has(row._rowIdString)"
-                        @update:model-value="toggleRowSelection(row)"
-                      />
+                    <Checkbox
+                      class="block mx-auto"
+                      :model-value="selectedRows.has(row._rowIdString)"
+                      @update:model-value="toggleRowSelection(row)"
+                    />
+                    <div
+                      class="absolute left-full top-0 bottom-px flex flex-row text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none items-center justify-start flex-nowrap gap-1"
+                    >
+                      <Button
+                        v-if="canDeleteRow(row)"
+                        :id="`delete-button-${row._rowIdString}`"
+                        :icon-only="true"
+                        type="inline"
+                        icon="trash"
+                        label="delete"
+                        @click="onShowDeleteModal(row)"
+                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                        aria-haspopup="dialog"
+                        :aria-expanded="showDeleteModal"
+                      >
+                        {{ row._rowIdString }}
+                      </Button>
+                      <Button
+                        v-if="canEditRow(row)"
+                        :id="`edit-button-${row._rowIdString}`"
+                        :icon-only="true"
+                        type="inline"
+                        icon="edit"
+                        label="edit"
+                        @click="onShowEditModal(row)"
+                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                        aria-haspopup="dialog"
+                        :aria-expanded="showEditModal"
+                      >
+                        {{ row._rowIdString }}
+                      </Button>
+                      <Button
+                        v-if="canCloneRow(row)"
+                        :id="`copy-button-${row._rowIdString}`"
+                        :icon-only="true"
+                        type="inline"
+                        icon="copy"
+                        label="copy"
+                        @click="onShowEditModal(row, true)"
+                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-copy`"
+                        aria-haspopup="dialog"
+                        :aria-expanded="showEditModal"
+                      >
+                        {{ row._rowIdString }}
+                      </Button>
+                      <slot name="additional-row-actions" :row="row" />
                     </div>
-                  </TableCellEMX2>
+                  </td>
 
                   <TableCellEMX2
                     v-if="showRolesColumn"
@@ -192,7 +242,7 @@
                   </TableCellEMX2>
 
                   <TableCellEMX2
-                    v-for="(column, colIndex) in sortedVisibleColumns"
+                    v-for="column in sortedVisibleColumns"
                     :style="{ width: columnWidths[column.id] + 'px' }"
                     class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
                     :class="{
@@ -203,57 +253,13 @@
                     :metadata="column"
                     :data="row[column.id]"
                     @cellClicked="handleCellClick"
-                  >
-                    <template #row-actions v-if="colIndex === 0">
-                      <div
-                        class="absolute left-12 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
-                      >
-                        <Button
-                          v-if="canDeleteRow(row)"
-                          :id="`delete-button-${row._rowIdString}`"
-                          :icon-only="true"
-                          type="inline"
-                          icon="trash"
-                          label="delete"
-                          @click="onShowDeleteModal(row)"
-                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-                          aria-haspopup="dialog"
-                          :aria-expanded="showDeleteModal"
-                        >
-                          {{ row._rowIdString }}
-                        </Button>
-                        <Button
-                          v-if="canEditRow(row)"
-                          :id="`edit-button-${row._rowIdString}`"
-                          :icon-only="true"
-                          type="inline"
-                          icon="edit"
-                          label="edit"
-                          @click="onShowEditModal(row)"
-                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                          aria-haspopup="dialog"
-                          :aria-expanded="showEditModal"
-                        >
-                          {{ row._rowIdString }}
-                        </Button>
-                        <Button
-                          v-if="canCloneRow(row)"
-                          :id="`copy-button-${row._rowIdString}`"
-                          :icon-only="true"
-                          type="inline"
-                          icon="copy"
-                          label="copy"
-                          @click="onShowEditModal(row, true)"
-                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-copy`"
-                          aria-haspopup="dialog"
-                          :aria-expanded="showEditModal"
-                        >
-                          {{ row._rowIdString }}
-                        </Button>
-                        <slot name="additional-row-actions" :row="row" />
-                      </div>
-                    </template>
-                  </TableCellEMX2>
+                  />
+
+                  <!-- Matches the filler column in the header -->
+                  <td
+                    aria-hidden="true"
+                    class="relative after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none after:z-[35] group-hover:bg-hover"
+                  />
                 </tr>
               </tbody>
             </table>
@@ -266,7 +272,7 @@
                 :label="emptyRowsLabel"
               />
             </div>
-          </div>
+          </ScrollAreaHorizontal>
         </div>
 
         <div
@@ -390,6 +396,7 @@ import FilterSidebarContent from "../filter/SidebarContent.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
+import ScrollAreaHorizontal from "../ScrollAreaHorizontal.vue";
 import Sidebar from "../Sidebar.vue";
 
 import { useAsyncData } from "nuxt/app";
@@ -437,6 +444,12 @@ const props = withDefaults(
     useStickyHeader: () => true,
   }
 );
+
+const STICKY_SELECT_COLUMN_WIDTH = 48;
+
+const selectColumnStyle = {
+  width: `${STICKY_SELECT_COLUMN_WIDTH}px`,
+};
 
 const canEdit = computed(
   () => props.canInsert || props.canUpdate || props.canDelete

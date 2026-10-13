@@ -149,3 +149,24 @@ export async function AddFileList(schema: string, id: string) {
   const variables = { fileList: [{ id: `${id}` }] };
   await cmsFetch(schema, query, variables);
 }
+
+export async function AddColumnChart(schema: string, id: string) {
+  const query = `mutation insert($element: [StatisticalChartsInput]) {
+    insert(StatisticalCharts: $element) {
+      status
+      message
+    }
+  }`;
+
+  const variables = {
+    element: [
+      {
+        id: id,
+        chartType: { name: "Column chart" },
+        chartTitle: "My column chart",
+      },
+    ],
+  };
+
+  await cmsFetch(schema, query, variables);
+}
