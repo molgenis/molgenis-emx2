@@ -11,18 +11,20 @@ export function groupRecordSections(
   columns: IColumn[],
   row: IRow
 ): RecordSectionGroup[] {
-  const sections: RecordSectionGroup[] = [];
+  let section = newSection(TOP_SECTION_ID, "");
+  const sections = [section];
   let heading: RecordHeading | undefined;
 
   for (const column of columns) {
     if (column.columnType === "SECTION") {
-      sections.push(newSection(column.id, column.label));
+      section = newSection(column.id, column.label);
+      sections.push(section);
       heading = undefined;
       continue;
     }
     if (column.columnType === "HEADING") {
       heading = { id: column.id, label: column.label, fields: [] };
-      currentOrTopSection(sections).headings.push(heading);
+      section.headings.push(heading);
       continue;
     }
     if (isEmptyValue(row[column.id])) {
@@ -34,7 +36,11 @@ export function groupRecordSections(
       metadata: column,
       value: row[column.id],
     };
-    (heading ?? currentOrTopSection(sections)).fields.push(field);
+    if (heading) {
+      heading.fields.push(field);
+    } else {
+      section.fields.push(field);
+    }
   }
 
   return sections
@@ -54,18 +60,6 @@ function newSection(id: string, label: string): RecordSectionGroup {
     fields: [],
     headings: [],
   };
-}
-
-function currentOrTopSection(
-  sections: RecordSectionGroup[]
-): RecordSectionGroup {
-  const last = sections[sections.length - 1];
-  if (last) {
-    return last;
-  }
-  const top = newSection(TOP_SECTION_ID, "");
-  sections.push(top);
-  return top;
 }
 
 function isEmptyValue(value: columnValue): boolean {
