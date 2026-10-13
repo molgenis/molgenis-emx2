@@ -27,12 +27,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
 
-/**
- * Executes all schema (change, drop, truncate) and data (insert, save, update, delete) mutation
- * fields of a request in a single transaction. Fields execute in document order; schema mutations
- * must precede data mutations because DDL and TRUNCATE fail on tables with pending deferred
- * constraint checks.
- */
 class GraphqlTransactionalMutationStrategy extends AsyncSerialExecutionStrategy {
 
   enum Phase {
@@ -62,7 +56,7 @@ class GraphqlTransactionalMutationStrategy extends AsyncSerialExecutionStrategy 
     return environment.getGraphQlContext().getOrDefault(Schema.class, schema);
   }
 
-  static boolean inRequestTransaction(DataFetchingEnvironment environment) {
+  static boolean isTransactionalRequest(DataFetchingEnvironment environment) {
     return environment.getGraphQlContext().hasKey(Schema.class);
   }
 

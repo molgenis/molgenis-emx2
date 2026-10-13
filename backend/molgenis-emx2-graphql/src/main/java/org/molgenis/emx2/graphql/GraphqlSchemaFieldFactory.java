@@ -608,21 +608,20 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private static DataFetcher<?> dropFetcher(Schema schema) {
-    return dataFetchingEnvironment -> {
+    return environment -> {
       StringBuilder message = new StringBuilder();
-      GraphqlTransactionalMutationStrategy.currentSchema(dataFetchingEnvironment, schema)
+      GraphqlTransactionalMutationStrategy.currentSchema(environment, schema)
           .getDatabase()
           .tx(
               db -> {
                 Schema s = db.getSchema(schema.getName());
-                dropTables(s, dataFetchingEnvironment, message);
-                dropMembers(s, dataFetchingEnvironment, message);
-                dropRoles(s, dataFetchingEnvironment, message);
-                dropColumns(s, dataFetchingEnvironment, message);
-                dropSettings(s, dataFetchingEnvironment, message);
+                dropTables(s, environment, message);
+                dropMembers(s, environment, message);
+                dropRoles(s, environment, message);
+                dropColumns(s, environment, message);
+                dropSettings(s, environment, message);
                 // the request transaction syncs after commit
-                if (!GraphqlTransactionalMutationStrategy.inRequestTransaction(
-                    dataFetchingEnvironment)) {
+                if (!GraphqlTransactionalMutationStrategy.isTransactionalRequest(environment)) {
                   // this sync is a bit sad.
                   ((SqlSchemaMetadata) schema.getMetadata())
                       .sync((SqlSchemaMetadata) s.getMetadata());
@@ -636,15 +635,13 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private static DataFetcher<?> truncateFetcher(Schema schema, TaskService taskService) {
-    return dataFetchingEnvironment -> {
-      List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-      boolean async = dataFetchingEnvironment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
+    return environment -> {
+      List<String> tables = environment.getArgument(GraphqlConstants.TABLES);
+      boolean async = environment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
       GraphqlApiMutationResult result =
           new GraphqlApiMutationResult(SUCCESS, "Truncated tables: " + String.join(", ", tables));
 
-      if (async
-          && GraphqlTransactionalMutationStrategy.isCombinedWithOtherMutations(
-              dataFetchingEnvironment)) {
+      if (async && GraphqlTransactionalMutationStrategy.isCombinedWithOtherMutations(environment)) {
         throw new GraphqlException("Async truncate cannot be combined with other mutations");
       }
 
@@ -670,8 +667,7 @@ public class GraphqlSchemaFieldFactory {
         result.setTaskId(id);
       } else {
         truncateTables(
-            GraphqlTransactionalMutationStrategy.currentSchema(dataFetchingEnvironment, schema),
-            tables);
+            GraphqlTransactionalMutationStrategy.currentSchema(environment, schema), tables);
       }
       return result;
     };
@@ -927,7 +923,7 @@ public class GraphqlSchemaFieldFactory {
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
                   // the request transaction syncs after commit
-                  if (!GraphqlTransactionalMutationStrategy.inRequestTransaction(
+                  if (!GraphqlTransactionalMutationStrategy.isTransactionalRequest(
                       dataFetchingEnvironment)) {
                     // this sync is a bit sad.
                     ((SqlSchemaMetadata) schema.getMetadata())
