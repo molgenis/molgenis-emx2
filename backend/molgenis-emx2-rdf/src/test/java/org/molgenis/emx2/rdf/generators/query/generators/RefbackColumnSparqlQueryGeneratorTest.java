@@ -71,10 +71,12 @@ class RefbackColumnSparqlQueryGeneratorTest {
   }
 
   @Test
-  void shouldReturnEmptyPatterns_whenOwningColumnHasNoSemantics() {
+  void shouldReturnEmptyPatterns_whenOwningColumnHasNoRefBackSemantics() {
     SailRepository repository =
         repository(
-            statement(PERSON_IRI, FOAF.FIRST_NAME, "Bau"), statement(PET_IRI, FOAF.TITLE, "Pip"));
+            statement(PERSON_IRI, FOAF.FIRST_NAME, "Bau"),
+            statement(PERSON_IRI, DCTERMS.RELATION, Values.iri(PET_IRI)),
+            statement(PET_IRI, FOAF.TITLE, "Pip"));
 
     SchemaMetadata schema =
         new SchemaMetadata(SCHEMA)
