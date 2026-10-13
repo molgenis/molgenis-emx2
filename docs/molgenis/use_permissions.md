@@ -38,7 +38,7 @@ offers a row query (`Pet`), an aggregate query (`Pet_agg`) and a grouped aggrega
 | `Pet_agg { count }` | – | – | rounded up to 10, 20, 30, … | exact, but at least 10 | exact | exact |
 | `Pet_agg { min, max, avg, sum }` | – | – | – | – | – | ✓ |
 | `Pet_groupBy { count }` | – | – | – | – | exact | exact |
-| `Pet_groupBy { sum }` | – | – | – | – | ✓ | ✓ |
+| `Pet_groupBy { sum }` | – | – | – | – | - | ✓ |
 | Group by an ontology column: `Pet_groupBy { count, tags { name } }` | – | – | – | – | ✓ | ✓ |
 | Group by any other column: `Pet_groupBy { count, category { name } }` | – | – | – | – | – | ✓ |
 | `filter` and `search` arguments on the queries above | – | ✓ | ✓ | ✓ | ✓ | ✓ |
