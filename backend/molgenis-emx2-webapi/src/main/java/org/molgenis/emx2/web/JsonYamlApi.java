@@ -95,7 +95,7 @@ public class JsonYamlApi {
     ctx.json(json);
   }
 
-  private static void deleteSchemaJSON(Context ctx) throws IOException {
+  static void deleteSchemaJSON(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null || !PermissionEvaluator.canManage(schema)) {
       throw new MolgenisException("Schema not found or insufficient access");
