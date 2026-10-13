@@ -3,6 +3,7 @@ import { ref } from "vue";
 import ColumnChart from "../../../components/viz/ColumnChart/ColumnChart.vue";
 import ComponentActions from "../ComponentActions.vue";
 import type { IStatisticalCharts } from "../../../../types/cms.ts";
+import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
 
 const props = withDefaults(
   defineProps<IStatisticalCharts & { isEditable?: boolean }>(),
@@ -20,7 +21,7 @@ const showMenu = ref<boolean>(false);
     v-if="isEditable"
     v-model:show="showMenu"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 50 }"
+    :delay="{ show: actionsToolbarShowDelay, hide: actionsToolbarHideDelay }"
     placement="bottom-start"
     noAutoFocus
   >

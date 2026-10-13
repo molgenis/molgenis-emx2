@@ -3,6 +3,7 @@ import { ref } from "vue";
 import Paragraph from "./Paragraph.vue";
 import ComponentActions from "../ComponentActions.vue";
 import type { IParagraphs } from "../../../../types/cms";
+import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
 
 const props = withDefaults(
   defineProps<IParagraphs & { isEditable?: boolean }>(),
@@ -22,7 +23,7 @@ const showMenu = ref<boolean>(false);
     showGroup="component-menu"
     :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 50 }"
+    :delay="{ show: actionsToolbarShowDelay, hide: actionsToolbarHideDelay }"
     :placement="paragraphIsCentered ? 'bottom-auto' : 'bottom-start'"
     noAutoFocus
   >

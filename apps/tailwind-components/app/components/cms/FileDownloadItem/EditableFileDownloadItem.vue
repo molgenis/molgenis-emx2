@@ -4,6 +4,7 @@ import type { IFiles } from "../../../../types/cms";
 import ComponentActions from "../ComponentActions.vue";
 import FileDownloadItem from "./FileDownloadItem.vue";
 import UploadNeeded from "../UploadNeeded.vue";
+import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
 
 const props = withDefaults(defineProps<IFiles & { isEditable?: boolean }>(), {
   isEditable: false,
@@ -19,7 +20,7 @@ const showMenu = ref<boolean>(false);
     showGroup="component-menu"
     :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 50 }"
+    :delay="{ show: actionsToolbarShowDelay, hide: actionsToolbarHideDelay }"
     :placement="'bottom-start'"
     noAutoFocus
   >

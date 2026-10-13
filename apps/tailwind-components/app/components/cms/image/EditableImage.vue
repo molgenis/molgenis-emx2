@@ -4,6 +4,7 @@ import Image from "./Image.vue";
 import type { IImages } from "../../../../types/cms";
 import ComponentActions from "../ComponentActions.vue";
 import UploadNeeded from "../UploadNeeded.vue";
+import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,
@@ -21,7 +22,7 @@ const showMenu = ref<boolean>(false);
     showGroup="component-menu"
     :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 50 }"
+    :delay="{ show: actionsToolbarShowDelay, hide: actionsToolbarHideDelay }"
     :placement="imageIsCentered ? 'bottom' : 'bottom-start'"
     noAutoFocus
   >
