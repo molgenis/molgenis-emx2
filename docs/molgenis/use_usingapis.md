@@ -291,6 +291,8 @@ Link: </pet%20store/api/json/Pet?limit=2&orderby=%7B%22name%22%3A%22ASC%22%7D&of
 
 Request the link, with the server name in front, to get the next page.
 
+Pages are cut by position. If you give an `orderby`, order by a column with unique values, or a row can show up on two pages or on none. Without `orderby` the primary key order is safe.
+
 #### Read several tables
 
 `GET /{schema}/api/json/_data` returns the first 1000 rows of every table you may view. The body is a JSON object with one array per table id. A table with more rows has its own `Link` header.
@@ -326,7 +328,7 @@ curl -G "$S/_data" -H "x-molgenis-token: $TOKEN" \
 
 #### Files
 
-A read returns a file as an object. A write that sends that same object back keeps the file as it is. A write that sends `null` removes the file. Any other value for a file column fails. These routes cannot store new file content. Upload files with the [CSV and ZIP routes](use_updownload.md).
+A read returns a file as an object. A write that sends that same object back keeps the file as it is. A write that sends `null` removes the file. Any object counts as "keep the stored file": its fields are not read, and for a new row it stores no file. A text value fails. These routes cannot store new file content. Upload files with the [CSV and ZIP routes](use_updownload.md).
 
 #### Errors
 
