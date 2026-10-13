@@ -126,13 +126,13 @@ class GraphqlTransactionalMutationStrategy extends AsyncSerialExecutionStrategy 
       return "Mutations (change, drop, truncate, insert, save, update, delete) cannot be combined with other mutations: "
           + String.join(", ", otherMutations);
     }
-    Phase previous = SCHEMA;
+    boolean seenData = false;
     for (String name : fieldNames) {
-      Phase phase = TRANSACTIONAL_MUTATIONS.get(name);
-      if (phase.compareTo(previous) < 0) {
+      if (TRANSACTIONAL_MUTATIONS.get(name) == DATA) {
+        seenData = true;
+      } else if (seenData) {
         return "Schema mutations (change, drop, truncate) must precede data mutations (insert, save, update, delete)";
       }
-      previous = phase;
     }
     return null;
   }
