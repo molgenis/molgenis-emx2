@@ -1,11 +1,13 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.web.Constants.*;
 
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.QueryParameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
@@ -16,6 +18,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
@@ -26,6 +30,10 @@ public class OpenApiYamlGenerator {
   private static final String PROBLEM = "Problem";
   static final String BAD_REQUEST = "400";
   static final String BAD_REQUEST_MESSAGE = "Bad request";
+  private static final String JSON = "Json";
+  private static final String SCHEMA_REF_PREFIX = "#/components/schemas/";
+  private static final List<String> READ_PARAMETERS =
+      List.of("filter", "orderby", "search", "limit", "offset", "query");
 
   private OpenApiYamlGenerator() {
     // hide public constructor
@@ -67,6 +75,15 @@ public class OpenApiYamlGenerator {
           excelPrefix + "/" + table.getTableName(), getExcelTableOperations(excelType));
       paths.addPathItem(zipPrefix + "/" + table.getTableName(), getExcelTableOperations(zipType));
     }
+
+    String jsonPrefix = "/" + schema.getName() + "/api/json";
+    for (TableMetadata table : schema.getTables()) {
+      String rowName = table.getIdentifier() + "Row";
+      components.addSchemas(rowName, rowSchema(table));
+      paths.addPathItem(jsonPrefix + "/" + table.getTableName(), jsonTableOperations(rowName));
+    }
+    paths.addPathItem(jsonPrefix + "/_data", jsonDataOperations());
+    paths.addPathItem(jsonPrefix + "/_schema", jsonSchemaOperations());
 
     // api/csv/:schema
 
@@ -204,12 +221,78 @@ public class OpenApiYamlGenerator {
                         .addProperties("message", new StringSchema())));
   }
 
-  private static RequestBody tableRequestBody(String tableName) {
+  private static Schema<?> rowSchema(TableMetadata table) {
+    Schema<?> row = new ObjectSchema();
+    for (Column column : table.getColumnsWithoutHeadings()) {
+      if (column.isRefback()
+          || column.isSystemColumn() && !MG_TABLECLASS.equals(column.getName())) {
+        continue;
+      }
+      row.addProperties(column.getIdentifier(), columnSchema(column.getColumnType()));
+    }
+    return row;
+  }
+
+  private static Schema<?> columnSchema(ColumnType type) {
+    Schema<?> value =
+        switch (type.getBaseType()) {
+          case BOOL, BOOL_ARRAY -> new BooleanSchema();
+          case INT, INT_ARRAY, LONG, LONG_ARRAY -> new IntegerSchema();
+          case DECIMAL, DECIMAL_ARRAY -> new NumberSchema();
+          case REF, REF_ARRAY, REFBACK, FILE, JSON -> new ObjectSchema();
+          default -> new StringSchema();
+        };
+    return type.isArray() ? new ArraySchema().items(value) : value;
+  }
+
+  private static RequestBody jsonRequestBody(Schema<?> schema) {
     return new RequestBody()
-        .content(
+        .content(new Content().addMediaType(ACCEPT_JSON, new MediaType().schema(schema)));
+  }
+
+  private static Operation jsonOperation(String summary) {
+    return new Operation().addTagsItem(JSON).summary(summary).responses(apiResponses());
+  }
+
+  private static PathItem jsonTableOperations(String rowName) {
+    Schema<?> rowRef = new Schema<>().$ref(SCHEMA_REF_PREFIX + rowName);
+    Operation get = jsonOperation("Get table rows as a JSON array");
+    READ_PARAMETERS.forEach(name -> get.addParametersItem(new QueryParameter().name(name)));
+    get.getResponses()
+        .get(OK)
+        .setContent(
             new Content()
                 .addMediaType(
-                    ACCEPT_JSON,
-                    new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName)))));
+                    ACCEPT_JSON, new MediaType().schema(new ArraySchema().items(rowRef))));
+    RequestBody rows = jsonRequestBody(new ArraySchema().items(rowRef));
+    return new PathItem()
+        .get(get)
+        .post(jsonOperation("Insert rows").requestBody(rows))
+        .put(jsonOperation("Save rows").requestBody(rows))
+        .patch(jsonOperation("Update rows").requestBody(rows))
+        .delete(
+            jsonOperation("Delete rows")
+                .requestBody(rows)
+                .addParametersItem(new QueryParameter().name("strict")));
+  }
+
+  private static PathItem jsonDataOperations() {
+    RequestBody tables =
+        jsonRequestBody(new ObjectSchema().additionalProperties(new ArraySchema()));
+    return new PathItem()
+        .get(
+            jsonOperation("Get rows of several tables")
+                .addParametersItem(new QueryParameter().name("query")))
+        .post(jsonOperation("Insert rows of several tables").requestBody(tables))
+        .put(jsonOperation("Save rows of several tables").requestBody(tables))
+        .patch(jsonOperation("Update rows of several tables").requestBody(tables))
+        .delete(jsonOperation("Delete rows of several tables").requestBody(tables));
+  }
+
+  private static PathItem jsonSchemaOperations() {
+    return new PathItem()
+        .get(jsonOperation("Get schema metadata as JSON"))
+        .post(jsonOperation("Change schema metadata"))
+        .delete(jsonOperation("Drop schema metadata"));
   }
 }
