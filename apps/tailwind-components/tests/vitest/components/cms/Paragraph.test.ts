@@ -1,9 +1,9 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
 
-import Paragraph from "../../../../app/components/cms/Paragraph.vue";
+import EditableParagraph from "../../../../app/components/cms/paragraph/EditableParagraph.vue";
 
-const wrapper = mount(Paragraph, {
+const wrapper = mount(EditableParagraph, {
   props: {
     id: "test-paragraph",
     paragraphIsCentered: true,
@@ -14,7 +14,7 @@ const wrapper = mount(Paragraph, {
   },
 });
 
-describe("Custom pages: paragraphs", () => {
+describe("Cms:Paragraphs:", () => {
   test("Paragraph is rendered and text is centered", async () => {
     expect(wrapper.vm.$el.tagName).toBe("P");
     expect(wrapper.attributes("class")).toBe(

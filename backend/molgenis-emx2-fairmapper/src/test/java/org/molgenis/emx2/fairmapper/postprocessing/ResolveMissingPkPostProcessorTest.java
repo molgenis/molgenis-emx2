@@ -406,6 +406,66 @@ class ResolveMissingPkPostProcessorTest {
     assertArrayEquals(new String[] {"supplier-1"}, order.getStringArray("products.supplier"));
   }
 
+  @Test
+  void shouldResolveBackReferenceViaItsOwnSubjectInsteadOfAssumingCurrentRow() {
+    schema = new SchemaMetadata(SCHEMA_NAME);
+
+    schema.create(
+        new TableMetadata("Orders").add(Column.column("id").setType(ColumnType.STRING).setPkey()));
+
+    schema
+        .create(
+            new TableMetadata("Suppliers")
+                .add(Column.column("id").setType(ColumnType.STRING).setPkey()))
+        .add(Column.column("order").setRefTable("Orders").setType(ColumnType.REF).setPkey());
+
+    schema
+        .getTableMetadata("Orders")
+        .add(Column.column("supplier").setType(ColumnType.REF).setRefTable("Suppliers"));
+
+    tableStore = new InMemoryTableStore();
+
+    store(
+        "Suppliers",
+        new Row(
+            "_subject_", "urn:supplier:1", "id", "supplier-1", "_subject_order", "urn:order:2"));
+    store(
+        "Orders",
+        new Row("_subject_", "urn:order:1", "id", "order-1", "_subject_supplier", "urn:supplier:1"),
+        new Row(
+            "_subject_", "urn:order:2", "id", "order-2", "_subject_supplier", "urn:supplier:1"));
+
+    ResolveMissingPkPostProcessor resolver = new ResolveMissingPkPostProcessor(schema);
+    resolver.process(tableStore);
+    Row supplier = supplier();
+    CompareTools.assertEquals(
+        supplier,
+        Row.row(
+            "_subject_",
+            "urn:supplier:1",
+            "id",
+            "supplier-1",
+            "_subject_order",
+            "urn:order:2",
+            "order",
+            "order-2"));
+
+    Row order1 = order();
+    CompareTools.assertEquals(
+        order1,
+        Row.row(
+            "_subject_",
+            "urn:order:1",
+            "id",
+            "order-1",
+            "_subject_supplier",
+            "urn:supplier:1",
+            "supplier.id",
+            "supplier-1",
+            "supplier.order",
+            "order-2"));
+  }
+
   @Nested
   class BackReferenceTest {
 

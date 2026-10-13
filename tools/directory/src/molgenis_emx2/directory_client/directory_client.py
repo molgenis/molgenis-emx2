@@ -17,7 +17,7 @@ from molgenis_emx2_pyclient.exceptions import (
 )
 from molgenis_emx2_pyclient.metadata import Schema
 from molgenis_emx2_pyclient.metadata import Table as MetaTable
-from molgenis_emx2_pyclient.utils import prepare_filter
+from molgenis_emx2_pyclient.utils import prepare_filter, validate_graphql_response
 
 from .errors import MolgenisRequestError
 from .model import (
@@ -117,7 +117,7 @@ class DirectorySession(Session):
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
         response = self.session.get(url=query_url)
 
-        self._validate_graphql_response(
+        validate_graphql_response(
             response=response,
             fallback_error_message=f"Failed to retrieve "
             f"data from {current_schema}::{table!r}.\n"

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.5.2
+
+- Fix incompatibility with latest molgenis-emx2-pyclient version
+
 ## Version 1.5.1
 
 - Update dependency versions

@@ -3,6 +3,8 @@ import type {
   ISections,
   IHeadings,
   IParagraphs,
+  IUnorderedLists,
+  IOrderedLists,
   IImages,
   INavigationCards,
   IDeveloperPages,
@@ -12,6 +14,10 @@ import type {
   IComponentOrders,
   IComponents,
   IFile,
+  IFiles,
+  IFileLists,
+  IStatisticalCharts,
+  IStatisticalChartData,
 } from "./cms.ts";
 
 import type { ITableMetaData } from "../../metadata-utils/src/types.js";
@@ -25,8 +31,13 @@ export interface IPageComponent
     ISections,
     IHeadings,
     IParagraphs,
+    IUnorderedLists,
+    IOrderedLists,
     IImages,
-    INavigationCards {}
+    IFiles,
+    IFileLists,
+    INavigationCards,
+    IStatisticalCharts {}
 
 export interface IContainerMetadata {
   page: IDeveloperPages | IConfigurablePages;
@@ -46,6 +57,7 @@ export interface FetchGraphqlResponse {
     Blocks?: IBlocks[];
     ComponentOrders?: IComponentOrders[];
     Components?: IComponents[];
+    ChartData?: IStatisticalChartData[];
   };
   errors?: FetchGraphqlBody[];
 }

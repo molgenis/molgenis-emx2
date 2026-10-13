@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { IDraggingInfo } from "../../../types/CmsComponents";
-import Button from "../Button.vue";
+
 const props = withDefaults(
   defineProps<{
     componentLabel?: string;
@@ -22,6 +22,7 @@ const startDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
   emit("dragging", componentInfo);
   showPleaseDragMe.value = false;
 };
+
 const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
   emit("dragging", componentInfo);
 };
@@ -50,7 +51,9 @@ const endDrag = (event: DragEvent, componentInfo: IDraggingInfo) => {
       })
     "
   >
-    <BaseIcon v-if="icon" :name="icon" :width="16" :height="16" />
+    <span class="w-[16px]">
+      <BaseIcon v-if="icon" :name="icon" :width="16" :height="16" />
+    </span>
     <span class="block w-auto text-left">
       {{ props.componentLabel || props.componentName }}
       <span class="" v-if="showPleaseDragMe"> - Please drag me </span>

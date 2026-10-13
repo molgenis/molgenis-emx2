@@ -58,6 +58,9 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                     id
                 }
                 titleIsCentered
+                pageHeaderHeight {
+                    name
+                }
                 
                 # components
                 componentOrder(orderby: {order:ASC}) {
@@ -73,6 +76,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         # Headings
                         level
                         headingIsCentered
+                        headingIsHidden
                         
                         # Paragraphs
                         paragraphIsCentered
@@ -91,6 +95,22 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         height
                         imageIsCentered
                         
+                        # Files
+                        file {
+                            id
+                            size
+                            filename
+                            extension
+                            url
+                        }
+                        alternateFileName
+                        fileTag
+                        linkToExternalFile
+                        fileIsAnExternalLink
+                        
+                        # Filelist
+                        showFilesWithTag
+
                         # navigation cards
                         id
                         title
@@ -98,6 +118,82 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         url
                         urlLabel
                         urlIsExternal
+                        
+                        # lists: unordered and ordered
+                        orderedItems
+                        unorderedItems
+                        
+                        # statistical charts
+                        chartType {
+                            name
+                        }
+                        chartTitle
+                        chartDescription
+                        chartData {
+                            id
+                            xValue
+                            xLabel
+                            yValue
+                            yLabel
+                            fillColor
+                            strokeColor
+                            sortOrder
+                            primaryGroupValue
+                            primaryGroupLabel
+                            secondaryGroupValue
+                            secondaryGroupLabel
+                            
+                            # map data
+                            locationName
+                            alternateId
+                            city
+                            country
+                            continent
+                            latitude
+                            longitude
+                            website
+                            tooltipContent
+                        }
+                        legendIsEnabled
+                        legendPosition {
+                            name
+                        }
+                        legendIsHorizontal
+                        legendMarkerType {
+                            name
+                        }
+                        fillColor
+                        strokeColor
+                        hoverFillColor
+                        hoverStrokeColor
+                        colorPalette {
+                            value
+                            color
+                        }
+                        chartWidth
+                        chartHeight
+                        topMargin
+                        rightMargin
+                        bottomMargin
+                        leftMargin
+                        enableAnimations
+                        enableHoverEvents
+                        enableClickEvents
+                        x
+                        y
+                        primaryGroupValues
+                        secondaryGroupValues
+                        xAxisTitle
+                        xAxisMinValue
+                        xAxisMaxValue
+                        xAxisTicks
+                        breakXAxisTickLabelsAt
+                        yAxisTitle
+                        yAxisMinValue
+                        yAxisMaxValue
+                        yAxisTicks
+                        breakYAxisTickLabelsAt
+                        
                     }
                 }
             }

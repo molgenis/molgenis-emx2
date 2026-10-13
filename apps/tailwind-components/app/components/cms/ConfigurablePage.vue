@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
+import PageComponent from "./PageComponent.vue";
+import Paragraph from "./paragraph/Paragraph.vue";
+import AddComponentPalette from "./AddComponentPalette.vue";
+import ComponentDropZone from "./ComponentDropZone.vue";
+
 import type { IConfigurablePages } from "../../../types/cms";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { IDraggingInfo } from "../../../types/CmsComponents";
-
-import PageComponent from "./PageComponent.vue";
-import TextParagraph from "./Paragraph.vue";
-import AddComponentPalette from "./AddComponentPalette.vue";
-import ComponentDropZone from "./ComponentDropZone.vue";
-import { ref } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -20,7 +21,6 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-
 const emit = defineEmits(["updatePage"]);
 const handleDragEvent = (value: IDraggingInfo) => {
   draggingInfo.value = value;
@@ -84,6 +84,7 @@ const sidebarCollapsed = ref(false);
           @updatePage="$emit('updatePage')"
           @dragging="handleDragEvent"
         />
+
         <PageComponent
           v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
           :mg_tableclass="orderedBlock.block.mg_tableclass"
@@ -169,7 +170,7 @@ const sidebarCollapsed = ref(false);
             />
           </template>
         </PageComponent>
-        <TextParagraph
+        <Paragraph
           v-else
           id="block-does-not-exist-message"
           name="Error"

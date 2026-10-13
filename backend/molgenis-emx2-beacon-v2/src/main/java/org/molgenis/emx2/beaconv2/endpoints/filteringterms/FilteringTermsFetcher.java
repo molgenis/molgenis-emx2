@@ -67,7 +67,8 @@ public class FilteringTermsFetcher {
       String schemaName, String tableToQuery, Collection<String> tableNamesInSchema) {
     Set<FilteringTerm> filteringTerms = new HashSet<>();
     if (tableNamesInSchema.contains(tableToQuery)) {
-      TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
+      TableMetadata metadata =
+          database.getSchemaMetadata(schemaName).getTableMetadata(tableToQuery);
       // todo: now extended columns are ignored because make the query super complicated
       for (Column column : metadata.getLocalColumns()) {
         if (column.getColumnType().isAtomicType() && !column.getIdentifier().startsWith("mg_")) {
