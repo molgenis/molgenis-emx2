@@ -45,7 +45,6 @@ public class RateLimit {
             .labelNames("result")
             .register(registry);
 
-    // create the series up front so they are reported as 0 before the first attempt
     Stream.of(SUCCESS, FAILURE, BLOCKED).map(Enum::name).forEach(attempts::labelValues);
   }
 
