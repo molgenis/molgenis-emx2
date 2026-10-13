@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.Statements;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -18,6 +19,9 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.sparqlbuilder.core.PrefixDeclarations;
+import org.eclipse.rdf4j.sparqlbuilder.core.SparqlBuilder;
+import org.molgenis.emx2.DefaultNamespace;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
 
@@ -87,10 +91,15 @@ public class SparqlQueryTestUtils {
    * declarations at the top of the generated query.
    */
   static void assertQueryEquals(String expectedQueryWithoutPrefixes, String actualGeneratedQuery) {
-    assertEquals(expectedQueryWithoutPrefixes, removePrefixesFromQuery(actualGeneratedQuery));
-  }
+    PrefixDeclarations declarations = new PrefixDeclarations();
+    DefaultNamespace.streamAll()
+        .sorted(Comparator.comparing(Namespace::getPrefix))
+        .map(SparqlBuilder::prefix)
+        .forEach(declarations::addPrefix);
 
-  private static String removePrefixesFromQuery(String query) {
-    return query.replaceAll("PREFIX .*\n", "");
+    String expectedWithPrefixes =
+        declarations.getQueryString() + "\n" + expectedQueryWithoutPrefixes;
+
+    assertEquals(expectedWithPrefixes, actualGeneratedQuery);
   }
 }
