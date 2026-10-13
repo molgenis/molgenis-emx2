@@ -14,7 +14,7 @@ public class RequestClassifier {
    * href="https://matomo.org/faq/how-to/install-ai-chatbot-tracking/">list</a> of AI chatbots. It
    * can detect these by check whether the User-Agent header contains one of these.
    */
-  private static final List<String> AI_CHATBOT_UA =
+  static final List<String> AI_CHATBOT_UA =
       List.of(
           "ChatGPT-User",
           "MistralAI-User",
