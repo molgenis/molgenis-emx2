@@ -300,6 +300,8 @@ class JsonRowsApiWriteTest extends ApiTestBase {
           POST   | _data  | {}                                                               | None or invalid tables
           PUT    | _data  | {}                                                               | None or invalid tables
           PATCH  | _data  | {}                                                               | None or invalid tables
+          PUT    | Pet    | [null]                                                           | Row 1 of table Pet is null
+          PUT    | _data  | {"Pet":[{"name":"b5"},null]}                                     | Row 2 of table Pet is null
           """)
   void bodyOfTheWrongShapeStoresNothing(
       String method, String path, String body, String expectedMessage) {
