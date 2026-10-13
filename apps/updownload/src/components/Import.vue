@@ -64,13 +64,7 @@
               <a :href="`/${schema}/api/excel`">excel</a> /
               <a :href="`/${schema}/api/zip`">csv.zip</a> /
               <a :href="`/${schema}/api/ttl`">ttl</a> /
-              <a :href="`/${schema}/api/jsonld`">jsonld</a> /
-              <a :href="`/${schema}/api/json/_data`">all data as json</a>
-            </p>
-
-            <p>
-              A json link gives the first 1000 rows of a table. The csv and
-              csv.zip exports give all rows.
+              <a :href="`/${schema}/api/jsonld`">jsonld</a>
             </p>
 
             <div>
@@ -91,8 +85,14 @@
               </ul>
             </div>
 
+            <p>
+              Export the first 1000 rows of every table as
+              <a :href="`/${schema}/api/json/_data`">json</a>.
+            </p>
+
             <div v-if="visibleTables?.length" :key="tablesHash">
-              Export specific tables:
+              Export specific tables (json gives the first 1000 rows, csv and
+              excel give all rows):
               <ul>
                 <li v-for="table in visibleTables" :key="table.id">
                   {{ table.label }}:
