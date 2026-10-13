@@ -327,7 +327,10 @@ class JsonRowsApiWriteTest extends ApiTestBase {
   void putOfAFileObjectKeepsTheStoredFile() throws Exception {
     String rows = "[{\"name\":\"pk\",\"photo\":" + photoOf(OTHER, "pk") + "}]";
     assertEquals(200, rest("PUT", OTHER, PET, rows, false).statusCode());
-    assertEquals(5, photoOf(OTHER, "pk").path("size").asInt());
+    JsonNode photo = photoOf(OTHER, "pk");
+    assertEquals(5, photo.path("size").asInt());
+    assertEquals(
+        "hello", given().sessionId(sessionId).when().get(photo.path("url").asText()).asString());
   }
 
   @Test
