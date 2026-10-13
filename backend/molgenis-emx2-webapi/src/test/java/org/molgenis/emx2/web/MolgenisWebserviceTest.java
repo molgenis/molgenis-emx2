@@ -102,7 +102,6 @@ class MolgenisWebserviceTest extends ApiTestBase {
     Response yaml =
         given().sessionId(sessionId).when().get("/" + schema.getName() + "/api/openapi.yaml");
     Response ui = given().sessionId(sessionId).when().get("/" + schema.getName() + "/api/openapi");
-    database.dropSchema(schema.getName());
 
     assertEquals(200, yaml.statusCode());
     assertTrue(yaml.contentType().contains("yaml"), yaml.contentType());
