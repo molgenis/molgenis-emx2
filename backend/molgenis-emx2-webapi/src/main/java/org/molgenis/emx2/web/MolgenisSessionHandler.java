@@ -32,9 +32,10 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   @Override
   public synchronized void createSession(String username) {
     HttpSession session = request.getSession(true);
-    String previousSessionId = session.getId();
     String previousUsername = (String) session.getAttribute(USERNAME);
-    unregisterSession(previousUsername, previousSessionId);
+    if (previousUsername != null) {
+      unregisterSession(previousUsername, session.getId());
+    }
 
     String sessionId = request.changeSessionId();
     session.setMaxInactiveInterval(30 * 60); // 30 minutes
@@ -56,14 +57,15 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
       String username = (String) session.getAttribute(USERNAME);
       String sessionId = session.getId();
       session.invalidate();
-      unregisterSession(username, sessionId);
-
-      logger.info(
-          "session {} invalidated. User {} now has {} sessions with {} total",
-          sessionId,
-          username,
-          sessionCountForUser(username),
-          sessionGauge.get());
+      if (username != null) {
+        unregisterSession(username, sessionId);
+        logger.info(
+            "session {} invalidated. User {} now has {} sessions with {} total",
+            sessionId,
+            username,
+            userSessions.getOrDefault(username, Set.of()).size(),
+            sessionGauge.get());
+      }
     }
   }
 
@@ -76,17 +78,10 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   }
 
   private static void unregisterSession(String username, String sessionId) {
-    if (username == null) return;
     Set<String> sessions = userSessions.get(username);
     if (sessions != null && sessions.remove(sessionId)) {
       sessionGauge.dec(1);
     }
-  }
-
-  private static int sessionCountForUser(String username) {
-    if (username == null) return 0;
-    Set<String> sessions = userSessions.get(username);
-    return sessions == null ? 0 : sessions.size();
   }
 
   @Override
