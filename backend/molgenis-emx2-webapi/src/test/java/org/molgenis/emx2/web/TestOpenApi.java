@@ -74,6 +74,7 @@ public class TestOpenApi {
             .add(Column.column("owner name").setPkey())
             .add(Column.column("age").setType(ColumnType.INT))
             .add(Column.column("pet").setType(ColumnType.REF).setRefTable("Pet")));
+    schema.create(TableMetadata.table("Dog").setInheritName("Pet").add(Column.column("breed")));
     pet.add(
         Column.column("owners")
             .setType(ColumnType.REFBACK)
@@ -129,7 +130,7 @@ public class TestOpenApi {
     assertTablePath(
         api,
         "Pet",
-        List.of("name", "weight", "tags", "mg_tableclass"),
+        List.of("name", "weight", "tags", "mg_tableclass", "breed"),
         List.of("ownerName", "age"));
     assertTablePath(
         api, "Pet Owner", List.of("ownerName", "age"), List.of("name", "weight", "tags"));
