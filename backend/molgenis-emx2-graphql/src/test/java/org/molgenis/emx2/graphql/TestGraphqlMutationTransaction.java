@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
@@ -227,7 +228,27 @@ class TestGraphqlMutationTransaction {
   }
 
   @Test
-  void dataMutationCombinedWithOtherMutationIsRejected() {
+  void transactionalMutationCombinedWithOtherMutationIsRejected() {
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    """
+                    mutation {
+                      insert(Author: { name: "tolkien", country: "uk" }) { message }
+                      signin(email: "nobody", password: "nothing") { message }
+                    }
+                    """));
+    assertEquals(
+        "Mutations (change, drop, truncate, insert, save, update, delete) cannot be combined with other mutations: signin",
+        exception.getMessage());
+
+    CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
+  void schemaMutationAfterDataMutationIsRejected() {
     book.insert(row("title", "the hobbit"));
 
     MolgenisException exception =
@@ -242,12 +263,138 @@ class TestGraphqlMutationTransaction {
                     }
                     """));
     assertEquals(
-        "Data mutations (insert, save, update, delete) cannot be combined with other mutations: truncate",
+        "Schema mutations (change, drop, truncate) must precede data mutations (insert, save, update, delete)",
         exception.getMessage());
 
     CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
     CompareTools.assertEquals(
         List.of(row("title", "the hobbit", "author", null)), book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
+  void schemaAndDataMutationsAreCommittedTogether() throws IOException {
+    try {
+      execute(
+          """
+          mutation {
+            change(settings: [{ key: "transaction.test", value: "committed" }]) { message }
+            insert(Author: { name: "tolkien", country: "uk" }) { message }
+          }
+          """);
+
+      assertEquals("committed", schema.getMetadata().getSetting("transaction.test"));
+      assertEquals("committed", reloadedSchema().getMetadata().getSetting("transaction.test"));
+      CompareTools.assertEquals(
+          List.of(row("name", "tolkien", "country", "uk")),
+          author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    } finally {
+      schema.getMetadata().removeSetting("transaction.test");
+    }
+  }
+
+  @Test
+  void schemaMutationsAreRolledBackWhenDataMutationFails() {
+    schema.create(table("Temporary", column("name").setPkey()));
+    try {
+      MolgenisException exception =
+          assertThrows(
+              MolgenisException.class,
+              () ->
+                  execute(
+                      """
+                      mutation {
+                        drop(tables: ["Temporary"]) { message }
+                        change(settings: [{ key: "transaction.test", value: "rolled back" }]) { message }
+                        save(Book: { title: "lord of the rings", author: { name: "does not exist" } }) { message }
+                      }
+                      """));
+      assertFailedOnBook(exception);
+
+      assertTrue(schema.getTableNames().contains("Temporary"));
+      assertTrue(reloadedSchema().getTableNames().contains("Temporary"));
+      assertNull(schema.getMetadata().getSetting("transaction.test"));
+      assertNull(reloadedSchema().getMetadata().getSetting("transaction.test"));
+    } finally {
+      schema.dropTable("Temporary");
+    }
+  }
+
+  @Test
+  void truncateAndInsertAreCommittedTogether() throws IOException {
+    author.insert(row("name", "tolkien", "country", "uk"));
+    book.insert(row("title", "the hobbit", "author", "tolkien"));
+
+    execute(
+        """
+        mutation {
+          truncate(tables: ["Book"]) { message }
+          insert(Book: { title: "lord of the rings", author: { name: "tolkien" } }) { message }
+        }
+        """);
+
+    CompareTools.assertEquals(
+        List.of(row("title", "lord of the rings", "author", "tolkien")),
+        book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
+  void truncateIsRolledBackWhenDataMutationFails() {
+    book.insert(row("title", "the hobbit"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    """
+                    mutation {
+                      truncate(tables: ["Book"]) { message }
+                      insert(Book: { title: "lord of the rings", author: { name: "does not exist" } }) { message }
+                    }
+                    """));
+    assertFailedOnBook(exception);
+
+    CompareTools.assertEquals(
+        List.of(row("title", "the hobbit", "author", null)), book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
+  void asyncTruncateCombinedWithOtherMutationIsRejected() {
+    book.insert(row("title", "the hobbit"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    """
+                    mutation {
+                      truncate(tables: ["Book"], async: true) { message }
+                      insert(Author: { name: "tolkien", country: "uk" }) { message }
+                    }
+                    """));
+    assertEquals("Async truncate cannot be combined with other mutations", exception.getMessage());
+
+    CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(
+        List.of(row("title", "the hobbit", "author", null)), book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
+  void fieldsAfterFailingFieldAreSkipped() {
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    """
+                    mutation {
+                      delete(strict: true, Book: { title: "unknown book" }) { message }
+                      delete2: delete(strict: true, Author: { name: "unknown author" }) { message }
+                    }
+                    """));
+    assertFailedOnBook(exception);
+    assertEquals(0, exception.getSuppressed().length);
   }
 
   @Test
@@ -286,6 +433,12 @@ class TestGraphqlMutationTransaction {
     assertTrue(
         exception.getMessage().contains("Book"),
         "expected the failure to originate from table Book but got: " + exception.getMessage());
+  }
+
+  private Schema reloadedSchema() {
+    Database database = TestDatabaseFactory.getTestDatabase();
+    database.clearCache();
+    return database.getSchema(SCHEMA_NAME);
   }
 
   private JsonNode execute(String query) throws IOException {

@@ -610,7 +610,7 @@ public class GraphqlSchemaFieldFactory {
   private static DataFetcher<?> dropFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
       StringBuilder message = new StringBuilder();
-      schema
+      GraphqlTransactionalMutationStrategy.currentSchema(dataFetchingEnvironment, schema)
           .getDatabase()
           .tx(
               db -> {
@@ -620,10 +620,14 @@ public class GraphqlSchemaFieldFactory {
                 dropRoles(s, dataFetchingEnvironment, message);
                 dropColumns(s, dataFetchingEnvironment, message);
                 dropSettings(s, dataFetchingEnvironment, message);
-                // this sync is a bit sad.
-                ((SqlSchemaMetadata) schema.getMetadata())
-                    .sync((SqlSchemaMetadata) s.getMetadata());
-                db.getListener().onSchemaChange();
+                // the request transaction syncs after commit
+                if (!GraphqlTransactionalMutationStrategy.inRequestTransaction(
+                    dataFetchingEnvironment)) {
+                  // this sync is a bit sad.
+                  ((SqlSchemaMetadata) schema.getMetadata())
+                      .sync((SqlSchemaMetadata) s.getMetadata());
+                  db.getListener().onSchemaChange();
+                }
               });
       Map<String, String> result = new LinkedHashMap<>();
       result.put(GraphqlConstants.DETAIL, message.toString());
@@ -637,6 +641,12 @@ public class GraphqlSchemaFieldFactory {
       boolean async = dataFetchingEnvironment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
       GraphqlApiMutationResult result =
           new GraphqlApiMutationResult(SUCCESS, "Truncated tables: " + String.join(", ", tables));
+
+      if (async
+          && GraphqlTransactionalMutationStrategy.isCombinedWithOtherMutations(
+              dataFetchingEnvironment)) {
+        throw new GraphqlException("Async truncate cannot be combined with other mutations");
+      }
 
       if (async) {
         Task task =
@@ -659,7 +669,9 @@ public class GraphqlSchemaFieldFactory {
         String id = taskService.submit(task);
         result.setTaskId(id);
       } else {
-        truncateTables(schema, tables);
+        truncateTables(
+            GraphqlTransactionalMutationStrategy.currentSchema(dataFetchingEnvironment, schema),
+            tables);
       }
       return result;
     };
@@ -875,7 +887,7 @@ public class GraphqlSchemaFieldFactory {
 
   public GraphQLFieldDefinition changeMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("change")
+        .name(CHANGE)
         .type(typeForMutationResult)
         .dataFetcher(changeFetcher(schema))
         .argument(
@@ -903,7 +915,7 @@ public class GraphqlSchemaFieldFactory {
 
   private DataFetcher<?> changeFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
-      schema
+      GraphqlTransactionalMutationStrategy.currentSchema(dataFetchingEnvironment, schema)
           .getDatabase()
           .tx(
               db -> {
@@ -914,10 +926,14 @@ public class GraphqlSchemaFieldFactory {
                   changeMembers(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
-                  // this sync is a bit sad.
-                  ((SqlSchemaMetadata) schema.getMetadata())
-                      .sync((SqlSchemaMetadata) s.getMetadata());
-                  db.getListener().onSchemaChange();
+                  // the request transaction syncs after commit
+                  if (!GraphqlTransactionalMutationStrategy.inRequestTransaction(
+                      dataFetchingEnvironment)) {
+                    // this sync is a bit sad.
+                    ((SqlSchemaMetadata) schema.getMetadata())
+                        .sync((SqlSchemaMetadata) s.getMetadata());
+                    db.getListener().onSchemaChange();
+                  }
                 } catch (IOException e) {
                   throw new GraphqlException("Save metadata failed", e);
                 }
@@ -1004,7 +1020,7 @@ public class GraphqlSchemaFieldFactory {
 
   public GraphQLFieldDefinition dropMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("drop")
+        .name(DROP)
         .type(typeForMutationResult)
         .dataFetcher(dropFetcher(schema))
         .argument(
@@ -1032,7 +1048,7 @@ public class GraphqlSchemaFieldFactory {
 
   public GraphQLFieldDefinition.Builder truncateMutation(Schema schema, TaskService taskService) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("truncate")
+        .name(TRUNCATE)
         .dataFetcher(truncateFetcher(schema, taskService))
         .type(typeForMutationResult)
         .argument(

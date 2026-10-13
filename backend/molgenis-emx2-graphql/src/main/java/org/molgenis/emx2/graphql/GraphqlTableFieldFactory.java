@@ -982,7 +982,7 @@ public class GraphqlTableFieldFactory {
   private DataFetcher fetcher(Schema schema, MutationType mutationType) {
     return dataFetchingEnvironment -> {
       Schema currentSchema =
-          dataFetchingEnvironment.getGraphQlContext().getOrDefault(Schema.class, schema);
+          GraphqlTransactionalMutationStrategy.currentSchema(dataFetchingEnvironment, schema);
       if (currentSchema.getMetadata().getTables().stream()
           .noneMatch(t -> dataFetchingEnvironment.getArgument(t.getIdentifier()) != null)) {
         throw new MolgenisException("None or invalid tables provided");
