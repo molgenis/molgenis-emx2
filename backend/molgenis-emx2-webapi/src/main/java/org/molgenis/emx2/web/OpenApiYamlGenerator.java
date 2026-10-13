@@ -235,7 +235,7 @@ public class OpenApiYamlGenerator {
           case BOOL, BOOL_ARRAY -> new BooleanSchema();
           case INT, INT_ARRAY, LONG, LONG_ARRAY -> new IntegerSchema();
           case DECIMAL, DECIMAL_ARRAY -> new NumberSchema();
-          case REF, REF_ARRAY, REFBACK, FILE, JSON -> new ObjectSchema();
+          case REF, REF_ARRAY, FILE, JSON -> new ObjectSchema();
           default -> new StringSchema();
         };
     return type.isArray() ? new ArraySchema().items(value) : value;

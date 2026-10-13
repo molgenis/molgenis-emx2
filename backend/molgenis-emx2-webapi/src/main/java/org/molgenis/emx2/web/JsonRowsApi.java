@@ -68,7 +68,7 @@ public class JsonRowsApi {
     app.delete(path + "/{table}", table("delete"));
   }
 
-  static ExecutionResult execute(Context ctx, String query, Map<String, Object> variables) {
+  private static ExecutionResult execute(Context ctx, String query, Map<String, Object> variables) {
     return execute(ctx, query, variables, false);
   }
 

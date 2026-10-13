@@ -240,7 +240,6 @@ public class Row {
     return this;
   }
 
-  /** Marks a file column whose stored content a save must keep. */
   public Row keepFile(String name) {
     keptFiles.add(name);
     return this;
