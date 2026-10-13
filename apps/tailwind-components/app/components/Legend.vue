@@ -3,7 +3,7 @@
     <slot name="title" />
     <ul class="list-none">
       <li v-for="(section, index) in sections" :key="section.id">
-        <FormLegendHeader
+        <LegendHeader
           :id="section.id"
           :label="section.label"
           :isActive="
@@ -14,13 +14,13 @@
         />
         <ul v-for="header in section.headers" class="list-none">
           <li class="pl-4" v-if="header.isVisible !== false">
-            <FormLegendHeader
+            <LegendHeader
               :id="header.id"
               :label="header.label"
               :isActive="header.isActive ? true : false"
               :errorCount="header.errorCount"
               @goToSection="emit('goToSection', $event)"
-            ></FormLegendHeader>
+            ></LegendHeader>
           </li>
         </ul>
       </li>
@@ -29,9 +29,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { LegendSection } from "../../../../metadata-utils/src/types";
+import type { LegendSection } from "../../../metadata-utils/src/types";
 import { computed } from "vue";
-import FormLegendHeader from "./legend/Header.vue";
+import LegendHeader from "./legend/Header.vue";
 
 const props = defineProps<{
   sections: LegendSection[];

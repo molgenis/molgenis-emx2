@@ -15,7 +15,7 @@ import type {
 } from "../../../types/record";
 import { groupRecordSections } from "../../utils/groupRecordSections";
 import { recordTitle } from "../../utils/recordTitle";
-import FormLegend from "../form/Legend.vue";
+import Legend from "../Legend.vue";
 import SidebarLayout from "./SidebarLayout.vue";
 import DisplayRecordSection from "./RecordSection.vue";
 
@@ -148,7 +148,7 @@ const title = computed(() =>
     </template>
 
     <template v-if="hasTableOfContents" #sidebar>
-      <FormLegend
+      <Legend
         :sections="legendGroups"
         class="hidden lg:block rounded-t-base rounded-b-alt shadow-primary"
         @goToSection="goToSection"
@@ -160,7 +160,7 @@ const title = computed(() =>
             {{ title }}
           </h2>
         </template>
-      </FormLegend>
+      </Legend>
     </template>
 
     <template #main>

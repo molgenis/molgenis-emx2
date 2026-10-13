@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, test } from "vitest";
-import Legend from "../../../../app/components/form/Legend.vue";
+import Legend from "../../../app/components/Legend.vue";
 
 describe("Legend", () => {
   test("asks the form to scroll when an entry is clicked", async () => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { MaybeRef } from "vue";
 import { computed, unref, useId } from "vue";
-import FormLegendErrorCounter from "./ErrorCounter.vue";
+import LegendErrorCounter from "./ErrorCounter.vue";
 const props = withDefaults(
   defineProps<{
     id: string;
@@ -46,7 +46,7 @@ const emit = defineEmits<{
           {{ label }}
         </span>
       </a>
-      <FormLegendErrorCounter
+      <LegendErrorCounter
         v-if="(unref(errorCount) ?? 0) > 0"
         :label="label"
         :errorCount="errorCount"
