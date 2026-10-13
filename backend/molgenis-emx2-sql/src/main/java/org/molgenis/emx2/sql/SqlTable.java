@@ -291,6 +291,9 @@ public class SqlTable implements Table {
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
       List<Row> rows = subclassRows.get(subclassName);
+      if (SAVE.equals(transactionType)) {
+        copyKeptFiles(table, rows);
+      }
       SqlRowProcessor rowProcessor = new SqlRowProcessor(schema.getDatabase(), insertColumns);
       rowProcessor.validateAndCompute(rows);
       count.set(
@@ -304,6 +307,28 @@ public class SqlTable implements Table {
     }
     // clear the list
     subclassRows.get(subclassName).clear();
+  }
+
+  private static final List<String> FILE_COLUMN_SUFFIXES =
+      List.of("", "_filename", "_extension", "_mimetype", "_size", "_contents");
+
+  private static void copyKeptFiles(SqlTable table, List<Row> rows) {
+    List<Row> flagged = rows.stream().filter(row -> !row.getKeptFiles().isEmpty()).toList();
+    if (flagged.isEmpty()) {
+      return;
+    }
+    List<Column> primaryKeyColumns = table.getMetadata().getPrimaryKeyColumns();
+    for (UpdatePair pair :
+        pair(flagged, table.getRowsByRowKey(flagged, false), primaryKeyColumns)) {
+      if (pair.existing() == null) {
+        continue;
+      }
+      for (String file : pair.row().getKeptFiles()) {
+        for (String suffix : FILE_COLUMN_SUFFIXES) {
+          pair.row().set(file + suffix, pair.existing().getValueMap().get(file + suffix));
+        }
+      }
+    }
   }
 
   private static boolean containsBinaryField(List<Column> updateColumns) {

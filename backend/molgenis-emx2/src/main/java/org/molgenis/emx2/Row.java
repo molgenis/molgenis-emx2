@@ -14,8 +14,10 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 public class Row {
   private Map<String, Object> values = new LinkedHashMap<>();
+  private final Set<String> keptFiles = new LinkedHashSet<>();
 
   public Row(Row row) {
+    keptFiles.addAll(row.keptFiles);
     for (Map.Entry<String, Object> e : row.getValueMap().entrySet()) {
       values.put(e.getKey(), e.getValue());
     }
@@ -236,6 +238,16 @@ public class Row {
   public Row setDecimalArray(String name, Double[] value) {
     this.values.put(name, value);
     return this;
+  }
+
+  /** Marks a file column whose stored content a save must keep. */
+  public Row keepFile(String name) {
+    keptFiles.add(name);
+    return this;
+  }
+
+  public Set<String> getKeptFiles() {
+    return Collections.unmodifiableSet(keptFiles);
   }
 
   public Row setBinary(String name, File value) {
