@@ -284,16 +284,18 @@ public class MolgenisWebservice {
     return result.toString();
   }
 
-  private static String openApiYaml(Context ctx) throws IOException {
+  private static void openApiYaml(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
     if (schema == null) {
       throw new MolgenisException("Schema is null");
     }
     OpenAPI api = OpenApiYamlGenerator.createOpenApi(schema.getMetadata());
     ctx.status(200);
-    return Yaml.mapper()
-        .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
-        .writeValueAsString(api);
+    ctx.contentType(ACCEPT_YAML);
+    ctx.result(
+        Yaml.mapper()
+            .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
+            .writeValueAsString(api));
   }
 
   /**
