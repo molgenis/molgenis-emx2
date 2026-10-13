@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import DraggableComponent from "./DraggableComponent.vue";
+import Accordion from "../Accordion.vue";
 const emit = defineEmits(["dragging"]);
 const handleDragEvent = (event: DragEvent) => {
   emit("dragging", event);
 };
-
-const componentsOpen = ref<boolean>(true);
-const blocksOpen = ref<boolean>(true);
 </script>
 
 <template>
@@ -19,134 +17,123 @@ const blocksOpen = ref<boolean>(true);
         Component palette
       </h2>
     </div>
-
-    <hr class="border-t border-filter-divider mx-5" />
-    <div
-      class="p-5 flex items-center gap-1 cursor-pointer group"
-      role="button"
-      tabindex="0"
-      :aria-expanded="componentsOpen"
-      aria-controls="draggable-components"
-      @click="componentsOpen = !componentsOpen"
-    >
-      <h3
-        class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words"
+    <div class="mx-5 py-2.5 border-b">
+      <Accordion
+        id="components-section"
+        label="Components"
+        :inList="true"
+        class="[&_div:first-child]:p-0 [&_div:last-child]:p-0"
       >
-        Components
-      </h3>
-      <span
-        class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle group-hover:bg-search-filter-group-toggle transition-transform shrink-0"
-        :class="{ 'rotate-180': componentsOpen }"
-      >
-        <BaseIcon name="caret-up" :width="26" />
-      </span>
+        <ul class="py-2.5">
+          <li>
+            <DraggableComponent
+              icon="heading"
+              componentName="Heading"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="paragraph"
+              componentName="Paragraph"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="image"
+              componentName="Image"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="ListBulleted"
+              componentName="UnorderedLists"
+              componentLabel="Unordered list"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="ListNumbered"
+              componentName="OrderedLists"
+              componentLabel="Ordered list"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="AddLink"
+              componentName="NavigationCards"
+              componentLabel="Navigation card"
+              @dragging="handleDragEvent"
+            />
+          </li>
+        </ul>
+      </Accordion>
     </div>
-    <div v-if="componentsOpen" class="px-5 pb-5" id="draggable-components">
-      <ul>
-        <li>
-          <DraggableComponent
-            icon="heading"
-            componentName="Heading"
-            @dragging="handleDragEvent"
-          />
-        </li>
-        <li>
-          <DraggableComponent
-            icon="paragraph"
-            componentName="Paragraph"
-            @dragging="handleDragEvent"
-          />
-        </li>
-        <li>
-          <DraggableComponent
-            icon="image"
-            componentName="Image"
-            @dragging="handleDragEvent"
-          />
-        </li>
-        <li>
-          <DraggableComponent
-            icon="ListBulleted"
-            componentName="UnorderedLists"
-            componentLabel="Unordered list"
-            @dragging="handleDragEvent"
-          />
-        </li>
-        <li>
-          <DraggableComponent
-            icon="ListNumbered"
-            componentName="OrderedLists"
-            componentLabel="Ordered list"
-            @dragging="handleDragEvent"
-          />
-        </li>
-        <li>
-          <DraggableComponent
-            icon="AddLink"
-            componentName="NavigationCards"
-            componentLabel="Navigation card"
-            @dragging="handleDragEvent"
-          />
-        </li>
-      </ul>
-    </div>
-
-    <hr class="border-t border-filter-divider mx-5" />
-    <div
-      class="p-5 flex items-center gap-1 cursor-pointer group"
-      role="button"
-      tabindex="0"
-      :aria-expanded="blocksOpen"
-      aria-controls="draggable-blocks"
-      @click="blocksOpen = !blocksOpen"
-    >
-      <h3
-        class="font-sans text-body-base font-bold text-search-filter-group-title group-hover:underline min-w-0 break-words"
+    <div class="mx-5 py-2.5 border-b">
+      <Accordion
+        id="visualisation-section"
+        label="Visualisation"
+        :inList="true"
+        class="[&_div:first-child]:p-0 [&_div:last-child]:p-0"
       >
-        Blocks
-      </h3>
-      <span
-        class="flex items-center justify-center w-8 h-8 rounded-full text-search-filter-group-toggle group-hover:bg-search-filter-group-toggle transition-transform shrink-0"
-        :class="{ 'rotate-180': blocksOpen }"
-      >
-        <BaseIcon name="caret-up" :width="26" />
-      </span>
+        <ul class="py-2.5">
+          <li>
+            <DraggableComponent
+              icon="AddChart"
+              componentName="ColumnCharts"
+              componentLabel="Column chart"
+              @dragging="handleDragEvent"
+            />
+          </li>
+        </ul>
+      </Accordion>
     </div>
-    <div v-if="blocksOpen" class="px-5 pb-5" id="draggable-blocks">
-      <ul>
-        <li>
-          <DraggableComponent
-            icon="header"
-            componentName="Header"
-            componentType="Block"
-            @dragging="handleDragEvent"
-          />
-        </li>
-        <li>
-          <DraggableComponent
-            icon="view-normal"
-            componentName="Section"
-            componentType="Block"
-            @dragging="handleDragEvent"
-          />
-        </li>
-        <li>
-          <DraggableComponent
-            icon="columns"
-            componentName="Section - 2 Columns"
-            componentType="Block"
-            @dragging="handleDragEvent"
-          />
-        </li>
-        <li>
-          <DraggableComponent
-            icon="columns"
-            componentName="Section - 3 Columns"
-            componentType="Block"
-            @dragging="handleDragEvent"
-          />
-        </li>
-      </ul>
+    <div class="mx-5 py-2.5 border-b">
+      <Accordion
+        id="blocks-section"
+        label="Layouts"
+        :inList="true"
+        class="[&_div:first-child]:p-0 [&_div:last-child]:p-0"
+      >
+        <ul class="py-2.5">
+          <li>
+            <DraggableComponent
+              icon="header"
+              componentName="Header"
+              componentType="Block"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="view-normal"
+              componentName="Section"
+              componentType="Block"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="columns"
+              componentName="Section - 2 Columns"
+              componentType="Block"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
+              icon="columns"
+              componentName="Section - 3 Columns"
+              componentType="Block"
+              @dragging="handleDragEvent"
+            />
+          </li>
+        </ul>
+      </Accordion>
     </div>
   </div>
 </template>

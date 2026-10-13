@@ -285,6 +285,8 @@ public class GraphqlTableFieldFactory {
                           .name(GraphqlConstants.FILTER_ARGUMENT)
                           .type(getTableFilterInputType(col.getRefTable()))
                           .build()));
+        }
+        if (hasGroupByPermission(col.getRefTable())) {
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id + "_groupBy")
@@ -307,6 +309,10 @@ public class GraphqlTableFieldFactory {
 
   boolean hasAggregatePermission(TableMetadata table) {
     return PermissionEvaluator.canExists(schema, table);
+  }
+
+  boolean hasGroupByPermission(TableMetadata table) {
+    return PermissionEvaluator.canCount(schema, table);
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
@@ -723,7 +729,7 @@ public class GraphqlTableFieldFactory {
                       table
                           .getSchema()
                           .getSchemaMetadataProvider()
-                          .getSchemaMetadata(c.getRefSchemaName())
+                          .getSchemaMetadata(c.getRefTable().getSchemaName())
                           .getTableMetadata(c.getRefTableName()),
                       remainingOperators)));
         } else {

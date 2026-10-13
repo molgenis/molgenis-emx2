@@ -501,10 +501,8 @@ public class SqlColumnExecutor {
       // if has refback also drop that automatically
       if (column.getReferenceRefback() != null) {
         SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
-        column
-            .getTable()
-            .getSchema()
-            .getSchemaMetadataProvider()
+        ((SqlSchemaMetadata) column.getTable().getSchema())
+            .getDatabase()
             .getListener()
             .schemaChanged(column.getReferenceRefback().getSchemaName());
       }
@@ -524,12 +522,9 @@ public class SqlColumnExecutor {
   }
 
   static void executeRemoveRefConstraints(DSLContext jooq, Column column) {
-    if (column.isRef()) {
+    if (column.isReference()) {
       SqlColumnRefExecutor.removeRefConstraints(jooq, column);
-    } else if (column.isRefArray()) {
       removeRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 

@@ -37,8 +37,9 @@ import org.slf4j.LoggerFactory;
  * already be filled in. But {@code Customer.order} can only be filled in using this very {@code
  * Order} row. Waiting for {@code Customer} to resolve first would never work, since it's waiting on
  * us too. So instead we just copy {@code Order}'s own {@code orderNumber} straight into {@code
- * Customer.order}. See {@link #pointsBackAtOwnTable} and {@link #completeMutualKey} for where this
- * happens.
+ * Customer.order}. This only happens when that {@code Customer} row actually points back at this
+ * {@code Order} row, not just at the {@code Order} table. See {@link #pointsBackAtSelf} and {@link
+ * #completeMutualKey} for where this happens.
  *
  * <p>Tables are resolved in schema order, so a table processed early may need a value that only
  * becomes available once a later table is resolved (or gets this kind of fix-up). {@link #process}
@@ -113,7 +114,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
       }
 
       Optional<Object> value = readAvailableValue(reference, referencedRow);
-      if (value.isEmpty() && pointsBackAtOwnTable(column, reference)) {
+      if (value.isEmpty() && pointsBackAtSelf(row, referencedRow, column, reference)) {
         // These two rows depend on each other (see the class doc example): the referenced row
         // can't resolve this on its own, so we write the value into both rows right here.
         value = Optional.ofNullable(completeMutualKey(row, referencedRow, reference));
@@ -146,7 +147,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
         Optional<Object> value = readAvailableValue(reference, referencedRow);
         // These two rows depend on each other (see the class doc example): the referenced row
         // can't resolve this on its own, so we write the value into both rows right here.
-        if (value.isEmpty() && pointsBackAtOwnTable(column, reference)) {
+        if (value.isEmpty() && pointsBackAtSelf(row, referencedRow, column, reference)) {
           value = Optional.of(completeMutualKey(row, referencedRow, reference));
         }
 
@@ -186,19 +187,36 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
   }
 
   /**
-   * True when {@code reference} points back at {@code column}'s own table, like {@code
-   * Customer.order} pointing back at {@code Order} in the example above. Resolving it the normal
-   * way would mean the two rows wait on each other forever.
+   * True when {@code referencedRow} points back at {@code row}, like {@code Customer.order}
+   * pointing back at {@code Order} in the class doc example:
+   *
+   * <ul>
+   *   <li>{@code reference} must target {@code row}'s own table (or one it inherits from).
+   *   <li>If {@code referencedRow} holds a subject IRI for that back-reference, it must equal
+   *       {@code row}'s subject.
+   *   <li>If it holds none, we assume it points back at {@code row}.
+   * </ul>
    */
-  private static boolean pointsBackAtOwnTable(Column column, Reference reference) {
-    return column.getTable().getAllInheritNames().contains(reference.getTargetTable());
+  private static boolean pointsBackAtSelf(
+      Row row, Row referencedRow, Column column, Reference reference) {
+    if (!column.getTable().getAllInheritNames().contains(reference.getTargetTable())) {
+      return false;
+    }
+
+    if (referencedRow.notEmpty(SUBJECT_NAME + reference.getReferencedColumnName())) {
+      return referencedRow
+          .getString(SUBJECT_NAME + reference.getReferencedColumnName())
+          .equals(row.getString(SUBJECT_NAME));
+    }
+
+    return true;
   }
 
   /**
    * Writes {@code row}'s own value for {@code reference} into {@code referencedRow}'s matching key
    * column, and returns that value. Mutates {@code referencedRow}. Only call this for the
-   * mutual-key case (see {@link #pointsBackAtOwnTable}), where the referenced row cannot fill in
-   * that column on its own.
+   * mutual-key case (see {@link #pointsBackAtSelf}), where the referenced row cannot fill in that
+   * column on its own.
    */
   private Object completeMutualKey(Row row, Row referencedRow, Reference reference) {
     Object ownValue = row.getValueMap().get(reference.getTargetColumn());

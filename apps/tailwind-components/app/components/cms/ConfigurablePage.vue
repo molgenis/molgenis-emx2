@@ -21,7 +21,6 @@ const props = withDefaults(
     isEditable: false,
   }
 );
-
 const emit = defineEmits(["updatePage"]);
 const handleDragEvent = (value: IDraggingInfo) => {
   draggingInfo.value = value;
@@ -85,6 +84,7 @@ const sidebarCollapsed = ref(false);
           @updatePage="$emit('updatePage')"
           @dragging="handleDragEvent"
         />
+
         <PageComponent
           v-else-if="orderedBlock.block.mg_tableclass.endsWith('.Sections')"
           :mg_tableclass="orderedBlock.block.mg_tableclass"
