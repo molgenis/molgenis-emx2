@@ -66,7 +66,7 @@ class Publisher:
 
         self.printer.print("🧼 Cleaning up and withdrawing deleted data in Directory tables")
         with self.printer.indentation():
-            self._delete_data(state)
+            await self._delete_data(state)
 
     async def _upsert_data(self, state):
         try:
@@ -76,11 +76,11 @@ class Publisher:
         except MolgenisRequestError as e:
             raise DirectoryError("Error importing data to combined tables") from e
 
-    def _delete_data(self, state):
+    async def _delete_data(self, state):
         for table in reversed(state.data_to_publish.import_order):
             # Check whether deletion is allowed or 'withdrawn' should be used
             if "withdrawn" in table.meta.attributes:
-                self._withdraw_rows(table, state.existing_data.table_by_type[table.type])
+                await self._withdraw_rows(table, state.existing_data.table_by_type[table.type])
             else:
                 try:
                     with self.printer.indentation():
