@@ -7,7 +7,10 @@ import ComponentActions from "../ComponentActions.vue";
 import FileDownload from "./FileDownload.vue";
 import Button from "../../Button.vue";
 import { useForm } from "#imports";
-import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 import type {
   ColumnType,
   ITableMetaData,

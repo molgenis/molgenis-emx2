@@ -3,7 +3,10 @@ import { ref } from "vue";
 
 import NavigationCard from "./NavigationCard.vue";
 import ComponentActions from "../ComponentActions.vue";
-import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 import type { INavigationCards } from "../../../../types/cms";
 

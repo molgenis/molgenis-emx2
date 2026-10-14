@@ -3,7 +3,10 @@ import { ref } from "vue";
 import ColumnChart from "../../../components/viz/ColumnChart/ColumnChart.vue";
 import ComponentActions from "../ComponentActions.vue";
 import type { IStatisticalCharts } from "../../../../types/cms.ts";
-import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 const props = withDefaults(
   defineProps<IStatisticalCharts & { isEditable?: boolean }>(),

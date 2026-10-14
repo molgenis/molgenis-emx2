@@ -4,7 +4,10 @@ import type { IFiles } from "../../../../types/cms";
 import ComponentActions from "../ComponentActions.vue";
 import FileDownloadItem from "./FileDownloadItem.vue";
 import UploadNeeded from "../UploadNeeded.vue";
-import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 const props = withDefaults(defineProps<IFiles & { isEditable?: boolean }>(), {
   isEditable: false,

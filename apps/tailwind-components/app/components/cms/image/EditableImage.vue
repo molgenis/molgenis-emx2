@@ -4,7 +4,10 @@ import Image from "./Image.vue";
 import type { IImages } from "../../../../types/cms";
 import ComponentActions from "../ComponentActions.vue";
 import UploadNeeded from "../UploadNeeded.vue";
-import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 const props = withDefaults(defineProps<IImages & { isEditable?: boolean }>(), {
   isEditable: false,

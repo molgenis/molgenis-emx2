@@ -3,7 +3,10 @@ import { ref } from "vue";
 import Heading from "./Heading.vue";
 import ComponentActions from "../ComponentActions.vue";
 import type { IHeadings } from "../../../../types/cms";
-import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 const props = withDefaults(
   defineProps<IHeadings & { isEditable?: boolean }>(),

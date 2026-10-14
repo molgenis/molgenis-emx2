@@ -3,7 +3,10 @@ import { ref } from "vue";
 import Paragraph from "./Paragraph.vue";
 import ComponentActions from "../ComponentActions.vue";
 import type { IParagraphs } from "../../../../types/cms";
-import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 const props = withDefaults(
   defineProps<IParagraphs & { isEditable?: boolean }>(),

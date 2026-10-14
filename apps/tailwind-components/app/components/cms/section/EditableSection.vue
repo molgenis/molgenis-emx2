@@ -3,7 +3,10 @@ import { ref } from "vue";
 import Section from "./Section.vue";
 import ComponentActions from "../ComponentActions.vue";
 import type { ISections } from "../../../../types/cms";
-import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 const props = withDefaults(
   defineProps<ISections & { isEditable?: boolean }>(),

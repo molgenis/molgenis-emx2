@@ -3,7 +3,10 @@ import { ref } from "vue";
 import OrderedList from "./OrderedList.vue";
 import type { IOrderedLists } from "../../../../types/cms.ts";
 import ComponentActions from "../ComponentActions.vue";
-import { actionsToolbarShowDelay, actionsToolbarHideDelay } from "../../../utils/cms";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 const props = withDefaults(
   defineProps<IOrderedLists & { isEditable?: boolean }>(),
