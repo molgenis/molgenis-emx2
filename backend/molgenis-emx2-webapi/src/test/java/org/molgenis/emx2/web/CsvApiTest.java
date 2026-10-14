@@ -214,7 +214,7 @@ class CsvApiTest extends ApiTestBase {
     String formatted =
         """
         operation,stamp,userid,tablename,old,new
-        I,%s,molgenis,test,,"{""A"":""a1"",""B"":""B"",""test_TEXT_SEARCH_COLUMN"":"" a1 B "",""mg_draft"":null,""mg_insertedBy"":""admin"",""mg_insertedOn"":"""
+        I,%s,molgenis,test,,"{""A"": ""a1"", ""B"": ""B"", ""mg_draft"": null, ""mg_updatedBy"": ""admin"", ""mg_updatedOn"": """
             .formatted(settingsSchema.getChanges(1).getFirst().stamp());
 
     assertTrue(response.body().asString().startsWith(formatted));

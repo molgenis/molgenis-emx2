@@ -3,9 +3,14 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.FILE;
+import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
+import static org.molgenis.emx2.sql.Migrations.migration37changelogIndexAndAuditFunction;
 import static org.molgenis.emx2.sql.Migrations.migration5addMgTableclassUpdateTrigger;
 
 import java.util.Collections;
@@ -13,7 +18,11 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.BinaryFileWrapper;
+import org.molgenis.emx2.Change;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 
 public class TestMigration {
@@ -103,5 +112,41 @@ public class TestMigration {
     migration5addMgTableclassUpdateTrigger(database);
 
     executeMigrationFile(database, "migration22.sql", "test migration for deletion of refback");
+  }
+
+  @Test
+  void migration37RestoresStampIndexAndReplacesLegacyAuditFunction() {
+    SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema("TestMigration37");
+    schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
+    schema
+        .getMetadata()
+        .create(table("Doc", column("id").setType(INT).setPkey(), column("photo").setType(FILE)));
+
+    DSLContext jooq = database.getJooq();
+    jooq.execute("DROP INDEX \"TestMigration37\".mg_changelog_stamp_idx");
+    jooq.execute(
+        "CREATE OR REPLACE FUNCTION \"TestMigration37\".\"process_Doc_audit\"() RETURNS TRIGGER AS $Doc_audit$ "
+            + "BEGIN INSERT INTO \"TestMigration37\".mg_changelog "
+            + "SELECT left(TG_OP, 1), now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*); "
+            + "RETURN NULL; END; $Doc_audit$ LANGUAGE plpgsql");
+
+    migration37changelogIndexAndAuditFunction(database);
+
+    assertEquals(
+        1,
+        jooq.fetch(
+                "SELECT 1 FROM pg_indexes WHERE schemaname = 'TestMigration37' AND indexname = 'mg_changelog_stamp_idx'")
+            .size());
+    schema
+        .getTable("Doc")
+        .insert(
+            new Row()
+                .setInt("id", 1)
+                .setBinary(
+                    "photo", new BinaryFileWrapper("text/plain", "a.txt", "bytes".getBytes())));
+    Change change = schema.getChanges(10).get(0);
+    assertTrue(change.newRowData().contains("photo_mimetype"));
+    assertFalse(change.newRowData().contains("photo_contents"));
   }
 }

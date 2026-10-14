@@ -23,6 +23,7 @@ import org.molgenis.emx2.Schema;
 public class ChangeLogExecutor {
 
   static final int CHANGELOG_LIMIT_CAP = 1000;
+  static final String STAMP_INDEX = "mg_changelog_stamp_idx";
 
   private static final Field<String> OPERATION =
       field(name(Constants.CHANGELOG_OPERATION), CHAR(1).nullable(false));
@@ -51,6 +52,7 @@ public class ChangeLogExecutor {
         .createTableIfNotExists(changelogTable)
         .columns(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)
         .execute();
+    createStampIndex(db.getJooq(), schema.getName());
 
     // Grant rights to all to insert into change log, only admin and owner can read
     final String schemaName = schema.getName();
@@ -78,6 +80,14 @@ public class ChangeLogExecutor {
       db.getJooq()
           .execute(ChangeLogUtils.buildAuditTrigger(schema.getName(), table.getTableName()));
     }
+  }
+
+  static void createStampIndex(DSLContext jooq, String schemaName) {
+    jooq.execute(
+        "CREATE INDEX IF NOT EXISTS {0} ON {1} ({2})",
+        name(STAMP_INDEX),
+        table(name(schemaName, Constants.CHANGELOG_TABLE)),
+        name(Constants.CHANGELOG_STAMP));
   }
 
   static void executeDropChangeLogTableForSchema(SqlDatabase db, Schema schema) {

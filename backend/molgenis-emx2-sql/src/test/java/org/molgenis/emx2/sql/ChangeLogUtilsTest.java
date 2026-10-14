@@ -10,17 +10,24 @@ class ChangeLogUtilsTest {
     String expectedFunction =
         """
                         CREATE OR REPLACE FUNCTION "pet store"."process_Pet_audit"() RETURNS TRIGGER AS $Pet_audit$
+                               DECLARE
+                                   old_row jsonb := to_jsonb(OLD);
+                                   new_row jsonb := to_jsonb(NEW);
+                                   content_key text;
                                BEGIN
-                                   IF (TG_OP = 'DELETE') THEN
-                                       INSERT INTO "pet store".mg_changelog
-                                       SELECT 'D', now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*);
-                                   ELSIF (TG_OP = 'UPDATE') THEN
-                                       INSERT INTO "pet store".mg_changelog
-                                       SELECT 'U', now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*);
-                                   ELSIF (TG_OP = 'INSERT') THEN
-                                       INSERT INTO "pet store".mg_changelog
-                                       SELECT 'I', now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*);
+                                   IF (TG_OP = 'UPDATE' AND old_row - 'mg_updatedOn' - 'mg_updatedBy' = new_row - 'mg_updatedOn' - 'mg_updatedBy') THEN
+                                       RETURN NULL;
                                    END IF;
+                                   FOR content_key IN
+                                       SELECT k FROM jsonb_object_keys(COALESCE(old_row, new_row)) AS k
+                                       WHERE right(k, 9) = '_contents'
+                                         AND jsonb_exists(COALESCE(old_row, new_row), left(k, -9) || '_mimetype')
+                                   LOOP
+                                       old_row := old_row - content_key;
+                                       new_row := new_row - content_key;
+                                   END LOOP;
+                                   INSERT INTO "pet store".mg_changelog
+                                   SELECT left(TG_OP, 1), now(), user, TG_TABLE_NAME, CAST(old_row AS json), CAST(new_row AS json);
                                    RETURN NULL; -- result is ignored since this is an AFTER trigger
                                END;
                                $Pet_audit$ LANGUAGE plpgsql;
