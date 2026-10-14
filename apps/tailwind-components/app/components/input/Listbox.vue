@@ -35,7 +35,7 @@
             :label="labelOf(item)"
             :aria-label="`Remove ${labelOf(item)}`"
             :disabled="disabled"
-            @click="removeItem(index)"
+            @click.prevent="removeItem(index)"
           />
         </template>
         <InputListboxToggle

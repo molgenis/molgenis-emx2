@@ -3,7 +3,7 @@
     show-state
     v-slot="{ invalid, valid, disabled, required }"
   >
-    <form class="space-y-8" @submit.prevent>
+    <form class="space-y-8">
       <div>
         <h3 class="text-heading-lg mb-2">ENUM: searchable listbox</h3>
         <fieldset>
