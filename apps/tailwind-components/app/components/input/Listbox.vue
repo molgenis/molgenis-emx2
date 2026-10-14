@@ -425,6 +425,9 @@ function onPanelKeyDown(event: KeyboardEvent) {
   if (event.key === "Escape" || (event.key === "Tab" && props.multiple)) {
     if (!event.shiftKey) {
       event.preventDefault();
+      if (event.key === "Escape") {
+        event.stopPropagation();
+      }
       closePanel();
     }
   }
