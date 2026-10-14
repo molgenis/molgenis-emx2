@@ -121,10 +121,12 @@ public class TestMigration {
     schema
         .getMetadata()
         .create(table("Doc", column("id").setType(INT).setPkey(), column("photo").setType(FILE)));
+    schema.getMetadata().create(table("Doc2", column("id").setType(INT).setPkey()));
 
     DSLContext jooq = database.getJooq();
     jooq.execute("DROP INDEX \"TestMigration37\".mg_changelog_stamp_idx");
     jooq.execute("DROP TRIGGER Doc_audit ON \"TestMigration37\".\"Doc\"");
+    jooq.execute("DROP TRIGGER Doc2_audit ON \"TestMigration37\".\"Doc2\"");
     jooq.execute(
         "CREATE FUNCTION \"TestMigration37\".\"process_Doc_audit\"() RETURNS TRIGGER AS $Doc_audit$ "
             + "BEGIN INSERT INTO \"TestMigration37\".mg_changelog "
@@ -132,6 +134,9 @@ public class TestMigration {
             + "RETURN NULL; END; $Doc_audit$ LANGUAGE plpgsql");
     jooq.execute(
         "CREATE TRIGGER Doc_audit AFTER INSERT OR UPDATE OR DELETE ON \"TestMigration37\".\"Doc\" "
+            + "FOR EACH ROW EXECUTE FUNCTION \"TestMigration37\".\"process_Doc_audit\"()");
+    jooq.execute(
+        "CREATE TRIGGER Doc2_audit AFTER INSERT OR UPDATE OR DELETE ON \"TestMigration37\".\"Doc2\" "
             + "FOR EACH ROW EXECUTE FUNCTION \"TestMigration37\".\"process_Doc_audit\"()");
 
     executeMigrationFile(database, "migration37.sql", "changelog index and shared audit function");
@@ -142,11 +147,12 @@ public class TestMigration {
                 "SELECT 1 FROM pg_indexes WHERE schemaname = 'TestMigration37' AND indexname = 'mg_changelog_stamp_idx'")
             .size());
     assertEquals(
-        List.of("mg_changelog_audit"),
+        List.of("mg_changelog_audit", "mg_changelog_audit"),
         jooq.fetch(
                 "SELECT p.proname FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid "
-                    + "WHERE t.tgrelid = '\"TestMigration37\".\"Doc\"'::regclass AND NOT t.tgisinternal "
-                    + "AND t.tgname = 'doc_audit'")
+                    + "JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace "
+                    + "WHERE n.nspname = 'TestMigration37' AND NOT t.tgisinternal "
+                    + "AND t.tgname IN ('doc_audit', 'doc2_audit')")
             .getValues(0, String.class));
     assertEquals(
         0,

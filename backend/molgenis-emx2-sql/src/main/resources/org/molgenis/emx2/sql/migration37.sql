@@ -35,17 +35,26 @@ BEGIN
     END LOOP;
 
     FOR audit IN
-        SELECT n.nspname AS schema_name, c.relname AS table_name, t.tgname AS trigger_name, p.oid::regprocedure AS old_function
+        SELECT n.nspname AS schema_name, c.relname AS table_name, t.tgname AS trigger_name
         FROM pg_trigger t
         JOIN pg_class c ON c.oid = t.tgrelid
         JOIN pg_namespace n ON n.oid = c.relnamespace
         JOIN pg_proc p ON p.oid = t.tgfoid AND p.pronamespace = n.oid
         WHERE NOT t.tgisinternal
           AND p.proname LIKE 'process\_%\_audit'
-          AND to_regclass(format('%I.mg_changelog', n.nspname)) IS NOT NULL
+          AND EXISTS (SELECT 1 FROM pg_class l WHERE l.relname = 'mg_changelog' AND l.relnamespace = n.oid)
     LOOP
         EXECUTE format('DROP TRIGGER %I ON %I.%I', audit.trigger_name, audit.schema_name, audit.table_name);
         EXECUTE format('CREATE TRIGGER %I AFTER INSERT OR UPDATE OR DELETE ON %I.%I FOR EACH ROW EXECUTE FUNCTION "MOLGENIS".mg_changelog_audit()', audit.trigger_name, audit.schema_name, audit.table_name);
+    END LOOP;
+
+    FOR audit IN
+        SELECT p.oid::regprocedure AS old_function
+        FROM pg_proc p
+        WHERE p.proname LIKE 'process\_%\_audit'
+          AND EXISTS (SELECT 1 FROM pg_class l WHERE l.relname = 'mg_changelog' AND l.relnamespace = p.pronamespace)
+          AND NOT EXISTS (SELECT 1 FROM pg_trigger t WHERE t.tgfoid = p.oid)
+    LOOP
         EXECUTE format('DROP FUNCTION %s', audit.old_function);
     END LOOP;
 END

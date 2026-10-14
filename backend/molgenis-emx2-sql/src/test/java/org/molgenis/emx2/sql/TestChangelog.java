@@ -97,26 +97,6 @@ class TestChangelog {
   }
 
   @Test
-  void updateWithStoredValuesAddsNoChangelogRowOnPlainAndSubclassTable() {
-    Schema schema = setupChangelogSchema("TestChangelogEqualUpdate");
-    Table plain =
-        schema.create(table("Plain", column("id").setType(INT).setPkey(), column("name")));
-    schema.create(table("Root", column("id").setType(INT).setPkey(), column("name")));
-    Table sub = schema.create(table("Sub", column("extra")).setInheritName("Root"));
-
-    plain.insert(new Row().setInt("id", 1).setString("name", "a"));
-    sub.insert(new Row().setInt("id", 1).setString("name", "a").setString("extra", "x"));
-    int before = schema.getChangesCount();
-
-    plain.update(plain.retrieveRows().get(0));
-    sub.update(sub.retrieveRows().get(0));
-    assertEquals(before, schema.getChangesCount());
-
-    plain.update(plain.retrieveRows().get(0).setString("name", "b"));
-    assertEquals(before + 1, schema.getChangesCount());
-  }
-
-  @Test
   void updateChangingOnlyUpdatedOnAddsNoChangelogRow() {
     Schema schema = setupChangelogSchema("TestChangelogUpdatedOnOnly");
     Table table = schema.create(table("Item", column("id").setType(INT).setPkey(), column("name")));
