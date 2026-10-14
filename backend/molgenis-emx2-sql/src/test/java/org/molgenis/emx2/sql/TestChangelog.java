@@ -177,6 +177,27 @@ class TestChangelog {
   }
 
   @Test
+  void editorWritesAreLoggedThroughSharedAuditFunction() {
+    String editor = "TestChangelogEditor";
+    Schema schema = setupChangelogSchema("TestChangelogEditorSchema");
+    schema.create(table("Item", column("id").setType(INT).setPkey(), column("name")));
+    if (!database.hasUser(editor)) database.addUser(editor);
+    schema.addMember(editor, Privileges.EDITOR.toString());
+    int before = schema.getChangesCount();
+
+    try {
+      database.setActiveUser(editor);
+      Table item = database.getSchema("TestChangelogEditorSchema").getTable("Item");
+      item.insert(new Row().setInt("id", 1).setString("name", "a"));
+      item.update(new Row().setInt("id", 1).setString("name", "b"));
+    } finally {
+      database.becomeAdmin();
+    }
+
+    assertEquals(before + 2, schema.getChangesCount());
+  }
+
+  @Test
   void changelogLogsAgainAfterDisableAndEnable() {
     Schema schema = setupChangelogSchema("TestChangelogToggle");
     Table table = schema.create(table("Item", column("id").setType(INT).setPkey()));

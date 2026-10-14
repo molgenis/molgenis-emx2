@@ -71,11 +71,6 @@ public class ChangeLogExecutor {
       // drop previous version
       db.getJooq()
           .execute(ChangeLogUtils.buildAuditTriggerRemove(schema.getName(), table.getTableName()));
-      // setup trigger processing function
-      db.getJooq()
-          .execute(
-              ChangeLogUtils.buildProcessAuditFunction(schema.getName(), table.getTableName()));
-
       // set audit trigger, logs insert, update and delete actions on table
       db.getJooq()
           .execute(ChangeLogUtils.buildAuditTrigger(schema.getName(), table.getTableName()));
@@ -109,11 +104,6 @@ public class ChangeLogExecutor {
     db.getJooq()
         .execute(
             ChangeLogUtils.buildAuditTriggerRemove(table.getSchemaName(), table.getTableName()));
-    // remove the trigger function
-    db.getJooq()
-        .execute(
-            ChangeLogUtils.buildProcessAuditFunctionRemove(
-                table.getSchemaName(), table.getTableName()));
   }
 
   static List<Change> executeGetChanges(

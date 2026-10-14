@@ -96,10 +96,6 @@ class SqlTableMetadataExecutor {
 
     if (ChangeLogUtils.isChangeSchema(
         table.getSchema().getSchemaMetadataProvider(), table.getSchemaName())) {
-      // setup trigger processing function
-      jooq.execute(
-          ChangeLogUtils.buildProcessAuditFunction(table.getSchemaName(), table.getTableName()));
-
       // set audit trigger, logs insert, update and delete actions on table
       jooq.execute(ChangeLogUtils.buildAuditTrigger(table.getSchemaName(), table.getTableName()));
     }
@@ -291,9 +287,6 @@ class SqlTableMetadataExecutor {
       // drop audit trigger
       jooq.execute(
           ChangeLogUtils.buildAuditTriggerRemove(
-              table.getSchema().getName(), table.getTableName()));
-      jooq.execute(
-          ChangeLogUtils.buildProcessAuditFunctionRemove(
               table.getSchema().getName(), table.getTableName()));
 
       // drop RLS policies before columns, as policies may depend on the mg_roles column

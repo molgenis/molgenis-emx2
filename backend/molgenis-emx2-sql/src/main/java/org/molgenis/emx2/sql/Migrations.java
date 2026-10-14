@@ -216,7 +216,10 @@ public class Migrations {
           }
 
           if (version < 37) {
-            migration37changelogIndexAndAuditFunction((SqlDatabase) tdb);
+            executeMigrationFile(
+                tdb,
+                "migration37.sql",
+                "index mg_changelog on stamp, one shared changelog audit function");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION
@@ -290,36 +293,6 @@ public class Migrations {
       logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
       throw new MolgenisException("Execute migration failed", e);
-    } finally {
-      jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
-    }
-  }
-
-  static void migration37changelogIndexAndAuditFunction(SqlDatabase db) {
-    DSLContext jooq = db.getJooq();
-    try {
-      jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS);
-      for (Record schemaRecord :
-          jooq.fetch(
-              "SELECT n.nspname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace "
-                  + "WHERE c.relname = {0} AND c.relkind = 'r'",
-              inline(org.molgenis.emx2.Constants.CHANGELOG_TABLE))) {
-        ChangeLogExecutor.createStampIndex(jooq, schemaRecord.get(0, String.class));
-      }
-      for (Record tableRecord :
-          jooq.fetch(
-              "SELECT n.nspname, c.relname FROM pg_trigger t "
-                  + "JOIN pg_class c ON c.oid = t.tgrelid "
-                  + "JOIN pg_namespace n ON n.oid = c.relnamespace "
-                  + "JOIN pg_proc p ON p.oid = t.tgfoid AND p.pronamespace = n.oid "
-                  + "WHERE NOT t.tgisinternal "
-                  + "AND p.proname = 'process_' || replace(c.relname, ' ', '_') || '_audit' "
-                  + "AND to_regclass(format('%I.%I', n.nspname, {0})) IS NOT NULL",
-              inline(org.molgenis.emx2.Constants.CHANGELOG_TABLE))) {
-        jooq.execute(
-            ChangeLogUtils.buildProcessAuditFunction(
-                tableRecord.get(0, String.class), tableRecord.get(1, String.class)));
-      }
     } finally {
       jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
     }
