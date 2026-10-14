@@ -9,6 +9,7 @@
       <div
         class="flex flex-wrap items-center gap-1 min-h-input border rounded-alt"
         :class="{
+          'p-2.5': hasChips,
           'bg-input border-invalid text-invalid': invalid && !disabled,
           'bg-input border-valid text-valid': valid && !disabled,
           'bg-disabled border-disabled text-disabled cursor-not-allowed':
@@ -29,7 +30,6 @@
             size="tiny"
             icon="cross"
             iconPosition="right"
-            class="ml-1"
             :label="labelOf(item)"
             :aria-label="`Remove ${labelOf(item)}`"
             :disabled="disabled"
@@ -200,6 +200,10 @@ const listboxOptions = computed<Option[]>(() =>
 );
 
 const selectedItems = computed<T[]>(() => toItems(modelValue.value));
+
+const hasChips = computed<boolean>(
+  () => !!props.multiple && selectedItems.value.length > 0
+);
 
 const selectedElementId = computed<string>(
   () => listboxOptions.value.find(isSelected)?.elemId ?? ""
