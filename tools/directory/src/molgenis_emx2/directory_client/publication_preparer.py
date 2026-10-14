@@ -37,7 +37,7 @@ class PublicationPreparer:
 
     def _fit_node_model(self, node_data: NodeData, report: ErrorReport):
         self.printer.print(
-            f"⟺ Align staged data of node {node_data.node.code} "
+            f"↔️ Align staged data of node {node_data.node.code} "
             f"with the published model"
         )
         with self.printer.indentation():
