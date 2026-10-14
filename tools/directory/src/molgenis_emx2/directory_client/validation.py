@@ -145,7 +145,15 @@ class Validator:
         # Compare the ids from staging and production to see what was deleted
         staging_ids = table.rows_by_id.keys()
         production_ids = set(self.state.existing_data.table_by_type[table.type].rows_by_id.keys())
-        self.state.deleted_ids[table.type].update(production_ids.difference(staging_ids))
+        deleted_ids = production_ids.difference(staging_ids)
+        self.state.deleted_ids[table.type].update(deleted_ids)
+        # Show warning for every entry that should not have been deleted but withdrawn instead
+        if 'withdrawn' in table.meta.attributes:
+            for deleted_id in deleted_ids:
+                self._warn(
+                    f" {table.full_name[:-1]} {deleted_id} was deleted instead of withdrawn"
+                )
+
 
     def _warn(self, message: str):
         warning = DirectoryWarning(message)

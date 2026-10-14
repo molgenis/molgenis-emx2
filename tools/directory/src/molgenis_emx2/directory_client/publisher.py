@@ -151,7 +151,6 @@ class Publisher:
             )[0]
             row_to_withdraw["withdrawn"] = True
             data_to_withdraw.append(row_to_withdraw)
-        # TODO: show warning for every id that we prevented deletion of and/or show warnings at the node (staging) level
         try:
             self.session.save_table(
                 schema=self.session.directory_schema,
