@@ -140,6 +140,33 @@ class TestChangelog {
   }
 
   @Test
+  void identicalSaveAndUpdateAddNoChangelogRowOnPlainAndSubclassTable() {
+    Schema schema = setupChangelogSchema("TestChangelogIdenticalWrite");
+    Table plain =
+        schema.create(table("Plain", column("id").setType(INT).setPkey(), column("name")));
+    schema.create(table("Root", column("id").setType(INT).setPkey(), column("name")));
+    Table sub = schema.create(table("Sub", column("extra")).setInheritName("Root"));
+    Row plainRow = new Row().setInt("id", 1).setString("name", "a");
+    Row subRow = new Row().setInt("id", 1).setString("name", "a").setString("extra", "x");
+    plain.save(plainRow);
+    sub.save(subRow);
+    int before = schema.getChangesCount();
+
+    plain.save(plainRow);
+    plain.update(plainRow);
+    sub.save(subRow);
+    sub.update(subRow);
+    assertEquals(before, schema.getChangesCount());
+
+    plain.save(new Row().setInt("id", 1).setString("name", "b"));
+    assertEquals(before + 1, schema.getChangesCount());
+    sub.save(new Row().setInt("id", 1).setString("name", "b").setString("extra", "x"));
+    assertEquals(before + 2, schema.getChangesCount());
+    sub.save(new Row().setInt("id", 1).setString("name", "b").setString("extra", "y"));
+    assertEquals(before + 3, schema.getChangesCount());
+  }
+
+  @Test
   void changelogHoldsNoFileContents() {
     Schema schema = setupChangelogSchema("TestChangelogFiles");
     Table table =
