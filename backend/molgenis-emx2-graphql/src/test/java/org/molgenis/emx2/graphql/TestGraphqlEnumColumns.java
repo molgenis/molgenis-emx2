@@ -3,6 +3,7 @@ package org.molgenis.emx2.graphql;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.ENUM;
 import static org.molgenis.emx2.ColumnType.ENUM_ARRAY;
@@ -121,6 +122,27 @@ class TestGraphqlEnumColumns {
 
     String byColor = execute("{Sample(filter:{colors:{equals:[\"green\"]}}){id}}").toString();
     assertTrue(byColor.contains("\"id\":\"s2\"") && !byColor.contains("\"id\":\"s1\""), byColor);
+  }
+
+  @Test
+  void emptyValuesListOnNonEnumColumnIsReturnedAsNoValues() throws IOException {
+    execute(
+        """
+        mutation{change(tables:[{name:"PlainNote",columns:[
+          {name:"id",key:1},{name:"note",values:[]}
+        ]}]){message}}""");
+
+    for (JsonNode table : execute(COLUMNS_QUERY).at("/_schema/tables")) {
+      if ("PlainNote".equals(table.path("name").asText())) {
+        for (JsonNode column : table.path("columns")) {
+          if ("note".equals(column.path("name").asText())) {
+            assertTrue(column.path("values").isNull() || column.path("values").isMissingNode());
+            return;
+          }
+        }
+      }
+    }
+    fail("column note not found");
   }
 
   private static JsonNode execute(String query) throws IOException {

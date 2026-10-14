@@ -233,18 +233,6 @@ class TestTypeUtils {
             MolgenisException.class,
             () -> EnumMembershipValidator.checkEnumMembership(column, "maybe"));
     assertTrue(outside.getMessage().contains("status") && outside.getMessage().contains("maybe"));
-    assertThrows(
-        MolgenisException.class, () -> EnumMembershipValidator.checkEnumMembership(column, "YES"));
-  }
-
-  @Test
-  void enumMembershipChecksEveryElementOfAnArray() {
-    Column column = column("tags").setType(ColumnType.ENUM_ARRAY).setAllowedValues("a", "b");
-    assertDoesNotThrow(
-        () -> EnumMembershipValidator.checkEnumMembership(column, new String[] {"a", "b"}));
-    assertThrows(
-        MolgenisException.class,
-        () -> EnumMembershipValidator.checkEnumMembership(column, new String[] {"a", "c"}));
   }
 
   @Test

@@ -4,12 +4,9 @@ import java.util.List;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 
-/** Checks that a value written to an ENUM or ENUM_ARRAY column is in its allowed values. */
 public class EnumMembershipValidator {
 
-  private EnumMembershipValidator() {
-    // utility class
-  }
+  private EnumMembershipValidator() {}
 
   public static void checkEnumMembership(Column column, Object value) {
     List<String> allowedValues = column.getAllowedValues();

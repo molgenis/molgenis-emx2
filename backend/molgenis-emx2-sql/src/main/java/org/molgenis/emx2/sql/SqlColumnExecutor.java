@@ -383,6 +383,7 @@ public class SqlColumnExecutor {
         throw new MolgenisException(
             "values can only be set on ENUM or ENUM_ARRAY, not on " + c.getColumnType());
       }
+      c.setAllowedValues((List<String>) null);
       return;
     }
     if (!hasValues) {
@@ -391,9 +392,11 @@ public class SqlColumnExecutor {
     if (values.stream().anyMatch(v -> v == null || v.isBlank())) {
       throw new MolgenisException("'values' cannot contain a blank value");
     }
-    if (values.stream().distinct().count() != values.size()) {
-      throw new MolgenisException("'values' cannot contain duplicates: " + values);
+    List<String> trimmed = values.stream().map(String::trim).toList();
+    if (trimmed.stream().distinct().count() != trimmed.size()) {
+      throw new MolgenisException("'values' cannot contain duplicates: " + trimmed);
     }
+    c.setAllowedValues(trimmed);
   }
 
   static void validateColumn(Column c) {

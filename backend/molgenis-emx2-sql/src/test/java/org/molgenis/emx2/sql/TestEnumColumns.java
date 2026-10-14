@@ -141,6 +141,18 @@ class TestEnumColumns {
     assertEquals(List.of("yes"), meta(ALTERABLE_KEEP).getColumn(ANSWER).getAllowedValues());
   }
 
+  @Test
+  void valuesAreTrimmedBeforeStorageSoPaddedListAcceptsPlainRows() {
+    schema.create(
+        table("Trimmed")
+            .add(column(ID).setPkey())
+            .add(column(ANSWER).setType(ENUM).setAllowedValues(" yes", "no ")));
+    assertEquals(List.of("yes", "no"), meta("Trimmed").getColumn(ANSWER).getAllowedValues());
+    Table trimmed = schema.getTable("Trimmed");
+    trimmed.insert(row(ID, "t1", ANSWER, "yes"));
+    assertEquals("yes", rowWithId(trimmed, "t1").getString(ANSWER));
+  }
+
   private static Row rowWithId(Table table, String id) {
     return table.retrieveRows().stream()
         .filter(r -> id.equals(r.getString(ID)))
