@@ -23,6 +23,10 @@ public final class PermissionEvaluator {
     return AggregateLevel.NONE;
   }
 
+  public static boolean canCount(Schema schema, TableMetadata table) {
+    return tablePermissionAtLeast(schema, table, AggregateLevel.COUNT);
+  }
+
   public static boolean canRange(Schema schema, TableMetadata table) {
     return tablePermissionAtLeast(schema, table, AggregateLevel.RANGE);
   }

@@ -177,6 +177,37 @@ class TestPermissionEvaluator {
   }
 
   @Nested
+  class CanCount {
+
+    @Test
+    void countAndViewerCanCount() {
+      for (String user : List.of(USER_COUNT, USER_VIEWER)) {
+        Schema s = schemaFor(user);
+        TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+        assertTrue(PermissionEvaluator.canCount(s, tableA), user);
+      }
+    }
+
+    @Test
+    void lowerAggregateRolesCannotCount() {
+      for (String user : List.of(USER_EXISTS, USER_RANGE, USER_AGGREGATOR)) {
+        Schema s = schemaFor(user);
+        TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+        assertFalse(PermissionEvaluator.canCount(s, tableA), user);
+      }
+    }
+
+    @Test
+    void customRoleCanCountGrantedTableOnly() {
+      Schema s = schemaFor(USER_CUSTOM);
+      TableMetadata tableA = s.getMetadata().getTableMetadata(TABLE_A);
+      TableMetadata tableB = s.getMetadata().getTableMetadata(TABLE_B);
+      assertTrue(PermissionEvaluator.canCount(s, tableA));
+      assertFalse(PermissionEvaluator.canCount(s, tableB));
+    }
+  }
+
+  @Nested
   class CanInsert {
 
     @Test
