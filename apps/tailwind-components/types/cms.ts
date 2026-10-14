@@ -10,7 +10,6 @@ export interface IFile {
   extension?: string;
   filename?: string;
   url?: string;
-  url?: string;
 }
 
 export interface ITreeNode {
