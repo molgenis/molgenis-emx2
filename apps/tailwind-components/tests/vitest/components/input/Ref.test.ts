@@ -143,6 +143,23 @@ describe("Ref, select above the limit", () => {
     expect(multiple.find('button[role="combobox"]').exists()).toBe(false);
   });
 
+  it("a limit above 20 still renders every option as a group", async () => {
+    tableRows = ALL_ROWS.slice(0, 25);
+    const wrapper = await mountRef({ isArray: true, limit: 30 });
+
+    expect(wrapper.findAll('input[type="checkbox"]')).toHaveLength(25);
+    expect(wrapper.find('button[role="combobox"]').exists()).toBe(false);
+  });
+
+  it("a limit above 20 with more rows than the limit pages the listbox by 20", async () => {
+    const reachEnd = stubObserver();
+    const wrapper = await mountRef({ limit: 30 });
+
+    expect(optionTexts(wrapper)).toEqual(labels(1, 20));
+    await reachEnd();
+    expect(pageQueries().at(-1)).toMatchObject({ limit: 20, offset: 20 });
+  });
+
   it("loads a first page of 20 rows", async () => {
     const wrapper = await mountRef({ limit: 5 });
 

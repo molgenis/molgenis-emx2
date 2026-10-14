@@ -118,6 +118,9 @@ async function init() {
   }
 
   await loadOptions(false);
+  if (count.value <= props.limit && loadedRows < count.value) {
+    await loadOptions(true, count.value - loadedRows);
+  }
   initialCount.value = count.value;
   isInitLoading.value = false;
 }
@@ -129,13 +132,13 @@ function applyTemplate(template: string, row: Record<string, any>): string {
   return label;
 }
 
-async function loadOptions(append: boolean) {
+async function loadOptions(append: boolean, pageSize = PAGE_SIZE) {
   const request = ++latestRequest;
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
     {
-      limit: PAGE_SIZE,
+      limit: pageSize,
       offset: append ? loadedRows : 0,
       searchTerms: searchTerms.value,
       expandLevel: 1,

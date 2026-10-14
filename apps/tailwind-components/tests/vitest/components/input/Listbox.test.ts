@@ -358,6 +358,29 @@ describe("Listbox, multiple mode", () => {
     expect(toggle(wrapper).findAll("button")).toHaveLength(0);
   });
 
+  it("a cross never submits a surrounding form", async () => {
+    let submitted = 0;
+    const form = document.createElement("form");
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submitted++;
+    });
+    document.body.appendChild(form);
+    const wrapper = mount(InputListbox, {
+      attachTo: form,
+      props: {
+        id: "lb",
+        options: OPTIONS,
+        multiple: true,
+        modelValue: [OPTIONS[0], OPTIONS[1]],
+      },
+    });
+    await wrapper.find('button[aria-label="Remove Group A"]').trigger("click");
+
+    expect(submitted).toBe(0);
+    expect(wrapper.emitted("update:modelValue")).toEqual([[[OPTIONS[1]]]]);
+  });
+
   it("a cross removes exactly one value", async () => {
     const wrapper = mountListbox({
       multiple: true,
