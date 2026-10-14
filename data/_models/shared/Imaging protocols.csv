@@ -1,0 +1,8 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,defaultValue
+Imaging protocols,,,,,,,,,,,,Summary of an imaging protocol for a resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
+Imaging protocols,,resource,ref,1,TRUE,,Resources,,,,dcterms:source,Resource this imaging protocol is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
+Imaging protocols,,name,,1,TRUE,,,,,,dcterms:title,Name of the imaging protocol,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
+Imaging protocols,,description,text,,,,,,,,dcterms:description,Description of the imaging protocol summary,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
+Imaging protocols,,modality,ontology_array,,,CatalogueOntologies,Imaging modalities,,,,,Imaging modality used in this imaging protocol,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
+Imaging protocols,,body part,ontology_array,,,CatalogueOntologies,Body parts,,,,,Body parts imaged,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,StudiesStaging,UMCUCohorts,INTEGRATE",
+Imaging protocols,,data format,,,,,,,,,,,,
