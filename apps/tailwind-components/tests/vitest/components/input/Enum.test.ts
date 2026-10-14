@@ -81,6 +81,12 @@ describe("Enum input, scalar", () => {
     expect(wrapper.find("#e-listbox-clear").exists()).toBe(false);
   });
 
+  it("marks a required enum as aria-required on the toggle", () => {
+    const wrapper = mountEnum({ required: true });
+
+    expect(toggle(wrapper).attributes("aria-required")).toBe("true");
+  });
+
   it("wires description and error to the toggle", () => {
     const wrapper = mountEnum({ describedBy: "e-description e-error" });
 

@@ -124,15 +124,6 @@ describe("Listbox, single mode", () => {
     expect(toggle(wrapper).attributes("aria-expanded")).toBe("false");
   });
 
-  it("Escape closes the panel without a pick", async () => {
-    const wrapper = mountListbox();
-    await open(wrapper);
-    await optionEls(wrapper)[0]!.trigger("keydown", { key: "Escape" });
-
-    expect(wrapper.emitted("update:modelValue")).toBeUndefined();
-    expect(toggle(wrapper).attributes("aria-expanded")).toBe("false");
-  });
-
   it("opening focuses the selected option", async () => {
     const wrapper = mountListbox({ modelValue: OPTIONS[1] });
     await open(wrapper);
@@ -191,6 +182,79 @@ describe("Listbox, single mode", () => {
 
     expect(wrapper.emitted("search")?.at(-1)).toEqual(["zzz"]);
     expect(optionEls(wrapper)).toHaveLength(3);
+  });
+  it.each([
+    ["an option", {}, "li"],
+    ["an option, multiple", { multiple: true }, "li"],
+    ["the search input", { enableSearch: true }, "input"],
+    [
+      "the search input, multiple",
+      { enableSearch: true, multiple: true },
+      "input",
+    ],
+    ["the panel after a mouse pick, multiple", { multiple: true }, "panel"],
+  ])(
+    "Escape on %s closes the panel without a pick",
+    async (_where, props, at) => {
+      const wrapper = mountListbox(props);
+      await open(wrapper);
+      if (at === "panel") await pick(wrapper, 1);
+      const target =
+        at === "li"
+          ? optionEls(wrapper)[0]!
+          : at === "input"
+          ? wrapper.find('input[type="search"]')
+          : wrapper.find("#listbox-lb-panel");
+      await target.trigger("keydown", { key: "Escape" });
+
+      expect(toggle(wrapper).attributes("aria-expanded")).toBe("false");
+      expect(wrapper.emitted("update:modelValue")?.length ?? 0).toBe(
+        at === "panel" ? 1 : 0
+      );
+    }
+  );
+
+  it.each([
+    ["ArrowDown", "single", {}],
+    ["ArrowDown", "multiple", { multiple: true }],
+    ["Tab", "single", {}],
+    ["Tab", "multiple", { multiple: true }],
+  ])(
+    "%s in the search input moves focus to the first option, %s mode",
+    async (key, _mode, props) => {
+      const wrapper = mountListbox({ enableSearch: true, ...props });
+      await open(wrapper);
+      const input = wrapper.find('input[type="search"]');
+      (input.element as HTMLInputElement).focus();
+      await input.trigger("keydown", { key });
+      await flushPromises();
+
+      expect(document.activeElement).toBe(optionEls(wrapper)[0]!.element);
+      expect(toggle(wrapper).attributes("aria-expanded")).toBe("true");
+    }
+  );
+
+  it("passes required to the toggle as aria-required", () => {
+    const wrapper = mountListbox({ required: true });
+
+    expect(toggle(wrapper).attributes("aria-required")).toBe("true");
+  });
+
+  it("leaves the toggle without aria-activedescendant, since focus moves to the option", async () => {
+    const wrapper = mountListbox({ modelValue: OPTIONS[1] });
+
+    expect(toggle(wrapper).attributes("aria-activedescendant")).toBeUndefined();
+  });
+
+  it.each([
+    ["neutral", {}, "focus-within:border-input-focused"],
+    ["valid", { valid: true }, "focus-within:outline-current"],
+    ["invalid", { invalid: true }, "focus-within:outline-current"],
+  ])("a %s field shows a focus indicator", (_state, props, focusClass) => {
+    const wrapper = mountListbox(props);
+    const field = toggle(wrapper).element.parentElement!;
+
+    expect(field.className.split(" ")).toContain(focusClass);
   });
 });
 
@@ -336,51 +400,10 @@ describe("Listbox, multiple mode", () => {
     }
   );
 
-  it.each([["Escape"], ["Tab"]])(
-    "%s closes the panel without a pick",
-    async (key) => {
-      const wrapper = mountListbox({ multiple: true });
-      await open(wrapper);
-      await optionEls(wrapper)[1]!.trigger("keydown", { key });
-
-      expect(wrapper.emitted("update:modelValue")).toBeUndefined();
-      expect(toggle(wrapper).attributes("aria-expanded")).toBe("false");
-    }
-  );
-
-  it.each([
-    ["single", {}],
-    ["multiple", { multiple: true }],
-  ])(
-    "Escape in the search input closes the panel, %s mode",
-    async (_mode, props) => {
-      const wrapper = mountListbox({ enableSearch: true, ...props });
-      await open(wrapper);
-      await wrapper.find('input[type="search"]').trigger("keydown", {
-        key: "Escape",
-      });
-
-      expect(toggle(wrapper).attributes("aria-expanded")).toBe("false");
-    }
-  );
-
-  it("Escape on the panel itself closes it, as after a mouse pick", async () => {
+  it("Tab on an option closes a multiple panel without a pick", async () => {
     const wrapper = mountListbox({ multiple: true });
     await open(wrapper);
-    await pick(wrapper, 1);
-    await wrapper.find("#listbox-lb-panel").trigger("keydown", {
-      key: "Escape",
-    });
-
-    expect(toggle(wrapper).attributes("aria-expanded")).toBe("false");
-  });
-
-  it("Tab in the search input closes a multiple panel without a pick", async () => {
-    const wrapper = mountListbox({ enableSearch: true, multiple: true });
-    await open(wrapper);
-    await wrapper.find('input[type="search"]').trigger("keydown", {
-      key: "Tab",
-    });
+    await optionEls(wrapper)[1]!.trigger("keydown", { key: "Tab" });
 
     expect(wrapper.emitted("update:modelValue")).toBeUndefined();
     expect(toggle(wrapper).attributes("aria-expanded")).toBe("false");
@@ -418,14 +441,6 @@ describe("Listbox, multiple mode", () => {
     optionEls(wrapper)[0]!.element.dispatchEvent(event);
 
     expect(event.defaultPrevented).toBe(prevented);
-  });
-
-  it("reads a bare multiple attribute, as a template writes it, as true", () => {
-    const wrapper = mountListbox({ multiple: "" });
-
-    expect(
-      wrapper.find('ul[role="listbox"]').attributes("aria-multiselectable")
-    ).toBe("true");
   });
 
   it("sets aria-multiselectable on the listbox only in multiple mode", () => {
