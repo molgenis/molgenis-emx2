@@ -307,7 +307,6 @@
     :disabled="disabled"
     :required="required"
     :describedBy="describedBy"
-    :placeholder="placeholder"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />

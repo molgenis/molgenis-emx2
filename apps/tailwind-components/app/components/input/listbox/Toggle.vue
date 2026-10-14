@@ -7,7 +7,6 @@
     :aria-required="required"
     :aria-expanded="isExpanded"
     :aria-activedescendant="selectedElementId"
-    :aria-describedby="describedBy || undefined"
     class="flex justify-start items-center h-input w-full text-left pl-4 border rounded-alt"
     :class="{
       'bg-input border-invalid text-invalid': invalid && !disabled,
@@ -40,7 +39,6 @@ defineProps<{
   invalid?: boolean;
   disabled?: boolean;
   selectedElementId?: string;
-  describedBy?: string;
 }>();
 
 const isExpanded = ref<boolean>(false);

@@ -12,20 +12,6 @@
     @blur="emit('blur')"
     @focus="emit('focus')"
   />
-  <InputListbox
-    v-else-if="values.length > RADIO_GROUP_MAX_VALUES"
-    :id="id"
-    :options="values"
-    :enableSearch="true"
-    :invalid="invalid"
-    :valid="valid"
-    :disabled="disabled"
-    :placeholder="placeholder"
-    :describedBy="describedBy"
-    v-model="scalarModelValue"
-    @blur="emit('blur')"
-    @focus="emit('focus')"
-  />
   <InputRadioGroup
     v-else
     :id="id"
@@ -49,10 +35,7 @@ import type {
   IInputValue,
 } from "../../../../metadata-utils/src/types";
 import InputCheckboxGroup from "./CheckboxGroup.vue";
-import InputListbox from "./Listbox.vue";
 import InputRadioGroup from "./RadioGroup.vue";
-
-const RADIO_GROUP_MAX_VALUES = 20;
 
 const props = withDefaults(
   defineProps<
@@ -63,7 +46,6 @@ const props = withDefaults(
     }
   >(),
   {
-    placeholder: "Select an option",
     isArray: false,
     required: false,
   }
