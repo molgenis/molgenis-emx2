@@ -275,11 +275,13 @@ test("it should be able to fill out all input types", async ({ page }) => {
 
   // Select
   await page
-    .locator('[id="search-for-type test-Types-selectType-form-field-input"]')
+    .locator('[id="type test-Types-selectType-form-field-input"]')
     .click();
   await page
-    .locator('[id="type test-Types-selectType-form-field-input-radio-group"]')
-    .getByText("FR")
+    .locator(
+      '[id="listbox-type test-Types-selectType-form-field-input-options"]'
+    )
+    .getByRole("option", { name: "FR", exact: true })
     .click();
 
   // Select Label
@@ -288,17 +290,15 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .getByText("HU")
     .click();
   await page
-    .locator(
-      '[id="search-for-type test-Types-selectTypeLabel-form-field-input"]'
-    )
+    .locator('[id="type test-Types-selectTypeLabel-form-field-input"]')
     .click();
 
   // Radio
   await page
     .locator(
-      '[id="type test-Types-selectTypeLabel-form-field-input-radio-group"]'
+      '[id="listbox-type test-Types-selectTypeLabel-form-field-input-options"]'
     )
-    .getByText("Belgium")
+    .getByRole("option", { name: "Belgium", exact: true })
     .click();
 
   // Radio label
@@ -365,27 +365,19 @@ test("it should be able to fill out all input types", async ({ page }) => {
 
   // Multiselect
   await page
-    .locator(
-      '[id="type test-Types-multiselectType-form-field-input-ref"] > .flex.items-center.justify-between'
-    )
+    .locator('[id="type test-Types-multiselectType-form-field-input"]')
     .click();
-  await page
-    .locator(
-      '[id="type test-Types-multiselectType-form-field-input-checkbox-group"] span'
-    )
-    .filter({ hasText: "CY" })
+  const multiselectOptions = page.locator(
+    '[id="listbox-type test-Types-multiselectType-form-field-input-options"]'
+  );
+  await multiselectOptions
+    .getByRole("option", { name: "CY", exact: true })
     .click();
-  await page
-    .locator(
-      '[id="type test-Types-multiselectType-form-field-input-checkbox-group"] > div:nth-child(5) > .text-body-base > .w-\\[20px\\] > .fill-input'
-    )
+  await multiselectOptions.getByRole("option").nth(4).click();
+  await multiselectOptions
+    .getByRole("option", { name: "LT", exact: true })
     .click();
-  await page
-    .locator(
-      '[id="type test-Types-multiselectType-form-field-input-checkbox-group"]'
-    )
-    .getByText("LT", { exact: true })
-    .click();
+  await page.keyboard.press("Escape");
 
   // Multiselect label
   // await page
