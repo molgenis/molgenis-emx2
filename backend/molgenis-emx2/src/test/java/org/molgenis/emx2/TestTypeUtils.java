@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import org.jooq.JSONB;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.utils.EnumMembershipValidator;
 import org.molgenis.emx2.utils.TypeUtils;
 
 class TestTypeUtils {
@@ -201,5 +202,54 @@ class TestTypeUtils {
         }
       }
     }
+  }
+
+  @Test
+  void enumTypesAreStringBackedAndMapToEachOtherAsArray() {
+    assertEquals(ColumnType.STRING, ColumnType.ENUM.getBaseType());
+    assertEquals(ColumnType.STRING_ARRAY, ColumnType.ENUM_ARRAY.getBaseType());
+    assertEquals(ColumnType.ENUM_ARRAY, TypeUtils.getArrayType(ColumnType.ENUM));
+    assertEquals(ColumnType.ENUM_ARRAY, TypeUtils.getArrayType(ColumnType.ENUM_ARRAY));
+    assertEquals(ColumnType.STRING_ARRAY, TypeUtils.getArrayType(ColumnType.STRING));
+    assertTrue(ColumnType.ENUM.isEnum() && ColumnType.ENUM_ARRAY.isEnum());
+    assertFalse(ColumnType.STRING.isEnum() || ColumnType.STRING_ARRAY.isEnum());
+  }
+
+  @Test
+  void allowedValuesKeepOrderAndSurviveColumnCopy() {
+    Column column =
+        column("status").setType(ColumnType.ENUM).setAllowedValues("yes", "no", "unknown");
+    assertEquals(List.of("yes", "no", "unknown"), new Column(column).getAllowedValues());
+    assertNull(column("other").getAllowedValues());
+  }
+
+  @Test
+  void enumMembershipAcceptsOnlyExactAllowedScalarValuesAndNull() {
+    Column column = column("status").setType(ColumnType.ENUM).setAllowedValues("yes", "no");
+    assertDoesNotThrow(() -> EnumMembershipValidator.checkEnumMembership(column, "yes"));
+    assertDoesNotThrow(() -> EnumMembershipValidator.checkEnumMembership(column, null));
+    MolgenisException outside =
+        assertThrows(
+            MolgenisException.class,
+            () -> EnumMembershipValidator.checkEnumMembership(column, "maybe"));
+    assertTrue(outside.getMessage().contains("status") && outside.getMessage().contains("maybe"));
+    assertThrows(
+        MolgenisException.class, () -> EnumMembershipValidator.checkEnumMembership(column, "YES"));
+  }
+
+  @Test
+  void enumMembershipChecksEveryElementOfAnArray() {
+    Column column = column("tags").setType(ColumnType.ENUM_ARRAY).setAllowedValues("a", "b");
+    assertDoesNotThrow(
+        () -> EnumMembershipValidator.checkEnumMembership(column, new String[] {"a", "b"}));
+    assertThrows(
+        MolgenisException.class,
+        () -> EnumMembershipValidator.checkEnumMembership(column, new String[] {"a", "c"}));
+  }
+
+  @Test
+  void enumMembershipIgnoresNonEnumColumns() {
+    Column column = column("name").setType(ColumnType.STRING);
+    assertDoesNotThrow(() -> EnumMembershipValidator.checkEnumMembership(column, "anything"));
   }
 }

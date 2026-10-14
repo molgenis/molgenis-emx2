@@ -48,6 +48,7 @@ public class Column {
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
   private String[] profiles = null;
+  private String[] values = null;
 
   private boolean inherited = false;
 
@@ -118,6 +119,8 @@ public class Column {
         column.getSemantics() == null
             ? null
             : stream(column.getSemantics()).map(Semantic::toString).toArray(String[]::new);
+    this.values =
+        column.getAllowedValues() == null ? null : column.getAllowedValues().toArray(String[]::new);
     this.visible = column.getVisible();
     this.computed = column.getComputed();
     this.profiles = column.getProfiles();
@@ -152,6 +155,7 @@ public class Column {
             .filter(d -> d.value() != null)
             .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setSemantics(semantics);
+    c.setAllowedValues(values);
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
@@ -256,6 +260,14 @@ public class Column {
 
   public void setSemantics(String[] semantics) {
     this.semantics = semantics;
+  }
+
+  public String[] getValues() {
+    return values;
+  }
+
+  public void setValues(String[] values) {
+    this.values = values;
   }
 
   public String getRefLinkId() {
@@ -488,7 +500,8 @@ public class Column {
         && Objects.equals(descriptions, column.descriptions)
         && columnType == column.columnType
         && Objects.deepEquals(semantics, column.semantics)
-        && Objects.deepEquals(profiles, column.profiles);
+        && Objects.deepEquals(profiles, column.profiles)
+        && Objects.deepEquals(values, column.values);
   }
 
   @Override
@@ -528,6 +541,7 @@ public class Column {
         columnType,
         Arrays.hashCode(semantics),
         Arrays.hashCode(profiles),
+        Arrays.hashCode(values),
         inherited);
   }
 
@@ -626,6 +640,8 @@ public class Column {
         + Arrays.toString(semantics)
         + ", profiles="
         + Arrays.toString(profiles)
+        + ", values="
+        + Arrays.toString(values)
         + ", inherited="
         + inherited
         + '}';
