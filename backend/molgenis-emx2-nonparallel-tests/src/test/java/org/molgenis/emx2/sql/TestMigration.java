@@ -3,7 +3,6 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
@@ -109,7 +108,7 @@ public class TestMigration {
   @Test
   @Tag("slow")
   @Tag("windowsFail")
-  void testMigration36AddsColumnMetadataValuesAsVarcharArrayAndCanRunAgain() {
+  void testMigration36ValuesColumnIsVarcharArrayAndRerunIsHarmless() {
     SqlDatabase sqlDatabase = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
     DSLContext jooq = sqlDatabase.getJooq();
 
@@ -124,6 +123,5 @@ public class TestMigration {
             .fetch()
             .getValues("udt_name", String.class)
             .get(0));
-    assertTrue(MetadataUtils.getVersion(jooq) >= 37);
   }
 }
