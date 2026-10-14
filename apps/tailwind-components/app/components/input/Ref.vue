@@ -47,7 +47,7 @@ const modelValue = defineModel<
 >();
 const tableMetadata = ref<ITableMetaData>();
 
-const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
+const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 const optionMap = ref<recordValue>({});
 const selectionMap = ref<recordValue>({});
 const initialCount = ref<number>(0);

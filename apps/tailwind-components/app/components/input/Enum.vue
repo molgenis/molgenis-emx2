@@ -3,6 +3,7 @@
     v-if="isArray"
     multiple
     enableSearch
+    :required="required"
     :id="id"
     :options="matchingValues"
     :invalid="invalid"
@@ -18,6 +19,7 @@
   <InputListbox
     v-else
     enableSearch
+    :required="required"
     :id="id"
     :options="matchingValues"
     :invalid="invalid"

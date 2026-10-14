@@ -6,7 +6,6 @@
     aria-haspopup="listbox"
     :aria-required="required"
     :aria-expanded="expanded"
-    :aria-activedescendant="selectedElementId"
     :disabled="disabled"
     class="flex justify-start items-center self-stretch flex-1 min-w-32 text-left pl-4 bg-transparent focus:outline-none"
     :class="{ 'cursor-not-allowed': disabled }"
@@ -27,7 +26,6 @@ defineProps<{
   required?: boolean;
   disabled?: boolean;
   expanded?: boolean;
-  selectedElementId?: string;
 }>();
 
 const button = useTemplateRef<HTMLButtonElement>("button");

@@ -10,8 +10,10 @@
         class="flex flex-wrap items-center gap-1 min-h-input border rounded-alt"
         :class="{
           'p-2.5': hasChips,
-          'bg-input border-invalid text-invalid': invalid && !disabled,
-          'bg-input border-valid text-valid': valid && !disabled,
+          'bg-input border-invalid text-invalid focus-within:outline focus-within:outline-2 focus-within:outline-current':
+            invalid && !disabled,
+          'bg-input border-valid text-valid focus-within:outline focus-within:outline-2 focus-within:outline-current':
+            valid && !disabled,
           'bg-disabled border-disabled text-disabled cursor-not-allowed':
             disabled,
           'bg-disabled border-valid text-valid cursor-not-allowed':
@@ -42,8 +44,8 @@
           :aria-controls="listboxId"
           :aria-describedby="describedBy"
           :disabled="disabled"
+          :required="required"
           :expanded="isExpanded"
-          :selected-element-id="selectedElementId"
           @click="isExpanded ? closePanel() : openPanel()"
           @keydown="onToggleKeyDown"
         >
@@ -74,6 +76,7 @@
             placeholder="Search"
             v-model="searchTerm"
             @update:model-value="emit('search', searchTerm)"
+            @keydown="onSearchKeyDown"
           />
         </template>
         <div ref="scroller" class="max-h-56 overflow-y-auto bg-input border">
@@ -161,6 +164,7 @@ const props = withDefaults(
       multiple?: M & boolean;
       value?: T;
       enableSearch?: boolean;
+      required?: boolean;
       showClearButton?: boolean;
     }
   >(),
@@ -171,7 +175,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["error", "blur", "focus", "search", "load-more"]);
+const emit = defineEmits(["blur", "focus", "search", "load-more"]);
 
 const modelValue = defineModel<Model>();
 const searchTerm = defineModel<string>("search");
@@ -203,10 +207,6 @@ const selectedItems = computed<T[]>(() => toItems(modelValue.value));
 
 const hasChips = computed<boolean>(
   () => !!props.multiple && selectedItems.value.length > 0
-);
-
-const selectedElementId = computed<string>(
-  () => listboxOptions.value.find(isSelected)?.elemId ?? ""
 );
 
 const toggleText = computed<string>(() => {
@@ -410,6 +410,14 @@ function onOptionKeyDown(event: KeyboardEvent, option: Option) {
   ) {
     event.preventDefault();
     choose(option);
+  }
+}
+
+function onSearchKeyDown(event: KeyboardEvent) {
+  if (event.key === "ArrowDown" || (event.key === "Tab" && !event.shiftKey)) {
+    event.preventDefault();
+    event.stopPropagation();
+    moveFocus(0);
   }
 }
 
