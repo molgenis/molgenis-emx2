@@ -14,7 +14,7 @@ describe("Field.vue with an enum column", () => {
     const optional = mount(Field, { props });
     const required = mount(Field, { props: { ...props, required: true } });
 
-    expect(optional.find("#sex-input-radio-group-clear").exists()).toBe(true);
-    expect(required.find("#sex-input-radio-group-clear").exists()).toBe(false);
+    expect(optional.find("#sex-input-listbox-clear").exists()).toBe(true);
+    expect(required.find("#sex-input-listbox-clear").exists()).toBe(false);
   });
 });
