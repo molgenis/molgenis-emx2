@@ -333,7 +333,6 @@ import {
   deepClone, //@ts-ignore
   getRowErrors,
 } from "molgenis-components";
-import { getColumnTypesWithEditableValues } from "metadata-utils";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
 import { findRootTable } from "../tableModel";
@@ -513,9 +512,7 @@ export default {
       return this.operation !== "add" && this.nameInvalid;
     },
     showValuesInput() {
-      return getColumnTypesWithEditableValues().includes(
-        this.column.columnType
-      );
+      return ["ENUM", "ENUM_ARRAY"].includes(this.column.columnType);
     },
   },
   methods: {

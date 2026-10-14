@@ -1,5 +1,4 @@
 import type { IColumn } from "metadata-utils";
-import { getColumnTypesWithEditableValues } from "metadata-utils";
 
 export interface EditorColumn extends Omit<Partial<IColumn>, "table"> {
   table: string;
@@ -103,7 +102,7 @@ function removeComputedFields(table: EditorTable): EditorTable {
 }
 
 function cleanValues(column: EditorColumn): void {
-  if (!getColumnTypesWithEditableValues().includes(column.columnType ?? "")) {
+  if (!["ENUM", "ENUM_ARRAY"].includes(column.columnType ?? "")) {
     delete column.values;
   } else if (column.values) {
     column.values = column.values
