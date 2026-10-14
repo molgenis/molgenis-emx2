@@ -23,6 +23,8 @@ public enum ColumnType {
   // STRING
   STRING(String.class, STRING_OPERATORS),
   STRING_ARRAY(String[].class, STRING_ARRAY_OPERATORS),
+  ENUM(STRING),
+  ENUM_ARRAY(STRING_ARRAY),
   TEXT(String.class, STRING_OPERATORS),
   TEXT_ARRAY(String[].class, STRING_ARRAY_OPERATORS),
   JSON(org.jooq.JSONB.class, STRING_OPERATORS),
@@ -189,5 +191,9 @@ public enum ColumnType {
 
   public boolean isNumericType() {
     return INT.equals(getBaseType()) || DECIMAL.equals(getBaseType()) || LONG.equals(getBaseType());
+  }
+
+  public boolean isEnum() {
+    return this == ENUM || this == ENUM_ARRAY;
   }
 }

@@ -375,6 +375,27 @@ public class SqlColumnExecutor {
             table.getRootTable().getTableName()));
   }
 
+  private static void validateAllowedValues(Column c) {
+    List<String> values = c.getAllowedValues();
+    boolean hasValues = values != null && !values.isEmpty();
+    if (!c.getColumnType().isEnum()) {
+      if (hasValues) {
+        throw new MolgenisException(
+            "values can only be set on ENUM or ENUM_ARRAY, not on " + c.getColumnType());
+      }
+      return;
+    }
+    if (!hasValues) {
+      throw new MolgenisException(c.getColumnType() + " requires at least one value in 'values'");
+    }
+    if (values.stream().anyMatch(v -> v == null || v.isBlank())) {
+      throw new MolgenisException("'values' cannot contain a blank value");
+    }
+    if (values.stream().distinct().count() != values.size()) {
+      throw new MolgenisException("'values' cannot contain duplicates: " + values);
+    }
+  }
+
   static void validateColumn(Column c) {
     try {
       if (c.getName() == null) {
@@ -462,6 +483,7 @@ public class SqlColumnExecutor {
                   c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
         }
       }
+      validateAllowedValues(c);
       // fix required
       if (c.getKey() == 1 && !c.isRequired()) {
         c.setRequired(true);
