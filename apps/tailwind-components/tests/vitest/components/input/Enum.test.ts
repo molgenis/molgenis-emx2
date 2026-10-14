@@ -13,44 +13,22 @@ const checkedValues = (wrapper: ReturnType<typeof mount>, type: string) =>
     .map((input) => input.value);
 
 describe("Enum input, scalar", () => {
-  it("renders a radio group in the order of values at 20 values", () => {
-    const values = valuesOf(20);
+  it("renders a radio group in the order of values, at any length", () => {
+    const values = valuesOf(25);
     const wrapper = mount(InputEnum, { props: { id: "e", values } });
 
     const radios = wrapper.findAll('input[type="radio"]');
     expect(radios.map((r) => (r.element as HTMLInputElement).value)).toEqual(
       values
     );
-    expect(wrapper.find('[role="combobox"]').exists()).toBe(false);
   });
 
-  it("renders a searchable listbox at 21 values", () => {
+  it("shows the stored value selected", () => {
     const wrapper = mount(InputEnum, {
-      props: { id: "e", values: valuesOf(21) },
+      props: { id: "e", values: valuesOf(3), modelValue: "V3" },
     });
 
-    expect(wrapper.find('[role="combobox"]').exists()).toBe(true);
-    expect(wrapper.find('input[type="search"]').exists()).toBe(true);
-    expect(wrapper.findAll('input[type="radio"]').length).toEqual(0);
-    expect(wrapper.findAll('li[role="option"]').map((li) => li.text())).toEqual(
-      ["Select an option", ...valuesOf(21)]
-    );
-  });
-
-  it.each([20, 21])("shows the stored value selected at %i values", (count) => {
-    const wrapper = mount(InputEnum, {
-      props: { id: "e", values: valuesOf(count), modelValue: "V3" },
-    });
-
-    if (count === 20) {
-      expect(checkedValues(wrapper, "radio")).toEqual(["V3"]);
-    } else {
-      expect(wrapper.find('[role="combobox"]').text()).toContain("V3");
-      const selected = wrapper
-        .findAll('li[role="option"]')
-        .filter((li) => li.attributes("aria-selected") === "true");
-      expect(selected.map((li) => li.text())).toEqual(["V3"]);
-    }
+    expect(checkedValues(wrapper, "radio")).toEqual(["V3"]);
   });
 
   it("clears a stored radio value when not required", async () => {
@@ -76,16 +54,6 @@ describe("Enum input, scalar", () => {
     expect(wrapper.find("#e-radio-group-clear").exists()).toBe(false);
   });
 
-  it("clears a stored listbox value through the placeholder option", async () => {
-    const wrapper = mount(InputEnum, {
-      props: { id: "e", values: valuesOf(21), modelValue: "V3" },
-    });
-
-    await wrapper.findAll('li[role="option"]')[0]!.trigger("click");
-
-    expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual([null]);
-  });
-
   it("emits the picked radio value", async () => {
     const wrapper = mount(InputEnum, {
       props: { id: "e", values: valuesOf(3), modelValue: null },
@@ -96,35 +64,18 @@ describe("Enum input, scalar", () => {
     expect(wrapper.emitted("update:modelValue")?.at(-1)).toEqual(["V2"]);
   });
 
-  it.each([3, 21])(
-    "wires description and error to the control at %i values",
-    (count) => {
-      const wrapper = mount(InputEnum, {
-        props: {
-          id: "e",
-          values: valuesOf(count),
-          describedBy: "e-description e-error",
-        },
-      });
-
-      const control =
-        count === 3
-          ? wrapper.find("#e-radio-group")
-          : wrapper.find('[role="combobox"]');
-      expect(control.attributes("aria-describedby")).toEqual(
-        "e-description e-error"
-      );
-    }
-  );
-
-  it("labels the listbox toggle by the id the form label points at", () => {
+  it("wires description and error to the radio group", () => {
     const wrapper = mount(InputEnum, {
-      props: { id: "field-input", values: valuesOf(21) },
+      props: {
+        id: "e",
+        values: valuesOf(3),
+        describedBy: "e-description e-error",
+      },
     });
 
-    expect(wrapper.find('[role="combobox"]').attributes("id")).toEqual(
-      "field-input"
-    );
+    expect(
+      wrapper.find("#e-radio-group").attributes("aria-describedby")
+    ).toEqual("e-description e-error");
   });
 });
 
@@ -139,7 +90,6 @@ describe("Enum input, array", () => {
     expect(boxes.map((b) => (b.element as HTMLInputElement).value)).toEqual(
       values
     );
-    expect(wrapper.find('[role="combobox"]').exists()).toBe(false);
   });
 
   it("shows the stored values checked", () => {
