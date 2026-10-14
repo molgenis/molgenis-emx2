@@ -52,7 +52,7 @@ class Publisher:
 
     async def publish(self, state: PublishingState):
         """
-        Copies staging data to the combined tables. This happens in three phases:
+        Copies staging data to the combined tables. This happens in two phases:
         1. New/existing rows are upserted in the Directory tables
         2. Removed rows are deleted from non-persistent Directory tables and
         removed rows are set to 'withdrawn' for persistent Directory tables
@@ -64,7 +64,7 @@ class Publisher:
         with self.printer.indentation():
             await self._upsert_data(state)
 
-        self.printer.print("🧼 Cleaning up and withdrawing removed data in Directory tables")
+        self.printer.print("🧼 Cleaning up and withdrawing deleted data in Directory tables")
         with self.printer.indentation():
             self._delete_data(state)
 
@@ -79,7 +79,7 @@ class Publisher:
     def _delete_data(self, state):
         for table in reversed(state.data_to_publish.import_order):
             # Check whether deletion is allowed or 'withdrawn' should be used
-            if 'withdrawn' in table.meta.attributes:
+            if "withdrawn" in table.meta.attributes:
                 self._withdraw_rows(table, state.existing_data.table_by_type[table.type])
             else:
                 try:
@@ -88,9 +88,7 @@ class Publisher:
                             table, state.existing_data.table_by_type[table.type], state
                         )
                 except MolgenisRequestError as e:
-                    raise DirectoryError(
-                        f"Error deleting rows from {table.type.base_id}"
-                    ) from e
+                    raise DirectoryError(f"Error deleting rows from {table.type.base_id}") from e
 
     def _delete_rows(self, table: Table, existing_table: Table, state: PublishingState):
         """
@@ -109,8 +107,8 @@ class Publisher:
         # Remove ids that we are not allowed to delete
         undeletable_ids = state.quality_info.get_qualities(table.type).keys()
         deletable_ids = deleted_ids.difference(undeletable_ids)
-        #FIXME: double check this <- currently this never happens
         # For deleted biobanks, update the handle
+        # TODO: withdrawn different from terminated?
         if table.type == TableType.BIOBANKS:
             self.pid_manager.terminate_biobanks(
                 [existing_table.rows_by_id[id_].get("pid") for id_ in deletable_ids]
@@ -119,9 +117,7 @@ class Publisher:
         # Actually delete the rows in the combined table
         if deletable_ids:
             ids_dict = [{table.meta.id_attribute: id_} for id_ in deletable_ids]
-            self.printer.print(
-                f"Deleting {len(deletable_ids)} row(s) in {table.type.base_id}"
-            )
+            self.printer.print(f"Deleting {len(deletable_ids)} row(s) in {table.type.base_id}")
             self.session.delete_records(table=table.type.base_id, data=ids_dict)
             for id_ in deletable_ids:
                 with self.printer.indentation():
@@ -152,13 +148,19 @@ class Publisher:
         # FIXME Ideally use CSV Update method, but do it ugly for now
         data_to_withdraw = []
         for deleted_id in deleted_ids:
-            row_to_withdraw = self.session.get(schema=self.session.directory_schema, table=staging_table.full_name, query_filter=f'id == {deleted_id}')[0]
-            row_to_withdraw['withdrawn'] = True
+            row_to_withdraw = self.session.get(
+                schema=self.session.directory_schema,
+                table=staging_table.full_name,
+                query_filter=f"id == {deleted_id}",
+            )[0]
+            row_to_withdraw["withdrawn"] = True
             data_to_withdraw.append(row_to_withdraw)
         # TODO: show warning for every id that we prevented deletion of and/or show warnings at the node (staging) level
         try:
             self.session.save_table(
-                schema=self.session.directory_schema, table = staging_table.full_name, data=data_to_withdraw
+                schema=self.session.directory_schema,
+                table=staging_table.full_name,
+                data=data_to_withdraw,
             )
         except MolgenisRequestError as e:
             raise DirectoryError("Error importing data to combined tables") from e
