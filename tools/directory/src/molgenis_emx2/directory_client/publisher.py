@@ -27,11 +27,13 @@ class PublishingState:
     diseases: OntologyTable
     catalog_id: str
     publisher_id: str
+    deleted_ids: dict = field(default_factory=dict)
     data_to_publish: MixedData = field(init=False)
 
     def __post_init__(self):
         self.data_to_publish = self.existing_data.copy_empty()
         self.data_to_publish.source = Source.TRANSFORMED
+        self.deleted_ids = {table_type: set() for table_type in TableType}
 
 
 class Publisher:
@@ -80,7 +82,7 @@ class Publisher:
         for table in reversed(state.data_to_publish.import_order):
             # Check whether deletion is allowed or 'withdrawn' should be used
             if "withdrawn" in table.meta.attributes:
-                await self._withdraw_rows(table, state.existing_data.table_by_type[table.type])
+                await self._withdraw_rows(table, state)
             else:
                 try:
                     with self.printer.indentation():
@@ -99,12 +101,9 @@ class Publisher:
         :param Table table: the staging area's table
         :param Table existing_table: the existing rows
         """
-        # Compare the ids from staging and production to see what was deleted
-        staging_ids = table.rows_by_id.keys()
-        production_ids = set(existing_table.rows_by_id.keys())
-        deleted_ids = production_ids.difference(staging_ids)
 
         # Remove ids that we are not allowed to delete
+        deleted_ids = state.deleted_ids[table.type]
         undeletable_ids = state.quality_info.get_qualities(table.type).keys()
         deletable_ids = deleted_ids.difference(undeletable_ids)
         # For deleted biobanks, update the handle
@@ -139,12 +138,9 @@ class Publisher:
                     code = existing_table.rows_by_id[id_]["national_node"]
                     state.report.add_node_warnings(Node.of(code), [warning])
 
-    async def _withdraw_rows(self, staging_table: Table, existing_table: Table):
+    async def _withdraw_rows(self, staging_table: Table, state: PublishingState):
         data_to_withdraw = []
-        # Compare the ids from staging and production to see what was deleted
-        staging_ids = staging_table.rows_by_id.keys()
-        production_ids = set(existing_table.rows_by_id.keys())
-        deleted_ids = production_ids.difference(staging_ids)
+        deleted_ids = state.deleted_ids[staging_table.type]
         # FIXME Ideally use CSV Update method, but do it ugly for now
         data_to_withdraw = []
         for deleted_id in deleted_ids:

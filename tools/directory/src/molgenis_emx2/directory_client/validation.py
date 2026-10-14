@@ -4,6 +4,7 @@ from typing import List, Set
 from .errors import DirectoryWarning
 from .model import NodeData, Table, TableType
 from .printer import Printer
+from .publisher import PublishingState
 
 
 class Validator:
@@ -22,8 +23,9 @@ class Validator:
         r"[a-z]{2,6}\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)\/?$|^$/"
     )
 
-    def __init__(self, node_data: NodeData, printer: Printer):
+    def __init__(self, node_data: NodeData, state: PublishingState, printer: Printer):
         self.printer = printer
+        self.state = state
         self.node_data = node_data
         self.invalid_ids: Set[str] = set()
         self.warnings: List[DirectoryWarning] = list()
@@ -32,6 +34,7 @@ class Validator:
         for table in self.node_data.import_order:
             self._validate_ids(table)
             self._validate_hyperlinks(table)
+            self._identify_deleted_ids(table)
 
         self._validate_networks()
         self._validate_biobanks()
@@ -137,6 +140,12 @@ class Validator:
                 f" invalid characters. Only alphanumerics and -_: are allowed."
             )
             self.invalid_ids.add(id_)
+
+    def _identify_deleted_ids(self, table: Table):
+        # Compare the ids from staging and production to see what was deleted
+        staging_ids = table.rows_by_id.keys()
+        production_ids = set(self.state.existing_data.table_by_type[table.type].rows_by_id.keys())
+        self.state.deleted_ids[table.type].update(production_ids.difference(staging_ids))
 
     def _warn(self, message: str):
         warning = DirectoryWarning(message)
