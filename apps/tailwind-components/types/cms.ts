@@ -10,6 +10,7 @@ export interface IFile {
   extension?: string;
   filename?: string;
   url?: string;
+  url?: string;
 }
 
 export interface ITreeNode {
@@ -54,6 +55,20 @@ export interface IBlocks extends IMgTableClass {
 }
 
 export interface IBlocks_agg {
+  count: number;
+}
+
+export interface IButtons extends IMgTableClass {
+  buttonLink?: string;
+  buttonLabel?: string;
+  buttonType?: string;
+  buttonSize?: string;
+  buttonIsCentered?: boolean;
+  inBlock?: any;
+  id: string;
+}
+
+export interface IButtons_agg {
   count: number;
 }
 
@@ -192,6 +207,11 @@ export interface IComponents extends IMgTableClass {
   headingIsCentered?: boolean;
   headingIsHidden?: boolean;
   paragraphIsCentered?: boolean;
+  buttonLink?: string;
+  buttonLabel?: string;
+  buttonStyle?: string;
+  buttonSize?: string;
+  buttonIsCentered?: boolean;
   showFilesWithTag?: string;
   unorderedItems?: string[];
   chartType: IOntologyNode;

@@ -72,6 +72,14 @@ const handleDragEvent = (event: DragEvent) => {
           </li>
           <li>
             <DraggableComponent
+              icon="AddLink"
+              componentName="Buttons"
+              componentLabel="Button"
+              @dragging="handleDragEvent"
+            />
+          </li>
+          <li>
+            <DraggableComponent
               icon="Colorize"
               componentName="CustomComponents"
               componentLabel="Custom component"

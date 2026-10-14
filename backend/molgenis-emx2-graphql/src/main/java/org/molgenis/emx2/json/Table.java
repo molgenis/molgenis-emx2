@@ -10,6 +10,7 @@ public class Table {
   private String schemaId;
   private String name;
   private String label;
+  private String rowLabelTemplate;
   private String description;
   private String oldName;
   private boolean drop;
@@ -39,6 +40,9 @@ public class Table {
     this.schemaId = tableMetadata.getSchemaName();
     this.name = tableMetadata.getTableName();
     this.label = tableMetadata.getLabel();
+    if (tableMetadata.getSchema().getSchemaMetadataProvider() != null) {
+      this.rowLabelTemplate = tableMetadata.getRowLabelTemplate();
+    }
     this.description = tableMetadata.getDescription();
     this.labels =
         tableMetadata.getLabels().entrySet().stream()
@@ -222,6 +226,14 @@ public class Table {
 
   public void setLabel(String label) {
     this.label = label;
+  }
+
+  public String getRowLabelTemplate() {
+    return rowLabelTemplate;
+  }
+
+  public void setRowLabelTemplate(String rowLabelTemplate) {
+    this.rowLabelTemplate = rowLabelTemplate;
   }
 
   public String getDescription() {

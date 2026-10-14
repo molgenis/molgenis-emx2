@@ -55,13 +55,9 @@ public class TestGraphqlAggregatePermission {
   }
 
   @Test
-  public void aggregateShouldHaveGroupByGraphql() {
-    assertDoesNotThrow(() -> execute("{Pet_groupBy{count,tags{name}}}"));
-  }
-
-  @Test
-  public void aggregateShouldNotHaveGroupByOtherTable() {
-    assertThrows(MolgenisException.class, () -> execute("{Pet_groupBy{count,category{name}}"));
+  public void aggregateShouldNotHaveGroupByGraphql() {
+    assertThrows(MolgenisException.class, () -> execute("{Pet_groupBy{count,tags{name}}}"));
+    assertThrows(MolgenisException.class, () -> execute("{Pet_groupBy{sum{weight},tags{name}}}"));
   }
 
   private JsonNode execute(String query) throws IOException {

@@ -42,7 +42,7 @@
         v-if="form?.showLegend.value"
         class="col-span-1 bg-form-legend overflow-y-auto min-h-0"
       >
-        <FormLegend
+        <Legend
           class="sticky top-0"
           :sections="form.sections.value"
           @goToSection="gotoSection"
@@ -147,7 +147,7 @@ import Modal from "../Modal.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
 import FormError from "./Error.vue";
 import Form from "./Form.vue";
-import FormLegend from "./Legend.vue";
+import Legend from "../Legend.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 

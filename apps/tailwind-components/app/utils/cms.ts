@@ -23,6 +23,7 @@ import {
   AddColumnChart,
   AddFile,
   AddFileList,
+  AddButton,
   AddCustomComponent,
 } from "./cms/add";
 
@@ -501,6 +502,10 @@ export async function addComponent(
 
   if (componentType === "ColumnCharts") {
     await AddColumnChart(schema, id);
+  }
+
+  if (componentType === "Buttons") {
+    await AddButton(schema, id);
   }
 
   if (componentType === "CustomComponents") {
