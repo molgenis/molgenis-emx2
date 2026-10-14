@@ -106,12 +106,6 @@ class Publisher:
         deleted_ids = state.deleted_ids[table.type]
         undeletable_ids = state.quality_info.get_qualities(table.type).keys()
         deletable_ids = deleted_ids.difference(undeletable_ids)
-        # For deleted biobanks, update the handle
-        # TODO: withdrawn different from terminated?
-        if table.type == TableType.BIOBANKS:
-            self.pid_manager.terminate_biobanks(
-                [existing_table.rows_by_id[id_].get("pid") for id_ in deletable_ids]
-            )
 
         # Actually delete the rows in the combined table
         if deletable_ids:
@@ -142,6 +136,7 @@ class Publisher:
         data_to_withdraw = []
         deleted_ids = state.deleted_ids[staging_table.type]
         # FIXME Ideally use CSV Update method, but do it ugly for now
+        # TODO: add warning/notification that these were withdrawn rather than deleted (unless they already were withdrawn previously), see above for example
         data_to_withdraw = []
         for deleted_id in deleted_ids:
             row_to_withdraw = self.session.get(
@@ -157,5 +152,12 @@ class Publisher:
                 table=staging_table.full_name,
                 data=data_to_withdraw,
             )
+            # TODO: Make sure the pid manager gets triggered for deleted -> withdrawn biobanks, see pid_manager._udpate_withrdawn_status
+            if staging_table.type == TableType.BIOBANKS:
+                # DO STUFF HERE
+                pass
+                # self.pid_manager.terminate_biobanks(
+                #     [existing_table.rows_by_id[id_].get("pid") for id_ in deletable_ids]
+                # )
         except MolgenisRequestError as e:
             raise DirectoryError("Error importing data to combined tables") from e
