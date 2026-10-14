@@ -54,8 +54,8 @@ class Publisher:
         """
         Copies staging data to the combined tables. This happens in three phases:
         1. New/existing rows are upserted in the Directory tables
-        2. Removed rows are deleted from non-persistent Directory tables
-        3. Removed rows are set to 'withdrawn' for persistent Directory tables
+        2. Removed rows are deleted from non-persistent Directory tables and
+        removed rows are set to 'withdrawn' for persistent Directory tables
 
         For certain tables (Biobanks, Collections, Networks), data is never deleted from
         the main schema, but rather the withdrawn attribute is set to 'True'
@@ -64,13 +64,9 @@ class Publisher:
         with self.printer.indentation():
             await self._upsert_data(state)
 
-        self.printer.print("🧼 Cleaning up removed data in Directory tables")
+        self.printer.print("🧼 Cleaning up and withdrawing removed data in Directory tables")
         with self.printer.indentation():
             self._delete_data(state)
-
-        self.printer.print("↩️ Withdrawing removed data in Directory tables")
-        with self.printer.indentation():
-            await self._withdraw_data(state)
 
     async def _upsert_data(self, state):
         try:
@@ -84,16 +80,17 @@ class Publisher:
         for table in reversed(state.data_to_publish.import_order):
             # Check whether deletion is allowed or 'withdrawn' should be used
             if 'withdrawn' in table.meta.attributes:
-                continue
-            try:
-                with self.printer.indentation():
-                    self._delete_rows(
-                        table, state.existing_data.table_by_type[table.type], state
-                    )
-            except MolgenisRequestError as e:
-                raise DirectoryError(
-                    f"Error deleting rows from {table.type.base_id}"
-                ) from e
+                self._withdraw_rows(table, state.existing_data.table_by_type[table.type])
+            else:
+                try:
+                    with self.printer.indentation():
+                        self._delete_rows(
+                            table, state.existing_data.table_by_type[table.type], state
+                        )
+                except MolgenisRequestError as e:
+                    raise DirectoryError(
+                        f"Error deleting rows from {table.type.base_id}"
+                    ) from e
 
     def _delete_rows(self, table: Table, existing_table: Table, state: PublishingState):
         """
@@ -146,26 +143,22 @@ class Publisher:
                     code = existing_table.rows_by_id[id_]["national_node"]
                     state.report.add_node_warnings(Node.of(code), [warning])
 
-    async def _withdraw_data(self, state):
+    async def _withdraw_rows(self, staging_table: Table, existing_table: Table):
         data_to_withdraw = []
-        for staging_table in reversed(state.data_to_publish.import_order):
-            if 'withdrawn' not in staging_table.meta.attributes:
-                continue
-            existing_table = state.existing_data.table_by_type[staging_table.type]
-            # Compare the ids from staging and production to see what was deleted
-            staging_ids = staging_table.rows_by_id.keys()
-            production_ids = set(existing_table.rows_by_id.keys())
-            deleted_ids = production_ids.difference(staging_ids)
-            # FIXME Ideally use CSV Update method, but do it ugly for now
-            data_to_withdraw = []
-            for deleted_id in deleted_ids:
-                row_to_withdraw = self.session.get(schema=self.session.directory_schema, table=staging_table.full_name, query_filter=f'id == {deleted_id}')[0]
-                row_to_withdraw['withdrawn'] = True
-                data_to_withdraw.append(row_to_withdraw)
-            # TODO: show warning for every id that we prevented deletion of and/or show warnings at the node (staging) level
-            try:
-                self.session.save_table(
-                    schema=self.session.directory_schema, table = staging_table.full_name, data=data_to_withdraw
-                )
-            except MolgenisRequestError as e:
-                raise DirectoryError("Error importing data to combined tables") from e
+        # Compare the ids from staging and production to see what was deleted
+        staging_ids = staging_table.rows_by_id.keys()
+        production_ids = set(existing_table.rows_by_id.keys())
+        deleted_ids = production_ids.difference(staging_ids)
+        # FIXME Ideally use CSV Update method, but do it ugly for now
+        data_to_withdraw = []
+        for deleted_id in deleted_ids:
+            row_to_withdraw = self.session.get(schema=self.session.directory_schema, table=staging_table.full_name, query_filter=f'id == {deleted_id}')[0]
+            row_to_withdraw['withdrawn'] = True
+            data_to_withdraw.append(row_to_withdraw)
+        # TODO: show warning for every id that we prevented deletion of and/or show warnings at the node (staging) level
+        try:
+            self.session.save_table(
+                schema=self.session.directory_schema, table = staging_table.full_name, data=data_to_withdraw
+            )
+        except MolgenisRequestError as e:
+            raise DirectoryError("Error importing data to combined tables") from e
