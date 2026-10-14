@@ -205,14 +205,28 @@ describe("Listbox, single mode", () => {
           : at === "input"
           ? wrapper.find('input[type="search"]')
           : wrapper.find("#listbox-lb-panel");
+      const onWindow = vi.fn();
+      window.addEventListener("keydown", onWindow);
       await target.trigger("keydown", { key: "Escape" });
+      window.removeEventListener("keydown", onWindow);
 
       expect(toggle(wrapper).attributes("aria-expanded")).toBe("false");
       expect(wrapper.emitted("update:modelValue")?.length ?? 0).toBe(
         at === "panel" ? 1 : 0
       );
+      expect(onWindow).not.toHaveBeenCalled();
     }
   );
+
+  it("Escape on the closed toggle still reaches the window, so a modal can close", async () => {
+    const wrapper = mountListbox();
+    const onWindow = vi.fn();
+    window.addEventListener("keydown", onWindow);
+    await toggle(wrapper).trigger("keydown", { key: "Escape" });
+    window.removeEventListener("keydown", onWindow);
+
+    expect(onWindow).toHaveBeenCalledTimes(1);
+  });
 
   it.each([
     ["ArrowDown", "single", {}],
