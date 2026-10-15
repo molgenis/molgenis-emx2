@@ -52,6 +52,31 @@ public class GraphqlAdminFieldFactory {
                   .build())
           .build();
 
+  private static final GraphQLOutputType customRoleType =
+      GraphQLObjectType.newObject()
+          .name("_AdminCustomRoleType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_ID)
+                  .type(Scalars.GraphQLString)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ROLE_NAME)
+                  .type(Scalars.GraphQLString)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(PERMISSIONS)
+                  .type(GraphQLList.list(outputPermissionType))
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(USERS)
+                  .type(GraphQLList.list(Scalars.GraphQLString))
+                  .build())
+          .build();
+
   // retrieve user list, user count
   public static GraphQLFieldDefinition queryAdminField(Database db) {
     String userCount = "userCount";
@@ -71,6 +96,11 @@ public class GraphqlAdminFieldFactory {
                     .name(userCount)
                     .type(Scalars.GraphQLInt)
                     .build())
+            .field(
+                GraphQLFieldDefinition.newFieldDefinition()
+                    .name(CUSTOM_ROLES)
+                    .type(GraphQLList.list(customRoleType))
+                    .build())
             .build();
 
     return GraphQLFieldDefinition.newFieldDefinition()
@@ -87,11 +117,43 @@ public class GraphqlAdminFieldFactory {
                 if (selectedField.getName().equals(userCount)) {
                   result.put(userCount, db.countUsers());
                 }
+                if (selectedField.getName().equals(CUSTOM_ROLES)) {
+                  result.put(CUSTOM_ROLES, getCustomRoles(db));
+                }
               }
               return result;
             })
         .type(adminType)
         .build();
+  }
+
+  private static List<Map<String, Object>> getCustomRoles(Database db) {
+    Map<String, List<String>> usersPerRole = getUsersPerRole(db.loadUserRoles());
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (String schemaName : db.getSchemaNames()) {
+      for (Role role : db.getSchema(schemaName).getRoleInfos()) {
+        if (role.isSystemRole()) {
+          continue;
+        }
+        Map<String, Object> customRole = new LinkedHashMap<>();
+        customRole.put(SCHEMA_ID, schemaName);
+        customRole.put(ROLE_NAME, role.name());
+        customRole.put(PERMISSIONS, permissionsToList(role));
+        customRole.put(USERS, usersPerRole.getOrDefault(schemaName + "/" + role.name(), List.of()));
+        result.add(customRole);
+      }
+    }
+    return result;
+  }
+
+  private static Map<String, List<String>> getUsersPerRole(List<Member> members) {
+    Map<String, List<String>> usersPerRole = new LinkedHashMap<>();
+    for (Member member : members) {
+      usersPerRole
+          .computeIfAbsent(member.getRole(), role -> new ArrayList<>())
+          .add(member.getUser());
+    }
+    return usersPerRole;
   }
 
   private static Object getUsers(SelectedField selectedField, Database db) {
