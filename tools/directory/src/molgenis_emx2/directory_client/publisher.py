@@ -135,7 +135,7 @@ class Publisher:
     async def _withdraw_rows(self, staging_table: Table, state: PublishingState):
         data_to_withdraw = []
         deleted_ids = state.deleted_ids[staging_table.type]
-        # FIXME Ideally use CSV Update method, but do it ugly for now
+        # TODO: when CSV update mode is implemented in pyclient, use that instead of updownload
         data_to_withdraw = []
         for deleted_id in deleted_ids:
             row_to_withdraw = self.session.get(
