@@ -136,7 +136,6 @@ class Publisher:
         data_to_withdraw = []
         deleted_ids = state.deleted_ids[staging_table.type]
         # FIXME Ideally use CSV Update method, but do it ugly for now
-        # TODO: add warning/notification that these were withdrawn rather than deleted (unless they already were withdrawn previously), see above for example
         data_to_withdraw = []
         for deleted_id in deleted_ids:
             row_to_withdraw = self.session.get(
@@ -152,6 +151,13 @@ class Publisher:
                 table=staging_table.full_name,
                 data=data_to_withdraw,
             )
+            for deleted_id in deleted_ids:
+                warning = DirectoryWarning(
+                    f" Deleted {staging_table.full_name[:-1]} {deleted_id} has been 'withdrawn'."
+                )
+                self.printer.print_warning(warning)
+                code = staging_table.rows[0]["national_node"]
+                state.report.add_node_warnings(Node.of(code), [warning])
             # Set PIDs for withdrawn biobanks to withdrawn
             if staging_table.type == TableType.BIOBANKS:
                 self.pid_manager.withdraw_biobanks(deleted_ids)
