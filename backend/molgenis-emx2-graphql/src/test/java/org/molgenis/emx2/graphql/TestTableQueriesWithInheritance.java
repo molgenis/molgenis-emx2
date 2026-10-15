@@ -35,6 +35,7 @@ class TestTableQueriesWithInheritance {
     schema.create(
         table("Employee", column("salary").setType(ColumnType.INT)).setInheritName("Person"));
     schema.getTable("Employee").insert(row("name", "pooky", "salary", 1000));
+    schema.getTable("Employee").insert(row("name", "zed", "salary", 5));
 
     // table with a file column, with a row that has no file uploaded
     schema.create(
@@ -51,6 +52,17 @@ class TestTableQueriesWithInheritance {
         execute(
             "{Person{name,salary}}"); // note, Person.salary doesn't exist, but Employee.salary does
     assertEquals(1000, result.at("/Person/0/salary").asInt());
+  }
+
+  @Test
+  void saveOnTheParentKeepsTheSubclassColumnOfASubclassRow() throws IOException {
+    String zed = "{Person(filter:{name:{equals:\"zed\"}}){name salary mg_tableclass}}";
+    assertEquals(5, execute(zed).at("/Person/0/salary").asInt());
+
+    execute("mutation{save(Person:[{name:\"zed\",salary:6,mg_tableclass:\"Employee\"}]){message}}");
+
+    assertEquals(6, execute(zed).at("/Person/0/salary").asInt());
+    assertTrue(execute(zed).at("/Person/0/mg_tableclass").asText().endsWith("Employee"));
   }
 
   @Test
