@@ -152,12 +152,8 @@ class Publisher:
                 table=staging_table.full_name,
                 data=data_to_withdraw,
             )
-            # TODO: Make sure the pid manager gets triggered for deleted -> withdrawn biobanks, see pid_manager._udpate_withrdawn_status
+            # Set PIDs for withdrawn biobanks to withdrawn
             if staging_table.type == TableType.BIOBANKS:
-                # DO STUFF HERE
-                pass
-                # self.pid_manager.terminate_biobanks(
-                #     [existing_table.rows_by_id[id_].get("pid") for id_ in deletable_ids]
-                # )
+                self.pid_manager.withdraw_biobanks(deleted_ids)
         except MolgenisRequestError as e:
             raise DirectoryError("Error importing data to combined tables") from e
