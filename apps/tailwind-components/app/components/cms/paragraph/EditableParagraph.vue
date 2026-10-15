@@ -23,7 +23,7 @@ const showMenu = ref<boolean>(false);
     :triggers="['hover', 'focus']"
     :popperTriggers="['hover', 'focus']"
     :delay="{ show: 100, hide: 50 }"
-    :placement="paragraphIsCentered ? 'bottom-auto' : 'bottom-start'"
+    :placement="paragraphIsCentered ? 'bottom' : 'bottom-start'"
     noAutoFocus
   >
     <template #popper>
