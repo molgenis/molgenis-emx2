@@ -8,6 +8,7 @@ import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -536,6 +537,20 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getPrimaryKeyColumns() {
     return getKey(1);
+  }
+
+  public String getRowLabelTemplate() {
+    return getPrimaryKeyColumns().stream()
+        .flatMap(
+            pk ->
+                pk.isReference()
+                    ? pk.getReferences().stream()
+                        .filter(ref -> !ref.isOverlapping())
+                        .map(
+                            ref ->
+                                "${" + pk.getName() + "." + String.join(".", ref.getPath()) + "}")
+                    : Stream.of("${" + pk.getName() + "}"))
+        .collect(Collectors.joining(" "));
   }
 
   public List<Column> getKey(int key) {
