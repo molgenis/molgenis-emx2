@@ -141,16 +141,7 @@ def test_delete_rows(publisher, node_data: NodeData, session):
 
 
 @pytest.mark.asyncio
-async def test_withdraw_rows(publisher, node_data: NodeData, session):
-    biobank_meta = MagicMock()
-    biobank_meta.id_attribute = "id"
-    existing_biobanks_table = Table.of(
-        table_type=TableType.BIOBANKS,
-        meta=biobank_meta,
-        rows=[
-            {"id": "delete_this_row", "pid": "pid2", "national_node": "NL"},
-        ],
-    )
+async def test_withdraw_rows(publisher, node_data: NodeData):
 
     state: PublishingState = MagicMock()
     state.deleted_ids = {table_type: set() for table_type in TableType}
