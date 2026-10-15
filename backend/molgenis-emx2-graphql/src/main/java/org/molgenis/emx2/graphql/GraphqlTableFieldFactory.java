@@ -986,23 +986,23 @@ public class GraphqlTableFieldFactory {
   }
 
   private DataFetcher fetcher(Schema schema, MutationType mutationType) {
-    return dataFetchingEnvironment -> {
-      Schema currentSchema =
-          GraphqlTransactionalMutationStrategy.currentSchema(dataFetchingEnvironment, schema);
-      if (currentSchema.getMetadata().getTables().stream()
-          .noneMatch(t -> dataFetchingEnvironment.getArgument(t.getIdentifier()) != null)) {
+    return environment -> {
+      Schema transactionalSchema =
+          GraphqlTransactionalMutationStrategy.currentSchema(environment, schema);
+      if (transactionalSchema.getMetadata().getTables().stream()
+          .noneMatch(t -> environment.getArgument(t.getIdentifier()) != null)) {
         throw new MolgenisException("None or invalid tables provided");
       }
 
       StringBuilder result = new StringBuilder();
-      currentSchema
+      transactionalSchema
           .getDatabase()
           .tx(
               db -> {
                 Schema txSchema = db.getSchema(schema.getName());
                 for (Table table : txSchema.getTablesSorted()) {
                   List<Map<String, Object>> rowsAsListOfMaps =
-                      dataFetchingEnvironment.getArgument(table.getMetadata().getIdentifier());
+                      environment.getArgument(table.getMetadata().getIdentifier());
                   if (rowsAsListOfMaps == null) {
                     continue;
                   }
@@ -1020,9 +1020,7 @@ public class GraphqlTableFieldFactory {
                             "delete %d records from %s%n"
                                 .formatted(
                                     table.delete(
-                                        rows,
-                                        dataFetchingEnvironment.getArgumentOrDefault(
-                                            "strict", false)),
+                                        rows, environment.getArgumentOrDefault("strict", false)),
                                     tableName);
                       });
                 }
