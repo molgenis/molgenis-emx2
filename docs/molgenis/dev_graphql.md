@@ -735,7 +735,8 @@ succeed, or none of them is applied. Data mutations are:
 
 You can combine multiple tables in one mutation, and multiple mutations in one request. They are
 executed in the order in which they are written, so a mutation sees the changes of the mutations
-before it. To use the same mutation more than once, give it an alias.
+before it. Foreign key ('ref') checks are done at end of transaction. 
+To use the same mutation more than once, give it an alias.
 
 For example, remove all orders and a pet, and add a category that is used by a pet inserted in the
 same request:
