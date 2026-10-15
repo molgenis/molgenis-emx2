@@ -608,25 +608,22 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private static DataFetcher<?> dropFetcher(Schema schema) {
-    return environment -> {
+    return dataFetchingEnvironment -> {
       StringBuilder message = new StringBuilder();
-      GraphqlTransactionalMutationStrategy.currentSchema(environment, schema)
+      schema
           .getDatabase()
           .tx(
               db -> {
                 Schema s = db.getSchema(schema.getName());
-                dropTables(s, environment, message);
-                dropMembers(s, environment, message);
-                dropRoles(s, environment, message);
-                dropColumns(s, environment, message);
-                dropSettings(s, environment, message);
-                // the request transaction syncs after commit
-                if (!GraphqlTransactionalMutationStrategy.isTransactionalRequest(environment)) {
-                  // this sync is a bit sad.
-                  ((SqlSchemaMetadata) schema.getMetadata())
-                      .sync((SqlSchemaMetadata) s.getMetadata());
-                  db.getListener().onSchemaChange();
-                }
+                dropTables(s, dataFetchingEnvironment, message);
+                dropMembers(s, dataFetchingEnvironment, message);
+                dropRoles(s, dataFetchingEnvironment, message);
+                dropColumns(s, dataFetchingEnvironment, message);
+                dropSettings(s, dataFetchingEnvironment, message);
+                // this sync is a bit sad.
+                ((SqlSchemaMetadata) schema.getMetadata())
+                    .sync((SqlSchemaMetadata) s.getMetadata());
+                db.getListener().onSchemaChange();
               });
       Map<String, String> result = new LinkedHashMap<>();
       result.put(GraphqlConstants.DETAIL, message.toString());
@@ -883,7 +880,7 @@ public class GraphqlSchemaFieldFactory {
 
   public GraphQLFieldDefinition changeMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name(CHANGE)
+        .name("change")
         .type(typeForMutationResult)
         .dataFetcher(changeFetcher(schema))
         .argument(
@@ -911,7 +908,7 @@ public class GraphqlSchemaFieldFactory {
 
   private DataFetcher<?> changeFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
-      GraphqlTransactionalMutationStrategy.currentSchema(dataFetchingEnvironment, schema)
+      schema
           .getDatabase()
           .tx(
               db -> {
@@ -922,14 +919,10 @@ public class GraphqlSchemaFieldFactory {
                   changeMembers(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
-                  // the request transaction syncs after commit
-                  if (!GraphqlTransactionalMutationStrategy.isTransactionalRequest(
-                      dataFetchingEnvironment)) {
-                    // this sync is a bit sad.
-                    ((SqlSchemaMetadata) schema.getMetadata())
-                        .sync((SqlSchemaMetadata) s.getMetadata());
-                    db.getListener().onSchemaChange();
-                  }
+                  // this sync is a bit sad.
+                  ((SqlSchemaMetadata) schema.getMetadata())
+                      .sync((SqlSchemaMetadata) s.getMetadata());
+                  db.getListener().onSchemaChange();
                 } catch (IOException e) {
                   throw new GraphqlException("Save metadata failed", e);
                 }
@@ -1016,7 +1009,7 @@ public class GraphqlSchemaFieldFactory {
 
   public GraphQLFieldDefinition dropMutation(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name(DROP)
+        .name("drop")
         .type(typeForMutationResult)
         .dataFetcher(dropFetcher(schema))
         .argument(

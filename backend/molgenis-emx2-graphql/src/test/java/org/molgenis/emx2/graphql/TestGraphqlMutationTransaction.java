@@ -228,7 +228,7 @@ class TestGraphqlMutationTransaction {
   }
 
   @Test
-  void transactionalMutationCombinedWithOtherMutationIsRejected() {
+  void dataMutationCombinedWithOtherMutationIsRejected() {
     MolgenisException exception =
         assertThrows(
             MolgenisException.class,
@@ -241,59 +241,14 @@ class TestGraphqlMutationTransaction {
                     }
                     """));
     assertEquals(
-        "Mutations (change, drop, truncate, insert, save, update, delete) cannot be combined with other mutations: signin",
+        "Data mutations (truncate, insert, save, update, delete) cannot be combined with other mutations: signin",
         exception.getMessage());
 
     CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
   }
 
   @Test
-  void schemaMutationAfterDataMutationIsRejected() {
-    book.insert(row("title", "the hobbit"));
-
-    MolgenisException exception =
-        assertThrows(
-            MolgenisException.class,
-            () ->
-                execute(
-                    """
-                    mutation {
-                      insert(Author: { name: "tolkien", country: "uk" }) { message }
-                      truncate(tables: ["Book"]) { message }
-                    }
-                    """));
-    assertEquals(
-        "Schema mutations (change, drop, truncate) must precede data mutations (insert, save, update, delete)",
-        exception.getMessage());
-
-    CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
-    CompareTools.assertEquals(
-        List.of(row("title", "the hobbit", "author", null)), book.retrieveRows(EXCLUDE_MG_COLUMNS));
-  }
-
-  @Test
-  void schemaAndDataMutationsAreCommittedTogether() throws IOException {
-    try {
-      execute(
-          """
-          mutation {
-            change(settings: [{ key: "transaction.test", value: "committed" }]) { message }
-            insert(Author: { name: "tolkien", country: "uk" }) { message }
-          }
-          """);
-
-      assertEquals("committed", schema.getMetadata().getSetting("transaction.test"));
-      assertEquals("committed", reloadedSchema().getMetadata().getSetting("transaction.test"));
-      CompareTools.assertEquals(
-          List.of(row("name", "tolkien", "country", "uk")),
-          author.retrieveRows(EXCLUDE_MG_COLUMNS));
-    } finally {
-      schema.getMetadata().removeSetting("transaction.test");
-    }
-  }
-
-  @Test
-  void schemaMutationsAreRolledBackWhenDataMutationFails() {
+  void dataMutationCombinedWithSchemaMutationsIsRejected() {
     schema.create(table("Temporary", column("name").setPkey()));
     try {
       MolgenisException exception =
@@ -304,19 +259,37 @@ class TestGraphqlMutationTransaction {
                       """
                       mutation {
                         drop(tables: ["Temporary"]) { message }
-                        change(settings: [{ key: "transaction.test", value: "rolled back" }]) { message }
-                        save(Book: { title: "lord of the rings", author: { name: "does not exist" } }) { message }
+                        change(settings: [{ key: "transaction.test", value: "rejected" }]) { message }
+                        insert(Author: { name: "tolkien", country: "uk" }) { message }
                       }
                       """));
-      assertFailedOnBook(exception);
+      assertEquals(
+          "Data mutations (truncate, insert, save, update, delete) cannot be combined with other mutations: drop, change",
+          exception.getMessage());
 
-      assertTrue(schema.getTableNames().contains("Temporary"));
       assertTrue(reloadedSchema().getTableNames().contains("Temporary"));
-      assertNull(schema.getMetadata().getSetting("transaction.test"));
       assertNull(reloadedSchema().getMetadata().getSetting("transaction.test"));
+      CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
     } finally {
       schema.dropTable("Temporary");
     }
+  }
+
+  @Test
+  void truncateAfterInsertIsCommittedTogether() throws IOException {
+    book.insert(row("title", "the hobbit"));
+
+    execute(
+        """
+        mutation {
+          insert(Author: { name: "tolkien", country: "uk" }) { message }
+          truncate(tables: ["Book"]) { message }
+        }
+        """);
+
+    CompareTools.assertEquals(
+        List.of(row("name", "tolkien", "country", "uk")), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(List.of(), book.retrieveRows(EXCLUDE_MG_COLUMNS));
   }
 
   @Test
@@ -422,11 +395,18 @@ class TestGraphqlMutationTransaction {
 
   @Test
   void mutationWithoutDataMutationsIsExecuted() throws IOException {
-    book.insert(row("title", "the hobbit"));
+    try {
+      execute(
+          """
+          mutation {
+            change(settings: [{ key: "transaction.test", value: "changed" }]) { message }
+          }
+          """);
 
-    execute("mutation { truncate(tables: [\"Book\"]) { message } }");
-
-    CompareTools.assertEquals(List.of(), book.retrieveRows(EXCLUDE_MG_COLUMNS));
+      assertEquals("changed", reloadedSchema().getMetadata().getSetting("transaction.test"));
+    } finally {
+      schema.getMetadata().removeSetting("transaction.test");
+    }
   }
 
   private void assertFailedOnBook(MolgenisException exception) {
