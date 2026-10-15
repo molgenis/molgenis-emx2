@@ -228,6 +228,24 @@ class TestGraphqlMutationTransaction {
   }
 
   @Test
+  void referencesAreCheckedAtEndOfTransaction() throws IOException {
+    execute(
+        """
+        mutation {
+          save(Book: { title: "Matilda", author: { name: "Roald Dahl" } }) { message }
+          insert(Author: { name: "Roald Dahl", country: "nk" }) { message }
+        }
+        """);
+
+    CompareTools.assertEquals(
+        List.of(row("name", "Roald Dahl", "country", "nk")),
+        author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(
+        List.of(row("title", "Matilda", "author", "Roald Dahl")),
+        book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
   void dataMutationCombinedWithOtherMutationIsRejected() {
     MolgenisException exception =
         assertThrows(
