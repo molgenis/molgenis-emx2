@@ -26,6 +26,9 @@ import {
   AddButton,
 } from "./cms/add";
 
+export const actionsToolbarShowDelay = 200;
+export const actionsToolbarHideDelay = 100;
+
 import { deleteChartData } from "./cms/delete";
 
 export function randomId(): string {
