@@ -96,6 +96,65 @@ def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
                 "pid": "pid1",
                 "national_node": "NL",
             },
+            {"id": "undeletable_id", "pid": "pid3", "national_node": "NL"},
+        ],
+    )
+    persons_meta = MagicMock()
+    persons_meta.id_attribute = "id"
+    existing_persons_table = Table.of(
+        table_type=TableType.PERSONS,
+        meta=persons_meta,
+        rows=[
+            {
+            "id": "delete_this_row",
+            "first_name": "Jan",
+            "last_name": "Janssen",
+            "national_node": "NL",
+            },
+        ],
+    )
+    state: PublishingState = MagicMock()
+    state.quality_info = QualityInfo(
+        biobanks={"undeletable_id": ["quality"]},
+        collections={},
+        biobank_levels={},
+        collection_levels={},
+        services={},
+    )
+    state.deleted_ids = {table_type: set() for table_type in TableType}
+    state.deleted_ids[TableType.PERSONS] = {'delete_this_row'}
+    state.deleted_ids[TableType.BIOBANKS] = {'undeletable_id'}
+    state.report = ErrorReport([node_data.node])
+
+    warning1 = DirectoryWarning("ID delete_this_row is deleted")
+
+    warning2 = DirectoryWarning(
+        "Prevented the deletion of a row that is referenced from "
+        "the quality info: biobanks undeletable_id."
+    )
+
+    publisher._delete_rows(node_data.persons, existing_persons_table, state)
+
+    session.delete_records.assert_called_with(
+        table="Persons", data=[{"id": "delete_this_row"}]
+    )
+
+    publisher._delete_rows(node_data.biobanks, existing_biobanks_table, state)
+
+    assert state.report.node_warnings[node_data.node] == [warning1, warning2]
+
+def test_withdraw_rows(publisher, pid_service, node_data: NodeData, session):
+    biobank_meta = MagicMock()
+    biobank_meta.id_attribute = "id"
+    existing_biobanks_table = Table.of(
+        table_type=TableType.BIOBANKS,
+        meta=biobank_meta,
+        rows=[
+            {
+                "id": "bbmri-eric:ID:NL_valid-biobankID-1",
+                "pid": "pid1",
+                "national_node": "NL",
+            },
             {"id": "delete_this_row", "pid": "pid2", "national_node": "NL"},
             {"id": "undeletable_id", "pid": "pid3", "national_node": "NL"},
         ],
@@ -125,4 +184,4 @@ def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
         table="Biobanks", data=[{"id": "delete_this_row"}]
     )
 
-    assert state.report.node_warnings[node_data.node] == [warning1, warning2]
+    assert state.report.node_warnings[node_data.node] == [warning1, warning2]    
