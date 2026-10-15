@@ -10,11 +10,11 @@ from src.molgenis_emx2.directory_client.validation import Validator
 
 @pytest.fixture
 def validator() -> Validator:
-    return Validator(MagicMock(), MagicMock())
+    return Validator(MagicMock(), MagicMock(), MagicMock())
 
 
-def test_validate_id(node_data):
-    validator = Validator(node_data, Printer())
+def test_validate_id(node_data, state):
+    validator = Validator(node_data, state, Printer())
 
     warnings = validator.validate()
 

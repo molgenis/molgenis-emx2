@@ -140,6 +140,9 @@ def session() -> MagicMock:
 def printer() -> MagicMock:
     return MagicMock()
 
+@pytest.fixture
+def state() -> MagicMock:
+    return MagicMock()
 
 @pytest.fixture
 def pid_service() -> MagicMock:

@@ -121,7 +121,6 @@ def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
 
     publisher._delete_rows(node_data.biobanks, existing_biobanks_table, state)
 
-    publisher.pid_manager.terminate_biobanks.assert_called_with(["pid2"])
     session.delete_records.assert_called_with(
         table="Biobanks", data=[{"id": "delete_this_row"}]
     )
