@@ -165,6 +165,7 @@ public class Constants {
   public static final String API_FILE = "/api/file";
   public static final String MG_TOP_OF_FORM = "mg_top_of_form";
 
+  public static final String MATOMO_ENABLED_ENV = "MATOMO_ENABLED";
   public static final String MATOMO_URL_ENV = "MATOMO_URL";
   public static final String MATOMO_SITE_ID_ENV = "MATOMO_SITE_ID";
 
