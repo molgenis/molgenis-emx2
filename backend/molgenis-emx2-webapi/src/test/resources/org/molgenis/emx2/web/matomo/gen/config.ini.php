@@ -1,7 +1,3 @@
-// THIS IS A GENERATED CONFIG FILE FROM A LOCAL MATOMO CONTAINER WITH A MINOR ADJUSTMENT FOR TO SET UP INTEGRATION TESTS
-//
-// INSTRUCTIONS FOR RECREATING THIS CAN BE FOUND IN THE README IN THE PARENT OF THIS DIRECTORY.
-
 ; <?php exit; ?> DO NOT REMOVE THIS LINE
 ; file automatically generated or modified by Matomo; you can manually override the default values in global.ini.php by redefining them in this file.
 [database]
@@ -10,12 +6,11 @@ username = "matomo"
 password = "secret"
 dbname = "matomo"
 tables_prefix = "matomo_"
-schema = "Mariadb"
 charset = "utf8mb4"
 collation = "utf8mb4_uca1400_ai_ci"
 
 [General]
-salt = "1ab3d0ba6a4cd5f1c5dfeb080ebbaa5c"
+salt = "ed9cbaf060f40e842b919d9548b47f8a"
 trusted_hosts[] = "localhost:8081"
 enable_trusted_host_check = 0
 enable_browser_archiving_triggering = 0

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web.service;
+package org.molgenis.emx2.web.matomo;
 
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.STRING;
