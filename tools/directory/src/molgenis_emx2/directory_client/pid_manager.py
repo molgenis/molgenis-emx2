@@ -20,6 +20,10 @@ class BasePidManager(ABC):
     def terminate_biobanks(self, biobank_pids: List[str]):
         pass
 
+    @abstractmethod
+    def withdraw_biobanks(self, biobank_pids: List[str]):
+        pass
+
 
 class PidManager(BasePidManager):
     """
