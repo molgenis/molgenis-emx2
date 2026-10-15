@@ -61,6 +61,7 @@ def node_data() -> NodeData:
     biobanks_meta.table_name = "Biobanks"
     biobanks_meta.id_attribute = "id"
     biobanks_meta.hyperlinks = ["url"]
+    biobanks_meta.attributes = ['id', 'url', 'withdrawn']
     biobanks = Table.of(
         TableType.BIOBANKS,
         biobanks_meta,
@@ -142,7 +143,11 @@ def printer() -> MagicMock:
 
 @pytest.fixture
 def state() -> MagicMock:
-    return MagicMock()
+    state = MagicMock()
+    state.existing_data.table_by_type = {table_type: MagicMock() for table_type in TableType}
+    state.existing_data.table_by_type[TableType.BIOBANKS].rows_by_id = {'bbmri-eric:ID:XX_Biobank': {}}
+    state.deleted_ids = {table_type: set() for table_type in TableType}
+    return state
 
 @pytest.fixture
 def pid_service() -> MagicMock:

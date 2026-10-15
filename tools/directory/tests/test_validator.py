@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from src.molgenis_emx2.directory_client.errors import DirectoryWarning
+from src.molgenis_emx2.directory_client.model import TableType
 from src.molgenis_emx2.directory_client.printer import Printer
 from src.molgenis_emx2.directory_client.validation import Validator
 
@@ -55,6 +56,9 @@ def test_validate_id(node_data, state):
         DirectoryWarning(
             message="Biobank bbmri-eric:ID:NL_valid:biobankID-2 has an invalid url: "
             "www.invalid@url.nl"
+        ),        
+        DirectoryWarning(
+            message=" Biobank bbmri-eric:ID:XX_Biobank was deleted instead of withdrawn"
         ),
         DirectoryWarning(
             message="bbmri-eric:NL_invalid:serviceID in entity: "
@@ -113,7 +117,8 @@ def test_validate_id(node_data, state):
             "invalid id: bbmri-eric:ID:NL_invalid_network_classifier"
         ),
     ]
-
+    assert state.deleted_ids[TableType.PERSONS] == set()
+    assert state.deleted_ids[TableType.BIOBANKS] == {'bbmri-eric:ID:XX_Biobank'}
 
 @pytest.mark.parametrize(
     "collection,expected",
