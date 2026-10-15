@@ -151,13 +151,12 @@ class Publisher:
                 table=staging_table.full_name,
                 data=data_to_withdraw,
             )
+            # Print warnings for deletions turned into withdrawals
             for deleted_id in deleted_ids:
                 warning = DirectoryWarning(
                     f" Deleted {staging_table.full_name[:-1]} {deleted_id} has been 'withdrawn'."
                 )
                 self.printer.print_warning(warning)
-                code = staging_table.rows[0]["national_node"]
-                state.report.add_node_warnings(Node.of(code), [warning])
             # Set PIDs for withdrawn biobanks to withdrawn
             if staging_table.type == TableType.BIOBANKS:
                 self.pid_manager.withdraw_biobanks(deleted_ids)
