@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web.service;
+package org.molgenis.emx2.web.matomo;
 
 import static io.javalin.http.Header.USER_AGENT;
 import static io.restassured.RestAssured.given;
@@ -27,7 +27,7 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 @Testcontainers
 class MatomoTrackingIntegrationTest extends ApiTestBase {
 
-  private static final String AUTH_TOKEN = "9b6a8a40ef8daf3da08b643e8cfeebfb";
+  private static final String AUTH_TOKEN = "a29df8564db55bcdfcc696d783db5732";
   private static final Network NETWORK = Network.newNetwork();
 
   @SystemStub

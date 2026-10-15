@@ -25,7 +25,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
-import org.molgenis.emx2.web.service.MatomoTrackingService;
+import org.molgenis.emx2.web.matomo.MatomoTrackingService;
 import org.molgenis.emx2.web.util.SchemaMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -210,7 +210,7 @@ public class MolgenisWebservice {
 
   private void addMatomoHandlerIfEnabled() {
     boolean matomoEnabled =
-            (boolean) EnvironmentProperty.getParameter(MATOMO_ENABLED_ENV, false, ColumnType.BOOL);
+        (boolean) EnvironmentProperty.getParameter(MATOMO_ENABLED_ENV, false, ColumnType.BOOL);
     if (matomoEnabled) {
       app.before(MatomoTrackingService::track);
     }
