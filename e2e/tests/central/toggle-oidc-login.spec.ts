@@ -28,6 +28,7 @@ test('toggle oidc', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Username' }).fill('admin');
   await page.getByRole('textbox', { name: 'Password' }).fill('admin');
   await page.getByRole('dialog').getByRole('button', { name: 'Sign in' }).click();
+  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
   await page.goto('/apps/central');
   await page.goto('/apps/central/#/admin/settings');
   await page.getByLabel('Edit-isOidcEnabled').click();
