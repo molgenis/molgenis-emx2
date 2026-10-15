@@ -25,6 +25,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
+import org.molgenis.emx2.web.service.MatomoTrackingService;
 import org.molgenis.emx2.web.util.SchemaMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,8 @@ public class MolgenisWebservice {
                           Math.toIntExact(MAX_REQUEST_SIZE)) // Jetty limit
                   );
             });
+
+    addMatomoHandlerIfEnabled();
     hostUrlFromEnvironment = setServiceUrl();
   }
 
@@ -203,6 +206,14 @@ public class MolgenisWebservice {
 
   public int getPort() {
     return app.port();
+  }
+
+  private void addMatomoHandlerIfEnabled() {
+    boolean matomoEnabled =
+            (boolean) EnvironmentProperty.getParameter(MATOMO_ENABLED_ENV, false, ColumnType.BOOL);
+    if (matomoEnabled) {
+      app.before(MatomoTrackingService::track);
+    }
   }
 
   private static void handleLoginCallback(Context ctx) {

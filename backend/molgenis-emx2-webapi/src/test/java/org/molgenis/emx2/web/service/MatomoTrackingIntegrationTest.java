@@ -1,19 +1,19 @@
 package org.molgenis.emx2.web.service;
 
+import static io.javalin.http.Header.USER_AGENT;
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.molgenis.emx2.Constants.MATOMO_ENABLED_ENV;
 import static org.molgenis.emx2.Constants.MATOMO_URL_ENV;
 
-import io.javalin.http.Context;
 import io.restassured.http.ContentType;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.molgenis.emx2.web.ApiTestBase;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -23,17 +23,21 @@ import org.testcontainers.mariadb.MariaDBContainer;
 import org.testcontainers.utility.MountableFile;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 @Testcontainers
-@ExtendWith(SystemStubsExtension.class)
-class MatomoTrackingIntegrationTest {
+class MatomoTrackingIntegrationTest extends ApiTestBase {
 
   private static final String AUTH_TOKEN = "9b6a8a40ef8daf3da08b643e8cfeebfb";
   private static final Network NETWORK = Network.newNetwork();
 
   @SystemStub
-  private final EnvironmentVariables env = new EnvironmentVariables(MATOMO_URL_ENV, baseUrl());
+  static EnvironmentVariables matomoEnv = new EnvironmentVariables(MATOMO_ENABLED_ENV, "true");
+
+  @BeforeAll
+  static void setMatomoUrl() {
+    // the Matomo port is only known once the container runs, so it can't go in the stub above
+    matomoEnv.set(MATOMO_URL_ENV, baseUrl());
+  }
 
   @Container
   static MariaDBContainer db =
@@ -78,16 +82,28 @@ class MatomoTrackingIntegrationTest {
 
   @Test
   void shouldTrackMatomo() {
-    assertTrackingNrRequests(0);
+    int nrAiRequests = getNrAiChatbotRequests();
     requestWithUserAgent("non-ai-useragent");
-    assertTrackingNrRequests(0);
+    assertTrackingNrRequests(nrAiRequests);
 
-    int expectedNrRequests = 0;
-    for (String userAgent : RequestClassifier.AI_CHATBOT_UA) {
-      requestWithUserAgent(userAgent);
-      expectedNrRequests++;
-      awaitTrackingNrRequests(expectedNrRequests);
+    for (int i = 0; i < RequestClassifier.AI_CHATBOT_UA.size(); i++) {
+      requestWithUserAgent(RequestClassifier.AI_CHATBOT_UA.get(i));
+      awaitTrackingNrRequests(nrAiRequests + i + 1);
     }
+  }
+
+  @Test
+  void givenErrorResponse_thenRecordAiChatbotRegardless() {
+    int nrAiRequests = getNrAiChatbotRequests();
+    given()
+        .sessionId(sessionId)
+        .header(USER_AGENT, RequestClassifier.AI_CHATBOT_UA.getFirst())
+        .post("/non-existing")
+        .then()
+        .statusCode(404)
+        .extract()
+        .response();
+    awaitTrackingNrRequests(nrAiRequests + 1);
   }
 
   private static void awaitTrackingNrRequests(int expected) {
@@ -119,9 +135,14 @@ class MatomoTrackingIntegrationTest {
   }
 
   private static void requestWithUserAgent(String userAgent) {
-    Context mock = mock(Context.class);
-    doReturn("http://localhost:8080/graphql").when(mock).fullUrl();
-    doReturn(userAgent).when(mock).userAgent();
-    MatomoTrackingService.track(mock);
+    given()
+        .sessionId(sessionId)
+        .header(USER_AGENT, userAgent)
+        .body("{\"query\":\"query { _schemas { id } }\"}")
+        .post("/api/graphql")
+        .then()
+        .statusCode(200)
+        .extract()
+        .response();
   }
 }
