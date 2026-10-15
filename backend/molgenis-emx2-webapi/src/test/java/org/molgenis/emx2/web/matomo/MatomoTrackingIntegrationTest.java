@@ -34,9 +34,10 @@ class MatomoTrackingIntegrationTest extends ApiTestBase {
   static EnvironmentVariables matomoEnv = new EnvironmentVariables(MATOMO_ENABLED_ENV, "true");
 
   @BeforeAll
-  static void setMatomoUrl() {
+  static void setup() {
     // the Matomo port is only known once the container runs, so it can't go in the stub above
     matomoEnv.set(MATOMO_URL_ENV, baseUrl());
+    login("admin", "admin");
   }
 
   @Container
