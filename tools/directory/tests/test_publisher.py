@@ -146,7 +146,6 @@ async def test_withdraw_rows(publisher, node_data: NodeData):
     state: PublishingState = MagicMock()
     state.deleted_ids = {table_type: set() for table_type in TableType}
     state.deleted_ids[TableType.BIOBANKS] = {"delete_this_row"}
-    state.report = ErrorReport([node_data.node])
 
     warning = DirectoryWarning(" Deleted Biobank delete_this_row has been 'withdrawn'.")
 
