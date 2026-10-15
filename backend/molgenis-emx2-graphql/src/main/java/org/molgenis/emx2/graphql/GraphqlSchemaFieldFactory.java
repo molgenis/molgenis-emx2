@@ -663,8 +663,9 @@ public class GraphqlSchemaFieldFactory {
         String id = taskService.submit(task);
         result.setTaskId(id);
       } else {
-        truncateTables(
-            GraphqlTransactionalMutationStrategy.currentSchema(environment, schema), tables);
+        Schema transcationalSchema =
+            GraphqlTransactionalMutationStrategy.currentSchema(environment, schema);
+        truncateTables(transcationalSchema, tables);
       }
       return result;
     };
