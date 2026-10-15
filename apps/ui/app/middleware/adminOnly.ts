@@ -1,6 +1,5 @@
-import { defineNuxtRouteMiddleware, navigateTo } from "#app";
+import { defineNuxtRouteMiddleware, navigateTo, useRoute } from "nuxt/app";
 import { useSession } from "../../../tailwind-components/app/composables/useSession";
-import { useRoute } from "#app";
 
 export default defineNuxtRouteMiddleware(async () => {
   const route = useRoute();

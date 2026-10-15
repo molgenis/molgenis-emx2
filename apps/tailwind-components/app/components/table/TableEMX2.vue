@@ -376,7 +376,6 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
-  ITablePermission,
   ITableSettings,
   sortDirection,
 } from "../../../types/types";
@@ -405,6 +404,7 @@ import { useSession } from "../../composables/useSession";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
 import Button from "../Button.vue";
+import EditModalHeader from "../form/EditModalHeader.vue";
 import Checkbox from "../input/Checkbox.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
@@ -416,7 +416,6 @@ import DownloadButton from "./control/DownloadButton.vue";
 import RowControls from "./control/RowControls.vue";
 import Truncate from "./control/Truncate.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
-import EditModalHeader from "../form/EditModalHeader.vue";
 
 const props = withDefaults(
   defineProps<{

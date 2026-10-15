@@ -1,4 +1,6 @@
 import { $fetch } from "ofetch";
+import type { IRow } from "../../../metadata-utils/src/types";
+import type { CustomRole } from "../../../tailwind-components/types/types";
 import type { Role, SchemaInfo, User } from "../interfaces/interfaces";
 
 const GRAPHQL = "/graphql";
@@ -80,7 +82,7 @@ export async function getRoles(schemas: SchemaInfo[]): Promise<string[]> {
     });
 }
 
-export function getSchemas() {
+export async function getSchemas() {
   return $fetch<{ data: { _schemas: SchemaInfo[] } }>(API_GRAPHQL, {
     method: "post",
     body: {
@@ -156,11 +158,58 @@ export function isValidPassword(password1: string, password2: string) {
   return password1.length > 7 && password1 === password2;
 }
 
+export async function getCustomRoles(): Promise<{
+  customRoles: CustomRole[];
+}> {
+  const query = `query customRoles{
+    _admin {
+      customRoles {
+        schemaId, 
+        roleName, 
+        users, 
+        permissions { 
+          table, select, insert, update, delete, isRowLevel 
+        }
+      }
+    }
+  }`;
+  return $fetch<AdminResponse>(API_GRAPHQL, {
+    method: "post",
+    body: {
+      query,
+    },
+  })
+    .then((response) => {
+      return {
+        customRoles: response?.data._admin.customRoles || [],
+      };
+    })
+    .catch((error) => {
+      handleError("Error loading custom roles: ", error.value);
+      return { customRoles: [] };
+    });
+}
+
+export async function deleteRoles(roles: IRow[]) {
+  const role = roles.map((role) => ({
+    schemaId: role.schemaId,
+    role: role.roleName,
+  }));
+  return $fetch(API_GRAPHQL, {
+    method: "post",
+    body: {
+      query: `mutation drop($role:[DropRoleInput]) {drop(role:$role){status, message}}`,
+      variables: { role },
+    },
+  });
+}
+
 interface AdminResponse {
   data: {
     _admin: {
       users: User[];
       userCount: number;
+      customRoles: CustomRole[];
     };
   };
 }
