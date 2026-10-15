@@ -15,6 +15,7 @@ class Validator:
     2. Checking if there are rows that reference rows with invalid identifiers
     3. Checking the validity of ages
     4. Checking the validity of hyperlinks
+    5. Identifying ids of deleted rows
     """
 
     ALLOWS_EU_PREFIXES = {TableType.PERSONS, TableType.NETWORKS}
