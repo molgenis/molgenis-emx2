@@ -35,7 +35,9 @@ class TestEricRowLevel {
     database.becomeAdmin();
     schema = database.getSchema(SCHEMA);
     assumeTrue(schema != null, "ERIC schema not present in database — skipping TestEricRowLevel");
-    if (!database.hasUser(TEST_USER)) database.addUser(TEST_USER);
+    if (!database.hasUser(TEST_USER)) {
+      database.addUser(TEST_USER);
+    }
   }
 
   @Test

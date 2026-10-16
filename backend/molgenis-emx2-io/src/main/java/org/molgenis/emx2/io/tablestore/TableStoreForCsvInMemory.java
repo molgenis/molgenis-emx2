@@ -29,7 +29,9 @@ public class TableStoreForCsvInMemory implements TableStore {
       Writer writer = new StringWriter();
       Writer bufferedWriter = new BufferedWriter(writer);
       String existing = "";
-      if (store.containsKey(name)) existing = store.get(name);
+      if (store.containsKey(name)) {
+        existing = store.get(name);
+      }
       // make sure first row has all columnNames
       Iterator<Row> iterator = rows.iterator();
       if (iterator.hasNext()) {
@@ -55,9 +57,10 @@ public class TableStoreForCsvInMemory implements TableStore {
 
   @Override
   public Iterable<Row> readTable(String name) {
-    if (!store.containsKey(name))
+    if (!store.containsKey(name)) {
       throw new MolgenisException(
           "Import failed: Table not found. File with name " + name + " doesn't exist");
+    }
     Reader reader = new BufferedReader(new StringReader(store.get(name)));
 
     return CsvTableReader.read(reader);

@@ -98,9 +98,13 @@ public class JavascriptContextBuilder {
   }
 
   private static void addJavaScriptBindings(Map<String, Object> context, Database database) {
-    if (database == null) return;
+    if (database == null) {
+      return;
+    }
     Map<String, Supplier<Object>> bindings = database.getJavaScriptBindings();
-    if (bindings == null) return;
+    if (bindings == null) {
+      return;
+    }
 
     for (Map.Entry<String, Supplier<Object>> entry : bindings.entrySet()) {
       context.put(entry.getKey(), entry.getValue().get());

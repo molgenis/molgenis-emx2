@@ -404,11 +404,21 @@ class SqlTableMetadataExecutor {
 
   private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {
     // don't delete superclass columns so check local colum
-    if (table.getLocalColumn(MG_DRAFT) != null) table.dropColumn(MG_DRAFT);
-    if (table.getLocalColumn(MG_INSERTEDBY) != null) table.dropColumn(MG_INSERTEDBY);
-    if (table.getLocalColumn(MG_INSERTEDON) != null) table.dropColumn(MG_INSERTEDON);
-    if (table.getLocalColumn(MG_UPDATEDBY) != null) table.dropColumn(MG_UPDATEDBY);
-    if (table.getLocalColumn(MG_UPDATEDON) != null) table.dropColumn(MG_UPDATEDON);
+    if (table.getLocalColumn(MG_DRAFT) != null) {
+      table.dropColumn(MG_DRAFT);
+    }
+    if (table.getLocalColumn(MG_INSERTEDBY) != null) {
+      table.dropColumn(MG_INSERTEDBY);
+    }
+    if (table.getLocalColumn(MG_INSERTEDON) != null) {
+      table.dropColumn(MG_INSERTEDON);
+    }
+    if (table.getLocalColumn(MG_UPDATEDBY) != null) {
+      table.dropColumn(MG_UPDATEDBY);
+    }
+    if (table.getLocalColumn(MG_UPDATEDON) != null) {
+      table.dropColumn(MG_UPDATEDON);
+    }
   }
 
   private static void executeEnableSearch(DSLContext jooq, TableMetadata table) {

@@ -22,8 +22,9 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
 
   public TableStoreForCsvFilesDirectory(Path directoryPath, Character separator) {
     this.directoryPath = directoryPath;
-    if (!directoryPath.toFile().exists())
+    if (!directoryPath.toFile().exists()) {
       throw new MolgenisException("Import failed: Directory " + directoryPath + " doesn't exist");
+    }
     this.separator = separator;
   }
 

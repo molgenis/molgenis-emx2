@@ -157,7 +157,9 @@ public class Filter {
 
   @JsonIgnore
   public String getGraphQlFilter() {
-    if (concept == null) return null;
+    if (concept == null) {
+      return null;
+    }
 
     String graphQlQuery = concept.getGraphQlQuery();
     int argumentCount = (int) graphQlQuery.chars().filter(ch -> ch == '%').count();

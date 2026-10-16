@@ -502,7 +502,7 @@ public class SqlQuery extends QueryBean {
       String subAlias,
       String[] searchTerms,
       Filter filter) {
-    if (filter.getOperator() != null)
+    if (filter.getOperator() != null) {
       switch (filter.getOperator()) {
         case OR:
           return or(
@@ -538,6 +538,7 @@ public class SqlQuery extends QueryBean {
               filter.getOperator(),
               filter.getValues());
       }
+    }
     throw new MolgenisException("Unkown exception");
   }
 
@@ -1588,9 +1589,10 @@ public class SqlQuery extends QueryBean {
   private static Condition whereColumnBetween(Name columnName, Object[] values) {
     List<Condition> conditions = new ArrayList<>();
     for (int i = 0; i < values.length; i++) {
-      if (i + 1 > values.length)
+      if (i + 1 > values.length) {
         throw new SqlQueryException(
             QUERY_FAILED + BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
+      }
       if (values[i] != null && values[i + 1] != null) {
         conditions.add(field(columnName).between(values[i], values[i + 1]));
       } else if (values[i] != null && values[i + 1] == null) {

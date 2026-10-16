@@ -13,7 +13,9 @@ public abstract class RdfConfigReader {
   public static RdfConfig read(Schema schema) {
     if (schema.hasSetting(SETTING_RDF_CONFIG)) {
       String value = schema.getSettingValue(SETTING_RDF_CONFIG);
-      if (value.isEmpty()) return RdfConfig.getDefaults();
+      if (value.isEmpty()) {
+        return RdfConfig.getDefaults();
+      }
       return processSetting(value);
     }
     return RdfConfig.getDefaults();

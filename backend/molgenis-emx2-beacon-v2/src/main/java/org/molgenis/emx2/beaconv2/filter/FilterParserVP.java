@@ -35,9 +35,10 @@ public class FilterParserVP implements FilterParser {
         try {
           FilterConceptVP searchConcept = FilterConceptVP.findById(id);
           if (!permittedConcepts.contains(searchConcept)
-              || !searchConcept.isPermittedValue(filter.getValues()))
+              || !searchConcept.isPermittedValue(filter.getValues())) {
             throw new MolgenisException(
                 "Invalid filter arguments for entry type: " + entryType.getName());
+          }
           processConcept(filter, searchConcept);
         } catch (MolgenisException e) { // VP spec want invalid filters to be ignored
           this.unsupportedFilters.add(filter);
@@ -68,7 +69,9 @@ public class FilterParserVP implements FilterParser {
         graphQlFilters.stream().map(Filter::getGraphQlFilter).collect(Collectors.toList());
 
     String urlPathFilter = getUrlPathFilter(beaconQuery);
-    if (urlPathFilter != null) filters.add(urlPathFilter);
+    if (urlPathFilter != null) {
+      filters.add(urlPathFilter);
+    }
 
     return filters;
   }

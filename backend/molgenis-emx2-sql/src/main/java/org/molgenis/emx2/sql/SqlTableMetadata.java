@@ -180,7 +180,9 @@ class SqlTableMetadata extends TableMetadata {
   @Override
   public TableMetadata alterColumn(String columnName, Column column) {
     // ignore mg_ columns
-    if (column.isSystemColumn()) return this;
+    if (column.isSystemColumn()) {
+      return this;
+    }
 
     Column oldColumn = getColumn(columnName);
 
@@ -317,7 +319,9 @@ class SqlTableMetadata extends TableMetadata {
     }
 
     // delete old column if name changed, then save any other metadata changes
-    if (!oldColumn.getName().equals(newColumn.getName())) deleteColumn(tm.getJooq(), oldColumn);
+    if (!oldColumn.getName().equals(newColumn.getName())) {
+      deleteColumn(tm.getJooq(), oldColumn);
+    }
     saveColumnMetadata(tm.getJooq(), newColumn);
 
     return tm;
@@ -438,7 +442,9 @@ class SqlTableMetadata extends TableMetadata {
 
   private static void log(SqlTableMetadata tableMetadata, long start, String message) {
     String user = tableMetadata.getDatabase().getActiveUser();
-    if (user == null) user = "molgenis";
+    if (user == null) {
+      user = "molgenis";
+    }
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} in {}ms",
@@ -451,7 +457,9 @@ class SqlTableMetadata extends TableMetadata {
 
   private void log(long start, String message) {
     String user = getDatabase().getActiveUser();
-    if (user == null) user = "molgenis";
+    if (user == null) {
+      user = "molgenis";
+    }
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} in {}ms", user, message, getJooqTable(), (System.currentTimeMillis() - start));

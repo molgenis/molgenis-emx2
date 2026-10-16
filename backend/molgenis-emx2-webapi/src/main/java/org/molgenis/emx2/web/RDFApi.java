@@ -245,7 +245,9 @@ public class RDFApi {
   }
 
   private static RDFFormat setFormat(Context ctx, RDFFormat format) {
-    if (format == null) format = selectFormat(ctx);
+    if (format == null) {
+      format = selectFormat(ctx);
+    }
     ctx.contentType(format.getDefaultMIMEType());
     return format;
   }

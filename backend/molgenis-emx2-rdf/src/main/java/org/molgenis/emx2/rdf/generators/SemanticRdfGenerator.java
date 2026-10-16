@@ -60,7 +60,9 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
 
   @Override
   protected void dataRowToRdf(RdfMapData rdfMapData, Table table, Row row) {
-    if (row.isDraft()) return;
+    if (row.isDraft()) {
+      return;
+    }
 
     final IRI subject = rowIRI(getBaseURL(), table, row);
     processDataRowTable(table, subject);

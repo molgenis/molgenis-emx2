@@ -165,8 +165,9 @@ public class GraphqlExecutor {
       throw exception;
     }
 
-    if (logger.isInfoEnabled())
+    if (logger.isInfoEnabled()) {
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
+    }
 
     return executionResult;
   }

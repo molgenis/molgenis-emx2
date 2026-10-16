@@ -91,9 +91,10 @@ public class ValidatePkeyProcessor implements RowProcessor {
           "Duplicate keys found in table " + metadata.getTableName() + ": " + duplicates);
     }
 
-    if (hasEmptyKeys)
+    if (hasEmptyKeys) {
       task.completeWithError(
           "Missing keys found in table '" + metadata.getTableName() + "': " + errorMessage);
+    }
   }
 
   private void checkWarningColumns() {

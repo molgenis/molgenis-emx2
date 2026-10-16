@@ -9,7 +9,9 @@ public class TestDatabaseFactory {
     Database db = new SqlDatabase(false);
     db.setActiveUser(db.getAdminUserName());
 
-    if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init("123");
+    if (!SnowflakeIdGenerator.hasInstance()) {
+      SnowflakeIdGenerator.init("123");
+    }
 
     return db;
   }

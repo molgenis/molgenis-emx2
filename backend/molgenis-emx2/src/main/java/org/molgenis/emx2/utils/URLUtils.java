@@ -29,8 +29,9 @@ public class URLUtils {
   }
 
   public static String validateUrl(String urlString) {
-    if (!pattern.matcher(urlString).matches())
+    if (!pattern.matcher(urlString).matches()) {
       throw new IllegalArgumentException(urlString + " is not valid");
+    }
     return urlString;
   }
 }
