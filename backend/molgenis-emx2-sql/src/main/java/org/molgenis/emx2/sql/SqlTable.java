@@ -634,7 +634,7 @@ public class SqlTable implements Table {
   }
 
   private static List<Column> getLocalStoredColumns(SqlTable table, List<Column> updateColumns) {
-    List<String> updateColumnNames = updateColumns.stream().map(c -> c.getName()).toList();
+    List<String> updateColumnNames = updateColumns.stream().map(Column::getName).toList();
     List<Column> storedColumns =
         table.getMetadata().getStoredColumns().stream()
             .filter(c -> updateColumnNames.contains(c.getName()))

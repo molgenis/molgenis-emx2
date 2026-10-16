@@ -1730,7 +1730,7 @@ public class SqlQuery extends QueryBean {
                             subAlias + "_" + ref.getColumnName() + "_unnested",
                             "unnested_" + ref.getColumnName(),
                             "ordinality"))
-            .reduce((table1, table2) -> table1.naturalJoin(table2))
+            .reduce(Table::naturalJoin)
             .orElseThrow(() -> new IllegalStateException("No references available"));
     return unnestedRefArrayAsTable;
   }
@@ -1771,7 +1771,7 @@ public class SqlQuery extends QueryBean {
         .as(
             subAlias + "_" + refColumn.getName() + "_values",
             refColumn.getReferences().stream()
-                .map(ref -> ref.getTargetColumn())
+                .map(Reference::getTargetColumn)
                 .toArray(String[]::new));
   }
 

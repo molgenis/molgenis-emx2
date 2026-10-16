@@ -82,7 +82,7 @@ class TestEricRowLevel {
     assertTrue(
         deRole.permissions().stream()
             .filter(p -> BIOBANKS.equals(p.table()))
-            .anyMatch(p -> p.hasRowLevel()),
+            .anyMatch(TablePermission::hasRowLevel),
         TEST_COUNTRY + " grant on Biobanks should be row-level");
   }
 
