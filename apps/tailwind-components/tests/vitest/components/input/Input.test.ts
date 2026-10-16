@@ -37,4 +37,30 @@ describe("input", () => {
     expect(wrapper.html()).toContain("select");
     expect(wrapper.html()).toContain("test-select-radio-group");
   });
+
+  it.each([
+    ["ENUM with 2 values", "ENUM", ["a", "b"], 'input[type="radio"]', 2],
+    [
+      "ENUM_ARRAY with 3 values",
+      "ENUM_ARRAY",
+      ["a", "b", "c"],
+      'input[type="checkbox"]',
+      3,
+    ],
+  ] as const)(
+    "routes %s to its widget",
+    (_title, type, values, selector, expected) => {
+      const wrapper = mount(Input, {
+        props: { id: "test-enum", type, modelValue: null, values: [...values] },
+      });
+      expect(wrapper.findAll(selector).length).toEqual(expected);
+    }
+  );
+
+  it("still renders the enum input when the column has no values", () => {
+    const wrapper = mount(Input, {
+      props: { id: "test-enum", type: "ENUM", modelValue: null },
+    });
+    expect(wrapper.find("#test-enum-radio-group").exists()).toBe(true);
+  });
 });

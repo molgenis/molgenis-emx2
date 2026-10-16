@@ -3,11 +3,13 @@ Tests for methods concerning schema metadata.
 """
 
 import os
+import re
 
 import pytest
 
 from src.molgenis_emx2_pyclient import Client
 from src.molgenis_emx2_pyclient.exceptions import PermissionDeniedException
+from src.molgenis_emx2_pyclient.graphql_queries import list_schema_meta
 
 server_url = os.environ.get("MG_SERVER", "http://localhost:8080/")
 username = os.environ.get("MG_USERNAME", "admin")
@@ -51,3 +53,9 @@ def test_get_schema_roles():
     with Client(url=server_url) as client:
         schema_roles = client.get_schema_roles("pet store")
         assert len(schema_roles) == 10
+
+
+def test_schema_metadata_query_requests_column_values():
+    """The `_schema` query asks for the allowed values of enum columns."""
+    columns_block = list_schema_meta().split("columns {", 1)[1]
+    assert re.search(r"^\s*values\s*$", columns_block, re.MULTILINE)

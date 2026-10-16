@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  enumValueOptions,
   filterValueToTreeSelection,
   treeSelectionToFilterValue,
 } from "../../../app/utils/filterUtils";
@@ -192,5 +193,11 @@ describe("treeSelectionToFilterValue", () => {
         { name: "Unknown Person" },
       ],
     });
+  });
+});
+
+describe("enum filter options", () => {
+  it("builds no options for a column without values", () => {
+    expect(enumValueOptions(undefined)).toEqual([]);
   });
 });

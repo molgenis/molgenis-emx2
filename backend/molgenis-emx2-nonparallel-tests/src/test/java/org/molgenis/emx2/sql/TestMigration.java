@@ -104,4 +104,24 @@ public class TestMigration {
 
     executeMigrationFile(database, "migration22.sql", "test migration for deletion of refback");
   }
+
+  @Test
+  @Tag("slow")
+  @Tag("windowsFail")
+  void testMigration36ValuesColumnIsVarcharArrayAndRerunIsHarmless() {
+    SqlDatabase sqlDatabase = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+    DSLContext jooq = sqlDatabase.getJooq();
+
+    executeMigrationFile(sqlDatabase, "migration36.sql", "add column_metadata.values");
+
+    assertEquals(
+        "_varchar",
+        jooq.resultQuery(
+                "SELECT udt_name FROM information_schema.columns"
+                    + " WHERE table_schema = 'MOLGENIS' AND table_name = 'column_metadata'"
+                    + " AND column_name = 'values'")
+            .fetch()
+            .getValues("udt_name", String.class)
+            .get(0));
+  }
 }

@@ -82,6 +82,9 @@ export function toSaveTables(schema: EditorSchema): EditorTable[] {
     });
   });
   tables.forEach((table) => {
+    (table.columns || []).forEach(cleanValues);
+  });
+  tables.forEach((table) => {
     table.columns = (table.columns || []).filter(
       (column) => column.table === table.name
     );
@@ -96,6 +99,16 @@ function removeComputedFields(table: EditorTable): EditorTable {
     return col;
   });
   return table;
+}
+
+function cleanValues(column: EditorColumn): void {
+  if (!["ENUM", "ENUM_ARRAY"].includes(column.columnType ?? "")) {
+    delete column.values;
+  } else if (column.values) {
+    column.values = column.values
+      .map((value) => (value ?? "").trim())
+      .filter((value) => value !== "");
+  }
 }
 
 function withSubclasses(rootTable: EditorTable): EditorTable[] {

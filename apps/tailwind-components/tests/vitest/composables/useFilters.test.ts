@@ -785,6 +785,41 @@ describe("useFilters — AbortController per column", () => {
 });
 
 describe("useFilters — count integration", () => {
+  it("getCountedOptions offers the values of an enum column without a query", () => {
+    const enumColumn: IColumn = {
+      id: "status",
+      label: "Status",
+      columnType: "ENUM",
+      values: ["open", "closed"],
+    };
+    const columns = ref<IColumn[]>([enumColumn]);
+    const { getCountedOptions } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+    });
+    expect(getCountedOptions("status").value.map((o) => o.name)).toEqual([
+      "open",
+      "closed",
+    ]);
+  });
+
+  it("getCountedOptions offers the values of an enum column reached through a ref", () => {
+    const columns = ref<IColumn[]>([intColumn]);
+    const { getCountedOptions, registerNestedColumn } = useFilters(columns, {
+      schemaId: "test",
+      tableId: "table1",
+    });
+    registerNestedColumn("pet.status", {
+      labelParts: ["Pet", "Status"],
+      columnType: "ENUM_ARRAY",
+      values: ["open", "closed"],
+    });
+    expect(getCountedOptions("pet.status").value.map((o) => o.name)).toEqual([
+      "open",
+      "closed",
+    ]);
+  });
+
   it("getCountedOptions returns empty array initially", () => {
     const columns = ref<IColumn[]>([intColumn]);
     const { getCountedOptions } = useFilters(columns, {

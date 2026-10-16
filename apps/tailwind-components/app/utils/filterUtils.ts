@@ -67,6 +67,13 @@ const DEFAULT_FILTER_TYPES = new Set([
   "SELECT",
 ]);
 
+export const isEnumColumnType = (columnType: string): boolean =>
+  columnType === "ENUM" || columnType === "ENUM_ARRAY";
+
+export const enumValueOptions = (
+  values: string[] | undefined
+): CountedOption[] => (values ?? []).map((name) => ({ name, count: 0 }));
+
 export const isCountableType = (columnType: string): boolean =>
   COUNTABLE_TYPES.has(columnType);
 

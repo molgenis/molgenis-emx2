@@ -111,11 +111,47 @@ NOTE: when using any of the above relationship types, the "refTable" must also b
 - email_array
 - hyperlink_array
 
+#### Enumerations (fixed list of allowed values)
+
+- enum : one value from a fixed list that you declare in the column's `values`
+- enum_array : several values from that same list
+
+An enumeration needs no ontology or reference table. The list belongs to the column. See [values](#values).
+
 #### Layout (static content, not an input)
 
 - heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.
 - section: same as 'heading' except that each section will be shown on separate page in the form. Particularly useful for very big forms. When used, columns of 
   type=heading will be treated as subheaders.
+
+### values
+
+The allowed values of an `enum` or `enum_array` column. Write them in one cell, separated by commas. MOLGENIS keeps them in the order you write them, in the forms and in the API.
+
+| tableName | columnName      | columnType | values         |
+|-----------|-----------------|------------|----------------|
+| Types     | enum type       | enum       | yes,no,unknown |
+| Types     | enum array type | enum_array | red,green,blue |
+
+MOLGENIS checks the list when you save the model. It rejects the model, names the column, and saves nothing if:
+
+- an enum column has no values
+- a value is blank
+- a value appears twice
+- a column of another type has `values`
+
+You can remove values from a list and keep at least one.
+
+MOLGENIS checks every row you write, whether it comes from a form, a CSV upload, or the GraphQL and REST APIs. It rejects a value outside the list and names the column and the value. The match is exact and case sensitive. An empty value passes. Use `required` to forbid it. For an `enum_array`, MOLGENIS checks each element.
+
+MOLGENIS does not re-check existing rows when you change `values`. A row that holds a removed value fails on its next write. A direct SQL write is not checked.
+
+In the forms:
+
+- an `enum` shows a radio group for up to 20 values, and a searchable list from 21 values. You can clear an `enum` that is not required.
+- an `enum_array` shows a checkbox group, whatever its length.
+
+For a long list, or a list that needs labels or a hierarchy, use an [ontology](#ontologies).
 
 ### key
 
