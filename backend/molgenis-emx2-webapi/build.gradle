@@ -20,12 +20,16 @@ dependencies {
     implementation libs.sass.embedded.host
     implementation libs.caffeine
     implementation libs.bundles.prometheus
+    implementation libs.matomo
 
     testImplementation libs.rest.assured
     testImplementation libs.bundles.poi
     testImplementation libs.zip4j
     testImplementation libs.system.stubs.jupiter
     testImplementation libs.junit.jupiter
+    testImplementation libs.bundles.testcontainers.matomo
+    testImplementation libs.bundles.testcontainers.mariadb
+    testImplementation libs.awaitility
 
     testFixturesApi project(':backend:molgenis-emx2-sql')
     testFixturesApi project(':backend:molgenis-emx2')
