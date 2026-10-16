@@ -54,7 +54,6 @@
         <exclude name="SimplifiedTernary" />
         <exclude name="SuspiciousEqualsMethodName" />
         <exclude name="UncommentedEmptyConstructor" />
-        <exclude name="UncommentedEmptyMethodBody" />
         <exclude name="UnnecessaryConstructor" />
         <exclude name="UnnecessaryImport" />
         <exclude name="UnnecessarySemicolon" />

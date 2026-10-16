@@ -40,7 +40,9 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
    * to describe.
    */
   @Override
-  public void generate(Table table, Column column) {}
+  public void generate(Table table, Column column) {
+    // no-op
+  }
 
   @Override
   protected void ontologyRowToRdf(RdfMapData rdfMapData, Table table, Row row) {

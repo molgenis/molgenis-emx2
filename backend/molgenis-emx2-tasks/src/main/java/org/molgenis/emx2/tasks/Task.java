@@ -234,7 +234,9 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   @Override
-  public void run() {}
+  public void run() {
+    // no-op
+  }
 
   @Override
   public Iterator<Task> iterator() {

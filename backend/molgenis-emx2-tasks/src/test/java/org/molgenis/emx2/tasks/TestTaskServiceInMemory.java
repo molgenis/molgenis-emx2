@@ -59,7 +59,9 @@ public class TestTaskServiceInMemory {
     }
 
     @Override
-    public void run() {}
+    public void run() {
+      // Nothing to do
+    }
 
     @Override
     public void stop() {
