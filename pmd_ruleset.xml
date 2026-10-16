@@ -9,6 +9,58 @@
         Custom ruleset for EMX2
     </description>
 
+    <!-- Rulesets to apply -->
+    <rule ref="rulesets/java/quickstart.xml" />
+
+    <rule ref="category/java/codestyle.xml">
+        <exclude name="CallSuperInConstructor" />
+        <exclude name="CommentDefaultAccessModifier" />
+        <exclude name="LocalVariableCouldBeFinal" />
+        <exclude name="MethodArgumentCouldBeFinal" />
+        <exclude name="LongVariable" />
+        <exclude name="OnlyOneReturn" />
+        <exclude name="PrematureDeclaration" />
+        <exclude name="ShortClassName" />
+        <exclude name="ShortMethodName" />
+        <exclude name="ShortVariable" />
+        <exclude name="TooManyStaticImports" />
+        <exclude name="UseUnderscoresInNumericLiterals" />
+        <exclude name="VariableDeclarationUsageDistance" />
+        <exclude name="FieldNamingConventions" /> <!-- no difference between `CONSTANT` vs `static final logger` -->
+        <exclude name="TypeParameterNamingConventions" /> <!-- defined below -->
+        <exclude name="MethodNamingConventions" /> <!-- defined below -->
+        <exclude name="UseExplicitTypes" /> <!-- defined below -->
+    </rule>
+
+    <rule ref="category/java/performance.xml">
+        <exclude name="AvoidInstantiatingObjectsInLoops" />
+    </rule>
+
+    <rule ref="category/java/security.xml" />
+
+    <!-- Individual additions to quickstart.xml -->
+    <rule ref="category/java/bestpractices.xml/EnumComparison" />
+    <rule ref="category/java/bestpractices.xml/ExhaustiveSwitchHasDefault" />
+    <rule ref="category/java/bestpractices.xml/TypeNameMismatch" />
+    <rule ref="category/java/bestpractices.xml/UseEnumCollections" />
+    <rule ref="category/java/bestpractices.xml/UseTryWithResources" />
+    <rule ref="category/java/bestpractices.xml/WhileLoopWithLiteralBoolean" />
+
+    <rule ref="category/java/design.xml/MutableStaticState" />
+    <rule ref="category/java/design.xml/PublicMemberInNonPublicType" />
+
+    <!-- Overrides for codestyle.xml -->
+    <rule ref="category/java/codestyle.xml/TypeParameterNamingConventions">
+        <properties>
+            <property name="typeParameterNamePattern" value="[A-Z][0-9]?" />
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/MethodNamingConventions">
+        <properties>
+            <property name="junitJupiterTestPattern" value="[a-z][a-zA-Z0-9_]*" />
+        </properties>
+    </rule>
+
+    <!-- Individual rules we want to ensure are always tested (in case rulesets change) -->
     <rule ref="category/java/codestyle.xml/UseExplicitTypes" />
-    <rule ref="category/java/codestyle.xml/ControlStatementBraces" />
 </ruleset>
