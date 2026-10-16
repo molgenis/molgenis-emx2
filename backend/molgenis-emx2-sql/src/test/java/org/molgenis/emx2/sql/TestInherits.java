@@ -330,18 +330,18 @@ class TestInherits {
         table(
             "test_inheritance_A",
             new Column("a_id")
-                .setType(ColumnType.AUTO_ID)
+                .setType(AUTO_ID)
                 .setComputed("${mg_autoid(length=10, format=numbers)}")
                 .setPkey(),
-            new Column("a_label").setType(ColumnType.INT)));
+            new Column("a_label").setType(INT)));
 
     Table tableB =
         schema.create(
-            table("test_inheritance_B", new Column("b_label").setType(ColumnType.INT))
+            table("test_inheritance_B", new Column("b_label").setType(INT))
                 .setInheritName("test_inheritance_A"));
 
     List<Row> rows =
-        IntStream.range(0, 100).boxed().map(i -> Row.row("a_label", i, "b_label", i)).toList();
+        IntStream.range(0, 100).boxed().map(i -> row("a_label", i, "b_label", i)).toList();
 
     tableB.insert(rows);
 

@@ -15,11 +15,11 @@ public class Emx2Tables {
   }
 
   public static void outputTableWithSystemColumns(TableStore store, Table table) {
-    Emx2Tables.outputTable(store, table, true);
+    outputTable(store, table, true);
   }
 
   public static void outputTable(TableStore store, Table table) {
-    Emx2Tables.outputTable(store, table, false);
+    outputTable(store, table, false);
   }
 
   private static void outputTable(TableStore store, Table table, boolean includeSystemColumns) {

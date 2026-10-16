@@ -9,5 +9,72 @@
         Custom ruleset for EMX2
     </description>
 
+    <!-- Rulesets to apply -->
+    <rule ref="rulesets/java/quickstart.xml">
+        <exclude name="AvoidStringBufferField" />
+        <exclude name="ControlStatementBraces" />
+        <exclude name="MethodNamingConventions" />
+        <exclude name="EmptyCatchBlock" />
+        <exclude name="UseLocaleWithCaseConversions" />
+        <exclude name="SingularField" />
+        <exclude name="SimplifyBooleanReturns" />
+        <exclude name="PreserveStackTrace" />
+        <exclude name="ReturnEmptyCollectionRatherThanNull" />
+        <exclude name="NonExhaustiveSwitch" />
+        <exclude name="CompareObjectsWithEquals" />
+        <exclude name="AssignmentInOperand" />
+        <exclude name="AssignmentToNonFinalStatic" />
+        <exclude name="AvoidAccessibilityAlteration" />
+        <exclude name="AvoidCatchingGenericException" />
+        <exclude name="AvoidDollarSigns" />
+        <exclude name="AvoidInstanceofChecksInCatchClause" />
+        <exclude name="AvoidUsingHardCodedIP" />
+        <exclude name="ClassNamingConventions" />
+        <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
+        <exclude name="CloseResource" />
+        <exclude name="CollectionTypeMismatch" />
+        <exclude name="DanglingJavadoc" />
+        <exclude name="DoubleBraceInitialization" />
+        <exclude name="EmptyControlStatement" />
+        <exclude name="FinalFieldCouldBeStatic" />
+        <exclude name="FinalParameterInAbstractMethod" />
+        <exclude name="ForLoopCanBeForeach" />
+        <exclude name="FormalParameterNamingConventions" />
+        <exclude name="GuardLogStatement" />
+        <exclude name="ImplicitSwitchFallThrough" />
+        <exclude name="InstantiableUtilityClass" />
+        <exclude name="LambdaCanBeMethodReference" />
+        <exclude name="LiteralsFirstInComparisons" />
+        <exclude name="LocalVariableNamingConventions" />
+        <exclude name="LooseCoupling" />
+        <exclude name="MissingOverride" />
+        <exclude name="MissingStaticMethodInNonInstantiatableClass" />
+        <exclude name="NonThreadSafeSingleton" />
+        <exclude name="OptimizableToArrayCall" />
+        <exclude name="OverrideBothEqualsAndHashCodeOnComparable" />
+        <exclude name="SimplifiableTestAssertion" />
+        <exclude name="SimplifiedTernary" />
+        <exclude name="SuspiciousEqualsMethodName" />
+        <exclude name="UncommentedEmptyConstructor" />
+        <exclude name="UncommentedEmptyMethodBody" />
+        <exclude name="UnnecessaryConstructor" />
+        <exclude name="UnnecessaryImport" />
+        <exclude name="UnnecessarySemicolon" />
+        <exclude name="UnusedFormalParameter" />
+        <exclude name="UnusedLocalVariable" />
+        <exclude name="UnusedPrivateField" />
+        <exclude name="UnusedPrivateMethod" />
+        <exclude name="UnusedReturnValue" />
+        <exclude name="UseCollectionIsEmpty" />
+        <exclude name="UseStandardCharsets" />
+        <exclude name="UselessOverridingMethod" />
+        <exclude name="UselessParentheses" />
+        <exclude name="VariableCanBeInlined" />
+    </rule>
+
+    <!-- Overrides for quickstart.xml -->
+
+
+    <!-- Individual rules we want to ensure are always tested (in case rulesets change) -->
     <rule ref="category/java/codestyle.xml/UseExplicitTypes" />
 </ruleset>

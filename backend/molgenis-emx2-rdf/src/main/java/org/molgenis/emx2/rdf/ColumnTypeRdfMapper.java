@@ -161,7 +161,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> Values.literal(i, getCoreDatatype()));
+            row.getStringArray(column.getName()), (i) -> literal(i, getCoreDatatype()));
       }
     },
     LONG(CoreDatatype.XSD.LONG) {

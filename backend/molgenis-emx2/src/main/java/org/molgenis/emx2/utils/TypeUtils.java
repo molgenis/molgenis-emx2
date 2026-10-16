@@ -33,7 +33,7 @@ public class TypeUtils {
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
-        return java.util.UUID.fromString(value);
+        return UUID.fromString(value);
       } else {
         return null;
       }
@@ -280,7 +280,7 @@ public class TypeUtils {
       }
     }
     if (v instanceof JsonNode) {
-      return org.jooq.JSONB.valueOf(objectMapper.validate((JsonNode) v).toString());
+      return JSONB.valueOf(objectMapper.validate((JsonNode) v).toString());
     }
 
     // Other input is invalid (no casting due to ensuring validateJson() is executed).
@@ -420,27 +420,27 @@ public class TypeUtils {
 
   public static Object getTypedValue(Object v, ColumnType columnType) {
     return switch (columnType.getBaseType()) {
-      case UUID -> TypeUtils.toUuid(v);
-      case UUID_ARRAY -> TypeUtils.toUuidArray(v);
+      case UUID -> toUuid(v);
+      case UUID_ARRAY -> toUuidArray(v);
       case STRING, FILE -> TypeUtils.toString(v);
-      case STRING_ARRAY -> TypeUtils.toStringArray(v);
-      case BOOL -> TypeUtils.toBool(v);
-      case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
-      case INT -> TypeUtils.toInt(v);
-      case INT_ARRAY -> TypeUtils.toIntArray(v);
-      case LONG -> TypeUtils.toLong(v);
-      case LONG_ARRAY -> TypeUtils.toLongArray(v);
-      case DECIMAL -> TypeUtils.toDecimal(v);
-      case DECIMAL_ARRAY -> TypeUtils.toDecimalArray(v);
-      case TEXT -> TypeUtils.toText(v);
-      case TEXT_ARRAY -> TypeUtils.toTextArray(v);
-      case DATE -> TypeUtils.toDate(v);
-      case DATE_ARRAY -> TypeUtils.toDateArray(v);
-      case DATETIME -> TypeUtils.toDateTime(v);
-      case DATETIME_ARRAY -> TypeUtils.toDateTimeArray(v);
-      case PERIOD -> TypeUtils.toPeriod(v);
-      case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
-      case JSON -> TypeUtils.toJsonb(v);
+      case STRING_ARRAY -> toStringArray(v);
+      case BOOL -> toBool(v);
+      case BOOL_ARRAY -> toBoolArray(v);
+      case INT -> toInt(v);
+      case INT_ARRAY -> toIntArray(v);
+      case LONG -> toLong(v);
+      case LONG_ARRAY -> toLongArray(v);
+      case DECIMAL -> toDecimal(v);
+      case DECIMAL_ARRAY -> toDecimalArray(v);
+      case TEXT -> toText(v);
+      case TEXT_ARRAY -> toTextArray(v);
+      case DATE -> toDate(v);
+      case DATE_ARRAY -> toDateArray(v);
+      case DATETIME -> toDateTime(v);
+      case DATETIME_ARRAY -> toDateTimeArray(v);
+      case PERIOD -> toPeriod(v);
+      case PERIOD_ARRAY -> toPeriodArray(v);
+      case JSON -> toJsonb(v);
 
       default ->
           throw new UnsupportedOperationException(

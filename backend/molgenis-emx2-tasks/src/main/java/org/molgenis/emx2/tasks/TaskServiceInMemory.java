@@ -112,7 +112,7 @@ public class TaskServiceInMemory implements TaskService {
       logger.info("skipped delete task " + id + "because not found");
       throw new MolgenisException("Task with id '" + id + "' not found");
     }
-    if (task.getStatus().equals(TaskStatus.RUNNING)) {
+    if (task.getStatus().equals(RUNNING)) {
       logger.info("skipped delete task " + id + "because still running");
       throw new MolgenisException("Cannot yet cancel running tasks");
     }

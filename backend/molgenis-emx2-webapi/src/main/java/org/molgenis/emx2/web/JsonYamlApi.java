@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.json.JsonUtil;
 
 public class JsonYamlApi {
 
@@ -139,7 +138,7 @@ public class JsonYamlApi {
       throw new MolgenisException("Schema not found or insufficient access");
     }
 
-    String json = JsonUtil.schemaToJson(schema.getMetadata(), true);
+    String json = schemaToJson(schema.getMetadata(), true);
     ctx.status(200);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
     ctx.header(

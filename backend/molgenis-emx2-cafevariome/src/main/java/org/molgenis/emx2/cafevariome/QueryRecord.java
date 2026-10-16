@@ -65,7 +65,7 @@ public class QueryRecord {
   }
 
   public static RecordIndexResponse getRecordIndex(Database database, Schema schema) {
-    RecordResponse records = QueryRecord.post(schema, new CafeVariomeQuery());
+    RecordResponse records = post(schema, new CafeVariomeQuery());
     RecordIndexResponse.EavIndex eavIndex =
         mapEavIndex(database, schema, EntryType.INDIVIDUALS.getId());
     return new RecordIndexResponse(records.recordCount(), eavIndex);

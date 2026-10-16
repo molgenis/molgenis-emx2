@@ -30,10 +30,10 @@ public class Migrations {
     db.tx(
         // transaction ensures migration succeeds completely or is rolled back completely
         tdb -> {
-          int version = MetadataUtils.getVersion(db.getJooq());
+          int version = getVersion(db.getJooq());
 
           // -1 getVersion indicates schema does not exist
-          if (version < 0) MetadataUtils.init(((SqlDatabase) tdb).getJooq());
+          if (version < 0) init(((SqlDatabase) tdb).getJooq());
 
           // migration steps to update from a previous version to SOFTWARE_DATABASE_VERSION
           // idea is that all steps need to be run when initializing empty server
@@ -245,14 +245,12 @@ public class Migrations {
         jooq.selectFrom(table(name(MOLGENIS, "settings_metadata"))).fetch();
 
     // t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-    final org.jooq.Field SETTINGS_NAME =
-        field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
-    final org.jooq.Field SETTINGS_TABLE_NAME =
+    final Field SETTINGS_NAME = field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
+    final Field SETTINGS_TABLE_NAME =
         field(
             name(TABLE_NAME.getName()),
             VARCHAR.nullable(true)); // note table might be null in case of schema
-    final org.jooq.Field SETTINGS_VALUE =
-        field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
+    final Field SETTINGS_VALUE = field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
 
     for (Record record : previousSettings) {
       String schemaName = record.get(TABLE_SCHEMA, String.class);
@@ -296,7 +294,7 @@ public class Migrations {
   }
 
   private static void updateDatabaseVersion(SqlDatabase db, int newVersion) {
-    MetadataUtils.setVersion(db.getJooq(), newVersion);
+    setVersion(db.getJooq(), newVersion);
   }
 
   static void migration5addMgTableclassUpdateTrigger(SqlDatabase db) {
