@@ -75,6 +75,7 @@ public class CsvTableReader {
       this.it = iterator;
     }
 
+    @Override
     public boolean hasNext() {
       try {
         return it.hasNext();
@@ -91,6 +92,7 @@ public class CsvTableReader {
       }
     }
 
+    @Override
     public Row next() {
       HashMap<String, Object> next = (HashMap<String, Object>) it.next();
       boolean isEmpty =

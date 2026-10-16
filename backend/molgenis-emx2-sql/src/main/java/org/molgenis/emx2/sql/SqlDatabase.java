@@ -568,6 +568,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, "removed metadata from user " + user);
   }
 
+  @Override
   public void setEnabledUser(String user, boolean enabled) {
     long start = System.currentTimeMillis();
     if ("admin".equals(user)) {
@@ -594,6 +595,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
 
+  @Override
   public void setAdminUser(String user, boolean admin) {
     long start = System.currentTimeMillis();
     if ("admin".equals(user) && !admin) {
@@ -876,6 +878,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return null;
   }
 
+  @Override
   public Database setBindings(Map<String, Supplier<Object>> bindings) {
     this.javaScriptBindings = bindings;
     return this;
@@ -909,6 +912,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return ChangeLogExecutor.executeLastUpdates(jooq);
   }
 
+  @Override
   public List<Member> loadUserRoles() {
     List<Member> members = new ArrayList<>();
     String roleFilter = MG_ROLE_PREFIX;
@@ -931,6 +935,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return members;
   }
 
+  @Override
   public void revokeRoles(String userName, List<Map<String, String>> members) {
     try {
       members.forEach(
@@ -949,6 +954,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return new SqlRoleManager(this);
   }
 
+  @Override
   public void updateRoles(String userName, List<Map<String, String>> members) {
     try {
       members.forEach(

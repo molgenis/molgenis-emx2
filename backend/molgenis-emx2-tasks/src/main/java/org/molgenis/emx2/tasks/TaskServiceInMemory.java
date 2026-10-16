@@ -44,6 +44,7 @@ public class TaskServiceInMemory implements TaskService {
     return task.getId();
   }
 
+  @Override
   public Task cancel(String taskId) {
     Task task = tasks.get(taskId);
     if (task == null) {

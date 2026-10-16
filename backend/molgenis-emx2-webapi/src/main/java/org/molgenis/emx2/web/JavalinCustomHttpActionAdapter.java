@@ -15,6 +15,7 @@ public class JavalinCustomHttpActionAdapter implements HttpActionAdapter {
 
   private JavalinCustomHttpActionAdapter() {}
 
+  @Override
   public Void adapt(HttpAction action, WebContext webContext) {
     CommonHelper.assertNotNull("action", action);
     CommonHelper.assertNotNull("context", webContext);
