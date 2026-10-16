@@ -10,7 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang3.SystemUtils;
 import org.molgenis.emx2.MolgenisException;
 
-public class FileUtils {
+public final class FileUtils {
   private FileUtils() {
     // hide constructor
   }

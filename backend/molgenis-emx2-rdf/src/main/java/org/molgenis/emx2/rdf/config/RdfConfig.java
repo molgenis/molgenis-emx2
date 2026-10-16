@@ -9,7 +9,7 @@ import org.molgenis.emx2.rdf.writers.OutputStreamWriterFactory;
  * with {@link org.molgenis.emx2.Schema} specific values. Use {@link #getDefaults()} to retrieve a
  * singleton containing the default values.
  */
-public class RdfConfig {
+public final class RdfConfig {
   private static final RdfConfig DEFAULT_INSTANCE = new RdfConfig();
 
   @JsonProperty("writer")

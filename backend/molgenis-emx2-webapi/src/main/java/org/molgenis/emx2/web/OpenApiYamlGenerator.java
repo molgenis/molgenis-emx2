@@ -19,7 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
-public class OpenApiYamlGenerator {
+@SuppressWarnings("PMD.LooseCoupling") // Swagger model types extend LinkedHashMap
+public final class OpenApiYamlGenerator {
 
   static final String OK = "200";
   private static final String OBJECT = "object";

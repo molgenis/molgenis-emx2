@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web.util;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.net.MediaType;
 import io.javalin.http.Context;
 import io.javalin.http.Header;
@@ -8,13 +7,17 @@ import java.util.*;
 import org.jspecify.annotations.NonNull;
 import org.molgenis.emx2.MolgenisException;
 
-public class HttpHeaderUtils {
+public final class HttpHeaderUtils {
   // Sort order: see https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
   private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
       Comparator.comparing( // ensures q-value does not influence sorting.
               (MediaType mediaType) -> mediaType.withParameter("q", "0").parameters().size() > 1)
           .thenComparing(mediaType -> !"*".equals(mediaType.type()))
           .thenComparing(mediaType -> !"*".equals(mediaType.subtype()));
+
+  private HttpHeaderUtils() {
+    // no instances
+  }
 
   /**
    * Returns what media type to use as defined in <a
@@ -123,7 +126,7 @@ public class HttpHeaderUtils {
   }
 
   private static Double getQualityScore(MediaType mediaType) {
-    ImmutableList<@NonNull String> param = mediaType.parameters().get("q");
+    List<@NonNull String> param = mediaType.parameters().get("q");
     if (param.isEmpty()) {
       return 1.0;
     }

@@ -6,7 +6,7 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.SchemaMetadataProvider;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class ChangeLogUtils {
+public final class ChangeLogUtils {
 
   private ChangeLogUtils() {
     throw new IllegalStateException("Utility class");

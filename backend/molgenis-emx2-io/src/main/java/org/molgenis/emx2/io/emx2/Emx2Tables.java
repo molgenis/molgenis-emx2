@@ -9,7 +9,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
-public class Emx2Tables {
+public final class Emx2Tables {
   private Emx2Tables() {
     // hidden
   }

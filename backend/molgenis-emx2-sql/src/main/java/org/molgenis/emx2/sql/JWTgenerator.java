@@ -21,13 +21,17 @@ import org.molgenis.emx2.utils.RandomString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JWTgenerator {
+public final class JWTgenerator {
   // 32 bytes / 256 bit, the minimum for HS256
   public static final int SHARED_SECRET_LENGTH = 32;
   private static final Logger logger = LoggerFactory.getLogger(JWTgenerator.class);
 
   private static MACSigner signer;
   private static JWSVerifier verifier;
+
+  private JWTgenerator() {
+    // no instances
+  }
 
   /** Generates a shared secret strong enough to sign tokens with (see {@link #init}). */
   public static String generateSharedSecret() {

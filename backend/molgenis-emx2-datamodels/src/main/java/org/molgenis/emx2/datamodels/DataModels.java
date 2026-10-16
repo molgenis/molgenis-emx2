@@ -8,7 +8,11 @@ import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.io.SchemaLoaderSettings;
 import org.molgenis.emx2.tasks.Task;
 
-public class DataModels {
+public final class DataModels {
+
+  private DataModels() {
+    // no instances
+  }
 
   public enum Profile {
     DATA_CATALOGUE("_profiles/DataCatalogue.yaml"),

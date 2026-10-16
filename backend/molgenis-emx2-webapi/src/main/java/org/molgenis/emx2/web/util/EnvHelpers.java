@@ -3,8 +3,12 @@ package org.molgenis.emx2.web.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EnvHelpers {
+public final class EnvHelpers {
   private static final Logger logger = LoggerFactory.getLogger(EnvHelpers.class);
+
+  private EnvHelpers() {
+    // no instances
+  }
 
   public static int getEnvInt(String name, Integer defaultValue) {
     String value = System.getenv(name);

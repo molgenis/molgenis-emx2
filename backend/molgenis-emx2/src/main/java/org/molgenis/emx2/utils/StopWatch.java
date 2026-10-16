@@ -1,6 +1,6 @@
 package org.molgenis.emx2.utils;
 
-public class StopWatch {
+public final class StopWatch {
 
   private StopWatch() { // hides public constructor
   }

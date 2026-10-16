@@ -18,7 +18,7 @@ public class FilterBean implements Filter {
   }
 
   public static Filter or(List<Filter> filters) {
-    return new FilterBean(Operator.OR, filters.toArray(new Filter[filters.size()]));
+    return new FilterBean(Operator.OR, filters.toArray(new Filter[0]));
   }
 
   public static Filter and(Filter... filters) {
@@ -26,7 +26,7 @@ public class FilterBean implements Filter {
   }
 
   public static Filter and(List<Filter> filters) {
-    return new FilterBean(Operator.AND, filters.toArray(new Filter[filters.size()]));
+    return new FilterBean(Operator.AND, filters.toArray(new Filter[0]));
   }
 
   public static Filter f(String columnName, Filter... filters) {
@@ -34,7 +34,7 @@ public class FilterBean implements Filter {
   }
 
   public static Filter f(String columnName, List<Filter> filters) {
-    return new FilterBean(columnName, filters.toArray(new Filter[filters.size()]));
+    return new FilterBean(columnName, filters.toArray(new Filter[0]));
   }
 
   public static Filter f(String columnName, Operator operator, Object... values) {

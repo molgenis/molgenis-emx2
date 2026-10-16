@@ -2,7 +2,7 @@ package org.molgenis.emx2.email;
 
 import org.apache.logging.log4j.util.Strings;
 
-public class EmailSettings {
+public final class EmailSettings {
 
   private final String host;
 

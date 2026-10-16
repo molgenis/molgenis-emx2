@@ -27,7 +27,7 @@ import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.tasks.Task;
 
-public class ExcelApi {
+public final class ExcelApi {
   private ExcelApi() {
     // hide constructor
   }

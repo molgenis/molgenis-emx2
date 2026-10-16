@@ -18,7 +18,7 @@ import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.*;
 
-class SqlTableMetadataExecutor {
+final class SqlTableMetadataExecutor {
 
   public static final String MG_TABLECLASS_UPDATE = "_MG_TABLECLASS_UPDATE";
 
@@ -237,7 +237,7 @@ class SqlTableMetadataExecutor {
     for (String string : strings) {
       names.add(name(string));
     }
-    return names.toArray(new Name[names.size()]);
+    return names.toArray(new Name[0]);
   }
 
   // helper methods
@@ -263,13 +263,11 @@ class SqlTableMetadataExecutor {
     //    } else {
     if (index == 1) {
       jooq.alterTable(getJooqTable(table))
-          .add(
-              constraint(name(uniqueName))
-                  .primaryKey(keyFields.toArray(new Field[keyFields.size()])))
+          .add(constraint(name(uniqueName)).primaryKey(keyFields.toArray(new Field[0])))
           .execute();
     } else {
       jooq.alterTable(getJooqTable(table))
-          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[keyFields.size()])))
+          .add(constraint(name(uniqueName)).unique(keyFields.toArray(new Field[0])))
           .execute();
     }
   }

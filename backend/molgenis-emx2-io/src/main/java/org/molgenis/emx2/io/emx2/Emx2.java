@@ -11,7 +11,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class Emx2 {
+public final class Emx2 {
 
   public static final String MOLGENIS_TABLE = "molgenis";
   public static final String TABLE_NAME = "tableName";

@@ -105,7 +105,7 @@ public class SelectColumn {
   }
 
   public SelectColumn select(Collection<String> columnName) {
-    return this.select(columnName.toArray(new String[columnName.size()]));
+    return this.select(columnName.toArray(new String[0]));
   }
 
   public SelectColumn where(Filter... filters) {

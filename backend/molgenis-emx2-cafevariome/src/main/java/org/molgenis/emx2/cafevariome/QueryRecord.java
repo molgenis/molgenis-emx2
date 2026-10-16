@@ -15,9 +15,13 @@ import org.molgenis.emx2.beaconv2.filter.FilterConceptVP;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
 
-public class QueryRecord {
+public final class QueryRecord {
 
   private static final String TABLE_ID = EntryType.INDIVIDUALS.getId();
+
+  private QueryRecord() {
+    // no instances
+  }
 
   public static RecordResponse post(Schema schema, String json) throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();

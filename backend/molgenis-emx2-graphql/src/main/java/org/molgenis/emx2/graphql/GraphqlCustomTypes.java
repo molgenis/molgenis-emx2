@@ -10,7 +10,7 @@ import java.util.Map;
 import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.utils.MolgenisObjectMapper;
 
-public class GraphqlCustomTypes {
+public final class GraphqlCustomTypes {
   private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
 
   private GraphqlCustomTypes() {

@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-public class Constants {
+public final class Constants {
   static final String TABLE = "table";
   public static final String CONTENT_TYPE = "Content-type";
   public static final String X_MOLGENIS_TOKEN = "x-molgenis-token";

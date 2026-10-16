@@ -1042,7 +1042,7 @@ class TestGraphqlSchemaFields {
         execute("mutation {truncate(tables: \"Order\"){message}}").at("/truncate/message").asText();
     assertTrue(message.contains("Truncated"));
     List<Row> result2 = schema.getTable("Order").retrieveRows();
-    assertTrue(result.size() > 0 && result2.size() == 0);
+    assertTrue(!result.isEmpty() && result2.isEmpty());
 
     // restore
     database.dropSchemaIfExists(schemaName);

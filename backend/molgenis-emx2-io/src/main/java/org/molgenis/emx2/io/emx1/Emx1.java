@@ -13,7 +13,7 @@ import org.molgenis.emx2.io.tablestore.TableStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Emx1 {
+public final class Emx1 {
   static final String EMX_1_IMPORT_FAILED = "EMX1 import failed: ";
   public static final String ONETOMANY = "onetomany";
   private static Logger logger = LoggerFactory.getLogger(Emx1.class);

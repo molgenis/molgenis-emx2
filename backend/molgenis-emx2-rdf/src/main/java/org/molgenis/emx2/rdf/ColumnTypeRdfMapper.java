@@ -240,7 +240,7 @@ public abstract class ColumnTypeRdfMapper {
                 };
 
         // Process items
-        final ArrayList<SortedMap<String, String>> itemsToMap = new ArrayList<>();
+        final List<SortedMap<String, String>> itemsToMap = new ArrayList<>();
         for (final String colName : colNameToRefTableColName.keySet()) {
           final String[] values =
               column.isArray()

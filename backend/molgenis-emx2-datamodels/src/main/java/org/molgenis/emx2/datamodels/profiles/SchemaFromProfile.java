@@ -99,7 +99,7 @@ public class SchemaFromProfile {
                       SchemaFromProfile.class.getResourceAsStream(directory + "/" + schemaLoc))));
 
       for (Row row : rowIterable) {
-        if (profilesSelected.size() == 0) {
+        if (profilesSelected.isEmpty()) {
           keepRows.add(row);
         } else {
           List<String> profiles = csvStringToList(row.getString("profiles"));

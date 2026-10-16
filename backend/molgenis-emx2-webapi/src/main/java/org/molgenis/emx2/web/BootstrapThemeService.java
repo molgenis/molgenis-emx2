@@ -24,7 +24,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import sass.embedded_protocol.EmbeddedSass;
 
-public class BootstrapThemeService {
+public final class BootstrapThemeService {
   private static final String HEX_WEBCOLOR_PATTERN = "^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$";
   private static final Pattern pattern = Pattern.compile(HEX_WEBCOLOR_PATTERN);
   private static Map<String, String> cache = new LinkedHashMap<>();

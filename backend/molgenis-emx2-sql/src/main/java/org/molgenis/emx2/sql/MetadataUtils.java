@@ -14,7 +14,7 @@ import org.molgenis.emx2.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MetadataUtils {
+public final class MetadataUtils {
   private static final String MATCHES = "matches";
   private static Logger logger = LoggerFactory.getLogger(MetadataUtils.class);
   private static Integer version;
@@ -128,9 +128,9 @@ public class MetadataUtils {
    * @param jooq
    * @return
    */
-  protected static Integer getVersion(DSLContext jooq) {
+  static Integer getVersion(DSLContext jooq) {
     if (version == null) {
-      if (jooq.meta().getSchemas(MOLGENIS).size() == 0) {
+      if (jooq.meta().getSchemas(MOLGENIS).isEmpty()) {
         // schema does not exist, need to do a full init
         version = -1;
         return version;
@@ -138,7 +138,7 @@ public class MetadataUtils {
         // use DATABASE_METADATA table, this is what recent versions would use
         try {
           Result<Record> result = jooq.selectFrom(DATABASE_METADATA).fetch();
-          if (result.size() > 0) {
+          if (!result.isEmpty()) {
             version = (Integer) result.get(0).get(VERSION);
             return version;
           }
@@ -146,7 +146,7 @@ public class MetadataUtils {
           // if fails, might be older schema, we before used "version_metadata'
           try {
             Result<Record> result = jooq.selectFrom(name("MOLGENIS", "version_metadata")).fetch();
-            if (result.size() > 0) {
+            if (!result.isEmpty()) {
               // in very old version this was a string so might not be integer
               version = (Integer) result.get(0).get(VERSION);
               return version;
@@ -168,8 +168,8 @@ public class MetadataUtils {
   }
 
   // should never run in parallel
-  protected static void init(DSLContext j) {
-    if (j.meta().getSchemas(MOLGENIS).size() == 0) {
+  static void init(DSLContext j) {
+    if (j.meta().getSchemas(MOLGENIS).isEmpty()) {
       logger.info("INITIALIZING MOLGENIS METADATA SCHEMA");
       j.transaction(
           config -> {
@@ -298,7 +298,7 @@ public class MetadataUtils {
         TABLE_SCHEMA);
   }
 
-  protected static void saveSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
+  static void saveSchemaMetadata(DSLContext sql, SchemaMetadata schema) {
     try {
       String description = Objects.isNull(schema.getDescription()) ? "" : schema.getDescription();
       sql.insertInto(SCHEMA_METADATA)
@@ -314,11 +314,11 @@ public class MetadataUtils {
     }
   }
 
-  protected static Collection<String> loadSchemaNames(SqlDatabase db) {
+  static Collection<String> loadSchemaNames(SqlDatabase db) {
     return db.getJooq().selectFrom(SCHEMA_METADATA).fetch().getValues(TABLE_SCHEMA, String.class);
   }
 
-  protected static Collection<SchemaInfo> loadSchemaInfos(SqlDatabase db) {
+  static Collection<SchemaInfo> loadSchemaInfos(SqlDatabase db) {
     List<Record> schemaInfoRecords = db.getJooq().selectFrom(SCHEMA_METADATA).fetch();
     List<SchemaInfo> schemaInfos = new ArrayList<>();
     for (Record record : schemaInfoRecords) {
@@ -330,7 +330,7 @@ public class MetadataUtils {
     return schemaInfos;
   }
 
-  protected static SchemaMetadata loadSchemaMetadata(DSLContext jooq, SchemaMetadata schema) {
+  static SchemaMetadata loadSchemaMetadata(DSLContext jooq, SchemaMetadata schema) {
     Record schemaRecord =
         jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schema.getName())).fetchOne();
     if (schemaRecord == null) {
@@ -342,11 +342,11 @@ public class MetadataUtils {
     return schema;
   }
 
-  protected static void deleteSchema(DSLContext jooq, String schemaName) {
+  static void deleteSchema(DSLContext jooq, String schemaName) {
     jooq.deleteFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(schemaName)).execute();
   }
 
-  protected static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
+  static void saveTableMetadata(DSLContext jooq, TableMetadata table) {
     try {
       jooq.insertInto(TABLE_METADATA)
           .columns(
@@ -384,14 +384,14 @@ public class MetadataUtils {
     }
   }
 
-  protected static void alterTableName(DSLContext jooq, TableMetadata table, String newName) {
+  static void alterTableName(DSLContext jooq, TableMetadata table, String newName) {
     jooq.update(TABLE_METADATA)
         .set(TABLE_NAME, newName)
         .where(TABLE_SCHEMA.eq(table.getSchemaName()), TABLE_NAME.eq(table.getTableName()))
         .execute();
   }
 
-  protected static List<User> loadUsers(SqlDatabase db, int limit, int offset) {
+  static List<User> loadUsers(SqlDatabase db, int limit, int offset) {
     try {
       List<User> users = new ArrayList<>();
       for (Record user :
@@ -418,7 +418,7 @@ public class MetadataUtils {
     return jooq.select(count()).from(USERS_METADATA).fetchOne(count());
   }
 
-  protected static Collection<TableMetadata> loadTables(DSLContext jooq, SchemaMetadata schema) {
+  static Collection<TableMetadata> loadTables(DSLContext jooq, SchemaMetadata schema) {
     try {
       Map<String, TableMetadata> result = new LinkedHashMap<>();
       // tables
@@ -447,7 +447,7 @@ public class MetadataUtils {
   }
 
   @SuppressWarnings("ConstantConditions")
-  protected static TableMetadata loadTable(DSLContext jooq, String schemaName, String tableName) {
+  static TableMetadata loadTable(DSLContext jooq, String schemaName, String tableName) {
     Record tableRecord =
         jooq.selectFrom(TABLE_METADATA)
             .where(TABLE_SCHEMA.eq(schemaName).and(TABLE_NAME.eq(tableName)))
@@ -526,13 +526,13 @@ public class MetadataUtils {
     return table;
   }
 
-  protected static void deleteTable(DSLContext jooq, TableMetadata table) {
+  static void deleteTable(DSLContext jooq, TableMetadata table) {
     jooq.deleteFrom(TABLE_METADATA)
         .where(TABLE_SCHEMA.eq(table.getSchema().getName()), TABLE_NAME.eq(table.getTableName()))
         .execute();
   }
 
-  protected static void saveColumnMetadata(DSLContext jooq, Column column) {
+  static void saveColumnMetadata(DSLContext jooq, Column column) {
     String refSchema =
         column.isReference()
             ? (column.getRefSchemaName().equals(column.getSchemaName())
@@ -616,7 +616,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static void deleteColumn(DSLContext jooq, Column column) {
+  static void deleteColumn(DSLContext jooq, Column column) {
     jooq.deleteFrom(COLUMN_METADATA)
         .where(
             TABLE_SCHEMA.eq(column.getSchemaName()),
@@ -625,7 +625,7 @@ public class MetadataUtils {
         .execute();
   }
 
-  protected static boolean schemaExists(DSLContext jooq, String name) {
+  static boolean schemaExists(DSLContext jooq, String name) {
     return jooq.selectFrom(SCHEMA_METADATA).where(TABLE_SCHEMA.eq(name)).fetch().isNotEmpty();
   }
 

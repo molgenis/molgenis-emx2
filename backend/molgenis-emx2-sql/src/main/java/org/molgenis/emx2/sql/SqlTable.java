@@ -584,7 +584,7 @@ public class SqlTable implements Table {
     }
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.size() == 0) {
+    if (columns.isEmpty()) {
       return count;
     }
     List<Column> pkeyFields = table.getMetadata().getPrimaryKeyColumns();

@@ -41,7 +41,7 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.tasks.Task;
 
-public class CsvApi {
+public final class CsvApi {
 
   private static final int DEFAULT_CHANGELOG_LIMIT = 100;
   private static final int DEFAULT_CHANGELOG_OFFSET = 0;

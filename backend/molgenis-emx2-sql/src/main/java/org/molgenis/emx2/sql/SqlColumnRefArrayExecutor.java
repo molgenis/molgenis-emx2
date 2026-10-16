@@ -17,7 +17,7 @@ import org.molgenis.emx2.Reference;
  * Create refArray constraints. Might be composite key so therefore using Column...column
  * parameters.
  */
-class SqlColumnRefArrayExecutor {
+final class SqlColumnRefArrayExecutor {
   private SqlColumnRefArrayExecutor() {
     // hide
   }
