@@ -30,10 +30,7 @@ public class ChangeLogUtils {
                    END;
                    $%3$s_audit$ LANGUAGE plpgsql;
                 """
-        .formatted(
-            schemaName,
-            ChangeLogUtils.buildFunctionName(schemaName),
-            ChangeLogUtils.buildFunctionName(tableName));
+        .formatted(schemaName, buildFunctionName(schemaName), buildFunctionName(tableName));
   }
 
   public static String buildAuditTrigger(String schemaName, String tableName) {
@@ -42,21 +39,21 @@ public class ChangeLogUtils {
             AFTER INSERT OR UPDATE OR DELETE ON "%1$s"."%2$s"
                 FOR EACH ROW EXECUTE FUNCTION "%1$s"."process_%3$s_audit"();
             """
-        .formatted(schemaName, tableName, ChangeLogUtils.buildFunctionName(tableName));
+        .formatted(schemaName, tableName, buildFunctionName(tableName));
   }
 
   public static String buildAuditTriggerRemove(String schemaName, String tableName) {
     return """
             DROP TRIGGER IF EXISTS %3$s_audit ON "%1$s"."%2$s" CASCADE
             """
-        .formatted(schemaName, tableName, ChangeLogUtils.buildFunctionName(tableName));
+        .formatted(schemaName, tableName, buildFunctionName(tableName));
   }
 
   public static String buildProcessAuditFunctionRemove(String schemaName, String tableName) {
     return """
             DROP FUNCTION IF EXISTS "%1$s"."process_%2$s_audit"() CASCADE
             """
-        .formatted(schemaName, ChangeLogUtils.buildFunctionName(tableName));
+        .formatted(schemaName, buildFunctionName(tableName));
   }
 
   public static boolean isChangeSchema(SchemaMetadataProvider db, String schemaName) {

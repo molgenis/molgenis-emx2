@@ -132,7 +132,7 @@ class SqlTableMetadata extends TableMetadata {
 
     // drop triggers for this table
     for (Column column : tm.getStoredColumns()) {
-      SqlColumnExecutor.executeRemoveRefConstraints(tm.getJooq(), column);
+      executeRemoveRefConstraints(tm.getJooq(), column);
     }
 
     // get references pointing to 'me'
@@ -157,7 +157,7 @@ class SqlTableMetadata extends TableMetadata {
     refColumns.forEach(
         ref -> {
           ref.setRefTable(newName);
-          MetadataUtils.saveColumnMetadata(tm.getJooq(), ref);
+          saveColumnMetadata(tm.getJooq(), ref);
           db.getListener().schemaChanged(ref.getSchemaName());
         });
 
@@ -165,13 +165,13 @@ class SqlTableMetadata extends TableMetadata {
     refbackColumns.forEach(
         refBack -> {
           refBack.setRefTable(newName);
-          MetadataUtils.saveColumnMetadata(tm.getJooq(), refBack);
+          saveColumnMetadata(tm.getJooq(), refBack);
           db.getListener().schemaChanged(refBack.getSchemaName());
         });
 
     // recreate triggers for this table
     for (Column column : tm.getStoredColumns()) {
-      SqlColumnExecutor.executeCreateRefConstraints(tm.getJooq(), column);
+      executeCreateRefConstraints(tm.getJooq(), column);
     }
 
     return tm;
@@ -342,9 +342,9 @@ class SqlTableMetadata extends TableMetadata {
         (SqlTableMetadata) db.getSchemaMetadata(schemaName).getTableMetadata(tableName);
     DSLContext jooq = ((SqlDatabase) db).getJooq();
 
-    SqlColumnExecutor.executeRemoveColumn(jooq, column);
+    executeRemoveColumn(jooq, column);
     tm.columns.remove(column.getName());
-    SqlTableMetadataExecutor.updateSearchIndexTriggerFunction(jooq, tm, tableName);
+    updateSearchIndexTriggerFunction(jooq, tm, tableName);
     return tm;
   }
 

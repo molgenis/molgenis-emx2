@@ -452,7 +452,7 @@ public class SqlTable implements Table {
 
     MgDefaults mgDefaults = inherit ? null : MgDefaults.of(this);
 
-    InsertValuesStepN<org.jooq.Record> step = createInsertStep(columns);
+    InsertValuesStepN<Record> step = createInsertStep(columns);
     addRowsToInsertStep(step, rows, columns, mgDefaults);
     if (updateOnConflict) {
       addUpdateOnConflictClause(step, rows, columns, mgDefaults);
@@ -476,16 +476,13 @@ public class SqlTable implements Table {
     }
   }
 
-  private InsertValuesStepN<org.jooq.Record> createInsertStep(List<Column> columns) {
+  private InsertValuesStepN<Record> createInsertStep(List<Column> columns) {
     List<Field> insertFields = columns.stream().map(Column::getJooqField).toList();
     return getJooq().insertInto(getJooqTable(), insertFields.toArray(new Field[0]));
   }
 
   private void addRowsToInsertStep(
-      InsertValuesStepN<org.jooq.Record> step,
-      List<Row> rows,
-      List<Column> columns,
-      MgDefaults mgDefaults) {
+      InsertValuesStepN<Record> step, List<Row> rows, List<Column> columns, MgDefaults mgDefaults) {
     for (Row row : rows) {
       Map<String, Object> values = getSelectedRowValues(columns, row);
       if (mgDefaults != null) {
@@ -496,11 +493,8 @@ public class SqlTable implements Table {
   }
 
   private void addUpdateOnConflictClause(
-      InsertValuesStepN<org.jooq.Record> step,
-      List<Row> rows,
-      List<Column> columns,
-      MgDefaults mgDefaults) {
-    InsertOnDuplicateSetStep<org.jooq.Record> onConflict =
+      InsertValuesStepN<Record> step, List<Row> rows, List<Column> columns, MgDefaults mgDefaults) {
+    InsertOnDuplicateSetStep<Record> onConflict =
         step.onConflict(getMetadata().getPrimaryKeyFields().toArray(new Field[0])).doUpdate();
 
     for (Column column : getColumnsToOverwriteOnConflict(columns)) {
@@ -512,7 +506,7 @@ public class SqlTable implements Table {
   }
 
   private static void setMgValuesOnConflict(
-      InsertOnDuplicateSetStep<org.jooq.Record> onConflict,
+      InsertOnDuplicateSetStep<Record> onConflict,
       List<Row> rows,
       List<Column> columns,
       MgDefaults mgDefaults) {
@@ -895,7 +889,7 @@ public class SqlTable implements Table {
     return getMetadata().getIdentifier();
   }
 
-  protected org.jooq.Table<org.jooq.Record> getJooqTable() {
+  protected org.jooq.Table<Record> getJooqTable() {
     return table(name(metadata.getSchema().getName(), metadata.getTableName()));
   }
 

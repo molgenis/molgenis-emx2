@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -38,7 +37,7 @@ public class JWTgenerator {
 
   private static void init(Database database) {
     try {
-      Objects.requireNonNull(database);
+      requireNonNull(database);
       sharedSecret = database.resolveJwtSharedSecret().getBytes();
       // check enough bytes
       if (sharedSecret.length < SHARED_SECRET_LENGTH) {

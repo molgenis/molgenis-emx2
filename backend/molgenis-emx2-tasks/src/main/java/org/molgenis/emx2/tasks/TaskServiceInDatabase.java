@@ -313,8 +313,8 @@ f.close()
                       f(
                           "status",
                           or(
-                              f("name", Operator.EQUALS, TaskStatus.WAITING),
-                              f("name", Operator.EQUALS, TaskStatus.RUNNING))))
+                              f("name", EQUALS, TaskStatus.WAITING),
+                              f("name", EQUALS, TaskStatus.RUNNING))))
                   .retrieveRows()
                   .stream()
                   .map(

@@ -52,7 +52,9 @@ subprojects {
         }
 
         source = files(changedFiles)
-        classpath = sourceSets.main.compileClasspath
+        // same classpath as pmdMain and pmdTest, so type resolution gives the same results
+        classpath = sourceSets.main.output + sourceSets.main.compileClasspath +
+                sourceSets.test.output + sourceSets.test.compileClasspath
     }
 
     compileJava.dependsOn 'spotlessApply'

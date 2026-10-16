@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import org.jooq.*;
 import org.jooq.Record;
+import org.jooq.Table;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Schema;
@@ -45,8 +46,7 @@ public class ChangeLogExecutor {
 
   static void enableChangeLog(SqlDatabase db, SchemaMetadata schema) {
     // Create change log table
-    org.jooq.Table<Record> changelogTable =
-        table(name(schema.getName(), Constants.CHANGELOG_TABLE));
+    Table<Record> changelogTable = table(name(schema.getName(), Constants.CHANGELOG_TABLE));
     db.getJooq()
         .createTableIfNotExists(changelogTable)
         .columns(OPERATION, STAMP, USERID, TABLENAME, OLD, NEW)

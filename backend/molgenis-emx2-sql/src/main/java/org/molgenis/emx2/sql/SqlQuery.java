@@ -81,11 +81,11 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public List<Row> retrieveRows(Option... options) {
-    SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
+    SelectConnectByStep<Record> query = buildRowQuery(options);
     try {
       List<Row> result = new ArrayList<>();
-      Result<org.jooq.Record> fetch = query.fetch();
-      for (org.jooq.Record r : fetch) {
+      Result<Record> fetch = query.fetch();
+      for (Record r : fetch) {
         result.add(new SqlRow(r));
       }
       return result;
@@ -96,16 +96,16 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public void streamRows(Consumer<Row> consumer, Option... options) {
-    SelectConnectByStep<org.jooq.Record> query = buildRowQuery(options);
+    SelectConnectByStep<Record> query = buildRowQuery(options);
     try {
       schema
           .getJooq()
           .transaction(
               config -> {
                 query.attach(config);
-                try (Cursor<org.jooq.Record> cursor =
+                try (Cursor<Record> cursor =
                     query.fetchSize(STREAMING_ROWS_PER_FETCH).fetchLazy()) {
-                  for (org.jooq.Record r : cursor) {
+                  for (Record r : cursor) {
                     consumer.accept(new SqlRow(r));
                   }
                 }
@@ -117,7 +117,7 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private SelectConnectByStep<org.jooq.Record> buildRowQuery(Option... options) {
+  private SelectConnectByStep<Record> buildRowQuery(Option... options) {
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
@@ -180,7 +180,7 @@ public class SqlQuery extends QueryBean {
     }
 
     // basequery
-    SelectJoinStep<org.jooq.Record> from =
+    SelectJoinStep<Record> from =
         table
             .getJooq()
             .select(rowSelectFields(table, tableAlias, select))
@@ -191,9 +191,8 @@ public class SqlQuery extends QueryBean {
 
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
-    SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
-    SelectConnectByStep<org.jooq.Record> query =
-        limitOffsetOrderBy(table, select, where, tableAlias);
+    SelectConnectByStep<Record> where = condition != null ? from.where(condition) : from;
+    SelectConnectByStep<Record> query = limitOffsetOrderBy(table, select, where, tableAlias);
     if (logger.isInfoEnabled()) {
       logger.info(query.getSQL(ParamType.INLINED));
     }
@@ -384,13 +383,13 @@ public class SqlQuery extends QueryBean {
 
     // query without all nested joins for the json
     // note: another optimization would be to only include fields needed instead of asterisk
-    SelectConnectByStep<org.jooq.Record> filterQuery =
+    SelectConnectByStep<Record> filterQuery =
         jsonFilterQuery(
             table, List.of(asterisk()), column, tableAlias, subAlias, filters, searchTerms);
     filterQuery = limitOffsetOrderBy(table, select, filterQuery, subAlias);
 
     // use filtered/sorted/limited/offsetted to produce json including only the joins needed
-    SelectConnectByStep<org.jooq.Record> from =
+    SelectConnectByStep<Record> from =
         jooq.select(selection).from(filterQuery.asTable(alias(subAlias)));
 
     // agg
@@ -405,7 +404,7 @@ public class SqlQuery extends QueryBean {
   }
 
   // overload for backwards compatibility with other uses of this part
-  private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
+  private SelectConditionStep<Record> jsonFilterQuery(
       SqlTableMetadata table,
       Column column,
       String tableAlias,
@@ -422,7 +421,7 @@ public class SqlQuery extends QueryBean {
         searchTerms);
   }
 
-  private SelectConditionStep<org.jooq.Record> jsonFilterQuery(
+  private SelectConditionStep<Record> jsonFilterQuery(
       SqlTableMetadata table,
       List<SelectFieldOrAsterisk> selection,
       Column column,
@@ -454,7 +453,7 @@ public class SqlQuery extends QueryBean {
           .from(tableWithInheritanceJoin(table).as(alias(filterAlias)))
           .where(conditions);
     } else {
-      return (SelectConditionStep<org.jooq.Record>)
+      return (SelectConditionStep<Record>)
           table
               .getJooq()
               .select(selection)
@@ -512,7 +511,7 @@ public class SqlQuery extends QueryBean {
           return and(
               jsonFilterQueryConditions(table, column, tableAlias, subAlias, filter, searchTerms));
         case TRIGRAM_SEARCH, TEXT_SEARCH:
-          return jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(filter.getValues()));
+          return jsonSearchConditions(table, subAlias, toStringArray(filter.getValues()));
         case MATCH_ANY_INCLUDING_PARENTS,
         MATCH_PATH,
         MATCH_ALL,
@@ -891,7 +890,7 @@ public class SqlQuery extends QueryBean {
 
     // create source query for the sourceColumns
     nonArraySourceFields.addAll(table.getPrimaryKeyFields());
-    SelectJoinStep<org.jooq.Record> sourceQuery =
+    SelectJoinStep<Record> sourceQuery =
         jooq.select(asterisk())
             .from(
                 jooq.select(nonArraySourceFields)
@@ -921,9 +920,9 @@ public class SqlQuery extends QueryBean {
         .as(convertToCamelCase(groupBy.getColumn()));
   }
 
-  private static Table<org.jooq.Record> tableWithInheritanceJoin(TableMetadata table) {
+  private static Table<Record> tableWithInheritanceJoin(TableMetadata table) {
 
-    Table<org.jooq.Record> result = table.getJooqTable();
+    Table<Record> result = table.getJooqTable();
     TableMetadata inheritedTable = table.getInheritedTable();
     // root and intermediate levels have mg_tableclass column
     Column mg_tableclass = table.getLocalColumn(MG_TABLECLASS);
@@ -951,10 +950,10 @@ public class SqlQuery extends QueryBean {
     return result;
   }
 
-  private SelectJoinStep<org.jooq.Record> refJoins(
+  private SelectJoinStep<Record> refJoins(
       TableMetadata table,
       String tableAlias,
-      SelectJoinStep<org.jooq.Record> join,
+      SelectJoinStep<Record> join,
       Filter filters,
       SelectColumn selection,
       List<String> aliasList) {
@@ -1164,13 +1163,13 @@ public class SqlQuery extends QueryBean {
 
   private Condition whereConditionsFilter(TableMetadata table, String tableAlias, Filter filters) {
     List<Condition> conditions = new ArrayList<>();
-    if (Operator.OR.equals(filters.getOperator())) {
+    if (OR.equals(filters.getOperator())) {
       conditions.add(
           or(
               filters.getSubfilters().stream()
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
-    } else if (Operator.AND.equals(filters.getOperator())) {
+    } else if (AND.equals(filters.getOperator())) {
       conditions.add(
           and(
               filters.getSubfilters().stream()
@@ -1211,7 +1210,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private Condition whereColumnOperator(
-      String tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
+      String tableAlias, Column column, Operator operator, Object[] values) {
     Name columnName = name(alias(tableAlias), column.getName());
     ColumnType columnType = column.getColumnType();
     if (!List.of(columnType.getOperators()).contains(operator)) {
@@ -1230,7 +1229,7 @@ public class SqlQuery extends QueryBean {
               + values);
     }
     // cast value to match the column type
-    if (Operator.IS_NULL.equals(operator) || columnType.isReference()) {
+    if (IS_NULL.equals(operator) || columnType.isReference()) {
       // type casting is handled below
     } else if (columnType.isFile()) {
       values = toStringArray(values);
@@ -1288,9 +1287,7 @@ public class SqlQuery extends QueryBean {
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
-                  column.getRefSchemaName(),
-                  column.getRefTableName(),
-                  TypeUtils.toStringArray(values))));
+                  column.getRefSchemaName(), column.getRefTableName(), toStringArray(values))));
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
@@ -1298,9 +1295,7 @@ public class SqlQuery extends QueryBean {
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
-                  column.getRefSchemaName(),
-                  column.getRefTableName(),
-                  TypeUtils.toStringArray(values))));
+                  column.getRefSchemaName(), column.getRefTableName(), toStringArray(values))));
     }
   }
 
@@ -1313,7 +1308,7 @@ public class SqlQuery extends QueryBean {
                   "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
                   column.getRefSchemaName(),
                   column.getRefTableName(),
-                  value(TypeUtils.toStringArray(values)))));
+                  value(toStringArray(values)))));
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
@@ -1323,7 +1318,7 @@ public class SqlQuery extends QueryBean {
                   "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
                   column.getRefSchemaName(),
                   column.getRefTableName(),
-                  value(TypeUtils.toStringArray(values)))));
+                  value(toStringArray(values)))));
     }
   }
 
@@ -1336,7 +1331,7 @@ public class SqlQuery extends QueryBean {
                   "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
                   column.getRefSchemaName(),
                   column.getRefTableName(),
-                  value(TypeUtils.toStringArray(values)))));
+                  value(toStringArray(values)))));
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
@@ -1346,7 +1341,7 @@ public class SqlQuery extends QueryBean {
                   "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
                   column.getRefSchemaName(),
                   column.getRefTableName(),
-                  value(TypeUtils.toStringArray(values)))));
+                  value(toStringArray(values)))));
     }
   }
 
@@ -1595,7 +1590,7 @@ public class SqlQuery extends QueryBean {
     for (int i = 0; i < values.length; i++) {
       if (i + 1 > values.length)
         throw new SqlQueryException(
-            SqlQuery.QUERY_FAILED + SqlQuery.BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
+            QUERY_FAILED + BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
       if (values[i] != null && values[i + 1] != null) {
         conditions.add(field(columnName).between(values[i], values[i + 1]));
       } else if (values[i] != null && values[i + 1] == null) {
@@ -1692,10 +1687,10 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(
+  private static SelectJoinStep<Record> limitOffsetOrderBy(
       TableMetadata table,
       SelectColumn select,
-      SelectConnectByStep<org.jooq.Record> query,
+      SelectConnectByStep<Record> query,
       String tableAlias) {
     query = SqlQueryBuilderHelpers.orderBy(table, select, query, tableAlias);
     if (select.getLimit() > 0) {
@@ -1704,7 +1699,7 @@ public class SqlQuery extends QueryBean {
     if (select.getOffset() > 0) {
       query = (SelectConditionStep) query.offset(select.getOffset());
     }
-    return (SelectJoinStep<org.jooq.Record>) query;
+    return (SelectJoinStep<Record>) query;
   }
 
   private static @NotNull SelectJoinStep<Record> getRefBackSelect(Column column) {

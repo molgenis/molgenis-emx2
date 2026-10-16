@@ -283,7 +283,7 @@ public class SqlRoleManager {
               jooq.fetchExists(
                   jooq.select().from(PG_ROLES).where(field(ROLNAME).eq(inline(rlsFullRole))));
           for (TableMetadata tableInTree : tableMetadata.getInheritanceTree()) {
-            org.jooq.Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
+            Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
             revokeAll(jooq, jooqTable, name(fullRole));
             if (rlsRoleExists) {
               revokeAll(jooq, jooqTable, name(rlsFullRole));
@@ -312,7 +312,7 @@ public class SqlRoleManager {
 
   private static void applyPgGrants(
       DSLContext jooq, String schemaName, String fullRole, String tableName, TablePermission p) {
-    org.jooq.Table<?> jooqTable = table(name(schemaName, tableName));
+    Table<?> jooqTable = table(name(schemaName, tableName));
     if (p.hasSelect()) {
       jooq.execute("GRANT SELECT ON {0} TO {1}", jooqTable, name(fullRole));
     } else if (Boolean.FALSE.equals(p.select())) {
@@ -368,7 +368,7 @@ public class SqlRoleManager {
 
   private void enableRowLevelSecurityOnTable(
       DSLContext jooq, String schemaName, String tableName, Condition rowMatchCondition) {
-    org.jooq.Table<?> table = table(name(schemaName, tableName));
+    Table<?> table = table(name(schemaName, tableName));
     jooq.execute("ALTER TABLE {0} ENABLE ROW LEVEL SECURITY", table);
     dropRlsPolicies(jooq, table);
 
@@ -379,7 +379,7 @@ public class SqlRoleManager {
   }
 
   private static void createPolicy(
-      DSLContext jooq, org.jooq.Table<?> jooqTable, RlsPolicy policy, Condition condition) {
+      DSLContext jooq, Table<?> jooqTable, RlsPolicy policy, Condition condition) {
     String expression = jooq.render(condition);
     String sql =
         "CREATE POLICY "
@@ -395,7 +395,7 @@ public class SqlRoleManager {
     jooq.execute(sql, jooqTable);
   }
 
-  static void dropRlsPolicies(DSLContext jooq, org.jooq.Table<?> jooqTable) {
+  static void dropRlsPolicies(DSLContext jooq, Table<?> jooqTable) {
     for (RlsPolicy policy : RlsPolicy.values()) {
       jooq.execute("DROP POLICY IF EXISTS " + policy.policyName + " ON {0}", jooqTable);
     }
@@ -413,7 +413,7 @@ public class SqlRoleManager {
                 .and(field("grantee").like(inline(rlsRolePrefix + "%"))));
     if (anyRlsGrantRemains) return;
     for (TableMetadata tableInTree : root.getInheritanceTree()) {
-      org.jooq.Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
+      Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
       dropRlsPolicies(jooq, jooqTable);
       jooq.execute("ALTER TABLE {0} DISABLE ROW LEVEL SECURITY", jooqTable);
     }
