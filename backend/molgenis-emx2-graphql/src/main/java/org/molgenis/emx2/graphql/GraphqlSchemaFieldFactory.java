@@ -512,10 +512,6 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .build();
 
-  public GraphqlSchemaFieldFactory() {
-    // hide constructor
-  }
-
   static Map<String, Object> roleToMap(Role role) {
     Map<String, Object> roleMap = new LinkedHashMap<>();
     roleMap.put(NAME, role.name());

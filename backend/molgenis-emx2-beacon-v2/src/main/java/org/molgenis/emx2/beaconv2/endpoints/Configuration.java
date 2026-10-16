@@ -17,8 +17,6 @@ public class Configuration {
   private BeaconSpec spec;
   private List<EntryType> entryTypes;
 
-  public Configuration() {}
-
   @JsonIgnore
   public JsonNode getResponse(Context ctx) {
     this.spec = BeaconSpec.findByPath(ctx.attribute("specification"));

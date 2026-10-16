@@ -123,10 +123,6 @@ public class TaskServiceScheduler {
     private String molgenisTaskId; // from molgenis
     TaskStatus status;
 
-    public SubmitJob() {
-      // no arg constructor
-    }
-
     @Override
     public void execute(JobExecutionContext context) {
       String name = context.getJobDetail().getKey().getName();

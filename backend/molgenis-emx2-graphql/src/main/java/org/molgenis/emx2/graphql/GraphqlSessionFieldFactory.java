@@ -50,10 +50,6 @@ public class GraphqlSessionFieldFactory {
                   .type(Scalars.GraphQLBoolean))
           .build();
 
-  public GraphqlSessionFieldFactory() {
-    // no instance
-  }
-
   public GraphQLFieldDefinition signoutField(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signout")
