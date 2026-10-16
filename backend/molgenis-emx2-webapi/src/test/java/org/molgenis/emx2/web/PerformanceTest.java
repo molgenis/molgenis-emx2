@@ -84,8 +84,9 @@ public class PerformanceTest {
       String resp = doDemoRequest();
       long t2 = new Date().getTime();
       assertTrue(resp.contains("Contacts"), "Response does not contain expected data: " + resp);
-      logger.info("Response time: {} ms, ms, request: {}", t2 - t1, i);
-      responseTimes.add((int) (t2 - t1));
+      long duration = t2 - t1;
+      logger.info("Response time: {} ms, ms, request: {}", duration, i);
+      responseTimes.add((int) duration);
     }
 
     long mean = responseTimes.stream().mapToInt(Integer::intValue).sum() / responseTimes.size();

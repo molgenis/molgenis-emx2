@@ -10,12 +10,12 @@ import jakarta.servlet.http.HttpSession;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
-  static final Logger logger = LoggerFactory.getLogger(MolgenisSessionHandler.class);
+  static final Logger logger = LogManager.getLogger(MolgenisSessionHandler.class);
   private static final Map<String, Set<String>> userSessions = new ConcurrentHashMap<>();
   static final Gauge sessionGauge =
       Gauge.builder()
@@ -45,10 +45,10 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
 
     logger.info(
         "Session {} linked to user {}. This user now has {} sessions with {} total",
-        session.getId(),
-        username,
-        userSessions.get(username).size(),
-        sessionGauge.get());
+        session::getId,
+        () -> username,
+        () -> userSessions.get(username).size(),
+        sessionGauge::get);
   }
 
   @Override
@@ -61,17 +61,16 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
 
       // remove from registry
       Set<String> sessions = userSessions.get(username);
-      int sessionCountForUser = 0;
       if (sessions != null) {
         sessions.remove(session.getId());
-        sessionCountForUser = sessions.size();
       }
+      int sessionCountForUser = sessions != null ? sessions.size() : 0;
       logger.info(
           "session {} invalidated. User {} now has {} sessions with {} total",
-          session.getId(),
-          username,
-          sessionCountForUser,
-          sessionGauge.get());
+          session::getId,
+          () -> username,
+          () -> sessionCountForUser,
+          sessionGauge::get);
     }
   }
 

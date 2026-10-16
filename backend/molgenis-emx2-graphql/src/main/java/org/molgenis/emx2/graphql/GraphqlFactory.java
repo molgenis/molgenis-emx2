@@ -4,13 +4,13 @@ import graphql.GraphQL;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.TaskService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class GraphqlFactory {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlFactory.class);
+  private static Logger logger = LogManager.getLogger(GraphqlFactory.class);
 
   private GraphqlFactory() {}
 
@@ -60,7 +60,7 @@ public final class GraphqlFactory {
 
   public static GraphQL forSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
-    logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
+    logger.info("creating graphql for schema: {}", () -> schema.getMetadata().getName());
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");

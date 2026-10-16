@@ -31,6 +31,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -39,15 +41,13 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.controllers.MetricsController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
 class WebApiSmokeTests extends ApiTestBase {
 
-  static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
+  static final Logger logger = LogManager.getLogger(WebApiSmokeTests.class);
 
   private static final String EXCEPTION_CONTENT_TYPE = "application/json";
 
@@ -148,7 +148,8 @@ class WebApiSmokeTests extends ApiTestBase {
                       signinResult.contains("Signed in"),
                       "Login failed in thread: " + Thread.currentThread().getName());
                 } catch (AssertionError e) {
-                  logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+                  logger.warn(
+                      "[Thread {}] {}", () -> Thread.currentThread().getName(), e::getMessage);
                 }
 
                 String sessionResult =
@@ -163,7 +164,8 @@ class WebApiSmokeTests extends ApiTestBase {
                       sessionResult.contains(testUser),
                       "Session check failed in thread: " + Thread.currentThread().getName());
                 } catch (AssertionError e) {
-                  logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+                  logger.warn(
+                      "[Thread {}] {}", () -> Thread.currentThread().getName(), e::getMessage);
                 }
 
               } catch (Throwable t) {

@@ -13,18 +13,18 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.User;
 import org.molgenis.emx2.utils.RandomString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class JWTgenerator {
   // 32 bytes / 256 bit, the minimum for HS256
   public static final int SHARED_SECRET_LENGTH = 32;
-  private static final Logger logger = LoggerFactory.getLogger(JWTgenerator.class);
+  private static final Logger logger = LogManager.getLogger(JWTgenerator.class);
 
   private static MACSigner signer;
   private static JWSVerifier verifier;
@@ -126,7 +126,8 @@ public final class JWTgenerator {
     try {
       signedJWT = SignedJWT.parse(token);
     } catch (ParseException e) {
-      logger.warn("JWT parsing failed. tokenLength={}", token != null ? token.length() : 0, e);
+      logger.warn(
+          "JWT parsing failed. tokenLength={}", () -> token != null ? token.length() : 0, () -> e);
       throw new MolgenisException("Cannot parse token", e);
     }
 

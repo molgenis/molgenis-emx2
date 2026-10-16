@@ -30,7 +30,6 @@
         <exclude name="AvoidUsingHardCodedIP" />
         <exclude name="CollectionTypeMismatch" />
         <exclude name="EmptyControlStatement" />
-        <exclude name="GuardLogStatement" />
         <exclude name="ImplicitSwitchFallThrough" />
         <exclude name="MissingStaticMethodInNonInstantiatableClass" />
         <exclude name="NonThreadSafeSingleton" />

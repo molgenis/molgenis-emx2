@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Fills in reference columns that, right after extraction, only know the row they point to as a
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ResolveMissingPkPostProcessor implements PostProcessor {
 
-  private static final Logger logger = LoggerFactory.getLogger(ResolveMissingPkPostProcessor.class);
+  private static final Logger logger = LogManager.getLogger(ResolveMissingPkPostProcessor.class);
   private static final int MAX_NR_ITERATIONS = 10;
 
   private final SchemaMetadata schema;
@@ -223,8 +223,8 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
     Object ownValue = row.getValueMap().get(reference.getTargetColumn());
     logger.info(
         "Referenced row is missing its own '{}': completing it with '{}' from the row that pointed at it",
-        reference.getReferencedColumnName(),
-        ownValue);
+        reference::getReferencedColumnName,
+        () -> ownValue);
     referencedRow.set(reference.getReferencedColumnName(), ownValue);
     return ownValue;
   }
