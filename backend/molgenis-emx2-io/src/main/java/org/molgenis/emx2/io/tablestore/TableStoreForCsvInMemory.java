@@ -25,13 +25,12 @@ public class TableStoreForCsvInMemory implements TableStore {
 
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
-    try {
-      Writer writer = new StringWriter();
-      Writer bufferedWriter = new BufferedWriter(writer);
-      String existing = "";
-      if (store.containsKey(name)) {
-        existing = store.get(name);
-      }
+    Writer writer = new StringWriter();
+    String existing = "";
+    if (store.containsKey(name)) {
+      existing = store.get(name);
+    }
+    try (Writer bufferedWriter = new BufferedWriter(writer)) {
       // make sure first row has all columnNames
       Iterator<Row> iterator = rows.iterator();
       if (iterator.hasNext()) {
@@ -48,11 +47,10 @@ public class TableStoreForCsvInMemory implements TableStore {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
       }
-      bufferedWriter.close();
-      store.put(name, existing + writer);
     } catch (IOException ioe) {
       throw new MolgenisException("export failed", ioe);
     }
+    store.put(name, existing + writer);
   }
 
   @Override

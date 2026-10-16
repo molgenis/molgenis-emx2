@@ -51,10 +51,9 @@ public final class TestUtils {
 
     String contentDisposition = response.getHeader("content-disposition");
     String fileName = contentDisposition.substring(21);
-    FileOutputStream fos = new FileOutputStream(fileName);
-
-    fos.write(response.getBody().asByteArray());
-    fos.close();
+    try (FileOutputStream fos = new FileOutputStream(fileName)) {
+      fos.write(response.getBody().asByteArray());
+    }
 
     File file = new File(fileName);
     file.deleteOnExit();

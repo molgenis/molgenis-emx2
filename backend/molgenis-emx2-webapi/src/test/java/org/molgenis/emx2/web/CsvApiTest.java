@@ -570,10 +570,9 @@ class CsvApiTest extends ApiTestBase {
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
     File tempFile = File.createTempFile("some", extension);
     tempFile.deleteOnExit();
-    OutputStream os = new FileOutputStream(tempFile);
-    os.write(zipContents);
-    os.flush();
-    os.close();
+    try (OutputStream os = new FileOutputStream(tempFile)) {
+      os.write(zipContents);
+    }
     return tempFile;
   }
 

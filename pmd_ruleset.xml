@@ -28,7 +28,6 @@
         <exclude name="AvoidCatchingGenericException" />
         <exclude name="AvoidInstanceofChecksInCatchClause" />
         <exclude name="AvoidUsingHardCodedIP" />
-        <exclude name="CloseResource" />
         <exclude name="CollectionTypeMismatch" />
         <exclude name="EmptyControlStatement" />
         <exclude name="GuardLogStatement" />
@@ -64,6 +63,7 @@
         </properties>
     </rule>
 
+    <rule ref="category/java/bestpractices.xml/UseTryWithResources" />
 
     <!-- Individual rules we want to ensure are always tested (in case rulesets change) -->
     <rule ref="category/java/codestyle.xml/UseExplicitTypes" />
