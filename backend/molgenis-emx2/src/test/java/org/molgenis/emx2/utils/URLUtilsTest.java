@@ -45,11 +45,8 @@ class URLUtilsTest {
   }
 
   private void contextWrapper(Context ctx, byte[] bytes) {
-    ServletOutputStream outputStream = ctx.outputStream();
-    try {
+    try (ServletOutputStream outputStream = ctx.outputStream()) {
       outputStream.write(bytes);
-      outputStream.flush();
-      outputStream.close();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

@@ -35,15 +35,13 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   @Override
   public void writeTable(String name, List<String> columnNames, Iterable<Row> rows) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
-    try {
-      Writer writer = Files.newBufferedWriter(relativePath);
+    try (Writer writer = Files.newBufferedWriter(relativePath)) {
       if (rows.iterator().hasNext()) {
         CsvTableWriter.write(rows, columnNames, writer, separator);
       } else {
         // only header in case no rows provided
         writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
       }
-      writer.close();
     } catch (IOException ioe) {
       throw new MolgenisException("Export failed", ioe);
     }

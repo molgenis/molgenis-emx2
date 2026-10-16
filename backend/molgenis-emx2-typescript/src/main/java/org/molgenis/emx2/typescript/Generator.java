@@ -51,13 +51,11 @@ public class Generator {
                     """;
 
   public void generate(Schema schema, String fileLocation) {
-    PrintWriter writer = null;
-    try {
-      writer = new PrintWriter(fileLocation, "UTF-8");
+    try (PrintWriter writer = new PrintWriter(fileLocation, "UTF-8")) {
+      generate(schema, writer, true);
     } catch (FileNotFoundException | UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
-    generate(schema, writer, true);
   }
 
   public void generate(Schema schema, PrintWriter writer, boolean includeHeader) {

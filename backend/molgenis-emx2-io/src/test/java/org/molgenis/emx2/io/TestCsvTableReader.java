@@ -45,8 +45,7 @@ public class TestCsvTableReader {
         new File(
             Objects.requireNonNull(classLoader.getResource("csv-with-empty-lines.csv")).getFile());
 
-    try {
-      InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
+    try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file))) {
       Iterable<Row> rows = CsvTableReader.read(inputStreamReader);
       List<Row> list = IteratorUtils.toList(rows.iterator());
       assertEquals(2, list.size());

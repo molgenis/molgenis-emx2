@@ -126,58 +126,58 @@ class WebApiSmokeTests extends ApiTestBase {
     given().sessionId(sessionId).body(createUserQuery).post("/api/graphql").asString();
 
     int threadCount = 10;
-    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
     CountDownLatch readyLatch = new CountDownLatch(threadCount);
     CountDownLatch startLatch = new CountDownLatch(1);
     CountDownLatch doneLatch = new CountDownLatch(threadCount);
 
     Queue<Throwable> failures = new ConcurrentLinkedQueue<>();
 
-    for (int i = 0; i < threadCount; i++) {
-      executor.submit(
-          () -> {
-            try {
-              readyLatch.countDown();
-              startLatch.await();
-
-              String signinResult =
-                  given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
-
+    try (ExecutorService executor = Executors.newFixedThreadPool(threadCount)) {
+      for (int i = 0; i < threadCount; i++) {
+        executor.submit(
+            () -> {
               try {
-                assertTrue(
-                    signinResult.contains("Signed in"),
-                    "Login failed in thread: " + Thread.currentThread().getName());
-              } catch (AssertionError e) {
-                logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+                readyLatch.countDown();
+                startLatch.await();
+
+                String signinResult =
+                    given().sessionId(sessionId).body(signinQuery).post("/api/graphql").asString();
+
+                try {
+                  assertTrue(
+                      signinResult.contains("Signed in"),
+                      "Login failed in thread: " + Thread.currentThread().getName());
+                } catch (AssertionError e) {
+                  logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+                }
+
+                String sessionResult =
+                    given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
+
+                assertFalse(
+                    sessionResult.contains(ADMIN_USER),
+                    "ADMIN_USER present in thread: " + Thread.currentThread().getName());
+
+                try {
+                  assertTrue(
+                      sessionResult.contains(testUser),
+                      "Session check failed in thread: " + Thread.currentThread().getName());
+                } catch (AssertionError e) {
+                  logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+                }
+
+              } catch (Throwable t) {
+                failures.add(t); // only assertFalse failure or unexpected errors will be added
+              } finally {
+                doneLatch.countDown();
               }
+            });
+      }
 
-              String sessionResult =
-                  given().sessionId(sessionId).body(sessionQuery).post("/api/graphql").asString();
-
-              assertFalse(
-                  sessionResult.contains(ADMIN_USER),
-                  "ADMIN_USER present in thread: " + Thread.currentThread().getName());
-
-              try {
-                assertTrue(
-                    sessionResult.contains(testUser),
-                    "Session check failed in thread: " + Thread.currentThread().getName());
-              } catch (AssertionError e) {
-                logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
-              }
-
-            } catch (Throwable t) {
-              failures.add(t); // only assertFalse failure or unexpected errors will be added
-            } finally {
-              doneLatch.countDown();
-            }
-          });
+      readyLatch.await();
+      startLatch.countDown();
+      doneLatch.await();
     }
-
-    readyLatch.await();
-    startLatch.countDown();
-    doneLatch.await();
-    executor.shutdown();
 
     if (!failures.isEmpty()) {
       for (Throwable t : failures) {
@@ -445,10 +445,9 @@ class WebApiSmokeTests extends ApiTestBase {
   private File createTempFile(byte[] zipContents, String extension) throws IOException {
     File tempFile = File.createTempFile("some", extension);
     tempFile.deleteOnExit();
-    OutputStream os = new FileOutputStream(tempFile);
-    os.write(zipContents);
-    os.flush();
-    os.close();
+    try (OutputStream os = new FileOutputStream(tempFile)) {
+      os.write(zipContents);
+    }
     return tempFile;
   }
 

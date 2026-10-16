@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("PMD.CloseResource") // System.out must stay open
 class AToolToGenerateTypeScriptTypesTest {
 
   @Test

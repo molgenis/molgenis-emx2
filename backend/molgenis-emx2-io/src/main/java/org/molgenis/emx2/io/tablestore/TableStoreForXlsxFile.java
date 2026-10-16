@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -56,31 +57,31 @@ public class TableStoreForXlsxFile implements TableStore {
 
   @Override
   public void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
-    SXSSFWorkbook wb;
     try {
       if (name.length() > 30) {
         throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
       }
-      // streaming workbook
-      if (!Files.exists(excelFilePath)) {
-        wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
-      } else {
-        // move to a temp file, so we can merge result into the original file location
-        File tempFile = getTempFile("temp", ".xlsx");
-        Path temp =
-            Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        wb = new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
-      }
-      writeRowsToSheet(name, columnNames, rows, wb);
-      // write contents to a temp file and overwrite original
-      try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
-        wb.write(outputStream);
-      } finally {
-        wb.close();
+      try (SXSSFWorkbook wb = openWorkbook()) {
+        writeRowsToSheet(name, columnNames, rows, wb);
+        // write contents to a temp file and overwrite original
+        try (FileOutputStream outputStream = new FileOutputStream(excelFilePath.toFile())) {
+          wb.write(outputStream);
+        }
       }
     } catch (Exception ife) {
       throw new MolgenisException("Writing of excel failed", ife);
     }
+  }
+
+  /** Streaming workbook, with the existing file's contents if there is one */
+  private SXSSFWorkbook openWorkbook() throws IOException, InvalidFormatException {
+    if (!Files.exists(excelFilePath)) {
+      return new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
+    }
+    // move to a temp file, so we can merge result into the original file location
+    File tempFile = getTempFile("temp", ".xlsx");
+    Path temp = Files.move(excelFilePath, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    return new SXSSFWorkbook(new XSSFWorkbook(temp.toFile()), ROW_ACCESS_WINDOW_SIZE);
   }
 
   private void writeRowsToSheet(

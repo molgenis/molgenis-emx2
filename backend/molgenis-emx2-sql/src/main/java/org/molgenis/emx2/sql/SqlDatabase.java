@@ -148,6 +148,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       logger.info(WITH, MOLGENIS_POSTGRES_PASS, "<HIDDEN>");
 
       // create data source
+      @SuppressWarnings("PMD.CloseResource") // stays open while the database is used
       HikariDataSource dataSource = new HikariDataSource();
       dataSource.setJdbcUrl(url);
       dataSource.setUsername(postgresUser);
