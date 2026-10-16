@@ -54,13 +54,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private boolean inTx;
   private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
-      (String)
-          EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+      (String) EnvironmentProperty.getParameter(MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
 
   private static String postgresUser =
-      (String)
-          EnvironmentProperty.getParameter(
-              org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, "molgenis", STRING);
+      (String) EnvironmentProperty.getParameter(MOLGENIS_POSTGRES_USER, "molgenis", STRING);
 
   private DatabaseListener listener =
       new DatabaseListener() {
@@ -86,7 +83,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.connectionProvider.setActiveUser(copy.connectionProvider.getActiveUser());
     this.connectionProvider.setAdmin(copy.connectionProvider.isAdmin());
     this.jooq = jooq;
-    databaseVersion = MetadataUtils.getVersion(jooq);
+    databaseVersion = getVersion(jooq);
 
     this.listener = copy.listener;
     // copy all schemas
@@ -125,7 +122,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       loadSettings();
     }
     // get database version if exists
-    databaseVersion = MetadataUtils.getVersion(jooq);
+    databaseVersion = getVersion(jooq);
     logger.info("Database was created using version: {} ", this.databaseVersion);
   }
 
@@ -143,16 +140,12 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       String url =
           (String)
               EnvironmentProperty.getParameter(
-                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI,
-                  "jdbc:postgresql:molgenis",
-                  STRING);
+                  MOLGENIS_POSTGRES_URI, "jdbc:postgresql:molgenis", STRING);
       String pass =
-          (String)
-              EnvironmentProperty.getParameter(
-                  org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
-      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_URI, url);
-      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_USER, postgresUser);
-      logger.info(WITH, org.molgenis.emx2.Constants.MOLGENIS_POSTGRES_PASS, "<HIDDEN>");
+          (String) EnvironmentProperty.getParameter(MOLGENIS_POSTGRES_PASS, "molgenis", STRING);
+      logger.info(WITH, MOLGENIS_POSTGRES_URI, url);
+      logger.info(WITH, MOLGENIS_POSTGRES_USER, postgresUser);
+      logger.info(WITH, MOLGENIS_POSTGRES_PASS, "<HIDDEN>");
 
       // create data source
       HikariDataSource dataSource = new HikariDataSource();
@@ -195,33 +188,33 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       // get the settings
       clearCache();
 
-      if (!this.getSettings().containsKey(Constants.IS_OIDC_ENABLED)) {
+      if (!this.getSettings().containsKey(IS_OIDC_ENABLED)) {
         this.setSetting(
-            Constants.IS_OIDC_ENABLED,
+            IS_OIDC_ENABLED,
             (String) EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_ID, "false", STRING));
       }
 
-      String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
+      String instanceId = getSetting(MOLGENIS_INSTANCE_ID);
       if (instanceId == null) {
         instanceId = String.valueOf(random.nextLong(SnowflakeIdGenerator.MAX_ID));
-        this.setSetting(Constants.MOLGENIS_INSTANCE_ID, instanceId);
+        this.setSetting(MOLGENIS_INSTANCE_ID, instanceId);
       }
       if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init(instanceId);
 
-      if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
-        this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
+      if (getSetting(IS_PRIVACY_POLICY_ENABLED) == null) {
+        this.setSetting(IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
       }
 
-      if (getSetting(Constants.PRIVACY_POLICY_LEVEL) == null) {
-        this.setSetting(Constants.PRIVACY_POLICY_LEVEL, Constants.PRIVACY_POLICY_LEVEL_DEFAULT);
+      if (getSetting(PRIVACY_POLICY_LEVEL) == null) {
+        this.setSetting(PRIVACY_POLICY_LEVEL, PRIVACY_POLICY_LEVEL_DEFAULT);
       }
 
-      if (getSetting(Constants.PRIVACY_POLICY_TEXT) == null) {
-        this.setSetting(Constants.PRIVACY_POLICY_TEXT, Constants.PRIVACY_POLICY_TEXT_DEFAULT);
+      if (getSetting(PRIVACY_POLICY_TEXT) == null) {
+        this.setSetting(PRIVACY_POLICY_TEXT, PRIVACY_POLICY_TEXT_DEFAULT);
       }
 
-      if (getSetting(Constants.LOCALES) == null) {
-        this.setSetting(Constants.LOCALES, Constants.LOCALES_DEFAULT);
+      if (getSetting(LOCALES) == null) {
+        this.setSetting(LOCALES, LOCALES_DEFAULT);
       }
 
       resolveJwtSharedSecret();
@@ -237,12 +230,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public String resolveJwtSharedSecret() {
-    String secret = getSetting(Constants.MOLGENIS_JWT_SHARED_SECRET);
+    String secret = getSetting(MOLGENIS_JWT_SHARED_SECRET);
 
     if (secret == null) {
-      secret =
-          (String)
-              EnvironmentProperty.getParameter(Constants.MOLGENIS_JWT_SHARED_SECRET, null, STRING);
+      secret = (String) EnvironmentProperty.getParameter(MOLGENIS_JWT_SHARED_SECRET, null, STRING);
     }
 
     if (secret == null || secret.getBytes().length < 32) {
@@ -250,7 +241,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       String activeUser = getActiveUser();
       try {
         becomeAdmin();
-        setSetting(Constants.MOLGENIS_JWT_SHARED_SECRET, secret);
+        setSetting(MOLGENIS_JWT_SHARED_SECRET, secret);
       } finally {
         setActiveUser(activeUser);
       }
@@ -357,7 +348,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.tx(
         db -> {
           SqlSchemaMetadata metadata = new SqlSchemaMetadata(db, name, description);
-          MetadataUtils.saveSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
+          saveSchemaMetadata(((SqlDatabase) db).getJooq(), metadata);
 
           // refresh
           db.clearCache();
@@ -441,7 +432,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public Collection<String> getSchemaNames() {
     if (this.schemaNames.isEmpty()) {
-      this.schemaNames = MetadataUtils.loadSchemaNames(this);
+      this.schemaNames = loadSchemaNames(this);
     }
     return List.copyOf(this.schemaNames);
   }
@@ -449,7 +440,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public Collection<SchemaInfo> getSchemaInfos() {
     if (this.schemaInfos.isEmpty()) {
-      this.schemaInfos = MetadataUtils.loadSchemaInfos(this);
+      this.schemaInfos = loadSchemaInfos(this);
     }
     return List.copyOf(this.schemaInfos);
   }
@@ -472,7 +463,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
     super.setSettings(settings);
-    MetadataUtils.saveDatabaseSettings(jooq, getSettings());
+    saveDatabaseSettings(jooq, getSettings());
     // force all sessions to reload
     this.listener.onSchemaChange();
     return this;
@@ -540,7 +531,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (getActiveUser() != null && !isAdmin()) {
       throw new MolgenisException("getUsers denied");
     }
-    return MetadataUtils.loadUsers(this, limit, offset);
+    return loadUsers(this, limit, offset);
   }
 
   @Override
@@ -764,8 +755,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   /** (Re)loads the database-level settings from the database into memory, reading them as admin. */
   private void loadSettings() {
-    getJooqAsAdmin(
-        adminJooq -> this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(adminJooq)));
+    getJooqAsAdmin(adminJooq -> this.setSettingsWithoutReload(loadDatabaseSettings(adminJooq)));
   }
 
   public DSLContext getJooq() {
@@ -838,8 +828,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isOidcEnabled() {
-    return this.getSettings().containsKey(Constants.IS_OIDC_ENABLED)
-        && Boolean.parseBoolean(this.getSettings().get(Constants.IS_OIDC_ENABLED));
+    return this.getSettings().containsKey(IS_OIDC_ENABLED)
+        && Boolean.parseBoolean(this.getSettings().get(IS_OIDC_ENABLED));
   }
 
   @Override
@@ -852,13 +842,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (!isAdmin() && !user.getUsername().equals(getActiveUser())) {
       throw new MolgenisException("Cannot save changes for user " + user + ": permission denied");
     }
-    MetadataUtils.saveUserMetadata(getJooq(), user);
+    saveUserMetadata(getJooq(), user);
   }
 
   @Override
   public User getUser(String userName) {
     if (hasUser(userName)) {
-      User user = MetadataUtils.loadUserMetadata(this, userName);
+      User user = loadUserMetadata(this, userName);
       // might not yet have any metadata saved
       return user != null ? user : new User(this, userName);
     }
@@ -900,8 +890,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public List<Member> loadUserRoles() {
     List<Member> members = new ArrayList<>();
-    String roleFilter = Constants.MG_ROLE_PREFIX;
-    String userFilter = Constants.MG_USER_PREFIX;
+    String roleFilter = MG_ROLE_PREFIX;
+    String userFilter = MG_USER_PREFIX;
     List<Record> allRoles =
         jooq.fetch(
             "select distinct m.rolname as member, r.rolname as role"
@@ -924,11 +914,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     try {
       members.forEach(
           member -> {
-            String prefixedRole =
-                Constants.MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
+            String prefixedRole = MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
             jooq.execute(
-                "REVOKE {0} FROM {1}",
-                name(prefixedRole), name(Constants.MG_USER_PREFIX + userName));
+                "REVOKE {0} FROM {1}", name(prefixedRole), name(MG_USER_PREFIX + userName));
           });
       listener.onSchemaChange();
     } catch (DataAccessException dae) {

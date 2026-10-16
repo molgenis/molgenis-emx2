@@ -48,7 +48,7 @@ public class TestMergeAlter {
         .create(table(targetTableName).add(column(ID_COLUMN).setPkey()))
         .add(
             column(REFBACK_COLUMN)
-                .setType(ColumnType.REFBACK)
+                .setType(REFBACK)
                 .setRefTable(refTableName)
                 .setRefBack(REF_COLUMN));
     newSchema.create(
@@ -107,7 +107,7 @@ public class TestMergeAlter {
         .getMetadata()
         .add(
             new Column(REFBACK_COLUMN)
-                .setType(ColumnType.REFBACK)
+                .setType(REFBACK)
                 .setRefTable(refTableName)
                 .setRefBack(REF_COLUMN));
 

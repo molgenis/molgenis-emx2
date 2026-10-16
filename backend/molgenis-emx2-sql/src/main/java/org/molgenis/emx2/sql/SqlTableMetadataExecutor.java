@@ -16,7 +16,6 @@ import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.Table;
 import org.jooq.exception.DataAccessException;
-import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 
 class SqlTableMetadataExecutor {
@@ -82,7 +81,7 @@ class SqlTableMetadataExecutor {
     // then create (composite) foreign keys
     for (Column column : table.getStoredColumns()) {
       if (!column.isInherited() && column.isReference()) {
-        SqlColumnExecutor.executeCreateRefConstraints(jooq, column);
+        executeCreateRefConstraints(jooq, column);
       }
     }
 
@@ -242,8 +241,8 @@ class SqlTableMetadataExecutor {
   }
 
   // helper methods
-  static org.jooq.Table getJooqTable(TableMetadata table) {
-    return DSL.table(name(table.getSchema().getName(), table.getTableName()));
+  static Table getJooqTable(TableMetadata table) {
+    return table(name(table.getSchema().getName(), table.getTableName()));
   }
 
   static void createOrReplaceKey(

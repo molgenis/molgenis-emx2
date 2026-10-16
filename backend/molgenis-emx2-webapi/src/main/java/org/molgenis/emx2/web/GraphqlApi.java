@@ -116,7 +116,7 @@ public class GraphqlApi {
     String query;
     if (HandlerType.POST.equals(ctx.method())) {
       if (ctx.header("Content-Type").startsWith("multipart/form-data")) {
-        File tempFile = File.createTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
+        File tempFile = File.createTempFile(TEMPFILES_DELETE_ON_EXIT, ".tmp");
         tempFile.deleteOnExit();
         ctx.attribute(
             "org.eclipse.jetty.multipartConfig",
@@ -175,11 +175,11 @@ public class GraphqlApi {
           }
         }
       } else if (entry.getValue() instanceof Map) {
-        putPartsIntoMap((java.util.Map<String, Object>) entry.getValue(), parts);
+        putPartsIntoMap((Map<String, Object>) entry.getValue(), parts);
       } else if (entry.getValue() instanceof List) {
         for (Object element : (List) entry.getValue()) {
           if (element instanceof Map) {
-            putPartsIntoMap((java.util.Map<String, Object>) element, parts);
+            putPartsIntoMap((Map<String, Object>) element, parts);
           }
         }
       }

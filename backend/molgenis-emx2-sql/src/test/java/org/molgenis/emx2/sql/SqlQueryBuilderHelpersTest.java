@@ -61,7 +61,7 @@ class SqlQueryBuilderHelpersTest {
     final DSLContext jooq = tableMetadata.getJooq();
 
     final SelectColumn select = new SelectColumn("testColumn");
-    SelectJoinStep<org.jooq.Record> query = jooq.select().from(tableMetadata.getJooqTable());
+    SelectJoinStep<Record> query = jooq.select().from(tableMetadata.getJooqTable());
 
     SelectConnectByStep<Record> resultQuery =
         SqlQueryBuilderHelpers.orderBy(tableMetadata, select, query, "testTable");
@@ -74,7 +74,7 @@ class SqlQueryBuilderHelpersTest {
     final SqlTableMetadata tableMetadata = testTable.getMetadata();
     final DSLContext jooq = tableMetadata.getJooq();
 
-    SelectJoinStep<org.jooq.Record> from = jooq.select().from(tableMetadata.getJooqTable());
+    SelectJoinStep<Record> from = jooq.select().from(tableMetadata.getJooqTable());
 
     final SelectColumn select = new SelectColumn("testColumn");
     select.setOrderBy(Collections.singletonMap("testColumn", Order.ASC));
@@ -90,7 +90,7 @@ class SqlQueryBuilderHelpersTest {
     final SqlTableMetadata tableMetadata = testTable.getMetadata();
     final DSLContext jooq = tableMetadata.getJooq();
 
-    SelectJoinStep<org.jooq.Record> from = jooq.select().from(tableMetadata.getJooqTable());
+    SelectJoinStep<Record> from = jooq.select().from(tableMetadata.getJooqTable());
 
     final SelectColumn select = new SelectColumn("testColumn2");
     select.setOrderBy(Collections.singletonMap("testColumn2", Order.ASC));
@@ -106,7 +106,7 @@ class SqlQueryBuilderHelpersTest {
     final SqlTableMetadata tableMetadata = testTable.getMetadata();
     final DSLContext jooq = tableMetadata.getJooq();
 
-    SelectJoinStep<org.jooq.Record> from = jooq.select().from(tableMetadata.getJooqTable());
+    SelectJoinStep<Record> from = jooq.select().from(tableMetadata.getJooqTable());
 
     final SelectColumn select = new SelectColumn("testColumn");
     select.setOrderBy(Collections.singletonMap("testColumn", Order.DESC));

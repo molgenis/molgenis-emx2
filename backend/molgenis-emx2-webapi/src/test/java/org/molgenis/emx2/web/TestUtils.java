@@ -22,7 +22,7 @@ public class TestUtils {
 
   public static List<String> readExcelSheet(File file) throws IOException {
     FileInputStream fip = new FileInputStream(file);
-    return TestUtils.readExcelSheet(fip);
+    return readExcelSheet(fip);
   }
 
   public static List<String> readExcelSheet(InputStream inputStream) throws IOException {

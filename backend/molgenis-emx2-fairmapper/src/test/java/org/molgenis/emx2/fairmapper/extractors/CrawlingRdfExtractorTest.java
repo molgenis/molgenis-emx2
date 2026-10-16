@@ -189,7 +189,7 @@ class CrawlingRdfExtractorTest {
   void liveTest() {
     String endpoint = "FDP ENDPOINT HERE";
     Repository extract = new SailRepository(new MemoryStore());
-    Assertions.assertDoesNotThrow(
+    assertDoesNotThrow(
         () -> new CrawlingRdfExtractor().addRdfToRepository(extract, URI.create(endpoint)));
     try (RepositoryConnection connection = extract.getConnection()) {
       connection.getStatements(null, null, null).forEach(System.out::println);
@@ -254,7 +254,7 @@ class CrawlingRdfExtractorTest {
           """
               .formatted(part.toUri()));
 
-      Assertions.assertDoesNotThrow(
+      assertDoesNotThrow(
           () ->
               new CrawlingRdfExtractor(false)
                   .withCrawlSteps(List.of(new CrawlStep("part", partOf)))

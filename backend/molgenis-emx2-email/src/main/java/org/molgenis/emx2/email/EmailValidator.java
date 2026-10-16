@@ -33,7 +33,7 @@ public class EmailValidator {
 
   public static List<String> validationResponseToReceivers(Map<String, Object> validationResponse) {
     List<String> receivers = flattenAllowTree(validationResponse);
-    receivers.removeIf((e) -> !EmailValidator.isValidEmail(e));
+    receivers.removeIf((e) -> !isValidEmail(e));
     return receivers;
   }
 

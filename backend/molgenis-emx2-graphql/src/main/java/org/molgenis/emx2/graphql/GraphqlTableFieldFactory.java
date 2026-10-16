@@ -87,27 +87,15 @@ public class GraphqlTableFieldFactory {
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
-                .name(GraphqlConstants.FILTER_ARGUMENT)
+                .name(FILTER_ARGUMENT)
                 .type(getTableFilterInputType(table))
                 .build())
+        .argument(GraphQLArgument.newArgument().name(SEARCH).type(Scalars.GraphQLString).build())
+        .argument(GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
+        .argument(GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build())
         .argument(
             GraphQLArgument.newArgument()
-                .name(GraphqlConstants.SEARCH)
-                .type(Scalars.GraphQLString)
-                .build())
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.LIMIT)
-                .type(Scalars.GraphQLInt)
-                .build())
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.OFFSET)
-                .type(Scalars.GraphQLInt)
-                .build())
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.ORDERBY)
+                .name(ORDERBY)
                 .type(GraphQLList.list(createTableOrderByInputType(table)))
                 .build())
         .build();
@@ -120,14 +108,10 @@ public class GraphqlTableFieldFactory {
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
-                .name(GraphqlConstants.FILTER_ARGUMENT)
+                .name(FILTER_ARGUMENT)
                 .type(getTableFilterInputType(table))
                 .build())
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.SEARCH)
-                .type(Scalars.GraphQLString)
-                .build())
+        .argument(GraphQLArgument.newArgument().name(SEARCH).type(Scalars.GraphQLString).build())
         .build();
   }
 
@@ -138,14 +122,10 @@ public class GraphqlTableFieldFactory {
         .dataFetcher(fetcherForTableQueryField(table))
         .argument(
             GraphQLArgument.newArgument()
-                .name(GraphqlConstants.FILTER_ARGUMENT)
+                .name(FILTER_ARGUMENT)
                 .type(getTableFilterInputType(table))
                 .build())
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(GraphqlConstants.SEARCH)
-                .type(Scalars.GraphQLString)
-                .build())
+        .argument(GraphQLArgument.newArgument().name(SEARCH).type(Scalars.GraphQLString).build())
         .build();
   }
 
@@ -242,7 +222,7 @@ public class GraphqlTableFieldFactory {
                   .type(createTableObjectType(col.getRefTable()))
                   .argument(
                       GraphQLArgument.newArgument()
-                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .name(FILTER_ARGUMENT)
                           .type(getTableFilterInputType(col.getRefTable()))
                           .build()));
         }
@@ -256,22 +236,16 @@ public class GraphqlTableFieldFactory {
                   .type(GraphQLList.list(createTableObjectType(col.getRefTable())))
                   .argument(
                       GraphQLArgument.newArgument()
-                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .name(FILTER_ARGUMENT)
                           .type(getTableFilterInputType(col.getRefTable()))
                           .build())
                   .argument(
-                      GraphQLArgument.newArgument()
-                          .name(GraphqlConstants.LIMIT)
-                          .type(Scalars.GraphQLInt)
-                          .build())
+                      GraphQLArgument.newArgument().name(LIMIT).type(Scalars.GraphQLInt).build())
+                  .argument(
+                      GraphQLArgument.newArgument().name(OFFSET).type(Scalars.GraphQLInt).build())
                   .argument(
                       GraphQLArgument.newArgument()
-                          .name(GraphqlConstants.OFFSET)
-                          .type(Scalars.GraphQLInt)
-                          .build())
-                  .argument(
-                      GraphQLArgument.newArgument()
-                          .name(GraphqlConstants.ORDERBY)
+                          .name(ORDERBY)
                           .type(GraphQLList.list(createTableOrderByInputType(col.getRefTable())))
                           .build()));
         }
@@ -282,7 +256,7 @@ public class GraphqlTableFieldFactory {
                   .type(createTableAggregationType(col.getRefTable()))
                   .argument(
                       GraphQLArgument.newArgument()
-                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .name(FILTER_ARGUMENT)
                           .type(getTableFilterInputType(col.getRefTable()))
                           .build()));
         }
@@ -293,7 +267,7 @@ public class GraphqlTableFieldFactory {
                   .type(GraphQLList.list(createTableGroupByType(col.getRefTable())))
                   .argument(
                       GraphQLArgument.newArgument()
-                          .name(GraphqlConstants.FILTER_ARGUMENT)
+                          .name(FILTER_ARGUMENT)
                           .type(getTableFilterInputType(col.getRefTable()))
                           .build()));
         }
@@ -526,7 +500,7 @@ public class GraphqlTableFieldFactory {
   }
 
   private GraphQLNamedInputType createTableOrderByInputType(TableMetadata table) {
-    String tableOrderByInputType = getTableTypeIdentifier(table) + GraphqlConstants.ORDERBY;
+    String tableOrderByInputType = getTableTypeIdentifier(table) + ORDERBY;
     if (!tableOrderByInputTypes.containsKey(tableOrderByInputType)) {
       // put reference in case of self reference
       tableOrderByInputTypes.put(
@@ -826,18 +800,18 @@ public class GraphqlTableFieldFactory {
 
           // --- Handle filters, limits, offsets, orderby ---
           if (args != null && !args.isEmpty()) {
-            if (args.containsKey(GraphqlConstants.FILTER_ARGUMENT)) {
+            if (args.containsKey(FILTER_ARGUMENT)) {
               nested.where(
                   convertMapToFilterArray(
-                      refTable, (Map<String, Object>) args.get(GraphqlConstants.FILTER_ARGUMENT)));
+                      refTable, (Map<String, Object>) args.get(FILTER_ARGUMENT)));
             }
-            if (args.containsKey(GraphqlConstants.LIMIT)) {
-              nested.setLimit((int) args.get(GraphqlConstants.LIMIT));
+            if (args.containsKey(LIMIT)) {
+              nested.setLimit((int) args.get(LIMIT));
             }
-            if (args.containsKey(GraphqlConstants.OFFSET)) {
-              nested.setOffset((int) args.get(GraphqlConstants.OFFSET));
+            if (args.containsKey(OFFSET)) {
+              nested.setOffset((int) args.get(OFFSET));
             }
-            if (args.containsKey(GraphqlConstants.ORDERBY)) {
+            if (args.containsKey(ORDERBY)) {
               TableMetadata orderByTable =
                   column.isReference() ? column.getRefTable() : column.getTable();
               nested.setOrderBy(convertOrderByIdsToNames(orderByTable, args));
@@ -882,23 +856,22 @@ public class GraphqlTableFieldFactory {
       long step = System.currentTimeMillis();
       q.select(convertMapSelection(table.getMetadata(), dataFetchingEnvironment.getSelectionSet()));
       Map<String, Object> args = dataFetchingEnvironment.getArguments();
-      if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
+      if (dataFetchingEnvironment.getArgument(FILTER_ARGUMENT) != null) {
         q.where(
             convertMapToFilterArray(
-                table.getMetadata(),
-                dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT)));
+                table.getMetadata(), dataFetchingEnvironment.getArgument(FILTER_ARGUMENT)));
       }
-      if (args.containsKey(GraphqlConstants.LIMIT)) {
-        q.limit((int) args.get(GraphqlConstants.LIMIT));
+      if (args.containsKey(LIMIT)) {
+        q.limit((int) args.get(LIMIT));
       }
-      if (args.containsKey(GraphqlConstants.OFFSET)) {
-        q.offset((int) args.get(GraphqlConstants.OFFSET));
+      if (args.containsKey(OFFSET)) {
+        q.offset((int) args.get(OFFSET));
       }
-      if (args.containsKey(GraphqlConstants.ORDERBY)) {
+      if (args.containsKey(ORDERBY)) {
         q.orderBy(convertOrderByIdsToNames(table.getMetadata(), args));
       }
 
-      String search = dataFetchingEnvironment.getArgument(GraphqlConstants.SEARCH);
+      String search = dataFetchingEnvironment.getArgument(SEARCH);
       if (search != null && !search.trim().equals("")) {
         q.search(search);
       }
@@ -1091,7 +1064,7 @@ public class GraphqlTableFieldFactory {
       case INT_ARRAY -> GraphQLList.list(Scalars.GraphQLInt);
       case LONG_ARRAY -> GraphQLList.list(GraphQLLong);
       case DECIMAL_ARRAY -> GraphQLList.list(Scalars.GraphQLFloat);
-      case JSON -> GraphqlCustomTypes.GraphQLJsonAsString;
+      case JSON -> GraphQLJsonAsString;
       case STRING_ARRAY, TEXT_ARRAY, DATE_ARRAY, DATETIME_ARRAY, PERIOD_ARRAY, UUID_ARRAY ->
           GraphQLList.list(Scalars.GraphQLString);
       default ->
