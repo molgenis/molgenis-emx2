@@ -10,7 +10,7 @@ import org.jooq.exception.DataAccessException;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.User;
 
-class SqlDatabaseExecutor {
+final class SqlDatabaseExecutor {
   private SqlDatabaseExecutor() {
     // hide
   }

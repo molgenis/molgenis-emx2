@@ -5,7 +5,7 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.SqlTypeUtils;
 
-public class ValidateExpression {
+public final class ValidateExpression {
 
   private ValidateExpression() {
     // hide constructor

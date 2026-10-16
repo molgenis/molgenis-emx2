@@ -9,7 +9,7 @@ import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphqlFactory {
+public final class GraphqlFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlFactory.class);
 
   private GraphqlFactory() {}
@@ -97,7 +97,7 @@ public class GraphqlFactory {
 
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (table.getColumns().size() > 0) {
+      if (!table.getColumns().isEmpty()) {
         if (tableField.hasViewPermission(table)) {
           queryBuilder.field(tableField.tableQueryField(table));
         }

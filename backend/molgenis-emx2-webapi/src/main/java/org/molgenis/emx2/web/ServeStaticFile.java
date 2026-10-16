@@ -18,7 +18,7 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
-public class ServeStaticFile {
+public final class ServeStaticFile {
 
   private record AppsPath(boolean isFile, boolean isUi, String mimeType, String path) {
 

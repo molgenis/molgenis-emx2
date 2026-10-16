@@ -38,7 +38,7 @@ public class TestUsersAndPermissions {
   @Test
   void getUsers() {
     List<User> users = database.getUsers(1000, 0);
-    assertTrue(users.size() > 0);
+    assertFalse(users.isEmpty());
 
     int count = database.countUsers();
     assertEquals(count, users.size());

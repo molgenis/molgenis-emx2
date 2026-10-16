@@ -2,7 +2,7 @@ package org.molgenis.emx2.beaconv2.common.misc;
 
 import java.util.Map;
 
-public class NCITToGSSOSexMapping {
+public final class NCITToGSSOSexMapping {
   static final Map<String, String> MAPPING =
       Map.of(
           "//purl.obolibrary.org/obo/NCIT_C16576", "GSSO_000123",
@@ -15,6 +15,10 @@ public class NCITToGSSOSexMapping {
           "ncit:C17998", "GSSO_009515");
 
   // todo also map Undetermined/Unknown to "assigned no gender at birth" ?
+
+  private NCITToGSSOSexMapping() {
+    // no instances
+  }
 
   public static String[] toGSSO(String[] ncitt) {
     String[] gsso = new String[ncitt.length];

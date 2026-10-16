@@ -306,7 +306,7 @@ public class GraphqlTableFieldFactory {
         table.getColumnsIncludingSubclasses().stream()
             .filter(c -> c.getColumnType().isNumericType())
             .toList();
-    if (aggCols.size() > 0) {
+    if (!aggCols.isEmpty()) {
       GraphQLObjectType.Builder sumBuilder =
           GraphQLObjectType.newObject().name(tableGroupByType + "_" + SUM_FIELD);
       for (Column aggCol : aggCols) {
@@ -588,9 +588,9 @@ public class GraphqlTableFieldFactory {
         List<Filter> nestedFilters =
             nested.stream().map(m -> and(convertMapToFilterArray(table, m))).toList();
         if (FILTER_OR.equals(entry.getKey())) {
-          subFilters.add(or(nestedFilters.toArray(new Filter[nestedFilters.size()])));
+          subFilters.add(or(nestedFilters.toArray(new Filter[0])));
         } else {
-          subFilters.add(and(nestedFilters.toArray(new Filter[nestedFilters.size()])));
+          subFilters.add(and(nestedFilters.toArray(new Filter[0])));
         }
       } else if (FILTER_SEARCH.equals(entry.getKey())) {
         if (entry.getValue() instanceof String && !"".equals(entry.getValue().toString().trim())) {
@@ -695,7 +695,7 @@ public class GraphqlTableFieldFactory {
           remainingOperators.remove(FILTER_MATCH_ALL);
         }
 
-        if (remainingOperators.size() == 0) {
+        if (remainingOperators.isEmpty()) {
           continue;
         }
         if (c.isReference()) {
@@ -714,7 +714,7 @@ public class GraphqlTableFieldFactory {
         }
       }
     }
-    return subFilters.toArray(new FilterBean[subFilters.size()]);
+    return subFilters.toArray(new FilterBean[0]);
   }
 
   private static Filter createKeyFilter(

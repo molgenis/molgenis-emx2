@@ -27,7 +27,7 @@ public class DatabaseOntologyMappingFetcher implements OntologyMappingFetcher {
           "No table with name: " + tableName + " found for schema " + schemaName);
     }
 
-    HashMap<String, String> mapping = new HashMap<>();
+    Map<String, String> mapping = new HashMap<>();
     table
         .query()
         .select(SelectColumn.s(ONTOLOGY_TERM_URI), SelectColumn.s("name"))

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Benchmarks show the api part adds about 10-30ms overhead on top of the underlying database call
  */
-public class GraphqlApi {
+public final class GraphqlApi {
 
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";

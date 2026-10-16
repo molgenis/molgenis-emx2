@@ -8,7 +8,7 @@ import org.jooq.DSLContext;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class CompareTools {
+public final class CompareTools {
 
   private static Javers javers;
 

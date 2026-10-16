@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.*;
 
-public class TaskApi {
+public final class TaskApi {
 
   public static final TaskService taskService = new TaskServiceInDatabase(SYSTEM_SCHEMA, hostUrl);
   private static final ApplicationCachePerUser APPLICATION_CACHE =
@@ -30,6 +30,10 @@ public class TaskApi {
   // TableListener
   public static final TaskServiceScheduler taskSchedulerService =
       new TaskServiceScheduler(taskService);
+
+  private TaskApi() {
+    // no instances
+  }
 
   public static void create(Javalin app) {
     app.get("/api/tasks", TaskApi::listTasks);

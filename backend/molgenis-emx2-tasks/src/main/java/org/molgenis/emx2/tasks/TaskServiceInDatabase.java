@@ -83,7 +83,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                   .getTable("Jobs")
                   .where(f("id", EQUALS, id))
                   .retrieveRows();
-          if (rows.size() > 0) {
+          if (!rows.isEmpty()) {
             Row jobRow = rows.get(0);
             json.append(jobRow.getString("log"));
           }

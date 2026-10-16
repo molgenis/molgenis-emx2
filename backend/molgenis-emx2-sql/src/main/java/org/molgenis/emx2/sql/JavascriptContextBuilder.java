@@ -15,7 +15,7 @@ import org.molgenis.emx2.Row;
  * identifiers. Reference columns become nested maps; file columns are omitted. Database-level
  * bindings (e.g. current user) are merged in last.
  */
-public class JavascriptContextBuilder {
+public final class JavascriptContextBuilder {
 
   private JavascriptContextBuilder() {
     // hide constructor

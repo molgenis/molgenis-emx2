@@ -18,6 +18,7 @@ import org.jooq.impl.SQLDataType;
 import org.jooq.types.YearToSecond;
 import org.molgenis.emx2.*;
 
+@SuppressWarnings("PMD.InstantiableUtilityClass") // extended by SqlTypeUtils
 public class TypeUtils {
   private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
 
@@ -420,7 +421,7 @@ public class TypeUtils {
   }
 
   private static List<String> splitCsvString(String value) {
-    ArrayList<String> result = new ArrayList<>();
+    List<String> result = new ArrayList<>();
     boolean notInsideComma = true;
     int start = 0;
     for (int i = 0; i < value.length(); i++) {

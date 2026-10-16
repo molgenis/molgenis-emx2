@@ -28,17 +28,13 @@
         <exclude name="AvoidCatchingGenericException" />
         <exclude name="AvoidInstanceofChecksInCatchClause" />
         <exclude name="AvoidUsingHardCodedIP" />
-        <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
         <exclude name="CloseResource" />
         <exclude name="CollectionTypeMismatch" />
         <exclude name="EmptyControlStatement" />
         <exclude name="GuardLogStatement" />
         <exclude name="ImplicitSwitchFallThrough" />
-        <exclude name="InstantiableUtilityClass" />
-        <exclude name="LooseCoupling" />
         <exclude name="MissingStaticMethodInNonInstantiatableClass" />
         <exclude name="NonThreadSafeSingleton" />
-        <exclude name="OptimizableToArrayCall" />
         <exclude name="OverrideBothEqualsAndHashCodeOnComparable" />
         <exclude name="SuspiciousEqualsMethodName" />
         <exclude name="UnusedFormalParameter" />
@@ -46,7 +42,6 @@
         <exclude name="UnusedPrivateField" />
         <exclude name="UnusedPrivateMethod" />
         <exclude name="UnusedReturnValue" />
-        <exclude name="UseCollectionIsEmpty" />
         <exclude name="UseStandardCharsets" />
     </rule>
 

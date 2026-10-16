@@ -9,7 +9,7 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
-public class Emx2Settings {
+public final class Emx2Settings {
 
   private static final String INTERNAL_SETTING_PREFIX = "mg_";
 

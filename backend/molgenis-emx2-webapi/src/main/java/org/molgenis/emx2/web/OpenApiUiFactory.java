@@ -4,7 +4,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import io.javalin.http.Context;
 
-public class OpenApiUiFactory {
+public final class OpenApiUiFactory {
 
   private OpenApiUiFactory() {
     // hide constructor

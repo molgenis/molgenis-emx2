@@ -8,15 +8,15 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
-public class TableSort {
+public final class TableSort {
 
   private TableSort() {
     // hide constructor
   }
 
   public static void sortTableByDependency(List<TableMetadata> tableList) {
-    ArrayList<TableMetadata> result = new ArrayList<>();
-    ArrayList<TableMetadata> todo = new ArrayList<>(tableList);
+    List<TableMetadata> result = new ArrayList<>();
+    List<TableMetadata> todo = new ArrayList<>(tableList);
 
     // ensure deterministic order
     todo.sort(

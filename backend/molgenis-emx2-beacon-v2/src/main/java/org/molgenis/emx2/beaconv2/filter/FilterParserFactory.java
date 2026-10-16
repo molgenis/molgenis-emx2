@@ -5,7 +5,11 @@ import org.molgenis.emx2.beaconv2.BeaconSpec;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 
-public class FilterParserFactory {
+public final class FilterParserFactory {
+
+  private FilterParserFactory() {
+    // no instances
+  }
 
   public static FilterParser getParserForRequest(BeaconRequestBody requestBody) {
 

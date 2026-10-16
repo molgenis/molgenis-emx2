@@ -21,7 +21,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Schema;
 
-public class ChangeLogExecutor {
+public final class ChangeLogExecutor {
 
   static final int CHANGELOG_LIMIT_CAP = 1000;
 

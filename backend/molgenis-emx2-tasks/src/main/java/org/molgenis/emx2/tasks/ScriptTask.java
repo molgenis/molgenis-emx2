@@ -31,7 +31,7 @@ public class ScriptTask extends Task {
   private String parameters;
   private String token;
   private String dependencies;
-  private HashMap<String, Object> extraFile;
+  private Map<String, Object> extraFile;
   private Process process;
   private byte[] output;
   private URL serverUrl;
