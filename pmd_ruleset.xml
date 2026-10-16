@@ -34,7 +34,6 @@
         <exclude name="DanglingJavadoc" />
         <exclude name="DoubleBraceInitialization" />
         <exclude name="EmptyControlStatement" />
-        <exclude name="FinalFieldCouldBeStatic" />
         <exclude name="FinalParameterInAbstractMethod" />
         <exclude name="ForLoopCanBeForeach" />
         <exclude name="GuardLogStatement" />
