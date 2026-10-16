@@ -156,7 +156,7 @@ public class GraphqlExecutor {
         logger.error(err.getMessage());
       }
     }
-    if (executionResult.getErrors().size() > 0) {
+    if (!executionResult.getErrors().isEmpty()) {
       List<GraphQLError> errors = executionResult.getErrors();
       MolgenisException exception = new MolgenisException(errors.get(0).getMessage());
       for (GraphQLError remainingError : errors.subList(1, errors.size())) {

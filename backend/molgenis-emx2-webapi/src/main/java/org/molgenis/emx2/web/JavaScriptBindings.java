@@ -10,7 +10,7 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 
-public class JavaScriptBindings {
+public final class JavaScriptBindings {
 
   private JavaScriptBindings() {}
 

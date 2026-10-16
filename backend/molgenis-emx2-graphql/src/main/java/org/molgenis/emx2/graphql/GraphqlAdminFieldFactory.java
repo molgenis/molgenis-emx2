@@ -14,7 +14,7 @@ import java.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 
-public class GraphqlAdminFieldFactory {
+public final class GraphqlAdminFieldFactory {
   private GraphqlAdminFieldFactory() {
     // hide constructor
   }
@@ -187,7 +187,7 @@ public class GraphqlAdminFieldFactory {
   @NotNull
   private static GraphqlApiMutationResult executeUpdateUser(
       Database database, DataFetchingEnvironment dataFetchingEnvironment) {
-    LinkedHashMap<String, Object> updatedUser = dataFetchingEnvironment.getArgument(UPDATE_USER);
+    Map<String, Object> updatedUser = dataFetchingEnvironment.getArgument(UPDATE_USER);
     String userName = (String) updatedUser.get(EMAIL);
     if (userName == null) {
       return new GraphqlApiMutationResult(FAILED, "No user provided");

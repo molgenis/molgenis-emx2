@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.molgenis.emx2.*;
 
-public class JsonYamlApi {
+public final class JsonYamlApi {
 
   public static final String MESSAGE = "message";
   public static final String WARNING = "warning";
@@ -49,7 +49,7 @@ public class JsonYamlApi {
     SchemaMetadata otherSchema = yamlToSchema(ctx.body());
     schema.discard(otherSchema);
 
-    HashMap<String, String> response = new HashMap<>();
+    Map<String, String> response = new HashMap<>();
     response.put(MESSAGE, "remove metadata success");
     if (!Objects.equals(otherSchema.getName(), schema.getName())) {
       response.put(WARNING, MISMATCH_MESSAGE);
@@ -68,7 +68,7 @@ public class JsonYamlApi {
     SchemaMetadata otherSchema = yamlToSchema(ctx.body());
     schema.migrate(otherSchema);
 
-    HashMap<String, String> response = new HashMap<>();
+    Map<String, String> response = new HashMap<>();
     response.put(MESSAGE, "add/update metadata success");
     if (!Objects.equals(otherSchema.getName(), schema.getName())) {
       response.put(WARNING, MISMATCH_MESSAGE);
@@ -103,7 +103,7 @@ public class JsonYamlApi {
     SchemaMetadata otherSchema = jsonToSchema(ctx.body());
     schema.discard(otherSchema);
 
-    HashMap<String, String> response = new HashMap<>();
+    Map<String, String> response = new HashMap<>();
     response.put(MESSAGE, "removed metadata items success");
     if (!Objects.equals(otherSchema.getName(), schema.getName())) {
       response.put(WARNING, MISMATCH_MESSAGE);

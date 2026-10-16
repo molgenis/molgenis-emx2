@@ -503,7 +503,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     List<Reference> refColumns = new ArrayList<>();
 
     // check if primary key exists
-    if (pkeys.size() == 0) {
+    if (pkeys.isEmpty()) {
       throw new MolgenisException(
           "Error in column '"
               + getName()
@@ -535,7 +535,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
           if (name == null) {
             name = getName();
             // fixed in #4705 to also accommodate for nested composite keys checking keyParts!
-            if (pkeys.size() > 1 || keyPart.getReferences().size() > 0) {
+            if (pkeys.size() > 1 || !keyPart.getReferences().isEmpty()) {
               name += COMPOSITE_REF_SEPARATOR + ref.getColumnName();
             }
           }
@@ -587,7 +587,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     }
 
     // remove duplicates
-    HashSet<Object> seen = new HashSet<>();
+    Set<Object> seen = new HashSet<>();
     refColumns.removeIf(e -> !seen.add(e.getColumnName()));
     return refColumns;
   }

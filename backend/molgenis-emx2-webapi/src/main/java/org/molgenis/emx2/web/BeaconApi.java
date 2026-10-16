@@ -17,7 +17,7 @@ import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class BeaconApi {
+public final class BeaconApi {
 
   private BeaconApi() {
     /* This utility class should not be instantiated */

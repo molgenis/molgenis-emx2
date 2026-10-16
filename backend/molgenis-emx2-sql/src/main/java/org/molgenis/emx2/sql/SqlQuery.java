@@ -747,7 +747,7 @@ public class SqlQuery extends QueryBean {
                     "Unknown aggregate type provided: " + field.getColumn());
           }
         }
-        fields.add(jsonObject(result.toArray(new JSONEntry[result.size()])).as(field.getColumn()));
+        fields.add(jsonObject(result.toArray(new JSONEntry[0])).as(field.getColumn()));
       }
     }
     return jsonField(table, column, tableAlias, select, filters, searchTerms, subAlias, fields);

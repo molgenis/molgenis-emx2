@@ -21,7 +21,7 @@ import org.jooq.Record;
 import org.jooq.Table;
 import org.molgenis.emx2.*;
 
-public class SqlColumnExecutor {
+public final class SqlColumnExecutor {
   private SqlColumnExecutor() {
     // hide
   }

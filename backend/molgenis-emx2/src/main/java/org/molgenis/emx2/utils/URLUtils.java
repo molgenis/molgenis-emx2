@@ -6,8 +6,12 @@ import io.javalin.http.Context;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public class URLUtils {
+public final class URLUtils {
   private static final Pattern pattern = Pattern.compile(HYPERLINK_REGEX);
+
+  private URLUtils() {
+    // no instances
+  }
 
   public static String extractBaseURL(Context ctx) {
     String host = Objects.requireNonNull(ctx.host());

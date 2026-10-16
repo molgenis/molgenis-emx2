@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.time.Instant;
 import org.molgenis.emx2.MolgenisException;
 
-public class SnowflakeIdGenerator implements IdGenerator {
+public final class SnowflakeIdGenerator implements IdGenerator {
 
   private static SnowflakeIdGenerator instance;
   private final String instanceId;

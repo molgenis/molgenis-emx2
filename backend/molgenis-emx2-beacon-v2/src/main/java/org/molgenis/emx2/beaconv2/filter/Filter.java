@@ -52,8 +52,8 @@ public class Filter {
   /** Helper function to support both 'string' and 'string array' inputs for Values */
   public void parseValues() {
     if (this.value instanceof ArrayList<?>) {
-      ArrayList<String> valArrList = (ArrayList<String>) this.value;
-      this.values = valArrList.toArray(new String[valArrList.size()]);
+      List<String> valArrList = (ArrayList<String>) this.value;
+      this.values = valArrList.toArray(new String[0]);
     } else {
       this.values = this.value == null ? null : new String[] {this.value + ""};
     }
@@ -62,8 +62,8 @@ public class Filter {
   /** Helper function to support both 'string' and 'string array' inputs for IDs */
   public void parseIDs() {
     if (this.id instanceof ArrayList<?>) {
-      ArrayList<String> idArrList = (ArrayList<String>) this.id;
-      this.ids = idArrList.toArray(new String[idArrList.size()]);
+      List<String> idArrList = (ArrayList<String>) this.id;
+      this.ids = idArrList.toArray(new String[0]);
       for (int i = 0; i < ids.length; i++) {
         String id = ids[i];
         ids[i] = !id.contains(":") ? id : id.substring(id.indexOf(":") + 1);

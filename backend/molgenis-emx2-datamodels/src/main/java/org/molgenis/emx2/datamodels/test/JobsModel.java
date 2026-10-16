@@ -6,7 +6,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import org.molgenis.emx2.SchemaMetadata;
 
-public class JobsModel {
+public final class JobsModel {
 
   private JobsModel() {
     // hide constructor

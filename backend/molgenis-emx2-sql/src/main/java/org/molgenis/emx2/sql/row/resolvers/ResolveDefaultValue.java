@@ -8,7 +8,7 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
 
-public class ResolveDefaultValue {
+public final class ResolveDefaultValue {
 
   private ResolveDefaultValue() {
     // hide constructor

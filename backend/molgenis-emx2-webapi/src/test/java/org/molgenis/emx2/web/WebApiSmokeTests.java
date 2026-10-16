@@ -131,7 +131,7 @@ class WebApiSmokeTests extends ApiTestBase {
     CountDownLatch startLatch = new CountDownLatch(1);
     CountDownLatch doneLatch = new CountDownLatch(threadCount);
 
-    ConcurrentLinkedQueue<Throwable> failures = new ConcurrentLinkedQueue<>();
+    Queue<Throwable> failures = new ConcurrentLinkedQueue<>();
 
     for (int i = 0; i < threadCount; i++) {
       executor.submit(
@@ -1523,7 +1523,7 @@ class WebApiSmokeTests extends ApiTestBase {
     // should run every 5 secs, lets give it some time to complete at least 1 job
     while ((firstJob == null || !"COMPLETED".equals(firstJob.getString("status"))) && count < 60) {
       List<Row> jobList = jobs.where(f).orderBy("submitDate", Order.ASC).retrieveRows();
-      if (jobList.size() > 0) {
+      if (!jobList.isEmpty()) {
         firstJob = jobList.get(0);
       }
       count++; // timing could make this test flakey

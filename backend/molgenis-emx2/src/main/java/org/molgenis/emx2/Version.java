@@ -1,6 +1,6 @@
 package org.molgenis.emx2;
 
-public class Version {
+public final class Version {
 
   public static final String DEVELOPMENT = "DEVELOPMENT";
 

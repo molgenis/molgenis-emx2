@@ -9,7 +9,7 @@ import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.util.CommonHelper;
 import org.pac4j.javalin.JavalinWebContext;
 
-public class JavalinCustomHttpActionAdapter implements HttpActionAdapter {
+public final class JavalinCustomHttpActionAdapter implements HttpActionAdapter {
   public static final JavalinCustomHttpActionAdapter INSTANCE =
       new JavalinCustomHttpActionAdapter();
 

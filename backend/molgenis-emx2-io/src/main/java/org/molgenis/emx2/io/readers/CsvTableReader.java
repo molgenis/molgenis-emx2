@@ -7,7 +7,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
 
-public class CsvTableReader {
+public final class CsvTableReader {
 
   private CsvTableReader() {
     // to prevent new CsvRowReader()
@@ -94,7 +94,7 @@ public class CsvTableReader {
 
     @Override
     public Row next() {
-      HashMap<String, Object> next = (HashMap<String, Object>) it.next();
+      Map<String, Object> next = (HashMap<String, Object>) it.next();
       boolean isEmpty =
           next.values().stream()
               .allMatch(v -> v == null || (v instanceof String string && string.trim().isEmpty()));

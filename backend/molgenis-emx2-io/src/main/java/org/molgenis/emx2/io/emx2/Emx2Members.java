@@ -8,7 +8,7 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
 /** outputs into MOLGENIS_MEMBERS */
-public class Emx2Members {
+public final class Emx2Members {
   public static final String MEMBERS_TABLE = "molgenis_members";
   public static final String USER = "user";
   public static final String ROLE = "role";

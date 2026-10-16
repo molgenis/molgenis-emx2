@@ -28,7 +28,7 @@ import org.molgenis.emx2.Column;
  *   <li>column names that end with {@code "_"}
  * </ul>
  */
-public class ColumnNameSparqlEncoder {
+public final class ColumnNameSparqlEncoder {
 
   private ColumnNameSparqlEncoder() {
     throw new IllegalStateException("Utility class");

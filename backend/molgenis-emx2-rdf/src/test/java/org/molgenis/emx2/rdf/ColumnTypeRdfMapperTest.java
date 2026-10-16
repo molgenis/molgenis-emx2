@@ -394,7 +394,7 @@ class ColumnTypeRdfMapperTest {
   void validateValuesRetrieval() {
     // REFBACK is special usecase that returns multiple rows if multiple matches are found where
     // all columns are identical except the REFBACK.
-    HashSet<Value> actualRefback = new HashSet<>();
+    Set<Value> actualRefback = new HashSet<>();
     for (int i = 0; i < testRows.size() - 1; i++) { // Last row is empty row.
       actualRefback.addAll(retrieveValues(COLUMN_COMPOSITE_REFBACK, i));
     }
@@ -606,7 +606,7 @@ class ColumnTypeRdfMapperTest {
 
   @Test
   void validateEmptyValuesRetrieval() {
-    HashSet<Value> emptySet = new HashSet<>();
+    Set<Value> emptySet = new HashSet<>();
     Column[] columns =
         allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
             // Primary key and AUTO_ID are filled so skipped.

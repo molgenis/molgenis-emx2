@@ -10,7 +10,7 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.Row;
 
-public class ValidateRequired {
+public final class ValidateRequired {
 
   private ValidateRequired() {
     // hide constructor

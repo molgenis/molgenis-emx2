@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.molgenis.emx2.MolgenisException;
@@ -13,7 +14,7 @@ public abstract class ShaclSelector {
   private static final String SETS_YAML_PATH = "_shacl/sets.yaml";
 
   private static final ClassLoader classLoader = ShaclSelector.class.getClassLoader();
-  private static final LinkedHashMap<String, ShaclSet> shaclSetMap = new LinkedHashMap<>();
+  private static final Map<String, ShaclSet> shaclSetMap = new LinkedHashMap<>();
 
   static {
     update();

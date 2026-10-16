@@ -10,7 +10,7 @@ import io.javalin.http.Context;
 import java.util.*;
 import org.molgenis.emx2.Schema;
 
-public class JsonApi {
+public final class JsonApi {
 
   private JsonApi() {
     // hide constructor

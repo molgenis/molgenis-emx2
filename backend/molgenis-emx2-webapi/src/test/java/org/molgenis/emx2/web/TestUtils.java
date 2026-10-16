@@ -17,7 +17,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class TestUtils {
+public final class TestUtils {
   private TestUtils() {}
 
   public static List<String> readExcelSheet(File file) throws IOException {

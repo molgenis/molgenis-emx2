@@ -19,7 +19,7 @@ import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.TableMetadata;
 
-class SqlQueryBuilderHelpers {
+final class SqlQueryBuilderHelpers {
 
   private SqlQueryBuilderHelpers() {
     // hide constructor
