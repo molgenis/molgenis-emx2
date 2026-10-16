@@ -197,7 +197,6 @@
   <InputRef
     v-else-if="'MULTISELECT' === typeUpperCase"
     v-model="modelValue as columnValueObject[] | undefined"
-    :multiselect="true"
     :id="id"
     :limit="0"
     :valid="valid"
@@ -211,6 +210,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :align="align"
+    :is-array="true"
   />
   <InputRefBack
     v-else-if="['REFBACK'].includes(typeUpperCase)"

@@ -1,41 +1,43 @@
 <template>
-  <InputCheckboxGroup
+  <InputListbox
     v-if="isArray"
+    multiple
+    enableSearch
+    :required="required"
     :id="id"
-    :options="valueLabels"
+    :options="matchingValues"
     :invalid="invalid"
     :valid="valid"
     :disabled="disabled"
     :describedBy="describedBy"
     v-model="arrayModelValue"
     :showClearButton="!required"
+    @search="searchTerm = $event ?? ''"
     @blur="emit('blur')"
     @focus="emit('focus')"
   />
-  <InputRadioGroup
+  <InputListbox
     v-else
+    enableSearch
+    :required="required"
     :id="id"
-    :options="valueLabels"
+    :options="matchingValues"
     :invalid="invalid"
     :valid="valid"
     :disabled="disabled"
     :describedBy="describedBy"
     v-model="scalarModelValue"
     :showClearButton="!required"
+    @search="searchTerm = $event ?? ''"
     @blur="emit('blur')"
     @focus="emit('focus')"
   />
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import type { IInputProps, IValueLabel } from "../../../types/types";
-import type {
-  columnValue,
-  IInputValue,
-} from "../../../../metadata-utils/src/types";
-import InputCheckboxGroup from "./CheckboxGroup.vue";
-import InputRadioGroup from "./RadioGroup.vue";
+import { computed, ref } from "vue";
+import type { IInputProps } from "../../../types/types";
+import InputListbox from "./Listbox.vue";
 
 const props = withDefaults(
   defineProps<
@@ -51,16 +53,16 @@ const props = withDefaults(
   }
 );
 
-const modelValue = defineModel<
-  IInputValue | columnValue[] | undefined | null
->();
+const modelValue = defineModel<string | string[] | null>();
 const emit = defineEmits(["blur", "focus"]);
+const searchTerm = ref<string>("");
 
-const valueLabels = computed<IValueLabel[]>(() =>
-  props.values.map((value) => ({ value }))
-);
+const matchingValues = computed<string[]>(() => {
+  const needle = searchTerm.value.toLowerCase();
+  return props.values.filter((value) => value.toLowerCase().includes(needle));
+});
 
-const arrayModelValue = computed<columnValue[]>({
+const arrayModelValue = computed<string[]>({
   get() {
     return Array.isArray(modelValue.value) ? modelValue.value : [];
   },
@@ -69,7 +71,7 @@ const arrayModelValue = computed<columnValue[]>({
   },
 });
 
-const scalarModelValue = computed<IInputValue | null>({
+const scalarModelValue = computed<string | null>({
   get() {
     return Array.isArray(modelValue.value) ? null : modelValue.value ?? null;
   },

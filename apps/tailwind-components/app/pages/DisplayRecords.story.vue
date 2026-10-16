@@ -514,6 +514,7 @@ const SURFACES: SurfaceDemo[] = [
           id="ddl-summary-column"
           class="w-40"
           placeholder="(default)"
+          showClearButton
           :options="columnOptions"
           :key="`summary-${tableId}-${isLiveMode}`"
           @update:modelValue="
@@ -543,6 +544,7 @@ const SURFACES: SurfaceDemo[] = [
           id="ddl-logo-column"
           class="w-40"
           placeholder="(none)"
+          showClearButton
           :options="logoColumnSelectOptions"
           :key="`logo-${tableId}-${isLiveMode}`"
           :aria-describedby="

@@ -68,6 +68,7 @@ function getSelectedRole(): string {
         id="roleSelector"
         :value="selectedRole"
         :options="[GLOBAL_ROLE].concat(roles)"
+        showClearButton
         @update:modelValue="onUpdateSelectedRole"
       />
     </div>
