@@ -47,10 +47,12 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
     if (!name.matches(Constants.SCHEMA_NAME_REGEX) && !name.equals("_SYSTEM_")) {
       throw new MolgenisException("Invalid schema name '" + name + SCHEMA_NAME_MESSAGE);
     }
-    if (name == null || name.isEmpty())
+    if (name == null || name.isEmpty()) {
       throw new MolgenisException("Create schema failed: Schema name was null or empty");
-    if (name.equalsIgnoreCase(OIDC_LOGIN_PATH) || name.equalsIgnoreCase(OIDC_CALLBACK_PATH))
+    }
+    if (name.equalsIgnoreCase(OIDC_LOGIN_PATH) || name.equalsIgnoreCase(OIDC_CALLBACK_PATH)) {
       throw new MolgenisException(String.format("Schema name: '%s' is a reserved word", name));
+    }
   }
 
   public String getName() {
@@ -78,13 +80,14 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   }
 
   public TableMetadata create(TableMetadata table) {
-    if (tables.get(table.getTableName()) != null)
+    if (tables.get(table.getTableName()) != null) {
       throw new MolgenisException(
           "Create table failed: Table with name '"
               + table.getTableName()
               + "'already exists in schema '"
               + getName()
               + "'");
+    }
     this.tables.put(table.getTableName(), table);
     table.setSchema(this);
     return table;

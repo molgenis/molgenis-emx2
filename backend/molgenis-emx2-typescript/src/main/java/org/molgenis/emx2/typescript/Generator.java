@@ -97,7 +97,9 @@ public class Generator {
       Set<String> seenColumns = new LinkedHashSet<>();
       for (Column column : table.getColumnsIncludingSubclasses()) {
         String columnName = convertToCamelCase(column.getName());
-        if (shouldSkipColumn(column, seenColumns, columnName)) continue;
+        if (shouldSkipColumn(column, seenColumns, columnName)) {
+          continue;
+        }
         String fieldValue = toTypeScriptInterfaceFieldValue(schema, column);
         String optional = column.isRequired() ? "" : "?";
         writer.println(String.format("    %s%s: %s;", columnName, optional, fieldValue));

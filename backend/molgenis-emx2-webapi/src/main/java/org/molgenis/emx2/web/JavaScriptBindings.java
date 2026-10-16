@@ -34,12 +34,22 @@ public class JavaScriptBindings {
   }
 
   private static Object toJava(Value value) {
-    if (value == null || value.isNull()) return null;
-    if (value.isBoolean()) return value.asBoolean();
-    if (value.isString()) return value.asString();
+    if (value == null || value.isNull()) {
+      return null;
+    }
+    if (value.isBoolean()) {
+      return value.asBoolean();
+    }
+    if (value.isString()) {
+      return value.asString();
+    }
     if (value.isNumber()) {
-      if (value.fitsInInt()) return value.asInt();
-      if (value.fitsInLong()) return value.asLong();
+      if (value.fitsInInt()) {
+        return value.asInt();
+      }
+      if (value.fitsInLong()) {
+        return value.asLong();
+      }
       return value.asDouble();
     }
     if (value.hasArrayElements()) {

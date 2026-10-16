@@ -15,11 +15,21 @@ public final class PermissionEvaluator {
   }
 
   public static AggregateLevel getAggregateLevel(Schema schema, TableMetadata table) {
-    if (canView(schema, table)) return AggregateLevel.COUNT;
-    if (hasRole(schema, COUNT)) return AggregateLevel.COUNT;
-    if (hasRole(schema, AGGREGATOR)) return AggregateLevel.AGGREGATOR;
-    if (hasRole(schema, RANGE)) return AggregateLevel.RANGE;
-    if (hasRole(schema, EXISTS)) return AggregateLevel.EXISTS;
+    if (canView(schema, table)) {
+      return AggregateLevel.COUNT;
+    }
+    if (hasRole(schema, COUNT)) {
+      return AggregateLevel.COUNT;
+    }
+    if (hasRole(schema, AGGREGATOR)) {
+      return AggregateLevel.AGGREGATOR;
+    }
+    if (hasRole(schema, RANGE)) {
+      return AggregateLevel.RANGE;
+    }
+    if (hasRole(schema, EXISTS)) {
+      return AggregateLevel.EXISTS;
+    }
     return AggregateLevel.NONE;
   }
 

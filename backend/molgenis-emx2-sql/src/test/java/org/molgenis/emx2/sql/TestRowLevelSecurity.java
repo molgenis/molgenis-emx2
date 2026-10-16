@@ -38,7 +38,9 @@ class TestRowLevelSecurity {
 
     for (String user :
         List.of(USER_TEAM_A, USER_TEAM_B, USER_VIEWER, USER_NO_ACCESS, USER_COUNT, USER_EXISTS)) {
-      if (!database.hasUser(user)) database.addUser(user);
+      if (!database.hasUser(user)) {
+        database.addUser(user);
+      }
     }
 
     Schema schema = database.dropCreateSchema(SCHEMA);
@@ -176,7 +178,9 @@ class TestRowLevelSecurity {
   void mgRolesRejectsNonExistentRoleForManager() {
     database.becomeAdmin();
     String managerUser = "rls_user_manager_mgroles";
-    if (!database.hasUser(managerUser)) database.addUser(managerUser);
+    if (!database.hasUser(managerUser)) {
+      database.addUser(managerUser);
+    }
     database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
 
     database.setActiveUser(managerUser);
@@ -209,7 +213,9 @@ class TestRowLevelSecurity {
   void mgRolesAcceptsExistingRole() {
     database.becomeAdmin();
     String managerUser = "rls_user_manager_assigns";
-    if (!database.hasUser(managerUser)) database.addUser(managerUser);
+    if (!database.hasUser(managerUser)) {
+      database.addUser(managerUser);
+    }
     database.getSchema(SCHEMA).addMember(managerUser, Privileges.MANAGER.toString());
 
     database.setActiveUser(managerUser);
@@ -352,7 +358,9 @@ class TestRowLevelSecurity {
   void mgRolesEmptyArrayIsAllowedLikeNull() {
     database.becomeAdmin();
     String editorUser = "rls_user_editor_mgroles";
-    if (!database.hasUser(editorUser)) database.addUser(editorUser);
+    if (!database.hasUser(editorUser)) {
+      database.addUser(editorUser);
+    }
     database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
 
     database.setActiveUser(editorUser);
@@ -438,7 +446,9 @@ class TestRowLevelSecurity {
   void mgRolesIsNotDefaultedForUsersWithUnrestrictedAccess() {
     database.becomeAdmin();
     String editorUser = "rls_user_editor_default";
-    if (!database.hasUser(editorUser)) database.addUser(editorUser);
+    if (!database.hasUser(editorUser)) {
+      database.addUser(editorUser);
+    }
     database.getSchema(SCHEMA).addMember(editorUser, Privileges.EDITOR.toString());
 
     database.setActiveUser(editorUser);
@@ -686,7 +696,9 @@ class TestRowLevelSecurity {
     Schema schema = database.getSchema(SCHEMA);
     String table = "WriteOnlyTable";
     String user = "rls_user_write_only";
-    if (!database.hasUser(user)) database.addUser(user);
+    if (!database.hasUser(user)) {
+      database.addUser(user);
+    }
 
     schema.create(table(table).add(column("id").setPkey()).add(column("title")));
     schema.createRole("WriteOnlyRole");
@@ -794,7 +806,9 @@ class TestRowLevelSecurity {
     String rlsUser = "rls_user_mixed_rls";
     String plainUser = "rls_user_mixed_plain";
     for (String u : List.of(rlsUser, plainUser)) {
-      if (!database.hasUser(u)) database.addUser(u);
+      if (!database.hasUser(u)) {
+        database.addUser(u);
+      }
     }
 
     schema.create(table(table).add(column("id").setPkey()).add(column("title")));
@@ -855,7 +869,9 @@ class TestRowLevelSecurity {
     String table = "FlipOnTable";
     String role = "FlipOnRole";
     String user = "rls_user_flip_on";
-    if (!database.hasUser(user)) database.addUser(user);
+    if (!database.hasUser(user)) {
+      database.addUser(user);
+    }
 
     schema.create(table(table).add(column("id").setPkey()).add(column("title")));
     schema.createRole(role);
@@ -912,7 +928,9 @@ class TestRowLevelSecurity {
     String table = "FlipOffTable";
     String role = "FlipOffRole";
     String user = "rls_user_flip_off";
-    if (!database.hasUser(user)) database.addUser(user);
+    if (!database.hasUser(user)) {
+      database.addUser(user);
+    }
 
     schema.create(table(table).add(column("id").setPkey()).add(column("title")));
     schema.createRole(role);
@@ -980,7 +998,9 @@ class TestRowLevelSecurity {
     String table = "KeepModeTable";
     String role = "KeepModeRole";
     String user = "rls_user_keep_mode";
-    if (!database.hasUser(user)) database.addUser(user);
+    if (!database.hasUser(user)) {
+      database.addUser(user);
+    }
 
     schema.create(table(table).add(column("id").setPkey()).add(column("title")));
     schema.createRole(role);
@@ -1036,7 +1056,9 @@ class TestRowLevelSecurity {
     database.becomeAdmin();
     Schema schema = database.getSchema(SCHEMA);
     String user = "rls_user_viewer_and_rls";
-    if (!database.hasUser(user)) database.addUser(user);
+    if (!database.hasUser(user)) {
+      database.addUser(user);
+    }
     schema.addMember(user, "TeamA");
     schema.addMember(user, Privileges.VIEWER.toString());
 
@@ -1158,7 +1180,9 @@ class TestRowLevelSecurity {
     String userB = "rls_inherit_b";
     Schema schema = database.dropCreateSchema("TestRlsInheritSubclass");
     for (String u : List.of(userA, userB)) {
-      if (!database.hasUser(u)) database.addUser(u);
+      if (!database.hasUser(u)) {
+        database.addUser(u);
+      }
     }
 
     schema.create(table(root).add(column("id").setPkey()).add(column("title")));
@@ -1263,7 +1287,9 @@ class TestRowLevelSecurity {
     String roleC = "InheritTeamC";
     String userC = "rls_inherit_c";
     Schema schema = database.dropCreateSchema("TestRlsInheritRoot");
-    if (!database.hasUser(userC)) database.addUser(userC);
+    if (!database.hasUser(userC)) {
+      database.addUser(userC);
+    }
 
     schema.create(table(root).add(column("id").setPkey()).add(column("title")));
     schema.create(table(child).setInheritName(root).add(column("childField")));
@@ -1312,7 +1338,9 @@ class TestRowLevelSecurity {
     String roleD = "InheritTeamD";
     String userD = "rls_inherit_d";
     Schema schema = database.dropCreateSchema("TestRlsInheritMulti");
-    if (!database.hasUser(userD)) database.addUser(userD);
+    if (!database.hasUser(userD)) {
+      database.addUser(userD);
+    }
 
     schema.create(table(grand).add(column("id").setPkey()).add(column("title")));
     schema.create(table(mid).setInheritName(grand).add(column("midField")));
@@ -1413,7 +1441,9 @@ class TestRowLevelSecurity {
     String roleE = "InheritTeamE";
     String userE = "rls_inherit_e";
     Schema schema = database.dropCreateSchema("TestRlsInheritRevoke");
-    if (!database.hasUser(userE)) database.addUser(userE);
+    if (!database.hasUser(userE)) {
+      database.addUser(userE);
+    }
 
     schema.create(table(root).add(column("id").setPkey()).add(column("title")));
     schema.create(table(child).setInheritName(root).add(column("childField")));

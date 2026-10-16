@@ -362,7 +362,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
     if (getKey() > 0) {
       builder.append(" key" + getKey());
     }
-    if (Boolean.TRUE.equals(isRequired())) builder.append(" required");
+    if (Boolean.TRUE.equals(isRequired())) {
+      builder.append(" required");
+    }
     return builder.toString();
   }
 
@@ -375,7 +377,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public String getTableName() {
-    if (this.table != null) return this.table.getTableName();
+    if (this.table != null) {
+      return this.table.getTableName();
+    }
     return null;
   }
 
@@ -611,7 +615,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
                 + getName()
                 + "': composite key");
       }
-    } else return getColumnType().getBaseType();
+    } else {
+      return getColumnType().getBaseType();
+    }
   }
 
   public String getRefLabel() {
@@ -619,7 +625,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public String getRefLabelDefault() {
-    if (!isReference()) return null;
+    if (!isReference()) {
+      return null;
+    }
     List<Column> allPk = getRefTable().getPrimaryKeyColumns();
     Set<String> excludedPkeyFields =
         allPk.stream()

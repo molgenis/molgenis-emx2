@@ -44,7 +44,9 @@ class TablePermissionsGraphqlTest extends ApiTestBase {
     database.becomeAdmin();
 
     for (String user : List.of(OWNER_USER, CUSTOM_USER, VIEWER_USER)) {
-      if (!database.hasUser(user)) database.addUser(user);
+      if (!database.hasUser(user)) {
+        database.addUser(user);
+      }
     }
     database.setUserPassword(OWNER_USER, OWNER_PASS);
     database.setUserPassword(CUSTOM_USER, CUSTOM_PASS);

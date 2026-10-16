@@ -24,8 +24,12 @@ class URLUtilsTest {
             config -> {
               config.router.ignoreTrailingSlashes = true;
               config.router.treatMultipleSlashesAsSingleSlash = true;
-              if (host != null) config.contextResolver.host = ctx -> host;
-              if (contextPath != null) config.router.contextPath = contextPath;
+              if (host != null) {
+                config.contextResolver.host = ctx -> host;
+              }
+              if (contextPath != null) {
+                config.router.contextPath = contextPath;
+              }
             });
     app.get("/test", handler);
 

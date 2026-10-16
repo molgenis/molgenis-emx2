@@ -20,10 +20,14 @@ public class SqlSchema implements Schema {
   @Override
   public SqlTable getTable(String name) {
     SqlTableMetadata tableMetadata = getMetadata().getTableMetadata(name);
-    if (tableMetadata == null) return getTableById(name);
+    if (tableMetadata == null) {
+      return getTableById(name);
+    }
     if (tableMetadata.exists()) {
       return new SqlTable(db, tableMetadata, db.getTableListener(getName(), name));
-    } else return null;
+    } else {
+      return null;
+    }
   }
 
   @Override

@@ -101,7 +101,9 @@ public class Task implements Runnable, Iterable<Task> {
   }
 
   public Integer getProgress() {
-    if (RUNNING.equals(status)) return progress;
+    if (RUNNING.equals(status)) {
+      return progress;
+    }
     return null;
   }
 

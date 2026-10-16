@@ -31,9 +31,10 @@ public class TableStoreForCsvFilesClasspath implements TableAndFileStore {
       directoryPath = "/" + directoryPath;
     }
     this.directoryPath = directoryPath;
-    if (getClass().getResource(directoryPath) == null)
+    if (getClass().getResource(directoryPath) == null) {
       throw new MolgenisException(
           "Import failed: Directory " + directoryPath + " doesn't exist in classpath");
+    }
     this.separator = separator;
     try {
       storefiles = jarSaveListFiles(directoryPath + "/_files/");

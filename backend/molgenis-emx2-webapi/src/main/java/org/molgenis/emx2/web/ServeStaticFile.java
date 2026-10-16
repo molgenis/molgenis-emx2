@@ -159,11 +159,15 @@ public class ServeStaticFile {
     if (appsPath.isFile) {
       boolean internalRequestFound =
           tryServeJarApp(ctx, requestedInternalFilePath, appsPath.mimeType);
-      if (internalRequestFound) return;
+      if (internalRequestFound) {
+        return;
+      }
     }
 
     boolean internalFallbackFound = tryServeJarApp(ctx, internalFallbackFile, "text/html");
-    if (internalFallbackFound) return;
+    if (internalFallbackFound) {
+      return;
+    }
 
     // External can not use apps
     path = path.replace("apps/", "");
@@ -190,11 +194,15 @@ public class ServeStaticFile {
     if (appsPath.isFile) {
       boolean externalRequestFound =
           tryServeExternalApp(ctx, requestedExternalFilePath.toString(), appsPath.mimeType);
-      if (externalRequestFound) return;
+      if (externalRequestFound) {
+        return;
+      }
     }
 
     boolean externalFallbackFound = tryServeExternalApp(ctx, externalFallbackFile, "text/html");
-    if (externalFallbackFound) return;
+    if (externalFallbackFound) {
+      return;
+    }
 
     // Tried out best to serve something, sadly nothing was found!
     ctx.status(404).result(NOT_FOUND + ctx.path());

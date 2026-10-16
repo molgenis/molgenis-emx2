@@ -639,12 +639,13 @@ public class GraphqlTableFieldFactory {
       } else {
         // find column by escaped name
         Column c = table.getColumnByIdIncludingSubclasses(entry.getKey());
-        if (c == null)
+        if (c == null) {
           throw new GraphqlException(
               "Graphql API error: Column "
                   + entry.getKey()
                   + " unknown in table "
                   + table.getTableName());
+        }
         Map remainingOperators = new LinkedHashMap<>((Map) entry.getValue());
         // although nested, this should apply on this level, not sublevel
         if (remainingOperators.containsKey(FILTER_MATCH_INCLUDING_CHILDREN)) {
@@ -694,7 +695,9 @@ public class GraphqlTableFieldFactory {
           remainingOperators.remove(FILTER_MATCH_ALL);
         }
 
-        if (remainingOperators.size() == 0) continue;
+        if (remainingOperators.size() == 0) {
+          continue;
+        }
         if (c.isReference()) {
           subFilters.add(
               f(
@@ -742,8 +745,9 @@ public class GraphqlTableFieldFactory {
     int count = 0;
     for (Map.Entry<String, Object> operatorEntry : subFilter.entrySet()) {
       count++;
-      if (count > 1)
+      if (count > 1) {
         throw new MolgenisException("Can only have one operator, found multiple for " + name);
+      }
       Operator op = Operator.fromAbbreviation(operatorEntry.getKey());
       if (operatorEntry.getValue() instanceof List<?> values) {
         // cast selects the List overload of f instead of wrapping the list in varargs
@@ -759,7 +763,9 @@ public class GraphqlTableFieldFactory {
   private SelectColumn[] convertMapSelection(
       TableMetadata table, DataFetchingFieldSelectionSet selection) {
     List<SelectColumn> result = new ArrayList<>();
-    if (selection == null) return new SelectColumn[0];
+    if (selection == null) {
+      return new SelectColumn[0];
+    }
     Map<String, Column> columnIdentifierMap =
         table != null
             ? table.getColumnsIncludingSubclasses().stream()
@@ -776,7 +782,9 @@ public class GraphqlTableFieldFactory {
       String name = s.getName();
 
       // Skip nested GraphQL paths like "foo/bar"
-      if (s.getQualifiedName().contains("/")) continue;
+      if (s.getQualifiedName().contains("/")) {
+        continue;
+      }
 
       List<SelectedField> subFields = s.getSelectionSet().getFields();
       Map<String, Object> args = s.getArguments();

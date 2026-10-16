@@ -294,7 +294,9 @@ public class CsvApi {
     try {
       if (modeParam != null) {
         String normalizedMode = modeParam.trim().toUpperCase(java.util.Locale.ROOT);
-        if ("OVERRIDE".equals(normalizedMode)) normalizedMode = UpdateMode.OVERWRITE.name();
+        if ("OVERRIDE".equals(normalizedMode)) {
+          normalizedMode = UpdateMode.OVERWRITE.name();
+        }
         updateMode = UpdateMode.valueOf(normalizedMode);
       }
     } catch (IllegalArgumentException e) {

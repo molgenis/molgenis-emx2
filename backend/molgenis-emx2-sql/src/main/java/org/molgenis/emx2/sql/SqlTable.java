@@ -149,11 +149,12 @@ public class SqlTable implements Table {
     String tableClass = getMgTableClass(table.getMetadata());
 
     // validate
-    if (table.getMetadata().getPrimaryKeys().isEmpty())
+    if (table.getMetadata().getPrimaryKeys().isEmpty()) {
       throw new MolgenisException(
           "Transaction failed: Table "
               + table.getName()
               + " cannot process row insert/update/delete requests because no primary key is defined");
+    }
 
     db.tx(
         db2 -> {
@@ -583,7 +584,9 @@ public class SqlTable implements Table {
     }
 
     List<Column> columns = getLocalStoredColumns(table, updateColumns);
-    if (columns.size() == 0) return count;
+    if (columns.size() == 0) {
+      return count;
+    }
     List<Column> pkeyFields = table.getMetadata().getPrimaryKeyColumns();
 
     // create batch of updates
@@ -908,7 +911,9 @@ public class SqlTable implements Table {
 
   private static void log(
       String user, String table, long start, AtomicInteger count, String message) {
-    if (user == null) user = "molgenis";
+    if (user == null) {
+      user = "molgenis";
+    }
     if (logger.isInfoEnabled()) {
       logger.info(
           "{} {} {} rows into table {} in {}ms",

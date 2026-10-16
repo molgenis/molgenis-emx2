@@ -73,6 +73,12 @@
     </rule>
 
     <!-- Overrides for quickstart.xml -->
+    <rule ref="category/java/codestyle.xml/ControlStatementBraces">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="./ancestor-or-self::MethodDeclaration[@Name = 'equals']"/>
+        </properties>
+    </rule>
 
 
     <!-- Individual rules we want to ensure are always tested (in case rulesets change) -->

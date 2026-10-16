@@ -332,10 +332,14 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public Column getColumn(String name) {
-    if (columns.containsKey(name)) return new Column(this, columns.get(name));
+    if (columns.containsKey(name)) {
+      return new Column(this, columns.get(name));
+    }
     if (getInheritedTable() != null) {
       Column c = getInheritedTable().getColumn(name);
-      if (c != null) return new Column(c.getTable(), c);
+      if (c != null) {
+        return new Column(c.getTable(), c);
+      }
     }
     return null;
   }
@@ -394,10 +398,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public void dropColumn(String name) {
-    if (Arrays.asList(getPrimaryKeys()).contains(name))
+    if (Arrays.asList(getPrimaryKeys()).contains(name)) {
       throw new MolgenisException("Remove column failed: Column is primary key");
-    if (columns.get(name) == null)
+    }
+    if (columns.get(name) == null) {
       throw new MolgenisException("Remove column failed: Column '" + name + "' unknown");
+    }
     columns.remove(name);
   }
 

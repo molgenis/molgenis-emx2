@@ -213,7 +213,9 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
   @Override
   protected void dataRowToRdf(final RdfMapData rdfMapData, final Table table, final Row row) {
-    if (row.isDraft()) return;
+    if (row.isDraft()) {
+      return;
+    }
 
     final IRI subject = rowIRI(getBaseURL(), table, row);
     processDataRowGenerics(table, row, subject);

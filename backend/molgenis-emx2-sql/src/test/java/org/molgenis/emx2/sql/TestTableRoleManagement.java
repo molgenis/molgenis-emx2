@@ -31,7 +31,9 @@ class TestTableRoleManagement {
     database.becomeAdmin();
 
     for (String user : List.of(USER_VIEWER, USER_EDITOR, USER_NO_ACCESS)) {
-      if (!database.hasUser(user)) database.addUser(user);
+      if (!database.hasUser(user)) {
+        database.addUser(user);
+      }
     }
 
     Schema schema = database.dropCreateSchema(SCHEMA);

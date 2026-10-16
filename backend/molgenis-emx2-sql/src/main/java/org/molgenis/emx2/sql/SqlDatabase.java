@@ -199,7 +199,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         instanceId = String.valueOf(random.nextLong(SnowflakeIdGenerator.MAX_ID));
         this.setSetting(MOLGENIS_INSTANCE_ID, instanceId);
       }
-      if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init(instanceId);
+      if (!SnowflakeIdGenerator.hasInstance()) {
+        SnowflakeIdGenerator.init(instanceId);
+      }
 
       if (getSetting(IS_PRIVACY_POLICY_ENABLED) == null) {
         this.setSetting(IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
@@ -360,7 +362,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public SqlSchema getSchema(String name) {
-    if (name == null) throw new MolgenisException("Schema name was null or empty");
+    if (name == null) {
+      throw new MolgenisException("Schema name was null or empty");
+    }
     if (schemaCache.containsKey(name)) {
       return new SqlSchema(this, schemaCache.get(name));
     } else {
@@ -537,13 +541,20 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) throw new MolgenisException("You can't remove admin");
-    if (user.equals("anonymous")) throw new MolgenisException("You can't remove anonymous");
-    if (user.equals("user")) throw new MolgenisException("You can't remove user");
+    if (user.equals("admin")) {
+      throw new MolgenisException("You can't remove admin");
+    }
+    if (user.equals("anonymous")) {
+      throw new MolgenisException("You can't remove anonymous");
+    }
+    if (user.equals("user")) {
+      throw new MolgenisException("You can't remove user");
+    }
 
-    if (!hasUser(user))
+    if (!hasUser(user)) {
       throw new MolgenisException(
           "Remove user failed: User with name '" + user + "' doesn't exist");
+    }
     tx(db -> ((SqlDatabase) db).getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
     log(start, "removed user " + user);
 
@@ -559,15 +570,19 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public void setEnabledUser(String user, boolean enabled) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) throw new MolgenisException("You cant enable or disable admin");
-    if (user.equals("anonymous"))
+    if (user.equals("admin")) {
+      throw new MolgenisException("You cant enable or disable admin");
+    }
+    if (user.equals("anonymous")) {
       throw new MolgenisException("You cant enable or disable anonymous");
-    if (!hasUser(user))
+    }
+    if (!hasUser(user)) {
       throw new MolgenisException(
           (enabled ? "Enabling" : "Disabling")
               + " user failed: User with name '"
               + user
               + "' doesn't exist");
+    }
     tx(
         db ->
             ((SqlDatabase) db)
@@ -581,18 +596,22 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public void setAdminUser(String user, boolean admin) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin") && !admin)
+    if (user.equals("admin") && !admin) {
       throw new MolgenisException("Cannot revoke admin rights of admin user");
-    if (user.equals("anonymous"))
+    }
+    if (user.equals("anonymous")) {
       throw new MolgenisException("Anonymous user cannot have admin rights");
-    if (!ADMIN_USER.equals(this.getActiveUser()))
+    }
+    if (!ADMIN_USER.equals(this.getActiveUser())) {
       throw new MolgenisException("Only root admin user may grant admin permission");
-    if (!hasUser(user))
+    }
+    if (!hasUser(user)) {
       throw new MolgenisException(
           (admin ? "Granting" : "Revoking")
               + " admin privileges to user failed: User with name '"
               + user
               + "' doesn't exist");
+    }
     tx(
         db ->
             ((SqlDatabase) db)
@@ -811,7 +830,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isAdmin() {
-    if (ADMIN_USER.equals(getActiveUser())) return true;
+    if (ADMIN_USER.equals(getActiveUser())) {
+      return true;
+    }
     User user = getUser(getActiveUser());
     return (user != null && user.isAdmin());
   }

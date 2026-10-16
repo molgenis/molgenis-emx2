@@ -31,7 +31,9 @@ public class MolgenisException extends RuntimeException {
   }
 
   public String getType() {
-    if (type != null) return type.getSimpleName();
+    if (type != null) {
+      return type.getSimpleName();
+    }
     return null;
   }
 

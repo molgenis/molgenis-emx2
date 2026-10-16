@@ -29,7 +29,9 @@ public class TypeUtils {
   }
 
   public static UUID toUuid(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
@@ -65,7 +67,9 @@ public class TypeUtils {
   }
 
   public static Integer toInt(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
@@ -75,16 +79,21 @@ public class TypeUtils {
       }
     }
     if (v instanceof Long longValue) {
-      if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE)
+      if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE) {
         throw new MolgenisException("Cannot cast '" + v + " to integer, it is too large");
+      }
       return ((Long) v).intValue();
     }
-    if (v instanceof Double) return (int) Math.round((Double) v);
+    if (v instanceof Double) {
+      return (int) Math.round((Double) v);
+    }
     return (Integer) v;
   }
 
   public static Long toLong(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
@@ -93,8 +102,12 @@ public class TypeUtils {
         return null;
       }
     }
-    if (v instanceof Long) return (Long) v;
-    if (v instanceof Double) return Math.round((Double) v);
+    if (v instanceof Long) {
+      return (Long) v;
+    }
+    if (v instanceof Double) {
+      return Math.round((Double) v);
+    }
     return Long.parseLong(v.toString());
   }
 
@@ -108,17 +121,20 @@ public class TypeUtils {
 
   private static Object[] processArray(
       Object v, UnaryOperator<Object> f, IntFunction<Object[]> m, Class<?> c) {
-    if (v == null) return null; // NOSONAR
-    else if (v.getClass().isArray() && v.getClass().getComponentType().equals(c.getClass()))
+    if (v == null) {
+      return null; // NOSONAR
+    } else if (v.getClass().isArray() && v.getClass().getComponentType().equals(c.getClass())) {
       return (Object[]) v;
-    else if (v instanceof String) {
+    } else if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
         v = splitCsvString(value);
       } else {
         return null;
       }
-    } else if (v.getClass().isArray()) v = Arrays.asList((Object[]) v);
+    } else if (v.getClass().isArray()) {
+      v = Arrays.asList((Object[]) v);
+    }
     if (v instanceof List) {
       return ((List<Object>) v).stream().map(f).toArray(m);
     }
@@ -128,12 +144,16 @@ public class TypeUtils {
   }
 
   public static byte[] toBinary(Object v) {
-    if (v == null) return null; // NOSONAR
+    if (v == null) {
+      return null; // NOSONAR
+    }
     return (byte[]) v;
   }
 
   public static Boolean toBool(Object v) {
-    if (v == null) return null; // NOSONAR
+    if (v == null) {
+      return null; // NOSONAR
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value == null) {
@@ -189,14 +209,22 @@ public class TypeUtils {
   }
 
   public static LocalDate toDate(Object v) {
-    if (v == null) return null;
-    if (v instanceof LocalDate) return (LocalDate) v;
-    if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDate();
+    if (v == null) {
+      return null;
+    }
+    if (v instanceof LocalDate) {
+      return (LocalDate) v;
+    }
+    if (v instanceof OffsetDateTime) {
+      return ((OffsetDateTime) v).toLocalDate();
+    }
     // otherwise try to use string value
     String value = toString(v);
     if (value != null) {
       LocalDateTime ldt = toDateTime(v);
-      if (ldt != null) return ldt.toLocalDate();
+      if (ldt != null) {
+        return ldt.toLocalDate();
+      }
     }
     return null;
   }
@@ -206,9 +234,15 @@ public class TypeUtils {
   }
 
   public static YearToSecond toYearToSecond(Object v) {
-    if (v == null) return null;
-    if (v instanceof YearToSecond yearToSecond) return yearToSecond;
-    if (v instanceof Period period) return YearToSecond.valueOf(period);
+    if (v == null) {
+      return null;
+    }
+    if (v instanceof YearToSecond yearToSecond) {
+      return yearToSecond;
+    }
+    if (v instanceof Period period) {
+      return YearToSecond.valueOf(period);
+    }
     return YearToSecond.valueOf(toPeriod(v));
   }
 
@@ -218,8 +252,12 @@ public class TypeUtils {
   }
 
   public static Period toPeriod(Object v) {
-    if (v == null) return null;
-    if (v instanceof Period) return (Period) v;
+    if (v == null) {
+      return null;
+    }
+    if (v instanceof Period) {
+      return (Period) v;
+    }
     String value = toString(v);
     if (value != null) {
       return Period.parse(value);
@@ -232,10 +270,18 @@ public class TypeUtils {
   }
 
   public static LocalDateTime toDateTime(Object v) {
-    if (v == null) return null;
-    if (v instanceof LocalDateTime) return (LocalDateTime) v;
-    if (v instanceof OffsetDateTime) return ((OffsetDateTime) v).toLocalDateTime();
-    if (v instanceof Timestamp) return ((Timestamp) v).toLocalDateTime();
+    if (v == null) {
+      return null;
+    }
+    if (v instanceof LocalDateTime) {
+      return (LocalDateTime) v;
+    }
+    if (v instanceof OffsetDateTime) {
+      return ((OffsetDateTime) v).toLocalDateTime();
+    }
+    if (v instanceof Timestamp) {
+      return ((Timestamp) v).toLocalDateTime();
+    }
     // try string
     String value = toString(v);
     if (value != null) {
@@ -263,7 +309,9 @@ public class TypeUtils {
   }
 
   public static JSONB toJsonb(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof JSONB) { // Ensures JSONB is validated
       v = v.toString();
     }
@@ -292,7 +340,9 @@ public class TypeUtils {
   }
 
   public static String toText(Object v) {
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     if (v instanceof String) {
       if (((String) v).trim().equals("")) {
         return null;
@@ -300,8 +350,12 @@ public class TypeUtils {
       // we trim string values, but not text values
       return (String) v;
     }
-    if (v instanceof Object[]) return joinCsvString((Object[]) v);
-    if (v instanceof Collection) return joinCsvString(((Collection) v).toArray());
+    if (v instanceof Object[]) {
+      return joinCsvString((Object[]) v);
+    }
+    if (v instanceof Collection) {
+      return joinCsvString(((Collection) v).toArray());
+    }
     return v.toString();
   }
 
@@ -311,7 +365,9 @@ public class TypeUtils {
 
   public static ColumnType typeOf(Class<?> klazz) {
     for (ColumnType t : ColumnType.values()) {
-      if (t.getType().equals(klazz)) return t;
+      if (t.getType().equals(klazz)) {
+        return t;
+      }
     }
     throw new MolgenisException(
         "Unknown type: Can not determine typeOf(Class). No MOLGENIS type is defined to match "
@@ -319,8 +375,14 @@ public class TypeUtils {
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {
-    if (columnType.isArray()) return columnType;
-    if (columnType == ColumnType.ENUM) return ColumnType.ENUM_ARRAY;
+    if (columnType.isArray()) {
+      return columnType;
+    }
+
+    if (columnType == ColumnType.ENUM) {
+      return ColumnType.ENUM_ARRAY;
+    }
+
     return switch (columnType.getBaseType()) {
       case UUID -> ColumnType.UUID_ARRAY;
       case STRING -> ColumnType.STRING_ARRAY;
@@ -344,10 +406,15 @@ public class TypeUtils {
     return Stream.of(v)
         .map(
             s -> {
-              if (s == null) return "";
+              if (s == null) {
+                return "";
+              }
               String str = s.toString();
-              if (str.contains(",")) return "\"" + s.toString() + "\"";
-              else return str;
+              if (str.contains(",")) {
+                return "\"" + s.toString() + "\"";
+              } else {
+                return str;
+              }
             })
         .collect(Collectors.joining(","));
   }
@@ -377,7 +444,9 @@ public class TypeUtils {
   }
 
   private static String trimQuotes(String value) {
-    if (value == null || !value.contains("\"")) return value;
+    if (value == null || !value.contains("\"")) {
+      return value;
+    }
     value = value.trim();
     if (value.startsWith("\"") && value.endsWith("\"")) {
       return value.substring(1, value.length() - 1);

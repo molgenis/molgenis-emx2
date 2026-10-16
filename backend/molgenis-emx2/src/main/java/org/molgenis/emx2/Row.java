@@ -22,7 +22,9 @@ public class Row {
   }
 
   public Row(Object... nameValuePairs) {
-    if (nameValuePairs == null) return;
+    if (nameValuePairs == null) {
+      return;
+    }
     if (nameValuePairs.length % 2 == 1) {
       throw new MolgenisException(
           "Row nameValue constructor should even number of parameters representing name-value pairs: Received "
@@ -368,7 +370,9 @@ public class Row {
   }
 
   public <T> T get(String name, Class<T> type) {
-    if (type == null) return null;
+    if (type == null) {
+      return null;
+    }
     return switch (type.getSimpleName()) {
       case "String" -> (T) getString(name);
       case "String[]" -> (T) getStringArray(name);

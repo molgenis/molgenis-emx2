@@ -44,16 +44,23 @@ public class Emx1Attribute {
     this.label = get(row, "label");
     this.dataType = get(row, "dataType");
     this.description = get(row, "description");
-    if (row.getBoolean(NILLABLE_NAME) != null) this.nillable = row.getBoolean(NILLABLE_NAME);
+    if (row.getBoolean(NILLABLE_NAME) != null) {
+      this.nillable = row.getBoolean(NILLABLE_NAME);
+    }
     this.idAttribute =
         get(row, ID_ATTRIBUTE) != null
             && ("AUTO".equalsIgnoreCase(row.getString(ID_ATTRIBUTE))
                 || row.getBoolean(ID_ATTRIBUTE) != null
                     && row.getBoolean(ID_ATTRIBUTE).equals(true));
-    if (row.getBoolean("aggregatable") != null) this.aggregateable = row.getBoolean("aggregatable");
-    if (row.getBoolean(LABEL_ATTRIBUTE) != null)
+    if (row.getBoolean("aggregatable") != null) {
+      this.aggregateable = row.getBoolean("aggregatable");
+    }
+    if (row.getBoolean(LABEL_ATTRIBUTE) != null) {
       this.labelAttribute = row.getBoolean(LABEL_ATTRIBUTE);
-    if (row.getBoolean(READONLY_NAME) != null) this.readonly = row.getBoolean(READONLY_NAME);
+    }
+    if (row.getBoolean(READONLY_NAME) != null) {
+      this.readonly = row.getBoolean(READONLY_NAME);
+    }
     this.validation = get(row, "validation");
     this.visible = get(row, "visible");
     this.defaultValue = get(row, "defaultValue");
@@ -68,7 +75,9 @@ public class Emx1Attribute {
   private String get(Row row, String name) {
     try {
       String value = row.getString(name);
-      if (value == null || "".equals(value.trim())) return null;
+      if (value == null || "".equals(value.trim())) {
+        return null;
+      }
       return value.trim();
     } catch (IllegalArgumentException exception) {
       return null;

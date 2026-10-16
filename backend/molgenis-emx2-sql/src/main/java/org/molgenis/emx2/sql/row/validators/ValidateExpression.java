@@ -16,9 +16,10 @@ public class ValidateExpression {
       column.getColumnType().validate(context.get(column.getName()));
       if (column.getValidation() != null) {
         String errorMessage = SqlTypeUtils.checkValidation(column.getValidation(), context);
-        if (errorMessage != null)
+        if (errorMessage != null) {
           throw new MolgenisException(
               "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
+        }
       }
     }
   }

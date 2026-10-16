@@ -411,7 +411,9 @@ public class SqlRoleManager {
                 .where(TABLE_SCHEMA.eq(inline(schemaName)))
                 .and(TABLE_NAME.eq(inline(root.getTableName())))
                 .and(field("grantee").like(inline(rlsRolePrefix + "%"))));
-    if (anyRlsGrantRemains) return;
+    if (anyRlsGrantRemains) {
+      return;
+    }
     for (TableMetadata tableInTree : root.getInheritanceTree()) {
       Table<?> jooqTable = table(name(schemaName, tableInTree.getTableName()));
       dropRlsPolicies(jooq, jooqTable);
@@ -587,9 +589,13 @@ public class SqlRoleManager {
   }
 
   public List<String> getInheritedRoleNamesForUser(String schemaName, String username) {
-    if (username == null) return List.of();
+    if (username == null) {
+      return List.of();
+    }
     User user = database.getUser(username);
-    if (user == null) return List.of();
+    if (user == null) {
+      return List.of();
+    }
     if (user.isAdmin()) {
       return getRoleNames(schemaName);
     }
@@ -665,7 +671,9 @@ public class SqlRoleManager {
     SqlSchema schema = database.getSchema(schemaName);
     List<String> roleNames = schema.getInheritedRolesForActiveUser();
 
-    if (roleNames.isEmpty()) return List.of();
+    if (roleNames.isEmpty()) {
+      return List.of();
+    }
 
     String customRoleName =
         roleNames.stream().filter(SqlRoleManager::isUserAssignableRole).findFirst().orElse(null);
@@ -710,7 +718,9 @@ public class SqlRoleManager {
                   .insert(systemWildcard.insert())
                   .update(systemWildcard.update())
                   .delete(systemWildcard.delete());
-          if (tp.hasAny()) result.put(tableName, tp);
+          if (tp.hasAny()) {
+            result.put(tableName, tp);
+          }
         }
       }
     }

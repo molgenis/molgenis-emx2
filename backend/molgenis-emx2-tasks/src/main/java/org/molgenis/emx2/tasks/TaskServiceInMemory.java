@@ -103,7 +103,9 @@ public class TaskServiceInMemory implements TaskService {
 
   @Override
   public void removeTask(String id) {
-    if (id == null) return;
+    if (id == null) {
+      return;
+    }
     id = id.replaceAll("[\n|\r|\t]", "_"); // sanitize
 
     Task task = getTask(id);

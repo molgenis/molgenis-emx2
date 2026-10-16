@@ -83,8 +83,9 @@ public class Emx2 {
         if (!row.isNull(DROP, BOOL) && row.getBoolean(DROP)) {
           schema.getTableMetadata(tableName).drop();
         }
-        if (row.containsName(LABEL))
+        if (row.containsName(LABEL)) {
           schema.getTableMetadata(tableName).setLabel(row.getString(LABEL));
+        }
         // labels i18n
         row.getColumnNames().stream()
             .filter(name -> name.startsWith(LABEL + ":"))
@@ -94,8 +95,9 @@ public class Emx2 {
                       .getTableMetadata(tableName)
                       .setLabel(row.getString(value, false), (value.split(":")[1]));
                 });
-        if (row.containsName(DESCRIPTION))
+        if (row.containsName(DESCRIPTION)) {
           schema.getTableMetadata(tableName).setDescription(row.getString(DESCRIPTION, false));
+        }
         // description i18n
         row.getColumnNames().stream()
             .filter(name -> name.startsWith(DESCRIPTION + ":"))
@@ -119,18 +121,36 @@ public class Emx2 {
           }
 
           Column column = column(row.getString(COLUMN_NAME));
-          if (row.notEmpty(COLUMN_TYPE))
+          if (row.notEmpty(COLUMN_TYPE)) {
             column.setType(ColumnType.valueOf(row.getString(COLUMN_TYPE).toUpperCase().trim()));
-          if (row.notEmpty(KEY)) column.setKey(row.getInteger(KEY));
-          if (row.notEmpty(REF_SCHEMA)) column.setRefSchemaName(row.getString(REF_SCHEMA));
-          if (row.notEmpty(REF_TABLE)) column.setRefTable(row.getString(REF_TABLE));
-          if (row.notEmpty(REF_LINK)) column.setRefLink(row.getString(REF_LINK));
-          if (row.notEmpty(REF_BACK)) column.setRefBack(row.getString(REF_BACK));
-          if (row.notEmpty(CASCADE_DELETE))
+          }
+          if (row.notEmpty(KEY)) {
+            column.setKey(row.getInteger(KEY));
+          }
+          if (row.notEmpty(REF_SCHEMA)) {
+            column.setRefSchemaName(row.getString(REF_SCHEMA));
+          }
+          if (row.notEmpty(REF_TABLE)) {
+            column.setRefTable(row.getString(REF_TABLE));
+          }
+          if (row.notEmpty(REF_LINK)) {
+            column.setRefLink(row.getString(REF_LINK));
+          }
+          if (row.notEmpty(REF_BACK)) {
+            column.setRefBack(row.getString(REF_BACK));
+          }
+          if (row.notEmpty(CASCADE_DELETE)) {
             column.setCascadeDelete(TypeUtils.toBool(row.getString(CASCADE_DELETE)));
-          if (row.notEmpty(REQUIRED)) column.setRequired(row.getString(REQUIRED));
-          if (row.notEmpty(DEFAULT_VALUE)) column.setDefaultValue(row.getString(DEFAULT_VALUE));
-          if (row.notEmpty(DESCRIPTION)) column.setDescription(row.getString(DESCRIPTION));
+          }
+          if (row.notEmpty(REQUIRED)) {
+            column.setRequired(row.getString(REQUIRED));
+          }
+          if (row.notEmpty(DEFAULT_VALUE)) {
+            column.setDefaultValue(row.getString(DEFAULT_VALUE));
+          }
+          if (row.notEmpty(DESCRIPTION)) {
+            column.setDescription(row.getString(DESCRIPTION));
+          }
           // description i18n
           row.getColumnNames().stream()
               .filter(name -> name.startsWith(DESCRIPTION + ":"))
@@ -138,18 +158,35 @@ public class Emx2 {
                   value -> {
                     column.setDescription(row.getString(value), (value.split(":")[1]));
                   });
-          if (row.notEmpty(VALIDATION)) column.setValidation(row.getString(VALIDATION));
-          if (row.notEmpty(VISIBLE)) column.setVisible(row.getString(VISIBLE));
-          if (row.notEmpty(COMPUTED)) column.setComputed(row.getString(COMPUTED));
-          if (row.notEmpty(SEMANTICS)) column.setSemantics(row.getStringArray(SEMANTICS));
+          if (row.notEmpty(VALIDATION)) {
+            column.setValidation(row.getString(VALIDATION));
+          }
+          if (row.notEmpty(VISIBLE)) {
+            column.setVisible(row.getString(VISIBLE));
+          }
+          if (row.notEmpty(COMPUTED)) {
+            column.setComputed(row.getString(COMPUTED));
+          }
+          if (row.notEmpty(SEMANTICS)) {
+            column.setSemantics(row.getStringArray(SEMANTICS));
+          }
           if (row.notEmpty(ALLOWED_VALUES))
             column.setAllowedValues(row.getStringArray(ALLOWED_VALUES));
-          if (row.notEmpty(PROFILES)) column.setProfiles(row.getStringArray(PROFILES));
-          if (row.notEmpty(REF_JS_TEMPLATE)) column.setRefLabel(row.getString(REF_JS_TEMPLATE));
-          if (row.notEmpty(COLUMN_POSITION)) column.setPosition(row.getInteger(COLUMN_POSITION));
-          if (row.notEmpty(OLD_NAME)) column.setOldName(row.getString(OLD_NAME));
-          if (row.notEmpty(READ_ONLY))
+          if (row.notEmpty(PROFILES)) {
+            column.setProfiles(row.getStringArray(PROFILES));
+          }
+          if (row.notEmpty(REF_JS_TEMPLATE)) {
+            column.setRefLabel(row.getString(REF_JS_TEMPLATE));
+          }
+          if (row.notEmpty(COLUMN_POSITION)) {
+            column.setPosition(row.getInteger(COLUMN_POSITION));
+          }
+          if (row.notEmpty(OLD_NAME)) {
+            column.setOldName(row.getString(OLD_NAME));
+          }
+          if (row.notEmpty(READ_ONLY)) {
             column.setReadonly(TypeUtils.toBool(row.getString(READ_ONLY)));
+          }
 
           if (!row.isNull(DROP, BOOL) && row.getBoolean(DROP)) {
             column.drop();
@@ -158,7 +195,9 @@ public class Emx2 {
             // this ensures positions accross table hiearchy matches those in imported file
           }
           // get labels
-          if (row.notEmpty(LABEL)) column.setLabel(row.getString(LABEL));
+          if (row.notEmpty(LABEL)) {
+            column.setLabel(row.getString(LABEL));
+          }
           // labels i18n
           row.getColumnNames().stream()
               .filter(name -> name.startsWith(LABEL + ":"))
@@ -166,8 +205,9 @@ public class Emx2 {
                   value -> {
                     column.setLabel(row.getString(value), (value.split(":")[1]));
                   });
-          if (row.notEmpty(COLUMN_FORM_LABEL))
+          if (row.notEmpty(COLUMN_FORM_LABEL)) {
             column.setFormLabel(row.getString(COLUMN_FORM_LABEL));
+          }
 
           schema.getTableMetadata(tableName).add(column);
         } catch (Exception e) {
@@ -277,10 +317,13 @@ public class Emx2 {
       row.setString(VALIDATION, null);
       row.setString(VISIBLE, null);
       row.setString(COMPUTED, null);
-      if (table.getSemantics() != null)
+      if (table.getSemantics() != null) {
         row.setStringArray(
             SEMANTICS, stream(table.getSemantics()).map(Semantic::toString).toArray(String[]::new));
-      if (table.getProfiles() != null) row.setStringArray(PROFILES, table.getProfiles());
+      }
+      if (table.getProfiles() != null) {
+        row.setStringArray(PROFILES, table.getProfiles());
+      }
       for (Map.Entry<String, String> entry : table.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {
           row.set(LABEL, entry.getValue());
@@ -305,23 +348,43 @@ public class Emx2 {
         Row row = new Row();
         row.setString(TABLE_NAME, column.getTableName());
         row.setString(COLUMN_NAME, column.getName());
-        if (column.getFormLabel() != null) row.setString(COLUMN_FORM_LABEL, column.getFormLabel());
-        if (!column.getColumnType().equals(STRING))
+        if (column.getFormLabel() != null) {
+          row.setString(COLUMN_FORM_LABEL, column.getFormLabel());
+        }
+        if (!column.getColumnType().equals(STRING)) {
           row.setString(COLUMN_TYPE, column.getColumnType().toString().toLowerCase());
-        if (column.getRequired() != null) row.setString(REQUIRED, column.getRequired());
-        if (column.isReadonly()) row.setString(READ_ONLY, column.isReadonly().toString());
-        if (column.getDefaultValue() != null)
+        }
+        if (column.getRequired() != null) {
+          row.setString(REQUIRED, column.getRequired());
+        }
+        if (column.isReadonly()) {
+          row.setString(READ_ONLY, column.isReadonly().toString());
+        }
+        if (column.getDefaultValue() != null) {
           row.setString(DEFAULT_VALUE, column.getDefaultValue());
-        if (column.getKey() > 0) row.setInt(KEY, column.getKey());
+        }
+        if (column.getKey() > 0) {
+          row.setInt(KEY, column.getKey());
+        }
         if (column.getRefSchemaName() != null
-            && !column.getRefSchemaName().equals(column.getSchemaName()))
+            && !column.getRefSchemaName().equals(column.getSchemaName())) {
           row.setString(REF_SCHEMA, column.getRefSchemaName());
-        if (column.getRefTableName() != null) row.setString(REF_TABLE, column.getRefTableName());
-        if (column.getRefLink() != null) row.setString(REF_LINK, column.getRefLink());
-        if (column.getRefBack() != null) row.setString(REF_BACK, column.getRefBack());
-        if (column.isCascadeDelete() != null)
+        }
+        if (column.getRefTableName() != null) {
+          row.setString(REF_TABLE, column.getRefTableName());
+        }
+        if (column.getRefLink() != null) {
+          row.setString(REF_LINK, column.getRefLink());
+        }
+        if (column.getRefBack() != null) {
+          row.setString(REF_BACK, column.getRefBack());
+        }
+        if (column.isCascadeDelete() != null) {
           row.set(CASCADE_DELETE, column.isCascadeDelete().toString());
-        if (column.getRefLabel() != null) row.setString(REF_JS_TEMPLATE, column.getRefLabel());
+        }
+        if (column.getRefLabel() != null) {
+          row.setString(REF_JS_TEMPLATE, column.getRefLabel());
+        }
         for (Map.Entry<String, String> label : column.getDescriptions().entrySet()) {
           if (label.getKey().equals("en")) {
             row.set(DESCRIPTION, label.getValue());
@@ -329,12 +392,22 @@ public class Emx2 {
             row.set(DESCRIPTION + ":" + label.getKey(), label.getValue());
           }
         }
-        if (column.getValidation() != null) row.set(VALIDATION, column.getValidation());
-        if (column.getComputed() != null) row.set(COMPUTED, column.getComputed());
-        if (column.getVisible() != null) row.set(VISIBLE, column.getVisible());
-        if (column.getSemantics() != null) row.set(SEMANTICS, column.getSemantics());
+        if (column.getValidation() != null) {
+          row.set(VALIDATION, column.getValidation());
+        }
+        if (column.getComputed() != null) {
+          row.set(COMPUTED, column.getComputed());
+        }
+        if (column.getVisible() != null) {
+          row.set(VISIBLE, column.getVisible());
+        }
+        if (column.getSemantics() != null) {
+          row.set(SEMANTICS, column.getSemantics());
+        }
         if (column.getAllowedValues() != null) row.set(ALLOWED_VALUES, column.getAllowedValues());
-        if (column.getProfiles() != null) row.set(PROFILES, column.getProfiles());
+        if (column.getProfiles() != null) {
+          row.set(PROFILES, column.getProfiles());
+        }
         for (Map.Entry<String, String> label : column.getLabels().entrySet()) {
           if (label.getKey().equals("en")) {
             row.set(LABEL, label.getValue());
