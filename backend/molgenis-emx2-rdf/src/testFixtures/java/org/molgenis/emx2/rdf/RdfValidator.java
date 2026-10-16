@@ -27,7 +27,7 @@ public class RdfValidator {
 
   public RdfValidator add(
       String subject, String predicate, String object, boolean objectIsIRI, boolean isPresent) {
-    Value objectValue = (objectIsIRI ? Values.iri(object) : Values.literal(object));
+    Value objectValue = objectIsIRI ? Values.iri(object) : Values.literal(object);
     return add((Resource) Values.iri(subject), (IRI) Values.iri(predicate), objectValue, isPresent);
   }
 

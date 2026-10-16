@@ -652,7 +652,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   @Override
   public int compareTo(Object o) {
     if (o instanceof TableMetadata metadata) {
-      return getTableName().compareTo((metadata).getTableName());
+      return getTableName().compareTo(metadata.getTableName());
     }
     return 0;
   }

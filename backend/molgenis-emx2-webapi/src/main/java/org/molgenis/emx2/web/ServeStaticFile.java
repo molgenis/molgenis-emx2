@@ -33,7 +33,7 @@ public class ServeStaticFile {
         }
       }
 
-      boolean isFile = parts.getLast().contains(("."));
+      boolean isFile = parts.getLast().contains(".");
       boolean isUi = !isFile && parts.size() > 1 && Objects.equals(parts.get(1), "ui");
 
       // check if the path starts with apps, if not, remove the first bit <schema>

@@ -923,7 +923,7 @@ public class SqlTable implements Table {
           message,
           count.get(),
           table,
-          (System.currentTimeMillis() - start));
+          System.currentTimeMillis() - start);
     }
   }
 }

@@ -89,15 +89,15 @@ public class TestCreateBasicDataColumnTypeColumns {
     // check queryOld and test getters
     List<Row> result = schema.getTable("TypeTest").retrieveRows();
     for (Row res : result) {
-      assert (res.getDate("Test date") instanceof LocalDate);
-      assert (res.getDateTime("Test datetime") instanceof LocalDateTime);
-      assert (res.getString("Test string") instanceof String);
-      assert (res.getInteger("Test int") instanceof Integer);
-      assert (res.getDecimal("Test decimal") instanceof Double);
-      assert (res.getText("Test text") instanceof String);
-      assert (res.getBoolean("Test bool") instanceof Boolean);
-      assert (res.getUuid("Test uuid") instanceof java.util.UUID);
-      assert (res.getPeriod("Test period") instanceof Period);
+      assert res.getDate("Test date") instanceof LocalDate;
+      assert res.getDateTime("Test datetime") instanceof LocalDateTime;
+      assert res.getString("Test string") instanceof String;
+      assert res.getInteger("Test int") instanceof Integer;
+      assert res.getDecimal("Test decimal") instanceof Double;
+      assert res.getText("Test text") instanceof String;
+      assert res.getBoolean("Test bool") instanceof Boolean;
+      assert res.getUuid("Test uuid") instanceof java.util.UUID;
+      assert res.getPeriod("Test period") instanceof Period;
     }
 
     StopWatch.print("checked getters");

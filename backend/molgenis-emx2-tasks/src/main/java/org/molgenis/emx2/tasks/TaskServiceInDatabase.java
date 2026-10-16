@@ -91,7 +91,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
     try {
       ObjectMapper mapper = new ObjectMapper();
       mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      return (mapper.readValue(json.toString(), Task.class));
+      return mapper.readValue(json.toString(), Task.class);
     } catch (Exception e) {
       throw new MolgenisException("getTask(" + id + ") failed", e);
     }

@@ -172,9 +172,9 @@ public class SqlQuery extends QueryBean {
       if (select.getColumnNames().stream().anyMatch(name -> name.contains("."))) {
         throw new MolgenisException(
             "select columns cannot contain dot. Use subselects. Error: "
-                + (select.getColumnNames().stream()
+                + select.getColumnNames().stream()
                     .filter(name -> name.contains("."))
-                    .collect(Collectors.joining(","))));
+                    .collect(Collectors.joining(",")));
       }
       ;
     }
@@ -306,10 +306,10 @@ public class SqlQuery extends QueryBean {
 
     // get the table from root select
     SqlTableMetadata table = schema.getTableMetadata(select.getColumn());
-    if (table == null && (select.getColumn().endsWith("_agg"))) {
+    if (table == null && select.getColumn().endsWith("_agg")) {
       table =
           schema.getTableMetadata(select.getColumn().substring(0, select.getColumn().length() - 4));
-    } else if (table == null && (select.getColumn().endsWith("_groupBy"))) {
+    } else if (table == null && select.getColumn().endsWith("_groupBy")) {
       table =
           schema.getTableMetadata(select.getColumn().substring(0, select.getColumn().length() - 8));
     }

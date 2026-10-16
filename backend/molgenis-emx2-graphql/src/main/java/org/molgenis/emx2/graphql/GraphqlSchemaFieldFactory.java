@@ -557,7 +557,7 @@ public class GraphqlSchemaFieldFactory {
           ROLES, schema.getRoleInfos().stream().map(GraphqlSchemaFieldFactory::roleToMap).toList());
 
       // add settings for the schema
-      result.put(SETTINGS, mapSettingsToGraphql((schema.getMetadata().getSettings())));
+      result.put(SETTINGS, mapSettingsToGraphql(schema.getMetadata().getSettings()));
 
       // add name
       result.put(
@@ -610,7 +610,7 @@ public class GraphqlSchemaFieldFactory {
                   truncateTables(schema, tables);
                 } catch (MolgenisException e) {
                   this.completeWithError(e.getMessage());
-                  throw (e);
+                  throw e;
                 }
                 this.setDescription("Completed truncating table");
                 this.complete();
@@ -728,10 +728,10 @@ public class GraphqlSchemaFieldFactory {
                 "Cannot remove setting because table " + setting.get(TABLE + " does not exist"));
           }
           table.getMetadata().removeSetting(setting.get("key"));
-          message.append("Removed table setting '" + (setting.get("key")) + "'\n");
+          message.append("Removed table setting '" + setting.get("key") + "'\n");
         } else {
           schema.getMetadata().removeSetting(setting.get("key"));
-          message.append("Removed schema setting '" + (setting.get("key")) + "'\n");
+          message.append("Removed schema setting '" + setting.get("key") + "'\n");
         }
       }
     }

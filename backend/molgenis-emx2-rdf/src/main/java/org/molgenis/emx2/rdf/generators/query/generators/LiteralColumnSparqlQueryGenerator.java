@@ -118,7 +118,7 @@ public class LiteralColumnSparqlQueryGenerator implements ColumnSparqlQueryGener
   }
 
   private RdfPredicate generatePredicate(String semanticString) {
-    return () -> (inverse ? "^" + semanticString : semanticString);
+    return () -> inverse ? "^" + semanticString : semanticString;
   }
 
   /**
