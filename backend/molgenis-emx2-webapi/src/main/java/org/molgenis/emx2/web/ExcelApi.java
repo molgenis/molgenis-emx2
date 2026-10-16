@@ -105,6 +105,7 @@ public class ExcelApi {
     Path excelFile = tempDir.resolve("download.xlsx");
     TableStore excelStore = new TableStoreForXlsxFile(excelFile);
     List<Column> columns = table.getMetadata().getColumns();
+    Database database = table.getSchema().getDatabase();
     Query query = getDownloadQuery(ctx, table);
     excelStore.writeTableStreaming(
         table.getName(),
@@ -112,7 +113,7 @@ public class ExcelApi {
         consumer ->
             query.streamRows(
                 row -> {
-                  ResolveComputedValue.apply(columns, List.of(row));
+                  ResolveComputedValue.apply(database, columns, List.of(row));
                   consumer.accept(row);
                 }));
     try (OutputStream outputStream = ctx.res().getOutputStream()) {

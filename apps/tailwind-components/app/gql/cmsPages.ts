@@ -38,6 +38,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                 mg_tableclass
                 
                 # ui settings for blocks: settings
+                columns
                 enableFullScreenWidth
                 applyShadedBackground
                 
@@ -57,6 +58,9 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                     id
                 }
                 titleIsCentered
+                pageHeaderHeight {
+                    name
+                }
                 
                 # components
                 componentOrder(orderby: {order:ASC}) {
@@ -72,6 +76,7 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         # Headings
                         level
                         headingIsCentered
+                        headingIsHidden
                         
                         # Paragraphs
                         paragraphIsCentered
@@ -90,16 +95,111 @@ export const getContainersQuery = `query getContainers($filter:ContainersFilter)
                         height
                         imageIsCentered
                         
-                        # navigation groups and cards
-                        links {
+                        # Files
+                        file {
                             id
-                            title
-                            description
+                            size
+                            filename
+                            extension
                             url
-                            urlLabel
-                            urlIsExternal
-                            order
                         }
+                        alternateFileName
+                        fileTag
+                        linkToExternalFile
+                        fileIsAnExternalLink
+                        
+                        # Filelist
+                        showFilesWithTag
+
+                        #Buttons
+                        buttonLabel
+                        buttonLink
+                        buttonType
+                        buttonSize
+                        buttonIsCentered
+
+                        # navigation cards
+                        id
+                        title
+                        description
+                        url
+                        urlLabel
+                        urlIsExternal
+                        
+                        # lists: unordered and ordered
+                        orderedItems
+                        unorderedItems
+                        
+                        # statistical charts
+                        chartType {
+                            name
+                        }
+                        chartTitle
+                        chartDescription
+                        chartData {
+                            id
+                            xValue
+                            xLabel
+                            yValue
+                            yLabel
+                            fillColor
+                            strokeColor
+                            sortOrder
+                            primaryGroupValue
+                            primaryGroupLabel
+                            secondaryGroupValue
+                            secondaryGroupLabel
+                            
+                            # map data
+                            locationName
+                            alternateId
+                            city
+                            country
+                            continent
+                            latitude
+                            longitude
+                            website
+                            tooltipContent
+                        }
+                        legendIsEnabled
+                        legendPosition {
+                            name
+                        }
+                        legendIsHorizontal
+                        legendMarkerType {
+                            name
+                        }
+                        fillColor
+                        strokeColor
+                        hoverFillColor
+                        hoverStrokeColor
+                        colorPalette {
+                            value
+                            color
+                        }
+                        chartWidth
+                        chartHeight
+                        topMargin
+                        rightMargin
+                        bottomMargin
+                        leftMargin
+                        enableAnimations
+                        enableHoverEvents
+                        enableClickEvents
+                        x
+                        y
+                        primaryGroupValues
+                        secondaryGroupValues
+                        xAxisTitle
+                        xAxisMinValue
+                        xAxisMaxValue
+                        xAxisTicks
+                        breakXAxisTickLabelsAt
+                        yAxisTitle
+                        yAxisMinValue
+                        yAxisMaxValue
+                        yAxisTicks
+                        breakYAxisTickLabelsAt
                         
                     }
                 }

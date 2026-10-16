@@ -598,8 +598,8 @@ For every table, two aggregate companions are also available:
   columns or referenced tables.
 
 What each aggregate returns can be obfuscated depending on the user's permission level (see
-[Table-level permissions API](#table-level-permissions-api)); e.g. lower tiers receive bucketed
-counts instead of exact values.
+[what each role can query in GraphQL](use_permissions.md#what-each-role-can-query-in-graphql)); e.g.
+lower tiers receive bucketed counts instead of exact values.
 
 A simple query combining a row selection, `_agg` and `_groupBy`:
 

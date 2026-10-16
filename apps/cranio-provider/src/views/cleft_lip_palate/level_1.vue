@@ -12,14 +12,14 @@ import type { IAppPage, ISiteErnCleftTypeCounts } from "../../types";
 const props = defineProps<IAppPage>();
 const patientsByCleftType = ref<ISiteErnCleftTypeCounts>({
   center: {
-    "All patients": 0,
+    All: 0,
     CL: 0,
     CP: 0,
     CLA: 0,
     CLAP: 0,
   },
   ern: {
-    "All patients": 0,
+    All: 0,
     CL: 0,
     CP: 0,
     CLA: 0,
@@ -59,8 +59,8 @@ async function getData() {
     });
 
     patientsByCleftType.value.center = Object.fromEntries(centerCountValues);
-    patientsByCleftType.value.center["All patients"] = totalCountAtCenter
-      .dataPoints?.[0]?.value as number;
+    patientsByCleftType.value.center["All"] = totalCountAtCenter.dataPoints?.[0]
+      ?.value as number;
   }
 
   if (ernCounts.dataPoints && totalCountInErn.dataPoints) {
@@ -68,8 +68,8 @@ async function getData() {
       return [row.name, row.value];
     });
     patientsByCleftType.value.ern = Object.fromEntries(ernCountValues);
-    patientsByCleftType.value.ern["All patients"] = totalCountInErn
-      .dataPoints?.[0]?.value as number;
+    patientsByCleftType.value.ern["All"] = totalCountInErn.dataPoints?.[0]
+      ?.value as number;
   }
 }
 

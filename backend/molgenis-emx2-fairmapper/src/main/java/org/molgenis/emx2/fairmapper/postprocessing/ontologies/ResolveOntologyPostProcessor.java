@@ -1,0 +1,117 @@
+package org.molgenis.emx2.fairmapper.postprocessing.ontologies;
+
+import java.util.*;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.fairmapper.client.GraphqlClient;
+import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
+import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class ResolveOntologyPostProcessor implements PostProcessor {
+
+  private static final Logger logger = LoggerFactory.getLogger(ResolveOntologyPostProcessor.class);
+
+  private final Map<String, Map<String, String>> ontologyValues = new HashMap<>();
+  private final SchemaMetadata schema;
+  private final OntologyMappingFetcher ontologyMappingFetcher;
+
+  public ResolveOntologyPostProcessor(SchemaMetadata schema, GraphqlClient client) {
+    this(schema, new GraphqlOntologyMappingFetcher(client));
+  }
+
+  ResolveOntologyPostProcessor(
+      SchemaMetadata schema, OntologyMappingFetcher ontologyMappingFetcher) {
+    this.schema = schema;
+    this.ontologyMappingFetcher = ontologyMappingFetcher;
+  }
+
+  @Override
+  public void process(InMemoryTableStore tableStore) {
+    for (String table : tableStore.getTableNames()) {
+      Iterable<Row> rows = tableStore.readTable(table);
+      for (Column column : schema.getTableMetadata(table).getColumns()) {
+        if (!column.isOntology()) {
+          continue;
+        }
+
+        for (Row row : rows) {
+          if (row.containsName(column.getName())) {
+            resolveCell(column, row);
+          }
+        }
+      }
+    }
+  }
+
+  private void resolveCell(Column column, Row row) {
+    Map<String, String> ontologyMapping = getOntologyMapping(column);
+    String columnValue = row.getString(column.getName());
+    if (columnValue == null) {
+      return;
+    }
+
+    Optional<String> mappedValue;
+    if (column.isArray()) {
+      mappedValue = mapArray(column, columnValue, ontologyMapping);
+    } else {
+      mappedValue = mapSingle(column, columnValue, ontologyMapping);
+    }
+
+    if (mappedValue.isEmpty()) {
+      row.clear(column.getName());
+    } else {
+      row.set(column.getName(), mappedValue.get());
+    }
+  }
+
+  private Optional<String> mapSingle(
+      Column column, String columnValue, Map<String, String> ontologyMapping) {
+    Optional<String> mapped = Optional.ofNullable(ontologyMapping.get(columnValue));
+    if (mapped.isEmpty()) {
+      logMissingMapping(column, columnValue);
+    }
+    return mapped;
+  }
+
+  private static void logMissingMapping(Column column, String columnValue) {
+    String referenceKey = referenceKey(column);
+    logger.warn("No ontology of type: {} for value: {}", referenceKey, columnValue);
+  }
+
+  private static Optional<String> mapArray(
+      Column column, String columnValue, Map<String, String> ontologyMapping) {
+    String[] split = columnValue.split(",");
+    List<String> mappedValues = new ArrayList<>();
+    for (String value : split) {
+      String mapped = ontologyMapping.get(value);
+      if (mapped == null) {
+        logMissingMapping(column, value);
+        mappedValues.add("");
+      } else {
+        mappedValues.add(mapped);
+      }
+    }
+
+    if (mappedValues.size() != split.length) {
+      return Optional.empty();
+    } else {
+      return Optional.of(String.join(",", mappedValues));
+    }
+  }
+
+  private Map<String, String> getOntologyMapping(Column column) {
+    String key = referenceKey(column);
+    return ontologyValues.computeIfAbsent(key, s -> generateMapping(column));
+  }
+
+  private Map<String, String> generateMapping(Column column) {
+    return ontologyMappingFetcher.getMapping(column.getRefSchemaName(), column.getRefTableName());
+  }
+
+  private static String referenceKey(Column column) {
+    return column.getRefSchemaName() + "." + column.getRefTableName();
+  }
+}

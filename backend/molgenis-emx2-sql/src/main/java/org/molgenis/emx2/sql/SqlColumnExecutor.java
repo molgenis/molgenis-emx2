@@ -276,11 +276,15 @@ public class SqlColumnExecutor {
     // check table doesn't exist
     SchemaMetadata refSchema = schema;
     if (column.getRefSchemaName() != null) {
-      if (schema.getDatabase().getSchema(column.getRefSchemaName()) == null) {
+      try {
+        refSchema = schema.getSchemaMetadataProvider().getSchemaMetadata(column.getRefSchemaName());
+        if (refSchema == null) {
+          throw new MolgenisException("Unable to find Schema");
+        }
+      } catch (MolgenisException e) {
         throw new MolgenisException(
             "refSchema '" + column.getRefSchemaName() + "' does not exist or permission denied");
       }
-      refSchema = schema.getDatabase().getSchema(column.getRefSchemaName()).getMetadata();
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
@@ -351,6 +355,26 @@ public class SqlColumnExecutor {
                 .setRefBack("parent"));
   }
 
+  private static void validateKeyNotAddedToSubclass(Column column) {
+    TableMetadata table = column.getTable();
+    if (!column.isPrimaryKey()
+        || column.isAutoId()
+        || table == null
+        || !table.isSubclass()
+        || column.isInherited()) {
+      return;
+    }
+    throw new MolgenisException(
+        String.format(
+            "Cannot make column '%s.%s' part of the primary key: table '%s' extends '%s' and a"
+                + " subclass shares the primary key of its root table '%s'",
+            table.getTableName(),
+            column.getName(),
+            table.getTableName(),
+            table.getInheritName(),
+            table.getRootTable().getTableName()));
+  }
+
   static void validateColumn(Column c) {
     try {
       if (c.getName() == null) {
@@ -364,6 +388,7 @@ public class SqlColumnExecutor {
                 + c.getName()
                 + "' failed: When key spans multiple columns, none of the columns can be nullable");
       }
+      validateKeyNotAddedToSubclass(c);
       if (c.isReference() && !c.isOntology() && c.getRefTableName() == null) {
         throw new MolgenisException(
             String.format(
@@ -476,9 +501,7 @@ public class SqlColumnExecutor {
       // if has refback also drop that automatically
       if (column.getReferenceRefback() != null) {
         SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
-        column
-            .getTable()
-            .getSchema()
+        ((SqlSchemaMetadata) column.getTable().getSchema())
             .getDatabase()
             .getListener()
             .schemaChanged(column.getReferenceRefback().getSchemaName());
@@ -499,12 +522,9 @@ public class SqlColumnExecutor {
   }
 
   static void executeRemoveRefConstraints(DSLContext jooq, Column column) {
-    if (column.isRef()) {
+    if (column.isReference()) {
       SqlColumnRefExecutor.removeRefConstraints(jooq, column);
-    } else if (column.isRefArray()) {
       removeRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 
@@ -512,8 +532,8 @@ public class SqlColumnExecutor {
     if (newColumn.getDefaultValue() != null && newColumn.isReference()) {
       // we can't do this for references yet
       Object defaultValue = newColumn.getDefaultValue();
-      if (newColumn.getDefaultValue().startsWith("=")) {
-        defaultValue = executeJavascript(newColumn.getDefaultValue().substring(1));
+      if (newColumn.hasComputedDefaultValue()) {
+        defaultValue = executeJavascript(newColumn.getDefaultValueExpression());
       }
       defaultValue = getTypedValue(defaultValue, newColumn.getPrimitiveColumnType());
       jooq.alterTable(newColumn.getJooqTable())

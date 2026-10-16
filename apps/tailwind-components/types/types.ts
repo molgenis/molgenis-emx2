@@ -71,6 +71,25 @@ export interface ITreeNodeState extends ITreeNode {
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
 
+export interface IOntologyTreeItem {
+  name: string;
+  label?: string;
+  definition?: string;
+  order?: number;
+  code?: string;
+  ontologyTermURI?: string;
+  parent?: IOntologyTreeItem;
+  children?: IOntologyTreeItem[];
+}
+
+export interface IOntologyTerm {
+  name: string;
+  label?: string;
+  definition?: string;
+  order?: number;
+  parent?: { name: string } | null;
+}
+
 export type ButtonType =
   | "primary"
   | "secondary"
@@ -211,4 +230,17 @@ export interface Settings {
 }
 export interface SystemSettings extends Settings {
   isOidcEnabled: boolean;
+}
+
+export interface SchemaPermission {
+  name: string;
+  permissions: TablePermission[];
+}
+
+export interface TablePermission {
+  table: string;
+  isRowLevel: boolean;
+  insert: boolean;
+  update: boolean;
+  delete: boolean;
 }

@@ -117,13 +117,14 @@
             :style="{ left: guideX + 'px' }"
           />
 
-          <div
-            class="overflow-x-auto overscroll-x-contain bg-table rounded-t-base"
-            v-on:scroll.native="handleStickyHeaderOffset"
+          <ScrollAreaHorizontal
+            class="bg-table rounded-t-base"
+            :startInset="STICKY_SELECT_COLUMN_WIDTH"
+            @scroll="handleStickyHeaderOffset"
           >
             <div
               v-if="useStickyHeader"
-              class="fixed top-0 z-20 overflow-hidden aria-hidden=true"
+              class="fixed top-0 z-[36] overflow-hidden aria-hidden=true"
               :class="{ hidden: !showStickyHeader }"
             >
               <table
@@ -136,8 +137,10 @@
                   :settings="settings"
                   :columns="sortedVisibleColumns"
                   :showDraftColumn="showDraftColumn"
+                  :showRolesColumn="showRolesColumn"
                   :isResizing="isResizing"
                   :columnWidths="columnWidths"
+                  :selectColumnWidth="STICKY_SELECT_COLUMN_WIDTH"
                   @sort-requested="handleSortRequest"
                   @start-resize="startResize($event.event, $event.id)"
                 />
@@ -150,104 +153,113 @@
                 :settings="settings"
                 :columns="sortedVisibleColumns"
                 :showDraftColumn="showDraftColumn"
+                :showRolesColumn="showRolesColumn"
                 :isResizing="isResizing"
                 :columnWidths="columnWidths"
+                :selectColumnWidth="STICKY_SELECT_COLUMN_WIDTH"
                 @sort-requested="handleSortRequest"
                 @start-resize="startResize($event.event, $event.id)"
               />
-              <tbody
-                class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
-              >
+              <tbody class="mb-3 [&_tr:last-child_td]:after:hidden">
                 <tr
                   v-if="rows"
                   v-for="row in rows"
-                  class="group h-[50px]"
+                  class="group h-13"
                   :class="{
                     'hover:cursor-pointer': canEdit,
                   }"
                 >
-                  <TableCellEMX2
-                    class="sticky left-0 bg-table group-hover:bg-hover z-10 w-12 p-0"
+                  <td
+                    class="sticky left-0 z-20 group-hover:z-40 w-12 h-13 py-0 px-2.5 align-middle after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none shadow-[inset_-1px_0_0_var(--border-color-theme)] bg-table group-hover:bg-hover"
+                    :style="selectColumnStyle"
                   >
-                    <div class="flex justify-center items-center h-full">
-                      <Checkbox
-                        :model-value="selectedRows.has(row._rowIdString)"
-                        @update:model-value="toggleRowSelection(row)"
-                      />
+                    <Checkbox
+                      class="block mx-auto"
+                      :model-value="selectedRows.has(row._rowIdString)"
+                      @update:model-value="toggleRowSelection(row)"
+                    />
+                    <div
+                      class="absolute left-full top-0 bottom-px flex flex-row text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none items-center justify-start flex-nowrap gap-1"
+                    >
+                      <Button
+                        v-if="canDeleteRow(row)"
+                        :id="`delete-button-${row._rowIdString}`"
+                        :icon-only="true"
+                        type="inline"
+                        icon="trash"
+                        label="delete"
+                        @click="onShowDeleteModal(row)"
+                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                        aria-haspopup="dialog"
+                        :aria-expanded="showDeleteModal"
+                      >
+                        {{ row._rowIdString }}
+                      </Button>
+                      <Button
+                        v-if="canEditRow(row)"
+                        :id="`edit-button-${row._rowIdString}`"
+                        :icon-only="true"
+                        type="inline"
+                        icon="edit"
+                        label="edit"
+                        @click="onShowEditModal(row)"
+                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                        aria-haspopup="dialog"
+                        :aria-expanded="showEditModal"
+                      >
+                        {{ row._rowIdString }}
+                      </Button>
+                      <Button
+                        v-if="canCloneRow(row)"
+                        :id="`copy-button-${row._rowIdString}`"
+                        :icon-only="true"
+                        type="inline"
+                        icon="copy"
+                        label="copy"
+                        @click="onShowEditModal(row, true)"
+                        :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-copy`"
+                        aria-haspopup="dialog"
+                        :aria-expanded="showEditModal"
+                      >
+                        {{ row._rowIdString }}
+                      </Button>
+                      <slot name="additional-row-actions" :row="row" />
                     </div>
+                  </td>
+
+                  <TableCellEMX2
+                    v-if="showRolesColumn"
+                    class="text-table-row group-hover:bg-hover w-48 h-13 py-0 pl-2 pr-2.5"
+                  >
+                    {{ row.mg_roles?.[0] ?? "" }}
                   </TableCellEMX2>
 
                   <TableCellEMX2
                     v-if="showDraftColumn"
-                    class="text-table-row group-hover:bg-hover"
+                    class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
                   >
                     <DraftLabel v-if="row?.mg_draft === true" type="inline" />
                   </TableCellEMX2>
 
                   <TableCellEMX2
-                    v-for="(column, colIndex) in sortedVisibleColumns"
+                    v-for="column in sortedVisibleColumns"
                     :style="{ width: columnWidths[column.id] + 'px' }"
-                    class="text-table-row group-hover:bg-hover"
+                    class="text-table-row group-hover:bg-hover h-13 py-0 pl-2 pr-2.5"
                     :class="{
                       'w-60 lg:w-full': columns.length <= 5,
                       'w-60': columns.length > 5,
-                      'h-11': !row[column.id],
                     }"
                     :scope="column.key === 1 ? 'row' : null"
                     :metadata="column"
                     :data="row[column.id]"
                     @cellClicked="handleCellClick"
-                  >
-                    <template #row-actions v-if="colIndex === 0">
-                      <div
-                        class="absolute left-12 h-10 -mt-2 z-10 text-table-row bg-inherit group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
-                      >
-                        <Button
-                          v-if="canDeleteRow(row)"
-                          :id="`delete-button-${row._rowIdString}`"
-                          :icon-only="true"
-                          type="inline"
-                          icon="trash"
-                          label="delete"
-                          @click="onShowDeleteModal(row)"
-                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-                          aria-haspopup="dialog"
-                          :aria-expanded="showDeleteModal"
-                        >
-                          {{ row._rowIdString }}
-                        </Button>
-                        <Button
-                          v-if="canEditRow(row)"
-                          :id="`edit-button-${row._rowIdString}`"
-                          :icon-only="true"
-                          type="inline"
-                          icon="edit"
-                          label="edit"
-                          @click="onShowEditModal(row)"
-                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                          aria-haspopup="dialog"
-                          :aria-expanded="showEditModal"
-                        >
-                          {{ row._rowIdString }}
-                        </Button>
-                        <Button
-                          v-if="canCloneRow(row)"
-                          :id="`copy-button-${row._rowIdString}`"
-                          :icon-only="true"
-                          type="inline"
-                          icon="copy"
-                          label="copy"
-                          @click="onShowEditModal(row, true)"
-                          :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-copy`"
-                          aria-haspopup="dialog"
-                          :aria-expanded="showEditModal"
-                        >
-                          {{ row._rowIdString }}
-                        </Button>
-                        <slot name="additional-row-actions" :row="row" />
-                      </div>
-                    </template>
-                  </TableCellEMX2>
+                  />
+
+                  <!-- Matches the filler column in the header -->
+                  <td
+                    aria-hidden="true"
+                    class="relative after:absolute after:inset-x-0 after:bottom-0 after:border-b after:pointer-events-none after:z-[35] group-hover:bg-hover"
+                  />
                 </tr>
               </tbody>
             </table>
@@ -260,7 +272,7 @@
                 :label="emptyRowsLabel"
               />
             </div>
-          </div>
+          </ScrollAreaHorizontal>
         </div>
 
         <div
@@ -321,7 +333,17 @@
     :isInsert="isCopy"
     v-model:visible="showEditModal"
     @update:cancelled="afterClose"
-  />
+  >
+    <template #header="{ formValues }">
+      <EditModalHeader
+        v-if="formValues"
+        :formValues="formValues"
+        :isInsert="isCopy"
+        :tableId="tableId"
+        :schemaId="schemaId"
+      />
+    </template>
+  </EditModal>
 
   <EditModal
     v-if="data?.tableMetadata && showAddModal"
@@ -332,7 +354,17 @@
     :isInsert="true"
     v-model:visible="showAddModal"
     @update:cancelled="afterClose"
-  />
+  >
+    <template #header="{ formValues }">
+      <EditModalHeader
+        v-if="formValues"
+        :formValues="formValues"
+        :isInsert="isCopy"
+        :tableId="tableId"
+        :schemaId="schemaId"
+      />
+    </template>
+  </EditModal>
 </template>
 
 <script setup lang="ts">
@@ -344,6 +376,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
+  ITablePermission,
   ITableSettings,
   sortDirection,
 } from "../../../types/types";
@@ -354,34 +387,36 @@ import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import { rowMatchesUserRole } from "../../utils/rowMatchesUserRole";
 
-import type { IGraphQLFilter } from "../../../types/filters";
-import type { UseFilters } from "../../../types/filters";
+import type { IGraphQLFilter, UseFilters } from "../../../types/filters";
 import { useFilters } from "../../composables/useFilters";
 import TableCellEMX2 from "./CellEMX2.vue";
 
+import ActiveFilters from "../filter/ActiveFilters.vue";
+import FilterSidebarContent from "../filter/SidebarContent.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
 import InputSearch from "../input/Search.vue";
+import ScrollAreaHorizontal from "../ScrollAreaHorizontal.vue";
 import Sidebar from "../Sidebar.vue";
-import FilterSidebarContent from "../filter/SidebarContent.vue";
-import ActiveFilters from "../filter/ActiveFilters.vue";
 
 import { useAsyncData } from "nuxt/app";
 import { useColumnResize } from "../../composables/useColumnResize";
+import { useSession } from "../../composables/useSession";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
 import Button from "../Button.vue";
+import Checkbox from "../input/Checkbox.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
-import DraftLabel from "../label/DraftLabel.vue";
-import Checkbox from "../input/Checkbox.vue";
 import CellDetailModal from "./cellDetail/CellDetailModal.vue";
-import RowControls from "./control/RowControls.vue";
-import DeleteRows from "./control/DeleteRows.vue";
 import TableControlColumns from "./control/Columns.vue";
-import TableEMX2Head from "./TableEMX2Head.vue";
+import DeleteRows from "./control/DeleteRows.vue";
 import DownloadButton from "./control/DownloadButton.vue";
+import RowControls from "./control/RowControls.vue";
 import Truncate from "./control/Truncate.vue";
+import TableEMX2Head from "./TableEMX2Head.vue";
+import EditModalHeader from "../form/EditModalHeader.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -390,7 +425,6 @@ const props = withDefaults(
     canInsert?: boolean;
     canUpdate?: boolean;
     canDelete?: boolean;
-    /** the table is under row level security, act per row on mg_roles */
     isRowLevel?: boolean;
     userRoles?: string[];
     filter?: IGraphQLFilter;
@@ -410,6 +444,12 @@ const props = withDefaults(
     useStickyHeader: () => true,
   }
 );
+
+const STICKY_SELECT_COLUMN_WIDTH = 48;
+
+const selectColumnStyle = {
+  width: `${STICKY_SELECT_COLUMN_WIDTH}px`,
+};
 
 const canEdit = computed(
   () => props.canInsert || props.canUpdate || props.canDelete
@@ -449,10 +489,7 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-type TableRow = {
-  _rowId: Record<string, columnValue>;
-  _rowIdString: string;
-} & Record<string, columnValue>;
+const { showRolesForTable } = await useSession(props.schemaId);
 
 const filters: UseFilters | null = props.enableFilters
   ? useFilters(
@@ -495,7 +532,7 @@ const effectiveFilter = computed(() =>
   filters ? filters.gqlFilter.value : props.filter
 );
 
-const { data, refresh, status } = useAsyncData(
+const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
     const tableMetadata = await fetchTableMetadata(
@@ -633,6 +670,13 @@ const emptyRowsLabel = computed(() =>
 const showDraftColumn = computed(() =>
   rows.value.some((row: TableRow) => row?.mg_draft === true)
 );
+
+const showRolesColumn = computed(() => {
+  return (
+    showRolesForTable(props.tableId) &&
+    rows.value.some((row: TableRow) => row.mg_roles?.length)
+  );
+});
 
 const count = computed(() => data.value?.count ?? 0);
 
@@ -831,4 +875,10 @@ async function afterRowDeleted() {
   // maybe notify user, and do more stuff
   await refresh();
 }
+
+type TableRow = {
+  _rowId: Record<string, columnValue>;
+  _rowIdString: string;
+  mg_roles?: string[];
+} & Record<string, columnValue>;
 </script>

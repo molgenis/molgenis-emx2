@@ -5,13 +5,16 @@ import { ref, useTemplateRef } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRafFn as useAnimationFrame } from "@vueuse/core";
 import { hideAllPoppers } from "floating-vue";
+
 import {
   addBlock,
   addComponent,
   moveBlockTo,
   moveComponentTo,
 } from "../../utils/cms";
+
 import type { IDraggingInfo } from "../../../types/CmsComponents";
+
 const scroll = useWindowScroll();
 const dropzone = useTemplateRef("dropzone");
 
@@ -25,9 +28,11 @@ const props = withDefaults(
     order?: number;
     parent: string;
     draggingInfo: IDraggingInfo;
+    columnIndex?: string | number;
   }>(),
   {
     order: 0,
+    columnIndex: -1,
   }
 );
 
@@ -57,6 +62,7 @@ useAnimationFrame(() => {
     0
   );
 });
+
 async function handleDrop() {
   if (props.draggingInfo.action === "create") {
     await addComponentToBlock();
@@ -64,6 +70,7 @@ async function handleDrop() {
     await moveComponentToBlock();
   }
 }
+
 async function addComponentToBlock() {
   if (props.draggingInfo.componentType === "Component") {
     await addComponent(
@@ -85,6 +92,7 @@ async function addComponentToBlock() {
   hideAllPoppers();
   emit("updatePage");
 }
+
 async function moveComponentToBlock() {
   if (props.draggingInfo.componentType === "Component") {
     await moveComponentTo(
@@ -129,6 +137,7 @@ async function moveComponentToBlock() {
           :style="{ height: distance + 'px' }"
         >
           <p class="text-title-contrast pointer-events-none">
+            <span v-if="columnIndex !== -1">Location {{ columnIndex }} - </span>
             {{ props.draggingInfo.action === "create" ? "Add new" : "Move" }}
             {{ props.draggingInfo.componentName }}
             <span class="hidden" :class="{ '!inline': hover }">here</span>

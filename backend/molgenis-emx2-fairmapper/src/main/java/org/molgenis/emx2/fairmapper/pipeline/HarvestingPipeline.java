@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.repository.Repository;
@@ -12,11 +13,11 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.fairmapper.postprocessing.PostProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.RdfPreProcessor;
-import org.molgenis.emx2.io.ImportSchemaTask;
 import org.molgenis.emx2.io.tablestore.InMemoryTableStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
@@ -36,37 +37,49 @@ public class HarvestingPipeline {
     this.config = config;
   }
 
+  @SuppressWarnings("java:S2589")
   public void execute() {
     logger.info("Starting harvesting pipeline: {}", harvestId);
-    Repository repository = new SailRepository(new MemoryStore());
 
-    if (config.dumpEnabled() && !outputDirectory().toFile().mkdirs()) {
-      throw new MolgenisException("Could not create output directory: " + config.outputPath());
+    logger.info("Validating harvesting config");
+    SchemaMetadata schema = config.schemaMetadataProvider().getSchemaMetadata(config.schemaName());
+    validateTables(schema);
+
+    Repository repository = null;
+    try {
+      repository = new SailRepository(new NativeStore());
+
+      if (config.dumpEnabled() && !outputDirectory().toFile().mkdirs()) {
+        throw new MolgenisException("Could not create output directory: " + config.outputPath());
+      }
+
+      config.extractor().addRdfToRepository(repository, config.rdf());
+
+      if (config.dumpEnabled()) {
+        writeRepositoryToFile(repository, "extracted.ttl");
+      }
+
+      if (!config.preProcessors().isEmpty()) {
+        preProcess(repository);
+      }
+
+      InMemoryTableStore transformed = transform(repository, schema);
+
+      if (!config.postProcessors().isEmpty()) {
+        postProcess(transformed);
+      }
+
+      if (config.loadEnabled()) {
+        config.dataUploader().upload(transformed);
+      } else {
+        logger.info("No data loaded for harvesting pipeline: {}", harvestId);
+      }
+      logger.info("Finished harvesting pipeline: {}", harvestId);
+    } finally {
+      if (repository != null && repository.isInitialized()) {
+        repository.shutDown();
+      }
     }
-
-    config.extractor().addRdfToRepository(repository, config.rdf());
-
-    if (config.dumpEnabled()) {
-      writeRepositoryToFile(repository, "extracted.ttl");
-    }
-
-    if (!config.preProcessors().isEmpty()) {
-      preProcess(repository);
-    }
-
-    InMemoryTableStore transformed = transform(repository);
-
-    if (!config.postProcessors().isEmpty()) {
-      postProcess(transformed);
-    }
-
-    if (config.loadDataEnabled()) {
-      load(transformed);
-    } else {
-      logger.info("No data loaded for harvesting pipeline: {}", harvestId);
-    }
-
-    logger.info("Finished harvesting pipeline: {}", harvestId);
   }
 
   private void preProcess(Repository extract) {
@@ -79,8 +92,9 @@ public class HarvestingPipeline {
     }
   }
 
-  private InMemoryTableStore transform(Repository extracted) {
-    InMemoryTableStore transformed = config.transformer().transform(extracted);
+  private InMemoryTableStore transform(Repository extracted, SchemaMetadata schema) {
+    InMemoryTableStore transformed =
+        config.transformer().transform(extracted, schema, config.tables());
 
     if (config.dumpEnabled()) {
       writeTableStoreToZip(transformed, config.tables(), "transformed.zip");
@@ -96,25 +110,6 @@ public class HarvestingPipeline {
 
     if (config.dumpEnabled()) {
       writeTableStoreToZip(transform, config.tables(), "postprocessed.zip");
-    }
-  }
-
-  private void load(InMemoryTableStore tableStore) {
-    logger.info("Loading harvested data into schema: {}", config.schema().getName());
-    ImportSchemaTask tasks =
-        new ImportSchemaTask(
-                tableStore, config.schema(), false, config.tables().toArray(new String[0]))
-            .setFilter(ImportSchemaTask.Filter.DATA_ONLY);
-
-    tasks.run();
-    while (tasks.isRunning()) {
-      logger.info("waiting...");
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw new MolgenisException("Something went wrong when uploading the data: ", e);
-      }
     }
   }
 
@@ -147,5 +142,16 @@ public class HarvestingPipeline {
 
   private Path outputDirectory() {
     return Path.of(config.outputPath()).resolve(OUTPUT_DIRECTORY_NAME + harvestId);
+  }
+
+  private void validateTables(SchemaMetadata schema) {
+    String missing =
+        config.tables().stream()
+            .filter(name -> schema.getTableMetadata(name) == null)
+            .collect(Collectors.joining(", "));
+    if (!missing.isBlank()) {
+      throw new MolgenisException(
+          "Unknown table(s) configured: " + missing + " for schema: " + schema.getName());
+    }
   }
 }

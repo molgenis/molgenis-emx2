@@ -9,11 +9,10 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
 import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
-import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -36,19 +35,27 @@ public class Extract implements Runnable {
       description = "Write results to specified path")
   private String outputPath;
 
+  @SuppressWarnings("java:S2589")
   @Override
   public void run() {
-    Repository repository = new SailRepository(new MemoryStore());
-    URI endpoint = URI.create(rdf);
-    RdfExtractor extractor = new FdpRdfExtractor(new RemoteRdfExtractor(), endpoint);
-    extractor.addRdfToRepository(repository, endpoint);
-    try (RepositoryConnection connection = repository.getConnection();
-        FileOutputStream fos = new FileOutputStream(outputPath)) {
-      RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, fos);
-      connection.export(writer);
-      writer.endRDF();
-    } catch (IOException e) {
-      throw new MolgenisException("Something went wrong extracting endpoint: " + rdf, e);
+    Repository repository = null;
+    try {
+      repository = new SailRepository(new NativeStore());
+      URI endpoint = URI.create(rdf);
+      RdfExtractor extractor = new CrawlingRdfExtractor();
+      extractor.addRdfToRepository(repository, endpoint);
+      try (RepositoryConnection connection = repository.getConnection();
+          FileOutputStream fos = new FileOutputStream(outputPath)) {
+        RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, fos);
+        connection.export(writer);
+        writer.endRDF();
+      } catch (IOException e) {
+        throw new MolgenisException("Something went wrong extracting endpoint: " + rdf, e);
+      }
+    } finally {
+      if (repository != null && repository.isInitialized()) {
+        repository.shutDown();
+      }
     }
   }
 }

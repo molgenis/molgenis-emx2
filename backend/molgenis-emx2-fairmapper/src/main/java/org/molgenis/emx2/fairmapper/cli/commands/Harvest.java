@@ -1,21 +1,22 @@
 package org.molgenis.emx2.fairmapper.cli.commands;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
-import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.fairmapper.extractors.FdpRdfExtractor;
-import org.molgenis.emx2.fairmapper.extractors.RdfExtractor;
-import org.molgenis.emx2.fairmapper.extractors.RemoteRdfExtractor;
+import org.molgenis.emx2.fairmapper.client.CachingSchemaMetadataProvider;
+import org.molgenis.emx2.fairmapper.client.GraphqlClient;
+import org.molgenis.emx2.fairmapper.client.GraphqlSchemaMetadataProvider;
+import org.molgenis.emx2.fairmapper.extractors.CrawlSteps;
+import org.molgenis.emx2.fairmapper.extractors.CrawlingRdfExtractor;
+import org.molgenis.emx2.fairmapper.load.RemoteDataUploader;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipeline;
 import org.molgenis.emx2.fairmapper.pipeline.HarvestingPipelineConfig;
 import org.molgenis.emx2.fairmapper.postprocessing.DCATPostProcessor;
+import org.molgenis.emx2.fairmapper.preprocessing.StageCsvwPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TemporalRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.preprocessing.TypicalAgeRdfPreProcessor;
 import org.molgenis.emx2.fairmapper.transform.SparqlSelectRdfTransformer;
 import org.molgenis.emx2.rdf.generators.query.TableQueryGenerator;
-import org.molgenis.emx2.sql.SqlDatabase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -53,75 +54,60 @@ public class Harvest implements Runnable {
   private String outputPath;
 
   @CommandLine.Option(
-      names = {"-l", "--load"},
+      names = {"-u", "--upload"},
       description = "Write intermediate post processing results to files")
   private boolean enableLoading;
+
+  @CommandLine.Option(
+      names = {"-e", "--endpoint"},
+      required = true,
+      description = "Base URL of the remote emx2 instance")
+  private String endpoint;
+
+  @CommandLine.Option(
+      names = {"-to", "--token"},
+      required = true,
+      description = "Authentication token for the remote emx2 instance")
+  private String token;
 
   @Override
   public void run() {
     logger.info("Starting harvest with ID: {}", HARVEST_ID);
 
-    Database database = setupDatabase();
-    Schema schema = validateSchema(database);
-    String[] tables = validateTables(schema);
-
-    URI rdfURI = getRdf();
-
-    RdfExtractor extractor = new FdpRdfExtractor(new RemoteRdfExtractor(), rdfURI);
-    SparqlSelectRdfTransformer transformer =
-        new SparqlSelectRdfTransformer(
-            new TableQueryGenerator(), schema.getMetadata(), List.of(tables));
+    SchemaMetadataProvider schemaMetadataProvider = getSchemaMetadataProvider();
+    SchemaMetadata schema = schemaMetadataProvider.getSchemaMetadata(schemaName);
 
     HarvestingPipelineConfig.Builder builder =
-        new HarvestingPipelineConfig.Builder(rdfURI, schema, extractor, transformer)
-            .setTables(tables)
-            .withPostProcessors(new DCATPostProcessor(schema.getMetadata()))
-            .withPreProcessors(new TemporalRdfPreProcessor(), new TypicalAgeRdfPreProcessor());
+        new HarvestingPipelineConfig.Builder(
+                URI.create(rdf),
+                schemaName,
+                schemaMetadataProvider,
+                new CrawlingRdfExtractor().withCrawlSteps(CrawlSteps.FDP.steps()),
+                new SparqlSelectRdfTransformer(new TableQueryGenerator()))
+            .setTables(this.tablesArg.split(","))
+            .withPostProcessors(new DCATPostProcessor(new GraphqlClient(endpoint, token), schema))
+            .withPreProcessors(
+                new TemporalRdfPreProcessor(),
+                new TypicalAgeRdfPreProcessor(),
+                new StageCsvwPreProcessor());
 
     if (outputPath != null) {
       builder.withDumpEnabled(outputPath);
     }
 
     if (enableLoading) {
-      builder.enableDataLoading();
+      builder.withDataLoader(new RemoteDataUploader(endpoint, token, schemaName));
     }
 
     runPipeline(builder);
   }
 
+  SchemaMetadataProvider getSchemaMetadataProvider() {
+    return new CachingSchemaMetadataProvider(
+        new GraphqlSchemaMetadataProvider(new GraphqlClient(endpoint, token)));
+  }
+
   public void runPipeline(HarvestingPipelineConfig.Builder builder) {
     new HarvestingPipeline(builder.build()).execute();
-  }
-
-  @NotNull
-  private URI getRdf() {
-    return URI.create(rdf);
-  }
-
-  private static Database setupDatabase() {
-    logger.info("Accessing database");
-    SqlDatabase database = new SqlDatabase(false);
-    database.becomeAdmin();
-    return database;
-  }
-
-  private Schema validateSchema(Database database) {
-    logger.info("Retrieving schema information: {}", schemaName);
-    Schema schema = database.getSchema(schemaName);
-    if (schema == null) {
-      throw new MolgenisException("Schema not found: " + schemaName);
-    }
-    return schema;
-  }
-
-  private String[] validateTables(Schema schema) {
-    logger.info("Validating table names: {}", tablesArg);
-    String[] tables = this.tablesArg.split(",");
-    for (String table : tables) {
-      if (schema.getTable(table) == null) {
-        throw new MolgenisException("Table not found: " + table);
-      }
-    }
-    return tables;
   }
 }

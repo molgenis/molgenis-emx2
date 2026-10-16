@@ -2,6 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import EMX2Value from "../../../../app/components/value/EMX2.vue";
 import ValueList from "../../../../app/components/value/List.vue";
+import ValueOntology from "../../../../app/components/value/Ontology.vue";
 import ValueText from "../../../../app/components/value/Text.vue";
 import type { IColumn } from "../../../../../metadata-utils/src/types";
 
@@ -9,6 +10,18 @@ const ontologyArray: IColumn = {
   id: "diseases",
   label: "Diseases",
   columnType: "ONTOLOGY_ARRAY",
+};
+
+const ontology: IColumn = {
+  id: "disease",
+  label: "Disease",
+  columnType: "ONTOLOGY",
+};
+
+const stringArray: IColumn = {
+  id: "aliases",
+  label: "Aliases",
+  columnType: "STRING_ARRAY",
 };
 
 const singleString: IColumn = {
@@ -27,16 +40,21 @@ const eightTerms = Array.from({ length: 8 }, (_, index) => ({
   name: `Term ${index + 1}`,
 }));
 
+const eightStrings = Array.from(
+  { length: 8 },
+  (_, index) => `Term ${index + 1}`
+);
+
 describe("value/EMX2.vue", () => {
   it("bounds a multi-valued column by lines, not by item count", () => {
     const wrapper = mount(EMX2Value, {
-      props: { metadata: ontologyArray, data: eightTerms },
+      props: { metadata: stringArray, data: eightStrings },
     });
 
     expect(wrapper.findComponent(ValueList).props("maxLines")).toBe(undefined);
 
     const overridden = mount(EMX2Value, {
-      props: { metadata: ontologyArray, data: eightTerms, maxLines: 8 },
+      props: { metadata: stringArray, data: eightStrings, maxLines: 8 },
     });
 
     expect(overridden.findComponent(ValueList).props("maxLines")).toBe(8);
@@ -87,10 +105,32 @@ describe("value/EMX2.vue", () => {
 
   it("leaves the bound off entirely when the caller bounds the value itself", () => {
     const wrapper = mount(EMX2Value, {
-      props: { metadata: ontologyArray, data: eightTerms, truncate: false },
+      props: { metadata: stringArray, data: eightStrings, truncate: false },
     });
 
     expect(wrapper.findComponent(ValueList).props("truncate")).toBe(false);
+  });
+
+  it("renders an ontology value as the tree, and as links when compact", () => {
+    const tree = mount(EMX2Value, {
+      props: { metadata: ontology, data: { name: "Term 1" } },
+    });
+
+    expect(tree.findComponent(ValueOntology).exists()).toBe(true);
+
+    const compactSingle = mount(EMX2Value, {
+      props: { metadata: ontology, data: { name: "Term 1" }, compact: true },
+    });
+
+    expect(compactSingle.findComponent(ValueOntology).exists()).toBe(false);
+    expect(compactSingle.get("button").text()).toBe("Term 1");
+
+    const compactArray = mount(EMX2Value, {
+      props: { metadata: ontologyArray, data: eightTerms, compact: true },
+    });
+
+    expect(compactArray.findComponent(ValueOntology).exists()).toBe(false);
+    expect(compactArray.findComponent(ValueList).exists()).toBe(true);
   });
 
   it("bounds CHECKBOX and MULTISELECT, which are multi-valued without an _ARRAY suffix", () => {

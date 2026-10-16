@@ -16,17 +16,9 @@
   <Modal v-model:visible="visible" max-width="max-w-9/10" @closed="onCancel">
     <template #header>
       <header
-        class="pt-[36px] px-8 overflow-y-auto border-b border-divider flex-none"
+        class="pt-[36px] px-8 overflow-visible border-b border-divider flex-none"
       >
-        <div class="mb-5 relative flex items-center">
-          <h2
-            class="uppercase text-heading-4xl font-display text-title-contrast"
-          >
-            {{ isInsert ? "Add" : "Edit" }} {{ tableId }}
-          </h2>
-
-          <DraftLabel v-if="isDraft" />
-        </div>
+        <slot name="header" :formValues="formValues" />
 
         <button
           @click="onCancel"
@@ -50,7 +42,7 @@
         v-if="form?.showLegend.value"
         class="col-span-1 bg-form-legend overflow-y-auto min-h-0"
       >
-        <FormLegend
+        <Legend
           class="sticky top-0"
           :sections="form.sections.value"
           @goToSection="gotoSection"
@@ -151,12 +143,11 @@ import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import { getInitialFormValues } from "../../utils/typeUtils";
 import BaseIcon from "../BaseIcon.vue";
 import Button from "../Button.vue";
-import DraftLabel from "../label/DraftLabel.vue";
 import Modal from "../Modal.vue";
 import TransitionSlideUp from "../transition/SlideUp.vue";
 import FormError from "./Error.vue";
 import Form from "./Form.vue";
-import FormLegend from "./Legend.vue";
+import Legend from "../Legend.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
 
@@ -191,6 +182,17 @@ const visible = defineModel<boolean>("visible");
 // lazy init formContext (form) when modal is opened
 let form: UseForm | undefined;
 
+const session = await useSession(props.schemaId);
+
+const saveErrorMessage = ref<string>("");
+const formMessage = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
+
+const tableId = computed(() => props.metadata.id);
+const savingDraft = computed(
+  () => saving.value && formValues.value["mg_draft"] === true
+);
+
 watch(
   visible,
   (newValue, oldValue) => {
@@ -205,10 +207,6 @@ watch(
   { immediate: true }
 );
 
-const savingDraft = computed(
-  () => saving.value && formValues.value["mg_draft"] === true
-);
-
 watch(formValues.value, () => {
   formMessage.value = "";
 });
@@ -216,14 +214,6 @@ watch(formValues.value, () => {
 watch(formValues.value, () => {
   formMessage.value = "";
 });
-
-const session = await useSession();
-const saveErrorMessage = ref<string>("");
-const formMessage = ref<string>("");
-const showReAuthenticateButton = ref<boolean>(false);
-
-const tableId = computed(() => props.metadata.id);
-const isDraft = computed(() => formValues.value["mg_draft"] === true || false);
 
 function initFormValues() {
   const values =

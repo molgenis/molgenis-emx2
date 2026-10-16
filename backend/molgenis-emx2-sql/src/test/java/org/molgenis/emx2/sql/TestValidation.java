@@ -67,7 +67,8 @@ public class TestValidation {
     // see https://github.com/molgenis/molgenis-emx2/issues/2331
     TableMetadata pet = schema.getTable("Pet").getMetadata();
     pet.alterColumn("tags", pet.getColumn("tags").setVisible("false").setRequired(true));
-    pet.getTable()
+    schema
+        .getTable("Pet")
         .insert(
             row(
                 "name",
@@ -83,7 +84,8 @@ public class TestValidation {
     // see https://github.com/molgenis/molgenis-emx2/issues/2384
     TableMetadata pet = schema.getTable("Pet").getMetadata();
     pet.alterColumn("details", pet.getColumn("details").setRequired(true));
-    pet.getTable()
+    schema
+        .getTable("Pet")
         .insert(
             row(
                 "name",
