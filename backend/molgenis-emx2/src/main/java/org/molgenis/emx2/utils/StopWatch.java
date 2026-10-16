@@ -20,7 +20,7 @@ public class StopWatch {
 
   public static void print(String message, int count) {
     long endTime = System.currentTimeMillis();
-    long total = (endTime - time);
+    long total = endTime - time;
     if (total == 0) {
       total = 1;
     }

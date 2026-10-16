@@ -165,7 +165,7 @@ public class RDFApi {
           db.tx(
               database -> {
                 for (int i = 0; i < schemas.length; i++) {
-                  schemas[i] = (db.getSchema(schemaNamesArr[i]));
+                  schemas[i] = db.getSchema(schemaNamesArr[i]);
                 }
                 service.getGenerator().generate(List.of(schemas));
               });

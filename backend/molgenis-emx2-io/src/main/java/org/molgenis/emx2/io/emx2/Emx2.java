@@ -92,7 +92,7 @@ public class Emx2 {
                 value -> {
                   schema
                       .getTableMetadata(tableName)
-                      .setLabel(row.getString(value, false), (value.split(":")[1]));
+                      .setLabel(row.getString(value, false), value.split(":")[1]);
                 });
         if (row.containsName(DESCRIPTION)) {
           schema.getTableMetadata(tableName).setDescription(row.getString(DESCRIPTION, false));
@@ -104,7 +104,7 @@ public class Emx2 {
                 value -> {
                   schema
                       .getTableMetadata(tableName)
-                      .setDescription(row.getString(value, false), (value.split(":")[1]));
+                      .setDescription(row.getString(value, false), value.split(":")[1]);
                 });
       }
 
@@ -155,7 +155,7 @@ public class Emx2 {
               .filter(name -> name.startsWith(DESCRIPTION + ":"))
               .forEach(
                   value -> {
-                    column.setDescription(row.getString(value), (value.split(":")[1]));
+                    column.setDescription(row.getString(value), value.split(":")[1]);
                   });
           if (row.notEmpty(VALIDATION)) {
             column.setValidation(row.getString(VALIDATION));
@@ -200,7 +200,7 @@ public class Emx2 {
               .filter(name -> name.startsWith(LABEL + ":"))
               .forEach(
                   value -> {
-                    column.setLabel(row.getString(value), (value.split(":")[1]));
+                    column.setLabel(row.getString(value), value.split(":")[1]);
                   });
           if (row.notEmpty(COLUMN_FORM_LABEL)) {
             column.setFormLabel(row.getString(COLUMN_FORM_LABEL));

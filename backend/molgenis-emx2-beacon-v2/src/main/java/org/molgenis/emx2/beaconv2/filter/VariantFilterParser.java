@@ -89,7 +89,7 @@ public class VariantFilterParser implements FilterParser {
   }
 
   private GenomicQueryType getGenomicQueryType() {
-    if ((qReferenceName != null && qStart != null) && (qGeneId == null)) {
+    if (qReferenceName != null && qStart != null && (qGeneId == null)) {
       if (qEnd != null) {
         if (qStart.length == 1 && qEnd.length == 1) {
           return GenomicQueryType.RANGE;

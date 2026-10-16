@@ -51,7 +51,7 @@ public class Emx1 {
     }
 
     if (logger.isInfoEnabled()) {
-      logger.info("import completed in {}ms", (System.currentTimeMillis() - start));
+      logger.info("import completed in {}ms", System.currentTimeMillis() - start);
     }
   }
 

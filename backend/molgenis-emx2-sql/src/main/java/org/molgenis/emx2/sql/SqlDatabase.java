@@ -301,7 +301,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   private void log(long start, String message) {
     if (logger.isInfoEnabled()) {
-      logger.info("{} in {}ms", message, (System.currentTimeMillis() - start));
+      logger.info("{} in {}ms", message, System.currentTimeMillis() - start);
     }
   }
 
@@ -836,7 +836,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return true;
     }
     User user = getUser(getActiveUser());
-    return (user != null && user.isAdmin());
+    return user != null && user.isAdmin();
   }
 
   @Override

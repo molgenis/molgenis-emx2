@@ -451,7 +451,7 @@ class SqlTableMetadata extends TableMetadata {
           user,
           message,
           tableMetadata.getJooqTable(),
-          (System.currentTimeMillis() - start));
+          System.currentTimeMillis() - start);
     }
   }
 
@@ -462,7 +462,7 @@ class SqlTableMetadata extends TableMetadata {
     }
     if (logger.isInfoEnabled()) {
       logger.info(
-          "{} {} {} in {}ms", user, message, getJooqTable(), (System.currentTimeMillis() - start));
+          "{} {} {} in {}ms", user, message, getJooqTable(), System.currentTimeMillis() - start);
     }
   }
 
