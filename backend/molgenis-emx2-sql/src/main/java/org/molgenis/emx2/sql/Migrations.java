@@ -323,9 +323,7 @@ public class Migrations {
           String functionName = table.getName() + MG_TABLECLASS_UPDATE;
           List<TableField> keyFields = ((UniqueKey) table.getKeys().get(0)).getFields();
           String keyColumns =
-              keyFields.stream()
-                  .map(keyField -> keyField.getName())
-                  .collect(Collectors.joining(","));
+              keyFields.stream().map(Field::getName).collect(Collectors.joining(","));
           String keyValues =
               keyFields.stream()
                   .map(keyField -> "OLD." + name(keyField.getName()))

@@ -40,7 +40,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
           this.tables.keySet().stream()
               .filter(t -> !from.tables.containsKey(t))
               .collect(Collectors.toSet());
-      remove.forEach(t -> this.tables.remove(t));
+      remove.forEach(this.tables::remove);
 
       // sync tables metadata
       from.tables
