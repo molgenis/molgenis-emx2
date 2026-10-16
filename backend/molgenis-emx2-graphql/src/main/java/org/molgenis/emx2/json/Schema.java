@@ -61,7 +61,9 @@ public class Schema {
       if (t.getTableType() != null) {
         tm.setTableType(t.getTableType());
       }
-      if (t.getDrop()) tm.drop();
+      if (t.getDrop()) {
+        tm.drop();
+      }
       tm.setSemantics(t.getSemantics());
       tm.setLabels(
           t.getLabels().stream()

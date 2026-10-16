@@ -55,7 +55,9 @@ public class CafeVariomeApi {
     if (!database.isAnonymous()) {
       return;
     }
-    if (!hasKeycloakConfiguration()) return;
+    if (!hasKeycloakConfiguration()) {
+      return;
+    }
     HttpResponse<String> response;
     try (HttpClient client = HttpClient.newHttpClient()) {
 

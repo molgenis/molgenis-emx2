@@ -33,32 +33,38 @@ public class Migrations {
           int version = getVersion(db.getJooq());
 
           // -1 getVersion indicates schema does not exist
-          if (version < 0) init(((SqlDatabase) tdb).getJooq());
+          if (version < 0) {
+            init(((SqlDatabase) tdb).getJooq());
+          }
 
           // migration steps to update from a previous version to SOFTWARE_DATABASE_VERSION
           // idea is that all steps need to be run when initializing empty server
           // this ensures 'new' and 'updated' servers are equal and same logic is not specified 2x
           // (one for 'new' and one for 'migration')
-          if (version < 1)
+          if (version < 1) {
             executeMigrationFile(
                 tdb,
                 "migration1.sql",
                 "database migration: MOLGENIS.version_metadata tracks int database version number checks against code instead of string version number from released jar");
-          if (version < 2)
+          }
+          if (version < 2) {
             executeMigrationFile(
                 tdb,
                 "migration2.sql",
                 "database migration: role names are made case-sensitive matching schema names, to fix issue where roles where conflicting between schemas with same uppercase(name)");
-          if (version < 3)
+          }
+          if (version < 3) {
             executeMigrationFile(
                 tdb,
                 "migration3.sql",
                 "database migration: add description column to MOLGENIS.schema_metadata to store schema description");
-          if (version < 4)
+          }
+          if (version < 4) {
             executeMigrationFile(
                 tdb,
                 "migration4.sql",
                 "database migration: add MOLGENIS.table_metadata.table_type");
+          }
 
           if (version < 5) {
             migration5addMgTableclassUpdateTrigger((SqlDatabase) tdb);
@@ -66,34 +72,44 @@ public class Migrations {
                 "Updated all tables to have mg_tableclass trigger to prevent accidental overwrite of subclass records with same primary key value");
           }
 
-          if (version < 6)
+          if (version < 6) {
             executeMigrationFile(
                 tdb, "migration5.sql", "database migration: add MOLGENIS.column_metadata.readonly");
+          }
 
           // if cannot migrate then throw a MolgenisException. This happens in case of breaking
           // change for database backend.
-          if (version < 7)
+          if (version < 7) {
             executeMigration7(
                 (SqlDatabase) tdb,
                 "refactor settings, rename molgenis_version table to database_metadata");
+          }
 
-          if (version < 8) executeMigrationFile(tdb, "migration8.sql", "add labels column");
+          if (version < 8) {
+            executeMigrationFile(tdb, "migration8.sql", "add labels column");
+          }
 
-          if (version < 9)
+          if (version < 9) {
             executeMigrationFile(
                 tdb, "migration9.sql", "update row level policy for schema metadata");
+          }
 
-          if (version < 10)
+          if (version < 10) {
             executeMigrationFile(tdb, "migration10.sql", "add Aggregate role for each schema");
+          }
 
-          if (version < 11) executeMigrationFile(tdb, "migration11.sql", "add profile metadata");
+          if (version < 11) {
+            executeMigrationFile(tdb, "migration11.sql", "add profile metadata");
+          }
 
-          if (version < 12)
+          if (version < 12) {
             executeMigrationFile(tdb, "migration12.sql", "add defaultValue in metadata schema");
+          }
 
-          if (version < 13)
+          if (version < 13) {
             executeMigrationFile(
                 tdb, "migration13.sql", "remove default value for mg_tableclass columns");
+          }
 
           if (version < 14) {
             executeMigrationFile(tdb, "migration14.sql", "cleanup column_metadata ref column");
@@ -124,9 +140,10 @@ public class Migrations {
             executeMigrationFile(tdb, "migration20.sql", "function to convert interval to period");
           }
 
-          if (version < 21)
+          if (version < 21) {
             executeMigrationFile(
                 tdb, "migration21.sql", "add exist and range role to schemas and metadata");
+          }
 
           if (version < 22) {
             executeMigrationFile(

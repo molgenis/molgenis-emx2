@@ -58,8 +58,9 @@ public class TableStoreForXlsxFile implements TableStore {
   public void writeTableStreaming(String name, List<String> columnNames, RowProducer rows) {
     SXSSFWorkbook wb;
     try {
-      if (name.length() > 30)
+      if (name.length() > 30) {
         throw new IOException("Excel sheet name '" + name + "' is too long. Maximum 30 characters");
+      }
       // streaming workbook
       if (!Files.exists(excelFilePath)) {
         wb = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);

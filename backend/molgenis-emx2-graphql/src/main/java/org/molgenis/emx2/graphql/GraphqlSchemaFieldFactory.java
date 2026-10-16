@@ -661,7 +661,9 @@ public class GraphqlSchemaFieldFactory {
 
   private static void changeRoles(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
     List<Map<String, Object>> roles = dataFetchingEnvironment.getArgument(ROLES);
-    if (roles == null) return;
+    if (roles == null) {
+      return;
+    }
     for (Map<String, Object> roleMap : roles) {
       String roleName = (String) roleMap.get(NAME);
       if (schema.getRoleInfos().stream().noneMatch(r -> r.name().equals(roleName))) {
@@ -694,7 +696,9 @@ public class GraphqlSchemaFieldFactory {
   private static void dropRoles(
       Schema schema, DataFetchingEnvironment dataFetchingEnvironment, StringBuilder message) {
     List<String> roles = dataFetchingEnvironment.getArgument(ROLES);
-    if (roles == null) return;
+    if (roles == null) {
+      return;
+    }
     for (String roleName : roles) {
       schema.deleteRole(roleName);
       message.append("Dropped role '").append(roleName).append("'\n");
@@ -931,11 +935,12 @@ public class GraphqlSchemaFieldFactory {
           entry -> {
             if (entry.get(TABLE_ID) != null) {
               Table table = schema.getTableById(entry.get(TABLE_ID));
-              if (table == null)
+              if (table == null) {
                 throw new MolgenisException(
                     "changeSettings failed: Table with id="
                         + entry.get(TABLE_ID)
                         + " cannot be found");
+              }
               table.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
             } else {
               schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));

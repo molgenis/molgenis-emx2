@@ -43,7 +43,7 @@ public class TableSort {
             break;
           }
         }
-        if (!depends)
+        if (!depends) {
           for (Column c : current.getPrimaryKeyColumns()) {
             if (c.getRefTableName() != null && !c.isRefback()) {
               for (int j = 0; j < todo.size(); j++) {
@@ -54,6 +54,7 @@ public class TableSort {
               }
             }
           }
+        }
         if (!depends) {
           result.add(todo.get(i));
           todo.remove(i);

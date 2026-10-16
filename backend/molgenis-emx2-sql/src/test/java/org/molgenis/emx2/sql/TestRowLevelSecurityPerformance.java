@@ -32,7 +32,9 @@ class TestRowLevelSecurityPerformance {
     database.becomeAdmin();
 
     for (String user : List.of(USER_TEAM, USER_VIEWER)) {
-      if (!database.hasUser(user)) database.addUser(user);
+      if (!database.hasUser(user)) {
+        database.addUser(user);
+      }
     }
 
     Schema schema = database.dropCreateSchema(SCHEMA);
@@ -115,7 +117,9 @@ class TestRowLevelSecurityPerformance {
   }
 
   private long time(String label, Supplier<Integer> query) {
-    for (int i = 0; i < WARMUP_RUNS; i++) query.get();
+    for (int i = 0; i < WARMUP_RUNS; i++) {
+      query.get();
+    }
     long[] samples = new long[MEASURED_RUNS];
     int rowsSeen = 0;
     for (int i = 0; i < MEASURED_RUNS; i++) {

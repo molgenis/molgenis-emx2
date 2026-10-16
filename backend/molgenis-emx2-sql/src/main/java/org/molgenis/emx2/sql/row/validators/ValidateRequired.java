@@ -76,10 +76,14 @@ public class ValidateRequired {
     try {
       Object error = executeJavascriptOnMap(validationScript, context);
       if (error instanceof Boolean) {
-        if ((Boolean) error) return validationScript;
+        if ((Boolean) error) {
+          return validationScript;
+        }
         return null;
       }
-      if (error != null) return error.toString();
+      if (error != null) {
+        return error.toString();
+      }
     } catch (MolgenisException me) {
       throw me;
     }

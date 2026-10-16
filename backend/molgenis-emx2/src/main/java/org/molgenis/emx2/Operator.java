@@ -48,7 +48,9 @@ public enum Operator {
 
   public static Operator fromAbbreviation(String abbreviation) {
     for (Operator o : values()) {
-      if (o.name.equals(abbreviation)) return o;
+      if (o.name.equals(abbreviation)) {
+        return o;
+      }
     }
     return null;
   }

@@ -79,8 +79,12 @@ public class InMemoryRDFHandler implements RDFHandler {
 
     if (fixValuesForComparison) {
       // Blank node conversion to allow for comparison (order of BNodes matter!!!)
-      if (subject.isBNode()) subject = getConversionNode((BNode) subject);
-      if (object.isBNode()) object = getConversionNode((BNode) object);
+      if (subject.isBNode()) {
+        subject = getConversionNode((BNode) subject);
+      }
+      if (object.isBNode()) {
+        object = getConversionNode((BNode) object);
+      }
       // Replace creation/modified date to prevent failing tests.
       if (predicate.equals(DCTERMS.CREATED)
           || predicate.equals(DCTERMS.MODIFIED)

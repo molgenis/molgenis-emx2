@@ -95,9 +95,10 @@ public class Column {
       if (column.getRefBack() != null) {
         if (column.getTable().getSchema().getSchemaMetadataProvider() != null) {
           org.molgenis.emx2.Column refBackColumn = column.getRefBackColumn();
-          if (refBackColumn == null)
+          if (refBackColumn == null) {
             throw new MolgenisException(
                 "Cannot find refback for " + column.getTableName() + "." + column.getName());
+          }
           this.refBackId = refBackColumn.getIdentifier();
         }
         this.refBackName = column.getRefBack();
@@ -123,8 +124,9 @@ public class Column {
     this.profiles = column.getProfiles();
 
     // calculated field
-    if (table.getInheritName() != null)
+    if (table.getInheritName() != null) {
       this.inherited = table.requireInheritedTable().getColumnNames().contains(column.getName());
+    }
   }
 
   public org.molgenis.emx2.Column getColumnMetadata(TableMetadata tm) {
@@ -135,7 +137,9 @@ public class Column {
             .filter(d -> d.value() != null)
             .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
     c.setType(columnType);
-    if (drop) c.drop();
+    if (drop) {
+      c.drop();
+    }
     c.setRequired(required);
     c.setDefaultValue(defaultValue);
     c.setRefSchemaName(refSchemaName);

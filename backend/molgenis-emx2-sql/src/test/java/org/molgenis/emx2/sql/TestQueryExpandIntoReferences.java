@@ -84,7 +84,9 @@ public class TestQueryExpandIntoReferences {
             .where(f("Father", f("Last_Name", EQUALS, "Duck")));
 
     rows = query1.retrieveRows();
-    for (Row r : rows) System.out.println(r);
+    for (Row r : rows) {
+      System.out.println(r);
+    }
     assertEquals(1, rows.size());
 
     StopWatch.print("second time");

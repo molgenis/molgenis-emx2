@@ -58,7 +58,9 @@ public class HttpHeaderUtils {
     }
 
     String acceptHeader = ctx.header(Header.ACCEPT);
-    if (acceptHeader == null) return allowedMediaTypes.getFirst();
+    if (acceptHeader == null) {
+      return allowedMediaTypes.getFirst();
+    }
 
     Map<MediaType, Double> allowedMediaTypeScores = new LinkedHashMap<>();
     allowedMediaTypes.forEach(i -> allowedMediaTypeScores.put(i, null));
@@ -82,12 +84,18 @@ public class HttpHeaderUtils {
             .filter(
                 mediaType -> {
                   Set<String> paramKeys = mediaType.parameters().keySet();
-                  if (paramKeys.isEmpty()) return true;
+                  if (paramKeys.isEmpty()) {
+                    return true;
+                  }
                   for (String key : paramKeys) {
-                    if (!(key.equals("q") || key.equals("charset"))) return false;
+                    if (!(key.equals("q") || key.equals("charset"))) {
+                      return false;
+                    }
                     if (key.equals("charset")
                         && mediaType.parameters().get("charset").stream()
-                            .noneMatch(i -> i.equalsIgnoreCase("utf-8"))) return false;
+                            .noneMatch(i -> i.equalsIgnoreCase("utf-8"))) {
+                      return false;
+                    }
                   }
                   return true;
                 })
@@ -116,7 +124,9 @@ public class HttpHeaderUtils {
 
   private static Double getQualityScore(MediaType mediaType) {
     ImmutableList<@NonNull String> param = mediaType.parameters().get("q");
-    if (param.isEmpty()) return 1.0;
+    if (param.isEmpty()) {
+      return 1.0;
+    }
     return Double.parseDouble(param.getFirst());
   }
 }

@@ -247,10 +247,14 @@ public abstract class ColumnTypeRdfMapper {
                   ? row.getStringArray(colName)
                   : new String[] {row.getString(colName)};
 
-          if (values == null) continue;
+          if (values == null) {
+            continue;
+          }
 
           for (int i = 0; i < values.length; i++) {
-            if (itemsToMap.size() == i) itemsToMap.add(new TreeMap<>());
+            if (itemsToMap.size() == i) {
+              itemsToMap.add(new TreeMap<>());
+            }
             SortedMap<String, String> keyValuePairs = itemsToMap.get(i);
             keyValuePairs.put(colNameToRefTableColName.get(colName), values[i]);
           }
