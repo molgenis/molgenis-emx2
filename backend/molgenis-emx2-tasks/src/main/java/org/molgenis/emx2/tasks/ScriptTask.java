@@ -326,10 +326,10 @@ public class ScriptTask extends Task {
   public void stop() {
     if (this.process != null && this.process.isAlive()) {
       this.process.destroy();
-      logger.warn("stopping script %s".formatted(name));
+      logger.warn("stopping script {}", name);
       this.setStatus(TaskStatus.CANCELLED);
     } else {
-      logger.warn("script %s is not running".formatted(name));
+      logger.warn("script {} is not running", name);
     }
   }
 

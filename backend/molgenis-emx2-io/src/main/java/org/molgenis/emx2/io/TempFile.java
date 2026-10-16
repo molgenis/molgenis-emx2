@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Currently this class only exist to reduce duplicate code (based on CsvApi implementation). Before
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TempFile implements AutoCloseable {
   private static final String TMP_DIR_PREFIX = "tempfiles-delete-on-finish";
-  private static final Logger logger = LoggerFactory.getLogger(TempFile.class);
+  private static final Logger logger = LogManager.getLogger(TempFile.class);
 
   private final Path tmpDir;
   private final Path tmpFile;
@@ -40,14 +40,14 @@ public class TempFile implements AutoCloseable {
     try {
       Files.deleteIfExists(tmpFile);
     } catch (IOException e) {
-      logger.error("An error occurred while trying to delete a temporary file: {}", e.getMessage());
+      logger.error("An error occurred while trying to delete a temporary file: {}", e::getMessage);
     } finally {
       try {
         Files.deleteIfExists(tmpDir);
       } catch (IOException e) {
         logger.error(
             "An error occurred while trying to delete the directory belonging to a temporary file: {}",
-            e.getMessage());
+            e::getMessage);
       }
     }
   }

@@ -16,13 +16,13 @@ import graphql.schema.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GraphqlTableFieldFactory {
-  private static final Logger logger = LoggerFactory.getLogger(GraphqlTableFieldFactory.class);
+  private static final Logger logger = LogManager.getLogger(GraphqlTableFieldFactory.class);
   // static types
   private static final GraphQLEnumType orderByEnum =
       GraphQLEnumType.newEnum()
@@ -883,7 +883,8 @@ public class GraphqlTableFieldFactory {
       if (search != null && !"".equals(search.trim())) {
         q.search(search);
       }
-      logger.info("converted graphql to molgenis query in {}ms", System.currentTimeMillis() - step);
+      logger.info(
+          "converted graphql to molgenis query in {}ms", () -> System.currentTimeMillis() - step);
       Object result = transform(q.retrieveJSON());
       // bit silly, we have to remove root field here. Some refactoring makes this look nicer
       if (result != null) {

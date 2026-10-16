@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -20,12 +22,10 @@ import org.molgenis.emx2.email.EmailSettings;
 import org.molgenis.emx2.email.EmailValidator;
 import org.molgenis.emx2.graphql.GraphqlExecutor;
 import org.molgenis.emx2.web.actions.SendMessageAction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class MessageApi {
 
-  private static final Logger logger = LoggerFactory.getLogger(MessageApi.class);
+  private static final Logger logger = LogManager.getLogger(MessageApi.class);
 
   @SuppressWarnings("VulnerableCodeUsages")
   private static final Parser parser = new Parser();
@@ -110,9 +110,9 @@ public final class MessageApi {
 
     logger.info(
         "Sending message to recipients: {} with subject: {} and message: {}",
-        recipients,
-        sendMessageAction.subject(),
-        sendMessageAction.body());
+        () -> recipients,
+        sendMessageAction::subject,
+        sendMessageAction::body);
 
     // send email to all recipients on allow list
     EmailSettings settings = loadEmailSettings(schema);
@@ -130,9 +130,9 @@ public final class MessageApi {
       ctx.status(500);
       logger.error(
           "failed to send message to recipients: {} with subject: {} and message: {}",
-          recipients,
-          sendMessageAction.subject(),
-          sendMessageAction.body());
+          () -> recipients,
+          sendMessageAction::subject,
+          sendMessageAction::body);
     }
     ctx.result(String.valueOf(sendResult));
     return String.valueOf(sendResult);
