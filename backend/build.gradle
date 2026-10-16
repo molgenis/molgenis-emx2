@@ -37,7 +37,7 @@ subprojects {
         consoleOutput = true
         toolVersion = "7.28.0"
         ruleSetFiles = files("${project.rootDir}/pmd_ruleset.xml")
-        ruleSets = ["rulesets/java/quickstart.xml"]
+        ruleSets = []
     }
 
     tasks.register("pmdChanged", Pmd) {
