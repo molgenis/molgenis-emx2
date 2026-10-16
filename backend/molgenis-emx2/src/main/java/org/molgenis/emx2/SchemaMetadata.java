@@ -16,7 +16,9 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   // optional
   protected SchemaMetadataProvider schemaMetadataProvider;
 
-  public SchemaMetadata() {}
+  public SchemaMetadata() {
+    // no-op
+  }
 
   public SchemaMetadata(String name) {
     validateSchemaName(name);

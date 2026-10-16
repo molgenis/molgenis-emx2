@@ -226,11 +226,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
-  @Override
-  public Map<String, String> getSettings() {
-    return super.getSettings();
-  }
-
   protected DSLContext getJooq() {
     return getDatabase().getJooq();
   }

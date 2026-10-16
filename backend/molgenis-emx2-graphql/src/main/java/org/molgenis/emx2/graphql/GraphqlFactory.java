@@ -52,14 +52,10 @@ public class GraphqlFactory {
       mutationBuilder.field(session.createTokenField(database));
     }
 
-    GraphQL graphql =
-        GraphQL.newGraphQL(
-                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-            .mutationExecutionStrategy(
-                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
-            .build();
-
-    return graphql;
+    return GraphQL.newGraphQL(
+            GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
+        .mutationExecutionStrategy(new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
+        .build();
   }
 
   public static GraphQL forSchema(Schema schema, TaskService taskService) {

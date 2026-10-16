@@ -57,7 +57,9 @@ public class Task implements Runnable, Iterable<Task> {
   private boolean disabled = false;
   private String failureAddress;
 
-  public Task() {}
+  public Task() {
+    // no-op
+  }
 
   public Task(String description) {
     Objects.requireNonNull(description, "description cannot be null");

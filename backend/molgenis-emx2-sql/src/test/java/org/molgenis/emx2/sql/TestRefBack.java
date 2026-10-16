@@ -304,7 +304,6 @@ public class TestRefBack {
                         .setType(REFBACK)
                         .setRefTable("treatments_incorrect_ref")
                         .setRefBack("id")));
-    ;
   }
 
   @Test

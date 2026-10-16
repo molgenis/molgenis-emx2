@@ -639,8 +639,7 @@ public class SqlTable implements Table {
         table.getMetadata().getStoredColumns().stream()
             .filter(c -> updateColumnNames.contains(c.getName()))
             .toList();
-    List<Column> expandedColumns = table.getMetadata().getExpandedColumns(storedColumns);
-    return expandedColumns;
+    return table.getMetadata().getExpandedColumns(storedColumns);
   }
 
   private Map<String, Object> getSelectedRowValues(List<Column> selection, Row row) {

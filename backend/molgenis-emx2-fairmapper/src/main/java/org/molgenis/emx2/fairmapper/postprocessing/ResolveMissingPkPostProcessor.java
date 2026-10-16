@@ -222,6 +222,7 @@ public class ResolveMissingPkPostProcessor implements PostProcessor {
    *   <li>If it holds none, we assume it points back at {@code row}.
    * </ul>
    */
+  @SuppressWarnings("PMD.SimplifyBooleanReturns") // easier to read
   private static boolean pointsBackAtSelf(
       Row row, Row referencedRow, Column column, Reference reference) {
     if (!column.getTable().getAllInheritNames().contains(reference.getTargetTable())) {

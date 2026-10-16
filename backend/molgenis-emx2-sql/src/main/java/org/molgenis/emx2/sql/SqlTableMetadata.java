@@ -419,11 +419,13 @@ class SqlTableMetadata extends TableMetadata {
   }
 
   @Override
+  @SuppressWarnings("PMD.SimplifyBooleanReturns") // easier to read
   public boolean exists() {
     // first look at already loaded metadata, in case of no columns, check the underlying table
     if (!getColumns().isEmpty()) {
       return true;
     }
+
     // jooq doesn't have operator for this, so by hand. Might be slow
     return 0
         < getJooq()
