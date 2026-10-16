@@ -69,7 +69,9 @@ public class ShaclResultWriter extends RdfOutputStreamWriter {
   }
 
   @Override
-  public void processNamespace(Namespace namespace) {}
+  public void processNamespace(Namespace namespace) {
+    // Namespaces are not needed here
+  }
 
   @Override
   public void processTriple(Statement statement) {

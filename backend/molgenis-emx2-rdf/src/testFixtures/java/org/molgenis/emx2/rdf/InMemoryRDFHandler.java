@@ -116,7 +116,9 @@ public class InMemoryRDFHandler implements RDFHandler {
   }
 
   @Override
-  public void startRDF() throws RDFHandlerException {}
+  public void startRDF() throws RDFHandlerException {
+    // no-op
+  }
 
   @Override
   public void endRDF() throws RDFHandlerException {
@@ -175,5 +177,7 @@ public class InMemoryRDFHandler implements RDFHandler {
   }
 
   @Override
-  public void handleComment(String comment) throws RDFHandlerException {}
+  public void handleComment(String comment) throws RDFHandlerException {
+    // Comments are ignored
+  }
 }
