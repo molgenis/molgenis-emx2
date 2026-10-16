@@ -41,6 +41,17 @@ export async function AddOrderedList(schema: string, id: string) {
   await cmsFetch(schema, query, variables);
 }
 
+export async function AddCustomComponent(schema: string, id: string) {
+  const query = `mutation insert($component:[CustomComponentsInput]){
+    insert(CustomComponents:$component){
+      status
+      message
+    }
+  }`;
+  const variables = { component: [{ id: `${id}` }] };
+  await cmsFetch(schema, query, variables);
+}
+
 export async function AddUnorderedList(schema: string, id: string) {
   const query = `mutation insert($element: [UnorderedListsInput]) {
     insert(UnorderedLists: $element) {
