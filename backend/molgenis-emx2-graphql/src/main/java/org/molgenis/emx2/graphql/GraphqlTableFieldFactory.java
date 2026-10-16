@@ -583,17 +583,17 @@ public class GraphqlTableFieldFactory {
       TableMetadata table, Map<String, Object> filter) {
     List<Filter> subFilters = new ArrayList<>();
     for (Map.Entry<String, Object> entry : filter.entrySet()) {
-      if (entry.getKey().equals(FILTER_OR) || entry.getKey().equals(FILTER_AND)) {
+      if (FILTER_OR.equals(entry.getKey()) || FILTER_AND.equals(entry.getKey())) {
         List<Map<String, Object>> nested = (List<Map<String, Object>>) entry.getValue();
         List<Filter> nestedFilters =
             nested.stream().map(m -> and(convertMapToFilterArray(table, m))).toList();
-        if (entry.getKey().equals(FILTER_OR)) {
+        if (FILTER_OR.equals(entry.getKey())) {
           subFilters.add(or(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         } else {
           subFilters.add(and(nestedFilters.toArray(new Filter[nestedFilters.size()])));
         }
-      } else if (entry.getKey().equals(FILTER_SEARCH)) {
-        if (entry.getValue() instanceof String && !entry.getValue().toString().trim().equals("")) {
+      } else if (FILTER_SEARCH.equals(entry.getKey())) {
+        if (entry.getValue() instanceof String && !"".equals(entry.getValue().toString().trim())) {
           subFilters.add(
               f(
                   Operator
@@ -601,7 +601,7 @@ public class GraphqlTableFieldFactory {
                   // short terms
                   Arrays.stream(entry.getValue().toString().split(" ")).toArray(String[]::new)));
         }
-      } else if (entry.getKey().equals(FILTER_EQUALS)) {
+      } else if (FILTER_EQUALS.equals(entry.getKey())) {
         //  complex filter, should be a list of maps per graphql contract
         if (entry.getValue() != null) {
           subFilters.add(
@@ -609,7 +609,7 @@ public class GraphqlTableFieldFactory {
                   ((List<Map<String, Object>>) entry.getValue())
                       .stream().map(v -> createKeyFilter(table, v, Operator.EQUALS)).toList()));
         }
-      } else if (entry.getKey().equals(FILTER_NOT_EQUALS)) {
+      } else if (FILTER_NOT_EQUALS.equals(entry.getKey())) {
         if (entry.getValue() != null) {
           subFilters.add(
               or(
@@ -617,11 +617,11 @@ public class GraphqlTableFieldFactory {
                       .stream().map(v -> createKeyFilter(table, v, Operator.NOT_EQUALS)).toList()));
         }
 
-      } else if (entry.getKey().equals(FILTER_MATCH_INCLUDING_CHILDREN)
-          || entry.getKey().equals(FILTER_MATCH_INCLUDING_PARENTS)
-          || entry.getKey().equals(FILTER_MATCH_PATH)
-          || entry.getKey().equals(FILTER_SEARCH_INCLUDING_PARENTS)
-          || entry.getKey().equals(FILTER_MATCH_ALL)) {
+      } else if (FILTER_MATCH_INCLUDING_CHILDREN.equals(entry.getKey())
+          || FILTER_MATCH_INCLUDING_PARENTS.equals(entry.getKey())
+          || FILTER_MATCH_PATH.equals(entry.getKey())
+          || FILTER_SEARCH_INCLUDING_PARENTS.equals(entry.getKey())
+          || FILTER_MATCH_ALL.equals(entry.getKey())) {
         switch (entry.getKey()) {
           case FILTER_MATCH_INCLUDING_CHILDREN ->
               subFilters.add(
@@ -880,7 +880,7 @@ public class GraphqlTableFieldFactory {
       }
 
       String search = dataFetchingEnvironment.getArgument(SEARCH);
-      if (search != null && !search.trim().equals("")) {
+      if (search != null && !"".equals(search.trim())) {
         q.search(search);
       }
       logger.info(

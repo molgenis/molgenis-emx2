@@ -275,12 +275,12 @@ public class Migrations {
       String key = record.get(SETTINGS_NAME, String.class);
       String value = record.get(SETTINGS_VALUE, String.class);
       logger.info("migrating setting " + schemaName + "." + tableName + "." + key + "=xxxxx");
-      if (schemaName == null || schemaName.equals(NOT_PROVIDED)) {
+      if (schemaName == null || NOT_PROVIDED.equals(schemaName)) {
         // database level setting
         tdb.setSetting(key, value);
       } else {
         Schema schema = tdb.getSchema(schemaName);
-        if (tableName == null || tableName.equals(NOT_PROVIDED)) {
+        if (tableName == null || NOT_PROVIDED.equals(tableName)) {
           // schema level setting
           schema.getMetadata().setSetting(key, value);
         } else {
@@ -320,7 +320,7 @@ public class Migrations {
     // all schemas, except MOLGENIS
     for (org.jooq.Table table : jooq.meta().getTables()) {
       for (Field field : table.fields()) {
-        if (field.getName().equals(MG_TABLECLASS)) {
+        if (MG_TABLECLASS.equals(field.getName())) {
           // rewrite of createMgTableClassCannotUpdateCheck
           // such that it doesn't use the metadata schema because that gives errors if migration is
           // not yet executed, savvy?

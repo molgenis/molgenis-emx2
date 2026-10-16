@@ -194,7 +194,7 @@ public class Column {
   }
 
   public boolean isRequired() {
-    return required != null && required.equals("true");
+    return required != null && "true".equals(required);
   }
 
   public void setRequired(Boolean required) {

@@ -113,7 +113,7 @@ public class GraphqlAdminFieldFactory {
               // check for parameters
               for (SelectedField selectedField :
                   dataFetchingEnvironment.getSelectionSet().getImmediateFields()) {
-                if (selectedField.getName().equals(USERS)) {
+                if (USERS.equals(selectedField.getName())) {
                   result.put(USERS, getUsers(selectedField, db));
                 }
                 if (selectedField.getName().equals(userCount)) {

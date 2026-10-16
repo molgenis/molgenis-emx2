@@ -325,14 +325,14 @@ public class Emx2 {
         row.setStringArray(PROFILES, table.getProfiles());
       }
       for (Map.Entry<String, String> entry : table.getLabels().entrySet()) {
-        if (entry.getKey().equals("en")) {
+        if ("en".equals(entry.getKey())) {
           row.set(LABEL, entry.getValue());
         } else {
           row.set(LABEL + ":" + entry.getKey(), entry.getValue());
         }
       }
       for (Map.Entry<String, String> entry : table.getDescriptions().entrySet()) {
-        if (entry.getKey().equals("en")) {
+        if ("en".equals(entry.getKey())) {
           row.set(DESCRIPTION, entry.getValue());
         } else {
           row.set(DESCRIPTION + ":" + entry.getKey(), entry.getValue());
@@ -386,7 +386,7 @@ public class Emx2 {
           row.setString(REF_JS_TEMPLATE, column.getRefLabel());
         }
         for (Map.Entry<String, String> label : column.getDescriptions().entrySet()) {
-          if (label.getKey().equals("en")) {
+          if ("en".equals(label.getKey())) {
             row.set(DESCRIPTION, label.getValue());
           } else {
             row.set(DESCRIPTION + ":" + label.getKey(), label.getValue());
@@ -409,7 +409,7 @@ public class Emx2 {
           row.set(PROFILES, column.getProfiles());
         }
         for (Map.Entry<String, String> label : column.getLabels().entrySet()) {
-          if (label.getKey().equals("en")) {
+          if ("en".equals(label.getKey())) {
             row.set(LABEL, label.getValue());
           } else {
             row.set(LABEL + ":" + label.getKey(), label.getValue());

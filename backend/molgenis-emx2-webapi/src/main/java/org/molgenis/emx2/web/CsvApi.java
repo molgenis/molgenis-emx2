@@ -264,7 +264,7 @@ public class CsvApi {
     boolean includeSystem = includeSystemColumns(ctx);
     return table.getMetadata().getDownloadColumnNames().stream()
         .map(Column::getName)
-        .filter(name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystem)
+        .filter(name -> MG_DRAFT.equals(name) || !name.startsWith("mg_") || includeSystem)
         .toList();
   }
 

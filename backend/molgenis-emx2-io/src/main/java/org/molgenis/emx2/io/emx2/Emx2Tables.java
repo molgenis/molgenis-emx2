@@ -38,7 +38,7 @@ public class Emx2Tables {
                         || store instanceof TableAndFileStore)
             .map(Column::getName)
             .filter(
-                name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystemColumns)
+                name -> MG_DRAFT.equals(name) || !name.startsWith("mg_") || includeSystemColumns)
             .toList();
 
     Query query = table.query();

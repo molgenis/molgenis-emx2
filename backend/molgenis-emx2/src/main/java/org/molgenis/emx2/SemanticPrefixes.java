@@ -77,7 +77,7 @@ public class SemanticPrefixes {
   }
 
   private static Namespace validateNamespace(Namespace namespace) {
-    if (namespace.getPrefix().equals("http") || namespace.getPrefix().equals("https")) {
+    if ("http".equals(namespace.getPrefix()) || "https".equals(namespace.getPrefix())) {
       throw new MolgenisException("http(s) is not allowed as a prefix!");
     }
     try {

@@ -684,9 +684,9 @@ public class SqlQuery extends QueryBean {
     for (String ext :
         new String[] {"id", "contents", "size", "filename", "extension", "mimetype", "url"}) {
       if (select.has(ext)) {
-        if (ext.equals("id")) {
+        if ("id".equals(ext)) {
           subFields.add(field(name(alias(tableAlias), column.getName())).as(ext));
-        } else if (ext.equals("url")) {
+        } else if ("url".equals(ext)) {
           subFields.add(
               field(
                       "'/"

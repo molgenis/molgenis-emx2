@@ -50,7 +50,7 @@ class ShaclSelectorTest {
 
     Optional<ShaclSet> optional =
         Arrays.stream(ShaclSelector.getAllFiltered())
-            .filter(i -> i.id().equals("dcat-ap-v3"))
+            .filter(i -> "dcat-ap-v3".equals(i.id()))
             .findFirst();
     if (optional.isPresent()) {
       ShaclSet actual = optional.get();

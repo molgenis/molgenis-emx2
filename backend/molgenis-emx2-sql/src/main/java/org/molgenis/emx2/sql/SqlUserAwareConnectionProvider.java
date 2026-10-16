@@ -25,7 +25,7 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
     Connection connection = null;
     try {
       connection = super.acquire();
-      if (getActiveUser().equals(ADMIN_USER) || this.isAdmin) {
+      if (ADMIN_USER.equals(getActiveUser()) || this.isAdmin) {
         // as admin you are actually session user
         DSL.using(connection, SQLDialect.POSTGRES).execute("RESET ROLE; SET jit='off';");
       } else {

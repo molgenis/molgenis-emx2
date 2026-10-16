@@ -88,7 +88,7 @@ class TestGraphqlSigninRateLimit {
     CounterSnapshot snapshot =
         (CounterSnapshot)
             PrometheusRegistry.defaultRegistry.scrape().stream()
-                .filter(metric -> metric.getMetadata().getName().equals("emx2_signin_attempts"))
+                .filter(metric -> "emx2_signin_attempts".equals(metric.getMetadata().getName()))
                 .findFirst()
                 .orElseThrow();
 

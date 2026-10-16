@@ -27,7 +27,7 @@ public class SqlRawQueryForSchema {
   }
 
   public List<Row> executeSql(String sql, Map<String, ?> parameters) {
-    if (sql == null || sql.trim().equals("")) {
+    if (sql == null || "".equals(sql.trim())) {
       return List.of();
     }
     List<Row> result = new ArrayList<>();
