@@ -55,6 +55,20 @@ public class Row {
     }
   }
 
+  /**
+   * Returns a copy of this row with the values of 'other' written over it, except for the excluded
+   * column names. Columns 'other' doesn't mention keep the value they have in this row.
+   */
+  public Row overrideWith(Row other, Set<String> exclude) {
+    Row result = new Row(this);
+    for (Map.Entry<String, Object> value : other.getValueMap().entrySet()) {
+      if (!exclude.contains(value.getKey())) {
+        result.set(value.getKey(), value.getValue());
+      }
+    }
+    return result;
+  }
+
   public void clear(Column column) {
     if (column.isReference()) {
       for (Reference ref : column.getReferences()) {

@@ -276,11 +276,15 @@ public class SqlColumnExecutor {
     // check table doesn't exist
     SchemaMetadata refSchema = schema;
     if (column.getRefSchemaName() != null) {
-      if (schema.getDatabase().getSchema(column.getRefSchemaName()) == null) {
+      try {
+        refSchema = schema.getSchemaMetadataProvider().getSchemaMetadata(column.getRefSchemaName());
+        if (refSchema == null) {
+          throw new MolgenisException("Unable to find Schema");
+        }
+      } catch (MolgenisException e) {
         throw new MolgenisException(
             "refSchema '" + column.getRefSchemaName() + "' does not exist or permission denied");
       }
-      refSchema = schema.getDatabase().getSchema(column.getRefSchemaName()).getMetadata();
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
@@ -497,9 +501,7 @@ public class SqlColumnExecutor {
       // if has refback also drop that automatically
       if (column.getReferenceRefback() != null) {
         SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
-        column
-            .getTable()
-            .getSchema()
+        ((SqlSchemaMetadata) column.getTable().getSchema())
             .getDatabase()
             .getListener()
             .schemaChanged(column.getReferenceRefback().getSchemaName());
@@ -520,12 +522,9 @@ public class SqlColumnExecutor {
   }
 
   static void executeRemoveRefConstraints(DSLContext jooq, Column column) {
-    if (column.isRef()) {
+    if (column.isReference()) {
       SqlColumnRefExecutor.removeRefConstraints(jooq, column);
-    } else if (column.isRefArray()) {
       removeRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 

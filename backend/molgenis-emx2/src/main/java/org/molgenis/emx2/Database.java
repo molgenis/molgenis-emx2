@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public interface Database extends HasSettingsInterface<Database> {
+public interface Database extends HasSettingsInterface<Database>, SchemaMetadataProvider {
 
   void tx(Transaction transaction);
 
@@ -32,6 +32,15 @@ public interface Database extends HasSettingsInterface<Database> {
   SchemaInfo getSchemaInfo(String schemaName);
 
   Schema getSchema(String name);
+
+  default SchemaMetadata getSchemaMetadata(String schemaName) {
+    Schema schema = getSchema(schemaName);
+    if (schema == null) {
+      throw new MolgenisException("Could not find schema metadata with name " + schemaName);
+    }
+
+    return schema.getMetadata();
+  }
 
   List<Table> getTablesFromAllSchemas(String tableId);
 

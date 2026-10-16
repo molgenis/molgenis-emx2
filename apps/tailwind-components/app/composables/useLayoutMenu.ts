@@ -73,7 +73,7 @@ export async function useLayoutMenu(
     },
     {
       label: "Pages",
-      link: `pages`,
+      link: `cms/pages`,
       isSpaLink: true,
       role: "Manager",
     },

@@ -173,9 +173,9 @@ public class SqlRoleManager {
 
   private void assertNoMgRolesReference(
       DSLContext jooq, String schemaName, String roleName, Collection<String> tableNames) {
-    SchemaMetadata schemaMetadata = database.getSchema(schemaName).getMetadata();
+    SchemaMetadata schemaMetadata = database.getSchemaMetadata(schemaName);
     for (String tableName : tableNames) {
-      if (schemaMetadata.getTableMetadata(tableName).getColumn(MG_ROLES) == null) {
+      if (schemaMetadata.getTableMetadata(tableName).getLocalColumn(MG_ROLES) == null) {
         continue;
       }
       int count =
@@ -298,7 +298,7 @@ public class SqlRoleManager {
     if (!database.getSchema(schemaName).getTableNames().contains(tableName)) {
       throw new MolgenisException("Table does not exist: " + tableName);
     }
-    TableMetadata meta = database.getSchema(schemaName).getMetadata().getTableMetadata(tableName);
+    TableMetadata meta = database.getSchemaMetadata(schemaName).getTableMetadata(tableName);
     if (meta.getInheritName() != null) {
       throw new MolgenisException(
           "Cannot grant custom permission on inherited table '"
@@ -613,7 +613,7 @@ public class SqlRoleManager {
     List<TablePermission> permissions = getPermissions(schemaName, roleName);
     if (!system) {
       Set<String> rootTables =
-          database.getSchema(schemaName).getMetadata().getRootTables().stream()
+          database.getSchemaMetadata(schemaName).getRootTables().stream()
               .map(TableMetadata::getTableName)
               .collect(Collectors.toSet());
       permissions =

@@ -1,4 +1,6 @@
+import { getChartData } from "./get";
 import { cmsFetch, deleteBlock, getPage } from "../cms";
+
 import type { IConfigurablePages } from "../../../types/cms";
 import type { IDeleteContainerStatus } from "../../../types/CmsComponents";
 
@@ -74,5 +76,20 @@ export async function deleteDeveloperPage(
     result.error = setErrorMessage(error);
   } finally {
     return result;
+  }
+}
+
+export async function deleteChartData(schema: string, chartId: string) {
+  const data = await getChartData(schema, chartId);
+
+  if (data) {
+    const variables = { data: data };
+    const query = `mutation DeleteChartData($data: [ChartDataInput]) {
+      delete(ChartData: $data) {
+        status
+        message
+      }
+    }`;
+    return await cmsFetch(schema, query, variables);
   }
 }
