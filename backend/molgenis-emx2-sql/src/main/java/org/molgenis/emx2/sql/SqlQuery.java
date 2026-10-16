@@ -926,24 +926,24 @@ public class SqlQuery extends QueryBean {
     Table<Record> result = table.getJooqTable();
     TableMetadata inheritedTable = table.getInheritedTable();
     // root and intermediate levels have mg_tableclass column
-    Column mg_tableclass = table.getLocalColumn(MG_TABLECLASS);
+    Column mgTableClass = table.getLocalColumn(MG_TABLECLASS);
     while (inheritedTable != null) {
       List<Field<?>> using = inheritedTable.getPrimaryKeyFields();
-      if (mg_tableclass != null) {
-        using.add(mg_tableclass.getJooqField());
+      if (mgTableClass != null) {
+        using.add(mgTableClass.getJooqField());
       }
       result = result.join(inheritedTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
       inheritedTable = inheritedTable.getInheritedTable();
       if (inheritedTable != null) {
-        mg_tableclass = inheritedTable.getLocalColumn(MG_TABLECLASS);
+        mgTableClass = inheritedTable.getLocalColumn(MG_TABLECLASS);
       }
     }
     // join subclass tables also
     for (TableMetadata subclassTable : table.getSubclassTables()) {
       List<Field<?>> using = subclassTable.getPrimaryKeyFields();
-      mg_tableclass = subclassTable.getLocalColumn(MG_TABLECLASS);
-      if (mg_tableclass != null) {
-        using.add(mg_tableclass.getJooqField());
+      mgTableClass = subclassTable.getLocalColumn(MG_TABLECLASS);
+      if (mgTableClass != null) {
+        using.add(mgTableClass.getJooqField());
       }
       result = result.leftJoin(subclassTable.getJooqTable()).using(using.toArray(new Field<?>[0]));
     }
@@ -1719,9 +1719,9 @@ public class SqlQuery extends QueryBean {
     return refBackSelect;
   }
 
-  private static Table<Record> getUnnestedRefArrayAsTable(String subAlias, Column contains_column) {
+  private static Table<Record> getUnnestedRefArrayAsTable(String subAlias, Column containsColumn) {
     Table<Record> unnestedRefArrayAsTable =
-        contains_column.getReferences().stream()
+        containsColumn.getReferences().stream()
             .map(
                 ref ->
                     unnest(field(name(ref.getColumnName()), ref.getJooqType()))
@@ -1735,9 +1735,9 @@ public class SqlQuery extends QueryBean {
     return unnestedRefArrayAsTable;
   }
 
-  private static @NotNull List<Field> getUnnestedRefArrayFields(Column contains_column) {
+  private static @NotNull List<Field> getUnnestedRefArrayFields(Column containsColumn) {
     List<Field> unnestedRefArrayFields =
-        contains_column.getReferences().stream()
+        containsColumn.getReferences().stream()
             .map(
                 ref ->
                     field(

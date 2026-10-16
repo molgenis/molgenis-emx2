@@ -273,8 +273,8 @@ public class TestGrantRolesToUsers {
     Schema s1 = database.dropCreateSchema("testCaseSensitiveSchemaNames");
 
     // add member to schema
-    final String USER = "testCaseSensitiveSchemaNamesMANAGER";
-    s1.addMember(USER, MANAGER.toString());
+    final String user = "testCaseSensitiveSchemaNamesMANAGER";
+    s1.addMember(user, MANAGER.toString());
     assertEquals(1, s1.getMembers().size());
 
     // create another schema with case insensitive equal name
@@ -282,7 +282,7 @@ public class TestGrantRolesToUsers {
     assertEquals(0, s2.getMembers().size());
 
     // proof that USER can only add tables in one schema/drop in one schema
-    database.setActiveUser(USER);
+    database.setActiveUser(user);
     s1.create(table("ATable", column("id").setPkey()));
 
     // proof that user can NOT add in other schema
@@ -297,6 +297,6 @@ public class TestGrantRolesToUsers {
     database.becomeAdmin(); // reset to admin
     database.dropSchema(s1.getName()); // clean up
     database.dropSchema(s2.getName()); // clean up
-    database.removeUser(USER);
+    database.removeUser(user);
   }
 }

@@ -26,10 +26,8 @@
         <exclude name="AssignmentToNonFinalStatic" />
         <exclude name="AvoidAccessibilityAlteration" />
         <exclude name="AvoidCatchingGenericException" />
-        <exclude name="AvoidDollarSigns" />
         <exclude name="AvoidInstanceofChecksInCatchClause" />
         <exclude name="AvoidUsingHardCodedIP" />
-        <exclude name="ClassNamingConventions" />
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
         <exclude name="CloseResource" />
         <exclude name="CollectionTypeMismatch" />
@@ -39,12 +37,10 @@
         <exclude name="FinalFieldCouldBeStatic" />
         <exclude name="FinalParameterInAbstractMethod" />
         <exclude name="ForLoopCanBeForeach" />
-        <exclude name="FormalParameterNamingConventions" />
         <exclude name="GuardLogStatement" />
         <exclude name="ImplicitSwitchFallThrough" />
         <exclude name="InstantiableUtilityClass" />
         <exclude name="LambdaCanBeMethodReference" />
-        <exclude name="LocalVariableNamingConventions" />
         <exclude name="LooseCoupling" />
         <exclude name="MissingStaticMethodInNonInstantiatableClass" />
         <exclude name="NonThreadSafeSingleton" />
@@ -73,6 +69,11 @@
         <properties>
             <property name="violationSuppressXPath"
                       value="./ancestor-or-self::MethodDeclaration[@Name = 'equals']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/codestyle.xml/MethodNamingConventions">
+        <properties>
+            <property name="junitJupiterTestPattern" value="[a-z][a-zA-Z0-9_]*" />
         </properties>
     </rule>
 

@@ -28,14 +28,14 @@ public class TestQueryExpandIntoReferences {
     Schema schema = db.dropCreateSchema("TestQueryWithRefArray");
 
     // createColumn some tables with contents
-    String PERSON = "Person";
+    String person = "Person";
     schema
         .getMetadata()
         .create(
-            table(PERSON)
+            table(person)
                 .add(column("ID").setType(INT).setPkey())
                 .add(column("First_Name").setKey(2).setRequired(true))
-                .add(column("Father").setType(REF).setRefTable(PERSON))
+                .add(column("Father").setType(REF).setRefTable(person))
                 .add(column("Last_Name").setKey(2).setRequired(true)));
 
     Row father =
@@ -93,7 +93,7 @@ public class TestQueryExpandIntoReferences {
   }
 
   @Test
-  public void CanQueryExpandIntoArrayForeignKeys() {
+  public void canQueryExpandIntoArrayForeignKeys() {
     Schema schema = db.getSchema("TestQueryWithRefArray");
 
     StopWatch.start("CanQueryExpandIntoArrayForeignKeys");
