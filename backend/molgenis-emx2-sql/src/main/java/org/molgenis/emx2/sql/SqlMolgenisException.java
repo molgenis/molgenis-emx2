@@ -29,7 +29,7 @@ public class SqlMolgenisException extends MolgenisException {
       PSQLException cause = (PSQLException) dae.getCause();
       if (cause.getServerErrorMessage() != null) {
         String message = cause.getServerErrorMessage().getMessage();
-        if (cause.getSQLState().equals("57014")) {
+        if ("57014".equals(cause.getSQLState())) {
           // i.e. message.equals("canceling statement due to user request")
           // might because of our timeout setting in SqlDatabase, therefore rewrite:
           message = "canceling statement due to timeout or by user request";

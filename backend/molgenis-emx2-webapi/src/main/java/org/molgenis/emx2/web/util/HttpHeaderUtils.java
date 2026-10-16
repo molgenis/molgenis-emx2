@@ -13,8 +13,8 @@ public class HttpHeaderUtils {
   private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
       Comparator.comparing( // ensures q-value does not influence sorting.
               (MediaType mediaType) -> mediaType.withParameter("q", "0").parameters().size() > 1)
-          .thenComparing(mediaType -> !mediaType.type().equals("*"))
-          .thenComparing(mediaType -> !mediaType.subtype().equals("*"));
+          .thenComparing(mediaType -> !"*".equals(mediaType.type()))
+          .thenComparing(mediaType -> !"*".equals(mediaType.subtype()));
 
   /**
    * Returns what media type to use as defined in <a
@@ -52,7 +52,7 @@ public class HttpHeaderUtils {
     if (allowedMediaTypes.stream()
         .anyMatch(
             mediaType ->
-                mediaType.parameters().keySet().stream().anyMatch(key -> !key.equals("q")))) {
+                mediaType.parameters().keySet().stream().anyMatch(key -> !"q".equals(key)))) {
       throw new IllegalArgumentException(
           "allowedMediaTypes should not contain parameters! (currently not supported)");
     }
@@ -88,12 +88,12 @@ public class HttpHeaderUtils {
                     return true;
                   }
                   for (String key : paramKeys) {
-                    if (!(key.equals("q") || key.equals("charset"))) {
+                    if (!("q".equals(key) || "charset".equals(key))) {
                       return false;
                     }
-                    if (key.equals("charset")
+                    if ("charset".equals(key)
                         && mediaType.parameters().get("charset").stream()
-                            .noneMatch(i -> i.equalsIgnoreCase("utf-8"))) {
+                            .noneMatch(i -> "utf-8".equalsIgnoreCase(i))) {
                       return false;
                     }
                   }

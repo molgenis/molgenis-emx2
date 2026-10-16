@@ -47,7 +47,7 @@ class SqlTableMetadata extends TableMetadata {
         if (tm.getInheritName() != null
             && tm.getInheritedTable().getColumn(c.getName()) != null
             // this column is replicated in all subclass tables
-            && !c.getName().equals(MG_TABLECLASS)) {
+            && !MG_TABLECLASS.equals(c.getName())) {
           throw new MolgenisException(
               "Cannot add column "
                   + tm.getTableName()
@@ -87,7 +87,7 @@ class SqlTableMetadata extends TableMetadata {
   private static void validateColumnIdentifierIsUnique(
       SqlTableMetadata existingTableMetadata, Column column) {
     for (Column existingColumn : existingTableMetadata.getColumns()) {
-      if (!column.getName().equals(MG_TABLECLASS)
+      if (!MG_TABLECLASS.equals(column.getName())
           && !column.getName().equals(existingColumn.getName())
           && existingColumn.getIdentifier().equals(column.getIdentifier())) {
         throw new MolgenisException(

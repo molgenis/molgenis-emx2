@@ -415,7 +415,7 @@ public class Row {
   }
 
   public boolean notEmpty(String columnName) {
-    return values.get(columnName) != null && !values.get(columnName).toString().trim().equals("");
+    return values.get(columnName) != null && !"".equals(values.get(columnName).toString().trim());
   }
 
   public boolean isNull(String columnName, ColumnType type) {

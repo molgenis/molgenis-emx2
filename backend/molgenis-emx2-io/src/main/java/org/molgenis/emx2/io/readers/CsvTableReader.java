@@ -34,12 +34,12 @@ public class CsvTableReader {
       String secondLine = bufferedReader.readLine();
 
       // if file is empty we return empty iterator
-      if (firstLine == null || firstLine.trim().equals("") || secondLine == null) {
+      if (firstLine == null || "".equals(firstLine.trim()) || secondLine == null) {
         return Collections.emptyList();
       }
       char separator = ',';
       // if file is empty we return empty iterator
-      if (firstLine.trim().equals("")) {
+      if ("".equals(firstLine.trim())) {
         return Collections.emptyList();
       }
       // guess the separator

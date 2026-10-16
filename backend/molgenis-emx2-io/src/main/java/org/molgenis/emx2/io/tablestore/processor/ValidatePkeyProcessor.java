@@ -119,7 +119,7 @@ public class ValidatePkeyProcessor implements RowProcessor {
               .collect(Collectors.joining(","));
 
       task.addSubTask("Found duplicate Key (" + keyFields + ")=(" + keyValue + ")").setError();
-    } else if (!keyValue.isEmpty() && !keyValue.equals("null")) {
+    } else if (!keyValue.isEmpty() && !"null".equals(keyValue)) {
       keys.add(keyValue);
     }
   }

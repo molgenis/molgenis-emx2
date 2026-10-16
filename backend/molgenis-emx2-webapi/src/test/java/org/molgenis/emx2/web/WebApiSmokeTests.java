@@ -1083,7 +1083,7 @@ class WebApiSmokeTests extends ApiTestBase {
 
     String outputURL = "/api/tasks/" + taskId + "/output";
     result = given().header(MOLGENIS_TOKEN[0], token).when().get(outputURL).getBody().asString();
-    if (result.equals("Readme")) {
+    if ("Readme".equals(result)) {
       System.out.println("testScriptExcution error: " + result);
     }
     assertEquals("Readme", result);
@@ -1342,7 +1342,7 @@ class WebApiSmokeTests extends ApiTestBase {
       result = given().sessionId(sessionId).get(url).asString();
       status = new ObjectMapper().readTree(result).at("/status").textValue();
     }
-    return !status.equals("ERROR");
+    return !"ERROR".equals(status);
   }
 
   private static String getToken(String email, String password) throws JsonProcessingException {

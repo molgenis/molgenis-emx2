@@ -82,7 +82,7 @@ public class QueryRecord {
             .getFilteringTermsFromTables(List.of(tableId), schema.getName());
 
     for (FilteringTerm filteringTerm : filteringTermsSet) {
-      if (filteringTerm.getType().equals("ontology")) {
+      if ("ontology".equals(filteringTerm.getType())) {
         String filteringTermName = filteringTerm.getColumn().getName();
         attributes.put(filteringTermName, filteringTermName);
         values.put(filteringTerm.getId(), filteringTerm.getLabel());
@@ -94,7 +94,7 @@ public class QueryRecord {
           terms.add(filteringTerm.getId());
           mappings.put(filteringTermName, terms);
         }
-      } else if (filteringTerm.getType().equals("alphanumeric")) {
+      } else if ("alphanumeric".equals(filteringTerm.getType())) {
         attributes.put(filteringTerm.getId(), filteringTerm.getId());
       }
     }

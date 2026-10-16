@@ -74,7 +74,7 @@ public class Schema {
               .filter(d -> d.value() != null)
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       for (Column c : t.getColumns()) {
-        if (c.getName().equals(Constants.MG_TOP_OF_FORM)) {
+        if (Constants.MG_TOP_OF_FORM.equals(c.getName())) {
           // skip
         } else if (!c.isInherited()) {
           // we remove clearly inherited columns here

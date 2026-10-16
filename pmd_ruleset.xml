@@ -44,7 +44,6 @@
         <exclude name="ImplicitSwitchFallThrough" />
         <exclude name="InstantiableUtilityClass" />
         <exclude name="LambdaCanBeMethodReference" />
-        <exclude name="LiteralsFirstInComparisons" />
         <exclude name="LocalVariableNamingConventions" />
         <exclude name="LooseCoupling" />
         <exclude name="MissingOverride" />

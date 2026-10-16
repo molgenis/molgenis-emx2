@@ -274,7 +274,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public boolean isRequired() {
-    return required != null && required.equalsIgnoreCase("true");
+    return required != null && "true".equalsIgnoreCase(required);
   }
 
   public Column setRequired(Boolean required) {
@@ -726,7 +726,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public boolean isSystemAddUpdateByUserColumn() {
-    return this.getName().equals(MG_INSERTEDBY) || this.getName().equals(MG_UPDATEDBY);
+    return MG_INSERTEDBY.equals(this.getName()) || MG_UPDATEDBY.equals(this.getName());
   }
 
   public boolean isHeading() {
@@ -768,7 +768,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   }
 
   public String getLabel() {
-    if (getLabels().get("en") != null && !getLabels().get("en").trim().equals("")) {
+    if (getLabels().get("en") != null && !"".equals(getLabels().get("en").trim())) {
       return getLabels().get("en");
     } else {
       return getName();

@@ -135,7 +135,7 @@ class RateLimitTest {
   private CounterSnapshot signinAttempts() {
     return (CounterSnapshot)
         registry.scrape().stream()
-            .filter(metric -> metric.getMetadata().getName().equals("emx2_signin_attempts"))
+            .filter(metric -> "emx2_signin_attempts".equals(metric.getMetadata().getName()))
             .findFirst()
             .orElseThrow();
   }

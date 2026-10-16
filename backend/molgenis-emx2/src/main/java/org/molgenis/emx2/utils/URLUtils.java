@@ -24,8 +24,8 @@ public class URLUtils {
   }
 
   public static boolean isDefaultPort(String scheme, String port) {
-    return (scheme.equals("http") && port.equals("80"))
-        || (scheme.equals("https") && port.equals("443"));
+    return ("http".equals(scheme) && "80".equals(port))
+        || ("https".equals(scheme) && "443".equals(port));
   }
 
   public static String validateUrl(String urlString) {
