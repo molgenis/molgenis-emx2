@@ -23,8 +23,4 @@ public class CaseLevelData {
   public void setIndividualId(String individualId) {
     this.individualId = individualId;
   }
-
-  public CaseLevelData() {
-    super();
-  }
 }

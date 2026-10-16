@@ -53,10 +53,6 @@ public class GraphqlDatabaseFieldFactory {
                   .type(Scalars.GraphQLString))
           .build();
 
-  public GraphqlDatabaseFieldFactory() {
-    // no instances
-  }
-
   public GraphQLFieldDefinition.Builder deleteMutation(Database database) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("deleteSchema")

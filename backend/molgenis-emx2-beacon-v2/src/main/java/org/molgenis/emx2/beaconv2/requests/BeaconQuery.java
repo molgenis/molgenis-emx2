@@ -22,8 +22,6 @@ public class BeaconQuery {
   private boolean testMode;
   private EntryType entryType;
 
-  public BeaconQuery() {}
-
   public String getDescription() {
     return description;
   }

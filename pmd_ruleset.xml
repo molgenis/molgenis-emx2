@@ -50,7 +50,6 @@
         <exclude name="SimplifiedTernary" />
         <exclude name="SuspiciousEqualsMethodName" />
         <exclude name="UncommentedEmptyConstructor" />
-        <exclude name="UnnecessaryConstructor" />
         <exclude name="UnnecessaryImport" />
         <exclude name="UnnecessarySemicolon" />
         <exclude name="UnusedFormalParameter" />
