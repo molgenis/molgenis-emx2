@@ -47,6 +47,7 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
     return FileSystems.newFileSystem(zipUri, env, null);
   }
 
+  @Override
   public void writeFile(String filePath, byte[] contents) {
     if (contents != null && contents.length > 0) {
       try (FileSystem zipfs = open()) {

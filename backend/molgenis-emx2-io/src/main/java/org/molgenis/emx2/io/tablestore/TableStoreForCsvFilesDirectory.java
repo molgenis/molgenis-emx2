@@ -49,6 +49,7 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
     }
   }
 
+  @Override
   public void writeFile(String filePath, byte[] contents) {
     if (contents != null && contents.length > 0) {
       try {
