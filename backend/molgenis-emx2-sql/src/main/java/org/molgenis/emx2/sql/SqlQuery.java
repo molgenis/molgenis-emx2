@@ -777,6 +777,11 @@ public class SqlQuery extends QueryBean {
     DSLContext jooq = table.getJooq();
     String subAlias = tableAlias + (column != null ? "-" + column.getName() : "");
 
+    if (!PermissionEvaluator.canCount(getSchema(), table)) {
+      throw new MolgenisException(
+          "Need permission >= COUNT to perform group by queries on table: " + table.getTableName());
+    }
+
     if (groupBy.getSubselect(COUNT_FIELD) == null && groupBy.getSubselect(SUM_FIELD) == null) {
       throw new MolgenisException("COUNT or SUM is required when using group by");
     }

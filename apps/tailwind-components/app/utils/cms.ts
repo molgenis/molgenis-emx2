@@ -3,6 +3,7 @@ import type {
   IDeveloperPages,
   IDependenciesCSS,
   IDependenciesJS,
+  IFiles,
 } from "../../types/cms";
 
 import { getContainersQuery } from "../gql/cmsPages";
@@ -14,6 +15,18 @@ import type {
   ICmsOrder,
   ICmsOrderWithBlockId,
 } from "../../types/CmsComponents";
+
+import {
+  AddNavigationCard,
+  AddOrderedList,
+  AddUnorderedList,
+  AddColumnChart,
+  AddFile,
+  AddFileList,
+  AddButton,
+} from "./cms/add";
+
+import { deleteChartData } from "./cms/delete";
 
 export function randomId(): string {
   return crypto.randomUUID();
@@ -96,6 +109,47 @@ export async function cmsFetch(
   }
 
   return response;
+}
+
+export async function getFiles(
+  schema: string,
+  fileTag: string,
+  orderby:
+    | "fileTag"
+    | "alternateFileName"
+    | "file"
+    | "linkToExternalFile" = "fileTag",
+  direction: "ASC" | "DESC" = "ASC"
+): Promise<IFiles[]> {
+  const query = `query getFiles($filter:FilesFilter, $orderby:[Filesorderby]) {
+    Files(filter:$filter,orderby:$orderby) {
+      alternateFileName
+      file {
+         id
+         size
+         filename
+         extension
+         url
+      }
+      fileTag
+      linkToExternalFile
+    }
+  }`;
+
+  let variables = {
+    filter: {},
+    orderby: [{ [orderby]: direction }],
+  };
+  if (fileTag !== "") {
+    variables.filter = { fileTag: { equals: fileTag } };
+  }
+
+  const url: string = `/${schema}/graphql`;
+  const response: any = await $fetch(url, {
+    method: "POST",
+    body: { query: query, variables: variables },
+  });
+  return response.data?.Files ?? [];
 }
 
 async function getBlockAbove(
@@ -305,7 +359,8 @@ export async function deleteComponent(
   componentId: string,
   componentOrderid: string,
   block: string,
-  reorder: boolean = true
+  reorder: boolean = true,
+  componentType?: string
 ) {
   const orderQuery = `mutation delete($orderId:[ComponentOrdersInput]) {
     delete(ComponentOrders:$orderId){
@@ -322,6 +377,10 @@ export async function deleteComponent(
   const orderVars = { orderId: [{ id: `${componentOrderid}` }] };
   const componentVars = { componentId: [{ id: `${componentId}` }] };
 
+  if (componentType?.endsWith(".Statistical charts")) {
+    await deleteChartData(schema, componentId);
+  }
+
   await cmsFetch(schema, orderQuery, orderVars);
   await cmsFetch(schema, componentQuery, componentVars);
 
@@ -336,6 +395,7 @@ async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
       id
       order
       component {
+        mg_tableclass
         id
       }
     }
@@ -355,10 +415,17 @@ async function deleteAllComponentsFromBlock(schema: string, blockId: string) {
   if (data?.ComponentOrders) {
     const itemsToRemove = data.ComponentOrders as {
       id: string;
-      component: { id: string };
+      component: { id: string; mg_tableclass?: string };
     }[];
     for (const item of itemsToRemove) {
-      await deleteComponent(schema, item.component.id, item.id, blockId, false);
+      await deleteComponent(
+        schema,
+        item.component.id,
+        item.id,
+        blockId,
+        false,
+        item.component?.mg_tableclass
+      );
     }
   }
 }
@@ -399,15 +466,47 @@ export async function addComponent(
   componentType: string
 ) {
   await prepareOrder(schema, order, parentBlock);
+
   if (componentType === "Paragraph") {
     await AddParagraph(schema, id);
   }
+
   if (componentType === "Heading") {
     await AddHeading(schema, id);
   }
+
   if (componentType === "Image") {
     await AddImage(schema, id);
   }
+
+  if (componentType === "File") {
+    await AddFile(schema, id);
+  }
+
+  if (componentType === "FileList") {
+    await AddFileList(schema, id);
+  }
+
+  if (componentType === "NavigationCards") {
+    await AddNavigationCard(schema, id);
+  }
+
+  if (componentType === "OrderedLists") {
+    await AddOrderedList(schema, id);
+  }
+
+  if (componentType === "UnorderedLists") {
+    await AddUnorderedList(schema, id);
+  }
+
+  if (componentType === "ColumnCharts") {
+    await AddColumnChart(schema, id);
+  }
+
+  if (componentType === "Buttons") {
+    await AddButton(schema, id);
+  }
+
   await AddOrder(schema, id, order, parentBlock);
 }
 
@@ -425,16 +524,22 @@ export async function addBlock(
   if (componentType === "Section") {
     await AddSection(schema, id);
   }
+  if (componentType === "Section - 2 Columns") {
+    await AddSection(schema, id, 2);
+  }
+  if (componentType === "Section - 3 Columns") {
+    await AddSection(schema, id, 3);
+  }
   await AddBlockOrder(schema, id, order, page);
 }
 
-async function AddSection(schema: string, id: string) {
+async function AddSection(schema: string, id: string, columns: number = 1) {
   const query = `mutation insert($section:[SectionsInput]) {
     insert(Sections:$section) {
       message
     }
   }`;
-  const variables = { section: [{ id: `${id}` }] };
+  const variables = { section: [{ id: `${id}`, columns }] };
   await cmsFetch(schema, query, variables);
 }
 
@@ -804,14 +909,4 @@ export function parsePageText(value?: string): string {
 export function pageCopyDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
-}
-
-export function renderTextUrls(string: string): string {
-  let paragraph = string;
-  const urlPattern = /\[(.*?)\]\((.*?)\)/g;
-  paragraph = paragraph.replaceAll(
-    urlPattern,
-    '<a href="$2" class="underline decoration-solid">$1</a>'
-  );
-  return paragraph;
 }

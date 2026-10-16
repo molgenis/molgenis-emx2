@@ -21,7 +21,8 @@ public class ArrayColumnSparqlQueryGenerator extends LiteralColumnSparqlQueryGen
         // "_single" variable binds each array element before aggregation in getSelectors()
         SparqlVariableUtil.singleVariable(object),
         object,
-        column.isRequired());
+        column.isRequired(),
+        false);
   }
 
   /** Aggregates multiple values into a comma-separated string, e.g. "val1,val2,val3" */

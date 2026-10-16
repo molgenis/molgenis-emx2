@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import CellEMX2 from "../../../../app/components/table/CellEMX2.vue";
 import ShowMore from "../../../../app/components/ShowMore.vue";
 import ValueEMX2 from "../../../../app/components/value/EMX2.vue";
-import type { IColumn } from "../../../../../metadata-utils/src/types";
+import type {
+  columnValue,
+  IColumn,
+} from "../../../../../metadata-utils/src/types";
 
 const arrayColumn: IColumn = {
   id: "tags",
@@ -48,6 +51,30 @@ describe("table/CellEMX2.vue", () => {
 
     expect(wrapper.text()).toContain("Tag 10");
     expect(wrapper.text()).not.toContain("Tag 11");
+  });
+
+  it("renders an ontology term as a link that opens it, as a ref does", async () => {
+    const cases: [IColumn["columnType"], columnValue][] = [
+      ["ONTOLOGY", { name: "herbivorous mammals" }],
+      ["ONTOLOGY_ARRAY", [{ name: "herbivorous mammals" }]],
+    ];
+    for (const [columnType, data] of cases) {
+      const metadata: IColumn = {
+        id: "tags",
+        label: "Tags",
+        columnType,
+        refSchemaId: "pet store",
+        refTableId: "Tag",
+      };
+      const wrapper = mount(CellEMX2, { props: { metadata, data } });
+
+      await wrapper.get("button").trigger("click");
+
+      expect(wrapper.text()).toContain("herbivorous mammals");
+      expect(wrapper.emitted("cellClicked")?.[0]?.[0]).toMatchObject({
+        metadata: { id: "tags" },
+      });
+    }
   });
 
   it("renders an empty cell for a missing value", () => {

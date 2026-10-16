@@ -17,7 +17,7 @@
       "groupName": "Java Dependencies (Safe Updates)",
       "groupSlug": "java-safe-updates",
       "prPriority": 20,
-      "recreateWhen": "always",
+      "recreateWhen": "always"
     },
     {
       "matchManagers": ["npm"],

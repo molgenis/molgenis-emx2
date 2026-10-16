@@ -285,6 +285,8 @@ public class GraphqlTableFieldFactory {
                           .name(GraphqlConstants.FILTER_ARGUMENT)
                           .type(getTableFilterInputType(col.getRefTable()))
                           .build()));
+        }
+        if (hasGroupByPermission(col.getRefTable())) {
           tableBuilder.field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(id + "_groupBy")
@@ -307,6 +309,10 @@ public class GraphqlTableFieldFactory {
 
   boolean hasAggregatePermission(TableMetadata table) {
     return PermissionEvaluator.canExists(schema, table);
+  }
+
+  boolean hasGroupByPermission(TableMetadata table) {
+    return PermissionEvaluator.canCount(schema, table);
   }
 
   private GraphQLNamedOutputType createTableGroupByType(TableMetadata table) {
@@ -722,10 +728,9 @@ public class GraphqlTableFieldFactory {
                   convertMapToFilterArray(
                       table
                           .getSchema()
-                          .getDatabase()
-                          .getSchema(c.getRefTable().getSchemaName())
-                          .getTable(c.getRefTableName())
-                          .getMetadata(),
+                          .getSchemaMetadataProvider()
+                          .getSchemaMetadata(c.getRefTable().getSchemaName())
+                          .getTableMetadata(c.getRefTableName()),
                       remainingOperators)));
         } else {
           subFilters.add(convertMapToFilter(c.getName(), (Map<String, Object>) entry.getValue()));
@@ -864,9 +869,9 @@ public class GraphqlTableFieldFactory {
     }
   }
 
-  private DataFetcher fetcherForTableQueryField(TableMetadata aTable) {
+  private DataFetcher fetcherForTableQueryField(TableMetadata tableMetadata) {
+    Table table = schema.getTable(tableMetadata.getTableName());
     return dataFetchingEnvironment -> {
-      Table table = aTable.getTable();
       Query q = table.query();
       String fieldName = dataFetchingEnvironment.getField().getName();
       if (fieldName.endsWith("_agg")) {
@@ -875,7 +880,7 @@ public class GraphqlTableFieldFactory {
         q = table.groupBy();
       }
       long step = System.currentTimeMillis();
-      q.select(convertMapSelection(aTable, dataFetchingEnvironment.getSelectionSet()));
+      q.select(convertMapSelection(table.getMetadata(), dataFetchingEnvironment.getSelectionSet()));
       Map<String, Object> args = dataFetchingEnvironment.getArguments();
       if (dataFetchingEnvironment.getArgument(GraphqlConstants.FILTER_ARGUMENT) != null) {
         q.where(
@@ -890,7 +895,7 @@ public class GraphqlTableFieldFactory {
         q.offset((int) args.get(GraphqlConstants.OFFSET));
       }
       if (args.containsKey(GraphqlConstants.ORDERBY)) {
-        q.orderBy(convertOrderByIdsToNames(aTable, args));
+        q.orderBy(convertOrderByIdsToNames(table.getMetadata(), args));
       }
 
       String search = dataFetchingEnvironment.getArgument(GraphqlConstants.SEARCH);
@@ -993,15 +998,14 @@ public class GraphqlTableFieldFactory {
           .tx(
               db -> {
                 Schema txSchema = db.getSchema(schema.getName());
-                for (TableMetadata tableMetadata : txSchema.getMetadata().getTables()) {
+                for (Table table : txSchema.getTablesSorted()) {
                   List<Map<String, Object>> rowsAsListOfMaps =
-                      dataFetchingEnvironment.getArgument(tableMetadata.getIdentifier());
+                      dataFetchingEnvironment.getArgument(table.getMetadata().getIdentifier());
                   if (rowsAsListOfMaps == null) {
                     continue;
                   }
-                  Table table = tableMetadata.getTable();
-                  String tableName = tableMetadata.getTableName();
-                  List<Row> rows = TypeUtils.convertToRows(tableMetadata, rowsAsListOfMaps);
+                  String tableName = table.getName();
+                  List<Row> rows = TypeUtils.convertToRows(table.getMetadata(), rowsAsListOfMaps);
                   result.append(
                       switch (mutationType) {
                         case INSERT ->

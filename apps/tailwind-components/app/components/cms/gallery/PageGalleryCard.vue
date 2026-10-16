@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 import Modal from "../../Modal.vue";
 import PageGalleryCardAction from "./PageGalleryCardAction.vue";
@@ -38,9 +38,9 @@ const emits = defineEmits<{
   (e: "deleted", value: IDeleteContainerStatus): void;
 }>();
 
-const currentPageType = ref<string | undefined>(
-  setCmsPageType(props.container.mg_tableclass)
-);
+const currentPageType = computed<string | undefined>(() => {
+  return setCmsPageType(props.container.mg_tableclass);
+});
 
 async function deletePage() {
   showDeleteModal.value = false;
@@ -89,14 +89,18 @@ async function deletePage() {
         <PageGalleryCardAction v-tooltip.bottom="`Edit`">
           <NuxtLink
             :to="setCmsEditorUrl(schema, (container.mg_tableclass as string), container.name)"
-            class="hover:underline cursor-pointer"
+            class="hover:underline cursor-pointer h-10 w-10 p-2.5"
           >
             <BaseIcon name="Edit" :width="18" />
             <span class="sr-only">edit page</span>
           </NuxtLink>
         </PageGalleryCardAction>
         <PageGalleryCardAction v-tooltip.bottom="`Delete`">
-          <button id="deletePage" @click="showDeleteModal = true">
+          <button
+            id="deletePage"
+            @click="showDeleteModal = true"
+            class="hover:underline cursor-pointer h-10 w-10 p-2.5"
+          >
             <BaseIcon name="Trash" :width="18" />
             <span class="sr-only">delete page</span>
           </button>

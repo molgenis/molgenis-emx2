@@ -43,11 +43,6 @@ async def test_stager(mocker):
         return_value=HTTPStatus(200),
     )
     mocker.patch(
-        "src.molgenis_emx2.directory_client.directory_client.DirectorySession._"
-        "validate_graphql_response",
-        return_value=HTTPStatus(200),
-    )
-    mocker.patch(
         "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
         "get_schemas",
         return_value=[
@@ -153,11 +148,6 @@ def test_clear_staging_area(mocker):
     mocker.patch(
         "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
         "_validate_url",
-        return_value=HTTPStatus(200),
-    )
-    mocker.patch(
-        "src.molgenis_emx2.directory_client.directory_client.DirectorySession."
-        "_validate_graphql_response",
         return_value=HTTPStatus(200),
     )
     mocker.patch(

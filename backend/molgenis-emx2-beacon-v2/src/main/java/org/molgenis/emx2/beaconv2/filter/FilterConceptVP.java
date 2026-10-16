@@ -18,7 +18,7 @@ public enum FilterConceptVP {
       "edam:data_2295", "{ processes: { molecularDiagnosisGene: { name: { equals: \"%s\" } } } }"),
   DISEASE(
       "ncit:C2991",
-      "{ processes: { diseases: { disease: { ontologyTermURI: { like: \"%s\" } } } } }"),
+      "{ processes: { diseases: { clinicalDiagnosis: { ontologyTermURI: { like: \"%s\" } } } } }"),
   PHENOTYPE(
       "sio:SIO_010056",
       "{ processes: { phenotypes: { type: { ontologyTermURI: { like: \"%s\" } } } } }"),

@@ -1,7 +1,22 @@
 <template>
   <thead>
     <tr>
-      <TableHeadCell class="sticky left-0 bg-table z-20 w-12"> </TableHeadCell>
+      <TableHeadCell
+        class="sticky left-0 bg-table z-20 shadow-[inset_-1px_0_0_var(--border-color-theme)]"
+        :style="{
+          width: `${selectColumnWidth}px`,
+        }"
+      >
+      </TableHeadCell>
+      <TableHeadCell v-if="showRolesColumn" class="w-48">
+        <TableHeaderAction
+          :column="{ id: 'mg_roles', label: 'Role' }"
+          :schemaId="schemaId"
+          :tableId="tableId"
+          :settings="settings"
+          @sort-requested="$emit('sort-requested')"
+        />
+      </TableHeadCell>
       <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
         <TableHeaderAction
           :column="{ id: 'mg_draft', label: 'Draft' }"
@@ -37,6 +52,7 @@
           @sort-requested="$emit('sort-requested', column.id)"
         />
       </TableHeadCell>
+      <TableHeadCell aria-hidden="true" />
     </tr>
   </thead>
 </template>
@@ -56,7 +72,9 @@ defineProps<{
   };
   columns: any;
   columnWidths: Record<string, number>;
+  selectColumnWidth: number;
   isResizing: boolean;
   showDraftColumn?: boolean;
+  showRolesColumn?: boolean;
 }>();
 </script>

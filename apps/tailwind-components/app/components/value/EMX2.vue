@@ -19,6 +19,7 @@ import ValueInt from "./Int.vue";
 import ValueList from "./List.vue";
 import ValueLong from "./Long.vue";
 import ValueObject from "./Object.vue";
+import ValueOntology from "./Ontology.vue";
 import ValueRef from "./Ref.vue";
 import ValueString from "./String.vue";
 import ValueText from "./Text.vue";
@@ -31,10 +32,12 @@ const props = withDefaults(
     maxLines?: number;
     renderLimit?: number;
     truncate?: boolean;
+    compact?: boolean;
   }>(),
   {
     hideListSeparator: false,
     truncate: true,
+    compact: false,
   }
 );
 
@@ -45,6 +48,17 @@ defineEmits<{
 
 <template>
   <template v-if="data == null || data === undefined"></template>
+  <ValueOntology
+    v-else-if="
+      !compact && ['ONTOLOGY', 'ONTOLOGY_ARRAY'].includes(metadata.columnType)
+    "
+    :metadata="metadata"
+    :value="data"
+    :collapseAll="false"
+    :maxItems="10"
+    :itemStep="10"
+  />
+
   <ValueList
     v-else-if="isMultiValuedType(metadata.columnType)"
     :metadata="metadata"

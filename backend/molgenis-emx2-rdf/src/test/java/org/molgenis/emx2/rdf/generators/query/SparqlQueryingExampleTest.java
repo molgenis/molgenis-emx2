@@ -31,7 +31,7 @@ class SparqlQueryingExampleTest {
               .run();
 
           SchemaMetadata schema =
-              TestDatabaseFactory.getTestDatabase().getSchema("harvesting").getMetadata();
+              TestDatabaseFactory.getTestDatabase().getSchemaMetadata("harvesting");
           TableQueryGenerator generator = new TableQueryGenerator();
           String query = generator.generate(schema.getTableMetadata("Collections"));
           System.out.println(query);

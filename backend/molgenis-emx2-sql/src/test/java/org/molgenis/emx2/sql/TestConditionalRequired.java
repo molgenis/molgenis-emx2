@@ -9,6 +9,8 @@ import org.molgenis.emx2.*;
 
 class TestConditionalRequired {
 
+  private final Database database = TestDatabaseFactory.getTestDatabase();
+
   @Test
   void testConditionallyRequiredOnSingleFieldInt() {
     String expression = "age > 5";
@@ -21,7 +23,7 @@ class TestConditionalRequired {
 
     Row validRow = new Row("age", 4, "status", null);
 
-    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(database, tableMetadata.getColumns());
     rowProcessor.validateAndCompute(validRow); // success
 
     Row invalidRow = validRow.set("age", 6);
@@ -47,7 +49,7 @@ class TestConditionalRequired {
             "field_one", "provided",
             "field_two", "provided");
 
-    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(database, tableMetadata.getColumns());
     rowProcessor.validateAndCompute(validRow); // success
 
     Row invalidRow = new Row("field_one", "provided", "field_two", null);
@@ -89,7 +91,7 @@ class TestConditionalRequired {
             "species", "cat",
             "onMedication", true);
 
-    SqlRowProcessor rowProcessor = new SqlRowProcessor(tableMetadata.getColumns());
+    SqlRowProcessor rowProcessor = new SqlRowProcessor(database, tableMetadata.getColumns());
     Exception exception =
         assertThrows(MolgenisException.class, () -> rowProcessor.validateAndCompute(invalidRow));
 

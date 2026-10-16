@@ -36,7 +36,7 @@ class ChangeLogExecutorTest {
     settings.put(IS_CHANGELOG_ENABLED, "true");
     schemaA = sqlDatabase.getSchema("ChangeLogExecutorTestA");
     schemaA.getMetadata().setSettings(settings);
-    sqlDatabase.getSchema("ChangeLogExecutorTestB").getMetadata().setSettings(settings);
+    sqlDatabase.getSchemaMetadata("ChangeLogExecutorTestB").setSettings(settings);
 
     schemaA.create(table("test", column("A").setPkey(), column("B")));
     schemaA.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
