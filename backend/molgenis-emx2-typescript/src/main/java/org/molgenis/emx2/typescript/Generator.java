@@ -50,8 +50,6 @@ public class Generator {
                     }
                     """;
 
-  public Generator() {}
-
   public void generate(Schema schema, String fileLocation) {
     PrintWriter writer = null;
     try {

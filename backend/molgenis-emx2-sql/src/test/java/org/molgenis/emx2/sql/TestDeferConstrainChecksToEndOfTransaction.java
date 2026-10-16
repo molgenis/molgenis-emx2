@@ -15,8 +15,6 @@ import org.molgenis.emx2.utils.StopWatch;
 public class TestDeferConstrainChecksToEndOfTransaction {
   Database database = TestDatabaseFactory.getTestDatabase();
 
-  public TestDeferConstrainChecksToEndOfTransaction() {}
-
   @Test
   public void dependencyOrderOutsideTransactionFails() {
     assertThrows(MolgenisException.class, () -> runTestCase(database));

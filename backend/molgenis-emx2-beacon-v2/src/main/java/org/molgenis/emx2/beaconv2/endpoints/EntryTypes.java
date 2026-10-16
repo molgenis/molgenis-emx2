@@ -18,8 +18,6 @@ public class EntryTypes {
   private List<EntryType> entryTypes = new ArrayList<>();
   private BeaconSpec spec;
 
-  public EntryTypes() {}
-
   @JsonIgnore
   public JsonNode getResponse(Context ctx) {
     this.spec = BeaconSpec.findByPath(ctx.attribute("specification"));
