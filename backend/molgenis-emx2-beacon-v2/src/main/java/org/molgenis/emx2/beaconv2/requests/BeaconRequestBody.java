@@ -3,6 +3,7 @@ package org.molgenis.emx2.beaconv2.requests;
 import static org.molgenis.emx2.utils.URIUtils.extractHost;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.javalin.http.Context;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.beaconv2.BeaconSpec;
@@ -11,7 +12,9 @@ import org.molgenis.emx2.beaconv2.EntryType;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BeaconRequestBody {
 
-  private String $schema;
+  @JsonProperty("$schema")
+  private String schema;
+
   private BeaconRequestMeta meta = new BeaconRequestMeta();
   private BeaconQuery query = new BeaconQuery();
 
@@ -30,8 +33,8 @@ public class BeaconRequestBody {
     }
   }
 
-  public String get$schema() {
-    return $schema;
+  public String getSchema() {
+    return schema;
   }
 
   public BeaconRequestMeta getMeta() {

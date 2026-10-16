@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 
 /* used by gradle*/
+@SuppressWarnings("PMD.ClassNamingConventions") // not a test, used by the initDatabase task
 public class InitDatabase {
   public static void main(String[] args) {
     System.out.println("INITIALIZING DATABASE");

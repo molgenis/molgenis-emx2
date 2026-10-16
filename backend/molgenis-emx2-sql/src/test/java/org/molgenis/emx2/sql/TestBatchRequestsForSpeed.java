@@ -84,18 +84,18 @@ public class TestBatchRequestsForSpeed {
 
     Schema schema = db.dropCreateSchema("testCreate");
 
-    String PERSON = "Person";
+    String person = "Person";
     Table personTable =
         schema.create(
             table(
-                PERSON,
+                person,
                 column("ID").setType(INT).setPkey(),
                 column("First_Name").setRequired(true).setKey(2),
                 column("Last_Name").setKey(2).setRequired(true),
-                column("Father").setType(REF).setRefTable(PERSON)));
+                column("Father").setType(REF).setRefTable(person)));
 
     for (int i = 0; i < 10; i++) {
-      String name = PERSON + i;
+      String name = person + i;
       schema.create(
           table(
               name,
@@ -115,7 +115,7 @@ public class TestBatchRequestsForSpeed {
     StopWatch.print("reloading complete");
 
     // insert
-    Table personTableReloaded = schema.getTable(PERSON);
+    Table personTableReloaded = schema.getTable(person);
     List<Row> rows = new ArrayList<>();
     int count = 1000;
     for (int i = 0; i < count; i++) {
@@ -131,7 +131,7 @@ public class TestBatchRequestsForSpeed {
     StopWatch.print("insert", count);
 
     // queryOld
-    Query q = schema.getTable(PERSON).query();
+    Query q = schema.getTable(person).query();
     StopWatch.print("QueryOld ", q.retrieveRows().size());
 
     // delete

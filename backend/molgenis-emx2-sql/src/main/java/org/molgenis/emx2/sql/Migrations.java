@@ -262,18 +262,18 @@ public class Migrations {
         jooq.selectFrom(table(name(MOLGENIS, "settings_metadata"))).fetch();
 
     // t.columns(TABLE_SCHEMA, SETTINGS_TABLE_NAME, SETTINGS_NAME, SETTINGS_VALUE)
-    final Field SETTINGS_NAME = field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
-    final Field SETTINGS_TABLE_NAME =
+    final Field settingsName = field(name(org.molgenis.emx2.Constants.SETTINGS_NAME), VARCHAR);
+    final Field settingsTableName =
         field(
             name(TABLE_NAME.getName()),
             VARCHAR.nullable(true)); // note table might be null in case of schema
-    final Field SETTINGS_VALUE = field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
+    final Field settingsValue = field(name(org.molgenis.emx2.Constants.SETTINGS_VALUE), VARCHAR);
 
     for (Record record : previousSettings) {
       String schemaName = record.get(TABLE_SCHEMA, String.class);
-      String tableName = record.get(SETTINGS_TABLE_NAME, String.class);
-      String key = record.get(SETTINGS_NAME, String.class);
-      String value = record.get(SETTINGS_VALUE, String.class);
+      String tableName = record.get(settingsTableName, String.class);
+      String key = record.get(settingsName, String.class);
+      String value = record.get(settingsValue, String.class);
       logger.info("migrating setting " + schemaName + "." + tableName + "." + key + "=xxxxx");
       if (schemaName == null || NOT_PROVIDED.equals(schemaName)) {
         // database level setting

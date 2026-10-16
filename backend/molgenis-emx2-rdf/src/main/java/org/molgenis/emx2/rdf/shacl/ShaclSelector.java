@@ -22,16 +22,16 @@ public abstract class ShaclSelector {
   public static void update() {
     shaclSetMap.clear();
 
-    ShaclSet[] ShaclSetArray;
+    ShaclSet[] shaclSetArray;
     try (InputStream inputStream = classLoader.getResourceAsStream(SETS_YAML_PATH)) {
       String yaml = new String(Objects.requireNonNull(inputStream).readAllBytes());
-      ShaclSetArray =
+      shaclSetArray =
           JsonMapper.builder(new YAMLFactory()).build().readValue(yaml, ShaclSet[].class);
     } catch (IOException e) {
       throw new MolgenisException("An error occured while loading the shacl sets: " + e);
     }
 
-    for (ShaclSet shaclSet : ShaclSetArray) {
+    for (ShaclSet shaclSet : shaclSetArray) {
       shaclSetMap.put(shaclSet.id(), shaclSet);
     }
   }

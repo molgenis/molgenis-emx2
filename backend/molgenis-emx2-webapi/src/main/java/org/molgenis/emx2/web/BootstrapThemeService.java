@@ -73,17 +73,17 @@ public class BootstrapThemeService {
   }
 
   private static Map<String, String> splitQuery(String query) {
-    Map<String, String> query_pairs = new LinkedHashMap<>();
+    Map<String, String> queryPairs = new LinkedHashMap<>();
     if (query != null) {
       String[] pairs = query.split("&");
       for (String pair : pairs) {
         int idx = pair.indexOf("=");
-        query_pairs.put(
+        queryPairs.put(
             URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8),
             URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8));
       }
     }
-    return query_pairs;
+    return queryPairs;
   }
 
   /**
@@ -99,14 +99,14 @@ public class BootstrapThemeService {
         String.format(
             "$theme-colors:(%nprimary: %s, %nsecondary: %s%n);%n%n", primaryColor, secondaryColor);
     String useMath = "@use \"sass:math\";\n@use \"sass:list\";\n\n";
-    StringBuilder CssPlusScss = new StringBuilder();
-    CssPlusScss.append(useMath);
-    CssPlusScss.append(input);
+    StringBuilder cssPlusScss = new StringBuilder();
+    cssPlusScss.append(useMath);
+    cssPlusScss.append(input);
     try {
-      CssPlusScss.append(getScssFileContents("theme/theme.scss"));
+      cssPlusScss.append(getScssFileContents("theme/theme.scss"));
       SassCompiler sassCompiler = SassCompilerFactory.bundled();
       sassCompiler.setOutputStyle(EmbeddedSass.OutputStyle.COMPRESSED);
-      String cssCompiled = sassCompiler.compileScssString(CssPlusScss.toString()).getCss();
+      String cssCompiled = sassCompiler.compileScssString(cssPlusScss.toString()).getCss();
       sassCompiler.close();
       return cssCompiled;
     } catch (Exception e) {

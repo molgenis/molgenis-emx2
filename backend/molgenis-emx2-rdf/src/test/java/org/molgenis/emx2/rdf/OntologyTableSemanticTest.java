@@ -40,7 +40,7 @@ class OntologyTableSemanticTest {
   }
 
   @Test
-  void OntologyTableSemanticsTest() throws NoSuchMethodException, IOException {
+  void ontologyTableSemanticsTest() throws NoSuchMethodException, IOException {
     Table tagTable = petStoreSchema.getTable("Tag");
 
     OutputStream outputStream = new ByteArrayOutputStream();
