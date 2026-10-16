@@ -51,6 +51,7 @@ public class SnowflakeIdGenerator implements IdGenerator {
     return instance != null;
   }
 
+  @Override
   public synchronized String generateId() {
     long currentTimestamp = getCurrentTimestamp();
 

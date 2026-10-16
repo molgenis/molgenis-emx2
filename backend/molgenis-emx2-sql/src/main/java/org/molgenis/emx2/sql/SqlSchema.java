@@ -351,6 +351,7 @@ public class SqlSchema implements Schema {
     }
   }
 
+  @Override
   public String getName() {
     return getMetadata().getName();
   }
@@ -374,6 +375,7 @@ public class SqlSchema implements Schema {
     return setting;
   }
 
+  @Override
   public boolean hasSetting(String key) {
     return metadata.getSetting(key) != null;
   }

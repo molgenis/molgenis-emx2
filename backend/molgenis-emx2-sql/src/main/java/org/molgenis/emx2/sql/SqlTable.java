@@ -748,11 +748,13 @@ public class SqlTable implements Table {
     return groupBy().select(columns);
   }
 
+  @Override
   public Query where(Filter... filters) {
     return query().where(filters);
   }
 
   // @Override
+  @Override
   public Query search(String terms) {
     return query().search(terms);
   }

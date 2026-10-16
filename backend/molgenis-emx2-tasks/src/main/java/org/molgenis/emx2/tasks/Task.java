@@ -255,6 +255,7 @@ public class Task implements Runnable, Iterable<Task> {
     return strict;
   }
 
+  @Override
   public String toString() {
     try {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this);

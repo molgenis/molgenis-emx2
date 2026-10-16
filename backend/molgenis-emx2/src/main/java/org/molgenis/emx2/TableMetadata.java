@@ -501,6 +501,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return getTableName();
   }
 
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     String name = getTableName();

@@ -46,7 +46,6 @@
         <exclude name="LambdaCanBeMethodReference" />
         <exclude name="LocalVariableNamingConventions" />
         <exclude name="LooseCoupling" />
-        <exclude name="MissingOverride" />
         <exclude name="MissingStaticMethodInNonInstantiatableClass" />
         <exclude name="NonThreadSafeSingleton" />
         <exclude name="OptimizableToArrayCall" />
