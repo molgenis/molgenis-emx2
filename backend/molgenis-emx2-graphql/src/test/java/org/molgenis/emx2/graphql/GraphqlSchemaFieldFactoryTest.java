@@ -67,6 +67,6 @@ class GraphqlSchemaFieldFactoryTest {
         .filter(GraphQLFieldDefinition.class::isInstance)
         .map(GraphQLFieldDefinition.class::cast)
         .map(GraphQLFieldDefinition::getName)
-        .anyMatch(name -> GraphqlConstants.MEMBERS.equals(name));
+        .anyMatch(GraphqlConstants.MEMBERS::equals);
   }
 }

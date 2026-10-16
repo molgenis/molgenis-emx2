@@ -39,7 +39,6 @@
         <exclude name="GuardLogStatement" />
         <exclude name="ImplicitSwitchFallThrough" />
         <exclude name="InstantiableUtilityClass" />
-        <exclude name="LambdaCanBeMethodReference" />
         <exclude name="LooseCoupling" />
         <exclude name="MissingStaticMethodInNonInstantiatableClass" />
         <exclude name="NonThreadSafeSingleton" />

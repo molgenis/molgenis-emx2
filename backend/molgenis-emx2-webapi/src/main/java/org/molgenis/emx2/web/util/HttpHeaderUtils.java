@@ -93,7 +93,7 @@ public class HttpHeaderUtils {
                     }
                     if ("charset".equals(key)
                         && mediaType.parameters().get("charset").stream()
-                            .noneMatch(i -> "utf-8".equalsIgnoreCase(i))) {
+                            .noneMatch("utf-8"::equalsIgnoreCase)) {
                       return false;
                     }
                   }

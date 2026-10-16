@@ -276,7 +276,7 @@ public class Emx2 {
             .toList();
     List<Column> columns =
         tables.stream()
-            .map(t -> t.getNonInheritedColumns())
+            .map(TableMetadata::getNonInheritedColumns)
             .flatMap(List::stream)
             .sorted(
                 Comparator.comparing(Column::getRootTableName).thenComparing(Column::getPosition))

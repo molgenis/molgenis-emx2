@@ -422,7 +422,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
 
   public List<Field> getCompositeFields() {
     if (this.isReference()) {
-      return getReferences().stream().map(ref -> ref.getJooqField()).toList();
+      return getReferences().stream().map(Reference::getJooqField).toList();
     } else {
       return List.of(getJooqField());
     }
