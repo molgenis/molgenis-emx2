@@ -63,7 +63,7 @@ public class TypeUtils {
     String value = toText(v);
     // we trim string values, but not text values
     // empty string is treated as null
-    return value != null && !value.trim().equals("") ? value.trim() : null;
+    return value != null && !"".equals(value.trim()) ? value.trim() : null;
   }
 
   public static Integer toInt(Object v) {
@@ -159,10 +159,10 @@ public class TypeUtils {
       if (value == null) {
         return null; // NOSONAR
       }
-      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || value.equals("1")) {
+      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || "1".equals(value)) {
         return true;
       }
-      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || value.equals("0")) {
+      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || "0".equals(value)) {
         return false;
       }
     }
@@ -344,7 +344,7 @@ public class TypeUtils {
       return null;
     }
     if (v instanceof String) {
-      if (((String) v).trim().equals("")) {
+      if ("".equals(((String) v).trim())) {
         return null;
       }
       // we trim string values, but not text values

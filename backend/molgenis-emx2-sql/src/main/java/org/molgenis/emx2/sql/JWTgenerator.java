@@ -84,7 +84,7 @@ public class JWTgenerator {
     requireNonNull(user);
     requireNonNull(tokenId);
     requireNonNull(expirationTime);
-    if (!db.getActiveUser().equals(ADMIN_USER) && !db.getActiveUser().equals(user)) {
+    if (!ADMIN_USER.equals(db.getActiveUser()) && !db.getActiveUser().equals(user)) {
       throw new MolgenisException("Cannot create token for other users unless admin");
     }
     try {

@@ -28,10 +28,10 @@ public class ResourceListing {
       throw new MolgenisException(
           "Import failed: Directory " + path + " doesn't exist in classpath");
     }
-    if (dirURL.getProtocol().equals("file")) {
+    if ("file".equals(dirURL.getProtocol())) {
       return new File(dirURL.toURI()).list();
     }
-    if (dirURL.getProtocol().equals("jar")) {
+    if ("jar".equals(dirURL.getProtocol())) {
       String jarPath =
           dirURL
               .getPath()

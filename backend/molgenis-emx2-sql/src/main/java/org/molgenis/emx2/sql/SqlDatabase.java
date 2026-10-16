@@ -321,7 +321,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           // copy
           SqlSchema schema = (SqlSchema) db.getSchema(metadata.getName());
           // make current user a manager
-          if (db.getActiveUser() != null && !db.getActiveUser().equals(ADMIN_USER)) {
+          if (db.getActiveUser() != null && !ADMIN_USER.equals(db.getActiveUser())) {
             schema.addMember(db.getActiveUser(), Privileges.MANAGER.toString());
           }
           // refresh
@@ -541,13 +541,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) {
+    if ("admin".equals(user)) {
       throw new MolgenisException("You can't remove admin");
     }
-    if (user.equals("anonymous")) {
+    if ("anonymous".equals(user)) {
       throw new MolgenisException("You can't remove anonymous");
     }
-    if (user.equals("user")) {
+    if ("user".equals(user)) {
       throw new MolgenisException("You can't remove user");
     }
 
@@ -570,10 +570,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public void setEnabledUser(String user, boolean enabled) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) {
+    if ("admin".equals(user)) {
       throw new MolgenisException("You cant enable or disable admin");
     }
-    if (user.equals("anonymous")) {
+    if ("anonymous".equals(user)) {
       throw new MolgenisException("You cant enable or disable anonymous");
     }
     if (!hasUser(user)) {
@@ -596,10 +596,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public void setAdminUser(String user, boolean admin) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin") && !admin) {
+    if ("admin".equals(user) && !admin) {
       throw new MolgenisException("Cannot revoke admin rights of admin user");
     }
-    if (user.equals("anonymous")) {
+    if ("anonymous".equals(user)) {
       throw new MolgenisException("Anonymous user cannot have admin rights");
     }
     if (!ADMIN_USER.equals(this.getActiveUser())) {
@@ -645,7 +645,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     User user = getUser(username);
     if (inTx) {
       try {
-        if (username.equals(ADMIN_USER) || user.isAdmin()) {
+        if (ADMIN_USER.equals(username) || user.isAdmin()) {
           // admin user is session user, so remove role
           jooq.execute("RESET ROLE;");
         } else {

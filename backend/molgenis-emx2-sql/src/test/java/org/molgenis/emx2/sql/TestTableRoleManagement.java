@@ -59,7 +59,7 @@ class TestTableRoleManagement {
     assertFalse(info.isSystemRole());
 
     schema.deleteRole("ReaderA");
-    assertFalse(schema.getRoleInfos().stream().anyMatch(r -> r.name().equals("ReaderA")));
+    assertFalse(schema.getRoleInfos().stream().anyMatch(r -> "ReaderA".equals(r.name())));
   }
 
   @Test
@@ -254,7 +254,7 @@ class TestTableRoleManagement {
     Schema schema = database.getSchema(SCHEMA);
     schema.createRole("ListedRole");
     List<Role> all = schema.getRoleInfos();
-    assertTrue(all.stream().anyMatch(r -> r.name().equals("ListedRole")));
+    assertTrue(all.stream().anyMatch(r -> "ListedRole".equals(r.name())));
   }
 
   static Stream<Arguments> systemRolePermissions() {

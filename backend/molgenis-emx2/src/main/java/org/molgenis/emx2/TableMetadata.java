@@ -670,7 +670,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public String getLabel() {
-    if (this.getLabels().get("en") != null && !this.getLabels().get("en").trim().equals("")) {
+    if (this.getLabels().get("en") != null && !"".equals(this.getLabels().get("en").trim())) {
       return this.getLabels().get("en");
     } else {
       return this.getTableName();
@@ -679,7 +679,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public String getDescription() {
     if (this.getDescriptions().get("en") != null
-        && !this.getDescriptions().get("en").trim().equals("")) {
+        && !"".equals(this.getDescriptions().get("en").trim())) {
       return this.getDescriptions().get("en");
     } else {
       return null;

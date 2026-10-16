@@ -11,6 +11,6 @@ public class DownloadApiUtils {
   }
 
   static boolean includeSystemColumns(Context ctx) {
-    return String.valueOf(ctx.queryParam(INCLUDE_SYSTEM_COLUMNS)).equalsIgnoreCase("true");
+    return "true".equalsIgnoreCase(String.valueOf(ctx.queryParam(INCLUDE_SYSTEM_COLUMNS)));
   }
 }

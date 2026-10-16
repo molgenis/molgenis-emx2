@@ -241,10 +241,10 @@ class Emx2RdfsPetStoreTest extends PetStoreTest {
           }
         }
       }
-      if (subject.stringValue().equals("https://www.molgenis.org/")) {
+      if ("https://www.molgenis.org/".equals(subject.stringValue())) {
         Set<Value> labels = handler.resources.get(subject).get(RDFS.LABEL);
         for (Value label : labels) {
-          if (label.stringValue().equals("https://www.molgenis.org/")) {
+          if ("https://www.molgenis.org/".equals(label.stringValue())) {
             linkHasLabel = true;
           }
         }

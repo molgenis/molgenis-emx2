@@ -92,7 +92,7 @@ public class SqlSchema implements Schema {
   public List<String> getInheritedRolesForUser(String user) {
     // moved implementation to SqlSchemaMetadata so can be cached
     // while being reloaded in case of transactions
-    if (user == null || user.equals(ADMIN_USER)) {
+    if (user == null || ADMIN_USER.equals(user)) {
       return getRoles();
     } else {
       return getMetadata().getInheritedRolesForUser(user);

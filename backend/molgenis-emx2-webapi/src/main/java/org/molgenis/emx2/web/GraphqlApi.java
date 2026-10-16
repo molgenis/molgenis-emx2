@@ -148,7 +148,7 @@ public class GraphqlApi {
           putPartsIntoMap(
               variables,
               ctx.req().getParts().stream()
-                  .filter(p -> !p.getName().equals(VARIABLES) && !p.getName().equals(QUERY))
+                  .filter(p -> !VARIABLES.equals(p.getName()) && !QUERY.equals(p.getName()))
                   .collect(Collectors.toList()));
           //
           return variables;

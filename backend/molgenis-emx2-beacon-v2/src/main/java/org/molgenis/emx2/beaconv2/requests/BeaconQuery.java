@@ -77,11 +77,11 @@ public class BeaconQuery {
       requestParameters.put(ref, new BeaconRequestParameters(ref, urlParam.getValue()));
     }
     for (Map.Entry<String, List<String>> queryParam : ctx.queryParamMap().entrySet()) {
-      if (queryParam.getKey().equalsIgnoreCase("limit")) {
+      if ("limit".equalsIgnoreCase(queryParam.getKey())) {
         pagination.setLimit(Integer.parseInt(queryParam.getValue().get(0)));
-      } else if (queryParam.getKey().equalsIgnoreCase("skip")) {
+      } else if ("skip".equalsIgnoreCase(queryParam.getKey())) {
         pagination.setSkip(Integer.parseInt(queryParam.getValue().get(0)));
-      } else if (queryParam.getKey().equalsIgnoreCase("requestedGranularity")) {
+      } else if ("requestedGranularity".equalsIgnoreCase(queryParam.getKey())) {
         requestedGranularity = Granularity.fromString(queryParam.getValue().get(0));
       } else {
         requestParameters.put(
