@@ -883,8 +883,7 @@ public class GraphqlTableFieldFactory {
       if (search != null && !"".equals(search.trim())) {
         q.search(search);
       }
-      logger.info(
-          "converted graphql to molgenis query in {}ms", (System.currentTimeMillis() - step));
+      logger.info("converted graphql to molgenis query in {}ms", System.currentTimeMillis() - step);
       Object result = transform(q.retrieveJSON());
       // bit silly, we have to remove root field here. Some refactoring makes this look nicer
       if (result != null) {

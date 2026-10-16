@@ -35,13 +35,13 @@ class URLUtilsTest {
 
     JavalinTest.test(
         app,
-        ((server, client) -> {
+        (server, client) -> {
           if (contextPath != null) {
             assertEquals(expected, client.get(contextPath + "/test").body().string());
           } else {
             assertEquals(expected, client.get("/test").body().string());
           }
-        }));
+        });
   }
 
   private void contextWrapper(Context ctx, byte[] bytes) {

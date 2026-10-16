@@ -126,9 +126,9 @@ public abstract class ColumnTypeRdfMapper {
       final Row row,
       final Column column,
       final RdfColumnType rdfColumnType) {
-    return (rdfColumnType.isEmpty(row, column)
+    return rdfColumnType.isEmpty(row, column)
         ? Set.of()
-        : rdfColumnType.retrieveValues(rdfMapData, row, column));
+        : rdfColumnType.retrieveValues(rdfMapData, row, column);
   }
 
   public enum RdfColumnType {
@@ -234,12 +234,12 @@ public abstract class ColumnTypeRdfMapper {
 
         // Separate refLink (if present) from the rest.
         String[] refLinkMappingItem =
-            (column.getRefLink() == null
+            column.getRefLink() == null
                 ? null
                 : new String[] {
                   colNameToRefTableColName.remove(column.getRefLink()),
                   row.getString(column.getRefLink())
-                });
+                };
 
         // Process items
         final ArrayList<SortedMap<String, String>> itemsToMap = new ArrayList<>();
@@ -291,9 +291,9 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         String[] names =
-            (column.isArray()
+            column.isArray()
                 ? row.getStringArray(column.getName())
-                : new String[] {row.getString(column.getName())});
+                : new String[] {row.getString(column.getName())};
 
         Map<String, IRI> mappedNames =
             rdfMapData
@@ -303,12 +303,12 @@ public abstract class ColumnTypeRdfMapper {
         return mappedNames.keySet().stream()
             .map(
                 i ->
-                    (mappedNames.get(i) != null
+                    mappedNames.get(i) != null
                         ? mappedNames.get(i)
                         : rowIRI(
                             rdfMapData.getBaseURL(),
                             column.getRefTable().getRootTable(),
-                            new PrimaryKey(Map.of("name", i)))))
+                            new PrimaryKey(Map.of("name", i))))
             .collect(Collectors.toUnmodifiableSet());
       }
     },

@@ -59,8 +59,7 @@ public class DataModels {
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     BIOBANK_DIRECTORY_STAGING(
-        (schemaLoaderSettings ->
-            new BiobankDirectoryLoader(schemaLoaderSettings).setStaging(true)));
+        schemaLoaderSettings -> new BiobankDirectoryLoader(schemaLoaderSettings).setStaging(true));
 
     public static boolean hasRegular(String nameOther) {
       return Arrays.stream(values()).anyMatch(regular -> regular.name().equals(nameOther));

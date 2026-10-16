@@ -540,7 +540,7 @@ class TestGraphqlSchemaFields {
 
     // orderId=1 has one pet
     assertEquals(1, result.at("/Pet_groupBy/1/count").intValue());
-    assert (result.at("/Pet_groupBy/1/orders/orderId").textValue().contains("ORDER:"));
+    assert result.at("/Pet_groupBy/1/orders/orderId").textValue().contains("ORDER:");
 
     // apply nested filter
     result =

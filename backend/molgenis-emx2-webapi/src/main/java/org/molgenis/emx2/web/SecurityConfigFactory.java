@@ -53,7 +53,7 @@ public class SecurityConfigFactory {
     final OidcClient oidcClient = new OidcClient(oidcConfiguration);
     oidcClient.setName(OIDC_CLIENT_NAME);
 
-    final Clients clients = new Clients(callbackUrl + ("/" + OIDC_CALLBACK_PATH), oidcClient);
+    final Clients clients = new Clients(callbackUrl + "/" + OIDC_CALLBACK_PATH, oidcClient);
 
     Config config = new Config(clients);
     config.setHttpActionAdapter(JavalinCustomHttpActionAdapter.INSTANCE);

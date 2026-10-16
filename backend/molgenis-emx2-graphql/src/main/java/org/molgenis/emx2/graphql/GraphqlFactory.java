@@ -128,7 +128,7 @@ public class GraphqlFactory {
       logger.info(
           "creation graphql for schema: {} completed in {}ms",
           schema.getMetadata().getName(),
-          (System.currentTimeMillis() - start));
+          System.currentTimeMillis() - start);
     }
 
     return graphql;
