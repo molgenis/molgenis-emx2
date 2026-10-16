@@ -1,0 +1,6 @@
+resource,organisation,role,is lead organisation
+testCohort,UMCG,,
+testCohort,UMCU,,true
+testCohort,UiO,,true
+testCohort,UoD,,
+testCohort,ULST,,
