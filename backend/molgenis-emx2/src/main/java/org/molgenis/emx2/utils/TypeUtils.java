@@ -540,11 +540,11 @@ public class TypeUtils {
     if (value != null) {
       String[] words = value.split("\\s+");
       StringBuilder result = new StringBuilder();
-      for (int i = 0; i < words.length; i++) {
+      for (String word : words) {
         // all other words have first character uppercase, other characters not touched
-        result.append(words[i].substring(0, 1).toUpperCase());
-        if (words[i].length() > 1) {
-          result.append(words[i].substring(1));
+        result.append(word.substring(0, 1).toUpperCase());
+        if (word.length() > 1) {
+          result.append(word.substring(1));
         }
       }
       return result.toString().trim();

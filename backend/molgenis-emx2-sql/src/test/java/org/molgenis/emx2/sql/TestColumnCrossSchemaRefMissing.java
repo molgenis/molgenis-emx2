@@ -16,13 +16,12 @@ class TestColumnCrossSchemaRefMissing {
   private static final String UNRESOLVABLE_REF_SCHEMA =
       TestColumnCrossSchemaRefMissing.class.getSimpleName() + "Unresolvable";
 
-  private static Database database;
   private static Schema referencingSchema;
   private static Schema referencedSchema;
 
   @BeforeAll
   static void setUp() {
-    database = TestDatabaseFactory.getTestDatabase();
+    Database database = TestDatabaseFactory.getTestDatabase();
     database.becomeAdmin();
     referencingSchema =
         database.dropCreateSchema(TestColumnCrossSchemaRefMissing.class.getSimpleName() + "a");

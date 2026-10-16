@@ -23,7 +23,9 @@ public class OntologyIriMapper {
     add(table);
   }
 
-  public OntologyIriMapper() {}
+  private OntologyIriMapper() {
+    // needed for json parsing
+  }
 
   private void addAll(Collection<Table> tables) {
     for (Table table : tables) {

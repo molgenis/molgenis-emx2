@@ -26,7 +26,6 @@ public class JWTgenerator {
   public static final int SHARED_SECRET_LENGTH = 32;
   private static final Logger logger = LoggerFactory.getLogger(JWTgenerator.class);
 
-  private static byte[] sharedSecret;
   private static MACSigner signer;
   private static JWSVerifier verifier;
 
@@ -38,7 +37,7 @@ public class JWTgenerator {
   private static void init(Database database) {
     try {
       requireNonNull(database);
-      sharedSecret = database.resolveJwtSharedSecret().getBytes();
+      byte[] sharedSecret = database.resolveJwtSharedSecret().getBytes();
       // check enough bytes
       if (sharedSecret.length < SHARED_SECRET_LENGTH) {
         throw new MolgenisException(

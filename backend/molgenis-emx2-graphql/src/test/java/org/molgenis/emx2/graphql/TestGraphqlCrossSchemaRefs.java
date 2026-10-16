@@ -21,16 +21,14 @@ public class TestGraphqlCrossSchemaRefs {
   private static final String schemaName2 = TestGraphqlCrossSchemaRefs.class.getSimpleName() + "2";
 
   private static GraphqlExecutor graphql;
-  private static Schema schema1;
-  private static Schema schema2;
 
   @BeforeAll
   public static void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(schemaName2);
     database.dropSchemaIfExists(schemaName1);
-    schema1 = database.createSchema(schemaName1);
-    schema2 = database.createSchema(schemaName2);
+    Schema schema1 = database.createSchema(schemaName1);
+    Schema schema2 = database.createSchema(schemaName2);
 
     CrossSchemaReferenceExample.create(schema1, schema2);
     graphql = new GraphqlExecutor(schema2);

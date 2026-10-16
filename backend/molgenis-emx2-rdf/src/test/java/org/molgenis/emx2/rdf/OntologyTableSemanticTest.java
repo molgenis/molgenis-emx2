@@ -56,10 +56,8 @@ class OntologyTableSemanticTest {
     outputStream.close();
     String result = outputStream.toString();
 
-    /**
-     * Situation before: the 'Tag' ontology table has the default annotation of NCIT:C48697
-     * (Controlled Vocabulary) but not the custom annotation added later (reproduceme#Tag)
-     */
+    // Situation before: the 'Tag' ontology table has the default annotation of NCIT:C48697
+    // (Controlled Vocabulary) but not the custom annotation added later (reproduceme#Tag)
     assertTrue(
         result.contains("rdfs:subClassOf qb:DataSet, owl:Thing, skos:ConceptScheme;"),
         "Tag should be a subclass of the given classes");
@@ -73,7 +71,7 @@ class OntologyTableSemanticTest {
         result.contains("https://w3id.org/reproduceme#Tag>"),
         "Tag should be defined by https://w3id.org/reproduceme#Tag>");
 
-    /** Update the 'Tag' ontology table with new semantics and produce new RDF */
+    // Update the 'Tag' ontology table with new semantics and produce new RDF
     SchemaMetadata metadata =
         Emx2.fromRowList(
             CsvTableReader.read(
@@ -96,10 +94,8 @@ class OntologyTableSemanticTest {
     outputStream.close();
     result = outputStream.toString();
 
-    /**
-     * Situation after: the 'Tag' ontology table has the Tag annotation from the REPRODUCE-ME
-     * ontology, in addition to the 'Controlled Vocabulary' tag (NCIT_C48697)
-     */
+    // Situation after: the 'Tag' ontology table has the Tag annotation from the REPRODUCE-ME
+    // ontology, in addition to the 'Controlled Vocabulary' tag (NCIT_C48697)
     assertTrue(
         result.contains("rdfs:subClassOf qb:DataSet, owl:Thing, skos:ConceptScheme;"),
         "Tag should be a subclass of the given classes");

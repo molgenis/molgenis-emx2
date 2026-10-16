@@ -356,8 +356,7 @@ public abstract class ColumnTypeRdfMapper {
           .collect(Collectors.toUnmodifiableSet());
     }
 
-    abstract Set<Value> retrieveValues(
-        final RdfMapData rdfMapData, final Row row, final Column column);
+    abstract Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column);
 
     boolean isEmpty(final Row row, final Column column) {
       return row.getString(column.getName()) == null;

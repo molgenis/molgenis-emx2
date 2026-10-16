@@ -28,7 +28,6 @@ class TestGraphqlMutationTransaction {
 
   private static final String SCHEMA_NAME = TestGraphqlMutationTransaction.class.getSimpleName();
 
-  private static Schema schema;
   private static Table author;
   private static Table book;
   private static GraphqlExecutor graphqlExecutor;
@@ -36,7 +35,7 @@ class TestGraphqlMutationTransaction {
   @BeforeAll
   static void setup() {
     Database database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(SCHEMA_NAME);
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
     schema.create(
         table("Author", column("name").setPkey(), column("country")),
         table("Book", column("title").setPkey(), column("author", REF).setRefTable("Author")));

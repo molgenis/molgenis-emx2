@@ -31,11 +31,7 @@
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
         <exclude name="CloseResource" />
         <exclude name="CollectionTypeMismatch" />
-        <exclude name="DanglingJavadoc" />
-        <exclude name="DoubleBraceInitialization" />
         <exclude name="EmptyControlStatement" />
-        <exclude name="FinalParameterInAbstractMethod" />
-        <exclude name="ForLoopCanBeForeach" />
         <exclude name="GuardLogStatement" />
         <exclude name="ImplicitSwitchFallThrough" />
         <exclude name="InstantiableUtilityClass" />
@@ -44,12 +40,7 @@
         <exclude name="NonThreadSafeSingleton" />
         <exclude name="OptimizableToArrayCall" />
         <exclude name="OverrideBothEqualsAndHashCodeOnComparable" />
-        <exclude name="SimplifiableTestAssertion" />
-        <exclude name="SimplifiedTernary" />
         <exclude name="SuspiciousEqualsMethodName" />
-        <exclude name="UncommentedEmptyConstructor" />
-        <exclude name="UnnecessaryImport" />
-        <exclude name="UnnecessarySemicolon" />
         <exclude name="UnusedFormalParameter" />
         <exclude name="UnusedLocalVariable" />
         <exclude name="UnusedPrivateField" />
@@ -57,12 +48,16 @@
         <exclude name="UnusedReturnValue" />
         <exclude name="UseCollectionIsEmpty" />
         <exclude name="UseStandardCharsets" />
-        <exclude name="UselessOverridingMethod" />
-        <exclude name="VariableCanBeInlined" />
     </rule>
 
     <!-- Overrides for quickstart.xml -->
     <rule ref="category/java/codestyle.xml/ControlStatementBraces">
+        <properties>
+            <property name="violationSuppressXPath"
+                      value="./ancestor-or-self::MethodDeclaration[@Name = 'equals']"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/SimplifyBooleanReturns">
         <properties>
             <property name="violationSuppressXPath"
                       value="./ancestor-or-self::MethodDeclaration[@Name = 'equals']"/>

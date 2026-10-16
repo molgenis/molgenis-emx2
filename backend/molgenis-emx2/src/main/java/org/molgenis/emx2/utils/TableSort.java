@@ -35,10 +35,10 @@ public class TableSort {
         TableMetadata current = todo.get(i);
         boolean depends = false;
 
-        for (int j = 0; j < todo.size(); j++) {
+        for (TableMetadata other : todo) {
           if (current.getInheritName() != null
               && current.getImportSchema() == null
-              && todo.get(j).equals(current.getInheritedTable())) {
+              && other.equals(current.getInheritedTable())) {
             depends = true;
             break;
           }
