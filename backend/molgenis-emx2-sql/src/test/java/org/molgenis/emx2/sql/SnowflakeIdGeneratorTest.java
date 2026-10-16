@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
@@ -57,21 +56,17 @@ public class SnowflakeIdGeneratorTest {
   public void testUniqueIdsOnFourThreads() throws InterruptedException {
     Set<String> uniqueIds = new HashSet<>();
 
-    ExecutorService executorService = Executors.newFixedThreadPool(4);
-
-    for (int i = 0; i < 100000; i++) {
-      executorService.submit(
-          () -> {
-            String id = generator.generateId();
-            synchronized (uniqueIds) {
-              uniqueIds.add(id);
-            }
-          });
+    try (ExecutorService executorService = Executors.newFixedThreadPool(4)) {
+      for (int i = 0; i < 100000; i++) {
+        executorService.submit(
+            () -> {
+              String id = generator.generateId();
+              synchronized (uniqueIds) {
+                uniqueIds.add(id);
+              }
+            });
+      }
     }
-
-    // Shut down the executor and wait for tasks to finish
-    executorService.shutdown();
-    executorService.awaitTermination(1, TimeUnit.MINUTES);
 
     // Verify that the number of unique IDs matches the total number of generated IDs
     assertEquals(100000, uniqueIds.size(), "Not all generated IDs are unique.");

@@ -54,26 +54,27 @@ public class ResourceListing {
         while (entries.hasMoreElements()) {
 
           ZipEntry ze = entries.nextElement();
-          InputStream in = new BufferedInputStream(jar.getInputStream(ze));
-          OutputStream out = new BufferedOutputStream(OutputStream.nullOutputStream());
+          try (InputStream in = new BufferedInputStream(jar.getInputStream(ze));
+              OutputStream out = new BufferedOutputStream(OutputStream.nullOutputStream())) {
 
-          totalEntryArchive++;
+            totalEntryArchive++;
 
-          int nBytes;
-          byte[] buffer = new byte[2048];
-          int totalSizeEntry = 0;
+            int nBytes;
+            byte[] buffer = new byte[2048];
+            int totalSizeEntry = 0;
 
-          while ((nBytes = in.read(buffer)) > 0) { // Compliant
-            out.write(buffer, 0, nBytes);
-            totalSizeEntry += nBytes;
-            totalSizeArchive += nBytes;
+            while ((nBytes = in.read(buffer)) > 0) { // Compliant
+              out.write(buffer, 0, nBytes);
+              totalSizeEntry += nBytes;
+              totalSizeArchive += nBytes;
 
-            double compressionRatio = totalSizeEntry / (double) ze.getCompressedSize();
-            if (compressionRatio > thresholdRatio) {
-              // ratio between compressed and uncompressed data is highly suspicious, looks like a
-              // Zip
-              // Bomb Attack
-              break;
+              double compressionRatio = totalSizeEntry / (double) ze.getCompressedSize();
+              if (compressionRatio > thresholdRatio) {
+                // ratio between compressed and uncompressed data is highly suspicious, looks like a
+                // Zip
+                // Bomb Attack
+                break;
+              }
             }
           }
 

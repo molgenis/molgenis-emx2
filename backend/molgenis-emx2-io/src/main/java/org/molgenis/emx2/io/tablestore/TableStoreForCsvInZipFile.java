@@ -32,9 +32,8 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
     Map<String, String> env = new HashMap<>();
     env.put("create", "true");
     final URI zipUri = URI.create("jar:" + zipFilePath.toUri());
-    try {
-      FileSystem zipfs = FileSystems.newFileSystem(zipUri, env, null);
-      zipfs.close();
+    try (FileSystem ignored = FileSystems.newFileSystem(zipUri, env, null)) {
+      // opening the file system creates the zip file
     } catch (IOException ioe) {
       throw new MolgenisException("Import failed", ioe);
     }
@@ -57,10 +56,9 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
           Files.createDirectories(dir);
         }
         Path pathInZipfile = zipfs.getPath(filePath);
-        OutputStream out = Files.newOutputStream(pathInZipfile);
-        out.write(contents);
-        out.flush();
-        out.close();
+        try (OutputStream out = Files.newOutputStream(pathInZipfile)) {
+          out.write(contents);
+        }
       } catch (IOException ioe) {
         throw new MolgenisException("File export failed", ioe);
       }
@@ -94,16 +92,17 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
   public void processTable(String name, RowProcessor processor) {
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       ZipEntry entry = getEntry(zf, name);
-      Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
-      if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader).iterator(), this);
-      } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
-        processor.process(CsvTableReader.read(reader).iterator(), this);
-      } else {
-        throw new MolgenisException(
-            String.format(
-                "Import failed: Table '%s' has unsupported extension (should be .csv or .tsv)",
-                name));
+      try (Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)))) {
+        if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
+          processor.process(CsvTableReader.read(reader).iterator(), this);
+        } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
+          processor.process(CsvTableReader.read(reader).iterator(), this);
+        } else {
+          throw new MolgenisException(
+              String.format(
+                  "Import failed: Table '%s' has unsupported extension (should be .csv or .tsv)",
+                  name));
+        }
       }
     } catch (IOException e) {
       throw new MolgenisException(
@@ -115,16 +114,17 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
   public Iterable<Row> readTable(String name) {
     try (ZipFile zf = new ZipFile(zipFilePath.toFile())) {
       ZipEntry entry = getEntry(zf, name);
-      Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)));
-      if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
-        return StreamSupport.stream(CsvTableReader.read(reader).spliterator(), false).toList();
-      } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
-        return StreamSupport.stream(CsvTableReader.read(reader).spliterator(), false).toList();
-      } else {
-        throw new MolgenisException(
-            String.format(
-                "Import failed: Table '%s' has unsupported extension (should be .csv or .tsv)",
-                name));
+      try (Reader reader = new BufferedReader(new InputStreamReader(zf.getInputStream(entry)))) {
+        if (entry != null && entry.getName().endsWith(CSV_EXTENSION)) {
+          return StreamSupport.stream(CsvTableReader.read(reader).spliterator(), false).toList();
+        } else if (entry != null && entry.getName().endsWith(TSV_EXTENSION)) {
+          return StreamSupport.stream(CsvTableReader.read(reader).spliterator(), false).toList();
+        } else {
+          throw new MolgenisException(
+              String.format(
+                  "Import failed: Table '%s' has unsupported extension (should be .csv or .tsv)",
+                  name));
+        }
       }
     } catch (Exception e) {
       throw new MolgenisException(
@@ -167,8 +167,9 @@ public class TableStoreForCsvInZipFile implements TableAndFileStore {
       ZipEntry entry = getEntry(zf, name);
       if (entry != null) {
         String contentType = URLConnection.guessContentTypeFromName(entry.getName());
-        InputStream contents = zf.getInputStream(entry);
-        return new BinaryFileWrapper(contentType, entry.getName(), contents.readAllBytes());
+        try (InputStream contents = zf.getInputStream(entry)) {
+          return new BinaryFileWrapper(contentType, entry.getName(), contents.readAllBytes());
+        }
       } else {
         throw new MolgenisException("Import failed: file '" + name + "' not found in file.");
       }

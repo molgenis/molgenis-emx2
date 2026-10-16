@@ -104,11 +104,10 @@ public final class BootstrapThemeService {
     cssPlusScss.append(input);
     try {
       cssPlusScss.append(getScssFileContents("theme/theme.scss"));
-      SassCompiler sassCompiler = SassCompilerFactory.bundled();
-      sassCompiler.setOutputStyle(EmbeddedSass.OutputStyle.COMPRESSED);
-      String cssCompiled = sassCompiler.compileScssString(cssPlusScss.toString()).getCss();
-      sassCompiler.close();
-      return cssCompiled;
+      try (SassCompiler sassCompiler = SassCompilerFactory.bundled()) {
+        sassCompiler.setOutputStyle(EmbeddedSass.OutputStyle.COMPRESSED);
+        return sassCompiler.compileScssString(cssPlusScss.toString()).getCss();
+      }
     } catch (Exception e) {
       logger.error(String.format("SASS compilation failed, input was:%n%s", input));
       throw new MolgenisException("SASS compilation failed", e);
@@ -121,33 +120,37 @@ public final class BootstrapThemeService {
    */
   public static String getScssFileContents(String file) throws IOException {
     StringBuilder stringBuilder = new StringBuilder();
-    InputStream fileFromResourceAsStream = getFileFromResourceAsStream(file);
-    InputStreamReader inputStreamReader =
-        new InputStreamReader(fileFromResourceAsStream, StandardCharsets.UTF_8);
-    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-    String line;
-    while ((line = bufferedReader.readLine()) != null) {
-      if (line.startsWith("@import")) {
-        String importFileLocation =
-            line.replace("@import", "").replace("\"", "").replace("'", "").replace(";", "").trim();
-        if (!importFileLocation.endsWith(".scss")) {
-          int lastFwdSlashIndex = importFileLocation.lastIndexOf("/");
-          if (lastFwdSlashIndex == -1) {
-            importFileLocation = "_" + importFileLocation + ".scss";
-          } else {
-            importFileLocation =
-                importFileLocation.substring(0, lastFwdSlashIndex + 1)
-                    + "_"
-                    + importFileLocation.substring(lastFwdSlashIndex + 1)
-                    + ".scss";
+    try (BufferedReader bufferedReader =
+        new BufferedReader(
+            new InputStreamReader(getFileFromResourceAsStream(file), StandardCharsets.UTF_8))) {
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        if (line.startsWith("@import")) {
+          String importFileLocation =
+              line.replace("@import", "")
+                  .replace("\"", "")
+                  .replace("'", "")
+                  .replace(";", "")
+                  .trim();
+          if (!importFileLocation.endsWith(".scss")) {
+            int lastFwdSlashIndex = importFileLocation.lastIndexOf("/");
+            if (lastFwdSlashIndex == -1) {
+              importFileLocation = "_" + importFileLocation + ".scss";
+            } else {
+              importFileLocation =
+                  importFileLocation.substring(0, lastFwdSlashIndex + 1)
+                      + "_"
+                      + importFileLocation.substring(lastFwdSlashIndex + 1)
+                      + ".scss";
+            }
           }
-        }
-        String fileParent = file.substring(0, file.lastIndexOf("/"));
-        String completeFileImportLocation = fileParent + "/" + importFileLocation;
-        stringBuilder.append(getScssFileContents(completeFileImportLocation));
-      } else {
-        if (!line.startsWith("@use ")) {
-          stringBuilder.append(line).append(System.lineSeparator());
+          String fileParent = file.substring(0, file.lastIndexOf("/"));
+          String completeFileImportLocation = fileParent + "/" + importFileLocation;
+          stringBuilder.append(getScssFileContents(completeFileImportLocation));
+        } else {
+          if (!line.startsWith("@use ")) {
+            stringBuilder.append(line).append(System.lineSeparator());
+          }
         }
       }
     }
