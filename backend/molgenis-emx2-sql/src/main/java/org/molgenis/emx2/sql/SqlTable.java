@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jooq.*;
 import org.jooq.Record;
 import org.molgenis.emx2.*;
@@ -18,8 +20,6 @@ import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.sql.autoid.IdGeneratorService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SqlTable implements Table {
 
@@ -28,7 +28,7 @@ public class SqlTable implements Table {
   private SqlDatabase db;
   private SqlTableMetadata metadata;
   private TableListener tableListener;
-  private static Logger logger = LoggerFactory.getLogger(SqlTable.class);
+  private static Logger logger = LogManager.getLogger(SqlTable.class);
 
   SqlTable(SqlDatabase db, SqlTableMetadata metadata, TableListener tableListener) {
     this.db = db;
@@ -126,7 +126,7 @@ public class SqlTable implements Table {
       // truncate would be faster, but then we need add code to remove and re-add foreign keys
       database.getJooqWithExtendedTimeout().deleteFrom(t.getJooqTable()).execute();
     }
-    logger.info(database.getActiveUser() + " truncated table " + tableName);
+    logger.info("{} truncated table {}", database::getActiveUser, () -> tableName);
   }
 
   private static String getMgTableClass(TableMetadata table) {

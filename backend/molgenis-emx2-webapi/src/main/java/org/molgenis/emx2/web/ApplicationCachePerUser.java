@@ -11,6 +11,8 @@ import io.javalin.http.Context;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.time.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
@@ -20,8 +22,6 @@ import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.molgenis.emx2.utils.EnvironmentProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class ApplicationCachePerUser {
   private static final long DEFAULT_APP_CACHE_SIZE = 10_000;
@@ -72,7 +72,7 @@ public final class ApplicationCachePerUser {
     }
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(ApplicationCachePerUser.class);
+  private static final Logger logger = LogManager.getLogger(ApplicationCachePerUser.class);
 
   private final Cache<UserKey, Database> databaseCache;
   private final Cache<UserSchemaKey, Schema> schemaCache;
@@ -154,7 +154,7 @@ public final class ApplicationCachePerUser {
     return schemaCache.get(
         key,
         k -> {
-          logger.info("create schema '{}' cache for user {}", schemaName, userKey.userName());
+          logger.info("create schema '{}' cache for user {}", () -> schemaName, userKey::userName);
           return getDatabaseForUser(userKey).getSchema(schemaName);
         });
   }
@@ -168,7 +168,7 @@ public final class ApplicationCachePerUser {
     return graphqlDatabaseCache.get(
         getUserKey(ctx),
         k -> {
-          logger.info("create graphqlDatabaseApi cache for user {}", getUserKey(ctx));
+          logger.info("create graphqlDatabaseApi cache for user {}", () -> getUserKey(ctx));
           return new GraphqlExecutor(getDatabaseForUser(ctx), TaskApi.taskService);
         });
   }

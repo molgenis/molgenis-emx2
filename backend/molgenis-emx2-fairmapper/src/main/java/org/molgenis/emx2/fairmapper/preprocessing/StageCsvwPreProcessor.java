@@ -1,13 +1,13 @@
 package org.molgenis.emx2.fairmapper.preprocessing;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Finds the CSVW tables that belong to each dataset and links them together, so later steps can use
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StageCsvwPreProcessor implements RdfPreProcessor {
 
-  private static final Logger logger = LoggerFactory.getLogger(StageCsvwPreProcessor.class);
+  private static final Logger logger = LogManager.getLogger(StageCsvwPreProcessor.class);
 
   private static final String CONSTRUCT =
       """
@@ -39,7 +39,7 @@ public class StageCsvwPreProcessor implements RdfPreProcessor {
     try (RepositoryConnection conn = repository.getConnection()) {
       GraphQuery graphQuery = conn.prepareGraphQuery(QueryLanguage.SPARQL, CONSTRUCT);
       Model result = QueryResults.asModel(graphQuery.evaluate());
-      logger.info("linked {} table(s) to datasets", result.size());
+      logger.info("linked {} table(s) to datasets", result::size);
       conn.add(result);
       conn.commit();
     }

@@ -2,6 +2,8 @@ package org.molgenis.emx2.rdf.generators.query.generators;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.rdf4j.sparqlbuilder.core.*;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPattern;
 import org.eclipse.rdf4j.sparqlbuilder.graphpattern.GraphPatterns;
@@ -9,8 +11,6 @@ import org.molgenis.emx2.Column;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.rdf.generators.query.ColumnNameSparqlEncoder;
 import org.molgenis.emx2.rdf.generators.query.SparqlVariableUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Generates SPARQL query components for a column that references another table.
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGenerator {
 
   private static final Logger logger =
-      LoggerFactory.getLogger(ReferenceColumnSparqlQueryGenerator.class);
+      LogManager.getLogger(ReferenceColumnSparqlQueryGenerator.class);
 
   private final Variable variable;
   private final Column rootColumn;
@@ -103,7 +103,7 @@ public class ReferenceColumnSparqlQueryGenerator implements ColumnSparqlQueryGen
     TableMetadata refTable = rootColumn.getRefTable();
     for (Column column : refTable.getPrimaryKeyColumns()) {
       if (!column.hasSemantics()) {
-        logger.warn("Column {} has no semantics", column.getName());
+        logger.warn("Column {} has no semantics", column::getName);
         continue;
       }
 

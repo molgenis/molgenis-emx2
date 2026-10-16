@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.EnvironmentProperty;
@@ -26,8 +28,6 @@ import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.molgenis.emx2.web.util.SchemaMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MolgenisWebservice {
 
@@ -35,7 +35,7 @@ public class MolgenisWebservice {
   public static final long MAX_REQUEST_SIZE = 10_000_000L;
 
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
-  static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
+  static final Logger logger = LogManager.getLogger(MolgenisWebservice.class);
 
   public static final String NUXT_OIDC_LOGOUT_PATH =
       "oidc-login"; // in nuxt '_' indicates a dynamic route
@@ -152,7 +152,7 @@ public class MolgenisWebservice {
     app.exception(
         Exception.class,
         (e, ctx) -> {
-          logger.error(e.getMessage(), e);
+          logger.error(e::getMessage, e);
           ctx.status(400);
           ctx.json(molgenisExceptionToJson(e));
         });
@@ -253,7 +253,7 @@ public class MolgenisWebservice {
               + menuForRole.items().getFirst().href().replace("../", "");
       ctx.redirect(location);
     } catch (Exception e) {
-      logger.debug(e.getMessage());
+      logger.debug(e::getMessage);
       ctx.redirect("/");
     }
   }

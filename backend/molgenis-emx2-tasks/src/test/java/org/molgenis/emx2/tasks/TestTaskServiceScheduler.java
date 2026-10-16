@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Row.row;
 
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -11,12 +13,10 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.SchedulerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TestTaskServiceScheduler {
   private static String SCHEMA_NAME = TestTaskServiceScheduler.class.getSimpleName();
-  Logger logger = LoggerFactory.getLogger(TestTaskServiceScheduler.class.getSimpleName());
+  Logger logger = LogManager.getLogger(TestTaskServiceScheduler.class.getSimpleName());
 
   @BeforeAll
   public static void init() {
@@ -53,7 +53,7 @@ public class TestTaskServiceScheduler {
     List<JobExecutionContext> runningJobs = scheduler.quartzScheduler.getCurrentlyExecutingJobs();
     scheduler.unschedule("test");
     while (!runningJobs.isEmpty()) {
-      logger.debug("Waiting for jobs to terminate: " + runningJobs.size());
+      logger.debug("Waiting for jobs to terminate: {}", runningJobs::size);
       Thread.sleep(1000);
       runningJobs = scheduler.quartzScheduler.getCurrentlyExecutingJobs();
       if (waitCount++ > 10) {

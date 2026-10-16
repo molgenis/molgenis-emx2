@@ -11,20 +11,20 @@ import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.updateSearchIndexTr
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jooq.*;
 import org.jooq.Record;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class Migrations {
   // version the current software needs to work
   private static final int SOFTWARE_DATABASE_VERSION = 36;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
-  private static Logger logger = LoggerFactory.getLogger(Migrations.class);
+  private static Logger logger = LogManager.getLogger(Migrations.class);
 
   private Migrations() {
     // no instances
@@ -274,7 +274,7 @@ public final class Migrations {
       String tableName = record.get(settingsTableName, String.class);
       String key = record.get(settingsName, String.class);
       String value = record.get(settingsValue, String.class);
-      logger.info("migrating setting " + schemaName + "." + tableName + "." + key + "=xxxxx");
+      logger.info("migrating setting {}.{}.{}=xxxxx", schemaName, tableName, key);
       if (schemaName == null || NOT_PROVIDED.equals(schemaName)) {
         // database level setting
         tdb.setSetting(key, value);
@@ -302,7 +302,7 @@ public final class Migrations {
       jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS);
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
       jooq.execute(sql);
-      logger.debug(message + "(file = " + sqlFile);
+      logger.debug("{}(file = {}", message, sqlFile);
     } catch (IOException e) {
       throw new MolgenisException("Execute migration failed", e);
     } finally {
@@ -363,7 +363,7 @@ public final class Migrations {
               name(table.getSchema().getName(), functionName));
 
           logger.info(
-              "migration 5 added mg_tableclass update trigger for table " + table.getName());
+              "migration 5 added mg_tableclass update trigger for table {}", table::getName);
         }
       }
     }

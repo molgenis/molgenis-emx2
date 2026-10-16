@@ -3,6 +3,8 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.ColumnType.BOOL;
 
 import java.util.function.UnaryOperator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.PatientRegistryDemoLoader;
@@ -11,8 +13,6 @@ import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.web.MolgenisWebservice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RunMolgenisEmx2 {
 
@@ -20,7 +20,7 @@ public class RunMolgenisEmx2 {
   public static final String DIRECTORY_DEMO = "directory-demo";
   public static final String PET_STORE = "pet store";
   public static final String MG_CMS = "cms";
-  private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
+  private static Logger logger = LogManager.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =
       (Boolean)
@@ -69,16 +69,14 @@ public class RunMolgenisEmx2 {
   }
 
   public static void main(String[] args) {
-    logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
+    logger.info("Starting MOLGENIS EMX2 Software Version={}", Version::getVersion);
 
     int port = resolveHttpPort(args, RunMolgenisEmx2::environmentLookup);
 
     logger.info(
-        "with "
-            + Constants.MOLGENIS_HTTP_PORT
-            + "="
-            + port
-            + " (change either via java properties or via ENV variables)");
+        "with {}={} (change either via java properties or via ENV variables)",
+        Constants.MOLGENIS_HTTP_PORT,
+        port);
 
     // setup database
     Database database = new SqlDatabase(true);
