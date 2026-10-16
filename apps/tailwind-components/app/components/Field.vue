@@ -24,6 +24,7 @@ defineProps<
     options?: IValueLabel[];
     trueLabel?: string;
     falseLabel?: string;
+    showClearButton?: boolean;
     align?: "horizontal" | "vertical";
   }
 >();
@@ -63,6 +64,7 @@ const emit = defineEmits(["focus", "blur"]);
       :refBackColumn="(refBackId as string)"
       :trueLabel="trueLabel"
       :falseLabel="falseLabel"
+      :showClearButton="showClearButton"
       @blur="emit('blur')"
       @focus="emit('focus')"
       :align="align"

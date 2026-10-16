@@ -100,6 +100,7 @@
     :describedBy="describedBy"
     :trueLabel="trueLabel"
     :falseLabel="falseLabel"
+    :showClearButton="showClearButton"
     :align="align"
     @focus="emit('focus')"
     @blur="emit('blur')"
@@ -338,6 +339,7 @@ const props = withDefaults(
       options?: IValueLabel[];
       trueLabel?: string;
       falseLabel?: string;
+      showClearButton?: boolean;
       align?: "horizontal" | "vertical";
       limit?: number;
       errorMessage?: string | null;
