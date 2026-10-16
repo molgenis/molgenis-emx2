@@ -14,12 +14,11 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 
 public class TestAddColumnUpdateSearchTrigger {
-  private static Database db;
   private static Table table;
 
   @BeforeAll
   public static void setUp() {
-    db = TestDatabaseFactory.getTestDatabase();
+    Database db = TestDatabaseFactory.getTestDatabase();
     Schema schema = db.dropCreateSchema(TestAddColumnUpdateSearchTrigger.class.getSimpleName());
     table =
         schema.create(

@@ -140,9 +140,8 @@ public class SqlQuery extends QueryBean {
           table.getColumns().stream()
               .filter(
                   column ->
-                      Arrays.stream(options).anyMatch(option -> option == EXCLUDE_MG_COLUMNS)
-                          ? !column.getName().startsWith("mg_")
-                          : true)
+                      Arrays.stream(options).noneMatch(option -> option == EXCLUDE_MG_COLUMNS)
+                          || !column.getName().startsWith("mg_"))
               .toList()) {
         if (c.isFile()) {
           if (Arrays.stream(options).anyMatch(option -> option == INCLUDE_FILE_CONTENTS)) {
@@ -176,7 +175,6 @@ public class SqlQuery extends QueryBean {
                     .filter(name -> name.contains("."))
                     .collect(Collectors.joining(",")));
       }
-      ;
     }
 
     // basequery
@@ -660,10 +658,8 @@ public class SqlQuery extends QueryBean {
                     new String[0])
                 .as(name(convertToCamelCase(select.getColumn()))));
       } else if (column.isHeading()) {
-        /**
-         * Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
-         * unsure if this can cause any problems elsewhere.
-         */
+        // Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
+        // unsure if this can cause any problems elsewhere.
       } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
         fields.add(intervalField(tableAlias, column));
       } else if (column.getColumnType().getBaseType() == ColumnType.PERIOD_ARRAY) {
@@ -1572,18 +1568,16 @@ public class SqlQuery extends QueryBean {
                     DSL.select(getUnnestedRefArrayFields(refBack))
                         .from(getUnnestedRefArrayAsTable(tableAlias, refBack)));
 
-    SelectConditionStep<Record> refBackSelect =
-        DSL.select(
-                refBack.getTable().getPrimaryKeyColumns().stream()
-                    .map(
-                        ref ->
-                            ref.isArray()
-                                ? field(UNNEST_0, name(ref.getName())).as(name(ref.getName()))
-                                : field(name(ref.getName())))
-                    .toList())
-            .from(refBack.getJooqTable())
-            .where(refBackFilter);
-    return refBackSelect;
+    return DSL.select(
+            refBack.getTable().getPrimaryKeyColumns().stream()
+                .map(
+                    ref ->
+                        ref.isArray()
+                            ? field(UNNEST_0, name(ref.getName())).as(name(ref.getName()))
+                            : field(name(ref.getName())))
+                .toList())
+        .from(refBack.getJooqTable())
+        .where(refBackFilter);
   }
 
   private static Condition whereColumnBetween(Name columnName, Object[] values) {
@@ -1705,46 +1699,39 @@ public class SqlQuery extends QueryBean {
   }
 
   private static @NotNull SelectJoinStep<Record> getRefBackSelect(Column column) {
-    SelectJoinStep<Record> refBackSelect =
-        DSL.select(
-                column.getRefBackColumn().getReferences().stream()
-                    .map(
-                        bref ->
-                            bref.isArray()
-                                ? field(UNNEST_0, name(bref.getColumnName()))
-                                    .as(name(bref.getColumnName()))
-                                : field(name(bref.getColumnName())))
-                    .toList())
-            .from(column.getRefTable().getJooqTable());
-    return refBackSelect;
+    return DSL.select(
+            column.getRefBackColumn().getReferences().stream()
+                .map(
+                    bref ->
+                        bref.isArray()
+                            ? field(UNNEST_0, name(bref.getColumnName()))
+                                .as(name(bref.getColumnName()))
+                            : field(name(bref.getColumnName())))
+                .toList())
+        .from(column.getRefTable().getJooqTable());
   }
 
   private static Table<Record> getUnnestedRefArrayAsTable(String subAlias, Column containsColumn) {
-    Table<Record> unnestedRefArrayAsTable =
-        containsColumn.getReferences().stream()
-            .map(
-                ref ->
-                    unnest(field(name(ref.getColumnName()), ref.getJooqType()))
-                        .withOrdinality()
-                        .as(
-                            subAlias + "_" + ref.getColumnName() + "_unnested",
-                            "unnested_" + ref.getColumnName(),
-                            "ordinality"))
-            .reduce(Table::naturalJoin)
-            .orElseThrow(() -> new IllegalStateException("No references available"));
-    return unnestedRefArrayAsTable;
+    return containsColumn.getReferences().stream()
+        .map(
+            ref ->
+                unnest(field(name(ref.getColumnName()), ref.getJooqType()))
+                    .withOrdinality()
+                    .as(
+                        subAlias + "_" + ref.getColumnName() + "_unnested",
+                        "unnested_" + ref.getColumnName(),
+                        "ordinality"))
+        .reduce(Table::naturalJoin)
+        .orElseThrow(() -> new IllegalStateException("No references available"));
   }
 
   private static @NotNull List<Field> getUnnestedRefArrayFields(Column containsColumn) {
-    List<Field> unnestedRefArrayFields =
-        containsColumn.getReferences().stream()
-            .map(
-                ref ->
-                    field(
-                        name("unnested_" + ref.getColumnName()),
-                        ref.getJooqType().getArrayBaseType()))
-            .toList();
-    return unnestedRefArrayFields;
+    return containsColumn.getReferences().stream()
+        .map(
+            ref ->
+                field(
+                    name("unnested_" + ref.getColumnName()), ref.getJooqType().getArrayBaseType()))
+        .toList();
   }
 
   private static @NotNull Table<Record> getCompositeKeyValuesAsTempTable(

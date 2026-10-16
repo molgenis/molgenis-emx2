@@ -51,7 +51,9 @@ public class Column {
 
   private boolean inherited = false;
 
-  public Column() {}
+  Column() {
+    // needed for jackson parsing
+  }
 
   public Column(org.molgenis.emx2.Column column, TableMetadata table) {
     this(column, table, false);

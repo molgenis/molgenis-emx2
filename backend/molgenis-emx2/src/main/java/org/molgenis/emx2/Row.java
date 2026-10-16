@@ -48,7 +48,9 @@ public class Row {
     return new Row(nameValuePairs);
   }
 
-  public Row() {}
+  public Row() {
+    // no-op
+  }
 
   public Row(Map<String, ?> values) {
     this();

@@ -18,7 +18,9 @@ public class BeaconRequestBody {
   private BeaconRequestMeta meta = new BeaconRequestMeta();
   private BeaconQuery query = new BeaconQuery();
 
-  public BeaconRequestBody() {}
+  private BeaconRequestBody() {
+    // needed for jackson parsing
+  }
 
   public BeaconRequestBody(Context ctx) {
     this.addRequestParameters(ctx);
