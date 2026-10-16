@@ -18,7 +18,7 @@ public class TestDeferConstrainChecksToEndOfTransaction {
   public TestDeferConstrainChecksToEndOfTransaction() {}
 
   @Test
-  public void DependencyOrderOutsideTransactionFails() {
+  public void dependencyOrderOutsideTransactionFails() {
     assertThrows(MolgenisException.class, () -> runTestCase(database));
   }
 

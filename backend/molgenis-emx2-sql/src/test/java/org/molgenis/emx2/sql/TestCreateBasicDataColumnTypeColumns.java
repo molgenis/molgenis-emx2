@@ -33,8 +33,8 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     StopWatch.print("testTypes started");
 
-    String SCHEMA_NAME = "testTypes";
-    Schema schema = db.dropCreateSchema(SCHEMA_NAME);
+    String schemaName = "testTypes";
+    Schema schema = db.dropCreateSchema(schemaName);
 
     // generate TypeTest table, with columns for each type
 
@@ -44,7 +44,7 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     db.clearCache();
 
-    Table t2 = db.getSchema(SCHEMA_NAME).getTable(SimpleTypeTestExample.TYPE_TEST);
+    Table t2 = db.getSchema(schemaName).getTable(SimpleTypeTestExample.TYPE_TEST);
 
     StopWatch.print("created TypeTest table");
 

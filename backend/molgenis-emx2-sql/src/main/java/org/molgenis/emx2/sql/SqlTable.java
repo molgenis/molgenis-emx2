@@ -113,12 +113,12 @@ public class SqlTable implements Table {
           database
               .getSchema(rootTableMetadata.getSchemaName())
               .getTable(rootTableMetadata.getTableName());
-      String mg_table = t.getMgTableClass(t.getMetadata());
+      String mgTable = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database
           .getJooqWithExtendedTimeout()
           .deleteFrom(rootTable.getJooqTable())
-          .where(field(MG_TABLECLASS).equal(mg_table))
+          .where(field(MG_TABLECLASS).equal(mgTable))
           .execute();
     }
     // else in normal table simply call delete
