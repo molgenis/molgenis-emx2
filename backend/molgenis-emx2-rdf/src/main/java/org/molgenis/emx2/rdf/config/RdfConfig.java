@@ -13,10 +13,12 @@ public class RdfConfig {
   private static final RdfConfig DEFAULT_INSTANCE = new RdfConfig();
 
   @JsonProperty("writer")
+  @SuppressWarnings("PMD.FinalFieldCouldBeStatic") // set by Jackson
   private final OutputStreamWriterFactory outputStreamWriterFactory =
       OutputStreamWriterFactory.STREAM;
 
   @JsonProperty("generator")
+  @SuppressWarnings("PMD.FinalFieldCouldBeStatic") // set by Jackson
   private final RdfApiGeneratorFactory rdfApiGeneratorFactory = RdfApiGeneratorFactory.SEMANTIC;
 
   private RdfConfig() {}
