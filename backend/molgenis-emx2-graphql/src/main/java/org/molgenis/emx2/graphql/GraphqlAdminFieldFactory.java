@@ -1,5 +1,6 @@
 package org.molgenis.emx2.graphql;
 
+import static java.util.stream.Collectors.*;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Constants.KEY;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
@@ -62,7 +63,7 @@ public class GraphqlAdminFieldFactory {
                   .build())
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(ROLE_NAME)
+                  .name(ROLE)
                   .type(Scalars.GraphQLString)
                   .build())
           .field(
@@ -128,7 +129,9 @@ public class GraphqlAdminFieldFactory {
   }
 
   private static List<Map<String, Object>> getCustomRoles(Database db) {
-    Map<String, List<String>> usersPerRole = getUsersPerRole(db.loadUserRoles());
+    Map<String, List<String>> usersPerRole =
+        db.loadUserRoles().stream()
+            .collect(groupingBy(Member::getRole, mapping(Member::getUser, toList())));
     List<Map<String, Object>> result = new ArrayList<>();
     for (String schemaName : db.getSchemaNames()) {
       for (Role role : db.getSchema(schemaName).getRoleInfos()) {
@@ -137,23 +140,13 @@ public class GraphqlAdminFieldFactory {
         }
         Map<String, Object> customRole = new LinkedHashMap<>();
         customRole.put(SCHEMA_ID, schemaName);
-        customRole.put(ROLE_NAME, role.name());
+        customRole.put(ROLE, role.name());
         customRole.put(PERMISSIONS, permissionsToList(role));
         customRole.put(USERS, usersPerRole.getOrDefault(schemaName + "/" + role.name(), List.of()));
         result.add(customRole);
       }
     }
     return result;
-  }
-
-  private static Map<String, List<String>> getUsersPerRole(List<Member> members) {
-    Map<String, List<String>> usersPerRole = new LinkedHashMap<>();
-    for (Member member : members) {
-      usersPerRole
-          .computeIfAbsent(member.getRole(), role -> new ArrayList<>())
-          .add(member.getUser());
-    }
-    return usersPerRole;
   }
 
   private static Object getUsers(SelectedField selectedField, Database db) {
