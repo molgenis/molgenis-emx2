@@ -1,14 +1,24 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { IRow } from "../../../../metadata-utils/src/types";
+import type {
+  IRow,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
 import type { ITableSettings } from "../../../types/types";
 import TableInteractive from "../../components/table/TableInteractive.vue";
 
-const columns = [
-  { id: "name", label: "Name" },
-  { id: "email", label: "Email" },
-  { id: "role", label: "Role" },
-];
+const tableMetadata: ITableMetaData = {
+  id: "example-table",
+  schemaId: "example-schema",
+  name: "Example Table",
+  label: "Example Table",
+  tableType: "DATA",
+  columns: [
+    { id: "name", label: "Name", columnType: "STRING" },
+    { id: "email", label: "Email", columnType: "STRING" },
+    { id: "role", label: "Role", columnType: "STRING" },
+  ],
+};
 
 const rows: IRow[] = [
   { name: "John Doe", email: "john.doe@example.com", role: "User" },
@@ -25,7 +35,9 @@ const rows: IRow[] = [
   { name: "Jack King", email: "jack.king@example.com", role: "Moderator" },
 ];
 
-const selectedRows = ref<string[]>([]);
+const selectedRows = ref<Map<string, Record<string, any>>>(
+  new Map<string, Record<string, any>>()
+);
 const settings = ref<ITableSettings>({
   page: 1,
   pageSize: 10,
@@ -123,7 +135,7 @@ function handleRowAction(payload: { action: string }) {
 
 <template>
   <TableInteractive
-    :columns="columns"
+    :tableMetadata="tableMetadata"
     :rows="slicedRows"
     :rowCount="rowCount"
     :settings="settings"
