@@ -148,7 +148,7 @@ final class SqlTableMetadataExecutor {
     }
 
     // remove meta, we use super class meta
-    executeRemoveMetaColumns(jooq, table);
+    executeRemoveMetaColumns(table);
 
     TableMetadata copyTm = new TableMetadata(table.getSchema(), table);
     copyTm.setInheritName(other.getTableName());
@@ -400,7 +400,7 @@ final class SqlTableMetadataExecutor {
     table.add(column(MG_UPDATEDON).setType(DATETIME).setPosition(-1));
   }
 
-  private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {
+  private static void executeRemoveMetaColumns(TableMetadata table) {
     // don't delete superclass columns so check local colum
     if (table.getLocalColumn(MG_DRAFT) != null) {
       table.dropColumn(MG_DRAFT);

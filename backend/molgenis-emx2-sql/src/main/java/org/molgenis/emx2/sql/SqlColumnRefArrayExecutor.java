@@ -39,6 +39,7 @@ final class SqlColumnRefArrayExecutor {
 
   // this trigger is to check for foreign violations: to prevent that referenced records cannot be
   // changed/deleted in such a way that we get dangling foreign key references.
+  @SuppressWarnings("PMD.UnusedPrivateMethod")
   private static void createUpdateReferedCheck(DSLContext jooq, Column column) {
     // only support singular keys
     Name toTable = name(column.getTable().getSchema().getName(), column.getRefTableName());

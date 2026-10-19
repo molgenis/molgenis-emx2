@@ -295,8 +295,6 @@ class ColumnTypeRdfMapperTest {
    */
   @Test
   void validateValueTypes() {
-    Row row = allColumnTypes.getTable(TEST_TABLE).retrieveRows().get(0);
-
     assertAll(
         // SIMPLE
         () ->

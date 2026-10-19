@@ -380,8 +380,7 @@ class WebApiSmokeTests extends ApiTestBase {
   void testExcelApi() throws IOException, InterruptedException {
 
     // download json schema
-    String schemaCSV =
-        given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
+    given().sessionId(sessionId).accept(ACCEPT_CSV).when().get("/pet store/api/csv").asString();
 
     // create a new schema for excel
     database.dropCreateSchema("pet store excel");
