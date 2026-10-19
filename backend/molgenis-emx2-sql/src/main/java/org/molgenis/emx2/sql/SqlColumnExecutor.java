@@ -507,13 +507,11 @@ public final class SqlColumnExecutor {
   }
 
   static void executeCreateRefConstraints(DSLContext jooq, Column column) {
-    // set constraints
+    // set constraints, refbacks need no triggers
     if (column.isRef()) {
       createRefConstraints(jooq, column);
     } else if (column.isRefArray()) {
       createRefArrayConstraints(jooq, column);
-    } else if (column.isRefback()) {
-      // no triggers
     }
   }
 

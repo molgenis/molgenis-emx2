@@ -101,31 +101,19 @@ public class TestGrantRolesToUsers {
     StopWatch.print("testRolePermissions schema created");
 
     // test that viewer and editor cannot createColumn, and manager can
-    try {
-      database.setActiveUser("user_testRolePermissions_viewer");
-      database.tx(
-          db -> {
-            db.getSchema("testRolePermissions").create(table("Test"));
-            fail("role(viewers) should not be able to createColumn tables");
-            // should not happen
-          });
-      database.becomeAdmin();
-    } catch (Exception e) {
-    }
+    database.setActiveUser("user_testRolePermissions_viewer");
+    assertThrows(
+        Exception.class,
+        () -> database.tx(db -> db.getSchema("testRolePermissions").create(table("Test"))),
+        "role(viewers) should not be able to createColumn tables");
 
     StopWatch.print("test editor permission");
 
-    try {
-      database.setActiveUser("user_testRolePermissions_editor");
-      database.tx(
-          db -> {
-            db.getSchema("testRolePermissions").create(table("Test"));
-            fail("role(editors) should not be able to createColumn tables");
-            // should not happen
-          });
-      database.becomeAdmin();
-    } catch (Exception e) {
-    }
+    database.setActiveUser("user_testRolePermissions_editor");
+    assertThrows(
+        Exception.class,
+        () -> database.tx(db -> db.getSchema("testRolePermissions").create(table("Test"))),
+        "role(editors) should not be able to createColumn tables");
     StopWatch.print("test editor permission success");
 
     try {

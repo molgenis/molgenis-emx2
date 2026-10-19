@@ -29,7 +29,6 @@
         <exclude name="AvoidInstanceofChecksInCatchClause" />
         <exclude name="AvoidUsingHardCodedIP" />
         <exclude name="CollectionTypeMismatch" />
-        <exclude name="EmptyControlStatement" />
         <exclude name="ImplicitSwitchFallThrough" />
         <exclude name="MissingStaticMethodInNonInstantiatableClass" />
         <exclude name="NonThreadSafeSingleton" />
@@ -54,6 +53,11 @@
     <rule ref="category/java/codestyle.xml/MethodNamingConventions">
         <properties>
             <property name="junitJupiterTestPattern" value="[a-z][a-zA-Z0-9_]*" />
+        </properties>
+    </rule>
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+        <properties>
+            <property name="allowCommentedBlocks" value="true" />
         </properties>
     </rule>
 

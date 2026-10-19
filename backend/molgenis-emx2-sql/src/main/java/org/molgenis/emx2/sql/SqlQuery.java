@@ -470,8 +470,10 @@ public class SqlQuery extends QueryBean {
     if (filters != null) {
       for (Filter f : filters.getSubfilters()) {
         if (f == null) {
-          // continue
-        } else if (f.getOperator() != null) {
+          continue;
+        }
+
+        if (f.getOperator() != null) {
           conditions.add(
               jsonFilterQueryConditions(table, column, tableAlias, subAlias, searchTerms, f));
         } else {
@@ -660,6 +662,7 @@ public class SqlQuery extends QueryBean {
       } else if (column.isHeading()) {
         // Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
         // unsure if this can cause any problems elsewhere.
+        continue;
       } else if (column.getJooqType().getSQLDataType() == SQLDataType.INTERVAL) {
         fields.add(intervalField(tableAlias, column));
       } else if (column.getColumnType().getBaseType() == ColumnType.PERIOD_ARRAY) {
@@ -1227,18 +1230,19 @@ public class SqlQuery extends QueryBean {
               + values);
     }
     // cast value to match the column type
-    if (IS_NULL.equals(operator) || columnType.isReference()) {
-      // type casting is handled below
-    } else if (columnType.isFile()) {
-      values = toStringArray(values);
-    } else if (ColumnType.JSON.equals(columnType)) {
-      values = toJsonbArray(values); // doesn't have a array type
-    } else if (values.length > 0) {
-      values =
-          (Object[])
-              (columnType.isArray()
-                  ? getTypedValue(values, columnType)
-                  : getTypedValue(values, getArrayType(columnType)));
+    // for IS_NULL and references type casting is handled below
+    if (!IS_NULL.equals(operator) && !columnType.isReference()) {
+      if (columnType.isFile()) {
+        values = toStringArray(values);
+      } else if (ColumnType.JSON.equals(columnType)) {
+        values = toJsonbArray(values); // doesn't have a array type
+      } else if (values.length > 0) {
+        values =
+            (Object[])
+                (columnType.isArray()
+                    ? getTypedValue(values, columnType)
+                    : getTypedValue(values, getArrayType(columnType)));
+      }
     }
     switch (operator) {
       case MATCH_ANY, EQUALS: // equals to be deprecated for ref columns,
@@ -1594,8 +1598,6 @@ public class SqlQuery extends QueryBean {
         conditions.add(field(columnName).greaterOrEqual(values[i]));
       } else if (values[i] == null && values[i + 1] != null) {
         conditions.add(field(columnName).lessOrEqual(values[i + 1]));
-      } else {
-        // nothing to do
       }
       i++; // NOSONAR
     }
