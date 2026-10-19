@@ -529,7 +529,7 @@ public class SqlQuery extends QueryBean {
                 filter.getOperator(),
                 filter.getValues());
           }
-        // else use default
+        // fall through to default
         default:
           // then it must be a column filter
           return whereColumnOperator(

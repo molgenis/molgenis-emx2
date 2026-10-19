@@ -289,4 +289,19 @@ class TestTableMetadata {
         () -> assertEquals(c2, table.getColumnByIdentifier("aColName")),
         () -> assertEquals(c3, table.getColumnByIdentifier("parentColumn")));
   }
+
+  @Test
+  void dropColumn_primaryKey_throws() {
+    TableMetadata t = table("Person", column("id").setPkey(), column("name"));
+    MolgenisException e = assertThrows(MolgenisException.class, () -> t.dropColumn("id"));
+    assertEquals("Remove column failed: Column is primary key", e.getMessage());
+    assertNotNull(t.getColumn("id"));
+  }
+
+  @Test
+  void dropColumn_regularColumn_isRemoved() {
+    TableMetadata t = table("Person", column("id").setPkey(), column("name"));
+    t.dropColumn("name");
+    assertNull(t.getColumn("name"));
+  }
 }
