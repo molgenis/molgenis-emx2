@@ -27,7 +27,6 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 @Testcontainers
 class MatomoTrackingIntegrationTest extends ApiTestBase {
 
-  private static final String AUTH_TOKEN = "a29df8564db55bcdfcc696d783db5732";
   private static final Network NETWORK = Network.newNetwork();
 
   @SystemStub
@@ -120,7 +119,6 @@ class MatomoTrackingIntegrationTest extends ApiTestBase {
             .formParam("method", "BotTracking.getAIChatbotsRealTime")
             .formParam("idSite", 1)
             .formParam("format", "JSON")
-            .formParam("token_auth", AUTH_TOKEN)
             .when()
             .post("/index.php")
             .then()

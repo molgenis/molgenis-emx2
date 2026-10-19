@@ -38,9 +38,8 @@ public class MatomoTrackingService {
           MatomoRequest.request()
               .actionUrl(ctx.fullUrl())
               .headerUserAgent(ctx.userAgent())
-              // record as bot request (Matomo BotTracking), otherwise Matomo drops it as a bot
-              // visit
-              .botRecordingMode(2)
+              // Only bot tracking is performed. Non-bot requests are discarded.
+              .botRecordingMode(1)
               .build());
     }
   }

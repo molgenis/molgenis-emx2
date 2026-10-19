@@ -22,24 +22,11 @@ docker compose up -d
 2. Open <http://localhost:8081> and go through the wizard
     - **Superuser**: for login and password, use `admin`, `secret` respectively. Email can be made up: test@foo.bar
     - **Website**: website name can be emx2 and url http://localhost:8080. Not an Ecommerce site.
-3. After the installation wizer, you can log in using the superuser. After that, skip choosing a tracking method.
+3. After the installation wizard, you can log in using the superuser. After that, skip choosing a tracking method.
 
 ---
 
-## 3. Create the auth token
-
-The tests need a `token_auth` to query the Matomo API.
-
-1. Log in and click the gear icon (**Administration**).
-2. Go to **Personal -> Security**.
-3. Under **Auth tokens**, click **Create new token**.
-4. Confirm your password and enter a description, for example `integration-test`.
-5. Leave **"Only allow secure requests"** checked. The tests send the token in POST requests, which works with that
-   setting.
-6. Uncheck the **expiration date** by clicking on the check mark.
-7. **Copy the token immediately** (Matomo shows it only once) and click the button.
-
-## 4. Export the database
+## 3. Export the database
 
 Enter the MariaDB container and make an sql dump:
 ```bash
@@ -63,7 +50,7 @@ to inform others where it's from and how to reproduce:
  */
 ```
 
-## 5. Export and adjust the config
+## 4. Export and adjust the config
 
 Copy the config file out of the container:
 
@@ -79,13 +66,13 @@ enable_browser_archiving_triggering = 0
 ```
 
 Without the second line, the first tracking request runs Matomo's scheduled tasks and takes longer than the tracker's
-5 second timeout.
+5-second timeout.
 
-## 6. Put the files in place
+## 5. Put the files in place
 
 Copy the files to the resources: `backend/molgenis-emx2-webapi/src/test/resources/org/molgenis/emx2/web/matomo/gen`.
 
-## 7. Clean up
+## 6. Clean up
 
 ```bash
 docker compose down -v
