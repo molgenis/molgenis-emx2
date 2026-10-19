@@ -376,6 +376,37 @@ effective permissions.
 - `insert` / `update` / `delete` — `true` when granted, `null` when not.
 - `isRowLevel` — `true` when row-level security is active for this role on that table, `null` when not.
 
+#### Query custom roles across all schemas (admin only)
+
+On the root API (`/api/graphql`), admins can list the custom roles of every schema in one query
+through `_admin { customRoles }`. System roles are left out. Each entry is one role in one schema,
+with its permissions and the users assigned to it.
+
+```graphql
+{
+  _admin {
+    customRoles {
+      schemaId
+      role
+      permissions {
+        table
+        select
+        insert
+        update
+        delete
+        isRowLevel
+      }
+      users
+    }
+  }
+}
+```
+
+- `schemaId` — the schema the role belongs to.
+- `role` — the name of the custom role.
+- `permissions` — same fields as in `_schema { roles { permissions } }` above.
+- `users` — the users who hold this role.
+
 #### Create a custom role and grant permissions
 
 Pass `roles` inside a `change` mutation. The role is created if it does not exist yet, then the
@@ -524,6 +555,25 @@ mutation {
   }
 }
 ```
+
+On the root API (`/api/graphql`) you can drop custom roles from any schema in one call by passing
+the schema with each role. All roles are dropped in one transaction: if one fails, none are
+dropped.
+
+```graphql
+mutation {
+  drop(
+    role: [
+      { schemaId: "pet store", role: "TableAViewer" }
+      { schemaId: "other schema", role: "TeamA" }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+The call fails if a schema does not exist or you cannot see it.
 
 > **Note:** Only users with **Manager** or **Owner** role can create, update, or delete custom roles.
 > System roles cannot be created or deleted through this API.

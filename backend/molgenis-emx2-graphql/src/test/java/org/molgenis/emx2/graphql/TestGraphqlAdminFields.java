@@ -1,6 +1,8 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlExecutor.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
@@ -83,6 +85,93 @@ class TestGraphqlAdminFields {
             assertTrue(e.getMessage().contains("FieldUndefined"));
           }
           tdb.becomeAdmin();
+        });
+  }
+
+  @Test
+  void shouldListCustomRolesPerSchemaForAdmin() {
+    database.tx(
+        tdb -> {
+          tdb.becomeAdmin();
+          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+          schema.create(
+              table("Patient").add(column("id").setPkey()).add(column("name")),
+              table("Doctor").add(column("id").setPkey()).add(column("name")));
+          String patientViewer = "PatientViewer";
+          schema.createRole(patientViewer);
+          schema.grant(patientViewer, new TablePermission("Patient").select(true).rowLevel(false));
+          tdb.addUser(TEST_PERSOON);
+          tdb.setEnabledUser(TEST_PERSOON, true);
+          tdb.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, patientViewer);
+
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+
+          try {
+            JsonNode customRoles =
+                execute(
+                        "{_admin{customRoles{schemaId role users permissions{table select insert update delete isRowLevel}}}}")
+                    .at("/_admin/customRoles");
+
+            List<JsonNode> testCustomRoles = new ArrayList<>();
+            for (JsonNode entry : customRoles) {
+              if (SCHEMA_NAME.equals(entry.get("schemaId").asText())) {
+                testCustomRoles.add(entry);
+              }
+            }
+            assertEquals(1, testCustomRoles.size());
+
+            JsonNode customRole = testCustomRoles.get(0);
+            assertEquals(patientViewer, customRole.get("role").asText());
+            JsonNode permission = customRole.at("/permissions/0");
+            assertEquals("Patient", permission.get("table").asText());
+            assertTrue(permission.get("select").asBoolean());
+            assertFalse(permission.path("insert").asBoolean());
+            assertFalse(permission.path("isRowLevel").asBoolean());
+            String user = customRole.at("/users/0").asText();
+            assertEquals(TEST_PERSOON, user);
+
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+
+          tdb.removeUser(TEST_PERSOON);
+          tdb.setActiveUser(ANONYMOUS);
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+          MolgenisException exception =
+              assertThrows(
+                  MolgenisException.class, () -> execute("{_admin{customRoles{schemaId}}}"));
+          assertTrue(exception.getMessage().contains("FieldUndefined"));
+          tdb.becomeAdmin();
+        });
+  }
+
+  @Test
+  void shouldDropCustomRoleOfSchema() {
+    database.tx(
+        tdb -> {
+          tdb.becomeAdmin();
+          Schema schema = tdb.dropCreateSchema(SCHEMA_NAME);
+          schema.create(table("Patient").add(column("id").setPkey()).add(column("name")));
+          schema.createRole("PatientViewer");
+          graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
+
+          try {
+            String message =
+                execute(
+                        "mutation{drop(role:{schemaId:\""
+                            + SCHEMA_NAME
+                            + "\",role:\"PatientViewer\"}){message}}")
+                    .at("/drop/message")
+                    .asText();
+            assertEquals(
+                "Dropped role 'PatientViewer' from schema '" + SCHEMA_NAME + "'.", message);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+
+          assertTrue(
+              tdb.getSchema(SCHEMA_NAME).getRoleInfos().stream()
+                  .noneMatch(role -> role.name().equals("PatientViewer")));
         });
   }
 
