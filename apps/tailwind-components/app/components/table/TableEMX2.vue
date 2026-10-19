@@ -296,6 +296,59 @@
     </div>
   </div>
 
+  <TableInteractive
+    v-if="data?.tableMetadata && data?.rows"
+    :tableMetadata="data.tableMetadata"
+    :rows="data.rows"
+    :rowCount="data.count"
+    :settings="settings"
+    :selectedRows="selectedRows"
+    rowIdKey="_rowIdString"
+    @update:settings="handleUpdateSettings"
+    @rowAction="handleRowAction"
+  >
+    <template #buttons>
+      <div class="flex gap-[10px]">
+        <Button
+          v-if="canInsert && data?.tableMetadata"
+          type="primary"
+          size="medium"
+          icon="add-circle"
+          @click="onAddRowClicked"
+        >
+          Add {{ tableId }}
+        </Button>
+
+        <TableControlColumns
+          :columns="sortedColumns"
+          @update:columns="handleColumnsUpdate"
+        />
+
+        <DownloadButton
+          v-if="schemaId && tableId"
+          :schemaId="schemaId"
+          :tableId="tableId"
+        />
+
+        <Truncate
+          v-if="canDelete && data?.tableMetadata"
+          v-slot="{ showConfirmationModal }"
+          :metadata="data.tableMetadata"
+          @update:truncated="afterRowDeleted"
+        >
+          <Button
+            type="outline"
+            size="medium"
+            @click="showConfirmationModal"
+            :disabled="!rows.length"
+          >
+            Truncate
+          </Button>
+        </Truncate>
+      </div>
+    </template>
+  </TableInteractive>
+
   <CellDetailModal
     v-if="cellDetailPayload"
     :payload="cellDetailPayload"
@@ -376,7 +429,6 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
-  ITablePermission,
   ITableSettings,
   sortDirection,
 } from "../../../types/types";
@@ -405,6 +457,7 @@ import { useSession } from "../../composables/useSession";
 import constants from "../../utils/constants";
 import { getCountMessage } from "../../utils/getCountMessage";
 import Button from "../Button.vue";
+import EditModalHeader from "../form/EditModalHeader.vue";
 import Checkbox from "../input/Checkbox.vue";
 import DraftLabel from "../label/DraftLabel.vue";
 import Pagination from "../Pagination.vue";
@@ -416,7 +469,6 @@ import DownloadButton from "./control/DownloadButton.vue";
 import RowControls from "./control/RowControls.vue";
 import Truncate from "./control/Truncate.vue";
 import TableEMX2Head from "./TableEMX2Head.vue";
-import EditModalHeader from "../form/EditModalHeader.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -874,6 +926,12 @@ async function afterClose() {
 async function afterRowDeleted() {
   // maybe notify user, and do more stuff
   await refresh();
+}
+
+function handleUpdateSettings(newSettings: ITableSettings) {
+  settings.value = newSettings;
+  searchValue.value = newSettings.search || "";
+  refresh();
 }
 
 type TableRow = {
