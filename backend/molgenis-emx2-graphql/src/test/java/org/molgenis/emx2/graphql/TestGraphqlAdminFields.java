@@ -109,8 +109,8 @@ class TestGraphqlAdminFields {
           try {
             JsonNode customRoles =
                 execute(
-                        "{_admin{schemaRoles{schemaId role users permissions{table select insert update delete isRowLevel}}}}")
-                    .at("/_admin/schemaRoles");
+                        "{_admin{customRoles{schemaId role users permissions{table select insert update delete isRowLevel}}}}")
+                    .at("/_admin/customRoles");
 
             List<JsonNode> testCustomRoles = new ArrayList<>();
             for (JsonNode entry : customRoles) {
@@ -139,7 +139,7 @@ class TestGraphqlAdminFields {
           graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
           MolgenisException exception =
               assertThrows(
-                  MolgenisException.class, () -> execute("{_admin{schemaRoles{schemaId}}}"));
+                  MolgenisException.class, () -> execute("{_admin{customRoles{schemaId}}}"));
           assertTrue(exception.getMessage().contains("FieldUndefined"));
           tdb.becomeAdmin();
         });
