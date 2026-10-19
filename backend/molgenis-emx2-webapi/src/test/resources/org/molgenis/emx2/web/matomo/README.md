@@ -26,6 +26,20 @@ docker compose up -d
 
 ---
 
+## 2. Create the auth token
+
+The tests need a `token_auth` to query the Matomo API.
+
+1. Log in and click the gear icon (**Administration**).
+2. Go to **Personal -> Security**.
+3. Under **Auth tokens**, click **Create new token**.
+4. Confirm your password and enter a description, for example `integration-test`.
+5. Leave **"Only allow secure requests"** checked. The tests send the token in POST requests, which works with that
+   setting.
+6. Uncheck the **expiration date** by clicking on the check mark.
+7. **Copy the token immediately** (Matomo shows it only once) and click the button.
+8. Put the token in `AUTH_TOKEN` in `MatomoTrackingIntegrationTest`.
+
 ## 3. Export the database
 
 Enter the MariaDB container and make an sql dump:

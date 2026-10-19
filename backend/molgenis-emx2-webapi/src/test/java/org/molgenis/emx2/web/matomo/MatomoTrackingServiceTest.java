@@ -4,7 +4,6 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.molgenis.emx2.Constants.MATOMO_URL_ENV;
 
 import com.sun.net.httpserver.HttpServer;
 import io.javalin.http.Context;
@@ -17,14 +16,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
-import uk.org.webcompere.systemstubs.jupiter.SystemStub;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
-@ExtendWith(SystemStubsExtension.class)
 class MatomoTrackingServiceTest {
 
   private static final String REQUEST_URL = "http://localhost:8080";
@@ -33,10 +27,7 @@ class MatomoTrackingServiceTest {
 
   private static HttpServer matomoServer;
 
-  @SystemStub
-  private final EnvironmentVariables env =
-      new EnvironmentVariables(
-          MATOMO_URL_ENV, "http://localhost:" + matomoServer.getAddress().getPort());
+  private static MatomoTrackingService service;
 
   @BeforeAll
   static void startMatomoServer() throws IOException {
@@ -49,6 +40,8 @@ class MatomoTrackingServiceTest {
           exchange.close();
         });
     matomoServer.start();
+    service =
+        new MatomoTrackingService("http://localhost:" + matomoServer.getAddress().getPort(), 1);
   }
 
   @AfterAll
@@ -73,13 +66,13 @@ class MatomoTrackingServiceTest {
         "prefix-ChatGPT-User-suffix"
       })
   void shouldSendRequestOnAiUserAgents(String userAgent) {
-    MatomoTrackingService.track(requestWithUserAgent(userAgent));
+    service.track(requestWithUserAgent(userAgent));
     await().atMost(Duration.ofSeconds(8)).until(() -> requests.size() == 1);
   }
 
   @Test
   void shouldSendContextAsBotRequest() {
-    MatomoTrackingService.track(requestWithUserAgent("ChatGPT-User"));
+    service.track(requestWithUserAgent("ChatGPT-User"));
 
     await().atMost(Duration.ofSeconds(8)).until(() -> requests.size() == 1);
     String query = requests.getFirst().getQuery();
@@ -89,7 +82,7 @@ class MatomoTrackingServiceTest {
 
   @Test
   void shouldDiscardNonAiRequest() {
-    MatomoTrackingService.track(
+    service.track(
         requestWithUserAgent(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:157.0) Gecko/20100101 Firefox/157.0"));
     await().atMost(Duration.ofSeconds(3)).until(requests::isEmpty);
