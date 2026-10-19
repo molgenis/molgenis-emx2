@@ -22,7 +22,6 @@
         <exclude name="ReturnEmptyCollectionRatherThanNull" />
         <exclude name="NonExhaustiveSwitch" />
         <exclude name="CompareObjectsWithEquals" />
-        <exclude name="AssignmentInOperand" />
         <exclude name="AssignmentToNonFinalStatic" />
         <exclude name="AvoidAccessibilityAlteration" />
         <exclude name="AvoidCatchingGenericException" />
