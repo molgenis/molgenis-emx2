@@ -4,9 +4,12 @@ import static org.jooq.impl.DSL.field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.TableMetadata.table;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -15,6 +18,7 @@ import org.jooq.Result;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Filter;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.datamodels.DataModels;
 
@@ -119,6 +123,42 @@ public class TestOntologyQueries {
             .where(f("pet", f("tags", MATCH_ANY_INCLUDING_CHILDREN, "colors")))
             .retrieveRows();
     assertEquals(List.of("spike"), orders.stream().map(row -> row.getString("pet")).toList());
+  }
+
+  @Test
+  void testNestedOntologyFilterOnRowQueryWithSameColumnNameInJoin() {
+    // Litter and Pet both have 'tags', and Litter also refers to itself
+    schema.create(
+        table(
+            "Litter",
+            column("id").setPkey(),
+            column("tags", ONTOLOGY_ARRAY).setRefTable("Tag"),
+            column("kind", ONTOLOGY).setRefTable("Tag"),
+            column("mother", REF).setRefTable("Pet"),
+            column("previous", REF).setRefTable("Litter")));
+    schema
+        .getTable("Litter")
+        .insert(
+            row("id", "first", "tags", "green", "kind", "mammals", "mother", "pooky"),
+            row("id", "second", "mother", "spike", "previous", "first"));
+
+    // spike is 'red', pooky has no color
+    assertEquals(
+        List.of("second"),
+        litterIds(f("mother", f("tags", MATCH_ANY_INCLUDING_CHILDREN, "colors"))));
+    // the previous litter is tagged 'green' and of kind 'mammals'
+    assertEquals(
+        List.of("second"),
+        litterIds(f("previous", f("tags", MATCH_ANY_INCLUDING_PARENTS, "green"))));
+    assertEquals(List.of("second"), litterIds(f("previous", f("kind", MATCH_PATH, "mammals"))));
+    assertEquals(
+        List.of("second"), litterIds(f("previous", f("kind", SEARCH_INCLUDING_PARENTS, "mamm"))));
+  }
+
+  private List<String> litterIds(Filter filter) {
+    return schema.query("Litter").where(filter).retrieveRows().stream()
+        .map(row -> row.getString("id"))
+        .toList();
   }
 
   private static List<String> petNames(List<Row> rows) {
