@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useDebounceFn } from "@vueuse/core";
-import { computed } from "vue";
+import { computed, defineEmits, defineProps, withDefaults } from "vue";
 import type {
-  columnValue,
   IRow,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types.ts";
