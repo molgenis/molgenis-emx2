@@ -1066,9 +1066,10 @@ class TestGraphqlSchemaFields {
               .get(0)
               .get("status")
               .asText();
-      if (pollCount++ > 5) {
+      if (pollCount > 5) {
         throw new MolgenisException("failed: polling took too long, result is: " + status);
       }
+      pollCount++;
       Thread.sleep(1000);
     }
 

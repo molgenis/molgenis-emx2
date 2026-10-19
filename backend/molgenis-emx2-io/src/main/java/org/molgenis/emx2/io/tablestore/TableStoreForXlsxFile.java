@@ -95,7 +95,8 @@ public class TableStoreForXlsxFile implements TableStore {
     Map<String, Integer> columnNameIndexMap = new LinkedHashMap<>();
     int columnIndex = 0;
     for (String columnName : columnNames) {
-      columnNameIndexMap.put(columnName, columnIndex++);
+      columnNameIndexMap.put(columnName, columnIndex);
+      columnIndex++;
     }
 
     // write a header row

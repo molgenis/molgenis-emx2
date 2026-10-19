@@ -56,9 +56,10 @@ public class TestTaskServiceScheduler {
       logger.debug("Waiting for jobs to terminate: {}", runningJobs::size);
       Thread.sleep(1000);
       runningJobs = scheduler.quartzScheduler.getCurrentlyExecutingJobs();
-      if (waitCount++ > 10) {
+      if (waitCount > 10) {
         fail("polling took too long");
       }
+      waitCount++;
     }
     // allowing running steps to finish
     Thread.sleep(5000); // wait for processes to be killed
