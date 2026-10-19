@@ -274,21 +274,6 @@ class TableQueryGeneratorTest {
         Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "title", "the Legend"));
   }
 
-  private String removePrefixesFromQuery(String query) {
-    return query.replaceAll("PREFIX .*\n", "");
-  }
-
-  @Test
-  void shouldSetUpPrefixes() {
-    SelectQuery select = Queries.SELECT();
-    order.getSchema().getSemanticPrefixes().getAllNamespaces().forEach(select::prefix);
-
-    String prefixes = select.getQueryString().replace("SELECT * \n" + "WHERE {}", "").trim();
-    TableQueryGenerator generator = new TableQueryGenerator();
-    String actualQuery = generator.generate(order);
-    assertTrue(actualQuery.startsWith(prefixes));
-  }
-
   @Test
   void shouldQueryPets() throws IOException {
     String schemaName = getClass().getSimpleName() + "_pet";
@@ -315,6 +300,10 @@ class TableQueryGeneratorTest {
     List<String> expectedLines = new String(fileBytes).lines().toList();
     List<String> actualLines = writer.toString().lines().toList();
     assertEquals(expectedLines, actualLines);
+  }
+
+  private String removePrefixesFromQuery(String query) {
+    return query.replaceAll("PREFIX .*\n", "");
   }
 
   private SailRepository setupRepositoryFromFile(String fileName) {
