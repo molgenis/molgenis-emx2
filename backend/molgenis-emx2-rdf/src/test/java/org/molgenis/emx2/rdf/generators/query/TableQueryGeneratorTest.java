@@ -7,7 +7,10 @@ import static org.molgenis.emx2.rdf.query.SparqlQueryTestUtils.*;
 
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.resultio.text.csv.SPARQLResultsCSVWriter;
@@ -237,6 +240,38 @@ class TableQueryGeneratorTest {
         GROUP BY ?_subject_ ?id ?product ?product__name
         """,
         removePrefixesFromQuery(query));
+  }
+
+  @Test
+  void shouldAnchorSubjects() {
+    String iri1 = "https://example.com/pet1";
+    String iri2 = "https://example.com/pet2";
+    SailRepository repository =
+        repository(
+            statement(iri1, FOAF.FIRST_NAME, "Pip"), statement(iri2, DCTERMS.TITLE, "the Legend"));
+
+    TableMetadata table =
+        new SchemaMetadata()
+            .create(
+                TableMetadata.table(
+                    "example",
+                    Column.column("name").setType(ColumnType.STRING).setSemantics("foaf:firstName"),
+                    Column.column("title")
+                        .setType(ColumnType.STRING)
+                        .setSemantics("dcterms:title")));
+
+    assertQueryAndResults(
+        table,
+        repository,
+        """
+        SELECT ?_subject_ ?name ?title
+        WHERE { ?_subject_ ?anyPredicate ?anyObject .
+        OPTIONAL { ?_subject_ foaf:firstName ?name . }
+        OPTIONAL { ?_subject_ dcterms:title ?title . } }
+        GROUP BY ?_subject_ ?name ?title
+        """,
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri1, "name", "Pip"),
+        Map.of(SparqlVariableUtil.SUBJECT_NAME, iri2, "title", "the Legend"));
   }
 
   private String removePrefixesFromQuery(String query) {
