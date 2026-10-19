@@ -22,14 +22,6 @@
         <exclude name="ReturnEmptyCollectionRatherThanNull" />
         <exclude name="NonExhaustiveSwitch" />
         <exclude name="CompareObjectsWithEquals" />
-        <exclude name="AssignmentToNonFinalStatic" />
-        <exclude name="AvoidAccessibilityAlteration" />
-        <exclude name="AvoidCatchingGenericException" />
-        <exclude name="AvoidInstanceofChecksInCatchClause" />
-        <exclude name="AvoidUsingHardCodedIP" />
-        <exclude name="MissingStaticMethodInNonInstantiatableClass" />
-        <exclude name="SuspiciousEqualsMethodName" />
-        <exclude name="UseStandardCharsets" />
     </rule>
 
     <!-- Overrides for quickstart.xml -->

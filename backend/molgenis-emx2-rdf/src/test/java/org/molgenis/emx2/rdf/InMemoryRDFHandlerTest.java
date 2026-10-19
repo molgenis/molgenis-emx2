@@ -85,7 +85,7 @@ _:1 a <http://xmlns.com/foaf/0.1/Organization> .
     InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
     RdfParser.parseString(handlerWithFix, RDF_INPUT);
 
-    CustomAssertions.equals(handlerFixedString, handlerWithFix);
+    CustomAssertions.assertRdfEquals(handlerFixedString, handlerWithFix);
   }
 
   @Test
@@ -96,7 +96,7 @@ _:1 a <http://xmlns.com/foaf/0.1/Organization> .
     InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
     RdfParser.parseString(handlerWithFix, RDF_NO_FILE_LABEL_INPUT);
 
-    CustomAssertions.equals(handlerFixedString, handlerWithFix);
+    CustomAssertions.assertRdfEquals(handlerFixedString, handlerWithFix);
   }
 
   @Test
@@ -107,6 +107,6 @@ _:1 a <http://xmlns.com/foaf/0.1/Organization> .
     InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
     RdfParser.parseString(handlerWithFix, RDF_BNODE);
 
-    CustomAssertions.equals(handlerFixedString, handlerWithFix);
+    CustomAssertions.assertRdfEquals(handlerFixedString, handlerWithFix);
   }
 }

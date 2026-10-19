@@ -3,9 +3,9 @@ package org.molgenis.emx2.typescript;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -51,9 +51,9 @@ public class Generator {
                     """;
 
   public void generate(Schema schema, String fileLocation) {
-    try (PrintWriter writer = new PrintWriter(fileLocation, "UTF-8")) {
+    try (PrintWriter writer = new PrintWriter(fileLocation, StandardCharsets.UTF_8)) {
       generate(schema, writer, true);
-    } catch (FileNotFoundException | UnsupportedEncodingException e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
