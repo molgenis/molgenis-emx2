@@ -28,11 +28,8 @@
         <exclude name="AvoidCatchingGenericException" />
         <exclude name="AvoidInstanceofChecksInCatchClause" />
         <exclude name="AvoidUsingHardCodedIP" />
-        <exclude name="CollectionTypeMismatch" />
-        <exclude name="ImplicitSwitchFallThrough" />
         <exclude name="MissingStaticMethodInNonInstantiatableClass" />
         <exclude name="NonThreadSafeSingleton" />
-        <exclude name="OverrideBothEqualsAndHashCodeOnComparable" />
         <exclude name="SuspiciousEqualsMethodName" />
         <exclude name="UseStandardCharsets" />
     </rule>

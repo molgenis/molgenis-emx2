@@ -398,7 +398,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public void dropColumn(String name) {
-    if (Arrays.asList(getPrimaryKeys()).contains(name)) {
+    if (getPrimaryKeys().contains(name)) {
       throw new MolgenisException("Remove column failed: Column is primary key");
     }
     if (columns.get(name) == null) {
@@ -650,6 +650,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   @Override
+  @SuppressWarnings(
+      "PMD.OverrideBothEqualsAndHashCodeOnComparable") // sorted by name, equality stays
+  // identity-based
   public int compareTo(Object o) {
     if (o instanceof TableMetadata metadata) {
       return getTableName().compareTo(metadata.getTableName());
