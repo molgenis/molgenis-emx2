@@ -28,7 +28,6 @@
         <exclude name="AvoidInstanceofChecksInCatchClause" />
         <exclude name="AvoidUsingHardCodedIP" />
         <exclude name="MissingStaticMethodInNonInstantiatableClass" />
-        <exclude name="NonThreadSafeSingleton" />
         <exclude name="SuspiciousEqualsMethodName" />
         <exclude name="UseStandardCharsets" />
     </rule>

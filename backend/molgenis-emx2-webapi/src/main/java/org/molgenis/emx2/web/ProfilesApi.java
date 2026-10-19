@@ -23,6 +23,11 @@ public final class ProfilesApi {
   }
 
   private static void getProfiles(Context ctx) throws IOException, URISyntaxException {
+    ctx.header("Content-Disposition", "attachment; filename=profiles.json");
+    ctx.json(getProfilesJson());
+  }
+
+  private static synchronized String getProfilesJson() throws IOException, URISyntaxException {
     if (profilesJson == null) {
       List<Row> rows =
           new SchemaFromProfile()
@@ -30,7 +35,6 @@ public final class ProfilesApi {
       SchemaMetadata schema = Emx2.fromRowList(rows);
       profilesJson = JsonUtil.schemaToJson(schema);
     }
-    ctx.header("Content-Disposition", "attachment; filename=profiles.json");
-    ctx.json(profilesJson);
+    return profilesJson;
   }
 }
