@@ -12,7 +12,7 @@ public final class JobsModel {
     // hide constructor
   }
 
-  public void create(SchemaMetadata schema) {
+  public static void create(SchemaMetadata schema) {
 
     schema.create(table("Jobs", column("id").setPkey(), column("owner"), column("group")));
 

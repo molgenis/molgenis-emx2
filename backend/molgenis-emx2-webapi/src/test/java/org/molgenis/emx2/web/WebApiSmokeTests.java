@@ -168,7 +168,7 @@ class WebApiSmokeTests extends ApiTestBase {
                       "[Thread {}] {}", () -> Thread.currentThread().getName(), e::getMessage);
                 }
 
-              } catch (Throwable t) {
+              } catch (Exception | AssertionError t) {
                 failures.add(t); // only assertFalse failure or unexpected errors will be added
               } finally {
                 doneLatch.countDown();
