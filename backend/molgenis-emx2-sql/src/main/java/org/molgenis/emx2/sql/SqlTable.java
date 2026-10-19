@@ -854,9 +854,7 @@ public class SqlTable implements Table {
                           r.get(ref.getColumnName(), ref.getPrimitiveType()), ref.getJooqField())));
         }
       }
-    } else if (key.isRefback()) {
-      // do nothing
-    } else {
+    } else if (!key.isRefback()) { // refbacks are skipped
       columnCondition.add(
           key.getJooqField()
               .eq(cast(r.get(key.getName(), key.getColumnType()), key.getJooqField())));

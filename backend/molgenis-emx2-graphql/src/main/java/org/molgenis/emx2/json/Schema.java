@@ -74,10 +74,8 @@ public class Schema {
               .filter(d -> d.value() != null)
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       for (Column c : t.getColumns()) {
-        if (Constants.MG_TOP_OF_FORM.equals(c.getName())) {
-          // skip
-        } else if (!c.isInherited()) {
-          // we remove clearly inherited columns here
+        // skip top of form, and we remove clearly inherited columns here
+        if (!Constants.MG_TOP_OF_FORM.equals(c.getName()) && !c.isInherited()) {
           org.molgenis.emx2.Column cm = c.getColumnMetadata(tm);
           tm.add(cm);
         }

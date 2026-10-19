@@ -38,7 +38,9 @@ final class SqlQueryBuilderHelpers {
       Column column, Order order, SelectConnectByStep<Record> query) {
     if (column.isRefback()) {
       // Not supported. Feature request: https://github.com/molgenis/molgenis-emx2/issues/4021
-    } else if (column.isReference()) {
+      return (SelectJoinStep<Record>) query;
+    }
+    if (column.isReference()) {
       for (Reference ref : column.getReferences()) {
         final Column refColumn = ref.toPrimitiveColumn();
         query = setOrderByForPrimitiveColumn(refColumn, order, query);
