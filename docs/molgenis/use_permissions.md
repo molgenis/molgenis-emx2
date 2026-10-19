@@ -41,6 +41,8 @@ does not automatically inherit Viewer, Editor, or any other standard role — th
 specific tables that have been explicitly granted to their role.
 
 Custom roles can be created, updated, and deleted through the [GraphQL API](dev_graphql.md#table-level-permissions-api).
+Admins can list the custom roles of all schemas, with their permissions and users, through
+`_admin { customRoles }` on the root API.
 
 ## Row-level security
 
