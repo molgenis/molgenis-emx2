@@ -244,35 +244,34 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                         column("cron")
                             .setDescription(
                                 "If you want to run this script regularly you can add a cron expression. Cron expression. A cron expression is a string comprised of 6 or 7 fields separated by white space. These fields are: Seconds, Minutes, Hours, Day of month, Month, Day of week, and optionally Year. Use * for any and ? for ignore.Note you cannot set 'day of week' and 'day of month' at same time (use ? for one of them). An example input is 0 0 12 * * ? for a job that fires at noon every day. See http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/tutorial-lesson-06.html")));
-            Table jobs =
-                schema.create(
-                    table(
-                        "Jobs",
-                        column("id").setPkey(),
-                        column("status").setType(ColumnType.ONTOLOGY).setRefTable("JobStatus"),
-                        column("type").setDescription("Type of the task, typically its class"),
-                        column("description")
-                            .setType(ColumnType.TEXT)
-                            .setDescription("As provided by the task"),
-                        column("parameters")
-                            .setType(ColumnType.TEXT)
-                            .setDescription("As provided by user who started the script"),
-                        column("script").setDescription("Contents of the script that was run"),
-                        column("submitUser").setDescription("User that submitted the job"),
-                        column("submitDate").setType(ColumnType.DATETIME),
-                        column("startDate")
-                            .setType(ColumnType.DATETIME)
-                            .setDescription("When the job moved from submitted to running"),
-                        column("duration")
-                            .setType(ColumnType.INT)
-                            .setDescription("Duration in milliseconds"),
-                        column("log")
-                            .setType(ColumnType.TEXT)
-                            .setDescription("Log of task execution in JSON format"),
-                        column("output")
-                            .setType(ColumnType.FILE)
-                            .setDescription(
-                                "output of the script, if output extension != null and based on OUTPUT_FILE environment variable")));
+            schema.create(
+                table(
+                    "Jobs",
+                    column("id").setPkey(),
+                    column("status").setType(ColumnType.ONTOLOGY).setRefTable("JobStatus"),
+                    column("type").setDescription("Type of the task, typically its class"),
+                    column("description")
+                        .setType(ColumnType.TEXT)
+                        .setDescription("As provided by the task"),
+                    column("parameters")
+                        .setType(ColumnType.TEXT)
+                        .setDescription("As provided by user who started the script"),
+                    column("script").setDescription("Contents of the script that was run"),
+                    column("submitUser").setDescription("User that submitted the job"),
+                    column("submitDate").setType(ColumnType.DATETIME),
+                    column("startDate")
+                        .setType(ColumnType.DATETIME)
+                        .setDescription("When the job moved from submitted to running"),
+                    column("duration")
+                        .setType(ColumnType.INT)
+                        .setDescription("Duration in milliseconds"),
+                    column("log")
+                        .setType(ColumnType.TEXT)
+                        .setDescription("Log of task execution in JSON format"),
+                    column("output")
+                        .setType(ColumnType.FILE)
+                        .setDescription(
+                            "output of the script, if output extension != null and based on OUTPUT_FILE environment variable")));
             // import defaults
             String demoScript =
 """

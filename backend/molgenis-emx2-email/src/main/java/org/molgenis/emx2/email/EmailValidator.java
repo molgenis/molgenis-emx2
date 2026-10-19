@@ -7,12 +7,8 @@ import java.util.stream.Collectors;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import org.molgenis.emx2.MolgenisException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class EmailValidator {
-
-  private static final Logger logger = LoggerFactory.getLogger(EmailValidator.class);
 
   private EmailValidator() {
     // no instances

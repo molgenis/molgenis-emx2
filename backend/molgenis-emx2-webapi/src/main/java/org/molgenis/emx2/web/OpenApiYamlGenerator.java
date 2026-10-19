@@ -205,13 +205,4 @@ public final class OpenApiYamlGenerator {
                         .addProperties("title", new StringSchema())
                         .addProperties("message", new StringSchema())));
   }
-
-  private static RequestBody tableRequestBody(String tableName) {
-    return new RequestBody()
-        .content(
-            new Content()
-                .addMediaType(
-                    ACCEPT_JSON,
-                    new MediaType().schema(new ArraySchema().items(new Schema().$ref(tableName)))));
-  }
 }
