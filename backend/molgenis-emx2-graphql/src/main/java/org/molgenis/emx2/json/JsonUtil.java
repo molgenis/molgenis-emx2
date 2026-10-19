@@ -29,8 +29,8 @@ public final class JsonUtil {
     // hide constructor
   }
 
-  private static ObjectWriter writer;
-  private static ObjectWriter yamlWriter;
+  private static final ObjectWriter WRITER = createWriter();
+  private static final ObjectWriter YAML_WRITER = createYamlWriter();
 
   public static org.molgenis.emx2.Column jsonToColumn(String json) throws IOException {
     Column column = new ObjectMapper().readValue(json, Column.class);
@@ -66,70 +66,65 @@ public final class JsonUtil {
   }
 
   public static ObjectWriter getYamlWriter() {
+    return YAML_WRITER;
+  }
 
-    if (yamlWriter == null) {
-      DefaultPrettyPrinter printer =
-          new DefaultPrettyPrinter()
-              .withArrayIndenter(new DefaultIndenter("  ", "\n"))
-              .withObjectIndenter(new DefaultIndenter("  ", "\n"));
-      yamlWriter =
-          new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER))
-              .addMixIn(SchemaMetadata.class, MixinForJsonIgnore.class)
-              .addMixIn(TableMetadata.class, MixinForJsonIgnore.class)
-              .addMixIn(Column.class, MixinForJsonIgnore.class)
-              .addMixIn(SqlDatabase.class, MixinForJsonIgnore.class)
-              .addMixIn(DSLContext.class, MixinForJsonIgnore.class)
-              .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-              .setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
-              .writer(printer);
-    }
-    return yamlWriter;
+  private static ObjectWriter createYamlWriter() {
+    DefaultPrettyPrinter printer =
+        new DefaultPrettyPrinter()
+            .withArrayIndenter(new DefaultIndenter("  ", "\n"))
+            .withObjectIndenter(new DefaultIndenter("  ", "\n"));
+    return new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER))
+        .addMixIn(SchemaMetadata.class, MixinForJsonIgnore.class)
+        .addMixIn(TableMetadata.class, MixinForJsonIgnore.class)
+        .addMixIn(Column.class, MixinForJsonIgnore.class)
+        .addMixIn(SqlDatabase.class, MixinForJsonIgnore.class)
+        .addMixIn(DSLContext.class, MixinForJsonIgnore.class)
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
+        .writer(printer);
   }
 
   public static ObjectWriter getWriter() {
-    if (writer == null) {
-      DefaultPrettyPrinter printer =
-          new DefaultPrettyPrinter()
-              .withArrayIndenter(new DefaultIndenter("  ", "\n"))
-              .withObjectIndenter(new DefaultIndenter("  ", "\n"));
+    return WRITER;
+  }
 
-      ObjectMapper mapper =
-          new ObjectMapper()
-              .addMixIn(SchemaMetadata.class, MixinForJsonIgnore.class)
-              .addMixIn(TableMetadata.class, MixinForJsonIgnore.class)
-              .addMixIn(Column.class, MixinForJsonIgnore.class)
-              .addMixIn(SqlDatabase.class, MixinForJsonIgnore.class)
-              .addMixIn(DSLContext.class, MixinForJsonIgnore.class)
-              .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+  private static ObjectWriter createWriter() {
+    DefaultPrettyPrinter printer =
+        new DefaultPrettyPrinter()
+            .withArrayIndenter(new DefaultIndenter("  ", "\n"))
+            .withObjectIndenter(new DefaultIndenter("  ", "\n"));
 
-      mapper
-          .configOverride(List.class)
-          .setInclude(
-              JsonInclude.Value.construct(
-                  JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
+    ObjectMapper mapper =
+        new ObjectMapper()
+            .addMixIn(SchemaMetadata.class, MixinForJsonIgnore.class)
+            .addMixIn(TableMetadata.class, MixinForJsonIgnore.class)
+            .addMixIn(Column.class, MixinForJsonIgnore.class)
+            .addMixIn(SqlDatabase.class, MixinForJsonIgnore.class)
+            .addMixIn(DSLContext.class, MixinForJsonIgnore.class)
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-      mapper
-          .configOverride(Set.class)
-          .setInclude(
-              JsonInclude.Value.construct(
-                  JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
+    mapper
+        .configOverride(List.class)
+        .setInclude(
+            JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
 
-      mapper
-          .configOverride(Collection.class)
-          .setInclude(
-              JsonInclude.Value.construct(
-                  JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
+    mapper
+        .configOverride(Set.class)
+        .setInclude(
+            JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
 
-      mapper
-          .configOverride(Object[].class)
-          .setInclude(
-              JsonInclude.Value.construct(
-                  JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
+    mapper
+        .configOverride(Collection.class)
+        .setInclude(
+            JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
 
-      writer = mapper.writer(printer);
-    }
+    mapper
+        .configOverride(Object[].class)
+        .setInclude(
+            JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, JsonInclude.Include.ALWAYS));
 
-    return writer;
+    return mapper.writer(printer);
   }
 
   public static SimpleModule getJooqJsonModule() {

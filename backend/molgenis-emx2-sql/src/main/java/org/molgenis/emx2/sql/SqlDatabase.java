@@ -135,7 +135,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
   }
 
-  private static void initDataSource() {
+  private static synchronized void initDataSource() {
     if (source == null) {
       String url =
           (String)
