@@ -340,7 +340,12 @@ public class GraphqlDatabaseFieldFactory {
           throw new MolgenisException("Schema '" + schemaName + "' does not exist");
         }
         schema.deleteRole(roleName);
-        messageBuilder.append("Dropped role '" + roleName + "' from schema '" + schemaName + "'. ");
+        messageBuilder
+            .append("Dropped role '")
+            .append(roleName)
+            .append("' from schema '")
+            .append(schemaName)
+            .append("'. ");
       }
     }
   }
