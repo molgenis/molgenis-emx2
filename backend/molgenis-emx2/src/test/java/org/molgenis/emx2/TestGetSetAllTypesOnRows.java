@@ -44,7 +44,6 @@ public class TestGetSetAllTypesOnRows {
 
     m.drop("TypeTest");
 
-    TableMetadata test = m.getTableMetadata("TypeTest");
     assertEquals(0, m.getTableNames().size());
   }
 

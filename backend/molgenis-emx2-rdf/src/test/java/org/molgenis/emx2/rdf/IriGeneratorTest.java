@@ -18,16 +18,12 @@ import org.molgenis.emx2.TableMetadata;
 class IriGeneratorTest {
   private static final String baseURL = "http://example.com";
   private static final String SCHEMA_NAME = "my Schema";
-  private static final String TABLE_NAME = "my Table";
   private static final String TABLE_ID = "MyTable";
-  private static final String COLUMN_NAME = "my Column";
   private static final String COLUMN_ID = "myColumn";
   private static final String ENCODED_PRIMARYKEY = "lastName=van%20de%20achternaam";
 
   private static final String CHILD_SCHEMA_NAME = "my Child Schema";
-  private static final String CHILD_TABLE_NAME = "my Child Table";
   private static final String CHILD_TABLE_ID = "MyChildTable";
-  private static final String CHILD_COLUMN_NAME = "my Child Column";
   private static final String CHILD_COLUMN_ID = "myChildColumn";
 
   @Test

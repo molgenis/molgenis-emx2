@@ -142,6 +142,7 @@ public final class ChangeLogExecutor {
         .toList();
   }
 
+  @SuppressWarnings("PMD.UnusedReturnValue") // jOOQ step is changed in place
   static List<LastUpdate> executeLastUpdates(DSLContext jooq) {
 
     // get a list of schema's with changelogs, need due to limited support for cross schema queries

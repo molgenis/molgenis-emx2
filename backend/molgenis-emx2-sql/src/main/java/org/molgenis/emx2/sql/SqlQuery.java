@@ -190,7 +190,7 @@ public class SqlQuery extends QueryBean {
     // where
     Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
     SelectConnectByStep<Record> where = condition != null ? from.where(condition) : from;
-    SelectConnectByStep<Record> query = limitOffsetOrderBy(table, select, where, tableAlias);
+    SelectConnectByStep<Record> query = limitOffsetOrderBy(table, select, where);
     if (logger.isInfoEnabled()) {
       logger.info(query.getSQL(ParamType.INLINED));
     }
@@ -384,7 +384,7 @@ public class SqlQuery extends QueryBean {
     SelectConnectByStep<Record> filterQuery =
         jsonFilterQuery(
             table, List.of(asterisk()), column, tableAlias, subAlias, filters, searchTerms);
-    filterQuery = limitOffsetOrderBy(table, select, filterQuery, subAlias);
+    filterQuery = limitOffsetOrderBy(table, select, filterQuery);
 
     // use filtered/sorted/limited/offsetted to produce json including only the joins needed
     SelectConnectByStep<Record> from =
@@ -947,6 +947,7 @@ public class SqlQuery extends QueryBean {
     return result;
   }
 
+  @SuppressWarnings("PMD.UnusedReturnValue") // jOOQ step is changed in place
   private SelectJoinStep<Record> refJoins(
       TableMetadata table,
       String tableAlias,
@@ -1684,11 +1685,8 @@ public class SqlQuery extends QueryBean {
   }
 
   private static SelectJoinStep<Record> limitOffsetOrderBy(
-      TableMetadata table,
-      SelectColumn select,
-      SelectConnectByStep<Record> query,
-      String tableAlias) {
-    query = SqlQueryBuilderHelpers.orderBy(table, select, query, tableAlias);
+      TableMetadata table, SelectColumn select, SelectConnectByStep<Record> query) {
+    query = SqlQueryBuilderHelpers.orderBy(table, select, query);
     if (select.getLimit() > 0) {
       query = (SelectConditionStep) query.limit(select.getLimit());
     }

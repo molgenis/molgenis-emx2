@@ -482,6 +482,7 @@ public class SqlTable implements Table {
     return getJooq().insertInto(getJooqTable(), insertFields.toArray(new Field[0]));
   }
 
+  @SuppressWarnings("PMD.UnusedReturnValue") // jOOQ step is changed in place
   private void addRowsToInsertStep(
       InsertValuesStepN<Record> step, List<Row> rows, List<Column> columns, MgDefaults mgDefaults) {
     for (Row row : rows) {
@@ -493,6 +494,7 @@ public class SqlTable implements Table {
     }
   }
 
+  @SuppressWarnings("PMD.UnusedReturnValue") // jOOQ step is changed in place
   private void addUpdateOnConflictClause(
       InsertValuesStepN<Record> step, List<Row> rows, List<Column> columns, MgDefaults mgDefaults) {
     InsertOnDuplicateSetStep<Record> onConflict =
@@ -506,6 +508,7 @@ public class SqlTable implements Table {
     }
   }
 
+  @SuppressWarnings("PMD.UnusedReturnValue") // jOOQ step is changed in place
   private static void setMgValuesOnConflict(
       InsertOnDuplicateSetStep<Record> onConflict,
       List<Row> rows,

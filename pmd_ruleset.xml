@@ -35,11 +35,6 @@
         <exclude name="NonThreadSafeSingleton" />
         <exclude name="OverrideBothEqualsAndHashCodeOnComparable" />
         <exclude name="SuspiciousEqualsMethodName" />
-        <exclude name="UnusedFormalParameter" />
-        <exclude name="UnusedLocalVariable" />
-        <exclude name="UnusedPrivateField" />
-        <exclude name="UnusedPrivateMethod" />
-        <exclude name="UnusedReturnValue" />
         <exclude name="UseStandardCharsets" />
     </rule>
 

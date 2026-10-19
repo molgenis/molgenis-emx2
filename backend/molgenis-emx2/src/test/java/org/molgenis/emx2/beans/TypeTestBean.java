@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@SuppressWarnings("PMD.UnusedPrivateField") // fields are read by Mapper
 public class TypeTestBean {
 
   private String aString;
