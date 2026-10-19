@@ -212,7 +212,7 @@ public class MolgenisWebservice {
     boolean matomoEnabled =
         (boolean) EnvironmentProperty.getParameter(MATOMO_ENABLED_ENV, false, ColumnType.BOOL);
     if (matomoEnabled) {
-      app.before(MatomoTrackingService::track);
+      app.before(MatomoTrackingService.fromEnvironment()::track);
     }
   }
 

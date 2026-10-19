@@ -14,27 +14,38 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class MatomoTrackingService {
 
-  private MatomoTrackingService() {
-    // utility class
+  private static final String DEFAULT_MATOMO_URL = "http://localhost:8081/";
+  private static final int DEFAULT_MATOMO_SITE_ID = 1;
+
+  private final MatomoTracker tracker;
+
+  public MatomoTrackingService(String matomoUrl, int siteId) {
+    TrackerConfiguration configuration = buildConfig(matomoUrl, siteId);
+    this.tracker = new MatomoTracker(configuration);
   }
 
-  private static final String MATOMO_URL =
-      (String) EnvironmentProperty.getParameter(MATOMO_URL_ENV, "http://localhost:8081", STRING);
+  private static TrackerConfiguration buildConfig(String matomoUrl, int siteId) {
+    return TrackerConfiguration.builder()
+        .apiEndpoint(matomoUri(matomoUrl))
+        .defaultSiteId(siteId)
+        .build();
+  }
 
-  private static final int MATOMO_SITE_ID =
-      (Integer) EnvironmentProperty.getParameter(MATOMO_SITE_ID_ENV, 1, INT);
+  private static URI matomoUri(String matomoUrl) {
+    return URI.create(matomoUrl.endsWith("/") ? matomoUrl : matomoUrl + "/").resolve("matomo.php");
+  }
 
-  private static final TrackerConfiguration CONFIGURATION =
-      TrackerConfiguration.builder()
-          .apiEndpoint(URI.create(MATOMO_URL).resolve("matomo.php"))
-          .defaultSiteId(MATOMO_SITE_ID)
-          .build();
+  public static MatomoTrackingService fromEnvironment() {
+    String url =
+        (String) EnvironmentProperty.getParameter(MATOMO_URL_ENV, DEFAULT_MATOMO_URL, STRING);
+    int siteId =
+        (Integer) EnvironmentProperty.getParameter(MATOMO_SITE_ID_ENV, DEFAULT_MATOMO_SITE_ID, INT);
+    return new MatomoTrackingService(url, siteId);
+  }
 
-  private static final MatomoTracker TRACKER = new MatomoTracker(CONFIGURATION);
-
-  public static void track(Context ctx) {
+  public void track(Context ctx) {
     if (RequestClassifier.isAiChatBotRequest(ctx)) {
-      TRACKER.sendRequestAsync(
+      tracker.sendRequestAsync(
           MatomoRequest.request()
               .actionUrl(ctx.fullUrl())
               .headerUserAgent(ctx.userAgent())

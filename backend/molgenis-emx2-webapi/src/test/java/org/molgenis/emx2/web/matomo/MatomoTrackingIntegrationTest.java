@@ -11,35 +11,27 @@ import io.restassured.http.ContentType;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.web.ApiTestBase;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.mariadb.MariaDBContainer;
 import org.testcontainers.utility.MountableFile;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 
-@Testcontainers
 class MatomoTrackingIntegrationTest extends ApiTestBase {
 
+  private static final String AUTH_TOKEN = "a29df8564db55bcdfcc696d783db5732";
   private static final Network NETWORK = Network.newNetwork();
 
   @SystemStub
   static EnvironmentVariables matomoEnv = new EnvironmentVariables(MATOMO_ENABLED_ENV, "true");
 
-  @BeforeAll
-  static void setup() {
-    // the Matomo port is only known once the container runs, so it can't go in the stub above
-    matomoEnv.set(MATOMO_URL_ENV, baseUrl());
-    login("admin", "admin");
-  }
-
-  @Container
   static MariaDBContainer db =
       new MariaDBContainer("mariadb:11")
           .withNetwork(NETWORK)
@@ -51,8 +43,7 @@ class MatomoTrackingIntegrationTest extends ApiTestBase {
               MountableFile.forHostPath(resource("gen/dump.sql")),
               "/docker-entrypoint-initdb.d/dump.sql");
 
-  @SuppressWarnings("resource") // started and stopped by @Testcontainers
-  @Container
+  @SuppressWarnings("resource") // started in the static block, stopped in stopContainers()
   static GenericContainer<?> matomo =
       new GenericContainer<>("matomo:5.14.0-apache")
           .withNetwork(NETWORK)
@@ -71,6 +62,25 @@ class MatomoTrackingIntegrationTest extends ApiTestBase {
               Wait.forHttp("/matomo.php")
                   .forStatusCode(200)
                   .withStartupTimeout(Duration.ofMinutes(2)));
+
+  // The containers are started here instead of with @Testcontainers, because the Matomo URL has
+  // to be in the environment before ApiTestBase starts the web service, which reads it on startup.
+  static {
+    Startables.deepStart(db, matomo).join();
+    matomoEnv.set(MATOMO_URL_ENV, baseUrl());
+  }
+
+  @BeforeAll
+  static void setup() {
+    login("admin", "admin");
+  }
+
+  @AfterAll
+  static void stopContainers() {
+    matomo.stop();
+    db.stop();
+    NETWORK.close();
+  }
 
   static String resource(String name) {
     return Objects.requireNonNull(MatomoTrackingIntegrationTest.class.getResource(name)).getPath();
@@ -119,6 +129,7 @@ class MatomoTrackingIntegrationTest extends ApiTestBase {
             .formParam("method", "BotTracking.getAIChatbotsRealTime")
             .formParam("idSite", 1)
             .formParam("format", "JSON")
+            .formParam("token_auth", AUTH_TOKEN)
             .when()
             .post("/index.php")
             .then()
