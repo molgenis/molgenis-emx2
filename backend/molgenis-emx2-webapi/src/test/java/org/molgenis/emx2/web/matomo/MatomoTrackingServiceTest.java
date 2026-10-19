@@ -84,7 +84,7 @@ class MatomoTrackingServiceTest {
     await().atMost(Duration.ofSeconds(8)).until(() -> requests.size() == 1);
     String query = requests.getFirst().getQuery();
     assertTrue(query.contains("url=" + REQUEST_URL));
-    assertTrue(query.contains("recMode=2"));
+    assertTrue(query.contains("recMode=1"));
   }
 
   @Test
