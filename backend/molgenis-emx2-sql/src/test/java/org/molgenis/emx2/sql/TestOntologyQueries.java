@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.field;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.FilterBean.f;
@@ -14,6 +15,7 @@ import org.jooq.Result;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.datamodels.DataModels;
 
 public class TestOntologyQueries {
@@ -83,6 +85,44 @@ public class TestOntologyQueries {
         .query("Pet")
         .where(f("tags", MATCH_ANY_INCLUDING_CHILDREN, new String[] {"green", "blue"}))
         .retrieveJSON();
+  }
+
+  @Test
+  void testOntologyFiltersOnRowQuery() {
+    List<String> names =
+        petNames(
+            schema
+                .query("Pet")
+                .where(f("tags", MATCH_ANY_INCLUDING_CHILDREN, "colors"))
+                .retrieveRows());
+    assertTrue(names.contains("spike")); // spike is 'red'
+    assertFalse(names.contains("pooky")); // pooky has no color
+
+    names =
+        petNames(schema.query("Pet").where(f("tags", MATCH_PATH, "purple", "blue")).retrieveRows());
+    assertTrue(names.contains("sylvester")); // sylvester is 'purple'
+    assertTrue(names.contains("jerry")); // jerry is 'blue'
+    assertFalse(names.contains("tom")); // tom is 'red'
+
+    names =
+        petNames(
+            schema
+                .query("Pet")
+                .where(f("tags", MATCH_ANY_INCLUDING_PARENTS, "red"))
+                .retrieveRows());
+    assertTrue(names.contains("spike")); // spike is 'red'
+    assertFalse(names.contains("pooky")); // pooky has no color
+
+    List<Row> orders =
+        schema
+            .query("Order")
+            .where(f("pet", f("tags", MATCH_ANY_INCLUDING_CHILDREN, "colors")))
+            .retrieveRows();
+    assertEquals(List.of("spike"), orders.stream().map(row -> row.getString("pet")).toList());
+  }
+
+  private static List<String> petNames(List<Row> rows) {
+    return rows.stream().map(row -> row.getString("name")).toList();
   }
 
   @Test
