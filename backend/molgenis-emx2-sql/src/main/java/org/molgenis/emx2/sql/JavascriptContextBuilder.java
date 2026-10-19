@@ -45,13 +45,13 @@ public final class JavascriptContextBuilder {
   public static void updateContext(Map<String, Object> context, Row row, Column column) {
     if (column.isReference()) {
       context.put(column.getIdentifier(), getRefFromRow(row, column));
-    } else if (column.isFile()) {
-      // skip file
-    } else if (column.isArray()) {
-      Object value = Optional.ofNullable(row.get(column)).orElse(new Object[0]);
-      context.put(column.getIdentifier(), value);
-    } else {
-      context.put(column.getIdentifier(), row.get(column));
+    } else if (!column.isFile()) { // files are skipped
+      if (column.isArray()) {
+        Object value = Optional.ofNullable(row.get(column)).orElse(new Object[0]);
+        context.put(column.getIdentifier(), value);
+      } else {
+        context.put(column.getIdentifier(), row.get(column));
+      }
     }
   }
 

@@ -22,9 +22,8 @@ public class TestOpenApi {
 
     TableMetadata table = schema.create(TableMetadata.table("TypeTest"));
     for (ColumnType columnType : ColumnType.values()) {
-      if (columnType.isReference()) {
-        // TODO: outside of test for now
-      } else {
+      // TODO: references are outside of test for now
+      if (!columnType.isReference()) {
         table.add(
             Column.column(columnType.toString().toLowerCase() + "Column").setType(columnType));
       }

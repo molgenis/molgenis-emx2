@@ -329,10 +329,9 @@ final class SqlTableMetadataExecutor {
 
     StringBuilder mgSearchVector = new StringBuilder("' '");
     for (Column c : table.getStoredColumns()) {
-      if (!c.isSystemColumn()) {
-        if (c.isFile()) {
-          // do nothing for now
-        } else if (c.isReference()) {
+      // files are skipped for now
+      if (!c.isSystemColumn() && !c.isFile()) {
+        if (c.isReference()) {
           for (Reference r : c.getReferences()) {
             mgSearchVector.append(
                 String.format(" || coalesce(new.\"%s\"::text,'') || ' '", r.getColumnName()));

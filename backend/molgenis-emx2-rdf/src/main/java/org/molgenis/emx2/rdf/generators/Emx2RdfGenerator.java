@@ -125,18 +125,18 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
   }
 
   void describeColumns(final Table table, final String columnName) {
-    if (table.getMetadata().getTableType() == TableType.DATA) {
-      for (final Column column : table.getMetadata().getNonInheritedColumns()) {
-        // Exclude the system columns that refer to specific users
-        if (column.isSystemAddUpdateByUserColumn()) {
-          continue;
-        }
-        if (columnName == null || columnName.equals(column.getName())) {
-          describeColumn(column);
-        }
+    if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
+      return;
+    }
+
+    for (final Column column : table.getMetadata().getNonInheritedColumns()) {
+      // Exclude the system columns that refer to specific users
+      if (column.isSystemAddUpdateByUserColumn()) {
+        continue;
       }
-    } else {
-      // For ontology tables we don't define the columns as predicates.
+      if (columnName == null || columnName.equals(column.getName())) {
+        describeColumn(column);
+      }
     }
   }
 

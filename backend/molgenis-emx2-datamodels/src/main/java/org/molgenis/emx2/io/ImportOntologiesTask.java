@@ -2,6 +2,7 @@ package org.molgenis.emx2.io;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -107,10 +108,8 @@ public class ImportOntologiesTask extends Task {
               "Checksum failed: resource " + resourcePath + " not found on classpath");
         }
         try (DigestInputStream dis = new DigestInputStream(is, digest)) {
-          byte[] buffer = new byte[8192];
-          while (dis.read(buffer) != -1) {
-            // reading through to compute digest
-          }
+          // reading through to compute digest
+          dis.transferTo(OutputStream.nullOutputStream());
         }
       }
       return HexFormat.of().formatHex(digest.digest());

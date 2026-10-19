@@ -66,6 +66,8 @@ public class FilteringTermsFetcher {
   public Set<FilteringTerm> getFilteringTermsFromOneTable(
       String schemaName, String tableToQuery, Collection<String> tableNamesInSchema) {
     Set<FilteringTerm> filteringTerms = new HashSet<>();
+    // any non-atomic, non-ontology fields are ignored, which are headings, files and regular
+    // (non-ontological) references
     if (tableNamesInSchema.contains(tableToQuery)) {
       TableMetadata metadata =
           database.getSchemaMetadata(schemaName).getTableMetadata(tableToQuery);
@@ -122,9 +124,6 @@ public class FilteringTermsFetcher {
                     tableToQuery);
             filteringTerms.add(filteringTerm);
           }
-        } else {
-          // ignore any non-atomic, non-ontology fields, which are headings, files and regular
-          // (non-ontological) references
         }
       }
     }
