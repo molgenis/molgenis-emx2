@@ -26,7 +26,7 @@ public class MatomoTrackingService {
 
   private static final TrackerConfiguration CONFIGURATION =
       TrackerConfiguration.builder()
-          .apiEndpoint(URI.create(MATOMO_URL + "/matomo.php"))
+          .apiEndpoint(URI.create(MATOMO_URL).resolve("matomo.php"))
           .defaultSiteId(MATOMO_SITE_ID)
           .build();
 

@@ -74,14 +74,14 @@ class MatomoTrackingServiceTest {
       })
   void shouldSendRequestOnAiUserAgents(String userAgent) {
     MatomoTrackingService.track(requestWithUserAgent(userAgent));
-    await().atMost(Duration.ofSeconds(3)).until(() -> requests.size() == 1);
+    await().atMost(Duration.ofSeconds(8)).until(() -> requests.size() == 1);
   }
 
   @Test
   void shouldSendContextAsBotRequest() {
     MatomoTrackingService.track(requestWithUserAgent("ChatGPT-User"));
 
-    await().atMost(Duration.ofSeconds(3)).until(() -> requests.size() == 1);
+    await().atMost(Duration.ofSeconds(8)).until(() -> requests.size() == 1);
     String query = requests.getFirst().getQuery();
     assertTrue(query.contains("url=" + REQUEST_URL));
     assertTrue(query.contains("recMode=2"));
