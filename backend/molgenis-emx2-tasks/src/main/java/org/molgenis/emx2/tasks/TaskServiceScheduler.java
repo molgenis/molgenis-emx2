@@ -12,16 +12,17 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.utils.Key;
 
 public class TaskServiceScheduler {
+  private static final String TASK_SERVICE = "taskService";
   protected final Scheduler quartzScheduler;
-  private static TaskService taskService;
   private static String EMPTY_PARAMETERSS = "";
 
   public TaskServiceScheduler(TaskService newTaskService) {
     try {
-      taskService = newTaskService;
       this.quartzScheduler = new StdSchedulerFactory().getScheduler();
+      // jobs get the task service from the scheduler context
+      this.quartzScheduler.getContext().put(TASK_SERVICE, newTaskService);
       this.quartzScheduler.start();
-      this.loadExistingCronTasks(taskService);
+      this.loadExistingCronTasks(newTaskService);
     } catch (Exception e) {
       throw new MolgenisException("Creation of task scheduler failed", e);
     }
@@ -121,12 +122,14 @@ public class TaskServiceScheduler {
 
   public static class SubmitJob implements Job {
     private String molgenisTaskId; // from molgenis
+    private TaskService taskService;
     TaskStatus status;
 
     @Override
     public void execute(JobExecutionContext context) {
       String name = context.getJobDetail().getKey().getName();
       try {
+        taskService = (TaskService) context.getScheduler().getContext().get(TASK_SERVICE);
         ScriptTask scriptTask = taskService.getScript(name);
         scriptTask.parameters(EMPTY_PARAMETERSS).submitUser(scriptTask.getCronUserName());
         molgenisTaskId = taskService.submit(scriptTask);
@@ -140,6 +143,8 @@ public class TaskServiceScheduler {
         }
       } catch (InterruptedException ie) {
         Thread.currentThread().interrupt();
+      } catch (SchedulerException e) {
+        throw new MolgenisException("Could not get the task service for job " + name, e);
       }
     }
 

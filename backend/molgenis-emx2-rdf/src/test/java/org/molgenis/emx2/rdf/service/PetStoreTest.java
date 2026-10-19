@@ -175,7 +175,7 @@ class PetStoreTest extends RdfServiceTestRunner {
     RdfParser.parseRdf(
         actual, rdfWriterClass, writerArgClasses, writerArgs, generatorClass, method, methodArgs);
 
-    CustomAssertions.equals(expected, actual);
+    CustomAssertions.assertRdfEquals(expected, actual);
   }
 
   @Test
