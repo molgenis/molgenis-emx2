@@ -191,7 +191,8 @@ public final class Emx2 {
           if (!row.isNull(DROP, BOOL) && row.getBoolean(DROP)) {
             column.drop();
           } else {
-            column.setPosition(columnPosition++);
+            column.setPosition(columnPosition);
+            columnPosition++;
             // this ensures positions accross table hiearchy matches those in imported file
           }
           // get labels

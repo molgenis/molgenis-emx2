@@ -409,9 +409,10 @@ class WebApiSmokeTests extends ApiTestBase {
     // (previously we checked on 'complete' but then it also fired if subtask was complete)
     while (poll.body().asString().contains("UNKNOWN")
         || poll.body().asString().contains("RUNNING")) {
-      if (count++ > 100) {
+      if (count > 100) {
         throw new MolgenisException("failed: polling took too long");
       }
+      count++;
       poll = given().sessionId(sessionId).when().get(url);
       Thread.sleep(500);
     }
@@ -1070,9 +1071,10 @@ class WebApiSmokeTests extends ApiTestBase {
     int count = 0;
     // poll while running
     while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
-      if (count++ > 10) {
+      if (count > 10) {
         throw new MolgenisException("failed: polling took too long, result is: " + result);
       }
+      count++;
       Thread.sleep(1000);
       result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
       status = new ObjectMapper().readTree(result).at("/status").textValue();
@@ -1110,9 +1112,10 @@ class WebApiSmokeTests extends ApiTestBase {
     // poll while running
     // (previously we checked on 'complete' but then it also fired if subtask was complete)
     while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
-      if (count++ > 10) {
+      if (count > 10) {
         throw new MolgenisException("failed: polling took too long, result is: " + result);
       }
+      count++;
       Thread.sleep(1000);
       result = given().header(MOLGENIS_TOKEN[0], token).when().get(taskUrl).getBody().asString();
       status = new ObjectMapper().readTree(result).at("/status").textValue();
@@ -1335,9 +1338,10 @@ class WebApiSmokeTests extends ApiTestBase {
     String status = "WAITING";
     int count = 0;
     while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
-      if (count++ > 30) {
+      if (count > 30) {
         throw new MolgenisException("failed: polling took too long, result is: " + result);
       }
+      count++;
       Thread.sleep(1000);
       result = given().sessionId(sessionId).get(url).asString();
       status = new ObjectMapper().readTree(result).at("/status").textValue();

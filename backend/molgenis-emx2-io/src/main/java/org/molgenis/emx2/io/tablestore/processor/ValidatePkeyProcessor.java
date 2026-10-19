@@ -83,7 +83,8 @@ public class ValidatePkeyProcessor implements RowProcessor {
       String keyValue = compoundKey.toString();
       validateKeyValue(keyValue);
 
-      task.setProgress(++index);
+      index++;
+      task.setProgress(index);
     }
 
     if (!duplicates.isEmpty()) {

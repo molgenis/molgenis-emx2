@@ -62,7 +62,8 @@ class SqlTableMetadata extends TableMetadata {
           validateColumn(newColumn);
           if (newColumn.getPosition() == null) {
             // positions are asumed to number up in a schema
-            newColumn.setPosition(position++);
+            newColumn.setPosition(position);
+            position++;
           }
           executeCreateColumn(tm.getJooq(), newColumn);
           tm.columns.put(c.getName(), newColumn);
