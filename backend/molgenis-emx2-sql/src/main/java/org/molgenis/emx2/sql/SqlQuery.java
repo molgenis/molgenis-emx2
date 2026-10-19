@@ -229,8 +229,7 @@ public class SqlQuery extends QueryBean {
     for (SelectColumn select : selection.getSubselect()) {
       QueryField queryField = getQueryField(table, select.getColumn());
       if (!queryField.isColumn()) {
-        DataType<?> type = toJooqType(queryField.type().getBaseType());
-        fields.add(field(name(alias(tableAlias), queryField.name()), type));
+        fields.add(field(name(alias(tableAlias), queryField.name()), queryField.jooqType()));
         continue;
       }
       Column column = queryField.column();
@@ -744,22 +743,20 @@ public class SqlQuery extends QueryBean {
         checkHasViewPermission(table);
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
-          Column c = getColumnByName(table, sub.getColumn());
+          QueryField f = getQueryField(table, sub.getColumn());
           switch (field.getColumn()) {
             case MAX_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+                result.add(key(f.identifier()).value(max(field(name(alias(subAlias), f.name())))));
             case MIN_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+                result.add(key(f.identifier()).value(min(field(name(alias(subAlias), f.name())))));
             case AVG_FIELD ->
                 result.add(
-                    key(c.getIdentifier())
-                        .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+                    key(f.identifier())
+                        .value(avg(field(name(alias(subAlias), f.name()), SQLDataType.NUMERIC))));
             case SUM_FIELD ->
                 result.add(
-                    key(c.getIdentifier())
-                        .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+                    key(f.identifier())
+                        .value(sum(field(name(alias(subAlias), f.name()), SQLDataType.NUMERIC))));
             default ->
                 throw new MolgenisException(
                     "Unknown aggregate type provided: " + field.getColumn());
@@ -823,19 +820,27 @@ public class SqlQuery extends QueryBean {
             .getSubselect()
             .forEach(
                 sub -> {
-                  Column col = getColumnByName(table, sub.getColumn());
+                  QueryField f = getQueryField(table, sub.getColumn());
                   sumFields.add(
-                      key(col.getIdentifier())
+                      key(f.identifier())
                           .value(
                               field(
                                   "SUM({0})",
-                                  field(name(alias(subAlias), col.getName())),
+                                  field(name(alias(subAlias), f.name())),
                                   AGGREGATE_COUNT_THRESHOLD)));
-                  nonArraySourceFields.add(col.getJooqField());
+                  nonArraySourceFields.add(f.jooqField());
                 });
         aggregationFields.add(jsonObject(sumFields).as(field.getColumn()));
       } else {
-        Column col = getColumnByName(table, field.getColumn());
+        QueryField queryField = getQueryField(table, field.getColumn());
+        if (!queryField.isColumn()) {
+          // derived fields, e.g. file attributes, are grouped by as primitive fields
+          checkHasViewPermission(table);
+          groupByFields.add(queryField.jooqField().as(convertToCamelCase(field.getColumn())));
+          nonArraySourceFields.add(queryField.jooqField());
+          continue;
+        }
+        Column col = queryField.column();
         if (!col.isOntology()) {
           checkHasViewPermission(table);
         }
@@ -1828,6 +1833,15 @@ public class SqlQuery extends QueryBean {
 
     String identifier() {
       return convertToCamelCase(name);
+    }
+
+    @SuppressWarnings("unchecked")
+    DataType<Object> jooqType() {
+      return isColumn() ? column.getJooqType() : toJooqType(type.getBaseType());
+    }
+
+    Field<Object> jooqField() {
+      return field(DSL.name(name), jooqType());
     }
   }
 
