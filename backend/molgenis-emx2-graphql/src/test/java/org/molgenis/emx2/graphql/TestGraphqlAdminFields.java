@@ -97,16 +97,20 @@ class TestGraphqlAdminFields {
           schema.create(
               table("Patient").add(column("id").setPkey()).add(column("name")),
               table("Doctor").add(column("id").setPkey()).add(column("name")));
-          schema.createRole("PatientViewer");
-          schema.grant(
-              "PatientViewer", new TablePermission("Patient").select(true).rowLevel(false));
+          String patientViewer = "PatientViewer";
+          schema.createRole(patientViewer);
+          schema.grant(patientViewer, new TablePermission("Patient").select(true).rowLevel(false));
+          tdb.addUser(TEST_PERSOON);
+          tdb.setEnabledUser(TEST_PERSOON, true);
+          tdb.getSchema(SCHEMA_NAME).addMember(TEST_PERSOON, patientViewer);
+
           graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
 
           try {
             JsonNode customRoles =
                 execute(
-                        "{_admin{customRoles{schemaId roleName permissions{table select insert update delete isRowLevel}}}}")
-                    .at("/_admin/customRoles");
+                        "{_admin{schemaRoles{schemaId role users permissions{table select insert update delete isRowLevel}}}}")
+                    .at("/_admin/schemaRoles");
 
             List<JsonNode> testCustomRoles = new ArrayList<>();
             for (JsonNode entry : customRoles) {
@@ -117,21 +121,25 @@ class TestGraphqlAdminFields {
             assertEquals(1, testCustomRoles.size());
 
             JsonNode customRole = testCustomRoles.get(0);
-            assertEquals("PatientViewer", customRole.get("roleName").asText());
+            assertEquals(patientViewer, customRole.get("role").asText());
             JsonNode permission = customRole.at("/permissions/0");
             assertEquals("Patient", permission.get("table").asText());
             assertTrue(permission.get("select").asBoolean());
             assertFalse(permission.path("insert").asBoolean());
             assertFalse(permission.path("isRowLevel").asBoolean());
+            String user = customRole.at("/users/0").asText();
+            assertEquals(TEST_PERSOON, user);
+
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
 
+          tdb.removeUser(TEST_PERSOON);
           tdb.setActiveUser(ANONYMOUS);
           graphql = new GraphqlExecutor(tdb, new TaskServiceInMemory());
           MolgenisException exception =
               assertThrows(
-                  MolgenisException.class, () -> execute("{_admin{customRoles{schemaId}}}"));
+                  MolgenisException.class, () -> execute("{_admin{schemaRoles{schemaId}}}"));
           assertTrue(exception.getMessage().contains("FieldUndefined"));
           tdb.becomeAdmin();
         });
