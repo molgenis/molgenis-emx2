@@ -275,31 +275,21 @@ test("it should be able to fill out all input types", async ({ page }) => {
 
   // Select
   await page
-    .locator('[id="type test-Types-selectType-form-field-input"]')
+    .getByRole("combobox", { name: "select type", exact: true })
     .click();
-  await page
-    .locator(
-      '[id="listbox-type test-Types-selectType-form-field-input-options"]'
-    )
-    .getByRole("option", { name: "FR", exact: true })
-    .click();
+  await page.getByRole("option", { name: "FR", exact: true }).click();
 
-  // Select Label
+  // Radio
   await page
     .locator('[id="type test-Types-radioType-form-field-input-radio-group"]')
     .getByText("HU")
     .click();
-  await page
-    .locator('[id="type test-Types-selectTypeLabel-form-field-input"]')
-    .click();
 
-  // Radio
+  // Select Label
   await page
-    .locator(
-      '[id="listbox-type test-Types-selectTypeLabel-form-field-input-options"]'
-    )
-    .getByRole("option", { name: "Belgium", exact: true })
+    .getByRole("combobox", { name: "select type Label", exact: true })
     .click();
+  await page.getByRole("option", { name: "Belgium", exact: true }).click();
 
   // Radio label
   await page
@@ -365,18 +355,11 @@ test("it should be able to fill out all input types", async ({ page }) => {
 
   // Multiselect
   await page
-    .locator('[id="type test-Types-multiselectType-form-field-input"]')
+    .getByRole("combobox", { name: "multiselect type", exact: true })
     .click();
-  const multiselectOptions = page.locator(
-    '[id="listbox-type test-Types-multiselectType-form-field-input-options"]'
-  );
-  await multiselectOptions
-    .getByRole("option", { name: "CY", exact: true })
-    .click();
-  await multiselectOptions.getByRole("option").nth(4).click();
-  await multiselectOptions
-    .getByRole("option", { name: "LT", exact: true })
-    .click();
+  for (const name of ["CY", "ES", "LT"]) {
+    await page.getByRole("option", { name, exact: true }).click();
+  }
   await page.keyboard.press("Escape");
 
   // Multiselect label
