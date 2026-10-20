@@ -3,8 +3,9 @@ import { useDebounceFn } from "@vueuse/core";
 import { computed } from "vue";
 import type {
   columnValue,
-  IRow,
+  IColumn,
   ITableMetaData,
+  TableRow,
 } from "../../../../metadata-utils/src/types.ts";
 import type { ITableSettings } from "../../../types/types.ts";
 import { FILTER_DEBOUNCE } from "../../composables/useFilters";
@@ -13,7 +14,6 @@ import InputSearch from "../input/Search.vue";
 import Pagination from "../Pagination.vue";
 import Table from "../Table.vue";
 import TableCell from "../TableCell.vue";
-import TableRow from "../TableRow.vue";
 import TableCellEMX2 from "./CellEMX2.vue";
 import RowControls from "./control/RowControls.vue";
 import TableHeadCell from "./TableHeadCell.vue";
@@ -21,12 +21,12 @@ import TableHeaderAction from "./TableHeaderAction.vue";
 
 const props = withDefaults(
   defineProps<{
-    rows: IRow[];
+    rows: TableRow[];
     rowCount: number;
-    rowIdKey: string;
     settings: ITableSettings;
-    selectedRows?: Map<string, Record<string, columnValue>>;
     searchPlaceholder?: string;
+    selectedRows?: Map<string, Record<string, columnValue>>;
+    sortedVisibleColumns?: IColumn[];
     tableMetadata: ITableMetaData;
   }>(),
   {
@@ -34,17 +34,21 @@ const props = withDefaults(
   }
 );
 
-const numberOfSelectedRows = computed(() => props.selectedRows?.size || 0);
-
 const emit = defineEmits<{
   (event: "update:settings", value: ITableSettings): void;
   (event: "rowAction", payload: { action: string }): void;
-  (event: "toggleRowSelection", row: IRow): void;
+  (event: "toggleRowSelection", row: TableRow): void;
 }>();
+
+const numberOfSelectedRows = computed(() => props.selectedRows?.size || 0);
 
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(props.rowCount / props.settings.pageSize))
 );
+
+const columns = computed(() => {
+  return props.sortedVisibleColumns || props.tableMetadata.columns;
+});
 
 function handlePagingRequest(page: number) {
   emit("update:settings", { ...props.settings, page });
@@ -77,12 +81,8 @@ function handleRowAction(payload: { action: string }) {
   emit("rowAction", payload);
 }
 
-function toggleRowSelection(row: IRow) {
+function toggleRowSelection(row: TableRow) {
   emit("toggleRowSelection", row);
-}
-
-function getRowKey(row: IRow): string {
-  return row[props.rowIdKey] as string; //FIXME
 }
 </script>
 
@@ -112,7 +112,7 @@ function getRowKey(row: IRow): string {
     <template #head>
       <TableHeadRow>
         <TableHeadCell class="left-0 bg-table z-20 w-12"> </TableHeadCell>
-        <TableHeadCell v-for="column in tableMetadata.columns" :key="column.id">
+        <TableHeadCell v-for="column in columns" :key="column.id">
           <TableHeaderAction
             :column="column"
             :settings="settings"
@@ -128,13 +128,13 @@ function getRowKey(row: IRow): string {
         >
           <div class="flex justify-center items-center h-full">
             <Checkbox
-              :modelValue="selectedRows?.has(getRowKey(row))"
+              :modelValue="selectedRows?.has(row._rowIdString)"
               @update:modelValue="toggleRowSelection(row)"
             />
           </div>
         </TableCell>
         <TableCellEMX2
-          v-for="column in tableMetadata.columns"
+          v-for="column in columns"
           :key="column.id"
           :metadata="column"
           :data="row[column.id]"

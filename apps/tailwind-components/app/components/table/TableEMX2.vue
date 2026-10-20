@@ -297,13 +297,13 @@
   </div>
 
   <TableInteractive
-    v-if="data?.tableMetadata && data?.rows"
+    v-if="data?.tableMetadata && rows"
     :tableMetadata="data.tableMetadata"
-    :rows="data.rows"
+    :sortedVisibleColumns="sortedVisibleColumns"
+    :rows="rows"
     :rowCount="data.count"
     :settings="settings"
     :selectedRows="selectedRows"
-    rowIdKey="_rowIdString"
     @update:settings="handleUpdateSettings"
     @rowAction="handleRowAction"
   >
@@ -426,6 +426,7 @@ import type {
   columnValue,
   IColumn,
   IRow,
+  TableRow,
 } from "../../../../metadata-utils/src/types";
 import type {
   cellPayload,
@@ -518,9 +519,9 @@ const showDeleteMultipleModal = ref<boolean>(false);
 const rowDataForModal = ref<IRow>();
 const showModal = ref(false);
 const isCopy = ref(false);
+const sidebarCollapsed = ref(false);
 
 const cellDetailPayload = ref<cellPayload>();
-const columns = ref<IColumn[]>([]);
 const showStickyHeader = ref(false);
 const selectedRows = ref<Map<string, Record<string, columnValue>>>(new Map());
 
@@ -542,47 +543,6 @@ const settings = defineModel<ITableSettings>("settings", {
 });
 
 const { showRolesForTable } = await useSession(props.schemaId);
-
-const filters: UseFilters | null = props.enableFilters
-  ? useFilters(
-      computed(() => columns.value),
-      {
-        urlSync: true,
-        schemaId: props.schemaId,
-        tableId: props.tableId,
-      }
-    )
-  : null;
-
-const sidebarCollapsed = ref(false);
-
-if (filters) {
-  watch(
-    () => filters.searchValue.value,
-    (value) => {
-      settings.value.search = value ?? "";
-      settings.value.page = 1;
-    }
-  );
-}
-
-const searchValue = computed({
-  get: () =>
-    props.enableFilters && filters
-      ? filters.searchValue.value
-      : settings.value.search,
-  set: (val: string) => {
-    if (props.enableFilters && filters) {
-      filters.setSearch(val);
-    } else {
-      handleSearchRequest(val);
-    }
-  },
-});
-
-const effectiveFilter = computed(() =>
-  filters ? filters.gqlFilter.value : props.filter
-);
 
 const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
@@ -626,6 +586,54 @@ const { data, refresh } = useAsyncData(
       count: tableData.count,
     };
   }
+);
+
+const columns = computed<IColumn[]>(
+  () =>
+    data.value?.tableMetadata?.columns.filter(
+      (column: IColumn) =>
+        !column.id.startsWith("mg") &&
+        !["HEADING", "SECTION"].includes(column.columnType)
+    ) ?? []
+);
+
+const filters: UseFilters | null = props.enableFilters
+  ? useFilters(
+      computed(() => columns.value),
+      {
+        urlSync: true,
+        schemaId: props.schemaId,
+        tableId: props.tableId,
+      }
+    )
+  : null;
+
+if (filters) {
+  watch(
+    () => filters.searchValue.value,
+    (value) => {
+      settings.value.search = value ?? "";
+      settings.value.page = 1;
+    }
+  );
+}
+
+const searchValue = computed({
+  get: () =>
+    props.enableFilters && filters
+      ? filters.searchValue.value
+      : settings.value.search,
+  set: (val: string) => {
+    if (props.enableFilters && filters) {
+      filters.setSearch(val);
+    } else {
+      handleSearchRequest(val);
+    }
+  },
+});
+
+const effectiveFilter = computed(() =>
+  filters ? filters.gqlFilter.value : props.filter
 );
 
 onMounted(async () => {
@@ -741,21 +749,7 @@ watch(
   { deep: true }
 );
 
-watch(
-  () => data.value?.tableMetadata,
-  (newMetadata) => {
-    if (newMetadata) {
-      columns.value = newMetadata.columns.filter(
-        (c: IColumn) =>
-          !c.id.startsWith("mg") &&
-          !["HEADING", "SECTION"].includes(c.columnType)
-      );
-    }
-  },
-  { immediate: true }
-);
-
-const sortedColumns = computed(() => {
+const sortedColumns = computed<IColumn[]>(() => {
   // sort from backend
   let sortedColumns = sortColumns([...(columns.value ?? [])]);
 
@@ -781,7 +775,7 @@ const sortedColumns = computed(() => {
   return sortedColumns;
 });
 
-const sortedVisibleColumns = computed(() =>
+const sortedVisibleColumns = computed<IColumn[]>(() =>
   sortedColumns.value.filter((col) => col.visible !== "false")
 );
 
@@ -933,10 +927,4 @@ function handleUpdateSettings(newSettings: ITableSettings) {
   searchValue.value = newSettings.search || "";
   refresh();
 }
-
-type TableRow = {
-  _rowId: Record<string, columnValue>;
-  _rowIdString: string;
-  mg_roles?: string[];
-} & Record<string, columnValue>;
 </script>
