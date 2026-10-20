@@ -298,12 +298,24 @@
 
   <TableInteractive
     v-if="data?.tableMetadata && rows"
-    :tableMetadata="data.tableMetadata"
-    :sortedVisibleColumns="sortedVisibleColumns"
+    :features="{
+      showSearch: !props.hideSearch,
+      showFilters: enableFilters && !!filters,
+      showStickyHeader: !!props.useStickyHeader,
+    }"
+    :filters="filters"
+    :rights="{
+      canUpdate: canUpdate,
+      canDelete: canDelete,
+      canModifySelection: selectionIsModifiable,
+      isRowLevel: props.isRowLevel,
+    }"
     :rows="rows"
     :rowCount="data.count"
     :settings="settings"
     :selectedRows="selectedRows"
+    :sortedVisibleColumns="sortedVisibleColumns"
+    :tableMetadata="data.tableMetadata"
     @update:settings="handleUpdateSettings"
     @rowAction="handleRowAction"
   >
