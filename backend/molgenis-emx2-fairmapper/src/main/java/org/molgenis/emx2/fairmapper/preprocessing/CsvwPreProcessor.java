@@ -7,7 +7,6 @@ import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.molgenis.emx2.MolgenisException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +30,7 @@ public class CsvwPreProcessor implements RdfPreProcessor {
       WHERE {
           ?dataset a dcat:Dataset .
           ?dataset healthdcatap:hasVariables ?tableGroup .
-          ?tableGroup a csvw:TableGroup .
-          ?tableGroup csvw:table ?table .
+          FILTER NOT EXISTS { ?tableGroup a csvw:Table . }
       }
       """;
 
@@ -54,6 +52,7 @@ public class CsvwPreProcessor implements RdfPreProcessor {
       }
       """;
 
+  // Keep WHERE identical to DELETE!
   private static final String SELECT =
       """
       PREFIX dcat: <http://www.w3.org/ns/dcat#>
@@ -64,8 +63,7 @@ public class CsvwPreProcessor implements RdfPreProcessor {
       WHERE {
           ?dataset a dcat:Dataset .
           ?dataset healthdcatap:hasVariables ?tableGroup .
-          ?tableGroup a csvw:TableGroup .
-          ?tableGroup csvw:table ?table .
+          FILTER NOT EXISTS { ?tableGroup a csvw:Table . }
       }
       """;
 
@@ -77,17 +75,9 @@ public class CsvwPreProcessor implements RdfPreProcessor {
       logger.info("linked {} table(s) to datasets", result.size());
 
       long nrTableGroups = getTableGroupCount(conn);
+      conn.prepareUpdate(DELETE).execute();
       if (nrTableGroups > 0) {
-        logger.info(
-            "Found {} table group subjects that are linked to datasets, will try to remove them",
-            nrTableGroups);
-        conn.prepareUpdate(DELETE).execute();
-        nrTableGroups = getTableGroupCount(conn);
-        logger.info("Removed table group subjects from datasets, {} are left", nrTableGroups);
-        if (nrTableGroups > 0) {
-          throw new MolgenisException(
-              "Unable to remove all table groups that are linked to datasets");
-        }
+        logger.info("Removed {} table group subjects that are linked to datasets", nrTableGroups);
       }
 
       conn.add(result);
