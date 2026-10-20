@@ -1,6 +1,7 @@
 <template>
   <InputTestContainer
     show-state
+    show-required
     v-slot="{ invalid, valid, disabled, required }"
   >
     <form class="space-y-8">
