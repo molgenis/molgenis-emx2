@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IHeadings } from "../../../../types/cms";
-defineProps<IHeadings>();
+const props = defineProps<IHeadings & { isEditable?: boolean }>();
+const emit = defineEmits(["updateText"]);
 </script>
 
 <template>
@@ -18,6 +19,8 @@ defineProps<IHeadings>();
       'w-full flex justify-center text-center': headingIsCentered,
       'sr-only': headingIsHidden,
     }"
+    :contenteditable="props.isEditable"
+    @input="props.isEditable && emit('updateText', $el.innerHTML)"
   >
     {{ text }}
   </component>
