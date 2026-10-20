@@ -27,7 +27,7 @@ import {
 } from "./cms/add";
 
 export const actionsToolbarShowDelay = 200;
-export const actionsToolbarHideDelay = 100;
+export const actionsToolbarHideDelay = 300;
 
 import { deleteChartData } from "./cms/delete";
 
