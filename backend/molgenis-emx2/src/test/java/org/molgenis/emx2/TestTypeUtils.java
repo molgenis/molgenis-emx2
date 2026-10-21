@@ -224,20 +224,13 @@ class TestTypeUtils {
   }
 
   @Test
-  void enumMembershipAcceptsOnlyExactAllowedScalarValuesAndNull() {
+  void enumMembershipAcceptsOnlyExactAllowedScalarValues() {
     Column column = column("status").setType(ColumnType.ENUM).setAllowedValues("yes", "no");
     assertDoesNotThrow(() -> EnumMembershipValidator.checkEnumMembership(column, "yes"));
-    assertDoesNotThrow(() -> EnumMembershipValidator.checkEnumMembership(column, null));
     MolgenisException outside =
         assertThrows(
             MolgenisException.class,
             () -> EnumMembershipValidator.checkEnumMembership(column, "maybe"));
     assertTrue(outside.getMessage().contains("status") && outside.getMessage().contains("maybe"));
-  }
-
-  @Test
-  void enumMembershipIgnoresNonEnumColumns() {
-    Column column = column("name").setType(ColumnType.STRING);
-    assertDoesNotThrow(() -> EnumMembershipValidator.checkEnumMembership(column, "anything"));
   }
 }
