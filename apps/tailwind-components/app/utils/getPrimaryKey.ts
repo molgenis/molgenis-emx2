@@ -12,6 +12,11 @@ export async function getPrimaryKey(
   schemaId: string
 ): Promise<Record<string, nonEmptyColumnValue>> {
   const schema = await fetchMetadata(schemaId);
+  if (!schema || !schema.tables) {
+    throw new Error(
+      `Unable to fetch primary row key, Schema with id ${schemaId} not found`
+    );
+  }
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) => table.id === tableId
   );
@@ -22,7 +27,12 @@ export async function getPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (column.key === 1 && (cellValue || cellValue === 0)) {
+        if (
+          column.key === 1 &&
+          cellValue !== undefined &&
+          cellValue !== null &&
+          cellValue !== ""
+        ) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
@@ -40,12 +50,9 @@ export async function getPrimaryKey(
     column: IColumn,
     schemaId: string
   ) {
-    if (typeof cellValue === "string") {
-      return cellValue;
-    } else {
-      if (column.refTableId) {
-        return await getPrimaryKey(cellValue, column.refTableId, schemaId);
-      }
+    if (typeof cellValue === "object" && column.refTableId) {
+      return await getPrimaryKey(cellValue, column.refTableId, schemaId);
     }
+    return cellValue;
   }
 }
