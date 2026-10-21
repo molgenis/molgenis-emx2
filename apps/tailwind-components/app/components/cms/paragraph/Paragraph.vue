@@ -3,14 +3,13 @@ import { computed } from "vue";
 import { sanitizeHtmlText } from "../../../utils/cms/sanitizeHtmlText.ts";
 import type { IParagraphs } from "../../../../types/cms";
 
-const props = defineProps<IParagraphs & { isEditable?: boolean }>();
+const props = defineProps<IParagraphs>();
 
 const text = computed<string | undefined>(() => {
   if (props.text) {
     return sanitizeHtmlText(props.text);
   }
 });
-const emit = defineEmits(["updateText"]);
 </script>
 
 <template>
@@ -21,8 +20,6 @@ const emit = defineEmits(["updateText"]);
       'text-center': paragraphIsCentered,
       'text-left': !paragraphIsCentered,
     }"
-    :contenteditable="props.isEditable"
-    @input="props.isEditable && emit('updateText', $el.innerHTML)"
     v-html="text"
   />
 </template>

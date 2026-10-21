@@ -47,6 +47,8 @@ const showMenu = ref<boolean>(false);
           underline: showMenu,
           'sr-only': headingIsHidden,
         }"
+        :contenteditable="props.isEditable"
+        @input="props.isEditable && emit('updateText', $el.innerHTML)"
         @updateText="$emit('updateText', $event)"
       />
     </div>

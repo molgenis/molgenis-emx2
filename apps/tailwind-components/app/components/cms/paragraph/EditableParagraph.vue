@@ -36,7 +36,12 @@ const showMenu = ref<boolean>(false);
         @move="$emit('move', $event)"
       />
     </template>
-    <Paragraph v-bind="props" @updateText="$emit('updateText', $event)" />
+    <Paragraph
+      v-bind="props"
+      :contenteditable="props.isEditable"
+      @input="props.isEditable && emit('updateText', $el.innerHTML)"
+      @updateText="$emit('updateText', $event)"
+    />
   </VMenu>
   <Paragraph v-else v-bind="props" />
 </template>
