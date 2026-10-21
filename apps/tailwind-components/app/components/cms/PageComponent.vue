@@ -17,6 +17,7 @@ import EditableFileDownload from "./FileDownload/EditableFileDownload.vue";
 import EditableNavigationCard from "./navigationCard/EditableNavigationCard.vue";
 import EditableColumnChart from "./columnChart/EditableColumnChart.vue";
 import EditableButton from "./button/EditableButton.vue";
+import EditableCustomComponent from "./customComponent/EditableCustomComponent.vue";
 
 import EditModal from "../form/EditModal.vue";
 
@@ -277,6 +278,14 @@ function asSingularName(value: string | undefined): string | undefined {
   />
   <EditableUnorderedList
     v-else-if="mg_tableclass.endsWith('.Unordered lists')"
+    v-bind="component"
+    :isEditable="editingIsEnabled"
+    @edit="onShowEdit"
+    @delete="onDelete"
+    @move="handleMoveEvent"
+  />
+  <EditableCustomComponent
+    v-else-if="mg_tableclass.endsWith('.Custom components')"
     v-bind="component"
     :isEditable="editingIsEnabled"
     @edit="onShowEdit"
