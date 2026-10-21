@@ -27,6 +27,11 @@ export function getInitialFormValues(metadata: ITableMetaData) {
           }
         } else if (column.columnType === "BOOL") {
           accum[column.id] = getBooleanValue(column.defaultValue);
+        } else if (column.columnType === "ENUM_ARRAY") {
+          accum[column.id] = column.defaultValue
+            .split(",")
+            .map((value) => value.trim())
+            .filter((value) => value !== "");
         } else {
           accum[column.id] = column.defaultValue;
         }
