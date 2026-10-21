@@ -382,6 +382,7 @@
       :filters="filters"
       :columns="defaultSortedColumns"
       :visibleColumns="sortedVisibleColumns"
+      :selectedRowKeys="[...selectedRows.values()]"
       v-model:downloadHref="downloadHref"
     />
     <template #footer>
