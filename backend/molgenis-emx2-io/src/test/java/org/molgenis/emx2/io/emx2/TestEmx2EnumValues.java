@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,7 @@ class TestEmx2EnumValues {
       """;
 
   @Test
-  void valuesColumnIsReadInOrderWrittenAndWrittenBack() throws IOException {
+  void valuesColumnIsReadInOrderWrittenAndWrittenBack() {
     SchemaMetadata schema = Emx2.fromRowList(CsvTableReader.read(new StringReader(MODEL)));
     Column answer = schema.getTableMetadata("Sample").getColumn("answer");
     Column colors = schema.getTableMetadata("Sample").getColumn("colors");
@@ -48,7 +47,7 @@ class TestEmx2EnumValues {
   }
 
   @Test
-  void valueContainingCommaSurvivesRoundTripAndQuotedCsvCell() throws IOException {
+  void valueContainingCommaSurvivesRoundTripAndQuotedCsvCell() {
     SchemaMetadata schema = new SchemaMetadata();
     schema.create(
         TableMetadata.table("T")

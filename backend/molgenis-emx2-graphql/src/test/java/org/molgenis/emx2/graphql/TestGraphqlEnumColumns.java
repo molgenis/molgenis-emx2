@@ -122,6 +122,12 @@ class TestGraphqlEnumColumns {
 
     String byColor = execute("{Sample(filter:{colors:{equals:[\"green\"]}}){id}}").toString();
     assertTrue(byColor.contains("\"id\":\"s2\"") && !byColor.contains("\"id\":\"s1\""), byColor);
+
+    String byPickedColors =
+        execute("{Sample(filter:{colors:{equals:[\"green\",\"blue\"]}}){id}}").toString();
+    assertTrue(
+        byPickedColors.contains("\"id\":\"s1\"") && byPickedColors.contains("\"id\":\"s2\""),
+        byPickedColors);
   }
 
   @Test

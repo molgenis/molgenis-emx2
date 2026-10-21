@@ -153,6 +153,22 @@ class TestEnumColumns {
     assertEquals("yes", rowWithId(trimmed, "t1").getString(ANSWER));
   }
 
+  @Test
+  void enumArrayDefaultValueFillsMissingColumnWithAllItsElements() {
+    schema.create(
+        table("Defaulted")
+            .add(column(ID).setPkey())
+            .add(
+                column(COLORS)
+                    .setType(ENUM_ARRAY)
+                    .setAllowedValues("red", "green", "blue")
+                    .setDefaultValue("red,blue")));
+    Table defaulted = schema.getTable("Defaulted");
+    defaulted.insert(row(ID, "d1"));
+    assertArrayEquals(
+        new String[] {"red", "blue"}, rowWithId(defaulted, "d1").getStringArray(COLORS));
+  }
+
   private static Row rowWithId(Table table, String id) {
     return table.retrieveRows().stream()
         .filter(r -> id.equals(r.getString(ID)))

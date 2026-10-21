@@ -10,9 +10,6 @@ public class EnumMembershipValidator {
 
   public static void checkEnumMembership(Column column, Object value) {
     List<String> allowedValues = column.getAllowedValues();
-    if (value == null || !column.getColumnType().isEnum() || allowedValues == null) {
-      return;
-    }
     if (value instanceof Object[] elements) {
       for (Object element : elements) {
         checkAllowed(String.valueOf(element), allowedValues, column);
