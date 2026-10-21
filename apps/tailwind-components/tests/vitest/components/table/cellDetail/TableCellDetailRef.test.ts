@@ -3,9 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, Suspense } from "vue";
 import TableCellDetailRef from "../../../../../app/components/table/cellDetail/TableCellDetailRef.vue";
 
-vi.mock("../../../../../app/composables/fetchRowPrimaryKey", () => {
+vi.mock("../../../../../app/utils/getPrimaryKey", () => {
   return {
-    default: vi.fn().mockResolvedValue("bird-1"),
+    getPrimaryKey: vi.fn().mockResolvedValue("bird-1"),
   };
 });
 
