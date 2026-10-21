@@ -1,5 +1,6 @@
 import { fetchMetadata } from "#imports";
 import type {
+  columnValue,
   IColumn,
   IRow,
   ITableMetaData,
@@ -27,12 +28,7 @@ export async function getPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (
-          column.key === 1 &&
-          cellValue !== undefined &&
-          cellValue !== null &&
-          cellValue !== ""
-        ) {
+        if (column.key === 1 && hasValue(cellValue)) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
@@ -43,6 +39,10 @@ export async function getPrimaryKey(
       },
       Promise.resolve({})
     );
+  }
+
+  function hasValue(cellValue: columnValue): cellValue is nonEmptyColumnValue {
+    return cellValue !== undefined && cellValue !== null && cellValue !== "";
   }
 
   async function getKeyValue(
