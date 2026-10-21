@@ -347,6 +347,8 @@ const props = withDefaults(
   >(),
   {
     limit: 25,
+    // undefined (not Vue's implicit false) so Boolean.vue keeps its own default
+    showClearButton: undefined,
   }
 );
 const emit = defineEmits(["focus", "blur"]);
