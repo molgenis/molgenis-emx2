@@ -49,7 +49,6 @@ const showMenu = ref<boolean>(false);
         }"
         :contenteditable="props.isEditable"
         @input="props.isEditable && emit('updateText', $el.textContent)"
-        @updateText="$emit('updateText', $event)"
       />
     </div>
   </VMenu>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { IHeadings } from "../../../../types/cms";
-const props = defineProps<IHeadings>();
+defineProps<IHeadings>();
 </script>
 
 <template>
