@@ -65,6 +65,8 @@ const DEFAULT_FILTER_TYPES = new Set([
   "ONTOLOGY_ARRAY",
   "RADIO",
   "SELECT",
+  "ENUM",
+  "ENUM_ARRAY",
 ]);
 
 export const isEnumColumnType = (columnType: string): boolean =>
