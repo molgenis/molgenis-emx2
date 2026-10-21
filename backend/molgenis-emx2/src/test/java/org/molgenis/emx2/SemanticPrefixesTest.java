@@ -72,6 +72,20 @@ rdfs,http://www.w3.org/2000/01/rdf-schema#
   }
 
   @Test
+  void testHasCustomPrefixes() {
+    SchemaMetadata schema = new SchemaMetadata("mySchema");
+
+    assertFalse(SemanticPrefixes.hasCustomPrefixes(schema));
+    schema.setSetting(
+        Constants.SETTING_SEMANTIC_PREFIXES, "rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+    assertTrue(SemanticPrefixes.hasCustomPrefixes(schema));
+    schema.removeSetting(Constants.SETTING_SEMANTIC_PREFIXES);
+    assertFalse(SemanticPrefixes.hasCustomPrefixes(schema));
+    schema.setSetting(Constants.SETTING_SEMANTIC_PREFIXES, "");
+    assertTrue(SemanticPrefixes.hasCustomPrefixes(schema));
+  }
+
+  @Test
   void testInvalidDuplicateCustomSemanticPrefixes() {
     List<Namespace> namespaces =
         List.of(
