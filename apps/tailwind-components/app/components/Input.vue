@@ -347,6 +347,7 @@ const props = withDefaults(
   >(),
   {
     limit: 25,
+    showClearButton: undefined,
   }
 );
 const emit = defineEmits(["focus", "blur"]);

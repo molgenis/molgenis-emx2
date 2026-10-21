@@ -22,6 +22,31 @@ vi.mock("../../../../app/composables/fetchTableData", () => {
 });
 
 describe("input", () => {
+  it("preserves the Boolean clear button default", () => {
+    const wrapper = mount(Input, {
+      props: {
+        id: "test-boolean",
+        type: "BOOL",
+        modelValue: null,
+      },
+    });
+
+    expect(wrapper.find("#test-boolean-radio-group-clear").exists()).toBe(true);
+  });
+
+  it("allows disabling the Boolean clear button", () => {
+    const wrapper = mount(Input, {
+      props: {
+        id: "test-boolean",
+        type: "BOOL",
+        modelValue: null,
+        showClearButton: false,
+      },
+    });
+
+    expect(wrapper.find("#test-boolean-radio-group-clear").exists()).toBe(false);
+  });
+
   it("should render a select with select with radio component(single select)", () => {
     const wrapper = mount(Input, {
       props: {
