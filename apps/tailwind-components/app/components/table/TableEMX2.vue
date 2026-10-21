@@ -12,8 +12,12 @@
         @row-action="handleRowAction"
       />
       <div
-        v-if="!props.hideSearch && enableFilters && filters"
-        class="shrink-0 w-80 xl:w-96 lg:-ml-[30px] px-5"
+        v-if="!props.hideSearch"
+        :class="
+          enableFilters && filters
+            ? 'shrink-0 w-80 xl:w-96 lg:-ml-[30px] px-5'
+            : 'w-3/5 xl:w-2/5 2xl:w-1/5'
+        "
       >
         <InputSearch
           class="w-full"
@@ -23,14 +27,6 @@
           id="search-input"
         />
       </div>
-      <InputSearch
-        v-else-if="!props.hideSearch"
-        class="w-3/5 xl:w-2/5 2xl:w-1/5"
-        size="medium"
-        v-model="searchValue"
-        :placeholder="`Search ${props.tableId}`"
-        id="search-input"
-      />
 
       <div class="flex gap-[10px]">
         <Button
