@@ -911,28 +911,14 @@ export function pageCopyDate(): string {
   return date.replace("T", " ").split(".")[0] as string;
 }
 
-export async function updateParagraphText(
+export async function updateCMSfield(
   schema: string,
+  typeName: "Paragraphs" | "Headings",
   id: string,
   text: string
 ) {
-  const updateQuery = `mutation update($value:[ParagraphsInput]) {
-      update(Paragraphs:$value) {
-        message
-      }
-    }`;
-
-  const updateVars = { value: [{ id, text }] };
-  await cmsFetch(schema, updateQuery, updateVars);
-}
-
-export async function updateHeadingText(
-  schema: string,
-  id: string,
-  text: string
-) {
-  const updateQuery = `mutation update($value:[HeadingsInput]) {
-      update(Headings:$value) {
+  const updateQuery = `mutation update($value:[${typeName}Input]) {
+      update(${typeName}:$value) {
         message
       }
     }`;

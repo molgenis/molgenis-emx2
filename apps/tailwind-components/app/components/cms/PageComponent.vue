@@ -28,8 +28,7 @@ import {
   moveBlockUp,
   moveComponentDown,
   moveBlockDown,
-  updateParagraphText,
-  updateHeadingText,
+  updateCMSfield,
 } from "../../utils/cms";
 import type { IFile } from "../../../types/cms";
 import type { IPageComponent } from "../../../types/CmsComponents";
@@ -200,20 +199,12 @@ function asSingularName(value: string | undefined): string | undefined {
 }
 
 const debouncedUpdateText = useDebounceFn((text: string) => {
-  if (props.mg_tableclass.endsWith(".Paragraphs")) {
-    updateParagraphText(
-      componentMetadata.value?.schemaId || "",
-      props.component.id,
-      text
-    );
-  }
-  if (props.mg_tableclass.endsWith(".Headings")) {
-    updateHeadingText(
-      componentMetadata.value?.schemaId || "",
-      props.component.id,
-      text
-    );
-  }
+  updateCMSfield(
+    componentMetadata.value?.schemaId || "",
+    schemaTableName.value as "Paragraphs" | "Headings",
+    props.component.id,
+    text
+  );
 }, 1000);
 
 function updateText(text: string) {
