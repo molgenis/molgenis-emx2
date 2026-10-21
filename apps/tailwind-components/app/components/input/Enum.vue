@@ -20,7 +20,7 @@
     :valid="valid"
     :disabled="disabled"
     :describedBy="describedBy"
-    v-model="scalarModelValue"
+    v-model="singleModelValue"
     :showClearButton="!required"
     @blur="emit('blur')"
     @focus="emit('focus')"
@@ -69,7 +69,7 @@ const arrayModelValue = computed<columnValue[]>({
   },
 });
 
-const scalarModelValue = computed<IInputValue | null>({
+const singleModelValue = computed<IInputValue | null>({
   get() {
     return Array.isArray(modelValue.value) ? null : modelValue.value ?? null;
   },
