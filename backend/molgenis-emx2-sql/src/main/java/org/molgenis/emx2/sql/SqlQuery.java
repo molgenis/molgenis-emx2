@@ -521,7 +521,7 @@ public class SqlQuery extends QueryBean {
           // check for table level filter for ontologies (weird getColumn), apply to "name" columm
           if (filter.getOperator().getName().equals(filter.getColumn())) {
             return whereColumnOperator(
-                tableAlias,
+                subAlias,
                 // use the table itself
                 new Column("name")
                     .setType(ColumnType.ONTOLOGY)
