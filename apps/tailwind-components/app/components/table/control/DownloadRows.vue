@@ -4,8 +4,12 @@ import ModalContentContainer from "../../ModalContentContainer.vue";
 import Field from "../../Field.vue";
 import Button from "../../Button.vue";
 import type { UseFilters } from "../../../../types/filters";
-import type { IColumn } from "../../../../../metadata-utils/src/types";
+import type {
+  columnValue,
+  IColumn,
+} from "../../../../../metadata-utils/src/types";
 import { useDownloadColumns } from "../../../composables/useDownloadColumns";
+import { buildDownloadFilter } from "../../../utils/buildDownloadFilter";
 const props = withDefaults(
   defineProps<{
     schemaId: string;
@@ -13,12 +17,12 @@ const props = withDefaults(
     filters: UseFilters | null;
     columns?: IColumn[];
     visibleColumns?: IColumn[];
-    isRowSelectionActive?: boolean;
+    selectedRowKeys?: Record<string, columnValue>[];
   }>(),
   {
     columns: () => [],
     visibleColumns: () => [],
-    isRowSelectionActive: false,
+    selectedRowKeys: () => [],
   }
 );
 
@@ -46,27 +50,25 @@ const { isColumnSelectionActive, appendColumnsParam } = useDownloadColumns(
 const isColumnFilterActive = computed(
   () => isColumnSelectionActive.value && isFilteredApiType.value
 );
+const isRowSelectionActive = computed(
+  () => props.selectedRowKeys.length > 0 && isFilteredApiType.value
+);
 
 const href = computed(() => {
   const queryParams = new URLSearchParams();
-  if (
-    isFilteredApiType.value &&
-    isFilterInclusionEnabled.value &&
-    applyFilterToDownload.value
-  ) {
-    queryParams.append(
-      "filter",
-      JSON.stringify(props.filters?.gqlFilter.value ?? {})
-    );
+  const filter = buildDownloadFilter(
+    isFilterInclusionEnabled.value && applyFilterToDownload.value
+      ? props.filters?.gqlFilter.value
+      : undefined,
+    isRowSelectionActive.value && applyRowSelectionToDownload.value
+      ? props.selectedRowKeys
+      : undefined
+  );
+  if (filter) {
+    queryParams.append("filter", JSON.stringify(filter));
   }
   if (isColumnFilterActive.value && applyColumnSelectionToDownload.value) {
     appendColumnsParam(queryParams);
-  }
-  if (props.isRowSelectionActive && applyRowSelectionToDownload.value) {
-    queryParams.append(
-      "applyRowSelection",
-      String(applyRowSelectionToDownload.value)
-    );
   }
   return `/${props.schemaId}/api/${selectedType.value}/${props.tableId}${
     queryParams.size > 0 ? "?" : ""
