@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.utils.JavaScriptParser;
 
 final class ColumnDependencies {
 
@@ -22,31 +21,12 @@ final class ColumnDependencies {
   private ColumnDependencies(List<Column> columns) {
     this.columns = columns;
     for (Column column : columns) {
-      variablesByIdentifier.put(column.getIdentifier(), getExpressionVariables(column));
+      variablesByIdentifier.put(column.getIdentifier(), column.getExpressionVariables());
     }
   }
 
   static List<Column> sortByDependencies(List<Column> columns) {
     return new ColumnDependencies(columns).sort();
-  }
-
-  static Set<String> getExpressionVariables(Column column) {
-    Set<String> variables = new HashSet<>();
-    variables.addAll(JavaScriptParser.getReferencedVariables(column.getComputed()));
-    variables.addAll(JavaScriptParser.getReferencedVariables(getDefaultValueExpression(column)));
-    variables.addAll(JavaScriptParser.getReferencedVariables(column.getRequired()));
-    variables.addAll(JavaScriptParser.getReferencedVariables(column.getValidation()));
-    variables.addAll(JavaScriptParser.getReferencedVariables(column.getVisible()));
-    return variables;
-  }
-
-  private static String getDefaultValueExpression(Column column) {
-    String expression = column.getDefaultValueExpression();
-    if (expression == null) {
-      return null;
-    }
-
-    return column.isRef() ? "(" + expression + ")" : expression;
   }
 
   private List<Column> sort() {

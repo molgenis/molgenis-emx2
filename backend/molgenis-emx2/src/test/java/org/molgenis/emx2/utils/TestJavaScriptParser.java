@@ -1,8 +1,10 @@
 package org.molgenis.emx2.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.molgenis.emx2.utils.JavaScriptParser.getReferencedPaths;
 import static org.molgenis.emx2.utils.JavaScriptParser.getReferencedVariables;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -96,5 +98,44 @@ class TestJavaScriptParser {
   @Test
   void returnsEmptyForScriptThatCannotBeParsed() {
     assertEquals(Set.of(), getReferencedVariables("this is not javascript !!"));
+  }
+
+  @Test
+  void findsPathsOfPropertiesReadFromAVariable() {
+    assertEquals(
+        Set.of(List.of("doctor", "hospital"), List.of("doctor", "hospital", "city")),
+        getReferencedPaths("doctor.hospital.city"));
+  }
+
+  @Test
+  void findsPathsInTemplateLiterals() {
+    assertEquals(
+        Set.of(List.of("doctor", "name"), List.of("hospital", "city")),
+        getReferencedPaths("`${doctor.name} in ${hospital.city}`"));
+  }
+
+  @Test
+  void findsPathsThroughArrayIndexes() {
+    assertEquals(Set.of(List.of("doctors", "name")), getReferencedPaths("doctors[0].name"));
+  }
+
+  @Test
+  void findsPathsOfMethodsCalledOnAVariable() {
+    assertEquals(Set.of(List.of("doctors", "map")), getReferencedPaths("doctors.map(d => d.name)"));
+  }
+
+  @Test
+  void ignoresPathsOnVariablesDeclaredInTheExpressionItself() {
+    assertEquals(Set.of(), getReferencedPaths("[1, 2].map(doctor => doctor.name)"));
+  }
+
+  @Test
+  void ignoresVariablesWithoutProperties() {
+    assertEquals(Set.of(), getReferencedPaths("doctor != null"));
+  }
+
+  @Test
+  void returnsNoPathsForScriptThatCannotBeParsed() {
+    assertEquals(Set.of(), getReferencedPaths("this is not javascript !!"));
   }
 }

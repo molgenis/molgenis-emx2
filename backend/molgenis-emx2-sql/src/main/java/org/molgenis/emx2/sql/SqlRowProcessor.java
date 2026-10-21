@@ -16,6 +16,7 @@ public class SqlRowProcessor {
   private final List<Column> columnsToProcess;
   private final List<Column> columns;
   private final Database database;
+  private final ReferencedRowsLoader referencedRowsLoader;
 
   public SqlRowProcessor(Database database, List<Column> columns) {
     this.columns = columns;
@@ -23,16 +24,25 @@ public class SqlRowProcessor {
     this.columnsToProcess =
         ColumnDependencies.sortByDependencies(
             columns.stream().filter(not(Column::isHeading)).filter(not(Column::isAutoId)).toList());
+    this.referencedRowsLoader = new ReferencedRowsLoader(database, columns);
   }
 
   public void validateAndCompute(List<Row> rows) {
+    referencedRowsLoader.load(rows);
     for (Row row : rows) {
-      validateAndCompute(row);
+      validateAndComputeLoaded(row);
     }
   }
 
   public void validateAndCompute(Row row) throws MolgenisException {
+    validateAndCompute(List.of(row));
+  }
+
+  private void validateAndComputeLoaded(Row row) {
     Map<String, Object> context = JavascriptContextBuilder.fromRow(database, columns, row);
+    for (Column column : columns) {
+      referencedRowsLoader.updateContext(context, row, column);
+    }
 
     for (Column column : columnsToProcess) {
       if (column.hasDefaultValue() && !row.notEmpty(column.getName())) {
@@ -47,6 +57,7 @@ public class SqlRowProcessor {
       }
 
       JavascriptContextBuilder.updateContext(context, row, column);
+      referencedRowsLoader.updateContext(context, row, column);
     }
   }
 

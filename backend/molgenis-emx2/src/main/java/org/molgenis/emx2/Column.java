@@ -9,11 +9,13 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.jetbrains.annotations.Nullable;
 import org.jooq.DataType;
 import org.jooq.Field;
 import org.jooq.impl.SQLDataType;
+import org.molgenis.emx2.utils.JavaScriptParser;
 
 public class Column extends HasLabelsDescriptionsAndSettings<Column>
     implements Comparable<Column>, HasSemantics {
@@ -785,5 +787,41 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
 
   public boolean isAutoId() {
     return AUTO_ID.equals(getColumnType());
+  }
+
+  public Set<String> getExpressionVariables() {
+    Set<String> variables = new HashSet<>();
+    for (String expression : getExpressions()) {
+      variables.addAll(JavaScriptParser.getReferencedVariables(expression));
+    }
+    return variables;
+  }
+
+  public Set<List<String>> getExpressionPaths() {
+    Set<List<String>> paths = new HashSet<>();
+    for (String expression : getExpressions()) {
+      paths.addAll(JavaScriptParser.getReferencedPaths(expression));
+    }
+    return paths;
+  }
+
+  private List<String> getExpressions() {
+    return Stream.of(
+            getComputed(),
+            getParsableDefaultValueExpression(),
+            getRequired(),
+            getValidation(),
+            getVisible())
+        .filter(Objects::nonNull)
+        .toList();
+  }
+
+  private String getParsableDefaultValueExpression() {
+    String expression = getDefaultValueExpression();
+    if (expression == null) {
+      return null;
+    }
+
+    return isRef() ? "(" + expression + ")" : expression;
   }
 }
