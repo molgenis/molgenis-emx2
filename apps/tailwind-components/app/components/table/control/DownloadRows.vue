@@ -30,10 +30,9 @@ type apiTypes = "csv" | "zip" | "excel" | "jsonld" | "ttl";
 
 const downloadHref = defineModel<string>("downloadHref");
 const selectedType = ref<apiTypes>("csv");
+const activeGqlFilter = computed(() => props.filters?.gqlFilter.value ?? {});
 const isFilterInclusionEnabled = computed(
-  () =>
-    (props.filters?.activeFilters.value.length ?? 0) > 0 &&
-    isFilteredApiType.value
+  () => Object.keys(activeGqlFilter.value).length > 0 && isFilteredApiType.value
 );
 const applyFilterToDownload = ref(true);
 const applyColumnSelectionToDownload = ref(true);
@@ -58,7 +57,7 @@ const href = computed(() => {
   const queryParams = new URLSearchParams();
   const filter = buildDownloadFilter(
     isFilterInclusionEnabled.value && applyFilterToDownload.value
-      ? props.filters?.gqlFilter.value
+      ? activeGqlFilter.value
       : undefined,
     isRowSelectionActive.value && applyRowSelectionToDownload.value
       ? props.selectedRowKeys
@@ -116,7 +115,7 @@ watch(
       <Field
         id="apply-filter-to-download-boolean-input"
         label="Filters"
-        description="If enabled, the active filters will be applied to the download."
+        description="If enabled, the active filters and search term will be applied to the download."
         v-model="applyFilterToDownload"
         type="BOOL"
         :disabled="!isFilterInclusionEnabled"
