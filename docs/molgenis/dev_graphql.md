@@ -563,7 +563,7 @@ dropped.
 ```graphql
 mutation {
   drop(
-    role: [
+    roles: [
       { schemaId: "pet store", role: "TableAViewer" }
       { schemaId: "other schema", role: "TeamA" }
     ]
