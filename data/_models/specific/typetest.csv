@@ -1,4 +1,4 @@
-tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,values,profiles,label,description
+tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,allowedValues,profiles,label,description
 Options,,,,,,,,,,,,,,,,,,,,TypeTest,,A table with options to test the ref/ref-array/radio/select/multiselect columns
 Types,,,,,,,,,,,,,,,,,,,,TypeTest,,A table containing a column for each column type
 YesNoUnknown,,ONTOLOGIES,,,,,,,,,,,,,,,,,,TypeTest,,"Yes, no, unknown"

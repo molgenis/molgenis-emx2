@@ -58,4 +58,4 @@ def test_get_schema_roles():
 def test_schema_metadata_query_requests_column_values():
     """The `_schema` query asks for the allowed values of enum columns."""
     columns_block = list_schema_meta().split("columns {", 1)[1]
-    assert re.search(r"^\s*values\s*$", columns_block, re.MULTILINE)
+    assert re.search(r"^\s*allowedValues\s*$", columns_block, re.MULTILINE)

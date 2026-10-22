@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.UUID;
 import org.jooq.JSONB;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.utils.EnumMembershipValidator;
 import org.molgenis.emx2.utils.TypeUtils;
 
 class TestTypeUtils {
@@ -219,18 +218,7 @@ class TestTypeUtils {
   void allowedValuesKeepOrderAndSurviveColumnCopy() {
     Column column =
         column("status").setType(ColumnType.ENUM).setAllowedValues("yes", "no", "unknown");
-    assertEquals(List.of("yes", "no", "unknown"), new Column(column).getAllowedValues());
+    assertArrayEquals(new String[] {"yes", "no", "unknown"}, new Column(column).getAllowedValues());
     assertNull(column("other").getAllowedValues());
-  }
-
-  @Test
-  void enumMembershipAcceptsOnlyExactAllowedScalarValues() {
-    Column column = column("status").setType(ColumnType.ENUM).setAllowedValues("yes", "no");
-    assertDoesNotThrow(() -> EnumMembershipValidator.checkEnumMembership(column, "yes"));
-    MolgenisException outside =
-        assertThrows(
-            MolgenisException.class,
-            () -> EnumMembershipValidator.checkEnumMembership(column, "maybe"));
-    assertTrue(outside.getMessage().contains("status") && outside.getMessage().contains("maybe"));
   }
 }

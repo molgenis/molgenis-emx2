@@ -1,1 +1,1 @@
-ALTER TABLE "MOLGENIS".column_metadata ADD COLUMN IF NOT EXISTS "values" VARCHAR[];
+ALTER TABLE "MOLGENIS".column_metadata ADD COLUMN IF NOT EXISTS "allowedValues" VARCHAR[];

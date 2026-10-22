@@ -108,18 +108,18 @@ public class TestMigration {
   @Test
   @Tag("slow")
   @Tag("windowsFail")
-  void testMigration36ValuesColumnIsVarcharArrayAndRerunIsHarmless() {
+  void testMigration36AllowedValuesColumnIsVarcharArrayAndRerunIsHarmless() {
     SqlDatabase sqlDatabase = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
     DSLContext jooq = sqlDatabase.getJooq();
 
-    executeMigrationFile(sqlDatabase, "migration36.sql", "add column_metadata.values");
+    executeMigrationFile(sqlDatabase, "migration36.sql", "add column_metadata.allowedValues");
 
     assertEquals(
         "_varchar",
         jooq.resultQuery(
                 "SELECT udt_name FROM information_schema.columns"
                     + " WHERE table_schema = 'MOLGENIS' AND table_name = 'column_metadata'"
-                    + " AND column_name = 'values'")
+                    + " AND column_name = 'allowedValues'")
             .fetch()
             .getValues("udt_name", String.class)
             .get(0));

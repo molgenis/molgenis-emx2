@@ -363,7 +363,7 @@ class CsvApiTest extends ApiTestBase {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,cascadeDelete,refLabel,defaultValue,validation,visible,computed,semantics,values,profiles,label,description\n";
+        "tableName,tableExtends,tableType,columnName,formLabel,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,cascadeDelete,refLabel,defaultValue,validation,visible,computed,semantics,allowedValues,profiles,label,description\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(

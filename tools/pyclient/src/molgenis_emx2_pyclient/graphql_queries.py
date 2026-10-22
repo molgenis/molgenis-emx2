@@ -207,7 +207,7 @@ def list_schema_meta():
                     readonly
                     computed
                     semantics
-                    values
+                    allowedValues
                 }
                 semantics
                 tableType

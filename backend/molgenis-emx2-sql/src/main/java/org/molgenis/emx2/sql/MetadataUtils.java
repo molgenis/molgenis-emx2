@@ -104,8 +104,8 @@ public class MetadataUtils {
       field(name("readonly"), BOOLEAN.nullable(true));
   private static final Field<String> COLUMN_DEFAULT =
       field(name("defaultValue"), VARCHAR.nullable(true));
-  private static final Field<String[]> COLUMN_VALUES =
-      field(name("values"), VARCHAR.nullable(true).getArrayType());
+  private static final Field<String[]> COLUMN_ALLOWED_VALUES =
+      field(name("allowedValues"), VARCHAR.nullable(true).getArrayType());
 
   // users
   public static final Field<String> USER_NAME = field(name("username"), VARCHAR);
@@ -257,7 +257,7 @@ public class MetadataUtils {
                         COLUMN_CASCADE,
                         COLUMN_DESCRIPTION,
                         COLUMN_SEMANTICS,
-                        COLUMN_VALUES,
+                        COLUMN_ALLOWED_VALUES,
                         COLUMN_VISIBLE,
                         COLUMN_FORM_LABEL)
                     .constraints(
@@ -544,8 +544,6 @@ public class MetadataUtils {
   }
 
   protected static void saveColumnMetadata(DSLContext jooq, Column column) {
-    List<String> valuesList = column.getAllowedValues();
-    String[] valuesArray = valuesList == null ? null : valuesList.toArray(new String[0]);
     String refSchema =
         column.isReference()
             ? (column.getRefSchemaName().equals(column.getSchemaName())
@@ -578,7 +576,7 @@ public class MetadataUtils {
             COLUMN_DEFAULT,
             COLUMN_PROFILES,
             COLUMN_VISIBLE,
-            COLUMN_VALUES)
+            COLUMN_ALLOWED_VALUES)
         .values(
             column.getTable().getSchema().getName(),
             column.getTable().getTableName(),
@@ -604,7 +602,7 @@ public class MetadataUtils {
             column.getDefaultValue(),
             column.getProfiles(),
             column.getVisible(),
-            valuesArray)
+            column.getAllowedValues())
         .onConflict(TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME)
         .doUpdate()
         .set(COLUMN_LABEL, column.getLabels())
@@ -628,7 +626,7 @@ public class MetadataUtils {
         .set(COLUMN_PROFILES, column.getProfiles())
         .set(COLUMN_VISIBLE, column.getVisible())
         .set(COLUMN_DEFAULT, column.getDefaultValue())
-        .set(COLUMN_VALUES, valuesArray)
+        .set(COLUMN_ALLOWED_VALUES, column.getAllowedValues())
         .execute();
   }
 
@@ -670,10 +668,7 @@ public class MetadataUtils {
     c.setProfiles(col.get(COLUMN_PROFILES, String[].class));
     c.setVisible(col.get(COLUMN_VISIBLE, String.class));
     c.setDefaultValue(col.get(COLUMN_DEFAULT, String.class));
-    String[] valuesArray = col.get(COLUMN_VALUES, String[].class);
-    if (valuesArray != null) {
-      c.setAllowedValues(Arrays.asList(valuesArray));
-    }
+    c.setAllowedValues(col.get(COLUMN_ALLOWED_VALUES, String[].class));
     return c;
   }
 

@@ -46,7 +46,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
   private String computed = null; // javascript expression to compute a value, overrides updates
   private Semantic[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
-  private List<String> allowedValues = null; // permitted values of ENUM/ENUM_ARRAY, in order
+  private String[] allowedValues = null; // permitted values of ENUM/ENUM_ARRAY, in order
 
   private Boolean readonly = false;
   private String defaultValue = null;
@@ -114,17 +114,12 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column>
         semantics == null ? null : stream(semantics).map(Semantic::new).toArray(Semantic[]::new));
   }
 
-  public List<String> getAllowedValues() {
+  public String[] getAllowedValues() {
     return allowedValues;
   }
 
-  public Column setAllowedValues(List<String> allowedValues) {
-    this.allowedValues = allowedValues;
-    return this;
-  }
-
   public Column setAllowedValues(String... allowedValues) {
-    this.allowedValues = allowedValues == null ? null : Arrays.asList(allowedValues);
+    this.allowedValues = allowedValues;
     return this;
   }
 

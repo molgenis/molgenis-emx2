@@ -25,7 +25,7 @@ class TestGraphqlEnumColumns {
 
   private static final String SCHEMA_NAME = TestGraphqlEnumColumns.class.getSimpleName();
   private static final String COLUMNS_QUERY =
-      "{_schema{tables{name,columns{name,columnType,values}}}}";
+      "{_schema{tables{name,columns{name,columnType,allowedValues}}}}";
   private static final String SAMPLE_IDS_QUERY = "{Sample{id}}";
 
   private static Database database;
@@ -56,8 +56,8 @@ class TestGraphqlEnumColumns {
         """
         mutation{change(tables:[{name:"Created",columns:[
           {name:"id",key:1},
-          {name:"level",columnType:"ENUM",values:["low","medium","high"]},
-          {name:"flags",columnType:"ENUM_ARRAY",values:["z","a","m"]}
+          {name:"level",columnType:"ENUM",allowedValues:["low","medium","high"]},
+          {name:"flags",columnType:"ENUM_ARRAY",allowedValues:["z","a","m"]}
         ]}]){message}}""");
 
     database.clearCache();
@@ -65,11 +65,11 @@ class TestGraphqlEnumColumns {
     String columns = execute(COLUMNS_QUERY).toString();
     assertTrue(
         columns.contains(
-            "\"name\":\"level\",\"columnType\":\"ENUM\",\"values\":[\"low\",\"medium\",\"high\"]"),
+            "\"name\":\"level\",\"columnType\":\"ENUM\",\"allowedValues\":[\"low\",\"medium\",\"high\"]"),
         columns);
     assertTrue(
         columns.contains(
-            "\"name\":\"flags\",\"columnType\":\"ENUM_ARRAY\",\"values\":[\"z\",\"a\",\"m\"]"),
+            "\"name\":\"flags\",\"columnType\":\"ENUM_ARRAY\",\"allowedValues\":[\"z\",\"a\",\"m\"]"),
         columns);
   }
 
@@ -139,14 +139,16 @@ class TestGraphqlEnumColumns {
     execute(
         """
         mutation{change(tables:[{name:"PlainNote",columns:[
-          {name:"id",key:1},{name:"note",values:[]}
+          {name:"id",key:1},{name:"note",allowedValues:[]}
         ]}]){message}}""");
 
     for (JsonNode table : execute(COLUMNS_QUERY).at("/_schema/tables")) {
       if ("PlainNote".equals(table.path("name").asText())) {
         for (JsonNode column : table.path("columns")) {
           if ("note".equals(column.path("name").asText())) {
-            assertTrue(column.path("values").isNull() || column.path("values").isMissingNode());
+            assertTrue(
+                column.path("allowedValues").isNull()
+                    || column.path("allowedValues").isMissingNode());
             return;
           }
         }

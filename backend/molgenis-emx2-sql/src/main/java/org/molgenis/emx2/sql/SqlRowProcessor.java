@@ -7,9 +7,9 @@ import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.row.resolvers.ResolveComputedValue;
 import org.molgenis.emx2.sql.row.resolvers.ResolveDefaultValue;
+import org.molgenis.emx2.sql.row.validators.ValidateAllowedValues;
 import org.molgenis.emx2.sql.row.validators.ValidateExpression;
 import org.molgenis.emx2.sql.row.validators.ValidateRequired;
-import org.molgenis.emx2.utils.EnumMembershipValidator;
 import org.molgenis.emx2.utils.JavaScriptUtils;
 
 public class SqlRowProcessor {
@@ -43,15 +43,12 @@ public class SqlRowProcessor {
       } else if (isColumnVisible(column, context)) {
         ValidateRequired.apply(context, column, row);
         ValidateExpression.apply(context, column);
-        Object value = context.get(column.getIdentifier());
-        if (column.getColumnType().isEnum() && value != null) {
-          EnumMembershipValidator.checkEnumMembership(column, value);
-        }
       } else {
         row.clear(column);
       }
 
       JavascriptContextBuilder.updateContext(context, row, column);
+      ValidateAllowedValues.apply(context, column);
     }
   }
 

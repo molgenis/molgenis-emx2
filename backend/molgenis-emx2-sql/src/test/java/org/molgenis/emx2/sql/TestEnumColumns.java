@@ -29,7 +29,7 @@ class TestEnumColumns {
   private static final String ANSWER = "answer";
   private static final String COLORS = "colors";
   private static final String ID = "id";
-  private static final List<String> ANSWER_VALUES = List.of("yes", "no", "unknown");
+  private static final String[] ANSWER_VALUES = {"yes", "no", "unknown"};
 
   private static Database db;
   private static Schema schema;
@@ -57,8 +57,9 @@ class TestEnumColumns {
   void valuesSurviveReloadInOrderAndNonEnumColumnsHaveNone() {
     db.clearCache();
     TableMetadata reloaded = meta(SAMPLE);
-    assertEquals(ANSWER_VALUES, reloaded.getColumn(ANSWER).getAllowedValues());
-    assertEquals(List.of("red", "green", "blue"), reloaded.getColumn(COLORS).getAllowedValues());
+    assertArrayEquals(ANSWER_VALUES, reloaded.getColumn(ANSWER).getAllowedValues());
+    assertArrayEquals(
+        new String[] {"red", "green", "blue"}, reloaded.getColumn(COLORS).getAllowedValues());
     assertNull(reloaded.getColumn(ID).getAllowedValues());
   }
 
@@ -100,7 +101,7 @@ class TestEnumColumns {
     Map<String, Column> wrongLists =
         Map.of(
             "NoValues", column("bad").setType(ENUM),
-            "EmptyValues", column("bad").setType(ENUM_ARRAY).setAllowedValues(List.of()),
+            "EmptyValues", column("bad").setType(ENUM_ARRAY).setAllowedValues(),
             "BlankValue", column("bad").setType(ENUM).setAllowedValues("a", " "),
             "DuplicateValue", column("bad").setType(ENUM).setAllowedValues("a", "b", "a"),
             "ValuesOnString", column("bad").setType(STRING).setAllowedValues("a", "b"));
@@ -131,14 +132,15 @@ class TestEnumColumns {
       assertTrue(error.getMessage().contains(ANSWER), error.getMessage());
     }
     db.clearCache();
-    assertEquals(ANSWER_VALUES, meta(ALTERABLE).getColumn(ANSWER).getAllowedValues());
+    assertArrayEquals(ANSWER_VALUES, meta(ALTERABLE).getColumn(ANSWER).getAllowedValues());
   }
 
   @Test
   void columnAlterAcceptsListThatKeepsAtLeastOneValue() {
     meta(ALTERABLE_KEEP).alterColumn(column(ANSWER).setType(ENUM).setAllowedValues("yes"));
     db.clearCache();
-    assertEquals(List.of("yes"), meta(ALTERABLE_KEEP).getColumn(ANSWER).getAllowedValues());
+    assertArrayEquals(
+        new String[] {"yes"}, meta(ALTERABLE_KEEP).getColumn(ANSWER).getAllowedValues());
   }
 
   @Test
@@ -147,7 +149,8 @@ class TestEnumColumns {
         table("Trimmed")
             .add(column(ID).setPkey())
             .add(column(ANSWER).setType(ENUM).setAllowedValues(" yes", "no ")));
-    assertEquals(List.of("yes", "no"), meta("Trimmed").getColumn(ANSWER).getAllowedValues());
+    assertArrayEquals(
+        new String[] {"yes", "no"}, meta("Trimmed").getColumn(ANSWER).getAllowedValues());
     Table trimmed = schema.getTable("Trimmed");
     trimmed.insert(row(ID, "t1", ANSWER, "yes"));
     assertEquals("yes", rowWithId(trimmed, "t1").getString(ANSWER));
@@ -167,6 +170,37 @@ class TestEnumColumns {
     defaulted.insert(row(ID, "d1"));
     assertArrayEquals(
         new String[] {"red", "blue"}, rowWithId(defaulted, "d1").getStringArray(COLORS));
+  }
+
+  @Test
+  void computedEnumValueOutsideListIsRejected() {
+    schema.create(
+        table("ComputedEnum")
+            .add(column(ID).setPkey())
+            .add(
+                column(ANSWER).setType(ENUM).setAllowedValues("yes", "no").setComputed("'maybe'")));
+    Table computed = schema.getTable("ComputedEnum");
+    MolgenisException error =
+        assertThrows(MolgenisException.class, () -> computed.insert(row(ID, "c1")));
+    assertTrue(error.getMessage().contains("maybe"), error.getMessage());
+  }
+
+  @Test
+  void defaultValueOutsideListIsRejectedOnInsertThatOmitsIt() {
+    schema.create(
+        table("BadDefault")
+            .add(column(ID).setPkey())
+            .add(
+                column(ANSWER)
+                    .setType(ENUM)
+                    .setAllowedValues("yes", "no")
+                    .setDefaultValue("maybe")));
+    Table badDefault = schema.getTable("BadDefault");
+    MolgenisException error =
+        assertThrows(MolgenisException.class, () -> badDefault.insert(row(ID, "d1")));
+    assertTrue(error.getMessage().contains("maybe"), error.getMessage());
+    badDefault.insert(row(ID, "d2", ANSWER, "no"));
+    assertEquals("no", rowWithId(badDefault, "d2").getString(ANSWER));
   }
 
   private static Row rowWithId(Table table, String id) {
