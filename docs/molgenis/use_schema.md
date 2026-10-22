@@ -126,7 +126,7 @@ An enumeration needs no ontology or reference table. The list belongs to the col
 
 ### values
 
-The allowed values of an `enum` or `enum_array` column. Write them in one cell, separated by commas. MOLGENIS keeps them in the order you write them, in the forms and in the API.
+The allowed values of an `enum` or `enum_array` column. Write them in one cell, separated by commas. MOLGENIS keeps them in the order you write them, in the forms, the filters and the API.
 
 | tableName | columnName      | columnType | values         |
 |-----------|-----------------|------------|----------------|
@@ -148,8 +148,12 @@ MOLGENIS does not re-check existing rows when you change `values`. A row that ho
 
 In the forms:
 
-- an `enum` shows a radio group for up to 20 values, and a searchable list from 21 values. You can clear an `enum` that is not required.
+- an `enum` shows a radio group, whatever its length. You can clear an `enum` that is not required.
 - an `enum_array` shows a checkbox group, whatever its length.
+
+Write the `defaultValue` of an `enum_array` as a comma-separated list, for example `red,blue`.
+
+The table filters show enum columns by default.
 
 For a long list, or a list that needs labels or a hierarchy, use an [ontology](#ontologies).
 
