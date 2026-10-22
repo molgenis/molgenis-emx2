@@ -28,10 +28,7 @@ export function getInitialFormValues(metadata: ITableMetaData) {
         } else if (column.columnType === "BOOL") {
           accum[column.id] = getBooleanValue(column.defaultValue);
         } else if (column.columnType === "ENUM_ARRAY") {
-          accum[column.id] = column.defaultValue
-            .split(",")
-            .map((value) => value.trim())
-            .filter((value) => value !== "");
+          accum[column.id] = splitCsvString(column.defaultValue);
         } else {
           accum[column.id] = column.defaultValue;
         }
@@ -281,4 +278,28 @@ export function getIntInput(inputValue?: string | number | null) {
       typeof inputValue === "string" ? Number.parseInt(inputValue) : inputValue;
     return numericValue;
   }
+}
+
+function splitCsvString(value: string): string[] {
+  const parts: string[] = [];
+  let inQuotes = false;
+  let current = "";
+  for (const char of value) {
+    if (char === "," && !inQuotes) {
+      parts.push(current);
+      current = "";
+    } else {
+      if (char === '"') inQuotes = !inQuotes;
+      current += char;
+    }
+  }
+  parts.push(current);
+  return parts
+    .map((part) =>
+      part
+        .trim()
+        .replace(/^"(.*)"$/s, "$1")
+        .trim()
+    )
+    .filter((part) => part !== "");
 }

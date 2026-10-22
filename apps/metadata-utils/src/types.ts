@@ -83,7 +83,7 @@ export interface IColumn {
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
-  values?: string[];
+  allowedValues?: string[];
 }
 
 export interface IRefColumn extends IColumn {

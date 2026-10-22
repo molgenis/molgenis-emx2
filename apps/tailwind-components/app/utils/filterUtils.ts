@@ -73,8 +73,8 @@ export const isEnumColumnType = (columnType: string): boolean =>
   columnType === "ENUM" || columnType === "ENUM_ARRAY";
 
 export const enumValueOptions = (
-  values: string[] | undefined
-): CountedOption[] => (values ?? []).map((name) => ({ name, count: 0 }));
+  allowedValues: string[] | undefined
+): CountedOption[] => (allowedValues ?? []).map((name) => ({ name, count: 0 }));
 
 export const isCountableType = (columnType: string): boolean =>
   COUNTABLE_TYPES.has(columnType);

@@ -45,12 +45,18 @@ describe("getInitialFormValues", () => {
       columns: [
         { id: "col1", defaultValue: "a, b", columnType: "ENUM_ARRAY" },
         { id: "col2", defaultValue: "a", columnType: "ENUM_ARRAY" },
+        {
+          id: "col3",
+          defaultValue: '"other, please explain",red',
+          columnType: "ENUM_ARRAY",
+        },
       ],
     } as ITableMetaData;
 
     expect(getInitialFormValues(metadata)).toEqual({
       col1: ["a", "b"],
       col2: ["a"],
+      col3: ["other, please explain", "red"],
     });
   });
 

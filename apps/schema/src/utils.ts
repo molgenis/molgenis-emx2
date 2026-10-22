@@ -63,7 +63,7 @@ export const schemaQuery = gql`
           computed
           formLabel
           cascadeDelete
-          values
+          allowedValues
         }
       }
     }

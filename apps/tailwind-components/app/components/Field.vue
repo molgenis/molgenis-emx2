@@ -22,7 +22,7 @@ defineProps<
     refBackId?: string;
     rowKey?: any;
     options?: IValueLabel[];
-    values?: string[];
+    allowedValues?: string[];
     trueLabel?: string;
     falseLabel?: string;
     align?: "horizontal" | "vertical";
@@ -57,7 +57,7 @@ const emit = defineEmits(["focus", "blur"]);
       :placeholder="placeholder"
       :rowKey="rowKey"
       :options="options"
-      :values="values"
+      :allowedValues="allowedValues"
       :required="required"
       :errorMessage="errorMessage"
       :refSchemaId="(refSchemaId as string)"

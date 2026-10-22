@@ -94,7 +94,7 @@ function buildNestedMeta(labelParts: string[], col: IColumn): NestedColumnMeta {
     columnType: col.columnType,
     refTableId: col.refTableId ?? null,
     refSchemaId: col.refSchemaId ?? null,
-    values: col.values,
+    allowedValues: col.allowedValues,
   };
 }
 
@@ -236,7 +236,7 @@ export function useFilters(
       refTableId: nested.refTableId ?? undefined,
       refSchemaId: nested.refSchemaId ?? undefined,
       refLabel: nested.refLabel ?? undefined,
-      values: nested.values,
+      allowedValues: nested.allowedValues,
     } as IColumn;
   }
 
@@ -404,7 +404,7 @@ export function useFilters(
         computed(() => {
           const column = resolveColumn(columnId);
           return column && isEnumColumnType(column.columnType)
-            ? enumValueOptions(column.values)
+            ? enumValueOptions(column.allowedValues)
             : countsMap.value.get(columnId) ?? [];
         })
       );

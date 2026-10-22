@@ -103,9 +103,9 @@ function removeComputedFields(table: EditorTable): EditorTable {
 
 function cleanValues(column: EditorColumn): void {
   if (!["ENUM", "ENUM_ARRAY"].includes(column.columnType ?? "")) {
-    delete column.values;
-  } else if (column.values) {
-    column.values = column.values
+    delete column.allowedValues;
+  } else if (column.allowedValues) {
+    column.allowedValues = column.allowedValues
       .map((value) => (value ?? "").trim())
       .filter((value) => value !== "");
   }

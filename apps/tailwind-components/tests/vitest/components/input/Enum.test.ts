@@ -15,7 +15,9 @@ const checkedValues = (wrapper: ReturnType<typeof mount>, type: string) =>
 describe("Enum input, scalar", () => {
   it("renders a radio group in the order of values, at any length", () => {
     const values = valuesOf(25);
-    const wrapper = mount(InputEnum, { props: { id: "e", values } });
+    const wrapper = mount(InputEnum, {
+      props: { id: "e", allowedValues: values },
+    });
 
     const radios = wrapper.findAll('input[type="radio"]');
     expect(radios.map((r) => (r.element as HTMLInputElement).value)).toEqual(
@@ -25,7 +27,7 @@ describe("Enum input, scalar", () => {
 
   it("shows the stored value selected", () => {
     const wrapper = mount(InputEnum, {
-      props: { id: "e", values: valuesOf(3), modelValue: "V3" },
+      props: { id: "e", allowedValues: valuesOf(3), modelValue: "V3" },
     });
 
     expect(checkedValues(wrapper, "radio")).toEqual(["V3"]);
@@ -35,7 +37,7 @@ describe("Enum input, scalar", () => {
     const wrapper = mount(InputEnum, {
       props: {
         id: "e",
-        values: valuesOf(3),
+        allowedValues: valuesOf(3),
         modelValue: "V2",
         required: false,
       },
@@ -48,7 +50,12 @@ describe("Enum input, scalar", () => {
 
   it("offers no clear button for a required radio group", () => {
     const wrapper = mount(InputEnum, {
-      props: { id: "e", values: valuesOf(3), modelValue: "V2", required: true },
+      props: {
+        id: "e",
+        allowedValues: valuesOf(3),
+        modelValue: "V2",
+        required: true,
+      },
     });
 
     expect(wrapper.find("#e-radio-group-clear").exists()).toBe(false);
@@ -56,7 +63,7 @@ describe("Enum input, scalar", () => {
 
   it("emits the picked radio value", async () => {
     const wrapper = mount(InputEnum, {
-      props: { id: "e", values: valuesOf(3), modelValue: null },
+      props: { id: "e", allowedValues: valuesOf(3), modelValue: null },
     });
 
     await wrapper.find('input[type="radio"][value="V2"]').setValue(true);
@@ -68,7 +75,7 @@ describe("Enum input, scalar", () => {
     const wrapper = mount(InputEnum, {
       props: {
         id: "e",
-        values: valuesOf(3),
+        allowedValues: valuesOf(3),
         describedBy: "e-description e-error",
       },
     });
@@ -83,7 +90,12 @@ describe("Enum input, array", () => {
   it("always renders a checkbox group in the order of values", () => {
     const values = valuesOf(25);
     const wrapper = mount(InputEnum, {
-      props: { id: "e", isArray: true, values, modelValue: null },
+      props: {
+        id: "e",
+        isArray: true,
+        allowedValues: values,
+        modelValue: null,
+      },
     });
 
     const boxes = wrapper.findAll('input[type="checkbox"]');
@@ -97,7 +109,7 @@ describe("Enum input, array", () => {
       props: {
         id: "e",
         isArray: true,
-        values: valuesOf(3),
+        allowedValues: valuesOf(3),
         modelValue: ["V1", "V3"],
       },
     });
@@ -110,7 +122,7 @@ describe("Enum input, array", () => {
       props: {
         id: "e",
         isArray: true,
-        values: valuesOf(3),
+        allowedValues: valuesOf(3),
         modelValue: ["V1"],
         required: false,
       },
@@ -126,7 +138,7 @@ describe("Enum input, array", () => {
       props: {
         id: "e",
         isArray: true,
-        values: valuesOf(3),
+        allowedValues: valuesOf(3),
         modelValue: ["V1"],
         required: true,
       },
@@ -140,7 +152,7 @@ describe("Enum input, array", () => {
       props: {
         id: "e",
         isArray: true,
-        values: valuesOf(3),
+        allowedValues: valuesOf(3),
         describedBy: "e-description e-error",
       },
     });

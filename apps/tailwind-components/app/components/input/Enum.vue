@@ -40,7 +40,7 @@ import InputRadioGroup from "./RadioGroup.vue";
 const props = withDefaults(
   defineProps<
     IInputProps & {
-      values: string[];
+      allowedValues: string[];
       isArray?: boolean;
       required?: boolean;
     }
@@ -57,7 +57,7 @@ const modelValue = defineModel<
 const emit = defineEmits(["blur", "focus"]);
 
 const valueLabels = computed<IValueLabel[]>(() =>
-  props.values.map((value) => ({ value }))
+  props.allowedValues.map((value) => ({ value }))
 );
 
 const arrayModelValue = computed<columnValue[]>({

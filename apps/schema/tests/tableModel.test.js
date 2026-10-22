@@ -219,7 +219,7 @@ function saveColumns(columns) {
   };
 }
 
-test("values of an enum column are trimmed and blanks dropped on save", async () => {
+test("allowed values of an enum column are trimmed and blanks dropped on save", async () => {
   const { toSaveTables } = await import(moduleUrl);
   const [table] = toSaveTables(
     saveColumns([
@@ -227,23 +227,28 @@ test("values of an enum column are trimmed and blanks dropped on save", async ()
         name: "a",
         table: "T",
         columnType: "ENUM",
-        values: [" x ", "", null, "  ", "y"],
+        allowedValues: [" x ", "", null, "  ", "y"],
       },
-      { name: "b", table: "T", columnType: "ENUM_ARRAY", values: ["z"] },
+      { name: "b", table: "T", columnType: "ENUM_ARRAY", allowedValues: ["z"] },
     ])
   );
-  assert.deepStrictEqual(table.columns[0].values, ["x", "y"]);
-  assert.deepStrictEqual(table.columns[1].values, ["z"]);
+  assert.deepStrictEqual(table.columns[0].allowedValues, ["x", "y"]);
+  assert.deepStrictEqual(table.columns[1].allowedValues, ["z"]);
 });
 
-test("a column changed away from enum does not save its values", async () => {
+test("a column changed away from enum does not save its allowed values", async () => {
   const { toSaveTables } = await import(moduleUrl);
   const [table] = toSaveTables(
     saveColumns([
-      { name: "a", table: "T", columnType: "STRING", values: ["x", "y"] },
-      { name: "b", table: "T", columnType: "INT", values: null },
+      {
+        name: "a",
+        table: "T",
+        columnType: "STRING",
+        allowedValues: ["x", "y"],
+      },
+      { name: "b", table: "T", columnType: "INT", allowedValues: null },
     ])
   );
-  assert.ok(!("values" in table.columns[0]));
-  assert.ok(!("values" in table.columns[1]));
+  assert.ok(!("allowedValues" in table.columns[0]));
+  assert.ok(!("allowedValues" in table.columns[1]));
 });

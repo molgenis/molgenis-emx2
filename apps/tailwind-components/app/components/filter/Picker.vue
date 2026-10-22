@@ -246,7 +246,7 @@ function buildNestedMeta(): Map<string, NestedColumnMeta> {
           columnType: node.column.columnType,
           refTableId: node.column.refTableId,
           refSchemaId: node.column.refSchemaId ?? null,
-          values: node.column.values,
+          allowedValues: node.column.allowedValues,
         },
       ];
       return entry;

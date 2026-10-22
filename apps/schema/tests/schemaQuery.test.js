@@ -41,10 +41,10 @@ test("schema editor query selects the inherited parent's schema name", () => {
   );
 });
 
-test("schema editor query selects the values of a column", () => {
+test("schema editor query selects the allowed values of a column", () => {
   const paths = selectedFieldPaths(utilsSource);
   assert.ok(
-    paths.includes("_schema.tables.columns.values"),
-    `expected _schema.tables.columns.values in ${JSON.stringify(paths)}`
+    paths.includes("_schema.tables.columns.allowedValues"),
+    `expected _schema.tables.columns.allowedValues in ${JSON.stringify(paths)}`
   );
 });

@@ -301,7 +301,7 @@
     :id="id"
     :isArray="typeUpperCase === 'ENUM_ARRAY'"
     v-model="modelValue as string | string[] | null | undefined"
-    :values="values ?? []"
+    :allowedValues="allowedValues ?? []"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
@@ -351,7 +351,7 @@ const props = withDefaults(
       refBackColumn?: string;
       rowKey?: any;
       options?: IValueLabel[];
-      values?: string[];
+      allowedValues?: string[];
       required?: boolean;
       trueLabel?: string;
       falseLabel?: string;

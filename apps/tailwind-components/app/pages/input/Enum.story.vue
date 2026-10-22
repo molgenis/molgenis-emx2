@@ -13,7 +13,7 @@
           <InputEnum
             id="enum"
             v-model="scalarValue"
-            :values="sexValues"
+            :allowedValues="sexValues"
             :invalid="invalid"
             :valid="valid"
             :disabled="disabled"
@@ -36,7 +36,7 @@
             id="enum-array"
             is-array
             v-model="arrayValue"
-            :values="tagValues"
+            :allowedValues="tagValues"
             :invalid="invalid"
             :valid="valid"
             :disabled="disabled"
@@ -60,7 +60,7 @@
           <InputEnum
             id="enum-prefilled"
             v-model="prefilledValue"
-            :values="sexValues"
+            :allowedValues="sexValues"
             :invalid="invalid"
             :valid="valid"
             :disabled="disabled"

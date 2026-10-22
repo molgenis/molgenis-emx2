@@ -114,9 +114,8 @@
                 <ArrayInput
                   id="column_values"
                   columnType="STRING_ARRAY"
-                  v-model="column.values"
-                  :list="true"
-                  label="values"
+                  v-model="column.allowedValues"
+                  label="allowed values"
                   description="The allowed values of this column, one per entry. Their order is kept."
                 />
               </div>

@@ -790,7 +790,7 @@ describe("useFilters — count integration", () => {
       id: "status",
       label: "Status",
       columnType: "ENUM",
-      values: ["open", "closed"],
+      allowedValues: ["open", "closed"],
     };
     const columns = ref<IColumn[]>([enumColumn]);
     const { getCountedOptions } = useFilters(columns, {
@@ -812,7 +812,7 @@ describe("useFilters — count integration", () => {
     registerNestedColumn("pet.status", {
       labelParts: ["Pet", "Status"],
       columnType: "ENUM_ARRAY",
-      values: ["open", "closed"],
+      allowedValues: ["open", "closed"],
     });
     expect(getCountedOptions("pet.status").value.map((o) => o.name)).toEqual([
       "open",

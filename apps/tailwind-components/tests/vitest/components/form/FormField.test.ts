@@ -26,7 +26,7 @@ describe("FormField.vue", () => {
       id: "status",
       label: "Status",
       columnType,
-      values: ["open", "closed"],
+      allowedValues: ["open", "closed"],
     };
 
     const wrapper = mount(FormField, {

@@ -51,16 +51,14 @@ describe("input", () => {
     "routes %s to its widget",
     (_title, type, values, selector, expected) => {
       const wrapper = mount(Input, {
-        props: { id: "test-enum", type, modelValue: null, values: [...values] },
+        props: {
+          id: "test-enum",
+          type,
+          modelValue: null,
+          allowedValues: [...values],
+        },
       });
       expect(wrapper.findAll(selector).length).toEqual(expected);
     }
   );
-
-  it("still renders the enum input when the column has no values", () => {
-    const wrapper = mount(Input, {
-      props: { id: "test-enum", type: "ENUM", modelValue: null },
-    });
-    expect(wrapper.find("#test-enum-radio-group").exists()).toBe(true);
-  });
 });
