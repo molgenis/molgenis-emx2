@@ -5,13 +5,9 @@ import { useSchemaSettings } from "./useSchemaSettings";
 
 const UI_THEME = "UI_THEME";
 const SCHEMA_UI_THEME = "SCHEMA_UI_THEME";
-// cache key used for the system (non schema) theme
-const SYSTEM_KEY = "";
+const SYSTEM_THEME_CACHE_KEY = "";
 
-// themes that can be toggled by the user via the theme switch
 export const TOGGLEABLE_THEMES = ["light", "dark"];
-
-// the theme resolved for the current route, empty string if none is set
 export const useActiveUiTheme = () => useState<string>("uiTheme", () => "");
 
 // per app session cache of fetched themes, keyed by schema id ("" for system)
@@ -20,16 +16,17 @@ const useUiThemeCache = () =>
 
 async function fetchSystemTheme(): Promise<string> {
   const cache = useUiThemeCache();
-  if (!(SYSTEM_KEY in cache.value)) {
+  if (!(SYSTEM_THEME_CACHE_KEY in cache.value)) {
     try {
       const settings = await useSettings(new Set([UI_THEME]));
-      cache.value[SYSTEM_KEY] = (settings.value?.[UI_THEME] as string) || "";
+      cache.value[SYSTEM_THEME_CACHE_KEY] =
+        (settings.value?.[UI_THEME] as string) || "";
     } catch (error) {
       console.error("Error fetching UI_THEME setting", error);
-      cache.value[SYSTEM_KEY] = "";
+      cache.value[SYSTEM_THEME_CACHE_KEY] = "";
     }
   }
-  return cache.value[SYSTEM_KEY] as string;
+  return cache.value[SYSTEM_THEME_CACHE_KEY] as string;
 }
 
 async function fetchSchemaTheme(
