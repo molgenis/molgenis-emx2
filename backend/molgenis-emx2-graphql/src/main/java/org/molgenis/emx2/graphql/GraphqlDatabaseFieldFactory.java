@@ -275,7 +275,7 @@ public class GraphqlDatabaseFieldFactory {
                   .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(Constants.ROLES)
+                  .name(ROLES)
                   .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
           .build();
 
@@ -299,8 +299,7 @@ public class GraphqlDatabaseFieldFactory {
                       dropUsers(db, dataFetchingEnvironment.getArgument(USERS), messageBuilder);
                       dropSettings(
                           db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
-                      dropRoles(
-                          db, dataFetchingEnvironment.getArgument(Constants.ROLES), messageBuilder);
+                      dropRoles(db, dataFetchingEnvironment.getArgument(ROLES), messageBuilder);
                     } catch (Exception e) {
                       throw new GraphqlException("change failed", e);
                     }

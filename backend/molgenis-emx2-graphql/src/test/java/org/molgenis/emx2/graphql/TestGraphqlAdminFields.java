@@ -158,9 +158,9 @@ class TestGraphqlAdminFields {
           try {
             String message =
                 execute(
-                        "mutation{drop(role:{schemaId:\""
+                        "mutation{drop(roles:[{schemaId:\""
                             + SCHEMA_NAME
-                            + "\",role:\"PatientViewer\"}){message}}")
+                            + "\",roles:\"PatientViewer\"}]){message}}")
                     .at("/drop/message")
                     .asText();
             assertEquals(

@@ -30,7 +30,6 @@ public class Constants {
   public static final String INCLUDE_DEMO_DATA = "includeDemoData";
   public static final String PARENT_JOB = "parentJob";
   public static final String SEMANTICS = "semantics";
-  public static final String ROLES = "roles";
   public static final String ROLE = "role";
   public static final String KEY = "key";
   public static final String INHERITED = "inherited";
