@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class TestColumn {
@@ -194,6 +195,54 @@ public class TestColumn {
 
     Column countsColumn = schema.getTableMetadata("Resources").getColumn("counts");
     assertEquals("${subpopulation.name} ${ageGroup}", countsColumn.getRefLabelDefault());
+  }
+
+  @Test
+  void findsVariablesOfComputed() {
+    assertEquals(Set.of("b"), column("a").setComputed("b + 1").getExpressionVariables());
+  }
+
+  @Test
+  void findsVariablesOfRequired() {
+    assertEquals(Set.of("b"), column("a").setRequired("b != null").getExpressionVariables());
+  }
+
+  @Test
+  void findsVariablesOfValidation() {
+    assertEquals(Set.of("a", "b"), column("a").setValidation("a > b").getExpressionVariables());
+  }
+
+  @Test
+  void findsVariablesOfVisible() {
+    assertEquals(Set.of("b"), column("a").setVisible("b == 'yes'").getExpressionVariables());
+  }
+
+  @Test
+  void findsVariablesOfComputedDefaultValue() {
+    assertEquals(Set.of("b"), column("a").setDefaultValue("=b * 2").getExpressionVariables());
+  }
+
+  @Test
+  void findsVariablesOfObjectDefaultValueOfRef() {
+    Column column = column("a", REF).setDefaultValue("={name: someColumn, code: otherColumn}");
+    assertEquals(Set.of("someColumn", "otherColumn"), column.getExpressionVariables());
+  }
+
+  @Test
+  void findsVariablesOfArrayDefaultValueOfRefArray() {
+    Column column = column("a", REF_ARRAY).setDefaultValue("=[{name: someColumn, code: other}]");
+    assertEquals(Set.of("someColumn", "other"), column.getExpressionVariables());
+  }
+
+  @Test
+  void ignoresDefaultValueThatIsALiteral() {
+    assertEquals(Set.of(), column("a").setDefaultValue("b").getExpressionVariables());
+  }
+
+  @Test
+  void ignoresVariablesDeclaredInTheExpressionItself() {
+    Column column = column("a").setVisible("myList.filter(name => name.length > 0)");
+    assertEquals(Set.of("myList"), column.getExpressionVariables());
   }
 
   @Test

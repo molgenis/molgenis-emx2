@@ -4,10 +4,12 @@ import static org.molgenis.emx2.Constants.SETTINGS_TABLE;
 import static org.molgenis.emx2.io.emx2.Emx2.MOLGENIS_TABLE;
 import static org.molgenis.emx2.io.emx2.Emx2Members.MEMBERS_TABLE;
 import static org.molgenis.emx2.io.emx2.Emx2Roles.ROLES_TABLE;
+import static org.molgenis.emx2.utils.TableSort.sortTableByImportDependency;
 
 import java.util.*;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 
@@ -50,7 +52,10 @@ public class ImportDataTask extends Task {
     boolean skipped = true;
 
     // create task for the import, including subtasks for each sheet
-    for (Table table : schema.getTablesSorted()) {
+    List<TableMetadata> tablesInImportOrder = new ArrayList<>(schema.getMetadata().getTables());
+    sortTableByImportDependency(tablesInImportOrder);
+    for (TableMetadata tableMetadata : tablesInImportOrder) {
+      Table table = schema.getTable(tableMetadata.getTableName());
       if (tableStore.containsTable(table.getName())
           && (includeTableNames == null || includeTableNames.contains(table.getName()))) {
         ImportTableTask importTableTask = new ImportTableTask(tableStore, table, isStrict());
