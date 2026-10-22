@@ -227,7 +227,12 @@ public class SqlQuery extends QueryBean {
 
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn select : selection.getSubselect()) {
-      Column column = getColumnByName(table, select.getColumn());
+      QueryField queryField = getQueryField(table, select.getColumn());
+      if (!queryField.isColumn()) {
+        fields.add(field(name(alias(tableAlias), queryField.name()), queryField.jooqType()));
+        continue;
+      }
+      Column column = queryField.column();
       if (column.isFile()) {
         // check what they want to get, contents, mimetype, size, filename and/or extension
         if (select.getSubselect().isEmpty() || select.has("id")) {
@@ -521,12 +526,13 @@ public class SqlQuery extends QueryBean {
           // check for table level filter for ontologies (weird getColumn), apply to "name" columm
           if (filter.getOperator().getName().equals(filter.getColumn())) {
             return whereColumnOperator(
-                tableAlias,
+                subAlias,
                 // use the table itself
-                new Column("name")
-                    .setType(ColumnType.ONTOLOGY)
-                    .setRefSchemaName(table.getSchemaName())
-                    .setRefTable(table.getTableName()),
+                QueryField.of(
+                    new Column("name")
+                        .setType(ColumnType.ONTOLOGY)
+                        .setRefSchemaName(table.getSchemaName())
+                        .setRefTable(table.getTableName())),
                 filter.getOperator(),
                 filter.getValues());
           }
@@ -535,7 +541,7 @@ public class SqlQuery extends QueryBean {
           // then it must be a column filter
           return whereColumnOperator(
               subAlias,
-              getColumnByName(table, filter.getColumn()),
+              getQueryField(table, filter.getColumn()),
               filter.getOperator(),
               filter.getValues());
       }
@@ -617,11 +623,18 @@ public class SqlQuery extends QueryBean {
     }
 
     for (SelectColumn select : selection.getSubselect()) {
-      Column column =
-          select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
-              ? getColumnByName(
-                  table, select.getColumn().replace("_agg", "").replace("_groupBy", ""))
-              : getColumnByName(table, select.getColumn());
+      QueryField queryField =
+          getQueryField(
+              table,
+              select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
+                  ? select.getColumn().replace("_agg", "").replace("_groupBy", "")
+                  : select.getColumn());
+      if (!queryField.isColumn()) {
+        fields.add(
+            field(name(alias(tableAlias), queryField.name())).as(name(queryField.identifier())));
+        continue;
+      }
+      Column column = queryField.column();
 
       // add the fields, using subselects for references
       if (column.isFile()) {
@@ -730,22 +743,20 @@ public class SqlQuery extends QueryBean {
         checkHasViewPermission(table);
         List<JSONEntry<?>> result = new ArrayList<>();
         for (SelectColumn sub : field.getSubselect()) {
-          Column c = getColumnByName(table, sub.getColumn());
+          QueryField f = getQueryField(table, sub.getColumn());
           switch (field.getColumn()) {
             case MAX_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(max(field(name(alias(subAlias), c.getName())))));
+                result.add(key(f.identifier()).value(max(field(name(alias(subAlias), f.name())))));
             case MIN_FIELD ->
-                result.add(
-                    key(c.getIdentifier()).value(min(field(name(alias(subAlias), c.getName())))));
+                result.add(key(f.identifier()).value(min(field(name(alias(subAlias), f.name())))));
             case AVG_FIELD ->
                 result.add(
-                    key(c.getIdentifier())
-                        .value(avg(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+                    key(f.identifier())
+                        .value(avg(field(name(alias(subAlias), f.name()), SQLDataType.NUMERIC))));
             case SUM_FIELD ->
                 result.add(
-                    key(c.getIdentifier())
-                        .value(sum(field(name(alias(subAlias), c.getName()), c.getJooqType()))));
+                    key(f.identifier())
+                        .value(sum(field(name(alias(subAlias), f.name()), SQLDataType.NUMERIC))));
             default ->
                 throw new MolgenisException(
                     "Unknown aggregate type provided: " + field.getColumn());
@@ -809,19 +820,27 @@ public class SqlQuery extends QueryBean {
             .getSubselect()
             .forEach(
                 sub -> {
-                  Column col = getColumnByName(table, sub.getColumn());
+                  QueryField f = getQueryField(table, sub.getColumn());
                   sumFields.add(
-                      key(col.getIdentifier())
+                      key(f.identifier())
                           .value(
                               field(
                                   "SUM({0})",
-                                  field(name(alias(subAlias), col.getName())),
+                                  field(name(alias(subAlias), f.name())),
                                   AGGREGATE_COUNT_THRESHOLD)));
-                  nonArraySourceFields.add(col.getJooqField());
+                  nonArraySourceFields.add(f.jooqField());
                 });
         aggregationFields.add(jsonObject(sumFields).as(field.getColumn()));
       } else {
-        Column col = getColumnByName(table, field.getColumn());
+        QueryField queryField = getQueryField(table, field.getColumn());
+        if (!queryField.isColumn()) {
+          // derived fields, e.g. file attributes, are grouped by as primitive fields
+          checkHasViewPermission(table);
+          groupByFields.add(queryField.jooqField().as(convertToCamelCase(field.getColumn())));
+          nonArraySourceFields.add(queryField.jooqField());
+          continue;
+        }
+        Column col = queryField.column();
         if (!col.isOntology()) {
           checkHasViewPermission(table);
         }
@@ -964,9 +983,10 @@ public class SqlQuery extends QueryBean {
       for (Filter filter : filters.getSubfilters()) {
         if (OR.equals(filter.getOperator()) || AND.equals(filter.getOperator())) {
           join = refJoins(table, tableAlias, join, filter, selection, aliasList);
-        } else {
+        } else if (!filter.getSubfilters().isEmpty()) {
+          // only columns can have nested filters
           Column column = getColumnByName(table, filter.getColumn());
-          if (column.isReference() && !filter.getSubfilters().isEmpty()) {
+          if (column.isReference()) {
             String subAlias = tableAlias + "-" + column.getName();
             if (!aliasList.contains(subAlias)) {
               // to ensure only join once
@@ -992,8 +1012,9 @@ public class SqlQuery extends QueryBean {
     if (selection != null) {
       for (SelectColumn select : selection.getSubselect()) {
         // check if is refback for join (cut of the part behind .)
-        Column column = getColumnByName(table, select.getColumn());
-        if (column.isRefback()) {
+        QueryField queryField = getQueryField(table, select.getColumn());
+        if (queryField.isColumn() && queryField.column().isRefback()) {
+          Column column = queryField.column();
           String subAlias = alias(tableAlias + "-refbackjoin-" + column.getName());
           if (!aliasList.contains(subAlias)) {
             // to ensure only join once
@@ -1176,44 +1197,46 @@ public class SqlQuery extends QueryBean {
               filters.getSubfilters().stream()
                   .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
-    } else {
-      Column column =
-          getColumnByName(table, filters.getColumn(), filters.getSubfilters().isEmpty());
-      if (column.isReference()
-          && column.getReferences().size() > 1
-          && filters.getSubfilters().isEmpty()) {
+    } else if (filters.getSubfilters().isEmpty()) {
+      QueryField queryField = getRowQueryField(table, filters.getColumn(), filters.getOperator());
+      if (queryField.isColumn()
+          && queryField.column().isReference()
+          && queryField.column().getReferences().size() > 1) {
         throw new MolgenisException(
             "Filter of '"
-                + column.getName()
+                + queryField.name()
                 + " not supported for compound key, use individual elements or nested filters.");
       }
-      if (!filters.getSubfilters().isEmpty()) {
-        for (Filter subfilter : filters.getSubfilters()) {
-          if (column.isReference()) {
-            conditions.add(
-                whereConditionsFilter(
-                    column.getRefTable(), tableAlias + "-" + column.getName(), subfilter));
-          } else if (column.isFile()) {
-            Filter sub = filters.getSubfilter("id");
-            if (sub != null && EQUALS.equals(sub.getOperator())) {
-              conditions.add(field(name(column.getName())).in(sub.getValues()));
-            } else {
-              throw new MolgenisException("Invalid filter for file");
-            }
+      conditions.add(
+          whereColumnOperator(tableAlias, queryField, filters.getOperator(), filters.getValues()));
+    } else {
+      // only columns can have nested filters
+      Column column = getColumnByName(table, filters.getColumn());
+      for (Filter subfilter : filters.getSubfilters()) {
+        if (column.isReference()) {
+          conditions.add(
+              whereConditionsFilter(
+                  column.getRefTable(), tableAlias + "-" + column.getName(), subfilter));
+        } else if (column.isFile()) {
+          Filter sub = filters.getSubfilter("id");
+          if (sub != null && EQUALS.equals(sub.getOperator())) {
+            conditions.add(field(name(column.getName())).in(sub.getValues()));
+          } else {
+            throw new MolgenisException("Invalid filter for file");
           }
         }
-      } else {
-        conditions.add(
-            whereColumnOperator(tableAlias, column, filters.getOperator(), filters.getValues()));
       }
     }
     return conditions.isEmpty() ? null : and(conditions);
   }
 
   private Condition whereColumnOperator(
-      String tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
-    Name columnName = name(alias(tableAlias), column.getName());
-    ColumnType columnType = column.getColumnType();
+      String tableAlias,
+      QueryField queryField,
+      org.molgenis.emx2.Operator operator,
+      Object[] values) {
+    Name qualifiedName = name(alias(tableAlias), queryField.name());
+    ColumnType columnType = queryField.type();
     if (!List.of(columnType.getOperators()).contains(operator)) {
       throw new MolgenisException(
           "Operator="
@@ -1223,7 +1246,7 @@ public class SqlQuery extends QueryBean {
               + ". Condition: "
               + tableAlias
               + "."
-              + column.getName()
+              + queryField.name()
               + " "
               + operator
               + " "
@@ -1245,46 +1268,48 @@ public class SqlQuery extends QueryBean {
     }
     switch (operator) {
       case MATCH_ANY, EQUALS: // equals to be deprecated for ref columns,
-        return whereContainsAnyOrEquals(tableAlias, columnName, column, values);
+        return whereContainsAnyOrEquals(tableAlias, qualifiedName, queryField, values);
       case NOT_EQUALS: // non_equals to be deprecated for ref columns,
         return or(
-            whereColumnIsNullOrNotNull(tableAlias, columnName, column, new Boolean[] {true}),
-            not(whereContainsAnyOrEquals(tableAlias, columnName, column, values)));
+            whereColumnIsNullOrNotNull(tableAlias, qualifiedName, queryField, new Boolean[] {true}),
+            not(whereContainsAnyOrEquals(tableAlias, qualifiedName, queryField, values)));
       case MATCH_ALL:
-        return whereColumnContainsAll(tableAlias, columnName, column, values);
+        return whereColumnContainsAll(tableAlias, qualifiedName, queryField, values);
       case IS_NULL:
-        return whereColumnIsNullOrNotNull(tableAlias, columnName, column, values);
+        return whereColumnIsNullOrNotNull(tableAlias, qualifiedName, queryField, values);
       case LIKE:
-        return whereColumnLike(columnName, columnType.isArray(), values);
+        return whereColumnLike(qualifiedName, columnType.isArray(), values);
       case NOT_LIKE:
-        return not(whereColumnLike(columnName, columnType.isArray(), values));
+        return not(whereColumnLike(qualifiedName, columnType.isArray(), values));
       case TRIGRAM_SEARCH:
-        return whereColumnTrigramSearch(columnName, columnType.isArray(), values);
+        return whereColumnTrigramSearch(qualifiedName, columnType.isArray(), values);
       case TEXT_SEARCH:
-        return whereColumnTextSearch(columnName, columnType.isArray(), (String[]) values);
+        return whereColumnTextSearch(qualifiedName, columnType.isArray(), (String[]) values);
       case NOT_BETWEEN:
-        return not(whereColumnBetween(columnName, values));
+        return not(whereColumnBetween(qualifiedName, values));
       case BETWEEN:
-        return whereColumnBetween(columnName, values);
+        return whereColumnBetween(qualifiedName, values);
       case MATCH_ANY_INCLUDING_PARENTS:
-        return whereColumnMatchAnyIncludingParents(column, values);
+        return whereColumnMatchAnyIncludingParents(qualifiedName, queryField.column(), values);
       case SEARCH_INCLUDING_PARENTS:
-        return whereColumnSearchIncludingParents(column, values);
+        return whereColumnSearchIncludingParents(qualifiedName, queryField.column(), values);
       case MATCH_ANY_INCLUDING_CHILDREN:
-        return whereColumnMatchAnyIncludingChildren(column, values);
+        return whereColumnMatchAnyIncludingChildren(qualifiedName, queryField.column(), values);
       case MATCH_PATH:
         return or(
-            whereColumnMatchAnyIncludingParents(column, values),
-            whereColumnMatchAnyIncludingChildren(column, values));
+            whereColumnMatchAnyIncludingParents(qualifiedName, queryField.column(), values),
+            whereColumnMatchAnyIncludingChildren(qualifiedName, queryField.column(), values));
       default:
         throw new MolgenisException("Unknown operator: " + operator);
     }
   }
 
-  private Condition whereColumnMatchAnyIncludingChildren(Column column, Object[] values) {
+  private static Condition whereColumnMatchAnyIncludingChildren(
+      Name qualifiedName, Column column, Object[] values) {
     if (column.isArray()) {
-      return whereColumnInSubquery(
-          column,
+      return condition(
+          "{0} && ARRAY({1})",
+          field(qualifiedName),
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
@@ -1294,7 +1319,7 @@ public class SqlQuery extends QueryBean {
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
-          name(column.getName()),
+          field(qualifiedName),
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
@@ -1304,10 +1329,12 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Condition whereColumnMatchAnyIncludingParents(Column column, Object[] values) {
+  private static Condition whereColumnMatchAnyIncludingParents(
+      Name qualifiedName, Column column, Object[] values) {
     if (column.isArray()) {
-      return whereColumnInSubquery(
-          column,
+      return condition(
+          "{0} && ARRAY({1})",
+          field(qualifiedName),
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
@@ -1317,7 +1344,7 @@ public class SqlQuery extends QueryBean {
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
-          name(column.getName()),
+          field(qualifiedName),
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
@@ -1327,10 +1354,12 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Condition whereColumnSearchIncludingParents(Column column, Object[] values) {
+  private static Condition whereColumnSearchIncludingParents(
+      Name qualifiedName, Column column, Object[] values) {
     if (column.isArray()) {
-      return whereColumnInSubquery(
-          column,
+      return condition(
+          "{0} && ARRAY({1})",
+          field(qualifiedName),
           DSL.select(
               field(
                   "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
@@ -1340,7 +1369,7 @@ public class SqlQuery extends QueryBean {
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
-          name(column.getName()),
+          field(qualifiedName),
           DSL.select(
               field(
                   "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
@@ -1351,7 +1380,7 @@ public class SqlQuery extends QueryBean {
   }
 
   private static @NotNull Condition whereColumnTextSearch(
-      Name columnName, boolean isArray, String[] values) {
+      Name qualifiedName, boolean isArray, String[] values) {
     if (isArray) {
       return or(
           Arrays.stream(values)
@@ -1359,7 +1388,7 @@ public class SqlQuery extends QueryBean {
                   value ->
                       condition(
                           "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE to_tsquery({0}) @@ to_tsvector(v)",
-                          value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)))
+                          value.trim().replaceAll("\\s+", ":* & ") + ":*", field(qualifiedName)))
               .toList());
     } else {
       // NOTE WE ONLY SEARCH ON LONGER STRINGS
@@ -1370,14 +1399,14 @@ public class SqlQuery extends QueryBean {
                       value.length() > 2
                           ? condition(
                               "to_tsquery({0}) @@ to_tsvector({1})",
-                              value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName))
-                          : field(columnName).likeIgnoreCase("%" + value + "%"))
+                              value.trim().replaceAll("\\s+", ":* & ") + ":*", field(qualifiedName))
+                          : field(qualifiedName).likeIgnoreCase("%" + value + "%"))
               .toList());
     }
   }
 
   private static @NotNull Condition whereColumnTrigramSearch(
-      Name columnName, boolean isArray, Object[] values) {
+      Name qualifiedName, boolean isArray, Object[] values) {
     if (isArray) {
       return or(
           Arrays.stream(values)
@@ -1385,7 +1414,7 @@ public class SqlQuery extends QueryBean {
                   value ->
                       condition(
                           "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE word_similarity({0},v) > 0.6",
-                          value, field(columnName)))
+                          value, field(qualifiedName)))
               .toList());
     } else {
       return or(
@@ -1393,15 +1422,16 @@ public class SqlQuery extends QueryBean {
               .map(
                   value ->
                       ((String) value).length() > 2
-                          ? condition("word_similarity({0},{1}) > 0.6", value, field(columnName))
-                          : field(columnName).likeIgnoreCase("%" + value + "%"))
+                          ? condition("word_similarity({0},{1}) > 0.6", value, field(qualifiedName))
+                          : field(qualifiedName).likeIgnoreCase("%" + value + "%"))
               .toList());
     }
   }
 
   private static Condition whereColumnIsNullOrNotNull(
-      String tableAlias, Name columnName, Column columnMetadata, Object[] values) {
-    ColumnType type = columnMetadata.getColumnType().getBaseType();
+      String tableAlias, Name qualifiedName, QueryField queryField, Object[] values) {
+    ColumnType type = queryField.type().getBaseType();
+    Column columnMetadata = queryField.column();
     if (type.isRefback()) {
       // check if any reference (not)exist
       return Boolean.TRUE.equals(values[0])
@@ -1418,35 +1448,37 @@ public class SqlQuery extends QueryBean {
                 .map(ref -> condition(sqlTemplate, field(name(tableAlias, ref.getColumnName()))))
                 .toList());
       } else {
-        return condition(sqlTemplate, field(columnName));
+        return condition(sqlTemplate, field(qualifiedName));
       }
     } else {
       if (Boolean.TRUE.equals(values[0])) {
-        return field(columnName).isNull();
+        return field(qualifiedName).isNull();
       } else {
-        return field(columnName).isNotNull();
+        return field(qualifiedName).isNotNull();
       }
     }
   }
 
   private static @NotNull Condition whereColumnLike(
-      Name columnName, boolean isArray, Object[] values) {
+      Name qualifiedName, boolean isArray, Object[] values) {
     if (isArray) {
       return or(
           Arrays.stream(values)
-              .map(value -> condition("{0} ILIKE ANY({1})", "%" + value + "%", field(columnName)))
+              .map(
+                  value -> condition("{0} ILIKE ANY({1})", "%" + value + "%", field(qualifiedName)))
               .toList());
     } else {
       return or(
           Arrays.stream(values)
-              .map(value -> field(columnName).likeIgnoreCase("%" + value + "%"))
+              .map(value -> field(qualifiedName).likeIgnoreCase("%" + value + "%"))
               .toList());
     }
   }
 
   private static @NotNull Condition whereContainsAnyOrEquals(
-      String tableAlias, Name columnName, Column columnDefinition, Object[] values) {
-    ColumnType type = columnDefinition.getColumnType().getBaseType();
+      String tableAlias, Name qualifiedName, QueryField queryField, Object[] values) {
+    ColumnType type = queryField.type().getBaseType();
+    Column columnDefinition = queryField.column();
     if (type.isRef()) {
       if (columnDefinition.getReferences().size() == 1) {
         return columnDefinition.getJooqField().in(values);
@@ -1462,7 +1494,7 @@ public class SqlQuery extends QueryBean {
       if (columnDefinition.getReferences().size() == 1) {
         return condition(
             "{0} && {1}",
-            field(columnName), getTypedValue(values, columnDefinition.getPrimitiveColumnType()));
+            field(qualifiedName), getTypedValue(values, columnDefinition.getPrimitiveColumnType()));
       } else {
         // when size == 1 then use same as array below
         return exists(
@@ -1496,18 +1528,19 @@ public class SqlQuery extends QueryBean {
                                         tableAlias, columnDefinition, values)))));
       }
     } else if (type.isArray()) {
-      return condition("{0} && {1}", field(columnName), values);
+      return condition("{0} && {1}", field(qualifiedName), values);
     } else {
-      return condition(ANY_SQL, field(columnName), values);
+      return condition(ANY_SQL, field(qualifiedName), values);
     }
   }
 
   private static @NotNull Condition whereColumnContainsAll(
-      String tableAlias, Name columnName, Column columnMetadata, Object[] values) {
-    ColumnType type = columnMetadata.getColumnType().getBaseType();
+      String tableAlias, Name qualifiedName, QueryField queryField, Object[] values) {
+    ColumnType type = queryField.type().getBaseType();
+    Column columnMetadata = queryField.column();
     if (type.isRefArray()) {
       if (columnMetadata.getReferences().size() == 1) {
-        return condition("{0} <@ {1}", values, field(columnName));
+        return condition("{0} <@ {1}", values, field(qualifiedName));
       } else {
         List<Field> compositeKeyFields =
             columnMetadata.getReferences().stream()
@@ -1548,7 +1581,7 @@ public class SqlQuery extends QueryBean {
                 .where(row(compositeKeyFields).notIn(refBackSelect)));
       }
     } else if (type.isArray()) {
-      return condition("{0} <@ {1}", values, field(columnName));
+      return condition("{0} <@ {1}", values, field(qualifiedName));
     } else {
       throw new MolgenisException("Can apply CONTAINS_ALL only to array columns");
     }
@@ -1590,18 +1623,18 @@ public class SqlQuery extends QueryBean {
     return refBackSelect;
   }
 
-  private static Condition whereColumnBetween(Name columnName, Object[] values) {
+  private static Condition whereColumnBetween(Name qualifiedName, Object[] values) {
     List<Condition> conditions = new ArrayList<>();
     for (int i = 0; i < values.length; i++) {
       if (i + 1 > values.length)
         throw new SqlQueryException(
             SqlQuery.QUERY_FAILED + SqlQuery.BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
       if (values[i] != null && values[i + 1] != null) {
-        conditions.add(field(columnName).between(values[i], values[i + 1]));
+        conditions.add(field(qualifiedName).between(values[i], values[i + 1]));
       } else if (values[i] != null && values[i + 1] == null) {
-        conditions.add(field(columnName).greaterOrEqual(values[i]));
+        conditions.add(field(qualifiedName).greaterOrEqual(values[i]));
       } else if (values[i] == null && values[i + 1] != null) {
-        conditions.add(field(columnName).lessOrEqual(values[i + 1]));
+        conditions.add(field(qualifiedName).lessOrEqual(values[i + 1]));
       } else {
         // nothing to do
       }
@@ -1778,47 +1811,123 @@ public class SqlQuery extends QueryBean {
                 .toArray(String[]::new));
   }
 
-  private static Column getColumnByName(TableMetadata table, String columnName) {
-    return getColumnByName(table, columnName, false);
+  /**
+   * A field that can be selected or filtered on in a query. Either a column of the table, or a
+   * field derived from the table's columns: the text search column, a key part of a reference, or
+   * an attribute of a file. Derived fields have no column, so they cannot be mistaken for the
+   * column they derive from.
+   */
+  private record QueryField(String name, ColumnType type, Column column) {
+
+    static QueryField of(Column column) {
+      return new QueryField(column.getName(), column.getColumnType(), column);
+    }
+
+    static QueryField derived(String name, ColumnType type) {
+      return new QueryField(name, type, null);
+    }
+
+    boolean isColumn() {
+      return column != null;
+    }
+
+    String identifier() {
+      return convertToCamelCase(name);
+    }
+
+    @SuppressWarnings("unchecked")
+    DataType<Object> jooqType() {
+      return isColumn() ? column.getJooqType() : toJooqType(type.getBaseType());
+    }
+
+    Field<Object> jooqField() {
+      return field(DSL.name(name), jooqType());
+    }
   }
 
-  private static Column getColumnByName(
-      TableMetadata table, String columnName, boolean isRowQuery) {
-    // is search?
-    if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
-      return new Column(table, searchColumnName(table.getTableName()));
-    }
-    // is scalar column
+  private static final List<String> FILE_ATTRIBUTE_SUFFIXES =
+      List.of("_mimetype", "_filename", "_extension", "_size", "_contents");
+
+  /**
+   * @return the column of this table or its subclasses with the given name
+   * @throws MolgenisException when no such column exists
+   */
+  private static Column getColumnByName(TableMetadata table, String columnName) {
     Column column = table.getColumnByNameIncludingSubclasses(columnName);
-    if (column == null || (isRowQuery && column.isReference())) {
-      // is reference?
-      for (Column c : table.getColumnsIncludingSubclasses()) {
-        if (c.isReference()) {
-          for (Reference ref : c.getReferences()) {
-            // can also request composite reference columns, can only be used on row level queries
-            if (ref.getColumnName().equals(columnName)) {
-              return new Column(table, columnName, true).setType(ref.getPrimitiveType());
-            }
+    if (column == null) {
+      throw unknownColumn(table, columnName);
+    }
+    return column;
+  }
+
+  /** Resolves a column, or else the text search column, a reference key part or file attribute. */
+  private static QueryField getQueryField(TableMetadata table, String name) {
+    if (TEXT_SEARCH_COLUMN_NAME.equals(name)) {
+      return getTextSearchField(table);
+    }
+    Column column = table.getColumnByNameIncludingSubclasses(name);
+    if (column != null) {
+      return QueryField.of(column);
+    }
+    return getReferenceKeyPartField(table, name)
+        .or(() -> getFileAttributeField(table, name))
+        .orElseThrow(() -> unknownColumn(table, name));
+  }
+
+  private static final Set<Operator> ONTOLOGY_OPERATORS =
+      EnumSet.of(
+          MATCH_ANY_INCLUDING_PARENTS,
+          MATCH_ANY_INCLUDING_CHILDREN,
+          MATCH_PATH,
+          SEARCH_INCLUDING_PARENTS);
+
+  /**
+   * As {@link #getQueryField}, but on row level a reference is filtered on its key parts instead.
+   * When a reference has a single key part with the same name as the reference, that key part is
+   * returned instead of the reference. Ontology operators are the exception: they filter on the
+   * term hierarchy, so they need the ontology column itself.
+   */
+  private static QueryField getRowQueryField(TableMetadata table, String name, Operator operator) {
+    Column column = table.getColumnByNameIncludingSubclasses(name);
+    if (column != null && column.isReference() && !ONTOLOGY_OPERATORS.contains(operator)) {
+      return getReferenceKeyPartField(table, name)
+          .or(() -> getFileAttributeField(table, name))
+          .orElseThrow(() -> unknownColumn(table, name));
+    }
+    return getQueryField(table, name);
+  }
+
+  private static QueryField getTextSearchField(TableMetadata table) {
+    return QueryField.derived(searchColumnName(table.getTableName()), ColumnType.STRING);
+  }
+
+  private static Optional<QueryField> getReferenceKeyPartField(TableMetadata table, String name) {
+    for (Column c : table.getColumnsIncludingSubclasses()) {
+      if (c.isReference()) {
+        for (Reference ref : c.getReferences()) {
+          if (ref.getColumnName().equals(name)) {
+            return Optional.of(QueryField.derived(name, ref.getPrimitiveType()));
           }
         }
       }
-      // is file?
-      for (Column c : table.getColumnsIncludingSubclasses()) {
-        if (c.isFile()
-            && columnName.startsWith(c.getName())
-            && (columnName.equals(c.getName())
-                || columnName.endsWith("_mimetype")
-                || columnName.endsWith("_filename")
-                || columnName.endsWith("_extension")
-                || columnName.endsWith("_size")
-                || columnName.endsWith("_contents"))) {
-          return new Column(table, columnName);
-        }
-      }
-      throw new MolgenisException(
-          "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
     }
-    return column;
+    return Optional.empty();
+  }
+
+  private static Optional<QueryField> getFileAttributeField(TableMetadata table, String name) {
+    for (Column c : table.getColumnsIncludingSubclasses()) {
+      if (c.isFile()
+          && name.startsWith(c.getName())
+          && FILE_ATTRIBUTE_SUFFIXES.stream().anyMatch(name::endsWith)) {
+        return Optional.of(QueryField.derived(name, ColumnType.STRING));
+      }
+    }
+    return Optional.empty();
+  }
+
+  private static MolgenisException unknownColumn(TableMetadata table, String columnName) {
+    return new MolgenisException(
+        "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
   }
 
   private Schema getSchema() {

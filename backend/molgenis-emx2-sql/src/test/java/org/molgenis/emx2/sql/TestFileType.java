@@ -40,6 +40,23 @@ public class TestFileType {
   }
 
   @Test
+  void testAggregateAndGroupByOnFileAttributes() {
+    Table documents =
+        schema.create(table("Documents", column("id").setPkey(), column("file").setType(FILE)));
+    documents.insert(new Row("id", 1, "file", getFile()), new Row("id", 2, "file", getFile()));
+
+    String max = schema.query("Documents_agg", s("max", s("file_size"))).retrieveJSON();
+    assertTrue(max.contains("\"file_size\": 37458"), max);
+
+    String groupBy =
+        schema
+            .query("Documents_groupBy", s("count"), s("file_mimetype"), s("_sum", s("file_size")))
+            .retrieveJSON();
+    assertTrue(groupBy.contains("\"file_mimetype\": \"image/png\""), groupBy);
+    assertTrue(groupBy.contains("\"file_size\": 74916"), groupBy);
+  }
+
+  @Test
   public void testBinaryFileWrapper() {
     BinaryFileWrapper w = new BinaryFileWrapper(getFile());
     assertEquals("image/png", w.getMimeType());
