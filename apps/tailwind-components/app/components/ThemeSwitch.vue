@@ -6,7 +6,6 @@ import { TOGGLEABLE_THEMES, useActiveUiTheme } from "../composables/useUiTheme";
 const uiTheme = useActiveUiTheme();
 const activeTheme = useCookie("theme", {
   default: () => {
-    // use the configured light/dark theme setting as default
     if (TOGGLEABLE_THEMES.includes(uiTheme.value)) {
       return uiTheme.value;
     } else if (import.meta.client) {

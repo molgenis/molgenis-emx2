@@ -50,8 +50,6 @@ async function fetchSchemaTheme(
   return cache.value[schema] as string;
 }
 
-// Resolve the theme for the given route (schema theme, falling back to the system theme),
-// store it as the active theme and apply it to the document
 export async function resolveUiTheme(route: RouteLocationNormalizedGeneric) {
   const schema = Array.isArray(route.params.schema)
     ? route.params.schema[0]
