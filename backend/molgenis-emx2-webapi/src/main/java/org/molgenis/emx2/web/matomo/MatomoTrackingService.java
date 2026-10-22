@@ -12,7 +12,7 @@ import org.matomo.java.tracking.MatomoTracker;
 import org.matomo.java.tracking.TrackerConfiguration;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
-public class MatomoTrackingService {
+public class MatomoTrackingService implements TrackingService {
 
   private static final String DEFAULT_MATOMO_URL = "http://localhost:8081/";
   private static final int DEFAULT_MATOMO_SITE_ID = 1;
@@ -35,7 +35,7 @@ public class MatomoTrackingService {
     return URI.create(matomoUrl.endsWith("/") ? matomoUrl : matomoUrl + "/").resolve("matomo.php");
   }
 
-  public static MatomoTrackingService fromEnvironment() {
+  public static TrackingService fromEnvironment() {
     String url =
         (String) EnvironmentProperty.getParameter(MATOMO_URL_ENV, DEFAULT_MATOMO_URL, STRING);
     int siteId =
@@ -43,6 +43,7 @@ public class MatomoTrackingService {
     return new MatomoTrackingService(url, siteId);
   }
 
+  @Override
   public void track(Context ctx) {
     if (RequestClassifier.isAiChatBotRequest(ctx)) {
       tracker.sendRequestAsync(
