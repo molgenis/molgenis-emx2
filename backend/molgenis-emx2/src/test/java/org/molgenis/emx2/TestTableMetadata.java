@@ -192,6 +192,68 @@ class TestTableMetadata {
   }
 
   @Test
+  void rowLabelTemplateForSingleColumnKey() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(table("Resources", column("id").setType(ColumnType.STRING).setKey(1)));
+
+    assertEquals("${id}", schema.getTableMetadata("Resources").getRowLabelTemplate());
+  }
+
+  @Test
+  void rowLabelTemplateForCompositeKeyIncludingReference() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(table("Resources", column("id").setType(ColumnType.STRING).setKey(1)));
+    schema.create(
+        table(
+            "Contacts",
+            column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1),
+            column("name").setType(ColumnType.STRING).setKey(1)));
+
+    assertEquals(
+        "${resource.id} ${name}", schema.getTableMetadata("Contacts").getRowLabelTemplate());
+  }
+
+  @Test
+  void rowLabelTemplateForKeyReferenceInSchemaWithoutName() {
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.create(table("Resources", column("id").setType(ColumnType.STRING).setKey(1)));
+    schema.create(
+        table(
+            "Contacts",
+            column("resource").setType(ColumnType.REF).setRefTable("Resources").setKey(1),
+            column("name").setType(ColumnType.STRING).setKey(1)));
+
+    assertEquals(
+        "${resource.id} ${name}", schema.getTableMetadata("Contacts").getRowLabelTemplate());
+  }
+
+  @Test
+  void rowLabelTemplateForKeyReferenceThatCannotBeResolvedThrows() {
+    SchemaMetadata schema = new SchemaMetadata();
+    schema.create(
+        table(
+            "Contacts",
+            column("resource")
+                .setType(ColumnType.REF)
+                .setRefSchemaName("Other")
+                .setRefTable("Resources")
+                .setKey(1),
+            column("name").setType(ColumnType.STRING).setKey(1)));
+
+    TableMetadata contacts = schema.getTableMetadata("Contacts");
+
+    assertThrows(MolgenisException.class, contacts::getRowLabelTemplate);
+  }
+
+  @Test
+  void rowLabelTemplateForTableWithoutPrimaryKeyIsEmpty() {
+    SchemaMetadata schema = new SchemaMetadata("Schema");
+    schema.create(table("Notes", column("text")));
+
+    assertEquals("", schema.getTableMetadata("Notes").getRowLabelTemplate());
+  }
+
+  @Test
   void detachedTableRequireInheritedTableThrowsMolgenisExceptionNotNpe() {
     TableMetadata detached = table("Employee").setInheritName("Contact");
 

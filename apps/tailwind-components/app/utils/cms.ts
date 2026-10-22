@@ -23,7 +23,11 @@ import {
   AddColumnChart,
   AddFile,
   AddFileList,
+  AddButton,
 } from "./cms/add";
+
+export const actionsToolbarShowDelay = 200;
+export const actionsToolbarHideDelay = 300;
 
 import { deleteChartData } from "./cms/delete";
 
@@ -500,6 +504,10 @@ export async function addComponent(
 
   if (componentType === "ColumnCharts") {
     await AddColumnChart(schema, id);
+  }
+
+  if (componentType === "Buttons") {
+    await AddButton(schema, id);
   }
 
   await AddOrder(schema, id, order, parentBlock);
