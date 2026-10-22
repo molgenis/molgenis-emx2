@@ -636,11 +636,15 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private static DataFetcher<?> truncateFetcher(Schema schema, TaskService taskService) {
-    return dataFetchingEnvironment -> {
-      List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-      boolean async = dataFetchingEnvironment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
+    return environment -> {
+      List<String> tables = environment.getArgument(GraphqlConstants.TABLES);
+      boolean async = environment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
       GraphqlApiMutationResult result =
           new GraphqlApiMutationResult(SUCCESS, "Truncated tables: " + String.join(", ", tables));
+
+      if (async && GraphqlTransactionalMutationStrategy.isCombinedWithOtherMutations(environment)) {
+        throw new GraphqlException("Async truncate cannot be combined with other mutations");
+      }
 
       if (async) {
         Task task =
@@ -663,7 +667,9 @@ public class GraphqlSchemaFieldFactory {
         String id = taskService.submit(task);
         result.setTaskId(id);
       } else {
-        truncateTables(schema, tables);
+        Schema transcationalSchema =
+            GraphqlTransactionalMutationStrategy.currentSchema(environment, schema);
+        truncateTables(transcationalSchema, tables);
       }
       return result;
     };
@@ -1036,7 +1042,7 @@ public class GraphqlSchemaFieldFactory {
 
   public GraphQLFieldDefinition.Builder truncateMutation(Schema schema, TaskService taskService) {
     return GraphQLFieldDefinition.newFieldDefinition()
-        .name("truncate")
+        .name(TRUNCATE)
         .dataFetcher(truncateFetcher(schema, taskService))
         .type(typeForMutationResult)
         .argument(
