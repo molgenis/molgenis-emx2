@@ -275,7 +275,7 @@ public class GraphqlDatabaseFieldFactory {
                   .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(Constants.ROLE)
+                  .name(Constants.ROLES)
                   .type(GraphQLNonNull.nonNull(Scalars.GraphQLString)))
           .build();
 
@@ -289,9 +289,7 @@ public class GraphqlDatabaseFieldFactory {
                 .name(SETTINGS)
                 .type(GraphQLList.list(inputDropSettingType)))
         .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.ROLE)
-                .type(GraphQLList.list(inputDropRoleType)))
+            GraphQLArgument.newArgument().name(ROLES).type(GraphQLList.list(inputDropRoleType)))
         .dataFetcher(
             dataFetchingEnvironment -> {
               StringBuilder messageBuilder = new StringBuilder();
@@ -302,7 +300,7 @@ public class GraphqlDatabaseFieldFactory {
                       dropSettings(
                           db, dataFetchingEnvironment.getArgument(SETTINGS), messageBuilder);
                       dropRoles(
-                          db, dataFetchingEnvironment.getArgument(Constants.ROLE), messageBuilder);
+                          db, dataFetchingEnvironment.getArgument(Constants.ROLES), messageBuilder);
                     } catch (Exception e) {
                       throw new GraphqlException("change failed", e);
                     }
@@ -334,7 +332,7 @@ public class GraphqlDatabaseFieldFactory {
     if (roleList != null) {
       for (Map<String, String> roleAsMap : roleList) {
         String schemaName = roleAsMap.get(SCHEMA_ID);
-        String roleName = roleAsMap.get(Constants.ROLE);
+        String roleName = roleAsMap.get(ROLES);
         Schema schema = database.getSchema(schemaName);
         if (schema == null) {
           throw new MolgenisException("Schema '" + schemaName + "' does not exist");
