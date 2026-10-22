@@ -3,17 +3,13 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.*;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.ColumnType.TEXT;
-import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
 import static org.molgenis.emx2.Order.ASC;
-import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 
-import java.util.List;
 import java.util.Map;
 import org.jooq.*;
 import org.jooq.Record;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.ColumnType;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.Reference;
 import org.molgenis.emx2.SelectColumn;
@@ -31,7 +27,7 @@ class SqlQueryBuilderHelpers {
       SelectConnectByStep<org.jooq.Record> query,
       String tableAlias) {
     for (Map.Entry<String, Order> orderEntry : select.getOrderBy().entrySet()) {
-      Column column = getColumnByName(table, orderEntry.getKey());
+      Column column = table.getQueryColumn(orderEntry.getKey());
       query = setOrderByForColumn(column, orderEntry.getValue(), query, tableAlias);
     }
     return query;
@@ -62,43 +58,6 @@ class SqlQueryBuilderHelpers {
             : field;
     final SortField<?> sortField = ASC.equals(order) ? collatedField.asc() : collatedField.desc();
     return (SelectJoinStep<org.jooq.Record>) query.orderBy(sortField);
-  }
-
-  static Column getColumnByName(TableMetadata table, String columnName) {
-    // is search?
-    if (TEXT_SEARCH_COLUMN_NAME.equals(columnName)) {
-      return new Column(table, searchColumnName(table.getTableName()));
-    }
-    // is scalar column
-    Column column = table.getColumn(columnName);
-    if (column == null) {
-      // is reference?
-      final List<Column> columns = table.getColumns();
-      for (Column c : columns) {
-        for (Reference ref : c.getReferences()) {
-          // can also request composite reference columns, can only be used on row level queries
-          if (ref.getColumnName().equals(columnName)) {
-            return new Column(table, columnName, true).setType(ref.getPrimitiveType());
-          }
-        }
-      }
-      // is file?
-      for (Column c : columns) {
-        if (c.isFile()
-            && columnName.startsWith(c.getName())
-            && (columnName.equals(c.getName())
-                || columnName.endsWith("_mimetype")
-                || columnName.endsWith("_filename")
-                || columnName.endsWith("_extension")
-                || columnName.endsWith("_size")
-                || columnName.endsWith("_contents"))) {
-          return new Column(table, columnName);
-        }
-      }
-      throw new MolgenisException(
-          "Query failed: Column '" + columnName + "' is unknown in table " + table.getTableName());
-    }
-    return column;
   }
 
   static boolean isCaseSensitiveField(Column column) {
