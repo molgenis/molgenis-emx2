@@ -22,7 +22,7 @@ function mountDownloadRows(filters: UseFilters | null) {
 function findField(wrapper: ReturnType<typeof mountDownloadRows>, id: string) {
   return wrapper
     .findAllComponents(Field)
-    .find((field) => field.props("id") === id)!;
+    .find((field) => field.props("id") === id);
 }
 
 function lastHref(wrapper: ReturnType<typeof mountDownloadRows>) {
@@ -35,10 +35,8 @@ describe("table/control/DownloadRows.vue", () => {
     const wrapper = mountDownloadRows(mockFilters({ _search: "pooky" }));
 
     expect(
-      findField(wrapper, "apply-filter-to-download-boolean-input").props(
-        "disabled"
-      )
-    ).toBe(false);
+      findField(wrapper, "apply-filter-to-download-boolean-input")
+    ).toBeDefined();
     const href = new URL(lastHref(wrapper), "http://localhost");
     expect(JSON.parse(href.searchParams.get("filter")!)).toEqual({
       _search: "pooky",
@@ -48,28 +46,24 @@ describe("table/control/DownloadRows.vue", () => {
   it("does not apply the filter to formats that do not support it", async () => {
     const wrapper = mountDownloadRows(mockFilters({ _search: "pooky" }));
 
-    findField(wrapper, "download-radio-input-group").vm.$emit(
+    findField(wrapper, "download-radio-input-group")!.vm.$emit(
       "update:modelValue",
       "zip"
     );
     await nextTick();
 
     expect(
-      findField(wrapper, "apply-filter-to-download-boolean-input").props(
-        "disabled"
-      )
-    ).toBe(true);
+      findField(wrapper, "apply-filter-to-download-boolean-input")
+    ).toBeUndefined();
     expect(lastHref(wrapper)).toBe("/pet store/api/zip/Pet");
   });
 
-  it("disables filter inclusion when the generated filter is empty", () => {
+  it("hides filter inclusion when the generated filter is empty", () => {
     const wrapper = mountDownloadRows(mockFilters({}));
 
     expect(
-      findField(wrapper, "apply-filter-to-download-boolean-input").props(
-        "disabled"
-      )
-    ).toBe(true);
+      findField(wrapper, "apply-filter-to-download-boolean-input")
+    ).toBeUndefined();
     expect(lastHref(wrapper)).toBe("/pet store/api/csv/Pet");
   });
 });

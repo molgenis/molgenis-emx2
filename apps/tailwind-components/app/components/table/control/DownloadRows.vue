@@ -113,32 +113,34 @@ watch(
     <fieldset id="download-options" class="flex flex-col gap-4">
       <legend class="sr-only">Download options</legend>
       <Field
-        id="apply-filter-to-download-boolean-input"
-        label="Filters"
-        description="If enabled, the active filters and search term will be applied to the download."
-        v-model="applyFilterToDownload"
-        type="BOOL"
-        :disabled="!isFilterInclusionEnabled"
-        :showClearButton="false"
-      />
-
-      <Field
-        id="apply-column-selection-to-download-boolean-input"
-        label="Column selection"
-        description="If enabled, only the columns currently visible in the table will be included in the download."
-        v-model="applyColumnSelectionToDownload"
-        type="BOOL"
-        :disabled="!isColumnFilterActive"
-        :showClearButton="false"
-      />
-
-      <Field
+        v-if="isRowSelectionActive"
         id="apply-row-selection-to-download-boolean-input"
         label="Selected rows"
         description="If enabled, only the rows currently selected in the table will be included in the download."
         v-model="applyRowSelectionToDownload"
         type="BOOL"
-        :disabled="!isRowSelectionActive"
+        align="horizontal"
+        :showClearButton="false"
+      />
+      <Field
+        v-if="isFilterInclusionEnabled"
+        id="apply-filter-to-download-boolean-input"
+        label="Filters"
+        description="If enabled, the active filters and search term will be applied to the download."
+        v-model="applyFilterToDownload"
+        type="BOOL"
+        align="horizontal"
+        :showClearButton="false"
+      />
+
+      <Field
+        v-if="isColumnFilterActive"
+        id="apply-column-selection-to-download-boolean-input"
+        label="Column selection"
+        description="If enabled, only the columns currently visible in the table will be included in the download."
+        v-model="applyColumnSelectionToDownload"
+        type="BOOL"
+        align="horizontal"
         :showClearButton="false"
       />
     </fieldset>
@@ -148,7 +150,7 @@ watch(
         Download link
       </span>
       <div
-        class="flex items-center gap-2 w-full h-input pl-3 pr-1 rounded-alt bg-input text-input"
+        class="flex items-center gap-1 w-full h-input pl-3 pr-1 rounded-alt text-input"
       >
         <a
           :href="downloadHref"
@@ -163,7 +165,6 @@ watch(
           id="download-link-copy-button"
           class="shrink-0"
           type="inline"
-          size="small"
           :icon-only="true"
           :icon="isCopied ? 'check' : 'content-copy'"
           :label="isCopied ? 'Copied' : 'Copy download link'"
