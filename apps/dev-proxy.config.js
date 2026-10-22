@@ -30,6 +30,10 @@ module.exports = {
     target: HOST,
     ...opts,
   },
+  "^/[a-zA-Z0-9_.%-]+/api/(csv|excel|zip|json|yaml|ttl|jsonld)": {
+    target: HOST,
+    ...opts,
+  },
   "/api": {
     target: `${HOST}/api`,
     ...opts,
