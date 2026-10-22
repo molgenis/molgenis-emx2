@@ -13,7 +13,6 @@ import graphql.execution.AsyncSerialExecutionStrategy;
 import graphql.execution.ExecutionContext;
 import graphql.execution.ExecutionStrategyParameters;
 import graphql.execution.MergedField;
-import graphql.language.Field;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +25,7 @@ class GraphqlTransactionalMutationStrategy extends AsyncSerialExecutionStrategy 
 
   private static final Set<String> DATA_MUTATIONS = Set.of(TRUNCATE, INSERT, SAVE, UPDATE, DELETE);
   private static final String INTROSPECTION_PREFIX = "__";
+  private static final String MUTATION_FIELD_COUNT = "mutationFieldCount";
 
   private final Schema schema;
 
@@ -39,14 +39,7 @@ class GraphqlTransactionalMutationStrategy extends AsyncSerialExecutionStrategy 
   }
 
   static boolean isCombinedWithOtherMutations(DataFetchingEnvironment environment) {
-    return environment
-            .getOperationDefinition()
-            .getSelectionSet()
-            .getSelectionsOfType(Field.class)
-            .stream()
-            .filter(field -> !field.getName().startsWith(INTROSPECTION_PREFIX))
-            .count()
-        > 1;
+    return environment.getGraphQlContext().<Integer>getOrDefault(MUTATION_FIELD_COUNT, 1) > 1;
   }
 
   @Override
@@ -64,6 +57,7 @@ class GraphqlTransactionalMutationStrategy extends AsyncSerialExecutionStrategy 
               "Data mutations (truncate, insert, save, update, delete) cannot be combined with other mutations: "
                   + String.join(", ", otherMutations)));
     }
+    context.getGraphQLContext().put(MUTATION_FIELD_COUNT, fieldNames.size());
     AtomicReference<ExecutionResult> result = new AtomicReference<>();
     try {
       schema

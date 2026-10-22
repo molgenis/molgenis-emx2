@@ -372,6 +372,58 @@ class TestGraphqlMutationTransaction {
   }
 
   @Test
+  void asyncTruncateCombinedWithOtherMutationInFragmentIsRejected() {
+    book.insert(row("title", "the hobbit"));
+
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    """
+                    mutation {
+                      truncate(tables: ["Book"], async: true) { message }
+                      ...insertAuthor
+                    }
+                    fragment insertAuthor on Save {
+                      insert(Author: { name: "tolkien", country: "uk" }) { message }
+                    }
+                    """));
+    assertEquals("Async truncate cannot be combined with other mutations", exception.getMessage());
+
+    CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+    CompareTools.assertEquals(
+        List.of(row("title", "the hobbit", "author", null)), book.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
+  void dataMutationCombinedWithOtherMutationInFragmentsIsRejected() {
+    MolgenisException exception =
+        assertThrows(
+            MolgenisException.class,
+            () ->
+                execute(
+                    """
+                    mutation {
+                      insert(Author: { name: "tolkien", country: "uk" }) { message }
+                      ...signin
+                      ... on Save {
+                        change(settings: [{ key: "transaction.test", value: "rejected" }]) { message }
+                      }
+                    }
+                    fragment signin on Save {
+                      signin(email: "nobody", password: "nothing") { message }
+                    }
+                    """));
+    assertEquals(
+        "Data mutations (truncate, insert, save, update, delete) cannot be combined with other mutations: signin, change",
+        exception.getMessage());
+
+    assertNull(reloadedSchema().getMetadata().getSetting("transaction.test"));
+    CompareTools.assertEquals(List.of(), author.retrieveRows(EXCLUDE_MG_COLUMNS));
+  }
+
+  @Test
   void fieldsAfterFailingFieldAreSkipped() {
     MolgenisException exception =
         assertThrows(
