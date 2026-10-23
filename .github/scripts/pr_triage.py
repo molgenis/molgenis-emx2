@@ -1,4 +1,5 @@
-"""Decides what to do with a pull request on open/reopen, and does the
+"""Decides what to do with a pull request on open, a draft/ready flip, a
+reopen or a body edit, and does the
 writes: main(), the event handlers, the apply/orchestration functions that
 mix a decision with I/O, and the step summary.
 
