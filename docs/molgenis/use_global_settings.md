@@ -74,6 +74,21 @@ or just hook into the tailwind system:
 </div>
 ```
 
+#### Theme
+Set the theme of the ui app with the optional UI_THEME setting:
+
+- key: ```UI_THEME```
+- value: the name of the theme, for example ```molgenis```, ```umcg```, ```aumc```, ```hdsu```, ```uncan-connect```, ```light``` or ```dark```
+
+If not set or an empty string, the default theme is used and users can switch between light and dark mode.
+
+If set to ```light``` or ```dark```, that mode is used as the default and users can still switch between light and dark mode.
+
+If set to any other theme, that theme is always used and the light/dark theme switch is hidden.
+
+The theme can be overridden per database with the ```SCHEMA_UI_THEME``` database setting.
+The theme is fetched once when the app is loaded, so changes take effect after reloading the page.
+
 
 ## User management
 
