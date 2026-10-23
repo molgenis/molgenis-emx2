@@ -36,7 +36,6 @@ onlyBuiltDependencies:
 
 overrides:
   "@vitest/mocker@>=2.1.0-beta.7 <4.1.12": ">=4.1.12"
-  "@vue/server-renderer@<3.5.42": ">=3.5.42"
   brace-expansion@<5.0.12: ">=5.0.12"
   cookie@<0.7.0: ">=0.7.0"
   devalue@<=5.9.2: ">=5.9.3"
@@ -51,7 +50,6 @@ overrides:
   postcss@<=8.5.22: ">=8.5.23"
   qs@>=2.2.5 <6.16.0: ">=6.16.0"
   sanitize-html@<2.18.0: ">=2.18.0"
-  sanitize-html@>=2.17.7 <2.18.0: ">=2.18.0"
   seroval@<=1.6.2: ">=1.6.3"
   shell-quote@>=1.8.4 <1.11.0: ">=1.11.0"
   simple-git@>=3.15.0 <4.0.1: ">=4.0.1"

@@ -6,7 +6,6 @@ settings:
 
 overrides:
   '@vitest/mocker@>=2.1.0-beta.7 <4.1.12': '>=4.1.12'
-  '@vue/server-renderer@<3.5.42': '>=3.5.42'
   brace-expansion@<5.0.12: '>=5.0.12'
   cookie@<0.7.0: '>=0.7.0'
   devalue@<=5.9.2: '>=5.9.3'
@@ -21,7 +20,6 @@ overrides:
   postcss@<=8.5.22: '>=8.5.23'
   qs@>=2.2.5 <6.16.0: '>=6.16.0'
   sanitize-html@<2.18.0: '>=2.18.0'
-  sanitize-html@>=2.17.7 <2.18.0: '>=2.18.0'
   seroval@<=1.6.2: '>=1.6.3'
   shell-quote@>=1.8.4 <1.11.0: '>=1.11.0'
   simple-git@>=3.15.0 <4.0.1: '>=4.0.1'
@@ -3627,6 +3625,14 @@ packages:
 
   '@vue/runtime-dom@3.5.42':
     resolution: {integrity: sha512-rsCmhiWLaRxGltLwhlCWyYkFn7WAbKRh0q17eZ1A6Dq6eqc2ACQ61IIryxz0LrsvCzHSilLA9JHovVwM8CNE2g==}
+
+  '@vue/server-renderer@3.5.22':
+    resolution: {integrity: sha512-gXjo+ao0oHYTSswF+a3KRHZ1WszxIqO7u6XwNHqcqb9JfyIL/pbWrrh/xLv7jeDqla9u+LK7yfZKHih1e1RKAQ==}
+    peerDependencies:
+      vue: 3.5.22
+
+  '@vue/server-renderer@3.5.41':
+    resolution: {integrity: sha512-n6hx/pNFfbD6SuyeuMVkvqox8bwf/ET9JlA/kAz/imw8sw++wkqKe2mHX5KutjPpbKE4Z56yTHszoOjGMI9igQ==}
 
   '@vue/server-renderer@3.5.42':
     resolution: {integrity: sha512-2++5dUyYS4gvo7xQXSECUDhB7TS0aOl5SeVfC5qSq1Jgfhjvegw1zqhwTIR3imZ+QYPJQw9gfcFvXGAjGZ7ajQ==}
@@ -10257,7 +10263,7 @@ snapshots:
       '@nuxt/devalue': 2.0.2
       '@nuxt/kit': 4.5.1(magic-string@1.2.2)(magicast@0.5.4)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@8.2.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.8.4)))
       '@unhead/vue': 3.3.2(@oxc-project/types@0.146.0)(esbuild@0.28.2)(lightningcss@1.33.0)(rolldown@1.2.5)(rollup@4.62.4)(vite@8.2.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.8.4))(vue@3.5.41(typescript@5.9.2))
-      '@vue/shared': 3.5.41
+      '@vue/shared': 3.5.42
       consola: 3.4.2
       defu: 6.1.7
       destr: 2.0.5
@@ -10343,7 +10349,7 @@ snapshots:
       '@nuxt/devalue': 2.0.2
       '@nuxt/kit': 4.5.1(magic-string@1.2.2)(magicast@0.5.4)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@8.2.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0)))
       '@unhead/vue': 3.3.2(@oxc-project/types@0.146.0)(esbuild@0.28.2)(lightningcss@1.33.0)(rolldown@1.2.5)(rollup@4.62.4)(vite@8.2.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0))(vue@3.5.41(typescript@5.9.2))
-      '@vue/shared': 3.5.41
+      '@vue/shared': 3.5.42
       consola: 3.4.2
       defu: 6.1.7
       destr: 2.0.5
@@ -10429,7 +10435,7 @@ snapshots:
       '@nuxt/devalue': 2.0.2
       '@nuxt/kit': 4.5.1(magic-string@1.2.2)(magicast@0.5.4)(rolldown@1.2.5)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.5)(rollup@4.62.4)(vite@8.2.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0)))
       '@unhead/vue': 3.3.2(@oxc-project/types@0.146.0)(esbuild@0.28.2)(lightningcss@1.33.0)(rolldown@1.2.5)(rollup@4.62.4)(vite@8.2.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.70.0)(terser@5.50.0)(yaml@2.9.0))(vue@3.5.41(typescript@5.9.2))
-      '@vue/shared': 3.5.41
+      '@vue/shared': 3.5.42
       consola: 3.4.2
       defu: 6.1.7
       destr: 2.0.5
@@ -10512,7 +10518,7 @@ snapshots:
 
   '@nuxt/schema@4.5.1':
     dependencies:
-      '@vue/shared': 3.5.41
+      '@vue/shared': 3.5.42
       defu: 6.1.7
       nostics: 1.2.0
       pathe: 2.0.3
@@ -11998,7 +12004,7 @@ snapshots:
       '@babel/types': 7.29.8
       '@vue/babel-helper-vue-transform-on': 2.0.1
       '@vue/babel-plugin-resolve-type': 2.0.1(@babel/core@7.29.7)
-      '@vue/shared': 3.5.41
+      '@vue/shared': 3.5.42
     optionalDependencies:
       '@babel/core': 7.29.7
     transitivePeerDependencies:
@@ -12135,8 +12141,8 @@ snapshots:
   '@vue/language-core@3.3.10':
     dependencies:
       '@volar/language-core': 2.4.28
-      '@vue/compiler-dom': 3.5.41
-      '@vue/shared': 3.5.41
+      '@vue/compiler-dom': 3.5.42
+      '@vue/shared': 3.5.42
       alien-signals: 3.2.1
       muggle-string: 0.4.1
       path-browserify: 1.0.1
@@ -12145,8 +12151,8 @@ snapshots:
   '@vue/language-core@3.3.5':
     dependencies:
       '@volar/language-core': 2.4.28
-      '@vue/compiler-dom': 3.5.41
-      '@vue/shared': 3.5.41
+      '@vue/compiler-dom': 3.5.42
+      '@vue/shared': 3.5.42
       alien-signals: 3.2.1
       muggle-string: 0.4.1
       path-browserify: 1.0.1
@@ -12199,6 +12205,18 @@ snapshots:
       '@vue/runtime-core': 3.5.42
       '@vue/shared': 3.5.42
       csstype: 3.2.3
+
+  '@vue/server-renderer@3.5.22(vue@3.5.22(typescript@5.9.2))':
+    dependencies:
+      '@vue/compiler-ssr': 3.5.22
+      '@vue/shared': 3.5.22
+      vue: 3.5.22(typescript@5.9.2)
+
+  '@vue/server-renderer@3.5.41':
+    dependencies:
+      '@vue/compiler-ssr': 3.5.41
+      '@vue/runtime-dom': 3.5.41
+      '@vue/shared': 3.5.41
 
   '@vue/server-renderer@3.5.42':
     dependencies:
@@ -18558,7 +18576,7 @@ snapshots:
       '@vue/compiler-dom': 3.5.22
       '@vue/compiler-sfc': 3.5.22
       '@vue/runtime-dom': 3.5.22
-      '@vue/server-renderer': 3.5.42
+      '@vue/server-renderer': 3.5.22(vue@3.5.22(typescript@5.9.2))
       '@vue/shared': 3.5.22
     optionalDependencies:
       typescript: 5.9.2
@@ -18568,7 +18586,7 @@ snapshots:
       '@vue/compiler-dom': 3.5.41
       '@vue/compiler-sfc': 3.5.41
       '@vue/runtime-dom': 3.5.41
-      '@vue/server-renderer': 3.5.42
+      '@vue/server-renderer': 3.5.41
       '@vue/shared': 3.5.41
     optionalDependencies:
       typescript: 5.9.2
