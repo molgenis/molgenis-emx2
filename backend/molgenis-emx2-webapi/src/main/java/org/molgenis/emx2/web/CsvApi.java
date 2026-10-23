@@ -5,6 +5,7 @@ import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFil
 import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
+import static org.molgenis.emx2.web.DownloadApiUtils.requestedColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,6 +31,7 @@ import java.util.function.Consumer;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.io.ImportTableTask;
+import org.molgenis.emx2.io.emx2.DownloadColumns;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.emx2.Emx2Changelog;
 import org.molgenis.emx2.io.emx2.Emx2Members;
@@ -261,11 +263,8 @@ public class CsvApi {
   }
 
   public static List<String> getDownloadColumns(Context ctx, Table table) {
-    boolean includeSystem = includeSystemColumns(ctx);
-    return table.getMetadata().getDownloadColumnNames().stream()
-        .map(Column::getName)
-        .filter(name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystem)
-        .toList();
+    return DownloadColumns.resolve(
+        table.getMetadata(), requestedColumns(ctx), includeSystemColumns(ctx));
   }
 
   static Query getDownloadQuery(Context ctx, Table table) throws JsonProcessingException {
