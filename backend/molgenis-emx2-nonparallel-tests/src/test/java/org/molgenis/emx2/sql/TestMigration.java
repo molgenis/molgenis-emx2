@@ -3,7 +3,11 @@ package org.molgenis.emx2.sql;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
+import static org.molgenis.emx2.ColumnType.FILE;
+import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.Migrations.executeMigrationFile;
 import static org.molgenis.emx2.sql.Migrations.migration5addMgTableclassUpdateTrigger;
@@ -13,7 +17,11 @@ import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.BinaryFileWrapper;
+import org.molgenis.emx2.Change;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 
 public class TestMigration {
@@ -103,5 +111,65 @@ public class TestMigration {
     migration5addMgTableclassUpdateTrigger(database);
 
     executeMigrationFile(database, "migration22.sql", "test migration for deletion of refback");
+  }
+
+  @Test
+  void migration37PointsLegacyTriggerAtSharedAuditFunctionAndDropsOldFunction() {
+    SqlDatabase database = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema("TestMigration37");
+    schema.getMetadata().setSetting(Constants.IS_CHANGELOG_ENABLED, Boolean.TRUE.toString());
+    schema
+        .getMetadata()
+        .create(table("Doc", column("id").setType(INT).setPkey(), column("photo").setType(FILE)));
+    schema.getMetadata().create(table("Doc2", column("id").setType(INT).setPkey()));
+
+    DSLContext jooq = database.getJooq();
+    jooq.execute("DROP INDEX \"TestMigration37\".mg_changelog_stamp_idx");
+    jooq.execute("DROP TRIGGER Doc_audit ON \"TestMigration37\".\"Doc\"");
+    jooq.execute("DROP TRIGGER Doc2_audit ON \"TestMigration37\".\"Doc2\"");
+    jooq.execute(
+        "CREATE FUNCTION \"TestMigration37\".\"process_Doc_audit\"() RETURNS TRIGGER AS $Doc_audit$ "
+            + "BEGIN INSERT INTO \"TestMigration37\".mg_changelog "
+            + "SELECT left(TG_OP, 1), now(), user, TG_TABLE_NAME, row_to_json(OLD.*), row_to_json(NEW.*); "
+            + "RETURN NULL; END; $Doc_audit$ LANGUAGE plpgsql");
+    jooq.execute(
+        "CREATE TRIGGER Doc_audit AFTER INSERT OR UPDATE OR DELETE ON \"TestMigration37\".\"Doc\" "
+            + "FOR EACH ROW EXECUTE FUNCTION \"TestMigration37\".\"process_Doc_audit\"()");
+    jooq.execute(
+        "CREATE TRIGGER Doc2_audit AFTER INSERT OR UPDATE OR DELETE ON \"TestMigration37\".\"Doc2\" "
+            + "FOR EACH ROW EXECUTE FUNCTION \"TestMigration37\".\"process_Doc_audit\"()");
+
+    executeMigrationFile(database, "migration37.sql", "changelog index and shared audit function");
+
+    assertEquals(
+        1,
+        jooq.fetch(
+                "SELECT 1 FROM pg_indexes WHERE schemaname = 'TestMigration37' AND indexname = 'mg_changelog_stamp_idx'")
+            .size());
+    assertEquals(
+        List.of("mg_changelog_audit", "mg_changelog_audit"),
+        jooq.fetch(
+                "SELECT p.proname FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid "
+                    + "JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace "
+                    + "WHERE n.nspname = 'TestMigration37' AND NOT t.tgisinternal "
+                    + "AND t.tgname IN ('doc_audit', 'doc2_audit')")
+            .getValues(0, String.class));
+    assertEquals(
+        0,
+        jooq.fetch(
+                "SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace "
+                    + "WHERE n.nspname = 'TestMigration37' AND p.proname = 'process_Doc_audit'")
+            .size());
+
+    schema
+        .getTable("Doc")
+        .insert(
+            new Row()
+                .setInt("id", 1)
+                .setBinary(
+                    "photo", new BinaryFileWrapper("text/plain", "a.txt", "bytes".getBytes())));
+    Change change = schema.getChanges(10).get(0);
+    assertTrue(change.newRowData().contains("photo_mimetype"));
+    assertFalse(change.newRowData().contains("photo_contents"));
   }
 }
