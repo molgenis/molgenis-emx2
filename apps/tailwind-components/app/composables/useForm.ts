@@ -21,7 +21,6 @@ import { getColumnError } from "../../../molgenis-components/src/components/form
 import { getPrimaryKey } from "../utils/getPrimaryKey";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
 import { useSession } from "./useSession";
-import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -623,7 +622,7 @@ export default function useForm(
   const rowKey = ref<Record<string, columnValue>>({});
 
   async function resetRowKey(): Promise<Record<string, columnValue>> {
-    const resp = await fetchRowPrimaryKey(
+    const resp = await getPrimaryKey(
       values.value,
       metadata.value.id,
       metadata.value.schemaId

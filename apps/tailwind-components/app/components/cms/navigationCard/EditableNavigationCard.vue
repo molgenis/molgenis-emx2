@@ -3,6 +3,10 @@ import { ref } from "vue";
 
 import NavigationCard from "./NavigationCard.vue";
 import ComponentActions from "../ComponentActions.vue";
+import {
+  actionsToolbarShowDelay,
+  actionsToolbarHideDelay,
+} from "../../../utils/cms";
 
 import type { INavigationCards } from "../../../../types/cms";
 
@@ -19,7 +23,7 @@ const showMenu = ref<boolean>(false);
     v-if="isEditable"
     v-model:show="showMenu"
     :popperTriggers="['hover', 'focus']"
-    :delay="{ show: 100, hide: 50 }"
+    :delay="{ show: actionsToolbarShowDelay, hide: actionsToolbarHideDelay }"
     placement="bottom-start"
     noAutoFocus
   >

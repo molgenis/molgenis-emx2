@@ -40,6 +40,10 @@ public class SemanticPrefixes {
           .addColumn(SEMANTIC_PREFIXES_NAME_IRI)
           .build();
 
+  public static boolean hasCustomPrefixes(SchemaMetadata schema) {
+    return schema.getSettings().containsKey(SETTING_SEMANTIC_PREFIXES);
+  }
+
   /**
    * @param schema The schema to retrieve custom semantic prefixes from (if they exist)
    * @return {@code null} if the {@link SchemaMetadata} has no {@link
@@ -48,7 +52,7 @@ public class SemanticPrefixes {
    */
   @Nullable
   private static Set<Namespace> getCustomPrefixes(SchemaMetadata schema) {
-    if (!schema.getSettings().containsKey(SETTING_SEMANTIC_PREFIXES)) {
+    if (!hasCustomPrefixes(schema)) {
       return null;
     }
 

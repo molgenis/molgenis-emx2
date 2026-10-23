@@ -31,9 +31,9 @@ vi.mock("../../../../app/composables/fetchTableData", () => {
   };
 });
 
-vi.mock("../../../../app/composables/fetchRowPrimaryKey", () => {
+vi.mock("../../../../app/utils/getPrimaryKey", () => {
   return {
-    default: async (row: any) => {
+    getPrimaryKey: async (row: any) => {
       return row.id;
     },
   };
