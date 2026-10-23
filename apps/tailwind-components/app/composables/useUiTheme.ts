@@ -51,6 +51,9 @@ async function fetchSchemaTheme(
 }
 
 export async function resolveUiTheme(route: RouteLocationNormalizedGeneric) {
+  const activeTheme = useActiveUiTheme();
+  const resolution = useState<number>("uiThemeResolution", () => 0);
+  const resolutionId = ++resolution.value;
   const schema = Array.isArray(route.params.schema)
     ? route.params.schema[0]
     : route.params.schema;
@@ -61,7 +64,9 @@ export async function resolveUiTheme(route: RouteLocationNormalizedGeneric) {
   ]);
 
   const theme = schemaTheme || systemTheme;
-  const activeTheme = useActiveUiTheme();
+  if (resolutionId !== resolution.value) {
+    return theme;
+  }
   activeTheme.value = theme;
 
   // apply directly so the theme is in place before the page renders,
