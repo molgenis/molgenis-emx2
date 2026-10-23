@@ -65,9 +65,9 @@ const numberOfSelectedRows = computed(() => props.selectedRows?.size || 0);
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(props.rowCount / props.settings.pageSize))
 );
-const columns = computed(() => {
-  return props.sortedVisibleColumns || props.tableMetadata.columns;
-});
+const columns = computed(
+  () => props.sortedVisibleColumns || props.tableMetadata.columns
+);
 
 onMounted(async () => {
   sidebarCollapsed.value = window.matchMedia("(max-width: 1023px)").matches;

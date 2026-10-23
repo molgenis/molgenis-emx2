@@ -762,34 +762,26 @@ watch(
 );
 
 const sortedColumns = computed<IColumn[]>(() => {
-  // sort from backend
-  let sortedColumns = sortColumns([...(columns.value ?? [])]);
+  const backEndSortedColumns = sortColumns(columns.value);
 
   if (settings.value.orderedColumnsIds?.length) {
-    // override visibility with user settings
-    sortedColumns = sortedColumns.map((col) => {
-      return {
-        ...col,
-        // use string instead of boolean for compatibility backend
-        visible: settings.value.orderedColumnsIds.includes(col.id)
-          ? "true"
-          : "false",
-      };
-    });
     // order by user settings
-    sortedColumns.sort((a, b) => {
+    return backEndSortedColumns.sort((a, b) => {
       const indexA = settings.value.orderedColumnsIds?.indexOf(a.id) ?? -1;
       const indexB = settings.value.orderedColumnsIds?.indexOf(b.id) ?? -1;
       return indexA - indexB;
     });
   }
 
-  return sortedColumns;
+  return backEndSortedColumns;
 });
 
-const sortedVisibleColumns = computed<IColumn[]>(() =>
-  sortedColumns.value.filter((col) => col.visible !== "false")
-);
+const sortedVisibleColumns = computed<IColumn[]>(() => {
+  console.log(sortedColumns.value);
+  return sortedColumns.value.filter(
+    (col) => col.visible !== "false" && col.visible
+  );
+});
 
 const numberOfSelectedRows = computed(() => selectedRows.value.size);
 
