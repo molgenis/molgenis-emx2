@@ -34,7 +34,7 @@ async function fetchSchemaTheme(
   route: RouteLocationNormalizedGeneric
 ): Promise<string> {
   const cache = useUiThemeCache();
-  if (!(schema in cache.value)) {
+  if (!Object.prototype.hasOwnProperty.call(cache.value, schema)) {
     try {
       const settings = await useSchemaSettings(
         new Set([SCHEMA_UI_THEME]),
