@@ -148,24 +148,17 @@ test("it should be able to fill out all input types", async ({ page }) => {
     .fill("1337");
 
   // Enum
-  await page
-    .locator('[id="type test-Types-enumType-form-field-input-radio-group"]')
-    .getByText("no", { exact: true })
-    .click();
+  await page.getByRole("combobox", { name: "enum type", exact: true }).click();
+  await page.getByRole("option", { name: "no", exact: true }).click();
 
   // Enum array
   await page
-    .locator(
-      '[id="type test-Types-enumArrayType-form-field-input-checkbox-group"]'
-    )
-    .getByText("red", { exact: true })
+    .getByRole("combobox", { name: "enum array type", exact: true })
     .click();
-  await page
-    .locator(
-      '[id="type test-Types-enumArrayType-form-field-input-checkbox-group"]'
-    )
-    .getByText("blue", { exact: true })
-    .click();
+  for (const name of ["red", "blue"]) {
+    await page.getByRole("option", { name, exact: true }).click();
+  }
+  await page.keyboard.press("Escape");
 
   // Boolean
   await page
