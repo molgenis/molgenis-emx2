@@ -7,7 +7,7 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type { IInputProps } from "../../../types/types";
 import fetchRowData from "../../composables/fetchRowData";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import fetchTableData from "../../composables/fetchTableData";
 import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import Button from "../Button.vue";
@@ -64,7 +64,7 @@ async function reloadItems() {
 
 async function fetchRowDetails(rowIndex: number) {
   if (modelValue.value && modelValue.value[rowIndex]) {
-    const rowKey = await fetchRowPrimaryKey(
+    const rowKey = await getPrimaryKey(
       modelValue.value[rowIndex],
       props.refTableId,
       props.refSchemaId
@@ -85,7 +85,7 @@ const crudRow = ref<Record<string, columnValue> | null>(null);
 
 async function removeRefBackItem(rowIndex: number) {
   if (modelValue.value && modelValue.value[rowIndex]) {
-    const rowKey = await fetchRowPrimaryKey(
+    const rowKey = await getPrimaryKey(
       modelValue.value[rowIndex],
       props.refTableId,
       props.refSchemaId
@@ -113,7 +113,7 @@ function afterRowAdded() {
 
 async function editRefBackItem(rowIndex: number) {
   if (modelValue.value && modelValue.value[rowIndex]) {
-    const rowKey = await fetchRowPrimaryKey(
+    const rowKey = await getPrimaryKey(
       modelValue.value[rowIndex],
       props.refTableId,
       props.refSchemaId

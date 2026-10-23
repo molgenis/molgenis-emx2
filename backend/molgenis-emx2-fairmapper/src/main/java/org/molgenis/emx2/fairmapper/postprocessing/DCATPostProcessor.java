@@ -26,7 +26,7 @@ public class DCATPostProcessor implements PostProcessor {
 
             // Resolve semantic uri of ontologies to their designated names
             new ResolveOntologyPostProcessor(schema, client),
-            new ResolveMissingPkPostProcessor(schema),
+            ResolveMissingPkPostProcessor.lenientMode(schema),
 
             // Drop rows left with an incomplete primary key (e.g. unused Organisations that
             // were never resolved as a reference by another table)

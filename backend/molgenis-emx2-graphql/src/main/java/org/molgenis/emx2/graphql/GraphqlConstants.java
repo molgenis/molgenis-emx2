@@ -25,6 +25,7 @@ public class GraphqlConstants {
   public static final String DESCRIPTIONS = "descriptions";
   public static final String OLD_NAME = "oldName";
   public static final String DROP = "drop";
+  public static final String TRUNCATE = "truncate";
   public static final String SCHEMA_NAME = "schemaName";
   public static final String SCHEMA_ID = "schemaId";
   public static final String INHERIT_NAME = "inheritName";
@@ -66,6 +67,7 @@ public class GraphqlConstants {
   public static final String USER = "user";
   public static final String USERS = "users";
   public static final String ROLES = "roles";
+  public static final String CUSTOM_ROLES = "customRoles";
   public static final String MESSAGE = "message";
   public static final String TOKEN = "token";
   public static final String STATUS = "status";
@@ -93,6 +95,7 @@ public class GraphqlConstants {
   public static final String SELECT = "select";
   public static final String INSERT = "insert";
   public static final String UPDATE = "update";
+  public static final String SAVE = "save";
   public static final String DELETE = "delete";
   public static final String SYSTEM = "system";
   public static final String IS_ROW_LEVEL = "isRowLevel";

@@ -135,7 +135,7 @@ import type {
   IRow,
 } from "../../../../metadata-utils/src/types";
 import fetchColumnValues from "../../composables/fetchColumnValues";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
+import { getPrimaryKey } from "../../utils/getPrimaryKey";
 import useForm, { type UseForm } from "../../composables/useForm";
 import { useSession } from "../../composables/useSession";
 import { errorToMessage } from "../../utils/errorToMessage";
@@ -320,7 +320,7 @@ async function updateAutoIds() {
     (col) => col.columnType === "AUTO_ID"
   );
   if (autoIds.length) {
-    const rowId = await fetchRowPrimaryKey(
+    const rowId = await getPrimaryKey(
       formValues.value,
       tableId.value,
       props.schemaId
