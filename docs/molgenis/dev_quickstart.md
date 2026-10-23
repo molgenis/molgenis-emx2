@@ -168,13 +168,17 @@ To set up connected mode:
 - (requires Ultimate) [Vue.js](https://plugins.jetbrains.com/plugin/9442-vue-js)
   - When developing front-end code, we suggest using VS code instead. 
 
-### VS code
+### VS code plugins (for front-end development)
 
-Some of us also develop using VS code:
+We advise using the following plugins:
+- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+- [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
 
-- It automatically will discover the gradle tasks
-- To enable autoformatting of java using spottless,
-  install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
+Additionally, the following plugins could be beneficial as well:
+- [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)
+- [Playwright Test vor VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright)
+- [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker)
 
 ### Pre-commit hook
 
